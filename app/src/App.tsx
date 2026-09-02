@@ -142,6 +142,7 @@ export default function App() {
       />
       <PlaceList
         places={filteredPlaces}
+        totalCount={hubPlaces.length}
         selectedId={selectedId}
         savedIds={savedIds}
         onSelect={selectPlace}
