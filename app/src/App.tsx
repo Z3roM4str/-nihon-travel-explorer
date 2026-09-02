@@ -220,7 +220,7 @@ export default function App() {
               {activeHub}
             </span>
           </h1>
-          <p className="app__subtitle">{hubPlaces.length} lugares verificados · Fase 1</p>
+          <p className="app__subtitle">{hubPlaces.length} lugares verificados</p>
         </div>
         <button
           type="button"

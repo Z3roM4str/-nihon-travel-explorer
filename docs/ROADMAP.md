@@ -1,42 +1,61 @@
 # Nihon Roadmap
 
-## Phase 0 — foundation
+## Foundation — complete
 
 - [x] Confirm repository and source workbook.
 - [x] Define product scope and first vertical slice.
 - [x] Define application data contract.
-- [ ] Export normalized JSON from the workbook.
-- [ ] Add schema validation and data-quality report.
+- [x] Export normalized JSON from the workbook.
+- [x] Add schema validation and data-quality report (`scripts/validate-dataset.py`).
 
-## Phase 1 — Tokyo explorer
+## Tokyo Explorer — complete
 
-- [ ] Add map shell and hub navigation.
-- [ ] Render Tokyo markers from JSON.
-- [ ] Add category, grade, hidden-gem, and time filters.
-- [ ] Build responsive place-detail drawer.
-- [ ] Add image-slot/gallery component using source-aware assets.
-- [ ] Add saved places state.
+- [x] Add map shell.
+- [x] Render Tokyo markers from JSON.
+- [x] Add category, grade, hidden-gem, and time filters.
+- [x] Build responsive place-detail drawer.
+- [x] Add saved places state.
+- [x] Parse and display duration ranges.
+- [x] Show activity-time totals for saved places, clearly separated from transport time.
+- [x] Add nearby-place suggestions.
 
-## Phase 2 — time intelligence
+## Visual Discovery / Phase 1.5 — complete
 
-- [ ] Parse and display duration ranges.
-- [ ] Show activity-time totals for saved places.
-- [ ] Add recommended planning-block summaries.
-- [ ] Add nearby-cluster suggestions.
-- [ ] Clearly separate activity time from transport time.
+- [x] Add image-slot/gallery component using source-aware assets.
+- [x] Richer place card and free-text search.
 
-## Phase 3 — Japan coverage
+## Phase 2A — data integrity + data-access foundation — complete
 
-- [x] Add Kyoto.
-- [x] Add Osaka/Kansai and excursions.
-- [x] Add Okinawa.
-- [x] Add remaining hubs after validating the data pipeline.
+- [x] Correct the Okinawa/Kyushu region split, the Naoshima region, and the Tokyo
+      Disneyland/DisneySea nearby relation at the source workbook, with CHANGELOG_V2
+      traceability.
+- [x] Version the workbook as the real source of truth (`data/source/`).
+- [x] Replace the non-reproducible exporter with `scripts/export-dataset.py`.
+- [x] Introduce the data-access layer (`app/src/data/store.ts`) and remove the Tokyo
+      structural assumption from the app.
 
-All hubs in the dataset (Tokyo, Kyoto, Osaka, Okinawa, Sapporo, Nagoya, Fukuoka) are
-reachable through the hub selector; see Phase 2B in the project history.
+## Phase 2B — functional multi-hub navigation — complete
 
-## Phase 4 — route candidate builder
+- [x] Hub selector driven by `getHubs()`, keyboard-accessible.
+- [x] Active hub as application state; filters, list, and map re-derive per hub.
+- [x] Saved places resolve globally and open correctly across hubs.
+- [x] Nearby navigation and Back work across hubs.
+- [x] Map bounds fit the active hub's places dynamically.
 
+## Phase 2C — National Explorer — pending
+
+- [ ] National map of Japan.
+- [ ] Regions/prefectures as a browsable layer.
+- [ ] Japan → region → hub navigation.
+- [ ] Real geographic polygons (verified GeoJSON or TopoJSON) for regions/prefectures.
+- [ ] Integration with the multi-hub state already built in Phase 2B.
+
+Every hub is currently reachable as a flat list of tabs (Phase 2B); none of the above —
+national map, region/prefecture layer, or Japan → region → hub navigation — exists yet.
+
+## Later (unscheduled)
+
+- [ ] Recommended planning-block summaries.
 - [ ] Compare selected places by cluster and geography.
 - [ ] Estimate logistical overhead using validated routing data.
 - [ ] Compare candidate city sequences.
