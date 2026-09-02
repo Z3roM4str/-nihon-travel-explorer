@@ -23,12 +23,22 @@ const asNumber = value => {
   return Number.isFinite(number) ? number : null;
 };
 
+// Durations counted in days or nights ("Día completo", "1–2 días") describe how much of a trip a
+// place takes, not minutes spent on site, so they keep only their raw text and stay out of any
+// visit-time sum. Hour ranges may carry decimals ("1.5–2.5 h").
 function parseDuration(raw) {
   const text = String(raw ?? "").trim();
-  const range = text.match(/(\d+)\s*[–-]\s*(\d+)\s*(min|h|hora|horas|día|días)/i);
-  if (!range) return { raw: text || null };
-  const multiplier = /h|hora/i.test(range[3]) ? 60 : /día/i.test(range[3]) ? 1440 : 1;
-  return { raw: text, minMinutes: Number(range[1]) * multiplier, maxMinutes: Number(range[2]) * multiplier };
+  if (!text) return { raw: null };
+  if (/d[ií]as?\b|noches?\b/i.test(text)) return { raw: text };
+  const number = String.raw`\d+(?:[.,]\d+)?`;
+  const range = text.match(new RegExp(`(${number})\\s*[–—-]\\s*(${number})\\s*(min|minutos?|h|horas?)`, "i"));
+  if (!range) return { raw: text };
+  const multiplier = /^h|hora/i.test(range[3]) ? 60 : 1;
+  return {
+    raw: text,
+    minMinutes: Math.round(asNumber(range[1]) * multiplier),
+    maxMinutes: Math.round(asNumber(range[2]) * multiplier),
+  };
 }
 
 function normalizePlace(row) {
