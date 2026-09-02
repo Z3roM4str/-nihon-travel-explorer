@@ -21,7 +21,7 @@ The first vertical slice will use Tokyo, then expand to Kyoto, Osaka/Kansai, Oki
 
 ## Data source
 
-The application is fed by **Nihon — Base Maestra v2**, updated 2026-09-01. The workbook remains the research source of truth; generated JSON is an application build artifact.
+The application is fed by **Nihon — Base Maestra v2** ([`data/source/Nihon-Base-Maestra-v2.xlsx`](data/source/Nihon-Base-Maestra-v2.xlsx)), updated 2026-09-01. The workbook remains the research source of truth; generated JSON (`data/*.json`, copied into `app/src/data/`) is an application build artifact. See [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) for the exact commands to regenerate it.
 
 The dataset intentionally preserves uncertainty and operational warnings, including February–March 2027 closures, pending calendars, reservation requirements, seasonal risks, and official source URLs.
 

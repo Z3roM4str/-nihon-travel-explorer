@@ -347,7 +347,9 @@
     "differentiator": "Une arquitectura contemporánea, antigüedades y paisaje en una visita compacta.",
     "experience": "Arte japonés y asiático en un edificio de Kengo Kuma con jardín privado.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Primavera y otoño",
@@ -478,7 +480,7 @@
     "experience": "Complejo comercial con tiendas oficiales y cultura pop japonesa.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Tarde",
@@ -808,7 +810,7 @@
     "experience": "Red de callejones con cientos de bares minúsculos.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Noche",
@@ -1138,7 +1140,7 @@
     "experience": "Distrito de cuchillos, cerámica, utensilios y comida de plástico.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Tarde",
@@ -1203,7 +1205,9 @@
     "differentiator": "Ningún otro mirador urbano del país alcanza su altura.",
     "experience": "Torre de radiodifusión con dos observatorios a 350 y 450 m.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Atardecer",
     "bestSeason": "Invierno",
@@ -1664,7 +1668,7 @@
     "experience": "Búsqueda de consolas, cartuchos, revistas, figuras y memorabilia retro.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Tarde",
@@ -1861,7 +1865,9 @@
     "differentiator": "Permite entender la topografía política de Tokio.",
     "experience": "Jardines del antiguo Edo Castle dentro del recinto imperial.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Primavera y otoño",
@@ -1991,7 +1997,9 @@
     "differentiator": "La marea de la bahía altera el paisaje interior.",
     "experience": "Jardín daimyō con estanque mareal y casa de té.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Colza, peonías y otoño",
@@ -2122,7 +2130,7 @@
     "experience": "Museo sin mapa de instalaciones audiovisuales interconectadas.",
     "duration": {
       "raw": "2.5–4 h",
-      "minMinutes": 300,
+      "minMinutes": 150,
       "maxMinutes": 240
     },
     "bestTime": "Mañana",
@@ -2188,7 +2196,7 @@
     "experience": "Museo en altura con observatorio en Roppongi Hills.",
     "duration": {
       "raw": "2.5–4 h",
-      "minMinutes": 300,
+      "minMinutes": 150,
       "maxMinutes": 240
     },
     "bestTime": "Atardecer",
@@ -2254,7 +2262,7 @@
     "experience": "Museo de Kisho Kurokawa con gran fachada ondulante.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Tarde",
@@ -2584,7 +2592,7 @@
     "experience": "Museo interactivo nacional de ciencia emergente e innovación.",
     "duration": {
       "raw": "2.5–4 h",
-      "minMinutes": 300,
+      "minMinutes": 150,
       "maxMinutes": 240
     },
     "bestTime": "Tarde",
@@ -2716,7 +2724,7 @@
     "experience": "Playa urbana, paseo marítimo y vistas del puente iluminado.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Atardecer",
@@ -3469,7 +3477,9 @@
     "differentiator": "La ciudad se descubre desde una arquitectura integrada al bosque.",
     "experience": "Gran templo de madera sobre la ladera oriental.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Sakura y otoño; bueno todo el año",
@@ -3731,7 +3741,9 @@
     "differentiator": "Ofrece interior, arte y contemplación, no solo una fachada.",
     "experience": "Templo zen con dragones pintados, biombos y jardines secos.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -3927,7 +3939,9 @@
     "differentiator": "Paisaje naturalista íntimo diseñado para mirarse sentado.",
     "experience": "Villa Meiji y jardín de Ogawa Jihei alimentado por el canal Biwa.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año; otoño",
@@ -3992,7 +4006,7 @@
     "experience": "Templo de ladera con corredor, pagoda y célebre arce.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Mañana",
@@ -4189,7 +4203,9 @@
     "differentiator": "Su belleza es sobria y paisajística, opuesta al brillo de Kinkaku-ji.",
     "experience": "Templo zen con jardín seco, musgo y vista elevada.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -4319,7 +4335,9 @@
     "differentiator": "Geometría moderna dentro de un recinto medieval.",
     "experience": "Complejo monástico con puente Tsutenkyo y jardines de Mirei Shigemori.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Otoño; mejor fuera del pico",
@@ -4447,7 +4465,9 @@
     "differentiator": "Ofrece gran color y escala íntima sin excursión larga.",
     "experience": "Templo de montaña con arces, cerezos llorones y pinturas interiores.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Otoño y primavera",
@@ -4512,7 +4532,7 @@
     "experience": "Tramo arbolado del canal del lago Biwa con senderos tranquilos.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Mañana",
@@ -4643,7 +4663,9 @@
     "differentiator": "El paisaje integra estanque, templo y Arashiyama como una sola composición.",
     "experience": "Templo zen con jardín Sogenchi y montañas prestadas.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Otoño y primavera",
@@ -4707,7 +4729,9 @@
     "differentiator": "Tiene panoramas de Kyoto y montañas que el bambusal no ofrece.",
     "experience": "Antigua villa del actor Ōkōchi Denjirō con jardines en ladera.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Otoño",
@@ -4837,7 +4861,9 @@
     "differentiator": "Cada rostro es distinto; mezcla humor, oficio y memoria comunitaria.",
     "experience": "Templo de montaña con 1,200 estatuas de discípulos talladas por visitantes.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año; otoño",
@@ -4901,7 +4927,9 @@
     "differentiator": "El paisaje habla de memoria y abandono, no solo de fotografía.",
     "experience": "Templo funerario con Sai no Kawara y sendero de bambú.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Otoño",
@@ -5029,7 +5057,7 @@
     "experience": "Templo zen famoso por su musgo y práctica de sutra previa.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Mañana",
@@ -5094,7 +5122,7 @@
     "experience": "Parque gratuito especializado en bambú y museo.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Mañana",
@@ -5224,7 +5252,9 @@
     "differentiator": "Su ambigüedad espacial es la experiencia, no un relato histórico.",
     "experience": "Templo con el jardín de rocas zen más famoso del mundo.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -5420,7 +5450,9 @@
     "differentiator": "La experiencia sonora y doméstica contrasta con los grandes templos.",
     "experience": "Retiro literario del siglo XVII con jardín de azaleas.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Mayo y otoño",
@@ -5546,7 +5578,9 @@
     "differentiator": "La distancia filtra turismo y permite una experiencia estacional completa.",
     "experience": "Templo Tendai con jardines de musgo y pequeñas figuras warabe jizō.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Temporada húmeda y otoño",
@@ -5800,7 +5834,9 @@
     "differentiator": "Permite comprender la capital cortesana frente al poder shogunal de Nijo.",
     "experience": "Antigua residencia imperial dentro del Kyoto Gyoen.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Primavera y otoño",
@@ -5864,7 +5900,9 @@
     "differentiator": "Vale por especialistas concretos, no por recorrerlo sin objetivo.",
     "experience": "Galería comercial de alimentos y utensilios en el centro.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Días laborables",
@@ -6126,7 +6164,9 @@
     "differentiator": "Mayor escala y componente atlético que las sedes de Tokio.",
     "experience": "Más de 50 obras inmersivas en unos 10,000 m².",
     "duration": {
-      "raw": "3–4.5 h"
+      "raw": "3–4.5 h",
+      "minMinutes": 180,
+      "maxMinutes": 270
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -6190,7 +6230,9 @@
     "differentiator": "El impacto es acumulativo y no depende de fotografía —que está prohibida dentro.",
     "experience": "Salón de 120 m con filas de esculturas budistas.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -6319,7 +6361,9 @@
     "differentiator": "Conserva una imagen casi arquetípica del paraíso budista.",
     "experience": "Templo Heian representado en la moneda de 10 yenes.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Glicinas en primavera; otoño",
@@ -6509,7 +6553,9 @@
     "differentiator": "Permite comparar artes en una sola sesión, no sustituye una función completa.",
     "experience": "Programa escénico con danza kyomai, teatro, música, té y arreglos florales.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Noche",
     "bestSeason": "Temporada de funciones",
@@ -6639,7 +6685,7 @@
     "experience": "Canal, neón, fachadas mecánicas y restaurantes de Minami.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Noche",
@@ -6836,7 +6882,9 @@
     "differentiator": "Es conveniente, pero cada vez menos representativo de compras locales.",
     "experience": "Mercado cubierto de mariscos, wagyu, fruta y snacks.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Días laborables",
@@ -7098,7 +7146,9 @@
     "differentiator": "Su valor está en la iconografía retro más que en la panorámica.",
     "experience": "Torre símbolo de Shinsekai con miradores y atracciones.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Noche",
     "bestSeason": "Todo el año",
@@ -7229,7 +7279,7 @@
     "experience": "Dos torres unidas por el Floating Garden Observatory.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Atardecer",
@@ -7689,7 +7739,9 @@
     "differentiator": "Rituales, mercado mensual y arquitectura reconstruida con lógica antigua.",
     "experience": "Uno de los templos budistas más antiguos de Japón, con patio axial.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "21–22 de cada mes para mercado",
@@ -7753,7 +7805,9 @@
     "differentiator": "Las obras responden al viento, personas y vegetación viva.",
     "experience": "Instalación nocturna permanente dentro del jardín botánico Nagai.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Noche",
     "bestSeason": "Primavera y otoño",
@@ -8254,7 +8308,9 @@
     "differentiator": "La geometría se comprende mejor desde la torre y a ras de suelo.",
     "experience": "Castillo compacto con jardín abstracto diseñado en 1953.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -8446,7 +8502,9 @@
     "differentiator": "La experiencia incluye el camino, no solo el recinto principal.",
     "experience": "Santuario de vermellón rodeado de bosque primario y miles de faroles.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año; festivales de faroles",
@@ -8511,7 +8569,7 @@
     "experience": "Dos jardines históricos y un museo de cerámica.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Mañana",
@@ -8643,7 +8701,7 @@
     "experience": "Complejo budista con algunos de los edificios de madera más antiguos del mundo.",
     "duration": {
       "raw": "2.5–4 h",
-      "minMinutes": 300,
+      "minMinutes": 150,
       "maxMinutes": 240
     },
     "bestTime": "Mañana",
@@ -8769,7 +8827,7 @@
     "experience": "Nueve jardines amurallados junto al foso de Himeji.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Tarde",
@@ -9737,7 +9795,7 @@
   {
     "id": "JP-152",
     "hub": "Osaka",
-    "region": "Kansai",
+    "region": "Shikoku",
     "prefecture": "Kagawa",
     "municipality": "Naoshima",
     "neighborhood": "Naoshima",
@@ -9752,9 +9810,7 @@
     "differentiator": "El viaje entre obras forma parte de la experiencia curatorial.",
     "experience": "Museos de Tadao Ando, Art House Project y obras en la costa.",
     "duration": {
-      "raw": "1–2 días",
-      "minMinutes": 1440,
-      "maxMinutes": 2880
+      "raw": "1–2 días"
     },
     "bestTime": "Mañana",
     "bestSeason": "Primavera y otoño",
@@ -9799,7 +9855,7 @@
   {
     "id": "JP-153",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Kokusai-dori",
@@ -9815,7 +9871,7 @@
     "experience": "Avenida central de Naha con restaurantes, tiendas y acceso a mercados.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Noche",
@@ -9865,7 +9921,7 @@
   {
     "id": "JP-154",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Makishi",
@@ -9880,7 +9936,9 @@
     "differentiator": "La opción de comprar y cocinar arriba conecta producto y cocina.",
     "experience": "Mercado renovado con puestos y restaurantes en planta alta.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año",
@@ -9929,7 +9987,7 @@
   {
     "id": "JP-155",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Tsuboya",
@@ -9945,7 +10003,7 @@
     "experience": "Calle de hornos, galerías y museo de cerámica Ryukyu.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Tarde",
@@ -9995,7 +10053,7 @@
   {
     "id": "JP-156",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Sakaemachi",
@@ -10061,7 +10119,7 @@
   {
     "id": "JP-157",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Shuri",
@@ -10127,7 +10185,7 @@
   {
     "id": "JP-158",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Shuri",
@@ -10193,7 +10251,7 @@
   {
     "id": "JP-159",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Shuri",
@@ -10259,7 +10317,7 @@
   {
     "id": "JP-160",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Maji",
@@ -10275,7 +10333,7 @@
     "experience": "Villa y jardín usados para recibir enviados chinos.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Mañana",
@@ -10325,7 +10383,7 @@
   {
     "id": "JP-161",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Omoromachi",
@@ -10391,7 +10449,7 @@
   {
     "id": "JP-162",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Chinen",
@@ -10406,7 +10464,9 @@
     "differentiator": "No hay edificio protagonista: la naturaleza misma es santuario.",
     "experience": "Bosque y formaciones rocosas de culto femenino Ryukyu.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Mañana",
     "bestSeason": "Todo el año; evitar lluvia",
@@ -10453,7 +10513,7 @@
   {
     "id": "JP-163",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Maekawa",
@@ -10469,7 +10529,7 @@
     "experience": "Tour guiado por valle kárstico con banyans y sitios prehistóricos.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Mañana",
@@ -10515,7 +10575,7 @@
   {
     "id": "JP-164",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Tamagusuku",
@@ -10579,7 +10639,7 @@
   {
     "id": "JP-165",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Kudaka",
@@ -10639,7 +10699,7 @@
   {
     "id": "JP-166",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Chatan",
     "neighborhood": "Mihama",
@@ -10703,7 +10763,7 @@
   {
     "id": "JP-167",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Okinawa City",
     "neighborhood": "Koza",
@@ -10767,7 +10827,7 @@
   {
     "id": "JP-168",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Yomitan",
     "neighborhood": "Zakimi",
@@ -10831,7 +10891,7 @@
   {
     "id": "JP-169",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Yomitan",
     "neighborhood": "Zakimi",
@@ -10846,7 +10906,9 @@
     "differentiator": "Permite caminar sobre murallas y entender ingeniería Ryukyu.",
     "experience": "Gusuku del siglo XV restaurado parcialmente.",
     "duration": {
-      "raw": "1–1.5 h"
+      "raw": "1–1.5 h",
+      "minMinutes": 60,
+      "maxMinutes": 90
     },
     "bestTime": "Atardecer",
     "bestSeason": "Todo el año",
@@ -10893,7 +10955,7 @@
   {
     "id": "JP-170",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Uruma",
     "neighborhood": "Katsuren",
@@ -10909,7 +10971,7 @@
     "experience": "Fortaleza Ryukyu elevada con vistas de penínsulas e islas.",
     "duration": {
       "raw": "1.5–2 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 120
     },
     "bestTime": "Mañana",
@@ -10955,7 +11017,7 @@
   {
     "id": "JP-171",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Onna",
     "neighborhood": "Maeda",
@@ -11017,7 +11079,7 @@
   {
     "id": "JP-172",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Onna",
     "neighborhood": "Onna",
@@ -11079,7 +11141,7 @@
   {
     "id": "JP-173",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Motobu",
     "neighborhood": "Ishikawa",
@@ -11144,7 +11206,7 @@
   {
     "id": "JP-174",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Motobu",
     "neighborhood": "Bise",
@@ -11160,7 +11222,7 @@
     "experience": "Calles de una aldea protegidas por densos árboles fukugi.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Mañana",
@@ -11209,7 +11271,7 @@
   {
     "id": "JP-175",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Nakijin",
@@ -11224,7 +11286,9 @@
     "differentiator": "El aislamiento y relieve comunican un reino regional distinto.",
     "experience": "Capital histórica de Hokuzan con largas murallas curvas.",
     "duration": {
-      "raw": "1.5–2.5 h"
+      "raw": "1.5–2.5 h",
+      "minMinutes": 90,
+      "maxMinutes": 150
     },
     "bestTime": "Mañana",
     "bestSeason": "Enero–febrero para sakura Okinawense",
@@ -11272,7 +11336,7 @@
   {
     "id": "JP-176",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Kouri",
@@ -11336,7 +11400,7 @@
   {
     "id": "JP-177",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Kouri",
@@ -11400,7 +11464,7 @@
   {
     "id": "JP-178",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Gogayama",
@@ -11460,7 +11524,7 @@
   {
     "id": "JP-179",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Yanbaru",
@@ -11522,7 +11586,7 @@
   {
     "id": "JP-180",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Hiji",
@@ -11586,7 +11650,7 @@
   {
     "id": "JP-181",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Ginami",
@@ -11650,7 +11714,7 @@
   {
     "id": "JP-182",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Hedo",
@@ -11714,7 +11778,7 @@
   {
     "id": "JP-183",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Higashi",
     "neighborhood": "Gesashi",
@@ -11776,7 +11840,7 @@
   {
     "id": "JP-184",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Zamami",
     "neighborhood": "Zamami",
@@ -11839,7 +11903,7 @@
   {
     "id": "JP-185",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Zamami",
     "neighborhood": "Zamami",
@@ -11904,7 +11968,7 @@
   {
     "id": "JP-186",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Zamami",
     "neighborhood": "Aka",
@@ -11919,9 +11983,7 @@
     "differentiator": "Menor infraestructura filtra excursiones rápidas.",
     "experience": "Isla pequeña conectada a Geruma, con playas y ciervo Kerama.",
     "duration": {
-      "raw": "1–2 días",
-      "minMinutes": 1440,
-      "maxMinutes": 2880
+      "raw": "1–2 días"
     },
     "bestTime": "Mañana",
     "bestSeason": "Primavera–otoño; mar estable",
@@ -11969,7 +12031,7 @@
   {
     "id": "JP-187",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Tokashiki",
     "neighborhood": "Tokashiki",
@@ -12029,7 +12091,7 @@
   {
     "id": "JP-188",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Miyako",
@@ -12089,7 +12151,7 @@
   {
     "id": "JP-189",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Irabu",
@@ -12151,7 +12213,7 @@
   {
     "id": "JP-190",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Shimoji",
@@ -12213,7 +12275,7 @@
   {
     "id": "JP-191",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Ikema",
@@ -12273,7 +12335,7 @@
   {
     "id": "JP-192",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Kabira",
@@ -12289,7 +12351,7 @@
     "experience": "Bahía de arena blanca y islotes, vista desde miradores y botes de fondo de vidrio.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Mañana",
@@ -12337,7 +12399,7 @@
   {
     "id": "JP-193",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Yonehara",
@@ -12402,7 +12464,7 @@
   {
     "id": "JP-194",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Banna",
@@ -12466,7 +12528,7 @@
   {
     "id": "JP-195",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Ishigaki",
@@ -12482,7 +12544,7 @@
     "experience": "Tours de observación, planetario y cielo oscuro alrededor de Ishigaki.",
     "duration": {
       "raw": "1.5–3 h",
-      "minMinutes": 300,
+      "minMinutes": 90,
       "maxMinutes": 180
     },
     "bestTime": "Noche",
@@ -12531,7 +12593,7 @@
   {
     "id": "JP-196",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Taketomi",
@@ -12591,7 +12653,7 @@
   {
     "id": "JP-197",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Iriomote",
@@ -12653,7 +12715,7 @@
   {
     "id": "JP-198",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Iriomote",
@@ -12717,7 +12779,7 @@
   {
     "id": "JP-199",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Hateruma",
@@ -12777,7 +12839,7 @@
   {
     "id": "JP-200",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Yonaguni",
     "neighborhood": "Yonaguni",
@@ -12837,7 +12899,7 @@
   {
     "id": "JP-201",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kumejima",
     "neighborhood": "Kume",
@@ -12897,7 +12959,7 @@
   {
     "id": "JP-202",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Tomari",
@@ -13009,7 +13071,7 @@
     "imageBrief": "Imagen recomendada: castillo y desfile con luz de tarde.",
     "imageStatus": "brief-only",
     "nearbyIds": [
-      "Tokyo Disneyland"
+      "JP-204"
     ],
     "hiddenGemStatus": "Popular / turístico",
     "alternativeTo": "Tokyo DisneySea",
@@ -13071,7 +13133,7 @@
     "imageBrief": "Imagen recomendada: Mysterious Island o Mediterranean Harbor al atardecer.",
     "imageStatus": "brief-only",
     "nearbyIds": [
-      "Tokyo DisneySea"
+      "JP-203"
     ],
     "hiddenGemStatus": "Popular / turístico",
     "alternativeTo": "Tokyo Disneyland",

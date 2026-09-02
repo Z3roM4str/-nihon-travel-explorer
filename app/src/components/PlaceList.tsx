@@ -4,6 +4,8 @@ import { isHiddenGem, splitCategory } from "../lib/place";
 
 type Props = {
   places: Place[];
+  /** Count before filters are applied, for the empty-state hint. */
+  totalCount: number;
   selectedId: string | null;
   savedIds: string[];
   onSelect: (id: string) => void;
@@ -18,6 +20,7 @@ function durationLabel(place: Place): string {
 
 export function PlaceList({
   places,
+  totalCount,
   selectedId,
   savedIds,
   onSelect,
@@ -29,7 +32,8 @@ export function PlaceList({
       <div className="place-list__empty">
         <p className="place-list__empty-title">Ningún lugar coincide con la búsqueda</p>
         <p className="place-list__empty-hint">
-          Prueba con otro término o quita algunos filtros para volver a ver los 57 lugares de Tokio.
+          Prueba con otro término o quita algunos filtros para volver a ver los {totalCount} lugares
+          disponibles.
         </p>
         {hasActiveFilters && (
           <button type="button" className="button button--secondary" onClick={onClearFilters}>

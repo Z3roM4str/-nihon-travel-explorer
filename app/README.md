@@ -22,7 +22,8 @@ npm run build
 
 `src/data/*.json` are copies of the root `data/*.json` files (the application's
 build-time data source, per `docs/DATA_MODEL.md`). Re-copy them after regenerating
-the dataset from the master workbook.
+the dataset from the master workbook (`data/source/Nihon-Base-Maestra-v2.xlsx`) —
+see `docs/DATA_MODEL.md` for the exact regenerate/validate/copy commands.
 
 ## Photography
 

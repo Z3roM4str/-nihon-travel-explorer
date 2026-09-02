@@ -4412,22 +4412,22 @@
   },
   {
     "Desde ID": "JP-203",
-    "Hacia ID": "Tokyo Disneyland",
-    "Desde": "JP-204",
+    "Hacia ID": "JP-204",
+    "Desde": "Tokyo Disneyland",
     "Hacia": "Tokyo DisneySea",
     "Distancia km": 0.8,
-    "Min aprox.": "10 min",
+    "Min aprox.": 10,
     "Modo": "Disney Resort Line",
     "Relación": "Alternativas/complementos",
     "Nota": "No asumir que ambos son equivalentes."
   },
   {
     "Desde ID": "JP-204",
-    "Hacia ID": "Tokyo DisneySea",
-    "Desde": "JP-203",
+    "Hacia ID": "JP-203",
+    "Desde": "Tokyo DisneySea",
     "Hacia": "Tokyo Disneyland",
     "Distancia km": 0.8,
-    "Min aprox.": "10 min",
+    "Min aprox.": 10,
     "Modo": "Disney Resort Line",
     "Relación": "Alternativas/complementos",
     "Nota": "No asumir que ambos son equivalentes."
