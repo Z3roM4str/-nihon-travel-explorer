@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getNearby, getPlaceById, getPlacesByHub } from "./data/store";
+import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import { FilterPanel } from "./components/FilterPanel";
+import { HubSelector } from "./components/HubSelector";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
@@ -10,21 +11,10 @@ import { matchesQuery } from "./lib/place";
 import type { Filters, Place } from "./types";
 import "./App.css";
 
-/** Phase 2A: Tokyo is the active hub, not a structural assumption — hub switching
- * arrives once the national selector ships. */
-const ACTIVE_HUB = "Tokio";
-const hubPlaces = getPlacesByHub(ACTIVE_HUB);
-
-const CATEGORIES = [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) =>
-  a.localeCompare(b, "es")
-);
-const GRADES = ["S", "A", "B", "C"].filter((g) => hubPlaces.some((p) => p.grade === g));
-const HIDDEN_GEM_STATUSES = [
-  ...new Set(hubPlaces.map((p) => p.hiddenGemStatus).filter(Boolean)),
-] as string[];
-const TOURISM_LEVELS = ["Extremo", "Alto", "Medio", "Bajo"].filter((level) =>
-  hubPlaces.some((p) => p.tourismLevel === level)
-);
+const HUBS = getHubs();
+/** Tokyo is just the initial hub value, not a structural restriction — every other hub
+ * reads through the exact same getPlacesByHub()/getPlaceById() calls. */
+const DEFAULT_HUB = HUBS.includes("Tokio") ? "Tokio" : HUBS[0];
 
 const EMPTY_FILTERS: Filters = {
   query: "",
@@ -76,22 +66,43 @@ function useIsDesktop(): boolean {
 }
 
 export default function App() {
+  const [activeHub, setActiveHub] = useState(DEFAULT_HUB);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  /** Trail of visited places, so "nearby" jumps can be stepped back through. */
+  /** Trail of visited places (any hub), so "nearby" jumps and cross-hub opens can be
+   * stepped back through. */
   const [history, setHistory] = useState<string[]>([]);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
   const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
   const isDesktop = useIsDesktop();
 
+  const hubPlaces = getPlacesByHub(activeHub);
+
+  const categories = useMemo(
+    () => [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) => a.localeCompare(b, "es")),
+    [hubPlaces]
+  );
+  const grades = useMemo(
+    () => ["S", "A", "B", "C"].filter((g) => hubPlaces.some((p) => p.grade === g)),
+    [hubPlaces]
+  );
+  const hiddenGemStatuses = useMemo(
+    () => [...new Set(hubPlaces.map((p) => p.hiddenGemStatus).filter(Boolean))] as string[],
+    [hubPlaces]
+  );
+  const tourismLevels = useMemo(
+    () => ["Extremo", "Alto", "Medio", "Bajo"].filter((level) => hubPlaces.some((p) => p.tourismLevel === level)),
+    [hubPlaces]
+  );
+
   const selectedId = history.length > 0 ? history[history.length - 1] : null;
   const selectedPlace = selectedId ? getPlaceById(selectedId) ?? null : null;
-  const previousPlace =
-    history.length > 1 ? getPlaceById(history[history.length - 2]) ?? null : null;
+  const previousId = history.length > 1 ? history[history.length - 2] : null;
+  const previousPlace = previousId ? getPlaceById(previousId) ?? null : null;
 
   const filteredPlaces = useMemo(
     () => hubPlaces.filter((place) => matchesFilters(place, filters)),
-    [filters]
+    [hubPlaces, filters]
   );
 
   const activeFilterCount = countActiveFilters(filters);
@@ -102,20 +113,66 @@ export default function App() {
     [savedIds]
   );
 
-  /** Selecting from list, map or selection panel starts a fresh trail. */
-  const selectPlace = useCallback((id: string) => {
-    setHistory([id]);
-    setExplorerOpen(false);
-  }, []);
+  /**
+   * Single source of truth for "go look at this place": switches activeHub when the place
+   * lives elsewhere, starts a fresh trail, and closes the mobile filter drawer. Used by the
+   * place list, the map, and the saved-places panel — any of which can point at a place in a
+   * different hub than the one currently open.
+   */
+  const selectPlace = useCallback(
+    (id: string) => {
+      const place = getPlaceById(id);
+      if (!place) return;
+      if (place.hub !== activeHub) {
+        setActiveHub(place.hub);
+        setFilters(EMPTY_FILTERS);
+      }
+      setHistory([id]);
+      setExplorerOpen(false);
+    },
+    [activeHub]
+  );
 
-  /** A nearby jump extends the trail so the user can return to where they came from. */
-  const pushPlace = useCallback((id: string) => {
-    setHistory((trail) => (trail[trail.length - 1] === id ? trail : [...trail, id]));
-  }, []);
+  /** A nearby jump extends the trail so the user can return to where they came from. Filters
+   * are left as-is: the destination marker always renders regardless of filter match (see
+   * PlaceMap's visiblePlaces), so there is nothing to reconcile. */
+  const pushPlace = useCallback(
+    (id: string) => {
+      const place = getPlaceById(id);
+      if (!place) return;
+      if (place.hub !== activeHub) setActiveHub(place.hub);
+      setHistory((trail) => (trail[trail.length - 1] === id ? trail : [...trail, id]));
+    },
+    [activeHub]
+  );
 
-  const goBack = useCallback(() => setHistory((trail) => trail.slice(0, -1)), []);
+  /** Steps back through the trail, restoring whichever hub the previous place belongs to. */
+  const goBack = useCallback(() => {
+    const next = history.slice(0, -1);
+    const nextId = next[next.length - 1];
+    const nextPlace = nextId ? getPlaceById(nextId) : undefined;
+    if (nextPlace && nextPlace.hub !== activeHub) setActiveHub(nextPlace.hub);
+    setHistory(next);
+  }, [history, activeHub]);
+
   const closeDetail = useCallback(() => setHistory([]), []);
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
+
+  /** Manually switching hubs resets filters and closes any open detail from the previous
+   * hub — the policy is deliberately different from pushPlace/goBack, which preserve both. */
+  const switchHub = useCallback(
+    (hub: string) => {
+      if (hub === activeHub) return;
+      setActiveHub(hub);
+      setFilters(EMPTY_FILTERS);
+      setHistory((trail) => {
+        const openId = trail[trail.length - 1];
+        const openPlace = openId ? getPlaceById(openId) : undefined;
+        return openPlace && openPlace.hub !== hub ? [] : trail;
+      });
+    },
+    [activeHub]
+  );
 
   useEffect(() => {
     if (!explorerOpen) return;
@@ -131,10 +188,10 @@ export default function App() {
       <FilterPanel
         filters={filters}
         onChange={setFilters}
-        categories={CATEGORIES}
-        grades={GRADES}
-        hiddenGemStatuses={HIDDEN_GEM_STATUSES}
-        tourismLevels={TOURISM_LEVELS}
+        categories={categories}
+        grades={grades}
+        hiddenGemStatuses={hiddenGemStatuses}
+        tourismLevels={tourismLevels}
         resultCount={filteredPlaces.length}
         totalCount={hubPlaces.length}
         activeFilterCount={activeFilterCount}
@@ -160,10 +217,10 @@ export default function App() {
             Nihon{" "}
             <span className="app__brand-sub">
               <span className="app__brand-long">Explorador de </span>
-              {ACTIVE_HUB}
+              {activeHub}
             </span>
           </h1>
-          <p className="app__subtitle">{hubPlaces.length} lugares verificados · Fase 1</p>
+          <p className="app__subtitle">{hubPlaces.length} lugares verificados</p>
         </div>
         <button
           type="button"
@@ -176,7 +233,9 @@ export default function App() {
         </button>
       </header>
 
-      <div className="app__body">
+      <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
+
+      <div className="app__body" id="app-hub-panel" role="tabpanel" aria-label={`Lugares de ${activeHub}`}>
         <aside
           className={`app__sidebar ${explorerOpen ? "app__sidebar--open" : ""}`}
           aria-label="Explorar lugares"
@@ -198,6 +257,8 @@ export default function App() {
         <main className="app__map-area">
           <PlaceMap
             places={filteredPlaces}
+            hubPlaces={hubPlaces}
+            activeHub={activeHub}
             selectedPlace={selectedPlace}
             savedIds={savedIds}
             onSelect={selectPlace}

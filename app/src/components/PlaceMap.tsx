@@ -1,12 +1,19 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { MapContainer, Marker, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { Place } from "../types";
 
-const TOKYO_CENTER: [number, number] = [35.6812, 139.7671];
-const DEFAULT_ZOOM = 12;
+/**
+ * Generic starting point for MapContainer, which needs a center/zoom before any hub's
+ * bounds are known. Not tied to any specific hub — FitHubBounds immediately corrects the
+ * view to the active hub on mount, before paint, so this is never actually seen.
+ */
+const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
+const JAPAN_FALLBACK_ZOOM = 5;
 /** Deep enough to read the surrounding streets, shallow enough to keep neighbours in view. */
 const SELECTION_ZOOM = 14;
+/** Keeps markers off the viewport edge when a hub's bounds are fit. */
+const BOUNDS_PADDING = 32;
 
 const gradeColors: Record<string, string> = {
   S: "#b7282e",
@@ -65,6 +72,35 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
   return null;
 }
 
+/**
+ * Fits the map to the active hub's full set of places whenever the hub changes — a manual
+ * switch, a saved place opened from another hub, a cross-hub nearby jump, or Back landing on
+ * a place in another hub. Deliberately keyed on `hub` alone (not `places`/`panelOffset`), so
+ * tweaking filters or opening/closing the detail panel never re-triggers a whole-hub refit;
+ * `FocusSelected` already handles centring the selected marker for those.
+ */
+function FitHubBounds({ hub, places, panelOffset }: { hub: string; places: Place[]; panelOffset: number }) {
+  const map = useMap();
+
+  useLayoutEffect(() => {
+    if (places.length === 0) return;
+    const bounds = L.latLngBounds(places.map((place) => [place.coordinates.lat, place.coordinates.lng]));
+    const options = {
+      paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],
+      paddingBottomRight: [BOUNDS_PADDING + panelOffset, BOUNDS_PADDING] as [number, number],
+      maxZoom: SELECTION_ZOOM,
+    };
+    if (prefersReducedMotion()) {
+      map.fitBounds(bounds, { ...options, animate: false });
+    } else {
+      map.flyToBounds(bounds, options);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hub, map]);
+
+  return null;
+}
+
 /** Leaflet caches the container size; recompute it whenever the layout changes around it. */
 function InvalidateOnResize() {
   const map = useMap();
@@ -78,6 +114,10 @@ function InvalidateOnResize() {
 
 type Props = {
   places: Place[];
+  /** Every place in the active hub, unfiltered — used to fit bounds around the whole hub
+   * rather than whatever a leftover filter from a previous hub happens to match. */
+  hubPlaces: Place[];
+  activeHub: string;
   /** Resolved from the full dataset, so a place hidden by filters can still be focused. */
   selectedPlace: Place | null;
   savedIds: string[];
@@ -86,7 +126,15 @@ type Props = {
   panelOffset: number;
 };
 
-export function PlaceMap({ places, selectedPlace, savedIds, onSelect, panelOffset }: Props) {
+export function PlaceMap({
+  places,
+  hubPlaces,
+  activeHub,
+  selectedPlace,
+  savedIds,
+  onSelect,
+  panelOffset,
+}: Props) {
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
   /**
@@ -99,13 +147,19 @@ export function PlaceMap({ places, selectedPlace, savedIds, onSelect, panelOffse
   }, [places, selectedPlace]);
 
   return (
-    <MapContainer center={TOKYO_CENTER} zoom={DEFAULT_ZOOM} className="place-map" zoomControl={false}>
+    <MapContainer
+      center={JAPAN_FALLBACK_CENTER}
+      zoom={JAPAN_FALLBACK_ZOOM}
+      className="place-map"
+      zoomControl={false}
+    >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         maxZoom={19}
       />
       <ZoomControl position="bottomright" />
+      <FitHubBounds hub={activeHub} places={hubPlaces} panelOffset={panelOffset} />
       <FocusSelected place={selectedPlace} panelOffset={panelOffset} />
       <InvalidateOnResize />
       {visiblePlaces.map((place) => (
