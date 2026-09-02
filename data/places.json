@@ -9737,7 +9737,7 @@
   {
     "id": "JP-152",
     "hub": "Osaka",
-    "region": "Kansai",
+    "region": "Shikoku",
     "prefecture": "Kagawa",
     "municipality": "Naoshima",
     "neighborhood": "Naoshima",
@@ -9799,7 +9799,7 @@
   {
     "id": "JP-153",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Kokusai-dori",
@@ -9865,7 +9865,7 @@
   {
     "id": "JP-154",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Makishi",
@@ -9929,7 +9929,7 @@
   {
     "id": "JP-155",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Tsuboya",
@@ -9995,7 +9995,7 @@
   {
     "id": "JP-156",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Sakaemachi",
@@ -10061,7 +10061,7 @@
   {
     "id": "JP-157",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Shuri",
@@ -10127,7 +10127,7 @@
   {
     "id": "JP-158",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Shuri",
@@ -10193,7 +10193,7 @@
   {
     "id": "JP-159",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Shuri",
@@ -10259,7 +10259,7 @@
   {
     "id": "JP-160",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Maji",
@@ -10325,7 +10325,7 @@
   {
     "id": "JP-161",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Omoromachi",
@@ -10391,7 +10391,7 @@
   {
     "id": "JP-162",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Chinen",
@@ -10453,7 +10453,7 @@
   {
     "id": "JP-163",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Maekawa",
@@ -10515,7 +10515,7 @@
   {
     "id": "JP-164",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Tamagusuku",
@@ -10579,7 +10579,7 @@
   {
     "id": "JP-165",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nanjo",
     "neighborhood": "Kudaka",
@@ -10639,7 +10639,7 @@
   {
     "id": "JP-166",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Chatan",
     "neighborhood": "Mihama",
@@ -10703,7 +10703,7 @@
   {
     "id": "JP-167",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Okinawa City",
     "neighborhood": "Koza",
@@ -10767,7 +10767,7 @@
   {
     "id": "JP-168",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Yomitan",
     "neighborhood": "Zakimi",
@@ -10831,7 +10831,7 @@
   {
     "id": "JP-169",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Yomitan",
     "neighborhood": "Zakimi",
@@ -10893,7 +10893,7 @@
   {
     "id": "JP-170",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Uruma",
     "neighborhood": "Katsuren",
@@ -10955,7 +10955,7 @@
   {
     "id": "JP-171",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Onna",
     "neighborhood": "Maeda",
@@ -11017,7 +11017,7 @@
   {
     "id": "JP-172",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Onna",
     "neighborhood": "Onna",
@@ -11079,7 +11079,7 @@
   {
     "id": "JP-173",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Motobu",
     "neighborhood": "Ishikawa",
@@ -11144,7 +11144,7 @@
   {
     "id": "JP-174",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Motobu",
     "neighborhood": "Bise",
@@ -11209,7 +11209,7 @@
   {
     "id": "JP-175",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Nakijin",
@@ -11272,7 +11272,7 @@
   {
     "id": "JP-176",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Kouri",
@@ -11336,7 +11336,7 @@
   {
     "id": "JP-177",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Kouri",
@@ -11400,7 +11400,7 @@
   {
     "id": "JP-178",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Nakijin",
     "neighborhood": "Gogayama",
@@ -11460,7 +11460,7 @@
   {
     "id": "JP-179",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Yanbaru",
@@ -11522,7 +11522,7 @@
   {
     "id": "JP-180",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Hiji",
@@ -11586,7 +11586,7 @@
   {
     "id": "JP-181",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Ginami",
@@ -11650,7 +11650,7 @@
   {
     "id": "JP-182",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kunigami",
     "neighborhood": "Hedo",
@@ -11714,7 +11714,7 @@
   {
     "id": "JP-183",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Higashi",
     "neighborhood": "Gesashi",
@@ -11776,7 +11776,7 @@
   {
     "id": "JP-184",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Zamami",
     "neighborhood": "Zamami",
@@ -11839,7 +11839,7 @@
   {
     "id": "JP-185",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Zamami",
     "neighborhood": "Zamami",
@@ -11904,7 +11904,7 @@
   {
     "id": "JP-186",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Zamami",
     "neighborhood": "Aka",
@@ -11969,7 +11969,7 @@
   {
     "id": "JP-187",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Tokashiki",
     "neighborhood": "Tokashiki",
@@ -12029,7 +12029,7 @@
   {
     "id": "JP-188",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Miyako",
@@ -12089,7 +12089,7 @@
   {
     "id": "JP-189",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Irabu",
@@ -12151,7 +12151,7 @@
   {
     "id": "JP-190",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Shimoji",
@@ -12213,7 +12213,7 @@
   {
     "id": "JP-191",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Miyakojima",
     "neighborhood": "Ikema",
@@ -12273,7 +12273,7 @@
   {
     "id": "JP-192",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Kabira",
@@ -12337,7 +12337,7 @@
   {
     "id": "JP-193",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Yonehara",
@@ -12402,7 +12402,7 @@
   {
     "id": "JP-194",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Banna",
@@ -12466,7 +12466,7 @@
   {
     "id": "JP-195",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Ishigaki",
     "neighborhood": "Ishigaki",
@@ -12531,7 +12531,7 @@
   {
     "id": "JP-196",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Taketomi",
@@ -12591,7 +12591,7 @@
   {
     "id": "JP-197",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Iriomote",
@@ -12653,7 +12653,7 @@
   {
     "id": "JP-198",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Iriomote",
@@ -12717,7 +12717,7 @@
   {
     "id": "JP-199",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Taketomi",
     "neighborhood": "Hateruma",
@@ -12777,7 +12777,7 @@
   {
     "id": "JP-200",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Yonaguni",
     "neighborhood": "Yonaguni",
@@ -12837,7 +12837,7 @@
   {
     "id": "JP-201",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Kumejima",
     "neighborhood": "Kume",
@@ -12897,7 +12897,7 @@
   {
     "id": "JP-202",
     "hub": "Okinawa",
-    "region": "Kyushu/Okinawa",
+    "region": "Okinawa",
     "prefecture": "Okinawa",
     "municipality": "Naha",
     "neighborhood": "Tomari",
@@ -13009,7 +13009,7 @@
     "imageBrief": "Imagen recomendada: castillo y desfile con luz de tarde.",
     "imageStatus": "brief-only",
     "nearbyIds": [
-      "Tokyo Disneyland"
+      "JP-204"
     ],
     "hiddenGemStatus": "Popular / turístico",
     "alternativeTo": "Tokyo DisneySea",
@@ -13071,7 +13071,7 @@
     "imageBrief": "Imagen recomendada: Mysterious Island o Mediterranean Harbor al atardecer.",
     "imageStatus": "brief-only",
     "nearbyIds": [
-      "Tokyo DisneySea"
+      "JP-203"
     ],
     "hiddenGemStatus": "Popular / turístico",
     "alternativeTo": "Tokyo Disneyland",
