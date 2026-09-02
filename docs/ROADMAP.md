@@ -12,7 +12,7 @@
 
 - [x] Add map shell.
 - [x] Render Tokyo markers from JSON.
-- [x] Add category, grade, hidden-gem, and time filters.
+- [x] Add category, grade, hidden-gem, tourism-level, and reservation filters.
 - [x] Build responsive place-detail drawer.
 - [x] Add saved places state.
 - [x] Parse and display duration ranges.
@@ -55,6 +55,7 @@ national map, region/prefecture layer, or Japan → region → hub navigation �
 
 ## Later (unscheduled)
 
+- [ ] Add duration/time filtering.
 - [ ] Recommended planning-block summaries.
 - [ ] Compare selected places by cluster and geography.
 - [ ] Estimate logistical overhead using validated routing data.
