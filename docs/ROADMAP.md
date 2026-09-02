@@ -27,10 +27,13 @@
 
 ## Phase 3 — Japan coverage
 
-- [ ] Add Kyoto.
-- [ ] Add Osaka/Kansai and excursions.
-- [ ] Add Okinawa.
-- [ ] Add remaining hubs after validating the data pipeline.
+- [x] Add Kyoto.
+- [x] Add Osaka/Kansai and excursions.
+- [x] Add Okinawa.
+- [x] Add remaining hubs after validating the data pipeline.
+
+All hubs in the dataset (Tokyo, Kyoto, Osaka, Okinawa, Sapporo, Nagoya, Fukuoka) are
+reachable through the hub selector; see Phase 2B in the project history.
 
 ## Phase 4 — route candidate builder
 

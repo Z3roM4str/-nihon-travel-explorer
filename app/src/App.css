@@ -193,6 +193,46 @@ a {
   padding: 0 0.35rem;
 }
 
+/* ---------- Hub selector ---------- */
+
+.hub-selector {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.hub-selector__track {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.5rem 1.25rem;
+  scrollbar-width: thin;
+}
+
+.hub-selector__tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-height: var(--tap-target);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+
+.hub-selector__tab:hover {
+  background: var(--color-surface-alt);
+}
+
+.hub-selector__tab--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
 .app__body {
   flex: 1;
   display: grid;
@@ -1342,6 +1382,10 @@ a {
     font-size: 0.85rem;
     padding: 0.5rem 0.85rem;
     white-space: nowrap;
+  }
+
+  .hub-selector__track {
+    padding: 0.4rem 0.75rem;
   }
 
   .app__body {
