@@ -2,15 +2,45 @@
 
 ## Source-to-application rule
 
-The workbook is the editorial source. The web app consumes generated JSON and must not silently rewrite research decisions.
+The workbook is the editorial source. The web app consumes generated JSON and must not silently rewrite research decisions. Editorial corrections (renamed regions, fixed relations, reclassifications) are made in the workbook, with CHANGELOG_V2 traceability, and then re-exported — never patched directly into the JSON.
 
 ```text
-Base Maestra v2.xlsx
-        ↓ export + normalization
-application JSON
+data/source/Nihon-Base-Maestra-v2.xlsx   (editorial source of truth, versioned in git)
+        ↓ scripts/export-dataset.py       (canonical exporter — see "Regenerating the dataset")
+data/*.json                               (checked-in export output)
+        ↓ copied as-is
+app/src/data/*.json                       (application build input)
         ↓
 map, filters, place drawer, nearby panel, time estimator
 ```
+
+## Regenerating the dataset
+
+The exporter (`scripts/export-dataset.py`) is a standalone Python script with one
+dependency (`openpyxl`), reading the workbook directly — no LibreOffice, no cached
+formula values, no non-installable packages. `Precio MXN mín/máx` are computed
+deterministically as `Precio JPY × Configuración!B4`, so the workbook does not need to
+have been recalculated in Excel/LibreOffice first.
+
+```bash
+# 1. Install dependencies (once, or whenever scripts/requirements.txt changes)
+python3 -m pip install -r scripts/requirements.txt
+
+# 2. Regenerate data/*.json from the workbook
+python3 scripts/export-dataset.py data/source/Nihon-Base-Maestra-v2.xlsx data
+
+# 3. Validate the result
+python3 scripts/validate-dataset.py data
+
+# 4. Copy into the application build input
+cp data/places.json data/nearby.json data/clusters.json data/seasonal-alerts.json app/src/data/
+```
+
+`scripts/validate-dataset.py` checks: exactly 214 places with unique ids, valid
+coordinates inside Japan's bounding box, exactly 403 nearby relations with no id
+referencing a place that doesn't exist, and that the three Phase 2 editorial corrections
+(Okinawa region split, Naoshima region, the Tokyo Disneyland/DisneySea nearby relation)
+are present.
 
 ## Place object
 
