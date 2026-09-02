@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import placesData from "./data/places.json";
-import nearbyData from "./data/nearby.json";
+import { getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import { FilterPanel } from "./components/FilterPanel";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
@@ -8,32 +7,23 @@ import { PlaceDetail } from "./components/PlaceDetail";
 import { SelectionPanel } from "./components/SelectionPanel";
 import { useSavedPlaces } from "./useSavedPlaces";
 import { matchesQuery } from "./lib/place";
-import type { Filters, NearbyRelation, Place } from "./types";
+import type { Filters, Place } from "./types";
 import "./App.css";
 
-const allPlaces = placesData as Place[];
-const nearbyRelations = nearbyData as NearbyRelation[];
+/** Phase 2A: Tokyo is the active hub, not a structural assumption — hub switching
+ * arrives once the national selector ships. */
+const ACTIVE_HUB = "Tokio";
+const hubPlaces = getPlacesByHub(ACTIVE_HUB);
 
-/** Phase 1 ships the Tokyo slice only; other hubs arrive with the Japan-coverage phase. */
-const TOKYO_PLACES = allPlaces.filter((place) => place.hub === "Tokio");
-const PLACES_BY_ID = new Map(TOKYO_PLACES.map((place) => [place.id, place]));
-
-const NEARBY_BY_SOURCE = nearbyRelations.reduce((map, relation) => {
-  const list = map.get(relation["Desde ID"]);
-  if (list) list.push(relation);
-  else map.set(relation["Desde ID"], [relation]);
-  return map;
-}, new Map<string, NearbyRelation[]>());
-
-const CATEGORIES = [...new Set(TOKYO_PLACES.map((p) => p.category))].sort((a, b) =>
+const CATEGORIES = [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) =>
   a.localeCompare(b, "es")
 );
-const GRADES = ["S", "A", "B", "C"].filter((g) => TOKYO_PLACES.some((p) => p.grade === g));
+const GRADES = ["S", "A", "B", "C"].filter((g) => hubPlaces.some((p) => p.grade === g));
 const HIDDEN_GEM_STATUSES = [
-  ...new Set(TOKYO_PLACES.map((p) => p.hiddenGemStatus).filter(Boolean)),
+  ...new Set(hubPlaces.map((p) => p.hiddenGemStatus).filter(Boolean)),
 ] as string[];
 const TOURISM_LEVELS = ["Extremo", "Alto", "Medio", "Bajo"].filter((level) =>
-  TOKYO_PLACES.some((p) => p.tourismLevel === level)
+  hubPlaces.some((p) => p.tourismLevel === level)
 );
 
 const EMPTY_FILTERS: Filters = {
@@ -95,19 +85,20 @@ export default function App() {
   const isDesktop = useIsDesktop();
 
   const selectedId = history.length > 0 ? history[history.length - 1] : null;
-  const selectedPlace = selectedId ? PLACES_BY_ID.get(selectedId) ?? null : null;
+  const selectedPlace = selectedId ? getPlaceById(selectedId) ?? null : null;
   const previousPlace =
-    history.length > 1 ? PLACES_BY_ID.get(history[history.length - 2]) ?? null : null;
+    history.length > 1 ? getPlaceById(history[history.length - 2]) ?? null : null;
 
   const filteredPlaces = useMemo(
-    () => TOKYO_PLACES.filter((place) => matchesFilters(place, filters)),
+    () => hubPlaces.filter((place) => matchesFilters(place, filters)),
     [filters]
   );
 
   const activeFilterCount = countActiveFilters(filters);
 
+  /** Resolved against the global dataset, so a saved place survives navigation to any hub. */
   const savedPlaces = useMemo(
-    () => savedIds.map((id) => PLACES_BY_ID.get(id)).filter((place): place is Place => Boolean(place)),
+    () => savedIds.map((id) => getPlaceById(id)).filter((place): place is Place => Boolean(place)),
     [savedIds]
   );
 
@@ -145,7 +136,7 @@ export default function App() {
         hiddenGemStatuses={HIDDEN_GEM_STATUSES}
         tourismLevels={TOURISM_LEVELS}
         resultCount={filteredPlaces.length}
-        totalCount={TOKYO_PLACES.length}
+        totalCount={hubPlaces.length}
         activeFilterCount={activeFilterCount}
         onReset={resetFilters}
       />
@@ -167,10 +158,11 @@ export default function App() {
           <h1>
             Nihon{" "}
             <span className="app__brand-sub">
-              <span className="app__brand-long">Explorador de </span>Tokio
+              <span className="app__brand-long">Explorador de </span>
+              {ACTIVE_HUB}
             </span>
           </h1>
-          <p className="app__subtitle">{TOKYO_PLACES.length} lugares verificados · Fase 1</p>
+          <p className="app__subtitle">{hubPlaces.length} lugares verificados · Fase 1</p>
         </div>
         <button
           type="button"
@@ -227,9 +219,9 @@ export default function App() {
               isSaved={isSaved(selectedPlace.id)}
               onToggleSaved={toggleSaved}
               onClose={closeDetail}
-              nearby={NEARBY_BY_SOURCE.get(selectedPlace.id) ?? []}
+              nearby={getNearby(selectedPlace.id)}
               onSelectNearby={pushPlace}
-              placesById={PLACES_BY_ID}
+              getPlace={getPlaceById}
               previousPlace={previousPlace}
               onBack={goBack}
             />

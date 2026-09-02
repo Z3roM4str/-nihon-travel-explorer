@@ -19,7 +19,8 @@ type Props = {
   onClose: () => void;
   nearby: NearbyRelation[];
   onSelectNearby: (id: string) => void;
-  placesById: Map<string, Place>;
+  /** Resolves a nearby relation's target id to its place, wherever it lives in the dataset. */
+  getPlace: (id: string) => Place | undefined;
   /** Place the user came from via a "nearby" jump, so they can step back. */
   previousPlace: Place | null;
   onBack: () => void;
@@ -56,7 +57,7 @@ export function PlaceDetail({
   onClose,
   nearby,
   onSelectNearby,
-  placesById,
+  getPlace,
   previousPlace,
   onBack,
 }: Props) {
@@ -88,7 +89,7 @@ export function PlaceDetail({
   const showExperience = place.experience && place.experience !== place.description;
 
   const nearbyPlaces = nearby
-    .map((relation) => ({ relation, target: placesById.get(relation["Hacia ID"]) }))
+    .map((relation) => ({ relation, target: getPlace(relation["Hacia ID"]) }))
     .filter((entry): entry is { relation: NearbyRelation; target: Place } => Boolean(entry.target));
 
   return (
