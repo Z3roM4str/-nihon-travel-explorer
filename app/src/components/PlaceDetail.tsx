@@ -1,5 +1,16 @@
 import { useEffect, useRef } from "react";
 import type { NearbyRelation, Place } from "../types";
+import { PlaceGallery } from "./PlaceGallery";
+import { resolvePlaceImages } from "../data/place-images";
+import { resolveDuration, formatRange } from "../lib/duration";
+import {
+  alertSeverity,
+  formatPrice,
+  imageBriefText,
+  isHiddenGem,
+  severityLabel,
+  splitCategory,
+} from "../lib/place";
 
 type Props = {
   place: Place;
@@ -8,21 +19,34 @@ type Props = {
   onClose: () => void;
   nearby: NearbyRelation[];
   onSelectNearby: (id: string) => void;
-  allPlaces: Place[];
+  placesById: Map<string, Place>;
+  /** Place the user came from via a "nearby" jump, so they can step back. */
+  previousPlace: Place | null;
+  onBack: () => void;
 };
 
-function formatPrice(place: Place) {
-  const { min, max, currency } = place.price;
-  if (min === 0 && max === 0) return "Gratis";
-  if (min === max) return `${min.toLocaleString()} ${currency}`;
-  return `${min.toLocaleString()}–${max.toLocaleString()} ${currency}`;
+function QuickFact({ icon, label, value }: { icon: string; label: string; value: string }) {
+  return (
+    <div className="quick-fact">
+      <span className="quick-fact__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="quick-fact__body">
+        <span className="quick-fact__label">{label}</span>
+        <span className="quick-fact__value">{value}</span>
+      </span>
+    </div>
+  );
 }
 
-function formatDuration(place: Place) {
-  if (place.duration.minMinutes != null && place.duration.maxMinutes != null) {
-    return `${place.duration.raw} (visita)`;
-  }
-  return place.duration.raw;
+function Row({ label, value }: { label: string; value: string }) {
+  if (!value) return null;
+  return (
+    <div className="detail-row">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
 }
 
 export function PlaceDetail({
@@ -32,179 +56,203 @@ export function PlaceDetail({
   onClose,
   nearby,
   onSelectNearby,
-  allPlaces,
+  placesById,
+  previousPlace,
+  onBack,
 }: Props) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     closeButtonRef.current?.focus();
   }, [place.id]);
 
+  // A nearby jump swaps the content of the same panel; start the new place from the top.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [place.id]);
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
+      if (event.key === "Escape") onClose();
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const nearbyPlaces = nearby
-    .map((rel) => ({ rel, place: allPlaces.find((p) => p.id === rel["Hacia ID"]) }))
-    .filter((entry): entry is { rel: NearbyRelation; place: Place } => Boolean(entry.place));
+  const images = resolvePlaceImages(place.id, place.images);
+  const brief = imageBriefText(place);
+  const duration = resolveDuration(place.duration);
+  const category = splitCategory(place.category);
+  const severity = alertSeverity(place.febMar2027.status);
+  const showExperience = place.experience && place.experience !== place.description;
 
-  const isPending = place.febMar2027.status.includes("PENDIENTE");
-  const isClosed = place.febMar2027.status.toUpperCase().includes("CERR");
+  const nearbyPlaces = nearby
+    .map((relation) => ({ relation, target: placesById.get(relation["Hacia ID"]) }))
+    .filter((entry): entry is { relation: NearbyRelation; target: Place } => Boolean(entry.target));
 
   return (
-    <div
-      className="place-detail"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="place-detail-title"
-      ref={panelRef}
-    >
-      <div className="place-detail__header">
+    <div className="place-detail" aria-labelledby="place-detail-title">
+      <div className="place-detail__bar">
+        {previousPlace ? (
+          <button type="button" className="place-detail__back" onClick={onBack}>
+            <span aria-hidden="true">←</span> {previousPlace.name}
+          </button>
+        ) : (
+          <span />
+        )}
         <button
           type="button"
-          className="icon-button place-detail__close"
+          className="icon-button"
           onClick={onClose}
           ref={closeButtonRef}
-          aria-label="Cerrar ficha de lugar"
+          aria-label={`Cerrar la ficha de ${place.name}`}
         >
-          ×
+          <span aria-hidden="true">×</span>
         </button>
       </div>
 
-      <div className="place-detail__gallery">
-        <div className="gallery-placeholder" role="img" aria-label={`Imagen sugerida: ${place.imageBrief}`}>
-          <span className="gallery-placeholder__icon" aria-hidden="true">
-            🖼️
-          </span>
-          <p className="gallery-placeholder__brief">{place.imageBrief}</p>
-          <span className="gallery-placeholder__status">Galería pendiente de imágenes ({place.imageStatus})</span>
-        </div>
-      </div>
+      <div className="place-detail__scroll" ref={scrollRef}>
+        <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
 
-      <div className="place-detail__body">
-        <div className="place-detail__title-row">
-          <div>
+        <div className="place-detail__body">
+          <header className="place-detail__title-block">
+            <p className="place-detail__eyebrow">
+              <span aria-hidden="true">{category.icon}</span> {category.label}
+              <span aria-hidden="true"> · </span>
+              {place.neighborhood || place.municipality}
+            </p>
             <h2 id="place-detail-title">{place.name}</h2>
-            {place.japaneseName && <p className="place-detail__japanese">{place.japaneseName}</p>}
-          </div>
-          <span className={`badge badge--grade-${place.grade}`}>Grado {place.grade}</span>
-        </div>
+            {place.japaneseName && (
+              <p className="place-detail__japanese" lang="ja">
+                {place.japaneseName}
+              </p>
+            )}
+            <div className="tag-row">
+              <span className={`tag tag--grade-${place.grade}`}>Grado {place.grade}</span>
+              {isHiddenGem(place) && (
+                <span className="tag tag--gem">
+                  <span aria-hidden="true">💎</span> {place.hiddenGemStatus}
+                </span>
+              )}
+              <span className="tag tag--muted">Turismo: {place.tourismLevel}</span>
+              {place.reservation.required && <span className="tag tag--alert">Requiere reserva</span>}
+            </div>
+          </header>
 
-        <p className="place-detail__meta">
-          {place.category} · {place.neighborhood || place.municipality}
-        </p>
+          <button
+            type="button"
+            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
+            onClick={() => onToggleSaved(place.id)}
+            aria-pressed={isSaved}
+          >
+            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
+            {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
+          </button>
 
-        <button
-          type="button"
-          className={`save-button ${isSaved ? "save-button--saved" : ""}`}
-          onClick={() => onToggleSaved(place.id)}
-          aria-pressed={isSaved}
-        >
-          {isSaved ? "✓ Guardado — Quiero ir" : "Quiero ir"}
-        </button>
+          <p className="place-detail__description">{place.description}</p>
 
-        <p className="place-detail__description">{place.description}</p>
-        {place.differentiator && (
-          <p className="place-detail__differentiator">
-            <strong>Qué lo diferencia:</strong> {place.differentiator}
-          </p>
-        )}
-
-        <dl className="fact-grid">
-          <div className="fact">
-            <dt>Duración de visita</dt>
-            <dd>{formatDuration(place)}</dd>
-          </div>
-          <div className="fact">
-            <dt>Precio</dt>
-            <dd>{formatPrice(place)}</dd>
-          </div>
-          <div className="fact">
-            <dt>Mejor momento</dt>
-            <dd>
-              {place.bestTime} · {place.bestSeason}
-            </dd>
-          </div>
-          <div className="fact">
-            <dt>Nivel turístico</dt>
-            <dd>
-              {place.tourismLevel} (afluencia {place.crowdLevel})
-            </dd>
-          </div>
-          <div className="fact">
-            <dt>Reserva</dt>
-            <dd>{place.reservation.required ? `Sí — ${place.reservation.leadTime}` : "No requerida"}</dd>
-          </div>
-          <div className="fact">
-            <dt>Horario</dt>
-            <dd>{place.schedule.hours}</dd>
-          </div>
-          <div className="fact">
-            <dt>Cierres</dt>
-            <dd>{place.schedule.closures}</dd>
-          </div>
-          <div className="fact">
-            <dt>Transporte</dt>
-            <dd>{place.transport}</dd>
-          </div>
-          <div className="fact fact--full">
-            <dt>Accesibilidad</dt>
-            <dd>{place.accessibility}</dd>
-          </div>
-        </dl>
-
-        {place.hiddenGemStatus && (
-          <p className="place-detail__gem">
-            <strong>Estatus:</strong> {place.hiddenGemStatus}
-          </p>
-        )}
-
-        <div className={`alert-box ${isClosed ? "alert-box--closed" : isPending ? "alert-box--pending" : ""}`}>
-          <h3>Advertencia febrero–marzo 2027</h3>
-          <p>
-            <strong>{place.febMar2027.status}</strong>
-          </p>
-          <p>{place.febMar2027.warning}</p>
-          <p className="alert-box__action">Acción recomendada: {place.febMar2027.action}</p>
-        </div>
-
-        <div className="link-row">
-          {place.officialUrl && (
-            <a href={place.officialUrl} target="_blank" rel="noreferrer">
-              Sitio oficial ↗
-            </a>
+          {place.differentiator && (
+            <section className="highlight">
+              <h3 className="highlight__title">Por qué vale la pena</h3>
+              <p>{place.differentiator}</p>
+            </section>
           )}
-          {place.googleMapsUrl && (
-            <a href={place.googleMapsUrl} target="_blank" rel="noreferrer">
-              Google Maps ↗
-            </a>
-          )}
-        </div>
 
-        {nearbyPlaces.length > 0 && (
-          <div className="nearby-section">
-            <h3>Cerca de aquí</h3>
-            <ul className="nearby-list">
-              {nearbyPlaces.map(({ rel, place: nearbyPlace }) => (
-                <li key={nearbyPlace.id}>
-                  <button type="button" className="nearby-item" onClick={() => onSelectNearby(nearbyPlace.id)}>
-                    <span className="nearby-item__name">{nearbyPlace.name}</span>
-                    <span className="nearby-item__meta">
-                      {rel["Distancia km"]} km · ~{rel["Min aprox."]} min ({rel["Modo"]})
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          {showExperience && (
+            <section className="place-detail__section">
+              <h3>Qué se hace o se ve</h3>
+              <p>{place.experience}</p>
+            </section>
+          )}
+
+          <div className="quick-facts">
+            <QuickFact
+              icon="⏱"
+              label="Tiempo de visita"
+              value={duration ? formatRange(duration) : place.duration.raw}
+            />
+            <QuickFact icon="💴" label="Precio" value={formatPrice(place)} />
+            <QuickFact icon="🕰" label="Mejor momento" value={place.bestTime} />
+            <QuickFact icon="🗓" label="Mejor época" value={place.bestSeason} />
           </div>
-        )}
+
+          <section className={`alert alert--${severity}`}>
+            <h3 className="alert__title">
+              <span aria-hidden="true">{severity === "confirmed" ? "✓" : severity === "risk" ? "⚠" : "ⓘ"}</span>{" "}
+              Febrero–marzo 2027
+              <span className="alert__severity">{severityLabel(severity)}</span>
+            </h3>
+            <p className="alert__status">{place.febMar2027.status}</p>
+            <p>{place.febMar2027.warning}</p>
+            {place.febMar2027.action && (
+              <p className="alert__action">
+                <strong>Qué hacer:</strong> {place.febMar2027.action}
+              </p>
+            )}
+          </section>
+
+          <section className="place-detail__section">
+            <h3>Información práctica</h3>
+            <dl className="detail-rows">
+              <Row label="Horario" value={place.schedule.hours} />
+              <Row label="Cierres" value={place.schedule.closures} />
+              <Row
+                label="Reserva"
+                value={
+                  place.reservation.required
+                    ? `Necesaria · ${place.reservation.leadTime}`
+                    : "No es necesaria"
+                }
+              />
+              <Row label="Cómo llegar" value={place.transport} />
+              <Row label="Accesibilidad" value={place.accessibility} />
+              <Row label="Aglomeración" value={place.crowdLevel} />
+            </dl>
+          </section>
+
+          <div className="link-row">
+            {place.officialUrl && (
+              <a className="button button--secondary" href={place.officialUrl} target="_blank" rel="noreferrer">
+                Sitio oficial <span aria-hidden="true">↗</span>
+              </a>
+            )}
+            {place.googleMapsUrl && (
+              <a className="button button--secondary" href={place.googleMapsUrl} target="_blank" rel="noreferrer">
+                Google Maps <span aria-hidden="true">↗</span>
+              </a>
+            )}
+          </div>
+
+          {nearbyPlaces.length > 0 && (
+            <section className="place-detail__section">
+              <h3>Cerca de aquí</h3>
+              <ul className="nearby-list">
+                {nearbyPlaces.map(({ relation, target }) => (
+                  <li key={target.id}>
+                    <button type="button" className="nearby-item" onClick={() => onSelectNearby(target.id)}>
+                      <span className="nearby-item__text">
+                        <span className="nearby-item__name">{target.name}</span>
+                        <span className="nearby-item__relation">{relation["Relación"]}</span>
+                      </span>
+                      <span className="nearby-item__distance">
+                        {relation["Distancia km"]} km
+                        <span className="nearby-item__mode">
+                          {relation["Modo"]} · ~{relation["Min aprox."]} min
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <p className="place-detail__footnote">
+                Traslados aproximados en línea recta; no son tiempos de ruta reales.
+              </p>
+            </section>
+          )}
+
+          <p className="place-detail__updated">Datos actualizados el {place.updatedAt}</p>
+        </div>
       </div>
     </div>
   );

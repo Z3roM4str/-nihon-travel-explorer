@@ -1,4 +1,5 @@
 import type { Place } from "../types";
+import { formatRange, resolveDuration, sumVisitTime } from "../lib/duration";
 
 type Props = {
   savedPlaces: Place[];
@@ -8,101 +9,95 @@ type Props = {
   onToggle: () => void;
 };
 
-function sumDuration(places: Place[]) {
-  return places.reduce(
-    (acc, place) => {
-      const min = place.duration.minMinutes;
-      const max = place.duration.maxMinutes;
-      if (min != null && max != null) {
-        acc.min += min;
-        acc.max += max;
-        acc.known += 1;
-      } else {
-        acc.unknown += 1;
-      }
-      return acc;
-    },
-    { min: 0, max: 0, known: 0, unknown: 0 }
-  );
-}
-
-function formatMinutes(minutes: number) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  if (hours === 0) return `${mins} min`;
-  if (mins === 0) return `${hours} h`;
-  return `${hours} h ${mins} min`;
-}
-
 export function SelectionPanel({ savedPlaces, onRemove, onSelect, open, onToggle }: Props) {
-  const totals = sumDuration(savedPlaces);
+  const totals = sumVisitTime(savedPlaces);
 
   return (
-    <section className={`selection-panel ${open ? "selection-panel--open" : ""}`} aria-label="Selección guardada">
-      <button
-        type="button"
-        className="selection-panel__toggle"
-        onClick={onToggle}
-        aria-expanded={open}
-      >
-        <span>
-          Quiero ir <strong>({savedPlaces.length})</strong>
+    <section className="selection-panel" aria-label="Lugares guardados">
+      <button type="button" className="selection-panel__toggle" onClick={onToggle} aria-expanded={open}>
+        <span className="selection-panel__title">
+          <span aria-hidden="true">📍</span> Quiero ir
+          <span className="selection-panel__count">{savedPlaces.length}</span>
         </span>
-        <span aria-hidden="true">{open ? "▾" : "▴"}</span>
+        <span
+          className={`selection-panel__hint ${
+            savedPlaces.length === 0 ? "selection-panel__hint--placeholder" : ""
+          }`}
+        >
+          {savedPlaces.length === 0 ? (
+            "Guarda lugares desde su ficha"
+          ) : totals.estimated ? (
+            <>
+              <span className="visually-hidden">Tiempo estimado de visita: </span>
+              {formatRange(totals.estimated)} de visita
+            </>
+          ) : (
+            "Sin estimación numérica"
+          )}
+        </span>
+        <span aria-hidden="true" className="selection-panel__chevron">
+          {open ? "▾" : "▴"}
+        </span>
       </button>
 
       {open && (
         <div className="selection-panel__content">
           {savedPlaces.length === 0 ? (
             <p className="selection-panel__empty">
-              Aún no has guardado lugares. Usa “Quiero ir” en una ficha para añadirla aquí.
+              Aún no has guardado lugares. Abre una ficha y pulsa <strong>Quiero ir</strong> para
+              añadirla aquí.
             </p>
           ) : (
             <>
               <div className="selection-panel__summary">
-                <p>
-                  <strong>{savedPlaces.length}</strong> lugar{savedPlaces.length === 1 ? "" : "es"} guardado
-                  {savedPlaces.length === 1 ? "" : "s"}
-                </p>
-                {totals.known > 0 ? (
-                  <p className="selection-panel__time">
-                    Tiempo estimado de visita: <strong>{formatMinutes(totals.min)}–{formatMinutes(totals.max)}</strong>
-                    {totals.unknown > 0 && (
-                      <span className="selection-panel__note">
+                <div className="selection-panel__metric">
+                  <span className="selection-panel__metric-value">{totals.saved}</span>
+                  <span className="selection-panel__metric-label">
+                    lugar{totals.saved === 1 ? "" : "es"} guardado{totals.saved === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <div className="selection-panel__metric">
+                  <span className="selection-panel__metric-value">
+                    {totals.estimated ? formatRange(totals.estimated) : "—"}
+                  </span>
+                  <span className="selection-panel__metric-label">
+                    tiempo estimado de visita
+                    {totals.withoutEstimate > 0 && (
+                      <>
                         {" "}
-                        ({totals.unknown} lugar{totals.unknown === 1 ? "" : "es"} sin duración estimada)
-                      </span>
+                        ({totals.withoutEstimate} sin estimación numérica)
+                      </>
                     )}
-                  </p>
-                ) : (
-                  <p className="selection-panel__note">Sin datos de duración disponibles para calcular un total.</p>
-                )}
+                  </span>
+                </div>
                 <p className="selection-panel__disclaimer">
-                  Este total suma únicamente tiempo de visita en cada lugar. No incluye traslados entre lugares —
-                  esa estimación llegará en la Fase 2.
+                  <span aria-hidden="true">ⓘ</span> Solo suma el tiempo dentro de cada lugar.{" "}
+                  <strong>No incluye traslados</strong> entre lugares.
                 </p>
               </div>
+
               <ul className="selection-list">
-                {savedPlaces.map((place) => (
-                  <li key={place.id} className="selection-list__item">
-                    <button
-                      type="button"
-                      className="selection-list__name"
-                      onClick={() => onSelect(place.id)}
-                    >
-                      {place.name}
-                      <span className="selection-list__duration">{place.duration.raw}</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="icon-button"
-                      aria-label={`Quitar ${place.name} de la selección`}
-                      onClick={() => onRemove(place.id)}
-                    >
-                      ×
-                    </button>
-                  </li>
-                ))}
+                {savedPlaces.map((place) => {
+                  const range = resolveDuration(place.duration);
+                  return (
+                    <li key={place.id} className="selection-list__item">
+                      <button type="button" className="selection-list__name" onClick={() => onSelect(place.id)}>
+                        <span>{place.name}</span>
+                        <span className="selection-list__duration">
+                          {range ? formatRange(range) : place.duration.raw}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        className="icon-button icon-button--small"
+                        aria-label={`Quitar ${place.name} de Quiero ir`}
+                        onClick={() => onRemove(place.id)}
+                      >
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </>
           )}

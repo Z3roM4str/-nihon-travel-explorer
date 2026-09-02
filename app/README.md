@@ -24,6 +24,15 @@ npm run build
 build-time data source, per `docs/DATA_MODEL.md`). Re-copy them after regenerating
 the dataset from the master workbook.
 
+## Photography
+
+`src/data/place-images.ts` is the image registry, keyed by place id. It is intentionally
+empty: every place currently ships with `imageStatus: "brief-only"`, so the gallery falls
+back to the editorial `imageBrief`. Adding an entry with a cleared `url` plus its
+`credit` / `source` / `license` is all that is needed to light up the hero, carousel,
+swipe, dots and lightbox — no component changes required. Never point an entry at an
+unlicensed URL or at a photograph of a different place.
+
 ## Notes
 
 - No itinerary generation, booking, or routing — out of scope for Phase 1.
@@ -31,3 +40,6 @@ the dataset from the master workbook.
   gallery placeholder until real photos are sourced.
 - The activity-time total in the selection panel sums visit-time ranges only; it is
   explicitly labeled as not including transport time (Phase 2).
+- Durations counted in days or nights ("Día completo", "1–2 días") are never converted to
+  minutes — they describe trip space, not time on site — so they show their editorial text
+  and are reported separately as "sin estimación numérica".

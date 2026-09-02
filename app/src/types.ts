@@ -1,3 +1,17 @@
+/**
+ * A licensed photograph of a place. `url` may be a local asset under `public/` or a remote URL
+ * that is cleared for use; `credit`, `source` and `license` carry the attribution the source
+ * requires and are rendered with the image when present.
+ */
+export type PlaceImage = {
+  url: string;
+  alt: string;
+  credit?: string;
+  source?: string;
+  sourceUrl?: string;
+  license?: string;
+};
+
 export type Place = {
   id: string;
   hub: string;
@@ -52,6 +66,8 @@ export type Place = {
   googleMapsUrl: string;
   imageBrief: string;
   imageStatus: string;
+  /** Present only once the export pipeline carries licensed assets; see `data/place-images.ts`. */
+  images?: PlaceImage[];
   nearbyIds: string[];
   hiddenGemStatus?: string;
   alternativeTo?: string | null;
@@ -76,6 +92,7 @@ export type NearbyRelation = {
 };
 
 export type Filters = {
+  query: string;
   categories: string[];
   grades: string[];
   hiddenGemStatuses: string[];
