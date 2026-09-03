@@ -42,16 +42,22 @@
 - [x] Nearby navigation and Back work across hubs.
 - [x] Map bounds fit the active hub's places dynamically.
 
-## Phase 2C — National Explorer — pending
+## Phase 2C — National Explorer — complete
 
-- [ ] National map of Japan.
-- [ ] Regions/prefectures as a browsable layer.
-- [ ] Japan → region → hub navigation.
-- [ ] Real geographic polygons (verified GeoJSON or TopoJSON) for regions/prefectures.
-- [ ] Integration with the multi-hub state already built in Phase 2B.
+- [x] National map of Japan, opened as the application's entry view.
+- [x] Regions/prefectures as a browsable layer, with coverage derived from the real dataset.
+- [x] Japan → region → prefecture → hub navigation, available from the map and from
+      equivalent keyboard-accessible controls.
+- [x] Real geographic polygons for the 47 prefectures, derived from the official MLIT
+      国土数値情報 行政区域データ (N03, 2026) and documented in `docs/GEOGRAPHY.md`.
+- [x] Integration with the multi-hub state already built in Phase 2B: entering a hub, saved
+      places opened from the national view, and returning to Japan all reuse the same
+      navigation primitives.
+- [x] Reproducible geographic validation (`scripts/validate-geography.py`) and a
+      reproducible build for the derived geometry (`scripts/build-geography.sh`).
 
-Every hub is currently reachable as a flat list of tabs (Phase 2B); none of the above —
-national map, region/prefecture layer, or Japan → region → hub navigation — exists yet.
+Geography and hubs are kept distinct: places are placed on the national map by their real
+prefecture, while the button offered for them opens the hub they belong to editorially.
 
 ## Later (unscheduled)
 

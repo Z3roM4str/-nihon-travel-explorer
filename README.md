@@ -6,18 +6,24 @@ Nihon turns a structured Japan travel research base into a visual explorer: brow
 
 ## Current status
 
-**Phase 0 — foundation and dataset contract**
+**Phase 2C — National Explorer**
 
-- Product scope and UX behavior documented.
-- Excel master base mapped to an application data model.
-- JSON export pipeline prepared for the master workbook.
-- No itinerary generation yet.
+- Product scope and UX behaviour documented; the workbook is mapped to an application data
+  model and exported reproducibly.
+- The application opens on a map of the whole of Japan, drawn from official MLIT
+  administrative geometry, and browses down to a hub from there.
+- Every hub in the dataset is reachable, with filters, place details, nearby jumps, saved
+  places, and activity-time estimates.
+- No itinerary generation, routing, or booking.
 
-## Planned experience
+## Experience
 
-`Japan map → hub/region → place marker → visual detail panel → save places → time estimate`
+`Japan → region → prefecture → hub → place marker → visual detail panel → save places → time estimate`
 
-The first vertical slice will use Tokyo, then expand to Kyoto, Osaka/Kansai, Okinawa, and the rest of the verified dataset.
+The national view shows all 47 prefectures and makes clear which of them Nihon actually
+covers today; prefectures without verified places stay on the map without pretending to
+have content. Selecting a covered prefecture opens the hub its places belong to
+editorially, which is not always the hub nearest to it.
 
 ## Data source
 
@@ -29,6 +35,7 @@ The dataset intentionally preserves uncertainty and operational warnings, includ
 
 - [Product specification](docs/PRODUCT_SPEC.md)
 - [Data model](docs/DATA_MODEL.md)
+- [Geographic layer, source and licence](docs/GEOGRAPHY.md)
 - [Roadmap](docs/ROADMAP.md)
 
 ## Portfolio framing
