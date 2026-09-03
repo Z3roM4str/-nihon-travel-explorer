@@ -59,11 +59,25 @@
 Geography and hubs are kept distinct: places are placed on the national map by their real
 prefecture, while the button offered for them opens the hub they belong to editorially.
 
+## Phase 3A — Selection Intelligence — complete
+
+- [x] Add duration/time filtering, by planning block rather than by raw minutes, matching on
+      range overlap so a place is never hidden from a block its duration can reach.
+- [x] Recommended planning-block summaries: per hub and per cluster, always separating
+      quantified visit time from day-scale commitments and from places with no estimate.
+- [x] Compare selected places by cluster and geography — grouping by hub, by physical
+      prefecture and by hub + cluster, with factual concentration and spread readings.
+- [x] Planning-block taxonomy derived from `duration` (`app/src/lib/planning-block.ts`) and a
+      pure aggregation layer (`app/src/lib/selection.ts`), covered by unit tests.
+- [x] Duration and cluster checks in `scripts/validate-dataset.py`, with secondary cluster
+      metadata reported as warnings rather than treated as truth.
+
+Selection Intelligence describes the selection; it does not order it. No day assignment, no
+sequencing and no transport time is produced, and none of it is persisted — saved place ids
+remain the only stored user state.
+
 ## Later (unscheduled)
 
-- [ ] Add duration/time filtering.
-- [ ] Recommended planning-block summaries.
-- [ ] Compare selected places by cluster and geography.
 - [ ] Estimate logistical overhead using validated routing data.
 - [ ] Compare candidate city sequences.
 - [ ] Only then generate day-level itinerary candidates.
