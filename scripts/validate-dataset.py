@@ -13,8 +13,18 @@ import sys
 from pathlib import Path
 
 EXPECTED_PLACE_COUNT = 214
-EXPECTED_NEARBY_COUNT = 403
 JAPAN_BBOX = {"lat_min": 20, "lat_max": 46, "lng_min": 122, "lng_max": 154}
+
+# `nearby.json`'s relation count is reported dynamically (see the OK summary) rather than
+# asserted against a fixed number: it is expected to grow as the workbook's logistics
+# section is extended, and that growth is legitimate, not a data-quality defect.
+#
+# The `Modo` / `Relación` vocabularies below mirror `app/src/lib/transfer.ts`'s
+# `TransferMode` / `TransferRelation` normalization — Phase 3B1's domain-layer contract for
+# these same 403+ relations. Both sides must be extended together whenever the workbook
+# introduces a genuinely new mode or relation kind.
+KNOWN_NEARBY_MODES = {"A pie", "Transporte local", "Disney Resort Line"}
+KNOWN_NEARBY_RELATIONS = {"Mismo cluster", "Cercano", "Alternativas/complementos"}
 
 # Duration families, mirroring app/src/lib/planning-block.ts. Every editorial `raw` must
 # fall in exactly one of them; the counts per family are deliberately NOT asserted, since
@@ -78,9 +88,6 @@ def check(dataset_dir):
         elif not (JAPAN_BBOX["lat_min"] <= lat <= JAPAN_BBOX["lat_max"] and
                    JAPAN_BBOX["lng_min"] <= lng <= JAPAN_BBOX["lng_max"]):
             errors.append(f"{place['id']}: coordinates out of Japan bounding box ({lat}, {lng})")
-
-    if len(nearby) != EXPECTED_NEARBY_COUNT:
-        errors.append(f"expected {EXPECTED_NEARBY_COUNT} nearby relations, found {len(nearby)}")
 
     ids_set = set(ids)
     broken = [
@@ -185,6 +192,74 @@ def check(dataset_dir):
         if row.get("S/A") != real_sa:
             warnings.append(
                 f"cluster metadata {label}: 'S/A' is {row.get('S/A')}, places give {real_sa}"
+            )
+
+    # ---- Nearby relations (Phase 3B1 logistics foundation) --------------
+    # These are geographic proximity estimates, not routing-grade data (see docs/LOGISTICS.md).
+    # Hard failures here are about the *shape* of the relation, never about the estimate's
+    # accuracy — accuracy is exactly what Phase 3B1 declines to assert (`confidence:
+    # "estimated"` in `app/src/lib/transfer.ts`).
+    for index, relation in enumerate(nearby):
+        from_id = relation.get("Desde ID")
+        to_id = relation.get("Hacia ID")
+        label = f"nearby[{index}] {from_id} -> {to_id}"
+
+        if from_id is not None and from_id == to_id:
+            errors.append(f"{label}: self edge (Desde ID equals Hacia ID)")
+
+        distance = relation.get("Distancia km")
+        if distance is None or distance <= 0:
+            errors.append(f"{label}: 'Distancia km' must be > 0, found {distance!r}")
+
+        minutes = relation.get("Min aprox.")
+        if minutes is None or minutes <= 0:
+            errors.append(f"{label}: 'Min aprox.' must be > 0, found {minutes!r}")
+
+        mode = relation.get("Modo")
+        if mode not in KNOWN_NEARBY_MODES:
+            errors.append(f"{label}: unknown 'Modo' {mode!r}; known modes are {sorted(KNOWN_NEARBY_MODES)}")
+
+        relation_kind = relation.get("Relación")
+        if relation_kind not in KNOWN_NEARBY_RELATIONS:
+            errors.append(
+                f"{label}: unknown 'Relación' {relation_kind!r}; "
+                f"known values are {sorted(KNOWN_NEARBY_RELATIONS)}"
+            )
+
+        if relation_kind == "Mismo cluster" and from_id in by_id and to_id in by_id:
+            from_place, to_place = by_id[from_id], by_id[to_id]
+            if (from_place.get("hub"), from_place.get("cluster")) != (
+                to_place.get("hub"),
+                to_place.get("cluster"),
+            ):
+                errors.append(
+                    f"{label}: 'Mismo cluster' but hub/cluster differ "
+                    f"({from_place.get('hub')}/{from_place.get('cluster')} vs "
+                    f"{to_place.get('hub')}/{to_place.get('cluster')})"
+                )
+
+    # A→B and B→A are two independently recorded rows; when both exist, divergence is
+    # reported (not asserted as corruption) unless a future rule identifies an objective
+    # reason to treat a specific kind of mismatch as an error.
+    by_direction = {(r["Desde ID"], r["Hacia ID"]): r for r in nearby}
+    reported_pairs = set()
+    for (from_id, to_id), forward in by_direction.items():
+        pair = frozenset((from_id, to_id))
+        if pair in reported_pairs:
+            continue
+        backward = by_direction.get((to_id, from_id))
+        if backward is None:
+            continue
+        reported_pairs.add(pair)
+        mismatched_fields = [
+            field
+            for field in ("Distancia km", "Min aprox.", "Modo", "Relación")
+            if forward.get(field) != backward.get(field)
+        ]
+        if mismatched_fields:
+            warnings.append(
+                f"nearby {from_id} <-> {to_id}: directions diverge on {mismatched_fields} "
+                f"({forward}) vs ({backward})"
             )
 
     return errors, warnings, len(places), len(nearby)

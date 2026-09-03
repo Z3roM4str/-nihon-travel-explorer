@@ -76,8 +76,36 @@ Selection Intelligence describes the selection; it does not order it. No day ass
 sequencing and no transport time is produced, and none of it is persisted — saved place ids
 remain the only stored user state.
 
+## Phase 3B1 — Logistics Data Foundation — complete
+
+- [x] Establish a typed logistics domain layer (`app/src/lib/transfer.ts`) over the existing
+      `nearby.json` relations: a closed `TransferConfidence`/`TransferMode`/`TransferRelation`
+      vocabulary, structured (non-string) provenance, and a `minutes` range rather than a bare
+      number — without a second copy of the 403 relations and without touching the dataset.
+- [x] Label every current relation honestly: `confidence: "estimated"`, `verifiedAt: null`,
+      and provenance identifying the haversine-distance-plus-speed-model method that produced
+      it. None of the 403 relations is a routed or schedule-aware transfer, and none is
+      promoted to look like one.
+- [x] Directed, non-fabricating lookup (`lookupTransfer`) and purely factual coverage/distance
+      metrics (`computeLogisticsMetrics`) over a set of places — with no cluster
+      compact/extended classification, since Phase 3B's audit never fully specified a
+      threshold for one.
+- [x] Extend `scripts/validate-dataset.py` with nearby-relation shape checks (resolvable ids,
+      no self edge, positive distance/minutes, known `Modo`/`Relación` vocabulary, "Mismo
+      cluster" implying matching hub + cluster, and reverse-direction divergence as a
+      warning) without hardcoding the relation count as an invariant.
+- [x] Document the confidence/provenance contract, the 2026 dataset audit's findings, and the
+      3B2 boundary in `docs/LOGISTICS.md`.
+
+This phase formalizes the existing estimates; it does not validate them. Every transfer time in
+the application remains a geographic estimate until a later phase actually routes it.
+
 ## Later (unscheduled)
 
-- [ ] Estimate logistical overhead using validated routing data.
+- [ ] Validate local transfers with routing-grade data (walking routing via a provider such as
+      openrouteservice/OSM, or self-hosted Valhalla; transit/schedule-aware validation pending
+      a provider decision — see `docs/LOGISTICS.md`).
+- [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
+      unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
 - [ ] Compare candidate city sequences.
 - [ ] Only then generate day-level itinerary candidates.

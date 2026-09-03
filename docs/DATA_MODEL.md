@@ -37,8 +37,10 @@ cp data/places.json data/nearby.json data/clusters.json data/seasonal-alerts.jso
 ```
 
 `scripts/validate-dataset.py` checks: exactly 214 places with unique ids, valid
-coordinates inside Japan's bounding box, exactly 403 nearby relations with no id
-referencing a place that doesn't exist, and that the three Phase 2 editorial corrections
+coordinates inside Japan's bounding box, and every nearby relation (reported dynamically —
+403 today, not asserted as fixed — with no id referencing a place that doesn't exist; see
+"Transfer / logistics domain" below for the rest of its nearby-specific checks), and that the
+three Phase 2 editorial corrections
 (Okinawa region split, Naoshima region, the Tokyo Disneyland/DisneySea nearby relation)
 are present.
 
@@ -158,3 +160,56 @@ The only persisted user state remains the saved place ids, under `nihon.savedPla
 `localStorage`. Planning blocks, groupings, totals and concentration readings are all
 recomputed from those ids and the dataset, so there is no aggregate to migrate or to fall out
 of sync.
+
+## Transfer / logistics domain (derived, Phase 3B1)
+
+`app/src/lib/transfer.ts` reinterprets the same `nearby` relations as a typed domain model —
+it is not a second data source. `nearby.json`'s 403 directed rows remain the only place these
+relations are stored; `transfer.ts` converts them on read into:
+
+```ts
+type TransferConfidence = "estimated" | "validated-static" | "schedule-aware";
+
+type TransferProvenance = {
+  kind: "derived-geographic";
+  dataset: "nearby";
+  method: "haversine-speed-model";
+};
+
+type TransferEdge = {
+  fromId: string;
+  toId: string;
+  minutes: { minMinutes: number; maxMinutes: number };
+  distanceKm: number;
+  mode: "walk" | "local-transit" | "disney-resort-line";
+  rawMode: string;
+  relation: "same-cluster" | "nearby" | "alternative";
+  rawRelation: string;
+  confidence: TransferConfidence;
+  source: TransferProvenance;
+  verifiedAt: string | null;
+};
+```
+
+Every relation currently in `nearby.json` is a geographic estimate (haversine distance + a
+fixed speed model — see each row's `Nota`), never a routed or schedule-aware transfer, so every
+edge converted today gets `confidence: "estimated"` and `verifiedAt: null`. The taxonomy's other
+two members exist so a later phase can populate a genuinely validated edge without widening
+this type or touching a consumer that already reads `confidence`. Full rationale, the
+confidence taxonomy, and the 3B2 boundary are documented in `docs/LOGISTICS.md`.
+
+`lookupTransfer(fromId, toId): TransferEdge | null` is a directed dictionary lookup: it never
+assumes `A → B` implies `B → A`, never computes a fallback from coordinates when no edge is
+recorded, and never chains edges to find a path. There is deliberately no function that sums
+transfer minutes across a `Place[]` — a selection has no order, so no such sum could be
+meaningful; a future aggregation must take an explicit sequence, not a bare selection (see
+`docs/LOGISTICS.md`, "No aggregation without order").
+
+`computeLogisticsMetrics(places)` reports only factual coverage over a set of places
+(`possiblePairCount`, `knownPairCount`, `pairCoverage`, `recordedDistanceRange`) — no
+compact/extended classification is derived from them yet (see `docs/LOGISTICS.md`).
+
+`scripts/validate-dataset.py` validates `nearby.json`'s shape (resolvable ids, no self edge,
+positive distance/minutes, `Modo`/`Relación` within the known vocabulary, "Mismo cluster"
+implying matching hub + cluster) and reports — as warnings, not errors — any divergence between
+a relation and its recorded reverse direction. It does not assert a fixed relation count.
