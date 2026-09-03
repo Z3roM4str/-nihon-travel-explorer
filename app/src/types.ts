@@ -1,3 +1,5 @@
+import type { PlanningBlock } from "./lib/planning-block";
+
 /**
  * A licensed photograph of a place. `url` may be a local asset under `public/` or a remote URL
  * that is cleared for use; `credit`, `source` and `license` carry the attribution the source
@@ -98,4 +100,6 @@ export type Filters = {
   hiddenGemStatuses: string[];
   tourismLevels: string[];
   reservation: "all" | "required" | "not-required";
+  /** Derived duration categories; see `lib/planning-block.ts`. Empty means no constraint. */
+  planningBlocks: PlanningBlock[];
 };

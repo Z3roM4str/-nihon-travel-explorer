@@ -1,5 +1,7 @@
 import { useId } from "react";
 import type { Filters } from "../types";
+import type { PlanningBlock } from "../lib/planning-block";
+import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
 import { splitCategory } from "../lib/place";
 
 type Props = {
@@ -7,6 +9,8 @@ type Props = {
   onChange: (filters: Filters) => void;
   categories: string[];
   grades: string[];
+  /** Blocks present in the current hub, in taxonomy order. */
+  planningBlocks: PlanningBlock[];
   hiddenGemStatuses: string[];
   tourismLevels: string[];
   resultCount: number;
@@ -15,7 +19,7 @@ type Props = {
   onReset: () => void;
 };
 
-function toggleValue(list: string[], value: string): string[] {
+function toggleValue<T extends string>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
@@ -46,6 +50,7 @@ export function FilterPanel({
   onChange,
   categories,
   grades,
+  planningBlocks,
   hiddenGemStatuses,
   tourismLevels,
   resultCount,
@@ -129,6 +134,30 @@ export function FilterPanel({
             <span>{grade}</span>
           </label>
         ))}
+      </FilterGroup>
+
+      <FilterGroup label="Duración" count={filters.planningBlocks.length} defaultOpen>
+        {planningBlocks.map((block) => {
+          const hint = planningBlockHint(block);
+          return (
+            <label key={block} className="filter-chip">
+              <input
+                type="checkbox"
+                checked={filters.planningBlocks.includes(block)}
+                onChange={() =>
+                  onChange({
+                    ...filters,
+                    planningBlocks: toggleValue(filters.planningBlocks, block),
+                  })
+                }
+              />
+              <span>
+                {planningBlockLabel(block)}
+                {hint && <span className="filter-chip__hint"> ({hint})</span>}
+              </span>
+            </label>
+          );
+        })}
       </FilterGroup>
 
       <FilterGroup label="Hidden gem" count={filters.hiddenGemStatuses.length}>
