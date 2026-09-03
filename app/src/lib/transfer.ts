@@ -1,0 +1,279 @@
+import nearbyData from "../data/nearby.json";
+import type { NearbyRelation, Place } from "../types";
+
+/**
+ * Transfer domain layer — Phase 3B1.
+ *
+ * `nearby.json` records 403 directed relations between places. Every one of them was
+ * produced by taking each place's coordinates and a haversine distance, then applying a
+ * fixed walking/transit speed model to estimate minutes — a geographic proximity estimate,
+ * not a routed, schedule-aware, or otherwise validated transfer. This module gives those
+ * relations a domain shape (`TransferEdge`) that a future phase can populate from a real
+ * routing provider without changing anything that reads it: the confidence and provenance
+ * fields exist precisely so an "estimated" edge can later become "validated-static" or
+ * "schedule-aware" in place, while every current edge stays honestly labelled as an
+ * estimate.
+ *
+ * This module does not read or duplicate `nearby.json` into a second dataset — it imports
+ * the same file `app/src/data/store.ts` does, and converts on read. There is exactly one
+ * source of the 403 relations.
+ *
+ * Deliberately absent, by design, not oversight:
+ *   - No routing, ordering, or itinerary generation.
+ *   - No aggregation across more than one edge (see "No aggregation without order" below).
+ *   - No synthesis of an edge from geometry when the dataset has none.
+ */
+
+/**
+ * How much to trust an edge's minutes/distance.
+ *   - "estimated": derived from geographic proximity, as every current `nearby.json`
+ *     relation is. No schedule, no routed path.
+ *   - "validated-static": a real routed path/time, without live schedule awareness
+ *     (e.g. a walking-routing provider's result). Not produced anywhere yet.
+ *   - "schedule-aware": accounts for an actual timetable (e.g. a transit provider's
+ *     departure/arrival lookup). Not produced anywhere yet.
+ * Nothing in this module ever assigns anything but "estimated" — the other two members
+ * exist so 3B2+ can slot a real value in without widening this union or touching a
+ * consumer that already reads `confidence`.
+ */
+export type TransferConfidence = "estimated" | "validated-static" | "schedule-aware";
+
+/**
+ * Transfer modes that exist in the current 403 `nearby.json` relations, normalized to a
+ * closed domain vocabulary. This is not a general transport catalogue — it does not (yet)
+ * include Shinkansen, flights, or ferries, because none of those appear in `Modo` today.
+ * An unrecognised `Modo` value fails loudly (`normalizeTransferMode` throws) rather than
+ * being coerced into an arbitrary string.
+ */
+export type TransferMode = "walk" | "local-transit" | "disney-resort-line";
+
+const MODE_BY_RAW: Record<string, TransferMode> = {
+  "A pie": "walk",
+  "Transporte local": "local-transit",
+  "Disney Resort Line": "disney-resort-line",
+};
+
+/** Throws on any `Modo` value outside the current closed set. See `TransferMode`. */
+export function normalizeTransferMode(rawMode: string): TransferMode {
+  const mode = MODE_BY_RAW[rawMode];
+  if (!mode) {
+    throw new Error(`Unknown nearby transfer mode: ${JSON.stringify(rawMode)}`);
+  }
+  return mode;
+}
+
+/**
+ * `Relación` values that exist in the current dataset, normalized the same way as mode.
+ * This describes how the two places relate editorially (same cluster, nearby, an
+ * alternative/complement) — it carries no transfer-quality meaning on its own.
+ */
+export type TransferRelation = "same-cluster" | "nearby" | "alternative";
+
+const RELATION_BY_RAW: Record<string, TransferRelation> = {
+  "Mismo cluster": "same-cluster",
+  Cercano: "nearby",
+  "Alternativas/complementos": "alternative",
+};
+
+/** Throws on any `Relación` value outside the current closed set. */
+export function normalizeTransferRelation(rawRelation: string): TransferRelation {
+  const relation = RELATION_BY_RAW[rawRelation];
+  if (!relation) {
+    throw new Error(`Unknown nearby relation kind: ${JSON.stringify(rawRelation)}`);
+  }
+  return relation;
+}
+
+/**
+ * Structured provenance — never a decorative string. `kind` names the family of method
+ * (derived from geometry, vs. a future routed/schedule provider); `dataset` and `method`
+ * pin down exactly which source and computation produced the edge. 3B2 can extend the
+ * `kind` union (e.g. `"routing-provider"`, `"transit-provider"`) without touching this
+ * shape's meaning for edges that stay geographic.
+ */
+export type TransferProvenance = {
+  kind: "derived-geographic";
+  dataset: "nearby";
+  method: "haversine-speed-model";
+};
+
+const NEARBY_PROVENANCE: TransferProvenance = {
+  kind: "derived-geographic",
+  dataset: "nearby",
+  method: "haversine-speed-model",
+};
+
+/**
+ * A directed transfer between two places. `minutes` is always a range — never a bare
+ * number — so a future routing-grade edge with genuine min/max variance fits the same
+ * shape a single-valued estimate uses today. For every edge converted from the current
+ * dataset, `minMinutes === maxMinutes`: `nearby.json` records one "Min aprox." value, and
+ * no tolerance (±10%, ±20%, or otherwise) is fabricated to turn it into a spread. The
+ * uncertainty in that single number is represented by `confidence`, not by invented bounds.
+ */
+export type TransferEdge = {
+  fromId: string;
+  toId: string;
+  minutes: { minMinutes: number; maxMinutes: number };
+  distanceKm: number;
+  mode: TransferMode;
+  /** The original `Modo` text, kept for auditability alongside the normalized `mode`. */
+  rawMode: string;
+  relation: TransferRelation;
+  /** The original `Relación` text, kept for auditability alongside `relation`. */
+  rawRelation: string;
+  confidence: TransferConfidence;
+  source: TransferProvenance;
+  /** ISO timestamp of independent validation, or null — every current edge is null. */
+  verifiedAt: string | null;
+};
+
+/** Converts one raw `nearby.json` row into its domain shape. Pure; throws on an unknown
+ * mode or relation rather than silently accepting an arbitrary string. */
+export function toTransferEdge(relation: NearbyRelation): TransferEdge {
+  const minutes = relation["Min aprox."];
+  return {
+    fromId: relation["Desde ID"],
+    toId: relation["Hacia ID"],
+    minutes: { minMinutes: minutes, maxMinutes: minutes },
+    distanceKm: relation["Distancia km"],
+    mode: normalizeTransferMode(relation["Modo"]),
+    rawMode: relation["Modo"],
+    relation: normalizeTransferRelation(relation["Relación"]),
+    rawRelation: relation["Relación"],
+    confidence: "estimated",
+    source: NEARBY_PROVENANCE,
+    verifiedAt: null,
+  };
+}
+
+const nearbyRelations = nearbyData as NearbyRelation[];
+
+function edgeKey(fromId: string, toId: string): string {
+  return `${fromId}\u0000${toId}`;
+}
+
+const edgesByDirectedKey = new Map<string, TransferEdge>(
+  nearbyRelations.map((relation) => [
+    edgeKey(relation["Desde ID"], relation["Hacia ID"]),
+    toTransferEdge(relation),
+  ])
+);
+
+/**
+ * Looks up the recorded transfer from `fromId` to `toId`, in that direction only.
+ *
+ * This is a directed dictionary lookup, nothing more:
+ *   - It resolves an edge that actually exists in `nearby.json` — never a synthesized one.
+ *   - It never reads the reverse direction: `A → B` existing implies nothing about
+ *     `B → A`, even though most of today's relations happen to be recorded both ways.
+ *   - It never computes distance/time from coordinates when no edge is recorded.
+ *   - It never chains, joins, or searches for a shortest path across edges.
+ *
+ * Returns `null` when there is no recorded edge in that exact direction — a caller that
+ * wants "is there any recorded relation between these two places" must check both
+ * `lookupTransfer(a, b)` and `lookupTransfer(b, a)` explicitly, as `computeLogisticsMetrics`
+ * does below.
+ */
+export function lookupTransfer(fromId: string, toId: string): TransferEdge | null {
+  return edgesByDirectedKey.get(edgeKey(fromId, toId)) ?? null;
+}
+
+/*
+ * No aggregation without order — deliberately absent from this module.
+ *
+ * A `Place[]` selection has no sequence, so there is no correct way to sum transfer times
+ * across it: which edge would connect place 3 to place 4 depends entirely on an itinerary
+ * order this module is never given. Do NOT add a `sumTransfers(places)`,
+ * `selectionTransferTotal`, `hubTransferTotal`, or `clusterTransferTotalMinutes` here — any
+ * such function would silently need to invent an order (e.g. array order, or worse, a
+ * shortest-path search) to produce a number, and that number would misrepresent the
+ * selection as a plan. A future aggregation belongs in a later phase (3C) and must take an
+ * explicit sequence of ids/edges as input, never a bare `Place[]`.
+ */
+
+/**
+ * Purely factual coverage/distance metrics over a set of places — no ordering, no routing,
+ * no compactness classification (see 3B1 decision: compact/extended labels are deferred to
+ * a later phase with an explicit, documented threshold).
+ */
+export type LogisticsMetrics = {
+  placeCount: number;
+  /** Unordered pairs among `placeCount` places: `n * (n - 1) / 2`. */
+  possiblePairCount: number;
+  /** Unordered pairs with a recorded edge in at least one direction; never double-counted
+   * when both directions are recorded. */
+  knownPairCount: number;
+  /** `knownPairCount / possiblePairCount`; `0` when no pair is possible. */
+  pairCoverage: number;
+  /**
+   * Min/max `distanceKm` across every directed edge actually recorded among the known
+   * pairs — not one value per pair. A pair with both `A → B` and `B → A` recorded
+   * contributes both distances as independent observations, even when they diverge; this
+   * range is never collapsed to a single per-pair distance and never assumes the two
+   * directions agree.
+   */
+  recordedDistanceRange: { minKm: number; maxKm: number } | null;
+  /** Same maximum as `recordedDistanceRange.maxKm`, exposed on its own for convenience. */
+  maxRecordedDistance: number | null;
+};
+
+/**
+ * A pair is "known" when `nearby.json` records an edge in either direction between the two
+ * places — this only asks whether a relation exists, it never assumes a found `A → B` edge
+ * describes the `B → A` trip too, and it never picks, averages, or symmetrizes a direction:
+ * both directed lookups are checked independently for every pair, every time.
+ *
+ * This is a plain function of an unordered id list plus a lookup — nothing here reads array
+ * position — so the result cannot depend on the order `ids` (or the `places` a caller passes
+ * to `computeLogisticsMetrics`) happen to be listed in. `lookup` is injected so tests can
+ * exercise order-invariance and a divergent-direction pair without needing real dataset
+ * fixtures; `computeLogisticsMetrics(places)` remains the only public entry point.
+ */
+export function logisticsMetricsFromLookup(
+  ids: string[],
+  lookup: (fromId: string, toId: string) => TransferEdge | null
+): LogisticsMetrics {
+  const placeCount = ids.length;
+  const possiblePairCount = placeCount < 2 ? 0 : (placeCount * (placeCount - 1)) / 2;
+
+  let knownPairCount = 0;
+  const recordedDistances: number[] = [];
+
+  for (let i = 0; i < placeCount; i += 1) {
+    for (let j = i + 1; j < placeCount; j += 1) {
+      const forward = lookup(ids[i], ids[j]);
+      const backward = lookup(ids[j], ids[i]);
+
+      // Exactly one increment per unordered pair, however many of the two directions exist.
+      if (forward || backward) knownPairCount += 1;
+
+      // Every recorded directed edge contributes its own distance observation — a pair with
+      // both directions recorded contributes two, even when they diverge; neither is dropped
+      // or averaged, and no symmetric edge is synthesized from the pair.
+      if (forward) recordedDistances.push(forward.distanceKm);
+      if (backward) recordedDistances.push(backward.distanceKm);
+    }
+  }
+
+  const recordedDistanceRange =
+    recordedDistances.length > 0
+      ? { minKm: Math.min(...recordedDistances), maxKm: Math.max(...recordedDistances) }
+      : null;
+
+  return {
+    placeCount,
+    possiblePairCount,
+    knownPairCount,
+    pairCoverage: possiblePairCount > 0 ? knownPairCount / possiblePairCount : 0,
+    recordedDistanceRange,
+    maxRecordedDistance: recordedDistanceRange?.maxKm ?? null,
+  };
+}
+
+export function computeLogisticsMetrics(places: Place[]): LogisticsMetrics {
+  return logisticsMetricsFromLookup(
+    places.map((place) => place.id),
+    lookupTransfer
+  );
+}
