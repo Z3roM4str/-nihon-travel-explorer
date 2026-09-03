@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
-import { getNationalSummary } from "./data/geography";
+import { getNationalSummary, getPrefectureByCode } from "./data/geography";
 import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
@@ -224,12 +224,19 @@ export default function App() {
     );
   }, []);
 
-  /** Selecting a prefecture also moves the view into its region, so map and controls agree. */
+  /**
+   * Selecting a prefecture also moves the view into that prefecture's own region, so the
+   * map viewport, the region list and the panel always describe the same place — picking a
+   * polygon from a neighbouring region on the map cannot leave the two disagreeing.
+   * Clearing the selection keeps the region the user is browsing.
+   */
   const selectPrefecture = useCallback((code: string | null) => {
     setView((current) => {
       if (current.mode !== "national") return current;
       if (!code) return { ...current, prefectureCode: null };
-      return { mode: "national", region: current.region, prefectureCode: code };
+      const prefecture = getPrefectureByCode(code);
+      if (!prefecture) return current;
+      return { mode: "national", region: prefecture.region, prefectureCode: code };
     });
   }, []);
 

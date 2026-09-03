@@ -110,8 +110,18 @@ export function NationalExplorer({
           </div>
         )}
 
+        {/* Attribution only — the polygons themselves are always served locally; the app
+            never requests anything from MLIT at runtime. */}
         <p className="national__attribution">
-          Geometría derivada del <span lang="ja">国土数値情報 行政区域データ</span> (N03, 2026)
+          Geometría derivada del{" "}
+          <a
+            href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span lang="ja">国土数値情報 行政区域データ</span> (N03, 2026)
+            <span className="visually-hidden"> — se abre en una pestaña nueva</span>
+          </a>{" "}
           del <span lang="ja">国土交通省</span> / MLIT. Versión simplificada creada por Nihon;
           no es un producto oficial de MLIT.
         </p>
