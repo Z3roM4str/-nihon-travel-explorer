@@ -98,6 +98,21 @@ def check(dataset_dir):
     if broken:
         errors.append(f"nearby relations with an id not in places.json: {broken}")
 
+    # A duplicate (Desde ID, Hacia ID) pair would silently overwrite an entry in the directed
+    # map app/src/lib/transfer.ts builds keyed on exactly that pair, so this is a hard error,
+    # not a warning. The count of duplicates found is reported dynamically — nothing here
+    # hardcodes how many directed edges the dataset should have.
+    first_seen_index = {}
+    for index, r in enumerate(nearby):
+        key = (r["Desde ID"], r["Hacia ID"])
+        if key in first_seen_index:
+            errors.append(
+                f"duplicate directed nearby edge {key[0]} -> {key[1]}: "
+                f"rows {first_seen_index[key]} and {index}"
+            )
+        else:
+            first_seen_index[key] = index
+
     # The 3 Phase 2 editorial corrections must be present.
     by_id = {p["id"]: p for p in places}
 

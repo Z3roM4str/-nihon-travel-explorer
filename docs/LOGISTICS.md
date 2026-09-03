@@ -168,10 +168,20 @@ A correct aggregation belongs to a later phase (3C, day/route planning) and must
 recorded data, with no interpretation layered on top:
 
 - `possiblePairCount` — unordered pairs among the given places (`n(n-1)/2`).
-- `knownPairCount` — how many of those pairs have a recorded edge in either direction.
+- `knownPairCount` — how many of those **unordered pairs** have a recorded edge in at least
+  one direction. A pair recorded both ways (`A → B` and `B → A`) still counts once; this is a
+  count of pairs, not of directed edges.
 - `pairCoverage` — `knownPairCount / possiblePairCount` (`0` when no pair is possible).
-- `recordedDistanceRange` / `maxRecordedDistance` — the min/max `distanceKm` across the known
-  pairs' recorded edges, or `null` when none are known.
+- `recordedDistanceRange` / `maxRecordedDistance` — the min/max `distanceKm` across **every
+  directed edge actually recorded** among the known pairs, or `null` when none are known. This
+  is a range over recorded edges, not over pairs: a pair with both directions recorded
+  contributes both distances as independent observations, even when they diverge, and neither
+  is dropped, averaged, or treated as confirming the other. Two directions disagreeing on
+  distance is not "corrected" into one number here — see `scripts/validate-dataset.py`'s
+  reverse-direction divergence check, which reports (not silently resolves) exactly this case.
+  Both metrics are computed per unordered pair regardless of the input array's order, so
+  `computeLogisticsMetrics(places)` and `computeLogisticsMetrics([...places].reverse())` always
+  agree.
 
 ### No compact/extended classification (3B1 decision)
 

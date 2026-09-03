@@ -4,6 +4,7 @@ import placesData from "../data/places.json";
 import type { NearbyRelation, Place } from "../types";
 import {
   computeLogisticsMetrics,
+  logisticsMetricsFromLookup,
   lookupTransfer,
   normalizeTransferMode,
   normalizeTransferRelation,
@@ -242,5 +243,93 @@ describe("computeLogisticsMetrics", () => {
   it("computes possiblePairCount as n(n-1)/2 for more than two places", () => {
     const metrics = computeLogisticsMetrics([place("a"), place("b"), place("c"), place("d")]);
     expect(metrics.possiblePairCount).toBe(6);
+  });
+});
+
+describe("nearby.json directed-edge uniqueness", () => {
+  it("has no duplicate (Desde ID, Hacia ID) directed edge in the current dataset", () => {
+    const seen = new Set<string>();
+    const duplicates: string[] = [];
+    for (const raw of nearbyRelations) {
+      const key = `${raw["Desde ID"]}>${raw["Hacia ID"]}`;
+      if (seen.has(key)) duplicates.push(key);
+      seen.add(key);
+    }
+    expect(duplicates).toEqual([]);
+  });
+});
+
+describe("computeLogisticsMetrics — order invariance", () => {
+  function place(id: string): Place {
+    return { id } as unknown as Place;
+  }
+
+  it("gives the same result for [A, B] and [B, A] on a real bidirectional pair", () => {
+    const raw = nearbyRelations[0];
+    // The fixture only proves something if this pair really is recorded both ways.
+    expect(lookupTransfer(raw["Hacia ID"], raw["Desde ID"])).not.toBeNull();
+
+    const a = place(raw["Desde ID"]);
+    const b = place(raw["Hacia ID"]);
+    expect(computeLogisticsMetrics([a, b])).toEqual(computeLogisticsMetrics([b, a]));
+  });
+
+  it("never double-counts a pair recorded in both directions", () => {
+    const raw = nearbyRelations[0];
+    const metrics = computeLogisticsMetrics([place(raw["Desde ID"]), place(raw["Hacia ID"])]);
+    expect(metrics.possiblePairCount).toBe(1);
+    expect(metrics.knownPairCount).toBe(1);
+  });
+
+  it("gives the same result across several orderings of 6 real places", () => {
+    const ids = places.slice(0, 6).map((p) => p.id);
+    const baseline = computeLogisticsMetrics(ids.map(place));
+    const reversed = computeLogisticsMetrics([...ids].reverse().map(place));
+    const shuffled = computeLogisticsMetrics(
+      [ids[3], ids[0], ids[5], ids[1], ids[4], ids[2]].map(place)
+    );
+    expect(reversed).toEqual(baseline);
+    expect(shuffled).toEqual(baseline);
+  });
+});
+
+describe("logisticsMetricsFromLookup — injected lookup, divergent directions", () => {
+  function fakeEdges(...rows: Array<[string, string, number]>) {
+    const byKey = new Map(
+      rows.map(([from, to, distanceKm]) => [
+        `${from}>${to}`,
+        toTransferEdge(relation({ "Desde ID": from, "Hacia ID": to, "Distancia km": distanceKm })),
+      ])
+    );
+    return (fromId: string, toId: string) => byKey.get(`${fromId}>${toId}`) ?? null;
+  }
+
+  it("counts a pair once and includes both directions' distances when they diverge", () => {
+    const lookup = fakeEdges(["A", "B", 1], ["B", "A", 5]);
+    const metrics = logisticsMetricsFromLookup(["A", "B"], lookup);
+    expect(metrics.possiblePairCount).toBe(1);
+    expect(metrics.knownPairCount).toBe(1);
+    expect(metrics.recordedDistanceRange).toEqual({ minKm: 1, maxKm: 5 });
+    expect(metrics.maxRecordedDistance).toBe(5);
+  });
+
+  it("stays order-invariant even when the two directions diverge", () => {
+    const lookup = fakeEdges(["A", "B", 1], ["B", "A", 5]);
+    expect(logisticsMetricsFromLookup(["A", "B"], lookup)).toEqual(
+      logisticsMetricsFromLookup(["B", "A"], lookup)
+    );
+  });
+
+  it("uses only the one recorded direction's distance when the reverse is missing", () => {
+    const lookup = fakeEdges(["A", "B", 2.5]);
+    const metrics = logisticsMetricsFromLookup(["A", "B"], lookup);
+    expect(metrics.knownPairCount).toBe(1);
+    expect(metrics.recordedDistanceRange).toEqual({ minKm: 2.5, maxKm: 2.5 });
+  });
+
+  it("reports no known pair and no distance when neither direction is recorded", () => {
+    const metrics = logisticsMetricsFromLookup(["A", "B"], () => null);
+    expect(metrics.knownPairCount).toBe(0);
+    expect(metrics.recordedDistanceRange).toBeNull();
   });
 });
