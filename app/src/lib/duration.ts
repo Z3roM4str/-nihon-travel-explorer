@@ -70,33 +70,3 @@ export function formatRange(range: MinuteRange): string {
   if (range.minMinutes === range.maxMinutes) return formatMinutes(range.minMinutes);
   return `${formatMinutes(range.minMinutes)}–${formatMinutes(range.maxMinutes)}`;
 }
-
-export type SelectionTotals = {
-  saved: number;
-  estimated: MinuteRange | null;
-  withoutEstimate: number;
-};
-
-export function sumVisitTime(places: Place[]): SelectionTotals {
-  let minMinutes = 0;
-  let maxMinutes = 0;
-  let counted = 0;
-  let withoutEstimate = 0;
-
-  for (const place of places) {
-    const range = resolveDuration(place.duration);
-    if (range) {
-      minMinutes += range.minMinutes;
-      maxMinutes += range.maxMinutes;
-      counted += 1;
-    } else {
-      withoutEstimate += 1;
-    }
-  }
-
-  return {
-    saved: places.length,
-    estimated: counted > 0 ? { minMinutes, maxMinutes } : null,
-    withoutEstimate,
-  };
-}

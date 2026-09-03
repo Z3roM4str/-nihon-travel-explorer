@@ -5,12 +5,14 @@ import { getNationalSummary, getPrefectureByCode } from "./data/geography";
 import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
+import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
 import { SelectionPanel } from "./components/SelectionPanel";
 import { useSavedPlaces } from "./useSavedPlaces";
 import { matchesQuery } from "./lib/place";
+import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import type { Filters, Place } from "./types";
 import "./App.css";
 
@@ -38,6 +40,7 @@ const EMPTY_FILTERS: Filters = {
   hiddenGemStatuses: [],
   tourismLevels: [],
   reservation: "all",
+  planningBlocks: [],
 };
 
 const EMPTY_PLACES: Place[] = [];
@@ -55,6 +58,7 @@ function matchesFilters(place: Place, filters: Filters): boolean {
   )
     return false;
   if (filters.tourismLevels.length > 0 && !filters.tourismLevels.includes(place.tourismLevel)) return false;
+  if (!matchesAnyPlanningBlock(place.duration, filters.planningBlocks)) return false;
   if (filters.reservation === "required" && !place.reservation.required) return false;
   if (filters.reservation === "not-required" && place.reservation.required) return false;
   return matchesQuery(place, filters.query);
@@ -67,6 +71,7 @@ function countActiveFilters(filters: Filters): number {
     filters.grades.length +
     filters.hiddenGemStatuses.length +
     filters.tourismLevels.length +
+    filters.planningBlocks.length +
     (filters.reservation === "all" ? 0 : 1)
   );
 }
@@ -90,6 +95,7 @@ export default function App() {
   const [history, setHistory] = useState<string[]>([]);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
   const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
   const isDesktop = useIsDesktop();
 
@@ -115,6 +121,11 @@ export default function App() {
   );
   const tourismLevels = useMemo(
     () => ["Extremo", "Alto", "Medio", "Bajo"].filter((level) => hubPlaces.some((p) => p.tourismLevel === level)),
+    [hubPlaces]
+  );
+  /** Blocks that would return results in the active hub, in taxonomy order. */
+  const planningBlocks = useMemo(
+    () => availablePlanningBlocks(hubPlaces.map((p) => p.duration)),
     [hubPlaces]
   );
 
@@ -177,6 +188,17 @@ export default function App() {
     if (nextPlace && nextPlace.hub !== activeHub) setView({ mode: "hub", hub: nextPlace.hub });
     setHistory(next);
   }, [history, activeHub]);
+
+  /** The analysis is a lens over the saved places, not a second navigation: opening a place
+   * from it goes through the same selectPlace every other surface uses. */
+  const closeAnalysis = useCallback(() => setAnalysisOpen(false), []);
+  const openFromAnalysis = useCallback(
+    (id: string) => {
+      selectPlace(id);
+      setAnalysisOpen(false);
+    },
+    [selectPlace]
+  );
 
   const closeDetail = useCallback(() => setHistory([]), []);
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
@@ -256,6 +278,7 @@ export default function App() {
         onChange={setFilters}
         categories={categories}
         grades={grades}
+        planningBlocks={planningBlocks}
         hiddenGemStatuses={hiddenGemStatuses}
         tourismLevels={tourismLevels}
         resultCount={filteredPlaces.length}
@@ -405,7 +428,16 @@ export default function App() {
         onSelect={selectPlace}
         open={selectionOpen}
         onToggle={() => setSelectionOpen((open) => !open)}
+        onAnalyze={() => setAnalysisOpen(true)}
       />
+
+      {analysisOpen && (
+        <SelectionAnalysis
+          savedPlaces={savedPlaces}
+          onSelectPlace={openFromAnalysis}
+          onClose={closeAnalysis}
+        />
+      )}
     </div>
   );
 }
