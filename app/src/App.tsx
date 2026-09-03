@@ -12,8 +12,7 @@ import { PlaceDetail } from "./components/PlaceDetail";
 import { SelectionPanel } from "./components/SelectionPanel";
 import { useSavedPlaces } from "./useSavedPlaces";
 import { matchesQuery } from "./lib/place";
-import type { PlanningBlock } from "./lib/planning-block";
-import { PLANNING_BLOCKS, classifyPlanningBlock, matchesAnyPlanningBlock } from "./lib/planning-block";
+import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import type { Filters, Place } from "./types";
 import "./App.css";
 
@@ -124,11 +123,11 @@ export default function App() {
     () => ["Extremo", "Alto", "Medio", "Bajo"].filter((level) => hubPlaces.some((p) => p.tourismLevel === level)),
     [hubPlaces]
   );
-  /** Only the blocks the active hub actually contains, in taxonomy order. */
-  const planningBlocks = useMemo(() => {
-    const present = new Set<PlanningBlock>(hubPlaces.map((p) => classifyPlanningBlock(p.duration)));
-    return PLANNING_BLOCKS.filter((block) => present.has(block));
-  }, [hubPlaces]);
+  /** Blocks that would return results in the active hub, in taxonomy order. */
+  const planningBlocks = useMemo(
+    () => availablePlanningBlocks(hubPlaces.map((p) => p.duration)),
+    [hubPlaces]
+  );
 
   const selectedId = history.length > 0 ? history[history.length - 1] : null;
   const selectedPlace = selectedId ? getPlaceById(selectedId) ?? null : null;

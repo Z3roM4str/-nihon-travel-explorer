@@ -177,3 +177,20 @@ export function matchesAnyPlanningBlock(
   if (blocks.length === 0) return true;
   return blocks.some((block) => matchesPlanningBlock(duration, block));
 }
+
+/**
+ * The blocks worth offering as filter options for a set of durations: those that would
+ * actually return something.
+ *
+ * This must ask the same question the filter answers, so it uses `matchesPlanningBlock`
+ * rather than the display classification. A place labelled "short" also overlaps "brief",
+ * and offering only its label would hide a block that has results — the classification says
+ * how much to reserve, the filter says what can fit.
+ */
+export function availablePlanningBlocks(
+  durations: Array<Place["duration"]>
+): PlanningBlock[] {
+  return PLANNING_BLOCKS.filter((block) =>
+    durations.some((duration) => matchesPlanningBlock(duration, block))
+  );
+}

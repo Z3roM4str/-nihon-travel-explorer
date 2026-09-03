@@ -145,15 +145,19 @@ def check(dataset_dir):
     # clusters.json is secondary metadata exported alongside the places. Its own id lists and
     # aggregate columns are not used by the application, so divergence is reported and never
     # silently adopted as truth — and never fails the run.
-    derived = {}
+    # Membership comes from the places, keyed by hub + cluster. The row's own IDs column is
+    # read only to report where it disagrees — it never decides who belongs, how many there
+    # are, or how many are graded S/A.
+    members = {}
     for place in places:
         key = (place.get("hub"), place.get("cluster"))
-        derived[key] = derived.get(key, 0) + 1
+        members.setdefault(key, []).append(place)
 
     for row in clusters:
         key = (row.get("Hub"), row.get("Cluster"))
         label = f"{row.get('Cluster ID')} {row.get('Hub')}/{row.get('Cluster')}"
-        derived_count = derived.get(key, 0)
+        authoritative_members = members.get(key, [])
+        derived_count = len(authoritative_members)
 
         if derived_count == 0:
             warnings.append(
@@ -177,7 +181,7 @@ def check(dataset_dir):
                     f"{place.get('hub')}/{place.get('cluster')}"
                 )
 
-        real_sa = sum(1 for i in listed if by_id.get(i, {}).get("grade") in ("S", "A"))
+        real_sa = sum(1 for place in authoritative_members if place.get("grade") in ("S", "A"))
         if row.get("S/A") != real_sa:
             warnings.append(
                 f"cluster metadata {label}: 'S/A' is {row.get('S/A')}, places give {real_sa}"

@@ -3,6 +3,7 @@ import placesData from "../data/places.json";
 import type { Place } from "../types";
 import {
   PLANNING_BLOCKS,
+  availablePlanningBlocks,
   blockKind,
   classifyPlanningBlock,
   matchesAnyPlanningBlock,
@@ -165,6 +166,56 @@ describe("matchesAnyPlanningBlock", () => {
   });
 });
 
+describe("availablePlanningBlocks", () => {
+  it("offers every block a duration overlaps, not just its label", () => {
+    // "1–2 h" is labelled short, but it also reaches into brief, so brief has results.
+    const durations = [duration("1–2 h", 60, 120)];
+    expect(classifyPlanningBlock(durations[0])).toBe("short");
+    expect(availablePlanningBlocks(durations)).toEqual(["brief", "short"]);
+  });
+
+  it("offers brief and short for a 45–90 min range", () => {
+    expect(availablePlanningBlocks([duration("45–90 min", 45, 90)])).toEqual(["brief", "short"]);
+  });
+
+  it("offers short and medium for a 2–4 h range", () => {
+    // 120 is the brief/short boundary: the range starts exactly on it, so brief is excluded.
+    expect(availablePlanningBlocks([duration("2–4 h", 120, 240)])).toEqual(["short", "medium"]);
+  });
+
+  it("offers only its own block for a day-scale duration", () => {
+    expect(availablePlanningBlocks([duration("Día completo")])).toEqual(["full-day"]);
+    expect(availablePlanningBlocks([duration("1–2 noches")])).toEqual(["overnight-plus"]);
+    expect(availablePlanningBlocks([duration("Medio día")])).toEqual(["half-day"]);
+  });
+
+  it("keeps the canonical order and never repeats a block", () => {
+    const blocks = availablePlanningBlocks([
+      duration("Día completo"),
+      duration("2–4 h", 120, 240),
+      duration("1–2 h", 60, 120),
+      duration("Medio día"),
+      duration("5–7 h", 300, 420),
+      duration("2–4 h", 120, 240),
+    ]);
+    expect(blocks).toEqual(["brief", "short", "medium", "long", "half-day", "full-day"]);
+    expect(new Set(blocks).size).toBe(blocks.length);
+    const indices = blocks.map((block) => PLANNING_BLOCKS.indexOf(block));
+    expect(indices).toEqual([...indices].sort((a, b) => a - b));
+  });
+
+  it("returns nothing for an empty set", () => {
+    expect(availablePlanningBlocks([])).toEqual([]);
+  });
+
+  it("agrees with the filter: every offered block returns at least one place", () => {
+    const durations = [duration("1–2 h", 60, 120), duration("Día completo")];
+    for (const block of availablePlanningBlocks(durations)) {
+      expect(durations.some((d) => matchesPlanningBlock(d, block))).toBe(true);
+    }
+  });
+});
+
 describe("the real dataset", () => {
   const places = placesData as Place[];
 
@@ -176,6 +227,19 @@ describe("the real dataset", () => {
   it("only ever produces blocks from the declared taxonomy", () => {
     for (const place of places) {
       expect(PLANNING_BLOCKS).toContain(classifyPlanningBlock(place.duration));
+    }
+  });
+
+  it("offers only blocks that return results in the whole dataset", () => {
+    const durations = places.map((place) => place.duration);
+    const blocks = availablePlanningBlocks(durations);
+    for (const block of blocks) {
+      expect(durations.some((d) => matchesPlanningBlock(d, block))).toBe(true);
+    }
+    // Every block a place is labelled with must also be offered, since a label always
+    // overlaps its own window.
+    for (const place of places) {
+      expect(blocks).toContain(classifyPlanningBlock(place.duration));
     }
   });
 
