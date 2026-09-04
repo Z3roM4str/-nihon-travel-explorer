@@ -518,6 +518,47 @@ checkout's real data currently triggers.
   the domain-layer read path.
 - No start of Phase 3C (route/day planning).
 
+## Phase 3B2D — Walking Exceptions Audit
+
+Phase 3B2B-B's execution audit left two open questions: what explains the five large
+per-endpoint Snap displacements among the scale-up's 137 required places, and what
+explains the five `no-route` results, all touching Kyoto Imperial Palace (JP-090).
+Phase 3B2D is a documentation-only, audit-only investigation of both, using
+independent official evidence (Imperial Household Agency, each place's own official
+site, and public tourism authorities) — full detail, sources, and per-case
+interpretation are in [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md).
+
+Findings, in summary:
+
+- The five large-displacement cases classify as: strong evidence of a
+  **POI-coordinate-vs-access-point mismatch** for JP-029 (Imperial Palace East
+  Gardens — three named official gates) and JP-181 (ASMUI Spiritual Hikes — a
+  documented multi-stage venue); plausible but less-specific evidence for JP-185
+  (Furuzamami Beach — a named official transit stop distinct from the beach POI);
+  and **insufficient evidence** for JP-064 (Hōnen-in — official site unreachable)
+  and JP-069 (Bishamon-dō — no multi-gate evidence found).
+- The five `no-route` results (all touching JP-090) are best explained as a
+  **provider/graph connectivity anomaly** at JP-090's snapped point (whose own Snap
+  displacement is a trivial 3.65 m) — not real-world pedestrian inaccessibility.
+  Official sources for all four places involved (JP-089, JP-090, JP-092, JP-102)
+  independently confirm ordinary public walking/transit access with no restriction
+  described anywhere.
+- The evidence does **not** justify setting
+  `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` now: the cases are explained by
+  place type (a multi-gate compound, a multi-stage venue, a named transit stop), not
+  by displacement magnitude, and one case (JP-064) cannot be evaluated at all yet.
+  The constant remains `None`, unchanged.
+- The audit recommends that a future, separate **display coordinate vs. logistics
+  access point** model is architecturally preferable to any absolute threshold — the
+  underlying problem found is structural (some places need a different point for
+  "where do you walk to" than for "where is this place"), not a matter of degree a
+  single cutoff could tune.
+
+This phase implements none of that recommendation: no coordinate, threshold, or
+dataset change was made. It proposes (but does not start) a future, small,
+reversible phase to design an access-point override model — see
+[WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md)'s "Proposed next phase."
+
 ## The remaining 3B2/3B2B/3C boundary
 
 Everything below is still explicitly out of scope. Extending `TransferConfidence`,

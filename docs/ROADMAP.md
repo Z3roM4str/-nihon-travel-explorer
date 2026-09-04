@@ -241,11 +241,42 @@ artifact only. This phase does not wire scale results into the UI or start Phase
 No ORS request was made, no dataset file changed, no UI was touched, and Phase 3C
 (route/day planning, sequencing, itineraries) was not started.
 
+## Phase 3B2D — Walking Exceptions Audit — complete
+
+- [x] Independently investigated, with official evidence, the five large per-endpoint
+      Snap displacements (JP-029, JP-185, JP-064, JP-181, JP-069) and the five
+      `no-route` results (all touching JP-090), fulfilling the "Later" item this phase
+      replaces below. Full case-by-case sourcing and interpretation in
+      [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md).
+- [x] Classified each large-displacement case against four hypotheses (visual/interior
+      coordinate vs. routing access point; provider/graph connectivity; physically
+      restricted access; insufficient evidence) using only official sources (Imperial
+      Household Agency, each place's own official site, public tourism authorities) —
+      never blogs, forums, or aggregators.
+- [x] Determined the five JP-090-linked `no-route` results are best explained as a
+      provider/graph connectivity anomaly, not real-world pedestrian inaccessibility —
+      documented together as one cluster sharing JP-090, not as five independent cases.
+- [x] Evaluated (not assumed) whether the evidence justifies setting
+      `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS`: **no** — the constant remains
+      `None`, unchanged, because the cases are explained by place type, not by
+      displacement magnitude, and one case (JP-064) could not be evaluated at all.
+- [x] Recommended a future display-coordinate-vs-logistics-access-point model over any
+      absolute threshold, and proposed (without starting) a small, reversible future
+      phase to design an evidenced, provenance-tracked, multi-point-capable
+      access-point override — see "Proposed next phase" in the audit document.
+
+This phase made zero ORS requests, zero coordinate/dataset/threshold changes, zero UI
+changes, and did not start the proposed next phase or Phase 3C.
+
 ## Later (unscheduled)
 
-- [ ] Independently review large endpoint displacements before proposing an absolute
-      Snap threshold; investigate the preserved no-route cases without assuming
-      a provider answer proves real-world inaccessibility.
+- [ ] Design (Phase 3B2E, proposed, not started) an access-point override model per
+      [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md)'s recommendation:
+      layered on top of (never replacing) the existing display coordinate, evidenced
+      and provenance-tracked per override, mode-specific where relevant, supporting
+      more than one access point per place, auditable, applied only where evidence
+      supports it (not auto-converting every POI), and never silently altering
+      historical routing results.
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.
