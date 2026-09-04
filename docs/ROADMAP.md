@@ -212,6 +212,35 @@ phase could actually run the batch. The subsequent real execution is recorded be
 The app-facing artifact is prepared; application behavior still consumes the pilot
 artifact only. This phase does not wire scale results into the UI or start Phase 3C.
 
+## Phase 3B2B-C — Walking Scale Integration — complete
+
+- [x] Merge the pilot's 24 and the scale-up's 308 walking results into one directed-key
+      index (`buildValidatedWalkingIndex` in `app/src/lib/transfer.ts`), so
+      `getBestTransfer` reads both artifacts — together, the current dataset's full 332
+      "A pie" edges — through the same lookup and the same unchanged snap-clean gate.
+      `toTransferEdge()`, `nearby.json`, and the snapping thresholds are untouched.
+- [x] Preserve directed, non-fabricating, single-edge lookup semantics exactly:
+      `getBestTransfer(fromId, toId)` still resolves only that exact direction, never
+      infers the reverse, never chains edges, and never computes a shortest path or a
+      summed time.
+- [x] The scale-up's five `"no-route"` results fall back to the recorded `nearby.json`
+      estimate — never `0` minutes, never a fabricated distance, never promoted to
+      `validated-static` — exactly like a pair neither artifact covers.
+- [x] Explicit, fail-loud protection against a duplicate directed key between the pilot
+      and scale-up artifacts: `buildValidatedWalkingIndex` throws immediately, naming both
+      the edge and both source artifacts, rather than silently letting one overwrite the
+      other. Not triggered by this checkout's real data (verified disjoint in Phase
+      3B2B-A) — a defensive guard against a future regression.
+- [x] Ten new/extended `app/src/lib/transfer.test.ts` cases against real data and pure
+      fixtures: a clean pilot edge and a clean scale edge each resolve to
+      `validated-static`; a scale no-route edge, a scale-sourced significant/unknown/absent
+      snapping result, and an uncovered relation all fall back to `estimated`; a direction
+      with no relation returns `null`; the reverse direction is never used automatically;
+      and a synthetic pilot/scale duplicate throws explicitly without overwriting.
+
+No ORS request was made, no dataset file changed, no UI was touched, and Phase 3C
+(route/day planning, sequencing, itineraries) was not started.
+
 ## Later (unscheduled)
 
 - [ ] Independently review large endpoint displacements before proposing an absolute
