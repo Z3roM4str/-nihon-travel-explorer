@@ -1,0 +1,168 @@
+{
+  "pilotVersion": 1,
+  "selectionMethod": {
+    "description": "Deterministic, code-driven selection over the current 332 'A pie' nearby.json relations. No manual cherry-picking: every edge is chosen by an explicit, reproducible rule so re-running this script against the same dataset yields the same 24 edges, and the rules are documented rather than the picks.",
+    "categories": {
+      "A-very-short": "distanceKm < 0.5. From this bucket (sorted by distanceKm, then fromId, then toId), 4 edges are picked at evenly spaced ranks, so the pick spans the bucket's low/mid/high range instead of clustering at the smallest values.",
+      "B-short": "0.5 <= distanceKm < 1.0. Same evenly-spaced-rank rule as category A, 5 edges.",
+      "C-medium": "distanceKm >= 1.0 (the current 'A pie' maximum is 1.79 km, so there is no upper bound in practice). Same evenly-spaced-rank rule, 5 edges.",
+      "D-speed-anomaly": "The 6 remaining edges with the most extreme implied walking speed (distanceKm / (minutes/60)): the 3 lowest and the 3 highest. Low-speed edges are dominated by nearby.json's minutes floor on very short distances (a likely near-duplicate-point case); high-speed edges are the ones whose straight-line haversine distance is most likely to understate a real walking path. 'Problematic' is defined by this objective, code-computed criterion — never by manually picking cases expected to look bad or good.",
+      "E-geo-diversity": "4 edges chosen to spread the sample across hubs: for each of the 4 slots, the least-represented hub so far (tie-broken alphabetically) contributes its smallest-id remaining edge from a cluster not yet touched by the sample (or, if none, its smallest-id remaining edge at all). This is what guarantees the final 24 touch all 4 hubs that currently have 'A pie' relations (Tokio, Kioto, Osaka, Okinawa) rather than letting whichever hub dominates the A-D picks dominate the whole sample."
+    }
+  },
+  "sourceDatasetContext": {
+    "nearbyRelationCount": 403,
+    "walkingRelationCount": 332,
+    "datasetDigest": {
+      "algorithm": "sha256",
+      "places": "4184a0fe0f326ebdcd9c8e8003d335265ba3ec0aa926ddd6b977be11e916955c",
+      "nearby": "8179246c7eecea8ca960182eaa679ba00026a729d00f56d1a24cd8792d113de9"
+    }
+  },
+  "edges": [
+    {
+      "fromId": "JP-001",
+      "toId": "JP-008",
+      "category": "D-speed-anomaly",
+      "reason": "implied speed 4.80 km/h (extreme among 'A pie' edges)"
+    },
+    {
+      "fromId": "JP-002",
+      "toId": "JP-008",
+      "category": "B-short",
+      "reason": "distanceKm=0.5 in category B-short"
+    },
+    {
+      "fromId": "JP-008",
+      "toId": "JP-001",
+      "category": "D-speed-anomaly",
+      "reason": "implied speed 4.80 km/h (extreme among 'A pie' edges)"
+    },
+    {
+      "fromId": "JP-014",
+      "toId": "JP-013",
+      "category": "A-very-short",
+      "reason": "distanceKm=0.49 in category A-very-short"
+    },
+    {
+      "fromId": "JP-018",
+      "toId": "JP-021",
+      "category": "C-medium",
+      "reason": "distanceKm=1.14 in category C-medium"
+    },
+    {
+      "fromId": "JP-023",
+      "toId": "JP-021",
+      "category": "C-medium",
+      "reason": "distanceKm=1.3 in category C-medium"
+    },
+    {
+      "fromId": "JP-059",
+      "toId": "JP-055",
+      "category": "D-speed-anomaly",
+      "reason": "implied speed 4.68 km/h (extreme among 'A pie' edges)"
+    },
+    {
+      "fromId": "JP-063",
+      "toId": "JP-065",
+      "category": "D-speed-anomaly",
+      "reason": "implied speed 0.40 km/h (extreme among 'A pie' edges)"
+    },
+    {
+      "fromId": "JP-065",
+      "toId": "JP-063",
+      "category": "D-speed-anomaly",
+      "reason": "implied speed 0.40 km/h (extreme among 'A pie' edges)"
+    },
+    {
+      "fromId": "JP-070",
+      "toId": "JP-069",
+      "category": "A-very-short",
+      "reason": "distanceKm=0.36 in category A-very-short"
+    },
+    {
+      "fromId": "JP-084",
+      "toId": "JP-065",
+      "category": "C-medium",
+      "reason": "distanceKm=1.79 in category C-medium"
+    },
+    {
+      "fromId": "JP-094",
+      "toId": "JP-096",
+      "category": "A-very-short",
+      "reason": "distanceKm=0.26 in category A-very-short"
+    },
+    {
+      "fromId": "JP-095",
+      "toId": "JP-067",
+      "category": "B-short",
+      "reason": "distanceKm=0.6 in category B-short"
+    },
+    {
+      "fromId": "JP-095",
+      "toId": "JP-096",
+      "category": "C-medium",
+      "reason": "distanceKm=1 in category C-medium"
+    },
+    {
+      "fromId": "JP-108",
+      "toId": "JP-109",
+      "category": "E-geo-diversity",
+      "reason": "distanceKm=0.43 in category E-geo-diversity"
+    },
+    {
+      "fromId": "JP-109",
+      "toId": "JP-110",
+      "category": "A-very-short",
+      "reason": "distanceKm=0.01 in category A-very-short"
+    },
+    {
+      "fromId": "JP-110",
+      "toId": "JP-109",
+      "category": "D-speed-anomaly",
+      "reason": "implied speed 0.20 km/h (extreme among 'A pie' edges)"
+    },
+    {
+      "fromId": "JP-111",
+      "toId": "JP-110",
+      "category": "B-short",
+      "reason": "distanceKm=0.99 in category B-short"
+    },
+    {
+      "fromId": "JP-112",
+      "toId": "JP-115",
+      "category": "C-medium",
+      "reason": "distanceKm=1.53 in category C-medium"
+    },
+    {
+      "fromId": "JP-154",
+      "toId": "JP-156",
+      "category": "B-short",
+      "reason": "distanceKm=0.88 in category B-short"
+    },
+    {
+      "fromId": "JP-159",
+      "toId": "JP-158",
+      "category": "B-short",
+      "reason": "distanceKm=0.72 in category B-short"
+    },
+    {
+      "fromId": "JP-168",
+      "toId": "JP-169",
+      "category": "E-geo-diversity",
+      "reason": "distanceKm=1.24 in category E-geo-diversity"
+    },
+    {
+      "fromId": "JP-173",
+      "toId": "JP-174",
+      "category": "E-geo-diversity",
+      "reason": "distanceKm=1.42 in category E-geo-diversity"
+    },
+    {
+      "fromId": "JP-184",
+      "toId": "JP-185",
+      "category": "E-geo-diversity",
+      "reason": "distanceKm=1.03 in category E-geo-diversity"
+    }
+  ]
+}

@@ -100,11 +100,48 @@ remain the only stored user state.
 This phase formalizes the existing estimates; it does not validate them. Every transfer time in
 the application remains a geographic estimate until a later phase actually routes it.
 
+## Phase 3B2A — Walking Validation Pilot — complete
+
+- [x] Extend `TransferProvenance` into a discriminated union (`GeographicProvenance` |
+      `RoutingProviderProvenance`) and add `getBestTransfer` (validated-static > estimated >
+      null), without touching `toTransferEdge()` or any of the 403 `nearby.json` relations.
+- [x] Deterministic, documented 24-edge pilot sample selection
+      (`scripts/select-walking-pilot.py`) over the current 332 "A pie" relations.
+- [x] Offline-safe pipeline (`scripts/validate-walking-pilot.py --dry-run`/`--execute`,
+      `scripts/report-walking-pilot.py`, `scripts/validate-logistics.py`) against
+      **api.heigit.org** (not the deprecated api.openrouteservice.org), with a coordinate-order
+      regression test, reproducible caching, and a bounded single retry — fully covered by
+      network-free unit tests (`scripts/test_walking_pilot.py`).
+- [x] **Live pilot execution** — run 2026-09-04: 24/24 edges validated, 0 Directions failures.
+      Results in `data/logistics/walking-pilot-results.json`.
+- [x] Pilot report (`docs/WALKING_PILOT.md`) with real statistics, top outliers, limitations,
+      and a decision-gate recommendation.
+- [x] **Corrective review (first pass)**: identified that 2 of the 24 results (JP-063↔JP-065) had
+      significant endpoint snapping making their distance not comparable to the original
+      coordinates. Fixed the manifest's reproducibility (a dataset content hash, not the git HEAD
+      SHA — see `docs/LOGISTICS.md`), the validator's coverage check (exact manifest↔results
+      equality), and added an `endpointSnapping`/`snap_warning` guard plus a `--diagnose-snap`
+      backfill tool. Recommendation revised from SCALE-with-caveat to ADJUST.
+- [x] **Corrective review (second pass)**: replaced the boolean `snap_warning` (which silently
+      coerced a null/unmeasured snap distance into `0` meters) with a three-state
+      `classify_endpoint_snapping` (`"clean" | "significant" | "unknown"`); made `getBestTransfer`
+      only promote to `validated-static` when `endpointSnapping.assessment === "clean"` (an
+      absent or unmeasured/significant assessment now correctly falls back to `estimated`); and
+      backfilled `endpointSnapping` for all 24 manifest edges via one batched Snap request
+      (22 `"clean"`, 2 `"significant"` — the same JP-063↔JP-065 pair — 0 `"unknown"`).
+      Recommendation revised from ADJUST to **SCALE** (see `docs/WALKING_PILOT.md`).
+
+This phase validated exactly 24 of the 332 "A pie" relations. It does not validate the
+remaining ~308, transit, or anything else. The pilot's own sample is now fully snap-screened;
+a future scale-up phase carries forward the snap-clean gate as a hard requirement (see
+`docs/WALKING_PILOT.md`'s decision gate) rather than re-deriving it from scratch.
+
 ## Later (unscheduled)
 
-- [ ] Validate local transfers with routing-grade data (walking routing via a provider such as
-      openrouteservice/OSM, or self-hosted Valhalla; transit/schedule-aware validation pending
-      a provider decision — see `docs/LOGISTICS.md`).
+- [ ] Validate local transfers with routing-grade data — Phase 3B2A's architecture, scaled to
+      the remaining "A pie" relations, carrying forward the snap-clean gate (see
+      `docs/WALKING_PILOT.md`'s decision gate); transit/schedule-aware validation pending a
+      provider decision — see `docs/LOGISTICS.md`.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
 - [ ] Compare candidate city sequences.

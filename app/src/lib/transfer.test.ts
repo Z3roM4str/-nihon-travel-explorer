@@ -1,16 +1,19 @@
 import { describe, expect, it } from "vitest";
 import nearbyData from "../data/nearby.json";
 import placesData from "../data/places.json";
+import walkingPilotResultsData from "../data/logistics/walking-pilot-results.json";
 import type { NearbyRelation, Place } from "../types";
 import {
+  bestTransferFromLookups,
   computeLogisticsMetrics,
+  getBestTransfer,
   logisticsMetricsFromLookup,
   lookupTransfer,
   normalizeTransferMode,
   normalizeTransferRelation,
   toTransferEdge,
 } from "./transfer";
-import type { TransferEdge } from "./transfer";
+import type { TransferEdge, WalkingPilotResult } from "./transfer";
 
 const nearbyRelations = nearbyData as NearbyRelation[];
 const places = placesData as Place[];
@@ -331,5 +334,231 @@ describe("logisticsMetricsFromLookup — injected lookup, divergent directions",
     const metrics = logisticsMetricsFromLookup(["A", "B"], () => null);
     expect(metrics.knownPairCount).toBe(0);
     expect(metrics.recordedDistanceRange).toBeNull();
+  });
+});
+
+function validatedResult(overrides: Partial<Extract<WalkingPilotResult, { status: "validated" }>> = {}) {
+  return {
+    fromId: "JP-001",
+    toId: "JP-008",
+    provider: "openrouteservice",
+    profile: "foot-walking",
+    status: "validated",
+    distance: { meters: 320 },
+    minutes: { minMinutes: 4, maxMinutes: 4 },
+    confidence: "validated-static",
+    verifiedAt: "2026-09-04T12:00:00Z",
+    source: { kind: "routing-provider", provider: "openrouteservice", profile: "foot-walking" },
+    query: { fromCoordinates: [139.7005, 35.6595], toCoordinates: [139.6988, 35.662] },
+    // A "clean" default so every existing test that doesn't care about snapping keeps
+    // exercising the promotion path; tests that care about the gate override this.
+    endpointSnapping: { assessment: "clean", fromSnapMeters: 1.0, toSnapMeters: 1.0, radiusMeters: 350 },
+    ...overrides,
+  } as Extract<WalkingPilotResult, { status: "validated" }>;
+}
+
+describe("bestTransferFromLookups / getBestTransfer — Phase 3B2A", () => {
+  it("prefers a validated-static result over the estimated edge for the same directed pair", () => {
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const validated = validatedResult();
+    const best = bestTransferFromLookups(
+      "JP-001",
+      "JP-008",
+      () => estimated,
+      () => validated
+    );
+    expect(best?.confidence).toBe("validated-static");
+    expect(best?.distanceKm).toBe(0.32);
+    expect(best?.minutes).toEqual({ minMinutes: 4, maxMinutes: 4 });
+    expect(best?.source).toEqual({
+      kind: "routing-provider",
+      provider: "openrouteservice",
+      profile: "foot-walking",
+    });
+    expect(best?.verifiedAt).toBe("2026-09-04T12:00:00Z");
+  });
+
+  it("carries mode/relation over from the estimated edge, never fabricating them", () => {
+    const estimated = toTransferEdge(
+      relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008", Modo: "A pie", Relación: "Mismo cluster" })
+    );
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validatedResult());
+    expect(best?.mode).toBe("walk");
+    expect(best?.rawMode).toBe("A pie");
+    expect(best?.relation).toBe("same-cluster");
+    expect(best?.rawRelation).toBe("Mismo cluster");
+  });
+
+  it("falls back to the estimated edge when no validated result exists", () => {
+    const estimated = toTransferEdge(relation());
+    const best = bestTransferFromLookups(
+      "JP-001",
+      "JP-002",
+      () => estimated,
+      () => null
+    );
+    expect(best).toBe(estimated);
+    expect(best?.confidence).toBe("estimated");
+  });
+
+  it("returns null when neither a validated result nor an estimated edge exists", () => {
+    const best = bestTransferFromLookups("JP-X", "JP-Y", () => null, () => null);
+    expect(best).toBeNull();
+  });
+
+  it("does not promote an orphaned validated result with no matching estimated edge", () => {
+    // Defensive case: a validated result should only ever exist for a pair the pilot
+    // manifest drew from an existing nearby.json edge, but the resolution rule itself
+    // must not silently fabricate mode/relation if that invariant were ever violated.
+    const best = bestTransferFromLookups(
+      "JP-001",
+      "JP-008",
+      () => null,
+      () => validatedResult()
+    );
+    expect(best).toBeNull();
+  });
+
+  it("is directed: a validated A->B result does not apply to a B->A lookup", () => {
+    const estimatedReverse = toTransferEdge(
+      relation({ "Desde ID": "JP-008", "Hacia ID": "JP-001", Modo: "A pie" })
+    );
+    const best = bestTransferFromLookups(
+      "JP-008",
+      "JP-001",
+      () => estimatedReverse,
+      (fromId, toId) => (fromId === "JP-001" && toId === "JP-008" ? validatedResult() : null)
+    );
+    expect(best?.confidence).toBe("estimated");
+  });
+
+  it("getBestTransfer against the real walking-pilot-results.json: validated-static only for pairs the pilot validated AND found snap-clean, estimated for everything else", () => {
+    // Live regression check against whatever this checkout's pilot artifact actually
+    // contains — not a fixture. It must never promote a relation the pilot didn't cover,
+    // and a validated pair must only come back validated-static when its endpoint
+    // snapping was measured and found "clean" — a "significant" or "unknown" assessment,
+    // or no endpointSnapping at all, must fall back to estimated, exactly like an
+    // uncovered relation would.
+    const validatedResults = (walkingPilotResultsData as WalkingPilotResult[]).filter(
+      (r): r is Extract<WalkingPilotResult, { status: "validated" }> => r.status === "validated"
+    );
+    expect(validatedResults.length).toBeGreaterThan(0); // the live pilot has run in this checkout
+
+    const snapCleanPairs = new Set(
+      validatedResults
+        .filter((r) => r.endpointSnapping?.assessment === "clean")
+        .map((r) => `${r.fromId} ${r.toId}`)
+    );
+    const validatedButNotCleanPairs = new Set(
+      validatedResults
+        .filter((r) => r.endpointSnapping?.assessment !== "clean")
+        .map((r) => `${r.fromId} ${r.toId}`)
+    );
+
+    let checkedValidated = 0;
+    let checkedEstimated = 0;
+    for (const raw of nearbyRelations) {
+      const key = `${raw["Desde ID"]} ${raw["Hacia ID"]}`;
+      const best = getBestTransfer(raw["Desde ID"], raw["Hacia ID"]);
+      if (snapCleanPairs.has(key)) {
+        expect(best?.confidence).toBe("validated-static");
+        checkedValidated += 1;
+      } else {
+        expect(best?.confidence).toBe("estimated");
+        checkedEstimated += 1;
+        if (validatedButNotCleanPairs.has(key)) {
+          // Confirms the fallback happened *because* of the snap gate, not by accident
+          // (e.g. a missing estimated edge would also read "estimated" via null).
+          expect(best).not.toBeNull();
+        }
+      }
+    }
+    expect(checkedValidated).toBe(snapCleanPairs.size);
+    expect(checkedEstimated).toBe(nearbyRelations.length - snapCleanPairs.size);
+  });
+
+  it("getBestTransfer returns null for a pair with no recorded relation at all", () => {
+    expect(getBestTransfer("JP-DOES-NOT-EXIST-1", "JP-DOES-NOT-EXIST-2")).toBeNull();
+  });
+});
+
+describe("bestTransferFromLookups / getBestTransfer — endpoint-snapping gate", () => {
+  it("does not promote a validated result whose endpoint snapping is significant", () => {
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const validated = validatedResult({
+      endpointSnapping: { assessment: "significant", fromSnapMeters: 9.0, toSnapMeters: 10.4, radiusMeters: 350 },
+    });
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validated);
+    expect(best?.confidence).toBe("estimated");
+    expect(best).toBe(estimated);
+  });
+
+  it("does not promote a validated result whose endpoint snapping is unknown", () => {
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const validated = validatedResult({
+      endpointSnapping: {
+        assessment: "unknown",
+        fromSnapMeters: null,
+        toSnapMeters: 10.4,
+        radiusMeters: 350,
+        reason: "Snap query failed: timeout",
+      },
+    });
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validated);
+    expect(best?.confidence).toBe("estimated");
+  });
+
+  it("does not promote a validated result with no endpointSnapping recorded at all — absence is never treated as clean", () => {
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const withoutSnapping = validatedResult();
+    delete (withoutSnapping as { endpointSnapping?: unknown }).endpointSnapping;
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => withoutSnapping);
+    expect(best?.confidence).toBe("estimated");
+    expect(best).toBe(estimated);
+  });
+
+  it("promotes a validated result whose endpoint snapping is explicitly clean", () => {
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const validated = validatedResult({
+      endpointSnapping: { assessment: "clean", fromSnapMeters: 1.0, toSnapMeters: 1.0, radiusMeters: 350 },
+    });
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validated);
+    expect(best?.confidence).toBe("validated-static");
+  });
+});
+
+describe("getBestTransfer — real JP-063<->JP-065 pilot finding (significant endpoint snapping)", () => {
+  // docs/WALKING_PILOT.md: real separation ~22.2 m, routed distance 3.2 m — a textbook
+  // significant-snap case. Both directions must fall back to the nearby.json estimate,
+  // never be served as validated-static, regardless of what the pilot artifact recorded.
+  it("JP-063 -> JP-065 falls back to estimated", () => {
+    const best = getBestTransfer("JP-063", "JP-065");
+    expect(best?.confidence).toBe("estimated");
+  });
+
+  it("JP-065 -> JP-063 falls back to estimated", () => {
+    const best = getBestTransfer("JP-065", "JP-063");
+    expect(best?.confidence).toBe("estimated");
+  });
+});
+
+describe("TransferProvenance discriminated union", () => {
+  it("distinguishes derived-geographic from routing-provider by kind alone, no string parsing", () => {
+    const geoEdge = toTransferEdge(relation());
+    expect(geoEdge.source.kind).toBe("derived-geographic");
+
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validatedResult());
+    expect(best?.source.kind).toBe("routing-provider");
+    if (best && best.source.kind === "routing-provider") {
+      expect(best.source.provider).toBe("openrouteservice");
+      expect(best.source.profile).toBe("foot-walking");
+    }
+  });
+
+  it("every current nearby-derived edge is still derived-geographic, never routing-provider", () => {
+    for (const raw of nearbyRelations) {
+      expect(toTransferEdge(raw).source.kind).toBe("derived-geographic");
+    }
   });
 });

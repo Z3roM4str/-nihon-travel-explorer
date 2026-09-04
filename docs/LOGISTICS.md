@@ -33,21 +33,30 @@ real route). None of it reflects:
 - a real timetable or schedule;
 - any external routing or mapping API call.
 
-`app/src/lib/transfer.ts` encodes this as structured provenance on every converted edge:
+`app/src/lib/transfer.ts` encodes this as structured provenance on every converted edge, as one
+member of a discriminated union:
 
 ```ts
-type TransferProvenance = {
+type GeographicProvenance = {
   kind: "derived-geographic";
   dataset: "nearby";
   method: "haversine-speed-model";
 };
+
+type RoutingProviderProvenance = {
+  kind: "routing-provider";
+  provider: "openrouteservice";
+  profile: "foot-walking";
+};
+
+type TransferProvenance = GeographicProvenance | RoutingProviderProvenance;
 ```
 
-This is deliberately not a free-text string. `kind` is the extension point: a later phase that
-ingests a real routing or transit provider's output adds a new `kind` value (e.g.
-`"routing-provider"`, `"transit-provider"`) rather than repurposing this one, so a consumer can
-always tell a geometric estimate from a validated result by checking `source.kind`, without
-parsing prose.
+This is deliberately not a free-text string. `kind` is the discriminant a consumer branches on
+to tell a geometric estimate from a validated result without parsing prose.
+`RoutingProviderProvenance` was added in Phase 3B2A (see below) for the walking-validation
+pilot; a future transit provider or official source adds another member to this union rather
+than repurposing an existing one.
 
 ## Confidence taxonomy
 
@@ -55,17 +64,21 @@ parsing prose.
 type TransferConfidence = "estimated" | "validated-static" | "schedule-aware";
 ```
 
-- **`estimated`** — derived from geometry, as above. Every edge converted from the current
-  `nearby.json` gets this value; nothing in Phase 3B1 assigns any other.
+- **`estimated`** — derived from geometry, as above. Every edge converted directly from
+  `nearby.json` gets this value; `toTransferEdge` never assigns any other.
 - **`validated-static`** — a real routed path and time (e.g. from a walking-routing provider),
-  without live schedule awareness. Not produced anywhere yet.
+  without live schedule awareness. Phase 3B2A's walking-validation pilot is the first thing that
+  can produce this value, for the small, explicit sample described below — never for a relation
+  the pilot didn't validate.
 - **`schedule-aware`** — accounts for an actual timetable (e.g. a transit provider's
   departure/arrival lookup for a specific time). Not produced anywhere yet.
 
-`verifiedAt: string | null` sits alongside confidence: `null` for every current edge, reserved
-for an ISO timestamp once a phase actually performs independent validation. No current edge
-gets a non-null `verifiedAt`, and no current edge is silently promoted to `validated-static` or
-`schedule-aware` — Phase 3B1 only adds the vocabulary those future states will use.
+`verifiedAt: string | null` sits alongside confidence: `null` for every `toTransferEdge`-derived
+edge, and an ISO 8601 UTC timestamp of the actual routing query for a pilot-validated edge. No
+edge is ever silently promoted — `toTransferEdge()` (the `nearby.json` → `TransferEdge`
+converter) is untouched by Phase 3B2A and still returns `estimated`/`null` for all 403
+relations; a `validated-static` result only ever reaches a caller through `getBestTransfer`,
+which reads it from a separate, precomputed artifact (see below).
 
 **False precision is the risk this taxonomy guards against.** Formalizing these relations into
 a typed `TransferEdge` must not make them read as more trustworthy than they are; `confidence`
@@ -209,38 +222,221 @@ anywhere else) hardcodes 332, 67, or 4, because a legitimate future update to th
 changing these relations must not fail validation or break the domain layer just because a
 count changed.
 
-## The 3B2 boundary
+## Phase 3B2A — walking-validation pilot
 
-Everything below is explicitly out of scope for Phase 3B1. `TransferConfidence`,
-`TransferProvenance.kind`, and `TransferMode` are designed so 3B2 can extend them, but none of
-the following is implemented, called, or configured yet:
+Phase 3B1 declined to validate anything; Phase 3B2A is a **controlled pilot** that validates a
+small, deterministically chosen sample of "A pie" edges against real walking routing, to prove
+the architecture before ever considering the other ~308. It is not batch validation and not a
+claim about the dataset as a whole.
 
-- Any external routing or mapping API call, of any kind.
-- Any API key, SDK, or dependency for a routing/transit provider.
-- A validation pipeline that ingests provider output into `verifiedAt` / `validated-static` /
-  `schedule-aware`.
-- Real walking-route or transit-schedule validation for any of the current 403 relations.
-- A full transport-mode catalogue (Shinkansen, flights, ferries) beyond the three modes that
-  exist in the dataset today.
+### Provider and endpoint
 
-### Provider research (architectural notes only, no integration)
+Routing: **openrouteservice**, operated by **HeiGIT** (Heidelberg Institute for Geoinformation
+Technology), profile `foot-walking`.
 
-For **walking** validation, the preferred candidate researched for 3B2 is
-**openrouteservice**, built on OpenStreetMap data: it offers global walking routing, its
-results can be used with CC BY attribution, and it fits an offline/versioned validation
-pipeline (call once, commit the result, re-validate on demand) rather than a live per-request
-dependency. A reproducible, self-hostable alternative is **Valhalla** self-hosted against an
-OSM extract, which trades operational effort for not depending on a third party's uptime or
-terms at all. Phase 3B1 does not call openrouteservice, does not create an API key for it, and
-does not build any pipeline around it — 3B2 will decide the exact pipeline fields and
-attribution handling.
+`api.openrouteservice.org` is deprecated in favour of **`api.heigit.org`**
+(deprecation announced 2026-04-28, full shutdown scheduled 2026-09-28). This pipeline uses only
+the current host:
 
-For **transit** (schedule-aware) validation, Phase 3B1 does **not** choose a provider in code.
+```
+POST https://api.heigit.org/openrouteservice/v2/directions/foot-walking/json
+Authorization: <ORS_API_KEY>
+Content-Type: application/json
+{ "coordinates": [[lng1, lat1], [lng2, lat2]], "geometry": false }
+```
+
+`scripts/logistics_common.py` defines `ORS_HOST` once; a regression test
+(`scripts/test_walking_pilot.py`) asserts the deprecated host string appears nowhere else in
+`scripts/` or `app/src/`, so a stale reference can't creep back in silently.
+
+**Coordinate order.** `Place.coordinates` is `{ lat, lng }`; openrouteservice's `coordinates`
+array is `[longitude, latitude]` pairs. `to_ors_coordinates(place)` is the single conversion
+point, and `scripts/test_walking_pilot.py` asserts it on real, non-symmetric Tokyo coordinates
+(`lat=35.66, lng=139.70`) specifically so a silent lat/lng swap would fail loudly rather than
+happening to look plausible.
+
+### Sample selection
+
+`scripts/select-walking-pilot.py` deterministically picks **exactly 24** of the 332 current "A
+pie" relations and writes `data/logistics/walking-pilot-manifest.json`. No manual
+cherry-picking: every edge is chosen by a documented, code-computed rule (distance-bucket rank,
+implied-speed anomaly, or hub/cluster coverage) recorded in the manifest itself as
+`selectionMethod`. Re-running the script against an unchanged dataset reproduces the same 24
+edges byte-for-byte — the **entire manifest document**, not just the selected ids: the
+manifest's `sourceDatasetContext.datasetDigest` is a sha256 content hash of `places.json` and
+`nearby.json`, deliberately **not** the git HEAD SHA, so regenerating it on a different commit
+that carries byte-identical data still produces a byte-identical manifest (see
+`dataset_digest()` in `scripts/logistics_common.py`; a full-manifest determinism test lives in
+`scripts/test_walking_pilot.py`). The manifest stores only `fromId`/`toId`/`category`/`reason` —
+never copied names, coordinates, or minutes, which are always resolved live from `places.json` /
+`nearby.json` so there is exactly one source of that data.
+
+### Pipeline
+
+`scripts/validate-walking-pilot.py --dry-run` resolves every manifest edge against real data,
+confirms `Modo == "A pie"`, and prints exactly what would be queried — no network call.
+`--execute` requires `ORS_API_KEY` as an environment variable (never a hardcoded value, never
+written to a file, JSON, doc, or log) and is a hard no-op without it. It skips any edge that
+already has a cached `"validated"` result unless `--refresh` is passed, so a re-run is cheap and
+reproducible; a `"no-route"` or `"request-error"` result is retried by default. Exactly one
+bounded retry is allowed for a transient failure (HTTP 429/5xx, timeout); a real "no route"
+answer from the provider or an auth error is never retried. A failed query is recorded as a
+`"no-route"` or `"request-error"` status — never as `0` minutes, `null` without explanation, or
+a promoted `estimated` value.
+
+`data/logistics/walking-pilot-results.json` (mirrored to
+`app/src/data/logistics/walking-pilot-results.json`, exactly as `nearby.json` is mirrored into
+`app/src/data/`) is the versioned artifact. Its schema is documented in
+`app/src/lib/transfer.ts`'s `WalkingPilotResult` type: a `"validated"` entry carries
+`distance.meters`, `minutes` (seconds rounded half-up to whole minutes — see
+`round_half_up_minutes`, no `±10%`/`±15%` tolerance fabricated), `confidence:
+"validated-static"`, `verifiedAt` (the real query timestamp, ISO 8601 UTC), structured `source`,
+and an optional `endpointSnapping` (see below); any other status carries none of those fields,
+by the type's own shape.
+
+`scripts/validate-logistics.py` checks the manifest (exactly 24 edges, valid ids, each existing
+in `nearby.json` with `Modo == "A pie"`, unique directed pairs) and, when the results file is
+non-empty, the results (**exact coverage** of the manifest's directed edges — a missing or an
+extra edge is an error, not just an extra one — no duplicates, valid status, expected
+provider/profile, `source.provider`/`source.profile` matching the top-level fields, positive
+distance/duration when validated, `validated-static` ⇒ non-null `verifiedAt` and
+`routing-provider` provenance, an `endpointSnapping.assessment` that is both one of the three
+valid values and re-derivable from the recorded snap distances, and never `"clean"`/`"significant"`
+paired with a null snap distance, `estimated` never appearing as a pilot result, and a scan for
+anything that looks like a committed secret). It does not hardcode the manifest's edge count as a
+magic number anywhere except the one named constant (`PILOT_EDGE_COUNT`) both the selector and
+validator import.
+
+#### Endpoint snapping
+
+A routing provider never routes between the exact coordinates it's given — it **snaps** each
+input point to the nearest point on the routable network first (openrouteservice's Snap
+endpoint reports this as `snapped_distance`, in meters). When both endpoints of an edge snap far
+from where they really are — worse, onto the same short stretch of path — the routed distance
+between them can end up far smaller (or larger) than the real distance between the original
+coordinates, with no error raised. See `docs/WALKING_PILOT.md`'s JP-063↔JP-065 finding: routed
+3.2 m between two points that are actually ~22.2 m apart, because a combined ~23 m of endpoint
+snapping consumed nearly the entire real separation.
+
+`scripts/logistics_common.py`'s
+`classify_endpoint_snapping(fromSnapMeters, toSnapMeters, routedDistanceMeters)` is the objective,
+code-computed guard, returning one of three states — never a boolean:
+  - `"clean"`: both endpoints measured, combined snap small relative to the routed distance — the
+    routed value is comparable to the original coordinates.
+  - `"significant"`: both endpoints measured, combined snap ≥ 10 m in absolute terms **and**
+    ≥ 50% of the routed distance itself — chosen so an ordinary few-meter snap on a long route is
+    never flagged just because a short route with the same absolute snap would be.
+  - `"unknown"`: at least one endpoint's snap distance was never resolved (not yet measured, or
+    the Snap query failed/found no point in radius). **A `null` measurement is never averaged in
+    as `0` meters** to produce `"clean"` — that would be indistinguishable from claiming a
+    genuinely unmeasured edge is comparable when nobody checked. `"unknown"` and `"significant"`
+    are treated identically by every downstream consumer: neither is comparable, and neither is
+    ever promoted to `validated-static`.
+
+`scripts/validate-walking-pilot.py --execute` captures this automatically going forward (one
+extra Snap request per freshly-queried edge, batching both coordinates, degrading to `"unknown"`
+with a `reason` rather than failing the whole edge if the Snap call itself errors).
+`--diagnose-snap FROM_ID TO_ID` retroactively resolves it for one already-existing result with
+exactly one Snap request, never re-querying Directions. `--backfill-snapping` does the same for
+*every* manifest edge whose result doesn't yet have a resolved `assessment` — it derives the list
+of what's missing programmatically from the results file itself (`edges_needing_snap_assessment`,
+never a hardcoded count), deduplicates the union of place coordinates those edges need, and makes
+exactly **one** batched Snap request regardless of how many edges are missing; a completely
+absent `endpointSnapping` field is treated exactly like `"unknown"` by every consumer, so backfill
+is a completeness improvement, never a correctness requirement for reading results correctly.
+`scripts/report-walking-pilot.py` computes aggregate ratios and outlier lists over `"clean"`
+results only, listing `"significant"` and `"unknown"` edges separately (with the reason, for
+`"unknown"`) instead of silently dropping or comparably including them, so a future scale-up that
+reuses this report's logic cannot average a snap artifact — or an unmeasured edge — into a
+"correction factor" for the rest of the dataset. `app/src/lib/transfer.ts`'s `getBestTransfer`
+enforces the same rule independently at read time: a validated result only promotes to
+`confidence: "validated-static"` when its `endpointSnapping.assessment === "clean"`; a
+`"significant"` or `"unknown"` assessment, or a missing `endpointSnapping` altogether, falls back
+to the `estimated` `nearby.json` edge — see `app/src/lib/transfer.test.ts`.
+
+`scripts/report-walking-pilot.py` computes, over the validated subset only, per-edge distance
+and minute ratios/differences, aggregate statistics (median/mean/min/max), and the top 5
+outliers by distance ratio and by absolute minute difference. This is **pilot analysis over
+N≈24**, never generalized into a correction factor for the remaining relations.
+
+### Resolving estimated vs. validated
+
+```ts
+function getBestTransfer(fromId: string, toId: string): TransferEdge | null;
+```
+
+Preference order: a validated-static result for that exact directed edge **whose endpoint
+snapping was measured and found `"clean"`**, else the estimated `nearby.json` edge, else `null`.
+A validated result with `assessment === "significant"` or `"unknown"`, or with no
+`endpointSnapping` recorded at all, is never promoted — it falls back to the estimated edge
+exactly as if the pilot hadn't covered that pair (see "Endpoint snapping" above). Nothing here
+calls a routing provider at read time — every `validated-static` answer `getBestTransfer` can
+return was already computed offline by `scripts/validate-walking-pilot.py` and is read from disk
+exactly like an estimated edge is. `toTransferEdge()` and `nearby.json` itself are untouched:
+`getBestTransfer` is a read-time resolution layer, not a rewrite of the estimated source.
+
+### Status in this checkout
+
+The pipeline's non-network logic is fully tested (selection determinism — including the full
+manifest document, not just the selected ids — coordinate order, minute rounding, response
+parsing, failure classification, caching/refresh, the three-state endpoint-snapping guard, the
+snap backfill's edge-selection and single-request batching, and the
+validated-and-snap-clean/estimated/null preference order — see `scripts/test_walking_pilot.py`
+and `app/src/lib/transfer.test.ts`). **The live pilot has been executed and fully backfilled**: on
+2026-09-04, all 24 manifest edges were queried against `api.heigit.org` and all 24 returned
+`"validated"` (0 `no-route`, 0 `request-error`); a single batched `--backfill-snapping` request
+then resolved `endpointSnapping` for every one of the 24 edges (22 `"clean"`, 2 `"significant"` —
+one coordinate pair, both directions — 0 `"unknown"`). `data/logistics/walking-pilot-results.json`
+holds the real results, including every edge's `endpointSnapping` field (mirrored to
+`app/src/data/logistics/`). Full statistics, per-edge comparisons, top outliers, limitations, and
+the decision-gate recommendation (**SCALE**, with the snap-clean gate carried forward as a hard
+requirement — see the report) are in `docs/WALKING_PILOT.md`, not duplicated here to avoid a
+second source of truth for the same numbers.
+
+To re-run it (idempotent — cached `"validated"` edges are skipped unless `--refresh`):
+
+```
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --dry-run   # sanity check first
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --execute
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --backfill-snapping
+python3 scripts/report-walking-pilot.py
+python3 scripts/validate-logistics.py data
+```
+
+### Attribution
+
+Per openrouteservice's terms of service and the OpenStreetMap Foundation's attribution
+guidelines (verified during this phase, subject to change — re-check before any production or
+public-facing use): two distinct things are credited, under their own separate licenses. The
+routing computation itself is openrouteservice/HeiGIT's, provided under **CC BY 4.0**
+("© openrouteservice.org by HeiGIT"). The underlying map data is OpenStreetMap's, available
+under the **Open Database License (ODbL)**, requiring "Map data © OpenStreetMap contributors"
+and that the ODbL itself be named. Every `"validated"` pilot result's `attribution` string
+records both — see `ATTRIBUTION` in `scripts/validate-walking-pilot.py` for the exact wording.
+This is why the result is versioned in-repo rather than silently regenerated: the attributed,
+licensed output is the artifact, and refreshing it (a workbook update, a provider improvement)
+is a deliberate, visible re-run of `--execute --refresh`, not an implicit background sync.
+
+## The remaining 3B2/3B2B/3C boundary
+
+Everything below is still explicitly out of scope. Extending `TransferConfidence`,
+`TransferProvenance`, or `TransferMode` further is for a later phase to decide, not implied by
+3B2A's additions:
+
+- Validating any of the remaining ~308 "A pie" relations beyond this pilot's 24.
+- Transit / schedule-aware validation of any kind.
+- A full transport-mode catalogue (Shinkansen, flights, ferries) beyond the modes that exist in
+  the dataset today.
+- Route ordering, city-sequence comparison, or itinerary generation.
+
+### Transit provider research (architectural notes only, still no integration)
+
+For **transit** (schedule-aware) validation, this phase does **not** choose a provider in code.
 Commercial providers investigated include Google Routes, NAVITIME, Ekispert, and HERE, but
 their standard terms constrain caching/storing responses as static, versioned repository data
 without further permission or a different architecture (e.g. calling live rather than
-precomputing). That evaluation is deferred to 3B2, alongside the architecture decision it
-implies (live lookup vs. a licensed, cacheable batch export).
+precomputing). That evaluation is deferred to a later phase, alongside the architecture decision
+it implies (live lookup vs. a licensed, cacheable batch export).
 
 #### Google Routes: why it is out of scope now, specifically
 
@@ -262,3 +458,14 @@ No Google API key exists anywhere in this repository, and none is created by Pha
   `FilterPanel.tsx`, `App.tsx`/`App.css`, and the rest) — the existing nearby-navigation UI reads
   `getNearby()` exactly as it did before this phase.
 - Itinerary generation, place ordering, or city-sequence comparison — all still 3C-or-later.
+
+## What Phase 3B2A does not touch
+
+- `data/nearby.json` / `app/src/data/nearby.json` and `data/places.json` /
+  `app/src/data/places.json` — unchanged. `toTransferEdge()` still converts every one of the 403
+  relations to `confidence: "estimated"`; the pilot's 24 validated-or-not results live in a
+  separate artifact (`data/logistics/`), never overwriting or replacing the estimated source.
+- The source workbook and GeoJSON.
+- Any UI component — no new times are shown to a user yet; this phase only validates data.
+- Transit, Shinkansen, ferries, route optimization, itineraries, or any of the ~308 "A pie"
+  relations outside this pilot's 24-edge sample.
