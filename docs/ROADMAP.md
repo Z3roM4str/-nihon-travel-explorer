@@ -268,15 +268,37 @@ No ORS request was made, no dataset file changed, no UI was touched, and Phase 3
 This phase made zero ORS requests, zero coordinate/dataset/threshold changes, zero UI
 changes, and did not start the proposed next phase or Phase 3C.
 
+## Phase 3B2E — Access-Point Override Design — complete
+
+- [x] Define the separate, provenance-tracked, multi-access-point contract in
+      [ACCESS_POINT_DESIGN.md](ACCESS_POINT_DESIGN.md), preserving the display coordinate on
+      `Place` and separating access contexts from `TransferMode`.
+- [x] Specify stable identity, explicit-coordinate ordering, default/ambiguity rules,
+      historical-result compatibility, and a staged migration without changing runtime data.
+
+Phase 3B2E decided the model only. It created no artifact, coordinates, routing behavior, ORS
+requests, or UI.
+
+## Phase 3B2F — Access-Point Data Foundation — complete
+
+- [x] Add the empty authoritative `data/logistics/access-points.json` catalog and its
+      parity-validated app-facing copy. The exact current catalog is `[]`: zero real coordinates.
+- [x] Add logistics-specific TypeScript roles, contexts, confidence, provenance, and access-point
+      types plus non-selecting ID/place/context read primitives.
+- [x] Add a dedicated offline validator and synthetic fixture suite for identity, references,
+      coordinates, provenance, vocabularies, defaults, duplicates, secrets, and app/source parity.
+- [x] Document Stage 1 and preserve every existing product behavior and historical routing result.
+
+Phase 3B2F is Stage 1 only. Access points are not connected to `getBestTransfer`; no routing
+requests, routing-result regeneration, UI, or Phase 3C work occurred. The next proposed phase —
+**Phase 3B2G — Evidenced Access-Point Population** — would research and add only officially
+verifiable real coordinates with provenance, still without routing integration. It is not started.
+
 ## Later (unscheduled)
 
-- [ ] Design (Phase 3B2E, proposed, not started) an access-point override model per
-      [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md)'s recommendation:
-      layered on top of (never replacing) the existing display coordinate, evidenced
-      and provenance-tracked per override, mode-specific where relevant, supporting
-      more than one access point per place, auditable, applied only where evidence
-      supports it (not auto-converting every POI), and never silently altering
-      historical routing results.
+- [ ] Phase 3B2G — Evidenced Access-Point Population (proposed, not started): investigate
+      access points only where an official, verifiable coordinate and provenance exist; do not
+      integrate them into routing yet.
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.

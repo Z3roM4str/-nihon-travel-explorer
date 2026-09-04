@@ -559,6 +559,43 @@ dataset change was made. It proposes (but does not start) a future, small,
 reversible phase to design an access-point override model — see
 [WALKING_EXCEPTIONS_AUDIT.md](WALKING_EXCEPTIONS_AUDIT.md)'s "Proposed next phase."
 
+## Phases 3B2E–3B2F — Access-point design and data foundation
+
+Phase 3B2E selected the separate, multi-point logistics model documented in
+[ACCESS_POINT_DESIGN.md](ACCESS_POINT_DESIGN.md). Phase 3B2F implements only that
+design's **Stage 1** data foundation. The authoritative, versioned catalog is
+`data/logistics/access-points.json`; the app-readable
+`app/src/data/logistics/access-points.json` is a generated/distributed copy and is
+required to be structurally identical by `scripts/validate-access-points.py`. It is
+not a second editable source of truth. Both files currently contain exactly an empty
+JSON array (`[]`): this phase adds zero real coordinates and no records for any place.
+
+The logistics-specific TypeScript contract and read primitives live in
+`app/src/lib/access-points.ts`, keeping `Place.coordinates` and the rest of `Place`
+unchanged. Its closed roles are `visitor-entrance`, `gate`, `reception`, `trailhead`,
+`road-access`, `transit-stop`, and `general-access`; its closed contexts are
+`external-walk`, `external-local-transit`, `internal-shuttle`, and `internal-hike`.
+These contexts deliberately do not expand `TransferMode`. Coordinates use named
+`{ lat, lng }` fields. Every active point requires official provenance (`sourceUrl`,
+`sourceEntity`, `consultedAt`, `evidence`, and either `official-explicit` or
+`official-derived` confidence).
+
+The offline validator checks place references, `AP-<PLACE_ID>-<NNN>` identity,
+coordinates, vocabularies, provenance, active defaults, duplicate identities and
+coordinate claims, secret-like fields, future endpoint-reference integrity, and
+root/app parity. The read layer offers collection, ID, place, and context filtering
+only. It preserves candidate order without assigning it meaning and never chooses a
+gate or access point.
+
+Runtime routing does **not** consume access points in Phase 3B2F. `getBestTransfer`,
+its precedence and fallback, `TransferMode`, `TransferConfidence`, nearby data, and
+all historical pilot/scale results remain unchanged. `RoutingEndpoint` remains the
+approved future contract in the design document rather than being added prematurely:
+no current result needs or receives endpoint identity. There were no ORS calls or UI
+changes. The next proposed phase, not started here, is **Phase 3B2G — Evidenced
+Access-Point Population**: populate only officially verifiable real coordinates and
+provenance, still without routing integration.
+
 ## The remaining 3B2/3B2B/3C boundary
 
 Everything below is still explicitly out of scope. Extending `TransferConfidence`,
