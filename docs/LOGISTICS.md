@@ -412,7 +412,8 @@ routing computation itself is openrouteservice/HeiGIT's, provided under **CC BY 
 ("© openrouteservice.org by HeiGIT"). The underlying map data is OpenStreetMap's, available
 under the **Open Database License (ODbL)**, requiring "Map data © OpenStreetMap contributors"
 and that the ODbL itself be named. Every `"validated"` pilot result's `attribution` string
-records both — see `ATTRIBUTION` in `scripts/validate-walking-pilot.py` for the exact wording.
+records both — see `ATTRIBUTION` in `scripts/ors_client.py` (shared with the Phase 3B2B-A
+scale-up pipeline; see `docs/WALKING_SCALE_PREP.md`) for the exact wording.
 This is why the result is versioned in-repo rather than silently regenerated: the attributed,
 licensed output is the artifact, and refreshing it (a workbook update, a provider improvement)
 is a deliberate, visible re-run of `--execute --refresh`, not an implicit background sync.
@@ -423,7 +424,10 @@ Everything below is still explicitly out of scope. Extending `TransferConfidence
 `TransferProvenance`, or `TransferMode` further is for a later phase to decide, not implied by
 3B2A's additions:
 
-- Validating any of the remaining ~308 "A pie" relations beyond this pilot's 24.
+- **Executing** the remaining 308 "A pie" relations against a real routing provider. Phase
+  3B2B-A (`docs/WALKING_SCALE_PREP.md`) prepared this — the scale-up manifest, a per-place
+  Snap store, and a restart-safe pipeline all exist and are tested against mocks — but no
+  Directions request was made against any of the 308, and no threshold was changed.
 - Transit / schedule-aware validation of any kind.
 - A full transport-mode catalogue (Shinkansen, flights, ferries) beyond the modes that exist in
   the dataset today.

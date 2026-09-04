@@ -136,12 +136,49 @@ remaining ~308, transit, or anything else. The pilot's own sample is now fully s
 a future scale-up phase carries forward the snap-clean gate as a hard requirement (see
 `docs/WALKING_PILOT.md`'s decision gate) rather than re-deriving it from scratch.
 
+## Phase 3B2B-A — Walking Scale-Up Engineering & Snap Threshold Analysis — preparation only
+
+- [x] Deterministic scale-up manifest (`scripts/select-walking-scale.py` →
+      `data/logistics/walking-scale-manifest.json`): every "A pie" edge not in the pilot's 24,
+      derived from the live dataset (never hardcoded) — 308 edges over the current dataset.
+      Verified: pilot ∪ scale == every current "A pie" relation, zero overlap.
+- [x] Per-place Snap store (`data/logistics/walking-snap-places.json`, keyed by `placeId`,
+      never by edge): a null measurement is `"unknown"`, never coerced into a `0`-meter
+      `"resolved"` entry. Seeded offline from Phase 3B2A's already-measured 35 places
+      (`scripts/seed-walking-snap-store.py`) — zero new network requests; 34 of the scale
+      manifest's 137 unique places are already resolved this way.
+- [x] Pipeline split into independent, restart-safe steps (`scripts/validate-walking-scale.py`):
+      Snap backfill, Directions execution, and snap/distance recombination are separate modes
+      that can each resume after an interruption without re-doing already-completed work.
+      Shared network/result-shape code (`scripts/ors_client.py`,
+      `scripts/walking_result_builder.py`) extracted so both the pilot and scale-up pipelines
+      use the exact same logic — Phase 3B2A's own pipeline behavior is unchanged (its 63-test
+      suite passes unmodified).
+- [x] Snap-threshold audit against Phase 3B2A's real 24-edge sample (see
+      `docs/WALKING_SCALE_PREP.md`): found one "clean" edge (JP-184→JP-185) with a 139.31 m
+      single-endpoint snap that the combined/ratio rule doesn't catch. N=24 is not enough to
+      responsibly calibrate a second per-endpoint threshold, so none was set — instead
+      `classify_endpoint_snapping()` gained an explicit, disabled-by-default, auditable seam
+      (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS = None`) for a future phase to set once
+      justified. No Phase 3B2A result was reclassified.
+- [x] Offline dry-run (`--dry-run`, no network): reports the derived edge/place counts, hub and
+      distance distributions, and a Directions/Snap request plan checked against
+      openrouteservice's documented community-plan quota (2,000/day, 40/minute Directions;
+      5,000 locations/request Snap) — see `docs/WALKING_SCALE_PREP.md` for the full real
+      output and sources.
+
+**This phase does not execute the scale-up batch.** No Directions request was made against
+any of the 308 scale edges, and `data/logistics/walking-scale-results.json` does not exist.
+`--backfill-snap-places` was exercised only against mocks, never for real, for the 103
+still-unresolved places. See `docs/WALKING_SCALE_PREP.md` for what remains before a future
+phase can actually run the batch.
+
 ## Later (unscheduled)
 
-- [ ] Validate local transfers with routing-grade data — Phase 3B2A's architecture, scaled to
-      the remaining "A pie" relations, carrying forward the snap-clean gate (see
-      `docs/WALKING_PILOT.md`'s decision gate); transit/schedule-aware validation pending a
-      provider decision — see `docs/LOGISTICS.md`.
+- [ ] Execute Phase 3B2B-A's prepared scale-up batch (`scripts/validate-walking-scale.py
+      --backfill-snap-places` then `--execute`) against the remaining 308 "A pie" relations,
+      carrying forward the snap-clean gate — see `docs/WALKING_SCALE_PREP.md`.
+- [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
 - [ ] Compare candidate city sequences.

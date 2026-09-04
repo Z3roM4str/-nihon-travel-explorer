@@ -525,6 +525,34 @@ describe("bestTransferFromLookups / getBestTransfer — endpoint-snapping gate",
     const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validated);
     expect(best?.confidence).toBe("validated-static");
   });
+
+  it("Phase 3B2B-A: the gate holds generically over a synthetic batch of any size, not just the pilot's 24 — only 'clean' ever promotes", () => {
+    // This does not depend on any real scale-up data (none has been executed yet —
+    // see docs/WALKING_SCALE_PREP.md); it proves the rule itself scales past N=24
+    // before a future phase ever produces a real walking-scale-results.json for
+    // getBestTransfer to read.
+    const assessments = ["clean", "significant", "unknown", undefined] as const;
+    let syntheticEdgeIndex = 0;
+    for (const assessment of assessments) {
+      for (let i = 0; i < 50; i += 1) {
+        const fromId = `JP-SCALE-${syntheticEdgeIndex}-A`;
+        const toId = `JP-SCALE-${syntheticEdgeIndex}-B`;
+        syntheticEdgeIndex += 1;
+        const estimated = toTransferEdge(relation({ "Desde ID": fromId, "Hacia ID": toId }));
+        const validated = validatedResult({
+          fromId,
+          toId,
+          endpointSnapping:
+            assessment === undefined
+              ? undefined
+              : { assessment, fromSnapMeters: assessment === "unknown" ? null : 1.0, toSnapMeters: 1.0, radiusMeters: 350 },
+        });
+        if (assessment === undefined) delete (validated as { endpointSnapping?: unknown }).endpointSnapping;
+        const best = bestTransferFromLookups(fromId, toId, () => estimated, () => validated);
+        expect(best?.confidence).toBe(assessment === "clean" ? "validated-static" : "estimated");
+      }
+    }
+  });
 });
 
 describe("getBestTransfer — real JP-063<->JP-065 pilot finding (significant endpoint snapping)", () => {

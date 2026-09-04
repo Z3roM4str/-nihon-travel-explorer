@@ -31,6 +31,7 @@ def load_module(filename, name):
 
 
 common = load_module("logistics_common.py", "logistics_common")
+ors_client = load_module("ors_client.py", "ors_client")
 vwp = load_module("validate-walking-pilot.py", "validate_walking_pilot")
 select = load_module("select-walking-pilot.py", "select_walking_pilot")
 report = load_module("report-walking-pilot.py", "report_walking_pilot")
@@ -90,7 +91,7 @@ class ProviderResponseParsingTests(unittest.TestCase):
         return response
 
     def test_parses_distance_and_duration_from_summary(self):
-        with mock.patch.object(vwp.urllib.request, "urlopen", return_value=self._fake_urlopen_success(1372.6, 292.8)):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", return_value=self._fake_urlopen_success(1372.6, 292.8)):
             from_place = fake_place("A", 35.0, 139.0)
             to_place = fake_place("B", 35.01, 139.01)
             distance_m, duration_s = vwp.query_ors("fake-key", from_place, to_place)
@@ -106,7 +107,7 @@ class ProviderResponseParsingTests(unittest.TestCase):
             hdrs=None,
             fp=io.BytesIO(error_body),
         )
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=http_error):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
             with self.assertRaises(vwp.RoutingRequestError) as ctx:
                 vwp.query_ors("fake-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.0, 139.0))
         self.assertEqual(ctx.exception.status, "no-route")
@@ -120,7 +121,7 @@ class ProviderResponseParsingTests(unittest.TestCase):
             hdrs=None,
             fp=io.BytesIO(b'{"error": {"message": "Unauthorized"}}'),
         )
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=http_error):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
             with self.assertRaises(vwp.RoutingRequestError) as ctx:
                 vwp.query_ors("bad-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.0, 139.0))
         self.assertEqual(ctx.exception.status, "request-error")
@@ -134,7 +135,7 @@ class ProviderResponseParsingTests(unittest.TestCase):
             hdrs=None,
             fp=io.BytesIO(b"{}"),
         )
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=http_error):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
             with self.assertRaises(vwp.RoutingRequestError) as ctx:
                 vwp.query_ors("fake-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.0, 139.0))
         self.assertEqual(ctx.exception.status, "request-error")
@@ -145,8 +146,8 @@ class ProviderResponseParsingTests(unittest.TestCase):
             url="x", code=503, msg="Service Unavailable", hdrs=None, fp=io.BytesIO(b"{}")
         )
         success = self._fake_urlopen_success(500.0, 60.0)
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=[http_error, success]):
-            with mock.patch.object(vwp.time, "sleep"):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=[http_error, success]):
+            with mock.patch.object(ors_client.time, "sleep"):
                 outcome, error = vwp.query_ors_with_retry(
                     "fake-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.0, 139.0)
                 )
@@ -157,8 +158,8 @@ class ProviderResponseParsingTests(unittest.TestCase):
         http_error = urllib.error.HTTPError(
             url="x", code=503, msg="Service Unavailable", hdrs=None, fp=io.BytesIO(b"{}")
         )
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=[http_error, http_error, http_error]):
-            with mock.patch.object(vwp.time, "sleep") as sleep_mock:
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=[http_error, http_error, http_error]):
+            with mock.patch.object(ors_client.time, "sleep") as sleep_mock:
                 outcome, error = vwp.query_ors_with_retry(
                     "fake-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.0, 139.0)
                 )
@@ -169,8 +170,8 @@ class ProviderResponseParsingTests(unittest.TestCase):
     def test_no_route_is_never_retried(self):
         error_body = json.dumps({"error": {"code": 2010, "message": "no point"}}).encode("utf-8")
         http_error = urllib.error.HTTPError(url="x", code=404, msg="Not Found", hdrs=None, fp=io.BytesIO(error_body))
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=[http_error, http_error]) as urlopen_mock:
-            with mock.patch.object(vwp.time, "sleep") as sleep_mock:
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=[http_error, http_error]) as urlopen_mock:
+            with mock.patch.object(ors_client.time, "sleep") as sleep_mock:
                 outcome, error = vwp.query_ors_with_retry(
                     "fake-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.0, 139.0)
                 )
@@ -272,18 +273,18 @@ class SnapGuardTests(unittest.TestCase):
         return response
 
     def test_query_ors_snap_parses_snapped_distances_in_order(self):
-        with mock.patch.object(vwp.urllib.request, "urlopen", return_value=self._fake_snap_response([9.0, 10.4])):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", return_value=self._fake_snap_response([9.0, 10.4])):
             distances = vwp.query_ors_snap("fake-key", [[139.0, 35.0], [139.01, 35.01]])
         self.assertEqual(distances, [9.0, 10.4])
 
     def test_query_ors_snap_returns_none_for_unsnappable_point(self):
-        with mock.patch.object(vwp.urllib.request, "urlopen", return_value=self._fake_snap_response([9.0, None])):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", return_value=self._fake_snap_response([9.0, None])):
             distances = vwp.query_ors_snap("fake-key", [[139.0, 35.0], [0.0, 0.0]])
         self.assertEqual(distances, [9.0, None])
 
     def test_query_ors_snap_classifies_http_error_as_request_error(self):
         http_error = urllib.error.HTTPError(url="x", code=500, msg="Server Error", hdrs=None, fp=io.BytesIO(b"{}"))
-        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=http_error):
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
             with self.assertRaises(vwp.RoutingRequestError) as ctx:
                 vwp.query_ors_snap("fake-key", [[139.0, 35.0], [139.01, 35.01]])
         self.assertEqual(ctx.exception.status, "request-error")
