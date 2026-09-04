@@ -367,13 +367,17 @@ function getBestTransfer(fromId: string, toId: string): TransferEdge | null;
 
 Preference order: a validated-static result for that exact directed edge **whose endpoint
 snapping was measured and found `"clean"`**, else the estimated `nearby.json` edge, else `null`.
-A validated result with `assessment === "significant"` or `"unknown"`, or with no
-`endpointSnapping` recorded at all, is never promoted — it falls back to the estimated edge
-exactly as if the pilot hadn't covered that pair (see "Endpoint snapping" above). Nothing here
-calls a routing provider at read time — every `validated-static` answer `getBestTransfer` can
-return was already computed offline by `scripts/validate-walking-pilot.py` and is read from disk
-exactly like an estimated edge is. `toTransferEdge()` and `nearby.json` itself are untouched:
-`getBestTransfer` is a read-time resolution layer, not a rewrite of the estimated source.
+Since Phase 3B2B-C (see below), "a validated-static result" means one from either the pilot
+or the scale-up artifact — both are merged into the same directed-key index and judged by
+the same gate. A validated result with `assessment === "significant"` or `"unknown"`, or
+with no `endpointSnapping` recorded at all, is never promoted — it falls back to the
+estimated edge exactly as if neither artifact had covered that pair (see "Endpoint
+snapping" above). Nothing here calls a routing provider at read time — every
+`validated-static` answer `getBestTransfer` can return was already computed offline by
+`scripts/validate-walking-pilot.py` or `scripts/validate-walking-scale.py` and is read from
+disk exactly like an estimated edge is. `toTransferEdge()` and `nearby.json` itself are
+untouched: `getBestTransfer` is a read-time resolution layer, not a rewrite of the
+estimated source.
 
 ### Status in this checkout
 
@@ -436,9 +440,83 @@ accounting, the 429 history, all no-route edges, statistics, outliers, and thres
 evidence are in [WALKING_SCALE_EXECUTION.md](WALKING_SCALE_EXECUTION.md).
 
 The synchronized app-facing JSON is an available artifact, not a claim of new UI
-behavior: `getBestTransfer` still imports the pilot results only. Any later wiring
-must retain its clean-only promotion rule. This execution changes neither the
-estimated nearby source nor existing application behavior.
+behavior: as of this phase, `getBestTransfer` still imports the pilot results only —
+Phase 3B2B-C (below) is what wires the scale-up artifact in, retaining this clean-only
+promotion rule. This execution changes neither the estimated nearby source nor existing
+application behavior.
+
+## Phase 3B2B-C — Walking Scale Integration
+
+Phase 3B2B-B produced and versioned the scale-up's 308 terminal results
+(`data/logistics/walking-scale-results.json`, mirrored to `app/src/data/logistics/`) but
+`getBestTransfer` still read only the pilot artifact. Phase 3B2B-C wires the scale-up
+artifact into the same read-time resolution layer, alongside the pilot, without changing
+what `getBestTransfer`'s contract promises or how any individual edge is judged.
+
+**Together, pilot + scale-up cover the current dataset's full 332 "A pie" edges** — the
+pilot's 24 plus the scale-up's 308, disjoint by construction (see "Sample selection" and
+Phase 3B2B-A above). No third artifact and no other edge count is implied by this phase.
+
+### Merge design
+
+`app/src/lib/transfer.ts` imports both `walking-pilot-results.json` and
+`walking-scale-results.json` — the same way it already imported the pilot file, with no
+network access and no mutation of either artifact — and merges their `"validated"` entries
+into one directed-key index via `buildValidatedWalkingIndex()`:
+
+```ts
+export function buildValidatedWalkingIndex(
+  sources: readonly WalkingResultSource[]
+): Map<string, ValidatedWalkingResult>;
+```
+
+- Only `"validated"` entries are indexed; `"no-route"`/`"request-error"` entries are
+  skipped by this function entirely (see "No-route handling" below).
+- The lookup stays a single directed dictionary lookup, exactly as before: `getBestTransfer`
+  still resolves one exact `(fromId, toId)` pair, still never reads the reverse direction,
+  still never chains edges, still never computes a shortest path.
+- The snap-clean gate (`isSnapClean` / `endpointSnapping.assessment === "clean"`) is
+  untouched and applies identically to a pilot-sourced and a scale-sourced validated
+  result — there is no separate pilot-only or scale-only code path, only one merge and one
+  gate.
+- `toTransferEdge()` and `data/nearby.json` / `app/src/data/nearby.json` are not touched by
+  this phase; the merge only changes what `getBestTransfer` can promote to
+  `validated-static`, never the estimated source itself.
+
+### No-route handling
+
+The scale-up's five `"no-route"` results (see `WALKING_SCALE_EXECUTION.md`) are real,
+terminal provider answers — not omissions — but they carry no `distance`/`minutes` to
+index at the type level (see `WalkingPilotResult`'s discriminated union), so
+`buildValidatedWalkingIndex` never adds them to the validated index in the first place.
+For a directed pair whose only walking-artifact result is `"no-route"`,
+`getBestTransfer` therefore falls back to the recorded `nearby.json` estimate exactly as
+it would for a pair neither artifact covers at all — never `0` minutes, never a
+fabricated distance, and never promoted to `validated-static`.
+
+### Duplicate-key protection
+
+The pilot's 24 edges and the scale-up's 308 edges are disjoint by construction, verified
+independently in Phase 3B2B-A. `buildValidatedWalkingIndex` does not trust that silently:
+while merging, it tracks which source last wrote each directed key, and if the same
+directed edge is ever found `"validated"` in more than one source, it throws immediately
+— identifying both edge and both source artifacts in the error — instead of letting
+whichever source is merged last silently overwrite the other. This is a defensive,
+fail-loud guard against a future data-integrity regression, not a condition this
+checkout's real data currently triggers.
+
+### What this phase does not do
+
+- No ORS request of any kind — this phase reads only the already-versioned pilot and
+  scale-up JSON artifacts.
+- No dataset change — `nearby.json`, `places.json`, both walking result artifacts, and
+  the snapping thresholds are all read-only inputs here.
+- No summing of transfer minutes across edges, no visit ordering, and no itinerary of any
+  kind — `getBestTransfer` remains a single-pair, single-direction lookup; see
+  "No aggregation without order" above, which this phase does not revisit.
+- No UI change — nothing renders a walking-scale time to a user; this phase only extends
+  the domain-layer read path.
+- No start of Phase 3C (route/day planning).
 
 ## The remaining 3B2/3B2B/3C boundary
 

@@ -1,5 +1,6 @@
 import nearbyData from "../data/nearby.json";
 import walkingPilotResultsData from "../data/logistics/walking-pilot-results.json";
+import walkingScaleResultsData from "../data/logistics/walking-scale-results.json";
 import type { NearbyRelation, Place } from "../types";
 
 /**
@@ -32,11 +33,11 @@ import type { NearbyRelation, Place } from "../types";
  *     anything else — this is the *only* confidence a direct `nearby.json` conversion
  *     can produce.
  *   - "validated-static": a real routed path/time, without live schedule awareness.
- *     Phase 3B2A's walking-validation pilot produces this (see `WalkingPilotResult` and
- *     `getBestTransfer` below) only for a pilot manifest edge whose endpoint snapping was
- *     measured and found clean — never for a relation the pilot didn't cover, never for
- *     one whose snapping was significant or unmeasured, and never by mutating
- *     `toTransferEdge()`.
+ *     Phase 3B2A's walking-validation pilot, and Phase 3B2B-C's scale-up integration,
+ *     produce this (see `WalkingPilotResult` and `getBestTransfer` below) only for a
+ *     walking manifest edge (pilot or scale-up) whose endpoint snapping was measured and
+ *     found clean — never for a relation neither artifact covers, never for one whose
+ *     snapping was significant or unmeasured, and never by mutating `toTransferEdge()`.
  *   - "schedule-aware": accounts for an actual timetable (e.g. a transit provider's
  *     departure/arrival lookup). Not produced anywhere yet.
  * `getBestTransfer` is the only function in this module that can return
@@ -205,14 +206,15 @@ export function lookupTransfer(fromId: string, toId: string): TransferEdge | nul
 }
 
 /**
- * Phase 3B2A — walking-validation pilot.
+ * Phase 3B2A — walking-validation pilot; Phase 3B2B-C — scale-up integration.
  *
  * `scripts/validate-walking-pilot.py` queries openrouteservice offline for a small,
  * deterministically chosen sample of "A pie" edges (see `docs/LOGISTICS.md`) and writes
- * `data/logistics/walking-pilot-results.json`; the app reads the same file (copied to
- * `app/src/data/logistics/` exactly as `nearby.json` is copied from `data/`). Nothing in
- * this module ever calls a routing provider — every result here was computed once,
- * offline, and versioned.
+ * `data/logistics/walking-pilot-results.json`; `scripts/validate-walking-scale.py` does the
+ * same for the remaining 308 "A pie" edges, writing `data/logistics/walking-scale-results.json`.
+ * The app reads both files as-is (each copied to `app/src/data/logistics/` exactly as
+ * `nearby.json` is copied from `data/`). Nothing in this module ever calls a routing
+ * provider — every result here was computed once, offline, and versioned.
  */
 
 /** Query coordinates actually sent to the provider, kept for audit — `[lng, lat]`,
@@ -262,11 +264,14 @@ export type EndpointSnapping = {
 };
 
 /**
- * One pilot outcome for one directed edge. A discriminated union on `status`: only the
- * `"validated"` member carries `distance`/`minutes`/`confidence`/`source` — a failure
- * can't accidentally be read as "0 minutes" or "estimated" because those fields don't
- * exist on it at the type level, matching the pipeline's rule that a failed lookup is
- * never silently converted into a fabricated result.
+ * One walking-validation outcome for one directed edge — the shared schema for both the
+ * pilot artifact (`walking-pilot-results.json`) and the scale-up artifact
+ * (`walking-scale-results.json`; see `buildValidatedWalkingIndex` below). A discriminated
+ * union on `status`: only the `"validated"` member carries
+ * `distance`/`minutes`/`confidence`/`source` — a failure can't accidentally be read as
+ * "0 minutes" or "estimated" because those fields don't exist on it at the type level,
+ * matching the pipeline's rule that a failed lookup is never silently converted into a
+ * fabricated result.
  */
 export type WalkingPilotResult =
   | {
@@ -298,29 +303,86 @@ export type WalkingPilotResult =
       errorMessage?: string;
     };
 
-type ValidatedWalkingPilotResult = Extract<WalkingPilotResult, { status: "validated" }>;
+type ValidatedWalkingResult = Extract<WalkingPilotResult, { status: "validated" }>;
+
+/** One walking-artifact source to merge into the combined index: `results` is the raw
+ * parsed JSON, `label` identifies the artifact in a duplicate-key error and nothing else
+ * (never parsed back). */
+export type WalkingResultSource = {
+  label: string;
+  results: WalkingPilotResult[];
+};
+
+/**
+ * Merges any number of walking-artifact result arrays (today: the pilot and the scale-up)
+ * into one directed-key index of `"validated"` results only — `"no-route"`/`"request-error"`
+ * entries are terminal provider answers that carry no distance/minutes to index, so
+ * `getBestTransfer` falls back to the `nearby.json` estimate for them exactly as it does
+ * for a pair no walking artifact covers at all.
+ *
+ * The pilot's 24 edges and the scale-up's 308 edges must be disjoint **directed-edge sets**
+ * by design (see `docs/LOGISTICS.md`) — regardless of each entry's `status`. A pilot
+ * `"no-route"` and a scale-up `"validated"` for the same directed pair would still mean two
+ * artifacts claim the same edge, which the manifests this pipeline generates from are never
+ * supposed to allow; silently accepting that (even though only the `"validated"` one would
+ * ever reach the index) would hide a real data-integrity break. So this function checks for
+ * a repeated directed key across *any* status, independently of which entries end up
+ * `"validated"`: it records which artifact each directed key first appeared under, and
+ * throws immediately the moment the same key appears under a *different* artifact — never
+ * silently letting one source coexist with or overwrite the other. Only after that check
+ * passes for an entry does its `"validated"` status (if any) get added to the index.
+ */
+export function buildValidatedWalkingIndex(
+  sources: readonly WalkingResultSource[]
+): Map<string, ValidatedWalkingResult> {
+  const index = new Map<string, ValidatedWalkingResult>();
+  const labelByKey = new Map<string, string>();
+
+  for (const { label, results } of sources) {
+    for (const result of results) {
+      const key = edgeKey(result.fromId, result.toId);
+      const existingLabel = labelByKey.get(key);
+      if (existingLabel && existingLabel !== label) {
+        throw new Error(
+          `Duplicate directed walking edge ${result.fromId} -> ${result.toId}: already ` +
+            `present in "${existingLabel}", also found in "${label}" (regardless of ` +
+            `status). Walking result artifacts must not overlap.`
+        );
+      }
+      labelByKey.set(key, label);
+
+      if (result.status === "validated") {
+        index.set(key, result);
+      }
+    }
+  }
+
+  return index;
+}
 
 const walkingPilotResults = walkingPilotResultsData as WalkingPilotResult[];
+const walkingScaleResults = walkingScaleResultsData as WalkingPilotResult[];
 
-const validatedWalkingResultsByDirectedKey = new Map<string, ValidatedWalkingPilotResult>(
-  walkingPilotResults
-    .filter((result): result is ValidatedWalkingPilotResult => result.status === "validated")
-    .map((result) => [edgeKey(result.fromId, result.toId), result])
-);
+const validatedWalkingResultsByDirectedKey = buildValidatedWalkingIndex([
+  { label: "walking-pilot-results.json", results: walkingPilotResults },
+  { label: "walking-scale-results.json", results: walkingScaleResults },
+]);
 
-/** Directed lookup into the walking-pilot results, mirroring `lookupTransfer`'s
- * discipline: only a recorded `"validated"` result, in that exact direction, or `null`. */
-function lookupValidatedWalkingResult(fromId: string, toId: string): ValidatedWalkingPilotResult | null {
+/** Directed lookup into the combined pilot + scale-up walking results, mirroring
+ * `lookupTransfer`'s discipline: only a recorded `"validated"` result, in that exact
+ * direction, or `null`. */
+function lookupValidatedWalkingResult(fromId: string, toId: string): ValidatedWalkingResult | null {
   return validatedWalkingResultsByDirectedKey.get(edgeKey(fromId, toId)) ?? null;
 }
 
 /**
- * Merges a validated pilot result into the full `TransferEdge` shape. `mode`, `rawMode`,
- * `relation` and `rawRelation` are never re-derived from the provider — they come from
- * `source`, the estimated edge for the same directed pair that the pilot manifest was
- * built from. Only distance, minutes, confidence, provenance and `verifiedAt` change.
+ * Merges a validated walking result (pilot or scale-up) into the full `TransferEdge`
+ * shape. `mode`, `rawMode`, `relation` and `rawRelation` are never re-derived from the
+ * provider — they come from `source`, the estimated edge for the same directed pair that
+ * the walking manifest entry was built from. Only distance, minutes, confidence,
+ * provenance and `verifiedAt` change.
  */
-function toValidatedTransferEdge(result: ValidatedWalkingPilotResult, source: TransferEdge): TransferEdge {
+function toValidatedTransferEdge(result: ValidatedWalkingResult, source: TransferEdge): TransferEdge {
   return {
     fromId: result.fromId,
     toId: result.toId,
@@ -346,22 +408,22 @@ function toValidatedTransferEdge(result: ValidatedWalkingPilotResult, source: Tr
  * deliberately NOT "absence defaults to comparable": an unmeasured endpoint is treated
  * exactly like a measured-and-significant one, never like a measured-and-clean one.
  */
-function isSnapClean(result: ValidatedWalkingPilotResult): boolean {
+function isSnapClean(result: ValidatedWalkingResult): boolean {
   return result.endpointSnapping?.assessment === "clean";
 }
 
 /**
  * Pure core of `getBestTransfer`, with both lookups injected so tests can exercise the
  * preference order (validated-and-snap-clean > estimated > null) against fixture data
- * without depending on whatever `walking-pilot-results.json` happens to contain right
- * now. See `app/src/lib/transfer.test.ts`; `logisticsMetricsFromLookup` uses the same
- * seam pattern.
+ * without depending on whatever `walking-pilot-results.json`/`walking-scale-results.json`
+ * happen to contain right now. See `app/src/lib/transfer.test.ts`;
+ * `logisticsMetricsFromLookup` uses the same seam pattern.
  */
 export function bestTransferFromLookups(
   fromId: string,
   toId: string,
   lookupEstimated: (fromId: string, toId: string) => TransferEdge | null,
-  lookupValidated: (fromId: string, toId: string) => ValidatedWalkingPilotResult | null
+  lookupValidated: (fromId: string, toId: string) => ValidatedWalkingResult | null
 ): TransferEdge | null {
   const validated = lookupValidated(fromId, toId);
   const estimated = lookupEstimated(fromId, toId);
@@ -371,11 +433,14 @@ export function bestTransferFromLookups(
 
 /**
  * The preferred way to read a directed transfer: a validated-static result if the
- * walking pilot covers this exact directed edge AND its endpoint snapping was measured
- * and found clean (see `isSnapClean`), otherwise the estimated `nearby.json` edge,
- * otherwise `null`. Never fabricates a route, never runs routing at call time — every
- * provider answer this can return was precomputed by
- * `scripts/validate-walking-pilot.py` and is read from disk like `nearby.json` is.
+ * combined walking index (pilot + scale-up) covers this exact directed edge AND its
+ * endpoint snapping was measured and found clean (see `isSnapClean`), otherwise the
+ * estimated `nearby.json` edge, otherwise `null`. Never fabricates a route, never runs
+ * routing at call time — every provider answer this can return was precomputed by
+ * `scripts/validate-walking-pilot.py` or `scripts/validate-walking-scale.py` and is read
+ * from disk like `nearby.json` is. A `"no-route"` scale/pilot result carries no distance
+ * to promote, so this falls back to the estimated edge for it exactly as it would for an
+ * edge neither artifact covers.
  */
 export function getBestTransfer(fromId: string, toId: string): TransferEdge | null {
   return bestTransferFromLookups(fromId, toId, lookupTransfer, lookupValidatedWalkingResult);
