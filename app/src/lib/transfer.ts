@@ -320,11 +320,17 @@ export type WalkingResultSource = {
  * `getBestTransfer` falls back to the `nearby.json` estimate for them exactly as it does
  * for a pair no walking artifact covers at all.
  *
- * The pilot's 24 edges and the scale-up's 308 edges are disjoint by construction (see
- * `docs/LOGISTICS.md`), but this function does not trust that invariant silently: if the
- * same directed edge ever turns up `"validated"` in more than one source, that is a
- * data-integrity bug, and this throws immediately rather than letting whichever source is
- * merged last silently overwrite the other.
+ * The pilot's 24 edges and the scale-up's 308 edges must be disjoint **directed-edge sets**
+ * by design (see `docs/LOGISTICS.md`) — regardless of each entry's `status`. A pilot
+ * `"no-route"` and a scale-up `"validated"` for the same directed pair would still mean two
+ * artifacts claim the same edge, which the manifests this pipeline generates from are never
+ * supposed to allow; silently accepting that (even though only the `"validated"` one would
+ * ever reach the index) would hide a real data-integrity break. So this function checks for
+ * a repeated directed key across *any* status, independently of which entries end up
+ * `"validated"`: it records which artifact each directed key first appeared under, and
+ * throws immediately the moment the same key appears under a *different* artifact — never
+ * silently letting one source coexist with or overwrite the other. Only after that check
+ * passes for an entry does its `"validated"` status (if any) get added to the index.
  */
 export function buildValidatedWalkingIndex(
   sources: readonly WalkingResultSource[]
@@ -334,18 +340,20 @@ export function buildValidatedWalkingIndex(
 
   for (const { label, results } of sources) {
     for (const result of results) {
-      if (result.status !== "validated") continue;
       const key = edgeKey(result.fromId, result.toId);
       const existingLabel = labelByKey.get(key);
-      if (existingLabel) {
+      if (existingLabel && existingLabel !== label) {
         throw new Error(
           `Duplicate directed walking edge ${result.fromId} -> ${result.toId}: already ` +
-            `indexed from "${existingLabel}", also found in "${label}". Walking result ` +
-            `artifacts must not overlap.`
+            `present in "${existingLabel}", also found in "${label}" (regardless of ` +
+            `status). Walking result artifacts must not overlap.`
         );
       }
-      index.set(key, result);
       labelByKey.set(key, label);
+
+      if (result.status === "validated") {
+        index.set(key, result);
+      }
     }
   }
 

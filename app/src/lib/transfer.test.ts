@@ -531,10 +531,12 @@ describe("bestTransferFromLookups / getBestTransfer — endpoint-snapping gate",
   });
 
   it("Phase 3B2B-A: the gate holds generically over a synthetic batch of any size, not just the pilot's 24 — only 'clean' ever promotes", () => {
-    // This does not depend on any real scale-up data (none has been executed yet —
-    // see docs/WALKING_SCALE_PREP.md); it proves the rule itself scales past N=24
-    // before a future phase ever produces a real walking-scale-results.json for
-    // getBestTransfer to read.
+    // Written in Phase 3B2B-A, before the real scale-up batch existed (see
+    // docs/WALKING_SCALE_PREP.md); it deliberately does not depend on real scale-up data,
+    // proving the rule itself scales past N=24 independently of any one dataset. The batch
+    // was later executed for real in Phase 3B2B-B and wired into getBestTransfer in Phase
+    // 3B2B-C (see the real-data tests above); this synthetic test still stands alongside
+    // those as a dataset-independent proof of the same rule.
     const assessments = ["clean", "significant", "unknown", undefined] as const;
     let syntheticEdgeIndex = 0;
     for (const assessment of assessments) {
@@ -688,34 +690,72 @@ describe("buildValidatedWalkingIndex — duplicate directed-edge protection betw
     expect((caught as Error).message).toContain("walking-scale-results.json");
   });
 
-  it("ignores non-validated (no-route / request-error) entries entirely when checking for duplicate keys", () => {
-    const noRouteEntry = (): WalkingPilotResult => ({
-      fromId: "JP-NR",
-      toId: "JP-NR2",
+  function noRouteEntry(fromId: string, toId: string): WalkingPilotResult {
+    return {
+      fromId,
+      toId,
       provider: "openrouteservice",
       profile: "foot-walking",
       status: "no-route",
       verifiedAt: "2026-01-01T00:00:00Z",
       query: { fromCoordinates: [0, 0], toCoordinates: [1, 1] },
-    });
+    };
+  }
 
-    // The same directed pair appears as a terminal no-route answer in both sources —
-    // this must never trip the duplicate-validated guard, since neither entry is validated.
-    expect(() =>
+  it("throws explicitly when the same directed edge is 'no-route' in BOTH the pilot and the scale-up source — pilot and scale must be disjoint directed-edge sets regardless of status", () => {
+    // A same-key collision between two artifacts is a data-integrity bug even when
+    // neither entry is validated: pilot and scale-up manifests must never describe the
+    // same directed edge at all, so this must fail exactly like a validated/validated
+    // collision would, not be silently accepted because "no-route carries no distance".
+    let caught: unknown;
+    try {
       buildValidatedWalkingIndex([
-        { label: "pilot", results: [noRouteEntry()] },
-        { label: "scale", results: [noRouteEntry()] },
-      ])
-    ).not.toThrow();
-
-    const index = buildValidatedWalkingIndex([
-      { label: "pilot", results: [noRouteEntry()] },
-      { label: "scale", results: [noRouteEntry()] },
-    ]);
-    expect(index.size).toBe(0);
+        { label: "walking-pilot-results.json", results: [noRouteEntry("JP-NR", "JP-NR2")] },
+        { label: "walking-scale-results.json", results: [noRouteEntry("JP-NR", "JP-NR2")] },
+      ]);
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect((caught as Error).message).toContain("JP-NR -> JP-NR2");
+    expect((caught as Error).message).toContain("walking-pilot-results.json");
+    expect((caught as Error).message).toContain("walking-scale-results.json");
   });
 
-  it("the real pilot and scale-up artifacts build without throwing (live regression: no directed-key collision in this checkout)", () => {
+  it("throws explicitly when the same directed edge is 'validated' in one artifact and 'no-route' in the other, in either order", () => {
+    // Mixed statuses for the same directed pair across two artifacts must fail exactly
+    // like two matching statuses would — the guard checks the directed key, not the
+    // status pairing.
+    expect(() =>
+      buildValidatedWalkingIndex([
+        { label: "walking-pilot-results.json", results: [validatedResult({ fromId: "JP-MIX", toId: "JP-MIX2" })] },
+        { label: "walking-scale-results.json", results: [noRouteEntry("JP-MIX", "JP-MIX2")] },
+      ])
+    ).toThrow(/JP-MIX -> JP-MIX2/);
+
+    expect(() =>
+      buildValidatedWalkingIndex([
+        { label: "walking-pilot-results.json", results: [noRouteEntry("JP-MIX3", "JP-MIX4")] },
+        { label: "walking-scale-results.json", results: [validatedResult({ fromId: "JP-MIX3", toId: "JP-MIX4" })] },
+      ])
+    ).toThrow(/JP-MIX3 -> JP-MIX4/);
+  });
+
+  it("does not throw on a repeated directed key within the SAME artifact — the guard is about cross-artifact overlap, not intra-artifact shape", () => {
+    // Intra-artifact duplicate-edge shape is a manifest/results concern already enforced
+    // elsewhere (scripts/validate-logistics.py); this guard exists specifically to catch
+    // pilot/scale-up overlap, so two entries sharing a label must not trip it.
+    expect(() =>
+      buildValidatedWalkingIndex([
+        {
+          label: "walking-pilot-results.json",
+          results: [noRouteEntry("JP-SAME", "JP-SAME2"), noRouteEntry("JP-SAME", "JP-SAME2")],
+        },
+      ])
+    ).not.toThrow();
+  });
+
+  it("the real pilot and scale-up artifacts build without throwing (live regression: no directed-key collision of any status in this checkout)", () => {
     expect(() => getBestTransfer("JP-001", "JP-002")).not.toThrow();
   });
 });
