@@ -179,17 +179,46 @@ a future scale-up phase carries forward the snap-clean gate as a hard requiremen
       5,000 locations/request Snap) — see `docs/WALKING_SCALE_PREP.md` for the full real
       output and sources.
 
-**This phase does not execute the scale-up batch.** No Directions request was made against
-any of the 308 scale edges, and `data/logistics/walking-scale-results.json` does not exist.
+**Phase 3B2B-A did not execute the scale-up batch.** No Directions request was made against
+any of the 308 scale edges during preparation, and `data/logistics/walking-scale-results.json`
+did not exist at the end of that phase.
 `--backfill-snap-places` was exercised only against mocks, never for real, for the 103
 still-unresolved places. See `docs/WALKING_SCALE_PREP.md` for what remains before a future
-phase can actually run the batch.
+phase could actually run the batch. The subsequent real execution is recorded below.
+
+## Phase 3B2B-B — Walking Scale-Up Execution — complete
+
+- [x] Verify exact preparation base `f4be15901e50cc1a93006783d4cea47e805f882b`,
+      dataset/pilot-manifest hashes, reproducible scale manifest, and the 332 = 24 + 308
+      walking partition with zero overlap. Restore exact LF checkout bytes locally
+      after an authorized pause for Windows CRLF conversion; no dataset/hash changes.
+- [x] Real Snap backfill on 2026-09-04: 1 request resolved 103 pending places;
+      all 137 scale-required places resolved, no no-snap/error/stale/missing entries.
+- [x] Execute all 308 scale edges against `api.heigit.org`, `foot-walking`:
+      **303 validated, 5 no-route, 0 request-error/missing**. 312 Directions requests
+      total, including 3 bounded retries and one later re-query of a failed edge.
+      Stop after persistent HTTP 429 at 40/min; resume only after explicit authorization
+      at 20/min (192 requests, no retries, 116 cached terminal results untouched).
+- [x] Verify terminal completeness, recombine snapping offline (0 changes), and publish
+      the byte-identical app-facing copy using the existing completeness gate.
+      All 303 validated scale results are clean; significant/unknown are both zero.
+- [x] Record statistics, all five no-route edges, outliers, limitations, and the larger
+      Snap-distribution audit in [WALKING_SCALE_EXECUTION.md](WALKING_SCALE_EXECUTION.md).
+      No absolute threshold proposed or applied without independent calibration evidence;
+      the existing `None` setting and pilot classifications remain unchanged.
+- [x] Pass final Python suites (63 + 125), app tests (104), lint, build, dataset,
+      geography, and logistics validation. No pipeline, UI, or dataset content changes.
+
+The app-facing artifact is prepared; application behavior still consumes the pilot
+artifact only. This phase does not wire scale results into the UI or start Phase 3C.
 
 ## Later (unscheduled)
 
-- [ ] Execute Phase 3B2B-A's prepared scale-up batch (`scripts/validate-walking-scale.py
-      --backfill-snap-places` then `--execute`) against the remaining 308 "A pie" relations,
-      carrying forward the snap-clean gate — see `docs/WALKING_SCALE_PREP.md`.
+- [ ] Independently review large endpoint displacements before proposing an absolute
+      Snap threshold; investigate the preserved no-route cases without assuming
+      a provider answer proves real-world inaccessibility.
+- [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
+      reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
