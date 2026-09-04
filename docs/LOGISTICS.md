@@ -316,19 +316,23 @@ resolution layer, not a rewrite of the estimated source.
 
 ### Status in this checkout
 
-The pipeline above is implemented and its non-network logic is fully tested (selection
-determinism, coordinate order, minute rounding, response parsing, failure classification,
-caching/refresh, and the validated/estimated/null preference order — see
-`scripts/test_walking_pilot.py` and `app/src/lib/transfer.test.ts`). **The live pilot has not
-been executed**: no `ORS_API_KEY` was available when this phase was built, so
-`data/logistics/walking-pilot-results.json` ships as `[]` — an empty, typed scaffold, not a
-claim that 24 edges were validated. No `docs/WALKING_PILOT.md` report and no SCALE/ADJUST/STOP
-recommendation exist yet, because both would need to rest on real results. To run it:
+The pipeline's non-network logic is fully tested (selection determinism, coordinate order,
+minute rounding, response parsing, failure classification, caching/refresh, and the
+validated/estimated/null preference order — see `scripts/test_walking_pilot.py` and
+`app/src/lib/transfer.test.ts`). **The live pilot has been executed**: on 2026-09-04, all 24
+manifest edges were queried against `api.heigit.org` and all 24 returned `"validated"` (0
+`no-route`, 0 `request-error`). `data/logistics/walking-pilot-results.json` holds the real
+results (mirrored to `app/src/data/logistics/`). Full statistics, per-edge comparisons, top
+outliers, limitations, and the decision-gate recommendation are in `docs/WALKING_PILOT.md` — not
+duplicated here to avoid a second source of truth for the same numbers.
+
+To re-run it (idempotent — cached `"validated"` edges are skipped unless `--refresh`):
 
 ```
 ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --dry-run   # sanity check first
 ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --execute
 python3 scripts/report-walking-pilot.py
+python3 scripts/validate-logistics.py data
 ```
 
 ### Attribution

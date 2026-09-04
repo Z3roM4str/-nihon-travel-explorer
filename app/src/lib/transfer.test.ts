@@ -429,16 +429,32 @@ describe("bestTransferFromLookups / getBestTransfer — Phase 3B2A", () => {
     expect(best?.confidence).toBe("estimated");
   });
 
-  it("getBestTransfer against the real (currently empty) walking-pilot-results.json falls back to estimated for every current relation", () => {
-    // Phase 3B2A has not run a live pilot in this checkout yet (see docs/LOGISTICS.md);
-    // this is a live regression check that the shipped file is genuinely empty and that
-    // getBestTransfer's fallback path — not a promoted confidence — is what every one of
-    // the 403 current relations resolves to today.
-    expect(walkingPilotResultsData).toEqual([]);
-    for (const raw of nearbyRelations.slice(0, 20)) {
+  it("getBestTransfer against the real walking-pilot-results.json: validated-static only for pilot-covered pairs, estimated for every other current relation", () => {
+    // Live regression check against whatever this checkout's pilot artifact actually
+    // contains — not a fixture. It must never promote a relation the pilot didn't cover,
+    // and every relation it did cover must come back validated-static, not estimated.
+    const validatedPairs = new Set(
+      (walkingPilotResultsData as WalkingPilotResult[])
+        .filter((r) => r.status === "validated")
+        .map((r) => `${r.fromId} ${r.toId}`)
+    );
+    expect(validatedPairs.size).toBeGreaterThan(0); // the live pilot has run in this checkout
+
+    let checkedValidated = 0;
+    let checkedEstimated = 0;
+    for (const raw of nearbyRelations) {
+      const key = `${raw["Desde ID"]} ${raw["Hacia ID"]}`;
       const best = getBestTransfer(raw["Desde ID"], raw["Hacia ID"]);
-      expect(best?.confidence).toBe("estimated");
+      if (validatedPairs.has(key)) {
+        expect(best?.confidence).toBe("validated-static");
+        checkedValidated += 1;
+      } else {
+        expect(best?.confidence).toBe("estimated");
+        checkedEstimated += 1;
+      }
     }
+    expect(checkedValidated).toBe(validatedPairs.size);
+    expect(checkedEstimated).toBe(nearbyRelations.length - validatedPairs.size);
   });
 
   it("getBestTransfer returns null for a pair with no recorded relation at all", () => {

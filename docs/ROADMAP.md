@@ -100,7 +100,7 @@ remain the only stored user state.
 This phase formalizes the existing estimates; it does not validate them. Every transfer time in
 the application remains a geographic estimate until a later phase actually routes it.
 
-## Phase 3B2A — Walking Validation Pilot — pipeline built, live pilot not yet run
+## Phase 3B2A — Walking Validation Pilot — complete
 
 - [x] Extend `TransferProvenance` into a discriminated union (`GeographicProvenance` |
       `RoutingProviderProvenance`) and add `getBestTransfer` (validated-static > estimated >
@@ -112,14 +112,15 @@ the application remains a geographic estimate until a later phase actually route
       **api.heigit.org** (not the deprecated api.openrouteservice.org), with a coordinate-order
       regression test, reproducible caching, and a bounded single retry — fully covered by
       network-free unit tests (`scripts/test_walking_pilot.py`).
-- [ ] **Live pilot execution** — blocked on an `ORS_API_KEY` not being available when this phase
-      was built. `data/logistics/walking-pilot-results.json` ships empty (`[]`); see
-      `docs/LOGISTICS.md` for the exact command to run it.
-- [ ] Pilot report (`docs/WALKING_PILOT.md`) and a SCALE/ADJUST/STOP recommendation — both
-      deferred until the live pilot actually produces results to report on.
+- [x] **Live pilot execution** — run 2026-09-04: 24/24 edges validated, 0 failures. Results in
+      `data/logistics/walking-pilot-results.json`.
+- [x] Pilot report (`docs/WALKING_PILOT.md`) with real statistics, top outliers, limitations,
+      and a decision-gate recommendation (**SCALE, with a caveat** — see the report; scaling
+      itself is explicitly not part of this phase).
 
-This phase does not validate the other ~308 "A pie" relations, transit, or anything beyond the
-24-edge sample, regardless of what the eventual pilot recommends.
+This phase validated exactly 24 of the 332 "A pie" relations. It does not validate the
+remaining ~308, transit, or anything else, regardless of the pilot's SCALE recommendation —
+scaling up is a separate, later phase's decision to make and execute.
 
 ## Later (unscheduled)
 
