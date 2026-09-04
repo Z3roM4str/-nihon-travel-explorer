@@ -77,6 +77,12 @@ def validate_catalog(catalog, place_ids):
         if place_id not in place_ids:
             errors.append(f"{label}: unknown placeId {place_id!r}")
 
+        point_label = point.get("label")
+        if not isinstance(point_label, str) or not point_label.strip():
+            errors.append(f"{label}: label must be a non-empty string")
+        if "notes" in point and not isinstance(point["notes"], str):
+            errors.append(f"{label}: notes must be a string when present")
+
         role = point.get("role")
         if role not in ROLES:
             errors.append(f"{label}: unknown role {role!r}")
@@ -98,7 +104,7 @@ def validate_catalog(catalog, place_ids):
         if not isinstance(contexts, list) or not contexts:
             errors.append(f"{label}: applicableContexts must be a non-empty array")
             contexts = []
-        if len(contexts) != len(set(contexts)):
+        if any(contexts.count(context) > 1 for context in contexts):
             errors.append(f"{label}: applicableContexts contains a duplicate context")
         for context in contexts:
             if context not in CONTEXTS:
@@ -119,13 +125,20 @@ def validate_catalog(catalog, place_ids):
             errors.append(f"{label}: unsupported provenance confidence {provenance.get('confidence')!r}")
 
         selection = point.get("selection", {})
-        default_contexts = selection.get("defaultForContexts", []) if isinstance(selection, dict) else []
+        if not isinstance(selection, dict):
+            errors.append(f"{label}: selection must be an object when present")
+            selection = {}
+        default_contexts = selection.get("defaultForContexts", [])
         if not isinstance(default_contexts, list):
             errors.append(f"{label}: selection.defaultForContexts must be an array")
             default_contexts = []
+        if any(default_contexts.count(context) > 1 for context in default_contexts):
+            errors.append(f"{label}: selection.defaultForContexts contains a duplicate context")
         if status == "deprecated" and default_contexts:
             errors.append(f"{label}: deprecated access point cannot be a current default")
         for context in default_contexts:
+            if context not in CONTEXTS:
+                errors.append(f"{label}: unknown default context {context!r}")
             if context not in contexts:
                 errors.append(f"{label}: default context {context!r} is not applicable")
             default_key = (place_id, context)
@@ -146,7 +159,7 @@ def validate_catalog(catalog, place_ids):
     return errors
 
 
-def find_orphan_endpoint_references(data_dir, access_point_ids):
+def find_orphan_endpoint_references(data_dir, access_points_by_id):
     errors = []
     for path in sorted((Path(data_dir) / "logistics").glob("*.json")):
         if path.name == "access-points.json":
@@ -160,8 +173,14 @@ def find_orphan_endpoint_references(data_dir, access_point_ids):
             if isinstance(value, dict):
                 if value.get("kind") == "access-point":
                     ref = value.get("accessPointId")
-                    if ref not in access_point_ids:
+                    access_point = access_points_by_id.get(ref)
+                    if access_point is None:
                         errors.append(f"{path}: orphan accessPointId {ref!r} at {trail}")
+                    elif value.get("placeId") != access_point.get("placeId"):
+                        errors.append(
+                            f"{path}: endpoint placeId {value.get('placeId')!r} does not match "
+                            f"access point {ref!r} placeId {access_point.get('placeId')!r} at {trail}"
+                        )
                 for key, child in value.items():
                     walk(child, f"{trail}/{key}")
             elif isinstance(value, list):
@@ -180,7 +199,11 @@ def validate(data_dir=Path("data"), app_path=DEFAULT_APP_PATH):
     except (OSError, json.JSONDecodeError) as exc:
         return [f"cannot load required artifact: {exc}"]
     errors = validate_catalog(catalog, {place.get("id") for place in places if isinstance(place, dict)})
-    errors.extend(find_orphan_endpoint_references(data_dir, {p.get("id") for p in catalog if isinstance(p, dict)}))
+    errors.extend(
+        find_orphan_endpoint_references(
+            data_dir, {p.get("id"): p for p in catalog if isinstance(p, dict)}
+        )
+    )
     if app_path is not None:
         try:
             if load(app_path) != catalog:

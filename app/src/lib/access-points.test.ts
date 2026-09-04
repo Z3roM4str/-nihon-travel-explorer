@@ -41,6 +41,47 @@ describe("access-point reads", () => {
     expect(reader.getAccessPointById("AP-JP-TEST-001")).toBeDefined();
   });
 
+  it("isolates its snapshot and returned nested values from mutations", () => {
+    const original = point("AP-JP-TEST-001", "gate");
+    original.selection.defaultForContexts = ["external-walk"];
+    const reader = buildAccessPointReader([original]);
+
+    original.coordinates.lat = 90;
+    original.applicableContexts.push("internal-hike");
+    original.provenance.evidence = "mutated source";
+    original.selection.defaultForContexts.push("internal-hike");
+
+    const returned = [
+      reader.getAllAccessPoints()[0],
+      reader.getAccessPointById(original.id),
+      reader.getAccessPointsForPlace(original.placeId)[0],
+      reader.getAccessPointsForContext(original.placeId, "external-walk")[0],
+    ];
+    for (const candidate of returned) {
+      expect(candidate).toBeDefined();
+      candidate!.coordinates.lng = 180;
+      candidate!.applicableContexts.length = 0;
+      candidate!.provenance.sourceEntity = "mutated return";
+      candidate!.selection.defaultForContexts!.length = 0;
+    }
+
+    expect(reader.getAccessPointById(original.id)).toMatchObject({
+      coordinates: { lat: 1, lng: 2 },
+      applicableContexts: ["external-walk"],
+      provenance: { evidence: "Synthetic fixture only", sourceEntity: "Synthetic authority" },
+      selection: { defaultForContexts: ["external-walk"] },
+    });
+  });
+
+  it("excludes deprecated points from context candidates but resolves them by ID", () => {
+    const deprecated = point("AP-JP-TEST-002", "gate");
+    deprecated.status = "deprecated";
+    const reader = buildAccessPointReader([point("AP-JP-TEST-001", "gate"), deprecated]);
+
+    expect(reader.getAccessPointsForContext("JP-TEST", "external-walk")).toHaveLength(1);
+    expect(reader.getAccessPointById(deprecated.id)).toEqual(deprecated);
+  });
+
   it("preserves multiple candidates without inferring priority", () => {
     const candidates = [
       point("AP-JP-TEST-009", "gate"),

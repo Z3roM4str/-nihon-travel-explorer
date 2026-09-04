@@ -47,6 +47,14 @@ class CatalogValidationTests(unittest.TestCase):
     def test_valid_synthetic_access_point(self):
         self.assertEqual(self.errors([valid_point()]), [])
 
+    def test_label_must_be_a_non_empty_string(self):
+        for invalid_label in (None, "", "   ", 123):
+            with self.subTest(label=invalid_label):
+                self.assert_invalid([valid_point(label=invalid_label)], "label must be")
+
+    def test_notes_must_be_a_string_when_present(self):
+        self.assert_invalid([valid_point(notes=["not", "text"])], "notes must be")
+
     def test_unknown_place_id(self):
         self.assert_invalid([valid_point(placeId="JP-999", id="AP-JP-999-001")], "unknown placeId")
 
@@ -85,6 +93,25 @@ class CatalogValidationTests(unittest.TestCase):
         first = valid_point(selection={"defaultForContexts": ["external-walk"]})
         second = valid_point("AP-JP-001-002", coordinates={"lat": 11, "lng": 21}, selection={"defaultForContexts": ["external-walk"]})
         self.assert_invalid([first, second], "multiple active defaults")
+
+    def test_selection_shape_and_default_context_integrity(self):
+        self.assert_invalid([valid_point(selection="external-walk")], "selection must be an object")
+        self.assert_invalid(
+            [valid_point(selection={"defaultForContexts": "external-walk"})],
+            "defaultForContexts must be an array",
+        )
+        self.assert_invalid(
+            [valid_point(selection={"defaultForContexts": ["external-walk", "external-walk"]})],
+            "defaultForContexts contains a duplicate",
+        )
+        self.assert_invalid(
+            [valid_point(selection={"defaultForContexts": ["teleport"]})],
+            "unknown default context",
+        )
+        self.assert_invalid(
+            [valid_point(selection={"defaultForContexts": ["internal-hike"]})],
+            "is not applicable",
+        )
 
     def test_deprecated_default(self):
         self.assert_invalid(
@@ -136,6 +163,20 @@ class ArtifactValidationTests(unittest.TestCase):
             endpoint = {"fromEndpoint": {"kind": "access-point", "accessPointId": "AP-JP-001-999"}}
             data, app = self.write_fixture(Path(temporary), [], extra_logistics=endpoint)
             self.assertTrue(any("orphan" in error for error in validator.validate(data, app)))
+
+    def test_endpoint_place_must_match_referenced_access_point(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            catalog = [valid_point()]
+            endpoint = {
+                "fromEndpoint": {
+                    "kind": "access-point",
+                    "placeId": "JP-002",
+                    "accessPointId": "AP-JP-001-001",
+                }
+            }
+            data, app = self.write_fixture(Path(temporary), catalog, extra_logistics=endpoint)
+            errors = validator.validate(data, app)
+            self.assertTrue(any("endpoint placeId" in error and "does not match" in error for error in errors))
 
     def test_matching_artifacts_are_valid(self):
         with tempfile.TemporaryDirectory() as temporary:
