@@ -737,6 +737,44 @@ class ScaleDryRunAndCombineTests(unittest.TestCase):
                 exit_code = vws.dry_run(args)
         self.assertEqual(exit_code, 0)
 
+    def test_dry_run_separates_validated_no_route_request_error_and_missing(self):
+        import contextlib
+        import io as io_module
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            places = [fake_place(f"P{i}", 35.0 + i * 0.001, 139.0 + i * 0.001, hub="Tokio") for i in range(5)]
+            edges = [("P0", "P1"), ("P1", "P2"), ("P2", "P3"), ("P3", "P4")]
+            nearby = [nearby_row(f, t) for f, t in edges]
+            data_dir = write_dataset(tmp_path, places, nearby)
+            manifest_path = tmp_path / "scale-manifest.json"
+            manifest_path.write_text(json.dumps(self._manifest(edges)), encoding="utf-8")
+            results_path = tmp_path / "results.json"
+            results_path.write_text(json.dumps([
+                {"fromId": "P0", "toId": "P1", "status": "validated"},
+                {"fromId": "P1", "toId": "P2", "status": "no-route"},
+                {"fromId": "P2", "toId": "P3", "status": "request-error"},
+                # P3->P4 has no result at all: "missing".
+            ]), encoding="utf-8")
+
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir))
+            buffer = io_module.StringIO()
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "SNAP_PLACES_PATH", tmp_path / "no-snap-store.json"), \
+                 contextlib.redirect_stdout(buffer):
+                exit_code = vws.dry_run(args)
+
+            self.assertEqual(exit_code, 0)
+            output = buffer.getvalue()
+            self.assertIn("validated (terminal, cached): 1", output)
+            self.assertIn("no-route (terminal, cached): 1", output)
+            self.assertIn("request-error (retryable, not terminal): 1", output)
+            self.assertIn("missing (never queried): 1", output)
+            self.assertIn("would be queried by a default --execute run: 2", output)  # request-error + missing
+            self.assertIn("would ALSO be re-queried only with --refresh: 2", output)  # validated + no-route
+
+
 class ScaleBackfillSnapPlacesTests(unittest.TestCase):
     def _fixture(self, tmp_path, place_ids, edges):
         places = [fake_place(pid, 35.0 + i * 0.001, 139.0 + i * 0.001) for i, pid in enumerate(place_ids)]
@@ -1273,6 +1311,412 @@ class ScaleExecuteCheckpointTests(unittest.TestCase):
             self.assertIs(seen_limiters[0], seen_limiters[-1], "one limiter for the whole batch")
 
 
+class TerminalVsRetryableStatusTests(unittest.TestCase):
+    """The explicit contract: 'validated' and 'no-route' are terminal (cached, skipped
+    on resume); 'request-error' and a missing edge are retryable (always re-queried by
+    default). is_batch_complete() is the single shared definition of "done" used by
+    both publish_app_copy() and validate-logistics.py."""
+
+    def test_is_batch_complete_true_only_when_every_edge_is_terminal(self):
+        manifest_keys = {("A", "B"), ("B", "C")}
+        results = [
+            {"fromId": "A", "toId": "B", "status": "validated"},
+            {"fromId": "B", "toId": "C", "status": "no-route"},
+        ]
+        self.assertTrue(common.is_batch_complete(results, manifest_keys))
+
+    def test_is_batch_complete_false_when_a_request_error_remains(self):
+        manifest_keys = {("A", "B"), ("B", "C")}
+        results = [
+            {"fromId": "A", "toId": "B", "status": "validated"},
+            {"fromId": "B", "toId": "C", "status": "request-error"},
+        ]
+        self.assertFalse(common.is_batch_complete(results, manifest_keys))
+
+    def test_is_batch_complete_false_when_an_edge_is_missing_entirely(self):
+        manifest_keys = {("A", "B"), ("B", "C")}
+        results = [{"fromId": "A", "toId": "B", "status": "validated"}]
+        self.assertFalse(common.is_batch_complete(results, manifest_keys))
+
+    def test_is_batch_complete_true_for_an_all_no_route_batch(self):
+        # A batch can be "done" without a single successful route — every edge got a
+        # final, real answer, just a negative one.
+        manifest_keys = {("A", "B")}
+        results = [{"fromId": "A", "toId": "B", "status": "no-route"}]
+        self.assertTrue(common.is_batch_complete(results, manifest_keys))
+
+    def test_no_route_and_request_error_never_confused(self):
+        self.assertIn("no-route", common.TERMINAL_RESULT_STATUSES)
+        self.assertNotIn("request-error", common.TERMINAL_RESULT_STATUSES)
+
+
+class ScaleExecuteTerminalStatusResumeTests(unittest.TestCase):
+    """--execute's cache check: 'validated'/'no-route' are skipped by default;
+    'request-error' is always retried, refresh or not."""
+
+    def _fixture(self, tmp_path, cached_status):
+        places = [fake_place("P0", 35.0, 139.0), fake_place("P1", 35.001, 139.001)]
+        nearby = [nearby_row("P0", "P1")]
+        data_dir = write_dataset(tmp_path, places, nearby)
+        manifest_path = tmp_path / "scale-manifest.json"
+        manifest_path.write_text(json.dumps({"edges": [{"fromId": "P0", "toId": "P1"}]}), encoding="utf-8")
+        snap_store_path = tmp_path / "snap-store.json"
+        snap_store_path.write_text(json.dumps({
+            "places": {p["id"]: common.build_snap_place_entry(p, 1.0, 350, "p", "prof", "t") for p in places}
+        }), encoding="utf-8")
+        results_path = tmp_path / "results.json"
+        cached = {"fromId": "P0", "toId": "P1", "status": cached_status}
+        if cached_status == "validated":
+            cached.update({
+                "provider": "openrouteservice", "profile": "foot-walking",
+                "distance": {"meters": 50.0}, "minutes": {"minMinutes": 1, "maxMinutes": 1},
+                "confidence": "validated-static", "verifiedAt": "t0",
+                "source": {"kind": "routing-provider", "provider": "openrouteservice", "profile": "foot-walking"},
+                "query": {"fromCoordinates": [139.0, 35.0], "toCoordinates": [139.001, 35.001]},
+            })
+        results_path.write_text(json.dumps([cached]), encoding="utf-8")
+        return data_dir, manifest_path, snap_store_path, results_path
+
+    def test_no_route_is_skipped_by_default(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, results_path = self._fixture(tmp_path, "no-route")
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(snap_store_path))
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", tmp_path / "app.json"), \
+                 mock.patch.object(vws, "query_ors_with_retry") as mock_directions, \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.execute(args)
+            self.assertEqual(exit_code, 0)
+            mock_directions.assert_not_called()
+
+    def test_no_route_is_requeried_only_with_refresh(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, results_path = self._fixture(tmp_path, "no-route")
+            args = scale_args(
+                manifest=str(manifest_path), data_dir=str(data_dir),
+                snap_places=str(snap_store_path), refresh=True,
+            )
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", tmp_path / "app.json"), \
+                 mock.patch.object(vws, "query_ors_with_retry", return_value=((80.0, 60.0), None)) as mock_directions, \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.execute(args)
+            self.assertEqual(exit_code, 0)
+            mock_directions.assert_called_once()
+
+    def test_request_error_is_requeried_without_refresh(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, results_path = self._fixture(tmp_path, "request-error")
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(snap_store_path))
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", tmp_path / "app.json"), \
+                 mock.patch.object(vws, "query_ors_with_retry", return_value=((80.0, 60.0), None)) as mock_directions, \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.execute(args)
+            self.assertEqual(exit_code, 0)
+            mock_directions.assert_called_once()  # retried despite no --refresh
+            written = json.loads(results_path.read_text())
+            self.assertEqual(written[0]["status"], "validated")  # succeeded on retry
+
+    def test_request_error_edge_alone_keeps_batch_unpublishable(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, results_path = self._fixture(tmp_path, "request-error")
+            app_path = tmp_path / "app.json"
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(snap_store_path))
+            failure = ors_client.RoutingRequestError("HTTP 503", status="request-error", transient=False)
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", app_path), \
+                 mock.patch.object(vws, "query_ors_with_retry", return_value=(None, failure)), \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.execute(args)
+            self.assertEqual(exit_code, 0)
+            self.assertFalse(app_path.exists())
+            written = json.loads(results_path.read_text())
+            self.assertEqual(written[0]["status"], "request-error")
+
+
+class ScaleExecuteMixedTerminalCrashResumeTests(unittest.TestCase):
+    """Requirement: a crash/resume scenario with at least one no-route AND one
+    request-error, proving no-route is never re-queried, request-error always is, and
+    the app copy stays withheld while any request-error remains."""
+
+    def _fixture(self, tmp_path):
+        # 4 edges: P0->P1 (will succeed), P1->P2 (will come back no-route),
+        # P2->P3 (will fail with a retryable request-error), P3->P4 (never reached
+        # before the simulated crash).
+        place_ids = ["P0", "P1", "P2", "P3", "P4"]
+        places = [fake_place(pid, 35.0 + i * 0.001, 139.0 + i * 0.001) for i, pid in enumerate(place_ids)]
+        edges = [("P0", "P1"), ("P1", "P2"), ("P2", "P3"), ("P3", "P4")]
+        nearby = [nearby_row(f, t) for f, t in edges]
+        data_dir = write_dataset(tmp_path, places, nearby)
+        manifest_path = tmp_path / "scale-manifest.json"
+        manifest_path.write_text(
+            json.dumps({"edges": [{"fromId": f, "toId": t} for f, t in edges]}), encoding="utf-8"
+        )
+        snap_store_path = tmp_path / "snap-store.json"
+        snap_store_path.write_text(json.dumps({
+            "places": {pid: common.build_snap_place_entry(p, 1.0, 350, "p", "prof", "t") for pid, p in zip(place_ids, places)}
+        }), encoding="utf-8")
+        return data_dir, manifest_path, snap_store_path, edges
+
+    def test_no_route_final_request_error_retryable_crash_survives_and_resumes_correctly(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, edges = self._fixture(tmp_path)
+            results_path = tmp_path / "results.json"
+            app_path = tmp_path / "app.json"
+            args = scale_args(
+                manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(snap_store_path)
+            )
+
+            no_route_error = ors_client.RoutingRequestError("no route", status="no-route", transient=False)
+            request_error = ors_client.RoutingRequestError("HTTP 503", status="request-error", transient=False)
+            first_run_calls = []
+
+            def first_run(api_key, from_place, to_place, rate_limiter=None):
+                key = (from_place["id"], to_place["id"])
+                first_run_calls.append(key)
+                if key == ("P0", "P1"):
+                    return (100.0, 60.0), None
+                if key == ("P1", "P2"):
+                    return None, no_route_error
+                if key == ("P2", "P3"):
+                    return None, request_error
+                raise RuntimeError("crash: connection dropped before P3->P4")
+
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", app_path), \
+                 mock.patch.object(vws, "query_ors_with_retry", first_run), \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                with self.assertRaises(RuntimeError):
+                    vws.execute(args)
+
+            # All three attempted edges are physically checkpointed despite the crash.
+            checkpointed = json.loads(results_path.read_text())
+            self.assertEqual(len(checkpointed), 3)
+            by_key = {(r["fromId"], r["toId"]): r for r in checkpointed}
+            self.assertEqual(by_key[("P0", "P1")]["status"], "validated")
+            self.assertEqual(by_key[("P1", "P2")]["status"], "no-route")
+            self.assertEqual(by_key[("P2", "P3")]["status"], "request-error")
+            # Incomplete (P3->P4 missing) AND a request-error present — not published either way.
+            self.assertFalse(app_path.exists())
+
+            # Resume: only the missing edge and the request-error edge are re-queried;
+            # the validated and no-route edges are never touched again.
+            second_run_calls = []
+
+            def second_run(api_key, from_place, to_place, rate_limiter=None):
+                key = (from_place["id"], to_place["id"])
+                second_run_calls.append(key)
+                if key == ("P2", "P3"):
+                    return (90.0, 50.0), None  # succeeds on retry
+                return (100.0, 60.0), None  # P3->P4 succeeds
+
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", app_path), \
+                 mock.patch.object(vws, "query_ors_with_retry", second_run), \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.execute(args)
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(set(second_run_calls), {("P2", "P3"), ("P3", "P4")})
+            self.assertNotIn(("P0", "P1"), second_run_calls)  # validated: never re-queried
+            self.assertNotIn(("P1", "P2"), second_run_calls)  # no-route: never re-queried
+
+            final = json.loads(results_path.read_text())
+            self.assertEqual(len(final), 4)
+            by_key_final = {(r["fromId"], r["toId"]): r for r in final}
+            self.assertEqual(by_key_final[("P1", "P2")]["status"], "no-route")
+            self.assertEqual(by_key_final[("P2", "P3")]["status"], "validated")
+            # Now every edge is terminal: published.
+            self.assertTrue(app_path.exists())
+            self.assertEqual(json.loads(app_path.read_text()), final)
+
+
+class ScaleFatalAuthFailureTests(unittest.TestCase):
+    """Requirement 9: a machine-readable, non-retryable global auth/authorization
+    failure (HTTP 401/403) must stop the batch instead of repeating the same failure
+    for every remaining edge/place, while still checkpointing safely."""
+
+    def test_401_is_machine_readable_fatal_never_string_parsed(self):
+        import io as io_module
+        import urllib.error
+
+        http_error = urllib.error.HTTPError(url="x", code=401, msg="Unauthorized", hdrs=None, fp=io_module.BytesIO(b"{}"))
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
+            with self.assertRaises(ors_client.RoutingRequestError) as ctx:
+                ors_client.query_ors("bad-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.1, 139.1))
+        self.assertTrue(ctx.exception.fatal)
+        self.assertEqual(ctx.exception.http_status, 401)
+        self.assertFalse(ctx.exception.transient)  # never wastes the bounded retry on it
+
+    def test_403_is_also_fatal(self):
+        import io as io_module
+        import urllib.error
+
+        http_error = urllib.error.HTTPError(url="x", code=403, msg="Forbidden", hdrs=None, fp=io_module.BytesIO(b"{}"))
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
+            with self.assertRaises(ors_client.RoutingRequestError) as ctx:
+                ors_client.query_ors("bad-key", fake_place("A", 35.0, 139.0), fake_place("B", 35.1, 139.1))
+        self.assertTrue(ctx.exception.fatal)
+        self.assertEqual(ctx.exception.http_status, 403)
+
+    def test_5xx_and_429_are_not_fatal(self):
+        import io as io_module
+        import urllib.error
+
+        for code in (429, 500, 503):
+            http_error = urllib.error.HTTPError(url="x", code=code, msg="err", hdrs=None, fp=io_module.BytesIO(b"{}"))
+            with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=[http_error, http_error]):
+                with self.assertRaises(ors_client.RoutingRequestError) as ctx:
+                    ors_client.query_ors("key", fake_place("A", 35.0, 139.0), fake_place("B", 35.1, 139.1))
+            self.assertFalse(ctx.exception.fatal, f"HTTP {code} must not be treated as a fatal auth failure")
+
+    def test_snap_401_is_also_machine_readable_fatal(self):
+        import io as io_module
+        import urllib.error
+
+        http_error = urllib.error.HTTPError(url="x", code=401, msg="Unauthorized", hdrs=None, fp=io_module.BytesIO(b"{}"))
+        with mock.patch.object(ors_client.urllib.request, "urlopen", side_effect=http_error):
+            with self.assertRaises(ors_client.RoutingRequestError) as ctx:
+                ors_client.query_ors_snap("bad-key", [[139.0, 35.0]])
+        self.assertTrue(ctx.exception.fatal)
+        self.assertEqual(ctx.exception.http_status, 401)
+
+    def _fixture(self, tmp_path, edge_count=5):
+        place_ids = [f"P{i}" for i in range(edge_count + 1)]
+        places = [fake_place(pid, 35.0 + i * 0.001, 139.0 + i * 0.001) for i, pid in enumerate(place_ids)]
+        edges = [(place_ids[i], place_ids[i + 1]) for i in range(edge_count)]
+        nearby = [nearby_row(f, t) for f, t in edges]
+        data_dir = write_dataset(tmp_path, places, nearby)
+        manifest_path = tmp_path / "scale-manifest.json"
+        manifest_path.write_text(
+            json.dumps({"edges": [{"fromId": f, "toId": t} for f, t in edges]}), encoding="utf-8"
+        )
+        snap_store_path = tmp_path / "snap-store.json"
+        snap_store_path.write_text(json.dumps({
+            "places": {pid: common.build_snap_place_entry(p, 1.0, 350, "p", "prof", "t") for pid, p in zip(place_ids, places)}
+        }), encoding="utf-8")
+        return data_dir, manifest_path, snap_store_path, edges
+
+    def test_execute_stops_immediately_on_fatal_error_instead_of_repeating_it(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, edges = self._fixture(tmp_path, edge_count=5)
+            results_path = tmp_path / "results.json"
+            app_path = tmp_path / "app.json"
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(snap_store_path))
+            fatal = ors_client.RoutingRequestError("HTTP 401: Unauthorized", status="request-error", transient=False, http_status=401, fatal=True)
+
+            calls = []
+
+            def failing_after_one(api_key, from_place, to_place, rate_limiter=None):
+                key = (from_place["id"], to_place["id"])
+                calls.append(key)
+                if key == edges[0]:
+                    return (100.0, 60.0), None
+                return None, fatal
+
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", app_path), \
+                 mock.patch.object(vws, "query_ors_with_retry", failing_after_one), \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.execute(args)
+
+            self.assertEqual(exit_code, 2)
+            # Stopped after the SECOND edge (the one that hit the fatal error) — never
+            # ground through all 5.
+            self.assertEqual(len(calls), 2)
+            checkpointed = json.loads(results_path.read_text())
+            self.assertEqual(len(checkpointed), 2)  # the success + the fatal failure, both durable
+            by_key = {(r["fromId"], r["toId"]): r for r in checkpointed}
+            self.assertEqual(by_key[edges[1]]["status"], "request-error")
+            self.assertFalse(app_path.exists())
+
+    def test_execute_resumes_after_fatal_error_is_fixed(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, snap_store_path, edges = self._fixture(tmp_path, edge_count=2)
+            results_path = tmp_path / "results.json"
+            app_path = tmp_path / "app.json"
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(snap_store_path))
+            fatal = ors_client.RoutingRequestError("HTTP 403: Forbidden", status="request-error", transient=False, http_status=403, fatal=True)
+
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", app_path), \
+                 mock.patch.object(vws, "query_ors_with_retry", return_value=(None, fatal)), \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "bad-key"}):
+                first_exit = vws.execute(args)
+            self.assertEqual(first_exit, 2)
+
+            # Fixed key, second run: only the fatally-failed edge(s) are retried.
+            with mock.patch.object(vws, "SCALE_RESULTS_PATH", results_path), \
+                 mock.patch.object(vws, "APP_SCALE_RESULTS_PATH", app_path), \
+                 mock.patch.object(vws, "query_ors_with_retry", return_value=((100.0, 60.0), None)) as mock_directions, \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "good-key"}):
+                second_exit = vws.execute(args)
+            self.assertEqual(second_exit, 0)
+            self.assertEqual(mock_directions.call_count, edges.__len__())  # both were request-error, both retried
+            self.assertTrue(app_path.exists())
+
+    def test_backfill_snap_places_stops_immediately_on_fatal_error(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, _prefilled_snap_store, edges = self._fixture(tmp_path, edge_count=2)
+            empty_snap_store_path = tmp_path / "empty-snap-store.json"  # every place still missing
+            fatal = ors_client.RoutingRequestError("HTTP 401: Unauthorized", status="request-error", transient=False, http_status=401, fatal=True)
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(empty_snap_store_path))
+
+            with mock.patch.object(vws, "query_ors_snap_with_retry", return_value=(None, fatal)) as mock_snap, \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.backfill_snap_places(args)
+
+            self.assertEqual(exit_code, 2)
+            mock_snap.assert_called_once()  # never retries the same broken key across chunks
+            store = json.loads(empty_snap_store_path.read_text())
+            # The one chunk that ran is still checkpointed as request-error, not lost.
+            for place_id in ["P0", "P1", "P2"]:
+                self.assertEqual(store["places"][place_id]["status"], "request-error")
+
+    def test_backfill_snap_places_does_not_grind_through_remaining_chunks(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir, manifest_path, _prefilled_snap_store, edges = self._fixture(tmp_path, edge_count=6)
+            empty_snap_store_path = tmp_path / "empty-snap-store.json"  # every place still missing
+            fatal = ors_client.RoutingRequestError("HTTP 403: Forbidden", status="request-error", transient=False, http_status=403, fatal=True)
+            args = scale_args(manifest=str(manifest_path), data_dir=str(data_dir), snap_places=str(empty_snap_store_path))
+
+            with mock.patch.object(vws, "ORS_SNAP_MAX_LOCATIONS_PER_REQUEST", 2), \
+                 mock.patch.object(vws, "query_ors_snap_with_retry", return_value=(None, fatal)) as mock_snap, \
+                 mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+                exit_code = vws.backfill_snap_places(args)
+
+            self.assertEqual(exit_code, 2)
+            mock_snap.assert_called_once()  # stopped after the first of several planned chunks
+
+
 class ScaleExecuteCacheResumeTests(unittest.TestCase):
     """--execute must be restart-safe: a cached validated edge is skipped (never
     re-queried) unless --refresh, exactly like the pilot's --execute."""
@@ -1575,6 +2019,29 @@ class ScaleValidatorTests(unittest.TestCase):
         results = [{"fromId": "A", "toId": "B"}, {"fromId": "X", "toId": "Y"}]
         errors, _ = validate_logistics.check_scale_results_coverage(results, manifest_keys)
         self.assertTrue(any("not in the scale manifest" in e for e in errors))
+
+    def test_full_coverage_with_a_request_error_is_a_warning_not_silently_complete(self):
+        # Coverage alone (every key present) must NOT read as "done" — a request-error
+        # is a valid checkpoint entry but not a terminal one.
+        manifest_keys = {("A", "B"), ("B", "C")}
+        results = [
+            {"fromId": "A", "toId": "B", "status": "validated"},
+            {"fromId": "B", "toId": "C", "status": "request-error"},
+        ]
+        errors, warnings = validate_logistics.check_scale_results_coverage(results, manifest_keys)
+        self.assertEqual(errors, [])
+        self.assertTrue(any("request-error" in w and "not terminal" in w for w in warnings))
+        self.assertFalse(any("still pending" in w for w in warnings))  # coverage IS complete
+
+    def test_full_coverage_all_terminal_has_no_warnings(self):
+        manifest_keys = {("A", "B"), ("B", "C")}
+        results = [
+            {"fromId": "A", "toId": "B", "status": "validated"},
+            {"fromId": "B", "toId": "C", "status": "no-route"},
+        ]
+        errors, warnings = validate_logistics.check_scale_results_coverage(results, manifest_keys)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
 
 
 class RealCommittedArtifactsTests(unittest.TestCase):

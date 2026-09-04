@@ -47,6 +47,14 @@ REQUEST_TIMEOUT_SECONDS = 15
 # deterministic answer from the provider, not a transient failure. Never retried.
 NO_ROUTE_ERROR_CODES = {2009, 2010}
 
+# HTTP statuses that mean the credential itself is bad, not that this one request had a
+# problem: every subsequent call with the same ORS_API_KEY will fail exactly the same
+# way. A per-edge retry or "move on to the next edge" response is actively harmful here
+# — it burns the batch repeating one failure hundreds of times instead of stopping.
+# Machine-readable by design: callers check `exc.fatal` / `exc.http_status`, never a
+# substring of `str(exc)`.
+FATAL_HTTP_STATUS_CODES = frozenset({401, 403})
+
 
 class RoutingRequestError(Exception):
     """status is the result status this failure should become: 'no-route' only for
@@ -54,12 +62,21 @@ class RoutingRequestError(Exception):
     else (auth, malformed response, rate limit, network, timeout). transient controls
     the one bounded retry and is independent of status — a 429 is transient and still
     ends up 'request-error' if the retry also fails.
+
+    `http_status` is the raw HTTP status code when the failure came from an HTTPError
+    (None for a network/timeout failure that never got a response), and `fatal` is
+    True exactly when `http_status` is in FATAL_HTTP_STATUS_CODES — a global,
+    account-level failure a caller should stop the whole batch over, not just record
+    and move on to the next edge. Both are plain attributes, never derived from the
+    exception's message text.
     """
 
-    def __init__(self, message, status, transient):
+    def __init__(self, message, status, transient, http_status=None, fatal=False):
         super().__init__(message)
         self.status = status
         self.transient = transient
+        self.http_status = http_status
+        self.fatal = fatal
 
 
 class RateLimiter:
@@ -172,10 +189,13 @@ def query_ors(api_key, from_place, to_place, rate_limiter=None):
             error_code = payload["error"].get("code")
             error_message = payload["error"].get("message", error_message)
         if error_code in NO_ROUTE_ERROR_CODES:
-            raise RoutingRequestError(error_message, status="no-route", transient=False) from exc
+            raise RoutingRequestError(
+                error_message, status="no-route", transient=False, http_status=exc.code
+            ) from exc
         transient = exc.code == 429 or exc.code >= 500
         raise RoutingRequestError(
-            f"HTTP {exc.code}: {error_message}", status="request-error", transient=transient
+            f"HTTP {exc.code}: {error_message}", status="request-error", transient=transient,
+            http_status=exc.code, fatal=exc.code in FATAL_HTTP_STATUS_CODES,
         ) from exc
     except urllib.error.URLError as exc:
         raise RoutingRequestError(f"network error: {exc.reason}", status="request-error", transient=True) from exc
@@ -244,7 +264,10 @@ def query_ors_snap(api_key, locations, radius=ORS_SNAP_MAX_RADIUS_METERS):
         if isinstance(error_payload, dict) and isinstance(error_payload.get("error"), dict):
             message = error_payload["error"].get("message", message)
         transient = exc.code == 429 or exc.code >= 500
-        raise RoutingRequestError(f"HTTP {exc.code}: {message}", status="request-error", transient=transient) from exc
+        raise RoutingRequestError(
+            f"HTTP {exc.code}: {message}", status="request-error", transient=transient,
+            http_status=exc.code, fatal=exc.code in FATAL_HTTP_STATUS_CODES,
+        ) from exc
     except urllib.error.URLError as exc:
         raise RoutingRequestError(f"network error: {exc.reason}", status="request-error", transient=True) from exc
     except TimeoutError as exc:

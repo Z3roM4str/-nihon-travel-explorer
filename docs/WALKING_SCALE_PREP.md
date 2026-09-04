@@ -150,25 +150,40 @@ the configured number of attempts**. The rate comes from `--directions-per-minut
 Phase 3B2A's pilot passes no limiter and is therefore unpaced exactly as before — 24 edges
 sit far under any documented ceiling, and its 63-test suite passes unmodified.
 
-### 3b. True checkpointing
+### 3b. True checkpointing — and a terminal-vs-retryable result contract
 
 `data/logistics/walking-scale-results.json` is rewritten **after every completed edge**
 (`write_checkpoint`), so an interruption — crash, `^C`, quota cut-off — costs at most the
-single in-flight edge. On the next run, every already-answered edge is skipped by the same
-cache check that has always existed, so a resumed batch re-queries at most the one edge
-that was in flight, never the ones before it.
+single in-flight edge.
 
-The app-facing copy is handled separately on purpose. `publish_app_copy()` writes
-`app/src/data/logistics/walking-scale-results.json` **only when the results cover the whole
-manifest** — a half-finished batch must never be handed to the application as though it
-were authoritative. The root artifact serves as the checkpoint; the app copy is the
-publish step. `validate-logistics.py` matches this: a partial scale-results file is a
-*warning* ("batch in progress"), and only a complete one owes the app a copy — while an
-edge that isn't in the manifest at all is still an error.
+A `WalkingPilotResult`'s `status` splits into two kinds, and a first pass at this pipeline
+conflated them — resume logic only skipped `"validated"`, while completeness only checked
+key coverage, so a `"request-error"` edge (one whose *request* failed — network, timeout,
+5xx, 429, auth, malformed body — saying nothing about whether a route exists) could make
+the batch look finished and get published. Fixed by defining the split once, in
+`logistics_common.py`, and using it everywhere "done" is decided:
 
-Verified end-to-end by `ScaleExecuteCheckpointTests`: run N edges, crash partway, assert
-the completed ones are physically on disk and the app copy was *not* written, re-run, and
-assert the completed edges are never queried again while the remaining ones are.
+- **Terminal** (`TERMINAL_RESULT_STATUSES`): `"validated"` and `"no-route"`. Both are a
+  real, final answer from the provider — re-querying either learns nothing new, so both
+  are skipped on resume by default; only `--refresh` forces them to be asked again.
+- **Retryable** (everything else — `"request-error"`, or no result at all): the request
+  itself failed or was never made. Always a re-query candidate, `--refresh` or not.
+
+`is_batch_complete(results, manifest_keys)` is the one function that answers "is this
+batch done?": true only when every manifest edge has a *terminal* result — coverage alone
+is not enough. `publish_app_copy()` and `validate-logistics.py`'s `check_scale_results_coverage()`
+both call it, so the app copy and the validator's own "is this finished" opinion can never
+drift apart. A `"request-error"` is still a **valid, durable checkpoint entry** — it just
+never counts toward "finished," and `check_scale_results_coverage()` reports it as an
+explicit warning ("N result(s) are 'request-error' (not terminal)") even when coverage is
+already 100%, distinct from "still pending" (coverage incomplete).
+
+Verified end-to-end by `ScaleExecuteCheckpointTests` (crash partway through an all-success
+run, confirm the app copy withheld and completed edges never re-queried) and
+`ScaleExecuteMixedTerminalCrashResumeTests` (a batch with one `"validated"`, one
+`"no-route"`, one `"request-error"`, and one never-reached edge: resume re-queries only the
+`"request-error"` edge and the missing one, never touches the two terminal ones, and the
+app copy stays withheld until the retried edge resolves to something terminal).
 
 ### 3c. Directions preflight
 
@@ -183,6 +198,30 @@ explicit, recorded one: `--allow-unknown-snap`, which prints exactly how many pl
 proceeding over and that their edges stay un-promotable. It is never the silent default,
 and it never unblocks a *fixable* state — missing/stale/request-error still stop the run
 regardless of that flag.
+
+### 3d. Fail-fast on a global authentication/authorization failure
+
+An HTTP 401 or 403 means the credential itself is bad — every subsequent call with the same
+`ORS_API_KEY` fails exactly the same way. Looping through the rest of a 308-edge (or
+5,000-location Snap) batch after hitting one would just burn quota and time re-learning
+nothing, hundreds of times over.
+
+`RoutingRequestError` now carries this machine-readably: `http_status` (the raw HTTP code)
+and `fatal` (`True` exactly when `http_status` is in `ors_client.FATAL_HTTP_STATUS_CODES =
+{401, 403}`) are plain attributes, set once in `query_ors`/`query_ors_snap` — no caller
+parses `str(exc)` to detect this. Both `--execute` and `--backfill-snap-places` check
+`error.fatal` after every failed attempt: on a fatal error they checkpoint that
+attempt's result as usual (a real, durable `"request-error"` entry — or Snap's
+`"request-error"` place status), print that this is a global failure and not a per-edge
+one, and stop the loop immediately with exit code `2` — never proceeding to the next edge
+or chunk. Fixing the key and re-running resumes normally: the fatally-failed
+entries are `"request-error"` (retryable), so they're exactly what gets re-queried.
+
+Verified by `ScaleFatalAuthFailureTests`: 401 and 403 are `fatal` (429/5xx are not); a
+5-edge `--execute` run stops after the second edge instead of grinding through all five;
+a chunked `--backfill-snap-places` run stops after its first chunk instead of repeating the
+same failure across the rest; and re-running after the key is fixed only re-queries the
+edges/places that were left `"request-error"`.
 
 A validated scale result's `confidence` is always `"validated-static"` on success, exactly
 the schema the pilot already produces. The actual clean-only promotion happens where it
@@ -261,8 +300,12 @@ current dataset):
 
 ```
 Scale-up edges: 308 (derived: total 'A pie' relations minus the 24 pilot edges)
-  already validated: 0
-  pending: 308
+  validated (terminal, cached): 0
+  no-route (terminal, cached): 0
+  request-error (retryable, not terminal): 0
+  missing (never queried): 308
+  would be queried by a default --execute run: 308 (request-error + missing)
+  would ALSO be re-queried only with --refresh: 0 (validated + no-route)
 
 Unique places referenced: 137
   Snap coverage (machine-readable states, never parsed from text):
@@ -306,38 +349,43 @@ own dashboard before any real execution, since limits can differ by plan.
 
 New/extended test coverage (all offline, no network):
 
-- `scripts/test_walking_scale.py` (102 tests): scale-manifest derivation (pilot ∪ scale =
+- `scripts/test_walking_scale.py` (123 tests): scale-manifest derivation (pilot ∪ scale =
   every walking edge, zero overlap, zero duplicates, no non-walking relation ever admitted,
   edge count never hardcoded, deterministic across runs, pilot-manifest sanity checks); the
   Snap-place-store schema (three machine-readable states, null never coerced to `0`,
   contradictory records refused, staleness detection, an unrecognised status treated as
   unknown rather than guessed); the seeding migration (including its inconsistency check);
-  the dry-run report; **the rate limiter** (allows up to the limit without sleeping, sleeps
-  exactly until the oldest event ages out, never exceeds the rate across a 200-attempt run
-  under a fake clock, retries consume slots too, `query_ors` acquires before the HTTP call,
-  default stays unpaced for the pilot); **Snap retry** (transient retried once, recovery,
-  non-transient not retried); **checkpoint + simulated crash + resume** (completed edges
-  physically on disk, app copy withheld, resumed run never re-queries them, one write per
-  edge); **preflight** (blocks on missing/stale/request-error, blocks on no-snap until
-  `--allow-unknown-snap`, which never unblocks a fixable state); Snap-state policy
-  (request-error retried, resolved reused, stale re-queried, no-snap skipped by default and
-  opt-in via `--retry-no-snap`, no-snap/request-error never becoming `"clean"`);
-  `--execute` cache/resume and never calling Snap itself; `--recombine-snapping` including
-  its no-partial-publish rule; the `validate-logistics.py` scale/snap-store checks
-  (duplicate/overlap/coverage/non-walking-relation/secret-scan/partial-results warning); and
-  five regression tests against the real committed `walking-scale-manifest.json` and
-  `walking-snap-places.json`.
+  the dry-run report (now split into validated/no-route/request-error/missing); **the rate
+  limiter** (allows up to the limit without sleeping, sleeps exactly until the oldest event
+  ages out, never exceeds the rate across a 200-attempt run under a fake clock, retries
+  consume slots too, `query_ors` acquires before the HTTP call, default stays unpaced for the
+  pilot); **Snap retry** (transient retried once, recovery, non-transient not retried);
+  **the terminal/retryable status contract** (`is_batch_complete` true only when every edge
+  is terminal, false on any `"request-error"` or missing edge, true for an all-`"no-route"`
+  batch); **checkpoint + simulated crash + resume** with a mix of `"validated"`,
+  `"no-route"`, and `"request-error"` edges (terminal ones never re-queried, the
+  `"request-error"` one always is, the app copy stays withheld until it resolves); **fatal
+  auth-failure fail-fast** (401/403 machine-readably `fatal`, 429/5xx are not, `--execute`
+  stops after the failing edge instead of grinding through the rest, chunked
+  `--backfill-snap-places` stops after its first chunk, both checkpoint safely and resume
+  correctly once the key is fixed); **preflight** (blocks on missing/stale/request-error,
+  blocks on no-snap until `--allow-unknown-snap`, which never unblocks a fixable state);
+  Snap-state policy (request-error retried, resolved reused, stale re-queried, no-snap
+  skipped by default and opt-in via `--retry-no-snap`, no-snap/request-error never becoming
+  `"clean"`); `--recombine-snapping` including its no-partial-publish rule; the
+  `validate-logistics.py` scale/snap-store checks (duplicate/overlap/coverage/non-walking-
+  relation/secret-scan/retryable-vs-pending warnings); and five regression tests against the
+  real committed `walking-scale-manifest.json` and `walking-snap-places.json`.
 - `scripts/test_walking_pilot.py` (63 tests, unchanged in count and assertions): confirms
-  the `ors_client`/`walking_result_builder` refactor and the rate-limiter/retry parameters
-  didn't change the pilot pipeline's behavior.
-- `app/src/lib/transfer.test.ts` (50 tests, +1): the new generic snap-gate property test
-  described in §3.
+  the `ors_client`/`walking_result_builder` refactor and the rate-limiter/retry/fatal-error
+  parameters didn't change the pilot pipeline's behavior.
+- `app/src/lib/transfer.test.ts` (50 tests): unaffected by this fix — it is Python-only.
 
 All of the following were run and pass:
 
 ```
 python3 scripts/test_walking_pilot.py         # 63/63
-python3 scripts/test_walking_scale.py         # 102/102
+python3 scripts/test_walking_scale.py         # 123/123
 npm test                                       # 104/104 (50 in transfer.test.ts)
 npm run lint                                   # clean
 npm run build                                  # succeeds

@@ -138,6 +138,38 @@ SCALE_MANIFEST_PATH = Path("data/logistics/walking-scale-manifest.json")
 SCALE_RESULTS_PATH = Path("data/logistics/walking-scale-results.json")
 APP_SCALE_RESULTS_PATH = Path("app/src/data/logistics/walking-scale-results.json")
 
+# A WalkingPilotResult's `status` splits into exactly two kinds, and the split matters
+# for resume/publish logic, not just display:
+#   - "validated" and "no-route" are TERMINAL: the provider gave a real, final answer
+#     (a route, or a definitive "no route exists"). Re-querying either on a resumed run
+#     learns nothing new, so both are cached and skipped by default — only --refresh
+#     forces them to be asked again.
+#   - "request-error" is NOT terminal: the request itself failed (network, timeout,
+#     5xx, 429, auth, malformed body) and says nothing about whether a route exists.
+#     It is a re-query candidate by default, with no --refresh needed.
+# A batch is "complete" only when every manifest edge has a TERMINAL result — a
+# "request-error" left anywhere must never make a batch look finished or publishable,
+# even though it is a valid, durable checkpoint entry. This is the one definition both
+# scripts/validate-walking-scale.py's publish_app_copy() and validate-logistics.py use,
+# so "done" can't drift between the pipeline and its own validator.
+RESULT_STATUS_VALIDATED = "validated"
+RESULT_STATUS_NO_ROUTE = "no-route"
+RESULT_STATUS_REQUEST_ERROR = "request-error"
+TERMINAL_RESULT_STATUSES = (RESULT_STATUS_VALIDATED, RESULT_STATUS_NO_ROUTE)
+
+
+def is_batch_complete(results, manifest_keys):
+    """True only when every key in `manifest_keys` has a result AND that result's
+    status is terminal (see TERMINAL_RESULT_STATUSES) — coverage alone is not enough,
+    since a fully-covered batch can still have a "request-error" entry that is a valid
+    checkpoint but not a finished answer for that edge.
+    """
+    by_key = {(r.get("fromId"), r.get("toId")): r for r in results}
+    manifest_keys = set(manifest_keys)
+    if set(by_key.keys()) != manifest_keys:
+        return False
+    return all(by_key[key].get("status") in TERMINAL_RESULT_STATUSES for key in manifest_keys)
+
 # Snap is a property of a place's coordinate, not of a directed edge or a pair — see
 # ORS_SNAP_PATH_TEMPLATE's docstring above. This store is keyed by placeId exactly once,
 # so N edges sharing a place never re-snap it: a single batched Snap request can resolve

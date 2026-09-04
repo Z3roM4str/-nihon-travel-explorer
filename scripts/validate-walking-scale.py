@@ -18,27 +18,35 @@ bundled a Snap request into every Directions query; this one does not):
       after every chunk, so an interrupted run loses at most one in-flight chunk, never
       already-written places.
 
-  --execute: Directions-only, one query per pending scale edge (skips a cached
-      "validated" edge unless --refresh, exactly like the pilot's --execute). Combines
-      each routed distance with whatever the Snap store already has for that edge's two
-      places at read time — it does not make a Snap request itself. A validated
-      result's `confidence` is always "validated-static" (same schema the pilot uses,
-      and the same one getBestTransfer already knows how to gate); the snap-clean-only
-      promotion actually happens in app/src/lib/transfer.ts's getBestTransfer, reading
-      `endpointSnapping.assessment` exactly as it already does for pilot results.
+  --execute: Directions-only, one query per pending scale edge. A cached "validated" or
+      "no-route" edge is TERMINAL and skipped unless --refresh; a cached "request-error"
+      (or no cached result at all) is always re-queried, --refresh or not, because a
+      failed request is not a final answer. Combines each routed distance with whatever
+      the Snap store already has for that edge's two places at read time — it does not
+      make a Snap request itself. A validated result's `confidence` is always
+      "validated-static" (same schema the pilot uses, and the same one getBestTransfer
+      already knows how to gate); the snap-clean-only promotion actually happens in
+      app/src/lib/transfer.ts's getBestTransfer, reading `endpointSnapping.assessment`
+      exactly as it already does for pilot results.
 
-      Three things make a real bulk run safe to interrupt and safe to start:
+      Four things make a real bulk run safe to interrupt and safe to start:
         * Rate limiting — every Directions attempt, retries included, passes through
           ors_client.RateLimiter at --directions-per-minute (default: the documented
           40/min). Pacing is proactive; an HTTP 429 is treated as a failure to retry,
           never as the mechanism that keeps us under the ceiling.
         * Checkpointing — data/logistics/walking-scale-results.json is rewritten after
           EVERY completed edge, so a crash costs at most the one in-flight edge. The
-          app-facing copy is only synced once the batch covers the whole manifest, so
-          the application never sees a half-finished dataset.
+          app-facing copy is only synced once every manifest edge has a TERMINAL result
+          (is_batch_complete() in logistics_common.py) — a "request-error" left anywhere
+          keeps the batch unpublishable even though it's a valid checkpoint entry.
         * Preflight — the run refuses to start while any place is missing/stale/
           request-error in the Snap store, and requires an explicit
           --allow-unknown-snap to proceed over "no-snap" places.
+        * Fail-fast — a global auth/authorization failure (HTTP 401/403, detected
+          machine-readably via RoutingRequestError.fatal, never by parsing text) stops
+          the batch immediately (exit code 2) instead of repeating the same failure for
+          every remaining edge. The failing edge is still checkpointed as
+          "request-error", so a fixed key resumes correctly on the next run.
 
   --recombine-snapping: recomputes `endpointSnapping` for every currently-"validated"
       scale result using the Snap store's CURRENT contents — no network call at all.
@@ -70,6 +78,9 @@ from logistics_common import (  # noqa: E402
     ORS_PROVIDER,
     ORS_SNAP_MAX_LOCATIONS_PER_REQUEST,
     ORS_SNAP_MAX_RADIUS_METERS,
+    RESULT_STATUS_NO_ROUTE,
+    RESULT_STATUS_REQUEST_ERROR,
+    RESULT_STATUS_VALIDATED,
     SCALE_MANIFEST_PATH,
     SCALE_RESULTS_PATH,
     SNAP_COVERAGE_MISSING,
@@ -80,9 +91,11 @@ from logistics_common import (  # noqa: E402
     SNAP_PLACE_STATUS_NO_SNAP,
     SNAP_PLACE_STATUS_REQUEST_ERROR,
     SNAP_PLACE_STATUS_RESOLVED,
+    TERMINAL_RESULT_STATUSES,
     WALKING_MODE_RAW,
     build_snap_place_entry,
     classify_snap_coverage,
+    is_batch_complete,
     is_snap_entry_current,
     load_json,
     load_nearby,
@@ -217,16 +230,19 @@ def write_checkpoint(results_by_key, manifest_keys):
 
 
 def publish_app_copy(results, manifest_keys):
-    """Sync the app-consumable copy, and only when the batch is actually complete:
-    every manifest edge has a result. Returns True if it published.
+    """Sync the app-consumable copy, and only when the batch is actually complete per
+    `is_batch_complete()` (logistics_common.py) — the single definition
+    validate-logistics.py also uses. Returns True if it published.
 
-    "Complete" here means covered, not necessarily all-validated — a genuine
-    "no-route"/"request-error" outcome for an edge is a finished answer for that edge
-    (see WalkingPilotResult's status union), and getBestTransfer already falls back to
-    the estimated edge for anything that isn't a snap-clean validated result.
+    "Complete" means every manifest edge has a TERMINAL result ("validated" or
+    "no-route" — see WalkingPilotResult's status union), never merely "covered": a
+    "request-error" is a valid, durable checkpoint entry, but it says nothing final
+    about that edge, so its presence anywhere must keep the whole batch unpublishable
+    until it resolves to something terminal. getBestTransfer already falls back to the
+    estimated edge for anything that isn't a snap-clean validated result, but that is a
+    separate concern from whether the app should see this dataset as finished at all.
     """
-    covered = {(r["fromId"], r["toId"]) for r in results}
-    if covered != set(manifest_keys):
+    if not is_batch_complete(results, manifest_keys):
         return False
     write_json(APP_SCALE_RESULTS_PATH, results)
     return True
@@ -239,9 +255,19 @@ def dry_run(args):
     by_id = places_by_id(places)
     resolved = resolve_scale_edges(manifest, places, nearby)
 
+    all_keys = [(e["fromId"], e["toId"]) for e in resolved]
     existing_results = load_existing_scale_results()
-    validated_keys = {(r["fromId"], r["toId"]) for r in existing_results if r.get("status") == "validated"}
-    pending = [e for e in resolved if (e["fromId"], e["toId"]) not in validated_keys]
+    results_by_key = {(r.get("fromId"), r.get("toId")): r for r in existing_results}
+
+    # Terminal ("validated", "no-route") vs. retryable ("request-error") vs. never
+    # queried at all — kept as four distinct buckets rather than a single "pending",
+    # because a default --execute run and a --refresh run touch different ones.
+    validated_keys = {k for k in all_keys if results_by_key.get(k, {}).get("status") == RESULT_STATUS_VALIDATED}
+    no_route_keys = {k for k in all_keys if results_by_key.get(k, {}).get("status") == RESULT_STATUS_NO_ROUTE}
+    request_error_keys = {k for k in all_keys if results_by_key.get(k, {}).get("status") == RESULT_STATUS_REQUEST_ERROR}
+    missing_keys = {k for k in all_keys if k not in results_by_key}
+    default_requery_keys = request_error_keys | missing_keys
+    refresh_only_keys = validated_keys | no_route_keys
 
     place_ids = unique_place_ids(resolved)
     snap_store = load_snap_places_store(SNAP_PLACES_PATH if not args.snap_places else Path(args.snap_places))
@@ -261,7 +287,7 @@ def dry_run(args):
                 break
 
     snap_chunks_needed = -(-len(missing_snap_places) // ORS_SNAP_MAX_LOCATIONS_PER_REQUEST) if missing_snap_places else 0
-    directions_baseline = len(pending)
+    directions_baseline = len(default_requery_keys)
     directions_worst_case = directions_baseline * (1 + MAX_TRANSIENT_RETRIES)
     minutes_needed_at_rate_limit = (
         -(-directions_baseline // ORS_DIRECTIONS_PER_MINUTE_LIMIT_DOCUMENTED) if directions_baseline else 0
@@ -271,8 +297,14 @@ def dry_run(args):
     print(f"Host: {ORS_HOST} — no network requests made.\n")
 
     print(f"Scale-up edges: {len(resolved)} (derived: total 'A pie' relations minus the 24 pilot edges)")
-    print(f"  already validated: {len(validated_keys)}")
-    print(f"  pending: {len(pending)}\n")
+    print(f"  validated (terminal, cached): {len(validated_keys)}")
+    print(f"  no-route (terminal, cached): {len(no_route_keys)}")
+    print(f"  request-error (retryable, not terminal): {len(request_error_keys)}")
+    print(f"  missing (never queried): {len(missing_keys)}")
+    print(f"  would be queried by a default --execute run: {len(default_requery_keys)} "
+          f"(request-error + missing)")
+    print(f"  would ALSO be re-queried only with --refresh: {len(refresh_only_keys)} "
+          f"(validated + no-route)\n")
 
     coverage = snap_coverage_summary(place_ids, by_id, snap_store)
     print(f"Unique places referenced: {len(place_ids)}")
@@ -363,6 +395,8 @@ def backfill_snap_places(args):
         return 0
 
     total_chunks = 0
+    processed_place_ids = []
+    fatal_error = None
     for batch in chunk(missing, ORS_SNAP_MAX_LOCATIONS_PER_REQUEST):
         locations = [to_ors_coordinates(by_id[pid]) for pid in batch]
         # A transport-level failure (network/5xx/429/auth) is a different fact from a
@@ -393,14 +427,43 @@ def backfill_snap_places(args):
                 status=status,
                 reason=reason,
             )
+        processed_place_ids.extend(batch)
         # Written after every chunk — an interrupted run keeps every already-completed
         # chunk's places resolved; re-running only re-derives what's still outstanding.
         write_json(store_path, store)
         total_chunks += 1
 
+        if error is not None and getattr(error, "fatal", False):
+            # Same reasoning as execute()'s fail-fast: every remaining chunk would fail
+            # this exact same way with this exact same key, so stop instead of grinding
+            # through the rest of `missing` re-learning nothing. This chunk's places are
+            # already checkpointed above as "request-error".
+            fatal_error = error
+            break
+
     counts = {state: 0 for state in (SNAP_PLACE_STATUS_RESOLVED, SNAP_PLACE_STATUS_NO_SNAP, SNAP_PLACE_STATUS_REQUEST_ERROR)}
-    for place_id in missing:
+    for place_id in processed_place_ids:
         counts[store["places"][place_id]["status"]] += 1
+
+    if fatal_error is not None:
+        print(
+            f"FATAL: HTTP {fatal_error.http_status} — authentication/authorization "
+            "failure. Stopping the Snap backfill now instead of repeating it chunk by chunk."
+        )
+        print(
+            f"  {len(processed_place_ids)}/{len(missing)} place(s) attempted this run before "
+            f"stopping (resolved={counts[SNAP_PLACE_STATUS_RESOLVED]} "
+            f"no-snap={counts[SNAP_PLACE_STATUS_NO_SNAP]} "
+            f"request-error={counts[SNAP_PLACE_STATUS_REQUEST_ERROR]})."
+        )
+        print(f"  Checkpoint preserved in {store_path} ({total_chunks} chunk(s) written).")
+        print(
+            "  This is a global failure, not a per-place one: fix ORS_API_KEY / the account's "
+            "permissions, then re-run --backfill-snap-places — only what's still "
+            "missing/stale/request-error is re-queried."
+        )
+        return 2
+
     print(
         f"OK: queried {len(missing)} place(s) in {total_chunks} Snap request(s) — "
         f"resolved={counts[SNAP_PLACE_STATUS_RESOLVED]} "
@@ -506,11 +569,15 @@ def execute(args):
     results = dict(existing_by_key)
     manifest_keys = {(e["fromId"], e["toId"]) for e in manifest["edges"]}
     queried, skipped, succeeded, failed = 0, 0, 0, 0
+    fatal_error = None
 
     for edge in resolved:
         key = (edge["fromId"], edge["toId"])
         cached = existing_by_key.get(key)
-        if cached and cached.get("status") == "validated" and not args.refresh:
+        # Terminal ("validated", "no-route") is skipped by default — re-querying it
+        # learns nothing new. "request-error" (or no cached result at all) is always a
+        # candidate, --refresh or not: a failed request is not a final answer.
+        if cached and cached.get("status") in TERMINAL_RESULT_STATUSES and not args.refresh:
             skipped += 1
             continue
 
@@ -529,6 +596,10 @@ def execute(args):
             )
             succeeded += 1
         else:
+            # Recorded regardless of severity — "request-error" is a valid, durable
+            # checkpoint entry even for a fatal auth failure; it just isn't terminal,
+            # so is_batch_complete() (via publish_app_copy) will never call this batch
+            # finished while it's here, and it stays a re-query candidate next run.
             results[key] = build_failure_result(
                 edge["fromId"], edge["toId"], error.status, error,
                 edge["fromPlace"], edge["toPlace"], verified_at,
@@ -539,16 +610,48 @@ def execute(args):
         # costs at most this one in-flight edge, never the ones already answered.
         write_checkpoint(results, manifest_keys)
 
+        if outcome is None and getattr(error, "fatal", False):
+            # A global auth/authorization failure (HTTP 401/403 — see
+            # ors_client.FATAL_HTTP_STATUS_CODES): every remaining edge would fail the
+            # exact same way with this same key, so looping over the other hundreds of
+            # pending edges would only burn quota and time re-learning nothing. Stop
+            # immediately rather than repeat the same failure edge by edge.
+            fatal_error = error
+            break
+
     final_results = ordered_results(results, manifest_keys)
     write_json(SCALE_RESULTS_PATH, final_results)
     published = publish_app_copy(final_results, manifest_keys)
+    retryable = sum(1 for r in final_results if r.get("status") == RESULT_STATUS_REQUEST_ERROR)
+
+    if fatal_error is not None:
+        print(
+            f"FATAL: HTTP {fatal_error.http_status} — authentication/authorization "
+            "failure. Stopping the batch now instead of repeating it edge by edge."
+        )
+        print(f"  {queried} edge(s) attempted this run before stopping ({succeeded} validated, {failed} failed).")
+        print(
+            f"  Checkpoint preserved: {len(final_results)}/{len(manifest_keys)} edges total in "
+            f"{SCALE_RESULTS_PATH} ({retryable} of them 'request-error', including this one)."
+        )
+        print(
+            "  This is a global failure, not a per-edge one: fix ORS_API_KEY / the account's "
+            "permissions, then re-run --execute — 'request-error' edges (only) are retried."
+        )
+        return 2
 
     print(
         f"OK: {queried} queried ({succeeded} validated, {failed} failed), "
         f"{skipped} skipped (cached). Wrote {len(final_results)} result(s) to {SCALE_RESULTS_PATH}."
     )
     if published:
-        print(f"  Batch complete ({len(manifest_keys)}/{len(manifest_keys)} edges) — synced {APP_SCALE_RESULTS_PATH}.")
+        print(f"  Batch complete ({len(manifest_keys)}/{len(manifest_keys)} edges, all terminal) — synced {APP_SCALE_RESULTS_PATH}.")
+    elif retryable:
+        print(
+            f"  Batch incomplete/retryable: {retryable} edge(s) are 'request-error' "
+            f"(not terminal) out of {len(final_results)}/{len(manifest_keys)} covered — "
+            f"{APP_SCALE_RESULTS_PATH} deliberately NOT written. Re-run to retry just those."
+        )
     else:
         print(
             f"  Batch incomplete ({len(final_results)}/{len(manifest_keys)} edges) — "

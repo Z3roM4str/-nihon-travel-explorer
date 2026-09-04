@@ -34,8 +34,10 @@ from logistics_common import (  # noqa: E402
     SNAP_PLACE_STATUS_NO_SNAP,
     SNAP_PLACE_STATUS_REQUEST_ERROR,
     SNAP_PLACE_STATUS_RESOLVED,
+    TERMINAL_RESULT_STATUSES,
     WALKING_MODE_RAW,
     classify_endpoint_snapping,
+    is_batch_complete,
     is_snap_entry_current,
     load_json,
     load_nearby,
@@ -335,19 +337,30 @@ def check_snap_places_store(store, places_ids, places_by_id_map):
 
 def check_scale_results_coverage(results, manifest_keys):
     """The scale-up results file doubles as an --execute checkpoint, so a run that was
-    interrupted legitimately leaves it covering only part of the manifest. Missing
-    edges are therefore a warning ("batch in progress"), while an edge that isn't in
-    the manifest at all is still an error — that can only be corruption or a manifest
-    that changed under a half-finished run."""
+    interrupted (or left "request-error" edges behind) legitimately covers the
+    manifest without being finished. Both cases are a warning ("batch in progress" /
+    "batch retryable"), while an edge that isn't in the manifest at all is still an
+    error — that can only be corruption or a manifest that changed under a
+    half-finished run. Completeness itself is decided by is_batch_complete()
+    (logistics_common.py) — the same function scripts/validate-walking-scale.py's
+    publish_app_copy() uses — so "done" never drifts between the pipeline and this
+    validator.
+    """
     errors = []
     warnings = []
     result_keys = {(r.get("fromId"), r.get("toId")) for r in results}
     missing = manifest_keys - result_keys
     extra = result_keys - manifest_keys
+    retryable = [r for r in results if r.get("status") not in TERMINAL_RESULT_STATUSES and (r.get("fromId"), r.get("toId")) in manifest_keys]
     if missing:
         warnings.append(
             f"scale results cover {len(result_keys)}/{len(manifest_keys)} manifest edges — "
             f"{len(missing)} still pending (an interrupted or not-yet-finished --execute run)"
+        )
+    if retryable:
+        warnings.append(
+            f"{len(retryable)} scale result(s) are 'request-error' (not terminal) — "
+            "the batch covers these edges but is not complete; re-run --execute to retry them"
         )
     if extra:
         errors.append(
@@ -421,7 +434,7 @@ def check(data_dir):
             errors += scale_results_errors
             warnings += scale_results_warnings
 
-            scale_complete = {(r["fromId"], r["toId"]) for r in scale_results} == scale_manifest_keys
+            scale_complete = is_batch_complete(scale_results, scale_manifest_keys)
             if APP_SCALE_RESULTS_PATH.exists():
                 app_scale_results = load_json(APP_SCALE_RESULTS_PATH)
                 if app_scale_results != scale_results:
