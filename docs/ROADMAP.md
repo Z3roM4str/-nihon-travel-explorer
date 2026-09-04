@@ -154,6 +154,18 @@ a future scale-up phase carries forward the snap-clean gate as a hard requiremen
       `scripts/walking_result_builder.py`) extracted so both the pilot and scale-up pipelines
       use the exact same logic — Phase 3B2A's own pipeline behavior is unchanged (its 63-test
       suite passes unmodified).
+- [x] **Corrective review**: three blocking gaps closed before any real batch could run.
+      (1) A real sliding-window Directions rate limiter (`ors_client.RateLimiter`) applied to
+      every HTTP attempt including retries, with injectable clock/sleep so pacing is tested
+      under a fake clock — pacing is proactive, never HTTP-429-driven. (2) True checkpointing:
+      the results artifact is rewritten after every completed edge, so an interruption costs at
+      most the in-flight edge, and the app-facing copy is published only once the batch covers
+      the whole manifest (never a partial dataset). (3) A machine-readable three-state Snap
+      status (`resolved` / `no-snap` / `request-error`, never parsed from text) plus a
+      Directions preflight that refuses to start a bulk run while any place is
+      missing/stale/request-error, and requires an explicit `--allow-unknown-snap` to proceed
+      over `no-snap` places. Snap gained the same bounded transient retry, with no invented
+      per-minute/day ceiling for an endpoint openrouteservice does not document one for.
 - [x] Snap-threshold audit against Phase 3B2A's real 24-edge sample (see
       `docs/WALKING_SCALE_PREP.md`): found one "clean" edge (JP-184→JP-185) with a 139.31 m
       single-endpoint snap that the combined/ratio rule doesn't catch. N=24 is not enough to

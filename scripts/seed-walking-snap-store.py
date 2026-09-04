@@ -27,9 +27,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from logistics_common import (  # noqa: E402
     ORS_PROFILE_FOOT_WALKING,
     ORS_PROVIDER,
+    ORS_SNAP_MAX_RADIUS_METERS,
     RESULTS_PATH,
     SNAP_PLACES_PATH,
     SNAP_PLACES_VERSION,
+    SNAP_PLACE_STATUSES,
+    SNAP_PLACE_STATUS_RESOLVED,
     build_snap_place_entry,
     load_json,
     load_places,
@@ -76,13 +79,17 @@ def build_snap_store(data_dir, results_path=RESULTS_PATH):
         place = by_id.get(place_id)
         if place is None:
             raise ValueError(f"pilot result references unknown place id {place_id!r}")
+        # Every seeded measurement is a real number Phase 3B2A's Snap request actually
+        # returned, so these are all "resolved" — build_snap_place_entry would refuse a
+        # null paired with that status, which is the point.
         entries[place_id] = build_snap_place_entry(
             place,
             snap_m,
-            radius=350,
+            radius=ORS_SNAP_MAX_RADIUS_METERS,
             provider=ORS_PROVIDER,
             profile=ORS_PROFILE_FOOT_WALKING,
             verified_at=verified_at,
+            status=SNAP_PLACE_STATUS_RESOLVED,
         )
         entries[place_id]["attribution"] = ATTRIBUTION
         entries[place_id]["source"] = "seeded-from-phase-3b2a-pilot-results"
@@ -104,12 +111,13 @@ def main():
 
     store = build_snap_store(Path(args.data_dir), Path(args.results))
     write_json(Path(args.out), store)
-    resolved = sum(1 for e in store["places"].values() if e["status"] == "resolved")
-    unknown = sum(1 for e in store["places"].values() if e["status"] == "unknown")
+    counts = {status: 0 for status in SNAP_PLACE_STATUSES}
+    for entry in store["places"].values():
+        counts[entry["status"]] += 1
+    breakdown = " ".join(f"{status}={counts[status]}" for status in SNAP_PLACE_STATUSES)
     print(
         f"OK: seeded {len(store['places'])} place(s) into {args.out} from existing "
-        f"Phase 3B2A pilot results — no new network request. "
-        f"resolved={resolved} unknown={unknown}."
+        f"Phase 3B2A pilot results — no new network request. {breakdown}."
     )
 
 

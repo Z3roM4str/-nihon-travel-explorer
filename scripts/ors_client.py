@@ -62,12 +62,84 @@ class RoutingRequestError(Exception):
         self.transient = transient
 
 
-def query_ors(api_key, from_place, to_place):
+class RateLimiter:
+    """Sliding-window rate limiter, applied per HTTP *attempt* (retries included).
+
+    Why a real limiter rather than reacting to HTTP 429: a 429 means the request was
+    already rejected — the quota was already spent on a refused call, and the provider
+    is under no obligation to keep serving a client that keeps overshooting. Pacing
+    proactively means the documented ceiling is never crossed in the first place, and
+    the bounded retry stays what it is for (a genuinely transient failure), not a
+    pacing mechanism.
+
+    `clock` and `sleep` are injectable so the whole thing is testable with a fake clock
+    and zero real waiting (see FakeClock in scripts/test_walking_scale.py): `clock()`
+    returns a monotonically non-decreasing float in seconds, `sleep(seconds)` must
+    advance whatever `clock()` reads by at least that much.
+
+    max_events <= 0 disables pacing entirely (acquire() becomes a no-op), which is how
+    a caller opts out explicitly rather than by passing None and hoping.
+    """
+
+    def __init__(self, max_events, per_seconds, clock=time.monotonic, sleep=time.sleep):
+        self.max_events = max_events
+        self.per_seconds = per_seconds
+        self._clock = clock
+        self._sleep = sleep
+        self._events = []
+
+    def _prune(self, now):
+        cutoff = now - self.per_seconds
+        # Timestamps are appended in non-decreasing order, so everything to drop is a
+        # prefix — no need to scan the whole window.
+        drop = 0
+        for timestamp in self._events:
+            if timestamp > cutoff:
+                break
+            drop += 1
+        if drop:
+            del self._events[:drop]
+
+    def acquire(self):
+        """Blocks (via the injected sleep) until another attempt may be made now, then
+        records it. Every caller that is about to open an HTTP connection must call
+        this first — including a retry of a request that already consumed a slot."""
+        if self.max_events is None or self.max_events <= 0:
+            return
+        now = self._clock()
+        self._prune(now)
+        while len(self._events) >= self.max_events:
+            oldest = self._events[0]
+            wait = (oldest + self.per_seconds) - now
+            if wait > 0:
+                self._sleep(wait)
+            now = self._clock()
+            self._prune(now)
+        self._events.append(now)
+
+
+def directions_rate_limiter(per_minute, clock=time.monotonic, sleep=time.sleep):
+    """The Directions limiter the scale-up batch runs under. `per_minute` comes from
+    the caller (ORS_DIRECTIONS_PER_MINUTE_LIMIT_DOCUMENTED by default, overridable on
+    the CLI for an account whose plan actually differs) — this module never guesses a
+    ceiling for an endpoint whose limit is not documented."""
+    return RateLimiter(per_minute, 60.0, clock=clock, sleep=sleep)
+
+
+def query_ors(api_key, from_place, to_place, rate_limiter=None):
     """POST the Directions API for one directed edge. Returns (distance_m, duration_s)
     on success. Raises RoutingRequestError('no-route', ...) only for ORS's own "no
     routable point / no route" answer; every other failure raises it with
     status='request-error' (auth, malformed body, rate limit, network, timeout).
+
+    `rate_limiter`, when given, is acquired immediately before the HTTP call — so this
+    function is the single choke point every Directions attempt passes through, and a
+    retry (which calls back in here) is paced exactly like a first attempt. Defaults to
+    None (no pacing) so Phase 3B2A's pilot pipeline, which validates 24 edges well under
+    any documented ceiling, behaves exactly as it did before this parameter existed.
     """
+    if rate_limiter is not None:
+        rate_limiter.acquire()
     url = ORS_HOST + ORS_DIRECTIONS_PATH_TEMPLATE.format(profile=ORS_PROFILE_FOOT_WALKING)
     body = json.dumps(
         {
@@ -119,16 +191,23 @@ def query_ors(api_key, from_place, to_place):
         ) from exc
 
 
-def query_ors_with_retry(api_key, from_place, to_place):
-    """query_ors, plus exactly one retry for a transient failure."""
+def query_ors_with_retry(api_key, from_place, to_place, rate_limiter=None, sleep=None):
+    """query_ors, plus exactly one retry for a transient failure.
+
+    The retry goes back through query_ors, so it acquires `rate_limiter` again: a
+    retried edge costs two paced slots, never two unpaced back-to-back calls. `sleep`
+    is injectable purely so tests don't wait out RETRY_DELAY_SECONDS for real; it is
+    resolved at call time (not bound as a default) so patching this module's `time`
+    keeps working for callers that do it that way.
+    """
     attempts = 0
     while True:
         try:
-            return query_ors(api_key, from_place, to_place), None
+            return query_ors(api_key, from_place, to_place, rate_limiter=rate_limiter), None
         except RoutingRequestError as exc:
             attempts += 1
             if exc.transient and attempts <= MAX_TRANSIENT_RETRIES:
-                time.sleep(RETRY_DELAY_SECONDS)
+                (sleep or time.sleep)(RETRY_DELAY_SECONDS)
                 continue
             return None, exc
 
@@ -177,3 +256,29 @@ def query_ors_snap(api_key, locations, radius=ORS_SNAP_MAX_RADIUS_METERS):
         raise RoutingRequestError(
             f"unexpected snap response shape: {exc}", status="request-error", transient=False
         ) from exc
+
+
+def query_ors_snap_with_retry(api_key, locations, radius=ORS_SNAP_MAX_RADIUS_METERS, sleep=None):
+    """query_ors_snap, plus the same single bounded retry for a transient failure.
+
+    Deliberately NOT rate-limited: openrouteservice documents the Snap endpoint's
+    per-request location cap (5,000) but not a per-minute or per-day request ceiling,
+    and inventing one would be a made-up number dressed as a provider limit. Batching
+    is what keeps Snap traffic small — one request covers thousands of places — so the
+    bounded retry is the only reliability measure this needs.
+
+    Returns (distances, None) on success, (None, RoutingRequestError) on failure — the
+    tuple shape query_ors_with_retry uses, so a caller distinguishes a transport-level
+    failure from a per-location "no snap point found" (a None inside `distances`)
+    without inspecting any message text.
+    """
+    attempts = 0
+    while True:
+        try:
+            return query_ors_snap(api_key, locations, radius=radius), None
+        except RoutingRequestError as exc:
+            attempts += 1
+            if exc.transient and attempts <= MAX_TRANSIENT_RETRIES:
+                (sleep or time.sleep)(RETRY_DELAY_SECONDS)
+                continue
+            return None, exc

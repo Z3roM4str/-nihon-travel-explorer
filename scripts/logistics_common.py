@@ -226,16 +226,63 @@ def dataset_digest(data_dir=Path("data")):
     }
 
 
+# The machine-readable outcome of asking the Snap endpoint about one place. Three
+# distinct states, because collapsing them loses the two facts a caller actually needs:
+#   - "resolved": a real snapped_distance came back. The only state whose measurement
+#     may be reused, and the only one that can ever feed a "clean" edge assessment.
+#   - "no-snap": the provider answered, and there is no routable point within the
+#     radius for that coordinate. A definitive answer, not a failure — re-querying it
+#     changes nothing (barring a radius or dataset change), but it is NOT a successful
+#     measurement either: an edge touching such a place is "unknown", never "clean".
+#   - "request-error": the request itself failed (network, timeout, 5xx, 429, auth,
+#     malformed body). Says nothing at all about the coordinate, so it is a re-query
+#     candidate by default on the next backfill run.
+# A caller distinguishes these by this field alone — never by parsing `reason`, which
+# exists purely as human-readable context and is not part of any control flow.
+SNAP_PLACE_STATUS_RESOLVED = "resolved"
+SNAP_PLACE_STATUS_NO_SNAP = "no-snap"
+SNAP_PLACE_STATUS_REQUEST_ERROR = "request-error"
+SNAP_PLACE_STATUSES = (
+    SNAP_PLACE_STATUS_RESOLVED,
+    SNAP_PLACE_STATUS_NO_SNAP,
+    SNAP_PLACE_STATUS_REQUEST_ERROR,
+)
+
+# Why a place is (or isn't) usable for a scale-up run, as reported by
+# classify_snap_coverage(). "missing" and "stale" are properties of the store vs. the
+# current dataset; the other three mirror the entry's own status above.
+SNAP_COVERAGE_MISSING = "missing"
+SNAP_COVERAGE_STALE = "stale"
+SNAP_COVERAGE_STATES = (
+    SNAP_PLACE_STATUS_RESOLVED,
+    SNAP_PLACE_STATUS_NO_SNAP,
+    SNAP_PLACE_STATUS_REQUEST_ERROR,
+    SNAP_COVERAGE_MISSING,
+    SNAP_COVERAGE_STALE,
+)
+
+# A place in one of these states has no usable measurement AND re-querying it might
+# produce one, so a backfill run picks it up by default. "no-snap" is deliberately
+# absent: the provider already answered definitively, and silently hammering it every
+# run would spend quota to learn nothing.
+SNAP_COVERAGE_REQUERY_BY_DEFAULT = (
+    SNAP_COVERAGE_MISSING,
+    SNAP_COVERAGE_STALE,
+    SNAP_PLACE_STATUS_REQUEST_ERROR,
+)
+
+
 def load_snap_places_store(path=SNAP_PLACES_PATH):
-    """Returns {} if the store doesn't exist yet — a missing store is "nothing resolved
-    yet", never an error, mirroring load_existing_results()'s pilot-side convention."""
+    """Returns an empty store if the file doesn't exist yet — a missing store is
+    "nothing resolved yet", never an error, mirroring load_existing_results()'s
+    pilot-side convention."""
     if not Path(path).exists():
         return {"snapVersion": SNAP_PLACES_VERSION, "places": {}}
     return load_json(path)
 
 
 def build_snap_place_entry(
-    place, snapped_distance_m, radius, provider, profile, verified_at, reason=None
+    place, snapped_distance_m, radius, provider, profile, verified_at, status=None, reason=None
 ):
     """One placeId's entry in the Snap store. `coordinates` is the exact coordinate
     that was actually sent to the Snap endpoint (not re-read from places.json at
@@ -243,12 +290,23 @@ def build_snap_place_entry(
     entry (see is_snap_entry_current) instead of silently attaching an old
     measurement to a new coordinate.
 
-    `status` is "resolved" only when a real snapped_distance came back; a None
-    measurement (unsnappable point, or a failed query) is "unknown" — never coerced
-    into a 0-meter "resolved" entry, for exactly the same reason
+    `status` is one of SNAP_PLACE_STATUSES. It defaults to "resolved" when a real
+    measurement is present and "no-snap" when it isn't — a caller that knows the null
+    came from a failed *request* rather than from the provider's own "no routable
+    point" answer must pass status="request-error" explicitly, because those two are
+    not interchangeable (only the second is worth re-querying). A None measurement is
+    never coerced into a 0-meter "resolved" entry, for exactly the same reason
     classify_endpoint_snapping never treats a None snap distance as 0.
     """
-    status = "resolved" if snapped_distance_m is not None else "unknown"
+    if status is None:
+        status = SNAP_PLACE_STATUS_RESOLVED if snapped_distance_m is not None else SNAP_PLACE_STATUS_NO_SNAP
+    if status not in SNAP_PLACE_STATUSES:
+        raise ValueError(f"unknown snap place status {status!r}, expected one of {SNAP_PLACE_STATUSES}")
+    if status == SNAP_PLACE_STATUS_RESOLVED and snapped_distance_m is None:
+        raise ValueError("a 'resolved' snap entry must carry a real measurement, never null")
+    if status != SNAP_PLACE_STATUS_RESOLVED and snapped_distance_m is not None:
+        raise ValueError(f"a {status!r} snap entry must carry a null measurement")
+
     entry = {
         "coordinates": {"lat": place["coordinates"]["lat"], "lng": place["coordinates"]["lng"]},
         "snappedDistanceMeters": snapped_distance_m,
@@ -258,16 +316,52 @@ def build_snap_place_entry(
         "verifiedAt": verified_at,
         "status": status,
     }
-    if status == "unknown" and reason:
+    if status != SNAP_PLACE_STATUS_RESOLVED and reason:
+        # Human-readable only. Nothing branches on this string — see SNAP_PLACE_STATUSES.
         entry["reason"] = reason
     return entry
 
 
 def is_snap_entry_current(entry, place):
-    """A cached snap entry is only reusable while it was measured against the exact
-    coordinate the dataset currently has for that place. If a workbook update ever
-    moves a place, its old entry must not be silently reused — this makes that check
-    explicit rather than assuming a placeId's coordinates never change.
+    """A cached snap entry was measured against the exact coordinate the dataset
+    currently has for that place. If a workbook update ever moves a place, its old
+    entry must not be silently reused — this makes that check explicit rather than
+    assuming a placeId's coordinates never change.
+
+    Being "current" says nothing about whether the entry holds a usable measurement:
+    a "no-snap" or "request-error" entry can be perfectly current and still have no
+    measurement at all. Use classify_snap_coverage() to ask the question that actually
+    matters for a run.
     """
     coords = place["coordinates"]
     return entry.get("coordinates") == {"lat": coords["lat"], "lng": coords["lng"]}
+
+
+def classify_snap_coverage(place_id, place, store):
+    """The single place that answers "what do we actually know about this place's
+    snapping?", as one of SNAP_COVERAGE_STATES.
+
+    Staleness outranks status: an entry measured against coordinates the dataset no
+    longer has is "stale" whatever it claims, because its answer is about a different
+    point. Only "resolved" means a reusable measurement exists.
+    """
+    entry = (store.get("places") or {}).get(place_id)
+    if entry is None:
+        return SNAP_COVERAGE_MISSING
+    if not is_snap_entry_current(entry, place):
+        return SNAP_COVERAGE_STALE
+    status = entry.get("status")
+    if status in SNAP_PLACE_STATUSES:
+        return status
+    # An entry with an unrecognised/absent status is not evidence of anything —
+    # treat it as if it were never taken rather than guessing what it meant.
+    return SNAP_COVERAGE_MISSING
+
+
+def snap_coverage_summary(place_ids, by_id, store):
+    """{coverage state: [placeId, ...]} over the given places, every state present as a
+    key (possibly empty) so a caller can report all five without special-casing."""
+    summary = {state: [] for state in SNAP_COVERAGE_STATES}
+    for place_id in place_ids:
+        summary[classify_snap_coverage(place_id, by_id[place_id], store)].append(place_id)
+    return summary

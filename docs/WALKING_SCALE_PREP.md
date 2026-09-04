@@ -53,13 +53,31 @@ N times. Phase 3B2B-A replaces that with a store keyed by `placeId`:
 - `coordinates` — the exact `{lat, lng}` sent to the Snap endpoint, so a later dataset edit
   that moves the place is detectable as staleness (`is_snap_entry_current`) instead of
   silently reusing an outdated measurement.
-- `snappedDistanceMeters` — a real number, or `null`. **Never coerced to `0`** — a place
-  whose snap measurement failed or was never taken has `status: "unknown"`; only a place
-  with a real, non-null measurement has `status: "resolved"`. This is the same discipline
-  `classify_endpoint_snapping` already enforces at the edge level, applied at the place
-  level.
+- `snappedDistanceMeters` — a real number, or `null`. **Never coerced to `0`.**
+- `status` — a **machine-readable** three-state outcome. Nothing branches on the
+  human-readable `reason` string:
+  - `"resolved"` — a real measurement came back. The only state that may be reused, and
+    the only one that can ever feed a `"clean"` edge assessment.
+  - `"no-snap"` — the provider answered, and there is no routable point within the radius.
+    A definitive answer, not a failure: re-querying changes nothing, so a backfill run
+    skips it by default (`--retry-no-snap` opts back in, e.g. after a radius change). It
+    is **not** a successful measurement — an edge touching such a place is `"unknown"`.
+  - `"request-error"` — the request itself failed (network, timeout, 5xx, 429, auth,
+    malformed body). Says nothing about the coordinate, so it is a **re-query candidate by
+    default** on the next backfill run.
 - `radiusMeters`, `provider`, `profile`, `verifiedAt` — self-contained per entry, so each
   record is independently auditable.
+
+`classify_snap_coverage()` is the single function that answers "what do we actually know
+about this place?", returning one of five states: the three above plus `"missing"` (no
+entry) and `"stale"` (measured against coordinates the dataset no longer has). Staleness
+outranks status — an entry measured at a different point is stale whatever it claims.
+Crucially, **a current entry is not automatically a resolved one**: a `"no-snap"` or
+`"request-error"` entry can have perfectly current coordinates and still hold no
+measurement at all.
+
+`build_snap_place_entry()` refuses to build a contradictory record: `"resolved"` with a
+null measurement, or a failed status carrying one, both raise rather than being written.
 
 **No new network request was made to build the real store in this phase.**
 `scripts/seed-walking-snap-store.py` migrates the 35 places Phase 3B2A's real
@@ -83,27 +101,88 @@ actually executes. The remaining 103 would need one batched `--backfill-snap-pla
 below) with four modes, each a separate concern:
 
 - `--backfill-snap-places`: Snap-only. Derives which of the scale manifest's unique places
-  still lack a current, resolved Snap entry (`edges_needing_snap_assessment`'s scale-side
-  counterpart, `places_needing_snap` — never a hardcoded count), batches them into chunks of
-  up to `ORS_SNAP_MAX_LOCATIONS_PER_REQUEST` (5,000 — openrouteservice's own documented
+  still need a query (`places_needing_snap` — never a hardcoded count: missing, stale, or
+  `"request-error"` by default), batches them into chunks of up to
+  `ORS_SNAP_MAX_LOCATIONS_PER_REQUEST` (5,000 — openrouteservice's own documented
   per-request location cap), and **writes the store after every chunk**. An interruption
   mid-batch loses at most the one in-flight chunk; re-running only re-derives what's still
-  missing, never re-fetching an already-resolved place. Never touches Directions or the
-  results file.
+  outstanding, never re-fetching an already-resolved place. A transient failure gets one
+  bounded retry (`query_ors_snap_with_retry`) before being recorded as `"request-error"`.
+  Deliberately **not** rate-limited: openrouteservice documents Snap's per-request location
+  cap but not a per-minute/per-day ceiling, and inventing one would be a made-up number
+  dressed as a provider limit — batching is what keeps Snap traffic to a handful of calls.
+  Never touches Directions or the results file.
 - `--execute`: Directions-only, one query per pending scale edge, skipping a cached
   `"validated"` edge unless `--refresh` (identical caching discipline to the pilot's
   `--execute`). It does **not** make a Snap request itself — it combines the routed distance
   with whatever the Snap store already has for that edge's two places at read time
-  (`combine_snapping_for_edge`), producing the same `endpointSnapping` shape
-  (`clean`/`significant`/`unknown`) the pilot already produces. If a place's Snap
-  measurement isn't resolved yet, the edge gets `"unknown"` with an explicit reason — never
-  a fabricated `"clean"`.
+  (`combine_snapping_for_edge`, branching on the coverage state, never on `reason` text),
+  producing the same `endpointSnapping` shape (`clean`/`significant`/`unknown`) the pilot
+  already produces. If a place's Snap measurement isn't resolved, the edge gets `"unknown"`
+  with an explicit reason — never a fabricated `"clean"`. Three properties make a real bulk
+  run safe to start and safe to interrupt — see §3a, §3b, §3c below.
 - `--recombine-snapping`: no network at all. Recomputes `endpointSnapping` for every
   currently-`"validated"` scale result from the Snap store's *current* contents. Useful
   after a later `--backfill-snap-places` run resolves places that were still `"unknown"`
   when `--execute` first ran for their edges — lets a result's snap assessment improve
   without ever re-querying Directions for it.
 - `--dry-run`: no network — see §5.
+
+### 3a. Real Directions rate limiting (not 429-driven)
+
+`ors_client.RateLimiter` is a sliding-window limiter applied **per HTTP attempt, retries
+included**. `query_ors()` acquires it immediately before opening the connection, and the
+bounded retry goes back through `query_ors()` — so a retried edge costs two paced slots,
+never two unpaced back-to-back calls.
+
+Why proactive pacing rather than reacting to HTTP 429: a 429 means the request was
+*already* refused — quota spent on a rejected call, and the provider under no obligation to
+keep serving a client that keeps overshooting. Pacing means the documented ceiling is never
+crossed in the first place, and the bounded retry stays what it is for (a genuinely
+transient failure) instead of doubling as a pacing mechanism.
+
+`clock` and `sleep` are injected, so the whole thing is tested with a fake clock and zero
+real waiting (`FakeClock` in `scripts/test_walking_scale.py`): one test drives 200
+acquisitions and asserts that **no 60-second window anywhere in the run contains more than
+the configured number of attempts**. The rate comes from `--directions-per-minute`
+(default: openrouteservice's documented 40/min); `0` disables pacing explicitly.
+
+Phase 3B2A's pilot passes no limiter and is therefore unpaced exactly as before — 24 edges
+sit far under any documented ceiling, and its 63-test suite passes unmodified.
+
+### 3b. True checkpointing
+
+`data/logistics/walking-scale-results.json` is rewritten **after every completed edge**
+(`write_checkpoint`), so an interruption — crash, `^C`, quota cut-off — costs at most the
+single in-flight edge. On the next run, every already-answered edge is skipped by the same
+cache check that has always existed, so a resumed batch re-queries at most the one edge
+that was in flight, never the ones before it.
+
+The app-facing copy is handled separately on purpose. `publish_app_copy()` writes
+`app/src/data/logistics/walking-scale-results.json` **only when the results cover the whole
+manifest** — a half-finished batch must never be handed to the application as though it
+were authoritative. The root artifact serves as the checkpoint; the app copy is the
+publish step. `validate-logistics.py` matches this: a partial scale-results file is a
+*warning* ("batch in progress"), and only a complete one owes the app a copy — while an
+edge that isn't in the manifest at all is still an error.
+
+Verified end-to-end by `ScaleExecuteCheckpointTests`: run N edges, crash partway, assert
+the completed ones are physically on disk and the app copy was *not* written, re-run, and
+assert the completed edges are never queried again while the remaining ones are.
+
+### 3c. Directions preflight
+
+A bulk run is quota-bound, and Directions results for an edge whose places aren't snapped
+can only ever come back `"unknown"` — un-promotable. So `--execute` runs `snap_preflight()`
+first and **refuses to start** while any place is `missing`, `stale`, or `request-error`,
+pointing at `--backfill-snap-places` as the fix.
+
+`"no-snap"` is treated differently, because re-querying genuinely cannot fix it — the
+provider has already answered. Proceeding anyway is a legitimate choice, but it must be an
+explicit, recorded one: `--allow-unknown-snap`, which prints exactly how many places it is
+proceeding over and that their edges stay un-promotable. It is never the silent default,
+and it never unblocks a *fixable* state — missing/stale/request-error still stop the run
+regardless of that flag.
 
 A validated scale result's `confidence` is always `"validated-static"` on success, exactly
 the schema the pilot already produces. The actual clean-only promotion happens where it
@@ -186,8 +265,15 @@ Scale-up edges: 308 (derived: total 'A pie' relations minus the 24 pilot edges)
   pending: 308
 
 Unique places referenced: 137
-  already snap-resolved (current): 34
-  still needing a Snap measurement: 103
+  Snap coverage (machine-readable states, never parsed from text):
+    resolved: 34
+    no-snap: 0
+    request-error: 0
+    missing: 103
+    stale: 0
+  would be (re-)queried by --backfill-snap-places: 103
+  Directions preflight: BLOCKED by missing — --execute refuses to start until these are
+  resolved (or, for 'no-snap' only, --allow-unknown-snap is passed explicitly).
 
 Distribution by hub (counted by each edge's fromId hub):
   Kioto: 92
@@ -220,19 +306,30 @@ own dashboard before any real execution, since limits can differ by plan.
 
 New/extended test coverage (all offline, no network):
 
-- `scripts/test_walking_scale.py` (54 tests): scale-manifest derivation (pilot ∪ scale =
+- `scripts/test_walking_scale.py` (102 tests): scale-manifest derivation (pilot ∪ scale =
   every walking edge, zero overlap, zero duplicates, no non-walking relation ever admitted,
-  edge count never hardcoded, deterministic across runs, pilot-manifest sanity checks), the
-  Snap-place-store schema (`resolved`/`unknown`, null never coerced to `0`, staleness
-  detection), the seeding migration (including its inconsistency check), the dry-run report,
-  `--backfill-snap-places` (single/chunked batching, no-op when already current, never calls
-  Directions), `--execute` (cache/resume, `--refresh`, never calls Snap itself),
-  `--recombine-snapping`, the new `validate-logistics.py` scale/snap-store checks
-  (duplicate/overlap/coverage/non-walking-relation/secret-scan), and five regression tests
-  against the real committed `walking-scale-manifest.json` and `walking-snap-places.json`.
+  edge count never hardcoded, deterministic across runs, pilot-manifest sanity checks); the
+  Snap-place-store schema (three machine-readable states, null never coerced to `0`,
+  contradictory records refused, staleness detection, an unrecognised status treated as
+  unknown rather than guessed); the seeding migration (including its inconsistency check);
+  the dry-run report; **the rate limiter** (allows up to the limit without sleeping, sleeps
+  exactly until the oldest event ages out, never exceeds the rate across a 200-attempt run
+  under a fake clock, retries consume slots too, `query_ors` acquires before the HTTP call,
+  default stays unpaced for the pilot); **Snap retry** (transient retried once, recovery,
+  non-transient not retried); **checkpoint + simulated crash + resume** (completed edges
+  physically on disk, app copy withheld, resumed run never re-queries them, one write per
+  edge); **preflight** (blocks on missing/stale/request-error, blocks on no-snap until
+  `--allow-unknown-snap`, which never unblocks a fixable state); Snap-state policy
+  (request-error retried, resolved reused, stale re-queried, no-snap skipped by default and
+  opt-in via `--retry-no-snap`, no-snap/request-error never becoming `"clean"`);
+  `--execute` cache/resume and never calling Snap itself; `--recombine-snapping` including
+  its no-partial-publish rule; the `validate-logistics.py` scale/snap-store checks
+  (duplicate/overlap/coverage/non-walking-relation/secret-scan/partial-results warning); and
+  five regression tests against the real committed `walking-scale-manifest.json` and
+  `walking-snap-places.json`.
 - `scripts/test_walking_pilot.py` (63 tests, unchanged in count and assertions): confirms
-  the `ors_client`/`walking_result_builder` refactor didn't change the pilot pipeline's
-  behavior.
+  the `ors_client`/`walking_result_builder` refactor and the rate-limiter/retry parameters
+  didn't change the pilot pipeline's behavior.
 - `app/src/lib/transfer.test.ts` (50 tests, +1): the new generic snap-gate property test
   described in §3.
 
@@ -240,7 +337,7 @@ All of the following were run and pass:
 
 ```
 python3 scripts/test_walking_pilot.py         # 63/63
-python3 scripts/test_walking_scale.py         # 54/54
+python3 scripts/test_walking_scale.py         # 102/102
 npm test                                       # 104/104 (50 in transfer.test.ts)
 npm run lint                                   # clean
 npm run build                                  # succeeds

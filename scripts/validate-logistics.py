@@ -30,6 +30,10 @@ from logistics_common import (  # noqa: E402
     SCALE_RESULTS_PATH,
     SNAP_ASSESSMENTS,
     SNAP_PLACES_PATH,
+    SNAP_PLACE_STATUSES,
+    SNAP_PLACE_STATUS_NO_SNAP,
+    SNAP_PLACE_STATUS_REQUEST_ERROR,
+    SNAP_PLACE_STATUS_RESOLVED,
     WALKING_MODE_RAW,
     classify_endpoint_snapping,
     is_snap_entry_current,
@@ -278,10 +282,19 @@ def check_pilot_scale_partition(pilot_manifest, scale_manifest, nearby):
 
 
 def check_snap_places_store(store, places_ids, places_by_id_map):
-    """Keyed strictly by placeId (never by edge or direction). A null
-    snappedDistanceMeters must only ever appear on a "unknown" entry — never on
-    "resolved", which would mean a null got silently treated as a real 0 m measurement."""
+    """Keyed strictly by placeId (never by edge or direction), with a machine-readable
+    three-state status: only "resolved" may carry a measurement, and "no-snap" (the
+    provider's own "no routable point" answer) and "request-error" (the request itself
+    failed) must both carry null — a null is never a real 0 m measurement, and those
+    two are not interchangeable, since only the second is worth re-querying.
+
+    Returns (errors, warnings). Staleness is a warning, not an error: an entry measured
+    against coordinates the dataset has since changed is a legitimate "needs re-query"
+    state that --backfill-snap-places fixes, and the Directions preflight (see
+    scripts/validate-walking-scale.py) is what actually blocks a run over one.
+    """
     errors = []
+    warnings = []
     for place_id, entry in store.get("places", {}).items():
         label = f"snap store[{place_id}]"
         if place_id not in places_ids:
@@ -289,14 +302,16 @@ def check_snap_places_store(store, places_ids, places_by_id_map):
             continue
 
         status = entry.get("status")
-        if status not in ("resolved", "unknown"):
-            errors.append(f"{label}: status is {status!r}, expected 'resolved' or 'unknown'")
+        if status not in SNAP_PLACE_STATUSES:
+            errors.append(f"{label}: status is {status!r}, expected one of {SNAP_PLACE_STATUSES}")
 
         snap_m = entry.get("snappedDistanceMeters")
-        if status == "resolved" and snap_m is None:
+        if status == SNAP_PLACE_STATUS_RESOLVED and snap_m is None:
             errors.append(f"{label}: status is 'resolved' but snappedDistanceMeters is null")
-        if status == "unknown" and snap_m is not None:
-            errors.append(f"{label}: status is 'unknown' but snappedDistanceMeters is {snap_m!r}, expected null")
+        if status in (SNAP_PLACE_STATUS_NO_SNAP, SNAP_PLACE_STATUS_REQUEST_ERROR) and snap_m is not None:
+            errors.append(
+                f"{label}: status is {status!r} but snappedDistanceMeters is {snap_m!r}, expected null"
+            )
         if snap_m is not None and (not isinstance(snap_m, (int, float)) or snap_m < 0):
             errors.append(f"{label}: snappedDistanceMeters must be null or >= 0")
 
@@ -306,13 +321,39 @@ def check_snap_places_store(store, places_ids, places_by_id_map):
 
         place = places_by_id_map.get(place_id)
         if place is not None and not is_snap_entry_current(entry, place):
-            errors.append(f"{label}: coordinates are stale — do not match the current dataset's place")
+            warnings.append(
+                f"{label}: coordinates are stale (the dataset moved this place) — "
+                "re-run --backfill-snap-places before the next Directions batch"
+            )
 
         secret_paths = find_secrets(entry, label)
         if secret_paths:
             errors.append(f"{label}: possible secret/credential value found at {secret_paths}")
 
-    return errors
+    return errors, warnings
+
+
+def check_scale_results_coverage(results, manifest_keys):
+    """The scale-up results file doubles as an --execute checkpoint, so a run that was
+    interrupted legitimately leaves it covering only part of the manifest. Missing
+    edges are therefore a warning ("batch in progress"), while an edge that isn't in
+    the manifest at all is still an error — that can only be corruption or a manifest
+    that changed under a half-finished run."""
+    errors = []
+    warnings = []
+    result_keys = {(r.get("fromId"), r.get("toId")) for r in results}
+    missing = manifest_keys - result_keys
+    extra = result_keys - manifest_keys
+    if missing:
+        warnings.append(
+            f"scale results cover {len(result_keys)}/{len(manifest_keys)} manifest edges — "
+            f"{len(missing)} still pending (an interrupted or not-yet-finished --execute run)"
+        )
+    if extra:
+        errors.append(
+            f"scale results contain {len(extra)} edge(s) not in the scale manifest: {sorted(extra)[:5]}"
+        )
+    return errors, warnings
 
 
 def check(data_dir):
@@ -373,25 +414,34 @@ def check(data_dir):
         scale_results = load_json(SCALE_RESULTS_PATH) if SCALE_RESULTS_PATH.exists() else []
         scale_result_count = len(scale_results)
         if scale_results:
-            errors += check_results_coverage(scale_results, scale_manifest_keys)
+            coverage_errors, coverage_warnings = check_scale_results_coverage(scale_results, scale_manifest_keys)
+            errors += coverage_errors
+            warnings += coverage_warnings
             scale_results_errors, scale_results_warnings = check_results(scale_results, scale_manifest_keys)
             errors += scale_results_errors
             warnings += scale_results_warnings
 
+            scale_complete = {(r["fromId"], r["toId"]) for r in scale_results} == scale_manifest_keys
             if APP_SCALE_RESULTS_PATH.exists():
                 app_scale_results = load_json(APP_SCALE_RESULTS_PATH)
                 if app_scale_results != scale_results:
                     errors.append(
                         f"{APP_SCALE_RESULTS_PATH} does not match {SCALE_RESULTS_PATH} — app copy is out of sync"
                     )
-            else:
+            elif scale_complete:
+                # Only a COMPLETE batch owes the app a copy. A partial checkpoint
+                # deliberately doesn't publish one (see publish_app_copy in
+                # scripts/validate-walking-scale.py), so its absence is correct.
                 errors.append(
-                    f"{SCALE_RESULTS_PATH} has results but {APP_SCALE_RESULTS_PATH} (app copy) is missing"
+                    f"{SCALE_RESULTS_PATH} covers the whole manifest but "
+                    f"{APP_SCALE_RESULTS_PATH} (app copy) is missing"
                 )
 
     if SNAP_PLACES_PATH.exists():
         snap_store = load_snap_places_store(SNAP_PLACES_PATH)
-        errors += check_snap_places_store(snap_store, places_ids, places_by_id_map)
+        snap_errors, snap_warnings = check_snap_places_store(snap_store, places_ids, places_by_id_map)
+        errors += snap_errors
+        warnings += snap_warnings
 
     return {
         "errors": errors,
