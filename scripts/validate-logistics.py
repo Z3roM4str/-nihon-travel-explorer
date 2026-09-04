@@ -31,6 +31,7 @@ from logistics_common import (  # noqa: E402
     load_places,
     nearby_by_directed_key,
     places_by_id,
+    snap_warning,
 )
 
 VALID_RESULT_STATUSES = {"validated", "no-route", "request-error"}
@@ -88,6 +89,25 @@ def find_secrets(obj, path=""):
     return found
 
 
+def check_results_coverage(results, manifest_keys):
+    """A non-empty results file must cover the manifest's edges exactly: no edge
+    missing, no edge beyond the manifest's 24. A missing edge is not "pilot not
+    finished" once any results exist — see check()'s all-or-nothing contract."""
+    errors = []
+    result_keys = {(r.get("fromId"), r.get("toId")) for r in results}
+    missing = manifest_keys - result_keys
+    extra = result_keys - manifest_keys
+    if missing:
+        errors.append(
+            f"results file is missing {len(missing)} manifest edge(s): {sorted(missing)}"
+        )
+    if extra:
+        errors.append(
+            f"results file has {len(extra)} edge(s) not in the manifest's {PILOT_EDGE_COUNT}: {sorted(extra)}"
+        )
+    return errors
+
+
 def check_results(results, manifest_keys):
     errors = []
     warnings = []
@@ -98,8 +118,6 @@ def check_results(results, manifest_keys):
         key = (from_id, to_id)
         label = f"results[{i}] {from_id}->{to_id}"
 
-        if key not in manifest_keys:
-            errors.append(f"{label}: not one of the manifest's {PILOT_EDGE_COUNT} edges")
         if key in seen:
             errors.append(f"{label}: duplicate directed edge in results")
         seen.add(key)
@@ -119,6 +137,16 @@ def check_results(results, manifest_keys):
             source = result.get("source") or {}
             if source.get("kind") != "routing-provider":
                 errors.append(f"{label}: validated result must carry routing-provider provenance")
+            if source.get("provider") != result.get("provider"):
+                errors.append(
+                    f"{label}: source.provider {source.get('provider')!r} does not match "
+                    f"top-level provider {result.get('provider')!r}"
+                )
+            if source.get("profile") != result.get("profile"):
+                errors.append(
+                    f"{label}: source.profile {source.get('profile')!r} does not match "
+                    f"top-level profile {result.get('profile')!r}"
+                )
             if result.get("confidence") != "validated-static":
                 errors.append(f"{label}: validated result confidence must be 'validated-static', got {result.get('confidence')!r}")
             if result.get("confidence") == "estimated":
@@ -131,6 +159,29 @@ def check_results(results, manifest_keys):
                 errors.append(f"{label}: validated result must have minutes.minMinutes >= 0")
             if minutes.get("minMinutes") != minutes.get("maxMinutes"):
                 warnings.append(f"{label}: minMinutes != maxMinutes for a single-sample validated result")
+
+            # endpointSnapping is optional (only captured going forward, or via a
+            # one-off --diagnose-snap backfill), but when present it must be internally
+            # consistent — the "significant" flag is a pure, re-derivable function of
+            # the two snap distances and the routed distance, never a free-standing
+            # opinion that could silently drift from the rule that computed it.
+            snapping = result.get("endpointSnapping")
+            if snapping is not None:
+                radius = snapping.get("radiusMeters")
+                if not isinstance(radius, (int, float)) or radius <= 0:
+                    errors.append(f"{label}: endpointSnapping.radiusMeters must be > 0")
+                for field in ("fromSnapMeters", "toSnapMeters"):
+                    value = snapping.get(field)
+                    if value is not None and (not isinstance(value, (int, float)) or value < 0):
+                        errors.append(f"{label}: endpointSnapping.{field} must be null or >= 0")
+                expected_significant = snap_warning(
+                    snapping.get("fromSnapMeters"), snapping.get("toSnapMeters"), distance
+                )
+                if snapping.get("significant") != expected_significant:
+                    errors.append(
+                        f"{label}: endpointSnapping.significant is {snapping.get('significant')!r}, "
+                        f"but recomputing from the recorded snap distances gives {expected_significant!r}"
+                    )
         else:
             if result.get("confidence") is not None:
                 errors.append(f"{label}: a {status!r} result must not carry a confidence value")
@@ -163,6 +214,7 @@ def check(data_dir):
 
     results = load_json(RESULTS_PATH) if RESULTS_PATH.exists() else []
     if results:
+        errors += check_results_coverage(results, manifest_keys)
         results_errors, results_warnings = check_results(results, manifest_keys)
         errors += results_errors
         warnings += results_warnings

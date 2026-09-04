@@ -112,20 +112,27 @@ the application remains a geographic estimate until a later phase actually route
       **api.heigit.org** (not the deprecated api.openrouteservice.org), with a coordinate-order
       regression test, reproducible caching, and a bounded single retry — fully covered by
       network-free unit tests (`scripts/test_walking_pilot.py`).
-- [x] **Live pilot execution** — run 2026-09-04: 24/24 edges validated, 0 failures. Results in
-      `data/logistics/walking-pilot-results.json`.
+- [x] **Live pilot execution** — run 2026-09-04: 24/24 edges validated, 0 Directions failures.
+      Results in `data/logistics/walking-pilot-results.json`.
 - [x] Pilot report (`docs/WALKING_PILOT.md`) with real statistics, top outliers, limitations,
-      and a decision-gate recommendation (**SCALE, with a caveat** — see the report; scaling
-      itself is explicitly not part of this phase).
+      and a decision-gate recommendation.
+- [x] **Corrective review**: identified that 2 of the 24 results (JP-063↔JP-065) had significant
+      endpoint snapping making their distance not comparable to the original coordinates. Fixed
+      the manifest's reproducibility (a dataset content hash, not the git HEAD SHA — see
+      `docs/LOGISTICS.md`), the validator's coverage check (exact manifest↔results equality), and
+      added the `endpointSnapping`/`snap_warning` guard plus a `--diagnose-snap` backfill tool.
+      Recommendation revised from SCALE-with-caveat to **ADJUST** (see `docs/WALKING_PILOT.md`).
 
 This phase validated exactly 24 of the 332 "A pie" relations. It does not validate the
-remaining ~308, transit, or anything else, regardless of the pilot's SCALE recommendation —
-scaling up is a separate, later phase's decision to make and execute.
+remaining ~308, transit, or anything else. The corrective review's ADJUST items (backfill
+`endpointSnapping` for the other 23 manifest edges, confirm the snap-warning threshold against
+more real data, decide a snap-flagged edge's disposition) are prerequisites for any future
+scale-up phase to consider SCALE — not this phase's own work.
 
 ## Later (unscheduled)
 
 - [ ] Validate local transfers with routing-grade data — Phase 3B2A's architecture, scaled to
-      the remaining "A pie" relations once the pilot actually runs and is reviewed; transit/
+      the remaining "A pie" relations, once the ADJUST items above are resolved; transit/
       schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).

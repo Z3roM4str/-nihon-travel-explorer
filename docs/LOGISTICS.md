@@ -262,8 +262,13 @@ pie" relations and writes `data/logistics/walking-pilot-manifest.json`. No manua
 cherry-picking: every edge is chosen by a documented, code-computed rule (distance-bucket rank,
 implied-speed anomaly, or hub/cluster coverage) recorded in the manifest itself as
 `selectionMethod`. Re-running the script against an unchanged dataset reproduces the same 24
-edges byte-for-byte. The manifest stores only `fromId`/`toId`/`category`/`reason` — never
-copied names, coordinates, or minutes, which are always resolved live from `places.json` /
+edges byte-for-byte — the **entire manifest document**, not just the selected ids: the
+manifest's `sourceDatasetContext.datasetDigest` is a sha256 content hash of `places.json` and
+`nearby.json`, deliberately **not** the git HEAD SHA, so regenerating it on a different commit
+that carries byte-identical data still produces a byte-identical manifest (see
+`dataset_digest()` in `scripts/logistics_common.py`; a full-manifest determinism test lives in
+`scripts/test_walking_pilot.py`). The manifest stores only `fromId`/`toId`/`category`/`reason` —
+never copied names, coordinates, or minutes, which are always resolved live from `places.json` /
 `nearby.json` so there is exactly one source of that data.
 
 ### Pipeline
@@ -285,16 +290,47 @@ a promoted `estimated` value.
 `app/src/lib/transfer.ts`'s `WalkingPilotResult` type: a `"validated"` entry carries
 `distance.meters`, `minutes` (seconds rounded half-up to whole minutes — see
 `round_half_up_minutes`, no `±10%`/`±15%` tolerance fabricated), `confidence:
-"validated-static"`, `verifiedAt` (the real query timestamp, ISO 8601 UTC), and structured
-`source`; any other status carries none of those fields, by the type's own shape.
+"validated-static"`, `verifiedAt` (the real query timestamp, ISO 8601 UTC), structured `source`,
+and an optional `endpointSnapping` (see below); any other status carries none of those fields,
+by the type's own shape.
 
 `scripts/validate-logistics.py` checks the manifest (exactly 24 edges, valid ids, each existing
-in `nearby.json` with `Modo == "A pie"`, unique directed pairs) and the results (only manifest
-edges, no duplicates, valid status, expected provider/profile, positive distance/duration when
-validated, `validated-static` ⇒ non-null `verifiedAt` and `routing-provider` provenance,
-`estimated` never appearing as a pilot result, and a scan for anything that looks like a
-committed secret). It does not hardcode the manifest's edge count as a magic number anywhere
-except the one named constant (`PILOT_EDGE_COUNT`) both the selector and validator import.
+in `nearby.json` with `Modo == "A pie"`, unique directed pairs) and, when the results file is
+non-empty, the results (**exact coverage** of the manifest's directed edges — a missing or an
+extra edge is an error, not just an extra one — no duplicates, valid status, expected
+provider/profile, `source.provider`/`source.profile` matching the top-level fields, positive
+distance/duration when validated, `validated-static` ⇒ non-null `verifiedAt` and
+`routing-provider` provenance, a re-derivable `endpointSnapping.significant` flag when that field
+is present, `estimated` never appearing as a pilot result, and a scan for anything that looks
+like a committed secret). It does not hardcode the manifest's edge count as a magic number
+anywhere except the one named constant (`PILOT_EDGE_COUNT`) both the selector and validator
+import.
+
+#### Endpoint snapping
+
+A routing provider never routes between the exact coordinates it's given — it **snaps** each
+input point to the nearest point on the routable network first (openrouteservice's Snap
+endpoint reports this as `snapped_distance`, in meters). When both endpoints of an edge snap far
+from where they really are — worse, onto the same short stretch of path — the routed distance
+between them can end up far smaller (or larger) than the real distance between the original
+coordinates, with no error raised. See `docs/WALKING_PILOT.md`'s JP-063↔JP-065 finding: routed
+3.2 m between two points that are actually ~22.2 m apart, because a combined ~23 m of endpoint
+snapping consumed nearly the entire real separation.
+
+`scripts/logistics_common.py`'s `snap_warning(fromSnapMeters, toSnapMeters, routedDistanceMeters)`
+is the objective, code-computed guard: a result is flagged `"significant"` when the combined
+snap distance is both ≥ 10 m in absolute terms and ≥ 50% of the routed distance itself — chosen
+so an ordinary few-meter snap on a long route is never flagged just because a short route with
+the same absolute snap would be. `scripts/validate-walking-pilot.py --execute` captures this
+automatically going forward (one extra Snap request per freshly-queried edge, batching both
+coordinates); `--diagnose-snap FROM_ID TO_ID` retroactively backfills it for one already-existing
+result, with exactly one Snap request, never re-querying Directions. `endpointSnapping` is
+optional on a `"validated"` result precisely because it is only captured for edges queried after
+the guard existed, or explicitly diagnosed — its absence is not a claim that snapping was
+insignificant. `scripts/report-walking-pilot.py` excludes any `"significant"` edge from its
+aggregate ratios and outlier lists, listing it separately instead of silently dropping it, so a
+future scale-up that reuses this report's logic cannot average a snap artifact into a
+"correction factor" for the rest of the dataset.
 
 `scripts/report-walking-pilot.py` computes, over the validated subset only, per-edge distance
 and minute ratios/differences, aggregate statistics (median/mean/min/max), and the top 5
@@ -316,15 +352,20 @@ resolution layer, not a rewrite of the estimated source.
 
 ### Status in this checkout
 
-The pipeline's non-network logic is fully tested (selection determinism, coordinate order,
-minute rounding, response parsing, failure classification, caching/refresh, and the
+The pipeline's non-network logic is fully tested (selection determinism — including the full
+manifest document, not just the selected ids — coordinate order, minute rounding, response
+parsing, failure classification, caching/refresh, the endpoint-snapping guard, and the
 validated/estimated/null preference order — see `scripts/test_walking_pilot.py` and
 `app/src/lib/transfer.test.ts`). **The live pilot has been executed**: on 2026-09-04, all 24
 manifest edges were queried against `api.heigit.org` and all 24 returned `"validated"` (0
-`no-route`, 0 `request-error`). `data/logistics/walking-pilot-results.json` holds the real
-results (mirrored to `app/src/data/logistics/`). Full statistics, per-edge comparisons, top
-outliers, limitations, and the decision-gate recommendation are in `docs/WALKING_PILOT.md` — not
-duplicated here to avoid a second source of truth for the same numbers.
+`no-route`, 0 `request-error`). A subsequent review identified that 2 of those 24 results (one
+coordinate pair, both directions) have significant endpoint snapping and are not directly
+comparable to the original coordinates — see "Endpoint snapping" above and
+`docs/WALKING_PILOT.md`'s corrected finding. `data/logistics/walking-pilot-results.json` holds
+the real results, including that finding's `endpointSnapping` field (mirrored to
+`app/src/data/logistics/`). Full statistics, per-edge comparisons, top outliers, limitations, and
+the decision-gate recommendation (**ADJUST** — see the report) are in `docs/WALKING_PILOT.md`,
+not duplicated here to avoid a second source of truth for the same numbers.
 
 To re-run it (idempotent — cached `"validated"` edges are skipped unless `--refresh`):
 
@@ -337,15 +378,17 @@ python3 scripts/validate-logistics.py data
 
 ### Attribution
 
-Per openrouteservice's and OpenStreetMap's published terms (verified during this phase, subject
-to change — re-check before any production use): the underlying map data is OpenStreetMap,
-licensed under the **Open Database License (ODbL)**, requiring "Map data © OpenStreetMap
-contributors"; openrouteservice's own computed API results are additionally provided under
-**CC BY 4.0**, requiring attribution to openrouteservice/HeiGIT. Every `"validated"` pilot
-result carries an `attribution` string recording both. This is why the result is versioned
-in-repo rather than silently regenerated: the attributed, licensed output is the artifact, and
-refreshing it (a workbook update, a provider improvement) is a deliberate, visible re-run of
-`--execute --refresh`, not an implicit background sync.
+Per openrouteservice's terms of service and the OpenStreetMap Foundation's attribution
+guidelines (verified during this phase, subject to change — re-check before any production or
+public-facing use): two distinct things are credited, under their own separate licenses. The
+routing computation itself is openrouteservice/HeiGIT's, provided under **CC BY 4.0**
+("© openrouteservice.org by HeiGIT"). The underlying map data is OpenStreetMap's, available
+under the **Open Database License (ODbL)**, requiring "Map data © OpenStreetMap contributors"
+and that the ODbL itself be named. Every `"validated"` pilot result's `attribution` string
+records both — see `ATTRIBUTION` in `scripts/validate-walking-pilot.py` for the exact wording.
+This is why the result is versioned in-repo rather than silently regenerated: the attributed,
+licensed output is the artifact, and refreshing it (a workbook update, a provider improvement)
+is a deliberate, visible re-run of `--execute --refresh`, not an implicit background sync.
 
 ## The remaining 3B2/3B2B/3C boundary
 

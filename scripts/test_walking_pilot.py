@@ -7,6 +7,7 @@ Usage:
 No test here makes a real network call — ORS responses are mocked. Run this instead
 of (or before) an --execute pilot run to check the pipeline logic itself.
 """
+import hashlib
 import importlib.util
 import io
 import json
@@ -199,6 +200,123 @@ class ResultBuildingTests(unittest.TestCase):
         self.assertNotIn("minutes", result)
         self.assertEqual(result["status"], "no-route")
 
+    def test_success_result_omits_endpoint_snapping_when_not_provided(self):
+        from_place, to_place = fake_place("A", 35.0, 139.0), fake_place("B", 35.01, 139.01)
+        result = vwp.build_success_result("A", "B", 500.0, 90.0, from_place, to_place, "2026-09-04T12:00:00Z")
+        self.assertNotIn("endpointSnapping", result)
+
+    def test_success_result_includes_endpoint_snapping_when_provided(self):
+        from_place, to_place = fake_place("A", 35.0, 139.0), fake_place("B", 35.01, 139.01)
+        snapping = {"fromSnapMeters": 1.0, "toSnapMeters": 2.0, "radiusMeters": 350, "significant": False}
+        result = vwp.build_success_result(
+            "A", "B", 500.0, 90.0, from_place, to_place, "2026-09-04T12:00:00Z", endpoint_snapping=snapping
+        )
+        self.assertEqual(result["endpointSnapping"], snapping)
+
+
+class SnapGuardTests(unittest.TestCase):
+    """The endpoint-snapping guard: a route whose endpoints snapped far from the
+    original coordinates must not be treated as directly comparable to the distance
+    between those original coordinates without an explicit flag saying so."""
+
+    def test_snap_warning_false_for_small_absolute_snap(self):
+        # Combined snap well under the absolute floor, regardless of route length.
+        self.assertFalse(common.snap_warning(2.0, 2.0, 100.0))
+
+    def test_snap_warning_false_for_large_absolute_snap_on_a_long_route(self):
+        # 15 m combined snap is unremarkable on an 800 m route (< 50% of route length).
+        self.assertFalse(common.snap_warning(8.0, 7.0, 800.0))
+
+    def test_snap_warning_true_when_combined_snap_dominates_a_short_route(self):
+        # This mirrors the JP-063<->JP-065 shape: real separation ~22 m, routed
+        # distance tiny, and most of the "route" is actually snap displacement.
+        self.assertTrue(common.snap_warning(9.0, 10.4, 3.2))
+
+    def test_snap_warning_handles_none_as_zero(self):
+        # A point that didn't snap at all (None) contributes 0, not a crash.
+        self.assertFalse(common.snap_warning(None, 2.0, 100.0))
+
+    def test_build_endpoint_snapping_shape(self):
+        snapping = vwp.build_endpoint_snapping(9.0, 10.4, 3.2)
+        self.assertEqual(snapping["fromSnapMeters"], 9.0)
+        self.assertEqual(snapping["toSnapMeters"], 10.4)
+        self.assertEqual(snapping["radiusMeters"], common.ORS_SNAP_MAX_RADIUS_METERS)
+        self.assertTrue(snapping["significant"])
+
+    def _fake_snap_response(self, snapped_distances):
+        body = json.dumps(
+            {"locations": [{"snapped_distance": d} if d is not None else None for d in snapped_distances]}
+        )
+        response = mock.MagicMock()
+        response.read.return_value = body.encode("utf-8")
+        response.__enter__.return_value = response
+        response.__exit__.return_value = False
+        return response
+
+    def test_query_ors_snap_parses_snapped_distances_in_order(self):
+        with mock.patch.object(vwp.urllib.request, "urlopen", return_value=self._fake_snap_response([9.0, 10.4])):
+            distances = vwp.query_ors_snap("fake-key", [[139.0, 35.0], [139.01, 35.01]])
+        self.assertEqual(distances, [9.0, 10.4])
+
+    def test_query_ors_snap_returns_none_for_unsnappable_point(self):
+        with mock.patch.object(vwp.urllib.request, "urlopen", return_value=self._fake_snap_response([9.0, None])):
+            distances = vwp.query_ors_snap("fake-key", [[139.0, 35.0], [0.0, 0.0]])
+        self.assertEqual(distances, [9.0, None])
+
+    def test_query_ors_snap_classifies_http_error_as_request_error(self):
+        http_error = urllib.error.HTTPError(url="x", code=500, msg="Server Error", hdrs=None, fp=io.BytesIO(b"{}"))
+        with mock.patch.object(vwp.urllib.request, "urlopen", side_effect=http_error):
+            with self.assertRaises(vwp.RoutingRequestError) as ctx:
+                vwp.query_ors_snap("fake-key", [[139.0, 35.0], [139.01, 35.01]])
+        self.assertEqual(ctx.exception.status, "request-error")
+
+    def test_execute_skips_directions_and_snap_network_calls_for_a_cached_edge(self):
+        # The snap call rides along with a fresh Directions query — it must never fire
+        # on its own for an edge execute() is skipping because it's already cached.
+        import argparse
+        import os
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            data_dir = tmp_path / "data"
+            data_dir.mkdir()
+            (data_dir / "places.json").write_text(json.dumps([
+                {"id": "A", "hub": "Tokio", "cluster": "T", "coordinates": {"lat": 35.0, "lng": 139.0}},
+                {"id": "B", "hub": "Tokio", "cluster": "T", "coordinates": {"lat": 35.01, "lng": 139.01}},
+            ]))
+            (data_dir / "nearby.json").write_text(json.dumps([
+                {
+                    "Desde ID": "A", "Hacia ID": "B", "Modo": "A pie", "Distancia km": 1.0,
+                    "Min aprox.": 10, "Relación": "Cercano", "Desde": "A", "Hacia": "B", "Nota": "",
+                }
+            ]))
+            manifest_path = tmp_path / "manifest.json"
+            manifest_path.write_text(json.dumps({"edges": [{"fromId": "A", "toId": "B", "category": "test"}]}))
+
+            results_path = tmp_path / "results.json"
+            app_results_path = tmp_path / "app_results.json"
+            cached_result = {
+                "fromId": "A", "toId": "B", "provider": "openrouteservice", "profile": "foot-walking",
+                "status": "validated", "distance": {"meters": 100}, "minutes": {"minMinutes": 1, "maxMinutes": 1},
+                "confidence": "validated-static", "verifiedAt": "2026-09-04T00:00:00Z",
+                "source": {"kind": "routing-provider", "provider": "openrouteservice", "profile": "foot-walking"},
+                "query": {"fromCoordinates": [139.0, 35.0], "toCoordinates": [139.01, 35.01]},
+            }
+            results_path.write_text(json.dumps([cached_result]))
+
+            args = argparse.Namespace(manifest=str(manifest_path), data_dir=str(data_dir), refresh=False)
+
+            with mock.patch.object(vwp, "RESULTS_PATH", results_path), \
+                 mock.patch.object(vwp, "APP_RESULTS_PATH", app_results_path), \
+                 mock.patch.dict(os.environ, {"ORS_API_KEY": "fake-key"}), \
+                 mock.patch.object(vwp, "query_ors_with_retry") as directions_mock, \
+                 mock.patch.object(vwp, "query_ors_snap") as snap_mock:
+                vwp.execute(args)
+
+            directions_mock.assert_not_called()
+            snap_mock.assert_not_called()
+
 
 class SelectionAlgorithmTests(unittest.TestCase):
     def test_selects_exactly_24_unique_directed_edges_from_real_dataset(self):
@@ -226,6 +344,27 @@ class SelectionAlgorithmTests(unittest.TestCase):
         first_keys = [(e["fromId"], e["toId"]) for e in first]
         second_keys = [(e["fromId"], e["toId"]) for e in second]
         self.assertEqual(first_keys, second_keys)
+
+    def test_build_manifest_is_byte_identical_across_runs(self):
+        # Regression test for the bug where `git rev-parse HEAD` leaked into the
+        # "reproducible" manifest: this checks the FULL manifest document (not just
+        # the selected edge ids), so a dynamic value hiding anywhere in
+        # sourceDatasetContext, selectionMethod, or elsewhere would be caught.
+        first = select.build_manifest(REPO_ROOT / "data")
+        second = select.build_manifest(REPO_ROOT / "data")
+        self.assertEqual(json.dumps(first, sort_keys=True), json.dumps(second, sort_keys=True))
+
+    def test_manifest_provenance_is_a_dataset_content_hash_not_git_state(self):
+        manifest = select.build_manifest(REPO_ROOT / "data")
+        context = manifest["sourceDatasetContext"]
+        self.assertNotIn("mainSha", context, "manifest must not embed the git HEAD SHA")
+        self.assertIn("datasetDigest", context)
+        digest = context["datasetDigest"]
+        self.assertEqual(digest["algorithm"], "sha256")
+        expected_places = hashlib.sha256((REPO_ROOT / "data" / "places.json").read_bytes()).hexdigest()
+        expected_nearby = hashlib.sha256((REPO_ROOT / "data" / "nearby.json").read_bytes()).hexdigest()
+        self.assertEqual(digest["places"], expected_places)
+        self.assertEqual(digest["nearby"], expected_nearby)
 
 
 class CachingAndRefreshTests(unittest.TestCase):
@@ -337,6 +476,107 @@ class ResultsValidatorTests(unittest.TestCase):
         errors, _ = validate_logistics.check_results([result], {("JP-001", "JP-008")})
         self.assertEqual(errors, [])
 
+    def test_source_provider_must_match_top_level_provider(self):
+        result = {
+            "fromId": "JP-001", "toId": "JP-008", "status": "validated",
+            "provider": "openrouteservice", "profile": "foot-walking",
+            "confidence": "validated-static", "verifiedAt": "2026-09-04T00:00:00Z",
+            "source": {"kind": "routing-provider", "provider": "some-other-provider", "profile": "foot-walking"},
+            "distance": {"meters": 500.0}, "minutes": {"minMinutes": 7, "maxMinutes": 7},
+        }
+        errors, _ = validate_logistics.check_results([result], {("JP-001", "JP-008")})
+        self.assertTrue(any("source.provider" in e for e in errors))
+
+    def test_source_profile_must_match_top_level_profile(self):
+        result = {
+            "fromId": "JP-001", "toId": "JP-008", "status": "validated",
+            "provider": "openrouteservice", "profile": "foot-walking",
+            "confidence": "validated-static", "verifiedAt": "2026-09-04T00:00:00Z",
+            "source": {"kind": "routing-provider", "provider": "openrouteservice", "profile": "driving-car"},
+            "distance": {"meters": 500.0}, "minutes": {"minMinutes": 7, "maxMinutes": 7},
+        }
+        errors, _ = validate_logistics.check_results([result], {("JP-001", "JP-008")})
+        self.assertTrue(any("source.profile" in e for e in errors))
+
+    def _validated_result_with_snapping(self, snapping):
+        return {
+            "fromId": "JP-063", "toId": "JP-065", "status": "validated",
+            "provider": "openrouteservice", "profile": "foot-walking",
+            "confidence": "validated-static", "verifiedAt": "2026-09-04T00:00:00Z",
+            "source": {"kind": "routing-provider", "provider": "openrouteservice", "profile": "foot-walking"},
+            "distance": {"meters": 3.2}, "minutes": {"minMinutes": 0, "maxMinutes": 0},
+            "endpointSnapping": snapping,
+        }
+
+    def test_endpoint_snapping_absent_is_valid(self):
+        result = {
+            "fromId": "JP-001", "toId": "JP-008", "status": "validated",
+            "provider": "openrouteservice", "profile": "foot-walking",
+            "confidence": "validated-static", "verifiedAt": "2026-09-04T00:00:00Z",
+            "source": {"kind": "routing-provider", "provider": "openrouteservice", "profile": "foot-walking"},
+            "distance": {"meters": 500.0}, "minutes": {"minMinutes": 7, "maxMinutes": 7},
+        }
+        errors, _ = validate_logistics.check_results([result], {("JP-001", "JP-008")})
+        self.assertEqual(errors, [])
+
+    def test_endpoint_snapping_consistent_significant_flag_passes(self):
+        result = self._validated_result_with_snapping(
+            {"fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350, "significant": True}
+        )
+        errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
+        self.assertEqual(errors, [])
+
+    def test_endpoint_snapping_wrong_significant_flag_is_flagged(self):
+        # snap_warning(9.0, 10.4, 3.2) is True (see SnapGuardTests); asserting False here
+        # must fail — the flag has to be re-derivable, not just any boolean.
+        result = self._validated_result_with_snapping(
+            {"fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350, "significant": False}
+        )
+        errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
+        self.assertTrue(any("endpointSnapping.significant" in e for e in errors))
+
+    def test_endpoint_snapping_negative_distance_is_flagged(self):
+        result = self._validated_result_with_snapping(
+            {"fromSnapMeters": -1.0, "toSnapMeters": 2.0, "radiusMeters": 350, "significant": True}
+        )
+        errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
+        self.assertTrue(any("fromSnapMeters" in e for e in errors))
+
+
+class ResultsCoverageValidatorTests(unittest.TestCase):
+    """When a non-empty results file exists, it must cover the manifest's directed
+    edges exactly — no missing edge, no edge beyond the manifest."""
+
+    def _validated_result(self, from_id, to_id):
+        return {
+            "fromId": from_id, "toId": to_id, "status": "validated",
+            "provider": "openrouteservice", "profile": "foot-walking",
+            "confidence": "validated-static", "verifiedAt": "2026-09-04T00:00:00Z",
+            "source": {"kind": "routing-provider", "provider": "openrouteservice", "profile": "foot-walking"},
+            "distance": {"meters": 100.0}, "minutes": {"minMinutes": 1, "maxMinutes": 1},
+        }
+
+    def test_exact_coverage_passes_with_no_errors(self):
+        manifest_keys = {("JP-001", "JP-008"), ("JP-002", "JP-008")}
+        results = [self._validated_result(*k) for k in manifest_keys]
+        errors = validate_logistics.check_results_coverage(results, manifest_keys)
+        self.assertEqual(errors, [])
+
+    def test_missing_result_is_flagged(self):
+        manifest_keys = {("JP-001", "JP-008"), ("JP-002", "JP-008")}
+        results = [self._validated_result("JP-001", "JP-008")]  # JP-002->JP-008 missing
+        errors = validate_logistics.check_results_coverage(results, manifest_keys)
+        self.assertTrue(any("missing" in e and "JP-002" in e for e in errors))
+
+    def test_extra_result_not_in_manifest_is_flagged(self):
+        manifest_keys = {("JP-001", "JP-008")}
+        results = [
+            self._validated_result("JP-001", "JP-008"),
+            self._validated_result("JP-999", "JP-998"),  # not in manifest
+        ]
+        errors = validate_logistics.check_results_coverage(results, manifest_keys)
+        self.assertTrue(any("not in the manifest" in e and "JP-999" in e for e in errors))
+
 
 class ReportComparisonTests(unittest.TestCase):
     def test_comparison_computes_ratios_correctly(self):
@@ -354,6 +594,52 @@ class ReportComparisonTests(unittest.TestCase):
         self.assertAlmostEqual(c["minutesRatio"], 2.0)
         self.assertAlmostEqual(c["distanceAbsDiffKm"], 0.5)
         self.assertEqual(c["minutesAbsDiff"], 10)
+
+    def test_snap_significant_edge_is_flagged_and_excluded_from_stats(self):
+        manifest = {
+            "edges": [
+                {"fromId": "JP-001", "toId": "JP-008", "category": "test"},
+                {"fromId": "JP-063", "toId": "JP-065", "category": "test"},
+            ]
+        }
+        nearby = [
+            {"Desde ID": "JP-001", "Hacia ID": "JP-008", "Distancia km": 1.0, "Min aprox.": 10, "Modo": "A pie", "Relación": "Cercano"},
+            {"Desde ID": "JP-063", "Hacia ID": "JP-065", "Distancia km": 0.02, "Min aprox.": 3, "Modo": "A pie", "Relación": "Cercano"},
+        ]
+        results = [
+            {
+                "fromId": "JP-001", "toId": "JP-008", "status": "validated",
+                "distance": {"meters": 1500.0}, "minutes": {"minMinutes": 20, "maxMinutes": 20},
+            },
+            {
+                "fromId": "JP-063", "toId": "JP-065", "status": "validated",
+                "distance": {"meters": 3.2}, "minutes": {"minMinutes": 0, "maxMinutes": 0},
+                "endpointSnapping": {
+                    "fromSnapMeters": 2.25, "toSnapMeters": 20.71, "radiusMeters": 350, "significant": True,
+                },
+            },
+        ]
+        places = [
+            fake_place("JP-001", 35.0, 139.0, name="A"), fake_place("JP-008", 35.0, 139.0, name="B"),
+            fake_place("JP-063", 35.0268, 135.7982, name="C"), fake_place("JP-065", 35.027, 135.7982, name="D"),
+        ]
+        comparisons = report.build_comparisons(manifest, nearby, results, places)
+        by_key = {(c["fromId"], c["toId"]): c for c in comparisons}
+        self.assertFalse(by_key[("JP-001", "JP-008")]["snapSignificant"])
+        self.assertTrue(by_key[("JP-063", "JP-065")]["snapSignificant"])
+
+        # print_report must not raise, and the aggregate stats path must only ever see
+        # the non-flagged edge — captured indirectly by checking it runs cleanly and
+        # produces output naming the exclusion.
+        import contextlib
+        import io as io_module
+
+        buffer = io_module.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            report.print_report(comparisons)
+        output = buffer.getvalue()
+        self.assertIn("EXCLUDED", output)
+        self.assertIn("N=1", output)
 
 
 if __name__ == "__main__":

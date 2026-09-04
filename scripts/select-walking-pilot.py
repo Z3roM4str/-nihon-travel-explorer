@@ -20,7 +20,6 @@ external API). Mixing them would make it hard to tell "the sample changed" from
 "the routing result changed".
 """
 import argparse
-import subprocess
 import sys
 from pathlib import Path
 
@@ -29,6 +28,7 @@ from logistics_common import (  # noqa: E402
     MANIFEST_PATH,
     PILOT_EDGE_COUNT,
     WALKING_MODE_RAW,
+    dataset_digest,
     load_nearby,
     load_places,
     places_by_id,
@@ -207,15 +207,6 @@ def reason_for(edge):
     return f"distanceKm={edge['distanceKm']} in category {edge['category']}"
 
 
-def git_head_sha():
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
-        ).strip()
-    except Exception:
-        return None
-
-
 def build_manifest(data_dir):
     places = load_places(data_dir)
     nearby = load_nearby(data_dir)
@@ -232,7 +223,11 @@ def build_manifest(data_dir):
         "sourceDatasetContext": {
             "nearbyRelationCount": len(nearby),
             "walkingRelationCount": len(walking),
-            "mainSha": git_head_sha(),
+            # A content hash of the dataset itself, not the git HEAD SHA: this
+            # manifest must be byte-identical across two runs against the same
+            # data/places.json + data/nearby.json, regardless of which commit is
+            # checked out. See dataset_digest()'s docstring in logistics_common.py.
+            "datasetDigest": dataset_digest(data_dir),
         },
         "edges": [
             {

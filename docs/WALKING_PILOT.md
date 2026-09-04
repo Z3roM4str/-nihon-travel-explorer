@@ -9,11 +9,20 @@ the run actually found — it does not repeat the design rationale.
 relations.** Nothing here should be read as "openrouteservice is accurate" or "multiply every
 walking edge's estimate by some factor" — see "Limitations" below.
 
+> **Correction (post-review):** an earlier version of this report described the JP-063↔JP-065
+> result as "a legitimately tiny, real walk" caused by `nearby.json`'s minutes floor, and
+> misstated its `durationSecondsRaw` as "~13 seconds" (the recorded value is 2.3 seconds — that
+> number was estimated rather than read from the data, which should not have happened). Review
+> correctly identified that the real explanation is **endpoint snapping**: see "The JP-063↔JP-065
+> finding, corrected" below. The decision gate changed from SCALE-with-caveat to **ADJUST** as a
+> result.
+
 ## Run metadata
 
 - **Date**: 2026-09-04
 - **Base commit**: `cec45541d068445edc34762dec93ac3100f62cec` (the SHA Phase 3B2A's branch was
-  cut from; the manifest's `sourceDatasetContext.mainSha` records the same value)
+  cut from; the manifest's `sourceDatasetContext.datasetDigest` is a content hash of
+  `places.json`/`nearby.json`, not a git SHA — see `docs/LOGISTICS.md` for why)
 - **Provider**: openrouteservice, operated by HeiGIT
 - **Host**: `https://api.heigit.org` (not the deprecated `api.openrouteservice.org`)
 - **Profile**: `foot-walking`
@@ -21,8 +30,10 @@ walking edge's estimate by some factor" — see "Limitations" below.
   deterministic algorithm documented in `docs/LOGISTICS.md`
 - **Results**: `data/logistics/walking-pilot-results.json` (mirrored to
   `app/src/data/logistics/`)
-- **`verifiedAt` range**: `2026-09-04T01:30:13Z` to `2026-09-04T01:30:26Z` (24 queries, 13 seconds
-  wall-clock — well inside any reasonable rate limit for a 24-request batch)
+- **`verifiedAt` range**: `2026-09-04T01:30:13Z` to `2026-09-04T01:30:26Z` (24 Directions queries,
+  13 seconds wall-clock) **plus** one later, separate Snap-endpoint diagnostic query
+  (`2026-09-04`, via `--diagnose-snap JP-063 JP-065`) made during review — see below. No edge's
+  Directions result was re-queried during that review.
 
 ## Outcome
 
@@ -32,19 +43,64 @@ edge succeeded on the first request. This means the pipeline's failure-handling 
 by unit tests with mocked responses (`scripts/test_walking_pilot.py`) but were **not exercised
 against a real failure** in this run — see "Limitations."
 
-## Pilot findings (N=24)
+"24 validated" describes the Directions API's own answer to each query, and is unaffected by the
+snapping finding below: every edge really did get a routed distance and duration back. What
+changed is whether that routed distance can be trusted to describe the original two coordinates
+— which, for 2 of the 24, it cannot.
+
+## The JP-063↔JP-065 finding, corrected
+
+JP-063 (Philosopher's Path) and JP-065 (Ginkaku-ji) sit **22.24 m apart** in the dataset's own
+coordinates (haversine, computed directly from `places.json`). The pilot's Directions query
+returned a routed distance of **3.2 m** and `durationSecondsRaw: 2.3` in both directions — far
+*less* than the real separation, which a real walking route (always ≥ the straight-line
+haversine distance) cannot legitimately be.
+
+A one-off, minimal diagnostic query to openrouteservice's **Snap endpoint**
+(`POST /openrouteservice/v2/snap/foot-walking/json`, both coordinates batched into a single
+request, radius 350 m — the API's documented maximum) explains it:
+
+| Point | Snapped distance from original coordinate |
+|---|---|
+| JP-063 (Philosopher's Path) | 2.25 m |
+| JP-065 (Ginkaku-ji) | 20.71 m |
+| **Combined** | **22.96 m** |
+
+The combined snap displacement (22.96 m) accounts for essentially the *entire* real separation
+between the two points (22.24 m). In plain terms: openrouteservice snapped both input
+coordinates onto the same short stretch of path, and the "3.2 m route" it returned is the
+distance between those two **snapped** points on the network — not a walking route between
+Philosopher's Path and Ginkaku-ji as they are actually located. This is normal, documented
+openrouteservice/GraphHopper behavior (routing only ever happens on the graph, never on raw
+input coordinates), not a bug in openrouteservice or in this pipeline — but it means this
+edge's `distance`/`minutes` must not be read as "how far/long it takes to walk from JP-063 to
+JP-065."
+
+Both directions of this one manifest edge (`JP-063→JP-065` and `JP-065→JP-063`) now carry an
+`endpointSnapping` field recording exactly this, derived from that single Snap query (the
+reverse direction's values are the same two numbers, since snapping is a property of a
+coordinate, not of travel direction — no second network call was made). Both are flagged
+`"significant": true` by the objective threshold defined in `scripts/logistics_common.py`
+(`snap_warning`): combined snap ≥ 10 m **and** ≥ 50% of the routed distance itself.
+`scripts/report-walking-pilot.py` excludes both from every aggregate statistic and outlier list
+below, listing them separately instead of silently dropping them.
+
+No other manifest edge has been checked for endpoint snapping yet — see "Limitations."
+
+## Pilot findings (N=22, snap-flagged edges excluded)
 
 | Metric | Median | Mean | Min | Max |
 |---|---|---|---|---|
-| Distance ratio (routed / estimated) | 1.362 | 1.744 | 0.160 | 6.020 |
-| Minute ratio (routed / estimated) | 1.143 | 1.113 | 0.000 | 2.200 |
+| Distance ratio (routed / estimated) | 1.381 | 1.888 | 1.098 | 6.020 |
+| Minute ratio (routed / estimated) | 1.155 | 1.215 | 0.333 | 2.200 |
 
-Read directly: **routed walking distance was larger than the haversine estimate for 22 of the 24
-edges**, which is the expected direction (a straight line is never longer than a real path).
-Two edges (a same-cluster pair validated in both directions) came back *shorter and faster*
-than estimated — see below.
+With the two snap-corrupted results excluded, **every one of the remaining 22 edges' routed
+distance is ≥ its estimate** (min ratio 1.098) — the direction geometry predicts, with no
+exception. Full per-edge output including the two excluded edges: re-run `python3
+scripts/report-walking-pilot.py` (deterministic over the committed manifest and results, so not
+duplicated verbatim here).
 
-### Top 5 by distance ratio (farthest from 1.0)
+### Top 5 by distance ratio (farthest from 1.0, excluding snap-flagged edges)
 
 | From → To | Hub/Cluster | Estimated | Routed | Ratio |
 |---|---|---|---|---|
@@ -54,7 +110,11 @@ than estimated — see below.
 | JP-095 → JP-067 | Kioto/Station–South | 0.6 km | 1.135 km | 1.89 |
 | JP-084 → JP-065 | Kioto/North Kyoto | 1.79 km | 3.350 km | 1.87 |
 
-### Top 5 by absolute minute difference
+(JP-109↔JP-110's own 6.02 ratio was not flagged by the snap guard — its routed distance is
+larger, not smaller, than the haversine estimate, the opposite shape from the JP-063↔JP-065
+snapping artifact. It has not been separately diagnosed; see "Limitations.")
+
+### Top 5 by absolute minute difference (excluding snap-flagged edges)
 
 | From → To | Hub/Cluster | Estimated | Routed | Abs diff |
 |---|---|---|---|---|
@@ -64,63 +124,66 @@ than estimated — see below.
 | JP-159 → JP-158 | Okinawa/Shuri | 10 min | 14 min | 4 min |
 | JP-168 → JP-169 | Okinawa/Central Okinawa | 17 min | 21 min | 4 min |
 
-### The one genuine "shorter than estimated" case
-
-JP-063 ↔ JP-065 (Kioto/Okazaki–Philosopher, validated both directions) is the dataset's
-implied-speed floor artifact called out at selection time (`docs/LOGISTICS.md`, category D):
-`nearby.json` records 0.02 km / 3 min (its 3-minute floor dominating a near-zero haversine
-distance). The real route measured **3.2 meters / ~13 seconds**, rounding to `0` minutes under
-this pipeline's rounding rule — not a failure, a legitimately tiny, real walk between two
-adjacent points. This is the clearest evidence in the pilot that the haversine-speed-model's
-minutes floor, not the distance estimate itself, is the source of its least reliable numbers at
-the very-short end.
-
-Full per-edge output (all 24, generated from real data): re-run `python3
-scripts/report-walking-pilot.py` — it is deterministic over the committed manifest and results,
-so it is not duplicated verbatim here to avoid a second source of truth for the same numbers.
-
 ## Successes / failures
 
-- **Successes**: 24 (100% of the sample)
+- **Successes**: 24 (100% of the sample returned a routed distance/duration)
 - **`no-route`**: 0
 - **`request-error`**: 0
+- **Snap-flagged (excluded from comparable stats)**: 2 (JP-063→JP-065, JP-065→JP-063 — one
+  underlying coordinate pair)
 
 ## Limitations
 
-- **N=24.** Every statistic above describes this sample, not the other ~308 "A pie" relations.
-  In particular, the sample was built to include distance-bucket and speed-anomaly extremes on
-  purpose (see selection algorithm), so it is not a random sample and its ratios should not be
-  averaged into a single "correction factor" for anything outside itself.
-- **No real failure was observed.** `no-route`, `request-error`, and the bounded-retry path
-  remain verified only by mocked unit tests, not by this live run. A larger batch (the eventual
-  ~308-edge scale-up) is far more likely to hit at least one genuine failure — a request that
-  gets rate-limited, an edge whose points fall outside OSM's routable road network — and this
-  pilot provides no evidence about how the real API behaves under those conditions.
+- **N=24 (22 comparable).** Every statistic above describes this sample, not the other ~308 "A
+  pie" relations. The sample was built to include distance-bucket and speed-anomaly extremes on
+  purpose, so it is not a random sample and its ratios should not be averaged into a single
+  "correction factor" for anything outside itself.
+- **Endpoint snapping was diagnosed for exactly one flagged coordinate pair, not for all 24.**
+  The guard (`endpointSnapping`, `snap_warning`) now captures this automatically for any edge
+  queried going forward (see `docs/LOGISTICS.md`), but the other 23 already-collected results
+  predate the guard and do not carry it. Their absence of an `endpointSnapping` field is **not**
+  a claim that they are snap-clean — it means snapping was never measured for them. In
+  particular, JP-109↔JP-110's own 6.02× distance ratio (the sample's largest, in the *opposite*
+  direction from the JP-063↔JP-065 artifact) has not been checked against the Snap endpoint and
+  could plausibly have a related, if differently-shaped, explanation.
+- **No real Directions failure was observed.** `no-route`, `request-error`, and the
+  bounded-retry path remain verified only by mocked unit tests, not by this live run.
 - **One provider, one profile, one point in time.** This says nothing about openrouteservice's
   general accuracy, about transit validation, or about any other provider.
-- **The floor-artifact finding is a property of `nearby.json`'s existing minutes rule**, not
-  something this pilot fixes — `toTransferEdge()` and `data/nearby.json` are untouched by this
-  phase, so those 332 "A pie" relations keep exactly the same numbers they had before.
+- **`nearby.json` is untouched.** `toTransferEdge()` and `data/nearby.json` are unaffected by
+  this phase or this finding; all 332 "A pie" relations (including JP-063→JP-065 and
+  JP-109→JP-110) keep exactly the numbers they had before.
 
 ## Decision gate
 
-**Recommendation: SCALE, with one caveat.**
+**Recommendation: ADJUST.**
 
-**Justification**: the architecture worked end-to-end against production data with zero
-integration defects — correct host (`api.heigit.org`, not the deprecated one), correct
-coordinate order (verified both by a dedicated unit test and by the routed distances landing in
-the expected range for every edge), correct response parsing, a documented and non-inflating
-minutes rule, a structured and auditable provenance/confidence contract that never touched the
-original estimated data, reproducible caching (a second `--execute` run would skip all 24 as
-already validated), and attribution captured per-result. The 24/24 success rate and the
-directionally sensible ratios (routed ≥ estimated in 22/24 cases, as geometry predicts) are real
-evidence the pipeline produces trustworthy output, not just that it runs without crashing.
+**Justification**: the pipeline's core integration is sound — correct host, correct coordinate
+order, correct response parsing, a documented and non-inflating minutes rule, reproducible
+caching, attribution captured per-result, and 24/24 Directions queries succeeded. But this
+review surfaced a real, previously unhandled correctness gap: a validated-static result's
+distance/minutes are not automatically comparable to the distance between the original
+coordinates, and the pipeline had no way to detect or flag when they aren't. That is exactly the
+kind of gap a controlled pilot exists to find before a larger batch makes it 10x more likely to
+occur unnoticed. The gap is now closed at the schema and tooling level (`endpointSnapping`,
+`snap_warning`, exclusion from `report-walking-pilot.py`'s aggregate stats,
+`validate-logistics.py`'s consistency check) — but it has only been exercised against one real
+case, not proven at scale, and 23 of the 24 existing results were never checked against it.
 
-**The caveat**: this run never exercised a real failure. Before scaling to the ~308 remaining "A
-pie" edges, a follow-up phase should either (a) deliberately test the failure paths against a
-real deniable case (e.g., a coordinate pair known to sit off the routable network) or (b) accept
-the residual risk and monitor the first larger batch closely rather than assuming the mocked
-failure-handling tests are sufficient evidence on their own.
+**What ADJUST means concretely, before any scale-up:**
+1. Backfill (or re-derive without new Directions calls) `endpointSnapping` for the remaining 23
+   manifest edges, particularly JP-109↔JP-110, so the pilot's own sample is fully screened.
+2. Confirm the guard's threshold (10 m absolute AND ≥ 50% of the routed distance) holds up once
+   more real snap data exists — it is currently calibrated against a single diagnosed case.
+3. Decide, for a future scale-up, whether a snap-flagged edge should be retried with a smaller
+   snap radius, reported as `no-route`-like ("not routing-grade"), or simply excluded — this
+   phase only detects and reports the condition, it does not yet decide what should happen to
+   such an edge's confidence.
 
-**Per Phase 3B2A's mandate, this pilot does not scale itself.** No additional edges are
-validated by this phase; that decision and its execution belong to a separate, later phase.
+**SCALE may be reconsidered once the above is done and the guard has been validated against more
+than one real case.** This is not a STOP: nothing here indicates openrouteservice, the host, or
+the core pipeline is unsound — the gap is specifically about endpoint-snapping awareness, which
+is now instrumented and testable.
+
+**Per Phase 3B2A's mandate, this review does not scale up.** No additional manifest edges were
+validated, and no batch beyond this pilot's 24 was touched.

@@ -28,14 +28,18 @@ import type { NearbyRelation, Place } from "../types";
 /**
  * How much to trust an edge's minutes/distance.
  *   - "estimated": derived from geographic proximity, as every current `nearby.json`
- *     relation is. No schedule, no routed path.
- *   - "validated-static": a real routed path/time, without live schedule awareness
- *     (e.g. a walking-routing provider's result). Not produced anywhere yet.
+ *     relation is. No schedule, no routed path. `toTransferEdge()` never assigns
+ *     anything else — this is the *only* confidence a direct `nearby.json` conversion
+ *     can produce.
+ *   - "validated-static": a real routed path/time, without live schedule awareness.
+ *     Phase 3B2A's walking-validation pilot produces this (see `WalkingPilotResult` and
+ *     `getBestTransfer` below) for the pilot's 24 manifest edges only — never for a
+ *     relation the pilot didn't cover, and never by mutating `toTransferEdge()`.
  *   - "schedule-aware": accounts for an actual timetable (e.g. a transit provider's
  *     departure/arrival lookup). Not produced anywhere yet.
- * Nothing in this module ever assigns anything but "estimated" — the other two members
- * exist so 3B2+ can slot a real value in without widening this union or touching a
- * consumer that already reads `confidence`.
+ * `getBestTransfer` is the only function in this module that can return
+ * "validated-static", and only by reading a precomputed pilot result — nothing here
+ * calls a routing provider at read time.
  */
 export type TransferConfidence = "estimated" | "validated-static" | "schedule-aware";
 
@@ -217,6 +221,31 @@ export type WalkingPilotQuery = {
 };
 
 /**
+ * How far each endpoint had to move to land on a routable network edge (the
+ * openrouteservice Snap endpoint's `snapped_distance`, in meters), and whether that
+ * displacement is large enough that `distance`/`minutes` should NOT be treated as
+ * directly comparable to the distance between the original, unsnapped coordinates.
+ *
+ * Why this exists: two points can each snap to the same or a nearby spot on the road
+ * graph, making the "routed" distance between them much smaller (or larger) than the
+ * real distance between the coordinates a caller actually asked about — silently, with
+ * no error from the Directions API. See docs/WALKING_PILOT.md's JP-063<->JP-065 finding
+ * (routed 3.2 m between points ~22.2 m apart in reality) for a real example.
+ *
+ * Optional because it is only captured going forward (see
+ * `scripts/validate-walking-pilot.py`'s `--execute`) or via a one-off
+ * `--diagnose-snap` backfill; a `"validated"` result from before this guard existed may
+ * not carry it. Absence is not a claim that snapping was insignificant — it means it
+ * was never measured for that result.
+ */
+export type EndpointSnapping = {
+  fromSnapMeters: number | null;
+  toSnapMeters: number | null;
+  radiusMeters: number;
+  significant: boolean;
+};
+
+/**
  * One pilot outcome for one directed edge. A discriminated union on `status`: only the
  * `"validated"` member carries `distance`/`minutes`/`confidence`/`source` — a failure
  * can't accidentally be read as "0 minutes" or "estimated" because those fields don't
@@ -239,6 +268,7 @@ export type WalkingPilotResult =
       query: WalkingPilotQuery;
       durationSecondsRaw?: number;
       attribution?: string;
+      endpointSnapping?: EndpointSnapping;
     }
   | {
       fromId: string;

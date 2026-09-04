@@ -13,7 +13,11 @@
   "sourceDatasetContext": {
     "nearbyRelationCount": 403,
     "walkingRelationCount": 332,
-    "mainSha": "cec45541d068445edc34762dec93ac3100f62cec"
+    "datasetDigest": {
+      "algorithm": "sha256",
+      "places": "4184a0fe0f326ebdcd9c8e8003d335265ba3ec0aa926ddd6b977be11e916955c",
+      "nearby": "8179246c7eecea8ca960182eaa679ba00026a729d00f56d1a24cd8792d113de9"
+    }
   },
   "edges": [
     {

@@ -261,7 +261,13 @@
       ]
     },
     "durationSecondsRaw": 2.3,
-    "attribution": "Routing by openrouteservice (https://openrouteservice.org) / HeiGIT. Map data (c) OpenStreetMap contributors, ODbL. openrouteservice API results are provided by HeiGIT under CC BY 4.0; see https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms."
+    "attribution": "Routing by openrouteservice (https://openrouteservice.org) / HeiGIT. Map data (c) OpenStreetMap contributors, ODbL. openrouteservice API results are provided by HeiGIT under CC BY 4.0; see https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+    "endpointSnapping": {
+      "fromSnapMeters": 2.25,
+      "toSnapMeters": 20.71,
+      "radiusMeters": 350,
+      "significant": true
+    }
   },
   {
     "fromId": "JP-065",
@@ -294,7 +300,13 @@
       ]
     },
     "durationSecondsRaw": 2.3,
-    "attribution": "Routing by openrouteservice (https://openrouteservice.org) / HeiGIT. Map data (c) OpenStreetMap contributors, ODbL. openrouteservice API results are provided by HeiGIT under CC BY 4.0; see https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms."
+    "attribution": "Routing by openrouteservice (https://openrouteservice.org) / HeiGIT. Map data (c) OpenStreetMap contributors, ODbL. openrouteservice API results are provided by HeiGIT under CC BY 4.0; see https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+    "endpointSnapping": {
+      "fromSnapMeters": 20.71,
+      "toSnapMeters": 2.25,
+      "radiusMeters": 350,
+      "significant": true
+    }
   },
   {
     "fromId": "JP-070",

@@ -37,6 +37,8 @@ from logistics_common import (  # noqa: E402
     ORS_HOST,
     ORS_PROFILE_FOOT_WALKING,
     ORS_PROVIDER,
+    ORS_SNAP_MAX_RADIUS_METERS,
+    ORS_SNAP_PATH_TEMPLATE,
     RESULTS_PATH,
     WALKING_MODE_RAW,
     load_json,
@@ -45,17 +47,23 @@ from logistics_common import (  # noqa: E402
     nearby_by_directed_key,
     places_by_id,
     round_half_up_minutes,
+    snap_warning,
     to_ors_coordinates,
     utc_now_iso,
     write_json,
 )
 
+# Verified against openrouteservice's terms of service and the OpenStreetMap Foundation's
+# attribution guidelines during Phase 3B2A. Two distinct things are credited here, per
+# their own separate licenses: the routing computation itself (openrouteservice/HeiGIT,
+# CC BY 4.0) and the underlying map data (OpenStreetMap contributors, ODbL). Terms can
+# change — re-verify at https://openrouteservice.org and
+# https://www.openstreetmap.org/copyright before any production or public-facing use.
 ATTRIBUTION = (
-    "Routing by openrouteservice (https://openrouteservice.org) / HeiGIT. "
-    "Map data (c) OpenStreetMap contributors, ODbL. "
-    "openrouteservice API results are provided by HeiGIT under CC BY 4.0; see "
-    "https://openrouteservice.org and https://www.openstreetmap.org/copyright for "
-    "current terms."
+    "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | "
+    "Map data (c) OpenStreetMap contributors, available under the Open Database "
+    "License (ODbL). See https://openrouteservice.org and "
+    "https://www.openstreetmap.org/copyright for current terms."
 )
 
 # One bounded retry for a transient failure (timeout / HTTP 429 or 5xx) per edge.
@@ -185,9 +193,65 @@ def query_ors_with_retry(api_key, from_place, to_place):
             return None, exc
 
 
-def build_success_result(from_id, to_id, distance_m, duration_s, from_place, to_place, verified_at):
-    minutes = round_half_up_minutes(duration_s)
+def query_ors_snap(api_key, locations, radius=ORS_SNAP_MAX_RADIUS_METERS):
+    """POST the Snap endpoint for a batch of [lng, lat] locations (one request covers
+    both endpoints of an edge). Returns a list of snapped_distance values in meters —
+    None where no snap point was found within radius — in the same order as the input.
+    Raises RoutingRequestError the same way query_ors does on failure.
+    """
+    url = ORS_HOST + ORS_SNAP_PATH_TEMPLATE.format(profile=ORS_PROFILE_FOOT_WALKING)
+    body = json.dumps({"locations": locations, "radius": radius}).encode("utf-8")
+    request = urllib.request.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={
+            "Authorization": api_key,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raw = exc.read()
+        try:
+            error_payload = json.loads(raw.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            error_payload = None
+        message = str(exc)
+        if isinstance(error_payload, dict) and isinstance(error_payload.get("error"), dict):
+            message = error_payload["error"].get("message", message)
+        transient = exc.code == 429 or exc.code >= 500
+        raise RoutingRequestError(f"HTTP {exc.code}: {message}", status="request-error", transient=transient) from exc
+    except urllib.error.URLError as exc:
+        raise RoutingRequestError(f"network error: {exc.reason}", status="request-error", transient=True) from exc
+    except TimeoutError as exc:
+        raise RoutingRequestError("request timed out", status="request-error", transient=True) from exc
+
+    try:
+        return [loc["snapped_distance"] if loc else None for loc in payload["locations"]]
+    except (KeyError, TypeError) as exc:
+        raise RoutingRequestError(
+            f"unexpected snap response shape: {exc}", status="request-error", transient=False
+        ) from exc
+
+
+def build_endpoint_snapping(from_snap_m, to_snap_m, routed_distance_m, radius=ORS_SNAP_MAX_RADIUS_METERS):
     return {
+        "fromSnapMeters": from_snap_m,
+        "toSnapMeters": to_snap_m,
+        "radiusMeters": radius,
+        "significant": snap_warning(from_snap_m, to_snap_m, routed_distance_m),
+    }
+
+
+def build_success_result(
+    from_id, to_id, distance_m, duration_s, from_place, to_place, verified_at, endpoint_snapping=None
+):
+    minutes = round_half_up_minutes(duration_s)
+    result = {
         "fromId": from_id,
         "toId": to_id,
         "provider": ORS_PROVIDER,
@@ -209,6 +273,9 @@ def build_success_result(from_id, to_id, distance_m, duration_s, from_place, to_
         "durationSecondsRaw": duration_s,
         "attribution": ATTRIBUTION,
     }
+    if endpoint_snapping is not None:
+        result["endpointSnapping"] = endpoint_snapping
+    return result
 
 
 def build_failure_result(from_id, to_id, status, error, from_place, to_place, verified_at):
@@ -289,9 +356,23 @@ def execute(args):
         (outcome, error) = query_ors_with_retry(api_key, edge["fromPlace"], edge["toPlace"])
         if outcome is not None:
             distance_m, duration_s = outcome
+            # Best-effort endpoint-snapping diagnostic (one extra Snap request per
+            # freshly-queried edge, batching both coordinates): a failure here must
+            # never invalidate an otherwise-successful route, so it degrades to "not
+            # measured" rather than turning this edge into a failure.
+            endpoint_snapping = None
+            try:
+                snap_distances = query_ors_snap(
+                    api_key,
+                    [to_ors_coordinates(edge["fromPlace"]), to_ors_coordinates(edge["toPlace"])],
+                )
+                endpoint_snapping = build_endpoint_snapping(snap_distances[0], snap_distances[1], distance_m)
+            except RoutingRequestError:
+                endpoint_snapping = None
             results[key] = build_success_result(
                 edge["fromId"], edge["toId"], distance_m, duration_s,
                 edge["fromPlace"], edge["toPlace"], verified_at,
+                endpoint_snapping=endpoint_snapping,
             )
             succeeded += 1
         else:
@@ -315,20 +396,83 @@ def execute(args):
     return 0
 
 
+def diagnose_snap(args):
+    """One-off, minimal Snap-endpoint diagnostic for a single already-validated
+    directed edge — used to retroactively explain an existing result without
+    re-querying Directions for it or touching any other edge. Exactly one Snap
+    request (both coordinates batched into it). See docs/WALKING_PILOT.md.
+    """
+    import os
+
+    api_key = os.environ.get("ORS_API_KEY")
+    if not api_key:
+        print("ORS_API_KEY required to diagnose snapping")
+        return 1
+
+    from_id, to_id = args.diagnose_snap
+    places = load_places(args.data_dir)
+    by_id = places_by_id(places)
+    from_place, to_place = by_id.get(from_id), by_id.get(to_id)
+    if from_place is None or to_place is None:
+        print(f"unknown place id(s): {from_id}, {to_id}")
+        return 1
+
+    existing = load_existing_results()
+    existing_by_key = {(r["fromId"], r["toId"]): r for r in existing}
+    key = (from_id, to_id)
+    result = existing_by_key.get(key)
+    if result is None or result.get("status") != "validated":
+        print(f"no existing validated result for {from_id}->{to_id}; nothing to diagnose")
+        return 1
+
+    try:
+        snap_distances = query_ors_snap(
+            api_key, [to_ors_coordinates(from_place), to_ors_coordinates(to_place)]
+        )
+    except RoutingRequestError as exc:
+        print(f"snap query failed: {exc}")
+        return 1
+
+    endpoint_snapping = build_endpoint_snapping(
+        snap_distances[0], snap_distances[1], result["distance"]["meters"]
+    )
+    result["endpointSnapping"] = endpoint_snapping
+
+    final_results = [existing_by_key[k] for k in sorted(existing_by_key)]
+    write_json(RESULTS_PATH, final_results)
+    write_json(APP_RESULTS_PATH, final_results)
+
+    print(
+        f"OK: diagnosed {from_id}->{to_id}: fromSnapMeters={snap_distances[0]} "
+        f"toSnapMeters={snap_distances[1]} significant={endpoint_snapping['significant']}"
+    )
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument(
+        "--diagnose-snap",
+        nargs=2,
+        metavar=("FROM_ID", "TO_ID"),
+        help="Retroactively backfill endpointSnapping for one existing validated result. "
+        "Makes exactly one Snap request; never re-queries Directions.",
+    )
     parser.add_argument("--refresh", action="store_true", help="Re-query every manifest edge, including cached validated ones.")
     parser.add_argument("--manifest", default=str(MANIFEST_PATH))
     parser.add_argument("--data-dir", default="data")
     args = parser.parse_args()
 
-    if args.dry_run == args.execute:
-        parser.error("pass exactly one of --dry-run or --execute")
+    modes = [bool(args.dry_run), bool(args.execute), bool(args.diagnose_snap)]
+    if sum(modes) != 1:
+        parser.error("pass exactly one of --dry-run, --execute, or --diagnose-snap")
 
     if args.dry_run:
         return dry_run(args)
+    if args.diagnose_snap:
+        return diagnose_snap(args)
     return execute(args)
 
 

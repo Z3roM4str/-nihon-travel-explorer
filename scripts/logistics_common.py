@@ -4,6 +4,7 @@ Used by scripts/select-walking-pilot.py, scripts/validate-walking-pilot.py,
 scripts/report-walking-pilot.py and scripts/validate-logistics.py so the API host,
 coordinate-order rule, and minute-rounding rule are defined exactly once.
 """
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -14,10 +15,41 @@ from pathlib import Path
 # anywhere else in the codebase (see scripts/test_walking_pilot.py).
 ORS_HOST = "https://api.heigit.org"
 ORS_DIRECTIONS_PATH_TEMPLATE = "/openrouteservice/v2/directions/{profile}/json"
+# The Snap endpoint returns, per input coordinate, the nearest point actually on the
+# routable network and its distance from the input ("snapped_distance", meters) — see
+# https://giscience.github.io/openrouteservice/api-reference/endpoints/snapping/.
+# Directions never reports this itself, so a route between two points that both snap
+# far from where they really are can look shorter (or longer) than reality without any
+# error being raised. See docs/WALKING_PILOT.md's JP-063<->JP-065 finding.
+ORS_SNAP_PATH_TEMPLATE = "/openrouteservice/v2/snap/{profile}/json"
+ORS_SNAP_MAX_RADIUS_METERS = 350  # the API's own documented maximum snap radius
 ORS_PROFILE_FOOT_WALKING = "foot-walking"
 ORS_PROVIDER = "openrouteservice"
 
 DEPRECATED_ORS_HOST = "api.openrouteservice.org"
+
+# Objective threshold for flagging a validated edge as snap-corrupted: derived from the
+# JP-063<->JP-065 diagnostic (see docs/WALKING_PILOT.md), where combined endpoint
+# snapping was itself large relative to the routed distance (3.2 m) for a pair of points
+# ~22.2 m apart in reality — the textbook sign that the "route" measured is actually the
+# gap between two snap points, not a path between the original coordinates. A result is
+# flagged when the combined snap distance at both endpoints is both non-trivial in
+# absolute terms AND large relative to the routed distance, so a long route with an
+# ordinary few-meter snap (routine, expected, harmless) is not flagged just because a
+# short route with the same absolute snap would be.
+SNAP_WARNING_ABSOLUTE_METERS = 10.0
+SNAP_WARNING_ROUTED_DISTANCE_RATIO = 0.5
+
+
+def snap_warning(from_snap_meters, to_snap_meters, routed_distance_meters):
+    """True when combined endpoint snapping is large enough that routed_distance_meters
+    should not be treated as directly comparable to the distance between the original
+    (unsnapped) coordinates. Pure function of the three numbers — no I/O, easy to test
+    and to reuse from the pipeline, the validator, and the report unchanged."""
+    combined = (from_snap_meters or 0.0) + (to_snap_meters or 0.0)
+    if combined < SNAP_WARNING_ABSOLUTE_METERS:
+        return False
+    return combined >= SNAP_WARNING_ROUTED_DISTANCE_RATIO * max(routed_distance_meters, 1e-9)
 
 # The only Modo value this pilot validates. Phase 3B2A is walking-only.
 WALKING_MODE_RAW = "A pie"
@@ -86,3 +118,25 @@ def utc_now_iso():
     from datetime import datetime, timezone
 
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def sha256_of_file(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def dataset_digest(data_dir=Path("data")):
+    """Content hash of the two files the pilot selection reads, keyed by algorithm.
+
+    Deliberately NOT the git HEAD SHA: two commits can carry byte-identical
+    places.json/nearby.json (e.g. an unrelated doc change), and the manifest's
+    reproducibility promise is about the *dataset*, not about which commit happened
+    to be checked out when it was generated. Re-running the selector against
+    unchanged data must produce a byte-identical manifest; a HEAD-based value would
+    break that every time the branch tip moves for an unrelated reason.
+    """
+    data_dir = Path(data_dir)
+    return {
+        "algorithm": "sha256",
+        "places": sha256_of_file(data_dir / "places.json"),
+        "nearby": sha256_of_file(data_dir / "nearby.json"),
+    }
