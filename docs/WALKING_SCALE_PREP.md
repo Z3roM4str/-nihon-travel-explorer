@@ -1,5 +1,12 @@
 # Phase 3B2B-A — Walking Scale-Up Engineering & Snap Threshold Analysis
 
+> Historical preparation report: statements below about absent scale results and
+> unqueried places describe the end of Phase 3B2B-A. Phase 3B2B-B subsequently
+> executed the batch on 2026-09-04: 303 validated, 5 no-route, all 308 terminal.
+> See [WALKING_SCALE_EXECUTION.md](WALKING_SCALE_EXECUTION.md) for actual requests,
+> the 429 interruption/resumption, Snap coverage, statistics, and threshold audit.
+> No scale request was made during Phase 3B2B-A itself.
+
 This is **preparation only**. Nothing in this phase executes the ~308-edge scale-up batch
 against a real routing provider: it builds the manifest that batch would use, designs and
 seeds the per-place Snap store that batch would read, refactors the pipeline so Snap and

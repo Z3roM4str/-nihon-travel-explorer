@@ -418,16 +418,34 @@ This is why the result is versioned in-repo rather than silently regenerated: th
 licensed output is the artifact, and refreshing it (a workbook update, a provider improvement)
 is a deliberate, visible re-run of `--execute --refresh`, not an implicit background sync.
 
+## Phase 3B2B-B — executed walking scale-up
+
+The prepared scale manifest was executed on 2026-09-04 against `api.heigit.org`,
+profile `foot-walking`: **303 validated and 5 no-route**, covering all 308 manifest
+edges with terminal results. Snap required one real request for 103 new places;
+all 137 scale-required places are resolved. Directions used 312 requests across
+an interrupted 40/min run and an explicitly authorized 20/min resumption, with
+3 bounded retries total. The resumed run skipped all 116 already-terminal edges.
+
+`data/logistics/walking-scale-results.json` and its byte-identical copy under
+`app/src/data/logistics/` were published only after `is_batch_complete()` became
+true, then recombined offline against the final Snap store. All 303 validated
+scale results are clean under the unchanged rule; there are no significant or
+unknown scale assessments. No absolute endpoint threshold was set. Real request
+accounting, the 429 history, all no-route edges, statistics, outliers, and threshold
+evidence are in [WALKING_SCALE_EXECUTION.md](WALKING_SCALE_EXECUTION.md).
+
+The synchronized app-facing JSON is an available artifact, not a claim of new UI
+behavior: `getBestTransfer` still imports the pilot results only. Any later wiring
+must retain its clean-only promotion rule. This execution changes neither the
+estimated nearby source nor existing application behavior.
+
 ## The remaining 3B2/3B2B/3C boundary
 
 Everything below is still explicitly out of scope. Extending `TransferConfidence`,
 `TransferProvenance`, or `TransferMode` further is for a later phase to decide, not implied by
 3B2A's additions:
 
-- **Executing** the remaining 308 "A pie" relations against a real routing provider. Phase
-  3B2B-A (`docs/WALKING_SCALE_PREP.md`) prepared this — the scale-up manifest, a per-place
-  Snap store, and a restart-safe pipeline all exist and are tested against mocks — but no
-  Directions request was made against any of the 308, and no threshold was changed.
 - Transit / schedule-aware validation of any kind.
 - A full transport-mode catalogue (Shinkansen, flights, ferries) beyond the modes that exist in
   the dataset today.
