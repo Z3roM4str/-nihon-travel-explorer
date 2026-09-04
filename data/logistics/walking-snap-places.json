@@ -1,0 +1,497 @@
+{
+  "snapVersion": 1,
+  "provider": "openrouteservice",
+  "profile": "foot-walking",
+  "places": {
+    "JP-001": {
+      "coordinates": {
+        "lat": 35.6595,
+        "lng": 139.7005
+      },
+      "snappedDistanceMeters": 0.19,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:15Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-002": {
+      "coordinates": {
+        "lat": 35.6585,
+        "lng": 139.7022
+      },
+      "snappedDistanceMeters": 13.68,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:14Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-008": {
+      "coordinates": {
+        "lat": 35.662,
+        "lng": 139.6988
+      },
+      "snappedDistanceMeters": 10.67,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:15Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-013": {
+      "coordinates": {
+        "lat": 35.6941,
+        "lng": 139.7048
+      },
+      "snappedDistanceMeters": 2.6,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:15Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-014": {
+      "coordinates": {
+        "lat": 35.6929,
+        "lng": 139.6996
+      },
+      "snappedDistanceMeters": 4.98,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:15Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-018": {
+      "coordinates": {
+        "lat": 35.7157,
+        "lng": 139.7885
+      },
+      "snappedDistanceMeters": 3.91,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:16Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-021": {
+      "coordinates": {
+        "lat": 35.7188,
+        "lng": 139.7765
+      },
+      "snappedDistanceMeters": 40.88,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:16Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-023": {
+      "coordinates": {
+        "lat": 35.7275,
+        "lng": 139.7668
+      },
+      "snappedDistanceMeters": 8.71,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:16Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-055": {
+      "coordinates": {
+        "lat": 34.9976,
+        "lng": 135.7829
+      },
+      "snappedDistanceMeters": 1.61,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:17Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-059": {
+      "coordinates": {
+        "lat": 35.0007,
+        "lng": 135.781
+      },
+      "snappedDistanceMeters": 9.76,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:17Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-063": {
+      "coordinates": {
+        "lat": 35.0268,
+        "lng": 135.7982
+      },
+      "snappedDistanceMeters": 2.25,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:18Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-065": {
+      "coordinates": {
+        "lat": 35.027,
+        "lng": 135.7982
+      },
+      "snappedDistanceMeters": 20.71,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:19Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-067": {
+      "coordinates": {
+        "lat": 34.9767,
+        "lng": 135.7744
+      },
+      "snappedDistanceMeters": 14.94,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:20Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-069": {
+      "coordinates": {
+        "lat": 35.0067,
+        "lng": 135.8176
+      },
+      "snappedDistanceMeters": 77.96,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:19Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-070": {
+      "coordinates": {
+        "lat": 35.008,
+        "lng": 135.814
+      },
+      "snappedDistanceMeters": 42.56,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:19Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-084": {
+      "coordinates": {
+        "lat": 35.043,
+        "lng": 135.8003
+      },
+      "snappedDistanceMeters": 63.49,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:19Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-094": {
+      "coordinates": {
+        "lat": 34.99,
+        "lng": 135.773
+      },
+      "snappedDistanceMeters": 11.54,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:20Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-095": {
+      "coordinates": {
+        "lat": 34.9793,
+        "lng": 135.7686
+      },
+      "snappedDistanceMeters": 14.28,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:21Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-096": {
+      "coordinates": {
+        "lat": 34.9879,
+        "lng": 135.7717
+      },
+      "snappedDistanceMeters": 21.46,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:21Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-108": {
+      "coordinates": {
+        "lat": 34.6564,
+        "lng": 135.5062
+      },
+      "snappedDistanceMeters": 6.88,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:21Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-109": {
+      "coordinates": {
+        "lat": 34.6525,
+        "lng": 135.5063
+      },
+      "snappedDistanceMeters": 1.77,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:22Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-110": {
+      "coordinates": {
+        "lat": 34.6525,
+        "lng": 135.5062
+      },
+      "snappedDistanceMeters": 2.37,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:23Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-111": {
+      "coordinates": {
+        "lat": 34.6461,
+        "lng": 135.5137
+      },
+      "snappedDistanceMeters": 21.55,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:23Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-112": {
+      "coordinates": {
+        "lat": 34.7053,
+        "lng": 135.49
+      },
+      "snappedDistanceMeters": 28.15,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:23Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-115": {
+      "coordinates": {
+        "lat": 34.6915,
+        "lng": 135.4899
+      },
+      "snappedDistanceMeters": 20.96,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:23Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-154": {
+      "coordinates": {
+        "lat": 26.2143,
+        "lng": 127.6872
+      },
+      "snappedDistanceMeters": 0.86,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:24Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-156": {
+      "coordinates": {
+        "lat": 26.2171,
+        "lng": 127.6955
+      },
+      "snappedDistanceMeters": 21.29,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:24Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-158": {
+      "coordinates": {
+        "lat": 26.2191,
+        "lng": 127.7153
+      },
+      "snappedDistanceMeters": 4.26,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:24Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-159": {
+      "coordinates": {
+        "lat": 26.2136,
+        "lng": 127.7191
+      },
+      "snappedDistanceMeters": 15.75,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:24Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-168": {
+      "coordinates": {
+        "lat": 26.3998,
+        "lng": 127.7487
+      },
+      "snappedDistanceMeters": 10.56,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:25Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-169": {
+      "coordinates": {
+        "lat": 26.4088,
+        "lng": 127.7413
+      },
+      "snappedDistanceMeters": 37.02,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:25Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-173": {
+      "coordinates": {
+        "lat": 26.6945,
+        "lng": 127.8779
+      },
+      "snappedDistanceMeters": 26.89,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:25Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-174": {
+      "coordinates": {
+        "lat": 26.707,
+        "lng": 127.8809
+      },
+      "snappedDistanceMeters": 5.06,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:25Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-184": {
+      "coordinates": {
+        "lat": 26.2289,
+        "lng": 127.3032
+      },
+      "snappedDistanceMeters": 13.9,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:26Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    },
+    "JP-185": {
+      "coordinates": {
+        "lat": 26.22,
+        "lng": 127.3004
+      },
+      "snappedDistanceMeters": 139.31,
+      "radiusMeters": 350,
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "verifiedAt": "2026-09-04T01:30:26Z",
+      "status": "resolved",
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "source": "seeded-from-phase-3b2a-pilot-results"
+    }
+  }
+}
