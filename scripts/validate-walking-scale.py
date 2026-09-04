@@ -236,7 +236,7 @@ def publish_app_copy(results, manifest_keys):
 
     "Complete" means every manifest edge has a TERMINAL result ("validated" or
     "no-route" — see WalkingPilotResult's status union), never merely "covered": a
-    "request-error" is a valid, durable checkpoint entry, but it says nothing final
+    "request-error" is a valid checkpoint entry, but it says nothing final
     about that edge, so its presence anywhere must keep the whole batch unpublishable
     until it resolves to something terminal. getBestTransfer already falls back to the
     estimated edge for anything that isn't a snap-clean validated result, but that is a
@@ -596,7 +596,7 @@ def execute(args):
             )
             succeeded += 1
         else:
-            # Recorded regardless of severity — "request-error" is a valid, durable
+            # Recorded regardless of severity — "request-error" is a valid
             # checkpoint entry even for a fatal auth failure; it just isn't terminal,
             # so is_batch_complete() (via publish_app_copy) will never call this batch
             # finished while it's here, and it stays a re-query candidate next run.

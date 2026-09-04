@@ -173,8 +173,10 @@ the batch look finished and get published. Fixed by defining the split once, in
 batch done?": true only when every manifest edge has a *terminal* result — coverage alone
 is not enough. `publish_app_copy()` and `validate-logistics.py`'s `check_scale_results_coverage()`
 both call it, so the app copy and the validator's own "is this finished" opinion can never
-drift apart. A `"request-error"` is still a **valid, durable checkpoint entry** — it just
-never counts toward "finished," and `check_scale_results_coverage()` reports it as an
+drift apart. A `"request-error"` is still a **valid checkpoint entry** — atomic replacement
+protects it from process interruption during the write, but does not claim immunity from
+physical device loss. It never counts toward "finished," and
+`check_scale_results_coverage()` reports it as an
 explicit warning ("N result(s) are 'request-error' (not terminal)") even when coverage is
 already 100%, distinct from "still pending" (coverage incomplete).
 
@@ -211,7 +213,7 @@ and `fatal` (`True` exactly when `http_status` is in `ors_client.FATAL_HTTP_STAT
 {401, 403}`) are plain attributes, set once in `query_ors`/`query_ors_snap` — no caller
 parses `str(exc)` to detect this. Both `--execute` and `--backfill-snap-places` check
 `error.fatal` after every failed attempt: on a fatal error they checkpoint that
-attempt's result as usual (a real, durable `"request-error"` entry — or Snap's
+attempt's result as usual (a real, atomically replaced `"request-error"` entry — or Snap's
 `"request-error"` place status), print that this is a global failure and not a per-edge
 one, and stop the loop immediately with exit code `2` — never proceeding to the next edge
 or chunk. Fixing the key and re-running resumes normally: the fatally-failed

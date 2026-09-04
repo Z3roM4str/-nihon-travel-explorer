@@ -14,6 +14,7 @@ import argparse
 import importlib.util
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -124,6 +125,46 @@ class ClassifyThresholdAuditSeamTests(unittest.TestCase):
             common.classify_endpoint_snapping(2.0, 3.0, 100.0, per_endpoint_absolute_cap_meters=100.0),
             "clean",
         )
+
+
+class AtomicJsonWriteTests(unittest.TestCase):
+    """The shared JSON writer must never expose a partially serialized document."""
+
+    def _temporary_paths(self, tmp_path, destination):
+        return list(tmp_path.glob(f".{destination.name}.*.tmp"))
+
+    def test_failed_serialization_preserves_previous_file_byte_for_byte(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            destination = tmp_path / "checkpoint.json"
+            previous = '{"previous": "válido", "count": 3}\n'.encode("utf-8")
+            destination.write_bytes(previous)
+
+            with mock.patch.object(common.json, "dump", side_effect=RuntimeError("simulated dump failure")):
+                with self.assertRaisesRegex(RuntimeError, "simulated dump failure"):
+                    common.write_json(destination, {"replacement": True})
+
+            self.assertEqual(destination.read_bytes(), previous)
+            self.assertEqual(json.loads(destination.read_text(encoding="utf-8")), {
+                "previous": "válido", "count": 3,
+            })
+            self.assertEqual(self._temporary_paths(tmp_path, destination), [])
+
+    def test_successful_replace_is_complete_deterministic_and_newline_terminated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            destination = tmp_path / "checkpoint.json"
+            destination.write_bytes(b'{"old": true}\n')
+            replacement = {"texto": "日本", "items": [1, 2]}
+
+            with mock.patch.object(common.os, "fsync", wraps=common.os.fsync) as fsync:
+                common.write_json(destination, replacement)
+
+            expected = (json.dumps(replacement, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+            self.assertEqual(destination.read_bytes(), expected)
+            self.assertEqual(json.loads(destination.read_text(encoding="utf-8")), replacement)
+            fsync.assert_called_once()
+            self.assertEqual(self._temporary_paths(tmp_path, destination), [])
 
 
 class SnapPlaceStoreTests(unittest.TestCase):
@@ -1190,6 +1231,7 @@ class ScaleExecuteCheckpointTests(unittest.TestCase):
             self.assertTrue(results_path.exists())
             checkpointed = json.loads(results_path.read_text())
             self.assertEqual(len(checkpointed), completed_before_crash)
+            self.assertEqual(list(tmp_path.glob(".results.json.*.tmp")), [])
             checkpointed_keys = {(r["fromId"], r["toId"]) for r in checkpointed}
             self.assertEqual(checkpointed_keys, set(edges[:completed_before_crash]))
             # A partial batch must NOT have been published to the app copy.
@@ -1215,6 +1257,7 @@ class ScaleExecuteCheckpointTests(unittest.TestCase):
             # Now complete: every manifest edge answered, so the app copy is published.
             final = json.loads(results_path.read_text())
             self.assertEqual(len(final), self.EDGE_COUNT)
+            self.assertEqual(list(tmp_path.glob(".results.json.*.tmp")), [])
             self.assertTrue(app_path.exists())
             self.assertEqual(json.loads(app_path.read_text()), final)
 
@@ -1233,7 +1276,7 @@ class ScaleExecuteCheckpointTests(unittest.TestCase):
             observed_counts = []
 
             def observing_directions(api_key, from_place, to_place, rate_limiter=None):
-                # Count what is already durable at the moment this edge starts.
+                # Count what is already checkpointed at the moment this edge starts.
                 if results_path.exists():
                     observed_counts.append(len(json.loads(results_path.read_text())))
                 else:
@@ -1246,7 +1289,7 @@ class ScaleExecuteCheckpointTests(unittest.TestCase):
                  mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
                 vws.execute(args)
 
-            # Edge N starts with exactly N-1 results already durable: one write per edge,
+            # Edge N starts with exactly N-1 results already checkpointed: one write per edge,
             # not one write at the end.
             self.assertEqual(observed_counts, list(range(self.EDGE_COUNT)))
 
@@ -1644,7 +1687,7 @@ class ScaleFatalAuthFailureTests(unittest.TestCase):
             # ground through all 5.
             self.assertEqual(len(calls), 2)
             checkpointed = json.loads(results_path.read_text())
-            self.assertEqual(len(checkpointed), 2)  # the success + the fatal failure, both durable
+            self.assertEqual(len(checkpointed), 2)  # success + fatal failure, both checkpointed
             by_key = {(r["fromId"], r["toId"]): r for r in checkpointed}
             self.assertEqual(by_key[edges[1]]["status"], "request-error")
             self.assertFalse(app_path.exists())

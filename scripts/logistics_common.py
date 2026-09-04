@@ -7,6 +7,8 @@ coordinate-order rule, and minute-rounding rule are defined exactly once.
 import hashlib
 import json
 import math
+import os
+import tempfile
 from pathlib import Path
 
 # openrouteservice / HeiGIT. api.openrouteservice.org is deprecated (shut off
@@ -149,7 +151,7 @@ APP_SCALE_RESULTS_PATH = Path("app/src/data/logistics/walking-scale-results.json
 #     It is a re-query candidate by default, with no --refresh needed.
 # A batch is "complete" only when every manifest edge has a TERMINAL result — a
 # "request-error" left anywhere must never make a batch look finished or publishable,
-# even though it is a valid, durable checkpoint entry. This is the one definition both
+# even though it is a valid checkpoint entry. This is the one definition both
 # scripts/validate-walking-scale.py's publish_app_copy() and validate-logistics.py use,
 # so "done" can't drift between the pipeline and its own validator.
 RESULT_STATUS_VALIDATED = "validated"
@@ -185,10 +187,39 @@ def load_json(path):
 
 
 def write_json(path, data):
+    """Atomically replace *path* with a deterministically formatted JSON document.
+
+    The temporary file lives beside the destination so ``os.replace`` is an atomic
+    replacement on the same filesystem. Flush and fsync complete the temporary-file
+    write before replacement; this protects the previous valid checkpoint from a
+    process interruption during serialization, but does not promise immunity to
+    physical device loss.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as f:
+            temp_path = Path(f.name)
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temp_path, path)
+        temp_path = None
+    finally:
+        if temp_path is not None:
+            try:
+                temp_path.unlink()
+            except FileNotFoundError:
+                pass
 
 
 def load_places(data_dir=Path("data")):
