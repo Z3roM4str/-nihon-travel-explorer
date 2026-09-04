@@ -28,28 +28,46 @@ ORS_PROVIDER = "openrouteservice"
 
 DEPRECATED_ORS_HOST = "api.openrouteservice.org"
 
-# Objective threshold for flagging a validated edge as snap-corrupted: derived from the
-# JP-063<->JP-065 diagnostic (see docs/WALKING_PILOT.md), where combined endpoint
+# Objective threshold for classifying a validated edge's endpoint snapping: derived from
+# the JP-063<->JP-065 diagnostic (see docs/WALKING_PILOT.md), where combined endpoint
 # snapping was itself large relative to the routed distance (3.2 m) for a pair of points
 # ~22.2 m apart in reality — the textbook sign that the "route" measured is actually the
-# gap between two snap points, not a path between the original coordinates. A result is
-# flagged when the combined snap distance at both endpoints is both non-trivial in
+# gap between two snap points, not a path between the original coordinates. An edge is
+# "significant" when the combined snap distance at both endpoints is both non-trivial in
 # absolute terms AND large relative to the routed distance, so a long route with an
 # ordinary few-meter snap (routine, expected, harmless) is not flagged just because a
 # short route with the same absolute snap would be.
-SNAP_WARNING_ABSOLUTE_METERS = 10.0
-SNAP_WARNING_ROUTED_DISTANCE_RATIO = 0.5
+SNAP_SIGNIFICANT_ABSOLUTE_METERS = 10.0
+SNAP_SIGNIFICANT_ROUTED_DISTANCE_RATIO = 0.5
+
+# The three states an edge's endpoint-snapping assessment can be in. "unknown" is a
+# first-class outcome, never silently coerced into "clean": a null snapped_distance
+# (the Snap endpoint found no routable point within its radius) or a failed diagnostic
+# query means the edge's comparability to the original coordinates was never
+# established — that is a different fact from "measured and found small displacement".
+SNAP_ASSESSMENTS = ("clean", "significant", "unknown")
 
 
-def snap_warning(from_snap_meters, to_snap_meters, routed_distance_meters):
-    """True when combined endpoint snapping is large enough that routed_distance_meters
-    should not be treated as directly comparable to the distance between the original
-    (unsnapped) coordinates. Pure function of the three numbers — no I/O, easy to test
-    and to reuse from the pipeline, the validator, and the report unchanged."""
-    combined = (from_snap_meters or 0.0) + (to_snap_meters or 0.0)
-    if combined < SNAP_WARNING_ABSOLUTE_METERS:
-        return False
-    return combined >= SNAP_WARNING_ROUTED_DISTANCE_RATIO * max(routed_distance_meters, 1e-9)
+def classify_endpoint_snapping(from_snap_meters, to_snap_meters, routed_distance_meters):
+    """Pure function of the three numbers — no I/O — reused by the pipeline, the
+    validator, the report, and mirrored by getBestTransfer's TypeScript counterpart
+    (which reads the stored result of this function rather than recomputing it).
+
+    Returns "unknown" whenever either endpoint's snap distance is None: a null is
+    never treated as 0 meters, because an unmeasured endpoint means the pair's
+    comparability to the original coordinates is undetermined, not confirmed clean.
+    Only when both endpoints have a real measurement does this return "clean" or
+    "significant" per the threshold above.
+    """
+    if from_snap_meters is None or to_snap_meters is None:
+        return "unknown"
+    combined = from_snap_meters + to_snap_meters
+    if (
+        combined >= SNAP_SIGNIFICANT_ABSOLUTE_METERS
+        and combined >= SNAP_SIGNIFICANT_ROUTED_DISTANCE_RATIO * max(routed_distance_meters, 1e-9)
+    ):
+        return "significant"
+    return "clean"
 
 # The only Modo value this pilot validates. Phase 3B2A is walking-only.
 WALKING_MODE_RAW = "A pie"

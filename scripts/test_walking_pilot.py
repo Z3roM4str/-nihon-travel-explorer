@@ -7,6 +7,7 @@ Usage:
 No test here makes a real network call — ORS responses are mocked. Run this instead
 of (or before) an --execute pilot run to check the pipeline logic itself.
 """
+import argparse
 import hashlib
 import importlib.util
 import io
@@ -207,7 +208,7 @@ class ResultBuildingTests(unittest.TestCase):
 
     def test_success_result_includes_endpoint_snapping_when_provided(self):
         from_place, to_place = fake_place("A", 35.0, 139.0), fake_place("B", 35.01, 139.01)
-        snapping = {"fromSnapMeters": 1.0, "toSnapMeters": 2.0, "radiusMeters": 350, "significant": False}
+        snapping = {"assessment": "clean", "fromSnapMeters": 1.0, "toSnapMeters": 2.0, "radiusMeters": 350}
         result = vwp.build_success_result(
             "A", "B", 500.0, 90.0, from_place, to_place, "2026-09-04T12:00:00Z", endpoint_snapping=snapping
         )
@@ -217,31 +218,48 @@ class ResultBuildingTests(unittest.TestCase):
 class SnapGuardTests(unittest.TestCase):
     """The endpoint-snapping guard: a route whose endpoints snapped far from the
     original coordinates must not be treated as directly comparable to the distance
-    between those original coordinates without an explicit flag saying so."""
+    between those original coordinates without an explicit assessment saying so, and a
+    missing measurement must never be silently treated as clean."""
 
-    def test_snap_warning_false_for_small_absolute_snap(self):
+    def test_classify_clean_for_small_absolute_snap(self):
         # Combined snap well under the absolute floor, regardless of route length.
-        self.assertFalse(common.snap_warning(2.0, 2.0, 100.0))
+        self.assertEqual(common.classify_endpoint_snapping(2.0, 2.0, 100.0), "clean")
 
-    def test_snap_warning_false_for_large_absolute_snap_on_a_long_route(self):
+    def test_classify_clean_for_large_absolute_snap_on_a_long_route(self):
         # 15 m combined snap is unremarkable on an 800 m route (< 50% of route length).
-        self.assertFalse(common.snap_warning(8.0, 7.0, 800.0))
+        self.assertEqual(common.classify_endpoint_snapping(8.0, 7.0, 800.0), "clean")
 
-    def test_snap_warning_true_when_combined_snap_dominates_a_short_route(self):
+    def test_classify_significant_when_combined_snap_dominates_a_short_route(self):
         # This mirrors the JP-063<->JP-065 shape: real separation ~22 m, routed
         # distance tiny, and most of the "route" is actually snap displacement.
-        self.assertTrue(common.snap_warning(9.0, 10.4, 3.2))
+        self.assertEqual(common.classify_endpoint_snapping(9.0, 10.4, 3.2), "significant")
 
-    def test_snap_warning_handles_none_as_zero(self):
-        # A point that didn't snap at all (None) contributes 0, not a crash.
-        self.assertFalse(common.snap_warning(None, 2.0, 100.0))
+    def test_classify_unknown_when_either_endpoint_is_null(self):
+        # A null snap distance (unsnappable point, or an unresolved measurement) must
+        # never be coerced into 0 meters and averaged into "clean" — see the real
+        # JP-109<->JP-110 case, whose own 6.02x ratio was never checked at all: an
+        # untested case must read as unknown, not quietly pass as comparable.
+        self.assertEqual(common.classify_endpoint_snapping(None, 2.0, 100.0), "unknown")
+        self.assertEqual(common.classify_endpoint_snapping(2.0, None, 100.0), "unknown")
+        self.assertEqual(common.classify_endpoint_snapping(None, None, 100.0), "unknown")
 
     def test_build_endpoint_snapping_shape(self):
         snapping = vwp.build_endpoint_snapping(9.0, 10.4, 3.2)
         self.assertEqual(snapping["fromSnapMeters"], 9.0)
         self.assertEqual(snapping["toSnapMeters"], 10.4)
         self.assertEqual(snapping["radiusMeters"], common.ORS_SNAP_MAX_RADIUS_METERS)
-        self.assertTrue(snapping["significant"])
+        self.assertEqual(snapping["assessment"], "significant")
+        self.assertNotIn("reason", snapping)  # reason is only ever set for "unknown"
+
+    def test_build_endpoint_snapping_unknown_carries_reason(self):
+        snapping = vwp.build_endpoint_snapping(None, None, 3.2, reason="Snap query failed: boom")
+        self.assertEqual(snapping["assessment"], "unknown")
+        self.assertEqual(snapping["reason"], "Snap query failed: boom")
+
+    def test_build_endpoint_snapping_never_defaults_reason_when_not_unknown(self):
+        snapping = vwp.build_endpoint_snapping(1.0, 1.0, 100.0, reason="should be ignored")
+        self.assertEqual(snapping["assessment"], "clean")
+        self.assertNotIn("reason", snapping)
 
     def _fake_snap_response(self, snapped_distances):
         body = json.dumps(
@@ -397,6 +415,121 @@ class CachingAndRefreshTests(unittest.TestCase):
         self.assertFalse(should_skip)
 
 
+class SnapBackfillTests(unittest.TestCase):
+    """--backfill-snapping must derive missing edges programmatically (never a
+    hardcoded count), batch them into exactly one Snap request over deduplicated
+    place coordinates, and never touch Directions."""
+
+    def _manifest(self, edges):
+        return {"edges": [{"fromId": f, "toId": t, "category": "test"} for f, t in edges]}
+
+    def _validated(self, from_id, to_id, distance_m=100.0, snapping=None):
+        result = {
+            "fromId": from_id, "toId": to_id, "status": "validated",
+            "provider": "openrouteservice", "profile": "foot-walking",
+            "distance": {"meters": distance_m}, "minutes": {"minMinutes": 1, "maxMinutes": 1},
+        }
+        if snapping is not None:
+            result["endpointSnapping"] = snapping
+        return result
+
+    def test_edges_needing_snap_assessment_finds_missing_and_pre_model_records(self):
+        results_by_key = {
+            ("A", "B"): self._validated("A", "B"),  # no endpointSnapping at all
+            ("C", "D"): self._validated("C", "D", snapping={"fromSnapMeters": 1.0}),  # no "assessment" key
+            ("E", "F"): self._validated("E", "F", snapping={"assessment": "clean", "fromSnapMeters": 1.0, "toSnapMeters": 1.0, "radiusMeters": 350}),
+            ("G", "H"): {"fromId": "G", "toId": "H", "status": "no-route"},  # not validated: ignored
+        }
+        manifest_edges = [{"fromId": f, "toId": t} for f, t in [("A", "B"), ("C", "D"), ("E", "F"), ("G", "H")]]
+        missing = vwp.edges_needing_snap_assessment(manifest_edges, results_by_key)
+        self.assertEqual(set(missing), {("A", "B"), ("C", "D")})
+
+    def test_edges_needing_snap_assessment_empty_when_all_resolved(self):
+        results_by_key = {
+            ("A", "B"): self._validated("A", "B", snapping={"assessment": "significant", "fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350}),
+        }
+        manifest_edges = [{"fromId": "A", "toId": "B"}]
+        self.assertEqual(vwp.edges_needing_snap_assessment(manifest_edges, results_by_key), [])
+
+    def test_backfill_snapping_makes_exactly_one_snap_request_for_many_missing_edges(self):
+        # Four missing edges sharing overlapping place ids must still collapse into
+        # one Snap request over the deduplicated place set, not one call per edge.
+        manifest = self._manifest([("A", "B"), ("B", "C"), ("C", "D"), ("D", "A")])
+        places = [fake_place(pid, 35.0 + i * 0.001, 139.0 + i * 0.001) for i, pid in enumerate("ABCD")]
+        existing = [
+            self._validated("A", "B", distance_m=50.0),
+            self._validated("B", "C", distance_m=800.0),
+            self._validated("C", "D", distance_m=3.2),
+            self._validated("D", "A", distance_m=200.0),
+        ]
+
+        args = argparse.Namespace(manifest="manifest.json", data_dir="data")
+
+        with mock.patch.object(vwp, "load_json", return_value=manifest), \
+             mock.patch.object(vwp, "load_places", return_value=places), \
+             mock.patch.object(vwp, "load_existing_results", return_value=existing), \
+             mock.patch.object(vwp, "write_json") as mock_write, \
+             mock.patch.object(vwp, "query_ors_snap") as mock_snap, \
+             mock.patch.object(vwp, "query_ors_with_retry") as mock_directions, \
+             mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+            # 4 unique places -> 4 locations, one snap distance each.
+            mock_snap.return_value = [1.0, 1.0, 9.0, 10.4]
+            exit_code = vwp.backfill_snapping(args)
+
+        self.assertEqual(exit_code, 0)
+        mock_snap.assert_called_once()
+        mock_directions.assert_not_called()
+        self.assertEqual(len(mock_snap.call_args.args[1]), 4)  # deduplicated locations
+
+        written = mock_write.call_args_list[-1].args[1]
+        by_key = {(r["fromId"], r["toId"]): r for r in written}
+        self.assertEqual(by_key[("A", "B")]["endpointSnapping"]["assessment"], "clean")
+        self.assertEqual(by_key[("C", "D")]["endpointSnapping"]["assessment"], "significant")
+
+    def test_backfill_snapping_is_noop_when_nothing_missing(self):
+        manifest = self._manifest([("A", "B")])
+        existing = [self._validated("A", "B", snapping={"assessment": "clean", "fromSnapMeters": 1.0, "toSnapMeters": 1.0, "radiusMeters": 350})]
+        args = argparse.Namespace(manifest="manifest.json", data_dir="data")
+
+        with mock.patch.object(vwp, "load_json", return_value=manifest), \
+             mock.patch.object(vwp, "load_places", return_value=[]), \
+             mock.patch.object(vwp, "load_existing_results", return_value=existing), \
+             mock.patch.object(vwp, "write_json") as mock_write, \
+             mock.patch.object(vwp, "query_ors_snap") as mock_snap, \
+             mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+            exit_code = vwp.backfill_snapping(args)
+
+        self.assertEqual(exit_code, 0)
+        mock_snap.assert_not_called()
+        mock_write.assert_not_called()
+
+    def test_backfill_snapping_snap_failure_yields_unknown_not_zero(self):
+        manifest = self._manifest([("A", "B")])
+        places = [fake_place("A", 35.0, 139.0), fake_place("B", 35.001, 139.001)]
+        existing = [self._validated("A", "B", distance_m=50.0)]
+        args = argparse.Namespace(manifest="manifest.json", data_dir="data")
+
+        with mock.patch.object(vwp, "load_json", return_value=manifest), \
+             mock.patch.object(vwp, "load_places", return_value=places), \
+             mock.patch.object(vwp, "load_existing_results", return_value=existing), \
+             mock.patch.object(vwp, "write_json") as mock_write, \
+             mock.patch.object(vwp, "query_ors_snap", side_effect=vwp.RoutingRequestError("boom", status="request-error", transient=False)), \
+             mock.patch.dict("os.environ", {"ORS_API_KEY": "test-key"}):
+            exit_code = vwp.backfill_snapping(args)
+
+        self.assertEqual(exit_code, 0)
+        written = mock_write.call_args_list[-1].args[1]
+        snapping = written[0]["endpointSnapping"]
+        self.assertEqual(snapping["assessment"], "unknown")
+        self.assertIn("reason", snapping)
+
+    def test_backfill_snapping_requires_api_key(self):
+        args = argparse.Namespace(manifest="manifest.json", data_dir="data")
+        with mock.patch.dict("os.environ", {}, clear=True):
+            exit_code = vwp.backfill_snapping(args)
+        self.assertEqual(exit_code, 1)
+
+
 class ApiHostRegressionTests(unittest.TestCase):
     def test_current_host_constant_is_heigit(self):
         self.assertEqual(common.ORS_HOST, "https://api.heigit.org")
@@ -519,28 +652,53 @@ class ResultsValidatorTests(unittest.TestCase):
         errors, _ = validate_logistics.check_results([result], {("JP-001", "JP-008")})
         self.assertEqual(errors, [])
 
-    def test_endpoint_snapping_consistent_significant_flag_passes(self):
+    def test_endpoint_snapping_consistent_significant_assessment_passes(self):
         result = self._validated_result_with_snapping(
-            {"fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350, "significant": True}
+            {"fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350, "assessment": "significant"}
         )
         errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
         self.assertEqual(errors, [])
 
-    def test_endpoint_snapping_wrong_significant_flag_is_flagged(self):
-        # snap_warning(9.0, 10.4, 3.2) is True (see SnapGuardTests); asserting False here
-        # must fail — the flag has to be re-derivable, not just any boolean.
+    def test_endpoint_snapping_wrong_assessment_is_flagged(self):
+        # classify_endpoint_snapping(9.0, 10.4, 3.2) is "significant" (see SnapGuardTests);
+        # claiming "clean" here must fail — the assessment has to be re-derivable, not
+        # just any value from SNAP_ASSESSMENTS.
         result = self._validated_result_with_snapping(
-            {"fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350, "significant": False}
+            {"fromSnapMeters": 9.0, "toSnapMeters": 10.4, "radiusMeters": 350, "assessment": "clean"}
         )
         errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
-        self.assertTrue(any("endpointSnapping.significant" in e for e in errors))
+        self.assertTrue(any("endpointSnapping.assessment" in e for e in errors))
 
     def test_endpoint_snapping_negative_distance_is_flagged(self):
         result = self._validated_result_with_snapping(
-            {"fromSnapMeters": -1.0, "toSnapMeters": 2.0, "radiusMeters": 350, "significant": True}
+            {"fromSnapMeters": -1.0, "toSnapMeters": 2.0, "radiusMeters": 350, "assessment": "significant"}
         )
         errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
         self.assertTrue(any("fromSnapMeters" in e for e in errors))
+
+    def test_endpoint_snapping_unknown_with_null_distance_passes(self):
+        result = self._validated_result_with_snapping(
+            {"fromSnapMeters": None, "toSnapMeters": 10.4, "radiusMeters": 350, "assessment": "unknown",
+             "reason": "Snap query failed: timeout"}
+        )
+        errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
+        self.assertEqual(errors, [])
+
+    def test_endpoint_snapping_null_distance_claiming_clean_is_flagged(self):
+        # This is exactly the bug the three-state model exists to make impossible: a
+        # missing measurement must never be presented as a confirmed-clean result.
+        result = self._validated_result_with_snapping(
+            {"fromSnapMeters": None, "toSnapMeters": 1.0, "radiusMeters": 350, "assessment": "clean"}
+        )
+        errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
+        self.assertTrue(any("null" in e and "clean" in e for e in errors))
+
+    def test_endpoint_snapping_invalid_assessment_value_is_flagged(self):
+        result = self._validated_result_with_snapping(
+            {"fromSnapMeters": 1.0, "toSnapMeters": 1.0, "radiusMeters": 350, "assessment": "significant-ish"}
+        )
+        errors, _ = validate_logistics.check_results([result], {("JP-063", "JP-065")})
+        self.assertTrue(any("endpointSnapping.assessment" in e for e in errors))
 
 
 class ResultsCoverageValidatorTests(unittest.TestCase):
@@ -595,42 +753,55 @@ class ReportComparisonTests(unittest.TestCase):
         self.assertAlmostEqual(c["distanceAbsDiffKm"], 0.5)
         self.assertEqual(c["minutesAbsDiff"], 10)
 
-    def test_snap_significant_edge_is_flagged_and_excluded_from_stats(self):
+    def test_snap_assessments_are_flagged_and_only_clean_enters_stats(self):
         manifest = {
             "edges": [
                 {"fromId": "JP-001", "toId": "JP-008", "category": "test"},
                 {"fromId": "JP-063", "toId": "JP-065", "category": "test"},
+                {"fromId": "JP-100", "toId": "JP-101", "category": "test"},
             ]
         }
         nearby = [
             {"Desde ID": "JP-001", "Hacia ID": "JP-008", "Distancia km": 1.0, "Min aprox.": 10, "Modo": "A pie", "Relación": "Cercano"},
             {"Desde ID": "JP-063", "Hacia ID": "JP-065", "Distancia km": 0.02, "Min aprox.": 3, "Modo": "A pie", "Relación": "Cercano"},
+            {"Desde ID": "JP-100", "Hacia ID": "JP-101", "Distancia km": 0.5, "Min aprox.": 6, "Modo": "A pie", "Relación": "Cercano"},
         ]
         results = [
             {
                 "fromId": "JP-001", "toId": "JP-008", "status": "validated",
                 "distance": {"meters": 1500.0}, "minutes": {"minMinutes": 20, "maxMinutes": 20},
+                "endpointSnapping": {
+                    "fromSnapMeters": 1.0, "toSnapMeters": 1.0, "radiusMeters": 350, "assessment": "clean",
+                },
             },
             {
                 "fromId": "JP-063", "toId": "JP-065", "status": "validated",
                 "distance": {"meters": 3.2}, "minutes": {"minMinutes": 0, "maxMinutes": 0},
                 "endpointSnapping": {
-                    "fromSnapMeters": 2.25, "toSnapMeters": 20.71, "radiusMeters": 350, "significant": True,
+                    "fromSnapMeters": 2.25, "toSnapMeters": 20.71, "radiusMeters": 350, "assessment": "significant",
                 },
+            },
+            {
+                "fromId": "JP-100", "toId": "JP-101", "status": "validated",
+                "distance": {"meters": 700.0}, "minutes": {"minMinutes": 9, "maxMinutes": 9},
+                # No endpointSnapping recorded at all — must read as "unknown", never as
+                # implicitly clean, and must be excluded from the comparable stats.
             },
         ]
         places = [
             fake_place("JP-001", 35.0, 139.0, name="A"), fake_place("JP-008", 35.0, 139.0, name="B"),
             fake_place("JP-063", 35.0268, 135.7982, name="C"), fake_place("JP-065", 35.027, 135.7982, name="D"),
+            fake_place("JP-100", 35.1, 139.1, name="E"), fake_place("JP-101", 35.101, 139.101, name="F"),
         ]
         comparisons = report.build_comparisons(manifest, nearby, results, places)
         by_key = {(c["fromId"], c["toId"]): c for c in comparisons}
-        self.assertFalse(by_key[("JP-001", "JP-008")]["snapSignificant"])
-        self.assertTrue(by_key[("JP-063", "JP-065")]["snapSignificant"])
+        self.assertEqual(by_key[("JP-001", "JP-008")]["snapAssessment"], "clean")
+        self.assertEqual(by_key[("JP-063", "JP-065")]["snapAssessment"], "significant")
+        self.assertEqual(by_key[("JP-100", "JP-101")]["snapAssessment"], "unknown")
 
         # print_report must not raise, and the aggregate stats path must only ever see
-        # the non-flagged edge — captured indirectly by checking it runs cleanly and
-        # produces output naming the exclusion.
+        # the "clean" edge — captured indirectly by checking it runs cleanly and
+        # produces output naming both exclusions with the right N.
         import contextlib
         import io as io_module
 
@@ -638,7 +809,9 @@ class ReportComparisonTests(unittest.TestCase):
         with contextlib.redirect_stdout(buffer):
             report.print_report(comparisons)
         output = buffer.getvalue()
-        self.assertIn("EXCLUDED", output)
+        self.assertIn("clean=1 significant=1 unknown=1", output)
+        self.assertIn("EXCLUDED: significant endpoint snapping", output)
+        self.assertIn("EXCLUDED: endpoint snapping unknown", output)
         self.assertIn("N=1", output)
 
 

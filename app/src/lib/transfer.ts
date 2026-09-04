@@ -33,8 +33,10 @@ import type { NearbyRelation, Place } from "../types";
  *     can produce.
  *   - "validated-static": a real routed path/time, without live schedule awareness.
  *     Phase 3B2A's walking-validation pilot produces this (see `WalkingPilotResult` and
- *     `getBestTransfer` below) for the pilot's 24 manifest edges only — never for a
- *     relation the pilot didn't cover, and never by mutating `toTransferEdge()`.
+ *     `getBestTransfer` below) only for a pilot manifest edge whose endpoint snapping was
+ *     measured and found clean — never for a relation the pilot didn't cover, never for
+ *     one whose snapping was significant or unmeasured, and never by mutating
+ *     `toTransferEdge()`.
  *   - "schedule-aware": accounts for an actual timetable (e.g. a transit provider's
  *     departure/arrival lookup). Not produced anywhere yet.
  * `getBestTransfer` is the only function in this module that can return
@@ -223,8 +225,8 @@ export type WalkingPilotQuery = {
 /**
  * How far each endpoint had to move to land on a routable network edge (the
  * openrouteservice Snap endpoint's `snapped_distance`, in meters), and whether that
- * displacement is large enough that `distance`/`minutes` should NOT be treated as
- * directly comparable to the distance between the original, unsnapped coordinates.
+ * displacement is small enough that `distance`/`minutes` can be treated as directly
+ * comparable to the distance between the original, unsnapped coordinates.
  *
  * Why this exists: two points can each snap to the same or a nearby spot on the road
  * graph, making the "routed" distance between them much smaller (or larger) than the
@@ -232,17 +234,31 @@ export type WalkingPilotQuery = {
  * no error from the Directions API. See docs/WALKING_PILOT.md's JP-063<->JP-065 finding
  * (routed 3.2 m between points ~22.2 m apart in reality) for a real example.
  *
- * Optional because it is only captured going forward (see
- * `scripts/validate-walking-pilot.py`'s `--execute`) or via a one-off
- * `--diagnose-snap` backfill; a `"validated"` result from before this guard existed may
- * not carry it. Absence is not a claim that snapping was insignificant — it means it
- * was never measured for that result.
+ * `assessment` is a closed three-state outcome, mirroring
+ * `scripts/logistics_common.py`'s `classify_endpoint_snapping`:
+ *   - `"clean"`: both endpoints measured, combined displacement small relative to the
+ *     routed distance — the routed value is comparable to the original coordinates.
+ *   - `"significant"`: both endpoints measured, combined displacement large enough that
+ *     the routed value should NOT be treated as comparable.
+ *   - `"unknown"`: at least one endpoint's snap distance was never resolved (not yet
+ *     measured, or the Snap query failed/found no point in radius). A `null` snap
+ *     distance is NEVER averaged in as `0` meters to produce `"clean"` — an unmeasured
+ *     endpoint means comparability was never established, which is a different fact
+ *     from "measured and found small displacement". `reason` is only ever present
+ *     alongside `"unknown"`.
+ *
+ * The whole field is optional because it is only captured going forward (see
+ * `scripts/validate-walking-pilot.py`'s `--execute`) or via `--backfill-snapping`/a
+ * one-off `--diagnose-snap`; a `"validated"` result from before this guard existed may
+ * not carry it at all. Absence must be treated exactly like `"unknown"` by every
+ * consumer — see `bestTransferFromLookups` below — never like `"clean"`.
  */
 export type EndpointSnapping = {
+  assessment: "clean" | "significant" | "unknown";
   fromSnapMeters: number | null;
   toSnapMeters: number | null;
   radiusMeters: number;
-  significant: boolean;
+  reason?: string;
 };
 
 /**
@@ -321,10 +337,25 @@ function toValidatedTransferEdge(result: ValidatedWalkingPilotResult, source: Tr
 }
 
 /**
+ * A validated result is only promotable to `"validated-static"` when its endpoint
+ * snapping was measured and found clean. `assessment === "significant"` means the
+ * routed distance/minutes are known NOT to be comparable to the original coordinates;
+ * `assessment === "unknown"` means that was never established either way; and a
+ * completely absent `endpointSnapping` (a pre-guard result) carries no measurement at
+ * all. None of those three cases may promote — only an explicit `"clean"` can. This is
+ * deliberately NOT "absence defaults to comparable": an unmeasured endpoint is treated
+ * exactly like a measured-and-significant one, never like a measured-and-clean one.
+ */
+function isSnapClean(result: ValidatedWalkingPilotResult): boolean {
+  return result.endpointSnapping?.assessment === "clean";
+}
+
+/**
  * Pure core of `getBestTransfer`, with both lookups injected so tests can exercise the
- * preference order (validated > estimated > null) against fixture data without depending
- * on whatever `walking-pilot-results.json` happens to contain right now. See
- * `app/src/lib/transfer.test.ts`; `logisticsMetricsFromLookup` uses the same seam pattern.
+ * preference order (validated-and-snap-clean > estimated > null) against fixture data
+ * without depending on whatever `walking-pilot-results.json` happens to contain right
+ * now. See `app/src/lib/transfer.test.ts`; `logisticsMetricsFromLookup` uses the same
+ * seam pattern.
  */
 export function bestTransferFromLookups(
   fromId: string,
@@ -334,15 +365,16 @@ export function bestTransferFromLookups(
 ): TransferEdge | null {
   const validated = lookupValidated(fromId, toId);
   const estimated = lookupEstimated(fromId, toId);
-  if (validated && estimated) return toValidatedTransferEdge(validated, estimated);
+  if (validated && estimated && isSnapClean(validated)) return toValidatedTransferEdge(validated, estimated);
   return estimated;
 }
 
 /**
  * The preferred way to read a directed transfer: a validated-static result if the
- * walking pilot covers this exact directed edge, otherwise the estimated `nearby.json`
- * edge, otherwise `null`. Never fabricates a route, never runs routing at call time —
- * every provider answer this can return was precomputed by
+ * walking pilot covers this exact directed edge AND its endpoint snapping was measured
+ * and found clean (see `isSnapClean`), otherwise the estimated `nearby.json` edge,
+ * otherwise `null`. Never fabricates a route, never runs routing at call time — every
+ * provider answer this can return was precomputed by
  * `scripts/validate-walking-pilot.py` and is read from disk like `nearby.json` is.
  */
 export function getBestTransfer(fromId: string, toId: string): TransferEdge | null {

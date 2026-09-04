@@ -25,13 +25,14 @@ from logistics_common import (  # noqa: E402
     ORS_PROVIDER,
     PILOT_EDGE_COUNT,
     RESULTS_PATH,
+    SNAP_ASSESSMENTS,
     WALKING_MODE_RAW,
+    classify_endpoint_snapping,
     load_json,
     load_nearby,
     load_places,
     nearby_by_directed_key,
     places_by_id,
-    snap_warning,
 )
 
 VALID_RESULT_STATUSES = {"validated", "no-route", "request-error"}
@@ -161,10 +162,13 @@ def check_results(results, manifest_keys):
                 warnings.append(f"{label}: minMinutes != maxMinutes for a single-sample validated result")
 
             # endpointSnapping is optional (only captured going forward, or via a
-            # one-off --diagnose-snap backfill), but when present it must be internally
-            # consistent — the "significant" flag is a pure, re-derivable function of
-            # the two snap distances and the routed distance, never a free-standing
-            # opinion that could silently drift from the rule that computed it.
+            # backfill), but when present it must be internally consistent — the
+            # "assessment" is a pure, re-derivable function of the two snap distances
+            # and the routed distance, never a free-standing opinion that could
+            # silently drift from the rule that computed it. A null snap distance must
+            # never be paired with "clean"/"significant": that combination can only
+            # come from treating a missing measurement as 0 meters, which is exactly
+            # the bug this schema exists to make impossible.
             snapping = result.get("endpointSnapping")
             if snapping is not None:
                 radius = snapping.get("radiusMeters")
@@ -174,13 +178,26 @@ def check_results(results, manifest_keys):
                     value = snapping.get(field)
                     if value is not None and (not isinstance(value, (int, float)) or value < 0):
                         errors.append(f"{label}: endpointSnapping.{field} must be null or >= 0")
-                expected_significant = snap_warning(
+
+                assessment = snapping.get("assessment")
+                if assessment not in SNAP_ASSESSMENTS:
+                    errors.append(
+                        f"{label}: endpointSnapping.assessment is {assessment!r}, expected one of {SNAP_ASSESSMENTS}"
+                    )
+                expected_assessment = classify_endpoint_snapping(
                     snapping.get("fromSnapMeters"), snapping.get("toSnapMeters"), distance
                 )
-                if snapping.get("significant") != expected_significant:
+                if assessment != expected_assessment:
                     errors.append(
-                        f"{label}: endpointSnapping.significant is {snapping.get('significant')!r}, "
-                        f"but recomputing from the recorded snap distances gives {expected_significant!r}"
+                        f"{label}: endpointSnapping.assessment is {assessment!r}, "
+                        f"but recomputing from the recorded snap distances gives {expected_assessment!r}"
+                    )
+                if assessment in ("clean", "significant") and (
+                    snapping.get("fromSnapMeters") is None or snapping.get("toSnapMeters") is None
+                ):
+                    errors.append(
+                        f"{label}: endpointSnapping.assessment is {assessment!r} but a snap distance is "
+                        "null — a null measurement must be 'unknown', never 'clean' or 'significant'"
                     )
         else:
             if result.get("confidence") is not None:

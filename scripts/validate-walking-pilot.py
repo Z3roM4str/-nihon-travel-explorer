@@ -41,13 +41,13 @@ from logistics_common import (  # noqa: E402
     ORS_SNAP_PATH_TEMPLATE,
     RESULTS_PATH,
     WALKING_MODE_RAW,
+    classify_endpoint_snapping,
     load_json,
     load_nearby,
     load_places,
     nearby_by_directed_key,
     places_by_id,
     round_half_up_minutes,
-    snap_warning,
     to_ors_coordinates,
     utc_now_iso,
     write_json,
@@ -238,13 +238,23 @@ def query_ors_snap(api_key, locations, radius=ORS_SNAP_MAX_RADIUS_METERS):
         ) from exc
 
 
-def build_endpoint_snapping(from_snap_m, to_snap_m, routed_distance_m, radius=ORS_SNAP_MAX_RADIUS_METERS):
-    return {
+def build_endpoint_snapping(
+    from_snap_m, to_snap_m, routed_distance_m, radius=ORS_SNAP_MAX_RADIUS_METERS, reason=None
+):
+    """`reason` is only meaningful (and only ever set) when the assessment comes out
+    "unknown" — e.g. "Snap query failed: ..." or a genuinely unsnappable point (None).
+    Never fabricates a "clean"/"significant" verdict when a measurement is missing.
+    """
+    assessment = classify_endpoint_snapping(from_snap_m, to_snap_m, routed_distance_m)
+    result = {
+        "assessment": assessment,
         "fromSnapMeters": from_snap_m,
         "toSnapMeters": to_snap_m,
         "radiusMeters": radius,
-        "significant": snap_warning(from_snap_m, to_snap_m, routed_distance_m),
     }
+    if assessment == "unknown" and reason:
+        result["reason"] = reason
+    return result
 
 
 def build_success_result(
@@ -356,19 +366,21 @@ def execute(args):
         (outcome, error) = query_ors_with_retry(api_key, edge["fromPlace"], edge["toPlace"])
         if outcome is not None:
             distance_m, duration_s = outcome
-            # Best-effort endpoint-snapping diagnostic (one extra Snap request per
-            # freshly-queried edge, batching both coordinates): a failure here must
-            # never invalidate an otherwise-successful route, so it degrades to "not
-            # measured" rather than turning this edge into a failure.
-            endpoint_snapping = None
+            # Endpoint-snapping diagnostic (one extra Snap request per freshly-queried
+            # edge, batching both coordinates): a failure here must never invalidate an
+            # otherwise-successful route, so it degrades to an explicit "unknown"
+            # assessment (never a fabricated "clean") rather than turning this edge
+            # into a failure or silently omitting the field.
             try:
                 snap_distances = query_ors_snap(
                     api_key,
                     [to_ors_coordinates(edge["fromPlace"]), to_ors_coordinates(edge["toPlace"])],
                 )
                 endpoint_snapping = build_endpoint_snapping(snap_distances[0], snap_distances[1], distance_m)
-            except RoutingRequestError:
-                endpoint_snapping = None
+            except RoutingRequestError as snap_exc:
+                endpoint_snapping = build_endpoint_snapping(
+                    None, None, distance_m, reason=f"Snap query failed: {snap_exc}"
+                )
             results[key] = build_success_result(
                 edge["fromId"], edge["toId"], distance_m, duration_s,
                 edge["fromPlace"], edge["toPlace"], verified_at,
@@ -444,7 +456,88 @@ def diagnose_snap(args):
 
     print(
         f"OK: diagnosed {from_id}->{to_id}: fromSnapMeters={snap_distances[0]} "
-        f"toSnapMeters={snap_distances[1]} significant={endpoint_snapping['significant']}"
+        f"toSnapMeters={snap_distances[1]} assessment={endpoint_snapping['assessment']}"
+    )
+    return 0
+
+
+def edges_needing_snap_assessment(manifest_edges, results_by_key):
+    """Every manifest edge whose current result is validated but has no resolved
+    endpointSnapping.assessment yet — includes an edge with no endpointSnapping field
+    at all, and an edge carrying a pre-three-state-model record (no 'assessment' key).
+    Never hardcoded: derived fresh from whatever the results file actually contains.
+    """
+    needing = []
+    for edge in manifest_edges:
+        key = (edge["fromId"], edge["toId"])
+        result = results_by_key.get(key)
+        if result is None or result.get("status") != "validated":
+            continue
+        snapping = result.get("endpointSnapping")
+        if not snapping or "assessment" not in snapping:
+            needing.append(key)
+    return needing
+
+
+def backfill_snapping(args):
+    """Fills in endpointSnapping for every manifest edge whose result lacks a resolved
+    assessment. Makes exactly ONE Snap request covering the deduplicated union of
+    unique place coordinates those edges need — never one request per edge, and never
+    a request for a place outside the manifest's 24 edges. Never re-queries Directions.
+    """
+    import os
+
+    api_key = os.environ.get("ORS_API_KEY")
+    if not api_key:
+        print("ORS_API_KEY required to backfill snapping")
+        return 1
+
+    manifest = load_json(Path(args.manifest))
+    places = load_places(args.data_dir)
+    by_id = places_by_id(places)
+
+    existing = load_existing_results()
+    results_by_key = {(r["fromId"], r["toId"]): r for r in existing}
+
+    missing_keys = edges_needing_snap_assessment(manifest["edges"], results_by_key)
+    if not missing_keys:
+        print("OK: every manifest edge already has a resolved endpointSnapping assessment.")
+        return 0
+
+    needed_place_ids = sorted({place_id for key in missing_keys for place_id in key})
+    locations = [to_ors_coordinates(by_id[place_id]) for place_id in needed_place_ids]
+
+    try:
+        snap_distances = query_ors_snap(api_key, locations)
+        snap_error = None
+    except RoutingRequestError as exc:
+        snap_distances = [None] * len(locations)
+        snap_error = str(exc)
+
+    snap_by_place = dict(zip(needed_place_ids, snap_distances))
+
+    counts = {"clean": 0, "significant": 0, "unknown": 0}
+    for key in missing_keys:
+        from_id, to_id = key
+        result = results_by_key[key]
+        routed_distance_m = result["distance"]["meters"]
+        from_snap = snap_by_place.get(from_id)
+        to_snap = snap_by_place.get(to_id)
+        reason = None
+        if snap_error and (from_snap is None or to_snap is None):
+            reason = f"Snap query failed: {snap_error}"
+        endpoint_snapping = build_endpoint_snapping(from_snap, to_snap, routed_distance_m, reason=reason)
+        result["endpointSnapping"] = endpoint_snapping
+        counts[endpoint_snapping["assessment"]] += 1
+
+    final_results = [results_by_key[k] for k in sorted(results_by_key)]
+    write_json(RESULTS_PATH, final_results)
+    write_json(APP_RESULTS_PATH, final_results)
+
+    print(
+        f"OK: backfilled endpointSnapping for {len(missing_keys)} edge(s) using 1 Snap "
+        f"request covering {len(needed_place_ids)} unique place(s). "
+        f"clean={counts['clean']} significant={counts['significant']} unknown={counts['unknown']}"
     )
     return 0
 
@@ -460,19 +553,27 @@ def main():
         help="Retroactively backfill endpointSnapping for one existing validated result. "
         "Makes exactly one Snap request; never re-queries Directions.",
     )
+    parser.add_argument(
+        "--backfill-snapping",
+        action="store_true",
+        help="Resolve endpointSnapping for every manifest edge that doesn't have it yet, "
+        "in exactly one batched Snap request. Never re-queries Directions.",
+    )
     parser.add_argument("--refresh", action="store_true", help="Re-query every manifest edge, including cached validated ones.")
     parser.add_argument("--manifest", default=str(MANIFEST_PATH))
     parser.add_argument("--data-dir", default="data")
     args = parser.parse_args()
 
-    modes = [bool(args.dry_run), bool(args.execute), bool(args.diagnose_snap)]
+    modes = [bool(args.dry_run), bool(args.execute), bool(args.diagnose_snap), bool(args.backfill_snapping)]
     if sum(modes) != 1:
-        parser.error("pass exactly one of --dry-run, --execute, or --diagnose-snap")
+        parser.error("pass exactly one of --dry-run, --execute, --diagnose-snap, or --backfill-snapping")
 
     if args.dry_run:
         return dry_run(args)
     if args.diagnose_snap:
         return diagnose_snap(args)
+    if args.backfill_snapping:
+        return backfill_snapping(args)
     return execute(args)
 
 

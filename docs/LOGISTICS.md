@@ -300,11 +300,12 @@ non-empty, the results (**exact coverage** of the manifest's directed edges — 
 extra edge is an error, not just an extra one — no duplicates, valid status, expected
 provider/profile, `source.provider`/`source.profile` matching the top-level fields, positive
 distance/duration when validated, `validated-static` ⇒ non-null `verifiedAt` and
-`routing-provider` provenance, a re-derivable `endpointSnapping.significant` flag when that field
-is present, `estimated` never appearing as a pilot result, and a scan for anything that looks
-like a committed secret). It does not hardcode the manifest's edge count as a magic number
-anywhere except the one named constant (`PILOT_EDGE_COUNT`) both the selector and validator
-import.
+`routing-provider` provenance, an `endpointSnapping.assessment` that is both one of the three
+valid values and re-derivable from the recorded snap distances, and never `"clean"`/`"significant"`
+paired with a null snap distance, `estimated` never appearing as a pilot result, and a scan for
+anything that looks like a committed secret). It does not hardcode the manifest's edge count as a
+magic number anywhere except the one named constant (`PILOT_EDGE_COUNT`) both the selector and
+validator import.
 
 #### Endpoint snapping
 
@@ -317,20 +318,41 @@ coordinates, with no error raised. See `docs/WALKING_PILOT.md`'s JP-063↔JP-065
 3.2 m between two points that are actually ~22.2 m apart, because a combined ~23 m of endpoint
 snapping consumed nearly the entire real separation.
 
-`scripts/logistics_common.py`'s `snap_warning(fromSnapMeters, toSnapMeters, routedDistanceMeters)`
-is the objective, code-computed guard: a result is flagged `"significant"` when the combined
-snap distance is both ≥ 10 m in absolute terms and ≥ 50% of the routed distance itself — chosen
-so an ordinary few-meter snap on a long route is never flagged just because a short route with
-the same absolute snap would be. `scripts/validate-walking-pilot.py --execute` captures this
-automatically going forward (one extra Snap request per freshly-queried edge, batching both
-coordinates); `--diagnose-snap FROM_ID TO_ID` retroactively backfills it for one already-existing
-result, with exactly one Snap request, never re-querying Directions. `endpointSnapping` is
-optional on a `"validated"` result precisely because it is only captured for edges queried after
-the guard existed, or explicitly diagnosed — its absence is not a claim that snapping was
-insignificant. `scripts/report-walking-pilot.py` excludes any `"significant"` edge from its
-aggregate ratios and outlier lists, listing it separately instead of silently dropping it, so a
-future scale-up that reuses this report's logic cannot average a snap artifact into a
-"correction factor" for the rest of the dataset.
+`scripts/logistics_common.py`'s
+`classify_endpoint_snapping(fromSnapMeters, toSnapMeters, routedDistanceMeters)` is the objective,
+code-computed guard, returning one of three states — never a boolean:
+  - `"clean"`: both endpoints measured, combined snap small relative to the routed distance — the
+    routed value is comparable to the original coordinates.
+  - `"significant"`: both endpoints measured, combined snap ≥ 10 m in absolute terms **and**
+    ≥ 50% of the routed distance itself — chosen so an ordinary few-meter snap on a long route is
+    never flagged just because a short route with the same absolute snap would be.
+  - `"unknown"`: at least one endpoint's snap distance was never resolved (not yet measured, or
+    the Snap query failed/found no point in radius). **A `null` measurement is never averaged in
+    as `0` meters** to produce `"clean"` — that would be indistinguishable from claiming a
+    genuinely unmeasured edge is comparable when nobody checked. `"unknown"` and `"significant"`
+    are treated identically by every downstream consumer: neither is comparable, and neither is
+    ever promoted to `validated-static`.
+
+`scripts/validate-walking-pilot.py --execute` captures this automatically going forward (one
+extra Snap request per freshly-queried edge, batching both coordinates, degrading to `"unknown"`
+with a `reason` rather than failing the whole edge if the Snap call itself errors).
+`--diagnose-snap FROM_ID TO_ID` retroactively resolves it for one already-existing result with
+exactly one Snap request, never re-querying Directions. `--backfill-snapping` does the same for
+*every* manifest edge whose result doesn't yet have a resolved `assessment` — it derives the list
+of what's missing programmatically from the results file itself (`edges_needing_snap_assessment`,
+never a hardcoded count), deduplicates the union of place coordinates those edges need, and makes
+exactly **one** batched Snap request regardless of how many edges are missing; a completely
+absent `endpointSnapping` field is treated exactly like `"unknown"` by every consumer, so backfill
+is a completeness improvement, never a correctness requirement for reading results correctly.
+`scripts/report-walking-pilot.py` computes aggregate ratios and outlier lists over `"clean"`
+results only, listing `"significant"` and `"unknown"` edges separately (with the reason, for
+`"unknown"`) instead of silently dropping or comparably including them, so a future scale-up that
+reuses this report's logic cannot average a snap artifact — or an unmeasured edge — into a
+"correction factor" for the rest of the dataset. `app/src/lib/transfer.ts`'s `getBestTransfer`
+enforces the same rule independently at read time: a validated result only promotes to
+`confidence: "validated-static"` when its `endpointSnapping.assessment === "clean"`; a
+`"significant"` or `"unknown"` assessment, or a missing `endpointSnapping` altogether, falls back
+to the `estimated` `nearby.json` edge — see `app/src/lib/transfer.test.ts`.
 
 `scripts/report-walking-pilot.py` computes, over the validated subset only, per-edge distance
 and minute ratios/differences, aggregate statistics (median/mean/min/max), and the top 5
@@ -343,35 +365,40 @@ N≈24**, never generalized into a correction factor for the remaining relations
 function getBestTransfer(fromId: string, toId: string): TransferEdge | null;
 ```
 
-Preference order: a validated-static result for that exact directed edge, else the estimated
-`nearby.json` edge, else `null`. Nothing here calls a routing provider at read time — every
-`validated-static` answer `getBestTransfer` can return was already computed offline by
-`scripts/validate-walking-pilot.py` and is read from disk exactly like an estimated edge is.
-`toTransferEdge()` and `nearby.json` itself are untouched: `getBestTransfer` is a read-time
-resolution layer, not a rewrite of the estimated source.
+Preference order: a validated-static result for that exact directed edge **whose endpoint
+snapping was measured and found `"clean"`**, else the estimated `nearby.json` edge, else `null`.
+A validated result with `assessment === "significant"` or `"unknown"`, or with no
+`endpointSnapping` recorded at all, is never promoted — it falls back to the estimated edge
+exactly as if the pilot hadn't covered that pair (see "Endpoint snapping" above). Nothing here
+calls a routing provider at read time — every `validated-static` answer `getBestTransfer` can
+return was already computed offline by `scripts/validate-walking-pilot.py` and is read from disk
+exactly like an estimated edge is. `toTransferEdge()` and `nearby.json` itself are untouched:
+`getBestTransfer` is a read-time resolution layer, not a rewrite of the estimated source.
 
 ### Status in this checkout
 
 The pipeline's non-network logic is fully tested (selection determinism — including the full
 manifest document, not just the selected ids — coordinate order, minute rounding, response
-parsing, failure classification, caching/refresh, the endpoint-snapping guard, and the
-validated/estimated/null preference order — see `scripts/test_walking_pilot.py` and
-`app/src/lib/transfer.test.ts`). **The live pilot has been executed**: on 2026-09-04, all 24
-manifest edges were queried against `api.heigit.org` and all 24 returned `"validated"` (0
-`no-route`, 0 `request-error`). A subsequent review identified that 2 of those 24 results (one
-coordinate pair, both directions) have significant endpoint snapping and are not directly
-comparable to the original coordinates — see "Endpoint snapping" above and
-`docs/WALKING_PILOT.md`'s corrected finding. `data/logistics/walking-pilot-results.json` holds
-the real results, including that finding's `endpointSnapping` field (mirrored to
+parsing, failure classification, caching/refresh, the three-state endpoint-snapping guard, the
+snap backfill's edge-selection and single-request batching, and the
+validated-and-snap-clean/estimated/null preference order — see `scripts/test_walking_pilot.py`
+and `app/src/lib/transfer.test.ts`). **The live pilot has been executed and fully backfilled**: on
+2026-09-04, all 24 manifest edges were queried against `api.heigit.org` and all 24 returned
+`"validated"` (0 `no-route`, 0 `request-error`); a single batched `--backfill-snapping` request
+then resolved `endpointSnapping` for every one of the 24 edges (22 `"clean"`, 2 `"significant"` —
+one coordinate pair, both directions — 0 `"unknown"`). `data/logistics/walking-pilot-results.json`
+holds the real results, including every edge's `endpointSnapping` field (mirrored to
 `app/src/data/logistics/`). Full statistics, per-edge comparisons, top outliers, limitations, and
-the decision-gate recommendation (**ADJUST** — see the report) are in `docs/WALKING_PILOT.md`,
-not duplicated here to avoid a second source of truth for the same numbers.
+the decision-gate recommendation (**SCALE**, with the snap-clean gate carried forward as a hard
+requirement — see the report) are in `docs/WALKING_PILOT.md`, not duplicated here to avoid a
+second source of truth for the same numbers.
 
 To re-run it (idempotent — cached `"validated"` edges are skipped unless `--refresh`):
 
 ```
 ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --dry-run   # sanity check first
 ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --execute
+ORS_API_KEY=<your key> python3 scripts/validate-walking-pilot.py --backfill-snapping
 python3 scripts/report-walking-pilot.py
 python3 scripts/validate-logistics.py data
 ```
