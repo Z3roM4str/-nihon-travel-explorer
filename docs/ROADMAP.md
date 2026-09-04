@@ -100,11 +100,32 @@ remain the only stored user state.
 This phase formalizes the existing estimates; it does not validate them. Every transfer time in
 the application remains a geographic estimate until a later phase actually routes it.
 
+## Phase 3B2A — Walking Validation Pilot — pipeline built, live pilot not yet run
+
+- [x] Extend `TransferProvenance` into a discriminated union (`GeographicProvenance` |
+      `RoutingProviderProvenance`) and add `getBestTransfer` (validated-static > estimated >
+      null), without touching `toTransferEdge()` or any of the 403 `nearby.json` relations.
+- [x] Deterministic, documented 24-edge pilot sample selection
+      (`scripts/select-walking-pilot.py`) over the current 332 "A pie" relations.
+- [x] Offline-safe pipeline (`scripts/validate-walking-pilot.py --dry-run`/`--execute`,
+      `scripts/report-walking-pilot.py`, `scripts/validate-logistics.py`) against
+      **api.heigit.org** (not the deprecated api.openrouteservice.org), with a coordinate-order
+      regression test, reproducible caching, and a bounded single retry — fully covered by
+      network-free unit tests (`scripts/test_walking_pilot.py`).
+- [ ] **Live pilot execution** — blocked on an `ORS_API_KEY` not being available when this phase
+      was built. `data/logistics/walking-pilot-results.json` ships empty (`[]`); see
+      `docs/LOGISTICS.md` for the exact command to run it.
+- [ ] Pilot report (`docs/WALKING_PILOT.md`) and a SCALE/ADJUST/STOP recommendation — both
+      deferred until the live pilot actually produces results to report on.
+
+This phase does not validate the other ~308 "A pie" relations, transit, or anything beyond the
+24-edge sample, regardless of what the eventual pilot recommends.
+
 ## Later (unscheduled)
 
-- [ ] Validate local transfers with routing-grade data (walking routing via a provider such as
-      openrouteservice/OSM, or self-hosted Valhalla; transit/schedule-aware validation pending
-      a provider decision — see `docs/LOGISTICS.md`).
+- [ ] Validate local transfers with routing-grade data — Phase 3B2A's architecture, scaled to
+      the remaining "A pie" relations once the pilot actually runs and is reviewed; transit/
+      schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
 - [ ] Compare candidate city sequences.

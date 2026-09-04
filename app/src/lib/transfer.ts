@@ -1,4 +1,5 @@
 import nearbyData from "../data/nearby.json";
+import walkingPilotResultsData from "../data/logistics/walking-pilot-results.json";
 import type { NearbyRelation, Place } from "../types";
 
 /**
@@ -85,19 +86,37 @@ export function normalizeTransferRelation(rawRelation: string): TransferRelation
 }
 
 /**
- * Structured provenance — never a decorative string. `kind` names the family of method
- * (derived from geometry, vs. a future routed/schedule provider); `dataset` and `method`
- * pin down exactly which source and computation produced the edge. 3B2 can extend the
- * `kind` union (e.g. `"routing-provider"`, `"transit-provider"`) without touching this
- * shape's meaning for edges that stay geographic.
+ * Structured provenance — never a decorative string. `kind` is the discriminant: a
+ * consumer branches on it to know where an edge came from without parsing any text.
+ *
+ * `GeographicProvenance` is what every current `nearby.json` edge carries (see
+ * `dataset`/`method` below). `RoutingProviderProvenance` (Phase 3B2A) is what a walking
+ * edge validated against real routing carries instead. Adding a future provenance kind
+ * (a transit provider, an official source) means adding a member to this union, never
+ * repurposing an existing one's fields for a different meaning.
  */
-export type TransferProvenance = {
+export type GeographicProvenance = {
   kind: "derived-geographic";
   dataset: "nearby";
   method: "haversine-speed-model";
 };
 
-const NEARBY_PROVENANCE: TransferProvenance = {
+/**
+ * A real routing provider's answer for one directed edge, precomputed offline (see
+ * `scripts/validate-walking-pilot.py`) and never queried at runtime — nothing in this
+ * module calls a routing API. `profile` is the provider's own travel-mode parameter,
+ * kept distinct from our closed `TransferMode` because the two vocabularies serve
+ * different purposes (provider request parameter vs. our domain's mode taxonomy).
+ */
+export type RoutingProviderProvenance = {
+  kind: "routing-provider";
+  provider: "openrouteservice";
+  profile: "foot-walking";
+};
+
+export type TransferProvenance = GeographicProvenance | RoutingProviderProvenance;
+
+const NEARBY_PROVENANCE: GeographicProvenance = {
   kind: "derived-geographic",
   dataset: "nearby",
   method: "haversine-speed-model",
@@ -177,6 +196,127 @@ const edgesByDirectedKey = new Map<string, TransferEdge>(
  */
 export function lookupTransfer(fromId: string, toId: string): TransferEdge | null {
   return edgesByDirectedKey.get(edgeKey(fromId, toId)) ?? null;
+}
+
+/**
+ * Phase 3B2A — walking-validation pilot.
+ *
+ * `scripts/validate-walking-pilot.py` queries openrouteservice offline for a small,
+ * deterministically chosen sample of "A pie" edges (see `docs/LOGISTICS.md`) and writes
+ * `data/logistics/walking-pilot-results.json`; the app reads the same file (copied to
+ * `app/src/data/logistics/` exactly as `nearby.json` is copied from `data/`). Nothing in
+ * this module ever calls a routing provider — every result here was computed once,
+ * offline, and versioned.
+ */
+
+/** Query coordinates actually sent to the provider, kept for audit — `[lng, lat]`,
+ * openrouteservice's order, not our `Place`'s `{lat, lng}`. */
+export type WalkingPilotQuery = {
+  fromCoordinates: [number, number];
+  toCoordinates: [number, number];
+};
+
+/**
+ * One pilot outcome for one directed edge. A discriminated union on `status`: only the
+ * `"validated"` member carries `distance`/`minutes`/`confidence`/`source` — a failure
+ * can't accidentally be read as "0 minutes" or "estimated" because those fields don't
+ * exist on it at the type level, matching the pipeline's rule that a failed lookup is
+ * never silently converted into a fabricated result.
+ */
+export type WalkingPilotResult =
+  | {
+      fromId: string;
+      toId: string;
+      provider: "openrouteservice";
+      profile: "foot-walking";
+      status: "validated";
+      distance: { meters: number };
+      minutes: { minMinutes: number; maxMinutes: number };
+      confidence: "validated-static";
+      /** ISO 8601 UTC timestamp of the actual query, never a commit or file date. */
+      verifiedAt: string;
+      source: RoutingProviderProvenance;
+      query: WalkingPilotQuery;
+      durationSecondsRaw?: number;
+      attribution?: string;
+    }
+  | {
+      fromId: string;
+      toId: string;
+      provider: "openrouteservice";
+      profile: "foot-walking";
+      status: "no-route" | "request-error";
+      verifiedAt: string;
+      query: WalkingPilotQuery;
+      errorCode?: number;
+      errorMessage?: string;
+    };
+
+type ValidatedWalkingPilotResult = Extract<WalkingPilotResult, { status: "validated" }>;
+
+const walkingPilotResults = walkingPilotResultsData as WalkingPilotResult[];
+
+const validatedWalkingResultsByDirectedKey = new Map<string, ValidatedWalkingPilotResult>(
+  walkingPilotResults
+    .filter((result): result is ValidatedWalkingPilotResult => result.status === "validated")
+    .map((result) => [edgeKey(result.fromId, result.toId), result])
+);
+
+/** Directed lookup into the walking-pilot results, mirroring `lookupTransfer`'s
+ * discipline: only a recorded `"validated"` result, in that exact direction, or `null`. */
+function lookupValidatedWalkingResult(fromId: string, toId: string): ValidatedWalkingPilotResult | null {
+  return validatedWalkingResultsByDirectedKey.get(edgeKey(fromId, toId)) ?? null;
+}
+
+/**
+ * Merges a validated pilot result into the full `TransferEdge` shape. `mode`, `rawMode`,
+ * `relation` and `rawRelation` are never re-derived from the provider — they come from
+ * `source`, the estimated edge for the same directed pair that the pilot manifest was
+ * built from. Only distance, minutes, confidence, provenance and `verifiedAt` change.
+ */
+function toValidatedTransferEdge(result: ValidatedWalkingPilotResult, source: TransferEdge): TransferEdge {
+  return {
+    fromId: result.fromId,
+    toId: result.toId,
+    minutes: result.minutes,
+    distanceKm: result.distance.meters / 1000,
+    mode: source.mode,
+    rawMode: source.rawMode,
+    relation: source.relation,
+    rawRelation: source.rawRelation,
+    confidence: result.confidence,
+    source: result.source,
+    verifiedAt: result.verifiedAt,
+  };
+}
+
+/**
+ * Pure core of `getBestTransfer`, with both lookups injected so tests can exercise the
+ * preference order (validated > estimated > null) against fixture data without depending
+ * on whatever `walking-pilot-results.json` happens to contain right now. See
+ * `app/src/lib/transfer.test.ts`; `logisticsMetricsFromLookup` uses the same seam pattern.
+ */
+export function bestTransferFromLookups(
+  fromId: string,
+  toId: string,
+  lookupEstimated: (fromId: string, toId: string) => TransferEdge | null,
+  lookupValidated: (fromId: string, toId: string) => ValidatedWalkingPilotResult | null
+): TransferEdge | null {
+  const validated = lookupValidated(fromId, toId);
+  const estimated = lookupEstimated(fromId, toId);
+  if (validated && estimated) return toValidatedTransferEdge(validated, estimated);
+  return estimated;
+}
+
+/**
+ * The preferred way to read a directed transfer: a validated-static result if the
+ * walking pilot covers this exact directed edge, otherwise the estimated `nearby.json`
+ * edge, otherwise `null`. Never fabricates a route, never runs routing at call time —
+ * every provider answer this can return was precomputed by
+ * `scripts/validate-walking-pilot.py` and is read from disk like `nearby.json` is.
+ */
+export function getBestTransfer(fromId: string, toId: string): TransferEdge | null {
+  return bestTransferFromLookups(fromId, toId, lookupTransfer, lookupValidatedWalkingResult);
 }
 
 /*

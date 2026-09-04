@@ -1,16 +1,19 @@
 import { describe, expect, it } from "vitest";
 import nearbyData from "../data/nearby.json";
 import placesData from "../data/places.json";
+import walkingPilotResultsData from "../data/logistics/walking-pilot-results.json";
 import type { NearbyRelation, Place } from "../types";
 import {
+  bestTransferFromLookups,
   computeLogisticsMetrics,
+  getBestTransfer,
   logisticsMetricsFromLookup,
   lookupTransfer,
   normalizeTransferMode,
   normalizeTransferRelation,
   toTransferEdge,
 } from "./transfer";
-import type { TransferEdge } from "./transfer";
+import type { TransferEdge, WalkingPilotResult } from "./transfer";
 
 const nearbyRelations = nearbyData as NearbyRelation[];
 const places = placesData as Place[];
@@ -331,5 +334,135 @@ describe("logisticsMetricsFromLookup — injected lookup, divergent directions",
     const metrics = logisticsMetricsFromLookup(["A", "B"], () => null);
     expect(metrics.knownPairCount).toBe(0);
     expect(metrics.recordedDistanceRange).toBeNull();
+  });
+});
+
+function validatedResult(overrides: Partial<Extract<WalkingPilotResult, { status: "validated" }>> = {}) {
+  return {
+    fromId: "JP-001",
+    toId: "JP-008",
+    provider: "openrouteservice",
+    profile: "foot-walking",
+    status: "validated",
+    distance: { meters: 320 },
+    minutes: { minMinutes: 4, maxMinutes: 4 },
+    confidence: "validated-static",
+    verifiedAt: "2026-09-04T12:00:00Z",
+    source: { kind: "routing-provider", provider: "openrouteservice", profile: "foot-walking" },
+    query: { fromCoordinates: [139.7005, 35.6595], toCoordinates: [139.6988, 35.662] },
+    ...overrides,
+  } as Extract<WalkingPilotResult, { status: "validated" }>;
+}
+
+describe("bestTransferFromLookups / getBestTransfer — Phase 3B2A", () => {
+  it("prefers a validated-static result over the estimated edge for the same directed pair", () => {
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const validated = validatedResult();
+    const best = bestTransferFromLookups(
+      "JP-001",
+      "JP-008",
+      () => estimated,
+      () => validated
+    );
+    expect(best?.confidence).toBe("validated-static");
+    expect(best?.distanceKm).toBe(0.32);
+    expect(best?.minutes).toEqual({ minMinutes: 4, maxMinutes: 4 });
+    expect(best?.source).toEqual({
+      kind: "routing-provider",
+      provider: "openrouteservice",
+      profile: "foot-walking",
+    });
+    expect(best?.verifiedAt).toBe("2026-09-04T12:00:00Z");
+  });
+
+  it("carries mode/relation over from the estimated edge, never fabricating them", () => {
+    const estimated = toTransferEdge(
+      relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008", Modo: "A pie", Relación: "Mismo cluster" })
+    );
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validatedResult());
+    expect(best?.mode).toBe("walk");
+    expect(best?.rawMode).toBe("A pie");
+    expect(best?.relation).toBe("same-cluster");
+    expect(best?.rawRelation).toBe("Mismo cluster");
+  });
+
+  it("falls back to the estimated edge when no validated result exists", () => {
+    const estimated = toTransferEdge(relation());
+    const best = bestTransferFromLookups(
+      "JP-001",
+      "JP-002",
+      () => estimated,
+      () => null
+    );
+    expect(best).toBe(estimated);
+    expect(best?.confidence).toBe("estimated");
+  });
+
+  it("returns null when neither a validated result nor an estimated edge exists", () => {
+    const best = bestTransferFromLookups("JP-X", "JP-Y", () => null, () => null);
+    expect(best).toBeNull();
+  });
+
+  it("does not promote an orphaned validated result with no matching estimated edge", () => {
+    // Defensive case: a validated result should only ever exist for a pair the pilot
+    // manifest drew from an existing nearby.json edge, but the resolution rule itself
+    // must not silently fabricate mode/relation if that invariant were ever violated.
+    const best = bestTransferFromLookups(
+      "JP-001",
+      "JP-008",
+      () => null,
+      () => validatedResult()
+    );
+    expect(best).toBeNull();
+  });
+
+  it("is directed: a validated A->B result does not apply to a B->A lookup", () => {
+    const estimatedReverse = toTransferEdge(
+      relation({ "Desde ID": "JP-008", "Hacia ID": "JP-001", Modo: "A pie" })
+    );
+    const best = bestTransferFromLookups(
+      "JP-008",
+      "JP-001",
+      () => estimatedReverse,
+      (fromId, toId) => (fromId === "JP-001" && toId === "JP-008" ? validatedResult() : null)
+    );
+    expect(best?.confidence).toBe("estimated");
+  });
+
+  it("getBestTransfer against the real (currently empty) walking-pilot-results.json falls back to estimated for every current relation", () => {
+    // Phase 3B2A has not run a live pilot in this checkout yet (see docs/LOGISTICS.md);
+    // this is a live regression check that the shipped file is genuinely empty and that
+    // getBestTransfer's fallback path — not a promoted confidence — is what every one of
+    // the 403 current relations resolves to today.
+    expect(walkingPilotResultsData).toEqual([]);
+    for (const raw of nearbyRelations.slice(0, 20)) {
+      const best = getBestTransfer(raw["Desde ID"], raw["Hacia ID"]);
+      expect(best?.confidence).toBe("estimated");
+    }
+  });
+
+  it("getBestTransfer returns null for a pair with no recorded relation at all", () => {
+    expect(getBestTransfer("JP-DOES-NOT-EXIST-1", "JP-DOES-NOT-EXIST-2")).toBeNull();
+  });
+});
+
+describe("TransferProvenance discriminated union", () => {
+  it("distinguishes derived-geographic from routing-provider by kind alone, no string parsing", () => {
+    const geoEdge = toTransferEdge(relation());
+    expect(geoEdge.source.kind).toBe("derived-geographic");
+
+    const estimated = toTransferEdge(relation({ "Desde ID": "JP-001", "Hacia ID": "JP-008" }));
+    const best = bestTransferFromLookups("JP-001", "JP-008", () => estimated, () => validatedResult());
+    expect(best?.source.kind).toBe("routing-provider");
+    if (best && best.source.kind === "routing-provider") {
+      expect(best.source.provider).toBe("openrouteservice");
+      expect(best.source.profile).toBe("foot-walking");
+    }
+  });
+
+  it("every current nearby-derived edge is still derived-geographic, never routing-provider", () => {
+    for (const raw of nearbyRelations) {
+      expect(toTransferEdge(raw).source.kind).toBe("derived-geographic");
+    }
   });
 });
