@@ -1,6 +1,6 @@
 import type { TransferEdge } from "./transfer";
 
-const NUMBER_FORMAT = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 1 });
+const NUMBER_FORMAT = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 2 });
 
 export type TransferDisplay = {
   distanceText: string;
