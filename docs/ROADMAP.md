@@ -361,6 +361,53 @@ unchanged; no threshold moved (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` i
 and there was no UI and no Phase 3C work. See
 [ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
 
+## Phase 3B2I — Walking Transfer UI Integration — complete
+
+- [x] Closed the gap Phase 3B3C's design work identified: `PlaceDetail.tsx` rendered
+      `nearby.json`'s raw `Distancia km`/`Min aprox.` directly, so none of the 325 snap-clean
+      `validated-static` walking results (Phase 3B2A pilot + 3B2B-C scale-up) were ever shown to a
+      user, even though `getBestTransfer()` already computed the better answer for every one of
+      them. `PlaceDetail` now resolves each existing directed `nearby` relation through
+      `getBestTransfer(place.id, target.id)` — same direction the relation already records, no
+      reverse lookup — and renders whatever it returns.
+- [x] New presentation-only module `app/src/lib/transfer-display.ts` (7 tests) maps a
+      `TransferEdge` to display text without touching confidence, provenance, direction or
+      fallback semantics, all of which stay owned by `getBestTransfer()`: `estimated` keeps its
+      `~` approximation marker and the label **"Estimación geográfica"**; `validated-static` drops
+      the `~` and labels a walked route **"Ruta a pie validada"** (a non-walk mode, not produced by
+      any data today, labels as **"Ruta validada"** rather than hard-coding "a pie"); the
+      unreachable-today `schedule-aware` case is still handled and labeled **"Horario en vivo"**,
+      kept visually and lexically distinct from the static labels so a future live result could
+      never be mistaken for one of them. A footnote below the list states plainly, in every case,
+      that a validated route is static routing data and never a live timetable.
+- [x] **Reviewed against the checked-out dataset rather than assumed**: the "325" figure was
+      independently recomputed from `data/logistics/walking-pilot-results.json` +
+      `walking-scale-results.json` (`status: "validated"` and `endpointSnapping.assessment:
+      "clean"`) and confirmed exact; `nearby.json`'s 403 relations were confirmed to contain zero
+      duplicate directed pairs, so no relation can silently share another's resolved transfer.
+- [x] **Architecture decision, made against evidence rather than by default**: `PlaceDetail`
+      imports `getBestTransfer()` directly rather than receiving it as an injected resolver prop
+      from `App.tsx`. The one existing injected-resolver prop, `getPlace`, exists because `App.tsx`
+      is the layer that reconciles which of several place collections a nearby target id lives in
+      — a real single-source-of-truth concern. `getBestTransfer()` has no such ambiguity: one
+      module, one precomputed lookup, exactly like the half-dozen other pure `lib`/`data` functions
+      (`resolveDuration`, `alertSeverity`, `formatPrice`, …) `PlaceDetail` already imports directly.
+      Injecting it as a prop would diverge from that dominant convention for no behavioral or
+      testing benefit — this repository has no component-level test harness (no `jsdom`, no
+      Testing Library) for a stubbed prop to serve.
+- [x] **One real defect found and fixed in review**: the quality/confidence label reused the
+      `.nearby-item__relation` CSS class already used for the unrelated relation-type text (e.g.
+      "Cercano"), which would make the two impossible to restyle independently later and reads as
+      if confidence were a kind of relation. Given its own class
+      (`.nearby-item__quality`, with `--validated`/`--live` modifiers using the app's existing
+      `--color-ok`/`--color-info` tokens) so a validated route is visually distinguishable from an
+      estimate, not only distinguishable by reading its label text.
+- [x] `getBestTransfer()`, `app/src/lib/transfer.ts`, the walking pilot/scale/access-point result
+      artifacts, the Phase 3B3D transit skeleton and its activation gate, the dataset, the access
+      point catalog, `scripts/`, `package.json` and the lockfile are all unchanged. No live
+      provider request, no client transport, no React hook, no ordering/aggregation/itinerary
+      (Phase 3C) work.
+
 ## Phase 3B3A — Transit & Schedule-Aware Logistics Provider Decision / Coverage Audit — research complete, BLOCKED
 
 - [x] Derive the non-walking gap programmatically from the current dataset (never carried
@@ -582,11 +629,13 @@ Phase 3C work (no sequencing, no aggregation, no itinerary generation).
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Phase 3B3E — client transport / React hook for live transit (proposed, not started):
-      deferred out of Phase 3B3D on purpose. `transfer.ts` still has no UI consumer,
-      `PlaceDetail.tsx` still renders raw `nearby.json`, and the design's cost rule
-      (§13.3) requires a live lookup to happen only on an explicit user action that no
-      component offers yet, so the hook has nothing to arbitrate for and no trigger to
-      hang off. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
+      deferred out of Phase 3B3D on purpose, and still deferred after Phase 3B2I gave
+      `transfer.ts` its first UI consumer. `PlaceDetail.tsx` now shows `getBestTransfer()`'s
+      static/estimated results, but nothing in the UI performs, or lets a user trigger, a live
+      lookup — the design's cost rule (§13.3) requires a live lookup to happen only on an
+      explicit user action, and no such action exists yet — and real-provider activation is
+      still OFF pending vendor confirmation (Phase 3B3B §7.2), so the hook would still have no
+      live answer to arbitrate toward. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
 - [ ] Access-point evidence for `"external-local-transit"` (proposed, not started): the context is
       reserved but has **zero** members, so every place currently resolves to
       `use-place-coordinate`. Populating it is evidence work at the same standard as Phase 3B2G.

@@ -3,7 +3,7 @@ import type { NearbyRelation, Place } from "../types";
 import { PlaceGallery } from "./PlaceGallery";
 import { resolvePlaceImages } from "../data/place-images";
 import { resolveDuration, formatRange } from "../lib/duration";
-import { getBestTransfer } from "../lib/transfer";
+import { getBestTransfer, type TransferEdge } from "../lib/transfer";
 import { describeTransferForUi, transferListFootnote } from "../lib/transfer-display";
 import {
   alertSeverity,
@@ -50,6 +50,20 @@ function Row({ label, value }: { label: string; value: string }) {
       <dd>{value}</dd>
     </div>
   );
+}
+
+/**
+ * A dedicated class for the confidence/quality label, distinct from `.nearby-item__relation`
+ * (the relation-type text, e.g. "Cercano"). Reusing that class here would make the two
+ * unrelated pieces of text impossible to style independently later, and would read as if
+ * "confidence" were itself a kind of relation. The modifier only changes color/weight so a
+ * validated route is visually distinguishable from an estimate, never the wording — that stays
+ * owned by `describeTransferForUi`.
+ */
+function nearbyQualityClassName(transfer: TransferEdge | null): string {
+  if (transfer?.confidence === "validated-static") return "nearby-item__quality nearby-item__quality--validated";
+  if (transfer?.confidence === "schedule-aware") return "nearby-item__quality nearby-item__quality--live";
+  return "nearby-item__quality";
 }
 
 export function PlaceDetail({
@@ -254,7 +268,7 @@ export function PlaceDetail({
                           <span className="nearby-item__mode">
                             {relation["Modo"]} · {display?.timeText ?? `~${relation["Min aprox."]} min`}
                           </span>
-                          <span className="nearby-item__relation">
+                          <span className={nearbyQualityClassName(transfer)}>
                             {display?.qualityLabel ?? "Estimación geográfica"}
                           </span>
                         </span>

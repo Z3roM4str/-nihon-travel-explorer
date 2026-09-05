@@ -810,6 +810,19 @@ still has zero catalogued members, so every place resolves to `use-place-coordin
 yet, because no UI consumer and no explicit user trigger exist for it. See
 [LIVE_TRANSIT_SYNTHETIC_SKELETON.md](LIVE_TRANSIT_SYNTHETIC_SKELETON.md).
 
+**Phase 3B2I** closed the specific gap the paragraph above named: `PlaceDetail.tsx` now resolves
+every existing directed `nearby` relation through `getBestTransfer(place.id, target.id)` instead
+of rendering `nearby.json`'s raw fields, so the 325 snap-clean `validated-static` walking results
+(confirmed still exact against the current checkout) are visible to a user for the first time.
+Presentation lives in a new `app/src/lib/transfer-display.ts`, which maps a `TransferEdge` to
+display text only — confidence, provenance, direction and fallback selection all stay owned by
+`getBestTransfer()`. `estimated` keeps its `~` marker and reads **"Estimación geográfica"**;
+`validated-static` drops it and reads **"Ruta a pie validada"** (or **"Ruta validada"** for a
+non-walk mode); the still-unproduced `schedule-aware` case reads **"Horario en vivo"**, kept
+visibly and lexically distinct so a future live result could never be mistaken for static routing
+data. This does **not** start Phase 3B3E: nothing in the UI performs or triggers a live lookup,
+and provider activation remains OFF.
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single
