@@ -321,11 +321,48 @@ unchanged, and there was no UI work, no Phase 3C work, and zero openrouteservice
 Directions, or automated-geocoding calls. The next proposed phase, **not started**, is
 **Phase 3B2H — Targeted Access-Point Walking Revalidation**.
 
+## Phase 3B2H — Targeted Access-Point Walking Revalidation — complete
+
+- [x] Derive the target set programmatically from the committed walking manifests/results:
+      **6 directed edges** (all from the scale artifact, none from the pilot) — the historical
+      `A pie` relations with **JP-029** or **JP-181** at either end. Direction preserved; no
+      edge invented and no edge outside the set ever queried.
+- [x] Expand it into **14 routed candidates**: 12 for JP-029 (its four directed edges × all
+      **three** approved gates, because it has no default and choosing by ID, array position or
+      haversine is forbidden) and 2 for JP-181 (its single external reception point
+      `AP-JP-181-001` — no trailhead, no invented `internal-hike`/`internal-shuttle` endpoint).
+      The non-target end of every edge stays on its place coordinate.
+- [x] Ship `scripts/revalidate-walking-access-points.py` (manifest / dry-run / snap-backfill /
+      execute / recompare), the versioned manifest
+      `data/logistics/walking-access-point-manifest.json` carrying each candidate's historical
+      lineage, `scripts/validate-walking-access-point-results.py`, and
+      `scripts/test_walking_access_points.py` (**71 offline tests**).
+- [x] **Execute the batch** against openrouteservice: **1 batched Snap request** (4 access-point
+      coordinates) + **14 Directions requests** = 15 outbound calls, none outside the target set
+      and none to any other provider. **14/14 `validated`, 0 `no-route`, 0 `request-error`, all
+      `clean`.** The three place-coordinate endpoints were not re-snapped.
+- [x] Validate the artifacts and record the per-edge historical comparison in
+      `data/logistics/walking-access-point-results.json`.
+
+**Findings.** JP-029's display coordinate snaps **198.63 m** (it sits inside the palace grounds);
+its three gates snap **0.66–6.20 m**, cutting worst-case displacement by **96.9 %** — real gates
+explain and correct that behaviour. Routed distance moves −50.22 % to +6.93 % by gate, and the
+best gate **flips with the counterpart** (Hirakawa-mon from Jimbocho, Ōte-mon from Tokyo Station;
+spread up to 859.1 m), empirically confirming that no static default is correct — **none was
+created**. JP-181 via its evidenced reception is 2963.3 m / 36 min vs a historical 211.4 m /
+3 min, because its display coordinate sits 136.6 m from Cape Hedo but 1286.4 m from the actual
+reception; that `places.json` precision question is **recorded, not acted on**, here.
+
+`getBestTransfer()`, `app/src/lib/transfer.ts`, precedence/fallback, `Place.coordinates`, the
+workbook, `nearby.json`, the GeoJSON, the access-point catalog and evidence, the historical
+walking pilot/scale results, both walking manifests and the snap-places store are all
+unchanged; no threshold moved (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` is still
+`None`); no candidate became a persistent default; nothing is mirrored under `app/src/data/`;
+and there was no UI and no Phase 3C work. See
+[ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
+
 ## Later (unscheduled)
 
-- [ ] Phase 3B2H — Targeted Access-Point Walking Revalidation (proposed, not started):
-      revalidate only the affected, approved walking edges against the evidenced access points,
-      comparing against — never overwriting — the historical place-coordinate results.
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.

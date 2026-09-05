@@ -276,7 +276,13 @@ never copied names, coordinates, or minutes, which are always resolved live from
 `scripts/validate-walking-pilot.py --dry-run` resolves every manifest edge against real data,
 confirms `Modo == "A pie"`, and prints exactly what would be queried — no network call.
 `--execute` requires `ORS_API_KEY` as an environment variable (never a hardcoded value, never
-written to a file, JSON, doc, or log) and is a hard no-op without it. It skips any edge that
+written to a file, JSON, doc, or log) and is a hard no-op without it. In the cloud-first flow
+this project uses, that variable is supplied by the **Claude Code environment configuration**
+(Environments → environment variables, see
+https://code.claude.com/docs/en/claude-code-on-the-web) — set it once there and every future
+session, Claude or Codex, inherits it. It is deliberately not stored in this repository, so a
+session that finds it missing should ask for the environment to be configured rather than expect
+a committed value. It skips any edge that
 already has a cached `"validated"` result unless `--refresh` is passed, so a re-run is cheap and
 reproducible; a `"no-route"` or `"request-error"` result is retried by default. Exactly one
 bounded retry is allowed for a transient failure (HTTP 429/5xx, timeout); a real "no route"
@@ -647,6 +653,60 @@ coordinate, and the excluded place IDs staying empty).
 
 The next proposed phase, **not started here**, is **Phase 3B2H — Targeted
 Access-Point Walking Revalidation**.
+
+## Phase 3B2H — Targeted Access-Point Walking Revalidation
+
+Phase 3B2H is the design's **Stage 4**: reroute only the walking edges the Phase 3B2G
+access points affect, and compare against — never over — the historical
+place-coordinate results. Generation + evidence + comparison only.
+
+The target set is **derived, not declared**: every historical directed `A pie` edge
+(pilot or scale) with `JP-029` or `JP-181` at either end. That is **6 directed edges**,
+all six from the scale artifact, none from the pilot. Each expands into one candidate
+per eligible (`active` + `external-walk`) access point of its target place, keeping
+direction — **14 candidates**: 12 for `JP-029` (four directed edges × its three
+officially designated gates, since it has no default and picking one by ID, array
+position or haversine is forbidden) and 2 for `JP-181` (its single external reception
+point; no trailhead, no invented internal endpoint). The non-target end of every edge
+keeps the exact place coordinate the historical result used, so the comparison isolates
+one variable.
+
+**Executed 2026-09-05: 1 batched Snap request (4 access-point coordinates) and 14
+Directions requests — 15 outbound calls in total, all to openrouteservice, none outside
+the target set.** All 14 candidates returned `validated`; zero `no-route`, zero
+`request-error`, every one `clean`. The three place-coordinate endpoints were not
+re-snapped, and `walking-snap-places.json` is byte-identical.
+
+The central result: `JP-029`'s display coordinate snaps **198.63 m** because it sits
+inside the palace grounds with no routable path nearby, so every historical answer for
+its four edges was measured from an arbitrary point on some nearby road. Its three gates
+snap **0.66–6.20 m** — a gate lies on the walking network by construction — cutting
+worst-case displacement for the place by **96.9 %**. The routed answers move by −50.22 %
+to +6.93 % depending on the gate, and **the best gate changes with the counterpart**
+(Hirakawa-mon from Jimbocho, Ōte-mon from Tokyo Station; spread up to 859.1 m). That is
+the first empirical confirmation that no static default can be correct for `JP-029`, and
+**no default was created**. `JP-181` routed to its evidenced reception costs 2963.3 m /
+36 min against a historical 211.4 m / 3 min, because its display coordinate sits 136.6 m
+from Cape Hedo but 1286.4 m from the actual reception — a `places.json` precision finding
+this phase records and deliberately does not act on.
+
+Every historical result was classified `clean`, and correctly so as the rule is written:
+`clean` answers "is this routed value comparable to the coordinates we sent?", never
+"were those the right coordinates?". No threshold could answer the second question —
+access points are the mechanism that does. `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS`
+therefore stays `None` and no classification rule changed.
+
+Nothing about consumption changed. `getBestTransfer()` is untouched and still reads only
+`walking-pilot-results.json` and `walking-scale-results.json`; `app/src/lib/transfer.ts`
+has no reference to access points; no artifact from this phase is mirrored under
+`app/src/data/`. The historical walking results, both walking manifests, the snap-places
+store, `places.json`, `nearby.json`, the GeoJSON, the workbook and the access-point
+catalog are all unchanged, and two validator guards enforce that the historical results
+neither change content (recorded sha256) nor acquire access-point annotations.
+
+The full target set, candidate table, per-gate results, request accounting, comparison
+schema, validation matrix, conservative reading and phase limits are in
+[ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
 
 ## The remaining 3B2/3B2B/3C boundary
 

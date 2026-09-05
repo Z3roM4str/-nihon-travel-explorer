@@ -140,6 +140,153 @@ SCALE_MANIFEST_PATH = Path("data/logistics/walking-scale-manifest.json")
 SCALE_RESULTS_PATH = Path("data/logistics/walking-scale-results.json")
 APP_SCALE_RESULTS_PATH = Path("app/src/data/logistics/walking-scale-results.json")
 
+# Phase 3B2H: targeted access-point walking revalidation. A SEPARATE generation of
+# routing artifacts that never touches the pilot/scale files above — those stay the
+# immutable historical answers to requests made with the original place coordinates
+# (docs/ACCESS_POINT_DESIGN.md §15). The revalidation manifest is derived offline from
+# the committed walking manifests/results; the results artifact is written only by a
+# real --execute run. Neither is mirrored under app/src/data/: Phase 3B2H is explicitly
+# generation + evidence + comparison, and getBestTransfer() does not read either, so an
+# app copy would be dead weight rather than something the build consumes.
+REVALIDATION_MANIFEST_PATH = Path("data/logistics/walking-access-point-manifest.json")
+REVALIDATION_RESULTS_PATH = Path("data/logistics/walking-access-point-results.json")
+APP_REVALIDATION_RESULTS_PATH = Path("app/src/data/logistics/walking-access-point-results.json")
+REVALIDATION_MANIFEST_VERSION = 1
+REVALIDATION_RESULTS_VERSION = 1
+
+# Snap measurements for ACCESS-POINT coordinates. Deliberately a second store rather
+# than new rows in walking-snap-places.json: that store is keyed by placeId and each
+# entry is checked against the place's current dataset coordinate
+# (is_snap_entry_current), so an access point — which is not a place and has no
+# places.json coordinate — cannot be represented there without corrupting that
+# invariant. Keyed by accessPointId, same entry shape, same staleness discipline
+# against the catalog's coordinate.
+REVALIDATION_SNAP_PATH = Path("data/logistics/walking-access-point-snap.json")
+REVALIDATION_SNAP_VERSION = 1
+
+ACCESS_POINTS_PATH = Path("data/logistics/access-points.json")
+
+# The only places Phase 3B2H revalidates. Not a discovered set: these are exactly the
+# place IDs Phase 3B2G evidenced access points for. A place with no evidenced access
+# point has nothing to revalidate against, and this phase must not regenerate the other
+# walking edges (docs/ACCESS_POINT_DESIGN.md §19 Stage 4).
+REVALIDATION_TARGET_PLACE_IDS = ("JP-029", "JP-181")
+
+# The only access context an external walking edge may resolve against. An
+# "internal-hike"/"internal-shuttle" point describes a stage *inside* a venue and is
+# never a valid endpoint for a city-to-POI walk — see docs/ACCESS_POINT_DESIGN.md §13.
+EXTERNAL_WALK_CONTEXT = "external-walk"
+
+ENDPOINT_KIND_PLACE_COORDINATE = "place-coordinate"
+ENDPOINT_KIND_ACCESS_POINT = "access-point"
+ENDPOINT_KINDS = (ENDPOINT_KIND_PLACE_COORDINATE, ENDPOINT_KIND_ACCESS_POINT)
+
+ACCESS_POINT_STATUS_ACTIVE = "active"
+
+# Which historical walking artifact an edge came from. Recorded per candidate so a
+# reader never has to re-derive it, and so a comparison can be traced back to the exact
+# file that holds the place-coordinate answer it is being compared against.
+HISTORICAL_ORIGIN_PILOT = "pilot"
+HISTORICAL_ORIGIN_SCALE = "scale"
+HISTORICAL_ARTIFACT_BY_ORIGIN = {
+    HISTORICAL_ORIGIN_PILOT: "data/logistics/walking-pilot-results.json",
+    HISTORICAL_ORIGIN_SCALE: "data/logistics/walking-scale-results.json",
+}
+HISTORICAL_MANIFEST_BY_ORIGIN = {
+    HISTORICAL_ORIGIN_PILOT: "data/logistics/walking-pilot-manifest.json",
+    HISTORICAL_ORIGIN_SCALE: "data/logistics/walking-scale-manifest.json",
+}
+
+
+def load_access_points(data_dir=Path("data")):
+    return load_json(Path(data_dir) / "logistics/access-points.json")
+
+
+def access_points_by_id(access_points):
+    return {point["id"]: point for point in access_points}
+
+
+def eligible_access_points(access_points, place_id, context=EXTERNAL_WALK_CONTEXT):
+    """Every ACTIVE catalog point for `place_id` whose applicableContexts include
+    `context`, in catalog order.
+
+    Catalog order carries no priority and this function assigns none: it returns ALL
+    eligible points, never "the first" or "the nearest". JP-029 has three officially
+    designated gates and no default (selection.defaultForContexts is empty on all
+    four catalog records), so a caller that needs one answer must either route every
+    candidate and compare real provider results, or treat the place as ambiguous —
+    never break the tie by ID, array position, or haversine.
+    """
+    return [
+        point
+        for point in access_points
+        if point.get("placeId") == place_id
+        and point.get("status") == ACCESS_POINT_STATUS_ACTIVE
+        and context in (point.get("applicableContexts") or [])
+    ]
+
+
+def place_coordinate_endpoint(place_id):
+    return {"kind": ENDPOINT_KIND_PLACE_COORDINATE, "placeId": place_id}
+
+
+def access_point_endpoint(place_id, access_point_id):
+    return {
+        "kind": ENDPOINT_KIND_ACCESS_POINT,
+        "placeId": place_id,
+        "accessPointId": access_point_id,
+    }
+
+
+def endpoint_label(endpoint):
+    """Stable, human-readable identity of one endpoint. Used to build candidate keys —
+    so two candidates for the same directed edge that differ only by which gate was
+    queried get different keys, and an accidental duplicate is detectable."""
+    if endpoint.get("kind") == ENDPOINT_KIND_ACCESS_POINT:
+        return f"{endpoint['placeId']}@{endpoint['accessPointId']}"
+    return endpoint["placeId"]
+
+
+def candidate_key(from_endpoint, to_endpoint):
+    """The unique key of one routed candidate: the directed pair PLUS both endpoint
+    identities. A directed pair alone is NOT unique here — that is the whole point of
+    the phase: JP-028 -> JP-029 is routed three times, once per gate."""
+    return f"{endpoint_label(from_endpoint)}->{endpoint_label(to_endpoint)}"
+
+
+def endpoint_coordinates(endpoint, places_by_id_map, access_points_by_id_map):
+    """The {lat, lng} an endpoint identity resolves to, from the catalog for an
+    access-point endpoint and from places.json for a place-coordinate endpoint.
+    Raises rather than falling back: an unresolvable endpoint must never be silently
+    routed against some other point's coordinate."""
+    kind = endpoint.get("kind")
+    if kind == ENDPOINT_KIND_ACCESS_POINT:
+        point = access_points_by_id_map.get(endpoint.get("accessPointId"))
+        if point is None:
+            raise KeyError(f"unknown accessPointId {endpoint.get('accessPointId')!r}")
+        if point.get("placeId") != endpoint.get("placeId"):
+            raise ValueError(
+                f"endpoint placeId {endpoint.get('placeId')!r} does not match access point "
+                f"{point['id']!r} placeId {point.get('placeId')!r}"
+            )
+        return dict(point["coordinates"])
+    if kind == ENDPOINT_KIND_PLACE_COORDINATE:
+        place = places_by_id_map.get(endpoint.get("placeId"))
+        if place is None:
+            raise KeyError(f"unknown placeId {endpoint.get('placeId')!r}")
+        return dict(place["coordinates"])
+    raise ValueError(f"unknown endpoint kind {kind!r}, expected one of {ENDPOINT_KINDS}")
+
+
+def endpoint_as_place(endpoint, places_by_id_map, access_points_by_id_map):
+    """Adapts an endpoint identity to the {"coordinates": {...}} shape ors_client's
+    query_ors/to_ors_coordinates already take, so the revalidation pipeline reuses the
+    existing Directions call path byte for byte instead of building its own request."""
+    return {
+        "id": endpoint_label(endpoint),
+        "coordinates": endpoint_coordinates(endpoint, places_by_id_map, access_points_by_id_map),
+    }
+
 # A WalkingPilotResult's `status` splits into exactly two kinds, and the split matters
 # for resume/publish logic, not just display:
 #   - "validated" and "no-route" are TERMINAL: the provider gave a real, final answer
