@@ -753,6 +753,20 @@ this session. No provider was integrated, no account or key was created, and no 
 to any of them. Full research, requirements, and the comparative matrix are in
 [TRANSIT_PROVIDER_DECISION.md](TRANSIT_PROVIDER_DECISION.md).
 
+**Phase 3B3B** closed both of that phase's blockers: it read Ekispert's actual Standard Plan
+terms of use (latest revision 2025-12-15, Article 27) and NAVITIME's Article 5, and confirmed —
+via Ekispert's own live demo and Okinawa Prefecture's Ekispert-powered bus portal — that Yui
+Rail, Naha Bus, Okinawa Bus, Ryukyu Bus Kotsu, and Toyo Bus are all named-operator covered.
+**Neither provider's terms permit this project's historical walking pattern** (committing real
+routing output as versioned JSON) in a **public** repository — Ekispert Article 27(7)/(8)
+prohibits secondary use/resale of output data and, for railway timetables specifically, even
+private retention; NAVITIME's Article 5 §5 is a broader blanket no-caching rule. **Decision:
+PROCEED WITH HYBRID** — integration code, schema, and synthetic fixtures may be versioned; any
+real provider output must be queried live and never persisted. Ekispert is the recommended
+provider; NAVITIME the secondary. Full article-by-article analysis, the AI-use scenario
+classification, and the public-repo implications are in
+[TRANSIT_TERMS_COVERAGE_CONFIRMATION.md](TRANSIT_TERMS_COVERAGE_CONFIRMATION.md).
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single
