@@ -10,21 +10,13 @@ walking relations.
 
 ## Status in this checkout
 
-> **Not executed.** The target set, the candidate expansion, the pipeline, the validator
-> and the test suite are complete and committed. **`ORS_API_KEY` is not available in this
-> environment**, so — per the phase's own stop condition — the run halted *before any
-> real request*. **Zero openrouteservice calls were made: no Snap, no Directions, no
-> geocoding, no other provider.** `data/logistics/walking-access-point-results.json`
-> therefore does not exist yet.
->
-> A results artifact is deliberately **not** committed as an empty or placeholder file: a
-> `candidates: []` document would be indistinguishable from "we ran it and the provider
-> returned nothing". The committed manifest is the fully-derived, verifiable statement of
-> what will be queried; its absence of a results sibling is the unambiguous signal that
-> the batch has not run.
->
-> **Phase 3B2H is therefore not complete.** It completes when `--backfill-snap` and
-> `--execute` run green with a key and the validator passes over the resulting artifact.
+**Executed and validated.** The batch ran against openrouteservice on 2026-09-05:
+**1 batched Snap request** (the 4 access-point coordinates) and **14 Directions requests**
+(one per candidate). **14/14 validated, 0 `no-route`, 0 `request-error`**, every candidate
+`clean`. No request was made outside the target set, and no other provider was contacted.
+
+`data/logistics/walking-access-point-results.json` and
+`data/logistics/walking-access-point-snap.json` are committed. Phase 3B2H is **complete**.
 
 ## 1. Target set
 
@@ -73,7 +65,8 @@ pattern Phase 3B2B-A's threshold audit flagged on `JP-184->JP-185` and deliberat
 available: route to a **catalogued, officially evidenced gate** instead, and let the
 comparison show what the difference actually is.
 
-`JP-181` snaps 80.69 m for the same kind of reason.
+`JP-181` snaps 80.69 m for the same kind of reason. §5 reports what the executed routes
+actually showed for both.
 
 ## 2. Candidate expansion — 14 routed candidates
 
@@ -133,60 +126,147 @@ Phase 3B2G investigated both and created neither: the operator documents that th
 start point and the shuttle stage exist ~20–30 minutes beyond reception, but publishes no
 coordinate for either. The validator rejects an internal-only endpoint outright.
 
-## 3. Requests a real run will make
+## 3. Requests actually made
 
 | Request kind | Count | Notes |
 |---|---|---|
 | Snap | **1 batched request**, 4 locations | Only the 4 access-point coordinates. |
-| Directions | **14** | One per candidate, paced at the documented 40/min. |
+| Directions | **14** | One per candidate, `geometry: false`, paced at the documented 40/min. |
 
-**Executed in this checkout: 0 Snap, 0 Directions, 0 of anything else.**
+**15 outbound HTTP requests in total**, all to `api.heigit.org` — the
+`/v2/snap/foot-walking/json` and `/v2/directions/foot-walking/json` endpoints and nothing
+else. Every coordinate sent was one of the 7 approved endpoints (4 access points + the 3
+place-coordinate counterparts); an audit of the outbound calls confirms **zero coordinates
+outside that set** and 14 distinct directed pairs. No Google Directions, no Mapbox, no
+geocoding, no other provider.
 
-Place-coordinate endpoints (`JP-028`, `JP-030`, `JP-182`) are **never re-snapped**:
-their measurements already exist and are `resolved` in
-`data/logistics/walking-snap-places.json`, and re-querying them would spend quota to
-learn nothing and risk drift against the historical results.
+Place-coordinate endpoints (`JP-028`, `JP-030`, `JP-182`) were **not** re-snapped: their
+measurements already existed as `resolved` in `data/logistics/walking-snap-places.json`, which
+is byte-identical after this phase.
 
-No Google Directions, no Mapbox, no geocoding, no other provider — openrouteservice
-only, through the existing `scripts/ors_client.py` call path, with the same retry
-policy, the same rate limiter and the same `foot-walking` profile.
+### Access-point snap measurements
+
+| Access point | Label | Snapped distance | Status |
+|---|---|---|---|
+| `AP-JP-029-001` | Ōte-mon Gate | **4.58 m** | resolved |
+| `AP-JP-029-002` | Hirakawa-mon Gate | **6.20 m** | resolved |
+| `AP-JP-029-003` | Kitahanebashi-mon Gate | **0.66 m** | resolved |
+| `AP-JP-181-001` | ASMUI reception | **6.37 m** | resolved |
 
 ## 4. Results per edge
 
-Not available: the batch has not run. When it does, every candidate is written to
-`data/logistics/walking-access-point-results.json` carrying `fromId`, `toId`,
-`fromEndpoint`, `toEndpoint`, `accessPointIds`, the exact `[lng, lat]` query
-coordinates, `provider`, `profile`, `status`, `distance`, `minutes`,
-`durationSecondsRaw`, `endpointSnapping`, `attribution`, its `lineage`, and its
-`comparison`.
+All 14 candidates returned `validated`. Δ is against that edge's historical
+place-coordinate result. Both directions of every edge returned identical distances, as
+they did historically.
 
-## 5. Historical comparison
+### JP-029 ↔ JP-028 — historical 1565.2 m / 19 min (snap 2.72 / **198.63**, clean)
 
-Each candidate carries a `comparison` block that is a **re-derivable pure function** of
-its `lineage` and its own result (`build_comparison`) — the validator recomputes it and
-rejects a hand-edited one. It records:
+| Gate | Snap | Routed | Min | Δ distance | Δ % | Δ min |
+|---|---|---|---|---|---|---|
+| Ōte-mon | 4.58 m | 1360.5 m | 16 | −204.7 m | −13.08 % | −3 |
+| **Hirakawa-mon** | 6.20 m | **779.2 m** | **9** | **−786.0 m** | **−50.22 %** | **−10** |
+| Kitahanebashi-mon | 0.66 m | 1203.5 m | 14 | −361.7 m | −23.11 % | −5 |
 
-- `historicalStatus` / `newStatus`;
-- `historicalDistanceMeters` / `newDistanceMeters`, `distanceDeltaMeters`, `distanceDeltaPercent`;
-- `historicalMinutes` / `newMinutes`, `durationDeltaMinutes`, `durationDeltaPercent`,
-  and `durationDeltaSeconds` from the raw provider durations;
-- both endpoint identities on both sides;
-- both snap assessments and both endpoints' snap displacement.
+Spread across gates: **581.3 m**. Identical in both directions (`JP-028 -> JP-029` and
+`JP-029 -> JP-028`).
 
-Numeric deltas appear **only** when both sides are `validated`; `comparable: false`
-plus a `reason` is recorded otherwise. A percentage against a zero historical value is
-`null`, never a fabricated number. A `no-route` or `request-error` never produces a
-delta against a value it does not have.
+### JP-029 ↔ JP-030 — historical 1816.5 m / 22 min (snap **198.63** / 0.82, clean)
 
-The historical artifacts are read for lineage and never written. Two independent
-validator guards enforce that (see §7).
+| Gate | Snap | Routed | Min | Δ distance | Δ % | Δ min |
+|---|---|---|---|---|---|---|
+| **Ōte-mon** | 4.58 m | **1083.3 m** | **13** | **−733.2 m** | **−40.36 %** | **−9** |
+| Hirakawa-mon | 6.20 m | 1747.5 m | 21 | −69.0 m | −3.80 % | −1 |
+| Kitahanebashi-mon | 0.66 m | 1942.4 m | 23 | +125.9 m | +6.93 % | +1 |
+
+Spread across gates: **859.1 m**. Identical in both directions.
+
+### JP-181 ↔ JP-182 — historical 211.4 m / 3 min (snap 80.69 / 13.74, clean)
+
+| Access point | Snap | Routed | Min | Δ distance | Δ % | Δ min |
+|---|---|---|---|---|---|---|
+| ASMUI reception | 6.37 m | **2963.3 m** | **36** | **+2751.9 m** | **+1301.75 %** | **+33** |
+
+Identical in both directions.
+
+## 5. What the results mean
+
+### The 198.63 m is explained, and the gates correct it
+
+`JP-029`'s display coordinate sits inside the palace grounds, with no routable path within
+~200 m. openrouteservice silently displaced it **198.63 m** to reach the network, and every
+historical answer for these four edges was therefore measured from an arbitrary point on some
+nearby road — not from any entrance a visitor can actually use.
+
+The three gates snap **0.66–6.20 m**. That is not a coincidence and not tuning: a gate *is*
+the point where the grounds meet the street, so it lies on the walking network by
+construction. Worst-case endpoint displacement for this place drops from 198.63 m to 6.20 m,
+a **96.9 % reduction**; the best gate is within 0.66 m.
+
+So: **yes — using the real gates both explains and corrects the behaviour.** The 198.63 m was
+the router compensating for a coordinate that is not reachable on foot, and catalogued access
+points remove the need for that compensation entirely.
+
+Two things this finding is *not*:
+
+- **It is not evidence that the snapping threshold is wrong.** Every historical result was
+  classified `clean`, and that classification was correct *as the rule is written*: combined
+  displacement stayed well under half of a 1.5–1.8 km route. `clean` answers "is this routed
+  value comparable to the coordinates we sent?" — never "were those the right coordinates?".
+  No threshold could have answered the second question; access points are the mechanism that
+  does. `SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` therefore stays `None`, and this
+  phase changed nothing about the classification rules.
+- **It is not proof the historical numbers were simply "too short".** Five of the six gate
+  routes came out *shorter* than the historical answer (by up to 786 m), and one came out
+  longer. The snap point happens to sit further from most of these origins than the gates do.
+  The defect is not a consistent bias but that the historical value describes a walk between
+  an arbitrary snap point and the other place — a walk no traveller takes.
+
+### The best gate flips with the counterpart — so no default
+
+| Edge | Best gate | Routed | vs. historical |
+|---|---|---|---|
+| `JP-028` ↔ `JP-029` (Jimbocho, north-west) | **Hirakawa-mon** | 779.2 m | −50.22 % |
+| `JP-030` ↔ `JP-029` (Tokyo Station, south-east) | **Ōte-mon** | 1083.3 m | −40.36 % |
+
+The winner changes with the other end of the trip, and the spread between best and worst gate
+reaches **859.1 m** — roughly half the historical distance for the same edge. This is the
+first *empirical* confirmation of what `ACCESS_POINT_DESIGN.md` §12 and §20 predicted on
+evidential grounds alone: the correct gate is origin-dependent, so no single static default
+can be right for `JP-029`.
+
+**No default was created.** `selection.defaultForContexts` remains empty on all three gates.
+The current specification does not authorise one — §16 requires an explicit `ambiguous`
+outcome for a multi-candidate place with no default — and the measurements above now
+positively support that rule rather than merely leaving it untested. The per-edge winners
+above are recorded as evidence for a future resolver, not as configuration.
+
+### JP-181: a finding about the dataset, not about the access point
+
+Routing to the operator's actual reception costs **2963.3 m / 36 min**, against a historical
+**211.4 m / 3 min**. The cause is geometric:
+
+- `JP-181`'s display coordinate is **136.6 m** from `JP-182` (Cape Hedo);
+- the evidenced ASMUI reception is **1286.4 m** away from that display coordinate, and
+  **1422.8 m** from Cape Hedo in a straight line.
+
+The historical edge was therefore measuring a ~200 m stroll between two coordinates that both
+sit essentially *at* Cape Hedo — it never described reaching ASMUI at all. The new figure is
+the one that describes the real external arrival. `JP-181`'s own snap displacement also drops
+from 80.69 m to 6.37 m.
+
+This points at `JP-181`'s `Place.coordinates` being imprecise for its venue. **This phase does
+not touch `places.json`** — that is out of scope here and is flagged for a future phase to
+assess against evidence, exactly as Phase 3B2G flagged coordinates it could not source.
+
+Note also what the reception figure still does *not* cover: it is the external arrival stage
+only. The hike itself begins a further ~20–30 minutes on by an internal shuttle with no
+published coordinate, so no `internal-hike`/`internal-shuttle` endpoint exists to route to.
 
 ## 6. No-route / errors
 
-None observed — nothing was queried. A `no-route` is a terminal provider answer and is
-recorded as such, carrying no `distance`/`minutes`/`confidence`; a `request-error` is
-**not** terminal and is retried on the next `--execute`. A gate that turns out to be
-unroutable is a real finding about that gate, never a reason to substitute another one.
+**None.** All 14 candidates returned `validated`; there were zero `no-route` answers, zero
+`request-error` failures, zero retries and zero rate-limit responses. Every candidate's
+endpoint snapping classified `clean`, and every comparison is `comparable: true`.
 
 ## 7. Validation
 
@@ -212,7 +292,7 @@ nothing) rejects:
 | Manifest drift | results generated from a different manifest digest |
 | Source/app parity | checked *if* an app copy exists; an app copy without a source is an error |
 
-`scripts/test_walking_access_points.py` — **70 offline tests** — covers the target-set
+`scripts/test_walking_access_points.py` — **71 offline tests** — covers the target-set
 derivation, the candidate expansion, endpoint resolution, the comparison arithmetic, the
 snap-store discipline, every failure mode above against a synthetic full results
 document, the no-runtime-integration guarantees, and the CLI's refusal to run without a
@@ -220,18 +300,20 @@ key.
 
 ## 8. Conservative interpretation
 
-Read narrowly, and only once the batch has actually run:
+Read narrowly:
 
 - A candidate's numbers describe **the route to that specific gate**, not "the route to
   JP-029". Three gates give three legitimately different answers; that is the finding,
   not a defect to average away.
 - A shorter or longer routed distance is **not** evidence that the historical result was
   wrong. The historical answer is a correct answer to the question it was asked (route
-  between the two display coordinates). This phase asks a different question.
+  between the two display coordinates). This phase asks a different question. That holds
+  for `JP-181`'s +1301 % just as much as for `JP-029`'s −50 %.
 - A `clean` snapping verdict on either side means the routed value is comparable to the
   coordinate that was sent — nothing more. It is not a statement about which endpoint is
   the right one for a traveller.
-- The right gate is **origin-dependent**. Nothing here can be generalised into a single
+- The right gate is **origin-dependent** — now measured, not just argued: Hirakawa-mon wins
+  from Jimbocho, Ōte-mon from Tokyo Station. Nothing here can be generalised into a single
   default for `JP-029`, and this phase deliberately stores none.
 - `JP-181`'s reception point is the external arrival stage only. A route to it does not
   describe reaching the hike itself, which is a further ~20–30 minutes by an internal
@@ -260,11 +342,11 @@ Phase 3B2H does **not**:
 | Path | Role |
 |---|---|
 | `data/logistics/walking-access-point-manifest.json` | Derived target set + candidate expansion + lineage. **Committed.** |
-| `data/logistics/walking-access-point-results.json` | Candidate results + comparisons. **Written by `--execute` only; absent here.** |
-| `data/logistics/walking-access-point-snap.json` | Snap store keyed by `accessPointId`. Separate from the place store, whose entries are validated against a *place's* dataset coordinate. **Written by `--backfill-snap` only; absent here.** |
+| `data/logistics/walking-access-point-results.json` | 14 candidate results + comparisons. **Committed.** |
+| `data/logistics/walking-access-point-snap.json` | Snap store keyed by `accessPointId`, 4 resolved entries. Separate from the place store, whose entries are validated against a *place's* dataset coordinate. **Committed.** |
 | `scripts/revalidate-walking-access-points.py` | The pipeline. |
 | `scripts/validate-walking-access-point-results.py` | The validator. |
-| `scripts/test_walking_access_points.py` | 70 offline tests. |
+| `scripts/test_walking_access_points.py` | 71 offline tests. |
 
 None of these is mirrored under `app/src/data/`: the app does not consume them, and an
 unread copy would be dead weight the parity check would then have to defend.

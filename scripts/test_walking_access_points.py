@@ -9,6 +9,7 @@ import copy
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -627,7 +628,21 @@ class CliGuardTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertIn("Target directed edges: 6", completed.stdout)
         self.assertIn("Candidates: 14", completed.stdout)
-        self.assertIn("Planned Directions requests: 14", completed.stdout)
+
+    def test_dry_run_request_accounting_covers_every_candidate(self):
+        """Planned + already-terminal always accounts for all 14 candidates.
+
+        Deliberately not "planned == 14": that only held before the batch ran.
+        Once every candidate has a terminal result the planned count is 0 and the
+        terminal count is 14, and both readings are correct — what must never
+        drift is that the two together still describe the whole target set, and
+        that the dry-run never plans a request outside it.
+        """
+        completed = self.run_cli("--dry-run")
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        planned = int(re.search(r"Planned Directions requests: (\d+)", completed.stdout).group(1))
+        terminal = int(re.search(r"Already terminal: (\d+)", completed.stdout).group(1))
+        self.assertEqual(planned + terminal, 14)
 
     def test_build_manifest_is_deterministic(self):
         before = (REPO / common.REVALIDATION_MANIFEST_PATH).read_text(encoding="utf-8")

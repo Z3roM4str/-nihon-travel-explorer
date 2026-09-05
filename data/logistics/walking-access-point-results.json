@@ -1,0 +1,1909 @@
+{
+  "revalidationVersion": 1,
+  "phase": "3B2H",
+  "targetPlaceIds": [
+    "JP-029",
+    "JP-181"
+  ],
+  "manifest": {
+    "path": "data/logistics/walking-access-point-manifest.json",
+    "digest": {
+      "algorithm": "sha256",
+      "value": "c84c92c87de84fe09e42cc54b4ffe23b8d0a02ca2f36215a5644e499fdb9860f"
+    },
+    "candidateCount": 14
+  },
+  "notes": "Phase 3B2H generation + evidence + comparison only. These results are NOT read by the app: getBestTransfer() is unchanged and consumes only the historical pilot/scale artifacts. walking-pilot-results.json and walking-scale-results.json are untouched by this pipeline; each candidate's `lineage` copies the historical answer for audit and never writes back to it. No candidate is promoted to a persistent default for its place.",
+  "candidates": [
+    {
+      "fromId": "JP-028",
+      "toId": "JP-029",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1360.5
+      },
+      "minutes": {
+        "minMinutes": 16,
+        "maxMinutes": 16
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:40:57Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.7576,
+          35.6956
+        ],
+        "toCoordinates": [
+          139.760215,
+          35.68596
+        ]
+      },
+      "durationSecondsRaw": 979.6,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-028->JP-029@AP-JP-029-001",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 2.72,
+        "toSnapMeters": 4.58,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:02Z",
+        "query": {
+          "fromCoordinates": [
+            139.7576,
+            35.6956
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-001"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 4.58
+        },
+        "historicalDistanceMeters": 1565.2,
+        "newDistanceMeters": 1360.5,
+        "distanceDeltaMeters": -204.7,
+        "distanceDeltaPercent": -13.08,
+        "historicalMinutes": 19,
+        "newMinutes": 16,
+        "durationDeltaMinutes": -3,
+        "durationDeltaPercent": -15.79,
+        "historicalDurationSecondsRaw": 1126.9,
+        "newDurationSecondsRaw": 979.6,
+        "durationDeltaSeconds": -147.3
+      }
+    },
+    {
+      "fromId": "JP-028",
+      "toId": "JP-029",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 779.2
+      },
+      "minutes": {
+        "minMinutes": 9,
+        "maxMinutes": 9
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:40:58Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.7576,
+          35.6956
+        ],
+        "toCoordinates": [
+          139.757877,
+          35.689623
+        ]
+      },
+      "durationSecondsRaw": 561.0,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-028->JP-029@AP-JP-029-002",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 2.72,
+        "toSnapMeters": 6.2,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:02Z",
+        "query": {
+          "fromCoordinates": [
+            139.7576,
+            35.6956
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-002"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 6.2
+        },
+        "historicalDistanceMeters": 1565.2,
+        "newDistanceMeters": 779.2,
+        "distanceDeltaMeters": -786.0,
+        "distanceDeltaPercent": -50.22,
+        "historicalMinutes": 19,
+        "newMinutes": 9,
+        "durationDeltaMinutes": -10,
+        "durationDeltaPercent": -52.63,
+        "historicalDurationSecondsRaw": 1126.9,
+        "newDurationSecondsRaw": 561.0,
+        "durationDeltaSeconds": -565.9
+      }
+    },
+    {
+      "fromId": "JP-028",
+      "toId": "JP-029",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1203.5
+      },
+      "minutes": {
+        "minMinutes": 14,
+        "maxMinutes": 14
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:40:59Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.7576,
+          35.6956
+        ],
+        "toCoordinates": [
+          139.754043,
+          35.688868
+        ]
+      },
+      "durationSecondsRaw": 866.5,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-028->JP-029@AP-JP-029-003",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 2.72,
+        "toSnapMeters": 0.66,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:02Z",
+        "query": {
+          "fromCoordinates": [
+            139.7576,
+            35.6956
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-003"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 198.63
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 2.72,
+          "toSnapMeters": 0.66
+        },
+        "historicalDistanceMeters": 1565.2,
+        "newDistanceMeters": 1203.5,
+        "distanceDeltaMeters": -361.7,
+        "distanceDeltaPercent": -23.11,
+        "historicalMinutes": 19,
+        "newMinutes": 14,
+        "durationDeltaMinutes": -5,
+        "durationDeltaPercent": -26.32,
+        "historicalDurationSecondsRaw": 1126.9,
+        "newDurationSecondsRaw": 866.5,
+        "durationDeltaSeconds": -260.4
+      }
+    },
+    {
+      "fromId": "JP-029",
+      "toId": "JP-028",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1360.5
+      },
+      "minutes": {
+        "minMinutes": 16,
+        "maxMinutes": 16
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:40:59Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.760215,
+          35.68596
+        ],
+        "toCoordinates": [
+          139.7576,
+          35.6956
+        ]
+      },
+      "durationSecondsRaw": 979.6,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-029@AP-JP-029-001->JP-028",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 4.58,
+        "toSnapMeters": 2.72,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7576,
+            35.6956
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-001"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 4.58,
+          "toSnapMeters": 2.72
+        },
+        "historicalDistanceMeters": 1565.2,
+        "newDistanceMeters": 1360.5,
+        "distanceDeltaMeters": -204.7,
+        "distanceDeltaPercent": -13.08,
+        "historicalMinutes": 19,
+        "newMinutes": 16,
+        "durationDeltaMinutes": -3,
+        "durationDeltaPercent": -15.79,
+        "historicalDurationSecondsRaw": 1126.9,
+        "newDurationSecondsRaw": 979.6,
+        "durationDeltaSeconds": -147.3
+      }
+    },
+    {
+      "fromId": "JP-029",
+      "toId": "JP-028",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 779.2
+      },
+      "minutes": {
+        "minMinutes": 9,
+        "maxMinutes": 9
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:00Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.757877,
+          35.689623
+        ],
+        "toCoordinates": [
+          139.7576,
+          35.6956
+        ]
+      },
+      "durationSecondsRaw": 561.0,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-029@AP-JP-029-002->JP-028",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 6.2,
+        "toSnapMeters": 2.72,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7576,
+            35.6956
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-002"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 6.2,
+          "toSnapMeters": 2.72
+        },
+        "historicalDistanceMeters": 1565.2,
+        "newDistanceMeters": 779.2,
+        "distanceDeltaMeters": -786.0,
+        "distanceDeltaPercent": -50.22,
+        "historicalMinutes": 19,
+        "newMinutes": 9,
+        "durationDeltaMinutes": -10,
+        "durationDeltaPercent": -52.63,
+        "historicalDurationSecondsRaw": 1126.9,
+        "newDurationSecondsRaw": 561.0,
+        "durationDeltaSeconds": -565.9
+      }
+    },
+    {
+      "fromId": "JP-029",
+      "toId": "JP-028",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1203.5
+      },
+      "minutes": {
+        "minMinutes": 14,
+        "maxMinutes": 14
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:00Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.754043,
+          35.688868
+        ],
+        "toCoordinates": [
+          139.7576,
+          35.6956
+        ]
+      },
+      "durationSecondsRaw": 866.5,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-029@AP-JP-029-003->JP-028",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-028"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 0.66,
+        "toSnapMeters": 2.72,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7576,
+            35.6956
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1565.2
+        },
+        "minutes": {
+          "minMinutes": 19,
+          "maxMinutes": 19
+        },
+        "durationSecondsRaw": 1126.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-003"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-028"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 2.72
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.66,
+          "toSnapMeters": 2.72
+        },
+        "historicalDistanceMeters": 1565.2,
+        "newDistanceMeters": 1203.5,
+        "distanceDeltaMeters": -361.7,
+        "distanceDeltaPercent": -23.11,
+        "historicalMinutes": 19,
+        "newMinutes": 14,
+        "durationDeltaMinutes": -5,
+        "durationDeltaPercent": -26.32,
+        "historicalDurationSecondsRaw": 1126.9,
+        "newDurationSecondsRaw": 866.5,
+        "durationDeltaSeconds": -260.4
+      }
+    },
+    {
+      "fromId": "JP-029",
+      "toId": "JP-030",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1083.3
+      },
+      "minutes": {
+        "minMinutes": 13,
+        "maxMinutes": 13
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:01Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.760215,
+          35.68596
+        ],
+        "toCoordinates": [
+          139.7671,
+          35.6812
+        ]
+      },
+      "durationSecondsRaw": 780.0,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-029@AP-JP-029-001->JP-030",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 4.58,
+        "toSnapMeters": 0.82,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7671,
+            35.6812
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-001"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 4.58,
+          "toSnapMeters": 0.82
+        },
+        "historicalDistanceMeters": 1816.5,
+        "newDistanceMeters": 1083.3,
+        "distanceDeltaMeters": -733.2,
+        "distanceDeltaPercent": -40.36,
+        "historicalMinutes": 22,
+        "newMinutes": 13,
+        "durationDeltaMinutes": -9,
+        "durationDeltaPercent": -40.91,
+        "historicalDurationSecondsRaw": 1307.9,
+        "newDurationSecondsRaw": 780.0,
+        "durationDeltaSeconds": -527.9
+      }
+    },
+    {
+      "fromId": "JP-029",
+      "toId": "JP-030",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1747.5
+      },
+      "minutes": {
+        "minMinutes": 21,
+        "maxMinutes": 21
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:01Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.757877,
+          35.689623
+        ],
+        "toCoordinates": [
+          139.7671,
+          35.6812
+        ]
+      },
+      "durationSecondsRaw": 1258.2,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-029@AP-JP-029-002->JP-030",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 6.2,
+        "toSnapMeters": 0.82,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7671,
+            35.6812
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-002"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 6.2,
+          "toSnapMeters": 0.82
+        },
+        "historicalDistanceMeters": 1816.5,
+        "newDistanceMeters": 1747.5,
+        "distanceDeltaMeters": -69.0,
+        "distanceDeltaPercent": -3.8,
+        "historicalMinutes": 22,
+        "newMinutes": 21,
+        "durationDeltaMinutes": -1,
+        "durationDeltaPercent": -4.55,
+        "historicalDurationSecondsRaw": 1307.9,
+        "newDurationSecondsRaw": 1258.2,
+        "durationDeltaSeconds": -49.7
+      }
+    },
+    {
+      "fromId": "JP-029",
+      "toId": "JP-030",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1942.4
+      },
+      "minutes": {
+        "minMinutes": 23,
+        "maxMinutes": 23
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:02Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.754043,
+          35.688868
+        ],
+        "toCoordinates": [
+          139.7671,
+          35.6812
+        ]
+      },
+      "durationSecondsRaw": 1398.5,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-029@AP-JP-029-003->JP-030",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 0.66,
+        "toSnapMeters": 0.82,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:03Z",
+        "query": {
+          "fromCoordinates": [
+            139.7528,
+            35.6852
+          ],
+          "toCoordinates": [
+            139.7671,
+            35.6812
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-003"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 198.63,
+          "toSnapMeters": 0.82
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.66,
+          "toSnapMeters": 0.82
+        },
+        "historicalDistanceMeters": 1816.5,
+        "newDistanceMeters": 1942.4,
+        "distanceDeltaMeters": 125.9,
+        "distanceDeltaPercent": 6.93,
+        "historicalMinutes": 22,
+        "newMinutes": 23,
+        "durationDeltaMinutes": 1,
+        "durationDeltaPercent": 4.55,
+        "historicalDurationSecondsRaw": 1307.9,
+        "newDurationSecondsRaw": 1398.5,
+        "durationDeltaSeconds": 90.6
+      }
+    },
+    {
+      "fromId": "JP-030",
+      "toId": "JP-029",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1083.3
+      },
+      "minutes": {
+        "minMinutes": 13,
+        "maxMinutes": 13
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:02Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.7671,
+          35.6812
+        ],
+        "toCoordinates": [
+          139.760215,
+          35.68596
+        ]
+      },
+      "durationSecondsRaw": 780.0,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-030->JP-029@AP-JP-029-001",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-001"
+      },
+      "accessPointIds": [
+        "AP-JP-029-001"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 0.82,
+        "toSnapMeters": 4.58,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:04Z",
+        "query": {
+          "fromCoordinates": [
+            139.7671,
+            35.6812
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-001"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 4.58
+        },
+        "historicalDistanceMeters": 1816.5,
+        "newDistanceMeters": 1083.3,
+        "distanceDeltaMeters": -733.2,
+        "distanceDeltaPercent": -40.36,
+        "historicalMinutes": 22,
+        "newMinutes": 13,
+        "durationDeltaMinutes": -9,
+        "durationDeltaPercent": -40.91,
+        "historicalDurationSecondsRaw": 1307.9,
+        "newDurationSecondsRaw": 780.0,
+        "durationDeltaSeconds": -527.9
+      }
+    },
+    {
+      "fromId": "JP-030",
+      "toId": "JP-029",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1747.5
+      },
+      "minutes": {
+        "minMinutes": 21,
+        "maxMinutes": 21
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:03Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.7671,
+          35.6812
+        ],
+        "toCoordinates": [
+          139.757877,
+          35.689623
+        ]
+      },
+      "durationSecondsRaw": 1258.2,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-030->JP-029@AP-JP-029-002",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-002"
+      },
+      "accessPointIds": [
+        "AP-JP-029-002"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 0.82,
+        "toSnapMeters": 6.2,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:04Z",
+        "query": {
+          "fromCoordinates": [
+            139.7671,
+            35.6812
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-002"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 6.2
+        },
+        "historicalDistanceMeters": 1816.5,
+        "newDistanceMeters": 1747.5,
+        "distanceDeltaMeters": -69.0,
+        "distanceDeltaPercent": -3.8,
+        "historicalMinutes": 22,
+        "newMinutes": 21,
+        "durationDeltaMinutes": -1,
+        "durationDeltaPercent": -4.55,
+        "historicalDurationSecondsRaw": 1307.9,
+        "newDurationSecondsRaw": 1258.2,
+        "durationDeltaSeconds": -49.7
+      }
+    },
+    {
+      "fromId": "JP-030",
+      "toId": "JP-029",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 1942.4
+      },
+      "minutes": {
+        "minMinutes": 23,
+        "maxMinutes": 23
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:03Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          139.7671,
+          35.6812
+        ],
+        "toCoordinates": [
+          139.754043,
+          35.688868
+        ]
+      },
+      "durationSecondsRaw": 1398.5,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-030->JP-029@AP-JP-029-003",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-030"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-029",
+        "accessPointId": "AP-JP-029-003"
+      },
+      "accessPointIds": [
+        "AP-JP-029-003"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 0.82,
+        "toSnapMeters": 0.66,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T15:43:04Z",
+        "query": {
+          "fromCoordinates": [
+            139.7671,
+            35.6812
+          ],
+          "toCoordinates": [
+            139.7528,
+            35.6852
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 1816.5
+        },
+        "minutes": {
+          "minMinutes": 22,
+          "maxMinutes": 22
+        },
+        "durationSecondsRaw": 1307.9,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-029"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-030"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-029",
+          "accessPointId": "AP-JP-029-003"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 198.63
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 0.82,
+          "toSnapMeters": 0.66
+        },
+        "historicalDistanceMeters": 1816.5,
+        "newDistanceMeters": 1942.4,
+        "distanceDeltaMeters": 125.9,
+        "distanceDeltaPercent": 6.93,
+        "historicalMinutes": 22,
+        "newMinutes": 23,
+        "durationDeltaMinutes": 1,
+        "durationDeltaPercent": 4.55,
+        "historicalDurationSecondsRaw": 1307.9,
+        "newDurationSecondsRaw": 1398.5,
+        "durationDeltaSeconds": 90.6
+      }
+    },
+    {
+      "fromId": "JP-181",
+      "toId": "JP-182",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 2963.3
+      },
+      "minutes": {
+        "minMinutes": 36,
+        "maxMinutes": 36
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:04Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          128.2550917,
+          26.8619707
+        ],
+        "toCoordinates": [
+          128.264,
+          26.872
+        ]
+      },
+      "durationSecondsRaw": 2133.6,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-181@AP-JP-181-001->JP-182",
+      "fromEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-181",
+        "accessPointId": "AP-JP-181-001"
+      },
+      "toEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-182"
+      },
+      "accessPointIds": [
+        "AP-JP-181-001"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 6.37,
+        "toSnapMeters": 13.74,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T16:27:42Z",
+        "query": {
+          "fromCoordinates": [
+            128.2632,
+            26.871
+          ],
+          "toCoordinates": [
+            128.264,
+            26.872
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-181"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 211.4
+        },
+        "minutes": {
+          "minMinutes": 3,
+          "maxMinutes": 3
+        },
+        "durationSecondsRaw": 152.2,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 80.69,
+          "toSnapMeters": 13.74,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-181"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "newFromEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-181",
+          "accessPointId": "AP-JP-181-001"
+        },
+        "newToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 80.69,
+          "toSnapMeters": 13.74
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 6.37,
+          "toSnapMeters": 13.74
+        },
+        "historicalDistanceMeters": 211.4,
+        "newDistanceMeters": 2963.3,
+        "distanceDeltaMeters": 2751.9,
+        "distanceDeltaPercent": 1301.75,
+        "historicalMinutes": 3,
+        "newMinutes": 36,
+        "durationDeltaMinutes": 33,
+        "durationDeltaPercent": 1100.0,
+        "historicalDurationSecondsRaw": 152.2,
+        "newDurationSecondsRaw": 2133.6,
+        "durationDeltaSeconds": 1981.4
+      }
+    },
+    {
+      "fromId": "JP-182",
+      "toId": "JP-181",
+      "provider": "openrouteservice",
+      "profile": "foot-walking",
+      "status": "validated",
+      "distance": {
+        "meters": 2963.3
+      },
+      "minutes": {
+        "minMinutes": 36,
+        "maxMinutes": 36
+      },
+      "confidence": "validated-static",
+      "verifiedAt": "2026-09-05T02:41:05Z",
+      "source": {
+        "kind": "routing-provider",
+        "provider": "openrouteservice",
+        "profile": "foot-walking"
+      },
+      "query": {
+        "fromCoordinates": [
+          128.264,
+          26.872
+        ],
+        "toCoordinates": [
+          128.2550917,
+          26.8619707
+        ]
+      },
+      "durationSecondsRaw": 2133.6,
+      "attribution": "(c) openrouteservice.org by HeiGIT (routing computation, CC BY 4.0) | Map data (c) OpenStreetMap contributors, available under the Open Database License (ODbL). See https://openrouteservice.org and https://www.openstreetmap.org/copyright for current terms.",
+      "candidateKey": "JP-182->JP-181@AP-JP-181-001",
+      "fromEndpoint": {
+        "kind": "place-coordinate",
+        "placeId": "JP-182"
+      },
+      "toEndpoint": {
+        "kind": "access-point",
+        "placeId": "JP-181",
+        "accessPointId": "AP-JP-181-001"
+      },
+      "accessPointIds": [
+        "AP-JP-181-001"
+      ],
+      "endpointSnapping": {
+        "assessment": "clean",
+        "fromSnapMeters": 13.74,
+        "toSnapMeters": 6.37,
+        "radiusMeters": 350
+      },
+      "lineage": {
+        "origin": "scale",
+        "artifact": "data/logistics/walking-scale-results.json",
+        "manifest": "data/logistics/walking-scale-manifest.json",
+        "status": "validated",
+        "verifiedAt": "2026-09-04T16:27:43Z",
+        "query": {
+          "fromCoordinates": [
+            128.264,
+            26.872
+          ],
+          "toCoordinates": [
+            128.2632,
+            26.871
+          ]
+        },
+        "fromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "toEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-181"
+        },
+        "endpointIdentityInferred": true,
+        "distance": {
+          "meters": 211.4
+        },
+        "minutes": {
+          "minMinutes": 3,
+          "maxMinutes": 3
+        },
+        "durationSecondsRaw": 152.2,
+        "endpointSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 13.74,
+          "toSnapMeters": 80.69,
+          "radiusMeters": 350
+        }
+      },
+      "comparison": {
+        "historicalStatus": "validated",
+        "newStatus": "validated",
+        "historicalFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "historicalToEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-181"
+        },
+        "newFromEndpoint": {
+          "kind": "place-coordinate",
+          "placeId": "JP-182"
+        },
+        "newToEndpoint": {
+          "kind": "access-point",
+          "placeId": "JP-181",
+          "accessPointId": "AP-JP-181-001"
+        },
+        "comparable": true,
+        "historicalSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 13.74,
+          "toSnapMeters": 80.69
+        },
+        "newSnapping": {
+          "assessment": "clean",
+          "fromSnapMeters": 13.74,
+          "toSnapMeters": 6.37
+        },
+        "historicalDistanceMeters": 211.4,
+        "newDistanceMeters": 2963.3,
+        "distanceDeltaMeters": 2751.9,
+        "distanceDeltaPercent": 1301.75,
+        "historicalMinutes": 3,
+        "newMinutes": 36,
+        "durationDeltaMinutes": 33,
+        "durationDeltaPercent": 1100.0,
+        "historicalDurationSecondsRaw": 152.2,
+        "newDurationSecondsRaw": 2133.6,
+        "durationDeltaSeconds": 1981.4
+      }
+    }
+  ]
+}
