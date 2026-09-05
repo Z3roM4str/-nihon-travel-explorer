@@ -7,6 +7,14 @@ the dataset, `app/src/`, or `scripts/`. This phase closes the two questions Phas
 open — read the actual terms of use, and confirm Okinawa/Kyoto/Osaka coverage — and turns
 them into a concrete architecture decision.
 
+> **Revision note (independent review).** An independent review before merge found this
+> document's original Scenario D classification (traditional live app, display-and-discard →
+> flat `PERMITTED`) understated a real, unreconciled tension with Ekispert Article 27(9)/(10),
+> and found that additional official sources — the Ekispert API MCP Server / "for AI" program —
+> had not been considered. §1.5–§1.7 and the revised §1.3/§7 below are the reconciliation.
+> Nothing about the Okinawa coverage findings, the pricing findings, or the NAVITIME findings
+> changed; this revision is scoped to the AI/competing-service question only.
+
 ## 0. Documents reviewed, with exact version/date
 
 | Document | Source | Revision reviewed |
@@ -17,6 +25,10 @@ them into a concrete architecture decision.
 | 駅すぱあとに搭載されている情報 (coverage/spec page) | [ekispert.jp/about/spec](https://ekispert.jp/about/spec) | Page states **"2026年9月現在"** (as of September 2026) — current at review time |
 | Okinawa prefecture bus-navigation partner page | [watta-bus.com](https://www.watta-bus.com/about/busnaviokinawa.php) | Live page, fetched directly, quoted verbatim below |
 | 駅すぱあと API pricing | [api-info.ekispert.com/plan/](https://api-info.ekispert.com/plan/) | Live page, re-confirmed this session |
+| 駅すぱあと API MCPサーバー ("for AI" docs) | [docs.ekispert.com/v1/for-ai/mcp-server/](https://docs.ekispert.com/v1/for-ai/mcp-server/) | Fetched directly this session; added in this revision |
+| MCPサーバー plan/pricing page | [api-info.ekispert.com/mcp/](https://api-info.ekispert.com/mcp/) | Fetched directly this session; added in this revision |
+| MCP Server release announcement | [blog.ekispert.com/2026/02/09/mcp-server-release](https://blog.ekispert.com/2026/02/09/mcp-server-release) | Official Val Laboratory blog, fetched directly this session; added in this revision |
+| Get Started guide (Standard Plan) | [docs.ekispert.com/v1/get-started/guide/](https://docs.ekispert.com/v1/get-started/guide/) | Fetched directly this session; added in this revision |
 
 **Epistemic note on rigor**: the Ekispert Standard Plan ToS was extracted with `pdftotext -layout`
 from the actual downloaded PDF and read directly, line by line, in this session — every quote
@@ -97,14 +109,18 @@ Val Laboratory to terminate — includes ordinary breach of the terms after a cu
 
 ### 1.3 Applied to our six scenarios
 
+**Revised in this pass** — D and F below were reclassified after reconciling Article 27(9)/(10)
+against Ekispert's own observed licensing pattern and its official MCP Server / "for AI"
+program. See §1.5–§1.7 for the full reasoning; this table states the conclusions only.
+
 | # | Scenario | Classification | Basis |
 |---|---|---|---|
 | A | Use Claude/Codex to write integration code, **without** giving them real Ekispert responses | **PERMITTED** | Not touched by any clause — this is ordinary software development assisted by an AI coding tool, working from public API documentation, exactly as a human developer would. Article 27(6) is about the Service's *output data*, not about the tooling used to write the client code. Article 27(2)'s reverse-engineering prohibition targets the Service's own source code/algorithm, not a caller's integration code. |
-| B | Send **real** Ekispert responses to Claude/Codex to analyze/help design a parser | **REQUIRES VENDOR CONFIRMATION** | Not explicitly addressed. The risk is real, not manufactured: Article 27(6) prohibits using output data for "AI development... or training" without qualifying *whose* AI. If a general-purpose AI product's backend retains or uses submitted content to improve its own models (this varies by product/plan and is outside this project's control), transmitting real output data to it could technically fall under (6) even though the developer's intent was only to get help writing a parser. The clean, zero-cost mitigation is to **never paste real captured Ekispert output into any AI chat tool** — use synthetic/mock data structurally identical to the documented schema instead. This phase does not need a vendor answer to proceed **because the mitigation is free**; it is recorded as an open question in case a future phase wants certainty rather than avoidance. |
-| C | Use Ekispert output to **train, fine-tune, or otherwise extend** a model | **PROHIBITED** | Article 27(6), verbatim, unambiguous. |
-| D | A traditional app that calls Ekispert **live** and simply displays the result to the requesting user, without persisting it | **PERMITTED** | This is the paradigm use case the entire contract is written around — every consumer transit app does exactly this. "二次利用" (secondary use, Art. 27(7)) means using data beyond the original transaction/for another party's benefit — rendering a result to the same user who requested it, in the same session, is the *primary*, intended use, not a secondary one. Not an inference stretched thin: nothing in Article 27 restricts display-and-discard. |
-| E | Store Ekispert responses in **GitHub / `data/logistics/`**, the pattern this project has used for ORS walking results | **PROHIBITED** | Two independent grounds. First, Article 27(7)'s "二次利用・転売" (secondary use/resale) is unqualified by data category, and committing output to a **public** repository is unambiguously making it available to arbitrary third parties — squarely secondary use, not an edge case needing interpretation. Second, for anything derived from railway timetable information specifically, Article 27(8) separately and explicitly bans even **private** retention/reuse ("must be obtained each time"). This directly forecloses the historical `data/logistics/walking-*-results.json` pattern for Ekispert content. |
-| F | An AI tool that **directly consumes** Ekispert transit data to generate recommendations | **SUBJECT TO AUTHORIZATION** | Squarely matches Article 27(10)③'s named category ("AI models or analysis tools that handle public-transport data") as a defined *competing service* requiring **prior written consent** from Val Laboratory before development, provision, or sale. Not an absolute ban — the contract names the path (ask first, in writing) — but it is gated, and this phase has neither sought nor received that consent. |
+| B | Send **real** Ekispert responses to Claude/Codex to analyze/help design a parser | **REQUIRES VENDOR CONFIRMATION (mitigated)** | Not explicitly addressed by Article 27 itself, but §1.5 found Val Laboratory's own MCP Server guidance instructing that "AI agents should be used with an opt-out (excluded-from-training) configuration" — official acknowledgment that AI-mediated handling of output data is expected, provided training is off. That narrows but does not close the question, since it addresses *their* MCP-mediated flow, not the general case of pasting captured output into a separate AI coding assistant. The clean, zero-cost mitigation is unchanged: **never paste real captured Ekispert output into any AI chat tool** — use synthetic/mock data structurally identical to the documented schema instead. This phase does not need a vendor answer to proceed **because the mitigation is free**. |
+| C | Use Ekispert output to **train, fine-tune, or otherwise extend** a model | **PROHIBITED** | Article 27(6), verbatim, unambiguous. Nothing about the MCP Server changes this — MCP governs the *calling interface*, not what may be done with the data once received. |
+| D | A traditional app that calls Ekispert **live** and simply displays the result to the requesting user, without persisting it | **PERMITTED AS A GENERAL API PATTERN — NIHON-SPECIFIC USE REQUIRES VENDOR CONFIRMATION** | Displaying a live result to the user who requested it, in the same session, is the ordinary licensed pattern the product is built and marketed for (§1.6) — not itself blocked by Article 27. But Nihon Travel Explorer's own stated trajectory (help order places/cities, generate planning recommendations) risks drifting from "display a route" toward the named, gated categories in Article 27(9)/(10) as it grows — see §1.6/§1.7 for exactly where that line is and why this is no longer a flat, unqualified `PERMITTED`. |
+| E | Store Ekispert responses in **GitHub / `data/logistics/`**, the pattern this project has used for ORS walking results | **PROHIBITED** | Two independent grounds. First, Article 27(7)'s "二次利用・転売" (secondary use/resale) is unqualified by data category, and committing output to a **public** repository is unambiguously making it available to arbitrary third parties — squarely secondary use, not an edge case needing interpretation. Second, for anything derived from railway timetable information specifically, Article 27(8) separately and explicitly bans even **private** retention/reuse ("must be obtained each time"). This directly forecloses the historical `data/logistics/walking-*-results.json` pattern for Ekispert content. Unaffected by the MCP Server findings — E is about persistence, which MCP does not touch. |
+| F | An AI tool that **directly consumes** Ekispert transit data to generate recommendations | **SUBJECT TO AUTHORIZATION** | Confirmed, and now more precisely reasoned in §1.7: Ekispert's own MCP Server explicitly supports and markets *AI-agent-mediated querying* (an agent calling the API as a tool, on a user's behalf, in real time) — that alone is not what (10)③ targets. What (10)③ targets is building a **standalone product whose core offering is public-transport-data analysis/modeling as a service**, which still requires Val Laboratory's **prior written consent**. Nihon's long-term ambition (an AI-driven recommendation/planning feature built around transit data as a core input, not just a query relay) sits closer to the gated category than to the MCP Server's supported pattern, and this phase has neither sought nor received that consent. |
 
 ### 1.4 Storage/caching, broken out by data type
 
@@ -125,6 +141,140 @@ reviewed — if one exists, it is not in this document.
 | Serialized route data (a token/ID representing a computed route, rerequestable later) | **No such concept or carve-out was found in this ToS.** Do not assume one exists. | Not found — REQUIRES VENDOR CONFIRMATION if this pattern is ever considered |
 | Identifiers (station IDs, line IDs, etc., without their descriptive/schedule payload) | **Not clear** — no explicit carve-out found distinguishing bare identifiers from the data they identify | REQUIRES VENDOR CONFIRMATION |
 | Derived metrics **our own application computes** (e.g., "N queries succeeded," "average delta vs. the haversine estimate was X%") | **Likely permitted to publish** — this is our own analytical work product about the comparison, not a redistribution of the Service's actual output content (no specific transit time, station name, or fare is disclosed). This is a reasoned inference, not an explicit permission, and is flagged as lower-confidence than the other rows. | Not explicitly addressed either way — REQUIRES VENDOR CONFIRMATION (low risk) |
+
+### 1.5 Additional official sources: the MCP Server / "for AI" program
+
+An independent review before merge flagged that the original pass over this document did not
+consult Ekispert's own AI-specific program pages, only the general ToS/pricing/coverage pages.
+Fetched directly this session:
+
+- [駅すぱあと API MCPサーバー](https://docs.ekispert.com/v1/for-ai/mcp-server/) ("for AI" docs)
+- [MCPサーバー plan/pricing page](https://api-info.ekispert.com/mcp/)
+- [Official release announcement](https://blog.ekispert.com/2026/02/09/mcp-server-release) (2026-02-09), Val Laboratory's own blog
+
+**What the MCP Server is.** An official Model Context Protocol server that lets an AI agent —
+"Claude をはじめとする AI エージェント（LLM）" (Claude and other AI agents/LLMs) — call the
+Ekispert API's route-search and station-lookup functions directly, from natural-language
+instructions, without the caller handling raw API parameters. It works with any MCP client
+(Claude Desktop, Claude Code, VS Code, etc.).
+
+**Positioning — broader than developer tooling.** The listed use cases are not limited to
+helping a developer write integration code. They explicitly include **"AIチャットボットへの経路検索
+機能の組み込み"** (embedding route search into AI chatbots) and **"AIエージェントを活用した業務
+アプリケーション"** (business applications built on AI agents), alongside enterprise examples like
+automated travel-expense verification ("渋谷から品川まで、申請金額が500円なのですが、これは妥当
+ですか？" — an AI agent runs the route search itself to check a reimbursement claim) and consumer
+trip-planning. **This is a real, official signal that AI-agent-mediated querying of Ekispert is
+an intended, supported product pattern — not an edge case this project would be the first to
+attempt.**
+
+**The one explicit condition stated.** The MCP Server documentation instructs:
+
+> 「AIエージェントはオプトアウト（学習対象外）の設定でご利用ください」
+> ("Please use AI agents with an opt-out (excluded-from-training) configuration.")
+
+This is Val Laboratory's own operational reconciliation of Article 27(6) with AI-mediated use:
+having an AI agent process a query and relay the answer is treated as compliant **provided the
+agent/platform is configured so the data is not used to train it**. It does not say "AI may
+never touch the data" — it says "AI may touch the data; make sure it isn't learning from it."
+
+**Access requirements — not free, not unconditional.**
+
+> 「駅すぱあと API スタンダードプラン」のご契約で、ご利用いただけます」(available through a
+> Standard Plan contract); a 90-day free trial access key exists; **free-plan customers are
+> excluded**; and — separately — **「2026年後半以降（仮）の利用には、別途ご契約が必要です」**
+> (a separate contract will be required for usage from late 2026 onward, tentative). MCP
+> requests are themselves billable ("MCPサーバー利用分のリクエスト数は課金対象となります").
+
+It was **not confirmed** whether the pay-as-you-go (Amazon, one-time-purchase) tier counts as a
+qualifying "Standard Plan contract" for MCP access, or whether MCP requires the separate
+subscription-based Standard Plan specifically. Neither page reviewed explicitly states that MCP
+usage remains governed by the same Article 27 that governs the underlying API contract — but
+since MCP is offered **"through" that same contract**, rather than as a separately-termed
+product, the far more natural reading is that it is the same contract's terms, reached through a
+different calling convention, not a parallel product with its own unpublished rules. This is this
+session's own inference, not a line quoted from either page — flagged as such.
+
+### 1.6 Reconciling Article 27(9)/(10) with the API's own observed licensing pattern
+
+The independent review's concern is legitimate on the text alone: Article 27(9)/(10)① names
+"経路検索・乗換案内サービス" (route-search/transfer-guide services) as a restricted category, and
+that is a literal description of what any transit-display feature does. Read in isolation, that
+could seem to make *every* customer's ordinary use of the API a violation — which cannot be the
+intended reading, because it would make the product unusable for its own advertised purpose.
+Two pieces of evidence, both already gathered in §3 and re-examined here, resolve this more
+precisely than the original pass did:
+
+1. **Observed real licensing**: Okinawa Prefecture's own bus-navigation portal (`watta-bus.com`,
+   quoted in §3) is, functionally, exactly a route-search/transfer-guide consumer service —
+   built on top of Ekispert, named and celebrated as a partner integration, not described
+   anywhere as a violation requiring special dispensation. Ekispert's product materials
+   generally describe being embedded in "government agencies and major portal sites" this way.
+   If (9)/(10)① meant "any app that shows a user a route using our data," this entire class of
+   ordinary, celebrated customer integration would be impossible — so it must mean something
+   narrower.
+2. **The application-form scoping mechanism**: Article 17 §1 states the specific services/
+   content a contractor may use are "定められる" (defined) in the usage contract, and Article
+   27(4) separately prohibits using the Service "利用申込書の記載と異なる使用範囲、目的、態様又は
+   方法で" (in a scope, purpose, manner, or method different from what the application form
+   states). Read together, this describes the *ordinary* mechanism by which a specific use case
+   — e.g., "a personal trip-planning app that shows users transit routes" — becomes clearly
+   licensed: **declaring it accurately on the application form at contract signup**, not a
+   separate side negotiation. The Get Started guide independently confirms the application form
+   captures binding specifics (it ties a registered *domain* to the application, for instance).
+
+**The more defensible reading, from public evidence alone**: Article 27(9)/(10)① targets a
+customer becoming a competing **data/routing provider to other third-party developers or
+businesses** (i.e., competing with Val Laboratory's own business model of selling route-search
+capability to *other* customers) — not a single consumer-facing application that uses the
+licensed API, within its declared scope, to show its own users a route. This is consistent with
+Article 27(7)'s parallel logic (secondary use/resale means redistributing the *data itself* to
+others, not using it to power your own product's feature).
+
+**This is this session's own reasoned interpretation of public evidence, not a legal opinion and
+not a vendor confirmation.** It is offered as the most defensible reading available without
+contacting Val Laboratory — not as certainty. It is also why Scenario D is no longer a flat,
+unconditional `PERMITTED`: the reasoning above supports "a declared, ordinary transit-display
+feature" cleanly, but Nihon Travel Explorer's own stated ambitions go further than that (§1.7).
+
+### 1.7 Three distinct things Article 27(6) and Article 27(10) actually govern
+
+The independent review is correct that these must not be conflated. Restated precisely, with the
+MCP Server findings folded in:
+
+1. **Using an LLM as an interface/tool-caller *to* Ekispert** — a user asks a question, an AI
+   agent (Claude, Codex, an in-app assistant) calls Ekispert's API (directly or via its MCP
+   Server) to answer *that specific request*, and relays the real-time answer. This is Article
+   27(6)'s subject only incidentally, and Val Laboratory's own MCP Server documentation
+   treats this pattern as supported, **provided the agent is configured opt-out of training**
+   (§1.5). This is not "using output data for AI development" in the sense (6) prohibits — the
+   AI is a relay, not a development/training pipeline.
+2. **Using Ekispert's output to train, fine-tune, or otherwise extend a model** — squarely
+   Article 27(6), squarely prohibited, and entirely unaffected by whether an MCP Server exists.
+   MCP governs the calling interface; it does not touch what the recipient may do with the data
+   once received.
+3. **Developing an AI analysis/recommendation *product* whose core offering is built around
+   public-transport data** — this is what Article 27(10)③ actually names as a gated competing-
+   service category ("AI models or analysis tools that handle public-transport data"),
+   requiring Val Laboratory's prior written consent regardless of how the underlying API is
+   called. The MCP Server's own marketing examples (an expense-auditing agent, a chatbot
+   feature) are themselves AI-mediated uses of transit data, offered under the Standard Plan
+   without an individually-negotiated consent step described anywhere in the pages reviewed —
+   which suggests (10)③ is not triggered merely by "AI touches the data as part of a feature."
+   The distinguishing factor, on the evidence available, is whether transit data is *one input
+   to a single user-facing query* (supported, low-risk) versus whether **analyzing or
+   recommending across transit data is the product's core value proposition** — closer to what
+   (10)③ actually names, and where Nihon Travel Explorer's own stated future direction (helping
+   order places/cities, generating planning recommendations from logistics data) is heading.
+
+**Applied to Nihon Travel Explorer's actual trajectory**: today's narrowly-scoped need (show a
+real, live transit time for one edge, on request, to the user who asked) sits in category 1 —
+supported by the API's own design and Ekispert's observed licensing pattern (§1.6), gated only by
+the opt-out condition already stated by Val Laboratory. The project's own longer-term ambitions
+(sequencing places, generating recommendations *from* logistics data) drift toward category 3,
+which needs Val Laboratory's prior written consent under Article 27(10)③ regardless of how
+carefully the calling interface is built. **These are not the same decision, and this document
+must not present them as though they were.**
 
 ## 2. NAVITIME — terms analysis
 
@@ -170,7 +320,7 @@ Applying the same six scenarios:
 | A | Write integration code without giving AI real data | **PERMITTED** | Same reasoning as Ekispert — untouched by any data-storage or use clause. |
 | B | Send real responses to Claude/Codex | **REQUIRES VENDOR CONFIRMATION** | No explicit clause either way; same third-party-transmission risk as Ekispert; same free mitigation (use synthetic data). |
 | C | Train/fine-tune on output | **REQUIRES VENDOR CONFIRMATION** (likely prohibited in effect, not by an explicit AI clause) | No explicit AI clause, but Article 5 §5's blanket storage ban would itself prevent retaining a training dataset in the first place. |
-| D | Live app, display-and-discard | **PERMITTED** | Same reasoning as Ekispert — the paradigm use case. |
+| D | Live app, display-and-discard | **PERMITTED AS A GENERAL API PATTERN — NIHON-SPECIFIC USE REQUIRES VENDOR CONFIRMATION** | Same reasoning as Ekispert — the paradigm use case a live-routing API is built for — but the same caveat applies regardless of provider: this classifies *the pattern*, not Nihon Travel Explorer's specific, full intended product, whose planning-recommendation ambition is the open question (§1.6/§1.7), not something particular to Ekispert's Article 27. |
 | E | Store responses in GitHub/`data/logistics/` | **PROHIBITED** | Article 5 §5 is, if anything, *broader* than Ekispert's — it names lat/lng output explicitly as an example of what may not be cached, "including but not limited to," with no data-category carve-out at all. |
 | F | AI tool directly consuming the data for recommendations | **REQUIRES VENDOR CONFIRMATION** | Only one of the nine Article 5 §6 prohibited-use examples was read; whether an AI recommendation tool falls into one of the other eight is genuinely unknown, not assumed clear. |
 
@@ -291,7 +441,7 @@ be relied on for a purchase decision. Nothing was purchased.
 
 | | A — Versioned static | B — Live transit | C — Hybrid (metadata static, schedule live) | D — Open-data hybrid | E — No commercial provider yet |
 |---|---|---|---|---|---|
-| ToS compatibility | **Incompatible** — Ekispert Art. 27(7)/(8) and NAVITIME Art. 5 §5 both prohibit exactly this pattern for a public repo | **Compatible** — the paradigm use case both ToS documents are written for | **Compatible for the live part; the "static metadata" part inherits the same per-category uncertainty as §1.4/§2.1** | Compatible for the genuinely open-licensed portion (ODPT/GTFS); commercial portion same as B/C | N/A — no provider means no ToS risk at all |
+| ToS compatibility | **Incompatible** — Ekispert Art. 27(7)/(8) and NAVITIME Art. 5 §5 both prohibit exactly this pattern for a public repo | **Compatible as a general pattern** — the paradigm use case both ToS documents are written for; **Nihon-specific activation is `REQUIRES VENDOR CONFIRMATION`, not certain**, per §7.2 — a narrow live-display feature is well-supported by public evidence, but the project's own longer-term planning-recommendation ambition risks Article 27(10)③ regardless of storage pattern | **Same caveat as B** for the live part; the "static metadata" part inherits the same per-category uncertainty as §1.4/§2.1 | Compatible for the genuinely open-licensed portion (ODPT/GTFS); commercial portion same caveat as B/C | N/A — no provider means no ToS risk at all |
 | Technical | Simple — matches existing `lookupTransfer`/precomputed-artifact pattern | Requires a live backend call path at request time — a real architectural addition this project has never had (every phase to date explicitly avoided runtime provider calls) | Same live requirement as B, plus a second, smaller static artifact | Requires building or hosting a routing engine (e.g. OpenTripPlanner) for the open-data portion — materially larger effort | None |
 | Cost | Same request cost as B/D regardless of storage pattern | Ongoing per-request cost, same tiers as §4 | Same as B for the live portion | Free for open-data portion; commercial cost for the rest | Zero |
 | Reproducibility | High (a committed JSON file is trivially reproducible) — **but not legally available** | Low in the traditional sense — a live answer is a fact about *when* it was asked, not a stable artifact; §6 of `TRANSIT_PROVIDER_DECISION.md`'s `schedule-aware` provenance discipline exists precisely for this | Partial — whatever *is* legally static stays reproducible; the live part is not | Static open-data portion is highly reproducible (GTFS is designed for this); commercial portion is not | N/A |
@@ -325,11 +475,17 @@ walking precedent, not a variation of it.
 
 ## 7. Decision gate
 
-### Decision: **PROCEED WITH HYBRID**
+This document originally closed with a single `PROCEED WITH HYBRID` conclusion. An independent
+review before merge correctly pointed out that this collapsed two genuinely different decisions
+into one, and that the second was not actually settled by anything in §1–§6. They are separated
+below, and neither is presented as more settled than the evidence supports.
 
-More concrete than Phase 3B3A's `BLOCKED`, because both of that phase's named blockers are now
-resolved: the terms have been read (in detail, for Ekispert; with reasonable but lesser
-confidence, for NAVITIME), and Okinawa coverage is now confirmed for the recommended provider.
+### 7.1 Architecture decision — **PROCEED WITH HYBRID DESIGN**
+
+This part *is* settled by what was actually read. Both of Phase 3B3A's named blockers are
+resolved: the terms have been read (in detail for Ekispert; with reasonable but lesser
+confidence for NAVITIME), and Okinawa coverage is confirmed for the recommended provider. What
+follows holds regardless of how §7.2 resolves:
 
 **What is static/versioned:**
 
@@ -355,14 +511,48 @@ actually-read terms of any candidate. **Recommended secondary: NAVITIME API**, v
 live-only architecture, weaker on cost and on confirmed coverage (Okinawa not confirmed for its
 API), and read with somewhat less certainty this session.
 
-**What remains open, and does not block this architecture decision but does gate specific future
-work:**
+### 7.2 Provider activation decision — **REQUIRES VENDOR CONFIRMATION**
+
+This is the part the independent review found presented with more confidence than the evidence
+supports, and it is not the same question as 7.1. **"Can we design toward a live-only
+architecture" and "are we authorized to connect real Ekispert to Nihon Travel Explorer for its
+own specific, stated purpose" are different questions, and only the first is answered by this
+phase.**
+
+What §1.6/§1.7 establish, from public evidence only:
+
+- A narrowly-scoped, declared, ordinary transit-display feature (show the requesting user a real
+  route/time) is **very likely** within the API's intended, licensed use — supported by
+  Ekispert's own observed customer pattern (e.g., the Okinawa bus portal) and by the
+  application-form-declared-scope mechanism Article 17 §1/27(4) describe.
+- Nihon Travel Explorer's own longer-term, stated direction — helping order places/cities,
+  generating planning recommendations from logistics data — drifts toward Article 27(10)③'s
+  named, gated category ("AI models or analysis tools that handle public-transport data") in a
+  way that a simple live-display feature does not.
+- **This phase did not determine where, exactly, Nihon's actual eventual product sits on that
+  spectrum**, because that depends on product decisions not yet made (how much of the roadmap's
+  planning-recommendation ambition actually gets built, and how), not on anything more that could
+  be learned from reading public documents.
+
+**Conclusion: provider activation — i.e., actually contracting Ekispert and wiring real queries
+into Nihon Travel Explorer, even for the narrow live-display case — is not blocked by anything
+found, but is also not affirmatively cleared for Nihon's specific, full intended trajectory.**
+It is classified `REQUIRES VENDOR CONFIRMATION`, not `PROHIBITED` and not `PERMITTED`: a written
+answer from Val Laboratory (§7.3) would resolve it with actual certainty; this phase's own
+public-document reasoning resolves it only with reasonable, not certain, confidence for the
+narrow display case, and does not resolve it at all for the planning-recommendation direction.
+
+**What remains open, and does not block the architecture decision (7.1) but does gate specific
+future work:**
 
 - Scenario B (real output shown to an AI coding assistant) — mitigated by never doing it, not
   resolved by a vendor answer. No action required unless a future phase wants certainty instead
   of avoidance.
-- Scenario F (an AI tool directly consuming the data for recommendations) — gated on prior
-  written consent from Val Laboratory (Ekispert) per Article 27(10)③. Not pursued without it.
+- Scenario F / the planning-recommendation direction — gated on prior written consent from Val
+  Laboratory (Ekispert) per Article 27(10)③. Not pursued without it.
+- Whether Nihon's narrow, near-term live-display use case itself needs that same written consent,
+  or is adequately covered by ordinary application-form scoping — genuinely unresolved without
+  asking (§7.3's question 4).
 - Private-only (non-public) caching of non-timetable categories (station/line metadata, fares,
   bare identifiers) — genuinely unclear from the text; treated as restricted until confirmed,
   which only matters if a future phase wants to reduce request volume via an internal cache —
@@ -373,34 +563,62 @@ work:**
   phase was specifically asked to resolve (it carries 32% of the current non-walking gap).
 - NAVITIME's remaining 8 of 9 Article 5 §6 prohibited-use examples were not read — a gap in this
   session's research, not a finding.
+- Whether the pay-as-you-go tier qualifies as a "Standard Plan contract" for MCP Server access —
+  not confirmed (§1.5).
 
-### If a future phase wants written vendor certainty instead of relying on §1.3's mitigations
+### 7.3 Vendor question — drafted, not sent
 
-Draft questions for Val Laboratory (Ekispert), should a future phase choose to ask rather than
-avoid:
+Per the independent review's specific request, this is the concrete question this project would
+send Val Laboratory if a future phase decides certainty is worth pursuing before any provider
+activation. **Not sent by this phase.**
 
-1. "Does Article 27(6)'s prohibition on using output data for 'AI development, feature expansion,
-   or training' extend to transiently sharing a real API response with a general-purpose AI
-   coding assistant (e.g., Claude, GitHub Copilot) solely to get help writing a parser, where the
-   response is not stored and not knowingly used by the assistant's provider to train its own
-   models?"
-2. "Does Article 27(8)'s 'railway timetable information must be obtained each time' rule extend
-   to bus timetable information, or is it limited to railway (鉄道) as literally written?"
-3. "Is private, non-redistributed caching (never published, never shared with a third party) of
-   station metadata, line metadata, or fares permitted, distinct from the public
-   secondary-use/resale Article 27(7) addresses?"
-4. "What would Article 27(10)'s prior written consent process look like for a personal,
-   non-commercial portfolio project building an AI-assisted trip-planning feature — is this
-   contemplated at all at the Standard Plan/pay-as-you-go tier, or only at Enterprise level?"
+**English:**
 
-This phase does not send these questions. They are recorded so a future phase can, if it decides
-certainty is worth the wait.
+> We are developing a personal/portfolio Japan-trip-planning application that would use the
+> Ekispert API live to display real routes, travel times, and transfers to the user who requests
+> them (no output data would be stored — every query is made fresh, and results are rendered and
+> discarded). In a later phase, we may use those live results as an ephemeral input — never
+> stored, never used to train or fine-tune any model — to help a user compare or order a small
+> set of candidate destinations for planning purposes. We do not intend to build a standalone
+> public-transport-data analysis product for other customers. Does this use — specifically the
+> planning-comparison part — require the prior written consent contemplated in Article 27(10),
+> and is it permitted under the Standard Plan or pay-as-you-go tier, or does it require a
+> different arrangement?
+
+**Japanese (for direct use if a future phase sends it):**
+
+> 弊社は、個人のポートフォリオとして日本旅行計画アプリケーションを開発しており、ユーザーの
+> リクエストに応じて実際の経路・所要時間・乗り換えをライブでご提供いただいた「駅すぱあと
+> API」の出力データを画面に表示する用途を想定しています（出力データは保存せず、毎回新規に
+> 取得し、表示後は破棄します）。将来的なフェーズでは、この結果を一時的な入力として——保存せ
+> ず、AIモデルの学習や拡張にも使用せず——ユーザーが少数の候補地を比較・順序付けする計画支援
+> 機能に用いる可能性があります。他のお客様向けに公共交通データ分析製品を単独で開発・提供する
+> 意図はありません。この用途——特に計画比較機能の部分——について、第27条第10項が想定する
+> 事前の書面による承諾が必要でしょうか。また、スタンダードプランまたは買い切り型プランの
+> 範囲でこの用途は許可されますか、それとも別途契約が必要でしょうか。
+
+Also still open from the original pass (unchanged):
+
+1. Does Article 27(6)'s AI-training prohibition extend to transiently sharing a real API response
+   with a general-purpose AI coding assistant, where the response is not stored and not knowingly
+   used to train the assistant's own models?
+2. Does Article 27(8)'s "railway timetable information must be obtained each time" rule extend to
+   bus timetable information, or is it limited to railway (鉄道) as literally written?
+3. Is private, non-redistributed caching of station metadata, line metadata, or fares permitted,
+   distinct from the public secondary-use/resale Article 27(7) addresses?
+
+This phase does not send any of these questions. They are recorded so a future phase can, if it
+decides certainty is worth the wait.
 
 ## 8. What was NOT decided here
 
 - No provider was contracted, no account created, no plan purchased, no API key introduced.
-- No live architecture was implemented — §7's recommendation is a decision to build *toward*,
+- No live architecture was implemented — §7.1's recommendation is a decision to build *toward*,
   not code written this phase.
+- **Provider activation for Nihon Travel Explorer's specific, full intended use is not cleared**
+  — §7.2 classifies it `REQUIRES VENDOR CONFIRMATION`, reasoned as likely-fine for a narrow
+  live-display feature and genuinely open for the planning-recommendation direction. This is a
+  materially different statement than "Ekispert is authorized for integration."
 - No answer to scenario B or F beyond "mitigate/gate" — neither was escalated to the vendor.
 - No confirmation of private-only caching for non-timetable categories.
 - No operator-level confirmation for Kyoto/Osaka private rail.
@@ -411,9 +629,17 @@ certainty is worth the wait.
 ## 9. Proposed next phase (not started)
 
 **Phase 3B3C — Live Transit Integration Design** (name proposed, not authorized here): design
-(without implementing) the actual request/response flow for a live-only Ekispert integration —
-where in the request lifecycle the call happens, how `TransitProviderProvenance` gets attached
-to an ephemeral (not stored) result, and how the UI would need to change to support a
-network-dependent, non-precomputed transfer time alongside the existing precomputed walking
-data. Still not Phase 3C (route/day planning) — this is about *validating one edge on demand*,
-not sequencing a trip.
+(without implementing, and using only public documentation and synthetic fixtures — no real
+Ekispert account or query) the actual request/response flow for a live-only Ekispert
+integration — where in the request lifecycle the call happens, how `TransitProviderProvenance`
+gets attached to an ephemeral (not stored) result, and how the UI would need to change to
+support a network-dependent, non-precomputed transfer time alongside the existing precomputed
+walking data. This design work does not depend on §7.2's open question and can proceed against
+mock data regardless of how it resolves. Still not Phase 3C (route/day planning) — this is about
+*validating one edge on demand*, not sequencing a trip.
+
+**Provider activation itself — actually contracting Ekispert and connecting real queries to
+Nihon Travel Explorer — is a separate, later decision from this design work**, and per §7.2
+should not proceed for the project's full intended trajectory until either Val Laboratory
+confirms §7.3's question in writing, or a future phase deliberately narrows Nihon's transit
+feature to just the low-risk live-display case (§1.6) and accepts that boundary going forward.

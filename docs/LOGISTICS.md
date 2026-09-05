@@ -760,11 +760,21 @@ Rail, Naha Bus, Okinawa Bus, Ryukyu Bus Kotsu, and Toyo Bus are all named-operat
 **Neither provider's terms permit this project's historical walking pattern** (committing real
 routing output as versioned JSON) in a **public** repository — Ekispert Article 27(7)/(8)
 prohibits secondary use/resale of output data and, for railway timetables specifically, even
-private retention; NAVITIME's Article 5 §5 is a broader blanket no-caching rule. **Decision:
-PROCEED WITH HYBRID** — integration code, schema, and synthetic fixtures may be versioned; any
-real provider output must be queried live and never persisted. Ekispert is the recommended
-provider; NAVITIME the secondary. Full article-by-article analysis, the AI-use scenario
-classification, and the public-repo implications are in
+private retention; NAVITIME's Article 5 §5 is a broader blanket no-caching rule.
+
+**The decision splits into two parts, not one.** Architecture: **PROCEED WITH HYBRID DESIGN** —
+integration code, schema, and synthetic fixtures may be versioned; any real provider output
+must be queried live and never persisted. Ekispert is the recommended provider; NAVITIME the
+secondary. Provider activation — actually connecting real Ekispert queries to this application —
+is separately classified **`REQUIRES VENDOR CONFIRMATION`**: Ekispert's own Article 27(9)/(10)
+gates building a competing service (explicitly naming "AI models/analysis tools handling
+public-transport data") on Val Laboratory's prior written consent, and while a narrowly-scoped
+live-display feature is *likely* ordinary licensed use (consistent with Ekispert's own MCP
+Server / "for AI" program and its observed real-world licensing pattern — an independent
+reconciliation added after initial review, see the source document's §1.5–§1.7), this project's
+own longer-term planning-recommendation ambition was not confirmed to fall on the permitted side
+of that line. A specific question for Val Laboratory is drafted, not sent. Full article-by-
+article analysis, the AI-use scenario classification, and the public-repo implications are in
 [TRANSIT_TERMS_COVERAGE_CONFIRMATION.md](TRANSIT_TERMS_COVERAGE_CONFIRMATION.md).
 
 ## What Phase 3B1 does not touch

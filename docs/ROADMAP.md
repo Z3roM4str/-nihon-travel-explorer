@@ -411,7 +411,7 @@ threshold, no access point, no `getBestTransfer()` behavior, no dataset file, an
 not start ordered-sequence logistics, city-sequence comparison, day-level itinerary generation,
 or any other Phase 3C work.
 
-## Phase 3B3B — Provider Terms & Coverage Confirmation — complete, PROCEED WITH HYBRID
+## Phase 3B3B — Provider Terms & Coverage Confirmation — complete, PROCEED WITH HYBRID DESIGN (provider activation pending)
 
 - [x] Read the actual Ekispert Standard Plan terms of use (「駅すぱあと API スタンダードプラン」
       利用規約, latest revision **2025-12-15**, confirmed current), extracted directly from the
@@ -449,31 +449,63 @@ or any other Phase 3C work.
 - [x] Reconfirmed current pricing (Ekispert pay-as-you-go ¥5,500/5,000 requests unchanged;
       NAVITIME $200–300/month unchanged) with an explicitly-caveated, unverified illustrative
       MXN order of magnitude.
+- [x] **Reconciled Article 27(9)/(10)** (competing-service restriction, incl. "AI models/analysis
+      tools handling public-transport data") against Ekispert's own official MCP Server / "for
+      AI" program (`docs.ekispert.com/v1/for-ai/mcp-server/`, its pricing page, and Val
+      Laboratory's release announcement — all read directly this session) and its observed
+      real-world licensing pattern (the Okinawa bus portal is itself a route-search/transfer-
+      guide service built on the API, not treated as a violation). Distinguished three separate
+      questions the original pass had conflated: using an LLM as a query interface to Ekispert
+      (supported by Val Laboratory's own MCP Server, conditioned on configuring the AI agent
+      opt-out of training); using output to train/extend a model (still flatly prohibited,
+      Article 27(6), unaffected by MCP's existence); and building a standalone AI analysis/
+      recommendation *product* around public-transport data (Article 27(10)③'s actual named
+      target, gated on prior written consent).
 
-**Decision: PROCEED WITH HYBRID.** Static/versioned: integration code, schema, synthetic
-fixtures, and this project's own derived comparison statistics — never real provider output.
-Live, never persisted: any real Ekispert route/station/timetable/fare result, queried at request
-time and discarded after rendering to the requesting user. **Recommended provider: Ekispert**
-(best cost fit, confirmed Okinawa coverage, most thoroughly read terms). **Secondary: NAVITIME**
-(same live-only shape, weaker cost fit, unconfirmed Okinawa coverage). Open, non-blocking
+**Decision — two parts, not one.** **7.1 Architecture: PROCEED WITH HYBRID DESIGN.**
+Static/versioned: integration code, schema, synthetic fixtures, and this project's own derived
+comparison statistics — never real provider output. Live, never persisted: any real Ekispert
+route/station/timetable/fare result, queried at request time and discarded after rendering to
+the requesting user. **Recommended provider: Ekispert** (best cost fit, confirmed Okinawa
+coverage, most thoroughly read terms). **Secondary: NAVITIME** (same live-only shape, weaker
+cost fit, unconfirmed Okinawa coverage). **7.2 Provider activation: REQUIRES VENDOR
+CONFIRMATION.** A narrowly-scoped live-display feature (show the requesting user a real route,
+nothing more) is *likely* within Ekispert's ordinary licensed use on the public evidence
+gathered — but this project's own longer-term ambition (helping order places/cities, generating
+planning recommendations from logistics data) risks Article 27(10)③'s gated
+competing-service category, and this phase did not determine where Nihon's actual eventual
+product lands on that spectrum, nor sought Val Laboratory's consent. **Actually connecting real
+Ekispert queries to this application — for its full intended trajectory — is not yet cleared,
+distinct from the architecture recommendation above being sound.** A specific vendor question is
+drafted (not sent) in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3. Open, non-blocking
 questions (private-only caching of non-timetable categories; Kyoto/Osaka private-rail
 operator-level confirmation; the remaining 8 of NAVITIME's 9 prohibited-use examples) are
-recorded, not resolved, in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7–8.
+recorded, not resolved, in the same document's §7–8.
 
 This phase made **zero authenticated requests to any transit provider, zero ORS requests, zero
 accounts created, zero API keys introduced**; changed no code, no dataset, no access point, and
-no UI; and did not start Phase 3B3C (proposed: live integration *design*, still not
-implementation) or any Phase 3C work.
+no UI; and did not start Phase 3B3C (proposed: live integration *design* against synthetic
+fixtures only, still not implementation, and still not provider activation) or any Phase 3C
+work.
 
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Phase 3B3C — Live Transit Integration Design (proposed, not started): design, without
-      implementing, the request/response flow for a live-only Ekispert integration — where the
-      call happens in the request lifecycle, how `TransitProviderProvenance` attaches to an
-      ephemeral result, and how the UI accommodates a network-dependent transfer time. See
+      implementing and using only public documentation plus synthetic fixtures (no real
+      Ekispert account, no real query), the request/response flow for a live-only Ekispert
+      integration — where the call happens in the request lifecycle, how
+      `TransitProviderProvenance` attaches to an ephemeral result, and how the UI accommodates a
+      network-dependent transfer time. **Does not itself activate a real provider connection** —
+      that remains gated on the open question below. See
       `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §9.
+- [ ] Ekispert provider activation (not started, `REQUIRES VENDOR CONFIRMATION`): before any real
+      account, API key, or live query is introduced, either get Val Laboratory's written answer
+      to the drafted question in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3 (does
+      Article 27(10)'s prior-written-consent requirement apply to Nihon's intended use,
+      including its planning-recommendation direction), or deliberately scope the feature to
+      only the narrow, lower-risk live-display case (§1.6) and accept that boundary.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
 - [ ] Compare candidate city sequences.
