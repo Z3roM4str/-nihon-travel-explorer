@@ -534,13 +534,59 @@ API keys, and used zero real provider payloads**; changed no `app/src/`, `script
 deployment config, `package.json` or lockfile; built no backend and no UI; and started no
 Phase 3C work (no sequencing, no optimization, no itinerary generation).
 
+## Phase 3B3D — Synthetic Transit Skeleton — complete (synthetic provider only, activation still OFF)
+
+- [x] Implement the Phase 3B3C design in code against the **`synthetic` provider only**: a
+      provider-neutral contract in `app/src/lib/transit.ts` (`RoutingEndpoint`, tagged
+      `depart-after | arrive-by` request with explicit `serviceDate` + IANA zone,
+      `NormalizedTransitResult`, closed `TransitLookupOutcome`, sanitized `ProviderErrorCategory`,
+      `TransitProviderProvenance` with mandatory `serviceDate` and literal `ephemeral: true`), and
+      a deployment-neutral route handler in `app/server/transit.ts` for the future
+      `POST /api/transit/route`.
+- [x] **Activation gate held OFF in code**: `REAL_TRANSIT_PROVIDER_ACTIVATION = "off"` as a
+      literal, and an `ekispert`/`navitime` adapter is rejected **before** its lookup function can
+      run — asserted by test. No account, key, secret, SDK, request or captured payload exists on
+      this branch, for Ekispert, NAVITIME or openrouteservice.
+- [x] **Runtime request validation fails closed**: unknown or provider-specific fields are
+      rejected, instants require an explicit UTC offset, service dates must be real calendar days,
+      time zones must resolve, and identifiers and the correlation id are length-bounded and
+      character-restricted (an unsafe correlation id is never echoed back).
+- [x] **Server-only code moved out of the browser type graph.** `app/src/server/` fell under
+      `tsconfig.app.json`'s `include: ["src"]`, which compiles with `DOM`, so browser globals
+      type-checked cleanly inside the one module that must never persist anything. It now lives in
+      `app/server/` under its own `tsconfig.server.json` (no `DOM`), and the residual
+      `localStorage` gap — `@types/node`'s web-globals shim, pulled in transitively by vitest — is
+      closed by an explicit source-scanning test rather than overclaimed in a comment.
+- [x] **Review of the initial draft found and fixed real defects**, each now covered by a test: a
+      failing `npm run build`; synthetic provenance claiming `schedule-aware-live`; a second
+      spelling of `validated-static`; an unsound `no-catalogued-endpoint` inference at a boundary
+      that never ran access-point resolution; cancellation reported as a provider network failure;
+      and `unauthorized` answered with `401`. Full record in
+      [LIVE_TRANSIT_SYNTHETIC_SKELETON.md](LIVE_TRANSIT_SYNTHETIC_SKELETON.md).
+- [x] **`TransitProviderProvenance` deliberately stays out of `transfer.ts`'s canonical
+      `TransferProvenance` union.** That union describes the provenance *of a `TransferEdge`*, and
+      nothing converts a transit result into one; widening it now would force every `TransferEdge`
+      consumer to handle a variant that cannot occur there.
+- [x] **`getBestTransfer()` untouched** — still sync, static, directed and non-fabricating;
+      `app/src/lib/transfer.ts` and its 61 tests are byte-identical to `main`.
+
+**Provider activation remains OFF** and still `REQUIRES VENDOR CONFIRMATION` (Phase 3B3B §7.2).
+This phase made **zero requests to Ekispert, NAVITIME or openrouteservice, created zero accounts,
+introduced zero API keys or secrets, and used zero real provider payloads**; changed no dataset,
+no access point, no `scripts/`, no deployment config, no `package.json` and no lockfile; added no
+UI wiring, no React hook and no automatic runtime request; persisted nothing; and started no
+Phase 3C work (no sequencing, no aggregation, no itinerary generation).
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
-- [ ] Phase 3B3D — Synthetic-provider walking skeleton (proposed, not started): implement the
-      Phase 3B3C design against the `synthetic` provider only, with activation still OFF — real
-      code, zero provider relationship. See `docs/LIVE_TRANSIT_INTEGRATION_DESIGN.md` §18.
+- [ ] Phase 3B3E — client transport / React hook for live transit (proposed, not started):
+      deferred out of Phase 3B3D on purpose. `transfer.ts` still has no UI consumer,
+      `PlaceDetail.tsx` still renders raw `nearby.json`, and the design's cost rule
+      (§13.3) requires a live lookup to happen only on an explicit user action that no
+      component offers yet, so the hook has nothing to arbitrate for and no trigger to
+      hang off. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
 - [ ] Access-point evidence for `"external-local-transit"` (proposed, not started): the context is
       reserved but has **zero** members, so every place currently resolves to
       `use-place-coordinate`. Populating it is evidence work at the same standard as Phase 3B2G.

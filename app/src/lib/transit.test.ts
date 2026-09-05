@@ -1,19 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { LogisticsAccessPoint } from "./access-points";
 import {
   resolveTransitEndpoint,
+  transitWarningsForResolution,
   validateTransitRouteRequest,
-  type TransitProvider,
   type TransitRouteRequest,
 } from "./transit";
-import {
-  buildSyntheticTransitProvider,
-  buildTransitRouteHandler,
-  REAL_TRANSIT_PROVIDER_ACTIVATION,
-  type SyntheticTransitFixture,
-} from "../server/transit";
 
-const REQUEST: TransitRouteRequest = {
+export const TRANSIT_REQUEST: TransitRouteRequest = {
   from: { kind: "place-coordinate", placeId: "TEST-PLACE-A" },
   to: { kind: "place-coordinate", placeId: "TEST-PLACE-B" },
   when: { kind: "depart-after", instant: "2099-01-01T09:00:00+09:00" },
@@ -39,29 +33,6 @@ function accessPoint(id: string, isDefault = false): LogisticsAccessPoint {
     },
     selection: isDefault ? { defaultForContexts: ["external-local-transit"] } : {},
     status: "active",
-  };
-}
-
-function successFixture(scheduleAware = true): SyntheticTransitFixture {
-  return {
-    from: REQUEST.from,
-    to: REQUEST.to,
-    when: REQUEST.when,
-    serviceDate: REQUEST.serviceDate,
-    outcome: {
-      status: "ok",
-      result: {
-        scheduleAware,
-        durationMinutes: { min: 18, max: 22 },
-        departure: scheduleAware ? "2099-01-01T09:05:00+09:00" : null,
-        arrival: scheduleAware ? "2099-01-01T09:25:00+09:00" : null,
-        transferCount: 1,
-        modeSummary: ["walk", "rail"],
-        accessLegs: [{ kind: "walk", minutes: 4 }],
-        warnings: [],
-        timetableVersion: "SYNTHETIC-2099-A",
-      },
-    },
   };
 }
 
@@ -111,121 +82,150 @@ describe("resolveTransitEndpoint", () => {
       ])
     ).toEqual({ kind: "unavailable", reason: "multiple-defaults" });
   });
+
+  it("never auto-selects a deprecated point, even if a caller passes one in", () => {
+    const deprecated = accessPoint("TEST-STATION-A");
+    deprecated.status = "deprecated";
+    expect(resolveTransitEndpoint("TEST-PLACE-A", [deprecated])).toEqual({
+      kind: "use-place-coordinate",
+      endpoint: { kind: "place-coordinate", placeId: "TEST-PLACE-A" },
+    });
+  });
+
+  it("ignores a point that does not apply to the external-local-transit context", () => {
+    const walkOnly = accessPoint("TEST-STATION-A");
+    walkOnly.applicableContexts = ["external-walk"];
+    expect(resolveTransitEndpoint("TEST-PLACE-A", [walkOnly, accessPoint("TEST-STATION-B")])).toEqual({
+      kind: "resolved-access-point",
+      accessPointId: "TEST-STATION-B",
+      endpoint: { kind: "access-point", placeId: "TEST-PLACE-A", accessPointId: "TEST-STATION-B" },
+    });
+  });
+
+  it("does not treat a default declared for another context as a transit default", () => {
+    const walkDefault = accessPoint("TEST-STATION-A");
+    walkDefault.selection = { defaultForContexts: ["external-walk"] };
+    const result = resolveTransitEndpoint("TEST-PLACE-A", [walkDefault, accessPoint("TEST-STATION-B")]);
+    expect(result).toEqual({
+      kind: "ambiguous",
+      candidateAccessPointIds: ["TEST-STATION-A", "TEST-STATION-B"],
+    });
+  });
+});
+
+describe("transitWarningsForResolution", () => {
+  it("reports no-catalogued-endpoint only when resolution actually found none", () => {
+    const resolution = resolveTransitEndpoint("TEST-PLACE-A", []);
+    expect(transitWarningsForResolution("from", resolution)).toEqual([
+      { kind: "no-catalogued-endpoint", endpoint: "from", placeId: "TEST-PLACE-A" },
+    ]);
+  });
+
+  it("emits nothing when an access point was resolved", () => {
+    const resolution = resolveTransitEndpoint("TEST-PLACE-A", [accessPoint("TEST-STATION-A")]);
+    expect(transitWarningsForResolution("to", resolution)).toEqual([]);
+  });
+
+  it("emits nothing for an ambiguous or failed resolution — neither means the catalog was empty", () => {
+    const ambiguous = resolveTransitEndpoint("TEST-PLACE-A", [
+      accessPoint("TEST-STATION-A"),
+      accessPoint("TEST-STATION-B"),
+    ]);
+    const unavailable = resolveTransitEndpoint("TEST-PLACE-A", [
+      accessPoint("TEST-STATION-A", true),
+      accessPoint("TEST-STATION-B", true),
+    ]);
+    expect(transitWarningsForResolution("from", ambiguous)).toEqual([]);
+    expect(transitWarningsForResolution("from", unavailable)).toEqual([]);
+  });
 });
 
 describe("validateTransitRouteRequest", () => {
   it("accepts the provider-neutral synthetic request contract", () => {
-    expect(validateTransitRouteRequest(REQUEST)).toEqual({ ok: true, request: REQUEST });
+    expect(validateTransitRouteRequest(TRANSIT_REQUEST)).toEqual({ ok: true, request: TRANSIT_REQUEST });
   });
 
   it("rejects impossible service dates", () => {
-    const result = validateTransitRouteRequest({ ...REQUEST, serviceDate: "2099-02-30" });
+    const result = validateTransitRouteRequest({ ...TRANSIT_REQUEST, serviceDate: "2099-02-30" });
     expect(result).toEqual({ ok: false, category: "invalid-request", field: "serviceDate" });
   });
 
   it("requires an explicit offset on the requested instant", () => {
     const result = validateTransitRouteRequest({
-      ...REQUEST,
+      ...TRANSIT_REQUEST,
       when: { kind: "depart-after", instant: "2099-01-01T09:00:00" },
     });
     expect(result).toEqual({ ok: false, category: "invalid-request", field: "when" });
   });
 
   it("rejects provider-specific or otherwise unknown top-level fields", () => {
-    const result = validateTransitRouteRequest({ ...REQUEST, providerStationId: "SHOULD-NOT-CROSS" });
+    const result = validateTransitRouteRequest({ ...TRANSIT_REQUEST, providerStationId: "SHOULD-NOT-CROSS" });
     expect(result).toEqual({ ok: false, category: "invalid-request", field: "request" });
   });
-});
 
-describe("synthetic transit boundary", () => {
-  it("keeps real-provider activation off", () => {
-    expect(REAL_TRANSIT_PROVIDER_ACTIVATION).toBe("off");
+  it("rejects a non-object body", () => {
+    for (const body of [null, undefined, "request", 42, []]) {
+      expect(validateTransitRouteRequest(body)).toEqual({
+        ok: false,
+        category: "invalid-request",
+        field: "request",
+      });
+    }
   });
 
-  it("returns a schedule-aware ephemeral synthetic result and adds endpoint warnings", async () => {
-    const provider = buildSyntheticTransitProvider([successFixture()], {
-      now: () => "2098-12-31T23:59:00Z",
-    });
-    const response = await buildTransitRouteHandler(provider)(REQUEST);
+  it("rejects a when clause carrying both intents or an unknown kind", () => {
+    expect(
+      validateTransitRouteRequest({
+        ...TRANSIT_REQUEST,
+        when: { kind: "depart-after", instant: TRANSIT_REQUEST.when.instant, arriveBy: "2099-01-01T10:00:00Z" },
+      })
+    ).toEqual({ ok: false, category: "invalid-request", field: "when" });
 
-    expect(response.status).toBe(200);
-    if (response.status !== 200) throw new Error("expected synthetic success");
-    expect(response.body.result.serviceDate).toBe("2099-01-01");
-    expect(response.body.result.provenance).toEqual({
-      kind: "transit-provider",
-      provider: "synthetic",
-      confidence: "schedule-aware-live",
-      requestedAt: "2098-12-31T23:59:00Z",
-      serviceDate: "2099-01-01",
-      timetableVersion: "SYNTHETIC-2099-A",
-      ephemeral: true,
-    });
-    expect(response.body.result.warnings).toContainEqual({
-      kind: "no-catalogued-endpoint",
-      endpoint: "from",
-      placeId: "TEST-PLACE-A",
-    });
-    expect(response.body.result.warnings).toContainEqual({
-      kind: "no-catalogued-endpoint",
-      endpoint: "to",
-      placeId: "TEST-PLACE-B",
+    expect(
+      validateTransitRouteRequest({ ...TRANSIT_REQUEST, when: { kind: "whenever", instant: "2099-01-01T09:00:00Z" } })
+    ).toEqual({ ok: false, category: "invalid-request", field: "when" });
+  });
+
+  it("rejects an unknown time zone", () => {
+    expect(validateTransitRouteRequest({ ...TRANSIT_REQUEST, timeZone: "Mars/Olympus" })).toEqual({
+      ok: false,
+      category: "invalid-request",
+      field: "timeZone",
     });
   });
 
-  it("marks a non-schedule-aware fixture as static and warns that it is a typical duration", async () => {
-    const provider = buildSyntheticTransitProvider([successFixture(false)], {
-      now: () => "2098-12-31T23:59:00Z",
-    });
-    const response = await buildTransitRouteHandler(provider)(REQUEST);
-
-    expect(response.status).toBe(200);
-    if (response.status !== 200) throw new Error("expected synthetic success");
-    expect(response.body.result.provenance.confidence).toBe("static-validated");
-    expect(response.body.result.warnings).toContainEqual({ kind: "provider-typical-duration" });
+  it("rejects endpoints carrying extra provider fields", () => {
+    expect(
+      validateTransitRouteRequest({
+        ...TRANSIT_REQUEST,
+        from: { kind: "place-coordinate", placeId: "TEST-PLACE-A", providerNodeId: "X" },
+      })
+    ).toEqual({ ok: false, category: "invalid-request", field: "from" });
   });
 
-  it("is directed: the reverse request does not reuse the forward fixture", async () => {
-    const provider = buildSyntheticTransitProvider([successFixture()]);
-    const reverse = { ...REQUEST, from: REQUEST.to, to: REQUEST.from };
-    const response = await buildTransitRouteHandler(provider)(reverse);
-    expect(response.status).toBe(404);
-    if (response.status === 200) throw new Error("reverse must not succeed");
-    expect(response.body.error.category).toBe("no-route");
+  it("rejects an access-point endpoint missing its accessPointId", () => {
+    expect(
+      validateTransitRouteRequest({ ...TRANSIT_REQUEST, to: { kind: "access-point", placeId: "TEST-PLACE-B" } })
+    ).toEqual({ ok: false, category: "invalid-request", field: "to" });
   });
 
-  it("preserves unresolvable-endpoint as a distinct sanitized outcome", async () => {
-    const fixture: SyntheticTransitFixture = {
-      ...successFixture(),
-      outcome: { status: "unresolvable-endpoint", endpoint: "to" },
-    };
-    const response = await buildTransitRouteHandler(buildSyntheticTransitProvider([fixture]))(REQUEST);
-    expect(response.status).toBe(422);
-    if (response.status === 200) throw new Error("expected failure");
-    expect(response.body.error).toEqual({
-      category: "unresolvable-endpoint",
-      correlationId: REQUEST.correlationId,
-      endpoint: "to",
+  it("bounds identifier and correlation-id length instead of accepting unbounded strings", () => {
+    const huge = "A".repeat(129);
+    expect(
+      validateTransitRouteRequest({ ...TRANSIT_REQUEST, from: { kind: "place-coordinate", placeId: huge } })
+    ).toEqual({ ok: false, category: "invalid-request", field: "from" });
+    expect(validateTransitRouteRequest({ ...TRANSIT_REQUEST, correlationId: huge })).toEqual({
+      ok: false,
+      category: "invalid-request",
+      field: "correlationId",
     });
   });
 
-  it("returns only provider error categories, never provider text", async () => {
-    const fixture: SyntheticTransitFixture = {
-      ...successFixture(),
-      outcome: { status: "provider-error", category: "rate-limited" },
-    };
-    const response = await buildTransitRouteHandler(buildSyntheticTransitProvider([fixture]))(REQUEST);
-    expect(response.status).toBe(429);
-    expect(JSON.stringify(response)).not.toContain("providerMessage");
-  });
-
-  it("blocks a real-provider adapter before lookup while activation is off", async () => {
-    const lookupRoute: TransitProvider["lookupRoute"] = vi.fn(async () => ({ status: "no-route" }));
-    const realProvider: TransitProvider = { id: "ekispert", lookupRoute };
-    const response = await buildTransitRouteHandler(realProvider)(REQUEST);
-
-    expect(response.status).toBe(503);
-    if (response.status === 200) throw new Error("real provider must remain disabled");
-    expect(response.body.error.category).toBe("activation-disabled");
-    expect(lookupRoute).not.toHaveBeenCalled();
+  it("rejects a correlation id with characters unsafe to echo into logs", () => {
+    expect(validateTransitRouteRequest({ ...TRANSIT_REQUEST, correlationId: "bad id\nInjected: 1" })).toEqual({
+      ok: false,
+      category: "invalid-request",
+      field: "correlationId",
+    });
   });
 });

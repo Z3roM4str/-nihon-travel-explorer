@@ -1,4 +1,5 @@
 import {
+  isCorrelationId,
   routingEndpointKey,
   validateTransitRouteRequest,
   type NormalizedTransitResult,
@@ -6,11 +7,18 @@ import {
   type TransitLookupOutcome,
   type TransitProvider,
   type TransitRouteRequest,
-} from "../lib/transit";
+} from "../src/lib/transit";
 
 /**
  * Phase 3B3D server-side skeleton. This module is intentionally platform-neutral: no Vercel,
  * Netlify, Cloudflare, Express, secret, provider SDK, or real-provider adapter is introduced.
+ *
+ * It lives in `app/server/` rather than `app/src/server/` deliberately. `tsconfig.app.json`
+ * compiles `src` with `lib: ["ES2023", "DOM"]`, so server-only code placed under `src` would be
+ * type-checked as if browser globals existed — `localStorage`, `window` and friends would compile
+ * cleanly inside the very module whose job is to never persist anything. Outside `src` it is
+ * checked by `tsconfig.server.json` (no DOM), which turns that mistake into a type error, and it
+ * is also structurally outside anything Vite can reach from `src/main.tsx`.
  */
 export const REAL_TRANSIT_PROVIDER_ACTIVATION = "off" as const;
 
@@ -53,7 +61,11 @@ export function buildSyntheticTransitProvider(
   return {
     id: "synthetic",
     async lookupRoute(request, signal): Promise<TransitLookupOutcome> {
-      if (signal?.aborted) return { status: "provider-error", category: "network" };
+      // Cancellation is the caller's own act, not an answer from a provider. Throwing the
+      // standard abort error keeps it out of the provider-outcome union entirely (see
+      // `handleTransitRoute`), so it can never be reported as a provider failure.
+      signal?.throwIfAborted();
+
       const outcome = byKey.get(requestKey(request));
       if (!outcome) return { status: "no-route" };
       if (outcome.status !== "ok") return outcome;
@@ -67,7 +79,10 @@ export function buildSyntheticTransitProvider(
           provenance: {
             kind: "transit-provider",
             provider: "synthetic",
-            confidence: result.scheduleAware ? "schedule-aware-live" : "static-validated",
+            // Always "synthetic-fixture", never a real confidence — a fixture must not be able
+            // to present itself as a timetable lookup that never happened. `scheduleAware` still
+            // varies so both result *shapes* stay exercised.
+            confidence: "synthetic-fixture",
             requestedAt: now(),
             serviceDate: request.serviceDate,
             timetableVersion,
@@ -82,6 +97,7 @@ export function buildSyntheticTransitProvider(
 export type TransitBoundaryErrorCategory =
   | "invalid-request"
   | "activation-disabled"
+  | "cancelled"
   | "no-route"
   | "unresolvable-endpoint"
   | ProviderErrorCategory;
@@ -89,7 +105,7 @@ export type TransitBoundaryErrorCategory =
 export type TransitRouteResponse =
   | { status: 200; body: { result: NormalizedTransitResult } }
   | {
-      status: 400 | 401 | 404 | 422 | 429 | 500 | 502 | 503 | 504;
+      status: 400 | 404 | 422 | 429 | 499 | 500 | 502 | 503 | 504;
       body: {
         error: {
           category: TransitBoundaryErrorCategory;
@@ -100,29 +116,27 @@ export type TransitRouteResponse =
       };
     };
 
-function addBoundaryWarnings(
-  request: TransitRouteRequest,
-  result: NormalizedTransitResult
-): NormalizedTransitResult {
-  const warnings = [...result.warnings];
-
-  if (request.from.kind === "place-coordinate") {
-    warnings.push({ kind: "no-catalogued-endpoint", endpoint: "from", placeId: request.from.placeId });
-  }
-  if (request.to.kind === "place-coordinate") {
-    warnings.push({ kind: "no-catalogued-endpoint", endpoint: "to", placeId: request.to.placeId });
-  }
-  if (!result.scheduleAware && !warnings.some((warning) => warning.kind === "provider-typical-duration")) {
-    warnings.push({ kind: "provider-typical-duration" });
-  }
-
-  return { ...result, warnings };
+/**
+ * The boundary may only add what it can actually observe. `scheduleAware` is a property of the
+ * answer the provider returned, so deriving "this is a typical duration, not a timetable answer"
+ * from it is sound. `no-catalogued-endpoint` is deliberately NOT derived here: a
+ * `place-coordinate` endpoint does not imply the catalog was empty — the caller may have chosen
+ * it while access points existed — and this boundary never runs resolution, so it cannot tell
+ * the two apart. That warning comes from `transitWarningsForResolution` instead.
+ */
+function addBoundaryWarnings(result: NormalizedTransitResult): NormalizedTransitResult {
+  if (result.scheduleAware) return result;
+  if (result.warnings.some((warning) => warning.kind === "provider-typical-duration")) return result;
+  return { ...result, warnings: [...result.warnings, { kind: "provider-typical-duration" }] };
 }
 
-function errorStatus(category: ProviderErrorCategory): 401 | 429 | 500 | 502 | 503 | 504 {
+function errorStatus(category: ProviderErrorCategory): 429 | 500 | 502 | 503 | 504 {
   switch (category) {
+    // Deliberately 502, not 401: a provider rejecting *our* credential is an upstream failure,
+    // not a request for the browser to authenticate. A 401 here would both misdirect the client
+    // and leak the state of our provider relationship.
     case "unauthorized":
-      return 401;
+      return 502;
     case "rate-limited":
       return 429;
     case "timeout":
@@ -134,6 +148,10 @@ function errorStatus(category: ProviderErrorCategory): 401 | 429 | 500 | 502 | 5
     case "unknown":
       return 500;
   }
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
 }
 
 /**
@@ -150,13 +168,7 @@ export function buildTransitRouteHandler(provider: TransitProvider) {
       typeof body === "object" && body !== null && "correlationId" in body
         ? (body as { correlationId?: unknown }).correlationId
         : null;
-    const correlationId =
-      typeof rawCorrelationId === "string" &&
-      rawCorrelationId.length >= 1 &&
-      rawCorrelationId.length <= 128 &&
-      /^[A-Za-z0-9._:-]+$/u.test(rawCorrelationId)
-        ? rawCorrelationId
-        : null;
+    const correlationId = isCorrelationId(rawCorrelationId) ? rawCorrelationId : null;
 
     if (!validation.ok) {
       return {
@@ -178,10 +190,28 @@ export function buildTransitRouteHandler(provider: TransitProvider) {
       };
     }
 
-    const outcome = await provider.lookupRoute(validation.request, signal);
+    // Checked before any work is dispatched, and again via the thrown abort error below, so a
+    // caller that has already given up never costs a provider call.
+    const cancelled: TransitRouteResponse = {
+      status: 499,
+      body: { error: { category: "cancelled", correlationId: validation.request.correlationId } },
+    };
+    if (signal?.aborted) return cancelled;
+
+    let outcome: TransitLookupOutcome;
+    try {
+      outcome = await provider.lookupRoute(validation.request, signal);
+    } catch (error) {
+      // Only cancellation is translated. Anything else is a genuine defect in the adapter and
+      // must not be silently reshaped into a sanitized provider category.
+      if (isAbortError(error)) return cancelled;
+      throw error;
+    }
+    if (signal?.aborted) return cancelled;
+
     switch (outcome.status) {
       case "ok":
-        return { status: 200, body: { result: addBoundaryWarnings(validation.request, outcome.result) } };
+        return { status: 200, body: { result: addBoundaryWarnings(outcome.result) } };
       case "no-route":
         return {
           status: 404,
