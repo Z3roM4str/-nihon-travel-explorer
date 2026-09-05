@@ -1006,6 +1006,21 @@ a {
   color: var(--color-text-muted);
 }
 
+.nearby-item__quality {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.nearby-item__quality--validated {
+  color: var(--color-ok);
+  font-weight: 600;
+}
+
+.nearby-item__quality--live {
+  color: var(--color-info);
+  font-weight: 600;
+}
+
 .place-detail__footnote,
 .place-detail__updated {
   margin: 0;
