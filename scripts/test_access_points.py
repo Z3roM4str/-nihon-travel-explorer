@@ -95,6 +95,9 @@ class CatalogValidationTests(unittest.TestCase):
         self.assert_invalid([first, second], "multiple active defaults")
 
     def test_selection_shape_and_default_context_integrity(self):
+        missing = valid_point()
+        del missing["selection"]
+        self.assert_invalid([missing], "selection must be an object")
         self.assert_invalid([valid_point(selection="external-walk")], "selection must be an object")
         self.assert_invalid(
             [valid_point(selection={"defaultForContexts": "external-walk"})],
