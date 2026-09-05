@@ -321,11 +321,41 @@ unchanged, and there was no UI work, no Phase 3C work, and zero openrouteservice
 Directions, or automated-geocoding calls. The next proposed phase, **not started**, is
 **Phase 3B2H — Targeted Access-Point Walking Revalidation**.
 
+## Phase 3B2H — Targeted Access-Point Walking Revalidation — pipeline ready, not executed
+
+- [x] Derive the target set programmatically from the committed walking manifests/results:
+      **6 directed edges** (all from the scale artifact, none from the pilot) — the historical
+      `A pie` relations with **JP-029** or **JP-181** at either end. Direction preserved; no
+      edge invented and no edge outside the set ever queried.
+- [x] Expand it into **14 routed candidates**: 12 for JP-029 (its four directed edges × all
+      **three** approved gates, because it has no default and choosing by ID, array position or
+      haversine is forbidden) and 2 for JP-181 (its single external reception point
+      `AP-JP-181-001` — no trailhead, no invented `internal-hike`/`internal-shuttle` endpoint).
+      The non-target end of every edge stays on its place coordinate.
+- [x] Ship `scripts/revalidate-walking-access-points.py` (manifest / dry-run / snap-backfill /
+      execute / recompare), the versioned manifest
+      `data/logistics/walking-access-point-manifest.json` carrying each candidate's historical
+      lineage, `scripts/validate-walking-access-point-results.py`, and
+      `scripts/test_walking_access_points.py` (**70 offline tests**).
+- [ ] **Execute the batch.** `ORS_API_KEY` is unavailable in this environment, so the phase
+      stopped before any real request: **zero Snap, zero Directions, zero provider calls of any
+      kind**, and no results artifact was written — deliberately not even an empty one, which
+      would be indistinguishable from a run that returned nothing. A real run is 1 batched Snap
+      request (4 access-point coordinates) plus 14 Directions requests.
+- [ ] Validate the resulting artifact and record the per-edge historical comparison.
+
+`getBestTransfer()`, `app/src/lib/transfer.ts`, precedence/fallback, `Place.coordinates`, the
+workbook, `nearby.json`, the GeoJSON, the access-point catalog and evidence, the historical
+walking pilot/scale results, both walking manifests and the snap-places store are all
+unchanged; no threshold moved (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` is still
+`None`); no candidate became a persistent default; nothing is mirrored under `app/src/data/`;
+and there was no UI and no Phase 3C work. See
+[ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
+
+**3B2H is not complete** until the execution and its validation are green.
+
 ## Later (unscheduled)
 
-- [ ] Phase 3B2H — Targeted Access-Point Walking Revalidation (proposed, not started):
-      revalidate only the affected, approved walking edges against the evidenced access points,
-      comparing against — never overwriting — the historical place-coordinate results.
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.

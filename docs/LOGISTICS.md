@@ -648,6 +648,44 @@ coordinate, and the excluded place IDs staying empty).
 The next proposed phase, **not started here**, is **Phase 3B2H — Targeted
 Access-Point Walking Revalidation**.
 
+## Phase 3B2H — Targeted Access-Point Walking Revalidation
+
+Phase 3B2H is the design's **Stage 4**: reroute only the walking edges the Phase 3B2G
+access points affect, and compare against — never over — the historical
+place-coordinate results. It is generation + evidence + comparison only.
+
+The target set is **derived, not declared**: every historical directed `A pie` edge
+(pilot or scale) with `JP-029` or `JP-181` at either end. That is **6 directed edges**,
+all six from the scale artifact, none from the pilot. Each expands into one candidate
+per eligible (`active` + `external-walk`) access point of its target place, keeping
+direction — **14 candidates**: 12 for `JP-029` (four directed edges × its three
+officially designated gates, since it has no default and picking one by ID, array
+position or haversine is forbidden) and 2 for `JP-181` (its single external reception
+point; no trailhead, no invented internal endpoint). The non-target end of every edge
+keeps the exact place coordinate the historical result used, so the comparison isolates
+one variable.
+
+**Not executed in this checkout.** `ORS_API_KEY` is unavailable, so the run stopped
+before any request: **zero Snap, zero Directions, zero calls to any provider**, and
+`data/logistics/walking-access-point-results.json` does not exist. A real run makes 1
+batched Snap request (the 4 access-point coordinates only — the three place-coordinate
+endpoints are already `resolved` in `walking-snap-places.json` and are never re-snapped)
+and 14 Directions requests.
+
+Nothing about consumption changed. `getBestTransfer()` is untouched and still reads only
+`walking-pilot-results.json` and `walking-scale-results.json`; `app/src/lib/transfer.ts`
+has no reference to access points; no artifact from this phase is mirrored under
+`app/src/data/`. The historical walking results, both walking manifests, the snap-places
+store, `places.json`, `nearby.json`, the GeoJSON and the workbook are all unchanged, and
+two validator guards enforce that the historical results neither change content (recorded
+sha256) nor acquire access-point annotations. No threshold moved:
+`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` is still `None` and no new threshold was
+introduced. No candidate is promoted to a persistent default.
+
+The full target set, candidate table, request accounting, comparison schema, validation
+matrix, conservative reading and phase limits are in
+[ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
+
 ## The remaining 3B2/3B2B/3C boundary
 
 Everything below is still explicitly out of scope. Extending `TransferConfidence`,
