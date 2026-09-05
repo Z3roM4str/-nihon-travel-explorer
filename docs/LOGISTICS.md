@@ -793,6 +793,23 @@ cached, or committed. Provider activation stays **OFF**; the whole design is bui
 testable against a `synthetic` provider meanwhile. See
 [LIVE_TRANSIT_INTEGRATION_DESIGN.md](LIVE_TRANSIT_INTEGRATION_DESIGN.md).
 
+**Phase 3B3D** built the first code slice of that design against the **`synthetic` provider
+only**: the provider-neutral contract in `app/src/lib/transit.ts`, and a deployment-neutral route
+handler in `app/server/transit.ts` (outside `app/src/`, so outside Vite's source root and outside
+the browser type graph). Three properties matter for this document. First, the activation gate is
+a literal in code — a real `ekispert`/`navitime` adapter is rejected *before* its lookup function
+can run, so no provider relationship exists or is needed. Second, a synthetic answer can never
+impersonate a real one: its provenance always reports the distinct confidence
+`"synthetic-fixture"`, never `"schedule-aware-live"` or `"validated-static"`, so the
+[confidence vocabulary](#confidence-taxonomy) above stays honest even while the data behind it is
+invented. Third, `"no-catalogued-endpoint"` is derivable **only** from an actual
+`external-local-transit` resolution, never from the shape of an endpoint — the same
+"never assert what you did not check" rule that governs the rest of this document. The context
+still has zero catalogued members, so every place resolves to `use-place-coordinate` today.
+`getBestTransfer()` is unchanged. The client transport / React hook is deliberately **not** built
+yet, because no UI consumer and no explicit user trigger exist for it. See
+[LIVE_TRANSIT_SYNTHETIC_SKELETON.md](LIVE_TRANSIT_SYNTHETIC_SKELETON.md).
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single
