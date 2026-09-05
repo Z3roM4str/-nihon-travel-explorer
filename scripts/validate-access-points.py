@@ -124,9 +124,9 @@ def validate_catalog(catalog, place_ids):
         if provenance.get("confidence") not in CONFIDENCES:
             errors.append(f"{label}: unsupported provenance confidence {provenance.get('confidence')!r}")
 
-        selection = point.get("selection", {})
+        selection = point.get("selection")
         if not isinstance(selection, dict):
-            errors.append(f"{label}: selection must be an object when present")
+            errors.append(f"{label}: selection must be an object and is required")
             selection = {}
         default_contexts = selection.get("defaultForContexts", [])
         if not isinstance(default_contexts, list):
