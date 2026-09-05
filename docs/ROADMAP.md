@@ -294,11 +294,38 @@ requests, routing-result regeneration, UI, or Phase 3C work occurred. The next p
 **Phase 3B2G — Evidenced Access-Point Population** — would research and add only officially
 verifiable real coordinates with provenance, still without routing integration. It is not started.
 
+## Phase 3B2G — Evidenced Access-Point Population — complete
+
+- [x] Populate `data/logistics/access-points.json` (and its byte-identical app copy) for the
+      first time with **4 real access points across 2 place IDs**: three officially designated
+      East Gardens entrance/exit gates for **JP-029** (`AP-JP-029-001` Ōte-mon,
+      `AP-JP-029-002` Hirakawa-mon, `AP-JP-029-003` Kitahanebashi-mon) and the external
+      arrival/reception point for **JP-181** (`AP-JP-181-001`).
+- [x] Create **no default for any point**: `selection.defaultForContexts` is empty on all four.
+      Three official gates do not make one of them the answer; JP-029 is deliberately the
+      multi-candidate, no-default case the design's selection rules describe.
+- [x] Investigate and deliberately create **no record** for **JP-185** (the official Furuzamami
+      bus stop exists in the village's own timetables, but no official source publishes its
+      coordinate), for **JP-064** and **JP-069** (evidence still insufficient), and for **JP-090**
+      (`no-route` is provider behaviour, not physical provenance). For JP-181, the trailhead and
+      the internal shuttle stage were investigated and not created — no verifiable coordinate.
+- [x] Record the complete research trail in [ACCESS_POINT_EVIDENCE.md](ACCESS_POINT_EVIDENCE.md):
+      sources consulted per case, how each coordinate was obtained, candidate sources evaluated
+      and rejected, ambiguities, and why each absent record is absent.
+- [x] Extend the offline and app suites with real-catalog coverage without relaxing a single
+      validation rule.
+
+Access points are **not** used by routing. `getBestTransfer()`, `Place.coordinates`, the
+workbook, `nearby.json`, the GeoJSON, and the historical walking pilot/scale results are all
+unchanged, and there was no UI work, no Phase 3C work, and zero openrouteservice, Snap,
+Directions, or automated-geocoding calls. The next proposed phase, **not started**, is
+**Phase 3B2H — Targeted Access-Point Walking Revalidation**.
+
 ## Later (unscheduled)
 
-- [ ] Phase 3B2G — Evidenced Access-Point Population (proposed, not started): investigate
-      access points only where an official, verifiable coordinate and provenance exist; do not
-      integrate them into routing yet.
+- [ ] Phase 3B2H — Targeted Access-Point Walking Revalidation (proposed, not started):
+      revalidate only the affected, approved walking edges against the evidenced access points,
+      comparing against — never overwriting — the historical place-coordinate results.
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
 - [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.

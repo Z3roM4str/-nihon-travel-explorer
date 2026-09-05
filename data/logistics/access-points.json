@@ -1,1 +1,94 @@
-[]
+[
+  {
+    "id": "AP-JP-029-001",
+    "placeId": "JP-029",
+    "label": "Ōte-mon Gate",
+    "role": "visitor-entrance",
+    "coordinates": {
+      "lat": 35.68596,
+      "lng": 139.760215
+    },
+    "applicableContexts": [
+      "external-walk"
+    ],
+    "provenance": {
+      "sourceUrl": "https://visit-chiyoda.tokyo/app/spot/detail/19",
+      "sourceEntity": "Chiyoda City Tourism Association (Visit Chiyoda, official Chiyoda City tourism site)",
+      "consultedAt": "2026-09-05",
+      "evidence": "The Imperial Household Agency's East Gardens visitor page names Ote-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking times from Otemachi, Nijubashimae and Tokyo stations. The official Chiyoda City tourism site publishes a dedicated Ote-mon spot page describing it as the former main gate of Edo Castle, and that page's map block targets this coordinate for the gate itself.",
+      "confidence": "official-explicit"
+    },
+    "selection": {},
+    "status": "active",
+    "notes": "Ordinal 001 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Deliberately no default: the agency does not designate a preferred gate."
+  },
+  {
+    "id": "AP-JP-029-002",
+    "placeId": "JP-029",
+    "label": "Hirakawa-mon Gate",
+    "role": "visitor-entrance",
+    "coordinates": {
+      "lat": 35.689623,
+      "lng": 139.757877
+    },
+    "applicableContexts": [
+      "external-walk"
+    ],
+    "provenance": {
+      "sourceUrl": "https://visit-chiyoda.tokyo/app/spot/detail/653",
+      "sourceEntity": "Chiyoda City Tourism Association (Visit Chiyoda, official Chiyoda City tourism site)",
+      "consultedAt": "2026-09-05",
+      "evidence": "The Imperial Household Agency's East Gardens visitor page names Hirakawa-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking time from Takebashi station. The official Chiyoda City tourism site publishes a dedicated Hirakawa-mon spot page describing it as the main gate of the Sannomaru enclosure, and that page's map block targets this coordinate for the gate itself.",
+      "confidence": "official-explicit"
+    },
+    "selection": {},
+    "status": "active",
+    "notes": "Ordinal 002 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Deliberately no default: the agency does not designate a preferred gate."
+  },
+  {
+    "id": "AP-JP-029-003",
+    "placeId": "JP-029",
+    "label": "Kitahanebashi-mon Gate",
+    "role": "visitor-entrance",
+    "coordinates": {
+      "lat": 35.688868,
+      "lng": 139.754043
+    },
+    "applicableContexts": [
+      "external-walk"
+    ],
+    "provenance": {
+      "sourceUrl": "https://visit-chiyoda.tokyo/app/spot/detail/244",
+      "sourceEntity": "Chiyoda City Tourism Association (Visit Chiyoda, official Chiyoda City tourism site)",
+      "consultedAt": "2026-09-05",
+      "evidence": "The Imperial Household Agency's East Gardens visitor page names Kitahanebashi-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking time from Takebashi station. The official Chiyoda City tourism site publishes a spot page for Kitahanebashi that describes it as the bridge of the Edo Castle Kitahanebashi-mon on the north side of the East Gardens, states that only the gate and the bridge remain, and targets this coordinate; the gate coordinate is therefore derived from that published bridge/gate point rather than published separately.",
+      "confidence": "official-derived"
+    },
+    "selection": {},
+    "status": "active",
+    "notes": "Ordinal 003 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Coordinate rounded to the six decimals published by the source's map target. Deliberately no default: the agency does not designate a preferred gate."
+  },
+  {
+    "id": "AP-JP-181-001",
+    "placeId": "JP-181",
+    "label": "ASMUI Spiritual Hikes reception",
+    "role": "reception",
+    "coordinates": {
+      "lat": 26.8619707,
+      "lng": 128.2550917
+    },
+    "applicableContexts": [
+      "external-walk"
+    ],
+    "provenance": {
+      "sourceUrl": "https://www.asmui.jp/",
+      "sourceEntity": "ASMUI Spiritual Hikes (venue operator)",
+      "consultedAt": "2026-09-05",
+      "evidence": "The operator's own site separates reception, an internal shuttle bus and the hiking start point, stating that reception to the start point takes about 20-30 minutes, and it publishes a facility location coordinate for its address in Ginama, Kunigami, where reception and the visitor car park are. That published facility coordinate is used as the external arrival point. The Geospatial Information Authority of Japan's map annotation for the same facility falls about 100 m away, consistent with this location.",
+      "confidence": "official-derived"
+    },
+    "selection": {},
+    "status": "active",
+    "notes": "External arrival/reception stage only. The hiking start point is a separate internal stage roughly 20-30 minutes further on and has no verifiable published coordinate, so no internal-hike trailhead record exists; external-local-transit is not claimed because no official source documents a transit endpoint here."
+  }
+]

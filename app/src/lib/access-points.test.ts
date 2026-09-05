@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildAccessPointReader,
   getAccessPointById,
+  getAccessPointsForContext,
   getAccessPointsForPlace,
   getAllAccessPoints,
   type LogisticsAccessPoint,
@@ -26,10 +27,44 @@ const point = (id: string, role: LogisticsAccessPoint["role"]): LogisticsAccessP
 });
 
 describe("access-point reads", () => {
-  it("reads the real empty artifact", () => {
-    expect(getAllAccessPoints()).toEqual([]);
+  it("reads the real evidenced artifact", () => {
+    const all = getAllAccessPoints();
+    expect(all.map((candidate) => candidate.id)).toEqual([
+      "AP-JP-029-001",
+      "AP-JP-029-002",
+      "AP-JP-029-003",
+      "AP-JP-181-001",
+    ]);
+    expect(getAccessPointById("AP-JP-029-002")).toMatchObject({
+      placeId: "JP-029",
+      role: "visitor-entrance",
+      status: "active",
+    });
     expect(getAccessPointById("AP-JP-TEST-001")).toBeUndefined();
     expect(getAccessPointsForPlace("JP-TEST")).toEqual([]);
+  });
+
+  it("returns every real place with no access points as an empty list", () => {
+    for (const placeId of ["JP-064", "JP-069", "JP-090", "JP-185"]) {
+      expect(getAccessPointsForPlace(placeId)).toEqual([]);
+      expect(getAccessPointsForContext(placeId, "external-walk")).toEqual([]);
+    }
+  });
+
+  it("hands back all three real gates for JP-029 without choosing one", () => {
+    const candidates = getAccessPointsForContext("JP-029", "external-walk");
+    expect(candidates).toHaveLength(3);
+    for (const candidate of candidates) {
+      expect(candidate.selection.defaultForContexts ?? []).toEqual([]);
+    }
+  });
+
+  it("keeps the real ASMUI reception out of internal-stage contexts", () => {
+    expect(
+      getAccessPointsForContext("JP-181", "external-walk").map((candidate) => candidate.id),
+    ).toEqual(["AP-JP-181-001"]);
+    expect(getAccessPointsForContext("JP-181", "internal-hike")).toEqual([]);
+    expect(getAccessPointsForContext("JP-181", "internal-shuttle")).toEqual([]);
   });
 
   it("does not expose an array that can mutate its index", () => {
