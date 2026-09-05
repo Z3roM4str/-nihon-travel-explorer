@@ -567,8 +567,8 @@ design's **Stage 1** data foundation. The authoritative, versioned catalog is
 `data/logistics/access-points.json`; the app-readable
 `app/src/data/logistics/access-points.json` is a generated/distributed copy and is
 required to be structurally identical by `scripts/validate-access-points.py`. It is
-not a second editable source of truth. Both files currently contain exactly an empty
-JSON array (`[]`): this phase adds zero real coordinates and no records for any place.
+not a second editable source of truth. At the end of Phase 3B2F both files contained
+exactly an empty JSON array (`[]`); Phase 3B2G below is what first populates them.
 
 The logistics-specific TypeScript contract and read primitives live in
 `app/src/lib/access-points.ts`, keeping `Place.coordinates` and the rest of `Place`
@@ -592,9 +592,61 @@ its precedence and fallback, `TransferMode`, `TransferConfidence`, nearby data, 
 all historical pilot/scale results remain unchanged. `RoutingEndpoint` remains the
 approved future contract in the design document rather than being added prematurely:
 no current result needs or receives endpoint identity. There were no ORS calls or UI
-changes. The next proposed phase, not started here, is **Phase 3B2G — Evidenced
+changes. The next phase, not started there, is **Phase 3B2G — Evidenced
 Access-Point Population**: populate only officially verifiable real coordinates and
 provenance, still without routing integration.
+
+## Phase 3B2G — Evidenced Access-Point Population
+
+Phase 3B2G is the design's **Stage 2**: it populates the catalog for the first time
+with real coordinates, and only where an official source can carry the physical
+existence, the logistics function, the coordinate, and the provenance. It remains
+data-only.
+
+The catalog now holds **4 access points across 2 place IDs**:
+
+| ID | Place | Label | Role | Contexts | Confidence |
+|---|---|---|---|---|---|
+| `AP-JP-029-001` | JP-029 Imperial Palace East Gardens | Ōte-mon Gate | `visitor-entrance` | `external-walk` | `official-explicit` |
+| `AP-JP-029-002` | JP-029 Imperial Palace East Gardens | Hirakawa-mon Gate | `visitor-entrance` | `external-walk` | `official-explicit` |
+| `AP-JP-029-003` | JP-029 Imperial Palace East Gardens | Kitahanebashi-mon Gate | `visitor-entrance` | `external-walk` | `official-derived` |
+| `AP-JP-181-001` | JP-181 ASMUI Spiritual Hikes | ASMUI Spiritual Hikes reception | `reception` | `external-walk` | `official-derived` |
+
+**No access point claims a default.** `selection.defaultForContexts` is empty on all
+four. JP-029 is deliberately the multi-candidate, no-default case
+`ACCESS_POINT_DESIGN.md` §12 describes: three officially designated entrance/exit
+gates do not make one of them the answer, and which gate is right depends on the
+origin of the trip. A future resolver must return an explicit ambiguity outcome for
+this place, not silently pick one.
+
+Cases investigated and deliberately left **without** a record: **JP-185**
+(Furuzamami Beach — the official village bus stop's existence is confirmed by the
+village's own timetables, but no official source publishes its coordinate, and the
+only reachable coordinate is a beach place-name annotation, i.e. the visual centre
+this phase may not use), **JP-064** and **JP-069** (evidence still insufficient; one
+official site is still unreadable), and **JP-090** (repeated `no-route` answers are
+provider behaviour, never physical provenance). For JP-181 the hiking start point and
+the internal shuttle stage were investigated and **not** created: the operator
+documents that they exist and are ~20–30 minutes from reception, but publishes no
+coordinate for either, so `internal-hike` and `internal-shuttle` remain unrepresented.
+
+The full research record — every source consulted, how each coordinate was obtained,
+which candidate sources were evaluated and rejected, and why each absent record is
+absent — is [ACCESS_POINT_EVIDENCE.md](ACCESS_POINT_EVIDENCE.md).
+
+Nothing about consumption changed. `getBestTransfer()` still does not read access
+points; no routing artifact references one; `Place.coordinates`, `nearby.json`, the
+GeoJSON, the workbook, and the historical pilot/scale walking results are untouched;
+no UI reads the catalog. This phase made zero openrouteservice requests, ran no Snap
+or Directions call, and performed no automated geocoding against any external
+provider. The validator was not relaxed in any way — the real data was made to pass
+it as written, and the suite gained real-catalog coverage (validator pass, root/app
+parity, unique IDs, official provenance on every point, no default anywhere, internal
+stages never externally applicable, no access point reusing its place's display
+coordinate, and the excluded place IDs staying empty).
+
+The next proposed phase, **not started here**, is **Phase 3B2H — Targeted
+Access-Point Walking Revalidation**.
 
 ## The remaining 3B2/3B2B/3C boundary
 

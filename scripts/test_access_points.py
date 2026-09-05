@@ -188,5 +188,78 @@ class ArtifactValidationTests(unittest.TestCase):
             self.assertEqual(validator.validate(data, app), [])
 
 
+
+class RealCatalogTests(unittest.TestCase):
+    """Guards the real, evidenced catalog — not the synthetic fixtures above."""
+
+    ROOT = Path(__file__).resolve().parents[1]
+    SOURCE = ROOT / "data/logistics/access-points.json"
+    APP = ROOT / "app/src/data/logistics/access-points.json"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.catalog = json.loads(cls.SOURCE.read_text(encoding="utf-8"))
+
+    def test_real_catalog_passes_the_validator(self):
+        self.assertEqual(validator.validate(self.ROOT / "data", self.APP), [])
+
+    def test_root_and_app_copies_are_identical(self):
+        self.assertEqual(
+            self.catalog, json.loads(self.APP.read_text(encoding="utf-8"))
+        )
+        self.assertEqual(
+            self.SOURCE.read_text(encoding="utf-8"), self.APP.read_text(encoding="utf-8")
+        )
+
+    def test_identifiers_are_unique(self):
+        ids = [point["id"] for point in self.catalog]
+        self.assertEqual(len(ids), len(set(ids)))
+
+    def test_every_active_point_carries_official_provenance(self):
+        for point in self.catalog:
+            with self.subTest(point=point["id"]):
+                provenance = point["provenance"]
+                self.assertIn(provenance["confidence"], validator.CONFIDENCES)
+                self.assertTrue(provenance["sourceUrl"].startswith("https://"))
+                for field in ("sourceEntity", "evidence", "consultedAt"):
+                    self.assertTrue(provenance[field].strip())
+
+    def test_no_access_point_claims_a_default(self):
+        """Three official gates do not make one of them the answer; see
+        docs/ACCESS_POINT_EVIDENCE.md. A default must be added evidence-first."""
+        for point in self.catalog:
+            with self.subTest(point=point["id"]):
+                self.assertEqual(point["selection"].get("defaultForContexts", []), [])
+
+    def test_internal_stages_are_never_externally_applicable(self):
+        external = {"external-walk", "external-local-transit"}
+        internal = {"internal-shuttle", "internal-hike"}
+        for point in self.catalog:
+            contexts = set(point["applicableContexts"])
+            with self.subTest(point=point["id"]):
+                self.assertFalse(contexts & internal and contexts & external)
+
+    def test_no_access_point_reuses_its_place_display_coordinate(self):
+        places = {
+            place["id"]: place
+            for place in json.loads((self.ROOT / "data/places.json").read_text(encoding="utf-8"))
+        }
+        for point in self.catalog:
+            display = places[point["placeId"]]["coordinates"]
+            with self.subTest(point=point["id"]):
+                self.assertNotEqual(
+                    (display["lat"], display["lng"]),
+                    (point["coordinates"]["lat"], point["coordinates"]["lng"]),
+                )
+
+    def test_excluded_places_have_no_access_point(self):
+        """JP-064/JP-069 lack sufficient evidence and JP-090's no-route results are
+        provider behaviour, not physical provenance."""
+        excluded = {"JP-064", "JP-069", "JP-090"}
+        self.assertEqual(
+            excluded & {point["placeId"] for point in self.catalog}, set()
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
