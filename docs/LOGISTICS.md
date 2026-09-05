@@ -777,6 +777,22 @@ of that line. A specific question for Val Laboratory is drafted, not sent. Full 
 article analysis, the AI-use scenario classification, and the public-repo implications are in
 [TRANSIT_TERMS_COVERAGE_CONFIRMATION.md](TRANSIT_TERMS_COVERAGE_CONFIRMATION.md).
 
+**Phase 3B3C** designed (without implementing) how that live layer would attach to the system as
+it actually exists. Two verified facts drive it: **there is no backend today** — `app/` is a
+static Vite/React SPA whose data are all build-time JSON imports, with no deployment platform
+chosen — and **`transfer.ts` currently has no consumers**, so the 325 `validated-static` walking
+results are not shown to any user; `PlaceDetail.tsx` renders raw `nearby.json` instead. Because
+an Ekispert credential cannot survive in a browser bundle (Vite inlines `VITE_*`; Article 26 §1
+deems every action taken with the key the contractor's own), a **Nihon-controlled server boundary
+is required**, with the hosting platform deliberately deferred. The key architectural ruling:
+**`getBestTransfer()` stays synchronous and static** — it is a precomputed `Map` lookup that does
+no I/O, so an async signature would misdescribe it — and live transit gets a **separate async
+boundary**, with the choice between them made in a React hook rather than the data layer. Both
+the raw provider response and the normalized result are treated as **ephemeral**, never persisted,
+cached, or committed. Provider activation stays **OFF**; the whole design is buildable and
+testable against a `synthetic` provider meanwhile. See
+[LIVE_TRANSIT_INTEGRATION_DESIGN.md](LIVE_TRANSIT_INTEGRATION_DESIGN.md).
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single

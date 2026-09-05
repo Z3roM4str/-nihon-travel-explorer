@@ -488,18 +488,62 @@ no UI; and did not start Phase 3B3C (proposed: live integration *design* against
 fixtures only, still not implementation, and still not provider activation) or any Phase 3C
 work.
 
+## Phase 3B3C — Live Transit Integration Design — complete (design only, activation still OFF)
+
+- [x] Design, against the **verified current system** rather than an assumed one, how a live
+      schedule-aware transit layer could be added later. Four facts checked directly in this
+      checkout shape every decision: **there is no backend at all** (static Vite/React SPA, four-line
+      `vite.config.ts`, runtime deps only `leaflet`/`react`/`react-dom`/`react-leaflet`, no
+      deployment platform chosen, zero runtime `fetch` — all data are build-time JSON imports);
+      **`app/src/lib/transfer.ts` has no consumers** (imported only by its own test — the UI renders
+      raw `nearby.json` via `store.getNearby()` in `PlaceDetail.tsx`, so the 325 `validated-static`
+      walking results are not shown to any user today); the seams `"schedule-aware"`,
+      `"external-local-transit"` and `TransferProvenance` exist but are empty; and a regression test
+      already guards against unordered aggregation.
+- [x] Establish why an Ekispert credential **cannot** live in the frontend — Vite inlines `VITE_*`
+      into the shipped bundle, and Article 26 §1 deems every action taken with the key the
+      contractor's own — and design the required flow: browser → **Nihon-controlled server
+      boundary** (holds the key, validates, rate-limits, normalizes, discards the raw response) →
+      provider → normalized ephemeral result → browser.
+- [x] **Backend contract decided; hosting provider deferred** — deployment-neutral
+      `POST /api/transit/route`, because the repository has chosen no deployment platform at all;
+      serverless / edge / small API service compared as alternatives without picking one.
+- [x] Close the design decisions: request contract (our own `RoutingEndpoint` ids, tagged
+      depart/arrive union, explicit `serviceDate` + IANA zone); provider adapter with a closed
+      outcome union and error **categories** (never provider text), with `synthetic` a first-class
+      member; minimal normalized result (no fares, no station ids, no geometry); refined
+      `TransitProviderProvenance` (mandatory `serviceDate`, literal `ephemeral: true`);
+      access-point flow reusing `"external-local-transit"` and **never** silently collapsing
+      JP-029-style ambiguity; fallbacks that never relabel an estimate as schedule-aware;
+      non-persistence guardrails (no client storage, no artifacts, no server cache, no payload
+      logs — operational metadata only); security boundary; cost control **without** caching
+      prohibited output (explicit user action, cancellation, in-flight dedup only); and a
+      synthetic-only testing strategy with obviously-fictional fixtures.
+- [x] **Async strategy resolved with evidence:** `getBestTransfer()` stays **sync/static** — it
+      reads two build-time JSON imports through a `Map` and does no I/O, so a `Promise` signature
+      would be a false statement about it; a **separate async boundary** serves live transit, and
+      arbitration between them belongs in a React hook that knows user intent, not in the data
+      layer. Existing callers broken: none.
+- [x] Full design in [LIVE_TRANSIT_INTEGRATION_DESIGN.md](LIVE_TRANSIT_INTEGRATION_DESIGN.md).
+
+**Provider activation remains OFF** and still `REQUIRES VENDOR CONFIRMATION` (Phase 3B3B §7.2).
+The architecture is deliberately buildable and testable end-to-end against the `synthetic`
+provider while OFF, so no provider relationship is needed to make progress. This phase made
+**zero requests to Ekispert, NAVITIME or openrouteservice, created zero accounts, introduced zero
+API keys, and used zero real provider payloads**; changed no `app/src/`, `scripts/`, `data/`,
+deployment config, `package.json` or lockfile; built no backend and no UI; and started no
+Phase 3C work (no sequencing, no optimization, no itinerary generation).
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
-- [ ] Phase 3B3C — Live Transit Integration Design (proposed, not started): design, without
-      implementing and using only public documentation plus synthetic fixtures (no real
-      Ekispert account, no real query), the request/response flow for a live-only Ekispert
-      integration — where the call happens in the request lifecycle, how
-      `TransitProviderProvenance` attaches to an ephemeral result, and how the UI accommodates a
-      network-dependent transfer time. **Does not itself activate a real provider connection** —
-      that remains gated on the open question below. See
-      `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §9.
+- [ ] Phase 3B3D — Synthetic-provider walking skeleton (proposed, not started): implement the
+      Phase 3B3C design against the `synthetic` provider only, with activation still OFF — real
+      code, zero provider relationship. See `docs/LIVE_TRANSIT_INTEGRATION_DESIGN.md` §18.
+- [ ] Access-point evidence for `"external-local-transit"` (proposed, not started): the context is
+      reserved but has **zero** members, so every place currently resolves to
+      `use-place-coordinate`. Populating it is evidence work at the same standard as Phase 3B2G.
 - [ ] Ekispert provider activation (not started, `REQUIRES VENDOR CONFIRMATION`): before any real
       account, API key, or live query is introduced, either get Val Laboratory's written answer
       to the drafted question in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3 (does
