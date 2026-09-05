@@ -739,6 +739,20 @@ it implies (live lookup vs. a licensed, cacheable batch export).
 
 No Google API key exists anywhere in this repository, and none is created by Phase 3B1.
 
+**Phase 3B3A** (later) turned this into a full decision: it derived the actual non-walking gap
+from the live dataset (71 of 403 relations, all intra-hub, 100 % still haversine estimates —
+walking's own 7 still-`estimated` stragglers are Phase 3B2D's closed findings, not a transit
+problem), re-verified Google's exclusion live, evaluated HERE (sales-gated in Japan, not
+self-serve), NAVITIME, Ekispert, and open-data alternatives (ODPT, GTFS aggregators — open
+licensing, but neither is a routing engine), and specified the `static-validated`/
+`schedule-aware` boundary a future artifact must respect (a schedule-aware result is bound to a
+specific service date and must never be treated as evergreen). **Decision: BLOCKED** — pending a
+named next phase that reads the unreviewed terms-of-use for Ekispert (primary candidate) and
+NAVITIME (secondary) and confirms Okinawa/Kyoto/Osaka coverage, because neither was confirmed
+this session. No provider was integrated, no account or key was created, and no request was made
+to any of them. Full research, requirements, and the comparative matrix are in
+[TRANSIT_PROVIDER_DECISION.md](TRANSIT_PROVIDER_DECISION.md).
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single

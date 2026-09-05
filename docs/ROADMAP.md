@@ -361,11 +361,65 @@ unchanged; no threshold moved (`SNAP_SIGNIFICANT_PER_ENDPOINT_ABSOLUTE_METERS` i
 and there was no UI and no Phase 3C work. See
 [ACCESS_POINT_WALKING_REVALIDATION.md](ACCESS_POINT_WALKING_REVALIDATION.md).
 
+## Phase 3B3A — Transit & Schedule-Aware Logistics Provider Decision / Coverage Audit — research complete, BLOCKED
+
+- [x] Derive the non-walking gap programmatically from the current dataset (never carried
+      forward from a prior phase's report): of 403 directed `nearby.json` relations, **332 are
+      walking** (325 already `validated-static`, 7 still `estimated` — the already-investigated
+      `JP-063↔JP-065` pair and the `JP-090` `no-route` cluster, both Phase 3B2D's closed
+      findings, not this phase's problem) and **71 are non-walking** (`Transporte local` 69,
+      `Disney Resort Line` 2) — **100 % of the non-walking relations are still pure
+      haversine-distance estimates**, untouched by any validation work to date. All 403
+      relations, with no exception, are intra-hub; the dataset has **zero** inter-hub relations
+      (no Tokyo↔Kyoto, no mainland↔Okinawa) — inter-city transport is not a gap in today's data,
+      it is an unmodeled relation category.
+- [x] Define provider requirements from that gap plus the hub set (urban rail/JR/metro/bus
+      confirmed necessary; Shinkansen/ferry/flight are forward-looking, not required by today's
+      403 relations; national coverage including Okinawa, since Okinawa carries 23 of the 71
+      non-walking relations — 32 %).
+- [x] Evaluate Google Routes (re-confirmed live: still a 100-day transit horizon, still a
+      caching/storage-restrictive policy — excluded, same conclusion as Phase 3B1's original
+      research), HERE Public Transit (Japan routing access is sales-gated, not self-serve —
+      excluded), NAVITIME API (capable, but its realistic paid tier is disproportionate for a
+      personal project and its caching terms were not reviewed), Ekispert API (best cost fit —
+      a real non-subscription pay-as-you-go tier — and the broadest Japan-specific mode
+      coverage, but its terms-of-use PDF governing response caching/storage was not opened this
+      session, and Okinawa/Yui-Rail coverage was not confirmed), and open-data alternatives
+      (ODPT, GTFS aggregators — open licensing, but neither is a routing engine; adopting either
+      means building a trip planner ourselves).
+- [x] Specify the `static-validated`/`schedule-aware` boundary a future artifact must respect: a
+      schedule-aware result is bound to a specific service date and must never be treated as
+      evergreen just because the route exists.
+- [x] Specify (without implementing) how a future transit layer resolves an endpoint through the
+      existing access-point model via the already-reserved, still-unused `"external-local-transit"`
+      context — no access point changed, no default created, `JP-181` not touched.
+- [x] Full research, requirements, comparative matrix, provenance strategy, and decision
+      rationale in [TRANSIT_PROVIDER_DECISION.md](TRANSIT_PROVIDER_DECISION.md).
+
+**Decision: BLOCKED.** Not for lack of a plausible candidate — Ekispert is a credible primary
+and NAVITIME a credible secondary — but because choosing either now would decide an
+architecture-defining question (can a response be cached/versioned as static repository data,
+the way every other artifact in `data/logistics/` is, or must it be queried live) without having
+read the one document that actually answers it: each candidate's terms of use. Google's case is
+the cautionary example: its documented policy is caching-hostile and would force a different
+architecture than this project has used since Phase 3B2A. Proceeding on an unread assumption
+would repeat that mistake. A named next phase (proposed, not started) reads those terms and
+confirms Okinawa/Kyoto/Osaka coverage before any PROCEED decision is made.
+
+This phase made **zero requests to any transit provider and zero new ORS requests**; changed no
+threshold, no access point, no `getBestTransfer()` behavior, no dataset file, and no UI; and did
+not start ordered-sequence logistics, city-sequence comparison, day-level itinerary generation,
+or any other Phase 3C work.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
-- [ ] Transit/schedule-aware validation pending a provider decision — see `docs/LOGISTICS.md`.
+- [ ] Phase 3B3B — Provider Terms & Coverage Confirmation (proposed, not started): read
+      Ekispert's and NAVITIME's actual terms of use for response caching/storage; confirm
+      Okinawa/Yui-Rail and Kyoto/Osaka private-rail coverage; then decide PROCEED / PROCEED WITH
+      HYBRID for the intra-hub non-walking gap. Inter-hub modeling (Shinkansen, flights) stays a
+      separate, later question — see `docs/TRANSIT_PROVIDER_DECISION.md`.
 - [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
       unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
 - [ ] Compare candidate city sequences.
