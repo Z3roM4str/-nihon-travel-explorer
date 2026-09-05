@@ -3,6 +3,8 @@ import type { NearbyRelation, Place } from "../types";
 import { PlaceGallery } from "./PlaceGallery";
 import { resolvePlaceImages } from "../data/place-images";
 import { resolveDuration, formatRange } from "../lib/duration";
+import { getBestTransfer } from "../lib/transfer";
+import { describeTransferForUi, transferListFootnote } from "../lib/transfer-display";
 import {
   alertSeverity,
   formatPrice,
@@ -88,9 +90,18 @@ export function PlaceDetail({
   const severity = alertSeverity(place.febMar2027.status);
   const showExperience = place.experience && place.experience !== place.description;
 
-  const nearbyPlaces = nearby
-    .map((relation) => ({ relation, target: getPlace(relation["Hacia ID"]) }))
-    .filter((entry): entry is { relation: NearbyRelation; target: Place } => Boolean(entry.target));
+  const nearbyPlaces = nearby.flatMap((relation) => {
+    const target = getPlace(relation["Hacia ID"]);
+    if (!target) return [];
+    return [
+      {
+        relation,
+        target,
+        transfer: getBestTransfer(place.id, target.id),
+      },
+    ];
+  });
+  const nearbyFootnote = transferListFootnote(nearbyPlaces.map(({ transfer }) => transfer));
 
   return (
     <div className="place-detail" aria-labelledby="place-detail-title">
@@ -229,26 +240,30 @@ export function PlaceDetail({
             <section className="place-detail__section">
               <h3>Cerca de aquí</h3>
               <ul className="nearby-list">
-                {nearbyPlaces.map(({ relation, target }) => (
-                  <li key={target.id}>
-                    <button type="button" className="nearby-item" onClick={() => onSelectNearby(target.id)}>
-                      <span className="nearby-item__text">
-                        <span className="nearby-item__name">{target.name}</span>
-                        <span className="nearby-item__relation">{relation["Relación"]}</span>
-                      </span>
-                      <span className="nearby-item__distance">
-                        {relation["Distancia km"]} km
-                        <span className="nearby-item__mode">
-                          {relation["Modo"]} · ~{relation["Min aprox."]} min
+                {nearbyPlaces.map(({ relation, target, transfer }) => {
+                  const display = transfer ? describeTransferForUi(transfer) : null;
+                  return (
+                    <li key={target.id}>
+                      <button type="button" className="nearby-item" onClick={() => onSelectNearby(target.id)}>
+                        <span className="nearby-item__text">
+                          <span className="nearby-item__name">{target.name}</span>
+                          <span className="nearby-item__relation">{relation["Relación"]}</span>
                         </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                        <span className="nearby-item__distance">
+                          {display?.distanceText ?? `${relation["Distancia km"]} km`}
+                          <span className="nearby-item__mode">
+                            {relation["Modo"]} · {display?.timeText ?? `~${relation["Min aprox."]} min`}
+                          </span>
+                          <span className="nearby-item__relation">
+                            {display?.qualityLabel ?? "Estimación geográfica"}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
-              <p className="place-detail__footnote">
-                Traslados aproximados en línea recta; no son tiempos de ruta reales.
-              </p>
+              <p className="place-detail__footnote">{nearbyFootnote}</p>
             </section>
           )}
 
