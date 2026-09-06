@@ -1010,6 +1010,41 @@ or duplicate ids, a `localStorage` exception on read or write — all fall back 
 default rather than throwing into the UI or inventing a migration for a version this schema
 doesn't recognise.
 
+## Phase 3C-E — Manual Calendar Anchoring
+
+Until this phase, the plan's day buckets ("Día 1", "Día 2", …) were purely ordinal — no day
+carried any relationship to a real calendar. This phase adds exactly one further user decision
+to the schema above: a manual civil-date anchor for "Día 1". The schema version moves from
+Phase 3C-D's `1` to `2`, adding one field, `startDate: string | null` — a plain `YYYY-MM-DD`
+string, never a serialized date object, a derived weekday, or a month name. A stored V1 draft
+(the exact shape Phase 3C-D shipped, with no `startDate` field at all) is migrated
+deterministically: `routeIds`/`days` pass through completely unchanged and `startDate` is always
+set to `null` — a user who never anchored a date never has one invented for them.
+
+"Día N" (for the Nth day bucket) is `startDate` offset by `N − 1` calendar days, computed fresh
+on every render (`app/src/lib/civil-date.ts`) and never itself persisted — there is no array of
+per-day dates to keep in sync when a day is added, removed, reordered, or has a place moved into
+it. That is a deliberate, smaller model than one date per bucket: it cannot represent an
+internally inconsistent calendar, at the cost of only ever producing consecutive days (the user
+cannot anchor "Día 2" to a date that isn't literally the day after "Día 1").
+
+The calendar anchor is **independent of the route and the day assignment** — the same
+independence `nihon.savedPlaceIds` already has from this whole planning draft, one level down.
+A route composition change still nulls `days` exactly as Phase 3C-D described; it does not touch
+`startDate`. Adding, removing, or reordering a day, or moving a place between days, does not
+touch it either. Even "Restablecer recorrido" — which does reset the route and the day
+assignment to fresh — carries the existing `startDate` forward unchanged, because resetting
+*what* the plan contains is not a decision about *when* the trip starts. Only the user explicitly
+setting or clearing the date changes it, and an invalid one (wrong shape, or a real calendar
+impossibility like `2027-02-30` or a non-leap-year `2027-02-29`) is rejected outright — the draft
+stays exactly as it was, never coerced to `null` or to some nearby guessed date.
+
+This phase reads none of `place.bestTime`, `schedule.hours`, or `schedule.closures`, and performs
+no check of whether anything is open on the chosen date — the boundary Phase 3B1/3B2's transfer
+domain and this planning-draft persistence layer have both always respected stays exactly where
+it was. Anchoring a date to "Día 1" is a fact about the user's calendar, not a claim about what
+is feasible to do that day.
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single

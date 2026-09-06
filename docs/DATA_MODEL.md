@@ -252,3 +252,31 @@ patched. Malformed JSON, an unrecognised shape, an unsupported `version`, non-st
 `localStorage` exception on read or write all fall back to treating the draft as absent — no
 migration is invented for a version this schema doesn't recognise, and nothing here ever throws
 into the UI.
+
+## Manual calendar anchoring (Phase 3C-E)
+
+Since Phase 3C-E, `nihon.manualPlanningDraft` (the same key described above — never a second
+key) carries one more field, and the schema version above it moved from `1` to `2`:
+
+```ts
+type ManualPlanningDraftV2 = {
+  version: 2;
+  routeIds: string[];
+  days: string[][] | null;
+  startDate: string | null; // YYYY-MM-DD, or null: no manual calendar anchor chosen yet
+};
+```
+
+`startDate` is the user's manual anchor for "Día 1" — a plain civil-date string
+(`app/src/lib/civil-date.ts`), never a serialized `Date`, a derived weekday, or a month name.
+"Día N" is `startDate` offset by `N − 1` calendar days, computed on every read; no per-day date
+is ever stored. A draft written under the old `version: 1` shape (no `startDate` field) is
+migrated deterministically on load — `routeIds`/`days` pass through unchanged, `startDate` is
+always `null`, never invented.
+
+`startDate` is validated as a real calendar date (rejecting, for instance, `2027-02-30` or a
+non-leap-year `2027-02-29`) and is independent of `routeIds`/`days`: a route or day-assignment
+change never touches it, and it is never itself used to derive, validate, or invalidate the
+route or the day assignment. `place.bestTime`, `schedule.hours`, and `schedule.closures` are not
+read anywhere in this feature — anchoring a date is a fact the user asserts about their own
+calendar, not a computation over the dataset.

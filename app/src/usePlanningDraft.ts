@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  freshDraft,
   loadReconciledDraft,
   reconcileDraft,
+  resetRoute as resetRouteInDraft,
   withDays,
   withRoute,
+  withStartDate,
   writeDraft,
   type DraftStorage,
-  type ManualPlanningDraftV1,
+  type ManualPlanningDraftV2,
 } from "./lib/planning-draft";
 
 /** The real browser `localStorage`, wrapped to the minimal shape `planning-draft.ts` depends
@@ -39,7 +40,7 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * persisted state and the component's rendered state to disagree about.
  */
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV1>(() =>
+  const [draft, setDraft] = useState<ManualPlanningDraftV2>(() =>
     loadReconciledDraft(browserStorage, savedIds)
   );
 
@@ -65,19 +66,30 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withDays(current, resolve(action, current.days ?? [])));
   }, []);
 
-  /** "Restablecer recorrido": the route becomes the current saved ids in their saved order,
-   * exactly `freshDraft` — the same starting point as no stored draft at all — and the day
-   * assignment is cleared. Never touches "Quiero ir" itself. */
+  /** Phase 3C-E: sets, changes, or clears the manual calendar anchor for "Día 1". Accepts a
+   * plain `YYYY-MM-DD` string or `null`; an invalid string is rejected by `withStartDate`
+   * (the draft stays unchanged), never coerced or guessed. */
+  const setStartDate = useCallback((startDate: string | null) => {
+    setDraft((current) => withStartDate(current, startDate));
+  }, []);
+
+  /** "Restablecer recorrido": the route becomes the current saved ids in their saved order and
+   * the day assignment is cleared — the same starting point as no stored draft at all — but the
+   * calendar anchor (if any) is carried forward: see `resetRoute` in `lib/planning-draft.ts` for
+   * why resetting the route is not a decision about the trip's start date. Never touches
+   * "Quiero ir" itself. */
   const resetRoute = useCallback(() => {
-    setDraft(freshDraft(savedIds));
+    setDraft((current) => resetRouteInDraft(current, savedIds));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedIds]);
 
   return {
     routeIds: draft.routeIds,
     days: draft.days,
+    startDate: draft.startDate,
     setRoute,
     setDays,
+    setStartDate,
     resetRoute,
   };
 }
