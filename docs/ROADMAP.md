@@ -1004,8 +1004,11 @@ phase) work was started.
       prior-written-consent requirement apply to Nihon's intended use, including its
       planning-recommendation direction), or deliberately scope the feature to only the narrow,
       lower-risk live-display case (§1.6) and accept that boundary.
-- [ ] Exact date/time scheduling (assigning a calendar date, a weekday, a clock time, or a
-      timezone to a day or a place) — not started. Days are still ordinal only.
+- [ ] Clock-time / timezone / per-place scheduling — not started. Phase 3C-E can manually anchor
+      Día 1 to a civil date and derive consecutive calendar dates/weekday labels for the
+      remaining day buckets, but it does not assign clock times, timezones, arrival/departure
+      times, or dates/times to individual places — see the opening-hour item just below for the
+      related, still-untouched `schedule.hours`/`schedule.closures`/`bestTime` boundary.
 - [ ] Opening-hour constraint solving (checking a place's `bestTime`/`schedule.hours`/
       `schedule.closures` against a day's other places or a proposed time) — not started; those
       fields are still opaque editorial strings, never structurally parsed.
