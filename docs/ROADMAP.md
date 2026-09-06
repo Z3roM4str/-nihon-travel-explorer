@@ -677,25 +677,91 @@ no access point, no `scripts/`, no deployment config, no `package.json` and no l
 UI wiring, no React hook and no automatic runtime request; persisted nothing; and started no
 Phase 3C work (no sequencing, no aggregation, no itinerary generation).
 
+## Phase 3C-A — Ordered Sequence Builder — complete
+
+**Product decision, stated here because it changes what "later" means for the rest of this
+document:** live-transit integration is **not currently planned** for this product's scope.
+Phase 3B3E (the client transport / live-transit React hook) is **deferred, not blocked** —
+Ekispert/NAVITIME activation is not being pursued now, no provider account or key is being
+sought, and the existing synthetic transit architecture (`app/src/lib/transit.ts`,
+`app/server/transit.ts`) stays in the repository, dormant, as historical/future-ready work. It is
+not deleted, and the activation gate stays `"off"`. This phase instead builds directly on the two
+data layers that already exist and need no provider: validated-static walking results and honest
+geographic estimates.
+
+- [x] First real consumer of an **explicit, ordered** sequence of places — the case
+      `transfer.ts`'s own "No aggregation without order" guard (§3B1) reserved for a later phase
+      that takes "an explicit sequence of ids/edges as input, never a bare `Place[]`". New pure
+      module `app/src/lib/ordered-sequence.ts`: for each consecutive pair in a caller-supplied
+      list of place ids, calls `getBestTransfer(fromId, toId)` in exactly that direction — never
+      the reverse, never a search across other pairs, never a shortest path, never a haversine
+      fallback, never a network request. A pair with no recorded transfer becomes an honest
+      `transfer: null` leg.
+- [x] **Known vs. complete kept structurally distinct.** `OrderedSequenceSummary` carries
+      `knownLegCount`/`unknownLegCount` alongside a `transferMinutes` subtotal over the known legs
+      only, and a `complete` flag that is only ever `true` when every leg in the sequence is
+      known. The UI is written so a partial sum is always labelled "traslados conocidos", never
+      "traslados totales" — that wording only appears when `complete` is true.
+- [x] **UX entry point**: "Construir recorrido" alongside (not replacing) "Analizar selección" in
+      `SelectionPanel`, visible once **2** places are saved (analysis needs 3, since a 2-place
+      group has nothing to group; a 2-place *route* already has one leg to describe). Opens
+      `OrderedSequenceBuilder`, a modal reusing the same dialog/backdrop/focus-trap chrome
+      `SelectionAnalysis` already established.
+- [x] **The route draft is not "Quiero ir".** It is component-local state, initialized from the
+      saved places' current order when the builder opens, holding only a reordered/reduced subset
+      of the same ids. Removing a place from the route does not unsave it; a removed place can be
+      added back. No new `localStorage` key, no change to the existing saved-ids format — the
+      draft is never persisted.
+- [x] **Reordering is keyboard-accessible, no drag-and-drop.** Every route item has explicit
+      "move up" / "move down" / "remove" buttons with place-specific `aria-label`s
+      (e.g. "Mover Meiji Jingu hacia arriba"), disabled rather than omitted at the first/last
+      position. No pointer-only interaction; no new npm dependency was added for reordering.
+- [x] **Each leg displayed honestly, reusing the existing vocabulary.** `describeTransferForUi`
+      still owns the confidence label (`"Ruta a pie validada"` / `"Ruta validada"` /
+      `"Estimación geográfica"` / `"Horario en vivo"`); a new `transferModeIcon` derives a glyph
+      from the edge's real, closed `TransferMode` rather than a guess. A leg with no recorded
+      transfer reads plainly "Sin traslado registrado" — including for an intentional cross-hub
+      jump (e.g. Tokio → Kioto), which has no fabricated Shinkansen estimate.
+- [x] **Visit time and transfer time stay separate.** The activity-time total reuses
+      `summarizeSelection()` unchanged, so day-scale commitments ("Día completo") stay excluded
+      from the minute sum exactly as Phase 3A established — never converted to invented minutes,
+      never folded into the transfer total.
+- [x] **No optimisation of any kind.** No auto-sort, no nearest-neighbour, no shortest path, no
+      suggested or candidate sequence, no comparison between sequences, no day assignment, no
+      disabled placeholder button for any of those. The order is entirely the user's.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**, created
+zero accounts and introduced zero API keys or secrets; changed no `places.json`, `nearby.json`,
+access-point catalog, walking pilot/scale/access-point artifact, threshold, `package.json` or
+lockfile; and did not touch `getBestTransfer()`'s semantics. `app/src/lib/ordered-sequence.ts` is
+the only place in the app that sums transfer time across more than one edge, and it only ever does
+so over an order the user supplied. No Phase 3C-B work (comparing candidate sequences, day-level
+itinerary generation) was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
       reproducibility/observability debt; see `docs/WALKING_SCALE_EXECUTION.md`.
-- [ ] Phase 3B3E — client transport / React hook for live transit (proposed, not started):
-      deferred out of Phase 3B3D on purpose, and still deferred after Phase 3B2I gave
-      `transfer.ts` its first UI consumer. `PlaceDetail.tsx` now shows `getBestTransfer()`'s
-      static/estimated results, but nothing in the UI performs, or lets a user trigger, a live
-      lookup — the design's cost rule (§13.3) requires a live lookup to happen only on an
-      explicit user action, and no such action exists yet — and real-provider activation is
-      still OFF pending vendor confirmation (Phase 3B3B §7.2), so the hook would still have no
-      live answer to arbitrate toward. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
-- [ ] Ekispert provider activation (not started, `REQUIRES VENDOR CONFIRMATION`): before any real
-      account, API key, or live query is introduced, either get Val Laboratory's written answer
-      to the drafted question in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3 (does
-      Article 27(10)'s prior-written-consent requirement apply to Nihon's intended use,
-      including its planning-recommendation direction), or deliberately scope the feature to
-      only the narrow, lower-risk live-display case (§1.6) and accept that boundary.
-- [ ] Estimate logistical overhead from explicit, ordered sequences of places (never from an
-      unordered selection — see "No aggregation without order" in `docs/LOGISTICS.md`).
-- [ ] Compare candidate city sequences.
+- [ ] Phase 3B3E — client transport / React hook for live transit: **deferred by product
+      decision, not blocked and not currently planned** (see the Phase 3C-A product-decision
+      note above). This is no longer "waiting on" anything — no vendor answer is being sought,
+      no account or key is being pursued. The synthetic transit architecture
+      (`app/src/lib/transit.ts`, `app/server/transit.ts`) stays in the repository, dormant, in
+      case a future scope decision revisits live transit; it is not deleted and the activation
+      gate stays `"off"`. Current logistics strategy instead: validated-static walking via
+      `getBestTransfer()`, honestly-labelled estimates for everything else, and an explicit "sin
+      traslado registrado" for what neither covers — never fabricated. A user may still use
+      Google Maps or another consumer app manually during the actual trip; that is outside this
+      application. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
+- [ ] Ekispert/NAVITIME provider activation: **not being pursued for the current scope** (see
+      above). If revisited later, before any real account, API key, or live query is introduced,
+      either get Val Laboratory's written answer to the drafted question in
+      `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3 (does Article 27(10)'s
+      prior-written-consent requirement apply to Nihon's intended use, including its
+      planning-recommendation direction), or deliberately scope the feature to only the narrow,
+      lower-risk live-display case (§1.6) and accept that boundary.
+- [ ] Compare candidate orderings of an explicit sequence (Phase 3C-B, not started) — distinct
+      from Phase 3C-A's single user-defined order: this would evaluate more than one ordering of
+      the same places, which is exactly the "auto-sort / suggest a sequence" territory Phase 3C-A
+      deliberately left undone.
 - [ ] Only then generate day-level itinerary candidates.

@@ -6,6 +6,7 @@ import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
+import { OrderedSequenceBuilder } from "./components/OrderedSequenceBuilder";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
@@ -96,6 +97,7 @@ export default function App() {
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [sequenceBuilderOpen, setSequenceBuilderOpen] = useState(false);
   const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
   const isDesktop = useIsDesktop();
 
@@ -429,6 +431,7 @@ export default function App() {
         open={selectionOpen}
         onToggle={() => setSelectionOpen((open) => !open)}
         onAnalyze={() => setAnalysisOpen(true)}
+        onBuildSequence={() => setSequenceBuilderOpen(true)}
       />
 
       {analysisOpen && (
@@ -436,6 +439,13 @@ export default function App() {
           savedPlaces={savedPlaces}
           onSelectPlace={openFromAnalysis}
           onClose={closeAnalysis}
+        />
+      )}
+
+      {sequenceBuilderOpen && (
+        <OrderedSequenceBuilder
+          savedPlaces={savedPlaces}
+          onClose={() => setSequenceBuilderOpen(false)}
         />
       )}
     </div>

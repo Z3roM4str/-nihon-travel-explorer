@@ -1,4 +1,4 @@
-import type { TransferEdge } from "./transfer";
+import type { TransferEdge, TransferMode } from "./transfer";
 
 const NUMBER_FORMAT = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 2 });
 
@@ -40,6 +40,27 @@ export function describeTransferForUi(edge: TransferEdge): TransferDisplay {
     timeText: formatMinutes(edge),
     qualityLabel,
   };
+}
+
+/**
+ * A visual glyph derived from the edge's own, real `mode` — never guessed from `rawMode` text
+ * or hardcoded per relation. Kept alongside `describeTransferForUi` so both readings of an
+ * edge come from the same closed `TransferMode` vocabulary rather than drifting independently.
+ */
+export function transferModeIcon(mode: TransferMode): string {
+  let icon: string;
+  switch (mode) {
+    case "walk":
+      icon = "🚶";
+      break;
+    case "local-transit":
+      icon = "🚇";
+      break;
+    case "disney-resort-line":
+      icon = "🚝";
+      break;
+  }
+  return icon;
 }
 
 export function transferListFootnote(edges: readonly (TransferEdge | null)[]): string {

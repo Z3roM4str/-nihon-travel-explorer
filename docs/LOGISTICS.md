@@ -175,6 +175,11 @@ includes a regression test asserting this module exports nothing named `sumTrans
 A correct aggregation belongs to a later phase (3C, day/route planning) and must take an
 **explicit sequence** of place ids or edges as its input — never a bare, unordered `Place[]`.
 
+**Phase 3C-A** is that later phase. `app/src/lib/ordered-sequence.ts` takes exactly the explicit,
+caller-supplied sequence this section anticipates and sums `getBestTransfer()` across its
+consecutive pairs only — it lives in its own module, not in `transfer.ts`, so the guard above and
+its regression test stay exactly as strict as they always were. See "Phase 3C-A" below.
+
 ## Logistics metrics (factual, no classification)
 
 `computeLogisticsMetrics(places: Place[])` reports only counts and ranges that are true of the
@@ -838,6 +843,54 @@ non-walk mode); the still-unproduced `schedule-aware` case reads **"Horario en v
 visibly and lexically distinct so a future live result could never be mistaken for static routing
 data. This does **not** start Phase 3B3E: nothing in the UI performs or triggers a live lookup,
 and provider activation remains OFF.
+
+**Product decision (Phase 3C-A):** live-transit integration is **not currently planned** for this
+product's scope. Phase 3B3E and Ekispert/NAVITIME activation are **deferred by choice, not
+blocked** — no vendor answer is being sought and no account or key is being pursued. The synthetic
+transit architecture above stays in the repository, dormant, rather than deleted, in case a future
+scope decision revisits it. Current logistics strategy going forward: validated-static walking via
+`getBestTransfer()`, honestly-labelled geographic estimates for everything else, and an explicit
+"sin traslado registrado" for a pair neither covers — never a fabricated Shinkansen/flight
+estimate to fill the gap. Phase 3C-A (below) is the first feature built on this footing.
+
+## Phase 3C-A — Ordered Sequence Builder
+
+The first UI feature to aggregate transfer time, made possible because — unlike every earlier
+consumer of `transfer.ts` — it is given an **explicit order**, not a bare `Place[]`. See "No
+aggregation without order" above for why that distinction is load-bearing.
+
+`app/src/lib/ordered-sequence.ts` exports `buildOrderedSequence(placeIds)`: for each consecutive
+pair in the caller's list, it calls `getBestTransfer(fromId, toId)` in exactly that direction and
+records the result as one `OrderedSequenceLeg`. It never reverses a pair, never chains across a
+missing one, never falls back to haversine distance, and never runs routing at call time — the
+same discipline `lookupTransfer`/`getBestTransfer` already enforce, simply summed over more than
+one edge for the first time. A pair with no recorded transfer becomes `transfer: null`, the same
+honest "unknown" `getBestTransfer` already returns for that direction.
+
+The summary keeps a known subtotal structurally distinct from a complete total:
+`transferMinutes` sums only the known legs' minutes (minimum-to-minimum, maximum-to-maximum,
+exactly as `summarizeSelection` sums visit time), and `complete` is `true` only when every leg in
+the sequence is known. A caller that ignored `complete` and always labelled `transferMinutes` "the
+route's transfer total" would misreport a partial route as a full one; the UI
+(`OrderedSequenceBuilder.tsx`) is written to say "traslados conocidos" for a partial sum and
+"traslados totales" only when `complete` is true, and to name the unknown legs explicitly (e.g.
+"1 tramo sin traslado registrado") rather than let them vanish from the total silently.
+
+Activity time is untouched: the builder calls `summarizeSelection()` — the same Phase 3A function
+`SelectionAnalysis` uses — over the route's places, so day-scale commitments stay excluded from
+the minute sum exactly as they always have, and visit time is never merged with transfer time
+into one number.
+
+The route itself is not "Quiero ir." It is component-local state in `OrderedSequenceBuilder`,
+initialized from the saved places' order when the component mounts, holding a reorderable/
+reducible subset of the same ids; removing a place from the route does not unsave it. Nothing
+here is persisted — no new `localStorage` key, no change to `useSavedPlaces`' existing format.
+
+This phase changed no dataset, no access-point catalog, no walking artifact, and
+`getBestTransfer()` itself is unchanged; `ordered-sequence.ts` is the only module that aggregates
+across its results, and only over a sequence the user supplied. It starts no comparison between
+candidate orderings and no itinerary/day-assignment work — that remains later, unscheduled 3C
+work.
 
 ## What Phase 3B1 does not touch
 
