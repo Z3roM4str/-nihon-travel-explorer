@@ -6,6 +6,7 @@ import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSumm
 import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
 import { buildDayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
+import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
   /** The wishlist, in its saved order — the source the route draft is initialized from and
@@ -17,23 +18,29 @@ type Props = {
 
 /**
  * Phase 3C-A — Ordered Sequence Builder, extended by Phase 3C-B — User-Defined Sequence
- * Comparison, and Phase 3C-C — User-Defined Day Assignment.
+ * Comparison, Phase 3C-C — User-Defined Day Assignment, and Phase 3C-D — Persisted Manual
+ * Planning Draft.
  *
  * The user defines an explicit order over (a subset of) their saved places; this component
  * describes the logistics of THAT EXACT ORDER via `buildOrderedSequence`. It never chooses,
  * suggests, or optimises an order itself — see `ordered-sequence.ts` for the guarantees that
  * rests on.
  *
- * The route draft is local component state, separate from "Quiero ir": it is initialized from
- * `savedPlaces` once, on mount (this component is conditionally rendered rather than always
- * mounted, so a fresh mount is exactly "the builder opens" — the same lifecycle
- * `SelectionAnalysis` already relies on). It is never persisted — no new localStorage key,
- * no change to the existing saved-ids format.
+ * The route and the canonical day assignment are the **persisted** manual plan (Phase 3C-D):
+ * `usePlanningDraft` is this component's single source of truth for both, backed by
+ * `nihon.manualPlanningDraft` in `localStorage` — a separate key from `nihon.savedPlaceIds`
+ * ("Quiero ir"), which stays exclusively the saved-place set. Nothing derived (places,
+ * durations, transfer edges/results, confidence tallies) is ever persisted — only ids and the
+ * user's own ordering/grouping structure; every derived value here is still recomputed on read,
+ * exactly as before this phase.
  *
- * Phase 3C-B adds a second, user-defined order ("orden B") to compare against the current
- * route ("orden A"); Phase 3C-C adds manually dividing the route into ordinal day buckets
- * ("Día 1", "Día 2", …). Both render as a **nested view inside this same dialog** rather than a
- * second modal — one focus trap, one Escape-closes-everything behaviour, no stacked dialogs.
+ * Phase 3C-B's comparison candidates ("orden A"/"orden B") are deliberately **not** part of that
+ * persisted draft and never will be: `candidateAIds`/`candidateBIds` remain plain component
+ * state, cloned fresh from the current route each time the comparison view opens and discarded
+ * on close — see `openComparison`/`closeComparison` below.
+ *
+ * Phase 3C-B and Phase 3C-C each render as a **nested view inside this same dialog** rather than
+ * a second modal — one focus trap, one Escape-closes-everything behaviour, no stacked dialogs.
  * Composition is fixed once either nested view opens: neither the comparison candidates nor the
  * day buckets can add or remove a place, only reorder or move between the fixed set — see
  * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
@@ -382,14 +389,20 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
 
   const placeById = useMemo(() => new Map(savedPlaces.map((place) => [place.id, place])), [savedPlaces]);
-  const [routeIds, setRouteIds] = useState<string[]>(() => savedPlaces.map((place) => place.id));
+  const savedIds = useMemo(() => savedPlaces.map((place) => place.id), [savedPlaces]);
+
+  // The persisted manual plan (Phase 3C-D) — the single source of truth for the route and the
+  // canonical day assignment. `days` is `null` exactly when no valid day split exists yet.
+  const { routeIds, days, setRoute: setRouteIds, setDays: setDayIds, resetRoute } = usePlanningDraft(savedIds);
+  const dayIds = useMemo(() => days ?? [], [days]);
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
   // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
   const [view, setView] = useState<"builder" | "compare" | "days">("builder");
+  // Phase 3C-B's candidates are intentionally NOT part of the persisted draft — see the module
+  // doc above. They stay plain, ephemeral component state.
   const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
   const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
-  const [dayIds, setDayIds] = useState<string[][]>([]);
 
   const routePlaces = useMemo(
     () => routeIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
@@ -449,11 +462,16 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     setView("builder");
   }
 
-  // The day plan starts as a single day holding the exact current route order — not a
-  // recommendation, simply the route as it stood before any day boundary existed. Nothing
-  // writes back into `routeIds`; closing the day view discards the draft.
+  // A canonical day assignment already restored from storage (Phase 3C-D) is shown as-is — it
+  // is a prior user decision, not something to discard on reopen. Only when none exists yet
+  // (`days === null`: never split, or invalidated by a route composition change) does opening
+  // start from a single day holding the exact current route order — not a recommendation,
+  // simply the route as it stands before any day boundary exists. Either way this never writes
+  // back into the route itself.
   function openDayAssignment() {
-    setDayIds([[...routeIds]]);
+    if (days === null) {
+      setDayIds([[...routeIds]]);
+    }
     setView("days");
   }
   function closeDayAssignment() {
@@ -558,6 +576,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 <span aria-hidden="true">ⓘ</span> Tú eliges el orden con las flechas. Nihon describe
                 los traslados de ese orden exacto; <strong>no sugiere ni calcula el mejor orden</strong>.
               </p>
+              <p className="analysis-disclaimer">
+                <span aria-hidden="true">💾</span> Este recorrido se guarda automáticamente en este
+                navegador, junto con el reparto por días si lo creas.
+              </p>
 
               {routePlaces.length === 0 ? (
                 <p className="sequence-empty">
@@ -602,6 +624,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   )}
                 </>
               )}
+
+              <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
+                Restablecer recorrido
+              </button>
 
               {removedPlaces.length > 0 && (
                 <section className="analysis-section">

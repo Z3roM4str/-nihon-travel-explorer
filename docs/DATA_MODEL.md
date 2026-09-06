@@ -156,10 +156,12 @@ later. Everything it returns is derived on read:
 - Groups by hub, prefecture and hub + cluster hold references to the same `Place` objects,
   never copies.
 
-The only persisted user state remains the saved place ids, under `nihon.savedPlaceIds` in
-`localStorage`. Planning blocks, groupings, totals and concentration readings are all
-recomputed from those ids and the dataset, so there is no aggregate to migrate or to fall out
-of sync.
+The saved place ids, under `nihon.savedPlaceIds` in `localStorage`, remain the "Quiero ir"
+selection's only persisted state. Planning blocks, groupings, totals and concentration readings
+are all recomputed from those ids and the dataset, so there is no aggregate to migrate or to
+fall out of sync. Since Phase 3C-D, a second and entirely separate key persists the manual
+planning draft (route order and day assignment) — see "Manual planning draft persistence" below;
+the two keys are never read from or written to each other.
 
 ## Transfer / logistics domain (derived, Phase 3B1)
 
@@ -213,3 +215,40 @@ compact/extended classification is derived from them yet (see `docs/LOGISTICS.md
 positive distance/minutes, `Modo`/`Relación` within the known vocabulary, "Mismo cluster"
 implying matching hub + cluster) and reports — as warnings, not errors — any divergence between
 a relation and its recorded reverse direction. It does not assert a fixed relation count.
+
+## Manual planning draft persistence (Phase 3C-D)
+
+A second, entirely separate `localStorage` key, `nihon.manualPlanningDraft`, persists the
+**canonical manual plan** the user built with Phase 3C-A's route builder and Phase 3C-C's day
+assignment. It is distinct from `nihon.savedPlaceIds` in every direction: different key, written
+by different code (`app/src/lib/planning-draft.ts` / `app/src/usePlanningDraft.ts`, never
+`useSavedPlaces.ts`), and neither is read to reconcile or migrate the other beyond the one
+explicit rule below.
+
+```ts
+type ManualPlanningDraftV1 = {
+  version: 1;
+  routeIds: string[];   // ordered subset of currently saved ids; may be empty
+  days: string[][] | null; // null = no canonical day split yet; else an exact partition of routeIds
+};
+```
+
+Only ids and user-authored structure are stored. Never persisted: `Place` objects, names,
+durations, transfer edges or results, visit-time summaries, transfer totals, confidence tallies,
+or any other value the app can recompute from the current dataset and domain logic — all of
+that is still derived on every read, exactly as everywhere else in this document.
+
+Phase 3C-B's comparison candidates ("Orden A"/"Orden B") are deliberately **not** part of this
+schema. They stay component-local, rebuilt fresh from the route each time the comparison view
+opens and discarded on close.
+
+Reading this key back always reconciles it against the current `savedIds` first: a stored route
+id no longer saved is pruned from `routeIds` and from any `days` bucket that referenced it, and a
+newly saved id is never auto-added to either. A stored `days` is retained only if it still
+exactly partitions the (possibly-pruned) `routeIds` — checked via the same `validateDayPartition`
+`day-assignment.ts` uses internally, so persistence and the day-assignment domain layer can never
+disagree about what counts as a valid split; otherwise `days` becomes `null` rather than being
+patched. Malformed JSON, an unrecognised shape, an unsupported `version`, non-string ids, or a
+`localStorage` exception on read or write all fall back to treating the draft as absent — no
+migration is invented for a version this schema doesn't recognise, and nothing here ever throws
+into the UI.
