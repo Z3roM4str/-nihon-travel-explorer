@@ -1,1 +1,5 @@
 openpyxl>=3.1,<4
+# Pillow: only used by scripts/acquire-photography.py (Phase 4A) to re-encode sourced
+# photographs to WebP. Never imported by the app or by any test/validator — those stay
+# network- and Pillow-free.
+Pillow>=10,<12
