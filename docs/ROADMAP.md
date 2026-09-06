@@ -927,6 +927,70 @@ recommendation; no optimisation, TSP, nearest-neighbour, or shortest path; no sc
 calendar dates, weekdays, clock scheduling, or opening-hours solving — not even as a disabled
 placeholder. No Phase 3C-E work was started.
 
+## Phase 4A — Licensed Photography Pipeline & Pilot — complete
+
+Until this phase, `app/src/data/place-images.ts`'s photography registry was intentionally
+empty — every one of the 214 places ships `imageStatus: "brief-only"`, so `PlaceGallery`
+always fell back to the editorial `imageBrief`. This phase makes Visual Discovery real for
+a **24-place pilot only** — the rest of the dataset still falls back to `imageBrief`
+exactly as before.
+
+- [x] **Deterministic, code-driven pilot selection.** `scripts/select-photography-pilot.py`
+      classifies every place into one of six category buckets (landmark, temple-shrine,
+      urban-neighborhood, nature, museum-cultural, distinct-experience) from its dataset
+      `category` field, and picks the highest-graded place per hub/bucket (ties broken by
+      ascending id) — 6 places each from Tokio, Kioto, Osaka, Okinawa. Not a manually
+      cherry-picked list: re-running the script against an unchanged dataset reproduces the
+      same 24 places. See `data/visual/photography-pilot.json` and
+      `docs/PHOTOGRAPHY_PILOT.md`.
+- [x] **Wikimedia Commons only**, with an explicit license allowlist (CC0, Public Domain,
+      CC BY, CC BY-SA) enforced by `scripts/validate-photography.py` — no image from Google
+      Images/Maps, Instagram, Facebook, Pinterest, X, a travel blog, or a tourism/official
+      site, none of which expose a checkable reusable license.
+- [x] **No runtime hotlinking.** `scripts/acquire-photography.py` re-verifies each
+      metadata record's declared Commons file against the live API (failing loudly, never
+      silently substituting a different photograph on a mismatch), downloads a
+      Commons-generated thumbnail, and writes an optimised local WebP derivative (≤1600px
+      longest side, no upscaling, EXIF/ICC stripped) to
+      `app/public/images/places/<PLACE_ID>/<slug>.webp`. The running app reads only that
+      local asset, never a Commons/CDN URL directly.
+- [x] **One authoritative metadata source**, `data/visual/photography-metadata.json`
+      (copied to `app/src/data/photography-metadata.json` as the build input, like every
+      other root `data/*.json`), records per image: place id, local asset path, alt text,
+      source, Commons **file page** URL (not the raw CDN URL), credit, license + license
+      URL, acquisition URL/date, and the original Commons file title. The existing
+      `PlaceImage` contract (`url`, `alt`, `credit`, `source`, `sourceUrl`, `license`) is
+      reused unchanged — `place-images.ts` now derives its registry from this JSON instead
+      of a hand-authored empty object, so there is exactly one competing metadata model,
+      not two.
+- [x] **Offline validator**, `scripts/validate-photography.py` — no network access —
+      checks unknown place ids, duplicate asset paths, a source silently representing more
+      than one place, missing/malformed URLs, unsupported licenses, missing required
+      credit, empty/placeholder alt text, a missing referenced asset, an unsupported file
+      format or an asset path outside the approved directory, and a pilot place lacking its
+      expected photograph.
+- [x] **Gallery reused unchanged in shape** (`PlaceGallery`/`PlaceDetail` were not
+      redesigned). Because real photographs finally activate the lightbox in practice for
+      the first time, two concrete accessibility gaps that had simply never been
+      exercised were fixed: focus now restores to the control that opened the lightbox on
+      close (previously fell back to `<body>`), and Tab is trapped on the lightbox's single
+      focusable control while open (previously could tab to elements visually hidden
+      behind the still-open overlay). Escape-before-parent-dialog, keyboard
+      previous/next, swipe, lazy loading, and the image-error fallback were audited and
+      found already correct — untouched.
+- [x] **Non-pilot places are unaffected.** Every place outside the 24-place pilot has no
+      registry entry and continues showing its `imageBrief` in the existing gallery
+      fallback — verified in both the automated test suite and manual visual QA (a
+      non-pilot Tokyo place still renders the "Sin fotografía disponible todavía" state).
+
+This phase made zero requests to any live routing/transit provider, touched no workbook,
+`places.json`, `nearby.json`, logistics/access-point/walking artifact, planning-draft,
+ordered-sequence, comparison, day-assignment, or transit code, added no npm runtime
+dependency (Pillow is a Python-only, acquisition-time dependency, listed in
+`scripts/requirements.txt`, never imported by the app), and created zero accounts or API
+keys. **This is a 24-place pilot, not full-dataset coverage — the remaining 190 places
+still fall back to `imageBrief`.** Phase 4B was not started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
