@@ -929,6 +929,47 @@ invariant true by construction through this UI even though the domain function s
 independently. Nothing here is persisted, and closing the comparison touches neither the route
 draft nor "Quiero ir".
 
+## Phase 3C-C — User-Defined Day Assignment
+
+Lets the user manually divide the current route into ordinal day buckets — **Día 1, Día 2, …**
+— choosing the day count, the place-to-day assignment, and the order inside each day. Nihon only
+describes the result: `app/src/lib/day-assignment.ts`'s `buildDayAssignment(routeIds, days)`
+builds every day's logistics through Phase 3C-A's own `orderedSequenceFromLookup`, never
+reimplementing directed lookup, reversal, or chaining.
+
+**A day boundary breaks transfer aggregation, structurally rather than by a special case.** Each
+day's place ids are handed to `orderedSequenceFromLookup` **on their own** — the function that
+builds consecutive pairs from an array never sees the pair between one day's last place and the
+next day's first, because that pair is never assembled from two different arrays in the first
+place. There is no assumed overnight transfer, no assumed hotel, and no assumed inter-day
+commute; nothing needed to be excluded, because nothing crossing a day boundary is ever
+constructed as a lookup candidate to begin with.
+
+**Partition validity is checked independently of the UI that produced it.** Every route id must
+appear in exactly one day, in exactly one position: `"no-days"` (zero day buckets — a UI-created
+plan always needs at least one, even empty), `"missing-route-ids"`, `"extra-ids"`,
+`"duplicate-in-day"`, and `"duplicate-across-days"` are each detected independently, and every
+applicable issue is reported rather than only the first found. `OrderedSequenceBuilder.tsx`'s day
+view makes an invalid partition structurally unreachable (a place only ever moves between the
+day buckets that started as a clone of the route, never added to or removed from that fixed
+set), but the domain function still checks it for any other caller.
+
+**Inside one day, every Phase 3C-A guarantee holds exactly as it already did for the whole
+route**: directed lookup only, no reverse inference, no chaining, no haversine fallback, no
+fabricated Shinkansen/flight/ferry, and a missing same-day leg keeps that day's `complete` false
+with its known subtotal still reported — never mislabeled as the day's full transfer time.
+
+**There is no fake "day total".** Visit time reuses `summarizeSelection()` unchanged (day-scale
+commitments like "Día completo" are never converted to minutes), and transfer time keeps the
+known-subtotal-vs-complete-total distinction Phase 3C-A defined — the two are always shown as
+separate quantities, never merged into one number, and no capacity judgement ("bien
+equilibrado", "no cabe", "óptimo") is rendered anywhere, because none has been defined.
+
+Days are ordinal labels only — no calendar date, weekday, timezone, or opening-hour solver is
+introduced, and `bestTime`/`schedule.hours`/`schedule.closures` remain unparsed editorial text.
+The day draft is component-local state, discarded on close exactly like the route and comparison
+drafts it sits alongside; nothing here is persisted.
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single
