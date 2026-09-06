@@ -9,10 +9,13 @@ type Props = {
   open: boolean;
   onToggle: () => void;
   onAnalyze: () => void;
+  onBuildSequence: () => void;
 };
 
 /** Below this many saved places the grouped view has nothing to group. */
 const ANALYSIS_MIN_SAVED = 3;
+/** Building an ordered sequence needs at least one leg to describe. */
+const SEQUENCE_BUILDER_MIN_SAVED = 2;
 
 export function SelectionPanel({
   savedPlaces,
@@ -21,6 +24,7 @@ export function SelectionPanel({
   open,
   onToggle,
   onAnalyze,
+  onBuildSequence,
 }: Props) {
   const summary = summarizeSelection(savedPlaces);
 
@@ -92,14 +96,28 @@ export function SelectionPanel({
                   <span aria-hidden="true">ⓘ</span> Solo tiempo dentro de cada lugar.{" "}
                   <strong>No incluye traslados.</strong>
                 </p>
-                {summary.savedCount >= ANALYSIS_MIN_SAVED && (
-                  <button
-                    type="button"
-                    className="button button--secondary selection-panel__analyze"
-                    onClick={onAnalyze}
-                  >
-                    <span aria-hidden="true">▤</span> Analizar selección
-                  </button>
+                {(summary.savedCount >= ANALYSIS_MIN_SAVED ||
+                  summary.savedCount >= SEQUENCE_BUILDER_MIN_SAVED) && (
+                  <div className="selection-panel__actions">
+                    {summary.savedCount >= ANALYSIS_MIN_SAVED && (
+                      <button
+                        type="button"
+                        className="button button--secondary selection-panel__analyze"
+                        onClick={onAnalyze}
+                      >
+                        <span aria-hidden="true">▤</span> Analizar selección
+                      </button>
+                    )}
+                    {summary.savedCount >= SEQUENCE_BUILDER_MIN_SAVED && (
+                      <button
+                        type="button"
+                        className="button button--secondary selection-panel__analyze"
+                        onClick={onBuildSequence}
+                      >
+                        <span aria-hidden="true">🧭</span> Construir recorrido
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 

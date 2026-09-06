@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeTransferForUi, transferListFootnote } from "./transfer-display";
+import { describeTransferForUi, transferListFootnote, transferModeIcon } from "./transfer-display";
 import type { TransferEdge } from "./transfer";
 
 function edge(overrides: Partial<TransferEdge> = {}): TransferEdge {
@@ -78,5 +78,17 @@ describe("transferListFootnote", () => {
     expect(transferListFootnote([edge(), null])).toBe(
       "Estos traslados siguen siendo estimaciones geográficas; no son tiempos de ruta validados ni horarios en vivo."
     );
+  });
+});
+
+describe("transferModeIcon", () => {
+  it("gives every real mode a distinct icon derived from the closed vocabulary", () => {
+    expect(transferModeIcon("walk")).toBe("🚶");
+    expect(transferModeIcon("local-transit")).toBe("🚇");
+    expect(transferModeIcon("disney-resort-line")).toBe("🚝");
+    const icons = new Set(["walk", "local-transit", "disney-resort-line"].map((m) =>
+      transferModeIcon(m as Parameters<typeof transferModeIcon>[0])
+    ));
+    expect(icons.size).toBe(3);
   });
 });
