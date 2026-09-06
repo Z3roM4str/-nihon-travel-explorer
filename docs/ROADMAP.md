@@ -801,6 +801,67 @@ changed no `places.json`, `nearby.json`, access-point catalog, walking artifact,
 semantics. No automatic candidate generation, no permutation enumeration, no global optimisation,
 and no Phase 3C-C work (day assignment, itinerary generation) was started.
 
+## Phase 3C-C — User-Defined Day Assignment — complete
+
+The user manually divides the current route into ordinal day buckets — **Día 1, Día 2, …** —
+choosing the day count, which places belong to each day, and their order inside each day. Nihon
+only describes the resulting split; it never chooses a day for a place, decides how many days
+are needed, distributes or balances places, or produces a recommended split.
+
+- [x] New pure module `app/src/lib/day-assignment.ts`. `buildDayAssignment(routeIds, days)`
+      builds each day's logistics through Phase 3C-A's own `orderedSequenceFromLookup` — it never
+      reimplements directed lookup, reversal, or chaining semantics, and never sums or searches
+      across more than one day.
+- [x] **The day boundary breaks transfer aggregation, structurally, not by a special case.**
+      Each day's ids are passed to `orderedSequenceFromLookup` on their own, so the pair between
+      the last place of day *N* and the first place of day *N+1* is never assembled into a
+      consecutive pair in the first place — there is no code path that could look it up. No
+      overnight transfer, no hotel, and no inter-day commute is ever assumed or queried; proven
+      with an injected lookup spy across two- and three-day splits.
+- [x] **Partition validity is enforced independently of the UI**: every route id must appear in
+      exactly one day, in exactly one position — `"no-days"`, `"missing-route-ids"`,
+      `"extra-ids"`, `"duplicate-in-day"`, and `"duplicate-across-days"` are each detected and
+      reported (not just the first found). An empty day is explicitly allowed; at least one day
+      bucket is required.
+- [x] **Inside a day, Phase 3C-A's guarantees hold exactly**: directed lookup only, no reverse
+      inference, no chaining, no haversine fallback, no fabricated Shinkansen/flight/ferry. A
+      missing same-day leg keeps that day's sequence incomplete, and its known subtotal is never
+      mislabeled as a complete total — the same `complete`/`transferMinutes` distinction Phase
+      3C-A defined, reused unchanged.
+- [x] **No fake "day total".** Visit time (`summarizeSelection()`, unchanged — day-scale
+      commitments such as "Día completo" are never converted to minutes) and transfer time
+      (known subtotal vs. complete total, unknown-leg count, day-scale commitment count) stay
+      separate, factual quantities per day — never merged into one number, and no capacity
+      judgement ("bien equilibrado", "no cabe", "óptimo") is ever rendered; none has been defined.
+- [x] **UX**: "Distribuir por días" alongside "Comparar otro orden" in the builder view, visible
+      at 2+ route places. Opens as a **nested view in the same dialog** — one focus trap, one
+      Escape-closes-everything behaviour — starting with a single day holding the exact current
+      route order (not a recommendation: simply the route before any day boundary exists).
+      Per-place duration is shown next to each name, reusing `resolveDuration`/`formatRange`
+      exactly as `SelectionPanel` already does — no second duration parser, and a day-scale
+      editorial value (e.g. "Día completo") renders verbatim rather than being converted.
+- [x] **Day controls**: add an empty day; remove a day only while it is empty (disabled
+      otherwise, and while only one day remains); move a place to the adjacent day (appended to
+      the end of that day's order, never silently reordering what was already there) with
+      day-specific `aria-label`s ("Mover … al día anterior/siguiente"), disabled at the first/last
+      day. **No drag-and-drop.** The existing `ReorderableList` (Phase 3C-B) was extended, not
+      duplicated, with optional adjacent-group controls — the builder's and comparison's reorder
+      mechanics, remove-from-route, and candidate-specific `aria-label`s are unchanged.
+- [x] **Ordinal days only.** No calendar date, weekday, timezone, or opening-hour solver — "Día
+      1/2/3" are labels, not scheduled dates. `place.bestTime`/`schedule.hours`/`schedule.closures`
+      are not structurally parsed in this phase.
+- [x] **Nothing persisted.** The day draft is component-local state, discarded on close exactly
+      like the route and comparison drafts; no new `localStorage` key, no change to
+      `useSavedPlaces`, no backend.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**, created
+zero accounts and introduced zero API keys or secrets, and added zero new npm dependencies;
+changed no `places.json`, `nearby.json`, access-point catalog, walking artifact, threshold,
+`package.json` or lockfile; and did not touch `getBestTransfer()`'s, `ordered-sequence.ts`'s, or
+`sequence-comparison.ts`'s semantics. No automatic day distribution, no candidate generation, no
+permutation enumeration, no shortest path, no scoring function, no exact clock scheduling — and
+no Phase 3C-D work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -823,8 +884,18 @@ and no Phase 3C-C work (day assignment, itinerary generation) was started.
       prior-written-consent requirement apply to Nihon's intended use, including its
       planning-recommendation direction), or deliberately scope the feature to only the narrow,
       lower-risk live-display case (§1.6) and accept that boundary.
-- [ ] Day-level itinerary generation and day/time assignment (Phase 3C-C or later, not started).
-      Phase 3C-B compared exactly two user-defined orderings; it did not generate, permute, rank,
-      or recommend one, and does not decide how many days a sequence spans. Any future
-      auto-ordering, candidate generation, or day assignment is a distinct, separately-scoped
-      decision — not an incremental extension to make without one.
+- [ ] Exact date/time scheduling (assigning a calendar date, a weekday, a clock time, or a
+      timezone to a day or a place) — not started. Days are still ordinal only.
+- [ ] Opening-hour constraint solving (checking a place's `bestTime`/`schedule.hours`/
+      `schedule.closures` against a day's other places or a proposed time) — not started; those
+      fields are still opaque editorial strings, never structurally parsed.
+- [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
+      next day's first, or to/from an accommodation) — not started, and not assumed anywhere
+      transfer times are computed today.
+- [ ] Automatic candidate generation, automatic day distribution, and itinerary
+      recommendation/optimisation (auto-sort, nearest-neighbour, TSP, shortest path, a day-quality
+      scoring function, a "best order"/"best split" claim) — not started. Phase 3C-A defined one
+      user-given order, Phase 3C-B compared exactly two of them, and Phase 3C-C let the user split
+      one into ordinal days; none of the three chose an order, a day count, or a place-to-day
+      assignment on the user's behalf, and any future automation here is a distinct,
+      separately-scoped decision — not an incremental extension to make without one.

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
-import { formatRange } from "../lib/duration";
+import { formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
-import { buildOrderedSequence, type OrderedSequenceLeg } from "../lib/ordered-sequence";
+import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
 import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
+import { buildDayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 
 type Props = {
@@ -16,7 +17,7 @@ type Props = {
 
 /**
  * Phase 3C-A — Ordered Sequence Builder, extended by Phase 3C-B — User-Defined Sequence
- * Comparison.
+ * Comparison, and Phase 3C-C — User-Defined Day Assignment.
  *
  * The user defines an explicit order over (a subset of) their saved places; this component
  * describes the logistics of THAT EXACT ORDER via `buildOrderedSequence`. It never chooses,
@@ -30,13 +31,12 @@ type Props = {
  * no change to the existing saved-ids format.
  *
  * Phase 3C-B adds a second, user-defined order ("orden B") to compare against the current
- * route ("orden A"), rendered as a **nested view inside this same dialog** rather than a
+ * route ("orden A"); Phase 3C-C adds manually dividing the route into ordinal day buckets
+ * ("Día 1", "Día 2", …). Both render as a **nested view inside this same dialog** rather than a
  * second modal — one focus trap, one Escape-closes-everything behaviour, no stacked dialogs.
- * Both candidates are fixed to the exact set of places the route contained when the comparison
- * was opened: the comparison view only reorders (move up/down), it never adds or removes a
- * place — composition is a builder-view concern, ordering is a comparison-view concern. See
- * `sequence-comparison.ts` for why an unknown leg or an overlapping range never produces a
- * declared winner.
+ * Composition is fixed once either nested view opens: neither the comparison candidates nor the
+ * day buckets can add or remove a place, only reorder or move between the fixed set — see
+ * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
  */
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
@@ -56,26 +56,79 @@ function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
   );
 }
 
-function moveItemUp<T>(items: T[], index: number): T[] {
-  if (index <= 0) return items;
+function moveItemUp<T>(items: readonly T[], index: number): T[] {
+  if (index <= 0) return [...items];
   const next = [...items];
   [next[index - 1], next[index]] = [next[index], next[index - 1]];
   return next;
 }
 
-function moveItemDown<T>(items: T[], index: number): T[] {
-  if (index >= items.length - 1) return items;
+function moveItemDown<T>(items: readonly T[], index: number): T[] {
+  if (index >= items.length - 1) return [...items];
   const next = [...items];
   [next[index], next[index + 1]] = [next[index + 1], next[index]];
   return next;
 }
 
+// ---------------------------------------------------------------------------------------
+// Phase 3C-C day-bucket array helpers. Pure, component-local — the same precedent as
+// moveItemUp/moveItemDown above: this file already keeps ordering mechanics as small local
+// helpers rather than exporting them from a lib module, since they are UI-state shape, not
+// domain logic. `day-assignment.ts` only ever describes a partition it is given; it never
+// decides how one is edited.
+// ---------------------------------------------------------------------------------------
+
+function addEmptyDay(days: readonly string[][]): string[][] {
+  return [...days.map((day) => [...day]), []];
+}
+
+/** A day can only be removed empty, and at least one day must always remain — both guards the
+ * domain module's own `"no-days"`/partition invariants exist to catch if this ever failed. */
+function removeEmptyDay(days: readonly string[][], dayIndex: number): string[][] {
+  if (days.length <= 1) return days.map((day) => [...day]);
+  if ((days[dayIndex]?.length ?? 0) > 0) return days.map((day) => [...day]);
+  return days.filter((_, index) => index !== dayIndex).map((day) => [...day]);
+}
+
+function moveWithinDay(
+  days: readonly string[][],
+  dayIndex: number,
+  placeIndex: number,
+  direction: -1 | 1
+): string[][] {
+  const next = days.map((day) => [...day]);
+  next[dayIndex] = direction === -1 ? moveItemUp(next[dayIndex], placeIndex) : moveItemDown(next[dayIndex], placeIndex);
+  return next;
+}
+
+/** Removes the place at `placeIndex` in `dayIndex` and appends it to the end of the adjacent
+ * day's explicit order — never reordering anything else already in either day. A no-op when
+ * there is no adjacent day in that direction. */
+function moveToAdjacentDay(
+  days: readonly string[][],
+  dayIndex: number,
+  placeIndex: number,
+  direction: -1 | 1
+): string[][] {
+  const targetIndex = dayIndex + direction;
+  if (targetIndex < 0 || targetIndex >= days.length) return days.map((day) => [...day]);
+  const placeId = days[dayIndex]?.[placeIndex];
+  if (placeId === undefined) return days.map((day) => [...day]);
+  const next = days.map((day) => [...day]);
+  next[dayIndex].splice(placeIndex, 1);
+  next[targetIndex].push(placeId);
+  return next;
+}
+
 /**
- * One reorderable, place-specific list — the main route draft and each comparison candidate
- * all render through this so the accessible reorder mechanics (move up/down, disabled at the
- * ends, place-specific `aria-label`s) exist in exactly one place. `labelSuffix` disambiguates
- * which list a screen-reader user is moving something within (e.g. " en orden A"); `onRemove`
- * is only passed by the main route draft — the comparison view never adds or removes a place.
+ * One reorderable, place-specific list — the main route draft, each comparison candidate, and
+ * each day bucket all render through this so the accessible reorder mechanics (move up/down,
+ * disabled at the ends, place-specific `aria-label`s) exist in exactly one place. `labelSuffix`
+ * disambiguates which list a screen-reader user is moving something within (e.g. " en orden A",
+ * " en Día 2"); `onRemove` is only passed by the main route draft. `onMoveToPreviousGroup`/
+ * `onMoveToNextGroup` are only passed by the day-assignment view, for moving a place into the
+ * adjacent day — omitted entirely (not merely disabled) everywhere else, so the builder and
+ * comparison views render exactly as they did before Phase 3C-C.
  */
 function ReorderableList({
   places,
@@ -84,6 +137,13 @@ function ReorderableList({
   onMoveUp,
   onMoveDown,
   onRemove,
+  onMoveToPreviousGroup,
+  onMoveToNextGroup,
+  previousGroupLabel,
+  nextGroupLabel,
+  canMoveToPreviousGroup,
+  canMoveToNextGroup,
+  showDuration,
   compact,
 }: {
   places: Place[];
@@ -92,51 +152,90 @@ function ReorderableList({
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onRemove?: (id: string) => void;
+  onMoveToPreviousGroup?: (index: number) => void;
+  onMoveToNextGroup?: (index: number) => void;
+  previousGroupLabel?: string;
+  nextGroupLabel?: string;
+  canMoveToPreviousGroup?: boolean;
+  canMoveToNextGroup?: boolean;
+  showDuration?: boolean;
   compact?: boolean;
 }) {
   return (
     <ol className={`sequence-list ${compact ? "sequence-list--compact" : ""}`}>
-      {places.map((place, index) => (
-        <li key={place.id} className="sequence-item">
-          <div className="sequence-item__row">
-            <span className="sequence-item__index" aria-hidden="true">
-              {index + 1}
-            </span>
-            <span className="sequence-item__name">{place.name}</span>
-            <div className="sequence-item__controls">
-              <button
-                type="button"
-                className="icon-button icon-button--small"
-                onClick={() => onMoveUp(index)}
-                disabled={index === 0}
-                aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
-              >
-                <span aria-hidden="true">↑</span>
-              </button>
-              <button
-                type="button"
-                className="icon-button icon-button--small"
-                onClick={() => onMoveDown(index)}
-                disabled={index === places.length - 1}
-                aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
-              >
-                <span aria-hidden="true">↓</span>
-              </button>
-              {onRemove && (
+      {places.map((place, index) => {
+        const range = resolveDuration(place.duration);
+        return (
+          <li key={place.id} className="sequence-item">
+            <div className="sequence-item__row">
+              <span className="sequence-item__index" aria-hidden="true">
+                {index + 1}
+              </span>
+              <span className="sequence-item__name">
+                {place.name}
+                {showDuration && (
+                  <span className="sequence-item__duration">
+                    {range ? formatRange(range) : place.duration.raw}
+                  </span>
+                )}
+              </span>
+              <div className="sequence-item__controls">
+                {onMoveToPreviousGroup && (
+                  <button
+                    type="button"
+                    className="icon-button icon-button--small"
+                    onClick={() => onMoveToPreviousGroup(index)}
+                    disabled={!canMoveToPreviousGroup}
+                    aria-label={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
+                  >
+                    <span aria-hidden="true">←</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   className="icon-button icon-button--small"
-                  onClick={() => onRemove(place.id)}
-                  aria-label={`Quitar ${place.name} del recorrido`}
+                  onClick={() => onMoveUp(index)}
+                  disabled={index === 0}
+                  aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
                 >
-                  <span aria-hidden="true">×</span>
+                  <span aria-hidden="true">↑</span>
                 </button>
-              )}
+                <button
+                  type="button"
+                  className="icon-button icon-button--small"
+                  onClick={() => onMoveDown(index)}
+                  disabled={index === places.length - 1}
+                  aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
+                >
+                  <span aria-hidden="true">↓</span>
+                </button>
+                {onMoveToNextGroup && (
+                  <button
+                    type="button"
+                    className="icon-button icon-button--small"
+                    onClick={() => onMoveToNextGroup(index)}
+                    disabled={!canMoveToNextGroup}
+                    aria-label={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
+                  >
+                    <span aria-hidden="true">→</span>
+                  </button>
+                )}
+                {onRemove && (
+                  <button
+                    type="button"
+                    className="icon-button icon-button--small"
+                    onClick={() => onRemove(place.id)}
+                    aria-label={`Quitar ${place.name} del recorrido`}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-          {index < legs.length && <LegConnector leg={legs[index]} />}
-        </li>
-      ))}
+            {index < legs.length && <LegConnector leg={legs[index]} />}
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -166,6 +265,60 @@ function CandidateSummary({ candidate }: { candidate: SequenceCandidate }) {
         </>
       )}
     </p>
+  );
+}
+
+/**
+ * The same four factual quantities every ordered-sequence view has shown since Phase 3C-A —
+ * visit time, transfer time (labelled "conocidos" unless `summary.complete`), unknown-leg
+ * count, day-scale commitments — never merged into one number. Reused as-is for each day
+ * bucket in the Phase 3C-C view so a day never gets a second, differently-computed total.
+ */
+function TransferAndVisitTotals({
+  visitSummary,
+  sequenceSummary,
+}: {
+  visitSummary: ReturnType<typeof summarizeSelection>;
+  sequenceSummary: OrderedSequenceSummary;
+}) {
+  const { legCount, knownLegCount, unknownLegCount, transferMinutes, complete } = sequenceSummary;
+  return (
+    <div className="analysis-totals">
+      <div className="analysis-total">
+        <span className="analysis-total__value">
+          {visitSummary.visitTime ? formatRange(visitSummary.visitTime) : "—"}
+        </span>
+        <span className="analysis-total__label">
+          tiempo de visita
+          {visitSummary.nonQuantified.length > 0 && (
+            <> ({visitSummary.nonQuantified.length} sin estimación numérica)</>
+          )}
+        </span>
+      </div>
+      {legCount > 0 && (
+        <div className="analysis-total">
+          <span className="analysis-total__value">{transferMinutes ? formatRange(transferMinutes) : "—"}</span>
+          <span className="analysis-total__label">
+            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/{legCount} tramo
+            {legCount === 1 ? "" : "s"} cubierto{legCount === 1 ? "" : "s"}
+          </span>
+        </div>
+      )}
+      {unknownLegCount > 0 && (
+        <div className="analysis-total">
+          <span className="analysis-total__value">{unknownLegCount}</span>
+          <span className="analysis-total__label">
+            tramo{unknownLegCount === 1 ? "" : "s"} sin traslado registrado
+          </span>
+        </div>
+      )}
+      {visitSummary.commitmentCount > 0 && (
+        <div className="analysis-total">
+          <span className="analysis-total__value">{visitSummary.commitmentCount}</span>
+          <span className="analysis-total__label">con compromiso de jornada, fuera de la suma de horas</span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -231,11 +384,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const placeById = useMemo(() => new Map(savedPlaces.map((place) => [place.id, place])), [savedPlaces]);
   const [routeIds, setRouteIds] = useState<string[]>(() => savedPlaces.map((place) => place.id));
 
-  // "builder" is the normal single-route view; "compare" is the nested Phase 3C-B view. Only
-  // one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
-  const [view, setView] = useState<"builder" | "compare">("builder");
+  // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
+  // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
+  const [view, setView] = useState<"builder" | "compare" | "days">("builder");
   const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
   const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
+  const [dayIds, setDayIds] = useState<string[][]>([]);
 
   const routePlaces = useMemo(
     () => routeIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
@@ -261,6 +415,13 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     () => compareSequences(candidateAIds, candidateBIds),
     [candidateAIds, candidateBIds]
   );
+
+  const dayPlaceLists = useMemo(
+    () =>
+      dayIds.map((ids) => ids.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place))),
+    [dayIds, placeById]
+  );
+  const dayAssignment = useMemo(() => buildDayAssignment(routeIds, dayIds), [routeIds, dayIds]);
 
   function moveUp(index: number) {
     setRouteIds((ids) => moveItemUp(ids, index));
@@ -288,10 +449,21 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     setView("builder");
   }
 
+  // The day plan starts as a single day holding the exact current route order — not a
+  // recommendation, simply the route as it stood before any day boundary existed. Nothing
+  // writes back into `routeIds`; closing the day view discards the draft.
+  function openDayAssignment() {
+    setDayIds([[...routeIds]]);
+    setView("days");
+  }
+  function closeDayAssignment() {
+    setView("builder");
+  }
+
   // Same focus-management/backdrop-trap pattern as SelectionAnalysis: focus moves into the
   // dialog on open and returns to whatever opened it on close; Escape closes the whole dialog
-  // (from either view — there is only one dialog to close); Tab cycles inside the dialog so
-  // the map behind never takes focus.
+  // (from any view — there is only one dialog to close); Tab cycles inside the dialog so the
+  // map behind never takes focus.
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
@@ -330,8 +502,18 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     return () => document.removeEventListener("keydown", onKeyDown, true);
   }, [onClose]);
 
-  const { legCount, knownLegCount, unknownLegCount, transferMinutes, complete } = sequence.summary;
   const resultText = view === "compare" ? comparisonResultText(comparison) : null;
+
+  const headerTitle =
+    view === "compare" ? "Comparar órdenes" : view === "days" ? "Distribuir por días" : "Construir recorrido";
+  const headerSub =
+    view === "compare"
+      ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
+      : view === "days"
+        ? `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en ${dayIds.length} día${
+            dayIds.length === 1 ? "" : "s"
+          }`
+        : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`;
 
   return (
     <div className="analysis-overlay">
@@ -350,14 +532,13 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 <span aria-hidden="true">←</span> Volver al recorrido
               </button>
             )}
-            <h2 id="sequence-builder-title">
-              {view === "compare" ? "Comparar órdenes" : "Construir recorrido"}
-            </h2>
-            <p className="analysis-header__sub">
-              {view === "compare"
-                ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
-                : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`}
-            </p>
+            {view === "days" && (
+              <button type="button" className="link-button sequence-back" onClick={closeDayAssignment}>
+                <span aria-hidden="true">←</span> Volver al recorrido
+              </button>
+            )}
+            <h2 id="sequence-builder-title">{headerTitle}</h2>
+            <p className="analysis-header__sub">{headerSub}</p>
           </div>
           <button
             ref={closeRef}
@@ -371,7 +552,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
         </header>
 
         <div className="analysis-body">
-          {view === "builder" ? (
+          {view === "builder" && (
             <>
               <p className="analysis-disclaimer">
                 <span aria-hidden="true">ⓘ</span> Tú eliges el orden con las flechas. Nihon describe
@@ -393,46 +574,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                     onRemove={removeFromRoute}
                   />
 
-                  <div className="analysis-totals">
-                    <div className="analysis-total">
-                      <span className="analysis-total__value">
-                        {visitSummary.visitTime ? formatRange(visitSummary.visitTime) : "—"}
-                      </span>
-                      <span className="analysis-total__label">
-                        tiempo de visita
-                        {visitSummary.nonQuantified.length > 0 && (
-                          <> ({visitSummary.nonQuantified.length} sin estimación numérica)</>
-                        )}
-                      </span>
-                    </div>
-                    {legCount > 0 && (
-                      <div className="analysis-total">
-                        <span className="analysis-total__value">
-                          {transferMinutes ? formatRange(transferMinutes) : "—"}
-                        </span>
-                        <span className="analysis-total__label">
-                          {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/
-                          {legCount} tramo{legCount === 1 ? "" : "s"} cubierto{legCount === 1 ? "" : "s"}
-                        </span>
-                      </div>
-                    )}
-                    {unknownLegCount > 0 && (
-                      <div className="analysis-total">
-                        <span className="analysis-total__value">{unknownLegCount}</span>
-                        <span className="analysis-total__label">
-                          tramo{unknownLegCount === 1 ? "" : "s"} sin traslado registrado
-                        </span>
-                      </div>
-                    )}
-                    {visitSummary.commitmentCount > 0 && (
-                      <div className="analysis-total">
-                        <span className="analysis-total__value">{visitSummary.commitmentCount}</span>
-                        <span className="analysis-total__label">
-                          con compromiso de jornada, fuera de la suma de horas
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <TransferAndVisitTotals visitSummary={visitSummary} sequenceSummary={sequence.summary} />
 
                   <p className="analysis-disclaimer">
                     <span aria-hidden="true">ⓘ</span> Los traslados conocidos usan la misma
@@ -441,13 +583,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   </p>
 
                   {routePlaces.length >= 2 && (
-                    <button
-                      type="button"
-                      className="button button--secondary sequence-compare-toggle"
-                      onClick={openComparison}
-                    >
-                      <span aria-hidden="true">⇄</span> Comparar otro orden
-                    </button>
+                    <div className="sequence-secondary-actions">
+                      <button
+                        type="button"
+                        className="button button--secondary sequence-compare-toggle"
+                        onClick={openComparison}
+                      >
+                        <span aria-hidden="true">⇄</span> Comparar otro orden
+                      </button>
+                      <button
+                        type="button"
+                        className="button button--secondary sequence-compare-toggle"
+                        onClick={openDayAssignment}
+                      >
+                        <span aria-hidden="true">📅</span> Distribuir por días
+                      </button>
+                    </div>
                   )}
                 </>
               )}
@@ -477,7 +628,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 </section>
               )}
             </>
-          ) : (
+          )}
+
+          {view === "compare" && (
             <>
               <p className="analysis-disclaimer">
                 <span aria-hidden="true">ⓘ</span> Compara exactamente estos dos órdenes de los
@@ -523,6 +676,88 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 <p className="comparison-result__headline">{resultText?.headline}</p>
                 {resultText?.detail && <p className="comparison-result__detail">{resultText.detail}</p>}
               </div>
+            </>
+          )}
+
+          {view === "days" && (
+            <>
+              <p className="analysis-disclaimer">
+                <span aria-hidden="true">ⓘ</span> Tú decides cuántos días hay y qué lugares van en
+                cada uno. <strong>Nihon no reparte, equilibra ni recomienda un reparto</strong>; solo
+                describe los traslados dentro de cada día.
+              </p>
+
+              {!dayAssignment.valid && (
+                <p className="analysis-disclaimer sequence-day-invalid" role="alert">
+                  <span aria-hidden="true">⚠</span> El reparto actual no coincide exactamente con el
+                  recorrido. Vuelve al recorrido e inténtalo de nuevo.
+                </p>
+              )}
+
+              <div className="day-list">
+                {dayPlaceLists.map((places, dayIndex) => {
+                  const bucket = dayAssignment.days[dayIndex];
+                  const daySummary = summarizeSelection(places);
+                  const isEmpty = places.length === 0;
+                  return (
+                    <section key={dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
+                      <div className="day-card__header">
+                        <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
+                        <button
+                          type="button"
+                          className="icon-button icon-button--small"
+                          onClick={() => setDayIds((days) => removeEmptyDay(days, dayIndex))}
+                          disabled={!isEmpty || dayIds.length <= 1}
+                          aria-label={`Eliminar Día ${dayIndex + 1}`}
+                        >
+                          <span aria-hidden="true">×</span>
+                        </button>
+                      </div>
+
+                      {isEmpty ? (
+                        <p className="sequence-empty">Sin lugares en este día.</p>
+                      ) : (
+                        <>
+                          <ReorderableList
+                            places={places}
+                            legs={bucket?.sequence.legs ?? []}
+                            labelSuffix={` en Día ${dayIndex + 1}`}
+                            onMoveUp={(placeIndex) =>
+                              setDayIds((days) => moveWithinDay(days, dayIndex, placeIndex, -1))
+                            }
+                            onMoveDown={(placeIndex) =>
+                              setDayIds((days) => moveWithinDay(days, dayIndex, placeIndex, 1))
+                            }
+                            onMoveToPreviousGroup={(placeIndex) =>
+                              setDayIds((days) => moveToAdjacentDay(days, dayIndex, placeIndex, -1))
+                            }
+                            onMoveToNextGroup={(placeIndex) =>
+                              setDayIds((days) => moveToAdjacentDay(days, dayIndex, placeIndex, 1))
+                            }
+                            previousGroupLabel="al día anterior"
+                            nextGroupLabel="al día siguiente"
+                            canMoveToPreviousGroup={dayIndex > 0}
+                            canMoveToNextGroup={dayIndex < dayIds.length - 1}
+                            showDuration
+                            compact
+                          />
+                          {bucket && (
+                            <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
+                          )}
+                        </>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                className="button button--secondary sequence-add-day"
+                onClick={() => setDayIds((days) => addEmptyDay(days))}
+              >
+                <span aria-hidden="true">＋</span> Añadir día
+              </button>
             </>
           )}
         </div>
