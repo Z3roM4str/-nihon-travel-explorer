@@ -59,12 +59,31 @@ describe("access-point reads", () => {
     }
   });
 
-  it("keeps the real ASMUI reception out of internal-stage contexts", () => {
+  it("offers the same three JP-029 gates for local transit, still without choosing one", () => {
+    // The Imperial Household Agency documents each gate as the arrival point of a named
+    // subway approach, so all three carry external-local-transit as well as external-walk
+    // (see docs/TRANSIT_ACCESS_POINT_EVIDENCE.md). No gate is a default in either context:
+    // Phase 3B2H showed the best gate flips with the counterpart, so the ambiguity is real.
+    const candidates = getAccessPointsForContext("JP-029", "external-local-transit");
+    expect(candidates.map((candidate) => candidate.id)).toEqual([
+      "AP-JP-029-001",
+      "AP-JP-029-002",
+      "AP-JP-029-003",
+    ]);
+    for (const candidate of candidates) {
+      expect(candidate.selection.defaultForContexts ?? []).toEqual([]);
+    }
+  });
+
+  it("keeps the real ASMUI reception out of internal-stage contexts and out of local transit", () => {
     expect(
       getAccessPointsForContext("JP-181", "external-walk").map((candidate) => candidate.id),
     ).toEqual(["AP-JP-181-001"]);
     expect(getAccessPointsForContext("JP-181", "internal-hike")).toEqual([]);
     expect(getAccessPointsForContext("JP-181", "internal-shuttle")).toEqual([]);
+    // Arrival there is documented as car access and no official source puts a transit
+    // endpoint at the facility, so the context is deliberately not claimed.
+    expect(getAccessPointsForContext("JP-181", "external-local-transit")).toEqual([]);
   });
 
   it("does not expose an array that can mutate its index", () => {

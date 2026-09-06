@@ -11,6 +11,17 @@ walking result, threshold, or UI.
 This document is the research record behind every record that exists — and behind
 every record that deliberately does not.
 
+> **Later amendment — `external-local-transit`.** Two passages below (§2 and §3) withhold
+> that context on the reading that it marks a point as *being a transit stop*. The
+> [Transit Access-Point Evidence Audit](TRANSIT_ACCESS_POINT_EVIDENCE.md) later settled the
+> semantics against the design and the code: the context marks **endpoint eligibility**, not
+> stop-ness, and `role` alone never controls it. On that reading the JP-029 omission was
+> reversed and the three gates now also carry `external-local-transit` (still with no
+> default); the JP-181 omission was re-examined and **upheld**, on the evidence that its
+> documented access is by car. The Phase 3B2G text is left as written — it is the record of
+> what was decided then — and nothing it says about the `external-walk` data has changed
+> meaning.
+
 ## 1. Method
 
 ### Source priority actually applied

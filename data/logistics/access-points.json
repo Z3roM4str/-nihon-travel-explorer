@@ -9,18 +9,19 @@
       "lng": 139.760215
     },
     "applicableContexts": [
-      "external-walk"
+      "external-walk",
+      "external-local-transit"
     ],
     "provenance": {
       "sourceUrl": "https://visit-chiyoda.tokyo/app/spot/detail/19",
       "sourceEntity": "Chiyoda City Tourism Association (Visit Chiyoda, official Chiyoda City tourism site)",
       "consultedAt": "2026-09-05",
-      "evidence": "The Imperial Household Agency's East Gardens visitor page names Ote-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking times from Otemachi, Nijubashimae and Tokyo stations. The official Chiyoda City tourism site publishes a dedicated Ote-mon spot page describing it as the former main gate of Edo Castle, and that page's map block targets this coordinate for the gate itself.",
+      "evidence": "The Imperial Household Agency's East Gardens visitor page names Ote-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking times from Otemachi, Nijubashimae and Tokyo stations. The official Chiyoda City tourism site publishes a dedicated Ote-mon spot page describing it as the former main gate of Edo Castle, and that page's map block targets this coordinate for the gate itself. The agency's own access section (https://www.kunaicho.go.jp/visit/higashigyoen/index.html, re-consulted 2026-09-06) places this gate about a 5-minute walk from Otemachi Station exit C13a, about 10 minutes from Nijubashimae Station exit 6 on the Chiyoda Line, and about 15 minutes from JR Tokyo Station's Marunouchi north exit, documenting it as the point an approach from a local-transit station arrives at. Under the applicableContexts semantics recorded in TRANSIT_ACCESS_POINT_EVIDENCE.md the gate is therefore also a valid endpoint for an externally-originating trip whose local-transit leg ends in a short walk, so external-local-transit applies alongside external-walk. The coordinate and its Chiyoda City provenance are unchanged by that addition.",
       "confidence": "official-explicit"
     },
     "selection": {},
     "status": "active",
-    "notes": "Ordinal 001 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Deliberately no default: the agency does not designate a preferred gate."
+    "notes": "Ordinal 001 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Deliberately no default: the agency does not designate a preferred gate. external-local-transit was added by the Transit Access-Point Evidence Audit on 2026-09-06 on the Imperial Household Agency station-to-gate access evidence above; no default is claimed for that context either, so JP-029 resolves as ambiguous for transit exactly as it does for walking."
   },
   {
     "id": "AP-JP-029-002",
@@ -32,18 +33,19 @@
       "lng": 139.757877
     },
     "applicableContexts": [
-      "external-walk"
+      "external-walk",
+      "external-local-transit"
     ],
     "provenance": {
       "sourceUrl": "https://visit-chiyoda.tokyo/app/spot/detail/653",
       "sourceEntity": "Chiyoda City Tourism Association (Visit Chiyoda, official Chiyoda City tourism site)",
       "consultedAt": "2026-09-05",
-      "evidence": "The Imperial Household Agency's East Gardens visitor page names Hirakawa-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking time from Takebashi station. The official Chiyoda City tourism site publishes a dedicated Hirakawa-mon spot page describing it as the main gate of the Sannomaru enclosure, and that page's map block targets this coordinate for the gate itself.",
+      "evidence": "The Imperial Household Agency's East Gardens visitor page names Hirakawa-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking time from Takebashi station. The official Chiyoda City tourism site publishes a dedicated Hirakawa-mon spot page describing it as the main gate of the Sannomaru enclosure, and that page's map block targets this coordinate for the gate itself. The agency's own access section (https://www.kunaicho.go.jp/visit/higashigyoen/index.html, re-consulted 2026-09-06) places this gate about a 5-minute walk from Takebashi Station exit 1a on the Tozai Line, documenting it as the point an approach from a local-transit station arrives at. Under the applicableContexts semantics recorded in TRANSIT_ACCESS_POINT_EVIDENCE.md the gate is therefore also a valid endpoint for an externally-originating trip whose local-transit leg ends in a short walk, so external-local-transit applies alongside external-walk. The coordinate and its Chiyoda City provenance are unchanged by that addition.",
       "confidence": "official-explicit"
     },
     "selection": {},
     "status": "active",
-    "notes": "Ordinal 002 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Deliberately no default: the agency does not designate a preferred gate."
+    "notes": "Ordinal 002 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Deliberately no default: the agency does not designate a preferred gate. external-local-transit was added by the Transit Access-Point Evidence Audit on 2026-09-06 on the Imperial Household Agency station-to-gate access evidence above; no default is claimed for that context either, so JP-029 resolves as ambiguous for transit exactly as it does for walking."
   },
   {
     "id": "AP-JP-029-003",
@@ -55,18 +57,19 @@
       "lng": 139.754043
     },
     "applicableContexts": [
-      "external-walk"
+      "external-walk",
+      "external-local-transit"
     ],
     "provenance": {
       "sourceUrl": "https://visit-chiyoda.tokyo/app/spot/detail/244",
       "sourceEntity": "Chiyoda City Tourism Association (Visit Chiyoda, official Chiyoda City tourism site)",
       "consultedAt": "2026-09-05",
-      "evidence": "The Imperial Household Agency's East Gardens visitor page names Kitahanebashi-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking time from Takebashi station. The official Chiyoda City tourism site publishes a spot page for Kitahanebashi that describes it as the bridge of the Edo Castle Kitahanebashi-mon on the north side of the East Gardens, states that only the gate and the bridge remain, and targets this coordinate; the gate coordinate is therefore derived from that published bridge/gate point rather than published separately.",
+      "evidence": "The Imperial Household Agency's East Gardens visitor page names Kitahanebashi-mon Gate as one of exactly three entrance and exit gates for the gardens and gives its walking time from Takebashi station. The official Chiyoda City tourism site publishes a spot page for Kitahanebashi that describes it as the bridge of the Edo Castle Kitahanebashi-mon on the north side of the East Gardens, states that only the gate and the bridge remain, and targets this coordinate; the gate coordinate is therefore derived from that published bridge/gate point rather than published separately. The agency's own access section (https://www.kunaicho.go.jp/visit/higashigyoen/index.html, re-consulted 2026-09-06) places this gate about a 5-minute walk from Takebashi Station exit 1a on the Tozai Line, documenting it as the point an approach from a local-transit station arrives at. Under the applicableContexts semantics recorded in TRANSIT_ACCESS_POINT_EVIDENCE.md the gate is therefore also a valid endpoint for an externally-originating trip whose local-transit leg ends in a short walk, so external-local-transit applies alongside external-walk. The coordinate and its Chiyoda City provenance are unchanged by that addition.",
       "confidence": "official-derived"
     },
     "selection": {},
     "status": "active",
-    "notes": "Ordinal 003 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Coordinate rounded to the six decimals published by the source's map target. Deliberately no default: the agency does not designate a preferred gate."
+    "notes": "Ordinal 003 records the order in which the Imperial Household Agency enumerates the three gates and carries no priority, preference or routing-selection meaning. Coordinate rounded to the six decimals published by the source's map target. Deliberately no default: the agency does not designate a preferred gate. external-local-transit was added by the Transit Access-Point Evidence Audit on 2026-09-06 on the Imperial Household Agency station-to-gate access evidence above; no default is claimed for that context either, so JP-029 resolves as ambiguous for transit exactly as it does for walking."
   },
   {
     "id": "AP-JP-181-001",

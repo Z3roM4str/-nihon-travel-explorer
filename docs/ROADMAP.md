@@ -408,6 +408,59 @@ and there was no UI and no Phase 3C work. See
       provider request, no client transport, no React hook, no ordering/aggregation/itinerary
       (Phase 3C) work.
 
+## Transit Access-Point Evidence Audit — complete (evidence only, activation still OFF)
+
+Deliberately not numbered `3B3E`: that identifier stays reserved for the client transport / live
+transit React hook. This is evidence work in the Phase 3B2G lineage, and it is what the former
+"Access-point evidence for `external-local-transit`" backlog item asked for.
+
+- [x] **Settled the semantics first, because the repository contradicted itself.**
+      `ACCESS_POINT_DESIGN.md` §§9/13/18/20 and both consumers (`getAccessPointsForContext`,
+      `resolveTransitEndpoint`, neither of which reads `role`) define `applicableContexts` as
+      **endpoint eligibility**; Phase 3B2G's prose had withheld the context on the different
+      reading that it marks a point as *being a transit stop*. Resolved in favour of the
+      contract: `role` says what a point physically **is**, `applicableContexts` says which
+      routing question it is a legitimate **endpoint** for. Recorded in
+      [TRANSIT_ACCESS_POINT_EVIDENCE.md](TRANSIT_ACCESS_POINT_EVIDENCE.md) §1, with a pointer
+      added to `ACCESS_POINT_EVIDENCE.md` rather than a rewrite of its history.
+- [x] **Recomputed the candidate universe from the checkout** (never carried over): 403 relations,
+      332 walking, 71 non-walking, 69 `Transporte local`, 2 `Disney Resort Line`, **78 unique
+      places** (Kioto 27, Tokio 21, Okinawa 20, Osaka 10).
+- [x] **Triaged on a measured, repo-internal signal** — each place's worst recorded
+      `endpointSnapping` displacement, i.e. how far its display coordinate sits from a routable
+      way. Most useful negative result of the audit: the two worst coordinates in the dataset
+      (**JP-029 198.63 m**, **JP-185 139.31 m**) are the two cases the project had already
+      identified, and **no third case emerges from the measurements**.
+- [x] **One change, and only one: JP-029's three gates gained `external-local-transit`** — the
+      context goes from **0 to 3 members**. The Imperial Household Agency documents each gate as
+      the arrival point of a named subway approach (Otemachi C13a ≈5 min, Nijubashimae ≈10 min and
+      JR Tokyo ≈15 min for Ōte-mon; Takebashi 1a ≈5 min for the other two), and JP-029 has a real
+      `Transporte local` relation. **No default** — Phase 3B2H measured the best gate flipping
+      with the counterpart — so the resolver now answers `ambiguous` instead of querying a point
+      inside the palace grounds.
+- [x] **Everything else: no record, deliberately.** `JP-181` upheld as `external-walk` only (its
+      documented access is by car and it has zero non-walking relations); `JP-185` re-checked —
+      the village bus page still names the 古座間味ビーチ stop but publishes no coordinate;
+      **Disney** (JP-203/JP-204) rejected on two independent grounds — illustrated maps are not a
+      coordinate source, and `TransferMode` separates `disney-resort-line` from `local-transit`
+      while `AccessContext` has no matching member, so tagging it would be schema expansion by
+      anticipation; ferry ports (JP-184/JP-186/JP-197) real as a concept but no published
+      coordinate; `JP-064`/`JP-069`/`JP-089` unchanged under the existing rulings that a large
+      snap and a `no-route` are not provenance.
+- [x] **No coordinate was invented, no default created, no new record added**, and 45 of the 78
+      candidates carry no empirical red flag at all — `use-place-coordinate` is their correct,
+      deliberate answer. A nearby station was never treated as a reason to catalogue a point.
+- [x] Added the missing regression coverage for the behaviour that actually changed (172 tests,
+      from 169), mutation-checked; the validator needed no change and its parity check was
+      verified to fire on induced drift.
+
+**Provider activation remains OFF** and still `REQUIRES VENDOR CONFIRMATION` (Phase 3B3B §7.2).
+This audit made **zero requests to Ekispert, NAVITIME or openrouteservice and zero geocoding/routing
+API calls of any kind** — its sources are official web pages read directly — and created zero
+accounts, keys and secrets. It changed no `places.json`, `nearby.json`, workbook, walking
+pilot/scale artifact, walking access-point result, threshold or `getBestTransfer()`; built no UI,
+no hook and no client; and started no Phase 3C work.
+
 ## Phase 3B3A — Transit & Schedule-Aware Logistics Provider Decision / Coverage Audit — research complete, BLOCKED
 
 - [x] Derive the non-walking gap programmatically from the current dataset (never carried
@@ -636,9 +689,6 @@ Phase 3C work (no sequencing, no aggregation, no itinerary generation).
       explicit user action, and no such action exists yet — and real-provider activation is
       still OFF pending vendor confirmation (Phase 3B3B §7.2), so the hook would still have no
       live answer to arbitrate toward. See `docs/LIVE_TRANSIT_SYNTHETIC_SKELETON.md`.
-- [ ] Access-point evidence for `"external-local-transit"` (proposed, not started): the context is
-      reserved but has **zero** members, so every place currently resolves to
-      `use-place-coordinate`. Populating it is evidence work at the same standard as Phase 3B2G.
 - [ ] Ekispert provider activation (not started, `REQUIRES VENDOR CONFIRMATION`): before any real
       account, API key, or live query is introduced, either get Val Laboratory's written answer
       to the drafted question in `docs/TRANSIT_TERMS_COVERAGE_CONFIRMATION.md` §7.3 (does

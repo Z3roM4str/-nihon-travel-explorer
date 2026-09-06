@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { LogisticsAccessPoint } from "./access-points";
+import { getAccessPointsForContext, type LogisticsAccessPoint } from "./access-points";
 import {
   resolveTransitEndpoint,
   transitWarningsForResolution,
@@ -137,6 +137,39 @@ describe("transitWarningsForResolution", () => {
     ]);
     expect(transitWarningsForResolution("from", ambiguous)).toEqual([]);
     expect(transitWarningsForResolution("from", unavailable)).toEqual([]);
+  });
+});
+
+describe("resolveTransitEndpoint against the real catalog", () => {
+  // Every test above injects fixtures. These two pin the outcome for the actual shipped
+  // catalog, because the Transit Access-Point Evidence Audit changed it: JP-029 used to
+  // resolve to use-place-coordinate (querying a point 198.63 m off-network, inside the
+  // palace grounds) and now surfaces the three official gates as an explicit ambiguity.
+  it("surfaces JP-029's three gates as ambiguous rather than collapsing to a coordinate", () => {
+    const resolution = resolveTransitEndpoint(
+      "JP-029",
+      getAccessPointsForContext("JP-029", "external-local-transit")
+    );
+    expect(resolution).toEqual({
+      kind: "ambiguous",
+      candidateAccessPointIds: ["AP-JP-029-001", "AP-JP-029-002", "AP-JP-029-003"],
+    });
+    // An ambiguous resolution is not an empty catalog, so it must not claim one.
+    expect(transitWarningsForResolution("to", resolution)).toEqual([]);
+  });
+
+  it("still falls back honestly for a place the audit left uncatalogued", () => {
+    const resolution = resolveTransitEndpoint(
+      "JP-185",
+      getAccessPointsForContext("JP-185", "external-local-transit")
+    );
+    expect(resolution).toEqual({
+      kind: "use-place-coordinate",
+      endpoint: { kind: "place-coordinate", placeId: "JP-185" },
+    });
+    expect(transitWarningsForResolution("from", resolution)).toEqual([
+      { kind: "no-catalogued-endpoint", endpoint: "from", placeId: "JP-185" },
+    ]);
   });
 });
 
