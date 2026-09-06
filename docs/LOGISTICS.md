@@ -889,8 +889,45 @@ here is persisted — no new `localStorage` key, no change to `useSavedPlaces`' 
 This phase changed no dataset, no access-point catalog, no walking artifact, and
 `getBestTransfer()` itself is unchanged; `ordered-sequence.ts` is the only module that aggregates
 across its results, and only over a sequence the user supplied. It starts no comparison between
-candidate orderings and no itinerary/day-assignment work — that remains later, unscheduled 3C
-work.
+candidate orderings and no itinerary/day-assignment work — Phase 3C-B (below) does the former;
+day/time assignment remains later, unscheduled work.
+
+## Phase 3C-B — User-Defined Sequence Comparison
+
+Compares exactly **two user-defined orderings of the same places** — not a candidate generator.
+`app/src/lib/sequence-comparison.ts` builds each side through Phase 3C-A's own
+`orderedSequenceFromLookup`/`buildOrderedSequence` and reasons only about the two resulting
+`OrderedSequence`s; it never reimplements directed lookup, reversal, or chaining.
+
+**The same-set invariant is checked before ordering matters at all.** Both candidates must be
+duplicate-free and represent exactly the same set of place ids, or the outcome is `"invalid"` —
+a composition difference is not an ordering question, and this module never treats it as one.
+
+**An unknown leg is never treated as zero minutes, and a winner must survive its own
+uncertainty.** If either candidate has any unknown leg, the outcome is `"incomplete"` regardless
+of the two known subtotals: 40 known minutes plus one unrecorded leg is never declared faster
+than 55 known minutes with full coverage. For two *complete* candidates, one is only
+`"a-clearly-faster"`/`"b-clearly-faster"` when its full range sits strictly below the other's
+(`winner.maxMinutes < loser.minMinutes`) — comparing minima or midpoints would let an overlapping
+pair of ranges produce a false winner, so equal ranges are `"equivalent"` and anything else
+non-strict is `"overlapping"`, reported honestly as no clear difference rather than guessed.
+
+A declared advantage is always the conservative `loser.minMinutes − winner.maxMinutes` — the gap
+that holds even in the winner's worst case against the loser's best case — never a midpoint
+delta. Each candidate also reports its `validated-static`/`estimated`/`schedule-aware` leg tally
+(the same closed `TransferConfidence`, no new vocabulary, no invented numeric score), so a route
+built entirely from estimates does not read as equally certain as one built from validated
+routes. Every result reads "entre estos dos órdenes…" — this module has evaluated exactly two
+orderings, never a claim about the best possible route.
+
+`OrderedSequenceBuilder.tsx` renders this as a **nested view inside its existing dialog**, not a
+second modal: "Comparar otro orden" opens Candidate A (a clone of the current route) and
+Candidate B (a clone of Candidate A), both independently reorderable through the same accessible
+move-up/move-down mechanism Phase 3C-A established. Neither candidate can add or remove a place
+inside the comparison view — composition is fixed once it opens, which keeps the same-set
+invariant true by construction through this UI even though the domain function still checks it
+independently. Nothing here is persisted, and closing the comparison touches neither the route
+draft nor "Quiero ir".
 
 ## What Phase 3B1 does not touch
 
