@@ -57,27 +57,16 @@ export type DayAssignment = {
 };
 
 /**
- * Pure core of `buildDayAssignment`, with the directed lookup injected so tests can prove the
- * day-boundary guarantee (a cross-day pair is never queried) against fixture data — the same
- * seam `orderedSequenceFromLookup`/`sequenceComparisonFromLookup` already use.
- *
- * `routeIds` is the route the days are supposed to partition; `days` is the caller's partition
- * exactly as given — this function never reorders a day's ids, never moves an id to fix an
- * invalid partition, and never invents or drops a day. Each day's `OrderedSequence` is always
- * built, even when the overall assignment is invalid, so a caller can still render what exists;
- * `valid`/`issues` is what says whether that description may be trusted as a true partition of
- * `routeIds`.
+ * The structural partition check, with **no transfer lookup at all** — pure set/array
+ * bookkeeping over ids. This is the single source of truth for "does `days` exactly partition
+ * `routeIds`", reused by `dayAssignmentFromLookup` below (transfer-lookup context) and by
+ * `app/src/lib/planning-draft.ts` (persistence-reconciliation context, Phase 3C-D), so the two
+ * can never silently diverge on what "valid" means.
  */
-export function dayAssignmentFromLookup(
+export function validateDayPartition(
   routeIds: readonly string[],
-  days: readonly (readonly string[])[],
-  lookup: (fromId: string, toId: string) => TransferEdge | null
-): DayAssignment {
-  const dayBuckets: DayBucket[] = days.map((placeIds) => ({
-    placeIds,
-    sequence: orderedSequenceFromLookup(placeIds, lookup),
-  }));
-
+  days: readonly (readonly string[])[]
+): { valid: boolean; issues: DayAssignmentIssue[] } {
   const issues: DayAssignmentIssue[] = [];
   if (days.length === 0) issues.push("no-days");
 
@@ -105,7 +94,32 @@ export function dayAssignmentFromLookup(
   if (routeIds.some((id) => !assignedSet.has(id))) issues.push("missing-route-ids");
   if ([...assignedSet].some((id) => !routeSet.has(id))) issues.push("extra-ids");
 
-  return { days: dayBuckets, valid: issues.length === 0, issues };
+  return { valid: issues.length === 0, issues };
+}
+
+/**
+ * Pure core of `buildDayAssignment`, with the directed lookup injected so tests can prove the
+ * day-boundary guarantee (a cross-day pair is never queried) against fixture data — the same
+ * seam `orderedSequenceFromLookup`/`sequenceComparisonFromLookup` already use.
+ *
+ * `routeIds` is the route the days are supposed to partition; `days` is the caller's partition
+ * exactly as given — this function never reorders a day's ids, never moves an id to fix an
+ * invalid partition, and never invents or drops a day. Each day's `OrderedSequence` is always
+ * built, even when the overall assignment is invalid, so a caller can still render what exists;
+ * `valid`/`issues` (from `validateDayPartition`) is what says whether that description may be
+ * trusted as a true partition of `routeIds`.
+ */
+export function dayAssignmentFromLookup(
+  routeIds: readonly string[],
+  days: readonly (readonly string[])[],
+  lookup: (fromId: string, toId: string) => TransferEdge | null
+): DayAssignment {
+  const dayBuckets: DayBucket[] = days.map((placeIds) => ({
+    placeIds,
+    sequence: orderedSequenceFromLookup(placeIds, lookup),
+  }));
+  const { valid, issues } = validateDayPartition(routeIds, days);
+  return { days: dayBuckets, valid, issues };
 }
 
 /**

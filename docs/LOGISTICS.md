@@ -970,6 +970,46 @@ introduced, and `bestTime`/`schedule.hours`/`schedule.closures` remain unparsed 
 The day draft is component-local state, discarded on close exactly like the route and comparison
 drafts it sits alongside; nothing here is persisted.
 
+## Phase 3C-D — Persisted Manual Planning Draft
+
+Until this phase, the paragraph above was true of the route too: Phase 3C-A's route order and
+Phase 3C-C's day assignment were both purely component-local, gone the moment the builder
+closed. This phase changes that for the current product: `app/src/lib/planning-draft.ts` now
+persists the **canonical manual plan** — the route and the day assignment, and only those —
+under a new key, `nihon.manualPlanningDraft`, kept entirely separate from `nihon.savedPlaceIds`
+("Quiero ir"). Phase 3C-B's comparison candidates are the one exception that stays exactly as
+this section originally described them: still component-local, still cloned fresh from the
+route each time the comparison view opens, still discarded on close — they are deliberately
+excluded from the persisted schema and always will be.
+
+The schema, `{ version: 1, routeIds: string[], days: string[][] | null }`, stores only ids and
+user-authored structure — never a `Place`, a name, a duration, a transfer edge or result, a
+visit-time summary, a transfer total, or a confidence tally. Every derived value is still
+recomputed on read from the current dataset and domain logic exactly as before; persistence
+changes *where the user's decisions live*, not how anything is computed from them.
+
+Restoring a stored draft is reconciliation, not blind trust: a route id no longer present in
+"Quiero ir" is pruned from the route and from any day bucket that referenced it, and a place
+newly saved to "Quiero ir" after a draft already exists is never auto-added to the route or
+assigned to a day — it surfaces through the existing "Guardados fuera del recorrido" flow
+until the user explicitly adds it. A stored `routeIds: []` is a real, intentional empty route
+and stays empty after reload; that is deliberately distinct from no valid stored draft at all,
+which falls back to initialising the route from the current saved ids, exactly as Phase 3C-A's
+original first-run behaviour did.
+
+Changing only the route's order (the same set of ids) keeps the existing canonical day
+assignment; changing its composition invalidates it (`days: null`) rather than guessing which
+day a new place belongs in or repairing a day that no longer accounts for a removed one. The
+day-partition rules themselves are not duplicated for persistence: `day-assignment.ts`'s issue
+taxonomy was extracted into a transfer-lookup-free `validateDayPartition`, and both
+`dayAssignmentFromLookup` and this module's reconciliation call the same function, so the two
+can never disagree about what counts as a valid split.
+
+Storage failures — missing value, malformed JSON, wrong shape, unsupported version, non-string
+or duplicate ids, a `localStorage` exception on read or write — all fall back to an in-memory
+default rather than throwing into the UI or inventing a migration for a version this schema
+doesn't recognise.
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single

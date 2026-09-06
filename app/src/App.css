@@ -2419,3 +2419,8 @@ a {
 .sequence-add-day {
   width: 100%;
 }
+
+.sequence-reset {
+  align-self: flex-start;
+  margin-top: 0.3rem;
+}

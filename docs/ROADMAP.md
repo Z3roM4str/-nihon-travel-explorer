@@ -862,6 +862,71 @@ changed no `places.json`, `nearby.json`, access-point catalog, walking artifact,
 permutation enumeration, no shortest path, no scoring function, no exact clock scheduling — and
 no Phase 3C-D work was started.
 
+## Phase 3C-D — Persisted Manual Planning Draft — complete
+
+Until this phase, Phase 3C-A's route order and Phase 3C-C's day assignment were purely
+component-local state that disappeared the moment the builder closed (see those sections
+above). This phase persists that **canonical manual plan** — the route and the day
+assignment, and only those — locally in the browser, under a new, separate storage key. It
+stores user *decisions*; it does not generate any.
+
+- [x] **New versioned storage key, `nihon.manualPlanningDraft`**, entirely separate from
+      `nihon.savedPlaceIds` ("Quiero ir"), which is untouched and remains exclusively the saved-
+      place set. Schema: `{ version: 1, routeIds: string[], days: string[][] | null }`. Only ids
+      and user-authored structure are ever persisted — no `Place` objects, names, durations,
+      transfer edges/results, visit-time summaries, transfer totals, confidence tallies, or any
+      other value recomputable from the current dataset/domain logic.
+- [x] **Phase 3C-B's comparison candidates are deliberately excluded from this schema and always
+      will be.** "Orden A"/"Orden B" remain plain, ephemeral component state — cloned fresh from
+      the current route each time the comparison view opens, discarded on close, exactly as
+      before this phase.
+- [x] **Restore semantics distinguish "no valid stored plan" from "a valid stored plan whose
+      route happens to be empty".** No stored draft (or a malformed one) initialises the route
+      from the current saved ids, preserving Phase 3C-A's original first-run behaviour. A stored
+      `routeIds: []` is an intentional empty route and stays empty after reload — it is never
+      reinterpreted as "nothing was stored."
+- [x] **Reconciliation, not silent repair.** A stored route id no longer present in "Quiero ir"
+      is pruned from the route and from any day bucket that referenced it — never re-added,
+      replaced, or used to infer another place. A place newly saved to "Quiero ir" after a
+      planning draft already exists is **not** auto-added to the route or assigned to a day; it
+      stays under the existing "Guardados fuera del recorrido" flow until the user explicitly
+      adds it.
+- [x] **Route-edit vs. day-edit semantics.** Changing only the route's *order* (the exact set of
+      ids unchanged) retains the existing canonical day assignment untouched. Changing the
+      route's *composition* (a place added or removed) invalidates it (`days: null`) — this
+      phase never invents which day a new place belongs to, or repairs a day that no longer
+      accounts for a removed one.
+- [x] **One shared partition validator, reused, not duplicated.** `day-assignment.ts`'s issue
+      taxonomy (`no-days`, `missing-route-ids`, `extra-ids`, `duplicate-in-day`,
+      `duplicate-across-days`) was extracted into a transfer-lookup-free `validateDayPartition`,
+      which both `dayAssignmentFromLookup` (transfer-lookup context) and the new
+      `app/src/lib/planning-draft.ts` (persistence-reconciliation context) call — one source of
+      truth for what counts as a valid day split, proven by regression tests that the extraction
+      changed nothing about the taxonomy, the transfer semantics, or the day-boundary guarantee.
+- [x] **Storage failures never reach the UI.** No stored value, malformed JSON, the wrong object
+      shape, an unsupported version, non-string ids, duplicate stored route ids, and a
+      `localStorage` read/write exception are all handled by falling back to an in-memory
+      default — no invented migration for an unrecognised version, no thrown error.
+- [x] **UX**: a factual, low-key disclosure ("Este recorrido se guarda automáticamente en este
+      navegador…") in the builder view — no toast per reorder, no new modal, no implied cloud or
+      account sync. An optional **"Restablecer recorrido"** control resets the route to the
+      current saved ids in their saved order and clears the day assignment, without touching
+      "Quiero ir" itself.
+- [x] Accessibility/mobile unchanged: still one dialog, one focus trap, Escape closes
+      everything, the same keyboard reorder controls and `aria-label`s. No `<select>` was
+      introduced, so the existing focusable-element selector needed no change. No drag-and-drop,
+      no new npm dependency.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**,
+created zero accounts and introduced zero API keys or secrets, and added zero new npm
+dependencies; changed no `places.json`, `nearby.json`, access-point catalog, walking artifact,
+threshold, `package.json`, or lockfile; and did not touch `getBestTransfer()`'s,
+`ordered-sequence.ts`'s, or `sequence-comparison.ts`'s semantics. No automatic route generation,
+ordering, day count, or day assignment; no balancing; no itinerary generation or
+recommendation; no optimisation, TSP, nearest-neighbour, or shortest path; no scoring; no
+calendar dates, weekdays, clock scheduling, or opening-hours solving — not even as a disabled
+placeholder. No Phase 3C-E work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate

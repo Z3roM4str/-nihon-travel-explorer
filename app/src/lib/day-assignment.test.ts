@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { TransferEdge } from "./transfer";
-import { buildDayAssignment, dayAssignmentFromLookup } from "./day-assignment";
+import { buildDayAssignment, dayAssignmentFromLookup, validateDayPartition } from "./day-assignment";
 
 function edge(fromId: string, toId: string, overrides: Partial<TransferEdge> = {}): TransferEdge {
   return {
@@ -227,5 +227,51 @@ describe("buildDayAssignment (real dataset)", () => {
     const reverse = buildDayAssignment(["JP-005", "JP-001"], [["JP-005", "JP-001"]]);
     expect(forward.days[0].sequence.legs[0].transfer).not.toBeNull();
     expect(reverse.days[0].sequence.legs[0].transfer).toBeNull();
+  });
+});
+
+describe("validateDayPartition — extracted structural validator (Phase 3C-D regression)", () => {
+  // These pin down that extracting the issue taxonomy out of dayAssignmentFromLookup into its
+  // own transfer-lookup-free function (so app/src/lib/planning-draft.ts can reuse the exact
+  // same partition rules for persistence reconciliation) changed nothing about what counts as
+  // valid — every case above still goes through this function internally.
+
+  it("performs no transfer lookup — it is pure id/array bookkeeping", () => {
+    // If this function ever gained a lookup parameter or called one internally, this call
+    // (no third argument) would fail to compile; its absence from the signature is the proof.
+    const result = validateDayPartition(["A", "B"], [["A", "B"]]);
+    expect(result).toEqual({ valid: true, issues: [] });
+  });
+
+  it("reports the same issue taxonomy as dayAssignmentFromLookup for every structural problem", () => {
+    const lookup = () => null;
+    const cases: Array<{ routeIds: string[]; days: string[][] }> = [
+      { routeIds: ["A", "B"], days: [] }, // no-days
+      { routeIds: ["A", "B", "C"], days: [["A", "B"]] }, // missing-route-ids
+      { routeIds: ["A", "B"], days: [["A", "B", "Z"]] }, // extra-ids
+      { routeIds: ["A", "B"], days: [["A", "A", "B"]] }, // duplicate-in-day
+      { routeIds: ["A", "B", "C"], days: [["A", "B"], ["B", "C"]] }, // duplicate-across-days
+    ];
+    for (const { routeIds, days } of cases) {
+      const direct = validateDayPartition(routeIds, days);
+      const viaLookup = dayAssignmentFromLookup(routeIds, days, lookup);
+      expect(viaLookup.valid).toBe(direct.valid);
+      expect(viaLookup.issues).toEqual(direct.issues);
+    }
+  });
+
+  it("still keeps transfer semantics — and day boundaries — untouched by the extraction", () => {
+    const seenPairs: Array<[string, string]> = [];
+    const lookup = (fromId: string, toId: string) => {
+      seenPairs.push([fromId, toId]);
+      return null;
+    };
+    const result = dayAssignmentFromLookup(["A", "B", "C", "D"], [["A", "B"], ["C", "D"]], lookup);
+    expect(result.valid).toBe(true);
+    expect(seenPairs).toEqual([
+      ["A", "B"],
+      ["C", "D"],
+    ]);
+    expect(seenPairs).not.toContainEqual(["B", "C"]); // the day boundary, still never queried
   });
 });
