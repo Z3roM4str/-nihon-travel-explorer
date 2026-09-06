@@ -6,6 +6,7 @@ import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSumm
 import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
 import { buildDayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
+import { addCivilDays, formatCivilDateDisplay } from "../lib/civil-date";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -18,8 +19,15 @@ type Props = {
 
 /**
  * Phase 3C-A — Ordered Sequence Builder, extended by Phase 3C-B — User-Defined Sequence
- * Comparison, Phase 3C-C — User-Defined Day Assignment, and Phase 3C-D — Persisted Manual
- * Planning Draft.
+ * Comparison, Phase 3C-C — User-Defined Day Assignment, Phase 3C-D — Persisted Manual
+ * Planning Draft, and Phase 3C-E — Manual Calendar Anchoring.
+ *
+ * Phase 3C-E lets the user anchor "Día 1" to a real civil date (`YYYY-MM-DD`, via
+ * `usePlanningDraft`'s `startDate`/`setStartDate`); every later day is that date offset by
+ * calendar days (`civil-date.ts#addCivilDays`), computed fresh on every render — never stored
+ * per day. This is a date the user picks, not one Nihon suggests: there is no reading of
+ * `place.bestTime`, `schedule.hours`, or `schedule.closures` anywhere in this phase, and no
+ * check of whether anything is open on the chosen date.
  *
  * The user defines an explicit order over (a subset of) their saved places; this component
  * describes the logistics of THAT EXACT ORDER via `buildOrderedSequence`. It never chooses,
@@ -393,7 +401,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
 
   // The persisted manual plan (Phase 3C-D) — the single source of truth for the route and the
   // canonical day assignment. `days` is `null` exactly when no valid day split exists yet.
-  const { routeIds, days, setRoute: setRouteIds, setDays: setDayIds, resetRoute } = usePlanningDraft(savedIds);
+  const {
+    routeIds,
+    days,
+    startDate,
+    setRoute: setRouteIds,
+    setDays: setDayIds,
+    setStartDate,
+    resetRoute,
+  } = usePlanningDraft(savedIds);
   const dayIds = useMemo(() => days ?? [], [days]);
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
@@ -720,15 +736,46 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 </p>
               )}
 
+              <div className="calendar-anchor">
+                <label htmlFor="sequence-start-date" className="calendar-anchor__label">
+                  Fecha de inicio (Día 1)
+                </label>
+                <input
+                  id="sequence-start-date"
+                  type="date"
+                  className="calendar-anchor__input"
+                  value={startDate ?? ""}
+                  onChange={(event) => setStartDate(event.target.value || null)}
+                />
+                {startDate && (
+                  <button
+                    type="button"
+                    className="link-button calendar-anchor__clear"
+                    onClick={() => setStartDate(null)}
+                  >
+                    Quitar fecha
+                  </button>
+                )}
+              </div>
+              <p className="analysis-disclaimer">
+                <span aria-hidden="true">ⓘ</span> La fecha es una decisión tuya. Nihon solo
+                desplaza el calendario a partir del Día 1; <strong>no elige ni sugiere qué fecha
+                conviene</strong>, y no comprueba horarios ni cierres.
+              </p>
+
               <div className="day-list">
                 {dayPlaceLists.map((places, dayIndex) => {
                   const bucket = dayAssignment.days[dayIndex];
                   const daySummary = summarizeSelection(places);
                   const isEmpty = places.length === 0;
+                  const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
                   return (
                     <section key={dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
-                        <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
+                        <div>
+                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
+                          {dayDate && <p className="day-card__date">{formatCivilDateDisplay(dayDate)}</p>}
+                        </div>
                         <button
                           type="button"
                           className="icon-button icon-button--small"

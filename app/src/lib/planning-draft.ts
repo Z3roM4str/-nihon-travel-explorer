@@ -1,15 +1,19 @@
 import { validateDayPartition } from "./day-assignment";
+import { isValidCivilDate } from "./civil-date";
 
 /**
- * Phase 3C-D — Persisted Manual Planning Draft.
+ * Phase 3C-D — Persisted Manual Planning Draft, extended by Phase 3C-E — Manual Calendar
+ * Anchoring.
  *
- * Persists the CANONICAL MANUAL PLAN — the route order/subset from Phase 3C-A and the day
- * assignment from Phase 3C-C — locally in the browser, under its own storage key, separate
- * from `nihon.savedPlaceIds` ("Quiero ir"). This module stores user *decisions*; it never
- * generates one. Everything derived from the plan — places, durations, transfer edges,
- * transfer results, visit-time summaries, transfer totals, confidence tallies, geographic
- * estimates — is recomputed on read from the current dataset/domain logic, exactly as before;
- * only ids and user-authored structure ever reach storage.
+ * Persists the CANONICAL MANUAL PLAN — the route order/subset from Phase 3C-A, the day
+ * assignment from Phase 3C-C, and (since Phase 3C-E) an optional manual calendar anchor for
+ * "Día 1" — locally in the browser, under its own storage key, separate from
+ * `nihon.savedPlaceIds` ("Quiero ir"). This module stores user *decisions*; it never generates
+ * one. Everything derived from the plan — places, durations, transfer edges, transfer results,
+ * visit-time summaries, transfer totals, confidence tallies, geographic estimates, weekday
+ * names — is recomputed on read from the current dataset/domain logic (or, for the calendar
+ * anchor, from `civil-date.ts`), exactly as before; only ids and user-authored structure ever
+ * reach storage.
  *
  * Phase 3C-B's comparison candidates (Orden A / Orden B) are deliberately **not** part of this
  * schema and never will be — see `OrderedSequenceBuilder.tsx`'s comparison view, which still
@@ -17,10 +21,21 @@ import { validateDayPartition } from "./day-assignment";
  * on close, exactly as it did before this phase.
  */
 
-export const PLANNING_DRAFT_VERSION = 1 as const;
+export const PLANNING_DRAFT_VERSION = 2 as const;
+/** The version this module can migrate *from*. Not exported: nothing outside this module needs
+ * to know a prior version ever existed, only that `parseStoredDraft` handles it. */
+const V1_VERSION = 1 as const;
 
+/** Phase 3C-D's original shape, kept only as the migration source — every other function in
+ * this module operates on {@link ManualPlanningDraftV2}. */
 export type ManualPlanningDraftV1 = {
   version: 1;
+  routeIds: string[];
+  days: string[][] | null;
+};
+
+export type ManualPlanningDraftV2 = {
+  version: 2;
   /** Ordered subset of currently saved place ids, user-authored. May be empty — an empty route
    * is a valid, intentional state, not the absence of a draft. */
   routeIds: string[];
@@ -32,6 +47,20 @@ export type ManualPlanningDraftV1 = {
    * persistence can never disagree with the Phase 3C-C UI about what counts as a valid split.
    */
   days: string[][] | null;
+  /**
+   * Phase 3C-E: the manually chosen civil date (`YYYY-MM-DD`, see `civil-date.ts`) anchoring
+   * "Día 1", or `null` when the user has not chosen one. "Día N" (for the Nth day bucket,
+   * 1-indexed) is `startDate` offset by `N - 1` calendar days — computed on render
+   * (`civil-date.ts#addCivilDays`), never stored per day. No weekday name, month name, or
+   * `Date` object is ever persisted; only this one plain string.
+   *
+   * Deliberately independent of `routeIds`/`days`: a route composition change, a day-bucket
+   * edit, or `resetRoute` never touches this field — only the user explicitly setting or
+   * clearing it does (see `withStartDate`/`resetRoute` below). The calendar anchor is a
+   * decision about *when* the trip starts, not about which places go where, so invalidating one
+   * has no bearing on the other.
+   */
+  startDate: string | null;
 };
 
 /** Minimal storage interface `planning-draft.ts` depends on, so tests can exercise read/write
@@ -52,29 +81,15 @@ function hasNoDuplicates(ids: readonly string[]): boolean {
   return new Set(ids).size === ids.length;
 }
 
-/**
- * Validates and narrows an arbitrary parsed JSON value into a `ManualPlanningDraftV1`, or
- * `null` if it is not one — malformed JSON, the wrong shape, an unsupported version, non-string
- * ids, or a route with duplicate ids. No migration is invented for any other version; an
- * unsupported one is treated exactly like a missing draft. A duplicate id in the stored route
- * marks the *entire* stored value as untrustworthy (the same fallback as every other shape
- * problem) rather than silently deduping it — a duplicate-bearing route could not have been
- * produced by this app's own UI, so it is corrupted or foreign data, not a minor defect to fix
- * up quietly.
- *
- * This function only checks *shape*, not whether `days` still partitions `routeIds` — that
- * depends on the current saved ids too (a route id can go stale), so it is `reconcileDraft`'s
- * job, run against the caller's actual current state.
- */
-export function parseStoredDraft(raw: unknown): ManualPlanningDraftV1 | null {
-  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return null;
-  const value = raw as Record<string, unknown>;
-
-  if (value.version !== PLANNING_DRAFT_VERSION) return null;
+/** Shape-validates the `routeIds`/`days` fields common to every version, returning them (still
+ * needing a `version`/`startDate` wrapper) or `null` on any structural problem. Shared by the
+ * V1 and V2 parsers below so the two can never quietly diverge on what counts as a well-formed
+ * route or day list. */
+function parseRouteAndDays(value: Record<string, unknown>): { routeIds: string[]; days: string[][] | null } | null {
   if (!isStringArray(value.routeIds) || !hasNoDuplicates(value.routeIds)) return null;
 
   if (value.days === null) {
-    return { version: PLANNING_DRAFT_VERSION, routeIds: value.routeIds, days: null };
+    return { routeIds: value.routeIds, days: null };
   }
   if (!Array.isArray(value.days)) return null;
   const days: string[][] = [];
@@ -82,14 +97,71 @@ export function parseStoredDraft(raw: unknown): ManualPlanningDraftV1 | null {
     if (!isStringArray(day)) return null;
     days.push(day);
   }
-  return { version: PLANNING_DRAFT_VERSION, routeIds: value.routeIds, days };
+  return { routeIds: value.routeIds, days };
+}
+
+/** Parses Phase 3C-D's original (pre-calendar-anchoring) shape. Only ever called from
+ * `parseStoredDraft` below, for migration — nothing else in this module reads a V1 value. */
+function parseStoredDraftV1(value: Record<string, unknown>): ManualPlanningDraftV1 | null {
+  const routeAndDays = parseRouteAndDays(value);
+  if (!routeAndDays) return null;
+  return { version: V1_VERSION, routeIds: routeAndDays.routeIds, days: routeAndDays.days };
+}
+
+/**
+ * Migrates a shape-valid V1 draft to V2. The only possible new field, `startDate`, is always
+ * `null` — a V1 draft predates calendar anchoring entirely, so there is no user decision to
+ * carry forward and none is invented. `routeIds`/`days` pass through completely unchanged;
+ * this is a pure addition, never a reinterpretation of the existing fields.
+ */
+export function migrateV1ToV2(draft: ManualPlanningDraftV1): ManualPlanningDraftV2 {
+  return { version: PLANNING_DRAFT_VERSION, routeIds: draft.routeIds, days: draft.days, startDate: null };
+}
+
+/**
+ * Validates and narrows an arbitrary parsed JSON value into a `ManualPlanningDraftV2`, or `null`
+ * if it is not one (after migration, if it was a valid V1 value) — malformed JSON, the wrong
+ * shape, an unsupported version, non-string ids, a route with duplicate ids, or a `startDate`
+ * that is present but not `null` and not a valid civil date. No migration is invented for any
+ * version other than the one exact prior version (V1); an unrecognised version is treated
+ * exactly like a missing draft. A duplicate id in the stored route, or an invalid `startDate`,
+ * marks the *entire* stored value as untrustworthy (the same fallback as every other shape
+ * problem) rather than silently repairing it — that data could not have been produced by this
+ * app's own UI, so it is corrupted or foreign, not a minor defect to fix up quietly.
+ *
+ * This function only checks *shape*, not whether `days` still partitions `routeIds` — that
+ * depends on the current saved ids too (a route id can go stale), so it is `reconcileDraft`'s
+ * job, run against the caller's actual current state.
+ */
+export function parseStoredDraft(raw: unknown): ManualPlanningDraftV2 | null {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return null;
+  const value = raw as Record<string, unknown>;
+
+  if (value.version === V1_VERSION) {
+    const v1 = parseStoredDraftV1(value);
+    return v1 ? migrateV1ToV2(v1) : null;
+  }
+
+  if (value.version !== PLANNING_DRAFT_VERSION) return null;
+  const routeAndDays = parseRouteAndDays(value);
+  if (!routeAndDays) return null;
+
+  if (value.startDate !== null && !(typeof value.startDate === "string" && isValidCivilDate(value.startDate))) {
+    return null;
+  }
+  return {
+    version: PLANNING_DRAFT_VERSION,
+    routeIds: routeAndDays.routeIds,
+    days: routeAndDays.days,
+    startDate: value.startDate,
+  };
 }
 
 /** The draft for a user with no valid stored plan: the route starts as every currently saved
  * place, in its current saved order — exactly Phase 3C-A's original behaviour before this
- * phase — and no day assignment exists yet. */
-export function freshDraft(savedIds: readonly string[]): ManualPlanningDraftV1 {
-  return { version: PLANNING_DRAFT_VERSION, routeIds: [...savedIds], days: null };
+ * phase — no day assignment exists yet, and no calendar anchor exists yet. */
+export function freshDraft(savedIds: readonly string[]): ManualPlanningDraftV2 {
+  return { version: PLANNING_DRAFT_VERSION, routeIds: [...savedIds], days: null, startDate: null };
 }
 
 /**
@@ -113,20 +185,25 @@ export function freshDraft(savedIds: readonly string[]): ManualPlanningDraftV1 {
  * belongs.
  */
 export function reconcileDraft(
-  stored: ManualPlanningDraftV1,
+  stored: ManualPlanningDraftV2,
   savedIds: readonly string[]
-): ManualPlanningDraftV1 {
+): ManualPlanningDraftV2 {
   const savedSet = new Set(savedIds);
   const routeIds = stored.routeIds.filter((id) => savedSet.has(id));
 
   if (stored.days === null) {
-    return { version: PLANNING_DRAFT_VERSION, routeIds, days: null };
+    return { version: PLANNING_DRAFT_VERSION, routeIds, days: null, startDate: stored.startDate };
   }
 
   const staleIds = new Set(stored.routeIds.filter((id) => !savedSet.has(id)));
   const prunedDays = stored.days.map((day) => day.filter((id) => !staleIds.has(id)));
   const { valid } = validateDayPartition(routeIds, prunedDays);
-  return { version: PLANNING_DRAFT_VERSION, routeIds, days: valid ? prunedDays : null };
+  return {
+    version: PLANNING_DRAFT_VERSION,
+    routeIds,
+    days: valid ? prunedDays : null,
+    startDate: stored.startDate,
+  };
 }
 
 /**
@@ -142,7 +219,7 @@ export function reconcileDraft(
 export function loadReconciledDraft(
   storage: DraftStorage,
   savedIds: readonly string[]
-): ManualPlanningDraftV1 {
+): ManualPlanningDraftV2 {
   let raw: string | null;
   try {
     raw = storage.getItem(PLANNING_DRAFT_STORAGE_KEY);
@@ -166,7 +243,7 @@ export function loadReconciledDraft(
 /** Writes a draft to storage, swallowing any exception (quota exceeded, storage disabled,
  * private-browsing restrictions) exactly like `useSavedPlaces` already does for
  * `nihon.savedPlaceIds` — the app keeps working from the in-memory draft either way. */
-export function writeDraft(storage: DraftStorage, draft: ManualPlanningDraftV1): void {
+export function writeDraft(storage: DraftStorage, draft: ManualPlanningDraftV2): void {
   try {
     storage.setItem(PLANNING_DRAFT_STORAGE_KEY, JSON.stringify(draft));
   } catch {
@@ -189,14 +266,15 @@ function sameIdSet(a: readonly string[], b: readonly string[]): boolean {
  * longer accounts for a removed one; the user re-splits explicitly if they still want one.
  */
 export function withRoute(
-  draft: ManualPlanningDraftV1,
+  draft: ManualPlanningDraftV2,
   routeIds: readonly string[]
-): ManualPlanningDraftV1 {
+): ManualPlanningDraftV2 {
   const compositionUnchanged = sameIdSet(draft.routeIds, routeIds);
   return {
     version: PLANNING_DRAFT_VERSION,
     routeIds: [...routeIds],
     days: compositionUnchanged ? draft.days : null,
+    startDate: draft.startDate,
   };
 }
 
@@ -208,14 +286,40 @@ export function withRoute(
  * previously-valid canonical day assignment with an invalid one.
  */
 export function withDays(
-  draft: ManualPlanningDraftV1,
+  draft: ManualPlanningDraftV2,
   days: readonly (readonly string[])[]
-): ManualPlanningDraftV1 {
+): ManualPlanningDraftV2 {
   const { valid } = validateDayPartition(draft.routeIds, days);
   if (!valid) return draft;
   return {
     version: PLANNING_DRAFT_VERSION,
     routeIds: draft.routeIds,
     days: days.map((day) => [...day]),
+    startDate: draft.startDate,
   };
+}
+
+/**
+ * Phase 3C-E: sets, changes, or clears the manual calendar anchor. `startDate` must be `null`
+ * (explicitly clearing it) or a valid civil date (`civil-date.ts#isValidCivilDate`) — an invalid
+ * string is rejected outright, exactly like `withDays` rejects an invalid partition: the draft
+ * is returned unchanged rather than silently coerced to `null` or to some other guessed value.
+ *
+ * Deliberately independent of `routeIds`/`days` — see the field doc on
+ * {@link ManualPlanningDraftV2.startDate}.
+ */
+export function withStartDate(draft: ManualPlanningDraftV2, startDate: string | null): ManualPlanningDraftV2 {
+  if (startDate !== null && !isValidCivilDate(startDate)) return draft;
+  return { version: PLANNING_DRAFT_VERSION, routeIds: draft.routeIds, days: draft.days, startDate };
+}
+
+/**
+ * "Restablecer recorrido": the route becomes the current saved ids in their saved order and the
+ * day assignment is cleared — exactly {@link freshDraft} — but the calendar anchor is carried
+ * forward unchanged. Resetting the *route* is not a decision about *when* the trip starts, so a
+ * previously-chosen `startDate` is not an artifact of the old route that a reset should discard;
+ * only the user explicitly clearing it (`withStartDate(draft, null)`) does that.
+ */
+export function resetRoute(draft: ManualPlanningDraftV2, savedIds: readonly string[]): ManualPlanningDraftV2 {
+  return { ...freshDraft(savedIds), startDate: draft.startDate };
 }

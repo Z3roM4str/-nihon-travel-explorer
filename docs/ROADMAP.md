@@ -927,6 +927,61 @@ recommendation; no optimisation, TSP, nearest-neighbour, or shortest path; no sc
 calendar dates, weekdays, clock scheduling, or opening-hours solving — not even as a disabled
 placeholder. No Phase 3C-E work was started.
 
+## Phase 3C-E — Manual Calendar Anchoring — complete
+
+Phase 3C-D's persisted plan stored the day assignment as purely ordinal buckets — "Día 1",
+"Día 2", … — with no relationship to a real calendar. This phase lets the user manually anchor
+"Día 1" to a real civil date; every later day is derived by calendar offset, exactly like the
+ordinal numbering already was. It stores one more user *decision*; it still never decides one.
+
+- [x] **Schema bumped to a versioned V2**, `{ version: 2, routeIds: string[], days: string[][] |
+      null, startDate: string | null }`. `startDate` is a plain `YYYY-MM-DD` string or `null` —
+      never a serialized `Date`, never a derived weekday, never a month name. A V1 draft (Phase
+      3C-D's original shape, no `startDate` field) is migrated deterministically
+      (`migrateV1ToV2`): `routeIds`/`days` pass through unchanged and `startDate` is always
+      `null` — no date is ever invented for a plan that never had one.
+- [x] **One start date, offset per day, not per-day dates.** The user picks a single civil date
+      for "Día 1"; "Día N" is that date plus `N − 1` calendar days, computed on every render
+      (`app/src/lib/civil-date.ts#addCivilDays`) and never stored per bucket. This was chosen
+      over an independent date per day bucket because it cannot represent an internally
+      inconsistent calendar (gaps, duplicates, an out-of-order day) and needs no reconciliation
+      of its own when a day is added, removed, or reordered — the trade-off is that all days are
+      necessarily consecutive; the user cannot anchor "Día 2" to a non-consecutive date.
+- [x] **The calendar anchor is independent of the route and the day assignment.** Adding,
+      removing, or reordering a day; moving a place between days; a pure route reorder; a route
+      composition change that invalidates the day assignment (`days: null`); and "Restablecer
+      recorrido" all leave `startDate` untouched — resetting *what* the plan contains is not a
+      decision about *when* it starts. Only the user explicitly setting or clearing the date
+      (`withStartDate`) changes it.
+- [x] **Deterministic, conservative validation.** `civil-date.ts#isValidCivilDate` checks both
+      shape (`YYYY-MM-DD`) and calendar reality (rejects `2027-02-30`, `2027-13-01`, and
+      `2027-02-29` in a non-leap year; accepts `2028-02-29`) via a round-trip through
+      `Date.UTC`/`getUTC*`. An invalid `startDate` is rejected outright by `withStartDate` (the
+      draft is returned unchanged) and, in stored data, invalidates the *entire* stored draft
+      (falls back to a fresh one) — the same "corrupted data taints the whole record" policy
+      Phase 3C-D already applies to a duplicate route id.
+- [x] **No timezone off-by-one.** Every date computation reads/writes calendar components via
+      `Date.UTC(...)`/`getUTC*` and passes `timeZone: "UTC"` to `Intl.DateTimeFormat` — a civil
+      date picked by the user renders as that same date regardless of the browser's local
+      timezone. Verified both by unit tests that flip `process.env.TZ` across UTC−12/UTC+14/
+      `America/Los_Angeles` and by manual visual QA of the real UI under Playwright browser
+      contexts pinned to those same timezones.
+- [x] **UI**: a single native `<input type="date">` inside the existing "Distribuir por días"
+      view (no new modal, no dialog-over-dialog), labelled "Fecha de inicio (Día 1)", plus a
+      "Quitar fecha" control to clear it. Each day card shows its derived date (e.g. "vie, 19 feb
+      2027") under its "Día N" heading — the weekday/month abbreviation comes from
+      `Intl.DateTimeFormat("es", …)`, never a hand-maintained Spanish weekday table. An
+      unobtrusive disclaimer states the date is the user's own choice.
+
+This phase made **zero reads of `place.bestTime`, `schedule.hours`, or `schedule.closures`**, no
+check of whether anything is open on the chosen date, no opening-hours solver, no slot/hour
+scheduling, no automatic route/day generation, ordering, balancing, or recommendation, no
+optimisation, TSP, nearest-neighbour, shortest path, or scoring, and no live provider
+integration (no Ekispert, NAVITIME, Google Maps, or openrouteservice requests) — not even as a
+disabled placeholder. Zero new npm dependencies; no dataset, workbook, `nearby.json`, logistics/
+access-point/walking artifact, `package.json`, or lockfile changes. No Phase 3C-F (or any later
+phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate

@@ -2416,6 +2416,12 @@ a {
   font-size: 0.95rem;
 }
 
+.day-card__date {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
 .sequence-add-day {
   width: 100%;
 }
@@ -2423,4 +2429,30 @@ a {
 .sequence-reset {
   align-self: flex-start;
   margin-top: 0.3rem;
+}
+
+.calendar-anchor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.calendar-anchor__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.calendar-anchor__input {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.calendar-anchor__clear {
+  font-size: 0.8rem;
 }
