@@ -586,6 +586,20 @@ These contexts deliberately do not expand `TransferMode`. Coordinates use named
 `sourceEntity`, `consultedAt`, `evidence`, and either `official-explicit` or
 `official-derived` confidence).
 
+**Role and context are orthogonal, and the distinction is load-bearing.** `role` records what a
+point physically **is** (a gate, a reception, a stop); `applicableContexts` records which routing
+question it is a legitimate **endpoint** for. Neither reader consults the other field —
+`getAccessPointsForContext` and `resolveTransitEndpoint` both filter on `status` and
+`applicableContexts` alone — so a `reception` or a `visitor-entrance` can carry
+`external-local-transit` without any claim that it is a transit stop, and a point's role never
+makes it eligible on its own. The [Transit Access-Point Evidence
+Audit](TRANSIT_ACCESS_POINT_EVIDENCE.md) settled this reading against an earlier, narrower one and
+populated `external-local-transit` for the first time: JP-029's three Imperial Palace gates, which
+the Imperial Household Agency documents as the arrival point of a named subway approach each.
+There are **3 members and still no default anywhere in the catalog**, so JP-029 resolves as
+`ambiguous` for transit exactly as it does for walking, and every other place resolves to
+`use-place-coordinate` with an explicit `no-catalogued-endpoint` warning.
+
 The offline validator checks place references, `AP-<PLACE_ID>-<NNN>` identity,
 coordinates, vocabularies, provenance, active defaults, duplicate identities and
 coordinate claims, secret-like fields, future endpoint-reference integrity, and
@@ -805,7 +819,9 @@ impersonate a real one: its provenance always reports the distinct confidence
 invented. Third, `"no-catalogued-endpoint"` is derivable **only** from an actual
 `external-local-transit` resolution, never from the shape of an endpoint — the same
 "never assert what you did not check" rule that governs the rest of this document. The context
-still has zero catalogued members, so every place resolves to `use-place-coordinate` today.
+had zero catalogued members while Phase 3B3D ran, so every place then resolved to
+`use-place-coordinate`; the Transit Access-Point Evidence Audit has since given it three (see the
+access-point section above), and JP-029 now resolves as `ambiguous` instead.
 `getBestTransfer()` is unchanged. The client transport / React hook is deliberately **not** built
 yet, because no UI consumer and no explicit user trigger exist for it. See
 [LIVE_TRANSIT_SYNTHETIC_SKELETON.md](LIVE_TRANSIT_SYNTHETIC_SKELETON.md).
