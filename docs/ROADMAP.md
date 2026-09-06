@@ -738,6 +738,69 @@ the only place in the app that sums transfer time across more than one edge, and
 so over an order the user supplied. No Phase 3C-B work (comparing candidate sequences, day-level
 itinerary generation) was started.
 
+## Phase 3C-B — User-Defined Sequence Comparison — complete
+
+Compares exactly **two user-defined orderings of the same places** — both defined by the user,
+never generated, permuted, or ranked by the app. "Candidate generation" (enumerating orderings,
+auto-sort, nearest-neighbour, TSP, shortest path, an "optimise" button, a recommended itinerary)
+remains explicitly out of scope, with no disabled placeholder control added for any of it.
+
+- [x] New pure module `app/src/lib/sequence-comparison.ts`. `compareSequences(placeIdsA,
+      placeIdsB)` builds each side through `orderedSequenceFromLookup`/`buildOrderedSequence`
+      (Phase 3C-A) — it never reimplements directed-lookup, reversal, or chaining semantics, only
+      reasons about two already-built `OrderedSequence`s. The **same-set invariant** is checked
+      first and independently of ordering: both candidates must be duplicate-free and represent
+      exactly the same set of place ids, or the comparison is `"invalid"` — comparing order
+      presupposes the same places, and a composition difference is not an ordering question.
+- [x] **Incomplete routes never produce a winner.** If either candidate has any unknown leg, the
+      outcome is `"incomplete"` regardless of the two known subtotals — a candidate with 40 known
+      minutes and one unrecorded leg is never declared faster than one with 55 known minutes and
+      full coverage. Unknown is not zero, and a known subtotal is shown without ever being
+      compared as if it were the whole route.
+- [x] **Range overlap never produces a false winner.** For two complete candidates, A is
+      `"a-clearly-faster"` only when `A.maxMinutes < B.minMinutes` (and symmetrically for B) —
+      never from comparing minima or midpoints. Equal ranges are `"equivalent"`; anything else
+      that isn't a strict one-sided win is `"overlapping"`, reported as "no hay una diferencia
+      clara con los datos disponibles" rather than a guessed winner.
+- [x] **A declared advantage is always conservative.** `guaranteedAdvantageMinutes` is
+      `loser.minMinutes − winner.maxMinutes` — the gap that survives the winner's worst case
+      against the loser's best case — never a midpoint-derived figure. A same-precision
+      possible-difference range is computed alongside it (interval subtraction of the two
+      independent ranges) but is not surfaced in this UI, to keep the result readable at a glance.
+- [x] **Confidence stays visible, not scored.** Each candidate reports its known/unknown leg
+      counts plus a tally of `validated-static`/`estimated`/`schedule-aware` legs (reusing
+      `TransferConfidence` unchanged) — no new confidence vocabulary, no invented numerical score.
+      A route built entirely from estimates does not read as equally certain as one built from
+      validated routes.
+- [x] **Every conclusion is scoped to these two candidates.** Result wording always reads "entre
+      estos dos órdenes…", never "la mejor ruta" or any claim of global optimality — no ordering
+      outside A and B was ever evaluated.
+- [x] **UX**: "Comparar otro orden" inside the existing `OrderedSequenceBuilder`, once the route
+      has 2+ places. Opens as a **nested view in the same dialog** (one focus trap, one
+      Escape-closes-everything behaviour) rather than a modal over a modal. Candidate A starts as
+      a clone of the current route draft, Candidate B as a clone of Candidate A; both are
+      independently reorderable (move up/down, disabled at the ends, place- and candidate-
+      specific `aria-label`s like "Mover Meiji Jingu hacia arriba en orden B") through the same
+      accessible mechanism Phase 3C-A already established — no drag-and-drop dependency added.
+      Composition is fixed once the comparison opens: neither candidate can add or remove a
+      place there, only reorder — that keeps the same-set invariant true by construction through
+      this UI, though the domain function still checks it for any other caller. "Volver al
+      recorrido" returns to the plain builder without touching "Quiero ir" or the route draft;
+      nothing here is persisted.
+- [x] **Visit time is not duplicated.** Both candidates hold the same places, so activity time is
+      identical between them; the view states this once rather than repeating a visit-time total
+      under both candidates, and never merges it into the transfer comparison.
+- [x] **Cross-hub gaps behave exactly as Phase 3C-A defined them**: a pair with no recorded
+      relation stays an honest unknown leg (making that candidate incomplete), never a fabricated
+      Shinkansen/flight/ferry estimate and never treated as an infinite cost.
+
+This phase made **zero requests to Ekispert, NAVITIME, Google Maps, or openrouteservice**, created
+zero accounts and introduced zero API keys or secrets, and added zero new npm dependencies;
+changed no `places.json`, `nearby.json`, access-point catalog, walking artifact, threshold,
+`package.json` or lockfile; and did not touch `getBestTransfer()`'s or `ordered-sequence.ts`'s
+semantics. No automatic candidate generation, no permutation enumeration, no global optimisation,
+and no Phase 3C-C work (day assignment, itinerary generation) was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -760,8 +823,8 @@ itinerary generation) was started.
       prior-written-consent requirement apply to Nihon's intended use, including its
       planning-recommendation direction), or deliberately scope the feature to only the narrow,
       lower-risk live-display case (§1.6) and accept that boundary.
-- [ ] Compare candidate orderings of an explicit sequence (Phase 3C-B, not started) — distinct
-      from Phase 3C-A's single user-defined order: this would evaluate more than one ordering of
-      the same places, which is exactly the "auto-sort / suggest a sequence" territory Phase 3C-A
-      deliberately left undone.
-- [ ] Only then generate day-level itinerary candidates.
+- [ ] Day-level itinerary generation and day/time assignment (Phase 3C-C or later, not started).
+      Phase 3C-B compared exactly two user-defined orderings; it did not generate, permute, rank,
+      or recommend one, and does not decide how many days a sequence spans. Any future
+      auto-ordering, candidate generation, or day assignment is a distinct, separately-scoped
+      decision — not an incremental extension to make without one.
