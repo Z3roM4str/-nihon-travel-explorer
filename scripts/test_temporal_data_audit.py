@@ -75,6 +75,79 @@ class ClassifyHoursTest(unittest.TestCase):
         self.assertEqual(len(results), 1)
 
 
+class ClassifyHoursCaveated24hTest(unittest.TestCase):
+    """A "24 h" token must never be promoted to SAFE merely because it is present, when a
+    material weather/tide, third-party/operator, seasonal, or other explicit variability
+    caveat sits alongside it — see docs/TEMPORAL_DATA_CONTRACT.md's normalization contract,
+    rule 5. These are synthetic invariant checks: the real dataset already has one weather-
+    caveated example ("Abierto 24 h; puede cerrar por viento", covered in
+    RealDatasetAuditTest below), but the invariant must hold even for shapes the current
+    checkout happens not to contain."""
+
+    def test_clean_24h_stays_safe(self):
+        self.assertEqual(lib.classify_hours("Espacio público 24 h"), "known-24h")
+        self.assertEqual(lib.HOURS_TIER["known-24h"], "SAFE")
+
+    def test_24h_with_weather_caveat_is_never_safe(self):
+        category = lib.classify_hours("24 h; clima")
+        self.assertEqual(category, "known-24h-with-caveat")
+        self.assertNotEqual(lib.HOURS_TIER[category], "SAFE")
+
+    def test_24h_with_operator_caveat_is_never_safe(self):
+        category = lib.classify_hours("24 h según operador")
+        self.assertEqual(category, "known-24h-with-caveat")
+        self.assertNotEqual(lib.HOURS_TIER[category], "SAFE")
+
+    def test_24h_with_seasonal_caveat_is_never_safe(self):
+        category = lib.classify_hours("24 h según temporada")
+        self.assertEqual(category, "known-24h-with-caveat")
+        self.assertNotEqual(lib.HOURS_TIER[category], "SAFE")
+
+    def test_24h_with_generic_variable_caveat_is_never_safe(self):
+        category = lib.classify_hours("24 h; acceso variable")
+        self.assertEqual(category, "known-24h-with-caveat")
+        self.assertNotEqual(lib.HOURS_TIER[category], "SAFE")
+
+    def test_caveated_24h_is_partial_not_opaque(self):
+        # The 24h baseline itself is still a real, safely-extractable fact; only the caveat
+        # clause is uncertain — that is exactly PARTIAL's definition, not OPAQUE's.
+        self.assertEqual(lib.HOURS_TIER["known-24h-with-caveat"], "PARTIAL")
+
+    def test_real_dataset_weather_caveated_24h_example(self):
+        # The exact real string this fix was written for (see docs/TEMPORAL_DATA_CONTRACT.md).
+        self.assertEqual(
+            lib.classify_hours("Abierto 24 h; puede cerrar por viento"), "known-24h-with-caveat"
+        )
+
+
+class NormTypeSafetyTest(unittest.TestCase):
+    """`_norm()` (used by every classifier in this module) must never silently stringify a
+    value of the wrong type into text that would then classify as ordinary opaque/unknown
+    text — that would hide a real data-quality defect. It is exercised indirectly through the
+    public classifiers, which are what every other caller actually uses."""
+
+    def test_classify_hours_rejects_non_string_number(self):
+        with self.assertRaises(TypeError):
+            lib.classify_hours(123)
+
+    def test_classify_closures_rejects_list(self):
+        with self.assertRaises(TypeError):
+            lib.classify_closures(["Lunes"])
+
+    def test_classify_editorial_prose_rejects_list(self):
+        with self.assertRaises(TypeError):
+            lib.classify_editorial_prose([])
+
+    def test_classify_best_time_rejects_dict(self):
+        with self.assertRaises(TypeError):
+            lib.classify_best_time({"value": "Mañana"})
+
+    def test_none_is_still_accepted_as_missing(self):
+        # None is the one non-str value every classifier treats as a real, absent value —
+        # the type guard must not reject it.
+        self.assertEqual(lib.classify_hours(None), "missing")
+
+
 class ClassifyClosuresTest(unittest.TestCase):
     def test_no_known_closure_is_safe(self):
         self.assertEqual(lib.classify_closures("Sin cierre ordinario"), "no-known-closure")
@@ -139,6 +212,76 @@ class ClassifyReservationTest(unittest.TestCase):
         category = lib.classify_reservation_raw("Quizás")
         self.assertEqual(category, "unrecognized-value")
         self.assertEqual(lib.RESERVATION_RAW_TIER[category], "UNKNOWN")
+
+
+class ClassifyReservationConsistencyTest(unittest.TestCase):
+    """`reservation.required` is not independently trustworthy just because it exists —
+    `classify_reservation_consistency` mechanically checks it against `reservation.raw` and
+    the export pipeline's own documented rule, rather than assuming they always agree."""
+
+    def test_binary_consistent_cases(self):
+        self.assertEqual(lib.classify_reservation_consistency("No", False), "consistent-not-required")
+        self.assertEqual(lib.classify_reservation_consistency("Sí", True), "consistent-required")
+
+    def test_non_binary_consistent_with_required_false(self):
+        # This is the exact mapping the real dataset's export pipeline produces for all 39
+        # non-binary places — "consistent" here means "matches that pipeline's own rule",
+        # not an endorsement that the nuance isn't lost (see docs/TEMPORAL_DATA_CONTRACT.md).
+        self.assertEqual(
+            lib.classify_reservation_consistency("Recomendable", False), "consistent-recommended-not-required"
+        )
+        self.assertEqual(
+            lib.classify_reservation_consistency("Opcional", False), "consistent-optional-not-required"
+        )
+        self.assertEqual(
+            lib.classify_reservation_consistency("No para espectador", False),
+            "consistent-not-required-role-specific",
+        )
+
+    def test_inconsistent_cases_are_named_not_hidden(self):
+        self.assertEqual(
+            lib.classify_reservation_consistency("Sí", False), "inconsistent-required-required-False"
+        )
+        self.assertEqual(
+            lib.classify_reservation_consistency("No", True), "inconsistent-not-required-required-True"
+        )
+        self.assertEqual(
+            lib.classify_reservation_consistency("Recomendable", True),
+            "inconsistent-recommended-not-required-required-True",
+        )
+
+    def test_rejects_non_bool_required(self):
+        with self.assertRaises(TypeError):
+            lib.classify_reservation_consistency("No", "false")
+        with self.assertRaises(TypeError):
+            lib.classify_reservation_consistency("No", 0)
+
+    def test_deterministic_repeated_classification(self):
+        results = {lib.classify_reservation_consistency("Recomendable", False) for _ in range(5)}
+        self.assertEqual(len(results), 1)
+
+
+class ClassifyEditorialProseTest(unittest.TestCase):
+    """febMar2027.warning/.action must remain free prose for a human — this classifier answers
+    presence only, exactly like classify_best_time, and must never branch on content."""
+
+    def test_present_text_is_editorial_prose_regardless_of_content(self):
+        self.assertEqual(lib.classify_editorial_prose("Reconfirmar en la web oficial."), "editorial-prose")
+        # Even text that looks like it could be parsed (a weekday name, a clock time) must not
+        # be reclassified — this function has no branch that could even see that content.
+        self.assertEqual(lib.classify_editorial_prose("Cerrado los lunes 09:00-17:00"), "editorial-prose")
+        self.assertEqual(lib.EDITORIAL_PROSE_TIER["editorial-prose"], "OPAQUE")
+
+    def test_missing_prose(self):
+        self.assertEqual(lib.classify_editorial_prose(None), "missing")
+        self.assertEqual(lib.classify_editorial_prose(""), "missing")
+        self.assertEqual(lib.EDITORIAL_PROSE_TIER["missing"], "UNKNOWN")
+
+    def test_rejects_non_string_content(self):
+        with self.assertRaises(TypeError):
+            lib.classify_editorial_prose([])
+        with self.assertRaises(TypeError):
+            lib.classify_editorial_prose({"text": "..."})
 
 
 class ClassifyLeadTimeTest(unittest.TestCase):
@@ -224,6 +367,46 @@ class AuditFieldTest(unittest.TestCase):
         self.assertEqual(first, second)
 
 
+class RawValueStatsTest(unittest.TestCase):
+    """Tests the generic `raw_value_stats` helper that backs every distinct-count/frequency
+    claim in docs/TEMPORAL_DATA_CONTRACT.md — see item 3 of the corrective review: those numbers
+    must be something this script actually emits, not a one-off hand computation."""
+
+    def test_distinct_count_and_total(self):
+        places = [{"v": "A"}, {"v": "B"}, {"v": "A"}, {"v": "C"}]
+        stats = audit.raw_value_stats(places, lambda p: p["v"])
+        self.assertEqual(stats["total"], 4)
+        self.assertEqual(stats["distinct"], 3)
+
+    def test_frequencies_sorted_by_count_desc_then_value_asc(self):
+        places = [{"v": v} for v in ["B", "A", "B", "C", "A", "B"]]
+        stats = audit.raw_value_stats(places, lambda p: p["v"])
+        # B=3, A=2, C=1 — ties (none here) would break by value ascending, exercised below.
+        self.assertEqual(stats["frequencies"], [("B", 3), ("A", 2), ("C", 1)])
+
+    def test_tie_breaks_alphabetically_for_determinism(self):
+        places = [{"v": v} for v in ["Zebra", "Apple", "Mango"]]
+        stats = audit.raw_value_stats(places, lambda p: p["v"])
+        self.assertEqual(stats["frequencies"], [("Apple", 1), ("Mango", 1), ("Zebra", 1)])
+
+    def test_none_values_counted_as_empty_string(self):
+        places = [{"v": None}, {"v": None}, {"v": "X"}]
+        stats = audit.raw_value_stats(places, lambda p: p["v"])
+        self.assertIn(("", 2), stats["frequencies"])
+        self.assertEqual(stats["distinct"], 2)
+
+    def test_deterministic_repeated_calls(self):
+        places = [{"v": v} for v in ["A", "B", "A", "C", "B", "A"]]
+        first = audit.raw_value_stats(places, lambda p: p["v"])
+        second = audit.raw_value_stats(places, lambda p: p["v"])
+        self.assertEqual(first, second)
+
+    def test_sum_of_frequencies_equals_total(self):
+        places = [{"v": v} for v in ["A", "B", "A", "C", "B", "A", "D"]]
+        stats = audit.raw_value_stats(places, lambda p: p["v"])
+        self.assertEqual(sum(count for _, count in stats["frequencies"]), stats["total"])
+
+
 class LoadPlacesMalformedInputTest(unittest.TestCase):
     def _write(self, tmp_dir, content):
         path = Path(tmp_dir) / "places.json"
@@ -271,6 +454,92 @@ class LoadPlacesMalformedInputTest(unittest.TestCase):
                 audit.load_places(data_dir)
             self.assertIn("schedule.closures", str(ctx.exception))
 
+    def _valid_place(self, **overrides):
+        """A structurally valid place per the canonical contract, with one field overridable
+        per test — so each malformed-type test below changes exactly one thing."""
+        place = {
+            "id": "X-1",
+            "schedule": {"hours": "09:00-17:00", "closures": "Sin cierre"},
+            "bestTime": "Mañana",
+            "reservation": {"required": False, "leadTime": "—", "raw": "No"},
+            "febMar2027": {"status": "OK", "warning": "w", "action": "a"},
+        }
+        for path, value in overrides.items():
+            parent, child = path.split(".")
+            place[parent][child] = value
+        return place
+
+    def test_schedule_hours_as_number_fails_clearly_not_silently_stringified(self):
+        # item 2 of the corrective review's exact example: schedule.hours = 123.
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = self._write(tmp, json.dumps([self._valid_place(**{"schedule.hours": 123})]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            message = str(ctx.exception)
+            self.assertIn("schedule.hours", message)
+            self.assertIn("must be str", message)
+
+    def test_reservation_required_as_string_fails_clearly(self):
+        # item 2's exact example: reservation.required = "false" — a string, not the bool the
+        # canonical contract (app/src/types.ts) declares. `isinstance("false", bool)` is False,
+        # so this must be rejected even though the string reads like a boolean to a human.
+        with tempfile.TemporaryDirectory() as tmp:
+            place = self._valid_place()
+            place["reservation"]["required"] = "false"
+            data_dir = self._write(tmp, json.dumps([place]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            message = str(ctx.exception)
+            self.assertIn("reservation.required", message)
+            self.assertIn("must be bool", message)
+
+    def test_reservation_required_as_int_fails_clearly(self):
+        # `bool` is a subclass of `int` in Python — this pins down that the check rejects an
+        # int in the OTHER direction too (1/0 are not accepted as a stand-in for True/False).
+        with tempfile.TemporaryDirectory() as tmp:
+            place = self._valid_place()
+            place["reservation"]["required"] = 1
+            data_dir = self._write(tmp, json.dumps([place]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            self.assertIn("reservation.required", str(ctx.exception))
+
+    def test_feb_mar_warning_as_list_fails_clearly(self):
+        # item 2's exact example: febMar2027.warning = [].
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = self._write(tmp, json.dumps([self._valid_place(**{"febMar2027.warning": []})]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            message = str(ctx.exception)
+            self.assertIn("febMar2027.warning", message)
+            self.assertIn("must be str", message)
+
+    def test_feb_mar_action_as_dict_fails_clearly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = self._write(tmp, json.dumps([self._valid_place(**{"febMar2027.action": {"x": 1}})]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            self.assertIn("febMar2027.action", str(ctx.exception))
+
+    def test_reservation_lead_time_as_number_fails_clearly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = self._write(tmp, json.dumps([self._valid_place(**{"reservation.leadTime": 14})]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            self.assertIn("reservation.leadTime", str(ctx.exception))
+
+    def test_best_time_as_none_fails_clearly(self):
+        # The canonical contract declares `bestTime: string`, never nullable — a looser earlier
+        # version of this loader accepted None here; it must not anymore.
+        with tempfile.TemporaryDirectory() as tmp:
+            place = self._valid_place()
+            place["bestTime"] = None
+            data_dir = self._write(tmp, json.dumps([place]))
+            with self.assertRaises(SystemExit) as ctx:
+                audit.load_places(data_dir)
+            self.assertIn("bestTime", str(ctx.exception))
+
+
 
 class RealDatasetAuditTest(unittest.TestCase):
     """Runs the audit against the real, checked-out `data/places.json` — read-only, zero
@@ -297,9 +566,46 @@ class RealDatasetAuditTest(unittest.TestCase):
             (lambda p: p["reservation"]["raw"], lib.classify_reservation_raw, lib.RESERVATION_RAW_TIER),
             (lambda p: p["reservation"]["leadTime"], lib.classify_lead_time, lib.LEAD_TIME_TIER),
             (lambda p: p["febMar2027"]["status"], lib.classify_feb_mar_status, lib.FEB_MAR_STATUS_TIER),
+            (lambda p: p["febMar2027"]["warning"], lib.classify_editorial_prose, lib.EDITORIAL_PROSE_TIER),
+            (lambda p: p["febMar2027"]["action"], lib.classify_editorial_prose, lib.EDITORIAL_PROSE_TIER),
         ):
             _, tier_totals = audit.audit_field(self.places, extractor, classifier, tier_map)
             self.assertEqual(sum(tier_totals.values()), total)
+
+    def test_reservation_required_is_real_bool_for_every_place(self):
+        # load_places() is supposed to enforce this at read time; re-check it holds for every
+        # place in the actual checked-out dataset rather than trusting the loader blindly.
+        for place in self.places:
+            self.assertIsInstance(place["reservation"]["required"], bool)
+
+    def test_reservation_required_consistency_has_zero_inconsistencies_today(self):
+        # Mechanically proves (rather than assumes) the finding recorded in
+        # docs/TEMPORAL_DATA_CONTRACT.md: every place's `reservation.required` currently agrees
+        # with the export pipeline's own `raw.lower() == "sí"` rule, non-binary raw values
+        # included. If a future workbook/export change ever broke this, this test — not just the
+        # audit script's printed report — would catch it.
+        inconsistent = [
+            place["id"]
+            for place in self.places
+            if lib.classify_reservation_consistency(
+                place["reservation"]["raw"], place["reservation"]["required"]
+            ).startswith("inconsistent-")
+        ]
+        self.assertEqual(inconsistent, [])
+
+    def test_caveated_24h_example_currently_exists(self):
+        # The exact real-dataset counterexample this corrective review's Fix 4 was written for.
+        categories = {lib.classify_hours(p["schedule"]["hours"]) for p in self.places}
+        self.assertIn("known-24h-with-caveat", categories)
+        self.assertNotEqual(lib.HOURS_TIER["known-24h-with-caveat"], "SAFE")
+
+    def test_feb_mar_warning_and_action_distinct_counts_match_stats_helper(self):
+        warning_stats = audit.raw_value_stats(self.places, lambda p: p["febMar2027"]["warning"])
+        action_stats = audit.raw_value_stats(self.places, lambda p: p["febMar2027"]["action"])
+        manual_warning_count = len({p["febMar2027"]["warning"] for p in self.places})
+        manual_action_count = len({p["febMar2027"]["action"] for p in self.places})
+        self.assertEqual(warning_stats["distinct"], manual_warning_count)
+        self.assertEqual(action_stats["distinct"], manual_action_count)
 
     def test_weekday_closure_example_currently_exists(self):
         categories = {lib.classify_closures(p["schedule"]["closures"]) for p in self.places}

@@ -18,10 +18,13 @@ manually transcribed from a one-off inspection.
 
 ## Scope of this phase
 
-**In scope:** inventory and classify the existing editorial fields (`schedule.hours`,
-`schedule.closures`, `bestTime`, `reservation.required`/`leadTime`/`raw`, `febMar2027.status`)
-into pattern families with an honest confidence tier, and define the normalization contract
-those tiers imply.
+**In scope:** inventory and classify the existing editorial fields — `schedule.hours`,
+`schedule.closures`, `bestTime`, `reservation.raw`, `reservation.leadTime`, `febMar2027.status` —
+into pattern families with an honest confidence tier; independently audit `reservation.required`
+as a boolean (true/false counts, plus a mechanical cross-check against `reservation.raw`, never
+assumed to agree); audit `febMar2027.warning`/`febMar2027.action` for presence and uniqueness
+without ever structurally parsing their prose; and define the normalization contract those tiers
+imply.
 
 **Explicitly out of scope, none of it started here:**
 
@@ -42,10 +45,15 @@ fields. This document is about the dataset, not about wiring it into the planner
 
 `scripts/audit-temporal-data.py <data-dir>` (default `data/`, the canonical source per
 `docs/DATA_MODEL.md` — never `app/src/data/`, though the two are verified byte-identical) reads
-`places.json`, fails loudly on any structural surprise (missing field, wrong type, empty/non-array
-JSON), and classifies every place's value for each audited field through a fixed, ordered set of
-regex rules in `scripts/temporal_data_lib.py`. Every category is tagged with exactly one of four
-tiers:
+`places.json`, fails loudly on any structural surprise — a missing field, an empty/non-array JSON
+document, or a leaf value whose type does not match the canonical `Place` contract
+(`app/src/types.ts`/`docs/DATA_MODEL.md`): `schedule.hours`/`closures`, `bestTime`,
+`reservation.leadTime`/`raw`, and `febMar2027.status`/`warning`/`action` must all be `str`, and
+`reservation.required` must be a real `bool` — never a number, a list, a dict, or a string that
+merely *looks* like one of these (`"false"` is rejected exactly like `123` or `[]`; nothing here
+silently stringifies a malformed value into text that would then pass as ordinary opaque/unknown
+text). Every place's value for each audited field then runs through a fixed, ordered set of regex
+rules in `scripts/temporal_data_lib.py`. Every category is tagged with exactly one of four tiers:
 
 | Tier | Meaning |
 |---|---|
@@ -54,7 +62,10 @@ tiers:
 | **OPAQUE** | Depends on something a static dataset cannot resolve (weather, an unnamed third party, a festival calendar, tides, an operator's own variable schedule) — must stay editorial text, indefinitely, not just "until parsed better." |
 | **UNKNOWN** | Genuinely unclassifiable, missing, or an explicit "variable"/"pending" signal. **Never** coerced to open, closed, or any other tier — this is the rule item 5 of the phase brief calls out by name, and it is enforced by `temporal_data_lib.py` never having a fallback branch that resolves to SAFE or PARTIAL. |
 
-Running the script is the only way to reproduce the numbers below:
+Running the script is the only way to reproduce the numbers below — including every distinct-
+raw-value count and raw-value frequency cited in this document, which the script's generic
+`raw_value_stats()` helper computes fresh from `places.json` every run (never a one-off count
+computed by hand and then hardcoded here):
 
 ```bash
 python3 scripts/audit-temporal-data.py data
@@ -65,7 +76,7 @@ python3 scripts/audit-temporal-data.py data
 | Category | Count | Tier | Representative examples |
 |---|---:|---|---|
 | `fixed-interval-clean` | 65 | SAFE | `"09:00–17:00"`, `"Aprox. 09:00–20:00"` |
-| `known-24h` | 19 | SAFE | `"Espacio público 24 h"`, `"Parque 24 h"` |
+| `known-24h` | 15 | SAFE | `"Espacio público 24 h"`, `"Parque 24 h"` |
 | `explicit-unknown-variable` | 49 | UNKNOWN | `"Variable por fecha"`, `"Ferry variable"` |
 | `qualitative-uncategorized` | 16 | UNKNOWN | `"Tours en horas fijas"`, `"Horario asignado"` |
 | `seasonal-variable` | 15 | PARTIAL | `"09:00–16:00/17:30 según temporada"` |
@@ -73,17 +84,39 @@ python3 scripts/audit-temporal-data.py data
 | `daytime-qualitative` | 10 | PARTIAL | `"Diurno"`, `"Templo diurno; torre variable"` |
 | `third-party-operator-dependent` | 13 | OPAQUE | `"Según comercio"`, `"Según tienda, aprox. 11:00–20:00"` |
 | `weather-or-tide-dependent` | 6 | OPAQUE | `"Ferry estacional y meteorológico"`, `"Según marea y operador"` |
+| `known-24h-with-caveat` | 4 | PARTIAL | `"Abierto 24 h; puede cerrar por viento"`, `"Estación 24 h; comercios variables"` |
 | `solar-relative` | 4 | PARTIAL | `"Amanecer–atardecer; varía por mes"` |
 | `ambiguous-alternative-interval` | 3 | PARTIAL | `"09:00–16:00/16:30"` |
 | `partial-single-bound` | 2 | PARTIAL | `"Muy temprano–14:00 aprox."` |
 
-**Coverage: SAFE 84/214, PARTIAL 46/214, OPAQUE 19/214, UNKNOWN 65/214.**
+**Coverage: SAFE 80/214, PARTIAL 50/214, OPAQUE 19/214, UNKNOWN 65/214.** (157 distinct raw
+strings across the 214 places — see the script's `schedule.hours` raw-value inventory.)
 
 A `fixed-interval-clean` hours string is safe to read structurally (an approximate open/close
 clock interval) precisely because it carries no other qualifier — the moment a caveat clause,
 season dependency, or third-party/weather dependency is present, the string moves to PARTIAL or
 OPAQUE and the interval must not be treated as unconditionally valid. `known-24h` is the one
-category safe to read as "always open" without any interval at all.
+category safe to read as "always open" without any interval at all — but **only when the "24 h"
+token is genuinely unqualified**.
+
+**`known-24h-with-caveat` exists precisely because "24 h" alone is not always the whole story.**
+The real dataset contains `"Abierto 24 h; puede cerrar por viento"` ("open 24h; may close due to
+wind") — a first pass of this audit classified this as plain `known-24h`/SAFE, which was wrong: a
+weather exception attached to a 24h claim is exactly the kind of external dependency this
+document's OPAQUE/UNKNOWN tiers exist to flag elsewhere, and a "24 h" token must never waive that
+flag merely by appearing first in the string. `classify_hours()` now checks every 24h string for
+a weather/tide, third-party/operator, seasonal, or other explicit variability caveat *before*
+returning the plain `known-24h` category; when one is present the whole string classifies as
+`known-24h-with-caveat` instead. This is **PARTIAL, not OPAQUE**, because the 24h baseline itself
+is still a real, safely extractable fact — it is only the exception clause that must stay opaque
+— matching the same "part safe, part not" shape as `fixed-interval-with-caveat`. Three more real
+values fall in this category for the same reason: `"Estación 24 h; comercios variables"`,
+`"Exterior 24 h; shows variables"`, and `"Puente 24 h; atracciones variables"` (each names an
+attached commercial/attraction variability, not the core access claim). A benign secondary detail
+that carries no such caveat — e.g. `"Recinto exterior 24 h; salón aprox. 06:00–17:00"` (a concrete
+interior sub-schedule) or `"Montaña 24 h; oficinas diurnas"` (daytime-only offices, an ordinary
+and expected fact) — is deliberately left as plain `known-24h`/SAFE: the correction targets
+material uncertainty, not every string with more than one clause.
 
 ## 2. `schedule.closures` — 214 places, 89 distinct raw strings
 
@@ -149,6 +182,20 @@ cannot tell "not needed" from "recommended but optional" apart. This is recorded
 finding, not corrected — per the phase's "no live verification, no silent dataset correction"
 rule, Phase 3D-A does not touch the workbook or `places.json`.
 
+**This finding is mechanically proven, not asserted.** `reservation.required` is independently
+audited as its own boolean field: `load_places()` first verifies it is a real Python `bool` for
+every one of the 214 places (never a truthy string or int), then `classify_reservation_consistency()`
+cross-checks every place's `required` value against `reservation.raw`'s classified category and
+the export pipeline's own documented rule (`required = raw.lower() == "sí"` — the *only* category
+expected to carry `True`). On the current checkout: **True=41/214, False=173/214, and 0/214
+inconsistent pairs** — every non-binary place (`Recomendable`/`Opcional`/`No para espectador`)
+does in fact have `required: false`, which is exactly what makes the finding above a real gap
+rather than a hypothetical one. Had any non-binary place instead carried `required: true`, the
+audit script would name that place's id explicitly rather than silently averaging it away — see
+`scripts/audit-temporal-data.py`'s `reservation.required` report section — and
+`test_reservation_required_consistency_has_zero_inconsistencies_today` pins the current all-clear
+down as a regression test.
+
 `reservation.leadTime` is far more heterogeneous — 66 distinct strings. 128/214 places have no
 reservation at all (`"—"`, `not-applicable`, SAFE by definition). Of the remaining 86, 21 are a
 bare magnitude phrase (`"Semanas"`, `"1–2 semanas"` — PARTIAL, a coarse days/weeks/months bucket
@@ -179,12 +226,25 @@ argument, verified by a regression test (`test_never_reads_warning_or_action_tex
 | `historical-pattern-inference` | 1 | OPAQUE | `"PATRÓN HISTÓRICO / MUY PROBABLE"` |
 | `ritual-access-restriction-pending` | 1 | OPAQUE | `"CIERRES SAGRADOS PENDIENTES"` |
 
-**Coverage: SAFE 6/214, PARTIAL 15/214, OPAQUE 41/214, UNKNOWN 152/214.**
+**Coverage (`febMar2027.status`): SAFE 6/214, PARTIAL 15/214, OPAQUE 41/214, UNKNOWN 152/214.**
+**Coverage (`febMar2027.warning` and `febMar2027.action`, identical for both): SAFE 0/214,
+PARTIAL 0/214, OPAQUE 214/214, UNKNOWN 0/214** — entirely OPAQUE by construction, since
+`classify_editorial_prose()` has no branch that could ever produce anything else for non-empty
+text.
 
-`febMar2027.warning`/`febMar2027.action` are heavily deduplicated: only **34 unique warnings**
-and **34 unique actions** across 214 places (the single largest status bucket, `"CALENDARIO /
-CONDICIÓN PENDIENTE"` at 141 places, shares one identical warning/action pair). They are audited
-here for uniqueness only and are never structurally parsed — see the boundary rule below.
+**`febMar2027.warning` and `febMar2027.action` are explicitly included in this audit's contract,
+as their own classified field — not merely counted on the side.** Both run through
+`classify_editorial_prose()`, a presence-only classifier structurally identical to
+`classify_best_time()` (it takes no branch on content, only on whether the text exists): **all
+214/214 places classify as `editorial-prose`, tier OPAQUE, 0 missing**, for both fields. They are
+heavily deduplicated: **34 unique warnings and 34 unique actions** across 214 places — the raw
+values themselves, backed by the script's `raw_value_stats()` for both fields, not a one-off
+`len(set(...))` computed once and hardcoded here. The single largest `febMar2027.status` bucket,
+`"CALENDARIO / CONDICIÓN PENDIENTE"` (141 places), does indeed share one identical warning
+(`"No hay cierre específico confirmado para la ventana, pero horarios o acceso pueden
+variar."`) and one identical action (`"Reconfirmar en la web oficial al fijar fechas."`) — the
+top entry in each field's raw-value inventory. **Neither field is ever structurally parsed
+beyond this** — see the boundary rule below.
 
 **The critical boundary, stated explicitly because the phase brief calls it out by name:** a
 `febMar2027` status answers *"how confident is Nihon that this place's February–March 2027
@@ -227,13 +287,16 @@ not assume it can be joined to `Place` records by name-matching `"Lugar / tema"`
 
 3. **Partially structurable data** (`seasonal-variable`, `fixed-interval-with-caveat`,
    `daytime-qualitative`, `solar-relative`, `ambiguous-alternative-interval`,
-   `partial-single-bound` for hours; `recurring-weekday-named`, `no-ordinary-closure-with-caveat`
-   for closures; the three non-binary `reservation.raw` categories; `bare-magnitude` lead times;
-   `open-with-condition`/`partial-closure-in-effect` for `febMar2027`) carry one extractable part
-   (a candidate weekday, a numeric interval, a coarse magnitude) **and** one part that must stay
-   opaque (a caveat clause, "según temporada," "verificar"). A future structured type may expose
-   the extractable part, but must carry the opaque remainder forward as unstructured text — never
-   drop it.
+   `partial-single-bound`, `known-24h-with-caveat` for hours; `recurring-weekday-named`,
+   `no-ordinary-closure-with-caveat` for closures; the three non-binary `reservation.raw`
+   categories; `bare-magnitude` lead times; `open-with-condition`/`partial-closure-in-effect` for
+   `febMar2027`) carry one extractable part (a candidate weekday, a numeric interval, a 24h
+   baseline, a coarse magnitude) **and** one part that must stay opaque (a caveat clause, "según
+   temporada," "verificar"). A future structured type may expose the extractable part, but must
+   carry the opaque remainder forward as unstructured text — never drop it. `known-24h-with-caveat`
+   is the clearest example of why priority order matters here: the same "24 h" substring that
+   makes `known-24h` SAFE must **not** make a caveated string SAFE too, merely because the safe
+   token happens to appear first in the text — see section 1's worked example.
 
 4. **Opaque, non-deterministic data** (`weather-or-tide-dependent`,
    `third-party-operator-dependent`, `temporary-specific-closure`, `irregular-weekday-pattern` for
@@ -273,7 +336,13 @@ type TemporalTier = "safe" | "partial" | "opaque" | "unknown";
 type HoursFact =
   | { kind: "known-24h" }
   | { kind: "known-interval"; raw: string }       // fixed-interval-clean only
-  | { kind: "conditional-interval"; raw: string }  // PARTIAL hours categories, interval + caveat
+  | { kind: "conditional"; raw: string }          // any other PARTIAL hours category — an
+                                                    // interval, a 24h baseline, or a daytime/
+                                                    // solar qualifier, each paired with a caveat
+                                                    // that must stay opaque (includes
+                                                    // known-24h-with-caveat: the 24h part is
+                                                    // real, but never surfaced as bare
+                                                    // "known-24h" once a caveat is present)
   | { kind: "opaque"; raw: string }                // OPAQUE hours categories
   | { kind: "unknown"; raw: string | null };
 

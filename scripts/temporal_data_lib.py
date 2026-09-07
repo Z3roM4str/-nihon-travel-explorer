@@ -32,12 +32,20 @@ Tier = str  # one of "SAFE" | "PARTIAL" | "OPAQUE" | "UNKNOWN"
 
 
 def _norm(raw) -> str:
-    """Every classifier below receives whatever `data/places.json` stored — a string, or
-    occasionally `None`/missing. Never raises; a non-string/empty input always classifies as
-    "missing", never as a guessed category."""
+    """Every classifier below expects exactly what the canonical dataset contract
+    (`app/src/types.ts` / `docs/DATA_MODEL.md`) promises for these fields: a `str`, or `None`
+    for a value this module treats as absent. It deliberately does **not** stringify anything
+    else — a list, a dict, a number — into text that would then classify as ordinary opaque or
+    unknown text: that would hide a real data-quality defect (a malformed field) behind an
+    answer that looks like a normal editorial-text classification. `scripts/audit-temporal-data.py`'s
+    `load_places()` already enforces this at the boundary before any classifier here is ever
+    called; raising here too is a second, independent guard for any other direct caller (a test,
+    a future script) that skips that loader."""
     if raw is None:
         return ""
-    return str(raw).strip()
+    if not isinstance(raw, str):
+        raise TypeError(f"expected str or None, got {type(raw).__name__}: {raw!r}")
+    return raw.strip()
 
 
 # ---------------------------------------------------------------------------------------
@@ -68,6 +76,20 @@ def classify_hours(raw) -> str:
     if not text:
         return "missing"
     if _H24_RE.search(text):
+        # A "24 h" token alone is a clean SAFE fact. But "24 h" plus a weather/tide, third-party-
+        # operator, seasonal, or other explicit variability caveat (e.g. "Abierto 24 h; puede
+        # cerrar por viento") is NOT safe merely because the string contains "24 h" — the
+        # caveat is exactly the kind of external dependency this dataset's own OPAQUE/UNKNOWN
+        # tiers exist to flag elsewhere, and it must not be waived just because a 24h claim
+        # precedes it. The 24h baseline itself is still safely extractable, so this is PARTIAL,
+        # not OPAQUE — see `HOURS_TIER["known-24h-with-caveat"]`.
+        if (
+            _ENV_RE.search(text)
+            or _THIRDPARTY_RE.search(text)
+            or _SEASONAL_RE.search(text)
+            or _VARIABLE_RE.search(text)
+        ):
+            return "known-24h-with-caveat"
         return "known-24h"
     if _ENV_RE.search(text):
         return "weather-or-tide-dependent"
@@ -97,7 +119,7 @@ def classify_hours(raw) -> str:
 
 HOURS_RULES: List[Tuple[str, Callable[[str], bool]]] = [
     ("missing", lambda t: not t),
-    ("known-24h", lambda t: bool(_H24_RE.search(t))),
+    ("known-24h-family", lambda t: bool(_H24_RE.search(t))),
     ("weather-or-tide-dependent", lambda t: bool(_ENV_RE.search(t))),
     ("third-party-operator-dependent", lambda t: bool(_THIRDPARTY_RE.search(t))),
     ("seasonal-variable", lambda t: bool(_SEASONAL_RE.search(t))),
@@ -112,6 +134,7 @@ HOURS_RULES: List[Tuple[str, Callable[[str], bool]]] = [
 HOURS_TIER = {
     "missing": "UNKNOWN",
     "known-24h": "SAFE",
+    "known-24h-with-caveat": "PARTIAL",
     "weather-or-tide-dependent": "OPAQUE",
     "third-party-operator-dependent": "OPAQUE",
     "seasonal-variable": "PARTIAL",
@@ -216,6 +239,28 @@ BEST_TIME_TIER = {
 }
 
 # ---------------------------------------------------------------------------------------
+# febMar2027.warning / febMar2027.action — free editorial prose for a human, audited for
+# presence/uniqueness ONLY. `classify_feb_mar_status()` above already establishes that `status`
+# is the one field this module structurally classifies; `warning`/`action` must never be parsed
+# into a closure/opening rule (a sentence like "Reconfirmar en la web oficial al fijar fechas" is
+# not machine-readable availability data). This classifier is presence-only, exactly like
+# `classify_best_time()` — it must never branch on content.
+# ---------------------------------------------------------------------------------------
+
+
+def classify_editorial_prose(raw) -> str:
+    text = _norm(raw)
+    if not text:
+        return "missing"
+    return "editorial-prose"
+
+
+EDITORIAL_PROSE_TIER = {
+    "missing": "UNKNOWN",
+    "editorial-prose": "OPAQUE",
+}
+
+# ---------------------------------------------------------------------------------------
 # reservation.raw / reservation.required
 # ---------------------------------------------------------------------------------------
 
@@ -245,6 +290,40 @@ RESERVATION_RAW_TIER = {
     "not-required-role-specific": "PARTIAL",
     "unrecognized-value": "UNKNOWN",
 }
+
+# `reservation.required` is a boolean derived, at export time, from `reservation.raw` by
+# `scripts/export-dataset.py`'s own documented rule: `required = raw.lower() == "sí"`. That rule
+# means exactly one `classify_reservation_raw()` category is EXPECTED to carry `required: True`
+# — every other category, including every non-binary nuance ("Recomendable", "Opcional", "No
+# para espectador"), is expected `False` under that same rule. This dict makes the expectation
+# explicit and mechanically checkable — see `classify_reservation_consistency()` below — rather
+# than assumed to hold without checking every place.
+RESERVATION_RAW_EXPECTED_REQUIRED = {
+    "missing": False,
+    "not-required": False,
+    "required": True,
+    "recommended-not-required": False,
+    "optional-not-required": False,
+    "not-required-role-specific": False,
+    "unrecognized-value": False,
+}
+
+
+def classify_reservation_consistency(raw, required) -> str:
+    """Cross-checks one place's `reservation.required` boolean against its `reservation.raw`
+    category and the export pipeline's own expected mapping above. Returns
+    `"consistent-<category>"` when they agree, or `"inconsistent-<category>-required-<bool>"`
+    naming exactly what was found when they do not — this function never assumes agreement, and
+    an inconsistency is reported by name rather than silently absorbed into either bucket.
+    `required` must already be a real `bool` (see `audit-temporal-data.py`'s `load_places()`,
+    which enforces this before this function is ever called from the CLI)."""
+    if not isinstance(required, bool):
+        raise TypeError(f"expected required to be bool, got {type(required).__name__}: {required!r}")
+    category = classify_reservation_raw(raw)
+    expected = RESERVATION_RAW_EXPECTED_REQUIRED[category]
+    if required is expected:
+        return f"consistent-{category}"
+    return f"inconsistent-{category}-required-{required!r}"
 
 # ---------------------------------------------------------------------------------------
 # reservation.leadTime
