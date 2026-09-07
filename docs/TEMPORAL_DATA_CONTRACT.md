@@ -290,10 +290,19 @@ on Tuesdays."* A warning such as *"Reconfirmar en la web oficial al fijar fechas
 re-verify, not a machine-readable closure rule, and `pending-verification` — 152/214 places, by
 far the largest bucket — is tiered **UNKNOWN**, not OPAQUE, specifically because "the calendar
 isn't published yet" carries no partial structure to extract at all; conflating it with a real
-closure signal would be a stronger claim than the source text makes. `alertSeverity()` in
-`app/src/lib/place.ts` already derives a coarse visual severity (`confirmed`/`risk`/`pending`)
-from this same field for the UI's February–March 2027 card — that is pre-existing, unrelated
-display logic this phase leaves untouched, not a second classification this document introduces.
+closure signal would be a stronger claim than the source text makes.
+
+> **Update (Phase 3D-F):** the sentence this replaces originally noted that `alertSeverity()` in
+> `app/src/lib/place.ts` derived a coarse visual severity (`confirmed`/`risk`/`pending`) from this
+> same field as "pre-existing, unrelated display logic," independent of this audit's own
+> classification. That is no longer accurate: `alertSeverity()`/`severityLabel()`/`AlertSeverity`
+> were removed entirely, and `app/src/lib/feb-mar-status.ts` now derives `PlaceDetail.tsx`'s
+> February–March 2027 card display from THIS document's own `classify_feb_mar_status()` categories
+> — a direct TypeScript port, same category names, same `FEB_MAR_STATUS_TIER` tiers, same priority
+> order — rather than an independent regex. See `docs/ROADMAP.md`'s Phase 3D-F entry and
+> `docs/DATA_MODEL.md`'s "Feb–Mar 2027 status signals" section for what shipped and its exact
+> boundary: still no opening-hours solving, no composition with `schedule.hours`/`schedule.closures`/
+> `bestTime`, and no `open`/`closed`/`available` field anywhere in the runtime fact.
 
 ### A second finding: `data/seasonal-alerts.json` is not the same collection
 

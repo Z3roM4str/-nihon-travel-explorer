@@ -469,3 +469,71 @@ boundary — in particular, everything this phase deliberately does **not** do: 
 feasibility solving, any open/closed judgment, clock-time or timezone scheduling of any kind, a
 visit-duration-fit calculation against a recorded interval, holiday handling, temporary or live
 closure/hours verification, a date recommendation, or automatic rescheduling.
+
+## Feb–Mar 2027 status signals (derived, Phase 3D-F)
+
+A fifth runtime consumer of the Phase 3D-A audit, this one over `febMar2027.status` — the trip-
+window-confidence axis Phase 3D-A's own contract already keeps deliberately separate from weekly
+hours/closures (see §5 there: *"a `febMar2027` status answers 'how confident is Nihon that this
+place's February–March 2027 situation is understood,' ... it never answers 'is this place closed on
+Tuesdays'"*). It answers a narrower question than an opening-hours feasibility check: *"given the
+editorial Feb–Mar 2027 status already recorded for this place, what confidence/review signal may
+Nihon safely show?"*
+
+`app/src/lib/feb-mar-status.ts` derives a `FebMarStatusFact` (`category`, `tier`, `raw`) from
+`place.febMar2027.status` on every read — nothing is added to `Place` or persisted.
+`classifyFebMarStatusCategory()` is a direct TypeScript port of `scripts/temporal_data_lib.py`'s
+`classify_feb_mar_status()`: the same 12 category names, the same SAFE/PARTIAL/OPAQUE/UNKNOWN tier
+per category (`FEB_MAR_STATUS_TIER`), and the same fixed priority order of checks. Unlike this
+codebase's other Phase 3D ports, no `normalizeText` accent-stripping step is needed here: the
+Python classifier itself upper-cases the whole string and matches plain ASCII substrings
+(`"RIESGO"`, `"CONFIRMADO"`, `"PENDIENTE"`, `"OPORTUNIDAD"`, ...), so `.trim().toUpperCase()` +
+`.includes()` is an exact port, not an approximation. Priority order is load-bearing here too: a
+`"CONFIRMADO"` token combined with a `"PENDIENTE"` token in the same string is **not** `confirmed`
+— `pending-verification` wins that combination, exactly as `docs/TEMPORAL_DATA_CONTRACT.md`
+already documents — and a leading `"ABIERTO"` with no other marker is `open-with-condition`, never
+promoted to `confirmed`.
+
+This module never reads `febMar2027.warning` or `febMar2027.action` — `classifyFebMarStatusCategory()`
+takes a single `raw: string` parameter, structurally incapable of consulting either field, matching
+`classify_feb_mar_status()`'s own single-argument signature. It also reads no `schedule.hours`, no
+`schedule.closures`, no `bestTime`, no `reservation.*`, no `startDate`, no derived day date, and no
+current date/time. **`FebMarStatusFact` carries no `open`/`closed`/`available`/`feasible` field of
+any kind** — `open-with-condition` is an audited Python category *name*, describing what the
+editorial text says, never a runtime claim that the place will actually be open on any particular
+date.
+
+`describeFebMarStatusForUi(fact)` is the display adapter `PlaceDetail.tsx`'s existing Feb–Mar 2027
+card needs — the same "classification plus its display adapter in one small module" precedent
+`lib/reservation.ts`'s `describeReservationForUi` already set, chosen here for the same reason: one
+card in one component doesn't justify a separate `*-display.ts` file. It derives a three-value
+`tone` (`"confirmed"` | `"attention"` | `"pending"`) from `tier` alone, never from `category`
+directly: `safe → confirmed`, `partial → attention`, `opaque → attention`, `unknown → pending`. The
+label is generic per tone, not per category — `"Requiere atención"` for `attention`, never a word
+implying risk — so a `seasonal-opportunity` status (OPAQUE, tone `attention`) is never described as
+a risk. `cssModifier` (`"confirmed"` | `"risk"` | `"pending"`) reuses the card's three pre-existing
+`.alert--<modifier>` CSS classes as an implementation-detail adapter, avoiding both a new palette
+and unrelated CSS churn — the same technique `lib/reservation.ts`'s `tag.className` already
+established for its own display adapter.
+
+`PlaceDetail.tsx` now computes `describeFebMarStatusForUi(interpretPlaceFebMarStatus(place))` once
+and renders the card's icon, label, and CSS modifier from that structured output, replacing the old
+`alertSeverity()`/`severityLabel()`/`AlertSeverity` regex heuristic that used to live in
+`lib/place.ts` (`/riesgo|cerrad|cierre|cupo|loteria|venta futura/`) — removed entirely once a
+repo-wide grep confirmed `PlaceDetail.tsx` was their only consumer, so no second, competing
+classifier of `febMar2027.status` was left behind. The card's visible content is otherwise
+unchanged: `status`, `warning`, and `action` still render verbatim, exactly as before — both remain
+human-facing editorial prose, never parsed or used as rule-engine input.
+
+No route-wide UI section was added for this phase. `febMar2027` is a trip-window-confidence axis,
+not a route-composable fact the way `schedule.hours`/`reservation.leadTime` are — whether it needs
+a separate route-wide planning surface is left for a future, separately decided phase.
+`data/seasonal-alerts.json` (33 entries, keyed by `Hub` + free-text `"Lugar / tema"`, not by place
+id) remains untouched and unjoined, exactly as Phase 3D-A's audit already documented it.
+
+See [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this
+runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-F entry for the full UI/product
+boundary — in particular, everything this phase deliberately does **not** do: any opening-hours
+feasibility solving, any composition of a status fact with `schedule.hours`/`schedule.closures`/
+`bestTime`, any open/closed judgment, clock-time or timezone logic of any kind, holiday handling,
+live verification against an official source, a date recommendation, or automatic rescheduling.

@@ -1520,20 +1520,22 @@ recorded-hours information can Nihon safely state from the existing static `sche
 - [x] **No automation.** Nothing assigns visit times, moves places between days, reorders the
       route, suggests an optimized order, recommends a different date, removes a place, ranks
       places, computes a route score, generates an itinerary, books anything, or creates reminders.
-- [x] **84 new tests**: 54 in `lib/recorded-hours.test.ts` (SAFE/PARTIAL/OPAQUE/UNKNOWN category
-      coverage, the exact adversarial priority-order examples above, safe-interval-extraction
-      isolation, the Python `HOURS_TIER`/`HOURS_RULES` source-check parity tests, determinism, and
-      real-dataset invariants — all 214 places classify without throwing, exact tier totals,
-      `intervalRaw` always a substring of `raw`, never present outside `"recorded-interval"`); 18
-      in `lib/hours-planning.test.ts` (per-tier counts, order preservation and reordering,
+- [x] **86 new tests relative to the 505-test Phase 3D-D baseline**: 54 in
+      `lib/recorded-hours.test.ts` (SAFE/PARTIAL/OPAQUE/UNKNOWN category coverage, the exact
+      adversarial priority-order examples above, safe-interval-extraction isolation, the Python
+      `HOURS_TIER`/`HOURS_RULES` source-check parity tests, determinism, and real-dataset
+      invariants — all 214 places classify without throwing, exact tier totals, `intervalRaw`
+      always a substring of `raw`, never present outside `"recorded-interval"`); 19 in
+      `lib/hours-planning.test.ts` (per-tier counts, order preservation and reordering,
       duplicate-id fail-loud behavior naming the exact id, no omission by tier, no sorting, full
-      real-dataset aggregation totals: 214 items, 80/50/19/65); 12 new source-scanning integration
+      real-dataset aggregation totals: 214 items, 80/50/19/65); 13 new source-scanning integration
       tests added to `components/OrderedSequenceBuilder.test.ts` (19 pre-existing Phase
-      3D-B/3D-D tests unchanged, 31 total in that file now), scoped to the new section's own
+      3D-B/3D-D tests unchanged, 32 total in that file now), scoped to the new section's own
       function body, asserting the wiring, every tier's wording renders distinctly, raw evidence
       always renders, no `startDate`/day-date/`Date.now` read, no `schedule.closures`/`bestTime`/
-      `febMar2027` read, and no open/closed/feasibility vocabulary anywhere in the section. **589
-      tests passing overall** (was 505), `npm run lint`/`npm run build`/
+      `febMar2027` read, and no open/closed/feasibility vocabulary anywhere in the section
+      (including the corrective-review "un tercero" wording regression — see that entry below).
+      **591 tests passing overall** (was 505), `npm run lint`/`npm run build`/
       `python3 scripts/test_temporal_data_audit.py` all still clean.
 - [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against five real places chosen
       programmatically to represent each category: Takeshita Street (`JP-004`,
@@ -1590,6 +1592,134 @@ introduced, and `PlaceDetail.tsx` was not touched (its existing raw-text-only `s
 display there is untouched and still the only per-place surface — this phase's new signal lives in
 the route-wide planning surface only, not duplicated per place). No Phase 3D-F (or any later phase)
 work was started.
+
+## Phase 3D-F — Feb–Mar 2027 Status Signals — complete
+
+Turns the already-audited `febMar2027.status` field into a conservative runtime confidence/review
+signal, and replaces `PlaceDetail.tsx`'s old, independently-regexing `alertSeverity()` with it. This
+is a semantics/correctness phase: the existing per-place February–March 2027 card is corrected and
+formalized, not redesigned. It does **not** solve opening hours, does not combine status with
+`schedule.hours`/`schedule.closures`/`bestTime`, does not infer that a particular day works, does
+not determine that a place is actually open or closed, and performs no live verification.
+
+- [x] **`app/src/lib/feb-mar-status.ts`** — a new, small, pure domain module.
+      `classifyFebMarStatusCategory()` is a direct TypeScript port of
+      `scripts/temporal_data_lib.py`'s `classify_feb_mar_status()`: the same 12 category names, the
+      same `FEB_MAR_STATUS_TIER` tier-per-category mapping, and the same fixed priority order of
+      checks. Unlike `recorded-hours.ts`/`temporal-availability.ts`, this port needs no
+      `normalizeText` accent-stripping step at all — the Python classifier itself upper-cases the
+      whole string and does plain ASCII substring checks (`"RIESGO"`, `"CONFIRMADO"`,
+      `"PENDIENTE"`, ...), so `.trim().toUpperCase()` + `.includes()` is an exact match, not an
+      approximation.
+- [x] **Priority order preserved exactly**, proven both by adversarial examples and a structural
+      check: a source-scanning test extracts the literal sequence of `return "<category>"`
+      statements from both `classify_feb_mar_status()`'s and `classifyFebMarStatusCategory()`'s
+      source text and asserts they are identical in order — so a future edit that reorders either
+      side's `if`-chain fails immediately, not just when an adversarial example happens to exercise
+      the swapped pair. Adversarial cases covered: a sale/lottery marker outranks a `"PENDIENTE"`
+      token in the same string; `"RIESGO"` outranks a `"CONFIRMADO"` token appearing later;
+      `"MANTENIMIENTO"`/`"CIERRE PARCIAL"` each outrank a bare `"PENDIENTE"`; a historical-pattern
+      marker (both `"PATR"` and `"HIST"` present) outranks `"OPORTUNIDAD"`; `"CONFIRMADO"` plus
+      `"PENDIENTE"` together is **not** `confirmed` — `pending-verification` wins that combination,
+      exactly as `docs/TEMPORAL_DATA_CONTRACT.md` describes; a bare `"ABIERTO"` prefix with no other
+      marker is `open-with-condition`, never `confirmed`; a mid-string (non-leading) `"ABIERTO"`
+      does not trigger `open-with-condition` at all (`text.startsWith`, not `text.includes`).
+- [x] **`FebMarStatusFact`** — `{ category, tier, raw }`, no more and no less. `raw` is preserved
+      verbatim. **No `open`/`closed`/`available`/`feasible` field exists anywhere in this type or
+      in `FebMarStatusDisplay`** — proven by a dedicated test asserting no boolean field exists on
+      any produced fact, for every representative category.
+- [x] **Never reads `febMar2027.warning` or `febMar2027.action`.** `classifyFebMarStatusCategory()`
+      takes a single `raw: string` parameter — structurally incapable of consulting either field —
+      and a source-scanning test additionally confirms neither `.warning` nor `.action` appears
+      anywhere in the module's actual code (comments legitimately mention both, to document that
+      they are never read; the scan strips comments first so it cannot false-pass on that
+      distinction going the other way, nor false-fail on the prose). A behavioral test mutates a
+      real place's `warning`/`action` to unrelated text and confirms the classification is
+      byte-identical. Reads no `schedule.hours`, `schedule.closures`, `bestTime`, `reservation.*`,
+      `startDate`, derived day date, or current date/time either; no network requests; no `Date`
+      arithmetic; no timezone logic.
+- [x] **`describeFebMarStatusForUi(fact)`** — the display adapter `PlaceDetail.tsx`'s existing card
+      needs, following the same precedent `lib/reservation.ts`'s `describeReservationForUi` already
+      set (classification and its display adapter in one small module, rather than a second
+      `*-display.ts` file, since the display surface is one card in one component). Derives a
+      three-value `tone` (`"confirmed"` | `"attention"` | `"pending"`) from `tier` alone — never
+      from `category` directly, so no single category can drift from its tier's meaning:
+      **`safe` → `confirmed`, `partial` → `attention`, `opaque` → `attention`, `unknown` →
+      `pending`.** The label is deliberately generic per tone, never per category — `"Requiere
+      atención"` for `attention`, the same neutral phrasing (never the word "riesgo"/"risk") the
+      card's old severity label already used, so a `seasonal-opportunity` status (OPAQUE, tone
+      `attention`) is never described as a risk. `cssModifier` (`"confirmed"` | `"risk"` |
+      `"pending"`) is an **adapter reusing the card's three pre-existing `.alert--<modifier>` CSS
+      classes** — no new palette introduced, no unrelated CSS churn — the same "reuse an existing
+      class as an implementation detail" technique `lib/reservation.ts`'s `tag.className` already
+      established.
+- [x] **`PlaceDetail.tsx`** now computes
+      `describeFebMarStatusForUi(interpretPlaceFebMarStatus(place))` once and renders the card's
+      icon/label/CSS modifier from that structured output — replacing the old
+      `alertSeverity(place.febMar2027.status)` regex heuristic (`/riesgo|cerrad|cierre|cupo|loteria|
+      venta futura/`) entirely. The card's visible content is otherwise untouched: `status`,
+      `warning`, and `action` still render exactly as before, verbatim, as human-facing editorial
+      prose — neither is parsed or used as rule-engine input anywhere in this phase. The component
+      was not otherwise redesigned.
+- [x] **Legacy `alertSeverity`/`severityLabel`/`AlertSeverity` audited and removed, not left as a
+      second competing classifier.** A repo-wide grep confirmed `PlaceDetail.tsx` was their only
+      consumer — no other component or module referenced any of the three — so all three were
+      deleted cleanly from `lib/place.ts` rather than kept dormant or deprecated in place.
+- [x] **No route-wide UI section added.** Repository evidence (this phase's own per-place scope, and
+      the fact that `febMar2027` is a trip-window-confidence axis, not a route-composable fact — see
+      `docs/TEMPORAL_DATA_CONTRACT.md` §5) did not justify one; the primary purpose here is
+      correcting and formalizing the semantics of the existing per-place card. Whether trip-window
+      confidence needs a separate route-wide planning surface is left for a future, separately
+      decided phase.
+- [x] **`data/seasonal-alerts.json` untouched, no join invented.** That 33-entry collection is keyed
+      by `Hub` + free-text `"Lugar / tema"`, not by place id, and remains exactly as
+      `docs/TEMPORAL_DATA_CONTRACT.md` §5 already documented it: exported, versioned, and unread by
+      the application. This phase does not read it, join it, or change that.
+- [x] **Real-dataset counts re-derived, not copied from documentation**: SAFE 6/214, PARTIAL 15/214,
+      OPAQUE 41/214, UNKNOWN 152/214 — matching Phase 3D-A's original audit exactly, independently
+      reproduced by new TypeScript tests against `data/places.json` (via `app/src/data/places.json`,
+      still byte-identical) and confirmed against a fresh `python3
+      scripts/audit-temporal-data.py data` run. All 214 places classify without throwing.
+- [x] **55 new tests**: 48 in `lib/feb-mar-status.test.ts` (category/tier table-driven coverage,
+      the adversarial priority-order examples above, the structural Python-source priority-order
+      check, the Python `FEB_MAR_STATUS_TIER` source-check parity test, the warning/action
+      non-consultation tests, determinism, real-dataset invariants — all 214 places classify
+      without throwing, exact 6/15/41/152 tier totals, every fact's raw text matches
+      `place.febMar2027.status` verbatim, a real `seasonal-opportunity` place's display never
+      mentions "riesgo"/"risk", a real `pending-verification` place stays `pending` tone, a real
+      `confirmed` place gets `confirmed` tone, and `describeFebMarStatusForUi`'s own tone/label/
+      CSS-modifier mapping); 7 new source-scanning integration tests added to
+      `components/PlaceDetail.test.ts` (5 pre-existing Phase 3D-C tests unchanged, 12 total in that
+      file now), scoped to this component's own Feb–Mar-status expression/card markup, asserting
+      the wiring, the old `alertSeverity`/`severityLabel`/`AlertSeverity` imports are gone, the card
+      still renders raw `status`/`warning`/`action` verbatim, the display computation reads none of
+      `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`, and the card's own markup
+      contains no open/closed/available/feasible vocabulary. **646 tests passing overall** (was
+      591), `npm run lint`/`npm run build`/`python3 scripts/test_temporal_data_audit.py` all still
+      clean.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against five real places chosen
+      programmatically to represent `confirmed`, `open-with-condition`, `pending-verification`, an
+      OPAQUE attention case, and `seasonal-opportunity`. The existing card rendered the raw
+      `status`/`warning`/`action` text exactly as before in every case; the visual tone/label came
+      from the new structured `describeFebMarStatusForUi` output rather than the old regex; the
+      `seasonal-opportunity` place's card read "Requiere atención" — never "Riesgo" or any
+      risk-implying word; the `pending-verification` place read "Por confirmar," honestly, never
+      promoted to "Confirmado"; no card anywhere stated or implied that the place would actually be
+      open on a specific date.
+- [x] **No date/time intelligence of any kind.** No clock time, timezone, current-date read, `Date`
+      arithmetic, `startDate`/day-date comparison, holiday handling, live verification against an
+      official source, date recommendation, or automatic rescheduling.
+- [x] **No automation.** Nothing assigns visit times, moves places between days, reorders the route,
+      computes booking deadlines, checks holidays, calls an official website or API, or performs
+      live verification.
+
+`data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
+logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the
+`ManualPlanningDraftV2` schema, `nihon.manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`,
+route ordering/day assignment, and the Filters union are all unchanged; no dependency was added, no
+new `localStorage` key was introduced, and `OrderedSequenceBuilder.tsx` was not touched (no
+route-wide UI section was added this phase — see above). No opening-hours or availability solver of
+any kind was implemented. No Phase 3D-G (or any later phase) work was started.
 
 ## Later (unscheduled)
 
