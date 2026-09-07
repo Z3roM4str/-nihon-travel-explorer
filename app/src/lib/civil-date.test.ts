@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { addCivilDays, formatCivilDateDisplay, isValidCivilDate } from "./civil-date";
+import { addCivilDays, formatCivilDateDisplay, getCivilWeekday, isValidCivilDate } from "./civil-date";
 
 describe("isValidCivilDate", () => {
   it("accepts a well-formed, real calendar date", () => {
@@ -106,5 +106,73 @@ describe("formatCivilDateDisplay — no UTC/local-timezone off-by-one", () => {
 
   it("falls back to returning the input unchanged for an invalid date", () => {
     expect(formatCivilDateDisplay("not-a-date")).toBe("not-a-date");
+  });
+});
+
+describe("getCivilWeekday", () => {
+  // Ground truth for every fixture below was independently confirmed via Node's own
+  // `new Date(Date.UTC(y, m - 1, d)).getUTCDay()` before this function was written — not derived
+  // from this module's own output, so these are real regression fixtures, not tautologies.
+
+  it("identifies a known Monday", () => {
+    expect(getCivilWeekday("2027-02-15")).toBe("monday");
+  });
+
+  it("identifies a known Sunday", () => {
+    expect(getCivilWeekday("2027-02-14")).toBe("sunday");
+  });
+
+  it("identifies every other weekday across the same reference week", () => {
+    // 2027-02-14 (Sun) .. 2027-02-19 (Fri, confirmed by the existing formatCivilDateDisplay test).
+    expect(getCivilWeekday("2027-02-16")).toBe("tuesday");
+    expect(getCivilWeekday("2027-02-17")).toBe("wednesday");
+    expect(getCivilWeekday("2027-02-18")).toBe("thursday");
+    expect(getCivilWeekday("2027-02-19")).toBe("friday");
+    expect(getCivilWeekday("2027-02-20")).toBe("saturday");
+  });
+
+  it("handles a leap date correctly", () => {
+    expect(getCivilWeekday("2028-02-29")).toBe("tuesday");
+  });
+
+  it("handles a century leap year correctly (divisible by 400)", () => {
+    expect(getCivilWeekday("2000-02-29")).toBe("tuesday");
+  });
+
+  it("handles a month boundary (non-leap February 28 -> March 1)", () => {
+    expect(getCivilWeekday("2027-02-28")).toBe("sunday");
+    expect(getCivilWeekday("2027-03-01")).toBe("monday");
+  });
+
+  it("handles a year boundary (December 31 -> January 1)", () => {
+    expect(getCivilWeekday("2027-12-31")).toBe("friday");
+    expect(getCivilWeekday("2028-01-01")).toBe("saturday");
+  });
+
+  it("returns null for an invalid civil date rather than guessing a weekday", () => {
+    expect(getCivilWeekday("2027-02-30")).toBeNull(); // impossible day-of-month
+    expect(getCivilWeekday("2027-02-29")).toBeNull(); // non-leap-year Feb 29
+    expect(getCivilWeekday("not-a-date")).toBeNull();
+    expect(getCivilWeekday("")).toBeNull();
+  });
+
+  describe("timezone invariance", () => {
+    const ORIGINAL_TZ = process.env.TZ;
+
+    afterEach(() => {
+      process.env.TZ = ORIGINAL_TZ;
+    });
+
+    it("returns the same weekday regardless of the process's local timezone", () => {
+      const results = new Set<string | null>();
+      for (const tz of ["UTC", "Etc/GMT+12", "Pacific/Kiritimati", "America/Los_Angeles"]) {
+        process.env.TZ = tz;
+        results.add(getCivilWeekday("2027-02-19"));
+      }
+      // A UTC-12 timezone and a UTC+14 timezone are both represented above; if local time had
+      // leaked into the calculation, at least one run would have drifted to Thursday or Saturday.
+      expect(results.size).toBe(1);
+      expect([...results][0]).toBe("friday");
+    });
   });
 });
