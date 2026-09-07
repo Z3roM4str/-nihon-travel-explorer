@@ -409,3 +409,63 @@ runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-D entry for the ful
 boundary — in particular, everything this phase deliberately does **not** do: convert a magnitude
 into a day count, know today's date, compute a booking-by date, compare against `startDate`,
 interpret a lottery/release mechanism, or claim availability.
+
+## Recorded hours signals (derived, Phase 3D-E)
+
+A fourth runtime consumer of the Phase 3D-A audit, this one over `schedule.hours` — the field
+`schedule.closures` (Phase 3D-B), `reservation.raw` (Phase 3D-C), and `reservation.leadTime`
+(Phase 3D-D) deliberately left alone. It answers a narrower question than an opening-hours
+feasibility check: *"what kind of recorded-hours information can Nihon safely state from the
+existing static `schedule.hours` field, for a place the user already selected?"* — never *"will
+this place be open when I arrive,"* *"can I visit this on Day 2,"* or *"this day works."*
+
+`app/src/lib/recorded-hours.ts` derives a `RecordedHoursFact` from `place.schedule.hours` on every
+read — nothing is added to `Place` or persisted. `classifyHoursCategory()` is a direct TypeScript
+port of `scripts/temporal_data_lib.py`'s `classify_hours()`: the same 14 category names, the same
+SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category (`HOURS_TIER`), and the same fixed priority order of
+checks (`HOURS_RULES`) — the same discipline `temporal-availability.ts`, `reservation.ts`, and
+`reservation-lead-time.ts` already established for their own fields. Priority order is load-bearing
+here specifically because a later check must never "win" a string a higher-priority check already
+claimed: a 24h baseline plus an unresolved weather/operator/seasonal caveat (e.g. `"Abierto 24 h;
+puede cerrar por viento"`) classifies `known-24h-with-caveat` (PARTIAL), never plain `known-24h`
+(SAFE); a third-party dependency (e.g. `"Según tienda, aprox. 11:00–20:00"`) classifies
+`third-party-operator-dependent` (OPAQUE) even though it contains a clock-shaped substring, never
+`fixed-interval-clean`.
+
+`RecordedHoursFact` is a closed, kind-tagged union — `"recorded-24h"`, `"recorded-interval"`,
+`"conditional"`, `"external-dependency"`, `"unknown"` — so a consumer cannot confuse a SAFE recorded
+fact with a PARTIAL/OPAQUE/UNKNOWN one at the type level. Only `"recorded-interval"` (the
+`fixed-interval-clean` category) ever carries an `intervalRaw` field: the matched clock-interval
+token (e.g. `"09:00–20:00"` extracted from `"Aprox. 09:00–20:00"`) preserved as a raw string —
+never minutes-since-midnight, a `Date`, a timezone-aware value, or any other arithmetic-ready form,
+because no arithmetic consumer exists yet. Every other kind that might contain a clock-looking
+substring never exposes one — a caveated, third-party, weather, or seasonal string never leaks a
+"safe" interval just because a clock-shaped token happens to appear inside it. `raw` is carried on
+every variant, verbatim, per the Phase 3D-A contract's rule 1.
+
+`app/src/lib/hours-planning.ts`'s `buildRecordedHoursSummary(places)` aggregates one
+`RecordedHoursFact` per place over an explicit, already-ordered list of places (the current
+canonical route, Phase 3C-A), preserving that exact order — never resorted by opening time, closing
+time, tier, category, "urgency," duration, or reservation state. Unlike
+`reservation-planning.ts`'s summary, **no place is ever omitted**: every route place has hours
+information relevant to planning, even when the honest signal is "variable," "depends on an outside
+operator," or "unknown," so `items` always has exactly one entry per input place. A duplicate
+`place.id` in the input is a fail-loud invariant violation, exactly like
+`buildReservationPreparationSummary`'s own convention: it throws immediately, naming the offending
+id, rather than silently repairing what should already be an upstream, duplicate-free route.
+
+`OrderedSequenceBuilder.tsx`'s "Construir recorrido" view renders this as one more route-wide,
+read-only "Horarios registrados" section, next to "Reservas por preparar" for the same reason — it
+reads no `startDate`, no derived day date, and performs no date arithmetic of any kind. It also
+reads no `place.schedule.closures`, no `place.bestTime`, and no `place.febMar2027` — those stay
+separate axes, never composed with an hours fact into a stronger claim like "open," "available," or
+"this day works." `PlaceDetail.tsx` is unchanged: its existing raw-text-only `schedule.hours` row
+remains the only per-place surface; this phase's structured signal lives in the route-wide planning
+surface only.
+
+See [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this
+runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-E entry for the full UI/product
+boundary — in particular, everything this phase deliberately does **not** do: any opening-hours
+feasibility solving, any open/closed judgment, clock-time or timezone scheduling of any kind, a
+visit-duration-fit calculation against a recorded interval, holiday handling, temporary or live
+closure/hours verification, a date recommendation, or automatic rescheduling.

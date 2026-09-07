@@ -14,6 +14,8 @@ import {
 } from "../lib/reservation-planning";
 import type { LeadTimeMagnitude } from "../lib/reservation-lead-time";
 import type { ReservationCategory } from "../lib/reservation";
+import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
+import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -79,6 +81,18 @@ type Props = {
  * either, and never computes a booking deadline, a days-remaining count, or any comparison against
  * a date. See `ReservationPreparationSection` below for the exact, conservative wording this is
  * allowed to use.
+ *
+ * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
+ * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
+ * "Reservas por preparar" for the same reason: the underlying signal (what kind of hours
+ * information `place.schedule.hours` records) is useful before the route is split into days, and
+ * never depends on `startDate` or any derived date. Unlike the reservation section, no place is
+ * ever omitted — every place gets an entry, even an UNKNOWN/OPAQUE one, because "the hours are
+ * variable" or "depends on an outside operator" is itself planning-relevant information. This
+ * section never answers whether a place is open, never compares against a date or clock time, and
+ * never composes with Phase 3D-B's closure signal or `febMar2027` — see `../lib/recorded-hours.ts`
+ * for the exact product boundary and `HoursPlanningSection` below for the wording this is allowed
+ * to use.
  */
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
@@ -518,6 +532,86 @@ function ReservationPreparationSection({ summary }: { summary: ReservationPrepar
 }
 
 /**
+ * Phase 3D-E's one UI surface — "Horarios registrados". A route-wide, read-only section built from
+ * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`). Renders nothing
+ * when `summary.items` is empty, exactly like `ReservationPreparationSection`.
+ *
+ * Unlike that section, every route place appears here exactly once — nothing is omitted by tier.
+ * Wording is deliberately narrow throughout: "Horario registrado: 09:00–17:00" states a recorded
+ * fact, never that the place is open at those hours on any date; every PARTIAL/OPAQUE/UNKNOWN
+ * phrase ends in "revisar" (a call to double-check), never "closed," "incompatible," or "bad." The
+ * original raw text is always shown alongside — the only detailed information Nihon may safely
+ * surface once a caveat, external dependency, or genuine unknown is present. Nothing here reads the
+ * chosen calendar anchor, any date derived from it, `place.schedule.closures`, `place.bestTime`, or
+ * `place.febMar2027`.
+ */
+function HoursPlanningSection({ summary }: { summary: RecordedHoursSummary }) {
+  if (summary.items.length === 0) return null;
+
+  const parts: string[] = [];
+  if (summary.safeCount > 0) parts.push(`${summary.safeCount} claro${summary.safeCount === 1 ? "" : "s"}`);
+  if (summary.conditionalCount > 0) parts.push(`${summary.conditionalCount} con condiciones`);
+  if (summary.externalDependencyCount > 0) {
+    parts.push(
+      `${summary.externalDependencyCount} depende${summary.externalDependencyCount === 1 ? "" : "n"} de un tercero`
+    );
+  }
+  if (summary.unknownCount > 0) parts.push(`${summary.unknownCount} por revisar`);
+
+  return (
+    <section className="hours-planning" aria-labelledby="hours-planning-heading">
+      <h3 id="hours-planning-heading">Horarios registrados</h3>
+      <p className="hours-planning__summary">{parts.join(" · ")}</p>
+      <ul className="hours-planning__list">
+        {summary.items.map((item) => (
+          <li key={item.placeId} className={`hours-planning__item hours-planning__item--${item.hours.tier}`}>
+            <span className="hours-planning__name">{item.placeName}</span>
+            <span className="hours-planning__signal">{hoursSignalText(item.hours)}</span>
+            <span className="hours-planning__raw">Dato: «{item.hours.raw}»</span>
+          </li>
+        ))}
+      </ul>
+      <p className="hours-planning__disclaimer">
+        Esta sección solo describe qué horario está registrado en el dato original de cada lugar.{" "}
+        <strong>
+          No determina si el lugar abre o cierra en tu fecha, no revisa festivos ni cierres, y no se compara con la
+          hora del día.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/** Display-only Spanish labels for each `HoursCategory`'s recorded-hours signal — the domain type
+ * stays a stable, locale-independent identifier (see `lib/recorded-hours.ts`); this is the one
+ * place that turns it into user-facing text, exactly like `RESERVATION_PREP_LABEL` and
+ * `LEAD_TIME_MAGNITUDE_LABEL` do above. Every phrase describes what the raw editorial text
+ * records, never whether the place is open — no "abierto"/"cerrado" wording anywhere here.
+ * `"fixed-interval-clean"` is handled specially by `hoursSignalText` below (it needs the actual
+ * interval token, not a fixed phrase), so its entry here is unused but kept for exhaustiveness. */
+const HOURS_CATEGORY_LABEL: Record<HoursCategory, string> = {
+  missing: "Sin horario registrado; revisar",
+  "known-24h": "Acceso registrado: 24 h",
+  "known-24h-with-caveat": "Acceso 24 h registrado con condiciones; revisar",
+  "weather-or-tide-dependent": "Horario depende de clima o marea; revisar",
+  "third-party-operator-dependent": "Horario depende de un operador externo; revisar",
+  "seasonal-variable": "Horario estacional; revisar",
+  "solar-relative": "Horario relativo a la luz solar; revisar",
+  "daytime-qualitative": "Horario diurno registrado; revisar",
+  "partial-single-bound": "Horario parcialmente registrado; revisar",
+  "ambiguous-alternative-interval": "Horario con alternativas registradas; revisar",
+  "fixed-interval-with-caveat": "Horario registrado con condiciones; revisar",
+  "fixed-interval-clean": "Horario registrado",
+  "explicit-unknown-variable": "Horario variable; revisar dato original",
+  "qualitative-uncategorized": "Horario no estructurado; revisar",
+};
+
+function hoursSignalText(fact: RecordedHoursFact): string {
+  if (fact.kind === "recorded-interval") return `Horario registrado: ${fact.intervalRaw}`;
+  return HOURS_CATEGORY_LABEL[fact.category];
+}
+
+/**
  * The one place that turns a `SequenceComparisonOutcome` into Spanish prose. Every branch is
  * phrased as a statement about *these two orders*, never as a claim about the best possible
  * route — Phase 3C-B never evaluates more than the two candidates it was given.
@@ -615,6 +709,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     () => buildReservationPreparationSummary(routePlaces),
     [routePlaces]
   );
+  const recordedHours = useMemo(() => buildRecordedHoursSummary(routePlaces), [routePlaces]);
 
   const candidateAPlaces = useMemo(
     () => candidateAIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
@@ -805,6 +900,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   </p>
 
                   <ReservationPreparationSection summary={reservationPreparation} />
+
+                  <HoursPlanningSection summary={recordedHours} />
 
                   {routePlaces.length >= 2 && (
                     <div className="sequence-secondary-actions">

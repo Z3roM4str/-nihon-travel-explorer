@@ -118,6 +118,21 @@ interior sub-schedule) or `"Montaña 24 h; oficinas diurnas"` (daytime-only offi
 and expected fact) — is deliberately left as plain `known-24h`/SAFE: the correction targets
 material uncertainty, not every string with more than one clause.
 
+> **Update (Phase 3D-E):** this section's `schedule.hours` classification is now a runtime
+> consumer. `app/src/lib/recorded-hours.ts` classifies `schedule.hours` on every read (a direct
+> TypeScript port of `classify_hours()` below, same 14 category names, same tier per category, same
+> fixed priority order — including the `known-24h-with-caveat` precedence worked example just
+> above), deriving a `RecordedHoursFact` that exposes a structured interval (`intervalRaw`) ONLY for
+> `fixed-interval-clean`, never for any PARTIAL/OPAQUE/UNKNOWN category even when a clock-shaped
+> substring is present. `app/src/lib/hours-planning.ts` composes that fact into a route-level
+> "Horarios registrados" summary (`OrderedSequenceBuilder.tsx`), preserving the user's route order,
+> including every place (unlike Phase 3D-D's lead-time summary, nothing is omitted here), and never
+> resorting by tier, category, or any derived urgency. The dataset itself, `schedule.hours`'s
+> values, and this section's counts are unchanged — Phase 3D-E is a runtime-consumer addition, not a
+> re-audit. See `docs/ROADMAP.md`'s Phase 3D-E entry and `docs/DATA_MODEL.md`'s "Recorded hours
+> signals" section for what shipped and its exact product boundary — in particular, that this
+> remains a recorded-hours signal only, never an opening-hours feasibility judgment.
+
 ## 2. `schedule.closures` — 214 places, 89 distinct raw strings
 
 | Category | Count | Tier | Representative examples |
@@ -347,6 +362,19 @@ not assume it can be joined to `Place` records by name-matching `"Lugar / tema"`
 > built. See `docs/ROADMAP.md`'s Phase 3D-B entry and `docs/DATA_MODEL.md`'s "Weekday closure
 > signals" section for what actually shipped and its exact boundary; the rest of this section is
 > preserved as Phase 3D-A originally wrote it, describing what a *future* phase could still add.
+>
+> **Update (Phase 3D-E):** the `HoursFact` slice of the sketch below is now implemented too, as
+> `app/src/lib/recorded-hours.ts`'s `RecordedHoursFact` — a five-variant union (`"recorded-24h"`,
+> `"recorded-interval"`, `"conditional"`, `"external-dependency"`, `"unknown"`) rather than the
+> four sketched here, since a real consumer needed to distinguish a SAFE 24h fact from a SAFE
+> interval fact (only the latter carries `intervalRaw`) and an OPAQUE external-dependency fact from
+> a merely-PARTIAL conditional one — a finer split than this sketch anticipated, but the same
+> spirit: `tier` mandatory on every fact, `raw` never dropped, no `"open"`/`"closed"` boolean
+> anywhere. The combined `TemporalAvailability` type spanning both hours and closures still has NOT
+> been built — `recorded-hours.ts` and `temporal-availability.ts` remain two independent modules,
+> never composed into a single fact, exactly as this sketch's own boundary rules require. See
+> `docs/ROADMAP.md`'s Phase 3D-E entry and `docs/DATA_MODEL.md`'s "Recorded hours signals" section
+> for what actually shipped.
 
 Following the precedent of Phase 3B2E ("Access-Point Override Design," which decided a model
 without shipping any code, coordinates, or routing behavior), this phase **describes** the
