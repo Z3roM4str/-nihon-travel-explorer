@@ -1204,6 +1204,101 @@ It reads no `schedule.hours`, no `bestTime`, and no `febMar2027` field for feasi
 clock time or timezone to anything, and does not touch the planning-draft schema. No Phase 3D-C
 (or any later phase) work was started.
 
+## Phase 3D-C — Reservation Semantics — complete
+
+Fixes a real correctness gap Phase 3D-A proved mechanically, not a hypothetical one:
+`place.reservation.required` is a lossy derived boolean (`scripts/export-dataset.py`'s
+`required = raw.lower() == "sí"`), so 39/214 places whose `reservation.raw` is
+`"Recomendable"`/`"Opcional"`/`"No para espectador"` collapse into the same `false` a plain
+`"No"` gets. `reservation.raw` already preserves the real nuance; this phase is what makes
+runtime UI/filter logic respect it. It does **not** normalize lead time into booking deadlines —
+that remains a distinct, later, unscheduled phase (see "Later" below).
+
+- [x] **`app/src/lib/reservation.ts`** — a new, small, pure domain module: `ReservationFact`
+      (`category` / `tier` / `raw` / `required` / `consistentWithDerivedBoolean`) derived on read
+      from `reservation.raw` + `reservation.required`, never persisted and never a new field on
+      `Place`. `reservation.required` itself is untouched and stays exported — it remains
+      internally consistent with the exporter, and removing it would be unnecessary schema churn
+      this phase doesn't need; what changes is that no UI/filter code decides "requires
+      reservation" from that boolean alone anymore.
+- [x] **Exact parity with the Phase 3D-A contract**: `classifyReservationCategory()` is a direct
+      TypeScript port of `scripts/temporal_data_lib.py`'s `classify_reservation_raw()` — same 7
+      category names (`missing`, `not-required`, `required`, `recommended-not-required`,
+      `optional-not-required`, `not-required-role-specific`, `unrecognized-value`), same
+      SAFE/PARTIAL/UNKNOWN tier per category, same expected-boolean mapping
+      (`RESERVATION_RAW_EXPECTED_REQUIRED`). Protected the same way Phase 3D-B's own corrective
+      review established for `schedule.closures`: a table-driven test covering the complete
+      7-category vocabulary, plus a subprocess-free source-check that parses
+      `RESERVATION_RAW_TIER`/`RESERVATION_RAW_EXPECTED_REQUIRED` directly out of the Python file's
+      text — verified to actually catch a deliberately reintroduced category-name drift.
+- [x] **Boolean consistency cross-checked, never assumed.** `consistentWithDerivedBoolean` compares
+      `required` against what the export pipeline's own rule expects for that raw category — on
+      the current dataset this is `true` for all 214 places (Phase 3D-A's own finding,
+      re-mechanically-proven here by a real-dataset test), never hardcoded as an invariant that
+      would silently pass if it stopped holding. An inconsistent record (none exist today) would
+      surface structurally on the fact itself, never be silently trusted or hidden, and this phase
+      does not mutate the dataset to "fix" one if it appeared.
+- [x] **`PlaceDetail.tsx` no longer reads `place.reservation.required` at all.** Both the tag and
+      the "Reserva" practical-info row are driven by `describeReservationForUi()`: `required` →
+      tag "Requiere reserva" / row "Necesaria · &lt;leadTime&gt;"; `recommended-not-required` →
+      tag "Reserva recomendable" (new, softer green tone, never the same visual urgency as
+      "required") / row "Recomendable · &lt;leadTime&gt;"; `optional-not-required` → tag "Reserva
+      opcional" (new, neutral blue tone) / row "Opcional · &lt;leadTime&gt;"; `not-required` → no
+      tag, row "No es necesaria"; `not-required-role-specific` → no tag, row shows the raw text
+      verbatim ("No para espectador") rather than being rewritten as the generic not-required
+      wording; `missing`/`unrecognized-value` → no tag, conservative fallback text, never guessed
+      into a specific state. `leadTime` is shown as **raw text only** — a `"—"`/empty value omits
+      the suffix entirely rather than rendering "Necesaria · —"; no magnitude bucketing, no
+      deadline math, no comparison against any date.
+- [x] **The false Requiere/Sin-reserva binary is gone from the filter.** `Filters.reservation` is
+      now the closed union `"all" | "required" | "recommended" | "not-required" | "optional" |
+      "role-specific"` (`ReservationFilterValue`, defined in `lib/reservation.ts` and imported into
+      `types.ts` — the same cross-module pattern `PlanningBlock` already established). `App.tsx`'s
+      `matchesFilters` calls the one shared predicate, `matchesReservationFilter()`, instead of
+      reading the boolean inline; `FilterPanel.tsx`'s "Reserva" group now offers all six options
+      (Todas / Requiere reserva / Reserva recomendable / No requiere reserva / Reserva opcional /
+      Depende del rol) as a static list — matching this filter's own existing convention (unlike
+      category/grade/tourism-level, it was never dynamically computed from the active hub's
+      places, so this phase didn't invent a new dynamic-filter architecture to add the three new
+      options). "Recomendable" no longer falls under "Sin reserva": each of the five real
+      categories is mutually exclusive under the new filter, verified across all 214 current
+      places.
+- [x] **No date/time intelligence of any kind.** No booking deadlines, no days-until-booking
+      calculation, no reference to today's date, no clock time or timezone, no availability, no
+      lottery/release-date interpretation, no official booking-site scraping or API, no reminders.
+      This phase fixes semantics, not timing.
+- [x] **No automation.** Nothing here reserves anything, opens a booking flow, recommends or moves
+      a place between days, reorders the trip, scores reservation difficulty, or sends a
+      notification.
+- [x] **64 new tests**: 53 in `lib/reservation.test.ts` (classification parity, the source-check
+      above, derived-boolean consistency including a deliberately inconsistent synthetic case,
+      real-dataset invariants — all 214 places classify without throwing, all five real raw values
+      exist, 0/214 inconsistencies today, `Recomendable`/`Opcional`/`No para espectador` never
+      classify as plain `not-required`, only `"Sí"` maps to `required` — filter-predicate
+      mutual-exclusivity across the real dataset, and `describeReservationForUi` display-text
+      cases including the no-lead-time-suffix guard); 5 in the new `PlaceDetail.test.ts`
+      (source-scanning: imports and calls the domain function, renders its tag/row output, and no
+      longer contains the old boolean-gated patterns — verified to actually catch a deliberately
+      reintroduced old pattern); 3 in the new `FilterPanel.test.ts` (all six filter values/labels
+      present, the old "Sin reserva" label gone); 3 in the new `App.test.ts` (imports and calls
+      `matchesReservationFilter`, no longer reads the boolean inline — verified to actually catch
+      a deliberately reintroduced old predicate).
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright), one representative place per
+      raw category: Shibuya Crossing (`"No"`) → no tag, "No es necesaria"; SHIBUYA SKY (`"Sí"`) →
+      "Requiere reserva" tag, "Necesaria · 2–4 semanas; atardecer antes"; Nezu Museum
+      (`"Recomendable"`) → "Reserva recomendable" tag, "Recomendable · Días o semanas para
+      exposición popular"; Tokyo Marathon 2027 (`"No para espectador"`) → no tag, row shows "No
+      para espectador" verbatim; Yanagawa canal cruise (`"Opcional"`) → "Reserva opcional" tag,
+      "Opcional · Grupos: reservar; individuales según operador". The "Reserva" filter group
+      confirmed rendering all six options.
+
+This phase touched no `schedule.hours`, no `bestTime`, no `febMar2027` field, and did not start
+lead-time normalization, booking-deadline calculation, live availability, or any date/time
+intelligence. `data/places.json`, `app/src/data/places.json`, the workbook, and every
+logistics/access-point/walking/temporal artifact are byte-identical to `main`; no dependency was
+added; the planning-draft schema and `localStorage` keys are unchanged. No Phase 3D-D (or any
+later phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -1244,6 +1339,14 @@ clock time or timezone to anything, and does not touch the planning-draft schema
       scheduling of any kind; holiday handling; temporary or live closure verification against an
       official source; a date recommendation; or automatic rescheduling. A full opening-hours
       feasibility solver remains a distinct, unscheduled, separately-decided future phase.
+- [ ] Reservation lead-time / booking-deadline intelligence — not started. Phase 3D-C fixed the
+      *semantics* of `reservation.raw`/`reservation.required` (a runtime-consumer correction, no
+      dataset change) and shows `reservation.leadTime` as raw editorial text only, verbatim, when
+      present. It does **not** convert "Semanas"/"1–2 meses"/etc. into a specific day count, does
+      not know today's date, does not compute a booking-by date, does not compare lead time
+      against the user's Phase 3C-E `startDate`, does not interpret a lottery/release mechanism,
+      and does not claim availability. Any of that is a distinct, separately-scoped future phase —
+      not an incremental extension of Phase 3D-C's semantics fix.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.

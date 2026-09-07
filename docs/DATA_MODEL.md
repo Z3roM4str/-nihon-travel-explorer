@@ -328,3 +328,33 @@ recomputed on every render from the day's already-derived date (Phase 3C-E's `st
 by the day index) and each place's existing raw `schedule.closures` text. See
 [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this runtime
 layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-B entry for the UI and product boundary.
+
+## Reservation semantics (derived, Phase 3D-C)
+
+A second, narrower runtime consumer of the Phase 3D-A audit — this one fixes a real gap the audit
+proved mechanically rather than merely classifying something new. `place.reservation.required` is
+declared `boolean` in the `Place` type above and remains exactly that: unchanged, still exported,
+still internally consistent with `scripts/export-dataset.py`'s own `required = raw.lower() ==
+"sí"` rule. What Phase 3D-C changes is that no UI/filter code may decide "requires reservation"
+from that boolean **alone** anymore, because it collapses `"Recomendable"`/`"Opcional"`/`"No para
+espectador"` into the same `false` a plain `"No"` gets — a real information loss `reservation.raw`
+already avoids.
+
+`app/src/lib/reservation.ts` derives a `ReservationFact` (`category`, `tier`,
+`consistentWithDerivedBoolean`) from `reservation.raw` + `reservation.required` on every read —
+nothing is added to `Place` or persisted. `classifyReservationCategory()` is a direct TypeScript
+port of `scripts/temporal_data_lib.py`'s `classify_reservation_raw()` (same 7 category names, same
+tier per category, same expected-boolean mapping), protected by the same source-check pattern
+`temporal-availability.ts` established for `schedule.closures`. The same module also exports the
+one predicate `App.tsx`'s filtering calls (`matchesReservationFilter`, backing the closed
+`Filters.reservation: ReservationFilterValue` union) and the one function `PlaceDetail.tsx` calls
+to render a tag and a practical-info row (`describeReservationForUi`) — a single domain module
+covering classification, filtering, and display, deliberately not split into a separate
+`*-display.ts` file the way `transfer.ts`/`transfer-display.ts` are, because the display surface
+here is small enough that splitting it would be unjustified ceremony.
+
+`reservation.leadTime` is shown as **raw text only**, appended verbatim when present and omitted
+entirely when the raw value is `"—"`/empty — never normalized into a day count, a booking
+deadline, or a comparison against any date. See `docs/ROADMAP.md`'s "Later (unscheduled)" for why
+lead-time/deadline intelligence remains a distinct, unstarted future phase, and the Phase 3D-C
+entry for the exact per-category UI wording.

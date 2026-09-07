@@ -5,6 +5,7 @@ import { resolvePlaceImages } from "../data/place-images";
 import { resolveDuration, formatRange } from "../lib/duration";
 import { getBestTransfer, type TransferEdge } from "../lib/transfer";
 import { describeTransferForUi, transferListFootnote } from "../lib/transfer-display";
+import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import {
   alertSeverity,
   formatPrice,
@@ -102,6 +103,7 @@ export function PlaceDetail({
   const duration = resolveDuration(place.duration);
   const category = splitCategory(place.category);
   const severity = alertSeverity(place.febMar2027.status);
+  const reservation = describeReservationForUi(interpretPlaceReservation(place), place.reservation.leadTime);
   const showExperience = place.experience && place.experience !== place.description;
 
   const nearbyPlaces = nearby.flatMap((relation) => {
@@ -162,7 +164,9 @@ export function PlaceDetail({
                 </span>
               )}
               <span className="tag tag--muted">Turismo: {place.tourismLevel}</span>
-              {place.reservation.required && <span className="tag tag--alert">Requiere reserva</span>}
+              {reservation.tag && (
+                <span className={`tag ${reservation.tag.className}`}>{reservation.tag.label}</span>
+              )}
             </div>
           </header>
 
@@ -223,14 +227,7 @@ export function PlaceDetail({
             <dl className="detail-rows">
               <Row label="Horario" value={place.schedule.hours} />
               <Row label="Cierres" value={place.schedule.closures} />
-              <Row
-                label="Reserva"
-                value={
-                  place.reservation.required
-                    ? `Necesaria · ${place.reservation.leadTime}`
-                    : "No es necesaria"
-                }
-              />
+              <Row label="Reserva" value={reservation.practicalRow} />
               <Row label="Cómo llegar" value={place.transport} />
               <Row label="Accesibilidad" value={place.accessibility} />
               <Row label="Aglomeración" value={place.crowdLevel} />
