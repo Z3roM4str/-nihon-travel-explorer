@@ -8,6 +8,12 @@ import { buildDayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
 import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
+import {
+  buildReservationPreparationSummary,
+  type ReservationPreparationSummary,
+} from "../lib/reservation-planning";
+import type { LeadTimeMagnitude } from "../lib/reservation-lead-time";
+import type { ReservationCategory } from "../lib/reservation";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -62,6 +68,17 @@ type Props = {
  * reads no `schedule.hours`, no `bestTime`, and no `febMar2027` field; it is computed fresh on
  * every render from the day's already-derived date and its places' existing raw text, and
  * nothing about it is persisted (no new planning-draft field, no new `localStorage` key).
+ *
+ * Phase 3D-D adds one route-wide, read-only section — "Reservas por preparar" — built from
+ * `../lib/reservation-planning.ts` over the current canonical route (`routePlaces`), deliberately
+ * rendered in the "builder" view rather than inside a day card: the underlying signal
+ * (`reservation.leadTime`'s coarse magnitude or "needs review" flag) is useful before the route is
+ * even split into days, and never depends on `startDate` or any derived date. It composes two
+ * independently-derived axes — `../lib/reservation.ts`'s `ReservationFact` and
+ * `../lib/reservation-lead-time.ts`'s `ReservationLeadTimeFact` — without merging or overriding
+ * either, and never computes a booking deadline, a days-remaining count, or any comparison against
+ * a date. See `ReservationPreparationSection` below for the exact, conservative wording this is
+ * allowed to use.
  */
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
@@ -418,6 +435,89 @@ function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
   );
 }
 
+/** Display-only Spanish labels for `ReservationCategory` — mirrors the tag vocabulary
+ * `describeReservationForUi` already established in `lib/reservation.ts`, restated here as a
+ * short label (no lead-time suffix, since this section shows lead time in its own line) rather
+ * than imported, because this section also needs the two categories that render no tag there
+ * (`not-required`, `not-required-role-specific`) to still show a short factual label here. */
+const RESERVATION_PREP_LABEL: Record<ReservationCategory, string> = {
+  required: "Requiere reserva",
+  "recommended-not-required": "Reserva recomendable",
+  "optional-not-required": "Reserva opcional",
+  "not-required": "No requiere reserva",
+  "not-required-role-specific": "No para espectador",
+  missing: "Estado de reserva por verificar",
+  "unrecognized-value": "Estado de reserva por verificar",
+};
+
+/** Display-only Spanish labels for `LeadTimeMagnitude` — the domain type stays a stable,
+ * locale-independent identifier (see `lib/reservation-lead-time.ts`); this is the one place that
+ * turns it into user-facing text, exactly like `WEEKDAY_LABEL` does for `CivilWeekday` above. */
+const LEAD_TIME_MAGNITUDE_LABEL: Record<LeadTimeMagnitude, string> = {
+  days: "días",
+  weeks: "semanas",
+  months: "meses",
+  "days-to-weeks": "días o semanas",
+  "weeks-to-months": "semanas o meses",
+};
+
+/**
+ * Phase 3D-D's one UI surface. Renders nothing when `summary.items` is empty — a route with no
+ * applicable lead-time signal shows no section at all, exactly like `WeekdayClosureNotice` renders
+ * nothing when unassessed.
+ *
+ * Wording is deliberately narrow and conservative throughout: "anticipación registrada" (a
+ * recorded fact about the editorial text), never a booking deadline; "mecanismo específico;
+ * revisar" (a call to look closer), never an interpretation of what the mechanism actually
+ * requires. The original raw text is always shown alongside — it is the only detailed information
+ * Nihon may safely surface for an opaque record, and the authoritative source even for a coarse
+ * magnitude. Nothing here reads `startDate`, a derived day date, or the current date.
+ */
+function ReservationPreparationSection({ summary }: { summary: ReservationPreparationSummary }) {
+  if (summary.items.length === 0) return null;
+
+  const parts: string[] = [];
+  if (summary.coarseMagnitudeCount > 0) {
+    parts.push(
+      `${summary.coarseMagnitudeCount} con anticipación registrada${summary.coarseMagnitudeCount === 1 ? "" : "s"}`
+    );
+  }
+  if (summary.specificMechanismCount > 0) {
+    parts.push(
+      `${summary.specificMechanismCount} con mecanismo específico para revisar`
+    );
+  }
+
+  return (
+    <section className="reservation-prep" aria-labelledby="reservation-prep-heading">
+      <h3 id="reservation-prep-heading">Reservas por preparar</h3>
+      <p className="reservation-prep__summary">{parts.join(" · ")}</p>
+      <ul className="reservation-prep__list">
+        {summary.items.map((item) => (
+          <li key={item.placeId} className="reservation-prep__item">
+            <span className="reservation-prep__name">{item.placeName}</span>
+            <span className="reservation-prep__reservation">{RESERVATION_PREP_LABEL[item.reservation.category]}</span>
+            {item.leadTime.kind === "coarse-magnitude" ? (
+              <span className="reservation-prep__leadtime">
+                Anticipación registrada: {LEAD_TIME_MAGNITUDE_LABEL[item.leadTime.magnitude]}
+              </span>
+            ) : (
+              <span className="reservation-prep__leadtime reservation-prep__leadtime--opaque">
+                Mecanismo específico; revisar
+              </span>
+            )}
+            <span className="reservation-prep__raw">Dato: «{item.leadTime.raw}»</span>
+          </li>
+        ))}
+      </ul>
+      <p className="reservation-prep__disclaimer">
+        Esta sección solo describe la anticipación registrada en el dato original de cada lugar.{" "}
+        <strong>No calcula fechas límite de reserva ni las compara con tu calendario.</strong>
+      </p>
+    </section>
+  );
+}
+
 /**
  * The one place that turns a `SequenceComparisonOutcome` into Spanish prose. Every branch is
  * phrased as a statement about *these two orders*, never as a claim about the best possible
@@ -512,6 +612,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
 
   const sequence = useMemo(() => buildOrderedSequence(routeIds), [routeIds]);
   const visitSummary = useMemo(() => summarizeSelection(routePlaces), [routePlaces]);
+  const reservationPreparation = useMemo(
+    () => buildReservationPreparationSummary(routePlaces),
+    [routePlaces]
+  );
 
   const candidateAPlaces = useMemo(
     () => candidateAIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
@@ -700,6 +804,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                     clasificación que la ficha de cada lugar: rutas validadas, estimaciones
                     geográficas u horarios en vivo. <strong>No incluyen tiempo dentro de cada lugar.</strong>
                   </p>
+
+                  <ReservationPreparationSection summary={reservationPreparation} />
 
                   {routePlaces.length >= 2 && (
                     <div className="sequence-secondary-actions">

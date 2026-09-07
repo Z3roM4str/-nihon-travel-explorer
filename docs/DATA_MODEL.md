@@ -358,3 +358,49 @@ entirely when the raw value is `"—"`/empty — never normalized into a day cou
 deadline, or a comparison against any date. See `docs/ROADMAP.md`'s "Later (unscheduled)" for why
 lead-time/deadline intelligence remains a distinct, unstarted future phase, and the Phase 3D-C
 entry for the exact per-category UI wording.
+
+## Reservation lead-time signals (derived, Phase 3D-D)
+
+A third runtime consumer of the Phase 3D-A audit, this one over `reservation.leadTime` rather than
+`reservation.raw`. It answers a narrower question than a booking deadline: *"what kind of
+advance-reservation information is recorded for a place the user already selected?"* — never *"when
+must I book"* or *"am I already too late."*
+
+`app/src/lib/reservation-lead-time.ts` derives a `ReservationLeadTimeFact` from
+`place.reservation.leadTime` on every read — nothing is added to `Place` or persisted.
+`classifyLeadTimeCategory()` is a direct TypeScript port of `scripts/temporal_data_lib.py`'s
+`classify_lead_time()` (same 3 category names, same tier per category, same anchored whole-string
+`_BARE_MAGNITUDE_RE` semantics — a magnitude-shaped substring inside a longer sentence, e.g. `"3
+meses"` inside `"Lotería 3 meses antes; revisar liberaciones"`, never qualifies as
+`bare-magnitude`). For a `bare-magnitude` string only, a closed `LeadTimeMagnitude` bucket (`days`
+/ `weeks` / `months` / `days-to-weeks` / `weeks-to-months`) is additionally derived — never a
+numeric range: `"1–2 semanas"` becomes `magnitude: "weeks"` with `raw: "1–2 semanas"` preserved
+verbatim, and no `minDays`/`maxDays` is ever computed from it. `ReservationLeadTimeFact` is a
+discriminated union keyed on `kind` (`"not-applicable"` / `"coarse-magnitude"` /
+`"specific-mechanism"`), so a `magnitude` field cannot exist on an opaque or not-applicable fact at
+the type level.
+
+This module is deliberately kept separate from `lib/reservation.ts`, which keeps owning
+reservation-*necessity* semantics (required/recommended/optional/role-specific) from Phase 3D-C.
+The two axes are composed, never merged: `app/src/lib/reservation-planning.ts`'s
+`buildReservationPreparationSummary(places)` pairs each place's `ReservationFact` and
+`ReservationLeadTimeFact` into a `ReservationPreparationItem`, over an explicit, already-ordered
+list of places (the current canonical route, Phase 3C-A) — preserving that exact order, never
+resorting by magnitude, reservation category, or any derived urgency. A `not-applicable` lead time
+omits the place from the summary; `bare-magnitude` and `opaque-entity-or-mechanism-specific` are
+both included, since neither is "safe to ignore" — an opaque record often carries the most
+operationally important information (a lottery, timed entry, a release schedule), just not in a
+form this dataset can safely reduce to a magnitude.
+
+`OrderedSequenceBuilder.tsx`'s "Construir recorrido" view renders this as one route-wide,
+read-only "Reservas por preparar" section, built from the current route regardless of whether it
+has been split into days yet — it reads no `startDate`, no derived day date, and performs no date
+arithmetic of any kind. `PlaceDetail.tsx` is unchanged: its existing raw-text-only `leadTime`
+suffix (Phase 3D-C) remains the only per-place surface; this phase's structured signal lives in the
+route-wide planning surface only.
+
+See [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this
+runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-D entry for the full UI/product
+boundary — in particular, everything this phase deliberately does **not** do: convert a magnitude
+into a day count, know today's date, compute a booking-by date, compare against `startDate`,
+interpret a lottery/release mechanism, or claim availability.

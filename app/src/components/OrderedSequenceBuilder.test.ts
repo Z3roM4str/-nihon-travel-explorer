@@ -119,3 +119,86 @@ describe("OrderedSequenceBuilder.tsx — weekday-closure signal wiring (source-s
     }
   });
 });
+
+/**
+ * Phase 3D-D's structural integration coverage for the "Reservas por preparar" section — the
+ * same source-scanning technique the weekday-closure block above already established, for the
+ * same reason (no jsdom/Testing Library in this repository). The underlying domain logic
+ * (classification parity, whole-string opacity protection, aggregation order/omission rules) is
+ * proven once, thoroughly, in `lib/reservation-lead-time.test.ts` and
+ * `lib/reservation-planning.test.ts`; this file protects only the WIRING — that this component
+ * actually calls that domain and renders its output, route-wide, without any date/deadline
+ * arithmetic creeping in at the integration layer.
+ *
+ * Scans are scoped to `ReservationPreparationSection`'s own function body (via
+ * `extractReservationPreparationSectionSource`) rather than the whole ~950-line file, so the
+ * forbidden-phrase checks below cannot false-fail on unrelated prose elsewhere in the file (e.g.
+ * this same file's calendar-anchoring disclaimers, which legitimately discuss `startDate`).
+ */
+function extractReservationPreparationSectionSource(fullSource: string): string {
+  const start = fullSource.indexOf("function ReservationPreparationSection");
+  if (start === -1) {
+    throw new Error("ReservationPreparationSection function not found in OrderedSequenceBuilder.tsx");
+  }
+  const nextFunctionStart = fullSource.indexOf("\nfunction ", start + 1);
+  if (nextFunctionStart === -1) {
+    throw new Error("Could not find the end boundary of ReservationPreparationSection (no following function)");
+  }
+  return fullSource.slice(start, nextFunctionStart);
+}
+
+describe("OrderedSequenceBuilder.tsx — reservation lead-time signal wiring (source-scanning integration check)", () => {
+  it("imports buildReservationPreparationSummary from the reservation-planning module", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bbuildReservationPreparationSummary\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-planning["']/
+    );
+  });
+
+  it("computes the summary from the current canonical route (routePlaces), not a day bucket", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/buildReservationPreparationSummary\(\s*routePlaces\s*\)/);
+  });
+
+  it("renders ReservationPreparationSection in the builder view with the computed summary", async () => {
+    const source = await readSource();
+    expect(source).toContain("function ReservationPreparationSection(");
+    expect(source).toMatch(/<ReservationPreparationSection\s+summary=\{reservationPreparation\}\s*\/>/);
+  });
+
+  it("renders inside the existing single dialog, not a second dialog/modal", async () => {
+    const source = await readSource();
+    const sectionSource = extractReservationPreparationSectionSource(source);
+    expect(sectionSource).not.toMatch(/role=["']dialog["']/);
+    expect(sectionSource).not.toMatch(/aria-modal/);
+    const dialogRootCount = (source.match(/role="dialog"/g) ?? []).length;
+    expect(dialogRootCount).toBe(1);
+  });
+
+  it("renders both a coarse-magnitude signal and a specific-mechanism review signal", async () => {
+    const sectionSource = extractReservationPreparationSectionSource(await readSource());
+    expect(sectionSource).toContain("coarse-magnitude");
+    expect(sectionSource).toMatch(/Anticipación registrada/);
+    expect(sectionSource).toMatch(/Mecanismo específico/);
+  });
+
+  it("always renders the raw evidence text alongside the derived signal", async () => {
+    const sectionSource = extractReservationPreparationSectionSource(await readSource());
+    expect(sectionSource).toMatch(/item\.leadTime\.raw/);
+  });
+
+  it("does not read startDate, a derived day date, or Date.now anywhere in the section", async () => {
+    const sectionSource = extractReservationPreparationSectionSource(await readSource());
+    for (const forbidden of ["startDate", "dayDate", "Date.now", "addCivilDays"]) {
+      expect(sectionSource, forbidden).not.toContain(forbidden);
+    }
+  });
+
+  it("never states a booking deadline, a days-remaining count, or an urgency judgment", async () => {
+    const sectionSource = extractReservationPreparationSectionSource(await readSource());
+    const lower = sectionSource.toLowerCase();
+    for (const forbidden of ["reserva antes del", "te quedan", "ya deberías reservar", "estás a tiempo", "urgente"]) {
+      expect(lower, `should not contain "${forbidden}"`).not.toContain(forbidden);
+    }
+  });
+});

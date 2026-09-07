@@ -212,6 +212,19 @@ is extractable) and 65 are opaque, entity- or mechanism-specific text (`"Loterí
 revisar liberaciones"`, `"App obligatoria para timed entry desde 2026"`) that cannot be reduced to
 a bucket without losing the actual mechanism the editor is warning about.
 
+> **Update (Phase 3D-D):** this section's `reservation.leadTime` finding is now a runtime
+> consumer. `app/src/lib/reservation-lead-time.ts` classifies `reservation.leadTime` on every read
+> (a direct TypeScript port of `classify_lead_time()` below, same category/tier mapping and the
+> same anchored, whole-string `_BARE_MAGNITUDE_RE`), deriving a coarse `LeadTimeMagnitude` bucket
+> for `bare-magnitude` strings only — never a numeric range, never a booking deadline, never a
+> comparison against any date. `app/src/lib/reservation-planning.ts` composes that fact with Phase
+> 3D-C's `ReservationFact` into a route-level "Reservas por preparar" summary
+> (`OrderedSequenceBuilder.tsx`), preserving the user's route order and never resorting by
+> magnitude or urgency. The dataset itself, `reservation.leadTime`'s values, and this section's
+> counts are unchanged — Phase 3D-D is a runtime-consumer addition, not a re-audit. See
+> `docs/ROADMAP.md`'s Phase 3D-D entry and `docs/DATA_MODEL.md`'s "Reservation lead-time signals"
+> section for what shipped and its exact product boundary.
+
 **Coverage: `reservation.raw` SAFE 175/214, PARTIAL 39/214. `reservation.leadTime` SAFE 128/214,
 PARTIAL 21/214, OPAQUE 65/214.**
 
