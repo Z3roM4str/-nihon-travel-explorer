@@ -1,9 +1,34 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import placesData from "../data/places.json";
 import type { Place } from "../types";
-import { assessWeekdayClosure, interpretClosureText } from "./temporal-availability";
+import { assessWeekdayClosure, interpretClosureText, type ClosureCategory } from "./temporal-availability";
 
 const places = placesData as Place[];
+
+/**
+ * One representative raw string per `ClosureCategory` this module distinguishes, and the
+ * `ClosureFact["kind"]` each one must produce. This table is the single source of truth for two
+ * separate regression checks below: a table-driven parity test (this file) and a source-scanning
+ * check against `scripts/temporal_data_lib.py`'s actual `CLOSURES_TIER` keys, so the two can
+ * never silently drift apart — a prior version of this file had exactly that drift (the
+ * TypeScript category was misnamed `no-known-closure-with-caveat` instead of the canonical
+ * Python `no-ordinary-closure-with-caveat`, and no test caught it because the parity test asserted
+ * against the wrong name too).
+ */
+const REPRESENTATIVE_CLOSURE_INPUTS: Record<ClosureCategory, { raw: string; kind: string }> = {
+  missing: { raw: "", kind: "not-evaluable" },
+  "no-known-closure": { raw: "Sin cierre ordinario", kind: "no-known-closure" },
+  "no-ordinary-closure-with-caveat": { raw: "Sin cierre ordinario; clima", kind: "not-evaluable" },
+  "weather-or-tide-dependent": { raw: "Clima/tifones", kind: "not-evaluable" },
+  "recurring-weekday-named": { raw: "Lunes; verificar", kind: "candidate-weekday" },
+  "irregular-weekday-pattern": { raw: "Muchos domingos", kind: "not-evaluable" },
+  "temporary-specific-closure": { raw: "Solo durante el festival", kind: "not-evaluable" },
+  "third-party-operator-dependent": { raw: "Según comercio", kind: "not-evaluable" },
+  "scheduled-but-unspecified": { raw: "Cierres programados", kind: "not-evaluable" },
+  "explicit-unknown-variable": { raw: "Variable", kind: "not-evaluable" },
+  "qualitative-uncategorized": { raw: "Interiores limitados", kind: "not-evaluable" },
+};
 
 describe("interpretClosureText — parity with scripts/temporal_data_lib.py's classify_closures", () => {
   it("classifies plain 'Sin cierre' as SAFE no-known-closure", () => {
@@ -24,7 +49,7 @@ describe("interpretClosureText — parity with scripts/temporal_data_lib.py's cl
     expect(fact.kind).not.toBe("no-known-closure");
     expect(fact.tier).not.toBe("safe");
     if (fact.kind === "not-evaluable") {
-      expect(fact.category).toBe("no-known-closure-with-caveat");
+      expect(fact.category).toBe("no-ordinary-closure-with-caveat");
       expect(fact.tier).toBe("partial");
     }
   });
@@ -152,6 +177,79 @@ describe("interpretClosureText — parity with scripts/temporal_data_lib.py's cl
       Array.from({ length: 5 }, () => JSON.stringify(interpretClosureText("Lunes; verificar")))
     );
     expect(results.size).toBe(1);
+  });
+});
+
+describe("full closure-category vocabulary parity (table-driven)", () => {
+  it.each(Object.entries(REPRESENTATIVE_CLOSURE_INPUTS))(
+    "category %s classifies with the expected kind and category",
+    (category, { raw, kind }) => {
+      const fact = interpretClosureText(raw);
+      expect(fact.kind, `raw=${JSON.stringify(raw)}`).toBe(kind);
+      expect(fact.category, `raw=${JSON.stringify(raw)}`).toBe(category);
+    }
+  );
+
+  it("covers every ClosureCategory exactly once — no category missing, none invented", () => {
+    const covered = Object.keys(REPRESENTATIVE_CLOSURE_INPUTS).sort();
+    const observed = Object.values(REPRESENTATIVE_CLOSURE_INPUTS)
+      .map(({ raw }) => interpretClosureText(raw).category)
+      .sort();
+    expect(observed).toEqual(covered);
+  });
+});
+
+/**
+ * Reads `scripts/temporal_data_lib.py`'s actual `CLOSURES_TIER` dict as text (never imported,
+ * never executed — this is a Node test file, not a Python runtime dependency) and parses its
+ * `"category": "TIER"` entries. This is the lightweight, subprocess-free auto-detection item 2 of
+ * the corrective review asked for: if a future edit renames, adds, or removes a category on
+ * either side of the language boundary without updating the other, this test fails immediately
+ * instead of silently drifting the way the `no-known-closure-with-caveat`/
+ * `no-ordinary-closure-with-caveat` mismatch did.
+ */
+async function readPythonClosuresTier(): Promise<Record<string, string>> {
+  const source = await readFile(
+    new URL("../../../scripts/temporal_data_lib.py", import.meta.url),
+    "utf8"
+  );
+  const blockMatch = /CLOSURES_TIER\s*=\s*\{([\s\S]*?)\n\}/.exec(source);
+  if (!blockMatch) {
+    throw new Error("Could not find a CLOSURES_TIER = { ... } block in scripts/temporal_data_lib.py");
+  }
+  const entries: Record<string, string> = {};
+  const entryRe = /"([a-z0-9-]+)":\s*"([A-Z]+)"/g;
+  let match: RegExpExecArray | null;
+  while ((match = entryRe.exec(blockMatch[1])) !== null) {
+    entries[match[1]] = match[2].toLowerCase();
+  }
+  return entries;
+}
+
+describe("cross-language parity source-check (no subprocess, text-only)", () => {
+  it("scripts/temporal_data_lib.py's CLOSURES_TIER has at least the categories this module expects", async () => {
+    const pythonTier = await readPythonClosuresTier();
+    // A sanity floor so a broken regex/parse (0 entries found) fails loudly rather than passing
+    // the emptier assertions below vacuously.
+    expect(Object.keys(pythonTier).length).toBeGreaterThanOrEqual(11);
+  });
+
+  it("every ClosureCategory this module has exists in the Python CLOSURES_TIER with the same tier", async () => {
+    const pythonTier = await readPythonClosuresTier();
+    for (const [category, { raw }] of Object.entries(REPRESENTATIVE_CLOSURE_INPUTS)) {
+      expect(pythonTier, `Python CLOSURES_TIER is missing key ${JSON.stringify(category)}`).toHaveProperty(
+        category
+      );
+      const fact = interpretClosureText(raw);
+      expect(fact.tier, `category=${category}`).toBe(pythonTier[category]);
+    }
+  });
+
+  it("the Python CLOSURES_TIER has no category this module doesn't know about", async () => {
+    const pythonTier = await readPythonClosuresTier();
+    const tsCategories = new Set(Object.keys(REPRESENTATIVE_CLOSURE_INPUTS));
+    const unknownToTs = Object.keys(pythonTier).filter((category) => !tsCategories.has(category));
+    expect(unknownToTs).toEqual([]);
   });
 });
 

@@ -30,16 +30,19 @@ import { normalizeText } from "./place";
 export type TemporalTier = "safe" | "partial" | "opaque" | "unknown";
 
 /**
- * The closed set of `schedule.closures` pattern families this module distinguishes — a strict
- * subset of `scripts/temporal_data_lib.py`'s `CLOSURES_TIER` keys, reproduced here only because
+ * The closed set of `schedule.closures` pattern families this module distinguishes — the exact
+ * same 11 keys as `scripts/temporal_data_lib.py`'s `CLOSURES_TIER` (not a subset: every Python
+ * `schedule.closures` category has a same-named counterpart here), reproduced here only because
  * `ClosureFact.category` needs to name exactly which one produced a given fact (for tests that
  * assert parity, and so a future phase auditing this module can trace a runtime fact back to its
- * Python-audit family without re-deriving the mapping).
+ * Python-audit family without re-deriving the mapping). `temporal-availability.test.ts` includes
+ * a source-scanning check against `scripts/temporal_data_lib.py`'s actual `CLOSURES_TIER` keys,
+ * so a future edit to either side that silently drifts from the other fails a test.
  */
 export type ClosureCategory =
   | "missing"
   | "no-known-closure"
-  | "no-known-closure-with-caveat"
+  | "no-ordinary-closure-with-caveat"
   | "weather-or-tide-dependent"
   | "recurring-weekday-named"
   | "irregular-weekday-pattern"
@@ -54,7 +57,7 @@ export type ClosureCategory =
 const CLOSURE_CATEGORY_TIER: Record<ClosureCategory, TemporalTier> = {
   missing: "unknown",
   "no-known-closure": "safe",
-  "no-known-closure-with-caveat": "partial",
+  "no-ordinary-closure-with-caveat": "partial",
   "weather-or-tide-dependent": "opaque",
   "recurring-weekday-named": "partial",
   "irregular-weekday-pattern": "opaque",
@@ -153,7 +156,7 @@ function classifyClosureCategory(raw: string): ClosureCategory {
   if (!text) return "missing";
   const normalized = normalizeText(text);
   if (normalized.startsWith("sin cierre")) {
-    return text.includes(";") ? "no-known-closure-with-caveat" : "no-known-closure";
+    return text.includes(";") ? "no-ordinary-closure-with-caveat" : "no-known-closure";
   }
   if (ENV_RE.test(normalized)) return "weather-or-tide-dependent";
   if (weekdaysIn(normalized).length > 0) {

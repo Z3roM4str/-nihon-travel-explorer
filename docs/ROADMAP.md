@@ -1157,20 +1157,45 @@ opening-hours solver, and none of Phase 3D-A's other audited fields (`schedule.h
       `schedule.closures` text. A source-scanning regression test asserts neither new module
       references `localStorage`/`sessionStorage`/`indexedDB` at all, the same technique Phase
       3B3D's `transit.test.ts` already established for exactly this kind of guarantee.
-- [x] **51 new tests**: 9 new `getCivilWeekday` cases in `civil-date.test.ts` (known Monday/Sunday,
+- [x] **76 new tests**: 9 new `getCivilWeekday` cases in `civil-date.test.ts` (known Monday/Sunday,
       every weekday across one reference week, a leap date, a century leap year, month/year
       boundaries, invalid input, timezone invariance across UTC−12/UTC/UTC+14-equivalent zones);
-      29 in the new `temporal-availability.test.ts` (parity cases above, accent/case handling,
+      44 in `temporal-availability.test.ts` (parity cases above, accent/case handling,
       multi-weekday extraction in fixed order, all five `assessWeekdayClosure` outcomes including
-      the explicit "no boolean field anywhere that could be read as open" check, and real-dataset
-      throw/coverage/non-promotion invariants); 13 in the new `day-weekday-signal.test.ts`
-      (no-date/invalid-date → unassessed, a match/no-match/empty-day case each, not-evaluable
-      counted and individually identifiable, moving a place to a different day and changing the
-      start date each recomputing from the new date, determinism, an outcome-vocabulary
-      regression check, and the persistence source-scan above).
+      the explicit "no boolean field anywhere that could be read as open" check, real-dataset
+      throw/coverage/non-promotion invariants, a full-vocabulary table-driven parity check, and a
+      subprocess-free source-check against `scripts/temporal_data_lib.py`'s actual `CLOSURES_TIER`
+      — see "Corrective review" below); 13 in `day-weekday-signal.test.ts` (no-date/invalid-date →
+      unassessed, a match/no-match/empty-day case each, not-evaluable counted and individually
+      identifiable, moving a place to a different day and changing the start date each recomputing
+      from the new date, determinism, an outcome-vocabulary regression check, and the persistence
+      source-scan above); 10 in the new `OrderedSequenceBuilder.test.ts` (source-scanning
+      integration coverage — see "Corrective review" below).
 - [x] Updated `docs/DATA_MODEL.md` (new "Weekday closure signals" section, pointer-only — no
       `Place` field changed) and `docs/TEMPORAL_DATA_CONTRACT.md` (records this runtime consumer
       and its exact boundary, without reopening the audit numbers themselves).
+- [x] **Corrective review**: a second pass found and fixed two defects before human review. (1) A
+      real category-name parity defect: `interpretClosureText()`'s TypeScript category was named
+      `no-known-closure-with-caveat` while the canonical Python audit
+      (`scripts/temporal_data_lib.py`'s `CLOSURES_TIER`) names the same family
+      `no-ordinary-closure-with-caveat` — the existing parity test had encoded the same wrong name,
+      so it didn't actually protect the parity claim it existed to enforce. Fixed with the exact
+      canonical name (tier/behavior unchanged: still PARTIAL, still `not-evaluable`, still never
+      SAFE), and hardened with a table-driven test covering the complete 11-category
+      `schedule.closures` vocabulary plus a lightweight, subprocess-free source-check that parses
+      `CLOSURES_TIER` directly out of the Python file's text and fails if either language's
+      category set or tier values ever drift from the other — verified to actually catch the
+      original defect by deliberately reintroducing it and confirming the new tests fail. (2)
+      Added `OrderedSequenceBuilder.test.ts`, a source-scanning structural test (the same technique
+      `server/transit.test.ts` already established) proving the component still imports and calls
+      `buildDayWeekdaySignal(places, dayDate)`, still renders `<WeekdayClosureNotice
+      signal={weekdaySignal} />`, contains the exact conservative match/no-match/disclaimer wording
+      scoped to that function's own source region (never the whole file, to avoid false positives
+      against this module's own "does not read X" doc comments), never contains "está
+      cerrado"/"día válido"/"día compatible"/"mejor día," and introduces no second
+      `role="dialog"` — verified to actually catch a real regression by deliberately removing the
+      render call and confirming the test fails. Both fixes verified by deliberately reverting them
+      and confirming the new tests catch the reversion, not merely by inspection.
 
 This phase made **zero requests to any official source, provider, or API**, changed no
 `places.json` (canonical or `app/src/data/` copy), no `seasonal-alerts.json`, no workbook, no
