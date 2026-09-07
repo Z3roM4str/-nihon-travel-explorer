@@ -552,9 +552,13 @@ function HoursPlanningSection({ summary }: { summary: RecordedHoursSummary }) {
   if (summary.safeCount > 0) parts.push(`${summary.safeCount} claro${summary.safeCount === 1 ? "" : "s"}`);
   if (summary.conditionalCount > 0) parts.push(`${summary.conditionalCount} con condiciones`);
   if (summary.externalDependencyCount > 0) {
-    parts.push(
-      `${summary.externalDependencyCount} depende${summary.externalDependencyCount === 1 ? "" : "n"} de un tercero`
-    );
+    // "con dependencia externa" is deliberately neutral over BOTH OPAQUE categories this count
+    // combines (weather-or-tide-dependent and third-party-operator-dependent) — "depende de un
+    // tercero" was semantically false for a weather/tide-dependent place (there is no third party
+    // involved), so this summary phrase must never name a specific dependency kind. The
+    // per-item labels below stay category-specific (`HOURS_CATEGORY_LABEL`) precisely because they
+    // describe one place's own category, not a combined count spanning both.
+    parts.push(`${summary.externalDependencyCount} con dependencia externa`);
   }
   if (summary.unknownCount > 0) parts.push(`${summary.unknownCount} por revisar`);
 

@@ -29,8 +29,14 @@ import type { Place } from "../types";
  *
  * Like `temporal-availability.ts`, this module classifies against `normalizeText(raw)` (NFD accent
  * stripping + lowercasing) rather than porting Python's accented character classes (`s[eé]g[uú]n`)
- * verbatim — the same established equivalence: "según"/"Según" and "segun" all normalize to
- * "segun", matching the Python regex's accepted set exactly without hand-rolled character classes.
+ * verbatim — the same established technique: "según"/"Según" and "segun" all normalize to "segun",
+ * matching the Python regex's accepted set for every Spanish variant actually present in this
+ * dataset, without hand-rolled character classes. Generic NFD stripping is technically a broader
+ * accept set than an explicit `s[eé]g[uú]n`-style class (it also folds accented characters the
+ * Python pattern never listed), so this is an equivalence over the canonical dataset and its
+ * expected Spanish variants, not a formal proof the two regex engines accept identical languages —
+ * the parity tests below assert on classification outcomes for real and representative strings,
+ * not on the regex character classes themselves.
  *
  * **This module never reads `bestTime`, `schedule.closures`, or `febMar2027`.** Those are
  * different axes owned by different phases (`bestTime` is an editorial recommendation, never an

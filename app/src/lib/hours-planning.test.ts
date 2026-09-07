@@ -48,6 +48,31 @@ describe("buildRecordedHoursSummary — fixtures", () => {
     expect(summary.externalDependencyCount).toBe(1);
   });
 
+  it("a weather-or-tide-dependent place alone counts toward externalDependencyCount — combining it with third-party is an aggregation detail, not a claim about which one it is", () => {
+    // Corrective regression: externalDependencyCount intentionally combines BOTH OPAQUE
+    // categories (weather-or-tide-dependent and third-party-operator-dependent) — that combined
+    // count is correct at THIS layer. What must never happen is a consumer (the route-summary UI)
+    // reading this single combined count and rendering wording that names one specific dependency
+    // kind ("un tercero") for a place that is actually the other kind (weather/marea). This test
+    // pins down the aggregation half of that guarantee: a weather-only route still produces
+    // exactly the same externalDependencyCount a third-party-only route would, and the underlying
+    // fact's own category still correctly distinguishes the two — see
+    // `components/OrderedSequenceBuilder.test.ts` for the UI-wording half of this regression.
+    const weatherOnly = buildRecordedHoursSummary([place("A", "Ferry estacional y meteorológico")]);
+    const thirdPartyOnly = buildRecordedHoursSummary([place("B", "Según tienda, aprox. 11:00–20:00")]);
+    expect(weatherOnly.externalDependencyCount).toBe(1);
+    expect(thirdPartyOnly.externalDependencyCount).toBe(1);
+    expect(weatherOnly.items[0].hours.category).toBe("weather-or-tide-dependent");
+    expect(thirdPartyOnly.items[0].hours.category).toBe("third-party-operator-dependent");
+    // Combined, both still land in the same summary count — this is the exact shape that made
+    // the old "N depende de un tercero" wording semantically false for the weather-only case.
+    const combined = buildRecordedHoursSummary([
+      place("A", "Ferry estacional y meteorológico"),
+      place("B", "Según tienda, aprox. 11:00–20:00"),
+    ]);
+    expect(combined.externalDependencyCount).toBe(2);
+  });
+
   it("an UNKNOWN place produces exactly one item, counted as unknown", () => {
     const summary = buildRecordedHoursSummary([place("A", "Tours en horas fijas")]);
     expect(summary.items).toHaveLength(1);

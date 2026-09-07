@@ -1439,9 +1439,13 @@ recorded-hours information can Nihon safely state from the existing static `sche
       `scripts/temporal_data_lib.py`'s `classify_hours()`: the same 14 category names, the same
       SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category (`HOURS_TIER`), and — critically — the same
       fixed priority order of checks (`HOURS_RULES`). Classifies against `normalizeText(raw)` (NFD
-      accent stripping + lowercasing), the same equivalence `temporal-availability.ts` and
-      `reservation.ts` already established for `s[eé]g[uú]n`-style accented character classes,
-      rather than porting them verbatim.
+      accent stripping + lowercasing), the same technique `temporal-availability.ts` and
+      `reservation.ts` already established, rather than porting Python's `s[eé]g[uú]n`-style
+      accented character classes verbatim. This is an equivalence over the canonical dataset and
+      its expected Spanish variants — generic NFD stripping is technically a broader accept set
+      than an explicit accented character class, not a formal proof the two regex engines accept
+      identical languages — proven by classification-outcome parity tests, not a character-class
+      comparison.
 - [x] **Priority order is preserved exactly, proven with the adversarial examples that motivate
       it.** `"Abierto 24 h; puede cerrar por viento"` and `"Estación 24 h; comercios variables"`
       both classify `known-24h-with-caveat` (PARTIAL), never plain `known-24h` (SAFE) — a 24h
@@ -1481,12 +1485,19 @@ recorded-hours information can Nihon safely state from the existing static `sche
       read-only section — "Horarios registrados" — rendered next to "Reservas por preparar" for the
       same reason: the signal is useful before the route is split into days, and it reads no
       `startDate`, no derived day date, no `place.schedule.closures`, no `place.bestTime`, and no
-      `place.febMar2027`. A summary line (`"N claros · M con condiciones · K depende(n) de un
-      tercero · J por revisar"`) is followed by one entry per route place naming its recorded-hours
-      signal and the original raw `schedule.hours` text verbatim. Wording is deliberately narrow
-      throughout: `"Horario registrado: 09:00–17:00"` states a recorded fact, never that the place
-      is open at those hours on any date; every PARTIAL/OPAQUE/UNKNOWN phrase ends in "revisar," a
-      call to double-check, never "closed," "incompatible," or "bad." A standing disclaimer states
+      `place.febMar2027`. A summary line (`"N claros · M con condiciones · K con dependencia
+      externa · J por revisar"`) is followed by one entry per route place naming its recorded-hours
+      signal and the original raw `schedule.hours` text verbatim. **`"con dependencia externa"` is
+      deliberately neutral over BOTH OPAQUE categories `externalDependencyCount` combines
+      (`weather-or-tide-dependent` and `third-party-operator-dependent`) — a corrective fix caught
+      the original wording, "N depende de un tercero," being semantically false for a
+      weather/tide-dependent place (no third party is involved at all); the neutral phrase is
+      correct for either, while each place's own per-item label stays category-specific
+      ("Horario depende de clima o marea; revisar" vs. "Horario depende de un operador externo;
+      revisar").** Wording is deliberately narrow throughout: `"Horario registrado: 09:00–17:00"`
+      states a recorded fact, never that the place is open at those hours on any date; every
+      PARTIAL/OPAQUE/UNKNOWN phrase ends in "revisar," a call to double-check, never "closed,"
+      "incompatible," or "bad." A standing disclaimer states
       plainly that the section describes only what is recorded, never whether a place opens or
       closes on the user's date, and does not check holidays or closures.
 - [x] **`bestTime`, `schedule.closures`, and `febMar2027` all stay out of this domain and this
@@ -1536,7 +1547,7 @@ recorded-hours information can Nihon safely state from the existing static `sche
       "Horario depende de un operador externo; revisar" with no parsed interval; SHIBUYA SKY
       (`JP-002`, `"Variable por fecha"`, `explicit-unknown-variable`) shows
       "Horario variable; revisar dato original." The summary line read "2 claros · 1 con
-      condiciones · 1 depende de un tercero · 1 por revisar," matching the five places' tiers
+      condiciones · 1 con dependencia externa · 1 por revisar," matching the five places' tiers
       exactly. Reordering the route (moving SHIBUYA SKY to the top via its own reorder button)
       changed the section's display order to match while every place's rendered signal text stayed
       byte-identical — confirming order is route-derived, never resorted by tier. The section
@@ -1547,6 +1558,29 @@ recorded-hours information can Nihon safely state from the existing static `sche
       calculation, opening/closing arithmetic, overnight interval or day-rollover handling, or
       schedule-collision detection. No date comparison: nothing here reads `startDate`, a derived
       day date, `addCivilDays()`, or `getCivilWeekday()`.
+- [x] **Corrective review**: one real defect found and fixed, not touching the dataset or widening
+      scope. `buildRecordedHoursSummary()`'s `externalDependencyCount` intentionally combines both
+      OPAQUE categories (`weather-or-tide-dependent` and `third-party-operator-dependent` — that
+      aggregation itself is correct and unchanged), but `HoursPlanningSection`'s route-summary line
+      rendered that combined count as `"N depende(n) de un tercero"` — semantically false for a
+      route containing only a weather/tide-dependent place, since no third party is involved at
+      all. Fixed by changing only the summary phrase to the neutral `"N con dependencia externa"`,
+      correct for either OPAQUE category; the per-item labels were already, and remain,
+      category-specific (`"Horario depende de clima o marea; revisar"` vs. `"Horario depende de un
+      operador externo; revisar"`) and were never part of the defect. A new aggregation-level test
+      in `lib/hours-planning.test.ts` pins down that a weather-only route and a third-party-only
+      route both produce the same `externalDependencyCount` shape that made the old wording wrong,
+      and the existing source-scanning wording test in `components/OrderedSequenceBuilder.test.ts`
+      now additionally asserts the section never contains the literal string `"un tercero"`. A
+      focused browser QA re-verification against one weather-or-tide-dependent place (Tomogashima,
+      `JP-146`, `"Ferry estacional y meteorológico"`) and one third-party-operator-dependent place
+      (Omoide Yokocho, `JP-014`, `"Según local, tarde–noche"`) together confirmed the route-summary
+      line now reads truthfully for both — see the manual-QA bullet above, updated to match. Test
+      counts after this pass: 19 in `lib/hours-planning.test.ts` (was 18), 32 in
+      `components/OrderedSequenceBuilder.test.ts` (was 31) — **591 tests passing** overall (was
+      589), `npm run lint`/`npm run build`/`python3 scripts/test_temporal_data_audit.py` all still
+      clean. No dataset, `package.json`, lockfile, planning-draft schema, or `localStorage` key
+      changed; no Phase 3D-F work was started.
 
 `data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
 logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the

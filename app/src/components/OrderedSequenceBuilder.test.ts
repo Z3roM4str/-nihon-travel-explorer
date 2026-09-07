@@ -301,6 +301,19 @@ describe("OrderedSequenceBuilder.tsx — recorded-hours signal wiring (source-sc
     }
   });
 
+  it("the route-summary phrase for externalDependencyCount is neutral, never naming 'un tercero' — a weather/tide-dependent place is not a third party", async () => {
+    // Corrective regression: externalDependencyCount intentionally combines BOTH OPAQUE
+    // categories (weather-or-tide-dependent AND third-party-operator-dependent). A summary
+    // phrase reading "N depende de un tercero" is semantically false for a route containing only
+    // a weather/tide-dependent place — there is no third party involved at all. The combined
+    // count's own phrase must stay neutral over both categories; only the per-item label (checked
+    // above, "operador externo; revisar") may name a specific dependency kind.
+    const sectionSource = extractHoursPlanningSectionSource(await readSource());
+    expect(sectionSource).toContain("con dependencia externa");
+    expect(sectionSource).not.toContain("un tercero");
+    expect(sectionSource).not.toMatch(/externalDependencyCount\}[^`]*tercero/);
+  });
+
   it("always renders the raw evidence text alongside the derived signal", async () => {
     const sectionSource = extractHoursPlanningSectionSource(await readSource());
     expect(sectionSource).toMatch(/item\.hours\.raw/);
