@@ -1731,29 +1731,59 @@ without fabricating precision. Full contract, real-data audit, and rationale:
 - [x] **Re-derived the real `reservation.leadTime` inventory** (214 places, 66 distinct raw
       values; 128 `not-applicable` / 21 `bare-magnitude` / 65 `opaque-entity-or-mechanism-specific`
       — matching `docs/TEMPORAL_DATA_CONTRACT.md` exactly, independently reproduced, not copied)
-      and partitioned the 21 `bare-magnitude` records into five computability classes: **A**
+      and partitioned the 21 `bare-magnitude` records into **four** computability classes: **A**
       (explicit numeric day/week range) 5 places, **B** (unit only, no quantity) 5 places, **C**
-      (mixed unit, no quantity) 10 places, **D** (numeric month range) 1 place, **E** (specific
-      mechanism/OPAQUE) 65 places.
+      (mixed unit, no quantity) 10 places, **D** (numeric month range) 1 place — `5+5+10+1 = 21`.
+      **Class E is not a fifth `bare-magnitude` class**: it is the separate 65-place
+      `opaque-entity-or-mechanism-specific` bucket, which never reaches `bare-magnitude` at all.
+      Whole-dataset accounting is six-way: A 5 + B 5 + C 10 + D 1 + E 65 + `not-applicable` 128
+      = 214.
 - [x] **Executive decision: only Class A (5/214 places) can safely support a deterministic date
       window** — everything else must stay a non-computable, manual-review signal, permanently for
       B/C/E and pending further evidence for D (a single record does not justify building
       calendar-month clamping machinery).
-- [x] **Visit-date source contract**: a deadline calculation requires BOTH an unambiguous day
+- [x] **Visit-date source contract**: a range derivation requires BOTH an unambiguous day
       assignment (`DayAssignment.valid === true`, from `day-assignment.ts`) AND a valid `startDate`
-      — `visitDate = addCivilDays(startDate, dayIndex)`, reusing the exact composition
-      `OrderedSequenceBuilder.tsx` already uses for the weekday-closure signal. `startDate` alone
-      is explicitly rejected as a proxy visit date for an unassigned place.
-- [x] **Numeric/month/OPAQUE semantics decided**: weeks convert exactly (1 week = 7 days); months
-      are refused for a first implementation rather than approximated; an OPAQUE record's
-      numeric-looking substring (e.g. a lottery's "3 meses antes") is never re-scanned into a
-      computable deadline once Phase 3D-D has already classified it opaque.
+      — `visitDate = addCivilDays(startDate, dayIndex)`, reusing the arithmetic expression
+      `OrderedSequenceBuilder.tsx` already uses for the weekday-closure signal. The
+      `valid === true` prerequisite is a **new rule introduced by this design**, not inherited:
+      the existing UI computes and renders per-day dates even while showing its invalid-assignment
+      warning, so the helper is reused but the validity guard is not. `startDate` alone is
+      explicitly rejected as a proxy visit date for an unassigned place.
+- [x] **Numeric/month/OPAQUE semantics decided**: the unit conversion 1 week = 7 days is exact,
+      but the underlying editorial guidance ("1–2 semanas") stays approximate — converting the
+      unit exactly does not turn coarse guidance into day-level booking policy, which is why the
+      terminology discipline is load-bearing. Months are refused for a first implementation rather
+      than approximated. An OPAQUE record's numeric-looking substring (e.g. a lottery's "3 meses
+      antes") is never re-scanned once Phase 3D-D has classified it opaque: classification first,
+      numeric parsing second, and only for the eligible `coarse-magnitude` category.
+- [x] **Neutral calendar-edge naming, replacing false booking semantics**: the two derived edges
+      are `farAdvanceDate`/`nearAdvanceDate` — named for distance from the visit date, never
+      `earliestDate`/`latestDate`. `farAdvanceDate` is **not** "the earliest date booking is
+      allowed" (booking earlier may be possible and preferable) and `nearAdvanceDate` is **not** a
+      guaranteed last booking date; neither edge implies inventory availability.
+- [x] **`febMar2027` cross-axis contract — orthogonal, composed only at presentation**: Feb–Mar
+      operating-calendar confidence is a separate axis from lead-time computability and is **not**
+      an input to the parser or a prerequisite for computability — a Class A lead time stays
+      computable when the Feb–Mar status is pending. Where both are shown, the derived range must
+      be subordinate to the pending-status warning, must say the calendar/conditions still need
+      reconfirmation, and must never read as evidence the visit itself is confirmed. Documented
+      with the three currently-affected Class A places (`JP-019`, `JP-034`, `JP-095` — 3 of 5).
+- [x] **Reservation-level eligibility, not a digit parser**: a numerically clean `leadTime` must
+      not override reservation-level semantics indicating a specific mechanism or an
+      uninterpretable record. Gates on the existing `interpretPlaceReservation` categories
+      (`tier`/`consistentWithDerivedBoolean`), reusing the existing interpreter rather than adding
+      a competing one, and explicitly never on literal `reservation.raw` values.
 - [x] **Current-date/urgency explicitly deferred**: a first implementation should compute a window
       relative to a visit date only, never "today" — no "book now"/"deadline passed"/"days
       remaining" claims, consistent with every prior Phase 3D module never calling `Date.now()`.
 - [x] **Illustrative future domain model, UI placement (extend "Reservas por preparar" and the day
-      view, not a new surface), failure/unknown-state table, and a full test strategy** — all
-      documented, none implemented.
+      view, not a new surface), failure/unknown-state table, a separate presentation-state table,
+      and a full test strategy** — all documented, none implemented.
+- [x] **Two states recorded as explicit non-problems**: "assignment outside trip bounds" is not
+      representable (the planning draft has no trip end date, and none is being added), and a
+      dataset lead-time edit cannot strand a stale derived range (the range is derived on read and
+      never persisted).
 - [x] **Recommends, but does not schedule, a narrow future Phase 3D-H** (Class A only, no months,
       no urgency) as the smallest safe next step.
 
