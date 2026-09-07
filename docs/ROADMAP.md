@@ -1680,7 +1680,7 @@ not determine that a place is actually open or closed, and performs no live veri
       reproduced by new TypeScript tests against `data/places.json` (via `app/src/data/places.json`,
       still byte-identical) and confirmed against a fresh `python3
       scripts/audit-temporal-data.py data` run. All 214 places classify without throwing.
-- [x] **60 new tests**: 48 in `lib/feb-mar-status.test.ts` (category/tier table-driven coverage,
+- [x] **55 new tests**: 48 in `lib/feb-mar-status.test.ts` (category/tier table-driven coverage,
       the adversarial priority-order examples above, the structural Python-source priority-order
       check, the Python `FEB_MAR_STATUS_TIER` source-check parity test, the warning/action
       non-consultation tests, determinism, real-dataset invariants — all 214 places classify
