@@ -1299,6 +1299,131 @@ logistics/access-point/walking/temporal artifact are byte-identical to `main`; n
 added; the planning-draft schema and `localStorage` keys are unchanged. No Phase 3D-D (or any
 later phase) work was started.
 
+## Phase 3D-D — Reservation Lead-Time Signals — complete
+
+Turns the already-audited `reservation.leadTime` free text into a conservative runtime planning
+signal, given a place the user already selected. It does **not** implement booking deadlines: it
+never answers "when exactly must I book," "am I already too late," "book by \<date\>," "when do
+tickets go on sale," or "is there availability."
+
+- [x] **`app/src/lib/reservation-lead-time.ts`** — a new, small, pure domain module, deliberately
+      separate from `lib/reservation.ts` (which keeps owning reservation-*necessity* semantics —
+      required/recommended/optional/role-specific — from Phase 3D-C). `classifyLeadTimeCategory()`
+      is a direct TypeScript port of `scripts/temporal_data_lib.py`'s `classify_lead_time()`: the
+      same 3 category names (`not-applicable`, `bare-magnitude`,
+      `opaque-entity-or-mechanism-specific`), the same SAFE/PARTIAL/OPAQUE tier per category, and
+      an exact port of `_BARE_MAGNITUDE_RE` — an anchored (`^...$`) whole-string pattern, never a
+      substring search. Protected by the same subprocess-free source-check technique
+      `reservation.test.ts` established for `RESERVATION_RAW_TIER`, applied here to
+      `LEAD_TIME_TIER`, plus a direct assertion that the Python pattern text is itself anchored.
+- [x] **The whole-string opacity rule is load-bearing and explicitly tested.** A string is
+      `bare-magnitude` only when the ENTIRE normalized string matches the canonical pattern — a
+      magnitude-shaped substring inside a longer sentence never qualifies. Proven against the
+      exact adversarial examples the phase brief named: `"Lotería 3 meses antes; revisar
+      liberaciones"`, `"2–4 semanas; atardecer antes"`, `"Días o semanas para exposición
+      popular"`, `"App obligatoria para timed entry desde 2026"`, and `"Grupos: reservar;
+      individuales según operador"` all stay `opaque-entity-or-mechanism-specific` and never
+      produce a `magnitude` field, despite each containing a magnitude-shaped token.
+- [x] **Coarse magnitude extraction, canonical-pattern-only.** For a bare-magnitude string only,
+      `deriveMagnitude()` buckets it into `days` / `weeks` / `months` / `days-to-weeks` /
+      `weeks-to-months` — a closed, discriminated-union field (`ReservationLeadTimeFact`) that
+      cannot exist on an opaque or not-applicable fact. No numeric range (`minDays`/`maxDays`) is
+      ever derived; `"1–2 semanas"` stays `magnitude: "weeks"` with `raw: "1–2 semanas"` preserved
+      verbatim — the precise editorial range lives in `raw` only, never turned into arithmetic.
+      A real quirk of the canonical Python pattern is reproduced exactly, not "fixed": `"Meses"`
+      (plural) is bare-magnitude, but bare singular `"Mes"` is not (the pattern's `meses?`
+      pluralizes `"mese"`, not `"mes"`) — covered by its own regression test naming this
+      explicitly, since silently "fixing" it would break parity with the audited Python ceiling.
+- [x] **`app/src/lib/reservation-planning.ts`** — a small pure aggregation,
+      `buildReservationPreparationSummary(places)`, composing `lib/reservation.ts`'s
+      `ReservationFact` and this phase's `ReservationLeadTimeFact` per place without merging or
+      overriding either axis. A `not-applicable` lead time omits the place from the summary
+      entirely (no lead-time signal to show); `bare-magnitude` and
+      `opaque-entity-or-mechanism-specific` are both included. Preserves the caller's exact route
+      order — never resorted by magnitude, reservation category, or any derived urgency; no
+      scoring, no prioritization.
+- [x] **UI**: `OrderedSequenceBuilder.tsx`'s existing "Construir recorrido" view gained one new,
+      route-wide, read-only section — "Reservas por preparar" — built from the current canonical
+      route (`routePlaces`), rendered in the main builder view rather than inside a day card so it
+      is useful before the route is even split into days. It reads no `startDate`, no derived day
+      date, and performs no date arithmetic. A summary line
+      ("`N` con anticipación registrada · `M` con mecanismo específico para revisar") is followed
+      by one entry per applicable place naming its reservation category (Phase 3D-C's existing
+      vocabulary), its coarse magnitude or "Mecanismo específico; revisar", and the original raw
+      `reservation.leadTime` text verbatim — the only detailed information Nihon may safely show
+      for an opaque record. A standing disclaimer states plainly that the section describes a
+      recorded fact only and computes no booking deadline and no calendar comparison.
+- [x] **No fake urgency UI.** No traffic-light coloring by urgency, no countdown, no priority
+      score, no ranking, no progress-toward-a-deadline bar. The one visual distinction (a warmer
+      tone on "Mecanismo específico; revisar") mirrors Phase 3D-B's own precedent of using the
+      existing warm "pending" palette for a conservative planning signal, not an alarm.
+- [x] **Real-dataset counts re-derived, not copied from documentation**: 128/214 places
+      `not-applicable` (SAFE), 21/214 `bare-magnitude` (PARTIAL), 65/214
+      `opaque-entity-or-mechanism-specific` (OPAQUE) — matching Phase 3D-A's original audit
+      exactly, independently reproduced here by both a Python audit re-run and new TypeScript
+      tests against `data/places.json`. Route-level aggregation over the full dataset yields
+      21 + 65 = 86 preparation items, omitting exactly the 128 not-applicable places.
+- [x] **62 new tests**: 38 in `lib/reservation-lead-time.test.ts` (category/tier parity including
+      the Python source-check, magnitude extraction for every bucket, the five adversarial
+      whole-string opacity cases, the `"Mes"`/`"Meses"` quirk, determinism, and real-dataset
+      invariants — all 214 places classify without throwing, exact category counts, every
+      bare-magnitude place has a valid magnitude, every opaque place has none, raw text preserved
+      verbatim for all 214); 16 in `lib/reservation-planning.test.ts` (omission/inclusion rules,
+      mixed-list counts, order preservation and reordering, removal, no deduplication invented, no
+      sorting, and full-dataset aggregation totals); 8 new source-scanning integration tests added
+      to `components/OrderedSequenceBuilder.test.ts` (10 pre-existing Phase 3D-B tests untouched,
+      18 total in that file now), scoped to the new section's own function body (never a
+      whole-file scan), asserting the wiring, both signal kinds render, raw evidence always
+      renders, and no `startDate`/day-date/booking-deadline wording ever appears in that section.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against three real places
+      chosen programmatically to represent each category: Shibuya Crossing (`JP-001`, `"—"`,
+      not-applicable) correctly produces no preparation item; Yabiji coral reef (`JP-191`,
+      `"Semanas"`, bare-magnitude) shows "Anticipación registrada: semanas" and `Dato: «Semanas»`;
+      Nintendo Museum (`JP-097`, `"Lotería 3 meses antes; revisar liberaciones"`, opaque) shows
+      "Mecanismo específico; revisar" and the raw text verbatim. Reordering the route (moving
+      Nintendo Museum to the top) changed the section's display order to match while leaving both
+      facts' content unchanged — confirming order is route-derived, not resorted.
+- [x] **No date/time intelligence of any kind.** No booking deadlines, no days-remaining
+      calculation, no reference to today's date, `Date.now()`, or the user's timezone, no
+      `startDate`/day-date arithmetic, no lottery/release-date interpretation, no availability
+      claim, no automation (nothing books, opens a reservation flow, reorders the route, or sends
+      a reminder).
+- [x] **Corrective review**: three real defects found and fixed, none touching the dataset or
+      widening scope. (1) The original regex-parity test only proved
+      `scripts/temporal_data_lib.py`'s `_BARE_MAGNITUDE_RE` pattern text starts with `^` and ends
+      with `$` — true, but it could not have caught a Python-side change to the accepted language
+      itself (dropping `"Días/semanas"` support, adding a new form, changing numeric-range syntax)
+      as long as the anchors stayed. `reservation-lead-time.test.ts` now extracts the actual
+      pattern text and constructs a real `RegExp` from it (valid directly — the pattern uses only
+      character classes, alternation, and `?`/anchors), then cross-checks that regex's verdict
+      against `interpretLeadTimeText()` over a 20-entry accept/reject corpus, bidirectionally, so
+      *any* future divergence in accepted language fails a test, not just an anchoring drift. (2)
+      `buildReservationPreparationSummary()` had no defined behavior for a duplicate `place.id` in
+      its input, and its own test asserted the opposite of the aggregation contract's "no place is
+      duplicated" invariant (two items from one duplicated place, framed as intentional). Fixed to
+      fail loud: a repeated id now throws immediately, naming the exact duplicate — since the
+      canonical route is supposed to be duplicate-free already, silently keeping or dropping a
+      copy would have hidden an upstream regression instead of surfacing it. A valid,
+      duplicate-free route's behavior is unaffected. (3) The "N con anticipación registrada"
+      summary phrase incorrectly appended a pluralizing "s" onto "registrada" when the count
+      exceeded one — "anticipación" itself never pluralizes, so the adjective agreeing with it
+      must not either; fixed to a single invariant phrase for every count, with a source-scanning
+      regression test guarding the literal string. Test counts after this pass: 42 in
+      `lib/reservation-lead-time.test.ts` (was 38), 18 in `lib/reservation-planning.test.ts` (was
+      16), 19 in `components/OrderedSequenceBuilder.test.ts` (was 18) — **505 tests passing**
+      overall (was 498), `npm run lint`/`npm run build`/`python3
+      scripts/test_temporal_data_audit.py` all still clean. No dataset, `package.json`, lockfile,
+      planning-draft schema, or `localStorage` key changed; no Phase 3D-E work started.
+
+`data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
+logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the
+`ManualPlanningDraftV2` schema, `nihon.manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`,
+and the Filters union are all unchanged; no dependency was added, no new `localStorage` key was
+introduced, and `PlaceDetail.tsx` was not touched (Phase 3D-C's existing raw-text-only leadTime
+display there is untouched and still the only per-place surface — this phase's new signal lives
+in the route-wide planning surface only, not duplicated per place). No Phase 3D-E (or any later
+phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -1339,14 +1464,19 @@ later phase) work was started.
       scheduling of any kind; holiday handling; temporary or live closure verification against an
       official source; a date recommendation; or automatic rescheduling. A full opening-hours
       feasibility solver remains a distinct, unscheduled, separately-decided future phase.
-- [ ] Reservation lead-time / booking-deadline intelligence — not started. Phase 3D-C fixed the
-      *semantics* of `reservation.raw`/`reservation.required` (a runtime-consumer correction, no
-      dataset change) and shows `reservation.leadTime` as raw editorial text only, verbatim, when
-      present. It does **not** convert "Semanas"/"1–2 meses"/etc. into a specific day count, does
-      not know today's date, does not compute a booking-by date, does not compare lead time
-      against the user's Phase 3C-E `startDate`, does not interpret a lottery/release mechanism,
-      and does not claim availability. Any of that is a distinct, separately-scoped future phase —
-      not an incremental extension of Phase 3D-C's semantics fix.
+- [ ] Reservation booking-deadline intelligence — this item's wording is updated here specifically
+      because it would otherwise now be false. **DONE (Phase 3D-D)**: a runtime classification of
+      `reservation.leadTime` into a coarse days/weeks/months magnitude (`bare-magnitude`) or an
+      honest "specific mechanism, needs review" flag (`opaque-entity-or-mechanism-specific`), with
+      exact Phase 3D-A parity, and a route-wide "Reservas por preparar" preparation summary in
+      `OrderedSequenceBuilder.tsx` (see the Phase 3D-D entry above). **STILL NOT DONE, and not
+      implied by that**: converting a magnitude into a specific day count or a numeric range
+      (`minDays`/`maxDays`); knowing today's date; computing a booking-by date; comparing lead time
+      against the user's Phase 3C-E `startDate` or any day bucket's derived date; interpreting a
+      lottery/release/timed-entry mechanism beyond flagging it for manual review; claiming
+      availability; and any reminder or automation. A full booking-deadline solver remains a
+      distinct, separately-scoped, unstarted future phase — not an incremental extension of Phase
+      3D-D's coarse signal.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.

@@ -2519,3 +2519,74 @@ a {
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
+
+/* Phase 3D-D — reservation lead-time preparation. Route-wide, deliberately neutral: it is a
+   recorded-fact summary, not an urgency system, so it reuses the same soft neutral surface as
+   other factual sections (`.analysis-section`) rather than any warning palette. */
+.reservation-prep {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-prep h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.reservation-prep__summary {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-prep__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.reservation-prep__name {
+  font-weight: 600;
+}
+
+.reservation-prep__reservation {
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__leadtime {
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__leadtime--opaque {
+  color: #6c4310;
+  font-weight: 600;
+}
+
+.reservation-prep__raw {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
