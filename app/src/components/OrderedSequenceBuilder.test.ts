@@ -351,3 +351,134 @@ describe("OrderedSequenceBuilder.tsx — recorded-hours signal wiring (source-sc
     }
   });
 });
+
+/**
+ * Phase 3D-H's structural integration coverage for the per-day "ventana de anticipación
+ * registrada" signal — the same source-scanning technique the three blocks above already
+ * established, for the same reason (no jsdom/Testing Library in this repository). The underlying
+ * domain logic (Class A/B/C/D/E classification, reservation-level eligibility, the visit-date
+ * contract, cross-axis orthogonality) is proven once, thoroughly, in
+ * `lib/reservation-deadline.test.ts`; this file protects only the WIRING — that this component
+ * actually calls that domain per day bucket, gates on the stricter visit-date contract, and
+ * composes the existing Feb–Mar presentation without a second classifier.
+ *
+ * Scoped to `ReservationDeadlineNotice`'s own function body (from its declaration up to the
+ * following `const RESERVATION_PREP_LABEL` table, its immediate file neighbor) rather than the
+ * whole file, so forbidden-phrase checks cannot false-fail on this same file's unrelated prose
+ * (e.g. the module doc's own discussion of `febMar2027`/`Date.now`).
+ */
+function extractReservationDeadlineNoticeSource(fullSource: string): string {
+  const start = fullSource.indexOf("function ReservationDeadlineNotice");
+  if (start === -1) {
+    throw new Error("ReservationDeadlineNotice function not found in OrderedSequenceBuilder.tsx");
+  }
+  const end = fullSource.indexOf("\nconst RESERVATION_PREP_LABEL", start);
+  if (end === -1) {
+    throw new Error("Could not find the end boundary of ReservationDeadlineNotice");
+  }
+  return fullSource.slice(start, end);
+}
+
+describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (source-scanning integration check)", () => {
+  it("imports derivePlaceReservationDateWindow and deriveVisitDateForPlace from the reservation-deadline module", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bderivePlaceReservationDateWindow\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-deadline["']/
+    );
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bderiveVisitDateForPlace\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-deadline["']/
+    );
+  });
+
+  it("imports describeFebMarStatusForUi/interpretPlaceFebMarStatus from the existing feb-mar-status module, never a second classifier", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bdescribeFebMarStatusForUi\b[^}]*\}\s*from\s*["']\.\.\/lib\/feb-mar-status["']/
+    );
+    expect(source).toMatch(
+      /import\s*\{[^}]*\binterpretPlaceFebMarStatus\b[^}]*\}\s*from\s*["']\.\.\/lib\/feb-mar-status["']/
+    );
+  });
+
+  it("computes the visit date via deriveVisitDateForPlace(dayAssignment, startDate, place.id) — the stricter per-place contract, not the existing dayDate", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    expect(noticeSource).toMatch(/deriveVisitDateForPlace\(\s*dayAssignment\s*,\s*startDate\s*,\s*place\.id\s*\)/);
+  });
+
+  it("renders ReservationDeadlineNotice per day bucket, passing this day's own places and dayAssignment/startDate", async () => {
+    const source = await readSource();
+    expect(source).toContain("function ReservationDeadlineNotice(");
+    expect(source).toMatch(
+      /<ReservationDeadlineNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s*\/>/
+    );
+  });
+
+  it("renders next to WeekdayClosureNotice inside the existing day card, not a second dialog/modal", async () => {
+    const source = await readSource();
+    const weekdayIndex = source.indexOf("<WeekdayClosureNotice");
+    const deadlineIndex = source.indexOf("<ReservationDeadlineNotice");
+    expect(weekdayIndex).toBeGreaterThan(-1);
+    expect(deadlineIndex).toBeGreaterThan(weekdayIndex);
+    const noticeSource = extractReservationDeadlineNoticeSource(source);
+    expect(noticeSource).not.toMatch(/role=["']dialog["']/);
+    expect(noticeSource).not.toMatch(/aria-modal/);
+    const dialogRootCount = (source.match(/role="dialog"/g) ?? []).length;
+    expect(dialogRootCount).toBe(1);
+  });
+
+  it("renders nothing (an empty items list) unless a place resolves to a derived-window, gating on window.kind", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    expect(noticeSource).toMatch(/window\.kind\s*!==\s*["']derived-window["']/);
+    expect(noticeSource).toMatch(/items\.length === 0/);
+  });
+
+  it("always renders the raw evidence text alongside the derived window", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    expect(noticeSource).toMatch(/window\.signal\.raw/);
+  });
+
+  it("uses the conservative 'ventana de anticipación registrada' phrase, never a deadline/availability claim", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    expect(noticeSource).toMatch(/ventana de anticipación registrada/i);
+  });
+
+  it("never uses forbidden deadline/availability/guarantee phrasing", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    const lower = noticeSource.toLowerCase();
+    for (const forbidden of [
+      "fecha límite",
+      "reserva antes de",
+      "último día para reservar",
+      "disponible desde",
+      "se abre la reserva",
+      "fecha de apertura",
+      "garantizado",
+      "garantizada",
+    ]) {
+      expect(lower, `should not contain "${forbidden}"`).not.toContain(forbidden);
+    }
+  });
+
+  it("never contains current-date/urgency vocabulary or Date.now", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    const lower = noticeSource.toLowerCase();
+    for (const forbidden of ["date.now()", "días restantes", "quedan", "urgente", "reserva ahora", "vencid"]) {
+      expect(lower, `should not contain "${forbidden}"`).not.toContain(forbidden);
+    }
+  });
+
+  it("composes the pending Feb–Mar reconfirmation notice BEFORE the derived range in markup order, never replacing it", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    const pendingIndex = noticeSource.indexOf("febMarPending &&");
+    const windowIndex = noticeSource.indexOf("reservation-deadline__window");
+    expect(pendingIndex).toBeGreaterThan(-1);
+    expect(windowIndex).toBeGreaterThan(-1);
+    expect(pendingIndex).toBeLessThan(windowIndex);
+    expect(noticeSource).toMatch(/pendiente de\s*\n?\s*confirmar/i);
+  });
+
+  it("derives febMarPending from describeFebMarStatusForUi's tone, reusing the existing display path", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    expect(noticeSource).toMatch(/describeFebMarStatusForUi\(\s*interpretPlaceFebMarStatus\(\s*place\s*\)\s*\)\.tone\s*===\s*["']pending["']/);
+  });
+});

@@ -2667,3 +2667,55 @@ a {
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
+
+/* Phase 3D-H — explicit lead-time window (Class A only). Per-day, per-place: rendered inside the
+   day card, next to `.weekday-signal`, only once a place has a valid visit date and an eligible
+   Class A signal. `.reservation-deadline__pending` reuses the same warm "pending" palette as
+   `.alert--pending`/`.weekday-signal__summary--warn` — never a stronger risk/red treatment — and
+   is placed BEFORE the derived range in markup order so it always reads first, never replaced or
+   visually outranked by the range beneath it. */
+.reservation-deadline {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-deadline__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.reservation-deadline__name {
+  font-weight: 600;
+}
+
+.reservation-deadline__pending {
+  margin: 0;
+  background: var(--color-warn-soft);
+  border: 1px solid #eccf9c;
+  color: #6c4310;
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.5rem;
+  font-size: 0.78rem;
+}
+
+.reservation-deadline__window {
+  color: var(--color-text);
+}
+
+.reservation-deadline__raw {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.reservation-deadline__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}

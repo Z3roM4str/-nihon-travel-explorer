@@ -4,7 +4,7 @@ import { formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
 import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
 import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
-import { buildDayAssignment } from "../lib/day-assignment";
+import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
 import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
@@ -16,6 +16,12 @@ import type { LeadTimeMagnitude } from "../lib/reservation-lead-time";
 import type { ReservationCategory } from "../lib/reservation";
 import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
 import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
+import {
+  derivePlaceReservationDateWindow,
+  deriveVisitDateForPlace,
+  type ReservationDateWindow,
+} from "../lib/reservation-deadline";
+import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -81,6 +87,18 @@ type Props = {
  * either, and never computes a booking deadline, a days-remaining count, or any comparison against
  * a date. See `ReservationPreparationSection` below for the exact, conservative wording this is
  * allowed to use.
+ *
+ * Phase 3D-H adds one more per-day, read-only signal — a derived "ventana de anticipación
+ * registrada" — built from `../lib/reservation-deadline.ts`, rendered in each day card next to
+ * `WeekdayClosureNotice`. Unlike every earlier reservation/hours section, this ONE signal does
+ * depend on a derived date: it requires a place to have a valid visit date under the design gate's
+ * own (deliberately stricter than `dayDate` above) contract — `dayAssignment.valid === true` AND a
+ * valid `startDate` — before anything renders for it, and even then only for the narrow "Class A"
+ * evidence class (`../lib/reservation-lead-time.ts`'s coarse-magnitude records with an explicit
+ * numeric day/week range). It never computes a booking deadline or an availability claim, never
+ * reads `Date.now()`, and never reads or is gated by `place.febMar2027` internally — Feb–Mar 2027
+ * confidence composes at THIS presentation layer only (`ReservationDeadlineNotice` below), never
+ * inside `reservation-deadline.ts` itself, per the design gate's orthogonality rule (§6.2).
  *
  * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
  * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
@@ -444,6 +462,81 @@ function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
       <p className="weekday-signal__disclaimer">
         Esta comprobación solo revisa un posible patrón de cierre semanal ya registrado. No verifica horarios,
         días festivos, cierres temporales, clima, reservas ni el estado real vigente.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3D-H's one UI surface. Rendered per day, next to `WeekdayClosureNotice`. Renders nothing
+ * when no place in this day bucket has both a valid visit date (design §5's stricter contract,
+ * via `deriveVisitDateForPlace`) and an eligible Class A signal (`derivePlaceReservationDateWindow`)
+ * — a place with an inapplicable/non-computable lead time, or no visit date yet, is simply absent
+ * from this list; the existing "Reservas por preparar" section above already shows its coarse
+ * signal, and this component never repeats or replaces that.
+ *
+ * Where a place's existing Feb–Mar 2027 interpretation is pending/unknown
+ * (`describeFebMarStatusForUi`, reused as-is — never a second classifier), the reconfirmation
+ * notice is rendered FIRST, above the derived range, so it always reads before it and is never
+ * hidden, replaced, or visually outranked by it (design §6.2 Rule 2). The underlying range is
+ * still shown in full — Feb–Mar confidence never suppresses the domain computation (Rule 3), it
+ * only changes how the result is composed for the reader.
+ *
+ * Wording is deliberately conservative throughout — "ventana de anticipación registrada," never a
+ * booking deadline or an availability claim; see this file's own forbidden-phrase test coverage.
+ * The recorded raw text is always shown alongside, exactly like `ReservationPreparationSection`.
+ */
+function ReservationDeadlineNotice({
+  places,
+  dayAssignment,
+  startDate,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+}) {
+  type DeadlineItem = {
+    place: Place;
+    window: Extract<ReservationDateWindow, { kind: "derived-window" }>;
+    febMarPending: boolean;
+  };
+
+  const items: DeadlineItem[] = [];
+  for (const place of places) {
+    const visitDate = deriveVisitDateForPlace(dayAssignment, startDate, place.id);
+    const window = derivePlaceReservationDateWindow(place, visitDate);
+    if (window.kind !== "derived-window") continue;
+    const febMarPending = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place)).tone === "pending";
+    items.push({ place, window, febMarPending });
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="reservation-deadline" aria-label="Ventana de anticipación registrada">
+      {items.map(({ place, window, febMarPending }) => (
+        <div key={place.id} className="reservation-deadline__item">
+          <span className="reservation-deadline__name">{place.name}</span>
+          {febMarPending && (
+            <p className="reservation-deadline__pending">
+              <span aria-hidden="true">ⓘ</span> Calendario/condición para tus fechas todavía pendiente de
+              confirmar. Reconfirma en la fuente oficial al fijar fechas.
+            </p>
+          )}
+          <span className="reservation-deadline__window">
+            Ventana de anticipación registrada: {formatCivilDateDisplay(window.farAdvanceDate)} –{" "}
+            {formatCivilDateDisplay(window.nearAdvanceDate)}
+          </span>
+          <span className="reservation-deadline__raw">Dato: «{window.signal.raw}»</span>
+        </div>
+      ))}
+      <p className="reservation-deadline__disclaimer">
+        Esta ventana proyecta la anticipación registrada en el dato original sobre la fecha asignada a
+        cada lugar.{" "}
+        <strong>
+          No confirma disponibilidad ni indica cuándo puedes reservar; reservar antes o después de estas
+          fechas también puede ser posible.
+        </strong>
       </p>
     </section>
   );
@@ -1103,6 +1196,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             compact
                           />
                           <WeekdayClosureNotice signal={weekdaySignal} />
+                          <ReservationDeadlineNotice
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                          />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}

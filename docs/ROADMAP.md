@@ -1792,6 +1792,119 @@ lockfile, test, or runtime source file was changed by this phase — see
 `docs/RESERVATION_DEADLINE_DESIGN.md` for the full contract. No Phase 3D-H (or any later phase)
 work was started.
 
+## Phase 3D-H — Explicit Lead-Time Window (Class A only) — complete
+
+Implements the design gate `docs/RESERVATION_DEADLINE_DESIGN.md` (Phase 3D-G), narrowly: only the
+Class A evidence class (an explicit numeric range over a single, non-mixed day/week unit) may ever
+produce a derived advance-notice window. Every other evidence class stays exactly the non-computable
+signal Phase 3D-D/the design gate already decided — no new arithmetic, no fabricated precision.
+
+- [x] **New pure domain module, `app/src/lib/reservation-deadline.ts`.** Reuses
+      `reservation-lead-time.ts`'s `interpretLeadTimeText` as the sole classifier — never
+      reimplements or loosens it — and adds a second, narrower numeric-extraction pass gated
+      strictly behind the `coarse-magnitude` category. Safety order matches the design gate exactly:
+      `not-applicable` and `specific-mechanism` return immediately, before any numeric parsing; a
+      `specific-mechanism` record's `raw` text is never re-scanned for digits, proven both by
+      adversarial unit tests (`"Lotería 3 meses antes; revisar liberaciones"` stays
+      `not-computable`/`specific-mechanism`) and a structural test.
+- [x] **`ReservationDeadlineSignal`** — a closed union: `not-applicable`; `not-computable` with an
+      explicit `reason` (`specific-mechanism` / `unit-without-quantity` /
+      `mixed-unit-without-quantity` / `month-range-not-supported`); or `explicit-lead-window`
+      (`minLeadDays`, `maxLeadDays`, `raw`) for Class A only. A mixed unit (`"Días/semanas"`) is
+      always `mixed-unit-without-quantity` regardless of whether a quantity is present — which unit
+      a count would apply to is inherently ambiguous — and a month unit is always
+      `month-range-not-supported`, matching the design gate's explicit refusal to add
+      `addCivilMonths` or any fixed-day month approximation for a single real record. Week-to-day
+      conversion is exactly `1 week = 7 days`; a malformed numeric range (reversed or zero — absent
+      from the real dataset) is treated as `unit-without-quantity` rather than fabricating a
+      direction. The implementation is unit-general by design (tested with synthetic `"X–Y días"`
+      fixtures), even though the real dataset's 5 Class A places are all `"semanas"` today.
+- [x] **Reservation-level eligibility (§10.4), not a digit parser.** A numerically clean `leadTime`
+      never overrides reservation-level semantics: `isReservationEligibleForDeadlineWindow` gates on
+      `interpretPlaceReservation`'s existing `tier !== "unknown"` and
+      `consistentWithDerivedBoolean === true`, reusing the existing interpreter rather than adding a
+      second reservation parser and never matching on literal `reservation.raw` strings. Pinned by
+      synthetic fixtures (an unknown-tier record, an internally-inconsistent record, and a clean
+      record), never on the dataset's current `"Sí"`/`"Recomendable"` values.
+- [x] **Visit-date contract (§5), deliberately stricter than the existing per-day date.**
+      `deriveVisitDateForPlace(dayAssignment, startDate, placeId)` requires
+      `DayAssignment.valid === true` — not just a valid `startDate` — before returning a visit date,
+      unlike `OrderedSequenceBuilder.tsx`'s pre-existing `dayDate` (line ~1058), which is computed
+      unconditionally regardless of assignment validity. An invalid assignment yields `null` for
+      every place, never a partial reading. Pinned by tests covering every `DayAssignmentIssue`
+      shape, a missing/invalid `startDate`, Día 1 vs. Día N, an empty day bucket ahead of a place's
+      day, and a place absent from every bucket.
+- [x] **`ReservationDateWindow`** — `no-visit-date` / `no-window` (carrying the underlying signal) /
+      `derived-window` (`visitDate`, `farAdvanceDate`, `nearAdvanceDate`, `signal`).
+      `farAdvanceDate`/`nearAdvanceDate` are named for distance from the visit date, never
+      `earliestDate`/`latestDate`/`opensAt`/`closesAt` — matching the design gate's naming
+      discipline exactly. Date arithmetic reuses `civil-date.ts#addCivilDays`; any failure (an
+      already-invalid `visitDate`) falls back to `no-visit-date` rather than a guessed date. Tested
+      across a month boundary, a year boundary, and a leap-year February, plus a real-dataset
+      invariant that every Class A place's `farAdvanceDate <= nearAdvanceDate < visitDate`.
+- [x] **`febMar2027` orthogonality (§6.2), structural, not just a convention.**
+      `reservation-deadline.ts` never imports `feb-mar-status.ts`, never reads `place.febMar2027` in
+      any form, and never accepts a Feb–Mar status argument — proven by a comment-stripped
+      source-scan and a behavioral test: two synthetic places with identical reservation data but
+      different `febMar2027.status` produce byte-identical `ReservationDateWindow` results. A real
+      Feb–Mar-pending Class A place (`JP-019`) still yields `derived-window` with real values — the
+      domain computation is never suppressed by pending calendar status (Rule 3).
+- [x] **UI: `OrderedSequenceBuilder.tsx`'s existing day view, next to `WeekdayClosureNotice` —
+      no new surface, `PlaceDetail.tsx` untouched.** A new `ReservationDeadlineNotice` renders one
+      entry per place in a day bucket that has both a valid visit date and an eligible Class A
+      signal; every other place (no visit date yet, or a non-Class-A/opaque record) is simply absent
+      — the existing "Reservas por preparar" section already shows its coarse signal and is
+      unchanged. Where a place's existing Feb–Mar interpretation is pending/tier-unknown
+      (`describeFebMarStatusForUi`, reused as-is — never a second classifier), the reconfirmation
+      notice renders FIRST, above the derived range, in both markup order and visual treatment (the
+      same warm "pending" palette as `.alert--pending`), so the range never reads as evidence the
+      calendar is confirmed. The recorded raw `leadTime` text is always shown alongside the derived
+      range, exactly like the existing reservation/hours sections.
+- [x] **Conservative wording, no forbidden deadline/availability/urgency vocabulary.** "Ventana de
+      anticipación registrada," never "fecha límite," "reserva antes de," "último día para
+      reservar," "disponible desde," "se abre la reserva," "fecha de apertura," or "garantizado" —
+      checked by a dedicated forbidden-phrase test scoped to the new component's own source.
+- [x] **No current-date/urgency axis.** No `Date.now()`, no `daysRemaining`/`isLate`/`isUrgent`
+      field anywhere in the new module or component, no "book now"/"deadline passed"/countdown/
+      urgency-badge/reminder logic — checked structurally, mirroring `feb-mar-status.test.ts`'s own
+      precedent for "no boolean field" checks.
+- [x] **No month arithmetic.** No `addCivilMonths`, no fixed-30-day approximation, no calendar-month
+      clamping — Class D (`"1–3 meses"`, 1 place) stays `month-range-not-supported`, unchanged from
+      the design gate's decision.
+- [x] **No persistence, schema, or dataset change.** `ManualPlanningDraftV2`, `nihon.
+      manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`, `data/places.json`,
+      `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, `package.json`, and the
+      lockfile are all unchanged. `ReservationDeadlineSignal`/`ReservationDateWindow`/derived visit
+      dates are recomputed on every read, never written to storage — no new `localStorage` key.
+- [x] **70 new tests**: 58 in `lib/reservation-deadline.test.ts` (evidence-class coverage for A–E
+      including synthetic days-unit fixtures, the real-dataset partition re-derived and pinned as a
+      regression — `5/5/10/1/65/128 = 214`, matching Phase 3D-G's audit exactly — reservation-level
+      eligibility fixtures, date-application boundary tests, the visit-date contract's every branch,
+      structural "no availability boolean" checks, and cross-axis orthogonality checks); 12 new
+      source-scanning integration tests added to `components/OrderedSequenceBuilder.test.ts` (32
+      pre-existing Phase 3D-B/D/E tests unchanged, 44 total in that file now), scoped to the new
+      `ReservationDeadlineNotice` function's own body, proving the wiring, the stricter visit-date
+      call site, markup ordering of the pending notice before the range, the forbidden-phrase
+      checks, and reuse of the existing Feb–Mar display path. **716 tests passing overall** (was
+      646), across 25 test files (was 24) — `npm run lint`, `npx tsc -b`, and `npm run build` all
+      clean; `git diff --check` clean.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright), seeding a saved route and
+      manual planning draft directly via `localStorage` for determinism: Case 1 (a confirmed Class A
+      place, `teamLab Borderless`/`JP-033`) showed a plain derived range; Case 2 (a Feb–Mar-pending
+      Class A place, `Tokyo Skytree`/`JP-019`) showed the reconfirmation notice first, then the same
+      range, never replaced or hidden; Case 3 (an opaque record, `Nintendo Museum`/`JP-097`, the real
+      lottery-text place) showed no guessed range anywhere, only the existing "Mecanismo específico;
+      revisar" signal with its raw text verbatim; Case 4 (start date cleared) showed no range at all
+      while the rest of the day-planning UI stayed fully functional. Verified at both desktop
+      (1280px) and narrow/mobile (390px) widths with no layout breakage.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, `ManualPlanningDraftV2` schema, or `nihon.manualPlanningDraft`/`nihon.savedPlaceIds` stored
+shape was changed by this phase. `PlaceDetail.tsx` was not touched. No current-date/urgency logic,
+no month-range arithmetic, and no availability/bookable claim of any kind was implemented. No Phase
+3D-H design-document edit was needed — no contradiction in `docs/RESERVATION_DEADLINE_DESIGN.md`
+surfaced during implementation. No Phase 3D-I (or any later phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
