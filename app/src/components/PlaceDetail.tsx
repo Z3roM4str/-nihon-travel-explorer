@@ -6,14 +6,8 @@ import { resolveDuration, formatRange } from "../lib/duration";
 import { getBestTransfer, type TransferEdge } from "../lib/transfer";
 import { describeTransferForUi, transferListFootnote } from "../lib/transfer-display";
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
-import {
-  alertSeverity,
-  formatPrice,
-  imageBriefText,
-  isHiddenGem,
-  severityLabel,
-  splitCategory,
-} from "../lib/place";
+import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
+import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
 
 type Props = {
   place: Place;
@@ -102,7 +96,7 @@ export function PlaceDetail({
   const brief = imageBriefText(place);
   const duration = resolveDuration(place.duration);
   const category = splitCategory(place.category);
-  const severity = alertSeverity(place.febMar2027.status);
+  const febMarStatus = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
   const reservation = describeReservationForUi(interpretPlaceReservation(place), place.reservation.leadTime);
   const showExperience = place.experience && place.experience !== place.description;
 
@@ -207,11 +201,10 @@ export function PlaceDetail({
             <QuickFact icon="🗓" label="Mejor época" value={place.bestSeason} />
           </div>
 
-          <section className={`alert alert--${severity}`}>
+          <section className={`alert alert--${febMarStatus.cssModifier}`}>
             <h3 className="alert__title">
-              <span aria-hidden="true">{severity === "confirmed" ? "✓" : severity === "risk" ? "⚠" : "ⓘ"}</span>{" "}
-              Febrero–marzo 2027
-              <span className="alert__severity">{severityLabel(severity)}</span>
+              <span aria-hidden="true">{febMarStatus.icon}</span> Febrero–marzo 2027
+              <span className="alert__severity">{febMarStatus.label}</span>
             </h3>
             <p className="alert__status">{place.febMar2027.status}</p>
             <p>{place.febMar2027.warning}</p>
