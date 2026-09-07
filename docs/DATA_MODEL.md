@@ -390,7 +390,12 @@ resorting by magnitude, reservation category, or any derived urgency. A `not-app
 omits the place from the summary; `bare-magnitude` and `opaque-entity-or-mechanism-specific` are
 both included, since neither is "safe to ignore" — an opaque record often carries the most
 operationally important information (a lottery, timed entry, a release schedule), just not in a
-form this dataset can safely reduce to a magnitude.
+form this dataset can safely reduce to a magnitude. A duplicate `place.id` in the input is a
+fail-loud invariant violation, not a case this function silently repairs: it throws immediately,
+naming the offending id, since the canonical route is already supposed to be duplicate-free
+(`planning-draft.ts`'s own shape validation rejects a stored route with a repeated id) — a
+duplicate reaching this far would mean an upstream regression, which silently deduplicating would
+hide rather than surface.
 
 `OrderedSequenceBuilder.tsx`'s "Construir recorrido" view renders this as one route-wide,
 read-only "Reservas por preparar" section, built from the current route regardless of whether it

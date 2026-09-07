@@ -87,13 +87,26 @@ describe("buildReservationPreparationSummary — fixtures", () => {
     expect(withoutOne.items[0].placeId).toBe("JP-097");
   });
 
-  it("never duplicates a place even if it appears twice in the input", () => {
-    const summary = buildReservationPreparationSummary([yabijiCoralReef, yabijiCoralReef]);
-    // This module does not deduplicate — it describes exactly the sequence it is given, mirroring
-    // ordered-sequence.ts's own "describes exactly this order" contract. A caller (the route) is
-    // itself guaranteed duplicate-free elsewhere; this is a defensive characterization test, not
-    // a claim this module performs deduplication.
-    expect(summary.items).toHaveLength(2);
+  it("throws a fail-loud error naming the duplicate id when the same place appears twice — never silently deduplicates", () => {
+    // A duplicate place id in the canonical route would indicate an upstream planning-draft/route
+    // invariant regression (routeIds is supposed to be duplicate-free — see planning-draft.ts).
+    // Silently dropping or keeping only one copy would hide that defect; this module surfaces it
+    // instead, by name, rather than guessing which copy is "the real one."
+    expect(() => buildReservationPreparationSummary([yabijiCoralReef, yabijiCoralReef])).toThrow(
+      /duplicate place id.*JP-191/
+    );
+  });
+
+  it("the duplicate-id error names the exact offending id, not a generic message", () => {
+    expect(() => buildReservationPreparationSummary([nintendoMuseum, tokyoSkytree, nintendoMuseum])).toThrow(
+      "JP-097"
+    );
+  });
+
+  it("a duplicate not-applicable place still throws, even though neither copy would produce an item", () => {
+    expect(() => buildReservationPreparationSummary([shibuyaCrossing, shibuyaCrossing])).toThrow(
+      /JP-001/
+    );
   });
 
   it("never sorts by magnitude, reservation category, or any derived urgency", () => {

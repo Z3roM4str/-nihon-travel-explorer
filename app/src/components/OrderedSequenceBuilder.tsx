@@ -478,14 +478,13 @@ function ReservationPreparationSection({ summary }: { summary: ReservationPrepar
 
   const parts: string[] = [];
   if (summary.coarseMagnitudeCount > 0) {
-    parts.push(
-      `${summary.coarseMagnitudeCount} con anticipación registrada${summary.coarseMagnitudeCount === 1 ? "" : "s"}`
-    );
+    // "anticipación" agrees with "registrada" and both stay singular regardless of N — only the
+    // count varies, never the adjective's grammatical number (a prior version wrongly appended an
+    // "s" onto the adjective whenever the count was greater than one).
+    parts.push(`${summary.coarseMagnitudeCount} con anticipación registrada`);
   }
   if (summary.specificMechanismCount > 0) {
-    parts.push(
-      `${summary.specificMechanismCount} con mecanismo específico para revisar`
-    );
+    parts.push(`${summary.specificMechanismCount} con mecanismo específico para revisar`);
   }
 
   return (

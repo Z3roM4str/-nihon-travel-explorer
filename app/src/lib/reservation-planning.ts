@@ -16,6 +16,14 @@ import { interpretPlaceLeadTime, type ReservationLeadTimeFact } from "./reservat
  * to surface for them — but that is a fact about *this specific summary*, not a statement that
  * the place needs no reservation at all; `ReservationFact` (still computed and carried on every
  * included item) remains the only source of truth for that.
+ *
+ * **A duplicate `place.id` in `places` is a fail-loud invariant violation, not a case this module
+ * silently repairs.** The canonical persisted route (`ManualPlanningDraftV2.routeIds`) is already
+ * guaranteed duplicate-free elsewhere (`planning-draft.ts`'s own shape validation rejects a stored
+ * route with a repeated id). If a duplicate ever reaches this function anyway, that means some
+ * upstream route/draft invariant has already regressed — silently deduplicating here would hide
+ * that defect behind a plausible-looking summary instead of surfacing it. See
+ * `buildReservationPreparationSummary`'s own doc below for the exact error shape.
  */
 
 export type ReservationPreparationItem = {
@@ -43,13 +51,24 @@ export type ReservationPreparationSummary = {
  * only when it has an applicable lead-time signal (`bare-magnitude` or
  * `opaque-entity-or-mechanism-specific`); a `not-applicable` lead time omits the place from
  * `items` entirely, per this phase's product boundary — see the module doc above.
+ *
+ * @throws {Error} if the same `place.id` appears more than once in `places` — see the module doc
+ * above for why this is a fail-loud invariant rather than a silent deduplication. The error names
+ * the exact duplicate id. A valid, duplicate-free input's behavior is completely unaffected by
+ * this guard.
  */
 export function buildReservationPreparationSummary(places: readonly Place[]): ReservationPreparationSummary {
   const items: ReservationPreparationItem[] = [];
   let coarseMagnitudeCount = 0;
   let specificMechanismCount = 0;
+  const seenIds = new Set<string>();
 
   for (const place of places) {
+    if (seenIds.has(place.id)) {
+      throw new Error(`buildReservationPreparationSummary: duplicate place id in route: ${place.id}`);
+    }
+    seenIds.add(place.id);
+
     const leadTime = interpretPlaceLeadTime(place);
     if (leadTime.kind === "not-applicable") continue;
 

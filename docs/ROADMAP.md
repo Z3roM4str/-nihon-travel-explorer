@@ -1388,6 +1388,32 @@ tickets go on sale," or "is there availability."
       `startDate`/day-date arithmetic, no lottery/release-date interpretation, no availability
       claim, no automation (nothing books, opens a reservation flow, reorders the route, or sends
       a reminder).
+- [x] **Corrective review**: three real defects found and fixed, none touching the dataset or
+      widening scope. (1) The original regex-parity test only proved
+      `scripts/temporal_data_lib.py`'s `_BARE_MAGNITUDE_RE` pattern text starts with `^` and ends
+      with `$` — true, but it could not have caught a Python-side change to the accepted language
+      itself (dropping `"Días/semanas"` support, adding a new form, changing numeric-range syntax)
+      as long as the anchors stayed. `reservation-lead-time.test.ts` now extracts the actual
+      pattern text and constructs a real `RegExp` from it (valid directly — the pattern uses only
+      character classes, alternation, and `?`/anchors), then cross-checks that regex's verdict
+      against `interpretLeadTimeText()` over a 20-entry accept/reject corpus, bidirectionally, so
+      *any* future divergence in accepted language fails a test, not just an anchoring drift. (2)
+      `buildReservationPreparationSummary()` had no defined behavior for a duplicate `place.id` in
+      its input, and its own test asserted the opposite of the aggregation contract's "no place is
+      duplicated" invariant (two items from one duplicated place, framed as intentional). Fixed to
+      fail loud: a repeated id now throws immediately, naming the exact duplicate — since the
+      canonical route is supposed to be duplicate-free already, silently keeping or dropping a
+      copy would have hidden an upstream regression instead of surfacing it. A valid,
+      duplicate-free route's behavior is unaffected. (3) The "N con anticipación registrada"
+      summary phrase incorrectly appended a pluralizing "s" onto "registrada" when the count
+      exceeded one — "anticipación" itself never pluralizes, so the adjective agreeing with it
+      must not either; fixed to a single invariant phrase for every count, with a source-scanning
+      regression test guarding the literal string. Test counts after this pass: 42 in
+      `lib/reservation-lead-time.test.ts` (was 38), 18 in `lib/reservation-planning.test.ts` (was
+      16), 19 in `components/OrderedSequenceBuilder.test.ts` (was 18) — **505 tests passing**
+      overall (was 498), `npm run lint`/`npm run build`/`python3
+      scripts/test_temporal_data_audit.py` all still clean. No dataset, `package.json`, lockfile,
+      planning-draft schema, or `localStorage` key changed; no Phase 3D-E work started.
 
 `data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
 logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the

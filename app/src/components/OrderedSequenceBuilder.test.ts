@@ -201,4 +201,13 @@ describe("OrderedSequenceBuilder.tsx — reservation lead-time signal wiring (so
       expect(lower, `should not contain "${forbidden}"`).not.toContain(forbidden);
     }
   });
+
+  it("never pluralizes 'registrada' — 'anticipación' is the noun being agreed with and stays singular regardless of count", async () => {
+    // Corrective regression: a prior version conditionally appended "s" onto "registrada" when
+    // the count was greater than 1, producing the grammatically wrong "N con anticipación
+    // registradas". "anticipación" itself never pluralizes here, so "registrada" must not either.
+    const sectionSource = extractReservationPreparationSectionSource(await readSource());
+    expect(sectionSource).not.toContain("registradas");
+    expect(sectionSource).toContain("con anticipación registrada");
+  });
 });

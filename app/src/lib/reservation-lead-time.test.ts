@@ -220,18 +220,105 @@ describe("full lead-time category vocabulary parity (table-driven)", () => {
   });
 
   /**
-   * Directly parses `scripts/temporal_data_lib.py`'s `_BARE_MAGNITUDE_RE` pattern text and proves
-   * it and this module's `BARE_MAGNITUDE_RE`-driven classification agree on a battery of inputs —
-   * a stronger check than tier parity alone, since a future edit could keep every tier the same
-   * while silently loosening or tightening which strings count as `bare-magnitude`.
+   * Extracts `scripts/temporal_data_lib.py`'s actual `_BARE_MAGNITUDE_RE` pattern TEXT (never
+   * imported, never executed — no Python subprocess) and constructs a real `RegExp` from it, then
+   * exercises that Python-derived regex against a real corpus and cross-checks its verdict
+   * against `interpretLeadTimeText()`'s classification.
+   *
+   * A prior version of this test only asserted that the extracted pattern text starts with `^`
+   * and ends with `$` — that proves the pattern is anchored, but proves nothing about what
+   * language it accepts. A Python-side edit that removed support for "Días/semanas", added a new
+   * form, changed numeric-range syntax, or altered singular/plural behavior, while keeping the
+   * same `^...$` anchors, would have passed silently. This corpus-driven comparison closes that
+   * gap: it fails the moment the two sides disagree on ANY input below, not just on anchoring.
+   *
+   * The current pattern uses only character classes, alternation, grouping, and `?`/anchors — all
+   * directly valid JS `RegExp` syntax — so no separate regex-dialect translation is needed; the
+   * extracted Python source string is passed straight into `new RegExp(pattern, "i")`.
    */
-  it("scripts/temporal_data_lib.py's _BARE_MAGNITUDE_RE exists and is anchored (whole-string, not substring)", async () => {
+  async function extractPythonBareMagnitudeRegex(): Promise<RegExp> {
     const source = await readFile(new URL("../../../scripts/temporal_data_lib.py", import.meta.url), "utf8");
     const match = /_BARE_MAGNITUDE_RE\s*=\s*re\.compile\(\s*r"([^"]+)"/.exec(source);
-    expect(match, "_BARE_MAGNITUDE_RE not found in scripts/temporal_data_lib.py").not.toBeNull();
-    const pattern = match?.[1] ?? "";
-    expect(pattern.startsWith("^")).toBe(true);
-    expect(pattern.endsWith("$")).toBe(true);
+    if (!match) throw new Error("_BARE_MAGNITUDE_RE not found in scripts/temporal_data_lib.py");
+    return new RegExp(match[1], "i");
+  }
+
+  it("scripts/temporal_data_lib.py's _BARE_MAGNITUDE_RE exists and is anchored (whole-string, not substring)", async () => {
+    const pythonRegex = await extractPythonBareMagnitudeRegex();
+    expect(pythonRegex.source.startsWith("^")).toBe(true);
+    expect(pythonRegex.source.endsWith("$")).toBe(true);
+  });
+
+  /**
+   * `classify_lead_time()`'s own `_norm()` step resolves empty/whitespace-only text and the
+   * dataset's `"—"` placeholder to `not-applicable` BEFORE the regex is ever consulted — so those
+   * inputs are deliberately excluded from this corpus (there is no meaningful "does the regex
+   * match" question to ask about them). Every other corpus entry below goes through the same
+   * `.trim()` normalization both sides apply, then is fed to the Python-derived regex directly:
+   * a match must correspond exactly to `bare-magnitude`, and no match to one of the other two
+   * categories (`interpretLeadTimeText` never invents a fourth outcome).
+   */
+  const BARE_MAGNITUDE_ACCEPTED_CORPUS = [
+    "Semanas",
+    "Semana",
+    "1–2 semanas",
+    "2-4 semanas",
+    "Días",
+    "Día",
+    "Dias",
+    "Meses",
+    "1–3 meses",
+    "Días/semanas",
+    "Semanas/meses",
+    // Real quirk this module must reproduce, not fix: "meses?" pluralizes "mese", not "mes".
+    "Mese",
+  ];
+
+  const BARE_MAGNITUDE_REJECTED_CORPUS = [
+    // Real quirk this module must reproduce, not fix — bare singular "Mes" does not match.
+    "Mes",
+    // Whole-string opacity: a magnitude-shaped token embedded in a longer sentence must never
+    // match, however "close" it looks to a bare magnitude.
+    "Lotería 3 meses antes; revisar liberaciones",
+    "2–4 semanas; atardecer antes",
+    "Días o semanas para exposición popular",
+    "App obligatoria para timed entry desde 2026",
+    "Grupos: reservar; individuales según operador",
+    "Semanas extra",
+    "Muchas semanas",
+  ];
+
+  it("the Python-derived regex and interpretLeadTimeText() agree on every accepted-corpus input", async () => {
+    const pythonRegex = await extractPythonBareMagnitudeRegex();
+    for (const raw of BARE_MAGNITUDE_ACCEPTED_CORPUS) {
+      expect(pythonRegex.test(raw.trim()), `Python regex should match ${JSON.stringify(raw)}`).toBe(true);
+      expect(interpretLeadTimeText(raw).category, raw).toBe("bare-magnitude");
+    }
+  });
+
+  it("the Python-derived regex and interpretLeadTimeText() agree on every rejected-corpus input", async () => {
+    const pythonRegex = await extractPythonBareMagnitudeRegex();
+    for (const raw of BARE_MAGNITUDE_REJECTED_CORPUS) {
+      expect(pythonRegex.test(raw.trim()), `Python regex should reject ${JSON.stringify(raw)}`).toBe(false);
+      expect(interpretLeadTimeText(raw).category, raw).not.toBe("bare-magnitude");
+    }
+  });
+
+  it("agreement holds bidirectionally over the full corpus: regex match IFF category is bare-magnitude", async () => {
+    const pythonRegex = await extractPythonBareMagnitudeRegex();
+    for (const raw of [...BARE_MAGNITUDE_ACCEPTED_CORPUS, ...BARE_MAGNITUDE_REJECTED_CORPUS]) {
+      const regexMatches = pythonRegex.test(raw.trim());
+      const isBareMagnitude = interpretLeadTimeText(raw).category === "bare-magnitude";
+      expect(regexMatches, raw).toBe(isBareMagnitude);
+    }
+  });
+
+  it("surrounding whitespace never changes the verdict on either side (both trim before matching)", async () => {
+    const pythonRegex = await extractPythonBareMagnitudeRegex();
+    for (const raw of ["  Semanas  ", "\tDías\n", "  1–2 semanas  "]) {
+      expect(pythonRegex.test(raw.trim())).toBe(true);
+      expect(interpretLeadTimeText(raw).category).toBe("bare-magnitude");
+    }
   });
 });
 
