@@ -1424,6 +1424,173 @@ display there is untouched and still the only per-place surface — this phase's
 in the route-wide planning surface only, not duplicated per place). No Phase 3D-E (or any later
 phase) work was started.
 
+## Phase 3D-E — Recorded Hours Signals — complete
+
+Turns the already-audited `schedule.hours` free text into a conservative runtime planning signal,
+given a place the user already selected. It does **not** implement an opening-hours feasibility
+solver: it never answers "will this place be open when I arrive," "can I visit this on Day 2," "go
+here at 14:00," "this closes before your visit ends," "this day works," or "move this place to
+Tuesday." Its narrower question: given a place the user already selected, what kind of
+recorded-hours information can Nihon safely state from the existing static `schedule.hours` field?
+
+- [x] **`app/src/lib/recorded-hours.ts`** — a new, small, pure domain module, deliberately separate
+      from `lib/temporal-availability.ts` (which owns `schedule.closures` semantics from Phase
+      3D-B). `classifyHoursCategory()` is a direct TypeScript port of
+      `scripts/temporal_data_lib.py`'s `classify_hours()`: the same 14 category names, the same
+      SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category (`HOURS_TIER`), and — critically — the same
+      fixed priority order of checks (`HOURS_RULES`). Classifies against `normalizeText(raw)` (NFD
+      accent stripping + lowercasing), the same technique `temporal-availability.ts` and
+      `reservation.ts` already established, rather than porting Python's `s[eé]g[uú]n`-style
+      accented character classes verbatim. This is an equivalence over the canonical dataset and
+      its expected Spanish variants — generic NFD stripping is technically a broader accept set
+      than an explicit accented character class, not a formal proof the two regex engines accept
+      identical languages — proven by classification-outcome parity tests, not a character-class
+      comparison.
+- [x] **Priority order is preserved exactly, proven with the adversarial examples that motivate
+      it.** `"Abierto 24 h; puede cerrar por viento"` and `"Estación 24 h; comercios variables"`
+      both classify `known-24h-with-caveat` (PARTIAL), never plain `known-24h` (SAFE) — a 24h
+      baseline plus an unresolved weather/variability caveat is not a SAFE fact just because "24 h"
+      appears first. `"Según tienda, aprox. 11:00–20:00"` classifies
+      `third-party-operator-dependent` (OPAQUE), never `fixed-interval-clean`, even though it
+      contains a clock-shaped substring — the third-party check runs before the fixed-interval
+      check in both languages. `"Ferry estacional y meteorológico"` classifies
+      `weather-or-tide-dependent`, not `seasonal-variable`, despite containing "estacional" —
+      weather/tide is checked first. A genuinely unrelated `"Estación 24 h"` (train station) does
+      **not** false-positive into a seasonal caveat, since "estación" and "estacional" are
+      different substrings. All proven with dedicated adversarial-priority tests in
+      `recorded-hours.test.ts`, not just asserted in prose.
+- [x] **`RecordedHoursFact`** — a closed, kind-tagged union (`"recorded-24h"`,
+      `"recorded-interval"`, `"conditional"`, `"external-dependency"`, `"unknown"`) so a consumer
+      cannot accidentally confuse a SAFE recorded fact with a PARTIAL/OPAQUE/UNKNOWN one. Only
+      `"recorded-interval"` (the `fixed-interval-clean` category) ever carries an `intervalRaw`
+      field — the matched clock-interval token (e.g. `"09:00–20:00"`) preserved as a raw string,
+      never minutes-since-midnight, a `Date`, or any other arithmetic-ready form. Every other kind
+      that might contain a clock-looking substring (`"conditional"`, `"external-dependency"`) never
+      exposes one — proven by dedicated safe-interval-extraction tests, including the exact
+      adversarial cases the phase brief named (`"Según tienda, aprox. 11:00–20:00"`,
+      `"10:00–17:00 aprox.; verificar exposición"`, `"09:00–16:00/17:30 según temporada"` all
+      produce no `intervalRaw`). `raw` is carried on every variant, verbatim, per the Phase 3D-A
+      contract's rule 1.
+- [x] **`app/src/lib/hours-planning.ts`** — a small pure aggregation,
+      `buildRecordedHoursSummary(places)`, over the current canonical route. Unlike
+      `reservation-planning.ts`, **no place is ever omitted**: every route place has hours
+      information relevant to planning, even when the honest signal is "variable," "depends on an
+      outside operator," or "unknown" — so `items` always has exactly one entry per input place.
+      Preserves the caller's exact route order — never resorted by opening time, closing time,
+      tier, category, "urgency," duration, or reservation state; no scoring, no optimization. A
+      duplicate `place.id` in the input throws immediately, naming the exact duplicate — the same
+      fail-loud convention `reservation-planning.ts` established, protecting against a silently
+      hidden upstream route-invariant regression rather than repairing it.
+- [x] **UI**: `OrderedSequenceBuilder.tsx`'s "Construir recorrido" view gained one more route-wide,
+      read-only section — "Horarios registrados" — rendered next to "Reservas por preparar" for the
+      same reason: the signal is useful before the route is split into days, and it reads no
+      `startDate`, no derived day date, no `place.schedule.closures`, no `place.bestTime`, and no
+      `place.febMar2027`. A summary line (`"N claros · M con condiciones · K con dependencia
+      externa · J por revisar"`) is followed by one entry per route place naming its recorded-hours
+      signal and the original raw `schedule.hours` text verbatim. **`"con dependencia externa"` is
+      deliberately neutral over BOTH OPAQUE categories `externalDependencyCount` combines
+      (`weather-or-tide-dependent` and `third-party-operator-dependent`) — a corrective fix caught
+      the original wording, "N depende de un tercero," being semantically false for a
+      weather/tide-dependent place (no third party is involved at all); the neutral phrase is
+      correct for either, while each place's own per-item label stays category-specific
+      ("Horario depende de clima o marea; revisar" vs. "Horario depende de un operador externo;
+      revisar").** Wording is deliberately narrow throughout: `"Horario registrado: 09:00–17:00"`
+      states a recorded fact, never that the place is open at those hours on any date; every
+      PARTIAL/OPAQUE/UNKNOWN phrase ends in "revisar," a call to double-check, never "closed,"
+      "incompatible," or "bad." A standing disclaimer states
+      plainly that the section describes only what is recorded, never whether a place opens or
+      closes on the user's date, and does not check holidays or closures.
+- [x] **`bestTime`, `schedule.closures`, and `febMar2027` all stay out of this domain and this
+      section**, exactly as Phase 3D-A's contract requires: no composition of an hours fact with a
+      closure fact, a `febMar2027` status, or a `bestTime` recommendation into a stronger claim like
+      "open," "available," "compatible," or "this day works." Protected by source-scanning
+      regression tests on both the domain module and the UI section.
+- [x] **Real-dataset counts re-derived, not copied from documentation**: SAFE 80/214, PARTIAL
+      50/214, OPAQUE 19/214, UNKNOWN 65/214 — matching Phase 3D-A's original audit exactly,
+      independently reproduced here by both a Python audit re-run
+      (`python3 scripts/audit-temporal-data.py data`) and new TypeScript tests against
+      `data/places.json` (via `app/src/data/places.json`, still byte-identical). Route-level
+      aggregation over the full dataset yields exactly 214 summary items — every place included,
+      none omitted — with the same 80/50/19/65 split by tier.
+- [x] **No opening-hours feasibility vocabulary anywhere.** Neither the domain module nor the UI
+      section contains an outcome named `open`, `closed`, `available`, `unavailable`, `feasible`,
+      `infeasible`, `compatible`, `incompatible`, `fits`, `does-not-fit`, `valid-day`,
+      `invalid-day`, or `best-time` — protected by source-scanning regression tests against the
+      forbidden vocabulary, on both the domain module and the rendered UI section.
+- [x] **No automation.** Nothing assigns visit times, moves places between days, reorders the
+      route, suggests an optimized order, recommends a different date, removes a place, ranks
+      places, computes a route score, generates an itinerary, books anything, or creates reminders.
+- [x] **84 new tests**: 54 in `lib/recorded-hours.test.ts` (SAFE/PARTIAL/OPAQUE/UNKNOWN category
+      coverage, the exact adversarial priority-order examples above, safe-interval-extraction
+      isolation, the Python `HOURS_TIER`/`HOURS_RULES` source-check parity tests, determinism, and
+      real-dataset invariants — all 214 places classify without throwing, exact tier totals,
+      `intervalRaw` always a substring of `raw`, never present outside `"recorded-interval"`); 18
+      in `lib/hours-planning.test.ts` (per-tier counts, order preservation and reordering,
+      duplicate-id fail-loud behavior naming the exact id, no omission by tier, no sorting, full
+      real-dataset aggregation totals: 214 items, 80/50/19/65); 12 new source-scanning integration
+      tests added to `components/OrderedSequenceBuilder.test.ts` (19 pre-existing Phase
+      3D-B/3D-D tests unchanged, 31 total in that file now), scoped to the new section's own
+      function body, asserting the wiring, every tier's wording renders distinctly, raw evidence
+      always renders, no `startDate`/day-date/`Date.now` read, no `schedule.closures`/`bestTime`/
+      `febMar2027` read, and no open/closed/feasibility vocabulary anywhere in the section. **589
+      tests passing overall** (was 505), `npm run lint`/`npm run build`/
+      `python3 scripts/test_temporal_data_audit.py` all still clean.
+- [x] **Manual QA in a real browser** (`npm run dev` + Playwright) against five real places chosen
+      programmatically to represent each category: Takeshita Street (`JP-004`,
+      `"Tiendas aprox. 10:00–20:00"`, `fixed-interval-clean`) correctly shows
+      "Horario registrado: 10:00–20:00" with the "Tiendas aprox." prefix stripped; Shibuya Crossing
+      (`JP-001`, `"Espacio público 24 h"`, `known-24h`) shows "Acceso registrado: 24 h" distinctly
+      from the interval wording; Tokyo Station Marunouchi Building (`JP-030`,
+      `"Estación 24 h; comercios variables"`, `known-24h-with-caveat`) shows
+      "Acceso 24 h registrado con condiciones; revisar," never plain "24 h"; Omoide Yokocho
+      (`JP-014`, `"Según local, tarde–noche"`, `third-party-operator-dependent`) shows
+      "Horario depende de un operador externo; revisar" with no parsed interval; SHIBUYA SKY
+      (`JP-002`, `"Variable por fecha"`, `explicit-unknown-variable`) shows
+      "Horario variable; revisar dato original." The summary line read "2 claros · 1 con
+      condiciones · 1 con dependencia externa · 1 por revisar," matching the five places' tiers
+      exactly. Reordering the route (moving SHIBUYA SKY to the top via its own reorder button)
+      changed the section's display order to match while every place's rendered signal text stayed
+      byte-identical — confirming order is route-derived, never resorted by tier. The section
+      rendered correctly with no calendar/start date set at all, confirming it works before day
+      assignment and without any date.
+- [x] **No date/time intelligence of any kind.** No clock time, timezone, visit start time, arrival
+      or departure time, per-place time slot, morning/afternoon assignment, visit-duration-fit
+      calculation, opening/closing arithmetic, overnight interval or day-rollover handling, or
+      schedule-collision detection. No date comparison: nothing here reads `startDate`, a derived
+      day date, `addCivilDays()`, or `getCivilWeekday()`.
+- [x] **Corrective review**: one real defect found and fixed, not touching the dataset or widening
+      scope. `buildRecordedHoursSummary()`'s `externalDependencyCount` intentionally combines both
+      OPAQUE categories (`weather-or-tide-dependent` and `third-party-operator-dependent` — that
+      aggregation itself is correct and unchanged), but `HoursPlanningSection`'s route-summary line
+      rendered that combined count as `"N depende(n) de un tercero"` — semantically false for a
+      route containing only a weather/tide-dependent place, since no third party is involved at
+      all. Fixed by changing only the summary phrase to the neutral `"N con dependencia externa"`,
+      correct for either OPAQUE category; the per-item labels were already, and remain,
+      category-specific (`"Horario depende de clima o marea; revisar"` vs. `"Horario depende de un
+      operador externo; revisar"`) and were never part of the defect. A new aggregation-level test
+      in `lib/hours-planning.test.ts` pins down that a weather-only route and a third-party-only
+      route both produce the same `externalDependencyCount` shape that made the old wording wrong,
+      and the existing source-scanning wording test in `components/OrderedSequenceBuilder.test.ts`
+      now additionally asserts the section never contains the literal string `"un tercero"`. A
+      focused browser QA re-verification against one weather-or-tide-dependent place (Tomogashima,
+      `JP-146`, `"Ferry estacional y meteorológico"`) and one third-party-operator-dependent place
+      (Omoide Yokocho, `JP-014`, `"Según local, tarde–noche"`) together confirmed the route-summary
+      line now reads truthfully for both — see the manual-QA bullet above, updated to match. Test
+      counts after this pass: 19 in `lib/hours-planning.test.ts` (was 18), 32 in
+      `components/OrderedSequenceBuilder.test.ts` (was 31) — **591 tests passing** overall (was
+      589), `npm run lint`/`npm run build`/`python3 scripts/test_temporal_data_audit.py` all still
+      clean. No dataset, `package.json`, lockfile, planning-draft schema, or `localStorage` key
+      changed; no Phase 3D-F work was started.
+
+`data/places.json`, `app/src/data/places.json`, the workbook, `seasonal-alerts.json`, every
+logistics/access-point/walking/transit artifact, `package.json`, the lockfile, the
+`ManualPlanningDraftV2` schema, `nihon.manualPlanningDraft`'s stored shape, `nihon.savedPlaceIds`,
+and the Filters union are all unchanged; no dependency was added, no new `localStorage` key was
+introduced, and `PlaceDetail.tsx` was not touched (its existing raw-text-only `schedule.hours`
+display there is untouched and still the only per-place surface — this phase's new signal lives in
+the route-wide planning surface only, not duplicated per place). No Phase 3D-F (or any later phase)
+work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -1452,18 +1619,28 @@ phase) work was started.
       times, or dates/times to individual places — see the opening-hour item just below for the
       related, still-untouched `schedule.hours`/`schedule.closures`/`bestTime` boundary.
 - [ ] Opening-hour constraint solving — still **not started**, and this item's wording is updated
-      here specifically because it would otherwise now be false: Phase 3D-A audited and classified
-      `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`/`febMar2027` offline (see
-      [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md)), and Phase 3D-B added the
-      first narrow **runtime** interpretation on top of exactly one of those fields —
-      `schedule.closures`'s candidate-recurring-weekday family — surfaced as a conservative
-      date/weekday match warning in the day-assignment view (see the Phase 3D-B entry above).
-      **Still not done, and not implied by that narrow start**: any `schedule.hours` runtime
-      parsing or solving; any actual open/closed judgment about a place (Phase 3D-B never asserts
-      one — only "this recorded weekday candidate matches/doesn't match this date"); clock-time
-      scheduling of any kind; holiday handling; temporary or live closure verification against an
-      official source; a date recommendation; or automatic rescheduling. A full opening-hours
-      feasibility solver remains a distinct, unscheduled, separately-decided future phase.
+      here again specifically because it would otherwise now be false. Phase 3D-A audited and
+      classified `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`/`febMar2027` offline
+      (see [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md)). Phase 3D-B added the
+      first narrow **runtime** interpretation, on `schedule.closures`'s candidate-recurring-weekday
+      family, surfaced as a conservative date/weekday match warning in the day-assignment view (see
+      the Phase 3D-B entry above). **DONE (Phase 3D-E)**: `schedule.hours` itself now has a runtime
+      classification too — `app/src/lib/recorded-hours.ts` turns the raw text into one of five
+      conservative signal kinds (a SAFE recorded 24h/interval fact, a PARTIAL conditional fact, an
+      OPAQUE external-dependency fact, or an UNKNOWN fact), with exact Phase 3D-A category/tier/
+      priority-order parity, and a route-wide "Horarios registrados" summary in
+      `OrderedSequenceBuilder.tsx` (see the Phase 3D-E entry above). **Still not done, and not
+      implied by either of those runtime additions**: any actual open/closed judgment about a place
+      (neither phase ever asserts one — Phase 3D-B only says "this recorded weekday candidate
+      matches/doesn't match this date," and Phase 3D-E only says "this is the kind of hours
+      information recorded for this place"); any composition of an hours fact with a closure fact,
+      a `febMar2027` status, or a `bestTime` recommendation into a stronger claim; clock-time,
+      timezone, or per-place visit-time scheduling of any kind; a visit-duration-fit calculation
+      against a recorded interval; holiday handling; temporary or live closure/hours verification
+      against an official source; a date recommendation; or automatic rescheduling. A full
+      opening-hours feasibility solver remains a distinct, unscheduled, separately-decided future
+      phase — not an incremental extension of either Phase 3D-B's or Phase 3D-E's conservative
+      signal.
 - [ ] Reservation booking-deadline intelligence — this item's wording is updated here specifically
       because it would otherwise now be false. **DONE (Phase 3D-D)**: a runtime classification of
       `reservation.leadTime` into a coarse days/weeks/months magnitude (`bare-magnitude`) or an
