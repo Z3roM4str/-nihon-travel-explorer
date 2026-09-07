@@ -982,6 +982,121 @@ disabled placeholder. Zero new npm dependencies; no dataset, workbook, `nearby.j
 access-point/walking artifact, `package.json`, or lockfile changes. No Phase 3C-F (or any later
 phase) work was started.
 
+## Phase 3D-A — Temporal Data Audit & Normalization Contract — complete
+
+Phase 3C-E gave every manually assigned day a real civil date. This phase starts a new
+product/domain family — temporal *feasibility* — but is deliberately audit-and-contract only: it
+determines which parts of the existing dataset are safe enough to support a future "what can
+Nihon safely say about this day's places" answer. It is **not** Phase 3C-F, and it does not
+answer that question itself.
+
+- [x] Programmatically audited all 214 places' `schedule.hours`, `schedule.closures`, `bestTime`,
+      `reservation.required`/`leadTime`/`raw`, and `febMar2027.status`/`warning`/`action` with a
+      new deterministic, offline, zero-network script (`scripts/audit-temporal-data.py`, pure
+      classification rules in `scripts/temporal_data_lib.py`) — every count in
+      [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md), including every distinct-
+      raw-value count and raw-value frequency, is emitted by the script's generic
+      `raw_value_stats()` helper and reproducible by re-running it, never hand-transcribed or
+      hardcoded.
+- [x] Derived the pattern-family taxonomy **from the data**, not from a predetermined list:
+      13 `schedule.hours` families and 10 `schedule.closures` families, each tagged SAFE / PARTIAL
+      / OPAQUE / UNKNOWN. Coverage: hours SAFE 80/214, PARTIAL 50/214, OPAQUE 19/214, UNKNOWN
+      65/214; closures SAFE 61/214, PARTIAL 31/214, OPAQUE 83/214, UNKNOWN 39/214. A real
+      recurring-weekday closure example exists (30/214, always carrying an uncertainty marker in
+      this checkout, e.g. `"Lunes; verificar"` — classified PARTIAL, never SAFE) and is kept
+      structurally distinct from the irregular `"Muchos domingos"` pattern, which is never treated
+      as a safe recurring rule. A "24 h" token is likewise never promoted to SAFE merely by being
+      present: `known-24h-with-caveat` (4/214, e.g. `"Abierto 24 h; puede cerrar por viento"`)
+      keeps a 24h claim paired with a weather/operator/seasonal/other material caveat PARTIAL,
+      never SAFE, distinct from the 15/214 genuinely unqualified `known-24h` places.
+- [x] **`reservation.required` audited independently, not merely read off the raw text**:
+      verified a real `bool` for all 214 places, with exact True=41/214, False=173/214 counts,
+      and mechanically cross-checked against `reservation.raw`'s own classification via
+      `classify_reservation_consistency()` — **0/214 inconsistent pairs found today**, checked
+      per place and named explicitly (never assumed) had any existed. That mechanical check is
+      what turns the finding below from a plausible guess into a proven one.
+- [x] **Two real findings, recorded rather than silently fixed**: `reservation.required` collapses
+      39/214 places (18 %) whose raw text is `"Recomendable"`/`"Opcional"`/`"No para espectador"`
+      into the same `false` a plain `"No"` gets, losing a real nuance the raw string still
+      preserves; and `data/seasonal-alerts.json` (33 entries, keyed by free-text `"Lugar / tema"`,
+      not by place id) is a structurally separate collection from the 214 per-place `febMar2027`
+      objects, confirmed by grep to have **zero consumers anywhere in `app/src/`**.
+- [x] **`bestTime` audited and bounded, never conflated with availability**: all 214 values (a
+      closed 10-item vocabulary — `Mañana`, `Tarde`, `Noche`, `Atardecer`, …) classify as one
+      opaque `editorial-recommendation` category; `classify_best_time()` branches on presence only,
+      never on content, so a value that happens to look time-shaped can never leak into the hours
+      domain. `schedule.hours` is not overridden by `bestTime` anywhere.
+- [x] **`febMar2027` kept on its own axis, never merged into weekly hours/closures**: `status`
+      alone drives its classification (`classify_feb_mar_status()` takes exactly one argument, a
+      regression test pins this down). `warning`/`action` are formally included in the audit
+      contract as their own classified field — `classify_editorial_prose()`, presence-only,
+      structurally identical to `classify_best_time()` — rather than merely counted on the side:
+      all 214/214 places classify `editorial-prose`/OPAQUE for both, with 34 distinct warnings and
+      34 distinct actions over 214 places (backed by the same `raw_value_stats()` helper, not a
+      one-off computation). The dominant `pending-verification` bucket (152/214, e.g.
+      `"CALENDARIO / CONDICIÓN PENDIENTE"`) is tiered UNKNOWN, not a weaker OPAQUE — "the calendar
+      isn't published yet" is not a closure signal of any kind.
+- [x] **Malformed nested field types fail loudly, never silently stringify into ordinary text**:
+      `load_places()` now type-checks every nested temporal leaf against the canonical `Place`
+      contract (`app/src/types.ts`) — `schedule.hours`/`closures`, `reservation.leadTime`/`raw`,
+      and `febMar2027.status`/`warning`/`action` must be `str`; `reservation.required` must be a
+      real `bool`, rejecting a look-alike string like `"false"` or an int like `1`/`0` even though
+      `bool` is a Python `int` subclass. `_norm()` (used by every classifier) independently raises
+      `TypeError` on anything that isn't `str`/`None`, as a second guard for any direct caller.
+      Regression tests cover `schedule.hours = 123`, `reservation.required = "false"`, and
+      `febMar2027.warning = []` each failing with a specific message rather than becoming an
+      ordinary-looking UNKNOWN/OPAQUE classification.
+- [x] **Normalization contract** in [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md):
+      raw editorial text stays authoritative and is never dropped; SAFE facts are parseable without
+      guessing; PARTIAL facts expose only their safely-extractable part and carry the rest forward
+      as text; OPAQUE data (weather, tides, an unnamed operator, a festival calendar) stays
+      editorial indefinitely, not "until parsed better"; UNKNOWN is never coerced to any other
+      tier — enforced by a regression test, not just documented intent.
+- [x] **A future domain model sketched, not implemented** — following Phase 3B2E's own precedent
+      of deciding a model without shipping code. No new TypeScript type, file, or export was added
+      to `app/src/`; the sketch in the contract doc is scoped tightly to what the audit actually
+      justifies (no `open`/`closed` boolean anywhere in it — even a SAFE fact only supports "this
+      is what the editor recorded," never "open right now") and explicitly excludes `bestTime` and
+      `febMar2027` from it.
+- [x] **82 offline tests** (`scripts/test_temporal_data_audit.py`): per-category classification
+      invariants, priority ordering (e.g. weather-dependence outranks a generic third-party
+      mention, a caveat outranks a bare "24 h"), malformed-input handling (missing file, non-array
+      JSON, invalid JSON, a place missing a required nested field, and — since the corrective
+      review below — every malformed nested leaf type — each fails with a specific message rather
+      than guessing a default), a generic `raw_value_stats()` helper's own unit tests
+      (determinism, tie-breaking, `None` handling), real-dataset coverage-existence checks that
+      assert an example currently exists without hardcoding a fragile count, CLI-level determinism
+      (two subprocess runs produce byte-identical stdout), and that the CLI never modifies
+      `data/places.json`.
+- [x] **Corrective review**: a second pass found and fixed four audit-contract defects before this
+      phase's PR was reviewed. (1) `reservation.required` and `febMar2027.warning`/`.action` were
+      claimed as "audited" without the script actually checking or reporting them — now each has
+      its own classification and, for `reservation.required`, an independent boolean audit plus a
+      mechanical cross-check against `reservation.raw` (0/214 inconsistent, proven not assumed).
+      (2) `load_places()` type-checked only presence, not type, for every nested temporal leaf — a
+      `schedule.hours: 123` or `reservation.required: "false"` would have passed through to a
+      classifier and silently become an ordinary-looking UNKNOWN/OPAQUE answer; both now fail
+      loudly with the actual offending type named. (3) The contract document cited several
+      distinct-raw-value and frequency numbers the script itself never emitted (bestTime
+      frequencies, leadTime/status/warning/action distinct counts) — closed with a generic,
+      reusable `raw_value_stats()` helper wired into every audited field, so the "every number is
+      reproducible by rerunning the script" claim is now literally true rather than aspirational.
+      (4) `classify_hours()` checked "24 h" before any weather/operator/seasonal/variable caveat,
+      so a real dataset value — `"Abierto 24 h; puede cerrar por viento"` — was misclassified
+      SAFE; fixed with a new `known-24h-with-caveat` PARTIAL family, checked before the corrected
+      priority could hide the same class of defect in a still-uncaught shape, and the resulting
+      real coverage-number changes (hours SAFE 84→80, PARTIAL 46→50) were propagated everywhere
+      they appeared rather than left stale to minimize the diff.
+
+**No opening-hours solver, no date-feasibility check, no "this day works" UI, and no clock-time,
+timezone, or per-place scheduling of any kind exist after this phase.** Phase 3C-E's manual civil-
+date anchoring is unchanged and still reads none of `bestTime`/`schedule.hours`/
+`schedule.closures`; `PlaceDetail.tsx` and `OrderedSequenceBuilder.tsx` are unmodified. This phase
+made **zero requests to any official source, provider, or API**, changed no `places.json`
+(canonical or `app/src/data/` copy), no `seasonal-alerts.json`, no workbook, no logistics/access-
+point/walking artifact, `package.json`, or lockfile, and added no npm dependency. No Phase 3D-B (or
+any later phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -1010,8 +1125,11 @@ phase) work was started.
       times, or dates/times to individual places — see the opening-hour item just below for the
       related, still-untouched `schedule.hours`/`schedule.closures`/`bestTime` boundary.
 - [ ] Opening-hour constraint solving (checking a place's `bestTime`/`schedule.hours`/
-      `schedule.closures` against a day's other places or a proposed time) — not started; those
-      fields are still opaque editorial strings, never structurally parsed.
+      `schedule.closures` against a day's other places or a proposed time) — not started. Phase
+      3D-A audited and classified these fields offline (see
+      [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md)), but the application itself
+      still renders every one of them as opaque editorial text — no runtime parsing, no solver,
+      and no UI reads the audit's classification.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.

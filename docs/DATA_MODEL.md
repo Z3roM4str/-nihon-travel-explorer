@@ -280,3 +280,23 @@ change never touches it, and it is never itself used to derive, validate, or inv
 route or the day assignment. `place.bestTime`, `schedule.hours`, and `schedule.closures` are not
 read anywhere in this feature — anchoring a date is a fact the user asserts about their own
 calendar, not a computation over the dataset.
+
+## Temporal data audit (derived, Phase 3D-A)
+
+`place.schedule.hours`, `place.schedule.closures`, `place.bestTime`,
+`place.reservation.required`/`leadTime`/`raw`, and `place.febMar2027.status`/`warning`/`action`
+remain exactly what they always were on `Place` — free editorial strings (plus one boolean),
+untouched by this phase. Phase 3D-A adds a read-only, offline classification **over** those
+fields, analogous to how `app/src/lib/transfer.ts` classifies `nearby.json` without duplicating
+it: `scripts/temporal_data_lib.py` maps each field's current value to a pattern-family category
+and one of four confidence tiers (SAFE / PARTIAL / OPAQUE / UNKNOWN), and
+`scripts/audit-temporal-data.py` reports exact counts over the live dataset — nothing here is
+hardcoded, and a legitimate future workbook change simply reclassifies on the next run.
+
+This audit is Python-only, offline, and has no `app/src/` consumer: no TypeScript type was added
+for it, and no UI reads its output. See
+[`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the full taxonomy, the exact
+coverage numbers, two real findings (`reservation.required` losing the `"Recomendable"` nuance
+for 39/214 places; `data/seasonal-alerts.json` being an unconsumed, non-place-id-keyed collection
+distinct from `febMar2027`), and a sketched — not implemented — future domain shape a later phase
+would build against.
