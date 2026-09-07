@@ -1,4 +1,5 @@
 import type { PlanningBlock } from "./lib/planning-block";
+import type { ReservationFilterValue } from "./lib/reservation";
 
 /**
  * A licensed photograph of a place. `url` may be a local asset under `public/` or a remote URL
@@ -99,7 +100,9 @@ export type Filters = {
   grades: string[];
   hiddenGemStatuses: string[];
   tourismLevels: string[];
-  reservation: "all" | "required" | "not-required";
+  /** Phase 3D-C: a closed reservation-semantics union, matching `reservation.raw`'s real
+   * categories — see `lib/reservation.ts`. Never the lossy `reservation.required` boolean. */
+  reservation: ReservationFilterValue;
   /** Derived duration categories; see `lib/planning-block.ts`. Empty means no constraint. */
   planningBlocks: PlanningBlock[];
 };

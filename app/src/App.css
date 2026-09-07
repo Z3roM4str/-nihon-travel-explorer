@@ -726,6 +726,21 @@ a {
   color: var(--color-warn);
 }
 
+/* Phase 3D-C — reservation semantics. Distinct, softer tones from `.tag--alert` (required):
+   "recommended" and "optional" are real nuances from `reservation.raw`, not the same claim as
+   "required", and must not read with the same visual urgency. */
+.tag--reservation-recommended {
+  background: var(--color-ok-soft);
+  border-color: #b3ddc5;
+  color: var(--color-ok);
+}
+
+.tag--reservation-optional {
+  background: #eaf2f8;
+  border-color: #c7dcec;
+  color: var(--color-info);
+}
+
 .tag--grade-S,
 .badge--grade-S {
   background: #b7282e;

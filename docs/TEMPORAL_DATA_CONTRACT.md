@@ -162,6 +162,15 @@ product decision that this document does not make.
 
 ## 4. `reservation` — a real defect this audit found
 
+> **Update (Phase 3D-C):** the finding this section records — `reservation.required` losing the
+> non-binary nuance for 39/214 places — is now fixed at the runtime-consumer level.
+> `app/src/lib/reservation.ts` classifies `reservation.raw` on every read (a direct TypeScript
+> port of `classify_reservation_raw()` below, same category/tier/expected-boolean mapping), and
+> `PlaceDetail.tsx`/`App.tsx`'s filtering now read that classification instead of the bare
+> boolean. The dataset itself, `reservation.required`, and everything in this section's findings
+> are unchanged — Phase 3D-C is a UI/filter correction, not a re-audit. See `docs/ROADMAP.md`'s
+> Phase 3D-C entry and `docs/DATA_MODEL.md`'s "Reservation semantics" section for what shipped.
+
 `reservation.raw` has exactly 5 distinct values across 214 places:
 
 | Raw value | Count | `reservation.required` boolean | Audit category | Tier |
