@@ -1097,6 +1097,113 @@ made **zero requests to any official source, provider, or API**, changed no `pla
 point/walking artifact, `package.json`, or lockfile, and added no npm dependency. No Phase 3D-B (or
 any later phase) work was started.
 
+## Phase 3D-B — Weekday Closure Signals — complete
+
+The first RUNTIME consumer of Phase 3D-A's audit contract. Deliberately narrow: it answers only
+"does the weekday of a civil date the user already assigned to a day bucket match a candidate
+recurring-weekday closure recorded in `place.schedule.closures`" — never "is the place open,"
+"can I visit at 14:00," "is the whole day feasible," or "what is the best day." It is not an
+opening-hours solver, and none of Phase 3D-A's other audited fields (`schedule.hours`, `bestTime`,
+`febMar2027`) are read for feasibility here.
+
+- [x] **`getCivilWeekday(iso): CivilWeekday | null`** added to `app/src/lib/civil-date.ts` — the
+      smallest possible extension, reading calendar components via `Date.UTC(...)`/`getUTCDay()`
+      exclusively (timezone-invariant, like every other function in that module), returning
+      `null` for an invalid civil date rather than guessing. The module still knows dates and
+      weekdays only — no `Place`, no closure text, no business rule was added to it.
+- [x] **`app/src/lib/temporal-availability.ts`** — a new, small, pure domain module: `ClosureFact`
+      (`"no-known-closure"` SAFE / `"candidate-weekday"` PARTIAL with extracted `CivilWeekday[]` /
+      `"not-evaluable"` for everything else) derived on read from `place.schedule.closures`, never
+      persisted and never a new field on `Place`. `interpretClosureText()` is a direct TypeScript
+      port of **only** `scripts/temporal_data_lib.py`'s `classify_closures()` — same category
+      names, same priority order, same SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category — not a
+      port of the hours/bestTime/reservation/febMar2027 taxonomies, which stay exactly as
+      unparsed at runtime as Phase 3D-A left them. `assessWeekdayClosure()` combines one
+      `ClosureFact` with one civil-date string into a closed
+      `"possible-weekday-closure-match" | "no-weekday-match" | "no-known-closure" |
+      "not-evaluable" | "not-assessed"` outcome — `"no-weekday-match"` is never "open," never
+      "compatible," only "this one recorded candidate didn't match this one date."
+- [x] **Parity with the Phase 3D-A contract, proven not assumed**: `"Sin cierre"`/`"Sin cierre
+      ordinario"` classify SAFE; `"Sin cierre ordinario; clima"` does **not** (a caveat
+      disqualifies it, exactly as the audit found); `"Lunes; verificar"` and every other
+      single/multi-named-weekday pattern the audit already found PARTIAL becomes a candidate;
+      `"Muchos domingos"` and `"Miércoles/domingo variable"` — the audit's own
+      `irregular-weekday-pattern` OPAQUE family — never become a candidate; every
+      weather/tide/third-party/scheduled-unspecified/genuinely-unrecognized family from the audit
+      stays `"not-evaluable"`. A real-dataset test asserts no OPAQUE/UNKNOWN closure category is
+      ever promoted into a definitive weekday conflict, across all 214 current places and a full
+      reference week of dates.
+- [x] **UI: the day-assignment view only.** `OrderedSequenceBuilder.tsx`'s existing "Distribuir
+      por días" day cards gained a `WeekdayClosureNotice` section, rendered only when a day
+      already has a derived date (Phase 3C-E's `startDate` + day offset) and at least one place —
+      no warning was added to the national map, ordinary place cards, sequence comparison, or the
+      unordered selection analysis. A match reads "N posible(s) coincidencia(s) con cierre
+      semanal" (amber, non-alarmist — the same warm palette `.alert--pending` already uses, never
+      the stronger red risk treatment) and names each matched place with its raw closure text
+      verbatim; zero matches reads only "Sin coincidencias de cierre semanal detectadas" — never a
+      "day is valid" claim; places that could not be evaluated are counted and disclosed
+      separately. A standing disclaimer states plainly that the check does not verify opening
+      hours, holidays, temporary closures, weather, reservations, or live status. Manually
+      verified end-to-end in a real browser (`npm run dev` + Playwright): a Monday start date
+      correctly surfaced both saved places whose recorded closure is `"Lunes; verificar"`; a
+      Tuesday date correctly showed the neutral no-match line for the same places; clearing the
+      date removed the section entirely.
+- [x] **No automation of any kind.** Nothing here moves a place to another day, recommends a
+      different day, scores days, auto-distributes, auto-orders, or offers a "fix this day"/"best
+      day" control. The user's manual route/day/date decisions remain exactly as canonical as
+      Phase 3C left them.
+- [x] **Nothing persisted.** No `ManualPlanningDraftV3`, no new `localStorage` key — the signal is
+      recomputed on every render from the day's already-derived date and each place's existing raw
+      `schedule.closures` text. A source-scanning regression test asserts neither new module
+      references `localStorage`/`sessionStorage`/`indexedDB` at all, the same technique Phase
+      3B3D's `transit.test.ts` already established for exactly this kind of guarantee.
+- [x] **76 new tests**: 9 new `getCivilWeekday` cases in `civil-date.test.ts` (known Monday/Sunday,
+      every weekday across one reference week, a leap date, a century leap year, month/year
+      boundaries, invalid input, timezone invariance across UTC−12/UTC/UTC+14-equivalent zones);
+      44 in `temporal-availability.test.ts` (parity cases above, accent/case handling,
+      multi-weekday extraction in fixed order, all five `assessWeekdayClosure` outcomes including
+      the explicit "no boolean field anywhere that could be read as open" check, real-dataset
+      throw/coverage/non-promotion invariants, a full-vocabulary table-driven parity check, and a
+      subprocess-free source-check against `scripts/temporal_data_lib.py`'s actual `CLOSURES_TIER`
+      — see "Corrective review" below); 13 in `day-weekday-signal.test.ts` (no-date/invalid-date →
+      unassessed, a match/no-match/empty-day case each, not-evaluable counted and individually
+      identifiable, moving a place to a different day and changing the start date each recomputing
+      from the new date, determinism, an outcome-vocabulary regression check, and the persistence
+      source-scan above); 10 in the new `OrderedSequenceBuilder.test.ts` (source-scanning
+      integration coverage — see "Corrective review" below).
+- [x] Updated `docs/DATA_MODEL.md` (new "Weekday closure signals" section, pointer-only — no
+      `Place` field changed) and `docs/TEMPORAL_DATA_CONTRACT.md` (records this runtime consumer
+      and its exact boundary, without reopening the audit numbers themselves).
+- [x] **Corrective review**: a second pass found and fixed two defects before human review. (1) A
+      real category-name parity defect: `interpretClosureText()`'s TypeScript category was named
+      `no-known-closure-with-caveat` while the canonical Python audit
+      (`scripts/temporal_data_lib.py`'s `CLOSURES_TIER`) names the same family
+      `no-ordinary-closure-with-caveat` — the existing parity test had encoded the same wrong name,
+      so it didn't actually protect the parity claim it existed to enforce. Fixed with the exact
+      canonical name (tier/behavior unchanged: still PARTIAL, still `not-evaluable`, still never
+      SAFE), and hardened with a table-driven test covering the complete 11-category
+      `schedule.closures` vocabulary plus a lightweight, subprocess-free source-check that parses
+      `CLOSURES_TIER` directly out of the Python file's text and fails if either language's
+      category set or tier values ever drift from the other — verified to actually catch the
+      original defect by deliberately reintroducing it and confirming the new tests fail. (2)
+      Added `OrderedSequenceBuilder.test.ts`, a source-scanning structural test (the same technique
+      `server/transit.test.ts` already established) proving the component still imports and calls
+      `buildDayWeekdaySignal(places, dayDate)`, still renders `<WeekdayClosureNotice
+      signal={weekdaySignal} />`, contains the exact conservative match/no-match/disclaimer wording
+      scoped to that function's own source region (never the whole file, to avoid false positives
+      against this module's own "does not read X" doc comments), never contains "está
+      cerrado"/"día válido"/"día compatible"/"mejor día," and introduces no second
+      `role="dialog"` — verified to actually catch a real regression by deliberately removing the
+      render call and confirming the test fails. Both fixes verified by deliberately reverting them
+      and confirming the new tests catch the reversion, not merely by inspection.
+
+This phase made **zero requests to any official source, provider, or API**, changed no
+`places.json` (canonical or `app/src/data/` copy), no `seasonal-alerts.json`, no workbook, no
+logistics/access-point/walking artifact, `package.json`, or lockfile, and added no npm dependency.
+It reads no `schedule.hours`, no `bestTime`, and no `febMar2027` field for feasibility, assigns no
+clock time or timezone to anything, and does not touch the planning-draft schema. No Phase 3D-C
+(or any later phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -1124,12 +1231,19 @@ any later phase) work was started.
       remaining day buckets, but it does not assign clock times, timezones, arrival/departure
       times, or dates/times to individual places — see the opening-hour item just below for the
       related, still-untouched `schedule.hours`/`schedule.closures`/`bestTime` boundary.
-- [ ] Opening-hour constraint solving (checking a place's `bestTime`/`schedule.hours`/
-      `schedule.closures` against a day's other places or a proposed time) — not started. Phase
-      3D-A audited and classified these fields offline (see
-      [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md)), but the application itself
-      still renders every one of them as opaque editorial text — no runtime parsing, no solver,
-      and no UI reads the audit's classification.
+- [ ] Opening-hour constraint solving — still **not started**, and this item's wording is updated
+      here specifically because it would otherwise now be false: Phase 3D-A audited and classified
+      `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`/`febMar2027` offline (see
+      [`docs/TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md)), and Phase 3D-B added the
+      first narrow **runtime** interpretation on top of exactly one of those fields —
+      `schedule.closures`'s candidate-recurring-weekday family — surfaced as a conservative
+      date/weekday match warning in the day-assignment view (see the Phase 3D-B entry above).
+      **Still not done, and not implied by that narrow start**: any `schedule.hours` runtime
+      parsing or solving; any actual open/closed judgment about a place (Phase 3D-B never asserts
+      one — only "this recorded weekday candidate matches/doesn't match this date"); clock-time
+      scheduling of any kind; holiday handling; temporary or live closure verification against an
+      official source; a date recommendation; or automatic rescheduling. A full opening-hours
+      feasibility solver remains a distinct, unscheduled, separately-decided future phase.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.

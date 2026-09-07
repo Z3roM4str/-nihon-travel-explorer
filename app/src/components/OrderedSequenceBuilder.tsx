@@ -6,7 +6,8 @@ import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSumm
 import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
 import { buildDayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
-import { addCivilDays, formatCivilDateDisplay } from "../lib/civil-date";
+import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
+import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -52,6 +53,15 @@ type Props = {
  * Composition is fixed once either nested view opens: neither the comparison candidates nor the
  * day buckets can add or remove a place, only reorder or move between the fixed set — see
  * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
+ *
+ * Phase 3D-B adds one narrow, read-only signal to each day card that already has a derived date:
+ * whether that date's weekday matches a candidate recurring-weekday closure extracted from a
+ * place's `schedule.closures` text (`../lib/day-weekday-signal.ts`,
+ * `../lib/temporal-availability.ts`). It is deliberately NOT an opening-hours judgment — see
+ * `WeekdayClosureNotice` below for the exact, conservative wording this is allowed to use. It
+ * reads no `schedule.hours`, no `bestTime`, and no `febMar2027` field; it is computed fresh on
+ * every render from the day's already-derived date and its places' existing raw text, and
+ * nothing about it is persisted (no new planning-draft field, no new `localStorage` key).
  */
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
@@ -334,6 +344,77 @@ function TransferAndVisitTotals({
         </div>
       )}
     </div>
+  );
+}
+
+/** Display-only Spanish labels for `CivilWeekday` — the domain type itself stays a stable,
+ * locale-independent identifier (see `civil-date.ts`); this table is the one place that turns it
+ * into user-facing text, exactly like `formatCivilDateDisplay` does for the date itself. */
+const WEEKDAY_LABEL: Record<CivilWeekday, string> = {
+  sunday: "domingo",
+  monday: "lunes",
+  tuesday: "martes",
+  wednesday: "miércoles",
+  thursday: "jueves",
+  friday: "viernes",
+  saturday: "sábado",
+};
+
+/**
+ * Phase 3D-B's one UI surface. Renders nothing when the day has no derived date yet
+ * (`signal.assessed === false`) or has no places — the existing calendar UI (the date input,
+ * "Sin lugares en este día") is already sufficient in both cases, per the phase's own scope.
+ *
+ * Wording is deliberately narrow and conservative throughout: a match reads "posible
+ * coincidencia," never "cerrado"; a day with zero matches reads only "sin coincidencias
+ * detectadas," never a "day is valid"/"everything compatible" claim; not-evaluable places are
+ * named as a limitation, not hidden. See `../lib/temporal-availability.ts`'s own doc for the
+ * exact outcome vocabulary this renders from.
+ */
+function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
+  if (!signal.assessed || signal.perPlace.length === 0) return null;
+
+  const matches = signal.perPlace.filter(
+    (
+      p
+    ): p is typeof p & {
+      assessment: Extract<(typeof p)["assessment"], { outcome: "possible-weekday-closure-match" }>;
+    } => p.assessment.outcome === "possible-weekday-closure-match"
+  );
+
+  return (
+    <section className="weekday-signal" aria-label="Posibles coincidencias de cierre semanal">
+      {matches.length > 0 ? (
+        <>
+          <p className="weekday-signal__summary weekday-signal__summary--warn">
+            <span aria-hidden="true">⚠</span> {matches.length} posible
+            {matches.length === 1 ? "" : "s"} coincidencia{matches.length === 1 ? "" : "s"} con cierre semanal
+          </p>
+          <ul className="weekday-signal__list">
+            {matches.map(({ placeId, placeName, assessment }) => (
+              <li key={placeId}>
+                <strong>{placeName}</strong> — el registro indica «{assessment.closure.raw}». La fecha elegida
+                cae en {WEEKDAY_LABEL[assessment.weekday]}; confirma el horario/cierre oficial.
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p className="weekday-signal__summary">
+          <span aria-hidden="true">ⓘ</span> Sin coincidencias de cierre semanal detectadas.
+        </p>
+      )}
+      {signal.notEvaluableCount > 0 && (
+        <p className="weekday-signal__note">
+          {signal.notEvaluableCount} lugar{signal.notEvaluableCount === 1 ? "" : "es"} no puede
+          {signal.notEvaluableCount === 1 ? "" : "n"} evaluarse con los datos de cierre actuales.
+        </p>
+      )}
+      <p className="weekday-signal__disclaimer">
+        Esta comprobación solo revisa un posible patrón de cierre semanal ya registrado. No verifica horarios,
+        días festivos, cierres temporales, clima, reservas ni el estado real vigente.
+      </p>
+    </section>
   );
 }
 
@@ -769,6 +850,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   const daySummary = summarizeSelection(places);
                   const isEmpty = places.length === 0;
                   const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
+                  const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
                   return (
                     <section key={dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
@@ -814,6 +896,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             showDuration
                             compact
                           />
+                          <WeekdayClosureNotice signal={weekdaySignal} />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}

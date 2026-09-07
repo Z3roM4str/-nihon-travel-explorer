@@ -84,3 +84,47 @@ export function formatCivilDateDisplay(iso: string, locale: string = "es"): stri
     timeZone: "UTC",
   }).format(asUtcDate);
 }
+
+/**
+ * Phase 3D-B — the closed weekday vocabulary this module (and anything built on it) uses. Named
+ * in English/lowercase deliberately, so it stays a stable, locale-independent identifier — all
+ * Spanish-language weekday text stays a *display* concern (`formatCivilDateDisplay`, or a
+ * consumer's own label table), never this type.
+ */
+export type CivilWeekday =
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday";
+
+/** `Date.prototype.getUTCDay()`'s own index convention (0 = Sunday … 6 = Saturday) — not
+ * reinvented here, just named. */
+const WEEKDAY_BY_UTC_DAY_INDEX: readonly CivilWeekday[] = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
+
+/**
+ * The civil weekday `iso` falls on, or `null` when `iso` is not itself a valid civil date —
+ * never a guess. Reads the calendar component with `Date.UTC(...)`/`getUTCDay()` exclusively,
+ * exactly like every other function in this module, so the result is timezone-invariant: the
+ * weekday of the date the user picked never depends on the browser's local timezone.
+ *
+ * This module knows dates and weekdays only — it has no notion of a `Place`, a closure, or any
+ * other business rule. See `app/src/lib/temporal-availability.ts` for where a weekday is first
+ * combined with anything place-specific.
+ */
+export function getCivilWeekday(iso: string): CivilWeekday | null {
+  const parts = parseParts(iso);
+  if (!parts || !isValidCivilDate(iso)) return null;
+  const asUtcDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+  return WEEKDAY_BY_UTC_DAY_INDEX[asUtcDate.getUTCDay()];
+}

@@ -2456,3 +2456,51 @@ a {
 .calendar-anchor__clear {
   font-size: 0.8rem;
 }
+
+/* Phase 3D-B — weekday closure signal. Reuses the app's existing warm "pending" palette (the
+   same tokens `.alert--pending` uses) rather than the stronger risk/red treatment: a possible
+   weekday-closure match is a conservative planning signal to double-check, not an alarm. */
+.weekday-signal {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.weekday-signal__summary {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
+.weekday-signal__summary--warn {
+  background: var(--color-warn-soft);
+  border: 1px solid #eccf9c;
+  color: #6c4310;
+}
+
+.weekday-signal__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.weekday-signal__note {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.weekday-signal__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}

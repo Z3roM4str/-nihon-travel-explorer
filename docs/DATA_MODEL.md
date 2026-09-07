@@ -293,10 +293,38 @@ and one of four confidence tiers (SAFE / PARTIAL / OPAQUE / UNKNOWN), and
 `scripts/audit-temporal-data.py` reports exact counts over the live dataset — nothing here is
 hardcoded, and a legitimate future workbook change simply reclassifies on the next run.
 
-This audit is Python-only, offline, and has no `app/src/` consumer: no TypeScript type was added
-for it, and no UI reads its output. See
+This audit itself is Python-only, offline, and — as of Phase 3D-A — had no `app/src/` consumer.
+Phase 3D-B (below) is the first runtime consumer, and only for one narrow slice of it
+(`schedule.closures`'s candidate-recurring-weekday family); every other field this audit
+classifies (`schedule.hours`, `bestTime`, `reservation`, `febMar2027`) still has no TypeScript
+type and no UI reading its classification. See
 [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the full taxonomy, the exact
 coverage numbers, two real findings (`reservation.required` losing the `"Recomendable"` nuance
 for 39/214 places; `data/seasonal-alerts.json` being an unconsumed, non-place-id-keyed collection
 distinct from `febMar2027`), and a sketched — not implemented — future domain shape a later phase
 would build against.
+
+## Weekday closure signals (derived, Phase 3D-B)
+
+The first RUNTIME consumer of the Phase 3D-A audit above — deliberately narrow: it reads only
+`place.schedule.closures`, never `schedule.hours`, `bestTime`, or `febMar2027`, and it answers
+only whether a user-chosen civil date's weekday matches a candidate recurring-weekday closure
+extracted from that text. It is not an opening-hours solver and asserts no open/closed judgment.
+
+`app/src/lib/temporal-availability.ts` derives a `ClosureFact` from `place.schedule.closures` on
+every read — nothing is added to `Place` or persisted. `interpretClosureText()` is a direct,
+partial TypeScript port of `scripts/temporal_data_lib.py`'s `classify_closures()` (same category
+names, same priority order, same tier per category) — the audit is the ceiling this module keeps
+to, never exceeding an OPAQUE/UNKNOWN Python-audit family into a stronger runtime fact.
+`app/src/lib/civil-date.ts` gained one small addition, `getCivilWeekday()`, mapping a valid civil
+date to a `CivilWeekday` (timezone-invariant, `null` for an invalid date) — it still knows dates
+only, never a `Place` or a closure. `app/src/lib/day-weekday-signal.ts` is the `Place[]`-aware
+layer `OrderedSequenceBuilder.tsx`'s day-assignment view actually calls, mirroring this
+codebase's existing `transfer.ts` → `ordered-sequence.ts` → `day-assignment.ts` layering.
+
+Nothing here is persisted: `nihon.manualPlanningDraft`'s schema (`ManualPlanningDraftV2`, still
+the current version) is unchanged, and no new `localStorage` key was introduced. The signal is
+recomputed on every render from the day's already-derived date (Phase 3C-E's `startDate` offset
+by the day index) and each place's existing raw `schedule.closures` text. See
+[`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this runtime
+layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-B entry for the UI and product boundary.

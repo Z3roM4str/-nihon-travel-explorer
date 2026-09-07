@@ -318,6 +318,14 @@ not assume it can be joined to `Place` records by name-matching `"Lugar / tema"`
 
 ## Proposed domain model — sketched, not implemented
 
+> **Update (Phase 3D-B):** the `ClosureFact` slice of the sketch below — SAFE `no-known-closure`,
+> PARTIAL `candidate-weekday`, and a folded `not-evaluable` for every other category — is now
+> implemented, as `app/src/lib/temporal-availability.ts`. Nothing else in this sketch (an
+> `HoursFact`, or any `TemporalAvailability` type spanning both hours and closures) has been
+> built. See `docs/ROADMAP.md`'s Phase 3D-B entry and `docs/DATA_MODEL.md`'s "Weekday closure
+> signals" section for what actually shipped and its exact boundary; the rest of this section is
+> preserved as Phase 3D-A originally wrote it, describing what a *future* phase could still add.
+
 Following the precedent of Phase 3B2E ("Access-Point Override Design," which decided a model
 without shipping any code, coordinates, or routing behavior), this phase **describes** the
 smallest plausible future domain shape and explains why it is shaped that way — it does not add a
