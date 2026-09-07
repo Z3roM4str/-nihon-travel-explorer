@@ -1721,6 +1721,47 @@ new `localStorage` key was introduced, and `OrderedSequenceBuilder.tsx` was not 
 route-wide UI section was added this phase — see above). No opening-hours or availability solver of
 any kind was implemented. No Phase 3D-G (or any later phase) work was started.
 
+## Phase 3D-G — Reservation Deadline Design Gate — complete
+
+Design/audit only — no runtime code, UI, or dataset changed. Decides whether, and how narrowly, a
+safe booking-deadline feature could be built on top of Phase 3D-D's `ReservationLeadTimeFact`
+without fabricating precision. Full contract, real-data audit, and rationale:
+[`docs/RESERVATION_DEADLINE_DESIGN.md`](RESERVATION_DEADLINE_DESIGN.md).
+
+- [x] **Re-derived the real `reservation.leadTime` inventory** (214 places, 66 distinct raw
+      values; 128 `not-applicable` / 21 `bare-magnitude` / 65 `opaque-entity-or-mechanism-specific`
+      — matching `docs/TEMPORAL_DATA_CONTRACT.md` exactly, independently reproduced, not copied)
+      and partitioned the 21 `bare-magnitude` records into five computability classes: **A**
+      (explicit numeric day/week range) 5 places, **B** (unit only, no quantity) 5 places, **C**
+      (mixed unit, no quantity) 10 places, **D** (numeric month range) 1 place, **E** (specific
+      mechanism/OPAQUE) 65 places.
+- [x] **Executive decision: only Class A (5/214 places) can safely support a deterministic date
+      window** — everything else must stay a non-computable, manual-review signal, permanently for
+      B/C/E and pending further evidence for D (a single record does not justify building
+      calendar-month clamping machinery).
+- [x] **Visit-date source contract**: a deadline calculation requires BOTH an unambiguous day
+      assignment (`DayAssignment.valid === true`, from `day-assignment.ts`) AND a valid `startDate`
+      — `visitDate = addCivilDays(startDate, dayIndex)`, reusing the exact composition
+      `OrderedSequenceBuilder.tsx` already uses for the weekday-closure signal. `startDate` alone
+      is explicitly rejected as a proxy visit date for an unassigned place.
+- [x] **Numeric/month/OPAQUE semantics decided**: weeks convert exactly (1 week = 7 days); months
+      are refused for a first implementation rather than approximated; an OPAQUE record's
+      numeric-looking substring (e.g. a lottery's "3 meses antes") is never re-scanned into a
+      computable deadline once Phase 3D-D has already classified it opaque.
+- [x] **Current-date/urgency explicitly deferred**: a first implementation should compute a window
+      relative to a visit date only, never "today" — no "book now"/"deadline passed"/"days
+      remaining" claims, consistent with every prior Phase 3D module never calling `Date.now()`.
+- [x] **Illustrative future domain model, UI placement (extend "Reservas por preparar" and the day
+      view, not a new surface), failure/unknown-state table, and a full test strategy** — all
+      documented, none implemented.
+- [x] **Recommends, but does not schedule, a narrow future Phase 3D-H** (Class A only, no months,
+      no urgency) as the smallest safe next step.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, test, or runtime source file was changed by this phase — see
+`docs/RESERVATION_DEADLINE_DESIGN.md` for the full contract. No Phase 3D-H (or any later phase)
+work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
