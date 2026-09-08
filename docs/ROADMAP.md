@@ -1971,6 +1971,84 @@ the other findings the audit verified as correct:
 No Phase 3D-G design-document edit was made or needed. No Phase 3D-I (or any later phase) work was
 started by this corrective pass.
 
+## Phase 3D-I — Opening-Hours & Closure Composition Design Gate — complete
+
+**Design/audit only — zero runtime code, zero UI, zero dataset changes, zero schema/persistence
+changes.** Decides whether, and exactly how, the already-audited `RecordedHoursFact` (Phase 3D-E)
+and `ClosureFact` (Phase 3D-B) could ever be composed into a single per-day, per-place presentation
+without ever asserting that a place is open, closed, compatible, available, or that a day "works" —
+see `docs/OPENING_HOURS_CLOSURE_COMPOSITION_DESIGN.md` for the full contract. The word
+"feasibility" is deliberately avoided throughout: this gate does not decide whether a place can
+actually be visited.
+
+- [x] **Executive decision: composition is safe, strictly confidence-preserving, never
+      confidence-increasing.** A closed, four-class vocabulary (`jointly-presentable` /
+      `present-with-caveat` / `keep-separate` / `not-composable`) derived by taking the **weaker**
+      of the two facts' tiers (`safe`/`partial`/`opaque`/`unknown`, worst-tier-wins) — nothing
+      composed here is ever a stronger claim than either input alone supports.
+- [x] **Real-dataset cross-tab, re-derived against the live TypeScript classifiers** (not a
+      Python approximation, not assumed): the full 4×4 `RecordedHoursFact.tier` ×
+      `ClosureFact.tier` matrix over all 214 places sums to exactly 214 and its row/column totals
+      match `docs/TEMPORAL_DATA_CONTRACT.md`'s independently-audited single-axis totals exactly.
+      Composition-class populations: `jointly-presentable` 31, `present-with-caveat` 43,
+      `keep-separate` 56, `not-composable` 84 — 74/214 places (35%) fall into one of the two
+      composable classes, a real, non-trivial population.
+- [x] **Load-bearing finding: `ClosureFact`'s `not-evaluable` kind is not a single tier.** One real
+      record (`JP-019`, `"Sin cierre ordinario; clima"`, category
+      `no-ordinary-closure-with-caveat`) has `kind: "not-evaluable"` but `tier: "partial"` — a
+      future implementation must dispatch composition on `.tier`, never on `.kind`, or it would
+      silently misclassify this record as opaque/unknown-equivalent.
+- [x] **Provenance/confidence rule (load-bearing):** a SAFE fact on one axis must never dilute or
+      launder a PARTIAL/OPAQUE caveat on the other. Pinned with two real records (`JP-030`, `JP-041`
+      — both `known-24h-with-caveat` hours paired with SAFE `no-known-closure`) as the worked
+      example of the risk: composing "24h + no known closure" naively could read as "generally
+      accessible," which the recorded caveat ("comercios variables"/"shows variables") directly
+      contradicts.
+- [x] **Date prerequisite adopts Phase 3D-H's stricter visit-date contract** (`dayAssignment.valid
+      === true`, not just a valid `startDate`, per-place day-bucket membership, and an
+      `isValidCivilDate` guard on the derived date) over Phase 3D-B's looser existing `dayDate`
+      contract — for the same reason Phase 3D-H gave for its own stricter guard: a composed
+      statement is a stronger combined claim than either signal alone. No trip end date is
+      invented; `ManualPlanningDraftV2` still has none.
+- [x] **Duration-fit evaluated and explicitly refused for now.** 65 places have a SAFE recorded
+      interval; 62 of those also have known visit-duration bounds; **0 of 214** show the recorded
+      minimum visit duration exceeding the recorded interval's span. Building and testing that
+      arithmetic to serve zero real records would repeat the exact disproportionate-engineering
+      pattern Phase 3D-G's own Class D decision (1 real record) already established a precedent
+      for refusing. This is a data-triggered revisit condition, not a scheduled one, and is not
+      part of this gate's approved composition scope.
+- [x] **Language contract**: permitted vocabulary stays exactly in the register already
+      established by Phase 3D-B/3D-D/3D-H ("horario registrado," "posible coincidencia de cierre
+      semanal," "información no evaluable," "conviene revisar"); forbidden vocabulary includes
+      "abierto," "cerrado," "puedes ir," "este día funciona," "compatible," "disponible,"
+      "garantizado," and "horario confirmado para tu visita," regardless of composition class.
+- [x] **Explicit non-goals**, restated in full in the design document: no opening-hours solver, no
+      `Date.now()`/current-time axis, no holiday/special-calendar handling, no live/temporary
+      closure verification, no availability/capacity claim, no composition with reservation
+      deadlines (Phase 3D-G/H stays fully separate), no composition with `bestTime` or
+      `febMar2027` (both remain excluded per their own already-decided boundaries), no external
+      API calls, and no runtime/UI/dataset/schema change of any kind in this phase.
+- [x] **Illustrative domain-model sketch only** (`HoursClosureComposition`, `CompositionClass`) —
+      no `.ts` file created, no `open`/`closed`/`feasible` boolean anywhere in the sketch, matching
+      `docs/TEMPORAL_DATA_CONTRACT.md`'s own prior sketch precedent.
+- [x] **Future UI surface, future test strategy, and future browser QA cases are documented as
+      recommendations for a future implementing phase**, not executed or implemented here — there
+      is no new runtime surface to test yet.
+
+**This phase recommends, but does NOT schedule or approve, a future Phase 3D-J** implementing
+exactly the `jointly-presentable`/`present-with-caveat` composition this gate decided is safe.
+Phase 3D-J is not started, not scheduled, and not approved by this entry — only proposed, per this
+codebase's own precedent (Phase 3D-G recommended but did not schedule Phase 3D-H).
+
+**Known pre-existing documentation gap, not addressed by this phase:** `docs/DATA_MODEL.md` does
+not currently mention Phase 3D-G or Phase 3D-H at all. This predates Phase 3D-I, is unrelated to
+the hours/closures composition question this gate decides, and this phase does not fix it — recorded
+here, and in the design document itself, so the gap is not lost.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, any `.ts`/`.tsx`/`.css` file, or `docs/RESERVATION_DEADLINE_DESIGN.md` was changed by this
+phase. No Phase 3D-J (or any later phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
