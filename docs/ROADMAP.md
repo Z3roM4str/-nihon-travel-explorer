@@ -2126,6 +2126,139 @@ date/assignment gate, moved presentable-class selection into a behaviorally test
 and included the day number in each region's accessible name. No classifier, dataset, schema,
 persistence, duration-fit, or later-phase scope changed.
 
+## Phase 3D-K — Visit-Time / Opening-Hours Feasibility Design Gate — complete
+
+**Design/audit only — zero runtime code, zero UI, zero persistence/schema change, zero dataset
+change, zero new dependency, and no visit times introduced anywhere.** Decides whether, and at
+exactly what scope, a future phase could answer *"given a place, a civil date, a start time the
+user chose explicitly, and a recorded duration, does the whole visit fit inside the recorded clock
+interval?"* — without ever claiming the place is open, available, or visitable. See
+[`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) for the full contract.
+
+- [x] **Executive decision: APPROVE NARROW IMPLEMENTATION.** The evidence supports a strictly
+      limited future phase over `fixed-interval-clean` SAFE hours only, a manually entered local
+      `HH:mm` start time, and numerically resolvable durations — with no timezone, no overnight
+      support, no `recorded-24h`, no transport, and no scheduling. Every decision the future phase
+      needs is closed by the design document; nothing is left to discover during implementation.
+- [x] **Real-dataset inventory, re-derived against the live TypeScript classifiers** (four
+      temporary Vitest harnesses, deleted after use — the phase diff contains no `.ts` file), not
+      copied from Phase 3D-I: 214 places; **65** SAFE `recorded-interval`; **15** SAFE
+      `recorded-24h`; **62** of the 65 numerically evaluable via `resolveDuration()`; **3** not
+      (`JP-121`, `JP-147`, `JP-211` — qualitative day-scale durations); hours tier totals
+      80/50/19/65; composition classes 31/43/56/84. Interval tokens: 29 distinct, **all**
+      `HH:MM–HH:MM` with U+2013, **0** parse failures, **0** overnight, **0** degenerate, **0**
+      out-of-range clock values, and no `00:00`/`24:00` token anywhere in the dataset's hours text.
+      Spans 390–780 min; opens 06:00–10:30; closes 14:00–22:30.
+- [x] **Every one of those figures coincides exactly with Phase 3D-I's**, including the span-only
+      duration check (0 of 62 exceeding, 0 boundary equalities) and the `bestTime` distribution —
+      re-derived, not copied, and recorded as a match rather than assumed.
+- [x] **The conclusion differs from Phase 3D-I's without contradicting it, and the audit shows
+      why.** Phase 3D-I refused *duration vs. interval span* (no start time), correctly: it returns
+      one constant answer for the whole dataset (62/62 fit, 120 min of slack even in the tightest
+      case, `JP-093`). This gate evaluates *duration vs. the interval remaining after a
+      user-chosen start*, and re-derivation shows all three informative outcomes are reachable for
+      **62 of 62** evaluable places. The span-only check stays refused and is not part of the
+      approved scope.
+- [x] **Exhaustive eligibility table by kind × category × tier.** Only `recorded-interval` /
+      `fixed-interval-clean` / SAFE may enter arithmetic. `fixed-interval-with-caveat` (PARTIAL, 12
+      places) is refused despite carrying a parseable token — a PARTIAL fact must never be promoted
+      by a second parser. OPAQUE and UNKNOWN never enter, including `JP-026`'s
+      `"Según tienda, aprox. 11:00–20:00"`. Eligibility must narrow the existing union on `.kind`,
+      never on `.tier === "safe"` (which also admits `recorded-24h`).
+- [x] **`recorded-24h` refused outright** — the phase brief left this open; the gate closes it as a
+      "no". There is no recorded start or end to be an operand, and **3 of the 15 SAFE records
+      narrow themselves in their own text** (`JP-016` `"Recinto exterior 24 h; salón aprox.
+      06:00–17:00"`, `JP-066`, `JP-144`). `JP-016` even names a full hall interval that the
+      `known-24h` classification discards. The arithmetic would trivially succeed for all 15 — a
+      result that is true and useless, and would be read as "you can go".
+- [x] **A second, narrower parser is authorised for the future phase, and the classifier stays
+      untouched.** It takes only a `recorded-interval` fact's `intervalRaw`, anchors, requires both
+      ends to have minutes, and range-checks components. Two shapes that today's `TIME_RANGE_RE`
+      would classify SAFE — `"09:00–17"` (optional end minutes) and `"25:00–26:00"` (no range
+      check) — get named refusals rather than repairs. Degenerate `09:00–09:00` is refused and
+      specifically not read as "always open"; a `00:00` end bound falls into the deferred overnight
+      branch rather than being silently rewritten to 1440.
+- [x] **Overnight deferred on evidence, not on convenience** — 0 of 65 tokens cross midnight and
+      the whole dataset opens 06:00–22:30. The parser detects `crossesMidnight` and the evaluator
+      returns a named `overnight-interval-not-supported` refusal. What a future overnight model
+      would have to settle (rollover, which civil date owns the start, which weekday a closure
+      assessment would apply to, and disambiguation from a transposed record) is written down so
+      the deferral is a decision rather than an oversight.
+- [x] **Range duration semantics decided: a three-way rule, no midpoint, no min-only, no
+      max-only.** `max ≤ remaining` → fits; `min ≤ remaining < max` → only the minimum fits;
+      `remaining < min` → exceeds. This is not an edge case: **all 77** numerically resolvable
+      durations across both SAFE groups are ranges and **none** is a point value.
+- [x] **Duration fit and place feasibility kept structurally separate**, confirming the initial
+      bias and adding a second argument it did not rest on: gating the arithmetic on a closure
+      composition class would silently drop 42 of the 62 evaluable places (only 20 are
+      `jointly-presentable`), and that omission would itself communicate a visitability signal. The
+      computation reads no `ClosureFact`, no `WeekdayClosureAssessment`, and no `CompositionClass`;
+      Phase 3D-B's and 3D-J's notices are unmodified, and `no-known-closure` still does not mean
+      "guaranteed open".
+- [x] **No timezone in the first implementation**, and the reason is scope, not Japan: civil-clock
+      arithmetic within one place on one day never leaves the local frame, so it stays correct even
+      if the dataset were extended beyond Japan. Absolute instants, DST, and cross-zone transport
+      remain `transit.ts`'s domain, which already requires an IANA `timeZone` and stays dormant.
+      `Asia/Tokyo` must not be hardcoded, and no approved function may return or construct a
+      `Date`, an epoch value, or an ISO instant.
+- [x] **`visitStartTime` is a manual user decision only** — never inferred from `bestTime`, route
+      order, opening time, transport, duration, or another place, and with **no default** (not
+      `09:00`, not the opening time). Prefilling the opening time is refused by name: it would turn
+      a recorded fact into a decision the user never made.
+- [x] **`bestTime` audited and kept completely separate.** `"Mañana"` does not mean "opens in the
+      morning" (`JP-004`, recorded `10:00–20:00`), "must be visited in the morning" (`JP-024`,
+      recorded `06:00–17:00`), "09:00" (`JP-004` again — a `bestTime`-derived 09:00 would fall
+      outside the recorded interval), or "before noon" (`JP-032`, recorded `06:00–14:00`).
+      `"Apertura"` is not an hours signal either: 2 of its 3 places record
+      `schedule.hours = "Calendario variable"`.
+- [x] **Closed eight-variant result union with no boolean and no catch-all.** The brief required
+      seven distinctions; the eighth, `start-time-outside-recorded-interval`, is added because a
+      user can type `07:00` for a `09:00–17:00` place — neither "does not fit" nor an unevaluable
+      input. No `open`, `available`, `feasible`, `visitable`, `valid`, or `compatible` appears as a
+      variant, a field, or a boolean anywhere in the sketch.
+- [x] **Language contract forced by the records, not by taste.** Only **4 of 65** SAFE interval
+      records are the bare token: 58 carry an explicit `"aprox."` and 7 attribute the interval to a
+      sub-facility or an external announcement (`"Tiendas…"`, `"Mayoría…"`, `JP-211`'s
+      `"09:00–17:00 según anuncio"`). So the raw text is always shown alongside, «registrado» is
+      mandatory in every evaluated sentence, «confirmado» is forbidden in any construction, and no
+      approval/rejection colour or icon may be used.
+- [x] **Persistence decided but not applied**: a future `visitStartTime` belongs in the planning
+      draft, because `planning-draft.ts` persists user decisions and not derived results. The exact
+      migration is specified — `ManualPlanningDraftV3`, `visitStartTimes: Record<placeId, "HH:mm">`
+      defaulting to `{}`, `migrateV2ToV3` as a pure addition chaining after `migrateV1ToV2`,
+      `^([01]\d|2[0-3]):[0-5]\d$` shape validation with the existing all-or-nothing rejection
+      rule, and staleness pruning with the route (unlike `startDate`, which is about the trip).
+      **No schema change was made by this phase.**
+- [x] **Future UI documented as a recommendation only**: one optional time input per eligible place
+      inside the existing day card, empty by default, rendered between the Phase 3D-J and Phase
+      3D-H notices, with no control at all for the 149 non-interval places. No auto-scheduling, no
+      temporal drag/drop, no timeline, no "optimise", no "suggest a better time", and no new
+      surface.
+- [x] **Transport interaction explicitly out of scope**, named separately because the route already
+      has an order and known transfer durations, so an arrival time at the next place is
+      arithmetically derivable — and deriving it would be scheduling.
+
+**This phase recommends, but does NOT schedule or approve, a future Phase 3D-L — Manual
+Visit-Start-Time vs. Recorded Interval Fit (`fixed-interval-clean` SAFE only)**, whose exact
+six-item scope is written out in the design document §21. Phase 3D-L is not started, not scheduled,
+and not approved by this entry — only proposed, per this codebase's own precedent (Phase 3D-G
+recommended but did not schedule Phase 3D-H; Phase 3D-I recommended but did not schedule Phase
+3D-J).
+
+**Known pre-existing documentation gap, not addressed by this phase:** `docs/DATA_MODEL.md` still
+does not mention Phase 3D-G, 3D-H, 3D-I, or 3D-J. Phase 3D-I recorded this gap; it is unrelated to
+the visit-time question this gate decides, and this phase does not fix it either — recorded again
+so it is not lost.
+
+**Two dataset findings recorded, and deliberately NOT fixed** (this phase is not authorised to edit
+data): `JP-211`'s `"09:00–17:00 según anuncio"` classifies SAFE because `"anuncio"` is not in the
+third-party regex's word list, and `JP-016`'s recorded `06:00–17:00` hall interval is discarded by
+the `known-24h` priority branch. Both are named in the design document.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, any `.ts`/`.tsx`/`.css` file, or any prior design document was changed by this phase. No
+Phase 3D-L (or any later phase) work was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -2148,11 +2281,20 @@ persistence, duration-fit, or later-phase scope changed.
       prior-written-consent requirement apply to Nihon's intended use, including its
       planning-recommendation direction), or deliberately scope the feature to only the narrow,
       lower-risk live-display case (§1.6) and accept that boundary.
-- [ ] Clock-time / timezone / per-place scheduling — not started. Phase 3C-E can manually anchor
-      Día 1 to a civil date and derive consecutive calendar dates/weekday labels for the
-      remaining day buckets, but it does not assign clock times, timezones, arrival/departure
-      times, or dates/times to individual places — see the opening-hour item just below for the
-      related, still-untouched `schedule.hours`/`schedule.closures`/`bestTime` boundary.
+- [ ] Clock-time / timezone / per-place scheduling — **still not started**, and this item's
+      wording is updated here specifically because part of it would otherwise now be misleading.
+      Phase 3C-E can manually anchor Día 1 to a civil date and derive consecutive calendar
+      dates/weekday labels for the remaining day buckets, but nothing in the app assigns clock
+      times, timezones, arrival/departure times, or dates/times to individual places. **Studied,
+      not implemented (Phase 3D-K):** a per-place, manually entered local `HH:mm` visit start time
+      compared against a recorded clock interval has now been designed and gated end to end
+      (see [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) and the
+      Phase 3D-K entry above) — including the explicit decision that such a first implementation
+      would need **no** IANA timezone, because civil-clock arithmetic within one place on one day
+      never leaves the local frame. **None of that is built**: there is still no time input, no
+      stored `visitStartTime`, no `HH:mm` parsing, and no comparison anywhere in the runtime. See
+      the opening-hour item just below for the related `schedule.hours`/`schedule.closures`/
+      `bestTime` boundary.
 - [ ] Opening-hour constraint solving — still **not started**, and this item's wording is updated
       here again specifically because it would otherwise now be false. Phase 3D-A audited and
       classified `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`/`febMar2027` offline
@@ -2172,10 +2314,19 @@ persistence, duration-fit, or later-phase scope changed.
       a `febMar2027` status, or a `bestTime` recommendation into a stronger claim; clock-time,
       timezone, or per-place visit-time scheduling of any kind; a visit-duration-fit calculation
       against a recorded interval; holiday handling; temporary or live closure/hours verification
-      against an official source; a date recommendation; or automatic rescheduling. A full
-      opening-hours feasibility solver remains a distinct, unscheduled, separately-decided future
-      phase — not an incremental extension of either Phase 3D-B's or Phase 3D-E's conservative
-      signal.
+      against an official source; a date recommendation; or automatic rescheduling. **Two of those
+      have since been studied and are no longer unexamined, but remain unbuilt.** Phase 3D-I
+      evaluated composing an hours fact with a closure fact and approved a strictly
+      confidence-preserving presentation, which Phase 3D-J then shipped — it still asserts nothing
+      about a place being open. Phase 3D-K evaluated the visit-duration-fit question in full (see
+      [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md)) and approved a
+      narrow future phase over `fixed-interval-clean` SAFE hours with a manually entered start
+      time; **that phase is proposed only and no part of it is implemented** — no time input, no
+      interval parsing into minutes, no duration comparison, and no `recorded-24h`, overnight, or
+      timezone support anywhere in the runtime. A full opening-hours feasibility solver remains a
+      distinct, unscheduled, separately-decided future phase — not an incremental extension of
+      Phase 3D-B's, Phase 3D-E's, or Phase 3D-J's conservative signals, and not implied by Phase
+      3D-K's design gate.
 - [ ] Reservation booking-deadline intelligence — this item's wording is updated here specifically
       because it would otherwise now be false. **DONE (Phase 3D-D)**: a runtime classification of
       `reservation.leadTime` into a coarse days/weeks/months magnitude (`bare-magnitude`) or an
