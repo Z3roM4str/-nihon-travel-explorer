@@ -19,8 +19,11 @@ naturally comes next, and the one this codebase has deferred since Phase 3D-A: i
 
 No subset of the evidence Nihon can derive conservatively today — civil visit date, a manually
 chosen local `HH:mm` start time, a recorded duration, a recorded-hours fact, a closure fact, and
-the existing hours/closure composition — is strong enough to support any claim beyond the one
-Phase 3D-L already makes: *the recorded duration fits inside the recorded interval*.
+the existing hours/closure composition — is strong enough to support a reliable real-world
+open/closed judgment or a visitability/admission judgment. Weaker composed recorded-evidence
+products are possible, but the reachable safe products merely juxtapose facts already owned by
+Phases 3D-B, 3D-J and 3D-L; this audit identifies no new, non-redundant proposition worth a
+successor now.
 
 The three findings that close the question, each re-derived for this gate (§4):
 
@@ -28,24 +31,25 @@ The three findings that close the question, each re-derived for this gate (§4):
    31 have both SAFE hours and a SAFE closure fact; **0** of those 31 also have a SAFE
    `febMar2027` status, and **0** of the 65 SAFE recorded-interval places do. The strongest
    combination that actually exists in the data is *SAFE interval + SAFE closure + UNKNOWN
-   trip-window confidence* (17 places), which is not a foundation for an openness claim.
+   trip-window confidence* (17 places). This strongly corroborates rejection of a trip-specific
+   OPEN/VISITABLE claim; it does not invalidate independently true record-level arithmetic.
 2. **The dataset's own strongest closure phrase excludes the claim in its own words.** All 20
    SAFE-closure records inside the 65 read exactly `"Sin cierre ordinario"` — "no *ordinary*
    closure". A record that scopes itself to ordinary closures cannot be read as evidence that no
    extraordinary closure applies on a given date.
-3. **The confounders that would decide an open/closed judgment are not merely weak in the dataset —
-   they are structurally absent.** `place.schedule` has exactly two keys, `hours` and `closures`.
-   There is no last-admission field (1 free-text mention in 214, on a place whose hours are
-   UNKNOWN), no capacity field (0 mentions), no queue field (0 mentions), no holiday calendar
-   (2 incidental mentions in 214, both OPAQUE), and no per-record verification provenance at all —
-   all 214 records share a single `updatedAt` of `2026-09-01`, an export stamp rather than a
-   verification date.
+3. **The schedule-field contract lacks the coverage and currency needed for those judgments.**
+   `place.schedule` has exactly two keys, `hours` and `closures`: no dedicated last-admission,
+   holiday-calendar, dated-extraordinary-closure, capacity or queue fields, and no source/
+   `verifiedAt` linkage for an individual hours or closure assertion. Broader editorial provenance
+   does exist (`officialUrl`, `updatedAt`, the exporter column mappings and `data/sources.json`),
+   but it does not prove that a particular schedule assertion was reverified or will remain current
+   for a future visit date.
 
-This is **not** a "collect more data and revisit" hold. The missing element between what Nihon has
-and an opening-hours fact is *provenance and currency* — an authoritative, dated, source-attributed
-statement about a named place — which is a live-verification class of input this product has
-deliberately excluded since Phase 3D-A. §28.2 states the precise, narrow condition under which a
-future phase could re-open the question, and it is a change of source, not a change of volume.
+This is not a request to collect more of the same unscoped text. Crossing from recorded evidence to
+a real-world opening claim requires a stronger authoritative/current schedule contract. Field-level
+provenance and currency are necessary ingredients for that claim, but not sufficient: extraordinary
+closures, holidays, last admission, scope and admission restrictions remain independent concerns.
+§28.2 therefore gives claim-specific reopening gates rather than one universal checklist.
 
 Three near-miss alternatives that look safer than a solver were evaluated individually and are
 refused with reasons in §26. Nothing in this document authorises any code.
@@ -61,10 +65,11 @@ hours/closure composition (Phase 3D-I/3D-J) — does there exist any subset of e
 to assert something more than *"the duration fits inside the recorded interval"*, without turning
 editorial data into a false claim of openness or visitability?
 
-**Answered here:** no. §5 separates the three claim strengths and shows exactly where the evidence
-stops; §6 tests the strongest combination that exists in the data and it still fails; §7–§13 work
-each required sub-question; §14 tests whether a closed union could rescue the result and concludes
-it cannot, because the problem is the evidence, not the type.
+**Answered here:** a full solver, a reliable real-world open/closed judgment and a reliable
+visitability/admission judgment are not justified. A closed product can truthfully carry several
+record-level facts, but §14 shows that the safe reachable products add no new semantic fact beyond
+what 3D-B/3D-J/3D-L already ship. The present recommendation is therefore no successor, based on
+redundancy and lack of a new proposition rather than logical impossibility.
 
 **Not asked, and not answered anywhere in this document:** whether any place is open, whether any
 visit is possible, or whether any day works. This gate produces no runtime answer to its own
@@ -194,14 +199,31 @@ situation is understood"* — a trip-window-level question — and **"never answ
 closed on Tuesdays'"**. §5 also records that `febMar2027.warning`/`action` are 214/214 OPAQUE
 editorial prose that is never structurally parsed.
 
-### 3.7 What no module in the repository does today, and what the schema cannot express
+### 3.7 Existing editorial provenance, and the narrower schedule-field gap
 
-Read directly from the data, not from documentation: `place.schedule` has exactly **two** keys,
-`hours` and `closures`. There is no `lastAdmission`, no `capacity`, no `holidays`, no
-`temporaryClosures`, no `verifiedAt`, and no `source` on the schedule object. `place.updatedAt` is
-identical for all 214 records (`2026-09-01`) — an export stamp, not a per-record verification date.
-`place.officialUrl` is populated for all 214, which is exactly where a human can verify hours and
-exactly what this application may not fetch (zero network requests, every phase since 3D-A).
+The repository is not provenance-free. `Place.officialUrl` and `Place.updatedAt` are populated;
+`scripts/export-dataset.py` maps them from the workbook columns `"Página oficial/fuente"` and
+`"Actualizado"`; and `data/sources.json` records named sources, URLs, source types and consultation
+dates. Substantial official-source provenance therefore exists at dataset/place editorial level.
+The shared `2026-09-01` value may describe the current export/research batch, but the audit cannot
+prove that it is *merely* an export stamp, nor that it means each hours assertion was reverified.
+
+The opening-hours gap is narrower and still decisive for a real-world claim: `place.schedule` has
+exactly **two** keys, `hours` and `closures`, with no source link or `verifiedAt` semantics attached
+to either individual assertion. `officialUrl` identifies a place-level verification destination;
+it does not structurally say that `schedule.hours` or `schedule.closures` came from that URL. Nor
+does `place.updatedAt` guarantee that either schedule field was reverified on that date, that the
+record covers the whole site, that it is complete for future exceptions, or that it remains current
+for the visit date. There is no runtime/live verification.
+
+Other limitations must also be classified precisely:
+
+- **Structurally absent:** dedicated `lastAdmission`, holiday-calendar, dated
+  `temporaryClosures`, capacity/queue, and schedule-field source/verification fields.
+- **Present only in raw editorial text:** `JP-038`'s last-admission phrase, public-holiday mentions,
+  maintenance/installation/temporary prose, and operator-discretion wording.
+- **Represented on independent axes:** `febMar2027`, reservation fields where relevant, and the
+  broader `officialUrl`/`updatedAt`/source-catalog provenance metadata.
 
 No module in the repository asserts that a place is open, closed, available, feasible, visitable, or
 that a day works. That is not an accident of scope — it is the invariant every Phase 3D document
@@ -271,8 +293,9 @@ The record asks to be verified, in its own text, in every single case.
 `JP-089` is worth naming: `"Martes en meses específicos; fin de año"` scopes its Tuesday closure to
 unnamed months. `interpretClosureText` extracts `tuesday` and `assessWeekdayClosure` will report
 `possible-weekday-closure-match` for **every** Tuesday, including ones the record excludes. The
-PARTIAL tier is what keeps that honest, and it is a concrete reason a `candidate-weekday` fact can
-be wrong in the closure-*exists* direction too — not only in the direction §8 addresses.
+result therefore over-warns relative to the unidentified month scope. It remains deliberately
+PARTIAL/candidate semantics — never "closed" — so this is conservative coarse shipped behaviour,
+not a newly discovered current correctness defect.
 
 **"Sufficiently structured for any proposed composition"** — closure facts carrying either a SAFE
 absence statement or machine-readable weekdays: **38 of 65** (20 + 18); **37** of those also have a
@@ -303,7 +326,7 @@ Phase 3D-K derived the same figures against a candidate parser; this gate confir
 shipped one. **93.8% of the SAFE interval universe is hedged in its own text**, and that is the
 single most important number in this document for §5 and §21.
 
-### 4.6 `febMar2027` and the triple-SAFE test — the decisive finding
+### 4.6 `febMar2027` and the triple-SAFE test — trip-specific corroboration
 
 Tiers over all 214: UNKNOWN 152, OPAQUE 41, PARTIAL 15, **SAFE 6**.
 
@@ -333,10 +356,13 @@ JP-213 Tokyo Marathon 2027         CONFIRMADO 2027      hours: unknown
 `febMar2027` tiers across those 31: UNKNOWN 23, PARTIAL 5, OPAQUE 3, SAFE 0. Across the 20
 strongest interval places (§4.3 row 1): UNKNOWN 17, PARTIAL 2, OPAQUE 1, SAFE 0.
 
-There is no place in this dataset about which Nihon holds strong evidence on all three temporal
-axes at once. Every candidate for a stronger claim is missing at least one.
+There is no place in this dataset about which Nihon holds SAFE evidence on all three temporal axes
+at once. This is strong corroborating evidence against a trip-specific OPEN/VISITABLE confirmation
+for February–March 2027. Because `febMar2027` is orthogonal, it is not a necessary precondition for
+an ordinary recorded-hours statement, recorded interval arithmetic, or a confidence-preserving
+product of independently true recorded facts.
 
-### 4.7 The vocabulary the dataset does not contain
+### 4.7 Confounder representation inventory
 
 Scanned with `normalizeText()` across `schedule.hours`, `schedule.closures` and `reservation.raw`
 for all 214 places, then again restricted to the 65:
@@ -350,6 +376,10 @@ for all 214 places, then again restricted to the 65:
 | Temporary works / `mantenimiento` / `montaje` | `closures` | 19 | 6 | no |
 | Temporary works / `mantenimiento` / `montaje` | `hours` | 1 | 0 | no |
 | Operator discretion (`según`, `verificar`, `variable`) | `closures` | 64 | **31 of 65** | no |
+
+The `Structured field?` column must not be confused with corpus absence: several concepts are
+present in raw prose but have no dedicated structure, while `febMar2027`, reservations and broader
+provenance live on independent axes (§3.7).
 
 `JP-038`'s single last-admission mention (`"Variable; última entrada 1 h antes"`) is instructive:
 the one record in the dataset that states a last-admission rule classifies **UNKNOWN**, so it can
@@ -404,13 +434,28 @@ time.** The manual `HH:mm` resolves the one variable Phase 3D-I lacked; it resol
 | **G** PARTIAL interval-shaped, deliberately ineligible | **12** | `fixed-interval-with-caveat`, e.g. `"Variable por fecha; 09:00–17:00"` |
 | **H** OPAQUE with a parseable-looking token | — | `JP-026` `"Según tienda, aprox. 11:00–20:00"` |
 
-A + B + C + D + E = 65. Class A is the strongest group that exists, and §6 tests it directly.
+A + B + C + D + E = 65. Class A is the strongest group selected for attempting a **real-world
+openness/visitability claim**, because it maximises the currently structured interval, duration and
+ordinary-closure evidence. It is not the only relevant class for weaker record-level products:
+classes B–D also support truthful classified or arithmetic facts, but those facts are already
+shipped and combining them does not create a new proposition. §6 tests Class A at its stated scope.
 
 ---
 
 ## 5. Design question 1 — the three claim strengths, and where the evidence stops
 
 The gate brief distinguishes three strengths. Restated precisely, with the verdict for each:
+
+Before comparing their strength, keep six propositions separate:
+
+| Proposition | Subject | Current status |
+|---|---|---|
+| Ordinary recorded-hours statement | the stored hours record | truthful when reported as recorded evidence |
+| Recorded interval arithmetic | the parsed recorded interval and duration | shipped by Phase 3D-L |
+| Composed recorded evidence | the conjunction/product of existing recorded facts and caveats | safely reachable without strengthening, but currently redundant |
+| Trip-window confidence | Nihon's `febMar2027` understanding | orthogonal; can weaken a trip-specific presentation, not erase another fact |
+| Real-world opening fact | the place on a civil date/time | unsupported under the current schedule contract |
+| Visitability/admission | the user's ability to complete the visit | unsupported; requires opening plus admission-specific evidence |
 
 ### 5.1 A mathematical interval comparison — **already shipped, nothing to add**
 
@@ -445,18 +490,21 @@ cumulative. Minimally required:
 
 | Requirement | Available in Nihon today? |
 |---|---|
-| An authoritative statement of opening hours for the whole site | **No** — 61 of 65 records are hedged (§4.5); none carries a source or a verification date (§3.7) |
-| That statement being current for the visit date | **No** — one shared `updatedAt` for all 214 records; no per-record currency at all |
+| An authoritative statement of opening hours for the whole site | **Not established** — place/dataset-level editorial provenance exists, but no field-level source linkage or scope guarantee ties a particular schedule assertion to it (§3.7) |
+| That statement being current for the visit date | **Not established** — `updatedAt` exists, but has no schedule-field re-verification semantics or future-date currency guarantee |
 | Absence of a recurring closure on that weekday | **Partial at best** — 18 of 65 carry weekdays, all PARTIAL and all self-qualified in their own text |
 | Absence of an extraordinary closure on that date | **No** — no field exists; 19 of 214 closure strings mention temporary works only in free text |
 | Absence of a public holiday closure | **No** — no calendar; 2 incidental mentions in 214 |
 | Last admission earlier than the closing bound | **No** — 1 mention in 214, on an UNKNOWN-hours place |
 | Capacity / queue / admission refusal | **No** — 0 mentions in 214 |
 | Reservation state, where required | **Partial** — `reservation.required` exists, but 0 of the 20 strongest places use it |
-| Trip-window confidence for Feb–Mar 2027 | **No** — 0 of 214 are triple-SAFE (§4.6) |
+| Trip-window confidence for Feb–Mar 2027 | **No for a strong trip-specific confirmation** — 0 of 214 are triple-SAFE (§4.6); orthogonal and not required for record-level arithmetic |
 
-Nine requirements; **one** is partially met, **seven** have no representation in the schema at all,
-and the ninth is empty by measurement.
+The table deliberately mixes different failure shapes: some fields are structurally absent; some
+concepts occur only in raw prose; provenance exists broadly but lacks schedule-field linkage and
+currency semantics; and `febMar2027` is a represented, orthogonal confidence axis whose relevant
+intersection is empty. None of those distinctions rescues a real-world claim, but calling them all
+"absent" would overstate the audit.
 
 **Verdict: refused, decisively.** The gap is not marginal and not closable by better arithmetic.
 
@@ -468,8 +516,8 @@ and the ninth is empty by measurement.
 duration, a SAFE `no-known-closure` fact, a valid civil visit date, and a manual `HH:mm` that lands
 strictly inside the interval, producing `recorded-duration-fits-interval`.**
 
-This is the best case that exists in the dataset. It still fails, on four independent grounds, any
-one of which is sufficient:
+This is the strongest class selected for a real-world openness/visitability attempt. It still fails
+at that scope, on four independent grounds:
 
 1. **The SAFE closure record excludes the claim in its own words.** All 20 read exactly
    `"Sin cierre ordinario"` — *no ordinary closure*. The adjective is the record's own scoping, and
@@ -477,20 +525,24 @@ one of which is sufficient:
    appended, and that demotes it to PARTIAL. A record that scopes itself to ordinary closures
    cannot support "not closed on 19 February 2027".
 2. **The hours record is hedged for 19 of the 20.** `JP-080` (`"09:00–17:00"`) is the only bare
-   token in class A; the other 19 carry `"aprox."`. Arithmetic against an approximate bound produces
-   an exact-looking result, and the exactness is manufactured by the computation, not read from the
-   record.
+   token in class A; the other 19 carry `"aprox."`. This does not invalidate arithmetic over the
+   parsed recorded token — Phase 3D-L truthfully computes that relation while preserving `raw`.
+   It does prevent silently strengthening the numeric bound into an exact real-world opening or
+   closing guarantee.
 3. **Not one of the 20 has SAFE trip-window confidence** — 17 UNKNOWN, 2 PARTIAL, 1 OPAQUE (§4.6).
    For 17 of them Nihon's own `febMar2027` axis says, in the dataset's words,
-   `"CALENDARIO / CONDICIÓN PENDIENTE"`: the calendar is not published yet. Asserting openness on a
-   date inside a window the product itself marks unverified is self-contradictory.
-4. **Seven of the nine requirements in §5.3 are unrepresentable**, so no combination of the
-   available fields — not this one, not any other — can supply them.
+   `"CALENDARIO / CONDICIÓN PENDIENTE"`: the calendar is not published yet. This blocks a strong
+   trip-window confirmation; under the Phase 3D-G/H orthogonality rule it must not suppress an
+   independently true record-level fact and may instead require a caveat in its own surface.
+4. **The current evidence contract cannot establish the remaining requirements in §5.3.** Some are
+   structurally absent, others exist only as raw prose or broader metadata without the field-level
+   linkage and semantics needed for the claim.
 
-**Answer: no. A SAFE recorded interval plus a valid visit date, a manual start time, a duration fit
-and closure evidence can never, with the present contract, justify a result stronger than the
-interval arithmetic Phase 3D-L already produces.** The combination is genuinely the strongest
-available, and it is still four independent steps short.
+**Answer at the tested scope: no real-world opening or visitability result.** A SAFE recorded
+interval plus a valid visit date, manual start time, duration fit and closure evidence can be
+truthfully carried together while the record remains the subject. But it cannot, with the present
+contract, justify a real-world claim about the place. The weaker product is reachable and redundant;
+the stronger claim remains unsupported.
 
 ---
 
@@ -507,13 +559,12 @@ enforces it structurally. This gate re-tests the decision and confirms it, tier 
 | **OPAQUE** `not-evaluable` | 17 | nothing structured; the closure depends on weather, an operator, or a specific event | **None.** Must not suppress or hide the fit result — suppression communicates by omission (§19) |
 | **UNKNOWN** `not-evaluable` | 10 | nothing at all | **None.** Same as OPAQUE: the arithmetic is still true of the record |
 
-The asymmetry that makes "just gate on closure tier" wrong is worth stating once more in this gate's
-own numbers, because it is the trap a future implementer will most plausibly fall into: showing the
-fit line **only** where closure evidence is SAFE would show it for 20 of 65 places and hide it for
-45 — and a user who sees the line on Ginkaku-ji and not on Kyoto Railway Museum learns something
-about closure evidence that the interface never said, in the direction of "we only tell you this
-where it is safe to go". That is a visitability claim produced by omission, and it is strictly worse
-than saying nothing, because it is deniable.
+The asymmetry makes "just gate on closure tier" a serious UX/product risk: showing the fit line
+**only** where closure evidence is SAFE would show it for 20 of 65 places and hide it for 45. A
+repeated selective pattern can plausibly teach a reader that absence carries clearance meaning.
+That is sufficient to refuse this particular selective-display proposal without neutral framing or
+user testing. It is not proof that omission is logically identical to an explicit positive claim,
+nor that the underlying record-level arithmetic is impossible.
 
 ---
 
@@ -527,20 +578,22 @@ independent lines of evidence make it a positive finding.
    NOT mean open, feasible, compatible, or 'no closure'"**; `"no-known-closure"` is **"still not a
    claim that the place is open on this date"**. Reading either as openness would contradict the
    module that produces it.
-2. **`no-weekday-match` is the ordinary case, not a signal.** Over the 18 `candidate-weekday`
-   interval places across a representative civil week (2027-02-15 … 2027-02-21), the 126 cells
-   split **108 `no-weekday-match` / 18 `possible-weekday-closure-match`** — exactly the 6-in-7 a
-   single named weekday must produce. `JP-020` (`"Lunes; verificar"`) matches on Monday and returns
-   `no-weekday-match` on the other six days. A value that is true 85.7% of the time by construction
-   carries no information about openness; it carries information about which weekday it is.
+2. **`no-weekday-match` is the ordinary classifier result in a synthetic week, not openness
+   evidence.** The denominator is a generated matrix: 18 candidate-weekday interval records × 7
+   weekdays = **126 synthetic cells**, split **108 `no-weekday-match` / 18
+   `possible-weekday-closure-match`**. These are not observed visits, independent records or user
+   behaviour. The matrix demonstrates classifier asymmetry: `JP-020` (`"Lunes; verificar"`) matches
+   Monday and not the other six weekdays. Any conclusion about how users interpret omission is a
+   UX hypothesis, not an empirical result of these 126 cells.
 3. **The SAFE absence statement scopes itself.** `"Sin cierre ordinario"` (§4.2, §6.1) excludes
    ordinary closures only. And even the strongest reading of it says nothing about the 19 of 214
    places whose free text mentions temporary works, the 2 that mention holidays, or the Japanese
    holiday calendar that appears nowhere.
 
-**Rule for any future phase:** absence of a matching closure is *absence of evidence*, and this
-codebase has never been permitted to convert that into evidence of absence. No wording, variant
-name, icon, colour, or layout may imply otherwise.
+**Rule for any future phase:** `no-weekday-match` states only that this recorded weekday candidate
+did not match this civil date. No wording, variant name, icon, colour or layout may strengthen it
+into "open" or "no closure". Selective omission based on it requires explicit neutral framing or
+UX evidence because absence may plausibly acquire unintended meaning.
 
 ---
 
@@ -560,16 +613,17 @@ orthogonal rather than being folded in:
   places have one, and the only interval place among them (`JP-211`) has no numeric duration and a
   `"según anuncio"` hedge. Folding it in as a promoter would be a fourth kind of confidence
   laundering.
-- **It cannot be silently ignored either.** The 152 UNKNOWN `pending-verification` records mean the
-  trip-window calendar is not published. §6.3 shows this is what removes the last footing from a
-  class-A openness claim. So the axis is *decisive against* a stronger claim while being
-  *inadmissible in favour of* one — an asymmetry that only survives if the two axes stay separate.
+- **It cannot strengthen or erase an independent fact.** A non-SAFE status prevents a strong
+  trip-specific confirmation and may weaken presentation in the surface that owns this axis. It
+  does not make recorded interval arithmetic false and must not suppress it. This preserves the
+  Phase 3D-G/H orthogonality principle: a weak second axis carries a caveat without destroying an
+  independently computable first-axis result.
 
-**Presentation-time composition rule:** `PlaceDetail.tsx`'s existing Feb–Mar 2027 card (Phase 3D-F,
-`feb-mar-status.ts`) continues to own this axis exclusively. No fit or feasibility surface may read
-`febMar2027.status`, `warning` or `action`; no future notice may place a `febMar2027` tone beside a
-fit result in a way that reads as a combined verdict; and `warning`/`action` remain 214/214 OPAQUE
-prose that is never structurally parsed.
+**Presentation-time rule:** `PlaceDetail.tsx`'s existing Feb–Mar 2027 card (Phase 3D-F,
+`feb-mar-status.ts`) continues to own the axis. A future confidence-preserving presentation may
+juxtapose its caveat with another independently true recorded fact, but may not turn the pair into
+a combined OPEN/VISITABLE verdict or use it to suppress arithmetic. `warning`/`action` remain
+214/214 OPAQUE prose that is never structurally parsed.
 
 ---
 
@@ -594,10 +648,10 @@ manual time is absent.
 
 ---
 
-## 11. Design question 7 — `recorded-24h` cannot participate safely
+## 11. Design question 7 — `recorded-24h` has no bounded interval operand
 
-**Answer: NO. It must stay excluded, exactly as Phase 3D-L excludes it, and this gate adds a fourth
-reason to Phase 3D-K's three.**
+**Answer for Phase 3D-L arithmetic: it stays excluded because there is no bounded closing
+interval.** This is not a blanket claim that the fact can participate in no safe signal.
 
 Phase 3D-K §11 refused it because there is no operand, because 3 of 15 records narrow themselves in
 their own text, and because a 24 h span is not evidence about a visit. All three re-confirm here:
@@ -612,9 +666,10 @@ than on operands would rank Sensō-ji as its strongest positive result while dis
 `06:00–17:00` hall interval its own record states. **The tier is not the evidence**, and this group
 is the clearest proof.
 
-**Rule:** eligibility is narrowed on `.kind === "recorded-interval"`. `tier === "safe"` must never
-be the test, in this or any successor phase, and no `recorded-24h` record's `raw` text may be
-re-scanned for a usable interval.
+**Rule:** remaining-minutes eligibility is narrowed on `.kind === "recorded-interval"`; `.tier ===
+"safe"` is insufficient, and no `recorded-24h` record's `raw` may be re-scanned to invent a closing
+bound. The same `recorded-24h` fact may already participate truthfully in Phase 3D-J's hours/closure
+presentation composition. This gate identifies no new arithmetic or stronger opening signal for it.
 
 ---
 
@@ -639,8 +694,9 @@ building the overnight model.
 
 ## 13. Design question 9 — holidays, irregular and temporary closures, last admission, capacity, queues, and operator discretion
 
-**Answer: YES — jointly and severally, they make an open/closed judgment impossible with the present
-dataset.** §4.7 is the measurement; this is what it means.
+**Answer: jointly and severally, they prevent a reliable open/closed or visitability judgment under
+the present contract.** §4.7 is the measurement; this is what it means. The audit distinguishes
+structurally absent fields from concepts present only in raw text and from independent axes.
 
 - **Public holidays.** No calendar exists in the dataset, in any field. Two incidental free-text
   mentions in 214 records, one of them (`JP-018`) inside the 65 and classified OPAQUE. Japan has
@@ -655,7 +711,8 @@ dataset.** §4.7 is the measurement; this is what it means.
   `JP-035` and `JP-036`, which pair a real
   weekday with an installation caveat in the same sentence. There is no date range, no start, and no
   end: the record says a temporary closure exists, never when.
-- **Last admission.** One mention in 214 (`JP-038`), on a place whose hours classify UNKNOWN. This
+- **Last admission.** No dedicated field exists, but one raw mention exists in 214 (`JP-038`), on a
+  place whose hours classify UNKNOWN. This
   is the sharpest single confounder for interval arithmetic: a place recorded `09:00–17:00` with a
   16:00 last admission makes a 16:30 start structurally impossible while the arithmetic reports 30
   minutes remaining. **Nihon cannot detect this for a single one of the 65 places.**
@@ -668,16 +725,17 @@ dataset.** §4.7 is the measurement; this is what it means.
 
 **Consequence.** Even a hypothetical place with a bare unhedged token, a SAFE closure, a SAFE
 trip-window status and a numeric duration would still be unjudgeable, because the holiday,
-last-admission and capacity axes are absent from the schema rather than merely weak in it. **No
-place in this dataset has even that hypothetical starting point** (§4.6). The impossibility is
-structural, not statistical.
+last-admission and capacity semantics needed for that claim are not structurally available. Some
+related concepts occur in raw prose, but cannot be consumed as complete dated rules. **No place in
+this dataset has even that hypothetical starting point** (§4.6). This blocks the real-world claim;
+it does not block a conjunction of record-level facts.
 
 ---
 
-## 14. Design question 10 — could an explicit closed union express the safe result without a misleading boolean?
+## 14. Design question 10 — could an explicit closed product express a safe recorded result?
 
-**Answer: a closed union could express it — and it would be pointless, because the only safe result
-it could carry is the one Phase 3D-L's union already carries.**
+**Answer: yes, it is type-theoretically and semantically reachable — but no new domain model is
+justified now because its safe products are redundant.**
 
 The union discipline itself is not in question and is not the constraint that fails. This codebase
 has repeatedly shown that a closed union with no boolean, no `null`, no catch-all and named refusals
@@ -686,25 +744,38 @@ prevents an entire class of overclaiming, and Phase 3D-L's eight variants — ev
 that discipline unchanged: no `open`, `available`, `feasible`, `visitable`, `works`, `compatible`,
 `valid` or `ok` as a variant, a field, a property, or a boolean.
 
-But a type only constrains what a value may *say*; it cannot manufacture the evidence a value would
-*need*. Enumerate the candidate variants a feasibility union would want beyond Phase 3D-L's eight,
-and every one is unreachable:
+But a type only constrains what a value may *say*; it cannot manufacture evidence for a stronger
+claim. A closed product can trivially carry, without promotion:
+
+- `RecordedIntervalDurationFit`;
+- `WeekdayClosureAssessment` or the `ClosureFact` that produced it;
+- `HoursClosureComposition`;
+- every original `raw` value and caveat.
+
+For example, "the recorded duration fits the recorded interval" + "this recorded weekday candidate
+does/does not match" + "no ordinary closure is recorded" is constructible and truthful while the
+**record** remains the subject. This is **juxtaposition/presentation composition**: a conjunction or
+product of independently true facts. Phase 3D-I/J explicitly permits it. It is not a solver.
+
+**Composition**, in the stronger sense relevant to a new domain feature, would derive a genuinely
+new proposition from several inputs. The reachable product above does not: interval fit is already
+3D-L, weekday candidate match/non-match and ordinary-closure wording are already 3D-B, and the
+confidence-preserving hours/closure presentation is already 3D-J. Wrapping them creates no new
+semantic fact.
+
+Candidate *stronger* variants remain unsupported:
 
 | Candidate variant | Evidence it would require | Status |
 |---|---|---|
-| `recorded-hours-permit-this-visit` | an unhedged, sourced, current hours record | unreachable — 61 of 65 hedged, 0 sourced (§4.5, §3.7) |
+| `recorded-hours-permit-this-visit` | authoritative/current schedule evidence with relevant scope | unsupported — no schedule-field provenance/currency or completeness guarantee (§3.7) |
 | `no-recorded-closure-on-this-date` | complete closure coverage incl. holidays and one-offs | unreachable — no holiday calendar, no temporary-closure dates (§13) |
 | `visit-window-confirmed-for-trip` | SAFE `febMar2027` alongside the rest | unreachable — triple-SAFE intersection empty (§4.6) |
-| `all-recorded-evidence-consistent` | a defined meaning for "consistent" across three axes | undefinable — no contract composes the axes, and §7 shows the composition is a display decision |
+| `all-recorded-evidence-consistent` as a new world-facing fact | defined semantics stronger than the inputs | unsupported — a product is reachable, but no non-redundant proposition is identified |
 
-Each collapses into a refusal state, and a union whose only reachable informative variants are
-Phase 3D-L's eight **is** Phase 3D-L's union.
-
-**Therefore: the closed union is not a rescue.** It correctly prevents a misleading boolean, and
-correctly prevents nothing else — the deficiency is in the evidence, not the type. Building a second
-union to express the same eight outcomes would add a module, a surface, and a name containing the
-word "feasibility" to a codebase that has spent seven phases keeping that word out of its runtime,
-in exchange for zero new information.
+**Therefore: a closed union/product is possible but not presently valuable as a new feature.** The
+safe variants are redundant combinations or presentation products of shipped signals; the variants
+that would assert OPEN/VISITABLE lack the required evidence. The rejection rests on semantic/product
+novelty, not on a false claim that every post-3D-L value is unreachable.
 
 ---
 
@@ -726,16 +797,17 @@ hold, and none is negotiable within the current product:
    behalf.
 5. **Non-rescheduling.** No automatic move between day buckets, no reordering, no derived arrival or
    departure time, no chaining between places, and no interaction with `getBestTransfer()`.
-6. **No new evidence class.** No network request, no `Date.now()`, no "now", no timezone, no
-   absolute instant, no holiday table, and no external verification — the constraints every Phase 3D
-   document has carried, and the ones §28.2 would have to revisit explicitly rather than by
-   implication.
+6. **No new runtime evidence class.** No network request, no `Date.now()`, no "now", no timezone,
+   no absolute instant and no holiday table. Nihon already consumes externally sourced editorial
+   research; what this phase does not add is runtime/live verification or a stronger curated static
+   schedule-field provenance/currency contract.
 
 ---
 
-## 16. Design question 12 — the exact boundaries between the four levels
+## 16. Design question 12 — the exact boundaries between the levels
 
-The distinction this whole gate turns on, stated as four levels with a rule for each crossing.
+The distinction this whole gate turns on, including the confidence-preserving intermediate level
+that reconciles it with Phase 3D-I/J.
 
 **Level 1 — Recorded evidence.** The raw editorial strings (`schedule.hours`, `schedule.closures`,
 `duration.raw`, `bestTime`, `febMar2027.status`), preserved verbatim per Phase 3D-A contract rule 1,
@@ -750,12 +822,18 @@ record; its truth conditions are internal; nothing in the world can falsify it. 
 *restatement* of level 1 in numbers, and its value is exactly the value of the record it restates —
 which for 58 of 65 places is explicitly approximate.
 
+**Level 2.5 — Composed recorded evidence / confidence-preserving composition.** A closed product or
+presentation carrying the level-2 interval-fit result, a candidate weekday-closure assessment or
+"no ordinary closure recorded", and every raw caveat together. Its subject remains the records.
+The output semantics are exactly the conjunction/product of its components: no component is
+strengthened and no OPEN/CLOSED/VISITABLE proposition appears. This level is reachable and is the
+kind of composition Phase 3D-I/J permits; today its useful facts are already shipped separately.
+
 **Level 3 — A genuine opening-hours fact.** An assertion that a named place admits visitors between
 two clock times on a named civil date. It requires what levels 1 and 2 do not contain: an
-authoritative source, a verification date, a scope statement (whole site or sub-facility), and
-currency for the date in question. Nihon holds none of these for any record — no source field, no
-per-record verification (one shared `updatedAt` for all 214), and explicit sub-facility hedging in 7
-records with no way to rule it out for the other 58.
+authoritative/current schedule contract, relevant scope and coverage for the date in question.
+Nihon has broader dataset/place provenance, but no schedule-field source/verification linkage,
+refresh guarantee or completeness semantics sufficient for this claim.
 
 **Level 4 — A visitability claim.** An assertion that a specific user can complete a specific visit.
 It requires level 3 **plus** closure completeness, a holiday calendar, last admission, capacity,
@@ -765,10 +843,13 @@ queue, reservation state, and reachability by the chosen time.
 
 - **1 → 2 is permitted, under a gate.** Phase 3D-K gated it and Phase 3D-L built it. The crossing is
   legitimate only because the *subject stays the record*.
-- **2 → 3 can never be reached by computation.** This is the boundary this gate exists to fix. What
-  separates them is provenance, not arithmetic; no amount of comparison, composition, or type
-  discipline over level-1 facts produces a level-3 statement. **Every proposal in §26 fails here,
-  and it is the same failure each time.**
+- **1/2 → 2.5 is permitted when confidence is preserved.** A weak or pending orthogonal axis may
+  require a caveat, but cannot suppress an independently computable fact. The product must add no
+  semantics beyond the components.
+- **2.5 → 3 is the forbidden leap under the current contract.** A stronger authoritative/current
+  schedule contract is required. Field-level provenance and currency are necessary ingredients,
+  not a magic bridge: they remain insufficient without extraordinary-closure, holiday,
+  last-admission, relevant-scope and admission semantics appropriate to the proposed claim.
 - **3 → 4 is out of scope for a static dataset**, and would remain so even if level 3 were somehow
   achieved.
 - **Wording follows the level, not the confidence.** A level-2 result must be phrased about the
@@ -827,66 +908,54 @@ want:**
 
 ## 19. Composition rules
 
-**Rule 1 — The arithmetic composes with nothing.** It reads no `ClosureFact`, no
-`WeekdayClosureAssessment`, no `CompositionClass`, no `febMar2027`, no `bestTime`, no reservation
-field and no transfer edge. This is Phase 3D-K §10's decision, enforced structurally by Phase 3D-L,
-re-tested tier by tier in §7, and unchanged here.
+**Rule 1 — The arithmetic derives from its own operands only.** Its truth value reads no
+`ClosureFact`, `WeekdayClosureAssessment`, `CompositionClass`, `febMar2027`, `bestTime`, reservation
+field or transfer edge. This preserves Phase 3D-L. The resulting fact may nevertheless be carried
+beside other recorded facts in a Level-2.5 product without changing its truth conditions.
 
-**Rule 2 — Co-presentation is allowed; combination is not.** Phase 3D-J's
+**Rule 2 — Juxtaposition/presentation composition is allowed; semantic strengthening is not.** Phase 3D-J's
 `HoursClosureCompositionNotice` and Phase 3D-B's `WeekdayClosureNotice` render alongside the fit
-line, never merged with it, never suppressed by it, never reordered because of it. The reader may
-of course read both — that is what the day card is for. What the interface may never do is *perform
-the composition on the reader's behalf* and present the product as a single verdict.
+line. A closed wrapper may truthfully carry all of those existing facts and raw caveats together
+while its semantics remain exactly their conjunction. It may not derive or present a new
+OPEN/CLOSED/AVAILABLE/VISITABLE verdict from them.
 
-**Rule 3 — Omission is a claim, so hiding is regulated as tightly as showing.** The asymmetry that
-makes closure-gating wrong (§7): showing the fit line only where closure evidence is SAFE would
-show it for 20 of 65 and hide it for 45, and the pattern is legible. Any future rule that varies
-*whether* a result appears, according to evidence the result does not use, is forbidden on the same
-ground as a false positive claim — and it is worse, because it is deniable.
+**Rule 3 — Selective omission is a UX/product risk.** Showing the fit line only where closure
+evidence is SAFE would show it for 20 of 65 and hide it for 45. The pattern can plausibly teach
+users that absence carries meaning, so this specific proposal is refused absent user testing or
+explicit neutral framing. Omission is not declared logically equivalent to an explicit claim, and
+the classifier matrix is not UX evidence.
 
-**Rule 4 — `febMar2027` composes only at presentation time, only in the surface that owns it**
-(§9). It may weaken a reader's confidence by sitting on the same page; it may never enter a
-computation, and it may never be rendered as part of a fit or feasibility line.
+**Rule 4 — `febMar2027` remains orthogonal** (§9). It cannot promote a result, and a weak status
+cannot suppress independently valid arithmetic. It may contribute a separately owned caveat or a
+confidence-preserving presentation, never an OPEN/VISITABLE verdict.
 
-**Rule 5 — The direction of a composition does not make it safe.** A *weakening* cross-reference —
-"the recorded weekday closure matches this date, so this comparison may not apply" — was evaluated
-and refused in §26.2. Its absence would carry exactly the inverse implication, which is a
-visitability claim by omission (rule 3).
+**Rule 5 — A weakening cross-reference still needs neutral semantics.** The proposal in §26.2 is
+refused because selectively showing it creates a plausible inverse-reading risk. That is a product
+judgment about this presentation, not proof that the underlying recorded facts cannot compose.
 
 ---
 
-## 20. Proposed closed domain model — evaluated, and **not** justified
+## 20. Proposed closed domain model — reachable, evaluated, and **not justified now**
 
-The gate brief asks for a proposed domain model *if justified*. **It is not justified**, and §14
-gives the reason: every informative variant such a model could reach is already reachable in
-`RecordedIntervalDurationFit`, and every variant beyond it is unreachable for want of evidence.
+A Level-2.5 closed product is type-theoretically and semantically reachable. It could carry a
+`RecordedIntervalDurationFit`, the existing weekday/closure facts and every raw caveat without
+asserting that the place is open or visitable. That possibility is not an authorised design, and
+no implementation is approved.
 
-Recording the shape that was evaluated and refused, so a future reader can see it was considered
-rather than overlooked. **This is not an authorised design, and no implementation of it is
-approved:**
+The product is refused **now** for lack of semantic novelty:
 
-```
-REFUSED — not approved, not scheduled, and not to be implemented.
+1. Its interval component is exactly the Phase 3D-L result.
+2. `no-known-closure` and candidate weekday match/non-match are already Phase 3D-B information;
+   Phase 3D-J already owns hours/closure presentation.
+3. Carrying these facts in one wrapper is truthful juxtaposition, but creates no new proposition.
+4. Any variant that crosses from that conjunction to OPEN/CLOSED/VISITABLE remains unsupported by
+   the evidence and contracts in §5/§13/§16.
+5. An "evidence incomplete" badge remains a separate UX proposal with the selective-absence risk
+   described in §18/§19; it is not a type-theoretic impossibility.
 
-  OpeningHoursFeasibility =
-    | { kind: "not-evaluable"; reason: <the six Phase 3D-L refusals> }   // duplicates 3D-L
-    | { kind: "recorded-interval-fit"; fit: RecordedIntervalDurationFit } // wraps 3D-L
-    | { kind: "recorded-evidence-consistent"; ... }                       // UNREACHABLE (§14)
-    | { kind: "recorded-evidence-incomplete"; missing: EvidenceGap[] }    // REFUSED (§18)
-```
-
-Three defects, each fatal on its own:
-
-1. **Variants one and two are `RecordedIntervalDurationFit` with a wrapper.** A second type that
-   restates the first adds a name, a module, and a surface, and no information.
-2. **Variant three is unreachable.** "Consistent" is undefined across the three axes, no contract
-   composes them (§7, §9), and the triple-SAFE population is empty (§4.6) — so a variant that would
-   require it can never be constructed from real data.
-3. **Variant four is the refused "insufficient evidence" state of §18**, whose absence on some
-   places would imply sufficiency elsewhere.
-
-**What stands instead:** `RecordedIntervalDurationFit` in `app/src/lib/recorded-interval-fit.ts`, as
-shipped, unchanged, and not wrapped. No new type is proposed by this phase.
+**What stands instead:** the existing independently owned signals, unchanged. No new type is
+proposed because no new, non-redundant safe proposition has been identified — not because every
+conceivable composition is unreachable.
 
 ---
 
@@ -993,8 +1062,9 @@ required. **No implementation is approved, so none of this is scheduled.** Anyth
 Nothing below is started, designed, scheduled, or implied by this document:
 
 - Any opening-hours solver, feasibility engine, or open/closed judgment about any place.
-- Any composition of an hours fact with a closure fact, a `febMar2027` status, a `bestTime`, or a
-  reservation field into a stronger claim than either supports alone.
+- Any composition that strengthens an hours fact, closure fact, `febMar2027` status, `bestTime` or
+  reservation field into OPEN/CLOSED/AVAILABLE/VISITABLE. Confidence-preserving juxtaposition of
+  independently true recorded facts remains permitted by Phase 3D-I/J.
 - `Date.now()`, "now", the current clock, urgency, countdowns, or deadline framing.
 - Timezones, IANA zones, absolute instants, DST handling, or epoch values.
 - Holiday calendars, special calendars, observance rules, or "closed the day after a holiday" logic.
@@ -1014,9 +1084,10 @@ Nothing below is started, designed, scheduled, or implied by this document:
 
 ## 26. Alternatives evaluated and refused
 
-Three proposals that are strictly weaker than a solver — each of which looks safe — were worked
-individually. All three fail at the same boundary (§16, 2 → 3), and recording them is most of this
-gate's practical value.
+Three proposals that are strictly weaker than a solver were worked individually. They are not all
+domain impossibilities: the latter two can carry truthful record-level facts. They are refused as
+current product features because they add no non-redundant proposition and/or create an untested
+selective-presentation risk.
 
 ### 26.1 A "recorded evidence completeness" disclosure
 
@@ -1032,13 +1103,11 @@ while the intersection that would produce three green marks is empty.
 the fit line: "this comparison may not apply".* **Refused**, and this is the most interesting of the
 three, because the direction really is conservative — it only ever reduces confidence.
 
-It fails on §19 rule 3. If the annotation appears on match and is absent otherwise, its absence
-carries the inverse implication — and §8 measures how often that would happen: **108 of 126** cells
-over a representative week return `no-weekday-match`. An annotation present in 18 cells and absent
-in 108 trains the reader to treat its absence as clearance, which is precisely the "absence of
-evidence is not evidence of absence" error, delivered by interface rather than by wording. Phase
-3D-J's notice already renders the match on its own, immediately beside the fit line, where a reader
-can see both without Nihon composing them.
+The concern is §19 rule 3. If the annotation appears on match and is absent otherwise, its absence
+may plausibly be read as clearance. §8's **108 of 126** figure describes a synthetic classifier
+matrix, not observed UX behaviour, so it cannot prove that users make that inference. The risk is
+still sufficient to refuse this selective presentation absent neutral framing or user testing —
+especially because Phase 3D-J already renders the candidate match separately beside the fit line.
 
 ### 26.3 Restricting the existing fit line to `jointly-presentable` places
 
@@ -1047,7 +1116,8 @@ and it would be a regression of shipped behaviour rather than an addition. Phase
 refused it as a design; the measurement holds — it would hide the line for 45 of 65 places, and the
 pattern would read as "we only tell you this where it is safe to go". It also misreads the
 composition class, which is a *display* decision computed from tiers alone (§3.4), as an *evidence*
-decision.
+decision. This is a product/UX rejection of selective display, not a denial that the underlying
+record-level facts can be composed truthfully.
 
 ---
 
@@ -1064,12 +1134,15 @@ Recorded rather than resolved, because a future reader needs them and this phase
    evidence.
 3. **`JP-038`'s last-admission rule is invisible to arithmetic** because its hours classify UNKNOWN
    (§4.7). The one record that states the confounder is the one record that cannot reach the
-   computation. This is luck, not design: **a future dataset edit that made a last-admission place
-   classify `fixed-interval-clean` would silently create a wrong-looking fit result**, and no test
-   in the repository would catch it. This is the highest-value follow-up finding in this document.
+   computation, so no incorrect fit is produced today. Existing tests contain no regression
+   specifically protecting a last-admission-bearing record from future promotion to an apparently
+   clean fixed interval. This is **existing feature-hardening debt / a future correctness protection
+   gap**, not a current runtime correctness defect; this documentation-only PR does not add a test.
 4. **`"aprox."` has no defined magnitude.** 58 of 65 records are approximate, and nothing states
-   whether that means five minutes or an hour. Phase 3D-L's arithmetic is exact over an inexact
-   bound, and §21 rule 3 (always show the raw text) is the only mitigation available.
+   whether that means five minutes or an hour. It does not invalidate arithmetic over the parsed
+   recorded token; it blocks treating the resulting numeric boundary as an exact real-world
+   opening/closing guarantee. Phase 3D-L already preserves `raw`, so this uncertainty must not be
+   counted a second time against the mathematical proposition.
 5. **The composition class is a display decision that reads like an evidence decision.** Its name
    (`jointly-presentable`) is honest, but a future reader may reach for it as a gate. §7, §19 and
    §26.3 exist to make that harder.
@@ -1083,59 +1156,63 @@ Recorded rather than resolved, because a future reader needs them and this phase
 
 ### 28.1 Recommendation: **DO NOT IMPLEMENT**
 
-There is no subset of the evidence Nihon can derive conservatively today that supports any claim
-stronger than *"the recorded duration fits inside the recorded interval"* — which Phase 3D-L already
-delivers, at the exact scope Phase 3D-K approved.
+The corrected product decision is claim-specific:
 
-The four findings that close it:
+- **A. No full opening-hours solver with the current evidence: PROVEN.**
+- **B. No reliable real-world open/closed judgment: PROVEN.**
+- **C. No reliable visitability/admission judgment: PROVEN.**
+- **D. No possible additional composed recorded-evidence signal: NOT PROVEN.** Level 2.5 products
+  are reachable when they preserve every component and keep the record as subject.
+- **E. No justified NEW composed recorded-evidence feature right now: SUPPORTED.** The safe
+  reachable products repeat Phase 3D-B weekday/ordinary-closure facts, Phase 3D-J presentation and
+  Phase 3D-L arithmetic rather than deriving a new proposition.
+- **F. No future work whatsoever on this temporal axis: NOT PROVEN.** A future revisit can be valid
+  if data semantics improve, a new non-redundant record-level proposition is identified, or product
+  scope changes.
 
-1. **The triple-SAFE intersection is empty** (§4.6). 31 places hold SAFE hours and a SAFE closure
-   fact; **0** also hold a SAFE trip-window status, and **0** of the 65 SAFE recorded-interval
-   places do. There is no place about which Nihon holds strong evidence on all three axes.
-2. **The strongest existing combination still fails on four independent grounds** (§6). Class A's 20
-   places — SAFE interval, numeric duration, SAFE closure, valid date, manual time, duration fits —
-   are defeated by the closure record's own adjective («ordinario»), by hedging in 19 of the 20
-   hours records, by an unverified trip window in all 20, and by seven unrepresentable requirements.
-3. **The decisive confounders are absent from the schema, not merely weak in the data** (§13).
-   `place.schedule` has two keys. No holiday calendar, no last admission, no capacity, no queue, no
-   per-record verification date.
-4. **A closed union cannot rescue it** (§14). It correctly prevents a misleading boolean and
-   nothing else; every variant beyond Phase 3D-L's eight is unreachable, so the union would restate
-   what already exists.
+The measured triple-SAFE result remains strong corroboration against a trip-specific OPEN/VISITABLE
+claim. Class A remains the strongest subset for testing that stronger claim. Broader provenance and
+raw-text confounders are stated at their actual scopes, and §14 recognises safe composition as
+reachable but redundant.
 
-**This phase therefore recommends no successor.** That is a deliberate break with the Phase 3D-G →
-3D-H, 3D-I → 3D-J and 3D-K → 3D-L pattern: each of those gates found a narrow safe slice and named
-it. This one looked for the slice, measured where it would have to come from, and found it empty.
-The correct output of a design gate that finds no safe slice is to say so and stop.
+**This phase therefore recommends no immediate successor.** The reason is that no new,
+non-redundant safe proposition has been identified under current data/contracts — not that every
+conceivable successor signal is logically impossible.
 
-### 28.2 The narrow condition under which the question could be re-opened
+### 28.2 Claim-specific conditions for a future revisit
 
-Not a plan, not scheduled, and not a recommendation — recorded so that a future revisit is a
-decision rather than a drift, and so nobody re-opens it on weaker grounds than these. **All** of the
-following would have to be true, and each would need its own gate:
+Not a plan, schedule or recommendation. These are not five universal prerequisites for every
+record-level question; their necessity depends on the proposed claim:
 
-1. A per-record **source and verification date** for `schedule.hours`, so a record can be known to
-   be current for a given civil date (level 3 of §16; today all 214 share one export stamp).
-2. **Structured extraordinary-closure coverage** — holidays, temporary closures with date ranges,
-   and the day-after-holiday convention — as fields rather than free text.
-3. A **last-admission field**, given that its single free-text occurrence today is invisible to the
-   arithmetic (§27.3) and that it can invert an otherwise correct fit result.
-4. **Scope resolution** for the 7 sub-facility records and a stated meaning for `"aprox."`, so
-   arithmetic is not exact over an inexact bound.
-5. An explicit product decision to admit **live or externally verified data**, which every phase
-   since 3D-A has excluded and which §15 rule 6 forbids by default.
+1. **Schedule-field source plus a meaningful verification date.** Strictly necessary for a strong
+   authoritative/current opening-hours claim and insufficient by itself. Not required for arithmetic
+   explicitly scoped to a parsed recorded token.
+2. **Structured extraordinary-closure coverage.** Necessary for a strong "not closed on this date"
+   claim and insufficient by itself. Not required to state which ordinary closure text is recorded.
+3. **A last-admission field.** Necessary for admission/visitability claims where last admission may
+   precede closing and insufficient by itself. Not universally required for a recorded-hours
+   statement.
+4. **Scope resolution and semantics for `"aprox."`.** Important for claims that include ambiguous
+   records or demand exact real-world bounds. Not universally necessary if future eligibility
+   explicitly excludes those records. `"aprox."` does not invalidate arithmetic over the parsed
+   recorded token.
+5. **Product/evidence decision.** Nihon already contains externally sourced editorial research.
+   A genuinely different decision would introduce live/runtime verification, a stronger curated
+   static contract with field-level provenance/currency and refresh guarantees, or both. It is
+   necessary only when the proposed future claim depends on that stronger evidence class.
 
-Items 1–4 are dataset and schema work; item 5 is a product decision that changes what kind of
-application Nihon is. **None is a matter of collecting more of the same data**, which is why this
-gate returns DO NOT IMPLEMENT rather than NEEDS MORE DATA.
+Accordingly: reopening a real-world OPEN claim needs items 1 and 2 plus claim-relevant scope/
+currentness coverage; visitability may additionally require item 3 and admission constraints;
+weaker record-level arithmetic needs none of them merely to remain truthful; and a new Level-2.5
+feature first needs a non-redundant proposition, even if no stronger data contract is required.
 
 ### 28.3 What stands after this gate
 
 - Phase 3D-B's weekday closure notice: unchanged.
 - Phase 3D-E's recorded-hours summary: unchanged.
 - Phase 3D-J's hours/closure composition notice: unchanged.
-- Phase 3D-L's manual visit-start-time fit: unchanged, and it remains the **ceiling** of what Nihon
-  says about visit timing.
+- Phase 3D-L's manual visit-start-time fit: unchanged; it remains the current arithmetic result, not
+  an absolute ceiling against every future data/product contract.
 - `docs/TEMPORAL_DATA_CONTRACT.md`'s boundaries: unchanged and reconfirmed against live data.
 
 ---
@@ -1150,3 +1227,23 @@ No `.ts`, `.tsx` or `.css` file was added or modified. No test was added or modi
 and no planning-draft shape was changed. No prior design document was rewritten — Phase 3D-I's,
 3D-K's and Phase 3D-A's contracts are cited here, never edited. The three audit harnesses used to
 re-derive §4 were deleted before commit, so this phase's diff contains no TypeScript at all.
+
+---
+
+## 30. Independent hostile corrective review
+
+The corrective review found four **MAJOR reasoning-scope defects**: (1) provenance/currency was
+overstated as absent; (2) triple-SAFE was used beyond `febMar2027`'s orthogonal scope; (3) closed-
+union reachability was confused with semantic/product novelty; and (4) five reopening conditions
+were overclaimed as universally necessary.
+
+**Changed:** the rationale is narrower; dataset/place-level editorial provenance is acknowledged
+while the schedule-field contract gap is stated precisely; composed recorded-evidence products are
+recognised as possible but currently redundant; and future reopening gates are claim-specific.
+
+**Unchanged:** no full solver, no real-world open/closed judgment, no visitability/admission
+judgment, no implementation, and no immediate successor recommendation. Phase 3D-N was not started.
+
+Corrective validation: 950 Vitest tests across 27 files, 82 temporal-audit tests, oxlint, TypeScript,
+production build, dataset/geography/logistics validators and `git diff --check` all pass. The
+corrective diff remains limited to this document and `docs/ROADMAP.md`.
