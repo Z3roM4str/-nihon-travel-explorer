@@ -114,7 +114,11 @@ confirmed by re-reading the live file:
 **This gate adopts the stricter contract, for the same reason Phase 3D-H did.** A composed
 hours+closures statement — even a conservative one — is a stronger combined claim than either
 signal alone, exactly the same reasoning that justified Phase 3D-H's stricter guard over Phase
-3D-B's looser one. §5 makes this precondition explicit.
+3D-B's looser one. §5 makes this precondition explicit. `RESERVATION_DEADLINE_DESIGN.md`'s own
+"Provenance of the validity guard" note already discloses this same two-contract tension for the
+weekday signal and explicitly leaves open whether Phase 3D-B's own signal should ever adopt the
+stricter guard too — this gate does not decide that either; it only decides the guard for its own,
+new composed signal.
 
 ### 2.4 What is deliberately absent today
 
@@ -174,16 +178,19 @@ OPAQUE/UNKNOWN on either axis was tagged `safe` or `partial` by the live classif
 `HOURS_CATEGORY_TIER`/`CLOSURE_CATEGORY_TIER` assign it — confirmed by direct inspection of the
 live output, not merely by reading the source.
 
-### 3.4 Day-availability is not a dataset property
+### 3.4 Day-date computability is not a dataset property
 
-Item 4 of the requested audit asked what fraction of the population has a day date "potentially
-available" under the current planning model. **This is not a per-place, dataset-derivable
+Item 4 of the requested audit asked what fraction of the population has a derived civil date
+computable for it under the current planning model. **This is not a per-place, dataset-derivable
 statistic**, unlike every other number in this section — a visit date exists only once a specific
 user has built a route, split it into valid day buckets, and chosen a `startDate` (Phase 3C-C/E).
 All 214 places are equally *eligible* in principle; none is structurally excluded from ever getting
-a visit date. What is fixed by the codebase, not by the dataset, is the **contract** for when a
-place gets one at all — §2.3's stricter `deriveVisitDateForPlace` guard, adopted by this gate in
-§5. This document does not fabricate a percentage where none exists.
+a visit date. What is fixed by the codebase, not by the dataset, is the **prerequisite** for when a
+place gets a derived civil date at all — §2.3's stricter `deriveVisitDateForPlace` guard, adopted
+by this gate in §5.1. This document does not fabricate a percentage where none exists, and
+deliberately avoids the word "availability" here — that word is reserved, and forbidden, for a
+claim about a *place* (§7); this section is about date/planning-state computability only, a
+different axis entirely.
 
 ### 3.5 A combination that looks jointly-presentable but requires care (item 5 of the requested audit)
 
@@ -226,13 +233,24 @@ tierRank: safe = 0, partial = 1, opaque = 2, unknown = 3   (0 = strongest, 3 = w
 compositionClass(hoursTier, closureTier) = classFor(max(tierRank(hoursTier), tierRank(closureTier)))
 ```
 
-**Why `opaque` outranks `unknown` in weakness, not the reverse.** This mirrors
-`docs/TEMPORAL_DATA_CONTRACT.md`'s own ordering (`SAFE > PARTIAL > OPAQUE > UNKNOWN`, listed in that
-exact order in its tier table) and rule 5's own language: "unknown must remain unknown... no
-fallback branch that defaults to 'probably open' or 'probably fine.'" OPAQUE at least names a real,
-identified external dependency (weather, an operator, a festival); UNKNOWN carries no extractable
-information at all. Treating UNKNOWN as the weakest available signal, never eligible for any
-composed presentation, is consistent with — not a new addition to — the existing tier philosophy.
+**Existing tier vocabulary vs. this gate's new composition policy — kept explicitly distinct.**
+`safe`/`partial`/`opaque`/`unknown` already exist, defined by Phase 3D-A/3D-B/3D-E exactly as
+`docs/TEMPORAL_DATA_CONTRACT.md` and the current classifiers state them; this gate does not
+redefine what any of the four means for a single axis. What this gate **introduces, for the first
+time, as its own new decision** — not something already settled by a prior contract — is a total
+order over those four tiers **for the sole purpose of picking a composition class**:
+`safe < partial < opaque < unknown` (weakest last). `TEMPORAL_DATA_CONTRACT.md` lists the four
+tiers in that same sequence and states, as rule 5, that "unknown must remain unknown... no fallback
+branch that defaults to 'probably open' or 'probably fine'" — but it never itself declares a formal
+ordinal relationship between OPAQUE and UNKNOWN specifically; the two are treated there as
+qualitatively different kinds of non-safety, not as ranked against each other. This document's
+ranking of `opaque` above `unknown` in weakness is this gate's own policy call, justified on its
+own terms: OPAQUE at least names a real, identified external dependency (weather, an operator, a
+festival); UNKNOWN carries no extractable information at all, and rule 5's "never resolved to a
+stronger tier" language is the closest existing precedent, extended here — not inherited verbatim
+— to the newly-introduced composed case. A future revision of this gate is free to reconsider this
+specific ordinal choice without being seen as contradicting an existing, already-settled contract;
+it would only be revising this gate's own prior decision.
 
 Semantics of each class, restated precisely (never as a stand-in for "open"/"closed"):
 
@@ -248,6 +266,31 @@ Semantics of each class, restated precisely (never as a stand-in for "open"/"clo
   existing, unchanged section (`HoursPlanningSection`/`WeekdayClosureNotice`) — never merged.
 - **`not-composable`** — at least one side is UNKNOWN. No composition of any kind. Each existing
   section renders exactly as it does today; this gate changes nothing about that rendering.
+
+**`keep-separate` and `not-composable` currently prescribe the identical presentation behavior —
+this is deliberate, not an oversight.** Under this document's own definitions above, both classes
+mean exactly the same thing operationally today: no composed statement is produced, and each
+existing section (`HoursPlanningSection`, `WeekdayClosureNotice`) keeps rendering exactly as it
+does now. A future implementation is **not** required to build two visually distinct treatments for
+them, and collapsing them into a single "no composition" code path would lose nothing behaviorally.
+The two names are kept separate here as an **analytical/documentary taxonomy**, not a runtime
+contract, because they trace to two epistemologically different reasons a composition failed:
+
+- **OPAQUE (`keep-separate`)** — real, identified information exists (a named external
+  dependency), but it must not be interpreted or composed into a stronger joint statement.
+- **UNKNOWN (`not-composable`)** — no sufficiently classifiable information exists on at least one
+  axis at all.
+
+Naming the reason is useful for a future implementer's own reasoning, debugging, or telemetry
+(the underlying `hours`/`closure` facts stay fully available for that purpose per §9's sketch —
+inspecting which axis carries the weaker tier always tells a caller *why* a place landed in either
+class), but neither name should be read as prescribing a required UI difference between them.
+
+**`not-composable` does not mean incompatible, conflicting, absent, closed, or impossible.** It
+means exactly one thing: **the evidence currently available does not support producing a
+composition.** This is the same "unknown must remain unknown" discipline `TEMPORAL_DATA_CONTRACT.md`
+already applies to a single axis, carried unchanged into the composed case — it is a statement
+about the limits of what Nihon can safely say, never a statement about the place itself.
 
 ---
 
@@ -307,20 +350,37 @@ The "Later (unscheduled)" list in `docs/ROADMAP.md` separately names "a visit-du
 calculation against a recorded interval" as still not done. This gate evaluated it directly against
 the real dataset, using the live classifiers (not an approximation):
 
-- 65 places classify `recorded-interval` (SAFE, `fixed-interval-clean`).
-- 62 of those have both `duration.minMinutes` and `duration.maxMinutes` populated.
-- **0 of 214 places** show `duration.minMinutes` exceeding the recorded interval's span (parsed
-  from `intervalRaw`, overnight-wrap handled).
+- 65 places classify `recorded-interval` (SAFE, `fixed-interval-clean`) — the only universe this
+  check could ever apply to; the other 149 places do not have a SAFE recorded interval at all and
+  are not part of this comparison.
+- 62 of those 65 have both `duration.minMinutes` and `duration.maxMinutes` populated, and are
+  therefore **numerically evaluable** for this check.
+- **0 of 62 numerically evaluable places** show `duration.minMinutes` (or `duration.maxMinutes`)
+  exceeding the recorded interval's span (parsed from `intervalRaw`, overnight-wrap handled, both
+  bounds checked, boundary equality checked separately — no mismatch found at any of those).
+- **The remaining 3 places** (`JP-121` — Expo '70 Park + Tower of the Sun, `duration.raw = "Medio
+  día"`; `JP-147` — Enryaku-ji, `duration.raw = "Medio día–día completo"`; `JP-211` — AnimeJapan
+  2027, `duration.raw = "Día completo"`) have a `recorded-interval` hours fact but only a
+  qualitative, non-numeric `duration.raw` — no `minMinutes`/`maxMinutes` at all — so this numeric
+  comparison **does not evaluate them**, in either direction. They are recorded here explicitly
+  rather than silently folded into the "0" result: a full-day or half-to-full-day qualitative
+  duration paired with a ~7.5–8h recorded interval is exactly the shape of case most likely to
+  produce a real mismatch if it could be checked numerically at all, so their exclusion is a real
+  gap in this check's current coverage, not a confirmation that they are fine.
 
-**REFUSE FOR NOW.** No real population in the current dataset would ever produce a signal from this
-check — building and testing interval-span-vs-duration arithmetic to serve zero real records is
-exactly the disproportionate-engineering pattern Phase 3D-G's own Class D decision (§7 of
-`RESERVATION_DEADLINE_DESIGN.md`, 1 real record) already established a precedent for refusing. This
-is a **data-triggered** revisit condition, not a scheduled one: if a future dataset edit introduces
-a place whose recorded duration genuinely exceeds its recorded interval, this check should be
-re-evaluated then, with real evidence, not built speculatively now. This finding is out of scope
-for the composition this gate does approve (§1) — duration-fit is a third axis (place vs. its own
-recorded interval), not a composition of hours and closures.
+**REFUSE FOR NOW.** Zero real, numerically-evaluable population in the current dataset would ever
+produce a signal from this check — building and testing interval-span-vs-duration arithmetic to
+serve zero confirmed real records is exactly the disproportionate-engineering pattern Phase 3D-G's
+own Class D decision (§7 of `RESERVATION_DEADLINE_DESIGN.md`, 1 real record) already established a
+precedent for refusing. The 3 qualitative-duration places above do not change this: they cannot
+currently be checked at all, and inventing a numeric mapping for "Medio día"/"Día completo" (e.g.
+assuming a fixed number of hours) would itself fabricate a precision the recorded text never
+claims — exactly the kind of guess this document's own discipline forbids elsewhere (§7). This is a
+**data-triggered** revisit condition, not a scheduled one: if a future dataset edit introduces a
+place whose recorded duration is both numeric and genuinely exceeds its recorded interval, this
+check should be re-evaluated then, with real evidence, not built speculatively now. This finding is
+out of scope for the composition this gate does approve (§1) — duration-fit is a third axis (place
+vs. its own recorded interval), not a composition of hours and closures.
 
 ---
 

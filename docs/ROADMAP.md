@@ -1985,7 +1985,14 @@ actually be visited.
       confidence-increasing.** A closed, four-class vocabulary (`jointly-presentable` /
       `present-with-caveat` / `keep-separate` / `not-composable`) derived by taking the **weaker**
       of the two facts' tiers (`safe`/`partial`/`opaque`/`unknown`, worst-tier-wins) — nothing
-      composed here is ever a stronger claim than either input alone supports.
+      composed here is ever a stronger claim than either input alone supports. The four tiers
+      themselves are unchanged Phase 3D-A/3D-B/3D-E vocabulary; the worst-tier-wins ordering (in
+      particular, ranking OPAQUE weaker than UNKNOWN for this purpose) is this gate's own new
+      policy decision for composition, not something an earlier contract already declared.
+      `keep-separate` and `not-composable` currently prescribe identical presentation behavior (no
+      composed statement, existing sections unchanged) — they are kept as separate names for
+      analytical/debugging clarity (an OPAQUE vs. an UNKNOWN axis are different reasons composition
+      failed), not because a future implementation must treat them differently in the UI.
 - [x] **Real-dataset cross-tab, re-derived against the live TypeScript classifiers** (not a
       Python approximation, not assumed): the full 4×4 `RecordedHoursFact.tier` ×
       `ClosureFact.tier` matrix over all 214 places sums to exactly 214 and its row/column totals
@@ -2011,12 +2018,19 @@ actually be visited.
       statement is a stronger combined claim than either signal alone. No trip end date is
       invented; `ManualPlanningDraftV2` still has none.
 - [x] **Duration-fit evaluated and explicitly refused for now.** 65 places have a SAFE recorded
-      interval; 62 of those also have known visit-duration bounds; **0 of 214** show the recorded
-      minimum visit duration exceeding the recorded interval's span. Building and testing that
-      arithmetic to serve zero real records would repeat the exact disproportionate-engineering
-      pattern Phase 3D-G's own Class D decision (1 real record) already established a precedent
-      for refusing. This is a data-triggered revisit condition, not a scheduled one, and is not
-      part of this gate's approved composition scope.
+      interval; 62 of those are numerically evaluable (both `duration.minMinutes`/`maxMinutes`
+      populated) — **0 of those 62** show the recorded visit duration exceeding the recorded
+      interval's span. The remaining 3 (`JP-121`, `JP-147`, `JP-211`) carry only a qualitative
+      duration ("Medio día"/"Medio día–día completo"/"Día completo") and are not numerically
+      evaluable at all — named explicitly rather than folded into the "0" result, since a full-day
+      duration against a ~7.5–8h interval is exactly the shape most likely to produce a real
+      mismatch if it could ever be checked. Building and testing interval-span-vs-duration
+      arithmetic to serve zero *confirmed* real records would repeat the exact
+      disproportionate-engineering pattern Phase 3D-G's own Class D decision (1 real record)
+      already established a precedent for refusing, and inventing a numeric mapping for "Día
+      completo" would itself fabricate a precision the recorded text never claims. This is a
+      data-triggered revisit condition, not a scheduled one, and is not part of this gate's
+      approved composition scope.
 - [x] **Language contract**: permitted vocabulary stays exactly in the register already
       established by Phase 3D-B/3D-D/3D-H ("horario registrado," "posible coincidencia de cierre
       semanal," "información no evaluable," "conviene revisar"); forbidden vocabulary includes
