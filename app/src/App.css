@@ -2588,6 +2588,69 @@ a {
   color: var(--color-text-muted);
 }
 
+/* Phase 3D-L — manual visit start time vs. the recorded interval.
+   Deliberately NEUTRAL: no success/failure palette, no green check, no red cross, no badge. The
+   three evaluated outcomes are arithmetic about a recorded interval, not a good/bad axis and not
+   a recommendation, so all of them share one read-only treatment. It also deliberately does NOT
+   reuse `.hours-closure-composition__item`'s styling, so this signal cannot read as if it carried
+   Phase 3D-J's closure evidence. */
+.recorded-interval-fit {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recorded-interval-fit__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.recorded-interval-fit__label {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.recorded-interval-fit__input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.recorded-interval-fit__result {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.recorded-interval-fit__raw {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.recorded-interval-fit__disclaimer {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
 /* Phase 3D-D — reservation lead-time preparation. Route-wide, deliberately neutral: it is a
    recorded-fact summary, not an urgency system, so it reuses the same soft neutral surface as
    other factual sections (`.analysis-section`) rather than any warning palette. */

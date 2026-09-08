@@ -25,6 +25,10 @@ import {
   type ReservationDateWindow,
 } from "../lib/reservation-deadline";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
+import {
+  buildDayRecordedIntervalFits,
+  type RecordedIntervalDurationFit,
+} from "../lib/recorded-interval-fit";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -537,6 +541,117 @@ function HoursClosureCompositionNotice({
 }
 
 /**
+ * Phase 3D-L's one user-facing sentence per outcome. Every evaluated phrase names the RECORDED
+ * interval, never the place: the wording is `docs/VISIT_TIME_FEASIBILITY_DESIGN.md` §16's permitted
+ * vocabulary verbatim. That section's forbidden list is deliberately NOT reproduced here, not even
+ * as an example: `OrderedSequenceBuilder.test.ts` scans this file's notice sources for those exact
+ * phrases, so a comment quoting any of them would blunt that check for every neighbouring notice as
+ * well as this one. Read §16 for the list itself.
+ *
+ * `visit-date-not-evaluable` and the `hours-not-a-recorded-interval` reason have no sentence
+ * because they never reach this view: `buildDayRecordedIntervalFits` omits those places entirely,
+ * so no control and no line is rendered for them at all.
+ */
+function recordedIntervalFitText(fit: RecordedIntervalDurationFit): string {
+  switch (fit.kind) {
+    case "recorded-duration-fits-interval":
+      return "La duración registrada cabe dentro del intervalo horario registrado.";
+    case "only-minimum-duration-fits-interval":
+      return "Solo la duración mínima registrada cabe dentro del intervalo registrado.";
+    case "recorded-duration-exceeds-interval":
+      return "La duración registrada excede este intervalo horario registrado.";
+    case "start-time-outside-recorded-interval":
+      return "La hora que has indicado queda fuera del intervalo horario registrado.";
+    case "duration-not-evaluable":
+      return "No hay una duración numérica registrada para evaluar.";
+    case "no-start-time-chosen":
+      return "Introduce una hora de inicio para comparar con el intervalo registrado.";
+    default:
+      return "No hay información horaria estructurada suficiente para evaluar este intervalo.";
+  }
+}
+
+/**
+ * Phase 3D-L's one UI surface — a manual visit start time per eligible place, and the comparison
+ * of the recorded duration against the time remaining inside the RECORDED interval.
+ *
+ * **What this section is not.** It makes no claim that a place is open, that a visit is possible,
+ * that a day works, or that the user should go at the time they typed. `duration fits recorded
+ * interval` ≠ `place is visitable`, and every sentence, class name, and accessible label here is
+ * chosen to keep those apart. It reads no `bestTime`, no closures, no composition class, and no
+ * transfer data, and it never derives an arrival time for the next place — that would be
+ * scheduling (design §19).
+ *
+ * **Which places get a control.** Only those whose hours fact is `recorded-interval` AND which have
+ * a valid assigned day under Phase 3D-H/3D-J's strict date contract; `buildDayRecordedIntervalFits`
+ * owns both gates. The other places get no control at all — deliberately, not as an oversight: a
+ * disabled input on a PARTIAL or OPAQUE place would invite the reading "this place has no hours",
+ * which is false for every one of them. `recorded-24h` places are among those excluded, so no
+ * 24-hour record is ever turned into a 00:00–24:00 interval here.
+ *
+ * **No default, ever.** The input starts empty and stays empty until the user types a time. It is
+ * never prefilled with `09:00`, the recorded opening time, the current clock, or anything derived
+ * from another field. Clearing it returns the place to exactly that state.
+ *
+ * The original recorded hours text is always shown beside the result, because the parsed token is
+ * derivative evidence: 61 of the 65 real records carry editorial qualification ("aprox.",
+ * "Tiendas…", "según anuncio") that the token alone would silently drop.
+ */
+function RecordedIntervalFitSection({
+  places,
+  dayAssignment,
+  startDate,
+  dayNumber,
+  visitStartTimes,
+  onVisitStartTimeChange,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+  dayNumber: number;
+  visitStartTimes: Readonly<Record<string, string>>;
+  onVisitStartTimeChange: (placeId: string, time: string | null) => void;
+}) {
+  const items = buildDayRecordedIntervalFits(places, dayAssignment, startDate, visitStartTimes);
+
+  if (items.length === 0) return null;
+
+  return (
+    <section
+      className="recorded-interval-fit"
+      aria-label={`Hora de inicio e intervalo horario registrado · Día ${dayNumber}`}
+    >
+      {items.map(({ placeId, placeName, hours, visitStartTime, fit }) => {
+        const inputId = `visit-start-time-${dayNumber}-${placeId}`;
+        return (
+          <div key={placeId} className="recorded-interval-fit__item">
+            <label className="recorded-interval-fit__label" htmlFor={inputId}>
+              {`Hora de inicio para ${placeName} en Día ${dayNumber}`}
+            </label>
+            <input
+              id={inputId}
+              className="recorded-interval-fit__input"
+              type="time"
+              value={visitStartTime ?? ""}
+              onChange={(event) => onVisitStartTimeChange(placeId, event.target.value || null)}
+            />
+            <p className="recorded-interval-fit__result">{recordedIntervalFitText(fit)}</p>
+            <p className="recorded-interval-fit__raw">Dato: «{hours.raw}»</p>
+          </div>
+        );
+      })}
+      <p className="recorded-interval-fit__disclaimer">
+        Esta comparación solo usa el intervalo horario registrado y la duración registrada del lugar.{" "}
+        <strong>
+          No indica si el lugar abre, no revisa cierres ni festivos, y no calcula a qué hora llegarías a
+          ningún otro lugar.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/**
  * Phase 3D-H's one UI surface. Rendered per day, next to `WeekdayClosureNotice`. Renders nothing
  * when no place in this day bucket has both a valid visit date (design §5's stricter contract,
  * via `deriveVisitDateForPlace`) and an eligible Class A signal (`derivePlaceReservationDateWindow`)
@@ -861,9 +976,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     routeIds,
     days,
     startDate,
+    visitStartTimes,
     setRoute: setRouteIds,
     setDays: setDayIds,
     setStartDate,
+    setVisitStartTime,
     resetRoute,
   } = usePlanningDraft(savedIds);
   const dayIds = useMemo(() => days ?? [], [days]);
@@ -1286,6 +1403,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             dayAssignment={dayAssignment}
                             startDate={startDate}
                             dayNumber={dayIndex + 1}
+                          />
+                          <RecordedIntervalFitSection
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                            dayNumber={dayIndex + 1}
+                            visitStartTimes={visitStartTimes}
+                            onVisitStartTimeChange={setVisitStartTime}
                           />
                           <ReservationDeadlineNotice
                             places={places}

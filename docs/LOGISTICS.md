@@ -1045,6 +1045,17 @@ domain and this planning-draft persistence layer have both always respected stay
 it was. Anchoring a date to "Día 1" is a fact about the user's calendar, not a claim about what
 is feasible to do that day.
 
+> **Update (Phase 3D-L):** the schema version described above is no longer current. It moved from
+> `2` to `3`, adding one further user decision — `visitStartTimes`, a `placeId -> "HH:mm"` map of
+> manually typed local clock times, defaulting to `{}`. A stored V1 or V2 draft still loads, chained
+> V1 → V2 → V3, with `visitStartTimes` always `{}` and no time ever invented. Everything this
+> section says about the key, about storing only ids and user-authored structure, and about
+> recomputing every derived value on read is unchanged; the times are a user decision, and the
+> comparison computed from them is derived and never stored. Unlike `startDate`, a time is tied to
+> its place and is pruned when that place leaves the route. The transfer domain is untouched: no
+> transfer edge, transfer minute, or arrival time is read or derived by that feature. See
+> `docs/DATA_MODEL.md`'s "Manual visit start times (Phase 3D-L)" section for the full schema.
+
 ## What Phase 3B1 does not touch
 
 - `data/nearby.json` / `app/src/data/nearby.json` — unchanged, still 403 rows, still the single
