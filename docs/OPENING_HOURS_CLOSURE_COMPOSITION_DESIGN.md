@@ -244,7 +244,7 @@ tiers in that same sequence and states, as rule 5, that "unknown must remain unk
 branch that defaults to 'probably open' or 'probably fine'" — but it never itself declares a formal
 ordinal relationship between OPAQUE and UNKNOWN specifically; the two are treated there as
 qualitatively different kinds of non-safety, not as ranked against each other. This document's
-ranking of `opaque` above `unknown` in weakness is this gate's own policy call, justified on its
+ranking of `unknown` as weaker than `opaque` is this gate's own policy call, justified on its
 own terms: OPAQUE at least names a real, identified external dependency (weather, an operator, a
 festival); UNKNOWN carries no extractable information at all, and rule 5's "never resolved to a
 stronger tier" language is the closest existing precedent, extended here — not inherited verbatim

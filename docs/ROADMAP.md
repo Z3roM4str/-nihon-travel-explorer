@@ -1987,7 +1987,7 @@ actually be visited.
       of the two facts' tiers (`safe`/`partial`/`opaque`/`unknown`, worst-tier-wins) — nothing
       composed here is ever a stronger claim than either input alone supports. The four tiers
       themselves are unchanged Phase 3D-A/3D-B/3D-E vocabulary; the worst-tier-wins ordering (in
-      particular, ranking OPAQUE weaker than UNKNOWN for this purpose) is this gate's own new
+      particular, ranking UNKNOWN weaker than OPAQUE for this purpose) is this gate's own new
       policy decision for composition, not something an earlier contract already declared.
       `keep-separate` and `not-composable` currently prescribe identical presentation behavior (no
       composed statement, existing sections unchanged) — they are kept as separate names for
