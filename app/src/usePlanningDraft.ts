@@ -6,9 +6,10 @@ import {
   withDays,
   withRoute,
   withStartDate,
+  withVisitStartTime,
   writeDraft,
   type DraftStorage,
-  type ManualPlanningDraftV2,
+  type ManualPlanningDraftV3,
 } from "./lib/planning-draft";
 
 /** The real browser `localStorage`, wrapped to the minimal shape `planning-draft.ts` depends
@@ -37,10 +38,12 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  *
  * `routeIds`/`days` here are the single canonical source of that state — `OrderedSequenceBuilder`
  * no longer keeps a second copy in its own `useState`, so there is nothing for this hook's
- * persisted state and the component's rendered state to disagree about.
+ * persisted state and the component's rendered state to disagree about. Phase 3D-L's
+ * `visitStartTimes` joins them on exactly the same terms: the map returned here is the only copy,
+ * and the component renders from it rather than mirroring it into local state.
  */
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV2>(() =>
+  const [draft, setDraft] = useState<ManualPlanningDraftV3>(() =>
     loadReconciledDraft(browserStorage, savedIds)
   );
 
@@ -73,6 +76,16 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withStartDate(current, startDate));
   }, []);
 
+  /**
+   * Phase 3D-L: sets, replaces, or clears ONE place's manual visit start time. Accepts a plain
+   * `HH:mm` string or `null`; an invalid time, or a place id outside the current route, is
+   * rejected by `withVisitStartTime` (the draft stays unchanged), never coerced or guessed. No
+   * default is ever supplied here or anywhere downstream — an untouched place simply has no entry.
+   */
+  const setVisitStartTime = useCallback((placeId: string, time: string | null) => {
+    setDraft((current) => withVisitStartTime(current, placeId, time));
+  }, []);
+
   /** "Restablecer recorrido": the route becomes the current saved ids in their saved order and
    * the day assignment is cleared — the same starting point as no stored draft at all — but the
    * calendar anchor (if any) is carried forward: see `resetRoute` in `lib/planning-draft.ts` for
@@ -87,9 +100,11 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     routeIds: draft.routeIds,
     days: draft.days,
     startDate: draft.startDate,
+    visitStartTimes: draft.visitStartTimes,
     setRoute,
     setDays,
     setStartDate,
+    setVisitStartTime,
     resetRoute,
   };
 }

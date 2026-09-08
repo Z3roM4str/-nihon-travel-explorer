@@ -609,3 +609,222 @@ describe("OrderedSequenceBuilder.tsx — hours/closure composition wiring", () =
     }
   });
 });
+
+/**
+ * Phase 3D-L — manual visit start time vs. the recorded interval.
+ *
+ * The behaviour itself (which places are eligible, what each outcome is, the date gate, the
+ * boundaries) is proven purely in `../lib/recorded-interval-fit.test.ts` against the real dataset;
+ * those are behavioural tests, not scans. What remains genuinely unobservable without a component
+ * harness — which this repository deliberately does not have — is the WIRING: that the section is
+ * rendered from that pure builder, in the required position between the two existing temporal
+ * notices, with a per-place accessible label, no default value, and the persisted setter attached.
+ * Those, and only those, are checked by scanning here.
+ */
+
+/**
+ * Slices one top-level function, stopping at whichever comes first: the next top-level `function`
+ * declaration, or the next top-level doc comment. Stopping at the doc comment matters — the comment
+ * introducing the NEXT function sits before its `function` keyword, so a boundary of `\nfunction `
+ * alone would pull that neighbour's prose into this slice and make vocabulary assertions report on
+ * text this phase did not write.
+ */
+function extractTopLevel(fullSource: string, declaration: string): string {
+  const start = fullSource.indexOf(declaration);
+  if (start === -1) throw new Error(`${declaration} not found in OrderedSequenceBuilder.tsx`);
+  const candidates = [fullSource.indexOf("\nfunction ", start + 1), fullSource.indexOf("\n/**", start + 1)].filter(
+    (index) => index !== -1
+  );
+  return candidates.length === 0 ? fullSource.slice(start) : fullSource.slice(start, Math.min(...candidates));
+}
+
+/** Strips comments, so a vocabulary scan asserts on what the component RENDERS rather than on what
+ * its documentation explains. The doc comments deliberately name the fields this surface must not
+ * read (`bestTime`, closures, transfers) in order to record that exclusion; scanning them raw would
+ * make the explanation itself look like a violation. */
+function withoutComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+}
+
+function extractRecordedIntervalFitSource(fullSource: string): string {
+  return extractTopLevel(fullSource, "function RecordedIntervalFitSection");
+}
+
+function extractFitTextSource(fullSource: string): string {
+  return extractTopLevel(fullSource, "function recordedIntervalFitText");
+}
+
+describe("OrderedSequenceBuilder.tsx — Phase 3D-L manual visit start time wiring", () => {
+  it("builds the section from the pure recorded-interval-fit domain builder", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bbuildDayRecordedIntervalFits\b[^}]*\}\s*from\s*["']\.\.\/lib\/recorded-interval-fit["']/
+    );
+    expect(source).toMatch(
+      /buildDayRecordedIntervalFits\(\s*places\s*,\s*dayAssignment\s*,\s*startDate\s*,\s*visitStartTimes\s*\)/
+    );
+  });
+
+  it("renders the section between the Phase 3D-J and Phase 3D-H notices, reordering neither", async () => {
+    const source = await readSource();
+    const composition = source.indexOf("<HoursClosureCompositionNotice");
+    const fit = source.indexOf("<RecordedIntervalFitSection");
+    const deadline = source.indexOf("<ReservationDeadlineNotice");
+    const weekday = source.indexOf("<WeekdayClosureNotice");
+    expect(weekday).toBeGreaterThan(-1);
+    expect(composition).toBeGreaterThan(-1);
+    expect(fit).toBeGreaterThan(-1);
+    expect(deadline).toBeGreaterThan(-1);
+    expect(weekday).toBeLessThan(composition);
+    expect(composition).toBeLessThan(fit);
+    expect(fit).toBeLessThan(deadline);
+  });
+
+  it("keeps the existing temporal notices rendered and unchanged in kind", async () => {
+    const source = await readSource();
+    expect(source).toContain("function WeekdayClosureNotice(");
+    expect(source).toContain("function HoursClosureCompositionNotice(");
+    expect(source).toContain("function ReservationDeadlineNotice(");
+    expect(source).toMatch(/buildPresentableDayHoursClosureCompositions\(/);
+  });
+
+  it("uses a native time input with no default value", async () => {
+    const section = extractRecordedIntervalFitSource(await readSource());
+    expect(section).toMatch(/type="time"/);
+    // The value comes from the persisted map only, falling back to the empty string — never to a
+    // clock, an opening bound, or a literal like 09:00.
+    expect(section).toMatch(/value=\{visitStartTime \?\? ""\}/);
+    expect(section).not.toMatch(/defaultValue/);
+    expect(section).not.toMatch(/placeholder/);
+    expect(section).not.toMatch(/autoFocus/);
+    expect(section).not.toMatch(/\b09:00\b/);
+  });
+
+  it("gives each control an accessible label naming both the place and the day", async () => {
+    const section = extractRecordedIntervalFitSource(await readSource());
+    expect(section).toMatch(/<label[^>]*htmlFor=\{inputId\}/);
+    expect(section).toMatch(/Hora de inicio para \$\{placeName\} en Día \$\{dayNumber\}/);
+    // The id is per day AND per place, so two controls can never collide across day cards.
+    expect(section).toMatch(/visit-start-time-\$\{dayNumber\}-\$\{placeId\}/);
+    expect(section).toMatch(/aria-label=\{`[^`]*Día \$\{dayNumber\}`\}/);
+  });
+
+  it("delegates every change to the persisted setter, keeping no local copy of the times", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/setVisitStartTime,/);
+    expect(source).toMatch(/onVisitStartTimeChange=\{setVisitStartTime\}/);
+    const section = extractRecordedIntervalFitSource(source);
+    expect(section).toMatch(/onVisitStartTimeChange\(placeId, event\.target\.value \|\| null\)/);
+    // No component-local mirror of the persisted map.
+    expect(source).not.toMatch(/useState<[^>]*visitStartTimes/i);
+    expect(section).not.toMatch(/useState/);
+  });
+
+  it("renders nothing at all when the pure builder yields no eligible place", async () => {
+    const section = extractRecordedIntervalFitSource(await readSource());
+    expect(section).toMatch(/if \(items\.length === 0\) return null;/);
+  });
+
+  it("keeps the original recorded hours text beside every result", async () => {
+    const section = extractRecordedIntervalFitSource(await readSource());
+    expect(section).toMatch(/hours\.raw/);
+    // The parsed token is never rendered in place of the raw record.
+    expect(section).not.toMatch(/intervalRaw/);
+  });
+
+  it("uses exactly the design gate's permitted wording for each outcome", async () => {
+    const text = extractFitTextSource(await readSource());
+    expect(text).toContain("La duración registrada cabe dentro del intervalo horario registrado.");
+    expect(text).toContain("Solo la duración mínima registrada cabe dentro del intervalo registrado.");
+    expect(text).toContain("La duración registrada excede este intervalo horario registrado.");
+    expect(text).toContain("La hora que has indicado queda fuera del intervalo horario registrado.");
+    expect(text).toContain("No hay información horaria estructurada suficiente para evaluar este intervalo.");
+    expect(text).toContain("No hay una duración numérica registrada para evaluar.");
+    expect(text).toContain("Introduce una hora de inicio para comparar con el intervalo registrado.");
+  });
+
+  it("uses no forbidden decision language anywhere in the new surface", async () => {
+    const source = await readSource();
+    const surface = withoutComments(
+      extractFitTextSource(source) + extractRecordedIntervalFitSource(source)
+    ).toLowerCase();
+    for (const forbidden of [
+      "está abierto",
+      "cerrado",
+      "puedes ir",
+      "este horario funciona",
+      "este día funciona",
+      "disponible",
+      "visita válida",
+      "horario garantizado",
+      "horario confirmado",
+      "compatible",
+      "te recomendamos",
+      "mejor hora",
+      "hora óptima",
+    ]) {
+      expect(surface, `should not contain "${forbidden}"`).not.toContain(forbidden);
+    }
+  });
+
+  it("introduces no dialog, modal, or scheduling control", async () => {
+    const section = withoutComments(extractRecordedIntervalFitSource(await readSource()));
+    expect(section).not.toMatch(/role=["']dialog["']/);
+    expect(section).not.toMatch(/aria-modal/);
+    expect(section).not.toMatch(/draggable/);
+    expect(section).not.toMatch(/onDrag/);
+    for (const forbidden of ["optimiz", "sugerir", "sugerencia", "recomend", "auto"]) {
+      expect(section.toLowerCase()).not.toContain(forbidden);
+    }
+  });
+
+  it("reads no bestTime, closure, transfer, or clock source in the new surface", async () => {
+    const source = await readSource();
+    const surface = withoutComments(extractFitTextSource(source) + extractRecordedIntervalFitSource(source));
+    for (const forbidden of [
+      "bestTime",
+      "closures",
+      "ClosureFact",
+      "CompositionClass",
+      "assessWeekdayClosure",
+      "TransferEdge",
+      "getBestTransfer",
+      "new Date",
+      "Date.now",
+      "Asia/Tokyo",
+      "timeZone",
+    ]) {
+      expect(surface).not.toContain(forbidden);
+    }
+  });
+
+  it("uses a neutral treatment, with no success/failure styling for the outcomes", async () => {
+    const section = withoutComments(extractRecordedIntervalFitSource(await readSource()));
+    // No per-outcome class name, so no outcome can be styled as approval or rejection.
+    expect(section).not.toMatch(/recorded-interval-fit__item--/);
+    expect(section).not.toMatch(/\bsuccess\b|\berror\b|\bvalid\b|\binvalid\b|\bok\b/i);
+    // It must not borrow Phase 3D-J's composed-notice styling either.
+    expect(section).not.toContain("hours-closure-composition");
+  });
+});
+
+describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
+  it("exposes the persisted map and a setter that delegates to the pure mutation", async () => {
+    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
+    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft["']/);
+    expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
+    expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
+    expect(hook).toMatch(/setVisitStartTime,/);
+  });
+
+  it("keeps the draft as the single canonical source — no second copy of the times", async () => {
+    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
+    // Exactly one piece of state: the whole draft. Counts CALL SITES (`useState<` / `useState(`),
+    // not the bare word, which also appears in the import list and in prose.
+    const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
+    expect(useStateCalls).toHaveLength(1);
+    expect(hook).toMatch(/useState<ManualPlanningDraftV3>/);
+    // Every mutation goes through the pure module and is written back by the existing effect.
+    expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
+  });
+});

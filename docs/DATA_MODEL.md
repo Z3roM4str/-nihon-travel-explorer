@@ -281,6 +281,56 @@ route or the day assignment. `place.bestTime`, `schedule.hours`, and `schedule.c
 read anywhere in this feature — anchoring a date is a fact the user asserts about their own
 calendar, not a computation over the dataset.
 
+## Manual visit start times (Phase 3D-L)
+
+Since Phase 3D-L, `nihon.manualPlanningDraft` (still the same single key — never a second one)
+carries one more field, and the schema version moved from `2` to `3`:
+
+```ts
+type ManualPlanningDraftV3 = {
+  version: 3;
+  routeIds: string[];
+  days: string[][] | null;
+  startDate: string | null;
+  visitStartTimes: Record<string, string>; // placeId -> "HH:mm"; {} when none chosen
+};
+```
+
+`visitStartTimes` stores **only what the user typed**: a local civil clock time, 24-hour and
+zero-padded, exactly as entered. Never a `Date`, an epoch value, an ISO instant, a UTC conversion,
+or minutes-since-midnight — the numeric form is derived on read by
+`app/src/lib/recorded-interval-fit.ts` and never stored. Nor is any *result* stored: whether the
+recorded duration fits the time remaining in a recorded interval, only its minimum fits, or it
+exceeds, is recomputed on every render from the current dataset and current planning state, exactly
+like every other derived value this schema has always excluded. `{}` and "no times chosen" are the
+same state with one spelling — the field is never `null`.
+
+**Migration is chained and invents nothing.** A stored V1 draft migrates V1 → V2 → V3 and a stored
+V2 draft migrates V2 → V3; in both cases `routeIds`/`days`/`startDate` pass through unchanged and
+`visitStartTimes` is always `{}`. A user who never chose a time never has one invented for them, and
+both historical shapes stay loadable. An unrecognised version is still treated exactly like a
+missing draft.
+
+**Validation is strict and all-or-nothing.** `visitStartTimes` must be a plain object whose every
+value matches `^([01]\d|2[0-3]):[0-5]\d$` — the same pattern the evaluator uses, exported from
+`recorded-interval-fit.ts` so persistence and arithmetic cannot disagree. A single malformed entry
+(`"9:00"`, `"24:00"`, `"12:60"`, a number, `null`, an array, a nested object) rejects the **whole**
+stored draft rather than being quietly dropped, exactly as a duplicate route id or an invalid
+`startDate` already does: such a value could not have been produced by this app's own UI, so it is
+foreign or corrupted, not a defect to repair silently.
+
+**Reconciliation ties a time to its place, not to the trip.** This is the one place the new field
+deliberately differs from `startDate`: a time is a decision *about a place*, so it is pruned by the
+same staleness rule as the route — a stored route id no longer saved loses its time, a surviving id
+keeps it, a newly saved id never receives one, and an orphan entry is dropped. A pure route reorder,
+a day re-split, moving a place between day buckets, and changing or clearing `startDate` all leave
+every time untouched; "Restablecer recorrido" carries still-saved times forward and prunes the rest.
+
+`place.bestTime` is not read anywhere in this feature, and neither is `schedule.closures` — the
+comparison is between one recorded `schedule.hours` interval and one recorded `duration`, and it
+asserts nothing about whether the place is open. See `docs/ROADMAP.md`'s Phase 3D-L entry and
+[`VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) for the full boundary.
+
 ## Temporal data audit (derived, Phase 3D-A)
 
 `place.schedule.hours`, `place.schedule.closures`, `place.bestTime`,
@@ -322,8 +372,9 @@ only, never a `Place` or a closure. `app/src/lib/day-weekday-signal.ts` is the `
 layer `OrderedSequenceBuilder.tsx`'s day-assignment view actually calls, mirroring this
 codebase's existing `transfer.ts` → `ordered-sequence.ts` → `day-assignment.ts` layering.
 
-Nothing here is persisted: `nihon.manualPlanningDraft`'s schema (`ManualPlanningDraftV2`, still
-the current version) is unchanged, and no new `localStorage` key was introduced. The signal is
+Nothing here is persisted: `nihon.manualPlanningDraft`'s schema was unchanged by Phase 3D-B (it
+was `ManualPlanningDraftV2` at the time; the current version is V3 — see "Manual visit start times"
+below), and no new `localStorage` key was introduced. The signal is
 recomputed on every render from the day's already-derived date (Phase 3C-E's `startDate` offset
 by the day index) and each place's existing raw `schedule.closures` text. See
 [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this runtime

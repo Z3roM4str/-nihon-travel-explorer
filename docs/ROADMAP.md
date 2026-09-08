@@ -2292,6 +2292,184 @@ No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.js
 lockfile, any `.ts`/`.tsx`/`.css` file, or any prior design document was changed by this phase. No
 Phase 3D-L (or any later phase) work was started.
 
+## Phase 3D-L — Manual Visit-Start-Time vs. Recorded Interval Fit — complete
+
+Implements exactly the scope [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md)
+(Phase 3D-K) approved, and nothing wider. For one place on one assigned day it answers: *given the
+recorded clock interval, a start time the user typed by hand, and the recorded visit duration, how
+does that duration compare with the time remaining inside the recorded interval?* It never claims a
+place is open, that a visit is possible, that a day works, or that the user should go at that time.
+**`duration fits recorded interval` ≠ `place is visitable`** is the load-bearing distinction, and
+every type name, sentence and style decision below exists to keep the two apart.
+
+- [x] **New pure domain module `app/src/lib/recorded-interval-fit.ts`.** No React, no DOM, no
+      storage, no network, no `Date`, no `Date.now()`, no epoch value, no ISO instant, and no IANA
+      timezone. Every quantity is minutes since local midnight in one unnamed local frame, so the
+      arithmetic never leaves that frame — the reason no timezone is needed, and the reason it would
+      stay correct if the dataset ever covered a second country.
+- [x] **Eligibility narrows the discriminated union, never the tier.** Only
+      `fact.kind === "recorded-interval"` (category `fixed-interval-clean`, tier SAFE) may enter
+      arithmetic; `tier === "safe"` is deliberately never tested, because it would also admit
+      `recorded-24h`. Every PARTIAL, OPAQUE and UNKNOWN family returns
+      `interval-not-evaluable` / `hours-not-a-recorded-interval`, including
+      `fixed-interval-with-caveat`, whose token is parseable exactly where the caveat says the
+      interval may not hold. An excluded fact's `raw` text is never re-scanned for a usable
+      interval — classification first, arithmetic second, pinned by a test that a 60-minute visit
+      at 11:00 gets no result from `JP-026`'s `"Según tienda, aprox. 11:00–20:00"`.
+- [x] **`recorded-hours.ts` is untouched** — no regex, category, tier, priority-order,
+      `RecordedHoursFact`, entry-point or header change. Phase 3D-K approved a new downstream
+      consumer, not a widening of Phase 3D-E, and a regression test asserts the classifier still
+      stops at the raw token.
+- [x] **A second, strictly narrower parser.** It takes the fact (never a `string`, never
+      `place.schedule.hours`), reads `intervalRaw` only, anchors end to end, requires both endpoints
+      to carry minutes, and range-checks components. Named refusals, never repairs: `"09:00–17"` →
+      `end-without-minutes`, `"25:00–26:00"` → `clock-out-of-range` (both of which the classifier
+      calls SAFE today), `"09:60–17:00"` → `clock-out-of-range`, `"09:00–09:00"` → `degenerate` and
+      specifically not read as "always open". `"18:00–02:00"` and an end bound of `00:00` are
+      detected as `crossesMidnight` and refused as `overnight-interval-not-supported` — `00:00` is
+      never rewritten to 1440, and `00:00` as a *start* bound parses normally.
+- [x] **The closed eight-state result union**, with no ninth state, no `null`, no `undefined`, no
+      catch-all and no boolean anywhere: `visit-date-not-evaluable`, `interval-not-evaluable` (with
+      its three named reasons), `duration-not-evaluable`, `no-start-time-chosen`,
+      `start-time-outside-recorded-interval`, `recorded-duration-fits-interval`,
+      `only-minimum-duration-fits-interval`, `recorded-duration-exceeds-interval`. No `open`,
+      `available`, `feasible`, `visitable`, `compatible`, `valid` or `ok` appears as a variant, a
+      field, or a property, enforced by a test that serialises every reachable outcome and scans it.
+- [x] **Record-level refusals are decided before the user's missing input.** A place whose duration
+      or token can never be evaluated says so up front, rather than inviting the user to type a time
+      that could never produce an answer — the three real `recorded-interval` places with a
+      qualitative duration (`JP-121`, `JP-147`, `JP-211`) show `duration-not-evaluable` immediately.
+- [x] **Half-open start eligibility and the correct remaining-time formula.**
+      `intervalStartMinutes <= chosenStartMinutes < intervalEndMinutes`: exactly at the recorded
+      opening is inside, exactly at the recorded closing is outside. `remainingMinutes` is
+      `intervalEndMinutes - chosenStartMinutes` and never the interval's *span* — the MAJOR
+      ambiguity Phase 3D-K's second corrective review removed from the design document. The two
+      quantities keep distinct names in code for that reason, and a test proves a 300-minute
+      duration from 15:00 in a `09:00–17:00` record exceeds rather than fits.
+- [x] **Three-way range semantics, both bounds always considered.** `max <= remaining` → the whole
+      recorded range fits; `min <= remaining < max` → only the minimum fits; `remaining < min` →
+      exceeds. Equality is meaningful on both boundaries and is tested exactly. No midpoint, mean,
+      median, preferred value or probability is ever computed, and neither end of the range is ever
+      discarded — pinned by tests that a min-only rule and a max-only rule would each get wrong.
+- [x] **The visit start time is a manual user decision only**, a local `HH:mm` validated by shape
+      and range. It is never inferred from `bestTime`, the opening or closing bound, route order,
+      transfers, the duration, reservations, closures, or another place, and there is **no
+      default** — not `09:00`, not the opening time, not the current clock. An empty value is
+      `no-start-time-chosen` and is never converted to another state.
+- [x] **The date gate is Phase 3D-H/3D-J's existing strict contract, reused unchanged** via
+      `deriveHoursClosureVisitDate` rather than reimplemented, so no competing second date contract
+      exists: `dayAssignment.valid === true`, a valid `startDate`, exactly one containing day
+      bucket, and a valid derived civil date. That import is a date helper only — a test asserts it
+      is the sole symbol imported from that module, so reusing it gives this phase no closure
+      dependency.
+- [x] **No closure composition in the arithmetic.** The evaluator consumes no `ClosureFact`, no
+      `WeekdayClosureAssessment`, no `CompositionClass`, no `assessWeekdayClosure` and no
+      `classifyHoursClosureComposition`; Phase 3D-B's and 3D-J's notices render unchanged and are
+      never suppressed, reordered or weakened by this signal. A SAFE interval with an UNKNOWN
+      closure still gets a mathematical result, because the result is not a visitability claim.
+- [x] **Persistence: `ManualPlanningDraftV3`** under the same `nihon.manualPlanningDraft` key, with
+      `visitStartTimes: Record<placeId, "HH:mm">` defaulting to `{}` (never `null` — one state, one
+      spelling). Only the typed clock text is stored: never parsed minutes, a parsed interval, a
+      resolved duration, a comparison result, a derived visit date, or a formatted sentence. A test
+      asserts the serialised draft contains exactly the five schema keys and none of those derived
+      values. `PLANNING_DRAFT_VERSION` moves 2 → 3.
+- [x] **Real V1 → V2 → V3 migration**, chained: `migrateV1ToV2` is retained unchanged and
+      `migrateV2ToV3` is a pure addition setting `visitStartTimes: {}` — no time is ever invented
+      for a historical draft. Both prior shapes stay loadable, and an unrecognised version is still
+      treated exactly like a missing draft.
+- [x] **Strict V3 validation with the module's existing all-or-nothing corruption policy.** A single
+      malformed entry rejects the WHOLE stored draft rather than being quietly dropped: `"9:00"`,
+      `"24:00"`, `"12:60"`, a number, `null`, an array, a nested object, a boolean, and a
+      `visitStartTimes` that is itself `null`, an array, a string or missing are all covered.
+- [x] **Reconciliation and mutation semantics.** A time is a decision about a *place*, so it is
+      pruned by the same staleness rule as the route (unlike `startDate`, which is about the trip):
+      a stale route id loses its time, a surviving id keeps it, a newly saved id never receives one,
+      and an orphan entry is dropped. A pure route reorder, a day re-split, moving a place between
+      buckets, and changing or clearing `startDate` all leave every time untouched.
+      `withVisitStartTime(draft, placeId, time)` sets, replaces or clears one time, and rejects both
+      a malformed clock and a place id outside the route by returning the draft unchanged — it can
+      never create orphan state. `resetRoute` carries still-saved times forward and prunes the rest.
+- [x] **`usePlanningDraft` exposes `visitStartTimes` and `setVisitStartTime`**, delegating to the
+      pure mutation. The draft remains the single canonical source — exactly one `useState` call
+      site in the hook, and no component-local copy of the map.
+- [x] **One UI surface, inside the existing day card**, rendered after
+      `HoursClosureCompositionNotice` and before `ReservationDeadlineNotice`, with no other notice
+      reordered. No new page, modal, drawer or planning mode. A native `<input type="time">` per
+      eligible place, empty by default, clearable, with an accessible label naming both the place
+      and the day ("Hora de inicio para Kyoto Railway Museum en Día 1") and a per-day region label,
+      so no two controls share an accessible name. Places that are not `recorded-interval` get no
+      control at all — including all 15 `recorded-24h` places — and the absence is intentional: a
+      disabled placeholder would invite the false reading "this place has no hours".
+- [x] **Language contract per design §16, verbatim**, with the original recorded text always shown
+      beside the result (`Dato: «10:00–17:00 aprox.»`) because the parsed token is derivative
+      evidence that would silently drop the editorial hedging 61 of the 65 records carry. The
+      forbidden vocabulary is absent from the surface, checked by a comment-stripped source scan.
+- [x] **Neutral visual treatment**: one style for all outcomes, no per-outcome class name, no green
+      check, no red cross, no success/error badge, and deliberately not Phase 3D-J's composed-notice
+      styling — so this signal cannot read as carrying closure evidence. Verified in-browser: every
+      result line computes to the same colour on the same background.
+- [x] **Transport and scheduling remain out of scope.** No transfer edge, transfer minute, previous
+      or next place time is read, and no arrival time, departure time, chained itinerary time,
+      recommended start or suggested correction is derived anywhere.
+- [x] **Real-dataset regression tests, re-derived rather than pasted into behaviour**: 214 places;
+      65 SAFE `recorded-interval`; 15 SAFE `recorded-24h`; 62 interval places with a numeric
+      duration and 3 without (`JP-121`, `JP-147`, `JP-211`); 29 distinct eligible tokens; 0 parse
+      failures, 0 overnight and 0 degenerate across all 65 real tokens; every real clock value
+      inside 00:00–23:59; and all 15 `recorded-24h` places refused at every chosen time, `JP-016`
+      named explicitly because its own SAFE text contains a `06:00–17:00` hall interval the
+      `known-24h` branch discards. These counts live only in tests, never in production behaviour.
+- [x] **Validation**: 938 app tests (up from 771 — 90 new domain, 62 new persistence, 15 new
+      component/hook), 370 Python tests with 82 subtests, oxlint, TypeScript build, production
+      build, dataset validation (214 places / 403 nearby relations / 0 broken references, the same
+      13 pre-existing editorial warnings), geography validation (47 prefectures / 47 polygons / 9
+      regions / 214 places), logistics validation (24 pilot and 308 scale edges/results), and
+      `git diff --check` — all clean.
+- [x] **Manual browser QA at 390×844 and 1280×900** against real records: `JP-093` Kyoto Railway
+      Museum (`10:00–17:00 aprox.`, `3–5 h`) produced a full fit at 12:00, minimum-only at 13:00 and
+      at the exact 14:00 boundary, an excess at 14:01, and an out-of-interval result at 08:00 and at
+      exactly 17:00; `JP-121` showed `duration-not-evaluable`; `JP-016` correctly showed **no
+      control at all**; moving a timed place to Día 2 kept its time and relabelled the control;
+      changing `startDate` rewrote no time; a reload restored the chosen time; clearing returned the
+      place to the no-time state; raw hours text stayed visible throughout; the existing weekday and
+      hours/closure notices remained present and unchanged; no clipping or horizontal overflow; no
+      duplicate accessible names; and the browser console produced no errors or warnings.
+
+**Independent hostile review** (separate commit on the same branch): all twenty attack vectors were
+worked, and no BLOCKER or MAJOR was found — no path reaches arithmetic from `recorded-24h` or any
+PARTIAL/OPAQUE/UNKNOWN family, no time is defaulted or inferred, no `bestTime`, closure, transfer,
+`Date` or timezone reference exists in the new or changed runtime (checked with comments stripped),
+overnight is refused rather than evaluated, nothing derived is persisted, a malformed V3 draft is
+never partially repaired, stale times never survive removal, accessible labels are unique per
+place and day, no wording or styling implies an open/available/valid state, no control appears for
+an ineligible place, no evaluation goes stale, no bare `startMinutes` name was reintroduced,
+`recorded-hours.ts` is byte-identical to its pre-phase state, and no scheduling or later-phase work
+exists. **MINOR (corrected):** six invariants the implementation satisfied were not pinned by any
+test — a pruned time must not be resurrected when its place returns to the route or is reconciled
+back, a routed place's time must survive while no day split exists yet, no mutation helper may
+mutate its input, and a prototype-shaped key in stored JSON must neither pollute `Object.prototype`
+nor be mistaken for a place id. Regression tests were added for each. **NIT (recorded, not
+changed):** sharing `VISIT_START_TIME_PATTERN` widens `planning-draft.ts`'s transitive import graph
+by five modules so persistence and arithmetic cannot disagree about a valid clock time. The
+direction matches the module's existing precedent (it already imports `validateDayPartition` and
+`isValidCivilDate` from domain modules), there is no import cycle, and every alternative either
+inverts the dependency or duplicates the pattern — so it was left as-is rather than churned. Two
+defects found *during* implementation were fixed before the first commit and are part of it: a
+`ManualPlanningDraftV3` written as `Omit<…> & {…}` did not make TypeScript report a MISSING
+`visitStartTimes` on an object literal (now spelled out in full, which caught twelve fixtures), and
+the new stylesheet referenced a `--color-text-soft` variable that does not exist in `App.css`.
+
+**Explicit non-goals, unchanged from the design gate:** no opening-hours solver or open/closed
+judgment; no `Date.now()`, "now", urgency or countdown axis; no holidays or special calendars; no
+live or temporary verification against any source (zero network requests); no composition with
+`bestTime`, `febMar2027` or reservation deadlines; no capacity, admission, last-entry or queue
+modelling; no overnight support; no `recorded-24h` arithmetic; and no dataset edit — `JP-211`'s
+`"según anuncio"` and `JP-016`'s discarded hall interval remain recorded findings, not this phase's
+to fix.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, `app/src/lib/recorded-hours.ts`, or any prior design document was changed by this phase,
+and no new dependency was added. No later phase was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -2322,12 +2500,15 @@ Phase 3D-L (or any later phase) work was started.
       not implemented (Phase 3D-K):** a per-place, manually entered local `HH:mm` visit start time
       compared against a recorded clock interval has now been designed and gated end to end
       (see [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) and the
-      Phase 3D-K entry above) — including the explicit decision that such a first implementation
-      would need **no** IANA timezone, because civil-clock arithmetic within one place on one day
-      never leaves the local frame. **None of that is built**: there is still no time input, no
-      stored `visitStartTime`, no `HH:mm` parsing, and no comparison anywhere in the runtime. See
-      the opening-hour item just below for the related `schedule.hours`/`schedule.closures`/
-      `bestTime` boundary.
+      Phase 3D-K entry above), and **Phase 3D-L then built exactly that narrow slice**: a manual
+      `HH:mm` visit start time per eligible place, persisted in `ManualPlanningDraftV3`, compared
+      against one recorded `fixed-interval-clean` SAFE interval and the recorded duration, with
+      **no** IANA timezone — because civil-clock arithmetic within one place on one day never leaves
+      the local frame. **Everything else in this item remains not started**: no clock time is
+      assigned to a place by the app, no arrival or departure time is derived, no time is chained
+      between places, no timezone or absolute instant exists anywhere in the planner, and no day is
+      scheduled. See the opening-hour item just below for the related
+      `schedule.hours`/`schedule.closures`/`bestTime` boundary.
 - [ ] Opening-hour constraint solving — still **not started**, and this item's wording is updated
       here again specifically because it would otherwise now be false. Phase 3D-A audited and
       classified `schedule.hours`/`schedule.closures`/`bestTime`/`reservation`/`febMar2027` offline
@@ -2354,9 +2535,12 @@ Phase 3D-L (or any later phase) work was started.
       about a place being open. Phase 3D-K evaluated the visit-duration-fit question in full (see
       [`docs/VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md)) and approved a
       narrow future phase over `fixed-interval-clean` SAFE hours with a manually entered start
-      time; **that phase is proposed only and no part of it is implemented** — no time input, no
-      interval parsing into minutes, no duration comparison, and no `recorded-24h`, overnight, or
-      timezone support anywhere in the runtime. A full opening-hours feasibility solver remains a
+      time, which **Phase 3D-L implemented** (`app/src/lib/recorded-interval-fit.ts`): a manual time
+      input, a narrow second parser over an already-classified interval token, and a closed
+      eight-state comparison of the recorded duration against the time remaining in that interval.
+      **Still not done, and not implied by it**: any open/closed judgment, `recorded-24h`
+      arithmetic, overnight support, timezone or absolute-instant handling, holiday handling, and
+      any derived arrival time or scheduling between places. A full opening-hours feasibility solver remains a
       distinct, unscheduled, separately-decided future phase — not an incremental extension of
       Phase 3D-B's, Phase 3D-E's, or Phase 3D-J's conservative signals, and not implied by Phase
       3D-K's design gate.
