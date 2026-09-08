@@ -2274,6 +2274,20 @@ was restated precisely (89 matches over 89 places, counting every match rather t
 record). The harness count was dropped from the method section, since a fifth verification pass
 was run during the review.
 
+**Second independent audit, before merge** (separate commit on the same branch): every critical
+figure was re-derived once more from the live classifiers and all matched, and the two named
+classifier shapes were falsified empirically — `"09:00–17"` and `"25:00–26:00"` do in fact classify
+`fixed-interval-clean`/SAFE today, and the design's candidate parser rejects both with the named
+reasons. Two documentation findings were corrected. **MAJOR:** the design document used a bare
+`startMinutes` for two different quantities — the parsed interval's opening bound and the user's
+chosen start — which made §9's normative formula (`endMinutes − startMinutes`) literally readable
+as the interval *span*, the exact quantity Phase 3D-I evaluated and refused; the two are now named
+`intervalStartMinutes`/`intervalEndMinutes` and `chosenStartMinutes` throughout, and §9 states
+explicitly that `R` is not the span. **MINOR:** §4.10's `bestTime` enumeration omitted
+`Muy temprano` 1 while asserting the listed values summed to 214 (they summed to 213); all ten
+distinct values are now listed and the sum is correct. Neither finding changed the gate's decision,
+its approved scope, or any other figure.
+
 No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
 lockfile, any `.ts`/`.tsx`/`.css` file, or any prior design document was changed by this phase. No
 Phase 3D-L (or any later phase) work was started.

@@ -336,9 +336,10 @@ the real records say so themselves.
 
 ### 4.10 `bestTime` (all 214)
 
-Mañana 131, Tarde 39, Noche 19, Atardecer 16, Apertura 3, Tarde y noche 2, Tarde/noche 1,
-Tarde/madrugada 1, Mañana o tarde 1 — sums to 214, matching
-`docs/TEMPORAL_DATA_CONTRACT.md` §3's independently-audited distribution.
+Mañana 131, Tarde 39, Noche 19, Atardecer 16, Apertura 3, Tarde y noche 2, Muy temprano 1,
+Tarde/noche 1, Tarde/madrugada 1, Mañana o tarde 1 — ten distinct values summing to 214, matching
+`docs/TEMPORAL_DATA_CONTRACT.md` §3's independently-audited distribution (its five named values
+plus "five smaller combinations", which are the five listed last here).
 
 Within the 65 SAFE-interval group: Mañana 45, Tarde 15, Atardecer 4, Apertura 1.
 
@@ -388,9 +389,17 @@ Shape:
 ```ts
 // Illustrative only — NOT implemented in this phase.
 type ParsedRecordedInterval =
-  | { kind: "parsed"; startMinutes: number; endMinutes: number; crossesMidnight: boolean }
+  | { kind: "parsed"; intervalStartMinutes: number; intervalEndMinutes: number; crossesMidnight: boolean }
   | { kind: "unparseable"; reason: "shape" | "end-without-minutes" | "clock-out-of-range" | "degenerate" };
 ```
+
+**Naming, so two different quantities can never be confused.** The parsed bounds are
+`intervalStartMinutes`/`intervalEndMinutes`; the time the user typed is `chosenStartMinutes`
+(§7, §14). They are different numbers with different provenance — one is recorded, one is a user
+decision — and §9's remaining-time formula subtracts one from the other. Reusing a bare
+`startMinutes` for both would make that formula readable as the interval *span*, which is exactly
+the quantity Phase 3D-I evaluated and refused (§20); the implementing phase must keep the two names
+distinct for that reason, not for style.
 
 Constraints, all load-bearing:
 
@@ -407,12 +416,12 @@ Behaviour on each case named in the brief, with the dataset evidence:
 
 | Case | Decision | Present today |
 |---|---|---:|
-| `09:00–17:00` (U+2013) | Parse. `start = 540`, `end = 1020`. | 65 / 65 |
+| `09:00–17:00` (U+2013) | Parse. `intervalStartMinutes = 540`, `intervalEndMinutes = 1020`. | 65 / 65 |
 | `09:00-17:00` (ASCII hyphen) | Accept the separator (the classifier already does); nothing else changes. | 0 |
 | `09:00—17:00` (em dash) | Same. | 0 |
 | `09:00–17` (end without minutes) | **Refuse** — `"end-without-minutes"`. Assuming `:00` invents a bound the record does not state. | 0 |
-| `00:00` as start | Parse normally — `startMinutes = 0` is a legitimate midnight start, not a sentinel. | 0 |
-| `09:00–00:00` (ends at midnight) | **Refuse via the overnight branch** — `end (0) < start (540)`, so `crossesMidnight` is true and §12 defers it. Mapping `00:00` to 1440 is a special case that would be the only place in this design where a recorded value is silently rewritten. | 0 |
+| `00:00` as start | Parse normally — `intervalStartMinutes = 0` is a legitimate midnight start, not a sentinel. | 0 |
+| `09:00–00:00` (ends at midnight) | **Refuse via the overnight branch** — `intervalEndMinutes (0) < intervalStartMinutes (540)`, so `crossesMidnight` is true and §12 defers it. Mapping `00:00` to 1440 is a special case that would be the only place in this design where a recorded value is silently rewritten. | 0 |
 | `18:00–02:00` (overnight) | Parse to `crossesMidnight: true`, then **defer** — §12. | 0 |
 | `09:00–09:00` (degenerate) | **Refuse** — `"degenerate"`. A zero-minute recorded window admits no positive duration, and equality is far more plausibly a data defect than a real instantaneous interval. It must specifically **not** be read as "always open". | 0 |
 | `25:00–26:00` (invalid hour) | **Refuse** — `"clock-out-of-range"`. Note this shape classifies SAFE today (§3.1). | 0 |
@@ -470,7 +479,8 @@ to acquire one implicitly.**
 The two cases are genuinely different, and only one of them is in scope:
 
 **Case A — civil clock arithmetic, one place, one day (in scope).**
-`startMinutes`, `endMinutes` and the entered `HH:mm` are all *minutes since local midnight* in the
+`intervalStartMinutes`, `intervalEndMinutes` and the entered `HH:mm` are all *minutes since local
+midnight* in the
 same, single, unnamed local frame. `start + duration ≤ end` is exact integer arithmetic on three
 values that are already in the same frame. No instant is constructed, so there is no instant to
 place on a timeline, and no offset to apply. A timezone would be inert data.
@@ -490,7 +500,7 @@ and `transit.ts` already models exactly this, with a required `timeZone: string`
 - `Asia/Tokyo` must not be hardcoded anywhere, not even as a comment-level assumption or a
   formatting default.
 - No function in the approved scope may return, accept, or construct a `Date`, an epoch number, or
-  an ISO instant. Names must not suggest one: `visitStartLocalTime` / `startMinutesLocal`, never
+  an ISO instant. Names must not suggest one: `visitStartLocalTime` / `chosenStartMinutes`, never
   `visitStartAt`, `visitTimestamp`, or `startInstant`.
 - If any future phase needs Case B, it must introduce the zone **explicitly and visibly at that
   point**, as a new decision — never by widening a Case A type.
@@ -503,8 +513,14 @@ and `transit.ts` already models exactly this, with a required `timeZone: string`
 groups are ranges; none is a point value** (§4.2). A range therefore cannot be treated as an edge
 case.
 
-Let `R` = remaining recorded minutes from the chosen start to the recorded end
-(`endMinutes − startMinutes`, with the start already known to lie inside the interval — §14).
+Let `R` = the recorded minutes remaining from the chosen start to the recorded end —
+`intervalEndMinutes − chosenStartMinutes`, with `chosenStartMinutes` already known to lie inside
+the interval (§14).
+
+`R` is **not** the interval's span. The span (`intervalEndMinutes − intervalStartMinutes`) is the
+quantity Phase 3D-I evaluated and refused, and it is not part of the approved scope (§20); `R`
+depends on the user's chosen start and is what makes the three-way rule below produce more than one
+answer. Substituting the span here would silently rebuild the refused check.
 
 | Condition | Outcome | What it is allowed to mean |
 |---|---|---|
@@ -609,15 +625,17 @@ model them.**
 Evidence: **0 of 65** SAFE interval tokens cross midnight; every one has `end > start` (§4.4). The
 whole dataset's opening range is 06:00–22:30 (§4.3). There is no record to serve.
 
-Required behaviour: the §6 parser sets `crossesMidnight: true` when `end < start`, and the
+Required behaviour: the §6 parser sets `crossesMidnight: true` when
+`intervalEndMinutes < intervalStartMinutes`, and the
 evaluator returns `interval-not-evaluable` with reason `overnight-interval-not-supported`. This is
 a named refusal that appears in the closed union — not a silent skip, and not a wrong answer.
 
 Recorded so that deferring is a decision rather than an oversight, a future overnight model would
 have to settle all of the following, none of which the current architecture answers:
 
-- **Rollover representation** — presumably `endMinutes + 1440` when `end < start`, making the
-  interval `[start, end + 1440)` on a single expanded axis.
+- **Rollover representation** — presumably `intervalEndMinutes + 1440` when the end precedes the
+  start, making the interval `[intervalStartMinutes, intervalEndMinutes + 1440)` on a single
+  expanded axis.
 - **Which civil date owns the start** — the assigned day's date owns the start time; the end then
   falls on the *following* civil date. That second date is derivable (`addCivilDays(visitDate, 1)`)
   but it is a **new** date the current contract never produces.
@@ -672,7 +690,7 @@ type RecordedIntervalDurationFit =
         | "overnight-interval-not-supported";   // §12
     }
   | { kind: "duration-not-evaluable" }
-  | { kind: "start-time-outside-recorded-interval"; startMinutes: number }
+  | { kind: "start-time-outside-recorded-interval"; chosenStartMinutes: number }
   // --- evaluated ---
   | { kind: "recorded-duration-fits-interval";       remainingMinutes: number; duration: MinuteRange }
   | { kind: "only-minimum-duration-fits-interval";   remainingMinutes: number; duration: MinuteRange }
@@ -684,7 +702,8 @@ The phase brief required seven distinctions; this is eight. The addition is
 type `07:00` for a place recorded as `09:00–17:00`. That is neither "does not fit" (the duration
 might fit perfectly well from opening) nor an unevaluable input (every operand is present and
 valid) — it is a distinct, informative fact about the entered time. Folding it into "exceeds" would
-report a false negative. It covers both `start < startMinutes` and `start ≥ endMinutes`.
+report a false negative. It covers both `chosenStartMinutes < intervalStartMinutes` and
+`chosenStartMinutes ≥ intervalEndMinutes`.
 
 Naming rules, enforced by the union itself:
 
