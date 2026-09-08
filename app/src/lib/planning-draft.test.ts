@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { parseChosenStartMinutes } from "./recorded-interval-fit";
 import {
   freshDraft,
   loadReconciledDraft,
@@ -913,5 +914,100 @@ describe("Phase 3D-L — invariants an independent review probed for", () => {
     });
     expect(parsed?.visitStartTimes.constructor).toBe("09:00");
     expect(reconcileDraft(parsed!, ["constructor"]).visitStartTimes).toEqual({ constructor: "09:00" });
+  });
+  // Phase 3D-L corrective audit — finding 1, cross-layer HH:mm exactness.
+  //
+  // `parseChosenStartMinutes` used to `.trim()` before applying the shared
+  // `VISIT_START_TIME_PATTERN`, so the evaluator accepted `" 09:00"` while both persistence
+  // entry points below refused it. These pin that all three layers now agree exactly, which is
+  // the whole reason the pattern is shared rather than duplicated.
+  it("agrees exactly with the domain evaluator about every well-formed and malformed HH:mm", () => {
+    const accepted = ["09:00", "00:00", "23:59", "14:30"];
+    const refused = [" 09:00", "09:00 ", "\t09:00", "09:00\n", " 09:00 ", "9:00", "24:00", "12:60"];
+
+    for (const time of accepted) {
+      expect(parseChosenStartMinutes(time)).not.toBeNull();
+      expect(withVisitStartTime(freshDraft(["A"]), "A", time).visitStartTimes).toEqual({ A: time });
+      expect(
+        parseStoredDraft({ version: 3, routeIds: ["A"], days: null, startDate: null, visitStartTimes: { A: time } })
+      ).not.toBeNull();
+    }
+
+    for (const time of refused) {
+      expect(parseChosenStartMinutes(time)).toBeNull();
+      // `withVisitStartTime` refuses by returning the draft unchanged — never coerced, never trimmed.
+      expect(withVisitStartTime(freshDraft(["A"]), "A", time).visitStartTimes).toEqual({});
+      // A malformed persisted entry invalidates the WHOLE stored draft, not just its own entry.
+      expect(
+        parseStoredDraft({ version: 3, routeIds: ["A"], days: null, startDate: null, visitStartTimes: { A: time } })
+      ).toBeNull();
+    }
+  });
+
+  it("rejects the whole stored draft when one of several entries is whitespace-padded", () => {
+    expect(
+      parseStoredDraft({
+        version: 3,
+        routeIds: ["A", "B"],
+        days: null,
+        startDate: null,
+        visitStartTimes: { A: "09:00", B: " 10:00" },
+      })
+    ).toBeNull();
+  });
+
+  // Phase 3D-L corrective audit — finding 2, object shape of `visitStartTimes`.
+  //
+  // NIT, deliberately NOT changed: `parseVisitStartTimes` reads own enumerable string keys via
+  // `Object.entries`, so an exotic object reaches it only from a caller that did not go through
+  // `JSON.parse`, which is the only path stored drafts actually take. These pin the observed
+  // behaviour so a future change to that validation is a deliberate one rather than a silent
+  // regression — no larger validation subsystem is introduced.
+  it("builds its map from own enumerable keys only, with no prototype pollution and no inherited time", () => {
+    const exotic = Object.create(null) as Record<string, string>;
+    exotic["JP-001"] = "09:00";
+    const fromNullProto = parseStoredDraft({
+      version: 3,
+      routeIds: ["JP-001"],
+      days: null,
+      startDate: null,
+      visitStartTimes: exotic,
+    });
+    expect(fromNullProto?.visitStartTimes).toEqual({ "JP-001": "09:00" });
+
+    // Prototype-shaped keys in real stored JSON: no pollution, and no inherited value is ever
+    // read back as a saved time for an ordinary place id.
+    const parsed = parseStoredDraft(
+      JSON.parse(
+        '{"version":3,"routeIds":["JP-001"],"days":null,"startDate":null,' +
+          '"visitStartTimes":{"__proto__":"09:00","constructor":"10:00","prototype":"11:00","toString":"12:00"}}'
+      )
+    );
+    expect(parsed).not.toBeNull();
+    expect(Object.prototype.hasOwnProperty.call(Object.prototype, "JP-001")).toBe(false);
+    expect(({} as Record<string, unknown>)["JP-001"]).toBeUndefined();
+    expect(Object.getPrototypeOf(parsed!.visitStartTimes)).toBe(Object.prototype);
+    // `__proto__` is not a place id and never becomes an own entry; the three ordinary
+    // object-shaped names are plain own entries.
+    expect(Object.keys(parsed!.visitStartTimes).sort()).toEqual(["constructor", "prototype", "toString"]);
+    // An ordinary place id with no saved time reads back as absent, never as an inherited member.
+    expect(parsed!.visitStartTimes["JP-001"]).toBeUndefined();
+    // Pruning against live ids keeps only real route members.
+    expect(reconcileDraft(parsed!, ["JP-001"]).visitStartTimes).toEqual({});
+  });
+
+  it("never mutates the stored value it was given", () => {
+    const stored = {
+      version: 3,
+      routeIds: ["A"],
+      days: null,
+      startDate: null,
+      visitStartTimes: { A: "09:00" },
+    };
+    const snapshot = JSON.stringify(stored);
+    const parsed = parseStoredDraft(stored);
+    withVisitStartTime(parsed!, "A", "10:00");
+    expect(JSON.stringify(stored)).toBe(snapshot);
+    expect(parsed!.visitStartTimes).not.toBe(stored.visitStartTimes);
   });
 });

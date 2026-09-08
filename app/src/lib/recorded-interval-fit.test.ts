@@ -144,6 +144,43 @@ describe("parseChosenStartMinutes — the user's own value", () => {
     }
   );
 
+  // Phase 3D-L corrective audit. Design §7 requires the manual time to be refused rather than
+  // COERCED on anything that is not an exact HH:mm, and authorises no whitespace normalisation.
+  // A `.trim()` here would have made these three strings evaluate to 540 while
+  // `withVisitStartTime` and the V3 stored-draft validator — which test the same shared pattern
+  // against the raw value — refuse them, which is exactly the disagreement between persistence
+  // and arithmetic that sharing `VISIT_START_TIME_PATTERN` exists to prevent.
+  it.each([
+    ["leading space", " 09:00"],
+    ["trailing space", "09:00 "],
+    ["leading tab", "\t09:00"],
+    ["trailing newline", "09:00\n"],
+    ["surrounding spaces", " 09:00 "],
+  ])("refuses a whitespace-padded %s without normalising it", (_label, input) => {
+    expect(parseChosenStartMinutes(input)).toBeNull();
+  });
+
+  it("never normalises whitespace away where the shared pattern would refuse the raw value", () => {
+    for (const input of [" 09:00", "09:00 ", "\t09:00", "09:00\n", " 09:00 "]) {
+      expect(VISIT_START_TIME_PATTERN.test(input)).toBe(false);
+      expect(parseChosenStartMinutes(input)).toBeNull();
+    }
+  });
+
+  it("accepts exactly the strings the shared pattern accepts, and only those", () => {
+    for (const input of ["09:00", "00:00", "23:59", "14:30", " 09:00", "09:00 ", "\t09:00", "9:00", "24:00", "12:60"]) {
+      expect(parseChosenStartMinutes(input) !== null).toBe(VISIT_START_TIME_PATTERN.test(input));
+    }
+  });
+
+  it("refuses a whitespace-padded time end to end through evaluateRecordedIntervalFit", () => {
+    for (const input of [" 09:00", "09:00 ", "\t09:00"]) {
+      expect(
+        evaluateRecordedIntervalFit(intervalFact("09:00\u201317:00"), range(60, 90), input, VISIT_DATE)
+      ).toEqual({ kind: "no-start-time-chosen" });
+    }
+  });
+
   it("treats an absent value as absent, never as a default", () => {
     expect(parseChosenStartMinutes(null)).toBeNull();
     expect(parseChosenStartMinutes(undefined)).toBeNull();

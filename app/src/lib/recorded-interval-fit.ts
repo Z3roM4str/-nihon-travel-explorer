@@ -172,10 +172,24 @@ export function parseRecordedInterval(
  * The user's own `HH:mm` decision as minutes since local midnight, or `null` when there is no
  * usable manual decision. Never guesses, never coerces, and never supplies a default — no `09:00`,
  * no opening time, no "now" (design §7).
+ *
+ * **The ORIGINAL string is matched, never a normalised one.** Design §7 requires the manual time to
+ * be "validated by shape *and* range, **refused rather than coerced on anything else**", and
+ * authorises no whitespace normalisation anywhere. Trimming here would have made `" 09:00"` a
+ * legitimate 540 for this evaluator while `withVisitStartTime` and the V3 stored-draft validator —
+ * which both test `VISIT_START_TIME_PATTERN` against the raw value — refuse that exact string,
+ * contradicting the reason the pattern is shared at all: persistence and arithmetic must never
+ * disagree about what a well-formed manual time is. The native `<input type="time">` this phase
+ * renders emits `""` or an exact `HH:mm`, so no real user input is affected.
+ *
+ * This is deliberately NOT symmetric with {@link parseRecordedInterval}, which does trim
+ * `intervalRaw`. That is a separate contract: a recorded token is dataset text whose surrounding
+ * whitespace is an editorial artifact, while a manual time is a user decision that is persisted
+ * verbatim and must round-trip through storage unchanged.
  */
 export function parseChosenStartMinutes(visitStartTime: string | null | undefined): number | null {
   if (typeof visitStartTime !== "string") return null;
-  const match = VISIT_START_TIME_PATTERN.exec(visitStartTime.trim());
+  const match = VISIT_START_TIME_PATTERN.exec(visitStartTime);
   if (!match) return null;
   return clockToMinutes(Number(match[1]), Number(match[2]));
 }
