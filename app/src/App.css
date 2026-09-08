@@ -2670,10 +2670,14 @@ a {
 
 /* Phase 3D-H — explicit lead-time window (Class A only). Per-day, per-place: rendered inside the
    day card, next to `.weekday-signal`, only once a place has a valid visit date and an eligible
-   Class A signal. `.reservation-deadline__pending` reuses the same warm "pending" palette as
-   `.alert--pending`/`.weekday-signal__summary--warn` — never a stronger risk/red treatment — and
-   is placed BEFORE the derived range in markup order so it always reads first, never replaced or
-   visually outranked by the range beneath it. */
+   Class A signal. `.reservation-deadline__status-callout` is the shared base for BOTH non-`confirmed`
+   Feb–Mar compositions (design §6.2 Rule 2, §12.1 row 3) — `--pending` reuses the same warm
+   "pending" palette as `.alert--pending`/`.weekday-signal__summary--warn`; `--attention` reuses the
+   same risk-soft palette `describeFebMarStatusForUi` itself already maps its `attention` tone to
+   (`.alert--risk`'s `cssModifier: "risk"`), never a stronger/more alarming treatment. Either
+   modifier is placed BEFORE the derived range in markup order and given more visual weight
+   (bold, larger) than the plain-text range beneath it, so it always reads first and the range
+   never outranks it. */
 .reservation-deadline {
   margin-top: 0.6rem;
   display: flex;
@@ -2695,14 +2699,24 @@ a {
   font-weight: 600;
 }
 
-.reservation-deadline__pending {
+.reservation-deadline__status-callout {
   margin: 0;
-  background: var(--color-warn-soft);
-  border: 1px solid #eccf9c;
-  color: #6c4310;
+  font-weight: 600;
   border-radius: var(--radius-sm);
   padding: 0.35rem 0.5rem;
   font-size: 0.78rem;
+}
+
+.reservation-deadline__status-callout--pending {
+  background: var(--color-warn-soft);
+  border: 1px solid #eccf9c;
+  color: #6c4310;
+}
+
+.reservation-deadline__status-callout--attention {
+  background: var(--color-risk-soft);
+  border: 1px solid #eeb4ae;
+  color: #7d211a;
 }
 
 .reservation-deadline__window {

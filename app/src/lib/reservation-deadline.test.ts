@@ -205,6 +205,7 @@ describe("real dataset invariant: whole-dataset partition (5 / 5 / 10 / 1 / 65 /
     const counts = {
       "explicit-lead-window": 0,
       "unit-without-quantity": 0,
+      "unusable-numeric-range": 0,
       "mixed-unit-without-quantity": 0,
       "month-range-not-supported": 0,
       "specific-mechanism": 0,
@@ -219,6 +220,7 @@ describe("real dataset invariant: whole-dataset partition (5 / 5 / 10 / 1 / 65 /
     expect(counts).toEqual({
       "explicit-lead-window": 5, // Class A
       "unit-without-quantity": 5, // Class B
+      "unusable-numeric-range": 0, // no malformed/unsafe numeric range exists in the real dataset
       "mixed-unit-without-quantity": 10, // Class C
       "month-range-not-supported": 1, // Class D
       "specific-mechanism": 65, // Class E
@@ -508,5 +510,141 @@ describe("cross-axis orthogonality (design §6.2 Rule 1 and Rule 3) — structur
     expect(jp019.febMar2027.status).toContain("PENDIENTE");
     const window = derivePlaceReservationDateWindow(jp019, "2027-03-01");
     expect(window.kind).toBe("derived-window");
+  });
+});
+
+/**
+ * Corrective coverage (independent adversarial audit, MINOR-1/MINOR-2/MINOR-3): a numeric range
+ * that matches the explicit-range shape but cannot safely become an ordered positive pair of
+ * safe-integer day bounds must classify as `unusable-numeric-range` — never the misleading
+ * `unit-without-quantity` (a quantity is plainly present) — and must never reach a caller as a
+ * `derived-window` carrying a malformed (e.g. `NaN`-containing) date string. Every case here was
+ * unreachable through the pre-correction code path without either producing a wrong reason or, for
+ * the date-overflow case, an actively malformed result.
+ */
+describe("malformed/unsafe numeric ranges (design gate closed vocabulary, corrective audit finding) — unusable-numeric-range", () => {
+  it("a reversed range ('4–2 semanas') is unusable-numeric-range, not unit-without-quantity", () => {
+    expect(interpretReservationDeadlineText("4–2 semanas")).toEqual({
+      kind: "not-computable",
+      reason: "unusable-numeric-range",
+      raw: "4–2 semanas",
+    });
+  });
+
+  it("a zero lower bound ('0–2 semanas') is unusable-numeric-range", () => {
+    expect(interpretReservationDeadlineText("0–2 semanas")).toEqual({
+      kind: "not-computable",
+      reason: "unusable-numeric-range",
+      raw: "0–2 semanas",
+    });
+  });
+
+  it("a zero upper bound / invalid ordering ('2–0 semanas') is unusable-numeric-range", () => {
+    expect(interpretReservationDeadlineText("2–0 semanas")).toEqual({
+      kind: "not-computable",
+      reason: "unusable-numeric-range",
+      raw: "2–0 semanas",
+    });
+  });
+
+  it("a zero-length range ('0–0 semanas') is unusable-numeric-range", () => {
+    expect(interpretReservationDeadlineText("0–0 semanas")).toEqual({
+      kind: "not-computable",
+      reason: "unusable-numeric-range",
+      raw: "0–0 semanas",
+    });
+  });
+
+  it("a degenerate but positive equal range ('2–2 semanas') stays computable — not inherently unsafe", () => {
+    expect(interpretReservationDeadlineText("2–2 semanas")).toEqual({
+      kind: "explicit-lead-window",
+      minLeadDays: 14,
+      maxLeadDays: 14,
+      raw: "2–2 semanas",
+    });
+  });
+
+  it("a numeric token beyond Number.MAX_SAFE_INTEGER is unusable-numeric-range, never a window", () => {
+    const raw = "1–9007199254740993 semanas"; // MAX_SAFE_INTEGER + 2, still finite once parsed
+    const signal = interpretReservationDeadlineText(raw);
+    expect(signal).toEqual({ kind: "not-computable", reason: "unusable-numeric-range", raw });
+  });
+
+  it("bounds that are safe integers individually but become unsafe after the ×7 week conversion are unusable-numeric-range", () => {
+    // 1300000000000000 is a safe integer; ×7 = 9100000000000000 > Number.MAX_SAFE_INTEGER.
+    const raw = "1–1300000000000000 semanas";
+    expect(Number.isSafeInteger(1300000000000000)).toBe(true);
+    expect(Number.isSafeInteger(1300000000000000 * 7)).toBe(false);
+    const signal = interpretReservationDeadlineText(raw);
+    expect(signal).toEqual({ kind: "not-computable", reason: "unusable-numeric-range", raw });
+  });
+
+  it("an oversized-but-finite explicit-lead-window signal (constructed directly) can never surface as a derived-window containing NaN", () => {
+    // Bypasses the extractor entirely to exercise deriveReservationDateWindow's own output guard
+    // in isolation, in case a future caller constructs a signal some other way.
+    const signal: ReservationDeadlineSignal = {
+      kind: "explicit-lead-window",
+      minLeadDays: 7,
+      maxLeadDays: 100_000_000, // large enough to overflow addCivilDays/JS Date range
+      raw: "synthetic",
+    };
+    const window = deriveReservationDateWindow(signal, "2027-02-19", true);
+    expect(window.kind).toBe("no-visit-date");
+    expect(JSON.stringify(window)).not.toContain("NaN");
+  });
+
+  it("the extractor itself never produces an explicit-lead-window whose bounds are unsafe (defense in depth)", () => {
+    for (const raw of [
+      "4–2 semanas",
+      "0–2 semanas",
+      "2–0 semanas",
+      "0–0 semanas",
+      "1–9007199254740993 semanas",
+      "1–1300000000000000 semanas",
+      "1–99999999999999999999 semanas",
+    ]) {
+      const signal = interpretReservationDeadlineText(raw);
+      expect(signal.kind).not.toBe("explicit-lead-window");
+    }
+  });
+
+  it("the real Class A values are unaffected by the new safe-integer/ordering checks", () => {
+    expect(interpretReservationDeadlineText("1–2 semanas")).toEqual({
+      kind: "explicit-lead-window",
+      minLeadDays: 7,
+      maxLeadDays: 14,
+      raw: "1–2 semanas",
+    });
+    expect(interpretReservationDeadlineText("2–4 semanas")).toEqual({
+      kind: "explicit-lead-window",
+      minLeadDays: 14,
+      maxLeadDays: 28,
+      raw: "2–4 semanas",
+    });
+    expect(interpretReservationDeadlineText("2–6 semanas")).toEqual({
+      kind: "explicit-lead-window",
+      minLeadDays: 14,
+      maxLeadDays: 42,
+      raw: "2–6 semanas",
+    });
+  });
+
+  it("adversarial classification-order examples are unaffected by the new checks — never reach numeric parsing at all", () => {
+    const adversarial = [
+      "Lotería 3 meses antes; revisar liberaciones",
+      "1–2 semanas para atardecer",
+      "1–3 semanas; antes en fines de semana",
+      "2–4 semanas; atardecer antes",
+      "Venta oficial desde 6 feb 2027",
+      "Para Seiden desde 23 nov 2026, revisar reserva",
+      "Reservar con 1-2 días de antelación",
+    ];
+    for (const raw of adversarial) {
+      const signal = interpretReservationDeadlineText(raw);
+      expect(signal.kind).toBe("not-computable");
+      if (signal.kind === "not-computable") {
+        expect(signal.reason).toBe("specific-mechanism");
+      }
+    }
   });
 });

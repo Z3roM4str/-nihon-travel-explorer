@@ -21,7 +21,7 @@ import {
   deriveVisitDateForPlace,
   type ReservationDateWindow,
 } from "../lib/reservation-deadline";
-import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
+import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -475,12 +475,20 @@ function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
  * from this list; the existing "Reservas por preparar" section above already shows its coarse
  * signal, and this component never repeats or replaces that.
  *
- * Where a place's existing Feb–Mar 2027 interpretation is pending/unknown
- * (`describeFebMarStatusForUi`, reused as-is — never a second classifier), the reconfirmation
- * notice is rendered FIRST, above the derived range, so it always reads before it and is never
- * hidden, replaced, or visually outranked by it (design §6.2 Rule 2). The underlying range is
- * still shown in full — Feb–Mar confidence never suppresses the domain computation (Rule 3), it
- * only changes how the result is composed for the reader.
+ * **Full non-`confirmed` Feb–Mar composition (design §6.2 Rule 2, §12.1 row 3 — corrective audit
+ * finding MAJOR-1).** `describeFebMarStatusForUi`'s three-value `tone` is reused as-is — never a
+ * second classifier, never category-specific wording — and every non-`confirmed` tone renders its
+ * own status callout FIRST, above the derived range, so it always reads before it and is never
+ * hidden, replaced, or visually outranked by it:
+ *  - `tone === "pending"` (tier `unknown`) → the existing reconfirmation callout: the calendar/
+ *    condition for the user's dates is not yet confirmed at all.
+ *  - `tone === "attention"` (tiers `partial`/`opaque`) → a neutral caveat callout, using
+ *    `describeFebMarStatusForUi(...).label` (e.g. "Requiere atención") rather than inventing
+ *    category-specific copy, telling the reader the recorded Feb–Mar status carries a condition
+ *    worth reviewing before treating the range as planning guidance.
+ *  - `tone === "confirmed"` → no extra callout; the range renders normally.
+ * The underlying range is still shown in full in every case — Feb–Mar confidence never suppresses
+ * the domain computation (Rule 3), it only changes how the result is composed for the reader.
  *
  * Wording is deliberately conservative throughout — "ventana de anticipación registrada," never a
  * booking deadline or an availability claim; see this file's own forbidden-phrase test coverage.
@@ -498,7 +506,8 @@ function ReservationDeadlineNotice({
   type DeadlineItem = {
     place: Place;
     window: Extract<ReservationDateWindow, { kind: "derived-window" }>;
-    febMarPending: boolean;
+    febMarTone: FebMarStatusTone;
+    febMarLabel: string;
   };
 
   const items: DeadlineItem[] = [];
@@ -506,21 +515,28 @@ function ReservationDeadlineNotice({
     const visitDate = deriveVisitDateForPlace(dayAssignment, startDate, place.id);
     const window = derivePlaceReservationDateWindow(place, visitDate);
     if (window.kind !== "derived-window") continue;
-    const febMarPending = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place)).tone === "pending";
-    items.push({ place, window, febMarPending });
+    const febMarDisplay = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
+    items.push({ place, window, febMarTone: febMarDisplay.tone, febMarLabel: febMarDisplay.label });
   }
 
   if (items.length === 0) return null;
 
   return (
     <section className="reservation-deadline" aria-label="Ventana de anticipación registrada">
-      {items.map(({ place, window, febMarPending }) => (
+      {items.map(({ place, window, febMarTone, febMarLabel }) => (
         <div key={place.id} className="reservation-deadline__item">
           <span className="reservation-deadline__name">{place.name}</span>
-          {febMarPending && (
-            <p className="reservation-deadline__pending">
+          {febMarTone === "pending" && (
+            <p className="reservation-deadline__status-callout reservation-deadline__status-callout--pending">
               <span aria-hidden="true">ⓘ</span> Calendario/condición para tus fechas todavía pendiente de
               confirmar. Reconfirma en la fuente oficial al fijar fechas.
+            </p>
+          )}
+          {febMarTone === "attention" && (
+            <p className="reservation-deadline__status-callout reservation-deadline__status-callout--attention">
+              <span aria-hidden="true">⚠</span> Estado Feb–Mar 2027: {febMarLabel}. El calendario/condición
+              registrado para este lugar tiene una salvedad que conviene revisar antes de tomar esta ventana
+              como referencia de planificación.
             </p>
           )}
           <span className="reservation-deadline__window">

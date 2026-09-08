@@ -467,9 +467,9 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
     }
   });
 
-  it("composes the pending Feb–Mar reconfirmation notice BEFORE the derived range in markup order, never replacing it", async () => {
+  it("composes the pending Feb–Mar reconfirmation callout BEFORE the derived range in markup order, never replacing it", async () => {
     const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    const pendingIndex = noticeSource.indexOf("febMarPending &&");
+    const pendingIndex = noticeSource.indexOf('febMarTone === "pending"');
     const windowIndex = noticeSource.indexOf("reservation-deadline__window");
     expect(pendingIndex).toBeGreaterThan(-1);
     expect(windowIndex).toBeGreaterThan(-1);
@@ -477,8 +477,55 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
     expect(noticeSource).toMatch(/pendiente de\s*\n?\s*confirmar/i);
   });
 
-  it("derives febMarPending from describeFebMarStatusForUi's tone, reusing the existing display path", async () => {
+  it("composes an attention Feb–Mar caveat callout BEFORE the derived range in markup order, never replacing it (corrective audit finding MAJOR-1)", async () => {
     const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    expect(noticeSource).toMatch(/describeFebMarStatusForUi\(\s*interpretPlaceFebMarStatus\(\s*place\s*\)\s*\)\.tone\s*===\s*["']pending["']/);
+    const attentionIndex = noticeSource.indexOf('febMarTone === "attention"');
+    const windowIndex = noticeSource.indexOf("reservation-deadline__window");
+    expect(attentionIndex).toBeGreaterThan(-1);
+    expect(windowIndex).toBeGreaterThan(-1);
+    expect(attentionIndex).toBeLessThan(windowIndex);
+    // The attention callout is also strictly before the pending callout's own markup position is
+    // irrelevant (only one of the two ever renders for a given place) — what matters is that BOTH
+    // non-confirmed branches individually precede the range, proven separately in each test.
+  });
+
+  it("the attention callout reuses describeFebMarStatusForUi's own label rather than inventing category-specific copy", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    expect(noticeSource).toMatch(/\{febMarLabel\}/);
+  });
+
+  it("the attention callout never implies closed/unavailable/dangerous/impossible/confirmed/deadline", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    const attentionBlockMatch = noticeSource.match(/febMarTone === "attention"[\s\S]*?<\/p>/);
+    expect(attentionBlockMatch).not.toBeNull();
+    const lower = (attentionBlockMatch?.[0] ?? "").toLowerCase();
+    for (const forbidden of [
+      "cerrado",
+      "no disponible",
+      "peligro",
+      "imposible",
+      "confirmado",
+      "fecha límite",
+    ]) {
+      expect(lower, `attention callout should not contain "${forbidden}"`).not.toContain(forbidden);
+    }
+  });
+
+  it("derives the Feb–Mar tone/label once per place via describeFebMarStatusForUi, reusing the existing display path — never a second classifier", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    // Exactly one call site deriving the display adapter, destructured into tone+label, then
+    // branched on — not re-interpreted per branch, not a category-specific check anywhere.
+    const callSites = noticeSource.match(/describeFebMarStatusForUi\(\s*interpretPlaceFebMarStatus\(\s*place\s*\)\s*\)/g) ?? [];
+    expect(callSites.length).toBe(1);
+    expect(noticeSource).not.toMatch(/\.category\s*===/);
+    expect(noticeSource).toMatch(/febMarTone === "pending"/);
+    expect(noticeSource).toMatch(/febMarTone === "attention"/);
+  });
+
+  it("a confirmed tone renders neither status callout — no extra caveat when the calendar is confirmed", async () => {
+    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
+    // "confirmed" never appears as a rendering condition — absence of both other branches IS the
+    // confirmed behaviour (render the range with no callout at all).
+    expect(noticeSource).not.toMatch(/febMarTone === "confirmed"/);
   });
 });

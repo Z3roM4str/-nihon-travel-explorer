@@ -72,14 +72,23 @@ export type ReservationDeadlineSignal =
       kind: "not-computable";
       /** Named, not inferred — every reason traces to a specific evidence class in the design gate
        * (§4/§7/§8): `specific-mechanism` is Class E (opaque, never re-scanned for numbers),
-       * `unit-without-quantity` is Class B (a unit with no recorded quantity, e.g. "Semanas" — or a
-       * numeric range malformed enough that no safely usable quantity was recorded, e.g. a reversed
-       * or zero-length range; that shape does not occur in the audited dataset, but is treated
-       * identically rather than fabricated a direction for it), `mixed-unit-without-quantity` is
-       * Class C ("Días/semanas" — which unit the count would apply to is inherently ambiguous,
-       * regardless of whether a quantity is present), and `month-range-not-supported` is Class D
-       * (refused for a first implementation — see the design gate §7). */
-      reason: "specific-mechanism" | "unit-without-quantity" | "mixed-unit-without-quantity" | "month-range-not-supported";
+       * `unit-without-quantity` is Class B (a unit with no recorded quantity at all, e.g. "Semanas"
+       * — no digits were matched), `unusable-numeric-range` is a numeric range that DID match the
+       * explicit-range shape but cannot safely become ordered positive integer bounds (reversed,
+       * zero/non-positive, or outside safe-integer precision either before or after the ×7 week
+       * conversion — see `boundsAreSafe` below). That shape does not occur in the audited dataset,
+       * but a digit *was* recorded in it, so `unit-without-quantity` would misdescribe it — a
+       * future consumer rendering this reason must not be told "no quantity was recorded" about
+       * text that plainly contains one. `mixed-unit-without-quantity` is Class C ("Días/semanas" —
+       * which unit the count would apply to is inherently ambiguous, regardless of whether a
+       * quantity is present), and `month-range-not-supported` is Class D (refused for a first
+       * implementation — see the design gate §7). */
+      reason:
+        | "specific-mechanism"
+        | "unit-without-quantity"
+        | "unusable-numeric-range"
+        | "mixed-unit-without-quantity"
+        | "month-range-not-supported";
       raw: string;
     }
   | {
@@ -148,17 +157,35 @@ export function interpretReservationDeadlineText(raw: string | null | undefined)
   // magnitude is "days" or "weeks" — a single, non-mixed unit; look for an explicit numeric range.
   const match = EXPLICIT_SINGLE_UNIT_RANGE_RE.exec(text.trim());
   if (!match) {
+    // No digits were captured at all — a genuine unit-only record (e.g. "Semanas"). This is the
+    // ONLY branch that may use "unit-without-quantity": no quantity was recorded, full stop.
     return { kind: "not-computable", reason: "unit-without-quantity", raw: text };
   }
 
-  const perUnit = daysPerUnit(match[3]);
-  const minLeadDays = Number(match[1]) * perUnit;
-  const maxLeadDays = Number(match[2]) * perUnit;
+  // A quantity WAS recorded — from here on, any refusal must be "unusable-numeric-range", never
+  // "unit-without-quantity" (that reason would misdescribe text that plainly contains a number).
+  const rawMin = Number(match[1]);
+  const rawMax = Number(match[2]);
 
-  const boundsAreSafe =
-    Number.isFinite(minLeadDays) && Number.isFinite(maxLeadDays) && minLeadDays > 0 && minLeadDays <= maxLeadDays;
-  if (!boundsAreSafe) {
-    return { kind: "not-computable", reason: "unit-without-quantity", raw: text };
+  // `Number.isSafeInteger` rather than `Number.isFinite`: a digit string long enough to exceed
+  // `Number.MAX_SAFE_INTEGER` still parses to a *finite* double, but Number() may have silently
+  // lost precision doing so — `isSafeInteger` is the correct guard against that, not `isFinite`.
+  // Reversed (`"4–2 semanas"`) and zero/non-positive (`"0–2 semanas"`, `"2–0 semanas"`) bounds are
+  // rejected here too — a recorded quantity that cannot be read as an ordered positive range is
+  // not a usable range, but it is emphatically not "no quantity" either.
+  if (!Number.isSafeInteger(rawMin) || !Number.isSafeInteger(rawMax) || rawMin <= 0 || rawMin > rawMax) {
+    return { kind: "not-computable", reason: "unusable-numeric-range", raw: text };
+  }
+
+  const perUnit = daysPerUnit(match[3]);
+  const minLeadDays = rawMin * perUnit;
+  const maxLeadDays = rawMax * perUnit;
+
+  // The ×7 week conversion can itself push an otherwise-safe integer outside safe-integer
+  // precision (e.g. a raw week count just under `MAX_SAFE_INTEGER / 7`) — checked again on the
+  // converted values, never assumed safe just because the pre-conversion inputs were.
+  if (!Number.isSafeInteger(minLeadDays) || !Number.isSafeInteger(maxLeadDays)) {
+    return { kind: "not-computable", reason: "unusable-numeric-range", raw: text };
   }
 
   return { kind: "explicit-lead-window", minLeadDays, maxLeadDays, raw: text };
@@ -221,9 +248,14 @@ export type ReservationDateWindow =
  * real `visitDate`, a signal that is not `explicit-lead-window`, or a `reservationEligible` of
  * `false`, yields `"no-window"` (carrying the signal, so a caller can still show *why* — the
  * `not-computable` reason, or `not-applicable`). Only an eligible `explicit-lead-window` signal
- * produces a `derived-window`; if `addCivilDays` fails for any reason (should not happen for an
- * already-validated `visitDate`, but never assumed), this falls back to `"no-visit-date"` rather
- * than fabricating a date — matching the design gate's own failure table (§12).
+ * produces a `derived-window`; if `addCivilDays` returns `null`, OR returns a string that is not
+ * itself a valid civil date, this falls back to `"no-visit-date"` rather than fabricating or
+ * leaking a malformed date — matching the design gate's own failure table (§12). The
+ * `isValidCivilDate` re-check matters because `addCivilDays` can overflow JS `Date`'s representable
+ * range for an extreme (but already safe-integer-bounded) `minLeadDays`/`maxLeadDays` and return a
+ * syntactically string-shaped but semantically invalid result (e.g. containing `NaN` components)
+ * instead of `null` — this is the boundary that guarantees such a value can never reach a caller
+ * labeled `derived-window`.
  */
 export function deriveReservationDateWindow(
   signal: ReservationDeadlineSignal,
@@ -237,7 +269,14 @@ export function deriveReservationDateWindow(
 
   const farAdvanceDate = addCivilDays(visitDate, -signal.maxLeadDays);
   const nearAdvanceDate = addCivilDays(visitDate, -signal.minLeadDays);
-  if (farAdvanceDate === null || nearAdvanceDate === null) return { kind: "no-visit-date" };
+  if (
+    farAdvanceDate === null ||
+    nearAdvanceDate === null ||
+    !isValidCivilDate(farAdvanceDate) ||
+    !isValidCivilDate(nearAdvanceDate)
+  ) {
+    return { kind: "no-visit-date" };
+  }
 
   return { kind: "derived-window", visitDate, farAdvanceDate, nearAdvanceDate, signal };
 }
