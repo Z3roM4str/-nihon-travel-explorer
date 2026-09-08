@@ -2418,7 +2418,7 @@ every type name, sentence and style decision below exists to keep the two apart.
       inside 00:00–23:59; and all 15 `recorded-24h` places refused at every chosen time, `JP-016`
       named explicitly because its own SAFE text contains a `06:00–17:00` hall interval the
       `known-24h` branch discards. These counts live only in tests, never in production behaviour.
-- [x] **Validation**: 938 app tests (up from 771 — 90 new domain, 62 new persistence, 15 new
+- [x] **Validation**: 950 app tests (up from 771 — 98 new domain, 66 new persistence, 15 new
       component/hook), 370 Python tests with 82 subtests, oxlint, TypeScript build, production
       build, dataset validation (214 places / 403 nearby relations / 0 broken references, the same
       13 pre-existing editorial warnings), geography validation (47 prefectures / 47 polygons / 9
@@ -2457,6 +2457,36 @@ defects found *during* implementation were fixed before the first commit and are
 `ManualPlanningDraftV3` written as `Omit<…> & {…}` did not make TypeScript report a MISSING
 `visitStartTimes` on an object literal (now spelled out in full, which caught twelve fixtures), and
 the new stylesheet referenced a `--color-text-soft` variable that does not exist in `App.css`.
+
+**Final corrective review, before merge** (separate commit on the same branch): one MINOR contract
+defect corrected, one NIT recorded and pinned rather than changed. **MINOR (corrected) — manual
+`HH:mm` exactness.** `parseChosenStartMinutes` applied `VISIT_START_TIME_PATTERN` to
+`visitStartTime.trim()`, so the domain evaluator read `" 09:00"`, `"09:00 "` and `"\t09:00"` as 540
+while `withVisitStartTime` and the V3 stored-draft validator — which test the same shared pattern
+against the raw value — refuse those exact strings. That contradicted the stated reason the pattern
+is exported at all: persistence and arithmetic must never disagree about what a well-formed manual
+time is, and design §7 requires the manual time to be validated by shape and range and "refused
+rather than coerced on anything else". The `.trim()` was removed; the original string is now matched
+directly, so a manually entered `HH:mm` is validated exactly, with no whitespace coercion anywhere.
+`parseRecordedInterval` still trims `intervalRaw` and was deliberately left alone — a recorded token
+is dataset text whose surrounding whitespace is an editorial artifact, while a manual time is a user
+decision persisted verbatim that must round-trip through storage unchanged; two separate contracts,
+not one inconsistency. No user-visible behaviour changed: the native `<input type="time">` emits
+`""` or an exact `HH:mm`, never a padded value. **NIT (recorded, not changed):**
+`parseVisitStartTimes` reads own enumerable string keys via `Object.entries`, so `new Date()` and
+`new Map()` would validate as empty maps and `Object.create(null)` as an ordinary map — unreachable
+through the actual `JSON.parse`-only persisted path, and no defect follows (the returned map is
+always a fresh object literal, a `__proto__` key with a string value is a silent no-op on the
+setter rather than pollution, no inherited property is ever read back as a saved time, and no input
+draft is mutated), so it was pinned by regression tests instead of widened into a new validation
+subsystem. **12 regression tests were added** (938 → 950): cross-layer `HH:mm` exactness asserted
+for `parseChosenStartMinutes`, `withVisitStartTime` and V3 stored-draft validation over the same
+accept/refuse vectors (`"09:00"`, `"00:00"`, `"23:59"` accepted; `" 09:00"`, `"09:00 "`,
+`"\t09:00"`, `"09:00\n"`, `" 09:00 "`, `"9:00"`, `"24:00"`, `"12:60"` refused), end to end through
+`evaluateRecordedIntervalFit`, plus the whole-draft rejection rule when one of several entries is
+padded and the object/prototype probes above; all 12 fail if the `.trim()` is reinstated. **Final
+validation: 950 app tests**, 370 Python tests with 82 subtests, oxlint, `tsc -b`, production build,
+dataset/geography/logistics validators, and `git diff --check`.
 
 **Explicit non-goals, unchanged from the design gate:** no opening-hours solver or open/closed
 judgment; no `Date.now()`, "now", urgency or countdown axis; no holidays or special calendars; no
