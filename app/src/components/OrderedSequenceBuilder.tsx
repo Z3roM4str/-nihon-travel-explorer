@@ -17,6 +17,10 @@ import type { ReservationCategory } from "../lib/reservation";
 import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
 import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
 import {
+  buildDayHoursClosureCompositions,
+  type HoursClosureComposition,
+} from "../lib/hours-closure-composition";
+import {
   derivePlaceReservationDateWindow,
   deriveVisitDateForPlace,
   type ReservationDateWindow,
@@ -462,6 +466,80 @@ function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
       <p className="weekday-signal__disclaimer">
         Esta comprobación solo revisa un posible patrón de cierre semanal ya registrado. No verifica horarios,
         días festivos, cierres temporales, clima, reservas ni el estado real vigente.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3D-J's per-day presentation of composable recorded hours and closure evidence. The pure
+ * domain owns date gating and class selection; this view only admits the two presentation classes
+ * approved by the design gate. Both raw facts remain complete and equally visible, while a
+ * PARTIAL side receives its own prominent review treatment.
+ */
+function HoursClosureCompositionNotice({
+  places,
+  dayAssignment,
+  startDate,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+}) {
+  type PresentedSignal = Extract<HoursClosureComposition, { kind: "composed" }>;
+  type PresentedItem = { placeId: string; placeName: string; signal: PresentedSignal };
+
+  const items: PresentedItem[] = [];
+  for (const item of buildDayHoursClosureCompositions(places, dayAssignment, startDate)) {
+    if (item.signal.kind !== "composed") continue;
+    if (
+      item.signal.compositionClass !== "jointly-presentable" &&
+      item.signal.compositionClass !== "present-with-caveat"
+    ) {
+      continue;
+    }
+    items.push({ ...item, signal: item.signal });
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="hours-closure-composition" aria-label="Horario e información de cierres registrados">
+      {items.map(({ placeId, placeName, signal }) => (
+        <div
+          key={placeId}
+          className={`hours-closure-composition__item hours-closure-composition__item--${signal.compositionClass}`}
+        >
+          <span className="hours-closure-composition__name">{placeName}</span>
+          {signal.compositionClass === "present-with-caveat" && (
+            <p className="hours-closure-composition__caveat">
+              <span aria-hidden="true">⚠</span> Información con salvedad; conviene revisar el texto registrado
+              completo.
+            </p>
+          )}
+          <p
+            className={`hours-closure-composition__fact${
+              signal.hours.tier === "partial" ? " hours-closure-composition__fact--caveat" : ""
+            }`}
+          >
+            <span>Horario registrado</span>
+            {signal.hours.tier === "partial" && <span>Con salvedad; conviene revisar</span>}
+            <strong>«{signal.hours.raw}»</strong>
+          </p>
+          <p
+            className={`hours-closure-composition__fact${
+              signal.closure.tier === "partial" ? " hours-closure-composition__fact--caveat" : ""
+            }`}
+          >
+            <span>Información registrada de cierres</span>
+            {signal.closure.tier === "partial" && <span>Con salvedad; conviene revisar</span>}
+            <strong>«{signal.closure.raw}»</strong>
+          </p>
+        </div>
+      ))}
+      <p className="hours-closure-composition__disclaimer">
+        Esta vista reúne únicamente los dos registros originales para la fecha asignada. Contrasta cualquier
+        decisión con la fuente oficial.
       </p>
     </section>
   );
@@ -1212,6 +1290,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             compact
                           />
                           <WeekdayClosureNotice signal={weekdaySignal} />
+                          <HoursClosureCompositionNotice
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                          />
                           <ReservationDeadlineNotice
                             places={places}
                             dayAssignment={dayAssignment}

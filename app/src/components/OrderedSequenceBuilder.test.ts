@@ -529,3 +529,78 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
     expect(noticeSource).not.toMatch(/febMarTone === "confirmed"/);
   });
 });
+
+function extractHoursClosureCompositionNoticeSource(fullSource: string): string {
+  const start = fullSource.indexOf("function HoursClosureCompositionNotice");
+  if (start === -1) {
+    throw new Error("HoursClosureCompositionNotice function not found in OrderedSequenceBuilder.tsx");
+  }
+  const nextFunctionStart = fullSource.indexOf("\nfunction ", start + 1);
+  if (nextFunctionStart === -1) {
+    throw new Error("Could not find the end boundary of HoursClosureCompositionNotice");
+  }
+  return fullSource.slice(start, nextFunctionStart);
+}
+
+describe("OrderedSequenceBuilder.tsx — hours/closure composition wiring", () => {
+  it("imports and calls the pure per-day composition boundary", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bbuildDayHoursClosureCompositions\b[^}]*\}\s*from\s*["']\.\.\/lib\/hours-closure-composition["']/
+    );
+    const notice = extractHoursClosureCompositionNoticeSource(source);
+    expect(notice).toMatch(
+      /buildDayHoursClosureCompositions\(\s*places\s*,\s*dayAssignment\s*,\s*startDate\s*\)/
+    );
+  });
+
+  it("renders only jointly-presentable and present-with-caveat signals", async () => {
+    const notice = extractHoursClosureCompositionNoticeSource(await readSource());
+    expect(notice).toContain('"jointly-presentable"');
+    expect(notice).toContain('"present-with-caveat"');
+    expect(notice).not.toContain('"keep-separate"');
+    expect(notice).not.toContain('"not-composable"');
+    expect(notice).toMatch(/item\.signal\.kind\s*!==\s*["']composed["']/);
+  });
+
+  it("keeps both raw facts visible and gives each PARTIAL fact its own caveat treatment", async () => {
+    const notice = extractHoursClosureCompositionNoticeSource(await readSource());
+    expect(notice).toMatch(/signal\.hours\.raw/);
+    expect(notice).toMatch(/signal\.closure\.raw/);
+    expect(notice).toMatch(/signal\.hours\.tier\s*===\s*["']partial["']/);
+    expect(notice).toMatch(/signal\.closure\.tier\s*===\s*["']partial["']/);
+    expect(notice).toContain("Con salvedad; conviene revisar");
+  });
+
+  it("is an additional day-card signal alongside both existing temporal notices", async () => {
+    const source = await readSource();
+    const weekdayIndex = source.indexOf("<WeekdayClosureNotice");
+    const compositionIndex = source.indexOf("<HoursClosureCompositionNotice");
+    const deadlineIndex = source.indexOf("<ReservationDeadlineNotice");
+    expect(weekdayIndex).toBeGreaterThan(-1);
+    expect(compositionIndex).toBeGreaterThan(weekdayIndex);
+    expect(deadlineIndex).toBeGreaterThan(compositionIndex);
+  });
+
+  it("introduces no second dialog and no prohibited decision language", async () => {
+    const source = await readSource();
+    const notice = extractHoursClosureCompositionNoticeSource(source);
+    expect(notice).not.toMatch(/role=["']dialog["']/);
+    expect(notice).not.toMatch(/aria-modal/);
+    expect((source.match(/role="dialog"/g) ?? []).length).toBe(1);
+    const lower = notice.toLowerCase();
+    for (const forbidden of [
+      "está abierto",
+      "está cerrado",
+      "puedes ir",
+      "funciona",
+      "compatible",
+      "disponible",
+      "garantizado",
+      "horario confirmado para tu visita",
+      "live verified",
+    ]) {
+      expect(lower, `should not contain "${forbidden}"`).not.toContain(forbidden);
+    }
+  });
+});

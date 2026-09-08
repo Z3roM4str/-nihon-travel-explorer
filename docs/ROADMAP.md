@@ -2063,6 +2063,56 @@ No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.js
 lockfile, any `.ts`/`.tsx`/`.css` file, or `docs/RESERVATION_DEADLINE_DESIGN.md` was changed by this
 phase. No Phase 3D-J (or any later phase) work was started.
 
+## Phase 3D-J — Hours / Closure Composition Implementation — complete
+
+- [x] Added the pure, non-persisted `app/src/lib/hours-closure-composition.ts` domain consumer over
+      the existing `RecordedHoursFact`, `ClosureFact`, and `WeekdayClosureAssessment` contracts.
+      Its closed `CompositionClass` vocabulary is `jointly-presentable`, `present-with-caveat`,
+      `keep-separate`, and `not-composable`; selection is total, deterministic, commutative, and
+      strictly worst-tier-wins over `safe=0 < partial=1 < opaque=2 < unknown=3` (3 is weakest, so
+      UNKNOWN remains weaker than OPAQUE). Classification dispatches exclusively through each
+      fact's `.tier`, never `.kind`; the real JP-019 `not-evaluable`/PARTIAL closure is pinned as a
+      load-bearing regression.
+- [x] Enforced the full visit-date prerequisite before any per-place composition: globally valid
+      `dayAssignment`, present and valid civil `startDate`, exactly one containing day bucket,
+      successful `addCivilDays`, and a valid derived civil date. Every failed guard produces
+      `no-visit-date`, with no partial fallback; moving a place recomputes against its new bucket
+      date from current inputs, with no retained composed state.
+- [x] Preserved both original classified facts (including complete raw hours/closure text and
+      provenance) plus the existing weekday assessment. The new domain contains no availability/
+      feasibility booleans, current-time read, API call, persistence, schema field, or duration-fit
+      logic. No prior classifier and no source dataset was changed.
+- [x] Integrated `HoursClosureCompositionNotice` as an additional signal inside each existing day
+      card, alongside `WeekdayClosureNotice` and `ReservationDeadlineNotice`. Only
+      `jointly-presentable` and `present-with-caveat` render; `keep-separate` and `not-composable`
+      leave the existing surfaces unchanged. PARTIAL evidence keeps its full raw text and receives
+      a review callout plus a per-fact warm treatment at least as prominent as the SAFE peer.
+- [x] Added 32 focused domain tests: the complete 16/16 tier matrix and symmetry, no-promotion,
+      determinism, JP-019 `.tier` dispatch, raw/provenance retention, malformed inputs, all date
+      guards including overflow, move/recompute behavior, structural safety scans, and the live
+      214-place dataset regression. Added 5 component wiring checks (53 total in
+      `OrderedSequenceBuilder.test.ts`) for visibility/omission classes, complete caveat evidence,
+      coexistence with both earlier temporal notices, single-dialog containment, and forbidden
+      decision language. Full app result: **768 tests passing across 26 files**.
+- [x] Re-derived the dataset invariants unchanged: hours×closures rows SAFE `31/18/19/12`, PARTIAL
+      `15/10/20/5`, OPAQUE `0/0/17/2`, UNKNOWN `15/3/27/20`; hours marginals `80/50/19/65`;
+      closure marginals `61/31/83/39`; composition classes `31/43/56/84`; total `214`.
+- [x] Manual browser QA covered JP-017 (`jointly-presentable`), JP-030's load-bearing
+      PARTIAL-hours presentation, Ghibli Museum/JP-044 (SAFE hours + PARTIAL closure), an OPAQUE
+      place, an UNKNOWN place, missing `startDate`, and moving JP-044 from Monday to Tuesday (the
+      visit date and existing weekday-match context both recomputed, with no stale notice). The UI
+      cannot create an invalid partition through its normal controls, so the global invalidation
+      branch is covered at the pure boundary with a synthetic invalid assignment. The same route
+      was visually checked at an exact 390×844 viewport: no clipping, overflow, caveat dilution,
+      or confusing merged copy; browser console produced no warnings/errors.
+- [x] Final validation: focused tests 85/85; full app tests 768/768; Python suite 370/370; temporal
+      audit 82/82; lint, TypeScript build, production build, dataset validation (214 places/403
+      nearby relations/0 broken references, with the same 13 editorial warnings), geography
+      validation (47 prefectures/47 polygons/9 regions/214 places), logistics validation (24 pilot
+      and 308 scale edges/results), and `git diff --check` all clean.
+
+No merge was performed by Phase 3D-J. No later phase was started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate

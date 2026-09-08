@@ -2520,6 +2520,74 @@ a {
   color: var(--color-text-muted);
 }
 
+/* Phase 3D-J — conservative composition of already-classified hours and closure evidence. Only
+   the two presentable classes reach this surface. PARTIAL evidence receives the warm review
+   treatment and retains the same typography/space as its SAFE peer; long raw strings wrap on
+   narrow viewports instead of clipping. */
+.hours-closure-composition {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hours-closure-composition__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.hours-closure-composition__item--present-with-caveat {
+  border-color: #eccf9c;
+}
+
+.hours-closure-composition__name {
+  font-weight: 700;
+}
+
+.hours-closure-composition__caveat {
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-warn-soft);
+  color: #6c4310;
+  font-weight: 700;
+}
+
+.hours-closure-composition__fact {
+  min-width: 0;
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.hours-closure-composition__fact--caveat {
+  background: var(--color-warn-soft);
+  color: #6c4310;
+}
+
+.hours-closure-composition__fact strong {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.hours-closure-composition__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
 /* Phase 3D-D — reservation lead-time preparation. Route-wide, deliberately neutral: it is a
    recorded-fact summary, not an urgency system, so it reuses the same soft neutral surface as
    other factual sections (`.analysis-section`) rather than any warning palette. */
