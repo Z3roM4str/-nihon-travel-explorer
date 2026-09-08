@@ -2140,8 +2140,8 @@ interval?"* — without ever claiming the place is open, available, or visitable
       `HH:mm` start time, and numerically resolvable durations — with no timezone, no overnight
       support, no `recorded-24h`, no transport, and no scheduling. Every decision the future phase
       needs is closed by the design document; nothing is left to discover during implementation.
-- [x] **Real-dataset inventory, re-derived against the live TypeScript classifiers** (four
-      temporary Vitest harnesses, deleted after use — the phase diff contains no `.ts` file), not
+- [x] **Real-dataset inventory, re-derived against the live TypeScript classifiers** (temporary
+      Vitest harnesses, deleted after use — the phase diff contains no `.ts` file), not
       copied from Phase 3D-I: 214 places; **65** SAFE `recorded-interval`; **15** SAFE
       `recorded-24h`; **62** of the 65 numerically evaluable via `resolveDuration()`; **3** not
       (`JP-121`, `JP-147`, `JP-211` — qualitative day-scale durations); hours tier totals
@@ -2237,6 +2237,14 @@ interval?"* — without ever claiming the place is open, available, or visitable
 - [x] **Transport interaction explicitly out of scope**, named separately because the route already
       has an order and known transfer durations, so an arrival time at the next place is
       arithmetically derivable — and deriving it would be scheduling.
+- [x] **The closest boundary in the codebase is addressed head-on rather than left for a reviewer
+      to find:** `recorded-hours.ts`'s own module header names *"this closes before your visit
+      ends"* among the questions it refuses, which is adjacent to the approved
+      `recorded-duration-exceeds-interval` outcome. The design document reconciles the two — that
+      sentence scopes that module (the same self-scoping every Phase 3D classifier states, which
+      Phase 3D-J already consumed without widening), the refused question is about the place while
+      the approved outcome is about the record, and the refusal was made with no user-chosen start
+      time available. The implementing phase is obliged to leave `recorded-hours.ts` untouched.
 
 **This phase recommends, but does NOT schedule or approve, a future Phase 3D-L — Manual
 Visit-Start-Time vs. Recorded Interval Fit (`fixed-interval-clean` SAFE only)**, whose exact
@@ -2254,6 +2262,17 @@ so it is not lost.
 data): `JP-211`'s `"09:00–17:00 según anuncio"` classifies SAFE because `"anuncio"` is not in the
 third-party regex's word list, and `JP-016`'s recorded `06:00–17:00` hall interval is discarded by
 the `known-24h` priority branch. Both are named in the design document.
+
+**Independent corrective audit** (separate follow-up commit on the same branch): four findings,
+all in the design document, none changing the gate's decision. The start-time reachability figure
+in §4.7 had been enumerated over `open ≤ t ≤ close`, which includes a start equal to the closing
+minute that the document's own result union classifies as outside the interval — recomputed over
+strictly interior starts only (`open ≤ t < close`), still 62/62 for all three outcomes, and the
+stricter definition is now stated. The `recorded-hours.ts` "this closes before your visit ends"
+boundary was reconciled explicitly (new §3.8) instead of being left implicit. The separator scan
+was restated precisely (89 matches over 89 places, counting every match rather than the first per
+record). The harness count was dropped from the method section, since a fifth verification pass
+was run during the review.
 
 No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
 lockfile, any `.ts`/`.tsx`/`.css` file, or any prior design document was changed by this phase. No

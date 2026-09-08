@@ -51,9 +51,10 @@ Every figure in §4 was re-derived for this phase against the **live TypeScript 
 and the live dataset — not copied from Phase 3D-I, not approximated in Python, not read off the
 ROADMAP.
 
-Procedure (four temporary Vitest files under `app/src/lib/`, each run with
-`npx vitest run <file>` and **deleted immediately after**, so this phase's diff contains no
-`.ts` file):
+Procedure (temporary Vitest harnesses under `app/src/lib/`, each run with `npx vitest run <file>`
+and **deleted immediately after**, so this phase's diff contains no `.ts` file — including a final
+independent pass that recomputed §4.5, §4.4's separator scan, and §4.7 against stricter
+definitions):
 
 1. `app/src/data/places.json` and `data/places.json` were compared and are byte-identical
    (214 records each), matching `docs/DATA_MODEL.md`'s canonical-source rule.
@@ -134,7 +135,33 @@ instants. This is the module where absolute time already lives, and it is delibe
 (activation gate `"off"`, per the ROADMAP). §8's timezone decision is drawn against this boundary,
 not against a general claim that timezones are unnecessary.
 
-### 3.8 Where documentation and code disagree
+### 3.8 The closest boundary in the whole codebase, addressed directly
+
+`recorded-hours.ts`'s module header names, among the questions it refuses to answer, **"this closes
+before your visit ends."** That is the nearest existing statement to what §14's
+`recorded-duration-exceeds-interval` outcome would express, and a reviewer is right to stop on it.
+
+Three reasons it is not a contradiction, and one obligation it creates:
+
+1. **The sentence constrains that module, not the repository.** It is the same self-scoping
+   discipline every Phase 3D classifier states about itself — `temporal-availability.ts` says it
+   "never reads `place.schedule.hours`", and Phase 3D-J then composed the two facts in a
+   *separate* module without modifying either classifier. The approved work follows that
+   established pattern exactly: a new consumer, never a widened classifier.
+2. **The refused question is about the place; the approved outcome is about the record.** "This
+   closes before your visit ends" asserts a real closing event affecting a real visit.
+   `recorded-duration-exceeds-interval` asserts that two recorded numbers and one number the user
+   typed do not fit together. §16 exists to keep that difference audible in every rendered
+   sentence, and it is why the permitted wording is «La duración registrada excede este intervalo
+   horario registrado» and never «cierra antes de que termines».
+3. **The refusal was made in the absence of a user-chosen start time.** Phase 3D-E had no start
+   time to reason from, so the only available reading of that sentence would have been an inferred
+   one — which §7 also refuses.
+
+**Obligation on the implementing phase:** `recorded-hours.ts` must not be edited — not its
+classifier, not its types, and not that module-header sentence, which stays true of that module.
+
+### 3.9 Where documentation and code disagree
 
 `docs/DATA_MODEL.md` does not mention Phase 3D-G, 3D-H, 3D-I, or 3D-J. Phase 3D-I recorded this
 gap; it still exists and this phase does not fix it either — recorded again so it is not lost. No
@@ -194,7 +221,7 @@ Distinct ranges in the interval group (15 shapes, most common first): 60–90 (1
 - **Opening times:** earliest **06:00** (2 places), latest **10:30** (1). Distribution: 06:00 ×2,
   06:30 ×1, 08:00 ×4, 08:30 ×7, 08:45 ×1, 09:00 ×25, 09:30 ×9, 10:00 ×15, 10:30 ×1.
 - **Closing times:** earliest **14:00** (1 place, `JP-032` Tsukiji Outer Market), latest **22:30**
-  (1, `JP-112`). Distribution: 14:00 ×1, 16:00 ×1, 16:30 ×7, 17:00 ×30, 17:30 ×7, 18:00 ×9,
+  (1, `JP-112` Umeda Sky Building). Distribution: 14:00 ×1, 16:00 ×1, 16:30 ×7, 17:00 ×30, 17:30 ×7, 18:00 ×9,
   19:00 ×3, 20:00 ×4, 21:00 ×1, 22:00 ×1, 22:30 ×1.
 - **No opening earlier than 06:00 and no closing later than 22:30 exists.** No `00:00` and no
   `24:00` token appears in any `schedule.hours` string in the dataset, in any tier.
@@ -202,9 +229,10 @@ Distinct ranges in the interval group (15 shapes, most common first): 60–90 (1
 ### 4.4 `intervalRaw` token formats
 
 - **29 distinct tokens**, all of the exact shape `HH:MM–HH:MM`.
-- **Separator:** U+2013 EN DASH in all 65. Scanning **all 214** places for any clock-range-shaped
-  substring finds 89 occurrences, and **all 89 use U+2013** — zero ASCII hyphen, zero em dash
-  anywhere in the dataset's hours text.
+- **Separator:** U+2013 EN DASH in all 65. Scanning **all 214** places' `schedule.hours` for
+  *every* clock-range-shaped substring (not just the first per record) finds 89 matches, spread
+  over 89 places, and **all 89 use U+2013** — zero ASCII hyphen and zero em dash anywhere in the
+  dataset's hours text, in any tier.
 - **0 parse failures** under the §6 candidate parser: 0 tokens with an end lacking minutes,
   0 hour > 23, 0 minute > 59.
 - **0 overnight tokens** (no token has `end < start`).
@@ -253,8 +281,10 @@ Margin (`span − maxMinutes`): minimum **120 min**, maximum 660 min. The single
 
 ### 4.7 The same population, once a start time exists (the evidence Phase 3D-I did not have)
 
-Enumerating every minute-granularity start choice inside `[open, close]` for each of the 62
-evaluable places, and classifying it by §9's three-way rule:
+Enumerating every minute-granularity start choice **strictly inside** the recorded interval
+(`open ≤ t < close`, so no start that §14 would classify as
+`start-time-outside-recorded-interval` is counted) for each of the 62 evaluable places, and
+classifying it by §9's three-way rule:
 
 | Property | Count |
 |---|---:|
@@ -262,9 +292,9 @@ evaluable places, and classifying it by §9's three-way rule:
 | Places with at least one start yielding *only the minimum fits* | **62 / 62** |
 | Places with at least one start yielding *exceeds the interval* | **62 / 62** |
 
-Every one of the three informative outcomes is reachable, for **every** evaluable place. The span-only
-check produced one constant answer for the whole dataset; the start-time check produces all three
-for all 62. That difference is the entire reason this gate reaches a different conclusion from
+Every one of the three informative outcomes is reachable, for **every** evaluable place, from a
+start time strictly inside the recorded interval. The span-only check produced one constant answer
+for the whole dataset; the start-time check produces all three for all 62. That difference is the entire reason this gate reaches a different conclusion from
 Phase 3D-I's on the neighbouring question.
 
 ### 4.8 Evidence funnel
