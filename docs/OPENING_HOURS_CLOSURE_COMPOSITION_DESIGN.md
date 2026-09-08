@@ -211,7 +211,7 @@ future rendering must keep the PARTIAL side's raw text fully visible, exactly as
 is shown today in the un-composed `HoursPlanningSection`.
 
 This is the general form of the risk this gate exists to name: **a SAFE fact on one axis must never
-be used to visually or textually launder a PARTIAL/OPAQUE caveat on the other axis.** §6's
+be used to visually or textually launder a PARTIAL/OPAQUE caveat on the other axis.** §5's
 provenance rule is written specifically to block this.
 
 ---
@@ -541,7 +541,7 @@ For the phase that implements this gate's decision, representative cases to veri
 5. A `not-composable` place (UNKNOWN on either axis) — rendering is unchanged from today.
 6. No `startDate` set — no composed signal for any place, existing sections unaffected.
 7. An invalid day-partition (`dayAssignment.valid === false`) — no composed signal for **any**
-   place in the day, matching Phase 3D-B/3D-H's existing behavior for the same condition.
+   place in the day, matching Phase 3D-H's existing behavior for the same condition.
 8. Moving a place between days — the composed signal (if any) follows the place to its new day's
    date, never the old one; no stale composed signal survives a route/day edit.
 9. Mobile/narrow width — no clipping or overflow of the composed notice, checked at the same
