@@ -853,3 +853,65 @@ describe("Phase 3D-L — nothing derived is ever persisted", () => {
     }
   });
 });
+
+describe("Phase 3D-L — invariants an independent review probed for", () => {
+  const timed: ManualPlanningDraftV3 = {
+    version: 3,
+    routeIds: ["A", "B"],
+    days: null,
+    startDate: null,
+    visitStartTimes: { A: "09:00" },
+  };
+
+  it("never resurrects a pruned time when the place returns to the route", () => {
+    const removed = withRoute(timed, ["B"]);
+    expect(removed.visitStartTimes).toEqual({});
+    expect(withRoute(removed, ["B", "A"]).visitStartTimes).toEqual({});
+  });
+
+  it("never resurrects a time that reconciliation already dropped", () => {
+    const dropped = reconcileDraft(timed, ["B"]);
+    expect(dropped.visitStartTimes).toEqual({});
+    expect(reconcileDraft(dropped, ["A", "B"]).visitStartTimes).toEqual({});
+  });
+
+  it("keeps a routed place's time while no day split exists yet", () => {
+    // `days === null` means the user has not split into days; the time is still their decision and
+    // must not be discarded just because it currently has no day card to render on.
+    expect(reconcileDraft(timed, ["A", "B"]).visitStartTimes).toEqual({ A: "09:00" });
+  });
+
+  it("mutates no input draft in any helper", () => {
+    const snapshot = JSON.stringify(timed);
+    withVisitStartTime(timed, "A", "10:00");
+    withVisitStartTime(timed, "A", null);
+    withRoute(timed, ["B"]);
+    withDays(timed, [["A", "B"]]);
+    withStartDate(timed, "2027-02-19");
+    reconcileDraft(timed, ["B"]);
+    resetRoute(timed, ["A"]);
+    expect(JSON.stringify(timed)).toBe(snapshot);
+  });
+
+  it("handles a prototype-shaped key in stored JSON without polluting Object.prototype", () => {
+    const raw = JSON.parse(
+      '{"version":3,"routeIds":["A"],"days":null,"startDate":null,"visitStartTimes":{"__proto__":"09:00"}}'
+    );
+    const parsed = parseStoredDraft(raw);
+    expect(Object.prototype.hasOwnProperty.call(Object.prototype, "A")).toBe(false);
+    expect(({} as Record<string, unknown>).A).toBeUndefined();
+    if (parsed) expect(Object.keys(parsed.visitStartTimes)).not.toContain("A");
+  });
+
+  it("treats an ordinary object-shaped key as an ordinary place id", () => {
+    const parsed = parseStoredDraft({
+      version: 3,
+      routeIds: ["constructor"],
+      days: null,
+      startDate: null,
+      visitStartTimes: { constructor: "09:00" },
+    });
+    expect(parsed?.visitStartTimes.constructor).toBe("09:00");
+    expect(reconcileDraft(parsed!, ["constructor"]).visitStartTimes).toEqual({ constructor: "09:00" });
+  });
+});

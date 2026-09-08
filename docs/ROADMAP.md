@@ -2418,7 +2418,7 @@ every type name, sentence and style decision below exists to keep the two apart.
       inside 00:00–23:59; and all 15 `recorded-24h` places refused at every chosen time, `JP-016`
       named explicitly because its own SAFE text contains a `06:00–17:00` hall interval the
       `known-24h` branch discards. These counts live only in tests, never in production behaviour.
-- [x] **Validation**: 932 app tests (up from 771 — 90 new domain, 56 new persistence, 15 new
+- [x] **Validation**: 938 app tests (up from 771 — 90 new domain, 62 new persistence, 15 new
       component/hook), 370 Python tests with 82 subtests, oxlint, TypeScript build, production
       build, dataset validation (214 places / 403 nearby relations / 0 broken references, the same
       13 pre-existing editorial warnings), geography validation (47 prefectures / 47 polygons / 9
@@ -2433,6 +2433,30 @@ every type name, sentence and style decision below exists to keep the two apart.
       place to the no-time state; raw hours text stayed visible throughout; the existing weekday and
       hours/closure notices remained present and unchanged; no clipping or horizontal overflow; no
       duplicate accessible names; and the browser console produced no errors or warnings.
+
+**Independent hostile review** (separate commit on the same branch): all twenty attack vectors were
+worked, and no BLOCKER or MAJOR was found — no path reaches arithmetic from `recorded-24h` or any
+PARTIAL/OPAQUE/UNKNOWN family, no time is defaulted or inferred, no `bestTime`, closure, transfer,
+`Date` or timezone reference exists in the new or changed runtime (checked with comments stripped),
+overnight is refused rather than evaluated, nothing derived is persisted, a malformed V3 draft is
+never partially repaired, stale times never survive removal, accessible labels are unique per
+place and day, no wording or styling implies an open/available/valid state, no control appears for
+an ineligible place, no evaluation goes stale, no bare `startMinutes` name was reintroduced,
+`recorded-hours.ts` is byte-identical to its pre-phase state, and no scheduling or later-phase work
+exists. **MINOR (corrected):** six invariants the implementation satisfied were not pinned by any
+test — a pruned time must not be resurrected when its place returns to the route or is reconciled
+back, a routed place's time must survive while no day split exists yet, no mutation helper may
+mutate its input, and a prototype-shaped key in stored JSON must neither pollute `Object.prototype`
+nor be mistaken for a place id. Regression tests were added for each. **NIT (recorded, not
+changed):** sharing `VISIT_START_TIME_PATTERN` widens `planning-draft.ts`'s transitive import graph
+by five modules so persistence and arithmetic cannot disagree about a valid clock time. The
+direction matches the module's existing precedent (it already imports `validateDayPartition` and
+`isValidCivilDate` from domain modules), there is no import cycle, and every alternative either
+inverts the dependency or duplicates the pattern — so it was left as-is rather than churned. Two
+defects found *during* implementation were fixed before the first commit and are part of it: a
+`ManualPlanningDraftV3` written as `Omit<…> & {…}` did not make TypeScript report a MISSING
+`visitStartTimes` on an object literal (now spelled out in full, which caught twelve fixtures), and
+the new stylesheet referenced a `--color-text-soft` variable that does not exist in `App.css`.
 
 **Explicit non-goals, unchanged from the design gate:** no opening-hours solver or open/closed
 judgment; no `Date.now()`, "now", urgency or countdown axis; no holidays or special calendars; no
