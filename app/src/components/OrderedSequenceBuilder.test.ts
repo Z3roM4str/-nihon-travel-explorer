@@ -546,21 +546,19 @@ describe("OrderedSequenceBuilder.tsx — hours/closure composition wiring", () =
   it("imports and calls the pure per-day composition boundary", async () => {
     const source = await readSource();
     expect(source).toMatch(
-      /import\s*\{[^}]*\bbuildDayHoursClosureCompositions\b[^}]*\}\s*from\s*["']\.\.\/lib\/hours-closure-composition["']/
+      /import\s*\{[^}]*\bbuildPresentableDayHoursClosureCompositions\b[^}]*\}\s*from\s*["']\.\.\/lib\/hours-closure-composition["']/
     );
     const notice = extractHoursClosureCompositionNoticeSource(source);
     expect(notice).toMatch(
-      /buildDayHoursClosureCompositions\(\s*places\s*,\s*dayAssignment\s*,\s*startDate\s*\)/
+      /buildPresentableDayHoursClosureCompositions\(\s*places\s*,\s*dayAssignment\s*,\s*startDate\s*\)/
     );
   });
 
-  it("renders only jointly-presentable and present-with-caveat signals", async () => {
+  it("delegates class/not-composed omission to the behaviorally tested pure boundary", async () => {
     const notice = extractHoursClosureCompositionNoticeSource(await readSource());
-    expect(notice).toContain('"jointly-presentable"');
-    expect(notice).toContain('"present-with-caveat"');
     expect(notice).not.toContain('"keep-separate"');
     expect(notice).not.toContain('"not-composable"');
-    expect(notice).toMatch(/item\.signal\.kind\s*!==\s*["']composed["']/);
+    expect(notice).not.toContain("buildDayHoursClosureCompositions");
   });
 
   it("keeps both raw facts visible and gives each PARTIAL fact its own caveat treatment", async () => {
@@ -580,6 +578,13 @@ describe("OrderedSequenceBuilder.tsx — hours/closure composition wiring", () =
     expect(weekdayIndex).toBeGreaterThan(-1);
     expect(compositionIndex).toBeGreaterThan(weekdayIndex);
     expect(deadlineIndex).toBeGreaterThan(compositionIndex);
+  });
+
+  it("gives repeated day-card regions distinct accessible names", async () => {
+    const source = await readSource();
+    const notice = extractHoursClosureCompositionNoticeSource(source);
+    expect(notice).toMatch(/aria-label=\{`Horario e información de cierres registrados · Día \$\{dayNumber\}`\}/);
+    expect(source).toMatch(/<HoursClosureCompositionNotice[\s\S]*?dayNumber=\{dayIndex \+ 1\}[\s\S]*?\/>/);
   });
 
   it("introduces no second dialog and no prohibited decision language", async () => {

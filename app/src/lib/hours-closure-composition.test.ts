@@ -5,12 +5,13 @@ import type { Place } from "../types";
 import { buildDayAssignment, type DayAssignment } from "./day-assignment";
 import {
   buildDayHoursClosureCompositions,
+  buildPresentableDayHoursClosureCompositions,
   classifyHoursClosureComposition,
-  composeRecordedHoursAndClosure,
   deriveHoursClosureVisitDate,
   derivePlaceHoursClosureComposition,
   type CompositionClass,
 } from "./hours-closure-composition";
+import * as hoursClosureCompositionModule from "./hours-closure-composition";
 import { interpretHoursText, interpretPlaceHours, type HoursTier } from "./recorded-hours";
 import { interpretClosureText, type TemporalTier } from "./temporal-availability";
 
@@ -48,6 +49,18 @@ function realPlace(id: string): Place {
   const place = places.find((candidate) => candidate.id === id);
   if (!place) throw new Error(`Missing test place ${id}`);
   return place;
+}
+
+function withSchedule(place: Place, hours: string, closures: string): Place {
+  return { ...place, schedule: { ...place.schedule, hours, closures } };
+}
+
+function composeThroughValidatedBoundary(place: Place, visitDate: string) {
+  const assignment = buildDayAssignment([place.id], [[place.id]]);
+  const result = derivePlaceHoursClosureComposition(place, assignment, visitDate).signal;
+  expect(result.kind).toBe("composed");
+  if (result.kind !== "composed") throw new Error("Expected validated composition fixture to compose");
+  return result;
 }
 
 describe("Phase 3D-J composition matrix", () => {
@@ -90,27 +103,32 @@ describe("classified-fact composition", () => {
     expect(closure.kind).toBe("not-evaluable");
     expect(closure.tier).toBe("partial");
 
-    const withSafeHours = composeRecordedHoursAndClosure(interpretHoursText("09:00–17:00"), closure, "2027-02-15");
+    const withSafeHours = composeThroughValidatedBoundary(
+      withSchedule(jp019, "09:00–17:00", jp019.schedule.closures),
+      "2027-02-15"
+    );
     expect(withSafeHours.compositionClass).toBe("present-with-caveat");
-    expect(withSafeHours.closure).toBe(closure);
+    expect(withSafeHours.closure).toEqual(closure);
 
-    const actual = composeRecordedHoursAndClosure(interpretPlaceHours(jp019), closure, "2027-02-15");
+    const actual = composeThroughValidatedBoundary(jp019, "2027-02-15");
     expect(actual.compositionClass).toBe("not-composable");
   });
 
   it("preserves both complete raw facts and existing weekday assessment", () => {
-    const hours = interpretHoursText("Estación 24 h; comercios variables");
-    const closure = interpretClosureText("Lunes; verificar");
-    const result = composeRecordedHoursAndClosure(hours, closure, "2027-02-15");
-    expect(result.hours).toBe(hours);
-    expect(result.closure).toBe(closure);
+    const place = withSchedule(
+      realPlace("JP-017"),
+      "Estación 24 h; comercios variables",
+      "Lunes; verificar"
+    );
+    const result = composeThroughValidatedBoundary(place, "2027-02-15");
     expect(result.hours.raw).toBe("Estación 24 h; comercios variables");
     expect(result.closure.raw).toBe("Lunes; verificar");
     expect(result.weekdayAssessment.outcome).toBe("possible-weekday-closure-match");
   });
 
   it("keeps malformed/missing evidence exactly as conservative as the existing classifiers", () => {
-    const result = composeRecordedHoursAndClosure(interpretHoursText(undefined), interpretClosureText("  "), "2027-02-15");
+    const place = withSchedule(realPlace("JP-017"), "", "  ");
+    const result = composeThroughValidatedBoundary(place, "2027-02-15");
     expect(result.hours).toEqual(interpretHoursText(undefined));
     expect(result.closure).toEqual(interpretClosureText("  "));
     expect(result.hours.tier).toBe("unknown");
@@ -137,7 +155,16 @@ describe("strict visit-date prerequisite", () => {
   it("missing and invalid anchors suppress composition", () => {
     expect(deriveHoursClosureVisitDate(validAssignment, null, sample.id)).toBeNull();
     expect(deriveHoursClosureVisitDate(validAssignment, undefined, sample.id)).toBeNull();
-    expect(deriveHoursClosureVisitDate(validAssignment, "2027-02-30", sample.id)).toBeNull();
+    for (const malformed of ["", "invalid", "2027-02-30", "999999-99-99", "2027-2-15", "2027-02-29"]) {
+      expect(deriveHoursClosureVisitDate(validAssignment, malformed, sample.id)).toBeNull();
+      expect(derivePlaceHoursClosureComposition(sample, validAssignment, malformed).signal.kind).toBe(
+        "no-visit-date"
+      );
+    }
+  });
+
+  it("does not export a post-gate helper that can mint a composed signal from an unchecked string", () => {
+    expect(hoursClosureCompositionModule).not.toHaveProperty("composeRecordedHoursAndClosure");
   });
 
   it("a place assigned zero or multiple times suppresses composition even if input claims validity", () => {
@@ -182,6 +209,31 @@ describe("strict visit-date prerequisite", () => {
       expect(after.signal.visitDate).toBe("2027-02-16");
       expect(after).not.toEqual(before);
     }
+  });
+});
+
+describe("presentable day-card selection", () => {
+  it("behaviorally admits only jointly-presentable and present-with-caveat compositions", () => {
+    const base = realPlace("JP-017");
+    const fixtures = [
+      withSchedule({ ...base, id: "SAFE" }, "09:00–17:00", "Sin cierre"),
+      withSchedule({ ...base, id: "PARTIAL" }, "Estación 24 h; comercios variables", "Sin cierre"),
+      withSchedule({ ...base, id: "OPAQUE" }, "Según operador", "Sin cierre"),
+      withSchedule({ ...base, id: "UNKNOWN" }, "Variable", "Sin cierre"),
+    ];
+    const ids = fixtures.map((place) => place.id);
+    const assignment = buildDayAssignment(ids, [ids]);
+
+    expect(
+      buildDayHoursClosureCompositions(fixtures, assignment, "2027-02-15").map((item) =>
+        item.signal.kind === "composed" ? item.signal.compositionClass : item.signal.kind
+      )
+    ).toEqual(["jointly-presentable", "present-with-caveat", "keep-separate", "not-composable"]);
+    expect(
+      buildPresentableDayHoursClosureCompositions(fixtures, assignment, "2027-02-15").map(
+        (item) => item.placeId
+      )
+    ).toEqual(["SAFE", "PARTIAL"]);
   });
 });
 

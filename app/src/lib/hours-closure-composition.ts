@@ -35,6 +35,12 @@ export type PlaceHoursClosureComposition = {
   signal: HoursClosureComposition;
 };
 
+export type PresentableHoursClosureComposition = Omit<PlaceHoursClosureComposition, "signal"> & {
+  signal: Extract<HoursClosureComposition, { kind: "composed" }> & {
+    compositionClass: Extract<CompositionClass, "jointly-presentable" | "present-with-caveat">;
+  };
+};
+
 /** Lower is stronger. This ordering is intentionally shared by both axes. */
 export const COMPOSITION_TIER_RANK: Readonly<Record<HoursTier | TemporalTier, number>> = {
   safe: 0,
@@ -55,8 +61,8 @@ export function classifyHoursClosureComposition(
   return "not-composable";
 }
 
-/** Combines already-classified evidence without reinterpreting either classifier's `kind`. */
-export function composeRecordedHoursAndClosure(
+/** Internal post-gate helper. Only a date produced by `deriveHoursClosureVisitDate` reaches it. */
+function composeRecordedHoursAndClosure(
   hours: RecordedHoursFact,
   closure: ClosureFact,
   visitDate: string
@@ -121,4 +127,24 @@ export function buildDayHoursClosureCompositions(
   startDate: string | null | undefined
 ): PlaceHoursClosureComposition[] {
   return places.map((place) => derivePlaceHoursClosureComposition(place, dayAssignment, startDate));
+}
+
+/** Pure presentation boundary: only the two design-approved composed classes reach a notice. */
+export function buildPresentableDayHoursClosureCompositions(
+  places: readonly Place[],
+  dayAssignment: DayAssignment,
+  startDate: string | null | undefined
+): PresentableHoursClosureComposition[] {
+  const presentable: PresentableHoursClosureComposition[] = [];
+  for (const item of buildDayHoursClosureCompositions(places, dayAssignment, startDate)) {
+    if (item.signal.kind !== "composed") continue;
+    if (
+      item.signal.compositionClass !== "jointly-presentable" &&
+      item.signal.compositionClass !== "present-with-caveat"
+    ) {
+      continue;
+    }
+    presentable.push({ ...item, signal: item.signal as PresentableHoursClosureComposition["signal"] });
+  }
+  return presentable;
 }

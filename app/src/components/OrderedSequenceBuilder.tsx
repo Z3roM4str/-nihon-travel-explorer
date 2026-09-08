@@ -17,8 +17,7 @@ import type { ReservationCategory } from "../lib/reservation";
 import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
 import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
 import {
-  buildDayHoursClosureCompositions,
-  type HoursClosureComposition,
+  buildPresentableDayHoursClosureCompositions,
 } from "../lib/hours-closure-composition";
 import {
   derivePlaceReservationDateWindow,
@@ -481,30 +480,22 @@ function HoursClosureCompositionNotice({
   places,
   dayAssignment,
   startDate,
+  dayNumber,
 }: {
   places: readonly Place[];
   dayAssignment: DayAssignment;
   startDate: string | null;
+  dayNumber: number;
 }) {
-  type PresentedSignal = Extract<HoursClosureComposition, { kind: "composed" }>;
-  type PresentedItem = { placeId: string; placeName: string; signal: PresentedSignal };
-
-  const items: PresentedItem[] = [];
-  for (const item of buildDayHoursClosureCompositions(places, dayAssignment, startDate)) {
-    if (item.signal.kind !== "composed") continue;
-    if (
-      item.signal.compositionClass !== "jointly-presentable" &&
-      item.signal.compositionClass !== "present-with-caveat"
-    ) {
-      continue;
-    }
-    items.push({ ...item, signal: item.signal });
-  }
+  const items = buildPresentableDayHoursClosureCompositions(places, dayAssignment, startDate);
 
   if (items.length === 0) return null;
 
   return (
-    <section className="hours-closure-composition" aria-label="Horario e información de cierres registrados">
+    <section
+      className="hours-closure-composition"
+      aria-label={`Horario e información de cierres registrados · Día ${dayNumber}`}
+    >
       {items.map(({ placeId, placeName, signal }) => (
         <div
           key={placeId}
@@ -1294,6 +1285,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             places={places}
                             dayAssignment={dayAssignment}
                             startDate={startDate}
+                            dayNumber={dayIndex + 1}
                           />
                           <ReservationDeadlineNotice
                             places={places}

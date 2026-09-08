@@ -2077,7 +2077,8 @@ phase. No Phase 3D-J (or any later phase) work was started.
       `dayAssignment`, present and valid civil `startDate`, exactly one containing day bucket,
       successful `addCivilDays`, and a valid derived civil date. Every failed guard produces
       `no-visit-date`, with no partial fallback; moving a place recomputes against its new bucket
-      date from current inputs, with no retained composed state.
+      date from current inputs, with no retained composed state. The post-gate composition helper
+      is module-private, so no public consumer can mint `kind: "composed"` from an unchecked date.
 - [x] Preserved both original classified facts (including complete raw hours/closure text and
       provenance) plus the existing weekday assessment. The new domain contains no availability/
       feasibility booleans, current-time read, API call, persistence, schema field, or duration-fit
@@ -2087,13 +2088,15 @@ phase. No Phase 3D-J (or any later phase) work was started.
       `jointly-presentable` and `present-with-caveat` render; `keep-separate` and `not-composable`
       leave the existing surfaces unchanged. PARTIAL evidence keeps its full raw text and receives
       a review callout plus a per-fact warm treatment at least as prominent as the SAFE peer.
-- [x] Added 32 focused domain tests: the complete 16/16 tier matrix and symmetry, no-promotion,
+- [x] Added 34 focused domain tests: the complete 16/16 tier matrix and symmetry, no-promotion,
       determinism, JP-019 `.tier` dispatch, raw/provenance retention, malformed inputs, all date
-      guards including overflow, move/recompute behavior, structural safety scans, and the live
-      214-place dataset regression. Added 5 component wiring checks (53 total in
+      guards including overflow, a regression that the unchecked post-gate helper is not public,
+      move/recompute behavior, behaviorally tested presentable-class filtering, structural safety
+      scans, and the live 214-place dataset regression. Added 6 component wiring checks (54 total in
       `OrderedSequenceBuilder.test.ts`) for visibility/omission classes, complete caveat evidence,
-      coexistence with both earlier temporal notices, single-dialog containment, and forbidden
-      decision language. Full app result: **768 tests passing across 26 files**.
+      coexistence with both earlier temporal notices, single-dialog containment, distinct
+      accessible names for repeated day-card regions, and forbidden decision language. Full app
+      result: **771 tests passing across 26 files**.
 - [x] Re-derived the dataset invariants unchanged: hours×closures rows SAFE `31/18/19/12`, PARTIAL
       `15/10/20/5`, OPAQUE `0/0/17/2`, UNKNOWN `15/3/27/20`; hours marginals `80/50/19/65`;
       closure marginals `61/31/83/39`; composition classes `31/43/56/84`; total `214`.
@@ -2104,14 +2107,24 @@ phase. No Phase 3D-J (or any later phase) work was started.
       cannot create an invalid partition through its normal controls, so the global invalidation
       branch is covered at the pure boundary with a synthetic invalid assignment. The same route
       was visually checked at an exact 390×844 viewport: no clipping, overflow, caveat dilution,
-      or confusing merged copy; browser console produced no warnings/errors.
-- [x] Final validation: focused tests 85/85; full app tests 768/768; Python suite 370/370; temporal
+      confusing merged copy, or duplicate accessible region names; browser console produced no
+      warnings/errors.
+- [x] Final validation: focused tests 88/88; full app tests 771/771; Python suite 370/370; temporal
       audit 82/82; lint, TypeScript build, production build, dataset validation (214 places/403
       nearby relations/0 broken references, with the same 13 editorial warnings), geography
       validation (47 prefectures/47 polygons/9 regions/214 places), logistics validation (24 pilot
       and 308 scale edges/results), and `git diff --check` all clean.
 
 No merge was performed by Phase 3D-J. No later phase was started.
+
+**Independent corrective audit:** one MAJOR and two MINOR findings were corrected in a separate
+follow-up commit on the same branch: the exported post-gate helper accepted arbitrary malformed
+date strings while still returning `kind: "composed"`; visibility/omission behavior was protected
+only by source scanning rather than a pure behavioral test; and repeated per-day composition
+regions had indistinguishable accessible names. The fixes kept the helper private behind the full
+date/assignment gate, moved presentable-class selection into a behaviorally tested pure boundary,
+and included the day number in each region's accessible name. No classifier, dataset, schema,
+persistence, duration-fit, or later-phase scope changed.
 
 ## Later (unscheduled)
 
