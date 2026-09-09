@@ -27,13 +27,18 @@ describe("evaluateReservationWindowReference", () => {
     });
   });
 
-  it.each<ReservationDateWindow>([
-    { kind: "no-visit-date" },
-    {
+  it("returns not-assessed when Phase 3D-H has no visit date", () => {
+    expect(evaluateReservationWindowReference({ kind: "no-visit-date" }, "2027-03-01")).toEqual({
+      kind: "not-assessed",
+      reason: "no-derived-window",
+    });
+  });
+
+  it("returns not-assessed when Phase 3D-H has no numeric window", () => {
+    const window: ReservationDateWindow = {
       kind: "no-window",
       signal: { kind: "not-computable", reason: "unit-without-quantity", raw: "Semanas" },
-    },
-  ])("returns not-assessed when Phase 3D-H has no derived window", (window) => {
+    };
     expect(evaluateReservationWindowReference(window, "2027-03-01")).toEqual({
       kind: "not-assessed",
       reason: "no-derived-window",
