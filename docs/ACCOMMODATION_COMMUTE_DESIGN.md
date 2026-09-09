@@ -96,10 +96,12 @@ export type AccommodationAnchor = {
 
 - `id` is a stable local identifier generated when the user creates the anchor.
 - The identifier has no geographic, hotel-chain, quality, priority, or booking meaning.
-- Array order must not imply priority.
+- IDs are unique within `accommodations`; a persisted V4 draft containing duplicate anchor IDs is invalid rather than first-wins/last-wins.
+- Array order must not imply priority or conflict resolution.
+- Two anchors with the same label and/or coordinates remain distinct unless the user explicitly deletes one; the app does not merge them heuristically.
 - Deleting an anchor invalidates day-boundary references and manual legs that point to it; no silent reassignment to another anchor.
 
-The exact ID-generation mechanism belongs to implementation, but it must be injectable/testable if it depends on browser APIs.
+The exact ID-generation mechanism belongs to implementation, but it must be injectable/testable if it depends on browser APIs and must retry/fail safely rather than overwrite an existing anchor on collision.
 
 ### 3.2 Label
 
@@ -192,9 +194,16 @@ The key is the full directed endpoint pair.
 
 No reversal, nearest-match, or same-duration symmetry is allowed.
 
+For persisted `accommodationLegs`, the exact directed key is the tuple
+`(direction, accommodationId, placeId)`. At most one record may exist for any such key. Array order
+has zero conflict-resolution semantics: a V4 draft containing duplicate exact keys is invalid rather
+than first-wins or last-wins. A setter for one leg replaces or clears that exact key; it never appends
+a second competing record.
+
 ### 5.2 Minutes
 
-`minutes` is a finite positive integer entered by the user.
+`minutes` is a **positive safe integer** entered by the user: `Number.isSafeInteger(minutes) && minutes > 0`.
+Fractions, zero, negatives, `NaN`, infinities and unsafe integers are rejected rather than rounded or coerced.
 
 The application may display it as a manual estimate, but it must not add an invented ± range or upgrade it to `validated-static` / `schedule-aware` confidence.
 
@@ -324,9 +333,12 @@ The persisted shape is therefore strict:
   start/end side rather than omitting the position;
 - every non-null accommodation ID in the boundary vector must resolve to a live anchor in
   `accommodations`;
+- accommodation anchor IDs are unique and exact directed manual-leg keys are unique;
+- every manual leg references an existing accommodation anchor and a place in the current route after reconciliation;
 - the V4 parser rejects a length mismatch, a boundary vector present while `days` is null, a null
-  vector while `days` exists, or a reference to an unknown accommodation. It does not pad, truncate,
-  shift, infer, or silently repair those shapes.
+  vector while `days` exists, a reference to an unknown accommodation, duplicate anchor IDs, duplicate
+  exact directed leg keys, or an invalid manual minute value. It does not pad, truncate, deduplicate,
+  shift, infer, round, or silently repair those shapes.
 
 The update rule is equally strict. If a new `days` matrix is element-for-element identical to the
 stored matrix, preserve the boundary vector. If **any** part of the day assignment changes — bucket
@@ -432,49 +444,55 @@ A successor should prove at least:
 1. coordinates reject non-finite and out-of-range values;
 2. labels are displayed, not parsed into routing semantics;
 3. multiple anchors coexist without implicit priority;
-4. deleting one anchor never reassigns its boundaries to another.
+4. duplicate accommodation IDs are rejected rather than resolved by array order;
+5. equal labels/coordinates do not heuristically merge distinct anchor IDs;
+6. deleting one anchor never reassigns its boundaries to another.
 
 ### Directional manual legs
 
-5. accommodation A -> place X resolves only that exact direction;
-6. place X -> accommodation A is independent;
-7. another accommodation never reuses A's value;
-8. another place never reuses X's value;
-9. missing exact leg stays missing, never zero;
-10. no geometry-derived fallback;
-11. no `getBestTransfer()` call with accommodation IDs;
-12. no live routing/network call.
+7. accommodation A -> place X resolves only that exact direction;
+8. place X -> accommodation A is independent;
+9. another accommodation never reuses A's value;
+10. another place never reuses X's value;
+11. duplicate exact directed leg keys are rejected rather than first-wins/last-wins;
+12. setting an existing exact leg replaces that record rather than appending a duplicate;
+13. manual minutes accept only positive safe integers and reject fractions, zero, negatives and unsafe values without coercion;
+14. missing exact leg stays missing, never zero;
+15. no geometry-derived fallback;
+16. no `getBestTransfer()` call with accommodation IDs;
+17. no live routing/network call.
 
 ### Day boundaries
 
-13. outbound uses exactly the current first place;
-14. return uses exactly the current last place;
-15. changing first place does not reuse the former outbound leg;
-16. changing last place does not reuse the former return leg;
-17. start and end accommodations may differ;
-18. no hotel-to-hotel leg is inferred across days;
-19. empty day produces no fabricated commute.
+18. outbound uses exactly the current first place;
+19. return uses exactly the current last place;
+20. changing first place does not reuse the former outbound leg;
+21. changing last place does not reuse the former return leg;
+22. start and end accommodations may differ;
+23. no hotel-to-hotel leg is inferred across days;
+24. empty day produces no fabricated commute.
 
 ### Persistence
 
-20. V3 -> V4 migration creates empty accommodation state only;
-21. route reorder preserves endpoint-keyed legs and, when the existing day matrix is retained exactly, its boundary vector;
-22. place removal prunes its legs;
-23. anchor deletion prunes its references/legs;
-24. any non-identical valid day assignment resets every new ordinal-day boundary to `{ startAccommodationId: null, endAccommodationId: null }` rather than shifting or similarity-matching old boundaries;
-25. an element-for-element identical day assignment preserves the existing boundary vector;
-26. `days === null` requires a null boundary vector, while a non-null `days` matrix requires a boundary vector of exactly the same length;
-27. persisted boundaries referencing an unknown accommodation are rejected, never silently cleared or rebound;
-28. start-date change leaves accommodation decisions untouched;
-29. malformed persisted accommodation state rejects under the same fail-safe policy as the rest of the draft.
+25. V3 -> V4 migration creates empty accommodation state only;
+26. route reorder preserves endpoint-keyed legs and, when the existing day matrix is retained exactly, its boundary vector;
+27. place removal prunes its legs;
+28. anchor deletion prunes its references/legs;
+29. any non-identical valid day assignment resets every new ordinal-day boundary to `{ startAccommodationId: null, endAccommodationId: null }` rather than shifting or similarity-matching old boundaries;
+30. an element-for-element identical day assignment preserves the existing boundary vector;
+31. `days === null` requires a null boundary vector, while a non-null `days` matrix requires a boundary vector of exactly the same length;
+32. persisted boundaries referencing an unknown accommodation are rejected, never silently cleared or rebound;
+33. persisted manual legs referencing an unknown accommodation or out-of-route place are rejected/pruned only according to the explicitly defined parse-then-reconcile boundary, never rebound to another endpoint;
+34. start-date change leaves accommodation decisions untouched;
+35. malformed persisted accommodation state rejects under the same fail-safe policy as the rest of the draft.
 
 ### Presentation/aggregation
 
-30. manual legs are visibly labelled manual;
-31. missing expected leg makes any combined total explicitly incomplete;
-32. missing leg never contributes zero;
-33. existing place-to-place transfer confidence/provenance remains visible and unchanged;
-34. no copy claims real-time routing, traffic, timetable validity, hotel optimality or booking state.
+36. manual legs are visibly labelled manual;
+37. missing expected leg makes any combined total explicitly incomplete;
+38. missing leg never contributes zero;
+39. existing place-to-place transfer confidence/provenance remains visible and unchanged;
+40. no copy claims real-time routing, traffic, timetable validity, hotel optimality or booking state.
 
 ---
 
