@@ -132,31 +132,48 @@ Why require coordinates if the first successor does not route them? Because Phas
 
 A trip may change hotels. A single global `hotelId` would therefore be structurally wrong.
 
-Each day bucket needs two independent optional boundary references:
+Each day bucket needs two independent **explicit choices**, not nullable IDs whose absence is ambiguous:
 
 ```ts
+export type AccommodationBoundaryChoice =
+  | { kind: "unselected" }
+  | { kind: "no-accommodation" }
+  | { kind: "accommodation"; accommodationId: string };
+
 export type DayAccommodationBoundary = {
-  startAccommodationId: string | null;
-  endAccommodationId: string | null;
+  start: AccommodationBoundaryChoice;
+  end: AccommodationBoundaryChoice;
 };
 ```
 
 Interpretation:
 
-- `startAccommodationId`: where the user says the day begins before its first route place;
-- `endAccommodationId`: where the user says the day ends after its last route place.
+- `unselected`: the user has not made a decision for this side yet;
+- `no-accommodation`: the user explicitly says this side of the day does not use an accommodation
+  boundary (for example, an arrival/departure day whose external origin/destination is outside this
+  feature); this does **not** assert that the real transfer time is zero and does not model the airport,
+  station, port, or other external endpoint;
+- `accommodation`: the user explicitly chose the referenced anchor for this side.
 
-The two may be equal, different, or independently null.
+Start and end choices are independent. Their accommodation IDs may be equal or different. This
+supports ordinary same-hotel days and hotel-change days without inventing a cross-hotel transfer. If
+day N ends at Hotel A and day N+1 starts at Hotel B, this contract does **not** infer how the user
+moved from A to B.
 
-This supports ordinary same-hotel days and hotel-change days without inventing a cross-hotel transfer. If day N ends at Hotel A and day N+1 starts at Hotel B, this contract does **not** infer how the user moved from A to B.
+The distinction between `unselected` and `no-accommodation` is load-bearing. The former is missing
+planning input; the latter is an explicit statement that the accommodation-commute model does not
+apply on that side. Neither state contributes zero minutes.
 
-### 4.1 No accommodation on an empty side
+### 4.1 Empty day buckets
 
-A boundary reference by itself is not a transfer. A transfer leg only exists when the day has the relevant first/last place and an exact manual leg has been recorded for that endpoint pair.
+An empty day has no first/last route place and therefore no accommodation commute to derive. Its
+result is `not-applicable` for both sides. Phase 3D-Q should keep that boundary entry `unselected` and
+reject/disable attempts to attach an accommodation choice to an empty bucket; there is no endpoint to
+which such a choice could honestly connect.
 
 ### 4.2 No default hotel
 
-No anchor is silently assigned to a day because it is the only anchor, the nearest anchor, the most recently created anchor, or the anchor used by adjacent days. The user chooses the boundary.
+No anchor is silently assigned to a day because it is the only anchor, the nearest anchor, the most recently created anchor, or the anchor used by adjacent days. The user chooses the boundary or explicitly marks that side `no-accommodation`.
 
 ---
 
@@ -217,24 +234,29 @@ A future implementation may eventually let the user record where they looked up 
 
 ## 6. Deriving the two possible legs for one day
 
-Given a non-empty day bucket:
+Each side is evaluated independently against the current day bucket and its explicit boundary choice.
 
-- outbound candidate = `startAccommodationId -> firstPlaceId`;
-- return candidate = `lastPlaceId -> endAccommodationId`.
+For a non-empty day:
 
-Each side is evaluated independently.
+- start `{ kind: "accommodation", accommodationId }` looks up exactly
+  `accommodationId -> firstPlaceId`;
+- end `{ kind: "accommodation", accommodationId }` looks up exactly
+  `lastPlaceId -> accommodationId`;
+- `unselected` performs no lookup and remains an explicit incomplete-input state;
+- `no-accommodation` performs no lookup and means only that this accommodation feature is not
+  applicable on that side. It never supplies a zero-minute transfer.
 
 A closed result should distinguish at least:
 
 ```ts
 type AccommodationBoundaryLegResult =
-  | { kind: "not-applicable" }
-  | { kind: "boundary-not-chosen"; side: "start" | "end" }
+  | { kind: "not-applicable"; side: "start" | "end"; reason: "empty-day" | "explicit-no-accommodation" }
+  | { kind: "boundary-unselected"; side: "start" | "end" }
   | { kind: "manual-leg-missing"; side: "start" | "end"; accommodationId: string; placeId: string }
   | { kind: "manual-leg"; side: "start" | "end"; minutes: number; accommodationId: string; placeId: string };
 ```
 
-No branch may call `getBestTransfer()` using an accommodation ID. No branch may derive minutes from `AccommodationAnchor.location`.
+No branch may call `getBestTransfer()` using an accommodation ID. No branch may derive minutes from `AccommodationAnchor.location`, and `not-applicable` never means a known zero-minute real-world leg.
 
 ---
 
@@ -254,9 +276,30 @@ type DayLogisticsWithAccommodation = {
 
 ### 7.1 Complete vs partial totals
 
-A combined door-to-door transfer total is safe only for the manual/recorded legs actually present.
+The existing `OrderedSequenceSummary.complete` invariant remains load-bearing. Accommodation data
+cannot turn a partial intra-day transfer sum into a complete day total.
 
-If an expected accommodation leg is missing, the UI may show a partial subtotal but must label it as incomplete. It must never treat the missing leg as zero or claim a complete door-to-door total.
+A numeric **registered subtotal** may add only known intra-day transfer minutes and present manual
+accommodation-leg minutes. Unknown place-to-place legs, unselected boundaries, missing manual legs,
+and explicit `no-accommodation` sides contribute nothing to that arithmetic — never zero.
+
+The UI may call an accommodation-aware transfer total **complete door-to-door** only when all of the
+following are true:
+
+1. the day is non-empty;
+2. `intraDay.complete === true`;
+3. the start result is `manual-leg`; and
+4. the end result is `manual-leg`.
+
+If the intra-day sequence is incomplete, a boundary is `unselected`, a selected exact manual leg is
+missing, or either side is explicitly `no-accommodation`, the product must not claim a complete
+door-to-door total. It may show the known subtotal/components with an explicit incomplete label.
+`no-accommodation` means the accommodation model is out of scope for that side, not that the external
+origin/destination transfer is known to be zero.
+
+For a one-place day, `intraDay.complete` is vacuously true and there are no intra-day minutes; if both
+manual accommodation legs exist, their sum may be the complete accommodation-to-place-to-
+accommodation transfer total. An empty day produces no combined transfer total.
 
 ### 7.2 Existing intra-day confidence remains visible
 
@@ -277,7 +320,9 @@ Approved copy families include:
 - `Regreso al alojamiento: 30 min · dato manual`
 - `Traslado desde alojamiento sin registrar`
 - `Regreso al alojamiento sin registrar`
-- `Total de traslados registrado: ... · incompleto` when a required side is missing.
+- `Salida desde alojamiento: no aplica en este día` for an explicit `no-accommodation` start choice;
+- `Regreso a alojamiento: no aplica en este día` for an explicit `no-accommodation` end choice;
+- `Total de traslados registrado: ... · incompleto` whenever the day cannot satisfy the complete-total contract above.
 
 Forbidden copy includes:
 
@@ -329,10 +374,12 @@ The persisted shape is therefore strict:
 - when `days === null`, `dayAccommodationBoundaries` must also be `null`;
 - when `days !== null`, `dayAccommodationBoundaries` must be a non-null array with **exactly the
   same length** as `days`;
-- every position contains one explicit `DayAccommodationBoundary`, using `null` for an unchosen
-  start/end side rather than omitting the position;
-- every non-null accommodation ID in the boundary vector must resolve to a live anchor in
-  `accommodations`;
+- every position contains one explicit `DayAccommodationBoundary`; each side is a tagged
+  `AccommodationBoundaryChoice`, and an undecided side is `{ kind: "unselected" }` rather than an
+  omitted field or nullable ID;
+- every `{ kind: "accommodation" }` choice in the boundary vector must resolve to a live anchor in
+  `accommodations`; `no-accommodation` carries no anchor ID;
+- an empty day bucket may persist only an all-`unselected` boundary entry;
 - accommodation anchor IDs are unique and exact directed manual-leg keys are unique;
 - every manual leg references an existing accommodation anchor and a place in the current route after reconciliation;
 - the V4 parser rejects a length mismatch, a boundary vector present while `days` is null, a null
@@ -343,9 +390,9 @@ The persisted shape is therefore strict:
 The update rule is equally strict. If a new `days` matrix is element-for-element identical to the
 stored matrix, preserve the boundary vector. If **any** part of the day assignment changes — bucket
 count, bucket order, place membership, or place order within a bucket — initialize a fresh boundary
-vector for the new day count with both sides null. Manual accommodation-leg records themselves may
-remain because their identity is endpoint-based; they simply cannot apply again until the user
-explicitly chooses the new day boundaries.
+vector for the new day count with both sides `{ kind: "unselected" }`. Manual accommodation-leg
+records themselves may remain because their identity is endpoint-based; they simply cannot apply
+again until the user explicitly chooses the new day boundaries.
 
 This deliberately prefers losing stale ordinal-day assignments over silently attaching Hotel A to
 a different day. A future phase may preserve boundaries across richer day edits only after adding a
@@ -360,7 +407,7 @@ existing `days` matrix under the current contract and therefore retains its boun
 A successor must define and test these rules explicitly:
 
 - anchors survive route-place reordering and ordinary route edits until the user deletes the anchor;
-- deleting an anchor removes boundary references and manual legs using that anchor;
+- deleting an anchor removes manual legs using that anchor and changes every affected `{ kind: "accommodation" }` boundary choice to `{ kind: "unselected" }`; it never rewrites the choice to `no-accommodation` or to another anchor;
 - removing a place from the route prunes manual accommodation legs using that place, matching the existing no-orphan discipline for `visitStartTimes`;
 - a pure route-place reorder preserves the exact manual legs because their identity is endpoint-based, not ordinal-position-based;
 - any non-identical `withDays` assignment clears all ordinal-day boundary choices before the new split is persisted; no old boundary is shifted or similarity-matched into the new matrix;
@@ -464,35 +511,42 @@ A successor should prove at least:
 
 ### Day boundaries
 
-18. outbound uses exactly the current first place;
-19. return uses exactly the current last place;
-20. changing first place does not reuse the former outbound leg;
-21. changing last place does not reuse the former return leg;
-22. start and end accommodations may differ;
-23. no hotel-to-hotel leg is inferred across days;
-24. empty day produces no fabricated commute.
+18. `unselected` and explicit `no-accommodation` are distinct states;
+19. `no-accommodation` performs no accommodation-leg lookup and never contributes zero minutes;
+20. outbound with an accommodation choice uses exactly the current first place;
+21. return with an accommodation choice uses exactly the current last place;
+22. changing first place does not reuse the former outbound leg;
+23. changing last place does not reuse the former return leg;
+24. start and end accommodations may differ;
+25. no hotel-to-hotel leg is inferred across days;
+26. empty day produces `not-applicable` and cannot retain a selected accommodation boundary.
 
 ### Persistence
 
-25. V3 -> V4 migration creates empty accommodation state only;
-26. route reorder preserves endpoint-keyed legs and, when the existing day matrix is retained exactly, its boundary vector;
-27. place removal prunes its legs;
-28. anchor deletion prunes its references/legs;
-29. any non-identical valid day assignment resets every new ordinal-day boundary to `{ startAccommodationId: null, endAccommodationId: null }` rather than shifting or similarity-matching old boundaries;
-30. an element-for-element identical day assignment preserves the existing boundary vector;
-31. `days === null` requires a null boundary vector, while a non-null `days` matrix requires a boundary vector of exactly the same length;
-32. persisted boundaries referencing an unknown accommodation are rejected, never silently cleared or rebound;
-33. persisted manual legs referencing an unknown accommodation or out-of-route place are rejected/pruned only according to the explicitly defined parse-then-reconcile boundary, never rebound to another endpoint;
-34. start-date change leaves accommodation decisions untouched;
-35. malformed persisted accommodation state rejects under the same fail-safe policy as the rest of the draft.
+27. V3 -> V4 migration creates empty accommodation state only;
+28. route reorder preserves endpoint-keyed legs and, when the existing day matrix is retained exactly, its boundary vector;
+29. place removal prunes its legs;
+30. anchor deletion prunes its legs and changes affected accommodation choices to `unselected`, never to another anchor or `no-accommodation`;
+31. any non-identical valid day assignment resets every new ordinal-day boundary side to `{ kind: "unselected" }` rather than shifting or similarity-matching old boundaries;
+32. an element-for-element identical day assignment preserves the existing boundary vector;
+33. `days === null` requires a null boundary vector, while a non-null `days` matrix requires a boundary vector of exactly the same length;
+34. persisted boundaries referencing an unknown accommodation are rejected, never silently cleared or rebound;
+35. persisted manual legs referencing an unknown accommodation or out-of-route place are rejected/pruned only according to the explicitly defined parse-then-reconcile boundary, never rebound to another endpoint;
+36. start-date change leaves accommodation decisions untouched;
+37. malformed persisted accommodation state rejects under the same fail-safe policy as the rest of the draft.
 
 ### Presentation/aggregation
 
-36. manual legs are visibly labelled manual;
-37. missing expected leg makes any combined total explicitly incomplete;
-38. missing leg never contributes zero;
-39. existing place-to-place transfer confidence/provenance remains visible and unchanged;
-40. no copy claims real-time routing, traffic, timetable validity, hotel optimality or booking state.
+38. manual legs are visibly labelled manual;
+39. `intraDay.complete === false` forbids a complete day transfer-total claim even when both accommodation legs are present;
+40. an unselected boundary makes any accommodation-aware combined total incomplete;
+41. a missing selected accommodation leg makes any combined total incomplete;
+42. explicit `no-accommodation` never upgrades the registered subtotal into a complete door-to-door claim;
+43. missing/unknown legs never contribute zero;
+44. existing place-to-place transfer confidence/provenance remains visible and unchanged;
+45. a one-place day with both manual accommodation legs can produce a complete accommodation-to-place-to-accommodation transfer total;
+46. an empty day produces no combined transfer total;
+47. no copy claims real-time routing, traffic, timetable validity, hotel optimality or booking state.
 
 ---
 
