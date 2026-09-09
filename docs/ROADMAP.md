@@ -2500,6 +2500,191 @@ No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.js
 lockfile, `app/src/lib/recorded-hours.ts`, or any prior design document was changed by this phase,
 and no new dependency was added. No later phase was started.
 
+## Phase 3D-M — Opening-Hours Feasibility Design Gate — complete
+
+**Design/audit only — zero runtime code, zero UI, zero persistence/schema change, zero dataset
+change, zero new dependency, and no solver of any kind.** Asks the question Phase 3D-L's arrival
+makes unavoidable: given only what Nihon can already derive conservatively — a civil visit date, a
+manually chosen local `HH:mm` start time, a recorded duration, a recorded-hours fact, a closure fact
+and the existing hours/closure composition — is there any subset of evidence strong enough to assert
+something *more* than "the recorded duration fits inside the recorded interval", without turning
+editorial data into a false claim of openness or visitability? See
+[`docs/OPENING_HOURS_FEASIBILITY_DESIGN.md`](OPENING_HOURS_FEASIBILITY_DESIGN.md) for the full
+audit.
+
+- [x] **Executive decision: DO NOT IMPLEMENT a full opening-hours solver.** No reliable real-world
+      open/closed judgment and no reliable visitability/admission judgment are supported by the
+      current evidence contract. No immediate successor is recommended because no new,
+      non-redundant safe proposition was identified. This does not prove that every future temporal
+      signal or every confidence-preserving product of recorded facts is impossible.
+- [x] **Trip-specific corroboration: the triple-SAFE intersection is empty.** Re-derived across all 214
+      places — **31** hold both SAFE hours and a SAFE closure fact (20 `recorded-interval` + 11
+      `recorded-24h`), and **0** of those 31 also hold a SAFE `febMar2027` trip-window status.
+      **0 of the 65** SAFE `recorded-interval` places do either. The strongest combination that
+      actually exists is *SAFE interval + SAFE closure + UNKNOWN trip-window confidence* (17
+      places). This is strong evidence against a Feb–Mar 2027 OPEN/VISITABLE claim, not a necessary
+      precondition for ordinary recorded-hours statements, interval arithmetic or other independently
+      true record-level propositions. The Phase 3D-G/H orthogonality principle remains: a weak
+      second axis may require a caveat but must not suppress an independently computable first-axis fact.
+- [x] **The strongest existing combination was tested directly and still fails, on four independent
+      grounds.** Class A — the 20 places with a SAFE interval, a numeric duration, a SAFE closure
+      fact, a valid civil date, a manual `HH:mm` inside the interval, and a `fits` result — is
+      defeated by (1) the closure record's own adjective: all 20 read exactly
+      `"Sin cierre ordinario"`, *no ordinary closure*, and `JP-019` proves the scoping is real by
+      being the same sentence plus `"; clima"` and demoted to PARTIAL; (2) hedging in 19 of the 20
+      hours records (`JP-080` is the only bare token); (3) an unverified trip window in all 20 (17
+      UNKNOWN, 2 PARTIAL, 1 OPAQUE), which blocks a trip-specific confirmation but not arithmetic;
+      and (4) the current contract lacking schedule-field provenance/currency, extraordinary-
+      closure and admission semantics needed for the stronger claim. Class A is strongest for this
+      real-world claim, not the only class relevant to weaker recorded-evidence propositions.
+- [x] **Confounders and provenance are classified at their actual scopes.** `place.schedule` has
+      exactly two keys, `hours` and `closures`. Dedicated last-admission, holiday-calendar,
+      dated-extraordinary-closure, capacity/queue and schedule-field source/`verifiedAt` fields are
+      structurally absent. Raw editorial text nevertheless contains last admission
+      **1** mention (`JP-038`, and its hours classify UNKNOWN so it can never reach arithmetic),
+      capacity **0**, queues **0**, public holidays **2** incidental closure mentions (`JP-018`
+      OPAQUE, `JP-039`) with no calendar anywhere, temporary works **19** closure strings, and
+      operator discretion (`según`/`verificar`/`variable`) in **31 of the 65** eligible closure
+      records. Dataset/place-level editorial provenance exists through `Place.officialUrl`,
+      `Place.updatedAt`, exporter mappings from `"Página oficial/fuente"`/`"Actualizado"`, and
+      `data/sources.json`. What is missing is source and meaningful verification linkage for each
+      schedule assertion, plus currentness/completeness guarantees sufficient for a future-date
+      opening claim; `updatedAt` alone proves neither re-verification nor currency of `schedule.hours`.
+- [x] **Absence of a matching recurring closure is NOT evidence of openness, and the contract proves
+      it rather than merely failing to disprove it.** `assessWeekdayClosure`'s own source says
+      `"no-weekday-match"` "does NOT mean open, feasible, compatible, or 'no closure'". Measured:
+      over the 18 `candidate-weekday` interval places across one civil week, the synthetic matrix
+      contains 18 × 7 = 126 cells, split
+      **108 `no-weekday-match` / 18 `possible-weekday-closure-match`** — the 6-in-7 a single named
+      weekday must produce by construction. These are not visits, independent records or measured
+      user behaviour; the figure supports classifier asymmetry, not an empirical UX conclusion.
+- [x] **A closed recorded-evidence product is reachable but not justified as a new feature now.** It
+      can truthfully carry `RecordedIntervalDurationFit`, `WeekdayClosureAssessment`,
+      `HoursClosureComposition` and raw caveats while the record remains the subject. That is
+      juxtaposition/presentation composition permitted by Phase 3D-I/J, not a solver. It derives no
+      new proposition: interval fit is already 3D-L; ordinary-closure and weekday candidate facts
+      are already 3D-B/J. Stronger OPEN/VISITABLE variants remain unsupported, so no new union or
+      domain model is proposed for product-value reasons rather than type-theoretic unreachability.
+- [x] **Three near-miss alternatives worked individually and refused with reasons**, which is most
+      of this gate's practical value: an evidence-completeness disclosure (it is the refused
+      "insufficient evidence" state as a widget, implying a top of scale no place reaches); a
+      *weakening* cross-reference from the closure notice to the fit line (conservative in direction,
+      but its selective absence could plausibly be read as clearance; the 108/126 synthetic matrix
+      demonstrates classifier asymmetry, not observed user behaviour); and
+      restricting the shipped fit line to `jointly-presentable` places (a regression that would hide
+      it for 45 of 65). Selective omission is a plausible and important UX risk that is sufficient
+      to reject these proposals absent user testing or explicit neutral framing; it is not proof
+      that omission is logically equivalent to an explicit claim or that the domain fact is impossible.
+- [x] **Every prior boundary re-tested against live data and reaffirmed, none loosened.**
+      `bestTime` stays completely excluded from feasibility (inside the 65: Mañana 45, Tarde 15,
+      Atardecer 4, Apertura 1 — 45 "morning" recommendations against intervals opening 06:00–10:30).
+      `recorded-24h` stays excluded from remaining-minutes arithmetic because it supplies no bounded
+      closing interval; no closing bound may be invented. It may still participate in the existing
+      Phase 3D-J recorded hours/closure presentation, and this gate identifies no new arithmetic or
+      stronger opening signal for it. Overnight stays unsupported: an overnight
+      interval spans two civil dates and Phase 3D-B's contract says nothing about which weekday a
+      closure assessment would apply to. `febMar2027` stays orthogonal: a non-SAFE value blocks a
+      strong trip-window confirmation but does not invalidate or suppress an independently true
+      record-level arithmetic result.
+- [x] **An explicit intermediate Level 2.5 reconciles the gate with Phase 3D-I/J.** Level 1 is
+      recorded evidence; Level 2 is arithmetic about it; Level 2.5 is confidence-preserving
+      composition whose semantics remain the conjunction/product of existing recorded facts;
+      Level 3 is a genuine opening-hours fact; Level 4 is visitability. 1→2 and 1/2→2.5 are safe
+      while the record remains the subject and no component is strengthened. **2.5→3 is forbidden
+      under the current evidence contract.** It requires a stronger authoritative/current schedule
+      contract; field-level provenance/currency is necessary but insufficient without relevant
+      extraordinary-closure, holiday, last-admission, scope and admission semantics.
+- [x] **Real-dataset inventory re-derived against the live classifiers**, including — for the first
+      time — the **shipped** `parseRecordedInterval()` and `evaluateRecordedIntervalFit()` rather
+      than an audit-only candidate parser: 214 places; hours tiers 80/50/19/65; closure tiers
+      61/31/83/39; 65 SAFE `recorded-interval` (62 numeric durations, 0 point values, 29 distinct
+      tokens, 65/65 parsing, 0 overnight, 0 degenerate); 15 `recorded-24h`; closure evidence within
+      the 65 split 20 SAFE / 18 PARTIAL / 17 OPAQUE / 10 UNKNOWN with **38 of 65** structured enough
+      for any proposed composition and **37** of those also numerically evaluable; composition
+      classes 20/18/17/10 over the 65 and 31/43/56/84 over all 214; and 62/62 places reaching all
+      three informative fit outcomes. Every figure that coincides with Phase 3D-I's or 3D-K's is
+      recorded as a **verified match**, not inherited. Harnesses deleted before commit — this
+      phase's diff contains no `.ts` file.
+- [x] **Ambiguity ledger after a manual `HH:mm`**: extraordinary closure unresolved for 65/65,
+      public holiday 65/65, last admission 65/65, capacity and queues 65/65, `"aprox."` magnitude
+      58/65, sub-facility scope 7 explicit and unknowable for the other 58, trip-window confidence
+      not SAFE for 64/65, and closure evidence not even structured for 27/65. **Every one of the 65
+      remains ambiguous on at least four axes after the user supplies a time.** The manual `HH:mm`
+      resolves the one variable Phase 3D-I lacked; it resolves none of these.
+- [x] **Reopening gates are claim-specific, not five universal prerequisites.** Schedule-field
+      source plus meaningful verification date is necessary but insufficient for a strong
+      authoritative/current hours claim, not for record arithmetic. Structured extraordinary-
+      closure coverage is needed for a strong "not closed on this date" claim. Last admission is
+      needed where admission/visitability may diverge from closing. Scope/`"aprox."` semantics are
+      required only for claims that include ambiguous records or demand exactness; eligibility may
+      instead exclude them. Nihon already uses external editorial research: the distinct product
+      choice is live/runtime verification and/or a stronger curated static schedule-field contract
+      with provenance, currency and refresh guarantees. Any future gate must select only the
+      conditions required by its proposed claim. The six constraints recorded for a continuation
+      of the current Phase 3D-L arithmetic surface apply only when that continuation explicitly
+      preserves its evidence/product contract; they do not override a different claim-specific gate.
+- [x] **Validation**: 950 app tests across 27 files (unchanged — this phase adds and modifies no
+      test); 82 temporal-audit tests; `npx oxlint`; `npx tsc -b`; production build (105 modules);
+      dataset validation (214 places, 403 nearby relations, 0 broken references, the same 13
+      secondary-metadata warnings); geography validation (47 prefectures, 47 polygons, 9 regions,
+      214 places); logistics validation (24 pilot and 308 scale results); and `git diff --check`.
+      All pass. No validator input changed: the diff remains two Markdown files.
+
+**One new risk recorded that no prior phase had named:** `JP-038`'s last-admission rule
+(`"Variable; última entrada 1 h antes"`) is invisible to interval arithmetic only because its hours
+classify UNKNOWN. Therefore it cannot reach interval arithmetic today and no current wrong fit is
+produced. A future promotion/data edit could create an apparently clean interval without preserving
+that admission boundary, and no existing regression specifically protects this case: **existing-
+feature hardening debt / future correctness protection gap**, not a current runtime defect and not
+fixed in this documentation-only PR. Also confirmed: `JP-089`'s exact raw value is `"Martes en meses
+específicos; fin de año"`; `interpretClosureText` extracts Tuesday and `assessWeekdayClosure` may
+return `possible-weekday-closure-match` on any Tuesday. That over-warns relative to the unidentified
+month scope, but remains intentionally PARTIAL/candidate semantics and never means "closed".
+
+**Carried forward, still not fixed and still not this phase's to fix:** `JP-211`'s
+`"09:00–17:00 según anuncio"` classifies SAFE because `"anuncio"` is absent from the third-party
+regex word list; `JP-016`'s recorded `06:00–17:00` hall interval is discarded by the `known-24h`
+priority branch; and `docs/DATA_MODEL.md` still does not mention Phase 3D-G, 3D-H, 3D-I, 3D-J, 3D-K
+or 3D-L.
+
+**Explicit non-goals for this phase:** no opening-hours solver or open/closed judgment; no composition of an hours
+fact with a closure fact, `febMar2027`, `bestTime` or a reservation field into a stronger real-world
+claim (confidence-preserving recorded-evidence juxtaposition remains valid); no
+`Date.now()`, "now", urgency or countdown; no timezone or absolute instant; no holiday or special
+calendar; no live/temporary verification against any source (zero network requests, and no use of
+`place.officialUrl` beyond the existing link); no last-admission, capacity, queue or timed-entry
+modelling; no overnight support; no `recorded-24h` arithmetic; no derived arrival/departure time or
+transport interaction; and no automatic itinerary generation, route optimisation, day scoring,
+rescheduling, hotel modelling or live transit.
+
+No `data/places.json`, `app/src/data/places.json`, workbook, `seasonal-alerts.json`, `package.json`,
+lockfile, any `.ts`/`.tsx`/`.css` file, any test, or any prior design document was changed by this
+phase — Phase 3D-A's, 3D-I's and 3D-K's contracts are cited here, never edited. No planning-draft
+schema change and no `PLANNING_DRAFT_VERSION` move. No later phase was started. No immediate
+successor is recommended under the current contract; future reconsideration is not categorically
+closed if data semantics, product scope, or the proposed record-level proposition changes.
+
+### Corrective pass — independent hostile review
+
+The review found four **MAJOR reasoning-scope defects**: provenance/currency was overstated as
+absent; triple-SAFE was used beyond `febMar2027`'s orthogonal scope; closed-union reachability was
+confused with semantic/product novelty; and five reopening conditions were treated as universally
+necessary. The rationale is now narrower: composed recorded-evidence products are possible but
+currently redundant, and reopening gates are claim-specific.
+
+A second corrective pass resolved two residual **MAJOR scope contradictions** left by that first
+pass: §15's current-product constraints no longer govern every claim-specific reopening, and the
+eligibility/UI/styling/test contracts in §§17/21/22/24 no longer bind every future proposition.
+They remain mandatory for Phase 3D-L and for a successor that explicitly preserves its arithmetic
+contract. A different proposition must instead derive its tests and presentation from its exact
+claim, legitimate inputs, semantic invariants, provenance/currency limits and non-claims. Reading or
+composing closures or `febMar2027` is not universally prohibited, but it never licenses an
+OPEN/CLOSED/FEASIBLE/VISITABLE inference by itself. The four original MAJOR findings are therefore
+finally resolved after this second pass.
+
+Unchanged: no full solver, no open/closed judgment, no visitability/admission judgment, no
+implementation, and no immediate successor recommendation. Phase 3D-N was not started.
+
 ## Later (unscheduled)
 
 - [ ] Evaluate versioned LF policy and response-header/error telemetry as separate
@@ -2570,10 +2755,21 @@ and no new dependency was added. No later phase was started.
       eight-state comparison of the recorded duration against the time remaining in that interval.
       **Still not done, and not implied by it**: any open/closed judgment, `recorded-24h`
       arithmetic, overnight support, timezone or absolute-instant handling, holiday handling, and
-      any derived arrival time or scheduling between places. A full opening-hours feasibility solver remains a
-      distinct, unscheduled, separately-decided future phase — not an incremental extension of
-      Phase 3D-B's, Phase 3D-E's, or Phase 3D-J's conservative signals, and not implied by Phase
-      3D-K's design gate.
+      any derived arrival time or scheduling between places. **DECIDED AGAINST (Phase 3D-M):** a
+      full opening-hours feasibility solver was audited end to end and **refused** — see
+      [`docs/OPENING_HOURS_FEASIBILITY_DESIGN.md`](OPENING_HOURS_FEASIBILITY_DESIGN.md) and the
+      Phase 3D-M entry above. Under the **current data/evidence contract**, the audit proves no
+      reliable real-world open/closed or visitability judgment and identifies no new,
+      non-redundant composed recorded-evidence proposition worth an immediate successor. A safe
+      Level-2.5 product of existing facts is possible but currently redundant with Phase 3D-B/J/L.
+      This is not a permanent closure against every possible future data or product change.
+      Reopening must be claim-specific: stronger schedule-field provenance/currency, extraordinary-
+      closure coverage, last admission, scope/exactness or live/runtime verification matter only
+      where the proposed claim requires them. A future revisit is legitimate if data semantics
+      improve, a genuinely new record-level proposition is identified, or product scope changes.
+      The current arithmetic surface's input-isolation and UI/test contracts remain correct for it
+      and for an explicit contract-preserving successor, but are not permanent architecture for a
+      different proposition. Phase 3D-N remains not started.
 - [ ] Reservation booking-deadline intelligence — this item's wording is updated here specifically
       because it would otherwise now be false. **DONE (Phase 3D-D)**: a runtime classification of
       `reservation.leadTime` into a coarse days/weeks/months magnitude (`bare-magnitude`) or an
