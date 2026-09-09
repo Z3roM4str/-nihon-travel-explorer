@@ -24,6 +24,15 @@ import {
   deriveVisitDateForPlace,
   type ReservationDateWindow,
 } from "../lib/reservation-deadline";
+import {
+  captureDeviceLocalCivilDate,
+  evaluateReservationWindowReference,
+  type ReservationWindowReferenceRelation,
+} from "../lib/reservation-window-reference";
+import {
+  describeReservationWindowReferenceForUi,
+  formatDeviceReferenceDateForUi,
+} from "../lib/reservation-window-reference-presentation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
 import {
   buildDayRecordedIntervalFits,
@@ -106,6 +115,13 @@ type Props = {
  * reads `Date.now()`, and never reads or is gated by `place.febMar2027` internally — Feb–Mar 2027
  * confidence composes at THIS presentation layer only (`ReservationDeadlineNotice` below), never
  * inside `reservation-deadline.ts` itself, per the design gate's orthogonality rule (§6.2).
+ *
+ * Phase 3D-O extends that same per-day reservation surface with one secondary relation between the
+ * already-derived Phase 3D-H window and one explicitly disclosed device-local civil date captured
+ * when this planner instance opens. The relation is recomputed from the current window but the
+ * captured reference date is not persisted and does not self-refresh at midnight; the exact date
+ * used is rendered alongside the relation. Before/within/after remains neutral planning context —
+ * never booking-open/closed, availability, urgency, countdown, or Japan business-date semantics.
  *
  * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
  * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
@@ -682,16 +698,19 @@ function ReservationDeadlineNotice({
   places,
   dayAssignment,
   startDate,
+  referenceDate,
 }: {
   places: readonly Place[];
   dayAssignment: DayAssignment;
   startDate: string | null;
+  referenceDate: string | null;
 }) {
   type DeadlineItem = {
     place: Place;
     window: Extract<ReservationDateWindow, { kind: "derived-window" }>;
     febMarTone: FebMarStatusTone;
     febMarLabel: string;
+    relation: ReservationWindowReferenceRelation | null;
   };
 
   const items: DeadlineItem[] = [];
@@ -700,14 +719,21 @@ function ReservationDeadlineNotice({
     const window = derivePlaceReservationDateWindow(place, visitDate);
     if (window.kind !== "derived-window") continue;
     const febMarDisplay = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
-    items.push({ place, window, febMarTone: febMarDisplay.tone, febMarLabel: febMarDisplay.label });
+    const relation = referenceDate ? evaluateReservationWindowReference(window, referenceDate) : null;
+    items.push({
+      place,
+      window,
+      febMarTone: febMarDisplay.tone,
+      febMarLabel: febMarDisplay.label,
+      relation,
+    });
   }
 
   if (items.length === 0) return null;
 
   return (
     <section className="reservation-deadline" aria-label="Ventana de anticipación registrada">
-      {items.map(({ place, window, febMarTone, febMarLabel }) => (
+      {items.map(({ place, window, febMarTone, febMarLabel, relation }) => (
         <div key={place.id} className="reservation-deadline__item">
           <span className="reservation-deadline__name">{place.name}</span>
           {febMarTone === "pending" && (
@@ -727,6 +753,16 @@ function ReservationDeadlineNotice({
             Ventana de anticipación registrada: {formatCivilDateDisplay(window.farAdvanceDate)} –{" "}
             {formatCivilDateDisplay(window.nearAdvanceDate)}
           </span>
+          {referenceDate && relation && relation.kind !== "not-assessed" && (
+            <>
+              <span className="reservation-deadline__reference-date">
+                {formatDeviceReferenceDateForUi(referenceDate)}
+              </span>
+              <span className="reservation-deadline__reference-relation">
+                {describeReservationWindowReferenceForUi(relation)}
+              </span>
+            </>
+          )}
           <span className="reservation-deadline__raw">Dato: «{window.signal.raw}»</span>
         </div>
       ))}
@@ -736,7 +772,9 @@ function ReservationDeadlineNotice({
         <strong>
           No confirma disponibilidad ni indica cuándo puedes reservar; reservar antes o después de estas
           fechas también puede ser posible.
-        </strong>
+        </strong>{" "}
+        La fecha de referencia mostrada se captura del calendario local de tu dispositivo al abrir este plan;
+        no representa la fecha operativa en Japón y no se actualiza automáticamente mientras esta vista siga abierta.
       </p>
     </section>
   );
@@ -966,6 +1004,7 @@ const FOCUSABLE =
 export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [reservationReferenceDate] = useState<string | null>(() => captureDeviceLocalCivilDate());
 
   const placeById = useMemo(() => new Map(savedPlaces.map((place) => [place.id, place])), [savedPlaces]);
   const savedIds = useMemo(() => savedPlaces.map((place) => place.id), [savedPlaces]);
@@ -1416,6 +1455,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             places={places}
                             dayAssignment={dayAssignment}
                             startDate={startDate}
+                            referenceDate={reservationReferenceDate}
                           />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />

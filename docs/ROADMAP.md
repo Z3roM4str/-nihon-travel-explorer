@@ -2846,3 +2846,34 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       one into ordinal days; none of the three chose an order, a day count, or a place-to-day
       assignment on the user's behalf, and any future automation here is a distinct,
       separately-scoped decision — not an incremental extension to make without one.
+
+## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
+
+- [x] **Pure closed relation over the existing Phase 3D-H result.** `reservation-window-reference.ts`
+      consumes only an already-derived `ReservationDateWindow` plus one explicit civil reference date and
+      returns `before-recorded-window`, `within-recorded-window`, `after-recorded-window`, or a named
+      `not-assessed` refusal. Both recorded edges are inclusive; Phase 3D-H remains the sole owner of
+      lead-time parsing and window derivation.
+- [x] **Explicit device-local clock boundary, not an ambient domain clock.**
+      `captureDeviceLocalCivilDate()` derives `YYYY-MM-DD` from local calendar getters on an injected/runtime
+      `Date`; the pure evaluator does not construct a current date. UTC extraction, ISO serialization,
+      `Asia/Tokyo`, countdowns and Japan business-date inference remain absent.
+- [x] **Existing per-day reservation surface extended, not replaced.** `ReservationDeadlineNotice` remains
+      the only user-facing surface for the derived Phase 3D-H window. For each eligible place it now also
+      shows `Fecha de referencia (tu dispositivo): YYYY-MM-DD` plus neutral before/within/after copy while
+      retaining the original recorded window, raw lead-time evidence and the existing Feb–Mar caveat.
+- [x] **Reference freshness is disclosed.** The planner captures one concrete device-local civil date when
+      that planner instance opens. The exact date used remains visible; the copy explicitly says it is not
+      Japan's operating date and does not imply an automatic midnight refresh.
+- [x] **No persistence or evidence-boundary expansion.** No planning-draft schema/version change, dataset
+      edit, dependency/package/lockfile change, month/mixed/specific-mechanism widening, reservation
+      requirement reinterpretation, availability claim, booking-open/deadline claim, urgency or reminder.
+- [x] **Deterministic coverage.** Domain tests cover invalid/no-window states, before/within/after, both
+      inclusive edges, month/year rollover, leap day and a same-day window. Clock-boundary tests prove local
+      getters are used even when local and UTC civil dates diverge. Structural integration tests pin the
+      existing day-card wiring, exact reference-date disclosure, raw evidence retention, one-dialog surface
+      and absence of persistence/stronger booking-state copy.
+- [x] **Validation gate.** This closure is committed only after `npm test`, `npm run build`, `npm run lint`
+      and `git diff --check` all pass on the exact resulting tree.
+
+**Phase 3D-P or later work is NOT STARTED by this implementation.**

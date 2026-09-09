@@ -405,11 +405,11 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
     expect(noticeSource).toMatch(/deriveVisitDateForPlace\(\s*dayAssignment\s*,\s*startDate\s*,\s*place\.id\s*\)/);
   });
 
-  it("renders ReservationDeadlineNotice per day bucket, passing this day's own places and dayAssignment/startDate", async () => {
+  it("renders ReservationDeadlineNotice per day bucket, passing this day's own places, dayAssignment/startDate and referenceDate", async () => {
     const source = await readSource();
     expect(source).toContain("function ReservationDeadlineNotice(");
     expect(source).toMatch(
-      /<ReservationDeadlineNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s*\/>/
+      /<ReservationDeadlineNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+referenceDate=\{reservationReferenceDate\}\s*\/>/
     );
   });
 
