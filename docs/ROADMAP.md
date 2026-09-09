@@ -2683,7 +2683,49 @@ OPEN/CLOSED/FEASIBLE/VISITABLE inference by itself. The four original MAJOR find
 finally resolved after this second pass.
 
 Unchanged: no full solver, no open/closed judgment, no visitability/admission judgment, no
-implementation, and no immediate successor recommendation. Phase 3D-N was not started.
+implementation, and no immediate successor recommendation for Phase 3D-M's refused opening-hours
+solver. At the close of Phase 3D-M, Phase 3D-N had not started; it began subsequently as a separate
+reservation-timing gate and does not reopen the opening-hours line or change Phase 3D-M's decision.
+
+## Phase 3D-N — Reservation Window Reference-Date Design Gate — design/audit only
+
+**Design/audit only — zero runtime code, zero UI, zero persistence/schema change, zero dataset
+change, zero new dependency, and no implementation of the relation.** See
+[`docs/RESERVATION_WINDOW_REFERENCE_DATE_DESIGN.md`](RESERVATION_WINDOW_REFERENCE_DATE_DESIGN.md)
+for the full contract.
+
+**Decision: approve only the following proposition as safe for a future successor:** given an
+explicit reference civil date and a `ReservationDateWindow` already derived by Phase 3D-H, determine
+whether the reference date is **before**, **within**, or **after** the recorded advance-guidance
+window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nearAdvanceDate` is
+`within`.
+
+- [x] **Phase 3D-H remains the sole owner of `reservation.leadTime` interpretation.** This gate does
+      not widen eligibility to month ranges, mixed units, unit-only values, or specific mechanisms;
+      it consumes an existing Phase 3D-H `ReservationDateWindow` and never manufactures one.
+- [x] **The window names retain their narrow meaning.** `farAdvanceDate` is not reinterpreted as
+      booking-open, and `nearAdvanceDate` is not reinterpreted as a booking deadline. The relation
+      proves no availability, booking-open/booking-closed state, `book now`, late/urgent/last-chance
+      state, countdown, reminder, automation, or guaranteed deadline.
+- [x] **The domain boundary requires an explicit `referenceDate: YYYY-MM-DD`.** The pure evaluator
+      reads no ambient clock. A future application boundary may capture the device-local civil date,
+      but it must derive that value from `getFullYear()`, `getMonth()`, and `getDate()` — never
+      `toISOString()`, `getUTCFullYear()`, `getUTCMonth()`, or `getUTCDate()` — while the existing
+      civil-date arithmetic remains UTC-component-based and timezone-free.
+- [x] **The concrete reference date used must be disclosed.** It must not be called "today in
+      Japan," introduce an IANA timezone or Japan business-date inference, or promise automatic
+      refresh when local midnight passes.
+- [x] **All orthogonal contracts remain orthogonal.** No persistence/version migration; no change
+      to `reservation.required` or required/recommended/optional semantics; and no composition with
+      opening hours, closures, `febMar2027`, `bestTime`, visit-start-times, or logistics may produce
+      a stronger claim.
+- [x] **Corrective review closed three precision gaps:** exact separation between device-local
+      capture and UTC/timezone-free arithmetic; reservation requirement/optionality remaining
+      orthogonal to the relation; and the absence of any implicit midnight-freshness contract.
+
+**Recommended successor: Phase 3D-O — Reservation Window Reference-Date Relation.** Phase 3D-O is
+**NOT STARTED**: it is recommended only, not implemented or scheduled by this design gate. No Phase
+3D-P or later work was started.
 
 ## Later (unscheduled)
 
@@ -2769,7 +2811,9 @@ implementation, and no immediate successor recommendation. Phase 3D-N was not st
       improve, a genuinely new record-level proposition is identified, or product scope changes.
       The current arithmetic surface's input-isolation and UI/test contracts remain correct for it
       and for an explicit contract-preserving successor, but are not permanent architecture for a
-      different proposition. Phase 3D-N remains not started.
+      different proposition. Phase 3D-N began subsequently as a separate reservation-window /
+      reference-date design gate; it is not an opening-hours successor and does not reopen Phase
+      3D-M's decision.
 - [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-H;
       broader deadline and availability intelligence remains unscheduled. DONE:** Phase 3D-D
       provides coarse lead-time classification and its conservative preparation summary. Phase
@@ -2779,13 +2823,19 @@ implementation, and no immediate successor recommendation. Phase 3D-N was not st
       derived relative to the validated visit date. The existing presentation conservatively labels
       this a recorded advance-notice window and retains the raw source text and applicable caveats.
       `farAdvanceDate` and `nearAdvanceDate` are only the bounds of that recorded window; they are
-      not "booking opens" or a "booking deadline" and do not guarantee availability. **STILL NOT
-      DONE:** converting month ranges or mixed-unit/unit-only text into dates; interpreting specific
-      mechanisms, lotteries, or releases; knowing "today" via `Date.now()` or an equivalent source
-      for the current date; comparing the current date with the recorded window; deriving `late`,
-      `urgent`, `book now`, or similar urgency states; asserting availability; reminders or
-      automation; live inventory or booking integration; or any inference stronger than the
-      recorded window.
+      not "booking opens" or a "booking deadline" and do not guarantee availability. **STUDIED /
+      DESIGNED, NOT IMPLEMENTED (Phase 3D-N):** the design gate approved only a relation between an
+      explicit reference civil date and an existing Phase 3D-H `ReservationDateWindow`: before the
+      recorded window, within it, or after it, with equality at `farAdvanceDate` or
+      `nearAdvanceDate` classified as within. The evaluator must receive that explicit date; it may
+      not call `Date.now()` or read another ambient clock inside the domain. Phase 3D-N implements no
+      runtime. Its recommended implementation successor, Phase 3D-O — Reservation Window
+      Reference-Date Relation, remains **NOT STARTED**. **STILL NOT DONE:** converting month ranges,
+      mixed-unit text, or unit-only text into dates; interpreting specific mechanisms, lotteries, or
+      releases; the runtime reference-date evaluator; the device-local adapter; presentation of the
+      before/within/after relation; any Japan business-date semantics; urgency, late, `book now`,
+      booking opening/closing, or a guaranteed deadline; availability; reminders or automation;
+      live inventory or booking integration; or any inference stronger than the recorded evidence.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.
