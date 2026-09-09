@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
-import { formatRange, resolveDuration } from "../lib/duration";
+import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
 import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
 import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
@@ -38,6 +38,16 @@ import {
   buildDayRecordedIntervalFits,
   type RecordedIntervalDurationFit,
 } from "../lib/recorded-interval-fit";
+import {
+  buildDayLogisticsWithAccommodation,
+  isValidAccommodationLocation,
+  isValidManualAccommodationMinutes,
+  type AccommodationAnchor,
+  type AccommodationBoundaryChoice,
+  type AccommodationBoundaryLegResult,
+  type DayAccommodationBoundary,
+  type ManualAccommodationLeg,
+} from "../lib/accommodation-commute";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -134,6 +144,23 @@ type Props = {
  * never composes with Phase 3D-B's closure signal or `febMar2027` — see `../lib/recorded-hours.ts`
  * for the exact product boundary and `HoursPlanningSection` below for the wording this is allowed
  * to use.
+ *
+ * **Phase 3D-Q — Manual Accommodation Commute Legs** adds the first surface in this planner that
+ * reaches outside a day's own place sequence, and it does so only with decisions the user makes
+ * explicitly. An accommodation is a SEPARATE entity (`../lib/accommodation-commute.ts`), never a
+ * `Place`: no anchor id ever enters `routeIds`, `days`, an `OrderedSequence`, a day bucket, or any
+ * tourism dataset, and no anchor is ever passed to `getBestTransfer` — a manual accommodation leg
+ * is not a `TransferEdge` and is composed OUTSIDE `OrderedSequenceSummary`, so the existing
+ * place-to-place semantics and provenance are untouched.
+ *
+ * Two things, and only two, come from the user: which anchor (if any) applies at each side of each
+ * ordinal day, and the exact directed accommodation↔place duration they typed. Nothing is derived
+ * — no geocoding, no routing, no live transit, no booking lookup, no haversine, no nearest place,
+ * no reverse inference (`Hotel A → Place X` never fills in `Place X → Hotel A`), and no default
+ * anchor. An anchor's coordinates are geographic identity only and are never read as arithmetic.
+ * A missing leg reads as unrecorded and contributes nothing to any subtotal — never zero minutes.
+ * See `AccommodationManagerSection`/`AccommodationCommuteSection` below for the exact wording this
+ * is allowed to use.
  */
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
@@ -998,6 +1025,420 @@ function comparisonResultText(comparison: SequenceComparison): { headline: strin
   return { headline, detail };
 }
 
+/**
+ * Phase 3D-Q — Manual Accommodation Commute Legs: the anchor manager.
+ *
+ * The user creates an accommodation by typing a label and its coordinate. NOTHING is looked up:
+ * there is no geocoding, no address parsing, no hotel search, no booking inventory, no chain or
+ * quality semantics, and no map provider call. The coordinate is planning context and geographic
+ * identity only — it is never read to produce minutes, distance, a nearest place, or a route.
+ *
+ * A direct pin-on-the-map picker would need a second interactive map inside this dialog, which is
+ * a larger architectural change than this phase is allowed to make, so the coordinate is entered
+ * as two plain numeric fields for now (design §3.3 requires a real machine-readable location, not
+ * a specific input widget).
+ *
+ * Two anchors with the same label and/or the same coordinates stay two anchors — the list order
+ * means nothing, and nothing here merges, ranks, sorts, or recommends one.
+ */
+function AccommodationManagerSection({
+  accommodations,
+  onAdd,
+  onRemove,
+}: {
+  accommodations: readonly AccommodationAnchor[];
+  onAdd: (label: string, location: { lat: number; lng: number }) => void;
+  onRemove: (accommodationId: string) => void;
+}) {
+  const [label, setLabel] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+
+  const parsedLat = parseCoordinateInput(lat);
+  const parsedLng = parseCoordinateInput(lng);
+  const location = parsedLat !== null && parsedLng !== null ? { lat: parsedLat, lng: parsedLng } : null;
+  const canAdd = label.trim().length > 0 && location !== null && isValidAccommodationLocation(location);
+
+  function add() {
+    if (!canAdd || !location) return;
+    onAdd(label, location);
+    setLabel("");
+    setLat("");
+    setLng("");
+  }
+
+  return (
+    <section className="accommodation-manager" aria-label="Alojamientos">
+      <h3>Alojamientos</h3>
+      <p className="accommodation-manager__intro">
+        Tú creas cada alojamiento y escribes sus coordenadas. Nihon no busca hoteles, no interpreta
+        direcciones y <strong>no usa estas coordenadas para calcular tiempos ni rutas</strong>.
+      </p>
+
+      {accommodations.length === 0 ? (
+        <p className="accommodation-manager__empty">Todavía no has creado ningún alojamiento.</p>
+      ) : (
+        <ul className="accommodation-manager__list">
+          {accommodations.map((anchor) => (
+            <li key={anchor.id} className="accommodation-manager__item">
+              <span className="accommodation-manager__label">{anchor.label}</span>
+              <span className="accommodation-manager__coords">
+                {anchor.location.lat}, {anchor.location.lng}
+              </span>
+              <button
+                type="button"
+                className="icon-button icon-button--small"
+                onClick={() => onRemove(anchor.id)}
+                aria-label={`Eliminar alojamiento ${anchor.label}`}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="accommodation-manager__form">
+        <label className="accommodation-manager__field" htmlFor="accommodation-new-label">
+          Nombre del alojamiento
+          <input
+            id="accommodation-new-label"
+            className="accommodation-manager__input"
+            type="text"
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+          />
+        </label>
+        <label className="accommodation-manager__field" htmlFor="accommodation-new-lat">
+          Latitud
+          <input
+            id="accommodation-new-lat"
+            className="accommodation-manager__input"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={lat}
+            onChange={(event) => setLat(event.target.value)}
+          />
+        </label>
+        <label className="accommodation-manager__field" htmlFor="accommodation-new-lng">
+          Longitud
+          <input
+            id="accommodation-new-lng"
+            className="accommodation-manager__input"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={lng}
+            onChange={(event) => setLng(event.target.value)}
+          />
+        </label>
+        <button type="button" className="button button--secondary" onClick={add} disabled={!canAdd}>
+          <span aria-hidden="true">＋</span> Añadir alojamiento
+        </button>
+      </div>
+      {!canAdd && (label.trim().length > 0 || lat.trim().length > 0 || lng.trim().length > 0) && (
+        <p className="accommodation-manager__hint">
+          Escribe un nombre y unas coordenadas dentro de rango (latitud −90 a 90, longitud −180 a
+          180).
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** Reads one coordinate field exactly as typed. A blank field is `null` — never `0`, which
+ * `Number("")` would otherwise produce and which is a perfectly valid coordinate. */
+function parseCoordinateInput(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return null;
+  const value = Number(trimmed);
+  return Number.isFinite(value) ? value : null;
+}
+
+/** The `<select>` value for one boundary choice. The accommodation id is carried after a fixed
+ * prefix and recovered by slicing that prefix, so an id containing the separator is impossible to
+ * misread. */
+const ACCOMMODATION_OPTION_PREFIX = "accommodation:";
+
+function boundaryChoiceToOptionValue(choice: AccommodationBoundaryChoice): string {
+  return choice.kind === "accommodation"
+    ? `${ACCOMMODATION_OPTION_PREFIX}${choice.accommodationId}`
+    : choice.kind;
+}
+
+function optionValueToBoundaryChoice(value: string): AccommodationBoundaryChoice | null {
+  if (value === "unselected" || value === "no-accommodation") return { kind: value };
+  if (value.startsWith(ACCOMMODATION_OPTION_PREFIX)) {
+    const accommodationId = value.slice(ACCOMMODATION_OPTION_PREFIX.length);
+    if (accommodationId.length > 0) return { kind: "accommodation", accommodationId };
+  }
+  return null;
+}
+
+/**
+ * The exact, neutral sentence for one evaluated boundary side (design §7.3's approved copy).
+ *
+ * Every state is spelled out and none of them is arithmetic: `boundary-unselected` says the user
+ * has not chosen yet, `explicit-no-accommodation` says the accommodation model does not apply on
+ * that side, and `manual-leg-missing` says the exact directed duration is unrecorded. NONE of them
+ * means "0 min", and none of them is ever presented as a real-world transfer time.
+ *
+ * A recorded duration is always labelled `dato manual`. It is never described as a route, a
+ * real-time result, a timetable, a traffic condition, or a provider's answer, and no ± range is
+ * invented around it.
+ */
+function accommodationBoundaryText(result: AccommodationBoundaryLegResult): string {
+  const isStart = result.side === "start";
+  switch (result.kind) {
+    case "manual-leg":
+      return isStart
+        ? `Salida desde alojamiento: ${formatMinutes(result.minutes)} · dato manual`
+        : `Regreso al alojamiento: ${formatMinutes(result.minutes)} · dato manual`;
+    case "manual-leg-missing":
+      return isStart ? "Traslado desde alojamiento sin registrar" : "Regreso al alojamiento sin registrar";
+    case "not-applicable":
+      return isStart
+        ? "Salida desde alojamiento: no aplica en este día"
+        : "Regreso al alojamiento: no aplica en este día";
+    case "boundary-unselected":
+      return isStart
+        ? "Salida desde alojamiento: sin seleccionar"
+        : "Regreso al alojamiento: sin seleccionar";
+  }
+}
+
+/**
+ * One side of one day's accommodation boundary: the explicit choice, and — only when an
+ * accommodation is chosen — the EXACT directed endpoint pair and its user-entered duration.
+ *
+ * The endpoint shown is exactly the one the domain evaluated: this day's current first place for
+ * the start side, its current last place for the end side. Editing minutes writes only that exact
+ * `(direction, accommodationId, placeId)` key: the reverse direction, another anchor, and another
+ * place are all untouched, and a blank field clears that one key rather than storing zero.
+ *
+ * A value that is not a positive whole number of minutes is rejected outright — never rounded and
+ * never coerced — exactly as `withAccommodationLeg` rejects it in the persisted draft.
+ */
+function AccommodationBoundarySide({
+  side,
+  dayNumber,
+  result,
+  choice,
+  accommodations,
+  placeNameById,
+  onChoiceChange,
+  onLegChange,
+}: {
+  side: "start" | "end";
+  dayNumber: number;
+  result: AccommodationBoundaryLegResult;
+  choice: AccommodationBoundaryChoice;
+  accommodations: readonly AccommodationAnchor[];
+  placeNameById: ReadonlyMap<string, string>;
+  onChoiceChange: (choice: AccommodationBoundaryChoice) => void;
+  onLegChange: (accommodationId: string, placeId: string, minutes: number | null) => void;
+}) {
+  const selectId = `accommodation-boundary-${side}-${dayNumber}`;
+  const sideLabel = side === "start" ? "Inicio del día" : "Fin del día";
+  const anchorLabel =
+    choice.kind === "accommodation"
+      ? accommodations.find((anchor) => anchor.id === choice.accommodationId)?.label ?? null
+      : null;
+  const endpoint =
+    result.kind === "manual-leg" || result.kind === "manual-leg-missing"
+      ? { accommodationId: result.accommodationId, placeId: result.placeId }
+      : null;
+  const placeName = endpoint ? placeNameById.get(endpoint.placeId) ?? endpoint.placeId : null;
+  const minutes = result.kind === "manual-leg" ? result.minutes : null;
+
+  function changeMinutes(raw: string) {
+    if (!endpoint) return;
+    const trimmed = raw.trim();
+    if (trimmed.length === 0) {
+      onLegChange(endpoint.accommodationId, endpoint.placeId, null);
+      return;
+    }
+    const value = Number(trimmed);
+    // Rejected, never repaired: a fraction, a zero, a negative or a non-number simply does not
+    // become a stored duration.
+    if (!isValidManualAccommodationMinutes(value)) return;
+    onLegChange(endpoint.accommodationId, endpoint.placeId, value);
+  }
+
+  return (
+    <div className="accommodation-boundary__side">
+      <label className="accommodation-boundary__label" htmlFor={selectId}>
+        {`${sideLabel} · Día ${dayNumber}`}
+      </label>
+      <select
+        id={selectId}
+        className="accommodation-boundary__select"
+        value={boundaryChoiceToOptionValue(choice)}
+        onChange={(event) => {
+          const next = optionValueToBoundaryChoice(event.target.value);
+          if (next) onChoiceChange(next);
+        }}
+      >
+        <option value="unselected">Sin seleccionar</option>
+        <option value="no-accommodation">No aplica</option>
+        {accommodations.map((anchor) => (
+          <option key={anchor.id} value={`${ACCOMMODATION_OPTION_PREFIX}${anchor.id}`}>
+            {anchor.label}
+          </option>
+        ))}
+      </select>
+
+      {endpoint && placeName && (
+        <p className="accommodation-boundary__endpoint">
+          {side === "start" ? `${anchorLabel ?? ""} → ${placeName}` : `${placeName} → ${anchorLabel ?? ""}`}
+        </p>
+      )}
+
+      <p className="accommodation-boundary__result">{accommodationBoundaryText(result)}</p>
+
+      {endpoint && (
+        <div className="accommodation-boundary__minutes">
+          <label
+            className="accommodation-boundary__minutes-label"
+            htmlFor={`${selectId}-minutes`}
+          >
+            Minutos de este trayecto (dato manual)
+          </label>
+          <input
+            id={`${selectId}-minutes`}
+            className="accommodation-boundary__input"
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            value={minutes ?? ""}
+            onChange={(event) => changeMinutes(event.target.value)}
+          />
+          {minutes !== null && (
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => onLegChange(endpoint.accommodationId, endpoint.placeId, null)}
+            >
+              Quitar minutos
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Phase 3D-Q's one per-day surface, rendered only for a NON-EMPTY day bucket. An empty day has no
+ * first or last place, so it has no accommodation boundary to choose and shows no control at all.
+ *
+ * The two sides are independent: the same day may start at one anchor and end at another, and
+ * nothing here infers a leg between them, copies one side onto the other, or reuses yesterday's
+ * choice. The composition happens OUTSIDE `OrderedSequenceSummary` — this section reads the
+ * existing intra-day summary but never modifies it, and the place-to-place transfer evidence
+ * rendered above keeps its own provenance and confidence untouched.
+ *
+ * The registered subtotal adds only minutes that are actually known: unknown intra-day legs,
+ * unselected boundaries, missing manual legs and explicit `no-accommodation` sides contribute
+ * NOTHING to it — never zero. It is labelled `completo` only under
+ * `DayLogisticsWithAccommodation.completeDoorToDoor` (non-empty day, complete intra-day sequence,
+ * and both boundary sides resolved to a recorded manual leg), and even then only as a statement
+ * about the registered components — never as a real, optimal, or verified route.
+ */
+function AccommodationCommuteSection({
+  dayNumber,
+  dayPlaceIds,
+  places,
+  intraDay,
+  boundary,
+  accommodations,
+  accommodationLegs,
+  onChoiceChange,
+  onLegChange,
+}: {
+  dayNumber: number;
+  dayPlaceIds: readonly string[];
+  places: readonly Place[];
+  intraDay: OrderedSequenceSummary;
+  boundary: DayAccommodationBoundary;
+  accommodations: readonly AccommodationAnchor[];
+  accommodationLegs: readonly ManualAccommodationLeg[];
+  onChoiceChange: (side: "start" | "end", choice: AccommodationBoundaryChoice) => void;
+  onLegChange: (
+    direction: ManualAccommodationLeg["direction"],
+    accommodationId: string,
+    placeId: string,
+    minutes: number | null
+  ) => void;
+}) {
+  const placeNameById = useMemo(
+    () => new Map(places.map((place) => [place.id, place.name])),
+    [places]
+  );
+  const logistics = useMemo(
+    () => buildDayLogisticsWithAccommodation(dayPlaceIds, intraDay, boundary, accommodationLegs),
+    [dayPlaceIds, intraDay, boundary, accommodationLegs]
+  );
+
+  if (dayPlaceIds.length === 0) return null;
+
+  const totalText = logistics.registeredTransferMinutes
+    ? `Total de traslados registrado: ${formatRange(logistics.registeredTransferMinutes)} · ${
+        logistics.completeDoorToDoor
+          ? "completo según los componentes registrados"
+          : "incompleto"
+      }`
+    : "Total de traslados registrado: sin datos · incompleto";
+
+  return (
+    <section
+      className="accommodation-boundary"
+      aria-label={`Alojamiento y traslados manuales · Día ${dayNumber}`}
+    >
+      <h4 className="accommodation-boundary__heading">Alojamiento en este día</h4>
+      {accommodations.length === 0 && (
+        <p className="accommodation-boundary__hint">
+          Crea un alojamiento arriba para poder elegirlo en este día.
+        </p>
+      )}
+
+      <AccommodationBoundarySide
+        side="start"
+        dayNumber={dayNumber}
+        result={logistics.outbound}
+        choice={boundary.start}
+        accommodations={accommodations}
+        placeNameById={placeNameById}
+        onChoiceChange={(choice) => onChoiceChange("start", choice)}
+        onLegChange={(accommodationId, placeId, minutes) =>
+          onLegChange("accommodation-to-place", accommodationId, placeId, minutes)
+        }
+      />
+      <AccommodationBoundarySide
+        side="end"
+        dayNumber={dayNumber}
+        result={logistics.returnLeg}
+        choice={boundary.end}
+        accommodations={accommodations}
+        placeNameById={placeNameById}
+        onChoiceChange={(choice) => onChoiceChange("end", choice)}
+        onLegChange={(accommodationId, placeId, minutes) =>
+          onLegChange("place-to-accommodation", accommodationId, placeId, minutes)
+        }
+      />
+
+      <p className="accommodation-boundary__total">{totalText}</p>
+      <p className="accommodation-boundary__disclaimer">
+        Los minutos de alojamiento son un <strong>dato manual</strong> que tú introduces para ese
+        trayecto exacto y en ese sentido exacto. Nihon no los calcula, no consulta transporte, no
+        deduce el trayecto contrario y no rellena con cero lo que falta.
+      </p>
+    </section>
+  );
+}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -1016,10 +1457,17 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     days,
     startDate,
     visitStartTimes,
+    accommodations,
+    dayAccommodationBoundaries,
+    accommodationLegs,
     setRoute: setRouteIds,
     setDays: setDayIds,
     setStartDate,
     setVisitStartTime,
+    addAccommodation,
+    removeAccommodation,
+    setDayAccommodationChoice,
+    setAccommodationLeg,
     resetRoute,
   } = usePlanningDraft(savedIds);
   const dayIds = useMemo(() => days ?? [], [days]);
@@ -1384,6 +1832,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 conviene</strong>, y no comprueba horarios ni cierres.
               </p>
 
+              <AccommodationManagerSection
+                accommodations={accommodations}
+                onAdd={addAccommodation}
+                onRemove={removeAccommodation}
+              />
+
               <div className="day-list">
                 {dayPlaceLists.map((places, dayIndex) => {
                   const bucket = dayAssignment.days[dayIndex];
@@ -1391,6 +1845,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   const isEmpty = places.length === 0;
                   const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
                   const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
+                  // Positional, exactly like the day bucket itself: the boundary vector always has
+                  // the same length as `days` (V4's parse/update invariant), so index `dayIndex` is
+                  // this day's own choice and never another day's shifted into place.
+                  const dayBoundary = dayAccommodationBoundaries?.[dayIndex] ?? null;
                   return (
                     <section key={dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
@@ -1459,6 +1917,23 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
+                          )}
+                          {bucket && dayBoundary && (
+                            <AccommodationCommuteSection
+                              dayNumber={dayIndex + 1}
+                              dayPlaceIds={dayIds[dayIndex] ?? []}
+                              places={places}
+                              intraDay={bucket.sequence.summary}
+                              boundary={dayBoundary}
+                              accommodations={accommodations}
+                              accommodationLegs={accommodationLegs}
+                              onChoiceChange={(side, choice) =>
+                                setDayAccommodationChoice(dayIndex, side, choice)
+                              }
+                              onLegChange={(direction, accommodationId, placeId, minutes) =>
+                                setAccommodationLeg(direction, accommodationId, placeId, minutes)
+                              }
+                            />
                           )}
                         </>
                       )}
