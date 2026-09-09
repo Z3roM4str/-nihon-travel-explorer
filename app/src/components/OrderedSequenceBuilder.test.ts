@@ -811,9 +811,10 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-L manual visit start time wiri
 describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
   it("exposes the persisted map and a setter that delegates to the pure mutation", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    // Phase 3D-Q moved the canonical runtime draft to V4 (same storage key); the pure mutation
-    // this phase's contract depends on is unchanged, only the module that re-exports it.
-    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v4["']/);
+    // Phase 3D-Q moved the canonical runtime draft to V4 and Phase 3D-S to V5 (same storage key
+    // throughout); the pure mutation this phase's contract depends on is unchanged, only the
+    // module that re-exports it.
+    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v5["']/);
     expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
     expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
     expect(hook).toMatch(/setVisitStartTime,/);
@@ -825,7 +826,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // not the bare word, which also appears in the import list and in prose.
     const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
     expect(useStateCalls).toHaveLength(1);
-    expect(hook).toMatch(/useState<ManualPlanningDraftV4>/);
+    expect(hook).toMatch(/useState<ManualPlanningDraftV5>/);
     // Every mutation goes through the pure module and is written back by the existing effect.
     expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
   });
@@ -862,15 +863,20 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-Q manual accommodation commute
     );
   });
 
-  it("reads the day's boundary positionally from the persisted same-length vector", async () => {
+  it("reads the day's boundary from that day's own persisted entity, not from a positional vector", async () => {
     const source = await readSource();
-    expect(source).toMatch(/const dayBoundary = dayAccommodationBoundaries\?\.\[dayIndex\] \?\? null;/);
+    // Phase 3D-S: the separate same-length boundary vector is gone. The boundary is structurally
+    // part of the day entity at this ordinal position, so no splice can shift another day's choice
+    // into it and no length can drift.
+    expect(source).toMatch(/const dayEntity = dayEntities\[dayIndex\] \?\? null;/);
+    expect(source).toMatch(/const dayBoundary = dayEntity\?\.accommodationBoundary \?\? null;/);
+    expect(source).not.toContain("dayAccommodationBoundaries");
   });
 
   it("renders the per-day controls only for a day that actually has places", async () => {
     const source = await readSource();
     // Mounted inside the non-empty branch, and gated again on the day's own bucket and boundary.
-    expect(source).toMatch(/\{bucket && dayBoundary && \(\s*<AccommodationCommuteSection/);
+    expect(source).toMatch(/\{bucket && dayEntity && dayBoundary && \(\s*<AccommodationCommuteSection/);
     // And the section itself refuses to render for an empty bucket even if it were mounted.
     const section = extractAccommodationSectionSource(source);
     expect(section).toContain("if (dayPlaceIds.length === 0) return null;");
@@ -947,24 +953,31 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
   it("exposes the persisted accommodation state and setters that delegate to the pure module", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     expect(hook).toMatch(
-      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v4["']/
+      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v5["']/
     );
     expect(hook).toMatch(/accommodations: draft\.accommodations,/);
-    expect(hook).toMatch(/dayAccommodationBoundaries: draft\.dayAccommodationBoundaries,/);
+    // Phase 3D-S: the boundary vector is gone from the hook's surface — each day's choice now
+    // travels inside its own entity, exposed as `planningDays`.
+    expect(hook).toMatch(/planningDays: draft\.days,/);
+    expect(hook).not.toContain("dayAccommodationBoundaries");
     expect(hook).toMatch(/accommodationLegs: draft\.accommodationLegs,/);
     expect(hook).toMatch(/withNewAccommodation\(current, label, location, randomAccommodationId\)/);
     expect(hook).toMatch(/withoutAccommodation\(current, accommodationId\)/);
-    expect(hook).toMatch(/withDayAccommodationChoice\(current, dayIndex, side, choice\)/);
+    // Addressed by the day's stable id rather than by its ordinal position.
+    expect(hook).toMatch(/withDayAccommodationChoice\(current, dayId, side, choice\)/);
     expect(hook).toMatch(/withAccommodationLeg\(current, direction, accommodationId, placeId, minutes\)/);
   });
 
-  it("keeps V4 as the single canonical runtime draft under the existing storage key", async () => {
+  it("keeps V5 as the single canonical runtime draft under the existing storage key", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     const code = withoutComments(hook);
-    // Still exactly one piece of state: the whole V4 draft. No parallel V3 state, no second key.
+    // Still exactly one piece of state: the whole V5 draft. No parallel V3/V4 state, no second key,
+    // and no separate day-id store.
     expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
     expect(code).not.toContain("ManualPlanningDraftV3");
+    expect(code).not.toContain("ManualPlanningDraftV4");
     expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft["']/);
+    expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft-v4["']/);
     expect(code).not.toMatch(/localStorage\.(getItem|setItem)\((?!key)/);
     // Nothing derived and nothing looked up happens in the hook itself.
     expect(code).not.toMatch(/\bfetch\b|geocod|getBestTransfer|haversine/i);
