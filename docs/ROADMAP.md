@@ -2770,19 +2770,22 @@ implementation, and no immediate successor recommendation. Phase 3D-N was not st
       The current arithmetic surface's input-isolation and UI/test contracts remain correct for it
       and for an explicit contract-preserving successor, but are not permanent architecture for a
       different proposition. Phase 3D-N remains not started.
-- [ ] Reservation booking-deadline intelligence — this item's wording is updated here specifically
-      because it would otherwise now be false. **DONE (Phase 3D-D)**: a runtime classification of
-      `reservation.leadTime` into a coarse days/weeks/months magnitude (`bare-magnitude`) or an
-      honest "specific mechanism, needs review" flag (`opaque-entity-or-mechanism-specific`), with
-      exact Phase 3D-A parity, and a route-wide "Reservas por preparar" preparation summary in
-      `OrderedSequenceBuilder.tsx` (see the Phase 3D-D entry above). **STILL NOT DONE, and not
-      implied by that**: converting a magnitude into a specific day count or a numeric range
-      (`minDays`/`maxDays`); knowing today's date; computing a booking-by date; comparing lead time
-      against the user's Phase 3C-E `startDate` or any day bucket's derived date; interpreting a
-      lottery/release/timed-entry mechanism beyond flagging it for manual review; claiming
-      availability; and any reminder or automation. A full booking-deadline solver remains a
-      distinct, separately-scoped, unstarted future phase — not an incremental extension of Phase
-      3D-D's coarse signal.
+- [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-H;
+      broader deadline and availability intelligence remains unscheduled. DONE:** Phase 3D-D
+      provides coarse lead-time classification and its conservative preparation summary. Phase
+      3D-G established the design gate, and Phase 3D-H implemented the Class A explicit numeric
+      lead-time window: exact weeks-to-days conversion (`1 week = 7 days`), `minLeadDays` and
+      `maxLeadDays`, and a `ReservationDateWindow` whose `farAdvanceDate` and `nearAdvanceDate` are
+      derived relative to the validated visit date. The existing presentation conservatively labels
+      this a recorded advance-notice window and retains the raw source text and applicable caveats.
+      `farAdvanceDate` and `nearAdvanceDate` are only the bounds of that recorded window; they are
+      not "booking opens" or a "booking deadline" and do not guarantee availability. **STILL NOT
+      DONE:** converting month ranges or mixed-unit/unit-only text into dates; interpreting specific
+      mechanisms, lotteries, or releases; knowing "today" via `Date.now()` or an equivalent source
+      for the current date; comparing the current date with the recorded window; deriving `late`,
+      `urgent`, `book now`, or similar urgency states; asserting availability; reminders or
+      automation; live inventory or booking integration; or any inference stronger than the
+      recorded window.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.
