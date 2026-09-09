@@ -103,6 +103,12 @@ The relation must not read or alter:
 
 A weak value on another axis does not change the arithmetic truth of where one civil date lies relative to two other civil dates. Presentation may continue to show independent caveats, but the domain result is not a composition of those axes.
 
+### 2.5 Reservation requirement/optionality remains a separate fact
+
+The reference-date relation must not reinterpret `reservation.required`, `reservation.raw`, or any existing required/recommended/optional/not-applicable presentation as a consequence of being before, within or after the recorded window.
+
+A `within-recorded-window` result does not upgrade a recommendation into a requirement, and an `after-recorded-window` result does not prove that a required reservation is impossible. The relation consumes only Phase 3D-H's already-derived window and leaves the reservation-requirement axis semantically unchanged.
+
 ---
 
 ## 3. The reference-date contract
@@ -133,7 +139,9 @@ Recommended UI disclosure:
 
 > `Fecha de referencia (tu dispositivo): 2026-09-08`
 
-The date adapter should be injectable/testable. A fixed `Date` supplied by a test must produce the same local calendar components the adapter would read at runtime.
+The date adapter should be injectable/testable. A fixed `Date` supplied by a test must produce the same **local calendar components** the adapter would read at runtime.
+
+For a device-local contract, the adapter must derive `YYYY-MM-DD` from local getters (`getFullYear()`, `getMonth()`, `getDate()`) on the injected/runtime `Date`. It must **not** use `toISOString()`, `getUTCFullYear()`, `getUTCMonth()`, `getUTCDate()` or equivalent UTC extraction to obtain the device-local day: near local midnight, the UTC civil date can differ from the device's civil date. UTC remains correct for the already-existing timezone-free arithmetic in `civil-date.ts`; it is specifically the **capture boundary** for a device-local date that must use local calendar components.
 
 ### 3.3 No persistence
 
@@ -141,9 +149,11 @@ The device/reference date is environmental state, not a user-authored planning d
 
 The relation is recomputed from the current reference date and the current derived reservation window whenever the relevant view is evaluated.
 
-### 3.4 No timer or countdown contract
+### 3.4 No timer, countdown or implicit freshness contract
 
 This phase does not require a midnight timer, background task, interval, notification or countdown. A future implementation may recapture the reference date when the planner/view is opened or naturally re-rendered.
+
+Because a view can remain open across a local-date boundary, the UI must always expose the **concrete reference date actually used** for the displayed relation. It must not present the relation merely as a self-updating "hoy" state unless the same evaluation has just recaptured the device-local date. Without a refresh/re-evaluation contract, a displayed relation may become stale after midnight and must not imply otherwise.
 
 The product must not claim second-by-second or minute-by-minute freshness. This is a date-level planning signal only.
 
@@ -226,6 +236,10 @@ Approved copy families:
 - **Within:** `La fecha de referencia cae dentro de la ventana de anticipación registrada.`
 - **After:** `La fecha de referencia está después de la ventana de anticipación registrada.`
 
+The concrete reference date used for that statement must remain visible or immediately available in the same presentation, for example:
+
+> `Fecha de referencia (tu dispositivo): 2026-09-08`
+
 The existing raw evidence remains visible, for example:
 
 > `Dato: «1–2 semanas»`
@@ -251,7 +265,7 @@ The relation remains truthful because it says only where **the disclosed referen
 
 Therefore:
 
-- the source label must remain visible or otherwise unambiguous;
+- the source label and concrete reference date must remain visible or otherwise unambiguous;
 - the result must not be promoted into a release/opening/closing claim;
 - no IANA timezone is introduced by this phase;
 - no conversion to `Asia/Tokyo` is invented;
@@ -277,7 +291,8 @@ The relation is derived, so it follows existing recomputation rules:
 - change `startDate` -> visit date and window are recomputed -> relation is recomputed;
 - remove a place from the route -> no orphan relation is persisted because nothing is persisted;
 - change `visitStartTimes` -> no effect;
-- change opening-hours/closure/febMar facts -> no effect on the domain result.
+- change opening-hours/closure/febMar facts -> no effect on the domain result;
+- change `reservation.required`/requirement presentation -> no effect on the relation, and the relation never rewrites that separate fact.
 
 The reference relation never mutates planning state.
 
@@ -303,16 +318,20 @@ A future implementation should prove at least the following.
 ### Clock boundary
 
 11. device-date capture is tested with an injected fixed `Date`, not a test that depends on the real wall clock;
-12. no domain function reads `Date.now()` or constructs its own ambient current date;
-13. no timezone conversion to Japan is introduced.
+12. device-local capture uses local calendar getters and has a regression case where local and UTC civil dates differ;
+13. `toISOString()`/UTC getters are not used to derive the device-local reference date;
+14. no domain function reads `Date.now()` or constructs its own ambient current date;
+15. no timezone conversion to Japan is introduced;
+16. the UI exposes the exact reference date used and does not imply automatic midnight freshness without a recapture/re-evaluation contract.
 
 ### Integration
 
-14. only places with a Phase 3D-H `derived-window` render a relational state;
-15. existing raw lead-time text remains visible;
-16. no `febMar2027`, opening-hours or closure value changes the domain relation;
-17. no persistence schema/version changes;
-18. no copy says open/closed/available/deadline/urgent/book-now.
+17. only places with a Phase 3D-H `derived-window` render a relational state;
+18. existing raw lead-time text remains visible;
+19. no `febMar2027`, opening-hours or closure value changes the domain relation;
+20. `reservation.required`/required-recommended-optional presentation remains unchanged by before/within/after;
+21. no persistence schema/version changes;
+22. no copy says open/closed/available/deadline/urgent/book-now.
 
 Real-dataset coverage should be derived at test time from the live classifier/window pipeline; no hardcoded eligible-ID list becomes a second source of truth.
 
@@ -369,9 +388,11 @@ If this design survives review, recommend a narrowly-scoped implementation phase
 Exact scope:
 
 - one pure relation evaluator over `ReservationDateWindow` + explicit civil reference date;
-- one testable device-local civil-date adapter at the application boundary;
+- one testable device-local civil-date adapter at the application boundary, deriving the device date from local calendar components rather than UTC serialization;
 - neutral per-place presentation next to the existing Phase 3D-H window;
+- the exact disclosed reference date visible with the relation;
 - raw lead-time evidence retained;
+- reservation requirement/optionality semantics left unchanged;
 - deterministic tests for before/within/after and both inclusive edges;
 - no persistence migration;
 - no dataset edit;
@@ -380,6 +401,7 @@ Exact scope:
 - no booking-open/deadline claim;
 - no urgency/countdown;
 - no reminder/automation;
+- no implicit automatic-midnight freshness claim;
 - no IANA timezone or Japan-date inference;
 - no Phase 3D-P or later work.
 
@@ -398,5 +420,7 @@ The new fact is useful because it answers a question Phase 3D-H intentionally le
 It never becomes:
 
 > `booking is not open / open / closed`, `you should book now`, `you are late`, or `availability exists`.
+
+The concrete date and source used for the relation remain disclosed, and the relation never changes whether the underlying reservation is required, recommended, optional or otherwise classified.
 
 That distinction is the safety and correctness boundary of Phase 3D-N.
