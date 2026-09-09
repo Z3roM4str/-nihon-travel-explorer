@@ -2916,3 +2916,118 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
 
 Recommended successor: **Phase 3D-Q — Manual Accommodation Commute Legs**. Phase 3D-Q is **NOT
 STARTED** by this design gate.
+
+## Phase 3D-Q — Manual Accommodation Commute Legs — implemented
+
+Implements the contract approved by
+[`docs/ACCOMMODATION_COMMUTE_DESIGN.md`](ACCOMMODATION_COMMUTE_DESIGN.md) (Phase 3D-P), with no
+alternative design of its own.
+
+- [x] **Accommodation is a separate entity, never a `Place`.** `accommodation-commute.ts` defines
+      `AccommodationAnchor` (`id`, user-typed `label`, `{lat, lng}`) as user-authored planning state.
+      No anchor id enters `routeIds`, `days`, an `OrderedSequence`, a day bucket, `nearby.json` or any
+      tourism dataset, and no dataset file is touched by this phase.
+- [x] **Identity is the id alone.** Ids are unique within a draft, minted through an injected factory
+      that fails safely on collision instead of overwriting. Two anchors with the same label and/or the
+      same coordinates stay two anchors; array order carries no priority and nothing merges them
+      heuristically. A persisted duplicate id invalidates the whole draft.
+- [x] **Coordinates are identity/context only.** They are validated (finite, lat −90…90, lng −180…180)
+      and displayed. No module reads them for arithmetic: no haversine, distance, speed, nearest place,
+      walking or transit time, and no routing. No geocoding, hotel search, Booking/Expedia inventory,
+      Google Maps or runtime ORS call exists anywhere in the phase.
+- [x] **Two independent explicit day-boundary decisions.** `DayAccommodationBoundary` carries a tagged
+      `start` and `end` choice: `unselected`, `no-accommodation`, or one chosen anchor. `unselected` is
+      missing input; `no-accommodation` is a positive statement that the accommodation model does not
+      apply on that side — neither asserts a zero-minute transfer and neither models an airport, station
+      or port. A day may start at one anchor and end at another; no Hotel A → Hotel B leg is ever
+      inferred, and no anchor is ever auto-selected.
+- [x] **Empty days hold no accommodation decision.** An empty bucket evaluates to
+      `not-applicable`/`empty-day` on both sides, produces no combined total, renders no control, and a
+      persisted selected boundary on an empty bucket makes the draft invalid.
+- [x] **Manual, exact, directed evidence only.** A `ManualAccommodationLeg` is keyed by
+      `(direction, accommodationId, placeId)` with at most one record per key. `Hotel A → Place X`
+      never supplies `Place X → Hotel A`, `Hotel B → Place X`, or `Hotel A → Place Y`. Minutes must
+      satisfy `Number.isSafeInteger(minutes) && minutes > 0`; zero, negatives, fractions, `NaN`,
+      infinities and unsafe integers are rejected rather than rounded or coerced. A missing leg is
+      `missing`, never `0 min`.
+- [x] **The existing transfer contract is untouched.** A manual accommodation leg is not a
+      `TransferEdge`; `getBestTransfer()` is never called with an accommodation id and its signature is
+      unchanged. Accommodation composes OUTSIDE `OrderedSequenceSummary`
+      (`buildDayLogisticsWithAccommodation`), so place-to-place semantics, provenance and confidence
+      display stay exactly as they were.
+- [x] **`ManualPlanningDraftV4` is the single canonical runtime draft.** It adds `accommodations`,
+      `dayAccommodationBoundaries` and `accommodationLegs` under the SAME existing
+      `nihon.manualPlanningDraft` key — no second key, no parallel V3 runtime state.
+      `planning-draft.ts` remains the historical V1 → V2 → V3 chain and the shared shape-validator for
+      the four inherited fields.
+- [x] **V3 → V4 migration invents nothing.** `routeIds`, `days`, `startDate` and `visitStartTimes` pass
+      through unchanged; `accommodations` and `accommodationLegs` start empty. `days === null` migrates
+      to `dayAccommodationBoundaries: null`; existing days migrate to a same-length all-`unselected`
+      vector — structural scaffolding, not an inferred hotel choice. V1/V2/V3 drafts stored earlier
+      still load through the chain.
+- [x] **The V4 parser rejects rather than repairs.** Duplicate anchor ids, duplicate exact leg keys,
+      invalid coordinates, invalid minutes, unknown accommodation references, a leg whose `placeId` is
+      outside the stored `routeIds`, a boundary vector of the wrong length, a vector present while
+      `days` is null, a null vector while days exist, a selected boundary on an empty bucket, malformed
+      tagged unions and corrupt structural shapes all fail the whole stored draft. Nothing is
+      deduplicated, padded, truncated, shifted, rounded, first-wins/last-wins resolved or rebound.
+- [x] **Reconciliation rules are explicit and tested.** A pure route reorder preserves anchors,
+      endpoint-keyed legs, the day matrix and its boundary vector. A route-composition change keeps the
+      historical `days` behaviour, sets `dayAccommodationBoundaries` to `null` with it, and prunes legs
+      whose place left the route without ever rebinding them. Anchors survive every route edit until
+      the user deletes them.
+- [x] **`withDays` resets on ANY difference.** The boundary vector survives only when the new day
+      matrix is element-for-element identical (bucket count, membership, bucket, and order within each
+      bucket). Any other valid assignment resets every side of every day to `{ kind: "unselected" }` —
+      no positional shifting, no similarity matching. Endpoint-keyed legs survive the re-split unused
+      and apply again only when the user explicitly chooses a boundary whose exact endpoints match.
+- [x] **Deletion never reassigns.** Deleting an anchor removes it, removes its manual legs, and turns
+      every boundary that referenced it into `{ kind: "unselected" }` — never another anchor, never
+      `no-accommodation`.
+- [x] **`startDate` stays an independent axis.** Setting, changing or clearing it leaves anchors,
+      boundaries and manual minutes untouched.
+- [x] **Aggregation stays honest.** `DayLogisticsWithAccommodation` exposes the intra-day summary, both
+      boundary results, a registered subtotal and `completeDoorToDoor`. The subtotal adds only known
+      minutes: unknown intra-day legs, unselected boundaries, missing manual legs and explicit
+      `no-accommodation` sides contribute nothing — never zero. `completeDoorToDoor` is true only for a
+      non-empty day with `intraDay.complete === true` and BOTH sides resolved to a recorded manual leg;
+      a one-place day can qualify vacuously, an empty day never produces a combined total, and
+      `no-accommodation` can never upgrade a subtotal into a complete claim.
+- [x] **Hook and UI integrated without duplicating state.** `usePlanningDraft` holds one V4 draft and
+      exposes the accommodation state plus setters (add/delete anchor, choose one side of one day,
+      set/replace/clear one exact directed leg) alongside the existing route/days/startDate/visit-time
+      operations; persistence stays automatic under the same key. `OrderedSequenceBuilder`'s existing
+      "Distribuir por días" view gains an anchor manager (label + manual lat/lng, since a Leaflet pin
+      picker would require a second interactive map inside the dialog — out of scope here) and, per
+      non-empty day, two boundary selects, the exact directed endpoint pair, a manual-minutes field and
+      a way to clear it.
+- [x] **Copy stays inside the approved families.** Recorded minutes always read `· dato manual`; an
+      absent leg reads `sin registrar`; an explicit no-accommodation side reads `no aplica en este día`;
+      the registered total reads `incompleto` unless `completeDoorToDoor` holds, in which case it says
+      only that it is `completo según los componentes registrados`. No copy claims an optimal or best
+      route, a best/most convenient hotel, real time, current traffic, a confirmed timetable, a provider
+      attribution, confirmed transport or confirmed availability.
+- [x] **Coverage.** 1060 tests pass. Domain tests cover coordinate validation, positive-safe-integer
+      minutes, exact direction, no reverse inference, no accommodation/place cross-use, exact-key
+      replacement, missing-stays-missing, unselected vs. no-accommodation, empty days, exact
+      first/last place, differing start/end anchors, no inferred hotel-to-hotel leg, complete/incomplete
+      aggregation, a one-place day, and the absence of geometry/transfer/provider access. Persistence
+      tests cover both V3 → V4 shapes, the V1/V2 chain, every parser rejection above, malformed tagged
+      unions, fail-safe loading, a storage round trip, reorder preservation, composition invalidation,
+      stale-place pruning, identical-vs-any-non-identical `withDays`, unused surviving legs, anchor
+      deletion, and start-date independence. Source-scanning component/hook tests pin the wiring,
+      empty-day gating, manual labelling, the incomplete/complete total rule and the forbidden-copy and
+      no-routing boundaries. Manual browser verification (Playwright, dev server) confirmed anchor
+      creation, exact endpoint display, persistence across reload, rejection of a fractional value,
+      boundary reset on adding a day, and anchor deletion clearing legs and resetting only its own
+      boundaries.
+- [x] **No dependency, package, lockfile or dataset change.** Phase 3D-Q required none.
+- [x] **Validation gate.** Closed only after `npm test`, `npm run build`, `npm run lint` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Not implemented and not claimed by this phase:** automatic hotel routing, hotel optimisation or
+recommendation, geometry-derived minutes, live transit, timetable data, booking/inventory
+integration, luggage logic, check-in/check-out inference, and any stable day-identity contract that
+would let boundaries survive a re-split.
+
+**Phase 3D-R or later work is NOT STARTED by this implementation.**

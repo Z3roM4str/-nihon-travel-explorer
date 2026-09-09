@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import type { OrderedSequenceSummary } from "./ordered-sequence";
 import {
@@ -8,6 +9,7 @@ import {
   hasUniqueManualAccommodationLegKeys,
   isValidAccommodationLocation,
   isValidManualAccommodationMinutes,
+  manualAccommodationLegKey,
   withManualAccommodationLeg,
   type AccommodationAnchor,
   type ManualAccommodationLeg,
@@ -213,5 +215,128 @@ describe("day aggregation", () => {
     );
     expect(result.registeredTransferMinutes).toBeNull();
     expect(result.completeDoorToDoor).toBe(false);
+  });
+});
+
+describe("independent sides and cross-day silence", () => {
+  it("evaluates a hotel-change day with different start and end accommodations", () => {
+    const legs = [outbound("A", "X", 20), returnLeg("B", "Z", 40)];
+    const result = buildDayLogisticsWithAccommodation(
+      ["X", "Y", "Z"],
+      { placeCount: 3, legCount: 2, knownLegCount: 2, unknownLegCount: 0, transferMinutes: { minMinutes: 15, maxMinutes: 25 }, complete: true },
+      {
+        start: { kind: "accommodation", accommodationId: "A" },
+        end: { kind: "accommodation", accommodationId: "B" },
+      },
+      legs
+    );
+    expect(result.outbound).toMatchObject({ kind: "manual-leg", accommodationId: "A", placeId: "X", minutes: 20 });
+    expect(result.returnLeg).toMatchObject({ kind: "manual-leg", accommodationId: "B", placeId: "Z", minutes: 40 });
+    // Both bounds move by the same exact integer: a manual leg is never widened into a ± range.
+    expect(result.registeredTransferMinutes).toEqual({ minMinutes: 75, maxMinutes: 85 });
+    expect(result.completeDoorToDoor).toBe(true);
+  });
+
+  it("never infers a Hotel A → Hotel B leg from adjacent day boundaries", () => {
+    // Day N ends at Hotel A, day N+1 starts at Hotel B. Nothing in this module can be asked
+    // about A → B: the only lookups it performs are accommodation↔place, per side, per day.
+    const legs = [returnLeg("A", "Z", 30), outbound("B", "P", 15)];
+    const dayN = deriveAccommodationBoundaryLeg(["X", "Z"], { kind: "accommodation", accommodationId: "A" }, "end", legs);
+    const dayNext = deriveAccommodationBoundaryLeg(["P", "Q"], { kind: "accommodation", accommodationId: "B" }, "start", legs);
+    expect(dayN).toMatchObject({ kind: "manual-leg", placeId: "Z", minutes: 30 });
+    expect(dayNext).toMatchObject({ kind: "manual-leg", placeId: "P", minutes: 15 });
+    // No result kind exists that could carry an accommodation-to-accommodation pair at all.
+    expect(findManualAccommodationLeg(legs, "accommodation-to-place", "A", "B")).toBeNull();
+    expect(findManualAccommodationLeg(legs, "place-to-accommodation", "B", "A")).toBeNull();
+  });
+
+  it("an unselected side keeps any combined total incomplete", () => {
+    const result = buildDayLogisticsWithAccommodation(
+      ["X"],
+      emptySummary,
+      { start: { kind: "accommodation", accommodationId: "A" }, end: { kind: "unselected" } },
+      [outbound("A", "X", 20)]
+    );
+    expect(result.returnLeg).toEqual({ kind: "boundary-unselected", side: "end" });
+    expect(result.registeredTransferMinutes).toEqual({ minMinutes: 20, maxMinutes: 20 });
+    expect(result.completeDoorToDoor).toBe(false);
+  });
+
+  it("a missing selected leg keeps any combined total incomplete without contributing zero", () => {
+    const result = buildDayLogisticsWithAccommodation(
+      ["X"],
+      emptySummary,
+      {
+        start: { kind: "accommodation", accommodationId: "A" },
+        end: { kind: "accommodation", accommodationId: "A" },
+      },
+      [outbound("A", "X", 20)]
+    );
+    expect(result.returnLeg).toMatchObject({ kind: "manual-leg-missing", placeId: "X" });
+    expect(result.registeredTransferMinutes).toEqual({ minMinutes: 20, maxMinutes: 20 });
+    expect(result.completeDoorToDoor).toBe(false);
+  });
+
+  it("explicit no-accommodation on both sides never becomes a complete door-to-door total", () => {
+    const result = buildDayLogisticsWithAccommodation(
+      ["X", "Y"],
+      { placeCount: 2, legCount: 1, knownLegCount: 1, unknownLegCount: 0, transferMinutes: { minMinutes: 12, maxMinutes: 12 }, complete: true },
+      { start: { kind: "no-accommodation" }, end: { kind: "no-accommodation" } },
+      [outbound("A", "X", 20), returnLeg("A", "Y", 30)]
+    );
+    // The exact legs exist, but neither side asked for one: no lookup happens and neither the
+    // subtotal nor the completeness claim changes.
+    expect(result.registeredTransferMinutes).toEqual({ minMinutes: 12, maxMinutes: 12 });
+    expect(result.completeDoorToDoor).toBe(false);
+  });
+
+  it("unknown intra-day legs contribute nothing while manual legs still count", () => {
+    const result = buildDayLogisticsWithAccommodation(
+      ["X", "Y"],
+      { placeCount: 2, legCount: 1, knownLegCount: 0, unknownLegCount: 1, transferMinutes: null, complete: false },
+      {
+        start: { kind: "accommodation", accommodationId: "A" },
+        end: { kind: "accommodation", accommodationId: "A" },
+      },
+      [outbound("A", "X", 20), returnLeg("A", "Y", 30)]
+    );
+    expect(result.registeredTransferMinutes).toEqual({ minMinutes: 50, maxMinutes: 50 });
+    expect(result.completeDoorToDoor).toBe(false);
+  });
+});
+
+describe("no geometry, no provider, no reverse inference", () => {
+  it("two anchors at identical coordinates still need their own exact recorded leg", () => {
+    const legs = [outbound("A", "X", 20)];
+    // Same pin, different anchor: nothing is transferred between them.
+    expect(deriveAccommodationBoundaryLeg(["X"], { kind: "accommodation", accommodationId: "B" }, "start", legs)).toMatchObject({
+      kind: "manual-leg-missing",
+      accommodationId: "B",
+      placeId: "X",
+    });
+  });
+
+  it("the module never reads coordinates, a transfer lookup, or the network", async () => {
+    const source = await readFile(new URL("./accommodation-commute.ts", import.meta.url), "utf8");
+    // No accommodation id ever reaches the place-to-place transfer contract.
+    expect(source).not.toContain("getBestTransfer");
+    expect(source).not.toContain("lookupTransfer");
+    expect(source).not.toContain("./transfer");
+    // No geometry-derived minutes.
+    expect(source).not.toMatch(/haversine|Math\.(sqrt|atan2|cos|sin)|toRadians/i);
+    // No runtime provider of any kind.
+    expect(source).not.toMatch(/\bfetch\b|XMLHttpRequest|openrouteservice|googleapis|booking\.com/i);
+    // Coordinates are never read for arithmetic: `location` is declared in the anchor type and
+    // never dereferenced anywhere else in the module.
+    const locationReads = source.match(/\.location\b/g) ?? [];
+    expect(locationReads).toHaveLength(0);
+    // No unknown component is ever defaulted to zero minutes anywhere in the aggregation.
+    expect(source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "")).not.toMatch(/\?\?\s*0\b/);
+  });
+
+  it("keys distinct endpoint triples that would collide under naive concatenation", () => {
+    const a = manualAccommodationLegKey({ direction: "accommodation-to-place", accommodationId: "ab", placeId: "c" });
+    const b = manualAccommodationLegKey({ direction: "accommodation-to-place", accommodationId: "a", placeId: "bc" });
+    expect(a).not.toBe(b);
   });
 });

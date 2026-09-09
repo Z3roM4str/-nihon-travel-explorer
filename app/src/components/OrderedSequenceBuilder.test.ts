@@ -830,3 +830,143 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
   });
 });
+
+/**
+ * Phase 3D-Q — Manual Accommodation Commute Legs. Same source-scanning technique as the sections
+ * above (this repository still has no component-level DOM harness and this phase adds no
+ * dependency): the pure invariants live in `lib/accommodation-commute.test.ts` and
+ * `lib/planning-draft-v4.test.ts`, and these assertions prove the component actually wires them,
+ * renders only the approved copy, and never reaches for a routing/geometry/booking shortcut.
+ *
+ * The whole Phase 3D-Q block — the anchor manager, the two boundary helpers, the copy function and
+ * the two rendered sections — sits between `AccommodationManagerSection` and `const FOCUSABLE`, so
+ * one extractor scopes every wording assertion to exactly this phase's surface rather than to the
+ * ~1800-line file (which legitimately contains unrelated words elsewhere).
+ */
+function extractAccommodationSectionSource(fullSource: string): string {
+  const start = fullSource.indexOf("function AccommodationManagerSection");
+  if (start === -1) throw new Error("AccommodationManagerSection not found in OrderedSequenceBuilder.tsx");
+  const end = fullSource.indexOf("\nconst FOCUSABLE", start + 1);
+  if (end === -1) throw new Error("Could not find the end boundary of the Phase 3D-Q block");
+  return fullSource.slice(start, end);
+}
+
+describe("OrderedSequenceBuilder.tsx — Phase 3D-Q manual accommodation commute (source-scanning integration check)", () => {
+  it("composes the day view model through the accommodation domain module", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[\s\S]*?\bbuildDayLogisticsWithAccommodation\b[\s\S]*?\}\s*from\s*["']\.\.\/lib\/accommodation-commute["']/
+    );
+    expect(source).toMatch(
+      /buildDayLogisticsWithAccommodation\(\s*dayPlaceIds\s*,\s*intraDay\s*,\s*boundary\s*,\s*accommodationLegs\s*\)/
+    );
+  });
+
+  it("reads the day's boundary positionally from the persisted same-length vector", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/const dayBoundary = dayAccommodationBoundaries\?\.\[dayIndex\] \?\? null;/);
+  });
+
+  it("renders the per-day controls only for a day that actually has places", async () => {
+    const source = await readSource();
+    // Mounted inside the non-empty branch, and gated again on the day's own bucket and boundary.
+    expect(source).toMatch(/\{bucket && dayBoundary && \(\s*<AccommodationCommuteSection/);
+    // And the section itself refuses to render for an empty bucket even if it were mounted.
+    const section = extractAccommodationSectionSource(source);
+    expect(section).toContain("if (dayPlaceIds.length === 0) return null;");
+  });
+
+  it("labels every recorded duration as a manual datum and every absent one as unrecorded", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    expect(section).toContain("Salida desde alojamiento: ${formatMinutes(result.minutes)} · dato manual");
+    expect(section).toContain("Regreso al alojamiento: ${formatMinutes(result.minutes)} · dato manual");
+    expect(section).toContain("Traslado desde alojamiento sin registrar");
+    expect(section).toContain("Regreso al alojamiento sin registrar");
+  });
+
+  it("keeps unselected and explicit no-accommodation as visibly different states", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    expect(section).toContain("Salida desde alojamiento: no aplica en este día");
+    expect(section).toContain("Regreso al alojamiento: no aplica en este día");
+    expect(section).toContain("Salida desde alojamiento: sin seleccionar");
+    expect(section).toContain("Regreso al alojamiento: sin seleccionar");
+    // The select offers all three families explicitly — there is no implicit default anchor.
+    expect(section).toContain('<option value="unselected">Sin seleccionar</option>');
+    expect(section).toContain('<option value="no-accommodation">No aplica</option>');
+  });
+
+  it("claims a complete registered total only under completeDoorToDoor, and labels it as registered components", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    expect(section).toContain("Total de traslados registrado:");
+    expect(section).toContain("incompleto");
+    expect(section).toMatch(
+      /logistics\.completeDoorToDoor\s*\?\s*"completo según los componentes registrados"\s*:\s*"incompleto"/
+    );
+    // A day with no known minutes at all shows no number — never a 0.
+    expect(section).toContain('"Total de traslados registrado: sin datos · incompleto"');
+  });
+
+  it("shows the exact directed endpoint pair the domain evaluated", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    expect(section).toContain('side === "start" ? `${anchorLabel ?? ""} → ${placeName}` : `${placeName} → ${anchorLabel ?? ""}`');
+    expect(section).toMatch(/result\.kind === "manual-leg" \|\| result\.kind === "manual-leg-missing"/);
+  });
+
+  it("writes minutes only through the exact directed setter and never coerces a value", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    expect(section).toContain("if (!isValidManualAccommodationMinutes(value)) return;");
+    // A blank field CLEARS that one key; it never stores zero.
+    expect(section).toContain("onLegChange(endpoint.accommodationId, endpoint.placeId, null);");
+    const code = withoutComments(section);
+    expect(code).not.toMatch(/Math\.round|Math\.floor|Math\.ceil|parseInt|parseFloat/);
+    expect(code).not.toMatch(/\?\?\s*0\b/);
+    // The two directions are written separately; neither side reuses the other's key.
+    expect(code).toContain('onLegChange("accommodation-to-place", accommodationId, placeId, minutes)');
+    expect(code).toContain('onLegChange("place-to-accommodation", accommodationId, placeId, minutes)');
+  });
+
+  it("never routes, geocodes, reverses a leg, or names a provider", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    const code = withoutComments(section);
+    expect(code).not.toContain("getBestTransfer");
+    expect(code).not.toMatch(/haversine|Math\.(sqrt|atan2|cos|sin)/i);
+    expect(code).not.toMatch(/\bfetch\b|geocod|openrouteservice|googleapis|booking\.com|expedia/i);
+    // The anchor's coordinates are only ever displayed, never read into arithmetic.
+    expect(code).toContain("{anchor.location.lat}, {anchor.location.lng}");
+  });
+
+  it("uses no forbidden claim about routes, providers, traffic, timetables or hotel quality", async () => {
+    const section = extractAccommodationSectionSource(await readSource());
+    expect(section).not.toMatch(
+      /ruta óptima|mejor ruta|mejor hotel|hotel más conveniente|tiempo real|tráfico|ruta actual|horario de tren|Google|ORS|transporte confirmado|disponibilidad confirmada|recomend|sugier/i
+    );
+  });
+});
+
+describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
+  it("exposes the persisted accommodation state and setters that delegate to the pure module", async () => {
+    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
+    expect(hook).toMatch(
+      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v4["']/
+    );
+    expect(hook).toMatch(/accommodations: draft\.accommodations,/);
+    expect(hook).toMatch(/dayAccommodationBoundaries: draft\.dayAccommodationBoundaries,/);
+    expect(hook).toMatch(/accommodationLegs: draft\.accommodationLegs,/);
+    expect(hook).toMatch(/withNewAccommodation\(current, label, location, randomAccommodationId\)/);
+    expect(hook).toMatch(/withoutAccommodation\(current, accommodationId\)/);
+    expect(hook).toMatch(/withDayAccommodationChoice\(current, dayIndex, side, choice\)/);
+    expect(hook).toMatch(/withAccommodationLeg\(current, direction, accommodationId, placeId, minutes\)/);
+  });
+
+  it("keeps V4 as the single canonical runtime draft under the existing storage key", async () => {
+    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
+    const code = withoutComments(hook);
+    // Still exactly one piece of state: the whole V4 draft. No parallel V3 state, no second key.
+    expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
+    expect(code).not.toContain("ManualPlanningDraftV3");
+    expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft["']/);
+    expect(code).not.toMatch(/localStorage\.(getItem|setItem)\((?!key)/);
+    // Nothing derived and nothing looked up happens in the hook itself.
+    expect(code).not.toMatch(/\bfetch\b|geocod|getBestTransfer|haversine/i);
+  });
+});

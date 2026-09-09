@@ -204,25 +204,33 @@ export function buildDayLogisticsWithAccommodation(
     };
   }
 
-  let minMinutes = intraDay.transferMinutes?.minMinutes ?? 0;
-  let maxMinutes = intraDay.transferMinutes?.maxMinutes ?? 0;
-  let hasKnownMinutes = intraDay.transferMinutes !== null;
+  // Only components that are actually KNOWN enter the sum. There is deliberately no zero-valued
+  // placeholder anywhere in this arithmetic: an unknown intra-day leg, an unselected boundary, a
+  // missing manual leg and an explicit `no-accommodation` side are simply absent from `known`, so
+  // none of them can be mistaken for a real zero-minute transfer. When nothing is known the
+  // subtotal is `null` rather than `{ minMinutes: 0, maxMinutes: 0 }`.
+  const known: MinuteRange[] = [];
+  if (intraDay.transferMinutes) known.push(intraDay.transferMinutes);
+  // A manual leg is one exact integer, so it moves both bounds by the same amount — never widened
+  // into an invented ± range.
   if (outbound.kind === "manual-leg") {
-    minMinutes += outbound.minutes;
-    maxMinutes += outbound.minutes;
-    hasKnownMinutes = true;
+    known.push({ minMinutes: outbound.minutes, maxMinutes: outbound.minutes });
   }
   if (returnLeg.kind === "manual-leg") {
-    minMinutes += returnLeg.minutes;
-    maxMinutes += returnLeg.minutes;
-    hasKnownMinutes = true;
+    known.push({ minMinutes: returnLeg.minutes, maxMinutes: returnLeg.minutes });
   }
 
   return {
     intraDay,
     outbound,
     returnLeg,
-    registeredTransferMinutes: hasKnownMinutes ? { minMinutes, maxMinutes } : null,
+    registeredTransferMinutes: known.reduce<MinuteRange | null>(
+      (total, range) =>
+        total === null
+          ? { ...range }
+          : { minMinutes: total.minMinutes + range.minMinutes, maxMinutes: total.maxMinutes + range.maxMinutes },
+      null
+    ),
     completeDoorToDoor:
       intraDay.complete && outbound.kind === "manual-leg" && returnLeg.kind === "manual-leg",
   };

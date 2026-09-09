@@ -12,9 +12,11 @@ import {
   withAccommodationLeg,
   withDayAccommodationChoice,
   withDays,
+  withNewAccommodation,
   withRoute,
   withStartDate,
   withoutAccommodation,
+  writeDraft,
   type DraftStorage,
   type ManualPlanningDraftV4,
 } from "./planning-draft-v4";
@@ -426,5 +428,165 @@ describe("Phase 3D-Q accommodation identity setters", () => {
     const base = withAccommodation(freshDraft(["A"]), hotelA);
     expect(withAccommodation(base, { ...hotelB, id: "hotel-a" })).toBe(base);
     expect(withAccommodation(base, { ...hotelB, location: { lat: 200, lng: 0 } })).toBe(base);
+  });
+});
+
+describe("Phase 3D-Q historical migration chain and fail-safe loading", () => {
+  it("still loads a pre-calendar V1 record all the way to V4", () => {
+    const storage = memoryStorage({
+      [PLANNING_DRAFT_STORAGE_KEY]: JSON.stringify({ version: 1, routeIds: ["A", "B"], days: [["A"], ["B"]] }),
+    });
+    const loaded = loadReconciledDraft(storage, ["A", "B"]);
+    expect(loaded.version).toBe(4);
+    expect(loaded.routeIds).toEqual(["A", "B"]);
+    expect(loaded.startDate).toBeNull();
+    expect(loaded.visitStartTimes).toEqual({});
+    expect(loaded.accommodations).toEqual([]);
+    expect(loaded.accommodationLegs).toEqual([]);
+    expect(loaded.dayAccommodationBoundaries).toEqual([
+      { start: { kind: "unselected" }, end: { kind: "unselected" } },
+      { start: { kind: "unselected" }, end: { kind: "unselected" } },
+    ]);
+  });
+
+  it("still loads a V2 record with its calendar anchor intact", () => {
+    const storage = memoryStorage({
+      [PLANNING_DRAFT_STORAGE_KEY]: JSON.stringify({
+        version: 2,
+        routeIds: ["A"],
+        days: null,
+        startDate: "2027-02-19",
+      }),
+    });
+    const loaded = loadReconciledDraft(storage, ["A"]);
+    expect(loaded.version).toBe(4);
+    expect(loaded.startDate).toBe("2027-02-19");
+    expect(loaded.dayAccommodationBoundaries).toBeNull();
+  });
+
+  it("round-trips a V4 draft through storage unchanged", () => {
+    const storage = memoryStorage();
+    const draft = draftWithDays();
+    writeDraft(storage, draft);
+    expect(loadReconciledDraft(storage, ["A", "B", "C"])).toEqual(draft);
+  });
+
+  it("falls back to a fresh draft for malformed V4 rather than repairing it", () => {
+    for (const corrupt of [
+      "{ not json",
+      JSON.stringify({ ...draftWithDays(), accommodations: "hotel-a" }),
+      JSON.stringify({ ...draftWithDays(), accommodationLegs: {} }),
+      JSON.stringify({ ...draftWithDays(), version: 5 }),
+    ]) {
+      const storage = memoryStorage({ [PLANNING_DRAFT_STORAGE_KEY]: corrupt });
+      const loaded = loadReconciledDraft(storage, ["A", "B", "C"]);
+      expect(loaded).toEqual(freshDraft(["A", "B", "C"]));
+    }
+  });
+
+  it("rejects malformed tagged unions instead of coercing them to a known choice", () => {
+    const draft = draftWithDays();
+    for (const start of [
+      { kind: "accommodation" },
+      { kind: "accommodation", accommodationId: "" },
+      { kind: "maybe" },
+      { accommodationId: "hotel-a" },
+      null,
+      "unselected",
+    ]) {
+      expect(
+        parseStoredDraft({
+          ...draft,
+          dayAccommodationBoundaries: [{ start, end: { kind: "unselected" } }, draft.dayAccommodationBoundaries![1]],
+        })
+      ).toBeNull();
+    }
+  });
+
+  it("rejects structurally corrupt accommodation and leg records", () => {
+    const draft = draftWithDays();
+    expect(parseStoredDraft({ ...draft, accommodations: [{ id: "x", label: "X" }] })).toBeNull();
+    expect(parseStoredDraft({ ...draft, accommodations: [{ ...hotelA, id: "" }] })).toBeNull();
+    expect(
+      parseStoredDraft({
+        ...draft,
+        accommodationLegs: [{ ...draft.accommodationLegs[0], direction: "place-to-place" }],
+      })
+    ).toBeNull();
+    expect(
+      parseStoredDraft({
+        ...draft,
+        accommodationLegs: [{ ...draft.accommodationLegs[0], source: { kind: "routed" } }],
+      })
+    ).toBeNull();
+    expect(parseStoredDraft(null)).toBeNull();
+    expect(parseStoredDraft([draft])).toBeNull();
+  });
+});
+
+describe("Phase 3D-Q withDays boundary-reset rule", () => {
+  const nonIdenticalAssignments: ReadonlyArray<readonly [string, string[][]]> = [
+    ["a place moves to another bucket", [["A"], ["B", "C"]]],
+    ["places are reordered inside one bucket", [["B", "A"], ["C"]]],
+    ["the bucket order changes", [["C"], ["A", "B"]]],
+    ["an empty bucket is appended", [["A", "B"], ["C"], []]],
+    ["the split is collapsed into one day", [["A", "B", "C"]]],
+  ];
+
+  for (const [description, days] of nonIdenticalAssignments) {
+    it(`resets every boundary side when ${description}`, () => {
+      const draft = draftWithDays();
+      const next = withDays(draft, days);
+      expect(next.days).toEqual(days);
+      expect(next.dayAccommodationBoundaries).toEqual(
+        days.map(() => ({ start: { kind: "unselected" }, end: { kind: "unselected" } }))
+      );
+      // Endpoint-keyed leg records survive the re-split; they are simply unused until the user
+      // explicitly chooses a boundary whose exact directed endpoints match one again.
+      expect(next.accommodationLegs).toEqual(draft.accommodationLegs);
+    });
+  }
+
+  it("an old endpoint leg becomes applicable again only through an explicit new choice", () => {
+    const draft = draftWithDays();
+    const resplit = withDays(draft, [["A"], ["B", "C"]]);
+    expect(resplit.dayAccommodationBoundaries?.[0].start).toEqual({ kind: "unselected" });
+
+    // Day 1 is now just "A" — the same first place the stored hotel-a leg was recorded for. The
+    // duration is NOT reapplied by the re-split; only the user re-choosing the boundary does it.
+    const rechosen = withDayAccommodationChoice(resplit, 0, "start", {
+      kind: "accommodation",
+      accommodationId: "hotel-a",
+    });
+    expect(rechosen.dayAccommodationBoundaries?.[0].start).toEqual({
+      kind: "accommodation",
+      accommodationId: "hotel-a",
+    });
+    expect(
+      rechosen.accommodationLegs.find(
+        (leg) => leg.direction === "accommodation-to-place" && leg.accommodationId === "hotel-a" && leg.placeId === "A"
+      )?.minutes
+    ).toBe(20);
+  });
+});
+
+describe("Phase 3D-Q accommodation creation via the injected id factory", () => {
+  it("mints an id and stores the trimmed label with the user's own coordinate", () => {
+    const next = withNewAccommodation(freshDraft(["A"]), "  Hotel Kioto  ", { lat: 34.9855, lng: 135.7587 }, () => "acc-1");
+    expect(next.accommodations).toEqual([
+      { id: "acc-1", label: "Hotel Kioto", location: { lat: 34.9855, lng: 135.7587 } },
+    ]);
+  });
+
+  it("leaves the draft untouched when the label is blank or the coordinate is out of range", () => {
+    const base = freshDraft(["A"]);
+    expect(withNewAccommodation(base, "   ", { lat: 35, lng: 139 }, () => "acc-1")).toBe(base);
+    expect(withNewAccommodation(base, "Hotel", { lat: 95, lng: 139 }, () => "acc-1")).toBe(base);
+    expect(withNewAccommodation(base, "Hotel", { lat: Number.NaN, lng: 139 }, () => "acc-1")).toBe(base);
+  });
+
+  it("leaves the draft untouched when no unique id can be minted", () => {
+    const base = withNewAccommodation(freshDraft(["A"]), "Hotel", { lat: 35, lng: 139 }, () => "acc-1");
+    expect(withNewAccommodation(base, "Otro hotel", { lat: 36, lng: 140 }, () => "acc-1")).toBe(base);
   });
 });
