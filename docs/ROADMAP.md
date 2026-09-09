@@ -2814,28 +2814,25 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       different proposition. Phase 3D-N began subsequently as a separate reservation-window /
       reference-date design gate; it is not an opening-hours successor and does not reopen Phase
       3D-M's decision.
-- [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-H;
+- [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-O;
       broader deadline and availability intelligence remains unscheduled. DONE:** Phase 3D-D
       provides coarse lead-time classification and its conservative preparation summary. Phase
-      3D-G established the design gate, and Phase 3D-H implemented the Class A explicit numeric
-      lead-time window: exact weeks-to-days conversion (`1 week = 7 days`), `minLeadDays` and
-      `maxLeadDays`, and a `ReservationDateWindow` whose `farAdvanceDate` and `nearAdvanceDate` are
-      derived relative to the validated visit date. The existing presentation conservatively labels
-      this a recorded advance-notice window and retains the raw source text and applicable caveats.
-      `farAdvanceDate` and `nearAdvanceDate` are only the bounds of that recorded window; they are
-      not "booking opens" or a "booking deadline" and do not guarantee availability. **STUDIED /
-      DESIGNED, NOT IMPLEMENTED (Phase 3D-N):** the design gate approved only a relation between an
-      explicit reference civil date and an existing Phase 3D-H `ReservationDateWindow`: before the
-      recorded window, within it, or after it, with equality at `farAdvanceDate` or
-      `nearAdvanceDate` classified as within. The evaluator must receive that explicit date; it may
-      not call `Date.now()` or read another ambient clock inside the domain. Phase 3D-N implements no
-      runtime. Its recommended implementation successor, Phase 3D-O — Reservation Window
-      Reference-Date Relation, remains **NOT STARTED**. **STILL NOT DONE:** converting month ranges,
-      mixed-unit text, or unit-only text into dates; interpreting specific mechanisms, lotteries, or
-      releases; the runtime reference-date evaluator; the device-local adapter; presentation of the
-      before/within/after relation; any Japan business-date semantics; urgency, late, `book now`,
-      booking opening/closing, or a guaranteed deadline; availability; reminders or automation;
-      live inventory or booking integration; or any inference stronger than the recorded evidence.
+      3D-G established the numeric-window design gate, and Phase 3D-H implemented the Class A
+      explicit numeric lead-time window: exact weeks-to-days conversion (`1 week = 7 days`),
+      `minLeadDays`/`maxLeadDays`, and the neutral `farAdvanceDate`/`nearAdvanceDate` bounds of a
+      recorded advance-guidance window. **DESIGNED (Phase 3D-N) AND IMPLEMENTED (Phase 3D-O):**
+      the planner now compares one explicitly disclosed civil reference date with that already-derived
+      Phase 3D-H window and reports only `before-recorded-window`, `within-recorded-window`, or
+      `after-recorded-window`; equality at either bound is within. The pure evaluator receives the
+      reference date explicitly, while the application boundary captures one device-local civil date
+      with local calendar getters when the planner instance opens. The exact reference date is shown
+      beside the relation, the original raw lead-time evidence remains visible, and the UI explicitly
+      discloses that this is not Japan's operating date and does not auto-refresh at midnight.
+      **STILL NOT DONE:** converting month ranges, mixed-unit text, or unit-only text into dates;
+      interpreting specific mechanisms, lotteries, or releases; Japan business-date/timezone semantics;
+      urgency, late, `book now`, booking opening/closing, or a guaranteed deadline; availability;
+      reminders or automation; live inventory or booking integration; or any inference stronger than
+      the recorded evidence.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.
@@ -2846,3 +2843,34 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       one into ordinal days; none of the three chose an order, a day count, or a place-to-day
       assignment on the user's behalf, and any future automation here is a distinct,
       separately-scoped decision — not an incremental extension to make without one.
+
+## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
+
+- [x] **Pure closed relation over the existing Phase 3D-H result.** `reservation-window-reference.ts`
+      consumes only an already-derived `ReservationDateWindow` plus one explicit civil reference date and
+      returns `before-recorded-window`, `within-recorded-window`, `after-recorded-window`, or a named
+      `not-assessed` refusal. Both recorded edges are inclusive; Phase 3D-H remains the sole owner of
+      lead-time parsing and window derivation.
+- [x] **Explicit device-local clock boundary, not an ambient domain clock.**
+      `captureDeviceLocalCivilDate()` derives `YYYY-MM-DD` from local calendar getters on an injected/runtime
+      `Date`; the pure evaluator does not construct a current date. UTC extraction, ISO serialization,
+      `Asia/Tokyo`, countdowns and Japan business-date inference remain absent.
+- [x] **Existing per-day reservation surface extended, not replaced.** `ReservationDeadlineNotice` remains
+      the only user-facing surface for the derived Phase 3D-H window. For each eligible place it now also
+      shows `Fecha de referencia (tu dispositivo): YYYY-MM-DD` plus neutral before/within/after copy while
+      retaining the original recorded window, raw lead-time evidence and the existing Feb–Mar caveat.
+- [x] **Reference freshness is disclosed.** The planner captures one concrete device-local civil date when
+      that planner instance opens. The exact date used remains visible; the copy explicitly says it is not
+      Japan's operating date and does not imply an automatic midnight refresh.
+- [x] **No persistence or evidence-boundary expansion.** No planning-draft schema/version change, dataset
+      edit, dependency/package/lockfile change, month/mixed/specific-mechanism widening, reservation
+      requirement reinterpretation, availability claim, booking-open/deadline claim, urgency or reminder.
+- [x] **Deterministic coverage.** Domain tests cover invalid/no-window states, before/within/after, both
+      inclusive edges, month/year rollover, leap day and a same-day window. Clock-boundary tests prove local
+      getters are used even when local and UTC civil dates diverge. Structural integration tests pin the
+      existing day-card wiring, exact reference-date disclosure, raw evidence retention, one-dialog surface
+      and absence of persistence/stronger booking-state copy.
+- [x] **Validation gate.** This closure is committed only after `npm test`, `npm run build`, `npm run lint`
+      and `git diff --check` all pass on the exact resulting tree.
+
+**Phase 3D-P or later work is NOT STARTED by this implementation.**
