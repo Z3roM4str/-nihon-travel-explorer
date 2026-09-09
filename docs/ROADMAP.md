@@ -2834,12 +2834,15 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       reminders or automation; live inventory or booking integration; or any inference stronger than
       the recorded evidence.
 - [ ] Hotel-origin/return modelling — **designed in Phase 3D-P; runtime not started.** The gate
-      defines separate user-authored accommodation anchors, independent start/end accommodation
-      boundaries per day, and exact directed accommodation↔place durations entered manually by
-      the user as the only currently approved evidence source. Missing legs stay missing, never
-      zero or reversed. Automatic hotel routing remains unapproved: no geometry-derived fallback,
-      runtime ORS, live transit, geocoding, booking integration or synthetic hotel `Place` is
-      introduced. Recommended successor: Phase 3D-Q — Manual Accommodation Commute Legs.
+      defines separate user-authored accommodation anchors, independent explicit start/end choices
+      per day (`unselected`, `no-accommodation`, or one chosen anchor), and exact directed
+      accommodation↔place durations entered manually by the user as the only currently approved
+      evidence source. Missing/unknown legs stay missing, never zero or reversed; a complete
+      door-to-door total additionally requires the existing intra-day sequence to be complete and
+      both accommodation sides to resolve to manual legs. Automatic hotel routing remains unapproved:
+      no geometry-derived fallback, runtime ORS, live transit, geocoding, booking integration or
+      synthetic hotel `Place` is introduced. Recommended successor: Phase 3D-Q — Manual Accommodation
+      Commute Legs.
 - [ ] Automatic candidate generation, automatic day distribution, and itinerary
       recommendation/optimisation (auto-sort, nearest-neighbour, TSP, shortest path, a day-quality
       scoring function, a "best order"/"best split" claim) — not started. Phase 3C-A defined one
@@ -2891,21 +2894,22 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       user-authored accommodation anchors with stable local ids, display labels and user-selected
       `{lat, lng}` map coordinates. Those coordinates are planning context only in the first successor;
       they do not themselves create transfer evidence.
-- [x] **Multiple hotels and hotel-change days are first-class.** Each day may independently reference
-      a start accommodation and an end accommodation; neither is auto-filled, and differing adjacent
-      boundaries do not imply a hotel-to-hotel transfer.
-- [x] **Manual directed commute evidence approved.** The first safe source is an explicit positive
-      minute value entered by the user for one exact accommodation→place or place→accommodation pair.
-      Direction, accommodation identity and place identity are load-bearing. Missing means unrecorded,
-      never zero; the reverse direction is never reused.
+- [x] **Multiple hotels and hotel-change days are first-class.** Each day has independent explicit
+      start/end choices: `unselected`, `no-accommodation`, or one chosen anchor. No choice is
+      auto-filled, and differing adjacent boundaries do not imply a hotel-to-hotel transfer.
+- [x] **Manual directed commute evidence approved.** The first safe source is a positive safe-integer
+      minute value entered by the user for one unique exact accommodation→place or
+      place→accommodation key. Direction and endpoint identity are load-bearing. Missing means
+      unrecorded, never zero; reverse/sibling legs are never reused.
 - [x] **Aggregation remains evidence-preserving.** Accommodation legs compose outside
       `OrderedSequenceSummary`; existing place-to-place confidence/provenance stays unchanged. A
-      door-to-door subtotal may be shown only with explicit incomplete treatment when an expected
-      boundary leg is absent.
+      complete door-to-door total requires `intraDay.complete === true` plus present manual start and
+      end legs; all other cases remain explicitly incomplete/partial.
 - [x] **Persistence boundary decided, not implemented.** A future runtime implementation requires
-      `ManualPlanningDraftV4`, with V3→V4 migration creating empty accommodation state only. Anchor
-      deletion, place removal, reorder, day-boundary edits and start-date changes have explicit
-      reconciliation invariants in [`docs/ACCOMMODATION_COMMUTE_DESIGN.md`](ACCOMMODATION_COMMUTE_DESIGN.md).
+      `ManualPlanningDraftV4`. V3→V4 creates no accommodation evidence; when V3 already has `days`, it
+      creates only the structurally-required same-length all-`unselected` boundary vector. Anchor
+      deletion, place removal/reconciliation, reorder, day-boundary edits and start-date changes have
+      explicit invariants in [`docs/ACCOMMODATION_COMMUTE_DESIGN.md`](ACCOMMODATION_COMMUTE_DESIGN.md).
 - [x] **Non-goals remain explicit.** No hotel search/inventory/pricing, geocoding, runtime routing,
       live transit, luggage logic, check-in/out inference, itinerary optimisation or automatic hotel
       recommendation is authorized by this gate.

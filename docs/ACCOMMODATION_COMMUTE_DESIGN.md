@@ -357,11 +357,24 @@ export type ManualPlanningDraftV4 = {
 
 ### 8.1 Migration
 
-`migrateV3ToV4` must invent nothing:
+`migrateV3ToV4` must invent no accommodation decision or transfer evidence:
 
-- `accommodations: []`;
-- `dayAccommodationBoundaries: null`;
-- `accommodationLegs: []`.
+```ts
+accommodations: [];
+dayAccommodationBoundaries:
+  draft.days === null
+    ? null
+    : draft.days.map(() => ({
+        start: { kind: "unselected" },
+        end: { kind: "unselected" },
+      }));
+accommodationLegs: [];
+```
+
+The all-`unselected` vector is structural scaffolding, not an inferred hotel choice. It is required
+when a V3 draft already contains a valid day partition so the migrated V4 immediately satisfies the
+same-length boundary-vector invariant below. A V3 draft with `days: null` still migrates to
+`dayAccommodationBoundaries: null`.
 
 ### 8.2 Boundary-vector identity and shape
 
@@ -381,11 +394,14 @@ The persisted shape is therefore strict:
   `accommodations`; `no-accommodation` carries no anchor ID;
 - an empty day bucket may persist only an all-`unselected` boundary entry;
 - accommodation anchor IDs are unique and exact directed manual-leg keys are unique;
-- every manual leg references an existing accommodation anchor and a place in the current route after reconciliation;
+- every manual leg references an existing accommodation anchor, and its `placeId` must belong to the
+  **stored** `routeIds`; an exact leg for a place outside that stored route could not have been produced
+  by the approved setter and makes the stored V4 structurally invalid;
 - the V4 parser rejects a length mismatch, a boundary vector present while `days` is null, a null
-  vector while `days` exists, a reference to an unknown accommodation, duplicate anchor IDs, duplicate
-  exact directed leg keys, or an invalid manual minute value. It does not pad, truncate, deduplicate,
-  shift, infer, round, or silently repair those shapes.
+  vector while `days` exists, a reference to an unknown accommodation, a manual leg whose place is
+  outside stored `routeIds`, duplicate anchor IDs, duplicate exact directed leg keys, or an invalid
+  manual minute value. It does not pad, truncate, deduplicate, shift, infer, round, or silently repair
+  those shapes.
 
 The update rule is equally strict. If a new `days` matrix is element-for-element identical to the
 stored matrix, preserve the boundary vector. If **any** part of the day assignment changes — bucket
@@ -408,7 +424,7 @@ A successor must define and test these rules explicitly:
 
 - anchors survive route-place reordering and ordinary route edits until the user deletes the anchor;
 - deleting an anchor removes manual legs using that anchor and changes every affected `{ kind: "accommodation" }` boundary choice to `{ kind: "unselected" }`; it never rewrites the choice to `no-accommodation` or to another anchor;
-- removing a place from the route prunes manual accommodation legs using that place, matching the existing no-orphan discipline for `visitStartTimes`;
+- after shape parsing, reconciliation against the caller's current saved IDs prunes manual accommodation legs whose place is pruned from the route; it never rebinds that leg to another place or accommodation. This mirrors the existing parse-then-reconcile split for stale place-scoped planning state;
 - a pure route-place reorder preserves the exact manual legs because their identity is endpoint-based, not ordinal-position-based;
 - any non-identical `withDays` assignment clears all ordinal-day boundary choices before the new split is persisted; no old boundary is shifted or similarity-matched into the new matrix;
 - changing a day's first/last place therefore requires an explicit boundary choice again, and a stale duration from the former endpoint is never applied implicitly;
@@ -523,9 +539,9 @@ A successor should prove at least:
 
 ### Persistence
 
-27. V3 -> V4 migration creates empty accommodation state only;
+27. V3 -> V4 migration with `days: null` creates `dayAccommodationBoundaries: null`, while a V3 draft with existing days creates an exactly same-length all-`unselected` vector and no accommodation/leg evidence;
 28. route reorder preserves endpoint-keyed legs and, when the existing day matrix is retained exactly, its boundary vector;
-29. place removal prunes its legs;
+29. a persisted manual leg whose `placeId` is outside the stored route is rejected as malformed, while a leg whose formerly-live place is later removed from current saved IDs is pruned during reconciliation without rebinding;
 30. anchor deletion prunes its legs and changes affected accommodation choices to `unselected`, never to another anchor or `no-accommodation`;
 31. any non-identical valid day assignment resets every new ordinal-day boundary side to `{ kind: "unselected" }` rather than shifting or similarity-matching old boundaries;
 32. an element-for-element identical day assignment preserves the existing boundary vector;
