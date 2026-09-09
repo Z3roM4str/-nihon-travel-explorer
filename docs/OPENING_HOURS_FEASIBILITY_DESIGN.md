@@ -597,10 +597,10 @@ UX evidence because absence may plausibly acquire unintended meaning.
 
 ---
 
-## 9. Design question 5 — `febMar2027` must remain orthogonal
+## 9. Design question 5 — `febMar2027` remains orthogonal to the current arithmetic
 
-**Answer: orthogonal, and it may compose only at presentation time, only as a weakening, and only
-in the surface that already owns it.**
+**Answer for the current products: orthogonal to the arithmetic, and it may compose only as a
+separately identified caveat that does not change another component's truth conditions.**
 
 `docs/TEMPORAL_DATA_CONTRACT.md` §5 fixes the axis: `febMar2027` answers *how confident is Nihon
 about this place's Feb–Mar 2027 situation*, and **never** *is this place closed on Tuesdays*. It is a
@@ -620,10 +620,11 @@ orthogonal rather than being folded in:
   independently computable first-axis result.
 
 **Presentation-time rule:** `PlaceDetail.tsx`'s existing Feb–Mar 2027 card (Phase 3D-F,
-`feb-mar-status.ts`) continues to own the axis. A future confidence-preserving presentation may
-juxtapose its caveat with another independently true recorded fact, but may not turn the pair into
-a combined OPEN/VISITABLE verdict or use it to suppress arithmetic. `warning`/`action` remain
-214/214 OPAQUE prose that is never structurally parsed.
+`feb-mar-status.ts`) continues to own the axis today. A future Level-2.5 product may explicitly
+compose its status or caveat with another independently true recorded fact while keeping each
+component and provenance boundary identifiable. It may not turn the pair into a combined
+OPEN/VISITABLE verdict or use it to suppress arithmetic. `warning`/`action` remain 214/214 OPAQUE
+prose that the current runtime never structurally parses.
 
 ---
 
@@ -740,9 +741,11 @@ justified now because its safe products are redundant.**
 The union discipline itself is not in question and is not the constraint that fails. This codebase
 has repeatedly shown that a closed union with no boolean, no `null`, no catch-all and named refusals
 prevents an entire class of overclaiming, and Phase 3D-L's eight variants — every one named after
-*the recorded interval* rather than the place — are the standing proof. Any successor would inherit
-that discipline unchanged: no `open`, `available`, `feasible`, `visitable`, `works`, `compatible`,
-`valid` or `ok` as a variant, a field, a property, or a boolean.
+*the recorded interval* rather than the place — are the standing proof. Any continuation that says
+it preserves this record-subject arithmetic contract would inherit that discipline unchanged: no
+`open`, `available`, `feasible`, `visitable`, `works`, `compatible`, `valid` or `ok` as a variant, a
+field, a property, or a boolean. A future claim with a stronger claim-specific evidence contract
+would be a different product contract, governed by §28.2 rather than this inheritance rule.
 
 But a type only constrains what a value may *say*; it cannot manufacture evidence for a stronger
 claim. A closed product can trivially carry, without promotion:
@@ -779,11 +782,13 @@ novelty, not on a false claim that every post-3D-L value is unreachable.
 
 ---
 
-## 15. Design question 11 — the constraints any future implementation would inherit
+## 15. Design question 11 — constraints on a continuation of the current arithmetic contract
 
-Recorded so the boundary survives this decision. **These are conditions on a phase that is not
-approved, not a specification for one.** Should the question ever be re-opened under §28.2, all six
-hold, and none is negotiable within the current product:
+Recorded so the Phase 3D-L boundary survives this decision. **These are conditions on a follow-up
+that explicitly preserves Phase 3D-L's current evidence model and arithmetic surface; that phase is
+not approved, and this is not a specification for one.** Within such a contract-preserving
+continuation, all six hold and none is negotiable. They do not govern every claim-specific future
+revisit under §28.2:
 
 1. **Informational only.** No action, no gating, no blocking, no disabling of any control, no
    validation error, and no effect on saving, ordering, or day assignment.
@@ -797,10 +802,16 @@ hold, and none is negotiable within the current product:
    behalf.
 5. **Non-rescheduling.** No automatic move between day buckets, no reordering, no derived arrival or
    departure time, no chaining between places, and no interaction with `getBestTransfer()`.
-6. **No new runtime evidence class.** No network request, no `Date.now()`, no "now", no timezone,
-   no absolute instant and no holiday table. Nihon already consumes externally sourced editorial
-   research; what this phase does not add is runtime/live verification or a stronger curated static
-   schedule-field provenance/currency contract.
+6. **No new evidence class within that continuation.** No network request, no `Date.now()`, no
+   "now", no timezone, no absolute instant and no holiday table. Nihon already consumes externally
+   sourced editorial research; Phase 3D-L and a continuation preserving its contract do not add
+   runtime/live verification or a stronger curated static schedule-field provenance/currency
+   contract.
+
+§28.2 separately governs stronger future propositions. A claim may legitimately require
+live/runtime verification, a stronger curated static contract, or both; choosing one would make it
+a different evidence/product contract, not weaken or retroactively change Phase 3D-L. Nothing here
+selects, schedules or approves such an implementation.
 
 ---
 
@@ -861,8 +872,8 @@ queue, reservation state, and reachability by the chosen time.
 ## 17. Eligibility rules
 
 **No new eligibility rule is defined by this phase, because no new computation is authorised.** What
-follows is the eligibility contract that stands after this gate, recorded so a future reader does
-not have to reconstruct it, and so any successor inherits it verbatim rather than re-deriving it.
+follows is the eligibility contract for the existing Phase 3D-L arithmetic surface. A successor
+inherits it verbatim only if it explicitly claims to preserve that same arithmetic contract.
 
 1. **Union narrowing, never tier.** Only `fact.kind === "recorded-interval"` may enter interval
    arithmetic. `tier === "safe"` is never the test — it admits `recorded-24h` (§11), and 11 of those
@@ -877,9 +888,13 @@ not have to reconstruct it, and so any successor inherits it verbatim rather tha
 4. **The date gate is Phase 3D-H/3D-J's, reused unchanged** via `deriveHoursClosureVisitDate`: valid
    partition, valid `startDate`, exactly one containing bucket, valid derived civil date, no partial
    fallback. No second date contract may be invented.
-5. **Closure evidence is never an eligibility input** (§7, §19). Not as a gate, not as a filter, not
-   as a sort key, and not as a reason to hide a control.
+5. **Closure evidence is never an eligibility input for this arithmetic surface** (§7, §19). Not as
+   a gate, not as a filter, not as a sort key, and not as a reason to hide its control.
 6. **Overnight and degenerate tokens are named refusals, not exclusions** (§12).
+
+A future proposition with different truth conditions may legitimately read or compose closure or
+`febMar2027` evidence. That does not alter the arithmetic result, and reading those inputs does not
+by itself license an OPEN/CLOSED/FEASIBLE/VISITABLE inference.
 
 ---
 
@@ -908,7 +923,10 @@ want:**
 
 ## 19. Composition rules
 
-**Rule 1 — The arithmetic derives from its own operands only.** Its truth value reads no
+These rules preserve the existing arithmetic while leaving room for a differently specified
+record-subject product.
+
+**Rule 1 — The current arithmetic derives from its own operands only.** Its truth value reads no
 `ClosureFact`, `WeekdayClosureAssessment`, `CompositionClass`, `febMar2027`, `bestTime`, reservation
 field or transfer edge. This preserves Phase 3D-L. The resulting fact may nevertheless be carried
 beside other recorded facts in a Level-2.5 product without changing its truth conditions.
@@ -962,9 +980,10 @@ conceivable composition is unreachable.
 ## 21. UI wording constraints
 
 No UI is authorised by this phase. These constraints bind the existing Phase 3D-L surface — which
-must not drift — and would bind any successor.
+must not drift — and any successor that explicitly preserves the same record-subject arithmetic
+contract.
 
-**Forbidden in any construction, in any language, on any feasibility, fit, or hours surface:**
+**Forbidden within that contract, in any language, on its feasibility, fit, or hours surface:**
 «abierto», «cerrado», «disponible», «visitable», «factible», «funciona», «compatible», «válido»,
 «confirmado», «garantizado», «puedes visitar», «podrás entrar», «es posible visitar», «te da
 tiempo», «llegas a tiempo», and every English equivalent (`open`, `closed`, `available`,
@@ -990,16 +1009,28 @@ text in its own card, never borrowed into an hours sentence.
 6. **A refusal states what is missing about the record, never about the place.** «No hay intervalo
    registrado evaluable», never «no sabemos si abre».
 
+A different future proposition needs wording derived from its exact truth conditions, legitimate
+inputs, provenance/currency limits and non-claims. Level 2.5 remains record-subject and may not use
+OPEN/CLOSED/FEASIBLE/VISITABLE wording; a stronger claim may use only the vocabulary its own
+claim-specific evidence contract actually supports. No such UI is approved here.
+
 ---
 
 ## 22. Styling constraints
+
+These constraints apply to the current arithmetic surface and to a successor that explicitly
+preserves its contract:
 
 1. **One neutral treatment for all outcomes.** No per-outcome class name, no green check, no red
    cross, no warning triangle, no success/error/danger badge, no colour that encodes approval or
    rejection. Phase 3D-L verified in-browser that every result line computes to the same colour on
    the same background; that property must be preserved.
-2. **Never Phase 3D-J's composed-notice styling.** Borrowing it would make an arithmetic result look
-   like it carries closure evidence — the visual form of the §19 rule 1 violation.
+2. **Do not reuse Phase 3D-J's composed-notice styling for the arithmetic result itself.** Borrowing
+   it there would make that result look like it carries closure evidence — the visual form of the
+   §19 rule 1 violation. A distinct Level-2.5 product could deliberately carry closure and seasonal
+   caveats and choose styling derived from that exact proposition; it would need to keep the
+   arithmetic component's truth conditions and the caveats visually unambiguous. No such product or
+   styling is approved here.
 3. **No ordering, grouping, sorting, or emphasis by outcome.** A day card must not float "fitting"
    places to the top, tint them, or collapse the others: layout is a claim (§19 rule 3).
 4. **No iconography for evidence strength.** No tier badges, no confidence meters, no traffic
@@ -1032,8 +1063,9 @@ laundered through the user); and a V4 migration, which has nothing to migrate.
 ## 24. Test strategy for a possible implementation
 
 Recorded for completeness, and because a future reader must be able to see what *would* have been
-required. **No implementation is approved, so none of this is scheduled.** Anything built under
-§28.2 would need, at minimum:
+required to preserve the current product. **No implementation is approved, so none of this is
+scheduled.** A continuation that says it preserves the Phase 3D-L arithmetic surface would need, at
+minimum:
 
 1. **Reachability tests over the real dataset, re-derived rather than pasted** — the discipline
    Phase 3D-K and 3D-L established: counts computed from the live classifiers inside the test, never
@@ -1055,11 +1087,20 @@ required. **No implementation is approved, so none of this is scheduled.** Anyth
 8. **Migration and staleness tests** only if persistence were ever justified, which §23 says it is
    not.
 
+This list is not the universal test contract for every implementation considered under §28.2. A
+different future proposition needs tests derived from the exact proposition it emits, the inputs it
+legitimately needs, its semantic invariants, its provenance/currency limits and its explicit
+non-claims. Such tests may permit reading or composing closures or `febMar2027`; that permission
+does not itself establish OPEN/CLOSED/FEASIBLE/VISITABLE. A Level-2.5 implementation must remain
+record-subject, preserve the semantics of every component, avoid real-world openness/visitability
+inference, and have provenance/currency sufficient for the precise claim it makes.
+
 ---
 
 ## 25. Explicit non-goals
 
-Nothing below is started, designed, scheduled, or implied by this document:
+Nothing below is started, designed, scheduled, or implied by this phase. These are non-goals of the
+current Phase 3D-M decision, not permanent prohibitions on a claim-specific future design:
 
 - Any opening-hours solver, feasibility engine, or open/closed judgment about any place.
 - Any composition that strengthens an hours fact, closure fact, `febMar2027` status, `bestTime` or
@@ -1068,8 +1109,9 @@ Nothing below is started, designed, scheduled, or implied by this document:
 - `Date.now()`, "now", the current clock, urgency, countdowns, or deadline framing.
 - Timezones, IANA zones, absolute instants, DST handling, or epoch values.
 - Holiday calendars, special calendars, observance rules, or "closed the day after a holiday" logic.
-- Live or temporary verification against any source — zero network requests, and no use of
-  `place.officialUrl` beyond the existing link.
+- Live or temporary verification against any source in this phase — zero network requests, and no
+  use of `place.officialUrl` beyond the existing link. §28.2 records when a different future claim
+  could require a new evidence decision.
 - Last-admission, capacity, queue, timed-entry, or admission-refusal modelling.
 - Overnight interval support, `recorded-24h` arithmetic, or promotion of any PARTIAL/OPAQUE/UNKNOWN
   fact by a second parser.
@@ -1127,8 +1169,9 @@ Recorded rather than resolved, because a future reader needs them and this phase
 
 1. **`JP-211` `"09:00–17:00 según anuncio"` still classifies SAFE.** `"anuncio"` is absent from the
    third-party regex word list. Phase 3D-K recorded it; it remains. The SAFE interval universe is
-   therefore not free of source hedging, and any successor inherits that. **Not fixed here — this
-   phase is not authorised to edit data or the classifier.**
+   therefore not free of source hedging, and any successor that preserves the current SAFE
+   eligibility/classifier contract inherits that. **Not fixed here — this phase is not authorised
+   to edit data or the classifier.**
 2. **`JP-016`'s recorded `06:00–17:00` hall interval is discarded** by the `known-24h` priority
    branch. Recorded by Phase 3D-K; unchanged. §11 shows why it matters more once tiers are used as
    evidence.
@@ -1201,6 +1244,9 @@ record-level question; their necessity depends on the proposed claim:
    static contract with field-level provenance/currency and refresh guarantees, or both. It is
    necessary only when the proposed future claim depends on that stronger evidence class.
 
+These claim-specific gates take precedence over §15's narrower inheritance rules whenever a future
+proposal does not preserve the current Phase 3D-L evidence model and arithmetic surface.
+
 Accordingly: reopening a real-world OPEN claim needs items 1 and 2 plus claim-relevant scope/
 currentness coverage; visitability may additionally require item 3 and admission constraints;
 weaker record-level arithmetic needs none of them merely to remain truthful; and a new Level-2.5
@@ -1243,6 +1289,16 @@ recognised as possible but currently redundant; and future reopening gates are c
 
 **Unchanged:** no full solver, no real-world open/closed judgment, no visitability/admission
 judgment, no implementation, and no immediate successor recommendation. Phase 3D-N was not started.
+
+A second corrective read found two residual **MAJOR scope contradictions**. First, §15's six
+constraints were phrased as if they governed every §28.2 revisit, including claims whose own gate
+could require live/runtime verification or a stronger static contract. Second, §§17/21/22/24
+universalised the current arithmetic surface's input isolation, wording, styling and test contracts
+to every future proposition. Those rules now bind Phase 3D-L and only successors that explicitly
+preserve its contract; a different proposition is governed by its exact claim, legitimate inputs,
+semantic invariants, provenance/currency limits and non-claims. The four original MAJOR findings are
+therefore finally resolved after this second corrective pass, without authorising any future
+implementation.
 
 Corrective validation: 950 Vitest tests across 27 files, 82 temporal-audit tests, oxlint, TypeScript,
 production build, dataset/geography/logistics validators and `git diff --check` all pass. The

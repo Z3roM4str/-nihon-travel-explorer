@@ -2620,7 +2620,9 @@ audit.
       instead exclude them. Nihon already uses external editorial research: the distinct product
       choice is live/runtime verification and/or a stronger curated static schedule-field contract
       with provenance, currency and refresh guarantees. Any future gate must select only the
-      conditions required by its proposed claim.
+      conditions required by its proposed claim. The six constraints recorded for a continuation
+      of the current Phase 3D-L arithmetic surface apply only when that continuation explicitly
+      preserves its evidence/product contract; they do not override a different claim-specific gate.
 - [x] **Validation**: 950 app tests across 27 files (unchanged — this phase adds and modifies no
       test); 82 temporal-audit tests; `npx oxlint`; `npx tsc -b`; production build (105 modules);
       dataset validation (214 places, 403 nearby relations, 0 broken references, the same 13
@@ -2645,7 +2647,7 @@ regex word list; `JP-016`'s recorded `06:00–17:00` hall interval is discarded 
 priority branch; and `docs/DATA_MODEL.md` still does not mention Phase 3D-G, 3D-H, 3D-I, 3D-J, 3D-K
 or 3D-L.
 
-**Explicit non-goals:** no opening-hours solver or open/closed judgment; no composition of an hours
+**Explicit non-goals for this phase:** no opening-hours solver or open/closed judgment; no composition of an hours
 fact with a closure fact, `febMar2027`, `bestTime` or a reservation field into a stronger real-world
 claim (confidence-preserving recorded-evidence juxtaposition remains valid); no
 `Date.now()`, "now", urgency or countdown; no timezone or absolute instant; no holiday or special
@@ -2669,6 +2671,16 @@ absent; triple-SAFE was used beyond `febMar2027`'s orthogonal scope; closed-unio
 confused with semantic/product novelty; and five reopening conditions were treated as universally
 necessary. The rationale is now narrower: composed recorded-evidence products are possible but
 currently redundant, and reopening gates are claim-specific.
+
+A second corrective pass resolved two residual **MAJOR scope contradictions** left by that first
+pass: §15's current-product constraints no longer govern every claim-specific reopening, and the
+eligibility/UI/styling/test contracts in §§17/21/22/24 no longer bind every future proposition.
+They remain mandatory for Phase 3D-L and for a successor that explicitly preserves its arithmetic
+contract. A different proposition must instead derive its tests and presentation from its exact
+claim, legitimate inputs, semantic invariants, provenance/currency limits and non-claims. Reading or
+composing closures or `febMar2027` is not universally prohibited, but it never licenses an
+OPEN/CLOSED/FEASIBLE/VISITABLE inference by itself. The four original MAJOR findings are therefore
+finally resolved after this second pass.
 
 Unchanged: no full solver, no open/closed judgment, no visitability/admission judgment, no
 implementation, and no immediate successor recommendation. Phase 3D-N was not started.
@@ -2755,6 +2767,9 @@ implementation, and no immediate successor recommendation. Phase 3D-N was not st
       closure coverage, last admission, scope/exactness or live/runtime verification matter only
       where the proposed claim requires them. A future revisit is legitimate if data semantics
       improve, a genuinely new record-level proposition is identified, or product scope changes.
+      The current arithmetic surface's input-isolation and UI/test contracts remain correct for it
+      and for an explicit contract-preserving successor, but are not permanent architecture for a
+      different proposition. Phase 3D-N remains not started.
 - [ ] Reservation booking-deadline intelligence — this item's wording is updated here specifically
       because it would otherwise now be false. **DONE (Phase 3D-D)**: a runtime classification of
       `reservation.leadTime` into a coarse days/weeks/months magnitude (`bare-magnitude`) or an
