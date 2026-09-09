@@ -1,1 +1,0 @@
-Draft design gate only.
