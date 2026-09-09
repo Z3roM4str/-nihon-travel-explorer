@@ -309,17 +309,53 @@ export type ManualPlanningDraftV4 = {
 - `dayAccommodationBoundaries: null`;
 - `accommodationLegs: []`.
 
-### 8.2 Reconciliation
+### 8.2 Boundary-vector identity and shape
+
+`dayAccommodationBoundaries` is positional state attached to the current ordinal day buckets. The
+existing planner has no stable day IDs, so Phase 3D-Q must not pretend it can identify a former day
+after an arbitrary re-split.
+
+The persisted shape is therefore strict:
+
+- when `days === null`, `dayAccommodationBoundaries` must also be `null`;
+- when `days !== null`, `dayAccommodationBoundaries` must be a non-null array with **exactly the
+  same length** as `days`;
+- every position contains one explicit `DayAccommodationBoundary`, using `null` for an unchosen
+  start/end side rather than omitting the position;
+- every non-null accommodation ID in the boundary vector must resolve to a live anchor in
+  `accommodations`;
+- the V4 parser rejects a length mismatch, a boundary vector present while `days` is null, a null
+  vector while `days` exists, or a reference to an unknown accommodation. It does not pad, truncate,
+  shift, infer, or silently repair those shapes.
+
+The update rule is equally strict. If a new `days` matrix is element-for-element identical to the
+stored matrix, preserve the boundary vector. If **any** part of the day assignment changes — bucket
+count, bucket order, place membership, or place order within a bucket — initialize a fresh boundary
+vector for the new day count with both sides null. Manual accommodation-leg records themselves may
+remain because their identity is endpoint-based; they simply cannot apply again until the user
+explicitly chooses the new day boundaries.
+
+This deliberately prefers losing stale ordinal-day assignments over silently attaching Hotel A to
+a different day. A future phase may preserve boundaries across richer day edits only after adding a
+stable day-identity contract; similarity matching or positional shifting is not approved here.
+
+A route-composition change already invalidates `days` under `withRoute`; V4 must therefore set
+`dayAccommodationBoundaries` to `null` at the same boundary. A pure route reorder retains the exact
+existing `days` matrix under the current contract and therefore retains its boundary vector.
+
+### 8.3 Reconciliation
 
 A successor must define and test these rules explicitly:
 
 - anchors survive route-place reordering and ordinary route edits until the user deletes the anchor;
 - deleting an anchor removes boundary references and manual legs using that anchor;
 - removing a place from the route prunes manual accommodation legs using that place, matching the existing no-orphan discipline for `visitStartTimes`;
-- a pure place reorder preserves the exact manual legs because their identity is endpoint-based, not ordinal-position-based;
-- changing a day's first/last place changes which exact manual leg is looked up; a stale duration from the former endpoint must not be reused;
-- `startDate` changes do not alter accommodation anchors, boundaries, or manual leg minutes;
-- if day buckets are removed, their boundary assignments do not leak into another ordinal day.
+- a pure route-place reorder preserves the exact manual legs because their identity is endpoint-based, not ordinal-position-based;
+- any non-identical `withDays` assignment clears all ordinal-day boundary choices before the new split is persisted; no old boundary is shifted or similarity-matched into the new matrix;
+- changing a day's first/last place therefore requires an explicit boundary choice again, and a stale duration from the former endpoint is never applied implicitly;
+- endpoint-keyed manual leg records may survive a re-split while unused; they become applicable only if the user later chooses a boundary whose exact directed endpoints match that record;
+- a route-composition change that invalidates `days` also sets `dayAccommodationBoundaries` to `null`;
+- `startDate` changes do not alter accommodation anchors, boundaries, or manual leg minutes.
 
 The precise UI reducer mechanics belong to implementation, but these semantic invariants are required.
 
@@ -422,20 +458,23 @@ A successor should prove at least:
 ### Persistence
 
 20. V3 -> V4 migration creates empty accommodation state only;
-21. route reorder preserves endpoint-keyed legs;
+21. route reorder preserves endpoint-keyed legs and, when the existing day matrix is retained exactly, its boundary vector;
 22. place removal prunes its legs;
 23. anchor deletion prunes its references/legs;
-24. day removal does not shift a removed boundary onto another day;
-25. start-date change leaves accommodation decisions untouched;
-26. malformed persisted accommodation state rejects under the same fail-safe policy as the rest of the draft.
+24. any non-identical valid day assignment resets every new ordinal-day boundary to `{ startAccommodationId: null, endAccommodationId: null }` rather than shifting or similarity-matching old boundaries;
+25. an element-for-element identical day assignment preserves the existing boundary vector;
+26. `days === null` requires a null boundary vector, while a non-null `days` matrix requires a boundary vector of exactly the same length;
+27. persisted boundaries referencing an unknown accommodation are rejected, never silently cleared or rebound;
+28. start-date change leaves accommodation decisions untouched;
+29. malformed persisted accommodation state rejects under the same fail-safe policy as the rest of the draft.
 
 ### Presentation/aggregation
 
-27. manual legs are visibly labelled manual;
-28. missing expected leg makes any combined total explicitly incomplete;
-29. missing leg never contributes zero;
-30. existing place-to-place transfer confidence/provenance remains visible and unchanged;
-31. no copy claims real-time routing, traffic, timetable validity, hotel optimality or booking state.
+30. manual legs are visibly labelled manual;
+31. missing expected leg makes any combined total explicitly incomplete;
+32. missing leg never contributes zero;
+33. existing place-to-place transfer confidence/provenance remains visible and unchanged;
+34. no copy claims real-time routing, traffic, timetable validity, hotel optimality or booking state.
 
 ---
 
