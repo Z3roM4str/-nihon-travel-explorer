@@ -2864,3 +2864,171 @@ a {
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
+
+/* Phase 3D-Q — manual accommodation commute legs. Deliberately NEUTRAL, like every other recorded
+   fact surface in this planner: no success/warning palette, no badge, no emphasis that could read
+   as "this is the good hotel" or "this is the real route". A recorded duration and an unrecorded
+   one share one read-only treatment, because the difference between them is what is written down,
+   not whether the plan is good. */
+.accommodation-manager {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accommodation-manager h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.accommodation-manager__intro,
+.accommodation-manager__empty,
+.accommodation-manager__hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.accommodation-manager__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.accommodation-manager__item {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.accommodation-manager__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.accommodation-manager__coords {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.accommodation-manager__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.accommodation-manager__field {
+  flex: 1 1 8rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.accommodation-manager__input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.accommodation-boundary {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accommodation-boundary__heading {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.accommodation-boundary__side {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.accommodation-boundary__label {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.accommodation-boundary__select,
+.accommodation-boundary__input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.accommodation-boundary__endpoint,
+.accommodation-boundary__result,
+.accommodation-boundary__total {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.accommodation-boundary__total {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.accommodation-boundary__minutes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.accommodation-boundary__minutes-label {
+  flex: 1 1 100%;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.accommodation-boundary__hint,
+.accommodation-boundary__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
