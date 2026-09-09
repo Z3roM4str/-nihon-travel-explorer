@@ -2814,28 +2814,25 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       different proposition. Phase 3D-N began subsequently as a separate reservation-window /
       reference-date design gate; it is not an opening-hours successor and does not reopen Phase
       3D-M's decision.
-- [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-H;
+- [ ] Reservation booking-deadline intelligence — **partially implemented through Phase 3D-O;
       broader deadline and availability intelligence remains unscheduled. DONE:** Phase 3D-D
       provides coarse lead-time classification and its conservative preparation summary. Phase
-      3D-G established the design gate, and Phase 3D-H implemented the Class A explicit numeric
-      lead-time window: exact weeks-to-days conversion (`1 week = 7 days`), `minLeadDays` and
-      `maxLeadDays`, and a `ReservationDateWindow` whose `farAdvanceDate` and `nearAdvanceDate` are
-      derived relative to the validated visit date. The existing presentation conservatively labels
-      this a recorded advance-notice window and retains the raw source text and applicable caveats.
-      `farAdvanceDate` and `nearAdvanceDate` are only the bounds of that recorded window; they are
-      not "booking opens" or a "booking deadline" and do not guarantee availability. **STUDIED /
-      DESIGNED, NOT IMPLEMENTED (Phase 3D-N):** the design gate approved only a relation between an
-      explicit reference civil date and an existing Phase 3D-H `ReservationDateWindow`: before the
-      recorded window, within it, or after it, with equality at `farAdvanceDate` or
-      `nearAdvanceDate` classified as within. The evaluator must receive that explicit date; it may
-      not call `Date.now()` or read another ambient clock inside the domain. Phase 3D-N implements no
-      runtime. Its recommended implementation successor, Phase 3D-O — Reservation Window
-      Reference-Date Relation, remains **NOT STARTED**. **STILL NOT DONE:** converting month ranges,
-      mixed-unit text, or unit-only text into dates; interpreting specific mechanisms, lotteries, or
-      releases; the runtime reference-date evaluator; the device-local adapter; presentation of the
-      before/within/after relation; any Japan business-date semantics; urgency, late, `book now`,
-      booking opening/closing, or a guaranteed deadline; availability; reminders or automation;
-      live inventory or booking integration; or any inference stronger than the recorded evidence.
+      3D-G established the numeric-window design gate, and Phase 3D-H implemented the Class A
+      explicit numeric lead-time window: exact weeks-to-days conversion (`1 week = 7 days`),
+      `minLeadDays`/`maxLeadDays`, and the neutral `farAdvanceDate`/`nearAdvanceDate` bounds of a
+      recorded advance-guidance window. **DESIGNED (Phase 3D-N) AND IMPLEMENTED (Phase 3D-O):**
+      the planner now compares one explicitly disclosed civil reference date with that already-derived
+      Phase 3D-H window and reports only `before-recorded-window`, `within-recorded-window`, or
+      `after-recorded-window`; equality at either bound is within. The pure evaluator receives the
+      reference date explicitly, while the application boundary captures one device-local civil date
+      with local calendar getters when the planner instance opens. The exact reference date is shown
+      beside the relation, the original raw lead-time evidence remains visible, and the UI explicitly
+      discloses that this is not Japan's operating date and does not auto-refresh at midnight.
+      **STILL NOT DONE:** converting month ranges, mixed-unit text, or unit-only text into dates;
+      interpreting specific mechanisms, lotteries, or releases; Japan business-date/timezone semantics;
+      urgency, late, `book now`, booking opening/closing, or a guaranteed deadline; availability;
+      reminders or automation; live inventory or booking integration; or any inference stronger than
+      the recorded evidence.
 - [ ] Hotel-origin/return modelling (an assumed commute leg between a day's last place and the
       next day's first, or to/from an accommodation) — not started, and not assumed anywhere
       transfer times are computed today.
