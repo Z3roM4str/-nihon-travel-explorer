@@ -811,7 +811,9 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-L manual visit start time wiri
 describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
   it("exposes the persisted map and a setter that delegates to the pure mutation", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft["']/);
+    // Phase 3D-Q moved the canonical runtime draft to V4 (same storage key); the pure mutation
+    // this phase's contract depends on is unchanged, only the module that re-exports it.
+    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v4["']/);
     expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
     expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
     expect(hook).toMatch(/setVisitStartTime,/);
@@ -823,7 +825,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // not the bare word, which also appears in the import list and in prose.
     const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
     expect(useStateCalls).toHaveLength(1);
-    expect(hook).toMatch(/useState<ManualPlanningDraftV3>/);
+    expect(hook).toMatch(/useState<ManualPlanningDraftV4>/);
     // Every mutation goes through the pure module and is written back by the existing effect.
     expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
   });

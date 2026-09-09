@@ -1,3 +1,4 @@
+import type { MinuteRange } from "./duration";
 import type { OrderedSequenceSummary } from "./ordered-sequence";
 
 /** Phase 3D-Q — Manual Accommodation Commute Legs.
@@ -68,8 +69,12 @@ export type DayLogisticsWithAccommodation = {
   intraDay: OrderedSequenceSummary;
   outbound: AccommodationBoundaryLegResult;
   returnLeg: AccommodationBoundaryLegResult;
-  /** Known transfer minutes only. Unknown/missing/not-applicable components add nothing — never 0. */
-  registeredTransferMinutes: { minMinutes: number; maxMinutes: number } | null;
+  /** Known transfer minutes only. Unknown/missing/not-applicable components add nothing — never 0.
+   * Same `MinuteRange` shape `OrderedSequenceSummary.transferMinutes` already uses, summed
+   * minimum-to-minimum and maximum-to-maximum exactly as that module sums its own legs. A manual
+   * accommodation leg is a single exact integer, so it adds the same value to both bounds — it is
+   * never widened into an invented ± range. */
+  registeredTransferMinutes: MinuteRange | null;
   /** True only for a non-empty day with complete intra-day transfers and both manual boundary legs. */
   completeDoorToDoor: boolean;
 };

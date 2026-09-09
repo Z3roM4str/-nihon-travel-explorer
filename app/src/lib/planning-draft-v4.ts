@@ -1,3 +1,28 @@
+/**
+ * Phase 3D-Q — Manual Accommodation Commute Legs: the runtime planning-draft schema.
+ *
+ * `ManualPlanningDraftV4` is the planner's single canonical runtime state, stored under the SAME
+ * existing `nihon.manualPlanningDraft` key (`PLANNING_DRAFT_STORAGE_KEY`, re-exported below) — this
+ * phase adds no second storage key and keeps no parallel V3 state. `planning-draft.ts` stays in the
+ * codebase as the historical V1 → V2 → V3 migration chain and as the shared shape-validator for the
+ * four fields V4 inherits unchanged, so a draft stored before this phase still loads exactly as it
+ * did.
+ *
+ * Everything this module adds is a USER DECISION and nothing else: which accommodation anchors
+ * exist, which anchor (if any) the user chose for each side of each ordinal day, and the exact
+ * directed accommodation↔place durations the user typed. No minute, boundary, anchor or leg is ever
+ * derived here — not from an anchor's coordinates, not from another day, not from the reverse
+ * direction, not from a nearby place, and not from any provider. `AccommodationAnchor.location` is
+ * geographic identity/context only; no function in this module or in `accommodation-commute.ts`
+ * reads it for arithmetic.
+ *
+ * The parser is deliberately strict and fails the WHOLE stored draft rather than repairing part of
+ * it — the existing all-or-nothing corruption policy in `planning-draft.ts`, extended to the new
+ * fields. It never pads, truncates, deduplicates, shifts, rounds, rebinds or first-wins/last-wins
+ * its way around a malformed shape, because none of those shapes could have been produced by this
+ * app's own setters.
+ */
+import { validateDayPartition } from "./day-assignment";
 import {
   PLANNING_DRAFT_STORAGE_KEY,
   freshDraft as freshDraftV3,
@@ -136,6 +161,17 @@ function parseManualLeg(value: unknown): ManualAccommodationLeg | null {
       };
 }
 
+/**
+ * Migrates a shape-valid V3 draft to V4. `routeIds`, `days`, `startDate` and `visitStartTimes` pass
+ * through exactly unchanged; the three new fields invent nothing. A V3 draft predates accommodation
+ * planning entirely, so there is no anchor, no boundary decision and no duration to carry forward,
+ * and none is guessed from the route, the dates, or the places.
+ *
+ * `dayAccommodationBoundaries` is the one structural exception, and it is scaffolding rather than a
+ * decision: a V3 draft that already has a day partition migrates to an all-`unselected` vector of
+ * exactly the same length, so the migrated value immediately satisfies V4's same-length invariant.
+ * A V3 draft with `days: null` migrates to `dayAccommodationBoundaries: null`.
+ */
 export function migrateV3ToV4(draft: ManualPlanningDraftV3): ManualPlanningDraftV4 {
   return {
     version: PLANNING_DRAFT_VERSION,
@@ -278,9 +314,24 @@ export function writeDraft(storage: DraftStorage, draft: ManualPlanningDraftV4):
   }
 }
 
+/**
+ * Applies a new route. `withRouteV3` decides the fate of `days` exactly as before (retained on a
+ * pure reorder, invalidated on any composition change); this wrapper only decides what that means
+ * for the accommodation state.
+ *
+ * The boundary vector is positional, so it survives only when the resulting day matrix is
+ * element-for-element identical to the stored one — checked here against the actual matrices
+ * rather than assumed from "both are non-null", so no future change to the V3 rule could silently
+ * leave Hotel A attached to a day whose places moved. Anything else gets a fresh all-`unselected`
+ * vector (or `null` when `days` was invalidated).
+ *
+ * Anchors always survive — they are trip-scoped decisions, not route-scoped ones. Manual legs are
+ * endpoint-keyed, so a pure reorder keeps every one of them; a composition change prunes exactly
+ * the legs whose place left the route, and never rebinds one to another place or anchor.
+ */
 export function withRoute(draft: ManualPlanningDraftV4, routeIds: readonly string[]): ManualPlanningDraftV4 {
   const base = withRouteV3(v3View(draft), routeIds);
-  const daysSurvived = base.days !== null && draft.days !== null;
+  const dayShapeUnchanged = sameDayMatrix(draft.days, base.days);
   return {
     ...draft,
     version: PLANNING_DRAFT_VERSION,
@@ -288,30 +339,52 @@ export function withRoute(draft: ManualPlanningDraftV4, routeIds: readonly strin
     days: base.days,
     startDate: base.startDate,
     visitStartTimes: base.visitStartTimes,
-    dayAccommodationBoundaries: daysSurvived
-      ? draft.dayAccommodationBoundaries?.map(cloneBoundary) ?? freshBoundaryVector(base.days ?? [])
-      : null,
+    dayAccommodationBoundaries:
+      base.days === null
+        ? null
+        : dayShapeUnchanged && draft.dayAccommodationBoundaries
+          ? draft.dayAccommodationBoundaries.map(cloneBoundary)
+          : freshBoundaryVector(base.days),
     accommodationLegs: pruneLegs(draft.accommodationLegs, base.routeIds),
   };
 }
 
+/**
+ * Applies a new day assignment, and with it THE critical Phase 3D-Q rule: an ordinal-day boundary
+ * choice survives only when the new matrix is element-for-element identical to the stored one —
+ * same bucket count, same places, same bucket, same order inside each bucket. Any other valid
+ * assignment resets EVERY side of EVERY day to `{ kind: "unselected" }`.
+ *
+ * This deliberately prefers losing the user's boundary choices over shifting Hotel A onto a day
+ * whose first/last place is no longer the one they chose it for. Nothing here shifts a boundary by
+ * position, similarity-matches an old day to a new one, or carries a duration across a re-split:
+ * the planner has no stable day identity to justify any of that (see
+ * `docs/ACCOMMODATION_COMMUTE_DESIGN.md` §8.2).
+ *
+ * Manual leg records are untouched — their identity is the exact directed endpoint pair, not an
+ * ordinal day — so they simply sit unused until the user explicitly chooses a boundary whose
+ * endpoints match one again.
+ *
+ * Rejection is decided by `validateDayPartition`, the same shared rule `withDaysV3` itself applies,
+ * rather than by inspecting the object identity of its return value.
+ */
 export function withDays(
   draft: ManualPlanningDraftV4,
   days: readonly (readonly string[])[]
 ): ManualPlanningDraftV4 {
+  const { valid } = validateDayPartition(draft.routeIds, days);
+  if (!valid) return draft;
+
   const nextBase = withDaysV3(v3View(draft), days);
-  if (nextBase.days === draft.days) return draft;
-  // withDaysV3 returns its input object only for an invalid partition. Because v3View creates a
-  // fresh object, compare the resulting matrix against the requested one to distinguish rejection.
-  if (!sameDayMatrix(nextBase.days, days.map((day) => [...day]))) return draft;
-  const unchanged = sameDayMatrix(draft.days, nextBase.days);
+  const nextDays = nextBase.days ?? [];
+  const unchanged = sameDayMatrix(draft.days, nextDays);
   return {
     ...draft,
-    days: nextBase.days,
+    days: nextDays,
     dayAccommodationBoundaries:
       unchanged && draft.dayAccommodationBoundaries
         ? draft.dayAccommodationBoundaries.map(cloneBoundary)
-        : freshBoundaryVector(nextBase.days),
+        : freshBoundaryVector(nextDays),
   };
 }
 
@@ -331,6 +404,16 @@ export function withVisitStartTime(
   return { ...draft, visitStartTimes: base.visitStartTimes };
 }
 
+/**
+ * Draws an accommodation id from `idFactory` until it yields a non-empty id that is not already in
+ * use, or gives up after `maxAttempts` and returns `null`. The id carries no geographic, chain,
+ * quality, priority or booking meaning — it exists only so two anchors the user considers different
+ * stay different.
+ *
+ * The factory is injected rather than hard-coded so the browser API behind it (`crypto.randomUUID`
+ * in `usePlanningDraft.ts`) never has to be stubbed in tests, and so a collision fails safely
+ * instead of overwriting an existing anchor.
+ */
 export function createAccommodationId(
   existingIds: readonly string[],
   idFactory: () => string,
@@ -344,12 +427,22 @@ export function createAccommodationId(
   return null;
 }
 
+/**
+ * Adds one anchor. Rejected outright (the draft is returned unchanged) for an empty id, an id
+ * already in use, a label that is blank once trimmed, or a coordinate outside the ordinary
+ * geographic ranges — never coerced, never renamed, never given a generated label or a default pin.
+ *
+ * Two anchors with the same label and/or the same coordinates are kept as two distinct anchors:
+ * only the id decides identity, and nothing here merges, ranks, or reorders them. Array order has
+ * no meaning at all — it is neither priority nor recency nor a tie-breaker.
+ */
 export function withAccommodation(
   draft: ManualPlanningDraftV4,
   anchor: AccommodationAnchor
 ): ManualPlanningDraftV4 {
   if (
     anchor.id.length === 0 ||
+    anchor.label.trim().length === 0 ||
     !isValidAccommodationLocation(anchor.location) ||
     draft.accommodations.some((existing) => existing.id === anchor.id)
   ) {
@@ -361,6 +454,35 @@ export function withAccommodation(
   };
 }
 
+/**
+ * The composed "user created an accommodation" operation the React hook calls: mint an id, then add
+ * the anchor. Returns the draft unchanged when no unique id could be minted or when
+ * {@link withAccommodation} rejects the anchor, so a failure can never half-apply.
+ *
+ * The label is stored trimmed exactly as typed. It is display text — never parsed as an address, a
+ * brand, a hub, a station, or a transport instruction — and it is never geocoded: the coordinate is
+ * the user's own, entered separately.
+ */
+export function withNewAccommodation(
+  draft: ManualPlanningDraftV4,
+  label: string,
+  location: { lat: number; lng: number },
+  idFactory: () => string
+): ManualPlanningDraftV4 {
+  const id = createAccommodationId(
+    draft.accommodations.map((anchor) => anchor.id),
+    idFactory
+  );
+  if (id === null) return draft;
+  return withAccommodation(draft, { id, label: label.trim(), location });
+}
+
+/**
+ * Deletes one anchor. Its manual legs are removed with it, and every boundary choice that
+ * referenced it becomes `{ kind: "unselected" }` — never another anchor (not the remaining one, not
+ * the nearest, not the most recent) and never `no-accommodation`, which is a positive statement the
+ * user alone makes. Boundary choices pointing at other anchors are left exactly as they are.
+ */
 export function withoutAccommodation(draft: ManualPlanningDraftV4, accommodationId: string): ManualPlanningDraftV4 {
   if (!draft.accommodations.some((anchor) => anchor.id === accommodationId)) return draft;
   const resetChoice = (choice: AccommodationBoundaryChoice): AccommodationBoundaryChoice =>
@@ -381,6 +503,15 @@ export function withoutAccommodation(draft: ManualPlanningDraftV4, accommodation
   };
 }
 
+/**
+ * Records ONE side of ONE ordinal day's boundary choice. `unselected`, `no-accommodation` and
+ * `accommodation` are three distinct persisted states; this setter never converts between them and
+ * never touches the other side or another day.
+ *
+ * Rejected outright: a day index outside the current matrix, an anchor that does not exist, and an
+ * EMPTY day bucket — an empty day has no first or last place, so there is no endpoint a choice
+ * could honestly connect to (design §4.1).
+ */
 export function withDayAccommodationChoice(
   draft: ManualPlanningDraftV4,
   dayIndex: number,
@@ -398,6 +529,20 @@ export function withDayAccommodationChoice(
   return { ...draft, dayAccommodationBoundaries: boundaries };
 }
 
+/**
+ * Sets, replaces, or clears the duration of exactly ONE directed endpoint key
+ * `(direction, accommodationId, placeId)`. Setting an existing key replaces that record rather than
+ * appending a competing one; `minutes: null` clears only that key.
+ *
+ * `minutes` must be a positive safe integer (`Number.isSafeInteger(minutes) && minutes > 0`).
+ * Zero, negatives, fractions, `NaN`, infinities and unsafe integers are rejected outright — never
+ * rounded, floored, or coerced. An unknown anchor or a place outside the current route is rejected
+ * the same way, so this setter can never create the out-of-route record the V4 parser treats as
+ * structural corruption.
+ *
+ * The write is strictly one-directional and endpoint-exact: `Hotel A → Place X` never populates
+ * `Place X → Hotel A`, `Hotel B → Place X`, or `Hotel A → Place Y`.
+ */
 export function withAccommodationLeg(
   draft: ManualPlanningDraftV4,
   direction: ManualAccommodationLeg["direction"],
@@ -420,6 +565,14 @@ export function withAccommodationLeg(
   };
 }
 
+/**
+ * "Restablecer recorrido": the route becomes the current saved ids and the day assignment is
+ * cleared, so the ordinal-day boundary vector goes with it (`null`, matching `days: null`).
+ *
+ * Anchors survive — resetting the route is not a statement about where the user is staying — and
+ * endpoint-keyed manual legs survive for every place still in the rebuilt route, pruned only for
+ * places that are no longer saved at all.
+ */
 export function resetRoute(draft: ManualPlanningDraftV4, savedIds: readonly string[]): ManualPlanningDraftV4 {
   const base = resetRouteV3(v3View(draft), savedIds);
   return {
