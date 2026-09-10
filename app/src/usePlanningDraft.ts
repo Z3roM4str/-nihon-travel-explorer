@@ -10,6 +10,7 @@ import {
   resetRoute as resetRouteInDraft,
   withAccommodationLeg,
   withDayAccommodationChoice,
+  withDayMoved,
   withInitialDays,
   withNewAccommodation,
   withNewEmptyDay,
@@ -185,6 +186,18 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withoutEmptyDay(current, dayId));
   }, []);
 
+  /**
+   * Phase 3D-U: moves ONE whole identified day entity one ordinal position up (`-1`) or down
+   * (`1`). The id, its `placeIds` (and their internal order), and its accommodation boundary all
+   * travel together as a single unit — this never touches any other day, never regenerates an id,
+   * and never rebuilds a day through a `string[][]` matrix. A no-op at either boundary, for an
+   * unknown day id, or when there is no day assignment yet leaves the draft unchanged. See
+   * `withDayMoved` in `lib/planning-draft-v5.ts` for the full contract.
+   */
+  const moveDay = useCallback((dayId: string, direction: -1 | 1) => {
+    setDraft((current) => withDayMoved(current, dayId, direction));
+  }, []);
+
   /** Phase 3C-E: sets, changes, or clears the manual calendar anchor for "Día 1". Accepts a
    * plain `YYYY-MM-DD` string or `null`; an invalid string is rejected by `withStartDate`
    * (the draft stays unchanged), never coerced or guessed. Phase 3D-Q: changing it never touches
@@ -284,6 +297,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
+    moveDay,
     setStartDate,
     setVisitStartTime,
     addAccommodation,

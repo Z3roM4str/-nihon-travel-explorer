@@ -13,6 +13,7 @@ import {
   withAccommodation,
   withAccommodationLeg,
   withDayAccommodationChoice,
+  withDayMoved,
   withDays,
   withInitialDays,
   withNewEmptyDay,
@@ -1233,5 +1234,312 @@ describe("withAccommodation — anchors stay independent of days", () => {
     expect(withAccommodation(base, { ...hotelA, id: "hotel-c", label: "   " })).toBe(base);
     expect(withAccommodation(base, hotelA)).toBe(base);
     expect(withAccommodation(base, { ...hotelA, id: "hotel-c", location: { lat: 999, lng: 0 } })).toBe(base);
+  });
+});
+
+// ---------------------------------------------------------------------------------------
+// Phase 3D-U — Manual Day Reordering Runtime
+// ---------------------------------------------------------------------------------------
+
+/** Builds a synthetic `Place` from a real dataset record's template, overriding only its id, name
+ * and closures text — the same convention `day-weekday-signal.test.ts` uses so a weekday-closure
+ * assertion exercises the REAL `interpretClosureText`/`assessWeekdayClosure` chain rather than a
+ * hand-rolled stand-in shape. */
+function syntheticPlace(id: string, closures: string): Place {
+  const template = (placesData as Place[])[0];
+  return { ...template, id, name: id, schedule: { ...template.schedule, closures } };
+}
+
+describe("withDayMoved — Phase 3D-U whole-day reorder by stable id", () => {
+  const middleBoundary = boundary(
+    { kind: "accommodation", accommodationId: "hotel-a" },
+    { kind: "accommodation", accommodationId: "hotel-a" }
+  );
+  const legOut: ManualAccommodationLeg = {
+    direction: "accommodation-to-place",
+    accommodationId: "hotel-a",
+    placeId: "p2",
+    minutes: 15,
+    source: { kind: "user-entered" },
+  };
+  const legReturn: ManualAccommodationLeg = {
+    direction: "place-to-accommodation",
+    placeId: "p3",
+    accommodationId: "hotel-a",
+    minutes: 25,
+    source: { kind: "user-entered" },
+  };
+  const base = draftV5({
+    routeIds: ["p1", "p2", "p3", "p4", "p5"],
+    days: [day("d1", ["p1"]), day("d2", ["p2", "p3"], middleBoundary), day("d3", ["p4", "p5"])],
+    startDate: "2026-03-01",
+    visitStartTimes: { p2: "09:30" },
+    accommodations: [hotelA],
+    accommodationLegs: [legOut, legReturn],
+  });
+
+  // 1–2. Middle day moves up, preserving id/content/boundary; moving it back down restores the
+  // prior ordering exactly.
+  it("moves the middle day up, preserving its id, placeIds and boundary; moving it back down restores the prior order", () => {
+    const movedUp = withDayMoved(base, "d2", -1);
+    expect(movedUp.days!.map((d) => d.id)).toEqual(["d2", "d1", "d3"]);
+    expect(movedUp.days![0]).toEqual(base.days![1]);
+    expect(movedUp.days![1]).toEqual(base.days![0]);
+    expect(movedUp.days![2]).toEqual(base.days![2]);
+
+    const movedBackDown = withDayMoved(movedUp, "d2", 1);
+    expect(movedBackDown.days).toEqual(base.days);
+    expect(movedBackDown).toEqual(base);
+  });
+
+  // 3. First-up is an exact no-op.
+  it("is an exact no-op moving the first day up", () => {
+    expect(withDayMoved(base, "d1", -1)).toBe(base);
+  });
+
+  // 4. Last-down is an exact no-op.
+  it("is an exact no-op moving the last day down", () => {
+    expect(withDayMoved(base, "d3", 1)).toBe(base);
+  });
+
+  // 5. Unknown id is a no-op.
+  it("is a no-op for an unknown day id", () => {
+    expect(withDayMoved(base, "ghost", -1)).toBe(base);
+    expect(withDayMoved(base, "ghost", 1)).toBe(base);
+  });
+
+  // 6. days: null is a no-op.
+  it("is a no-op when there is no day assignment yet", () => {
+    const noDays = draftV5({ days: null });
+    expect(withDayMoved(noDays, "d1", -1)).toBe(noDays);
+    expect(withDayMoved(noDays, "d1", 1)).toBe(noDays);
+  });
+
+  // 7. A one-day assignment is a no-op in both directions.
+  it("is a no-op for a one-day assignment", () => {
+    const solo = draftV5({ routeIds: ["p1"], days: [day("solo", ["p1"])] });
+    expect(withDayMoved(solo, "solo", -1)).toBe(solo);
+    expect(withDayMoved(solo, "solo", 1)).toBe(solo);
+  });
+
+  it("is a no-op for an invalid direction, even bypassing the static -1|1 type", () => {
+    expect(withDayMoved(base, "d2", 0 as unknown as -1 | 1)).toBe(base);
+    expect(withDayMoved(base, "d2", 2 as unknown as -1 | 1)).toBe(base);
+  });
+
+  // 8. An empty day is a legitimate movable entity and keeps its emptiness/unselected sides.
+  it("moves an empty day and keeps it empty with both boundary sides unselected", () => {
+    const withEmpty = draftV5({
+      routeIds: ["p1", "p2"],
+      days: [day("d1", ["p1"]), day("empty", []), day("d3", ["p2"])],
+    });
+    const next = withDayMoved(withEmpty, "empty", -1);
+    expect(next.days!.map((d) => d.id)).toEqual(["empty", "d1", "d3"]);
+    expect(next.days![0]).toEqual(day("empty", []));
+    expect(next.days![0].accommodationBoundary).toEqual({
+      start: { kind: "unselected" },
+      end: { kind: "unselected" },
+    });
+  });
+
+  // 9–13. Every trip-level field the move must not touch stays byte-for-byte identical.
+  it("leaves routeIds, startDate, accommodations, manual legs and visit start times untouched", () => {
+    const next = withDayMoved(base, "d2", -1);
+    expect(next.routeIds).toEqual(base.routeIds);
+    expect(next.startDate).toBe(base.startDate);
+    expect(next.accommodations).toEqual(base.accommodations);
+    expect(next.accommodationLegs).toEqual(base.accommodationLegs);
+    expect(next.visitStartTimes).toEqual(base.visitStartTimes);
+  });
+
+  // 14. The projected string[][] changes ONLY by whole-day order — every bucket's own content is
+  // byte-for-byte the same set of rows, merely reordered.
+  it("changes the projected matrix only by whole-day order", () => {
+    const beforeMatrix = dayMatrixFromPlanningDays(base.days)!;
+    const next = withDayMoved(base, "d2", -1);
+    const afterMatrix = dayMatrixFromPlanningDays(next.days)!;
+    expect(afterMatrix).toEqual([beforeMatrix[1], beforeMatrix[0], beforeMatrix[2]]);
+    expect([...afterMatrix].sort()).toEqual([...beforeMatrix].sort());
+  });
+
+  // 15. The partition remains valid after every legal move.
+  it("leaves the projected partition valid", () => {
+    const next = withDayMoved(base, "d2", -1);
+    expect(validateDayPartition(next.routeIds, dayMatrixFromPlanningDays(next.days)!).valid).toBe(true);
+  });
+
+  // 16. Internal place order inside EVERY day (moved or not) is unchanged.
+  it("leaves every day's own internal place order unchanged", () => {
+    const next = withDayMoved(base, "d2", -1);
+    for (const entity of next.days!) {
+      const original = base.days!.find((d) => d.id === entity.id)!;
+      expect(entity.placeIds).toEqual(original.placeIds);
+    }
+  });
+
+  // 17. The moved non-empty day's accommodation/manual-leg result is unchanged: its own
+  // boundary and its own placeIds travel together, so the exact endpoint evaluation is identical.
+  it("leaves the moved day's accommodation boundary result and manual-leg matching unchanged", () => {
+    const next = withDayMoved(base, "d2", -1);
+    const movedDay = next.days!.find((d) => d.id === "d2")!;
+    const beforeOutbound = deriveAccommodationBoundaryLeg(
+      base.days![1].placeIds,
+      base.days![1].accommodationBoundary.start,
+      "start",
+      base.accommodationLegs
+    );
+    const afterOutbound = deriveAccommodationBoundaryLeg(
+      movedDay.placeIds,
+      movedDay.accommodationBoundary.start,
+      "start",
+      next.accommodationLegs
+    );
+    expect(afterOutbound).toEqual(beforeOutbound);
+    expect(afterOutbound).toEqual({ kind: "manual-leg", side: "start", minutes: 15, accommodationId: "hotel-a", placeId: "p2" });
+
+    const beforeReturn = deriveAccommodationBoundaryLeg(
+      base.days![1].placeIds,
+      base.days![1].accommodationBoundary.end,
+      "end",
+      base.accommodationLegs
+    );
+    const afterReturn = deriveAccommodationBoundaryLeg(
+      movedDay.placeIds,
+      movedDay.accommodationBoundary.end,
+      "end",
+      next.accommodationLegs
+    );
+    expect(afterReturn).toEqual(beforeReturn);
+    expect(afterReturn).toEqual({ kind: "manual-leg", side: "end", minutes: 25, accommodationId: "hotel-a", placeId: "p3" });
+  });
+
+  // 18. The moved day's intra-day transfer result/subtotal is unchanged: `buildDayAssignment`'s
+  // per-bucket sequence is computed from that bucket's own placeIds alone, never its position.
+  it("leaves the moved day's intra-day transfer sequence/subtotal unchanged", () => {
+    const beforeAssignment = buildDayAssignment(base.routeIds, dayMatrixFromPlanningDays(base.days)!);
+    const next = withDayMoved(base, "d2", -1);
+    const afterAssignment = buildDayAssignment(next.routeIds, dayMatrixFromPlanningDays(next.days)!);
+    // "d2" (["p2","p3"]) was at ordinal 1 before and ordinal 0 after.
+    expect(afterAssignment.days[0].sequence.summary).toEqual(beforeAssignment.days[1].sequence.summary);
+    expect(afterAssignment.days[0].sequence.legs).toEqual(beforeAssignment.days[1].sequence.legs);
+    expect(afterAssignment.valid).toBe(beforeAssignment.valid);
+  });
+
+  // 19. The visible ordinal label and derived civil date change according to the new position.
+  it("changes the visible ordinal label and derived civil date according to the new array position", () => {
+    const before = {
+      d1: { index: base.days!.findIndex((d) => d.id === "d1") },
+      d2: { index: base.days!.findIndex((d) => d.id === "d2") },
+    };
+    const beforeD2Date = addCivilDays(base.startDate!, before.d2.index);
+    const beforeD1Date = addCivilDays(base.startDate!, before.d1.index);
+
+    const next = withDayMoved(base, "d2", -1);
+    // "d2" is now Día 1 (index 0) instead of Día 2 (index 1) — its derived date moved a day
+    // earlier, purely because its ordinal position changed.
+    const afterD2Index = next.days!.findIndex((d) => d.id === "d2");
+    expect(afterD2Index).toBe(0);
+    const afterD2Date = addCivilDays(next.startDate!, afterD2Index);
+    expect(afterD2Date).not.toBe(beforeD2Date);
+    expect(afterD2Date).toBe(beforeD1Date);
+
+    // "d1" is now Día 2 (index 1) instead of Día 1 (index 0) — the mirror-image shift.
+    const afterD1Index = next.days!.findIndex((d) => d.id === "d1");
+    expect(afterD1Index).toBe(1);
+    const afterD1Date = addCivilDays(next.startDate!, afterD1Index);
+    expect(afterD1Date).not.toBe(beforeD1Date);
+    expect(afterD1Date).toBe(beforeD2Date);
+  });
+
+  // 20. A REAL weekday/date-sensitive evaluator recomputes from the new ordinal date.
+  it("makes a real weekday-closure evaluator recompute from the day's new ordinal date", () => {
+    const mondayPlace = syntheticPlace("wk1", "Lunes; verificar");
+    const startDate = "2027-02-14"; // a confirmed Sunday (see day-weekday-signal.test.ts).
+    const twoDay = draftV5({
+      routeIds: ["wk1", "p2"],
+      days: [day("d1", ["wk1"]), day("d2", ["p2"])],
+      startDate,
+    });
+
+    const beforeSignal = buildDayWeekdaySignal([mondayPlace], addCivilDays(startDate, 0));
+    expect(beforeSignal.assessed).toBe(true);
+    if (beforeSignal.assessed) expect(beforeSignal.matchCount).toBe(0); // Sunday: no Monday match.
+
+    const moved = withDayMoved(twoDay, "d1", 1);
+    expect(moved.days!.map((d) => d.id)).toEqual(["d2", "d1"]);
+    const newIndex = moved.days!.findIndex((d) => d.id === "d1");
+    const afterSignal = buildDayWeekdaySignal([mondayPlace], addCivilDays(moved.startDate!, newIndex));
+    expect(afterSignal.assessed).toBe(true);
+    if (afterSignal.assessed) expect(afterSignal.matchCount).toBe(1); // Now Monday: a real match.
+  });
+
+  // 21. A REAL reservation evaluator recomputes using the SAME reference date/evidence but a NEW
+  // visit date, driven by nothing but the day's new ordinal position.
+  it("makes a real reservation-window-reference evaluator recompute with the same reference date/evidence but a new visit date", () => {
+    const jp019 = (placesData as Place[]).find((p) => p.id === "JP-019");
+    expect(jp019).toBeDefined();
+    if (!jp019) return;
+
+    const startDate = "2027-01-01";
+    const twoDay = draftV5({
+      routeIds: ["JP-019", "p2"],
+      days: [day("d1", ["JP-019"]), day("d2", ["p2"])],
+      startDate,
+    });
+
+    const beforeAssignment = buildDayAssignment(twoDay.routeIds, dayMatrixFromPlanningDays(twoDay.days)!);
+    const beforeVisitDate = deriveVisitDateForPlace(beforeAssignment, twoDay.startDate, "JP-019");
+    expect(beforeVisitDate).toBe(startDate);
+    const beforeWindow = derivePlaceReservationDateWindow(jp019, beforeVisitDate);
+    expect(beforeWindow.kind).toBe("derived-window");
+    if (beforeWindow.kind !== "derived-window") return;
+
+    // The SAME reference date and the SAME reservation evidence (JP-019's own record never
+    // changes) are reused for both evaluations below — chosen exactly at the first window's far
+    // boundary, so the reference starts inside the first window.
+    const referenceDate = beforeWindow.farAdvanceDate;
+    const beforeRelation = evaluateReservationWindowReference(beforeWindow, referenceDate);
+    expect(beforeRelation.kind).toBe("within-recorded-window");
+
+    // The user moves JP-019's day one ordinal position later — the real Phase 3D-U mutation.
+    const after = withDayMoved(twoDay, "d1", 1);
+    expect(after.days!.map((d) => d.id)).toEqual(["d2", "d1"]);
+
+    const afterAssignment = buildDayAssignment(after.routeIds, dayMatrixFromPlanningDays(after.days)!);
+    const afterVisitDate = deriveVisitDateForPlace(afterAssignment, after.startDate, "JP-019");
+    expect(afterVisitDate).not.toBe(beforeVisitDate);
+    const afterWindow = derivePlaceReservationDateWindow(jp019, afterVisitDate);
+    expect(afterWindow.kind).toBe("derived-window");
+    if (afterWindow.kind !== "derived-window") return;
+
+    const afterRelation = evaluateReservationWindowReference(afterWindow, referenceDate);
+    expect(afterRelation.kind).toBe("before-recorded-window");
+    expect(afterRelation.kind).not.toBe(beforeRelation.kind);
+  });
+
+  // 22. Persisted round-trip: write, then load-and-reconcile, preserves the reordered day array
+  // exactly — the storage layer never sorts by id, content, date, hotel or geography.
+  it("preserves the reordered day array through a persisted round-trip", () => {
+    const moved = withDayMoved(base, "d2", -1);
+    const storage = memoryStorage();
+    writeDraft(storage, moved);
+    const reloaded = loadReconciledDraft(storage, moved.routeIds);
+    expect(reloaded.days!.map((d) => d.id)).toEqual(["d2", "d1", "d3"]);
+    expect(reloaded.days).toEqual(moved.days);
+  });
+
+  // 27. Source-level protection: the reorder mutation itself never calls the compatibility bulk
+  // setter, and never rebuilds a day through a raw string[][] matrix.
+  it("is implemented without calling withDays or rebuilding through string[][]", async () => {
+    const source = await readFile(new URL("./planning-draft-v5.ts", import.meta.url), "utf8");
+    const start = source.indexOf("export function withDayMoved(");
+    const end = source.indexOf("export function createAccommodationId(", start);
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+    const body = source.slice(start, end);
+    expect(body).not.toMatch(/withDays\(/);
+    expect(body).not.toMatch(/dayMatrixFromPlanningDays/);
+    // The whole entity is swapped by array position, never rebuilt field-by-field from placeIds.
+    expect(body).toMatch(/\[days\[index\], days\[targetIndex\]\] = \[days\[targetIndex\], days\[index\]\]/);
   });
 });
