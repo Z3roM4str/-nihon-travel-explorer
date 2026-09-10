@@ -3195,3 +3195,75 @@ implementation above. All three findings are fixed; nothing else in Phase 3D-S w
       `git diff --check` all passed on the exact resulting tree.
 
 **Phase 3D-T or later work is NOT STARTED by this implementation or this corrective pass.**
+
+## Phase 3D-U — Manual Day Reordering Runtime — implemented
+
+Implements the contract approved by
+[`docs/MANUAL_DAY_REORDERING_DESIGN.md`](MANUAL_DAY_REORDERING_DESIGN.md) (Phase 3D-T), with no
+alternative design of its own.
+
+- [x] **One narrow pure mutation.** `withDayMoved(draft, dayId, direction)` in
+      `lib/planning-draft-v5.ts` resolves the day by its stable id and swaps it with the ONE
+      adjacent whole `PlanningDayV5` entity, so `id`, `placeIds` (and their internal order), and
+      `accommodationBoundary` — and therefore every manual accommodation leg the day resolves
+      against — travel together byte-for-byte. `routeIds`, `startDate`, `visitStartTimes`,
+      `accommodations` and `accommodationLegs` are untouched by construction: the function only
+      ever reassigns `draft.days`. It is a plain array-position swap, never a rebuild through
+      `withDays`/`string[][]` and never a second day-order vector — day order stays the order of
+      `PlanningDayV5[]`, exactly as before this phase.
+- [x] **No-ops are exact, never partial.** Returns the draft unchanged for `days === null`, an
+      unknown day id, a direction other than `-1`/`1`, moving the first day up, moving the last
+      day down, and therefore also a one-day assignment. An empty day is an ordinary movable
+      entity — nothing distinguishes it, and it keeps its id, its empty `placeIds`, and both
+      boundary sides `unselected` after a move.
+- [x] **Narrow hook surface.** `usePlanningDraft.ts` exposes `moveDay(dayId, direction)`,
+      delegating to `withDayMoved` through the same canonical `setDraft` — no parallel
+      `dayOrder` state.
+- [x] **UI.** Each day card header in `OrderedSequenceBuilder.tsx` gained two buttons addressed by
+      `dayEntity.id` (never `dayIndex`), disabled at the first/last position, with accessible
+      names `Mover Día N hacia arriba`/`hacia abajo` that identify both the action and the day
+      without exposing the stable id. Visible headings stay ordinal (`Día 1`, `Día 2`, …), the
+      stable id stays the day card's React key, and no drag-and-drop dependency or confirmation
+      dialog was introduced.
+- [x] **Calendar consequences are deliberate.** `Día N` and `addCivilDays(startDate, ordinalIndex)`
+      stay derived from array position by every existing consumer, so a move can change what a
+      day's date, weekday signal, hours/closure composition, visit-time feasibility and
+      reservation-window relation compute — without this phase ever writing a date, weekday or
+      ordinal into a day entity. `routeIds` is never rewritten to mirror the new day order.
+      Logistics/accommodation invariants for the moved day (intra-day transfer sequence/subtotal,
+      exact manual-leg matching, no cross-day/hotel-to-hotel inference) are preserved because the
+      whole entity — and only that entity — moves.
+- [x] **Compatibility boundary stays closed.** The reorder never calls `withDays`; a source-scan
+      test pins that its body contains neither `withDays(` nor `dayMatrixFromPlanningDays`, only
+      the plain two-element array swap.
+- [x] **Coverage.** 1245 tests pass across 34 files (1213 before this phase). New coverage in
+      `lib/planning-draft-v5.test.ts` (`withDayMoved`) proves: a middle day moves up/back down
+      byte-for-byte; first-up/last-down/unknown-id/`days: null`/one-day/invalid-direction are exact
+      no-ops; an empty day moves and stays empty/unselected; `routeIds`/`startDate`/
+      `accommodations`/`accommodationLegs`/`visitStartTimes` stay untouched; the projected matrix
+      changes only by whole-day order while `validateDayPartition` stays valid and every day's own
+      internal place order is unchanged; the moved day's accommodation-boundary/manual-leg result
+      and intra-day transfer sequence/subtotal are unchanged; ordinal labels/dates recompute
+      correctly; a REAL weekday-closure evaluator (`buildDayWeekdaySignal`) recomputes from the new
+      date; a REAL reservation evaluator (`derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference`, against JP-019) recomputes a different relation from
+      the same reference date/evidence once only the day order changed; a persisted
+      write/load/reconcile round-trip preserves the reordered array; and the source-scan guard
+      above. New coverage in `OrderedSequenceBuilder.stable-day-identity.test.ts` pins the UI/hook
+      wiring: `moveDay` is called with `dayEntity.id`, the up/down buttons are disabled at the
+      boundaries, the accessible names identify the day without exposing its id, the stable id
+      stays the React key, and no drag-and-drop/confirmation dialog exists.
+- [x] **Browser QA.** A focused Playwright pass against a seeded persisted multi-day V5 draft with
+      distinct accommodation choices on two days — moving a day up (content and hotel choice moved
+      together, dates changed, a real Monday-closure notice appeared for the relocated place, the
+      manual accommodation minutes stayed resolved), moving it back down (exact restoration), and
+      adding then moving an empty day across a non-empty one, followed by a reload — 20/20 checks
+      passed, 0 console errors, 0 page errors. The reload confirmed the reordered persisted V5 day
+      array matched exactly, including the empty day's new position.
+- [x] **Validation gate.** `npm test` (1245/1245), `npm run build`, `npm run lint`,
+      `npx tsc -b --force` and `git diff --check` all passed on the exact resulting tree.
+- [x] **Non-goals held.** No automatic day ordering, route optimization, transfer-cost comparison
+      between day orders, drag-and-drop, bulk reorder suggestions, hotel-to-hotel inference,
+      schema V6, or unrelated refactor/dependency change was introduced.
+
+**Phase 3D-V or later work is NOT STARTED by this implementation.**

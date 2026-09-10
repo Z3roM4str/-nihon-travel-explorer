@@ -730,6 +730,53 @@ export function withoutEmptyDay(draft: ManualPlanningDraftV5, dayId: string): Ma
 }
 
 /**
+ * Phase 3D-U — Manual Day Reordering Runtime: moves ONE whole {@link PlanningDayV5} entity exactly
+ * one ordinal position up (`-1`) or down (`1`), addressed by its stable `dayId`.
+ *
+ * The entity travels as a single unit: `id`, `placeIds` (and their internal order),
+ * `accommodationBoundary`, and therefore every exact manual accommodation leg it resolves against,
+ * move together, byte-for-byte. No id is regenerated, no place changes day, and no other day
+ * entity is touched except the ONE it swaps positions with. `routeIds`, `startDate`,
+ * `visitStartTimes`, `accommodations` and `accommodationLegs` are untouched by construction — this
+ * function only ever reassigns `draft.days`.
+ *
+ * This is a plain array-position swap between two whole entities, never a rebuild through
+ * `withDays`/`string[][]` and never a second day-order vector: day order IS the order of
+ * `PlanningDayV5[]`, exactly as before this phase. Because the two entities being swapped are the
+ * very same entities before and after, the day partition (`validateDayPartition` over the projected
+ * matrix) cannot become invalid — the set of place ids in each position-independent bucket is
+ * unchanged, only which position each bucket occupies.
+ *
+ * Returns the draft UNCHANGED (a true no-op, never a partial swap) for: `days === null`; an unknown
+ * `dayId`; a `direction` other than `-1`/`1`; moving the first day up; moving the last day down; and
+ * therefore also a one-day assignment, where every move is necessarily out of bounds in both
+ * directions. An empty day (`placeIds: []`, both boundary sides `unselected`) is an ordinary movable
+ * entity here — nothing in this function distinguishes it from a non-empty one.
+ *
+ * Ordinal/date consequences are deliberate and are NOT this function's concern: `Día N` and
+ * `addCivilDays(startDate, ordinalIndex)` stay derived from array position by every existing
+ * consumer, so moving a day necessarily changes what those consumers compute for the days that
+ * shifted — without this function ever writing a date, weekday, or ordinal number into a day entity
+ * (see `docs/MANUAL_DAY_REORDERING_DESIGN.md` §8–§9).
+ */
+export function withDayMoved(
+  draft: ManualPlanningDraftV5,
+  dayId: string,
+  direction: -1 | 1
+): ManualPlanningDraftV5 {
+  if (!draft.days) return draft;
+  if (direction !== -1 && direction !== 1) return draft;
+  const index = findDayIndex(draft.days, dayId);
+  if (index === -1) return draft;
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= draft.days.length) return draft;
+
+  const days = cloneDays(draft.days)!;
+  [days[index], days[targetIndex]] = [days[targetIndex], days[index]];
+  return { ...draft, days };
+}
+
+/**
  * Draws an accommodation id from `idFactory` until it yields a non-empty id that is not already in
  * use, or gives up after `maxAttempts` and returns `null`. The id carries no geographic, chain,
  * quality, priority or booking meaning — it exists only so two anchors the user considers different

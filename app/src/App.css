@@ -2431,6 +2431,12 @@ a {
   font-size: 0.95rem;
 }
 
+.day-card__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .day-card__date {
   margin: 0.1rem 0 0;
   font-size: 0.78rem;

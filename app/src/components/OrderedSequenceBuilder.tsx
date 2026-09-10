@@ -1426,6 +1426,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
+    moveDay,
     setStartDate,
     setVisitStartTime,
     addAccommodation,
@@ -1830,15 +1831,35 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
                           {dayDate && <p className="day-card__date">{formatCivilDateDisplay(dayDate)}</p>}
                         </div>
-                        <button
-                          type="button"
-                          className="icon-button icon-button--small"
-                          onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
-                          disabled={!isEmpty || dayIds.length <= 1}
-                          aria-label={`Eliminar Día ${dayIndex + 1}`}
-                        >
-                          <span aria-hidden="true">×</span>
-                        </button>
+                        <div className="day-card__header-actions">
+                          <button
+                            type="button"
+                            className="icon-button icon-button--small"
+                            onClick={() => dayEntity && moveDay(dayEntity.id, -1)}
+                            disabled={!dayEntity || dayIndex === 0}
+                            aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
+                          >
+                            <span aria-hidden="true">⇧</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button icon-button--small"
+                            onClick={() => dayEntity && moveDay(dayEntity.id, 1)}
+                            disabled={!dayEntity || dayIndex === dayIds.length - 1}
+                            aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
+                          >
+                            <span aria-hidden="true">⇩</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button icon-button--small"
+                            onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
+                            disabled={!isEmpty || dayIds.length <= 1}
+                            aria-label={`Eliminar Día ${dayIndex + 1}`}
+                          >
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
                       </div>
 
                       {isEmpty ? (

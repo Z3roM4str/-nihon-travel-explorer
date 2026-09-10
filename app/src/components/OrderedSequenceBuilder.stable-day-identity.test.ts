@@ -378,6 +378,71 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
   });
 });
 
+// ---------------------------------------------------------------------------------------
+// Phase 3D-U — Manual Day Reordering Runtime: UI wiring
+// ---------------------------------------------------------------------------------------
+
+describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
+  it("calls moveDay with the day's stable id, never its ordinal index", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/onClick=\{\(\) => dayEntity && moveDay\(dayEntity\.id, -1\)\}/);
+    expect(source).toMatch(/onClick=\{\(\) => dayEntity && moveDay\(dayEntity\.id, 1\)\}/);
+    // Never addressed by the ordinal index instead.
+    expect(source).not.toMatch(/moveDay\(dayIndex/);
+  });
+
+  it("disables the up button on the first day and the down button on the last day", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/disabled=\{!dayEntity \|\| dayIndex === 0\}/);
+    expect(source).toMatch(/disabled=\{!dayEntity \|\| dayIndex === dayIds\.length - 1\}/);
+  });
+
+  it("gives each move control an accessible name that identifies both the action and the day, without exposing the stable id", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/aria-label=\{`Mover Día \$\{dayIndex \+ 1\} hacia arriba`\}/);
+    expect(source).toMatch(/aria-label=\{`Mover Día \$\{dayIndex \+ 1\} hacia abajo`\}/);
+    // The id is used only as the mutation address and the React key — never rendered as the
+    // accessible name or as visible text.
+    expect(source).not.toMatch(/aria-label=\{`Mover[^`]*\$\{dayEntity\.id/);
+  });
+
+  it("keeps the stable day id as the day card's React key, unchanged by this phase", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/<section key=\{dayEntity\?\.id \?\? dayIndex\}/);
+  });
+
+  it("introduces no drag-and-drop dependency and no confirmation dialog for the move controls", async () => {
+    const source = await readSource();
+    expect(source).not.toMatch(/draggable/i);
+    expect(source).not.toMatch(/onDragStart/);
+    expect(source).not.toMatch(/window\.confirm/);
+  });
+
+  it("does not reorder places into a moved day, only whole day entities via moveDay", async () => {
+    const source = await readSource();
+    // The move-up/move-down day controls sit in the header, structurally separate from the
+    // per-place ReorderableList (which still calls movePlaceWithinDay/movePlaceBetweenDays).
+    const headerStart = source.indexOf('<div className="day-card__header">');
+    const headerEnd = source.indexOf("</div>", source.indexOf("day-card__header-actions", headerStart));
+    const header = source.slice(headerStart, headerEnd);
+    expect(header).toContain("moveDay(dayEntity.id, -1)");
+    expect(header).toContain("moveDay(dayEntity.id, 1)");
+    expect(header).not.toContain("movePlaceWithinDay");
+    expect(header).not.toContain("movePlaceBetweenDays");
+  });
+});
+
+describe("usePlanningDraft.ts / planning-draft-v5.ts — Phase 3D-U delegates to the pure V5 mutation only", () => {
+  it("moveDay never calls withDays and never rebuilds a day matrix by hand", async () => {
+    const hook = await readFile(HOOK_PATH, "utf8");
+    const moveDayStart = hook.indexOf("const moveDay = useCallback");
+    const moveDayEnd = hook.indexOf("}, []);", moveDayStart) + "}, []);".length;
+    const moveDayBody = hook.slice(moveDayStart, moveDayEnd);
+    expect(moveDayBody).toContain("withDayMoved(current, dayId, direction)");
+    expect(moveDayBody).not.toContain("withDays(");
+  });
+});
+
 describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
   it("exposes exactly the identity-aware mutations the UI needs, and no bulk day setter", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
@@ -387,12 +452,23 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
       "movePlaceBetweenDays,",
       "addEmptyDay,",
       "removeEmptyDay,",
+      "moveDay,",
       "planningDays: draft.days,",
     ]) {
       expect(hook).toContain(exposed);
     }
     expect(hook).not.toMatch(/\bsetDays\b/);
     expect(hook).not.toMatch(/\bwithDays\b/);
+  });
+
+  it("Phase 3D-U: moveDay delegates to withDayMoved through the same canonical setDraft, with no parallel day-order state", async () => {
+    const hook = await readFile(HOOK_PATH, "utf8");
+    expect(hook).toMatch(
+      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\(current\) => withDayMoved\(current, dayId, direction\)\);\s*\}, \[\]\);/
+    );
+    // No second day-order vector/state anywhere in the hook.
+    expect(hook).not.toMatch(/dayOrder/i);
+    expect(hook).not.toMatch(/useState[^)]*[Oo]rder/);
   });
 
   it("projects the ordinal matrix through the pure projection, not by hand", async () => {
