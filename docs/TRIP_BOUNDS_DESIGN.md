@@ -424,7 +424,8 @@ type TripBoundsUnavailableReason =
   | "no-start-date"
   | "no-end-date"
   | "invalid-date"
-  | "inverted-range";
+  | "inverted-range"
+  | "invalid-ordinal";
 
 type TripBoundsAssessment =
   | { kind: "bounds-unavailable"; reason: TripBoundsUnavailableReason }
@@ -436,9 +437,23 @@ Evaluated per day, from `(bounds, ordinalIndex)` where `ordinalIndex` is the zer
 position — the same ordinal every existing consumer already uses. `ordinal` is echoed back for
 presentation only; it is never stored and never read as identity.
 
-Resolution order: `no-start-date` → `no-end-date` → `invalid-date` → `inverted-range` → compare
-`ordinal` against `tripCalendarDays`; `ordinal < tripCalendarDays` is `within-bounds`, otherwise
-`after-trip-end`.
+**`ordinalIndex` domain, closed.** The evaluator's input type is `number`, but only a **non-negative
+safe integer** is a valid ordinal:
+
+```
+Number.isSafeInteger(ordinalIndex) && ordinalIndex >= 0
+```
+
+Any other numeric value — negative (`-1`), fractional (`0.5`), `NaN`, `Infinity`/`-Infinity`, or an
+unsafe integer outside `Number.MAX_SAFE_INTEGER` — is **not** a reachable array position and must
+**never** be passed to `addCivilDays` and must **never** produce a fabricated date. It resolves to
+`{ kind: "bounds-unavailable", reason: "invalid-ordinal" }` before any bounds comparison is
+attempted. This check runs **first**, ahead of every other resolution step, so a malformed ordinal
+can never be classified `within-bounds` regardless of the state of `bounds`.
+
+Resolution order: `invalid-ordinal` → `no-start-date` → `no-end-date` → `invalid-date` →
+`inverted-range` → compare `ordinal` against `tripCalendarDays`; `ordinal < tripCalendarDays` is
+`within-bounds`, otherwise `after-trip-end`.
 
 ### 7.2 Why there is no `before-trip-start`
 
@@ -725,6 +740,7 @@ re-prefix anything.
 | Stored `endDate` key absent at `version: 6` | Whole draft rejected. Absence is only meaningful at `version: 5`, where migration supplies `null`. |
 | `end < start` (stored or live) | Stored and kept; assessment `bounds-unavailable(inverted-range)`; explicit neutral UI notice; **nothing repaired, nothing deleted**. |
 | `differenceInCivilDays` returns `null` or overflows JS `Date`'s representable range | `bounds-unavailable(invalid-date)`. Never a fabricated count. Mirrors the existing two-step output guard in `deriveReservationDateWindow`. |
+| `ordinalIndex` is negative, fractional, `NaN`, `Infinity`/`-Infinity`, or an unsafe integer | `bounds-unavailable(invalid-ordinal)`, checked before every other resolution step. `addCivilDays` is never called and no date is fabricated. `-1` never resolves to `within-bounds`. |
 | `startDate` cleared while `endDate` set | Both persist; assessment `bounds-unavailable(no-start-date)`. `endDate` is **not** cleared as a side effect. |
 | `days: null` with a full valid range | Range persists and displays; no assignment created; no per-day assessment exists. |
 | `localStorage` unavailable on write | Existing behaviour: in-memory state preserved, write swallowed. Unchanged. |
@@ -736,7 +752,7 @@ re-prefix anything.
 | Stored input | Parsed result |
 |---|---|
 | No stored draft | `freshDraft` at V6 with `endDate: null`. |
-| V1 / V2 / V3 / V4 draft | Existing chain → V5 → V6 with `endDate: null`. Every other field byte-identical. |
+| V1 / V2 / V3 / V4 draft | V1→V2→V3→V4→V5 runs exactly the existing, already-defined historical migration chain, unchanged by this gate. Only the final V5→V6 step is new, and it adds exclusively `endDate: null`, preserving every V5-stage field produced by that chain without reinterpretation. |
 | V5 draft, `days: null` | V6, `days: null`, `endDate: null`, `startDate` preserved. |
 | V5 draft, `days` present, `startDate` set | V6, days byte-identical (ids, `placeIds`, boundaries), `endDate: null`. |
 | V5 draft with accommodations and manual legs | V6, anchors and legs byte-identical. |
@@ -828,6 +844,14 @@ written in this gate** — this is a specification, not an implementation.
 53. One-day trip with 3 buckets → ordinal 0 in, 1–2 out.
 54. `before-trip-start` is unreachable — asserted across ordinals `0..n`.
 55. The assessment writes nothing back to the draft (deep-equality on the draft before/after).
+55a. `ordinalIndex = -1` resolves to `bounds-unavailable(invalid-ordinal)`, never `within-bounds`,
+     even when `bounds` would otherwise make ordinal `0` valid.
+55b. `ordinalIndex` of `0.5`, `NaN`, `Infinity`, `-Infinity`, and `Number.MAX_SAFE_INTEGER + 1` each
+     resolve to `bounds-unavailable(invalid-ordinal)`.
+55c. `addCivilDays` is never invoked for any `invalid-ordinal` input — asserted by a spy/mock on the
+     civil-date helper.
+55d. Every non-negative safe integer `ordinalIndex` is unaffected by the `invalid-ordinal` check and
+     resolves exactly as specified by the remaining resolution order.
 
 **Persistence / reload**
 56. Write → load round-trip preserves `endDate` exactly, including `null` and an inverted pair.
@@ -859,16 +883,33 @@ written in this gate** — this is a specification, not an implementation.
 
 ## 16. Non-goals
 
-This gate introduces none of the following, and the successor may not either:
+### 16.1 Excluded from this design gate only — required of Phase 3D-W
 
-runtime code, React/UI implementation, a real schema migration, new runtime tests, dataset or
-workbook changes, `package.json`/lockfile/dependency changes, routing, live transit, hotel search,
-hotel-to-hotel inference, luggage/takkyubin/lockers/oversized-baggage/hotel-or-airport storage,
-check-in/check-out, flights, airports, arrival/departure clock times, timezone scheduling,
-automatic itinerary generation, automatic day creation or removal, optimization or recommendation,
-drag-and-drop, booking integration, night counts, trip-duration advice, per-place date assignment,
-a second storage key, a day-level date or ordinal field, and any change to the existing pure
-temporal or reservation evaluators.
+This gate is design/audit only and therefore introduces none of the following itself. Unlike the
+non-goals in §16.2, these are **not** prohibited to the successor — §17 requires Phase 3D-W to
+implement exactly this narrow set, and only this set:
+
+runtime code, React/UI implementation, a real schema migration, and new runtime tests — scoped
+specifically to: `ManualPlanningDraftV6`; the V5→V6 migration; the `endDate` field; the
+`differenceInCivilDays` helper; the pure trip-bounds assessment module; the minimal composition-layer
+wiring in the planner hook/component described in §7.3 and §9; the minimal approved UI control and
+per-day warning described in §9; and the corresponding tests from the §15 matrix. Nothing broader
+than this list is authorized by §17 either.
+
+### 16.2 Non-goals of both this gate and Phase 3D-W
+
+The following remain out of scope for this gate **and** are explicitly forbidden to Phase 3D-W —
+they are not narrowed by §17 and are not implied by anything approved above:
+
+dataset or workbook changes; new dependency, `package.json` or lockfile changes (none are expected
+to be necessary; any such change would require separately demonstrated necessity); routing or
+live-transit changes; hotel search; hotel-to-hotel inference; luggage/takkyubin/lockers/
+oversized-baggage/hotel-or-airport storage; check-in/check-out; flights; airports;
+arrival/departure clock-time modeling; timezone scheduling; automatic itinerary generation;
+automatic day creation or removal; optimization or recommendation; drag-and-drop; booking
+integration; night-count inference; trip-duration advice; per-place persisted dates; a second
+storage key; a day-level date or ordinal field; and any change to the existing pure temporal or
+reservation evaluators outside the approved composition layer (§7.3, §11).
 
 ---
 
@@ -881,7 +922,7 @@ Phase 3D-W may be considered complete only when all of the following hold:
 3. The parser is strict and all-or-nothing for `endDate`, and does **not** treat the order relation as a parse invariant.
 4. `differenceInCivilDays` exists in `civil-date.ts`, is component-based and timezone-invariant, and returns `null` rather than guessing.
 5. `tripCalendarDays` is derived, inclusive, and absent whenever the range is unavailable.
-6. The bounds assessment is a pure module with the three approved kinds and four unavailable reasons, receives no day id, and is never persisted.
+6. The bounds assessment is a pure module with the three approved kinds and five unavailable reasons (including `invalid-ordinal`), receives no day id, rejects any `ordinalIndex` that is not a non-negative safe integer before calling `addCivilDays`, and is never persisted.
 7. Every existing pure evaluator listed in §11 is byte-for-byte unchanged.
 8. No bounds operation mutates `days`, ids, `placeIds`, boundaries, legs, anchors, `routeIds` or `visitStartTimes`.
 9. The UI adds one control and one per-day warning inside the existing planner, with neutral Spanish copy and no recommendation.
