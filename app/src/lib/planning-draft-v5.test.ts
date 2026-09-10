@@ -37,6 +37,11 @@ import {
   type DayAccommodationBoundary,
   type ManualAccommodationLeg,
 } from "./accommodation-commute";
+import { deriveVisitDateForPlace, derivePlaceReservationDateWindow } from "./reservation-deadline";
+import { evaluateReservationWindowReference } from "./reservation-window-reference";
+import placesData from "../data/places.json";
+import type { Place } from "../types";
+import { readFile } from "node:fs/promises";
 
 function memoryStorage(initial: Record<string, string> = {}): DraftStorage {
   const store = new Map(Object.entries(initial));
@@ -542,13 +547,62 @@ describe("dayMatrixFromPlanningDays — the identity/ordinal boundary", () => {
     );
   });
 
-  it("changing ONLY a day id cannot modify a reservation or intra-day transfer result", () => {
+  // Corrective pass (post-3D-S hostile review, Finding 2): the original single test here compared
+  // `buildDayAssignment` outputs and called that "a reservation" result — it never actually invoked
+  // any reservation-date evaluator, so it could not have caught a regression in one. It is split
+  // into two precisely-named tests: one for the intra-day transfer/sequence result (unchanged,
+  // still real `buildDayAssignment` coverage), and a separate one below that genuinely exercises
+  // the reservation-date/window/reference evaluators via the real fixtures/evaluators the corrective
+  // addendum requires.
+  it("changing ONLY a day id cannot modify buildDayAssignment's intra-day transfer/sequence result", () => {
     const routeIds = ["p1", "p2", "p3"];
     const before = buildDayAssignment(routeIds, dayMatrixFromPlanningDays([day("d1", ["p1", "p2"]), day("d2", ["p3"])])!);
     const after = buildDayAssignment(routeIds, dayMatrixFromPlanningDays([day("q1", ["p1", "p2"]), day("q2", ["p3"])])!);
     expect(after.days.map((bucket) => bucket.sequence)).toEqual(before.days.map((bucket) => bucket.sequence));
     expect(after.valid).toBe(before.valid);
     expect(after.issues).toEqual(before.issues);
+  });
+
+  it("changing ONLY a day id cannot modify a real reservation-date/window/reference result", () => {
+    // JP-019 is a real dataset record already proven elsewhere (reservation-deadline.test.ts) to be
+    // a Feb–Mar-pending Class A place that yields a genuine `derived-window` for a valid visit
+    // date — real reservation evidence, not a synthetic stand-in.
+    const jp019 = (placesData as Place[]).find((p) => p.id === "JP-019");
+    expect(jp019).toBeDefined();
+    if (!jp019) return;
+
+    const routeIds = ["JP-019", "p2", "p3"];
+    const startDate = "2027-03-01";
+    const referenceDate = "2027-01-15";
+
+    // Route, place membership/order and startDate are exactly identical between `before` and
+    // `after`. ONLY the opaque day ids differ.
+    const before = [day("d1", ["JP-019", "p2"]), day("d2", ["p3"])];
+    const after = [day("totally-different", ["JP-019", "p2"]), day("also-different", ["p3"])];
+
+    const beforeAssignment = buildDayAssignment(routeIds, dayMatrixFromPlanningDays(before)!);
+    const afterAssignment = buildDayAssignment(routeIds, dayMatrixFromPlanningDays(after)!);
+
+    // Step 1 of the real chain OrderedSequenceBuilder.tsx actually runs: derive the visit date from
+    // the DayAssignment (ordinal-only) plus startDate.
+    const beforeVisitDate = deriveVisitDateForPlace(beforeAssignment, startDate, "JP-019");
+    const afterVisitDate = deriveVisitDateForPlace(afterAssignment, startDate, "JP-019");
+    expect(beforeVisitDate).toBe("2027-03-01");
+    expect(afterVisitDate).toBe(beforeVisitDate);
+
+    // Step 2: the real reservation-date window evaluator.
+    const beforeWindow = derivePlaceReservationDateWindow(jp019, beforeVisitDate);
+    const afterWindow = derivePlaceReservationDateWindow(jp019, afterVisitDate);
+    // Asserting the concrete kind first proves this test actually exercises a real derived window
+    // rather than vacuously comparing two `no-window`/`no-visit-date` results.
+    expect(beforeWindow.kind).toBe("derived-window");
+    expect(afterWindow).toEqual(beforeWindow);
+
+    // Step 3: the real window-reference relation evaluator.
+    const beforeRelation = evaluateReservationWindowReference(beforeWindow, referenceDate);
+    const afterRelation = evaluateReservationWindowReference(afterWindow, referenceDate);
+    expect(beforeRelation.kind).not.toBe("not-assessed");
+    expect(afterRelation).toEqual(beforeRelation);
   });
 
   it("changing ONLY a day id cannot change the derived accommodation boundary result", () => {
@@ -1045,6 +1099,53 @@ describe("withRoute / resetRoute / reconcileDraft — composition rules stay con
   it("nulls days when the pruned partition no longer validates", () => {
     const next = reconcileDraft({ ...base, days: null }, ["p1", "p2", "p3"]);
     expect(next.days).toBeNull();
+  });
+
+  // Corrective pass (post-3D-S hostile review, Finding 3): `reconcileDraft` used to re-associate
+  // pruned content back onto V5 day entities by reading `reconciledBase.days![index]` — recovering
+  // identity from a position in a separately-computed projected array. It has been refactored to
+  // prune each entity's OWN `placeIds`, addressed by its OWN `id`, and to validate that
+  // directly-pruned matrix itself. The tests below pin the resulting guarantees.
+
+  it("leaves every still-non-empty day's own boundary untouched by a prune elsewhere, distinguishing them by value", () => {
+    const selectedB = boundary({ kind: "accommodation", accommodationId: "hotel-b" }, { kind: "unselected" });
+    const twoBoundaries = draftV5({
+      routeIds: ["p1", "p2", "p3"],
+      days: [day("d1", ["p1", "p2"], selectedA), day("d2", ["p3"], selectedB)],
+      accommodations: [hotelA, hotelB],
+    });
+    // "p2" goes stale; neither day empties, so both boundaries — deliberately different values —
+    // must survive exactly, proving neither was read from the other's position.
+    const next = reconcileDraft(twoBoundaries, ["p1", "p3"]);
+    expect(next.days!.map((d) => d.id)).toEqual(["d1", "d2"]);
+    expect(next.days![0].placeIds).toEqual(["p1"]);
+    expect(next.days![0].accommodationBoundary).toEqual(selectedA);
+    expect(next.days![1].placeIds).toEqual(["p3"]);
+    expect(next.days![1].accommodationBoundary).toEqual(selectedB);
+  });
+
+  it("prunes manual legs only for the place that actually left the route", () => {
+    const withTwoLegs = { ...base, accommodationLegs: [legAtoP1, legP2toA] };
+    // "p2" leaves; legAtoP1 (about "p1") must survive, legP2toA (about "p2") must not.
+    const next = reconcileDraft(withTwoLegs, ["p1", "p3"]);
+    expect(next.accommodationLegs).toEqual([legAtoP1]);
+  });
+
+  it("does not associate a day entity's content by reading an index into the projected V3 result", async () => {
+    const source = await readFile(new URL("./planning-draft-v5.ts", import.meta.url), "utf8");
+    const start = source.indexOf("export function reconcileDraft(");
+    const end = source.indexOf("export function loadReconciledDraft(");
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+    const body = source.slice(start, end);
+    // The forbidden shape: reading the projected V3 result back out by array index to decide what
+    // belongs to a given V5 day entity.
+    expect(body).not.toMatch(/reconciledBase\.days!?\[/);
+    expect(body).not.toMatch(/\.days!\[index\]/);
+    // Pruning must be keyed by each entity's own id, mapped from its own placeIds — not from an
+    // index shared with some other array.
+    expect(body).toMatch(/entity\.id/);
+    expect(body).toMatch(/entity\.placeIds/);
   });
 });
 

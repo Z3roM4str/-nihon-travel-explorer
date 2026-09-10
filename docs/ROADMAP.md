@@ -3073,8 +3073,10 @@ and are not rewritten by this phase.
 - [x] **New day ids are opaque and collision-safe.** `createDayId` draws from an injected factory
       until it yields a non-empty unused id, then fails safely with `null` after bounded retries
       rather than overwriting a day or falling back to a derived id. `usePlanningDraft` injects a
-      `crypto.randomUUID`-backed factory; tests inject a deterministic one. No id is derived from a
-      date, an index, a place id, an accommodation, a coordinate or any day content.
+      `crypto.randomUUID`-backed factory (with a `crypto.getRandomValues`/`Math.random` fallback
+      chain, corrected below to carry no creation-time signal); tests inject a deterministic one. No
+      id is derived from a date, a creation time, an index, a place id, an accommodation, a
+      coordinate or any day content.
 - [x] **The V5 parser stays strict and all-or-nothing.** The whole stored draft is rejected for a
       malformed day object, an empty or duplicate day id, a malformed `placeIds`, a projected matrix
       that fails `validateDayPartition`, a selected boundary on an empty day, an unknown accommodation
@@ -3086,8 +3088,11 @@ and are not rewritten by this phase.
       value handed to `validateDayPartition`, `buildDayAssignment`, `addCivilDays`, weekday signals,
       reservation evaluation, hours composition and intra-day transfers. No day id crosses that line
       and no temporal or logistics module was widened to know about persistence identity. Changing only
-      a day id provably cannot alter a `DayAssignment`, a civil date, a weekday signal, a reservation
-      result or an intra-day transfer sequence.
+      a day id provably cannot alter a `DayAssignment`, a civil date, a weekday signal, or an intra-day
+      transfer sequence — and, proven by the corrective pass below via the real
+      `deriveVisitDateForPlace` / `derivePlaceReservationDateWindow` / `evaluateReservationWindowReference`
+      evaluators against a genuine Class A reservation fixture, a real reservation-date/window/
+      reference result either.
 - [x] **Mutations are identity-aware.** Reordering inside a day preserves the id, the boundary and
       every stored leg, changing only `placeIds`. Moving a place between two days preserves both ids
       and both boundaries while each day stays non-empty. A day emptied by an edit keeps its id as an
@@ -3105,6 +3110,9 @@ and are not rewritten by this phase.
       assignment still sets `days: null`, taking every day id and embedded boundary with it, and no old
       day is re-matched afterwards. Anchors survive, `startDate` stays independent, and manual legs are
       pruned only for places that left the route. `resetRoute` still clears the assignment entirely.
+      Stale-place pruning (corrected below) is applied directly to each day entity's own `placeIds`,
+      addressed by its own `id` — never recovered by reading an index into a separately-computed
+      projected `string[][]` result.
 - [x] **Calendar semantics are unchanged.** No date is stored inside a day entity; a day's civil date
       remains `addCivilDays(startDate, ordinalIndex)`. Changing or clearing `startDate` preserves every
       id, place order and boundary, while adding, deleting or reordering days changes the derived
@@ -3143,4 +3151,47 @@ geocoding, live transit, provider integrations, luggage/takkyubin logic, check-i
 inference, automatic chained times, timezone scheduling, booking integration, and a trip-end-date
 model.
 
-**Phase 3D-T or later work is NOT STARTED by this implementation.**
+### Phase 3D-S — corrective pass (independent hostile review)
+
+A focused corrective pass on PR #48, responding to an independent hostile audit of the
+implementation above. All three findings are fixed; nothing else in Phase 3D-S was reopened.
+
+- [x] **Finding 1 — the day-id fallback no longer encodes creation time.** `randomDayId`'s
+      non-`crypto.randomUUID` path used `Date.now()`, which is a creation-time signal the identity
+      contract (§3.2) forbids. It now falls back to `crypto.getRandomValues` and, failing that, to
+      `Math.random()` alone — never the clock. A dedicated test isolates the non-`randomUUID` branch
+      itself (not merely the presence of `crypto.randomUUID()`) and pins that it contains no
+      `Date.now`, `startDate`, `dayIndex`, `placeId`, `accommodation` or coordinate reference.
+- [x] **Finding 2 — the reservation-result test now runs the real evaluator.** The single test named
+      "changing ONLY a day id cannot modify a reservation or intra-day transfer result" only ever
+      compared `buildDayAssignment` outputs; it never invoked any reservation-date evaluator, so it
+      could not have caught a regression in one. It is split into two precisely-named tests: the
+      intra-day transfer/sequence comparison (unchanged), and a new test that runs the real chain —
+      `deriveVisitDateForPlace` → `derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference` — against JP-019, a real Class A dataset fixture already
+      proven elsewhere to yield a genuine `derived-window`, holding route, place membership/order,
+      `startDate` and reservation evidence fixed while changing only the day ids.
+- [x] **Finding 3 — reconciliation no longer recovers identity by array index.** `reconcileDraft`
+      used to project the draft to V3, prune it there, and read the result back by
+      `reconciledBase.days![index]` to decide what belonged to each V5 day entity — recovering
+      identity from a position in a separately-computed array, which Phase 3D-R forbids. It now
+      prunes each entity's own `placeIds` directly, keyed by its own `id`, and validates that
+      directly-pruned matrix itself; `reconciledBase` is used only for `routeIds`/`startDate`/
+      `visitStartTimes`, never to decide day content. A day emptied by the prune still keeps its id
+      and resets to `unselected`; an invalid resulting partition still yields `days: null`; manual
+      legs are still pruned only for the place that left. A source-scan test pins the absence of the
+      old `reconciledBase.days![index]` shape.
+- [x] **Coverage.** 1218 tests pass (1213 before this corrective pass, 5 added): one pinning the
+      day-id fallback, one running the real reservation-date/window/reference chain, and three for
+      the reconciliation refactor (boundary preservation distinguished by value across two
+      simultaneously non-empty days, leg pruning scoped to the departed place, and the source-scan
+      guard against index-based association).
+- [x] **Targeted browser QA.** A new Playwright pass against the flows this corrective pass touches —
+      V4→V5 migration, reorder within a day, move between days, stale-place reconciliation, empty-day
+      reset, and reload persistence — 25/25 checks passed, no uncaught page errors. (This is a fresh
+      targeted set, not a re-run of the prior 34-check script, which is not itself checked into the
+      repository.)
+- [x] **Validation gate.** `npm test`, `npm run build`, `npm run lint`, `npx tsc -b --force` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Phase 3D-T or later work is NOT STARTED by this implementation or this corrective pass.**

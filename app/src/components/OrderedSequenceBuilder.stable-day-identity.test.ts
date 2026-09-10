@@ -407,8 +407,45 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     expect(hook).toMatch(/withNewEmptyDay\(current, randomDayId\)/);
     expect(hook).toMatch(/withInitialDays\(current, days, randomDayId\)/);
     const body = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("type SetStateAction"));
-    for (const forbidden of ["placeId", "dayIndex", "startDate", "accommodation", "lat", "lng"]) {
+    // "Date.now" is pinned here too (corrective pass, Finding 1): a day id must never encode
+    // creation time, on the `randomUUID` path OR on any fallback.
+    for (const forbidden of ["Date.now", "placeId", "dayIndex", "startDate", "accommodation", "lat", "lng"]) {
       expect(body).not.toContain(forbidden);
+    }
+  });
+
+  /**
+   * Corrective pass (post-3D-S hostile review, Finding 1): the initial implementation's
+   * `crypto.randomUUID()` branch was fine, but its fallback silently encoded `Date.now()` — a
+   * creation-time signal the identity contract (`docs/STABLE_DAY_IDENTITY_DESIGN.md` §3.2)
+   * explicitly forbids. Checking only for the presence of `crypto.randomUUID()` in the function
+   * (as the test above does) is not sufficient, because that assertion holds regardless of what
+   * the OTHER branch does. This test isolates the code that runs when `randomUUID` is NOT taken —
+   * everything after that branch's closing brace — and pins it independently.
+   */
+  it("keeps every non-randomUUID fallback free of Date.now and every other non-opaque signal", async () => {
+    const hook = await readFile(HOOK_PATH, "utf8");
+    const functionBody = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("type SetStateAction"));
+    const randomUUIDBranchEnd = functionBody.indexOf("}", functionBody.indexOf("crypto.randomUUID()"));
+    const fallback = functionBody.slice(randomUUIDBranchEnd + 1);
+
+    // A real fallback must exist, and it must not itself be another call to `crypto.randomUUID()`
+    // — otherwise the checks below would trivially pass without ever exercising a real alternative
+    // path.
+    expect(fallback.trim().length).toBeGreaterThan(0);
+    expect(fallback).not.toContain("crypto.randomUUID()");
+
+    for (const forbidden of [
+      "Date.now",
+      "startDate",
+      "dayIndex",
+      "placeId",
+      "accommodation",
+      "lat",
+      "lng",
+      "coordinates",
+    ]) {
+      expect(fallback).not.toContain(forbidden);
     }
   });
 });

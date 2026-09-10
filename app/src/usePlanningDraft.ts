@@ -57,6 +57,12 @@ function randomAccommodationId(): string {
  * route quality and no priority. Its only job is to say "this is still the same user-authored day"
  * across ordinary edits.
  *
+ * Corrective pass (post-3D-S hostile review): every branch here — including the non-`randomUUID`
+ * fallbacks — must stay free of creation-time/date signal. `crypto.getRandomValues` is the second
+ * choice when `randomUUID` is unavailable; the last-resort branch draws from `Math.random()` alone
+ * and deliberately never reads the clock (no `Date.now()`), so a day id still encodes no creation
+ * time even on that path.
+ *
  * Injected into the pure mutations rather than called inside them, so `planning-draft-v5.ts` stays
  * testable with a deterministic factory instead of stubbing a browser API, and so a collision fails
  * safely (`createDayId` gives up and the draft is returned unchanged) instead of overwriting an
@@ -66,7 +72,12 @@ function randomDayId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return `day-${crypto.randomUUID()}`;
   }
-  return `day-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    return `day-${hex}`;
+  }
+  return `day-${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
 }
 
 /** Same `Dispatch<SetStateAction<T>>` shape React's own `useState` setter has, so every existing

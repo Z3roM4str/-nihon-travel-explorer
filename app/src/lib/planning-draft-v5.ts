@@ -401,23 +401,38 @@ function withDayPlaceIds(days: readonly PlanningDayV5[], next: ReadonlyMap<strin
  * and from every day that held it, and if the pruned partition no longer validates, `days` becomes
  * `null` outright rather than being patched.
  *
- * Identity survives pruning because pruning is an edit to a day entity, not a replacement of it:
- * the surviving days are matched BY ID (they are literally the same entities, in the same order),
- * never by content similarity, and each keeps its own boundary unless the prune emptied it — the
- * ordinary §8.3 empty-day reset. When the partition dies, so does every day id with it, exactly as
- * §10 requires.
+ * Identity survives pruning because pruning is an edit to a day entity, not a replacement of it.
+ * Corrective pass (post-3D-S hostile review, Finding 3): staleness is applied directly to each
+ * entity's OWN `placeIds`, addressed by its OWN `id` — never by reading a projected `string[][]`
+ * result back by array index. `validateDayPartition` is called here against that same
+ * directly-pruned matrix, so nothing about which content belongs to which day is ever recovered
+ * from a position in some other computed array. Each surviving entity keeps its own boundary
+ * unless the prune emptied it — the ordinary §8.3 empty-day reset. When the resulting partition no
+ * longer validates, every day id disappears with it, exactly as §10 requires.
  */
 export function reconcileDraft(stored: ManualPlanningDraftV5, savedIds: readonly string[]): ManualPlanningDraftV5 {
   const reconciledBase = reconcileDraftV3(v3View(stored), savedIds);
+
   let days: PlanningDayV5[] | null;
-  if (reconciledBase.days === null || stored.days === null) {
+  if (stored.days === null) {
     days = null;
   } else {
-    // `reconcileDraftV3` prunes in place: it never adds, removes or reorders a bucket, so index
-    // `i` of its result is the pruned content of the SAME entity at index `i` here.
-    const pruned = new Map(stored.days.map((day, index) => [day.id, reconciledBase.days![index] ?? []]));
-    days = withDayPlaceIds(stored.days, pruned);
+    const savedSet = new Set(savedIds);
+    const staleIds = new Set(stored.routeIds.filter((id) => !savedSet.has(id)));
+    // Each entity prunes its OWN `placeIds` by content, keyed by its OWN `id` — no index into any
+    // other array is ever consulted to decide what belongs to which day.
+    const prunedByDayId = new Map(
+      stored.days.map((entity): [string, string[]] => [
+        entity.id,
+        entity.placeIds.filter((placeId) => !staleIds.has(placeId)),
+      ])
+    );
+    const prunedMatrix = stored.days.map((entity) => prunedByDayId.get(entity.id)!);
+    days = validateDayPartition(reconciledBase.routeIds, prunedMatrix).valid
+      ? withDayPlaceIds(stored.days, prunedByDayId)
+      : null;
   }
+
   return {
     version: PLANNING_DRAFT_VERSION,
     routeIds: reconciledBase.routeIds,
