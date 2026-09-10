@@ -18,6 +18,10 @@
 
 const CIVIL_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+/** Whole-day span used only as civil-date arithmetic machinery (see {@link differenceInCivilDays});
+ * UTC has no daylight-saving transitions, so two UTC midnights always differ by a multiple of this. */
+const MILLISECONDS_PER_CIVIL_DAY = 24 * 60 * 60 * 1000;
+
 type CivilDateParts = { year: number; month: number; day: number };
 
 function parseParts(iso: string): CivilDateParts | null {
@@ -127,4 +131,32 @@ export function getCivilWeekday(iso: string): CivilWeekday | null {
   if (!parts || !isValidCivilDate(iso)) return null;
   const asUtcDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
   return WEEKDAY_BY_UTC_DAY_INDEX[asUtcDate.getUTCDay()];
+}
+
+/**
+ * Phase 3D-W — Trip Bounds Runtime: the signed whole number of calendar days from `from` to `to`,
+ * or `null` when either argument is not itself a valid civil date — never a guess and, critically,
+ * never `0` as a fallback, because `0` is the legitimate answer for two equal dates.
+ *
+ * The result is signed: `to` after `from` is positive, the same day is `0`, and `to` before `from`
+ * is negative. That sign is load-bearing rather than incidental — an inverted trip range is a state
+ * `trip-bounds.ts` must be able to *detect* and report, so this helper must not absorb it into an
+ * absolute value or clamp it at zero.
+ *
+ * Timezone-invariant by the same construction as every other function in this module: both dates
+ * are converted to a UTC timestamp built from their claimed calendar components via `Date.UTC(...)`
+ * and never read back through a local getter. UTC is used here purely as *civil arithmetic
+ * machinery* — it does not mean either date is an instant, carries a timezone, or has a time of day.
+ * Because UTC has no daylight-saving transitions, the difference between two UTC midnights is always
+ * an exact multiple of a 24-hour day, so this is a whole-day count across month, year and leap
+ * boundaries alike, with no fractional-day rounding hazard. `Math.round` is defensive only.
+ */
+export function differenceInCivilDays(from: string, to: string): number | null {
+  const fromParts = parseParts(from);
+  const toParts = parseParts(to);
+  if (!fromParts || !toParts) return null;
+  if (!isValidCivilDate(from) || !isValidCivilDate(to)) return null;
+  const fromTimestamp = Date.UTC(fromParts.year, fromParts.month - 1, fromParts.day);
+  const toTimestamp = Date.UTC(toParts.year, toParts.month - 1, toParts.day);
+  return Math.round((toTimestamp - fromTimestamp) / MILLISECONDS_PER_CIVIL_DAY);
 }

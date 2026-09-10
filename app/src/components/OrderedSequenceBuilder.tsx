@@ -9,6 +9,12 @@ import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
 import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
 import {
+  assessTripBounds,
+  buildTripBoundsSummary,
+  type TripBoundsAssessment,
+  type TripBoundsSummary,
+} from "../lib/trip-bounds";
+import {
   buildReservationPreparationSummary,
   type ReservationPreparationSummary,
 } from "../lib/reservation-planning";
@@ -1402,6 +1408,98 @@ function AccommodationCommuteSection({
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+/**
+ * Phase 3D-W — Trip Bounds Runtime: the neutral summary of the trip's civil range, rendered inside
+ * the EXISTING `.calendar-anchor` block. No modal, no wizard, no new page, panel or product surface.
+ *
+ * It renders up to three DISTINCT facts and never conflates them (design §9.1):
+ *
+ *   A. the civil range the user chose, with its inclusive calendar-day count;
+ *   B. how many day buckets currently exist;
+ *   C. when both are known and they disagree, how many buckets fall after the end date.
+ *
+ * Every one of them is a statement about what the user chose or what exists. Nihon does not have an
+ * opinion here: the "fewer buckets than calendar days" and "exactly as many" cases are deliberately
+ * worded IDENTICALLY, so neither is endorsed as correct, and the mismatch line is a count and
+ * nothing more. Forbidden in any form (design §9.2): a duration recommendation, a suggestion to add
+ * or remove a day, a claim that days are missing or left over, a night count, and any check-in /
+ * check-out / flight / airport / arrival-time language.
+ *
+ * The inverted-range notice is a `role="status"` element of its own, deliberately separate from the
+ * builder's existing invalid-partition `role="alert"` banner: they are unrelated signals and §9.3
+ * requires that they never be merged. Nothing here repairs anything — both dates stay exactly as the
+ * user entered them.
+ */
+function TripBoundsNotice({ summary }: { summary: TripBoundsSummary }) {
+  const { startDate, endDate, tripCalendarDays, dayCount, unavailableReason, daysAfterTripEnd } = summary;
+
+  return (
+    <div className="trip-bounds-notice">
+      {tripCalendarDays !== null && startDate !== null && endDate !== null && (
+        <p className="trip-bounds-notice__range">
+          {`Rango elegido: ${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)} (${tripCalendarDays} días de calendario).`}
+        </p>
+      )}
+
+      {unavailableReason === "no-end-date" && startDate !== null && (
+        <p className="trip-bounds-notice__partial">
+          Has fijado la fecha de inicio. Añade la fecha de fin si quieres registrar el rango completo.
+        </p>
+      )}
+
+      {unavailableReason === "no-start-date" && endDate !== null && (
+        <p className="trip-bounds-notice__partial">
+          Has fijado la fecha de fin. Nihon necesita también la fecha de inicio para situar los días.
+        </p>
+      )}
+
+      {unavailableReason === "inverted-range" && (
+        <p className="trip-bounds-notice__inverted" role="status">
+          <span aria-hidden="true">⚠</span> La fecha de fin es anterior a la de inicio. Nihon no
+          modifica ninguna de las dos ni tus días; revisa las fechas.
+        </p>
+      )}
+
+      {dayCount !== null && <p className="trip-bounds-notice__buckets">{`Días creados: ${dayCount}.`}</p>}
+
+      {dayCount !== null && unavailableReason === "no-end-date" && (
+        <p className="trip-bounds-notice__partial">No has registrado una fecha de fin.</p>
+      )}
+
+      {daysAfterTripEnd !== null && daysAfterTripEnd > 0 && (
+        <p className="trip-bounds-notice__mismatch">
+          {`Hay ${daysAfterTripEnd} día(s) posteriores a la fecha de fin.`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Phase 3D-W: the ONE thing a day card gains when its ordinal falls past the end of the trip.
+ *
+ * The card keeps everything it already had — its `Día N` heading, its derived civil date, its
+ * places, its transfers, its weekday/closure and recorded-hours signals, its reservation signals,
+ * its accommodation controls, its move buttons and its delete button. It is never hidden, disabled,
+ * greyed into uselessness, collapsed, reordered, relocated or auto-deleted, and no place inside it
+ * is moved anywhere (design §9.3, §11).
+ *
+ * That is the whole frontier this phase draws: **derivation is unconditional, presentation is
+ * conditional.** Every existing pure evaluator still computes exactly what it computed before for
+ * this day's date — the arithmetic date is real and correct, and a weekday does not stop being a
+ * fact about a date because the user is not travelling that day. The only thing that was ever false
+ * is the implicit claim that this is a day OF the trip, and that is corrected by saying so, not by
+ * withholding data the user could otherwise see.
+ */
+function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment }) {
+  if (assessment.kind !== "after-trip-end") return null;
+  return (
+    <p className="day-card__bounds-warning" role="status">
+      <span aria-hidden="true">⚠</span> Este día es posterior a la fecha de fin de tu viaje.
+    </p>
+  );
+}
+
 export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -1417,6 +1515,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     planningDays,
     days,
     startDate,
+    endDate,
     visitStartTimes,
     accommodations,
     accommodationLegs,
@@ -1428,6 +1527,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     removeEmptyDay,
     moveDay,
     setStartDate,
+    setEndDate,
     setVisitStartTime,
     addAccommodation,
     removeAccommodation,
@@ -1487,6 +1587,16 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     [dayIds, placeById]
   );
   const dayAssignment = useMemo(() => buildDayAssignment(routeIds, dayIds), [routeIds, dayIds]);
+
+  // Phase 3D-W: the three neutral facts about the trip's civil range, derived on read and never
+  // persisted. The bucket count comes from `days` — `null` when no day assignment exists at all, so
+  // "0 días creados" is never invented for a draft that was simply never split. Nothing here feeds
+  // back into the draft: the range and the buckets stay two independent user decisions, and a
+  // disagreement between them is a fact to be shown, not a defect to be corrected.
+  const tripBoundsSummary = useMemo(
+    () => buildTripBoundsSummary({ startDate, endDate }, days === null ? null : days.length),
+    [startDate, endDate, days]
+  );
 
   function moveUp(index: number) {
     setRouteIds((ids) => moveItemUp(ids, index));
@@ -1797,6 +1907,34 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   </button>
                 )}
               </div>
+
+              {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
+                  control above and living in the same existing block. The two dates are two
+                  independent decisions: setting or clearing either one never touches the other,
+                  and never creates, deletes, reorders or repairs a day bucket. */}
+              <div className="calendar-anchor">
+                <label htmlFor="sequence-end-date" className="calendar-anchor__label">
+                  Fecha de fin (último día del viaje)
+                </label>
+                <input
+                  id="sequence-end-date"
+                  type="date"
+                  className="calendar-anchor__input"
+                  value={endDate ?? ""}
+                  onChange={(event) => setEndDate(event.target.value || null)}
+                />
+                {endDate && (
+                  <button
+                    type="button"
+                    className="link-button calendar-anchor__clear"
+                    onClick={() => setEndDate(null)}
+                  >
+                    Quitar fecha
+                  </button>
+                )}
+              </div>
+
+              <TripBoundsNotice summary={tripBoundsSummary} />
               <p className="analysis-disclaimer">
                 <span aria-hidden="true">ⓘ</span> La fecha es una decisión tuya. Nihon solo
                 desplaza el calendario a partir del Día 1; <strong>no elige ni sugiere qué fecha
@@ -1816,6 +1954,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   const isEmpty = places.length === 0;
                   const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
                   const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
+                  // Phase 3D-W: a purely derived read from the two civil bounds and this bucket's
+                  // ORDINAL POSITION — the same ordinal `dayDate` above is already derived from. No
+                  // day id crosses this line (`assessTripBounds` cannot accept one), nothing is
+                  // written back to the draft, and no existing signal above or below is suppressed
+                  // or altered by the verdict; it only adds a warning to the card's presentation.
+                  const boundsAssessment = assessTripBounds({ startDate, endDate }, dayIndex);
                   // Phase 3D-S: the day entity at this ordinal position. Its `id` is what every
                   // mutation below is addressed by, and its `accommodationBoundary` is structurally
                   // its own — it cannot be another day's choice shifted into place by a splice,
@@ -1830,6 +1974,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                         <div>
                           <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
                           {dayDate && <p className="day-card__date">{formatCivilDateDisplay(dayDate)}</p>}
+                          <TripBoundsDayWarning assessment={boundsAssessment} />
                         </div>
                         <div className="day-card__header-actions">
                           <button

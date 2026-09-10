@@ -814,7 +814,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // Phase 3D-Q moved the canonical runtime draft to V4 and Phase 3D-S to V5 (same storage key
     // throughout); the pure mutation this phase's contract depends on is unchanged, only the
     // module that re-exports it.
-    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v5["']/);
+    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v6["']/);
     expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
     expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
     expect(hook).toMatch(/setVisitStartTime,/);
@@ -826,7 +826,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // not the bare word, which also appears in the import list and in prose.
     const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
     expect(useStateCalls).toHaveLength(1);
-    expect(hook).toMatch(/useState<ManualPlanningDraftV5>/);
+    expect(hook).toMatch(/useState<ManualPlanningDraftV6>/);
     // Every mutation goes through the pure module and is written back by the existing effect.
     expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
   });
@@ -953,7 +953,7 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
   it("exposes the persisted accommodation state and setters that delegate to the pure module", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     expect(hook).toMatch(
-      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v5["']/
+      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v6["']/
     );
     expect(hook).toMatch(/accommodations: draft\.accommodations,/);
     // Phase 3D-S: the boundary vector is gone from the hook's surface — each day's choice now

@@ -1,5 +1,12 @@
+import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it } from "vitest";
-import { addCivilDays, formatCivilDateDisplay, getCivilWeekday, isValidCivilDate } from "./civil-date";
+import {
+  addCivilDays,
+  differenceInCivilDays,
+  formatCivilDateDisplay,
+  getCivilWeekday,
+  isValidCivilDate,
+} from "./civil-date";
 
 describe("isValidCivilDate", () => {
   it("accepts a well-formed, real calendar date", () => {
@@ -174,5 +181,116 @@ describe("getCivilWeekday", () => {
       expect(results.size).toBe(1);
       expect([...results][0]).toBe("friday");
     });
+  });
+});
+
+/**
+ * Phase 3D-W — Trip Bounds Runtime. `differenceInCivilDays` is the one new primitive the trip's
+ * inclusive calendar-day count is built on, so it is tested here as a civil-date helper in its own
+ * right — signed, whole-day, null-on-invalid, and timezone-invariant — independently of anything
+ * that consumes it.
+ */
+describe("differenceInCivilDays", () => {
+  it("returns 0 for the same civil date", () => {
+    expect(differenceInCivilDays("2027-02-19", "2027-02-19")).toBe(0);
+  });
+
+  it("returns a positive count when `to` is after `from`", () => {
+    expect(differenceInCivilDays("2027-02-19", "2027-02-20")).toBe(1);
+    expect(differenceInCivilDays("2027-02-19", "2027-03-05")).toBe(14);
+  });
+
+  it("returns a NEGATIVE count when `to` precedes `from` — the sign is not absorbed or clamped", () => {
+    expect(differenceInCivilDays("2027-02-20", "2027-02-19")).toBe(-1);
+    expect(differenceInCivilDays("2027-03-05", "2027-02-19")).toBe(-14);
+  });
+
+  it("counts correctly across a month boundary", () => {
+    expect(differenceInCivilDays("2027-01-31", "2027-02-01")).toBe(1);
+    expect(differenceInCivilDays("2027-04-30", "2027-05-01")).toBe(1);
+    // Every day of a 31-day month.
+    expect(differenceInCivilDays("2027-01-01", "2027-02-01")).toBe(31);
+  });
+
+  it("counts correctly across a year boundary", () => {
+    expect(differenceInCivilDays("2027-12-31", "2028-01-01")).toBe(1);
+    expect(differenceInCivilDays("2026-01-01", "2027-01-01")).toBe(365);
+  });
+
+  it("counts a leap year as 366 days and a leap-day crossing correctly", () => {
+    // 2028 is a leap year: Jan 1 2028 → Jan 1 2029 spans Feb 29.
+    expect(differenceInCivilDays("2028-01-01", "2029-01-01")).toBe(366);
+    expect(differenceInCivilDays("2028-02-28", "2028-03-01")).toBe(2); // via Feb 29
+    expect(differenceInCivilDays("2027-02-28", "2027-03-01")).toBe(1); // no Feb 29 in 2027
+    expect(differenceInCivilDays("2028-02-29", "2028-03-01")).toBe(1);
+  });
+
+  it("handles a century non-leap year (1900 is not a leap year, 2000 is)", () => {
+    expect(differenceInCivilDays("1900-02-28", "1900-03-01")).toBe(1);
+    expect(differenceInCivilDays("2000-02-28", "2000-03-01")).toBe(2);
+  });
+
+  it("returns null — never 0 and never a guess — when either argument is not a valid civil date", () => {
+    for (const bad of ["", "2027-02-30", "2027-13-01", "2027-2-19", "19-02-2027", "2027-02-19T00:00:00Z", "hoy"]) {
+      expect(differenceInCivilDays(bad, "2027-02-19"), `from=${bad}`).toBeNull();
+      expect(differenceInCivilDays("2027-02-19", bad), `to=${bad}`).toBeNull();
+    }
+    expect(differenceInCivilDays("2027-02-29", "2027-03-01")).toBeNull(); // 2027 is not a leap year
+  });
+
+  it("returns whole integers only — never a fractional day", () => {
+    for (let offset = 0; offset < 400; offset += 1) {
+      const to = addCivilDays("2027-01-01", offset)!;
+      const difference = differenceInCivilDays("2027-01-01", to);
+      expect(Number.isInteger(difference), `offset=${offset}`).toBe(true);
+      expect(difference).toBe(offset);
+    }
+  });
+
+  it("is the exact inverse of addCivilDays over a long span crossing months, years and a leap day", () => {
+    for (let offset = -800; offset <= 800; offset += 37) {
+      const to = addCivilDays("2028-02-29", offset)!;
+      expect(differenceInCivilDays("2028-02-29", to), `offset=${offset}`).toBe(offset);
+    }
+  });
+
+  describe("timezone invariance", () => {
+    const ORIGINAL_TZ = process.env.TZ;
+
+    afterEach(() => {
+      process.env.TZ = ORIGINAL_TZ;
+    });
+
+    it("returns the same difference regardless of the process's local timezone", () => {
+      const results: (number | null)[] = [];
+      // A UTC-12 timezone and a UTC+14 timezone are both represented; if a local getter had leaked
+      // into the arithmetic, at least one of these would be off by a day.
+      for (const tz of ["UTC", "Etc/GMT+12", "Etc/GMT-14", "America/Los_Angeles", "Asia/Tokyo", "Pacific/Kiritimati"]) {
+        process.env.TZ = tz;
+        results.push(differenceInCivilDays("2027-02-19", "2027-03-05"));
+      }
+      expect(new Set(results).size).toBe(1);
+      expect(results[0]).toBe(14);
+    });
+
+    it("keeps a same-day difference at exactly 0 west of UTC, where a local-getter bug would show -1", () => {
+      process.env.TZ = "Etc/GMT+12";
+      expect(differenceInCivilDays("2027-02-19", "2027-02-19")).toBe(0);
+      expect(differenceInCivilDays("2027-01-01", "2027-01-01")).toBe(0);
+    });
+  });
+});
+
+describe("civil-date module — no clock time, no instant, no timezone inference (source scan)", () => {
+  it("differenceInCivilDays reads and writes calendar components through Date.UTC only", async () => {
+    const source = await readFile(new URL("./civil-date.ts", import.meta.url), "utf8");
+    const start = source.indexOf("export function differenceInCivilDays");
+    expect(start).toBeGreaterThan(-1);
+    const body = source.slice(start);
+    expect(body).toContain("Date.UTC(");
+    // No local-timezone getters, no instant serialization, no clock reading.
+    for (const forbidden of ["getFullYear()", "getMonth()", "getDate()", "getHours()", "toISOString", "Date.now"]) {
+      expect(body, forbidden).not.toContain(forbidden);
+    }
   });
 });
