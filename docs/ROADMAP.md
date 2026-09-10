@@ -3267,3 +3267,133 @@ alternative design of its own.
       schema V6, or unrelated refactor/dependency change was introduced.
 
 **Phase 3D-V or later work is NOT STARTED by this implementation.**
+
+---
+
+## Phase 3D-V — Trip Bounds Design Gate — design/audit only
+
+Design/audit gate only, recorded in
+[`docs/PHASE_3D_V_ROADMAP_NOTE.md`](PHASE_3D_V_ROADMAP_NOTE.md). The authoritative contract is
+[`docs/TRIP_BOUNDS_DESIGN.md`](TRIP_BOUNDS_DESIGN.md). **No runtime code, UI, persisted data,
+schema version, migration, test, dataset, dependency, routing, live-transit, hotel-search,
+luggage, flight, airport, clock-time, timezone, optimisation or booking change was implemented by
+this gate.** `ManualPlanningDraftV5` remains the canonical runtime schema, and `endDate` **does not
+exist in the codebase**.
+
+- [x] **Question audited, not assumed.** Given that a user can know the first and last civil day of
+      their trip independently of having built any day assignment, should Nihon persist an upper
+      calendar bound, and if so what is the minimum safe representation? All four required
+      candidates were compared explicitly.
+- [x] **Decision: APPROVED — one field, `endDate: string | null`.** The last civil calendar date the
+      user considers part of the trip, on a new `ManualPlanningDraftV6`, under the **unchanged**
+      storage key `nihon.manualPlanningDraft`. `[startDate, endDate]` is **inclusive**;
+      `tripCalendarDays = differenceInCivilDays(startDate, endDate) + 1` is derived on read only and
+      is absent whenever the range is unavailable. A civil date is explicitly not a flight time, a
+      UTC instant, a timezone, a check-in/check-out date, a night count, or a flight duration.
+      **Nights are never inferred** — that would need its own separate contract.
+- [x] **Alternatives rejected, with reasons recorded.** `tripLengthDays: number | null` — not
+      standalone (meaningless without `startDate`), reintroduces the days/nights inclusivity
+      ambiguity, is shaped like `days.length` and so invites the forbidden reconciliation, and
+      stores derived data. **Deriving the end from `days.length`** — conceptually circular: the last
+      bucket would *be* the end, so "out of bounds" stays permanently unrepresentable, the trip's
+      civil extent would evaporate on a route composition change, and adding or deleting an empty
+      day would silently rewrite the user's travel dates. **Adding nothing yet** — held open to the
+      end and rejected because the harm is present today (Nihon presents dates outside the trip with
+      full confidence and no annotation) and the day model reached its final shape in 3D-S/3D-U.
+- [x] **`endDate` is NOT redundant with `days.length`.** They are independent facts: the civil
+      extent is a trip decision that survives route changes and exists with `days: null`, while the
+      bucket count is downstream, invalidatable editing state. Their disagreement is the informative
+      signal, not a defect to correct.
+- [x] **Independence from `days` is the load-bearing invariant.** All eleven required cases are
+      resolved in the design (§5.1): bounds known with `days: null`; fewer, equal and more buckets
+      than calendar days; empty days; adding and deleting an empty day; day reorder; moving places
+      between days; a route composition change that invalidates `days`; and `resetRoute`. **No
+      auto-creation, auto-deletion, truncation or reordering of buckets to match the range, ever**,
+      and no bound is ever derived from the buckets. Both bounds survive a route change and a route
+      reset, exactly as `startDate` already does.
+- [x] **Out-of-bounds gets a derived vocabulary and nothing else.** A pure per-day assessment with
+      three kinds — `bounds-unavailable` (reasons `no-start-date`, `no-end-date`, `invalid-date`,
+      `inverted-range`), `within-bounds`, `after-trip-end` — computed in a new planning/composition
+      layer from `(bounds, ordinalIndex)`, never persisted, never given a day id. `before-trip-start`
+      is structurally unreachable (Día 1 *is* `startDate`) and is deliberately absent. An
+      out-of-range day is never silently made valid, never deleted, never reordered, never given a
+      new id, and its places are never relocated.
+- [x] **Presentation frontier decided.** **Every existing temporal computation continues unchanged**
+      for an out-of-bounds day — the arithmetic visit date, weekday/closure signals, hours
+      composition, recorded-hours feasibility and the reservation window/reference relation are all
+      still true facts about a real civil date. Only the *implicit claim that this is a day of the
+      trip* is false, and it is corrected by an **explicit warning**, never by withholding data.
+      Suppressing an evaluator's output because of an unrelated new field was rejected outright.
+- [x] **Persistence proposal.** `ManualPlanningDraftV6` is genuinely required: keeping `version: 5`
+      and tolerating a missing `endDate` would be a tolerant parse under a deliberately intolerant,
+      all-or-nothing parser, making "predates the feature" and "corrupted" indistinguishable.
+      `PlanningDayV5` is unchanged and keeps its name. Migration sets `endDate: null` and **may not
+      invent a value** from `days.length`, `startDate + days.length - 1`, `startDate`, the last day's
+      derived date, anchors, visit times or today's date. Strict parser, all-or-nothing, no silent
+      repair.
+- [x] **Validation policy, both directions decided explicitly.** Each endpoint is validated
+      independently (`null` or a real civil date per `isValidCivilDate`); an invalid write is
+      rejected and the draft returned unchanged. **`endDate` MAY exist while `startDate === null`** —
+      prohibiting it would require either discarding a fact the user entered or silently clearing a
+      neighbouring field. **`end < start` is storable and surfaced, never prevented and never
+      repaired**: a cross-field write guard would trap the user mid-edit when shifting a trip later,
+      and auto-shifting the other endpoint would invent a decision. It resolves to
+      `bounds-unavailable(inverted-range)`. **Critically, the order relation is NOT a parse
+      invariant** — making it one would turn a legitimately reachable state into whole-draft
+      corruption on reload.
+- [x] **Audit finding: the arithmetic helper does not exist.** `app/src/lib/civil-date.ts` exports
+      `isValidCivilDate`, `addCivilDays`, `formatCivilDateDisplay` and `getCivilWeekday` only —
+      there is **no `differenceInCivilDays` anywhere in the repository**. The successor must add it
+      as a pure, component-based (`Date.UTC`/`getUTC*`) helper returning a signed whole-day count or
+      `null`, never a guess. No `Date`/UTC instant, timezone or clock time is introduced anywhere.
+- [x] **Stable day identity guaranteed.** A bounds change only ever reassigns one scalar field, so
+      by construction it remints no day id, does not reorder `days`, changes no `placeIds`, touches
+      no `accommodationBoundary`, rebinds no `accommodationLeg`, modifies no anchor, and derives no
+      identity from any date. Reordering a day still transports the same entity byte-for-byte and
+      changes only its derived ordinal date — and now, as a derived read only, possibly its bounds
+      assessment.
+- [x] **Existing evaluators audited, none rewritten.** `deriveVisitDateForPlace`,
+      `deriveReservationDateWindow`, `derivePlaceReservationDateWindow`,
+      `evaluateReservationWindowReference`, `buildDayWeekdaySignal`, `assessWeekdayClosure`,
+      `derivePlaceHoursClosureComposition`, `evaluateRecordedIntervalFit`, `buildDayAssignment`,
+      `validateDayPartition`, `dayMatrixFromPlanningDays` and `captureDeviceLocalCivilDate` all stay
+      byte-for-byte unchanged. `endDate` must never become a partition input and `"after-trip-end"`
+      must never become a `DayAssignmentIssue`.
+- [x] **Accommodation, arrival/departure and luggage held out.** Trip bounds select no hotel, delete
+      no hotel, create no hotel-to-hotel transfer, change no manual leg or boundary, and never
+      interpret `no-accommodation` as an airport, station or port. The civil range represents no
+      landing time, airport, flight, hotel transfer, departure cut-off, check-out or check-in — it
+      leaves a clean seam for those future gates and nothing more. **Luggage (takkyubin, lockers,
+      oversized Shinkansen baggage, hotel and airport storage) remains an expressly separate axis**
+      that trip bounds neither model nor constrain.
+- [x] **UI proposal is minimal and neutral.** One additional `type="date"` control plus a clear
+      button inside the **existing** `.calendar-anchor` block, and one per-day warning. No new
+      product, page, panel or wizard. Spanish copy distinguishes three separate facts — the civil
+      range the user chose, the buckets that currently exist, and the mismatch between them — and
+      **never** recommends a duration, a night count, or adding/removing days. The equal-count and
+      fewer-count cases share wording deliberately so neither is endorsed as correct.
+- [x] **Test contract specified, not written.** A 71-case matrix for the successor covering
+      migration, the strict parser, civil-date validation and timezone invariance, the inclusive
+      count, every null state, route/reset independence, day addition/removal/empty days/reorder,
+      stable ids and untouched accommodations and manual legs, the out-of-bounds assessment,
+      persistence/reload round-trips, **real** temporal and reservation consumers exercised against
+      both bounded and out-of-bounds days, UI copy scanning, and source scans proving no
+      timezone/instant inference.
+- [x] **Supersession recorded precisely.** This gate supersedes the "assignment outside trip bounds
+      is not representable" statements in `RESERVATION_DEADLINE_DESIGN.md` §12.2.1,
+      `OPENING_HOURS_CLOSURE_COMPOSITION_DESIGN.md`, `STABLE_DAY_IDENTITY_DESIGN.md` and
+      `MANUAL_DAY_REORDERING_DESIGN.md` **only** on the question of whether a trip end date may
+      exist. Every other clause of those documents — including the prohibition on inventing handling
+      for states that do not exist, and on persisting derived deadline or range data — stays intact.
+      Those phases scoped the field out of their own work; none argued the model was wrong.
+- [x] **Diff is strictly documentary.** Only `docs/TRIP_BOUNDS_DESIGN.md`,
+      `docs/PHASE_3D_V_ROADMAP_NOTE.md` and this `docs/ROADMAP.md` entry changed. No file under
+      `app/`, `data/`, `scripts/`, no test, no `package.json` and no lockfile was touched. The
+      existing suite was **not** re-run, because a documentation-only diff cannot change it — no
+      claim is made here about executing it.
+
+Recommended successor: **Phase 3D-W — Trip Bounds Runtime**.
+
+**Phase 3D-W is NOT STARTED.** No `endDate` field, no `ManualPlanningDraftV6`, no
+`differenceInCivilDays`, no bounds assessment module and no UI control exists in the codebase as of
+this gate.
