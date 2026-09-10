@@ -3519,9 +3519,11 @@ the authority and was **not** rewritten: no contradiction with it was found whil
       `Rango elegido: vie, 19 feb 2027 – dom, 21 feb 2027 (3 días de calendario).`, the bucket count
       as `Días creados: 4.` and the mismatch as `Hay 1 día(s) posteriores a la fecha de fin.`; the
       warning appears on **Día 4 only**, which keeps its heading, its date (`lun, 22 feb 2027`), its
-      place and all three header controls. Moving Día 4 up moved the warning to the new ordinal 4
-      while the moved entity kept its id, `placeIds` and hotel choice, and bounds, anchors, legs and
-      route were untouched. Clearing the end date removed every warning without clearing
+      place and all three header controls. Moving the entity initially visible as Día 4 up placed
+      that same entity at visible Día 3 / zero-based ordinal 2, where it became `within-bounds`;
+      the entity it swapped with moved to visible Día 4 / zero-based ordinal 3 and became the sole
+      `after-trip-end` warning occupant. The moved entity kept its id, `placeIds` and hotel choice,
+      and bounds, anchors, legs and route were untouched. Clearing the end date removed every warning without clearing
       `startDate`, reordering days or altering hotels; re-setting it to a two-day range put the last
       **two** buckets out and recounted the mismatch to 2. A reload round-tripped the whole draft
       byte-for-byte — `endDate`, day order, ids, boundaries and legs — and rehydrated the control.

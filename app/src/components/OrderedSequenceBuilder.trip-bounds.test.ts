@@ -70,17 +70,31 @@ describe("trip-bounds wiring (source-scanning integration check)", () => {
     expect(source).toContain("buildTripBoundsSummary({ startDate, endDate }, days === null ? null : days.length)");
   });
 
-  it("renders the end-date control inside the existing .calendar-anchor block — no new surface", async () => {
+  it("renders both date controls inside the one existing .calendar-anchor block — no new surface", async () => {
     const source = await readSource();
-    expect(source).toContain('<label htmlFor="sequence-end-date" className="calendar-anchor__label">');
-    expect(source).toContain("Fecha de fin (último día del viaje)");
-    expect(source).toContain('id="sequence-end-date"');
-    expect(source).toContain('type="date"');
-    expect(source).toContain('value={endDate ?? ""}');
-    expect(source).toContain("setEndDate(event.target.value || null)");
-    // The existing Día 1 control is untouched and still present.
-    expect(source).toContain("Fecha de inicio (Día 1)");
-    expect(source).toContain('value={startDate ?? ""}');
+    expect(source.match(/<div className="calendar-anchor">/g) ?? []).toHaveLength(1);
+
+    const anchorMatch = source.match(
+      /<div className="calendar-anchor">([\s\S]*?)<\/div>\s*<TripBoundsNotice/,
+    );
+    expect(anchorMatch).not.toBeNull();
+    const anchorBlock = anchorMatch?.[1] ?? "";
+
+    expect(anchorBlock).toContain('<label htmlFor="sequence-start-date" className="calendar-anchor__label">');
+    expect(anchorBlock).toContain("Fecha de inicio (Día 1)");
+    expect(anchorBlock).toContain('id="sequence-start-date"');
+    expect(anchorBlock).toContain('value={startDate ?? ""}');
+
+    expect(anchorBlock).toContain('<label htmlFor="sequence-end-date" className="calendar-anchor__label">');
+    expect(anchorBlock).toContain("Fecha de fin (último día del viaje)");
+    expect(anchorBlock).toContain('id="sequence-end-date"');
+    expect(anchorBlock).toContain('type="date"');
+    expect(anchorBlock).toContain('value={endDate ?? ""}');
+    expect(anchorBlock).toContain("setEndDate(event.target.value || null)");
+
+    expect(anchorBlock.indexOf('id="sequence-start-date"')).toBeLessThan(
+      anchorBlock.indexOf('id="sequence-end-date"'),
+    );
   });
 
   it("offers a clear button only when an end date exists, using the canonical setter", async () => {

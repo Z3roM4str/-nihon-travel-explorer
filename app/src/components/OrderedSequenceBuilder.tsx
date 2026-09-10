@@ -1906,13 +1906,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                     Quitar fecha
                   </button>
                 )}
-              </div>
 
-              {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
-                  control above and living in the same existing block. The two dates are two
-                  independent decisions: setting or clearing either one never touches the other,
-                  and never creates, deletes, reorders or repairs a day bucket. */}
-              <div className="calendar-anchor">
+                {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
+                    control above and living in the same existing block. The two dates are two
+                    independent decisions: setting or clearing either one never touches the other,
+                    and never creates, deletes, reorders or repairs a day bucket. */}
                 <label htmlFor="sequence-end-date" className="calendar-anchor__label">
                   Fecha de fin (último día del viaje)
                 </label>
