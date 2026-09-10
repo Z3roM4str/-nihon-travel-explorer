@@ -3236,7 +3236,7 @@ alternative design of its own.
 - [x] **Compatibility boundary stays closed.** The reorder never calls `withDays`; a source-scan
       test pins that its body contains neither `withDays(` nor `dayMatrixFromPlanningDays`, only
       the plain two-element array swap.
-- [x] **Coverage.** 1245 tests pass across 34 files (1213 before this phase). New coverage in
+- [x] **Coverage.** 1245 tests pass across 34 files (1218 before this phase; 27 added). New coverage in
       `lib/planning-draft-v5.test.ts` (`withDayMoved`) proves: a middle day moves up/back down
       byte-for-byte; first-up/last-down/unknown-id/`days: null`/one-day/invalid-direction are exact
       no-ops; an empty day moves and stays empty/unselected; `routeIds`/`startDate`/
