@@ -195,54 +195,14 @@ function moveItemDown<T>(items: readonly T[], index: number): T[] {
 }
 
 // ---------------------------------------------------------------------------------------
-// Phase 3C-C day-bucket array helpers. Pure, component-local — the same precedent as
-// moveItemUp/moveItemDown above: this file already keeps ordering mechanics as small local
-// helpers rather than exporting them from a lib module, since they are UI-state shape, not
-// domain logic. `day-assignment.ts` only ever describes a partition it is given; it never
-// decides how one is edited.
+// Phase 3D-S removed this file's local day-bucket array helpers (`addEmptyDay`,
+// `removeEmptyDay`, `moveWithinDay`, `moveToAdjacentDay`). They rebuilt a whole `string[][]`
+// matrix on every edit, which is exactly the shape that cannot say which bucket is which — so
+// each of those operations is now an explicit identity-aware mutation on `usePlanningDraft`
+// addressed by the day's own stable id (`movePlaceWithinDay`, `movePlaceBetweenDays`,
+// `addEmptyDay`, `removeEmptyDay`). The day's ordinal position is still what the UI renders and
+// what every temporal/logistics consumer receives; it is simply no longer what identifies it.
 // ---------------------------------------------------------------------------------------
-
-function addEmptyDay(days: readonly string[][]): string[][] {
-  return [...days.map((day) => [...day]), []];
-}
-
-/** A day can only be removed empty, and at least one day must always remain — both guards the
- * domain module's own `"no-days"`/partition invariants exist to catch if this ever failed. */
-function removeEmptyDay(days: readonly string[][], dayIndex: number): string[][] {
-  if (days.length <= 1) return days.map((day) => [...day]);
-  if ((days[dayIndex]?.length ?? 0) > 0) return days.map((day) => [...day]);
-  return days.filter((_, index) => index !== dayIndex).map((day) => [...day]);
-}
-
-function moveWithinDay(
-  days: readonly string[][],
-  dayIndex: number,
-  placeIndex: number,
-  direction: -1 | 1
-): string[][] {
-  const next = days.map((day) => [...day]);
-  next[dayIndex] = direction === -1 ? moveItemUp(next[dayIndex], placeIndex) : moveItemDown(next[dayIndex], placeIndex);
-  return next;
-}
-
-/** Removes the place at `placeIndex` in `dayIndex` and appends it to the end of the adjacent
- * day's explicit order — never reordering anything else already in either day. A no-op when
- * there is no adjacent day in that direction. */
-function moveToAdjacentDay(
-  days: readonly string[][],
-  dayIndex: number,
-  placeIndex: number,
-  direction: -1 | 1
-): string[][] {
-  const targetIndex = dayIndex + direction;
-  if (targetIndex < 0 || targetIndex >= days.length) return days.map((day) => [...day]);
-  const placeId = days[dayIndex]?.[placeIndex];
-  if (placeId === undefined) return days.map((day) => [...day]);
-  const next = days.map((day) => [...day]);
-  next[dayIndex].splice(placeIndex, 1);
-  next[targetIndex].push(placeId);
-  return next;
-}
 
 /**
  * One reorderable, place-specific list — the main route draft, each comparison candidate, and
@@ -1454,14 +1414,18 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   // canonical day assignment. `days` is `null` exactly when no valid day split exists yet.
   const {
     routeIds,
+    planningDays,
     days,
     startDate,
     visitStartTimes,
     accommodations,
-    dayAccommodationBoundaries,
     accommodationLegs,
     setRoute: setRouteIds,
-    setDays: setDayIds,
+    initializeDays,
+    movePlaceWithinDay,
+    movePlaceBetweenDays,
+    addEmptyDay,
+    removeEmptyDay,
     setStartDate,
     setVisitStartTime,
     addAccommodation,
@@ -1470,7 +1434,13 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     setAccommodationLeg,
     resetRoute,
   } = usePlanningDraft(savedIds);
+  // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
+  // given — `buildDayAssignment`, the calendar, weekday signals, reservation evaluation, hours
+  // composition and intra-day transfers all still see only this. `dayEntities` is the parallel
+  // identity view, used solely to address a mutation at the day the user is looking at and to read
+  // that same day's own accommodation boundary; no day id is ever passed into a domain module.
   const dayIds = useMemo(() => days ?? [], [days]);
+  const dayEntities = useMemo(() => planningDays ?? [], [planningDays]);
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
   // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
@@ -1551,7 +1521,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   // back into the route itself.
   function openDayAssignment() {
     if (days === null) {
-      setDayIds([[...routeIds]]);
+      initializeDays([[...routeIds]]);
     }
     setView("days");
   }
@@ -1845,12 +1815,16 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   const isEmpty = places.length === 0;
                   const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
                   const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
-                  // Positional, exactly like the day bucket itself: the boundary vector always has
-                  // the same length as `days` (V4's parse/update invariant), so index `dayIndex` is
-                  // this day's own choice and never another day's shifted into place.
-                  const dayBoundary = dayAccommodationBoundaries?.[dayIndex] ?? null;
+                  // Phase 3D-S: the day entity at this ordinal position. Its `id` is what every
+                  // mutation below is addressed by, and its `accommodationBoundary` is structurally
+                  // its own — it cannot be another day's choice shifted into place by a splice,
+                  // because there is no separate positional boundary vector left to shift. The id
+                  // is deliberately invisible to the user: the heading below is still "Día N" from
+                  // the array position, and the date is still `startDate + dayIndex`.
+                  const dayEntity = dayEntities[dayIndex] ?? null;
+                  const dayBoundary = dayEntity?.accommodationBoundary ?? null;
                   return (
-                    <section key={dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
+                    <section key={dayEntity?.id ?? dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
                         <div>
                           <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
@@ -1859,7 +1833,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                         <button
                           type="button"
                           className="icon-button icon-button--small"
-                          onClick={() => setDayIds((days) => removeEmptyDay(days, dayIndex))}
+                          onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
                           disabled={!isEmpty || dayIds.length <= 1}
                           aria-label={`Eliminar Día ${dayIndex + 1}`}
                         >
@@ -1876,17 +1850,19 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             legs={bucket?.sequence.legs ?? []}
                             labelSuffix={` en Día ${dayIndex + 1}`}
                             onMoveUp={(placeIndex) =>
-                              setDayIds((days) => moveWithinDay(days, dayIndex, placeIndex, -1))
+                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, -1)
                             }
                             onMoveDown={(placeIndex) =>
-                              setDayIds((days) => moveWithinDay(days, dayIndex, placeIndex, 1))
+                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, 1)
                             }
-                            onMoveToPreviousGroup={(placeIndex) =>
-                              setDayIds((days) => moveToAdjacentDay(days, dayIndex, placeIndex, -1))
-                            }
-                            onMoveToNextGroup={(placeIndex) =>
-                              setDayIds((days) => moveToAdjacentDay(days, dayIndex, placeIndex, 1))
-                            }
+                            onMoveToPreviousGroup={(placeIndex) => {
+                              const target = dayEntities[dayIndex - 1];
+                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
+                            }}
+                            onMoveToNextGroup={(placeIndex) => {
+                              const target = dayEntities[dayIndex + 1];
+                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
+                            }}
                             previousGroupLabel="al día anterior"
                             nextGroupLabel="al día siguiente"
                             canMoveToPreviousGroup={dayIndex > 0}
@@ -1918,7 +1894,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}
-                          {bucket && dayBoundary && (
+                          {bucket && dayEntity && dayBoundary && (
                             <AccommodationCommuteSection
                               dayNumber={dayIndex + 1}
                               dayPlaceIds={dayIds[dayIndex] ?? []}
@@ -1928,7 +1904,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                               accommodations={accommodations}
                               accommodationLegs={accommodationLegs}
                               onChoiceChange={(side, choice) =>
-                                setDayAccommodationChoice(dayIndex, side, choice)
+                                setDayAccommodationChoice(dayEntity.id, side, choice)
                               }
                               onLegChange={(direction, accommodationId, placeId, minutes) =>
                                 setAccommodationLeg(direction, accommodationId, placeId, minutes)
@@ -1945,7 +1921,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
               <button
                 type="button"
                 className="button button--secondary sequence-add-day"
-                onClick={() => setDayIds((days) => addEmptyDay(days))}
+                onClick={() => addEmptyDay()}
               >
                 <span aria-hidden="true">＋</span> Añadir día
               </button>

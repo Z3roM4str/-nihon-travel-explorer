@@ -1,28 +1,33 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   AccommodationBoundaryChoice,
   ManualAccommodationLeg,
 } from "./lib/accommodation-commute";
 import {
+  dayMatrixFromPlanningDays,
   loadReconciledDraft,
   reconcileDraft,
   resetRoute as resetRouteInDraft,
   withAccommodationLeg,
   withDayAccommodationChoice,
-  withDays,
+  withInitialDays,
   withNewAccommodation,
+  withNewEmptyDay,
+  withPlaceMovedBetweenDays,
+  withPlaceMovedWithinDay,
   withRoute,
   withStartDate,
   withVisitStartTime,
   withoutAccommodation,
+  withoutEmptyDay,
   writeDraft,
   type DraftStorage,
-  type ManualPlanningDraftV4,
-} from "./lib/planning-draft-v4";
+  type ManualPlanningDraftV5,
+} from "./lib/planning-draft-v5";
 
-/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v4.ts` depends
+/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v5.ts` depends
  * on — mirrors `useSavedPlaces.ts`'s own direct `localStorage` use. Tests exercise the pure
- * `planning-draft-v4.ts` functions directly with an in-memory `DraftStorage` instead. */
+ * `planning-draft-v5.ts` functions directly with an in-memory `DraftStorage` instead. */
 const browserStorage: DraftStorage = {
   getItem: (key) => localStorage.getItem(key),
   setItem: (key, value) => localStorage.setItem(key, value),
@@ -45,6 +50,36 @@ function randomAccommodationId(): string {
   return `acc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/**
+ * Phase 3D-S: the local id minted for a newly created day bucket, on exactly the same terms as
+ * `randomAccommodationId` above. It is OPAQUE and nothing else — it encodes no ordinal position,
+ * no date, no weekday, no city or hub, no accommodation, no first/last place, no place count, no
+ * route quality and no priority. Its only job is to say "this is still the same user-authored day"
+ * across ordinary edits.
+ *
+ * Corrective pass (post-3D-S hostile review): every branch here — including the non-`randomUUID`
+ * fallbacks — must stay free of creation-time/date signal. `crypto.getRandomValues` is the second
+ * choice when `randomUUID` is unavailable; the last-resort branch draws from `Math.random()` alone
+ * and deliberately never reads the clock (no `Date.now()`), so a day id still encodes no creation
+ * time even on that path.
+ *
+ * Injected into the pure mutations rather than called inside them, so `planning-draft-v5.ts` stays
+ * testable with a deterministic factory instead of stubbing a browser API, and so a collision fails
+ * safely (`createDayId` gives up and the draft is returned unchanged) instead of overwriting an
+ * existing day.
+ */
+function randomDayId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `day-${crypto.randomUUID()}`;
+  }
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    return `day-${hex}`;
+  }
+  return `day-${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
+}
+
 /** Same `Dispatch<SetStateAction<T>>` shape React's own `useState` setter has, so every existing
  * caller that already updates route/day state functionally (`setX((prev) => ...)`) keeps working
  * unchanged after switching from a plain `useState` to this hook. */
@@ -56,7 +91,7 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
 
 /**
  * Phase 3C-D — Persisted Manual Planning Draft: the thin React integration over
- * `lib/planning-draft-v4.ts`. Loads and reconciles the stored draft once per mount (the same
+ * `lib/planning-draft-v5.ts`. Loads and reconciles the stored draft once per mount (the same
  * "conditionally rendered, so a fresh mount is exactly the builder opening" lifecycle
  * `OrderedSequenceBuilder` already relied on for its formerly-ephemeral state), re-reconciles
  * whenever the caller's `savedIds` actually changes, and writes the draft back on every update.
@@ -67,13 +102,21 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `visitStartTimes` joins them on exactly the same terms: the map returned here is the only copy,
  * and the component renders from it rather than mirroring it into local state.
  *
- * **Phase 3D-Q makes `ManualPlanningDraftV4` the canonical runtime draft**, under the same
- * `nihon.manualPlanningDraft` key as before — there is no second key and no parallel V3 state; a
- * V1/V2/V3 value already in storage still loads through the historical migration chain. The three
- * accommodation fields follow exactly the rule above: `accommodations`,
- * `dayAccommodationBoundaries` and `accommodationLegs` are returned straight from the draft and
- * every mutation goes back through the pure module, so no component ever holds a second copy of an
- * anchor, a boundary choice, or a manual duration.
+ * **Phase 3D-S makes `ManualPlanningDraftV5` the canonical runtime draft**, under the same
+ * `nihon.manualPlanningDraft` key as before — there is no second key, no second day-id store, and
+ * no parallel V4 state; a V1–V4 value already in storage still loads through the historical
+ * migration chain and is migrated once. `accommodations` and `accommodationLegs` are returned
+ * straight from the draft and every mutation goes back through the pure module, so no component
+ * ever holds a second copy of an anchor, a boundary choice, or a manual duration.
+ *
+ * **Phase 3D-S splits the day state into two deliberately unequal views.** `planningDays` is the
+ * persisted identity view — day entities carrying an opaque stable id and that day's own
+ * accommodation boundary — and it exists only to address identity-aware mutations and to read each
+ * day's own choice. `days` is the ORDINAL PROJECTION (`dayMatrixFromPlanningDays`), and it is the
+ * only day value handed to `buildDayAssignment`, `addCivilDays`, weekday signals, reservation
+ * evaluation, hours composition and intra-day transfers. No day id ever crosses that line, so
+ * changing only an id cannot move a date, a weekday, a reservation result or a transfer. The
+ * visible `Día N` label stays derived from array position, and the id stays invisible to the user.
  *
  * Nothing accommodation-related is derived here. This hook never geocodes a label, never reads an
  * anchor's coordinates for arithmetic, never picks a default anchor for a day, never reverses a
@@ -82,7 +125,7 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `withDayAccommodationChoice` on an empty day) leaves the draft untouched rather than coercing it.
  */
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV4>(() =>
+  const [draft, setDraft] = useState<ManualPlanningDraftV5>(() =>
     loadReconciledDraft(browserStorage, savedIds)
   );
 
@@ -104,8 +147,42 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withRoute(current, resolve(action, current.routeIds)));
   }, []);
 
-  const setDays = useCallback((action: SetStateAction<string[][]>) => {
-    setDraft((current) => withDays(current, resolve(action, current.days ?? [])));
+  /**
+   * Phase 3D-S: creates the FIRST day assignment when none exists yet (`days === null`). It is
+   * deliberately NOT a general day setter: a draft that already has day entities is returned
+   * unchanged, because a raw `string[][]` cannot say which existing bucket is which without the
+   * heuristic matching this phase exists to eliminate. Every real edit goes through the
+   * identity-aware mutations below instead.
+   */
+  const initializeDays = useCallback((days: readonly (readonly string[])[]) => {
+    setDraft((current) => withInitialDays(current, days, randomDayId));
+  }, []);
+
+  /** Phase 3D-S: reorders one place inside one identified day. The day id, its accommodation
+   * boundary and every stored manual leg survive; only the place order changes, and the boundary's
+   * endpoint evidence is recomputed from the new first/last place on read. */
+  const movePlaceWithinDay = useCallback((dayId: string, placeIndex: number, direction: -1 | 1) => {
+    setDraft((current) => withPlaceMovedWithinDay(current, dayId, placeIndex, direction));
+  }, []);
+
+  /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
+   * day's accommodation choice survives while that day stays non-empty; a day left empty keeps its
+   * id but resets both boundary sides to `unselected`, and repopulating it later never resurrects
+   * the old choice. */
+  const movePlaceBetweenDays = useCallback((fromDayId: string, toDayId: string, placeIndex: number) => {
+    setDraft((current) => withPlaceMovedBetweenDays(current, fromDayId, toDayId, placeIndex));
+  }, []);
+
+  /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
+   * Only the new day starts unselected; no existing day's id, places or choices are touched. */
+  const addEmptyDay = useCallback(() => {
+    setDraft((current) => withNewEmptyDay(current, randomDayId));
+  }, []);
+
+  /** Phase 3D-S: deletes one empty day entity and nothing else — anchors, manual legs, visit start
+   * times, the start date and every other day survive untouched. */
+  const removeEmptyDay = useCallback((dayId: string) => {
+    setDraft((current) => withoutEmptyDay(current, dayId));
   }, []);
 
   /** Phase 3C-E: sets, changes, or clears the manual calendar anchor for "Día 1". Accepts a
@@ -150,8 +227,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * unknown anchor is rejected by `withDayAccommodationChoice` and the draft stays unchanged.
    */
   const setDayAccommodationChoice = useCallback(
-    (dayIndex: number, side: "start" | "end", choice: AccommodationBoundaryChoice) => {
-      setDraft((current) => withDayAccommodationChoice(current, dayIndex, side, choice));
+    (dayId: string, side: "start" | "end", choice: AccommodationBoundaryChoice) => {
+      setDraft((current) => withDayAccommodationChoice(current, dayId, side, choice));
     },
     []
   );
@@ -187,16 +264,26 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedIds]);
 
+  // `planningDays` is the persisted identity view (ids + boundaries), used only to address
+  // mutations and to read each day's own boundary. `days` is the ORDINAL PROJECTION and the only
+  // thing handed to `buildDayAssignment`, the calendar, weekday signals, reservation evaluation and
+  // intra-day transfers — no day id ever crosses that line (corrective addendum, Finding 2).
+  const days = useMemo(() => dayMatrixFromPlanningDays(draft.days), [draft.days]);
+
   return {
     routeIds: draft.routeIds,
-    days: draft.days,
+    planningDays: draft.days,
+    days,
     startDate: draft.startDate,
     visitStartTimes: draft.visitStartTimes,
     accommodations: draft.accommodations,
-    dayAccommodationBoundaries: draft.dayAccommodationBoundaries,
     accommodationLegs: draft.accommodationLegs,
     setRoute,
-    setDays,
+    initializeDays,
+    movePlaceWithinDay,
+    movePlaceBetweenDays,
+    addEmptyDay,
+    removeEmptyDay,
     setStartDate,
     setVisitStartTime,
     addAccommodation,

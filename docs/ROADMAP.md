@@ -3031,3 +3031,167 @@ integration, luggage logic, check-in/check-out inference, and any stable day-ide
 would let boundaries survive a re-split.
 
 **Phase 3D-R or later work is NOT STARTED by this implementation.**
+
+## Phase 3D-R — Stable Day Identity Design Gate — design/audit only
+
+Design/audit gate only, recorded in
+[`docs/PHASE_3D_R_ROADMAP_NOTE.md`](PHASE_3D_R_ROADMAP_NOTE.md). The authoritative contract is
+[`docs/STABLE_DAY_IDENTITY_DESIGN.md`](STABLE_DAY_IDENTITY_DESIGN.md) together with its normative
+[`corrective addendum`](STABLE_DAY_IDENTITY_DESIGN_CORRECTIVE.md), which takes precedence wherever
+the two conflict. No runtime, UI, dataset, dependency, routing, optimisation, scheduling, luggage,
+booking, geocoding or transport-evidence change was implemented by that gate.
+
+Recommended successor: **Phase 3D-S — Stable Day Identity Runtime**.
+
+## Phase 3D-S — Stable Day Identity Runtime — implemented
+
+Implements the contract approved by [`docs/STABLE_DAY_IDENTITY_DESIGN.md`](STABLE_DAY_IDENTITY_DESIGN.md)
+and [`docs/STABLE_DAY_IDENTITY_DESIGN_CORRECTIVE.md`](STABLE_DAY_IDENTITY_DESIGN_CORRECTIVE.md)
+(Phase 3D-R), with no alternative design of its own. Those two documents remain the normative record
+and are not rewritten by this phase.
+
+- [x] **A day is now a persisted entity.** `lib/planning-draft-v5.ts` defines `PlanningDayV5`
+      (`id`, `placeIds`, `accommodationBoundary`) and makes `ManualPlanningDraftV5` the single
+      canonical runtime draft, under the same existing `nihon.manualPlanningDraft` key. The separate
+      positional `dayAccommodationBoundaries` vector is gone: each boundary is structurally part of its
+      own day, so array lengths cannot drift, a splice cannot shift a choice onto another day, deleting
+      a day deletes its boundary, and moving a day carries its boundary with it. There is no second
+      storage key, no second day-id store, and no parallel V4 state — `planning-draft-v4.ts` remains
+      only as the historical V1 → V2 → V3 → V4 chain.
+- [x] **Identity is id-only and carries no other meaning.** A day id says exactly "this is the same
+      user-authored day bucket" and encodes no ordinal position, date, weekday, hub/city/region,
+      accommodation, first/last place, place count, route quality, recommendation, priority or creation
+      order. Identity is never inferred from array index, equal or similar `placeIds`, endpoints, hotel
+      choice, date, the `Día N` label, geography, or any edit-distance or similarity score.
+- [x] **V4 → V5 migration is deterministic and invents nothing.** For the V4 day at index `i`,
+      `placeIds` and `dayAccommodationBoundaries[i]` are copied exactly and packaged under the
+      migration-only id `legacy-v4-day-${i}`. The historical position creates identity exactly once;
+      re-parsing the same stored value always yields the same ids, they are unique within the draft,
+      and no id is recomputed from a position afterwards. `days: null` stays `days: null`, an empty V4
+      day migrates with its all-`unselected` boundary, and no anchor, leg, visit time, date, route id
+      or boundary choice is created, removed, changed or rebound.
+- [x] **New day ids are opaque and collision-safe.** `createDayId` draws from an injected factory
+      until it yields a non-empty unused id, then fails safely with `null` after bounded retries
+      rather than overwriting a day or falling back to a derived id. `usePlanningDraft` injects a
+      `crypto.randomUUID`-backed factory (with a `crypto.getRandomValues`/`Math.random` fallback
+      chain, corrected below to carry no creation-time signal); tests inject a deterministic one. No
+      id is derived from a date, a creation time, an index, a place id, an accommodation, a
+      coordinate or any day content.
+- [x] **The V5 parser stays strict and all-or-nothing.** The whole stored draft is rejected for a
+      malformed day object, an empty or duplicate day id, a malformed `placeIds`, a projected matrix
+      that fails `validateDayPartition`, a selected boundary on an empty day, an unknown accommodation
+      reference, a malformed or duplicate-key manual leg, invalid minutes, a malformed tagged union, or
+      any inherited V1–V4 violation. Nothing is renumbered, regenerated, deduplicated, similarity-
+      matched, rebound or partially salvaged; a duplicate id is corruption, not a merge instruction.
+- [x] **`DayAssignment` was not redefined.** `dayMatrixFromPlanningDays` is the pure projection to
+      `string[][]`, preserving day order and each day's place order exactly, and it is the only day
+      value handed to `validateDayPartition`, `buildDayAssignment`, `addCivilDays`, weekday signals,
+      reservation evaluation, hours composition and intra-day transfers. No day id crosses that line
+      and no temporal or logistics module was widened to know about persistence identity. Changing only
+      a day id provably cannot alter a `DayAssignment`, a civil date, a weekday signal, or an intra-day
+      transfer sequence — and, proven by the corrective pass below via the real
+      `deriveVisitDateForPlace` / `derivePlaceReservationDateWindow` / `evaluateReservationWindowReference`
+      evaluators against a genuine Class A reservation fixture, a real reservation-date/window/
+      reference result either.
+- [x] **Mutations are identity-aware.** Reordering inside a day preserves the id, the boundary and
+      every stored leg, changing only `placeIds`. Moving a place between two days preserves both ids
+      and both boundaries while each day stays non-empty. A day emptied by an edit keeps its id as an
+      empty bucket and resets both boundary sides to `unselected` — never to `no-accommodation`, with
+      no hidden state stashed, and repopulating it later does not resurrect the old choice. Adding a
+      day mints one fresh opaque id with `placeIds: []`, both sides `unselected` and no date stored
+      inside it. Deleting an empty day removes only that entity, leaving anchors, manual legs, visit
+      start times, the start date and every other day untouched.
+- [x] **The bulk `withDays(string[][])` setter fails closed.** An element-for-element identical matrix
+      preserves every current entity, id and boundary; any non-identical matrix is rejected and the
+      draft is returned unchanged. It never carries ids by index, similarity-matches, compares
+      endpoints or accommodation, regenerates ids as a fallback, or partially applies. `withInitialDays`
+      covers only the `days === null` first split, where there is no identity to preserve or invent.
+- [x] **Route reconciliation stays conservative.** A route composition change that invalidates the day
+      assignment still sets `days: null`, taking every day id and embedded boundary with it, and no old
+      day is re-matched afterwards. Anchors survive, `startDate` stays independent, and manual legs are
+      pruned only for places that left the route. `resetRoute` still clears the assignment entirely.
+      Stale-place pruning (corrected below) is applied directly to each day entity's own `placeIds`,
+      addressed by its own `id` — never recovered by reading an index into a separately-computed
+      projected `string[][]` result.
+- [x] **Calendar semantics are unchanged.** No date is stored inside a day entity; a day's civil date
+      remains `addCivilDays(startDate, ordinalIndex)`. Changing or clearing `startDate` preserves every
+      id, place order and boundary, while adding, deleting or reordering days changes the derived
+      ordinal dates without changing any identity.
+- [x] **Accommodation semantics from Phase 3D-Q are untouched.** Accommodation is still a separate
+      entity and never a `Place`; manual legs are still exact directed tuples with no day identity in
+      the key; there is no reverse, sibling or geometry inference, no routing, no network lookup and no
+      invented minute; missing never equals zero. Stable identity only preserves the user's decision
+      better — it adds no new evidence.
+- [x] **UI adapted minimally.** The existing "Distribuir por días" view gained no new mode and no new
+      visual surface. Its four local day-matrix helpers were replaced by identity-aware calls addressed
+      by the day's stable id; the id is used only as a React key and a mutation address, never rendered.
+      Headings stay `Día 1`, `Día 2`, … from array position, and the approved Phase 3D-Q copy is
+      preserved verbatim.
+- [x] **Coverage.** 1213 tests pass (1060 before this phase, 153 added). New domain tests cover
+      deterministic migration and repeated re-parsing, boundary preservation, null days, empty-day
+      migration, every parser rejection above, storage round-trip, projection determinism and order
+      preservation, the four "changing only a day id changes nothing downstream" properties, every
+      identity-aware mutation including the empty/repopulate rule and the no-rebind endpoint rule, and
+      seven distinct non-identical bulk matrices each returning the draft unchanged. Component tests
+      replay the real user flows step by step and assert the rendered accommodation results, plus the
+      wiring, projection boundary, invisible-id and preserved-copy guarantees.
+- [x] **Browser QA.** Playwright against the dev server: 34/34 checks passed, covering an existing
+      draft loading, a stored V4 value migrating to V5 under the same key with deterministic legacy
+      ids and preserved choices, reorder inside a day, a move between days, accommodation selection
+      surviving both, a changed endpoint rendering `sin registrar` while its legs stay persisted and
+      resolve again when the order is restored, emptying a day resetting its selection, repopulating
+      not resurrecting it, add/delete of an empty day, and a reload preserving the V5 draft byte-for-byte.
+- [x] **No dependency, package, lockfile or dataset change.** Phase 3D-S required none.
+- [x] **Validation gate.** Closed only after `npm test`, `npm run build`, `npm run lint`, `tsc -b` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Not implemented and not claimed by this phase:** automatic day matching or content-similarity
+identity, itinerary optimisation or TSP, hotel recommendation/search, accommodation routing,
+geocoding, live transit, provider integrations, luggage/takkyubin logic, check-in/check-out
+inference, automatic chained times, timezone scheduling, booking integration, and a trip-end-date
+model.
+
+### Phase 3D-S — corrective pass (independent hostile review)
+
+A focused corrective pass on PR #48, responding to an independent hostile audit of the
+implementation above. All three findings are fixed; nothing else in Phase 3D-S was reopened.
+
+- [x] **Finding 1 — the day-id fallback no longer encodes creation time.** `randomDayId`'s
+      non-`crypto.randomUUID` path used `Date.now()`, which is a creation-time signal the identity
+      contract (§3.2) forbids. It now falls back to `crypto.getRandomValues` and, failing that, to
+      `Math.random()` alone — never the clock. A dedicated test isolates the non-`randomUUID` branch
+      itself (not merely the presence of `crypto.randomUUID()`) and pins that it contains no
+      `Date.now`, `startDate`, `dayIndex`, `placeId`, `accommodation` or coordinate reference.
+- [x] **Finding 2 — the reservation-result test now runs the real evaluator.** The single test named
+      "changing ONLY a day id cannot modify a reservation or intra-day transfer result" only ever
+      compared `buildDayAssignment` outputs; it never invoked any reservation-date evaluator, so it
+      could not have caught a regression in one. It is split into two precisely-named tests: the
+      intra-day transfer/sequence comparison (unchanged), and a new test that runs the real chain —
+      `deriveVisitDateForPlace` → `derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference` — against JP-019, a real Class A dataset fixture already
+      proven elsewhere to yield a genuine `derived-window`, holding route, place membership/order,
+      `startDate` and reservation evidence fixed while changing only the day ids.
+- [x] **Finding 3 — reconciliation no longer recovers identity by array index.** `reconcileDraft`
+      used to project the draft to V3, prune it there, and read the result back by
+      `reconciledBase.days![index]` to decide what belonged to each V5 day entity — recovering
+      identity from a position in a separately-computed array, which Phase 3D-R forbids. It now
+      prunes each entity's own `placeIds` directly, keyed by its own `id`, and validates that
+      directly-pruned matrix itself; `reconciledBase` is used only for `routeIds`/`startDate`/
+      `visitStartTimes`, never to decide day content. A day emptied by the prune still keeps its id
+      and resets to `unselected`; an invalid resulting partition still yields `days: null`; manual
+      legs are still pruned only for the place that left. A source-scan test pins the absence of the
+      old `reconciledBase.days![index]` shape.
+- [x] **Coverage.** 1218 tests pass (1213 before this corrective pass, 5 added): one pinning the
+      day-id fallback, one running the real reservation-date/window/reference chain, and three for
+      the reconciliation refactor (boundary preservation distinguished by value across two
+      simultaneously non-empty days, leg pruning scoped to the departed place, and the source-scan
+      guard against index-based association).
+- [x] **Targeted browser QA.** A new Playwright pass against the flows this corrective pass touches —
+      V4→V5 migration, reorder within a day, move between days, stale-place reconciliation, empty-day
+      reset, and reload persistence — 25/25 checks passed, no uncaught page errors. (This is a fresh
+      targeted set, not a re-run of the prior 34-check script, which is not itself checked into the
+      repository.)
+- [x] **Validation gate.** `npm test`, `npm run build`, `npm run lint`, `npx tsc -b --force` and
+      `git diff --check` all passed on the exact resulting tree.
+
+**Phase 3D-T or later work is NOT STARTED by this implementation or this corrective pass.**
