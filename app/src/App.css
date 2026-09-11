@@ -3070,3 +3070,91 @@ a {
   color: var(--color-text-muted);
   overflow-wrap: anywhere;
 }
+
+/* Phase 3D-Y — manual inter-hub segments. This is a separate neutral fact surface: its minutes
+   are intentionally not styled or positioned as part of any route/day/accommodation total. */
+.inter-hub-segments {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.inter-hub-segments h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.inter-hub-segments__intro,
+.inter-hub-segments__empty,
+.inter-hub-segments__hint,
+.inter-hub-segments__hubs,
+.inter-hub-segments__status,
+.inter-hub-segments__minutes {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.inter-hub-segments__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.inter-hub-segments__item {
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inter-hub-segments__item-header {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.inter-hub-segments__edit,
+.inter-hub-segments__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.inter-hub-segments__edit label,
+.inter-hub-segments__form label {
+  flex: 1 1 10rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.inter-hub-segments select,
+.inter-hub-segments input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.82rem;
+}

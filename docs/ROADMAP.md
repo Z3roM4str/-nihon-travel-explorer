@@ -3601,5 +3601,26 @@ different city hubs. Full contract: [`docs/INTER_HUB_TRANSPORT_DESIGN.md`](INTER
 
 Recommended successor: **Phase 3D-Y — Manual Inter-Hub Segment Runtime**.
 
-**Phase 3D-Y is NOT STARTED.** This gate changes documentation only; no runtime, schema, UI, test,
-dataset, workbook, package or lockfile is changed.
+## Phase 3D-Y — Manual Inter-Hub Segment Runtime — implemented
+
+- [x] **Separate manual domain.** Added the closed inter-hub mode vocabulary, strict segment parser,
+      injectable place/hub lookup, pure applicability assessment and eligible-pair derivation without
+      changing `TransferEdge`, `TransferMode`, `getBestTransfer()` or existing sequence semantics.
+- [x] **Canonical V7 persistence.** Promoted the planning draft V6→V7 under the unchanged
+      `nihon.manualPlanningDraft` key by adding only `interHubSegments: []`; the complete V1→V7
+      migration chain remains intact and no segment is inferred from other plan data.
+- [x] **Exact edit identity.** Create, mode/minutes edit and delete are canonical V7 mutations.
+      Route anchor removal prunes only referenced segments; route/day reorder, place moves, bounds
+      and accommodation edits preserve stored segments and only change their derived assessment.
+- [x] **Planner subsection.** “Traslados entre ciudades” works with route-only, same-day and exact
+      consecutive-day boundary pairs, copies hub snapshots from the selected places, requires the
+      user to enter mode and minutes, and keeps inactive segments visible with neutral copy. Manual
+      inter-hub minutes remain separate from all existing totals.
+- [x] **Normative test matrix added.** Pure and source-wiring tests cover migration/parser,
+      route-only and day applicability, identity-preserving edits, isolation, persistence and
+      browser-QA-ready controls. Local execution was intentionally deferred on this machine because
+      dependencies are absent and npm is blocked by the documented TLS certificate failure; no TLS
+      bypass or dependency mutation was attempted.
+- [x] **Non-goals honoured.** No dataset, workbook, walking/access-point artifact, package manifest
+      or lockfile change; no dependency, API, ORS/live-transit integration, schedule, fare, booking,
+      invented terminal or optimisation claim.

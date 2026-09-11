@@ -3,6 +3,10 @@ import type {
   AccommodationBoundaryChoice,
   ManualAccommodationLeg,
 } from "./lib/accommodation-commute";
+import type {
+  InterHubMode,
+  NewManualInterHubSegment,
+} from "./lib/inter-hub-segment";
 import {
   dayMatrixFromPlanningDays,
   loadReconciledDraft,
@@ -12,8 +16,10 @@ import {
   withDayAccommodationChoice,
   withDayMoved,
   withInitialDays,
+  withInterHubSegmentDetails,
   withNewAccommodation,
   withNewEmptyDay,
+  withNewInterHubSegment,
   withPlaceMovedBetweenDays,
   withPlaceMovedWithinDay,
   withEndDate,
@@ -22,14 +28,15 @@ import {
   withVisitStartTime,
   withoutAccommodation,
   withoutEmptyDay,
+  withoutInterHubSegment,
   writeDraft,
   type DraftStorage,
-  type ManualPlanningDraftV6,
-} from "./lib/planning-draft-v6";
+  type ManualPlanningDraftV7,
+} from "./lib/planning-draft-v7";
 
-/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v6.ts` depends
+/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v7.ts` depends
  * on — mirrors `useSavedPlaces.ts`'s own direct `localStorage` use. Tests exercise the pure
- * `planning-draft-v6.ts` functions directly with an in-memory `DraftStorage` instead. */
+ * `planning-draft-v7.ts` functions directly with an in-memory `DraftStorage` instead. */
 const browserStorage: DraftStorage = {
   getItem: (key) => localStorage.getItem(key),
   setItem: (key, value) => localStorage.setItem(key, value),
@@ -82,6 +89,18 @@ function randomDayId(): string {
   return `day-${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/** Opaque inter-hub segment id, with no anchor, hub, mode, duration, ordinal or clock payload. */
+function randomInterHubSegmentId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+  return `${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
+}
+
 /** Same `Dispatch<SetStateAction<T>>` shape React's own `useState` setter has, so every existing
  * caller that already updates route/day state functionally (`setX((prev) => ...)`) keeps working
  * unchanged after switching from a plain `useState` to this hook. */
@@ -104,11 +123,11 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `visitStartTimes` joins them on exactly the same terms: the map returned here is the only copy,
  * and the component renders from it rather than mirroring it into local state.
  *
- * **Phase 3D-W makes `ManualPlanningDraftV6` the canonical runtime draft**, under the same
+ * **Phase 3D-Y makes `ManualPlanningDraftV7` the canonical runtime draft**, under the same
  * `nihon.manualPlanningDraft` key as before — there is no second key, no second day-id store, no
- * side-car trip-bounds record, and no parallel V5 state; a V1–V5 value already in storage still
- * loads through the historical migration chain and is migrated once (V5 → V6 adds `endDate: null`
- * and nothing else). `accommodations` and `accommodationLegs` are returned
+ * side-car inter-hub record, and no parallel legacy state; a V1–V6 value already in storage still
+ * loads through the historical migration chain and is migrated once (V6 → V7 adds
+ * `interHubSegments: []` and nothing else). `accommodations` and `accommodationLegs` are returned
  * straight from the draft and every mutation goes back through the pure module, so no component
  * ever holds a second copy of an anchor, a boundary choice, or a manual duration.
  *
@@ -128,7 +147,7 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `withDayAccommodationChoice` on an empty day) leaves the draft untouched rather than coercing it.
  */
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV6>(() =>
+  const [draft, setDraft] = useState<ManualPlanningDraftV7>(() =>
     loadReconciledDraft(browserStorage, savedIds)
   );
 
@@ -222,7 +241,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * Validation is per-field, never cross-field: an end date before the start date, and an end date
    * set while `startDate` is still `null`, are both accepted and stored. Nothing is auto-repaired
    * and no day bucket is created, deleted, reordered or reassigned — see `withEndDate` in
-   * `lib/planning-draft-v6.ts` for the full contract.
+   * `lib/planning-draft-v7.ts` for the full contract.
    */
   const setEndDate = useCallback((endDate: string | null) => {
     setDraft((current) => withEndDate(current, endDate));
@@ -288,6 +307,26 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     []
   );
 
+  /** Creates one explicitly-timed segment from an eligible pair supplied by the planner UI. */
+  const addInterHubSegment = useCallback(
+    (input: NewManualInterHubSegment) => {
+      setDraft((current) => withNewInterHubSegment(current, input, randomInterHubSegmentId));
+    },
+    []
+  );
+
+  /** In-place edits are deliberately limited to the two user-entered facts. */
+  const updateInterHubSegment = useCallback(
+    (segmentId: string, mode: InterHubMode, minutes: number) => {
+      setDraft((current) => withInterHubSegmentDetails(current, segmentId, mode, minutes));
+    },
+    []
+  );
+
+  const removeInterHubSegment = useCallback((segmentId: string) => {
+    setDraft((current) => withoutInterHubSegment(current, segmentId));
+  }, []);
+
   /** "Restablecer recorrido": the route becomes the current saved ids in their saved order and
    * the day assignment is cleared — the same starting point as no stored draft at all — but the
    * calendar anchor (if any) is carried forward: see `resetRoute` in `lib/planning-draft-v4.ts`
@@ -314,6 +353,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     visitStartTimes: draft.visitStartTimes,
     accommodations: draft.accommodations,
     accommodationLegs: draft.accommodationLegs,
+    interHubSegments: draft.interHubSegments,
     setRoute,
     initializeDays,
     movePlaceWithinDay,
@@ -328,6 +368,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     removeAccommodation,
     setDayAccommodationChoice,
     setAccommodationLeg,
+    addInterHubSegment,
+    updateInterHubSegment,
+    removeInterHubSegment,
     resetRoute,
   };
 }

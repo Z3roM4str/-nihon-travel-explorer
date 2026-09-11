@@ -54,6 +54,18 @@ import {
   type DayAccommodationBoundary,
   type ManualAccommodationLeg,
 } from "../lib/accommodation-commute";
+import {
+  INTER_HUB_MODES,
+  assessInterHubSegment,
+  deriveEligibleInterHubPairs,
+  isInterHubMode,
+  isValidInterHubMinutes,
+  type EligibleInterHubPair,
+  type InterHubMode,
+  type InterHubSegmentAssessment,
+  type ManualInterHubSegment,
+  type NewManualInterHubSegment,
+} from "../lib/inter-hub-segment";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -1405,6 +1417,231 @@ function AccommodationCommuteSection({
   );
 }
 
+const INTER_HUB_MODE_LABELS: Record<InterHubMode, string> = {
+  shinkansen: "Shinkansen",
+  "limited-express": "Limited Express / tren expreso",
+  "domestic-flight": "Vuelo doméstico",
+  ferry: "Ferry",
+  "highway-bus": "Autobús interurbano",
+  other: "Otro",
+};
+
+function interHubPairKey(pair: Pick<ManualInterHubSegment, "fromPlaceId" | "toPlaceId">): string {
+  return JSON.stringify([pair.fromPlaceId, pair.toPlaceId]);
+}
+
+function interHubPlacementText(assessment: Extract<InterHubSegmentAssessment, { kind: "active" }>): string {
+  switch (assessment.placement) {
+    case "route-only":
+      return "en el recorrido actual";
+    case "same-day":
+      return `dentro del Día ${(assessment.fromDayOrdinal ?? 0) + 1}`;
+    case "between-consecutive-days":
+      return `entre Día ${(assessment.fromDayOrdinal ?? 0) + 1} y Día ${(assessment.toDayOrdinal ?? 0) + 1}`;
+  }
+}
+
+function interHubInactiveText(reason: Extract<InterHubSegmentAssessment, { kind: "inactive" }>["reason"]): string {
+  switch (reason) {
+    case "missing-from-place":
+    case "missing-to-place":
+      return "Uno de los puntos ya no forma parte del recorrido actual.";
+    case "from-hub-mismatch":
+    case "to-hub-mismatch":
+      return "El hub actual de uno de los puntos ya no coincide con el registrado.";
+    case "same-current-hub":
+      return "Los dos puntos pertenecen actualmente al mismo hub.";
+    case "not-consecutive-in-route":
+      return "Estos lugares ya no son consecutivos en el recorrido actual.";
+    case "not-consecutive-in-day":
+      return "Estos lugares ya no son consecutivos dentro del mismo día.";
+    case "not-boundary-of-consecutive-days":
+      return "Estos lugares ya no forman un límite entre dos días consecutivos.";
+    case "invalid-day-partition":
+      return "El reparto por días no es estructuralmente válido; el tramo no se aplica.";
+  }
+}
+
+/**
+ * Phase 3D-Y's single manual inter-hub surface. Eligible anchor pairs are derived only from the
+ * current explicit route/day order. Hub snapshots are copied directly from those resolved places;
+ * mode and minutes remain blank until the user supplies them. Stored inactive segments stay visible
+ * and neutral, and their minutes are never merged into any existing subtotal.
+ */
+function InterHubSegmentsSection({
+  routeIds,
+  days,
+  placeById,
+  segments,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: {
+  routeIds: readonly string[];
+  days: readonly (readonly string[])[] | null;
+  placeById: ReadonlyMap<string, Place>;
+  segments: readonly ManualInterHubSegment[];
+  onAdd: (input: NewManualInterHubSegment) => void;
+  onUpdate: (segmentId: string, mode: InterHubMode, minutes: number) => void;
+  onRemove: (segmentId: string) => void;
+}) {
+  const [selectedPairKey, setSelectedPairKey] = useState("");
+  const [mode, setMode] = useState<InterHubMode | "">("");
+  const [minutes, setMinutes] = useState("");
+  const resolvePlace = (placeId: string) => {
+    const place = placeById.get(placeId);
+    return place ? { hub: place.hub } : null;
+  };
+  const eligiblePairs = deriveEligibleInterHubPairs({ routeIds, days, resolvePlace });
+  const storedPairKeys = new Set(segments.map(interHubPairKey));
+  const availablePairs = eligiblePairs.filter((pair) => !storedPairKeys.has(interHubPairKey(pair)));
+  const selectedPair = availablePairs.find((pair) => interHubPairKey(pair) === selectedPairKey) ?? null;
+  const parsedMinutes = Number(minutes);
+  const canAdd = selectedPair !== null && mode !== "" && isValidInterHubMinutes(parsedMinutes);
+
+  function pairLabel(pair: EligibleInterHubPair): string {
+    const fromName = placeById.get(pair.fromPlaceId)?.name ?? pair.fromPlaceId;
+    const toName = placeById.get(pair.toPlaceId)?.name ?? pair.toPlaceId;
+    return `${fromName} → ${toName} · ${pair.fromHub} → ${pair.toHub}`;
+  }
+
+  function add() {
+    if (!selectedPair || mode === "" || !isValidInterHubMinutes(parsedMinutes)) return;
+    onAdd({
+      fromPlaceId: selectedPair.fromPlaceId,
+      toPlaceId: selectedPair.toPlaceId,
+      fromHub: selectedPair.fromHub,
+      toHub: selectedPair.toHub,
+      mode,
+      minutes: parsedMinutes,
+    });
+    setSelectedPairKey("");
+    setMode("");
+    setMinutes("");
+  }
+
+  return (
+    <section className="inter-hub-segments" aria-label="Traslados entre ciudades">
+      <h3>Traslados entre ciudades</h3>
+      <p className="inter-hub-segments__intro">
+        Tramo principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
+        Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos.
+      </p>
+
+      {segments.length === 0 ? (
+        <p className="inter-hub-segments__empty">Todavía no has registrado ningún tramo entre ciudades.</p>
+      ) : (
+        <ul className="inter-hub-segments__list">
+          {segments.map((segment) => {
+            const assessment = assessInterHubSegment(segment, { routeIds, days, resolvePlace });
+            const fromName = placeById.get(segment.fromPlaceId)?.name ?? segment.fromPlaceId;
+            const toName = placeById.get(segment.toPlaceId)?.name ?? segment.toPlaceId;
+            return (
+              <li key={segment.id} className="inter-hub-segments__item">
+                <div className="inter-hub-segments__item-header">
+                  <div>
+                    <strong>{fromName} → {toName}</strong>
+                    <p className="inter-hub-segments__hubs">{segment.fromHub} → {segment.toHub}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="icon-button icon-button--small"
+                    onClick={() => onRemove(segment.id)}
+                    aria-label={`Eliminar tramo ${fromName} a ${toName}`}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <p className="inter-hub-segments__status">
+                  {assessment.kind === "active"
+                    ? `Activo · ${interHubPlacementText(assessment)}`
+                    : `Inactivo · ${interHubInactiveText(assessment.reason)}`}
+                </p>
+                <div className="inter-hub-segments__edit">
+                  <label>
+                    Modo
+                    <select
+                      value={segment.mode}
+                      onChange={(event) => {
+                        if (isInterHubMode(event.target.value)) {
+                          onUpdate(segment.id, event.target.value, segment.minutes);
+                        }
+                      }}
+                    >
+                      {INTER_HUB_MODES.map((value) => (
+                        <option key={value} value={value}>{INTER_HUB_MODE_LABELS[value]}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Duración manual del tramo principal
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      inputMode="numeric"
+                      defaultValue={segment.minutes}
+                      onBlur={(event) => {
+                        const value = Number(event.currentTarget.value);
+                        if (isValidInterHubMinutes(value)) onUpdate(segment.id, segment.mode, value);
+                        else event.currentTarget.value = String(segment.minutes);
+                      }}
+                    />
+                  </label>
+                </div>
+                <p className="inter-hub-segments__minutes">{segment.minutes} min registrados manualmente</p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <div className="inter-hub-segments__form">
+        <label>
+          Posición en el plan
+          <select value={selectedPairKey} onChange={(event) => setSelectedPairKey(event.target.value)}>
+            <option value="">Selecciona dos puntos consecutivos de hubs distintos</option>
+            {availablePairs.map((pair) => (
+              <option key={interHubPairKey(pair)} value={interHubPairKey(pair)}>{pairLabel(pair)}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Modo
+          <select
+            value={mode}
+            onChange={(event) => setMode(isInterHubMode(event.target.value) ? event.target.value : "")}
+          >
+            <option value="">Selecciona modo</option>
+            {INTER_HUB_MODES.map((value) => (
+              <option key={value} value={value}>{INTER_HUB_MODE_LABELS[value]}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Duración manual del tramo principal
+          <input
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            value={minutes}
+            onChange={(event) => setMinutes(event.target.value)}
+          />
+        </label>
+        <button type="button" className="button button--secondary" disabled={!canAdd} onClick={add}>
+          <span aria-hidden="true">＋</span> Añadir tramo
+        </button>
+      </div>
+      {availablePairs.length === 0 && (
+        <p className="inter-hub-segments__hint">
+          No hay una pareja consecutiva nueva entre hubs distintos en el reparto actual.
+        </p>
+      )}
+    </section>
+  );
+}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -1519,6 +1756,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     visitStartTimes,
     accommodations,
     accommodationLegs,
+    interHubSegments,
     setRoute: setRouteIds,
     initializeDays,
     movePlaceWithinDay,
@@ -1533,6 +1771,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     removeAccommodation,
     setDayAccommodationChoice,
     setAccommodationLeg,
+    addInterHubSegment,
+    updateInterHubSegment,
+    removeInterHubSegment,
     resetRoute,
   } = usePlanningDraft(savedIds);
   // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
@@ -1770,6 +2011,16 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
 
                   <HoursPlanningSection summary={recordedHours} />
 
+                  <InterHubSegmentsSection
+                    routeIds={routeIds}
+                    days={days}
+                    placeById={placeById}
+                    segments={interHubSegments}
+                    onAdd={addInterHubSegment}
+                    onUpdate={updateInterHubSegment}
+                    onRemove={removeInterHubSegment}
+                  />
+
                   {routePlaces.length >= 2 && (
                     <div className="sequence-secondary-actions">
                       <button
@@ -1938,6 +2189,16 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 desplaza el calendario a partir del Día 1; <strong>no elige ni sugiere qué fecha
                 conviene</strong>, y no comprueba horarios ni cierres.
               </p>
+
+              <InterHubSegmentsSection
+                routeIds={routeIds}
+                days={days}
+                placeById={placeById}
+                segments={interHubSegments}
+                onAdd={addInterHubSegment}
+                onUpdate={updateInterHubSegment}
+                onRemove={removeInterHubSegment}
+              />
 
               <AccommodationManagerSection
                 accommodations={accommodations}

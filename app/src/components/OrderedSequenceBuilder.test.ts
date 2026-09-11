@@ -814,7 +814,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // Phase 3D-Q moved the canonical runtime draft to V4 and Phase 3D-S to V5 (same storage key
     // throughout); the pure mutation this phase's contract depends on is unchanged, only the
     // module that re-exports it.
-    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v6["']/);
+    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v7["']/);
     expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
     expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
     expect(hook).toMatch(/setVisitStartTime,/);
@@ -826,7 +826,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // not the bare word, which also appears in the import list and in prose.
     const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
     expect(useStateCalls).toHaveLength(1);
-    expect(hook).toMatch(/useState<ManualPlanningDraftV6>/);
+    expect(hook).toMatch(/useState<ManualPlanningDraftV7>/);
     // Every mutation goes through the pure module and is written back by the existing effect.
     expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
   });
@@ -840,14 +840,15 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
  * renders only the approved copy, and never reaches for a routing/geometry/booking shortcut.
  *
  * The whole Phase 3D-Q block — the anchor manager, the two boundary helpers, the copy function and
- * the two rendered sections — sits between `AccommodationManagerSection` and `const FOCUSABLE`, so
+ * the two rendered sections — sits between `AccommodationManagerSection` and the next feature's
+ * `INTER_HUB_MODE_LABELS` declaration, so
  * one extractor scopes every wording assertion to exactly this phase's surface rather than to the
  * ~1800-line file (which legitimately contains unrelated words elsewhere).
  */
 function extractAccommodationSectionSource(fullSource: string): string {
   const start = fullSource.indexOf("function AccommodationManagerSection");
   if (start === -1) throw new Error("AccommodationManagerSection not found in OrderedSequenceBuilder.tsx");
-  const end = fullSource.indexOf("\nconst FOCUSABLE", start + 1);
+  const end = fullSource.indexOf("\nconst INTER_HUB_MODE_LABELS", start + 1);
   if (end === -1) throw new Error("Could not find the end boundary of the Phase 3D-Q block");
   return fullSource.slice(start, end);
 }
@@ -953,7 +954,7 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
   it("exposes the persisted accommodation state and setters that delegate to the pure module", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     expect(hook).toMatch(
-      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v6["']/
+      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v7["']/
     );
     expect(hook).toMatch(/accommodations: draft\.accommodations,/);
     // Phase 3D-S: the boundary vector is gone from the hook's surface — each day's choice now
@@ -968,10 +969,10 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
     expect(hook).toMatch(/withAccommodationLeg\(current, direction, accommodationId, placeId, minutes\)/);
   });
 
-  it("keeps V5 as the single canonical runtime draft under the existing storage key", async () => {
+  it("keeps V7 as the single canonical runtime draft under the existing storage key", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     const code = withoutComments(hook);
-    // Still exactly one piece of state: the whole V5 draft. No parallel V3/V4 state, no second key,
+    // Still exactly one piece of state: the whole V7 draft. No parallel legacy state, no second key,
     // and no separate day-id store.
     expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
     expect(code).not.toContain("ManualPlanningDraftV3");
