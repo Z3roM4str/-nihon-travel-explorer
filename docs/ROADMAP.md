@@ -3724,9 +3724,10 @@ Defines the first safe generated-alternative frontier after whole-trip compositi
 - [x] **No candidate ranking.** Every proved adjacent swap is compared only with the current
       baseline and returned in deterministic day/block/position order. Nihon does not select a best
       generated candidate.
-- [x] **Temporal anchors stay fixed.** Any proposed swap that would move a place with a persisted
-      manual visit start time is rejected. The feature does not derive arrival times or schedule
-      feasibility.
+- [x] **Temporal context stays fixed around the changed edges.** For a swap
+      `L-A-B-R → L-B-A-R`, none of those four places may have a persisted manual visit start
+      time, because all three local legs in that window change. A timed place elsewhere may remain
+      untouched. The feature never derives arrival/departure times or schedule feasibility.
 - [x] **Accommodation/inter-hub/bounds invariants preserved.** Locking maximal same-hub block
       endpoints keeps day endpoints, accommodation endpoints and every cross-hub adjacency fixed.
       A valid apply must leave all stored inter-hub objects and assessments unchanged; trip bounds
