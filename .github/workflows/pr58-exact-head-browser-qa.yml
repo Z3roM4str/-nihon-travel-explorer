@@ -1,0 +1,342 @@
+name: PR58 exact-head browser QA
+
+on:
+  push:
+    branches:
+      - ci/pr58-exact-head-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: f6d0d01a1fce1f54b724abfb7b90524df360661b
+          fetch-depth: 0
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "f6d0d01a1fce1f54b724abfb7b90524df360661b"
+          test "$(git rev-parse cdd851b738e7342c21d98689c42b1404a1a76307)" = "cdd851b738e7342c21d98689c42b1404a1a76307"
+          test "$(git rev-list --count cdd851b738e7342c21d98689c42b1404a1a76307..HEAD)" = "3"
+          test "$(git diff --name-only cdd851b738e7342c21d98689c42b1404a1a76307..HEAD | wc -l | tr -d ' ')" = "6"
+          git diff --exit-code cdd851b738e7342c21d98689c42b1404a1a76307..HEAD -- docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md
+          git diff --exit-code
+          git diff --cached --exit-code
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install exact lockfile
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Run targeted Phase 3E-C Chromium QA
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .pr58-browser-qa.mjs <<'EOF'
+          import { chromium } from "playwright";
+
+          const BASE = "http://127.0.0.1:4173";
+          const STORAGE = "nihon.manualPlanningDraft";
+          const SAVED = "nihon.savedPlaceIds";
+
+          const L = "JP-001"; // Shibuya Crossing
+          const A = "JP-008"; // Shibuya PARCO + Nintendo TOKYO
+          const B = "JP-002"; // SHIBUYA SKY
+          const R = "JP-005"; // Cat Street
+          const KYOTO = "JP-054"; // Kiyomizu-dera
+
+          const hotel = {
+            id: "qa-hotel-tokyo",
+            label: "Hotel Tokio",
+            location: { lat: 35.6595, lng: 139.7005 },
+          };
+
+          const baseDraft = {
+            version: 7,
+            routeIds: [L, A, B, R, KYOTO],
+            days: [
+              {
+                id: "qa-day-tokyo",
+                placeIds: [L, A, B, R],
+                accommodationBoundary: {
+                  start: { kind: "accommodation", accommodationId: hotel.id },
+                  end: { kind: "accommodation", accommodationId: hotel.id },
+                },
+              },
+              {
+                id: "qa-day-kyoto",
+                placeIds: [KYOTO],
+                accommodationBoundary: {
+                  start: { kind: "no-accommodation" },
+                  end: { kind: "no-accommodation" },
+                },
+              },
+            ],
+            startDate: "2027-02-19",
+            endDate: "2027-02-19",
+            visitStartTimes: {},
+            accommodations: [hotel],
+            accommodationLegs: [
+              {
+                direction: "accommodation-to-place",
+                accommodationId: hotel.id,
+                placeId: L,
+                minutes: 12,
+                source: { kind: "user-entered" },
+              },
+              {
+                direction: "place-to-accommodation",
+                placeId: R,
+                accommodationId: hotel.id,
+                minutes: 15,
+                source: { kind: "user-entered" },
+              },
+            ],
+            interHubSegments: [
+              {
+                id: "qa-interhub",
+                fromPlaceId: R,
+                toPlaceId: KYOTO,
+                fromHub: "Tokio",
+                toHub: "Kioto",
+                mode: "shinkansen",
+                minutes: 140,
+                source: { kind: "user-entered" },
+              },
+            ],
+          };
+
+          function assert(condition, message) {
+            if (!condition) throw new Error("QA assertion failed: " + message);
+          }
+
+          function stable(value) {
+            return JSON.stringify(value);
+          }
+
+          function parseHumanDuration(value) {
+            const hours = value.match(/(\d+)\s*h/);
+            const minutes = value.match(/(\d+)\s*min/);
+            if (!hours && !minutes) throw new Error("Could not parse duration: " + value);
+            return Number(hours?.[1] ?? 0) * 60 + Number(minutes?.[1] ?? 0);
+          }
+
+          function parseRegisteredTransport(text) {
+            const match = text.match(/Traslado registrado:\s*([^.]*)\. Incluye/);
+            if (!match) throw new Error("Could not isolate registered transport: " + text);
+            const parts = match[1].split("–").map((v) => v.trim());
+            if (parts.length === 1) {
+              const exact = parseHumanDuration(parts[0]);
+              return { min: exact, max: exact };
+            }
+            assert(parts.length === 2, "registered transport is exact or one range");
+            return { min: parseHumanDuration(parts[0]), max: parseHumanDuration(parts[1]) };
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            locale: "es-MX",
+            timezoneId: "America/Mexico_City",
+            viewport: { width: 1440, height: 1200 },
+          });
+          const page = await context.newPage();
+          const consoleErrors = [];
+          const pageErrors = [];
+
+          page.on("console", (msg) => {
+            if (msg.type() === "error") consoleErrors.push(msg.text());
+          });
+          page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+          async function seed(draft) {
+            await page.evaluate(({ storageKey, savedKey, value }) => {
+              localStorage.setItem(storageKey, JSON.stringify(value));
+              localStorage.setItem(savedKey, JSON.stringify(value.routeIds));
+            }, { storageKey: STORAGE, savedKey: SAVED, value: draft });
+          }
+
+          async function readDraft() {
+            return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE);
+          }
+
+          async function openBuilder() {
+            const toggle = page.getByRole("button", { name: /Quiero ir/ });
+            if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+            await page.getByRole("button", { name: /Construir recorrido/ }).click();
+            await page.getByRole("heading", { name: "Construir recorrido" }).waitFor();
+          }
+
+          async function openDays() {
+            await page.getByRole("button", { name: /Distribuir por días/ }).click();
+            await page.getByRole("heading", { name: "Distribuir por días" }).waitFor();
+          }
+
+          try {
+            await page.goto(BASE, { waitUntil: "networkidle" });
+
+            // Temporal lock: a manual time anywhere in L-A-B-R suppresses the candidate.
+            const timed = structuredClone(baseDraft);
+            timed.visitStartTimes = { [L]: "09:00" };
+            await seed(timed);
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+            await openDays();
+
+            let section = page.locator(".local-swap").first();
+            assert(await section.count() === 1, "local-swap section renders in day card");
+            let text = await section.innerText();
+            assert(text.includes("No hay un intercambio local con mejora demostrable"), "timed L blocks the candidate");
+            assert(await section.getByRole("button", { name: "Aplicar este intercambio" }).count() === 0, "no Apply when temporal window locked");
+
+            // Untimed canonical scenario.
+            await seed(baseDraft);
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+
+            const wholeBefore = page.locator(".whole-trip-composition");
+            const wholeBeforeText = await wholeBefore.innerText();
+            const registeredBefore = parseRegisteredTransport(wholeBeforeText);
+
+            await openDays();
+            section = page.locator(".local-swap").first();
+            text = await section.innerText();
+
+            assert(text.includes("Intercambiar Shibuya PARCO + Nintendo TOKYO y SHIBUYA SKY"), "exact A/B names shown");
+            assert(text.includes("Traslados registrados del bloque actual"), "baseline range label shown");
+            assert(text.includes("29 min"), "baseline range is 29 min");
+            assert(text.includes("Traslados registrados de esta alternativa"), "candidate range label shown");
+            assert(text.includes("27 min"), "candidate range is 27 min");
+            assert(text.includes("Ventaja mínima entre los rangos registrados"), "minimum recorded-range gap wording shown");
+            assert(text.includes("2 min"), "minimum gap is 2 min");
+            assert(/validado|estimado|en vivo/i.test(text), "evidence confidence quality visible");
+            assert(text.includes("No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo"), "local-only qualification visible");
+            assert(!/mejor orden|ruta recomendada|orden óptimo|día optimizado|viaje más rápido|te conviene|ahorras/i.test(text), "forbidden optimisation copy absent");
+
+            const before = await readDraft();
+            const dayBefore = structuredClone(before.days[0]);
+            const routeBefore = stable(before.routeIds);
+            const boundaryBefore = stable(before.days[0].accommodationBoundary);
+            const otherDayBefore = stable(before.days[1]);
+            const startBefore = before.startDate;
+            const endBefore = before.endDate;
+            const visitsBefore = stable(before.visitStartTimes);
+            const accommodationsBefore = stable(before.accommodations);
+            const accommodationLegsBefore = stable(before.accommodationLegs);
+            const interHubBefore = stable(before.interHubSegments);
+
+            const interHubSection = page.locator(".inter-hub-segments");
+            const interHubTextBefore = await interHubSection.innerText();
+            assert(interHubTextBefore.includes("Activo · entre Día 1 y Día 2"), "inter-hub active before Apply");
+
+            assert(await page.getByText("Este día es posterior a la fecha de fin de tu viaje.").count() === 1, "after-end warning visible before Apply");
+
+            // Explicit user apply.
+            await section.getByRole("button", { name: "Aplicar este intercambio" }).click();
+            await page.waitForTimeout(150);
+
+            const after = await readDraft();
+            assert(after.days[0].id === dayBefore.id, "stable day id preserved");
+            assert(stable(after.days[0].placeIds) === stable([L, B, A, R]), "only A/B swapped");
+            assert(stable(after.routeIds) === routeBefore, "routeIds unchanged");
+            assert(stable(after.days[0].accommodationBoundary) === boundaryBefore, "accommodation boundary unchanged");
+            assert(stable(after.days[1]) === otherDayBefore, "other day unchanged");
+            assert(after.startDate === startBefore && after.endDate === endBefore, "trip bounds values unchanged");
+            assert(stable(after.visitStartTimes) === visitsBefore, "visitStartTimes unchanged");
+            assert(stable(after.accommodations) === accommodationsBefore, "accommodations unchanged");
+            assert(stable(after.accommodationLegs) === accommodationLegsBefore, "accommodation legs unchanged");
+            assert(stable(after.interHubSegments) === interHubBefore, "inter-hub objects byte-identical");
+
+            const interHubTextAfter = await interHubSection.innerText();
+            assert(interHubTextAfter.includes("Activo · entre Día 1 y Día 2"), "inter-hub assessment unchanged after Apply");
+            assert(await page.getByText("Este día es posterior a la fecha de fin de tu viaje.").count() === 1, "after-end warning unchanged after Apply");
+
+            const wholeAfterText = await page.locator(".whole-trip-composition").innerText();
+            const registeredAfter = parseRegisteredTransport(wholeAfterText);
+            assert(registeredBefore.min - registeredAfter.min === 2, "whole-trip registered min improves by exact evidenced 2 min");
+            assert(registeredBefore.max - registeredAfter.max === 2, "whole-trip registered max improves by exact evidenced 2 min");
+
+            // No automatic second swap: the only reverse candidate is worse, so Apply disappears.
+            section = page.locator(".local-swap").first();
+            const postApplyText = await section.innerText();
+            assert(postApplyText.includes("No hay un intercambio local con mejora demostrable"), "fresh baseline recomputed after Apply");
+            assert(await section.getByRole("button", { name: "Aplicar este intercambio" }).count() === 0, "no automatic/queued second Apply");
+
+            // Reload preserves only the day order; alternatives are freshly derived and remain absent.
+            const rawBeforeReload = await page.evaluate((key) => localStorage.getItem(key), STORAGE);
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+            await openDays();
+            const rawAfterReload = await page.evaluate((key) => localStorage.getItem(key), STORAGE);
+            assert(rawAfterReload === rawBeforeReload, "reload does not persist candidate/advantage/rank/score");
+
+            const reload = await readDraft();
+            assert(reload.version === 7, "draft remains V7");
+            assert(stable(reload.days[0].placeIds) === stable([L, B, A, R]), "applied day order persists");
+            const payload = rawAfterReload.toLowerCase();
+            for (const forbidden of ["candidate", "advantage", "rank", "score", "optimised", "optimized"]) {
+              assert(!payload.includes(forbidden), "forbidden candidate state not persisted: " + forbidden);
+            }
+
+            section = page.locator(".local-swap").first();
+            assert((await section.innerText()).includes("No hay un intercambio local con mejora demostrable"), "reload derives fresh no-alternative state");
+            assert(await section.getByRole("button", { name: "Aplicar este intercambio" }).count() === 0, "reload does not resurrect stale candidate");
+
+            assert(consoleErrors.length === 0, "console errors = 0; got: " + consoleErrors.join(" | "));
+            assert(pageErrors.length === 0, "page errors = 0; got: " + pageErrors.join(" | "));
+
+            console.log("temporal-LABR-lock: PASS");
+            console.log("real-shibuya-proved-alternative: PASS");
+            console.log("confidence-and-local-only-copy: PASS");
+            console.log("explicit-apply-two-ids-only: PASS");
+            console.log("route-day-accommodation-interhub-bounds-invariants: PASS");
+            console.log("whole-trip-evidenced-delta: PASS");
+            console.log("fresh-alternatives-no-auto-second-swap: PASS");
+            console.log("reload-v7-no-candidate-persistence: PASS");
+            console.log("console-errors: 0");
+            console.log("page-errors: 0");
+            console.log("FINAL EXACT-HEAD CHROMIUM QA: PASS");
+          } finally {
+            await browser.close();
+          }
+          EOF
+
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/pr58-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill $VITE_PID >/dev/null 2>&1 || true; rm -f .pr58-browser-qa.mjs' EXIT
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173 >/dev/null
+          node .pr58-browser-qa.mjs
+
+      - name: Final integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "f6d0d01a1fce1f54b724abfb7b90524df360661b"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --short)"
+          echo "FINAL EXACT-HEAD BROWSER GATE: PASS"
