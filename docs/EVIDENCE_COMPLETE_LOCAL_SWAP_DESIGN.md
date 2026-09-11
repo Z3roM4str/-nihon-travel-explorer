@@ -369,14 +369,44 @@ candidate.maxMinutes < baseline.minMinutes
 
 and both sequences are complete.
 
-The candidate may expose:
+The candidate must expose:
 
 - baseline registered local-transfer range;
 - candidate registered local-transfer range;
 - `guaranteedAdvantageMinutes`;
-- optional existing possible-advantage range.
+- optional existing possible-advantage range;
+- baseline confidence counts;
+- candidate confidence counts.
 
 The runtime must not redefine comparison arithmetic.
+
+### 12.1 Complete does not mean validated
+
+`complete === true` means every required directed pair has a recorded `TransferEdge`.
+
+It does **not** mean every edge is `validated-static`.
+
+A complete block may contain:
+
+- `validated-static`;
+- `estimated`;
+- `schedule-aware`
+
+edges according to the existing transfer vocabulary.
+
+The future UI must disclose the quality mix for both baseline and candidate, reusing the same
+confidence-count semantics already exposed by Phase 3C-B.
+
+A candidate containing estimated evidence may still satisfy the narrow arithmetic comparison, but
+its claim remains:
+
+> lower according to the recorded transfer ranges
+
+and never:
+
+> validated faster in the real world.
+
+No confidence value becomes a numeric bonus or penalty.
 
 ---
 
@@ -456,6 +486,9 @@ type EvidenceCompleteLocalSwapAlternative = {
 
   guaranteedAdvantageMinutes: number;
   possibleAdvantageRange: MinuteRange;
+
+  baselineConfidenceCounts: ConfidenceCounts;
+  candidateConfidenceCounts: ConfidenceCounts;
 };
 ```
 
@@ -707,6 +740,7 @@ Each item should show:
 - current block local-transfer range;
 - candidate block local-transfer range;
 - guaranteed registered local-transfer reduction;
+- baseline/candidate evidence-quality counts or equivalent clear labels;
 - explicit local-only qualification;
 - explicit Apply button.
 
@@ -869,76 +903,81 @@ No heuristic ordering.
 30. baseline clearly faster → no improvement alternative.
 31. incomplete result → no improvement alternative.
 32. guaranteed advantage equals existing Phase 3C-B arithmetic.
+33. confidence counts equal the existing Phase 3C-B candidate tallies.
+34. estimated evidence remains labelled estimated rather than validated.
+35. confidence never becomes a numeric ranking penalty/bonus.
 
 ### Multiple candidates
 
-33. multiple proved swaps all emitted.
-34. order is deterministic by day/block/swap position.
-35. no ranking by advantage.
-36. no "best" field.
-37. candidates are compared only against current baseline.
+36. multiple proved swaps all emitted.
+37. order is deterministic by day/block/swap position.
+38. no ranking by advantage.
+39. no "best" field.
+40. candidates are compared only against current baseline.
 
 ### Application
 
-38. explicit apply swaps exactly two adjacent interior ids.
-39. day id preserved.
-40. day membership preserved.
-41. routeIds unchanged.
-42. accommodation boundary object preserved.
-43. other days unchanged.
-44. stale baseline day array → no-op/refusal.
-45. stale non-adjacent pair → no-op/refusal.
-46. newly timed swap place → no-op/refusal.
+41. explicit apply swaps exactly two adjacent interior ids.
+42. day id preserved.
+43. day membership preserved.
+44. routeIds unchanged.
+45. accommodation boundary object preserved.
+46. other days unchanged.
+47. stale baseline day array → no-op/refusal.
+48. stale non-adjacent pair → no-op/refusal.
+49. newly timed swap place → no-op/refusal.
 
 ### Inter-hub isolation
 
-47. every stored segment object unchanged.
-48. every stored segment assessment unchanged after valid apply.
-49. active same-day cross-hub pair unchanged.
-50. active between-day pair unchanged.
-51. inactive stored segment does not become active through the swap.
+50. every stored segment object unchanged.
+51. every stored segment assessment unchanged after valid apply.
+52. active same-day cross-hub pair unchanged.
+53. active between-day pair unchanged.
+54. inactive stored segment does not become active through the swap.
 
 ### Accommodation isolation
 
-52. outbound boundary result unchanged.
-53. return boundary result unchanged.
-54. manual accommodation registered minutes unchanged.
+55. outbound boundary result unchanged.
+56. return boundary result unchanged.
+57. manual accommodation registered minutes unchanged.
 
 ### Whole-trip composition
 
-55. visit composition unchanged.
-56. accommodation composition unchanged.
-57. inter-hub composition unchanged.
-58. bounds composition unchanged.
-59. registered local movement changes only by candidate evidence delta.
-60. registered transport changes by the same evidenced local delta.
-61. local missing count does not improve via fabrication.
+58. visit composition unchanged.
+59. accommodation composition unchanged.
+60. inter-hub composition unchanged.
+61. bounds composition unchanged.
+62. registered local movement changes only by candidate evidence delta.
+63. registered transport changes by the same evidenced local delta.
+64. local missing count does not improve via fabrication.
 
 ### Persistence
 
-62. planning draft remains V7.
-63. same storage key.
-64. no persisted alternatives.
-65. no persisted score/rank/advantage.
-66. reload derives fresh alternatives from current day order.
+65. planning draft remains V7.
+66. same storage key.
+67. no persisted alternatives.
+68. no persisted score/rank/advantage.
+69. reload derives fresh alternatives from current day order.
 
 ### UI/browser
 
-67. section appears only for a day with at least one proved alternative.
-68. candidate shows exact swapped place names.
-69. current and candidate registered local ranges visible.
-70. guaranteed local reduction visible.
-71. local-only qualification visible.
-72. no best/optimal/recommended/trip-faster claim.
-73. Apply requires explicit click.
-74. after Apply only expected two place ordinals change.
-75. inter-hub UI status unchanged.
-76. accommodation endpoint/status unchanged.
-77. bounds warning unchanged.
-78. place with manual visit time is never offered in a swap.
-79. Apply recomputes fresh alternatives; no second automatic apply.
-80. console errors = 0.
-81. page errors = 0.
+70. section appears only for a day with at least one proved alternative.
+71. candidate shows exact swapped place names.
+72. current and candidate registered local ranges visible.
+73. guaranteed local reduction visible.
+74. baseline and candidate confidence quality are visible.
+75. estimated-only/mixed evidence is never labelled validated.
+76. local-only qualification visible.
+77. no best/optimal/recommended/trip-faster claim.
+78. Apply requires explicit click.
+79. after Apply only expected two place ordinals change.
+80. inter-hub UI status unchanged.
+81. accommodation endpoint/status unchanged.
+82. bounds warning unchanged.
+83. place with manual visit time is never offered in a swap.
+84. Apply recomputes fresh alternatives; no second automatic apply.
+85. console errors = 0.
+86. page errors = 0.
 
 ---
 
