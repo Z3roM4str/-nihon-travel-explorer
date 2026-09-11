@@ -1,7 +1,7 @@
 # Phase 3D-X — Inter-Hub Transport Design Gate
 
-Status: **design/audit only**  
-Base audited: `79c461f71ddab2491e52a8dad8ae4beb09b3dd93` (`main` after Phase 3D-W)  
+Status: **design/audit only**
+Base audited: `79c461f71ddab2491e52a8dad8ae4beb09b3dd93` (`main` after Phase 3D-W)
 Recommended successor if this gate is accepted: **Phase 3D-Y — Manual Inter-Hub Segment Runtime**
 
 ---
