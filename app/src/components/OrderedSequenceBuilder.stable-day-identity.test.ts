@@ -485,7 +485,7 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     expect(hook).toMatch(/crypto\.randomUUID\(\)/);
     expect(hook).toMatch(/withNewEmptyDay\(current, randomDayId\)/);
     expect(hook).toMatch(/withInitialDays\(current, days, randomDayId\)/);
-    const body = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("type SetStateAction"));
+    const body = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("function randomInterHubSegmentId"));
     // "Date.now" is pinned here too (corrective pass, Finding 1): a day id must never encode
     // creation time, on the `randomUUID` path OR on any fallback.
     for (const forbidden of ["Date.now", "placeId", "dayIndex", "startDate", "accommodation", "lat", "lng"]) {
@@ -504,7 +504,7 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
    */
   it("keeps every non-randomUUID fallback free of Date.now and every other non-opaque signal", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
-    const functionBody = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("type SetStateAction"));
+    const functionBody = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("function randomInterHubSegmentId"));
     const randomUUIDBranchEnd = functionBody.indexOf("}", functionBody.indexOf("crypto.randomUUID()"));
     const fallback = functionBody.slice(randomUUIDBranchEnd + 1);
 
