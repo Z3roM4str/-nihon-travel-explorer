@@ -1,0 +1,89 @@
+name: PR52 exact-head validation
+
+on:
+  push:
+    branches:
+      - ci/pr52-exact-head-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-head-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: 03b3452817d5b924f7644d3c3b635588618d45cc
+          fetch-depth: 0
+
+      - name: Verify exact invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "03b3452817d5b924f7644d3c3b635588618d45cc"
+          test "$(git rev-parse c4410959f6ca5ca9a9130b31cbe59ba379c2da09)" = "c4410959f6ca5ca9a9130b31cbe59ba379c2da09"
+          test "$(git rev-list --count c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD)" = "3"
+          test "$(git diff --name-only c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD | wc -l | tr -d ' ')" = "14"
+          read behind ahead < <(git rev-list --left-right --count c4410959f6ca5ca9a9130b31cbe59ba379c2da09...HEAD)
+          test "$behind" = "0"
+          test "$ahead" = "3"
+          git diff --exit-code c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD -- docs/TRIP_BOUNDS_DESIGN.md
+          if git diff --name-only c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD | grep -E '(^|/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml)$'; then
+            echo "Unexpected package/lockfile change"
+            exit 1
+          fi
+          echo "HEAD=$(git rev-parse HEAD)"
+          echo "scope_commits=$(git rev-list --count c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD)"
+          echo "scope_files=$(git diff --name-only c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD | wc -l)"
+          echo "ahead=$ahead behind=$behind"
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Toolchain versions
+        working-directory: app
+        run: |
+          node --version
+          npm --version
+          npm config get registry
+          npm ping
+
+      - name: Install exact lockfile
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: Test
+        working-directory: app
+        run: npm test
+
+      - name: Build
+        working-directory: app
+        run: npm run build
+
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+
+      - name: TypeScript forced build
+        working-directory: app
+        run: npx tsc -b --force
+
+      - name: Diff check
+        run: git diff --check c4410959f6ca5ca9a9130b31cbe59ba379c2da09..HEAD
+
+      - name: Final integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "03b3452817d5b924f7644d3c3b635588618d45cc"
+          git diff --exit-code
+          git diff --cached --exit-code
+          echo "FINAL AUTOMATED EXACT-HEAD GATE: PASS"
