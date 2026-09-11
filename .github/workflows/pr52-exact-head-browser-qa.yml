@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat > /tmp/pr52-browser-qa.mjs <<'EOF'
+          cat > .pr52-browser-qa.mjs <<'EOF'
           import { chromium } from "playwright";
 
           const BASE = "http://127.0.0.1:4173";
@@ -281,14 +281,14 @@ jobs:
 
           npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/pr52-vite.log 2>&1 &
           VITE_PID=$!
-          trap 'kill $VITE_PID >/dev/null 2>&1 || true' EXIT
+          trap 'kill $VITE_PID >/dev/null 2>&1 || true; rm -f .pr52-browser-qa.mjs' EXIT
 
           for i in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
             sleep 1
           done
           curl -fsS http://127.0.0.1:4173 >/dev/null
-          node /tmp/pr52-browser-qa.mjs
+          node .pr52-browser-qa.mjs
 
       - name: Final integrity
         shell: bash
