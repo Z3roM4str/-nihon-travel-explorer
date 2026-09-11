@@ -3158,3 +3158,54 @@ a {
   font: inherit;
   font-size: 0.82rem;
 }
+
+/* Phase 3E-A — read-only composition. Subgroups remain visually adjacent but do not collapse into
+   a score or a visit-plus-transport figure. */
+.whole-trip-composition {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.whole-trip-composition > h3,
+.whole-trip-composition__group h4 {
+  margin: 0;
+}
+
+.whole-trip-composition > h3 {
+  font-size: 1rem;
+}
+
+.whole-trip-composition__group {
+  min-width: 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.whole-trip-composition__group h4 {
+  font-size: 0.84rem;
+}
+
+.whole-trip-composition p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.whole-trip-composition__intro,
+.whole-trip-composition__unavailable {
+  color: var(--color-text);
+}
+
+.whole-trip-composition__incomplete {
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--color-accent);
+}

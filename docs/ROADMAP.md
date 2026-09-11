@@ -3670,4 +3670,28 @@ transport alone. Full contract:
 
 Recommended successor: **Phase 3E-A — Whole-Trip Composition Runtime**.
 
-**Phase 3E-A is NOT STARTED.** This gate changes documentation only.
+## Phase 3E-A — Whole-Trip Composition Runtime — implemented
+
+- [x] **Pure derived composition.** Added `whole-trip-composition.ts` with injected place resolution
+      and transfer lookup seams. It requires a valid day partition and every route place to resolve;
+      no route-only fallback, repair, network call, score or recommendation exists.
+- [x] **Evidence-preserving visit and movement summaries.** Visit ranges delegate to the existing
+      selection taxonomy, keeping day-scale and unclassified durations non-numeric. Every actual
+      same-day slot and eligible different-hub day boundary is classified exactly once as known or
+      missing, without reverse lookup, flattening, chaining, geometry fallback or double counting.
+- [x] **Accommodation and inter-hub identity retained.** Accommodation sides delegate to the exact
+      existing boundary-leg semantics. Active inter-hub segments contribute once; inactive segments
+      remain identifiable, contribute nothing and are never reassigned to another pair.
+- [x] **Bounds annotate without filtering.** The existing trip-bounds summary is projected unchanged.
+      Buckets after the end date still participate in visits, movement, accommodation and inter-hub
+      figures; missing, invalid or inverted bounds do not block an otherwise valid composition.
+- [x] **Qualified registered transport figure only.** Known movement ranges and exact manual
+      accommodation minutes may be shown together as “Traslado registrado”, with missing-component
+      counts and partial-coverage copy. Visit minutes remain separate and no grand total exists.
+- [x] **Read-only planner surface and normative tests.** “Resumen del plan completo” appears inside
+      the existing planner/day views with neutral unavailable states and browser-QA-ready derived
+      updates. The §19 matrix is covered by pure behavioural and scoped source-wiring tests.
+- [x] **Persistence and non-goals preserved.** The canonical draft remains V7 under
+      `nihon.manualPlanningDraft`; no composition, total, cache or score is persisted. No dataset,
+      workbook, package, lockfile, existing domain semantics, dependency, API, ORS or live-transit
+      integration changed.
