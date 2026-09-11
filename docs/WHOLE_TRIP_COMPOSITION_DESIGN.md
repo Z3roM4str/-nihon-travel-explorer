@@ -1,7 +1,7 @@
 # Phase 3D-Z — Whole-Trip Composition Design Gate
 
-Status: **design/audit only**  
-Base audited: `837265ba0cb569ff751bc52d0900f620606489a8` (`main` after Phase 3D-Y)  
+Status: **design/audit only**
+Base audited: `837265ba0cb569ff751bc52d0900f620606489a8` (`main` after Phase 3D-Y)
 Recommended successor if this gate is accepted: **Phase 3E-A — Whole-Trip Composition Runtime**
 
 ---
