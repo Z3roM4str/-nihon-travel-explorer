@@ -1,7 +1,7 @@
 # Phase 3E-D — Evidence-Complete Local Relocation Design Gate
 
-Status: **design/audit only**  
-Base audited: `e07c523bfe57b65ea47ee5ab74281b4e41c4f476` (`main` after Phase 3E-C)  
+Status: **design/audit only**
+Base audited: `e07c523bfe57b65ea47ee5ab74281b4e41c4f476` (`main` after Phase 3E-C)
 Recommended successor if accepted: **Phase 3E-E — Evidence-Complete Local Relocation Runtime**
 
 ---
@@ -261,9 +261,16 @@ This property must be testable directly.
 For a block of length `n`:
 
 - interior place count = `n - 2`;
-- possible ordered `from → to` moves are bounded by `O(n²)`;
+- the **number of candidate relocations** is bounded by `O(n²)`;
 - same-position moves are excluded;
 - adjacent moves are excluded as Phase 3E-C duplicates.
+
+The gate makes **no claim that total runtime is O(n²)**. A straightforward implementation that
+rebuilds/compares a length-`n` block for each candidate can require O(n³) directed-lookups in the
+worst case.
+
+That is still deliberately bounded polynomial work over one local block and is qualitatively
+different from factorial permutation search.
 
 No factorial search.
 
@@ -850,121 +857,122 @@ Only the applied resulting day order persists through the existing V7 draft.
 18. no duplicate candidate order.
 19. deterministic day/block/from/to order.
 20. candidate count grows quadratically, not factorially.
+21. implementation/test comments do not misstate total runtime as O(n²); a naïve evaluator may be O(n³) in lookups.
 
 ### Temporal affected window
 
-21. affected window computed as min(from,to)-1 through max(from,to)+1.
-22. manual time on left boundary of affected window blocks.
-23. manual time on moved place blocks.
-24. manual time on an intermediate affected place blocks.
-25. manual time on right boundary blocks.
-26. timed place outside affected window does not block.
-27. no time is edited/moved.
+22. affected window computed as min(from,to)-1 through max(from,to)+1.
+23. manual time on left boundary of affected window blocks.
+24. manual time on moved place blocks.
+25. manual time on an intermediate affected place blocks.
+26. manual time on right boundary blocks.
+27. timed place outside affected window does not block.
+28. no time is edited/moved.
 
 ### Evidence
 
-28. complete baseline required.
-29. missing baseline edge blocks block.
-30. reverse/chaining do not repair baseline.
-31. complete candidate required.
-32. missing candidate edge discards candidate.
-33. no geometry/network fallback.
+29. complete baseline required.
+30. missing baseline edge blocks block.
+31. reverse/chaining do not repair baseline.
+32. complete candidate required.
+33. missing candidate edge discards candidate.
+34. no geometry/network fallback.
 
 ### Comparison and confidence
 
-34. b-clearly-faster emitted.
-35. equivalent rejected.
-36. overlapping rejected.
-37. baseline-faster rejected.
-38. incomplete rejected.
-39. Phase 3C-B advantage arithmetic reused.
-40. confidence tallies preserved.
-41. estimated evidence remains labelled.
-42. no confidence score/rank.
+35. b-clearly-faster emitted.
+36. equivalent rejected.
+37. overlapping rejected.
+38. baseline-faster rejected.
+39. incomplete rejected.
+40. Phase 3C-B advantage arithmetic reused.
+41. confidence tallies preserved.
+42. estimated evidence remains labelled.
+43. no confidence score/rank.
 
 ### Incremental separation from 3E-C
 
-43. adjacent relocation never emitted by 3E-E.
-44. one candidate order never appears in both swap and relocation sets.
-45. real five-place fixture demonstrates a relocation not found by one adjacent swap.
+44. adjacent relocation never emitted by 3E-E.
+45. one candidate order never appears in both swap and relocation sets.
+46. real five-place fixture demonstrates a relocation not found by one adjacent swap.
 
 ### Apply / stale safety
 
-46. Apply explicit.
-47. exactly one place relocated.
-48. non-moved relative order preserved.
-49. day id unchanged.
-50. day membership unchanged.
-51. routeIds unchanged.
-52. accommodation boundary unchanged.
-53. other days unchanged.
-54. stale baseline rejected.
-55. moved identity mismatch rejected.
-56. illegal target index rejected.
-57. changed block endpoint/hub rejected.
-58. newly timed affected-window place rejected.
+47. Apply explicit.
+48. exactly one place relocated.
+49. non-moved relative order preserved.
+50. day id unchanged.
+51. day membership unchanged.
+52. routeIds unchanged.
+53. accommodation boundary unchanged.
+54. other days unchanged.
+55. stale baseline rejected.
+56. moved identity mismatch rejected.
+57. illegal target index rejected.
+58. changed block endpoint/hub rejected.
+59. newly timed affected-window place rejected.
 
 ### New V7 mutation helper
 
-59. one pure mutation produces final order directly.
-60. no intermediate persisted orders.
-61. V7 unchanged.
-62. all non-day fields structurally preserved.
-63. no async multi-click implementation required.
+60. one pure mutation produces final order directly.
+61. no intermediate persisted orders.
+62. V7 unchanged.
+63. all non-day fields structurally preserved.
+64. no async multi-click implementation required.
 
 ### Inter-hub
 
-64. all segment objects unchanged.
-65. all assessments unchanged.
-66. active same-day unchanged.
-67. active between-day unchanged.
-68. inactive reasons unchanged.
+65. all segment objects unchanged.
+66. all assessments unchanged.
+67. active same-day unchanged.
+68. active between-day unchanged.
+69. inactive reasons unchanged.
 
 ### Accommodation
 
-69. boundary results unchanged.
-70. accommodation registered minutes unchanged.
+70. boundary results unchanged.
+71. accommodation registered minutes unchanged.
 
 ### Whole-trip composition
 
-71. visit unchanged.
-72. accommodation unchanged.
-73. inter-hub unchanged.
-74. bounds unchanged.
-75. local registered movement changes by exact candidate delta.
-76. registered transport changes by same exact delta.
-77. no local missing edge introduced.
+72. visit unchanged.
+73. accommodation unchanged.
+74. inter-hub unchanged.
+75. bounds unchanged.
+76. local registered movement changes by exact candidate delta.
+77. registered transport changes by same exact delta.
+78. no local missing edge introduced.
 
 ### Persistence
 
-78. V7 remains.
-79. same storage key.
-80. candidate not persisted.
-81. advantage/rank/score not persisted.
-82. reload keeps applied day order.
-83. reload regenerates fresh swap + relocation alternatives.
+79. V7 remains.
+80. same storage key.
+81. candidate not persisted.
+82. advantage/rank/score not persisted.
+83. reload keeps applied day order.
+84. reload regenerates fresh swap + relocation alternatives.
 
 ### UI/browser
 
-84. existing local-alternative surface contains distinct relocation subgroup when applicable.
-85. relocation candidate names moved place.
-86. destination described naturally.
-87. baseline/candidate ranges visible.
-88. minimum recorded-range gap visible.
-89. confidence visible.
-90. local-only disclaimer visible.
-91. no best/optimal/recommended/trip-faster claim.
-92. explicit Apply.
-93. Apply changes exactly expected day order.
-94. adjacent-swap group remains functional.
-95. inter-hub status unchanged.
-96. accommodation status unchanged.
-97. bounds warning unchanged.
-98. manual time inside affected relocation window suppresses candidate.
-99. no automatic follow-up apply.
-100. reload derives fresh alternatives.
-101. console errors = 0.
-102. page errors = 0.
+85. existing local-alternative surface contains distinct relocation subgroup when applicable.
+86. relocation candidate names moved place.
+87. destination described naturally.
+88. baseline/candidate ranges visible.
+89. minimum recorded-range gap visible.
+90. confidence visible.
+91. local-only disclaimer visible.
+92. no best/optimal/recommended/trip-faster claim.
+93. explicit Apply.
+94. Apply changes exactly expected day order.
+95. adjacent-swap group remains functional.
+96. inter-hub status unchanged.
+97. accommodation status unchanged.
+98. bounds warning unchanged.
+99. manual time inside affected relocation window suppresses candidate.
+100. no automatic follow-up apply.
+101. reload derives fresh alternatives.
+102. console errors = 0.
+103. page errors = 0.
 
 ---
 
