@@ -3572,19 +3572,25 @@ different city hubs. Full contract: [`docs/INTER_HUB_TRANSPORT_DESIGN.md`](INTER
       vocabulary. A major city-to-city decision has different endpoints, provenance and semantics
       and must not be smuggled into `getBestTransfer()`.
 - [x] **Approved a narrow manual model for the successor.** A
-      `ManualInterHubSegment` is user-authored, directionally bound to an explicit pair of stable
-      day ids, stores the hub pair it was created for, an explicit transport mode, an exact positive
-      integer duration in minutes, and `source: { kind: "user-entered" }`. No mode or duration is
-      inferred.
-- [x] **Applicability is derived, never repaired.** A stored segment is active only while the two
-      referenced days still exist, are consecutive in the same direction, are non-empty,
-      single-hub days, and their current hubs still match the stored hub snapshot. Reordering or
-      moving places can make it inactive without rewriting the segment. No majority/first-place
-      hub heuristic is allowed.
+      `ManualInterHubSegment` is user-authored, directionally positioned between an explicit
+      `fromPlaceId → toPlaceId` pair, stores the hub pair it was created for, an explicit transport
+      mode, an exact positive integer duration in minutes, and
+      `source: { kind: "user-entered" }`. The place ids are plan-position anchors, **not**
+      claimed stations/airports or door-to-door endpoints. No mode or duration is inferred.
+- [x] **Hostile-review correction: day-pair anchoring rejected.** A Tokio→Kioto move can occur
+      inside one calendar day, so binding the model only to `fromDayId → toDayId` would force a
+      false day boundary. The corrected applicability model supports an adjacent cross-hub pair
+      inside one day **or** the exact last-place-of-Day-N → first-place-of-Day-N+1 boundary.
+- [x] **Applicability is derived, never repaired.** With no day assignment, route adjacency is used.
+      With a valid day assignment, the pair must be consecutive inside one day or across two
+      immediately consecutive day boundaries; an intervening empty day does not count. Current
+      place hubs must still match the stored hub snapshot. Reordering/moving places can make a
+      segment inactive without rewriting it.
 - [x] **Persistence contract for the recommended runtime:** promote the canonical planning draft
       V6→V7 under the unchanged `nihon.manualPlanningDraft` key, adding exactly
       `interHubSegments: []` on migration. No second key and no inference from route, days,
-      dates, hotels or existing transfer edges.
+      dates, hotels or existing transfer edges. Shape-valid segments may be temporarily inactive
+      after ordinary edits without turning the entire persisted draft into corruption.
 - [x] **Isolation preserved.** Inter-hub segments do not fill missing ordered-sequence legs, do not
       alter `sequence-comparison.ts`, do not become intra-day legs, do not merge with manual
       accommodation legs, and do not create a trip-level door-to-door total.
