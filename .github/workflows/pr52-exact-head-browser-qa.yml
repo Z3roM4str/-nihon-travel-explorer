@@ -1,0 +1,301 @@
+name: PR52 exact-head browser QA
+
+on:
+  push:
+    branches:
+      - ci/pr52-exact-head-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: 03b3452817d5b924f7644d3c3b635588618d45cc
+          fetch-depth: 0
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "03b3452817d5b924f7644d3c3b635588618d45cc"
+          git diff --exit-code
+          git diff --cached --exit-code
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install exact lockfile
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Run targeted Phase 3D-W Chromium QA
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/pr52-browser-qa.mjs <<'EOF'
+          import { chromium } from "playwright";
+
+          const BASE = "http://127.0.0.1:4173";
+          const STORAGE = "nihon.manualPlanningDraft";
+          const SAVED = "nihon.savedPlaceIds";
+          const savedIds = ["JP-001", "JP-002", "JP-003", "JP-004"];
+
+          const accA = { id: "qa-acc-a", label: "Hotel A", location: { lat: 35.6595, lng: 139.7005 } };
+          const accB = { id: "qa-acc-b", label: "Hotel B", location: { lat: 35.6764, lng: 139.6993 } };
+
+          const boundaryA = {
+            start: { kind: "accommodation", accommodationId: "qa-acc-a" },
+            end: { kind: "accommodation", accommodationId: "qa-acc-a" },
+          };
+          const boundaryB = {
+            start: { kind: "accommodation", accommodationId: "qa-acc-b" },
+            end: { kind: "accommodation", accommodationId: "qa-acc-b" },
+          };
+
+          const days = [
+            { id: "qa-day-1", placeIds: ["JP-001"], accommodationBoundary: boundaryA },
+            { id: "qa-day-2", placeIds: ["JP-002"], accommodationBoundary: boundaryA },
+            { id: "qa-day-3", placeIds: ["JP-003"], accommodationBoundary: boundaryB },
+            { id: "qa-day-4", placeIds: ["JP-004"], accommodationBoundary: boundaryB },
+          ];
+
+          const accommodationLegs = [{
+            direction: "accommodation-to-place",
+            accommodationId: "qa-acc-a",
+            placeId: "JP-001",
+            minutes: 12,
+            source: { kind: "user-entered" },
+          }];
+
+          const draftV6 = {
+            version: 6,
+            routeIds: [...savedIds],
+            days,
+            startDate: "2027-02-19",
+            endDate: "2027-02-21",
+            visitStartTimes: {},
+            accommodations: [accA, accB],
+            accommodationLegs,
+          };
+
+          const draftV5 = {
+            version: 5,
+            routeIds: [...savedIds],
+            days,
+            startDate: "2027-02-19",
+            visitStartTimes: {},
+            accommodations: [accA, accB],
+            accommodationLegs,
+          };
+
+          function stable(value) {
+            return JSON.stringify(value);
+          }
+
+          function assert(condition, message) {
+            if (!condition) throw new Error("QA assertion failed: " + message);
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            locale: "es-MX",
+            timezoneId: "America/Mexico_City",
+            viewport: { width: 1440, height: 1000 },
+          });
+          const page = await context.newPage();
+          const consoleErrors = [];
+          const pageErrors = [];
+
+          page.on("console", (msg) => {
+            if (msg.type() === "error") consoleErrors.push(msg.text());
+          });
+          page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+          async function readDraft() {
+            return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE);
+          }
+
+          async function readRawDraft() {
+            return page.evaluate((key) => localStorage.getItem(key), STORAGE);
+          }
+
+          async function openDays() {
+            const toggle = page.getByRole("button", { name: /Quiero ir/ });
+            const expanded = await toggle.getAttribute("aria-expanded");
+            if (expanded !== "true") await toggle.click();
+            await page.getByRole("button", { name: /Construir recorrido/ }).click();
+            await page.getByRole("heading", { name: "Construir recorrido" }).waitFor();
+            await page.getByRole("button", { name: /Distribuir por días/ }).click();
+            await page.getByRole("heading", { name: "Distribuir por días" }).waitFor();
+          }
+
+          async function seedDraft(draft) {
+            await page.evaluate(({ savedKey, storageKey, ids, value }) => {
+              localStorage.setItem(savedKey, JSON.stringify(ids));
+              localStorage.setItem(storageKey, JSON.stringify(value));
+            }, { savedKey: SAVED, storageKey: STORAGE, ids: savedIds, value: draft });
+          }
+
+          try {
+            await page.goto(BASE, { waitUntil: "networkidle" });
+            await seedDraft(draftV6);
+            await page.reload({ waitUntil: "networkidle" });
+            await openDays();
+
+            const anchor = page.locator(".calendar-anchor");
+            assert(await anchor.count() === 1, "exactly one .calendar-anchor");
+            assert(await anchor.locator("#sequence-start-date").count() === 1, "start date inside common anchor");
+            assert(await anchor.locator("#sequence-end-date").count() === 1, "end date inside common anchor");
+            const startBeforeEnd = await anchor.evaluate((el) => {
+              const start = el.querySelector("#sequence-start-date");
+              const end = el.querySelector("#sequence-end-date");
+              return Boolean(start && end && (start.compareDocumentPosition(end) & Node.DOCUMENT_POSITION_FOLLOWING));
+            });
+            assert(startBeforeEnd, "start date appears before end date");
+
+            assert(await page.locator("#sequence-start-date").inputValue() === "2027-02-19", "start date rehydrated");
+            assert(await page.locator("#sequence-end-date").inputValue() === "2027-02-21", "end date rehydrated");
+
+            const notice = await page.locator(".trip-bounds-notice").innerText();
+            assert(notice.includes("Rango elegido: vie, 19 feb 2027 – dom, 21 feb 2027 (3 días de calendario)."), "inclusive 3-day range copy");
+            assert(notice.includes("Días creados: 4."), "four bucket copy");
+            assert(notice.includes("Hay 1 día(s) posteriores a la fecha de fin."), "mismatch 1 copy");
+
+            const cards = page.locator(".day-card");
+            assert(await cards.count() === 4, "four day cards");
+            assert(await page.locator(".day-card__bounds-warning").count() === 1, "one after-trip-end warning");
+            for (let i = 0; i < 3; i++) assert(await cards.nth(i).locator(".day-card__bounds-warning").count() === 0, "no warning before Day 4");
+            assert(await cards.nth(3).locator(".day-card__bounds-warning").count() === 1, "warning on Day 4 only");
+            assert((await cards.nth(3).innerText()).includes("Día 4"), "Day 4 heading retained");
+            assert((await cards.nth(3).innerText()).includes("lun, 22 feb 2027"), "Day 4 derived date retained");
+            assert(await cards.nth(3).locator(".sequence-item").count() === 1, "Day 4 place retained");
+            assert(await cards.nth(3).locator(".day-card__header-actions button").count() === 3, "Day 4 all header controls retained");
+
+            const beforeReorder = await readDraft();
+            const day4PlaceText = await cards.nth(3).locator(".sequence-item").innerText();
+
+            await page.getByRole("button", { name: "Mover Día 4 hacia arriba" }).click();
+            await page.waitForTimeout(100);
+
+            const afterReorder = await readDraft();
+            assert(afterReorder.days[2].id === "qa-day-4", "moved entity is visible Day 3 / ordinal 2");
+            assert(afterReorder.days[3].id === "qa-day-3", "swapped entity is visible Day 4 / ordinal 3");
+            assert(stable(afterReorder.days[2].placeIds) === stable(beforeReorder.days[3].placeIds), "moved entity placeIds preserved");
+            assert(stable(afterReorder.days[2].accommodationBoundary) === stable(beforeReorder.days[3].accommodationBoundary), "moved entity hotel choice preserved");
+            assert(stable(afterReorder.routeIds) === stable(beforeReorder.routeIds), "route untouched by reorder");
+            assert(stable(afterReorder.accommodations) === stable(beforeReorder.accommodations), "anchors untouched by reorder");
+            assert(stable(afterReorder.accommodationLegs) === stable(beforeReorder.accommodationLegs), "manual legs untouched by reorder");
+            assert(afterReorder.startDate === beforeReorder.startDate && afterReorder.endDate === beforeReorder.endDate, "bounds untouched by reorder");
+            assert((await cards.nth(2).locator(".sequence-item").innerText()) === day4PlaceText, "same visible entity moved from Day 4 to Day 3");
+            assert(await cards.nth(2).locator(".day-card__bounds-warning").count() === 0, "moved entity becomes within-bounds at Day 3");
+            assert(await cards.nth(3).locator(".day-card__bounds-warning").count() === 1, "swapped Day 4 occupant becomes sole after-trip-end warning");
+
+            const orderAfterReorder = afterReorder.days.map((d) => d.id);
+            const hotelsAfterReorder = afterReorder.days.map((d) => d.accommodationBoundary);
+
+            await page.locator("#sequence-end-date").fill("");
+            await page.waitForTimeout(100);
+            const afterClear = await readDraft();
+            assert(afterClear.endDate === null, "endDate cleared only");
+            assert(afterClear.startDate === "2027-02-19", "startDate survives clear");
+            assert(stable(afterClear.days.map((d) => d.id)) === stable(orderAfterReorder), "day order survives clear");
+            assert(stable(afterClear.days.map((d) => d.accommodationBoundary)) === stable(hotelsAfterReorder), "hotels survive clear");
+            assert(await page.locator(".day-card__bounds-warning").count() === 0, "all warnings disappear after clear");
+
+            await page.locator("#sequence-end-date").fill("2027-02-20");
+            await page.waitForTimeout(100);
+            assert((await page.locator(".trip-bounds-notice").innerText()).includes("Hay 2 día(s) posteriores a la fecha de fin."), "two-day range mismatch 2");
+            assert(await page.locator(".day-card__bounds-warning").count() === 2, "last two buckets are out of range");
+
+            const rawBeforeReload = await readRawDraft();
+            const structuredBeforeReload = await readDraft();
+            await page.reload({ waitUntil: "networkidle" });
+            const rawAfterReloadBeforeOpen = await readRawDraft();
+            assert(rawAfterReloadBeforeOpen === rawBeforeReload, "raw draft unchanged across app reload before planner mount");
+            await openDays();
+            await page.waitForTimeout(100);
+            const rawAfterReload = await readRawDraft();
+            const structuredAfterReload = await readDraft();
+            assert(rawAfterReload === rawBeforeReload, "draft round-trips byte-for-byte");
+            assert(stable(structuredAfterReload) === stable(structuredBeforeReload), "draft round-trips structurally");
+            assert(await page.locator("#sequence-end-date").inputValue() === "2027-02-20", "end-date control rehydrated after reload");
+
+            await page.locator("#sequence-start-date").fill("2027-02-22");
+            await page.waitForTimeout(100);
+            const inverted = await readDraft();
+            assert(inverted.startDate === "2027-02-22" && inverted.endDate === "2027-02-20", "inverted values stored unrepaired");
+            assert(await page.locator(".trip-bounds-notice__inverted").count() === 1, "neutral inverted-range notice visible");
+            assert(await page.locator(".trip-bounds-notice__range").count() === 0, "no calendar-day range/count for inverted range");
+            assert(await page.locator(".day-card__bounds-warning").count() === 0, "no per-day warnings for inverted range");
+            assert(await page.locator(".sequence-day-invalid").count() === 0, "inverted notice remains separate from invalid-partition alert");
+
+            await page.getByRole("button", { name: "Cerrar el constructor de recorrido" }).click();
+            await seedDraft(draftV5);
+            await page.reload({ waitUntil: "networkidle" });
+            await openDays();
+            await page.waitForTimeout(100);
+            const migrated = await readDraft();
+            assert(migrated.version === 6, "stored V5 migrates to V6");
+            assert(migrated.endDate === null, "V5 migration supplies endDate null");
+            assert(stable(migrated.days.map((d) => d.id)) === stable(days.map((d) => d.id)), "V5 migration preserves day ids");
+            assert(migrated.startDate === draftV5.startDate, "V5 migration preserves startDate");
+            assert(stable(migrated.accommodations) === stable(draftV5.accommodations), "V5 migration preserves hotels");
+            const nihonKeys = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("nihon.")));
+            assert(nihonKeys.includes(STORAGE), "canonical planning storage key exists");
+            assert(!nihonKeys.some((k) => k !== STORAGE && /planning|draft|bound/i.test(k)), "no second planning/bounds storage key created");
+
+            assert(consoleErrors.length === 0, "console errors = 0; got: " + consoleErrors.join(" | "));
+            assert(pageErrors.length === 0, "page errors = 0; got: " + pageErrors.join(" | "));
+
+            console.log("calendar-anchor: PASS");
+            console.log("range-and-warning: PASS");
+            console.log("reorder-identity-and-warning-transfer: PASS");
+            console.log("clear-endDate: PASS");
+            console.log("two-day-range: PASS");
+            console.log("reload-persistence: PASS");
+            console.log("inverted-range: PASS");
+            console.log("V5-to-V6-migration: PASS");
+            console.log("console-errors: 0");
+            console.log("page-errors: 0");
+            console.log("FINAL EXACT-HEAD CHROMIUM QA: PASS");
+          } finally {
+            await browser.close();
+          }
+          EOF
+
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/pr52-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill $VITE_PID >/dev/null 2>&1 || true' EXIT
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173 >/dev/null
+          node /tmp/pr52-browser-qa.mjs
+
+      - name: Final integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "03b3452817d5b924f7644d3c3b635588618d45cc"
+          git diff --exit-code
+          git diff --cached --exit-code
+          git status --short
+          echo "FINAL EXACT-HEAD BROWSER GATE: PASS"
