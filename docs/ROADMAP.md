@@ -3717,6 +3717,10 @@ Defines the first safe generated-alternative frontier after whole-trip compositi
 - [x] **Conservative Phase 3C-B comparison reused.** Only a candidate whose complete range is
       strictly below the baseline range (`b-clearly-faster`) may be surfaced as an improvement.
       Equivalent, overlapping, incomplete and baseline-faster candidates remain non-claims.
+- [x] **Coverage completeness is not confidence.** Baseline and candidate confidence counts are
+      disclosed using the existing Phase 3C-B vocabulary. A fully-covered comparison may still
+      contain estimated evidence and must never be relabelled as real-world validation; confidence
+      is not converted into a ranking bonus or penalty.
 - [x] **No candidate ranking.** Every proved adjacent swap is compared only with the current
       baseline and returned in deterministic day/block/position order. Nihon does not select a best
       generated candidate.
