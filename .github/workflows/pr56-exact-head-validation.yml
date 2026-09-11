@@ -1,0 +1,93 @@
+name: PR56 exact-head validation
+
+on:
+  push:
+    branches:
+      - ci/pr56-exact-head-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-head-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: 2f7d3a57f7a4de146f8a4f63f618cd318f62b3ba
+          fetch-depth: 0
+
+      - name: Verify exact invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "2f7d3a57f7a4de146f8a4f63f618cd318f62b3ba"
+          test "$(git rev-parse 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18)" = "0fa414d8f4f4e71b2908ff885b2f1f7e37934c18"
+          test "$(git rev-list --count 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD)" = "1"
+          test "$(git diff --name-only 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD | wc -l | tr -d ' ')" = "6"
+          read behind ahead < <(git rev-list --left-right --count 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18...HEAD)
+          test "$behind" = "0"
+          test "$ahead" = "1"
+          git diff --exit-code 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD -- docs/WHOLE_TRIP_COMPOSITION_DESIGN.md
+          if git diff --name-only 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD | grep -E '(^|/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml)$'; then
+            echo "Unexpected package/lockfile change"
+            exit 1
+          fi
+          if git diff --name-only 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD | grep -E '(^|/)(data/source/|data/logistics/|app/src/data/logistics/)'; then
+            echo "Unexpected protected data/artifact change"
+            exit 1
+          fi
+          echo "HEAD=$(git rev-parse HEAD)"
+          echo "scope_commits=$(git rev-list --count 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD)"
+          echo "scope_files=$(git diff --name-only 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD | wc -l)"
+          echo "ahead=$ahead behind=$behind"
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Toolchain versions
+        working-directory: app
+        run: |
+          node --version
+          npm --version
+          npm config get registry
+          npm ping
+
+      - name: Install exact lockfile
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: Test
+        working-directory: app
+        run: npm test
+
+      - name: Build
+        working-directory: app
+        run: npm run build
+
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+
+      - name: TypeScript forced build
+        working-directory: app
+        run: npx tsc -b --force
+
+      - name: Diff check
+        run: git diff --check 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD
+
+      - name: Final integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "2f7d3a57f7a4de146f8a4f63f618cd318f62b3ba"
+          git diff --exit-code
+          git diff --cached --exit-code
+          echo "FINAL AUTOMATED EXACT-HEAD GATE: PASS"
