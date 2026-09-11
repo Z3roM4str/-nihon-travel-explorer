@@ -3637,9 +3637,11 @@ transport alone. Full contract:
       the current plan, but those facts are anchored to the current `fromPlaceId → toPlaceId`
       position and cannot be transferred to arbitrary hypothetical candidates. Automatic route/day
       optimisation remains unapproved.
-- [x] **Valid day assignment required.** Whole-trip composition is unavailable when `days === null`
-      or the day partition is structurally invalid. There is no route-only fallback because hotel
-      boundaries, trip bounds and cross-day inter-hub semantics all require day context.
+- [x] **Valid day assignment and resolvable route required.** Whole-trip composition is unavailable
+      when `days === null`, the day partition is structurally invalid, or any current `routeId`
+      fails to resolve to a `Place`. There is no route-only fallback and no silent filtering of an
+      unresolved place because hotel boundaries, trip bounds, visit duration and cross-day
+      inter-hub semantics all require complete plan context.
 - [x] **Movement slots are classified explicitly.** Same-day same-hub adjacencies continue to use
       exact directed `TransferEdge` lookup; same-day cross-hub adjacencies use only the exact
       active manual inter-hub segment. At day boundaries, ordinary place→place transfer remains
@@ -3647,13 +3649,17 @@ transport alone. Full contract:
 - [x] **Registered transport subtotal approved with qualification.** A future runtime may sum known
       local transfer ranges + active inter-hub exact minutes + exact manual accommodation legs, but
       unknown/missing facts never add zero and the subtotal must be labelled as registered/partial
-      whenever coverage is incomplete. It is not a real-world total or door-to-door claim.
+      whenever coverage is incomplete. A zero-slot plan must not render positive "all tramos
+      covered" copy. It is not a real-world total or door-to-door claim.
 - [x] **Visit time stays separate.** Quantified visit-duration ranges remain separate from day-scale
       commitments and unclassified durations, and Phase 3D-Z explicitly rejects one
       visit+transport "total trip time".
 - [x] **Temporal/reservation facts remain constraints, not scores.** Closure, hours, visit-fit,
       reservation-window and Feb–Mar signals are not converted into minute penalties or a route
       score.
+- [x] **Bounds annotate; they do not filter.** Day buckets assessed `after-trip-end` remain part
+      of visit/movement/accommodation subtotals; the mismatch is surfaced separately. Missing or
+      inverted bounds do not block an otherwise valid composition.
 - [x] **No persistence change.** The approved successor is a pure derived layer over existing V7
       plan state, current places and existing evidence domains. No schema version, cached total,
       second storage key, dataset/workbook edit or dependency is approved.
