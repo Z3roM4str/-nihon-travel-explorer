@@ -191,7 +191,7 @@ jobs:
             let summary = await wholeTrip();
             let summaryText = await summary.innerText();
             assert(summaryText.includes("Resumen del plan completo"), "whole-trip heading visible");
-            assert(summary.locator("input, select, button").count() === 0, "whole-trip section is read-only");
+            assert((await summary.locator("input, select, button").count()) === 0, "whole-trip section is read-only");
 
             // Enter the day view; the same derived facts must be available there.
             await page.getByRole("button", { name: /Distribuir por días/ }).click();
