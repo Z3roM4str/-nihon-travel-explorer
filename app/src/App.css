@@ -3209,3 +3209,97 @@ a {
   padding-left: 0.5rem;
   border-left: 2px solid var(--color-accent);
 }
+
+/* Phase 3E-C — generated evidence-complete local swap alternatives, inside the day card.
+   Deliberately neutral: no success/positive colouring, no badge, no highlight that would read as
+   "Nihon recommends this". The section is a list of facts with a button, not a call to action. */
+.local-swap {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.local-swap__heading {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.local-swap__empty {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.local-swap__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.local-swap__item {
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.local-swap__item p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.local-swap__pair {
+  color: var(--color-text);
+}
+
+.local-swap__ranges {
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.local-swap__ranges div {
+  min-width: 0;
+}
+
+.local-swap__ranges dt {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.local-swap__ranges dd {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* The evidence mix is never visually subordinated to the number it qualifies: same line, same
+   weight class, so a range resting on estimates cannot be read as a validated one. */
+.local-swap__evidence {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.local-swap__advantage {
+  color: var(--color-text);
+}
+
+.local-swap__disclaimer {
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--color-accent);
+  color: var(--color-text-muted);
+}
+
+.local-swap__apply {
+  justify-self: start;
+}

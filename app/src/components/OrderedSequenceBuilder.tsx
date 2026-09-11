@@ -3,7 +3,17 @@ import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
 import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
-import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
+import {
+  compareSequences,
+  type ConfidenceCounts,
+  type SequenceCandidate,
+  type SequenceComparison,
+} from "../lib/sequence-comparison";
+import {
+  applyEvidenceCompleteLocalSwap,
+  generateEvidenceCompleteLocalSwaps,
+  type EvidenceCompleteLocalSwapAlternative,
+} from "../lib/evidence-complete-local-swap";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -1742,6 +1752,120 @@ function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment
   );
 }
 
+/** The existing Phase 3C-B evidence vocabulary, reused verbatim so one order is never described
+ * in a different language than another. Returns "" when there is nothing to disclose. */
+function confidenceMixText(counts: ConfidenceCounts): string {
+  const parts: string[] = [];
+  if (counts.validatedStatic > 0) {
+    parts.push(`${counts.validatedStatic} validado${counts.validatedStatic === 1 ? "" : "s"}`);
+  }
+  if (counts.estimated > 0) parts.push(`${counts.estimated} estimado${counts.estimated === 1 ? "" : "s"}`);
+  if (counts.scheduleAware > 0) parts.push(`${counts.scheduleAware} en vivo`);
+  return parts.join(" · ");
+}
+
+/**
+ * Phase 3E-C — the generated local alternatives for ONE day card.
+ *
+ * This is the first place in Nihon that shows the user an order they did not type. Everything
+ * about how it is worded is load-bearing (`docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md` §24):
+ *
+ *   - the claim is about **recorded local transfers inside one same-hub block**, never about the
+ *     day, the trip, the schedule, the hotel, or the real world;
+ *   - `guaranteedAdvantageMinutes` is presented as the *minimum gap between two recorded ranges*,
+ *     never as "ahorras X minutos" — the inputs may be estimated, and the word "garantizada"
+ *     alone would overstate that;
+ *   - both orders' evidence quality is shown side by side, so a comparison resting on estimated
+ *     edges is never silently dressed up as validated;
+ *   - the alternatives are listed in positional order with no "mejor"/"recomendado"/rank marker,
+ *     and nothing is applied until the user clicks.
+ *
+ * The empty state is deliberately absent rather than reassuring: "no proved swap" is a statement
+ * about the recorded evidence, not a verdict that the current order is optimal, so the neutral
+ * sentence below is the strongest thing that may be said (§13).
+ */
+function LocalSwapAlternativesSection({
+  dayNumber,
+  alternatives,
+  placeById,
+  onApply,
+}: {
+  dayNumber: number;
+  alternatives: EvidenceCompleteLocalSwapAlternative[];
+  placeById: Map<string, Place>;
+  onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
+}) {
+  const headingId = `local-swap-heading-${dayNumber}`;
+  const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
+
+  return (
+    <section className="local-swap" aria-labelledby={headingId}>
+      <h4 id={headingId} className="local-swap__heading">
+        Alternativas locales con evidencia completa
+      </h4>
+      {alternatives.length === 0 ? (
+        <p className="local-swap__empty">
+          No hay un intercambio local con mejora demostrable usando todos los traslados registrados
+          necesarios para esta comparación.
+        </p>
+      ) : (
+        <ul className="local-swap__list">
+          {alternatives.map((alternative) => {
+            const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+            const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+            return (
+              <li
+                key={`${alternative.dayId}:${alternative.leftDayIndex}`}
+                className="local-swap__item"
+              >
+                <p className="local-swap__pair">
+                  Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
+                  <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
+                  {alternative.hub}, entre {nameOf(alternative.blockStartPlaceId)} y{" "}
+                  {nameOf(alternative.blockEndPlaceId)}.
+                </p>
+                <dl className="local-swap__ranges">
+                  <div>
+                    <dt>Traslados registrados del bloque actual</dt>
+                    <dd>
+                      {formatRange(alternative.baselineTransferMinutes)}
+                      {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Traslados registrados de esta alternativa</dt>
+                    <dd>
+                      {formatRange(alternative.candidateTransferMinutes)}
+                      {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="local-swap__advantage">
+                  Ventaja mínima entre los rangos registrados:{" "}
+                  {formatMinutes(alternative.guaranteedAdvantageMinutes)}. El rango registrado de
+                  esta alternativa queda al menos esa diferencia por debajo del rango registrado
+                  actual.
+                </p>
+                <p className="local-swap__disclaimer">
+                  Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                  No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                </p>
+                <button
+                  type="button"
+                  className="button button--secondary local-swap__apply"
+                  onClick={() => onApply(alternative)}
+                >
+                  Aplicar este intercambio
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 function wholeTripUnavailableText(reason: Extract<WholeTripComposition, { kind: "unavailable" }>["reason"]): string {
   switch (reason) {
     case "no-day-assignment":
@@ -1988,6 +2112,52 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
       ),
     [routeIds, planningDays, interHubSegments, accommodationLegs, startDate, endDate, placeById]
   );
+
+  /**
+   * Phase 3E-C: the generated local alternatives, derived fresh on every render from the current
+   * draft exactly like every other value in this component — never persisted, never cached across
+   * an edit, never carried over an Apply. Recomputing from `planningDays`/`visitStartTimes` is what
+   * makes "after Apply, fresh alternatives from the new baseline" (design §26) automatic rather
+   * than something a hand-written invalidation has to remember.
+   */
+  const localSwapGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteLocalSwaps(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /** Positional emission order is preserved inside each day; grouping never re-sorts or ranks. */
+  const localSwapsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteLocalSwapAlternative[]>();
+    if (localSwapGeneration.kind !== "available") return byDayId;
+    for (const alternative of localSwapGeneration.alternatives) {
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [localSwapGeneration]);
+
+  /**
+   * The one explicit user action that may change a day's order from a generated candidate.
+   *
+   * The candidate is re-verified against the plan as it is *now* before anything moves — the draft
+   * may have changed since the alternative was derived — and the mutation itself is the ordinary
+   * `movePlaceWithinDay` every manual reorder already goes through, so the day id, its
+   * accommodation boundary, every other day, `routeIds`, the dates, the visit times, the
+   * accommodations, the manual legs and every stored inter-hub segment travel through untouched.
+   * A stale candidate is a silent no-op: the next render simply regenerates from the real plan.
+   */
+  function applyLocalSwap(alternative: EvidenceCompleteLocalSwapAlternative) {
+    applyEvidenceCompleteLocalSwap(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, placeIndex, direction) => movePlaceWithinDay(dayId, placeIndex, direction)
+    );
+  }
 
   function moveUp(index: number) {
     setRouteIds((ids) => moveItemUp(ids, index));
@@ -2472,6 +2642,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
+                          )}
+                          {dayEntity && localSwapGeneration.kind === "available" && (
+                            <LocalSwapAlternativesSection
+                              dayNumber={dayIndex + 1}
+                              alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
+                              placeById={placeById}
+                              onApply={applyLocalSwap}
+                            />
                           )}
                           {bucket && dayEntity && dayBoundary && (
                             <AccommodationCommuteSection
