@@ -16,6 +16,7 @@ import {
   withNewEmptyDay,
   withPlaceMovedBetweenDays,
   withPlaceMovedWithinDay,
+  withEndDate,
   withRoute,
   withStartDate,
   withVisitStartTime,
@@ -23,12 +24,12 @@ import {
   withoutEmptyDay,
   writeDraft,
   type DraftStorage,
-  type ManualPlanningDraftV5,
-} from "./lib/planning-draft-v5";
+  type ManualPlanningDraftV6,
+} from "./lib/planning-draft-v6";
 
-/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v5.ts` depends
+/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v6.ts` depends
  * on — mirrors `useSavedPlaces.ts`'s own direct `localStorage` use. Tests exercise the pure
- * `planning-draft-v5.ts` functions directly with an in-memory `DraftStorage` instead. */
+ * `planning-draft-v6.ts` functions directly with an in-memory `DraftStorage` instead. */
 const browserStorage: DraftStorage = {
   getItem: (key) => localStorage.getItem(key),
   setItem: (key, value) => localStorage.setItem(key, value),
@@ -103,10 +104,11 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `visitStartTimes` joins them on exactly the same terms: the map returned here is the only copy,
  * and the component renders from it rather than mirroring it into local state.
  *
- * **Phase 3D-S makes `ManualPlanningDraftV5` the canonical runtime draft**, under the same
- * `nihon.manualPlanningDraft` key as before — there is no second key, no second day-id store, and
- * no parallel V4 state; a V1–V4 value already in storage still loads through the historical
- * migration chain and is migrated once. `accommodations` and `accommodationLegs` are returned
+ * **Phase 3D-W makes `ManualPlanningDraftV6` the canonical runtime draft**, under the same
+ * `nihon.manualPlanningDraft` key as before — there is no second key, no second day-id store, no
+ * side-car trip-bounds record, and no parallel V5 state; a V1–V5 value already in storage still
+ * loads through the historical migration chain and is migrated once (V5 → V6 adds `endDate: null`
+ * and nothing else). `accommodations` and `accommodationLegs` are returned
  * straight from the draft and every mutation goes back through the pure module, so no component
  * ever holds a second copy of an anchor, a boundary choice, or a manual duration.
  *
@@ -126,7 +128,7 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `withDayAccommodationChoice` on an empty day) leaves the draft untouched rather than coercing it.
  */
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV5>(() =>
+  const [draft, setDraft] = useState<ManualPlanningDraftV6>(() =>
     loadReconciledDraft(browserStorage, savedIds)
   );
 
@@ -204,6 +206,26 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * an accommodation anchor, a day boundary choice, or a manual leg — they are independent axes. */
   const setStartDate = useCallback((startDate: string | null) => {
     setDraft((current) => withStartDate(current, startDate));
+  }, []);
+
+  /**
+   * Phase 3D-W: sets, changes, or clears the trip's upper civil bound — the last calendar date the
+   * user considers part of the trip. Accepts a plain `YYYY-MM-DD` string or `null`; an invalid
+   * string is rejected by `withEndDate` (the draft stays unchanged), never coerced or guessed.
+   *
+   * It goes through the SAME `setDraft(current => ...)` as every other mutation, over the one
+   * canonical draft. There is deliberately no second `useState` for the end date, no parallel
+   * bounds state, and no derived copy persisted anywhere: `endDate` lives in the draft, and the
+   * calendar-day count and the per-day in/out-of-range verdict are derived on read by
+   * `lib/trip-bounds.ts` and never stored.
+   *
+   * Validation is per-field, never cross-field: an end date before the start date, and an end date
+   * set while `startDate` is still `null`, are both accepted and stored. Nothing is auto-repaired
+   * and no day bucket is created, deleted, reordered or reassigned — see `withEndDate` in
+   * `lib/planning-draft-v6.ts` for the full contract.
+   */
+  const setEndDate = useCallback((endDate: string | null) => {
+    setDraft((current) => withEndDate(current, endDate));
   }, []);
 
   /**
@@ -288,6 +310,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     planningDays: draft.days,
     days,
     startDate: draft.startDate,
+    endDate: draft.endDate,
     visitStartTimes: draft.visitStartTimes,
     accommodations: draft.accommodations,
     accommodationLegs: draft.accommodationLegs,
@@ -299,6 +322,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     removeEmptyDay,
     moveDay,
     setStartDate,
+    setEndDate,
     setVisitStartTime,
     addAccommodation,
     removeAccommodation,

@@ -2478,6 +2478,38 @@ a {
   font-size: 0.8rem;
 }
 
+/* Phase 3D-W — trip bounds. Three deliberately equal-weight facts (the chosen range, the buckets
+   that exist, and any mismatch between them), styled as plain muted body text rather than as an
+   alert: Nihon is stating what the user chose and what exists, not judging either. The inverted-
+   range line is the one exception and reuses the warm "pending" foreground the weekday-closure
+   signal already uses — a state to look at, never an error the app corrects on the user's behalf. */
+.trip-bounds-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: -0.35rem 0 0.75rem;
+}
+
+.trip-bounds-notice p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.trip-bounds-notice p.trip-bounds-notice__inverted {
+  color: #6c4310;
+  font-weight: 600;
+}
+
+/* The per-day warning sits inside the existing day-card header, under the derived date. The card
+   keeps every control and every signal it already had — this only annotates it. */
+.day-card__bounds-warning {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6c4310;
+}
+
 /* Phase 3D-B — weekday closure signal. Reuses the app's existing warm "pending" palette (the
    same tokens `.alert--pending` uses) rather than the stronger risk/red treatment: a possible
    weekday-closure match is a conservative planning signal to double-check, not an alarm. */

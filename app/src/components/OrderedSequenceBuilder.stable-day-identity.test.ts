@@ -466,9 +466,12 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     expect(hook).toMatch(
       /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\(current\) => withDayMoved\(current, dayId, direction\)\);\s*\}, \[\]\);/
     );
-    // No second day-order vector/state anywhere in the hook.
-    expect(hook).not.toMatch(/dayOrder/i);
-    expect(hook).not.toMatch(/useState[^)]*[Oo]rder/);
+    // No second day-order vector/state anywhere in the hook. Scanned against the hook's CODE:
+    // the doc comments legitimately use words like "reordered" to describe what the mutations do
+    // and do not do, and prose about the invariant is not a violation of it.
+    const hookCode = hook.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+    expect(hookCode).not.toMatch(/dayOrder/i);
+    expect(hookCode).not.toMatch(/useState[^)]*[Oo]rder/);
   });
 
   it("projects the ordinal matrix through the pure projection, not by hand", async () => {

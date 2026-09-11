@@ -3397,3 +3397,156 @@ Recommended successor: **Phase 3D-W — Trip Bounds Runtime**.
 **Phase 3D-W is NOT STARTED.** No `endDate` field, no `ManualPlanningDraftV6`, no
 `differenceInCivilDays`, no bounds assessment module and no UI control exists in the codebase as of
 this gate.
+
+## Phase 3D-W — Trip Bounds Runtime — implemented
+
+Implements exactly the runtime approved by Phase 3D-V
+([`docs/TRIP_BOUNDS_DESIGN.md`](TRIP_BOUNDS_DESIGN.md)) and nothing broader. The design document is
+the authority and was **not** rewritten: no contradiction with it was found while implementing.
+
+- [x] **Schema — `ManualPlanningDraftV6`** (`app/src/lib/planning-draft-v6.ts`, new). Canonical
+      persisted draft, under the **unchanged** storage key `nihon.manualPlanningDraft`. It adds
+      exactly one field, `endDate: string | null` — the last civil calendar date the user considers
+      part of the trip, with `[startDate, endDate]` **inclusive on both ends**. `PlanningDayV5` is
+      re-exported unchanged and keeps its name. No `tripLengthDays`, no persisted `tripCalendarDays`,
+      no persisted assessment, no per-day date or ordinal, no second order vector, no second storage
+      key. `planning-draft-v5.ts` stays in place as the V4 → V5 link of the historical chain and as
+      the shared implementation of everything V6 inherits; its historical contracts are untouched.
+- [x] **Migration V5 → V6** — one rule, `endDate: null`, and nothing else. It is structurally unable
+      to invent a value: `migrateV5ToV6` is `liftFromV5(draft, null)`, so `days.length`,
+      `startDate + days.length - 1`, `startDate`, the last bucket, the last place, anchors,
+      `visitStartTimes`, the current date and the dataset are all unreachable as sources. The
+      V1 → V2 → V3 → V4 → V5 chain runs first, unchanged, and V5 → V6 applies once. A test asserts
+      `endDate` is `null` for a five-bucket, start-dated, hotel-laden, visit-timed draft and spells
+      out each forbidden candidate value explicitly.
+- [x] **Strict parser, all-or-nothing.** At `version: 6` the `endDate` key must be present and must
+      be `null` or a real civil date per `isValidCivilDate`. Rejected — with the **whole** draft, no
+      partial salvage of route, days, anchors or legs: a missing key, an empty string, a malformed
+      shape, an impossible date, a datetime, a timezone-suffixed value, and any non-string non-null
+      type. Nothing is coerced, normalized, truncated or defaulted. **`endDate < startDate` is
+      deliberately NOT a parse invariant** — an inverted range is reachable mid-edit, and making it
+      corruption would discard the user's entire route, days, hotels and legs on the next reload.
+      Every pre-existing V5 rejection case still rejects at V6.
+- [x] **Civil-date helper** — `differenceInCivilDays(from, to)` added to `app/src/lib/civil-date.ts`.
+      Signed whole-day count, `null` (never `0`, never a guess) when either argument is not a valid
+      civil date, component-based through `Date.UTC(...)` exclusively and therefore
+      timezone-invariant. Correct across month, year, leap-year and leap-day boundaries, and
+      verified as the exact inverse of `addCivilDays` over an 1,600-day span. `addCivilDays`,
+      `isValidCivilDate`, `formatCivilDateDisplay` and `getCivilWeekday` are semantically unchanged.
+- [x] **Pure assessment module** (`app/src/lib/trip-bounds.ts`, new). Owns `TripBounds`,
+      `TripBoundsAssessment`, `assessTripBounds(bounds, ordinalIndex)`, `deriveTripCalendarDays` and
+      `buildTripBoundsSummary`, and depends on `civil-date.ts` **only**. Three kinds
+      (`bounds-unavailable` / `within-bounds` / `after-trip-end`) and five reasons
+      (`invalid-ordinal`, `no-start-date`, `no-end-date`, `invalid-date`, `inverted-range`) in that
+      resolution order. `tripCalendarDays = differenceInCivilDays(start, end) + 1`, derived on read,
+      absent (never `0`, never negative, never `days.length`) whenever the range does not resolve.
+      **The ordinal domain is closed first:** anything that is not a non-negative safe integer
+      resolves to `invalid-ordinal` **before `addCivilDays` is ever called** — asserted with a spy on
+      the real helper, plus a control proving the spy is genuinely wired. There is no
+      `before-trip-start`; the state is structurally unreachable. The assessment receives no day id
+      and no draft, so it provably cannot depend on identity or mutate anything, and it is never
+      persisted.
+- [x] **Independence is structural, not conventional.** Every inherited V6 mutation runs its V5
+      implementation against a `v5View` projection that does not carry `endDate` at all, and the
+      bound is re-attached afterwards from the original draft (`applyV5`/`liftFromV5`). So `endDate`
+      surviving `withRoute` (both the pure-reorder and composition-change branches), `resetRoute`,
+      `reconcileDraft` and every day and accommodation mutation is a property of the composition
+      itself. A V5 rejection (returning its input by reference) stays a true no-op. Conversely
+      `withEndDate` only ever reassigns one scalar, so it cannot touch `days`, day order, an id,
+      `placeIds`, an `accommodationBoundary`, a leg, an anchor, `routeIds`, `visitStartTimes` or
+      `startDate` — asserted by deep comparison across a six-state bounds matrix including inverted,
+      unpaired and cleared values. No cross-field write rule anywhere: an `endDate` before
+      `startDate`, and an `endDate` with `startDate === null`, are both stored as entered.
+- [x] **Existing evaluators unchanged.** Every consumer audited in design §11 is untouched.
+      `trip-bounds-consumers.test.ts` runs the **real** chain — `deriveVisitDateForPlace`,
+      `buildDayWeekdaySignal`, `buildPresentableDayHoursClosureCompositions`,
+      `buildDayRecordedIntervalFits`, `derivePlaceReservationDateWindow` →
+      `evaluateReservationWindowReference` — against a day that is genuinely `after-trip-end` and
+      asserts every result is deep-equal to the same computation with no end date recorded, while
+      separately asserting the assessment really did flip and that changing `startDate` **does**
+      move the derived dates (so the comparison is not vacuous). A source scan pins that no audited
+      module references `endDate`, `trip-bounds` or `after-trip-end`, and that `"after-trip-end"`
+      never became a `DayAssignmentIssue`. **Derivation is unconditional; presentation is
+      conditional.**
+- [x] **Hook** — `app/src/usePlanningDraft.ts` now holds `ManualPlanningDraftV6` as its canonical
+      state and adds `setEndDate(endDate: string | null)` through the same
+      `setDraft(current => ...)` as every other mutation. No parallel state, no second `useState`
+      for the end date, no persisted derived copy. The hook exposes `endDate`.
+- [x] **UI** — inside the **existing** `.calendar-anchor` block in `OrderedSequenceBuilder.tsx`,
+      immediately after `Fecha de inicio (Día 1)`: a structurally identical
+      `Fecha de fin (último día del viaje)` control (`<input type="date">`, canonical setter, and a
+      `Quitar fecha` button shown only when a value exists). No modal, wizard, page, panel or new
+      product surface — the component still contains exactly one `role="dialog"`. `TripBoundsNotice`
+      renders three **distinct**, separately classed facts: the chosen range with its inclusive
+      count, the buckets that exist, and — only when they disagree — how many fall after the end.
+      The fewer-than and equal cases are indistinguishable in the output by construction (there is
+      no branch on either). `TripBoundsDayWarning` adds
+      `⚠ Este día es posterior a la fecha de fin de tu viaje.` to an `after-trip-end` card, which
+      keeps its `Día N` heading, its derived date, its places, its transfers, its temporal and
+      reservation signals, its accommodation controls and its move/delete buttons — never hidden,
+      disabled, greyed out, reordered, relocated or auto-deleted. The inverted-range notice is
+      `role="status"` and stays a separate element from the pre-existing invalid-partition
+      `role="alert"` banner. A scoped scan asserts the copy contains no duration recommendation,
+      night count, add/remove-a-day suggestion, or check-in/check-out/flight/airport language.
+- [x] **Stable identity and accommodation invariants.** Every day id, `placeIds` order,
+      `accommodationBoundary`, `ManualAccommodationLeg` and `AccommodationAnchor` is identical before
+      and after any bounds change, clear or inversion. Moving a day changes only its derived ordinal
+      date and its derived assessment: the same entity is byte-for-byte equal at its new position,
+      and a move-and-move-back restores the exact draft. Bounds never select or delete a hotel,
+      rebind a leg, alter a boundary, create a hotel-to-hotel transfer, or reinterpret
+      `no-accommodation`.
+- [x] **Test counts, measured not assumed.** Baseline **before** implementation: **34 files /
+      1,245 tests passing**. **After: 38 files / 1,428 tests passing** — **+183 new tests**, and
+      1245 + 183 = 1428. New files: `lib/trip-bounds.test.ts` (55),
+      `lib/planning-draft-v6.test.ts` (76), `lib/trip-bounds-consumers.test.ts` (17),
+      `components/OrderedSequenceBuilder.trip-bounds.test.ts` (22); plus 13 added to
+      `lib/civil-date.test.ts`. Three pre-existing source scans were updated, not weakened: two
+      pinned the hook's canonical module/type (`planning-draft-v5` → `-v6`,
+      `ManualPlanningDraftV5` → `V6`), which is the expected update for a version bump, and one
+      "no parallel day-order state" scan now reads the hook's **code** rather than its comments,
+      because the new doc comment legitimately uses the word "reordered" to describe what the
+      mutation does not do. Behavioural tests carry the functional contract throughout; source scans
+      are used only for architectural invariants that this repository's harness (no jsdom, no
+      Testing Library — the Phase 3B2I precedent) cannot express behaviourally.
+- [x] **Validation gate, all passing.** `npm test` (1,428 passed), `npm run build`, `npm run lint`
+      (oxlint, clean) and `npx tsc -b --force` all succeed, and `git diff --check` is clean. Two type
+      errors in a new test file were caught by `tsc -b` (which `vitest run` does not perform) and
+      fixed before commit.
+- [x] **Browser QA (real Chromium via Playwright) — 49/49 checks passed, 0 console errors,
+      0 page errors.** A persisted V6 seed (`startDate: 2027-02-19`, `endDate: 2027-02-21` — three
+      calendar days — **four** buckets, stable ids `qa-day-1..4`, two different hotel choices, a
+      manual leg) verified end to end: the range renders as
+      `Rango elegido: vie, 19 feb 2027 – dom, 21 feb 2027 (3 días de calendario).`, the bucket count
+      as `Días creados: 4.` and the mismatch as `Hay 1 día(s) posteriores a la fecha de fin.`; the
+      warning appears on **Día 4 only**, which keeps its heading, its date (`lun, 22 feb 2027`), its
+      place and all three header controls. Moving the entity initially visible as Día 4 up placed
+      that same entity at visible Día 3 / zero-based ordinal 2, where it became `within-bounds`;
+      the entity it swapped with moved to visible Día 4 / zero-based ordinal 3 and became the sole
+      `after-trip-end` warning occupant. The moved entity kept its id, `placeIds` and hotel choice,
+      and bounds, anchors, legs and route were untouched. Clearing the end date removed every warning without clearing
+      `startDate`, reordering days or altering hotels; re-setting it to a two-day range put the last
+      **two** buckets out and recounted the mismatch to 2. A reload round-tripped the whole draft
+      byte-for-byte — `endDate`, day order, ids, boundaries and legs — and rehydrated the control.
+      An inverted range showed the neutral notice, no calendar-day count, no per-day warnings, both
+      values stored unrepaired, and stayed separate from the partition alert. A stored **V5** value
+      migrated in the browser to V6 with `endDate: null`, preserving ids, `startDate` and hotels,
+      under the single `nihon.manualPlanningDraft` key.
+- [x] **Non-goals honoured.** No dataset or workbook change; **no dependency, `package.json` or
+      lockfile change**; no routing or live transit; no hotel search or hotel-to-hotel inference; no
+      luggage/takkyubin/lockers/oversized baggage; no check-in/check-out; no flights, airports or
+      arrival/departure clock times; no timezone scheduling; no automatic itinerary generation; no
+      automatic day creation or removal from bounds; no optimization or recommendation; no
+      drag-and-drop; no booking; no night counts; no duration advice; no per-place persisted dates;
+      no second storage key; no day-level persisted date or ordinal.
+
+**Limitations, stated plainly.** The stored field is inert — all of its value is in the derived
+layer, which annotates and repairs nothing. Nihon still has no notion of nights, arrival or
+departure, and `tripCalendarDays - 1` is not a night count and is never presented as one. A day
+after the end of the trip keeps every existing temporal and reservation signal unchanged; only the
+implicit claim that it is a day *of* the trip is corrected, and only in presentation. The UI copy
+and the per-day warning have no automated component-level rendering test in this repository (no
+jsdom/Testing Library harness exists, and adding one was out of scope); they are covered by scoped
+source scans plus the real-browser QA recorded above.
+
+**Phase 3D-X is NOT STARTED.** Nothing in this phase begins, prepares data for, or implies any
+successor gate.
