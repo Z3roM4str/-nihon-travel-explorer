@@ -3741,3 +3741,79 @@ Defines the first safe generated-alternative frontier after whole-trip compositi
 Recommended successor: **Phase 3E-C — Evidence-Complete Local Swap Runtime**.
 
 **Phase 3E-C is NOT STARTED.** This gate changes documentation only.
+
+## Phase 3E-C — Evidence-Complete Local Swap Runtime — implemented
+
+Implements the Phase 3E-B contract in `docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md` without
+amending it. Nihon's first generated alternative, and deliberately the smallest provable one.
+
+- [x] **Pure domain module with injected seams.** Added `evidence-complete-local-swap.ts` with an
+      injected place resolver and exact directed transfer lookup. It owns no persistence, transfer
+      parsing, inter-hub assessment, accommodation logic, trip-bounds arithmetic or UI state, and
+      makes no network call. `ordered-sequence.ts`, `sequence-comparison.ts`, `transfer.ts`,
+      `day-assignment.ts`, `inter-hub-segment.ts`, `accommodation-commute.ts`,
+      `whole-trip-composition.ts` and the trip-bounds and visit-duration semantics are reused
+      unchanged — none was modified.
+- [x] **Structural availability without fallback.** Generation requires a non-null day assignment,
+      a valid day partition and every route id to resolve to a `Place`; otherwise it refuses with
+      `no-day-assignment`, `invalid-day-partition` or `unresolved-route-place`. No route-only
+      fallback, no repair, no silent filtering of an unresolved place. Trip bounds are not an input
+      and never block generation; a day after the trip end keeps its existing warning and may still
+      have alternatives.
+- [x] **Maximal same-hub blocks with locked endpoints.** Each day is split into maximal contiguous
+      runs sharing one `Place.hub`. Blocks never merge across a hub boundary, a day boundary or an
+      empty day. Only interior adjacent pairs may swap, so the first and last place of every block —
+      and therefore of every day — stay fixed. A block needs at least four places, and a block of
+      length `n` yields at most `n - 3` candidates: linear, never factorial. No permutation search,
+      nearest-neighbour, TSP, shortest path, hill climbing, beam search or recursion exists.
+- [x] **Temporal lock across the whole affected window.** For `L → A → B → R` all three local legs
+      change, so a candidate is refused when any of `L`, `A`, `B` or `R` carries a non-empty
+      persisted manual visit start time. A timed place outside that window does not block an
+      unrelated swap. No start time is read for anything else, derived, moved or written.
+- [x] **Complete exact evidence required on both sides.** A block is comparison-eligible only when
+      its current sequence is `complete` with a non-null range, and a candidate is kept only when it
+      is complete too. Unknown is neither zero nor infinity: a missing edge removes the block or the
+      candidate. No reverse edge, chained path, sibling edge, haversine, ORS, network call or
+      synthetic estimate can repair one.
+- [x] **Phase 3C-B comparison reused verbatim.** Both orders go through
+      `sequenceComparisonFromLookup`; only `b-clearly-faster` is surfaced. Equivalent, overlapping,
+      baseline-faster, incomplete and invalid outcomes stay non-claims. `guaranteedAdvantageMinutes`
+      and `possibleAdvantageRange` are taken unchanged, never redefined.
+- [x] **Confidence disclosed, never scored.** Baseline and candidate confidence counts are carried
+      and displayed in the existing Phase 3C-B vocabulary. A complete comparison may rest on
+      estimated or schedule-aware edges and is never relabelled validated; confidence produces no
+      bonus, penalty or rank.
+- [x] **All proved alternatives, no ranking.** Every proved swap is emitted in deterministic
+      day → block → position order, each compared only against the current baseline. No sorting by
+      advantage and no `best`, `recommended`, `rank` or `score` field exists.
+- [x] **Explicit, stale-guarded apply.** Nothing is applied automatically. “Aplicar este
+      intercambio” re-verifies that the day still exists, its `placeIds` still equal the captured
+      baseline, the pair is still adjacent at legal interior positions, all four window places still
+      resolve to the block hub, and none has since acquired a manual start time — otherwise it is a
+      no-op and alternatives regenerate. Application delegates to the existing single-day reorder, so
+      `day.id`, `accommodationBoundary`, every other day, `routeIds`, `startDate`, `endDate`,
+      `visitStartTimes`, accommodations, manual accommodation legs and every stored inter-hub segment
+      object survive untouched.
+- [x] **Inter-hub, accommodation and composition invariants asserted.** Tests prove every stored
+      inter-hub segment object and assessment — active same-day, active between-day and inactive
+      alike — is unchanged after a valid apply, and that an inactive segment never becomes active.
+      Accommodation boundary results and registered manual minutes are unchanged. Whole-trip visit,
+      accommodation, inter-hub and bounds composition, day count and place membership are unchanged;
+      only local movement order, the registered local movement range and `registeredTransportMinutes`
+      move, by exactly the evidenced delta, with no fabricated missing edge.
+- [x] **Local-only claim strength in the UI.** “Alternativas locales con evidencia completa” renders
+      inside the existing day card — no page, modal or wizard. Each alternative names both exchanged
+      places, both registered block ranges, both evidence mixes, the minimum gap between the recorded
+      ranges, the local-only qualification and an explicit Apply button. The empty state stays
+      neutral; no “mejor orden”, “óptimo”, “recomendado”, “ahorras X” or whole-trip claim appears.
+- [x] **Persistence unchanged.** The canonical draft remains V7 under `nihon.manualPlanningDraft`.
+      No candidate, advantage, confidence tally, rank, score, evaluated block, optimisation marker or
+      candidate history is persisted; a reload derives fresh alternatives from the current day order.
+      No dataset, workbook, walking artifact, access-point data, `package.json`, lockfile or
+      dependency changed, and no API, ORS or live-transit integration was added.
+- [x] **Verified locally.** `tsc -b`, `oxlint`, `vite build` and `vitest run` all clean:
+      1660 tests pass, of which 116 are new (100 domain, 16 UI contract). A probe over the shipped
+      214-place / 403-relation dataset confirms the feature is not vacuous in production data:
+      153 real four-place windows yield a provable alternative, e.g. Tokio
+      `JP-001 → JP-008 → JP-002 → JP-005` (baseline 29 min, candidate 27 min, minimum gap 2 min,
+      both orders fully `validated-static`).
