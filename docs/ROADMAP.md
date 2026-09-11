@@ -2843,15 +2843,17 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       station/airport access/egress. Phase 3D-X keeps inter-hub transport separate from this model.
 - [ ] Automatic candidate generation, automatic day distribution, and itinerary
       recommendation/optimisation (auto-sort, nearest-neighbour, TSP, shortest path, a day-quality
-      scoring function, a "best order"/"best split" claim) — **still not started and explicitly
-      deferred again by Phase 3D-X.** Phase 3C-A defined one user-given order, Phase 3C-B compared
-      exactly two of them, and Phase 3C-C let the user split one into ordinal days. Phase 3D-X
-      measured the current logistics substrate at only 403 directed relations across 214 places
-      (0.88% of all possible directed pairs), with zero inter-hub relations, and concluded that an
-      optimiser today would primarily optimize data coverage rather than real travel quality.
-      Reopening requires a separately-scoped multi-objective design that handles unknown edges,
-      inter-hub transport, activity duration, accommodation boundaries and trip bounds without
-      treating missing evidence as either zero cost or infinite cost.
+      scoring function, a "best order"/"best split" claim) — **still not started.** Phase 3D-X
+      measured the current local transfer graph at only 403 directed relations across 214 places
+      (0.88% of all possible directed pairs) and refused to optimize data coverage. Phase 3D-Y then
+      implemented explicit manual inter-hub segments for the user's CURRENT plan, but those facts
+      are position-bound and cannot be copied to hypothetical anchor pairs. **Phase 3D-Z now adds
+      the next required design boundary:** compose the current trip first, preserving quantified vs
+      non-quantified visit time, known vs missing local movement, active/missing inter-hub movement,
+      accommodation legs and trip bounds without a synthetic grand total or score. Only after that
+      runtime exists may a separately-scoped candidate-generation design reconsider a narrow,
+      evidence-complete local reorder that preserves day membership, accommodation endpoints and
+      active inter-hub anchors. Global optimisation remains unapproved.
 
 ## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
 
@@ -3624,3 +3626,48 @@ Recommended successor: **Phase 3D-Y — Manual Inter-Hub Segment Runtime**.
 - [x] **Non-goals honoured.** No dataset, workbook, walking/access-point artifact, package manifest
       or lockfile change; no dependency, API, ORS/live-transit integration, schedule, fare, booking,
       invented terminal or optimisation claim.
+
+## Phase 3D-Z — Whole-Trip Composition Design Gate — design/audit only
+
+Audits what must exist before Nihon can compare or optimise a trip without reducing the problem to
+transport alone. Full contract:
+[`docs/WHOLE_TRIP_COMPOSITION_DESIGN.md`](WHOLE_TRIP_COMPOSITION_DESIGN.md).
+
+- [x] **Composition before optimisation.** Phase 3D-Y supplies explicit manual inter-hub facts for
+      the current plan, but those facts are anchored to the current `fromPlaceId → toPlaceId`
+      position and cannot be transferred to arbitrary hypothetical candidates. Automatic route/day
+      optimisation remains unapproved.
+- [x] **Valid day assignment and resolvable route required.** Whole-trip composition is unavailable
+      when `days === null`, the day partition is structurally invalid, or any current `routeId`
+      fails to resolve to a `Place`. There is no route-only fallback and no silent filtering of an
+      unresolved place because hotel boundaries, trip bounds, visit duration and cross-day
+      inter-hub semantics all require complete plan context.
+- [x] **Movement slots are classified explicitly.** Same-day same-hub adjacencies continue to use
+      exact directed `TransferEdge` lookup; same-day cross-hub adjacencies use only the exact
+      active manual inter-hub segment. At day boundaries, ordinary place→place transfer remains
+      absent; only an exact active different-hub manual segment may contribute.
+- [x] **Registered transport subtotal approved with qualification.** A future runtime may sum known
+      local transfer ranges + active inter-hub exact minutes + exact manual accommodation legs, but
+      unknown/missing facts never add zero and the subtotal must be labelled as registered/partial
+      whenever coverage is incomplete. A zero-slot plan must not render positive "all tramos
+      covered" copy. It is not a real-world total or door-to-door claim.
+- [x] **Visit time stays separate.** Quantified visit-duration ranges remain separate from day-scale
+      commitments and unclassified durations, and Phase 3D-Z explicitly rejects one
+      visit+transport "total trip time".
+- [x] **Temporal/reservation facts remain constraints, not scores.** Closure, hours, visit-fit,
+      reservation-window and Feb–Mar signals are not converted into minute penalties or a route
+      score.
+- [x] **Bounds annotate; they do not filter.** Day buckets assessed `after-trip-end` remain part
+      of visit/movement/accommodation subtotals; the mismatch is surfaced separately. Missing or
+      inverted bounds do not block an otherwise valid composition.
+- [x] **No persistence change.** The approved successor is a pure derived layer over existing V7
+      plan state, current places and existing evidence domains. No schema version, cached total,
+      second storage key, dataset/workbook edit or dependency is approved.
+- [x] **Future optimisation frontier narrowed.** The first plausible later candidate generator is a
+      separately-designed local, evidence-complete reorder inside fixed day/hub structure that
+      preserves accommodation endpoints and every required active inter-hub anchor. No such runtime
+      is started here.
+
+Recommended successor: **Phase 3E-A — Whole-Trip Composition Runtime**.
+
+**Phase 3E-A is NOT STARTED.** This gate changes documentation only.
