@@ -115,6 +115,16 @@ If the current day matrix does not validly partition `routeIds`, result:
 { kind: "unavailable"; reason: "invalid-day-partition" }
 ```
 
+Before any composition is built, every `routeId` must also resolve to exactly one current `Place`.
+If any route id cannot be resolved, result:
+
+```ts
+{ kind: "unavailable"; reason: "unresolved-route-place" }
+```
+
+The successor must not imitate the current presentation convenience of filtering unresolved ids out
+of a `Place[]`: whole-trip arithmetic cannot silently turn a missing place into a shorter trip.
+
 There is deliberately no route-only whole-trip fallback.
 
 Reason:
@@ -142,7 +152,10 @@ Suggested high-level result:
 type WholeTripComposition =
   | {
       kind: "unavailable";
-      reason: "no-day-assignment" | "invalid-day-partition";
+      reason:
+        | "no-day-assignment"
+        | "invalid-day-partition"
+        | "unresolved-route-place";
     }
   | {
       kind: "available";
@@ -302,6 +315,7 @@ type WholeTripMovementComposition = {
   interHubActiveCount: number;
   interHubMissingCount: number;
 
+  modeledAdjacencyCount: number;
   adjacencyCoverageComplete: boolean;
 };
 ```
@@ -319,9 +333,15 @@ If there are no recorded movement components, return `null`, not zero.
 
 ### 8.2 Completeness
 
+`modeledAdjacencyCount` is the number of same-day local/cross-hub slots plus expected
+different-hub cross-day slots described by this composition.
+
 `adjacencyCoverageComplete` means:
 
 > every movement slot this composition model expects between planned places has recorded evidence.
+
+The boolean may be vacuously true when `modeledAdjacencyCount === 0`, but the UI must not render a
+positive "todos los tramos están cubiertos" statement unless `modeledAdjacencyCount > 0`.
 
 It does **not** mean:
 
@@ -454,6 +474,19 @@ No recommendation to add/remove a day.
 
 A mismatch is a fact, not a score penalty.
 
+### 11.1 Bounds never filter composition
+
+All user-created day buckets participate in visit/movement/accommodation composition even when one
+or more are assessed `after-trip-end`.
+
+Phase 3D-W's invariant remains authoritative: the civil range and the day-bucket plan are two
+independent user decisions. A bucket after `endDate` is annotated as such; it is not hidden,
+discarded, zeroed or excluded from the whole-trip subtotal.
+
+Likewise, missing/inverted/invalid bounds do not make an otherwise valid day composition
+unavailable. The bounds subsection reports its existing neutral unavailable reason while the rest
+of the plan remains composed.
+
 ---
 
 ## 12. Approved trip-level displayed subtotal
@@ -487,7 +520,8 @@ It must never be labelled:
 - "duración del viaje";
 - "tiempo óptimo".
 
-When all composition-model movement slots are covered, the UI may say:
+When all composition-model movement slots are covered **and `modeledAdjacencyCount > 0`**, the UI
+may say:
 
 > Todos los tramos que este resumen modela tienen tiempo registrado.
 
@@ -697,92 +731,99 @@ The successor is not complete unless at least the following matrix passes.
 
 1. `days === null` → unavailable/no-day-assignment.
 2. invalid day partition → unavailable/invalid-day-partition.
-3. valid partition → available.
-4. no route-only fallback when days are absent.
+3. unresolved route place → unavailable/unresolved-route-place; never silently filtered.
+4. valid partition + all places resolved → available.
+5. no route-only fallback when days are absent.
 
 ### Visit composition
 
-5. quantified ranges add min-to-min/max-to-max.
-6. day-scale commitments never become minutes.
-7. unclassified duration never becomes zero.
-8. numeric coverage false when any route place is non-quantified.
-9. numeric coverage true only when every route place is quantified.
+6. quantified ranges add min-to-min/max-to-max.
+7. day-scale commitments never become minutes.
+8. unclassified duration never becomes zero.
+9. numeric coverage false when any route place is non-quantified.
+10. numeric coverage true only when every route place is quantified.
 
 ### Same-day movement
 
-10. same-hub known directed edge → local-transfer.
-11. same-hub missing edge → local-transfer-missing.
-12. reverse edge never reused.
-13. cross-hub active manual segment → inter-hub exact minutes.
-14. cross-hub missing/inactive segment → inter-hub-missing.
-15. cross-hub segment is not double-counted as local transfer.
+11. same-hub known directed edge → local-transfer.
+12. same-hub missing edge → local-transfer-missing.
+13. reverse edge never reused.
+14. cross-hub active manual segment → inter-hub exact minutes.
+15. cross-hub missing/inactive segment → inter-hub-missing.
+16. cross-hub segment is not double-counted as local transfer.
 
 ### Day boundaries
 
-16. same-hub Day N→N+1 boundary creates no ordinary place transfer.
-17. different-hub boundary + active exact segment → counted once.
-18. different-hub boundary without active segment → missing expected inter-hub.
-19. empty intervening day prevents cross-day inter-hub application.
-20. no flattening across empty day.
+17. same-hub Day N→N+1 boundary creates no ordinary place transfer.
+18. different-hub boundary + active exact segment → counted once.
+19. different-hub boundary without active segment → missing expected inter-hub.
+20. empty intervening day prevents cross-day inter-hub application.
+21. no flattening across empty day.
 
 ### Accommodation
 
-21. manual outbound exact minutes counted once.
-22. manual return exact minutes counted once.
-23. missing leg adds no minutes and increments missing.
-24. unselected adds no minutes and increments unselected.
-25. explicit no-accommodation adds no minutes and increments explicit-no-accommodation.
-26. empty-day not-applicable kept distinct.
-27. no reverse accommodation leg inference.
+22. manual outbound exact minutes counted once.
+23. manual return exact minutes counted once.
+24. missing leg adds no minutes and increments missing.
+25. unselected adds no minutes and increments unselected.
+26. explicit no-accommodation adds no minutes and increments explicit-no-accommodation.
+27. empty-day not-applicable kept distinct.
+28. no reverse accommodation leg inference.
 
 ### Subtotals
 
-28. registered movement subtotal contains known components only.
-29. registered accommodation subtotal contains manual legs only.
-30. combined registered transport subtotal adds ranges correctly.
-31. zero known components → null, never synthetic zero.
-32. missing counts remain visible alongside a partial subtotal.
-33. no visit+transport grand total exists.
+29. registered movement subtotal contains known components only.
+30. registered accommodation subtotal contains manual legs only.
+31. combined registered transport subtotal adds ranges correctly.
+32. zero known components → null, never synthetic zero.
+33. missing counts remain visible alongside a partial subtotal.
+34. modeled adjacency count is explicit.
+35. zero modeled adjacencies never render a positive "all tramos covered" claim.
+36. no visit+transport grand total exists.
 
 ### Inter-hub identity
 
-34. inactive stored segment contributes no minutes.
-35. active segment counted once only.
-36. stored segment not attached to an expected slot is not silently reassigned.
-37. reorder can change composition without mutating segment.
+37. inactive stored segment contributes no minutes.
+38. active segment counted once only.
+39. stored segment not attached to an expected slot is not silently reassigned.
+40. reorder can change composition without mutating segment.
 
 ### Bounds
 
-38. existing trip-bound summary projected without changing semantics.
-39. after-trip-end remains a count/fact, not a penalty.
-40. inverted/no-end/no-start states remain neutral/unrepaired.
+41. existing trip-bound summary projected without changing semantics.
+42. after-trip-end remains a count/fact, not a penalty.
+43. days after end remain included in all other composition subtotals.
+44. inverted/no-end/no-start states remain neutral/unrepaired and do not block other composition.
 
 ### Persistence/isolation
 
-41. no planning-draft version change.
-42. no new localStorage key.
-43. no cached persisted composition.
-44. `ordered-sequence.ts` unchanged.
-45. `sequence-comparison.ts` unchanged.
-46. `TransferMode` unchanged.
-47. accommodation domain semantics unchanged.
-48. inter-hub parser/assessment semantics unchanged.
+45. no planning-draft version change.
+46. no new localStorage key.
+47. no cached persisted composition.
+48. `ordered-sequence.ts` unchanged.
+49. `sequence-comparison.ts` unchanged.
+50. `TransferMode` unchanged.
+51. accommodation domain semantics unchanged.
+52. inter-hub parser/assessment semantics unchanged.
 
 ### UI/browser
 
-49. one read-only whole-trip section on a valid day plan.
-50. unavailable state does not invent a partial whole-trip composition.
-51. partial movement coverage copy shows missing counts.
-52. complete composition-model adjacency coverage uses qualified copy only.
-53. visit non-quantified items remain separate.
-54. no forbidden "optimal/best/total real/door-to-door" claim.
-55. reload produces the same derived composition from the same draft.
-56. editing one manual inter-hub minute updates only derived totals.
-57. editing one accommodation leg updates only the applicable derived totals.
-58. reordering to make an inter-hub segment inactive removes its minutes and increases missing
+53. one read-only whole-trip section on a valid day plan.
+54. unavailable state does not invent a partial whole-trip composition.
+55. unresolved route place does not disappear from arithmetic.
+56. partial movement coverage copy shows missing counts.
+57. complete composition-model adjacency coverage uses qualified copy only and requires at least one
+    modeled adjacency for positive complete-coverage copy.
+58. visit non-quantified items remain separate.
+59. after-end day content remains included while the bounds mismatch stays visible.
+60. no forbidden "optimal/best/total real/door-to-door" claim.
+61. reload produces the same derived composition from the same draft.
+62. editing one manual inter-hub minute updates only derived totals.
+63. editing one accommodation leg updates only the applicable derived totals.
+64. reordering to make an inter-hub segment inactive removes its minutes and increases missing
     coverage without editing the stored segment.
-59. console errors = 0.
-60. page errors = 0.
+65. console errors = 0.
+66. page errors = 0.
 
 ---
 
