@@ -1,7 +1,7 @@
 # Phase 3E-B — Evidence-Complete Local Swap Design Gate
 
-Status: **design/audit only**  
-Base audited: `b27a6422b4374ee1c6bb3b7dbc451963fe74cfe5` (`main` after Phase 3E-A)  
+Status: **design/audit only**
+Base audited: `b27a6422b4374ee1c6bb3b7dbc451963fe74cfe5` (`main` after Phase 3E-A)
 Recommended successor if accepted: **Phase 3E-C — Evidence-Complete Local Swap Runtime**
 
 ---
@@ -273,17 +273,33 @@ alternatives; its existing warning remains separate.
 
 Phase 3D-L persists optional manual visit start times per place.
 
-A candidate must **not move a place that currently has a non-empty persisted visit start time**.
+For one legal interior adjacent swap, name the exact affected four-place window:
 
-For a proposed adjacent swap `A ↔ B`:
+```text
+L → A → B → R
+```
 
-- if `visitStartTimes[A]` exists → reject candidate;
-- if `visitStartTimes[B]` exists → reject candidate.
+candidate:
 
-Untimed places may swap around a timed place only when the timed place itself remains at the same
-ordinal position.
+```text
+L → B → A → R
+```
 
-This preserves every manual clock anchor exactly.
+All three directed legs inside that window change.
+
+Therefore a candidate is allowed only when **none of `L`, `A`, `B`, or `R` has a non-empty
+persisted manual visit start time**.
+
+This is intentionally stricter than merely preventing a timed place from moving:
+
+- a time on `L` would keep `L` fixed but change the transfer leaving it;
+- a time on `R` would keep `R` fixed but change the transfer entering it;
+- the app has no arrival/departure-time propagation that could prove those changes remain compatible
+  with the user's clock anchor.
+
+A timed place elsewhere in the same block, outside the four-place affected window, does not block an
+unrelated swap because its own ordinal position and immediate incoming/outgoing local legs remain
+unchanged.
 
 The runtime must not:
 
@@ -704,7 +720,14 @@ Approved candidate claim:
 
 Approved evidence detail:
 
-> Reducción garantizada del traslado local registrado: 4 min.
+> Ventaja mínima entre los rangos registrados: 4 min.
+
+Also acceptable when context is explicit:
+
+> El rango registrado de esta alternativa queda al menos 4 min por debajo del rango registrado
+> actual.
+
+Avoid presenting the word "garantizada" by itself in user-facing copy when any input may be estimated.
 
 Required qualification nearby:
 
@@ -739,7 +762,7 @@ Each item should show:
 - the two places that would be exchanged;
 - current block local-transfer range;
 - candidate block local-transfer range;
-- guaranteed registered local-transfer reduction;
+- minimum gap between the two recorded local-transfer ranges;
 - baseline/candidate evidence-quality counts or equivalent clear labels;
 - explicit local-only qualification;
 - explicit Apply button.
@@ -876,108 +899,111 @@ No heuristic ordering.
 
 ### Temporal lock
 
-15. left swapped place with manual start time blocks candidate.
-16. right swapped place with manual start time blocks candidate.
-17. timed place outside swapped pair keeps position and does not block unrelated swap.
-18. no start time is edited or moved.
+15. timed `L` neighbor blocks candidate.
+16. timed left swapped place `A` blocks candidate.
+17. timed right swapped place `B` blocks candidate.
+18. timed `R` neighbor blocks candidate.
+19. timed place outside the affected four-place window does not block an unrelated swap.
+20. no start time is edited or moved.
 
 ### Baseline evidence
 
-19. complete baseline block may be evaluated.
-20. missing baseline directed edge refuses improvement generation for that block.
-21. reverse edge never repairs missing baseline edge.
-22. chained path never repairs missing baseline edge.
+21. complete baseline block may be evaluated.
+22. missing baseline directed edge refuses improvement generation for that block.
+23. reverse edge never repairs missing baseline edge.
+24. chained path never repairs missing baseline edge.
 
 ### Candidate evidence
 
-23. candidate with every exact directed edge may be compared.
-24. candidate missing one directed edge is discarded.
-25. reverse candidate edge is not reused.
-26. geometry/network fallback absent.
+25. candidate with every exact directed edge may be compared.
+26. candidate missing one directed edge is discarded.
+27. reverse candidate edge is not reused.
+28. geometry/network fallback absent.
 
 ### Conservative comparison
 
-27. candidate clearly faster → alternative emitted.
-28. equal range → no improvement alternative.
-29. overlapping ranges → no improvement alternative.
-30. baseline clearly faster → no improvement alternative.
-31. incomplete result → no improvement alternative.
-32. guaranteed advantage equals existing Phase 3C-B arithmetic.
-33. confidence counts equal the existing Phase 3C-B candidate tallies.
-34. estimated evidence remains labelled estimated rather than validated.
-35. confidence never becomes a numeric ranking penalty/bonus.
+29. candidate clearly faster → alternative emitted.
+30. equal range → no improvement alternative.
+31. overlapping ranges → no improvement alternative.
+32. baseline clearly faster → no improvement alternative.
+33. incomplete result → no improvement alternative.
+34. guaranteed advantage equals existing Phase 3C-B arithmetic.
+35. user-facing copy frames it as a minimum gap between recorded ranges, not a real-world guarantee.
+36. confidence counts equal the existing Phase 3C-B candidate tallies.
+37. estimated evidence remains labelled estimated rather than validated.
+38. confidence never becomes a numeric ranking penalty/bonus.
 
 ### Multiple candidates
 
-36. multiple proved swaps all emitted.
-37. order is deterministic by day/block/swap position.
-38. no ranking by advantage.
-39. no "best" field.
-40. candidates are compared only against current baseline.
+39. multiple proved swaps all emitted.
+40. order is deterministic by day/block/swap position.
+41. no ranking by advantage.
+42. no "best" field.
+43. candidates are compared only against current baseline.
 
 ### Application
 
-41. explicit apply swaps exactly two adjacent interior ids.
-42. day id preserved.
-43. day membership preserved.
-44. routeIds unchanged.
-45. accommodation boundary object preserved.
-46. other days unchanged.
-47. stale baseline day array → no-op/refusal.
-48. stale non-adjacent pair → no-op/refusal.
-49. newly timed swap place → no-op/refusal.
+44. explicit apply swaps exactly two adjacent interior ids.
+45. day id preserved.
+46. day membership preserved.
+47. routeIds unchanged.
+48. accommodation boundary object preserved.
+49. other days unchanged.
+50. stale baseline day array → no-op/refusal.
+51. stale non-adjacent pair → no-op/refusal.
+52. any newly timed place in the affected `L,A,B,R` window → no-op/refusal.
 
 ### Inter-hub isolation
 
-50. every stored segment object unchanged.
-51. every stored segment assessment unchanged after valid apply.
-52. active same-day cross-hub pair unchanged.
-53. active between-day pair unchanged.
-54. inactive stored segment does not become active through the swap.
+53. every stored segment object unchanged.
+54. every stored segment assessment unchanged after valid apply.
+55. active same-day cross-hub pair unchanged.
+56. active between-day pair unchanged.
+57. inactive stored segment does not become active through the swap.
 
 ### Accommodation isolation
 
-55. outbound boundary result unchanged.
-56. return boundary result unchanged.
-57. manual accommodation registered minutes unchanged.
+58. outbound boundary result unchanged.
+59. return boundary result unchanged.
+60. manual accommodation registered minutes unchanged.
 
 ### Whole-trip composition
 
-58. visit composition unchanged.
-59. accommodation composition unchanged.
-60. inter-hub composition unchanged.
-61. bounds composition unchanged.
-62. registered local movement changes only by candidate evidence delta.
-63. registered transport changes by the same evidenced local delta.
-64. local missing count does not improve via fabrication.
+61. visit composition unchanged.
+62. accommodation composition unchanged.
+63. inter-hub composition unchanged.
+64. bounds composition unchanged.
+65. registered local movement changes only by candidate evidence delta.
+66. registered transport changes by the same evidenced local delta.
+67. local missing count does not improve via fabrication.
 
 ### Persistence
 
-65. planning draft remains V7.
-66. same storage key.
-67. no persisted alternatives.
-68. no persisted score/rank/advantage.
-69. reload derives fresh alternatives from current day order.
+68. planning draft remains V7.
+69. same storage key.
+70. no persisted alternatives.
+71. no persisted score/rank/advantage.
+72. reload derives fresh alternatives from current day order.
 
 ### UI/browser
 
-70. section appears only for a day with at least one proved alternative.
-71. candidate shows exact swapped place names.
-72. current and candidate registered local ranges visible.
-73. guaranteed local reduction visible.
-74. baseline and candidate confidence quality are visible.
-75. estimated-only/mixed evidence is never labelled validated.
-76. local-only qualification visible.
-77. no best/optimal/recommended/trip-faster claim.
-78. Apply requires explicit click.
-79. after Apply only expected two place ordinals change.
-80. inter-hub UI status unchanged.
-81. accommodation endpoint/status unchanged.
-82. bounds warning unchanged.
-83. place with manual visit time is never offered in a swap.
-84. Apply recomputes fresh alternatives; no second automatic apply.
-85. console errors = 0.
-86. page errors = 0.
+73. section appears only for a day with at least one proved alternative.
+74. candidate shows exact swapped place names.
+75. current and candidate registered local ranges visible.
+76. minimum recorded-range gap visible without real-world guarantee wording.
+77. baseline and candidate confidence quality are visible.
+78. estimated-only/mixed evidence is never labelled validated.
+79. local-only qualification visible.
+80. no best/optimal/recommended/trip-faster claim.
+81. Apply requires explicit click.
+82. after Apply only expected two place ordinals change.
+83. inter-hub UI status unchanged.
+84. accommodation endpoint/status unchanged.
+85. bounds warning unchanged.
+86. no candidate is offered when any place in its affected `L,A,B,R` window has a manual start time.
+87. Apply recomputes fresh alternatives; no second automatic apply.
+88. console errors = 0.
+89. page errors = 0.
 
 ---
 
