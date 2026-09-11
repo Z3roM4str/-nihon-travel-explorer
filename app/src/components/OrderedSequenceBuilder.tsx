@@ -14,6 +14,11 @@ import {
   generateEvidenceCompleteLocalSwaps,
   type EvidenceCompleteLocalSwapAlternative,
 } from "../lib/evidence-complete-local-swap";
+import {
+  applyEvidenceCompleteLocalRelocation,
+  generateEvidenceCompleteLocalRelocations,
+  type EvidenceCompleteLocalRelocationAlternative,
+} from "../lib/evidence-complete-local-relocation";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -1787,80 +1792,150 @@ function confidenceMixText(counts: ConfidenceCounts): string {
 function LocalSwapAlternativesSection({
   dayNumber,
   alternatives,
+  relocationAlternatives,
   placeById,
   onApply,
+  onApplyRelocation,
 }: {
   dayNumber: number;
   alternatives: EvidenceCompleteLocalSwapAlternative[];
+  relocationAlternatives: EvidenceCompleteLocalRelocationAlternative[];
   placeById: Map<string, Place>;
   onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
+  onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
 }) {
   const headingId = `local-swap-heading-${dayNumber}`;
   const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
+  const hasAlternatives = alternatives.length > 0 || relocationAlternatives.length > 0;
 
   return (
     <section className="local-swap" aria-labelledby={headingId}>
       <h4 id={headingId} className="local-swap__heading">
         Alternativas locales con evidencia completa
       </h4>
-      {alternatives.length === 0 ? (
+      {!hasAlternatives ? (
         <p className="local-swap__empty">
-          No hay un intercambio local con mejora demostrable usando todos los traslados registrados
+          No hay una alternativa local con mejora demostrable usando todos los traslados registrados
           necesarios para esta comparación.
         </p>
       ) : (
-        <ul className="local-swap__list">
-          {alternatives.map((alternative) => {
-            const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
-            const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
-            return (
-              <li
-                key={`${alternative.dayId}:${alternative.leftDayIndex}`}
-                className="local-swap__item"
-              >
-                <p className="local-swap__pair">
-                  Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
-                  <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
-                  {alternative.hub}, entre {nameOf(alternative.blockStartPlaceId)} y{" "}
-                  {nameOf(alternative.blockEndPlaceId)}.
-                </p>
-                <dl className="local-swap__ranges">
-                  <div>
-                    <dt>Traslados registrados del bloque actual</dt>
-                    <dd>
-                      {formatRange(alternative.baselineTransferMinutes)}
-                      {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Traslados registrados de esta alternativa</dt>
-                    <dd>
-                      {formatRange(alternative.candidateTransferMinutes)}
-                      {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
-                    </dd>
-                  </div>
-                </dl>
-                <p className="local-swap__advantage">
-                  Ventaja mínima entre los rangos registrados:{" "}
-                  {formatMinutes(alternative.guaranteedAdvantageMinutes)}. El rango registrado de
-                  esta alternativa queda al menos esa diferencia por debajo del rango registrado
-                  actual.
-                </p>
-                <p className="local-swap__disclaimer">
-                  Esta comparación usa únicamente los traslados locales registrados de este bloque.
-                  No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
-                </p>
-                <button
-                  type="button"
-                  className="button button--secondary local-swap__apply"
-                  onClick={() => onApply(alternative)}
-                >
-                  Aplicar este intercambio
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          {alternatives.length > 0 && (
+            <div className="local-swap__group">
+              <h5>Intercambios adyacentes</h5>
+              <ul className="local-swap__list">
+                {alternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.leftDayIndex}`}
+                      className="local-swap__item"
+                    >
+                      <p className="local-swap__pair">
+                        Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
+                        <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}, entre {nameOf(alternative.blockStartPlaceId)} y{" "}
+                        {nameOf(alternative.blockEndPlaceId)}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de esta alternativa</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}. El rango registrado de
+                        esta alternativa queda al menos esa diferencia por debajo del rango registrado
+                        actual.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApply(alternative)}
+                      >
+                        Aplicar este intercambio
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {relocationAlternatives.length > 0 && (
+            <div className="local-swap__group local-relocation">
+              <h5>Reubicaciones de un lugar</h5>
+              <ul className="local-swap__list">
+                {relocationAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  const destinationPlaceId =
+                    alternative.candidateDayPlaceIds[alternative.toDayIndex + 1] ??
+                    alternative.blockEndPlaceId;
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.fromDayIndex}:${alternative.toDayIndex}`}
+                      className="local-swap__item local-relocation__item"
+                    >
+                      <p className="local-swap__pair local-relocation__move">
+                        Mover <strong>{nameOf(alternative.movedPlaceId)}</strong> antes de{" "}
+                        <strong>{nameOf(destinationPlaceId)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de esta reubicación</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Esta reubicación reduce el rango de traslado local registrado de este bloque
+                        según la evidencia disponible. Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyRelocation(alternative)}
+                      >
+                        Aplicar esta reubicación
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
@@ -2020,6 +2095,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     setRoute: setRouteIds,
     initializeDays,
     movePlaceWithinDay,
+    relocatePlaceWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
@@ -2140,6 +2216,33 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     return byDayId;
   }, [localSwapGeneration]);
 
+  /** Phase 3E-E relocations are independently baseline-derived, then grouped without ranking. */
+  const localRelocationGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteLocalRelocations(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  const localRelocationsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteLocalRelocationAlternative[]>();
+    if (localRelocationGeneration.kind !== "available") return byDayId;
+    for (const alternative of localRelocationGeneration.alternatives) {
+      const swapOrders = localSwapsByDayId.get(alternative.dayId) ?? [];
+      const duplicatesSwap = swapOrders.some(
+        (swap) =>
+          JSON.stringify(swap.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (duplicatesSwap) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [localRelocationGeneration, localSwapsByDayId]);
+
   /**
    * The one explicit user action that may change a day's order from a generated candidate.
    *
@@ -2156,6 +2259,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
       { routeIds, days: planningDays, visitStartTimes },
       { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
       (dayId, placeIndex, direction) => movePlaceWithinDay(dayId, placeIndex, direction)
+    );
+  }
+
+  function applyLocalRelocation(alternative: EvidenceCompleteLocalRelocationAlternative) {
+    applyEvidenceCompleteLocalRelocation(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, fromIndex, toIndex) => relocatePlaceWithinDay(dayId, fromIndex, toIndex)
     );
   }
 
@@ -2643,12 +2755,16 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}
-                          {dayEntity && localSwapGeneration.kind === "available" && (
+                          {dayEntity &&
+                            localSwapGeneration.kind === "available" &&
+                            localRelocationGeneration.kind === "available" && (
                             <LocalSwapAlternativesSection
                               dayNumber={dayIndex + 1}
                               alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
+                              relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
                               placeById={placeById}
                               onApply={applyLocalSwap}
+                              onApplyRelocation={applyLocalRelocation}
                             />
                           )}
                           {bucket && dayEntity && dayBoundary && (

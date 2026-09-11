@@ -3861,3 +3861,43 @@ Defines the next bounded local alternative after adjacent swaps. Full contract:
 Recommended successor: **Phase 3E-E — Evidence-Complete Local Relocation Runtime**.
 
 **Phase 3E-E is NOT STARTED.** This gate changes documentation only.
+
+## Phase 3E-E — Evidence-Complete Local Relocation Runtime — implemented
+
+Implements `docs/EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md` without amending its contract.
+
+- [x] **Pure baseline-derived domain.** `evidence-complete-local-relocation.ts` imports Phase
+      3E-C's maximal same-hub block derivation and injects both place resolution and exact directed
+      transfer lookup. It enumerates only one-place, non-adjacent interior relocations in stable
+      day/block/from/to order, with quadratic candidate count and no repeated or factorial search.
+- [x] **Structural and temporal refusal.** Missing days, an invalid partition or an unresolved route
+      place make generation unavailable; trip bounds do not. A candidate is suppressed when any
+      place in `min(from,to)-1 … max(from,to)+1` has a non-empty persisted manual start time.
+- [x] **Complete evidence and conservative comparison.** The full baseline block passes through
+      `orderedSequenceFromLookup`; every relocated block passes through the exact lookup via
+      `sequenceComparisonFromLookup`. Only `b-clearly-faster` is emitted, with both confidence
+      tallies and Phase 3C-B advantage arithmetic unchanged.
+- [x] **Unique, unranked alternatives.** Duplicate candidate day orders are removed by first-seen
+      deterministic order. Nothing is sorted by advantage or labelled best, recommended or ranked,
+      and relocation candidates cannot duplicate the adjacent-swap group.
+- [x] **One pure V7 mutation and stale-safe Apply.** `withPlaceRelocatedWithinDay` removes one id
+      and inserts it directly at its final coordinate in one synchronous draft mutation. Apply
+      revalidates the exact baseline day, moved identity, legal interior destination, locked block
+      endpoints/hub and affected temporal window before calling it.
+- [x] **Larger-plan invariants retained.** Route membership, day identity, accommodation boundary,
+      dates, manual times, accommodation data and every stored inter-hub segment remain structurally
+      unchanged. Tests pin active same-day, active between-day and inactive segment assessments,
+      accommodation composition, and the exact whole-trip registered movement/transport delta.
+- [x] **Existing day-card surface extended.** The heading now contains separate “Intercambios
+      adyacentes” and “Reubicaciones de un lugar” groups. Relocations name the moved place and a
+      natural destination, show both registered ranges and confidence mixes, disclose the minimum
+      recorded-range gap and local-only limitation, and require “Aplicar esta reubicación”.
+- [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
+      `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, index, temporal
+      window, advantage, confidence, history, score or rank is persisted.
+- [x] **Contract coverage.** The 103 numbered Phase 3E-E contracts have domain/UI coverage, plus an
+      executable Playwright audit for explicit Apply, reload persistence, zero console errors and
+      zero page errors. Local typecheck, lint and production build pass; the 120 focused
+      relocation/3E-C tests pass. The browser executable is not installed locally, so the Chromium
+      audit remains for GitHub Actions. The otherwise-complete suite reports one unrelated existing
+      source-parity failure in `feb-mar-status.test.ts` (1763/1764 tests pass).
