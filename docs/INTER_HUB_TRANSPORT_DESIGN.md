@@ -10,22 +10,25 @@ Recommended successor if this gate is accepted: **Phase 3D-Y — Manual Inter-Hu
 
 Nihon is **not ready for automatic itinerary optimisation**.
 
-The current planner can describe an explicit user-authored order, compare two explicit user-authored
+The planner can describe an explicit user-authored order, compare two explicit user-authored
 orders, divide that order into stable day entities, attach civil dates and trip bounds, and record
 manual accommodation-boundary legs. It still has no honest representation for the major transport
-step between different city hubs.
+step when two consecutive parts of the user's plan belong to different city hubs.
 
 That gap must be closed before any "best order", auto-sort, day optimiser, nearest-neighbour,
 shortest-path or itinerary recommendation is considered.
 
-This gate therefore approves one narrow model only:
+This gate approves one narrow model only:
 
-> a **user-authored, manually timed inter-hub segment** attached to an explicit ordered pair of
-> stable day identities, with an explicit mode and a snapshot of the two hub names it was created
-> for.
+> a **user-authored, manually timed inter-hub segment** positioned between two explicit,
+> directionally ordered place ids that are currently consecutive at the relevant point in the
+> user's plan, with an explicit mode and a snapshot of the two hubs it was created for.
 
-It is not a `TransferEdge`, not an accommodation leg, not a timetable, not a booking, not a
-door-to-door journey and not a recommendation.
+The place ids are **plan-position anchors**, not transport terminals. The segment does not claim to
+be a place-to-place door-to-door duration.
+
+It is not a `TransferEdge`, not an accommodation leg, not a timetable, not a booking and not a
+recommendation.
 
 No runtime is implemented in this gate.
 
@@ -56,7 +59,7 @@ Measured directed coverage inside the four large hubs is also sparse:
 Sapporo currently has 3 places and no recorded directed relation between them. Nagoya and Fukuoka
 currently have one place each.
 
-The existing transfer vocabulary is also deliberately local:
+The existing transfer vocabulary is deliberately local:
 
 - `walk`
 - `local-transit`
@@ -70,7 +73,7 @@ No Shinkansen, domestic flight, ferry, intercity rail or highway-bus relation ex
 An optimiser over this graph would mostly optimise **where Nihon happens to have an edge**, not
 the user's real travel burden.
 
-A route with one unknown Tokyo→Kyoto jump cannot honestly be declared better or worse than another
+A route with one unknown Tokio→Kioto jump cannot honestly be declared better or worse than another
 route whose local walking edges happen to be recorded. Unknown is not infinite, and unknown is not
 zero.
 
@@ -79,19 +82,51 @@ Phase 3D-X does not weaken that rule.
 
 ### 2.3 Why inter-hub transport comes before candidate generation
 
-For the intended Japan trip, the route can legitimately cross Tokio, Kioto, Osaka and Okinawa.
-The largest logistical decisions are therefore exactly the ones the current graph cannot represent.
+For the intended multi-city use case, the largest logistical decisions are exactly the ones the
+current graph cannot represent.
 
 Before the planner can recommend an ordering, it needs a truthful way to say that the user intends
-a major move between two days and how much time the user has explicitly recorded for that move.
+a major move between two consecutive parts of the plan and how much time the user explicitly
+recorded for that move.
 
 ---
 
-## 3. Existing contracts that remain authoritative
+## 3. Hostile-review correction: why the segment is NOT day-pair-bound
 
-This design preserves the following current boundaries.
+An initial version of this design attached a segment to `fromDayId → toDayId`.
 
-### 3.1 `TransferEdge`
+That is rejected.
+
+A legitimate itinerary can contain a major inter-hub move **inside one calendar day**:
+
+- morning in Tokio;
+- Shinkansen;
+- afternoon/evening in Kioto.
+
+A day-pair-only model would be structurally unable to represent that trip. It would force the user
+to invent an extra day boundary merely to store a transport fact.
+
+The corrected model therefore anchors the segment to the two tourism-place ids that bracket its
+position in the current plan:
+
+`fromPlaceId → toPlaceId`
+
+Those ids identify **where the inter-hub segment sits in the plan**, not the physical departure and
+arrival terminals.
+
+This supports both:
+
+1. two adjacent places inside the same day; and
+2. the last place of Day N followed by the first place of Day N+1.
+
+It does not support a segment across an intervening empty day, because those places are not on
+consecutive day boundaries.
+
+---
+
+## 4. Existing contracts that remain authoritative
+
+### 4.1 `TransferEdge`
 
 `app/src/lib/transfer.ts` remains the domain for **recorded directed place-to-place relations**.
 
@@ -105,15 +140,15 @@ Phase 3D-X does not:
 - call a routing provider;
 - reinterpret `getBestTransfer()`.
 
-### 3.2 Ordered sequence
+### 4.2 Ordered sequence
 
 `ordered-sequence.ts` continues to consume one explicit place order and looks up only each exact
 consecutive directed pair.
 
-A manual inter-hub segment is not inserted into that sequence and is not used to make an incomplete
-place sequence look complete.
+A manual inter-hub segment is not inserted into `OrderedSequenceLeg.transfer` and is not used to
+make an incomplete `TransferEdge` sequence look complete.
 
-### 3.3 Sequence comparison
+### 4.3 Sequence comparison
 
 `sequence-comparison.ts` keeps its existing rule:
 
@@ -122,14 +157,14 @@ place sequence look complete.
 Manual inter-hub segments do not retroactively fill missing `TransferEdge` legs and do not make
 automatic candidate generation safe.
 
-### 3.4 Day assignment
+### 4.4 Day assignment
 
-`day-assignment.ts` intentionally breaks transfer aggregation at day boundaries.
+`day-assignment.ts` intentionally breaks normal transfer aggregation at day boundaries.
 
-That remains correct. An inter-hub segment is a **separate boundary-level fact**, not an intra-day
-leg that gets smuggled into a day sequence.
+That remains correct. An inter-hub segment is a **separate planning-boundary fact**, not an
+intra-day `TransferEdge` smuggled into the sequence.
 
-### 3.5 Accommodation commute
+### 4.5 Accommodation commute
 
 `ManualAccommodationLeg` remains an exact user-entered accommodation↔place duration.
 
@@ -141,18 +176,18 @@ An inter-hub segment does not:
 - infer a terminal;
 - produce a door-to-door total.
 
-### 3.6 Trip bounds
+### 4.6 Trip bounds
 
 Phase 3D-W's `startDate`, `endDate`, day identity and bounds assessment remain untouched.
 
 An inter-hub segment has no clock time and no timezone. It does not derive arrival/departure dates,
-change the trip bounds, create a travel day or alter day membership.
+change trip bounds, create a travel day or alter day membership.
 
 ---
 
-## 4. Approved domain model
+## 5. Approved domain model
 
-The successor may add a new independent domain type:
+The successor may add:
 
 ```ts
 type InterHubMode =
@@ -165,8 +200,8 @@ type InterHubMode =
 
 type ManualInterHubSegment = {
   id: string;
-  fromDayId: string;
-  toDayId: string;
+  fromPlaceId: string;
+  toPlaceId: string;
   fromHub: string;
   toHub: string;
   mode: InterHubMode;
@@ -175,56 +210,51 @@ type ManualInterHubSegment = {
 };
 ```
 
-### 4.1 Identity
+### 5.1 Identity
 
-`id` is opaque and locally minted, using the same no-semantic-payload principle as stable day and
+`id` is opaque and locally minted using the same no-semantic-payload principle as stable day and
 accommodation ids.
 
-It encodes no:
+It encodes no date, ordinal, hub, mode, duration, creation time or place id.
 
-- date;
-- ordinal;
-- hub;
-- mode;
-- duration;
-- creation time;
-- place id;
-- recommendation score.
+### 5.2 Directional plan anchors
 
-### 4.2 Boundary identity
-
-The segment refers to **two stable day ids**:
-
-- `fromDayId`
-- `toDayId`
-
-The pair is directional.
+`fromPlaceId → toPlaceId` is directional.
 
 A segment for A→B is not a segment for B→A.
 
-The ids are stored because ordinal positions are not stable identities. Reordering days must never
-silently rebind "the train from Tokyo to Kyoto" to whichever two buckets happen to occupy positions
-2 and 3 later.
+These place ids mean:
 
-### 4.3 Hub snapshot
+> the major inter-hub segment sits between these two consecutive plan items.
 
-`fromHub` and `toHub` are stored as the explicit hub pair the user created the segment for.
+They do **not** mean:
 
-They are not automatically rewritten if the contents of either day later change.
+> the transport departs from the physical coordinates of A and arrives at the physical coordinates
+> of B.
 
-This is intentionally redundant with what may be derivable from the current day contents: the
-redundancy is evidence that prevents a segment from silently changing meaning after a place move.
+No distance is derived between those place coordinates.
 
-### 4.4 Mode
+### 5.3 Hub snapshot
+
+`fromHub` and `toHub` store the explicit hub pair the segment was created for.
+
+At creation time, the UI may copy those values from the two resolved `Place.hub` fields because
+that is direct dataset evidence about the selected places.
+
+They are never automatically rewritten later.
+
+This deliberate snapshot prevents a segment from silently changing semantic meaning if dataset
+classification or route composition changes.
+
+### 5.4 Mode
 
 `mode` is an explicit user selection.
 
 No mode is inferred from the hub pair.
 
-Tokio→Kioto does not imply Shinkansen. Osaka→Okinawa does not imply flight. The model carries the
-user's decision, not Nihon's assumption.
+Tokio→Kioto does not imply Shinkansen. Osaka→Okinawa does not imply flight.
 
-### 4.5 Duration
+### 5.5 Duration
 
 `minutes` is:
 
@@ -235,27 +265,25 @@ user's decision, not Nihon's assumption.
 
 It is not widened into an invented range.
 
-It is not a door-to-door duration and does not include local access/egress unless a future,
-separately-designed model explicitly says so.
+It is not a door-to-door duration. The anchor tourism places are positional context, not terminals.
 
-The UI must label this boundary plainly, e.g. "Duración manual del tramo principal".
+The UI must label this clearly, e.g. **"Duración manual del tramo principal"**.
 
-### 4.6 Provenance
+### 5.6 Provenance
 
-The only approved provenance is:
+Only:
 
 ```ts
 { kind: "user-entered" }
 ```
 
-No official timetable, booking source, routing provider, airline, JR operator or live feed is
-claimed.
+No official timetable, airline, JR operator, routing provider or live feed is claimed.
 
 ---
 
-## 5. Canonical persistence
+## 6. Canonical persistence
 
-The successor should promote the canonical planning draft from V6 to V7:
+The successor should promote the canonical draft V6→V7:
 
 ```ts
 type ManualPlanningDraftV7 = {
@@ -271,13 +299,13 @@ type ManualPlanningDraftV7 = {
 };
 ```
 
-The storage key remains exactly:
+Storage key remains exactly:
 
 `nihon.manualPlanningDraft`
 
-No second localStorage key is approved.
+No second localStorage key.
 
-### 5.1 Migration
+### 6.1 Migration
 
 V6 → V7 adds exactly:
 
@@ -285,409 +313,380 @@ V6 → V7 adds exactly:
 interHubSegments: []
 ```
 
-Nothing is inferred from:
-
-- route order;
-- day order;
-- place hubs;
-- trip bounds;
-- accommodation anchors;
-- existing transfer edges;
-- dates;
-- today's date.
-
-An old trip did not contain an inter-hub decision, so migration must not invent one.
+Nothing is inferred from route order, day order, place hubs, bounds, accommodations, existing
+transfer edges, dates or the current clock.
 
 ---
 
-## 6. Shape validation
+## 7. Shape validation
 
-At parse time, a segment is shape-valid only when:
+A segment is shape-valid only when:
 
 - `id` is a non-empty string;
-- `fromDayId` and `toDayId` are non-empty strings and differ;
+- `fromPlaceId` and `toPlaceId` are non-empty strings and differ;
 - `fromHub` and `toHub` are non-empty strings and differ;
 - `mode` is in the closed vocabulary;
 - `minutes` is a positive safe integer;
 - `source` is exactly `{ kind: "user-entered" }`;
 - segment ids are unique;
-- no two stored segments have the same exact directional `fromDayId → toDayId` key.
+- no two segments have the same exact directional `fromPlaceId → toPlaceId` key.
 
-Referential/ordinal coherence is **not** a parse invariant. See §7.
+Current route/day adjacency and current hub agreement are **not parse invariants**.
 
-This distinction matters because normal user edits can temporarily make a previously valid segment
-inactive. That state must not turn the whole persisted trip into corruption on reload.
+A normal user reorder can make a segment inactive temporarily; that must not turn the whole
+persisted trip into corruption on reload.
 
 ---
 
-## 7. Derived applicability assessment
+## 8. Derived applicability assessment
 
-A pure assessment layer determines whether a stored segment currently describes a usable day
-boundary.
-
-Approved result vocabulary:
+Approved result shape:
 
 ```ts
 type InterHubSegmentAssessment =
-  | { kind: "active"; fromOrdinal: number; toOrdinal: number }
+  | {
+      kind: "active";
+      placement: "route-only" | "same-day" | "between-consecutive-days";
+      fromDayOrdinal: number | null;
+      toDayOrdinal: number | null;
+    }
   | {
       kind: "inactive";
       reason:
-        | "no-day-assignment"
-        | "missing-from-day"
-        | "missing-to-day"
-        | "not-adjacent"
-        | "reversed-order"
-        | "empty-from-day"
-        | "empty-to-day"
-        | "mixed-from-hubs"
-        | "mixed-to-hubs"
+        | "missing-from-place"
+        | "missing-to-place"
         | "from-hub-mismatch"
         | "to-hub-mismatch"
-        | "same-current-hub";
+        | "same-current-hub"
+        | "not-consecutive-in-route"
+        | "not-consecutive-in-day"
+        | "not-boundary-of-consecutive-days"
+        | "invalid-day-partition";
     };
 ```
 
-The exact successor implementation may collapse `not-adjacent`/`reversed-order` if tests prove
-one subsumes the other cleanly, but it may not collapse an ambiguous/missing state into `active`.
+The successor may refine names, but it may not collapse an unknown/non-matching state into
+`active`.
 
-### 7.1 Current day hub
+### 8.1 When no day assignment exists
 
-A day has a resolvable current hub only when:
+Use the explicit `routeIds` order.
 
-1. it is non-empty;
-2. every `placeId` resolves;
-3. every resolved place in that day has the same `Place.hub`.
+The segment is active only when:
 
-No majority vote, first-place heuristic or last-place heuristic is allowed.
+1. both anchor places exist in the current route;
+2. `fromPlaceId` immediately precedes `toPlaceId`;
+3. the current `Place.hub` values match the stored hub snapshots;
+4. the current hubs differ.
 
-A mixed-hub day is ambiguous for this feature.
+Placement: `route-only`.
 
-### 7.2 Active segment
+### 8.2 When a valid day assignment exists
 
-A segment is active only when all are true:
+Day order becomes the presentation order for this assessment.
 
-1. both referenced day ids exist;
-2. `fromDayId` immediately precedes `toDayId` in the current day order;
-3. both days resolve to exactly one current hub;
-4. current from-hub equals stored `fromHub`;
-5. current to-hub equals stored `toHub`;
-6. the two current hubs differ.
+A segment is active only in one of two cases.
 
-Anything else is inactive and contributes no transport minutes to any summary.
+**Same day**
 
-### 7.3 No repair
+- both anchors are in the same day;
+- `fromPlaceId` immediately precedes `toPlaceId` inside that day's place order;
+- hubs match snapshots and differ.
 
-Assessment never:
+Placement: `same-day`.
 
-- moves a day;
-- edits a segment;
-- rewrites a hub snapshot;
-- changes a mode;
-- changes minutes;
-- deletes the segment;
-- changes trip bounds;
-- changes accommodation data.
+**Between consecutive days**
 
-An inactive segment remains visible as a user-authored fact that no longer matches the current plan.
+- `fromPlaceId` is the last place of Day N;
+- `toPlaceId` is the first place of Day N+1;
+- N+1 is immediately consecutive — no intervening empty day;
+- hubs match snapshots and differ.
 
----
+Placement: `between-consecutive-days`.
 
-## 8. Mutation semantics
+A pair separated by an empty day is not active merely because flattening non-empty place ids would
+make the two ids adjacent.
 
-### 8.1 Create
+### 8.3 Invalid partition
 
-A segment may be created only for a **currently active-eligible boundary**:
+If a day assignment cannot be trusted structurally, no inter-hub segment is active from that day
+view. The assessment returns `invalid-day-partition`; it does not fall back silently to a different
+order.
 
-- two consecutive day entities;
-- each non-empty;
-- each single-hub;
-- hubs differ.
+### 8.4 No repair
 
-The UI may derive the two hub labels from that boundary at creation time and persist those labels as
-the snapshot. It must not infer the transport mode or minutes.
-
-### 8.2 Edit
-
-The user may change only:
-
-- mode;
-- minutes.
-
-Changing the bound day pair is modeled as delete + create, not silent identity rebinding.
-
-### 8.3 Reorder days
-
-`withDayMoved` does not rewrite any segment.
-
-After reorder, assessment recomputes. A formerly active segment may become inactive.
-
-If the exact same two day entities remain consecutive in the same direction, it remains active.
-
-### 8.4 Move places between days
-
-The segment object is unchanged.
-
-If the move makes a day empty, mixed-hub, or changes its single resolved hub, the segment becomes
-inactive. Its stored hub snapshot is never rewritten automatically.
-
-### 8.5 Reorder places inside a day
-
-No effect on segment applicability if the set of hubs in the day is unchanged.
-
-### 8.6 Add an empty day
-
-No segment is created automatically.
-
-Inserting an empty day between two referenced day entities can make their segment non-adjacent and
-therefore inactive.
-
-### 8.7 Remove a day
-
-Deleting a day destroys that stable identity.
-
-The successor is permitted to remove segments that reference the explicitly deleted day in the same
-mutation, because those segments can never again refer to an existing entity.
-
-This destructive consequence must be visible in the UI before the user confirms/removes that day;
-it must not happen as an unrelated background cleanup.
-
-### 8.8 Route composition change / reset
-
-Existing planner semantics can invalidate the entire day assignment (`days: null`) when route
-composition changes or the route is reset.
-
-Because inter-hub segments are defined specifically between stable day identities, when the day
-assignment is structurally destroyed the successor must clear `interHubSegments` in that same
-explicit mutation.
-
-The bounds and accommodation anchors keep their existing independent semantics.
-
-A pure route reorder that preserves the existing day entities does not clear segments.
-
-### 8.9 Bounds changes
-
-Setting, clearing or inverting `startDate`/`endDate` never changes an inter-hub segment.
-
-The segment has no date or clock-time semantics in this phase.
+Assessment never moves a place/day, edits a segment, rewrites hub snapshots, changes mode/minutes,
+changes bounds or touches accommodation data.
 
 ---
 
-## 9. Presentation contract
+## 9. Mutation semantics
 
-The successor may add one subsection inside the **existing** planning dialog:
+### 9.1 Create
+
+The UI may create a segment only when the selected directional anchor pair is currently eligible:
+
+- both places resolve;
+- they occupy an allowed consecutive position under §8;
+- their current hubs differ.
+
+The UI copies `fromHub`/`toHub` from the two places as a snapshot.
+
+The user explicitly chooses mode and minutes.
+
+### 9.2 Edit
+
+Only mode and minutes are edited in-place.
+
+Changing either anchor place is modeled as delete + create, not silent identity rebinding.
+
+### 9.3 Route reorder
+
+A pure route reorder never rewrites a segment.
+
+When `days === null`, applicability recomputes from the new route adjacency.
+
+When days exist, the day assignment remains the assessment order; no route reorder silently
+overrides it.
+
+### 9.4 Place reorder/move within day planning
+
+Segments remain byte-identical.
+
+If the anchor pair ceases to be an allowed adjacency, the segment becomes inactive.
+
+If the same pair later returns to an allowed adjacency in the same direction, the same stored
+segment can become active again.
+
+### 9.5 Day reorder
+
+Segments remain byte-identical.
+
+A cross-day pair may become inactive or active depending on whether the two anchor places now form
+the exact last-of-Day-N → first-of-Day-N+1 boundary.
+
+A same-day pair remains active if its intra-day order is untouched.
+
+### 9.6 Empty days
+
+Adding/removing an unrelated empty day creates no segment and edits no segment.
+
+An empty day inserted between a formerly consecutive cross-day pair makes that pair inactive.
+
+### 9.7 Removing an anchor place from the route
+
+A segment whose `fromPlaceId` or `toPlaceId` is explicitly removed from the route must be pruned
+by the same canonical route/reconciliation mutation that removes stale place-bound state.
+
+No unrelated segment is removed.
+
+If the user later adds the place back, the old segment is not resurrected automatically.
+
+### 9.8 Bounds and accommodation changes
+
+Setting/clearing/inverting trip bounds and any accommodation operation preserve every inter-hub
+segment byte-for-byte.
+
+---
+
+## 10. Presentation contract
+
+The successor may add one subsection inside the existing planning dialog:
 
 **Traslados entre ciudades**
 
-No new top-level page, wizard or modal is required.
+No new top-level page/wizard/modal is required.
 
-The section may:
+It may:
 
-- list stored segments;
-- show the explicit day pair;
+- show the anchor pair by place names;
 - show `fromHub → toHub`;
-- show the user-selected mode;
-- show the manually entered minutes;
-- show whether the segment currently matches that boundary;
-- explain an inactive reason neutrally;
+- show user-selected mode;
+- show manually entered minutes;
+- state whether it currently applies and where: route-only, same day, or between two consecutive
+  days;
+- explain inactivity neutrally;
 - add/edit/delete a segment.
 
-### 9.1 Copy boundaries
+### 10.1 Copy boundaries
 
-Approved style:
+Approved examples:
 
 - "Tokio → Kioto"
 - "Shinkansen"
 - "140 min registrados manualmente"
-- "Este tramo ya no coincide con dos días consecutivos."
-- "El contenido actual del Día 3 mezcla más de un hub; Nihon no puede aplicar este tramo."
+- "Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta."
+- "Estos lugares ya no son consecutivos en el reparto actual."
 
 Forbidden:
 
 - "Mejor opción"
 - "Ruta óptima"
 - "Conviene"
-- "Más rápido" unless comparing independently supported complete evidence in a future phase
+- "Más rápido" without a separately-supported complete comparison
 - "Llegarás a las..."
 - "Toma este tren/vuelo"
 - "Reserva ahora"
-- "Puerta a puerta"
-- "Incluye traslado al aeropuerto/estación"
-- any invented station, terminal, airport, fare or timetable.
+- invented station, terminal, airport, fare or timetable.
 
-### 9.2 Totals
+### 10.2 Totals
 
-The manually entered segment may be displayed as its own duration fact.
+The segment may be displayed as its own duration fact.
 
-It must not be silently merged into:
+It must not be silently merged into intra-day transfer totals, accommodation commute totals or
+visit-time totals.
 
-- intra-day transfer totals;
-- accommodation commute totals;
-- visit-time totals.
-
-A later phase may design a trip-level time composition, but Phase 3D-Y must not invent one by simple
-addition across incomparable boundaries.
+A later phase may design a trip-level composition; 3D-Y does not invent one.
 
 ---
 
-## 10. Why this is not `TransferMode`
+## 11. Why this is not `TransferMode`
 
-Adding `shinkansen` or `domestic-flight` to the current `TransferMode` looks superficially
-simple but is rejected.
+Adding `shinkansen` or `domestic-flight` to current `TransferMode` is rejected.
 
-`TransferEdge` currently means a recorded directed relation between two tourism places, with
-distance, confidence, provenance and a lookup key over those place ids.
+`TransferEdge` means a recorded directed relation between tourism places, with distance,
+confidence, provenance and a lookup key over those place ids.
 
-The proposed segment instead means:
+The proposed segment means:
 
 - a user-authored major travel decision;
-- between two stable day entities;
-- with no tourism-place endpoints;
-- no recorded geometric distance;
+- positioned between two plan items;
+- with tourism-place ids used only as plan anchors;
+- no geometric distance;
 - no routing-provider evidence;
 - no access/egress model;
-- no assumption that the day endpoints are stations/airports.
+- no claim that the anchor places are stations/airports.
 
-Conflating the two would make existing consumers interpret a fundamentally different object as a
+Conflating them would make existing consumers interpret a fundamentally different object as a
 normal place-to-place transfer.
 
 ---
 
-## 11. Automatic candidate generation remains deferred
+## 12. Automatic candidate generation remains deferred
 
-This gate explicitly re-audits the roadmap's unscheduled auto-ordering item.
+No candidate generator in 3D-X or 3D-Y:
 
-### 11.1 No candidate generator in 3D-X or 3D-Y
-
-No:
-
-- permutation enumeration;
+- no permutation enumeration;
 - TSP;
 - shortest path;
 - nearest-neighbour;
 - greedy route;
 - clustering optimiser;
-- auto day split;
-- auto day count;
+- auto day split/count;
 - "optimise" button;
 - generated recommended itinerary.
 
-### 11.2 Reopening condition
+Reopening requires a separate audit that answers at least:
 
-Automatic candidate generation can be reconsidered only after a future audit can answer at least:
-
-1. What objective is being optimised — transport time, completeness, hotel commute, visit time,
+1. What objective is optimized — transport time, completeness, hotel commute, visit time,
    reservation constraints, or a defined multi-objective rule?
-2. How are unknown edges treated without turning missing data into a penalty or a free edge?
-3. How are inter-hub segments represented with evidence strong enough for comparison?
+2. How are unknown edges treated without making missing data a penalty or free edge?
+3. How are inter-hub segments evidenced strongly enough for comparison?
 4. How are incomplete candidates prevented from losing merely because they contain unknowns?
 5. How are activity duration, trip bounds and accommodation boundaries incorporated so transport is
-   not optimised in isolation?
-6. What claim may the UI make: generated alternative, locally improved candidate, or global optimum?
+   not optimized in isolation?
+6. What UI claim is justified: generated alternative, local improvement, or global optimum?
 7. What computational bound prevents factorial search from becoming a hidden scalability problem?
 
-Until those are answered, the existing explicit-user-order model remains the correct product
-contract.
+Until then, explicit user order remains authoritative.
 
 ---
 
-## 12. Test contract for Phase 3D-Y
+## 13. Test contract for Phase 3D-Y
 
-The successor is not complete unless the following matrix passes.
+### Migration/parser
 
-### Migration and parser
-
-1. V6 → V7 adds `interHubSegments: []` and changes nothing else.
-2. V1–V6 historical migration chain still reaches V7.
-3. Valid manual segment parses verbatim.
+1. V6→V7 adds `interHubSegments: []` only.
+2. V1–V6 historical migration still reaches V7.
+3. Valid segment parses verbatim.
 4. Invalid mode rejects whole V7 draft.
-5. Zero, negative, fractional, unsafe or non-number minutes reject.
+5. Invalid minutes reject.
 6. Empty ids/hubs reject.
-7. `fromDayId === toDayId` rejects.
-8. `fromHub === toHub` rejects.
-9. Duplicate segment id rejects.
-10. Duplicate directional day-pair key rejects.
-11. A shape-valid segment referencing a currently missing/non-adjacent day remains parseable and is
-    assessed inactive rather than corrupting the whole draft.
+7. same anchor id rejects.
+8. same stored hub rejects.
+9. duplicate segment id rejects.
+10. duplicate directional anchor-pair key rejects.
+11. shape-valid but currently non-adjacent segment parses and assesses inactive.
 
-### Assessment
+### Route-only assessment
 
-12. Consecutive single-hub day pair matching snapshots → active.
-13. A→B segment does not become active for B→A.
-14. Missing from-day → inactive.
-15. Missing to-day → inactive.
-16. Non-adjacent days → inactive.
-17. Empty from-day → inactive.
-18. Empty to-day → inactive.
-19. Mixed-hub from-day → inactive.
-20. Mixed-hub to-day → inactive.
-21. Changed from hub → inactive.
-22. Changed to hub → inactive.
-23. Same current hub → inactive.
-24. Assessment never mutates draft or segment.
+12. Adjacent route pair with matching different hubs → active/route-only.
+13. Reverse order does not activate.
+14. missing from/to place → inactive.
+15. non-adjacent route pair → inactive.
+16. hub snapshot mismatch → inactive.
+17. same current hub → inactive.
 
-### Identity and edits
+### Day assessment
 
-25. Reordering places inside one day preserves active state when hub set is unchanged.
-26. Moving a place across days can deactivate a segment without editing the segment.
-27. Moving a day away deactivates the segment without rewriting ids/hubs/mode/minutes.
-28. Moving the exact pair back to the same adjacency reactivates the same stored segment.
-29. Adding an empty day never creates a segment.
-30. Inserting/reordering a day between the referenced pair can deactivate it.
-31. Removing a referenced day removes only segments that reference that deleted identity.
-32. Removing an unrelated day preserves the segment.
-33. Route composition change that destroys `days` clears inter-hub segments.
-34. Route pure reorder that preserves day identities preserves segments.
-35. `resetRoute` clears day-bound segments when it clears `days`.
-36. Bounds changes preserve every segment byte-for-byte.
-37. Accommodation edits preserve every segment byte-for-byte.
-38. Segment edit changes only mode/minutes.
+18. Adjacent pair inside same day → active/same-day.
+19. non-adjacent pair in same day → inactive.
+20. last of Day N → first of Day N+1 → active/between-consecutive-days.
+21. pair across Day N → Day N+2 with empty/intervening day → inactive.
+22. cross-day pair that is not last→first → inactive.
+23. invalid partition → inactive, no route-order fallback.
+24. same-day Tokio→Kioto is representable and active when those places are adjacent.
+25. assessment is pure.
 
-### Existing domain isolation
+### Edits/identity
 
-39. `getBestTransfer()` output is unchanged.
-40. `TransferMode` is unchanged.
-41. `ordered-sequence.ts` never reads inter-hub segments.
-42. `sequence-comparison.ts` never reads inter-hub segments.
-43. `day-assignment.ts` never inserts an inter-hub segment as an intra-day leg.
-44. `ManualAccommodationLeg` semantics are unchanged.
-45. Trip-bounds assessment is unchanged.
+26. route reorder can deactivate/reactivate without rewriting segment.
+27. place reorder inside day can deactivate/reactivate without rewriting.
+28. moving a place between days can change placement kind without rewriting if the exact anchor
+    relationship still qualifies.
+29. day reorder can deactivate/reactivate cross-day pair without rewriting.
+30. empty day insertion breaks cross-day adjacency.
+31. deleting unrelated empty day preserves segment.
+32. removing an anchor place prunes only segments that reference it.
+33. re-adding that place never resurrects the old segment automatically.
+34. bounds changes preserve segments byte-for-byte.
+35. accommodation changes preserve segments byte-for-byte.
+36. editing a segment changes only mode/minutes.
 
-### Persistence and UI
+### Isolation
 
-46. Write→reload preserves segment identity, day refs, hub snapshots, mode and minutes.
-47. Storage key remains `nihon.manualPlanningDraft`.
-48. No second inter-hub storage key exists.
-49. UI creates a segment only from an eligible current boundary.
-50. UI never infers mode/minutes.
-51. Inactive segment remains visible with neutral reason.
-52. No copy claims optimisation, timetable validity, price, booking, arrival time or door-to-door
-    coverage.
-53. Real-browser QA covers active → reorder/inactive → reorder-back/active and reload.
-54. Console errors = 0; page errors = 0.
+37. `getBestTransfer()` unchanged.
+38. `TransferMode` unchanged.
+39. `ordered-sequence.ts` never treats a manual inter-hub segment as `transfer`.
+40. `sequence-comparison.ts` winner semantics unchanged.
+41. `day-assignment.ts` never inserts inter-hub segment into an intra-day `OrderedSequence`.
+42. accommodation semantics unchanged.
+43. trip-bounds semantics unchanged.
+
+### Persistence/UI/browser
+
+44. write→reload preserves id, anchor ids, hub snapshots, mode and minutes.
+45. storage key unchanged.
+46. no second inter-hub key.
+47. UI only creates from an eligible current anchor pair.
+48. UI never infers mode/minutes.
+49. inactive segment remains visible with neutral reason.
+50. no copy claims optimisation/timetable/price/booking/arrival time/door-to-door coverage.
+51. real-browser QA: route-only active, same-day active, cross-day active, reorder inactive,
+    reorder-back active, empty-day separation inactive, reload preserved.
+52. console errors 0; page errors 0.
 
 ---
 
-## 13. Non-goals
+## 14. Non-goals
 
-Phase 3D-X and its recommended 3D-Y successor do **not** include:
+Neither 3D-X nor recommended 3D-Y includes:
 
-- dataset or workbook changes;
-- current Shinkansen schedules;
-- airline schedules;
-- fares or price comparison;
+- dataset/workbook changes;
+- current Shinkansen or airline schedules;
+- fares/price comparison;
 - ticket classes;
 - seat reservations;
 - JR Pass evaluation;
 - IC cards;
 - live inventory;
-- booking links/integration;
-- airports or station ids;
+- booking integration;
+- airports/station ids;
 - station/airport access legs;
-- luggage, takkyubin, lockers or oversized-baggage rules;
-- hotel check-in/check-out;
+- luggage/takkyubin/lockers/oversized-baggage;
+- check-in/check-out;
 - arrival/departure clock times;
-- timezone or absolute instants;
+- timezone/absolute instants;
 - automatic travel-day insertion;
 - automatic day creation/removal;
 - automatic place moves;
@@ -698,58 +697,56 @@ Phase 3D-X and its recommended 3D-Y successor do **not** include:
 - ORS calls;
 - a new npm dependency.
 
-Those are separate decisions.
+---
+
+## 15. Roadmap implications
+
+The old "Hotel-origin/return modelling — runtime not started" text is stale: Phase 3D-Q already
+implemented manual accommodation commute legs and the canonical persisted accommodation model.
+
+Automatic candidate generation remains unscheduled, but its blocker is now concrete: before any
+candidate-order design can make a useful travel claim, the planner needs a truthful inter-hub
+transport boundary and a later multi-objective audit. Sparse local edge coverage alone is not an
+optimisation substrate.
 
 ---
 
-## 14. Roadmap implications
+## 16. Acceptance gate for Phase 3D-X
 
-This gate makes two roadmap facts explicit.
-
-First, the old "Hotel-origin/return modelling — runtime not started" text is stale: Phase 3D-Q
-already implemented manual accommodation commute legs and the canonical persisted accommodation
-model. That entry should be corrected as documentation maintenance.
-
-Second, automatic candidate generation remains unscheduled, but its blocker is now more concrete:
-before a candidate-order design can make a useful travel claim, the planner needs a truthful
-inter-hub transport boundary and a later multi-objective audit. Sparse local edge coverage alone is
-not an optimisation substrate.
-
----
-
-## 15. Acceptance gate for Phase 3D-X
-
-This design gate is accepted only if review agrees that:
+Review must agree that:
 
 1. inter-hub transport is a distinct domain object, not a new `TransferEdge` mode;
-2. stable day-pair identity is the correct attachment boundary;
-3. stored hub snapshots prevent silent semantic rebinding after place moves;
-4. current applicability is derived and can be inactive without corrupting persistence;
-5. minutes and mode are explicit user input only;
-6. no arrival time, timetable, fare, terminal, door-to-door claim or optimisation is implied;
-7. V6 → V7 migration adds an empty segment list and invents nothing;
-8. route/day mutations have explicit segment-preservation/clearing semantics;
+2. place ids are plan-position anchors, not claimed transport terminals;
+3. the model supports both same-day and cross-day inter-hub movement;
+4. stored hub snapshots prevent silent semantic rebinding;
+5. applicability is derived and may become inactive without corrupting persistence;
+6. mode/minutes are explicit user input only;
+7. no arrival time, timetable, fare, terminal, door-to-door or optimisation claim is implied;
+8. V6→V7 adds an empty segment list and invents nothing;
 9. automatic candidate generation remains deferred;
-10. Phase 3D-Y, if started, implements exactly this narrow runtime and nothing broader.
+10. Phase 3D-Y, if started, implements exactly this narrow runtime.
 
 ---
 
-## 16. Conclusion
+## 17. Conclusion
 
-The planner now knows **when** the trip starts and ends, and it can preserve stable user-authored
-days and accommodation boundaries. Its largest remaining logistics blind spot is the movement
-between different city hubs.
+The planner now knows when the trip starts and ends, and it preserves stable days and accommodation
+boundaries. Its largest remaining logistics blind spot is movement between different city hubs.
 
-The data proves that blind spot cannot be solved by pretending the current nearby graph is a route
-network: 403 recorded directed relations across 214 places cover only 0.88% of all possible
-directed pairs, and all of them are intra-hub.
+The data proves that blind spot cannot be solved by pretending the nearby graph is a route network:
+403 directed relations across 214 places cover only 0.88% of all possible directed pairs, and every
+one is intra-hub.
 
-The safe next increment is therefore explicit rather than inferred:
+The safe next increment is explicit rather than inferred:
 
-> let the user record the major inter-hub segment they actually intend, bind it to the two stable
-> days it belongs between, keep the mode and duration visibly manual, and deactivate rather than
-> silently reinterpret it when the plan changes.
+> let the user record the major inter-hub segment they actually intend, place it between the two
+> consecutive itinerary items it belongs between, keep mode and duration visibly manual, and
+> deactivate rather than silently reinterpret it when the plan changes.
 
-**Approved design direction:** manual, provenance-explicit, day-pair-bound inter-hub segments.
+Using place anchors rather than day-pair anchors is essential: a real Tokio→Kioto move can occur
+inside one day, and the model must not force the user to falsify the calendar to record it.
+
+**Approved design direction:** manual, provenance-explicit, place-anchor-positioned inter-hub
+segments.
 
 **Recommended successor: Phase 3D-Y — Manual Inter-Hub Segment Runtime. NOT STARTED.**
