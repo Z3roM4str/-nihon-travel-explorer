@@ -130,10 +130,25 @@ jobs:
             return JSON.stringify(value);
           }
 
+          function parseHumanDuration(value) {
+            const hours = value.match(/(\d+)\s*h/);
+            const minutes = value.match(/(\d+)\s*min/);
+            if (!hours && !minutes) throw new Error("Could not parse human duration: " + value);
+            return Number(hours?.[1] ?? 0) * 60 + Number(minutes?.[1] ?? 0);
+          }
+
           function parseRegisteredTransport(text) {
-            const match = text.match(/Traslado registrado:\s*(\d+)(?:\s*[–-]\s*(\d+))?\s*min/);
-            if (!match) throw new Error("Could not parse registered transport from: " + text);
-            return { min: Number(match[1]), max: Number(match[2] ?? match[1]) };
+            const match = text.match(/Traslado registrado:\s*([^.]*)\. Incluye/);
+            if (!match) throw new Error("Could not isolate registered transport from: " + text);
+            const parts = match[1].split("–").map((value) => value.trim());
+            if (parts.length === 1) {
+              const exact = parseHumanDuration(parts[0]);
+              return { min: exact, max: exact };
+            }
+            if (parts.length === 2) {
+              return { min: parseHumanDuration(parts[0]), max: parseHumanDuration(parts[1]) };
+            }
+            throw new Error("Unexpected registered transport range: " + match[1]);
           }
 
           const browser = await chromium.launch({ headless: true });
