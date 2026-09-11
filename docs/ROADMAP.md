@@ -2833,23 +2833,25 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       urgency, late, `book now`, booking opening/closing, or a guaranteed deadline; availability;
       reminders or automation; live inventory or booking integration; or any inference stronger than
       the recorded evidence.
-- [ ] Hotel-origin/return modelling — **designed in Phase 3D-P; runtime not started.** The gate
-      defines separate user-authored accommodation anchors, independent explicit start/end choices
-      per day (`unselected`, `no-accommodation`, or one chosen anchor), and exact directed
-      accommodation↔place durations entered manually by the user as the only currently approved
-      evidence source. Missing/unknown legs stay missing, never zero or reversed; a complete
-      door-to-door total additionally requires the existing intra-day sequence to be complete and
-      both accommodation sides to resolve to manual legs. Automatic hotel routing remains unapproved:
-      no geometry-derived fallback, runtime ORS, live transit, geocoding, booking integration or
-      synthetic hotel `Place` is introduced. Recommended successor: Phase 3D-Q — Manual Accommodation
-      Commute Legs.
+- [ ] Hotel-origin/return modelling — **manual runtime implemented through Phase 3D-Q;
+      automatic hotel routing remains unscheduled.** Phase 3D-P designed separate user-authored
+      accommodation anchors and explicit start/end choices per day; Phase 3D-Q implemented those
+      choices plus exact directed accommodation↔place durations entered manually by the user.
+      Missing/unknown legs stay missing, never zero or reversed. Still not implemented: automatic
+      hotel routing, geometry-derived fallback, runtime ORS/live transit, geocoding, booking
+      integration, synthetic hotel `Place` objects, hotel-to-hotel inference, or automatic
+      station/airport access/egress. Phase 3D-X keeps inter-hub transport separate from this model.
 - [ ] Automatic candidate generation, automatic day distribution, and itinerary
       recommendation/optimisation (auto-sort, nearest-neighbour, TSP, shortest path, a day-quality
-      scoring function, a "best order"/"best split" claim) — not started. Phase 3C-A defined one
-      user-given order, Phase 3C-B compared exactly two of them, and Phase 3C-C let the user split
-      one into ordinal days; none of the three chose an order, a day count, or a place-to-day
-      assignment on the user's behalf, and any future automation here is a distinct,
-      separately-scoped decision — not an incremental extension to make without one.
+      scoring function, a "best order"/"best split" claim) — **still not started and explicitly
+      deferred again by Phase 3D-X.** Phase 3C-A defined one user-given order, Phase 3C-B compared
+      exactly two of them, and Phase 3C-C let the user split one into ordinal days. Phase 3D-X
+      measured the current logistics substrate at only 403 directed relations across 214 places
+      (0.88% of all possible directed pairs), with zero inter-hub relations, and concluded that an
+      optimiser today would primarily optimize data coverage rather than real travel quality.
+      Reopening requires a separately-scoped multi-objective design that handles unknown edges,
+      inter-hub transport, activity duration, accommodation boundaries and trip bounds without
+      treating missing evidence as either zero cost or infinite cost.
 
 ## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
 
@@ -3550,3 +3552,54 @@ source scans plus the real-browser QA recorded above.
 
 **Phase 3D-X is NOT STARTED.** Nothing in this phase begins, prepares data for, or implies any
 successor gate.
+
+## Phase 3D-X — Inter-Hub Transport Design Gate — design/audit only
+
+Audits the planner's largest remaining logistics blind spot after Phase 3D-W: movement between
+different city hubs. Full contract: [`docs/INTER_HUB_TRANSPORT_DESIGN.md`](INTER_HUB_TRANSPORT_DESIGN.md).
+
+- [x] **Measured the actual graph before authorizing automation.** Current base has **214 places**
+      and **403 directed nearby relations** out of 45,582 possible directed pairs (**0.88% global
+      coverage**). Every recorded relation is intra-hub. Within the four large hubs, directed
+      coverage is only Tokio 4.3%, Kioto 5.4%, Osaka 2.9%, Okinawa 2.5%. There are **zero**
+      Tokyo↔Kyoto/Osaka/Okinawa-style inter-hub relations.
+- [x] **Rejected automatic itinerary optimisation as the immediate successor.** With the current
+      sparse graph, auto-sort/TSP/nearest-neighbour would mainly optimize where Nihon happens to
+      have recorded edges, not the user's real travel burden. Phase 3C-B's rule remains intact:
+      incomplete candidates do not produce a winner.
+- [x] **Kept inter-hub transport out of `TransferEdge`.** Shinkansen, domestic flight, ferry,
+      limited express or highway bus are not added to the current place-to-place `TransferMode`
+      vocabulary. A major city-to-city decision has different endpoints, provenance and semantics
+      and must not be smuggled into `getBestTransfer()`.
+- [x] **Approved a narrow manual model for the successor.** A
+      `ManualInterHubSegment` is user-authored, directionally positioned between an explicit
+      `fromPlaceId → toPlaceId` pair, stores the hub pair it was created for, an explicit transport
+      mode, an exact positive integer duration in minutes, and
+      `source: { kind: "user-entered" }`. The place ids are plan-position anchors, **not**
+      claimed stations/airports or door-to-door endpoints. No mode or duration is inferred.
+- [x] **Hostile-review correction: day-pair anchoring rejected.** A Tokio→Kioto move can occur
+      inside one calendar day, so binding the model only to `fromDayId → toDayId` would force a
+      false day boundary. The corrected applicability model supports an adjacent cross-hub pair
+      inside one day **or** the exact last-place-of-Day-N → first-place-of-Day-N+1 boundary.
+- [x] **Applicability is derived, never repaired.** With no day assignment, route adjacency is used.
+      With a valid day assignment, the pair must be consecutive inside one day or across two
+      immediately consecutive day boundaries; an intervening empty day does not count. Current
+      place hubs must still match the stored hub snapshot. Reordering/moving places can make a
+      segment inactive without rewriting it.
+- [x] **Persistence contract for the recommended runtime:** promote the canonical planning draft
+      V6→V7 under the unchanged `nihon.manualPlanningDraft` key, adding exactly
+      `interHubSegments: []` on migration. No second key and no inference from route, days,
+      dates, hotels or existing transfer edges. Shape-valid segments may be temporarily inactive
+      after ordinary edits without turning the entire persisted draft into corruption.
+- [x] **Isolation preserved.** Inter-hub segments do not fill missing ordered-sequence legs, do not
+      alter `sequence-comparison.ts`, do not become intra-day legs, do not merge with manual
+      accommodation legs, and do not create a trip-level door-to-door total.
+- [x] **Non-goals explicit.** No timetable, fare, booking, terminal/airport/station modeling,
+      access/egress, luggage, JR Pass, clock time, timezone, automatic travel-day insertion,
+      candidate generation, optimization, live provider activation, dataset/workbook change or new
+      dependency.
+
+Recommended successor: **Phase 3D-Y — Manual Inter-Hub Segment Runtime**.
+
+**Phase 3D-Y is NOT STARTED.** This gate changes documentation only; no runtime, schema, UI, test,
+dataset, workbook, package or lockfile is changed.
