@@ -1,0 +1,332 @@
+name: PR56 exact-head browser QA
+
+on:
+  push:
+    branches:
+      - ci/pr56-exact-head-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: 2f7d3a57f7a4de146f8a4f63f618cd318f62b3ba
+          fetch-depth: 0
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "2f7d3a57f7a4de146f8a4f63f618cd318f62b3ba"
+          test "$(git rev-parse 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18)" = "0fa414d8f4f4e71b2908ff885b2f1f7e37934c18"
+          test "$(git rev-list --count 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD)" = "1"
+          test "$(git diff --name-only 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD | wc -l | tr -d ' ')" = "6"
+          git diff --exit-code 0fa414d8f4f4e71b2908ff885b2f1f7e37934c18..HEAD -- docs/WHOLE_TRIP_COMPOSITION_DESIGN.md
+          git diff --exit-code
+          git diff --cached --exit-code
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install exact lockfile
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Run targeted Phase 3E-A Chromium QA
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .pr56-browser-qa.mjs <<'EOF'
+          import { chromium } from "playwright";
+
+          const BASE = "http://127.0.0.1:4173";
+          const STORAGE = "nihon.manualPlanningDraft";
+          const SAVED = "nihon.savedPlaceIds";
+
+          const TOKYO_A = "JP-001"; // Shibuya Crossing
+          const TOKYO_B = "JP-002"; // SHIBUYA SKY — known JP-001 -> JP-002
+          const TOKYO_C = "JP-003"; // Meiji Jingu — JP-002 -> JP-003 is missing
+          const KYOTO = "JP-054";   // Kiyomizu-dera
+
+          const hotelA = { id: "qa-hotel-a", label: "Hotel Tokio", location: { lat: 35.6595, lng: 139.7005 } };
+          const hotelB = { id: "qa-hotel-b", label: "Hotel Kioto", location: { lat: 35.0037, lng: 135.7788 } };
+
+          const draft = {
+            version: 7,
+            routeIds: [TOKYO_A, TOKYO_B, TOKYO_C, KYOTO],
+            days: [
+              {
+                id: "qa-day-tokyo",
+                placeIds: [TOKYO_A, TOKYO_B, TOKYO_C],
+                accommodationBoundary: {
+                  start: { kind: "accommodation", accommodationId: hotelA.id },
+                  end: { kind: "no-accommodation" },
+                },
+              },
+              {
+                id: "qa-day-kyoto",
+                placeIds: [KYOTO],
+                accommodationBoundary: {
+                  start: { kind: "no-accommodation" },
+                  end: { kind: "accommodation", accommodationId: hotelB.id },
+                },
+              },
+            ],
+            startDate: "2027-02-19",
+            endDate: "2027-02-19",
+            visitStartTimes: {},
+            accommodations: [hotelA, hotelB],
+            accommodationLegs: [
+              {
+                direction: "accommodation-to-place",
+                accommodationId: hotelA.id,
+                placeId: TOKYO_A,
+                minutes: 12,
+                source: { kind: "user-entered" },
+              },
+              {
+                direction: "place-to-accommodation",
+                placeId: KYOTO,
+                accommodationId: hotelB.id,
+                minutes: 18,
+                source: { kind: "user-entered" },
+              },
+            ],
+            interHubSegments: [
+              {
+                id: "qa-interhub",
+                fromPlaceId: TOKYO_C,
+                toPlaceId: KYOTO,
+                fromHub: "Tokio",
+                toHub: "Kioto",
+                mode: "shinkansen",
+                minutes: 140,
+                source: { kind: "user-entered" },
+              },
+            ],
+          };
+
+          function assert(condition, message) {
+            if (!condition) throw new Error("QA assertion failed: " + message);
+          }
+
+          function stable(value) {
+            return JSON.stringify(value);
+          }
+
+          function parseRegisteredTransport(text) {
+            const match = text.match(/Traslado registrado:\s*(\d+)(?:\s*[–-]\s*(\d+))?\s*min/);
+            if (!match) throw new Error("Could not parse registered transport from: " + text);
+            return { min: Number(match[1]), max: Number(match[2] ?? match[1]) };
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            locale: "es-MX",
+            timezoneId: "America/Mexico_City",
+            viewport: { width: 1440, height: 1100 },
+          });
+          const page = await context.newPage();
+          const consoleErrors = [];
+          const pageErrors = [];
+
+          page.on("console", (msg) => {
+            if (msg.type() === "error") consoleErrors.push(msg.text());
+          });
+          page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+          async function seed() {
+            await page.evaluate(({ savedKey, storageKey, ids, value }) => {
+              localStorage.setItem(savedKey, JSON.stringify(ids));
+              localStorage.setItem(storageKey, JSON.stringify(value));
+            }, {
+              savedKey: SAVED,
+              storageKey: STORAGE,
+              ids: draft.routeIds,
+              value: draft,
+            });
+          }
+
+          async function readDraft() {
+            return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE);
+          }
+
+          async function openBuilder() {
+            const toggle = page.getByRole("button", { name: /Quiero ir/ });
+            const expanded = await toggle.getAttribute("aria-expanded");
+            if (expanded !== "true") await toggle.click();
+            await page.getByRole("button", { name: /Construir recorrido/ }).click();
+            await page.getByRole("heading", { name: "Construir recorrido" }).waitFor();
+          }
+
+          async function wholeTrip() {
+            const section = page.locator(".whole-trip-composition");
+            assert(await section.count() === 1, "exactly one whole-trip section in current view");
+            return section;
+          }
+
+          try {
+            await page.goto(BASE, { waitUntil: "networkidle" });
+            await seed();
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+
+            // Builder projection exists and is read-only.
+            let summary = await wholeTrip();
+            let summaryText = await summary.innerText();
+            assert(summaryText.includes("Resumen del plan completo"), "whole-trip heading visible");
+            assert(summary.locator("input, select, button").count() === 0, "whole-trip section is read-only");
+
+            // Enter the day view; the same derived facts must be available there.
+            await page.getByRole("button", { name: /Distribuir por días/ }).click();
+            await page.getByRole("heading", { name: "Distribuir por días" }).waitFor();
+            summary = await wholeTrip();
+            summaryText = await summary.innerText();
+
+            // Composition facts.
+            assert(summaryText.includes("Locales con tiempo: 1; locales faltantes: 1."), "known and missing local slots classified");
+            assert(summaryText.includes("Entre ciudades activos: 1; faltantes: 0."), "active cross-day inter-hub counted once");
+            assert(summaryText.includes("Posiciones de movimiento modeladas: 3."), "modeled adjacency count is 3");
+            assert(summaryText.includes("Esta cifra es parcial"), "registered transport is explicitly partial");
+            assert(summaryText.includes("Tramos manuales: 2; faltantes: 0; sin seleccionar: 0."), "two manual accommodation legs counted");
+            assert(summaryText.includes("Sin alojamiento explícito: 2"), "explicit no-accommodation remains separate");
+            assert(summaryText.includes("Días posteriores a la fecha de fin: 1"), "after-end mismatch visible");
+            assert(summaryText.includes("Siguen incluidos en las visitas y traslados registrados"), "after-end days explicitly remain included");
+            assert(!/tiempo real|tiempo óptimo|duración total del viaje|ruta óptima|mejor opción/i.test(summaryText), "no forbidden optimisation/real-total copy");
+
+            const initialRegistered = parseRegisteredTransport(summaryText);
+            const initialDraft = await readDraft();
+            assert(initialDraft.interHubSegments[0].minutes === 140, "seeded inter-hub minutes rehydrated");
+
+            // Changing only bounds must not change the registered transport subtotal.
+            await page.locator("#sequence-end-date").fill("2027-02-20");
+            await page.waitForTimeout(100);
+            summary = await wholeTrip();
+            const boundsExpandedText = await summary.innerText();
+            const boundsExpandedRegistered = parseRegisteredTransport(boundsExpandedText);
+            assert(stable(boundsExpandedRegistered) === stable(initialRegistered), "bounds change does not filter or change transport subtotal");
+            assert(!boundsExpandedText.includes("Días posteriores a la fecha de fin: 1"), "bounds mismatch updates independently");
+
+            // Restore one-day bound for later reload/mismatch checks.
+            await page.locator("#sequence-end-date").fill("2027-02-19");
+            await page.waitForTimeout(100);
+
+            // Edit the active inter-hub segment through its real UI: subtotal must rise by exactly 20.
+            const interHubItem = page.locator(".inter-hub-segments__item").filter({ hasText: "Meiji Jingu → Kiyomizu-dera" });
+            assert(await interHubItem.count() === 1, "exact inter-hub item visible");
+            const minutesInput = interHubItem.getByLabel("Duración manual del tramo principal");
+            await minutesInput.fill("160");
+            await minutesInput.blur();
+            await page.waitForTimeout(100);
+
+            let changedDraft = await readDraft();
+            assert(changedDraft.interHubSegments[0].minutes === 160, "inter-hub edit persisted");
+            summary = await wholeTrip();
+            let changedText = await summary.innerText();
+            const changedRegistered = parseRegisteredTransport(changedText);
+            assert(changedRegistered.min === initialRegistered.min + 20, "registered transport min follows inter-hub +20");
+            assert(changedRegistered.max === initialRegistered.max + 20, "registered transport max follows inter-hub +20");
+            assert(changedText.includes("Entre ciudades activos: 1; faltantes: 0."), "inter-hub remains active after minute edit");
+
+            const segmentBeforeReorder = stable(changedDraft.interHubSegments[0]);
+
+            // Reorder the two day entities: exact stored segment must become inactive, not be rewritten.
+            await page.getByRole("button", { name: "Mover Día 2 hacia arriba" }).click();
+            await page.waitForTimeout(100);
+            changedDraft = await readDraft();
+            assert(stable(changedDraft.interHubSegments[0]) === segmentBeforeReorder, "day reorder leaves stored inter-hub segment byte-identical");
+
+            summary = await wholeTrip();
+            const reorderedText = await summary.innerText();
+            const reorderedRegistered = parseRegisteredTransport(reorderedText);
+            assert(reorderedText.includes("Entre ciudades activos: 0; faltantes: 1."), "reorder deactivates old segment and creates missing expected slot");
+            assert(reorderedRegistered.min === changedRegistered.min - 160, "inactive inter-hub minutes removed from registered min");
+            assert(reorderedRegistered.max === changedRegistered.max - 160, "inactive inter-hub minutes removed from registered max");
+            assert(reorderedText.includes("Cobertura incompleta"), "missing cross-day slot remains explicit");
+
+            // Move the original Tokyo day back above Kyoto: same stored segment reactivates.
+            await page.getByRole("button", { name: "Mover Día 2 hacia arriba" }).click();
+            await page.waitForTimeout(100);
+            const restoredDraft = await readDraft();
+            assert(stable(restoredDraft.interHubSegments[0]) === segmentBeforeReorder, "reorder-back still preserves exact segment");
+            summary = await wholeTrip();
+            const restoredText = await summary.innerText();
+            const restoredRegistered = parseRegisteredTransport(restoredText);
+            assert(restoredText.includes("Entre ciudades activos: 1; faltantes: 0."), "reorder-back reactivates segment");
+            assert(stable(restoredRegistered) === stable(changedRegistered), "registered transport fully restores after reactivation");
+            assert(restoredText.includes("Días posteriores a la fecha de fin: 1"), "after-end mismatch still visible after reordering back");
+
+            // Reload: V7 is unchanged except the explicit manual minute edit; derived result rehydrates identically.
+            const rawBeforeReload = await page.evaluate((key) => localStorage.getItem(key), STORAGE);
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+            const rawAfterReload = await page.evaluate((key) => localStorage.getItem(key), STORAGE);
+            assert(rawAfterReload === rawBeforeReload, "reload does not persist any composition/cache/score");
+            summary = await wholeTrip();
+            const reloadText = await summary.innerText();
+            const reloadRegistered = parseRegisteredTransport(reloadText);
+            assert(stable(reloadRegistered) === stable(changedRegistered), "reload derives same registered transport");
+            assert(reloadText.includes("Locales con tiempo: 1; locales faltantes: 1."), "reload derives same local coverage");
+            assert(reloadText.includes("Entre ciudades activos: 1; faltantes: 0."), "reload derives same inter-hub coverage");
+            assert(reloadText.includes("Días posteriores a la fecha de fin: 1"), "reload derives same bounds mismatch");
+
+            const finalDraft = await readDraft();
+            assert(finalDraft.version === 7, "planning draft remains V7");
+            assert(!("composition" in finalDraft) && !("wholeTripComposition" in finalDraft) && !("score" in finalDraft), "composition/score not persisted");
+
+            assert(consoleErrors.length === 0, "console errors = 0; got: " + consoleErrors.join(" | "));
+            assert(pageErrors.length === 0, "page errors = 0; got: " + pageErrors.join(" | "));
+
+            console.log("valid-two-day-composition: PASS");
+            console.log("known-local-and-missing-local: PASS");
+            console.log("active-cross-day-interhub: PASS");
+            console.log("manual-accommodation-composition: PASS");
+            console.log("partial-registered-transport: PASS");
+            console.log("after-end-included-and-bounds-independent: PASS");
+            console.log("interhub-minute-edit-updates-derived-subtotal: PASS");
+            console.log("reorder-inactive-missing-and-reactivate: PASS");
+            console.log("reload-derived-parity-no-persistence: PASS");
+            console.log("console-errors: 0");
+            console.log("page-errors: 0");
+            console.log("FINAL EXACT-HEAD CHROMIUM QA: PASS");
+          } finally {
+            await browser.close();
+          }
+          EOF
+
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/pr56-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill $VITE_PID >/dev/null 2>&1 || true; rm -f .pr56-browser-qa.mjs' EXIT
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173 >/dev/null
+          node .pr56-browser-qa.mjs
+
+      - name: Final integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "2f7d3a57f7a4de146f8a4f63f618cd318f62b3ba"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --short)"
+          echo "FINAL EXACT-HEAD BROWSER GATE: PASS"
