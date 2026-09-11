@@ -1,0 +1,308 @@
+name: PR54 exact-head browser QA
+
+on:
+  push:
+    branches:
+      - ci/pr54-exact-head-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: 810986a4388bff91825924f22e75bd3ef25629bd
+          fetch-depth: 0
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "810986a4388bff91825924f22e75bd3ef25629bd"
+          test "$(git rev-parse c89dfac6e160ce95ccf3e957f9d4953dc039fef7)" = "c89dfac6e160ce95ccf3e957f9d4953dc039fef7"
+          test "$(git rev-list --count c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD)" = "2"
+          test "$(git diff --name-only c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD | wc -l | tr -d ' ')" = "11"
+          git diff --exit-code c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD -- docs/INTER_HUB_TRANSPORT_DESIGN.md
+          git diff --exit-code
+          git diff --cached --exit-code
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install exact lockfile
+        working-directory: app
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Run targeted Phase 3D-Y Chromium QA
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .pr54-browser-qa.mjs <<'EOF'
+          import { chromium } from "playwright";
+
+          const BASE = "http://127.0.0.1:4173";
+          const STORAGE = "nihon.manualPlanningDraft";
+          const SAVED = "nihon.savedPlaceIds";
+          const TOKYO = "JP-001";
+          const KYOTO = "JP-054";
+          const OSAKA = "JP-103";
+
+          const unselectedBoundary = () => ({
+            start: { kind: "unselected" },
+            end: { kind: "unselected" },
+          });
+
+          const segment = {
+            id: "qa-interhub-1",
+            fromPlaceId: TOKYO,
+            toPlaceId: KYOTO,
+            fromHub: "Tokio",
+            toHub: "Kioto",
+            mode: "shinkansen",
+            minutes: 140,
+            source: { kind: "user-entered" },
+          };
+
+          function draft(routeIds, days, interHubSegments = []) {
+            return {
+              version: 7,
+              routeIds: [...routeIds],
+              days,
+              startDate: null,
+              endDate: null,
+              visitStartTimes: {},
+              accommodations: [],
+              accommodationLegs: [],
+              interHubSegments,
+            };
+          }
+
+          function assert(condition, message) {
+            if (!condition) throw new Error("QA assertion failed: " + message);
+          }
+
+          function stable(value) {
+            return JSON.stringify(value);
+          }
+
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            locale: "es-MX",
+            timezoneId: "America/Mexico_City",
+            viewport: { width: 1440, height: 1000 },
+          });
+          const page = await context.newPage();
+          const consoleErrors = [];
+          const pageErrors = [];
+
+          page.on("console", (msg) => {
+            if (msg.type() === "error") consoleErrors.push(msg.text());
+          });
+          page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+          async function readDraft() {
+            return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE);
+          }
+
+          async function seed(routeIds, value) {
+            await page.evaluate(({ savedKey, storageKey, ids, value }) => {
+              localStorage.setItem(savedKey, JSON.stringify(ids));
+              localStorage.setItem(storageKey, JSON.stringify(value));
+            }, { savedKey: SAVED, storageKey: STORAGE, ids: routeIds, value });
+          }
+
+          async function openBuilder() {
+            const toggle = page.getByRole("button", { name: /Quiero ir/ });
+            const expanded = await toggle.getAttribute("aria-expanded");
+            if (expanded !== "true") await toggle.click();
+            await page.getByRole("button", { name: /Construir recorrido/ }).click();
+            await page.getByRole("heading", { name: "Construir recorrido" }).waitFor();
+          }
+
+          async function reopenWith(routeIds, value) {
+            await seed(routeIds, value);
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+          }
+
+          async function section() {
+            const result = page.locator(".inter-hub-segments");
+            assert(await result.count() === 1, "exactly one inter-hub section in current planner view");
+            return result;
+          }
+
+          try {
+            await page.goto(BASE, { waitUntil: "networkidle" });
+
+            // 1) Route-only creation through the real UI.
+            const routeOnly = draft([TOKYO, KYOTO], null, []);
+            await reopenWith([TOKYO, KYOTO], routeOnly);
+            let interHub = await section();
+            assert((await interHub.innerText()).includes("no es un tiempo puerta a puerta"), "explicit non-door-to-door copy");
+
+            await interHub.getByLabel("Posición en el plan").selectOption({ index: 1 });
+            await interHub.getByLabel("Modo").selectOption("shinkansen");
+            await interHub.getByLabel("Duración manual del tramo principal").fill("140");
+            await interHub.getByRole("button", { name: /Añadir tramo/ }).click();
+            await page.waitForTimeout(100);
+
+            let stored = await readDraft();
+            assert(stored.version === 7, "V7 persisted");
+            assert(stored.interHubSegments.length === 1, "UI created one segment");
+            const created = stored.interHubSegments[0];
+            assert(created.fromPlaceId === TOKYO && created.toPlaceId === KYOTO, "UI stored exact plan anchors");
+            assert(created.fromHub === "Tokio" && created.toHub === "Kioto", "UI copied hub snapshots from real places");
+            assert(created.mode === "shinkansen" && created.minutes === 140, "UI stored explicit mode/minutes");
+            assert(created.source?.kind === "user-entered", "UI stored user-entered provenance");
+            assert(!("distanceKm" in created) && !("terminal" in created), "no invented distance/terminal");
+            assert((await interHub.innerText()).includes("Activo · en el recorrido actual"), "route-only segment active");
+            assert((await interHub.innerText()).includes("140 min registrados manualmente"), "manual minutes shown separately");
+
+            const createdId = created.id;
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+            interHub = await section();
+            stored = await readDraft();
+            assert(stored.interHubSegments[0].id === createdId, "route-only segment survives reload");
+            assert((await interHub.innerText()).includes("Activo · en el recorrido actual"), "route-only active after reload");
+
+            // 2) Same-day placement and reorder -> inactive -> restore.
+            const sameDay = draft(
+              [TOKYO, KYOTO, OSAKA],
+              [{ id: "qa-day-1", placeIds: [TOKYO, KYOTO, OSAKA], accommodationBoundary: unselectedBoundary() }],
+              [segment]
+            );
+            await reopenWith([TOKYO, KYOTO, OSAKA], sameDay);
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · dentro del Día 1"), "same-day active in builder view");
+
+            await page.getByRole("button", { name: /Distribuir por días/ }).click();
+            await page.getByRole("heading", { name: "Distribuir por días" }).waitFor();
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · dentro del Día 1"), "same-day active in day view");
+
+            const beforeSameDayMove = await readDraft();
+            await page.getByRole("button", { name: "Mover Shibuya Crossing hacia abajo en Día 1" }).click();
+            await page.waitForTimeout(100);
+            const afterSameDayMove = await readDraft();
+            assert(stable(afterSameDayMove.interHubSegments) === stable(beforeSameDayMove.interHubSegments), "place reorder does not rewrite segment");
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Inactivo"), "same-day reorder deactivates segment");
+
+            await page.getByRole("button", { name: "Mover Shibuya Crossing hacia arriba en Día 1" }).click();
+            await page.waitForTimeout(100);
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · dentro del Día 1"), "same-day reorder-back reactivates same segment");
+            const restoredSameDay = await readDraft();
+            assert(stable(restoredSameDay.interHubSegments) === stable(beforeSameDayMove.interHubSegments), "reorder-back preserves exact segment bytes");
+
+            // 3) Cross-day placement, empty-day separation, restoration.
+            const crossDay = draft(
+              [TOKYO, KYOTO],
+              [
+                { id: "qa-day-tokyo", placeIds: [TOKYO], accommodationBoundary: unselectedBoundary() },
+                { id: "qa-day-kyoto", placeIds: [KYOTO], accommodationBoundary: unselectedBoundary() },
+              ],
+              [segment]
+            );
+            await reopenWith([TOKYO, KYOTO], crossDay);
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · entre Día 1 y Día 2"), "cross-day active in builder view");
+
+            await page.getByRole("button", { name: /Distribuir por días/ }).click();
+            await page.getByRole("heading", { name: "Distribuir por días" }).waitFor();
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · entre Día 1 y Día 2"), "cross-day active in day view");
+
+            const beforeEmptyDay = await readDraft();
+            await page.getByRole("button", { name: /Añadir día/ }).click();
+            await page.waitForTimeout(100);
+            await page.getByRole("button", { name: "Mover Día 3 hacia arriba" }).click();
+            await page.waitForTimeout(100);
+            const separated = await readDraft();
+            assert(stable(separated.interHubSegments) === stable(beforeEmptyDay.interHubSegments), "empty-day insertion/reorder preserves segment");
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Inactivo"), "intervening empty day deactivates cross-day segment");
+
+            await page.getByRole("button", { name: "Mover Día 2 hacia abajo" }).click();
+            await page.waitForTimeout(100);
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · entre Día 1 y Día 2"), "moving empty day back restores cross-day active state");
+
+            const beforeReload = await readDraft();
+            await page.reload({ waitUntil: "networkidle" });
+            await openBuilder();
+            const afterReload = await readDraft();
+            assert(stable(afterReload.interHubSegments) === stable(beforeReload.interHubSegments), "cross-day segment survives reload byte-for-byte");
+            interHub = await section();
+            assert((await interHub.innerText()).includes("Activo · entre Día 1 y Día 2"), "cross-day state rehydrates correctly");
+
+            // 4) Route anchor removal prunes only referenced segment.
+            const otherSegment = {
+              id: "qa-interhub-2",
+              fromPlaceId: KYOTO,
+              toPlaceId: OSAKA,
+              fromHub: "Kioto",
+              toHub: "Osaka",
+              mode: "limited-express",
+              minutes: 30,
+              source: { kind: "user-entered" },
+            };
+            const pruning = draft([TOKYO, KYOTO, OSAKA], null, [segment, otherSegment]);
+            await reopenWith([TOKYO, KYOTO, OSAKA], pruning);
+            await page.getByRole("button", { name: "Quitar Shibuya Crossing del recorrido" }).click();
+            await page.waitForTimeout(100);
+            const pruned = await readDraft();
+            assert(pruned.interHubSegments.length === 1, "anchor removal prunes exactly one referenced segment");
+            assert(pruned.interHubSegments[0].id === "qa-interhub-2", "unrelated segment preserved after anchor removal");
+
+            assert(consoleErrors.length === 0, "console errors = 0; got: " + consoleErrors.join(" | "));
+            assert(pageErrors.length === 0, "page errors = 0; got: " + pageErrors.join(" | "));
+
+            console.log("route-only-create-and-reload: PASS");
+            console.log("same-day-active-reorder-inactive-reactivate: PASS");
+            console.log("cross-day-active-empty-day-inactive-reactivate: PASS");
+            console.log("anchor-pruning: PASS");
+            console.log("console-errors: 0");
+            console.log("page-errors: 0");
+            console.log("FINAL EXACT-HEAD CHROMIUM QA: PASS");
+          } finally {
+            await browser.close();
+          }
+          EOF
+
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/pr54-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill $VITE_PID >/dev/null 2>&1 || true; rm -f .pr54-browser-qa.mjs' EXIT
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173 >/dev/null
+          node .pr54-browser-qa.mjs
+
+      - name: Final integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "810986a4388bff91825924f22e75bd3ef25629bd"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --short)"
+          echo "FINAL EXACT-HEAD BROWSER GATE: PASS"
