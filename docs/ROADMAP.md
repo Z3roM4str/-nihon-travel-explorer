@@ -2841,19 +2841,20 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       hotel routing, geometry-derived fallback, runtime ORS/live transit, geocoding, booking
       integration, synthetic hotel `Place` objects, hotel-to-hotel inference, or automatic
       station/airport access/egress. Phase 3D-X keeps inter-hub transport separate from this model.
-- [ ] Automatic candidate generation, automatic day distribution, and itinerary
-      recommendation/optimisation (auto-sort, nearest-neighbour, TSP, shortest path, a day-quality
-      scoring function, a "best order"/"best split" claim) — **still not started.** Phase 3D-X
-      measured the current local transfer graph at only 403 directed relations across 214 places
-      (0.88% of all possible directed pairs) and refused to optimize data coverage. Phase 3D-Y then
-      implemented explicit manual inter-hub segments for the user's CURRENT plan, but those facts
-      are position-bound and cannot be copied to hypothetical anchor pairs. **Phase 3D-Z now adds
-      the next required design boundary:** compose the current trip first, preserving quantified vs
-      non-quantified visit time, known vs missing local movement, active/missing inter-hub movement,
-      accommodation legs and trip bounds without a synthetic grand total or score. Only after that
-      runtime exists may a separately-scoped candidate-generation design reconsider a narrow,
-      evidence-complete local reorder that preserves day membership, accommodation endpoints and
-      active inter-hub anchors. Global optimisation remains unapproved.
+- [ ] Automatic itinerary recommendation/optimisation (auto-sort, automatic day
+      distribution, nearest-neighbour, TSP, shortest path, recursive improvement, multi-candidate
+      ranking, a day-quality score, a "best order"/"best split" claim) — **still not started and
+      still unapproved.** Phase 3D-X measured the current local graph at 403 directed relations
+      across 214 places (0.88% of all possible directed pairs); Phase 3D-Y added manual inter-hub
+      evidence for the CURRENT plan; Phase 3E-A now composes the current trip without inventing a
+      grand total. **Phase 3E-B is the first candidate-generation design, but only for one-step
+      adjacent interior swaps inside a fixed same-hub block.** Both the current block and candidate
+      must have complete exact directed evidence, block/day endpoints are locked, manually timed
+      places cannot move, every accommodation/inter-hub/bounds fact stays unchanged, candidates are
+      compared only against the current baseline using Phase 3C-B's conservative range rule, and
+      multiple candidates are not ranked. The real dataset contains 348 such evidence-complete
+      four-place swap patterns, making this narrow feature useful without changing the conclusion
+      that global optimisation would still mostly optimise data coverage.
 
 ## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
 
@@ -3695,3 +3696,43 @@ Recommended successor: **Phase 3E-A — Whole-Trip Composition Runtime**.
       `nihon.manualPlanningDraft`; no composition, total, cache or score is persisted. No dataset,
       workbook, package, lockfile, existing domain semantics, dependency, API, ORS or live-transit
       integration changed.
+
+## Phase 3E-B — Evidence-Complete Local Swap Design Gate — design/audit only
+
+Defines the first safe generated-alternative frontier after whole-trip composition. Full contract:
+[`docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md`](EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md).
+
+- [x] **Global optimisation still refused.** No auto-sort, day redistribution, TSP, shortest path,
+      recursive improvement loop, route score or "best itinerary" claim is approved.
+- [x] **One-step local frontier only.** A candidate swaps exactly two adjacent interior places inside
+      one maximal contiguous same-hub block of one existing day. Block endpoints and day endpoints
+      stay locked.
+- [x] **Real-data utility confirmed.** The current 214-place / 403-directed-edge dataset contains
+      348 ordered four-place patterns where both the baseline and adjacent-swap order can be fully
+      evaluated from exact directed relations: Osaka 114, Kioto 98, Tokio 94, Okinawa 42. This
+      justifies the narrow feature without implying broad graph completeness.
+- [x] **Complete evidence required on both sides.** The current block must have a complete exact
+      directed local sequence, and every candidate must also be complete. Missing evidence is never
+      zero, infinity, reversed, chained or filled from geometry/network routing.
+- [x] **Conservative Phase 3C-B comparison reused.** Only a candidate whose complete range is
+      strictly below the baseline range (`b-clearly-faster`) may be surfaced as an improvement.
+      Equivalent, overlapping, incomplete and baseline-faster candidates remain non-claims.
+- [x] **No candidate ranking.** Every proved adjacent swap is compared only with the current
+      baseline and returned in deterministic day/block/position order. Nihon does not select a best
+      generated candidate.
+- [x] **Temporal anchors stay fixed.** Any proposed swap that would move a place with a persisted
+      manual visit start time is rejected. The feature does not derive arrival times or schedule
+      feasibility.
+- [x] **Accommodation/inter-hub/bounds invariants preserved.** Locking maximal same-hub block
+      endpoints keeps day endpoints, accommodation endpoints and every cross-hub adjacency fixed.
+      A valid apply must leave all stored inter-hub objects and assessments unchanged; trip bounds
+      remain annotation only.
+- [x] **Explicit user apply + stale guard.** A candidate is ephemeral. Application requires a click
+      and must verify the current stable day/baseline/pair before swapping exactly two ids. No
+      automatic second swap follows.
+- [x] **No persistence change.** V7 and `nihon.manualPlanningDraft` remain authoritative; no
+      candidate, advantage, rank, optimisation marker or score is stored.
+
+Recommended successor: **Phase 3E-C — Evidence-Complete Local Swap Runtime**.
+
+**Phase 3E-C is NOT STARTED.** This gate changes documentation only.
