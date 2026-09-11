@@ -2846,15 +2846,16 @@ window. Both bounds are inclusive: equality with either `farAdvanceDate` or `nea
       ranking, a day-quality score, a "best order"/"best split" claim) — **still not started and
       still unapproved.** Phase 3D-X measured the current local graph at 403 directed relations
       across 214 places (0.88% of all possible directed pairs); Phase 3D-Y added manual inter-hub
-      evidence for the CURRENT plan; Phase 3E-A now composes the current trip without inventing a
-      grand total. **Phase 3E-B is the first candidate-generation design, but only for one-step
-      adjacent interior swaps inside a fixed same-hub block.** Both the current block and candidate
-      must have complete exact directed evidence, block/day endpoints are locked, manually timed
-      places cannot move, every accommodation/inter-hub/bounds fact stays unchanged, candidates are
-      compared only against the current baseline using Phase 3C-B's conservative range rule, and
-      multiple candidates are not ranked. The real dataset contains 348 such evidence-complete
-      four-place swap patterns, making this narrow feature useful without changing the conclusion
-      that global optimisation would still mostly optimise data coverage.
+      evidence for the CURRENT plan; Phase 3E-A composes the current trip without inventing a grand
+      total; Phase 3E-C now ships the first generated alternative as one explicit adjacent interior
+      same-hub swap. **Phase 3E-D broadens only the one-step local move shape:** one interior place
+      may be relocated by two or more positions while every other place keeps its relative order,
+      endpoints remain fixed, the affected temporal span is locked, both orders require complete
+      exact directed evidence, candidates stay unranked, and Apply remains one explicit
+      stale-guarded action. The current graph shows 24 five-place cases where such a relocation adds
+      value beyond any one adjacent swap, 19 fully validated-static. This still does not authorize
+      arbitrary permutations, repeated hill climbing, automatic chaining of local improvements or
+      any global optimisation claim.
 
 ## Phase 3D-O — Reservation Window Reference-Date Relation — implemented
 
@@ -3817,3 +3818,46 @@ amending it. Nihon's first generated alternative, and deliberately the smallest 
       153 real four-place windows yield a provable alternative, e.g. Tokio
       `JP-001 → JP-008 → JP-002 → JP-005` (baseline 29 min, candidate 27 min, minimum gap 2 min,
       both orders fully `validated-static`).
+
+## Phase 3E-D — Evidence-Complete Local Relocation Design Gate — design/audit only
+
+Defines the next bounded local alternative after adjacent swaps. Full contract:
+[`docs/EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md`](EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md).
+
+- [x] **Single-place relocation only.** A future candidate moves exactly one interior place to a
+      different interior final position inside one maximal same-hub block while preserving every
+      other place's relative order. Block/day endpoints stay fixed.
+- [x] **Adjacent moves excluded.** `abs(fromIndex - toIndex) === 1` remains Phase 3E-C territory;
+      Phase 3E-E would generate only genuinely non-adjacent relocations and therefore requires a
+      block of at least five places.
+- [x] **Incremental real-data value demonstrated.** Among 1,616 complete ordered five-place
+      baselines, 24 contain a proved non-adjacent relocation improvement that no single adjacent
+      swap from the same baseline discovers; 19/24 are fully `validated-static`. Breakdown:
+      Tokio 8/7 validated, Kioto 4/2, Osaka 11/9, Okinawa 1/1.
+- [x] **Evidence quality is no longer the main bottleneck for this frontier.** Across the existing
+      Phase 3E-C opportunity set, 109/153 proved alternatives are fully validated-static, 44 are
+      mixed validated/estimated, and none is fully estimated.
+- [x] **Candidate count is quadratic, not factorial.** Relocations are derived independently from
+      the current baseline in deterministic day/block/from/to order. The document explicitly does
+      not misstate total runtime as O(n²): a naïve full-block evaluator may require O(n³) lookups.
+      No recursion, permutation search or candidate-from-candidate expansion is approved.
+- [x] **Affected temporal span locked.** Every place from `min(from,to)-1` through
+      `max(from,to)+1` is protected: if any has a manual visit start time, that relocation is not
+      generated. A timed place outside the changed span does not block an unrelated candidate.
+- [x] **Complete exact evidence on both orders.** Baseline block and candidate block must both be
+      complete under the existing directed lookup, and only Phase 3C-B's `b-clearly-faster`
+      relation may be surfaced. Confidence remains disclosure, never a score.
+- [x] **Explicit, stale-guarded Apply.** A future runtime may add one pure
+      `withPlaceRelocatedWithinDay`-style V7-preserving mutation; it must create the final order in
+      one domain mutation, not by a series of async adjacent UI clicks.
+- [x] **Larger-trip invariants preserved.** Day membership, day identity, accommodation endpoints,
+      all inter-hub objects/assessments, trip bounds and all non-movement whole-trip composition
+      stay unchanged. Only complete local movement and the exact corresponding registered-transport
+      delta may change.
+- [x] **No persistence or optimisation-session state.** V7 and `nihon.manualPlanningDraft` remain
+      authoritative; relocation candidates, indices, advantage, confidence, score, rank and history
+      are derived only and never persisted.
+
+Recommended successor: **Phase 3E-E — Evidence-Complete Local Relocation Runtime**.
+
+**Phase 3E-E is NOT STARTED.** This gate changes documentation only.
