@@ -66,6 +66,11 @@ import {
   type ManualInterHubSegment,
   type NewManualInterHubSegment,
 } from "../lib/inter-hub-segment";
+import {
+  buildWholeTripComposition,
+  type WholeTripBoundsComposition,
+  type WholeTripComposition,
+} from "../lib/whole-trip-composition";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -1737,6 +1742,137 @@ function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment
   );
 }
 
+function wholeTripUnavailableText(reason: Extract<WholeTripComposition, { kind: "unavailable" }>["reason"]): string {
+  switch (reason) {
+    case "no-day-assignment":
+      return "Crea un reparto por días para describir el plan completo sin borrar sus límites.";
+    case "invalid-day-partition":
+      return "El reparto por días no coincide exactamente con el recorrido; no se muestran cálculos parciales.";
+    case "unresolved-route-place":
+      return "Un lugar del recorrido no se puede resolver; no se muestran cálculos parciales.";
+  }
+}
+
+function wholeTripBoundsText(bounds: WholeTripBoundsComposition): string {
+  if (bounds.tripCalendarDays !== null && bounds.startDate !== null && bounds.endDate !== null) {
+    return `${formatCivilDateDisplay(bounds.startDate)} – ${formatCivilDateDisplay(bounds.endDate)} · ${bounds.tripCalendarDays} días de calendario.`;
+  }
+  switch (bounds.unavailableReason) {
+    case "no-start-date":
+      return "Sin fecha de inicio registrada.";
+    case "no-end-date":
+      return "Sin fecha de fin registrada.";
+    case "invalid-date":
+      return "El rango contiene una fecha no válida.";
+    case "inverted-range":
+      return "La fecha de fin es anterior a la fecha de inicio; ambos valores permanecen sin reparar.";
+    case null:
+      return "Sin rango civil cuantificable.";
+  }
+}
+
+/** Read-only Phase 3E-A projection. No value rendered here is written back to the V7 draft. */
+function WholeTripCompositionSection({ composition }: { composition: WholeTripComposition }) {
+  if (composition.kind === "unavailable") {
+    return (
+      <section className="whole-trip-composition" aria-label="Resumen del plan completo">
+        <h3>Resumen del plan completo</h3>
+        <p className="whole-trip-composition__unavailable">{wholeTripUnavailableText(composition.reason)}</p>
+      </section>
+    );
+  }
+
+  const totalPlaceCount = composition.visit.quantifiedPlaceCount + composition.visit.nonQuantifiedPlaceCount;
+  const missingMovementCount =
+    composition.movement.localMissingCount + composition.movement.interHubMissingCount;
+  const registeredTransportIsPartial =
+    missingMovementCount > 0 ||
+    composition.accommodation.manualLegMissingCount > 0 ||
+    composition.accommodation.boundaryUnselectedCount > 0;
+
+  return (
+    <section className="whole-trip-composition" aria-label="Resumen del plan completo">
+      <h3>Resumen del plan completo</h3>
+      <p className="whole-trip-composition__intro">
+        Describe únicamente los datos registrados para este reparto; no puntúa ni recomienda cambios.
+      </p>
+
+      <div className="whole-trip-composition__group">
+        <h4>Visitas</h4>
+        <p>
+          Tiempo de visita cuantificado: {composition.visit.quantifiedMinutes
+            ? formatRange(composition.visit.quantifiedMinutes)
+            : "sin duración numérica registrada"}.
+        </p>
+        <p>{composition.visit.quantifiedPlaceCount} de {totalPlaceCount} lugares con duración numérica.</p>
+        <p>
+          No cuantificados: {composition.visit.nonQuantifiedPlaceCount}; compromisos de escala día: {composition.visit.dayScaleCommitmentCount}; sin clasificación: {composition.visit.unclassifiedPlaceCount}.
+        </p>
+        {!composition.visit.completeNumericCoverage && (
+          <p className="whole-trip-composition__incomplete">La cobertura numérica de visitas está incompleta.</p>
+        )}
+      </div>
+
+      <div className="whole-trip-composition__group">
+        <h4>Traslados registrados</h4>
+        <p>
+          Traslado registrado: {composition.registeredTransportMinutes
+            ? formatRange(composition.registeredTransportMinutes)
+            : "sin componentes registrados"}. Incluye solo componentes registrados: movimiento entre
+          lugares y minutos manuales de alojamiento. Los desgloses siguientes ya forman parte de esa cifra.
+        </p>
+        {registeredTransportIsPartial && (
+          <p className="whole-trip-composition__incomplete">
+            Esta cifra es parcial: hay componentes locales, entre ciudades o de alojamiento sin registrar.
+          </p>
+        )}
+        <p>
+          Locales con tiempo: {composition.movement.localKnownCount}; locales faltantes: {composition.movement.localMissingCount}.
+        </p>
+        <p>
+          Entre ciudades activos: {composition.movement.interHubActiveCount}; faltantes: {composition.movement.interHubMissingCount}.
+        </p>
+        <p>Posiciones de movimiento modeladas: {composition.movement.modeledAdjacencyCount}.</p>
+        {missingMovementCount > 0 ? (
+          <p className="whole-trip-composition__incomplete">
+            Cobertura incompleta: faltan {composition.movement.localMissingCount} tramo(s) local(es) y {composition.movement.interHubMissingCount} tramo(s) entre ciudades.
+          </p>
+        ) : composition.movement.adjacencyCoverageComplete && composition.movement.modeledAdjacencyCount > 0 ? (
+          <p>Todos los tramos entre lugares que este resumen modela tienen tiempo registrado.</p>
+        ) : (
+          <p>No hay posiciones de movimiento entre lugares modeladas en este reparto.</p>
+        )}
+      </div>
+
+      <div className="whole-trip-composition__group">
+        <h4>Alojamiento</h4>
+        <p>
+          Minutos manuales registrados: {composition.accommodation.registeredMinutes === null
+            ? "ninguno"
+            : formatMinutes(composition.accommodation.registeredMinutes)}.
+        </p>
+        <p>
+          Tramos manuales: {composition.accommodation.manualLegCount}; faltantes: {composition.accommodation.manualLegMissingCount}; sin seleccionar: {composition.accommodation.boundaryUnselectedCount}.
+        </p>
+        <p>
+          Sin alojamiento explícito: {composition.accommodation.explicitNoAccommodationCount}; límites de días vacíos no aplicables: {composition.accommodation.emptyDayNotApplicableCount}.
+        </p>
+      </div>
+
+      <div className="whole-trip-composition__group">
+        <h4>Rango del viaje</h4>
+        <p>{wholeTripBoundsText(composition.bounds)}</p>
+        <p>Días creados: {composition.bounds.dayCount}.</p>
+        {composition.bounds.daysAfterTripEnd !== null && composition.bounds.daysAfterTripEnd > 0 && (
+          <p className="whole-trip-composition__incomplete">
+            Días posteriores a la fecha de fin: {composition.bounds.daysAfterTripEnd}. Siguen incluidos en las visitas y traslados registrados de este resumen.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -1837,6 +1973,20 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const tripBoundsSummary = useMemo(
     () => buildTripBoundsSummary({ startDate, endDate }, days === null ? null : days.length),
     [startDate, endDate, days]
+  );
+  const wholeTripComposition = useMemo(
+    () =>
+      buildWholeTripComposition(
+        {
+          routeIds,
+          days: planningDays,
+          interHubSegments,
+          accommodationLegs,
+          bounds: { startDate, endDate },
+        },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, interHubSegments, accommodationLegs, startDate, endDate, placeById]
   );
 
   function moveUp(index: number) {
@@ -2042,6 +2192,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 </>
               )}
 
+              <WholeTripCompositionSection composition={wholeTripComposition} />
+
               <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
                 Restablecer recorrido
               </button>
@@ -2199,6 +2351,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 onUpdate={updateInterHubSegment}
                 onRemove={removeInterHubSegment}
               />
+
+              <WholeTripCompositionSection composition={wholeTripComposition} />
 
               <AccommodationManagerSection
                 accommodations={accommodations}
