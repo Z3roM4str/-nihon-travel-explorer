@@ -17,20 +17,20 @@ jobs:
       - name: Checkout exact PR head
         uses: actions/checkout@v4
         with:
-          ref: 6c3d773149332a2a0b12c6cb027bfb9505615dcb
+          ref: 810986a4388bff91825924f22e75bd3ef25629bd
           fetch-depth: 0
 
       - name: Verify exact invariants
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6c3d773149332a2a0b12c6cb027bfb9505615dcb"
+          test "$(git rev-parse HEAD)" = "810986a4388bff91825924f22e75bd3ef25629bd"
           test "$(git rev-parse c89dfac6e160ce95ccf3e957f9d4953dc039fef7)" = "c89dfac6e160ce95ccf3e957f9d4953dc039fef7"
-          test "$(git rev-list --count c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD)" = "1"
-          test "$(git diff --name-only c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD | wc -l | tr -d ' ')" = "10"
+          test "$(git rev-list --count c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD)" = "2"
+          test "$(git diff --name-only c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD | wc -l | tr -d ' ')" = "11"
           read behind ahead < <(git rev-list --left-right --count c89dfac6e160ce95ccf3e957f9d4953dc039fef7...HEAD)
           test "$behind" = "0"
-          test "$ahead" = "1"
+          test "$ahead" = "2"
           git diff --exit-code c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD -- docs/INTER_HUB_TRANSPORT_DESIGN.md
           if git diff --name-only c89dfac6e160ce95ccf3e957f9d4953dc039fef7..HEAD | grep -E '(^|/)(package\.json|package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml)$'; then
             echo "Unexpected package/lockfile change"
@@ -87,7 +87,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "6c3d773149332a2a0b12c6cb027bfb9505615dcb"
+          test "$(git rev-parse HEAD)" = "810986a4388bff91825924f22e75bd3ef25629bd"
           git diff --exit-code
           git diff --cached --exit-code
           echo "FINAL AUTOMATED EXACT-HEAD GATE: PASS"
