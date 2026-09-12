@@ -984,3 +984,135 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
     expect(code).not.toMatch(/\bfetch\b|geocod|getBestTransfer|haversine/i);
   });
 });
+
+function extractOfficialReservationDateNoticeSource(fullSource: string): string {
+  return extractTopLevel(fullSource, "function OfficialReservationDateNotice");
+}
+
+describe("OrderedSequenceBuilder.tsx — Phase 3F-F official reservation date presentation wiring", () => {
+  it("imports the Phase 3F evidence, derivation and presentation owners", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s*\{[^}]*\breservationMechanismEvidenceRecords\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-mechanism-evidence["']/
+    );
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bderiveReservationMechanismDatesForPlannedPlace\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-mechanism-date-derivation["']/
+    );
+    expect(source).toMatch(
+      /import\s*\{[^}]*\bbuildOfficialReservationDatePresentation\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-mechanism-presentation["']/
+    );
+  });
+
+  it("derives per planned place and pairs every result back to its exact record id", async () => {
+    const notice = extractOfficialReservationDateNoticeSource(await readSource());
+    expect(notice).toMatch(
+      /deriveReservationMechanismDatesForPlannedPlace\(\s*reservationMechanismEvidenceRecords\s*,\s*dayAssignment\s*,\s*startDate\s*,\s*place\.id\s*\)/
+    );
+    expect(notice).toMatch(
+      /reservationMechanismEvidenceRecords\.find\(\s*\(candidate\)\s*=>\s*candidate\.id\s*===\s*derivation\.recordId/
+    );
+    expect(notice).toMatch(/buildOfficialReservationDatePresentation\(record, derivation\)/);
+    expect(notice).not.toMatch(/\.sort\s*\(/);
+  });
+
+  it("renders as a separate sibling immediately after the existing Phase 3D-H notice", async () => {
+    const source = await readSource();
+    const deadline = source.indexOf("<ReservationDeadlineNotice");
+    const official = source.indexOf("<OfficialReservationDateNotice");
+    expect(deadline).toBeGreaterThan(-1);
+    expect(official).toBeGreaterThan(deadline);
+    expect(source.slice(deadline, official)).toContain("referenceDate={reservationReferenceDate}");
+    expect(source).toMatch(
+      /<OfficialReservationDateNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+dayNumber=\{dayIndex \+ 1\}\s*\/>/
+    );
+  });
+
+  it("receives no current/reference-date, hours, closure, end-date or visit-time input", async () => {
+    const source = await readSource();
+    const notice = withoutComments(extractOfficialReservationDateNoticeSource(source));
+    for (const forbidden of [
+      "reservationReferenceDate",
+      "referenceDate",
+      "captureDeviceLocalCivilDate",
+      "evaluateReservationWindowReference",
+      "visitStartTimes",
+      "endDate",
+      "febMar2027",
+      "schedule.hours",
+      "schedule.closures",
+      "reservation.required",
+      "reservation.leadTime",
+    ]) {
+      expect(notice, forbidden).not.toContain(forbidden);
+    }
+  });
+
+  it("renders scope, provenance and a provenance-only official-source link", async () => {
+    const notice = extractOfficialReservationDateNoticeSource(await readSource());
+    expect(notice).toMatch(/presentation\.scopeLabel/);
+    expect(notice).toMatch(/presentation\.provenanceText/);
+    expect(notice).toMatch(/href=\{presentation\.sourceUrl\}/);
+    expect(notice).toContain("Ver fuente oficial");
+    expect(notice).toMatch(/target="_blank"/);
+    expect(notice).toMatch(/rel="noreferrer"/);
+  });
+
+  it("keeps multiple details and allocation disclosure read-only", async () => {
+    const notice = extractOfficialReservationDateNoticeSource(await readSource());
+    expect(notice).toMatch(/presentation\.detailLines\.map/);
+    expect(notice).toMatch(/presentation\.allocationText/);
+    expect(notice).not.toMatch(/<button/);
+    expect(notice).not.toMatch(/onClick=/);
+    expect(notice).not.toMatch(/onChange=/);
+  });
+
+  it("has a day-specific accessible section name and neutral source-separation disclosure", async () => {
+    const notice = extractOfficialReservationDateNoticeSource(await readSource());
+    expect(notice).toContain("Fechas de reserva según fuente oficial · Día");
+    expect(notice).toContain("Fechas de reserva según fuente oficial");
+    expect(notice).toContain("No se comparan con la fecha actual ni indican el estado actual de la venta.");
+    expect(notice).toContain(
+      "Esta información oficial se muestra por separado de la anticipación editorial registrada;"
+    );
+    expect(notice).toContain("Nihon no combina ambas fuentes.");
+  });
+
+  it("renders nothing when no presentable Phase 3F result exists", async () => {
+    const notice = extractOfficialReservationDateNoticeSource(await readSource());
+    expect(notice).toMatch(/if \(items\.length === 0\) return null;/);
+  });
+
+  it("does not introduce action/currentness vocabulary in the rendered Phase 3F surface", async () => {
+    const notice = withoutComments(extractOfficialReservationDateNoticeSource(await readSource())).toLowerCase();
+    for (const forbidden of [
+      "ya puedes comprar",
+      "reserva ahora",
+      "compra ahora",
+      "última oportunidad",
+      "se te pasó",
+      "fecha límite",
+      "reservas abiertas",
+      "reservas cerradas",
+      "venta abierta",
+      "venta cerrada",
+      "disponible",
+      "no disponible",
+      "quedan boletos",
+      "te quedan",
+      "urgente",
+      "garantizada",
+    ]) {
+      expect(notice, forbidden).not.toContain(forbidden);
+    }
+  });
+
+  it("adds no second dialog or persistence surface", async () => {
+    const source = await readSource();
+    const notice = extractOfficialReservationDateNoticeSource(source);
+    expect(notice).not.toMatch(/role=["']dialog["']/);
+    expect(notice).not.toMatch(/aria-modal/);
+    expect(notice).not.toContain("localStorage");
+    expect((source.match(/role="dialog"/g) ?? []).length).toBe(1);
+  });
+});
+
