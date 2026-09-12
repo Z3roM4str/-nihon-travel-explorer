@@ -4400,3 +4400,43 @@ from the mandatory Phase 3F-B pilot to optional: populate it only if the success
 official proposition without guessing.
 
 No runtime or data change is made by this corrective pass.
+
+
+## Phase 3F-B — Official Reservation Mechanism Evidence Foundation — data foundation
+
+Implements the data-only successor approved by Phase 3F-A. Execution record:
+[`docs/RESERVATION_MECHANISM_EVIDENCE.md`](RESERVATION_MECHANISM_EVIDENCE.md).
+
+- [x] **Five-record official pilot.** The canonical catalog contains Ghibli Museum (JP-044),
+      Katsura Imperial Villa (JP-077), Tokyo Disneyland (JP-203), Tokyo DisneySea (JP-204) and
+      Grand Sumo Tournament Osaka 2027 (JP-212). Every record is active, scoped, and backed by
+      official-explicit provenance consulted on 2026-09-12.
+- [x] **Four materially different mechanism families exercised.** The pilot covers monthly fixed
+      release, rolling calendar-month release with an explicit missing-date fallback, relative
+      application window, and fixed event sale date. No generic parser is added and no editorial
+      `reservation.leadTime` value is rewritten.
+- [x] **Allocation stays separate.** Disney records preserve the operator's daily-sales-limit
+      condition as `capacity-limited`; Katsura records `lottery-if-oversubscribed`; Ghibli and
+      Sumo remain `not-stated` rather than inferring first-come behaviour.
+- [x] **USJ deliberately omitted after corrective source audit.** Current main-site USJ pages say
+      two months while a legacy subdomain still says three months. The current two-month rule is
+      acknowledged, but no pilot record is created because the first-pass calendar-month shape
+      would require alignment semantics the source does not explicitly state.
+- [x] **Nintendo Museum and AnimeJapan 2027 deliberately omitted.** Nintendo's drawing evidence does
+      not yet justify a stable first-pass release-window record. AnimeJapan 2027 has no current
+      official 2027 public-sale schedule to structure. No historical projection is used.
+- [x] **Canonical/app parity artifact.** `data/reservation-mechanisms.json` and
+      `app/src/data/reservation-mechanisms.json` carry the same evidence; the validator requires
+      byte-for-byte parity.
+- [x] **Offline validator.** `scripts/validate-reservation-mechanisms.py` enforces record identity,
+      place references, closed vocabularies, mechanism-specific shapes, safe integers, dates,
+      local times, timezone boundary, allocation/status, provenance, duplicate active
+      `placeId + scope`, secret scanning and source/app parity.
+- [x] **Offline unit tests.** `scripts/test_reservation_mechanisms.py` covers every approved
+      mechanism family, negative schema cases, parity drift and real-catalog invariants.
+- [x] **No runtime consumer.** No React, TypeScript domain consumer, planning-draft field, storage
+      key, UI, availability logic, current-date comparison, reminder or booking action is added.
+      Existing Phase 3D reservation semantics remain untouched.
+
+A future **Phase 3F-C** may be considered only as a new design gate for runtime derivation/composition.
+Phase 3F-B itself does not authorize booking-date UI, availability, urgency, reminders or automation.
