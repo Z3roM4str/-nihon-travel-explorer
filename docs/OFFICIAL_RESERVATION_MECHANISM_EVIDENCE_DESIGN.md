@@ -92,13 +92,23 @@ That is a structured relative application window plus an allocation mechanism.
 
 ### Universal Studios Japan — JP-125
 
-Current official FAQ source:
+Current official main-site sources consulted:
 
-`https://s.usj.co.jp/faq/ticket-webticket-store/00082.html`
+- `https://www.usj.co.jp/web/ja/jp/faq/tickets`
+- `https://www.usj.co.jp/web/ja/jp/tickets/buy/howto`
 
-The current operator FAQ states that tickets become purchasable **three months before the desired visit date**.
+Those current main-site pages state that ordinary tickets begin sales **two months before the desired visit date**, while noting that some ticket types may use different sale dates.
 
-This is materially more precise than the current `"1–3 meses; Express antes"` editorial shorthand.
+A legacy FAQ page under `s.usj.co.jp` still states **three months**. That value conflicts with:
+
+- the current main-site FAQ and purchase guide; and
+- USJ's own 2025 Expo notice, which explicitly described the three-month horizon as a temporary Osaka-Expo measure and said the plan was to return to approximately two months afterward.
+
+Therefore this phase must **not** treat the legacy three-month page as the current generic rule.
+
+The current two-month wording is more precise than the editorial `"1–3 meses; Express antes"` shorthand, but it still does not by itself specify every calendar-alignment edge case the first-pass schema would need.
+
+For that reason JP-125 remains a useful evidence example but is **not a mandatory Phase 3F-B pilot record** unless the successor can encode the official rule without inventing missing alignment semantics.
 
 ### Grand Sumo Tournament Osaka 2027 — JP-212
 
@@ -462,11 +472,19 @@ If two official pages disagree:
 
 Example:
 
-USJ published a 2025 notice describing a temporary Expo-period three-month sales horizon and a planned return afterward.
+USJ is the canonical current-source-conflict example.
 
-The current official FAQ consulted on 2026-09-12 states that tickets may be purchased three months before the desired visit date.
+A legacy `s.usj.co.jp` FAQ still says three months before the desired visit date.
 
-The **current FAQ** is therefore the relevant current rule for a 2026-09-12 evidence record; the historical temporary notice must not override it.
+However:
+
+- the current main-site FAQ says two months;
+- the current main-site purchase guide says two months; and
+- USJ's 2025 Expo notice explicitly described the three-month horizon as temporary and said the plan was to return to approximately two months after the Expo.
+
+The evidence therefore resolves in favor of the current main-site **two-month** rule, while the stale legacy page is recorded as conflicting evidence rather than silently ignored.
+
+Because the current source still does not define every missing-calendar-day alignment case required by the first-pass `rolling-calendar-month-release` shape, Phase 3F-B should omit a structured USJ record unless that successor narrows the schema safely.
 
 ---
 
@@ -592,11 +610,11 @@ Recommended initial positive-evidence targets:
 2. JP-203 — Tokyo Disneyland
 3. JP-204 — Tokyo DisneySea
 4. JP-077 — Katsura Imperial Villa
-5. JP-125 — Universal Studios Japan
-6. JP-212 — Grand Sumo Tournament Osaka 2027
+5. JP-212 — Grand Sumo Tournament Osaka 2027
 
-Optional only if exact recurring/window evidence is found during the successor:
+Optional only if the successor can encode the exact official proposition without guessing:
 
+- JP-125 — Universal Studios Japan
 - JP-097 — Nintendo Museum
 
 Explicitly do not populate from unsupported projection:
@@ -743,7 +761,7 @@ Accept Phase 3F-A only if review agrees that:
 11. no runtime timezone arithmetic is approved;
 12. no availability/booking-open/urgency claim is approved;
 13. Phase 3F-B is data-only;
-14. the recommended pilot exercises monthly, rolling, application-window and fixed-date rules;
+14. the recommended mandatory pilot exercises monthly, exact rolling-calendar, application-window and fixed-date rules without requiring USJ's unresolved alignment detail;
 15. AnimeJapan 2027 ticket timing remains unstructured until current 2027 evidence exists;
 16. existing Phase 3D reservation semantics remain unchanged.
 
