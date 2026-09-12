@@ -1,6 +1,7 @@
 # Phase 3F-F — Official Reservation Date Presentation Runtime
 
-Status: **runtime implemented — repository-native/browser validation pending**  
+Status: **runtime implemented and validated — eligible for Ready transition**
+
 Base: `8152d6a22e3f45dbe8b12074ca88b7593484103d` (`main` after Phase 3F-E)
 
 Phase 3F-F implements only the presentation runtime approved by Phase 3F-E.
@@ -180,15 +181,29 @@ It seeds real V7 drafts in isolated browser contexts and exercises the approved 
 source provenance, Phase 3D-H coexistence, day-move recomputation, start-date removal/reload,
 no-derived-state persistence, and Sumo applicability boundaries.
 
-Repository-native validation is still required before Ready:
+Final repository-native validation was executed on the real checkout after the runtime correctives:
 
-- focused new presentation tests;
-- Phase 3F-D regression tests;
-- relevant Phase 3D reservation regression tests;
-- full Vitest;
-- lint;
-- build;
-- `git diff --check`.
+- focused Vitest: **4 files, 150/150 tests passed**;
+- full Vitest: **56/56 files, 2216/2216 tests passed**;
+- oxlint: exit **0**, no warnings/errors;
+- build (`tsc -b && vite build`): exit **0**;
+- working-tree `git diff --check`: exit **0**;
+- browser audit #1: **PASS**, 0 console errors, 0 page errors;
+- browser audit #2: **PASS**, same final code HEAD, 0 console errors, 0 page errors.
+
+The final code HEAD validated by both browser runs is
+`3579a1498ea160dd1c4a53f466df4d35542e9999`.
+
+Two corrective commits were required during validation:
+
+1. `ef8d9b016bd4701df3c6719eafe42afc69c4ccdc` removed one stray blank line at EOF in
+   `OrderedSequenceBuilder.test.ts`.
+2. `3579a1498ea160dd1c4a53f466df4d35542e9999` corrected the browser harness fixtures for
+   DisneySea, Katsura and both Sumo scenarios so the existing planner minimum of two saved places
+   is satisfied with evidence-neutral `JP-019` on a separate day.
+
+No runtime/presentation/evidence/data/schema/package file was changed by either corrective except the
+browser harness itself in the second corrective.
 
 Suggested real-checkout commands include the focused/new suites plus the established full commands:
 
@@ -211,7 +226,10 @@ node scripts/phase3f-f-browser-audit.mjs
 Because this phase changes visible UI, the Phase 3F-E gate requires **two consecutive successful
 browser audits after the final code change**.
 
-Those validations are not claimed by this execution record until they are actually run in a real checkout.
+Those validations have now been observed in a real checkout. The Playwright environment required an
+external Chromium path bridge because the container's installed Chromium build differed from the
+Playwright-managed expected build; no repository file or package dependency was changed for that
+environment-only adjustment.
 
 ## 10. Scope
 
@@ -230,7 +248,8 @@ No Phase 3F evidence, Phase 3F-D arithmetic, Phase 3D reservation-domain, persis
 
 ## 11. Ready state
 
-**NOT READY YET.**
+**VALIDATED — ELIGIBLE FOR READY TRANSITION.**
 
-Implementation is present, but repository-native validation and the two mandatory final-state browser
-audits must pass before the PR can transition from Draft to Ready.
+Focused tests, full regression, lint, build and the two consecutive mandatory browser audits passed
+on the final code state. Hostile review reported no material finding. The remaining transition is the
+repository workflow step from Draft to Ready; this document does not itself perform that transition.
