@@ -134,7 +134,18 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
     const full = await source();
     expect(full).toContain("generateEvidenceCompleteLocalSwaps(");
     expect(full).toContain("generateEvidenceCompleteLocalRelocations(");
-    expect(full.match(/\[routeIds, planningDays, visitStartTimes, placeById\]/g)).toHaveLength(2);
+    // Each generation is a render-time useMemo over the current draft. Asserted per generation
+    // rather than as a file-wide tally, so a later phase adding its own generation with the same
+    // dependencies cannot mask a regression here.
+    for (const generator of [
+      "generateEvidenceCompleteLocalSwaps(",
+      "generateEvidenceCompleteLocalRelocations(",
+    ]) {
+      const start = full.indexOf(generator);
+      expect(full.slice(start, start + 400)).toContain(
+        "[routeIds, planningDays, visitStartTimes, placeById]"
+      );
+    }
   });
 
   it("102. the executable Chromium audit records and asserts zero console errors", async () => {

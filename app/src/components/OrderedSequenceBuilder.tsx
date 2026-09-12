@@ -19,6 +19,11 @@ import {
   generateEvidenceCompleteLocalRelocations,
   type EvidenceCompleteLocalRelocationAlternative,
 } from "../lib/evidence-complete-local-relocation";
+import {
+  applyEvidenceCompleteInteriorTransposition,
+  generateEvidenceCompleteInteriorTranspositions,
+  type EvidenceCompleteInteriorTranspositionAlternative,
+} from "../lib/evidence-complete-interior-transposition";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -1793,20 +1798,29 @@ function LocalSwapAlternativesSection({
   dayNumber,
   alternatives,
   relocationAlternatives,
+  transpositionAlternatives,
   placeById,
   onApply,
   onApplyRelocation,
+  onApplyTransposition,
 }: {
   dayNumber: number;
   alternatives: EvidenceCompleteLocalSwapAlternative[];
   relocationAlternatives: EvidenceCompleteLocalRelocationAlternative[];
+  transpositionAlternatives: EvidenceCompleteInteriorTranspositionAlternative[];
   placeById: Map<string, Place>;
   onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
   onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
+  onApplyTransposition: (
+    alternative: EvidenceCompleteInteriorTranspositionAlternative
+  ) => void;
 }) {
   const headingId = `local-swap-heading-${dayNumber}`;
   const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
-  const hasAlternatives = alternatives.length > 0 || relocationAlternatives.length > 0;
+  const hasAlternatives =
+    alternatives.length > 0 ||
+    relocationAlternatives.length > 0 ||
+    transpositionAlternatives.length > 0;
 
   return (
     <section className="local-swap" aria-labelledby={headingId}>
@@ -1928,6 +1942,61 @@ function LocalSwapAlternativesSection({
                         onClick={() => onApplyRelocation(alternative)}
                       >
                         Aplicar esta reubicación
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {transpositionAlternatives.length > 0 && (
+            <div className="local-swap__group local-transposition">
+              <h5>Intercambios no adyacentes</h5>
+              <ul className="local-swap__list">
+                {transpositionAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.leftDayIndex}:${alternative.rightDayIndex}`}
+                      className="local-swap__item local-transposition__item"
+                    >
+                      <p className="local-swap__pair local-transposition__exchange">
+                        Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
+                        <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de este intercambio</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Este intercambio no adyacente reduce de forma demostrable el rango de traslado
+                        local registrado de este bloque. Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyTransposition(alternative)}
+                      >
+                        Aplicar este intercambio no adyacente
                       </button>
                     </li>
                   );
@@ -2096,6 +2165,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     initializeDays,
     movePlaceWithinDay,
     relocatePlaceWithinDay,
+    transposePlacesWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
@@ -2243,6 +2313,41 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     return byDayId;
   }, [localRelocationGeneration, localSwapsByDayId]);
 
+  /** Phase 3E-G transpositions are independently baseline-derived, then grouped without ranking. */
+  const interiorTranspositionGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteInteriorTranspositions(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /**
+   * A genuine non-adjacent transposition cannot equal one adjacent swap or one single-place
+   * relocation under the current unique-id route model, so this only ever drops a duplicate a
+   * future schema change could introduce. It never reorders or ranks what survives.
+   */
+  const interiorTranspositionsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteInteriorTranspositionAlternative[]>();
+    if (interiorTranspositionGeneration.kind !== "available") return byDayId;
+    for (const alternative of interiorTranspositionGeneration.alternatives) {
+      const shownOrders = [
+        ...(localSwapsByDayId.get(alternative.dayId) ?? []),
+        ...(localRelocationsByDayId.get(alternative.dayId) ?? []),
+      ];
+      const alreadyShown = shownOrders.some(
+        (shown) =>
+          JSON.stringify(shown.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (alreadyShown) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [interiorTranspositionGeneration, localSwapsByDayId, localRelocationsByDayId]);
+
   /**
    * The one explicit user action that may change a day's order from a generated candidate.
    *
@@ -2268,6 +2373,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
       { routeIds, days: planningDays, visitStartTimes },
       { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
       (dayId, fromIndex, toIndex) => relocatePlaceWithinDay(dayId, fromIndex, toIndex)
+    );
+  }
+
+  /**
+   * The one explicit user action behind a transposition. Re-verified against the plan as it is
+   * now, then applied as a single pure V7 mutation — never two moves and never a follow-up
+   * suggestion applied on the user's behalf.
+   */
+  function applyInteriorTransposition(
+    alternative: EvidenceCompleteInteriorTranspositionAlternative
+  ) {
+    applyEvidenceCompleteInteriorTransposition(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, leftIndex, rightIndex) => transposePlacesWithinDay(dayId, leftIndex, rightIndex)
     );
   }
 
@@ -2757,14 +2878,19 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           )}
                           {dayEntity &&
                             localSwapGeneration.kind === "available" &&
-                            localRelocationGeneration.kind === "available" && (
+                            localRelocationGeneration.kind === "available" &&
+                            interiorTranspositionGeneration.kind === "available" && (
                             <LocalSwapAlternativesSection
                               dayNumber={dayIndex + 1}
                               alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
                               relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
+                              transpositionAlternatives={
+                                interiorTranspositionsByDayId.get(dayEntity.id) ?? []
+                              }
                               placeById={placeById}
                               onApply={applyLocalSwap}
                               onApplyRelocation={applyLocalRelocation}
+                              onApplyTransposition={applyInteriorTransposition}
                             />
                           )}
                           {bucket && dayEntity && dayBoundary && (

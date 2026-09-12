@@ -3949,3 +3949,65 @@ Recommended successor: **Phase 3E-G — Evidence-Complete Interior Transposition
 
 **Phase 3E-G is NOT STARTED.** This gate changes documentation only.
 
+
+## Phase 3E-G — Evidence-Complete Interior Transposition Runtime — implemented
+
+Implements `docs/EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md` without amending its contract.
+
+- [x] **Pure baseline-derived domain.** `evidence-complete-interior-transposition.ts` imports Phase
+      3E-C's maximal same-hub block derivation and injects both place resolution and exact directed
+      transfer lookup. It enumerates only non-adjacent interior pairs in stable
+      day/block/left/right order — `(n - 3)(n - 4) / 2` descriptors for a block of length `n`, with
+      no recursion, no permutation search and no candidate-from-candidate expansion. The source
+      states that figure is the candidate count and explicitly does not claim total runtime is
+      O(n²).
+- [x] **Exactly two places exchange, everything else stays put.** `transposeTwoPlaces` swaps the two
+      identified indices directly; no intervening place shifts, which is what separates the move
+      from a Phase 3E-E relocation. Adjacent pairs are never emitted, so Phase 3E-C keeps them, and
+      a block needs at least five places to yield any candidate.
+- [x] **Structural and temporal refusal.** Missing days, an invalid partition or an unresolved route
+      place make generation unavailable; trip bounds are not an input at all. A candidate is
+      suppressed when any place in the exact affected set — the unique union of
+      `{i-1, i, i+1}` and `{j-1, j, j+1}`, deduplicated when `j === i + 2` — carries a non-empty
+      persisted manual start time. An untouched interior place that keeps both neighbours is not
+      locked, and no manual time is ever moved, rewritten or inferred.
+- [x] **Complete evidence and conservative comparison.** The full baseline block passes through
+      `orderedSequenceFromLookup`; every transposed block passes through the exact lookup via
+      `sequenceComparisonFromLookup`. Only `b-clearly-faster` is emitted, with both confidence
+      tallies and Phase 3C-B advantage arithmetic unchanged. No reverse edge, chained path,
+      geometry, haversine, network routing or synthetic estimate can repair a missing edge.
+- [x] **Unique, unranked alternatives.** Duplicate candidate day orders are removed by first-seen
+      deterministic order, and the surface additionally drops any order already shown by the
+      adjacent-swap or relocation group. Nothing is sorted by advantage or labelled best,
+      recommended or ranked.
+- [x] **One pure V7 mutation and stale-safe Apply.** `withPlacesTransposedWithinDay` exchanges two
+      ids in one synchronous draft mutation — no splice, no intermediate order, no second persisted
+      state. Apply revalidates the exact baseline day, both place identities, interior legality, the
+      minimum index distance of two, locked block endpoints, block hub continuity, the captured
+      candidate order and the exact affected set before calling it.
+- [x] **Larger-plan invariants retained.** Route membership, day identity, accommodation boundary,
+      dates, manual times, accommodation data and every stored inter-hub segment remain structurally
+      unchanged. Tests pin active same-day, active between-day and inactive segment assessments,
+      accommodation composition and minutes, and the exact whole-trip registered movement/transport
+      delta against the evidenced block delta.
+- [x] **Existing day-card surface extended.** The one “Alternativas locales con evidencia completa”
+      section now composes three groups: “Intercambios adyacentes”, “Reubicaciones de un lugar” and
+      “Intercambios no adyacentes”. Transpositions name both exchanged places in natural copy, show
+      both registered ranges and confidence mixes, disclose the minimum recorded-range gap and the
+      local-only limitation, and require “Aplicar este intercambio no adyacente”. No page, modal or
+      wizard was added, and the existing neutral empty state is retained.
+- [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
+      `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, index, affected set,
+      advantage, confidence, history, score or rank is persisted.
+- [x] **Contract coverage.** The 125 numbered Phase 3E-G contracts are covered at their proper
+      layer: contracts 1–104 in the domain/V7/invariant suite, 105–123 in the scoped UI suite, and
+      105–125 executably in `scripts/phase3e-g-browser-audit.mjs`. The focused Phase 3E-G suite
+      reports 123/123; Phase 3E-C and Phase 3E-E regression suites report 220/220 together. The
+      Chromium audit passed on a real matching Playwright Chromium runtime: the committed Tokio
+      fixture renders at 1 h 8 min (68 min) against 1 h (60 min) with an 8 min minimum recorded-range
+      gap and four validated edges on each side, Apply produces exactly
+      `JP-028 JP-027 JP-022 JP-026 JP-025`, the draft stays V7 under a single storage key, reload
+      preserves the order, alternatives regenerate from the new baseline with no automatic second
+      Apply, and console and page errors are both zero. Because that fixture deliberately admits no
+      adjacent swap and no relocation, the audit proves both earlier capabilities still *apply* on a
+      second real fixture rather than merely still being present.
