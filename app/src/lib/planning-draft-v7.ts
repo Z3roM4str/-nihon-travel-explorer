@@ -353,6 +353,46 @@ export function withPlacesTransposedWithinDay(
   return { ...draft, days };
 }
 
+/**
+ * Phase 3E-I: reverses exactly four consecutive places inside one identified day.
+ *
+ * Two direct end-for-end exchanges, not a splice: nothing is removed and re-inserted, so no place
+ * outside the four-place window can shift. One call produces the final order — there is
+ * deliberately no intermediate draft, because four sequential moves would be four undoable states
+ * and would let a reload observe an order the user never chose.
+ *
+ * The day's id and accommodation boundary, every other day, `routeIds`, the dates,
+ * `visitStartTimes`, the accommodations, the manual accommodation legs and every stored
+ * inter-hub segment object all travel through untouched, and the draft stays V7.
+ */
+export function withFourPlacesReversedWithinDay(
+  draft: ManualPlanningDraftV7,
+  dayId: string,
+  windowStartIndex: number
+): ManualPlanningDraftV7 {
+  if (draft.days === null || !Number.isInteger(windowStartIndex) || windowStartIndex < 0) {
+    return draft;
+  }
+  const dayIndex = draft.days.findIndex((day) => day.id === dayId);
+  if (dayIndex === -1) return draft;
+  const day = draft.days[dayIndex];
+  const windowEndIndex = windowStartIndex + 3;
+  if (windowEndIndex >= day.placeIds.length) return draft;
+
+  const placeIds = [...day.placeIds];
+  [placeIds[windowStartIndex], placeIds[windowEndIndex]] = [
+    placeIds[windowEndIndex],
+    placeIds[windowStartIndex],
+  ];
+  [placeIds[windowStartIndex + 1], placeIds[windowEndIndex - 1]] = [
+    placeIds[windowEndIndex - 1],
+    placeIds[windowStartIndex + 1],
+  ];
+  const days = [...draft.days];
+  days[dayIndex] = { ...day, placeIds };
+  return { ...draft, days };
+}
+
 export function withPlaceMovedBetweenDays(
   draft: ManualPlanningDraftV7,
   fromDayId: string,

@@ -24,6 +24,7 @@ import {
   withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
   withPlacesTransposedWithinDay,
+  withFourPlacesReversedWithinDay,
   withEndDate,
   withRoute,
   withStartDate,
@@ -205,6 +206,11 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     []
   );
 
+  /** Phase 3E-I: one explicit four-place interior reversal, as a single draft update. */
+  const reverseFourPlacesWithinDay = useCallback((dayId: string, windowStartIndex: number) => {
+    setDraft((current) => withFourPlacesReversedWithinDay(current, dayId, windowStartIndex));
+  }, []);
+
   /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
    * day's accommodation choice survives while that day stays non-empty; a day left empty keeps its
    * id but resets both boundary sides to `unselected`, and repopulating it later never resurrects
@@ -377,6 +383,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     movePlaceWithinDay,
     relocatePlaceWithinDay,
     transposePlacesWithinDay,
+    reverseFourPlacesWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,

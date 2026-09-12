@@ -4068,3 +4068,81 @@ Defines the next bounded local-alternative frontier after Phase 3E-G. Full contr
 Recommended successor: **Phase 3E-I — Evidence-Complete Four-Place Interior Reversal Runtime**.
 
 **Phase 3E-I is NOT STARTED.** This gate changes documentation only.
+
+## Phase 3E-I — Evidence-Complete Four-Place Interior Reversal Runtime — implemented
+
+Implements `docs/EVIDENCE_COMPLETE_FOUR_PLACE_INTERIOR_REVERSAL_DESIGN.md` without amending its
+contract.
+
+- [x] **Pure baseline-derived domain.** `evidence-complete-four-place-interior-reversal.ts` imports
+      Phase 3E-C's maximal same-hub block derivation and injects both place resolution and exact
+      directed transfer lookup. It enumerates only four-place interior windows in stable
+      day/block/windowStartIndex order — `n - 5` windows for a block of length `n`, with no
+      recursion, no permutation search and no candidate-from-candidate expansion. The source
+      documents `n - 5` as the candidate count and states that straightforward full-sequence
+      evaluation may still cost `O(n²)` directed lookups.
+- [x] **Exactly four places reverse, and only four.** `reverseFourPlaces` performs two direct
+      end-for-end exchanges — never a splice — so no place outside the window can shift. A window of
+      two remains one Phase 3E-C adjacent swap and a window of three remains one Phase 3E-G
+      transposition; four is the first genuinely new reversal length, and a block needs at least six
+      places to hold one. This is not generic slice reversal and not 2-opt: no other length, no
+      second window, and no reversal combined with another move.
+- [x] **Structural and temporal refusal.** Missing days, an invalid partition or an unresolved route
+      place make generation unavailable; trip bounds are not an input at all. A candidate is
+      suppressed when any place in the exact six-place affected window — predecessor, the four
+      reversed places, successor — carries a non-empty persisted manual start time. A timed place
+      outside that window does not block, and no manual time is ever moved, rewritten or inferred.
+- [x] **Complete evidence on every reversed direction.** The full baseline block passes through
+      `orderedSequenceFromLookup`; every reversed block passes through the exact lookup via
+      `sequenceComparisonFromLookup`. Because reversing four places flips several internal directed
+      edges, each reversed direction must itself be recorded: dropping `d→c`, `c→b` or `b→a`
+      discards the candidate even though its forward twin still exists. No reverse edge, chained
+      path, geometry, haversine, network routing or synthetic symmetry can repair a missing edge.
+- [x] **Conservative comparison, unranked output.** Only `b-clearly-faster` is emitted, with both
+      confidence tallies and Phase 3C-B advantage arithmetic unchanged. Duplicate candidate day
+      orders are removed by first-seen deterministic order, and the surface additionally drops any
+      order already shown by the adjacent-swap, relocation or transposition group. Nothing is sorted
+      by advantage, no group ranks another, and no earlier group is suppressed because a later one
+      has a larger gap.
+- [x] **One pure V7 mutation and stale-safe Apply.** `withFourPlacesReversedWithinDay` reverses four
+      contiguous ids in one synchronous draft mutation — no splice, no intermediate order, no second
+      persisted state — wired through one `reverseFourPlacesWithinDay` hook callback making exactly
+      one `setDraft` call. Apply revalidates the exact baseline day, all four window identities,
+      integer and strictly-interior window placement, locked block endpoints, block hub continuity,
+      the captured candidate order and the exact six-place affected set before calling it.
+- [x] **Larger-plan invariants retained.** Route membership, day identity, accommodation boundary,
+      dates, manual times, accommodation data and every stored inter-hub segment remain structurally
+      unchanged. Tests pin active same-day, active between-day and inactive segment assessments,
+      accommodation composition and minutes, and the exact whole-trip registered movement/transport
+      delta against the evidenced local delta, with no missing local edge introduced.
+- [x] **Existing day-card surface extended.** The one “Alternativas locales con evidencia completa”
+      section now composes four groups: “Intercambios adyacentes”, “Reubicaciones de un lugar”,
+      “Intercambios no adyacentes” and “Reversiones de cuatro lugares”. Reversals name all four
+      places in natural copy, show both registered ranges and confidence mixes, disclose the minimum
+      recorded-range gap and the local-only limitation, and require “Aplicar esta reversión de
+      cuatro lugares”. No page, modal or wizard was added, and the existing neutral empty state
+      still covers all four groups being empty.
+- [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
+      `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, start index, window,
+      affected set, advantage, confidence, history, score or rank is persisted.
+- [x] **Contract coverage.** All 125 numbered Phase 3E-I contracts are covered across the domain,
+      pure-V7, invariant, UI-wiring and browser layers: contracts 1–121 in the domain/V7/invariant
+      suite and 122–123 in the scoped UI-wiring suite. The executable Chromium audit
+      (`scripts/phase3e-i-browser-audit.mjs`) covers the runtime behaviours it genuinely exercises —
+      contracts 122–125. The focused Phase 3E-I suite reports 129/129; the Phase 3E-C, 3E-E and
+      3E-G regression suites report 343/343 together; planning-draft, whole-trip, inter-hub and
+      accommodation regressions report 123/123; the full suite reports 2016/2016.
+- [x] **Executable browser evidence.** The Chromium audit passed on a real matching Playwright
+      runtime on two consecutive runs. The committed Okinawa fixture renders at 1 h 31 min (91 min)
+      against 1 h 12 min (72 min) with a 19 min minimum recorded-range gap and five validated edges
+      on each side; nothing is applied before the explicit click; Apply produces exactly
+      `JP-202 JP-161 JP-156 JP-155 JP-153 JP-154`; the draft stays V7 under a single planning-draft
+      storage key with no candidate metadata persisted; no automatic second Apply occurs; and
+      console and page errors are zero. After reload the audit navigates the real UI back into the
+      planner and shows the alternatives are re-derived from the reloaded baseline: the persisted
+      day keeps its id and applied order, the applied candidate does not reappear, and — because
+      that order admits no provable local alternative — the surface renders the existing neutral
+      empty state with zero candidate groups. Because the Phase 3E-I fixture deliberately admits no
+      adjacent swap, relocation or transposition, the audit proves all three earlier neighbourhoods
+      still *apply*, to their exact orders, on their own real fixtures rather than merely still
+      being present.

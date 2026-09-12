@@ -24,6 +24,11 @@ import {
   generateEvidenceCompleteInteriorTranspositions,
   type EvidenceCompleteInteriorTranspositionAlternative,
 } from "../lib/evidence-complete-interior-transposition";
+import {
+  applyEvidenceCompleteFourPlaceInteriorReversal,
+  generateEvidenceCompleteFourPlaceInteriorReversals,
+  type EvidenceCompleteFourPlaceInteriorReversalAlternative,
+} from "../lib/evidence-complete-four-place-interior-reversal";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -1799,20 +1804,26 @@ function LocalSwapAlternativesSection({
   alternatives,
   relocationAlternatives,
   transpositionAlternatives,
+  reversalAlternatives,
   placeById,
   onApply,
   onApplyRelocation,
   onApplyTransposition,
+  onApplyReversal,
 }: {
   dayNumber: number;
   alternatives: EvidenceCompleteLocalSwapAlternative[];
   relocationAlternatives: EvidenceCompleteLocalRelocationAlternative[];
   transpositionAlternatives: EvidenceCompleteInteriorTranspositionAlternative[];
+  reversalAlternatives: EvidenceCompleteFourPlaceInteriorReversalAlternative[];
   placeById: Map<string, Place>;
   onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
   onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
   onApplyTransposition: (
     alternative: EvidenceCompleteInteriorTranspositionAlternative
+  ) => void;
+  onApplyReversal: (
+    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
   ) => void;
 }) {
   const headingId = `local-swap-heading-${dayNumber}`;
@@ -1820,7 +1831,8 @@ function LocalSwapAlternativesSection({
   const hasAlternatives =
     alternatives.length > 0 ||
     relocationAlternatives.length > 0 ||
-    transpositionAlternatives.length > 0;
+    transpositionAlternatives.length > 0 ||
+    reversalAlternatives.length > 0;
 
   return (
     <section className="local-swap" aria-labelledby={headingId}>
@@ -2004,6 +2016,62 @@ function LocalSwapAlternativesSection({
               </ul>
             </div>
           )}
+          {reversalAlternatives.length > 0 && (
+            <div className="local-swap__group local-reversal">
+              <h5>Reversiones de cuatro lugares</h5>
+              <ul className="local-swap__list">
+                {reversalAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  const [first, second, third, fourth] = alternative.originalWindowPlaceIds;
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
+                      className="local-swap__item local-reversal__item"
+                    >
+                      <p className="local-swap__pair local-reversal__window">
+                        Revertir el orden de <strong>{nameOf(first)}</strong>,{" "}
+                        <strong>{nameOf(second)}</strong>, <strong>{nameOf(third)}</strong> y{" "}
+                        <strong>{nameOf(fourth)}</strong> dentro del bloque de {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de esta reversión</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Esta reversión de cuatro lugares reduce de forma demostrable el rango de
+                        traslado local registrado de este bloque. Ventaja mínima entre los rangos
+                        registrados: {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyReversal(alternative)}
+                      >
+                        Aplicar esta reversión de cuatro lugares
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </>
       )}
     </section>
@@ -2166,6 +2234,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     movePlaceWithinDay,
     relocatePlaceWithinDay,
     transposePlacesWithinDay,
+    reverseFourPlacesWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
@@ -2348,6 +2417,47 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     return byDayId;
   }, [interiorTranspositionGeneration, localSwapsByDayId, localRelocationsByDayId]);
 
+  /** Phase 3E-I reversals are independently baseline-derived, then grouped without ranking. */
+  const fourPlaceReversalGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteFourPlaceInteriorReversals(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /**
+   * A four-place reversal is not generated by any earlier neighbourhood, so this only ever drops a
+   * duplicate a future schema change could introduce. It never reorders or ranks what survives, and
+   * it never suppresses an earlier group because a later one has a larger gap.
+   */
+  const fourPlaceReversalsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteFourPlaceInteriorReversalAlternative[]>();
+    if (fourPlaceReversalGeneration.kind !== "available") return byDayId;
+    for (const alternative of fourPlaceReversalGeneration.alternatives) {
+      const shownOrders = [
+        ...(localSwapsByDayId.get(alternative.dayId) ?? []),
+        ...(localRelocationsByDayId.get(alternative.dayId) ?? []),
+        ...(interiorTranspositionsByDayId.get(alternative.dayId) ?? []),
+      ];
+      const alreadyShown = shownOrders.some(
+        (shown) =>
+          JSON.stringify(shown.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (alreadyShown) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [
+    fourPlaceReversalGeneration,
+    localSwapsByDayId,
+    localRelocationsByDayId,
+    interiorTranspositionsByDayId,
+  ]);
+
   /**
    * The one explicit user action that may change a day's order from a generated candidate.
    *
@@ -2389,6 +2499,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
       { routeIds, days: planningDays, visitStartTimes },
       { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
       (dayId, leftIndex, rightIndex) => transposePlacesWithinDay(dayId, leftIndex, rightIndex)
+    );
+  }
+
+  /**
+   * The one explicit user action behind a four-place reversal. Re-verified against the plan as it
+   * is now, then applied as a single pure V7 mutation — never four moves and never a follow-up
+   * suggestion applied on the user's behalf.
+   */
+  function applyFourPlaceReversal(
+    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
+  ) {
+    applyEvidenceCompleteFourPlaceInteriorReversal(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, windowStartIndex) => reverseFourPlacesWithinDay(dayId, windowStartIndex)
     );
   }
 
@@ -2879,7 +3005,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                           {dayEntity &&
                             localSwapGeneration.kind === "available" &&
                             localRelocationGeneration.kind === "available" &&
-                            interiorTranspositionGeneration.kind === "available" && (
+                            interiorTranspositionGeneration.kind === "available" &&
+                            fourPlaceReversalGeneration.kind === "available" && (
                             <LocalSwapAlternativesSection
                               dayNumber={dayIndex + 1}
                               alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
@@ -2887,10 +3014,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                               transpositionAlternatives={
                                 interiorTranspositionsByDayId.get(dayEntity.id) ?? []
                               }
+                              reversalAlternatives={
+                                fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
+                              }
                               placeById={placeById}
                               onApply={applyLocalSwap}
                               onApplyRelocation={applyLocalRelocation}
                               onApplyTransposition={applyInteriorTransposition}
+                              onApplyReversal={applyFourPlaceReversal}
                             />
                           )}
                           {bucket && dayEntity && dayBoundary && (
