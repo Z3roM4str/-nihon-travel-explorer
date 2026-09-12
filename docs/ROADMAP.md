@@ -4440,3 +4440,46 @@ Implements the data-only successor approved by Phase 3F-A. Execution record:
 
 A future **Phase 3F-C** may be considered only as a new design gate for runtime derivation/composition.
 Phase 3F-B itself does not authorize booking-date UI, availability, urgency, reminders or automation.
+
+
+## Phase 3F-C — Trip-Specific Reservation Date Derivation Design Gate — design/audit only
+
+Defines the safe runtime contract for turning Phase 3F-B official mechanism evidence into trip-specific
+civil reservation dates. Full contract:
+[`docs/TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_DESIGN.md`](TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_DESIGN.md).
+
+- [x] **Pure visit-date derivation only.** Input is one validated official mechanism record plus one
+      explicit visit civil date. No device clock, current-date comparison, availability, urgency,
+      reminder, notification or purchase action enters this phase.
+- [x] **Official evidence stays independent from Phase 3D editorial guidance.** Phase 3F never
+      reparses `reservation.leadTime`, never suppresses a Phase 3D-H result, and never intersects
+      the two sources into one synthetic range.
+- [x] **Calendar-month arithmetic is exact.** Month-based mechanisms use calendar months rather than
+      30/60/90-day approximations. Invalid same-day alignments never roll silently; an operator
+      fallback is used only when that fallback is itself recorded in the mechanism.
+- [x] **Ghibli semantics pinned.** A visit in February 2027 derives 10 January 2027 at 10:00 with
+      `Asia/Tokyo`; a January 2027 visit rolls back to 10 December 2026.
+- [x] **Tokyo Disney semantics pinned.** A 20 February 2027 visit derives 20 December 2026 at
+      14:00. A 30 April 2027 visit has no valid 30 February alignment, so the recorded operator
+      fallback yields 1 March 2027. The evidence timezone remains null rather than being inferred.
+- [x] **Katsura application window pinned.** A 15 March 2027 visit derives an online application
+      window of 1 December 2026 at 05:00 through 12 March 2027 at 23:59, preserving
+      `lottery-if-oversubscribed` as disclosure only.
+- [x] **Osaka Sumo fixed-date applicability pinned.** Any visit from 14–28 March 2027 inclusive
+      derives the recorded 6 February 2027 advance-sale date. A visit outside that recorded event
+      period is not applicable; missing applicability bounds never mean universal applicability.
+- [x] **Multiple scopes stay independent.** Future records for admission, timed entry, workshops,
+      etc. derive separately in stable source-data order. No ranking or "primary reservation"
+      selection is introduced.
+- [x] **Time evidence is preserved, never upgraded.** A recorded IANA timezone survives; a null
+      timezone stays null. No UTC instant, user-local conversion or DST arithmetic is produced.
+- [x] **Domain-only successor.** Recommended Phase 3F-D adds typed evidence parsing, pure calendar
+      derivation and tests only. No React/UI, hooks, persistence, V8, new localStorage key, network
+      or visible booking copy is authorized.
+- [x] **106 normative contracts.** The successor contract covers parsing, visit-date eligibility,
+      civil/month arithmetic, all five mechanism families, real 3F-B fixtures, timezone boundaries,
+      current-date exclusions, persistence and Phase 3D separation.
+
+Recommended successor: **Phase 3F-D — Trip-Specific Reservation Date Derivation Runtime Foundation**.
+
+**Phase 3F-D is NOT STARTED.** This gate changes documentation only.
