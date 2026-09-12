@@ -172,6 +172,14 @@ No success/risk/urgency palette is introduced.
 
 ## 9. Validation gate
 
+A dedicated executable browser audit now lives at:
+
+`app/scripts/phase3f-f-browser-audit.mjs`
+
+It seeds real V7 drafts in isolated browser contexts and exercises the approved real fixtures,
+source provenance, Phase 3D-H coexistence, day-move recomputation, start-date removal/reload,
+no-derived-state persistence, and Sumo applicability boundaries.
+
 Repository-native validation is still required before Ready:
 
 - focused new presentation tests;
@@ -182,7 +190,25 @@ Repository-native validation is still required before Ready:
 - build;
 - `git diff --check`.
 
-Because this phase changes visible UI, the Phase 3F-E gate also requires **two consecutive successful
+Suggested real-checkout commands include the focused/new suites plus the established full commands:
+
+```bash
+cd app
+npx vitest run src/lib/reservation-mechanism-presentation.test.ts \
+  src/lib/reservation-mechanism-evidence.test.ts \
+  src/lib/reservation-mechanism-date-derivation.test.ts \
+  src/components/OrderedSequenceBuilder.test.ts
+npm test
+npm run lint
+npm run build
+cd ..
+git diff --check
+cd app
+node scripts/phase3f-f-browser-audit.mjs
+node scripts/phase3f-f-browser-audit.mjs
+```
+
+Because this phase changes visible UI, the Phase 3F-E gate requires **two consecutive successful
 browser audits after the final code change**.
 
 Those validations are not claimed by this execution record until they are actually run in a real checkout.
@@ -196,6 +222,7 @@ Expected changed files:
 - `app/src/components/OrderedSequenceBuilder.tsx`
 - `app/src/components/OrderedSequenceBuilder.test.ts`
 - `app/src/App.css`
+- `app/scripts/phase3f-f-browser-audit.mjs`
 - `docs/OFFICIAL_RESERVATION_DATE_PRESENTATION_RUNTIME.md`
 - `docs/ROADMAP.md`
 
