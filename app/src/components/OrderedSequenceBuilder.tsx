@@ -69,6 +69,12 @@ import {
   describeReservationWindowReferenceForUi,
   formatDeviceReferenceDateForUi,
 } from "../lib/reservation-window-reference-presentation";
+import { reservationMechanismEvidenceRecords } from "../lib/reservation-mechanism-evidence";
+import { deriveReservationMechanismDatesForPlannedPlace } from "../lib/reservation-mechanism-date-derivation";
+import {
+  buildOfficialReservationDatePresentation,
+  type OfficialReservationDatePresentation,
+} from "../lib/reservation-mechanism-presentation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
 import {
   buildDayRecordedIntervalFits,
@@ -185,6 +191,13 @@ type Props = {
  * captured reference date is not persisted and does not self-refresh at midnight; the exact date
  * used is rendered alongside the relation. Before/within/after remains neutral planning context —
  * never booking-open/closed, availability, urgency, countdown, or Japan business-date semantics.
+ *
+ * Phase 3F-F adds a separate per-day read-only official-reservation surface from the bundled
+ * Phase 3F evidence catalog plus the same strict planned visit-date ownership already used by
+ * Phase 3F-D. It renders source-scoped release/application dates, provenance and recorded timezone
+ * uncertainty without reading the Phase 3D-O device reference date. The official facts remain a
+ * sibling of Phase 3D-H rather than a merged/intersected reservation window and never become a
+ * current sale-state, availability, urgency, ranking or purchase instruction.
  *
  * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
  * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
@@ -815,6 +828,95 @@ function ReservationDeadlineNotice({
         </strong>{" "}
         La fecha de referencia mostrada se captura del calendario local de tu dispositivo al abrir este plan;
         no representa la fecha operativa en Japón y no se actualiza automáticamente mientras esta vista siga abierta.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3F-F's one visible official-reservation surface. It consumes only Phase 3F-D derivations
+ * plus the exact matching evidence record and therefore cannot replace or reinterpret the separate
+ * Phase 3D-H editorial window above. The component receives no reference date, visit start time,
+ * trip end date, closure/hours fact or reservation-requiredness signal.
+ */
+function OfficialReservationDateNotice({
+  places,
+  dayAssignment,
+  startDate,
+  dayNumber,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+  dayNumber: number;
+}) {
+  type Item = {
+    place: Place;
+    presentation: OfficialReservationDatePresentation;
+  };
+
+  const items: Item[] = [];
+  for (const place of places) {
+    const derivations = deriveReservationMechanismDatesForPlannedPlace(
+      reservationMechanismEvidenceRecords,
+      dayAssignment,
+      startDate,
+      place.id
+    );
+    for (const derivation of derivations) {
+      const record = reservationMechanismEvidenceRecords.find(
+        (candidate) => candidate.id === derivation.recordId
+      );
+      if (!record) continue;
+      const presentation = buildOfficialReservationDatePresentation(record, derivation);
+      if (presentation) items.push({ place, presentation });
+    }
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <section
+      className="official-reservation-date"
+      aria-label={`Fechas de reserva según fuente oficial · Día ${dayNumber}`}
+    >
+      <h4 className="official-reservation-date__heading">Fechas de reserva según fuente oficial</h4>
+      <div className="official-reservation-date__list">
+        {items.map(({ place, presentation }) => (
+          <article key={presentation.recordId} className="official-reservation-date__item">
+            <span className="official-reservation-date__name">{place.name}</span>
+            <span className="official-reservation-date__scope">{presentation.scopeLabel}</span>
+            <p className="official-reservation-date__fact-heading">{presentation.heading}</p>
+            {presentation.detailLines.map((line, index) => (
+              <p
+                key={`${presentation.recordId}:detail:${index}`}
+                className="official-reservation-date__detail"
+              >
+                {line}
+              </p>
+            ))}
+            {presentation.allocationText && (
+              <p className="official-reservation-date__allocation">{presentation.allocationText}</p>
+            )}
+            <p className="official-reservation-date__provenance">{presentation.provenanceText}</p>
+            <a
+              className="official-reservation-date__source"
+              href={presentation.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver fuente oficial
+            </a>
+          </article>
+        ))}
+      </div>
+      <p className="official-reservation-date__disclaimer">
+        Estas fechas son hechos de calendario derivados del registro oficial para la fecha de visita
+        asignada. No se comparan con la fecha actual ni indican el estado actual de la venta.{" "}
+        <strong>
+          Esta información oficial se muestra por separado de la anticipación editorial registrada;
+          Nihon no combina ambas fuentes.
+        </strong>
       </p>
     </section>
   );
@@ -3131,6 +3233,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             dayAssignment={dayAssignment}
                             startDate={startDate}
                             referenceDate={reservationReferenceDate}
+                          />
+                          <OfficialReservationDateNotice
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                            dayNumber={dayIndex + 1}
                           />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
