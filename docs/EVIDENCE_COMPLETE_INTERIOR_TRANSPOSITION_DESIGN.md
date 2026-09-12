@@ -194,10 +194,10 @@ Everything below remains fixed:
 
 ## 5. Transposition semantics
 
-For a block:
+For a block of length `n`:
 
 ```text
-[P0, P1, P2, ... Pn]
+[P0, P1, P2, ... P(n-1)]
 ```
 
 choose:
@@ -210,7 +210,7 @@ rightIndex
 with:
 
 ```text
-1 <= leftIndex < rightIndex <= n - 1
+1 <= leftIndex < rightIndex <= n - 2
 ```
 
 Semantics:
@@ -976,7 +976,7 @@ Only the applied resulting V7 day order persists.
 67. stale baseline rejected.
 68. left identity mismatch rejected.
 69. right identity mismatch rejected.
-70. illegal endpoint index rejected.
+70. an index targeting a locked block endpoint is rejected.
 71. adjacent index pair rejected.
 72. changed block endpoint rejected.
 73. changed block hub rejected.
