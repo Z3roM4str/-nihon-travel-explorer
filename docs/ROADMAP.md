@@ -4336,3 +4336,47 @@ Closes the current Phase 3E local-ordering frontier after the shipped C/E/G/I/K 
 
 **No Phase 3E-M runtime is recommended.** Future work should move to a different product capability
 unless one of the documented reopen conditions is met.
+
+
+## Phase 3F-A — Official Reservation Mechanism Evidence Design Gate — design/audit only
+
+Defines the next product frontier after Phase 3E closure. Full contract:
+[`docs/OFFICIAL_RESERVATION_MECHANISM_EVIDENCE_DESIGN.md`](OFFICIAL_RESERVATION_MECHANISM_EVIDENCE_DESIGN.md).
+
+- [x] **Reservation evidence, not another route move.** Phase 3E-L closed the current local-ordering
+      expansion. The next measured gap is reservation evidence: 41 places currently carry
+      `reservation.required === true`, but only 3 have a Phase 3D-H Class-A explicit numeric
+      day/week window; 12 are coarse non-Class-A magnitudes and 26 are opaque/mechanism-specific.
+- [x] **Official sources prove richer structure exists.** Current operator/government evidence
+      includes monthly fixed releases (Ghibli Museum), rolling calendar-month releases (Tokyo Disney
+      Resort), relative application windows plus lottery-on-oversubscription (Katsura Imperial
+      Villa), current relative sale horizons (USJ), and fixed event sale dates (Grand Sumo Osaka
+      2027). These propositions cannot be represented faithfully by the current editorial
+      `reservation.leadTime` field alone.
+- [x] **Separate evidence collection.** Do not rewrite `Place.reservation` and do not add
+      operator-specific regexes to `reservation-deadline.ts`. The recommended successor introduces
+      a separate versioned official-evidence collection keyed by stable `placeId`, with independent
+      records for distinct reservation scopes.
+- [x] **Provenance/currentness are mandatory.** Every structured rule requires an official source,
+      source entity, consultation date, evidence paraphrase and explicit confidence. Active vs
+      superseded state is part of the contract because booking rules can change.
+- [x] **Only positive explicit evidence structures a rule.** Missing ticket information means no
+      mechanism record, not "not on sale". Historical rules are never projected forward. AnimeJapan
+      2027 is the canonical current example: event dates are published, but the 2027 public-ticket
+      schedule is not yet evidence for a structured release rule.
+- [x] **Narrow first-pass mechanism families.** Approved design families are monthly fixed release,
+      rolling calendar-month release, rolling day release, relative application window and fixed
+      sale date. Allocation (drawing / lottery-if-oversubscribed / capacity-limited / etc.) remains
+      a separate evidence axis.
+- [x] **Timezone evidence may be stored, not computed.** Official local release times and JST /
+      `Asia/Tokyo` provenance may be recorded when explicitly supported. No runtime timezone,
+      instant, countdown or reminder arithmetic is approved by this gate.
+- [x] **Data-first successor.** Recommended Phase 3F-B is a data foundation only, with a small
+      high-confidence pilot spanning materially different mechanism families and deterministic
+      validation/parity checks. No UI, reminder, availability or booking consumer is authorized yet.
+- [x] **Existing Phase 3D reservation semantics remain unchanged.** The new official evidence is a
+      second source domain; any future composition with Phase 3D-H/3D-O requires its own design gate.
+
+Recommended successor: **Phase 3F-B — Official Reservation Mechanism Evidence Foundation**.
+
+**Phase 3F-B is NOT STARTED.** This gate changes documentation only.
