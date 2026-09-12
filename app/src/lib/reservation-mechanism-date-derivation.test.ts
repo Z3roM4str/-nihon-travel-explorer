@@ -194,6 +194,11 @@ describe("fixed-sale-date — Osaka Sumo real fixture", () => {
   });
 
   it("does not assume universal applicability when bounds are missing", () => {
+    // Narrow to the recorded branch first: spreading the whole `ReservationMechanism` union would
+    // widen the literal to every kind, and the applicability bounds exist only on this one.
+    if (sumo.mechanism.kind !== "fixed-sale-date") {
+      throw new Error("expected a fixed-sale-date fixture for JP-212");
+    }
     const synthetic: ReservationMechanismEvidenceRecord = {
       ...sumo,
       id: "RM-JP-212-002",
@@ -207,6 +212,26 @@ describe("fixed-sale-date — Osaka Sumo real fixture", () => {
       kind: "not-derivable",
       reason: "missing-recorded-applicability",
     });
+  });
+
+  /**
+   * Regression for the invariant the narrowing above depends on: recorded applicability bounds
+   * belong to `fixed-sale-date` and to no other mechanism kind, so no other kind may ever reach an
+   * applicability verdict. A future mechanism that grew bounds without its own recorded event
+   * interval would fail here rather than silently gating a release date on absent evidence.
+   */
+  it("recorded applicability bounds exist on, and gate, only fixed-sale-date evidence", () => {
+    for (const stored of reservationMechanismEvidenceRecords) {
+      const carriesBounds =
+        "appliesToStartDate" in stored.mechanism || "appliesToEndDate" in stored.mechanism;
+      expect(carriesBounds).toBe(stored.mechanism.kind === "fixed-sale-date");
+      if (stored.mechanism.kind === "fixed-sale-date") continue;
+      const derived = deriveReservationMechanismDate(stored, "2027-03-20");
+      expect(derived.kind).not.toBe("not-applicable-to-visit-date");
+      if (derived.kind === "not-derivable") {
+        expect(derived.reason).not.toBe("missing-recorded-applicability");
+      }
+    }
   });
 });
 
