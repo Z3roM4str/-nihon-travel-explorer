@@ -108,6 +108,19 @@ const idPattern = /^RM-(JP-\d{3})-\d{3}$/;
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+function hasExactKeys(value: Record<string, unknown>, expected: readonly string[]): boolean {
+  const actual = Object.keys(value);
+  return actual.length === expected.length && actual.every((key) => expected.includes(key));
+}
+function validHttpsUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" && parsed.hostname.length > 0;
+  } catch {
+    return false;
+  }
+}
 function positiveInt(value: unknown): value is number {
   return Number.isSafeInteger(value) && typeof value === "number" && value > 0;
 }
@@ -126,6 +139,7 @@ function validZone(value: unknown): value is ReservationSourceTimeZone {
 function validMechanism(value: unknown): value is ReservationMechanism {
   if (!isObject(value) || typeof value.kind !== "string") return false;
   if (value.kind === "monthly-fixed-release") {
+    if (!hasExactKeys(value, ["kind", "releaseDayOfMonth", "releaseTimeLocal", "sourceTimeZone", "target"])) return false;
     return positiveInt(value.releaseDayOfMonth) &&
       value.releaseDayOfMonth <= 31 &&
       validTime(value.releaseTimeLocal) &&
@@ -133,6 +147,7 @@ function validMechanism(value: unknown): value is ReservationMechanism {
       value.target === "subsequent-calendar-month";
   }
   if (value.kind === "rolling-calendar-month-release") {
+    if (!hasExactKeys(value, ["kind", "monthsBeforeVisit", "alignment", "missingAlignedDayRule", "releaseTimeLocal", "sourceTimeZone"])) return false;
     return positiveInt(value.monthsBeforeVisit) &&
       value.alignment === "same-calendar-day" &&
       (value.missingAlignedDayRule === "first-day-of-next-month" || value.missingAlignedDayRule === "not-recorded") &&
@@ -140,34 +155,47 @@ function validMechanism(value: unknown): value is ReservationMechanism {
       validZone(value.sourceTimeZone);
   }
   if (value.kind === "rolling-day-release") {
+    if (!hasExactKeys(value, ["kind", "daysBeforeVisit", "releaseTimeLocal", "sourceTimeZone"])) return false;
     return positiveInt(value.daysBeforeVisit) && validTime(value.releaseTimeLocal) && validZone(value.sourceTimeZone);
   }
   if (value.kind === "relative-application-window") {
+    if (!hasExactKeys(value, ["kind", "openRule", "closeRule"])) return false;
     const open = value.openRule;
     const close = value.closeRule;
     return isObject(open) &&
+      hasExactKeys(open, ["kind", "monthsBeforeVisitMonth", "timeLocal", "sourceTimeZone"]) &&
       open.kind === "month-offset-first-day" &&
       positiveInt(open.monthsBeforeVisitMonth) &&
       validTime(open.timeLocal) &&
       validZone(open.sourceTimeZone) &&
       isObject(close) &&
+      hasExactKeys(close, ["kind", "daysBeforeVisit", "timeLocal", "sourceTimeZone"]) &&
       close.kind === "days-before-visit" &&
       positiveInt(close.daysBeforeVisit) &&
       validTime(close.timeLocal) &&
       validZone(close.sourceTimeZone);
   }
   if (value.kind === "fixed-sale-date") {
+    if (!hasExactKeys(value, ["kind", "saleDate", "releaseTimeLocal", "sourceTimeZone", "appliesToStartDate", "appliesToEndDate"])) return false;
+    const boundsOrdered =
+      value.appliesToStartDate === null ||
+      value.appliesToEndDate === null ||
+      (typeof value.appliesToStartDate === "string" &&
+        typeof value.appliesToEndDate === "string" &&
+        value.appliesToStartDate <= value.appliesToEndDate);
     return validDateShape(value.saleDate) &&
       validTime(value.releaseTimeLocal) &&
       validZone(value.sourceTimeZone) &&
       (value.appliesToStartDate === null || validDateShape(value.appliesToStartDate)) &&
-      (value.appliesToEndDate === null || validDateShape(value.appliesToEndDate));
+      (value.appliesToEndDate === null || validDateShape(value.appliesToEndDate)) &&
+      boundsOrdered;
   }
   return false;
 }
 
 export function parseReservationMechanismEvidenceRecord(value: unknown): ReservationMechanismEvidenceRecord | null {
   if (!isObject(value)) return null;
+  if (!hasExactKeys(value, ["id", "placeId", "scope", "mechanism", "allocation", "status", "provenance"])) return null;
   if (typeof value.id !== "string" || !idPattern.test(value.id)) return null;
   if (typeof value.placeId !== "string" || !value.id.startsWith(`RM-${value.placeId}-`)) return null;
   if (!scopes.has(value.scope as ReservationMechanismScope)) return null;
@@ -175,7 +203,8 @@ export function parseReservationMechanismEvidenceRecord(value: unknown): Reserva
   if (!allocations.has(value.allocation as ReservationAllocation)) return null;
   if (!statuses.has(value.status as ReservationMechanismStatus)) return null;
   if (!isObject(value.provenance)) return null;
-  if (typeof value.provenance.sourceUrl !== "string" || !value.provenance.sourceUrl.startsWith("https://")) return null;
+  if (!hasExactKeys(value.provenance, ["sourceUrl", "sourceEntity", "consultedAt", "evidence", "confidence"])) return null;
+  if (!validHttpsUrl(value.provenance.sourceUrl)) return null;
   if (typeof value.provenance.sourceEntity !== "string" || value.provenance.sourceEntity.length === 0) return null;
   if (!validDateShape(value.provenance.consultedAt)) return null;
   if (typeof value.provenance.evidence !== "string" || value.provenance.evidence.length === 0) return null;
@@ -187,10 +216,16 @@ export function parseReservationMechanismEvidenceRecords(value: unknown): Reserv
   if (!Array.isArray(value)) return null;
   const parsed: ReservationMechanismEvidenceRecord[] = [];
   const ids = new Set<string>();
+  const activeIdentities = new Set<string>();
   for (const item of value) {
     const record = parseReservationMechanismEvidenceRecord(item);
     if (!record || ids.has(record.id)) return null;
     ids.add(record.id);
+    if (record.status === "active") {
+      const identity = `${record.placeId}\u0000${record.scope}`;
+      if (activeIdentities.has(identity)) return null;
+      activeIdentities.add(identity);
+    }
     parsed.push(record);
   }
   return parsed;
