@@ -2903,6 +2903,76 @@ a {
   color: var(--color-text-muted);
 }
 
+/* Phase 3F-F — trip-specific official reservation dates. Neutral evidence presentation only:
+   no success/risk palette, urgency treatment or action styling. This is intentionally a sibling
+   surface to Phase 3D-H rather than a merged reservation state. */
+.official-reservation-date {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.official-reservation-date__heading {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.official-reservation-date__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.official-reservation-date__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.official-reservation-date__name {
+  font-weight: 700;
+}
+
+.official-reservation-date__scope,
+.official-reservation-date__provenance {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.official-reservation-date__fact-heading,
+.official-reservation-date__detail,
+.official-reservation-date__allocation,
+.official-reservation-date__provenance {
+  margin: 0;
+}
+
+.official-reservation-date__fact-heading {
+  font-weight: 600;
+}
+
+.official-reservation-date__detail,
+.official-reservation-date__allocation {
+  color: var(--color-text);
+}
+
+.official-reservation-date__source {
+  align-self: flex-start;
+  font-size: 0.76rem;
+}
+
+.official-reservation-date__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
 /* Phase 3D-Q — manual accommodation commute legs. Deliberately NEUTRAL, like every other recorded
    fact surface in this planner: no success/warning palette, no badge, no emphasis that could read
    as "this is the good hotel" or "this is the real route". A recorded duration and an unrecorded

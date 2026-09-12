@@ -4563,3 +4563,48 @@ Recommended successor: **Phase 3F-F — Official Reservation Date Presentation R
 
 **Phase 3F-F is NOT STARTED.** Phase 3F-E changes documentation only.
 
+## Phase 3F-F — Official Reservation Date Presentation Runtime — UI runtime
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_DATE_PRESENTATION_RUNTIME.md`](OFFICIAL_RESERVATION_DATE_PRESENTATION_RUNTIME.md).
+
+Base: `8152d6a22e3f45dbe8b12074ca88b7593484103d` (`main` after Phase 3F-E).
+
+- [x] **Pure presentation boundary.** `reservation-mechanism-presentation.ts` converts only an
+      already-derived Phase 3F-D result plus its exact matching evidence record into conservative
+      Spanish display facts; identity mismatch, inactive evidence and no-visit-date are not
+      presented.
+- [x] **Per-day official reservation surface.** `OfficialReservationDateNotice` renders immediately
+      after the existing Phase 3D-H/3D-O reservation window in each dated day card and preserves
+      current place order plus Phase 3F source order.
+- [x] **Phase 3D remains independent.** The new Phase 3F surface receives no device/reference date,
+      does not read editorial lead-time/requiredness, does not read Feb–Mar/hours/closures and does
+      not intersect or rank official vs editorial reservation evidence.
+- [x] **Timezone uncertainty is visible.** Recorded `Asia/Tokyo` is preserved, null timezone is
+      explicitly disclosed as unrecorded, and null local time remains absent.
+- [x] **Scope/allocation/provenance are preserved.** Every visible item carries its scope, matching
+      source entity, consultation date and ordinary official-source provenance link; allocation
+      remains factual disclosure only.
+- [x] **Read-only/no-persistence scope.** No controls, V8, storage key, data mutation, dependency or
+      network fetch is introduced.
+- [x] **Focused test contracts added.** New unit coverage pins the five real pilot records and
+      conservative copy boundaries; `OrderedSequenceBuilder.test.ts` pins the React wiring,
+      separation, provenance and forbidden-language contracts.
+- [x] **Neutral styling added.** `.official-reservation-date` uses ordinary evidence styling with
+      no success/risk/urgency state.
+- [x] **Repository-native validation gate.** Real-checkout validation after the final runtime
+      corrective passed: focused **150/150**, full Vitest **2216/2216**, oxlint exit **0**, build
+      exit **0**, and working-tree `git diff --check` exit **0**.
+- [x] **Browser audit harness added.** `app/scripts/phase3f-f-browser-audit.mjs` exercises the real
+      V7 planner with Ghibli, Disney null-timezone, DisneySea fallback, Katsura, Sumo
+      applicable/not-applicable, provenance, Phase 3D-H coexistence, day-move recomputation and
+      start-date clear/reload persistence boundaries.
+- [x] **Mandatory browser gate.** The dedicated audit passed **twice consecutively** on final code
+      HEAD `3579a1498ea160dd1c4a53f466df4d35542e9999`, with 0 console errors and 0 page errors
+      in both runs.
+- [x] **Focused hostile review.** No material finding remained after the two in-scope corrective
+      commits; provenance pairing, current-date separation, timezone uncertainty, stable ordering,
+      persistence boundaries and read-only semantics were rechecked.
+
+**Phase 3F-F has passed its validation gates and is eligible for Ready-for-review.**
+
