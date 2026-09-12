@@ -87,6 +87,60 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
     expect(parseReservationMechanismEvidenceRecords([valid, valid])).toBeNull();
   });
 
+  it("rejects duplicate active placeId + scope identities", () => {
+    const second = {
+      ...valid,
+      id: "RM-JP-044-002",
+      mechanism: {
+        kind: "rolling-day-release",
+        daysBeforeVisit: 7,
+        releaseTimeLocal: null,
+        sourceTimeZone: null,
+      },
+    };
+    expect(parseReservationMechanismEvidenceRecords([valid, second])).toBeNull();
+  });
+
+  it("allows distinct active scopes for the same place", () => {
+    const second = {
+      ...valid,
+      id: "RM-JP-044-002",
+      scope: "workshop",
+      mechanism: {
+        kind: "rolling-day-release",
+        daysBeforeVisit: 7,
+        releaseTimeLocal: null,
+        sourceTimeZone: null,
+      },
+    };
+    expect(parseReservationMechanismEvidenceRecords([valid, second])).not.toBeNull();
+  });
+
+  it("rejects unsupported extra fields instead of silently widening the runtime schema", () => {
+    expect(parseReservationMechanismEvidenceRecord({ ...valid, urgency: "book-now" })).toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        mechanism: { ...valid.mechanism, availability: "open" },
+      })
+    ).toBeNull();
+  });
+
+  it("accepts the approved rolling-day-release family in a synthetic record", () => {
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        id: "RM-JP-044-002",
+        mechanism: {
+          kind: "rolling-day-release",
+          daysBeforeVisit: 30,
+          releaseTimeLocal: null,
+          sourceTimeZone: null,
+        },
+      })
+    ).not.toBeNull();
+  });
+
   it("accepts a superseded validated record without treating it as active", () => {
     const parsed = parseReservationMechanismEvidenceRecord({ ...valid, status: "superseded" });
     expect(parsed?.status).toBe("superseded");
