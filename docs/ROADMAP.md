@@ -4592,14 +4592,19 @@ Base: `8152d6a22e3f45dbe8b12074ca88b7593484103d` (`main` after Phase 3F-E).
       separation, provenance and forbidden-language contracts.
 - [x] **Neutral styling added.** `.official-reservation-date` uses ordinary evidence styling with
       no success/risk/urgency state.
-- [ ] **Repository-native validation gate.** Focused tests, Phase 3F-D + relevant Phase 3D
-      regressions, full Vitest, lint, build and `git diff --check` must pass in a real checkout.
+- [x] **Repository-native validation gate.** Real-checkout validation after the final runtime
+      corrective passed: focused **150/150**, full Vitest **2216/2216**, oxlint exit **0**, build
+      exit **0**, and working-tree `git diff --check` exit **0**.
 - [x] **Browser audit harness added.** `app/scripts/phase3f-f-browser-audit.mjs` exercises the real
       V7 planner with Ghibli, Disney null-timezone, DisneySea fallback, Katsura, Sumo
       applicable/not-applicable, provenance, Phase 3D-H coexistence, day-move recomputation and
       start-date clear/reload persistence boundaries.
-- [ ] **Mandatory browser gate.** The dedicated audit must pass **twice consecutively** after the
-      final code change.
+- [x] **Mandatory browser gate.** The dedicated audit passed **twice consecutively** on final code
+      HEAD `3579a1498ea160dd1c4a53f466df4d35542e9999`, with 0 console errors and 0 page errors
+      in both runs.
+- [x] **Focused hostile review.** No material finding remained after the two in-scope corrective
+      commits; provenance pairing, current-date separation, timezone uncertainty, stable ordering,
+      persistence boundaries and read-only semantics were rechecked.
 
-**Phase 3F-F remains DRAFT until both validation gates pass.**
+**Phase 3F-F has passed its validation gates and is eligible for Ready-for-review.**
 
