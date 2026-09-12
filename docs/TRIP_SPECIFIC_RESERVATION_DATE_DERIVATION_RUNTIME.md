@@ -131,7 +131,7 @@ New test files:
 - `reservation-mechanism-evidence.test.ts`
 - `reservation-mechanism-date-derivation.test.ts`
 
-They contain **42 test blocks** total.
+They contain **45 Vitest tests** total: **16 evidence tests + 29 derivation tests**.
 
 Coverage includes:
 
@@ -161,47 +161,29 @@ Coverage includes:
 
 ---
 
-## 7. Validation executed in this environment
+## 7. Repository-native validation
 
-Because the repository cannot be cloned from the execution sandbox and Vitest is not installed there, the complete repository test command has **not** been claimed.
+The repository-native validation gate was executed in a real checkout after the implementation and again after the one corrective test-only commit.
 
-What was executed:
+Final observed results on the validated runtime head:
 
-1. Exact current Phase 3F-D source modules were materialized from the branch.
-2. The real Phase 3F-B reservation JSON was materialized.
-3. Unchanged dependencies were represented only by narrow signature-compatible stubs:
-   - `addCivilDays`
-   - `isValidCivilDate`
-   - `deriveVisitDateForPlace`
-4. TypeScript compiled the new domain modules successfully.
-5. A direct runtime harness executed the core real-data fixtures successfully.
-6. After the hostile parser corrective, TypeScript compilation and fixtures passed again.
-7. Source scan found no `Date.now`, `localStorage`, `fetch`, `reservation.leadTime`, timezone conversion or instant serialization in the new derivation domain.
+- focused Vitest: **2 files, 45 passed / 45**;
+- relevant regression: **4 files, 153 passed / 153**;
+- full Vitest: **55 files, 2192 passed / 2192**;
+- `npm run lint`: exit **0**, no findings;
+- `npm run build`: exit **0**;
+- `git diff --check`: exit **0**;
+- `python3 scripts/validate-reservation-mechanisms.py`: catalog valid and source/app byte parity confirmed.
 
-Observed success:
+The first repository-native build exposed a real TypeScript error in the synthetic Sumo test fixture. The corrective narrowed the discriminated union before spreading the fixed-sale-date mechanism and added a regression assertion that applicability bounds exist only on that mechanism family. Runtime code and runtime behavior were unchanged.
 
-```text
-OK: corrective parser + TypeScript compile + core fixtures passed
-```
-
-This is a meaningful domain validation, but it is not a substitute for the repository's own Vitest/lint/build gate.
+No browser audit is required because Phase 3F-D has no UI.
 
 ---
 
-## 8. Required gate before Ready
+## 8. Ready gate
 
-Before Phase 3F-D may become Ready for review, execute in a real checkout of the branch:
-
-```bash
-cd app
-npm test -- --run src/lib/reservation-mechanism-evidence.test.ts src/lib/reservation-mechanism-date-derivation.test.ts
-npm test
-npm run lint
-npm run build
-git diff --check
-```
-
-No browser audit is required because Phase 3F-D has no UI.
+The repository-native validation requirement is **complete**. Phase 3F-D is eligible for Ready-for-review transition after focused review confirms no unresolved findings.
 
 ---
 
