@@ -353,13 +353,9 @@ Approved family:
 
 > **Ventana oficial registrada para esta visita:**  
 > Inicio: 1 dic 2026 · 05:00 · zona horaria no registrada  
-> Cierre: 12 mar 2027 · 23:59 · zona horaria no registrada
+> Fin registrado de la ventana: 12 mar 2027 · 23:59 · zona horaria no registrada
 
-The word "cierre" here refers to the **recorded application-window edge**, not current booking state.
-
-To avoid ambiguity, a fuller label is preferable:
-
-> Fin registrado de la ventana de solicitud
+The second edge is deliberately labelled as the **recorded end of the application window**, not as current booking state.
 
 The UI must not collapse this into:
 
@@ -1049,7 +1045,7 @@ Minimum browser audit should exercise:
 - provenance link rendering;
 - no stale current-date relation.
 
-Two consecutive successful browser audits after the final code change are recommended, matching the repository's recent hostile-review practice for UI phases.
+Two consecutive successful browser audits after the final code change are required, matching the repository's recent hostile-review practice for UI phases.
 
 ---
 
