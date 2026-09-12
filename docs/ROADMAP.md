@@ -4295,3 +4295,44 @@ Implements the Phase 3E-J gate exactly. Full contract:
       candidate. Because the Phase 3E-K fixture deliberately admits no adjacent swap, transposition
       or four-place reversal, the audit proves each of those earlier neighbourhoods still *applies*,
       to its exact order, on its own real fixture rather than merely still being present.
+
+
+## Phase 3E-L — Evidence-Complete Local Neighbourhood Closure Audit — design/audit only
+
+Closes the current Phase 3E local-ordering frontier after the shipped C/E/G/I/K movement families. Full audit:
+[`docs/EVIDENCE_COMPLETE_LOCAL_NEIGHBOURHOOD_CLOSURE_AUDIT.md`](EVIDENCE_COMPLETE_LOCAL_NEIGHBOURHOOD_CLOSURE_AUDIT.md).
+
+- [x] **Closure criterion strengthened.** The audit no longer asks only whether an unowned direct
+      target exists. It asks whether any baseline with no clearly-faster C/E/G/I/K move nevertheless
+      has any clearly-faster complete interior permutation.
+- [x] **Six-place exhaustive closure.** 2,131 complete same-hub six-place baselines; 1,691 are local
+      minima under C/E/G/I/K. Every one of those minima was compared against all 24 interior
+      permutations. Zero has a clearly-faster complete permutation.
+- [x] **Seven-place exhaustive closure.** 2,970 complete seven-place baselines; 2,219 local minima.
+      Every minimum was compared against all 120 interior permutations. Zero residual faster order.
+- [x] **Eight-place exhaustive closure.** 4,127 complete eight-place baselines; 2,825 local minima.
+      Every minimum was compared against all 720 interior permutations. Zero residual faster order.
+- [x] **Consolidated state.** 9,228 complete baselines, 6,735 C/E/G/I/K local minima, and exactly
+      zero local minima with any clearly-faster complete interior permutation in the exhaustively
+      audited 6–8 place spaces.
+- [x] **Former 92 → 74 residual is resolved without a broader primitive.** 3E-K provides the explicit
+      92 → 81 step and the existing 3E-E runtime regenerates the independent 81 → 74 relocation.
+      The former direct three-position cycle is therefore no longer evidence for another movement
+      family.
+- [x] **No optimality overclaim.** The audit proves only evidence-bounded closure for fixed-endpoint,
+      complete same-hub blocks of length 6–8 under current transfer evidence. It does not claim
+      whole-route, schedule, hotel, 9+ permutation or mathematical shortest-path optimality.
+- [x] **Five movement groups are the current ceiling.** Adjacent swap, single-place relocation,
+      non-adjacent transposition, exact four-place reversal and exact 2+2 pair-block swap remain the
+      complete shipped local-assistance surface. No sixth group is approved.
+- [x] **No generic solver escalation.** Three-position cycles, larger/variable reversals, arbitrary
+      block relocation, 2-opt, arbitrary permutation search, hill climbing, auto-chain and TSP remain
+      deferred.
+- [x] **Explicit reopen criteria.** Reopen only for a concrete evidence-complete local-minimum
+      counterexample, a material evidence/dataset change, a changed product contract, or a concrete
+      9+ place counterexample.
+- [x] **Documentation only.** No runtime, UI, tests, schema, persistence, datasets, dependencies or
+      transfer semantics change.
+
+**No Phase 3E-M runtime is recommended.** Future work should move to a different product capability
+unless one of the documented reopen conditions is met.
