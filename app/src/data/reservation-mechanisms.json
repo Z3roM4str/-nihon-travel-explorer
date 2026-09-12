@@ -30,7 +30,7 @@
       "alignment": "same-calendar-day",
       "missingAlignedDayRule": "first-day-of-next-month",
       "releaseTimeLocal": "14:00",
-      "sourceTimeZone": "Asia/Tokyo"
+      "sourceTimeZone": null
     },
     "allocation": "capacity-limited",
     "status": "active",
@@ -52,7 +52,7 @@
       "alignment": "same-calendar-day",
       "missingAlignedDayRule": "first-day-of-next-month",
       "releaseTimeLocal": "14:00",
-      "sourceTimeZone": "Asia/Tokyo"
+      "sourceTimeZone": null
     },
     "allocation": "capacity-limited",
     "status": "active",
