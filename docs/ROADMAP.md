@@ -4380,3 +4380,23 @@ Defines the next product frontier after Phase 3E closure. Full contract:
 Recommended successor: **Phase 3F-B — Official Reservation Mechanism Evidence Foundation**.
 
 **Phase 3F-B is NOT STARTED.** This gate changes documentation only.
+
+
+### Phase 3F-A — corrective pass: USJ current sale-horizon source conflict
+
+Independent source verification before starting Phase 3F-B found a material conflict in the Phase 3F-A
+example set:
+
+- the legacy `s.usj.co.jp` FAQ still states a three-month sales horizon;
+- the current main-site ticket FAQ states two months;
+- the current main-site purchase guide states two months; and
+- USJ's own 2025 Expo notice explicitly described the three-month horizon as temporary and planned a
+  return to approximately two months after the Expo.
+
+Phase 3F-A is corrected to treat **two months** as the current generic main-site statement and the
+legacy three-month page as conflicting/stale evidence. Because the current source does not define
+every calendar-alignment edge case required by the first-pass rolling-month schema, JP-125 is moved
+from the mandatory Phase 3F-B pilot to optional: populate it only if the successor can encode the
+official proposition without guessing.
+
+No runtime or data change is made by this corrective pass.
