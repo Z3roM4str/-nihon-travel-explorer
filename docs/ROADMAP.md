@@ -4594,9 +4594,12 @@ Base: `8152d6a22e3f45dbe8b12074ca88b7593484103d` (`main` after Phase 3F-E).
       no success/risk/urgency state.
 - [ ] **Repository-native validation gate.** Focused tests, Phase 3F-D + relevant Phase 3D
       regressions, full Vitest, lint, build and `git diff --check` must pass in a real checkout.
-- [ ] **Mandatory browser gate.** Two consecutive browser audits must pass after the final code
-      change and must cover Ghibli, Disney null-timezone, Katsura, Sumo applicable/not-applicable,
-      provenance, recomputation and coexistence with Phase 3D-H.
+- [x] **Browser audit harness added.** `app/scripts/phase3f-f-browser-audit.mjs` exercises the real
+      V7 planner with Ghibli, Disney null-timezone, DisneySea fallback, Katsura, Sumo
+      applicable/not-applicable, provenance, Phase 3D-H coexistence, day-move recomputation and
+      start-date clear/reload persistence boundaries.
+- [ ] **Mandatory browser gate.** The dedicated audit must pass **twice consecutively** after the
+      final code change.
 
 **Phase 3F-F remains DRAFT until both validation gates pass.**
 
