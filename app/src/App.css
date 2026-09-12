@@ -3233,6 +3233,17 @@ a {
   color: var(--color-text-muted);
 }
 
+.local-swap__group {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.local-swap__group h5 {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
 .local-swap__list {
   margin: 0;
   padding: 0;

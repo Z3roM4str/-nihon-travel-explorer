@@ -22,6 +22,7 @@ import {
   withNewInterHubSegment,
   withPlaceMovedBetweenDays,
   withPlaceMovedWithinDay,
+  withPlaceRelocatedWithinDay,
   withEndDate,
   withRoute,
   withStartDate,
@@ -186,6 +187,14 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   const movePlaceWithinDay = useCallback((dayId: string, placeIndex: number, direction: -1 | 1) => {
     setDraft((current) => withPlaceMovedWithinDay(current, dayId, placeIndex, direction));
   }, []);
+
+  /** Phase 3E-E: commits one place directly to its final index in one identified day. */
+  const relocatePlaceWithinDay = useCallback(
+    (dayId: string, fromIndex: number, toIndex: number) => {
+      setDraft((current) => withPlaceRelocatedWithinDay(current, dayId, fromIndex, toIndex));
+    },
+    []
+  );
 
   /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
    * day's accommodation choice survives while that day stays non-empty; a day left empty keeps its
@@ -357,6 +366,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setRoute,
     initializeDays,
     movePlaceWithinDay,
+    relocatePlaceWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,

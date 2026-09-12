@@ -280,6 +280,39 @@ export function withPlaceMovedWithinDay(
   return applyV6(draft, withPlaceMovedWithinDayV6, dayId, placeIndex, direction);
 }
 
+/**
+ * Phase 3E-E: moves exactly one place to one final-coordinate position inside an identified day.
+ * This is one synchronous pure mutation: no intermediate order exists or can be persisted.
+ */
+export function withPlaceRelocatedWithinDay(
+  draft: ManualPlanningDraftV7,
+  dayId: string,
+  fromIndex: number,
+  toIndex: number
+): ManualPlanningDraftV7 {
+  if (
+    draft.days === null ||
+    !Number.isInteger(fromIndex) ||
+    !Number.isInteger(toIndex) ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex === toIndex
+  ) {
+    return draft;
+  }
+  const dayIndex = draft.days.findIndex((day) => day.id === dayId);
+  if (dayIndex === -1) return draft;
+  const day = draft.days[dayIndex];
+  if (fromIndex >= day.placeIds.length || toIndex >= day.placeIds.length) return draft;
+
+  const placeIds = [...day.placeIds];
+  const [movedPlaceId] = placeIds.splice(fromIndex, 1);
+  placeIds.splice(toIndex, 0, movedPlaceId);
+  const days = [...draft.days];
+  days[dayIndex] = { ...day, placeIds };
+  return { ...draft, days };
+}
+
 export function withPlaceMovedBetweenDays(
   draft: ManualPlanningDraftV7,
   fromDayId: string,

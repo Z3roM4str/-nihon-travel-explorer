@@ -124,7 +124,7 @@ describe("OrderedSequenceBuilder — Phase 3E-C local swap wiring", () => {
     expect(block).not.toMatch(/\b(el|la|lo|un[ao]?|mi) mejor\b/i);
     expect(block).not.toMatch(/\bmejor(es)?\b(?!a)/i);
     expect(block).toContain(
-      "No hay un intercambio local con mejora demostrable usando todos los traslados registrados"
+      "No hay una alternativa local con mejora demostrable usando todos los traslados registrados"
     );
   });
 
