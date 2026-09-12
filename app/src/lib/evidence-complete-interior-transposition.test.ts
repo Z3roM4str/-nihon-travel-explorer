@@ -751,14 +751,12 @@ describe("pure V7 mutation (§35.77-82)", () => {
   it("82. the helper and hook use no async multi-click sequence", async () => {
     const domain = await readFile(new URL("./planning-draft-v7.ts", import.meta.url), "utf8");
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    const mutation = domain.slice(
-      domain.indexOf("export function withPlacesTransposedWithinDay"),
-      domain.indexOf("export function withPlaceMovedBetweenDays")
-    );
-    const callback = hook.slice(
-      hook.indexOf("const transposePlacesWithinDay"),
-      hook.indexOf("const movePlaceBetweenDays")
-    );
+    // Both slices are bounded to their own declaration, so a later phase's neighbouring helper or
+    // callback is never counted here.
+    const mutationStart = domain.indexOf("export function withPlacesTransposedWithinDay");
+    const mutation = domain.slice(mutationStart, domain.indexOf("\n}", mutationStart) + 2);
+    const callbackStart = hook.indexOf("const transposePlacesWithinDay");
+    const callback = hook.slice(callbackStart, hook.indexOf("\n  );", callbackStart) + 5);
     expect(mutation).not.toMatch(/async|setTimeout|withPlaceRelocatedWithinDay|withPlaceMovedWithinDay/);
     expect(mutation.match(/splice\(/g)).toBeNull();
     expect(callback.match(/setDraft\(/g)).toHaveLength(1);
