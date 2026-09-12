@@ -23,6 +23,7 @@ import {
   withPlaceMovedBetweenDays,
   withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
+  withPlacesTransposedWithinDay,
   withEndDate,
   withRoute,
   withStartDate,
@@ -192,6 +193,14 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   const relocatePlaceWithinDay = useCallback(
     (dayId: string, fromIndex: number, toIndex: number) => {
       setDraft((current) => withPlaceRelocatedWithinDay(current, dayId, fromIndex, toIndex));
+    },
+    []
+  );
+
+  /** Phase 3E-G: one explicit non-adjacent interior transposition, as a single draft update. */
+  const transposePlacesWithinDay = useCallback(
+    (dayId: string, leftIndex: number, rightIndex: number) => {
+      setDraft((current) => withPlacesTransposedWithinDay(current, dayId, leftIndex, rightIndex));
     },
     []
   );
@@ -367,6 +376,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     initializeDays,
     movePlaceWithinDay,
     relocatePlaceWithinDay,
+    transposePlacesWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,

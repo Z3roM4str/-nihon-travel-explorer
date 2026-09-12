@@ -485,7 +485,9 @@ describe("pure V7 mutation (§34.60-64)", () => {
     const domain = await readFile(new URL("./planning-draft-v7.ts", import.meta.url), "utf8");
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     const mutation = domain.slice(domain.indexOf("export function withPlaceRelocatedWithinDay"), domain.indexOf("export function withPlaceMovedBetweenDays"));
-    const callback = hook.slice(hook.indexOf("const relocatePlaceWithinDay"), hook.indexOf("const movePlaceBetweenDays"));
+    // Bounded to this callback alone, so a later phase's neighbouring callback is not counted.
+    const callbackStart = hook.indexOf("const relocatePlaceWithinDay");
+    const callback = hook.slice(callbackStart, hook.indexOf("\n  );", callbackStart) + 5);
     expect(mutation).not.toMatch(/async|setTimeout|withPlaceMovedWithinDay/);
     expect(callback.match(/setDraft\(/g)).toHaveLength(1);
     expect(callback).toContain("withPlaceRelocatedWithinDay(current, dayId, fromIndex, toIndex)");

@@ -313,6 +313,46 @@ export function withPlaceRelocatedWithinDay(
   return { ...draft, days };
 }
 
+/**
+ * Phase 3E-G: exchanges exactly two places inside one identified day.
+ *
+ * A direct transposition, not a remove-and-insert: every other place keeps its exact index, so no
+ * intervening place shifts. One call produces the final order — there is deliberately no
+ * intermediate draft, because two persisted moves would be two undoable states and would let a
+ * reload observe an order the user never chose.
+ *
+ * The day's id and accommodation boundary, every other day, `routeIds`, the dates,
+ * `visitStartTimes`, the accommodations, the manual accommodation legs and every stored
+ * inter-hub segment object all travel through untouched, and the draft stays V7.
+ */
+export function withPlacesTransposedWithinDay(
+  draft: ManualPlanningDraftV7,
+  dayId: string,
+  leftIndex: number,
+  rightIndex: number
+): ManualPlanningDraftV7 {
+  if (
+    draft.days === null ||
+    !Number.isInteger(leftIndex) ||
+    !Number.isInteger(rightIndex) ||
+    leftIndex < 0 ||
+    rightIndex < 0 ||
+    leftIndex === rightIndex
+  ) {
+    return draft;
+  }
+  const dayIndex = draft.days.findIndex((day) => day.id === dayId);
+  if (dayIndex === -1) return draft;
+  const day = draft.days[dayIndex];
+  if (leftIndex >= day.placeIds.length || rightIndex >= day.placeIds.length) return draft;
+
+  const placeIds = [...day.placeIds];
+  [placeIds[leftIndex], placeIds[rightIndex]] = [placeIds[rightIndex], placeIds[leftIndex]];
+  const days = [...draft.days];
+  days[dayIndex] = { ...day, placeIds };
+  return { ...draft, days };
+}
+
 export function withPlaceMovedBetweenDays(
   draft: ManualPlanningDraftV7,
   fromDayId: string,
