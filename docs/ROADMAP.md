@@ -4483,3 +4483,46 @@ civil reservation dates. Full contract:
 Recommended successor: **Phase 3F-D — Trip-Specific Reservation Date Derivation Runtime Foundation**.
 
 **Phase 3F-D is NOT STARTED.** This gate changes documentation only.
+
+
+## Phase 3F-D — Trip-Specific Reservation Date Derivation Runtime Foundation — domain runtime
+
+Implements the domain-only successor approved by Phase 3F-C. Execution record:
+[`docs/TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_RUNTIME.md`](TRIP_SPECIFIC_RESERVATION_DATE_DERIVATION_RUNTIME.md).
+
+- [x] **Typed official-evidence runtime domain.** `reservation-mechanism-evidence.ts` parses the
+      app-facing 3F-B JSON into a closed union, preserves record/place/scope/allocation/provenance
+      semantics, rejects malformed records, duplicate IDs, duplicate active `placeId + scope`
+      identities and unsupported extra fields, and preserves stable source order.
+- [x] **Pure trip-specific date derivation.** `reservation-mechanism-date-derivation.ts` derives
+      only civil release dates or application windows from one validated mechanism plus one explicit
+      visit civil date. It has no device clock, no network, no storage and no current-date relation.
+- [x] **Exact calendar-month semantics.** Ghibli uses previous calendar month + recorded day;
+      Tokyo Disney uses exact two-calendar-month same-day alignment and only its recorded
+      `first-day-of-next-month` fallback; no generic clamp or 30/60/90-day approximation exists.
+- [x] **Katsura and Sumo semantics pinned.** Katsura preserves independent open/close edges and
+      `lottery-if-oversubscribed`; Osaka 2027 Sumo applies the fixed 6 Feb sale date only to the
+      recorded 14–28 Mar event interval, inclusive.
+- [x] **Superseded evidence is non-current.** It yields `inactive-evidence`; no `consultedAt`
+      sorting invents a current winner.
+- [x] **Phase 3D remains independent.** The only reused Phase 3D owner is
+      `deriveVisitDateForPlace` for plan-day/date composition. The new modules never parse
+      `reservation.leadTime`, gate on `reservation.required`, intersect windows or create
+      cross-source precedence.
+- [x] **No action/availability semantics.** Outputs contain no open/closed, urgency, countdown,
+      inventory, reminder, notification, recommendation or purchase-action fields.
+- [x] **45 repository-native Vitest tests.** Parser, real-data fixtures, synthetic rolling-day behavior, leap/year
+      boundaries, Disney fallback/no-fallback, Katsura, Sumo applicability, superseded evidence,
+      invalid visit dates, plan-date reuse, stable multiple scopes, determinism and source-boundary
+      scans are covered.
+- [x] **Isolated compile/runtime validation passed.** The exact new domain source and real 3F-B JSON
+      compile with TypeScript in the execution sandbox and the approved real fixtures pass before
+      and after the hostile parser corrective.
+- [x] **Repository-native validation gate.** Real-checkout validation passed after the corrective:
+      focused Vitest **45/45**, relevant regression **153/153**, full Vitest **2192/2192**,
+      oxlint exit **0**, build exit **0**, `git diff --check` exit **0**, and the Phase 3F-B
+      Python validator confirmed catalog validity plus source/app byte parity.
+- [x] **No UI/persistence/data-schema expansion.** No React component, CSS, hook, planning-draft
+      version, localStorage key, package manifest, canonical/app JSON or workbook changes.
+
+Phase 3F-D has passed the repository-native validation gate and is eligible for Ready-for-review after focused review.
