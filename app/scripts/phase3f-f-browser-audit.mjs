@@ -203,7 +203,7 @@ try {
   // 3. DisneySea real missing-day fallback remains presentation-only and keeps timezone unknown.
   {
     const { context, page } = await bootPlanner(
-      makeDraft(["JP-204"], [["JP-204"]], "2027-04-30")
+      makeDraft(["JP-204", "JP-019"], [["JP-204"], ["JP-019"]], "2027-04-30")
     );
     try {
       const item = officialItemFor(page, "Tokyo DisneySea");
@@ -221,7 +221,7 @@ try {
   // 4. Katsura shows independent application-window edges plus lottery disclosure.
   {
     const { context, page } = await bootPlanner(
-      makeDraft(["JP-077"], [["JP-077"]], "2027-03-15")
+      makeDraft(["JP-077", "JP-019"], [["JP-077"], ["JP-019"]], "2027-03-15")
     );
     try {
       const item = officialItemFor(page, "Katsura Imperial Villa");
@@ -240,7 +240,7 @@ try {
   // 5. Sumo inside the recorded event period gets the fixed sale date and no invented time.
   {
     const { context, page } = await bootPlanner(
-      makeDraft(["JP-212"], [["JP-212"]], "2027-03-20")
+      makeDraft(["JP-212", "JP-019"], [["JP-212"], ["JP-019"]], "2027-03-20")
     );
     try {
       const item = officialItemFor(page, "Grand Sumo Tournament Osaka 2027");
@@ -257,7 +257,7 @@ try {
   // 6. Sumo immediately outside the event period becomes neutral not-applicable evidence.
   {
     const { context, page } = await bootPlanner(
-      makeDraft(["JP-212"], [["JP-212"]], "2027-03-29")
+      makeDraft(["JP-212", "JP-019"], [["JP-212"], ["JP-019"]], "2027-03-29")
     );
     try {
       const item = officialItemFor(page, "Grand Sumo Tournament Osaka 2027");
