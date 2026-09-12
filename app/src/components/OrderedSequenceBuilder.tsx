@@ -29,6 +29,11 @@ import {
   generateEvidenceCompleteFourPlaceInteriorReversals,
   type EvidenceCompleteFourPlaceInteriorReversalAlternative,
 } from "../lib/evidence-complete-four-place-interior-reversal";
+import {
+  applyEvidenceCompleteTwoPairBlockSwap,
+  generateEvidenceCompleteTwoPairBlockSwaps,
+  type EvidenceCompleteTwoPairBlockSwapAlternative,
+} from "../lib/evidence-complete-two-pair-block-swap";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -1805,17 +1810,20 @@ function LocalSwapAlternativesSection({
   relocationAlternatives,
   transpositionAlternatives,
   reversalAlternatives,
+  pairBlockSwapAlternatives,
   placeById,
   onApply,
   onApplyRelocation,
   onApplyTransposition,
   onApplyReversal,
+  onApplyPairBlockSwap,
 }: {
   dayNumber: number;
   alternatives: EvidenceCompleteLocalSwapAlternative[];
   relocationAlternatives: EvidenceCompleteLocalRelocationAlternative[];
   transpositionAlternatives: EvidenceCompleteInteriorTranspositionAlternative[];
   reversalAlternatives: EvidenceCompleteFourPlaceInteriorReversalAlternative[];
+  pairBlockSwapAlternatives: EvidenceCompleteTwoPairBlockSwapAlternative[];
   placeById: Map<string, Place>;
   onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
   onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
@@ -1825,6 +1833,9 @@ function LocalSwapAlternativesSection({
   onApplyReversal: (
     alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
   ) => void;
+  onApplyPairBlockSwap: (
+    alternative: EvidenceCompleteTwoPairBlockSwapAlternative
+  ) => void;
 }) {
   const headingId = `local-swap-heading-${dayNumber}`;
   const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
@@ -1832,7 +1843,8 @@ function LocalSwapAlternativesSection({
     alternatives.length > 0 ||
     relocationAlternatives.length > 0 ||
     transpositionAlternatives.length > 0 ||
-    reversalAlternatives.length > 0;
+    reversalAlternatives.length > 0 ||
+    pairBlockSwapAlternatives.length > 0;
 
   return (
     <section className="local-swap" aria-labelledby={headingId}>
@@ -2072,6 +2084,66 @@ function LocalSwapAlternativesSection({
               </ul>
             </div>
           )}
+          {pairBlockSwapAlternatives.length > 0 && (
+            <div className="local-swap__group local-pair-block-swap">
+              <h5>Intercambios de bloques de dos lugares</h5>
+              <ul className="local-swap__list">
+                {pairBlockSwapAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  const [firstPairStart, firstPairEnd] = alternative.firstPairPlaceIds;
+                  const [secondPairStart, secondPairEnd] = alternative.secondPairPlaceIds;
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
+                      className="local-swap__item local-pair-block-swap__item"
+                    >
+                      <p className="local-swap__pair local-pair-block-swap__blocks">
+                        Intercambiar los bloques de dos lugares{" "}
+                        <strong>{nameOf(firstPairStart)}</strong> →{" "}
+                        <strong>{nameOf(firstPairEnd)}</strong> y{" "}
+                        <strong>{nameOf(secondPairStart)}</strong> →{" "}
+                        <strong>{nameOf(secondPairEnd)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de este intercambio de bloques</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Este intercambio de bloques reduce de forma demostrable el rango de traslado
+                        local registrado de este bloque. Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyPairBlockSwap(alternative)}
+                      >
+                        Aplicar este intercambio de bloques
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </>
       )}
     </section>
@@ -2235,6 +2307,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     relocatePlaceWithinDay,
     transposePlacesWithinDay,
     reverseFourPlacesWithinDay,
+    swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
@@ -2458,6 +2531,50 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     interiorTranspositionsByDayId,
   ]);
 
+  /** Phase 3E-K pair-block swaps are independently baseline-derived, then grouped without ranking. */
+  const twoPairBlockSwapGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteTwoPairBlockSwaps(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /**
+   * An exact 2+2 block swap is not generated by any earlier neighbourhood, so this only ever drops
+   * a duplicate a future schema change could introduce. It never reorders or ranks what survives,
+   * and it never suppresses an earlier group because this one has a larger gap: ownership runs
+   * C → E → G → I → K in that fixed order.
+   */
+  const twoPairBlockSwapsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteTwoPairBlockSwapAlternative[]>();
+    if (twoPairBlockSwapGeneration.kind !== "available") return byDayId;
+    for (const alternative of twoPairBlockSwapGeneration.alternatives) {
+      const shownOrders = [
+        ...(localSwapsByDayId.get(alternative.dayId) ?? []),
+        ...(localRelocationsByDayId.get(alternative.dayId) ?? []),
+        ...(interiorTranspositionsByDayId.get(alternative.dayId) ?? []),
+        ...(fourPlaceReversalsByDayId.get(alternative.dayId) ?? []),
+      ];
+      const alreadyShown = shownOrders.some(
+        (shown) =>
+          JSON.stringify(shown.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (alreadyShown) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [
+    twoPairBlockSwapGeneration,
+    localSwapsByDayId,
+    localRelocationsByDayId,
+    interiorTranspositionsByDayId,
+    fourPlaceReversalsByDayId,
+  ]);
+
   /**
    * The one explicit user action that may change a day's order from a generated candidate.
    *
@@ -2515,6 +2632,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
       { routeIds, days: planningDays, visitStartTimes },
       { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
       (dayId, windowStartIndex) => reverseFourPlacesWithinDay(dayId, windowStartIndex)
+    );
+  }
+
+  /**
+   * The one explicit user action behind a two-pair block swap. Re-verified against the plan as it
+   * is now, then applied as a single pure V7 mutation — never two persisted relocations, and never
+   * a follow-up suggestion applied on the user's behalf. The applied order may newly admit a Phase
+   * 3E-E relocation; that candidate is regenerated from the new baseline and waits for its own
+   * explicit click.
+   */
+  function applyTwoPairBlockSwap(alternative: EvidenceCompleteTwoPairBlockSwapAlternative) {
+    applyEvidenceCompleteTwoPairBlockSwap(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, windowStartIndex) => swapTwoPairBlocksWithinDay(dayId, windowStartIndex)
     );
   }
 
@@ -3006,7 +3139,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             localSwapGeneration.kind === "available" &&
                             localRelocationGeneration.kind === "available" &&
                             interiorTranspositionGeneration.kind === "available" &&
-                            fourPlaceReversalGeneration.kind === "available" && (
+                            fourPlaceReversalGeneration.kind === "available" &&
+                            twoPairBlockSwapGeneration.kind === "available" && (
                             <LocalSwapAlternativesSection
                               dayNumber={dayIndex + 1}
                               alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
@@ -3017,11 +3151,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                               reversalAlternatives={
                                 fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
                               }
+                              pairBlockSwapAlternatives={
+                                twoPairBlockSwapsByDayId.get(dayEntity.id) ?? []
+                              }
                               placeById={placeById}
                               onApply={applyLocalSwap}
                               onApplyRelocation={applyLocalRelocation}
                               onApplyTransposition={applyInteriorTransposition}
                               onApplyReversal={applyFourPlaceReversal}
+                              onApplyPairBlockSwap={applyTwoPairBlockSwap}
                             />
                           )}
                           {bucket && dayEntity && dayBoundary && (

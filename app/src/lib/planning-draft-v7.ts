@@ -393,6 +393,48 @@ export function withFourPlacesReversedWithinDay(
   return { ...draft, days };
 }
 
+/**
+ * Phase 3E-K: exchanges exactly two adjacent two-place blocks inside one identified day.
+ *
+ * Four direct index assignments from the captured `[A, B, C, D]`, not a splice and not four
+ * sequential one-place moves: nothing is removed and re-inserted, so no place outside the
+ * four-place window can shift, and `A` stays before `B` while `C` stays before `D`. One call
+ * produces the final order — there is deliberately no intermediate draft, because two persisted
+ * relocations would be two undoable states and would let a reload observe an order the user never
+ * chose.
+ *
+ * The day's id and accommodation boundary, every other day, `routeIds`, the dates,
+ * `visitStartTimes`, the accommodations, the manual accommodation legs and every stored
+ * inter-hub segment object all travel through untouched, and the draft stays V7.
+ */
+export function withTwoPairBlocksSwappedWithinDay(
+  draft: ManualPlanningDraftV7,
+  dayId: string,
+  windowStartIndex: number
+): ManualPlanningDraftV7 {
+  if (draft.days === null || !Number.isInteger(windowStartIndex) || windowStartIndex < 0) {
+    return draft;
+  }
+  const dayIndex = draft.days.findIndex((day) => day.id === dayId);
+  if (dayIndex === -1) return draft;
+  const day = draft.days[dayIndex];
+  const windowEndIndex = windowStartIndex + 3;
+  if (windowEndIndex >= day.placeIds.length) return draft;
+
+  const placeIds = [...day.placeIds];
+  const first = day.placeIds[windowStartIndex];
+  const second = day.placeIds[windowStartIndex + 1];
+  const third = day.placeIds[windowStartIndex + 2];
+  const fourth = day.placeIds[windowStartIndex + 3];
+  placeIds[windowStartIndex] = third;
+  placeIds[windowStartIndex + 1] = fourth;
+  placeIds[windowStartIndex + 2] = first;
+  placeIds[windowStartIndex + 3] = second;
+  const days = [...draft.days];
+  days[dayIndex] = { ...day, placeIds };
+  return { ...draft, days };
+}
+
 export function withPlaceMovedBetweenDays(
   draft: ManualPlanningDraftV7,
   fromDayId: string,

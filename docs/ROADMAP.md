@@ -4193,3 +4193,105 @@ Defines the next bounded local-alternative frontier after Phase 3E-I. Full contr
 Recommended successor: **Phase 3E-K — Evidence-Complete Two-Pair Block Swap Runtime**.
 
 **Phase 3E-K is NOT STARTED.** This gate changes documentation only.
+
+
+## Phase 3E-K — Evidence-Complete Two-Pair Block Swap Runtime — implemented
+
+Implements the Phase 3E-J gate exactly. Full contract:
+[`docs/EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md`](EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md).
+
+- [x] **Exactly one new movement primitive.** `lib/evidence-complete-two-pair-block-swap.ts` takes
+      one four-place interior window `[A,B,C,D]` of one existing maximal same-hub block and produces
+      exactly `[C,D,A,B]`: two adjacent two-place blocks exchange positions while `A` stays before
+      `B` and `C` stays before `D`. Every place outside the window keeps its exact index and both
+      block endpoints stay fixed. No generic block relocation, unequal-size or non-adjacent block
+      swap, slice rotation, three-position cycle, 2-opt, arbitrary permutation, recursion or
+      automatic multi-step optimisation is implemented.
+- [x] **Architecture mirrors 3E-C / 3E-E / 3E-G / 3E-I.** The new pure domain module owns legal
+      window enumeration, the exact 2+2 transformation (`swapAdjacentTwoPlaceBlocks`), the exact
+      affected temporal window, generation, stale applicability assessment and the explicit Apply
+      wrapper — and nothing else. `validateDayPartition`, `deriveSameHubBlocks`,
+      `orderedSequenceFromLookup`, `sequenceComparisonFromLookup`, `getBestTransfer`,
+      `ConfidenceCounts` and `MinuteRange` are reused rather than duplicated.
+- [x] **Linear, deterministic enumeration.** For block length `n >= 6` the legal window starts are
+      `1 ... n-5`, so the candidate count is exactly `n - 5`. The module documents that as the
+      candidate count only and states the O(n²) directed-lookup cost of full-sequence comparison
+      explicitly. Emission order is day → block → window start; nothing is sorted by advantage,
+      minutes, confidence, hub or grade, and no candidate is derived from another candidate.
+- [x] **Exact six-place temporal lock.** The affected set for window start `s` is positions
+      `s-1 … s+4`: the predecessor, all four moved places and the successor. A non-empty persisted
+      manual `visitStartTime` on any of those six suppresses the candidate; a timed place outside
+      the window does not. No manual time is moved, copied, inferred or recalculated.
+- [x] **Complete exact directed evidence on both sides.** The whole baseline block must be complete
+      with a non-null range, and the candidate must resolve `L→C`, `C→D`, `D→A`, `A→B` and `B→R`
+      under exact directed lookup. There is no reverse-edge repair, chained path, geometry,
+      haversine, runtime ORS, network fallback, synthetic symmetry or fabricated minute anywhere in
+      the module. Only `outcome === "b-clearly-faster"` is surfaced, and the existing advantage
+      arithmetic and confidence tallies are reused unchanged as disclosure — never a score or rank.
+- [x] **Ownership order C → E → G → I → K.** The fifth group is appended after the four existing
+      ones and defensively deduplicated by exact `candidateDayPlaceIds` against all four. No earlier
+      group is suppressed or reordered because this one has a larger gap.
+- [x] **One pure synchronous V7 mutation.** `withTwoPairBlocksSwappedWithinDay` performs four direct
+      index assignments — never a splice, never two persisted relocations, never any existing
+      one-place mutation called four times — so one explicit action produces the final order with no
+      intermediate persisted state. `usePlanningDraft` exposes `swapTwoPairBlocksWithinDay` with
+      exactly one `setDraft` call. The draft stays version 7 under `nihon.manualPlanningDraft`;
+      `routeIds`, day ids, dates, `visitStartTimes`, accommodation boundaries, accommodations,
+      accommodation legs and every stored inter-hub segment object travel through untouched, and
+      unaffected day objects are preserved by identity.
+- [x] **Stale guard before every Apply.** Immediately before mutating, the runtime re-verifies that
+      days exist, the target day exists, the current day order equals the captured baseline, the
+      window start is an integer, the four-place window is still strictly interior, both pair
+      identities still match, both block endpoints still match, the current block equals the
+      captured block, every block place still resolves to the captured hub, the exact 2+2 operation
+      still yields the captured candidate order, the exact six-place affected set matches, and no
+      affected place acquired a manual start time. Any failure performs no mutation, and the phase
+      never applies from the window start index alone.
+- [x] **Larger-plan invariants pinned.** Stored inter-hub segment objects stay identical and the
+      same-day active, between-day active and inactive-reason assessments are unchanged.
+      Accommodation boundary choices, legs, assessment and registered minutes are unchanged. Visit,
+      accommodation, inter-hub and bounds composition, day count, route/day membership and dates are
+      unchanged. Only the local order, the registered local movement range, the corresponding
+      registered transport range and the local confidence mix move, by exactly the evidenced local
+      delta and with no missing local edge introduced.
+- [x] **Fifth UI subgroup on the one existing surface.** "Alternativas locales con evidencia
+      completa" gains **Intercambios de bloques de dos lugares** after the four existing groups —
+      no new page, modal or wizard. The copy names both two-place blocks naturally
+      ("Intercambiar los bloques de dos lugares Kokusai Street → Sakaemachi Arcade nightlife y
+      Okinawa Prefectural Museum & Art Museum → First Makishi Public Market dentro del bloque de
+      Okinawa."), shows both recorded ranges, the minimum recorded-range gap, both confidence mixes
+      and the local-only disclaimer, and applies nothing until "Aplicar este intercambio de bloques"
+      is clicked. The approved claim is that the swap demonstrably reduces this block's recorded
+      local transfer range; no forbidden optimisation claim and no combined 92 → 74 claim appears.
+- [x] **Continuation proved without automatic chaining.** From the original 92-minute Okinawa
+      baseline there is no clearly-faster 3E-C, 3E-E, 3E-G or 3E-I candidate, so this phase is
+      genuinely incremental. The one pair-block candidate is 92 → 81 with an 11 min minimum gap and
+      five validated-static edges on each side. Applying only that candidate persists exactly
+      `JP-202 JP-161 JP-154 JP-153 JP-156 JP-155` and nothing else happens automatically.
+      Regeneration from the new 81-minute baseline then surfaces the already-shipped Phase 3E-E
+      relocation at 81 → 74 with a 7 min gap, fully validated-static — generated by the existing
+      3E-E runtime, never folded into this phase's candidate, never advertised as one 18-minute
+      step, and requiring its own second explicit Apply.
+- [x] **Contract coverage.** All 125 numbered Phase 3E-K contracts are covered across the domain,
+      pure-V7, invariant, UI-wiring and browser layers: contracts 1–122 in the domain/V7/invariant
+      suite and 123 in the scoped UI-wiring suite. The executable Chromium audit
+      (`scripts/phase3e-k-browser-audit.mjs`) covers the runtime behaviours it genuinely exercises —
+      contracts 123–125. The focused Phase 3E-K suite reports 131/131; the Phase 3E-C, 3E-E, 3E-G
+      and 3E-I domain and UI-wiring regression suites report 472/472 together; the planning-draft
+      V7, whole-trip, inter-hub and accommodation regressions report 141/141; the full suite reports
+      2147/2147.
+- [x] **Executable browser evidence.** The Chromium audit passed on a real matching Playwright
+      runtime on two consecutive runs. The committed Okinawa fixture renders at 1 h 32 min (92 min)
+      against 1 h 21 min (81 min) with an 11 min minimum recorded-range gap and five validated edges
+      on each side; nothing is applied before the explicit click; one click produces exactly
+      `JP-202 JP-161 JP-154 JP-153 JP-156 JP-155`; the draft stays V7 under a single planning-draft
+      storage key with no candidate metadata persisted; no automatic second Apply occurs; and
+      console and page errors are zero. After that Apply the pair-block candidate is gone and the
+      regenerated Phase 3E-E relocation renders at 1 h 21 min against 1 h 14 min with a 7 min gap
+      and is *not* already applied. The audit then reloads, proves the persisted 81-minute state
+      survives, re-enters the planner so the 3E-E candidate is freshly regenerated from that
+      baseline, and only then performs a second, separate explicit click that yields exactly
+      `JP-202 JP-161 JP-156 JP-154 JP-153 JP-155`. The two actions are never represented as one
+      candidate. Because the Phase 3E-K fixture deliberately admits no adjacent swap, transposition
+      or four-place reversal, the audit proves each of those earlier neighbourhoods still *applies*,
+      to its exact order, on its own real fixture rather than merely still being present.
