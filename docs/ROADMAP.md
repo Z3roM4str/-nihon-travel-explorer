@@ -3903,3 +3903,49 @@ Implements `docs/EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md` without amending 
       exact expected applied order preserved after reload and zero console/page errors. The final
       full suite reports 1764/1764 tests passing; `feb-mar-status` also passes on the audited base
       and branch, with its related files byte-identical across both.
+
+## Phase 3E-F — Evidence-Complete Interior Transposition Design Gate — design/audit only
+
+Defines the next bounded local-alternative frontier after one-place relocation. Full contract:
+[`docs/EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md`](EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md).
+
+- [x] **Still no arbitrary optimisation.** No permutation search, recursive improvement, whole-day
+      reorder, TSP, shortest-path search, hill climbing or ranked "best itinerary" is approved.
+- [x] **Exactly two non-adjacent interior places exchange positions.** Every other place stays at
+      the same index; block/day endpoints remain fixed. Adjacent pairs remain Phase 3E-C territory,
+      while one-place moves remain Phase 3E-E territory.
+- [x] **Real-data incremental value confirmed.** The current 214-place / 403-directed-edge graph
+      reproduces 1,616 complete ordered same-hub five-place baselines. 76 have complete evidence for
+      the genuinely non-adjacent interior transposition, and **11 remain incrementally faster after
+      excluding every baseline already improved by one adjacent swap or one single-place relocation**.
+      Of those 11, 4 are fully validated-static, 7 are mixed validated/estimated and 0 are fully
+      estimated. Breakdown: Tokio 2/2 fully validated, Kioto 4/0, Osaka 5/2, Okinawa 0/0.
+- [x] **Representative fully validated case.** Jimbocho Book Town → Retro game hunt → Ameyoko →
+      Kanda Myojin → Akihabara Electric Town records 68 min; directly exchanging the first and
+      third interior places yields Jimbocho → Kanda Myojin → Ameyoko → Retro game hunt →
+      Akihabara at 60 min. Both complete orders are fully validated-static, and neither a single
+      adjacent swap nor a single relocation from that baseline is faster.
+- [x] **Quadratic candidate frontier only.** For a block of length `n`, genuine non-adjacent
+      interior transpositions number `(n - 3)(n - 4) / 2`. The gate explicitly does not claim total
+      runtime is O(n²): straightforward full-sequence evaluation may be O(n³) in directed lookups.
+- [x] **Exact affected temporal set.** Manual start times lock the union of predecessor/self/
+      successor positions around the two exchanged indices. Untouched interior places outside that
+      set do not block the candidate.
+- [x] **Complete exact evidence and conservative comparison remain mandatory.** Baseline and
+      candidate must both be complete under the existing directed lookup; only Phase 3C-B's
+      `b-clearly-faster` outcome may be surfaced. Confidence remains disclosure, never a score.
+- [x] **One pure V7 mutation only.** A future runtime may add a synchronous
+      `withPlacesTransposedWithinDay`-style helper that directly creates the final order. No
+      two-click/two-relocation implementation or intermediate persisted state is approved.
+- [x] **Larger-plan invariants remain fixed.** Day membership/identity, accommodation endpoints,
+      inter-hub objects and assessments, trip bounds and non-movement whole-trip composition remain
+      unchanged. Only complete local movement and the exact matching registered-transport delta may
+      change.
+- [x] **No persistence expansion.** V7 and `nihon.manualPlanningDraft` remain authoritative;
+      transposition candidates, indices, affected sets, advantage, confidence, rank, score and
+      history remain derived only.
+
+Recommended successor: **Phase 3E-G — Evidence-Complete Interior Transposition Runtime**.
+
+**Phase 3E-G is NOT STARTED.** This gate changes documentation only.
+
