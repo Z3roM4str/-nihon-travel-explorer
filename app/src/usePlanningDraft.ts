@@ -25,6 +25,7 @@ import {
   withPlaceRelocatedWithinDay,
   withPlacesTransposedWithinDay,
   withFourPlacesReversedWithinDay,
+  withTwoPairBlocksSwappedWithinDay,
   withEndDate,
   withRoute,
   withStartDate,
@@ -211,6 +212,11 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withFourPlacesReversedWithinDay(current, dayId, windowStartIndex));
   }, []);
 
+  /** Phase 3E-K: one explicit two-pair block swap, as a single draft update. */
+  const swapTwoPairBlocksWithinDay = useCallback((dayId: string, windowStartIndex: number) => {
+    setDraft((current) => withTwoPairBlocksSwappedWithinDay(current, dayId, windowStartIndex));
+  }, []);
+
   /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
    * day's accommodation choice survives while that day stays non-empty; a day left empty keeps its
    * id but resets both boundary sides to `unselected`, and repopulating it later never resurrects
@@ -384,6 +390,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     relocatePlaceWithinDay,
     transposePlacesWithinDay,
     reverseFourPlacesWithinDay,
+    swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
     addEmptyDay,
     removeEmptyDay,
