@@ -4,8 +4,10 @@ import { describe, expect, it } from "vitest";
 /* Phase 3E-G UI wiring contracts 105-123 from the normative design §35.
  *
  * Contracts 124-125 (console errors, page errors) are executable-only and are proved by
- * `scripts/phase3e-g-browser-audit.mjs` against a real Chromium runtime, not here. Every
- * contract below that also has runtime meaning is asserted again in that audit. */
+ * `scripts/phase3e-g-browser-audit.mjs` against a real Chromium runtime, not here. That audit also
+ * exercises contracts 105-116 and 122-123 at runtime. Contracts 117-121 are covered here and in
+ * the domain/invariant suites rather than in the browser: they are statements about state this
+ * surface never renders. */
 
 async function source(): Promise<string> {
   return readFile(new URL("./OrderedSequenceBuilder.tsx", import.meta.url), "utf8");

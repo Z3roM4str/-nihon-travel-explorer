@@ -171,13 +171,71 @@ try {
     "the applied order is the new baseline, so it must not be re-proposed"
   );
 
-  // 12. reload preserves the applied order, and still derives fresh alternatives.
+  // 12. reload preserves the applied order.
   await page.reload({ waitUntil: "networkidle" });
   const reloaded = await page.evaluate(
     () => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
   );
   assert.deepEqual(reloaded.days[0].placeIds, expectedOrder);
   assert.equal(reloaded.version, 7);
+
+  /**
+   * 13. The reloaded surface derives its alternatives from the reloaded baseline.
+   *
+   * Reading localStorage alone cannot show this, so navigate the real UI back into the planner.
+   * Nothing is re-seeded on the way: the init script above only writes a key that is absent, and
+   * both keys already exist by now.
+   */
+  await page.getByRole("button", { name: /Quiero ir/ }).click();
+  await page.getByRole("button", { name: /Construir recorrido/ }).click();
+  await page.getByRole("button", { name: /Distribuir por días/ }).click();
+  await page
+    .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
+    .first()
+    .waitFor();
+
+  // Re-entering the planner re-renders the persisted day rather than redistributing it: same day
+  // id, same applied order. Otherwise the state below would describe a different plan.
+  const afterNavigation = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
+  );
+  assert.deepEqual(afterNavigation.days[0].placeIds, expectedOrder);
+  assert.equal(afterNavigation.days[0].id, draft.days[0].id);
+
+  /**
+   * The applied order admits no adjacent swap, no relocation and no transposition under the
+   * recorded evidence, so the freshly derived surface must be the existing neutral empty state.
+   *
+   * That is what makes this a real regeneration proof rather than a tautology: had the surface
+   * been derived from the original seeded fixture, the Phase 3E-G candidate — and its
+   * "Intercambios no adyacentes" group — would be on screen again.
+   */
+  const postReloadTranspositions = await page.locator(".local-transposition__item").count();
+  const postReloadItems = await page.locator(".local-swap__item").count();
+  const postReloadGroups = await page.locator(".local-swap__group").count();
+  const postReloadEmpty = await page.locator(".local-swap__empty").count();
+  assert.equal(
+    postReloadTranspositions,
+    0,
+    "the applied order is the new baseline, so its own candidate must not reappear after reload"
+  );
+  assert.equal(postReloadItems, 0, "no local alternative is provable from the applied order");
+  assert.equal(postReloadGroups, 0, "no candidate group may render when nothing is provable");
+  assert.equal(postReloadEmpty, 1);
+  assert.equal(
+    await page.getByRole("heading", { name: "Intercambios no adyacentes" }).count(),
+    0
+  );
+  const postReloadSurface = await page.locator(".local-swap").first().innerText();
+  assert.match(
+    postReloadSurface,
+    /No hay una alternativa local con mejora demostrable usando todos los traslados registrados\s+necesarios para esta comparación\./
+  );
+  // The pre-reload candidate's own copy must be gone from the surface entirely.
+  assert.ok(
+    !postReloadSurface.includes(leftName) && !postReloadSurface.includes(rightName),
+    `the stale pre-reload candidate is still rendered: ${postReloadSurface}`
+  );
 
   // 17-18.
   assert.deepEqual(consoleErrors, []);
@@ -193,6 +251,11 @@ try {
   console.log("  recorded ranges :", JSON.stringify(renderedRanges));
   console.log("  confidence mixes:", JSON.stringify(evidenceMixes));
   console.log("  transpositions after apply            :", regeneratedTranspositions);
+  console.log("  post-reload day id                    :", afterNavigation.days[0].id);
+  console.log("  post-reload transposition items       :", postReloadTranspositions);
+  console.log("  post-reload alternative items (all)   :", postReloadItems);
+  console.log("  post-reload candidate groups          :", postReloadGroups);
+  console.log("  post-reload neutral empty states      :", postReloadEmpty);
   console.log("  console errors  :", consoleErrors.length);
   console.log("  page errors     :", pageErrors.length);
 

@@ -3999,15 +3999,26 @@ Implements `docs/EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md` without ame
 - [x] **Persistence and schema unchanged.** Only the resulting day order is stored in
       `ManualPlanningDraftV7` under `nihon.manualPlanningDraft`; no candidate, index, affected set,
       advantage, confidence, history, score or rank is persisted.
-- [x] **Contract coverage.** The 125 numbered Phase 3E-G contracts are covered at their proper
-      layer: contracts 1–104 in the domain/V7/invariant suite, 105–123 in the scoped UI suite, and
-      105–125 executably in `scripts/phase3e-g-browser-audit.mjs`. The focused Phase 3E-G suite
-      reports 123/123; Phase 3E-C and Phase 3E-E regression suites report 220/220 together. The
-      Chromium audit passed on a real matching Playwright Chromium runtime: the committed Tokio
-      fixture renders at 1 h 8 min (68 min) against 1 h (60 min) with an 8 min minimum recorded-range
-      gap and four validated edges on each side, Apply produces exactly
-      `JP-028 JP-027 JP-022 JP-026 JP-025`, the draft stays V7 under a single storage key, reload
-      preserves the order, alternatives regenerate from the new baseline with no automatic second
-      Apply, and console and page errors are both zero. Because that fixture deliberately admits no
-      adjacent swap and no relocation, the audit proves both earlier capabilities still *apply* on a
-      second real fixture rather than merely still being present.
+- [x] **Contract coverage.** All 125 numbered Phase 3E-G contracts are covered across the domain,
+      V7/invariant, UI-wiring and browser layers: contracts 1–104 in the domain/V7/invariant suite
+      and 105–123 in the scoped UI-wiring suite. The executable Chromium audit
+      (`scripts/phase3e-g-browser-audit.mjs`) covers the runtime behaviours it genuinely exercises —
+      contracts 105–116 and 122–125. Contracts 117–121 (inter-hub, accommodation and bounds
+      surfaces left untouched; the manual-time lock on the exact affected set) are deliberately
+      covered at the domain, invariant and UI-source layers rather than in the browser, because
+      they are statements about state the local-alternatives surface never renders. The focused
+      Phase 3E-G suite reports 123/123; Phase 3E-C and Phase 3E-E regression suites report 220/220
+      together.
+- [x] **Executable browser evidence.** The Chromium audit passed on a real matching Playwright
+      runtime: the committed Tokio fixture renders at 1 h 8 min (68 min) against 1 h (60 min) with
+      an 8 min minimum recorded-range gap and four validated edges on each side; nothing is applied
+      before the explicit click; Apply produces exactly `JP-028 JP-027 JP-022 JP-026 JP-025`; the
+      draft stays V7 under a single planning-draft storage key with no candidate state persisted;
+      no automatic second Apply occurs; and console and page errors are zero. After reload the
+      audit navigates the real UI back into the planner and shows the alternatives are re-derived
+      from the reloaded baseline: the persisted day keeps its id and applied order, the applied
+      candidate does not reappear, and — because that order admits no provable local alternative —
+      the surface renders the existing neutral empty state with zero candidate groups. Because the
+      Phase 3E-G fixture deliberately admits no adjacent swap and no relocation, the audit proves
+      both earlier capabilities still *apply*, to their exact orders, on a second real fixture
+      rather than merely still being present.
