@@ -4511,18 +4511,18 @@ Implements the domain-only successor approved by Phase 3F-C. Execution record:
       cross-source precedence.
 - [x] **No action/availability semantics.** Outputs contain no open/closed, urgency, countdown,
       inventory, reminder, notification, recommendation or purchase-action fields.
-- [x] **42 new test blocks.** Parser, real-data fixtures, synthetic rolling-day behavior, leap/year
+- [x] **45 repository-native Vitest tests.** Parser, real-data fixtures, synthetic rolling-day behavior, leap/year
       boundaries, Disney fallback/no-fallback, Katsura, Sumo applicability, superseded evidence,
       invalid visit dates, plan-date reuse, stable multiple scopes, determinism and source-boundary
       scans are covered.
 - [x] **Isolated compile/runtime validation passed.** The exact new domain source and real 3F-B JSON
       compile with TypeScript in the execution sandbox and the approved real fixtures pass before
       and after the hostile parser corrective.
-- [ ] **Repository-native validation gate.** Before Ready/merge, run the branch in a real checkout:
-      focused Vitest, full Vitest, oxlint, build and `git diff --check`. This environment cannot
-      clone GitHub and does not contain the repo's Vitest installation, so those results are not
-      fabricated here.
+- [x] **Repository-native validation gate.** Real-checkout validation passed after the corrective:
+      focused Vitest **45/45**, relevant regression **153/153**, full Vitest **2192/2192**,
+      oxlint exit **0**, build exit **0**, `git diff --check` exit **0**, and the Phase 3F-B
+      Python validator confirmed catalog validity plus source/app byte parity.
 - [x] **No UI/persistence/data-schema expansion.** No React component, CSS, hook, planning-draft
       version, localStorage key, package manifest, canonical/app JSON or workbook changes.
 
-Phase 3F-D remains **DRAFT / not merge-authorized** until the repository-native validation gate above passes.
+Phase 3F-D has passed the repository-native validation gate and is eligible for Ready-for-review after focused review.
