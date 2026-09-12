@@ -158,7 +158,7 @@ Result:
 - among those 1,691, **0** have any other clearly-faster complete interior permutation;
 - total clearly-faster residual permutation orders from those minima: **0**.
 
-Therefore every audited six-place C/E/G/I/K local minimum is also undominated by the full six-place interior permutation space under current evidence.
+Therefore every audited six-place C/E/G/I/K local minimum is undominated by every **complete** permutation in the exhaustively enumerated six-place interior space under current evidence.
 
 ---
 
@@ -182,7 +182,7 @@ Result:
 - among those 2,219, **0** have a clearly-faster complete interior permutation;
 - total clearly-faster residual permutation orders from those minima: **0**.
 
-Again, every audited local minimum is globally undominated within the exhaustive interior permutation space under current evidence.
+Again, every audited local minimum is undominated by every **complete** permutation in the exhaustively enumerated interior space under current evidence.
 
 ---
 
@@ -260,7 +260,7 @@ The state space is finite.
 
 Therefore any user-driven sequence of C/E/G/I/K improvements must eventually stop.
 
-For the exhaustively audited block sizes, every stopping state has now been shown to have no clearly-faster interior permutation at all.
+For the exhaustively audited block sizes, every stopping state has now been shown to have no clearly-faster **complete** interior permutation under current evidence.
 
 Consequently, within those audited spaces:
 
