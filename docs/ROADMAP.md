@@ -3897,7 +3897,9 @@ Implements `docs/EVIDENCE_COMPLETE_LOCAL_RELOCATION_DESIGN.md` without amending 
       window, advantage, confidence, history, score or rank is persisted.
 - [x] **Contract coverage.** The 103 numbered Phase 3E-E contracts have domain/UI coverage, plus an
       executable Playwright audit for explicit Apply, reload persistence, zero console errors and
-      zero page errors. Local typecheck, lint and production build pass; the 120 focused
-      relocation/3E-C tests pass. The browser executable is not installed locally, so the Chromium
-      audit remains for GitHub Actions. The otherwise-complete suite reports one unrelated existing
-      source-parity failure in `feb-mar-status.test.ts` (1763/1764 tests pass).
+      zero page errors. Local typecheck, lint and production build pass; the final focused
+      Phase 3E-E suite reports 104/104 and the Phase 3E-C regression suite 116/116. The Chromium
+      audit passed on a real matching Playwright Chromium runtime on two consecutive runs, with the
+      exact expected applied order preserved after reload and zero console/page errors. The final
+      full suite reports 1764/1764 tests passing; `feb-mar-status` also passes on the audited base
+      and branch, with its related files byte-identical across both.
