@@ -1,0 +1,118 @@
+[
+  {
+    "id": "RM-JP-044-001",
+    "placeId": "JP-044",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-fixed-release",
+      "releaseDayOfMonth": 10,
+      "releaseTimeLocal": "10:00",
+      "sourceTimeZone": "Asia/Tokyo",
+      "target": "subsequent-calendar-month"
+    },
+    "allocation": "not-stated",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.ghibli-museum.jp/en/tickets/",
+      "sourceEntity": "Ghibli Museum, Mitaka",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official overseas ticket page states that Lawson tickets become available at 10:00 JST on the 10th of each month for admission during the subsequent calendar month.",
+      "confidence": "official-explicit"
+    }
+  },
+  {
+    "id": "RM-JP-203-001",
+    "placeId": "JP-203",
+    "scope": "park-admission",
+    "mechanism": {
+      "kind": "rolling-calendar-month-release",
+      "monthsBeforeVisit": 2,
+      "alignment": "same-calendar-day",
+      "missingAlignedDayRule": "first-day-of-next-month",
+      "releaseTimeLocal": "14:00",
+      "sourceTimeZone": null
+    },
+    "allocation": "capacity-limited",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.tokyodisneyresort.jp/en/ticket/index.html",
+      "sourceEntity": "Tokyo Disney Resort",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official park-ticket page states that tickets are sold daily from 14:00 for admission on the same date two months later; if that same admission date does not exist, sales begin at 14:00 on the first day of the next month. It also states that sales may be suspended when the daily ticket sales limit is reached.",
+      "confidence": "official-explicit"
+    }
+  },
+  {
+    "id": "RM-JP-204-001",
+    "placeId": "JP-204",
+    "scope": "park-admission",
+    "mechanism": {
+      "kind": "rolling-calendar-month-release",
+      "monthsBeforeVisit": 2,
+      "alignment": "same-calendar-day",
+      "missingAlignedDayRule": "first-day-of-next-month",
+      "releaseTimeLocal": "14:00",
+      "sourceTimeZone": null
+    },
+    "allocation": "capacity-limited",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.tokyodisneyresort.jp/en/ticket/index.html",
+      "sourceEntity": "Tokyo Disney Resort",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official park-ticket page states that tickets are sold daily from 14:00 for admission on the same date two months later; if that same admission date does not exist, sales begin at 14:00 on the first day of the next month. It also states that sales may be suspended when the daily ticket sales limit is reached.",
+      "confidence": "official-explicit"
+    }
+  },
+  {
+    "id": "RM-JP-077-001",
+    "placeId": "JP-077",
+    "scope": "guided-visit",
+    "mechanism": {
+      "kind": "relative-application-window",
+      "openRule": {
+        "kind": "month-offset-first-day",
+        "monthsBeforeVisitMonth": 3,
+        "timeLocal": "05:00",
+        "sourceTimeZone": null
+      },
+      "closeRule": {
+        "kind": "days-before-visit",
+        "daysBeforeVisit": 3,
+        "timeLocal": "23:59",
+        "sourceTimeZone": null
+      }
+    },
+    "allocation": "lottery-if-oversubscribed",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://kyoto-gosho.kunaicho.go.jp/pdf/visit-1A3_en.pdf",
+      "sourceEntity": "Imperial Household Agency — Kyoto Office",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official Katsura Imperial Villa guidelines state that online advance applications are accepted from 05:00 on the first day of the month three months before the preferred visit date until 23:59 three days before that date; if applications exceed allocated capacity, a lottery is conducted.",
+      "confidence": "official-explicit"
+    }
+  },
+  {
+    "id": "RM-JP-212-001",
+    "placeId": "JP-212",
+    "scope": "event-admission",
+    "mechanism": {
+      "kind": "fixed-sale-date",
+      "saleDate": "2027-02-06",
+      "releaseTimeLocal": null,
+      "sourceTimeZone": null,
+      "appliesToStartDate": "2027-03-14",
+      "appliesToEndDate": "2027-03-28"
+    },
+    "allocation": "not-stated",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://sumo.or.jp/EnTicket/year_schedule",
+      "sourceEntity": "Japan Sumo Association",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official 2027 Grand Tournament schedule lists the Osaka March tournament at EDION Arena Osaka from 2027-03-14 through 2027-03-28 and states that advance tickets are sold from 2027-02-06.",
+      "confidence": "official-explicit"
+    }
+  }
+]
