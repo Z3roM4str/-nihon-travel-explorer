@@ -50,9 +50,15 @@ try {
     if (message.type() === "error") consoleErrors.push(message.text());
   });
   page.on("pageerror", (error) => pageErrors.push(error.message));
+  // Runs on every navigation, so seed only once: a reload must observe what the app
+  // persisted, not a re-seeded fixture.
   await page.addInitScript(({ saved, planningDraft }) => {
-    localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(saved));
-    localStorage.setItem("nihon.manualPlanningDraft", JSON.stringify(planningDraft));
+    if (localStorage.getItem("nihon.savedPlaceIds") === null) {
+      localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(saved));
+    }
+    if (localStorage.getItem("nihon.manualPlanningDraft") === null) {
+      localStorage.setItem("nihon.manualPlanningDraft", JSON.stringify(planningDraft));
+    }
   }, { saved: routeIds, planningDraft: draft });
 
   await page.goto(url, { waitUntil: "networkidle" });
@@ -74,7 +80,10 @@ try {
   const applied = await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null"));
   assert.deepEqual(applied.days[0].placeIds, expectedOrder);
   assert.equal(applied.version, 7);
-  assert.equal(Object.keys(localStorage).filter((key) => key.startsWith("nihon.manualPlanningDraft")).length, 1);
+  const draftKeyCount = await page.evaluate(
+    () => Object.keys(localStorage).filter((key) => key.startsWith("nihon.manualPlanningDraft")).length,
+  );
+  assert.equal(draftKeyCount, 1);
 
   await page.reload({ waitUntil: "networkidle" });
   const reloaded = await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null"));
