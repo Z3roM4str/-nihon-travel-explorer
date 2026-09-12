@@ -4022,3 +4022,49 @@ Implements `docs/EVIDENCE_COMPLETE_INTERIOR_TRANSPOSITION_DESIGN.md` without ame
       Phase 3E-G fixture deliberately admits no adjacent swap and no relocation, the audit proves
       both earlier capabilities still *apply*, to their exact orders, on a second real fixture
       rather than merely still being present.
+
+
+## Phase 3E-H — Evidence-Complete Four-Place Interior Reversal Design Gate — design/audit only
+
+Defines the next bounded local-alternative frontier after Phase 3E-G. Full contract:
+[`docs/EVIDENCE_COMPLETE_FOUR_PLACE_INTERIOR_REVERSAL_DESIGN.md`](EVIDENCE_COMPLETE_FOUR_PLACE_INTERIOR_REVERSAL_DESIGN.md).
+
+- [x] **No general 2-opt or arbitrary reversal.** The proposed move reverses exactly four consecutive
+      interior places inside one current maximal same-hub block. Reversal length 2 is already Phase
+      3E-C; reversal length 3 is already Phase 3E-G. Length 5+, arbitrary slices, rotations,
+      multi-swap search and recursive improvement remain deferred.
+- [x] **Real-data frontier is nearly exhausted.** The current 214-place / 403-directed-edge graph
+      yields 2,131 complete ordered same-hub six-place baselines. After excluding every baseline
+      already clearly improved by one 3E-C adjacent swap, one 3E-E single-place relocation or one
+      3E-G non-adjacent transposition, 1,693 remain. Exhausting all four-interior permutations finds
+      only two baselines with any still-unowned clearly-faster order and only three such orders total.
+- [x] **The selected move captures the strongest remaining order.** One exact four-place interior
+      reversal remains incrementally useful: in Okinawa, JP-202 → JP-153 → JP-155 → JP-156 →
+      JP-161 → JP-154 records 91 min, while reversing exactly the four interior places produces
+      JP-202 → JP-161 → JP-156 → JP-155 → JP-153 → JP-154 at 72 min. The minimum recorded-range
+      gap is 19 min and all five edges on both sides are validated-static.
+- [x] **Smaller claim, smaller search.** For block length `n`, candidate count is exactly `n - 5`
+      (for `n >= 6`) in deterministic day/block/start-index order: linear candidate growth, no
+      candidate-from-candidate expansion and no ranking by advantage.
+- [x] **Exact temporal lock.** The affected positions are exactly the six-place window from the
+      predecessor before the reversed four through the successor after them. A manual start time on
+      any of those six suppresses the candidate; timed places outside that window do not.
+- [x] **Complete exact evidence remains mandatory.** Entire baseline and candidate blocks must both
+      resolve under the existing exact directed transfer lookup. No reverse repair, chaining,
+      geometry, runtime routing or synthetic minutes are approved. Only Phase 3C-B's
+      `b-clearly-faster` outcome may be surfaced.
+- [x] **Earlier neighbourhoods remain distinct.** Adjacent swaps stay in 3E-C, one-place relocations
+      in 3E-E and non-adjacent transpositions in 3E-G. Candidate day orders should still be
+      defensively deduplicated across all local groups without ranking them.
+- [x] **One pure V7 mutation only.** A future runtime may add one synchronous
+      `withFourPlacesReversedWithinDay`-style helper. Day identity, route/day membership, dates,
+      visit times, accommodation state, inter-hub objects and all unaffected indices remain fixed.
+- [x] **No persistence expansion.** V7 and `nihon.manualPlanningDraft` remain authoritative;
+      candidate/window/affected-set/evidence/advantage/confidence/rank/history remain derived only.
+- [x] **Other unowned compound orders remain deferred.** The audit also found one compound
+      two-transposition order (18 min gap) and one two-block rotation (11 min gap), both fully
+      validated-static in Okinawa. Neither is approved by this gate.
+
+Recommended successor: **Phase 3E-I — Evidence-Complete Four-Place Interior Reversal Runtime**.
+
+**Phase 3E-I is NOT STARTED.** This gate changes documentation only.
