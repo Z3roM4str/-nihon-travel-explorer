@@ -4526,3 +4526,40 @@ Implements the domain-only successor approved by Phase 3F-C. Execution record:
       version, localStorage key, package manifest, canonical/app JSON or workbook changes.
 
 Phase 3F-D has passed the repository-native validation gate and is eligible for Ready-for-review after focused review.
+
+## Phase 3F-E — Official Reservation Date Presentation Design Gate — design/audit only
+
+Design record:
+[`docs/OFFICIAL_RESERVATION_DATE_PRESENTATION_DESIGN.md`](OFFICIAL_RESERVATION_DATE_PRESENTATION_DESIGN.md).
+
+Base audited: `07c38353c0ddb478242a65dac8be52152b9b8b0a` (`main` after Phase 3F-D).
+
+- [x] **Placement audited against the live planner.** Trip-specific official reservation facts belong
+      in the per-day `OrderedSequenceBuilder` surface where the strict visit-date contract already
+      exists; they do not belong in route-wide pre-date "Reservas por preparar" or `PlaceDetail`.
+- [x] **Phase 3D / Phase 3F evidence domains remain visibly separate.** The official record is not
+      intersected with, substituted for or ranked against the editorial Phase 3D-H advance-guidance
+      window.
+- [x] **Safe official-date copy defined.** Release dates and application-window edges may be shown as
+      recorded official calendar facts, never as booking-open/closed, availability, urgency,
+      countdown, inventory or purchase instructions.
+- [x] **Timezone uncertainty remains explicit.** Recorded `Asia/Tokyo` is preserved; `null`
+      remains unknown and must not be silently upgraded to JST/Japan time.
+- [x] **Provenance remains visible.** The presentation should expose source entity, concrete
+      `consultedAt` and an ordinary official-source link without background fetch/scraping or
+      freshness claims.
+- [x] **Scope/allocation semantics remain disclosures.** Multiple scopes remain independently
+      visible in source order; allocation never becomes probability, priority or urgency.
+- [x] **Current-date composition explicitly deferred.** Phase 3F-F must not reuse the existing
+      Phase 3D-O device/reference date, compare dates to "today", convert timezones or infer whether
+      sales are currently open.
+- [x] **No persistence/data expansion.** V7, storage keys, evidence JSON, places data, workbook and
+      package dependencies remain unchanged by this design gate.
+- [x] **UI successor requires browser audit.** The proposed runtime successor changes visible React
+      output, so focused tests, full regression, lint, build, `git diff --check` and repeated
+      post-final-change browser validation are mandatory.
+
+Recommended successor: **Phase 3F-F — Official Reservation Date Presentation Runtime**.
+
+**Phase 3F-F is NOT STARTED.** Phase 3F-E changes documentation only.
+
