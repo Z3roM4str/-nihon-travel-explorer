@@ -924,8 +924,8 @@ Browser acceptance should also prove the three earlier local groups remain funct
 ### UI/browser
 
 122. fourth subgroup appears only when applicable.
-123. candidate names all four reversed places and requires explicit Apply.
-124. browser Apply yields exact Okinawa order and fresh post-reload alternatives.
+123. candidate names all four reversed places, shows both ranges/confidence and the local-only disclaimer, contains no forbidden optimisation claim, and requires explicit Apply.
+124. browser Apply yields the exact Okinawa order, reload derives fresh alternatives, and the existing 3E-C / 3E-E / 3E-G Apply paths remain functional on suitable regression fixtures.
 125. console errors = 0 and page errors = 0.
 
 ---
