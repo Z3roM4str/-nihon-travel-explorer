@@ -93,6 +93,10 @@ Allocation disclosure:
 
 `capacity-limited`
 
+The English park-ticket page publishes the 14:00 release clock time but does not explicitly label
+that time as JST/IANA `Asia/Tokyo`; the record therefore preserves `releaseTimeLocal: "14:00"`
+while keeping `sourceTimeZone: null`.
+
 ### RM-JP-204-001 — Tokyo DisneySea
 
 Same official park-ticket rule as JP-203, scoped independently to the DisneySea place record.
@@ -104,6 +108,9 @@ Source:
 Allocation disclosure:
 
 `capacity-limited`
+
+As with JP-203, the record preserves the official local clock time and does not infer an IANA
+timezone the source does not explicitly name.
 
 ### RM-JP-077-001 — Katsura Imperial Villa
 
