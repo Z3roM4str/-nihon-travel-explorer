@@ -12,7 +12,7 @@ Phase 3F-B established a versioned official reservation-mechanism evidence layer
 
 Phase 3F-C approves the next narrow step:
 
-> Given one active official reservation-mechanism record and one explicit planned visit civil date, derive only the civil reservation date(s) that follow deterministically from that mechanism.
+> Given one validated official reservation-mechanism record and one explicit planned visit civil date, derive only the civil reservation date(s) that follow deterministically from that mechanism. Only an `active` record may produce a normal derived date; a `superseded` record remains explicitly non-current evidence.
 
 This phase does **not** approve:
 
@@ -66,7 +66,7 @@ The domain layer must not silently reconcile them.
 
 The future runtime consumes:
 
-1. one validated `ReservationMechanismEvidenceRecord`;
+1. one validated `ReservationMechanismEvidenceRecord` — active or superseded;
 2. one explicit `visitDate: string | null`.
 
 The visit date is a civil date:
