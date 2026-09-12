@@ -4146,3 +4146,50 @@ contract.
       adjacent swap, relocation or transposition, the audit proves all three earlier neighbourhoods
       still *apply*, to their exact orders, on their own real fixtures rather than merely still
       being present.
+
+
+## Phase 3E-J — Evidence-Complete Two-Pair Block Swap Design Gate — design/audit only
+
+Defines the next bounded local-alternative frontier after Phase 3E-I. Full contract:
+[`docs/EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md`](EVIDENCE_COMPLETE_TWO_PAIR_BLOCK_SWAP_DESIGN.md).
+
+- [x] **Exact 2+2 move only.** The proposed move takes one four-place interior window
+      `[A,B,C,D]` and produces exactly `[C,D,A,B]`: two adjacent two-place blocks exchange
+      positions while the internal order of each pair is preserved. This is not generic block
+      relocation, generic slice rotation, three-position cycling or 2-opt.
+- [x] **Residual frontier audited after C/E/G/I.** The current 214-place / 403-directed-edge graph
+      yields 2,131 complete ordered same-hub six-place baselines. After excluding every baseline
+      already clearly improved by one adjacent swap, one single-place relocation, one non-adjacent
+      transposition or one exact four-place reversal, 1,692 remain. Only one baseline still has a
+      clearly-faster exact 2+2 block swap.
+- [x] **Fully validated Okinawa fixture.** JP-202 → JP-153 → JP-156 → JP-161 → JP-154 → JP-155
+      records 92 min. Swapping the two interior pairs produces JP-202 → JP-161 → JP-154 → JP-153 →
+      JP-156 → JP-155 at 81 min. The minimum recorded-range gap is 11 min and all five edges on
+      both sides are validated-static.
+- [x] **No new cubic cyclic-rotation primitive.** The only stronger residual direct order is 74 min,
+      but after the proposed 92 → 81 Apply the already-shipped Phase 3E-E generator exposes an
+      independently evidenced 81 → 74 single-place relocation. The same final order is therefore
+      reachable through two explicit bounded actions without adding a three-position cycle search.
+- [x] **No automatic chaining.** The 81 → 74 relocation is regenerated only after the first Apply
+      and still requires a second explicit user action. The proposed pair-block candidate may claim
+      only its own 92 → 81 evidence; no combined 18-minute optimisation claim is approved.
+- [x] **Linear candidate count.** For block length `n >= 6`, legal four-place window starts are
+      `1 ... n-5`, so the candidate count is exactly `n - 5`. Straightforward full-sequence
+      evaluation may still cost O(n²) directed lookups; there is no recursion or candidate chaining.
+- [x] **Exact six-place temporal lock.** The affected context is the predecessor, the four places in
+      the 2+2 window and the successor. A manual start time on any of those six suppresses the
+      candidate; a timed place outside the window does not.
+- [x] **Complete exact directed evidence remains mandatory.** Baseline and candidate blocks must
+      both be complete under the current exact lookup. No reverse repair, chaining, geometry,
+      runtime routing, synthetic symmetry or fabricated minutes are approved. Only
+      `b-clearly-faster` may be surfaced.
+- [x] **Earlier neighbourhoods remain distinct and authoritative.** C/E/G/I candidate orders retain
+      ownership if a future schema ever creates an exact duplicate. The fifth group is appended
+      without ranking or suppressing any earlier group.
+- [x] **V7 and larger-plan invariants remain fixed.** A future runtime may add one direct synchronous
+      2+2 mutation, while route/day membership, dates, manual times, accommodation state, inter-hub
+      objects, trip bounds, storage key and schema version remain unchanged.
+
+Recommended successor: **Phase 3E-K — Evidence-Complete Two-Pair Block Swap Runtime**.
+
+**Phase 3E-K is NOT STARTED.** This gate changes documentation only.
