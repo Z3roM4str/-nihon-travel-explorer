@@ -4974,9 +4974,14 @@ Official sources consulted: **2026-09-13**.
       exact derivations for the three new fixtures, real month-end/leap-month handling, lower-layer
       inverted-span fail-closed behavior, unchanged 3F-H/3F-J boundaries, intentional exclusions,
       full Vitest/lint/build/whitespace gates and relevant browser regressions.
-- [x] **Normative contract recorded.** Sixty explicit contracts define eligibility, coverage,
+- [x] **Normative contract recorded.** Sixty-two explicit contracts define eligibility, coverage,
       current-source handling, the new family, fail-closed span behavior, identity, exclusions,
       runtime boundaries and implementation-time verification.
+- [x] **Hostile design review corrective applied.** The new monthly window now keeps open/close
+      timezone evidence independent, matching the shipped Phase 3F application-window boundary, and
+      Phase 3F-F's inverted-span behavior is fixed explicitly as `null` before formatting rather
+      than an undefined "refusal" or a newly invented presentation state. Current official-source
+      rechecks preserved the gate's three approved candidates and three explicit exclusions.
 
 Recommended successor: **Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation**.
 
