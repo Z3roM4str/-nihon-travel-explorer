@@ -88,14 +88,20 @@ not opened yet", "it opens today" or "X hours remain".
 | `openDate <= referenceDate <= closeDate` | `within-recorded-application-date-span` |
 | `referenceDate > closeDate` | `after-recorded-application-date-span` |
 
-Both civil-date edges are inclusive. Katsura's recorded `05:00` open and `23:59` close times and its
-`null` source timezone mean an edge date can only be described as inside the recorded **date span** —
-never as "applications are open", "last day" or "closes today".
+Both civil-date edges are inclusive. `openDate === closeDate` is a legitimate one-day span. Katsura's
+recorded `05:00` open and `23:59` close times and its `null` source timezone mean an edge date can
+only be described as inside the recorded **date span** — never as "applications are open", "last day"
+or "closes today".
+
+A span whose dates are each valid but **inverted** (`openDate > closeDate`) is refused before any
+comparison runs, returning `{ kind: "not-assessed", reason: "derivation-not-date-relatable" }`. See
+§10.1 for why this boundary cannot assume an ordered span.
 
 ### 2.3 Non-assessable statuses
 
 `no-visit-date`, `inactive-evidence`, `not-applicable-to-visit-date` and `not-derivable` all return
-`{ kind: "not-assessed", reason: "derivation-not-date-relatable" }`. An invalid reference date
+`{ kind: "not-assessed", reason: "derivation-not-date-relatable" }`, as does a malformed calendar
+fact — an unparseable date, or an inverted application span (§10.1). An invalid reference date
 returns `{ kind: "not-assessed", reason: "invalid-reference-date" }`. The existing Phase 3F-F copy
 for those states is unchanged and renders without any before/on/after line.
 
@@ -216,7 +222,7 @@ other Phase 3F-F assertion changed.
 
 Added:
 
-- `app/src/lib/reservation-mechanism-reference-date.ts`
+- `app/src/lib/reservation-mechanism-reference-date.ts` (includes the §10.1 inverted-span guard)
 - `app/src/lib/reservation-mechanism-reference-date.test.ts`
 - `app/src/lib/reservation-mechanism-reference-date-presentation.ts`
 - `app/src/lib/reservation-mechanism-reference-date-presentation.test.ts`
@@ -247,7 +253,7 @@ draft schema/storage, and package manifests/dependencies.
 
 | File | Tests |
 | --- | --- |
-| `app/src/lib/reservation-mechanism-reference-date.test.ts` | 33 |
+| `app/src/lib/reservation-mechanism-reference-date.test.ts` | 38 |
 | `app/src/lib/reservation-mechanism-reference-date-presentation.test.ts` | 15 |
 | `app/src/components/OrderedSequenceBuilder.official-reservation-reference-date.test.ts` | 14 |
 | `app/src/lib/reservation-mechanism-presentation.test.ts` | 14 |
@@ -258,13 +264,14 @@ draft schema/storage, and package manifests/dependencies.
 | `app/src/lib/reservation-window-reference.test.ts` | 16 |
 | `app/src/lib/reservation-window-reference-presentation.test.ts` | 3 |
 
-Focused run: **10 files, 238 passed, 0 failed.**
+Focused run: **10 files, 243 passed, 0 failed.**
 
 Domain coverage includes every case required by the gate: invalid reference date, no-visit,
 inactive evidence, not-applicable, not-derivable, release one day before/exact/one day after, year
 rollover, application one day before open, exact open, middle, exact close, one day after close,
 record/place/scope identity preservation, clock-time invariance, timezone invariance, host-TZ
-invariance, non-mutation, determinism, and the three identity-mismatch fail-closed cases.
+invariance, non-mutation, determinism, and the three identity-mismatch fail-closed cases. The
+corrective in §10.1 adds an equal-edge one-day span case and four inverted-span cases.
 
 Source-boundary coverage asserts the pure evaluator contains no `Date.now`, no ambient `new Date`,
 no `Intl`/timezone conversion, no `evaluateReservationWindowReference`, no `reservation.leadTime`, no
@@ -276,9 +283,9 @@ network, no storage and no mutation, and that its import set is exactly the thre
 ## 8. Regression and static validation
 
 Executed on the real checkout at final code HEAD
-`6b27db014c680e3f56d25bb7146ad706747d0bad`:
+`63b5756570ad8cf8e8afaa4c5a504bb67d35967c`:
 
-- full Vitest: **59 files, 2278/2278 tests passed, 0 failed**;
+- full Vitest: **59 files, 2283/2283 tests passed, 0 failed**;
 - `npm run lint` (oxlint): exit **0**;
 - `npm run build` (`tsc -b && vite build`): exit **0**;
 - `git diff --check 2a02bad414d1b8e01eb6bb88169506da30568677...HEAD`: exit **0**;
@@ -306,14 +313,19 @@ Executed on the real checkout at final code HEAD
 
 Console errors: **0**. Page errors: **0**. No assertion was relaxed and no console error was ignored.
 
-Both mandatory runs passed consecutively on the same final code HEAD
-`6b27db014c680e3f56d25bb7146ad706747d0bad`:
+The corrective in §10.1 changed code after the first recorded browser gate, so the browser gate was
+**restarted from zero**. Both mandatory runs passed consecutively on the new final code HEAD
+`63b5756570ad8cf8e8afaa4c5a504bb67d35967c`:
 
 - browser audit #1: **PASS**, 0 console errors, 0 page errors
 - browser audit #2: **PASS**, 0 console errors, 0 page errors
 
 The Phase 3F-F audit was re-run as a regression on the same HEAD and also passed with 0 console and 0
-page errors.
+page errors. Both audits use the same deterministic `Date` shim; no assertion was relaxed and no
+scenario depends on the host wall clock.
+
+The superseded gate on `6b27db014c680e3f56d25bb7146ad706747d0bad` (audit #1 PASS, audit #2 PASS,
+Phase 3F-F PASS) is recorded here only as history; it is **not** the acceptance gate for this PR.
 
 Environment note: the container's Playwright-managed Chromium build differed from the expected build
 revision, so an external filesystem path bridge was created outside the repository. No repository
@@ -321,7 +333,55 @@ file, script or package dependency was changed for that environment-only adjustm
 
 ---
 
-## 10. Hostile self-review
+## 10. Review findings and correctives
+
+### 10.1 Independent review finding — inverted application date span
+
+**Finding.** `evaluateOfficialReservationReferenceDate` validated `openDate` and `closeDate`
+individually for an `application-window` derivation, but did not reject an inverted interval
+(`openDate > closeDate`). Two dates can each be a real calendar date while their order is wrong.
+
+**Why it is a real contract problem.** Phase 3F-D's evidence parser constrains
+`relative-application-window` to a positive-integer `monthsBeforeVisitMonth` and a positive-integer
+`daysBeforeVisit`, but nothing in that validation by itself guarantees that the *derived* open date
+lands on or before the *derived* close date. Phase 3F-H therefore must not silently assume every
+application window it receives is ordered. Under the previous code an inverted span would have been
+classified as before/within/after, presenting an official date span the evidence never recorded.
+
+**Corrective.** For `derivation.kind === "application-window"`, after both dates are confirmed valid
+civil dates, an inverted span now returns:
+
+```ts
+{ kind: "not-assessed", reason: "derivation-not-date-relatable" }
+```
+
+Fail-closed, before any comparison runs. The dates are not swapped, repaired, re-ordered or
+interpreted; intent is not inferred; the input is not mutated; and the refusal carries no identity and
+no dates (exactly the two keys `kind` and `reason`). `openDate === closeDate` remains a legitimate
+one-day span.
+
+Corrective commit: `63b5756570ad8cf8e8afaa4c5a504bb67d35967c`, touching exactly two files —
+`app/src/lib/reservation-mechanism-reference-date.ts` (one guard plus its comment) and
+`app/src/lib/reservation-mechanism-reference-date.test.ts` (five added tests).
+
+**Deliberately unchanged by this corrective:** `reservation-mechanism-date-derivation.ts`, the
+evidence parser, the evidence JSON, the Katsura mechanism, canonical data, schema, storage, Phase 3D,
+and all user-facing copy. No copy change was needed: an unassessable span renders no relation, the
+same as every other non-date-relatable result, so the existing Phase 3F-F presentation already covers
+it.
+
+**Post-fix hostile check.** Confirmed point by point: (1) valid individual dates + inverted span →
+not assessed, at five reference dates spanning both edges and the inverted range; (2) a valid ordered
+span behaves exactly as before; (3) equal open/close is still a one-day span with correct
+before/within/after; (4) Katsura's open edge `2026-12-01` is still within; (5) Katsura's close edge
+`2027-03-12` is still within; (6) no new time or timezone arithmetic — the guard is a lexical
+comparison of two validated fixed-width civil dates, and the source-boundary scans still pass;
+(7) no Phase 3D evaluator reuse; (8) no sorting, swapping or repair of the interval; (9) no
+persistence, schema or data change; (10) no copy change.
+
+The design gate did not need amending: Phase 3F-G's fail-closed principle already covers this case.
+
+### 10.2 Hostile self-review
 
 Re-checked and found clean: accidental open/closed semantics; clock-time comparison; timezone
 inference; Phase 3D evaluator reuse; identity mismatch; relation attached to the wrong record;
@@ -372,14 +432,15 @@ node scripts/phase3f-f-browser-audit.mjs
 | `008da04` | `reservation-mechanism-reference-date.ts`, `reservation-mechanism-reference-date.test.ts`, `reservation-mechanism-reference-date-presentation.ts`, `reservation-mechanism-reference-date-presentation.test.ts`, `reservation-mechanism-presentation.ts` |
 | `b0f01d1` | `OrderedSequenceBuilder.tsx`, `OrderedSequenceBuilder.test.ts`, `OrderedSequenceBuilder.official-reservation-reference-date.test.ts`, `App.css` |
 | `6b27db0` | `scripts/phase3f-h-browser-audit.mjs`, `scripts/phase3f-f-browser-audit.mjs` |
+| `63b5756` | `reservation-mechanism-reference-date.ts`, `reservation-mechanism-reference-date.test.ts` — corrective for the independent-review finding in §10.1 |
 
-No corrective commit was required after validation started: every gate
-(focused tests, full Vitest, lint, build, both `git diff --check` forms, browser audit #1, browser
-audit #2, Phase 3F-F regression audit) passed on the first run against
-`6b27db014c680e3f56d25bb7146ad706747d0bad`.
+`63b5756` is the **final code HEAD**. It changed code after the first browser gate, so every
+validation gate was restarted from zero against it: focused tests, full Vitest, lint, build, both
+`git diff --check` forms, Phase 3F-H browser audit #1, Phase 3F-H browser audit #2 and the Phase 3F-F
+regression audit all passed on that HEAD.
 
-Two issues were found and fixed *during* implementation, before any validation gate ran, so no gate
-needed restarting:
+Two further issues were found and fixed *during* initial implementation, before any validation gate
+ran, so no gate needed restarting for them:
 
 1. a test expectation in `reservation-mechanism-reference-date-presentation.test.ts` named the wrong
    weekday/day for the formatted reference date;
@@ -396,6 +457,7 @@ invalidate the browser-audit result recorded above.
 **VALIDATED — ELIGIBLE FOR READY TRANSITION.**
 
 Focused tests, full regression, lint, build, whitespace checks and the two consecutive mandatory
-browser audits passed on the final code state. The pull request is deliberately left in **Draft** so
+browser audits passed on the final code state `63b5756570ad8cf8e8afaa4c5a504bb67d35967c`, after the
+browser gate was restarted from zero for the §10.1 corrective. The pull request is deliberately left in **Draft** so
 an independent focused review can be performed; this document does not perform that transition, and
 Phase 3F-I is not started.

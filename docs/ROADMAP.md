@@ -4699,23 +4699,37 @@ Base: `2a02bad414d1b8e01eb6bb88169506da30568677` (`main` after Phase 3F-G).
 - [x] **Focused test contracts added.** New relation, presentation and component suites cover the
       full required matrix including year rollover, inclusive edges, clock/timezone invariance,
       host-timezone invariance and the three identity-mismatch fail-closed cases.
-- [x] **Repository-native validation gate.** Focused **238/238** across 10 files, full Vitest
-      **2278/2278** across 59 files, oxlint exit **0**, build exit **0**, and both
-      `git diff --check` forms exit **0**.
+- [x] **Repository-native validation gate.** Re-run in full after the corrective below: focused
+      **243/243** across 10 files, full Vitest **2283/2283** across 59 files, oxlint exit **0**,
+      build exit **0**, and both `git diff --check` forms exit **0**.
 - [x] **Deterministic browser date.** `app/scripts/phase3f-h-browser-audit.mjs` fixes the browser's
       local calendar date before application boot with a test-only Playwright `Date` shim, asserts
       the fixed date took effect, and adds no production prop, query parameter, storage field or
       dependency; production `captureDeviceLocalCivilDate` is unchanged and still on the real path.
-- [x] **Mandatory browser gate.** The dedicated audit passed **twice consecutively** on final code
-      HEAD, covering Ghibli before/same/after, Disney null-timezone same date, Katsura open and
-      close edges, Sumo applicable and not-applicable, Phase 3D coexistence, day-reassignment
-      recomputation and start-date clear/reload, with 0 console errors and 0 page errors in both
-      runs. The Phase 3F-F audit was re-run as a regression on the same HEAD and also passed.
+- [x] **Inverted application date spans fail closed.** Independent review found that the evaluator
+      validated `openDate` and `closeDate` individually but accepted an inverted interval, which
+      Phase 3F-D's parser does not by itself rule out. `openDate > closeDate` now returns
+      `not-assessed` / `derivation-not-date-relatable` before any comparison, with no swap, repair,
+      re-order or inferred intent; `openDate === closeDate` stays a valid one-day span and the real
+      Katsura edges stay `within`. Corrective `63b5756570ad8cf8e8afaa4c5a504bb67d35967c` touched only
+      the Phase 3F-H evaluator and its test file — no Phase 3F-D, evidence, data, schema, storage,
+      Phase 3D or copy change.
+- [x] **Mandatory browser gate.** The corrective above changed code after the first recorded gate, so
+      the browser gate was restarted from zero. The dedicated audit passed **twice consecutively** on
+      final code HEAD `63b5756570ad8cf8e8afaa4c5a504bb67d35967c`, covering Ghibli before/same/after,
+      Disney null-timezone same date, Katsura open and close edges, Sumo applicable and
+      not-applicable, Phase 3D coexistence, day-reassignment recomputation and start-date
+      clear/reload, with 0 console errors and 0 page errors in both runs and no relaxed assertion.
+      The Phase 3F-F audit was re-run as a regression on the same HEAD and also passed.
 - [x] **Focused hostile review.** Open/closed semantics, clock comparison, timezone inference,
       Phase 3D evaluator reuse, identity mismatch, sorting, duplicated arithmetic, stale persisted
       relation, a second clock capture, production test seams, machine-date dependence, currentness
       copy, urgency/action language, Phase 3D/3F synthesis, recomputation and not-applicable leakage
-      were all rechecked; the one finding (a now-false Phase 3F-F disclaimer sentence) was fixed.
+      were all rechecked; the one finding (a now-false Phase 3F-F disclaimer sentence) was fixed. The
+      separate independent-review finding above was fixed and its own post-fix hostile check —
+      inverted span refused, ordered span unchanged, equal edges still a one-day span, both Katsura
+      edges still `within`, no new time/timezone arithmetic, no Phase 3D reuse, no sorting/repair, no
+      persistence change, no copy change — is recorded in the execution record §10.1.
 
 **Phase 3F-H has passed its validation gates and is eligible for Ready-for-review. The pull request
 remains Draft pending independent focused review. Phase 3F-I is NOT STARTED.**
