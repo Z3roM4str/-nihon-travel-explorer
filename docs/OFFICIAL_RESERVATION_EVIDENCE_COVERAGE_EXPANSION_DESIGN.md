@@ -57,10 +57,10 @@ therefore legitimate candidates for official-mechanism research:
 
 | ID | Place | Gate disposition |
 | --- | --- | --- |
-| JP-002 | SHIBUYA SKY | **successor candidate now** |
+| JP-002 | SHIBUYA SKY | audit further; current source proves a two-week sales horizon, not an exact release cadence |
 | JP-033 | teamLab Borderless | audit further; current source confirms dated tickets, not recurring release cadence |
 | JP-038 | teamLab Planets TOKYO | audit further |
-| JP-050 | PokéPark KANTO | **successor candidate now; schema extension required** |
+| JP-050 | PokéPark KANTO | defer; two deterministic same-scope channels exceed current active identity model |
 | JP-078 | Saiho-ji (Koke-dera) | audit further |
 | JP-095 | teamLab Biovortex Kyoto | audit further |
 | JP-097 | Nintendo Museum | **successor candidate now; schema extension required** |
@@ -149,24 +149,21 @@ Official source consulted:
 
 `https://www.shibuya-scramble-square.com/sky/ticket/`
 
-Current ticket copy states that ordinary web admission tickets are sold for dates up to **two weeks
-ahead**.
+The current ticket page states that admission tickets are sold for dates up to **two weeks ahead**.
 
-The workbook editorial value still says `2–4 semanas; atardecer antes`; that is planning advice and
-must not be used as mechanism evidence.
+That is a current **sales horizon**, but the consulted source does not state that each visit date is
+released exactly fourteen civil days before admission, nor does it state the cadence or clock time at
+which a newly eligible date enters the sale window.
 
-Approved structured interpretation for the successor:
+Therefore the earlier draft's proposed `rolling-day-release(daysBeforeVisit: 14)` was too strong.
+Phase 3F records exact mechanism propositions, not merely the outer bound of the dates currently sold.
 
-- scope: `general-admission`
-- mechanism: existing `rolling-day-release`
-- `daysBeforeVisit: 14`
-- no release clock time invented
-- no timezone needed when no clock time is stored
-- allocation: `not-stated`
-- provenance confidence: `official-derived`
+Disposition:
 
-The derived proposition is only the earliest civil date implied by the official rolling horizon. It
-does not claim that inventory exists on that date or afterward.
+- no Phase 3F-L record;
+- keep the workbook's `2–4 semanas; atardecer antes` as separate editorial planning text;
+- retain JP-002 as an operator candidate for a future audit if SHIBUYA SKY publishes an explicit
+  release cadence.
 
 ### 4.2 JP-050 — PokéPark KANTO
 
@@ -174,22 +171,36 @@ Official sources consulted:
 
 - `https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?pubDate=20251112`
 - `https://ticket-en.pokepark-kanto.co.jp/`
+- `https://www.pokepark-kanto.co.jp/ppark/announcement/40/detail/index`
 
-The current official schedule states:
+The current official schedule publishes **two deterministic mechanisms for the same admission
+scope**:
 
-- admissions are handled through an application / lottery system;
-- applications are for the visit month **three months in advance**;
-- the recurring application period is the **1st through the 12th** of each month;
-- the current start time for lottery / first-come sales is **20:00 JST**;
-- selected applicants are notified later and must pay by the end of the month;
-- later first-come inventory may exist, but its availability is contingent and must not be promoted
-  into a deterministic release fact.
+1. **Lottery application** for the visit month three months ahead:
+   - application period: 1st through 12th of each month;
+   - current start time: 20:00 JST;
+   - result notification later in the month;
+   - selected applicants pay by month end.
+2. **First-come sale** for admission dates two months ahead:
+   - each visit date begins sale at 20:00 on the same calendar date two months earlier;
+   - month-end handling is explicitly documented;
+   - sale ends when sold out.
 
-This is real evidence for an application window, but it does **not** fit the current
-`relative-application-window` shape, whose close edge is defined as N days before the individual
-visit date.
+The first draft incorrectly described the later first-come path as non-deterministic merely because
+inventory is contingent. Inventory is contingent, but the **sale-start rule itself is deterministic**.
 
-The successor therefore needs one new evidence family rather than a lossy conversion.
+This creates a model problem rather than an evidence problem. The current catalog enforces one active
+record per `placeId + scope`, and the scope describes what is reserved, not the acquisition channel.
+Silently recording only one of two deterministic official mechanisms would make the structured
+evidence knowingly incomplete while also preventing the second active record from being represented.
+
+Disposition:
+
+- JP-050 is **not approved for Phase 3F-L**;
+- do not misuse `scope` to encode lottery vs first-come channels;
+- do not relax active identity uniqueness inside a data-expansion phase;
+- a future design gate may introduce explicit mechanism-channel identity and define how two
+  same-scope deterministic mechanisms compose in Phase 3F-D/F/H/J.
 
 ### 4.3 JP-097 — Nintendo Museum
 
@@ -261,7 +272,9 @@ No JP-211 mechanism record is approved by this gate.
 
 Phase 3F-A allowed the mechanism union to grow only when real official evidence required it.
 
-PokéPark KANTO and Nintendo Museum now provide that evidence.
+Nintendo Museum provides sufficient real official evidence for this family on its own. PokéPark
+KANTO also exhibits a monthly lottery window, but its simultaneous deterministic first-come rule
+means JP-050 itself is deferred until same-scope multi-mechanism identity is designed.
 
 Approved new family name:
 
@@ -287,12 +300,14 @@ closeSourceTimeZone: Asia/Tokyo | null
 The family shifts to the month `monthsBeforeVisitMonth` before the visit month and derives both
 edges inside that month.
 
-Examples:
+Canonical successor example:
 
-- PokéPark: shift 3 months; open day 1; close day 12; open 20:00 with
-  `openSourceTimeZone: Asia/Tokyo`; close time and close-edge timezone are not invented.
 - Nintendo Museum: shift 3 months; open day 1; close last day of month; recurring clock times and
   edge timezones are not invented.
+
+PokéPark's 1st–12th lottery window proves the same family can describe real evidence, but JP-050 is
+not a Phase 3F-L data record because its second deterministic same-scope channel cannot be represented
+honestly under the current active identity rule.
 
 The two edge timezone fields are deliberately separate. That matches the already-shipped
 `application-window` derivation shape and prevents an explicit timezone attached to one recorded clock
@@ -316,7 +331,7 @@ The lower layers are currently asymmetric:
 That asymmetry is harmless for the current Katsura record, but it becomes unacceptable when the
 catalog admits additional application-window families.
 
-Therefore Phase 3F-L is **blocked** from adding JP-050 or JP-097 until the following invariant is
+Therefore Phase 3F-L is **blocked** from adding JP-097 until the following invariant is
 implemented:
 
 > No layer may expose an application window as valid when its derived civil open date is after its
@@ -340,29 +355,30 @@ Minimum successor requirements:
 
 The existing active uniqueness rule `placeId + scope` stays unchanged for Phase 3F-L.
 
-For JP-050 and JP-097 the successor records represent the deterministic **drawing application
-window** for general/park admission.
+For JP-097 the successor record represents the deterministic **drawing application window** for
+general admission.
 
-Later availability-based direct sales are not a second deterministic date mechanism and are not
-added as a parallel active record.
+Nintendo's later direct-sale path remains availability-dependent and its public example does not
+establish one exact generic release date suitable for this phase.
 
-If a future place exposes two independently deterministic mechanisms for the same exact scope, that
-must receive its own design gate before relaxing active identity uniqueness.
+PokéPark is the concrete counterexample that proves why the current identity rule matters: it exposes
+two independently deterministic mechanisms for the same admission scope. Representing that case
+requires a future design gate before relaxing active identity uniqueness or adding an explicit
+mechanism-channel identity axis.
 
 ---
 
 ## 8. Approved Phase 3F-L data delta
 
-If this gate is accepted, the successor may add exactly these three active records:
+If this gate is accepted, the successor may add exactly one active record:
 
-1. **JP-002 SHIBUYA SKY** — existing `rolling-day-release`.
-2. **JP-050 PokéPark KANTO** — new `monthly-application-window`.
-3. **JP-097 Nintendo Museum** — new `monthly-application-window`.
+1. **JP-097 Nintendo Museum** — new `monthly-application-window`.
 
-Catalog size after the successor: **8 active records**, assuming no supersession is required during
+Catalog size after the successor: **6 active records**, assuming no supersession is required during
 implementation-time source recheck.
 
-No other place is approved for population merely because it appears in the candidate table.
+JP-002 and JP-050 are explicitly **not** approved by this successor. No other place is approved for
+population merely because it appears in the candidate table.
 
 ---
 
@@ -397,6 +413,8 @@ Approved:
 - any source-boundary tests required to pin the new family;
 - execution documentation and ROADMAP.
 
+Phase 3F-L does **not** change active-record identity semantics and does not add a channel field.
+
 Not approved:
 
 - planner schema or localStorage;
@@ -418,26 +436,27 @@ Not approved:
 Phase 3F-L must at minimum prove:
 
 1. source/app evidence parity;
-2. all eight records parse;
-3. the three new record IDs and scopes are exact;
-4. SHIBUYA SKY derives exactly 14 civil days before representative visit dates;
-5. PokéPark derives the 1st–12th window in the month three months before the visit month;
-6. Nintendo Museum derives the 1st–last-day window in the month three months before the visit month;
-7. February 2027 and leap-February synthetic cases derive the correct final day;
-8. an inverted old-style `relative-application-window` fails closed in 3F-D;
-9. a synthetic inverted application derivation returns `null` from 3F-F before either edge is
+2. all six records parse;
+3. the new JP-097 record ID and scope are exact;
+4. Nintendo Museum derives the 1st–last-day window in the month three months before the visit month;
+5. February 2027 and leap-February synthetic cases derive the correct final day;
+6. an inverted old-style `relative-application-window` fails closed in 3F-D;
+7. a synthetic inverted application derivation returns `null` from 3F-F before either edge is
    formatted;
-10. 3F-H and 3F-J retain their existing fail-closed behavior;
-11. USJ, SUPER NINTENDO WORLD and AnimeJapan remain absent;
-12. the 16 composite/operator-dependent records listed in §2.2–§2.4 remain absent;
-13. no booking-state, availability, inventory, deadline, countdown, reminder or automation field is
+8. 3F-H and 3F-J retain their existing fail-closed behavior;
+9. SHIBUYA SKY and PokéPark remain absent for the reasons fixed by this gate;
+10. USJ, SUPER NINTENDO WORLD and AnimeJapan remain absent;
+11. the 16 composite/operator-dependent records listed in §2.2–§2.4 remain absent;
+12. no booking-state, availability, inventory, deadline, countdown, reminder or automation field is
     introduced;
-14. full Vitest, lint, build and repository whitespace gates pass;
-15. existing Phase 3F-F/H/J browser audits pass unchanged unless the new evidence legitimately adds
-    rows to a fixture used by those audits.
+13. active `placeId + scope` uniqueness remains unchanged;
+14. no mechanism-channel field is introduced;
+15. full Vitest, lint, build and repository whitespace gates pass;
+16. existing Phase 3F-F/H/J browser audits pass unchanged unless the new JP-097 evidence legitimately
+    adds a row to a fixture used by those audits.
 
-If a browser fixture gains a new evidence row because it explicitly contains JP-002, JP-050 or
-JP-097, the test must be updated only for that real new fact; no existing assertion may be weakened.
+If a browser fixture gains a new evidence row because it explicitly contains JP-097, the test must be
+updated only for that real new fact; no existing assertion may be weakened.
 
 ---
 
@@ -453,10 +472,10 @@ JP-097, the test must be updated only for that real new fact; no existing assert
 8. Ferry/accommodation combinations are not operator-admission mechanisms.
 9. Current official evidence beats editorial lead-time text for Phase 3F propositions.
 10. Editorial lead-time text remains a separate Phase 3D/editorial fact.
-11. SHIBUYA SKY is approved only as a two-week civil release horizon.
-12. No SHIBUYA SKY release time is invented.
-13. PokéPark's deterministic fact is the monthly lottery application window.
-14. PokéPark later availability is not a deterministic release fact.
+11. SHIBUYA SKY's two-week statement is a sales horizon, not an approved exact release date.
+12. SHIBUYA SKY remains absent until an official source states a release cadence precisely enough to derive a civil date.
+13. PokéPark exposes both a deterministic lottery window and a deterministic first-come release for the same admission scope.
+14. PokéPark remains absent until same-scope multi-mechanism identity and composition are designed.
 15. Nintendo Museum's deterministic fact is the monthly drawing window.
 16. Nintendo later availability-based direct sales are not promoted into a release date.
 17. USJ ordinary admission remains excluded while current official sources do not resolve the rule cleanly.
@@ -497,8 +516,8 @@ JP-097, the test must be updated only for that real new fact; no existing assert
 52. A changed source may not silently expand the approved mechanism union.
 53. Active `placeId + scope` uniqueness stays in force.
 54. A second deterministic mechanism for one active scope requires a future gate.
-55. The successor adds at most JP-002, JP-050 and JP-097 under this approval.
-56. The successor keeps JP-125, JP-126 and JP-211 absent.
+55. The successor adds only JP-097 under this approval.
+56. The successor keeps JP-002, JP-050, JP-125, JP-126 and JP-211 absent.
 57. The successor does not populate audit-further candidates without a new documented official finding.
 58. The successor does not populate §2.2–§2.4 records.
 59. Existing five evidence records retain their meaning unless a current source recheck explicitly requires supersession.
@@ -507,6 +526,8 @@ JP-097, the test must be updated only for that real new fact; no existing assert
     onto the other edge by implication.
 62. A synthetically inverted application-window derivation returns `null` from Phase 3F-F before
     formatting; no new presentation state is invented for that impossible input.
+63. A published sales horizon is not converted into a release date without an explicit release cadence.
+64. Deterministic same-scope acquisition channels are not silently collapsed into one evidence record.
 
 ---
 
@@ -527,9 +548,11 @@ Two design ambiguities were found and corrected before Ready transition:
    requires `null` before any edge formatting, matching the existing function boundary and
    forbidding a new neutral/error presentation state.
 
-The source recheck also reconfirmed the core gate decisions: SHIBUYA SKY currently states sales up to
-two weeks ahead; PokéPark's official English store states a three-month-ahead monthly application
-period from the 1st through the 12th starting at 20:00 JST; Nintendo Museum still documents the
+The independent source recheck changed two core gate decisions. SHIBUYA SKY's official page confirms
+only a two-week sales horizon, not an exact release cadence. PokéPark's official ticket page confirms
+both the three-month-ahead 1st–12th lottery window **and** a deterministic daily first-come release
+two months before the visit date at 20:00, which the current one-active-`placeId + scope` identity
+cannot represent without collapsing a real acquisition channel. Nintendo Museum still documents the
 monthly drawing model; SUPER NINTENDO WORLD still has same-day app distribution plus advance channels;
 and the public AnimeJapan 2027 site publishes the event dates while no indexed 2027 public sale
 schedule establishes a mechanism record.
@@ -539,6 +562,17 @@ No runtime, data, schema or evidence artifact was changed by this corrective.
 ---
 
 ## 13. Rejected alternatives
+
+### "Treat SHIBUYA SKY's two-week horizon as a 14-day release"
+
+Rejected. "Sold up to two weeks ahead" bounds the visible sale horizon but does not state the exact
+cadence at which a new visit date becomes sellable.
+
+### "Record only PokéPark's lottery and ignore its deterministic first-come rule"
+
+Rejected. The official source publishes both for the same admission scope. The current identity model
+cannot honestly represent both, and this gate does not misuse scope or silently drop the second
+deterministic channel.
 
 ### "Populate all 36 missing required places"
 
@@ -582,7 +616,8 @@ One bounded implementation:
 
 - harden application-window fail-closed invariants;
 - add `monthly-application-window`;
-- add exactly three high-confidence current-source records;
+- add exactly one high-confidence current-source record: Nintendo Museum;
+- preserve active `placeId + scope` identity unchanged;
 - preserve every Phase 3F runtime boundary already established;
 - run the complete regression gate.
 
