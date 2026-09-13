@@ -261,6 +261,26 @@ Unknown timezone remains unknown.
 
 The relation result must be identical regardless of browser timezone when given the same explicit reference civil date and same derivation.
 
+### 8.1 Deterministic browser validation boundary
+
+Browser acceptance must not depend on the machine's real wall-clock date.
+
+To prove before/on/after relations reproducibly, the Phase 3F-H browser audit must deterministically
+control the browser/device date **before the application boots** (for example, through a Playwright
+init-script Date shim or equivalent test-only browser environment control).
+
+That test control must:
+
+- affect only the browser test environment;
+- preserve the production `captureDeviceLocalCivilDate` contract based on local calendar getters;
+- be installed before React captures `reservationReferenceDate`;
+- never add a production-only "test date" prop, query parameter, localStorage key or persistence field;
+- never weaken the requirement that production uses the actual device-local date;
+- never use the host test runner's current date as an implicit expected value.
+
+The browser audit must print/report the concrete fixed reference date used for each relation scenario
+or otherwise assert it visibly in the rendered UI.
+
 ---
 
 ## 9. Derivation statuses eligible for assessment
@@ -350,6 +370,10 @@ Every relation must retain enough identity to prove it belongs to the same:
 as the Phase 3F derivation/presentation it annotates.
 
 The UI must not attach one record's reference relation to another record or scope.
+
+Composition must fail closed on an identity mismatch. If a relation's `recordId`, `placeId` or
+`scope` does not match the Phase 3F derivation/presentation item it would annotate, that relation
+must be omitted rather than displayed under the wrong source item.
 
 No place-level "best relation" is allowed.
 
@@ -559,39 +583,44 @@ For a visit outside the recorded event applicability period, Phase 3F-D remains 
 14. one day after close -> after span;
 15. record/place/scope identity is preserved;
 16. no clock-time field changes the result;
-17. no timezone field changes the result.
+17. no timezone field changes the result;
+18. a synthetic record/place/scope mismatch is rejected at the presentation-composition boundary.
 
 ### Source boundary
 
-18. no `Date.now()` in pure evaluator;
-19. no ambient `new Date()` in pure evaluator;
-20. no `Intl` timezone conversion;
-21. no `evaluateReservationWindowReference` reuse;
-22. no Phase 3D lead-time parsing;
-23. no network;
-24. no storage;
-25. no mutation.
+19. no `Date.now()` in pure evaluator;
+20. no ambient `new Date()` in pure evaluator;
+21. no `Intl` timezone conversion;
+22. no `evaluateReservationWindowReference` reuse;
+23. no Phase 3D lead-time parsing;
+24. no network;
+25. no storage;
+26. no mutation.
 
 ### Presentation/integration
 
-26. exact concrete device/reference date is visible;
-27. release before/on/after copy stays neutral;
-28. application before/within/after copy stays neutral;
-29. same release date with a recorded time makes no open-state claim;
-30. Katsura edge date makes no open/closed-state claim;
-31. null timezone remains disclosed;
-32. Phase 3D-H and Phase 3F remain separate;
-33. multiple scopes remain independent and source-ordered;
-34. changing start date/day assignment recomputes the official derivation and then the relation;
-35. clearing start date removes assessed relations;
-36. reload persists no derived relation;
-37. no urgency/countdown/action vocabulary.
+27. exact concrete device/reference date is visible;
+28. release before/on/after copy stays neutral;
+29. application before/within/after copy stays neutral;
+30. same release date with a recorded time makes no open-state claim;
+31. Katsura edge date makes no open/closed-state claim;
+32. null timezone remains disclosed;
+33. Phase 3D-H and Phase 3F remain separate;
+34. multiple scopes remain independent and source-ordered;
+35. relation/presentation identity mismatch renders no relation;
+36. changing start date/day assignment recomputes the official derivation and then the relation;
+37. clearing start date removes assessed relations;
+38. reload persists no derived relation;
+39. no urgency/countdown/action vocabulary.
 
 ---
 
 ## 20. Browser audit requirement for Phase 3F-H
 
 Because the proposed successor changes visible planner output, browser validation is mandatory.
+
+The audit must set its device/reference civil date deterministically before application boot; it must
+not depend on the real calendar date of the machine running Playwright.
 
 Minimum cases:
 
@@ -606,6 +635,7 @@ Minimum cases:
 - coexistence with Phase 3D-H relation as separate surfaces;
 - day reassignment recomputation;
 - start-date clear/reload no stale relation;
+- relation/presentation identity mismatch is fail-closed in focused coverage;
 - zero console/page errors.
 
 Two consecutive successful browser audits after the final UI/code change are required.
@@ -690,9 +720,12 @@ Still not approved:
 21. No recommendation.
 22. No purchase action.
 23. Concrete reference date is visible with every assessed relation.
-24. No implicit automatic-midnight freshness claim.
-25. No timer/background refresh.
-26. `release-date` is assessable.
+24. Browser acceptance fixes the device/reference date deterministically before app boot rather than
+    depending on the machine's wall clock.
+25. No production test-date prop/query/storage/persistence seam is introduced for that audit.
+26. No implicit automatic-midnight freshness claim.
+27. No timer/background refresh.
+28. `release-date` is assessable.
 27. `application-window` is assessable.
 28. `no-visit-date` is not assessed.
 29. `inactive-evidence` is not assessed.
@@ -745,7 +778,9 @@ Accept Phase 3F-G only if review agrees that:
 9. the concrete reference date must be visible;
 10. no automatic freshness contract is implied;
 11. no persistence/schema/data change is required;
-12. the successor requires browser validation.
+12. browser validation uses a deterministic test-only device/reference date without adding a production persistence/test seam;
+13. relation/presentation identity mismatches fail closed;
+14. the successor requires browser validation.
 
 ---
 
