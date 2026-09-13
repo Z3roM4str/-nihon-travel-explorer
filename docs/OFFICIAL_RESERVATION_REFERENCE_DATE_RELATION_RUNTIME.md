@@ -458,6 +458,7 @@ invalidate the browser-audit result recorded above.
 
 Focused tests, full regression, lint, build, whitespace checks and the two consecutive mandatory
 browser audits passed on the final code state `63b5756570ad8cf8e8afaa4c5a504bb67d35967c`, after the
-browser gate was restarted from zero for the §10.1 corrective. The pull request is deliberately left in **Draft** so
-an independent focused review can be performed; this document does not perform that transition, and
-Phase 3F-I is not started.
+browser gate was restarted from zero for the §10.1 corrective. At the time this execution record was
+written, the pull request was deliberately left in **Draft** for independent focused review. PR #77
+subsequently passed that review, transitioned out of Draft, and was merged into `main`. Phase 3F-I
+was not started by this runtime phase.

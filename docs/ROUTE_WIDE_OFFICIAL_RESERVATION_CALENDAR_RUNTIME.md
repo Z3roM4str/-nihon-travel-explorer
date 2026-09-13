@@ -381,6 +381,7 @@ node scripts/phase3f-f-browser-audit.mjs
 **VALIDATED — ELIGIBLE FOR READY TRANSITION.**
 
 Focused tests, full regression, lint, build, both whitespace checks, two consecutive Phase 3F-J
-browser audits and both Phase 3F-F/3F-H regression audits passed on the final code state. The pull
-request is deliberately left in **Draft** so an independent focused review can be performed. Phase
-3F-K is not started.
+browser audits and both Phase 3F-F/3F-H regression audits passed on the final code state. At the time
+this execution record was written, the pull request was deliberately left in **Draft** for independent
+focused review. PR #79 subsequently passed that review, transitioned out of Draft, and was merged into
+`main`. Phase 3F-K was not started by this runtime phase.
