@@ -1,7 +1,7 @@
 # Phase 3F-G — Official Reservation Reference-Date Relation Design Gate
 
-Status: **design/audit only**  
-Base audited: `a006dc3a13bc20953e972ecbd414d5201c681824` (`main` after Phase 3F-F)  
+Status: **design/audit only**
+Base audited: `a006dc3a13bc20953e972ecbd414d5201c681824` (`main` after Phase 3F-F)
 Recommended successor if accepted: **Phase 3F-H — Official Reservation Reference-Date Relation Runtime**
 
 ---
