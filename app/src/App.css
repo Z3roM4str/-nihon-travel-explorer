@@ -2983,6 +2983,97 @@ a {
   color: var(--color-text-muted);
 }
 
+/* Phase 3F-J — route-wide official reservation dates. One neutral treatment for every row: no
+   success/warning/danger palette, no traffic light, no badge, no state icon, no animation, and no
+   emphasis derived from a row's date, its position in the list or its reference-date relation. A
+   row whose relation reads "después" looks exactly like one that reads "antes", because the order
+   is a reading order over recorded dates and not a priority. */
+.official-reservation-calendar {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.official-reservation-calendar h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.official-reservation-calendar__reference-date {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.official-reservation-calendar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.official-reservation-calendar__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.official-reservation-calendar__anchor {
+  font-weight: 700;
+}
+
+.official-reservation-calendar__context {
+  font-weight: 600;
+}
+
+.official-reservation-calendar__scope,
+.official-reservation-calendar__anchor-note,
+.official-reservation-calendar__relation,
+.official-reservation-calendar__provenance {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.official-reservation-calendar__fact-heading,
+.official-reservation-calendar__detail,
+.official-reservation-calendar__allocation,
+.official-reservation-calendar__anchor-note,
+.official-reservation-calendar__relation,
+.official-reservation-calendar__provenance {
+  margin: 0;
+}
+
+.official-reservation-calendar__fact-heading {
+  font-weight: 600;
+}
+
+.official-reservation-calendar__detail,
+.official-reservation-calendar__allocation {
+  color: var(--color-text);
+}
+
+.official-reservation-calendar__source {
+  align-self: flex-start;
+  font-size: 0.76rem;
+}
+
+.official-reservation-calendar__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
 /* Phase 3D-Q — manual accommodation commute legs. Deliberately NEUTRAL, like every other recorded
    fact surface in this planner: no success/warning palette, no badge, no emphasis that could read
    as "this is the good hotel" or "this is the real route". A recorded duration and an unrecorded
