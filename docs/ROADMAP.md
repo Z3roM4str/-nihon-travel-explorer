@@ -4641,6 +4641,13 @@ Base audited: `a006dc3a13bc20953e972ecbd414d5201c681824` (`main` after Phase 3F-
       countdown, deadline, reminder, notification, recommendation or purchase behavior is approved.
 - [x] **No persistence/data expansion.** V7, localStorage, evidence JSON, places data, workbook and
       package dependencies remain unchanged by the proposed successor.
+- [x] **Identity composition fails closed.** A relation must retain record/place/scope identity and
+      must be omitted if that identity does not match the Phase 3F derivation/presentation item it
+      would annotate; cross-record or cross-scope attachment is forbidden.
+- [x] **Browser reference date must be deterministic in QA.** The runtime browser audit must fix the
+      device/reference civil date before application boot through test-only browser environment
+      control, never through a production prop/query/storage/persistence seam or the machine's real
+      wall clock.
 - [x] **UI successor requires repeated browser validation.** The runtime successor must prove
       before/on/after and date-span edge behavior, exact reference-date disclosure, Phase 3D
       separation, no stale derived state and two consecutive browser-audit passes after final code.
