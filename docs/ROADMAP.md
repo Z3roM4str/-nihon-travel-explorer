@@ -4932,20 +4932,24 @@ Official sources consulted: **2026-09-13**.
       Nihon has no structured official mechanism record for that scope.
 - [x] **Current-source evidence re-audited.** SHIBUYA SKY, PokéPark KANTO, Nintendo Museum, USJ,
       SUPER NINTENDO WORLD and AnimeJapan 2027 were rechecked against current official sources.
-      Current evidence supports a bounded successor for SHIBUYA SKY, PokéPark and Nintendo Museum;
-      USJ, SUPER NINTENDO WORLD and AnimeJapan remain intentionally excluded for different reasons.
-- [x] **SHIBUYA SKY approved with existing semantics.** The current official ticket page supports a
-      two-week rolling civil horizon. The successor may encode JP-002 with the existing
-      `rolling-day-release` family at 14 days, with no invented clock time, timezone, inventory
-      state or availability claim. The workbook's broader editorial `2–4 semanas` text remains a
-      separate planning fact.
+      Independent focused review narrowed the bounded successor to Nintendo Museum only. SHIBUYA SKY
+      proves a sales horizon but not an exact release cadence; PokéPark publishes two deterministic
+      same-scope acquisition mechanisms that the current identity model cannot represent honestly.
+      USJ, SUPER NINTENDO WORLD and AnimeJapan remain intentionally excluded for separate reasons.
+- [x] **SHIBUYA SKY overreach rejected.** The current official ticket page proves only that tickets
+      are sold for dates up to two weeks ahead. It does not state the exact cadence at which a newly
+      eligible date becomes sellable, so JP-002 is not encoded as a 14-day release. The workbook's
+      broader editorial `2–4 semanas` text remains a separate planning fact.
 - [x] **One new mechanism family justified by real evidence.** `monthly-application-window` is
-      approved because PokéPark KANTO and Nintendo Museum both publish deterministic drawing
-      application windows in a month a fixed number of months before the visit month. The family
-      derives both edges within that shifted month and supports a real last-day-of-month edge.
-- [x] **Availability-dependent later sales remain outside deterministic date evidence.** PokéPark
-      later first-come inventory and Nintendo Museum later no-drawing sales are not promoted into
-      release dates because their occurrence depends on remaining availability.
+      approved from Nintendo Museum's deterministic monthly drawing evidence. PokéPark also exhibits
+      such a window, but its second deterministic same-scope first-come channel makes JP-050 a
+      separate identity/composition design problem rather than a Phase 3F-L data record.
+- [x] **PokéPark dual-channel evidence preserved rather than collapsed.** The official source
+      publishes both the 1st–12th monthly lottery window three months ahead and deterministic
+      first-come sales beginning at 20:00 on the same date two months before admission. Current
+      active `placeId + scope` uniqueness cannot represent both, so JP-050 is deferred to a future
+      same-scope multi-mechanism identity gate. Nintendo's later direct sales remain
+      availability-dependent and are not promoted into a deterministic generic release date.
 - [x] **USJ conflict stays unresolved by design.** Ordinary park admission remains absent while
       current official evidence does not yield one clean contradiction-free generic rule; Express
       Pass timing may not substitute for ordinary-admission timing.
@@ -4955,13 +4959,13 @@ Official sources consulted: **2026-09-13**.
 - [x] **AnimeJapan historical projection remains prohibited.** The 2027 event dates are official,
       but no 2027 public ticket-sale schedule is yet established by the consulted source. 2026 ticket
       dates remain historical evidence only.
-- [x] **Inverted application-window debt promoted to a successor blocker.** Before JP-050 or JP-097
-      may enter the catalog, Phase 3F-D must fail closed on `openDate > closeDate`, Phase 3F-F must
-      refuse ordinary presentation of a synthetic inverted span, and the offline validator must
-      reject statically invalid monthly-window shapes. No layer may swap, sort or repair the edges.
-- [x] **Successor scope bounded to exactly three new records.** If implementation-time source
-      rechecks still support them, Phase 3F-L may add only JP-002 SHIBUYA SKY, JP-050 PokéPark
-      KANTO and JP-097 Nintendo Museum. The active catalog would grow from five to eight records.
+- [x] **Inverted application-window debt promoted to a successor blocker.** Before JP-097 may enter
+      the catalog, Phase 3F-D must fail closed on `openDate > closeDate`, Phase 3F-F must return
+      `null` before formatting a synthetic inverted span, and the offline validator must reject
+      statically invalid monthly-window shapes. No layer may swap, sort or repair the edges.
+- [x] **Successor scope bounded to exactly one new record.** If the implementation-time source
+      recheck still supports it, Phase 3F-L may add only JP-097 Nintendo Museum. JP-002 and JP-050
+      remain absent by explicit design. The active catalog would grow from five to six records.
 - [x] **Implementation-time source recheck required.** Reservation rules are time-sensitive; each
       approved source must be reopened immediately before the data write. A changed proposition may
       remove a candidate or require another design gate, but may not be silently forced into the
@@ -4970,18 +4974,24 @@ Official sources consulted: **2026-09-13**.
       deadline, urgency, ranking, reminder, notification, calendar export, runtime network request,
       planning-draft change, new localStorage key, Phase 3D precedence or source-conflict UI is
       approved.
-- [x] **Successor validation gate fixed.** Phase 3F-L must prove source/app parity, all eight records,
-      exact derivations for the three new fixtures, real month-end/leap-month handling, lower-layer
-      inverted-span fail-closed behavior, unchanged 3F-H/3F-J boundaries, intentional exclusions,
-      full Vitest/lint/build/whitespace gates and relevant browser regressions.
-- [x] **Normative contract recorded.** Sixty-two explicit contracts define eligibility, coverage,
+- [x] **Successor validation gate fixed.** Phase 3F-L must prove source/app parity, all six records,
+      exact Nintendo Museum derivation, real month-end/leap-month handling, lower-layer inverted-span
+      fail-closed behavior, unchanged active identity semantics and 3F-H/3F-J boundaries, explicit
+      SHIBUYA/PokéPark/USJ/SNW/AnimeJapan exclusions, full Vitest/lint/build/whitespace gates and
+      relevant browser regressions.
+- [x] **Normative contract recorded.** Sixty-four explicit contracts define eligibility, coverage,
       current-source handling, the new family, fail-closed span behavior, identity, exclusions,
       runtime boundaries and implementation-time verification.
-- [x] **Hostile design review corrective applied.** The new monthly window now keeps open/close
-      timezone evidence independent, matching the shipped Phase 3F application-window boundary, and
-      Phase 3F-F's inverted-span behavior is fixed explicitly as `null` before formatting rather
-      than an undefined "refusal" or a newly invented presentation state. Current official-source
-      rechecks preserved the gate's three approved candidates and three explicit exclusions.
+- [x] **Hostile design review corrective applied.** The new monthly window keeps open/close timezone
+      evidence independent, matching the shipped Phase 3F application-window boundary, and Phase
+      3F-F's inverted-span behavior is fixed explicitly as `null` before formatting rather than an
+      undefined "refusal" or a newly invented presentation state.
+- [x] **Independent focused review corrective applied.** Current official-source rechecks rejected
+      two overreaches in the Draft: SHIBUYA's two-week horizon is not an exact release cadence, and
+      PokéPark's first-come sale-start rule is deterministic rather than merely contingent. The
+      successor was therefore narrowed from three records to Nintendo Museum only, while preserving
+      current active `placeId + scope` uniqueness and deferring PokéPark to a dedicated
+      multi-mechanism identity/composition gate.
 
 Recommended successor: **Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation**.
 
