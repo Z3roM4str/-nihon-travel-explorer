@@ -148,7 +148,7 @@ One route-wide, read-only section that:
 
 - collects the Phase 3F-D derivations already produced for the current plan;
 - pairs each with its exact evidence record and its existing Phase 3F-F presentation;
-- optionally annotates each with the existing Phase 3F-H relation;
+- annotates every row whose existing Phase 3F-H relation is assessable, reusing that shipped relation unchanged;
 - orders them by civil date under a fixed tie-break contract;
 - shows place, `Día N`, visit date, scope, the official fact and its provenance on every row.
 
@@ -182,7 +182,7 @@ dateless row.
 | `reservationMechanismEvidenceRecords` | the bundled Phase 3F evidence |
 | Phase 3F-D derivations for each planned place | the already-derived official calendar facts |
 | Phase 3F-F presentations | the already-approved display text and provenance |
-| the single `reservationReferenceDate` | **only** when the Phase 3F-H relation is rendered (§11) |
+| the single `reservationReferenceDate` | explicit nullable input for the mechanical Phase 3F-H evaluation in §11; `null` yields no assessed relation |
 
 ### 5.2 Forbidden inputs
 
@@ -380,8 +380,7 @@ There is no second list, no secondary ordering rule, and no dateless item that w
 
 ### 9.1 Mandatory identity on every item
 
-Every item — chronological or neutral — must carry, copied verbatim from the derivation and its
-matching record:
+Every chronological item must carry, copied verbatim from the derivation and its matching record:
 
 - `recordId`;
 - `placeId`;
@@ -1002,7 +1001,7 @@ Visit `2027-03-15` → `application-window` open `2026-12-01`, close `2027-03-12
 Calendar representation (Option A, §24): **one** chronological item anchored at `2026-12-01`,
 rendering both edges as a span with both recorded times and the unknown-timezone disclosure, plus
 the recorded lottery allocation disclosure and the anchor note. **No** separate `2027-03-12` row
-exists. With a reference date of `2026-12-01` or `2027-03-12` the row may show "cae dentro del tramo
+exists. With a reference date of `2026-12-01` or `2027-03-12` the row shows "cae dentro del tramo
 de fechas registrado" — never "abierta", "último día" or "cierra hoy".
 
 ### 25.5 Grand Sumo Tournament Osaka 2027 (`JP-212`, `RM-JP-212-001`, `event-admission`)
@@ -1064,7 +1063,7 @@ Recommended module for Phase 3F-J:
 - call the existing Phase 3F-D derivation owner per planned place;
 - pair each derivation to its exact record by `recordId` and build the existing Phase 3F-F
   presentation;
-- optionally evaluate and compose the existing Phase 3F-H relation;
+- mechanically evaluate the existing Phase 3F-H relation for every eligible row from the explicit reference date and compose it whenever that shipped evaluator returns an assessable relation;
 - keep only the derivations that yield a valid, placeable civil date, and drop every other
   derivation without substitute, fallback or placeholder (§12);
 - order the resulting items by the §8 contract;
