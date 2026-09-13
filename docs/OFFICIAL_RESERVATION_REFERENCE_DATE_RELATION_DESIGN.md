@@ -726,40 +726,41 @@ Still not approved:
 26. No implicit automatic-midnight freshness claim.
 27. No timer/background refresh.
 28. `release-date` is assessable.
-27. `application-window` is assessable.
-28. `no-visit-date` is not assessed.
-29. `inactive-evidence` is not assessed.
-30. `not-applicable-to-visit-date` is not assessed.
-31. `not-derivable` is not assessed.
-32. Record ID stays paired.
-33. Place ID stays paired.
-34. Scope stays paired.
-35. Multiple scopes remain independent.
-36. Stable source order remains.
-37. No ranking.
-38. Phase 3D-H remains a separate sibling evidence domain.
-39. No official/editorial intersection.
-40. No precedence.
-41. No V8.
-42. No new storage key.
-43. No persistence of relation/reference date.
-44. No network.
-45. No data mutation.
-46. No dependency change.
-47. Real Ghibli before/on/after fixtures pass.
-48. Real Disney null-timezone fixture stays timezone-unknown.
-49. Real Katsura edge-date fixtures remain date-span-only.
-50. Real Sumo applicable relation passes.
-51. Real Sumo not-applicable remains unassessed.
-52. Focused tests pass.
-53. existing Phase 3F-D/3F-F tests pass.
-54. relevant Phase 3D-O regressions pass unchanged.
-55. full Vitest passes.
-56. lint passes.
-57. build passes.
-58. `git diff --check` passes.
-59. browser audit passes after final UI/code change.
-60. browser audit passes a second consecutive time on the same final code state.
+29. `application-window` is assessable.
+30. `no-visit-date` is not assessed.
+31. `inactive-evidence` is not assessed.
+32. `not-applicable-to-visit-date` is not assessed.
+33. `not-derivable` is not assessed.
+34. Record ID stays paired.
+35. Place ID stays paired.
+36. Scope stays paired.
+37. Relation/presentation identity mismatch fails closed and renders no relation.
+38. Multiple scopes remain independent.
+39. Stable source order remains.
+40. No ranking.
+41. Phase 3D-H remains a separate sibling evidence domain.
+42. No official/editorial intersection.
+43. No precedence.
+44. No V8.
+45. No new storage key.
+46. No persistence of relation/reference date.
+47. No network.
+48. No data mutation.
+49. No dependency change.
+50. Real Ghibli before/on/after fixtures pass.
+51. Real Disney null-timezone fixture stays timezone-unknown.
+52. Real Katsura edge-date fixtures remain date-span-only.
+53. Real Sumo applicable relation passes.
+54. Real Sumo not-applicable remains unassessed.
+55. Focused tests pass.
+56. Existing Phase 3F-D/3F-F tests pass.
+57. Relevant Phase 3D-O regressions pass unchanged.
+58. Full Vitest passes.
+59. Lint passes.
+60. Build passes.
+61. `git diff --check` passes.
+62. Browser audit passes after final UI/code change.
+63. Browser audit passes a second consecutive time on the same final code state.
 
 ---
 
