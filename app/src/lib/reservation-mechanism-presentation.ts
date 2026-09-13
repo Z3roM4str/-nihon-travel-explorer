@@ -55,7 +55,15 @@ function formatRecordedTime(time: string | null, sourceTimeZone: ReservationSour
     : `${time} · zona horaria no registrada en la evidencia estructurada`;
 }
 
-function formatRecordedDateTime(
+/**
+ * Phase 3F-F's single recorded date/time rendering, including the unknown-timezone disclosure.
+ *
+ * Exported (Phase 3F-J, strictly additive — no behaviour change) so the route-wide calendar can
+ * render an application window's two recorded edges as one span using exactly this rendering rather
+ * than duplicating it. A second implementation of this formatting is the one way `Asia/Tokyo` and an
+ * unrecorded timezone could start being disclosed differently in two places.
+ */
+export function formatRecordedDateTime(
   date: string,
   time: string | null,
   sourceTimeZone: ReservationSourceTimeZone

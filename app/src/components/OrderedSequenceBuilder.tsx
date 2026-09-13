@@ -80,6 +80,11 @@ import {
   buildOfficialReservationReferenceRelationPresentation,
   type OfficialReservationReferenceRelationPresentation,
 } from "../lib/reservation-mechanism-reference-date-presentation";
+import {
+  buildRouteWideOfficialReservationCalendar,
+  type RouteWideOfficialReservationCalendar,
+} from "../lib/reservation-mechanism-calendar";
+import { OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE } from "../lib/reservation-mechanism-calendar-presentation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
 import {
   buildDayRecordedIntervalFits,
@@ -950,6 +955,119 @@ function OfficialReservationDateNotice({
         estado actual de la venta. La fecha de referencia se toma del calendario local de tu
         dispositivo al abrir este plan, no representa la fecha operativa en Japón y no se actualiza
         automáticamente mientras esta vista siga abierta.{" "}
+        <strong>
+          Esta información oficial se muestra por separado de la anticipación editorial registrada;
+          Nihon no combina ambas fuentes.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3F-J's one route-wide official-reservation surface, rendered once per planner in the dated
+ * "Distribuir por días" view. It is a SECOND VIEW of facts the day cards already show — the per-day
+ * `OfficialReservationDateNotice` above is unchanged and remains the primary, per-visit surface.
+ *
+ * Chronology-only: every row here has a real recorded civil date. A Phase 3F result with no
+ * applicable official date (outside the recorded event period, not derivable, or a span whose
+ * recorded edges are invalid or inverted) produces no row at all — no neutral row, no placeholder,
+ * no substitute date. Those facts stay visible in their own day card.
+ *
+ * The order is a reading order over recorded civil dates and nothing else. It is not a priority, a
+ * recommended sequence, a workload or a measure of urgency or scarcity, which is why no row carries
+ * a state, a badge, a count, a checkbox or any styling derived from its date or its relation. The
+ * Phase 3D-H editorial "Reservas por preparar" surface lives in a different view entirely and is
+ * never merged, ranked against or suppressed by this one.
+ */
+function OfficialReservationCalendarSection({
+  calendar,
+}: {
+  calendar: RouteWideOfficialReservationCalendar;
+}) {
+  if (calendar.chronological.length === 0) return null;
+
+  // The one device civil date is disclosed once for the whole section. `calendar.referenceDate` is
+  // non-null exactly when at least one row carries a relation evaluated from it, so an unusable
+  // date is never shown, and the concrete date shown is the one Phase 3F-H itself rendered.
+  const referenceDateText = calendar.referenceDate
+    ? calendar.chronological.find((item) => item.relation !== null)?.relation?.referenceDateText ?? null
+    : null;
+
+  return (
+    <section
+      className="official-reservation-calendar"
+      aria-labelledby="official-reservation-calendar-heading"
+    >
+      <h3 id="official-reservation-calendar-heading">Fechas oficiales de reserva del recorrido</h3>
+      {referenceDateText && (
+        <p className="official-reservation-calendar__reference-date">
+          {referenceDateText} · Esta misma fecha de referencia se usa en todas las relaciones de esta
+          sección.
+        </p>
+      )}
+      <ul className="official-reservation-calendar__list">
+        {calendar.chronological.map((item) => (
+          <li
+            key={`${item.recordId}:${item.placeId}:${item.scope}`}
+            className="official-reservation-calendar__item"
+          >
+            <span className="official-reservation-calendar__anchor">
+              {formatCivilDateDisplay(item.anchorDate)}
+            </span>
+            <span className="official-reservation-calendar__context">
+              {item.placeName} · Día {item.dayNumber} · visita {formatCivilDateDisplay(item.visitDate)}
+            </span>
+            <span className="official-reservation-calendar__scope">{item.presentation.scopeLabel}</span>
+            <p className="official-reservation-calendar__fact-heading">{item.presentation.heading}</p>
+            {item.fact.kind === "application-date-span" ? (
+              <>
+                <p className="official-reservation-calendar__detail">{item.fact.spanText}</p>
+                <p className="official-reservation-calendar__anchor-note">
+                  {OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE}
+                </p>
+              </>
+            ) : (
+              item.presentation.detailLines.map((line, index) => (
+                <p
+                  key={`${item.recordId}:calendar-detail:${index}`}
+                  className="official-reservation-calendar__detail"
+                >
+                  {line}
+                </p>
+              ))
+            )}
+            {item.presentation.allocationText && (
+              <p className="official-reservation-calendar__allocation">
+                {item.presentation.allocationText}
+              </p>
+            )}
+            {item.relation && (
+              <p className="official-reservation-calendar__relation">{item.relation.relationText}</p>
+            )}
+            <p className="official-reservation-calendar__provenance">{item.presentation.provenanceText}</p>
+            <a
+              className="official-reservation-calendar__source"
+              href={item.presentation.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver fuente oficial
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p className="official-reservation-calendar__disclaimer">
+        Estas fechas provienen del registro oficial de cada lugar y están calculadas sobre la fecha de
+        visita planificada.{" "}
+        <strong>
+          El orden cronológico solo ordena fechas de calendario: no indica prioridad, urgencia ni en
+          qué orden conviene reservar.
+        </strong>{" "}
+        No indica disponibilidad ni el estado actual de la venta. Cuando se muestra una relación con
+        la fecha de referencia, compara únicamente fechas de calendario: no considera la hora
+        registrada ni la zona horaria de la fuente, y esa fecha se toma del calendario local de tu
+        dispositivo al abrir este plan sin actualizarse sola.{" "}
         <strong>
           Esta información oficial se muestra por separado de la anticipación editorial registrada;
           Nihon no combina ambas fuentes.
@@ -2516,6 +2634,27 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   );
   const dayAssignment = useMemo(() => buildDayAssignment(routeIds, dayIds), [routeIds, dayIds]);
 
+  // Phase 3F-J: one route-wide aggregation of the Phase 3F facts already derived for this plan.
+  // Purely derived on every render from the current plan plus the one reference date captured at
+  // planner open — nothing is cached beyond this memo and nothing is persisted, so moving a place,
+  // reordering a day, changing the start date or clearing it recomputes the whole list by
+  // construction. `dayEntities` supplies the stable day id only where it exists; it is never
+  // invented, and `dayPlaceLists` is index-aligned with `dayAssignment.days` by construction.
+  const routeWideReservationCalendar = useMemo(
+    () =>
+      buildRouteWideOfficialReservationCalendar(
+        reservationMechanismEvidenceRecords,
+        dayPlaceLists.map((places, dayIndex) => ({
+          id: dayEntities[dayIndex]?.id ?? null,
+          places,
+        })),
+        dayAssignment,
+        startDate,
+        reservationReferenceDate
+      ),
+    [dayPlaceLists, dayEntities, dayAssignment, startDate, reservationReferenceDate]
+  );
+
   // Phase 3D-W: the three neutral facts about the trip's civil range, derived on read and never
   // persisted. The bucket count comes from `days` — `null` when no day assignment exists at all, so
   // "0 días creados" is never invented for a draft that was simply never split. Nothing here feeds
@@ -3160,6 +3299,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 onAdd={addAccommodation}
                 onRemove={removeAccommodation}
               />
+
+              <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
 
               <div className="day-list">
                 {dayPlaceLists.map((places, dayIndex) => {
