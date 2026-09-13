@@ -4655,3 +4655,67 @@ Base audited: `a006dc3a13bc20953e972ecbd414d5201c681824` (`main` after Phase 3F-
 Recommended successor: **Phase 3F-H — Official Reservation Reference-Date Relation Runtime**.
 
 **Phase 3F-H is NOT STARTED. Phase 3F-G changes documentation only.**
+
+
+
+## Phase 3F-H — Official Reservation Reference-Date Relation Runtime — UI runtime
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_RUNTIME.md`](OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_RUNTIME.md).
+
+Base: `2a02bad414d1b8e01eb6bb88169506da30568677` (`main` after Phase 3F-G).
+
+- [x] **Phase 3F owns its own relation evaluator.** `reservation-mechanism-reference-date.ts` is a
+      pure closed union over one Phase 3F-D derivation plus one explicit civil reference date; it
+      does not import or wrap `evaluateReservationWindowReference`,
+      `ReservationWindowReferenceRelation`, `derivePlaceReservationDateWindow` or any Phase 3D-H
+      lead-time parsing, and its import set is pinned by test.
+- [x] **Release relation is before/on/after the recorded date.** Equality means only that the two
+      civil-date labels match; the recorded release time and source timezone are never read.
+- [x] **Application relation is before/within/after the recorded date span.** Both civil-date edges
+      are inclusive, and an edge date never becomes an open/closed, last-day or closing-day claim.
+- [x] **Only normal Phase 3F date results are assessed.** `no-visit-date`, `inactive-evidence`,
+      `not-applicable-to-visit-date` and `not-derivable` stay unassessed and keep their existing
+      neutral Phase 3F-F presentation.
+- [x] **One shared explicit reference-date value, no second clock.** The relation consumes the
+      single `captureDeviceLocalCivilDate()` value the planner already captures; no ambient
+      `new Date()`/`Date.now()` runs inside the Phase 3F domain and no second capture exists.
+- [x] **Identity composition fails closed.** Every assessed relation carries record/place/scope, and
+      the presentation composer returns nothing when any of the three disagrees with the Phase 3F-F
+      item it would annotate — no nearest match, no place-level relation, no cross-scope sharing.
+- [x] **Concrete reference date is always visible.** Each assessed relation renders
+      `Fecha de referencia (tu dispositivo): <fecha concreta>`; bare `hoy`/`ahora`/`actualmente` are
+      never used as the label.
+- [x] **Claim boundary held.** No open/closed, availability, inventory, sold-out, late, deadline,
+      countdown, remaining-days, urgency, recommendation or purchase vocabulary is introduced;
+      domain, copy and component scans assert each term.
+- [x] **Phase 3D-H/3D-O remains a separate sibling surface.** No intersection, union, precedence,
+      ranking or combined "best booking window" exists, and neither evaluator learns about the
+      other's domain.
+- [x] **No freshness or persistence expansion.** No timer, interval, midnight recapture, focus or
+      visibility listener, service worker or polling was added; V7, `nihon.manualPlanningDraft`,
+      every localStorage key, evidence JSON, places data, workbook and dependencies are unchanged,
+      and nothing derived is stored.
+- [x] **Focused test contracts added.** New relation, presentation and component suites cover the
+      full required matrix including year rollover, inclusive edges, clock/timezone invariance,
+      host-timezone invariance and the three identity-mismatch fail-closed cases.
+- [x] **Repository-native validation gate.** Focused **238/238** across 10 files, full Vitest
+      **2278/2278** across 59 files, oxlint exit **0**, build exit **0**, and both
+      `git diff --check` forms exit **0**.
+- [x] **Deterministic browser date.** `app/scripts/phase3f-h-browser-audit.mjs` fixes the browser's
+      local calendar date before application boot with a test-only Playwright `Date` shim, asserts
+      the fixed date took effect, and adds no production prop, query parameter, storage field or
+      dependency; production `captureDeviceLocalCivilDate` is unchanged and still on the real path.
+- [x] **Mandatory browser gate.** The dedicated audit passed **twice consecutively** on final code
+      HEAD, covering Ghibli before/same/after, Disney null-timezone same date, Katsura open and
+      close edges, Sumo applicable and not-applicable, Phase 3D coexistence, day-reassignment
+      recomputation and start-date clear/reload, with 0 console errors and 0 page errors in both
+      runs. The Phase 3F-F audit was re-run as a regression on the same HEAD and also passed.
+- [x] **Focused hostile review.** Open/closed semantics, clock comparison, timezone inference,
+      Phase 3D evaluator reuse, identity mismatch, sorting, duplicated arithmetic, stale persisted
+      relation, a second clock capture, production test seams, machine-date dependence, currentness
+      copy, urgency/action language, Phase 3D/3F synthesis, recomputation and not-applicable leakage
+      were all rechecked; the one finding (a now-false Phase 3F-F disclaimer sentence) was fixed.
+
+**Phase 3F-H has passed its validation gates and is eligible for Ready-for-review. The pull request
+remains Draft pending independent focused review. Phase 3F-I is NOT STARTED.**
