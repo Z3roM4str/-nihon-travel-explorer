@@ -11,6 +11,9 @@ export type OfficialReservationDatePresentation = {
   kind: "release-date" | "application-window" | "not-applicable" | "not-derivable";
   recordId: string;
   placeId: string;
+  /** Raw closed scope value, kept alongside the label so Phase 3F-H composition can prove identity
+   * (record + place + scope) without reverse-engineering it from display text. */
+  scope: ReservationMechanismScope;
   scopeLabel: string;
   heading: string;
   detailLines: readonly string[];
@@ -98,6 +101,7 @@ export function buildOfficialReservationDatePresentation(
   const common = {
     recordId: record.id,
     placeId: record.placeId,
+    scope: record.scope,
     scopeLabel: reservationMechanismScopeLabel(record.scope),
     provenanceText: formatReservationMechanismProvenanceForUi(record),
     sourceUrl: record.provenance.sourceUrl,

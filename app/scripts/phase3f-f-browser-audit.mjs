@@ -111,7 +111,11 @@ try {
 
       const officialText = await day.locator(".official-reservation-date").innerText();
       assert.match(officialText, /Nihon no combina ambas fuentes/);
-      assert.doesNotMatch(officialText, /Fecha de referencia/i);
+      // Phase 3F-H added a reference-date relation to this surface. This audit stays Phase 3F-F's:
+      // it only asserts that the official FACT lines are unchanged and that the section still makes
+      // no booking-state claim. The relation's own before/on/after behaviour is proved with a
+      // deterministic browser date in `phase3f-h-browser-audit.mjs`, not against this machine's clock.
+      assert.match(officialText, /Fecha de referencia \(tu dispositivo\):/);
       for (const forbidden of [
         /ya puedes comprar/i,
         /reserva ahora/i,
@@ -163,7 +167,9 @@ try {
       await item.waitFor();
       text = await item.innerText();
       assert.match(text, /21 dic 2026/);
-      assert.doesNotMatch(text, /20 dic 2026/);
+      // Anchored on the fact line's separator so this stays true regardless of what the device
+      // reference date happens to be on the machine running this Phase 3F-F audit.
+      assert.doesNotMatch(text, /20 dic 2026 ·/);
 
       // Clearing the real start-date input removes every trip-specific Phase 3F item; no stale
       // derived state survives because none is persisted.
