@@ -279,8 +279,9 @@ closeDay:
   kind: fixed-day-of-month | last-day-of-month
   day?: 1..31
 openTimeLocal: HH:mm | null
+openSourceTimeZone: Asia/Tokyo | null
 closeTimeLocal: HH:mm | null
-sourceTimeZone: Asia/Tokyo | null
+closeSourceTimeZone: Asia/Tokyo | null
 ```
 
 The family shifts to the month `monthsBeforeVisitMonth` before the visit month and derives both
@@ -288,9 +289,14 @@ edges inside that month.
 
 Examples:
 
-- PokéPark: shift 3 months; open day 1; close day 12; open 20:00 JST; close time not recorded.
-- Nintendo Museum: shift 3 months; open day 1; close last day of month; recurring clock times are not
-  invented.
+- PokéPark: shift 3 months; open day 1; close day 12; open 20:00 with
+  `openSourceTimeZone: Asia/Tokyo`; close time and close-edge timezone are not invented.
+- Nintendo Museum: shift 3 months; open day 1; close last day of month; recurring clock times and
+  edge timezones are not invented.
+
+The two edge timezone fields are deliberately separate. That matches the already-shipped
+`application-window` derivation shape and prevents an explicit timezone attached to one recorded clock
+from being silently copied onto an edge whose clock/timezone proposition was never stated.
 
 This is **not** a booking-state model. It records only the application interval.
 
@@ -319,8 +325,9 @@ implemented:
 Minimum successor requirements:
 
 1. Phase 3F-D checks `openDate <= closeDate` before returning `application-window`.
-2. Phase 3F-F refuses to present a synthetically inverted application-window derivation as an
-   ordinary valid window.
+2. Phase 3F-F returns `null` before formatting when given a synthetically inverted
+   `application-window` derivation. It must not create a new neutral/error presentation state and
+   must not format either edge as an ordinary valid window.
 3. The offline validator rejects statically invalid monthly-window rule shapes, including an
    impossible fixed day and any same-month fixed-day pair whose open day is after its close day.
 4. The new monthly family derives the real last day of February/leap February rather than treating
@@ -418,7 +425,8 @@ Phase 3F-L must at minimum prove:
 6. Nintendo Museum derives the 1st–last-day window in the month three months before the visit month;
 7. February 2027 and leap-February synthetic cases derive the correct final day;
 8. an inverted old-style `relative-application-window` fails closed in 3F-D;
-9. a synthetic inverted application derivation is not rendered as an ordinary valid window in 3F-F;
+9. a synthetic inverted application derivation returns `null` from 3F-F before either edge is
+   formatted;
 10. 3F-H and 3F-J retain their existing fail-closed behavior;
 11. USJ, SUPER NINTENDO WORLD and AnimeJapan remain absent;
 12. the 16 composite/operator-dependent records listed in §2.2–§2.4 remain absent;
@@ -495,6 +503,38 @@ JP-097, the test must be updated only for that real new fact; no existing assert
 58. The successor does not populate §2.2–§2.4 records.
 59. Existing five evidence records retain their meaning unless a current source recheck explicitly requires supersession.
 60. Every added record retains exact official provenance and implementation-time consultation date.
+61. Application-window edge timezones are recorded independently; one edge's timezone is never copied
+    onto the other edge by implication.
+62. A synthetically inverted application-window derivation returns `null` from Phase 3F-F before
+    formatting; no new presentation state is invented for that impossible input.
+
+---
+
+## 12.1 Hostile design review corrective
+
+A post-draft hostile review checked the gate against the real Phase 3F-D and Phase 3F-F interfaces and
+against the current official sources.
+
+Two design ambiguities were found and corrected before Ready transition:
+
+1. **Shared timezone field on the new monthly window.** The first draft proposed one
+   `sourceTimeZone` for both application-window edges. Existing Phase 3F semantics keep
+   `openSourceTimeZone` and `closeSourceTimeZone` independent. The new family now does the same,
+   so PokéPark's explicit 20:00 JST opening evidence cannot silently assign a timezone proposition to
+   its un-timed closing edge.
+2. **Undefined Phase 3F-F fail-closed result.** "Refuse to present" did not state whether the
+   presentation layer should return `null` or invent another presentation kind. The contract now
+   requires `null` before any edge formatting, matching the existing function boundary and
+   forbidding a new neutral/error presentation state.
+
+The source recheck also reconfirmed the core gate decisions: SHIBUYA SKY currently states sales up to
+two weeks ahead; PokéPark's official English store states a three-month-ahead monthly application
+period from the 1st through the 12th starting at 20:00 JST; Nintendo Museum still documents the
+monthly drawing model; SUPER NINTENDO WORLD still has same-day app distribution plus advance channels;
+and the public AnimeJapan 2027 site publishes the event dates while no indexed 2027 public sale
+schedule establishes a mechanism record.
+
+No runtime, data, schema or evidence artifact was changed by this corrective.
 
 ---
 
