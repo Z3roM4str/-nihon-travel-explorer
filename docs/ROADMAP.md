@@ -4747,6 +4747,10 @@ Base audited: `7c9536ff7128245a71c911504e732ab85f832c7a` (`main` after Phase 3F-
       the Phase 3F facts already derived for the current plan. Nothing is newly derived, newly
       claimed or newly ranked; every item traces back to a place, a planned visit, an official
       record, a scope, a Phase 3F-D derivation and its Phase 3F-F presentation.
+- [x] **Chronology-only surface.** The route-wide view contains exactly those official facts that
+      have a valid, placeable civil date, and nothing else. The aggregator result has one collection
+      and one item type; there is no neutral block, no dateless row and no second list, and the whole
+      section is absent when no dated item exists — no empty heading and no absence message.
 - [x] **Phase 3F-E's deferral reasons re-audited.** The five reasons that blocked a route-wide
       calendar are answered individually: the ordering/ranking questions are now settled by an
       explicit contract, and the current-date relation the gate was waiting for shipped as
@@ -4762,18 +4766,23 @@ Base audited: `7c9536ff7128245a71c911504e732ab85f832c7a` (`main` after Phase 3F-
 - [x] **Application windows stay one honest item.** A recorded application window becomes exactly
       one chronological item anchored at its recorded open date, always rendering both edges as a
       span; the two-milestone alternative is rejected because a standalone end-date row manufactures
-      a deadline affordance and splits one record into two. An unordered or invalid span produces no
-      chronological item and is never repaired to make it placeable.
+      a deadline affordance and splits one record into two. A span is eligible only when both edges
+      are valid civil dates and `openDate <= closeDate`; otherwise it produces **zero** route-wide
+      items, with no neutral fallback and no swap, sort, repair or inferred direction — a rule a
+      synthetic aggregator unit test must pin, since no bundled record produces it.
 - [x] **Identity survives aggregation.** Every item keeps `recordId`, `placeId`, `scope`, the
       planned day (ordinal, plus the stable day id when the caller has it), the visit civil date, the
       official date or span and full provenance. Records are never merged, scopes never fused, and
       items never deduplicated by date — two places sharing a date remain two facts.
-- [x] **Non-date results never enter the chronology.** `not-applicable-to-visit-date` and
-      `not-derivable` may appear only in a separate, plan-ordered neutral block; `no-visit-date` and
-      `inactive-evidence` stay omitted. No fact without an applicable official date may ever be given
-      a substitute, sentinel or inherited date.
-- [x] **Phase 3F-H is reused verbatim, never re-invented.** The relation may appear as secondary
-      context only by calling the shipped evaluator and its fail-closed composition, consuming the
+- [x] **Results with no applicable official date have no route-wide representation.**
+      `not-applicable-to-visit-date`, `not-derivable`, `no-visit-date` and `inactive-evidence` are
+      omitted from this surface entirely — no neutral item, placeholder, warning row or count — and
+      no such result may ever be given a substitute, sentinel, borrowed or inherited date. Nothing is
+      lost from the product: the per-day Phase 3F-F surface is unchanged and remains where those
+      facts stay visible. This is fixed by the design gate, not left to the runtime.
+- [x] **Phase 3F-H is reused verbatim, never re-invented.** The relation is rendered as secondary
+      context on every row where one is assessable, only by calling the shipped evaluator and its
+      fail-closed composition, consuming the
       one already-captured device civil date, with the concrete reference date disclosed once at
       section level and never labelled `hoy`/`ahora`/`actualmente`. The relation never affects
       ordering, grouping, filtering, visibility or styling.
@@ -4817,6 +4826,15 @@ Base audited: `7c9536ff7128245a71c911504e732ab85f832c7a` (`main` after Phase 3F-
       design record; three substantive documentation findings (unordered-span disposition, undefined
       neutral item type, a contradictory `Intl` source-scan expectation) and three minor ones were
       fixed before the pull request was opened.
+- [x] **Independent-review corrective applied.** The non-date policy had been left "optional for the
+      runtime" while simultaneously requiring an inverted application span to reuse "existing Phase
+      3F-F neutral copy" that does not exist — `buildOfficialReservationDatePresentation` does not
+      validate edge ordering and still returns an ordinary `application-window` presentation for such
+      a span, so the design as written would have forced Phase 3F-J to invent an undesigned
+      presentation state. The corrective closes the policy as chronology-only, removes the neutral
+      block, neutral item type and `withoutApplicableDate` collection from the design, and re-runs
+      the hostile review against all fifteen post-corrective checks. Phase 3F-D and Phase 3F-H are
+      unchanged, and the successor's runtime scope is strictly smaller than before.
 
 Recommended successor: **Phase 3F-J — Route-Wide Official Reservation Calendar Runtime**.
 

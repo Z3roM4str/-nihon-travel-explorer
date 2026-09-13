@@ -23,6 +23,11 @@ Phase 3F-I approves one narrow next proposition:
 This is an **aggregated view of existing facts**. Nothing is newly derived, newly claimed, or newly
 ranked.
 
+The surface is **chronology-only**: it contains exactly those official facts that have a valid,
+placeable civil date, and nothing else. A result with no applicable official date has no route-wide
+representation at all — it keeps the per-day Phase 3F-F surface it already has. See §12 for the full
+policy and its rationale.
+
 The approved surface is deliberately weaker than:
 
 - a booking calendar;
@@ -144,9 +149,11 @@ One route-wide, read-only section that:
 - collects the Phase 3F-D derivations already produced for the current plan;
 - pairs each with its exact evidence record and its existing Phase 3F-F presentation;
 - optionally annotates each with the existing Phase 3F-H relation;
-- orders the date-bearing ones by civil date under a fixed tie-break contract;
-- lists the non-date-bearing ones separately, without dates;
+- orders them by civil date under a fixed tie-break contract;
 - shows place, `Día N`, visit date, scope, the official fact and its provenance on every row.
+
+Every row in that section has a real civil date. There is no second block, no secondary list and no
+dateless row.
 
 ### 4.2 What the successor may not build
 
@@ -157,7 +164,8 @@ One route-wide, read-only section that:
 - any ranking, scoring, priority, urgency or recommendation;
 - any booking-state, availability or inventory claim;
 - any reminder, notification, export or automation;
-- any persistence of the aggregate.
+- any persistence of the aggregate;
+- any route-wide representation of a result that has no applicable official date (§12).
 
 ---
 
@@ -201,16 +209,16 @@ The section renders **nothing at all** unless all of:
 
 1. `dayAssignment.valid === true`;
 2. `startDate !== null` and `isValidCivilDate(startDate)`;
-3. at least one item (chronological or neutral) exists.
+3. `chronological.length > 0`.
 
 This mirrors the existing Phase 3F-F precondition exactly and is the same reason
 `ReservationPreparationSection` is *not* the host surface: it works before dates exist, and Phase 3F
 facts are visit-date-dependent (3F-E §3.2).
 
-Each block inside the section is independently conditional: the chronology renders only when it has
-at least one item, and the neutral block renders only when it has at least one item. A heading is
-never rendered above an empty list, and an empty block never produces an explanatory "no hay
-fechas" message — an absent fact is shown by absence, not by a notice that could read as a finding.
+Because the surface is chronology-only (§12), condition 3 is the whole condition: if no official
+fact in the current plan has a placeable civil date, the **entire section is absent** — no heading,
+no empty list, no "no hay fechas" message, no explanatory notice of any kind. Absence remains
+absence, never a finding the reader has to interpret.
 
 ---
 
@@ -231,16 +239,27 @@ An `application-window` derivation becomes exactly **one** chronological item an
 `openDate`, and that item renders **both** recorded edges as a span. See §24 for the full decision,
 the rejected alternative and the mandatory mitigations.
 
-**Exception — an unordered or invalid span is not a calendar entry.** If either edge is not a valid
-civil date, or `openDate > closeDate`, the derivation produces **no chronological item**. Anchoring
-such a span at its `openDate` would file it *after* its own recorded end, which is not a fact the
-evidence supports, and silently swapping the edges to make it sortable is exactly the repair Phase
-3F-H already refused. Such a derivation may appear in the neutral block (§12) instead, and it
-receives no Phase 3F-H relation — Phase 3F-H's evaluator already returns `not-assessed` for it, so
-the fail-closed composition drops it without any extra rule.
+**Exception — an unordered or invalid span is not a calendar entry.** A span is eligible only when
+`openDate` is a valid civil date, `closeDate` is a valid civil date, **and** `openDate <= closeDate`.
+Otherwise the derivation produces **zero route-wide items**.
 
-This is a defensive boundary, like Phase 3F-H's: no real bundled record produces it, and Phase 3F-D
-is not changed to prevent it.
+Anchoring such a span at its `openDate` would file it *after* its own recorded end, which is not a
+fact the evidence supports, and silently swapping the edges to make it sortable is exactly the repair
+Phase 3F-H already refused.
+
+It also receives **no fallback of any kind**: no neutral item, no dateless row, no placeholder, no
+warning. That is not merely a scope preference — it is forced by the existing runtime. Phase 3F-F's
+`buildOfficialReservationDatePresentation` does **not** validate edge ordering; for an inverted span
+it still returns `kind: "application-window"` with its ordinary `Inicio:` / `Fin registrado de la
+ventana:` detail lines. There is no existing neutral Phase 3F-F presentation for this case, so any
+route-wide fallback row would require inventing a new presentation state and new copy that this gate
+never designed and does not approve. Omission is the only disposition that needs nothing new.
+
+It receives no Phase 3F-H relation either — Phase 3F-H's evaluator already returns `not-assessed` for
+an inverted span, so the fail-closed composition drops it with no extra rule.
+
+This is a defensive boundary, like Phase 3F-H's: no real bundled record produces it, Phase 3F-D is
+not changed to prevent it, and Phase 3F-H is not changed either.
 
 ### 6.3 Nothing else
 
@@ -270,36 +289,25 @@ type RouteWideOfficialReservationCalendarItem = {
     | { kind: "application-date-span"; openDate: string; closeDate: string };
   presentation: OfficialReservationDatePresentation;   // heading/detail/allocation/provenance/url
 
-  // optional secondary context, only when a reference date was supplied
+  // secondary context, always populated when assessable; null only when no reference date was
+  // supplied or Phase 3F-H returned not-assessed
   relation: OfficialReservationReferenceRelationPresentation | null;
 };
 ```
 
 ```ts
-type RouteWideOfficialReservationNeutralItem = {
-  // same mandatory identity, minus any date the record does not have for this plan
-  recordId: string;
-  placeId: string;
-  scope: ReservationMechanismScope;
-  placeName: string;
-  dayNumber: number;
-  dayId: string | null;
-  visitDate: string;
-  presentation: OfficialReservationDatePresentation;   // the existing neutral Phase 3F-F copy
-  // deliberately absent: anchorDate, fact, relation
-};
-```
-
-```ts
 type RouteWideOfficialReservationCalendar = {
-  /** Date-bearing items, ordered by §8. */
+  /** Every item, each with a real civil date, ordered by §8. This is the whole surface. */
   chronological: readonly RouteWideOfficialReservationCalendarItem[];
-  /** Recorded official mechanisms with no applicable date for this plan, in plan order (§12). */
-  withoutApplicableDate: readonly RouteWideOfficialReservationNeutralItem[];
   /** The single concrete reference date used for every relation above, or null. */
   referenceDate: string | null;
 };
 ```
+
+The result has exactly these two fields. There is deliberately **no** second collection — no
+`withoutApplicableDate`, no neutral-item type, no "other"/"unscheduled"/"sin fecha" bucket, and no
+field that could grow into one. A derivation that cannot produce a dated item simply produces
+nothing here (§12).
 
 No field named `priority`, `rank`, `score`, `urgency`, `status`, `state`, `isOpen`, `isLate`,
 `daysUntil`, `deadline`, `dueDate` or `nextAction` may exist on any of these types.
@@ -361,11 +369,10 @@ inventory, popularity, any urgency notion, `provenance.consultedAt`, `provenance
 Ordering by `consultedAt` or `confidence` is specifically forbidden because it would turn provenance
 into a quality ranking — see §15.
 
-### 8.5 Secondary block ordering
+### 8.5 There is nothing else to order
 
-`withoutApplicableDate` (§12) has no dates, so it is ordered by plan order only: day ordinal, then
-position within day, then source-record order. It is never interleaved with the chronology and never
-date-sorted.
+The chronology is the entire surface (§12), so §8.1–8.2 is the complete ordering specification.
+There is no second list, no secondary ordering rule, and no dateless item that would need one.
 
 ---
 
@@ -454,7 +461,10 @@ tick off. No checkbox, no completion state, no "done", no progress count.
 
 ## 11. Phase 3F-H relation in the route-wide view
 
-**Decision: yes — the existing relation may be shown as secondary context, under strict conditions.**
+**Decision: yes — and it is not optional.** Phase 3F-J **renders** the existing relation as secondary
+context on every row where one is assessable, under the conditions below. The conditionality is
+entirely mechanical — a reference date exists, and the relation composes — never a product judgement
+the runtime gets to make.
 
 ### 11.1 Conditions
 
@@ -503,49 +513,69 @@ reference date at all, and is styled identically (§22.4).
 
 ---
 
-## 12. Non-date-relatable results
+## 12. Results with no applicable official date — no route-wide representation
 
-### 12.1 Disposition per derivation kind
+### 12.1 The policy
 
-| Derivation kind | Chronology | Neutral block | Rationale |
-| --- | --- | --- | --- |
-| `release-date` | ✅ at `releaseDate` | — | has an applicable official date |
-| `application-window` | ✅ at `openDate` | — (except an unordered/invalid span, §6.2) | has an applicable official date span |
-| `not-applicable-to-visit-date` | ❌ never | ✅ may appear | a real recorded mechanism that does not apply to this planned visit — useful to know, has no date |
-| `not-derivable` | ❌ never | ✅ may appear | a real recorded mechanism whose date cannot be derived from current structured data — useful to know, has no date |
-| `no-visit-date` | ❌ never | ❌ omitted | there is no planned visit to bind a fact to; §5.3 already means the whole section is absent in the global case, and a place outside every bucket has no plan context |
-| `inactive-evidence` | ❌ never | ❌ omitted | superseded evidence stays invisible, exactly as Phase 3F-F already omits it |
+**Phase 3F-J is chronology-only.** The route-wide surface exists exclusively for official facts that
+have a valid, placeable civil date. A derivation that cannot produce one has **no route-wide
+representation at all** — not a neutral row, not a secondary block, not a placeholder.
 
-### 12.2 The absolute rule
+This is a decision, not a preference left to the runtime. There is no "may appear", no "if shipped"
+and no product choice for Phase 3F-J to make here.
 
-**No item without an applicable official date may ever be given a date in order to place it in the
-chronology.** Not the visit date, not the start date, not the reference date, not a far-future or
-far-past sentinel, not `null`-sorted-last-as-if-dated. A fact with no date is not a calendar entry.
+### 12.2 Disposition per derivation kind
 
-### 12.3 The neutral block
+| Derivation kind | Route-wide calendar | Where it still lives |
+| --- | --- | --- |
+| `release-date` with a valid `releaseDate` | ✅ one item at `releaseDate` | also in its day card |
+| `application-window` with two valid edges and `openDate <= closeDate` | ✅ one item at `openDate` | also in its day card |
+| `application-window` with an invalid edge | ❌ omitted entirely | its day card, unchanged |
+| `application-window` with `openDate > closeDate` | ❌ omitted entirely | its day card, unchanged |
+| `not-applicable-to-visit-date` | ❌ omitted entirely | its day card, where Phase 3F-F already renders the neutral copy and the recorded event period |
+| `not-derivable` | ❌ omitted entirely | its day card, where Phase 3F-F already renders the neutral copy |
+| `no-visit-date` | ❌ omitted entirely | nowhere — Phase 3F-F already omits it |
+| `inactive-evidence` | ❌ omitted entirely | nowhere — Phase 3F-F already omits it |
 
-Heading (proposed):
+"Omitted entirely" means exactly that: no item, no row, no neutral item, no placeholder, no synthetic
+date, no sentinel date, no "sin fecha" row, no warning row, no error row, and no count.
 
-> Información oficial sin fecha aplicable a este plan
+### 12.3 Why omission is the right disposition
 
-It reuses the existing Phase 3F-F neutral copy verbatim for each item
-(`"El registro oficial de venta no aplica a la fecha de visita asignada."` / the recorded event
-period / the not-derivable sentence), plus place, `Día N`, visit date, scope and provenance.
+Five independent reasons, each sufficient on its own:
 
-It is:
+1. **They have no chronological key.** The surface's entire organising principle is a civil date.
+   These results do not have one; that is what makes them these results.
+2. **Giving them one would be fabrication.** Borrowing the visit date, the start date, the reference
+   date, a far-future or far-past sentinel, or `null`-sorted-last-as-if-dated all invent a calendar
+   position the evidence never recorded. §12.4 makes this absolute.
+3. **A secondary block is a second product function.** The value proposition of this surface (§2.1)
+   is seeing scattered official dates in one chronological place. A dateless list serves a different
+   purpose — auditing coverage — and bolting it on doubles the surface's job for no gain against the
+   problem this gate is solving.
+4. **Phase 3F-F already keeps the information.** `not-applicable-to-visit-date` and `not-derivable`
+   are already rendered, with their neutral copy and their provenance, in the day card of the place
+   they belong to. Nothing is lost from the product; only the route-wide duplicate is declined.
+5. **Omission is the only disposition that needs nothing new.** A route-wide neutral block would
+   require new presentation state and new copy for at least the inverted-span case, because
+   `buildOfficialReservationDatePresentation` does not validate edge ordering and returns an ordinary
+   `application-window` presentation for it (§6.2). Designing that state is outside this gate, and
+   inventing it in the runtime is exactly the kind of undesigned decision this correction closes.
 
-- visually and semantically separate from the chronology;
-- never date-sorted (§8.5);
-- never styled as a warning, error, risk, gap or missing-data state;
-- never counted into any chronology total;
-- never accompanied by a Phase 3F-H relation, because none is assessable for these statuses.
+### 12.4 The absolute rule
 
-### 12.4 Whether the neutral block is mandatory
+**No result without an applicable official date may ever be given a date, of any provenance, for any
+purpose, anywhere in this surface.** Not the visit date, not the start date, not the reference date,
+not a sentinel, not a null sorted as if dated.
 
-It is **optional for the runtime but specified here**: Phase 3F-J may ship the chronology alone and
-add the neutral block only if review agrees it earns its place. If it ships, it must ship exactly as
-specified above. If it does not ship, those derivations are simply absent from the route-wide view —
-they remain visible in their own day card, where Phase 3F-F already renders them.
+A fact with no date is not a calendar entry, and this surface is only a calendar.
+
+### 12.5 Phase 3F-F is untouched
+
+This policy changes nothing about the existing per-day surface. `OfficialReservationDateNotice`
+keeps rendering exactly what it renders today, including the neutral `not-applicable` and
+`not-derivable` states and their existing copy. Phase 3F-J adds a second, narrower view; it does not
+edit the first one.
 
 ---
 
@@ -913,8 +943,9 @@ Because Option A is chosen, all four are required, not optional:
    registrada del tramo", so the reader is never misled about why the row sits where it does.
 3. **The connector is directional and neutral.** `→` or `–` between two full dates. Never "hasta
    el", "antes del", "límite", "cierra el" or any single-edge framing.
-4. **No standalone close-date row may be synthesised anywhere** — not in the chronology, not in the
-   neutral block, not as a footnote row, not as a secondary list.
+4. **No standalone close-date row may be synthesised anywhere** — not in the chronology, not as a
+   footnote row, not as a secondary list, and not in any other block, since there is no other block
+   (§12).
 
 ### 24.5 Not combined
 
@@ -981,9 +1012,11 @@ time.
 
 - Visit `2027-03-20` (inside the period) → `release-date` `2027-02-06` → one chronological item
   anchored at `2027-02-06`, rendering `6 feb 2027` with **no invented time**.
-- Visit `2027-03-29` (outside the period) → `not-applicable-to-visit-date` → **no chronological
-  item at all**. It may appear in the neutral block (§12.3) with its recorded event period, and it
-  receives no Phase 3F-H relation.
+- Visit `2027-03-29` (outside the period) → `not-applicable-to-visit-date` → **completely absent
+  from the route-wide surface**: no chronological item, no neutral item, no row of any kind, and no
+  Phase 3F-H relation. The fact is not lost — the place's own day card still shows the existing
+  Phase 3F-F neutral copy and the recorded `14 mar 2027 – 28 mar 2027` event period, exactly as it
+  does today.
 
 ### 25.6 Worked multi-place plan
 
@@ -1032,10 +1065,10 @@ Recommended module for Phase 3F-J:
 - pair each derivation to its exact record by `recordId` and build the existing Phase 3F-F
   presentation;
 - optionally evaluate and compose the existing Phase 3F-H relation;
-- classify into chronological vs non-date-relatable;
-- order the chronological items by the §8 contract;
-- order the neutral items by plan order;
-- return a plain, serializable, closed-shape result.
+- keep only the derivations that yield a valid, placeable civil date, and drop every other
+  derivation without substitute, fallback or placeholder (§12);
+- order the resulting items by the §8 contract;
+- return a plain, serializable, closed-shape result with exactly the two fields in §7.
 
 ### 26.2 Prohibitions
 
@@ -1089,7 +1122,9 @@ If Phase 3F-J finds broader scope necessary, it must stop and explain why before
 
 ### 28.1 Test suites
 
-- focused aggregator tests (new);
+- focused aggregator tests (new), including **synthetic** coverage for the cases no bundled record
+  produces: an `application-window` with an invalid edge, and one with `openDate > closeDate` —
+  each must yield zero route-wide items, with the edges left untouched;
 - focused presentation/component tests (new);
 - Phase 3F-D regressions (`reservation-mechanism-date-derivation.test.ts`);
 - Phase 3F-B/evidence regressions (`reservation-mechanism-evidence.test.ts`);
@@ -1133,8 +1168,9 @@ production test-date prop, query parameter, storage field or planning-draft fiel
    span with both recorded times, the anchor disclosed, and **no** separate close-date row anywhere
    in the section.
 6. **Sumo applicable** — one row at `6 feb 2027` with no invented clock time.
-7. **Sumo not applicable** — no chronological row; either absent entirely or present only in the
-   neutral block, with no date and no relation.
+7. **Sumo not applicable** — **no route-wide row of any kind** for Sumo: the section contains no
+   Sumo entry, neutral or otherwise, and no relation for it. The existing per-day Phase 3F-F neutral
+   item may still be visible in its own day card, and the audit asserts that it is unchanged.
 8. **Coexistence with route-wide Phase 3D** — the builder view's "Reservas por preparar" is
    unchanged and the two surfaces never share a container, heading or count.
 9. **Move a place between days** — `Día N`, visit date, anchor date and the row's position in the
@@ -1146,6 +1182,11 @@ production test-date prop, query parameter, storage field or planning-draft fiel
 13. **Reference-date disclosure** — with a deterministic shimmed date, the section shows the exact
     concrete reference date once, and the relation copy matches Phase 3F-H's vocabulary exactly.
 14. **Zero console errors and zero page errors** in every scenario.
+
+**Deliberately not a browser scenario.** The invalid/inverted application span does not exist in the
+bundled evidence, and fabricating one in the browser would mean seeding synthetic evidence through a
+test seam this design forbids. It is covered by the pure aggregator unit tests (§28.1) instead. The
+browser gate stays on real fixtures.
 
 ---
 
@@ -1173,6 +1214,8 @@ Still not approved:
 - operator-site browser automation;
 - per-item user state (done, dismissed, snoozed, seen);
 - grouping the chronology by date (§23.2);
+- any route-wide representation of results with no applicable official date — a neutral block, a
+  dateless list or a coverage/audit view (§12);
 - promoting the route-wide calendar into its own view or modal.
 
 ---
@@ -1193,15 +1236,18 @@ Still not approved:
 
 7. The surface renders nothing unless the day assignment is valid.
 8. The surface renders nothing unless `startDate` is a valid civil date.
-9. The surface renders nothing when it would produce zero items.
-10. `release-date` derivations are eligible for the chronology.
-11. `application-window` derivations are eligible for the chronology.
-12. `not-applicable-to-visit-date` is never in the chronology.
-13. `not-derivable` is never in the chronology.
-14. `no-visit-date` is omitted entirely.
-15. `inactive-evidence` is omitted entirely.
-16. No item without an applicable official date is ever assigned a substitute, sentinel or inherited
-    date.
+9. The surface renders nothing when `chronological.length === 0`; there is no empty heading and no
+   explanatory absence message.
+10. A `release-date` derivation is eligible exactly when its `releaseDate` is a valid civil date.
+11. An `application-window` derivation is eligible exactly when both edges are valid civil dates and
+    `openDate <= closeDate`.
+12. No other derivation kind is eligible, and no other eligibility rule exists.
+13. The surface is chronology-only: every item it contains has a real, placeable civil date.
+14. An ineligible derivation produces zero route-wide items, with no fallback of any kind.
+15. Eligibility is evaluated per derivation; one place's ineligible record never suppresses or
+    promotes another's.
+16. No omitted result is ever assigned a substitute, sentinel, borrowed or inherited date, for any
+    purpose, anywhere in this surface.
 
 ### Chronology semantics
 
@@ -1253,20 +1299,29 @@ Still not approved:
 45. The span connector is neutral and directional; no single-edge or deadline framing is used.
 46. No standalone close-date item is created anywhere, in any block.
 47. A span whose edges are not both valid civil dates, or whose `openDate` is later than its
-    `closeDate`, produces no chronological item and may appear only in the neutral block; the edges
-    are never swapped, sorted or repaired to make it placeable, and Phase 3F-D is not changed.
+    `closeDate`, produces **zero route-wide items** and no fallback row; the edges are never swapped,
+    sorted, re-ordered, repaired or direction-inferred, Phase 3F-D is not changed, Phase 3F-H is not
+    changed, and a synthetic aggregator unit test pins this rule.
 
-### Non-date results
+### Results with no applicable official date
 
-48. The neutral block, if shipped, is visually and semantically separate from the chronology.
-49. The neutral block is ordered by plan order only and never by date.
-50. The neutral block reuses the existing Phase 3F-F neutral copy verbatim.
-51. The neutral block is never styled as a warning, risk, error or missing-data state.
-52. No Phase 3F-H relation is attached to a neutral item.
+48. `not-applicable-to-visit-date`, `not-derivable`, `no-visit-date` and `inactive-evidence` each
+    produce zero route-wide items.
+49. An ineligible `application-window` (invalid edge, or `openDate > closeDate`) likewise produces
+    zero route-wide items.
+50. No neutral item, neutral block, secondary list, dateless row, "sin fecha" row, placeholder,
+    warning row, error row or count is created for any omitted result; the aggregator result has
+    exactly the two fields specified in §7 and no third collection may be added.
+51. No new presentation state or copy is invented for an omitted result; omission is chosen
+    precisely because it requires none.
+52. The existing per-day Phase 3F-F surface is unchanged and remains where these results stay
+    visible; omitting them route-wide removes nothing from the product.
 
 ### Phase 3F-H reuse
 
-53. The relation, if shown, comes from `evaluateOfficialReservationReferenceDate` unchanged.
+53. The relation is rendered on every row where one is assessable, and comes from
+    `evaluateOfficialReservationReferenceDate` unchanged; whether it appears is never a runtime
+    product choice.
 54. Composition uses `buildOfficialReservationReferenceRelationPresentation` unchanged.
 55. No new relation evaluator, relation kind or relation vocabulary is introduced.
 56. The relation consumes the one already-captured `reservationReferenceDate`; no second capture,
@@ -1374,10 +1429,10 @@ here; none required a runtime or data change, because none exists yet.
 | 1 | Does chronological ordering accidentally imply priority? | Addressed. §8.3 declares the order non-semantic; contracts 20–22 forbid first/next/upcoming/current/last labels, counts, progress and workload readings; §22.3 bans the vocabulary; §22.4 forbids any styling that encodes state. |
 | 2 | Are application-window edges represented honestly? | Addressed. §24 chooses one range item, rejects the milestone split with reasons, and makes four mitigations mandatory — both edges always rendered, anchor disclosed, neutral connector, no synthesised close-date row. **Finding:** an unordered/invalid span had no specified disposition and would have been anchored after its own end. Fixed in §6.2 and contract 47. |
 | 3 | Are same-date ties deterministic? | Addressed. §8.2 fixes four keys and argues totality from the uniqueness of a `(place, record)` pair in a valid plan; a stable sort over plan-ordered input is required. |
-| 4 | Does any item lose record/place/scope identity? | Addressed. §9.1–9.4; composition reuses the two existing fail-closed boundaries and omits anything non-composable. **Finding:** the neutral item type was referenced but never defined, so its identity obligations were implicit. Defined in §7. |
+| 4 | Does any item lose record/place/scope identity? | Addressed. §9.1–9.4; composition reuses the two existing fail-closed boundaries and omits anything non-composable. **Finding:** a neutral item type was referenced but never defined, so its identity obligations were implicit. Initially defined in §7; subsequently removed altogether by the §31.1 corrective, which leaves one item type and one set of identity obligations. |
 | 5 | Is Phase 3D accidentally merged with Phase 3F? | Addressed. §13.1 records the audited fact that the two route-wide surfaces already live in different views; §13.2 forbids merging, shared counts, precedence and mutual suppression. |
 | 6 | Does relation reuse accidentally imply current booking state? | Addressed. §11 reuses the shipped evaluator verbatim, forbids a new one, keeps the vocabulary byte-identical, and §11.3 keeps the relation out of ordering, grouping, filtering and styling. §17 restates the ceiling. |
-| 7 | Are non-date statuses kept out of the chronology? | Addressed. §12.2 forbids any substitute, sentinel or inherited date; §8.5 keeps the neutral block plan-ordered and never interleaved. |
+| 7 | Are non-date statuses kept out of the chronology? | Addressed, and later strengthened. The original answer kept them out of the chronology but allowed them into an optional neutral block; the §31.1 corrective removes that block entirely, so they are now out of the whole surface (§12). |
 | 8 | Does any copy imply availability or urgency? | Addressed. §22.1 rejects "Calendario oficial de reservas" for exactly this reason and chooses a fact-noun heading; §22.2 mandates the "order is not priority" sentence; §22.3 lists the banned vocabulary and contract 74 makes it testable. |
 | 9 | Is provenance retained? | Addressed. §9.1 and §10 require source entity, consultation date and source URL on every row, via the existing Phase 3F-F provenance text. |
 | 10 | Is any timezone conversion sneaking in? | Addressed. §16 forbids conversion, instants, offsets and DST. **Finding:** a naive `Intl` source-scan would contradict the existing UTC-pinned `formatCivilDateDisplay` and push a successor toward hand-rolled formatting. Clarified in §16: the ban is absolute for the aggregator, and formatting stays where it already lives. |
@@ -1391,6 +1446,62 @@ fixture section, and a sentence in §25.6 whose phrasing was both meaningless an
 as commentary on importance. A missing rule for empty blocks was also added to §5.3, so a heading is
 never rendered above an empty list and absence is never announced as a finding.
 
+### 31.1 Independent-review corrective — the non-date policy is now closed
+
+**Finding.** The non-date policy was left open in two connected ways.
+
+First, §12.4 declared the route-wide neutral block *"optional for the runtime"*. A design gate whose
+purpose is to make implementation mechanical cannot leave a product decision to the implementer.
+
+Second — and this is what made the first problem concrete — the same section required the neutral
+block to *"reuse the existing Phase 3F-F neutral copy verbatim"*, while §6.2 simultaneously routed an
+**inverted** application span (`openDate > closeDate`, both edges individually valid) into that
+block. Those two instructions cannot both be satisfied. Phase 3F-F has no neutral presentation for an
+inverted span: `buildOfficialReservationDatePresentation` does not validate edge ordering, so for
+that derivation it still returns `kind: "application-window"` with its ordinary `Inicio:` /
+`Fin registrado de la ventana:` detail lines. Phase 3F-H is the phase that refuses the span, and it
+refuses it only for the *relation*, not for the presentation. Honouring the design as written would
+therefore have forced Phase 3F-J to invent a presentation state and copy that this gate never
+designed — exactly the undesigned decision the gate exists to prevent.
+
+**Corrective.** Phase 3F-J is **chronology-only**. The route-wide surface contains only official
+facts with a valid, placeable civil date. The neutral block, the neutral item type and the
+`withoutApplicableDate` collection are removed from the design entirely. Results with no applicable
+date are omitted from this surface and stay visible in the per-day Phase 3F-F surface they already
+have. §12 states the policy, the per-kind disposition and five independent reasons; §5.3, §6.2, §7,
+§8.5, §24.4, §25.5, §26.1, §28 and contracts 9–16, 47 and 48–52 were all brought into line.
+
+**Post-corrective hostile re-review.** All fifteen required checks, verified against the document as
+it now stands:
+
+| # | Check | Verdict |
+| --- | --- | --- |
+| 1 | Does Phase 3F-J still have optional product decisions? | No. "optional for the runtime", "may appear" and "if shipped" are gone from the successor specification; §12.1 states the policy is a decision, not a preference. |
+| 2 | Does every route-wide item have a real chronological date? | Yes. Contract 13 states it; contracts 10–11 define eligibility as *having* a valid date; §7's result type has one collection and every member carries `anchorDate`. |
+| 3 | Do non-date statuses receive a date? | No. Contract 16 forbids substitute, sentinel, borrowed and inherited dates for any purpose anywhere in the surface; §12.4 restates it absolutely. |
+| 4 | Does an inverted span get a neutral fallback? | No. §6.2 and contracts 47, 49 and 50: zero route-wide items, no fallback row, no swap, sort, repair or inferred direction, and a synthetic unit test pins it. |
+| 5 | Is Phase 3F-F's per-day surface untouched? | Yes. §12.5 and contract 52 state that it renders exactly what it renders today, including the `not-applicable` and `not-derivable` states. |
+| 6 | Is chronology still declared ≠ priority? | Yes. §8.3 and contracts 20–22 are unchanged by this corrective. |
+| 7 | Is the tie-break still total and deterministic? | Yes. §8.2 is unchanged; removing a second collection removes an ordering rule (§8.5) without touching the chronological comparator. |
+| 8 | Is Katsura still one range item? | Yes. §24 and §25.4 are unchanged; contract 46's "in any block" was reworded only because there is no other block. |
+| 9 | Is Phase 3F-H reuse unchanged? | Yes. §11 and contracts 53–59 are untouched; the corrective adds no relation behaviour and removes none. |
+| 10 | Does Phase 3D stay separate? | Yes. §13 and contracts 60–65 are untouched. |
+| 11 | Any current-state semantics introduced? | No. §17 and contracts 72–74 are untouched; a smaller surface adds no claims. |
+| 12 | Any timezone or instant introduced? | No. §16 and contracts 69–71 are untouched; eligibility compares two validated civil-date strings. |
+| 13 | Any persistence introduced? | No. §19 and contracts 75–77 are untouched. |
+| 14 | Any automation introduced? | No. §18 and contracts 78–80 are untouched; §29 additionally defers any future dateless/coverage view. |
+| 15 | Does the runtime scope get smaller? | Yes — strictly. One collection instead of two, one item type instead of two, one ordering rule instead of two, one conditional block instead of two, no second heading, no second copy family, and one fewer browser scenario shape. Nothing was added. |
+
+The sweep found one further residual discretion beyond the reported finding, and it was fixed too:
+§11 opened with "the existing relation **may** be shown", which left a second product choice open in
+the same way the neutral block did. It now states that Phase 3F-J renders the relation on every row
+where one is assessable, with the conditionality purely mechanical; contract 53 was tightened to
+match.
+
+No contradictory statement survived the sweep: `withoutApplicableDate`, the neutral item type,
+"may appear", "if shipped" and "optional neutral block" no longer appear anywhere in the successor
+specification. The contract set remains exactly **100**.
+
 ---
 
 ## 32. Acceptance gate
@@ -1403,7 +1514,9 @@ Accept Phase 3F-I only if review agrees that:
 4. one item per record, anchored at the open date, is a more honest representation of a recorded
    application window than two milestone rows;
 5. record, place, scope, day and provenance identity survive aggregation intact;
-6. non-date-relatable results must never be given a synthetic date;
+6. results with no applicable official date must be omitted from this surface entirely rather than
+   given a synthetic date or a neutral row, and the per-day Phase 3F-F surface is where they stay
+   visible;
 7. reusing the Phase 3F-H relation verbatim introduces no new current-state claim;
 8. the Phase 3D editorial surface and the Phase 3F official surface stay separate — structurally, in
    different views;
@@ -1419,7 +1532,9 @@ Accept Phase 3F-I only if review agrees that:
 
 ## 33. Conclusion
 
-Phase 3F-I approves **a second view of existing facts, ordered by date and nothing else**.
+Phase 3F-I approves **a second view of existing facts, ordered by date and nothing else** — and
+containing nothing else either: every row has a real civil date, and a result without one has no
+route-wide representation at all.
 
 The app may eventually show, in one place:
 
