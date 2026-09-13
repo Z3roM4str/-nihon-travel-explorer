@@ -4838,4 +4838,75 @@ Base audited: `7c9536ff7128245a71c911504e732ab85f832c7a` (`main` after Phase 3F-
 
 Recommended successor: **Phase 3F-J — Route-Wide Official Reservation Calendar Runtime**.
 
-**Phase 3F-J is NOT STARTED. Phase 3F-I changes documentation only.**
+**Phase 3F-I changes documentation only.**
+
+
+
+## Phase 3F-J — Route-Wide Official Reservation Calendar Runtime — UI runtime
+
+Execution record:
+[`docs/ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_RUNTIME.md`](ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_RUNTIME.md).
+
+Base: `671b5980b23f8f856dd7c55f156d3431b7bae72f` (`main` after Phase 3F-I).
+
+- [x] **Pure route-wide aggregator.** `reservation-mechanism-calendar.ts` turns the current plan into
+      one chronologically ordered list of the Phase 3F facts already derived for it. It reuses the
+      Phase 3F-D derivation owner, the Phase 3F-F presentation and the Phase 3F-H relation verbatim,
+      and contains no React, storage, network, clock, instant, timezone conversion, re-derived
+      arithmetic, Phase 3D value or ranking field.
+- [x] **Chronology-only surface.** The result has exactly `chronological` and `referenceDate`. A
+      derivation enters only with a valid placeable civil date: a parsable release date, or a span
+      whose two edges parse and satisfy `openDate <= closeDate`.
+- [x] **Everything else produces zero items.** Outside the recorded event period, not derivable, no
+      visit, superseded evidence and any invalid or inverted span are omitted entirely — no neutral
+      row, placeholder, warning, count, sentinel or substitute date. An inverted span is never
+      swapped, sorted or repaired, and the input is proven unmutated. Those facts stay visible in
+      their existing per-day Phase 3F-F surface, which is unchanged.
+- [x] **Application windows stay one row.** Exactly one item anchored at the recorded open date,
+      rendering both edges as one neutral span through Phase 3F-F's own date/time formatter, with the
+      chronological anchor disclosed on the row. No standalone close-date row exists anywhere.
+- [x] **Deterministic, total ordering.** Anchor date ascending by civil-date lexical comparison, then
+      the place's position in the flattened plan, then bundled source-record order. Every key is
+      compared explicitly rather than relying on engine sort stability, and allocation, requiredness,
+      price, inventory, urgency, `consultedAt`, `confidence`, `sourceEntity`, place name, visit date
+      and relation kind are all absent from the module.
+- [x] **Order is not priority.** Declared in the module, in the section disclaimer and in tests; no
+      first/next/upcoming label, count, progress indicator, priority/rank/score/status field or
+      order- or relation-dependent styling exists.
+- [x] **Identity survives aggregation.** Every item carries record, place and scope copied from the
+      derivation, plus place name, `Día N`, the stable day id when the caller has it, visit date,
+      anchor date, the exact Phase 3F-F presentation and full provenance. Composition is fail-closed,
+      records are never merged and items are never deduplicated by date.
+- [x] **Phase 3F-H reused, never re-invented.** Evaluated mechanically for every eligible row from
+      the single already-captured device civil date; `not-assessed` renders no line and no
+      placeholder; the relation never affects order, visibility or styling. `referenceDate` is
+      reported only when a relation actually composed from it, so a date that was never used can
+      never be disclosed.
+- [x] **Placement and copy as designed.** One instance in the dated `days` view between the
+      accommodation manager and the day list, never in a day card, never in the builder view, no new
+      modal or view; heading `Fechas oficiales de reserva del recorrido`; the mandated disclaimer
+      including the order-is-not-priority negation; one neutral CSS family with no state palette.
+- [x] **Phase 3D remains separate.** The aggregator reads no Phase 3D value, and the two route-wide
+      surfaces stay in different views with no shared container, heading, count or precedence.
+- [x] **No persistence, schema, data or dependency change.** V7, every storage key, evidence JSON,
+      places data, the workbook and package manifests are untouched; the aggregate is derived on
+      every render and stored nowhere.
+- [x] **Repository-native validation gate.** Focused **335/335** across 14 files, full Vitest
+      **2357/2357** across 62 files, oxlint exit **0**, build exit **0**, and both `git diff --check`
+      forms exit **0**.
+- [x] **Mandatory browser gate.** `app/scripts/phase3f-j-browser-audit.mjs` passed **twice
+      consecutively** on final code HEAD `55d0f19208e0a02d27920daa92ee852e5cbbffad`, covering
+      chronological multi-place order, same-date ties, intra-day reordering, Ghibli, Disneyland's
+      unknown timezone, Katsura as one range row, Sumo applicable and outside its event period,
+      Phase 3D separation across both views, day moves, start-date change and clear, reload, and the
+      section-level reference-date disclosure — with 0 console errors and 0 page errors in both runs.
+      The Phase 3F-H and Phase 3F-F browser audits were re-run as regressions on the same HEAD and
+      also passed.
+- [x] **Focused hostile review.** All twenty checks were verified. Two findings were fixed during
+      implementation before any gate ran: `referenceDate` could name a date no relation ever used,
+      and the source scan did not fence provenance freshness as an input. The component was also
+      renamed to `OfficialReservationCalendarSection` so its JSX tag stops colliding with the
+      existing `<Route` guard, which was left intact rather than weakened.
+
+**Phase 3F-J has passed its validation gates and is eligible for Ready-for-review. The pull request
+remains Draft pending independent focused review. Phase 3F-K is NOT STARTED.**
