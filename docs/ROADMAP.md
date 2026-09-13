@@ -4731,8 +4731,8 @@ Base: `2a02bad414d1b8e01eb6bb88169506da30568677` (`main` after Phase 3F-G).
       edges still `within`, no new time/timezone arithmetic, no Phase 3D reuse, no sorting/repair, no
       persistence change, no copy change — is recorded in the execution record §10.1.
 
-**Phase 3F-H has passed its validation gates and is eligible for Ready-for-review. The pull request
-remains Draft pending independent focused review.**
+**Phase 3F-H passed its validation gates. PR #77 subsequently passed independent focused review,
+transitioned out of Draft, and was merged into `main`.**
 
 
 
@@ -4908,5 +4908,5 @@ Base: `671b5980b23f8f856dd7c55f156d3431b7bae72f` (`main` after Phase 3F-I).
       renamed to `OfficialReservationCalendarSection` so its JSX tag stops colliding with the
       existing `<Route` guard, which was left intact rather than weakened.
 
-**Phase 3F-J has passed its validation gates and is eligible for Ready-for-review. The pull request
-remains Draft pending independent focused review. Phase 3F-K is NOT STARTED.**
+**Phase 3F-J passed its validation gates. PR #79 subsequently passed independent focused review,
+transitioned out of Draft, and was merged into `main`. Phase 3F-K is NOT STARTED.**
