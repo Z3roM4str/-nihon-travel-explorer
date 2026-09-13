@@ -1023,18 +1023,21 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-F official reservation date pr
     expect(official).toBeGreaterThan(deadline);
     expect(source.slice(deadline, official)).toContain("referenceDate={reservationReferenceDate}");
     expect(source).toMatch(
-      /<OfficialReservationDateNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+dayNumber=\{dayIndex \+ 1\}\s*\/>/
+      /<OfficialReservationDateNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+dayNumber=\{dayIndex \+ 1\}\s+referenceDate=\{reservationReferenceDate\}\s*\/>/
     );
   });
 
-  it("receives no current/reference-date, hours, closure, end-date or visit-time input", async () => {
+  it("receives no hours, closure, end-date, visit-time or Phase 3D reservation input", async () => {
     const source = await readSource();
     const notice = withoutComments(extractOfficialReservationDateNoticeSource(source));
     for (const forbidden of [
-      "reservationReferenceDate",
-      "referenceDate",
+      // Phase 3F-H shares only the explicit civil-date VALUE; it never captures a second clock and
+      // never reaches into the Phase 3D-O evaluator or the editorial reservation domain.
       "captureDeviceLocalCivilDate",
       "evaluateReservationWindowReference",
+      "describeReservationWindowReferenceForUi",
+      "formatDeviceReferenceDateForUi",
+      "derivePlaceReservationDateWindow",
       "visitStartTimes",
       "endDate",
       "febMar2027",
@@ -1070,7 +1073,8 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-F official reservation date pr
     const notice = extractOfficialReservationDateNoticeSource(await readSource());
     expect(notice).toContain("Fechas de reserva según fuente oficial · Día");
     expect(notice).toContain("Fechas de reserva según fuente oficial");
-    expect(notice).toContain("No se comparan con la fecha actual ni indican el estado actual de la venta.");
+    expect(notice).toContain("no indica el");
+    expect(notice).toContain("estado actual de la venta.");
     expect(notice).toContain(
       "Esta información oficial se muestra por separado de la anticipación editorial registrada;"
     );

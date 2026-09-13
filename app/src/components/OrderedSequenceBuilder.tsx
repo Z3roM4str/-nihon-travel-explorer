@@ -75,6 +75,11 @@ import {
   buildOfficialReservationDatePresentation,
   type OfficialReservationDatePresentation,
 } from "../lib/reservation-mechanism-presentation";
+import { evaluateOfficialReservationReferenceDate } from "../lib/reservation-mechanism-reference-date";
+import {
+  buildOfficialReservationReferenceRelationPresentation,
+  type OfficialReservationReferenceRelationPresentation,
+} from "../lib/reservation-mechanism-reference-date-presentation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
 import {
   buildDayRecordedIntervalFits,
@@ -834,25 +839,34 @@ function ReservationDeadlineNotice({
 }
 
 /**
- * Phase 3F-F's one visible official-reservation surface. It consumes only Phase 3F-D derivations
- * plus the exact matching evidence record and therefore cannot replace or reinterpret the separate
- * Phase 3D-H editorial window above. The component receives no reference date, visit start time,
- * trip end date, closure/hours fact or reservation-requiredness signal.
+ * Phase 3F-F's one visible official-reservation surface, extended by Phase 3F-H with a civil-date
+ * relation. It consumes only Phase 3F-D derivations plus the exact matching evidence record, and
+ * therefore cannot replace or reinterpret the separate Phase 3D-H editorial window above. The
+ * component receives no visit start time, trip end date, closure/hours fact or
+ * reservation-requiredness signal.
+ *
+ * Phase 3F-H adds exactly one input: the concrete device-local civil date already captured once by
+ * the planner. Sharing that environmental value does NOT merge the two evidence domains — Phase 3F
+ * evaluates it through its own `evaluateOfficialReservationReferenceDate`, never through the Phase
+ * 3D-O evaluator, and the resulting sentence stays a calendar relation rather than a booking state.
  */
 function OfficialReservationDateNotice({
   places,
   dayAssignment,
   startDate,
   dayNumber,
+  referenceDate,
 }: {
   places: readonly Place[];
   dayAssignment: DayAssignment;
   startDate: string | null;
   dayNumber: number;
+  referenceDate: string | null;
 }) {
   type Item = {
     place: Place;
     presentation: OfficialReservationDatePresentation;
+    relationPresentation: OfficialReservationReferenceRelationPresentation | null;
   };
 
   const items: Item[] = [];
@@ -869,7 +883,16 @@ function OfficialReservationDateNotice({
       );
       if (!record) continue;
       const presentation = buildOfficialReservationDatePresentation(record, derivation);
-      if (presentation) items.push({ place, presentation });
+      if (!presentation) continue;
+      // The relation is evaluated from the same derivation the presentation was built from, then
+      // composed back through an identity check that drops it if record/place/scope disagree.
+      const relation = referenceDate
+        ? evaluateOfficialReservationReferenceDate(derivation, referenceDate)
+        : null;
+      const relationPresentation = relation
+        ? buildOfficialReservationReferenceRelationPresentation(presentation, relation)
+        : null;
+      items.push({ place, presentation, relationPresentation });
     }
   }
 
@@ -882,7 +905,7 @@ function OfficialReservationDateNotice({
     >
       <h4 className="official-reservation-date__heading">Fechas de reserva según fuente oficial</h4>
       <div className="official-reservation-date__list">
-        {items.map(({ place, presentation }) => (
+        {items.map(({ place, presentation, relationPresentation }) => (
           <article key={presentation.recordId} className="official-reservation-date__item">
             <span className="official-reservation-date__name">{place.name}</span>
             <span className="official-reservation-date__scope">{presentation.scopeLabel}</span>
@@ -898,6 +921,16 @@ function OfficialReservationDateNotice({
             {presentation.allocationText && (
               <p className="official-reservation-date__allocation">{presentation.allocationText}</p>
             )}
+            {relationPresentation && (
+              <>
+                <p className="official-reservation-date__reference-relation">
+                  {relationPresentation.relationText}
+                </p>
+                <p className="official-reservation-date__reference-date">
+                  {relationPresentation.referenceDateText}
+                </p>
+              </>
+            )}
             <p className="official-reservation-date__provenance">{presentation.provenanceText}</p>
             <a
               className="official-reservation-date__source"
@@ -912,7 +945,11 @@ function OfficialReservationDateNotice({
       </div>
       <p className="official-reservation-date__disclaimer">
         Estas fechas son hechos de calendario derivados del registro oficial para la fecha de visita
-        asignada. No se comparan con la fecha actual ni indican el estado actual de la venta.{" "}
+        asignada. Cuando se muestra, la relación con la fecha de referencia compara únicamente fechas
+        de calendario: no considera la hora registrada ni la zona horaria de la fuente, y no indica el
+        estado actual de la venta. La fecha de referencia se toma del calendario local de tu
+        dispositivo al abrir este plan, no representa la fecha operativa en Japón y no se actualiza
+        automáticamente mientras esta vista siga abierta.{" "}
         <strong>
           Esta información oficial se muestra por separado de la anticipación editorial registrada;
           Nihon no combina ambas fuentes.
@@ -3239,6 +3276,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             dayAssignment={dayAssignment}
                             startDate={startDate}
                             dayNumber={dayIndex + 1}
+                            referenceDate={reservationReferenceDate}
                           />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />

@@ -2962,6 +2962,16 @@ a {
   color: var(--color-text);
 }
 
+/* Phase 3F-H — reference-date relation. Deliberately styled exactly like the other recorded facts
+   above it: no state colour, no badge, no emphasis. A calendar relation is not a good/bad outcome,
+   so nothing here may read as "you're on time" or "you missed it". */
+.official-reservation-date__reference-relation,
+.official-reservation-date__reference-date {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
 .official-reservation-date__source {
   align-self: flex-start;
   font-size: 0.76rem;
