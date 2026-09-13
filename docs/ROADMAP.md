@@ -4732,4 +4732,92 @@ Base: `2a02bad414d1b8e01eb6bb88169506da30568677` (`main` after Phase 3F-G).
       persistence change, no copy change — is recorded in the execution record §10.1.
 
 **Phase 3F-H has passed its validation gates and is eligible for Ready-for-review. The pull request
-remains Draft pending independent focused review. Phase 3F-I is NOT STARTED.**
+remains Draft pending independent focused review.**
+
+
+
+## Phase 3F-I — Route-Wide Official Reservation Calendar Design Gate — design/audit only
+
+Design record:
+[`docs/ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_DESIGN.md`](ROUTE_WIDE_OFFICIAL_RESERVATION_CALENDAR_DESIGN.md).
+
+Base audited: `7c9536ff7128245a71c911504e732ab85f832c7a` (`main` after Phase 3F-H).
+
+- [x] **Aggregation, not derivation.** The approved next step is one route-wide, read-only view of
+      the Phase 3F facts already derived for the current plan. Nothing is newly derived, newly
+      claimed or newly ranked; every item traces back to a place, a planned visit, an official
+      record, a scope, a Phase 3F-D derivation and its Phase 3F-F presentation.
+- [x] **Phase 3F-E's deferral reasons re-audited.** The five reasons that blocked a route-wide
+      calendar are answered individually: the ordering/ranking questions are now settled by an
+      explicit contract, and the current-date relation the gate was waiting for shipped as
+      Phase 3F-G/3F-H.
+- [x] **Chronological order is declared non-semantic.** Ordering is by recorded civil date only and
+      carries no meaning about priority, importance, urgency, scarcity, risk or a recommended
+      sequence; no item may be labelled first, next, upcoming, current or last, and no count,
+      progress indicator or workload summary may be derived from the list.
+- [x] **Deterministic, total tie-break contract.** Ties break on day ordinal, then the place's
+      position within its day, then bundled source-record order. Allocation, requiredness, tourism
+      grade, price, inventory, urgency, `consultedAt`, source confidence and alphabetical order are
+      all forbidden ordering keys.
+- [x] **Application windows stay one honest item.** A recorded application window becomes exactly
+      one chronological item anchored at its recorded open date, always rendering both edges as a
+      span; the two-milestone alternative is rejected because a standalone end-date row manufactures
+      a deadline affordance and splits one record into two. An unordered or invalid span produces no
+      chronological item and is never repaired to make it placeable.
+- [x] **Identity survives aggregation.** Every item keeps `recordId`, `placeId`, `scope`, the
+      planned day (ordinal, plus the stable day id when the caller has it), the visit civil date, the
+      official date or span and full provenance. Records are never merged, scopes never fused, and
+      items never deduplicated by date — two places sharing a date remain two facts.
+- [x] **Non-date results never enter the chronology.** `not-applicable-to-visit-date` and
+      `not-derivable` may appear only in a separate, plan-ordered neutral block; `no-visit-date` and
+      `inactive-evidence` stay omitted. No fact without an applicable official date may ever be given
+      a substitute, sentinel or inherited date.
+- [x] **Phase 3F-H is reused verbatim, never re-invented.** The relation may appear as secondary
+      context only by calling the shipped evaluator and its fail-closed composition, consuming the
+      one already-captured device civil date, with the concrete reference date disclosed once at
+      section level and never labelled `hoy`/`ahora`/`actualmente`. The relation never affects
+      ordering, grouping, filtering, visibility or styling.
+- [x] **Phase 3D stays structurally separate.** The audit confirms Phase 3D's route-wide
+      "Reservas por preparar" renders in the `builder` view while the Phase 3F calendar belongs in
+      the dated `days` view. No merged list, shared heading, shared count, precedence, intersection
+      or mutual suppression is permitted, and apparent source conflicts stay unresolved and
+      unflagged.
+- [x] **Freshness, timezone and booking-state boundaries unchanged.** `consultedAt` remains
+      provenance and may not sort, colour, warn or expire; no timezone conversion, instant, offset or
+      DST logic is introduced; and the Phase 3F-H civil-date relation remains the maximum current-date
+      claim — no open/closed, availability, inventory, deadline, countdown or urgency claim is
+      approved.
+- [x] **No persistence and no automation.** The surface is entirely derived: no V8, no new storage
+      key, no persisted items, order, relations or reference date; reminders, notifications,
+      scheduled tasks, `.ics` and calendar integrations all stay deferred.
+- [x] **Placement decided from the real component.** One route-wide instance in the `days` view,
+      immediately after the accommodation manager and immediately before the day list, rendered only
+      when a valid day assignment and a valid start date exist; the per-day Phase 3F-F/3F-H notice is
+      unchanged and the calendar is never repeated inside a day card. New modals, new views and the
+      builder view were evaluated and rejected with reasons.
+- [x] **Copy boundary set.** Heading `Fechas oficiales de reserva del recorrido` is chosen over
+      `Calendario oficial de reservas`, which reads as a calendar of bookings to act on; the
+      disclaimer must state the derived-from-official-sources basis, the visit-date binding, that
+      chronological order is not priority, that availability and current sale state are not
+      indicated, and that any reference-date relation is civil-date only.
+- [x] **Flat list, no date grouping.** Every row carries its own complete date; grouping under a
+      shared date header is rejected for the first runtime because it implies a shared state and
+      invites a per-date count.
+- [x] **Normative contracts fixed.** 100 numbered contracts cover source inputs, eligibility,
+      chronology semantics, tie-breaking, identity, multiple scopes, application-window
+      representation, non-date results, Phase 3F-H reuse, Phase 3D separation, no ranking, no
+      timezone/instant, no booking state, no persistence, no network/automation, recomputation, the
+      real fixtures and browser validation.
+- [x] **Successor validation gate specified.** Phase 3F-J must pass focused aggregator tests, the
+      Phase 3F-D/F/H regressions, Phase 3D separation regressions, full Vitest, lint, build, both
+      `git diff --check` forms, and a dedicated browser audit twice consecutively on the same final
+      code HEAD with zero console and page errors, using the Phase 3F-H deterministic browser-date
+      shim and no production test seam.
+- [x] **Hostile design review performed.** All fourteen required questions were answered in the
+      design record; three substantive documentation findings (unordered-span disposition, undefined
+      neutral item type, a contradictory `Intl` source-scan expectation) and three minor ones were
+      fixed before the pull request was opened.
+
+Recommended successor: **Phase 3F-J — Route-Wide Official Reservation Calendar Runtime**.
+
+**Phase 3F-J is NOT STARTED. Phase 3F-I changes documentation only.**
