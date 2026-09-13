@@ -128,6 +128,14 @@ export function evaluateOfficialReservationReferenceDate(
     if (!isValidCivilDate(derivation.openDate) || !isValidCivilDate(derivation.closeDate)) {
       return NOT_DATE_RELATABLE;
     }
+    // Two individually valid civil dates do not make an ordered span. Phase 3F-D's evidence parser
+    // constrains `monthsBeforeVisitMonth` and `daysBeforeVisit` to positive integers, but nothing in
+    // it guarantees that the DERIVED open date lands on or before the derived close date, so this
+    // boundary must not assume the span it receives is ordered. An inverted span is refused
+    // outright: swapping, repairing, re-ordering or guessing the intended direction would invent an
+    // official date span the evidence never recorded. `openDate === closeDate` stays a legitimate
+    // one-day span.
+    if (derivation.openDate > derivation.closeDate) return NOT_DATE_RELATABLE;
     const common = {
       ...identityOf(derivation),
       referenceDate,

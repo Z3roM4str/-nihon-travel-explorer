@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
+import { isValidCivilDate } from "./civil-date";
 import {
   evaluateOfficialReservationReferenceDate,
   type OfficialReservationReferenceRelation,
@@ -199,6 +200,81 @@ describe("Phase 3F-H — recorded application date-span relation", () => {
   });
 
   it("classifies one day after the recorded close date", () => {
+    expect(kindOf(katsuraWindow, "2027-03-13")).toBe("after-recorded-application-date-span");
+  });
+
+  it("treats an equal open/close pair as a legitimate one-day span", () => {
+    if (katsuraWindow.kind !== "application-window") throw new Error("unexpected derivation");
+    const oneDay = { ...katsuraWindow, openDate: "2027-01-15", closeDate: "2027-01-15" };
+    expect(kindOf(oneDay, "2027-01-14")).toBe("before-recorded-application-date-span");
+    expect(kindOf(oneDay, "2027-01-15")).toBe("within-recorded-application-date-span");
+    expect(kindOf(oneDay, "2027-01-16")).toBe("after-recorded-application-date-span");
+  });
+});
+
+describe("Phase 3F-H — an inverted application date span fails closed", () => {
+  /**
+   * Both dates below are individually valid civil dates; only their ORDER is wrong. Phase 3F-D's
+   * evidence parser constrains `monthsBeforeVisitMonth`/`daysBeforeVisit` to positive integers but
+   * does not itself guarantee `derived openDate <= derived closeDate`, so Phase 3F-H must not assume
+   * every application window it receives is ordered.
+   */
+  function invertedSpan() {
+    if (katsuraWindow.kind !== "application-window") throw new Error("unexpected derivation");
+    return { ...katsuraWindow, openDate: "2027-03-01", closeDate: "2027-02-15" };
+  }
+
+  it("refuses an inverted span whose individual dates are both valid", () => {
+    const inverted = invertedSpan();
+    expect(isValidCivilDate(inverted.openDate)).toBe(true);
+    expect(isValidCivilDate(inverted.closeDate)).toBe(true);
+    expect(inverted.openDate > inverted.closeDate).toBe(true);
+    expect(evaluateOfficialReservationReferenceDate(inverted, "2027-02-20")).toEqual({
+      kind: "not-assessed",
+      reason: "derivation-not-date-relatable",
+    });
+  });
+
+  it("never produces a span relation for an inverted span, at any reference date", () => {
+    const inverted = invertedSpan();
+    const forbidden = [
+      "before-recorded-application-date-span",
+      "within-recorded-application-date-span",
+      "after-recorded-application-date-span",
+    ];
+    for (const reference of [
+      "2027-02-14", // before both edges
+      "2027-02-15", // on the (smaller) recorded close date
+      "2027-02-20", // between the two edges, i.e. inside the inverted range
+      "2027-03-01", // on the (larger) recorded open date
+      "2027-03-02", // after both edges
+    ]) {
+      const relation = evaluateOfficialReservationReferenceDate(inverted, reference);
+      expect(relation, reference).toEqual({
+        kind: "not-assessed",
+        reason: "derivation-not-date-relatable",
+      });
+      expect(forbidden, reference).not.toContain(relation.kind);
+    }
+  });
+
+  it("does not swap, repair, re-order or infer intent from an inverted span", () => {
+    const inverted = invertedSpan();
+    const snapshot = JSON.stringify(inverted);
+    const relation = evaluateOfficialReservationReferenceDate(inverted, "2027-02-20");
+    // The refusal carries no identity and no dates at all: nothing is salvaged or rewritten.
+    expect(Object.keys(relation).sort()).toEqual(["kind", "reason"]);
+    expect(JSON.stringify(inverted)).toBe(snapshot);
+    expect(inverted.openDate).toBe("2027-03-01");
+    expect(inverted.closeDate).toBe("2027-02-15");
+  });
+
+  it("leaves the real ordered Katsura span untouched", () => {
+    // The corrective is a defensive boundary only; real Phase 3F-D output is unaffected.
+    expect(kindOf(katsuraWindow, "2026-11-30")).toBe("before-recorded-application-date-span");
+    expect(kindOf(katsuraWindow, "2026-12-01")).toBe("within-recorded-application-date-span");
+    expect(kindOf(katsuraWindow, "2027-01-15")).toBe("within-recorded-application-date-span");
+    expect(kindOf(katsuraWindow, "2027-03-12")).toBe("within-recorded-application-date-span");
     expect(kindOf(katsuraWindow, "2027-03-13")).toBe("after-recorded-application-date-span");
   });
 });
