@@ -4608,3 +4608,43 @@ Base: `8152d6a22e3f45dbe8b12074ca88b7593484103d` (`main` after Phase 3F-E).
 
 **Phase 3F-F has passed its validation gates and is eligible for Ready-for-review.**
 
+
+
+## Phase 3F-G — Official Reservation Reference-Date Relation Design Gate — design/audit only
+
+Design record:
+[`docs/OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_DESIGN.md`](OFFICIAL_RESERVATION_REFERENCE_DATE_RELATION_DESIGN.md).
+
+Base audited: `a006dc3a13bc20953e972ecbd414d5201c681824` (`main` after Phase 3F-F).
+
+- [x] **Civil-date relation only.** The next safe proposition compares one explicitly disclosed
+      device/reference civil date with already-derived Phase 3F official release dates or application
+      date spans; it does not infer current booking state.
+- [x] **Release semantics are before/on/after the recorded date.** Equality means only that the
+      device/reference date shares the same civil-date label as the official release date; a recorded
+      release time is not evaluated.
+- [x] **Application semantics are before/within/after the recorded date span.** Both date edges are
+      inclusive as calendar dates, but edge equality never means the application window is currently
+      open or closed.
+- [x] **Existing device/reference date may be shared as an explicit input.** Phase 3F may consume the
+      same concrete device-local civil date already captured for Phase 3D-O, provided the exact date
+      remains visible and the evidence/relation domains remain separate.
+- [x] **Phase 3F gets its own evaluator.** `evaluateReservationWindowReference` and the Phase 3D
+      relation union remain Phase 3D-only; no lead-time window semantics are imported into Phase 3F.
+- [x] **Clock/timezone boundary remains conservative.** Known timezone remains source evidence,
+      null timezone remains unknown, no time-of-day comparison or timezone conversion is approved,
+      and no instant/Japan-business-date semantics are introduced.
+- [x] **Only normal Phase 3F date results are assessable.** `release-date` and
+      `application-window` may receive a relation; no-visit, inactive, not-applicable and
+      not-derivable results remain unassessed.
+- [x] **No current-state/action semantics.** No open/closed, availability, inventory, urgency,
+      countdown, deadline, reminder, notification, recommendation or purchase behavior is approved.
+- [x] **No persistence/data expansion.** V7, localStorage, evidence JSON, places data, workbook and
+      package dependencies remain unchanged by the proposed successor.
+- [x] **UI successor requires repeated browser validation.** The runtime successor must prove
+      before/on/after and date-span edge behavior, exact reference-date disclosure, Phase 3D
+      separation, no stale derived state and two consecutive browser-audit passes after final code.
+
+Recommended successor: **Phase 3F-H — Official Reservation Reference-Date Relation Runtime**.
+
+**Phase 3F-H is NOT STARTED. Phase 3F-G changes documentation only.**
