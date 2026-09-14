@@ -38,8 +38,15 @@ Not implemented:
 
 Official Nintendo Museum ticketing sources re-opened on 2026-09-13:
 
-- `https://museum-tickets.nintendo.com/en`
-- `https://museum-tickets.nintendo.com/en/calendar`
+- primary ticket instructions: `https://museum-tickets.nintendo.com/en`
+- supporting official calendar: `https://museum-tickets.nintendo.com/en/calendar?lang=en`
+
+The evidence proposition is compound: the ticket instructions provide the July 15 → April 1–30
+drawing example, while the separate calendar states that drawings occur once per month and supplies
+the current December 2026 → September 30 corroborating instance. The schema still has one canonical
+`sourceUrl`, so the primary ticket instructions remain that field and the supporting calendar URL is
+stored verbatim inside `provenance.evidence`. This preserves the second official source without
+expanding the Phase 3F provenance schema in this bounded successor.
 
 The current official ticket page states that tickets are first sold to drawing entrants and gives the
 worked example:
@@ -83,6 +90,9 @@ current monthly calendar rather than quoted as one generic formula, the record u
 - status: `active`
 - consultedAt: `2026-09-13`
 - confidence: `official-derived`
+- primary `sourceUrl`: `https://museum-tickets.nintendo.com/en`
+- supporting source retained verbatim in `provenance.evidence`:
+  `https://museum-tickets.nintendo.com/en/calendar?lang=en`
 
 Canonical and app-facing JSON were written with identical serialized bytes.
 
@@ -194,6 +204,7 @@ A connector-grounded static audit over the branch confirmed:
 - active `placeId + scope` uniqueness: **PASS**
 - every evidence place ID exists in canonical places: **PASS**
 - Nintendo identity/scope/family/month offset/edge rules/allocation exact: **PASS**
+- Nintendo primary + supporting official provenance URLs retained: **PASS**
 - Nintendo `consultedAt = 2026-09-13`: **PASS**
 - Nintendo `confidence = official-derived`: **PASS**
 - Nintendo recurring times = null/null: **PASS**
