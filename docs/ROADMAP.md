@@ -5119,4 +5119,36 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       `allocation: drawing`; the close edge remains untimed. No other design contradiction was
       found.
 
-**Phase 3F-M changes documentation only and is hostile-review corrected. Phase 3F-N is NOT STARTED.**
+**Phase 3F-M changes documentation only, passed hostile + independent focused review and was merged via PR #83.**
+
+## Phase 3F-N — PokéPark Overseas Application Evidence Foundation
+
+Runtime authority:
+[`docs/POKEPARK_OVERSEAS_APPLICATION_EVIDENCE_RUNTIME.md`](POKEPARK_OVERSEAS_APPLICATION_EVIDENCE_RUNTIME.md).
+
+Base: `1937df90ffe6be6eb207519366df2b3e4928b407`.
+
+Official source recheck: **2026-09-14**.
+
+- [x] **Implementation-day international source recheck passed.** The operator still directs guests
+      residing outside Japan to its separate Official Web Ticket Store.
+- [x] **International mechanism still explicit.** Admission three months ahead; Applications 1st–12th;
+      Application periods start 20:00 JST; lottery/redraw semantics remain explicit.
+- [x] **Exactly one JP-050 record added.** `RM-JP-050-001`, `general-admission`,
+      `monthly-application-window`, open day 1 at 20:00 Asia/Tokyo, close day 12 with no recorded
+      close time/timezone, `allocation: drawing`.
+- [x] **Catalog grows 6 → 7 only.** No second JP-050 record is added.
+- [x] **Cardinality preserved.** Global record-ID uniqueness and active `placeId + scope`
+      uniqueness remain unchanged and still have defensive tests.
+- [x] **No new runtime family.** Existing `monthly-application-window` represents the source
+      exactly; no TypeScript production runtime module changed.
+- [x] **Domestic first-come remains deferred.** No `last-day-of-shifted-month`, no domestic
+      purchase-path record and no purchase-context schema field are introduced.
+- [x] **Focused D/F/H/J coverage added.** Tests pin date arithmetic, the 20:00 Asia/Tokyo open edge,
+      untimed close edge, provenance context, relation time/timezone non-leakage and one route-wide
+      row.
+- [ ] **Repository-native executable validation pending.** Python, focused/full Vitest, lint, build,
+      whitespace and Phase 3F-F/H/J browser audits must pass on the exact executable HEAD before
+      Ready transition.
+
+**Phase 3F-N is implemented but not yet repository-native validated. Phase 3F-O is NOT STARTED.**
