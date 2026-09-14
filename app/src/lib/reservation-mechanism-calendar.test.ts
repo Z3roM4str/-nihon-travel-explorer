@@ -138,7 +138,7 @@ describe("Phase 3F-P — route ordering ignores residence context", () => {
           : ("not-recorded" as const),
     }));
     const mutated = build(dayMatrix, "2027-03-15", "2026-12-05", mutatedRecords);
-    const identity = (item: typeof original.chronological[number]) => ({
+    const identity = (item: (typeof original.chronological)[number]) => ({
       recordId: item.recordId,
       placeId: item.placeId,
       scope: item.scope,
