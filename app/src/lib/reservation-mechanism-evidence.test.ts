@@ -10,8 +10,8 @@ import {
 } from "./reservation-mechanism-evidence";
 
 describe("reservation-mechanism-evidence — bundled pilot", () => {
-  it("parses the five Phase 3F-B pilot records plus the Phase 3F-L Nintendo record", () => {
-    expect(reservationMechanismEvidenceRecords).toHaveLength(6);
+  it("parses the five Phase 3F-B pilot records plus Nintendo and PokéPark overseas", () => {
+    expect(reservationMechanismEvidenceRecords).toHaveLength(7);
     expect(reservationMechanismEvidenceRecords.map((record) => record.placeId)).toEqual([
       "JP-044",
       "JP-203",
@@ -19,6 +19,7 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
       "JP-077",
       "JP-212",
       "JP-097",
+      "JP-050",
     ]);
   });
 
@@ -26,12 +27,43 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
     expect(parseReservationMechanismEvidenceRecords(rawData as unknown)).toEqual(reservationMechanismEvidenceRecords);
   });
 
-  it("keeps the Phase 3F-K explicit exclusions absent", () => {
+  it("adds only the Phase 3F-N PokéPark overseas place among the prior exclusions", () => {
     const ids = new Set(reservationMechanismEvidenceRecords.map((record) => record.placeId));
-    for (const absent of ["JP-002", "JP-050", "JP-125", "JP-126", "JP-211"]) {
+    for (const absent of ["JP-002", "JP-125", "JP-126", "JP-211"]) {
       expect(ids.has(absent)).toBe(false);
     }
+    expect(ids.has("JP-050")).toBe(true);
     expect(ids.has("JP-097")).toBe(true);
+  });
+
+  it("pins PokéPark to one overseas application record without widening cardinality", () => {
+    const records = reservationMechanismEvidenceForPlace(reservationMechanismEvidenceRecords, "JP-050");
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      id: "RM-JP-050-001",
+      placeId: "JP-050",
+      scope: "general-admission",
+      allocation: "drawing",
+      status: "active",
+      mechanism: {
+        kind: "monthly-application-window",
+        monthsBeforeVisitMonth: 3,
+        openDay: { kind: "fixed-day-of-month", day: 1 },
+        closeDay: { kind: "fixed-day-of-month", day: 12 },
+        openTimeLocal: "20:00",
+        openSourceTimeZone: "Asia/Tokyo",
+        closeTimeLocal: null,
+        closeSourceTimeZone: null,
+      },
+      provenance: {
+        sourceUrl: "https://ticket-en.pokepark-kanto.co.jp/?viewLang=en",
+        consultedAt: "2026-09-14",
+        confidence: "official-explicit",
+      },
+    });
+    expect(records[0].provenance.sourceEntity).toContain("outside-Japan");
+    expect(records[0].provenance.evidence).toContain("outside Japan");
+    expect(records[0].provenance.evidence).not.toContain("two months");
   });
 
   it("preserves source-data order for one place without sorting", () => {
