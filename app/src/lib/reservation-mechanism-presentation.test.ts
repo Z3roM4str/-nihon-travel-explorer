@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildOfficialReservationDatePresentation,
   describeReservationAllocationForUi,
+  describeReservationPurchaseResidenceContextForUi,
   formatReservationMechanismProvenanceForUi,
   reservationMechanismScopeLabel,
 } from "./reservation-mechanism-presentation";
@@ -66,6 +67,23 @@ describe("Phase 3F-F official reservation presentation", () => {
     expect(describeReservationAllocationForUi("not-stated")).toBeNull();
   });
 
+  it("renders purchase residence context as route evidence, never as user eligibility", () => {
+    expect(describeReservationPurchaseResidenceContextForUi("not-recorded")).toBeNull();
+    expect(describeReservationPurchaseResidenceContextForUi("resides-in-japan")).toBe(
+      "La fuente oficial citada presenta esta ruta de compra para residentes en Japón."
+    );
+    expect(describeReservationPurchaseResidenceContextForUi("resides-outside-japan")).toBe(
+      "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra."
+    );
+    const wording = [
+      describeReservationPurchaseResidenceContextForUi("resides-in-japan"),
+      describeReservationPurchaseResidenceContextForUi("resides-outside-japan"),
+    ].join(" ").toLowerCase();
+    for (const forbidden of ["aplica para ti", "eres residente", "eres elegible", "puedes comprar"]) {
+      expect(wording).not.toContain(forbidden);
+    }
+  });
+
   it("renders Ghibli's real release fact with its recorded Asia/Tokyo label", () => {
     const result = buildOfficialReservationDatePresentation(
       ghibli,
@@ -76,6 +94,7 @@ describe("Phase 3F-F official reservation presentation", () => {
       scopeLabel: "Entrada general",
       heading: "Venta registrada para esta visita",
       sourceUrl: ghibli.provenance.sourceUrl,
+      purchaseResidenceContextText: null,
     });
     expect(result?.detailLines[0]).toContain("10 ene 2027");
     expect(result?.detailLines[0]).toContain("10:00 (Asia/Tokyo)");
@@ -147,6 +166,8 @@ describe("Phase 3F-F official reservation presentation", () => {
       scopeLabel: "Entrada general",
       heading: "Ventana oficial registrada para esta visita",
       allocationText: "Asignación registrada: sorteo.",
+      purchaseResidenceContextText:
+        "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra.",
       sourceUrl: "https://ticket-en.pokepark-kanto.co.jp/?viewLang=en",
     });
     expect(result?.detailLines[0]).toContain("1 dic 2026");
