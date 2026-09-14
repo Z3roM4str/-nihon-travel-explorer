@@ -5164,7 +5164,7 @@ Official source recheck: **2026-09-14**.
 
 **Phase 3F-N is implemented, hostile-reviewed, repository-native validated and merged via PR #84.**
 
-## Phase 3F-O — Purchase-Context Evidence Design Gate
+## Phase 3F-O — Purchase-Residence-Context Evidence Design Gate
 
 Design authority:
 [`docs/PURCHASE_CONTEXT_EVIDENCE_DESIGN.md`](PURCHASE_CONTEXT_EVIDENCE_DESIGN.md).
@@ -5175,15 +5175,15 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
 
 - [x] **Blocking semantic gap reconfirmed.** The operator still separates residents of Japan from
       guests residing outside Japan into different official purchase routes.
-- [x] **Minimal model selected.** Add one required evidence-level `purchaseContext` field with
+- [x] **Minimal model selected.** Add one required evidence-level `purchaseResidenceContext` field with
       closed values `not-recorded`, `resides-in-japan`, `resides-outside-japan`.
-- [x] **No user profile introduced.** The field records source-defined purchase context only; it
+- [x] **No user profile introduced.** The field records source-defined purchase residence context only; it
       does not store, infer or ask for the user's residence, nationality, citizenship, location or
       eligibility.
 - [x] **Unknown semantics fail closed.** `not-recorded` means only that structured evidence does
-      not record a residence-based purchase context; it never means unrestricted or universally
+      not record a residence-based purchase residence context; it never means unrestricted or universally
       available.
-- [x] **Record-level placement approved.** Purchase context is structural evidence beside scope,
+- [x] **Record-level placement approved.** Purchase residence context is structural evidence beside scope,
       mechanism, allocation and status, not free-text provenance and not parsed from `sourceEntity`.
 - [x] **Atomic seven-record migration designed.** JP-050 becomes
       `resides-outside-japan`; the other six current records become `not-recorded` without making
@@ -5198,13 +5198,17 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       outside Japan must be retained verbatim in provenance evidence as supporting context proof.
       No provenance schema expansion is needed.
 - [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
-      read purchase context; Phase 3F-F owns display text.
-- [x] **Independent focused review fixed display ordering.** Both existing surfaces currently place
-      the Phase 3F-H temporal relation between allocation and provenance, so “after allocation and
-      before provenance” was ambiguous. The exact order is now recorded fact/details → allocation
-      (if any) → purchase context → temporal relation (if any) → provenance → source link.
-- [x] **Six-record migration remains non-assertive.** Mapping the other six current records to
-      `not-recorded` was independently rechecked and adds no universal-access or no-restriction
+      read purchase residence context; Phase 3F-F owns display text.
+- [x] **Independent focused review preserved the display-order correction.** Both existing surfaces
+      currently place the Phase 3F-H temporal relation between allocation and provenance, so the
+      exact successor order remains fact/details → allocation (if any) → purchase residence context
+      → temporal relation (if any) → provenance → source link.
+- [x] **Independent focused review narrowed the field name.** The approved vocabulary encodes only
+      residence in/outside Japan, so the structural field is now `purchaseResidenceContext`, not the
+      broader `purchaseContext`. Language, channel, membership, payment and phone/SMS requirements
+      may not be overloaded into this scalar.
+- [x] **Independent focused review rechecked the six-record migration.** Mapping the other six
+      current records to `not-recorded` adds no universal-access, no-restriction or user-eligibility
       claim.
 - [x] **Cardinality remains deferred.** Phase 3F-P must keep active `placeId + scope` uniqueness,
       add no second JP-050 record and add no domestic first-come mechanism.
@@ -5213,4 +5217,4 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
       repository-native regression.
 
-**Phase 3F-O changes documentation only and passed hostile + independent focused review. Phase 3F-P is NOT STARTED.**
+**Phase 3F-O changes documentation only and passed hostile + corrected independent focused review. Phase 3F-P is NOT STARTED.**
