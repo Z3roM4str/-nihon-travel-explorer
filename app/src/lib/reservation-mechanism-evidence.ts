@@ -17,6 +17,10 @@ export type ReservationAllocation =
   | "not-stated";
 
 export type ReservationMechanismStatus = "active" | "superseded";
+export type ReservationPurchaseResidenceContext =
+  | "not-recorded"
+  | "resides-in-japan"
+  | "resides-outside-japan";
 export type ReservationEvidenceConfidence = "official-explicit" | "official-derived";
 export type ReservationSourceTimeZone = "Asia/Tokyo" | null;
 
@@ -90,6 +94,7 @@ export type ReservationMechanismEvidenceRecord = {
   id: string;
   placeId: string;
   scope: ReservationMechanismScope;
+  purchaseResidenceContext: ReservationPurchaseResidenceContext;
   mechanism: ReservationMechanism;
   allocation: ReservationAllocation;
   status: ReservationMechanismStatus;
@@ -119,6 +124,11 @@ const allocations = new Set<ReservationAllocation>([
   "not-stated",
 ]);
 const statuses = new Set<ReservationMechanismStatus>(["active", "superseded"]);
+const purchaseResidenceContexts = new Set<ReservationPurchaseResidenceContext>([
+  "not-recorded",
+  "resides-in-japan",
+  "resides-outside-japan",
+]);
 const confidences = new Set<ReservationEvidenceConfidence>(["official-explicit", "official-derived"]);
 const timeZones = new Set<ReservationSourceTimeZone>([null, "Asia/Tokyo"]);
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -245,10 +255,11 @@ function validMechanism(value: unknown): value is ReservationMechanism {
 
 export function parseReservationMechanismEvidenceRecord(value: unknown): ReservationMechanismEvidenceRecord | null {
   if (!isObject(value)) return null;
-  if (!hasExactKeys(value, ["id", "placeId", "scope", "mechanism", "allocation", "status", "provenance"])) return null;
+  if (!hasExactKeys(value, ["id", "placeId", "scope", "purchaseResidenceContext", "mechanism", "allocation", "status", "provenance"])) return null;
   if (typeof value.id !== "string" || !idPattern.test(value.id)) return null;
   if (typeof value.placeId !== "string" || !value.id.startsWith(`RM-${value.placeId}-`)) return null;
   if (!scopes.has(value.scope as ReservationMechanismScope)) return null;
+  if (!purchaseResidenceContexts.has(value.purchaseResidenceContext as ReservationPurchaseResidenceContext)) return null;
   if (!validMechanism(value.mechanism)) return null;
   if (!allocations.has(value.allocation as ReservationAllocation)) return null;
   if (!statuses.has(value.status as ReservationMechanismStatus)) return null;
