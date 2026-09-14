@@ -5311,7 +5311,16 @@ Base: `4a9156c4236453c7389e6841fe5d7f25ffc08ecf`.
       deferred.
 - [x] **Focused source-shape regression added.** The test pins the typed `Record`, map lookup and
       absence of a fallback branch.
-- [ ] **Repository-native validation pending.** Focused/full Vitest, lint, build, whitespace and
-      Phase 3F-F/H/J browser audits must pass before Ready.
+- [x] **Repository-native validation passed.** Exact HEAD
+      `7575a2d9d857676a7df61af31c0e885cdb02d7c0` passed GitHub Actions run
+      `34910773136`: focused Phase 3F-Q test, full Vitest, lint, build, whitespace and Phase
+      3F-F/H/J browser audits.
+- [x] **Temporary workflow removed without tree drift.** Compare
+      `7575a2d9...3e405ba2` reports zero changed files after workflow removal.
+- [x] **Hostile + independent focused review passed.** The typed Record, exact current outputs,
+      no-fallback helper shape and strict four-file scope were re-read directly. No executable
+      corrective was required after validation.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after validation;
+      any runtime/test change requires a fresh exact-head run.
 
-**Phase 3F-Q is implemented but not yet repository-native validated. Same-scope cardinality relaxation is NOT STARTED.**
+**Phase 3F-Q is implemented, hostile-reviewed, independently reviewed and repository-native validated. Same-scope cardinality relaxation is NOT STARTED.**
