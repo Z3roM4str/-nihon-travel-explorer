@@ -5060,4 +5060,52 @@ Official Nintendo Museum evidence rechecked: **2026-09-13**.
 - [x] **Ready transition gate satisfied.** Only documentation closure changed after executable
       validation; no runtime, data, test, schema, storage, dependency or UI file changed afterward.
 
-**Phase 3F-L is implemented, hostile-reviewed and repository-native validated. Phase 3F-M is NOT STARTED.**
+**Phase 3F-L is implemented, hostile-reviewed, repository-native validated and merged via PR #82.**
+
+## Phase 3F-M — Same-Scope Multi-Mechanism Identity & Composition Design Gate
+
+Design authority:
+[`docs/SAME_SCOPE_MULTI_MECHANISM_IDENTITY_COMPOSITION_DESIGN.md`](SAME_SCOPE_MULTI_MECHANISM_IDENTITY_COMPOSITION_DESIGN.md).
+
+Base: `7bf0f385ccc6b5fdb635be4e6b3717c156aa2c6c` (`main` after Phase 3F-L / PR #82).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Current blocking case reconfirmed.** The Japan-resident official PokéPark ticket page still
+      publishes both a monthly drawing application mechanism and a deterministic first-come
+      calendar release for the same admission product.
+- [x] **Runtime identity audited.** Derivation, presentation, Phase 3F-H, Phase 3F-J and the per-day
+      React surface already preserve and match exact evidence by `recordId`; `placeId + scope`
+      is therefore a catalog cardinality restriction, not the runtime identity key.
+- [x] **Identity decision: keep `recordId`.** The successor may allow multiple active records with
+      the same `placeId + scope` while global record-ID uniqueness and ID namespace checks remain
+      mandatory.
+- [x] **No channel taxonomy.** No `channel`, `pathway`, `mechanismRole` or fake scope is
+      authorized. Mechanism kind, allocation, provenance and record ID already describe each
+      proposition.
+- [x] **No implicit merging/fallback.** Same-scope records remain separate derivations,
+      presentations, relations and route-wide rows. Neither mechanism is preferred or treated as a
+      fallback for the other.
+- [x] **PokéPark month-end mismatch identified.** Existing Disney
+      `first-day-of-next-month` fallback would derive the wrong first-come date for PokéPark when
+      the aligned day is missing.
+- [x] **One calendar-rule extension approved.** The successor may add
+      `last-day-of-shifted-month` to
+      `rolling-calendar-month-release.missingAlignedDayRule`, preserving real month ends including
+      leap February and leaving Disney semantics untouched.
+- [x] **Two JP-050 candidates bounded.** Subject to implementation-day source recheck, Phase 3F-N
+      may add exactly two active `general-admission` records: monthly drawing (days 1–12, 20:00
+      Asia/Tokyo open, unknown close time) and first-come release (two months before, 20:00
+      Asia/Tokyo, last-day-of-shifted-month fallback).
+- [x] **Purchaser-eligibility boundary recorded.** The current domestic source requires Japan mobile
+      SMS and directs overseas residents elsewhere. Phase 3F records operator mechanism evidence;
+      it does not infer that the current user is eligible to use every cited purchase path.
+- [x] **Existing no-state boundaries preserved.** Sold-out language, availability, inventory,
+      current sale state, lottery result, urgency and recommendation between mechanisms remain out
+      of scope.
+- [x] **Successor gate defined.** Phase 3F-N must prove 8-record parity, duplicate-ID rejection,
+      same-scope multi-record parsing, PokéPark drawing/release arithmetic, month-end/leap fallback,
+      unchanged Disney behavior, two-record composition through D/F/H/J + per-day rendering, and
+      the full regression suite.
+
+**Phase 3F-M changes documentation only. Phase 3F-N is NOT STARTED.**
