@@ -1,6 +1,6 @@
 # Phase 3F-P — Purchase-Residence-Context Evidence Foundation
 
-Status: **implementation candidate — repository-native validation pending**
+Status: **implemented, hostile-reviewed, independently reviewed and repository-native validated**
 
 Base: `aad244f3756b0641bd1c7831375ff56501f11dfd` (`main` after Phase 3F-O / PR #85)
 
@@ -121,26 +121,107 @@ Phase 3F-P does not:
 - rank/recommend purchase routes;
 - add reminders, notifications or calendar actions.
 
-## 8. Validation gate
+## 8. Hostile-review corrective
 
-Before Ready transition the exact executable tree must pass:
+The first complete repository-native validation passed on the pre-review executable tree.
 
-1. Python reservation-mechanism validator;
-2. Python reservation-mechanism unit tests;
-3. focused Phase 3F evidence/presentation/calendar/component tests;
-4. full Vitest;
-5. lint;
-6. build;
-7. repository whitespace gates;
-8. Phase 3F-F browser audit;
-9. Phase 3F-H browser audit;
-10. Phase 3F-J browser audit.
+Hostile review then found one fail-closed defect in the Python validator:
 
-A hostile review must follow the first complete validation pass. Any executable/data/test correction
-after that review requires a fresh exact-head validation.
+- a string outside the closed vocabulary was rejected correctly;
+- but a non-scalar value such as an object/list could reach Python set membership and raise
+  `TypeError` instead of returning a validation error.
 
-## 9. Current gate
+The validator now requires `purchaseResidenceContext` to be a string before closed-vocabulary
+membership is evaluated.
 
-**IMPLEMENTED — REPOSITORY-NATIVE VALIDATION PENDING.**
+A regression test supplies a structured object and requires the validator to reject it cleanly.
+
+No catalog semantics, UI copy, cardinality, date logic or route ordering changed.
+
+Because this changed executable/test code, the first validation seal was discarded and the corrected
+tree was revalidated from scratch.
+
+## 9. Final repository-native validation
+
+Final clean executable HEAD:
+
+`f1f937c5f4c4b04b3296bd918e5cacb59e33a2cf`
+
+Temporary workflow-bearing commit:
+
+`2a2c8c25e79c760d7f7410242da19fec38fbed53`
+
+The workflow explicitly checked out the clean executable HEAD above with full history.
+
+GitHub Actions run:
+
+`34905444797` — **SUCCESS**
+
+Passed:
+
+- exact-head checkout;
+- Python reservation-mechanism validator;
+- Python reservation-mechanism unit tests;
+- dependency install;
+- focused Phase 3F-P Vitest set;
+- full Vitest;
+- lint;
+- build;
+- repository whitespace gates;
+- Chromium install;
+- Phase 3F-F browser audit;
+- Phase 3F-H browser audit;
+- Phase 3F-J browser audit.
+
+The temporary workflow was removed in:
+
+`5eaf17e84f0d13049126a0a2602eb0864ebc0d76`
+
+Compare:
+
+`f1f937c5f4c4b04b3296bd918e5cacb59e33a2cf...5eaf17e84f0d13049126a0a2602eb0864ebc0d76`
+
+reports:
+
+- ahead by 2 commits;
+- behind by 0;
+- **zero changed files**.
+
+Therefore the current executable/data/test tree after workflow removal is byte-equivalent to the exact
+tree that passed repository-native validation.
+
+## 10. Independent focused review
+
+A post-validation focused review checked the final clean implementation shape against the Phase 3F-O
+contract.
+
+It confirmed:
+
+1. the TypeScript schema requires one closed `purchaseResidenceContext` value;
+2. the Python validator mirrors the vocabulary and rejects non-string/unsupported values fail-closed;
+3. the catalog remains exactly seven records;
+4. JP-050 is the only `resides-outside-japan` record;
+5. the other six records remain `not-recorded`;
+6. JP-050 retains the operator residence-routing URL in provenance evidence;
+7. `not-recorded` produces no presentation line;
+8. both visible surfaces render context between allocation and the Phase 3F-H temporal relation;
+9. Phase 3F-D does not read purchase-residence context;
+10. Phase 3F-H does not read purchase-residence context;
+11. the route-wide calendar module does not read purchase-residence context;
+12. the route comparator remains anchor date → plan ordinal → source-record index;
+13. active `placeId + scope` uniqueness remains enforced;
+14. no second JP-050 record, domestic first-come record or new missing-day runtime enum was added;
+15. no user-residence, country, eligibility, persistence, availability or current-sale-state behavior
+    was introduced.
+
+No further executable corrective was required.
+
+## 11. Current gate
+
+**IMPLEMENTED + HOSTILE-REVIEW CORRECTED + INDEPENDENT FOCUSED REVIEW PASSED + REPOSITORY-NATIVE VALIDATION PASSED.**
+
+Only documentation closure may change after the validated tree before Ready transition. Any
+subsequent runtime, data, schema, test, dependency, storage or UI change invalidates the validation
+seal and requires a fresh exact-head run.
 
 Phase 3F-Q is not started.
