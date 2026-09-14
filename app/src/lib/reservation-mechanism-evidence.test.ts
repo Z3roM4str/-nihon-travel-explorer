@@ -43,6 +43,7 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
       id: "RM-JP-050-001",
       placeId: "JP-050",
       scope: "general-admission",
+      purchaseResidenceContext: "resides-outside-japan",
       allocation: "drawing",
       status: "active",
       mechanism: {
@@ -63,7 +64,24 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
     });
     expect(records[0].provenance.sourceEntity).toContain("outside-Japan");
     expect(records[0].provenance.evidence).toContain("outside Japan");
+    expect(records[0].provenance.evidence).toContain(
+      "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US"
+    );
     expect(records[0].provenance.evidence).not.toContain("two months");
+  });
+
+  it("migrates exactly one record to a specific residence context and leaves six unasserted", () => {
+    expect(
+      reservationMechanismEvidenceRecords.map((record) => record.purchaseResidenceContext)
+    ).toEqual([
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "resides-outside-japan",
+    ]);
   });
 
   it("preserves source-data order for one place without sorting", () => {
@@ -86,6 +104,29 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
 
   it("rejects an ID namespace that disagrees with placeId", () => {
     expect(parseReservationMechanismEvidenceRecord({ ...valid, placeId: "JP-203" })).toBeNull();
+  });
+
+  it("requires the closed purchaseResidenceContext field without defaulting", () => {
+    const { purchaseResidenceContext: _removed, ...missing } = valid;
+    expect(parseReservationMechanismEvidenceRecord(missing)).toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        purchaseResidenceContext: "worldwide",
+      })
+    ).toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        purchaseResidenceContext: "resides-in-japan",
+      })
+    ).not.toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        purchaseResidenceContext: "resides-outside-japan",
+      })
+    ).not.toBeNull();
   });
 
   it("rejects unsupported scope, allocation and status", () => {
