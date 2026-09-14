@@ -237,13 +237,14 @@ No UI line is rendered.
 
 ### `resides-in-japan`
 
-`Contexto de compra registrado: residentes en Japón.`
+`Ruta de compra oficial citada: para residentes en Japón.`
 
 ### `resides-outside-japan`
 
-`Contexto de compra registrado: residentes fuera de Japón.`
+`Ruta de compra oficial citada: para residentes fuera de Japón.`
 
-This text is descriptive only.
+This text is descriptive only and is deliberately anchored to the **cited official purchase
+route**, not to the current user.
 
 It must not say:
 
@@ -252,7 +253,11 @@ It must not say:
 - “elige esta opción”;
 - “debes usar”;
 - “puedes comprar”;
-- “no puedes comprar”.
+- “no puedes comprar”;
+- “eres residente”;
+- “no eres residente”;
+- “eres elegible”;
+- “no eres elegible”.
 
 ---
 
@@ -276,7 +281,37 @@ No new panel, grouping surface or badge taxonomy is required.
 
 ---
 
-## 11. Existing-record migration
+## 11. Provenance traceability for specific purchase contexts
+
+A non-`not-recorded` `purchaseContext` is a structured factual claim and must be traceable to an
+official source that explicitly supports that residence context.
+
+For JP-050, the canonical mechanism `sourceUrl` remains:
+
+`https://ticket-en.pokepark-kanto.co.jp/?viewLang=en`
+
+because that store is the source for the Application/lottery mechanism itself.
+
+However, the explicit outside-Japan routing statement is published on:
+
+`https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US`
+
+Therefore Phase 3F-P must retain that official routing URL verbatim inside
+`provenance.evidence` as a supporting source for `purchaseContext: resides-outside-japan`.
+
+This follows the existing Phase 3F compound-provenance pattern used for Nintendo Museum: one
+canonical `sourceUrl`, with an additional official supporting URL retained verbatim in evidence
+when a structured claim depends on it.
+
+No provenance-array/schema expansion is authorized by this gate.
+
+If a future non-`not-recorded` context cannot be traced to explicit official evidence, that record
+must remain `not-recorded` rather than deriving context from naming, locale, language, domain or
+operator assumptions.
+
+---
+
+## 12. Existing-record migration
 
 Phase 3F-P should migrate all seven active records so the field is explicit and parser shape remains
 closed.
@@ -302,7 +337,7 @@ supports it.
 
 ---
 
-## 12. Parser and validator contract
+## 13. Parser and validator contract
 
 Phase 3F-P must:
 
@@ -321,7 +356,7 @@ migrated atomically in the same successor.
 
 ---
 
-## 13. Runtime ownership boundaries
+## 14. Runtime ownership boundaries
 
 ### Phase 3F-D derivation
 
@@ -360,7 +395,7 @@ It must not:
 
 ---
 
-## 14. Identity and cardinality boundary
+## 15. Identity and cardinality boundary
 
 Phase 3F-O retains the Phase 3F-M identity conclusion:
 
@@ -380,7 +415,7 @@ Therefore Phase 3F-O does not authorize a second JP-050 active record.
 
 ---
 
-## 15. Domestic PokéPark boundary
+## 16. Domestic PokéPark boundary
 
 The Japan-resident route is useful as the real proof that `resides-in-japan` is needed in the
 vocabulary.
@@ -399,7 +434,7 @@ Purchase-context support is necessary but not sufficient to add that record.
 
 ---
 
-## 16. No hidden applicability logic
+## 17. No hidden applicability logic
 
 The new field may not be used as a proxy for:
 
@@ -421,7 +456,7 @@ No code may derive “usable by user” from this field.
 
 ---
 
-## 17. Successor implementation boundary
+## 18. Successor implementation boundary
 
 **Phase 3F-P — Purchase-Context Evidence Foundation** may change only:
 
@@ -453,7 +488,7 @@ Not authorized:
 
 ---
 
-## 18. Phase 3F-P validation gate
+## 19. Phase 3F-P validation gate
 
 Phase 3F-P must prove at minimum:
 
@@ -474,7 +509,7 @@ Phase 3F-P must prove at minimum:
 15. Phase 3F-D derives identical dates before and after the migration;
 16. Phase 3F-D source code does not read `purchaseContext`;
 17. Phase 3F-F returns null context text for `not-recorded`;
-18. Phase 3F-F renders the exact outside-Japan text for JP-050;
+18. Phase 3F-F renders the exact route-anchored outside-Japan text for JP-050;
 19. Phase 3F-F wording contains no personalized applicability claim;
 20. Phase 3F-H relation output remains byte/shape-equivalent for matching date inputs;
 21. Phase 3F-H source code does not read `purchaseContext`;
@@ -483,18 +518,21 @@ Phase 3F-P must prove at minimum:
 24. per-day surface renders non-null context after allocation and before provenance;
 25. route-wide surface renders non-null context after allocation and before provenance;
 26. not-recorded records render no empty placeholder;
-27. JP-050 remains exactly one active record;
-28. domestic JP-050 first-come remains absent;
-29. `last-day-of-shifted-month` remains absent from runtime;
-30. full Vitest passes;
-31. lint passes;
-32. build passes;
-33. repository whitespace gates pass;
-34. Phase 3F-F/H/J browser audits pass.
+27. JP-050 provenance evidence retains the official routing URL that explicitly supports the
+    outside-Japan context;
+28. no specific purchase context is inferred from sourceEntity, locale, language or domain;
+29. JP-050 remains exactly one active record;
+30. domestic JP-050 first-come remains absent;
+31. `last-day-of-shifted-month` remains absent from runtime;
+32. full Vitest passes;
+33. lint passes;
+34. build passes;
+35. repository whitespace gates pass;
+36. Phase 3F-F/H/J browser audits pass.
 
 ---
 
-## 19. Normative contracts
+## 20. Normative contracts
 
 1. Phase 3F-O changes documentation only.
 2. `purchaseContext` is source evidence, not user profile data.
@@ -537,29 +575,35 @@ Phase 3F-P must prove at minimum:
 39. Phase 3F-J does not filter by purchase context.
 40. Phase 3F-F owns purchase-context display text.
 41. `not-recorded` produces no UI line.
-42. `resides-in-japan` uses neutral descriptive text.
-43. `resides-outside-japan` uses neutral descriptive text.
-44. Context text renders before provenance.
-45. Context text renders after allocation when allocation exists.
-46. Context text must not say “applies to you”.
-47. Context text must not say “does not apply to you”.
-48. Context text must not say “you can buy”.
-49. Context text must not say “you cannot buy”.
-50. Active `placeId + scope` uniqueness remains in Phase 3F-P.
-51. Global record-ID uniqueness remains.
-52. No second JP-050 active record is authorized.
-53. Domestic JP-050 first-come remains deferred.
-54. `last-day-of-shifted-month` remains deferred.
-55. No planning-draft schema change is authorized.
-56. No localStorage change is authorized.
-57. No network request is authorized.
-58. No reminder/notification/calendar action is authorized.
-59. Full repository-native validation is required before Ready transition.
-60. A later gate is required before same-scope cardinality relaxation.
+42. `resides-in-japan` uses route-anchored neutral descriptive text.
+43. `resides-outside-japan` uses route-anchored neutral descriptive text.
+44. Context text names the cited official purchase route, not the current user's residence.
+45. Context text renders before provenance.
+46. Context text renders after allocation when allocation exists.
+47. Context text must not say “applies to you”.
+48. Context text must not say “does not apply to you”.
+49. Context text must not say “you can buy”.
+50. Context text must not say “you cannot buy”.
+51. Context text must not say or imply “you are a resident”.
+52. Context text must not say or imply “you are eligible”.
+53. A specific context requires explicit official supporting evidence.
+54. JP-050's outside-Japan context keeps the official routing URL in provenance evidence.
+55. Specific context may not be inferred from sourceEntity, locale, language or domain.
+56. Active `placeId + scope` uniqueness remains in Phase 3F-P.
+57. Global record-ID uniqueness remains.
+58. No second JP-050 active record is authorized.
+59. Domestic JP-050 first-come remains deferred.
+60. `last-day-of-shifted-month` remains deferred.
+61. No planning-draft schema change is authorized.
+62. No localStorage change is authorized.
+63. No network request is authorized.
+64. No reminder/notification/calendar action is authorized.
+65. Full repository-native validation is required before Ready transition.
+66. A later gate is required before same-scope cardinality relaxation.
 
 ---
 
-## 20. Rejected alternatives
+## 21. Rejected alternatives
 
 ### “Keep encoding purchase context only in sourceEntity”
 
@@ -594,7 +638,7 @@ to the purchase-context field itself.
 
 ---
 
-## 21. Recommended successor
+## 22. Recommended successor
 
 **Phase 3F-P — Purchase-Context Evidence Foundation**
 
@@ -604,8 +648,9 @@ One bounded implementation:
 - migrate all seven records atomically;
 - set JP-050 to `resides-outside-japan`;
 - set the other six records to `not-recorded`;
-- add neutral presentation text for non-`not-recorded` contexts;
-- render it on both existing official-reservation surfaces;
+- add route-anchored neutral presentation text for non-`not-recorded` contexts;
+- retain the official PokéPark routing URL in JP-050 provenance evidence as supporting context proof;
+- render context on both existing official-reservation surfaces;
 - keep date derivation, temporal relation and route ordering context-blind;
 - preserve active `placeId + scope` uniqueness;
 - add no new mechanisms or records;
