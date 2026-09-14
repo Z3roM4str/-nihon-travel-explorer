@@ -1,6 +1,6 @@
 # Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation
 
-Status: **implementation candidate — validation pending**
+Status: **implemented and repository-native validation passed**
 Base: `7fa8e82053f241358f8d613b2d866b241dee36ac` (`main` after Phase 3F-K / PR #81)
 Official Nintendo source rechecked: **2026-09-13**
 Design authority: [OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_DESIGN.md](OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_DESIGN.md)
@@ -242,36 +242,39 @@ An independent civil-date arithmetic check also confirmed:
 
 ---
 
-## 8. Validation still required before Ready transition
+## 8. Repository-native validation
 
-The current ChatGPT execution environment has no repository checkout, no GitHub network access from
-its shell, and the repository has no GitHub Actions workflow registered for these gates. Therefore
-the following commands have **not** been executed against this branch and must not be reported as
-passing yet:
+A temporary GitHub Actions workflow was added only to execute the required gates and was removed
+immediately afterward. The workflow checked out the exact code head
+`b10e2bcf8abb9085d2e29576739b60cb40c9fb84` rather than the workflow-bearing commit.
 
-```bash
-python3 scripts/validate-reservation-mechanisms.py
-python3 scripts/test_reservation_mechanisms.py
+GitHub Actions run: `34865708384` — **SUCCESS**.
 
-cd app
-npx vitest run   src/lib/reservation-mechanism-evidence.test.ts   src/lib/reservation-mechanism-date-derivation.test.ts   src/lib/reservation-mechanism-presentation.test.ts   src/lib/reservation-mechanism-reference-date.test.ts   src/lib/reservation-mechanism-reference-date-presentation.test.ts   src/lib/reservation-mechanism-calendar.test.ts   src/lib/reservation-mechanism-calendar-presentation.test.ts   src/components/OrderedSequenceBuilder.official-reservation-reference-date.test.ts   src/components/OrderedSequenceBuilder.official-reservation-calendar.test.ts
+Passed steps:
 
-npm test
-npm run lint
-npm run build
-cd ..
-git diff --check 7fa8e82053f241358f8d613b2d866b241dee36ac...HEAD
-git diff --check
+- exact-head checkout: **PASS**
+- `python3 scripts/validate-reservation-mechanisms.py`: **PASS**
+- `python3 scripts/test_reservation_mechanisms.py`: **PASS**
+- dependency install: **PASS**
+- focused Phase 3F Vitest set, including evidence, derivation, presentation, 3F-H and 3F-J: **PASS**
+- full `npm test`: **PASS**
+- `npm run lint`: **PASS**
+- `npm run build`: **PASS**
+- `git diff --check 7fa8e82053f241358f8d613b2d866b241dee36ac...HEAD`: **PASS**
+- `git diff --check`: **PASS**
+- Playwright Chromium install: **PASS**
+- Phase 3F-F browser audit: **PASS**
+- Phase 3F-H browser audit: **PASS**
+- Phase 3F-J browser audit: **PASS**
 
-cd app
-node scripts/phase3f-f-browser-audit.mjs
-node scripts/phase3f-h-browser-audit.mjs
-node scripts/phase3f-j-browser-audit.mjs
-```
+The temporary workflow was then deleted. Comparing
+`b10e2bcf8abb9085d2e29576739b60cb40c9fb84` with the post-deletion commit
+`167abb77e64db5a68c6809d64d52ec49cd19c983` yields **zero changed files**, proving the executable
+tree was restored exactly after validation.
 
-The browser audits are regressions. Static inspection confirms their existing real fixtures use
-Ghibli, Tokyo Disney, Katsura and Sumo; none uses JP-097, and no UI code changed. They still require
-execution before Ready transition.
+The browser audits remain regression-only fixtures: Ghibli, Tokyo Disney, Katsura and Sumo were
+exercised, while JP-097 is covered by focused pure-layer tests and no UI fixture required semantic
+rewriting.
 
 ---
 
@@ -295,9 +298,9 @@ regression gates rather than fixtures that need semantic updates.
 
 ## 10. Current gate result
 
-**IMPLEMENTED + HOSTILE-REVIEW CORRECTED — NOT YET VALIDATED FOR READY TRANSITION.**
+**IMPLEMENTED + HOSTILE-REVIEW CORRECTED + REPOSITORY-NATIVE VALIDATION PASSED.**
 
-The branch is intentionally suitable only for a **Draft PR** until the repository-native test, lint,
-build, whitespace and browser gates above are executed on its final code HEAD.
+The executable code tree passed the complete Phase 3F-L validation gate. Documentation-only closure
+updates after validation do not alter the validated runtime/data/test tree.
 
-Phase 3F-M is not started.
+Phase 3F-L is ready for the PR Ready transition. Phase 3F-M is not started.
