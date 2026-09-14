@@ -84,6 +84,21 @@ describe("Phase 3F-F official reservation presentation", () => {
     }
   });
 
+  it("keeps purchase residence presentation compile-time exhaustive with no fallback branch", async () => {
+    const source = await readFile(new URL("./reservation-mechanism-presentation.ts", import.meta.url), "utf8");
+    expect(source).toMatch(
+      /const PURCHASE_RESIDENCE_CONTEXT_LABEL:\s*Record<\s*ReservationPurchaseResidenceContext,\s*string \| null\s*>/
+    );
+    expect(source).toContain('return PURCHASE_RESIDENCE_CONTEXT_LABEL[context];');
+    const helperStart = source.indexOf(
+      "export function describeReservationPurchaseResidenceContextForUi"
+    );
+    const nextFunction = source.indexOf("\nfunction ", helperStart);
+    const helper = source.slice(helperStart, nextFunction);
+    expect(helper).not.toContain('if (context ===');
+    expect(helper).not.toMatch(/return\s+["']/);
+  });
+
   it("renders Ghibli's real release fact with its recorded Asia/Tokyo label", () => {
     const result = buildOfficialReservationDatePresentation(
       ghibli,
