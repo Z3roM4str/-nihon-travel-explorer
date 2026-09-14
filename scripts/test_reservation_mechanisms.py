@@ -159,6 +159,10 @@ class CatalogValidationTests(unittest.TestCase):
             [valid_record(purchaseResidenceContext="worldwide")],
             "unsupported purchaseResidenceContext",
         )
+        self.assert_invalid(
+            [valid_record(purchaseResidenceContext={"kind": "resides-outside-japan"})],
+            "unsupported purchaseResidenceContext",
+        )
         self.assertEqual(
             self.errors([valid_record(purchaseResidenceContext="resides-in-japan")]),
             [],
