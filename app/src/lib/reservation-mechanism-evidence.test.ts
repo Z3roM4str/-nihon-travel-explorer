@@ -122,7 +122,8 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
   });
 
   it("requires the closed purchaseResidenceContext field without defaulting", () => {
-    const { purchaseResidenceContext: _removed, ...missing } = valid;
+    const missing: Record<string, unknown> = { ...valid };
+    delete missing.purchaseResidenceContext;
     expect(parseReservationMechanismEvidenceRecord(missing)).toBeNull();
     expect(
       parseReservationMechanismEvidenceRecord({
