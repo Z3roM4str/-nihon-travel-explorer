@@ -589,6 +589,28 @@ purchase-context model is designed.
 
 ---
 
+### 12.2 Independent focused review corrective
+
+A second focused source review checked only the corrected overseas successor proposition against the
+current operator-designated English store.
+
+It confirmed:
+
+1. the outside-Japan store independently publishes the three-month-ahead Application system and the
+   1st–12th application period;
+2. the same source explicitly states that Application periods start at **20:00 JST**;
+3. the same source explicitly uses lottery terminology, including unsuccessful applicants and a
+   possible redraw, so `allocation: drawing` is not an inference from domestic wording;
+4. no recurring close time for the 12th was established by the reviewed source, so the close edge
+   remains untimed;
+5. the domestic 20:00 evidence is not needed to support the international record;
+6. the corrected one-record / seven-record-catalog successor remains implementable entirely with the
+   existing `monthly-application-window` runtime and current cardinality rules.
+
+No runtime, data, schema or UI change was made by this review.
+
+---
+
 ## 13. Rejected alternatives
 
 ### “Use a new scope for lottery versus first-come”
