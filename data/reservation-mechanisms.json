@@ -138,9 +138,9 @@
     "status": "active",
     "provenance": {
       "sourceUrl": "https://museum-tickets.nintendo.com/en",
-      "sourceEntity": "Nintendo Museum",
+      "sourceEntity": "Nintendo Museum ticketing website",
       "consultedAt": "2026-09-13",
-      "evidence": "The official Nintendo Museum ticketing site states that tickets are first sold to drawing entrants; its example allows a July 15 visit to enter the drawing from April 1 through April 30, and the current calendar shows December 2026 drawing entries closing September 30. Nihon therefore records the full calendar month three months before the visit month as an official-derived drawing application window, without inventing recurring clock times.",
+      "evidence": "Primary official source https://museum-tickets.nintendo.com/en states that tickets are first sold to drawing entrants and gives the example that a July 15 visit may enter the drawing from April 1 through April 30. Supporting official calendar https://museum-tickets.nintendo.com/en/calendar?lang=en states that drawings occur once per month and, on 2026-09-13, shows December 2026 drawing entries open through September 30 at 23:59. Nihon therefore records the full calendar month three months before the visit month as an official-derived drawing application window, without generalizing the one observed 23:59 close into a recurring clock time.",
       "confidence": "official-derived"
     }
   }
