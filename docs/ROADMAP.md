@@ -5190,6 +5190,13 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       any new accessibility claim.
 - [x] **Neutral presentation contract approved.** Non-`not-recorded` context renders after
       allocation and before provenance on both existing official-reservation surfaces.
+- [x] **Hostile-review wording corrective applied.** Context text is now explicitly anchored to the
+      cited official purchase route — “Ruta de compra oficial citada…” — rather than phrased as a
+      label that could be read as the current user's residence or eligibility.
+- [x] **Specific-context provenance hardened.** JP-050's canonical mechanism source remains the
+      Official Web Ticket Store, while the operator page that explicitly routes guests residing
+      outside Japan must be retained verbatim in provenance evidence as supporting context proof.
+      No provenance schema expansion is needed.
 - [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
       read purchase context; Phase 3F-F owns display text.
 - [x] **Cardinality remains deferred.** Phase 3F-P must keep active `placeId + scope` uniqueness,
@@ -5199,4 +5206,4 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
       repository-native regression.
 
-**Phase 3F-O changes documentation only. Phase 3F-P is NOT STARTED.**
+**Phase 3F-O changes documentation only and is hostile-review corrected. Phase 3F-P is NOT STARTED.**
