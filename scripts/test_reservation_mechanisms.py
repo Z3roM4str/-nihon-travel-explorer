@@ -341,6 +341,14 @@ class RealCatalogTests(unittest.TestCase):
         self.assertEqual(nintendo["mechanism"]["kind"], "monthly-application-window")
         self.assertEqual(nintendo["provenance"]["consultedAt"], "2026-09-13")
         self.assertEqual(nintendo["provenance"]["confidence"], "official-derived")
+        self.assertEqual(
+            nintendo["provenance"]["sourceUrl"],
+            "https://museum-tickets.nintendo.com/en",
+        )
+        self.assertIn(
+            "https://museum-tickets.nintendo.com/en/calendar?lang=en",
+            nintendo["provenance"]["evidence"],
+        )
         originals = [record for record in self.catalog if record["placeId"] != "JP-097"]
         self.assertTrue(
             all(record["provenance"]["confidence"] == "official-explicit" for record in originals)
