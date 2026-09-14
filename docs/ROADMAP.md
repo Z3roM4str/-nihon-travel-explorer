@@ -5060,4 +5060,63 @@ Official Nintendo Museum evidence rechecked: **2026-09-13**.
 - [x] **Ready transition gate satisfied.** Only documentation closure changed after executable
       validation; no runtime, data, test, schema, storage, dependency or UI file changed afterward.
 
-**Phase 3F-L is implemented, hostile-reviewed and repository-native validated. Phase 3F-M is NOT STARTED.**
+**Phase 3F-L is implemented, hostile-reviewed, repository-native validated and merged via PR #82.**
+
+## Phase 3F-M — Same-Scope Multi-Mechanism Identity & Composition Design Gate
+
+Design authority:
+[`docs/SAME_SCOPE_MULTI_MECHANISM_IDENTITY_COMPOSITION_DESIGN.md`](SAME_SCOPE_MULTI_MECHANISM_IDENTITY_COMPOSITION_DESIGN.md).
+
+Base: `7bf0f385ccc6b5fdb635be4e6b3717c156aa2c6c` (`main` after Phase 3F-L / PR #82).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Domestic multi-mechanism case reconfirmed.** The Japan-resident ticket page still publishes
+      a monthly drawing path and a two-month first-come path for PokéPark admission.
+- [x] **Runtime identity audited.** Derivation, presentation, Phase 3F-H, Phase 3F-J and the per-day
+      React surface already preserve exact evidence by `recordId`; `placeId + scope` is a catalog
+      cardinality restriction rather than the fundamental runtime identity key.
+- [x] **Identity conclusion retained.** `recordId` is sufficient to distinguish evidence records,
+      so no `channel`, `pathway`, `mechanismRole` or fake scope is needed merely for identity.
+- [x] **Hostile review found an applicability boundary.** The domestic purchase route requires
+      Japan mobile/SMS, while residents outside Japan are directed to a separate official English
+      store. Record identity does not answer which purchase context applies to one traveler.
+- [x] **International official store audited.** The outside-Japan store publishes a lottery
+      application system for admission three months ahead with an application period from the 1st
+      through the 12th, selected/unsuccessful applicant states, possible redraw, and payment after
+      selection.
+- [x] **International 20:00 evidence independently confirmed.** The outside-Japan store explicitly
+      states that Application periods start at 20:00 JST. The successor may preserve that open-edge
+      time/timezone without relying on the domestic source; the close edge remains untimed.
+- [x] **Same-scope cardinality relaxation deferred.** Active `placeId + scope` uniqueness remains a
+      temporary safety invariant until purchase-context/applicability semantics are designed.
+- [x] **Domestic first-come record deferred.** Current domestic material says some tickets are sold
+      first-come, while prior official material states first-come may depend on lottery-sale
+      conditions. The current audience-agnostic `general-admission` model would overstate that
+      proposition.
+- [x] **Month-end fallback documented but not implemented.** `last-day-of-shifted-month` is the
+      correct civil rule for the domestic first-come path, but Phase 3F-N will not add unused runtime
+      complexity while that path remains deferred.
+- [x] **Corrected successor bounded to one JP-050 record.** Subject to implementation-day source
+      recheck, Phase 3F-N may add exactly one active `general-admission` record from the official
+      outside-Japan purchase flow using existing `monthly-application-window`, days 1–12,
+      open 20:00 Asia/Tokyo, close time/timezone unknown, allocation `drawing`.
+- [x] **Catalog cardinality remains unchanged.** Phase 3F-N must preserve global ID uniqueness and
+      active `placeId + scope` uniqueness; expected catalog size becomes 7, not 8.
+- [x] **Existing no-state boundaries preserved.** Availability, inventory, current sale state,
+      lottery result, urgency, personalized eligibility, reminders and recommendation between
+      mechanisms remain out of scope.
+- [x] **Successor gate corrected.** Phase 3F-N must prove 7-record parity, exact international
+      provenance context, 1st–12th three-month application derivation, exact 20:00 Asia/Tokyo open
+      edge, no invented close time/timezone, absence of domestic first-come evidence, unchanged
+      Disney behavior and the full regression suite.
+- [x] **Future same-scope work explicitly separated.** A later purchase-context design gate is
+      required before domestic/international or other applicability-distinct mechanisms coexist as
+      active same-scope records.
+- [x] **Independent focused review passed with one source correction.** The international store
+      independently confirms Application periods start at 20:00 JST and explicitly uses
+      lottery/redraw semantics, so Phase 3F-N may preserve a 20:00 Asia/Tokyo open edge and
+      `allocation: drawing`; the close edge remains untimed. No other design contradiction was
+      found.
+
+**Phase 3F-M changes documentation only and is hostile-review corrected. Phase 3F-N is NOT STARTED.**
