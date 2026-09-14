@@ -654,19 +654,25 @@ Phase 3F-P must prove at minimum:
 
 ### 21.1 Independent focused review corrective
 
-A focused implementation-shape review checked the corrected design against both current React
-surfaces and the shipped Phase 3F-H composition order.
+The independent focused review checked the corrected design against:
 
-It found one ambiguity:
+- the current official PokéPark residence-routing evidence;
+- both current React reservation surfaces;
+- the shipped Phase 3F-H composition order;
+- the proposed closed evidence vocabulary.
 
-The first draft required purchase-residence context to render “after allocation and before provenance”, but
-both existing surfaces currently place the Phase 3F-H reference-date relation inside that same
-interval. The wording therefore allowed two incompatible implementations:
+It found two material design issues.
+
+#### A. Presentation-order ambiguity
+
+The earlier draft required purchase-residence context to render “after allocation and before
+provenance”, but both existing surfaces currently place the Phase 3F-H reference-date relation inside
+that same interval. The wording therefore allowed two incompatible implementations:
 
 - allocation → context → relation → provenance; or
 - allocation → relation → context → provenance.
 
-The review resolves this by fixing one exact order:
+The review fixes one exact order:
 
 > recorded fact/details → allocation (if any) → purchase-residence context → temporal relation (if any) →
 > provenance → source link.
@@ -674,14 +680,33 @@ The review resolves this by fixing one exact order:
 This keeps mechanism/source-route properties together and leaves the temporal relation as a separate
 dimension after them.
 
-The review also reconfirmed:
+#### B. Field name was broader than the evidence axis
 
-1. `purchaseResidenceContext` remains a fact about the cited official route, not the user;
-2. the three-value closed vocabulary is sufficient for the currently evidenced PokéPark distinction;
+The earlier field name `purchaseContext` was too broad for a vocabulary whose only structured axis
+is residence in Japan versus residence outside Japan.
+
+The review narrows the structural field to:
+
+`purchaseResidenceContext`
+
+and the presentation field to:
+
+`purchaseResidenceContextText`
+
+This prevents future language, channel, membership, payment or phone/SMS concepts from being
+silently overloaded into the same scalar.
+
+The review reconfirmed:
+
+1. `purchaseResidenceContext` is a fact about the cited official route, not the user;
+2. the three-value closed vocabulary is sufficient for the currently evidenced PokéPark residence
+   distinction;
 3. migrating the other six records to `not-recorded` adds no new restriction or universal-access
    claim;
-4. no additional runtime owner beyond Phase 3F-F presentation is needed;
-5. Phase 3F-J can continue carrying the existing presentation object without a new calendar-level
+4. specific context requires explicit official supporting evidence and may not be inferred from
+   `sourceEntity`, locale, language or domain;
+5. no additional runtime owner beyond Phase 3F-F presentation is needed;
+6. Phase 3F-J can continue carrying the existing presentation object without a new calendar-level
    purchase-residence-context field.
 
 No runtime, data, schema or UI implementation is performed by this review.
