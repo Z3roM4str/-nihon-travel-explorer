@@ -85,6 +85,37 @@ class CatalogValidationTests(unittest.TestCase):
         )
         self.assertEqual(self.errors([record]), [])
 
+    def test_valid_monthly_application_window(self):
+        record = valid_record(
+            mechanism={
+                "kind": "monthly-application-window",
+                "monthsBeforeVisitMonth": 3,
+                "openDay": {"kind": "fixed-day-of-month", "day": 1},
+                "closeDay": {"kind": "last-day-of-month"},
+                "openTimeLocal": None,
+                "openSourceTimeZone": None,
+                "closeTimeLocal": None,
+                "closeSourceTimeZone": None,
+            },
+            allocation="drawing",
+        )
+        self.assertEqual(self.errors([record]), [])
+
+    def test_monthly_application_window_rejects_inverted_fixed_days(self):
+        record = valid_record(
+            mechanism={
+                "kind": "monthly-application-window",
+                "monthsBeforeVisitMonth": 3,
+                "openDay": {"kind": "fixed-day-of-month", "day": 20},
+                "closeDay": {"kind": "fixed-day-of-month", "day": 12},
+                "openTimeLocal": None,
+                "openSourceTimeZone": None,
+                "closeTimeLocal": None,
+                "closeSourceTimeZone": None,
+            }
+        )
+        self.assert_invalid([record], "openDay must not be after fixed closeDay")
+
     def test_valid_relative_application_window(self):
         record = valid_record(
             mechanism={
@@ -297,24 +328,39 @@ class RealCatalogTests(unittest.TestCase):
             self.APP.read_text(encoding="utf-8"),
         )
 
-    def test_pilot_has_exactly_five_high_confidence_records(self):
-        self.assertEqual(len(self.catalog), 5)
+    def test_catalog_has_five_original_records_plus_nintendo(self):
+        self.assertEqual(len(self.catalog), 6)
         self.assertEqual(
             {record["placeId"] for record in self.catalog},
-            {"JP-044", "JP-077", "JP-203", "JP-204", "JP-212"},
+            {"JP-044", "JP-077", "JP-097", "JP-203", "JP-204", "JP-212"},
+        )
+        nintendo = next(record for record in self.catalog if record["placeId"] == "JP-097")
+        self.assertEqual(nintendo["id"], "RM-JP-097-001")
+        self.assertEqual(nintendo["scope"], "general-admission")
+        self.assertEqual(nintendo["allocation"], "drawing")
+        self.assertEqual(nintendo["mechanism"]["kind"], "monthly-application-window")
+        self.assertEqual(nintendo["provenance"]["consultedAt"], "2026-09-13")
+        self.assertEqual(nintendo["provenance"]["confidence"], "official-derived")
+        self.assertEqual(
+            nintendo["provenance"]["sourceUrl"],
+            "https://museum-tickets.nintendo.com/en",
+        )
+        self.assertIn(
+            "https://museum-tickets.nintendo.com/en/calendar?lang=en",
+            nintendo["provenance"]["evidence"],
+        )
+        originals = [record for record in self.catalog if record["placeId"] != "JP-097"]
+        self.assertTrue(
+            all(record["provenance"]["confidence"] == "official-explicit" for record in originals)
         )
         self.assertTrue(
-            all(record["provenance"]["confidence"] == "official-explicit" for record in self.catalog)
+            all(record["provenance"]["consultedAt"] == "2026-09-12" for record in originals)
         )
 
-    def test_every_record_uses_consultation_date_2026_09_12(self):
-        self.assertTrue(
-            all(record["provenance"]["consultedAt"] == "2026-09-12" for record in self.catalog)
-        )
-
-    def test_usj_nintendo_and_animejapan_are_intentionally_absent(self):
+    def test_phase_3f_k_explicit_exclusions_remain_absent(self):
         present = {record["placeId"] for record in self.catalog}
-        self.assertFalse({"JP-125", "JP-097", "JP-211"} & present)
+        self.assertFalse({"JP-002", "JP-050", "JP-125", "JP-126", "JP-211"} & present)
+        self.assertIn("JP-097", present)
 
     def test_no_runtime_action_fields_exist(self):
         forbidden = {

@@ -27,6 +27,7 @@ const disneyland = record("JP-203");
 const disneySea = record("JP-204");
 const katsura = record("JP-077");
 const sumo = record("JP-212");
+const nintendo = record("JP-097");
 
 /** Real Phase 3F-D outputs, produced by the real derivation owner — never hand-written dates. */
 const ghibliRelease = deriveReservationMechanismDate(ghibli, "2027-02-20");
@@ -35,6 +36,7 @@ const disneySeaFallbackRelease = deriveReservationMechanismDate(disneySea, "2027
 const katsuraWindow = deriveReservationMechanismDate(katsura, "2027-03-15");
 const sumoApplicable = deriveReservationMechanismDate(sumo, "2027-03-20");
 const sumoOutsideEvent = deriveReservationMechanismDate(sumo, "2027-03-29");
+const nintendoWindow = deriveReservationMechanismDate(nintendo, "2027-03-15");
 
 function kindOf(
   derivation: ReservationMechanismDateDerivation,
@@ -56,6 +58,12 @@ describe("Phase 3F-H — real fixtures feeding the relation", () => {
       kind: "application-window",
       openDate: "2026-12-01",
       closeDate: "2027-03-12",
+    });
+    expect(nintendoWindow).toMatchObject({
+      kind: "application-window",
+      openDate: "2026-12-01",
+      closeDate: "2026-12-31",
+      allocation: "drawing",
     });
     expect(sumoApplicable).toMatchObject({ kind: "release-date", releaseDate: "2027-02-06" });
     expect(sumoOutsideEvent).toMatchObject({ kind: "not-applicable-to-visit-date" });
@@ -201,6 +209,18 @@ describe("Phase 3F-H — recorded application date-span relation", () => {
 
   it("classifies one day after the recorded close date", () => {
     expect(kindOf(katsuraWindow, "2027-03-13")).toBe("after-recorded-application-date-span");
+  });
+
+  it("relates Nintendo's real monthly drawing window without consulting time or timezone", () => {
+    expect(kindOf(nintendoWindow, "2026-11-30")).toBe("before-recorded-application-date-span");
+    expect(kindOf(nintendoWindow, "2026-12-01")).toBe("within-recorded-application-date-span");
+    expect(kindOf(nintendoWindow, "2026-12-31")).toBe("within-recorded-application-date-span");
+    expect(kindOf(nintendoWindow, "2027-01-01")).toBe("after-recorded-application-date-span");
+    const relation = evaluateOfficialReservationReferenceDate(nintendoWindow, "2026-12-15");
+    const serialized = JSON.stringify(relation);
+    for (const forbidden of ["Asia/Tokyo", "JST", "23:59"]) {
+      expect(serialized, forbidden).not.toContain(forbidden);
+    }
   });
 
   it("treats an equal open/close pair as a legitimate one-day span", () => {

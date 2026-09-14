@@ -10,14 +10,15 @@ import {
 } from "./reservation-mechanism-evidence";
 
 describe("reservation-mechanism-evidence — bundled pilot", () => {
-  it("parses all five Phase 3F-B pilot records", () => {
-    expect(reservationMechanismEvidenceRecords).toHaveLength(5);
+  it("parses the five Phase 3F-B pilot records plus the Phase 3F-L Nintendo record", () => {
+    expect(reservationMechanismEvidenceRecords).toHaveLength(6);
     expect(reservationMechanismEvidenceRecords.map((record) => record.placeId)).toEqual([
       "JP-044",
       "JP-203",
       "JP-204",
       "JP-077",
       "JP-212",
+      "JP-097",
     ]);
   });
 
@@ -25,9 +26,12 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
     expect(parseReservationMechanismEvidenceRecords(rawData as unknown)).toEqual(reservationMechanismEvidenceRecords);
   });
 
-  it("keeps USJ, Nintendo Museum and AnimeJapan absent", () => {
+  it("keeps the Phase 3F-K explicit exclusions absent", () => {
     const ids = new Set(reservationMechanismEvidenceRecords.map((record) => record.placeId));
-    for (const absent of ["JP-125", "JP-097", "JP-211"]) expect(ids.has(absent)).toBe(false);
+    for (const absent of ["JP-002", "JP-050", "JP-125", "JP-126", "JP-211"]) {
+      expect(ids.has(absent)).toBe(false);
+    }
+    expect(ids.has("JP-097")).toBe(true);
   });
 
   it("preserves source-data order for one place without sorting", () => {
@@ -122,6 +126,44 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
       parseReservationMechanismEvidenceRecord({
         ...valid,
         mechanism: { ...valid.mechanism, availability: "open" },
+      })
+    ).toBeNull();
+  });
+
+  it("accepts the approved monthly-application-window family", () => {
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        id: "RM-JP-044-002",
+        mechanism: {
+          kind: "monthly-application-window",
+          monthsBeforeVisitMonth: 3,
+          openDay: { kind: "fixed-day-of-month", day: 1 },
+          closeDay: { kind: "last-day-of-month" },
+          openTimeLocal: null,
+          openSourceTimeZone: null,
+          closeTimeLocal: null,
+          closeSourceTimeZone: null,
+        },
+      })
+    ).not.toBeNull();
+  });
+
+  it("rejects statically inverted monthly fixed-day windows", () => {
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        id: "RM-JP-044-002",
+        mechanism: {
+          kind: "monthly-application-window",
+          monthsBeforeVisitMonth: 3,
+          openDay: { kind: "fixed-day-of-month", day: 20 },
+          closeDay: { kind: "fixed-day-of-month", day: 12 },
+          openTimeLocal: null,
+          openSourceTimeZone: null,
+          closeTimeLocal: null,
+          closeSourceTimeZone: null,
+        },
       })
     ).toBeNull();
   });

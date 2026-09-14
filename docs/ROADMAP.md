@@ -4995,4 +4995,69 @@ Official sources consulted: **2026-09-13**.
 
 Recommended successor: **Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation**.
 
-**Phase 3F-K changes documentation only. Phase 3F-L is NOT STARTED.**
+**Phase 3F-K changed documentation only and was merged via PR #81.**
+
+
+## Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation — implementation candidate
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_RUNTIME.md`](OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_RUNTIME.md).
+
+Base: `7fa8e82053f241358f8d613b2d866b241dee36ac` (`main` after Phase 3F-K / PR #81).
+
+Official Nintendo Museum evidence rechecked: **2026-09-13**.
+
+- [x] **Implementation-time source recheck passed.** Nintendo's current official ticket site still
+      states that tickets are first sold to drawing entrants, gives July 15 → April 1–30 as the
+      drawing example, and the current calendar independently identifies the December 2026 drawing
+      through September 30. No recurring clock time is generalized from one calendar instance.
+- [x] **Exactly one new evidence record.** `RM-JP-097-001` represents Nintendo Museum general
+      admission as a `monthly-application-window`, three months before the visit month, from day 1
+      through the real last day of that shifted month, allocation `drawing`, active, consulted
+      2026-09-13, confidence `official-derived`.
+- [x] **Catalog grows 5 → 6 without identity expansion.** Active `placeId + scope` uniqueness is
+      unchanged; no channel field exists; SHIBUYA SKY, PokéPark, USJ, SUPER NINTENDO WORLD and
+      AnimeJapan remain absent exactly as Phase 3F-K required.
+- [x] **New `monthly-application-window` family implemented.** Open edge is a fixed day; close edge
+      may be a fixed day or the calendar month's real last day; edge times and timezone evidence are
+      independent. Static fixed-day inversion is rejected by both parsers/validators.
+- [x] **Calendar arithmetic is civil and fail-closed.** Month shifting never becomes a fixed day
+      count; February 2027 resolves to day 28 and leap February 2028 to day 29. An impossible fixed
+      day in the derived month yields `not-derivable`, never a clamp.
+- [x] **Phase 3F-D inverted-span gap closed.** Existing relative application windows and the new
+      monthly family both reject `openDate > closeDate` as
+      `not-derivable / invalid-calendar-alignment`, with no swap, sort or repair.
+- [x] **Phase 3F-F fail-closed gap closed.** Presentation independently validates both edges and
+      returns `null` before formatting an invalid or inverted application span. No new
+      presentation state was introduced.
+- [x] **Canonical/app evidence parity preserved.** The two JSON artifacts were written from the same
+      serialized value and have the same content blob; a connector-grounded static gate confirmed
+      byte equality.
+- [x] **Focused tests expanded.** TypeScript evidence, derivation and presentation suites now cover
+      Nintendo, month-end/leap-month arithmetic, impossible fixed days, old-style inverted spans and
+      explicit Phase 3F-K exclusions. Python validator tests cover the new family, static inversion,
+      six-record catalog and provenance split.
+- [x] **Static artifact gate passed in the available environment.** Six unique records, six unique
+      active place/scope identities, all place IDs resolvable, exact Nintendo fields, explicit
+      exclusions, no action-state fields, no network/storage/clock/editorial-reservation dependency
+      in the three touched Phase 3F runtime modules, and both inverted-span guards were mechanically
+      checked.
+- [x] **Hostile review corrective applied.** Nintendo's generic month rule is explicitly traced
+      to two official pages: the ticket instructions remain the canonical `sourceUrl`, while the
+      official calendar URL is retained verbatim inside `provenance.evidence` and pinned by the
+      Python catalog test. Real JP-097 fixtures were also added to Phase 3F-H and Phase 3F-J focused
+      tests so the new mechanism is not covered only by generic Katsura behavior.
+- [x] **Browser-fixture impact audited statically.** Existing Phase 3F-F/H/J browser scripts use
+      Ghibli, Disney, Katsura and Sumo fixtures; none includes JP-097, so no browser assertion needs
+      semantic modification merely because Nintendo evidence was added.
+- [x] **Repository-native execution gate passed.** A temporary GitHub Actions workflow checked
+      out exact code head `b10e2bcf8abb9085d2e29576739b60cb40c9fb84` and passed Python validator
+      + unit tests, focused Phase 3F Vitest, full Vitest, lint, build, both whitespace gates and
+      Phase 3F-F/H/J browser audits. Workflow run `34865708384` concluded success.
+- [x] **Temporary validation workflow removed without tree drift.** After deleting the workflow,
+      compare `b10e2bc...167abb7` reported zero changed files, so the executable tree remained
+      byte-equivalent to the validated code head.
+- [x] **Ready transition gate satisfied.** Only documentation closure changed after executable
+      validation; no runtime, data, test, schema, storage, dependency or UI file changed afterward.
+
+**Phase 3F-L is implemented, hostile-reviewed and repository-native validated. Phase 3F-M is NOT STARTED.**

@@ -43,6 +43,26 @@ export type ReservationMechanism =
       sourceTimeZone: ReservationSourceTimeZone;
     }
   | {
+      kind: "monthly-application-window";
+      monthsBeforeVisitMonth: number;
+      openDay: {
+        kind: "fixed-day-of-month";
+        day: number;
+      };
+      closeDay:
+        | {
+            kind: "fixed-day-of-month";
+            day: number;
+          }
+        | {
+            kind: "last-day-of-month";
+          };
+      openTimeLocal: string | null;
+      openSourceTimeZone: ReservationSourceTimeZone;
+      closeTimeLocal: string | null;
+      closeSourceTimeZone: ReservationSourceTimeZone;
+    }
+  | {
       kind: "relative-application-window";
       openRule: {
         kind: "month-offset-first-day";
@@ -157,6 +177,36 @@ function validMechanism(value: unknown): value is ReservationMechanism {
   if (value.kind === "rolling-day-release") {
     if (!hasExactKeys(value, ["kind", "daysBeforeVisit", "releaseTimeLocal", "sourceTimeZone"])) return false;
     return positiveInt(value.daysBeforeVisit) && validTime(value.releaseTimeLocal) && validZone(value.sourceTimeZone);
+  }
+  if (value.kind === "monthly-application-window") {
+    if (!hasExactKeys(value, [
+      "kind",
+      "monthsBeforeVisitMonth",
+      "openDay",
+      "closeDay",
+      "openTimeLocal",
+      "openSourceTimeZone",
+      "closeTimeLocal",
+      "closeSourceTimeZone",
+    ])) return false;
+    if (!positiveInt(value.monthsBeforeVisitMonth)) return false;
+    const open = value.openDay;
+    const close = value.closeDay;
+    if (!isObject(open) || !hasExactKeys(open, ["kind", "day"])) return false;
+    if (open.kind !== "fixed-day-of-month" || !positiveInt(open.day) || open.day > 31) return false;
+    if (!isObject(close) || typeof close.kind !== "string") return false;
+    if (close.kind === "fixed-day-of-month") {
+      if (!hasExactKeys(close, ["kind", "day"]) || !positiveInt(close.day) || close.day > 31) return false;
+      if (open.day > close.day) return false;
+    } else if (close.kind === "last-day-of-month") {
+      if (!hasExactKeys(close, ["kind"])) return false;
+    } else {
+      return false;
+    }
+    return validTime(value.openTimeLocal) &&
+      validZone(value.openSourceTimeZone) &&
+      validTime(value.closeTimeLocal) &&
+      validZone(value.closeSourceTimeZone);
   }
   if (value.kind === "relative-application-window") {
     if (!hasExactKeys(value, ["kind", "openRule", "closeRule"])) return false;

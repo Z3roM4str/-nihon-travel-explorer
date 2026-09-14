@@ -22,6 +22,7 @@ const disneyland = record("JP-203");
 const disneySea = record("JP-204");
 const katsura = record("JP-077");
 const sumo = record("JP-212");
+const nintendo = record("JP-097");
 
 describe("monthly-fixed-release — Ghibli real fixture", () => {
   it("derives 2027-01-10 10:00 Asia/Tokyo for a 2027-02-20 visit", () => {
@@ -158,6 +159,35 @@ describe("relative-application-window — Katsura real fixture", () => {
     });
   });
 
+  it("fails closed on a synthetic inverted relative application window", () => {
+    if (katsura.mechanism.kind !== "relative-application-window") {
+      throw new Error("expected Katsura relative-application-window fixture");
+    }
+    const synthetic: ReservationMechanismEvidenceRecord = {
+      ...katsura,
+      id: "RM-JP-077-002",
+      mechanism: {
+        kind: "relative-application-window",
+        openRule: {
+          kind: "month-offset-first-day",
+          monthsBeforeVisitMonth: 1,
+          timeLocal: null,
+          sourceTimeZone: null,
+        },
+        closeRule: {
+          kind: "days-before-visit",
+          daysBeforeVisit: 60,
+          timeLocal: null,
+          sourceTimeZone: null,
+        },
+      },
+    };
+    expect(deriveReservationMechanismDate(synthetic, "2027-03-31")).toMatchObject({
+      kind: "not-derivable",
+      reason: "invalid-calendar-alignment",
+    });
+  });
+
   it("preserves lottery disclosure without changing dates", () => {
     const result = deriveReservationMechanismDate(katsura, "2027-03-15");
     expect(result.kind).toBe("application-window");
@@ -166,6 +196,62 @@ describe("relative-application-window — Katsura real fixture", () => {
       expect(result.openDate).toBe("2026-12-01");
       expect(result.closeDate).toBe("2027-03-12");
     }
+  });
+});
+
+describe("monthly-application-window — Nintendo Museum real fixture", () => {
+  it("derives the full month three months before the visit month", () => {
+    expect(deriveReservationMechanismDate(nintendo, "2027-03-15")).toEqual({
+      kind: "application-window",
+      recordId: "RM-JP-097-001",
+      placeId: "JP-097",
+      scope: "general-admission",
+      visitDate: "2027-03-15",
+      openDate: "2026-12-01",
+      openTimeLocal: null,
+      openSourceTimeZone: null,
+      closeDate: "2026-12-31",
+      closeTimeLocal: null,
+      closeSourceTimeZone: null,
+      allocation: "drawing",
+    });
+  });
+
+  it("derives February 2027's real last day", () => {
+    const result = deriveReservationMechanismDate(nintendo, "2027-05-20");
+    expect(result).toMatchObject({
+      kind: "application-window",
+      openDate: "2027-02-01",
+      closeDate: "2027-02-28",
+    });
+  });
+
+  it("derives leap February's real last day", () => {
+    const result = deriveReservationMechanismDate(nintendo, "2028-05-20");
+    expect(result).toMatchObject({
+      kind: "application-window",
+      openDate: "2028-02-01",
+      closeDate: "2028-02-29",
+    });
+  });
+
+  it("fails closed when a synthetic fixed day is impossible in the shifted month", () => {
+    if (nintendo.mechanism.kind !== "monthly-application-window") {
+      throw new Error("expected Nintendo monthly-application-window fixture");
+    }
+    const synthetic: ReservationMechanismEvidenceRecord = {
+      ...nintendo,
+      id: "RM-JP-097-002",
+      mechanism: {
+        ...nintendo.mechanism,
+        openDay: { kind: "fixed-day-of-month", day: 31 },
+        closeDay: { kind: "last-day-of-month" },
+      },
+    };
+    expect(deriveReservationMechanismDate(synthetic, "2027-05-20")).toMatchObject({
+      kind: "not-derivable",
+      reason: "invalid-calendar-alignment",
+    });
   });
 });
 
@@ -332,6 +418,7 @@ describe("claim and side-effect boundaries", () => {
       deriveReservationMechanismDate(disneyland, "2027-02-20"),
       deriveReservationMechanismDate(katsura, "2027-03-15"),
       deriveReservationMechanismDate(sumo, "2027-03-20"),
+      deriveReservationMechanismDate(nintendo, "2027-03-15"),
     ];
     const forbidden = [
       "isOpen",
@@ -367,9 +454,10 @@ describe("claim and side-effect boundaries", () => {
     }
   });
 
-  it("real pilot has no result for intentionally absent USJ/Nintendo/AnimeJapan records", () => {
-    for (const placeId of ["JP-125", "JP-097", "JP-211"]) {
+  it("real catalog keeps Phase 3F-K exclusions absent while Nintendo derives", () => {
+    for (const placeId of ["JP-002", "JP-050", "JP-125", "JP-126", "JP-211"]) {
       expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, placeId, "2027-03-15")).toEqual([]);
     }
+    expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-097", "2027-03-15")).toHaveLength(1);
   });
 });

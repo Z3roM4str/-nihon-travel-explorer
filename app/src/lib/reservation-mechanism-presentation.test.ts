@@ -27,6 +27,7 @@ const disneyland = record("JP-203");
 const disneySea = record("JP-204");
 const katsura = record("JP-077");
 const sumo = record("JP-212");
+const nintendo = record("JP-097");
 
 describe("Phase 3F-F official reservation presentation", () => {
   it("labels every closed scope value explicitly", () => {
@@ -117,6 +118,40 @@ describe("Phase 3F-F official reservation presentation", () => {
     expect(result?.detailLines[1]).toContain("23:59");
     expect(result?.detailLines.join(" ")).toContain("zona horaria no registrada");
     expect(result?.allocationText).toContain("sorteo si las solicitudes superan el cupo");
+  });
+
+  it("presents Nintendo Museum's derived monthly drawing window neutrally", () => {
+    const result = buildOfficialReservationDatePresentation(
+      nintendo,
+      deriveReservationMechanismDate(nintendo, "2027-03-15")
+    );
+    expect(result).toMatchObject({
+      kind: "application-window",
+      scopeLabel: "Entrada general",
+      heading: "Ventana oficial registrada para esta visita",
+      allocationText: "Asignación registrada: sorteo.",
+    });
+    expect(result?.detailLines[0]).toContain("1 dic 2026");
+    expect(result?.detailLines[1]).toContain("31 dic 2026");
+    expect(result?.detailLines.join(" ")).not.toContain("zona horaria no registrada");
+  });
+
+  it("returns null before formatting a synthetic inverted application window", () => {
+    const derivation: ReservationMechanismDateDerivation = {
+      kind: "application-window",
+      recordId: katsura.id,
+      placeId: katsura.placeId,
+      scope: katsura.scope,
+      visitDate: "2027-03-31",
+      openDate: "2027-02-01",
+      openTimeLocal: null,
+      openSourceTimeZone: null,
+      closeDate: "2027-01-30",
+      closeTimeLocal: null,
+      closeSourceTimeZone: null,
+      allocation: "lottery-if-oversubscribed",
+    };
+    expect(buildOfficialReservationDatePresentation(katsura, derivation)).toBeNull();
   });
 
   it("presents Sumo's fixed sale date without inventing a time", () => {
@@ -239,6 +274,10 @@ describe("Phase 3F-F official reservation presentation", () => {
       buildOfficialReservationDatePresentation(
         sumo,
         deriveReservationMechanismDate(sumo, "2027-03-20")
+      ),
+      buildOfficialReservationDatePresentation(
+        nintendo,
+        deriveReservationMechanismDate(nintendo, "2027-03-15")
       ),
     ]
       .map((item) => JSON.stringify(item).toLowerCase())

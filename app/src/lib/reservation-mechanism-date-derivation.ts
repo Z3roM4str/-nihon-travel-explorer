@@ -96,6 +96,14 @@ function firstDayOfShiftedMonth(iso: string, offsetMonths: number): string | nul
   return dateInShiftedMonth(iso, offsetMonths, 1);
 }
 
+function lastDayOfShiftedMonth(iso: string, offsetMonths: number): string | null {
+  for (let day = 31; day >= 28; day -= 1) {
+    const candidate = dateInShiftedMonth(iso, offsetMonths, day);
+    if (candidate) return candidate;
+  }
+  return null;
+}
+
 function baseIdentity(record: ReservationMechanismEvidenceRecord) {
   return { recordId: record.id, placeId: record.placeId, scope: record.scope };
 }
@@ -171,10 +179,34 @@ export function deriveReservationMechanismDate(
     };
   }
 
+  if (mechanism.kind === "monthly-application-window") {
+    const offset = -mechanism.monthsBeforeVisitMonth;
+    const openDate = dateInShiftedMonth(visitDate, offset, mechanism.openDay.day);
+    const closeDate =
+      mechanism.closeDay.kind === "last-day-of-month"
+        ? lastDayOfShiftedMonth(visitDate, offset)
+        : dateInShiftedMonth(visitDate, offset, mechanism.closeDay.day);
+    if (!openDate || !closeDate || openDate > closeDate) {
+      return { kind: "not-derivable", ...identity, visitDate, reason: "invalid-calendar-alignment" };
+    }
+    return {
+      kind: "application-window",
+      ...identity,
+      visitDate,
+      openDate,
+      openTimeLocal: mechanism.openTimeLocal,
+      openSourceTimeZone: mechanism.openSourceTimeZone,
+      closeDate,
+      closeTimeLocal: mechanism.closeTimeLocal,
+      closeSourceTimeZone: mechanism.closeSourceTimeZone,
+      allocation: record.allocation,
+    };
+  }
+
   if (mechanism.kind === "relative-application-window") {
     const openDate = firstDayOfShiftedMonth(visitDate, -mechanism.openRule.monthsBeforeVisitMonth);
     const closeDate = addCivilDays(visitDate, -mechanism.closeRule.daysBeforeVisit);
-    if (!openDate || !closeDate || !isValidCivilDate(closeDate)) {
+    if (!openDate || !closeDate || !isValidCivilDate(closeDate) || openDate > closeDate) {
       return { kind: "not-derivable", ...identity, visitDate, reason: "invalid-calendar-alignment" };
     }
     return {
