@@ -5162,4 +5162,63 @@ Official source recheck: **2026-09-14**.
       validation; no runtime, data, test, schema, storage, dependency or UI change is authorized
       without revalidation.
 
-**Phase 3F-N is implemented, hostile-reviewed and repository-native validated. Phase 3F-O is NOT STARTED.**
+**Phase 3F-N is implemented, hostile-reviewed, repository-native validated and merged via PR #84.**
+
+## Phase 3F-O — Purchase-Residence-Context Evidence Design Gate
+
+Design authority:
+[`docs/PURCHASE_CONTEXT_EVIDENCE_DESIGN.md`](PURCHASE_CONTEXT_EVIDENCE_DESIGN.md).
+
+Base: `f1eb7214a62c14f50200d7f2a19bf2f5f7362cfe` (`main` after Phase 3F-N / PR #84).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Blocking semantic gap reconfirmed.** The operator still separates residents of Japan from
+      guests residing outside Japan into different official purchase routes.
+- [x] **Minimal model selected.** Add one required evidence-level `purchaseResidenceContext` field with
+      closed values `not-recorded`, `resides-in-japan`, `resides-outside-japan`.
+- [x] **No user profile introduced.** The field records source-defined purchase-residence context only; it
+      does not store, infer or ask for the user's residence, nationality, citizenship, location or
+      eligibility.
+- [x] **Unknown semantics fail closed.** `not-recorded` means only that structured evidence does
+      not record a purchase-residence context; it never means unrestricted or universally
+      available.
+- [x] **Record-level placement approved.** Purchase-residence context is structural evidence beside scope,
+      mechanism, allocation and status, not free-text provenance and not parsed from `sourceEntity`.
+- [x] **Atomic seven-record migration designed.** JP-050 becomes
+      `resides-outside-japan`; the other six current records become `not-recorded` without making
+      any new accessibility claim.
+- [x] **Neutral presentation contract approved.** Non-`not-recorded` context renders after
+      allocation and before provenance on both existing official-reservation surfaces.
+- [x] **Hostile-review wording corrective applied.** Context text is now explicitly anchored to the
+      cited official purchase route — “Ruta de compra oficial citada…” — rather than phrased as a
+      label that could be read as the current user's residence or eligibility.
+- [x] **Specific-context provenance hardened.** JP-050's canonical mechanism source remains the
+      Official Web Ticket Store, while the operator page that explicitly routes guests residing
+      outside Japan must be retained verbatim in provenance evidence as supporting context proof.
+      No provenance schema expansion is needed.
+- [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
+      read purchase-residence context; Phase 3F-F owns display text.
+- [x] **Independent focused review preserved the display-order correction.** Both existing surfaces
+      currently place the Phase 3F-H temporal relation between allocation and provenance, so the
+      exact successor order remains fact/details → allocation (if any) → purchase-residence context
+      → temporal relation (if any) → provenance → source link.
+- [x] **Independent focused review narrowed the field name.** The approved vocabulary encodes only
+      residence in/outside Japan, so the structural field is now `purchaseResidenceContext`, not the
+      broader `purchaseContext`. Language, channel, membership, payment and phone/SMS requirements
+      may not be overloaded into this scalar.
+- [x] **Independent focused review rechecked the six-record migration.** Mapping the other six
+      current records to `not-recorded` adds no universal-access, no-restriction or user-eligibility
+      claim.
+- [x] **Cardinality remains deferred.** Phase 3F-P must keep active `placeId + scope` uniqueness,
+      add no second JP-050 record and add no domestic first-come mechanism.
+- [x] **No mechanism expansion.** `last-day-of-shifted-month` remains deferred.
+- [x] **Successor gate defined.** Phase 3F-P must prove exact vocabulary parsing, seven-record
+      migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
+      repository-native regression.
+- [x] **Independent focused review added an implementation-day source gate.** Phase 3F-P must
+      re-open the official PokéPark residence-routing page immediately before the data migration.
+      If the residence distinction changes, disappears or becomes ambiguous, implementation stops
+      and returns to design instead of forcing `resides-outside-japan` from stale evidence.
+
+**Phase 3F-O changes documentation only and passed hostile + corrected independent focused review. Phase 3F-P is NOT STARTED.**
