@@ -67,7 +67,7 @@ proves that the operator itself distinguishes purchase routes by residence conte
 
 ## 3. Design principle
 
-The new field records **source-defined purchase residence context**, not the user's personal eligibility and not a generic acquisition-channel taxonomy.
+The new field records **source-defined purchase-residence context**, not the user's personal eligibility and not a generic acquisition-channel taxonomy.
 
 The system may say:
 
@@ -661,7 +661,7 @@ The independent focused review checked the corrected design against:
 - the shipped Phase 3F-H composition order;
 - the proposed closed evidence vocabulary.
 
-It found two material design issues.
+It found three material design issues.
 
 #### A. Presentation-order ambiguity
 
@@ -696,6 +696,17 @@ and the presentation field to:
 This prevents future language, channel, membership, payment or phone/SMS concepts from being
 silently overloaded into the same scalar.
 
+#### C. Design-time source evidence cannot be silently reused at implementation time
+
+The residence-routing rule is time-sensitive operator evidence. A design-time recheck on
+2026-09-14 is not sufficient authority for a later catalog migration.
+
+Phase 3F-P must therefore re-open the official residence-routing source immediately before the data
+write. If the residence distinction has changed, disappeared, broadened or become materially
+ambiguous, implementation stops and returns to design. The successor may not preserve
+`resides-outside-japan` from stale evidence or infer the value from language, locale, domain or
+`sourceEntity`.
+
 The review reconfirmed:
 
 1. `purchaseResidenceContext` is a fact about the cited official route, not the user;
@@ -707,7 +718,9 @@ The review reconfirmed:
    `sourceEntity`, locale, language or domain;
 5. no additional runtime owner beyond Phase 3F-F presentation is needed;
 6. Phase 3F-J can continue carrying the existing presentation object without a new calendar-level
-   purchase-residence-context field.
+   purchase-residence-context field;
+7. the official residence-routing source must be rechecked immediately before Phase 3F-P writes the
+   structural context value.
 
 No runtime, data, schema or UI implementation is performed by this review.
 
