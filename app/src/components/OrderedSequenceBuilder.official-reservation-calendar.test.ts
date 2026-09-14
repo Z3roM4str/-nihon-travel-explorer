@@ -104,6 +104,7 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     expect(section).toContain("item.presentation.scopeLabel");
     expect(section).toContain("item.presentation.heading");
     expect(section).toContain("item.presentation.allocationText");
+    expect(section).toContain("item.presentation.purchaseResidenceContextText");
     expect(section).toContain("item.presentation.provenanceText");
     expect(section).toContain("href={item.presentation.sourceUrl}");
     expect(section).toContain("Ver fuente oficial");
@@ -131,6 +132,21 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     // No collapsible affordance around it.
     expect(section).not.toContain("<details");
     expect(section).not.toContain("<summary");
+  });
+
+  it("renders residence context after allocation and before the temporal relation/provenance", async () => {
+    const section = extractSection(await readSource());
+    const allocation = section.indexOf("item.presentation.allocationText");
+    const residenceContext = section.indexOf("item.presentation.purchaseResidenceContextText");
+    const relation = section.indexOf("item.relation.relationText");
+    const provenance = section.indexOf("item.presentation.provenanceText");
+    const source = section.indexOf("href={item.presentation.sourceUrl}");
+    expect(allocation).toBeGreaterThan(-1);
+    expect(residenceContext).toBeGreaterThan(allocation);
+    expect(relation).toBeGreaterThan(residenceContext);
+    expect(provenance).toBeGreaterThan(relation);
+    expect(source).toBeGreaterThan(provenance);
+    expect(section).toContain("official-reservation-calendar__purchase-residence-context");
   });
 
   it("renders a relation only when the aggregator composed one, with no placeholder", async () => {
@@ -265,12 +281,13 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     expect(builderBody).not.toContain("<OfficialReservationCalendarSection");
   });
 
-  it("leaves the per-day Phase 3F-F/3F-H notice untouched", async () => {
+  it("keeps the per-day Phase 3F-F/3F-H notice separate while carrying its own residence context", async () => {
     const notice = extractOfficialDayNotice(await readSource());
     expect(notice).toContain("buildOfficialReservationDatePresentation(record, derivation)");
     expect(notice).toContain("evaluateOfficialReservationReferenceDate(derivation, referenceDate)");
     expect(notice).toContain("official-reservation-date__reference-relation");
     expect(notice).toContain("official-reservation-date__reference-date");
+    expect(notice).toContain("official-reservation-date__purchase-residence-context");
     expect(notice).not.toContain("OfficialReservationCalendarSection");
     expect(notice).not.toContain("routeWideReservationCalendar");
     expect(notice).not.toContain("anchorDate");

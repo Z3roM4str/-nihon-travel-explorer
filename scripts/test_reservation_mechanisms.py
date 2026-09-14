@@ -30,6 +30,7 @@ def valid_record(record_id="RM-JP-001-001", **updates):
         "id": record_id,
         "placeId": "JP-001",
         "scope": "general-admission",
+        "purchaseResidenceContext": "not-recorded",
         "mechanism": {
             "kind": "monthly-fixed-release",
             "releaseDayOfMonth": 10,
@@ -149,6 +150,27 @@ class CatalogValidationTests(unittest.TestCase):
             }
         )
         self.assertEqual(self.errors([record]), [])
+
+    def test_purchase_residence_context_is_required_and_closed(self):
+        missing = valid_record()
+        del missing["purchaseResidenceContext"]
+        self.assert_invalid([missing], "missing fields")
+        self.assert_invalid(
+            [valid_record(purchaseResidenceContext="worldwide")],
+            "unsupported purchaseResidenceContext",
+        )
+        self.assert_invalid(
+            [valid_record(purchaseResidenceContext={"kind": "resides-outside-japan"})],
+            "unsupported purchaseResidenceContext",
+        )
+        self.assertEqual(
+            self.errors([valid_record(purchaseResidenceContext="resides-in-japan")]),
+            [],
+        )
+        self.assertEqual(
+            self.errors([valid_record(purchaseResidenceContext="resides-outside-japan")]),
+            [],
+        )
 
     def test_unknown_place_id_rejected(self):
         self.assert_invalid(
@@ -354,6 +376,7 @@ class RealCatalogTests(unittest.TestCase):
         pokepark = next(record for record in self.catalog if record["placeId"] == "JP-050")
         self.assertEqual(pokepark["id"], "RM-JP-050-001")
         self.assertEqual(pokepark["scope"], "general-admission")
+        self.assertEqual(pokepark["purchaseResidenceContext"], "resides-outside-japan")
         self.assertEqual(pokepark["allocation"], "drawing")
         self.assertEqual(pokepark["status"], "active")
         self.assertEqual(
@@ -378,7 +401,24 @@ class RealCatalogTests(unittest.TestCase):
         self.assertIn("outside Japan", pokepark["provenance"]["evidence"])
         self.assertIn("8:00 PM JST", pokepark["provenance"]["evidence"])
         self.assertIn("lottery redraws", pokepark["provenance"]["evidence"])
+        self.assertIn(
+            "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US",
+            pokepark["provenance"]["evidence"],
+        )
         self.assertNotIn("first-come", json.dumps(pokepark["mechanism"]))
+
+        self.assertEqual(
+            [record["purchaseResidenceContext"] for record in self.catalog],
+            [
+                "not-recorded",
+                "not-recorded",
+                "not-recorded",
+                "not-recorded",
+                "not-recorded",
+                "not-recorded",
+                "resides-outside-japan",
+            ],
+        )
 
         pilots = [
             record
@@ -408,6 +448,9 @@ class RealCatalogTests(unittest.TestCase):
             "reminder",
             "notification",
             "inventory",
+            "userResidence",
+            "eligibility",
+            "country",
         }
         for record in self.catalog:
             with self.subTest(record=record["id"]):

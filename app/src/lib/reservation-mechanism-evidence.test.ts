@@ -9,6 +9,10 @@ import {
   type ReservationMechanismEvidenceRecord,
 } from "./reservation-mechanism-evidence";
 
+const DATE_DERIVATION_SOURCE = new URL("./reservation-mechanism-date-derivation.ts", import.meta.url);
+const REFERENCE_DATE_SOURCE = new URL("./reservation-mechanism-reference-date.ts", import.meta.url);
+const CALENDAR_SOURCE = new URL("./reservation-mechanism-calendar.ts", import.meta.url);
+
 describe("reservation-mechanism-evidence — bundled pilot", () => {
   it("parses the five Phase 3F-B pilot records plus Nintendo and PokéPark overseas", () => {
     expect(reservationMechanismEvidenceRecords).toHaveLength(7);
@@ -43,6 +47,7 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
       id: "RM-JP-050-001",
       placeId: "JP-050",
       scope: "general-admission",
+      purchaseResidenceContext: "resides-outside-japan",
       allocation: "drawing",
       status: "active",
       mechanism: {
@@ -63,7 +68,24 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
     });
     expect(records[0].provenance.sourceEntity).toContain("outside-Japan");
     expect(records[0].provenance.evidence).toContain("outside Japan");
+    expect(records[0].provenance.evidence).toContain(
+      "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US"
+    );
     expect(records[0].provenance.evidence).not.toContain("two months");
+  });
+
+  it("migrates exactly one record to a specific residence context and leaves six unasserted", () => {
+    expect(
+      reservationMechanismEvidenceRecords.map((record) => record.purchaseResidenceContext)
+    ).toEqual([
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "not-recorded",
+      "resides-outside-japan",
+    ]);
   });
 
   it("preserves source-data order for one place without sorting", () => {
@@ -73,6 +95,17 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
       "RM-JP-044-002",
       "RM-JP-044-001",
     ]);
+  });
+});
+
+describe("Phase 3F-P — residence-context ownership boundaries", () => {
+  it("keeps date derivation, temporal relation and route calendar logic context-blind", async () => {
+    for (const sourceUrl of [DATE_DERIVATION_SOURCE, REFERENCE_DATE_SOURCE, CALENDAR_SOURCE]) {
+      const source = await readFile(sourceUrl, "utf8");
+      expect(source).not.toContain("purchaseResidenceContext");
+      expect(source).not.toContain("resides-in-japan");
+      expect(source).not.toContain("resides-outside-japan");
+    }
   });
 });
 
@@ -86,6 +119,30 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
 
   it("rejects an ID namespace that disagrees with placeId", () => {
     expect(parseReservationMechanismEvidenceRecord({ ...valid, placeId: "JP-203" })).toBeNull();
+  });
+
+  it("requires the closed purchaseResidenceContext field without defaulting", () => {
+    const missing: Record<string, unknown> = { ...valid };
+    delete missing.purchaseResidenceContext;
+    expect(parseReservationMechanismEvidenceRecord(missing)).toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        purchaseResidenceContext: "worldwide",
+      })
+    ).toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        purchaseResidenceContext: "resides-in-japan",
+      })
+    ).not.toBeNull();
+    expect(
+      parseReservationMechanismEvidenceRecord({
+        ...valid,
+        purchaseResidenceContext: "resides-outside-japan",
+      })
+    ).not.toBeNull();
   });
 
   it("rejects unsupported scope, allocation and status", () => {

@@ -926,6 +926,11 @@ function OfficialReservationDateNotice({
             {presentation.allocationText && (
               <p className="official-reservation-date__allocation">{presentation.allocationText}</p>
             )}
+            {presentation.purchaseResidenceContextText && (
+              <p className="official-reservation-date__purchase-residence-context">
+                {presentation.purchaseResidenceContextText}
+              </p>
+            )}
             {relationPresentation && (
               <>
                 <p className="official-reservation-date__reference-relation">
@@ -1040,6 +1045,11 @@ function OfficialReservationCalendarSection({
             {item.presentation.allocationText && (
               <p className="official-reservation-calendar__allocation">
                 {item.presentation.allocationText}
+              </p>
+            )}
+            {item.presentation.purchaseResidenceContextText && (
+              <p className="official-reservation-calendar__purchase-residence-context">
+                {item.presentation.purchaseResidenceContextText}
               </p>
             )}
             {item.relation && (

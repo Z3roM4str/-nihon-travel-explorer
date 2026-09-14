@@ -4,6 +4,7 @@ import type {
   ReservationAllocation,
   ReservationMechanismEvidenceRecord,
   ReservationMechanismScope,
+  ReservationPurchaseResidenceContext,
   ReservationSourceTimeZone,
 } from "./reservation-mechanism-evidence";
 
@@ -18,6 +19,7 @@ export type OfficialReservationDatePresentation = {
   heading: string;
   detailLines: readonly string[];
   allocationText: string | null;
+  purchaseResidenceContextText: string | null;
   provenanceText: string;
   sourceUrl: string;
 };
@@ -46,6 +48,16 @@ export function reservationMechanismScopeLabel(scope: ReservationMechanismScope)
 
 export function describeReservationAllocationForUi(allocation: ReservationAllocation): string | null {
   return ALLOCATION_LABEL[allocation];
+}
+
+export function describeReservationPurchaseResidenceContextForUi(
+  context: ReservationPurchaseResidenceContext
+): string | null {
+  if (context === "not-recorded") return null;
+  if (context === "resides-in-japan") {
+    return "La fuente oficial citada presenta esta ruta de compra para residentes en Japón.";
+  }
+  return "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra.";
 }
 
 function formatRecordedTime(time: string | null, sourceTimeZone: ReservationSourceTimeZone): string | null {
@@ -111,6 +123,9 @@ export function buildOfficialReservationDatePresentation(
     placeId: record.placeId,
     scope: record.scope,
     scopeLabel: reservationMechanismScopeLabel(record.scope),
+    purchaseResidenceContextText: describeReservationPurchaseResidenceContextForUi(
+      record.purchaseResidenceContext
+    ),
     provenanceText: formatReservationMechanismProvenanceForUi(record),
     sourceUrl: record.provenance.sourceUrl,
   };

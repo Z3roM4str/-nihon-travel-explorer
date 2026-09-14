@@ -5221,4 +5221,68 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       If the residence distinction changes, disappears or becomes ambiguous, implementation stops
       and returns to design instead of forcing `resides-outside-japan` from stale evidence.
 
-**Phase 3F-O changes documentation only and passed hostile + corrected independent focused review. Phase 3F-P is NOT STARTED.**
+**Phase 3F-O changes documentation only, passed hostile + corrected independent focused review and was merged via PR #85.**
+
+## Phase 3F-P — Purchase-Residence-Context Evidence Foundation
+
+Runtime authority:
+[`docs/PURCHASE_RESIDENCE_CONTEXT_EVIDENCE_RUNTIME.md`](PURCHASE_RESIDENCE_CONTEXT_EVIDENCE_RUNTIME.md).
+
+Base: `aad244f3756b0641bd1c7831375ff56501f11dfd`.
+
+Official PokéPark residence-routing source recheck: **2026-09-14**.
+
+- [x] **Implementation-day source gate passed.** The operator still directs guests residing outside
+      Japan to the separate English ticket website and residents of Japan to the Japanese route with
+      membership registration + SMS through a Japan-usable mobile phone.
+- [x] **Required structural field added.** Every reservation-mechanism evidence record now carries
+      `purchaseResidenceContext` with the closed vocabulary `not-recorded`,
+      `resides-in-japan`, `resides-outside-japan`.
+- [x] **Atomic 7→7 migration implemented.** JP-050 is `resides-outside-japan`; the other six
+      current records are explicitly `not-recorded`.
+- [x] **Specific-context provenance remains auditable.** JP-050 keeps the international store as
+      canonical mechanism `sourceUrl` and retains the official residence-routing URL verbatim
+      inside `provenance.evidence`.
+- [x] **Parser/validator stay fail-closed.** Missing or unsupported context is rejected; no default
+      value is synthesized.
+- [x] **Neutral Phase 3F-F copy implemented.** `not-recorded` renders no line; specific contexts
+      render route-anchored copy that makes no claim about the current user's residence or eligibility.
+- [x] **Both existing surfaces use the exact approved order.** fact/details → allocation (if any) →
+      purchase-residence context → temporal relation (if any) → provenance → source link.
+- [x] **D/H/J remain context-blind.** Static source gates reject residence-context reads in date
+      derivation, temporal relation and route calendar aggregation; a behavioral test proves route
+      chronological identity/order is unchanged when only context values are mutated.
+- [x] **Cardinality remains unchanged.** Global IDs and active `placeId + scope` uniqueness stay
+      enforced; JP-050 remains exactly one active record.
+- [x] **Deferred work remains absent.** No domestic first-come record and no
+      `last-day-of-shifted-month` runtime value are added.
+- [x] **Initial repository-native validation passed, then hostile review found one validator
+      edge case.** A non-scalar `purchaseResidenceContext` could raise Python `TypeError` during
+      set membership instead of failing cleanly.
+- [x] **Hostile-review corrective applied.** Python now requires a string before closed-vocabulary
+      membership; a structured-object regression fixture proves fail-closed rejection.
+- [x] **Corrected executable tree revalidated from scratch.** Exact clean HEAD
+      `f1f937c5f4c4b04b3296bd918e5cacb59e33a2cf` passed GitHub Actions run
+      `34905444797`: Python validator/tests, focused Phase 3F-P Vitest, full Vitest, lint, build,
+      whitespace and Phase 3F-F/H/J browser audits.
+- [x] **Temporary validation workflow removed without tree drift.** Compare
+      `f1f937c5...5eaf17e8` reports zero changed files after workflow removal.
+- [x] **Independent focused review passed.** Final schema, validator, 7→7 migration, route-anchored
+      copy, exact surface order, D/H/J context blindness, comparator independence, cardinality and
+      all deferred boundaries were rechecked against the implementation. No further executable
+      corrective was required.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after executable
+      validation; any runtime/data/schema/test/dependency/storage/UI change requires revalidation.
+- [x] **Second independent focused review passed on the closure tree.** The schema, validator, both
+      JSON catalogs, presentation helper, both surfaces, CSS, Phase 3F-D/H/J modules and focused
+      tests were re-read directly rather than trusted through the suite. Byte parity, the 7-record
+      catalog, the single active JP-050 record, the exact 6× `not-recorded` + 1×
+      `resides-outside-japan` distribution, provenance routing-URL retention, surface order,
+      comparator independence and the absence of any residence/eligibility runtime field were all
+      re-confirmed, and the Python validator and unit suite were re-executed clean. No executable
+      corrective was required, so the validation seal is intact. One non-blocking robustness
+      observation is recorded in the runtime authority and deliberately deferred.
+- [x] **PR #86 marked Ready for review.** Base `aad244f3756b0641bd1c7831375ff56501f11dfd`, behind 0,
+      fifteen changed files, no temporary workflow in the tree.
+
+**Phase 3F-P is implemented, hostile-review corrected, independently reviewed twice, repository-native validated and Ready for review. Merge remains a separate gate. Phase 3F-Q is NOT STARTED.**

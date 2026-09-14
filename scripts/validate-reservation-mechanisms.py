@@ -34,6 +34,7 @@ ALLOCATIONS = {
 }
 CONFIDENCES = {"official-explicit", "official-derived"}
 STATUSES = {"active", "superseded"}
+PURCHASE_RESIDENCE_CONTEXTS = {"not-recorded", "resides-in-japan", "resides-outside-japan"}
 TIME_ZONES = {None, "Asia/Tokyo"}
 ID_PATTERN = re.compile(r"^RM-(JP-\d{3})-(\d{3})$")
 TIME_PATTERN = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
@@ -306,7 +307,16 @@ def validate_catalog(catalog, place_ids):
 
         require_exact_keys(
             record,
-            {"id", "placeId", "scope", "mechanism", "allocation", "status", "provenance"},
+            {
+                "id",
+                "placeId",
+                "scope",
+                "purchaseResidenceContext",
+                "mechanism",
+                "allocation",
+                "status",
+                "provenance",
+            },
             label,
             errors,
         )
@@ -327,6 +337,14 @@ def validate_catalog(catalog, place_ids):
         scope = record.get("scope")
         if scope not in SCOPES:
             errors.append(f"{label}: unsupported scope {scope!r}")
+        purchase_residence_context = record.get("purchaseResidenceContext")
+        if (
+            not isinstance(purchase_residence_context, str)
+            or purchase_residence_context not in PURCHASE_RESIDENCE_CONTEXTS
+        ):
+            errors.append(
+                f"{label}: unsupported purchaseResidenceContext {purchase_residence_context!r}"
+            )
         allocation = record.get("allocation")
         if allocation not in ALLOCATIONS:
             errors.append(f"{label}: unsupported allocation {allocation!r}")

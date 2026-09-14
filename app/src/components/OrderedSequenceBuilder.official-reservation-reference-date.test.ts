@@ -82,12 +82,14 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-H reference-date relation wiri
   it("renders the relation and the concrete reference date in the approved order", async () => {
     const notice = extractOfficialNotice(await readSource());
     const allocation = notice.indexOf("presentation.allocationText");
+    const residenceContext = notice.indexOf("presentation.purchaseResidenceContextText");
     const relationText = notice.indexOf("relationPresentation.relationText");
     const referenceDateText = notice.indexOf("relationPresentation.referenceDateText");
     const provenance = notice.indexOf("presentation.provenanceText");
     const sourceLink = notice.indexOf("href={presentation.sourceUrl}");
     expect(allocation).toBeGreaterThan(-1);
-    expect(relationText).toBeGreaterThan(allocation);
+    expect(residenceContext).toBeGreaterThan(allocation);
+    expect(relationText).toBeGreaterThan(residenceContext);
     expect(referenceDateText).toBeGreaterThan(relationText);
     expect(provenance).toBeGreaterThan(referenceDateText);
     expect(sourceLink).toBeGreaterThan(provenance);
@@ -101,6 +103,14 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-H reference-date relation wiri
     expect(notice).not.toContain("relation.releaseDate");
     expect(notice).not.toContain("relation.openDate");
     expect(notice).not.toContain("relation.closeDate");
+  });
+
+  it("renders residence context only when presentation supplies it, on a neutral Phase 3F class", async () => {
+    const notice = extractOfficialNotice(await readSource());
+    expect(notice).toMatch(/\{presentation\.purchaseResidenceContextText && \(/);
+    expect(notice).toContain("official-reservation-date__purchase-residence-context");
+    expect(notice).not.toContain("userResidence");
+    expect(notice).not.toContain("eligibility");
   });
 
   it("keeps the Phase 3F relation on its own neutral class names", async () => {

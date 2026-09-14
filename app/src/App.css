@@ -2949,6 +2949,7 @@ a {
 .official-reservation-date__fact-heading,
 .official-reservation-date__detail,
 .official-reservation-date__allocation,
+.official-reservation-date__purchase-residence-context,
 .official-reservation-date__provenance {
   margin: 0;
 }
@@ -2958,7 +2959,8 @@ a {
 }
 
 .official-reservation-date__detail,
-.official-reservation-date__allocation {
+.official-reservation-date__allocation,
+.official-reservation-date__purchase-residence-context {
   color: var(--color-text);
 }
 
@@ -3048,6 +3050,7 @@ a {
 .official-reservation-calendar__fact-heading,
 .official-reservation-calendar__detail,
 .official-reservation-calendar__allocation,
+.official-reservation-calendar__purchase-residence-context,
 .official-reservation-calendar__anchor-note,
 .official-reservation-calendar__relation,
 .official-reservation-calendar__provenance {
@@ -3059,7 +3062,8 @@ a {
 }
 
 .official-reservation-calendar__detail,
-.official-reservation-calendar__allocation {
+.official-reservation-calendar__allocation,
+.official-reservation-calendar__purchase-residence-context {
   color: var(--color-text);
 }
 
