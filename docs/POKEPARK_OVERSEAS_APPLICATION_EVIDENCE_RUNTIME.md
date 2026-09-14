@@ -1,6 +1,6 @@
 # Phase 3F-N — PokéPark Overseas Application Evidence Foundation
 
-Status: **implementation candidate — validation pending**
+Status: **implemented, hostile-reviewed and repository-native validation passed**
 
 Base: `1937df90ffe6be6eb207519366df2b3e4928b407` (`main` after Phase 3F-M / PR #83)
 
@@ -104,25 +104,66 @@ The implementation adds real JP-050 coverage for:
 Existing parser/cardinality tests remain unchanged in meaning and continue to reject duplicate active
 `placeId + scope` identities.
 
-## 6. Validation gate
+## 6. Hostile review corrective
 
-Before Ready transition Phase 3F-N must pass:
+The implementation hostile review found one weak defensive assertion in the Python real-catalog
+test. The first version checked `"first-come" not in pokepark["mechanism"]`, which only tested
+dictionary keys and therefore could pass without scanning nested serialized mechanism content.
 
-1. Python catalog validator;
-2. Python catalog unit tests;
-3. focused Phase 3F evidence/derivation/presentation/reference/calendar Vitest;
-4. full `npm test`;
-5. `npm run lint`;
-6. `npm run build`;
-7. repository whitespace gates;
-8. Phase 3F-F browser audit;
-9. Phase 3F-H browser audit;
-10. Phase 3F-J browser audit.
+That assertion was hardened to scan the serialized mechanism object. No production data, runtime,
+schema or UI semantics changed.
 
-The exact executable HEAD used for validation must be recorded here before Ready transition.
+The hardened executable tree was then revalidated from scratch rather than inheriting the prior
+validation result.
 
-## 7. Current gate result
+## 7. Repository-native validation
 
-**IMPLEMENTED — EXECUTABLE VALIDATION PENDING.**
+Final clean executable HEAD:
+
+`e1c1e6098719d14ccb0053ad5c63d6c99ec71c2c`
+
+A temporary GitHub Actions workflow was added only to trigger repository-native execution. Its final
+workflow-bearing commit was `4f0596f14db553a30eabaa974cb74ea1bff6d94b`, but the workflow explicitly
+checked out the clean executable HEAD above with `fetch-depth: 0`.
+
+GitHub Actions run: `34874539102` — **SUCCESS**.
+
+Passed steps:
+
+- exact-head checkout: **PASS**
+- `python3 scripts/validate-reservation-mechanisms.py`: **PASS**
+- `python3 scripts/test_reservation_mechanisms.py`: **PASS**
+- dependency install: **PASS**
+- focused Phase 3F Vitest set: **PASS**
+- full `npm test`: **PASS**
+- `npm run lint`: **PASS**
+- `npm run build`: **PASS**
+- `git diff --check 1937df90ffe6be6eb207519366df2b3e4928b407...HEAD`: **PASS**
+- `git diff --check`: **PASS**
+- Playwright Chromium install: **PASS**
+- Phase 3F-F browser audit: **PASS**
+- Phase 3F-H browser audit: **PASS**
+- Phase 3F-J browser audit: **PASS**
+
+The temporary workflow was then removed in commit
+`363636ecf92651b8649a610a16408eea76b25c6d`.
+
+Comparing the clean validated HEAD
+`e1c1e6098719d14ccb0053ad5c63d6c99ec71c2c` with that post-deletion commit reports:
+
+- ahead by 2 commits;
+- behind by 0;
+- **zero changed files**.
+
+Therefore the executable/data/test tree after workflow removal is byte-equivalent to the exact tree
+that passed repository-native validation.
+
+## 8. Current gate result
+
+**IMPLEMENTED + HOSTILE-REVIEW CORRECTED + REPOSITORY-NATIVE VALIDATION PASSED.**
+
+Only documentation closure may change after the validated tree before Ready transition. Any
+subsequent runtime, data, schema, test, storage, dependency or UI change invalidates this validation
+seal and requires a fresh exact-head run.
 
 Phase 3F-O is not started.
