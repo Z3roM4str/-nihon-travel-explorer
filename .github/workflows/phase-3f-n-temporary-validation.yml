@@ -16,7 +16,7 @@ jobs:
       - name: Checkout exact validated code head
         uses: actions/checkout@v4
         with:
-          ref: 4242c6d6a1e72a2b52cf72e2d5ec5300775e4388
+          ref: 0223ff85a76b6749c2b231dd055a33153ea2702c
           fetch-depth: 0
 
       - name: Set up Python
