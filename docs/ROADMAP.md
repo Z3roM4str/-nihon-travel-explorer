@@ -5273,5 +5273,16 @@ Official PokéPark residence-routing source recheck: **2026-09-14**.
       corrective was required.
 - [x] **Ready transition gate satisfied.** Only documentation closure may change after executable
       validation; any runtime/data/schema/test/dependency/storage/UI change requires revalidation.
+- [x] **Second independent focused review passed on the closure tree.** The schema, validator, both
+      JSON catalogs, presentation helper, both surfaces, CSS, Phase 3F-D/H/J modules and focused
+      tests were re-read directly rather than trusted through the suite. Byte parity, the 7-record
+      catalog, the single active JP-050 record, the exact 6× `not-recorded` + 1×
+      `resides-outside-japan` distribution, provenance routing-URL retention, surface order,
+      comparator independence and the absence of any residence/eligibility runtime field were all
+      re-confirmed, and the Python validator and unit suite were re-executed clean. No executable
+      corrective was required, so the validation seal is intact. One non-blocking robustness
+      observation is recorded in the runtime authority and deliberately deferred.
+- [x] **PR #86 marked Ready for review.** Base `aad244f3756b0641bd1c7831375ff56501f11dfd`, behind 0,
+      fifteen changed files, no temporary workflow in the tree.
 
-**Phase 3F-P is implemented, hostile-review corrected, independently reviewed and repository-native validated. Phase 3F-Q is NOT STARTED.**
+**Phase 3F-P is implemented, hostile-review corrected, independently reviewed twice, repository-native validated and Ready for review. Merge remains a separate gate. Phase 3F-Q is NOT STARTED.**

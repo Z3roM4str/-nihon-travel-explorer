@@ -216,9 +216,71 @@ It confirmed:
 
 No further executable corrective was required.
 
-## 11. Current gate
+## 11. Second independent focused review (post-closure tree)
 
-**IMPLEMENTED + HOSTILE-REVIEW CORRECTED + INDEPENDENT FOCUSED REVIEW PASSED + REPOSITORY-NATIVE VALIDATION PASSED.**
+A second independent focused review was run directly against the final tree, reading the
+implementation rather than relying on the existing test suite.
+
+Re-inspected directly: the TypeScript evidence type/parser, the Python validator, both JSON
+catalogs, the Phase 3F-F presentation helper, both React surfaces, the new CSS, the Phase 3F-D/H/J
+modules, the focused tests, this runtime document and the roadmap entry.
+
+Re-confirmed:
+
+1. `hasExactKeys` still requires `purchaseResidenceContext`, so a missing or extra key is rejected
+   and no default is synthesized;
+2. the TypeScript membership check is fail-closed for non-scalar values — `Set.prototype.has`
+   returns `false` rather than throwing, and the `as` cast is type-level only, matching the
+   existing `scope`/`allocation`/`status` house pattern;
+3. the Python validator retains the hostile-review corrective: `isinstance(..., str)` is evaluated
+   before closed-vocabulary membership;
+4. `data/reservation-mechanisms.json` and `app/src/data/reservation-mechanisms.json` are
+   byte-identical (`md5 630ebf997838c9e2851a1fa5c49ec46a`);
+5. the catalog holds exactly seven records with exactly one JP-050 record, which is active, and the
+   context distribution is exactly six `not-recorded` plus one `resides-outside-japan`;
+6. global record-ID uniqueness and active `placeId + scope` uniqueness both still hold;
+7. JP-050 keeps `https://ticket-en.pokepark-kanto.co.jp/?viewLang=en` as canonical `sourceUrl` and
+   retains the residence-routing URL verbatim inside `provenance.evidence`, which remains a single
+   object — no provenance array or schema expansion;
+8. presentation copy matches the approved strings exactly and contains none of the prohibited
+   personal-applicability or eligibility wording;
+9. `not-recorded` renders no line and no placeholder on either surface;
+10. both surfaces render residence context strictly after allocation and strictly before the
+    Phase 3F-H temporal relation, provenance and source link;
+11. `reservation-mechanism-date-derivation.ts`, `reservation-mechanism-reference-date.ts` and
+    `reservation-mechanism-calendar.ts` contain no reference to the field or its values, and all
+    three files are byte-unchanged from base;
+12. the route comparator is still anchor date → plan ordinal → source-record index, with no
+    residence-context key;
+13. no `last-day-of-shifted-month` value exists; `missingAlignedDayRule` still admits only
+    `first-day-of-next-month` and `not-recorded`;
+14. no `userResidence`, country, nationality, citizenship, visa or eligibility runtime field exists
+    — every such token in the diff is a negative assertion, a test guard or a prohibition note;
+15. no new network request, storage write or planning-draft schema change was introduced;
+16. no temporary workflow remains in the tree, and the changed scope is exactly the expected
+    fifteen files.
+
+The Python validator and the Python unit suite were re-executed directly against this tree: the
+validator reports catalog validity and source/app byte parity, and all thirty unit tests pass.
+
+No executable corrective was required, so the validation seal described in section 9 remains intact.
+
+### Non-blocking observation (deferred, not a defect in this tree)
+
+`describeReservationPurchaseResidenceContextForUi` resolves `resides-outside-japan` through a final
+unguarded `return` rather than through a `Record<Union, …>` map like `SCOPE_LABEL` and
+`ALLOCATION_LABEL`. For the three values in the current closed vocabulary the function is exhaustive
+and correct, and its parameter type admits nothing else, so there is no reachable defect.
+
+It is recorded only because a future vocabulary extension would compile without error and fall
+through to the outside-Japan sentence instead of failing closed. Converting the helper to the
+house `Record` form is a robustness change to an executable file: it would discard the validation
+seal and require a full exact-head revalidation, so it is deliberately deferred rather than made
+inside the Phase 3F-P closure gate.
+
+## 12. Current gate
+
+**IMPLEMENTED + HOSTILE-REVIEW CORRECTED + INDEPENDENT FOCUSED REVIEW PASSED (TWICE) + REPOSITORY-NATIVE VALIDATION PASSED + READY FOR REVIEW.**
 
 Only documentation closure may change after the validated tree before Ready transition. Any
 subsequent runtime, data, schema, test, dependency, storage or UI change invalidates the validation
