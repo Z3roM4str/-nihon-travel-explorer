@@ -5042,11 +5042,17 @@ Official Nintendo Museum evidence rechecked: **2026-09-13**.
       exclusions, no action-state fields, no network/storage/clock/editorial-reservation dependency
       in the three touched Phase 3F runtime modules, and both inverted-span guards were mechanically
       checked.
-- [ ] **Repository-native execution gate pending.** The current ChatGPT shell has no repository
-      checkout and no GitHub network access, while this repo exposes no GitHub Actions workflow for
-      the required commands. Python validator/unit tests, focused/full Vitest, lint, build, both
-      whitespace checks and Phase 3F-F/H/J browser regressions therefore remain unexecuted and must
-      not be reported as passed.
+- [x] **Hostile review corrective applied.** Nintendo's generic month rule is explicitly traced
+      to two official pages: the ticket instructions remain the canonical `sourceUrl`, while the
+      official calendar URL is retained verbatim inside `provenance.evidence` and pinned by the
+      Python catalog test. Real JP-097 fixtures were also added to Phase 3F-H and Phase 3F-J focused
+      tests so the new mechanism is not covered only by generic Katsura behavior.
+- [x] **Browser-fixture impact audited statically.** Existing Phase 3F-F/H/J browser scripts use
+      Ghibli, Disney, Katsura and Sumo fixtures; none includes JP-097, so no browser assertion needs
+      semantic modification merely because Nintendo evidence was added.
+- [ ] **Repository-native execution gate pending.** Python validator/unit tests, focused/full Vitest,
+      lint, build, both whitespace checks and Phase 3F-F/H/J browser regressions remain unexecuted
+      against the final branch HEAD and must not be reported as passed.
 - [ ] **Ready transition pending.** The implementation must remain Draft until those executable gates
       pass on the final code HEAD.
 
