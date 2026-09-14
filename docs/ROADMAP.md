@@ -5177,13 +5177,13 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       guests residing outside Japan into different official purchase routes.
 - [x] **Minimal model selected.** Add one required evidence-level `purchaseResidenceContext` field with
       closed values `not-recorded`, `resides-in-japan`, `resides-outside-japan`.
-- [x] **No user profile introduced.** The field records source-defined purchase residence context only; it
+- [x] **No user profile introduced.** The field records source-defined purchase-residence context only; it
       does not store, infer or ask for the user's residence, nationality, citizenship, location or
       eligibility.
 - [x] **Unknown semantics fail closed.** `not-recorded` means only that structured evidence does
-      not record a residence-based purchase residence context; it never means unrestricted or universally
+      not record a purchase-residence context; it never means unrestricted or universally
       available.
-- [x] **Record-level placement approved.** Purchase residence context is structural evidence beside scope,
+- [x] **Record-level placement approved.** Purchase-residence context is structural evidence beside scope,
       mechanism, allocation and status, not free-text provenance and not parsed from `sourceEntity`.
 - [x] **Atomic seven-record migration designed.** JP-050 becomes
       `resides-outside-japan`; the other six current records become `not-recorded` without making
@@ -5198,10 +5198,10 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       outside Japan must be retained verbatim in provenance evidence as supporting context proof.
       No provenance schema expansion is needed.
 - [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
-      read purchase residence context; Phase 3F-F owns display text.
+      read purchase-residence context; Phase 3F-F owns display text.
 - [x] **Independent focused review preserved the display-order correction.** Both existing surfaces
       currently place the Phase 3F-H temporal relation between allocation and provenance, so the
-      exact successor order remains fact/details → allocation (if any) → purchase residence context
+      exact successor order remains fact/details → allocation (if any) → purchase-residence context
       → temporal relation (if any) → provenance → source link.
 - [x] **Independent focused review narrowed the field name.** The approved vocabulary encodes only
       residence in/outside Japan, so the structural field is now `purchaseResidenceContext`, not the
@@ -5216,5 +5216,9 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
 - [x] **Successor gate defined.** Phase 3F-P must prove exact vocabulary parsing, seven-record
       migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
       repository-native regression.
+- [x] **Independent focused review added an implementation-day source gate.** Phase 3F-P must
+      re-open the official PokéPark residence-routing page immediately before the data migration.
+      If the residence distinction changes, disappears or becomes ambiguous, implementation stops
+      and returns to design instead of forcing `resides-outside-japan` from stale evidence.
 
 **Phase 3F-O changes documentation only and passed hostile + corrected independent focused review. Phase 3F-P is NOT STARTED.**
