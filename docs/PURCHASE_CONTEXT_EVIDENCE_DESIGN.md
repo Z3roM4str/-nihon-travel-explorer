@@ -263,16 +263,24 @@ It must not say:
 
 ## 10. Presentation placement
 
-When non-null, `purchaseContextText` should render:
+When non-null, `purchaseContextText` has one exact ordering contract on both existing surfaces:
 
-1. after allocation disclosure;
-2. before provenance text/source link.
+1. detail lines / recorded fact;
+2. allocation disclosure, when non-null;
+3. **purchase-context disclosure**;
+4. Phase 3F-H reference-date relation, when present;
+5. provenance text;
+6. official source link.
+
+If allocation is null, purchase context still renders immediately after the recorded fact/details.
 
 Reason:
 
-The field describes the mechanism itself, not source metadata and not a Phase 3F-H temporal relation.
+The purchase context is a property of the recorded mechanism/source route, so it stays adjacent to
+allocation and before the independent temporal-relation layer. Provenance remains after both
+mechanism disclosure and temporal relation.
 
-The same placement should be used in:
+This exact order applies to:
 
 - the per-day official reservation notice;
 - the route-wide official reservation calendar.
@@ -515,20 +523,22 @@ Phase 3F-P must prove at minimum:
 21. Phase 3F-H source code does not read `purchaseContext`;
 22. Phase 3F-J ordering remains unchanged when only purchase context changes;
 23. Phase 3F-J source comparator does not read `purchaseContext`;
-24. per-day surface renders non-null context after allocation and before provenance;
-25. route-wide surface renders non-null context after allocation and before provenance;
-26. not-recorded records render no empty placeholder;
-27. JP-050 provenance evidence retains the official routing URL that explicitly supports the
+24. per-day surface renders non-null context after allocation and **before the Phase 3F-H relation**;
+25. route-wide surface renders non-null context after allocation and **before the Phase 3F-H relation**;
+26. on either surface, if allocation is null, context renders after the recorded fact/details;
+27. provenance remains after the temporal relation;
+28. not-recorded records render no empty placeholder;
+29. JP-050 provenance evidence retains the official routing URL that explicitly supports the
     outside-Japan context;
-28. no specific purchase context is inferred from sourceEntity, locale, language or domain;
-29. JP-050 remains exactly one active record;
-30. domestic JP-050 first-come remains absent;
-31. `last-day-of-shifted-month` remains absent from runtime;
-32. full Vitest passes;
-33. lint passes;
-34. build passes;
-35. repository whitespace gates pass;
-36. Phase 3F-F/H/J browser audits pass.
+30. no specific purchase context is inferred from sourceEntity, locale, language or domain;
+31. JP-050 remains exactly one active record;
+32. domestic JP-050 first-come remains absent;
+33. `last-day-of-shifted-month` remains absent from runtime;
+34. full Vitest passes;
+35. lint passes;
+36. build passes;
+37. repository whitespace gates pass;
+38. Phase 3F-F/H/J browser audits pass.
 
 ---
 
@@ -578,28 +588,66 @@ Phase 3F-P must prove at minimum:
 42. `resides-in-japan` uses route-anchored neutral descriptive text.
 43. `resides-outside-japan` uses route-anchored neutral descriptive text.
 44. Context text names the cited official purchase route, not the current user's residence.
-45. Context text renders before provenance.
-46. Context text renders after allocation when allocation exists.
-47. Context text must not say “applies to you”.
-48. Context text must not say “does not apply to you”.
-49. Context text must not say “you can buy”.
-50. Context text must not say “you cannot buy”.
-51. Context text must not say or imply “you are a resident”.
-52. Context text must not say or imply “you are eligible”.
-53. A specific context requires explicit official supporting evidence.
-54. JP-050's outside-Japan context keeps the official routing URL in provenance evidence.
-55. Specific context may not be inferred from sourceEntity, locale, language or domain.
-56. Active `placeId + scope` uniqueness remains in Phase 3F-P.
-57. Global record-ID uniqueness remains.
-58. No second JP-050 active record is authorized.
-59. Domestic JP-050 first-come remains deferred.
-60. `last-day-of-shifted-month` remains deferred.
-61. No planning-draft schema change is authorized.
-62. No localStorage change is authorized.
-63. No network request is authorized.
-64. No reminder/notification/calendar action is authorized.
-65. Full repository-native validation is required before Ready transition.
-66. A later gate is required before same-scope cardinality relaxation.
+45. Context text renders immediately after allocation when allocation exists.
+46. If allocation is null, context text renders immediately after the recorded fact/details.
+47. Context text renders before any Phase 3F-H reference-date relation.
+48. Provenance remains after the reference-date relation.
+49. Context text must not say “applies to you”.
+50. Context text must not say “does not apply to you”.
+51. Context text must not say “you can buy”.
+52. Context text must not say “you cannot buy”.
+53. Context text must not say or imply “you are a resident”.
+54. Context text must not say or imply “you are eligible”.
+55. A specific context requires explicit official supporting evidence.
+56. JP-050's outside-Japan context keeps the official routing URL in provenance evidence.
+57. Specific context may not be inferred from sourceEntity, locale, language or domain.
+58. Active `placeId + scope` uniqueness remains in Phase 3F-P.
+59. Global record-ID uniqueness remains.
+60. No second JP-050 active record is authorized.
+61. Domestic JP-050 first-come remains deferred.
+62. `last-day-of-shifted-month` remains deferred.
+63. No planning-draft schema change is authorized.
+64. No localStorage change is authorized.
+65. No network request is authorized.
+66. No reminder/notification/calendar action is authorized.
+67. Full repository-native validation is required before Ready transition.
+68. A later gate is required before same-scope cardinality relaxation.
+
+---
+
+### 20.1 Independent focused review corrective
+
+A focused implementation-shape review checked the corrected design against both current React
+surfaces and the shipped Phase 3F-H composition order.
+
+It found one ambiguity:
+
+The first draft required purchase context to render “after allocation and before provenance”, but
+both existing surfaces currently place the Phase 3F-H reference-date relation inside that same
+interval. The wording therefore allowed two incompatible implementations:
+
+- allocation → context → relation → provenance; or
+- allocation → relation → context → provenance.
+
+The review resolves this by fixing one exact order:
+
+> recorded fact/details → allocation (if any) → purchase context → temporal relation (if any) →
+> provenance → source link.
+
+This keeps mechanism/source-route properties together and leaves the temporal relation as a separate
+dimension after them.
+
+The review also reconfirmed:
+
+1. `purchaseContext` remains a fact about the cited official route, not the user;
+2. the three-value closed vocabulary is sufficient for the currently evidenced PokéPark distinction;
+3. migrating the other six records to `not-recorded` adds no new restriction or universal-access
+   claim;
+4. no additional runtime owner beyond Phase 3F-F presentation is needed;
+5. Phase 3F-J can continue carrying the existing presentation object without a new calendar-level
+   purchase-context field.
+
+No runtime, data, schema or UI implementation is performed by this review.
 
 ---
 
