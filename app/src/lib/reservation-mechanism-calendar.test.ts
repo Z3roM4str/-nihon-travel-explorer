@@ -19,6 +19,7 @@ const DISNEYLAND = "JP-203";
 const DISNEYSEA = "JP-204";
 const KATSURA = "JP-077";
 const SUMO = "JP-212";
+const NINTENDO = "JP-097";
 /** A real place with no Phase 3F evidence — used to prove plan ordinals advance for every place. */
 const NEUTRAL = "JP-019";
 
@@ -135,6 +136,28 @@ describe("Phase 3F-J — application-window items", () => {
       openDate: "2026-12-01",
       closeDate: "2027-03-12",
     });
+  });
+
+  it("carries Nintendo's real monthly drawing window into one route-wide span row", () => {
+    const result = build([[NINTENDO]], "2027-03-15", "2026-12-15");
+    expect(result.chronological).toHaveLength(1);
+    const item = result.chronological[0];
+    expect(item).toMatchObject({
+      recordId: "RM-JP-097-001",
+      placeId: NINTENDO,
+      scope: "general-admission",
+      dayNumber: 1,
+      visitDate: "2027-03-15",
+      anchorDate: "2026-12-01",
+      fact: {
+        kind: "application-date-span",
+        openDate: "2026-12-01",
+        closeDate: "2026-12-31",
+      },
+    });
+    expect(item.presentation.allocationText).toBe("Asignación registrada: sorteo.");
+    expect(item.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(item.presentation.sourceUrl).toBe("https://museum-tickets.nintendo.com/en");
   });
 
   it("renders both recorded edges in one span, with times and the unknown timezone", () => {
