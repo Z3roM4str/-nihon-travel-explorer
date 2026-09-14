@@ -183,6 +183,20 @@ Phase 3F-H and Phase 3F-J already fail closed on inverted spans and are unchange
 - no timezone-warning text is emitted when no clock time exists;
 - a synthetic inverted application derivation returns `null` before formatting.
 
+### Phase 3F-H reference-date tests
+
+- Nintendo's real derived December 2026 span is classified before / within / after using the existing
+  civil-date relation vocabulary;
+- no clock or timezone evidence leaks into the relation result.
+
+### Phase 3F-J route-wide calendar tests
+
+- Nintendo produces exactly one route-wide application-span item;
+- anchor date is the open edge;
+- allocation disclosure remains `drawing`;
+- relation composition reuses the existing Phase 3F-H vocabulary;
+- source link remains the canonical Nintendo ticketing URL.
+
 ### Python validator tests
 
 - valid monthly application window;
@@ -255,14 +269,33 @@ node scripts/phase3f-h-browser-audit.mjs
 node scripts/phase3f-j-browser-audit.mjs
 ```
 
-The browser audits are regressions: none of their existing fixtures use JP-097, and no UI code was
-changed. They still need execution before Ready transition.
+The browser audits are regressions. Static inspection confirms their existing real fixtures use
+Ghibli, Tokyo Disney, Katsura and Sumo; none uses JP-097, and no UI code changed. They still require
+execution before Ready transition.
 
 ---
 
-## 9. Current gate result
+## 9. Hostile review corrective
 
-**IMPLEMENTED — NOT YET VALIDATED FOR READY TRANSITION.**
+A focused hostile pass after the Draft PR opened found two issues worth correcting before executable
+validation:
+
+1. **Compound provenance was under-recorded.** The generic Nintendo rule is derived from two official
+   pages: the ticket-instructions page supplies the July 15 → April 1–30 example, while the official
+   calendar supplies the once-per-month statement and the current December 2026 → September 30
+   corroborating instance. The schema remains unchanged; the primary page stays in `sourceUrl` and
+   the supporting calendar URL is now stored verbatim in `provenance.evidence` and pinned by a
+   validator test.
+2. **3F-H/J compatibility was implicit only.** Production code was already generic over
+   `application-window`, but focused tests now pass the real Nintendo record through Phase 3F-H and
+   Phase 3F-J so the new mechanism is covered end-to-end through those pure layers.
+
+The browser audit sources were inspected and contain no JP-097 fixture, so they remain unchanged
+regression gates rather than fixtures that need semantic updates.
+
+## 10. Current gate result
+
+**IMPLEMENTED + HOSTILE-REVIEW CORRECTED — NOT YET VALIDATED FOR READY TRANSITION.**
 
 The branch is intentionally suitable only for a **Draft PR** until the repository-native test, lint,
 build, whitespace and browser gates above are executed on its final code HEAD.
