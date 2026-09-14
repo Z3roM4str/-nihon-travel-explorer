@@ -5113,5 +5113,10 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
 - [x] **Future same-scope work explicitly separated.** A later purchase-context design gate is
       required before domestic/international or other applicability-distinct mechanisms coexist as
       active same-scope records.
+- [x] **Independent focused review passed with one source correction.** The international store
+      independently confirms Application periods start at 20:00 JST and explicitly uses
+      lottery/redraw semantics, so Phase 3F-N may preserve a 20:00 Asia/Tokyo open edge and
+      `allocation: drawing`; the close edge remains untimed. No other design contradiction was
+      found.
 
 **Phase 3F-M changes documentation only and is hostile-review corrected. Phase 3F-N is NOT STARTED.**
