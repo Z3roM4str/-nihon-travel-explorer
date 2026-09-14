@@ -1,4 +1,4 @@
-import { formatCivilDateDisplay } from "./civil-date";
+import { formatCivilDateDisplay, isValidCivilDate } from "./civil-date";
 import type { ReservationMechanismDateDerivation } from "./reservation-mechanism-date-derivation";
 import type {
   ReservationAllocation,
@@ -135,6 +135,13 @@ export function buildOfficialReservationDatePresentation(
   }
 
   if (derivation.kind === "application-window") {
+    if (
+      !isValidCivilDate(derivation.openDate) ||
+      !isValidCivilDate(derivation.closeDate) ||
+      derivation.openDate > derivation.closeDate
+    ) {
+      return null;
+    }
     return {
       ...common,
       kind: "application-window",
