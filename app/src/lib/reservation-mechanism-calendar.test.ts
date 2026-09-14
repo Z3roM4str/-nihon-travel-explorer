@@ -20,6 +20,7 @@ const DISNEYSEA = "JP-204";
 const KATSURA = "JP-077";
 const SUMO = "JP-212";
 const NINTENDO = "JP-097";
+const POKEPARK = "JP-050";
 /** A real place with no Phase 3F evidence — used to prove plan ordinals advance for every place. */
 const NEUTRAL = "JP-019";
 
@@ -158,6 +159,32 @@ describe("Phase 3F-J — application-window items", () => {
     expect(item.presentation.allocationText).toBe("Asignación registrada: sorteo.");
     expect(item.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
     expect(item.presentation.sourceUrl).toBe("https://museum-tickets.nintendo.com/en");
+  });
+
+  it("carries PokéPark overseas into one route-wide span row with international provenance", () => {
+    const result = build([[POKEPARK]], "2027-03-15", "2026-12-05");
+    expect(result.chronological).toHaveLength(1);
+    const item = result.chronological[0];
+    expect(item).toMatchObject({
+      recordId: "RM-JP-050-001",
+      placeId: POKEPARK,
+      scope: "general-admission",
+      dayNumber: 1,
+      visitDate: "2027-03-15",
+      anchorDate: "2026-12-01",
+      fact: {
+        kind: "application-date-span",
+        openDate: "2026-12-01",
+        closeDate: "2026-12-12",
+      },
+    });
+    expect(item.fact.kind).toBe("application-date-span");
+    if (item.fact.kind !== "application-date-span") throw new Error("unexpected fact");
+    expect(item.fact.spanText).toContain("20:00 (Asia/Tokyo)");
+    expect(item.presentation.allocationText).toBe("Asignación registrada: sorteo.");
+    expect(item.presentation.provenanceText).toContain("outside-Japan");
+    expect(item.presentation.sourceUrl).toBe("https://ticket-en.pokepark-kanto.co.jp/?viewLang=en");
+    expect(item.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
   });
 
   it("renders both recorded edges in one span, with times and the unknown timezone", () => {
