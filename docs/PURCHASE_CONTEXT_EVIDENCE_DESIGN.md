@@ -29,7 +29,7 @@ That was safe for one record, but it is not a scalable structural model.
 
 The current evidence schema cannot answer this factual question directly:
 
-> **For which operator-published purchase context was this mechanism recorded?**
+> **For which operator-published purchase-residence context was this mechanism recorded?**
 
 Phase 3F-O designs the smallest evidence field needed to answer that question without creating a
 user profile, personalized eligibility engine or purchase recommendation system.
@@ -61,7 +61,7 @@ The outside-Japan store continues to publish the Application/lottery mechanism i
 Phase 3F-N.
 
 This phase does not re-open that date-mechanism decision. The source is relevant here only because it
-proves that the operator itself distinguishes purchase contexts.
+proves that the operator itself distinguishes purchase routes by residence context.
 
 ---
 
@@ -102,7 +102,7 @@ resides-outside-japan
 Type:
 
 ```text
-ReservationPurchaseContext =
+ReservationPurchaseResidenceContext =
   | "not-recorded"
   | "resides-in-japan"
   | "resides-outside-japan"
@@ -191,9 +191,9 @@ provenance.
 Reason:
 
 - provenance answers **where the evidence came from**;
-- purchase context answers **which operator-defined purchase audience the proposition describes**.
+- purchase-residence context answers **which operator-defined residence audience the proposition describes**.
 
-The same official operator may publish distinct mechanisms for different purchase contexts.
+The same official operator may publish distinct mechanisms for different purchase-residence contexts.
 
 Keeping the field structural makes that distinction machine-readable without turning provenance free
 text into business logic.
@@ -214,7 +214,7 @@ Overloading `sourceEntity` is rejected because:
 - it is free text;
 - parser logic cannot safely infer semantics from it;
 - Phase 3F-J explicitly forbids `sourceEntity` as an ordering/quality signal;
-- different wording could describe the same purchase context;
+- different wording could describe the same purchase-residence context;
 - future same-scope records need an explicit non-textual distinction.
 
 ---
@@ -289,11 +289,11 @@ When non-null, `purchaseResidenceContextText` has one exact ordering contract on
 5. provenance text;
 6. official source link.
 
-If allocation is null, purchase context still renders immediately after the recorded fact/details.
+If allocation is null, purchase-residence context still renders immediately after the recorded fact/details.
 
 Reason:
 
-The purchase context is a property of the recorded mechanism/source route, so it stays adjacent to
+The purchase-residence context is a property of the recorded mechanism/source route, so it stays adjacent to
 allocation and before the independent temporal-relation layer. Provenance remains after both
 mechanism disclosure and temporal relation.
 
@@ -306,7 +306,7 @@ No new panel, grouping surface or badge taxonomy is required.
 
 ---
 
-## 12. Provenance traceability for specific purchase contexts
+## 12. Provenance traceability for specific purchase-residence contexts
 
 A non-`not-recorded` `purchaseResidenceContext` is a structured factual claim and must be traceable to an
 official source that explicitly supports that residence context.
@@ -393,7 +393,7 @@ Date derivation remains a pure function of:
 - visit civil date;
 - evidence status/applicability.
 
-No date changes based on purchase context are authorized.
+No date changes based on purchase-residence context are authorized.
 
 ### Phase 3F-F presentation
 
@@ -413,10 +413,10 @@ May carry `purchaseResidenceContextText` only through the already-composed prese
 
 It must not:
 
-- sort by purchase context;
-- group by purchase context;
-- filter by purchase context;
-- rank by purchase context.
+- sort by purchase-residence context;
+- group by purchase-residence context;
+- filter by purchase-residence context;
+- rank by purchase-residence context.
 
 ---
 
@@ -538,7 +538,7 @@ Phase 3F-P must prove at minimum:
 19. Phase 3F-F wording contains no personalized applicability claim;
 20. Phase 3F-H relation output remains byte/shape-equivalent for matching date inputs;
 21. Phase 3F-H source code does not read `purchaseResidenceContext`;
-22. Phase 3F-J ordering remains unchanged when only purchase context changes;
+22. Phase 3F-J ordering remains unchanged when only purchase-residence context changes;
 23. Phase 3F-J source comparator does not read `purchaseResidenceContext`;
 24. per-day surface renders non-null context after allocation and **before the Phase 3F-H relation**;
 25. route-wide surface renders non-null context after allocation and **before the Phase 3F-H relation**;
@@ -547,7 +547,7 @@ Phase 3F-P must prove at minimum:
 28. not-recorded records render no empty placeholder;
 29. JP-050 provenance evidence retains the official routing URL that explicitly supports the
     outside-Japan context;
-30. no specific purchase context is inferred from sourceEntity, locale, language or domain;
+30. no specific purchase-residence context is inferred from sourceEntity, locale, language or domain;
 31. JP-050 remains exactly one active record;
 32. domestic JP-050 first-come remains absent;
 33. `last-day-of-shifted-month` remains absent from runtime;
@@ -595,11 +595,11 @@ Phase 3F-P must prove at minimum:
 32. Missing `purchaseResidenceContext` fails parsing.
 33. Unsupported `purchaseResidenceContext` fails parsing.
 34. No parser default is allowed.
-35. Phase 3F-D ignores purchase context.
-36. Phase 3F-H ignores purchase context.
-37. Phase 3F-J does not order by purchase context.
-38. Phase 3F-J does not group by purchase context.
-39. Phase 3F-J does not filter by purchase context.
+35. Phase 3F-D ignores purchase-residence context.
+36. Phase 3F-H ignores purchase-residence context.
+37. Phase 3F-J does not order by purchase-residence context.
+38. Phase 3F-J does not group by purchase-residence context.
+39. Phase 3F-J does not filter by purchase-residence context.
 40. Phase 3F-F owns purchase-residence-context display text.
 41. `not-recorded` produces no UI line.
 42. `resides-in-japan` uses route-anchored neutral descriptive text.
@@ -639,7 +639,7 @@ surfaces and the shipped Phase 3F-H composition order.
 
 It found one ambiguity:
 
-The first draft required purchase context to render “after allocation and before provenance”, but
+The first draft required purchase-residence context to render “after allocation and before provenance”, but
 both existing surfaces currently place the Phase 3F-H reference-date relation inside that same
 interval. The wording therefore allowed two incompatible implementations:
 
@@ -648,7 +648,7 @@ interval. The wording therefore allowed two incompatible implementations:
 
 The review resolves this by fixing one exact order:
 
-> recorded fact/details → allocation (if any) → purchase context → temporal relation (if any) →
+> recorded fact/details → allocation (if any) → purchase-residence context → temporal relation (if any) →
 > provenance → source link.
 
 This keeps mechanism/source-route properties together and leaves the temporal relation as a separate
@@ -670,7 +670,7 @@ No runtime, data, schema or UI implementation is performed by this review.
 
 ## 22. Rejected alternatives
 
-### “Keep encoding purchase context only in sourceEntity”
+### “Keep encoding purchase-residence context only in sourceEntity”
 
 Rejected. Free-text provenance is visible but not structurally reliable.
 
