@@ -4995,4 +4995,59 @@ Official sources consulted: **2026-09-13**.
 
 Recommended successor: **Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation**.
 
-**Phase 3F-K changes documentation only. Phase 3F-L is NOT STARTED.**
+**Phase 3F-K changed documentation only and was merged via PR #81.**
+
+
+## Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation — implementation candidate
+
+Execution record:
+[`docs/OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_RUNTIME.md`](OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_RUNTIME.md).
+
+Base: `7fa8e82053f241358f8d613b2d866b241dee36ac` (`main` after Phase 3F-K / PR #81).
+
+Official Nintendo Museum evidence rechecked: **2026-09-13**.
+
+- [x] **Implementation-time source recheck passed.** Nintendo's current official ticket site still
+      states that tickets are first sold to drawing entrants, gives July 15 → April 1–30 as the
+      drawing example, and the current calendar independently identifies the December 2026 drawing
+      through September 30. No recurring clock time is generalized from one calendar instance.
+- [x] **Exactly one new evidence record.** `RM-JP-097-001` represents Nintendo Museum general
+      admission as a `monthly-application-window`, three months before the visit month, from day 1
+      through the real last day of that shifted month, allocation `drawing`, active, consulted
+      2026-09-13, confidence `official-derived`.
+- [x] **Catalog grows 5 → 6 without identity expansion.** Active `placeId + scope` uniqueness is
+      unchanged; no channel field exists; SHIBUYA SKY, PokéPark, USJ, SUPER NINTENDO WORLD and
+      AnimeJapan remain absent exactly as Phase 3F-K required.
+- [x] **New `monthly-application-window` family implemented.** Open edge is a fixed day; close edge
+      may be a fixed day or the calendar month's real last day; edge times and timezone evidence are
+      independent. Static fixed-day inversion is rejected by both parsers/validators.
+- [x] **Calendar arithmetic is civil and fail-closed.** Month shifting never becomes a fixed day
+      count; February 2027 resolves to day 28 and leap February 2028 to day 29. An impossible fixed
+      day in the derived month yields `not-derivable`, never a clamp.
+- [x] **Phase 3F-D inverted-span gap closed.** Existing relative application windows and the new
+      monthly family both reject `openDate > closeDate` as
+      `not-derivable / invalid-calendar-alignment`, with no swap, sort or repair.
+- [x] **Phase 3F-F fail-closed gap closed.** Presentation independently validates both edges and
+      returns `null` before formatting an invalid or inverted application span. No new
+      presentation state was introduced.
+- [x] **Canonical/app evidence parity preserved.** The two JSON artifacts were written from the same
+      serialized value and have the same content blob; a connector-grounded static gate confirmed
+      byte equality.
+- [x] **Focused tests expanded.** TypeScript evidence, derivation and presentation suites now cover
+      Nintendo, month-end/leap-month arithmetic, impossible fixed days, old-style inverted spans and
+      explicit Phase 3F-K exclusions. Python validator tests cover the new family, static inversion,
+      six-record catalog and provenance split.
+- [x] **Static artifact gate passed in the available environment.** Six unique records, six unique
+      active place/scope identities, all place IDs resolvable, exact Nintendo fields, explicit
+      exclusions, no action-state fields, no network/storage/clock/editorial-reservation dependency
+      in the three touched Phase 3F runtime modules, and both inverted-span guards were mechanically
+      checked.
+- [ ] **Repository-native execution gate pending.** The current ChatGPT shell has no repository
+      checkout and no GitHub network access, while this repo exposes no GitHub Actions workflow for
+      the required commands. Python validator/unit tests, focused/full Vitest, lint, build, both
+      whitespace checks and Phase 3F-F/H/J browser regressions therefore remain unexecuted and must
+      not be reported as passed.
+- [ ] **Ready transition pending.** The implementation must remain Draft until those executable gates
+      pass on the final code HEAD.
+
+**Phase 3F-L is implemented as a candidate but NOT YET VALIDATED FOR READY TRANSITION. Phase 3F-M is NOT STARTED.**
