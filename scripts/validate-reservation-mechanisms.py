@@ -338,7 +338,10 @@ def validate_catalog(catalog, place_ids):
         if scope not in SCOPES:
             errors.append(f"{label}: unsupported scope {scope!r}")
         purchase_residence_context = record.get("purchaseResidenceContext")
-        if purchase_residence_context not in PURCHASE_RESIDENCE_CONTEXTS:
+        if (
+            not isinstance(purchase_residence_context, str)
+            or purchase_residence_context not in PURCHASE_RESIDENCE_CONTEXTS
+        ):
             errors.append(
                 f"{label}: unsupported purchaseResidenceContext {purchase_residence_context!r}"
             )
