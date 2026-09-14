@@ -5081,12 +5081,13 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
 - [x] **Hostile review found an applicability boundary.** The domestic purchase route requires
       Japan mobile/SMS, while residents outside Japan are directed to a separate official English
       store. Record identity does not answer which purchase context applies to one traveler.
-- [x] **International official store audited.** The outside-Japan store publishes an application
-      system for admission three months ahead with an application period from the 1st through the
-      12th and selected-applicant notification/payment flow.
-- [x] **Domestic 20:00 evidence is not copied internationally.** The international source rechecked
-      for this gate establishes the civil-date application span but not a recurring opening clock
-      time.
+- [x] **International official store audited.** The outside-Japan store publishes a lottery
+      application system for admission three months ahead with an application period from the 1st
+      through the 12th, selected/unsuccessful applicant states, possible redraw, and payment after
+      selection.
+- [x] **International 20:00 evidence independently confirmed.** The outside-Japan store explicitly
+      states that Application periods start at 20:00 JST. The successor may preserve that open-edge
+      time/timezone without relying on the domestic source; the close edge remains untimed.
 - [x] **Same-scope cardinality relaxation deferred.** Active `placeId + scope` uniqueness remains a
       temporary safety invariant until purchase-context/applicability semantics are designed.
 - [x] **Domestic first-come record deferred.** Current domestic material says some tickets are sold
@@ -5098,17 +5099,17 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       complexity while that path remains deferred.
 - [x] **Corrected successor bounded to one JP-050 record.** Subject to implementation-day source
       recheck, Phase 3F-N may add exactly one active `general-admission` record from the official
-      outside-Japan purchase flow using existing `monthly-application-window`, days 1–12, no
-      invented time/timezone, allocation `drawing`.
+      outside-Japan purchase flow using existing `monthly-application-window`, days 1–12,
+      open 20:00 Asia/Tokyo, close time/timezone unknown, allocation `drawing`.
 - [x] **Catalog cardinality remains unchanged.** Phase 3F-N must preserve global ID uniqueness and
       active `placeId + scope` uniqueness; expected catalog size becomes 7, not 8.
 - [x] **Existing no-state boundaries preserved.** Availability, inventory, current sale state,
       lottery result, urgency, personalized eligibility, reminders and recommendation between
       mechanisms remain out of scope.
 - [x] **Successor gate corrected.** Phase 3F-N must prove 7-record parity, exact international
-      provenance context, 1st–12th three-month application derivation, no clock/timezone invention,
-      absence of domestic first-come evidence, unchanged Disney behavior and the full regression
-      suite.
+      provenance context, 1st–12th three-month application derivation, exact 20:00 Asia/Tokyo open
+      edge, no invented close time/timezone, absence of domestic first-come evidence, unchanged
+      Disney behavior and the full regression suite.
 - [x] **Future same-scope work explicitly separated.** A later purchase-context design gate is
       required before domestic/international or other applicability-distinct mechanisms coexist as
       active same-scope records.
