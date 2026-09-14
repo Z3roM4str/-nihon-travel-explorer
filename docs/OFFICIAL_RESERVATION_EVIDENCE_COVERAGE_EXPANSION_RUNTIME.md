@@ -1,8 +1,8 @@
 # Phase 3F-L — Official Reservation Evidence Coverage Expansion Foundation
 
-Status: **implementation candidate — validation pending**  
-Base: `7fa8e82053f241358f8d613b2d866b241dee36ac` (`main` after Phase 3F-K / PR #81)  
-Official Nintendo source rechecked: **2026-09-13**  
+Status: **implementation candidate — validation pending**
+Base: `7fa8e82053f241358f8d613b2d866b241dee36ac` (`main` after Phase 3F-K / PR #81)
+Official Nintendo source rechecked: **2026-09-13**
 Design authority: [OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_DESIGN.md](OFFICIAL_RESERVATION_EVIDENCE_COVERAGE_EXPANSION_DESIGN.md)
 
 ---
