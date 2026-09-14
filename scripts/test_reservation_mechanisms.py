@@ -378,7 +378,7 @@ class RealCatalogTests(unittest.TestCase):
         self.assertIn("outside Japan", pokepark["provenance"]["evidence"])
         self.assertIn("8:00 PM JST", pokepark["provenance"]["evidence"])
         self.assertIn("lottery redraws", pokepark["provenance"]["evidence"])
-        self.assertNotIn("first-come", pokepark["mechanism"])
+        self.assertNotIn("first-come", json.dumps(pokepark["mechanism"]))
 
         pilots = [
             record
