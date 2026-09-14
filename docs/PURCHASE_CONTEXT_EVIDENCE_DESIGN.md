@@ -483,6 +483,19 @@ No code may derive “usable by user” from this field.
 
 ## 19. Successor implementation boundary
 
+Before any Phase 3F-P data write, the implementation must re-open the current official PokéPark
+routing source and verify that the operator still explicitly distinguishes residents of Japan from
+guests residing outside Japan.
+
+The implementation-day source is:
+
+`https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US`
+
+If that proposition has changed, disappeared, broadened or become materially ambiguous, Phase 3F-P
+must stop and return to a design gate. It may not preserve `resides-outside-japan` from stale
+evidence, infer the context from language/domain, or silently substitute a different applicability
+axis.
+
 **Phase 3F-P — Purchase-Residence-Context Evidence Foundation** may change only:
 
 1. TypeScript evidence type/parser;
@@ -555,7 +568,11 @@ Phase 3F-P must prove at minimum:
 35. lint passes;
 36. build passes;
 37. repository whitespace gates pass;
-38. Phase 3F-F/H/J browser audits pass.
+38. Phase 3F-F/H/J browser audits pass;
+39. the official PokéPark residence-routing source is rechecked on implementation day before the
+    catalog migration;
+40. the implementation-day source still explicitly supports `resides-outside-japan` for the
+    international route; otherwise implementation stops rather than forcing the designed value.
 
 ---
 
@@ -629,6 +646,9 @@ Phase 3F-P must prove at minimum:
 66. No reminder/notification/calendar action is authorized.
 67. Full repository-native validation is required before Ready transition.
 68. A later gate is required before same-scope cardinality relaxation.
+69. Phase 3F-P must recheck the official residence-routing source immediately before data write.
+70. A changed or ambiguous source may not be forced into the prior `resides-outside-japan` value.
+71. A changed source that no longer supports the designed residence axis requires a new design gate.
 
 ---
 
@@ -709,6 +729,7 @@ to the purchase-residence-context field itself.
 
 One bounded implementation:
 
+- recheck the official PokéPark residence-routing source on implementation day;
 - add required `purchaseResidenceContext` to the evidence schema;
 - migrate all seven records atomically;
 - set JP-050 to `resides-outside-japan`;
