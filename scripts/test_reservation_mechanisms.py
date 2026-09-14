@@ -328,12 +328,13 @@ class RealCatalogTests(unittest.TestCase):
             self.APP.read_text(encoding="utf-8"),
         )
 
-    def test_catalog_has_five_original_records_plus_nintendo(self):
-        self.assertEqual(len(self.catalog), 6)
+    def test_catalog_has_five_original_records_plus_nintendo_and_pokepark(self):
+        self.assertEqual(len(self.catalog), 7)
         self.assertEqual(
             {record["placeId"] for record in self.catalog},
-            {"JP-044", "JP-077", "JP-097", "JP-203", "JP-204", "JP-212"},
+            {"JP-044", "JP-050", "JP-077", "JP-097", "JP-203", "JP-204", "JP-212"},
         )
+
         nintendo = next(record for record in self.catalog if record["placeId"] == "JP-097")
         self.assertEqual(nintendo["id"], "RM-JP-097-001")
         self.assertEqual(nintendo["scope"], "general-admission")
@@ -349,17 +350,52 @@ class RealCatalogTests(unittest.TestCase):
             "https://museum-tickets.nintendo.com/en/calendar?lang=en",
             nintendo["provenance"]["evidence"],
         )
-        originals = [record for record in self.catalog if record["placeId"] != "JP-097"]
+
+        pokepark = next(record for record in self.catalog if record["placeId"] == "JP-050")
+        self.assertEqual(pokepark["id"], "RM-JP-050-001")
+        self.assertEqual(pokepark["scope"], "general-admission")
+        self.assertEqual(pokepark["allocation"], "drawing")
+        self.assertEqual(pokepark["status"], "active")
+        self.assertEqual(
+            pokepark["mechanism"],
+            {
+                "kind": "monthly-application-window",
+                "monthsBeforeVisitMonth": 3,
+                "openDay": {"kind": "fixed-day-of-month", "day": 1},
+                "closeDay": {"kind": "fixed-day-of-month", "day": 12},
+                "openTimeLocal": "20:00",
+                "openSourceTimeZone": "Asia/Tokyo",
+                "closeTimeLocal": None,
+                "closeSourceTimeZone": None,
+            },
+        )
+        self.assertEqual(pokepark["provenance"]["consultedAt"], "2026-09-14")
+        self.assertEqual(pokepark["provenance"]["confidence"], "official-explicit")
+        self.assertEqual(
+            pokepark["provenance"]["sourceUrl"],
+            "https://ticket-en.pokepark-kanto.co.jp/?viewLang=en",
+        )
+        self.assertIn("outside Japan", pokepark["provenance"]["evidence"])
+        self.assertIn("8:00 PM JST", pokepark["provenance"]["evidence"])
+        self.assertIn("lottery redraws", pokepark["provenance"]["evidence"])
+        self.assertNotIn("first-come", json.dumps(pokepark["mechanism"]))
+
+        pilots = [
+            record
+            for record in self.catalog
+            if record["placeId"] not in {"JP-050", "JP-097"}
+        ]
         self.assertTrue(
-            all(record["provenance"]["confidence"] == "official-explicit" for record in originals)
+            all(record["provenance"]["confidence"] == "official-explicit" for record in pilots)
         )
         self.assertTrue(
-            all(record["provenance"]["consultedAt"] == "2026-09-12" for record in originals)
+            all(record["provenance"]["consultedAt"] == "2026-09-12" for record in pilots)
         )
 
-    def test_phase_3f_k_explicit_exclusions_remain_absent(self):
+    def test_phase_3f_n_explicit_exclusions_remain_absent(self):
         present = {record["placeId"] for record in self.catalog}
-        self.assertFalse({"JP-002", "JP-050", "JP-125", "JP-126", "JP-211"} & present)
+        self.assertFalse({"JP-002", "JP-125", "JP-126", "JP-211"} & present)
+        self.assertIn("JP-050", present)
         self.assertIn("JP-097", present)
 
     def test_no_runtime_action_fields_exist(self):

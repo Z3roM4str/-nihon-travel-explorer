@@ -23,6 +23,7 @@ const disneySea = record("JP-204");
 const katsura = record("JP-077");
 const sumo = record("JP-212");
 const nintendo = record("JP-097");
+const pokepark = record("JP-050");
 
 describe("monthly-fixed-release — Ghibli real fixture", () => {
   it("derives 2027-01-10 10:00 Asia/Tokyo for a 2027-02-20 visit", () => {
@@ -255,6 +256,38 @@ describe("monthly-application-window — Nintendo Museum real fixture", () => {
   });
 });
 
+describe("monthly-application-window — PokéPark overseas real fixture", () => {
+  it("derives the 1st–12th window three months before the visit month", () => {
+    expect(deriveReservationMechanismDate(pokepark, "2027-03-15")).toEqual({
+      kind: "application-window",
+      recordId: "RM-JP-050-001",
+      placeId: "JP-050",
+      scope: "general-admission",
+      visitDate: "2027-03-15",
+      openDate: "2026-12-01",
+      openTimeLocal: "20:00",
+      openSourceTimeZone: "Asia/Tokyo",
+      closeDate: "2026-12-12",
+      closeTimeLocal: null,
+      closeSourceTimeZone: null,
+      allocation: "drawing",
+    });
+  });
+
+  it("keeps the fixed 12th close day rather than extending to month end", () => {
+    const result = deriveReservationMechanismDate(pokepark, "2027-05-20");
+    expect(result).toMatchObject({
+      kind: "application-window",
+      openDate: "2027-02-01",
+      closeDate: "2027-02-12",
+      openTimeLocal: "20:00",
+      openSourceTimeZone: "Asia/Tokyo",
+      closeTimeLocal: null,
+      closeSourceTimeZone: null,
+    });
+  });
+});
+
 describe("fixed-sale-date — Osaka Sumo real fixture", () => {
   it.each(["2027-03-14", "2027-03-20", "2027-03-28"])(
     "treats event boundary/interior date %s as applicable",
@@ -454,10 +487,11 @@ describe("claim and side-effect boundaries", () => {
     }
   });
 
-  it("real catalog keeps Phase 3F-K exclusions absent while Nintendo derives", () => {
-    for (const placeId of ["JP-002", "JP-050", "JP-125", "JP-126", "JP-211"]) {
+  it("real catalog adds only PokéPark overseas among the prior Phase 3F-K exclusions", () => {
+    for (const placeId of ["JP-002", "JP-125", "JP-126", "JP-211"]) {
       expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, placeId, "2027-03-15")).toEqual([]);
     }
+    expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-050", "2027-03-15")).toHaveLength(1);
     expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-097", "2027-03-15")).toHaveLength(1);
   });
 });

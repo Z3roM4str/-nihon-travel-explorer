@@ -28,6 +28,7 @@ const disneySea = record("JP-204");
 const katsura = record("JP-077");
 const sumo = record("JP-212");
 const nintendo = record("JP-097");
+const pokepark = record("JP-050");
 
 describe("Phase 3F-F official reservation presentation", () => {
   it("labels every closed scope value explicitly", () => {
@@ -134,6 +135,27 @@ describe("Phase 3F-F official reservation presentation", () => {
     expect(result?.detailLines[0]).toContain("1 dic 2026");
     expect(result?.detailLines[1]).toContain("31 dic 2026");
     expect(result?.detailLines.join(" ")).not.toContain("zona horaria no registrada");
+  });
+
+  it("presents PokéPark overseas with the recorded 20:00 Asia/Tokyo open edge only", () => {
+    const result = buildOfficialReservationDatePresentation(
+      pokepark,
+      deriveReservationMechanismDate(pokepark, "2027-03-15")
+    );
+    expect(result).toMatchObject({
+      kind: "application-window",
+      scopeLabel: "Entrada general",
+      heading: "Ventana oficial registrada para esta visita",
+      allocationText: "Asignación registrada: sorteo.",
+      sourceUrl: "https://ticket-en.pokepark-kanto.co.jp/?viewLang=en",
+    });
+    expect(result?.detailLines[0]).toContain("1 dic 2026");
+    expect(result?.detailLines[0]).toContain("20:00 (Asia/Tokyo)");
+    expect(result?.detailLines[1]).toContain("12 dic 2026");
+    expect(result?.detailLines[1]).not.toMatch(/\b\d{2}:\d{2}\b/);
+    expect(result?.detailLines[1]).not.toContain("Asia/Tokyo");
+    expect(result?.provenanceText).toContain("outside-Japan");
+    expect(result?.provenanceText).toContain("14 sept 2026");
   });
 
   it("returns null before formatting a synthetic inverted application window", () => {
@@ -278,6 +300,10 @@ describe("Phase 3F-F official reservation presentation", () => {
       buildOfficialReservationDatePresentation(
         nintendo,
         deriveReservationMechanismDate(nintendo, "2027-03-15")
+      ),
+      buildOfficialReservationDatePresentation(
+        pokepark,
+        deriveReservationMechanismDate(pokepark, "2027-03-15")
       ),
     ]
       .map((item) => JSON.stringify(item).toLowerCase())
