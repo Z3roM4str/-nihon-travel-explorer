@@ -114,5 +114,34 @@
       "evidence": "The official 2027 Grand Tournament schedule lists the Osaka March tournament at EDION Arena Osaka from 2027-03-14 through 2027-03-28 and states that advance tickets are sold from 2027-02-06.",
       "confidence": "official-explicit"
     }
+  },
+  {
+    "id": "RM-JP-097-001",
+    "placeId": "JP-097",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-application-window",
+      "monthsBeforeVisitMonth": 3,
+      "openDay": {
+        "kind": "fixed-day-of-month",
+        "day": 1
+      },
+      "closeDay": {
+        "kind": "last-day-of-month"
+      },
+      "openTimeLocal": null,
+      "openSourceTimeZone": null,
+      "closeTimeLocal": null,
+      "closeSourceTimeZone": null
+    },
+    "allocation": "drawing",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://museum-tickets.nintendo.com/en",
+      "sourceEntity": "Nintendo Museum",
+      "consultedAt": "2026-09-13",
+      "evidence": "The official Nintendo Museum ticketing site states that tickets are first sold to drawing entrants; its example allows a July 15 visit to enter the drawing from April 1 through April 30, and the current calendar shows December 2026 drawing entries closing September 30. Nihon therefore records the full calendar month three months before the visit month as an official-derived drawing application window, without inventing recurring clock times.",
+      "confidence": "official-derived"
+    }
   }
 ]
