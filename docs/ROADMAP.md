@@ -5050,10 +5050,14 @@ Official Nintendo Museum evidence rechecked: **2026-09-13**.
 - [x] **Browser-fixture impact audited statically.** Existing Phase 3F-F/H/J browser scripts use
       Ghibli, Disney, Katsura and Sumo fixtures; none includes JP-097, so no browser assertion needs
       semantic modification merely because Nintendo evidence was added.
-- [ ] **Repository-native execution gate pending.** Python validator/unit tests, focused/full Vitest,
-      lint, build, both whitespace checks and Phase 3F-F/H/J browser regressions remain unexecuted
-      against the final branch HEAD and must not be reported as passed.
-- [ ] **Ready transition pending.** The implementation must remain Draft until those executable gates
-      pass on the final code HEAD.
+- [x] **Repository-native execution gate passed.** A temporary GitHub Actions workflow checked
+      out exact code head `b10e2bcf8abb9085d2e29576739b60cb40c9fb84` and passed Python validator
+      + unit tests, focused Phase 3F Vitest, full Vitest, lint, build, both whitespace gates and
+      Phase 3F-F/H/J browser audits. Workflow run `34865708384` concluded success.
+- [x] **Temporary validation workflow removed without tree drift.** After deleting the workflow,
+      compare `b10e2bc...167abb7` reported zero changed files, so the executable tree remained
+      byte-equivalent to the validated code head.
+- [x] **Ready transition gate satisfied.** Only documentation closure changed after executable
+      validation; no runtime, data, test, schema, storage, dependency or UI file changed afterward.
 
-**Phase 3F-L is implemented as a candidate but NOT YET VALIDATED FOR READY TRANSITION. Phase 3F-M is NOT STARTED.**
+**Phase 3F-L is implemented, hostile-reviewed and repository-native validated. Phase 3F-M is NOT STARTED.**
