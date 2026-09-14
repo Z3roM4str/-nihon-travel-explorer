@@ -9,6 +9,10 @@ import {
   type ReservationMechanismEvidenceRecord,
 } from "./reservation-mechanism-evidence";
 
+const DATE_DERIVATION_SOURCE = new URL("./reservation-mechanism-date-derivation.ts", import.meta.url);
+const REFERENCE_DATE_SOURCE = new URL("./reservation-mechanism-reference-date.ts", import.meta.url);
+const CALENDAR_SOURCE = new URL("./reservation-mechanism-calendar.ts", import.meta.url);
+
 describe("reservation-mechanism-evidence — bundled pilot", () => {
   it("parses the five Phase 3F-B pilot records plus Nintendo and PokéPark overseas", () => {
     expect(reservationMechanismEvidenceRecords).toHaveLength(7);
@@ -91,6 +95,17 @@ describe("reservation-mechanism-evidence — bundled pilot", () => {
       "RM-JP-044-002",
       "RM-JP-044-001",
     ]);
+  });
+});
+
+describe("Phase 3F-P — residence-context ownership boundaries", () => {
+  it("keeps date derivation, temporal relation and route calendar logic context-blind", async () => {
+    for (const sourceUrl of [DATE_DERIVATION_SOURCE, REFERENCE_DATE_SOURCE, CALENDAR_SOURCE]) {
+      const source = await readFile(sourceUrl, "utf8");
+      expect(source).not.toContain("purchaseResidenceContext");
+      expect(source).not.toContain("resides-in-japan");
+      expect(source).not.toContain("resides-outside-japan");
+    }
   });
 });
 
