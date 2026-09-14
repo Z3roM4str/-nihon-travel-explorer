@@ -1,6 +1,6 @@
 # Phase 3F-M — Same-Scope Multi-Mechanism Identity & Composition Design Gate
 
-Status: **design gate only — no runtime/data implementation in this phase**
+Status: **design gate only — hostile-review corrected; no runtime/data implementation in this phase**
 
 Base: `7bf0f385ccc6b5fdb635be4e6b3717c156aa2c6c` (`main` after Phase 3F-L / PR #82)
 
@@ -14,25 +14,27 @@ Phase 3F-K deliberately kept PokéPark KANTO (`JP-050`) out of the official rese
 catalog because the current catalog rejects more than one active record for the same
 `placeId + scope`.
 
-That restriction is now the blocking architectural fact.
-
-The current official PokéPark KANTO domestic ticket page publishes **two different deterministic
-calendar mechanisms for the same admission scope**:
+The domestic source initially appears to make that restriction the blocking architectural fact,
+because it publishes **two different calendar mechanisms for the same admission scope**:
 
 1. a monthly drawing application window for admission three months ahead; and
 2. a daily first-come sale release for admission two months ahead.
 
-The source does not describe these as two different admission scopes. They are two ways of obtaining
-admission tickets.
+The hostile review found a more important boundary before relaxing cardinality: those mechanisms are
+published inside a **Japan-resident purchase context** requiring a Japanese mobile number / SMS,
+while residents outside Japan are directed to a separate official English store with its own
+application flow.
 
-The current Phase 3F catalog therefore cannot represent the official evidence honestly without doing
-one of three wrong things:
+Therefore Phase 3F-M separates two questions:
 
-- dropping one deterministic mechanism;
-- inventing a fake scope to distinguish acquisition paths; or
-- adding a redundant `channel` identity field even though runtime identity already exists.
+1. **identity:** can the runtime technically distinguish multiple same-scope records? Yes —
+   `recordId` already does;
+2. **applicability context:** can the current evidence/presentation model safely show multiple
+   mechanisms from purchase contexts with different audience requirements as if they were equally
+   applicable? No.
 
-Phase 3F-M decides the identity/composition model before any JP-050 data is written.
+The architectural same-scope finding is retained, but the hostile review blocks implementation of
+that relaxation until purchase-context/applicability semantics are designed explicitly.
 
 ---
 
@@ -73,7 +75,32 @@ Supporting source:
 The official June 16, 2026 notice states that, from July 2026 onward, both drawing and first-come
 sales start at **20:00**, with examples for each mechanism.
 
-The implementation successor must recheck both sources immediately before writing JP-050 records.
+The implementation successor must recheck the applicable official source immediately before writing JP-050 evidence.
+
+### 2.3 Official store for residents outside Japan
+
+Current official international purchase surface:
+
+`https://ticket-en.pokepark-kanto.co.jp/?viewLang=en`
+
+The operator's English ticket information directs residents outside Japan to this official store.
+
+The store states:
+
+- admission tickets use an application system;
+- applications are for admission three months ahead, one admission month at a time;
+- application period is the 1st through the 12th of each month;
+- only selected applicants are notified around month-end;
+- selected applicants then complete payment.
+
+The current international store evidence therefore supports one deterministic
+`monthly-application-window` proposition.
+
+It does **not** establish the domestic first-come two-month mechanism as an option for residents
+outside Japan.
+
+The international page also does not provide a recurring application opening clock time in the
+evidence rechecked for this gate, so no 20:00 proposition may be copied from the domestic source.
 
 ---
 
@@ -113,19 +140,34 @@ Phase 3F-M approves this model:
 
 Neither field identifies the acquisition path.
 
-### 4.2 `placeId + scope` becomes a grouping coordinate
+### 4.2 `placeId + scope` is not the fundamental runtime identity — but cardinality stays unchanged for now
 
-The successor may contain multiple active records with the same `placeId + scope`.
+The identity audit proves that multiple records **could** technically coexist because every
+downstream layer retains `recordId`.
 
-This does **not** mean the records are interchangeable or duplicates.
+However Phase 3F-M does **not** authorize the successor to remove the active
+`placeId + scope` uniqueness rule yet.
 
-Each record remains independently identified, derived, presented and related by `recordId`.
+Reason:
+
+The only current fixture motivating that relaxation, PokéPark domestic ticketing, also introduces a
+purchase-context/applicability distinction that the current schema and UI do not model explicitly.
+
+Relaxing cardinality before that semantic dimension exists would make it easier to render two
+official records while leaving the user unable to tell which purchase context actually applies.
+
+Therefore:
+
+- `recordId` remains the true evidence-record identity;
+- active `placeId + scope` uniqueness remains a temporary catalog safety invariant;
+- a future purchase-context design gate may remove that invariant once applicability is representable.
 
 ### 4.3 Global ID uniqueness remains mandatory
 
-The successor removes only the active `placeId + scope` uniqueness rejection.
+The successor does **not** change either current structural uniqueness rule:
 
-It must continue to reject duplicate global record IDs.
+- duplicate global record IDs remain rejected;
+- duplicate active `placeId + scope` identities remain rejected for now.
 
 ID namespace matching remains unchanged:
 
@@ -155,9 +197,10 @@ separate presentation design question, not evidence identity.
 
 ## 5. Composition decision
 
-### 5.1 Do not merge same-scope records
+### 5.1 Future same-scope records must not be merged
 
-Two active records for one place/scope remain two records.
+When a future purchase-context design gate eventually authorizes multiple active records for one
+place/scope, they must remain distinct records.
 
 No layer may:
 
@@ -176,9 +219,8 @@ The existing per-day composition already:
 3. renders one article per presentation;
 4. keys the article by `recordId`.
 
-The successor should prove this with a same-place, same-scope test.
-
-No production component change is authorized unless that test exposes a real defect.
+The existing composition audit is sufficient for this design gate. Phase 3F-N does not create a
+same-place/same-scope fixture and therefore does not need to modify production composition code.
 
 ### 5.3 Phase 3F-H remains record-local
 
@@ -192,8 +234,9 @@ No combined “best acquisition path” relation is authorized.
 
 The route-wide calendar continues to emit one item per eligible record.
 
-For two PokéPark admission records, the expected result is two rows when both derive applicable
-calendar facts.
+If a future gate authorizes two PokéPark admission records for one applicable purchase context, the
+expected result would be two rows when both derive applicable calendar facts. Phase 3F-N does not
+exercise that future behavior.
 
 The existing chronological comparator remains:
 
@@ -228,9 +271,9 @@ Example:
 Therefore using Disney's existing `first-day-of-next-month` rule would incorrectly derive
 March 1.
 
-### 6.1 Approved extension
+### 6.1 Documented future extension — not authorized for Phase 3F-N
 
-Phase 3F-M approves one new closed value:
+The correct future closed value would be:
 
 `last-day-of-shifted-month`
 
@@ -255,146 +298,141 @@ Examples:
 
 Disney's existing `first-day-of-next-month` behavior remains unchanged.
 
+Because Phase 3F-N will not encode the domestic first-come path, it must **not** add
+`last-day-of-shifted-month` yet. Unused mechanism complexity is deferred until a purchase-context
+gate authorizes a concrete record that needs it.
+
 ---
 
-## 7. Approved successor data shape for JP-050
+## 7. Hostile-review successor data decision for JP-050
 
-Subject to implementation-time source recheck, Phase 3F-N may add exactly two JP-050 records.
+Phase 3F-N may add **exactly one** JP-050 record, sourced from the official store used for
+non-Japanese / outside-Japan ticket purchase.
 
-Both use:
+This is intentionally smaller than the first draft.
 
-- `placeId: "JP-050"`;
-- `scope: "general-admission"`;
-- `status: "active"`;
-- official-explicit provenance;
-- consultation date from the implementation day.
-
-### 7.1 Record 1 — drawing application
+### 7.1 Record — international application / drawing
 
 Provisional identity:
 
 `RM-JP-050-001`
 
-Mechanism:
+Required shape, subject to implementation-day source recheck:
 
 ```text
-kind: monthly-application-window
-monthsBeforeVisitMonth: 3
-openDay:
-  kind: fixed-day-of-month
-  day: 1
-closeDay:
-  kind: fixed-day-of-month
-  day: 12
-openTimeLocal: 20:00
-openSourceTimeZone: Asia/Tokyo
-closeTimeLocal: null
-closeSourceTimeZone: null
+placeId: JP-050
+scope: general-admission
+status: active
+mechanism:
+  kind: monthly-application-window
+  monthsBeforeVisitMonth: 3
+  openDay:
+    kind: fixed-day-of-month
+    day: 1
+  closeDay:
+    kind: fixed-day-of-month
+    day: 12
+  openTimeLocal: null
+  openSourceTimeZone: null
+  closeTimeLocal: null
+  closeSourceTimeZone: null
 allocation: drawing
 ```
 
-The source states the application date range and the 20:00 start.
+The international store supports the 1st–12th application span and selected-applicant flow.
 
-It does not establish a recurring closing clock time, so the close time remains null.
+It does not establish a recurring 20:00 opening time for this purchase context, so no domestic clock
+evidence may be copied into the record.
 
-### 7.2 Record 2 — first-come release
+### 7.2 Provenance context
 
-Provisional identity:
+The canonical source should be the official international ticket store or the operator's official
+English page that directly links residents outside Japan to it.
 
-`RM-JP-050-002`
+`sourceEntity` must make the context visible in the presentation layer, for example:
 
-Mechanism:
+`PokéPark KANTO Official Store — non-Japanese ticket purchase`
 
-```text
-kind: rolling-calendar-month-release
-monthsBeforeVisit: 2
-alignment: same-calendar-day
-missingAlignedDayRule: last-day-of-shifted-month
-releaseTimeLocal: 20:00
-sourceTimeZone: Asia/Tokyo
-allocation: first-come
-```
+The evidence text must retain that this is the outside-Japan purchase context.
 
-“Sold out” is an inventory/current-state condition and is not represented.
-
-### 7.3 Provenance context
-
-The primary source should remain the official domestic PokéPark KANTO ticket page, with the 20:00
-announcement retained as supporting evidence when needed.
-
-The evidence text must explicitly retain the domestic-site context, including the Japanese mobile/SMS
-requirement or equivalent source wording current at implementation time.
-
-The structured records do **not** assert purchaser eligibility.
+Phase 3F-N does not add the domestic first-come record.
 
 ---
 
-## 8. Audience / eligibility boundary
+## 8. Audience / applicability boundary
 
-Phase 3F-M does not add:
+The hostile review found that provenance-only storage is not sufficient justification for silently
+combining purchase contexts.
 
-- residency fields;
-- user-country fields;
-- eligibility predicates;
-- account/SMS capability;
-- “available to you” claims;
-- personalized filtering.
+The current UI renders:
 
-A mechanism record means:
+- a mechanism heading;
+- its dates;
+- allocation text;
+- a short provenance line built from `sourceEntity`;
+- the official source link.
 
-> the operator currently publishes this mechanism for the cited official purchase context.
+It does **not** render the full provenance evidence text and it has no typed purchaser-applicability
+field.
 
-It does not mean:
+Therefore a domestic-only mechanism requiring Japan mobile/SMS must not be added alongside an
+international mechanism until that distinction can be represented safely.
 
-> the current user is eligible to use this mechanism.
+Phase 3F-N keeps the schema unchanged and uses only the international official-store proposition.
 
-The provenance/source context must remain inspectable and must not be rewritten into a global
-eligibility claim.
-
-If a future feature wants to filter mechanisms by user eligibility, that requires its own design gate.
-
----
-
-## 9. Availability and sequencing boundary
-
-The official source says first-come inventory may sell out and may become available again.
-
-Phase 3F-M does not model any of that.
-
-It also does not encode:
-
-- whether a drawing has seats remaining;
-- whether first-come inventory exists;
-- whether the first-come sale will actually occur for a specific date;
-- whether the user won or lost a drawing;
-- whether one path should be attempted before another;
-- whether a sale is currently open or closed;
-- whether a date is urgent.
-
-The two records are calendar-mechanism evidence only.
+A future purchase-context design gate may evaluate a closed context vocabulary such as
+domestic/international or a more evidence-faithful alternative. Phase 3F-M does not pre-commit to
+that schema.
 
 ---
 
-## 10. Successor implementation boundary
+## 9. Domestic first-come boundary
 
-Phase 3F-N may change only what is necessary to support and prove the approved model:
+The current domestic Japanese page publishes the two-month first-come calendar and its month-end
+rule.
 
-1. TypeScript evidence-catalog cardinality validation;
-2. Python offline catalog cardinality validation;
-3. `rolling-calendar-month-release.missingAlignedDayRule` union;
-4. 3F-D derivation for `last-day-of-shifted-month`;
-5. exact JP-050 source/app evidence records;
-6. focused tests proving same-scope multi-record composition through D/F/H/J and the existing
-   per-day surface;
-7. documentation/runtime record;
-8. browser regressions.
+A historical official first-come announcement also states that first-come sales may not be conducted
+depending on lottery-sale conditions. The current page says only that **some tickets** are sold
+first-come.
+
+Those facts make the domestic first-come proposition unsuitable for an unconditional generic
+`general-admission` record in the current audience-agnostic model.
+
+Phase 3F-M therefore defers:
+
+- the domestic first-come JP-050 record;
+- `last-day-of-shifted-month` runtime support;
+- active same-`placeId + scope` cardinality relaxation;
+- any “this option applies to you” interpretation.
+
+This is a fail-closed decision, not a statement that the domestic first-come mechanism does not
+exist.
+
+---
+
+## 10. Phase 3F-N implementation boundary
+
+Phase 3F-N may change only what is necessary to add and prove the one international JP-050
+application record:
+
+1. canonical reservation-mechanism evidence JSON;
+2. app-facing parity JSON;
+3. focused evidence/parser tests;
+4. derivation tests using the existing `monthly-application-window`;
+5. Phase 3F-F/H/J focused tests only where the new real record adds useful coverage;
+6. documentation/runtime record;
+7. full regression and browser gates.
 
 Not authorized:
 
+- removing active `placeId + scope` uniqueness;
+- `last-day-of-shifted-month`;
+- domestic JP-050 first-come evidence;
 - new React UX taxonomy;
 - new grouping UI;
 - new record-channel field;
 - new scope value;
+- purchase-context schema field;
 - planning-draft migration;
 - localStorage change;
 - availability fetch;
@@ -406,47 +444,44 @@ Not authorized:
 
 ---
 
-## 11. Successor validation gate
+## 11. Phase 3F-N validation gate
 
 Phase 3F-N must prove at minimum:
 
 1. canonical/app evidence parity;
-2. the catalog grows from 6 to exactly 8 active records;
+2. catalog grows from 6 to exactly 7 active records;
 3. global record IDs remain unique;
-4. both JP-050 records have exact IDs and `general-admission` scope;
-5. the parser accepts two active records with the same `placeId + scope`;
-6. the parser still rejects duplicate global IDs;
-7. the Python validator mirrors the same cardinality rule;
-8. no `channel`/pathway identity field exists;
-9. PokéPark drawing derives the month three months before the visit month, day 1 through day 12;
-10. the drawing open edge preserves 20:00 Asia/Tokyo;
-11. the drawing close edge invents no time or timezone;
-12. PokéPark first-come derives the same date two calendar months before when that date exists;
-13. 2027-04-30 derives first-come release 2027-02-28;
-14. leap-year 2028-04-30 derives 2028-02-29;
-15. Disney's existing missing-day behavior remains unchanged;
-16. Phase 3F-F creates two separate presentations for one JP-050 visit when both records derive;
-17. the two presentations preserve distinct record IDs;
-18. allocation disclosure remains `drawing` versus `first-come`;
-19. Phase 3F-H relates each record independently by record ID;
-20. Phase 3F-J emits two separate rows rather than merging the same scope;
-21. Phase 3F-J chronological order is determined by official anchor dates, not acquisition preference;
-22. the per-day surface renders two record-keyed articles without a new grouping model;
-23. no availability/inventory/current-sale-state field is introduced;
-24. no purchaser-eligibility claim is introduced;
-25. no user-residency field is introduced;
-26. JP-002, JP-125, JP-126 and JP-211 remain absent;
-27. existing six records preserve their meaning unless implementation-time source recheck requires a
+4. active `placeId + scope` uniqueness remains enforced;
+5. JP-050 record ID is exactly `RM-JP-050-001`;
+6. JP-050 scope is exactly `general-admission`;
+7. JP-050 source context is explicitly international / non-Japanese purchase;
+8. no second active JP-050 general-admission record exists;
+9. no `channel`/pathway identity field exists;
+10. JP-050 derives the month three months before the visit month, day 1 through day 12;
+11. neither edge invents a clock time;
+12. neither edge invents a timezone;
+13. allocation remains `drawing`;
+14. Phase 3F-F presents the international-source context through the existing provenance surface;
+15. Phase 3F-H relation behavior remains record-local;
+16. Phase 3F-J emits one JP-050 row, not a synthetic combined mechanism;
+17. `last-day-of-shifted-month` is absent from the runtime union;
+18. existing Disney missing-day behavior remains unchanged;
+19. domestic JP-050 first-come evidence remains absent;
+20. no availability/inventory/current-sale-state field is introduced;
+21. no purchaser-eligibility claim is introduced;
+22. no user-residency field is introduced;
+23. JP-002, JP-125, JP-126 and JP-211 remain absent;
+24. existing six records preserve their meaning unless implementation-time source recheck requires a
     documented correction;
-28. full Vitest passes;
-29. lint passes;
-30. build passes;
-31. repository whitespace gates pass;
-32. Phase 3F-F/H/J browser audits pass;
-33. official PokéPark sources are rechecked on the implementation day before the data write.
+25. full Vitest passes;
+26. lint passes;
+27. build passes;
+28. repository whitespace gates pass;
+29. Phase 3F-F/H/J browser audits pass;
+30. official international PokéPark source is rechecked on implementation day before data write.
 
-A source change that makes either mechanism non-deterministic or materially changes its audience
-context blocks that record rather than expanding scope silently.
+A changed source may remove JP-050 from Phase 3F-N. It may not silently reactivate the deferred
+domestic same-scope work.
 
 ---
 
@@ -456,35 +491,35 @@ context blocks that record rather than expanding scope silently.
 2. Phase 3F-M writes no JP-050 data.
 3. `recordId` is the evidence-record identity.
 4. `placeId` is place identity, not evidence-record identity.
-5. `scope` describes what is reserved, not how it is acquired.
-6. `placeId + scope` is not a unique record identity.
-7. Multiple active records may share `placeId + scope`.
-8. Global record ID uniqueness remains mandatory.
-9. ID namespace matching remains mandatory.
-10. Same-scope records are never silently merged.
-11. Same-scope records are never silently deduplicated.
-12. Same-scope records are never ranked.
-13. Same-scope records are never treated as fallback chains.
-14. Source order is deterministic order only, never preference.
-15. No `channel` field is introduced.
-16. No fake scope is introduced to encode acquisition method.
-17. Allocation does not become identity.
-18. Mechanism kind does not become identity.
-19. Every derivation retains its source `recordId`.
-20. Every presentation pairs to the exact record by `recordId`.
-21. Every Phase 3F-H relation remains record-local.
-22. Every Phase 3F-J row remains record-local.
-23. Same-scope records may create multiple route-wide rows.
-24. Multiple rows are not an availability claim.
-25. `last-day-of-shifted-month` is a civil-calendar fallback.
-26. It is used only when the same aligned day does not exist.
-27. It uses the actual month end, including leap February.
-28. It does not change Disney's existing fallback.
-29. It performs no instant conversion.
-30. It copies no timezone by implication.
-31. PokéPark drawing open time is 20:00 only if revalidated.
-32. PokéPark drawing close time remains unknown unless explicitly published.
-33. PokéPark first-come release time is 20:00 only if revalidated.
+5. `scope` describes what is reserved, not who may use a purchase path.
+6. Runtime already preserves `recordId` through D/F/H/J.
+7. A future design may allow multiple active records with one `placeId + scope`.
+8. Phase 3F-N does not remove the current active `placeId + scope` uniqueness rule.
+9. Global record ID uniqueness remains mandatory.
+10. ID namespace matching remains mandatory.
+11. No `channel` field is introduced.
+12. No fake scope is introduced to encode acquisition method.
+13. Allocation does not become identity.
+14. Mechanism kind does not become identity.
+15. Same-scope technical composability does not imply same user applicability.
+16. Domestic and international purchase contexts are materially distinct PokéPark evidence contexts.
+17. Japan-resident PokéPark purchase currently requires Japan mobile/SMS.
+18. Residents outside Japan are directed to a separate official English store.
+19. The international official store currently documents a three-month-ahead application system.
+20. The international application period is the 1st through the 12th.
+21. The international selected-applicant flow supports `allocation: drawing`.
+22. No recurring international opening time is recorded by this gate.
+23. Domestic 20:00 evidence is not copied onto the international record.
+24. Phase 3F-N may add exactly one JP-050 record.
+25. That record uses the international / non-Japanese official purchase context.
+26. That record uses existing `monthly-application-window`.
+27. Catalog size under this approval becomes 7, not 8.
+28. Domestic JP-050 first-come remains absent.
+29. Same-scope cardinality relaxation remains deferred.
+30. `last-day-of-shifted-month` remains design knowledge only and is not implemented by Phase 3F-N.
+31. Disney's existing fallback remains unchanged.
+32. Historical domestic first-come contingency is not normalized away.
+33. “Some tickets” first-come wording is not generalized to every admission product.
 34. Sold-out language is not encoded as mechanism closure.
 35. Inventory is not encoded.
 36. Availability is not encoded.
@@ -494,9 +529,9 @@ context blocks that record rather than expanding scope silently.
 40. Deadline is not encoded.
 41. Recommendation between acquisition mechanisms is not encoded.
 42. User residency is not encoded.
-43. Purchaser eligibility is not inferred.
-44. Domestic-source context remains provenance.
-45. A mechanism record does not mean “available to this user”.
+43. Personalized purchaser eligibility is not inferred.
+44. Source context must be visible through existing provenance presentation.
+45. A mechanism record does not mean “available to every user”.
 46. Runtime performs no network request.
 47. No planning-draft version changes.
 48. No localStorage changes.
@@ -504,20 +539,39 @@ context blocks that record rather than expanding scope silently.
 50. No source precedence with Phase 3D.
 51. Existing evidence semantics remain unchanged unless revalidated source evidence requires a
     documented correction.
-52. Implementation-time PokéPark source recheck is mandatory.
-53. A changed source may remove one or both JP-050 candidates.
-54. A changed source may not silently expand the mechanism union.
-55. The successor may add exactly two JP-050 records under this approval.
+52. Implementation-time international PokéPark source recheck is mandatory.
+53. A changed source may remove the JP-050 candidate.
+54. A changed source may not silently add the domestic first-come record.
+55. A changed source may not silently remove the audience-context caution.
 56. The successor keeps SHIBUYA SKY absent.
 57. The successor keeps USJ ordinary admission absent.
 58. The successor keeps SUPER NINTENDO WORLD absent.
 59. The successor keeps AnimeJapan 2027 absent.
-60. Phase 3F-N must prove same-scope composition with real JP-050 records.
-61. Phase 3F-N must prove duplicate global IDs still fail.
-62. Phase 3F-N must prove Disney fallback semantics do not regress.
-63. No parser-level semantic fingerprint is introduced in this gate.
-64. Accidental duplicate propositions remain a catalog-review/test concern, while global ID
-    uniqueness stays the hard structural identity invariant.
+60. A future purchase-context design gate is required before same-scope domestic/international
+    coexistence is implemented.
+
+### 12.1 Hostile-review corrective
+
+The first draft treated the domestic PokéPark page as one neutral mechanism source and concluded that
+the next implementation should immediately remove active `placeId + scope` uniqueness.
+
+The hostile review rejected that jump for two independent reasons:
+
+1. **purchase context:** the domestic path requires Japan mobile/SMS and residents outside Japan are
+   sent to a separate official store. `recordId` solves record identity but does not make those
+   records equally applicable to one purchaser;
+2. **domestic first-come contingency/granularity:** official material has stated that first-come may
+   depend on lottery-sale conditions, and the current domestic page says “some tickets” are sold
+   first-come. A generic unconditional `general-admission` release record would be broader than the
+   evidence warrants.
+
+The current international official store supplies a simpler, directly useful proposition: application
+for admission three months ahead, from the 1st through the 12th, with selected applicants notified
+later.
+
+The corrected successor therefore adds only that international application record and defers the
+same-scope cardinality change, domestic first-come record and month-end fallback runtime until a
+purchase-context model is designed.
 
 ---
 
@@ -533,20 +587,20 @@ not acquisition method.
 Rejected for this successor. It duplicates identity already supplied by `recordId` and would expand
 every downstream type without resolving a real ambiguity.
 
-### “Keep placeId + scope unique and store only the lottery”
+### “Relax placeId + scope uniqueness immediately”
 
-Rejected. The operator currently publishes another deterministic mechanism. Silently dropping it
-would preserve a known false completeness boundary.
+Rejected. The runtime could technically handle it, but the current PokéPark fixture crosses purchase
+contexts with different audience requirements. Identity readiness is not applicability readiness.
 
 ### “Merge both mechanisms into one record”
 
 Rejected. One is an application span with drawing allocation; the other is a release date with
 first-come allocation. A synthetic union would erase their independent calendar facts.
 
-### “Use Disney's first-day-of-next-month missing-day rule”
+### “Implement last-day-of-shifted-month now anyway”
 
-Rejected. PokéPark explicitly releases remaining month-end dates on the last day of the shifted
-month. Disney's rule would derive the wrong civil date.
+Rejected. The rule is correctly documented for the domestic first-come mechanism, but Phase 3F-N no
+longer adds that mechanism. Implementing unused runtime complexity would provide no current value.
 
 ### “Treat sold-out as the close edge of first-come sales”
 
@@ -554,22 +608,35 @@ Rejected. Sold-out is contingent inventory state, not a deterministic civil-date
 
 ### “Assume the current user can use the Japan-resident purchase path”
 
-Rejected. Phase 3F records operator mechanism evidence, not personalized eligibility.
+Rejected. The operator explicitly separates Japan-resident and outside-Japan purchase flows. The
+current UI has no typed applicability model, so the domestic path remains deferred.
+
+### “Copy the domestic 20:00 start onto the international application record”
+
+Rejected. The 20:00 notice applies to the domestic flow. The international source rechecked for this
+gate establishes the date span but not a recurring opening clock time.
 
 ---
 
 ## 14. Recommended successor
 
-**Phase 3F-N — Same-Scope Multi-Mechanism Foundation**
+**Phase 3F-N — PokéPark Overseas Application Evidence Foundation**
 
 One bounded implementation:
 
-- remove only the active `placeId + scope` uniqueness rejection;
-- keep global `recordId` uniqueness;
-- extend `rolling-calendar-month-release` with `last-day-of-shifted-month`;
-- add exactly two current-source JP-050 records if implementation-time recheck still supports them;
-- prove independent composition through Phase 3F-D/F/H/J and the existing per-day surface;
+- keep active `placeId + scope` uniqueness unchanged;
+- keep global `recordId` uniqueness unchanged;
+- add exactly one current-source JP-050 record from the official outside-Japan purchase flow;
+- reuse existing `monthly-application-window` with day 1 → day 12, three months before visit month;
+- invent no clock time or timezone;
+- preserve `allocation: drawing`;
+- expose the international purchase context through existing provenance presentation;
+- do not implement the domestic first-come path;
+- do not implement `last-day-of-shifted-month`;
 - preserve every existing no-state/no-network/no-persistence boundary;
 - run the full regression gate.
+
+A later design gate may address purchase-context semantics and then revisit same-scope
+multi-mechanism cardinality.
 
 Phase 3F-N is **NOT STARTED** by this design record.
