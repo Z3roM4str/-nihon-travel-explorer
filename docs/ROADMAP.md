@@ -5221,4 +5221,42 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       If the residence distinction changes, disappears or becomes ambiguous, implementation stops
       and returns to design instead of forcing `resides-outside-japan` from stale evidence.
 
-**Phase 3F-O changes documentation only and passed hostile + corrected independent focused review. Phase 3F-P is NOT STARTED.**
+**Phase 3F-O changes documentation only, passed hostile + corrected independent focused review and was merged via PR #85.**
+
+## Phase 3F-P — Purchase-Residence-Context Evidence Foundation
+
+Runtime authority:
+[`docs/PURCHASE_RESIDENCE_CONTEXT_EVIDENCE_RUNTIME.md`](PURCHASE_RESIDENCE_CONTEXT_EVIDENCE_RUNTIME.md).
+
+Base: `aad244f3756b0641bd1c7831375ff56501f11dfd`.
+
+Official PokéPark residence-routing source recheck: **2026-09-14**.
+
+- [x] **Implementation-day source gate passed.** The operator still directs guests residing outside
+      Japan to the separate English ticket website and residents of Japan to the Japanese route with
+      membership registration + SMS through a Japan-usable mobile phone.
+- [x] **Required structural field added.** Every reservation-mechanism evidence record now carries
+      `purchaseResidenceContext` with the closed vocabulary `not-recorded`,
+      `resides-in-japan`, `resides-outside-japan`.
+- [x] **Atomic 7→7 migration implemented.** JP-050 is `resides-outside-japan`; the other six
+      current records are explicitly `not-recorded`.
+- [x] **Specific-context provenance remains auditable.** JP-050 keeps the international store as
+      canonical mechanism `sourceUrl` and retains the official residence-routing URL verbatim
+      inside `provenance.evidence`.
+- [x] **Parser/validator stay fail-closed.** Missing or unsupported context is rejected; no default
+      value is synthesized.
+- [x] **Neutral Phase 3F-F copy implemented.** `not-recorded` renders no line; specific contexts
+      render route-anchored copy that makes no claim about the current user's residence or eligibility.
+- [x] **Both existing surfaces use the exact approved order.** fact/details → allocation (if any) →
+      purchase-residence context → temporal relation (if any) → provenance → source link.
+- [x] **D/H/J remain context-blind.** Static source gates reject residence-context reads in date
+      derivation, temporal relation and route calendar aggregation; a behavioral test proves route
+      chronological identity/order is unchanged when only context values are mutated.
+- [x] **Cardinality remains unchanged.** Global IDs and active `placeId + scope` uniqueness stay
+      enforced; JP-050 remains exactly one active record.
+- [x] **Deferred work remains absent.** No domestic first-come record and no
+      `last-day-of-shifted-month` runtime value are added.
+- [ ] **Repository-native executable validation pending.** Python validator/tests, focused/full
+      Vitest, lint, build, whitespace and Phase 3F-F/H/J browser audits must pass before Ready.
+
+**Phase 3F-P is implemented but not yet repository-native validated. Phase 3F-Q is NOT STARTED.**
