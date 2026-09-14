@@ -5147,8 +5147,19 @@ Official source recheck: **2026-09-14**.
 - [x] **Focused D/F/H/J coverage added.** Tests pin date arithmetic, the 20:00 Asia/Tokyo open edge,
       untimed close edge, provenance context, relation time/timezone non-leakage and one route-wide
       row.
-- [ ] **Repository-native executable validation pending.** Python, focused/full Vitest, lint, build,
-      whitespace and Phase 3F-F/H/J browser audits must pass on the exact executable HEAD before
-      Ready transition.
+- [x] **Hostile review corrective applied.** The Python domestic-first-come absence assertion was
+      hardened from a dictionary-key membership check to a serialized mechanism-content check. No
+      production data/runtime semantics changed.
+- [x] **Repository-native executable validation passed.** GitHub Actions run `34874539102`
+      checked out exact clean executable HEAD
+      `e1c1e6098719d14ccb0053ad5c63d6c99ec71c2c` and passed Python validator/tests,
+      focused Phase 3F Vitest, full Vitest, lint, build, whitespace gates and Phase 3F-F/H/J browser
+      audits.
+- [x] **Temporary validation workflow removed without tree drift.** Compare
+      `e1c1e609...363636ec` reports zero changed files after workflow removal, so the executable
+      tree remains byte-equivalent to the validated HEAD.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after executable
+      validation; no runtime, data, test, schema, storage, dependency or UI change is authorized
+      without revalidation.
 
-**Phase 3F-N is implemented but not yet repository-native validated. Phase 3F-O is NOT STARTED.**
+**Phase 3F-N is implemented, hostile-reviewed and repository-native validated. Phase 3F-O is NOT STARTED.**
