@@ -5199,6 +5199,13 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       No provenance schema expansion is needed.
 - [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
       read purchase context; Phase 3F-F owns display text.
+- [x] **Independent focused review fixed display ordering.** Both existing surfaces currently place
+      the Phase 3F-H temporal relation between allocation and provenance, so “after allocation and
+      before provenance” was ambiguous. The exact order is now recorded fact/details → allocation
+      (if any) → purchase context → temporal relation (if any) → provenance → source link.
+- [x] **Six-record migration remains non-assertive.** Mapping the other six current records to
+      `not-recorded` was independently rechecked and adds no universal-access or no-restriction
+      claim.
 - [x] **Cardinality remains deferred.** Phase 3F-P must keep active `placeId + scope` uniqueness,
       add no second JP-050 record and add no domestic first-come mechanism.
 - [x] **No mechanism expansion.** `last-day-of-shifted-month` remains deferred.
@@ -5206,4 +5213,4 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
       repository-native regression.
 
-**Phase 3F-O changes documentation only and is hostile-review corrected. Phase 3F-P is NOT STARTED.**
+**Phase 3F-O changes documentation only and passed hostile + independent focused review. Phase 3F-P is NOT STARTED.**
