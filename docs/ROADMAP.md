@@ -5256,7 +5256,22 @@ Official PokéPark residence-routing source recheck: **2026-09-14**.
       enforced; JP-050 remains exactly one active record.
 - [x] **Deferred work remains absent.** No domestic first-come record and no
       `last-day-of-shifted-month` runtime value are added.
-- [ ] **Repository-native executable validation pending.** Python validator/tests, focused/full
-      Vitest, lint, build, whitespace and Phase 3F-F/H/J browser audits must pass before Ready.
+- [x] **Initial repository-native validation passed, then hostile review found one validator
+      edge case.** A non-scalar `purchaseResidenceContext` could raise Python `TypeError` during
+      set membership instead of failing cleanly.
+- [x] **Hostile-review corrective applied.** Python now requires a string before closed-vocabulary
+      membership; a structured-object regression fixture proves fail-closed rejection.
+- [x] **Corrected executable tree revalidated from scratch.** Exact clean HEAD
+      `f1f937c5f4c4b04b3296bd918e5cacb59e33a2cf` passed GitHub Actions run
+      `34905444797`: Python validator/tests, focused Phase 3F-P Vitest, full Vitest, lint, build,
+      whitespace and Phase 3F-F/H/J browser audits.
+- [x] **Temporary validation workflow removed without tree drift.** Compare
+      `f1f937c5...5eaf17e8` reports zero changed files after workflow removal.
+- [x] **Independent focused review passed.** Final schema, validator, 7→7 migration, route-anchored
+      copy, exact surface order, D/H/J context blindness, comparator independence, cardinality and
+      all deferred boundaries were rechecked against the implementation. No further executable
+      corrective was required.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after executable
+      validation; any runtime/data/schema/test/dependency/storage/UI change requires revalidation.
 
-**Phase 3F-P is implemented but not yet repository-native validated. Phase 3F-Q is NOT STARTED.**
+**Phase 3F-P is implemented, hostile-review corrected, independently reviewed and repository-native validated. Phase 3F-Q is NOT STARTED.**
