@@ -1,6 +1,6 @@
 # Phase 3F-Q — Purchase-Residence-Context Presentation Exhaustiveness Hardening
 
-Status: **implementation candidate — repository-native validation pending**
+Status: **implemented, hostile-reviewed, independently reviewed and repository-native validated**
 
 Base: `4a9156c4236453c7389e6841fe5d7f25ffc08ecf` (`main` after Phase 3F-P / PR #86)
 
@@ -104,8 +104,76 @@ TypeScript/UI-only. Full Vitest still protects cross-phase regressions.
 
 Any executable/test correction after hostile review requires a fresh exact-head validation.
 
-## 7. Current gate
+## 7. Repository-native validation
 
-**IMPLEMENTED — REPOSITORY-NATIVE VALIDATION PENDING.**
+Exact validated HEAD:
+
+`7575a2d9d857676a7df61af31c0e885cdb02d7c0`
+
+Temporary workflow-bearing commit:
+
+`92278a8d25f8f14e035e6ca7dcdd910caec34c7c`
+
+GitHub Actions run:
+
+`34910773136` — **SUCCESS**
+
+The workflow explicitly checked out the exact validated HEAD above.
+
+Passed:
+
+- focused Phase 3F-Q presentation test;
+- full Vitest;
+- lint;
+- build;
+- whitespace gates;
+- Chromium install;
+- Phase 3F-F browser audit;
+- Phase 3F-H browser audit;
+- Phase 3F-J browser audit.
+
+The temporary workflow was removed in:
+
+`3e405ba2defaf2a4fb90f04efcbafa465435035d`
+
+Comparison:
+
+`7575a2d9d857676a7df61af31c0e885cdb02d7c0...3e405ba2defaf2a4fb90f04efcbafa465435035d`
+
+reports:
+
+- ahead by 2 commits;
+- behind by 0;
+- **zero changed files**.
+
+The post-workflow tree is therefore byte-equivalent to the validated tree.
+
+## 8. Hostile + independent focused review
+
+The post-validation review re-read the implementation and its focused regression directly.
+
+Confirmed:
+
+1. the map is typed directly as
+   `Record<ReservationPurchaseResidenceContext, string | null>`;
+2. all three union members are explicit object-literal keys;
+3. all three visible outputs are byte-equivalent to Phase 3F-P;
+4. `not-recorded` remains `null`;
+5. the helper performs only `PURCHASE_RESIDENCE_CONTEXT_LABEL[context]`;
+6. the helper has no conditional fallback and no direct string fallback;
+7. extending the union without adding a map key makes the typed object incomplete at compile time;
+8. no evidence schema/data/parser/validator file changed;
+9. no React/CSS/date/relation/calendar module changed;
+10. active `placeId + scope` cardinality and the single JP-050 record remain untouched;
+11. no domestic first-come or `last-day-of-shifted-month` work was started.
+
+No executable corrective was required after validation.
+
+## 9. Current gate
+
+**IMPLEMENTED + HOSTILE REVIEW PASSED + INDEPENDENT FOCUSED REVIEW PASSED + REPOSITORY-NATIVE VALIDATION PASSED.**
+
+Only documentation closure may change before Ready. Any runtime/test change invalidates the validation
+seal and requires a new exact-head run.
 
 Same-scope cardinality relaxation is not started.
