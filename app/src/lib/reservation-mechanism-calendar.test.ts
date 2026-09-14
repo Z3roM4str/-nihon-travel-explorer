@@ -126,6 +126,35 @@ describe("Phase 3F-J — release-date items", () => {
   });
 });
 
+describe("Phase 3F-P — route ordering ignores residence context", () => {
+  it("keeps identical chronological identity/order when only purchaseResidenceContext changes", () => {
+    const dayMatrix = [[POKEPARK, GHIBLI, NINTENDO], [DISNEYLAND, KATSURA]];
+    const original = build(dayMatrix, "2027-03-15", "2026-12-05");
+    const mutatedRecords = reservationMechanismEvidenceRecords.map((record) => ({
+      ...record,
+      purchaseResidenceContext:
+        record.purchaseResidenceContext === "not-recorded"
+          ? ("resides-in-japan" as const)
+          : ("not-recorded" as const),
+    }));
+    const mutated = build(dayMatrix, "2027-03-15", "2026-12-05", mutatedRecords);
+    const identity = (item: typeof original.chronological[number]) => ({
+      recordId: item.recordId,
+      placeId: item.placeId,
+      scope: item.scope,
+      anchorDate: item.anchorDate,
+      dayNumber: item.dayNumber,
+      visitDate: item.visitDate,
+    });
+    expect(mutated.chronological.map(identity)).toEqual(original.chronological.map(identity));
+  });
+
+  it("keeps the calendar module itself free of residence-context branching", async () => {
+    const source = await readFile(MODULE_SOURCE, "utf8");
+    expect(source).not.toContain("purchaseResidenceContext");
+  });
+});
+
 describe("Phase 3F-J — application-window items", () => {
   it("produces exactly one span item anchored at the recorded open date", () => {
     const result = build([[KATSURA]], "2027-03-15");
@@ -182,6 +211,9 @@ describe("Phase 3F-J — application-window items", () => {
     if (item.fact.kind !== "application-date-span") throw new Error("unexpected fact");
     expect(item.fact.spanText).toContain("20:00 (Asia/Tokyo)");
     expect(item.presentation.allocationText).toBe("Asignación registrada: sorteo.");
+    expect(item.presentation.purchaseResidenceContextText).toBe(
+      "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra."
+    );
     expect(item.presentation.provenanceText).toContain("outside-Japan");
     expect(item.presentation.sourceUrl).toBe("https://ticket-en.pokepark-kanto.co.jp/?viewLang=en");
     expect(item.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
