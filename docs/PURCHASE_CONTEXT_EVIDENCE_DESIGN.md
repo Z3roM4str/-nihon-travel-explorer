@@ -1,4 +1,4 @@
-# Phase 3F-O — Purchase-Context Evidence Design Gate
+# Phase 3F-O — Purchase-Residence-Context Evidence Design Gate
 
 Status: **design gate only — no runtime/data implementation in this phase**
 
@@ -67,7 +67,7 @@ proves that the operator itself distinguishes purchase contexts.
 
 ## 3. Design principle
 
-The new field records **source-defined purchase context**, not the user's personal eligibility.
+The new field records **source-defined purchase residence context**, not the user's personal eligibility and not a generic acquisition-channel taxonomy.
 
 The system may say:
 
@@ -89,7 +89,7 @@ This is evidence presentation, not personalization.
 
 Phase 3F-O approves one required top-level evidence field:
 
-`purchaseContext`
+`purchaseResidenceContext`
 
 Closed vocabulary:
 
@@ -112,9 +112,26 @@ Every reservation-mechanism evidence record must carry exactly one value.
 
 ---
 
-## 5. Semantics
+## 5. Naming boundary
 
-### 5.1 `not-recorded`
+The field name is deliberately `purchaseResidenceContext`, not the broader `purchaseContext`.
+
+Reason:
+
+- the approved vocabulary encodes one axis only: residence in Japan versus residence outside Japan;
+- it does not encode language, sales channel, membership, phone/SMS requirements, payment method,
+  nationality, citizenship or account type;
+- a generic `purchaseContext` name would invite future unrelated concepts to be overloaded into one
+  scalar field.
+
+If a future official source requires a different structured applicability axis, that axis requires
+its own design gate and must not be smuggled into `purchaseResidenceContext`.
+
+---
+
+## 6. Semantics
+
+### 6.1 `not-recorded`
 
 Means only:
 
@@ -128,9 +145,9 @@ It does **not** mean:
 - no account requirement;
 - usable by the current user.
 
-Absence of structured purchase-context evidence must remain absence.
+Absence of structured purchase-residence-context evidence must remain absence.
 
-### 5.2 `resides-in-japan`
+### 6.2 `resides-in-japan`
 
 Means:
 
@@ -150,7 +167,7 @@ It does not itself encode:
 Any additional official requirement, such as SMS through a Japan-usable mobile number, remains in
 provenance evidence unless a future design gate gives that concept its own structured field.
 
-### 5.3 `resides-outside-japan`
+### 6.3 `resides-outside-japan`
 
 Means:
 
@@ -166,9 +183,9 @@ It does not mean:
 
 ---
 
-## 6. Why the field belongs at record level
+## 7. Why the field belongs at record level
 
-`purchaseContext` belongs beside `scope`, `mechanism`, `allocation` and `status`, not inside
+`purchaseResidenceContext` belongs beside `scope`, `mechanism`, `allocation` and `status`, not inside
 provenance.
 
 Reason:
@@ -183,7 +200,7 @@ text into business logic.
 
 ---
 
-## 7. Why not overload `sourceEntity`
+## 8. Why not overload `sourceEntity`
 
 Phase 3F-N used:
 
@@ -202,7 +219,7 @@ Overloading `sourceEntity` is rejected because:
 
 ---
 
-## 8. Why not create a user-residency model
+## 9. Why not create a user-residency model
 
 Phase 3F-O explicitly rejects:
 
@@ -221,11 +238,11 @@ the user.
 
 ---
 
-## 9. Presentation contract
+## 10. Presentation contract
 
 Phase 3F-P should add one presentation field:
 
-`purchaseContextText: string | null`
+`purchaseResidenceContextText: string | null`
 
 Closed rendering:
 
@@ -237,11 +254,11 @@ No UI line is rendered.
 
 ### `resides-in-japan`
 
-`Ruta de compra oficial citada: para residentes en Japón.`
+`La fuente oficial citada presenta esta ruta de compra para residentes en Japón.`
 
 ### `resides-outside-japan`
 
-`Ruta de compra oficial citada: para residentes fuera de Japón.`
+`La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra.`
 
 This text is descriptive only and is deliberately anchored to the **cited official purchase
 route**, not to the current user.
@@ -261,13 +278,13 @@ It must not say:
 
 ---
 
-## 10. Presentation placement
+## 11. Presentation placement
 
-When non-null, `purchaseContextText` has one exact ordering contract on both existing surfaces:
+When non-null, `purchaseResidenceContextText` has one exact ordering contract on both existing surfaces:
 
 1. detail lines / recorded fact;
 2. allocation disclosure, when non-null;
-3. **purchase-context disclosure**;
+3. **purchase-residence-context disclosure**;
 4. Phase 3F-H reference-date relation, when present;
 5. provenance text;
 6. official source link.
@@ -289,9 +306,9 @@ No new panel, grouping surface or badge taxonomy is required.
 
 ---
 
-## 11. Provenance traceability for specific purchase contexts
+## 12. Provenance traceability for specific purchase contexts
 
-A non-`not-recorded` `purchaseContext` is a structured factual claim and must be traceable to an
+A non-`not-recorded` `purchaseResidenceContext` is a structured factual claim and must be traceable to an
 official source that explicitly supports that residence context.
 
 For JP-050, the canonical mechanism `sourceUrl` remains:
@@ -305,7 +322,7 @@ However, the explicit outside-Japan routing statement is published on:
 `https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US`
 
 Therefore Phase 3F-P must retain that official routing URL verbatim inside
-`provenance.evidence` as a supporting source for `purchaseContext: resides-outside-japan`.
+`provenance.evidence` as a supporting source for `purchaseResidenceContext: resides-outside-japan`.
 
 This follows the existing Phase 3F compound-provenance pattern used for Nintendo Museum: one
 canonical `sourceUrl`, with an additional official supporting URL retained verbatim in evidence
@@ -319,14 +336,14 @@ operator assumptions.
 
 ---
 
-## 12. Existing-record migration
+## 13. Existing-record migration
 
 Phase 3F-P should migrate all seven active records so the field is explicit and parser shape remains
 closed.
 
 Required migration:
 
-| Record | purchaseContext |
+| Record | purchaseResidenceContext |
 |---|---|
 | RM-JP-044-001 | `not-recorded` |
 | RM-JP-203-001 | `not-recorded` |
@@ -345,14 +362,14 @@ supports it.
 
 ---
 
-## 13. Parser and validator contract
+## 14. Parser and validator contract
 
 Phase 3F-P must:
 
-1. make `purchaseContext` required on every evidence record;
-2. reject missing `purchaseContext`;
+1. make `purchaseResidenceContext` required on every evidence record;
+2. reject missing `purchaseResidenceContext`;
 3. reject unsupported values;
-4. reject extra purchase-context subfields because this is a scalar closed vocabulary;
+4. reject extra purchase-residence-context subfields because this is a scalar closed vocabulary;
 5. preserve global record-ID uniqueness;
 6. preserve active `placeId + scope` uniqueness in Phase 3F-P;
 7. preserve canonical/app JSON byte parity.
@@ -364,11 +381,11 @@ migrated atomically in the same successor.
 
 ---
 
-## 14. Runtime ownership boundaries
+## 15. Runtime ownership boundaries
 
 ### Phase 3F-D derivation
 
-Must ignore `purchaseContext`.
+Must ignore `purchaseResidenceContext`.
 
 Date derivation remains a pure function of:
 
@@ -380,19 +397,19 @@ No date changes based on purchase context are authorized.
 
 ### Phase 3F-F presentation
 
-Owns human-readable purchase-context disclosure.
+Owns human-readable purchase-residence-context disclosure.
 
-It may read the field only to generate `purchaseContextText`.
+It may read the field only to generate `purchaseResidenceContextText`.
 
 ### Phase 3F-H reference-date relation
 
-Must ignore `purchaseContext`.
+Must ignore `purchaseResidenceContext`.
 
 A temporal relation is about civil dates, not audience applicability.
 
 ### Phase 3F-J route-wide calendar
 
-May carry `purchaseContextText` only through the already-composed presentation.
+May carry `purchaseResidenceContextText` only through the already-composed presentation.
 
 It must not:
 
@@ -403,7 +420,7 @@ It must not:
 
 ---
 
-## 15. Identity and cardinality boundary
+## 16. Identity and cardinality boundary
 
 Phase 3F-O retains the Phase 3F-M identity conclusion:
 
@@ -423,7 +440,7 @@ Therefore Phase 3F-O does not authorize a second JP-050 active record.
 
 ---
 
-## 16. Domestic PokéPark boundary
+## 17. Domestic PokéPark boundary
 
 The Japan-resident route is useful as the real proof that `resides-in-japan` is needed in the
 vocabulary.
@@ -442,7 +459,7 @@ Purchase-context support is necessary but not sufficient to add that record.
 
 ---
 
-## 17. No hidden applicability logic
+## 18. No hidden applicability logic
 
 The new field may not be used as a proxy for:
 
@@ -464,9 +481,9 @@ No code may derive “usable by user” from this field.
 
 ---
 
-## 18. Successor implementation boundary
+## 19. Successor implementation boundary
 
-**Phase 3F-P — Purchase-Context Evidence Foundation** may change only:
+**Phase 3F-P — Purchase-Residence-Context Evidence Foundation** may change only:
 
 1. TypeScript evidence type/parser;
 2. Python validator;
@@ -496,16 +513,16 @@ Not authorized:
 
 ---
 
-## 19. Phase 3F-P validation gate
+## 20. Phase 3F-P validation gate
 
 Phase 3F-P must prove at minimum:
 
 1. canonical/app evidence parity;
 2. catalog size remains exactly 7;
-3. every record has exactly one `purchaseContext`;
+3. every record has exactly one `purchaseResidenceContext`;
 4. six pre-PokéPark-context records use `not-recorded`;
 5. RM-JP-050-001 uses `resides-outside-japan`;
-6. parser rejects missing `purchaseContext`;
+6. parser rejects missing `purchaseResidenceContext`;
 7. parser rejects an unsupported value;
 8. Python validator mirrors the same closed vocabulary;
 9. duplicate global IDs still fail;
@@ -515,14 +532,14 @@ Phase 3F-P must prove at minimum:
 13. no country field exists in the evidence schema;
 14. no eligibility boolean exists;
 15. Phase 3F-D derives identical dates before and after the migration;
-16. Phase 3F-D source code does not read `purchaseContext`;
+16. Phase 3F-D source code does not read `purchaseResidenceContext`;
 17. Phase 3F-F returns null context text for `not-recorded`;
 18. Phase 3F-F renders the exact route-anchored outside-Japan text for JP-050;
 19. Phase 3F-F wording contains no personalized applicability claim;
 20. Phase 3F-H relation output remains byte/shape-equivalent for matching date inputs;
-21. Phase 3F-H source code does not read `purchaseContext`;
+21. Phase 3F-H source code does not read `purchaseResidenceContext`;
 22. Phase 3F-J ordering remains unchanged when only purchase context changes;
-23. Phase 3F-J source comparator does not read `purchaseContext`;
+23. Phase 3F-J source comparator does not read `purchaseResidenceContext`;
 24. per-day surface renders non-null context after allocation and **before the Phase 3F-H relation**;
 25. route-wide surface renders non-null context after allocation and **before the Phase 3F-H relation**;
 26. on either surface, if allocation is null, context renders after the recorded fact/details;
@@ -542,11 +559,11 @@ Phase 3F-P must prove at minimum:
 
 ---
 
-## 20. Normative contracts
+## 21. Normative contracts
 
 1. Phase 3F-O changes documentation only.
-2. `purchaseContext` is source evidence, not user profile data.
-3. `purchaseContext` is required on every record after Phase 3F-P.
+2. `purchaseResidenceContext` is source evidence, not user profile data.
+3. `purchaseResidenceContext` is required on every record after Phase 3F-P.
 4. The vocabulary is closed to three values.
 5. `not-recorded` never means unrestricted.
 6. `not-recorded` never means globally available.
@@ -575,15 +592,15 @@ Phase 3F-P must prove at minimum:
 29. RM-JP-050-001 becomes `resides-outside-japan`.
 30. The six other current records become `not-recorded`.
 31. Existing six `not-recorded` values make no claim about restrictions.
-32. Missing `purchaseContext` fails parsing.
-33. Unsupported `purchaseContext` fails parsing.
+32. Missing `purchaseResidenceContext` fails parsing.
+33. Unsupported `purchaseResidenceContext` fails parsing.
 34. No parser default is allowed.
 35. Phase 3F-D ignores purchase context.
 36. Phase 3F-H ignores purchase context.
 37. Phase 3F-J does not order by purchase context.
 38. Phase 3F-J does not group by purchase context.
 39. Phase 3F-J does not filter by purchase context.
-40. Phase 3F-F owns purchase-context display text.
+40. Phase 3F-F owns purchase-residence-context display text.
 41. `not-recorded` produces no UI line.
 42. `resides-in-japan` uses route-anchored neutral descriptive text.
 43. `resides-outside-japan` uses route-anchored neutral descriptive text.
@@ -615,7 +632,7 @@ Phase 3F-P must prove at minimum:
 
 ---
 
-### 20.1 Independent focused review corrective
+### 21.1 Independent focused review corrective
 
 A focused implementation-shape review checked the corrected design against both current React
 surfaces and the shipped Phase 3F-H composition order.
@@ -639,19 +656,19 @@ dimension after them.
 
 The review also reconfirmed:
 
-1. `purchaseContext` remains a fact about the cited official route, not the user;
+1. `purchaseResidenceContext` remains a fact about the cited official route, not the user;
 2. the three-value closed vocabulary is sufficient for the currently evidenced PokéPark distinction;
 3. migrating the other six records to `not-recorded` adds no new restriction or universal-access
    claim;
 4. no additional runtime owner beyond Phase 3F-F presentation is needed;
 5. Phase 3F-J can continue carrying the existing presentation object without a new calendar-level
-   purchase-context field.
+   purchase-residence-context field.
 
 No runtime, data, schema or UI implementation is performed by this review.
 
 ---
 
-## 21. Rejected alternatives
+## 22. Rejected alternatives
 
 ### “Keep encoding purchase context only in sourceEntity”
 
@@ -669,7 +686,7 @@ Rejected. It is unnecessary personal applicability logic for this evidence featu
 
 Rejected. It would turn missing evidence into a universal-access claim.
 
-### “Make purchaseContext optional”
+### “Make purchaseResidenceContext optional”
 
 Rejected. Optional absence creates two different meanings for missing data. Explicit
 `not-recorded` is safer.
@@ -682,17 +699,17 @@ multi-record composition change.
 ### “Add the domestic first-come record in Phase 3F-P”
 
 Rejected. That record has additional calendar-rule and evidence-granularity requirements unrelated
-to the purchase-context field itself.
+to the purchase-residence-context field itself.
 
 ---
 
-## 22. Recommended successor
+## 23. Recommended successor
 
-**Phase 3F-P — Purchase-Context Evidence Foundation**
+**Phase 3F-P — Purchase-Residence-Context Evidence Foundation**
 
 One bounded implementation:
 
-- add required `purchaseContext` to the evidence schema;
+- add required `purchaseResidenceContext` to the evidence schema;
 - migrate all seven records atomically;
 - set JP-050 to `resides-outside-japan`;
 - set the other six records to `not-recorded`;
