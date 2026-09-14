@@ -5162,4 +5162,41 @@ Official source recheck: **2026-09-14**.
       validation; no runtime, data, test, schema, storage, dependency or UI change is authorized
       without revalidation.
 
-**Phase 3F-N is implemented, hostile-reviewed and repository-native validated. Phase 3F-O is NOT STARTED.**
+**Phase 3F-N is implemented, hostile-reviewed, repository-native validated and merged via PR #84.**
+
+## Phase 3F-O — Purchase-Context Evidence Design Gate
+
+Design authority:
+[`docs/PURCHASE_CONTEXT_EVIDENCE_DESIGN.md`](PURCHASE_CONTEXT_EVIDENCE_DESIGN.md).
+
+Base: `f1eb7214a62c14f50200d7f2a19bf2f5f7362cfe` (`main` after Phase 3F-N / PR #84).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Blocking semantic gap reconfirmed.** The operator still separates residents of Japan from
+      guests residing outside Japan into different official purchase routes.
+- [x] **Minimal model selected.** Add one required evidence-level `purchaseContext` field with
+      closed values `not-recorded`, `resides-in-japan`, `resides-outside-japan`.
+- [x] **No user profile introduced.** The field records source-defined purchase context only; it
+      does not store, infer or ask for the user's residence, nationality, citizenship, location or
+      eligibility.
+- [x] **Unknown semantics fail closed.** `not-recorded` means only that structured evidence does
+      not record a residence-based purchase context; it never means unrestricted or universally
+      available.
+- [x] **Record-level placement approved.** Purchase context is structural evidence beside scope,
+      mechanism, allocation and status, not free-text provenance and not parsed from `sourceEntity`.
+- [x] **Atomic seven-record migration designed.** JP-050 becomes
+      `resides-outside-japan`; the other six current records become `not-recorded` without making
+      any new accessibility claim.
+- [x] **Neutral presentation contract approved.** Non-`not-recorded` context renders after
+      allocation and before provenance on both existing official-reservation surfaces.
+- [x] **D/H/J remain context-blind.** Date derivation, temporal relation and route ordering must not
+      read purchase context; Phase 3F-F owns display text.
+- [x] **Cardinality remains deferred.** Phase 3F-P must keep active `placeId + scope` uniqueness,
+      add no second JP-050 record and add no domestic first-come mechanism.
+- [x] **No mechanism expansion.** `last-day-of-shifted-month` remains deferred.
+- [x] **Successor gate defined.** Phase 3F-P must prove exact vocabulary parsing, seven-record
+      migration, neutral context rendering, D/H/J non-interference, unchanged cardinality and full
+      repository-native regression.
+
+**Phase 3F-O changes documentation only. Phase 3F-P is NOT STARTED.**
