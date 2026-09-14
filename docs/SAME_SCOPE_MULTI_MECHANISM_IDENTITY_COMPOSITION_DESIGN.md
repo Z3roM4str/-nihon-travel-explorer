@@ -99,8 +99,18 @@ The current international store evidence therefore supports one deterministic
 It does **not** establish the domestic first-come two-month mechanism as an option for residents
 outside Japan.
 
-The international page also does not provide a recurring application opening clock time in the
-evidence rechecked for this gate, so no 20:00 proposition may be copied from the domestic source.
+The international store explicitly states that ticket sales and Application periods start at
+**20:00 JST**. It also describes the process as a lottery, including unsuccessful applicants and a
+possible redraw of the lottery.
+
+Therefore the international record may carry:
+
+- `openTimeLocal: "20:00"`;
+- `openSourceTimeZone: "Asia/Tokyo"`;
+- `allocation: "drawing"`.
+
+The rechecked international source does not establish a recurring closing clock time for the 12th,
+so the close time and close timezone remain null.
 
 ---
 
@@ -332,17 +342,21 @@ mechanism:
   closeDay:
     kind: fixed-day-of-month
     day: 12
-  openTimeLocal: null
-  openSourceTimeZone: null
+  openTimeLocal: 20:00
+  openSourceTimeZone: Asia/Tokyo
   closeTimeLocal: null
   closeSourceTimeZone: null
 allocation: drawing
 ```
 
-The international store supports the 1st–12th application span and selected-applicant flow.
+The international store supports the 1st–12th application span, explicitly identifies the process
+as a lottery, describes selected and unsuccessful applicants plus possible redraw, and states that
+Application periods start at 20:00 JST.
 
-It does not establish a recurring 20:00 opening time for this purchase context, so no domestic clock
-evidence may be copied into the record.
+That 20:00 evidence is independently present on the international source; it is not copied from the
+domestic purchase path.
+
+No recurring close time is established for the 12th, so the close edge remains untimed.
 
 ### 7.2 Provenance context
 
@@ -458,9 +472,9 @@ Phase 3F-N must prove at minimum:
 8. no second active JP-050 general-admission record exists;
 9. no `channel`/pathway identity field exists;
 10. JP-050 derives the month three months before the visit month, day 1 through day 12;
-11. neither edge invents a clock time;
-12. neither edge invents a timezone;
-13. allocation remains `drawing`;
+11. the open edge preserves exactly 20:00 Asia/Tokyo from the international source;
+12. the close edge invents no clock time or timezone;
+13. allocation remains `drawing` and is supported by explicit lottery/redraw language;
 14. Phase 3F-F presents the international-source context through the existing provenance surface;
 15. Phase 3F-H relation behavior remains record-local;
 16. Phase 3F-J emits one JP-050 row, not a synthetic combined mechanism;
@@ -508,8 +522,8 @@ domestic same-scope work.
 19. The international official store currently documents a three-month-ahead application system.
 20. The international application period is the 1st through the 12th.
 21. The international selected-applicant flow supports `allocation: drawing`.
-22. No recurring international opening time is recorded by this gate.
-23. Domestic 20:00 evidence is not copied onto the international record.
+22. The international source independently records Application start at 20:00 JST.
+23. International 20:00 evidence is not dependent on or copied from the domestic source.
 24. Phase 3F-N may add exactly one JP-050 record.
 25. That record uses the international / non-Japanese official purchase context.
 26. That record uses existing `monthly-application-window`.
@@ -565,9 +579,9 @@ The hostile review rejected that jump for two independent reasons:
    first-come. A generic unconditional `general-admission` release record would be broader than the
    evidence warrants.
 
-The current international official store supplies a simpler, directly useful proposition: application
-for admission three months ahead, from the 1st through the 12th, with selected applicants notified
-later.
+The current international official store supplies a simpler, directly useful proposition: lottery
+application for admission three months ahead, from the 1st through the 12th, starting at 20:00 JST,
+with selected applicants notified later and possible redraw described explicitly.
 
 The corrected successor therefore adds only that international application record and defers the
 same-scope cardinality change, domestic first-come record and month-end fallback runtime until a
@@ -628,8 +642,9 @@ One bounded implementation:
 - keep global `recordId` uniqueness unchanged;
 - add exactly one current-source JP-050 record from the official outside-Japan purchase flow;
 - reuse existing `monthly-application-window` with day 1 → day 12, three months before visit month;
-- invent no clock time or timezone;
-- preserve `allocation: drawing`;
+- preserve the internationally recorded 20:00 Asia/Tokyo open edge;
+- invent no close time or close timezone;
+- preserve `allocation: drawing` from explicit lottery evidence;
 - expose the international purchase context through existing provenance presentation;
 - do not implement the domestic first-come path;
 - do not implement `last-day-of-shifted-month`;
