@@ -21,6 +21,7 @@ KINDS = {
     "monthly-fixed-release",
     "rolling-calendar-month-release",
     "rolling-day-release",
+    "monthly-application-window",
     "relative-application-window",
     "fixed-sale-date",
 }
@@ -160,6 +161,69 @@ def validate_mechanism(mechanism, label, errors):
         if not positive_safe_integer(mechanism.get("daysBeforeVisit")):
             errors.append(f"{label}: daysBeforeVisit must be a positive safe integer")
         validate_clock_fields(mechanism, label, errors)
+
+    elif kind == "monthly-application-window":
+        require_exact_keys(
+            mechanism,
+            {
+                "kind",
+                "monthsBeforeVisitMonth",
+                "openDay",
+                "closeDay",
+                "openTimeLocal",
+                "openSourceTimeZone",
+                "closeTimeLocal",
+                "closeSourceTimeZone",
+            },
+            label,
+            errors,
+        )
+        if not positive_safe_integer(mechanism.get("monthsBeforeVisitMonth")):
+            errors.append(f"{label}: monthsBeforeVisitMonth must be a positive safe integer")
+
+        open_day = mechanism.get("openDay")
+        close_day = mechanism.get("closeDay")
+        if not isinstance(open_day, dict):
+            errors.append(f"{label}: openDay must be an object")
+        else:
+            require_exact_keys(open_day, {"kind", "day"}, f"{label}.openDay", errors)
+            if open_day.get("kind") != "fixed-day-of-month":
+                errors.append(f"{label}.openDay: kind must be 'fixed-day-of-month'")
+            day = open_day.get("day")
+            if not isinstance(day, int) or isinstance(day, bool) or not 1 <= day <= 31:
+                errors.append(f"{label}.openDay: day must be an integer in 1..31")
+
+        if not isinstance(close_day, dict):
+            errors.append(f"{label}: closeDay must be an object")
+        else:
+            close_kind = close_day.get("kind")
+            if close_kind == "fixed-day-of-month":
+                require_exact_keys(close_day, {"kind", "day"}, f"{label}.closeDay", errors)
+                day = close_day.get("day")
+                if not isinstance(day, int) or isinstance(day, bool) or not 1 <= day <= 31:
+                    errors.append(f"{label}.closeDay: day must be an integer in 1..31")
+                if (
+                    isinstance(open_day, dict)
+                    and isinstance(open_day.get("day"), int)
+                    and not isinstance(open_day.get("day"), bool)
+                    and isinstance(day, int)
+                    and not isinstance(day, bool)
+                    and open_day.get("day") > day
+                ):
+                    errors.append(f"{label}: openDay must not be after fixed closeDay")
+            elif close_kind == "last-day-of-month":
+                require_exact_keys(close_day, {"kind"}, f"{label}.closeDay", errors)
+            else:
+                errors.append(f"{label}.closeDay: unsupported kind {close_kind!r}")
+
+        if not valid_time_or_null(mechanism.get("openTimeLocal")):
+            errors.append(f"{label}: openTimeLocal must be null or HH:mm")
+        if mechanism.get("openSourceTimeZone") not in TIME_ZONES:
+            errors.append(f"{label}: openSourceTimeZone must be null or 'Asia/Tokyo'")
+        if not valid_time_or_null(mechanism.get("closeTimeLocal")):
+            errors.append(f"{label}: closeTimeLocal must be null or HH:mm")
+        if mechanism.get("closeSourceTimeZone") not in TIME_ZONES:
+            errors.append(f"{label}: closeSourceTimeZone must be null or 'Asia/Tokyo'")
 
     elif kind == "relative-application-window":
         require_exact_keys(mechanism, {"kind", "openRule", "closeRule"}, label, errors)
