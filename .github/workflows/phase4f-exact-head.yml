@@ -20,7 +20,7 @@ jobs:
       - name: Checkout exact executable head
         uses: actions/checkout@v4
         with:
-          ref: db7b87fa128a5479b6c67a0e2a2a3dc60d541efc
+          ref: 3d7bdaf115a65cc8e43ee7b98f5adcb5ab474b55
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
