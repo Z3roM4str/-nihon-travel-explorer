@@ -29,8 +29,33 @@ jobs:
 
       - name: Reproduce Phase 4E selector
         run: |
-          python scripts/select-a-grade-photography-batch.py --out /tmp/phase4f-selector.json
-          cmp /tmp/phase4f-selector.json data/visual/a-grade-photography-batch-i.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("data/visual/a-grade-photography-batch-i.json").read_text())
+          current = json.loads(Path("data/visual/photography-metadata.json").read_text())
+          target_ids = {row["placeId"] for row in manifest["places"]}
+          baseline = [row for row in current["images"] if row["placeId"] not in target_ids]
+          if len(baseline) != 36:
+              raise SystemExit(f"Phase 4E baseline must contain 36 records, found {len(baseline)}")
+          current["images"] = baseline
+          current["imageCount"] = len(baseline)
+          Path("/tmp/phase4e-baseline-metadata.json").write_text(
+              json.dumps(current, ensure_ascii=False, indent=2) + "\n"
+          )
+          PY
+          python scripts/select-a-grade-photography-batch.py \
+            --photography /tmp/phase4e-baseline-metadata.json \
+            --out /tmp/phase4f-selector.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          generated = json.loads(Path("/tmp/phase4f-selector.json").read_text())
+          pinned = json.loads(Path("data/visual/a-grade-photography-batch-i.json").read_text())
+          if generated != pinned:
+              raise SystemExit("Phase 4E selector no longer reproduces the pinned 24-target fixture")
+          print("OK: exact 24-target Phase 4E selector fixture reproduced")
+          PY
           python scripts/test_a_grade_photography_selector.py
 
       - name: Acquire accepted Phase 4F records through unchanged pipeline
