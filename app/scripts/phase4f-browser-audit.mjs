@@ -50,7 +50,11 @@ try {
     results.push(`  ${name.padEnd(44)}: pass${detail ? ` (${detail})` : ""}`);
 
   async function enterHub(hub) {
-    await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
+    const prefectureEntry = {
+      Sapporo: "Hokkaido",
+      Nagoya: "Aichi",
+    }[hub] ?? hub;
+    await page.getByRole("button", { name: new RegExp(`^${prefectureEntry}`) }).first().click();
     await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
   }
 
