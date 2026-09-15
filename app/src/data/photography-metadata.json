@@ -15,7 +15,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Shibuya Scramble crossing.jpg",
       "originalWidth": 4080,
-      "originalHeight": 3072
+      "originalHeight": 3072,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-002",
@@ -30,7 +31,9 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck (53417085580).jpg",
       "originalWidth": 4032,
-      "originalHeight": 3024
+      "originalHeight": 3024,
+      "processing": "resized-and-webp-reencoded",
+      "attributionTitle": "Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck"
     },
     {
       "placeId": "JP-003",
@@ -45,7 +48,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Meiji-jingu Torii 1.jpg",
       "originalWidth": 4592,
-      "originalHeight": 3448
+      "originalHeight": 3448,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-010",
@@ -60,7 +64,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Wooden footbridge in Shinjuku Gyoen National Garden, Tokyo, Japan, a sunny day with blue sky.jpg",
       "originalWidth": 6720,
-      "originalHeight": 4480
+      "originalHeight": 4480,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-021",
@@ -75,7 +80,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Tokyo National Museum Main Building PB304920.jpg",
       "originalWidth": 4548,
-      "originalHeight": 3376
+      "originalHeight": 3376,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-025",
@@ -90,7 +96,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Akihabara Electric Town 06.jpg",
       "originalWidth": 4592,
-      "originalHeight": 3448
+      "originalHeight": 3448,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-089",
@@ -105,7 +112,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Ninomaru Palace, November 2016.jpg",
       "originalWidth": 4539,
-      "originalHeight": 2864
+      "originalHeight": 2864,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-054",
@@ -120,7 +128,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Kiyomizu-dera, Kyoto, November 2016 -01.jpg",
       "originalWidth": 5852,
-      "originalHeight": 3601
+      "originalHeight": 3601,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-057",
@@ -135,7 +144,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Shirakara Canal, Gion, Kyoto.jpg",
       "originalWidth": 3036,
-      "originalHeight": 2112
+      "originalHeight": 2112,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-077",
@@ -150,7 +160,9 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Katsura Imperial Villa 桂離宮 X (951035811).jpg",
       "originalWidth": 1600,
-      "originalHeight": 900
+      "originalHeight": 900,
+      "processing": "webp-reencoded",
+      "attributionTitle": "Katsura Imperial Villa / 桂離宮 X"
     },
     {
       "placeId": "JP-094",
@@ -165,7 +177,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Kyoto National Museum (2020) - img 05.jpg",
       "originalWidth": 3687,
-      "originalHeight": 2765
+      "originalHeight": 2765,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-097",
@@ -180,7 +193,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Nintendo Museum Entrance.jpg",
       "originalWidth": 3302,
-      "originalHeight": 1960
+      "originalHeight": 1960,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-134",
@@ -195,7 +209,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Horyu-ji Kondo and Five-story Pagoda 2022.jpg",
       "originalWidth": 3931,
-      "originalHeight": 2624
+      "originalHeight": 2624,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-129",
@@ -210,7 +225,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:The Great Buddha Hall of Tōdai-ji, Nara, November 2016.jpg",
       "originalWidth": 4361,
-      "originalHeight": 2923
+      "originalHeight": 2923,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-109",
@@ -225,7 +241,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Shinsekai and Tsutenkaku Tower.jpg",
       "originalWidth": 5624,
-      "originalHeight": 4218
+      "originalHeight": 4218,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-145",
@@ -240,7 +257,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Nachikatsuura Seiganto-ji Three-Storied Pagoda & Nachi Falls 01.jpg",
       "originalWidth": 5184,
-      "originalHeight": 3809
+      "originalHeight": 3809,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-152",
@@ -255,7 +273,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Naoshima Ferry Terminal.jpg",
       "originalWidth": 6000,
-      "originalHeight": 4000
+      "originalHeight": 4000,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-125",
@@ -270,7 +289,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:UNIVERSAL STUDIOS JAPAN ENTRANCE.jpg",
       "originalWidth": 2572,
-      "originalHeight": 1908
+      "originalHeight": 1908,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-157",
@@ -285,7 +305,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Shurei-mon 2023.jpg",
       "originalWidth": 4000,
-      "originalHeight": 3000
+      "originalHeight": 3000,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-162",
@@ -300,7 +321,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Okinawa Nanjo Sefa-utaki Gusuku site Yuinchi 04.jpg",
       "originalWidth": 4632,
-      "originalHeight": 3474
+      "originalHeight": 3474,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-196",
@@ -315,7 +337,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Walk in Taketomi Island 17.jpg",
       "originalWidth": 4080,
-      "originalHeight": 3072
+      "originalHeight": 3072,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-179",
@@ -330,7 +353,9 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Subtropical Forest of Yanbaru National Park Okinawa 2018.jpg",
       "originalWidth": 5842,
-      "originalHeight": 3441
+      "originalHeight": 3441,
+      "processing": "resized-and-webp-reencoded",
+      "attributionTitle": "DSC04640"
     },
     {
       "placeId": "JP-173",
@@ -345,7 +370,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Main tank of the Kuroshio Sea in Okinawa Churaumi Aquarium.JPG",
       "originalWidth": 3264,
-      "originalHeight": 2448
+      "originalHeight": 2448,
+      "processing": "resized-and-webp-reencoded"
     },
     {
       "placeId": "JP-154",
@@ -360,7 +386,8 @@
       "acquisitionDate": "2026-09-06",
       "originalTitle": "File:Seafood stall Makishi First Public Market 01.jpg",
       "originalWidth": 4608,
-      "originalHeight": 3456
+      "originalHeight": 3456,
+      "processing": "resized-and-webp-reencoded"
     }
   ]
 }
