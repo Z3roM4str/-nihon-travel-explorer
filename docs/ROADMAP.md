@@ -5603,5 +5603,5 @@ Official Wikimedia Commons / Creative Commons reuse guidance rechecked:
 - [x] **License policy is not widened for coverage.** No NC/ND/fair-use material and no weaker
       provenance standard.
 
-**Phase 4B is documentation-only. Authorized next implementation: Phase 4C — Photography Attribution Completeness Runtime. No new photography acquisition is started by this gate.**
+**Phase 4B is documentation-only. Authorized next implementation: Phase 4C — Photography Attribution Completeness Corrective. No new photography acquisition is started by this gate.**
 
