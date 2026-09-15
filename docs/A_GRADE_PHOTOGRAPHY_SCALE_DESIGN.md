@@ -141,7 +141,7 @@ For a tranche size of 24:
 2. distribute the remaining seats proportionally to each hub's residual eligible count
    `max(eligibleCount - 1, 0)`;
 3. use largest-remainder allocation;
-4. break equal remainder ties by exact hub string ascending.
+4. break equal remainder ties by binary UTF-16 code-unit hub-string order (`a < b` / `a > b`), never locale-aware collation.
 
 At the Phase 4E base this yields:
 
@@ -157,7 +157,7 @@ At the Phase 4E base this yields:
 
 ### 4.3 Candidate priority inside quotas
 
-Selection proceeds in rounds over hubs in exact ascending string order. A hub participates until its
+Selection proceeds in rounds over hubs in binary UTF-16 code-unit ascending order (`a < b` / `a > b`, never `localeCompare`). A hub participates until its
 quota is filled.
 
 For each hub seat, sort remaining eligible candidates by this tuple:
@@ -165,7 +165,7 @@ For each hub seat, sort remaining eligible candidates by this tuple:
 1. **temporal-risk flag ascending** — ordinary before temporal;
 2. **number already selected in that category globally ascending**;
 3. **number of currently photographed places in that category across all grades ascending**;
-4. **placeId ascending**.
+4. **placeId ascending by binary string comparison** (the canonical IDs are zero-padded, so this is stable).
 
 The temporal-risk flag is true when:
 - category is `🎆 Eventos`; or
