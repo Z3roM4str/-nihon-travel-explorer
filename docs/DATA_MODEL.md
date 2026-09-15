@@ -588,3 +588,22 @@ boundary — in particular, everything this phase deliberately does **not** do: 
 feasibility solving, any composition of a status fact with `schedule.hours`/`schedule.closures`/
 `bestTime`, any open/closed judgment, clock-time or timezone logic of any kind, holiday handling,
 live verification against an official source, a date recommendation, or automatic rescheduling.
+
+## Photography pilot (Phase 4A)
+
+`data/visual/photography-pilot.json` and `data/visual/photography-metadata.json` are new,
+checked-in (not user-persisted) data artifacts, copied into `app/src/data/` like every other
+root `data/*.json` file. They cover a **24-place pilot only** — see `docs/PHOTOGRAPHY_PILOT.md`
+for the full selection methodology, sourcing policy, and pipeline; the rest of the 214-place
+dataset is untouched and still carries `imageStatus: "brief-only"` with no photography.
+
+`photography-pilot.json` records which 24 places the pilot targets and why (its selection
+category and reason); `photography-metadata.json` records, per acquired photograph: place id,
+local asset path, alt text, source, the Commons **file page** URL, credit, license (+ its URL),
+acquisition URL/date, and the original Commons file title. `app/src/data/place-images.ts` derives
+its `PlaceImage` registry from the metadata file at import time — the existing `PlaceImage` type
+(`url`, `alt`, `credit`, `source`, `sourceUrl`, `license`) is unchanged, so there is exactly one
+metadata model here, not two competing ones. The actual image bytes are never fetched from
+Commons at runtime: `scripts/acquire-photography.py` downloads and re-encodes them once, ahead of
+time, into `app/public/images/places/<PLACE_ID>/<slug>.webp`, which is the only URL the running
+app ever requests.

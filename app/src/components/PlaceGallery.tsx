@@ -54,6 +54,8 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
+  const zoomButtonRef = useRef<HTMLButtonElement>(null);
+  const wasLightboxOpen = useRef(false);
   const total = images.length;
 
   // The parent keys this component by place id, so index/loadState start fresh for each place
@@ -92,12 +94,29 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
         goTo(index + 1);
       } else if (event.key === "ArrowLeft") {
         goTo(index - 1);
+      } else if (event.key === "Tab") {
+        // The lightbox has exactly one focusable control (the close button). Without
+        // this, Tab would move focus to whatever is behind the overlay — still
+        // visually hidden under it, but reachable by keyboard, which is the classic
+        // "focus escapes the modal" bug. Keeping it parked on the close button is a
+        // complete trap here without needing a multi-element focus-cycling library.
+        event.preventDefault();
       }
     }
     // Capture phase so Escape closes the lightbox before the detail panel sees it.
     document.addEventListener("keydown", onKey, true);
     return () => document.removeEventListener("keydown", onKey, true);
   }, [lightboxOpen, goTo, index]);
+
+  useEffect(() => {
+    // Restore focus to the control that opened the lightbox once it closes — only on
+    // the true->false transition, never on initial mount (which would steal focus
+    // from wherever it already sensibly is, e.g. the place-detail close button).
+    if (wasLightboxOpen.current && !lightboxOpen) {
+      zoomButtonRef.current?.focus();
+    }
+    wasLightboxOpen.current = lightboxOpen;
+  }, [lightboxOpen]);
 
   if (total === 0) {
     return <GalleryFallback imageBrief={imageBrief} placeName={placeName} />;
@@ -135,6 +154,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
         ) : (
           <button
             type="button"
+            ref={zoomButtonRef}
             className="gallery__zoom"
             onClick={() => setLightboxOpen(true)}
             aria-label={`Ampliar imagen ${index + 1} de ${total}`}
