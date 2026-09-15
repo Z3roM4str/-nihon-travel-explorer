@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlaceImage } from "../types";
+import { describePhotographyProcessing } from "../lib/photography-attribution";
 
 type Props = {
   images: PlaceImage[];
@@ -13,18 +14,46 @@ type LoadState = "loading" | "loaded" | "error";
 const SWIPE_THRESHOLD_PX = 40;
 
 function Attribution({ image }: { image: PlaceImage }) {
-  const parts = [image.credit, image.license].filter(Boolean).join(" · ");
-  if (!parts && !image.source) return null;
+  const processing = describePhotographyProcessing(image.processing);
+  const hasAttribution =
+    image.source ||
+    image.credit ||
+    image.license ||
+    image.sourceFileTitle ||
+    image.attributionTitle ||
+    processing;
+
+  if (!hasAttribution) return null;
+
   return (
     <p className="gallery__credit">
-      {image.sourceUrl ? (
-        <a href={image.sourceUrl} target="_blank" rel="noreferrer">
-          {image.source ?? "Fuente"}
-        </a>
-      ) : (
-        image.source
+      {image.source && (
+        <>
+          {image.sourceUrl ? (
+            <a href={image.sourceUrl} target="_blank" rel="noreferrer">
+              {image.source}
+            </a>
+          ) : (
+            image.source
+          )}
+        </>
       )}
-      {parts && <span> {parts}</span>}
+      {image.credit && <span> · {image.credit}</span>}
+      {image.license && (
+        <span>
+          {" · "}
+          {image.licenseUrl ? (
+            <a href={image.licenseUrl} target="_blank" rel="noreferrer">
+              {image.license}
+            </a>
+          ) : (
+            image.license
+          )}
+        </span>
+      )}
+      {image.sourceFileTitle && <span> · Archivo de Commons: {image.sourceFileTitle}</span>}
+      {image.attributionTitle && <span> · Título de atribución: {image.attributionTitle}</span>}
+      {processing && <span> · {processing}</span>}
     </p>
   );
 }
