@@ -36,7 +36,7 @@ try {
   // keyboard-accessible prefecture path before exercising a place detail.
   await page.getByRole("button", { name: /^Tokio/ }).click();
   await page.getByRole("button", { name: /Explorar desde Tokio/ }).first().click();
-  await page.getByRole("button", { name: /SHIBUYA SKY/ }).click();
+  await page.locator(".place-list__item").filter({ hasText: "SHIBUYA SKY" }).click();
 
   const credit = page.locator(".gallery__credit");
   await credit.waitFor();
@@ -79,7 +79,7 @@ try {
   assert.equal(await zoom.evaluate((element) => element === document.activeElement), true);
 
   await page.getByRole("button", { name: /Cerrar la ficha de SHIBUYA SKY/ }).click();
-  await page.getByRole("button", { name: /Nezu Museum/ }).click();
+  await page.locator(".place-list__item").filter({ hasText: "Nezu Museum" }).click();
   await page.getByText("Sin fotografía disponible todavía").waitFor();
   assert.equal(await page.locator(".gallery__credit").count(), 0);
 
