@@ -5285,4 +5285,42 @@ Official PokéPark residence-routing source recheck: **2026-09-14**.
 - [x] **PR #86 marked Ready for review.** Base `aad244f3756b0641bd1c7831375ff56501f11dfd`, behind 0,
       fifteen changed files, no temporary workflow in the tree.
 
-**Phase 3F-P is implemented, hostile-review corrected, independently reviewed twice, repository-native validated and Ready for review. Merge remains a separate gate. Phase 3F-Q is NOT STARTED.**
+**Phase 3F-P is implemented, hostile-review corrected, independently reviewed twice, repository-native validated and merged via PR #86.**
+
+## Phase 3F-Q — Purchase-Residence-Context Presentation Exhaustiveness Hardening
+
+Runtime authority:
+[`docs/PURCHASE_RESIDENCE_CONTEXT_PRESENTATION_EXHAUSTIVENESS_RUNTIME.md`](PURCHASE_RESIDENCE_CONTEXT_PRESENTATION_EXHAUSTIVENESS_RUNTIME.md).
+
+Base: `4a9156c4236453c7389e6841fe5d7f25ffc08ecf`.
+
+- [x] **Deferred robustness observation accepted as the whole phase.** The Phase 3F-P helper's final
+      unguarded return was correct for the current union but could silently map a future new union
+      value to the outside-Japan sentence.
+- [x] **Compile-time exhaustiveness implemented.** Residence-context copy now lives in
+      `Record<ReservationPurchaseResidenceContext, string | null>`, matching the existing
+      presentation-layer map pattern.
+- [x] **Fallback removed.** The helper performs one typed map lookup and contains no implicit
+      outside-Japan fallback branch/string.
+- [x] **Current behavior preserved.** All three existing values retain exactly the same visible
+      output; `not-recorded` remains null.
+- [x] **Scope remains surgical.** No schema, JSON, parser, validator, React, CSS, date, relation,
+      calendar-order, cardinality, persistence or network change.
+- [x] **Same-scope work remains separate.** Active `placeId + scope` uniqueness and the single
+      JP-050 record remain untouched; domestic first-come and `last-day-of-shifted-month` remain
+      deferred.
+- [x] **Focused source-shape regression added.** The test pins the typed `Record`, map lookup and
+      absence of a fallback branch.
+- [x] **Repository-native validation passed.** Exact HEAD
+      `7575a2d9d857676a7df61af31c0e885cdb02d7c0` passed GitHub Actions run
+      `34910773136`: focused Phase 3F-Q test, full Vitest, lint, build, whitespace and Phase
+      3F-F/H/J browser audits.
+- [x] **Temporary workflow removed without tree drift.** Compare
+      `7575a2d9...3e405ba2` reports zero changed files after workflow removal.
+- [x] **Hostile + independent focused review passed.** The typed Record, exact current outputs,
+      no-fallback helper shape and strict four-file scope were re-read directly. No executable
+      corrective was required after validation.
+- [x] **Ready transition gate satisfied.** Only documentation closure may change after validation;
+      any runtime/test change requires a fresh exact-head run.
+
+**Phase 3F-Q is implemented, hostile-reviewed, independently reviewed and repository-native validated. Same-scope cardinality relaxation is NOT STARTED.**

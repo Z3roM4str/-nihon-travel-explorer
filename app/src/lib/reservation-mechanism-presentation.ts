@@ -42,6 +42,17 @@ const ALLOCATION_LABEL: Record<ReservationAllocation, string | null> = {
   "not-stated": null,
 };
 
+const PURCHASE_RESIDENCE_CONTEXT_LABEL: Record<
+  ReservationPurchaseResidenceContext,
+  string | null
+> = {
+  "not-recorded": null,
+  "resides-in-japan":
+    "La fuente oficial citada presenta esta ruta de compra para residentes en Japón.",
+  "resides-outside-japan":
+    "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra.",
+};
+
 export function reservationMechanismScopeLabel(scope: ReservationMechanismScope): string {
   return SCOPE_LABEL[scope];
 }
@@ -53,11 +64,7 @@ export function describeReservationAllocationForUi(allocation: ReservationAlloca
 export function describeReservationPurchaseResidenceContextForUi(
   context: ReservationPurchaseResidenceContext
 ): string | null {
-  if (context === "not-recorded") return null;
-  if (context === "resides-in-japan") {
-    return "La fuente oficial citada presenta esta ruta de compra para residentes en Japón.";
-  }
-  return "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra.";
+  return PURCHASE_RESIDENCE_CONTEXT_LABEL[context];
 }
 
 function formatRecordedTime(time: string | null, sourceTimeZone: ReservationSourceTimeZone): string | null {
