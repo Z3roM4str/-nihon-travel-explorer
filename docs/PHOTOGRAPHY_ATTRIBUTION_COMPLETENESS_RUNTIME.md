@@ -247,9 +247,120 @@ No corrective production change was required after the exact-head run. The three
 workflow runs were browser-harness navigation ambiguities only; Python, Vitest, lint and build were
 already green in those runs, and the final harness was then validated twice in Chromium.
 
+The independent audit gate in section 9 then found two further defects, neither of them in
+production runtime, and re-sealed the tree.
+
 ---
 
-## 9. Successor boundary
+## 9. Independent audit gate
+
+An independent hostile review was run against the live PR head
+`0e43ad356d51623f28cf192d9f2fe3ad74bd2a9d`.
+
+### 9.1 State of the reported blocker
+
+The handoff recorded run `34924122384` failing at the first Chromium pass. That failure was a
+Playwright strict-mode violation: `/Explorar desde Tokio/` matched both the region-hub button and
+the prefecture-panel button. It was **already fixed** before this audit began, by the `.first()` and
+place-list-row locators, and run `34924302760` at `cf71d0c` had already passed the whole matrix
+including both browser passes. The PR body simply still cited the stale failing run.
+
+### 9.2 Correction 1 — the browser audit was environment-dependent
+
+The audit nevertheless failed when re-run here, for an unrelated reason: it asserts zero console
+errors, and the pre-existing place map streams OpenStreetMap tiles. Those tile loads fail behind a
+TLS-inspecting proxy or with no internet, producing console errors and tripping the assertion. The
+audit therefore passed in CI only because the runner had working internet — it would fail for any
+contributor running it offline.
+
+Every non-localhost request is now intercepted and answered locally with a 1×1 transparent PNG.
+Aborting them was tried first and rejected: `route.abort()` itself logs `net::ERR_FAILED`, so
+fulfilling is what keeps the console-error assertion exactly as strict as before instead of quietly
+relaxing it.
+
+The interception is also used to **prove** a property the audit previously only assumed: no
+intercepted request is a Wikimedia, Wikipedia or Creative Commons host, and the rendered gallery
+image is served from the local build. A negative control — temporarily widening the host pattern to
+match the tiles — confirmed the assertion fires rather than being dead code.
+
+Diagnosed as harness-only. No Phase 4C attribution assertion was weakened or removed, and no
+production file was touched.
+
+### 9.3 Correction 2 — `licenseUrl` was not bound to the license it claims
+
+The validator checked only that `licenseUrl` was a well-formed http(s) URL. A record could therefore
+declare `CC BY 4.0` while linking `licenses/by-sa/2.0`, or an unrelated host entirely, and pass every
+check. The visible attribution renders that URL as *the* license, so the result would be a legally
+wrong public claim — the exact defect class this phase exists to close.
+
+The expected path is now derived from the license name rather than kept in a hand-maintained table,
+so a license added to `SUPPORTED_LICENSES` cannot silently skip the agreement check; a test asserts
+every supported license resolves to a canonical path. Regression tests cover a mismatched family, a
+mismatched version, CC0 pointing at an attribution license and a wrong host, plus the canonical forms
+actually in use including the trailing-slash and CC0 deed variants.
+
+No metadata changed: all 24 records were already consistent, and the validator still reports the
+catalog valid. Confirmed independently — each license maps to exactly one URL across the catalog.
+
+### 9.4 Re-verified invariants
+
+| invariant | result |
+|---|---|
+| 24 WebP blobs byte-identical to base | 0 changed paths under `app/public/images/**` |
+| photograph count | 24 on base, 24 on head |
+| metadata records | 24 → 24; no added, removed or re-pathed `placeId` |
+| canonical/app metadata parity | byte-identical |
+| runtime Commons/network calls | none; only pre-existing OpenStreetMap tiles, asserted non-photographic |
+| source link vs license link | distinct anchors, asserted by the browser audit |
+| Commons filename as licensor title | never; rendered as `Archivo de Commons:`, separate from `Título de atribución:` |
+| source-backed attribution titles | 3 of 24, all differing from the Commons filename; never derived from it |
+| processing copy | factual re-encode/resize statement, cross-checked against real pixel dimensions |
+| CC0 invented creator requirement | absent; `LICENSES_NOT_REQUIRING_CREDIT` preserved |
+| non-pilot fallback | unchanged; real Nezu Museum case passes |
+| lightbox Tab / Escape / focus restoration | unchanged; real focus path passes |
+
+### 9.5 Exact-head validation
+
+Exact validated executable HEAD:
+
+`b19460bdfeddb2aeb6ad8717d07bdf380fff94c4`
+
+Temporary workflow-bearing commit:
+
+`2feaf1b6e0f15bbba6b89c7a77cb58a0033ad00d` — pinned `actions/checkout` to the SHA above with full
+history, so the seal binds to that tree rather than to the branch tip.
+
+GitHub Actions run:
+
+`34926995717` — **SUCCESS**, all steps:
+
+- exact-head checkout;
+- photography validator;
+- Python test suite (445 tests);
+- dependency install;
+- focused Phase 4C tests;
+- full Vitest (2433 tests, 65 files);
+- lint;
+- build;
+- photography blob-integrity gate (0 changed blobs, 24 WebP, metadata parity);
+- Chromium install;
+- Phase 4C browser audit first pass;
+- Phase 4C browser audit second pass;
+- whitespace gate.
+
+Temporary workflow removed in:
+
+`2ed958703f057fba6a1d0cb7dee4dc06203d8149`
+
+**Tree-drift proof:** the diff from the validated HEAD to the post-removal head reports **zero
+changed files of any kind** — the workflow was added after the validated HEAD and removed again, so
+the post-removal tree is byte-identical to the tree that passed validation.
+
+PR #96 remains **Draft**. Not merged.
+
+---
+
+## 10. Successor boundary
 
 Phase 4B authorized photography acquisition only **after** this corrective closes.
 
