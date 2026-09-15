@@ -5563,3 +5563,45 @@ dependency (Pillow is a Python-only, acquisition-time dependency, listed in
 `scripts/requirements.txt`, never imported by the app), and created zero accounts or API
 keys. **This is a 24-place pilot, not full-dataset coverage — the remaining 190 places
 still fall back to `imageBrief`.** Phase 4B was not started.
+
+## Phase 4B — Photography Attribution Compliance & Scale-Up Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_ATTRIBUTION_SCALE_DESIGN.md`](PHOTOGRAPHY_ATTRIBUTION_SCALE_DESIGN.md).
+
+Base: `7ddfd6a0e7f9a2c0743f43e2a5e122571f9d1139`.
+
+Official Wikimedia Commons / Creative Commons reuse guidance rechecked:
+**2026-09-14 (America/Mexico_City)**.
+
+- [x] **Design gate only.** No runtime, TypeScript, Python, tests, assets or image metadata changed.
+- [x] **Coverage measured.** Phase 4A covers 24/214 places (11.2%); 190 remain on the existing
+      `imageBrief` fallback. Scaling one-photo coverage to all remaining places would add roughly
+      54.6–56.1 MB if the pilot footprint persists.
+- [x] **Attribution parity defect found.** Source metadata already stores `licenseUrl` and
+      `originalTitle` for all 24 images, but `PlaceImage` / `place-images.ts` discard both
+      before presentation.
+- [x] **Visible attribution is therefore incomplete as a scale foundation.** The gallery links the
+      Commons file page and prints creator + license name, but cannot link the recorded license URI.
+      Current CC BY/CC BY-SA 4.0 guidance explicitly requires a license link/URI when sharing.
+- [x] **Processing disclosure audited.** The acquisition pipeline re-encodes every asset to WebP and
+      may resize it; 23/24 current originals exceed the 1600 px maximum and one is exactly 1600 px.
+      The corrective must disclose processing factually without making a legal derivative-work
+      classification.
+- [x] **Decision: corrective before scale.** No new photograph is authorized until the metadata →
+      registry → visible-attribution chain carries the already-recorded license/title provenance.
+- [x] **Phase 4C authorized, narrowly.** Photography Attribution Completeness Runtime may extend only
+      the attribution shape/adapter/presentation and focused validation needed for the existing 24
+      assets. It adds zero images and changes zero image blobs.
+- [x] **First-photo-first scale policy.** Second images remain deferred while 190 places have no
+      photograph.
+- [x] **Later acquisition batch bounded.** After Phase 4C closes, a later acquisition phase may
+      target at most the 16 currently uncovered S-grade places, one image each, with no silent
+      substitution if a suitable source cannot be found.
+- [x] **Runtime remains local/offline.** Relicensing/source drift belongs to explicit maintenance
+      tooling; no Commons calls are added to app rendering.
+- [x] **License policy is not widened for coverage.** No NC/ND/fair-use material and no weaker
+      provenance standard.
+
+**Phase 4B is documentation-only. Authorized next implementation: Phase 4C — Photography Attribution Completeness Runtime. No new photography acquisition is started by this gate.**
+
