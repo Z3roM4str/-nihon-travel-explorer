@@ -101,14 +101,27 @@ class RealSelectorFixtureTests(unittest.TestCase):
 
 
 class SelectorPureRuleTests(unittest.TestCase):
-    def test_category_representation_precedes_temporal_risk(self):
+    def test_temporal_risk_breaks_tie_when_category_representation_is_equal(self):
         places = [
             {"id": "JP-001", "hub": "A", "name": "Festival One", "category": "Rare", "grade": "A"},
             {"id": "JP-002", "hub": "A", "name": "Ordinary Two", "category": "Common", "grade": "A"},
-            {"id": "JP-003", "hub": "B", "name": "Ordinary Three", "category": "Common", "grade": "A"},
+            {"id": "JP-003", "hub": "B", "name": "Ordinary Three", "category": "Other", "grade": "A"},
         ]
         result = selector.select_batch(places, [], tranche_size=2)
-        self.assertEqual([p["placeId"] for p in result["places"]], ["JP-001", "JP-003"])
+        self.assertEqual([p["placeId"] for p in result["places"]], ["JP-002", "JP-003"])
+
+    def test_unrepresented_category_precedes_temporal_risk_after_first_round(self):
+        places = [
+            {"id": "JP-001", "hub": "A", "name": "Ordinary Common A", "category": "Common", "grade": "A"},
+            {"id": "JP-002", "hub": "A", "name": "Festival Rare A", "category": "Rare", "grade": "A"},
+            {"id": "JP-003", "hub": "B", "name": "Ordinary Common B", "category": "Common", "grade": "A"},
+            {"id": "JP-004", "hub": "B", "name": "Ordinary Other B", "category": "Other", "grade": "A"},
+        ]
+        result = selector.select_batch(places, [], tranche_size=3)
+        ids = [p["placeId"] for p in result["places"]]
+        self.assertEqual(ids[0], "JP-001")
+        self.assertEqual(ids[1], "JP-004")
+        self.assertEqual(ids[2], "JP-002")
 
     def test_binary_tie_break_is_stable(self):
         places = [
