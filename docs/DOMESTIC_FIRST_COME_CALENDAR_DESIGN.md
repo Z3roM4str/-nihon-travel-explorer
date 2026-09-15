@@ -100,30 +100,49 @@ sources. No third-party summary was used anywhere in this gate.
 
 ### 2.4 What is contingent, and what is not
 
-This is the crux, so it is stated precisely.
+The hostile review found a material distinction the first draft missed.
 
-**Deterministic** — the *commencement* of the sale. For every admission date there is exactly one
-published opening date and time, computable from the visit date by the rule in §3. Two independent
-official worked examples confirm it, one for the aligned branch and one for the month-end branch.
+The **current** domestic ticket-information page publishes the two-month first-come calendar
+mechanics, including the daily cadence, the 20:00 start and the month-end catch-up. But that same
+current page also says:
 
-**Contingent** — the *continuation* of the sale:
+```text
+また、一部チケットを先着方式にて販売いたします。
+```
 
-- 「※売り切れ次第終了となります。」 — "sales end once sold out";
-- "tickets may sell out or become available without prior announcement" — inventory can also
-  *reappear*, so even a sold-out observation is not stable.
+That is a real narrowing statement: **some tickets** are sold first-come. It cannot be normalized
+away merely because the schedule itself is expressed daily.
 
-**Searched for and NOT found** in current official material:
+Two official historical notices make the semantic risk concrete. The 2025-12-24 first-come launch
+notice states:
 
-- any statement that first-come applies to only *some* admission dates;
-- any statement that first-come sells only lottery leftovers, remaining seats or 残席;
-- any 一部 / 場合により narrowing of which dates get a first-come sale;
-- any dependency of the first-come schedule on drawing results or drawing inventory.
+```text
+抽選販売の状況によっては先着販売を実施しない場合があります。
+```
 
-The cadence wording is the opposite of narrowing: 毎日 and 1日単位, bounded only by 2か月先の同日まで
-and extended by the month-end catch-up. Every admission date receives an opening.
+The 2026-01-26 Town Pass notice repeats the same proposition for that ticket type: depending on the
+drawing-sales situation, first-come sales may not be conducted.
 
-Therefore the contingency in this source bounds **how long tickets last after opening**, never
-**whether an opening occurs**. That distinction is what makes the rest of this design possible.
+The current ticket-information page no longer repeats that exact lottery-result contingency, and the
+2026-07-14 operator notice says the ticket-information site would be updated on 2026-08-01.
+However, no current official source located by this gate says that the old contingency was
+**revoked**, that first-come now occurs for **every admission date**, or that 「一部チケット」 means
+a deterministic subset that Nihon can identify from the planned visit date alone.
+
+Therefore the evidence supports two different propositions:
+
+1. **calendar proposition — supported:** when a first-come sale is conducted for a covered admission
+   date, the operator publishes the two-month same-calendar-day / month-end rule and the current
+   20:00 start;
+2. **event-existence proposition — not safely supported:** current sources do not prove that a
+   first-come sale necessarily occurs for every visit date that the calendar formula can map.
+
+The sell-out wording is a post-opening availability constraint. The 「一部チケット」 wording and the
+historical drawing-dependent wording are different: they create uncertainty about whether the
+first-come event itself exists for a particular target.
+
+That distinction is decisive. A concrete `release-date` row cannot be emitted safely until
+applicability is deterministic.
 
 ---
 
@@ -322,53 +341,43 @@ orden conviene reservar. No indica disponibilidad ni el estado actual de la vent
 J is adequate as written. It also needs no eligibility gate: `eligibleFact` already admits exactly
 `release-date` and valid `application-window`, and drops every other derivation kind.
 
-### 4.6 Is provenance alone sufficiently visible? — **the one real gap**
+### 4.6 Is provenance alone sufficiently visible?
 
-Almost, but not symmetrically. The two Phase 3F surfaces disclaim differently:
+No, but this is no longer the decisive blocker.
 
-- **route-wide** — `No indica disponibilidad ni el estado actual de la venta.` Unconditional, and
-  covers both availability and current sale state.
-- **per-day** — the only availability-adjacent clause is
-  `...la relación con la fecha de referencia compara únicamente fechas de calendario: no considera
-  la hora registrada ni la zona horaria de la fuente, y no indica el estado actual de la venta.`
+The route-wide surface already disclaims availability unconditionally. The per-day surface scopes
+its nearest equivalent to the optional reference-date relation, so the caveat disappears when that
+relation is absent. That is a real copy asymmetry.
 
-On the per-day surface that caveat is grammatically **scoped to the reference-date relation**, and
-the relation renders only when a start date and reference date exist. So a per-day reader with no
-start date sees a recorded sale date with **no unconditional availability caveat at all**, and the
-word *disponibilidad* never appears on that surface.
+But a disclaimer cannot repair the stronger problem found in §2.4. If the first-come event itself may
+not occur for a target date, rendering a concrete derived `release-date` and then disclaiming
+availability still overstates the evidence. Availability and event existence are different
+predicates.
 
-For the five existing records this asymmetry is tolerable. For a record whose defining published
-qualifier is 「売り切れ次第終了となります」 it is the one place where the product could be read as
-promising more than the operator does.
-
-This is a **copy-only** gap. It needs no schema, no field, no new vocabulary and no new element —
-only parity with the sentence the route-wide surface already ships.
+The copy gap is therefore **documented but not authorized for implementation by this phase**.
 
 ### 4.7 Can a third same-scope JP-050 record coexist without identity or cardinality changes?
 
-Yes — Phase 3F-S already guarantees it, and this was proven there rather than assumed here. The
-active collision group `(JP-050, general-admission)` would hold three members with contexts
-`resides-outside-japan`, `resides-in-japan`, `resides-in-japan`. Every member carries a specific
-context, so the guard passes; no `placeId + scope + purchaseResidenceContext` uniqueness exists, so
-the two `resides-in-japan` members do not clash. Phase 3F-S ships an explicit test for exactly the
-three-member single-context case.
-
-`recordId` remains the only identity. **No cardinality, identity or collision change is needed.**
+Structurally, yes. Phase 3F-S already permits it and `recordId` remains the only evidence-record
+identity. Semantically, that is not enough: unresolved applicability evidence blocks
+`RM-JP-050-003`.
 
 ### 4.8 Does the browser UI need a new neutral qualifier?
 
-No new *qualifier construct*. The decision in §5 introduces no conditional semantic, so there is
-nothing new to qualify. The only UI work is the §4.6 disclaimer parity sentence.
+No qualifier is authorized. Current evidence does not provide a deterministic rule for whether a
+first-come event exists for a visit date, so a qualifier would preserve ambiguity while still
+emitting a concrete anchor.
 
 ### 4.9 Can the solution avoid persistence / network / user-state changes?
 
-Yes, entirely. The release date is derived from the planned visit date by pure civil-date
-arithmetic. Nothing is stored, fetched, remembered or personalised. No user residence, profile or
-eligibility is read, and `purchaseResidenceContext` remains descriptive evidence about the *route*.
+Yes. Nothing in the blocker requires those systems. The correct fail-closed response is to keep the
+record deferred.
 
 ### 4.10 What is the smallest successor that is actually justified?
 
-§6.
+No runtime/data successor is justified from the current evidence. The calendar arithmetic is
+well-defined (§3), but widening runtime vocabulary solely for a record that remains semantically
+blocked would create dead surface area.
 
 ---
 
@@ -376,228 +385,117 @@ eligibility is read, and `purchaseResidenceContext` remains descriptive evidence
 
 ### 5.1 Outcome
 
-**Outcome A — the existing model is sufficient — plus one bounded copy-only disclaimer fix.**
+**Outcome C — domestic first-come remains deferred.**
 
-No new evidence field. No new vocabulary beyond the single already-designed enum member
-`last-day-of-shifted-month`, which is calendar arithmetic, not semantics.
+The calendar arithmetic is understood and documented, but current official evidence does not safely
+support an active deterministic `release-date` record for every visit date.
 
-### 5.2 Why the evidence supports it
+### 5.2 Why Outcome A is rejected
 
-The proposition to be recorded is *"the official source states that the sale for this admission date
-opens on this date at this time"*. That proposition is true, deterministic for every admission date,
-and confirmed by two independent official worked examples. It is not weakened by 売り切れ次第終了,
-because that sentence constrains when the sale **ends**, and Nihon records no end for a
-`release-date`.
+Outcome A would require the proposition that, for every relevant admission date, the domestic
+first-come sale definitely begins on the derived date at the recorded time.
 
-The model's own vocabulary makes the overstatement impossible rather than merely unlikely: a
-`release-date` derivation has no field for inventory, availability or sale state, F speaks only of
-what is *registrada*, H only compares two civil dates, and J disclaims availability outright.
+The current official page does not establish that proposition. It says 「一部チケット」 are sold
+first-come, while historical official notices state that first-come could be skipped depending on
+drawing-sales conditions. The present omission of that historical sentence is not, by itself, an
+explicit revocation.
 
-### 5.3 Why Outcome B would be a mistake here
+The schedule therefore tells Nihon **how to calculate an opening when the mechanism applies**, but
+not **that it applies to every target date**.
 
-Outcome B — a structural qualifier separating "conditional" from "guaranteed" release schedules —
-was evaluated seriously and rejected on four grounds.
+D/F/H/J cannot manufacture that missing applicability proposition. D would emit a concrete
+`release-date`; F would render it as a recorded sale date; H could compare it to a reference date;
+J could place it in route chronology. Those behaviors are safe only after event existence is known.
 
-1. **It would misdescribe the source.** The schedule is not conditional. Only post-opening
-   availability is, and that is a different predicate from the one the record asserts.
+### 5.3 Why Outcome B is not justified either
 
-2. **It would be inconsistent the moment it shipped.** `RM-JP-203-001` (Tokyo Disneyland) is
-   *already* an active `rolling-calendar-month-release` with `monthsBeforeVisit: 2` whose provenance
-   already records *"sales may be suspended when the daily ticket sales limit is reached"* — the same
-   sell-out contingency, shipped since Phase 3F-B. A new qualifier would have to mark Disney too, or
-   two identical propositions would carry different qualifiers. Marking Disney means retrofitting
-   records outside this phase's scope; not marking it means the field is already wrong.
+A narrow structural qualifier was considered and rejected.
 
-3. **It would drift into forbidden territory.** A field distinguishing "might sell out" from "will
-   definitely be purchasable" is a statement about inventory and current sale state. Issue #91
-   forbids exactly that, and every neighbouring phase has refused it. Fail-closed vocabularies do
-   not help if the vocabulary itself encodes the wrong category.
+The missing information is not merely a label such as "conditional" versus "guaranteed". Current
+sources do not provide a closed deterministic condition Nihon can evaluate from the planned visit
+date. Adding a qualifier would therefore preserve ambiguity while still emitting a concrete date,
+and would drift toward the availability/inventory/current-state rules engine Issue #91 forbids.
 
-4. **Provenance already carries it, and is already rendered.** Both surfaces show
-   `provenanceText` on every row, so the operator's own 売り切れ次第終了 wording reaches the reader
-   through the field designed to carry source wording. §4.6's gap is that one *surface-level*
-   sentence is conditionally scoped — not that the information is missing.
+### 5.4 What remains valid
 
-### 5.4 Why Outcome C is not required
+The following findings survive unchanged:
 
-Deferral would be correct if the opening date were unknowable or genuinely date-dependent. It is
-neither: the offset, the time and the month-end rule are all explicitly published, with worked
-examples for both branches. Continuing to defer would now be under-recording verified official
-evidence, which is its own kind of inaccuracy.
+- 20:00 is the current start time from July 2026; 18:00 is superseded;
+- the published month-end calendar arithmetic is coherent;
+- `last-day-of-shifted-month` semantics in §3 are correct;
+- `lastDayOfShiftedMonth` already exists in runtime;
+- 2027-05-31 is aligned, not fallback;
+- Phase 3F-S cardinality is not a blocker;
+- the per-day disclaimer asymmetry is real, but independent.
 
-Deferral of the *availability* question, by contrast, is permanent and deliberate: Nihon does not
-model it, and this gate does not change that.
+### 5.5 What this decision authorizes
 
-### 5.5 What this decision does not authorize
+Documentation only.
 
-The phrase "Outcome A" must not be read as a general licence. It authorizes exactly §6 and nothing
-adjacent — in particular no inventory model, no sale-state model, no sold-out state, no user
-residence or eligibility, no ranking, no route recommendation and no automatic route selection.
+It does **not** authorize widening `missingAlignedDayRule`, changing derivation runtime, adding
+`RM-JP-050-003`, changing either catalog, adding a conditional qualifier, changing F/H/J, changing
+React/CSS/browser copy, or adding any availability, inventory, sold-out, lottery-result,
+user-residence or eligibility model.
 
 ---
 
-## 6. Successor contract — Phase 3F-U
+## 6. Reopening criteria
 
-A later implementation phase, and only such a phase, may change exactly the following.
+Domestic first-come implementation may be reconsidered only after a new official-source gate finds
+evidence strong enough to make applicability deterministic.
 
-### 6.1 Schema — one enum member, two files
+At minimum, one of the following would be required:
 
-Add `last-day-of-shifted-month` to `missingAlignedDayRule`:
+1. current official wording explicitly states that first-come sales are conducted for every
+   admission date covered by the two-month schedule; or
+2. current official wording defines a closed deterministic rule identifying which dates/tickets
+   receive first-come sales, such that Nihon can evaluate applicability without inventory, lottery
+   results, network state or user-profile data.
 
-- `app/src/lib/reservation-mechanism-evidence.ts` — the union and its parser guard;
-- `scripts/validate-reservation-mechanisms.py` — the membership set.
+If that happens, a new implementation phase may reconsider the already-designed calendar rule and
+the possible `RM-JP-050-003` record. It must repeat the official-source recheck on its own day.
 
-The two must stay in lockstep. No other vocabulary changes: not `alignment`, not `scope`, not
-`allocation`, not `purchaseResidenceContext`, not `confidence`, not `status`.
-
-### 6.2 Derivation — one exhaustive branch
-
-In `rolling-calendar-month-release`, replace the two-value negative test with an exhaustive mapping
-over the three-member union:
-
-| rule | result |
-|---|---|
-| `first-day-of-next-month` | `firstDayOfShiftedMonth(visit, -monthsBeforeVisit + 1)` |
-| `last-day-of-shifted-month` | `lastDayOfShiftedMonth(visit, -monthsBeforeVisit)` |
-| `not-recorded` | `not-derivable`, reason `invalid-calendar-alignment` |
-
-Reuse the existing `lastDayOfShiftedMonth`; add no new date helper. Construct no instant, epoch
-value or timezone conversion.
-
-### 6.3 Data — at most one new record
-
-`RM-JP-050-003`, subject to its own implementation-day source recheck:
-
-```text
-id: RM-JP-050-003
-placeId: JP-050
-scope: general-admission
-purchaseResidenceContext: resides-in-japan
-status: active
-mechanism:
-  kind: rolling-calendar-month-release
-  monthsBeforeVisit: 2
-  alignment: same-calendar-day
-  missingAlignedDayRule: last-day-of-shifted-month
-  releaseTimeLocal: "20:00"
-  sourceTimeZone: Asia/Tokyo
-allocation: first-come
-```
-
-Canonical source: `https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index`
-Supporting timing source: `https://www.pokepark-kanto.co.jp/ppark/announcement/40/detail/index`
-
-Provenance requirements:
-
-- carry the published residence-routing proposition, as `RM-JP-050-002` does, so the
-  `resides-in-japan` assignment rests on a statement and not on page language, locale, domain or
-  source entity;
-- carry the 売り切れ次第終了 sell-out wording verbatim in substance, so the operator's own
-  qualifier is visible on both surfaces;
-- carry the month-end rule and its official worked example;
-- record the 20:00 start as the **current** rule and must not record the superseded 18:00;
-- **timezone precision:** `Asia/Tokyo` is authorized only if the successor can cite the same JST
-  anchoring already used by `RM-JP-050-001`/`RM-JP-050-002` for this operator's 20:00. If that
-  recheck finds the domestic page states a bare 20:00 with no timezone the successor must record
-  `sourceTimeZone: null` and let the existing presentation render *zona horaria no registrada*.
-  Inventing `Asia/Tokyo` from the page's language or domain is forbidden.
-
-Catalog goes **8 → 9**. Both catalogs stay byte-identical. No existing record is modified or merged.
-
-### 6.4 UI — one copy-only disclaimer sentence
-
-Bring the per-day Phase 3F disclaimer to parity with the route-wide one by adding an unconditional
-availability clause, so the caveat no longer depends on a reference-date relation being rendered.
-The route-wide sentence already in production is the model:
-
-```text
-No indica disponibilidad ni el estado actual de la venta.
-```
-
-Constraints: text only, inside the existing `official-reservation-date__disclaimer` element. No new
-element, class, badge, tag, panel, grouping or taxonomy. No new field reaches the UI. No warning,
-success, urgency or priority styling.
-
-### 6.5 Tests the successor must add
-
-Calendar rule: both official worked examples; the aligned branch for 2027-05-31 asserted *as
-aligned*; 28/29/30/31-day targets; both leap-year forms; the 2100 non-leap century and the 2000 leap
-century; year rollover; and `not-recorded` still yielding `not-derivable`.
-
-Disney regression: `RM-JP-203-001` and `RM-JP-204-001` fallback dates asserted unchanged **by
-value** after the enum grows.
-
-Parser / validator: the new member accepted, unknown members still rejected fail-closed, and
-TypeScript / Python agreement on all three members.
-
-Composition: nine records; three active `(JP-050, general-admission)` members all with specific
-contexts; `RM-JP-050-003` deriving its own `release-date` under its own `recordId`; three distinct
-route-wide rows; comparator unchanged; no residence-context sorting, filtering or ranking.
-
-Boundaries: no availability, inventory, sale-state, sold-out, user-residence, eligibility, ranking,
-recommendation, persistence or network field introduced.
-
-Browser: the existing Phase 3F-F/H/J/S audits must pass, and the per-day disclaimer parity sentence
-must be asserted on a surface rendered **without** a reference date, which is the case §4.6 is
-about.
-
-### 6.6 Explicitly still not authorized
-
-Availability, inventory, current-sale-state, sold-out state, lottery-result state, user residence,
-nationality, citizenship, visa, country profile, eligibility booleans, automatic residence
-filtering, ranking, recommendation, automatic purchase-route selection, reminders, notifications,
-calendar export, new grouping UI, planning-draft or localStorage changes, network requests, account
-integration, any change to Phase 3F-S collision semantics, and any merging of JP-050 records.
+Until then, `RM-JP-050-003` remains intentionally absent.
 
 ---
 
-## 7. Hostile review of this design
+## 7. Hostile review of the corrected design
 
 | challenge | outcome |
 |---|---|
-| 28 / 29 / 30 / 31-day transitions | §3.3 — all four covered; month length read from the calendar, never hard-coded |
+| 28 / 29 / 30 / 31-day transitions | Calendar rule survives; §3.3 covers all four |
 | leap years | 2028 and 2000 correct; 2100 correctly non-leap |
-| year boundary | 2027-01-31 → 2026-11-30 crosses the year with no special case, because the shift is total-month arithmetic |
-| valid aligned dates | rule never fires; all three enum members agree (§3.3) |
-| Disney regression | §3.4 — new value reachable only from a record declaring it; successor must still pin the dates by value |
-| timezone leakage | date arithmetic is pure Y/M/D; time and timezone are carried as separate recorded fields; §6.3 refuses to infer `Asia/Tokyo` from language or domain |
-| current vs superseded source drift | §2.2 — 20:00 is current, 18:00 superseded and must not be recorded; successor repeats the recheck on its own implementation day |
-| "some tickets" wording | searched; absent. Cadence wording is 毎日 / 1日単位, which is the opposite of narrowing |
-| contingency on lottery outcome or inventory | searched; absent. Drawing and first-come are published as independent schedules |
-| sold-out wording | present, and deliberately **not** modelled. It bounds the sale's end; a `release-date` records only its start, and §6.3 puts the operator's wording in provenance |
-| confusing mechanism existence with availability | the failure mode this gate was convened for. D has no field for availability, F speaks only of what is *registrada*, H compares civil dates only, J disclaims availability. §4.6 found the one asymmetric surface and §6.4 fixes it with copy |
-| confusing residence context with user eligibility | unchanged from Phase 3F-P/Q/S: the copy describes the cited route, never the reader; no user state is introduced |
-| duplicate same-context mechanisms | two active `resides-in-japan` records are legitimate under Phase 3F-S and covered by its tests; drawing and first-come are different mechanisms, not duplicates |
-| route-calendar duplication | the drawing anchors in visit-month − 3 and first-come in visit-month − 2, so their anchors are always different dates; and Phase 3F-S already proved identical anchors are valid anyway |
-| a new field accidentally becoming priority / status / current-state | no new field is created. This is the strongest reason to prefer Outcome A over B |
-| is this gate over-reaching by touching UI copy? | §6.4 is one sentence copied from a sibling surface already in production, adding no element, class or field. Omitting it would leave the one identified overstatement path open |
+| year boundary | Total-month arithmetic remains sound |
+| valid aligned dates | 2027-05-31 correctly remains aligned |
+| Disney regression | No runtime change is authorized, so existing behavior is untouched |
+| timezone leakage | No runtime/data record is authorized; future use still requires source-supported timezone precision |
+| current vs superseded time | 20:00 current; 18:00 superseded |
+| "some tickets" wording | **Present in the current official page** as 「一部チケット」; blocks universal applicability |
+| contingency on lottery outcome | **Present in official historical notices**; current sources do not explicitly revoke it, so fail closed |
+| sold-out wording | Post-opening availability only; not the decisive blocker |
+| mechanism existence vs availability | Corrected design separates them; an availability disclaimer cannot prove event existence |
+| residence context vs user eligibility | Unchanged; no user state introduced |
+| duplicate same-context mechanisms | Structurally allowed after 3F-S, but semantic applicability blocks a third record |
+| route-calendar duplication | No new row is emitted |
+| new qualifier becoming a rules engine | Avoided by choosing Outcome C |
+| per-day disclaimer asymmetry | Real but independent; documented, not authorized here |
 
-The review changed the design once: an earlier reading treated per-day and route-wide disclaimers as
-equivalent. They are not (§4.6), and that finding is the only UI work this gate authorizes.
+The hostile review changed the phase conclusion from **Outcome A** to **Outcome C**.
 
 ---
 
 ## 8. Divergences from the Issue #91 candidate shape
 
-Recorded so the successor does not copy an invalid record.
+1. **`alignment: same-day-of-month` does not exist.** The real value is `same-calendar-day`.
+2. **`last-day-of-shifted-month` needs no new helper.** `lastDayOfShiftedMonth` already exists.
+3. **2027-05-31 is aligned**, not a month-end fallback case.
+4. **The candidate record is not authorized.** Current official wording includes 「一部チケット」,
+   and historical official notices make first-come occurrence drawing-dependent; current sources do
+   not explicitly establish universal deterministic applicability.
+5. **The per-day disclaimer gap does not justify implementation.** It is a separate presentation
+   asymmetry and cannot cure event-existence uncertainty.
 
-1. **`alignment: same-day-of-month` does not exist.** The field is a single-value union whose only
-   member is `same-calendar-day`, enforced in both validators. The candidate in §6.3 uses the real
-   value. A record using `same-day-of-month` would be rejected fail-closed by the parser and flagged
-   by the Python validator.
-
-2. **`last-day-of-shifted-month` needs no new helper.** Issue #91 frames the arithmetic as work to
-   be designed; `lastDayOfShiftedMonth` already exists and is already in production use (§3.5). The
-   successor's surface is correspondingly smaller.
-
-3. **2027-05-31 is an aligned case, not a month-end case.** Issue #91 lists it among the month-end
-   examples; March has 31 days, so the rule does not fire (§3.2).
-
-4. **One UI change is warranted.** Issue #91 anticipates UI work only if a conditional semantic is
-   introduced. No such semantic is introduced, yet §4.6 identifies an independent disclaimer
-   asymmetry that a first-come record would be the first to expose.
-
-None of these changes the phase's conclusion; all four narrow or correct the successor's scope.
+These divergences narrow the executable successor surface to zero.
 
 ---
 
@@ -605,52 +503,41 @@ None of these changes the phase's conclusion; all four narrow or correct the suc
 
 1. Phase 3F-T changes documentation only.
 2. No runtime, data, schema, test, React, CSS, dependency, persistence or network change.
-3. The official recheck of 2026-09-15 found the first-come opening schedule fully specified.
-4. The 20:00 start is current; the 18:00 start is superseded and must never be recorded.
-5. First-come sales open for every admission date; no official wording narrows them.
-6. 売り切れ次第終了 bounds the sale's end, not its start.
-7. Availability, inventory and current sale state remain unmodelled, permanently.
-8. `last-day-of-shifted-month` semantics are fixed by §3.1 and equivalent to the published rule.
-9. The rule lands in the shifted month, not the following month.
-10. It never emits a release date later than the naive aligned date.
-11. All three `missingAlignedDayRule` members agree on the aligned branch.
-12. Disney's `first-day-of-next-month` behaviour is unchanged and must be pinned by value.
-13. No new calendar helper is required.
-14. The derivation branch must be exhaustive over the union.
-15. Outcome A is authorized; Outcome B is rejected with reasons in §5.3.
-16. No new evidence field, variant or qualifier is authorized.
-17. No vocabulary other than `missingAlignedDayRule` is widened.
-18. `recordId` remains the only evidence-record identity.
-19. Phase 3F-S collision semantics are unchanged.
-20. A third active `(JP-050, general-admission)` record is structurally permitted already.
-21. Two active `resides-in-japan` records remain legitimate.
-22. No JP-050 record is merged, hidden, ranked, preferred or deduplicated.
-23. The successor may add at most one record, `RM-JP-050-003`.
-24. Catalog would become 9; both catalogs stay byte-identical.
-25. `allocation: first-come` and its UI string already exist and need no change.
-26. F needs no new copy for the record itself.
-27. H needs no change.
-28. J needs no change.
-29. The only authorized UI change is the per-day disclaimer parity sentence in §6.4.
-30. That change adds no element, class, badge, taxonomy or field.
-31. `sourceTimeZone: Asia/Tokyo` requires cited JST anchoring, or `null` must be recorded instead.
-32. Residence context is never inferred from language, locale, domain or source entity.
-33. Residence context never becomes user profile data or an eligibility decision.
-34. The successor must repeat the official recheck on its own implementation day.
-35. Material source drift blocks implementation rather than being normalized into this model.
-36. Phase 3F-U's scope is exactly §6 and nothing adjacent.
-37. Phase 3F-U is not started by this gate.
+3. 20:00 is the current published start time; 18:00 is superseded.
+4. The two-month same-calendar-day and month-end calendar arithmetic is verified.
+5. `last-day-of-shifted-month` semantics are fixed by §3.
+6. `lastDayOfShiftedMonth` already exists; no new helper is required.
+7. 2027-05-31 is an aligned case.
+8. The current official page says 「一部チケット」 are sold first-come.
+9. Historical official notices state that first-come may not be conducted depending on drawing-sales
+   conditions.
+10. The current omission of that historical sentence is not treated as an explicit revocation.
+11. Current evidence therefore does not prove first-come event existence for every visit date.
+12. A concrete `release-date` must not be emitted when event existence is not deterministic.
+13. Availability/sell-out and event existence remain distinct predicates.
+14. Outcome A is rejected.
+15. Outcome B is rejected because current evidence supplies no deterministic applicability condition.
+16. **Outcome C is authoritative: domestic first-come remains deferred.**
+17. `RM-JP-050-003` is not authorized.
+18. Catalog cardinality remains 8.
+19. `missingAlignedDayRule` is not widened by this phase.
+20. No derivation-runtime branch is authorized.
+21. Phase 3F-S collision semantics remain unchanged.
+22. The per-day availability disclaimer asymmetry is documented but not authorized for implementation
+   by this phase.
+23. No user residence, eligibility, availability, inventory, sold-out or lottery-result state is
+   introduced.
+24. A future implementation requires a fresh official-source gate satisfying §6.
+25. No Phase 3F-U runtime/data phase is authorized by this design.
 
 ---
 
 ## 10. Successor
 
-Authorized successor, tightly bounded to §6:
+**No implementation successor is authorized.**
 
-**Phase 3F-U — Domestic First-Come Calendar Rule & Evidence Foundation**
+The next action, if the project revisits domestic first-come, is a future evidence recheck after the
+operator publishes clearer applicability wording. Until then the mechanism remains deliberately
+unencoded.
 
-It is a runtime/data phase requiring its own implementation-day source recheck, exact-head
-validation, hostile review and independent focused review, under the pattern Phases 3F-P/Q/S
-established.
-
-Phase 3F-T authorizes the design only. It is not started.
+Phase 3F-T closes the design question without starting executable work.
