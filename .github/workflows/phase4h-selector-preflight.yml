@@ -20,7 +20,7 @@ jobs:
       - name: Checkout exact selector head
         uses: actions/checkout@v4
         with:
-          ref: 7050dff03b6472545970554e3f621788ef816ed7
+          ref: 7212cb7b129f64caf4baafc779ae8ab15ea7e902
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -30,7 +30,7 @@ jobs:
       - name: Verify exact base
         run: |
           git merge-base --is-ancestor 589d64a87d1963622fdf64c07be31460f145f79c HEAD
-          test "$(git rev-parse HEAD)" = "7050dff03b6472545970554e3f621788ef816ed7"
+          test "$(git rev-parse HEAD)" = "7212cb7b129f64caf4baafc779ae8ab15ea7e902"
 
       - name: Reproduce exact 32-target fixture
         run: |
