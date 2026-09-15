@@ -171,13 +171,21 @@ that value never reaches `PlaceImage`.
 At least the current 4.0-licensed records should have the recorded license URI available to the
 presentation. Scaling to 190 more images before repairing that adapter would multiply the same gap.
 
-### 4.3 Work/source title
+### 4.3 Commons file title is not automatically the licensor-supplied work title
 
-The current metadata records `originalTitle`, including the Commons file title. Older CC licenses in
-the pilot have title-related attribution language when a title is supplied.
+The current metadata records `originalTitle`, which is the Commons file title used by the API.
+Older CC licenses in the pilot have title-related attribution language when a title is supplied.
 
-The successor should carry that already-recorded value into the visible attribution rather than
-discarding it. It does not need to invent a prettier title.
+Those two propositions must not be conflated. A filename such as `File:...` is useful provenance,
+but this gate does **not** treat it as proof that the licensor supplied that string as the work's
+attribution title.
+
+Phase 4C must therefore re-open the 24 current Commons file pages / current file metadata and record
+any source-supplied title or other attribution instruction separately if one exists. If none is
+supplied, it must not invent one.
+
+`originalTitle` should still survive the adapter as source-file provenance, but it is not itself a
+legal-compliance shortcut.
 
 ### 4.4 Processing disclosure
 
@@ -223,22 +231,27 @@ invalid.
 No Phase 4B code or asset change is authorized.
 
 A bounded corrective successor is authorized as **Phase 4C — Photography Attribution Completeness
-Runtime**.
+Corrective**.
 
-No new photograph may be added in Phase 4C.
+No new photograph may be added in Phase 4C. Phase 4C may recheck and enrich attribution metadata for
+the existing 24 records only; it may not replace their image bytes unless a new gate explicitly
+finds a current asset unusable.
 
 ---
 
 ## 6. Phase 4C successor contract
 
-Phase 4C may change only the attribution path necessary to make already-recorded provenance visible.
+Phase 4C may change only the attribution path necessary to make source-backed provenance complete
+for the existing 24 assets. It includes a one-time official Commons recheck of those 24 file pages
+before code changes.
 
 ### 6.1 Runtime shape
 
 Extend `PlaceImage` with optional, attribution-only fields sufficient to carry:
 
 - the recorded license URL;
-- the recorded original/source title;
+- the Commons source-file title;
+- any separately source-backed attribution title/instruction found by the Phase 4C recheck;
 - a closed processing disclosure produced by the acquisition path.
 
 Names are implementation details, but the values must remain factual and source/metadata-backed.
@@ -254,9 +267,18 @@ No field may encode:
 - rights-clearance boolean;
 - user preference.
 
-### 6.2 Registry adapter
+### 6.2 Existing-24 metadata recheck and registry adapter
 
-`app/src/data/place-images.ts` must stop dropping `licenseUrl` and `originalTitle`.
+Before changing presentation, Phase 4C must recheck all 24 current Commons file pages using current
+first-party metadata. For each existing image it must confirm the current creator/credit, license and
+license URL and determine whether the source supplies an attribution title or other specific
+attribution instruction.
+
+The recheck may enrich `data/visual/photography-metadata.json` and its app copy with narrowly
+source-backed attribution fields. It must not invent fields from filenames or page locale.
+
+`app/src/data/place-images.ts` must stop dropping `licenseUrl` and `originalTitle`, and must carry
+any newly source-backed attribution field needed by the visible line.
 
 For Phase 4A registry images, it may attach a processing disclosure only when the acquisition
 artifact proves that processing mode.
@@ -271,7 +293,8 @@ It must expose, without a new panel/modal:
 
 - source/file-page link;
 - creator credit when required/recorded;
-- source/work title when recorded;
+- Commons source-file title as provenance;
+- separately source-backed attribution title/instruction when present;
 - license name linked to the recorded `licenseUrl`;
 - neutral processing disclosure when present.
 
@@ -283,14 +306,17 @@ The successor must prove:
 
 1. all 24 metadata records still parse;
 2. root/app metadata parity remains byte-equivalent;
-3. every non-CC0 record has a visible license link;
+3. every record with a recorded `licenseUrl` renders the license as a link, including CC0 when its
+   URL is present;
 4. CC0 remains renderable without invented creator credit;
-5. `originalTitle` survives metadata -> registry -> presentation;
-6. processing disclosure is factual and closed-vocabulary;
-7. a missing optional attribution field fails neutral, never invents text;
-8. non-pilot places still render the existing fallback;
-9. the 24 image blobs remain byte-unchanged;
-10. no new photograph or remote runtime request appears.
+5. `originalTitle` survives metadata -> registry -> presentation as source-file provenance;
+6. any attribution title/instruction shown is backed by the Phase 4C source recheck, not inferred
+   from `originalTitle`;
+7. processing disclosure is factual and closed-vocabulary;
+8. a missing optional attribution field fails neutral, never invents text;
+9. non-pilot places still render the existing fallback;
+10. the 24 image blobs remain byte-unchanged;
+11. no new photograph or remote runtime request appears.
 
 ### 6.5 Acquisition validator
 
@@ -449,17 +475,18 @@ The 16-image S-grade batch requires its own later acquisition phase after 4C clo
 7. Processing disclosure must be factual and must not make a legal classification.
 8. No new photograph is authorized before the attribution corrective.
 9. Phase 4C is the only executable successor authorized by this gate.
-10. Phase 4C adds zero images and changes zero image blobs.
-11. Runtime remains local/offline for photography.
-12. The existing license allowlist is not widened.
-13. A later acquisition phase may target at most the 16 uncovered S-grade places, one image each.
-14. Failure to find a suitable image leaves the place on `imageBrief`.
-15. No silent place substitution is permitted.
-16. Second photographs remain deferred.
-17. No acquisition priority becomes product ranking or recommendation.
-18. Relicensing/source drift is checked by tooling, not runtime.
-19. Drift is reported fail-closed, never silently normalized.
-20. Phase 4D acquisition work is not started by this design.
+10. Phase 4C rechecks current attribution for the existing 24 records and may enrich their metadata.
+11. Phase 4C adds zero images and changes zero image blobs.
+12. Runtime remains local/offline for photography.
+13. The existing license allowlist is not widened.
+14. A later acquisition phase may target at most the 16 uncovered S-grade places, one image each.
+15. Failure to find a suitable image leaves the place on `imageBrief`.
+16. No silent place substitution is permitted.
+17. Second photographs remain deferred.
+18. No acquisition priority becomes product ranking or recommendation.
+19. Relicensing/source drift is checked by tooling, not runtime.
+20. Drift is reported fail-closed, never silently normalized.
+21. Phase 4D acquisition work is not started by this design.
 
 ---
 
@@ -467,9 +494,10 @@ The 16-image S-grade batch requires its own later acquisition phase after 4C clo
 
 ### Authorized next implementation
 
-**Phase 4C — Photography Attribution Completeness Runtime**
+**Phase 4C — Photography Attribution Completeness Corrective**
 
-Correct the metadata -> registry -> visible-attribution chain for the existing 24 images only.
+Recheck the current Commons attribution requirements for the existing 24 records, then correct the
+metadata -> registry -> visible-attribution chain for those 24 images only.
 
 ### Conditionally bounded later acquisition
 
