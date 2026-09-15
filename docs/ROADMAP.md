@@ -5324,6 +5324,7 @@ Base: `4a9156c4236453c7389e6841fe5d7f25ffc08ecf`.
       any runtime/test change requires a fresh exact-head run.
 
 **Phase 3F-Q is implemented, hostile-reviewed, independently reviewed and repository-native validated. Same-scope cardinality relaxation is NOT STARTED.**
+
 ## Phase 3F-R — Same-Scope Purchase-Context Composition Design Gate
 
 Design authority:
