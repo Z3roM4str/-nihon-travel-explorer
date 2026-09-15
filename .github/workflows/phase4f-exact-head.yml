@@ -116,7 +116,7 @@ jobs:
           total=0
           for pid in acquired:
               rec=cur_by[pid]
-              path=Path("app/public")/rec["url"].lstrip("/")
+              path=Path("app/public")/rec["assetPath"].lstrip("/")
               total+=path.stat().st_size
           print(f"Phase 4F asset delta: {total} bytes ({total/1024/1024:.2f} MiB)")
           assert total <= 12*1024*1024, total
