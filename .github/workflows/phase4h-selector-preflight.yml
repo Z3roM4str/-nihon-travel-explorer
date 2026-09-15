@@ -1,0 +1,72 @@
+name: Phase 4H selector preflight
+
+on:
+  push:
+    branches:
+      - feat/phase-4h-a-grade-photography-batch-ii
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  selector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact selector head
+        uses: actions/checkout@v4
+        with:
+          ref: 7050dff03b6472545970554e3f621788ef816ed7
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify exact base
+        run: |
+          git merge-base --is-ancestor 589d64a87d1963622fdf64c07be31460f145f79c HEAD
+          test "$(git rev-parse HEAD)" = "7050dff03b6472545970554e3f621788ef816ed7"
+
+      - name: Reproduce exact 32-target fixture
+        run: |
+          python scripts/select-a-grade-photography-batch-ii.py --out /tmp/phase4h-selector.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          generated=json.loads(Path("/tmp/phase4h-selector.json").read_text())
+          pinned=json.loads(Path("data/visual/a-grade-photography-batch-ii.json").read_text())
+          assert generated == pinned
+          assert generated["trancheSize"] == 32
+          assert generated["eligibleCount"] == 115
+          assert generated["hubQuotas"] == {
+              "Kioto": 8, "Okinawa": 8, "Osaka": 7, "Sapporo": 1, "Tokio": 8
+          }
+          assert generated["distinctCategoryCount"] == 19
+          print("exact Phase 4G selector fixture reproduced")
+          PY
+
+      - name: Selector-II tests
+        run: python scripts/test_a_grade_photography_selector_ii.py
+
+      - name: Preserve pre-acquisition photography state
+        run: |
+          python scripts/validate-photography.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          doc=json.loads(Path("data/visual/photography-metadata.json").read_text())
+          assert doc["imageCount"] == 58
+          assert len(doc["images"]) == 58
+          ids={r["placeId"] for r in doc["images"]}
+          batch=json.loads(Path("data/visual/a-grade-photography-batch-ii.json").read_text())
+          assert all(row["placeId"] not in ids for row in batch["places"])
+          print("pre-acquisition photography state preserved at 58")
+          PY
+
+      - name: Whitespace gate
+        run: git diff --check 589d64a87d1963622fdf64c07be31460f145f79c...HEAD
