@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - feat/phase-4f-a-grade-photography-batch-i
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
