@@ -1,0 +1,85 @@
+name: Phase 4F acquisition
+
+on:
+  push:
+    branches:
+      - feat/phase-4f-a-grade-photography-batch-i
+    paths:
+      - .github/workflows/phase4f-acquire.yml
+
+permissions:
+  contents: write
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/phase-4f-a-grade-photography-batch-i
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install acquisition dependency
+        run: python -m pip install -r scripts/requirements.txt
+
+      - name: Reproduce Phase 4E selector
+        run: |
+          python scripts/select-a-grade-photography-batch.py --out /tmp/phase4f-selector.json
+          cmp /tmp/phase4f-selector.json data/visual/a-grade-photography-batch-i.json
+          python scripts/test_a_grade_photography_selector.py
+
+      - name: Acquire accepted Phase 4F records through unchanged pipeline
+        run: |
+          set -euo pipefail
+          ids=(
+            JP-068 JP-210 JP-155 JP-103 JP-206 JP-009 JP-099 JP-108 JP-018 JP-085 JP-164
+            JP-115 JP-037 JP-093 JP-160 JP-141 JP-040 JP-102 JP-174 JP-116 JP-092 JP-005
+          )
+          for id in "${ids[@]}"; do
+            python scripts/acquire-photography.py --only "$id"
+          done
+
+      - name: Validate generated tree
+        run: |
+          python scripts/validate-photography.py
+          python scripts/test_photography.py
+          python scripts/test_a_grade_photography_selector.py
+          test "$(find app/public/images/places -type f -name '*.webp' | wc -l)" -eq 58
+          python - <<'PY'
+          from pathlib import Path
+          ids = """JP-068 JP-210 JP-155 JP-103 JP-206 JP-009 JP-099 JP-108 JP-018 JP-085 JP-164 JP-115 JP-037 JP-093 JP-160 JP-141 JP-040 JP-102 JP-174 JP-116 JP-092 JP-005""".split()
+          paths = [next((Path("app/public/images/places") / i).glob("*.webp")) for i in ids]
+          total = sum(p.stat().st_size for p in paths)
+          print(f"Phase 4F asset delta: {total} bytes ({total/1024/1024:.2f} MiB)")
+          if total > 12 * 1024 * 1024:
+              raise SystemExit("Phase 4F hard 12 MiB review threshold exceeded")
+          PY
+
+      - name: Commit acquired assets
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/public/images/places
+          test -n "$(git status --porcelain)"
+          git commit -m "phase4f: acquire 22 licensed photography assets"
+          echo "ACQUIRED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Revalidate exact asset commit
+        run: |
+          test "$(git rev-parse HEAD)" = "$ACQUIRED_SHA"
+          python scripts/validate-photography.py
+          python scripts/test_photography.py
+          python scripts/test_a_grade_photography_selector.py
+          git status --porcelain --untracked-files=all | grep -q '^$' || {
+            git status --short
+            exit 1
+          }
+
+      - name: Push exact acquired commit
+        run: git push origin HEAD:feat/phase-4f-a-grade-photography-batch-i
