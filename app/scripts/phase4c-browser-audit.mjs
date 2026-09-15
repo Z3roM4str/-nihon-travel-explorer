@@ -31,6 +31,11 @@ try {
   page.on("pageerror", (error) => pageErrors.push(String(error)));
 
   await page.goto(url);
+
+  // The application opens on the national explorer. Enter the Tokio hub through the
+  // keyboard-accessible prefecture path before exercising a place detail.
+  await page.getByRole("button", { name: /^Tokio/ }).click();
+  await page.getByRole("button", { name: /Explorar desde Tokio/ }).click();
   await page.getByRole("button", { name: /SHIBUYA SKY/ }).click();
 
   const credit = page.locator(".gallery__credit");
@@ -73,6 +78,7 @@ try {
   await close.waitFor({ state: "detached" });
   assert.equal(await zoom.evaluate((element) => element === document.activeElement), true);
 
+  await page.getByRole("button", { name: /Cerrar la ficha de SHIBUYA SKY/ }).click();
   await page.getByRole("button", { name: /Nezu Museum/ }).click();
   await page.getByText("Sin fotografía disponible todavía").waitFor();
   assert.equal(await page.locator(".gallery__credit").count(), 0);
