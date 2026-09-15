@@ -29,7 +29,7 @@ EXPECTED_QUOTAS = {
 }
 
 
-def load_real_inputs():
+def load_current_inputs():
     places_doc = json.loads((ROOT / "data" / "places.json").read_text(encoding="utf-8"))
     places = places_doc if isinstance(places_doc, list) else places_doc["places"]
     photography = json.loads(
@@ -38,9 +38,29 @@ def load_real_inputs():
     return places, photography["images"]
 
 
+def load_phase4e_base_inputs():
+    """Reconstruct the authorized Phase 4E input after Phase 4F metadata is appended.
+
+    Phase 4E selected these 24 targets from the 36-record base. During Phase 4F, accepted
+    target records are appended to the live catalog, so feeding that post-acquisition
+    catalog back into an "uncovered places" selector would intentionally produce a
+    different next tranche. For regression we remove only the pinned Phase 4F target IDs
+    from the current catalog and require the reconstructed baseline to be exactly 36
+    records. This is a test fixture boundary, not runtime selection behavior.
+    """
+    places, current = load_current_inputs()
+    expected = set(EXPECTED_IDS)
+    baseline = [record for record in current if record["placeId"] not in expected]
+    if len(baseline) != 36:
+        raise AssertionError(
+            f"Phase 4E baseline reconstruction expected 36 records, found {len(baseline)}"
+        )
+    return places, baseline
+
+
 class RealSelectorFixtureTests(unittest.TestCase):
     def test_exact_phase4e_fixture_is_reproduced(self):
-        places, photography = load_real_inputs()
+        places, photography = load_phase4e_base_inputs()
         result = selector.select_batch(places, photography)
         self.assertEqual([p["placeId"] for p in result["places"]], EXPECTED_IDS)
         self.assertEqual(result["eligibleCount"], 139)
@@ -48,7 +68,7 @@ class RealSelectorFixtureTests(unittest.TestCase):
         self.assertEqual(result["distinctCategoryCount"], 24)
 
     def test_checked_in_manifest_is_exact_selector_output(self):
-        places, photography = load_real_inputs()
+        places, photography = load_phase4e_base_inputs()
         generated = selector.select_batch(places, photography)
         checked_in = json.loads(
             (ROOT / "data" / "visual" / "a-grade-photography-batch-i.json").read_text(
@@ -58,7 +78,7 @@ class RealSelectorFixtureTests(unittest.TestCase):
         self.assertEqual(checked_in, generated)
 
     def test_design_comparison_category_breadth_reproduces(self):
-        places, photography = load_real_inputs()
+        places, photography = load_phase4e_base_inputs()
         expected = {16: 16, 24: 24, 32: 26}
         for size, breadth in expected.items():
             with self.subTest(size=size):
@@ -66,7 +86,7 @@ class RealSelectorFixtureTests(unittest.TestCase):
                 self.assertEqual(result["distinctCategoryCount"], breadth)
 
     def test_all_targets_are_a_grade_uncovered_and_unique(self):
-        places, photography = load_real_inputs()
+        places, photography = load_phase4e_base_inputs()
         by_id = {p["id"]: p for p in places}
         covered = {r["placeId"] for r in photography}
         result = selector.select_batch(places, photography)
@@ -78,11 +98,19 @@ class RealSelectorFixtureTests(unittest.TestCase):
             self.assertNotIn(place_id, selector.CARRIED_FAILED_CLOSED_IDS)
 
     def test_temporal_risk_is_delayed_but_not_excluded(self):
-        places, photography = load_real_inputs()
+        places, photography = load_phase4e_base_inputs()
         result = selector.select_batch(places, photography)
         by_id = {p["placeId"]: p for p in result["places"]}
         self.assertTrue(by_id["JP-206"]["temporalRisk"])
         self.assertFalse(by_id["JP-050"]["temporalRisk"])
+
+    def test_current_phase4f_records_are_only_authorized_targets(self):
+        _places, current = load_current_inputs()
+        expected = set(EXPECTED_IDS)
+        current_target_ids = {record["placeId"] for record in current if record["placeId"] in expected}
+        self.assertTrue(current_target_ids.issubset(expected))
+        self.assertNotIn("JP-195", current_target_ids)
+        self.assertNotIn("JP-050", current_target_ids)
 
 
 class SelectorPureRuleTests(unittest.TestCase):
