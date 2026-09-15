@@ -27,6 +27,10 @@ type PhotographyRecord = {
   sourceUrl: string;
   credit: string;
   license: string;
+  licenseUrl: string;
+  originalTitle: string;
+  attributionTitle?: string;
+  processing: "webp-reencoded" | "resized-and-webp-reencoded";
 };
 
 function buildRegistry(records: PhotographyRecord[]): Record<string, PlaceImage[]> {
@@ -39,6 +43,10 @@ function buildRegistry(records: PhotographyRecord[]): Record<string, PlaceImage[
       source: record.source,
       sourceUrl: record.sourceUrl,
       license: record.license,
+      licenseUrl: record.licenseUrl,
+      sourceFileTitle: record.originalTitle,
+      attributionTitle: record.attributionTitle,
+      processing: record.processing,
     };
     const list = registry[record.placeId];
     if (list) list.push(image);

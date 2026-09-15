@@ -65,8 +65,36 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
         expect(image.source, placeId).toBe("Wikimedia Commons");
         expect(image.sourceUrl, placeId).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
         expect(image.license, placeId).toBeTruthy();
+        expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
+        expect(image.sourceFileTitle, placeId).toMatch(/^File:/);
+        expect(
+          ["webp-reencoded", "resized-and-webp-reencoded"],
+          placeId
+        ).toContain(image.processing);
       }
     }
+  });
+
+  it("carries only source-backed attribution titles for the three rechecked CC BY 2.0 records", () => {
+    const titled = Object.entries(placeImages)
+      .flatMap(([placeId, images]) =>
+        images
+          .filter((image) => image.attributionTitle)
+          .map((image) => [placeId, image.attributionTitle] as const)
+      );
+
+    expect(titled).toEqual([
+      ["JP-002", "Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck"],
+      ["JP-077", "Katsura Imperial Villa / 桂離宮 X"],
+      ["JP-179", "DSC04640"],
+    ]);
+  });
+
+  it("derives exactly one WebP-only record and 23 resized+WebP records from the committed metadata", () => {
+    const processing = Object.values(placeImages).flat().map((image) => image.processing);
+    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(1);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(23);
+    expect(placeImages["JP-077"]?.[0]?.processing).toBe("webp-reencoded");
   });
 
   it("merges embedded images ahead of registry images, preserving existing precedence", () => {

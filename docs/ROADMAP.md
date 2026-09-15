@@ -5605,3 +5605,47 @@ Official Wikimedia Commons / Creative Commons reuse guidance rechecked:
 
 **Phase 4B is documentation-only. Authorized next implementation: Phase 4C — Photography Attribution Completeness Corrective. No new photography acquisition is started by this gate.**
 
+## Phase 4C — Photography Attribution Completeness Corrective — complete
+
+Runtime authority:
+[`docs/PHOTOGRAPHY_ATTRIBUTION_COMPLETENESS_RUNTIME.md`](PHOTOGRAPHY_ATTRIBUTION_COMPLETENESS_RUNTIME.md).
+
+Base: `85e34fe5f4785dab675e07fa1ce6f85e3be06c1b`.
+
+Current Wikimedia Commons source-file pages rechecked:
+**2026-09-14 (America/Mexico_City)**.
+
+- [x] **Existing 24 only.** No new photograph was acquired, no image was replaced and all 24 WebP
+      blobs remain byte-unchanged.
+- [x] **Attribution parity repaired.** `licenseUrl`, Commons source-file provenance, optional
+      separately source-backed attribution title and factual processing now survive metadata →
+      `PlaceImage` → visible gallery attribution.
+- [x] **No filename-to-work-title inference.** `originalTitle` is presented only as Commons
+      source-file provenance. A distinct `attributionTitle` exists only for the three current
+      records whose source recheck independently supplies one (JP-002, JP-077, JP-179).
+- [x] **License links are visible.** The gallery renders the recorded license name as an anchor to
+      the recorded `licenseUrl`; the validator now requires a valid license URL for every
+      supported license, including CC0.
+- [x] **Processing disclosure is factual and closed.** 23 records are
+      `resized-and-webp-reencoded`; JP-077 is `webp-reencoded`. The validator rejects unknown
+      values and values inconsistent with the stored original dimensions.
+- [x] **No legal-status model.** No `compliant`, `cleared`, `safe`, derivative-work status or
+      other legal conclusion is encoded or displayed.
+- [x] **Runtime remains offline/local.** No Commons/Creative Commons request occurs during rendering.
+- [x] **Exact-head validation passed.** Executable/test HEAD
+      `cf71d0cbb59b5695f0addf8f6f7de7ccfe86a7a0` passed GitHub Actions run
+      `34924302760`: photography validator, **442 Python tests**, **2433 Vitest tests across 65
+      files**, lint with 0 warnings/errors, build, whitespace and the Phase 4C Chromium audit twice
+      consecutively.
+- [x] **Browser proof uses real data.** SHIBUYA SKY proves source link, CC BY 2.0 license link,
+      creator, source-file provenance, source-backed title, processing disclosure and lightbox focus
+      behavior; non-pilot Nezu Museum proves the existing fallback remains unchanged.
+- [x] **Temporary workflow removed without executable drift.** From the validated HEAD to
+      `a885062e1c961d37c1d476d3e02f0b818e7df18f`, the only changed path is removal of the temporary
+      workflow. Later commits are documentation only.
+- [x] **Scale-up remains bounded.** Second images remain deferred. The next acquisition phase may
+      target at most the 16 currently uncovered S-grade places, one image each, with fail-closed
+      per-place sourcing and no license-policy widening.
+
+**Authorized next phase: Phase 4D — S-Grade Licensed Photography Acquisition Batch. Phase 4D is not started by Phase 4C.**
+
