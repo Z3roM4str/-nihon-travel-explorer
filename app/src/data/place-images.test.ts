@@ -90,11 +90,12 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly one WebP-only record and 35 resized+WebP records from the committed metadata", () => {
+  it("derives exactly two WebP-only records and 56 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
-    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(1);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(35);
+    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(2);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(56);
     expect(placeImages["JP-077"]?.[0]?.processing).toBe("webp-reencoded");
+    expect(placeImages["JP-155"]?.[0]?.processing).toBe("webp-reencoded");
   });
 
   it("carries the Phase 4D batch as exactly one image per newly covered place", () => {
@@ -112,11 +113,26 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
+  it("carries the Phase 4F tranche as 22 acquired targets and two explicit fallbacks", () => {
+    const acquired = [
+      "JP-068", "JP-210", "JP-155", "JP-103", "JP-206", "JP-009",
+      "JP-099", "JP-108", "JP-018", "JP-085", "JP-164", "JP-115",
+      "JP-037", "JP-093", "JP-160", "JP-141", "JP-040", "JP-102",
+      "JP-174", "JP-116", "JP-092", "JP-005",
+    ];
+    for (const placeId of acquired) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
+    }
+    for (const deferred of ["JP-195", "JP-050"]) {
+      expect(placeImages[deferred], deferred).toBeUndefined();
+    }
+  });
+
   it("never registers a second image for any place", () => {
     for (const [placeId, images] of Object.entries(placeImages)) {
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
     }
-    expect(Object.keys(placeImages)).toHaveLength(36);
+    expect(Object.keys(placeImages)).toHaveLength(58);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
