@@ -1,0 +1,90 @@
+name: Phase 4C exact-head validation
+
+on:
+  push:
+    branches:
+      - feat/phase-4c-photography-attribution-corrective
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact validated head
+        uses: actions/checkout@v4
+        with:
+          ref: b19460bdfeddb2aeb6ad8717d07bdf380fff94c4
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python dependencies
+        run: python -m pip install -r scripts/requirements.txt
+
+      - name: Photography validator
+        run: python scripts/validate-photography.py
+
+      - name: Python test suite
+        run: python -m unittest discover scripts -p 'test_*.py'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install app dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Focused Phase 4C tests
+        working-directory: app
+        run: |
+          npx vitest run \
+            src/lib/photography-attribution.test.ts \
+            src/components/PlaceGallery.test.ts \
+            src/data/place-images.test.ts
+
+      - name: Full Vitest
+        working-directory: app
+        run: npm test
+
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+
+      - name: Build
+        working-directory: app
+        run: npm run build
+
+      - name: Photography blobs unchanged since base
+        run: |
+          changed=$(git diff --name-only 85e34fe5f4785dab675e07fa1ce6f85e3be06c1b HEAD -- 'app/public/images/**' | wc -l)
+          echo "changed image files: $changed"
+          test "$changed" -eq 0
+          count=$(find app/public/images -name '*.webp' | wc -l)
+          echo "webp count: $count"
+          test "$count" -eq 24
+          cmp data/visual/photography-metadata.json app/src/data/photography-metadata.json
+
+      - name: Install Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Phase 4C browser audit first pass
+        working-directory: app
+        run: node scripts/phase4c-browser-audit.mjs
+
+      - name: Phase 4C browser audit second pass
+        working-directory: app
+        run: node scripts/phase4c-browser-audit.mjs
+
+      - name: Whitespace gate
+        run: |
+          git diff --check 85e34fe5f4785dab675e07fa1ce6f85e3be06c1b...HEAD
+          git diff --check
