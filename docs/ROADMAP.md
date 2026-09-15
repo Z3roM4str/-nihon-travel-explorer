@@ -5728,3 +5728,38 @@ Design date: **2026-09-15 (America/Mexico_City)**.
 
 **Authorized next phase: Phase 4F — A-Grade Licensed Photography Acquisition Batch I. Phase 4F is not started by Phase 4E.**
 
+
+## Phase 4F — A-Grade Licensed Photography Acquisition Batch I — complete
+
+Runtime authority:
+[`docs/A_GRADE_PHOTOGRAPHY_BATCH_I_RUNTIME.md`](A_GRADE_PHOTOGRAPHY_BATCH_I_RUNTIME.md).
+
+Base: `b8d8bf19a3985a4823b571c97795d9564b3dfa41`.
+
+Acquisition/validation date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Exact 24-target Phase 4E selector reproduced.** No manual substitution or target expansion.
+- [x] **22 targets acquired; 2 failed closed.** JP-050 PokéPark KANTO and JP-195 Yaeyama
+      stargazing experience retain the existing no-photo fallback; no replacement target was used.
+- [x] **Coverage increased 36 → 58 photographs.** Current first-photo coverage is **58/214 (27.1%)**.
+- [x] **Actual batch delta is 5,457,240 bytes / 5.20 MiB.** This remains below the 8 MiB soft
+      budget and 12 MiB hard review threshold.
+- [x] **Existing photography preserved.** All 36 pre-Phase-4F metadata records and image paths were
+      verified unchanged; canonical/app metadata remain byte-identical.
+- [x] **Attribution/source policy preserved.** Wikimedia Commons only, existing license allowlist,
+      no NC/ND/fair-use/AI substitute, no unsupported legal-clearance claim.
+- [x] **Temporal-risk presentation checked.** JP-206 Otaru Snow Light Path uses prior-edition
+      imagery without representing it as the 2027 edition or inferring a 2027 schedule.
+- [x] **Runtime remains local/offline.** Browser QA proves no Commons/Wikipedia/Creative Commons
+      photography request during rendering.
+- [x] **No planning behavior changed.** No ranking, recommendation, itinerary, grade, routing or
+      planning semantics were modified.
+- [x] **Exact-head validation passed.** Executable/test HEAD
+      `3d7bdaf115a65cc8e43ee7b98f5adcb5ab474b55` passed GitHub Actions run
+      `35024168261`: selector reproduction, photography validator, Python, focused photography
+      tests, full Vitest, lint, build, invariants/budget, two Phase 4F browser audits,
+      Phase 4C regression and whitespace.
+
+**Successor boundary:** Phase 4F authorizes no automatic Phase 4G acquisition. Any further
+photography scale-up requires a separate design gate that re-establishes target scope, batch size,
+asset budget, sourcing constraints and treatment of the remaining uncovered catalog.
