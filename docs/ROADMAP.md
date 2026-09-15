@@ -5454,3 +5454,48 @@ Official PokéPark KANTO source recheck: **2026-09-15**.
       consistent and no workflow file remaining. No further correction was required.
 
 **Phase 3F-S is implemented, hostile-review corrected, independently reviewed and exact-head validated. Domestic first-come and Phase 3F-T are NOT STARTED.**
+
+## Phase 3F-T — Domestic First-Come Calendar & Evidence Design Gate
+
+Design authority:
+[`docs/DOMESTIC_FIRST_COME_CALENDAR_DESIGN.md`](DOMESTIC_FIRST_COME_CALENDAR_DESIGN.md).
+
+Base: `a15837bf0816b700639a35f11d29c3bc26c9aff5`.
+
+Official PokéPark KANTO source recheck: **2026-09-15**.
+
+- [x] **Design gate only.** No runtime, data, schema, test, React, CSS, dependency, persistence or
+      network change.
+- [x] **Calendar arithmetic verified.** The current domestic page publishes the two-month
+      same-calendar-day rule, 20:00 start, daily cadence and month-end catch-up. The civil semantics
+      of `last-day-of-shifted-month` are fixed and match the worked examples.
+- [x] **Current vs superseded time separated.** 20:00 is current from July 2026; 18:00 is
+      superseded.
+- [x] **No helper needed.** `lastDayOfShiftedMonth` already exists in production runtime.
+- [x] **Hostile review found material applicability evidence omitted by the first draft.** The
+      current official ticket page says 「一部チケットを先着方式にて販売いたします」 — some tickets are
+      sold first-come.
+- [x] **Historical contingency classified instead of ignored.** The 2025-12-24 first-come launch
+      notice and the 2026-01-26 Town Pass notice state that first-come sales may not be conducted
+      depending on drawing-sales conditions.
+- [x] **Current omission is not treated as explicit revocation.** The current page no longer repeats
+      the historical lottery-result condition, but no located current source states that it was
+      revoked or that first-come occurs for every admission date.
+- [x] **Event existence separated from availability.** 売り切れ次第終了 is post-opening
+      availability; 「一部チケット」 plus the historical drawing-dependent wording create a different
+      uncertainty — whether a first-come event exists for the target at all.
+- [x] **Runtime audit remains fail-closed.** D/F/H/J can safely render a concrete release only after
+      applicability is known; a disclaimer cannot manufacture the missing event-existence
+      proposition.
+- [x] **Per-day disclaimer asymmetry remains documented.** It is real but independent and is not
+      authorized for implementation by this phase.
+- [x] **Decision corrected to Outcome C.** Domestic first-come remains deferred. Outcome A would
+      overstate current evidence; Outcome B would add a qualifier without a deterministic
+      applicability rule and drift toward a forbidden generic contingency model.
+- [x] **No executable successor authorized.** `RM-JP-050-003` remains absent, catalog cardinality
+      remains 8, `missingAlignedDayRule` is not widened, and no Phase 3F-U runtime/data phase is
+      authorized.
+- [x] **Reopening criterion fixed.** A future source gate must find explicit universal applicability
+      or a closed deterministic applicability rule before implementation can resume.
+
+**Phase 3F-T remains documentation-only. Authoritative result: Outcome C — domestic first-come stays deferred. No Phase 3F-U implementation is authorized.**
