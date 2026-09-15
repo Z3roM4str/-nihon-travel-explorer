@@ -5371,3 +5371,86 @@ Official PokéPark KANTO source recheck: **2026-09-14**.
       unchanged comparator semantics and the full repository-native regression suite.
 
 **Phase 3F-R changes documentation only. Authorized successor: Phase 3F-S — Same-Scope Purchase-Context Composition Foundation.**
+
+## Phase 3F-S — Same-Scope Purchase-Context Composition Foundation
+
+Runtime authority:
+[`docs/SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_RUNTIME.md`](SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_RUNTIME.md).
+
+Base: `d2bc655ccef4c510c032f089592c7521035ba69c`.
+
+Official PokéPark KANTO source recheck: **2026-09-15**.
+
+- [x] **Implementation-day source gate passed.** All three official sources were re-opened before
+      the catalog was written. Outside-Japan routing to the separate English store, the Japanese
+      resident route, the registration/SMS-through-a-Japan-usable-phone requirement, the
+      three-months-ahead drawing, the 1st–12th application period and the 20:00 opening were all
+      still explicit; no proposition changed materially or became ambiguous.
+- [x] **Active `placeId + scope` uniqueness removed.** The temporary global restriction that
+      rejected every second active same-scope record is gone from both validators.
+- [x] **Explicit-context collision guard implemented.** Every active member of an active same-scope
+      collision group must carry `resides-in-japan` or `resides-outside-japan`; `not-recorded` is
+      rejected inside such a group, remains valid as a solitary active record, and superseded
+      records never participate.
+- [x] **Guard evaluated over completed groups.** Both implementations group first and judge
+      afterwards, so a record accepted while solitary is still rejected once a later active
+      same-scope record makes it a collision member — proven by a read-order test in both languages.
+- [x] **No second identity axis created.** No `placeId + scope + purchaseResidenceContext`
+      uniqueness, no channel/pathway/acquisitionChannel/mechanismRole field, no fake scope.
+      `recordId` remains the only evidence-record identity, and three active same-scope records
+      sharing one specific context parse successfully.
+- [x] **Preserved invariants proven.** Global record-ID uniqueness and ID-namespace matching still
+      reject their violations under the relaxed cardinality.
+- [x] **TypeScript and Python kept in lockstep.** The Python validator mirrors the collision
+      semantics exactly, with fail-closed regression fixtures for every accepted and rejected shape.
+- [x] **RM-JP-050-002 added.** `general-admission` + `resides-in-japan` + `monthly-application-window`
+      (three months ahead, days 1–12, open 20:00 Asia/Tokyo, no invented close time or timezone) +
+      `drawing`, sourced from the official domestic ticket-information page with the timing notice
+      and residence-routing URL retained in provenance evidence.
+- [x] **Residence assignment is evidence, not inference.** The provenance records the published
+      routing statement and states explicitly that the assignment is not inferred from page
+      language, locale, domain or source entity.
+- [x] **Catalog 7 → 8 with parity intact.** JP-050 now has exactly two active general-admission
+      records — `RM-JP-050-001` (`resides-outside-japan`, unchanged) and `RM-JP-050-002`
+      (`resides-in-japan`) — and both catalogs remain byte-identical.
+- [x] **D/F/H/J remain record-local.** Two derivations with distinct `recordId` values, the existing
+      `resides-in-japan` copy reused with no new UI taxonomy, one independent relation per record,
+      and one route-wide row per record.
+- [x] **Identical dates are not deduplicated.** Both JP-050 records derive the same civil window and
+      still produce two separate rows sharing one anchor date.
+- [x] **Comparator semantics unchanged.** Anchor civil date → plan ordinal → source-record index,
+      with no residence-context key. Reversing only the catalog order reverses the pair, proving the
+      tie-break is source-record index rather than context or operator preference.
+- [x] **Browser acceptance extended to the real fixture.** The existing Phase 3F audits never routed
+      through JP-050, so `app/scripts/phase3f-s-browser-audit.mjs` was added; it proves the two-row
+      composition, per-record sources and relations, absence of new UI taxonomy, absence of
+      personalized applicability copy and absence of new persistence in a real Chromium session.
+- [x] **Domestic first-come remains deferred.** No first-come record and no
+      `last-day-of-shifted-month` value exist anywhere in the runtime; Disney's
+      `first-day-of-next-month` behaviour is unchanged and pinned by test.
+- [x] **No scope creep.** No new mechanism/scope/context value, no user-residence, nationality,
+      citizenship, visa, country or eligibility field, no filtering, ranking, recommendation,
+      availability, inventory, current-sale-state or lottery-result model, no persistence,
+      localStorage, network, account, notification, reminder or calendar-export change.
+
+- [x] **Hostile review passed with two corrections.** A differential test over 87 exhaustive
+      same-scope catalog shapes reported zero accept/reject drift between the TypeScript parser and
+      the Python validator. Two real defects were fixed: a catalog-level test still named after the
+      removed `placeId + scope` uniqueness rule (its assertion passed only incidentally), and the
+      collision grouping key held in a variable named `identity` in both validators. A third
+      candidate — the `.find()` in `OrderedSequenceBuilder.tsx` — was checked and dismissed: it keys
+      on `recordId` and was already record-local.
+- [x] **Exact-head validation passed.** Exact executable HEAD
+      `dc1158a145175950d8d7d5324021221bc1a854eb` passed GitHub Actions run `34918291572` across all
+      16 steps: Python validator and unit tests, focused Phase 3F-S Vitest, full Vitest, lint, build,
+      whitespace gates, Chromium install and the Phase 3F-F/H/J/S browser audits.
+- [x] **Temporary workflow removed without tree drift.** Removal commit
+      `8a2b5a1155f061d3109b296a8ed325ed87022d8d`; the diff from the validated HEAD to the
+      post-removal head reports zero changed files of any kind, so that tree is byte-identical to the
+      validated one.
+- [x] **Second focused review passed.** The final tree was re-read directly: guard shape in both
+      languages, byte parity, 8 records, the single active same-scope group, D/F/H/J byte-unchanged
+      from base, comparator intact, real-record test coverage, every deferred boundary absent, docs
+      consistent and no workflow file remaining. No further correction was required.
+
+**Phase 3F-S is implemented, hostile-review corrected, independently reviewed and exact-head validated. Domestic first-come and Phase 3F-T are NOT STARTED.**
