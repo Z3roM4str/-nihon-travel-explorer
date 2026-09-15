@@ -35,7 +35,7 @@ try {
   // The application opens on the national explorer. Enter the Tokio hub through the
   // keyboard-accessible prefecture path before exercising a place detail.
   await page.getByRole("button", { name: /^Tokio/ }).click();
-  await page.getByRole("button", { name: /Explorar desde Tokio/ }).click();
+  await page.getByRole("button", { name: /Explorar desde Tokio/ }).first().click();
   await page.getByRole("button", { name: /SHIBUYA SKY/ }).click();
 
   const credit = page.locator(".gallery__credit");
