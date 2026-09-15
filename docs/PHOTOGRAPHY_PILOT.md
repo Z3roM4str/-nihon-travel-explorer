@@ -86,8 +86,8 @@ official they looked.
 
 ## Licensing policy
 
-**Accepted license classes**: CC0, Public Domain, CC BY (any version), CC BY-SA (any
-version) — see `SUPPORTED_LICENSES` in `scripts/validate-photography.py`, the single
+**Accepted license classes**: CC0; CC BY 2.0/2.5/3.0/4.0; and CC BY-SA 2.0/2.5/3.0/4.0 — see
+`SUPPORTED_LICENSES` in `scripts/validate-photography.py`, the single
 place this list is defined. Every one of the 24 photographs carries one of these; the
 validator rejects anything else (e.g. CC BY-NC, CC BY-ND, or no license at all) outright,
 and there is no "looks probably fine" tier.

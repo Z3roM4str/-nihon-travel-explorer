@@ -1,0 +1,215 @@
+[
+  {
+    "id": "RM-JP-044-001",
+    "placeId": "JP-044",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-fixed-release",
+      "releaseDayOfMonth": 10,
+      "releaseTimeLocal": "10:00",
+      "sourceTimeZone": "Asia/Tokyo",
+      "target": "subsequent-calendar-month"
+    },
+    "allocation": "not-stated",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.ghibli-museum.jp/en/tickets/",
+      "sourceEntity": "Ghibli Museum, Mitaka",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official overseas ticket page states that Lawson tickets become available at 10:00 JST on the 10th of each month for admission during the subsequent calendar month.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "not-recorded"
+  },
+  {
+    "id": "RM-JP-203-001",
+    "placeId": "JP-203",
+    "scope": "park-admission",
+    "mechanism": {
+      "kind": "rolling-calendar-month-release",
+      "monthsBeforeVisit": 2,
+      "alignment": "same-calendar-day",
+      "missingAlignedDayRule": "first-day-of-next-month",
+      "releaseTimeLocal": "14:00",
+      "sourceTimeZone": null
+    },
+    "allocation": "capacity-limited",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.tokyodisneyresort.jp/en/ticket/index.html",
+      "sourceEntity": "Tokyo Disney Resort",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official park-ticket page states that tickets are sold daily from 14:00 for admission on the same date two months later; if that same admission date does not exist, sales begin at 14:00 on the first day of the next month. It also states that sales may be suspended when the daily ticket sales limit is reached.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "not-recorded"
+  },
+  {
+    "id": "RM-JP-204-001",
+    "placeId": "JP-204",
+    "scope": "park-admission",
+    "mechanism": {
+      "kind": "rolling-calendar-month-release",
+      "monthsBeforeVisit": 2,
+      "alignment": "same-calendar-day",
+      "missingAlignedDayRule": "first-day-of-next-month",
+      "releaseTimeLocal": "14:00",
+      "sourceTimeZone": null
+    },
+    "allocation": "capacity-limited",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.tokyodisneyresort.jp/en/ticket/index.html",
+      "sourceEntity": "Tokyo Disney Resort",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official park-ticket page states that tickets are sold daily from 14:00 for admission on the same date two months later; if that same admission date does not exist, sales begin at 14:00 on the first day of the next month. It also states that sales may be suspended when the daily ticket sales limit is reached.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "not-recorded"
+  },
+  {
+    "id": "RM-JP-077-001",
+    "placeId": "JP-077",
+    "scope": "guided-visit",
+    "mechanism": {
+      "kind": "relative-application-window",
+      "openRule": {
+        "kind": "month-offset-first-day",
+        "monthsBeforeVisitMonth": 3,
+        "timeLocal": "05:00",
+        "sourceTimeZone": null
+      },
+      "closeRule": {
+        "kind": "days-before-visit",
+        "daysBeforeVisit": 3,
+        "timeLocal": "23:59",
+        "sourceTimeZone": null
+      }
+    },
+    "allocation": "lottery-if-oversubscribed",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://kyoto-gosho.kunaicho.go.jp/pdf/visit-1A3_en.pdf",
+      "sourceEntity": "Imperial Household Agency — Kyoto Office",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official Katsura Imperial Villa guidelines state that online advance applications are accepted from 05:00 on the first day of the month three months before the preferred visit date until 23:59 three days before that date; if applications exceed allocated capacity, a lottery is conducted.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "not-recorded"
+  },
+  {
+    "id": "RM-JP-212-001",
+    "placeId": "JP-212",
+    "scope": "event-admission",
+    "mechanism": {
+      "kind": "fixed-sale-date",
+      "saleDate": "2027-02-06",
+      "releaseTimeLocal": null,
+      "sourceTimeZone": null,
+      "appliesToStartDate": "2027-03-14",
+      "appliesToEndDate": "2027-03-28"
+    },
+    "allocation": "not-stated",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://sumo.or.jp/EnTicket/year_schedule",
+      "sourceEntity": "Japan Sumo Association",
+      "consultedAt": "2026-09-12",
+      "evidence": "The official 2027 Grand Tournament schedule lists the Osaka March tournament at EDION Arena Osaka from 2027-03-14 through 2027-03-28 and states that advance tickets are sold from 2027-02-06.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "not-recorded"
+  },
+  {
+    "id": "RM-JP-097-001",
+    "placeId": "JP-097",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-application-window",
+      "monthsBeforeVisitMonth": 3,
+      "openDay": {
+        "kind": "fixed-day-of-month",
+        "day": 1
+      },
+      "closeDay": {
+        "kind": "last-day-of-month"
+      },
+      "openTimeLocal": null,
+      "openSourceTimeZone": null,
+      "closeTimeLocal": null,
+      "closeSourceTimeZone": null
+    },
+    "allocation": "drawing",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://museum-tickets.nintendo.com/en",
+      "sourceEntity": "Nintendo Museum ticketing website",
+      "consultedAt": "2026-09-13",
+      "evidence": "Primary official source https://museum-tickets.nintendo.com/en states that tickets are first sold to drawing entrants and gives the example that a July 15 visit may enter the drawing from April 1 through April 30. Supporting official calendar https://museum-tickets.nintendo.com/en/calendar?lang=en states that drawings occur once per month and, on 2026-09-13, shows December 2026 drawing entries open through September 30 at 23:59. Nihon therefore records the full calendar month three months before the visit month as an official-derived drawing application window, without generalizing the one observed 23:59 close into a recurring clock time.",
+      "confidence": "official-derived"
+    },
+    "purchaseResidenceContext": "not-recorded"
+  },
+  {
+    "id": "RM-JP-050-001",
+    "placeId": "JP-050",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-application-window",
+      "monthsBeforeVisitMonth": 3,
+      "openDay": {
+        "kind": "fixed-day-of-month",
+        "day": 1
+      },
+      "closeDay": {
+        "kind": "fixed-day-of-month",
+        "day": 12
+      },
+      "openTimeLocal": "20:00",
+      "openSourceTimeZone": "Asia/Tokyo",
+      "closeTimeLocal": null,
+      "closeSourceTimeZone": null
+    },
+    "allocation": "drawing",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://ticket-en.pokepark-kanto.co.jp/?viewLang=en",
+      "sourceEntity": "PokéPark KANTO Official Web Ticket Store — outside-Japan purchase",
+      "consultedAt": "2026-09-14",
+      "evidence": "The official English PokéPark KANTO ticket information directs guests residing outside Japan to the Official Web Ticket Store. The store states that admission tickets use an Application system for admission three months in advance, with applications accepted from the 1st through the 12th of each month; ticket sales and Application periods start at 8:00 PM JST; and lottery redraws may occur for unsuccessful applicants when tickets become available. Nihon records only this outside-Japan application window and does not encode the separate Japan-resident first-come path. Supporting official residence-routing source rechecked 2026-09-14: https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "resides-outside-japan"
+  },
+  {
+    "id": "RM-JP-050-002",
+    "placeId": "JP-050",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-application-window",
+      "monthsBeforeVisitMonth": 3,
+      "openDay": {
+        "kind": "fixed-day-of-month",
+        "day": 1
+      },
+      "closeDay": {
+        "kind": "fixed-day-of-month",
+        "day": 12
+      },
+      "openTimeLocal": "20:00",
+      "openSourceTimeZone": "Asia/Tokyo",
+      "closeTimeLocal": null,
+      "closeSourceTimeZone": null
+    },
+    "allocation": "drawing",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index",
+      "sourceEntity": "PokéPark KANTO official ticket information — Japan-resident purchase route",
+      "consultedAt": "2026-09-15",
+      "evidence": "The official PokéPark KANTO ticket-information page publishes a ticket drawing for admission three calendar months ahead in one-month units, with the drawing application period running from the 1st through the 12th of each month. The official routing page states explicitly that residents of Japan purchase through PokéPark KANTO's official Japanese website while guests residing outside Japan are asked to use the separate external English ticket website, and that membership registration plus SMS verification through a mobile phone usable in Japan are required; this record is assigned to the Japan-resident route on that published statement, not inferred from page language, locale, domain or source entity. Supporting official timing notice rechecked 2026-09-15: https://www.pokepark-kanto.co.jp/ppark/announcement/40/detail/index states that from July 2026 the drawing and first-come start time is 20:00, with the worked example of October admission drawing applications opening at 20:00 on July 1. Nihon records only this drawing window; the separate domestic first-come sale for admission two months ahead is deliberately not encoded, because its month-end rule for target dates absent from the shifted month has no supported runtime representation yet. Supporting official residence-routing source rechecked 2026-09-15: https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "resides-in-japan"
+  }
+]

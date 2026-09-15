@@ -253,6 +253,342 @@ patched. Malformed JSON, an unrecognised shape, an unsupported `version`, non-st
 migration is invented for a version this schema doesn't recognise, and nothing here ever throws
 into the UI.
 
+## Manual calendar anchoring (Phase 3C-E)
+
+Since Phase 3C-E, `nihon.manualPlanningDraft` (the same key described above — never a second
+key) carries one more field, and the schema version above it moved from `1` to `2`:
+
+```ts
+type ManualPlanningDraftV2 = {
+  version: 2;
+  routeIds: string[];
+  days: string[][] | null;
+  startDate: string | null; // YYYY-MM-DD, or null: no manual calendar anchor chosen yet
+};
+```
+
+`startDate` is the user's manual anchor for "Día 1" — a plain civil-date string
+(`app/src/lib/civil-date.ts`), never a serialized `Date`, a derived weekday, or a month name.
+"Día N" is `startDate` offset by `N − 1` calendar days, computed on every read; no per-day date
+is ever stored. A draft written under the old `version: 1` shape (no `startDate` field) is
+migrated deterministically on load — `routeIds`/`days` pass through unchanged, `startDate` is
+always `null`, never invented.
+
+`startDate` is validated as a real calendar date (rejecting, for instance, `2027-02-30` or a
+non-leap-year `2027-02-29`) and is independent of `routeIds`/`days`: a route or day-assignment
+change never touches it, and it is never itself used to derive, validate, or invalidate the
+route or the day assignment. `place.bestTime`, `schedule.hours`, and `schedule.closures` are not
+read anywhere in this feature — anchoring a date is a fact the user asserts about their own
+calendar, not a computation over the dataset.
+
+## Manual visit start times (Phase 3D-L)
+
+Since Phase 3D-L, `nihon.manualPlanningDraft` (still the same single key — never a second one)
+carries one more field, and the schema version moved from `2` to `3`:
+
+```ts
+type ManualPlanningDraftV3 = {
+  version: 3;
+  routeIds: string[];
+  days: string[][] | null;
+  startDate: string | null;
+  visitStartTimes: Record<string, string>; // placeId -> "HH:mm"; {} when none chosen
+};
+```
+
+`visitStartTimes` stores **only what the user typed**: a local civil clock time, 24-hour and
+zero-padded, exactly as entered. Never a `Date`, an epoch value, an ISO instant, a UTC conversion,
+or minutes-since-midnight — the numeric form is derived on read by
+`app/src/lib/recorded-interval-fit.ts` and never stored. Nor is any *result* stored: whether the
+recorded duration fits the time remaining in a recorded interval, only its minimum fits, or it
+exceeds, is recomputed on every render from the current dataset and current planning state, exactly
+like every other derived value this schema has always excluded. `{}` and "no times chosen" are the
+same state with one spelling — the field is never `null`.
+
+**Migration is chained and invents nothing.** A stored V1 draft migrates V1 → V2 → V3 and a stored
+V2 draft migrates V2 → V3; in both cases `routeIds`/`days`/`startDate` pass through unchanged and
+`visitStartTimes` is always `{}`. A user who never chose a time never has one invented for them, and
+both historical shapes stay loadable. An unrecognised version is still treated exactly like a
+missing draft.
+
+**Validation is strict and all-or-nothing.** `visitStartTimes` must be a plain object whose every
+value matches `^([01]\d|2[0-3]):[0-5]\d$` — the same pattern the evaluator uses, exported from
+`recorded-interval-fit.ts` so persistence and arithmetic cannot disagree. A single malformed entry
+(`"9:00"`, `"24:00"`, `"12:60"`, a number, `null`, an array, a nested object) rejects the **whole**
+stored draft rather than being quietly dropped, exactly as a duplicate route id or an invalid
+`startDate` already does: such a value could not have been produced by this app's own UI, so it is
+foreign or corrupted, not a defect to repair silently.
+
+**Reconciliation ties a time to its place, not to the trip.** This is the one place the new field
+deliberately differs from `startDate`: a time is a decision *about a place*, so it is pruned by the
+same staleness rule as the route — a stored route id no longer saved loses its time, a surviving id
+keeps it, a newly saved id never receives one, and an orphan entry is dropped. A pure route reorder,
+a day re-split, moving a place between day buckets, and changing or clearing `startDate` all leave
+every time untouched; "Restablecer recorrido" carries still-saved times forward and prunes the rest.
+
+`place.bestTime` is not read anywhere in this feature, and neither is `schedule.closures` — the
+comparison is between one recorded `schedule.hours` interval and one recorded `duration`, and it
+asserts nothing about whether the place is open. See `docs/ROADMAP.md`'s Phase 3D-L entry and
+[`VISIT_TIME_FEASIBILITY_DESIGN.md`](VISIT_TIME_FEASIBILITY_DESIGN.md) for the full boundary.
+
+## Temporal data audit (derived, Phase 3D-A)
+
+`place.schedule.hours`, `place.schedule.closures`, `place.bestTime`,
+`place.reservation.required`/`leadTime`/`raw`, and `place.febMar2027.status`/`warning`/`action`
+remain exactly what they always were on `Place` — free editorial strings (plus one boolean),
+untouched by this phase. Phase 3D-A adds a read-only, offline classification **over** those
+fields, analogous to how `app/src/lib/transfer.ts` classifies `nearby.json` without duplicating
+it: `scripts/temporal_data_lib.py` maps each field's current value to a pattern-family category
+and one of four confidence tiers (SAFE / PARTIAL / OPAQUE / UNKNOWN), and
+`scripts/audit-temporal-data.py` reports exact counts over the live dataset — nothing here is
+hardcoded, and a legitimate future workbook change simply reclassifies on the next run.
+
+This audit itself is Python-only, offline, and — as of Phase 3D-A — had no `app/src/` consumer.
+Phase 3D-B (below) is the first runtime consumer, and only for one narrow slice of it
+(`schedule.closures`'s candidate-recurring-weekday family); every other field this audit
+classifies (`schedule.hours`, `bestTime`, `reservation`, `febMar2027`) still has no TypeScript
+type and no UI reading its classification. See
+[`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the full taxonomy, the exact
+coverage numbers, two real findings (`reservation.required` losing the `"Recomendable"` nuance
+for 39/214 places; `data/seasonal-alerts.json` being an unconsumed, non-place-id-keyed collection
+distinct from `febMar2027`), and a sketched — not implemented — future domain shape a later phase
+would build against.
+
+## Weekday closure signals (derived, Phase 3D-B)
+
+The first RUNTIME consumer of the Phase 3D-A audit above — deliberately narrow: it reads only
+`place.schedule.closures`, never `schedule.hours`, `bestTime`, or `febMar2027`, and it answers
+only whether a user-chosen civil date's weekday matches a candidate recurring-weekday closure
+extracted from that text. It is not an opening-hours solver and asserts no open/closed judgment.
+
+`app/src/lib/temporal-availability.ts` derives a `ClosureFact` from `place.schedule.closures` on
+every read — nothing is added to `Place` or persisted. `interpretClosureText()` is a direct,
+partial TypeScript port of `scripts/temporal_data_lib.py`'s `classify_closures()` (same category
+names, same priority order, same tier per category) — the audit is the ceiling this module keeps
+to, never exceeding an OPAQUE/UNKNOWN Python-audit family into a stronger runtime fact.
+`app/src/lib/civil-date.ts` gained one small addition, `getCivilWeekday()`, mapping a valid civil
+date to a `CivilWeekday` (timezone-invariant, `null` for an invalid date) — it still knows dates
+only, never a `Place` or a closure. `app/src/lib/day-weekday-signal.ts` is the `Place[]`-aware
+layer `OrderedSequenceBuilder.tsx`'s day-assignment view actually calls, mirroring this
+codebase's existing `transfer.ts` → `ordered-sequence.ts` → `day-assignment.ts` layering.
+
+Nothing here is persisted: `nihon.manualPlanningDraft`'s schema was unchanged by Phase 3D-B (it
+was `ManualPlanningDraftV2` at the time; the current version is V3 — see "Manual visit start times"
+below), and no new `localStorage` key was introduced. The signal is
+recomputed on every render from the day's already-derived date (Phase 3C-E's `startDate` offset
+by the day index) and each place's existing raw `schedule.closures` text. See
+[`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this runtime
+layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-B entry for the UI and product boundary.
+
+## Reservation semantics (derived, Phase 3D-C)
+
+A second, narrower runtime consumer of the Phase 3D-A audit — this one fixes a real gap the audit
+proved mechanically rather than merely classifying something new. `place.reservation.required` is
+declared `boolean` in the `Place` type above and remains exactly that: unchanged, still exported,
+still internally consistent with `scripts/export-dataset.py`'s own `required = raw.lower() ==
+"sí"` rule. What Phase 3D-C changes is that no UI/filter code may decide "requires reservation"
+from that boolean **alone** anymore, because it collapses `"Recomendable"`/`"Opcional"`/`"No para
+espectador"` into the same `false` a plain `"No"` gets — a real information loss `reservation.raw`
+already avoids.
+
+`app/src/lib/reservation.ts` derives a `ReservationFact` (`category`, `tier`,
+`consistentWithDerivedBoolean`) from `reservation.raw` + `reservation.required` on every read —
+nothing is added to `Place` or persisted. `classifyReservationCategory()` is a direct TypeScript
+port of `scripts/temporal_data_lib.py`'s `classify_reservation_raw()` (same 7 category names, same
+tier per category, same expected-boolean mapping), protected by the same source-check pattern
+`temporal-availability.ts` established for `schedule.closures`. The same module also exports the
+one predicate `App.tsx`'s filtering calls (`matchesReservationFilter`, backing the closed
+`Filters.reservation: ReservationFilterValue` union) and the one function `PlaceDetail.tsx` calls
+to render a tag and a practical-info row (`describeReservationForUi`) — a single domain module
+covering classification, filtering, and display, deliberately not split into a separate
+`*-display.ts` file the way `transfer.ts`/`transfer-display.ts` are, because the display surface
+here is small enough that splitting it would be unjustified ceremony.
+
+`reservation.leadTime` is shown as **raw text only**, appended verbatim when present and omitted
+entirely when the raw value is `"—"`/empty — never normalized into a day count, a booking
+deadline, or a comparison against any date. See `docs/ROADMAP.md`'s "Later (unscheduled)" for why
+lead-time/deadline intelligence remains a distinct, unstarted future phase, and the Phase 3D-C
+entry for the exact per-category UI wording.
+
+## Reservation lead-time signals (derived, Phase 3D-D)
+
+A third runtime consumer of the Phase 3D-A audit, this one over `reservation.leadTime` rather than
+`reservation.raw`. It answers a narrower question than a booking deadline: *"what kind of
+advance-reservation information is recorded for a place the user already selected?"* — never *"when
+must I book"* or *"am I already too late."*
+
+`app/src/lib/reservation-lead-time.ts` derives a `ReservationLeadTimeFact` from
+`place.reservation.leadTime` on every read — nothing is added to `Place` or persisted.
+`classifyLeadTimeCategory()` is a direct TypeScript port of `scripts/temporal_data_lib.py`'s
+`classify_lead_time()` (same 3 category names, same tier per category, same anchored whole-string
+`_BARE_MAGNITUDE_RE` semantics — a magnitude-shaped substring inside a longer sentence, e.g. `"3
+meses"` inside `"Lotería 3 meses antes; revisar liberaciones"`, never qualifies as
+`bare-magnitude`). For a `bare-magnitude` string only, a closed `LeadTimeMagnitude` bucket (`days`
+/ `weeks` / `months` / `days-to-weeks` / `weeks-to-months`) is additionally derived — never a
+numeric range: `"1–2 semanas"` becomes `magnitude: "weeks"` with `raw: "1–2 semanas"` preserved
+verbatim, and no `minDays`/`maxDays` is ever computed from it. `ReservationLeadTimeFact` is a
+discriminated union keyed on `kind` (`"not-applicable"` / `"coarse-magnitude"` /
+`"specific-mechanism"`), so a `magnitude` field cannot exist on an opaque or not-applicable fact at
+the type level.
+
+This module is deliberately kept separate from `lib/reservation.ts`, which keeps owning
+reservation-*necessity* semantics (required/recommended/optional/role-specific) from Phase 3D-C.
+The two axes are composed, never merged: `app/src/lib/reservation-planning.ts`'s
+`buildReservationPreparationSummary(places)` pairs each place's `ReservationFact` and
+`ReservationLeadTimeFact` into a `ReservationPreparationItem`, over an explicit, already-ordered
+list of places (the current canonical route, Phase 3C-A) — preserving that exact order, never
+resorting by magnitude, reservation category, or any derived urgency. A `not-applicable` lead time
+omits the place from the summary; `bare-magnitude` and `opaque-entity-or-mechanism-specific` are
+both included, since neither is "safe to ignore" — an opaque record often carries the most
+operationally important information (a lottery, timed entry, a release schedule), just not in a
+form this dataset can safely reduce to a magnitude. A duplicate `place.id` in the input is a
+fail-loud invariant violation, not a case this function silently repairs: it throws immediately,
+naming the offending id, since the canonical route is already supposed to be duplicate-free
+(`planning-draft.ts`'s own shape validation rejects a stored route with a repeated id) — a
+duplicate reaching this far would mean an upstream regression, which silently deduplicating would
+hide rather than surface.
+
+`OrderedSequenceBuilder.tsx`'s "Construir recorrido" view renders this as one route-wide,
+read-only "Reservas por preparar" section, built from the current route regardless of whether it
+has been split into days yet — it reads no `startDate`, no derived day date, and performs no date
+arithmetic of any kind. `PlaceDetail.tsx` is unchanged: its existing raw-text-only `leadTime`
+suffix (Phase 3D-C) remains the only per-place surface; this phase's structured signal lives in the
+route-wide planning surface only.
+
+See [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this
+runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-D entry for the full UI/product
+boundary — in particular, everything this phase deliberately does **not** do: convert a magnitude
+into a day count, know today's date, compute a booking-by date, compare against `startDate`,
+interpret a lottery/release mechanism, or claim availability.
+
+## Recorded hours signals (derived, Phase 3D-E)
+
+A fourth runtime consumer of the Phase 3D-A audit, this one over `schedule.hours` — the field
+`schedule.closures` (Phase 3D-B), `reservation.raw` (Phase 3D-C), and `reservation.leadTime`
+(Phase 3D-D) deliberately left alone. It answers a narrower question than an opening-hours
+feasibility check: *"what kind of recorded-hours information can Nihon safely state from the
+existing static `schedule.hours` field, for a place the user already selected?"* — never *"will
+this place be open when I arrive,"* *"can I visit this on Day 2,"* or *"this day works."*
+
+`app/src/lib/recorded-hours.ts` derives a `RecordedHoursFact` from `place.schedule.hours` on every
+read — nothing is added to `Place` or persisted. `classifyHoursCategory()` is a direct TypeScript
+port of `scripts/temporal_data_lib.py`'s `classify_hours()`: the same 14 category names, the same
+SAFE/PARTIAL/OPAQUE/UNKNOWN tier per category (`HOURS_TIER`), and the same fixed priority order of
+checks (`HOURS_RULES`) — the same discipline `temporal-availability.ts`, `reservation.ts`, and
+`reservation-lead-time.ts` already established for their own fields. Priority order is load-bearing
+here specifically because a later check must never "win" a string a higher-priority check already
+claimed: a 24h baseline plus an unresolved weather/operator/seasonal caveat (e.g. `"Abierto 24 h;
+puede cerrar por viento"`) classifies `known-24h-with-caveat` (PARTIAL), never plain `known-24h`
+(SAFE); a third-party dependency (e.g. `"Según tienda, aprox. 11:00–20:00"`) classifies
+`third-party-operator-dependent` (OPAQUE) even though it contains a clock-shaped substring, never
+`fixed-interval-clean`.
+
+`RecordedHoursFact` is a closed, kind-tagged union — `"recorded-24h"`, `"recorded-interval"`,
+`"conditional"`, `"external-dependency"`, `"unknown"` — so a consumer cannot confuse a SAFE recorded
+fact with a PARTIAL/OPAQUE/UNKNOWN one at the type level. Only `"recorded-interval"` (the
+`fixed-interval-clean` category) ever carries an `intervalRaw` field: the matched clock-interval
+token (e.g. `"09:00–20:00"` extracted from `"Aprox. 09:00–20:00"`) preserved as a raw string —
+never minutes-since-midnight, a `Date`, a timezone-aware value, or any other arithmetic-ready form,
+because no arithmetic consumer exists yet. Every other kind that might contain a clock-looking
+substring never exposes one — a caveated, third-party, weather, or seasonal string never leaks a
+"safe" interval just because a clock-shaped token happens to appear inside it. `raw` is carried on
+every variant, verbatim, per the Phase 3D-A contract's rule 1.
+
+`app/src/lib/hours-planning.ts`'s `buildRecordedHoursSummary(places)` aggregates one
+`RecordedHoursFact` per place over an explicit, already-ordered list of places (the current
+canonical route, Phase 3C-A), preserving that exact order — never resorted by opening time, closing
+time, tier, category, "urgency," duration, or reservation state. Unlike
+`reservation-planning.ts`'s summary, **no place is ever omitted**: every route place has hours
+information relevant to planning, even when the honest signal is "variable," "depends on an outside
+operator," or "unknown," so `items` always has exactly one entry per input place. A duplicate
+`place.id` in the input is a fail-loud invariant violation, exactly like
+`buildReservationPreparationSummary`'s own convention: it throws immediately, naming the offending
+id, rather than silently repairing what should already be an upstream, duplicate-free route.
+
+`OrderedSequenceBuilder.tsx`'s "Construir recorrido" view renders this as one more route-wide,
+read-only "Horarios registrados" section, next to "Reservas por preparar" for the same reason — it
+reads no `startDate`, no derived day date, and performs no date arithmetic of any kind. It also
+reads no `place.schedule.closures`, no `place.bestTime`, and no `place.febMar2027` — those stay
+separate axes, never composed with an hours fact into a stronger claim like "open," "available," or
+"this day works." `PlaceDetail.tsx` is unchanged: its existing raw-text-only `schedule.hours` row
+remains the only per-place surface; this phase's structured signal lives in the route-wide planning
+surface only.
+
+See [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this
+runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-E entry for the full UI/product
+boundary — in particular, everything this phase deliberately does **not** do: any opening-hours
+feasibility solving, any open/closed judgment, clock-time or timezone scheduling of any kind, a
+visit-duration-fit calculation against a recorded interval, holiday handling, temporary or live
+closure/hours verification, a date recommendation, or automatic rescheduling.
+
+## Feb–Mar 2027 status signals (derived, Phase 3D-F)
+
+A fifth runtime consumer of the Phase 3D-A audit, this one over `febMar2027.status` — the trip-
+window-confidence axis Phase 3D-A's own contract already keeps deliberately separate from weekly
+hours/closures (see §5 there: *"a `febMar2027` status answers 'how confident is Nihon that this
+place's February–March 2027 situation is understood,' ... it never answers 'is this place closed on
+Tuesdays'"*). It answers a narrower question than an opening-hours feasibility check: *"given the
+editorial Feb–Mar 2027 status already recorded for this place, what confidence/review signal may
+Nihon safely show?"*
+
+`app/src/lib/feb-mar-status.ts` derives a `FebMarStatusFact` (`category`, `tier`, `raw`) from
+`place.febMar2027.status` on every read — nothing is added to `Place` or persisted.
+`classifyFebMarStatusCategory()` is a direct TypeScript port of `scripts/temporal_data_lib.py`'s
+`classify_feb_mar_status()`: the same 12 category names, the same SAFE/PARTIAL/OPAQUE/UNKNOWN tier
+per category (`FEB_MAR_STATUS_TIER`), and the same fixed priority order of checks. Unlike this
+codebase's other Phase 3D ports, no `normalizeText` accent-stripping step is needed here: the
+Python classifier itself upper-cases the whole string and matches plain ASCII substrings
+(`"RIESGO"`, `"CONFIRMADO"`, `"PENDIENTE"`, `"OPORTUNIDAD"`, ...), so `.trim().toUpperCase()` +
+`.includes()` is an exact port, not an approximation. Priority order is load-bearing here too: a
+`"CONFIRMADO"` token combined with a `"PENDIENTE"` token in the same string is **not** `confirmed`
+— `pending-verification` wins that combination, exactly as `docs/TEMPORAL_DATA_CONTRACT.md`
+already documents — and a leading `"ABIERTO"` with no other marker is `open-with-condition`, never
+promoted to `confirmed`.
+
+This module never reads `febMar2027.warning` or `febMar2027.action` — `classifyFebMarStatusCategory()`
+takes a single `raw: string` parameter, structurally incapable of consulting either field, matching
+`classify_feb_mar_status()`'s own single-argument signature. It also reads no `schedule.hours`, no
+`schedule.closures`, no `bestTime`, no `reservation.*`, no `startDate`, no derived day date, and no
+current date/time. **`FebMarStatusFact` carries no `open`/`closed`/`available`/`feasible` field of
+any kind** — `open-with-condition` is an audited Python category *name*, describing what the
+editorial text says, never a runtime claim that the place will actually be open on any particular
+date.
+
+`describeFebMarStatusForUi(fact)` is the display adapter `PlaceDetail.tsx`'s existing Feb–Mar 2027
+card needs — the same "classification plus its display adapter in one small module" precedent
+`lib/reservation.ts`'s `describeReservationForUi` already set, chosen here for the same reason: one
+card in one component doesn't justify a separate `*-display.ts` file. It derives a three-value
+`tone` (`"confirmed"` | `"attention"` | `"pending"`) from `tier` alone, never from `category`
+directly: `safe → confirmed`, `partial → attention`, `opaque → attention`, `unknown → pending`. The
+label is generic per tone, not per category — `"Requiere atención"` for `attention`, never a word
+implying risk — so a `seasonal-opportunity` status (OPAQUE, tone `attention`) is never described as
+a risk. `cssModifier` (`"confirmed"` | `"risk"` | `"pending"`) reuses the card's three pre-existing
+`.alert--<modifier>` CSS classes as an implementation-detail adapter, avoiding both a new palette
+and unrelated CSS churn — the same technique `lib/reservation.ts`'s `tag.className` already
+established for its own display adapter.
+
+`PlaceDetail.tsx` now computes `describeFebMarStatusForUi(interpretPlaceFebMarStatus(place))` once
+and renders the card's icon, label, and CSS modifier from that structured output, replacing the old
+`alertSeverity()`/`severityLabel()`/`AlertSeverity` regex heuristic that used to live in
+`lib/place.ts` (`/riesgo|cerrad|cierre|cupo|loteria|venta futura/`) — removed entirely once a
+repo-wide grep confirmed `PlaceDetail.tsx` was their only consumer, so no second, competing
+classifier of `febMar2027.status` was left behind. The card's visible content is otherwise
+unchanged: `status`, `warning`, and `action` still render verbatim, exactly as before — both remain
+human-facing editorial prose, never parsed or used as rule-engine input.
+
+No route-wide UI section was added for this phase. `febMar2027` is a trip-window-confidence axis,
+not a route-composable fact the way `schedule.hours`/`reservation.leadTime` are — whether it needs
+a separate route-wide planning surface is left for a future, separately decided phase.
+`data/seasonal-alerts.json` (33 entries, keyed by `Hub` + free-text `"Lugar / tema"`, not by place
+id) remains untouched and unjoined, exactly as Phase 3D-A's audit already documented it.
+
+See [`TEMPORAL_DATA_CONTRACT.md`](TEMPORAL_DATA_CONTRACT.md) for the exact parity rules this
+runtime layer must hold to, and `docs/ROADMAP.md`'s Phase 3D-F entry for the full UI/product
+boundary — in particular, everything this phase deliberately does **not** do: any opening-hours
+feasibility solving, any composition of a status fact with `schedule.hours`/`schedule.closures`/
+`bestTime`, any open/closed judgment, clock-time or timezone logic of any kind, holiday handling,
+live verification against an official source, a date recommendation, or automatic rescheduling.
+
 ## Photography pilot (Phase 4A)
 
 `data/visual/photography-pilot.json` and `data/visual/photography-metadata.json` are new,

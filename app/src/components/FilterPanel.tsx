@@ -198,7 +198,10 @@ export function FilterPanel({
           [
             { value: "all", label: "Todas" },
             { value: "required", label: "Requiere reserva" },
-            { value: "not-required", label: "Sin reserva" },
+            { value: "recommended", label: "Reserva recomendable" },
+            { value: "not-required", label: "No requiere reserva" },
+            { value: "optional", label: "Reserva opcional" },
+            { value: "role-specific", label: "Depende del rol" },
           ] as const
         ).map((option) => (
           <label key={option.value} className="filter-chip filter-chip--radio">

@@ -14,6 +14,7 @@ import { SelectionPanel } from "./components/SelectionPanel";
 import { useSavedPlaces } from "./useSavedPlaces";
 import { matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
+import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
 import "./App.css";
 
@@ -60,8 +61,7 @@ function matchesFilters(place: Place, filters: Filters): boolean {
     return false;
   if (filters.tourismLevels.length > 0 && !filters.tourismLevels.includes(place.tourismLevel)) return false;
   if (!matchesAnyPlanningBlock(place.duration, filters.planningBlocks)) return false;
-  if (filters.reservation === "required" && !place.reservation.required) return false;
-  if (filters.reservation === "not-required" && place.reservation.required) return false;
+  if (!matchesReservationFilter(place, filters.reservation)) return false;
   return matchesQuery(place, filters.query);
 }
 

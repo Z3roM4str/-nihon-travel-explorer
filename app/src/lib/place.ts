@@ -43,29 +43,6 @@ export function matchesQuery(place: Place, query: string): boolean {
   return terms.every((term) => corpus!.includes(term));
 }
 
-export type AlertSeverity = "confirmed" | "risk" | "pending";
-
-/**
- * Maps the editorial February–March 2027 status onto a visual severity. The status text itself
- * is always displayed verbatim; this only decides how loudly the card presents it.
- */
-export function alertSeverity(status: string): AlertSeverity {
-  const normalized = normalizeText(status);
-  if (/riesgo|cerrad|cierre|cupo|loteria|venta futura/.test(normalized)) return "risk";
-  if (/confirmad/.test(normalized) && !/pendiente/.test(normalized)) return "confirmed";
-  return "pending";
-}
-
-const SEVERITY_LABEL: Record<AlertSeverity, string> = {
-  confirmed: "Confirmado",
-  risk: "Requiere atención",
-  pending: "Por confirmar",
-};
-
-export function severityLabel(severity: AlertSeverity): string {
-  return SEVERITY_LABEL[severity];
-}
-
 /** True for the statuses the dataset uses to flag genuinely uncommon places. */
 export function isHiddenGem(place: Place): boolean {
   const status = normalizeText(place.hiddenGemStatus ?? "");

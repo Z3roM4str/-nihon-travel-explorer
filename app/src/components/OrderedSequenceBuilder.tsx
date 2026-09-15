@@ -1,11 +1,122 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
-import { formatRange, resolveDuration } from "../lib/duration";
+import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
 import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
-import { compareSequences, type SequenceCandidate, type SequenceComparison } from "../lib/sequence-comparison";
-import { buildDayAssignment } from "../lib/day-assignment";
+import {
+  compareSequences,
+  type ConfidenceCounts,
+  type SequenceCandidate,
+  type SequenceComparison,
+} from "../lib/sequence-comparison";
+import {
+  applyEvidenceCompleteLocalSwap,
+  generateEvidenceCompleteLocalSwaps,
+  type EvidenceCompleteLocalSwapAlternative,
+} from "../lib/evidence-complete-local-swap";
+import {
+  applyEvidenceCompleteLocalRelocation,
+  generateEvidenceCompleteLocalRelocations,
+  type EvidenceCompleteLocalRelocationAlternative,
+} from "../lib/evidence-complete-local-relocation";
+import {
+  applyEvidenceCompleteInteriorTransposition,
+  generateEvidenceCompleteInteriorTranspositions,
+  type EvidenceCompleteInteriorTranspositionAlternative,
+} from "../lib/evidence-complete-interior-transposition";
+import {
+  applyEvidenceCompleteFourPlaceInteriorReversal,
+  generateEvidenceCompleteFourPlaceInteriorReversals,
+  type EvidenceCompleteFourPlaceInteriorReversalAlternative,
+} from "../lib/evidence-complete-four-place-interior-reversal";
+import {
+  applyEvidenceCompleteTwoPairBlockSwap,
+  generateEvidenceCompleteTwoPairBlockSwaps,
+  type EvidenceCompleteTwoPairBlockSwapAlternative,
+} from "../lib/evidence-complete-two-pair-block-swap";
+import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
+import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
+import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
+import {
+  assessTripBounds,
+  buildTripBoundsSummary,
+  type TripBoundsAssessment,
+  type TripBoundsSummary,
+} from "../lib/trip-bounds";
+import {
+  buildReservationPreparationSummary,
+  type ReservationPreparationSummary,
+} from "../lib/reservation-planning";
+import type { LeadTimeMagnitude } from "../lib/reservation-lead-time";
+import type { ReservationCategory } from "../lib/reservation";
+import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
+import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
+import {
+  buildPresentableDayHoursClosureCompositions,
+} from "../lib/hours-closure-composition";
+import {
+  derivePlaceReservationDateWindow,
+  deriveVisitDateForPlace,
+  type ReservationDateWindow,
+} from "../lib/reservation-deadline";
+import {
+  captureDeviceLocalCivilDate,
+  evaluateReservationWindowReference,
+  type ReservationWindowReferenceRelation,
+} from "../lib/reservation-window-reference";
+import {
+  describeReservationWindowReferenceForUi,
+  formatDeviceReferenceDateForUi,
+} from "../lib/reservation-window-reference-presentation";
+import { reservationMechanismEvidenceRecords } from "../lib/reservation-mechanism-evidence";
+import { deriveReservationMechanismDatesForPlannedPlace } from "../lib/reservation-mechanism-date-derivation";
+import {
+  buildOfficialReservationDatePresentation,
+  type OfficialReservationDatePresentation,
+} from "../lib/reservation-mechanism-presentation";
+import { evaluateOfficialReservationReferenceDate } from "../lib/reservation-mechanism-reference-date";
+import {
+  buildOfficialReservationReferenceRelationPresentation,
+  type OfficialReservationReferenceRelationPresentation,
+} from "../lib/reservation-mechanism-reference-date-presentation";
+import {
+  buildRouteWideOfficialReservationCalendar,
+  type RouteWideOfficialReservationCalendar,
+} from "../lib/reservation-mechanism-calendar";
+import { OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE } from "../lib/reservation-mechanism-calendar-presentation";
+import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
+import {
+  buildDayRecordedIntervalFits,
+  type RecordedIntervalDurationFit,
+} from "../lib/recorded-interval-fit";
+import {
+  buildDayLogisticsWithAccommodation,
+  isValidAccommodationLocation,
+  isValidManualAccommodationMinutes,
+  type AccommodationAnchor,
+  type AccommodationBoundaryChoice,
+  type AccommodationBoundaryLegResult,
+  type DayAccommodationBoundary,
+  type ManualAccommodationLeg,
+} from "../lib/accommodation-commute";
+import {
+  INTER_HUB_MODES,
+  assessInterHubSegment,
+  deriveEligibleInterHubPairs,
+  isInterHubMode,
+  isValidInterHubMinutes,
+  type EligibleInterHubPair,
+  type InterHubMode,
+  type InterHubSegmentAssessment,
+  type ManualInterHubSegment,
+  type NewManualInterHubSegment,
+} from "../lib/inter-hub-segment";
+import {
+  buildWholeTripComposition,
+  type WholeTripBoundsComposition,
+  type WholeTripComposition,
+} from "../lib/whole-trip-composition";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -18,8 +129,15 @@ type Props = {
 
 /**
  * Phase 3C-A — Ordered Sequence Builder, extended by Phase 3C-B — User-Defined Sequence
- * Comparison, Phase 3C-C — User-Defined Day Assignment, and Phase 3C-D — Persisted Manual
- * Planning Draft.
+ * Comparison, Phase 3C-C — User-Defined Day Assignment, Phase 3C-D — Persisted Manual
+ * Planning Draft, and Phase 3C-E — Manual Calendar Anchoring.
+ *
+ * Phase 3C-E lets the user anchor "Día 1" to a real civil date (`YYYY-MM-DD`, via
+ * `usePlanningDraft`'s `startDate`/`setStartDate`); every later day is that date offset by
+ * calendar days (`civil-date.ts#addCivilDays`), computed fresh on every render — never stored
+ * per day. This is a date the user picks, not one Nihon suggests: there is no reading of
+ * `place.bestTime`, `schedule.hours`, or `schedule.closures` anywhere in this phase, and no
+ * check of whether anything is open on the chosen date.
  *
  * The user defines an explicit order over (a subset of) their saved places; this component
  * describes the logistics of THAT EXACT ORDER via `buildOrderedSequence`. It never chooses,
@@ -44,6 +162,81 @@ type Props = {
  * Composition is fixed once either nested view opens: neither the comparison candidates nor the
  * day buckets can add or remove a place, only reorder or move between the fixed set — see
  * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
+ *
+ * Phase 3D-B adds one narrow, read-only signal to each day card that already has a derived date:
+ * whether that date's weekday matches a candidate recurring-weekday closure extracted from a
+ * place's `schedule.closures` text (`../lib/day-weekday-signal.ts`,
+ * `../lib/temporal-availability.ts`). It is deliberately NOT an opening-hours judgment — see
+ * `WeekdayClosureNotice` below for the exact, conservative wording this is allowed to use. It
+ * reads no `schedule.hours`, no `bestTime`, and no `febMar2027` field; it is computed fresh on
+ * every render from the day's already-derived date and its places' existing raw text, and
+ * nothing about it is persisted (no new planning-draft field, no new `localStorage` key).
+ *
+ * Phase 3D-D adds one route-wide, read-only section — "Reservas por preparar" — built from
+ * `../lib/reservation-planning.ts` over the current canonical route (`routePlaces`), deliberately
+ * rendered in the "builder" view rather than inside a day card: the underlying signal
+ * (`reservation.leadTime`'s coarse magnitude or "needs review" flag) is useful before the route is
+ * even split into days, and never depends on `startDate` or any derived date. It composes two
+ * independently-derived axes — `../lib/reservation.ts`'s `ReservationFact` and
+ * `../lib/reservation-lead-time.ts`'s `ReservationLeadTimeFact` — without merging or overriding
+ * either, and never computes a booking deadline, a days-remaining count, or any comparison against
+ * a date. See `ReservationPreparationSection` below for the exact, conservative wording this is
+ * allowed to use.
+ *
+ * Phase 3D-H adds one more per-day, read-only signal — a derived "ventana de anticipación
+ * registrada" — built from `../lib/reservation-deadline.ts`, rendered in each day card next to
+ * `WeekdayClosureNotice`. Unlike every earlier reservation/hours section, this ONE signal does
+ * depend on a derived date: it requires a place to have a valid visit date under the design gate's
+ * own (deliberately stricter than `dayDate` above) contract — `dayAssignment.valid === true` AND a
+ * valid `startDate` — before anything renders for it, and even then only for the narrow "Class A"
+ * evidence class (`../lib/reservation-lead-time.ts`'s coarse-magnitude records with an explicit
+ * numeric day/week range). It never computes a booking deadline or an availability claim, never
+ * reads `Date.now()`, and never reads or is gated by `place.febMar2027` internally — Feb–Mar 2027
+ * confidence composes at THIS presentation layer only (`ReservationDeadlineNotice` below), never
+ * inside `reservation-deadline.ts` itself, per the design gate's orthogonality rule (§6.2).
+ *
+ * Phase 3D-O extends that same per-day reservation surface with one secondary relation between the
+ * already-derived Phase 3D-H window and one explicitly disclosed device-local civil date captured
+ * when this planner instance opens. The relation is recomputed from the current window but the
+ * captured reference date is not persisted and does not self-refresh at midnight; the exact date
+ * used is rendered alongside the relation. Before/within/after remains neutral planning context —
+ * never booking-open/closed, availability, urgency, countdown, or Japan business-date semantics.
+ *
+ * Phase 3F-F adds a separate per-day read-only official-reservation surface from the bundled
+ * Phase 3F evidence catalog plus the same strict planned visit-date ownership already used by
+ * Phase 3F-D. It renders source-scoped release/application dates, provenance and recorded timezone
+ * uncertainty without reading the Phase 3D-O device reference date. The official facts remain a
+ * sibling of Phase 3D-H rather than a merged/intersected reservation window and never become a
+ * current sale-state, availability, urgency, ranking or purchase instruction.
+ *
+ * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
+ * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
+ * "Reservas por preparar" for the same reason: the underlying signal (what kind of hours
+ * information `place.schedule.hours` records) is useful before the route is split into days, and
+ * never depends on `startDate` or any derived date. Unlike the reservation section, no place is
+ * ever omitted — every place gets an entry, even an UNKNOWN/OPAQUE one, because "the hours are
+ * variable" or "depends on an outside operator" is itself planning-relevant information. This
+ * section never answers whether a place is open, never compares against a date or clock time, and
+ * never composes with Phase 3D-B's closure signal or `febMar2027` — see `../lib/recorded-hours.ts`
+ * for the exact product boundary and `HoursPlanningSection` below for the wording this is allowed
+ * to use.
+ *
+ * **Phase 3D-Q — Manual Accommodation Commute Legs** adds the first surface in this planner that
+ * reaches outside a day's own place sequence, and it does so only with decisions the user makes
+ * explicitly. An accommodation is a SEPARATE entity (`../lib/accommodation-commute.ts`), never a
+ * `Place`: no anchor id ever enters `routeIds`, `days`, an `OrderedSequence`, a day bucket, or any
+ * tourism dataset, and no anchor is ever passed to `getBestTransfer` — a manual accommodation leg
+ * is not a `TransferEdge` and is composed OUTSIDE `OrderedSequenceSummary`, so the existing
+ * place-to-place semantics and provenance are untouched.
+ *
+ * Two things, and only two, come from the user: which anchor (if any) applies at each side of each
+ * ordinal day, and the exact directed accommodation↔place duration they typed. Nothing is derived
+ * — no geocoding, no routing, no live transit, no booking lookup, no haversine, no nearest place,
+ * no reverse inference (`Hotel A → Place X` never fills in `Place X → Hotel A`), and no default
+ * anchor. An anchor's coordinates are geographic identity only and are never read as arithmetic.
+ * A missing leg reads as unrecorded and contributes nothing to any subtotal — never zero minutes.
+ * See `AccommodationManagerSection`/`AccommodationCommuteSection` below for the exact wording this
+ * is allowed to use.
  */
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
@@ -78,54 +271,14 @@ function moveItemDown<T>(items: readonly T[], index: number): T[] {
 }
 
 // ---------------------------------------------------------------------------------------
-// Phase 3C-C day-bucket array helpers. Pure, component-local — the same precedent as
-// moveItemUp/moveItemDown above: this file already keeps ordering mechanics as small local
-// helpers rather than exporting them from a lib module, since they are UI-state shape, not
-// domain logic. `day-assignment.ts` only ever describes a partition it is given; it never
-// decides how one is edited.
+// Phase 3D-S removed this file's local day-bucket array helpers (`addEmptyDay`,
+// `removeEmptyDay`, `moveWithinDay`, `moveToAdjacentDay`). They rebuilt a whole `string[][]`
+// matrix on every edit, which is exactly the shape that cannot say which bucket is which — so
+// each of those operations is now an explicit identity-aware mutation on `usePlanningDraft`
+// addressed by the day's own stable id (`movePlaceWithinDay`, `movePlaceBetweenDays`,
+// `addEmptyDay`, `removeEmptyDay`). The day's ordinal position is still what the UI renders and
+// what every temporal/logistics consumer receives; it is simply no longer what identifies it.
 // ---------------------------------------------------------------------------------------
-
-function addEmptyDay(days: readonly string[][]): string[][] {
-  return [...days.map((day) => [...day]), []];
-}
-
-/** A day can only be removed empty, and at least one day must always remain — both guards the
- * domain module's own `"no-days"`/partition invariants exist to catch if this ever failed. */
-function removeEmptyDay(days: readonly string[][], dayIndex: number): string[][] {
-  if (days.length <= 1) return days.map((day) => [...day]);
-  if ((days[dayIndex]?.length ?? 0) > 0) return days.map((day) => [...day]);
-  return days.filter((_, index) => index !== dayIndex).map((day) => [...day]);
-}
-
-function moveWithinDay(
-  days: readonly string[][],
-  dayIndex: number,
-  placeIndex: number,
-  direction: -1 | 1
-): string[][] {
-  const next = days.map((day) => [...day]);
-  next[dayIndex] = direction === -1 ? moveItemUp(next[dayIndex], placeIndex) : moveItemDown(next[dayIndex], placeIndex);
-  return next;
-}
-
-/** Removes the place at `placeIndex` in `dayIndex` and appends it to the end of the adjacent
- * day's explicit order — never reordering anything else already in either day. A no-op when
- * there is no adjacent day in that direction. */
-function moveToAdjacentDay(
-  days: readonly string[][],
-  dayIndex: number,
-  placeIndex: number,
-  direction: -1 | 1
-): string[][] {
-  const targetIndex = dayIndex + direction;
-  if (targetIndex < 0 || targetIndex >= days.length) return days.map((day) => [...day]);
-  const placeId = days[dayIndex]?.[placeIndex];
-  if (placeId === undefined) return days.map((day) => [...day]);
-  const next = days.map((day) => [...day]);
-  next[dayIndex].splice(placeIndex, 1);
-  next[targetIndex].push(placeId);
-  return next;
-}
 
 /**
  * One reorderable, place-specific list — the main route draft, each comparison candidate, and
@@ -329,6 +482,777 @@ function TransferAndVisitTotals({
   );
 }
 
+/** Display-only Spanish labels for `CivilWeekday` — the domain type itself stays a stable,
+ * locale-independent identifier (see `civil-date.ts`); this table is the one place that turns it
+ * into user-facing text, exactly like `formatCivilDateDisplay` does for the date itself. */
+const WEEKDAY_LABEL: Record<CivilWeekday, string> = {
+  sunday: "domingo",
+  monday: "lunes",
+  tuesday: "martes",
+  wednesday: "miércoles",
+  thursday: "jueves",
+  friday: "viernes",
+  saturday: "sábado",
+};
+
+/**
+ * Phase 3D-B's one UI surface. Renders nothing when the day has no derived date yet
+ * (`signal.assessed === false`) or has no places — the existing calendar UI (the date input,
+ * "Sin lugares en este día") is already sufficient in both cases, per the phase's own scope.
+ *
+ * Wording is deliberately narrow and conservative throughout: a match reads "posible
+ * coincidencia," never "cerrado"; a day with zero matches reads only "sin coincidencias
+ * detectadas," never a "day is valid"/"everything compatible" claim; not-evaluable places are
+ * named as a limitation, not hidden. See `../lib/temporal-availability.ts`'s own doc for the
+ * exact outcome vocabulary this renders from.
+ */
+function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
+  if (!signal.assessed || signal.perPlace.length === 0) return null;
+
+  const matches = signal.perPlace.filter(
+    (
+      p
+    ): p is typeof p & {
+      assessment: Extract<(typeof p)["assessment"], { outcome: "possible-weekday-closure-match" }>;
+    } => p.assessment.outcome === "possible-weekday-closure-match"
+  );
+
+  return (
+    <section className="weekday-signal" aria-label="Posibles coincidencias de cierre semanal">
+      {matches.length > 0 ? (
+        <>
+          <p className="weekday-signal__summary weekday-signal__summary--warn">
+            <span aria-hidden="true">⚠</span> {matches.length} posible
+            {matches.length === 1 ? "" : "s"} coincidencia{matches.length === 1 ? "" : "s"} con cierre semanal
+          </p>
+          <ul className="weekday-signal__list">
+            {matches.map(({ placeId, placeName, assessment }) => (
+              <li key={placeId}>
+                <strong>{placeName}</strong> — el registro indica «{assessment.closure.raw}». La fecha elegida
+                cae en {WEEKDAY_LABEL[assessment.weekday]}; confirma el horario/cierre oficial.
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p className="weekday-signal__summary">
+          <span aria-hidden="true">ⓘ</span> Sin coincidencias de cierre semanal detectadas.
+        </p>
+      )}
+      {signal.notEvaluableCount > 0 && (
+        <p className="weekday-signal__note">
+          {signal.notEvaluableCount} lugar{signal.notEvaluableCount === 1 ? "" : "es"} no puede
+          {signal.notEvaluableCount === 1 ? "" : "n"} evaluarse con los datos de cierre actuales.
+        </p>
+      )}
+      <p className="weekday-signal__disclaimer">
+        Esta comprobación solo revisa un posible patrón de cierre semanal ya registrado. No verifica horarios,
+        días festivos, cierres temporales, clima, reservas ni el estado real vigente.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3D-J's per-day presentation of composable recorded hours and closure evidence. The pure
+ * domain owns date gating and class selection; this view only admits the two presentation classes
+ * approved by the design gate. Both raw facts remain complete and equally visible, while a
+ * PARTIAL side receives its own prominent review treatment.
+ */
+function HoursClosureCompositionNotice({
+  places,
+  dayAssignment,
+  startDate,
+  dayNumber,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+  dayNumber: number;
+}) {
+  const items = buildPresentableDayHoursClosureCompositions(places, dayAssignment, startDate);
+
+  if (items.length === 0) return null;
+
+  return (
+    <section
+      className="hours-closure-composition"
+      aria-label={`Horario e información de cierres registrados · Día ${dayNumber}`}
+    >
+      {items.map(({ placeId, placeName, signal }) => (
+        <div
+          key={placeId}
+          className={`hours-closure-composition__item hours-closure-composition__item--${signal.compositionClass}`}
+        >
+          <span className="hours-closure-composition__name">{placeName}</span>
+          {signal.compositionClass === "present-with-caveat" && (
+            <p className="hours-closure-composition__caveat">
+              <span aria-hidden="true">⚠</span> Información con salvedad; conviene revisar el texto registrado
+              completo.
+            </p>
+          )}
+          <p
+            className={`hours-closure-composition__fact${
+              signal.hours.tier === "partial" ? " hours-closure-composition__fact--caveat" : ""
+            }`}
+          >
+            <span>Horario registrado</span>
+            {signal.hours.tier === "partial" && <span>Con salvedad; conviene revisar</span>}
+            <strong>«{signal.hours.raw}»</strong>
+          </p>
+          <p
+            className={`hours-closure-composition__fact${
+              signal.closure.tier === "partial" ? " hours-closure-composition__fact--caveat" : ""
+            }`}
+          >
+            <span>Información registrada de cierres</span>
+            {signal.closure.tier === "partial" && <span>Con salvedad; conviene revisar</span>}
+            <strong>«{signal.closure.raw}»</strong>
+          </p>
+        </div>
+      ))}
+      <p className="hours-closure-composition__disclaimer">
+        Esta vista reúne únicamente los dos registros originales para la fecha asignada. Contrasta cualquier
+        decisión con la fuente oficial.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3D-L's one user-facing sentence per outcome. Every evaluated phrase names the RECORDED
+ * interval, never the place: the wording is `docs/VISIT_TIME_FEASIBILITY_DESIGN.md` §16's permitted
+ * vocabulary verbatim. That section's forbidden list is deliberately NOT reproduced here, not even
+ * as an example: `OrderedSequenceBuilder.test.ts` scans this file's notice sources for those exact
+ * phrases, so a comment quoting any of them would blunt that check for every neighbouring notice as
+ * well as this one. Read §16 for the list itself.
+ *
+ * `visit-date-not-evaluable` and the `hours-not-a-recorded-interval` reason have no sentence
+ * because they never reach this view: `buildDayRecordedIntervalFits` omits those places entirely,
+ * so no control and no line is rendered for them at all.
+ */
+function recordedIntervalFitText(fit: RecordedIntervalDurationFit): string {
+  switch (fit.kind) {
+    case "recorded-duration-fits-interval":
+      return "La duración registrada cabe dentro del intervalo horario registrado.";
+    case "only-minimum-duration-fits-interval":
+      return "Solo la duración mínima registrada cabe dentro del intervalo registrado.";
+    case "recorded-duration-exceeds-interval":
+      return "La duración registrada excede este intervalo horario registrado.";
+    case "start-time-outside-recorded-interval":
+      return "La hora que has indicado queda fuera del intervalo horario registrado.";
+    case "duration-not-evaluable":
+      return "No hay una duración numérica registrada para evaluar.";
+    case "no-start-time-chosen":
+      return "Introduce una hora de inicio para comparar con el intervalo registrado.";
+    default:
+      return "No hay información horaria estructurada suficiente para evaluar este intervalo.";
+  }
+}
+
+/**
+ * Phase 3D-L's one UI surface — a manual visit start time per eligible place, and the comparison
+ * of the recorded duration against the time remaining inside the RECORDED interval.
+ *
+ * **What this section is not.** It makes no claim that a place is open, that a visit is possible,
+ * that a day works, or that the user should go at the time they typed. `duration fits recorded
+ * interval` ≠ `place is visitable`, and every sentence, class name, and accessible label here is
+ * chosen to keep those apart. It reads no `bestTime`, no closures, no composition class, and no
+ * transfer data, and it never derives an arrival time for the next place — that would be
+ * scheduling (design §19).
+ *
+ * **Which places get a control.** Only those whose hours fact is `recorded-interval` AND which have
+ * a valid assigned day under Phase 3D-H/3D-J's strict date contract; `buildDayRecordedIntervalFits`
+ * owns both gates. The other places get no control at all — deliberately, not as an oversight: a
+ * disabled input on a PARTIAL or OPAQUE place would invite the reading "this place has no hours",
+ * which is false for every one of them. `recorded-24h` places are among those excluded, so no
+ * 24-hour record is ever turned into a 00:00–24:00 interval here.
+ *
+ * **No default, ever.** The input starts empty and stays empty until the user types a time. It is
+ * never prefilled with `09:00`, the recorded opening time, the current clock, or anything derived
+ * from another field. Clearing it returns the place to exactly that state.
+ *
+ * The original recorded hours text is always shown beside the result, because the parsed token is
+ * derivative evidence: 61 of the 65 real records carry editorial qualification ("aprox.",
+ * "Tiendas…", "según anuncio") that the token alone would silently drop.
+ */
+function RecordedIntervalFitSection({
+  places,
+  dayAssignment,
+  startDate,
+  dayNumber,
+  visitStartTimes,
+  onVisitStartTimeChange,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+  dayNumber: number;
+  visitStartTimes: Readonly<Record<string, string>>;
+  onVisitStartTimeChange: (placeId: string, time: string | null) => void;
+}) {
+  const items = buildDayRecordedIntervalFits(places, dayAssignment, startDate, visitStartTimes);
+
+  if (items.length === 0) return null;
+
+  return (
+    <section
+      className="recorded-interval-fit"
+      aria-label={`Hora de inicio e intervalo horario registrado · Día ${dayNumber}`}
+    >
+      {items.map(({ placeId, placeName, hours, visitStartTime, fit }) => {
+        const inputId = `visit-start-time-${dayNumber}-${placeId}`;
+        return (
+          <div key={placeId} className="recorded-interval-fit__item">
+            <label className="recorded-interval-fit__label" htmlFor={inputId}>
+              {`Hora de inicio para ${placeName} en Día ${dayNumber}`}
+            </label>
+            <input
+              id={inputId}
+              className="recorded-interval-fit__input"
+              type="time"
+              value={visitStartTime ?? ""}
+              onChange={(event) => onVisitStartTimeChange(placeId, event.target.value || null)}
+            />
+            <p className="recorded-interval-fit__result">{recordedIntervalFitText(fit)}</p>
+            <p className="recorded-interval-fit__raw">Dato: «{hours.raw}»</p>
+          </div>
+        );
+      })}
+      <p className="recorded-interval-fit__disclaimer">
+        Esta comparación solo usa el intervalo horario registrado y la duración registrada del lugar.{" "}
+        <strong>
+          No indica si el lugar abre, no revisa cierres ni festivos, y no calcula a qué hora llegarías a
+          ningún otro lugar.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3D-H's one UI surface. Rendered per day, next to `WeekdayClosureNotice`. Renders nothing
+ * when no place in this day bucket has both a valid visit date (design §5's stricter contract,
+ * via `deriveVisitDateForPlace`) and an eligible Class A signal (`derivePlaceReservationDateWindow`)
+ * — a place with an inapplicable/non-computable lead time, or no visit date yet, is simply absent
+ * from this list; the existing "Reservas por preparar" section above already shows its coarse
+ * signal, and this component never repeats or replaces that.
+ *
+ * **Full non-`confirmed` Feb–Mar composition (design §6.2 Rule 2, §12.1 row 3 — corrective audit
+ * finding MAJOR-1).** `describeFebMarStatusForUi`'s three-value `tone` is reused as-is — never a
+ * second classifier, never category-specific wording — and every non-`confirmed` tone renders its
+ * own status callout FIRST, above the derived range, so it always reads before it and is never
+ * hidden, replaced, or visually outranked by it:
+ *  - `tone === "pending"` (tier `unknown`) → the existing reconfirmation callout: the calendar/
+ *    condition for the user's dates is not yet confirmed at all.
+ *  - `tone === "attention"` (tiers `partial`/`opaque`) → a neutral caveat callout, using
+ *    `describeFebMarStatusForUi(...).label` (e.g. "Requiere atención") rather than inventing
+ *    category-specific copy, telling the reader the recorded Feb–Mar status carries a condition
+ *    worth reviewing before treating the range as planning guidance.
+ *  - `tone === "confirmed"` → no extra callout; the range renders normally.
+ * The underlying range is still shown in full in every case — Feb–Mar confidence never suppresses
+ * the domain computation (Rule 3), it only changes how the result is composed for the reader.
+ *
+ * Wording is deliberately conservative throughout — "ventana de anticipación registrada," never a
+ * booking deadline or an availability claim; see this file's own forbidden-phrase test coverage.
+ * The recorded raw text is always shown alongside, exactly like `ReservationPreparationSection`.
+ */
+function ReservationDeadlineNotice({
+  places,
+  dayAssignment,
+  startDate,
+  referenceDate,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+  referenceDate: string | null;
+}) {
+  type DeadlineItem = {
+    place: Place;
+    window: Extract<ReservationDateWindow, { kind: "derived-window" }>;
+    febMarTone: FebMarStatusTone;
+    febMarLabel: string;
+    relation: ReservationWindowReferenceRelation | null;
+  };
+
+  const items: DeadlineItem[] = [];
+  for (const place of places) {
+    const visitDate = deriveVisitDateForPlace(dayAssignment, startDate, place.id);
+    const window = derivePlaceReservationDateWindow(place, visitDate);
+    if (window.kind !== "derived-window") continue;
+    const febMarDisplay = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
+    const relation = referenceDate ? evaluateReservationWindowReference(window, referenceDate) : null;
+    items.push({
+      place,
+      window,
+      febMarTone: febMarDisplay.tone,
+      febMarLabel: febMarDisplay.label,
+      relation,
+    });
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="reservation-deadline" aria-label="Ventana de anticipación registrada">
+      {items.map(({ place, window, febMarTone, febMarLabel, relation }) => (
+        <div key={place.id} className="reservation-deadline__item">
+          <span className="reservation-deadline__name">{place.name}</span>
+          {febMarTone === "pending" && (
+            <p className="reservation-deadline__status-callout reservation-deadline__status-callout--pending">
+              <span aria-hidden="true">ⓘ</span> Calendario/condición para tus fechas todavía pendiente de
+              confirmar. Reconfirma en la fuente oficial al fijar fechas.
+            </p>
+          )}
+          {febMarTone === "attention" && (
+            <p className="reservation-deadline__status-callout reservation-deadline__status-callout--attention">
+              <span aria-hidden="true">⚠</span> Estado Feb–Mar 2027: {febMarLabel}. El calendario/condición
+              registrado para este lugar tiene una salvedad que conviene revisar antes de tomar esta ventana
+              como referencia de planificación.
+            </p>
+          )}
+          <span className="reservation-deadline__window">
+            Ventana de anticipación registrada: {formatCivilDateDisplay(window.farAdvanceDate)} –{" "}
+            {formatCivilDateDisplay(window.nearAdvanceDate)}
+          </span>
+          {referenceDate && relation && relation.kind !== "not-assessed" && (
+            <>
+              <span className="reservation-deadline__reference-date">
+                {formatDeviceReferenceDateForUi(referenceDate)}
+              </span>
+              <span className="reservation-deadline__reference-relation">
+                {describeReservationWindowReferenceForUi(relation)}
+              </span>
+            </>
+          )}
+          <span className="reservation-deadline__raw">Dato: «{window.signal.raw}»</span>
+        </div>
+      ))}
+      <p className="reservation-deadline__disclaimer">
+        Esta ventana proyecta la anticipación registrada en el dato original sobre la fecha asignada a
+        cada lugar.{" "}
+        <strong>
+          No confirma disponibilidad ni indica cuándo puedes reservar; reservar antes o después de estas
+          fechas también puede ser posible.
+        </strong>{" "}
+        La fecha de referencia mostrada se captura del calendario local de tu dispositivo al abrir este plan;
+        no representa la fecha operativa en Japón y no se actualiza automáticamente mientras esta vista siga abierta.
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3F-F's one visible official-reservation surface, extended by Phase 3F-H with a civil-date
+ * relation. It consumes only Phase 3F-D derivations plus the exact matching evidence record, and
+ * therefore cannot replace or reinterpret the separate Phase 3D-H editorial window above. The
+ * component receives no visit start time, trip end date, closure/hours fact or
+ * reservation-requiredness signal.
+ *
+ * Phase 3F-H adds exactly one input: the concrete device-local civil date already captured once by
+ * the planner. Sharing that environmental value does NOT merge the two evidence domains — Phase 3F
+ * evaluates it through its own `evaluateOfficialReservationReferenceDate`, never through the Phase
+ * 3D-O evaluator, and the resulting sentence stays a calendar relation rather than a booking state.
+ */
+function OfficialReservationDateNotice({
+  places,
+  dayAssignment,
+  startDate,
+  dayNumber,
+  referenceDate,
+}: {
+  places: readonly Place[];
+  dayAssignment: DayAssignment;
+  startDate: string | null;
+  dayNumber: number;
+  referenceDate: string | null;
+}) {
+  type Item = {
+    place: Place;
+    presentation: OfficialReservationDatePresentation;
+    relationPresentation: OfficialReservationReferenceRelationPresentation | null;
+  };
+
+  const items: Item[] = [];
+  for (const place of places) {
+    const derivations = deriveReservationMechanismDatesForPlannedPlace(
+      reservationMechanismEvidenceRecords,
+      dayAssignment,
+      startDate,
+      place.id
+    );
+    for (const derivation of derivations) {
+      const record = reservationMechanismEvidenceRecords.find(
+        (candidate) => candidate.id === derivation.recordId
+      );
+      if (!record) continue;
+      const presentation = buildOfficialReservationDatePresentation(record, derivation);
+      if (!presentation) continue;
+      // The relation is evaluated from the same derivation the presentation was built from, then
+      // composed back through an identity check that drops it if record/place/scope disagree.
+      const relation = referenceDate
+        ? evaluateOfficialReservationReferenceDate(derivation, referenceDate)
+        : null;
+      const relationPresentation = relation
+        ? buildOfficialReservationReferenceRelationPresentation(presentation, relation)
+        : null;
+      items.push({ place, presentation, relationPresentation });
+    }
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <section
+      className="official-reservation-date"
+      aria-label={`Fechas de reserva según fuente oficial · Día ${dayNumber}`}
+    >
+      <h4 className="official-reservation-date__heading">Fechas de reserva según fuente oficial</h4>
+      <div className="official-reservation-date__list">
+        {items.map(({ place, presentation, relationPresentation }) => (
+          <article key={presentation.recordId} className="official-reservation-date__item">
+            <span className="official-reservation-date__name">{place.name}</span>
+            <span className="official-reservation-date__scope">{presentation.scopeLabel}</span>
+            <p className="official-reservation-date__fact-heading">{presentation.heading}</p>
+            {presentation.detailLines.map((line, index) => (
+              <p
+                key={`${presentation.recordId}:detail:${index}`}
+                className="official-reservation-date__detail"
+              >
+                {line}
+              </p>
+            ))}
+            {presentation.allocationText && (
+              <p className="official-reservation-date__allocation">{presentation.allocationText}</p>
+            )}
+            {presentation.purchaseResidenceContextText && (
+              <p className="official-reservation-date__purchase-residence-context">
+                {presentation.purchaseResidenceContextText}
+              </p>
+            )}
+            {relationPresentation && (
+              <>
+                <p className="official-reservation-date__reference-relation">
+                  {relationPresentation.relationText}
+                </p>
+                <p className="official-reservation-date__reference-date">
+                  {relationPresentation.referenceDateText}
+                </p>
+              </>
+            )}
+            <p className="official-reservation-date__provenance">{presentation.provenanceText}</p>
+            <a
+              className="official-reservation-date__source"
+              href={presentation.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver fuente oficial
+            </a>
+          </article>
+        ))}
+      </div>
+      <p className="official-reservation-date__disclaimer">
+        Estas fechas son hechos de calendario derivados del registro oficial para la fecha de visita
+        asignada. Cuando se muestra, la relación con la fecha de referencia compara únicamente fechas
+        de calendario: no considera la hora registrada ni la zona horaria de la fuente, y no indica el
+        estado actual de la venta. La fecha de referencia se toma del calendario local de tu
+        dispositivo al abrir este plan, no representa la fecha operativa en Japón y no se actualiza
+        automáticamente mientras esta vista siga abierta.{" "}
+        <strong>
+          Esta información oficial se muestra por separado de la anticipación editorial registrada;
+          Nihon no combina ambas fuentes.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3F-J's one route-wide official-reservation surface, rendered once per planner in the dated
+ * "Distribuir por días" view. It is a SECOND VIEW of facts the day cards already show — the per-day
+ * `OfficialReservationDateNotice` above is unchanged and remains the primary, per-visit surface.
+ *
+ * Chronology-only: every row here has a real recorded civil date. A Phase 3F result with no
+ * applicable official date (outside the recorded event period, not derivable, or a span whose
+ * recorded edges are invalid or inverted) produces no row at all — no neutral row, no placeholder,
+ * no substitute date. Those facts stay visible in their own day card.
+ *
+ * The order is a reading order over recorded civil dates and nothing else. It is not a priority, a
+ * recommended sequence, a workload or a measure of urgency or scarcity, which is why no row carries
+ * a state, a badge, a count, a checkbox or any styling derived from its date or its relation. The
+ * Phase 3D-H editorial "Reservas por preparar" surface lives in a different view entirely and is
+ * never merged, ranked against or suppressed by this one.
+ */
+function OfficialReservationCalendarSection({
+  calendar,
+}: {
+  calendar: RouteWideOfficialReservationCalendar;
+}) {
+  if (calendar.chronological.length === 0) return null;
+
+  // The one device civil date is disclosed once for the whole section. `calendar.referenceDate` is
+  // non-null exactly when at least one row carries a relation evaluated from it, so an unusable
+  // date is never shown, and the concrete date shown is the one Phase 3F-H itself rendered.
+  const referenceDateText = calendar.referenceDate
+    ? calendar.chronological.find((item) => item.relation !== null)?.relation?.referenceDateText ?? null
+    : null;
+
+  return (
+    <section
+      className="official-reservation-calendar"
+      aria-labelledby="official-reservation-calendar-heading"
+    >
+      <h3 id="official-reservation-calendar-heading">Fechas oficiales de reserva del recorrido</h3>
+      {referenceDateText && (
+        <p className="official-reservation-calendar__reference-date">
+          {referenceDateText} · Esta misma fecha de referencia se usa en todas las relaciones de esta
+          sección.
+        </p>
+      )}
+      <ul className="official-reservation-calendar__list">
+        {calendar.chronological.map((item) => (
+          <li
+            key={`${item.recordId}:${item.placeId}:${item.scope}`}
+            className="official-reservation-calendar__item"
+          >
+            <span className="official-reservation-calendar__anchor">
+              {formatCivilDateDisplay(item.anchorDate)}
+            </span>
+            <span className="official-reservation-calendar__context">
+              {item.placeName} · Día {item.dayNumber} · visita {formatCivilDateDisplay(item.visitDate)}
+            </span>
+            <span className="official-reservation-calendar__scope">{item.presentation.scopeLabel}</span>
+            <p className="official-reservation-calendar__fact-heading">{item.presentation.heading}</p>
+            {item.fact.kind === "application-date-span" ? (
+              <>
+                <p className="official-reservation-calendar__detail">{item.fact.spanText}</p>
+                <p className="official-reservation-calendar__anchor-note">
+                  {OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE}
+                </p>
+              </>
+            ) : (
+              item.presentation.detailLines.map((line, index) => (
+                <p
+                  key={`${item.recordId}:calendar-detail:${index}`}
+                  className="official-reservation-calendar__detail"
+                >
+                  {line}
+                </p>
+              ))
+            )}
+            {item.presentation.allocationText && (
+              <p className="official-reservation-calendar__allocation">
+                {item.presentation.allocationText}
+              </p>
+            )}
+            {item.presentation.purchaseResidenceContextText && (
+              <p className="official-reservation-calendar__purchase-residence-context">
+                {item.presentation.purchaseResidenceContextText}
+              </p>
+            )}
+            {item.relation && (
+              <p className="official-reservation-calendar__relation">{item.relation.relationText}</p>
+            )}
+            <p className="official-reservation-calendar__provenance">{item.presentation.provenanceText}</p>
+            <a
+              className="official-reservation-calendar__source"
+              href={item.presentation.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver fuente oficial
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p className="official-reservation-calendar__disclaimer">
+        Estas fechas provienen del registro oficial de cada lugar y están calculadas sobre la fecha de
+        visita planificada.{" "}
+        <strong>
+          El orden cronológico solo ordena fechas de calendario: no indica prioridad, urgencia ni en
+          qué orden conviene reservar.
+        </strong>{" "}
+        No indica disponibilidad ni el estado actual de la venta. Cuando se muestra una relación con
+        la fecha de referencia, compara únicamente fechas de calendario: no considera la hora
+        registrada ni la zona horaria de la fuente, y esa fecha se toma del calendario local de tu
+        dispositivo al abrir este plan sin actualizarse sola.{" "}
+        <strong>
+          Esta información oficial se muestra por separado de la anticipación editorial registrada;
+          Nihon no combina ambas fuentes.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/** Display-only Spanish labels for `ReservationCategory` — mirrors the tag vocabulary
+ * `describeReservationForUi` already established in `lib/reservation.ts`, restated here as a
+ * short label (no lead-time suffix, since this section shows lead time in its own line) rather
+ * than imported, because this section also needs the two categories that render no tag there
+ * (`not-required`, `not-required-role-specific`) to still show a short factual label here. */
+const RESERVATION_PREP_LABEL: Record<ReservationCategory, string> = {
+  required: "Requiere reserva",
+  "recommended-not-required": "Reserva recomendable",
+  "optional-not-required": "Reserva opcional",
+  "not-required": "No requiere reserva",
+  "not-required-role-specific": "No para espectador",
+  missing: "Estado de reserva por verificar",
+  "unrecognized-value": "Estado de reserva por verificar",
+};
+
+/** Display-only Spanish labels for `LeadTimeMagnitude` — the domain type stays a stable,
+ * locale-independent identifier (see `lib/reservation-lead-time.ts`); this is the one place that
+ * turns it into user-facing text, exactly like `WEEKDAY_LABEL` does for `CivilWeekday` above. */
+const LEAD_TIME_MAGNITUDE_LABEL: Record<LeadTimeMagnitude, string> = {
+  days: "días",
+  weeks: "semanas",
+  months: "meses",
+  "days-to-weeks": "días o semanas",
+  "weeks-to-months": "semanas o meses",
+};
+
+/**
+ * Phase 3D-D's one UI surface. Renders nothing when `summary.items` is empty — a route with no
+ * applicable lead-time signal shows no section at all, exactly like `WeekdayClosureNotice` renders
+ * nothing when unassessed.
+ *
+ * Wording is deliberately narrow and conservative throughout: "anticipación registrada" (a
+ * recorded fact about the editorial text), never a booking deadline; "mecanismo específico;
+ * revisar" (a call to look closer), never an interpretation of what the mechanism actually
+ * requires. The original raw text is always shown alongside — it is the only detailed information
+ * Nihon may safely surface for an opaque record, and the authoritative source even for a coarse
+ * magnitude. Nothing here reads `startDate`, a derived day date, or the current date.
+ */
+function ReservationPreparationSection({ summary }: { summary: ReservationPreparationSummary }) {
+  if (summary.items.length === 0) return null;
+
+  const parts: string[] = [];
+  if (summary.coarseMagnitudeCount > 0) {
+    // "anticipación" agrees with "registrada" and both stay singular regardless of N — only the
+    // count varies, never the adjective's grammatical number (a prior version wrongly appended an
+    // "s" onto the adjective whenever the count was greater than one).
+    parts.push(`${summary.coarseMagnitudeCount} con anticipación registrada`);
+  }
+  if (summary.specificMechanismCount > 0) {
+    parts.push(`${summary.specificMechanismCount} con mecanismo específico para revisar`);
+  }
+
+  return (
+    <section className="reservation-prep" aria-labelledby="reservation-prep-heading">
+      <h3 id="reservation-prep-heading">Reservas por preparar</h3>
+      <p className="reservation-prep__summary">{parts.join(" · ")}</p>
+      <ul className="reservation-prep__list">
+        {summary.items.map((item) => (
+          <li key={item.placeId} className="reservation-prep__item">
+            <span className="reservation-prep__name">{item.placeName}</span>
+            <span className="reservation-prep__reservation">{RESERVATION_PREP_LABEL[item.reservation.category]}</span>
+            {item.leadTime.kind === "coarse-magnitude" ? (
+              <span className="reservation-prep__leadtime">
+                Anticipación registrada: {LEAD_TIME_MAGNITUDE_LABEL[item.leadTime.magnitude]}
+              </span>
+            ) : (
+              <span className="reservation-prep__leadtime reservation-prep__leadtime--opaque">
+                Mecanismo específico; revisar
+              </span>
+            )}
+            <span className="reservation-prep__raw">Dato: «{item.leadTime.raw}»</span>
+          </li>
+        ))}
+      </ul>
+      <p className="reservation-prep__disclaimer">
+        Esta sección solo describe la anticipación registrada en el dato original de cada lugar.{" "}
+        <strong>No calcula fechas límite de reserva ni las compara con tu calendario.</strong>
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Phase 3D-E's one UI surface — "Horarios registrados". A route-wide, read-only section built from
+ * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`). Renders nothing
+ * when `summary.items` is empty, exactly like `ReservationPreparationSection`.
+ *
+ * Unlike that section, every route place appears here exactly once — nothing is omitted by tier.
+ * Wording is deliberately narrow throughout: "Horario registrado: 09:00–17:00" states a recorded
+ * fact, never that the place is open at those hours on any date; every PARTIAL/OPAQUE/UNKNOWN
+ * phrase ends in "revisar" (a call to double-check), never "closed," "incompatible," or "bad." The
+ * original raw text is always shown alongside — the only detailed information Nihon may safely
+ * surface once a caveat, external dependency, or genuine unknown is present. Nothing here reads the
+ * chosen calendar anchor, any date derived from it, `place.schedule.closures`, `place.bestTime`, or
+ * `place.febMar2027`.
+ */
+function HoursPlanningSection({ summary }: { summary: RecordedHoursSummary }) {
+  if (summary.items.length === 0) return null;
+
+  const parts: string[] = [];
+  if (summary.safeCount > 0) parts.push(`${summary.safeCount} claro${summary.safeCount === 1 ? "" : "s"}`);
+  if (summary.conditionalCount > 0) parts.push(`${summary.conditionalCount} con condiciones`);
+  if (summary.externalDependencyCount > 0) {
+    // "con dependencia externa" is deliberately neutral over BOTH OPAQUE categories this count
+    // combines (weather-or-tide-dependent and third-party-operator-dependent) — "depende de un
+    // tercero" was semantically false for a weather/tide-dependent place (there is no third party
+    // involved), so this summary phrase must never name a specific dependency kind. The
+    // per-item labels below stay category-specific (`HOURS_CATEGORY_LABEL`) precisely because they
+    // describe one place's own category, not a combined count spanning both.
+    parts.push(`${summary.externalDependencyCount} con dependencia externa`);
+  }
+  if (summary.unknownCount > 0) parts.push(`${summary.unknownCount} por revisar`);
+
+  return (
+    <section className="hours-planning" aria-labelledby="hours-planning-heading">
+      <h3 id="hours-planning-heading">Horarios registrados</h3>
+      <p className="hours-planning__summary">{parts.join(" · ")}</p>
+      <ul className="hours-planning__list">
+        {summary.items.map((item) => (
+          <li key={item.placeId} className={`hours-planning__item hours-planning__item--${item.hours.tier}`}>
+            <span className="hours-planning__name">{item.placeName}</span>
+            <span className="hours-planning__signal">{hoursSignalText(item.hours)}</span>
+            <span className="hours-planning__raw">Dato: «{item.hours.raw}»</span>
+          </li>
+        ))}
+      </ul>
+      <p className="hours-planning__disclaimer">
+        Esta sección solo describe qué horario está registrado en el dato original de cada lugar.{" "}
+        <strong>
+          No determina si el lugar abre o cierra en tu fecha, no revisa festivos ni cierres, y no se compara con la
+          hora del día.
+        </strong>
+      </p>
+    </section>
+  );
+}
+
+/** Display-only Spanish labels for each `HoursCategory`'s recorded-hours signal — the domain type
+ * stays a stable, locale-independent identifier (see `lib/recorded-hours.ts`); this is the one
+ * place that turns it into user-facing text, exactly like `RESERVATION_PREP_LABEL` and
+ * `LEAD_TIME_MAGNITUDE_LABEL` do above. Every phrase describes what the raw editorial text
+ * records, never whether the place is open — no "abierto"/"cerrado" wording anywhere here.
+ * `"fixed-interval-clean"` is handled specially by `hoursSignalText` below (it needs the actual
+ * interval token, not a fixed phrase), so its entry here is unused but kept for exhaustiveness. */
+const HOURS_CATEGORY_LABEL: Record<HoursCategory, string> = {
+  missing: "Sin horario registrado; revisar",
+  "known-24h": "Acceso registrado: 24 h",
+  "known-24h-with-caveat": "Acceso 24 h registrado con condiciones; revisar",
+  "weather-or-tide-dependent": "Horario depende de clima o marea; revisar",
+  "third-party-operator-dependent": "Horario depende de un operador externo; revisar",
+  "seasonal-variable": "Horario estacional; revisar",
+  "solar-relative": "Horario relativo a la luz solar; revisar",
+  "daytime-qualitative": "Horario diurno registrado; revisar",
+  "partial-single-bound": "Horario parcialmente registrado; revisar",
+  "ambiguous-alternative-interval": "Horario con alternativas registradas; revisar",
+  "fixed-interval-with-caveat": "Horario registrado con condiciones; revisar",
+  "fixed-interval-clean": "Horario registrado",
+  "explicit-unknown-variable": "Horario variable; revisar dato original",
+  "qualitative-uncategorized": "Horario no estructurado; revisar",
+};
+
+function hoursSignalText(fact: RecordedHoursFact): string {
+  if (fact.kind === "recorded-interval") return `Horario registrado: ${fact.intervalRaw}`;
+  return HOURS_CATEGORY_LABEL[fact.category];
+}
+
 /**
  * The one place that turns a `SequenceComparisonOutcome` into Spanish prose. Every branch is
  * phrased as a statement about *these two orders*, never as a claim about the best possible
@@ -381,20 +1305,1299 @@ function comparisonResultText(comparison: SequenceComparison): { headline: strin
   return { headline, detail };
 }
 
+/**
+ * Phase 3D-Q — Manual Accommodation Commute Legs: the anchor manager.
+ *
+ * The user creates an accommodation by typing a label and its coordinate. NOTHING is looked up:
+ * there is no geocoding, no address parsing, no hotel search, no booking inventory, no chain or
+ * quality semantics, and no map provider call. The coordinate is planning context and geographic
+ * identity only — it is never read to produce minutes, distance, a nearest place, or a route.
+ *
+ * A direct pin-on-the-map picker would need a second interactive map inside this dialog, which is
+ * a larger architectural change than this phase is allowed to make, so the coordinate is entered
+ * as two plain numeric fields for now (design §3.3 requires a real machine-readable location, not
+ * a specific input widget).
+ *
+ * Two anchors with the same label and/or the same coordinates stay two anchors — the list order
+ * means nothing, and nothing here merges, ranks, sorts, or recommends one.
+ */
+function AccommodationManagerSection({
+  accommodations,
+  onAdd,
+  onRemove,
+}: {
+  accommodations: readonly AccommodationAnchor[];
+  onAdd: (label: string, location: { lat: number; lng: number }) => void;
+  onRemove: (accommodationId: string) => void;
+}) {
+  const [label, setLabel] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+
+  const parsedLat = parseCoordinateInput(lat);
+  const parsedLng = parseCoordinateInput(lng);
+  const location = parsedLat !== null && parsedLng !== null ? { lat: parsedLat, lng: parsedLng } : null;
+  const canAdd = label.trim().length > 0 && location !== null && isValidAccommodationLocation(location);
+
+  function add() {
+    if (!canAdd || !location) return;
+    onAdd(label, location);
+    setLabel("");
+    setLat("");
+    setLng("");
+  }
+
+  return (
+    <section className="accommodation-manager" aria-label="Alojamientos">
+      <h3>Alojamientos</h3>
+      <p className="accommodation-manager__intro">
+        Tú creas cada alojamiento y escribes sus coordenadas. Nihon no busca hoteles, no interpreta
+        direcciones y <strong>no usa estas coordenadas para calcular tiempos ni rutas</strong>.
+      </p>
+
+      {accommodations.length === 0 ? (
+        <p className="accommodation-manager__empty">Todavía no has creado ningún alojamiento.</p>
+      ) : (
+        <ul className="accommodation-manager__list">
+          {accommodations.map((anchor) => (
+            <li key={anchor.id} className="accommodation-manager__item">
+              <span className="accommodation-manager__label">{anchor.label}</span>
+              <span className="accommodation-manager__coords">
+                {anchor.location.lat}, {anchor.location.lng}
+              </span>
+              <button
+                type="button"
+                className="icon-button icon-button--small"
+                onClick={() => onRemove(anchor.id)}
+                aria-label={`Eliminar alojamiento ${anchor.label}`}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="accommodation-manager__form">
+        <label className="accommodation-manager__field" htmlFor="accommodation-new-label">
+          Nombre del alojamiento
+          <input
+            id="accommodation-new-label"
+            className="accommodation-manager__input"
+            type="text"
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+          />
+        </label>
+        <label className="accommodation-manager__field" htmlFor="accommodation-new-lat">
+          Latitud
+          <input
+            id="accommodation-new-lat"
+            className="accommodation-manager__input"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={lat}
+            onChange={(event) => setLat(event.target.value)}
+          />
+        </label>
+        <label className="accommodation-manager__field" htmlFor="accommodation-new-lng">
+          Longitud
+          <input
+            id="accommodation-new-lng"
+            className="accommodation-manager__input"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={lng}
+            onChange={(event) => setLng(event.target.value)}
+          />
+        </label>
+        <button type="button" className="button button--secondary" onClick={add} disabled={!canAdd}>
+          <span aria-hidden="true">＋</span> Añadir alojamiento
+        </button>
+      </div>
+      {!canAdd && (label.trim().length > 0 || lat.trim().length > 0 || lng.trim().length > 0) && (
+        <p className="accommodation-manager__hint">
+          Escribe un nombre y unas coordenadas dentro de rango (latitud −90 a 90, longitud −180 a
+          180).
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** Reads one coordinate field exactly as typed. A blank field is `null` — never `0`, which
+ * `Number("")` would otherwise produce and which is a perfectly valid coordinate. */
+function parseCoordinateInput(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return null;
+  const value = Number(trimmed);
+  return Number.isFinite(value) ? value : null;
+}
+
+/** The `<select>` value for one boundary choice. The accommodation id is carried after a fixed
+ * prefix and recovered by slicing that prefix, so an id containing the separator is impossible to
+ * misread. */
+const ACCOMMODATION_OPTION_PREFIX = "accommodation:";
+
+function boundaryChoiceToOptionValue(choice: AccommodationBoundaryChoice): string {
+  return choice.kind === "accommodation"
+    ? `${ACCOMMODATION_OPTION_PREFIX}${choice.accommodationId}`
+    : choice.kind;
+}
+
+function optionValueToBoundaryChoice(value: string): AccommodationBoundaryChoice | null {
+  if (value === "unselected" || value === "no-accommodation") return { kind: value };
+  if (value.startsWith(ACCOMMODATION_OPTION_PREFIX)) {
+    const accommodationId = value.slice(ACCOMMODATION_OPTION_PREFIX.length);
+    if (accommodationId.length > 0) return { kind: "accommodation", accommodationId };
+  }
+  return null;
+}
+
+/**
+ * The exact, neutral sentence for one evaluated boundary side (design §7.3's approved copy).
+ *
+ * Every state is spelled out and none of them is arithmetic: `boundary-unselected` says the user
+ * has not chosen yet, `explicit-no-accommodation` says the accommodation model does not apply on
+ * that side, and `manual-leg-missing` says the exact directed duration is unrecorded. NONE of them
+ * means "0 min", and none of them is ever presented as a real-world transfer time.
+ *
+ * A recorded duration is always labelled `dato manual`. It is never described as a route, a
+ * real-time result, a timetable, a traffic condition, or a provider's answer, and no ± range is
+ * invented around it.
+ */
+function accommodationBoundaryText(result: AccommodationBoundaryLegResult): string {
+  const isStart = result.side === "start";
+  switch (result.kind) {
+    case "manual-leg":
+      return isStart
+        ? `Salida desde alojamiento: ${formatMinutes(result.minutes)} · dato manual`
+        : `Regreso al alojamiento: ${formatMinutes(result.minutes)} · dato manual`;
+    case "manual-leg-missing":
+      return isStart ? "Traslado desde alojamiento sin registrar" : "Regreso al alojamiento sin registrar";
+    case "not-applicable":
+      return isStart
+        ? "Salida desde alojamiento: no aplica en este día"
+        : "Regreso al alojamiento: no aplica en este día";
+    case "boundary-unselected":
+      return isStart
+        ? "Salida desde alojamiento: sin seleccionar"
+        : "Regreso al alojamiento: sin seleccionar";
+  }
+}
+
+/**
+ * One side of one day's accommodation boundary: the explicit choice, and — only when an
+ * accommodation is chosen — the EXACT directed endpoint pair and its user-entered duration.
+ *
+ * The endpoint shown is exactly the one the domain evaluated: this day's current first place for
+ * the start side, its current last place for the end side. Editing minutes writes only that exact
+ * `(direction, accommodationId, placeId)` key: the reverse direction, another anchor, and another
+ * place are all untouched, and a blank field clears that one key rather than storing zero.
+ *
+ * A value that is not a positive whole number of minutes is rejected outright — never rounded and
+ * never coerced — exactly as `withAccommodationLeg` rejects it in the persisted draft.
+ */
+function AccommodationBoundarySide({
+  side,
+  dayNumber,
+  result,
+  choice,
+  accommodations,
+  placeNameById,
+  onChoiceChange,
+  onLegChange,
+}: {
+  side: "start" | "end";
+  dayNumber: number;
+  result: AccommodationBoundaryLegResult;
+  choice: AccommodationBoundaryChoice;
+  accommodations: readonly AccommodationAnchor[];
+  placeNameById: ReadonlyMap<string, string>;
+  onChoiceChange: (choice: AccommodationBoundaryChoice) => void;
+  onLegChange: (accommodationId: string, placeId: string, minutes: number | null) => void;
+}) {
+  const selectId = `accommodation-boundary-${side}-${dayNumber}`;
+  const sideLabel = side === "start" ? "Inicio del día" : "Fin del día";
+  const anchorLabel =
+    choice.kind === "accommodation"
+      ? accommodations.find((anchor) => anchor.id === choice.accommodationId)?.label ?? null
+      : null;
+  const endpoint =
+    result.kind === "manual-leg" || result.kind === "manual-leg-missing"
+      ? { accommodationId: result.accommodationId, placeId: result.placeId }
+      : null;
+  const placeName = endpoint ? placeNameById.get(endpoint.placeId) ?? endpoint.placeId : null;
+  const minutes = result.kind === "manual-leg" ? result.minutes : null;
+
+  function changeMinutes(raw: string) {
+    if (!endpoint) return;
+    const trimmed = raw.trim();
+    if (trimmed.length === 0) {
+      onLegChange(endpoint.accommodationId, endpoint.placeId, null);
+      return;
+    }
+    const value = Number(trimmed);
+    // Rejected, never repaired: a fraction, a zero, a negative or a non-number simply does not
+    // become a stored duration.
+    if (!isValidManualAccommodationMinutes(value)) return;
+    onLegChange(endpoint.accommodationId, endpoint.placeId, value);
+  }
+
+  return (
+    <div className="accommodation-boundary__side">
+      <label className="accommodation-boundary__label" htmlFor={selectId}>
+        {`${sideLabel} · Día ${dayNumber}`}
+      </label>
+      <select
+        id={selectId}
+        className="accommodation-boundary__select"
+        value={boundaryChoiceToOptionValue(choice)}
+        onChange={(event) => {
+          const next = optionValueToBoundaryChoice(event.target.value);
+          if (next) onChoiceChange(next);
+        }}
+      >
+        <option value="unselected">Sin seleccionar</option>
+        <option value="no-accommodation">No aplica</option>
+        {accommodations.map((anchor) => (
+          <option key={anchor.id} value={`${ACCOMMODATION_OPTION_PREFIX}${anchor.id}`}>
+            {anchor.label}
+          </option>
+        ))}
+      </select>
+
+      {endpoint && placeName && (
+        <p className="accommodation-boundary__endpoint">
+          {side === "start" ? `${anchorLabel ?? ""} → ${placeName}` : `${placeName} → ${anchorLabel ?? ""}`}
+        </p>
+      )}
+
+      <p className="accommodation-boundary__result">{accommodationBoundaryText(result)}</p>
+
+      {endpoint && (
+        <div className="accommodation-boundary__minutes">
+          <label
+            className="accommodation-boundary__minutes-label"
+            htmlFor={`${selectId}-minutes`}
+          >
+            Minutos de este trayecto (dato manual)
+          </label>
+          <input
+            id={`${selectId}-minutes`}
+            className="accommodation-boundary__input"
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            value={minutes ?? ""}
+            onChange={(event) => changeMinutes(event.target.value)}
+          />
+          {minutes !== null && (
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => onLegChange(endpoint.accommodationId, endpoint.placeId, null)}
+            >
+              Quitar minutos
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Phase 3D-Q's one per-day surface, rendered only for a NON-EMPTY day bucket. An empty day has no
+ * first or last place, so it has no accommodation boundary to choose and shows no control at all.
+ *
+ * The two sides are independent: the same day may start at one anchor and end at another, and
+ * nothing here infers a leg between them, copies one side onto the other, or reuses yesterday's
+ * choice. The composition happens OUTSIDE `OrderedSequenceSummary` — this section reads the
+ * existing intra-day summary but never modifies it, and the place-to-place transfer evidence
+ * rendered above keeps its own provenance and confidence untouched.
+ *
+ * The registered subtotal adds only minutes that are actually known: unknown intra-day legs,
+ * unselected boundaries, missing manual legs and explicit `no-accommodation` sides contribute
+ * NOTHING to it — never zero. It is labelled `completo` only under
+ * `DayLogisticsWithAccommodation.completeDoorToDoor` (non-empty day, complete intra-day sequence,
+ * and both boundary sides resolved to a recorded manual leg), and even then only as a statement
+ * about the registered components — never as a real, optimal, or verified route.
+ */
+function AccommodationCommuteSection({
+  dayNumber,
+  dayPlaceIds,
+  places,
+  intraDay,
+  boundary,
+  accommodations,
+  accommodationLegs,
+  onChoiceChange,
+  onLegChange,
+}: {
+  dayNumber: number;
+  dayPlaceIds: readonly string[];
+  places: readonly Place[];
+  intraDay: OrderedSequenceSummary;
+  boundary: DayAccommodationBoundary;
+  accommodations: readonly AccommodationAnchor[];
+  accommodationLegs: readonly ManualAccommodationLeg[];
+  onChoiceChange: (side: "start" | "end", choice: AccommodationBoundaryChoice) => void;
+  onLegChange: (
+    direction: ManualAccommodationLeg["direction"],
+    accommodationId: string,
+    placeId: string,
+    minutes: number | null
+  ) => void;
+}) {
+  const placeNameById = useMemo(
+    () => new Map(places.map((place) => [place.id, place.name])),
+    [places]
+  );
+  const logistics = useMemo(
+    () => buildDayLogisticsWithAccommodation(dayPlaceIds, intraDay, boundary, accommodationLegs),
+    [dayPlaceIds, intraDay, boundary, accommodationLegs]
+  );
+
+  if (dayPlaceIds.length === 0) return null;
+
+  const totalText = logistics.registeredTransferMinutes
+    ? `Total de traslados registrado: ${formatRange(logistics.registeredTransferMinutes)} · ${
+        logistics.completeDoorToDoor
+          ? "completo según los componentes registrados"
+          : "incompleto"
+      }`
+    : "Total de traslados registrado: sin datos · incompleto";
+
+  return (
+    <section
+      className="accommodation-boundary"
+      aria-label={`Alojamiento y traslados manuales · Día ${dayNumber}`}
+    >
+      <h4 className="accommodation-boundary__heading">Alojamiento en este día</h4>
+      {accommodations.length === 0 && (
+        <p className="accommodation-boundary__hint">
+          Crea un alojamiento arriba para poder elegirlo en este día.
+        </p>
+      )}
+
+      <AccommodationBoundarySide
+        side="start"
+        dayNumber={dayNumber}
+        result={logistics.outbound}
+        choice={boundary.start}
+        accommodations={accommodations}
+        placeNameById={placeNameById}
+        onChoiceChange={(choice) => onChoiceChange("start", choice)}
+        onLegChange={(accommodationId, placeId, minutes) =>
+          onLegChange("accommodation-to-place", accommodationId, placeId, minutes)
+        }
+      />
+      <AccommodationBoundarySide
+        side="end"
+        dayNumber={dayNumber}
+        result={logistics.returnLeg}
+        choice={boundary.end}
+        accommodations={accommodations}
+        placeNameById={placeNameById}
+        onChoiceChange={(choice) => onChoiceChange("end", choice)}
+        onLegChange={(accommodationId, placeId, minutes) =>
+          onLegChange("place-to-accommodation", accommodationId, placeId, minutes)
+        }
+      />
+
+      <p className="accommodation-boundary__total">{totalText}</p>
+      <p className="accommodation-boundary__disclaimer">
+        Los minutos de alojamiento son un <strong>dato manual</strong> que tú introduces para ese
+        trayecto exacto y en ese sentido exacto. Nihon no los calcula, no consulta transporte, no
+        deduce el trayecto contrario y no rellena con cero lo que falta.
+      </p>
+    </section>
+  );
+}
+
+const INTER_HUB_MODE_LABELS: Record<InterHubMode, string> = {
+  shinkansen: "Shinkansen",
+  "limited-express": "Limited Express / tren expreso",
+  "domestic-flight": "Vuelo doméstico",
+  ferry: "Ferry",
+  "highway-bus": "Autobús interurbano",
+  other: "Otro",
+};
+
+function interHubPairKey(pair: Pick<ManualInterHubSegment, "fromPlaceId" | "toPlaceId">): string {
+  return JSON.stringify([pair.fromPlaceId, pair.toPlaceId]);
+}
+
+function interHubPlacementText(assessment: Extract<InterHubSegmentAssessment, { kind: "active" }>): string {
+  switch (assessment.placement) {
+    case "route-only":
+      return "en el recorrido actual";
+    case "same-day":
+      return `dentro del Día ${(assessment.fromDayOrdinal ?? 0) + 1}`;
+    case "between-consecutive-days":
+      return `entre Día ${(assessment.fromDayOrdinal ?? 0) + 1} y Día ${(assessment.toDayOrdinal ?? 0) + 1}`;
+  }
+}
+
+function interHubInactiveText(reason: Extract<InterHubSegmentAssessment, { kind: "inactive" }>["reason"]): string {
+  switch (reason) {
+    case "missing-from-place":
+    case "missing-to-place":
+      return "Uno de los puntos ya no forma parte del recorrido actual.";
+    case "from-hub-mismatch":
+    case "to-hub-mismatch":
+      return "El hub actual de uno de los puntos ya no coincide con el registrado.";
+    case "same-current-hub":
+      return "Los dos puntos pertenecen actualmente al mismo hub.";
+    case "not-consecutive-in-route":
+      return "Estos lugares ya no son consecutivos en el recorrido actual.";
+    case "not-consecutive-in-day":
+      return "Estos lugares ya no son consecutivos dentro del mismo día.";
+    case "not-boundary-of-consecutive-days":
+      return "Estos lugares ya no forman un límite entre dos días consecutivos.";
+    case "invalid-day-partition":
+      return "El reparto por días no es estructuralmente válido; el tramo no se aplica.";
+  }
+}
+
+/**
+ * Phase 3D-Y's single manual inter-hub surface. Eligible anchor pairs are derived only from the
+ * current explicit route/day order. Hub snapshots are copied directly from those resolved places;
+ * mode and minutes remain blank until the user supplies them. Stored inactive segments stay visible
+ * and neutral, and their minutes are never merged into any existing subtotal.
+ */
+function InterHubSegmentsSection({
+  routeIds,
+  days,
+  placeById,
+  segments,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: {
+  routeIds: readonly string[];
+  days: readonly (readonly string[])[] | null;
+  placeById: ReadonlyMap<string, Place>;
+  segments: readonly ManualInterHubSegment[];
+  onAdd: (input: NewManualInterHubSegment) => void;
+  onUpdate: (segmentId: string, mode: InterHubMode, minutes: number) => void;
+  onRemove: (segmentId: string) => void;
+}) {
+  const [selectedPairKey, setSelectedPairKey] = useState("");
+  const [mode, setMode] = useState<InterHubMode | "">("");
+  const [minutes, setMinutes] = useState("");
+  const resolvePlace = (placeId: string) => {
+    const place = placeById.get(placeId);
+    return place ? { hub: place.hub } : null;
+  };
+  const eligiblePairs = deriveEligibleInterHubPairs({ routeIds, days, resolvePlace });
+  const storedPairKeys = new Set(segments.map(interHubPairKey));
+  const availablePairs = eligiblePairs.filter((pair) => !storedPairKeys.has(interHubPairKey(pair)));
+  const selectedPair = availablePairs.find((pair) => interHubPairKey(pair) === selectedPairKey) ?? null;
+  const parsedMinutes = Number(minutes);
+  const canAdd = selectedPair !== null && mode !== "" && isValidInterHubMinutes(parsedMinutes);
+
+  function pairLabel(pair: EligibleInterHubPair): string {
+    const fromName = placeById.get(pair.fromPlaceId)?.name ?? pair.fromPlaceId;
+    const toName = placeById.get(pair.toPlaceId)?.name ?? pair.toPlaceId;
+    return `${fromName} → ${toName} · ${pair.fromHub} → ${pair.toHub}`;
+  }
+
+  function add() {
+    if (!selectedPair || mode === "" || !isValidInterHubMinutes(parsedMinutes)) return;
+    onAdd({
+      fromPlaceId: selectedPair.fromPlaceId,
+      toPlaceId: selectedPair.toPlaceId,
+      fromHub: selectedPair.fromHub,
+      toHub: selectedPair.toHub,
+      mode,
+      minutes: parsedMinutes,
+    });
+    setSelectedPairKey("");
+    setMode("");
+    setMinutes("");
+  }
+
+  return (
+    <section className="inter-hub-segments" aria-label="Traslados entre ciudades">
+      <h3>Traslados entre ciudades</h3>
+      <p className="inter-hub-segments__intro">
+        Tramo principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
+        Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos.
+      </p>
+
+      {segments.length === 0 ? (
+        <p className="inter-hub-segments__empty">Todavía no has registrado ningún tramo entre ciudades.</p>
+      ) : (
+        <ul className="inter-hub-segments__list">
+          {segments.map((segment) => {
+            const assessment = assessInterHubSegment(segment, { routeIds, days, resolvePlace });
+            const fromName = placeById.get(segment.fromPlaceId)?.name ?? segment.fromPlaceId;
+            const toName = placeById.get(segment.toPlaceId)?.name ?? segment.toPlaceId;
+            return (
+              <li key={segment.id} className="inter-hub-segments__item">
+                <div className="inter-hub-segments__item-header">
+                  <div>
+                    <strong>{fromName} → {toName}</strong>
+                    <p className="inter-hub-segments__hubs">{segment.fromHub} → {segment.toHub}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="icon-button icon-button--small"
+                    onClick={() => onRemove(segment.id)}
+                    aria-label={`Eliminar tramo ${fromName} a ${toName}`}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <p className="inter-hub-segments__status">
+                  {assessment.kind === "active"
+                    ? `Activo · ${interHubPlacementText(assessment)}`
+                    : `Inactivo · ${interHubInactiveText(assessment.reason)}`}
+                </p>
+                <div className="inter-hub-segments__edit">
+                  <label>
+                    Modo
+                    <select
+                      value={segment.mode}
+                      onChange={(event) => {
+                        if (isInterHubMode(event.target.value)) {
+                          onUpdate(segment.id, event.target.value, segment.minutes);
+                        }
+                      }}
+                    >
+                      {INTER_HUB_MODES.map((value) => (
+                        <option key={value} value={value}>{INTER_HUB_MODE_LABELS[value]}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Duración manual del tramo principal
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      inputMode="numeric"
+                      defaultValue={segment.minutes}
+                      onBlur={(event) => {
+                        const value = Number(event.currentTarget.value);
+                        if (isValidInterHubMinutes(value)) onUpdate(segment.id, segment.mode, value);
+                        else event.currentTarget.value = String(segment.minutes);
+                      }}
+                    />
+                  </label>
+                </div>
+                <p className="inter-hub-segments__minutes">{segment.minutes} min registrados manualmente</p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <div className="inter-hub-segments__form">
+        <label>
+          Posición en el plan
+          <select value={selectedPairKey} onChange={(event) => setSelectedPairKey(event.target.value)}>
+            <option value="">Selecciona dos puntos consecutivos de hubs distintos</option>
+            {availablePairs.map((pair) => (
+              <option key={interHubPairKey(pair)} value={interHubPairKey(pair)}>{pairLabel(pair)}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Modo
+          <select
+            value={mode}
+            onChange={(event) => setMode(isInterHubMode(event.target.value) ? event.target.value : "")}
+          >
+            <option value="">Selecciona modo</option>
+            {INTER_HUB_MODES.map((value) => (
+              <option key={value} value={value}>{INTER_HUB_MODE_LABELS[value]}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Duración manual del tramo principal
+          <input
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            value={minutes}
+            onChange={(event) => setMinutes(event.target.value)}
+          />
+        </label>
+        <button type="button" className="button button--secondary" disabled={!canAdd} onClick={add}>
+          <span aria-hidden="true">＋</span> Añadir tramo
+        </button>
+      </div>
+      {availablePairs.length === 0 && (
+        <p className="inter-hub-segments__hint">
+          No hay una pareja consecutiva nueva entre hubs distintos en el reparto actual.
+        </p>
+      )}
+    </section>
+  );
+}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/**
+ * Phase 3D-W — Trip Bounds Runtime: the neutral summary of the trip's civil range, rendered inside
+ * the EXISTING `.calendar-anchor` block. No modal, no wizard, no new page, panel or product surface.
+ *
+ * It renders up to three DISTINCT facts and never conflates them (design §9.1):
+ *
+ *   A. the civil range the user chose, with its inclusive calendar-day count;
+ *   B. how many day buckets currently exist;
+ *   C. when both are known and they disagree, how many buckets fall after the end date.
+ *
+ * Every one of them is a statement about what the user chose or what exists. Nihon does not have an
+ * opinion here: the "fewer buckets than calendar days" and "exactly as many" cases are deliberately
+ * worded IDENTICALLY, so neither is endorsed as correct, and the mismatch line is a count and
+ * nothing more. Forbidden in any form (design §9.2): a duration recommendation, a suggestion to add
+ * or remove a day, a claim that days are missing or left over, a night count, and any check-in /
+ * check-out / flight / airport / arrival-time language.
+ *
+ * The inverted-range notice is a `role="status"` element of its own, deliberately separate from the
+ * builder's existing invalid-partition `role="alert"` banner: they are unrelated signals and §9.3
+ * requires that they never be merged. Nothing here repairs anything — both dates stay exactly as the
+ * user entered them.
+ */
+function TripBoundsNotice({ summary }: { summary: TripBoundsSummary }) {
+  const { startDate, endDate, tripCalendarDays, dayCount, unavailableReason, daysAfterTripEnd } = summary;
+
+  return (
+    <div className="trip-bounds-notice">
+      {tripCalendarDays !== null && startDate !== null && endDate !== null && (
+        <p className="trip-bounds-notice__range">
+          {`Rango elegido: ${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)} (${tripCalendarDays} días de calendario).`}
+        </p>
+      )}
+
+      {unavailableReason === "no-end-date" && startDate !== null && (
+        <p className="trip-bounds-notice__partial">
+          Has fijado la fecha de inicio. Añade la fecha de fin si quieres registrar el rango completo.
+        </p>
+      )}
+
+      {unavailableReason === "no-start-date" && endDate !== null && (
+        <p className="trip-bounds-notice__partial">
+          Has fijado la fecha de fin. Nihon necesita también la fecha de inicio para situar los días.
+        </p>
+      )}
+
+      {unavailableReason === "inverted-range" && (
+        <p className="trip-bounds-notice__inverted" role="status">
+          <span aria-hidden="true">⚠</span> La fecha de fin es anterior a la de inicio. Nihon no
+          modifica ninguna de las dos ni tus días; revisa las fechas.
+        </p>
+      )}
+
+      {dayCount !== null && <p className="trip-bounds-notice__buckets">{`Días creados: ${dayCount}.`}</p>}
+
+      {dayCount !== null && unavailableReason === "no-end-date" && (
+        <p className="trip-bounds-notice__partial">No has registrado una fecha de fin.</p>
+      )}
+
+      {daysAfterTripEnd !== null && daysAfterTripEnd > 0 && (
+        <p className="trip-bounds-notice__mismatch">
+          {`Hay ${daysAfterTripEnd} día(s) posteriores a la fecha de fin.`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Phase 3D-W: the ONE thing a day card gains when its ordinal falls past the end of the trip.
+ *
+ * The card keeps everything it already had — its `Día N` heading, its derived civil date, its
+ * places, its transfers, its weekday/closure and recorded-hours signals, its reservation signals,
+ * its accommodation controls, its move buttons and its delete button. It is never hidden, disabled,
+ * greyed into uselessness, collapsed, reordered, relocated or auto-deleted, and no place inside it
+ * is moved anywhere (design §9.3, §11).
+ *
+ * That is the whole frontier this phase draws: **derivation is unconditional, presentation is
+ * conditional.** Every existing pure evaluator still computes exactly what it computed before for
+ * this day's date — the arithmetic date is real and correct, and a weekday does not stop being a
+ * fact about a date because the user is not travelling that day. The only thing that was ever false
+ * is the implicit claim that this is a day OF the trip, and that is corrected by saying so, not by
+ * withholding data the user could otherwise see.
+ */
+function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment }) {
+  if (assessment.kind !== "after-trip-end") return null;
+  return (
+    <p className="day-card__bounds-warning" role="status">
+      <span aria-hidden="true">⚠</span> Este día es posterior a la fecha de fin de tu viaje.
+    </p>
+  );
+}
+
+/** The existing Phase 3C-B evidence vocabulary, reused verbatim so one order is never described
+ * in a different language than another. Returns "" when there is nothing to disclose. */
+function confidenceMixText(counts: ConfidenceCounts): string {
+  const parts: string[] = [];
+  if (counts.validatedStatic > 0) {
+    parts.push(`${counts.validatedStatic} validado${counts.validatedStatic === 1 ? "" : "s"}`);
+  }
+  if (counts.estimated > 0) parts.push(`${counts.estimated} estimado${counts.estimated === 1 ? "" : "s"}`);
+  if (counts.scheduleAware > 0) parts.push(`${counts.scheduleAware} en vivo`);
+  return parts.join(" · ");
+}
+
+/**
+ * Phase 3E-C — the generated local alternatives for ONE day card.
+ *
+ * This is the first place in Nihon that shows the user an order they did not type. Everything
+ * about how it is worded is load-bearing (`docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md` §24):
+ *
+ *   - the claim is about **recorded local transfers inside one same-hub block**, never about the
+ *     day, the trip, the schedule, the hotel, or the real world;
+ *   - `guaranteedAdvantageMinutes` is presented as the *minimum gap between two recorded ranges*,
+ *     never as "ahorras X minutos" — the inputs may be estimated, and the word "garantizada"
+ *     alone would overstate that;
+ *   - both orders' evidence quality is shown side by side, so a comparison resting on estimated
+ *     edges is never silently dressed up as validated;
+ *   - the alternatives are listed in positional order with no "mejor"/"recomendado"/rank marker,
+ *     and nothing is applied until the user clicks.
+ *
+ * The empty state is deliberately absent rather than reassuring: "no proved swap" is a statement
+ * about the recorded evidence, not a verdict that the current order is optimal, so the neutral
+ * sentence below is the strongest thing that may be said (§13).
+ */
+function LocalSwapAlternativesSection({
+  dayNumber,
+  alternatives,
+  relocationAlternatives,
+  transpositionAlternatives,
+  reversalAlternatives,
+  pairBlockSwapAlternatives,
+  placeById,
+  onApply,
+  onApplyRelocation,
+  onApplyTransposition,
+  onApplyReversal,
+  onApplyPairBlockSwap,
+}: {
+  dayNumber: number;
+  alternatives: EvidenceCompleteLocalSwapAlternative[];
+  relocationAlternatives: EvidenceCompleteLocalRelocationAlternative[];
+  transpositionAlternatives: EvidenceCompleteInteriorTranspositionAlternative[];
+  reversalAlternatives: EvidenceCompleteFourPlaceInteriorReversalAlternative[];
+  pairBlockSwapAlternatives: EvidenceCompleteTwoPairBlockSwapAlternative[];
+  placeById: Map<string, Place>;
+  onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
+  onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
+  onApplyTransposition: (
+    alternative: EvidenceCompleteInteriorTranspositionAlternative
+  ) => void;
+  onApplyReversal: (
+    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
+  ) => void;
+  onApplyPairBlockSwap: (
+    alternative: EvidenceCompleteTwoPairBlockSwapAlternative
+  ) => void;
+}) {
+  const headingId = `local-swap-heading-${dayNumber}`;
+  const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
+  const hasAlternatives =
+    alternatives.length > 0 ||
+    relocationAlternatives.length > 0 ||
+    transpositionAlternatives.length > 0 ||
+    reversalAlternatives.length > 0 ||
+    pairBlockSwapAlternatives.length > 0;
+
+  return (
+    <section className="local-swap" aria-labelledby={headingId}>
+      <h4 id={headingId} className="local-swap__heading">
+        Alternativas locales con evidencia completa
+      </h4>
+      {!hasAlternatives ? (
+        <p className="local-swap__empty">
+          No hay una alternativa local con mejora demostrable usando todos los traslados registrados
+          necesarios para esta comparación.
+        </p>
+      ) : (
+        <>
+          {alternatives.length > 0 && (
+            <div className="local-swap__group">
+              <h5>Intercambios adyacentes</h5>
+              <ul className="local-swap__list">
+                {alternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.leftDayIndex}`}
+                      className="local-swap__item"
+                    >
+                      <p className="local-swap__pair">
+                        Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
+                        <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}, entre {nameOf(alternative.blockStartPlaceId)} y{" "}
+                        {nameOf(alternative.blockEndPlaceId)}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de esta alternativa</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}. El rango registrado de
+                        esta alternativa queda al menos esa diferencia por debajo del rango registrado
+                        actual.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApply(alternative)}
+                      >
+                        Aplicar este intercambio
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {relocationAlternatives.length > 0 && (
+            <div className="local-swap__group local-relocation">
+              <h5>Reubicaciones de un lugar</h5>
+              <ul className="local-swap__list">
+                {relocationAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  const destinationPlaceId =
+                    alternative.candidateDayPlaceIds[alternative.toDayIndex + 1] ??
+                    alternative.blockEndPlaceId;
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.fromDayIndex}:${alternative.toDayIndex}`}
+                      className="local-swap__item local-relocation__item"
+                    >
+                      <p className="local-swap__pair local-relocation__move">
+                        Mover <strong>{nameOf(alternative.movedPlaceId)}</strong> antes de{" "}
+                        <strong>{nameOf(destinationPlaceId)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de esta reubicación</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Esta reubicación reduce el rango de traslado local registrado de este bloque
+                        según la evidencia disponible. Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyRelocation(alternative)}
+                      >
+                        Aplicar esta reubicación
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {transpositionAlternatives.length > 0 && (
+            <div className="local-swap__group local-transposition">
+              <h5>Intercambios no adyacentes</h5>
+              <ul className="local-swap__list">
+                {transpositionAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.leftDayIndex}:${alternative.rightDayIndex}`}
+                      className="local-swap__item local-transposition__item"
+                    >
+                      <p className="local-swap__pair local-transposition__exchange">
+                        Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
+                        <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de este intercambio</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Este intercambio no adyacente reduce de forma demostrable el rango de traslado
+                        local registrado de este bloque. Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyTransposition(alternative)}
+                      >
+                        Aplicar este intercambio no adyacente
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {reversalAlternatives.length > 0 && (
+            <div className="local-swap__group local-reversal">
+              <h5>Reversiones de cuatro lugares</h5>
+              <ul className="local-swap__list">
+                {reversalAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  const [first, second, third, fourth] = alternative.originalWindowPlaceIds;
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
+                      className="local-swap__item local-reversal__item"
+                    >
+                      <p className="local-swap__pair local-reversal__window">
+                        Revertir el orden de <strong>{nameOf(first)}</strong>,{" "}
+                        <strong>{nameOf(second)}</strong>, <strong>{nameOf(third)}</strong> y{" "}
+                        <strong>{nameOf(fourth)}</strong> dentro del bloque de {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de esta reversión</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Esta reversión de cuatro lugares reduce de forma demostrable el rango de
+                        traslado local registrado de este bloque. Ventaja mínima entre los rangos
+                        registrados: {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyReversal(alternative)}
+                      >
+                        Aplicar esta reversión de cuatro lugares
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {pairBlockSwapAlternatives.length > 0 && (
+            <div className="local-swap__group local-pair-block-swap">
+              <h5>Intercambios de bloques de dos lugares</h5>
+              <ul className="local-swap__list">
+                {pairBlockSwapAlternatives.map((alternative) => {
+                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
+                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
+                  const [firstPairStart, firstPairEnd] = alternative.firstPairPlaceIds;
+                  const [secondPairStart, secondPairEnd] = alternative.secondPairPlaceIds;
+                  return (
+                    <li
+                      key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
+                      className="local-swap__item local-pair-block-swap__item"
+                    >
+                      <p className="local-swap__pair local-pair-block-swap__blocks">
+                        Intercambiar los bloques de dos lugares{" "}
+                        <strong>{nameOf(firstPairStart)}</strong> →{" "}
+                        <strong>{nameOf(firstPairEnd)}</strong> y{" "}
+                        <strong>{nameOf(secondPairStart)}</strong> →{" "}
+                        <strong>{nameOf(secondPairEnd)}</strong> dentro del bloque de{" "}
+                        {alternative.hub}.
+                      </p>
+                      <dl className="local-swap__ranges">
+                        <div>
+                          <dt>Traslados registrados del bloque actual</dt>
+                          <dd>
+                            {formatRange(alternative.baselineTransferMinutes)}
+                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Traslados registrados de este intercambio de bloques</dt>
+                          <dd>
+                            {formatRange(alternative.candidateTransferMinutes)}
+                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p className="local-swap__advantage">
+                        Este intercambio de bloques reduce de forma demostrable el rango de traslado
+                        local registrado de este bloque. Ventaja mínima entre los rangos registrados:{" "}
+                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
+                      </p>
+                      <p className="local-swap__disclaimer">
+                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
+                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button--secondary local-swap__apply"
+                        onClick={() => onApplyPairBlockSwap(alternative)}
+                      >
+                        Aplicar este intercambio de bloques
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+function wholeTripUnavailableText(reason: Extract<WholeTripComposition, { kind: "unavailable" }>["reason"]): string {
+  switch (reason) {
+    case "no-day-assignment":
+      return "Crea un reparto por días para describir el plan completo sin borrar sus límites.";
+    case "invalid-day-partition":
+      return "El reparto por días no coincide exactamente con el recorrido; no se muestran cálculos parciales.";
+    case "unresolved-route-place":
+      return "Un lugar del recorrido no se puede resolver; no se muestran cálculos parciales.";
+  }
+}
+
+function wholeTripBoundsText(bounds: WholeTripBoundsComposition): string {
+  if (bounds.tripCalendarDays !== null && bounds.startDate !== null && bounds.endDate !== null) {
+    return `${formatCivilDateDisplay(bounds.startDate)} – ${formatCivilDateDisplay(bounds.endDate)} · ${bounds.tripCalendarDays} días de calendario.`;
+  }
+  switch (bounds.unavailableReason) {
+    case "no-start-date":
+      return "Sin fecha de inicio registrada.";
+    case "no-end-date":
+      return "Sin fecha de fin registrada.";
+    case "invalid-date":
+      return "El rango contiene una fecha no válida.";
+    case "inverted-range":
+      return "La fecha de fin es anterior a la fecha de inicio; ambos valores permanecen sin reparar.";
+    case null:
+      return "Sin rango civil cuantificable.";
+  }
+}
+
+/** Read-only Phase 3E-A projection. No value rendered here is written back to the V7 draft. */
+function WholeTripCompositionSection({ composition }: { composition: WholeTripComposition }) {
+  if (composition.kind === "unavailable") {
+    return (
+      <section className="whole-trip-composition" aria-label="Resumen del plan completo">
+        <h3>Resumen del plan completo</h3>
+        <p className="whole-trip-composition__unavailable">{wholeTripUnavailableText(composition.reason)}</p>
+      </section>
+    );
+  }
+
+  const totalPlaceCount = composition.visit.quantifiedPlaceCount + composition.visit.nonQuantifiedPlaceCount;
+  const missingMovementCount =
+    composition.movement.localMissingCount + composition.movement.interHubMissingCount;
+  const registeredTransportIsPartial =
+    missingMovementCount > 0 ||
+    composition.accommodation.manualLegMissingCount > 0 ||
+    composition.accommodation.boundaryUnselectedCount > 0;
+
+  return (
+    <section className="whole-trip-composition" aria-label="Resumen del plan completo">
+      <h3>Resumen del plan completo</h3>
+      <p className="whole-trip-composition__intro">
+        Describe únicamente los datos registrados para este reparto; no puntúa ni recomienda cambios.
+      </p>
+
+      <div className="whole-trip-composition__group">
+        <h4>Visitas</h4>
+        <p>
+          Tiempo de visita cuantificado: {composition.visit.quantifiedMinutes
+            ? formatRange(composition.visit.quantifiedMinutes)
+            : "sin duración numérica registrada"}.
+        </p>
+        <p>{composition.visit.quantifiedPlaceCount} de {totalPlaceCount} lugares con duración numérica.</p>
+        <p>
+          No cuantificados: {composition.visit.nonQuantifiedPlaceCount}; compromisos de escala día: {composition.visit.dayScaleCommitmentCount}; sin clasificación: {composition.visit.unclassifiedPlaceCount}.
+        </p>
+        {!composition.visit.completeNumericCoverage && (
+          <p className="whole-trip-composition__incomplete">La cobertura numérica de visitas está incompleta.</p>
+        )}
+      </div>
+
+      <div className="whole-trip-composition__group">
+        <h4>Traslados registrados</h4>
+        <p>
+          Traslado registrado: {composition.registeredTransportMinutes
+            ? formatRange(composition.registeredTransportMinutes)
+            : "sin componentes registrados"}. Incluye solo componentes registrados: movimiento entre
+          lugares y minutos manuales de alojamiento. Los desgloses siguientes ya forman parte de esa cifra.
+        </p>
+        {registeredTransportIsPartial && (
+          <p className="whole-trip-composition__incomplete">
+            Esta cifra es parcial: hay componentes locales, entre ciudades o de alojamiento sin registrar.
+          </p>
+        )}
+        <p>
+          Locales con tiempo: {composition.movement.localKnownCount}; locales faltantes: {composition.movement.localMissingCount}.
+        </p>
+        <p>
+          Entre ciudades activos: {composition.movement.interHubActiveCount}; faltantes: {composition.movement.interHubMissingCount}.
+        </p>
+        <p>Posiciones de movimiento modeladas: {composition.movement.modeledAdjacencyCount}.</p>
+        {missingMovementCount > 0 ? (
+          <p className="whole-trip-composition__incomplete">
+            Cobertura incompleta: faltan {composition.movement.localMissingCount} tramo(s) local(es) y {composition.movement.interHubMissingCount} tramo(s) entre ciudades.
+          </p>
+        ) : composition.movement.adjacencyCoverageComplete && composition.movement.modeledAdjacencyCount > 0 ? (
+          <p>Todos los tramos entre lugares que este resumen modela tienen tiempo registrado.</p>
+        ) : (
+          <p>No hay posiciones de movimiento entre lugares modeladas en este reparto.</p>
+        )}
+      </div>
+
+      <div className="whole-trip-composition__group">
+        <h4>Alojamiento</h4>
+        <p>
+          Minutos manuales registrados: {composition.accommodation.registeredMinutes === null
+            ? "ninguno"
+            : formatMinutes(composition.accommodation.registeredMinutes)}.
+        </p>
+        <p>
+          Tramos manuales: {composition.accommodation.manualLegCount}; faltantes: {composition.accommodation.manualLegMissingCount}; sin seleccionar: {composition.accommodation.boundaryUnselectedCount}.
+        </p>
+        <p>
+          Sin alojamiento explícito: {composition.accommodation.explicitNoAccommodationCount}; límites de días vacíos no aplicables: {composition.accommodation.emptyDayNotApplicableCount}.
+        </p>
+      </div>
+
+      <div className="whole-trip-composition__group">
+        <h4>Rango del viaje</h4>
+        <p>{wholeTripBoundsText(composition.bounds)}</p>
+        <p>Días creados: {composition.bounds.dayCount}.</p>
+        {composition.bounds.daysAfterTripEnd !== null && composition.bounds.daysAfterTripEnd > 0 && (
+          <p className="whole-trip-composition__incomplete">
+            Días posteriores a la fecha de fin: {composition.bounds.daysAfterTripEnd}. Siguen incluidos en las visitas y traslados registrados de este resumen.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [reservationReferenceDate] = useState<string | null>(() => captureDeviceLocalCivilDate());
 
   const placeById = useMemo(() => new Map(savedPlaces.map((place) => [place.id, place])), [savedPlaces]);
   const savedIds = useMemo(() => savedPlaces.map((place) => place.id), [savedPlaces]);
 
   // The persisted manual plan (Phase 3C-D) — the single source of truth for the route and the
   // canonical day assignment. `days` is `null` exactly when no valid day split exists yet.
-  const { routeIds, days, setRoute: setRouteIds, setDays: setDayIds, resetRoute } = usePlanningDraft(savedIds);
+  const {
+    routeIds,
+    planningDays,
+    days,
+    startDate,
+    endDate,
+    visitStartTimes,
+    accommodations,
+    accommodationLegs,
+    interHubSegments,
+    setRoute: setRouteIds,
+    initializeDays,
+    movePlaceWithinDay,
+    relocatePlaceWithinDay,
+    transposePlacesWithinDay,
+    reverseFourPlacesWithinDay,
+    swapTwoPairBlocksWithinDay,
+    movePlaceBetweenDays,
+    addEmptyDay,
+    removeEmptyDay,
+    moveDay,
+    setStartDate,
+    setEndDate,
+    setVisitStartTime,
+    addAccommodation,
+    removeAccommodation,
+    setDayAccommodationChoice,
+    setAccommodationLeg,
+    addInterHubSegment,
+    updateInterHubSegment,
+    removeInterHubSegment,
+    resetRoute,
+  } = usePlanningDraft(savedIds);
+  // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
+  // given — `buildDayAssignment`, the calendar, weekday signals, reservation evaluation, hours
+  // composition and intra-day transfers all still see only this. `dayEntities` is the parallel
+  // identity view, used solely to address a mutation at the day the user is looking at and to read
+  // that same day's own accommodation boundary; no day id is ever passed into a domain module.
   const dayIds = useMemo(() => days ?? [], [days]);
+  const dayEntities = useMemo(() => planningDays ?? [], [planningDays]);
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
   // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
@@ -415,6 +2618,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
 
   const sequence = useMemo(() => buildOrderedSequence(routeIds), [routeIds]);
   const visitSummary = useMemo(() => summarizeSelection(routePlaces), [routePlaces]);
+  const reservationPreparation = useMemo(
+    () => buildReservationPreparationSummary(routePlaces),
+    [routePlaces]
+  );
+  const recordedHours = useMemo(() => buildRecordedHoursSummary(routePlaces), [routePlaces]);
 
   const candidateAPlaces = useMemo(
     () => candidateAIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
@@ -435,6 +2643,301 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     [dayIds, placeById]
   );
   const dayAssignment = useMemo(() => buildDayAssignment(routeIds, dayIds), [routeIds, dayIds]);
+
+  // Phase 3F-J: one route-wide aggregation of the Phase 3F facts already derived for this plan.
+  // Purely derived on every render from the current plan plus the one reference date captured at
+  // planner open — nothing is cached beyond this memo and nothing is persisted, so moving a place,
+  // reordering a day, changing the start date or clearing it recomputes the whole list by
+  // construction. `dayEntities` supplies the stable day id only where it exists; it is never
+  // invented, and `dayPlaceLists` is index-aligned with `dayAssignment.days` by construction.
+  const routeWideReservationCalendar = useMemo(
+    () =>
+      buildRouteWideOfficialReservationCalendar(
+        reservationMechanismEvidenceRecords,
+        dayPlaceLists.map((places, dayIndex) => ({
+          id: dayEntities[dayIndex]?.id ?? null,
+          places,
+        })),
+        dayAssignment,
+        startDate,
+        reservationReferenceDate
+      ),
+    [dayPlaceLists, dayEntities, dayAssignment, startDate, reservationReferenceDate]
+  );
+
+  // Phase 3D-W: the three neutral facts about the trip's civil range, derived on read and never
+  // persisted. The bucket count comes from `days` — `null` when no day assignment exists at all, so
+  // "0 días creados" is never invented for a draft that was simply never split. Nothing here feeds
+  // back into the draft: the range and the buckets stay two independent user decisions, and a
+  // disagreement between them is a fact to be shown, not a defect to be corrected.
+  const tripBoundsSummary = useMemo(
+    () => buildTripBoundsSummary({ startDate, endDate }, days === null ? null : days.length),
+    [startDate, endDate, days]
+  );
+  const wholeTripComposition = useMemo(
+    () =>
+      buildWholeTripComposition(
+        {
+          routeIds,
+          days: planningDays,
+          interHubSegments,
+          accommodationLegs,
+          bounds: { startDate, endDate },
+        },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, interHubSegments, accommodationLegs, startDate, endDate, placeById]
+  );
+
+  /**
+   * Phase 3E-C: the generated local alternatives, derived fresh on every render from the current
+   * draft exactly like every other value in this component — never persisted, never cached across
+   * an edit, never carried over an Apply. Recomputing from `planningDays`/`visitStartTimes` is what
+   * makes "after Apply, fresh alternatives from the new baseline" (design §26) automatic rather
+   * than something a hand-written invalidation has to remember.
+   */
+  const localSwapGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteLocalSwaps(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /** Positional emission order is preserved inside each day; grouping never re-sorts or ranks. */
+  const localSwapsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteLocalSwapAlternative[]>();
+    if (localSwapGeneration.kind !== "available") return byDayId;
+    for (const alternative of localSwapGeneration.alternatives) {
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [localSwapGeneration]);
+
+  /** Phase 3E-E relocations are independently baseline-derived, then grouped without ranking. */
+  const localRelocationGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteLocalRelocations(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  const localRelocationsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteLocalRelocationAlternative[]>();
+    if (localRelocationGeneration.kind !== "available") return byDayId;
+    for (const alternative of localRelocationGeneration.alternatives) {
+      const swapOrders = localSwapsByDayId.get(alternative.dayId) ?? [];
+      const duplicatesSwap = swapOrders.some(
+        (swap) =>
+          JSON.stringify(swap.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (duplicatesSwap) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [localRelocationGeneration, localSwapsByDayId]);
+
+  /** Phase 3E-G transpositions are independently baseline-derived, then grouped without ranking. */
+  const interiorTranspositionGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteInteriorTranspositions(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /**
+   * A genuine non-adjacent transposition cannot equal one adjacent swap or one single-place
+   * relocation under the current unique-id route model, so this only ever drops a duplicate a
+   * future schema change could introduce. It never reorders or ranks what survives.
+   */
+  const interiorTranspositionsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteInteriorTranspositionAlternative[]>();
+    if (interiorTranspositionGeneration.kind !== "available") return byDayId;
+    for (const alternative of interiorTranspositionGeneration.alternatives) {
+      const shownOrders = [
+        ...(localSwapsByDayId.get(alternative.dayId) ?? []),
+        ...(localRelocationsByDayId.get(alternative.dayId) ?? []),
+      ];
+      const alreadyShown = shownOrders.some(
+        (shown) =>
+          JSON.stringify(shown.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (alreadyShown) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [interiorTranspositionGeneration, localSwapsByDayId, localRelocationsByDayId]);
+
+  /** Phase 3E-I reversals are independently baseline-derived, then grouped without ranking. */
+  const fourPlaceReversalGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteFourPlaceInteriorReversals(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /**
+   * A four-place reversal is not generated by any earlier neighbourhood, so this only ever drops a
+   * duplicate a future schema change could introduce. It never reorders or ranks what survives, and
+   * it never suppresses an earlier group because a later one has a larger gap.
+   */
+  const fourPlaceReversalsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteFourPlaceInteriorReversalAlternative[]>();
+    if (fourPlaceReversalGeneration.kind !== "available") return byDayId;
+    for (const alternative of fourPlaceReversalGeneration.alternatives) {
+      const shownOrders = [
+        ...(localSwapsByDayId.get(alternative.dayId) ?? []),
+        ...(localRelocationsByDayId.get(alternative.dayId) ?? []),
+        ...(interiorTranspositionsByDayId.get(alternative.dayId) ?? []),
+      ];
+      const alreadyShown = shownOrders.some(
+        (shown) =>
+          JSON.stringify(shown.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (alreadyShown) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [
+    fourPlaceReversalGeneration,
+    localSwapsByDayId,
+    localRelocationsByDayId,
+    interiorTranspositionsByDayId,
+  ]);
+
+  /** Phase 3E-K pair-block swaps are independently baseline-derived, then grouped without ranking. */
+  const twoPairBlockSwapGeneration = useMemo(
+    () =>
+      generateEvidenceCompleteTwoPairBlockSwaps(
+        { routeIds, days: planningDays, visitStartTimes },
+        { resolvePlace: (placeId) => placeById.get(placeId) ?? null }
+      ),
+    [routeIds, planningDays, visitStartTimes, placeById]
+  );
+  /**
+   * An exact 2+2 block swap is not generated by any earlier neighbourhood, so this only ever drops
+   * a duplicate a future schema change could introduce. It never reorders or ranks what survives,
+   * and it never suppresses an earlier group because this one has a larger gap: ownership runs
+   * C → E → G → I → K in that fixed order.
+   */
+  const twoPairBlockSwapsByDayId = useMemo(() => {
+    const byDayId = new Map<string, EvidenceCompleteTwoPairBlockSwapAlternative[]>();
+    if (twoPairBlockSwapGeneration.kind !== "available") return byDayId;
+    for (const alternative of twoPairBlockSwapGeneration.alternatives) {
+      const shownOrders = [
+        ...(localSwapsByDayId.get(alternative.dayId) ?? []),
+        ...(localRelocationsByDayId.get(alternative.dayId) ?? []),
+        ...(interiorTranspositionsByDayId.get(alternative.dayId) ?? []),
+        ...(fourPlaceReversalsByDayId.get(alternative.dayId) ?? []),
+      ];
+      const alreadyShown = shownOrders.some(
+        (shown) =>
+          JSON.stringify(shown.candidateDayPlaceIds) ===
+          JSON.stringify(alternative.candidateDayPlaceIds)
+      );
+      if (alreadyShown) continue;
+      const existing = byDayId.get(alternative.dayId);
+      if (existing) existing.push(alternative);
+      else byDayId.set(alternative.dayId, [alternative]);
+    }
+    return byDayId;
+  }, [
+    twoPairBlockSwapGeneration,
+    localSwapsByDayId,
+    localRelocationsByDayId,
+    interiorTranspositionsByDayId,
+    fourPlaceReversalsByDayId,
+  ]);
+
+  /**
+   * The one explicit user action that may change a day's order from a generated candidate.
+   *
+   * The candidate is re-verified against the plan as it is *now* before anything moves — the draft
+   * may have changed since the alternative was derived — and the mutation itself is the ordinary
+   * `movePlaceWithinDay` every manual reorder already goes through, so the day id, its
+   * accommodation boundary, every other day, `routeIds`, the dates, the visit times, the
+   * accommodations, the manual legs and every stored inter-hub segment travel through untouched.
+   * A stale candidate is a silent no-op: the next render simply regenerates from the real plan.
+   */
+  function applyLocalSwap(alternative: EvidenceCompleteLocalSwapAlternative) {
+    applyEvidenceCompleteLocalSwap(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, placeIndex, direction) => movePlaceWithinDay(dayId, placeIndex, direction)
+    );
+  }
+
+  function applyLocalRelocation(alternative: EvidenceCompleteLocalRelocationAlternative) {
+    applyEvidenceCompleteLocalRelocation(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, fromIndex, toIndex) => relocatePlaceWithinDay(dayId, fromIndex, toIndex)
+    );
+  }
+
+  /**
+   * The one explicit user action behind a transposition. Re-verified against the plan as it is
+   * now, then applied as a single pure V7 mutation — never two moves and never a follow-up
+   * suggestion applied on the user's behalf.
+   */
+  function applyInteriorTransposition(
+    alternative: EvidenceCompleteInteriorTranspositionAlternative
+  ) {
+    applyEvidenceCompleteInteriorTransposition(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, leftIndex, rightIndex) => transposePlacesWithinDay(dayId, leftIndex, rightIndex)
+    );
+  }
+
+  /**
+   * The one explicit user action behind a four-place reversal. Re-verified against the plan as it
+   * is now, then applied as a single pure V7 mutation — never four moves and never a follow-up
+   * suggestion applied on the user's behalf.
+   */
+  function applyFourPlaceReversal(
+    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
+  ) {
+    applyEvidenceCompleteFourPlaceInteriorReversal(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, windowStartIndex) => reverseFourPlacesWithinDay(dayId, windowStartIndex)
+    );
+  }
+
+  /**
+   * The one explicit user action behind a two-pair block swap. Re-verified against the plan as it
+   * is now, then applied as a single pure V7 mutation — never two persisted relocations, and never
+   * a follow-up suggestion applied on the user's behalf. The applied order may newly admit a Phase
+   * 3E-E relocation; that candidate is regenerated from the new baseline and waits for its own
+   * explicit click.
+   */
+  function applyTwoPairBlockSwap(alternative: EvidenceCompleteTwoPairBlockSwapAlternative) {
+    applyEvidenceCompleteTwoPairBlockSwap(
+      alternative,
+      { routeIds, days: planningDays, visitStartTimes },
+      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
+      (dayId, windowStartIndex) => swapTwoPairBlocksWithinDay(dayId, windowStartIndex)
+    );
+  }
 
   function moveUp(index: number) {
     setRouteIds((ids) => moveItemUp(ids, index));
@@ -470,7 +2973,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   // back into the route itself.
   function openDayAssignment() {
     if (days === null) {
-      setDayIds([[...routeIds]]);
+      initializeDays([[...routeIds]]);
     }
     setView("days");
   }
@@ -604,6 +3107,20 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                     geográficas u horarios en vivo. <strong>No incluyen tiempo dentro de cada lugar.</strong>
                   </p>
 
+                  <ReservationPreparationSection summary={reservationPreparation} />
+
+                  <HoursPlanningSection summary={recordedHours} />
+
+                  <InterHubSegmentsSection
+                    routeIds={routeIds}
+                    days={days}
+                    placeById={placeById}
+                    segments={interHubSegments}
+                    onAdd={addInterHubSegment}
+                    onUpdate={updateInterHubSegment}
+                    onRemove={removeInterHubSegment}
+                  />
+
                   {routePlaces.length >= 2 && (
                     <div className="sequence-secondary-actions">
                       <button
@@ -624,6 +3141,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                   )}
                 </>
               )}
+
+              <WholeTripCompositionSection composition={wholeTripComposition} />
 
               <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
                 Restablecer recorrido
@@ -720,24 +3239,137 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 </p>
               )}
 
+              <div className="calendar-anchor">
+                <label htmlFor="sequence-start-date" className="calendar-anchor__label">
+                  Fecha de inicio (Día 1)
+                </label>
+                <input
+                  id="sequence-start-date"
+                  type="date"
+                  className="calendar-anchor__input"
+                  value={startDate ?? ""}
+                  onChange={(event) => setStartDate(event.target.value || null)}
+                />
+                {startDate && (
+                  <button
+                    type="button"
+                    className="link-button calendar-anchor__clear"
+                    onClick={() => setStartDate(null)}
+                  >
+                    Quitar fecha
+                  </button>
+                )}
+
+                {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
+                    control above and living in the same existing block. The two dates are two
+                    independent decisions: setting or clearing either one never touches the other,
+                    and never creates, deletes, reorders or repairs a day bucket. */}
+                <label htmlFor="sequence-end-date" className="calendar-anchor__label">
+                  Fecha de fin (último día del viaje)
+                </label>
+                <input
+                  id="sequence-end-date"
+                  type="date"
+                  className="calendar-anchor__input"
+                  value={endDate ?? ""}
+                  onChange={(event) => setEndDate(event.target.value || null)}
+                />
+                {endDate && (
+                  <button
+                    type="button"
+                    className="link-button calendar-anchor__clear"
+                    onClick={() => setEndDate(null)}
+                  >
+                    Quitar fecha
+                  </button>
+                )}
+              </div>
+
+              <TripBoundsNotice summary={tripBoundsSummary} />
+              <p className="analysis-disclaimer">
+                <span aria-hidden="true">ⓘ</span> La fecha es una decisión tuya. Nihon solo
+                desplaza el calendario a partir del Día 1; <strong>no elige ni sugiere qué fecha
+                conviene</strong>, y no comprueba horarios ni cierres.
+              </p>
+
+              <InterHubSegmentsSection
+                routeIds={routeIds}
+                days={days}
+                placeById={placeById}
+                segments={interHubSegments}
+                onAdd={addInterHubSegment}
+                onUpdate={updateInterHubSegment}
+                onRemove={removeInterHubSegment}
+              />
+
+              <WholeTripCompositionSection composition={wholeTripComposition} />
+
+              <AccommodationManagerSection
+                accommodations={accommodations}
+                onAdd={addAccommodation}
+                onRemove={removeAccommodation}
+              />
+
+              <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
+
               <div className="day-list">
                 {dayPlaceLists.map((places, dayIndex) => {
                   const bucket = dayAssignment.days[dayIndex];
                   const daySummary = summarizeSelection(places);
                   const isEmpty = places.length === 0;
+                  const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
+                  const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
+                  // Phase 3D-W: a purely derived read from the two civil bounds and this bucket's
+                  // ORDINAL POSITION — the same ordinal `dayDate` above is already derived from. No
+                  // day id crosses this line (`assessTripBounds` cannot accept one), nothing is
+                  // written back to the draft, and no existing signal above or below is suppressed
+                  // or altered by the verdict; it only adds a warning to the card's presentation.
+                  const boundsAssessment = assessTripBounds({ startDate, endDate }, dayIndex);
+                  // Phase 3D-S: the day entity at this ordinal position. Its `id` is what every
+                  // mutation below is addressed by, and its `accommodationBoundary` is structurally
+                  // its own — it cannot be another day's choice shifted into place by a splice,
+                  // because there is no separate positional boundary vector left to shift. The id
+                  // is deliberately invisible to the user: the heading below is still "Día N" from
+                  // the array position, and the date is still `startDate + dayIndex`.
+                  const dayEntity = dayEntities[dayIndex] ?? null;
+                  const dayBoundary = dayEntity?.accommodationBoundary ?? null;
                   return (
-                    <section key={dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
+                    <section key={dayEntity?.id ?? dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
-                        <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
-                        <button
-                          type="button"
-                          className="icon-button icon-button--small"
-                          onClick={() => setDayIds((days) => removeEmptyDay(days, dayIndex))}
-                          disabled={!isEmpty || dayIds.length <= 1}
-                          aria-label={`Eliminar Día ${dayIndex + 1}`}
-                        >
-                          <span aria-hidden="true">×</span>
-                        </button>
+                        <div>
+                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
+                          {dayDate && <p className="day-card__date">{formatCivilDateDisplay(dayDate)}</p>}
+                          <TripBoundsDayWarning assessment={boundsAssessment} />
+                        </div>
+                        <div className="day-card__header-actions">
+                          <button
+                            type="button"
+                            className="icon-button icon-button--small"
+                            onClick={() => dayEntity && moveDay(dayEntity.id, -1)}
+                            disabled={!dayEntity || dayIndex === 0}
+                            aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
+                          >
+                            <span aria-hidden="true">⇧</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button icon-button--small"
+                            onClick={() => dayEntity && moveDay(dayEntity.id, 1)}
+                            disabled={!dayEntity || dayIndex === dayIds.length - 1}
+                            aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
+                          >
+                            <span aria-hidden="true">⇩</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button icon-button--small"
+                            onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
+                            disabled={!isEmpty || dayIds.length <= 1}
+                            aria-label={`Eliminar Día ${dayIndex + 1}`}
+                          >
+                            <span aria-hidden="true">×</span>
+                          </button>
+                        </div>
                       </div>
 
                       {isEmpty ? (
@@ -749,17 +3381,19 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             legs={bucket?.sequence.legs ?? []}
                             labelSuffix={` en Día ${dayIndex + 1}`}
                             onMoveUp={(placeIndex) =>
-                              setDayIds((days) => moveWithinDay(days, dayIndex, placeIndex, -1))
+                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, -1)
                             }
                             onMoveDown={(placeIndex) =>
-                              setDayIds((days) => moveWithinDay(days, dayIndex, placeIndex, 1))
+                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, 1)
                             }
-                            onMoveToPreviousGroup={(placeIndex) =>
-                              setDayIds((days) => moveToAdjacentDay(days, dayIndex, placeIndex, -1))
-                            }
-                            onMoveToNextGroup={(placeIndex) =>
-                              setDayIds((days) => moveToAdjacentDay(days, dayIndex, placeIndex, 1))
-                            }
+                            onMoveToPreviousGroup={(placeIndex) => {
+                              const target = dayEntities[dayIndex - 1];
+                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
+                            }}
+                            onMoveToNextGroup={(placeIndex) => {
+                              const target = dayEntities[dayIndex + 1];
+                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
+                            }}
                             previousGroupLabel="al día anterior"
                             nextGroupLabel="al día siguiente"
                             canMoveToPreviousGroup={dayIndex > 0}
@@ -767,8 +3401,80 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             showDuration
                             compact
                           />
+                          <WeekdayClosureNotice signal={weekdaySignal} />
+                          <HoursClosureCompositionNotice
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                            dayNumber={dayIndex + 1}
+                          />
+                          <RecordedIntervalFitSection
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                            dayNumber={dayIndex + 1}
+                            visitStartTimes={visitStartTimes}
+                            onVisitStartTimeChange={setVisitStartTime}
+                          />
+                          <ReservationDeadlineNotice
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                            referenceDate={reservationReferenceDate}
+                          />
+                          <OfficialReservationDateNotice
+                            places={places}
+                            dayAssignment={dayAssignment}
+                            startDate={startDate}
+                            dayNumber={dayIndex + 1}
+                            referenceDate={reservationReferenceDate}
+                          />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
+                          )}
+                          {dayEntity &&
+                            localSwapGeneration.kind === "available" &&
+                            localRelocationGeneration.kind === "available" &&
+                            interiorTranspositionGeneration.kind === "available" &&
+                            fourPlaceReversalGeneration.kind === "available" &&
+                            twoPairBlockSwapGeneration.kind === "available" && (
+                            <LocalSwapAlternativesSection
+                              dayNumber={dayIndex + 1}
+                              alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
+                              relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
+                              transpositionAlternatives={
+                                interiorTranspositionsByDayId.get(dayEntity.id) ?? []
+                              }
+                              reversalAlternatives={
+                                fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
+                              }
+                              pairBlockSwapAlternatives={
+                                twoPairBlockSwapsByDayId.get(dayEntity.id) ?? []
+                              }
+                              placeById={placeById}
+                              onApply={applyLocalSwap}
+                              onApplyRelocation={applyLocalRelocation}
+                              onApplyTransposition={applyInteriorTransposition}
+                              onApplyReversal={applyFourPlaceReversal}
+                              onApplyPairBlockSwap={applyTwoPairBlockSwap}
+                            />
+                          )}
+                          {bucket && dayEntity && dayBoundary && (
+                            <AccommodationCommuteSection
+                              dayNumber={dayIndex + 1}
+                              dayPlaceIds={dayIds[dayIndex] ?? []}
+                              places={places}
+                              intraDay={bucket.sequence.summary}
+                              boundary={dayBoundary}
+                              accommodations={accommodations}
+                              accommodationLegs={accommodationLegs}
+                              onChoiceChange={(side, choice) =>
+                                setDayAccommodationChoice(dayEntity.id, side, choice)
+                              }
+                              onLegChange={(direction, accommodationId, placeId, minutes) =>
+                                setAccommodationLeg(direction, accommodationId, placeId, minutes)
+                              }
+                            />
                           )}
                         </>
                       )}
@@ -780,7 +3486,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
               <button
                 type="button"
                 className="button button--secondary sequence-add-day"
-                onClick={() => setDayIds((days) => addEmptyDay(days))}
+                onClick={() => addEmptyDay()}
               >
                 <span aria-hidden="true">＋</span> Añadir día
               </button>

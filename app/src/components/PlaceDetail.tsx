@@ -5,14 +5,9 @@ import { resolvePlaceImages } from "../data/place-images";
 import { resolveDuration, formatRange } from "../lib/duration";
 import { getBestTransfer, type TransferEdge } from "../lib/transfer";
 import { describeTransferForUi, transferListFootnote } from "../lib/transfer-display";
-import {
-  alertSeverity,
-  formatPrice,
-  imageBriefText,
-  isHiddenGem,
-  severityLabel,
-  splitCategory,
-} from "../lib/place";
+import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
+import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
+import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
 
 type Props = {
   place: Place;
@@ -101,7 +96,8 @@ export function PlaceDetail({
   const brief = imageBriefText(place);
   const duration = resolveDuration(place.duration);
   const category = splitCategory(place.category);
-  const severity = alertSeverity(place.febMar2027.status);
+  const febMarStatus = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
+  const reservation = describeReservationForUi(interpretPlaceReservation(place), place.reservation.leadTime);
   const showExperience = place.experience && place.experience !== place.description;
 
   const nearbyPlaces = nearby.flatMap((relation) => {
@@ -162,7 +158,9 @@ export function PlaceDetail({
                 </span>
               )}
               <span className="tag tag--muted">Turismo: {place.tourismLevel}</span>
-              {place.reservation.required && <span className="tag tag--alert">Requiere reserva</span>}
+              {reservation.tag && (
+                <span className={`tag ${reservation.tag.className}`}>{reservation.tag.label}</span>
+              )}
             </div>
           </header>
 
@@ -203,11 +201,10 @@ export function PlaceDetail({
             <QuickFact icon="🗓" label="Mejor época" value={place.bestSeason} />
           </div>
 
-          <section className={`alert alert--${severity}`}>
+          <section className={`alert alert--${febMarStatus.cssModifier}`}>
             <h3 className="alert__title">
-              <span aria-hidden="true">{severity === "confirmed" ? "✓" : severity === "risk" ? "⚠" : "ⓘ"}</span>{" "}
-              Febrero–marzo 2027
-              <span className="alert__severity">{severityLabel(severity)}</span>
+              <span aria-hidden="true">{febMarStatus.icon}</span> Febrero–marzo 2027
+              <span className="alert__severity">{febMarStatus.label}</span>
             </h3>
             <p className="alert__status">{place.febMar2027.status}</p>
             <p>{place.febMar2027.warning}</p>
@@ -223,14 +220,7 @@ export function PlaceDetail({
             <dl className="detail-rows">
               <Row label="Horario" value={place.schedule.hours} />
               <Row label="Cierres" value={place.schedule.closures} />
-              <Row
-                label="Reserva"
-                value={
-                  place.reservation.required
-                    ? `Necesaria · ${place.reservation.leadTime}`
-                    : "No es necesaria"
-                }
-              />
+              <Row label="Reserva" value={reservation.practicalRow} />
               <Row label="Cómo llegar" value={place.transport} />
               <Row label="Accesibilidad" value={place.accessibility} />
               <Row label="Aglomeración" value={place.crowdLevel} />

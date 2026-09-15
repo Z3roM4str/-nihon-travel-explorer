@@ -726,6 +726,21 @@ a {
   color: var(--color-warn);
 }
 
+/* Phase 3D-C — reservation semantics. Distinct, softer tones from `.tag--alert` (required):
+   "recommended" and "optional" are real nuances from `reservation.raw`, not the same claim as
+   "required", and must not read with the same visual urgency. */
+.tag--reservation-recommended {
+  background: var(--color-ok-soft);
+  border-color: #b3ddc5;
+  color: var(--color-ok);
+}
+
+.tag--reservation-optional {
+  background: #eaf2f8;
+  border-color: #c7dcec;
+  color: var(--color-info);
+}
+
 .tag--grade-S,
 .badge--grade-S {
   background: #b7282e;
@@ -2416,6 +2431,18 @@ a {
   font-size: 0.95rem;
 }
 
+.day-card__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.day-card__date {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
 .sequence-add-day {
   width: 100%;
 }
@@ -2423,4 +2450,1042 @@ a {
 .sequence-reset {
   align-self: flex-start;
   margin-top: 0.3rem;
+}
+
+.calendar-anchor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.calendar-anchor__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.calendar-anchor__input {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.calendar-anchor__clear {
+  font-size: 0.8rem;
+}
+
+/* Phase 3D-W — trip bounds. Three deliberately equal-weight facts (the chosen range, the buckets
+   that exist, and any mismatch between them), styled as plain muted body text rather than as an
+   alert: Nihon is stating what the user chose and what exists, not judging either. The inverted-
+   range line is the one exception and reuses the warm "pending" foreground the weekday-closure
+   signal already uses — a state to look at, never an error the app corrects on the user's behalf. */
+.trip-bounds-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: -0.35rem 0 0.75rem;
+}
+
+.trip-bounds-notice p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.trip-bounds-notice p.trip-bounds-notice__inverted {
+  color: #6c4310;
+  font-weight: 600;
+}
+
+/* The per-day warning sits inside the existing day-card header, under the derived date. The card
+   keeps every control and every signal it already had — this only annotates it. */
+.day-card__bounds-warning {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6c4310;
+}
+
+/* Phase 3D-B — weekday closure signal. Reuses the app's existing warm "pending" palette (the
+   same tokens `.alert--pending` uses) rather than the stronger risk/red treatment: a possible
+   weekday-closure match is a conservative planning signal to double-check, not an alarm. */
+.weekday-signal {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.weekday-signal__summary {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
+.weekday-signal__summary--warn {
+  background: var(--color-warn-soft);
+  border: 1px solid #eccf9c;
+  color: #6c4310;
+}
+
+.weekday-signal__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.weekday-signal__note {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.weekday-signal__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3D-J — conservative composition of already-classified hours and closure evidence. Only
+   the two presentable classes reach this surface. PARTIAL evidence receives the warm review
+   treatment and retains the same typography/space as its SAFE peer; long raw strings wrap on
+   narrow viewports instead of clipping. */
+.hours-closure-composition {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hours-closure-composition__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.hours-closure-composition__item--present-with-caveat {
+  border-color: #eccf9c;
+}
+
+.hours-closure-composition__name {
+  font-weight: 700;
+}
+
+.hours-closure-composition__caveat {
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-warn-soft);
+  color: #6c4310;
+  font-weight: 700;
+}
+
+.hours-closure-composition__fact {
+  min-width: 0;
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.hours-closure-composition__fact--caveat {
+  background: var(--color-warn-soft);
+  color: #6c4310;
+}
+
+.hours-closure-composition__fact strong {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.hours-closure-composition__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3D-L — manual visit start time vs. the recorded interval.
+   Deliberately NEUTRAL: no success/failure palette, no green check, no red cross, no badge. The
+   three evaluated outcomes are arithmetic about a recorded interval, not a good/bad axis and not
+   a recommendation, so all of them share one read-only treatment. It also deliberately does NOT
+   reuse `.hours-closure-composition__item`'s styling, so this signal cannot read as if it carried
+   Phase 3D-J's closure evidence. */
+.recorded-interval-fit {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recorded-interval-fit__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.recorded-interval-fit__label {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.recorded-interval-fit__input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.recorded-interval-fit__result {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.recorded-interval-fit__raw {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.recorded-interval-fit__disclaimer {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+/* Phase 3D-D — reservation lead-time preparation. Route-wide, deliberately neutral: it is a
+   recorded-fact summary, not an urgency system, so it reuses the same soft neutral surface as
+   other factual sections (`.analysis-section`) rather than any warning palette. */
+.reservation-prep {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-prep h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.reservation-prep__summary {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-prep__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.reservation-prep__name {
+  font-weight: 600;
+}
+
+.reservation-prep__reservation {
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__leadtime {
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__leadtime--opaque {
+  color: #6c4310;
+  font-weight: 600;
+}
+
+.reservation-prep__raw {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.reservation-prep__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3D-E — recorded-hours signals. Route-wide, deliberately neutral by default: only the
+   PARTIAL/OPAQUE tiers get a color accent (the same warm "review" tone `.weekday-signal--warn`
+   and `.reservation-prep__leadtime--opaque` already use, plus the softer risk tone for OPAQUE),
+   never a red/error treatment — an OPAQUE or UNKNOWN hours record is a "revisar" signal, not a
+   fault. */
+.hours-planning {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hours-planning h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.hours-planning__summary {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.hours-planning__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hours-planning__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.hours-planning__item--partial {
+  background: var(--color-warn-soft);
+}
+
+.hours-planning__item--opaque {
+  background: var(--color-risk-soft);
+}
+
+.hours-planning__name {
+  font-weight: 600;
+}
+
+.hours-planning__signal {
+  color: var(--color-text-muted);
+}
+
+.hours-planning__item--partial .hours-planning__signal,
+.hours-planning__item--opaque .hours-planning__signal {
+  color: var(--color-text);
+}
+
+.hours-planning__raw {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.hours-planning__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3D-H — explicit lead-time window (Class A only). Per-day, per-place: rendered inside the
+   day card, next to `.weekday-signal`, only once a place has a valid visit date and an eligible
+   Class A signal. `.reservation-deadline__status-callout` is the shared base for BOTH non-`confirmed`
+   Feb–Mar compositions (design §6.2 Rule 2, §12.1 row 3) — `--pending` reuses the same warm
+   "pending" palette as `.alert--pending`/`.weekday-signal__summary--warn`; `--attention` reuses the
+   same risk-soft palette `describeFebMarStatusForUi` itself already maps its `attention` tone to
+   (`.alert--risk`'s `cssModifier: "risk"`), never a stronger/more alarming treatment. Either
+   modifier is placed BEFORE the derived range in markup order and given more visual weight
+   (bold, larger) than the plain-text range beneath it, so it always reads first and the range
+   never outranks it. */
+.reservation-deadline {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-deadline__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.reservation-deadline__name {
+  font-weight: 600;
+}
+
+.reservation-deadline__status-callout {
+  margin: 0;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.5rem;
+  font-size: 0.78rem;
+}
+
+.reservation-deadline__status-callout--pending {
+  background: var(--color-warn-soft);
+  border: 1px solid #eccf9c;
+  color: #6c4310;
+}
+
+.reservation-deadline__status-callout--attention {
+  background: var(--color-risk-soft);
+  border: 1px solid #eeb4ae;
+  color: #7d211a;
+}
+
+.reservation-deadline__window {
+  color: var(--color-text);
+}
+
+.reservation-deadline__raw {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.reservation-deadline__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3F-F — trip-specific official reservation dates. Neutral evidence presentation only:
+   no success/risk palette, urgency treatment or action styling. This is intentionally a sibling
+   surface to Phase 3D-H rather than a merged reservation state. */
+.official-reservation-date {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.official-reservation-date__heading {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.official-reservation-date__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.official-reservation-date__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.official-reservation-date__name {
+  font-weight: 700;
+}
+
+.official-reservation-date__scope,
+.official-reservation-date__provenance {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.official-reservation-date__fact-heading,
+.official-reservation-date__detail,
+.official-reservation-date__allocation,
+.official-reservation-date__purchase-residence-context,
+.official-reservation-date__provenance {
+  margin: 0;
+}
+
+.official-reservation-date__fact-heading {
+  font-weight: 600;
+}
+
+.official-reservation-date__detail,
+.official-reservation-date__allocation,
+.official-reservation-date__purchase-residence-context {
+  color: var(--color-text);
+}
+
+/* Phase 3F-H — reference-date relation. Deliberately styled exactly like the other recorded facts
+   above it: no state colour, no badge, no emphasis. A calendar relation is not a good/bad outcome,
+   so nothing here may read as "you're on time" or "you missed it". */
+.official-reservation-date__reference-relation,
+.official-reservation-date__reference-date {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.official-reservation-date__source {
+  align-self: flex-start;
+  font-size: 0.76rem;
+}
+
+.official-reservation-date__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3F-J — route-wide official reservation dates. One neutral treatment for every row: no
+   success/warning/danger palette, no traffic light, no badge, no state icon, no animation, and no
+   emphasis derived from a row's date, its position in the list or its reference-date relation. A
+   row whose relation reads "después" looks exactly like one that reads "antes", because the order
+   is a reading order over recorded dates and not a priority. */
+.official-reservation-calendar {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.official-reservation-calendar h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.official-reservation-calendar__reference-date {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.official-reservation-calendar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.official-reservation-calendar__item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 0.8rem;
+}
+
+.official-reservation-calendar__anchor {
+  font-weight: 700;
+}
+
+.official-reservation-calendar__context {
+  font-weight: 600;
+}
+
+.official-reservation-calendar__scope,
+.official-reservation-calendar__anchor-note,
+.official-reservation-calendar__relation,
+.official-reservation-calendar__provenance {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.official-reservation-calendar__fact-heading,
+.official-reservation-calendar__detail,
+.official-reservation-calendar__allocation,
+.official-reservation-calendar__purchase-residence-context,
+.official-reservation-calendar__anchor-note,
+.official-reservation-calendar__relation,
+.official-reservation-calendar__provenance {
+  margin: 0;
+}
+
+.official-reservation-calendar__fact-heading {
+  font-weight: 600;
+}
+
+.official-reservation-calendar__detail,
+.official-reservation-calendar__allocation,
+.official-reservation-calendar__purchase-residence-context {
+  color: var(--color-text);
+}
+
+.official-reservation-calendar__source {
+  align-self: flex-start;
+  font-size: 0.76rem;
+}
+
+.official-reservation-calendar__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* Phase 3D-Q — manual accommodation commute legs. Deliberately NEUTRAL, like every other recorded
+   fact surface in this planner: no success/warning palette, no badge, no emphasis that could read
+   as "this is the good hotel" or "this is the real route". A recorded duration and an unrecorded
+   one share one read-only treatment, because the difference between them is what is written down,
+   not whether the plan is good. */
+.accommodation-manager {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accommodation-manager h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.accommodation-manager__intro,
+.accommodation-manager__empty,
+.accommodation-manager__hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.accommodation-manager__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.accommodation-manager__item {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.accommodation-manager__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.accommodation-manager__coords {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.accommodation-manager__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.accommodation-manager__field {
+  flex: 1 1 8rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.accommodation-manager__input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.accommodation-boundary {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.accommodation-boundary__heading {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.accommodation-boundary__side {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+}
+
+.accommodation-boundary__label {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.accommodation-boundary__select,
+.accommodation-boundary__input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.accommodation-boundary__endpoint,
+.accommodation-boundary__result,
+.accommodation-boundary__total {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.accommodation-boundary__total {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.accommodation-boundary__minutes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.accommodation-boundary__minutes-label {
+  flex: 1 1 100%;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.accommodation-boundary__hint,
+.accommodation-boundary__disclaimer {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Phase 3D-Y — manual inter-hub segments. This is a separate neutral fact surface: its minutes
+   are intentionally not styled or positioned as part of any route/day/accommodation total. */
+.inter-hub-segments {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.inter-hub-segments h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.inter-hub-segments__intro,
+.inter-hub-segments__empty,
+.inter-hub-segments__hint,
+.inter-hub-segments__hubs,
+.inter-hub-segments__status,
+.inter-hub-segments__minutes {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.inter-hub-segments__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.inter-hub-segments__item {
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inter-hub-segments__item-header {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.inter-hub-segments__edit,
+.inter-hub-segments__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.inter-hub-segments__edit label,
+.inter-hub-segments__form label {
+  flex: 1 1 10rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.inter-hub-segments select,
+.inter-hub-segments input {
+  max-width: 100%;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+/* Phase 3E-A — read-only composition. Subgroups remain visually adjacent but do not collapse into
+   a score or a visit-plus-transport figure. */
+.whole-trip-composition {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.whole-trip-composition > h3,
+.whole-trip-composition__group h4 {
+  margin: 0;
+}
+
+.whole-trip-composition > h3 {
+  font-size: 1rem;
+}
+
+.whole-trip-composition__group {
+  min-width: 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.whole-trip-composition__group h4 {
+  font-size: 0.84rem;
+}
+
+.whole-trip-composition p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.whole-trip-composition__intro,
+.whole-trip-composition__unavailable {
+  color: var(--color-text);
+}
+
+.whole-trip-composition__incomplete {
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--color-accent);
+}
+
+/* Phase 3E-C — generated evidence-complete local swap alternatives, inside the day card.
+   Deliberately neutral: no success/positive colouring, no badge, no highlight that would read as
+   "Nihon recommends this". The section is a list of facts with a button, not a call to action. */
+.local-swap {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.local-swap__heading {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.local-swap__empty {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.local-swap__group {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.local-swap__group h5 {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.local-swap__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.local-swap__item {
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.local-swap__item p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.local-swap__pair {
+  color: var(--color-text);
+}
+
+.local-swap__ranges {
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.local-swap__ranges div {
+  min-width: 0;
+}
+
+.local-swap__ranges dt {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.local-swap__ranges dd {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* The evidence mix is never visually subordinated to the number it qualifies: same line, same
+   weight class, so a range resting on estimates cannot be read as a validated one. */
+.local-swap__evidence {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.local-swap__advantage {
+  color: var(--color-text);
+}
+
+.local-swap__disclaimer {
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--color-accent);
+  color: var(--color-text-muted);
+}
+
+.local-swap__apply {
+  justify-self: start;
 }
