@@ -5766,3 +5766,25 @@ Acquisition/validation date: **2026-09-15 (America/Mexico_City)**.
 **Successor boundary:** Phase 4F authorizes no automatic Phase 4G acquisition. Any further
 photography scale-up requires a separate design gate that re-establishes target scope, batch size,
 asset budget, sourcing constraints and treatment of the remaining uncovered catalog.
+
+## Phase 4G — Photography Scale-Up II Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_SCALE_UP_II_DESIGN.md`](PHOTOGRAPHY_SCALE_UP_II_DESIGN.md).
+
+Base: `e45cd44111b867a548f0f66e457b4053e6b9d7eb`.
+
+Design date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Design-only gate.** No image, metadata, runtime, gallery, ranking, routing, itinerary or recommendation change.
+- [x] **Live coverage recomputed.** 58/214 covered; 156 uncovered; uncovered grades S=4, A=117, B=25, C=6, D=4.
+- [x] **A-grade-only retained.** Excluding the six carried fail-closed IDs leaves 115 eligible A-grade places across 19 categories.
+- [x] **24/32/40 compared using observed byte evidence.** Projected deltas are 6.10–6.38 MiB, 8.14–8.50 MiB and 10.17–10.63 MiB respectively.
+- [x] **32 selected.** Max coverage 90/214 (42.1%), full 19-category breadth, bounded hub quotas Kioto 8 / Okinawa 8 / Osaka 7 / Sapporo 1 / Tokio 8.
+- [x] **Selector hardened for the depleted universe.** Category representation precedes temporal-risk, then eligible-category rarity, current photographed-category count and binary place ID.
+- [x] **Exact 32-target fixture defined.** No replacement queue; every failure remains fail-closed.
+- [x] **Asset budget re-established.** 10 MiB soft / 14 MiB hard stop-review threshold.
+- [x] **Source/license/runtime contract preserved.** Commons only, current allowlist, local WebP, one image maximum, zero runtime photography fetch.
+- [x] **Narrow successor authorized.** Phase 4H may attempt only the exact 32-place fixture and must stop Draft after exact-head validation.
+
+**Authorized next phase: Phase 4H — A-Grade Licensed Photography Acquisition Batch II. Phase 4H is not started by Phase 4G.**
