@@ -5649,3 +5649,44 @@ Current Wikimedia Commons source-file pages rechecked:
 
 **Authorized next phase: Phase 4D — S-Grade Licensed Photography Acquisition Batch. Phase 4D is not started by Phase 4C.**
 
+## Phase 4D — S-Grade Licensed Photography Acquisition Batch — complete
+
+Runtime authority:
+[`docs/PHOTOGRAPHY_S_GRADE_BATCH_RUNTIME.md`](PHOTOGRAPHY_S_GRADE_BATCH_RUNTIME.md).
+
+Base: `440f814439360e2c5e7423cd243546e415e1a591`.
+
+Acquisition/source review date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Bounded 16-place S-grade batch executed.** Twelve targets acquired and four failed closed; no
+      target was force-covered and no second image was added for any place.
+- [x] **Coverage increased 24 → 36 photographs.** Current first-photo coverage is **36/214 (16.8%)**;
+      the theoretical 40/214 ceiling for this batch was not forced when sourcing failed.
+- [x] **Twelve accepted local assets.** JP-044, JP-066, JP-096, JP-135, JP-142, JP-143, JP-144,
+      JP-184, JP-188, JP-192, JP-197 and JP-205 were acquired from Wikimedia Commons under the
+      existing license allowlist and stored through the unchanged local WebP pipeline.
+- [x] **Four targets failed closed.** JP-033, JP-126, JP-203 and JP-204 remain on `imageBrief`
+      because a defensible, correctly located candidate could not be established under the
+      contract's source/subject-matter rules.
+- [x] **Existing photography preserved.** All 24 pre-Phase-4D image blobs and metadata records were
+      verified unchanged; canonical and app-facing metadata remain byte-identical.
+- [x] **Attribution contract preserved.** No unsupported `attributionTitle` was invented, the
+      existing license allowlist was not widened and runtime rendering remains local/offline with
+      zero Commons photography requests.
+- [x] **No planning behavior changed.** No ranking, itinerary, recommendation, grade, routing or
+      planning file was touched.
+- [x] **Exact-head validation passed.** Executable/test HEAD
+      `52e001b1536d55f6f8ff6e1259a166e92fed582b` passed GitHub Actions run
+      `34929731693` across all 18 steps, including photography validation, Python tests,
+      focused photography tests, full Vitest, lint, build, batch invariants, two Phase 4D browser
+      audits, Phase 4C regression audit and whitespace.
+- [x] **Temporary workflow removed without tree drift.** Post-removal HEAD
+      `94de0bf6c3162170d0124ec84df23a3fa0c12785` has zero changed files relative to the validated
+      executable tree.
+- [x] **Merged and closed.** PR #98 merged into `main` as
+      `2c1a9e6d72c4be0a0182c60e658ecd1d29c021c2`; Issue #97 was closed completed.
+
+**Successor boundary:** Phase 4D authorizes no Phase 4E implementation. Any further photography
+scale-up or gallery expansion requires a separate design gate that re-establishes scope, priority,
+asset budget and sourcing constraints before executable work begins.
+
