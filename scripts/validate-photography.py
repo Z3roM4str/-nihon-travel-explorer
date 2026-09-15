@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline validation for the Phase 4A photography pilot manifest and metadata.
+"""Offline validation for the Phase 4A photography pilot and Phase 4C attribution metadata.
 
 Usage:
     python3 scripts/validate-photography.py [data-dir]
@@ -50,6 +50,11 @@ SUPPORTED_LICENSES = {
 LICENSES_NOT_REQUIRING_CREDIT = {"CC0"}
 PILOT_HUBS = ["Tokio", "Kioto", "Osaka", "Okinawa"]
 PLACES_PER_HUB = 6
+PROCESSING_MAX_DIMENSION = 1600
+SUPPORTED_PROCESSING = {
+    "webp-reencoded",
+    "resized-and-webp-reencoded",
+}
 
 
 def load(path):
@@ -177,8 +182,8 @@ def validate_metadata(metadata, place_ids, asset_root):
             if not isinstance(credit, str) or not credit.strip():
                 errors.append(f"{label}: license {license_!r} requires a non-empty credit")
 
-        if license_ not in LICENSES_NOT_REQUIRING_CREDIT and not valid_url(record.get("licenseUrl")):
-            errors.append(f"{label}: licenseUrl must be a well-formed http(s) URL for an attribution license")
+        if license_ in SUPPORTED_LICENSES and not valid_url(record.get("licenseUrl")):
+            errors.append(f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license")
 
         if not is_usable_alt(record.get("alt")):
             errors.append(f"{label}: alt text is missing, too short, or looks like a placeholder")
@@ -189,6 +194,40 @@ def validate_metadata(metadata, place_ids, asset_root):
         original_title = record.get("originalTitle")
         if not isinstance(original_title, str) or not original_title.strip():
             errors.append(f"{label}: originalTitle is required for Commons provenance")
+
+        attribution_title = record.get("attributionTitle")
+        if attribution_title is not None and (
+            not isinstance(attribution_title, str) or not attribution_title.strip()
+        ):
+            errors.append(f"{label}: attributionTitle must be a non-empty string when present")
+
+        original_width = record.get("originalWidth")
+        original_height = record.get("originalHeight")
+        dimensions_valid = (
+            type(original_width) is int
+            and original_width > 0
+            and type(original_height) is int
+            and original_height > 0
+        )
+        if not dimensions_valid:
+            errors.append(f"{label}: originalWidth/originalHeight must be positive integers")
+
+        processing = record.get("processing")
+        if processing not in SUPPORTED_PROCESSING:
+            errors.append(
+                f"{label}: processing must be one of {sorted(SUPPORTED_PROCESSING)!r}, got {processing!r}"
+            )
+        elif dimensions_valid:
+            expected_processing = (
+                "resized-and-webp-reencoded"
+                if max(original_width, original_height) > PROCESSING_MAX_DIMENSION
+                else "webp-reencoded"
+            )
+            if processing != expected_processing:
+                errors.append(
+                    f"{label}: processing {processing!r} contradicts original dimensions "
+                    f"{original_width}x{original_height}; expected {expected_processing!r}"
+                )
 
         source_key = original_title or record.get("acquisitionUrl")
         if source_key:
