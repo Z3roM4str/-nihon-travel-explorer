@@ -133,3 +133,20 @@ Phase 4F does **not** authorize:
 - an unbounded continuation through the remaining A-grade catalog.
 
 Any further scale-up requires a separate successor design gate that re-establishes target priority, batch size, asset budget and sourcing constraints.
+
+
+## Workflow cleanup proof
+
+Temporary workflow cleanup commit:
+
+`19f64e35dc4ffa687c680525f7b0f64f21b8d571`
+
+Comparison from the validated executable/test HEAD
+`3d7bdaf115a65cc8e43ee7b98f5adcb5ab474b55` to the post-cleanup tree shows only:
+
+- removal of `.github/workflows/phase4f-acquire.yml`;
+- removal of `.github/workflows/phase4f-exact-head.yml`;
+- addition of this runtime document;
+- the Phase 4F ROADMAP documentation update.
+
+There is **zero drift in executable code, canonical/app data, tests, selector scripts, or image assets** after the successful exact-head validation.
