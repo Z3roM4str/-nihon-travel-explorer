@@ -126,6 +126,106 @@ describe("Phase 3F-J — release-date items", () => {
   });
 });
 
+describe("Phase 3F-S — same-scope records compose without merging", () => {
+  it("emits one row per active JP-050 record even though both anchor on the same date", () => {
+    const result = build([[POKEPARK]], "2027-03-15", "2026-12-05");
+    expect(result.chronological.map((item) => item.recordId)).toEqual([
+      "RM-JP-050-001",
+      "RM-JP-050-002",
+    ]);
+    const [overseas, domestic] = result.chronological;
+    // Identical place, scope, day, visit date AND anchor date — and still two rows. Duplicate
+    // calendar dates across distinct evidence records are valid, never a deduplication trigger.
+    expect(overseas.anchorDate).toBe(domestic.anchorDate);
+    expect(overseas.placeId).toBe(domestic.placeId);
+    expect(overseas.scope).toBe(domestic.scope);
+    expect(overseas.dayNumber).toBe(domestic.dayNumber);
+    expect(overseas.visitDate).toBe(domestic.visitDate);
+    expect(overseas.recordId).not.toBe(domestic.recordId);
+  });
+
+  it("gives each row its own record-local provenance and source link", () => {
+    const [overseas, domestic] = build([[POKEPARK]], "2027-03-15", "2026-12-05").chronological;
+    expect(overseas.presentation.sourceUrl).toBe("https://ticket-en.pokepark-kanto.co.jp/?viewLang=en");
+    expect(domestic.presentation.sourceUrl).toBe(
+      "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index"
+    );
+    expect(overseas.presentation.purchaseResidenceContextText).toBe(
+      "La fuente oficial citada dirige a quienes residen fuera de Japón a esta ruta de compra."
+    );
+    expect(domestic.presentation.purchaseResidenceContextText).toBe(
+      "La fuente oficial citada presenta esta ruta de compra para residentes en Japón."
+    );
+  });
+
+  it("evaluates each same-scope row's temporal relation independently", () => {
+    const [overseas, domestic] = build([[POKEPARK]], "2027-03-15", "2026-12-05").chronological;
+    // Both relations exist and are equal in text because the underlying dates are equal — but they
+    // are composed per record, never shared, reused or collapsed into one.
+    expect(overseas.relation).not.toBeNull();
+    expect(domestic.relation).not.toBeNull();
+    expect(overseas.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(domestic.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(overseas.relation).not.toBe(domestic.relation);
+  });
+
+  it("orders the same-scope pair by source-record index alone, with no context key", () => {
+    const result = build([[POKEPARK]], "2027-03-15", "2026-12-05");
+    const sourceOrder = reservationMechanismEvidenceRecords
+      .filter((item) => item.placeId === POKEPARK)
+      .map((item) => item.id);
+    expect(result.chronological.map((item) => item.recordId)).toEqual(sourceOrder);
+
+    // Reversing only the catalog order reverses the rows: the tie-break is source-record index, not
+    // residence context, allocation, mechanism or any operator preference.
+    const reversed = build(
+      [[POKEPARK]],
+      "2027-03-15",
+      "2026-12-05",
+      [...reservationMechanismEvidenceRecords].reverse()
+    );
+    expect(reversed.chronological.map((item) => item.recordId)).toEqual([...sourceOrder].reverse());
+  });
+
+  it("keeps route-wide ordering identical when only residence contexts are swapped", () => {
+    const dayMatrix = [[POKEPARK, GHIBLI, NINTENDO], [DISNEYLAND, KATSURA]];
+    const original = build(dayMatrix, "2027-03-15", "2026-12-05");
+    const swapped = build(dayMatrix, "2027-03-15", "2026-12-05", reservationMechanismEvidenceRecords.map(
+      (item) =>
+        item.placeId === POKEPARK
+          ? {
+              ...item,
+              purchaseResidenceContext:
+                item.purchaseResidenceContext === "resides-in-japan"
+                  ? ("resides-outside-japan" as const)
+                  : ("resides-in-japan" as const),
+            }
+          : item
+    ));
+    expect(swapped.chronological.map((item) => item.recordId)).toEqual(
+      original.chronological.map((item) => item.recordId)
+    );
+    expect(swapped.chronological.map((item) => item.anchorDate)).toEqual(
+      original.chronological.map((item) => item.anchorDate)
+    );
+  });
+
+  it("keeps the calendar module free of same-scope collapsing and context branching", async () => {
+    const source = await readFile(MODULE_SOURCE, "utf8");
+    for (const forbidden of [
+      "purchaseResidenceContext",
+      "resides-in-japan",
+      "resides-outside-japan",
+      "dedupe",
+      "deduplicate",
+      "distinct",
+      "unique",
+    ]) {
+      expect(source).not.toContain(forbidden);
+    }
+  });
+});
+
 describe("Phase 3F-P — route ordering ignores residence context", () => {
   it("keeps identical chronological identity/order when only purchaseResidenceContext changes", () => {
     const dayMatrix = [[POKEPARK, GHIBLI, NINTENDO], [DISNEYLAND, KATSURA]];
@@ -190,9 +290,10 @@ describe("Phase 3F-J — application-window items", () => {
     expect(item.presentation.sourceUrl).toBe("https://museum-tickets.nintendo.com/en");
   });
 
-  it("carries PokéPark overseas into one route-wide span row with international provenance", () => {
+  it("carries PokéPark overseas into a route-wide span row with international provenance", () => {
     const result = build([[POKEPARK]], "2027-03-15", "2026-12-05");
-    expect(result.chronological).toHaveLength(1);
+    // Phase 3F-S: JP-050 now emits one row per active same-scope record, never a merged row.
+    expect(result.chronological).toHaveLength(2);
     const item = result.chronological[0];
     expect(item).toMatchObject({
       recordId: "RM-JP-050-001",

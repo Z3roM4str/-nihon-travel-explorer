@@ -277,17 +277,33 @@ export function parseReservationMechanismEvidenceRecords(value: unknown): Reserv
   if (!Array.isArray(value)) return null;
   const parsed: ReservationMechanismEvidenceRecord[] = [];
   const ids = new Set<string>();
-  const activeIdentities = new Set<string>();
+  // `placeId + scope` is deliberately NOT unique: an operator can publish two genuinely different
+  // purchase routes for the same admission scope. Record identity stays `id` alone, so grouping here
+  // collects candidates rather than rejecting them. Superseded records are skipped — a retired route
+  // makes no current applicability claim and so cannot collide with a live one.
+  const activeSameScopeGroups = new Map<string, ReservationMechanismEvidenceRecord[]>();
   for (const item of value) {
     const record = parseReservationMechanismEvidenceRecord(item);
     if (!record || ids.has(record.id)) return null;
     ids.add(record.id);
     if (record.status === "active") {
       const identity = `${record.placeId}\u0000${record.scope}`;
-      if (activeIdentities.has(identity)) return null;
-      activeIdentities.add(identity);
+      const group = activeSameScopeGroups.get(identity);
+      if (group) group.push(record);
+      else activeSameScopeGroups.set(identity, [record]);
     }
     parsed.push(record);
+  }
+  // A collision group is only knowable once every record has been read: a solitary `not-recorded`
+  // record is valid, and only a *later* active record sharing its `placeId + scope` turns it into a
+  // collision member. So the whole group is judged after the loop, never record-by-record.
+  for (const group of activeSameScopeGroups.values()) {
+    if (group.length < 2) continue;
+    // `not-recorded` asserts only that the source records no residence context — not "worldwide",
+    // "unrestricted" or "compatible with the other route". Beside a second active route for the same
+    // scope that silence is ambiguous, so it fails closed. Two members MAY share one specific
+    // context: purchase-residence context is applicability evidence, never an identity axis.
+    if (group.some((record) => record.purchaseResidenceContext === "not-recorded")) return null;
   }
   return parsed;
 }

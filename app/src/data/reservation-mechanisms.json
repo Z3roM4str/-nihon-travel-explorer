@@ -180,5 +180,36 @@
       "confidence": "official-explicit"
     },
     "purchaseResidenceContext": "resides-outside-japan"
+  },
+  {
+    "id": "RM-JP-050-002",
+    "placeId": "JP-050",
+    "scope": "general-admission",
+    "mechanism": {
+      "kind": "monthly-application-window",
+      "monthsBeforeVisitMonth": 3,
+      "openDay": {
+        "kind": "fixed-day-of-month",
+        "day": 1
+      },
+      "closeDay": {
+        "kind": "fixed-day-of-month",
+        "day": 12
+      },
+      "openTimeLocal": "20:00",
+      "openSourceTimeZone": "Asia/Tokyo",
+      "closeTimeLocal": null,
+      "closeSourceTimeZone": null
+    },
+    "allocation": "drawing",
+    "status": "active",
+    "provenance": {
+      "sourceUrl": "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index",
+      "sourceEntity": "PokéPark KANTO official ticket information — Japan-resident purchase route",
+      "consultedAt": "2026-09-15",
+      "evidence": "The official PokéPark KANTO ticket-information page publishes a ticket drawing for admission three calendar months ahead in one-month units, with the drawing application period running from the 1st through the 12th of each month. The official routing page states explicitly that residents of Japan purchase through PokéPark KANTO's official Japanese website while guests residing outside Japan are asked to use the separate external English ticket website, and that membership registration plus SMS verification through a mobile phone usable in Japan are required; this record is assigned to the Japan-resident route on that published statement, not inferred from page language, locale, domain or source entity. Supporting official timing notice rechecked 2026-09-15: https://www.pokepark-kanto.co.jp/ppark/announcement/40/detail/index states that from July 2026 the drawing and first-come start time is 20:00, with the worked example of October admission drawing applications opening at 20:00 on July 1. Nihon records only this drawing window; the separate domestic first-come sale for admission two months ahead is deliberately not encoded, because its month-end rule for target dates absent from the shifted month has no supported runtime representation yet. Supporting official residence-routing source rechecked 2026-09-15: https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US.",
+      "confidence": "official-explicit"
+    },
+    "purchaseResidenceContext": "resides-in-japan"
   }
 ]

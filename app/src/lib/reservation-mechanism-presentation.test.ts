@@ -30,6 +30,7 @@ const katsura = record("JP-077");
 const sumo = record("JP-212");
 const nintendo = record("JP-097");
 const pokepark = record("JP-050");
+const pokeparkDomestic = reservationMechanismEvidenceRecords.find((item) => item.id === "RM-JP-050-002")!;
 
 describe("Phase 3F-F official reservation presentation", () => {
   it("labels every closed scope value explicitly", () => {
@@ -364,6 +365,88 @@ describe("Phase 3F-F official reservation presentation", () => {
       "garantizada",
     ]) {
       expect(outputs, forbidden).not.toContain(forbidden);
+    }
+  });
+});
+
+describe("Phase 3F-S — same-scope presentation reuses the existing contract", () => {
+  it("renders the domestic route through the existing resides-in-japan copy", () => {
+    const result = buildOfficialReservationDatePresentation(
+      pokeparkDomestic,
+      deriveReservationMechanismDate(pokeparkDomestic, "2027-03-15")
+    );
+    expect(result).toMatchObject({
+      recordId: "RM-JP-050-002",
+      placeId: "JP-050",
+      scope: "general-admission",
+      scopeLabel: "Entrada general",
+      heading: "Ventana oficial registrada para esta visita",
+      allocationText: "Asignación registrada: sorteo.",
+      purchaseResidenceContextText:
+        "La fuente oficial citada presenta esta ruta de compra para residentes en Japón.",
+      sourceUrl: "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index",
+    });
+    // The exact string Phase 3F-P already owns — Phase 3F-S adds no copy of its own.
+    expect(result?.purchaseResidenceContextText).toBe(
+      describeReservationPurchaseResidenceContextForUi("resides-in-japan")
+    );
+  });
+
+  it("keeps both same-scope presentations distinct and record-local", () => {
+    const overseas = buildOfficialReservationDatePresentation(
+      pokepark,
+      deriveReservationMechanismDate(pokepark, "2027-03-15")
+    );
+    const domestic = buildOfficialReservationDatePresentation(
+      pokeparkDomestic,
+      deriveReservationMechanismDate(pokeparkDomestic, "2027-03-15")
+    );
+    expect(overseas?.recordId).toBe("RM-JP-050-001");
+    expect(domestic?.recordId).toBe("RM-JP-050-002");
+    expect(overseas?.purchaseResidenceContextText).not.toBe(domestic?.purchaseResidenceContextText);
+    expect(overseas?.sourceUrl).not.toBe(domestic?.sourceUrl);
+    // Same scope, same heading, same detail lines: nothing is disambiguated by inventing a label.
+    expect(overseas?.scopeLabel).toBe(domestic?.scopeLabel);
+    expect(overseas?.heading).toBe(domestic?.heading);
+    expect(overseas?.detailLines).toEqual(domestic?.detailLines);
+  });
+
+  it("makes no personal residence or eligibility claim for either route", () => {
+    const rendered = [pokepark, pokeparkDomestic]
+      .map((item) => buildOfficialReservationDatePresentation(item, deriveReservationMechanismDate(item, "2027-03-15")))
+      .map((item) => JSON.stringify(item))
+      .join(" ")
+      .toLowerCase();
+    for (const forbidden of [
+      "aplica para ti",
+      "no aplica para ti",
+      "eres residente",
+      "no eres residente",
+      "eres elegible",
+      "no eres elegible",
+      "puedes comprar",
+      "no puedes comprar",
+      "para ti",
+      "recomend",
+    ]) {
+      expect(rendered).not.toContain(forbidden);
+    }
+  });
+
+  it("adds no new presentation field for same-scope composition", async () => {
+    const source = await readFile(new URL("./reservation-mechanism-presentation.ts", import.meta.url), "utf8");
+    for (const forbidden of [
+      "sameScope",
+      "collision",
+      "routeBadge",
+      "badge",
+      "grouping",
+      "groupLabel",
+      "preferred",
+      "primaryRoute",
+      "alternativeRoute",
+    ]) {
+      expect(source).not.toContain(forbidden);
     }
   });
 });

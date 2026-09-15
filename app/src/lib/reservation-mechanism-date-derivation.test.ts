@@ -17,6 +17,13 @@ function record(placeId: string): ReservationMechanismEvidenceRecord {
   return found;
 }
 
+/** JP-050 now has two same-scope records, so its fixtures are selected by record id. */
+function recordById(id: string): ReservationMechanismEvidenceRecord {
+  const found = reservationMechanismEvidenceRecords.find((item) => item.id === id);
+  if (!found) throw new Error(`missing fixture ${id}`);
+  return found;
+}
+
 const ghibli = record("JP-044");
 const disneyland = record("JP-203");
 const disneySea = record("JP-204");
@@ -24,6 +31,7 @@ const katsura = record("JP-077");
 const sumo = record("JP-212");
 const nintendo = record("JP-097");
 const pokepark = record("JP-050");
+const pokeparkDomestic = recordById("RM-JP-050-002");
 
 describe("monthly-fixed-release — Ghibli real fixture", () => {
   it("derives 2027-01-10 10:00 Asia/Tokyo for a 2027-02-20 visit", () => {
@@ -253,6 +261,63 @@ describe("monthly-application-window — Nintendo Museum real fixture", () => {
       kind: "not-derivable",
       reason: "invalid-calendar-alignment",
     });
+  });
+});
+
+describe("Phase 3F-S — PokéPark domestic drawing real fixture", () => {
+  it("derives the 1st-12th window three months before the visit month at 20:00 Asia/Tokyo", () => {
+    expect(deriveReservationMechanismDate(pokeparkDomestic, "2027-03-15")).toEqual({
+      kind: "application-window",
+      recordId: "RM-JP-050-002",
+      placeId: "JP-050",
+      scope: "general-admission",
+      visitDate: "2027-03-15",
+      openDate: "2026-12-01",
+      openTimeLocal: "20:00",
+      openSourceTimeZone: "Asia/Tokyo",
+      closeDate: "2026-12-12",
+      closeTimeLocal: null,
+      closeSourceTimeZone: null,
+      allocation: "drawing",
+    });
+  });
+
+  it("invents no close-edge time or timezone", () => {
+    const result = deriveReservationMechanismDate(pokeparkDomestic, "2027-05-20");
+    expect(result).toMatchObject({ closeDate: "2027-02-12", closeTimeLocal: null, closeSourceTimeZone: null });
+  });
+
+  it("derives each same-scope record separately, keyed by its own recordId", () => {
+    const results = deriveReservationMechanismDatesForPlace(
+      reservationMechanismEvidenceRecords,
+      "JP-050",
+      "2027-03-15"
+    );
+    expect(results).toHaveLength(2);
+    expect(results.map((item) => item.recordId)).toEqual(["RM-JP-050-001", "RM-JP-050-002"]);
+    // Two distinct evidence records that happen to derive identical civil dates: identity stays
+    // record-local, and nothing merges or deduplicates them.
+    expect(new Set(results.map((item) => item.recordId)).size).toBe(2);
+    expect(results.every((item) => item.placeId === "JP-050")).toBe(true);
+    expect(results.every((item) => item.scope === "general-admission")).toBe(true);
+    const [overseas, domestic] = results;
+    if (overseas.kind !== "application-window" || domestic.kind !== "application-window") {
+      throw new Error("expected two application windows");
+    }
+    expect(overseas.openDate).toBe(domestic.openDate);
+    expect(overseas.closeDate).toBe(domestic.closeDate);
+  });
+
+  it("derives independently of the other record's residence context", () => {
+    // Mutating only the context must not move any derived date: Phase 3F-D is context-blind.
+    const mutated = reservationMechanismEvidenceRecords.map((item) =>
+      item.placeId === "JP-050"
+        ? { ...item, purchaseResidenceContext: "resides-in-japan" as const }
+        : item
+    );
+    expect(deriveReservationMechanismDatesForPlace(mutated, "JP-050", "2027-03-15")).toEqual(
+      deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-050", "2027-03-15")
+    );
   });
 });
 
@@ -491,7 +556,7 @@ describe("claim and side-effect boundaries", () => {
     for (const placeId of ["JP-002", "JP-125", "JP-126", "JP-211"]) {
       expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, placeId, "2027-03-15")).toEqual([]);
     }
-    expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-050", "2027-03-15")).toHaveLength(1);
+    expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-050", "2027-03-15")).toHaveLength(2);
     expect(deriveReservationMechanismDatesForPlace(reservationMechanismEvidenceRecords, "JP-097", "2027-03-15")).toHaveLength(1);
   });
 });

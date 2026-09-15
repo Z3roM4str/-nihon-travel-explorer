@@ -185,8 +185,11 @@ class CatalogValidationTests(unittest.TestCase):
     def test_duplicate_global_id_rejected(self):
         self.assert_invalid([valid_record(), valid_record()], "duplicate global id")
 
-    def test_duplicate_active_place_scope_rejected(self):
-        second = valid_record(
+    COLLISION_PHRASE = "active same-scope collision group"
+
+    def second_same_scope(self, **updates):
+        """A second active JP-001 general-admission record with a different mechanism."""
+        return valid_record(
             "RM-JP-001-002",
             mechanism={
                 "kind": "rolling-day-release",
@@ -194,8 +197,120 @@ class CatalogValidationTests(unittest.TestCase):
                 "releaseTimeLocal": None,
                 "sourceTimeZone": None,
             },
+            **updates,
         )
-        self.assert_invalid([valid_record(), second], "duplicate active placeId + scope")
+
+    def test_active_same_scope_collision_with_specific_contexts_is_accepted(self):
+        self.assertEqual(
+            self.errors(
+                [
+                    valid_record(purchaseResidenceContext="resides-outside-japan"),
+                    self.second_same_scope(purchaseResidenceContext="resides-in-japan"),
+                ]
+            ),
+            [],
+        )
+
+    def test_two_active_same_scope_records_may_share_one_specific_context(self):
+        """Residence context is applicability evidence, not identity: sharing it is not a clash."""
+        self.assertEqual(
+            self.errors(
+                [
+                    valid_record(purchaseResidenceContext="resides-in-japan"),
+                    self.second_same_scope(purchaseResidenceContext="resides-in-japan"),
+                ]
+            ),
+            [],
+        )
+
+    def test_active_same_scope_collision_containing_one_not_recorded_is_rejected(self):
+        self.assert_invalid(
+            [
+                valid_record(purchaseResidenceContext="resides-in-japan"),
+                self.second_same_scope(purchaseResidenceContext="not-recorded"),
+            ],
+            self.COLLISION_PHRASE,
+        )
+
+    def test_not_recorded_is_rejected_even_when_it_is_read_first(self):
+        """The group is judged after the whole catalog is read, not record-by-record."""
+        self.assert_invalid(
+            [
+                valid_record(purchaseResidenceContext="not-recorded"),
+                self.second_same_scope(purchaseResidenceContext="resides-in-japan"),
+            ],
+            self.COLLISION_PHRASE,
+        )
+
+    def test_active_same_scope_collision_of_only_not_recorded_is_rejected(self):
+        errors = self.errors([valid_record(), self.second_same_scope()])
+        offenders = [error for error in errors if self.COLLISION_PHRASE in error]
+        self.assertEqual(len(offenders), 2, errors)
+
+    def test_solitary_active_not_recorded_record_remains_valid(self):
+        self.assertEqual(self.errors([valid_record()]), [])
+
+    def test_superseded_same_scope_record_does_not_trigger_the_collision_guard(self):
+        self.assertEqual(
+            self.errors([valid_record(), self.second_same_scope(status="superseded")]),
+            [],
+        )
+
+    def test_superseded_records_may_collide_freely_among_themselves(self):
+        self.assertEqual(
+            self.errors(
+                [
+                    valid_record(status="superseded"),
+                    self.second_same_scope(status="superseded"),
+                ]
+            ),
+            [],
+        )
+
+    def test_no_place_scope_context_uniqueness_rule_exists(self):
+        """Three active same-scope records sharing one specific context stay structurally valid."""
+        third = valid_record(
+            "RM-JP-001-003",
+            purchaseResidenceContext="resides-in-japan",
+            mechanism={
+                "kind": "rolling-day-release",
+                "daysBeforeVisit": 30,
+                "releaseTimeLocal": None,
+                "sourceTimeZone": None,
+            },
+        )
+        self.assertEqual(
+            self.errors(
+                [
+                    valid_record(purchaseResidenceContext="resides-in-japan"),
+                    self.second_same_scope(purchaseResidenceContext="resides-in-japan"),
+                    third,
+                ]
+            ),
+            [],
+        )
+
+    def test_collision_guard_does_not_weaken_global_id_uniqueness(self):
+        self.assert_invalid(
+            [
+                valid_record(purchaseResidenceContext="resides-in-japan"),
+                valid_record(purchaseResidenceContext="resides-outside-japan"),
+            ],
+            "duplicate global id",
+        )
+
+    def test_collision_guard_does_not_weaken_id_namespace_matching(self):
+        self.assert_invalid(
+            [
+                valid_record(purchaseResidenceContext="resides-in-japan"),
+                valid_record(
+                    "RM-JP-002-001",
+                    placeId="JP-001",
+                    purchaseResidenceContext="resides-outside-japan",
+                ),
+            ],
+            "id namespace does not match placeId",
+        )
 
     def test_distinct_scopes_for_same_place_are_allowed(self):
         second = valid_record(
@@ -350,8 +465,8 @@ class RealCatalogTests(unittest.TestCase):
             self.APP.read_text(encoding="utf-8"),
         )
 
-    def test_catalog_has_five_original_records_plus_nintendo_and_pokepark(self):
-        self.assertEqual(len(self.catalog), 7)
+    def test_catalog_has_five_original_records_plus_nintendo_and_both_pokepark_routes(self):
+        self.assertEqual(len(self.catalog), 8)
         self.assertEqual(
             {record["placeId"] for record in self.catalog},
             {"JP-044", "JP-050", "JP-077", "JP-097", "JP-203", "JP-204", "JP-212"},
@@ -373,7 +488,7 @@ class RealCatalogTests(unittest.TestCase):
             nintendo["provenance"]["evidence"],
         )
 
-        pokepark = next(record for record in self.catalog if record["placeId"] == "JP-050")
+        pokepark = next(record for record in self.catalog if record["id"] == "RM-JP-050-001")
         self.assertEqual(pokepark["id"], "RM-JP-050-001")
         self.assertEqual(pokepark["scope"], "general-admission")
         self.assertEqual(pokepark["purchaseResidenceContext"], "resides-outside-japan")
@@ -417,8 +532,84 @@ class RealCatalogTests(unittest.TestCase):
                 "not-recorded",
                 "not-recorded",
                 "resides-outside-japan",
+                "resides-in-japan",
             ],
         )
+
+    def test_pokepark_has_exactly_two_active_general_admission_records(self):
+        pokepark = [record for record in self.catalog if record["placeId"] == "JP-050"]
+        self.assertEqual([record["id"] for record in pokepark], ["RM-JP-050-001", "RM-JP-050-002"])
+        active = [
+            record
+            for record in pokepark
+            if record["status"] == "active" and record["scope"] == "general-admission"
+        ]
+        self.assertEqual([record["id"] for record in active], ["RM-JP-050-001", "RM-JP-050-002"])
+        self.assertEqual(
+            [record["purchaseResidenceContext"] for record in active],
+            ["resides-outside-japan", "resides-in-japan"],
+        )
+
+    def test_pokepark_domestic_drawing_record_matches_the_official_evidence(self):
+        record = next(item for item in self.catalog if item["id"] == "RM-JP-050-002")
+        self.assertEqual(record["placeId"], "JP-050")
+        self.assertEqual(record["scope"], "general-admission")
+        self.assertEqual(record["purchaseResidenceContext"], "resides-in-japan")
+        self.assertEqual(record["status"], "active")
+        self.assertEqual(record["allocation"], "drawing")
+        self.assertEqual(
+            record["mechanism"],
+            {
+                "kind": "monthly-application-window",
+                "monthsBeforeVisitMonth": 3,
+                "openDay": {"kind": "fixed-day-of-month", "day": 1},
+                "closeDay": {"kind": "fixed-day-of-month", "day": 12},
+                "openTimeLocal": "20:00",
+                "openSourceTimeZone": "Asia/Tokyo",
+                "closeTimeLocal": None,
+                "closeSourceTimeZone": None,
+            },
+        )
+        self.assertEqual(record["provenance"]["consultedAt"], "2026-09-15")
+        self.assertEqual(record["provenance"]["confidence"], "official-explicit")
+        self.assertEqual(
+            record["provenance"]["sourceUrl"],
+            "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index",
+        )
+        evidence = record["provenance"]["evidence"]
+        # The Japan-resident assignment must rest on a published routing statement, never on the
+        # page language, locale, domain or source entity.
+        self.assertIn("residents of Japan", evidence)
+        self.assertIn("residing outside Japan", evidence)
+        self.assertIn("not inferred from page language, locale, domain or source entity", evidence)
+        self.assertIn("1st through the 12th", evidence)
+        self.assertIn("three calendar months ahead", evidence)
+        self.assertIn(
+            "https://www.pokepark-kanto.co.jp/ppark/announcement/40/detail/index",
+            evidence,
+        )
+        self.assertIn(
+            "https://www.pokepark-kanto.co.jp/ppark/ticketInfo/type/index?languageKind=en_US",
+            evidence,
+        )
+        # The deferred domestic first-come route must not leak into the encoded mechanism.
+        self.assertNotIn("first-come", json.dumps(record["mechanism"]))
+        self.assertNotIn("rolling-calendar-month-release", json.dumps(record["mechanism"]))
+
+    def test_no_domestic_first_come_record_and_no_shifted_month_rule_exist(self):
+        serialized = json.dumps([record["mechanism"] for record in self.catalog])
+        self.assertNotIn("last-day-of-shifted-month", serialized)
+        self.assertNotIn("first-come", serialized)
+        disney = [
+            record
+            for record in self.catalog
+            if record["placeId"] in {"JP-203", "JP-204"}
+        ]
+        self.assertEqual(len(disney), 2)
+        for record in disney:
+            self.assertEqual(
+                record["mechanism"]["missingAlignedDayRule"], "first-day-of-next-month"
+            )
 
         pilots = [
             record

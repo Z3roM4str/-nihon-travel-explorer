@@ -298,7 +298,11 @@ def validate_catalog(catalog, place_ids):
         return ["reservation-mechanisms.json top level must be an array"]
 
     seen_ids = set()
-    active_identity = set()
+    # `placeId + scope` is deliberately NOT unique: an operator can publish two genuinely different
+    # purchase routes for the same admission scope. Record identity stays `id` alone, so this groups
+    # candidates rather than rejecting them. Mirrors parseReservationMechanismEvidenceRecords in
+    # app/src/lib/reservation-mechanism-evidence.ts — the two must not drift.
+    active_same_scope_groups = {}
     for index, record in enumerate(catalog):
         label = f"reservationMechanisms[{index}]"
         if not isinstance(record, dict):
@@ -377,9 +381,26 @@ def validate_catalog(catalog, place_ids):
 
         if status == "active" and place_id in place_ids and scope in SCOPES:
             identity = (place_id, scope)
-            if identity in active_identity:
-                errors.append(f"{label}: duplicate active placeId + scope identity {identity}")
-            active_identity.add(identity)
+            active_same_scope_groups.setdefault(identity, []).append(
+                (label, purchase_residence_context)
+            )
+
+    # A collision group is only knowable once every record has been read: a solitary `not-recorded`
+    # record is valid, and only a *later* active record sharing its `placeId + scope` turns it into a
+    # collision member. So the whole group is judged after the loop, never record-by-record.
+    for identity, members in active_same_scope_groups.items():
+        if len(members) < 2:
+            continue
+        # `not-recorded` asserts only that the source records no residence context — not "worldwide",
+        # "unrestricted" or "compatible with the other route". Beside a second active route for the
+        # same scope that silence is ambiguous, so it fails closed. Two members MAY share one
+        # specific context: purchase-residence context is applicability evidence, never identity.
+        for label, context in members:
+            if context == "not-recorded":
+                errors.append(
+                    f"{label}: active same-scope collision group {identity} requires a specific "
+                    f"purchaseResidenceContext, got 'not-recorded'"
+                )
 
     for secret_path in find_secrets(catalog):
         errors.append(f"possible secret/API credential stored at {secret_path}")

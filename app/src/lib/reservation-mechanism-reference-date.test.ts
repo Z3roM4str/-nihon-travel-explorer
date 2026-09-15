@@ -39,6 +39,8 @@ const sumoApplicable = deriveReservationMechanismDate(sumo, "2027-03-20");
 const sumoOutsideEvent = deriveReservationMechanismDate(sumo, "2027-03-29");
 const nintendoWindow = deriveReservationMechanismDate(nintendo, "2027-03-15");
 const pokeparkWindow = deriveReservationMechanismDate(pokepark, "2027-03-15");
+const pokeparkDomestic = reservationMechanismEvidenceRecords.find((item) => item.id === "RM-JP-050-002")!;
+const pokeparkDomesticWindow = deriveReservationMechanismDate(pokeparkDomestic, "2027-03-15");
 
 function kindOf(
   derivation: ReservationMechanismDateDerivation,
@@ -504,5 +506,49 @@ describe("Phase 3F-H — source boundary", () => {
     ]) {
       expect(source, forbidden).not.toContain(forbidden);
     }
+  });
+});
+
+describe("Phase 3F-S — same-scope relations stay record-local", () => {
+  it("evaluates each JP-050 record independently against the same reference date", () => {
+    const overseas = evaluateOfficialReservationReferenceDate(pokeparkWindow, "2026-12-05");
+    const domestic = evaluateOfficialReservationReferenceDate(pokeparkDomesticWindow, "2026-12-05");
+    expect(overseas.kind).toBe("within-recorded-application-date-span");
+    expect(domestic.kind).toBe("within-recorded-application-date-span");
+    if (overseas.kind === "not-assessed" || domestic.kind === "not-assessed") {
+      throw new Error("expected two assessed relations");
+    }
+    // Same dates, same verdict — but each relation carries its own record identity and neither is
+    // reused, shared, preferred or collapsed into the other.
+    expect(overseas.recordId).toBe("RM-JP-050-001");
+    expect(domestic.recordId).toBe("RM-JP-050-002");
+    expect(overseas.placeId).toBe(domestic.placeId);
+    expect(overseas.scope).toBe(domestic.scope);
+    expect(overseas).not.toBe(domestic);
+  });
+
+  it("does not let the two same-scope records interfere across reference dates", () => {
+    for (const referenceDate of ["2026-11-30", "2026-12-01", "2026-12-12", "2026-12-13"]) {
+      const overseas = evaluateOfficialReservationReferenceDate(pokeparkWindow, referenceDate);
+      const domestic = evaluateOfficialReservationReferenceDate(pokeparkDomesticWindow, referenceDate);
+      expect(domestic.kind).toBe(overseas.kind);
+      if (overseas.kind === "not-assessed" || domestic.kind === "not-assessed") {
+        throw new Error(`expected assessed relations for ${referenceDate}`);
+      }
+      expect(domestic.recordId).not.toBe(overseas.recordId);
+      // Identity differs; every date field the relation reports is record-local and equal here only
+      // because the two official windows genuinely coincide.
+      expect({ ...domestic, recordId: overseas.recordId }).toEqual(overseas);
+    }
+  });
+
+  it("is unaffected by the residence context of either record", () => {
+    const mutated = deriveReservationMechanismDate(
+      { ...pokeparkDomestic, purchaseResidenceContext: "resides-outside-japan" as const },
+      "2027-03-15"
+    );
+    expect(evaluateOfficialReservationReferenceDate(mutated, "2026-12-05")).toEqual(
+      evaluateOfficialReservationReferenceDate(pokeparkDomesticWindow, "2026-12-05")
+    );
   });
 });
