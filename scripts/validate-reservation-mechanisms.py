@@ -380,15 +380,17 @@ def validate_catalog(catalog, place_ids):
             errors.append(f"{label}: unsupported provenance confidence {provenance.get('confidence')!r}")
 
         if status == "active" and place_id in place_ids and scope in SCOPES:
-            identity = (place_id, scope)
-            active_same_scope_groups.setdefault(identity, []).append(
+            # Deliberately NOT called an identity: this is only the grouping key for the
+            # collision check. Record identity is the record id and nothing else.
+            group_key = (place_id, scope)
+            active_same_scope_groups.setdefault(group_key, []).append(
                 (label, purchase_residence_context)
             )
 
     # A collision group is only knowable once every record has been read: a solitary `not-recorded`
     # record is valid, and only a *later* active record sharing its `placeId + scope` turns it into a
     # collision member. So the whole group is judged after the loop, never record-by-record.
-    for identity, members in active_same_scope_groups.items():
+    for group_key, members in active_same_scope_groups.items():
         if len(members) < 2:
             continue
         # `not-recorded` asserts only that the source records no residence context — not "worldwide",
@@ -398,7 +400,7 @@ def validate_catalog(catalog, place_ids):
         for label, context in members:
             if context == "not-recorded":
                 errors.append(
-                    f"{label}: active same-scope collision group {identity} requires a specific "
+                    f"{label}: active same-scope collision group {group_key} requires a specific "
                     f"purchaseResidenceContext, got 'not-recorded'"
                 )
 

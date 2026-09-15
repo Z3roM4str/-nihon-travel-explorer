@@ -355,7 +355,9 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
     expect(parseReservationMechanismEvidenceRecords([valid, valid])).toBeNull();
   });
 
-  it("rejects duplicate active placeId + scope identities", () => {
+  it("rejects an active same-scope pair left without explicit residence context", () => {
+    // NOT a `placeId + scope` uniqueness rule — Phase 3F-S removed that. These two are rejected
+    // only because `valid` is `not-recorded`, which may not sit in an active collision group.
     const second = {
       ...valid,
       id: "RM-JP-044-002",
@@ -366,7 +368,15 @@ describe("reservation-mechanism-evidence — defensive parsing", () => {
         sourceTimeZone: null,
       },
     };
+    expect(valid.purchaseResidenceContext).toBe("not-recorded");
     expect(parseReservationMechanismEvidenceRecords([valid, second])).toBeNull();
+    // The same pair with explicit contexts is accepted, which is the whole point of the change.
+    expect(
+      parseReservationMechanismEvidenceRecords([
+        { ...valid, purchaseResidenceContext: "resides-outside-japan" as const },
+        { ...second, purchaseResidenceContext: "resides-in-japan" as const },
+      ])
+    ).toHaveLength(2);
   });
 
   it("allows distinct active scopes for the same place", () => {

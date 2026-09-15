@@ -287,10 +287,12 @@ export function parseReservationMechanismEvidenceRecords(value: unknown): Reserv
     if (!record || ids.has(record.id)) return null;
     ids.add(record.id);
     if (record.status === "active") {
-      const identity = `${record.placeId}\u0000${record.scope}`;
-      const group = activeSameScopeGroups.get(identity);
+      // Deliberately NOT called an identity: this is only the grouping key for the collision
+      // check. Record identity is `record.id` and nothing else.
+      const groupKey = `${record.placeId}\u0000${record.scope}`;
+      const group = activeSameScopeGroups.get(groupKey);
       if (group) group.push(record);
-      else activeSameScopeGroups.set(identity, [record]);
+      else activeSameScopeGroups.set(groupKey, [record]);
     }
     parsed.push(record);
   }
