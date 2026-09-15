@@ -90,11 +90,41 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly one WebP-only record and 23 resized+WebP records from the committed metadata", () => {
+  it("derives exactly one WebP-only record and 35 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(1);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(23);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(35);
     expect(placeImages["JP-077"]?.[0]?.processing).toBe("webp-reencoded");
+  });
+
+  it("carries the Phase 4D batch as exactly one image per newly covered place", () => {
+    // Phase 4D acquired 12 of its 16 S-grade targets; the other four failed closed on
+    // subject-matter grounds and must still resolve to no photograph at all.
+    const acquired = [
+      "JP-044", "JP-066", "JP-096", "JP-135", "JP-142", "JP-143",
+      "JP-144", "JP-184", "JP-188", "JP-192", "JP-197", "JP-205",
+    ];
+    for (const placeId of acquired) {
+      expect(placeImages[placeId]).toHaveLength(1);
+    }
+    for (const deferred of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
+      expect(placeImages[deferred]).toBeUndefined();
+    }
+  });
+
+  it("never registers a second image for any place", () => {
+    for (const [placeId, images] of Object.entries(placeImages)) {
+      expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
+    }
+    expect(Object.keys(placeImages)).toHaveLength(36);
+  });
+
+  it("keeps every registered asset local and every source link on Commons", () => {
+    for (const image of Object.values(placeImages).flat()) {
+      expect(image.url.startsWith("/images/places/")).toBe(true);
+      expect(image.sourceUrl?.startsWith("https://commons.wikimedia.org/")).toBe(true);
+      expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
+    }
   });
 
   it("merges embedded images ahead of registry images, preserving existing precedence", () => {
