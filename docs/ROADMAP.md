@@ -5590,7 +5590,7 @@ Official Wikimedia Commons / Creative Commons reuse guidance rechecked:
       classification.
 - [x] **Decision: corrective before scale.** No new photograph is authorized until the metadata →
       registry → visible-attribution chain carries the already-recorded license/title provenance.
-- [x] **Phase 4C authorized, narrowly.** Photography Attribution Completeness Runtime may extend only
+- [x] **Phase 4C authorized, narrowly.** Photography Attribution Completeness Corrective may extend only
       the attribution shape/adapter/presentation and focused validation needed for the existing 24
       assets. It adds zero images and changes zero image blobs.
 - [x] **First-photo-first scale policy.** Second images remain deferred while 190 places have no
