@@ -5690,3 +5690,41 @@ Acquisition/source review date: **2026-09-15 (America/Mexico_City)**.
 scale-up or gallery expansion requires a separate design gate that re-establishes scope, priority,
 asset budget and sourcing constraints before executable work begins.
 
+## Phase 4E — A-Grade Photography Scale-Up Design Gate
+
+Design authority:
+[`docs/A_GRADE_PHOTOGRAPHY_SCALE_DESIGN.md`](A_GRADE_PHOTOGRAPHY_SCALE_DESIGN.md).
+
+Base: `73c359fa990c940b599a117e708be161c380258d`.
+
+Design date: **2026-09-15 (America/Mexico_City)**.
+
+- [x] **Design/audit only.** No image, metadata, acquisition pipeline, runtime, gallery, ranking,
+      routing, itinerary or recommendation change.
+- [x] **Live coverage recomputed.** 36/214 places have local licensed photography; 178 remain
+      uncovered. The uncovered set is S=4, A=139, B=25, C=6, D=4.
+- [x] **S-grade failures preserved.** JP-033, JP-126, JP-203 and JP-204 remain failed closed and are
+      not retried by this A-grade design.
+- [x] **Three tranche sizes compared.** Using the actual 36-asset mean of 297,174.5 bytes:
+      16 projects 4.53 MiB, 24 projects 6.80 MiB, and 32 projects 9.07 MiB.
+- [x] **24 selected as the bounded successor size.** It reaches at most 60/214 (28.0%) coverage,
+      stays below an 8 MiB soft batch budget and yields 24 distinct categories at the current base.
+- [x] **Deterministic hub allocation defined.** One seat per nonempty hub, then proportional
+      largest-remainder allocation over residual eligible counts: Kioto 6, Nagoya 1, Okinawa 5,
+      Osaka 5, Sapporo 1, Tokio 6.
+- [x] **Deterministic category-diversity ordering defined.** Temporal-risk flag, current selected
+      category count, existing photographed-category count, then place ID; no editorial cherry-pick
+      table.
+- [x] **Sensitive/seasonal policy remains fail-closed.** Branded subjects are not silently excluded
+      or promoted, temporal-risk subjects sort later, no legal clearance is claimed and no failed
+      target is replaced by another place.
+- [x] **Batch budget bounded.** 8 MiB soft budget; 12 MiB hard review threshold. Crossing the hard
+      threshold requires stopping for review, not weakening the quality floor or sourcing rules.
+- [x] **First-photo-first preserved.** One image maximum per place; no second images while uncovered
+      places remain.
+- [x] **Narrow executable successor authorized.** Phase 4F may attempt only the deterministic
+      24-place A-grade set defined in the design, through the unchanged Commons/local-WebP pipeline,
+      with exact-head repository-native validation and Draft stop condition.
+
+**Authorized next phase: Phase 4F — A-Grade Licensed Photography Acquisition Batch I. Phase 4F is not started by Phase 4E.**
+
