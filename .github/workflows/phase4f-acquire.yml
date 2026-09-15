@@ -1,4 +1,5 @@
 name: Phase 4F acquisition
+# Retry after exact Commons URL normalization and baseline-harness correction.
 
 on:
   push:
@@ -101,7 +102,7 @@ jobs:
           python scripts/validate-photography.py
           python scripts/test_photography.py
           python scripts/test_a_grade_photography_selector.py
-          git status --porcelain --untracked-files=all | grep -q '^$' || {
+          test -z "$(git status --porcelain --untracked-files=all)" || {
             git status --short
             exit 1
           }
