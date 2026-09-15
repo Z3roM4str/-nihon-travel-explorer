@@ -5433,4 +5433,24 @@ Official PokéPark KANTO source recheck: **2026-09-15**.
       availability, inventory, current-sale-state or lottery-result model, no persistence,
       localStorage, network, account, notification, reminder or calendar-export change.
 
-**Phase 3F-S is implemented and repository-native validated. Domestic first-come and Phase 3F-T are NOT STARTED.**
+- [x] **Hostile review passed with two corrections.** A differential test over 87 exhaustive
+      same-scope catalog shapes reported zero accept/reject drift between the TypeScript parser and
+      the Python validator. Two real defects were fixed: a catalog-level test still named after the
+      removed `placeId + scope` uniqueness rule (its assertion passed only incidentally), and the
+      collision grouping key held in a variable named `identity` in both validators. A third
+      candidate — the `.find()` in `OrderedSequenceBuilder.tsx` — was checked and dismissed: it keys
+      on `recordId` and was already record-local.
+- [x] **Exact-head validation passed.** Exact executable HEAD
+      `dc1158a145175950d8d7d5324021221bc1a854eb` passed GitHub Actions run `34918291572` across all
+      16 steps: Python validator and unit tests, focused Phase 3F-S Vitest, full Vitest, lint, build,
+      whitespace gates, Chromium install and the Phase 3F-F/H/J/S browser audits.
+- [x] **Temporary workflow removed without tree drift.** Removal commit
+      `8a2b5a1155f061d3109b296a8ed325ed87022d8d`; the diff from the validated HEAD to the
+      post-removal head reports zero changed files of any kind, so that tree is byte-identical to the
+      validated one.
+- [x] **Second focused review passed.** The final tree was re-read directly: guard shape in both
+      languages, byte parity, 8 records, the single active same-scope group, D/F/H/J byte-unchanged
+      from base, comparator intact, real-record test coverage, every deferred boundary absent, docs
+      consistent and no workflow file remaining. No further correction was required.
+
+**Phase 3F-S is implemented, hostile-review corrected, independently reviewed and exact-head validated. Domestic first-come and Phase 3F-T are NOT STARTED.**

@@ -307,8 +307,137 @@ No presentation, component, CSS, schema, dependency, storage or network file cha
 
 ---
 
-## 10. Current gate
+## 10. Hostile review
 
-**IMPLEMENTED + REPOSITORY-NATIVE VALIDATED.**
+An independent hostile review read the implementation directly rather than trusting the suite.
+
+### 10.1 TypeScript / Python differential test
+
+The two collision-guard implementations were differentially tested over **87 exhaustive same-scope
+catalog shapes**: every 1-record and 2-record combination of the three residence contexts against
+both statuses, every 3-record active context combination, plus cross-scope and cross-place controls.
+
+Result: **zero accept/reject drift.** Every shape the parser accepts the validator accepts, and every
+shape one rejects the other rejects.
+
+### 10.2 Findings corrected
+
+Two real defects were found and fixed:
+
+1. **Removed rule's vocabulary survived in a test.** The catalog-level parser test was still named
+   *"rejects duplicate active placeId + scope identities"* and read as though that uniqueness rule
+   still existed. Its assertion passed only incidentally, because the fixture it duplicates happens
+   to carry `not-recorded`. It now states the real reason, pins that precondition explicitly, and
+   additionally asserts the same pair **is** accepted once both members carry a specific context.
+
+2. **The grouping key was named `identity`.** In both validators the `placeId + scope` collision key
+   lived in a variable called `identity` — the exact concept this phase forbids promoting. Renamed to
+   `groupKey` / `group_key`, with a comment stating that record identity is the record id alone.
+
+Neither correction changed semantics; the differential test reports zero drift after both.
+
+### 10.3 Candidate checked and dismissed
+
+`OrderedSequenceBuilder.tsx` line 886 performs a `.find()` over the record array, which would be a
+silent one-route-per-place bug if it keyed on `placeId`. It keys on `derivation.recordId` inside a
+loop over every derivation for the place, so it was already record-local and correct. The Phase 3F-S
+browser audit independently confirms two articles render.
+
+### 10.4 Other vectors swept clean
+
+Collision guard neither too permissive nor too restrictive (differential test); no accidental
+`placeId + scope + purchaseResidenceContext` uniqueness; no date/place/scope/mechanism/context
+deduplication; comparator byte-unchanged; no covert ranking; no residence inference (the grouping key
+cannot be injected because `placeId` is constrained to `JP-\d{3}` by the ID pattern and scope is a
+closed vocabulary); no personalized eligibility copy; no first-come or `last-day-of-shifted-month`
+leakage; both catalogs byte-identical; no storage or network change; and the new record is exercised
+by real-record tests in five TypeScript suites, the Python suite and the browser audit rather than
+only by synthetic fixtures.
+
+---
+
+## 11. Exact-head validation
+
+Exact validated executable HEAD:
+
+`dc1158a145175950d8d7d5324021221bc1a854eb`
+
+Temporary workflow-bearing commit:
+
+`71419c69e4c9cb0ba3e769bdf1fb2cf738c0d0ad`
+
+The workflow checked out the exact SHA above with full history, so the seal is bound to that tree
+rather than to the branch tip.
+
+GitHub Actions run:
+
+`34918291572` — **SUCCESS** (all 16 steps)
+
+Passed, in order:
+
+- exact-head checkout;
+- Python reservation-mechanism validator;
+- Python reservation-mechanism unit tests;
+- dependency install;
+- focused Phase 3F-S Vitest set;
+- full Vitest;
+- lint;
+- build;
+- repository whitespace gates;
+- Chromium install;
+- Phase 3F-F browser audit;
+- Phase 3F-H browser audit;
+- Phase 3F-J browser audit;
+- Phase 3F-S browser audit.
+
+Temporary workflow removed in:
+
+`8a2b5a1155f061d3109b296a8ed325ed87022d8d`
+
+### 11.1 Tree-drift proof
+
+`git diff --name-status dc1158a145175950d8d7d5324021221bc1a854eb <post-removal head>` reports
+**zero changed files of any kind** — not merely zero executable/data/test files. The workflow was
+added after the validated HEAD and removed again, so the post-removal tree is byte-identical to the
+tree that passed validation.
+
+Local figures behind the run, for reference: 43 Python tests, 2414 Vitest tests across 62 files,
+lint clean, build clean, whitespace gates clean, four browser audits passing with zero console and
+zero page errors.
+
+---
+
+## 12. Second focused review
+
+A separate focused review re-read the final tree after validation and confirmed directly:
+
+1. the parser's collision guard groups by `placeId + scope` only, judges completed groups after the
+   loop, and fails closed on `not-recorded` membership;
+2. the Python validator mirrors that shape exactly, including the post-loop evaluation;
+3. both catalogs are byte-identical (`md5 9d82fc39dab77f0b7db835d5fc84781a`), hold 8 records with
+   globally unique ids and correct namespaces, and contain exactly one active same-scope group —
+   `(JP-050, general-admission)` with `resides-outside-japan` then `resides-in-japan`;
+4. Phase 3F-D is byte-unchanged from base and contains no residence-context reference;
+5. Phase 3F-F is byte-unchanged from base;
+6. Phase 3F-H is byte-unchanged from base and contains no residence-context reference;
+7. Phase 3F-J is byte-unchanged from base and contains no residence-context reference;
+8. the comparator is still anchor civil date → plan ordinal → source-record index, with no
+   fourth key;
+9. `RM-JP-050-002` is exercised by five TypeScript suites, the Python suite and the browser audit;
+10. every deferred boundary token is absent from the catalog and the runtime;
+11. `docs/ROADMAP.md` and this authority match the implementation;
+12. no workflow file remains anywhere in the tree, and the working tree is clean.
+
+No further correction was required.
+
+---
+
+## 13. Current gate
+
+**IMPLEMENTED + HOSTILE-REVIEW CORRECTED + SECOND FOCUSED REVIEW PASSED + EXACT-HEAD VALIDATED.**
+
+Only documentation closure changed after the validated executable HEAD, and the tree-drift proof in
+section 11.1 shows zero changed files. Any later runtime, data, schema, test, dependency, storage or
+UI change invalidates the seal and requires a fresh exact-head run.
 
 Phase 3F-T and the domestic first-come route are not started.
