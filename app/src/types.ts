@@ -13,6 +13,14 @@ export type PlaceImage = {
   source?: string;
   sourceUrl?: string;
   license?: string;
+  /** Source-backed URI for the exact license named in `license`. */
+  licenseUrl?: string;
+  /** Commons file title used as source-file provenance; not assumed to be the licensor's work title. */
+  sourceFileTitle?: string;
+  /** Attribution title supplied separately by the source, when the recheck proves one exists. */
+  attributionTitle?: string;
+  /** Factual local processing applied to the served asset. */
+  processing?: "webp-reencoded" | "resized-and-webp-reencoded";
 };
 
 export type Place = {
