@@ -5759,6 +5759,9 @@ Acquisition/validation date: **2026-09-15 (America/Mexico_City)**.
       `35024168261`: selector reproduction, photography validator, Python, focused photography
       tests, full Vitest, lint, build, invariants/budget, two Phase 4F browser audits,
       Phase 4C regression and whitespace.
+- [x] **Temporary workflows removed with no executable/data/test/asset drift.** Post-cleanup commit
+      `19f64e35dc4ffa687c680525f7b0f64f21b8d571` differs from the validated executable/test
+      HEAD only by removal of the two temporary Phase 4F workflows and Phase 4F documentation.
 
 **Successor boundary:** Phase 4F authorizes no automatic Phase 4G acquisition. Any further
 photography scale-up requires a separate design gate that re-establishes target scope, batch size,
