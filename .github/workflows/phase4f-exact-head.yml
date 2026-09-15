@@ -1,0 +1,144 @@
+name: Phase 4F exact-head validation
+
+on:
+  push:
+    branches:
+      - feat/phase-4f-a-grade-photography-batch-i
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact executable head
+        uses: actions/checkout@v4
+        with:
+          ref: db7b87fa128a5479b6c67a0e2a2a3dc60d541efc
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python dependencies
+        run: python -m pip install -r scripts/requirements.txt
+
+      - name: Reproduce Phase 4E selector
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path("data/visual/a-grade-photography-batch-i.json").read_text())
+          current=json.loads(Path("data/visual/photography-metadata.json").read_text())
+          targets={p["placeId"] for p in manifest["places"]}
+          baseline=[r for r in current["images"] if r["placeId"] not in targets]
+          assert len(baseline)==36, len(baseline)
+          current["images"]=baseline
+          current["imageCount"]=36
+          Path("/tmp/phase4e-baseline.json").write_text(json.dumps(current,ensure_ascii=False,indent=2)+"\n")
+          PY
+          python scripts/select-a-grade-photography-batch.py --photography /tmp/phase4e-baseline.json --out /tmp/phase4f-selector.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          assert json.loads(Path("/tmp/phase4f-selector.json").read_text()) == json.loads(Path("data/visual/a-grade-photography-batch-i.json").read_text())
+          print("selector fixture reproduced")
+          PY
+
+      - name: Photography validator
+        run: python scripts/validate-photography.py
+
+      - name: Python test suite
+        run: python -m unittest discover scripts -p 'test_*.py'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install app dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Focused photography tests
+        working-directory: app
+        run: |
+          npx vitest run \
+            src/data/place-images.test.ts \
+            src/lib/photography-attribution.test.ts \
+            src/components/PlaceGallery.test.ts
+
+      - name: Full Vitest
+        working-directory: app
+        run: npm test
+
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+
+      - name: Build
+        working-directory: app
+        run: npm run build
+
+      - name: Phase 4F invariants and asset budget
+        run: |
+          cmp data/visual/photography-metadata.json app/src/data/photography-metadata.json
+          python - <<'PY'
+          import collections, json, subprocess
+          from pathlib import Path
+          base="b8d8bf19a3985a4823b571c97795d9564b3dfa41"
+          current=json.load(open("data/visual/photography-metadata.json"))
+          old=json.loads(subprocess.check_output(["git","show",f"{base}:data/visual/photography-metadata.json"]))
+          assert current["imageCount"]==58, current["imageCount"]
+          assert len(current["images"])==58
+          old_by={r["placeId"]:r for r in old["images"]}
+          cur_by={r["placeId"]:r for r in current["images"]}
+          assert len(old_by)==36
+          for pid,record in old_by.items():
+              assert cur_by.get(pid)==record, f"pre-4F metadata drift: {pid}"
+          dup={k:v for k,v in collections.Counter(r["placeId"] for r in current["images"]).items() if v>1}
+          assert not dup, dup
+          allow={"CC0","CC BY 2.0","CC BY 2.5","CC BY 3.0","CC BY 4.0","CC BY-SA 2.0","CC BY-SA 2.5","CC BY-SA 3.0","CC BY-SA 4.0"}
+          assert not ({r["license"] for r in current["images"]}-allow)
+          acquired="JP-068 JP-210 JP-155 JP-103 JP-206 JP-009 JP-099 JP-108 JP-018 JP-085 JP-164 JP-115 JP-037 JP-093 JP-160 JP-141 JP-040 JP-102 JP-174 JP-116 JP-092 JP-005".split()
+          for pid in acquired:
+              assert pid in cur_by, pid
+          for pid in ("JP-050","JP-195"):
+              assert pid not in cur_by, pid
+          total=0
+          for pid in acquired:
+              rec=cur_by[pid]
+              path=Path("app/public")/rec["url"].lstrip("/")
+              total+=path.stat().st_size
+          print(f"Phase 4F asset delta: {total} bytes ({total/1024/1024:.2f} MiB)")
+          assert total <= 12*1024*1024, total
+          PY
+          changed=$(git diff --name-only b8d8bf19a3985a4823b571c97795d9564b3dfa41 HEAD -- 'app/public/images/**' | grep -vE 'JP-068|JP-210|JP-155|JP-103|JP-206|JP-009|JP-099|JP-108|JP-018|JP-085|JP-164|JP-115|JP-037|JP-093|JP-160|JP-141|JP-040|JP-102|JP-174|JP-116|JP-092|JP-005' | wc -l)
+          echo "pre-existing image paths changed: $changed"
+          test "$changed" -eq 0
+          test "$(find app/public/images/places -type f -name '*.webp' | wc -l)" -eq 58
+
+      - name: Install Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Phase 4F browser audit first pass
+        working-directory: app
+        run: node scripts/phase4f-browser-audit.mjs
+
+      - name: Phase 4F browser audit second pass
+        working-directory: app
+        run: node scripts/phase4f-browser-audit.mjs
+
+      - name: Phase 4C browser audit regression
+        working-directory: app
+        run: node scripts/phase4c-browser-audit.mjs
+
+      - name: Whitespace gate
+        run: |
+          git diff --check b8d8bf19a3985a4823b571c97795d9564b3dfa41...HEAD
+          git diff --check
