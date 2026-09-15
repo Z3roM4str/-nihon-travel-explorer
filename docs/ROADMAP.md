@@ -5454,3 +5454,71 @@ Official PokéPark KANTO source recheck: **2026-09-15**.
       consistent and no workflow file remaining. No further correction was required.
 
 **Phase 3F-S is implemented, hostile-review corrected, independently reviewed and exact-head validated. Domestic first-come and Phase 3F-T are NOT STARTED.**
+
+## Phase 3F-T — Domestic First-Come Calendar & Evidence Design Gate
+
+Design authority:
+[`docs/DOMESTIC_FIRST_COME_CALENDAR_DESIGN.md`](DOMESTIC_FIRST_COME_CALENDAR_DESIGN.md).
+
+Base: `a15837bf0816b700639a35f11d29c3bc26c9aff5`.
+
+Official PokéPark KANTO source recheck: **2026-09-15**.
+
+- [x] **Design gate only.** No runtime, data, schema, test, React, CSS, dependency, persistence or
+      network change. Phase 3F-S collision semantics are untouched and no JP-050 record is merged.
+- [x] **Official first-come schedule is fully specified.** The current domestic ticket page publishes
+      daily per-day sales opening at 20:00 on the same date two months before admission, plus a
+      month-end rule with the worked example *Feb 28 releases April 28, 29 and 30*. The current
+      timing notice adds a second worked example, *July 25 at 20:00 for September 25 admission*.
+- [x] **Current wording separated from superseded wording.** The 20:00 start (from July 2026) is the
+      current rule; the 18:00 start (through June 2026) is superseded and must never be recorded.
+- [x] **No narrowing wording found.** No official statement limits first-come to some dates, to
+      lottery leftovers, to remaining seats, or makes the schedule depend on drawing results. The
+      cadence wording is the opposite of narrowing.
+- [x] **Contingency correctly located.** 「売り切れ次第終了となります」 and the English "tickets may
+      sell out or become available without prior announcement" bound when a sale **ends**, not
+      whether it **begins**. Nihon records no end for a release date, so the proposition it emits is
+      not weakened by them.
+- [x] **`last-day-of-shifted-month` semantics fixed and proven.** Shift the visit month back, attempt
+      the same calendar day, and on failure take the real final day of that shifted month — landing
+      in the shifted month, never the next one, and never later than the naive aligned date. Verified
+      against both official worked examples, 28/29/30/31-day targets, both leap-year forms, the
+      non-leap century 2100, the leap century 2000 and year rollover.
+- [x] **Proven equivalent to the operator's published rule.** The operator states the rule from the
+      seller's side and this design states it from the visit date's side; the two produce exactly the
+      same set of releases.
+- [x] **Disney cannot regress.** All three enum members agree on the aligned branch and the new value
+      is reachable only from a record declaring it, so growing the vocabulary is behaviour-preserving.
+      The successor must still pin Disney's fallback dates by value.
+- [x] **No new calendar helper required.** `lastDayOfShiftedMonth` already exists and is already in
+      production use by `monthly-application-window`, so the successor's surface is smaller than the
+      handoff assumed.
+- [x] **D/F/H/J audited for semantic overstatement.** D emits only a recorded opening and has no field
+      in which availability could be expressed; F speaks only of what is *registrada* and already owns
+      neutral `first-come` copy; H only compares civil dates; J already disclaims availability and
+      priority outright.
+- [x] **One real gap found — per-day disclaimer asymmetry.** The route-wide surface disclaims
+      availability unconditionally, but on the per-day surface the equivalent caveat is grammatically
+      scoped to the reference-date relation and therefore absent when no reference date is rendered.
+      This is copy-only and needs no schema or field.
+- [x] **Decision: Outcome A plus a bounded copy-only fix.** The existing model is sufficient. Outcome
+      B was evaluated and rejected: the schedule is not conditional, Tokyo Disneyland already ships
+      the identical sell-out contingency so a qualifier would be inconsistent on arrival, such a
+      field would encode inventory/current-sale-state which is forbidden, and provenance already
+      carries the operator's wording on both surfaces. Outcome C is no longer justified now that the
+      opening schedule is verified.
+- [x] **Handoff divergences recorded.** `alignment: same-day-of-month` does not exist — the only
+      member is `same-calendar-day`; `lastDayOfShiftedMonth` already exists; 2027-05-31 is an aligned
+      case rather than a month-end case; and one UI copy change is warranted even though no
+      conditional semantic is introduced.
+- [x] **Successor bounded.** Phase 3F-U may widen only `missingAlignedDayRule` in both validators,
+      make the derivation branch exhaustive over that union, add at most `RM-JP-050-003` (catalog
+      8 → 9, byte parity preserved), and add the one per-day disclaimer parity sentence. Everything
+      else — availability, inventory, sale state, sold-out, user residence, eligibility, ranking,
+      recommendation, route selection, reminders, notifications, calendar export, new grouping UI,
+      persistence and network — remains unauthorized.
+- [x] **Timezone precision required of the successor.** `sourceTimeZone: Asia/Tokyo` is authorized
+      only against cited JST anchoring; otherwise `null` must be recorded. Inferring the timezone
+      from page language or domain is forbidden.
+
+**Phase 3F-T changes documentation only. Authorized successor: Phase 3F-U — Domestic First-Come Calendar Rule & Evidence Foundation. Phase 3F-U is NOT STARTED.**
