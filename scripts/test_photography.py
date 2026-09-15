@@ -34,6 +34,9 @@ def valid_record(**updates):
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
         "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/synthetic.jpg",
         "originalTitle": "File:Synthetic.jpg",
+        "originalWidth": 2000,
+        "originalHeight": 1000,
+        "processing": "resized-and-webp-reencoded",
     }
     record.update(updates)
     return record
@@ -105,6 +108,44 @@ class MetadataValidationTests(unittest.TestCase):
         record = valid_record(license="CC0", credit="", licenseUrl="https://creativecommons.org/publicdomain/zero/1.0/deed.en")
         errs = self.errors([record], Path("/nonexistent"))
         self.assertFalse(any("requires a non-empty credit" in e for e in errs), errs)
+
+    def test_every_supported_license_requires_a_license_url(self):
+        self.assert_invalid([valid_record(licenseUrl="")], "licenseUrl must be")
+        self.assert_invalid(
+            [valid_record(license="CC0", credit="", licenseUrl="")],
+            "licenseUrl must be",
+        )
+
+    def test_attribution_title_must_be_non_empty_when_present(self):
+        self.assert_invalid([valid_record(attributionTitle="")], "attributionTitle must be")
+        self.assert_invalid([valid_record(attributionTitle="   ")], "attributionTitle must be")
+
+    def test_processing_vocabulary_is_fail_closed(self):
+        self.assert_invalid([valid_record(processing="cropped")], "processing must be one of")
+
+    def test_processing_must_match_original_dimensions(self):
+        self.assert_invalid(
+            [valid_record(originalWidth=1600, originalHeight=900, processing="resized-and-webp-reencoded")],
+            "contradicts original dimensions",
+        )
+        self.assert_invalid(
+            [valid_record(originalWidth=2400, originalHeight=1600, processing="webp-reencoded")],
+            "contradicts original dimensions",
+        )
+
+    def test_webp_only_processing_is_valid_at_or_below_1600(self):
+        record = valid_record(
+            originalWidth=1600,
+            originalHeight=900,
+            processing="webp-reencoded",
+        )
+        errs = self.errors([record], Path("/nonexistent"))
+        self.assertFalse(any("processing" in e for e in errs), errs)
+
+    def test_original_dimensions_must_be_positive_integers(self):
+        self.assert_invalid([valid_record(originalWidth=0)], "originalWidth/originalHeight")
+        self.assert_invalid([valid_record(originalHeight=-1)], "originalWidth/originalHeight")
+        self.assert_invalid([valid_record(originalWidth=True)], "originalWidth/originalHeight")
 
     def test_missing_asset_is_rejected(self):
         self.assert_invalid([valid_record()], "referenced asset is missing")
