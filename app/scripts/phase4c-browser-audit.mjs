@@ -30,6 +30,29 @@ try {
   });
   page.on("pageerror", (error) => pageErrors.push(String(error)));
 
+  // Hermetic by construction. The pre-existing place map streams OpenStreetMap tiles, so leaving
+  // the page open to the network made this audit's console-error assertion depend on the machine
+  // having working internet — it passed in CI by luck and failed anywhere offline or behind a
+  // TLS-inspecting proxy, for reasons that have nothing to do with photography attribution.
+  //
+  // Every non-localhost request is intercepted instead and answered locally with a 1x1 transparent
+  // PNG. Aborting them would itself log `net::ERR_FAILED`, so fulfilling is what keeps the
+  // zero-console-error assertion exactly as strict as before rather than quietly relaxing it.
+  // Intercepted URLs are recorded so the assertions below can prove none of them was a photograph.
+  const BLANK_PNG = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=",
+    "base64"
+  );
+  const interceptedExternal = [];
+  await page.route("**/*", (route) => {
+    const target = route.request().url();
+    if (target.startsWith(url) || target.startsWith("data:") || target.startsWith("blob:")) {
+      return route.continue();
+    }
+    interceptedExternal.push(target);
+    return route.fulfill({ status: 200, contentType: "image/png", body: BLANK_PNG });
+  });
+
   await page.goto(url);
 
   // The application opens on the national explorer. Enter the Tokio hub through the
@@ -40,6 +63,26 @@ try {
 
   const credit = page.locator(".gallery__credit");
   await credit.waitFor();
+
+  // Phase 4C serves every photograph from the local build and fetches nothing at runtime. Prove it
+  // twice: no intercepted request was a photography host, and the rendered image is same-origin. The
+  // Commons and license links are anchors, so they are never requested unless a user clicks them.
+  const photographyHosts = /wikimedia\.org|wikipedia\.org|creativecommons\.org/i;
+  assert.deepEqual(
+    interceptedExternal.filter((target) => photographyHosts.test(target)),
+    [],
+    "photography must never be fetched at runtime"
+  );
+  const renderedSources = await page
+    .locator(".gallery__image")
+    .evaluateAll((nodes) => nodes.map((node) => node.currentSrc || node.getAttribute("src")));
+  assert.ok(renderedSources.length > 0, "expected a rendered gallery image");
+  for (const source of renderedSources) {
+    assert.ok(
+      source.startsWith(url) || source.startsWith("/"),
+      `gallery image must be served locally, got ${source}`
+    );
+  }
 
   const sourceLink = credit.getByRole("link", { name: "Wikimedia Commons" });
   assert.match(await sourceLink.getAttribute("href"), /^https:\/\/commons\.wikimedia\.org\//);
