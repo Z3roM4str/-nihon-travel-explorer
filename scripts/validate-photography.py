@@ -69,6 +69,20 @@ def valid_url(value):
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
+def expected_license_path(license_):
+    """Canonical creativecommons.org path for a supported license name.
+
+    Derived from the license name rather than a hand-kept table, so a license added to
+    SUPPORTED_LICENSES cannot silently skip the licenseUrl agreement check below.
+    """
+    if license_ == "CC0":
+        return "/publicdomain/zero/1.0"
+    parts = license_.split()
+    if len(parts) != 3 or parts[0] != "CC":
+        return None
+    return f"/licenses/{parts[1].lower()}/{parts[2]}"
+
+
 def is_usable_alt(value):
     if not isinstance(value, str):
         return False
@@ -182,8 +196,29 @@ def validate_metadata(metadata, place_ids, asset_root):
             if not isinstance(credit, str) or not credit.strip():
                 errors.append(f"{label}: license {license_!r} requires a non-empty credit")
 
-        if license_ in SUPPORTED_LICENSES and not valid_url(record.get("licenseUrl")):
-            errors.append(f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license")
+        if license_ in SUPPORTED_LICENSES:
+            license_url = record.get("licenseUrl")
+            if not valid_url(license_url):
+                errors.append(
+                    f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license"
+                )
+            else:
+                # A well-formed URL is not enough: the visible attribution links this URL as the
+                # license, so a by-sa URL under a `CC BY` record would publish a legally wrong
+                # claim while passing every other check.
+                expected_path = expected_license_path(license_)
+                parsed = urlparse(license_url)
+                if expected_path is None:
+                    errors.append(
+                        f"{label}: no canonical license URL is defined for license {license_!r}"
+                    )
+                elif parsed.netloc != "creativecommons.org" or not parsed.path.rstrip("/").startswith(
+                    expected_path
+                ):
+                    errors.append(
+                        f"{label}: licenseUrl {license_url!r} does not match declared license "
+                        f"{license_!r}; expected creativecommons.org{expected_path}"
+                    )
 
         if not is_usable_alt(record.get("alt")):
             errors.append(f"{label}: alt text is missing, too short, or looks like a placeholder")

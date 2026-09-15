@@ -116,6 +116,47 @@ class MetadataValidationTests(unittest.TestCase):
             "licenseUrl must be",
         )
 
+    def test_license_url_must_match_the_declared_license(self):
+        """A well-formed URL is not enough — the UI links it as *the* license."""
+        self.assert_invalid(
+            [valid_record(license="CC BY 4.0", licenseUrl="https://creativecommons.org/licenses/by-sa/4.0")],
+            "does not match declared license",
+        )
+        self.assert_invalid(
+            [valid_record(license="CC BY-SA 4.0", licenseUrl="https://creativecommons.org/licenses/by-sa/2.0")],
+            "does not match declared license",
+        )
+        self.assert_invalid(
+            [valid_record(license="CC0", credit="", licenseUrl="https://creativecommons.org/licenses/by/4.0")],
+            "does not match declared license",
+        )
+        self.assert_invalid(
+            [valid_record(licenseUrl="https://example.org/licenses/by-sa/4.0")],
+            "does not match declared license",
+        )
+
+    def test_license_url_accepts_the_canonical_forms_in_use(self):
+        for license_, license_url in [
+            ("CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0"),
+            ("CC BY-SA 4.0", "https://creativecommons.org/licenses/by-sa/4.0/"),
+            ("CC BY 2.0", "https://creativecommons.org/licenses/by/2.0"),
+            ("CC BY-SA 2.5", "https://creativecommons.org/licenses/by-sa/2.5"),
+            ("CC0", "https://creativecommons.org/publicdomain/zero/1.0/deed.en"),
+        ]:
+            with self.subTest(license=license_, licenseUrl=license_url):
+                credit = "" if license_ == "CC0" else "Photographer"
+                errs = self.errors(
+                    [valid_record(license=license_, credit=credit, licenseUrl=license_url)],
+                    Path("/nonexistent"),
+                )
+                self.assertFalse(any("does not match declared license" in e for e in errs), errs)
+
+    def test_every_supported_license_has_a_canonical_url_path(self):
+        """Adding a license to SUPPORTED_LICENSES must not silently skip the agreement check."""
+        for license_ in validator.SUPPORTED_LICENSES:
+            with self.subTest(license=license_):
+                self.assertIsNotNone(validator.expected_license_path(license_))
+
     def test_attribution_title_must_be_non_empty_when_present(self):
         self.assert_invalid([valid_record(attributionTitle="")], "attributionTitle must be")
         self.assert_invalid([valid_record(attributionTitle="   ")], "attributionTitle must be")
