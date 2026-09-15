@@ -5324,3 +5324,50 @@ Base: `4a9156c4236453c7389e6841fe5d7f25ffc08ecf`.
       any runtime/test change requires a fresh exact-head run.
 
 **Phase 3F-Q is implemented, hostile-reviewed, independently reviewed and repository-native validated. Same-scope cardinality relaxation is NOT STARTED.**
+
+## Phase 3F-R — Same-Scope Purchase-Context Composition Design Gate
+
+Design authority:
+[`docs/SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_DESIGN.md`](SAME_SCOPE_PURCHASE_CONTEXT_COMPOSITION_DESIGN.md).
+
+Base: `ec22ed065435621428ace08f3e954d73d529f8cb` (`main` after Phase 3F-Q / PR #87).
+
+Official PokéPark KANTO source recheck: **2026-09-14**.
+
+- [x] **Residence routing rechecked.** The operator still separates residents of Japan from guests
+      residing outside Japan; the domestic route requires membership + SMS through a Japan-usable
+      mobile phone.
+- [x] **Domestic drawing remains explicit.** The official domestic ticket material still publishes
+      a three-month-ahead drawing with applications from the 1st through the 12th.
+- [x] **20:00 timing remains supported.** The June 16, 2026 official notice still states that ticket
+      drawing and first-come sales begin at 20:00 from July 2026.
+- [x] **Identity conclusion retained.** `recordId` remains the evidence-record identity;
+      `purchaseResidenceContext` remains applicability evidence and is not promoted into identity.
+- [x] **Simple context-key uniqueness rejected.** `placeId + scope + purchaseResidenceContext`
+      cannot be the replacement identity because multiple valid domestic mechanisms can share the
+      same `resides-in-japan` context.
+- [x] **Cardinality relaxation designed.** Phase 3F-S may remove global active
+      `placeId + scope` uniqueness.
+- [x] **Fail-closed replacement guard designed.** If two or more active records share
+      `placeId + scope`, every active member of that collision group must carry a specific context
+      (`resides-in-japan` or `resides-outside-japan`); `not-recorded` may not participate.
+- [x] **Solitary unknown-context evidence remains valid.** A single active `not-recorded` record
+      for one place/scope is still permitted; superseded records do not trigger the collision guard.
+- [x] **No second identity axis added.** No channel/pathway/mechanism-role field, fake scope,
+      allocation identity or mechanism-kind identity is introduced.
+- [x] **Composition stays record-local.** D/F/H/J continue to preserve one proposition per
+      `recordId`; no merging, date deduplication, automatic filtering, ranking or user-applicability
+      inference is authorized.
+- [x] **First real collision fixture bounded.** Subject to implementation-day source recheck,
+      Phase 3F-S may add exactly one domestic drawing record, `RM-JP-050-002`, with
+      `general-admission + resides-in-japan + monthly-application-window + drawing`.
+- [x] **Catalog successor bounded 7→8.** JP-050 becomes exactly two active general-admission records:
+      existing outside-Japan drawing plus the new Japan-resident drawing.
+- [x] **Domestic first-come remains deferred.** No `last-day-of-shifted-month` and no domestic
+      first-come record are authorized in Phase 3F-S; that calendar extension remains a later
+      independent gate.
+- [x] **Successor gate defined.** Phase 3F-S must prove parser/Python parity for the collision guard,
+      exact 8-record parity, record-local D/F/H/J composition, duplicate-date non-deduplication,
+      unchanged comparator semantics and the full repository-native regression suite.
+
+**Phase 3F-R changes documentation only. Authorized successor: Phase 3F-S — Same-Scope Purchase-Context Composition Foundation.**
