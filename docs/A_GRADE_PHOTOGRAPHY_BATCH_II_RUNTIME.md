@@ -268,3 +268,37 @@ Phase 4H does **not** authorize:
 
 Any further scale-up requires a separate successor design gate that re-establishes target
 priority, batch size, asset budget and sourcing constraints.
+
+## Workflow cleanup proof
+
+Temporary workflow cleanup commit:
+
+`9c67df8` — removes all four temporary Phase 4H workflows:
+
+- `.github/workflows/phase4h-selector-preflight.yml`
+- `.github/workflows/phase4h-commons-discovery.yml`
+- `.github/workflows/phase4h-acquire.yml`
+- `.github/workflows/phase4h-exact-head.yml`
+
+The Phase 4H base `589d64a87d1963622fdf64c07be31460f145f79c` carried no workflows at all
+(Phase 4F and Phase 4G had already removed their own temporary workflows), so this removal
+restores the base state exactly. No non-Phase-4H workflow existed or was touched.
+
+Comparison from the validated executable/test HEAD
+`cda32ceb61372fc7f0599b59ce28261b4b196a4e` to the post-cleanup tree shows only:
+
+```
+D  .github/workflows/phase4h-acquire.yml
+D  .github/workflows/phase4h-commons-discovery.yml
+D  .github/workflows/phase4h-exact-head.yml
+D  .github/workflows/phase4h-selector-preflight.yml
+A  docs/A_GRADE_PHOTOGRAPHY_BATCH_II_RUNTIME.md
+M  docs/ROADMAP.md
+```
+
+That is, only documentation and the removal of temporary workflows.
+
+There is **zero drift in executable code, canonical/app photography metadata, selector
+scripts, tests, or image assets** after the successful exact-head validation. Measured
+drift from the validated HEAD is 0 files across `scripts/`, `app/src/`, `app/scripts/`,
+`data/` and `app/public/images/`.
