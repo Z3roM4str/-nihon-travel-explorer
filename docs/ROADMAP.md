@@ -5788,3 +5788,54 @@ Design date: **2026-09-15 (America/Mexico_City)**.
 - [x] **Narrow successor authorized.** Phase 4H may attempt only the exact 32-place fixture and must stop Draft after exact-head validation.
 
 **Authorized next phase: Phase 4H — A-Grade Licensed Photography Acquisition Batch II. Phase 4H is not started by Phase 4G.**
+
+## Phase 4H — A-Grade Licensed Photography Acquisition Batch II — complete
+
+Runtime authority:
+[`docs/A_GRADE_PHOTOGRAPHY_BATCH_II_RUNTIME.md`](A_GRADE_PHOTOGRAPHY_BATCH_II_RUNTIME.md).
+
+Base: `589d64a87d1963622fdf64c07be31460f145f79c`.
+
+Acquisition/validation date: **2026-09-15 / 2026-09-16 (America/Mexico_City)**.
+
+- [x] **Exact Phase 4G fixture reproduced.** 32 targets, `eligibleCount` 115, 19 categories,
+      hub quotas Kioto 8 / Okinawa 8 / Osaka 7 / Sapporo 1 / Tokio 8.
+- [x] **32 attempted, 27 accepted, 5 failed closed.** No replacement queue and no substitute
+      target. Failed closed: JP-121 (freedom-of-panorama concern on Tower of the Sun),
+      JP-156 (only Public-domain files found, outside the CC0/CC BY/CC BY-SA allowlist),
+      JP-095 (no defensible candidate in two discovery passes), JP-079 (archival documents
+      rather than a subject-matching photograph), JP-202 (no representative still; only an
+      underwater WebM, which fails the first-photo requirement).
+- [x] **Coverage raised 58 → 85 / 214 = 39.7%.**
+- [x] **Asset budget respected.** Delta 7,438,738 bytes (7.09 MiB) against a 10 MiB soft
+      budget and a 14 MiB hard threshold — below even the soft budget, with no policy or
+      quality-floor relaxation.
+- [x] **Carried fail-closed IDs held out.** JP-033, JP-126, JP-203, JP-204, JP-050, JP-195
+      did not re-enter.
+- [x] **Invariants preserved.** All 58 prior records and blobs byte-identical, canonical/app
+      byte parity, exactly 85 records and 85 WebP assets, one image per place, allowlist
+      unchanged, zero runtime photography fetch, no gallery/ranking/routing/itinerary/grade
+      drift.
+- [x] **Stale historical fixture corrected.** The Phase 4E/4F selector fixture rebuilt its
+      36-record baseline by subtracting only Phase 4F targets, which broke once Phase 4H
+      appended 27 records. The baseline is now derived twice — semantically from the
+      checked-in post-4E batch manifests and positionally from the append-only registry
+      prefix — and the two must agree, so the fixture survives future batches and fails
+      loudly rather than silently replaying a different catalog. No assertion was weakened
+      and no image, metadata or asset changed.
+- [x] **Exact-head validated.** Executable/test HEAD
+      `cda32ceb61372fc7f0599b59ce28261b4b196a4e`, Actions run `35047755114` — SUCCESS across
+      Phase 4G selector reproduction, photography validator, 462 Python tests, npm ci,
+      focused photography tests, full Vitest, lint, build, invariants/budget, two Phase 4H
+      browser audits, Phase 4F and Phase 4C browser regressions, and the whitespace gate.
+- [x] **Hostile review clean.** All 27 accepted files re-verified against the live Commons
+      API — licenses, dimensions, credits, URLs, subject match, duplicate-source and
+      fail-closed checks all pass. No defect required correction.
+- [x] **Workflow cleanup proven.** The four temporary Phase 4H workflows were removed, and
+      the tree differs from the validated executable/test HEAD only by documentation and
+      those workflow removals.
+
+**Successor boundary:** Phase 4H authorizes no automatic successor acquisition. Any further
+scale-up requires a separate design gate that re-establishes target priority, batch size,
+asset budget and sourcing constraints. PR #107 remains Draft and issue #106 remains open
+pending an independent closure gate.
