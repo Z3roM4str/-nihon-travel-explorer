@@ -1,6 +1,6 @@
 # Phase 4H — A-Grade Licensed Photography Acquisition Batch II
 
-Status: **implemented and exact-head validated; PR remains Draft pending independent closure gate**
+Status: **complete — exact-head validated and independently closure-reviewed**
 
 Base: `589d64a87d1963622fdf64c07be31460f145f79c`  
 Issue: #106  
