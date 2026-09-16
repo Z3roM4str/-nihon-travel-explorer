@@ -5835,7 +5835,11 @@ Acquisition/validation date: **2026-09-15 / 2026-09-16 (America/Mexico_City)**.
       the tree differs from the validated executable/test HEAD only by documentation and
       those workflow removals.
 
+**Independent closure gate:** passed. The validated executable/test HEAD remains
+`cda32ceb61372fc7f0599b59ce28261b4b196a4e`; all later Phase 4H changes are documentation
+and temporary-workflow removal only, with zero executable/data/test/asset drift. PR #107 is
+authorized for merge and Issue #106 for completed closure.
+
 **Successor boundary:** Phase 4H authorizes no automatic successor acquisition. Any further
 scale-up requires a separate design gate that re-establishes target priority, batch size,
-asset budget and sourcing constraints. PR #107 remains Draft and issue #106 remains open
-pending an independent closure gate.
+asset budget and sourcing constraints.
