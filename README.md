@@ -6,15 +6,26 @@ Nihon turns a structured Japan travel research base into a visual explorer: brow
 
 ## Current status
 
-**Phase 2C — National Explorer**
+**Release-candidate audit — Nihon v1**
 
-- Product scope and UX behaviour documented; the workbook is mapped to an application data
-  model and exported reproducibly.
+Discovery and manual trip planning are both implemented; photography closed for v1 at Phase 4M.
+
 - The application opens on a map of the whole of Japan, drawn from official MLIT
-  administrative geometry, and browses down to a hub from there.
-- Every hub in the dataset is reachable, with filters, place details, nearby jumps, saved
-  places, and activity-time estimates.
-- No itinerary generation, routing, or booking.
+  administrative geometry, and browses down through region → prefecture → hub → place.
+- All **214** verified places across **7** hubs are reachable, with filters, free-text search,
+  place details, nearby jumps, saved places, and activity-time estimates.
+- **144** places carry a licensed photograph with full attribution; the rest show their
+  editorial `imageBrief` fallback. See [the photography closure](docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md).
+- A **manual** planner turns a saved selection into an ordered route: day assignment,
+  calendar anchoring from Day 1, stable day identity across reordering, trip bounds, manual
+  inter-hub segments, whole-trip composition, and evidence-complete local swap/relocation
+  alternatives.
+- Recorded opening hours and closure composition, manual visit start-time fit against
+  recorded intervals, reservation mechanisms, trip-derived reservation dates, and a route-wide
+  official reservation calendar for the February–March 2027 window.
+- Saved places and the planning draft persist locally in the browser.
+- Still out of scope: automatic itinerary generation, live transit, routing, and booking.
+  The planner never reorders a route for the user.
 
 ## Experience
 

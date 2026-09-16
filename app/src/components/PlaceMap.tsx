@@ -20,6 +20,9 @@ const gradeColors: Record<string, string> = {
   A: "#c2701c",
   B: "#2f6f9f",
   C: "#6b6257",
+  // D shares C's neutral treatment rather than introducing a new palette entry; it was
+  // previously reaching the same colour through the `?? gradeColors.C` fallback below.
+  D: "#6b6257",
 };
 
 function prefersReducedMotion(): boolean {

@@ -6249,3 +6249,122 @@ one.
 **Authorized next phase: Nihon Release Candidate / whole-product closure audit.** It is **not
 started** by Phase 4M and requires its own issue and design gate. The Phase 4M pull request
 remains **Draft** and Issue #116 remains **open** pending an independent closure gate.
+
+## Phase 5A — Nihon v1 Release Candidate Audit & Blocker Remediation
+
+Whole-product release-candidate audit executed on **2026-09-16** from base
+`33db8decc6fee1c0f2376246b795b6f3d2a97e6a` (`main` after Phase 4M / PR #117), against Issue #118.
+Full detail in [`docs/RELEASE_CANDIDATE_AUDIT.md`](RELEASE_CANDIDATE_AUDIT.md).
+
+**Decision: RC-READY. No open BLOCKER or MAJOR finding remains.** The next step is the
+independent Nihon v1 RC closure/release gate, which Phase 5A does **not** start. v1 is **not**
+tagged or released by this phase.
+
+- [x] **Preflight clean.** `origin/main` at the mandated base; branch descending exactly from it;
+      working tree clean; PR #117 merged; Issue #116 closed completed; Phase 4M's STOP verdict
+      confirmed in its design document; **no Phase 4N branch, issue, fixture or selector exists**.
+      Baseline captured before any edit: Python **543**, Vitest **2440**/65 files, lint clean,
+      build OK, and all seven repository validators green.
+- [x] **RC browser audit harness added**, running against the **production build** via
+      `vite preview` rather than the dev server — an RC gate must exercise the artifact that would
+      ship. `app/scripts/phase5a-rc-browser-audit.mjs` runs **50 checks** covering Issue #118's
+      five golden journeys, accessibility, responsive layout, runtime/network integrity and
+      persistence, at **desktop 1440×900** and **mobile 390×844**. Determinism uses the Phase 3F-H
+      `addInitScript` Date shim; no production test-date affordance exists.
+- [x] **RC-01 — MAJOR — fixed. The grade filter silently hid every grade-D place.** `App.tsx`
+      offered `["S", "A", "B", "C"]` while the catalogue holds four grade-**D** places (JP-056,
+      JP-104, JP-106, JP-177). Because `matchesFilters` treats a non-empty grade list as
+      exhaustive, ticking every grade on offer **removed four real places from the list and map**,
+      with no filter combination able to reach them. `PlaceMap.tsx` had no `D` marker colour and
+      `App.css` no `.tag--grade-D`/`.badge--grade-D` rule, so grade-D badges rendered unstyled.
+      Fixed in all three places, reusing C's existing neutral colour rather than inventing a
+      palette entry. **Regression:** six data-driven tests in `App.test.ts` that compare the UI's
+      grade vocabulary, marker keys and badge rules against the grades actually present in
+      `data/places.json` — so a future grade fails the build instead of vanishing. Reverting the
+      fix fails 4 of them. Browser check **A05** reproduced the defect
+      (`Osaka: … not offered as filters: D`) and now reports `Tokio:SABC Osaka:SABCD Kioto:SABCD`.
+- [x] **RC-02 — MINOR — fixed (trivial, isolated, zero-risk).** `RegionNavigator.tsx` announced
+      single-place regions and prefectures to screen readers as "1 lugar verificado**s**": the
+      visible noun was pluralised but the visually-hidden suffix was hardcoded plural.
+      `PrefecturePanel.tsx` already had the correct pattern. **Regression:** four tests in the new
+      `RegionNavigator.test.ts`, including one asserting both are driven by the same expression;
+      reverting fails 3 of 4.
+- [x] **RC-03 / RC-04 — MAJOR — fixed. Both READMEs materially contradicted the implementation.**
+      The root README announced "Phase 2C — National Explorer" with "No itinerary generation" for a
+      product that ships a full manual planner; `app/README.md` was titled "Tokyo Explorer (Phase 1
+      MVP)" and described photography as "a **24-place pilot**" when the registry holds **144**.
+      Both rewritten to the audited current state, preserving the true distinction: there is no
+      **automatic** itinerary generation, live transit, routing or booking, and the planner never
+      reorders a route for the user.
+- [x] **Canonical data integrity re-derived at HEAD** by an audit script independent of the
+      repository's validators, then cross-checked against all seven: 214 places with unique
+      well-formed IDs; S 32 / A 147 / B 25 / C 6 / D 4; seven hubs summing to 214; 403 nearby
+      relations with resolvable endpoints, no self-relations and denormalised names matching
+      `places.json` exactly; **144** photography records and **144** assets on disk with no orphan
+      and no duplicate `sourceUrl`/`acquisitionUrl`/`assetPath`/`placeId`; one photo per place;
+      **all 16 fail-closed IDs present and uncovered**; canonical/app byte parity on every shared
+      file; source workbook unchanged.
+- [x] **Two of this audit's own findings were false positives and are recorded as such.** A
+      too-narrow licence allowlist transcribed from Phase 4L's batch-local mix flagged
+      `CC BY-SA 2.5` (JP-057, JP-123) — which `scripts/validate-photography.py:42` lists
+      explicitly; the data was correct and the heuristic was wrong. A broad secret-shaped regex
+      reported 257 "hits", all the English word *token(s)* in comments and package names;
+      re-run with provider-specific patterns it reports **0**.
+- [x] **Golden journeys pass at both viewports — 50/50 desktop, 50/50 mobile.** Discover → save
+      across two hubs → ordered route → day assignment → **Day 1 anchored to 2027-02-20** →
+      manual visit start time → **manual Shinkansen inter-hub segment across the Tokio→Kioto
+      boundary** → whole-trip composition → reload reproducing every field. Weekday composition is
+      proven *derived*, not hardcoded, by re-anchoring: `sáb, 20 feb 2027 → dom, 21 feb 2027 →
+      sáb, 20 feb 2027`. Editing preserves membership exactly, keeps **stable day IDs** across an
+      added day and a cross-day move, and leaves no orphaned visit time, segment or accommodation
+      leg after a removal.
+- [x] **Two deliberate contracts verified rather than "fixed".** Removing a place from the route
+      invalidates the day assignment (`days: null`) — documented in `lib/planning-draft.ts`
+      because the module "never invents which day a newly-added place belongs to"; the audit
+      proves nothing *stale* survives that reset. And `reconcileDraft` prunes a stored route to
+      the still-saved places without auto-appending new ones. Both looked like data loss until the
+      authority was read.
+- [x] **Mobile is a deliberate map-first layout, not a broken one.** Below the 861 px breakpoint
+      `.app__sidebar` is hidden until the "Buscar y filtrar" drawer is opened, and selecting a
+      place closes it. The audit initially failed 25 mobile checks against this; the harness — not
+      the product — was wrong. It is now viewport-aware, and a dedicated check proves the drawer
+      opens, closes and reopens with the full place list intact. **No horizontal overflow** at
+      either viewport on national, hub, detail, planner or drawer-open screens; touch targets ≥ 32 px;
+      the trip-anchor control is never covered by a fixed element.
+- [x] **Accessibility sanity passes.** Every product image labelled; native button/link semantics
+      throughout (no `div[role=button]`); every planner form control labelled; visible focus
+      (`outline: solid 3px`) on the first tab stop; no keyboard trap across 60 consecutive Tab
+      presses inside the planner dialog. Reorder controls carry place-specific accessible names.
+- [x] **Runtime integrity proved.** Zero photography-provider requests; **zero transit-provider
+      requests** (the transit contract is imported by no component); no secret-bearing or
+      localhost request; the **only** external host reached is `tile.openstreetmap.org`, attributed
+      in the UI. The core UI renders 57 places with every external request stubbed. **0 page
+      errors, 0 console errors.**
+- [x] **Persistence verified as release-critical.** Clean first run empty; saved places, route,
+      day IDs, anchor, visit times and inter-hub segments all survive reload; four malformed
+      payloads (`{"not":"an array"}`, `[1,2,3]`, `not json at all`, `["JP-XXX"]`) each render the
+      app with zero page errors. **No migration system was invented** — the existing fail-safe
+      contract was documented as-is.
+- [x] **Release hygiene clean.** No committed secrets, no tracked `.env`, no `console.*` in
+      shipped source, no `TODO`/`FIXME`/`XXX`/`HACK` in `app/src`, `app/server` or `scripts`, no
+      development-only URL, no temporary workflow, no tracked build artifact or source map.
+      Licence obligations satisfied: every photograph renders its Commons source, credit and
+      licence links, and OSM tiles carry their attribution.
+- [x] **Final gates.** Python **543** OK (unchanged) · Vitest **2450**/66 files OK (+10 tests,
+      +1 file — the RC-01 and RC-02 regressions) · lint clean · build OK · all seven validators
+      OK · RC browser audit **50/50 desktop** and **50/50 mobile** · whitespace clean ·
+      `npm ci` reproducible. **No historical assertion was weakened or deleted to make RC pass.**
+
+### Deferred to post-v1 — none release-blocking
+
+`RC-05` a single JS chunk above Vite's 500 kB advisory (1,424,842 B raw / **259,730 B gzipped**);
+code-splitting is a refactor and Issue #118 §17 forbids one here. `OBS-1` Leaflet's own tile
+`<img>` elements carry no `alt` — third-party decorative DOM, while every product image is
+labelled. `OBS-2` thirteen pre-existing `validate-dataset.py` secondary-metadata warnings,
+including cluster CL-87's place-count mismatch and its listing of JP-213; the validator exits OK
+and no audited journey is affected. `OBS-3` `JP-149` MIHO Museum is filed under the Osaka hub but
+sits in Kōka, Shiga — a pre-existing `data/places.json` assignment first recorded by Phase 4L.
+
+**Authorized next step: the independent Nihon v1 RC closure/release gate.** Phase 5A does not
+start it, does not tag or release v1, and does not begin a successor phase. The Phase 5A pull
+request remains **Draft** and Issue #118 remains **open**.

@@ -58,7 +58,10 @@ export function RegionNavigator({
                     {summary.placeCount > 0 ? (
                       <>
                         {summary.placeCount} lugar{summary.placeCount === 1 ? "" : "es"}
-                        <span className="visually-hidden"> verificados</span>
+                        <span className="visually-hidden">
+                          {" "}
+                          verificado{summary.placeCount === 1 ? "" : "s"}
+                        </span>
                       </>
                     ) : (
                       <span className="region-nav__meta--empty">Sin lugares aún</span>
@@ -102,7 +105,10 @@ export function RegionNavigator({
                       {count > 0 ? (
                         <>
                           {count} lugar{count === 1 ? "" : "es"}
-                          <span className="visually-hidden"> verificados</span>
+                          <span className="visually-hidden">
+                            {" "}
+                            verificado{count === 1 ? "" : "s"}
+                          </span>
                         </>
                       ) : (
                         <span className="region-nav__meta--empty">Sin lugares aún</span>
