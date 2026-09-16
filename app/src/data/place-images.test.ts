@@ -90,11 +90,11 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly six WebP-only records and 107 resized+WebP records from the committed metadata", () => {
+  it("derives exactly seven WebP-only records and 137 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
-    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(6);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(107);
-    for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043"]) {
+    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(137);
+    for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
   });
@@ -159,11 +159,25 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
+  it("carries the Phase 4L tranche as 31 acquired targets and one explicit fallback", () => {
+    const acquired = [
+      "JP-084", "JP-190", "JP-149", "JP-012", "JP-062", "JP-176", "JP-122",
+      "JP-213", "JP-087", "JP-200", "JP-112", "JP-053", "JP-064", "JP-158",
+      "JP-113", "JP-007", "JP-063", "JP-185", "JP-130", "JP-042", "JP-065",
+      "JP-172", "JP-139", "JP-051", "JP-067", "JP-169", "JP-114", "JP-020",
+      "JP-186", "JP-052", "JP-017",
+    ];
+    for (const placeId of acquired) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
+    }
+    expect(placeImages["JP-140"]).toBeUndefined();
+  });
+
   it("never registers a second image for any place", () => {
     for (const [placeId, images] of Object.entries(placeImages)) {
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
     }
-    expect(Object.keys(placeImages)).toHaveLength(113);
+    expect(Object.keys(placeImages)).toHaveLength(144);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
