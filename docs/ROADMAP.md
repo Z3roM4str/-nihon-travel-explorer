@@ -5889,3 +5889,65 @@ diff remains documentation-only and is authorized for merge; Issue #108 may clos
 
 **Authorized next phase: Phase 4J — A+B Licensed Photography Acquisition Batch. Phase 4J is not started by Phase 4I.**
 
+
+## Phase 4J — A+B Licensed Photography Acquisition Batch — complete
+
+Runtime authority:
+[`docs/AB_PHOTOGRAPHY_BATCH_RUNTIME.md`](AB_PHOTOGRAPHY_BATCH_RUNTIME.md).
+
+Base: `abe55efc53137ece436c99f3ccfd3f706af16c8e`.
+
+Acquisition/validation date: **2026-09-16 (America/Mexico_City)**.
+
+- [x] **Exact Phase 4I fixture reproduced.** 32 targets, `eligibleCount` 108, 19 categories,
+      23 A + 9 B, hub quotas Fukuoka 1 / Kioto 7 / Okinawa 7 / Osaka 8 / Tokio 9.
+- [x] **32 attempted, 28 accepted, 4 failed closed.** Accepted mix 20 A + 8 B. No replacement
+      queue and no substitute target. Failed closed: JP-120 (Commons holds no photograph of
+      the teamLab installation; only the host Nagai Botanical Garden), JP-211 (only branded
+      booth interiors, cosplayer portraits and a past-edition ticket; imagery is from Tokyo
+      Big Sight while the dataset places it in Osaka), JP-041 (the Unicorn Gundam character
+      statue dominates every candidate; the alternatives show the mall, and the 2012 Odaiba
+      files depict the earlier RX-78-2), JP-168 (no license-allowed photograph of Yachimun
+      no Sato; the only allowed hit is a kiln in Seto, Aichi).
+- [x] **Coverage raised 85 → 113 / 214 = 52.8%.**
+- [x] **Both Phase 4I rebalancing goals met.** Fukuoka moves 0/1 → **1/1**, so every hub now
+      has at least one photograph; the Architecture category moves 0 → **2/2** (JP-123
+      Church of the Light, JP-138 Kobe Kitano Ijinkan). Phase 4J is also the first batch to
+      cover B-grade places.
+- [x] **Asset budget respected.** Delta 9,672,140 bytes (9.22 MiB) against a 10 MiB soft
+      budget and 14 MiB hard threshold — below the soft budget, slightly above the projected
+      7.57–9.17 MiB envelope because accepted source files skewed large, with no policy or
+      quality-floor relaxation.
+- [x] **Carried fail-closed IDs held out.** All eleven — JP-033, JP-126, JP-203, JP-204,
+      JP-050, JP-195, JP-121, JP-156, JP-095, JP-079, JP-202 — were never attempted and did
+      not re-enter.
+- [x] **Invariants preserved.** All 85 prior records and blobs byte-identical, canonical/app
+      byte parity, exactly 113 records and 113 WebP assets, one image per place, allowlist
+      unchanged, zero runtime photography fetch, no gallery/ranking/routing/itinerary/grade
+      drift, `data/places.json` untouched.
+- [x] **Historical selector fixtures made batch-proof.** The Phase 4E and Phase 4G baselines
+      both broke on the Phase 4J append. Both now delegate to
+      `scripts/photography_baseline.py`, which derives each baseline semantically (from the
+      checked-in post-baseline batch manifests) and positionally (the append-only registry
+      prefix) and requires the two to agree. The manifests live in one explicit registry
+      instead of a name glob — the exact gap Phase 4J hit — and a completeness guard fails
+      loudly, naming the file, when an unregistered batch manifest appears.
+- [x] **Exact-head validated.** Executable/test HEAD
+      `2c75e009cc2063d1887daba33367ae77da46d598`, Actions run `35055595875` — SUCCESS across
+      all 22 steps: selector reproduction, photography validator, 475 Python tests, npm ci,
+      focused photography tests, full Vitest (65 files, 2439 tests), lint, build,
+      invariants/budget, two Phase 4J browser audits, Phase 4H/4F/4D/4C browser regressions,
+      and the whitespace gate.
+- [x] **Hostile review found and fixed one real defect.** All 28 acquisition URLs carried the
+      Commons `utm_*` tracking query string that every pre-existing record omits; it was
+      stripped from the records and the preparation step, re-resolved against Commons, and
+      exact-head validation was repinned to the corrected head. Everything else verified
+      clean against live Commons.
+- [x] **Workflow cleanup proven.** Both temporary Phase 4J workflows were removed, and the
+      tree differs from the validated executable/test HEAD only by documentation and those
+      workflow removals.
+
+**Successor boundary:** Phase 4J authorizes no automatic successor acquisition. Any further
+scale-up requires a separate design gate that re-establishes target priority, batch size,
+asset budget and sourcing constraints. PR #111 remains Draft and Issue #110 remains open
+pending an independent closure gate.
