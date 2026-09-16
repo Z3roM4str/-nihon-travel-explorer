@@ -31,14 +31,24 @@ HUB_SEARCH = {
     "Tokio": "Tokyo",
 }
 QUERY_OVERRIDES = {
-    "JP-121": ["Tower of the Sun Osaka", "Expo 70 Commemorative Park Tower of the Sun"],
-    "JP-207": ["Lake Shikotsu Ice Festival", "Shikotsu Ice Festival Hokkaido"],
+    "JP-121": ["Expo 70 Commemorative Park Osaka", "Expo 70 Park Osaka", "Tower of the Sun Osaka"],
+    "JP-207": ["Lake Shikotsu Ice Festival", "Shikotsu Ice Festival Hokkaido", "支笏湖 氷濤まつり"],
     "JP-008": ["Shibuya PARCO Tokyo", "Nintendo TOKYO Shibuya"],
-    "JP-095": ["teamLab Biovortex Kyoto", "teamLab Kyoto"],
-    "JP-202": ["Kerama whale watching Okinawa", "Kerama whales Okinawa"],
-    "JP-208": ["Kawazu cherry blossom festival", "Kawazu sakura festival"],
+    "JP-090": ["Kyoto Imperial Palace Kogosho", "Kyoto Gosho", "京都御所"],
+    "JP-095": ["teamLab Biovortex Kyoto", "teamLab Kyoto Biovortex"],
+    "JP-098": ["Byodoin Phoenix Hall Uji", "Byōdō-in Uji Kyoto"],
+    "JP-156": ["Naha Sakaemachi Ichiba", "Sakaemachi Market Naha", "栄町市場 那覇"],
+    "JP-151": ["Ine Funaya", "Ine-ura Kyoto", "伊根 舟屋"],
+    "JP-159": ["Shuri Kinjocho ishidatami", "Kinjocho ishidatami-michi", "首里金城町石畳道"],
+    "JP-079": ["Rakusai Bamboo Park Kyoto", "Kyoto City Rakusai Bamboo Park", "洛西竹林公園"],
+    "JP-202": ["Kerama humpback whale", "Zamami whale Okinawa", "Kerama whales Okinawa"],
+    "JP-127": ["Jikko Knives Sakai", "Sakai knives Osaka", "堺 刃物"],
+    "JP-208": ["Kawazu Shizuoka cherry blossoms", "Kawazu sakura Shizuoka", "河津桜 河津町"],
+    "JP-167": ["Koza Music Town Okinawa", "コザミュージックタウン", "Gate 2 Street Okinawa"],
     "JP-026": ["Super Potato Akihabara", "Mandarake Akihabara"],
+    "JP-049": ["Otome Road Ikebukuro", "乙女ロード 池袋", "Ikebukuro anime"],
     "JP-181": ["Daisekirinzan Okinawa", "ASMUI Okinawa"],
+    "JP-015": ["Kagurazaka Tokyo", "Kagurazaka alley Tokyo", "神楽坂 路地"],
 }
 
 
