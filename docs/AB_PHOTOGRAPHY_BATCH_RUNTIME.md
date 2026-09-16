@@ -289,3 +289,30 @@ Phase 4J does **not** authorize:
 
 Any further scale-up requires a separate successor design gate that re-establishes target
 priority, batch size, asset budget and sourcing constraints.
+
+## Workflow cleanup proof
+
+Both temporary Phase 4J workflows were removed after exact-head validation passed:
+
+- `.github/workflows/phase4j-selector-preflight.yml`
+- `.github/workflows/phase4j-exact-head.yml`
+
+The Phase 4J base `abe55efc53137ece436c99f3ccfd3f706af16c8e` carried no workflows at all
+(Phase 4F, 4G and 4H had already removed their own temporary workflows), so this removal
+restores the base state exactly. No non-Phase-4J workflow existed or was touched.
+
+Comparison from the validated executable/test HEAD
+`2c75e009cc2063d1887daba33367ae77da46d598` to the post-cleanup tree shows only:
+
+```
+D  .github/workflows/phase4j-exact-head.yml
+D  .github/workflows/phase4j-selector-preflight.yml
+A  docs/AB_PHOTOGRAPHY_BATCH_RUNTIME.md
+M  docs/ROADMAP.md
+```
+
+That is, only documentation and the removal of temporary workflows.
+
+Measured drift from the validated HEAD is **0 files** in each of `scripts/`, `app/src/`,
+`app/scripts/`, `data/` and `app/public/images/` — zero drift in executable code, selector
+scripts, tests, canonical/app photography metadata and image assets.
