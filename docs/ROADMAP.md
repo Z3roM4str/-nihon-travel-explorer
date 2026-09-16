@@ -6015,3 +6015,44 @@ re-open the stop-versus-continue question in a fresh gate.**
 **Authorized next phase: Phase 4L — A+B Licensed Photography Acquisition Batch II. Phase 4L
 is not started by Phase 4K.** The Phase 4K PR remains Draft and Issue #112 remains open
 pending an independent closure gate.
+
+### Phase 4K — independent closure review
+
+Reviewed at design HEAD `ddf67e34342001946f65d22edf804c7eede7785f` against base
+`caccf2518f7f9adbf2c6c40a1a7f9ae045764221` on **2026-09-16**.
+
+- [x] **Independently reproduced, without the Phase 4K tests or module.** A separate
+      implementation re-derived 214/113/101/52.8%, every grade and hub figure, the 15
+      fail-closed IDs and their uncovered status, the 60/76/86 eligible universes, the two
+      fail-closed-only zero-photo categories, and the asset evidence — with batch boundaries
+      re-derived from the registry's git history and bytes re-measured from the real WebP
+      files (89 / 26,175,564 B, weighted mean 294,107.46, means rising 248,056 → 345,434).
+- [x] **Selector and fixture re-derived from the written rules.** The independent
+      implementation reproduces the pinned Phase 4J fixture exactly and in order, and the
+      pinned Phase 4K successor fixture exactly and in order — so the fixture is the
+      deterministic output of the documented policy, not a cherry-pick. Editing the
+      historical Phase 4J selector to 15 IDs was simulated and does break 4 of its pinned
+      regressions; the file was restored and re-verified.
+- [x] **One finding, documentation-only.** The monotonic grade→coverage claim is accurate at
+      the selected size but **size-dependent**: under A+B, B overtakes A at **n = 40**
+      (A 72.1%, B 76.0%), because B's 25-place denominator moves 4 points per photograph
+      against A's 0.68. Every size from 16 to 39 preserves the ordering. This strengthens the
+      decision by giving a second independent reason to reject 40, and it adds a requirement:
+      the post-Phase-4L re-evaluation must check the projected A/B ordering, not only the
+      asset budget.
+- [x] **Gates re-run at closure.** Phase 4K tests 20 OK · full Python suite 495 OK ·
+      validator OK · selector/manifest regressions 30 OK · Phase 4E/4G baselines reconstruct
+      at 36 and 58 · manifest registry guard complete · Vitest 2439/65 OK · lint clean ·
+      build OK · whitespace clean.
+- [x] **Scope re-proved.** Photography metadata (canonical and app), `data/places.json` and
+      all 113 image blobs byte-identical to the base; exactly five changed files; no runtime,
+      ranking, itinerary, routing, gallery or grade change; no photograph acquired; no
+      fail-closed ID retried.
+
+**Closure decision: approved and merged.** The Phase 4K design is authoritative.
+
+**Authorized next phase: Phase 4L — A+B Licensed Photography Acquisition Batch II**, based
+on the new `main` after this merge. Phase 4L executes the exact 32-target fixture pinned in
+`data/visual/phase4k-successor-fixture.json` under the 11 MiB soft / 14 MiB hard budget with
+all 15 fail-closed IDs excluded, and does not redesign the strategy unless its own preflight
+finds a real divergence. Phase 4L is **not started** by this closure.

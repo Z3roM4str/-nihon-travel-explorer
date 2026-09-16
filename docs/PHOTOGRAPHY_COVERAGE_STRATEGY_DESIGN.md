@@ -481,3 +481,103 @@ policy widening; or grade changes to make C/D places eligible.
 
 Phase 4K adds only: this document, the ROADMAP entry, the analysis script, its tests, and
 the pinned successor fixture.
+
+## 13. Independent closure review
+
+Reviewed against the exact base `caccf2518f7f9adbf2c6c40a1a7f9ae045764221`, at design HEAD
+`ddf67e34342001946f65d22edf804c7eede7785f`, on 2026-09-16.
+
+The review deliberately did **not** rely on the Phase 4K tests or import
+`scripts/analyze-phase4k-coverage-strategy.py`. Every material figure was re-derived from
+the canonical files by a separate implementation, so agreement is corroboration rather than
+tautology.
+
+### Independently reproduced
+
+- 214 places, 113 covered, 101 uncovered, 52.8%, maximum one photograph per place, and the
+  `imageCount` field agreeing with the record count.
+- Grade coverage S 28/32, A 77/147, B 8/25, C 0/6, D 0/4, summing to 214.
+- Hub coverage Fukuoka 1/1, Kioto 27/49, Nagoya 1/1, Okinawa 26/50, Osaka 27/53,
+  Sapporo 3/3, Tokio 28/57, summing to 214 with no eighth hub.
+- All 15 carried fail-closed IDs exist, remain uncovered, and split 4 S / 10 A / 1 B; the
+  four uncovered S places are exactly the fail-closed S set.
+- Eligible universes A 60, A+B 76, A+B+C+D 86, the last breaking down A 60 / B 16 / C 6 /
+  D 4, consistent with 17 uncovered B minus one fail-closed B.
+- Exactly two zero-photo categories, each with a single member, both fail-closed.
+- Asset evidence re-measured from the real WebP files, with the batch boundaries re-derived
+  from the registry's git history rather than taken from the script: 4D 12/3,607,446 B,
+  4F 22/5,457,240 B, 4H 27/7,438,738 B, 4J 28/9,672,140 B, combined 89/26,175,564 B,
+  weighted mean 294,107.46 B/asset, batch means rising 248,056 → 275,509 → 345,434.
+- All four projections and sensitivity bands, the 10.54 MiB worst case at 32 that justifies
+  moving the soft budget to 11 MiB, and the 458,752 B/asset (≈33% above the worst observed
+  mean) that justifies leaving the 14 MiB hard stop untouched.
+- The grade→coverage tables for all three strategies at 32, the monotonicity break under
+  C/D, C over-representation of 3.58× at n=16 and 2.69× at n=32, the four
+  C/D-only categories all already holding photographs, and breadth saturating at 13.
+
+### Selector and fixture
+
+The documented policy was re-implemented from the design text and the historical Phase 4J
+temporal definition. That independent implementation reproduces:
+
+- the pinned Phase 4J fixture **exactly and in order** from the 85-record baseline with the
+  historical 11-ID exclusion set, confirming the policy is unchanged; and
+- the pinned Phase 4K successor fixture **exactly and in order**, confirming the fixture is
+  the deterministic output of the written rules and not cherry-picked.
+
+The shipped script is deterministic across repeated runs, regenerates the checked-in fixture
+byte-for-byte, contains no hard-coded place-ID list, performs no network access, and writes
+nothing unless an output path is passed. Editing the historical Phase 4J selector to carry
+15 IDs was simulated and does break its pinned regressions (4 failures), confirming the
+successor needs its own selector; the file was restored and re-verified green.
+
+### Finding: the A/B ordering is safe at 32 but not at 40
+
+The design states that A+B preserves the monotonic grade→coverage ordering, scoped to a
+32-target tranche. That is accurate at 32 (S 88 ≥ A 69 ≥ B 60). A size sweep run during this
+review shows the property is **size-dependent**: under A+B, **B overtakes A at n = 40**
+(A 72.1%, B 76.0%), because B's denominator is only 25 places, so each accepted B photograph
+moves B by 4 points against 0.68 points for A. The first inverting size is exactly 40; every
+size from 16 to 39 preserves the ordering.
+
+This does not weaken the decision — it strengthens it. It supplies a **second, independent
+reason to reject 40**, which the design rejected on asset-budget grounds alone, and it
+confirms the selected size of 32 sits safely below the crossover.
+
+It does, however, matter for what comes after. The authorised tranche leaves A at ~69% and
+B at ~60% with 35 A and 9 B eligible. A later tranche that drew heavily on the remaining B
+supply could invert the ordering that this gate went to some trouble to protect. The
+mandatory re-evaluation after Phase 4L must therefore check the projected A/B ordering
+explicitly, not only the asset budget, before authorising any further size or scope.
+
+No other defect was found. Recorded as a documentation finding; no executable, data, asset
+or fixture change was required.
+
+### Gates re-run at closure
+
+Phase 4K tests 20 OK · full Python suite 495 OK · photography validator OK · selector and
+manifest regressions 30 OK · Phase 4E/4G historical baselines reconstruct at 36 and 58 ·
+acquisition-manifest registry guard complete, with the Phase 4K fixture correctly not
+treated as an acquisition manifest · full Vitest 2439 tests / 65 files OK · lint clean ·
+build OK · whitespace gate clean.
+
+### Scope re-proved at closure
+
+Against the exact base: `data/visual/photography-metadata.json`,
+`app/src/data/photography-metadata.json` and `data/places.json` byte-identical;
+canonical/app parity holds; `app/public/images/places/` identical blob-for-blob across all
+113 blobs; exactly five changed files; no runtime, gallery, ranking, recommendation,
+itinerary, routing or dataset file touched; no grade changed; no photograph acquired and no
+fail-closed ID retried.
+
+### Closure decision
+
+The evidence supports the Phase 4K decision. **Approved for merge**: one bounded A+B
+coverage-balanced successor tranche of 32, soft budget 11 MiB, hard stop 14 MiB, all 15
+fail-closed IDs excluded, followed by a fresh stop-versus-continue gate that must also check
+the projected A/B ordering.
+
+The next authorised work is **Phase 4L — A+B Licensed Photography Acquisition Batch II**,
+based on the new `main` after this merge. Phase 4L executes the fixture pinned here and does
+not redesign the strategy unless it finds a real divergence during its own preflight.
+Phase 4L is **not started** by this closure.
