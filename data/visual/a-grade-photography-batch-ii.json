@@ -1,0 +1,278 @@
+{
+  "version": 1,
+  "trancheSize": 32,
+  "eligibleCount": 115,
+  "hubEligibleCounts": {
+    "Kioto": 28,
+    "Okinawa": 28,
+    "Osaka": 27,
+    "Sapporo": 1,
+    "Tokio": 31
+  },
+  "hubQuotas": {
+    "Kioto": 8,
+    "Okinawa": 8,
+    "Osaka": 7,
+    "Sapporo": 1,
+    "Tokio": 8
+  },
+  "distinctCategoryCount": 19,
+  "places": [
+    {
+      "placeId": "JP-101",
+      "hub": "Kioto",
+      "name": "Gion Corner",
+      "category": "🎭 Cultura tradicional",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-156",
+      "hub": "Okinawa",
+      "name": "Sakaemachi Arcade nightlife",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-121",
+      "hub": "Osaka",
+      "name": "Expo ’70 Park + Tower of the Sun",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-207",
+      "hub": "Sapporo",
+      "name": "Lake Shikotsu Ice Festival",
+      "category": "🎆 Eventos",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-028",
+      "hub": "Tokio",
+      "name": "Jimbocho Book Town",
+      "category": "🛍️ Compras",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-070",
+      "hub": "Kioto",
+      "name": "Yamashina Canal",
+      "category": "🌿 Naturaleza",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-161",
+      "hub": "Okinawa",
+      "name": "Okinawa Prefectural Museum & Art Museum",
+      "category": "🏛️ Museos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-111",
+      "hub": "Osaka",
+      "name": "Abeno Harukas 300",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-008",
+      "hub": "Tokio",
+      "name": "Shibuya PARCO + Nintendo TOKYO",
+      "category": "🎮 Videojuegos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-090",
+      "hub": "Kioto",
+      "name": "Kyoto Imperial Palace",
+      "category": "🏯 Historia y patrimonio",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-180",
+      "hub": "Okinawa",
+      "name": "Hiji Falls",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-151",
+      "hub": "Osaka",
+      "name": "Ine Funaya",
+      "category": "🌊 Playa/mar/islas",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-046",
+      "hub": "Tokio",
+      "name": "Nakano Broadway",
+      "category": "👾 Anime/manga",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-095",
+      "hub": "Kioto",
+      "name": "teamLab Biovortex Kyoto",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-159",
+      "hub": "Okinawa",
+      "name": "Kinjo-cho Stone-Paved Road",
+      "category": "🏙️ Ciudad y barrios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-128",
+      "hub": "Osaka",
+      "name": "Kishiwada Castle Hachijin Garden",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-016",
+      "hub": "Tokio",
+      "name": "Sensō-ji",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-079",
+      "hub": "Kioto",
+      "name": "Kyoto Rakusai Bamboo Park",
+      "category": "🌿 Naturaleza",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-202",
+      "hub": "Okinawa",
+      "name": "Whale watching in the Kerama waters",
+      "category": "🐋 Fauna y experiencias estacionales",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-127",
+      "hub": "Osaka",
+      "name": "Sakai traditional knife experience",
+      "category": "🎭 Cultura tradicional",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-208",
+      "hub": "Tokio",
+      "name": "Kawazu Cherry Blossom Festival",
+      "category": "🌸 Naturaleza",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-098",
+      "hub": "Kioto",
+      "name": "Byōdō-in",
+      "category": "🏯 Historia y patrimonio",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-167",
+      "hub": "Okinawa",
+      "name": "Koza music district",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-146",
+      "hub": "Osaka",
+      "name": "Tomogashima",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-026",
+      "hub": "Tokio",
+      "name": "Retro game hunt: Super Potato + Mandarake",
+      "category": "🎮 Videojuegos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-061",
+      "hub": "Kioto",
+      "name": "Murin-an",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-182",
+      "hub": "Okinawa",
+      "name": "Cape Hedo",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-118",
+      "hub": "Osaka",
+      "name": "Osaka Museum of History",
+      "category": "🏛️ Museos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-049",
+      "hub": "Tokio",
+      "name": "Ikebukuro anime district",
+      "category": "👾 Anime/manga",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-058",
+      "hub": "Kioto",
+      "name": "Kennin-ji",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-181",
+      "hub": "Okinawa",
+      "name": "ASMUI Spiritual Hikes",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-015",
+      "hub": "Tokio",
+      "name": "Kagurazaka backstreets",
+      "category": "🏙️ Ciudad y barrios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    }
+  ]
+}

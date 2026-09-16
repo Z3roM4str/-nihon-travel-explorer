@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "attemptedTargetCount": 32,
+  "acceptedCount": 27,
+  "accepted": [
+    {
+      "placeId": "JP-101",
+      "originalTitle": "File:2014-08-17 Kyoto Gion Corner.jpg",
+      "assetPath": "images/places/JP-101/gion-corner.webp",
+      "alt": "Intérprete de gagaku con vestuario tradicional durante una presentación en Gion Corner, Kioto."
+    },
+    {
+      "placeId": "JP-207",
+      "originalTitle": "File:千歳・支笏湖氷濤まつり2015（Lake Shikotsu Ice Festival 2015） - panoramio (4).jpg",
+      "assetPath": "images/places/JP-207/lake-shikotsu-ice-festival.webp",
+      "alt": "Esculturas de hielo iluminadas con colores durante una edición del Lake Shikotsu Ice Festival en Hokkaido."
+    },
+    {
+      "placeId": "JP-028",
+      "originalTitle": "File:Books along a walkway in the Kanda-Jimbocho area of Tokyo.JPG",
+      "assetPath": "images/places/JP-028/jimbocho-book-town.webp",
+      "alt": "Librerías de segunda mano con estantes exteriores a lo largo de una calle de Jinbōchō, Tokio."
+    },
+    {
+      "placeId": "JP-070",
+      "originalTitle": "File:KTO1804-026 (49763326698).jpg",
+      "assetPath": "images/places/JP-070/yamashina-canal.webp",
+      "alt": "Sendero junto al canal de Yamashina rodeado de cerezos en flor en Kioto."
+    },
+    {
+      "placeId": "JP-161",
+      "originalTitle": "File:JP Japan 那霸省公立歷史博物館及藝術館Okinawa Prefectural Museum & Art Museum February 2026 N13P 04.jpg",
+      "assetPath": "images/places/JP-161/okinawa-prefectural-museum-art.webp",
+      "alt": "Atrio interior del Okinawa Prefectural Museum & Art Museum en Naha, con su espacio central de varias alturas."
+    },
+    {
+      "placeId": "JP-111",
+      "originalTitle": "File:Abeno Harukas Osaka Japan01-r.jpg",
+      "assetPath": "images/places/JP-111/abeno-harukas.webp",
+      "alt": "Torre Abeno Harukas elevándose sobre el área de Tennoji en Osaka."
+    },
+    {
+      "placeId": "JP-008",
+      "originalTitle": "File:Nintendo TOKYO (52505969791).jpg",
+      "assetPath": "images/places/JP-008/nintendo-tokyo-shibuya-parco.webp",
+      "alt": "Entrada de Nintendo TOKYO dentro de Shibuya PARCO, con mostrador rojo y visitantes."
+    },
+    {
+      "placeId": "JP-090",
+      "originalTitle": "File:Kyoto Imperial Palace (Kyoto-Gosho) Kogosho (52980159201).jpg",
+      "assetPath": "images/places/JP-090/kyoto-imperial-palace-kogosho.webp",
+      "alt": "Edificio Kogosho del Palacio Imperial de Kioto con su arquitectura tradicional de madera."
+    },
+    {
+      "placeId": "JP-180",
+      "originalTitle": "File:Hiji Waterfall 202105.jpg",
+      "assetPath": "images/places/JP-180/hiji-falls.webp",
+      "alt": "Cascada Hiji descendiendo entre roca y vegetación subtropical en el norte de Okinawa."
+    },
+    {
+      "placeId": "JP-151",
+      "originalTitle": "File:Funaya in Ine Town, Yosa District, Kyoto Prefecture 001.jpg",
+      "assetPath": "images/places/JP-151/ine-funaya.webp",
+      "alt": "Casas funaya de Ine alineadas directamente sobre la costa de la bahía en Kioto."
+    },
+    {
+      "placeId": "JP-046",
+      "originalTitle": "File:Broadway Arcade Nakano Tokyo.jpg",
+      "assetPath": "images/places/JP-046/nakano-broadway.webp",
+      "alt": "Pasillo comercial interior de Nakano Broadway con tiendas y letreros a ambos lados."
+    },
+    {
+      "placeId": "JP-159",
+      "originalTitle": "File:Kinjocho ishidatami-michi Shuri Naha01n4272.jpg",
+      "assetPath": "images/places/JP-159/kinjocho-stone-paved-road.webp",
+      "alt": "Camino empedrado histórico de Kinjo-cho en Shuri, flanqueado por muros de piedra de Okinawa."
+    },
+    {
+      "placeId": "JP-128",
+      "originalTitle": "File:Kishiwada Castle Hachijin no niwa garden.jpg",
+      "assetPath": "images/places/JP-128/kishiwada-hachijin-garden.webp",
+      "alt": "Jardín Hachijin-no-niwa de Kishiwada Castle visto desde arriba, con su diseño geométrico de piedra."
+    },
+    {
+      "placeId": "JP-016",
+      "originalTitle": "File:20181123 Sensō-ji-1.jpg",
+      "assetPath": "images/places/JP-016/sensoji.webp",
+      "alt": "Pagoda de cinco pisos de Sensō-ji elevándose sobre los tejados del templo en Asakusa."
+    },
+    {
+      "placeId": "JP-127",
+      "originalTitle": "File:Cutlery heritage museum in Sakai city, Japan.jpg",
+      "assetPath": "images/places/JP-127/sakai-cutlery-heritage.webp",
+      "alt": "Vitrinas con cuchillos y herramientas tradicionales en el museo de cuchillería de Sakai."
+    },
+    {
+      "placeId": "JP-208",
+      "originalTitle": "File:Kawazuzakura in Izu Peninsula, Shizuoka Prefecture; February 2019 (01).jpg",
+      "assetPath": "images/places/JP-208/kawazu-cherry-blossoms.webp",
+      "alt": "Cerezos Kawazu-zakura en flor junto al río en Kawazu durante una edición anterior de la temporada de floración."
+    },
+    {
+      "placeId": "JP-098",
+      "originalTitle": "File:Byodoin Phoenix Hall Uji 10-1R.jpg",
+      "assetPath": "images/places/JP-098/byodoin-phoenix-hall.webp",
+      "alt": "Phoenix Hall de Byōdō-in reflejado en el estanque del templo en Uji, Kioto."
+    },
+    {
+      "placeId": "JP-167",
+      "originalTitle": "File:コザミュージックタウン音市場.jpg",
+      "assetPath": "images/places/JP-167/koza-music-town.webp",
+      "alt": "Koza Music Town y su sala Oto Ichiba iluminados al anochecer en Okinawa City."
+    },
+    {
+      "placeId": "JP-146",
+      "originalTitle": "File:Wakayama tomogashima.jpg",
+      "assetPath": "images/places/JP-146/tomogashima-battery-ruins.webp",
+      "alt": "Ruinas de ladrillo de las antiguas baterías militares entre la vegetación de Tomogashima."
+    },
+    {
+      "placeId": "JP-026",
+      "originalTitle": "File:Akihabara - Super Potato Retro Game Shop.jpg",
+      "assetPath": "images/places/JP-026/super-potato-akihabara.webp",
+      "alt": "Fachada de Super Potato en Akihabara, con señalización de la tienda de videojuegos retro."
+    },
+    {
+      "placeId": "JP-061",
+      "originalTitle": "File:Murin-an.jpg",
+      "assetPath": "images/places/JP-061/murinan-garden.webp",
+      "alt": "Sendero de piedra y vegetación del jardín Murin-an en Kioto."
+    },
+    {
+      "placeId": "JP-182",
+      "originalTitle": "File:Cape Hedo 202011.jpg",
+      "assetPath": "images/places/JP-182/cape-hedo.webp",
+      "alt": "Vista de Cape Hedo y su costa verde frente al mar en el extremo norte de Okinawa."
+    },
+    {
+      "placeId": "JP-118",
+      "originalTitle": "File:140923 Osaka Museum of History Osaka Japan01s3.jpg",
+      "assetPath": "images/places/JP-118/osaka-museum-of-history.webp",
+      "alt": "Edificio del Osaka Museum of History visto desde el exterior bajo un cielo despejado."
+    },
+    {
+      "placeId": "JP-049",
+      "originalTitle": "File:Animate Ikebukuro 20120613 2.jpg",
+      "assetPath": "images/places/JP-049/animate-ikebukuro.webp",
+      "alt": "Edificio de Animate en Ikebukuro, parte del distrito comercial de anime y manga de la zona."
+    },
+    {
+      "placeId": "JP-058",
+      "originalTitle": "File:Architectural Detail - Kennin-ji Zen Temple - Kyoto - Japan (47929070538).jpg",
+      "assetPath": "images/places/JP-058/kenninji-detail.webp",
+      "alt": "Detalle arquitectónico y patio del templo zen Kennin-ji en Kioto."
+    },
+    {
+      "placeId": "JP-181",
+      "originalTitle": "File:AsimuiRockyMountain.jpg",
+      "assetPath": "images/places/JP-181/asimui-rocky-mountain.webp",
+      "alt": "Formaciones rocosas y bosque subtropical del área de ASMUI, antes conocida como Daisekirinzan, en Okinawa."
+    },
+    {
+      "placeId": "JP-015",
+      "originalTitle": "File:Kagurazaka path 2009.JPG",
+      "assetPath": "images/places/JP-015/kagurazaka-backstreet.webp",
+      "alt": "Callejón estrecho de Kagurazaka entre fachadas tradicionales en Tokio."
+    }
+  ],
+  "failedClosed": [
+    {
+      "placeId": "JP-121",
+      "reason": "Commons flags Tower of the Sun as a modern artistic work with Japan freedom-of-panorama concerns; discovery yielded only incidental or poor subject-match views, so no defensible target image was accepted.",
+      "evidenceUrl": "https://commons.wikimedia.org/wiki/Category:Tower_of_the_Sun"
+    },
+    {
+      "placeId": "JP-156",
+      "reason": "The exact Sakaemachi Market photographs found are marked Public domain, which is outside the Phase 4H CC0/CC BY/CC BY-SA allowlist; no allowed-license alternative was established."
+    },
+    {
+      "placeId": "JP-095",
+      "reason": "Two Commons discovery passes found no defensible candidate for teamLab Biovortex Kyoto under the existing source/license/subject rules."
+    },
+    {
+      "placeId": "JP-079",
+      "reason": "Refined Commons searches returned archival/public-domain documents rather than a defensible photograph of Kyoto Rakusai Bamboo Park; no allowed-license subject match was established."
+    },
+    {
+      "placeId": "JP-202",
+      "reason": "Discovery did not establish a representative still photograph of whale watching in the Kerama waters; the only allowed media hit was an underwater WebM that does not satisfy the first-photo subject requirement."
+    }
+  ]
+}
