@@ -6104,7 +6104,7 @@ Full detail in [`docs/AB_PHOTOGRAPHY_BATCH_II_RUNTIME.md`](AB_PHOTOGRAPHY_BATCH_
       Sumida namesake of Hōsen-in for JP-087, Tōfukuji *Station* for JP-067, and JP-047's Open
       Air Architectural Museum for JP-053. One dataset observation recorded without correcting
       it: JP-149 MIHO Museum is filed under the Osaka hub but sits in Kōka, Shiga.
-- [x] **Scope proved.** Ten non-asset files plus 31 new WebP assets. No ranking, recommendation,
+- [x] **Scope proved.** Eleven non-asset files plus 31 new WebP assets. No ranking, recommendation,
       grade, itinerary, planner, routing or gallery change; no second image anywhere; no licence
       widening; no non-Commons imagery.
 
