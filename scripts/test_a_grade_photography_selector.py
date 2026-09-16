@@ -13,16 +13,20 @@ SPEC = importlib.util.spec_from_file_location(
 selector = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(selector)
 
+BASELINE_SPEC = importlib.util.spec_from_file_location(
+    "photography_baseline", ROOT / "scripts" / "photography_baseline.py"
+)
+baseline_support = importlib.util.module_from_spec(BASELINE_SPEC)
+BASELINE_SPEC.loader.exec_module(baseline_support)
+
+load_current_inputs = baseline_support.load_current_inputs
+
 EXPECTED_IDS = [
     "JP-068", "JP-210", "JP-155", "JP-103", "JP-206", "JP-009",
     "JP-099", "JP-195", "JP-108", "JP-018", "JP-085", "JP-164",
     "JP-115", "JP-037", "JP-093", "JP-160", "JP-141", "JP-040",
     "JP-102", "JP-174", "JP-116", "JP-050", "JP-092", "JP-005",
 ]
-# Phase 4E selected its 24 targets from a 36-record photography catalog.
-PHASE_4E_BASELINE_SIZE = 36
-POST_PHASE_4E_MANIFEST_GLOB = "a-grade-photography-batch-*.json"
-
 EXPECTED_QUOTAS = {
     "Kioto": 6,
     "Nagoya": 1,
@@ -33,87 +37,15 @@ EXPECTED_QUOTAS = {
 }
 
 
-def load_current_inputs():
-    places_doc = json.loads((ROOT / "data" / "places.json").read_text(encoding="utf-8"))
-    places = places_doc if isinstance(places_doc, list) else places_doc["places"]
-    photography = json.loads(
-        (ROOT / "data" / "visual" / "photography-metadata.json").read_text(encoding="utf-8")
-    )
-    return places, photography["images"]
-
-
-def post_phase4e_target_ids():
-    """Every place ID claimed by an A-grade batch manifest selected after Phase 4E.
-
-    Discovered from the checked-in manifests rather than hard-coded, so each later
-    acquisition batch (Phase 4F batch I, Phase 4H batch II, and any successor that
-    checks in a manifest under the same naming contract) is removed automatically.
-    """
-    manifests = sorted((ROOT / "data" / "visual").glob(POST_PHASE_4E_MANIFEST_GLOB))
-    if not manifests:
-        raise AssertionError(
-            "no post-Phase-4E A-grade batch manifest found under "
-            f"data/visual/{POST_PHASE_4E_MANIFEST_GLOB}"
-        )
-    target_ids = set()
-    for manifest in manifests:
-        doc = json.loads(manifest.read_text(encoding="utf-8"))
-        target_ids.update(place["placeId"] for place in doc["places"])
-    return target_ids
-
-
 def load_phase4e_base_inputs():
     """Reconstruct the authorized 36-record Phase 4E photography baseline.
 
-    Phase 4E selected its 24 targets from a 36-record catalog. Every later batch
-    appends accepted records to that same live catalog, so replaying an
-    "uncovered places" selector against the current catalog would legitimately
-    produce a different tranche. The historical baseline must therefore be
-    rebuilt before the fixture can be replayed.
-
-    The baseline is derived twice, independently, and the two derivations must
-    agree:
-
-    1. *Semantically* -- drop every place ID claimed by a post-Phase-4E batch
-       manifest (see ``post_phase4e_target_ids``). Failed-closed targets were
-       never acquired, so only accepted records are actually removed.
-    2. *Positionally* -- take the leading ``PHASE_4E_BASELINE_SIZE`` records.
-       The canonical registry grows append-only, so the Phase 4E era is exactly
-       the registry's prefix.
-
-    Requiring both to match means a future batch cannot silently shift this
-    fixture onto the wrong baseline: if it appends records without checking in a
-    matching manifest, or breaks the append-only ordering, the two derivations
-    diverge and this helper fails loudly instead of replaying a different
-    catalog. Record *content* is always read live from the canonical registry,
-    so source/attribution corrections to those 36 records flow through rather
-    than rotting in a frozen copy.
-
-    This is a test fixture boundary, not runtime selection behavior.
+    Delegates to scripts/photography_baseline.py, which derives the baseline both
+    semantically (dropping every place ID claimed by an acquisition batch selected after
+    Phase 4E) and positionally (the append-only registry prefix), and requires the two to
+    agree. See that module for the full contract.
     """
-    places, current = load_current_inputs()
-    post_4e_ids = post_phase4e_target_ids()
-
-    baseline = [record for record in current if record["placeId"] not in post_4e_ids]
-    prefix = current[:PHASE_4E_BASELINE_SIZE]
-
-    if len(baseline) != PHASE_4E_BASELINE_SIZE:
-        raise AssertionError(
-            f"Phase 4E baseline reconstruction expected {PHASE_4E_BASELINE_SIZE} "
-            f"records, found {len(baseline)}"
-        )
-    if [r["placeId"] for r in baseline] != [r["placeId"] for r in prefix]:
-        raise AssertionError(
-            "Phase 4E baseline reconstruction disagrees with the append-only "
-            "registry prefix; a later batch changed record ordering or is "
-            "missing its checked-in manifest"
-        )
-    leaked = sorted(post_4e_ids.intersection(r["placeId"] for r in baseline))
-    if leaked:
-        raise AssertionError(
-            f"post-Phase-4E targets leaked into the Phase 4E baseline: {leaked}"
-        )
-    return places, baseline
+    return baseline_support.load_historical_baseline("phase4e")
 
 
 class RealSelectorFixtureTests(unittest.TestCase):
