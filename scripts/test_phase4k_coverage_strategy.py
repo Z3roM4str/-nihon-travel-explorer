@@ -26,12 +26,28 @@ PHASE_4J_EXCLUDED = {
 }
 PHASE_4J_BASELINE_SIZE = 85
 
+# The Phase 4K design gate reasoned about the catalogue as it stood at its own base.
+# Later acquisition phases legitimately grow that catalogue, so these tests read the
+# canonical inputs from the base commit rather than the working tree. Every expected
+# value below is unchanged; only the derivation is pinned to the historical state, so
+# the design record stays provable for good.
+def load_phase4k_base_inputs():
+    places = json.loads(
+        subprocess.check_output(["git", "show", f"{PHASE_4K_BASE}:data/places.json"])
+    )
+    photography = json.loads(
+        subprocess.check_output(
+            ["git", "show", f"{PHASE_4K_BASE}:data/visual/photography-metadata.json"]
+        )
+    )
+    return places, photography["images"]
+
 
 class LiveStateTests(unittest.TestCase):
     """The figures Issue #112 asserts must be reproducible from canonical data."""
 
     def setUp(self):
-        self.places, self.images = analysis.load_inputs()
+        self.places, self.images = load_phase4k_base_inputs()
         self.state = analysis.coverage_state(self.places, self.images)
 
     def test_core_counts(self):
@@ -86,7 +102,7 @@ class LiveStateTests(unittest.TestCase):
 
 class AssetEvidenceTests(unittest.TestCase):
     def setUp(self):
-        _places, images = analysis.load_inputs()
+        _places, images = load_phase4k_base_inputs()
         self.evidence = analysis.asset_evidence(images)
 
     def test_measured_batch_bytes(self):
@@ -120,7 +136,7 @@ class SelectorPolicyTests(unittest.TestCase):
     """The Phase 4K selector keeps the Phase 4I policy; only the exclusion set grows."""
 
     def setUp(self):
-        self.places, self.images = analysis.load_inputs()
+        self.places, self.images = load_phase4k_base_inputs()
 
     def test_replaying_phase4j_reproduces_its_pinned_fixture_exactly(self):
         baseline = self.images[:PHASE_4J_BASELINE_SIZE]
@@ -177,7 +193,7 @@ class SelectorPolicyTests(unittest.TestCase):
 
 class SuccessorFixtureTests(unittest.TestCase):
     def setUp(self):
-        self.places, self.images = analysis.load_inputs()
+        self.places, self.images = load_phase4k_base_inputs()
         self.fixture = json.loads(
             analysis.SUCCESSOR_FIXTURE_PATH.read_text(encoding="utf-8")
         )
@@ -209,62 +225,66 @@ class SuccessorFixtureTests(unittest.TestCase):
             {p["grade"] for p in self.fixture["places"]}, {"A", "B"}
         )
 
-    def test_fixture_name_does_not_collide_with_acquisition_manifest_glob(self):
-        """The Phase 4J baseline guard fails loudly on unregistered *-batch*.json files.
+    def test_fixture_is_registered_with_the_baseline_guard(self):
+        """The fixture must be known to the shared historical-baseline registry.
 
-        The Phase 4K design fixture is not an acquisition manifest, so its filename must
-        stay outside that glob until a successor actually appends records.
+        Phase 4L executes this fixture, so its targets have to be excluded from every
+        historical baseline. Its filename sits outside the discovery glob, which is why
+        the registry lists it explicitly and the guard checks presence on disk.
         """
         spec = importlib.util.spec_from_file_location(
             "photography_baseline", ROOT / "scripts" / "photography_baseline.py"
         )
         baseline_support = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(baseline_support)
-        discovered = {
-            path.name
-            for path in baseline_support.VISUAL_DIR.glob(
-                baseline_support.BATCH_MANIFEST_GLOB
-            )
-        }
-        self.assertNotIn(analysis.SUCCESSOR_FIXTURE_PATH.name, discovered)
+        self.assertIn(
+            analysis.SUCCESSOR_FIXTURE_PATH.name,
+            baseline_support.ACQUISITION_BATCH_MANIFESTS,
+        )
         baseline_support.assert_batch_registry_is_complete()
 
 
 class DesignOnlyScopeTests(unittest.TestCase):
-    """Phase 4K must not change photography, assets, runtime or the dataset."""
+    """Phase 4K itself must not have changed photography, assets or the dataset.
+
+    This is a claim about the Phase 4K commit range, so it is asserted between the
+    Phase 4K base and the merge that concluded it. Asserting it against HEAD would
+    instead demand that no later phase ever acquires a photograph.
+    """
 
     FROZEN = (
         "data/visual/photography-metadata.json",
         "app/src/data/photography-metadata.json",
         "data/places.json",
     )
+    PHASE_4K_MERGE = "524531a1d9f41c84bc8ca53bfde5dc4ee5febd6d"
 
-    def _base_blob(self, path):
-        return subprocess.check_output(["git", "show", f"{PHASE_4K_BASE}:{path}"])
+    def _blob(self, rev, path):
+        return subprocess.check_output(["git", "show", f"{rev}:{path}"])
 
-    def test_frozen_files_are_byte_identical_to_the_phase_4k_base(self):
+    def test_phase_4k_changed_no_frozen_file(self):
         for path in self.FROZEN:
             with self.subTest(path=path):
-                current = (ROOT / path).read_bytes()
                 self.assertEqual(
-                    hashlib.sha256(self._base_blob(path)).hexdigest(),
-                    hashlib.sha256(current).hexdigest(),
+                    hashlib.sha256(self._blob(PHASE_4K_BASE, path)).hexdigest(),
+                    hashlib.sha256(self._blob(self.PHASE_4K_MERGE, path)).hexdigest(),
                 )
 
     def test_canonical_and_app_photography_metadata_stay_in_parity(self):
+        """Parity is a standing contract, so this one is checked against the live tree."""
         self.assertEqual(
             (ROOT / "data/visual/photography-metadata.json").read_bytes(),
             (ROOT / "app/src/data/photography-metadata.json").read_bytes(),
         )
 
-    def test_no_image_asset_changed_since_the_base(self):
+    def test_phase_4k_changed_no_image_asset(self):
         base = subprocess.check_output(
             ["git", "ls-tree", "-r", PHASE_4K_BASE, "app/public/images/places/"]
         ).decode()
-        head = subprocess.check_output(
-            ["git", "ls-tree", "-r", "HEAD", "app/public/images/places/"]
+        merged = subprocess.check_output(
+            ["git", "ls-tree", "-r", self.PHASE_4K_MERGE, "app/public/images/places/"]
         ).decode()
-        self.assertEqual(base, head)
+        self.assertEqual(base, merged)
 
 
 if __name__ == "__main__":
