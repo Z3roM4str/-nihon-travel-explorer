@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "attemptedTargetCount": 32,
+  "acceptedCount": 31,
+  "accepted": [
+    {
+      "placeId": "JP-084",
+      "assetPath": "images/places/JP-084/shisen-do.webp",
+      "originalTitle": "File:詩仙堂 02.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-190",
+      "assetPath": "images/places/JP-190/toriike-ponds.webp",
+      "originalTitle": "File:Toriike.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-149",
+      "assetPath": "images/places/JP-149/miho-museum.webp",
+      "originalTitle": "File:241119 MIHO MUSEUM Koga Shiga pref Japan08s3.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-012",
+      "assetPath": "images/places/JP-012/kabukicho.webp",
+      "originalTitle": "File:Colorful neon street signs in Kabukichō, Shinjuku, Tokyo.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-062",
+      "assetPath": "images/places/JP-062/eikan-do.webp",
+      "originalTitle": "File:Eikan-do Zenrin-ji, November 2016 -03.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-176",
+      "assetPath": "images/places/JP-176/kouri-island-bridge.webp",
+      "originalTitle": "File:Kouri Bridge 202006.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-122",
+      "assetPath": "images/places/JP-122/minoh-falls.webp",
+      "originalTitle": "File:Minoh Falls Minoh Osaka pref Japan05s5.jpg",
+      "license": "CC BY 2.5"
+    },
+    {
+      "placeId": "JP-213",
+      "assetPath": "images/places/JP-213/tokyo-marathon.webp",
+      "originalTitle": "File:Tokyo Marathon 2019 Runner (46348789105).jpg",
+      "license": "CC BY-SA 2.0"
+    },
+    {
+      "placeId": "JP-087",
+      "assetPath": "images/places/JP-087/hosen-in.webp",
+      "originalTitle": "File:Hosenin (Kyoto) ac (3).jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-200",
+      "assetPath": "images/places/JP-200/yonaguni-monument.webp",
+      "originalTitle": "File:Yonaguni Monument Main Terrace.jpg",
+      "license": "CC0"
+    },
+    {
+      "placeId": "JP-112",
+      "assetPath": "images/places/JP-112/umeda-sky-building.webp",
+      "originalTitle": "File:Umeda Sky Building, Osaka, November 2016 -01.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-053",
+      "assetPath": "images/places/JP-053/edo-tokyo-museum.webp",
+      "originalTitle": "File:Edo-Tokyo Museum.jpg",
+      "license": "CC BY-SA 3.0"
+    },
+    {
+      "placeId": "JP-064",
+      "assetPath": "images/places/JP-064/honen-in.webp",
+      "originalTitle": "File:Kyoto, Honen-in - panoramio (1).jpg",
+      "license": "CC BY 3.0"
+    },
+    {
+      "placeId": "JP-158",
+      "assetPath": "images/places/JP-158/tamaudun.webp",
+      "originalTitle": "File:Tamaudun01s3s4592.jpg",
+      "license": "CC BY 2.5"
+    },
+    {
+      "placeId": "JP-113",
+      "assetPath": "images/places/JP-113/grand-green-osaka.webp",
+      "originalTitle": "File:Grand Green Osaka 20250831.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-007",
+      "assetPath": "images/places/JP-007/ota-memorial-museum-of-art.webp",
+      "originalTitle": "File:Ota Memorial Museum of Art, exterior 2018.JPG",
+      "license": "CC0"
+    },
+    {
+      "placeId": "JP-063",
+      "assetPath": "images/places/JP-063/philosophers-path.webp",
+      "originalTitle": "File:Tetsugaku-no-michi - Philosopher's Walk - Kyoto.jpg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "placeId": "JP-185",
+      "assetPath": "images/places/JP-185/furuzamami-beach.webp",
+      "originalTitle": "File:Furuzamami beach Okinawa Zamami.jpg",
+      "license": "CC BY 3.0"
+    },
+    {
+      "placeId": "JP-130",
+      "assetPath": "images/places/JP-130/nara-park-deer.webp",
+      "originalTitle": "File:Sika deer doe and fawn Nara 2026 dllu.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-042",
+      "assetPath": "images/places/JP-042/odaiba-rainbow-bridge.webp",
+      "originalTitle": "File:Rainbow Bridge, Tokyo, South view from Odaiba 20190419 1.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-065",
+      "assetPath": "images/places/JP-065/ginkaku-ji.webp",
+      "originalTitle": "File:Sunlight through clouds and view of Ginkaku-ji Temple from above, Kyoto, Japan.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-172",
+      "assetPath": "images/places/JP-172/cape-manzamo.webp",
+      "originalTitle": "File:Onna Okinawa Japan Cape-Manzamo-01.jpg",
+      "license": "CC BY-SA 3.0"
+    },
+    {
+      "placeId": "JP-139",
+      "assetPath": "images/places/JP-139/nunobiki-falls-herb-gardens.webp",
+      "originalTitle": "File:Nunobiki Falls Kobe 2026 dllu.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-051",
+      "assetPath": "images/places/JP-051/mount-takao.webp",
+      "originalTitle": "File:Takao-san hike during winter 11.jpg",
+      "license": "CC0"
+    },
+    {
+      "placeId": "JP-067",
+      "assetPath": "images/places/JP-067/tofuku-ji.webp",
+      "originalTitle": "File:Kyoto Tofuku-ji Tsuten-kyo 04.jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-169",
+      "assetPath": "images/places/JP-169/zakimi-castle-ruins.webp",
+      "originalTitle": "File:座喜味城趾 - panoramio.jpg",
+      "license": "CC BY-SA 3.0"
+    },
+    {
+      "placeId": "JP-114",
+      "assetPath": "images/places/JP-114/nakanoshima-waterfront.webp",
+      "originalTitle": "File:Nakanoshima 2023-09-01 (2).jpg",
+      "license": "CC BY-SA 4.0"
+    },
+    {
+      "placeId": "JP-020",
+      "assetPath": "images/places/JP-020/sumida-hokusai-museum.webp",
+      "originalTitle": "File:Tokyo, sumida hokusai museum, esterno 01.jpg",
+      "license": "CC BY 3.0"
+    },
+    {
+      "placeId": "JP-186",
+      "assetPath": "images/places/JP-186/aka-island.webp",
+      "originalTitle": "File:Aka Beach And Aka Village 2010 (7788).JPG",
+      "license": "CC BY-SA 3.0"
+    },
+    {
+      "placeId": "JP-052",
+      "assetPath": "images/places/JP-052/mount-mitake-musashi-mitake-shrine.webp",
+      "originalTitle": "File:Mitake Shrine @ Hike from Mitake to Okutama (10181698756).jpg",
+      "license": "CC BY 2.0"
+    },
+    {
+      "placeId": "JP-017",
+      "assetPath": "images/places/JP-017/asakusa-culture-tourist-information-center.webp",
+      "originalTitle": "File:Asakusa Culture Tourist Information Center 2016.jpg",
+      "license": "CC BY-SA 4.0"
+    }
+  ],
+  "failedClosed": [
+    {
+      "placeId": "JP-140",
+      "name": "Mount Rokko night view",
+      "reason": "No defensible photograph of the Mount Rokko night view exists under the allowlist. The only genuine Rokko-viewpoint night panorama is a 27439x4116 (6.7:1) strip that cannot serve as a gallery image; the highest-quality night candidate is attributed to 'No machine-readable author provided', which fails the provenance requirement, and its description names Rokko Island, the artificial island in the bay, rather than the Mount Rokko viewpoint; the remaining night views are taken from Mount Maya or Kikusuiyama, which are different mountains. Daytime photographs of Rokko Garden Terrace and the summit marker exist but would misrepresent a target whose named subject is the night view."
+    }
+  ]
+}

@@ -40,12 +40,14 @@ ACQUISITION_BATCH_MANIFESTS = (
     "a-grade-photography-batch-i.json",    # Phase 4F, batch I
     "a-grade-photography-batch-ii.json",   # Phase 4H, batch II
     "a-b-photography-batch.json",          # Phase 4J, A+B batch
+    "phase4k-successor-fixture.json",      # Phase 4L, A+B batch II
 )
 
 # Historical catalog sizes, and the batches selected strictly after each one.
 HISTORICAL_BASELINES = {
     "phase4e": {"size": 36, "post": ACQUISITION_BATCH_MANIFESTS},
     "phase4g": {"size": 58, "post": ACQUISITION_BATCH_MANIFESTS[1:]},
+    "phase4k": {"size": 113, "post": ACQUISITION_BATCH_MANIFESTS[3:]},
 }
 
 
@@ -64,7 +66,12 @@ def assert_batch_registry_is_complete():
             f"{unregistered}: add them to ACQUISITION_BATCH_MANIFESTS and to the "
             "'post' tuple of every baseline they were selected after"
         )
-    missing = sorted(registered - discovered)
+    # A registered manifest need not match the discovery glob: Phase 4L executes the
+    # fixture Phase 4K pinned, which is deliberately named outside it. Presence on disk
+    # is what matters; the glob only finds manifests nobody has registered yet.
+    missing = sorted(
+        name for name in registered if not (VISUAL_DIR / name).is_file()
+    )
     if missing:
         raise AssertionError(
             f"registered acquisition batch manifest(s) missing from disk: {missing}"
