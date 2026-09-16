@@ -763,7 +763,9 @@ a {
 }
 
 .tag--grade-C,
-.badge--grade-C {
+.badge--grade-C,
+.tag--grade-D,
+.badge--grade-D {
   background: #6b6257;
   border-color: #6b6257;
   color: #fff;

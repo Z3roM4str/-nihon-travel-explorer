@@ -113,8 +113,11 @@ export default function App() {
     () => [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) => a.localeCompare(b, "es")),
     [hubPlaces]
   );
+  /** Editorial order, not alphabetical — and every grade the catalogue actually uses. Omitting
+   * one would silently hide its places whenever the user ticks all the grades on offer, with no
+   * way to filter to them: `matchesFilters` treats a non-empty `grades` list as exhaustive. */
   const grades = useMemo(
-    () => ["S", "A", "B", "C"].filter((g) => hubPlaces.some((p) => p.grade === g)),
+    () => ["S", "A", "B", "C", "D"].filter((g) => hubPlaces.some((p) => p.grade === g)),
     [hubPlaces]
   );
   const hiddenGemStatuses = useMemo(
