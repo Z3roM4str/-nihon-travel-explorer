@@ -23,7 +23,7 @@ jobs:
       - name: Checkout discovery head
         uses: actions/checkout@v4
         with:
-          ref: 2df1c6d339e505304fb04ba4bac35201f12931c7
+          ref: 3589b8493c1c4efa0cf6dc60c86a2283f1050e89
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -38,7 +38,7 @@ jobs:
 
       - name: Discover Commons review candidates
         run: |
-          python scripts/discover-phase4h-commons.py             --out phase4h-commons-review             --per-target 8
+          python scripts/discover-phase4h-commons.py             --out phase4h-commons-review             --per-target 12
 
       - name: Discovery report invariants
         run: |
