@@ -19,6 +19,10 @@ EXPECTED_IDS = [
     "JP-115", "JP-037", "JP-093", "JP-160", "JP-141", "JP-040",
     "JP-102", "JP-174", "JP-116", "JP-050", "JP-092", "JP-005",
 ]
+# Phase 4E selected its 24 targets from a 36-record photography catalog.
+PHASE_4E_BASELINE_SIZE = 36
+POST_PHASE_4E_MANIFEST_GLOB = "a-grade-photography-batch-*.json"
+
 EXPECTED_QUOTAS = {
     "Kioto": 6,
     "Nagoya": 1,
@@ -38,22 +42,76 @@ def load_current_inputs():
     return places, photography["images"]
 
 
-def load_phase4e_base_inputs():
-    """Reconstruct the authorized Phase 4E input after Phase 4F metadata is appended.
+def post_phase4e_target_ids():
+    """Every place ID claimed by an A-grade batch manifest selected after Phase 4E.
 
-    Phase 4E selected these 24 targets from the 36-record base. During Phase 4F, accepted
-    target records are appended to the live catalog, so feeding that post-acquisition
-    catalog back into an "uncovered places" selector would intentionally produce a
-    different next tranche. For regression we remove only the pinned Phase 4F target IDs
-    from the current catalog and require the reconstructed baseline to be exactly 36
-    records. This is a test fixture boundary, not runtime selection behavior.
+    Discovered from the checked-in manifests rather than hard-coded, so each later
+    acquisition batch (Phase 4F batch I, Phase 4H batch II, and any successor that
+    checks in a manifest under the same naming contract) is removed automatically.
+    """
+    manifests = sorted((ROOT / "data" / "visual").glob(POST_PHASE_4E_MANIFEST_GLOB))
+    if not manifests:
+        raise AssertionError(
+            "no post-Phase-4E A-grade batch manifest found under "
+            f"data/visual/{POST_PHASE_4E_MANIFEST_GLOB}"
+        )
+    target_ids = set()
+    for manifest in manifests:
+        doc = json.loads(manifest.read_text(encoding="utf-8"))
+        target_ids.update(place["placeId"] for place in doc["places"])
+    return target_ids
+
+
+def load_phase4e_base_inputs():
+    """Reconstruct the authorized 36-record Phase 4E photography baseline.
+
+    Phase 4E selected its 24 targets from a 36-record catalog. Every later batch
+    appends accepted records to that same live catalog, so replaying an
+    "uncovered places" selector against the current catalog would legitimately
+    produce a different tranche. The historical baseline must therefore be
+    rebuilt before the fixture can be replayed.
+
+    The baseline is derived twice, independently, and the two derivations must
+    agree:
+
+    1. *Semantically* -- drop every place ID claimed by a post-Phase-4E batch
+       manifest (see ``post_phase4e_target_ids``). Failed-closed targets were
+       never acquired, so only accepted records are actually removed.
+    2. *Positionally* -- take the leading ``PHASE_4E_BASELINE_SIZE`` records.
+       The canonical registry grows append-only, so the Phase 4E era is exactly
+       the registry's prefix.
+
+    Requiring both to match means a future batch cannot silently shift this
+    fixture onto the wrong baseline: if it appends records without checking in a
+    matching manifest, or breaks the append-only ordering, the two derivations
+    diverge and this helper fails loudly instead of replaying a different
+    catalog. Record *content* is always read live from the canonical registry,
+    so source/attribution corrections to those 36 records flow through rather
+    than rotting in a frozen copy.
+
+    This is a test fixture boundary, not runtime selection behavior.
     """
     places, current = load_current_inputs()
-    expected = set(EXPECTED_IDS)
-    baseline = [record for record in current if record["placeId"] not in expected]
-    if len(baseline) != 36:
+    post_4e_ids = post_phase4e_target_ids()
+
+    baseline = [record for record in current if record["placeId"] not in post_4e_ids]
+    prefix = current[:PHASE_4E_BASELINE_SIZE]
+
+    if len(baseline) != PHASE_4E_BASELINE_SIZE:
         raise AssertionError(
-            f"Phase 4E baseline reconstruction expected 36 records, found {len(baseline)}"
+            f"Phase 4E baseline reconstruction expected {PHASE_4E_BASELINE_SIZE} "
+            f"records, found {len(baseline)}"
+        )
+    if [r["placeId"] for r in baseline] != [r["placeId"] for r in prefix]:
+        raise AssertionError(
+            "Phase 4E baseline reconstruction disagrees with the append-only "
+            "registry prefix; a later batch changed record ordering or is "
+            "missing its checked-in manifest"
+        )
+    leaked = sorted(post_4e_ids.intersection(r["placeId"] for r in baseline))
+    if leaked:
+        raise AssertionError(
+            f"post-Phase-4E targets leaked into the Phase 4E baseline: {leaked}"
         )
     return places, baseline
 
