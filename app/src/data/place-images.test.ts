@@ -44,7 +44,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
   });
 
   it("gives a non-pilot place zero images, falling back to no registry entry", () => {
-    for (const placeId of ["JP-999-does-not-exist", "JP-006", "JP-050"]) {
+    for (const placeId of ["JP-999-does-not-exist", "JP-121", "JP-050"]) {
       if (pilotPlaceIds.includes(placeId)) continue;
       expect(resolvePlaceImages(placeId)).toEqual([]);
     }
@@ -90,11 +90,11 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly five WebP-only records and 80 resized+WebP records from the committed metadata", () => {
+  it("derives exactly six WebP-only records and 107 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
-    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(5);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(80);
-    for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061"]) {
+    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(6);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(107);
+    for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
   });
@@ -144,11 +144,26 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
+  it("carries the Phase 4J tranche as 28 acquired targets and four explicit fallbacks", () => {
+    const acquired = [
+      "JP-214", "JP-100", "JP-163", "JP-123", "JP-013", "JP-073", "JP-183",
+      "JP-022", "JP-055", "JP-194", "JP-014", "JP-059", "JP-189", "JP-124",
+      "JP-078", "JP-165", "JP-117", "JP-043", "JP-060", "JP-138", "JP-006",
+      "JP-081", "JP-198", "JP-105", "JP-039", "JP-212", "JP-011", "JP-047",
+    ];
+    for (const placeId of acquired) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
+    }
+    for (const deferred of ["JP-120", "JP-211", "JP-041", "JP-168"]) {
+      expect(placeImages[deferred], deferred).toBeUndefined();
+    }
+  });
+
   it("never registers a second image for any place", () => {
     for (const [placeId, images] of Object.entries(placeImages)) {
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
     }
-    expect(Object.keys(placeImages)).toHaveLength(85);
+    expect(Object.keys(placeImages)).toHaveLength(113);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
@@ -171,14 +186,14 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
 
   it("returns only embedded images, unchanged, for a place with no registry entry", () => {
     const embedded: PlaceImage[] = [{ url: "/embedded.jpg", alt: "Embedded fixture image" }];
-    const nonPilotId = "JP-006";
+    const nonPilotId = "JP-121";
     expect(pilotPlaceIds.includes(nonPilotId)).toBe(false);
     expect(resolvePlaceImages(nonPilotId, embedded)).toEqual(embedded);
   });
 
   it("returns a fresh empty array (not a shared reference) for repeated calls with no images", () => {
-    const a = resolvePlaceImages("JP-006");
-    const b = resolvePlaceImages("JP-006");
+    const a = resolvePlaceImages("JP-121");
+    const b = resolvePlaceImages("JP-121");
     expect(a).toEqual([]);
     expect(a).not.toBe(b);
   });

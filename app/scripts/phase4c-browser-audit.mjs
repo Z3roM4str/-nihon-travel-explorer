@@ -122,7 +122,10 @@ try {
   assert.equal(await zoom.evaluate((element) => element === document.activeElement), true);
 
   await page.getByRole("button", { name: /Cerrar la ficha de SHIBUYA SKY/ }).click();
-  await page.locator(".place-list__item").filter({ hasText: "Nezu Museum" }).click();
+  // Uses a carried fail-closed place, which cannot gain a photograph without a separate
+  // design gate, so this fallback assertion survives later acquisition batches. Nezu
+  // Museum previously stood here and was acquired in Phase 4J.
+  await page.locator(".place-list__item").filter({ hasText: "PokéPark KANTO" }).click();
   await page.getByText("Sin fotografía disponible todavía").waitFor();
   assert.equal(await page.locator(".gallery__credit").count(), 0);
 
