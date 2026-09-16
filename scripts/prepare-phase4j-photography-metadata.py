@@ -148,10 +148,15 @@ def fetch(title):
     # without changing the URL itself.
     if license_url.startswith("http://creativecommons.org/"):
         license_url = "https://" + license_url[len("http://"):]
+    # The Commons API appends utm_source/utm_campaign/utm_content tracking parameters to
+    # "url". They have nothing to do with file identity, every pre-existing record stores
+    # a clean URL, and the acquisition pipeline compares ignoring the query string, so the
+    # stored acquisitionUrl drops them.
+    acquisition_url = info["url"].split("?", 1)[0]
     return {
         "resolvedTitle": page["title"],
         "descriptionUrl": info["descriptionurl"],
-        "url": info["url"],
+        "url": acquisition_url,
         "width": info["width"],
         "height": info["height"],
         "license": normalize_license(ev("LicenseShortName") or ev("UsageTerms")),
