@@ -6056,3 +6056,78 @@ on the new `main` after this merge. Phase 4L executes the exact 32-target fixtur
 `data/visual/phase4k-successor-fixture.json` under the 11 MiB soft / 14 MiB hard budget with
 all 15 fail-closed IDs excluded, and does not redesign the strategy unless its own preflight
 finds a real divergence. Phase 4L is **not started** by this closure.
+
+## Phase 4L — A+B Licensed Photography Acquisition Batch II
+
+Executed on **2026-09-16** from base `524531a1d9f41c84bc8ca53bfde5dc4ee5febd6d`, running the
+exact 32-target fixture pinned by Phase 4K in `data/visual/phase4k-successor-fixture.json`.
+Full detail in [`docs/AB_PHOTOGRAPHY_BATCH_II_RUNTIME.md`](AB_PHOTOGRAPHY_BATCH_II_RUNTIME.md).
+
+- [x] **Fixture reproduced before acquisition.** The pinned fixture regenerates byte-identically
+      from the documented selector — 32 targets in order, 25 A / 7 B, 13 categories, hub quotas
+      Kioto 7 / Okinawa 8 / Osaka 8 / Tokio 9, one temporal-risk target, zero C/D, zero covered.
+      No divergence from the mandated base or fixture.
+- [x] **32 attempted · 31 accepted · 1 failed closed.** Accepted 25 A / 6 B. **JP-140** (Mount
+      Rokko night view) failed closed: the only true Rokko night panorama is an unusable 6.7:1
+      strip, the best remaining night candidate has no machine-readable author *and* depicts
+      Rokko **Island** rather than the mountain viewpoint, and the other night views are from
+      Mount Maya and Kikusuiyama. No replacement was drawn — the place keeps its fallback.
+- [x] **Coverage 113/214 (52.8%) → 144/214 (67.3%).** A 52.4% → **69.4%**, B 32.0% → **56.0%**,
+      S unchanged at 87.5%, C and D still 0%. Hub spread across the four large hubs narrowed
+      from 6.0 points to 5.2; editorial ordering S > A > B > C > D preserved.
+- [x] **Asset delta 9,187,992 B = 8.76 MiB**, inside the 11 MiB soft budget, so no budget
+      investigation was triggered. Registry total 42.5 MiB across 144 files. Wikimedia Commons
+      only, CC0/CC BY/CC BY-SA only, no legal-clearance claim on any record.
+- [x] **All 15 carried fail-closed IDs excluded, not retried.** Both Phase 4L scripts refuse to
+      run if any appears, and CI re-asserts their absence from both the registry and the
+      attempted set. The historical Phase 4J selector was **not** mutated — it is byte-identical
+      and its regressions still pass; Phase 4L ships its own execution artifacts carrying all 15.
+- [x] **Historical invariants held.** All 113 pre-4L records and all 113 image blobs are
+      byte-identical to base (SHA-256 against `git show`), the registry is append-only, canonical
+      and app copies are byte-identical, and `data/places.json` is unchanged. No old record was
+      edited to make the batch pass.
+- [x] **Tests repaired generically, no assertion weakened.** Acquisition broke 18 tests + 1 error
+      in two classes. The baseline derivation now registers the Phase 4L manifest and adds a
+      Phase 4K baseline, and its completeness guard moved from glob-membership to disk-presence;
+      the Phase 4K scope test now compares the fixed pair `caccf251` → `524531a` instead of
+      `HEAD`. Every historical fixture still reproduces exactly — 4E at 36, 4G at 58, 4K at 113 —
+      with no expected value changed.
+- [x] **Validated at exact head `7036d86a`** — run
+      [35078248227](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/35078248227),
+      24/24 steps green with the checkout pinned to that SHA: validator OK · Python 495 OK ·
+      historical regressions 50 OK · Vitest 2440 OK · lint clean · build OK · invariants and
+      budget OK · Phase 4L browser audit 8/8 twice · Phase 4J/4H/4F/4D/4C browser regressions
+      all pass · whitespace clean.
+- [x] **Hostile review against live Commons: zero findings.** All 31 file pages resolve and every
+      licence, credit, dimension and URL matches. Visual inspection caught **eleven** subject
+      traps that metadata alone would have accepted — among them Ryushi Memorial for JP-007, the
+      Sumida namesake of Hōsen-in for JP-087, Tōfukuji *Station* for JP-067, and JP-047's Open
+      Air Architectural Museum for JP-053. One dataset observation recorded without correcting
+      it: JP-149 MIHO Museum is filed under the Osaka hub but sits in Kōka, Shiga.
+- [x] **Scope proved.** Ten non-asset files plus 31 new WebP assets. No ranking, recommendation,
+      grade, itinerary, planner, routing or gallery change; no second image anywhere; no licence
+      widening; no non-Commons imagery.
+
+### Successor gate requirement — grade→coverage inversion is now a live constraint
+
+Phase 4K's closure found that A+B inverts the editorial grade→coverage ordering at **n = 40**
+measured from the 113-record base. Phase 4L at n = 32 was valid and was **not** redesigned
+because of it. Re-measured from the post-4L base, the risk has moved materially closer:
+
+- Post-batch **A coverage 102/147 = 69.4%**, post-batch **B coverage 14/25 = 56.0%** — ordering
+  preserved, by 13.4 points.
+- Remaining A+B eligible universe: **45 places, 35 A and 10 B.** B is close to exhaustion, with
+  a hard ceiling of 96.0%.
+- Each further B photograph moves B **4.0 points** against A's **0.68** — a six-to-one asymmetry.
+- Proportional-draw crossover still lands near n = 40, but the margin at n = 32 has collapsed to
+  **2.4 points**, and a B-weighted tranche inverts far sooner: **as few as 4 B-only photographs**
+  would put B above A.
+
+**The post-4L strategy gate must therefore explicitly re-evaluate post-batch A coverage,
+post-batch B coverage, and whether any further A+B acquisition would invert editorial
+grade→coverage ordering — testing the proposed A:B *mix*, not only the tranche size, because
+size alone is no longer a sufficient test.** It must also re-open stop-versus-continue rather
+than assuming continuation, and carry all **16** fail-closed IDs (the 15 inherited plus JP-140).
+
+**Phase 4L does not start the post-4L strategy gate.** Its pull request remains Draft and its
+issue remains open pending review.
