@@ -6131,3 +6131,121 @@ than assuming continuation, and carry all **16** fail-closed IDs (the 15 inherit
 
 **Phase 4L does not start the post-4L strategy gate.** Its pull request remains Draft and its
 issue remains open pending review.
+
+## Phase 4M — Post-4L Photography Stop-vs-Continue Design Gate
+
+Design/audit gate executed on **2026-09-16** from base `5707c1405febdb467d2af991eb21e731b887b6cd`
+(`main` after Phase 4L / PR #115), against Issue #116. Full detail in
+[`docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md`](PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md).
+
+**Decision: STOP. Photography is complete for Nihon v1 at 144/214 = 67.3%. No Phase 4N
+acquisition is authorized.** The next authorized project work is the **Nihon Release Candidate /
+whole-product closure audit**, which Phase 4M does not start.
+
+- [x] **Starting state reproduced independently** from canonical data, not documentation:
+      214 places · 144 covered · 70 uncovered · 67.3% · max 1 photograph per place · canonical
+      and app registries byte-identical. Grades S 28/32, A 102/147, B 14/25, C 0/6, D 0/4.
+      Hubs Fukuoka 1/1, Kioto 34/49, Nagoya 1/1, Okinawa 34/50, Osaka 34/53, Sapporo 3/3,
+      Tokio 37/57. All **16** fail-closed IDs present and uncovered. Phase 4L's 32 attempted /
+      31 accepted / JP-140 fail-closed and its 9,187,992 B (8.76 MiB) delta re-verified.
+- [x] **Divergence found and reported, not reconciled.** Issue #116 and Phase 4L carry forward a
+      remaining ordinary A+B eligible universe of **45 places (35 A / 10 B)**. Reproduced: **44
+      places (35 A / 9 B)**. The carried fail-closed set holds **two** B places — `JP-041` (4J)
+      and `JP-140` (4L) — and Phase 4L's successor note subtracted only `JP-041`, in the same
+      paragraph in which it created the sixteenth exclusion. Consequence: B's exhaustion ceiling
+      is **92.0%**, not 96.0%, and exhausting the A+B universe does **not** invert A/B
+      (A 93.2% vs B 92.0%) — so Phase 4L's projection table is superseded. Phase 4L's
+      acquisition, registry and assets are unaffected; its documents are left as historical
+      records and are not edited. Every mandated starting-state figure reproduced exactly.
+- [x] **The binding constraint, which no prior phase measured: the editorial ordering has a
+      permanent ceiling.** All four uncovered S places are carried fail-closed, so **S is frozen
+      at 87.5% forever**. Monotonic S ≥ A therefore caps A at **128/147 = 87.1%**: at most **26**
+      further A photographs may ever be accepted, and **9 of the 35 eligible A places can never
+      be photographed** under the stated invariant. Combining both boundaries, the maximum end
+      state any future sequence of tranches can reach is **177/214 = 82.7%** (26 A + 7 B) — not
+      the 87.9% A+B supply ceiling. Against the incumbent selector the largest fully monotonic
+      tranche is **n = 30**; n = 31 and above invert S ≥ A. Continuation is therefore one legal
+      move that ends the programme regardless.
+- [x] **Mix-aware A:B analysis, superseding size-only tests.** A moves 0.680 points per
+      photograph, B moves 4.000 — **5.88:1**; current gap 13.4 points; **4** B-only photographs
+      invert A/B (confirmed). Maximum safe B by size: n=8 → 4 · n=12 → 4 · n=16 → 5 · n=24 → 6 ·
+      n=32 → 7. **The selector does not over-draw B** — B is 20.5% of the eligible pool and the
+      policy draws 25.0 / 16.7 / 18.8 / 12.5 / 12.5%, so **no artificial B cap is required**. The
+      cap now required is an **A cap (≤26)**, which no prior phase has needed and the selector
+      does not enforce. At n = 8 the safe mix A4:B4 holds by **0.1 points** and **inverts on a
+      single fail-closed A** — the only candidate size that fails the one-failure test.
+- [x] **Diminishing returns are structural, not gradual.** New categories unlocked by a tranche:
+      **0 at every size and every scope**, because the only two zero-photo categories are
+      single-member and both members are fail-closed — category coverage cannot exceed 27/29.
+      Hub spread across the four large hubs is 5.2 points, the programme minimum, with nothing
+      left to repair. Raw coverage points per tranche are still rising, which is precisely why
+      percentage cannot discriminate: every strategy covers at most *n* places.
+- [x] **Product impact measured, not asserted.** Using the dataset's own read-only `tourismLevel`
+      field, coverage is **inverted against visitor prominence** — `Extremo` 52.3% against `Alto`
+      80.4%. But of the 21 uncovered `Extremo` places, **6 are fail-closed** and **9 are graded
+      C/D on purpose**; only **6 are ordinarily eligible**, and **4 of those 6 are grade B**.
+      The incumbent selector repairs **2** of them at every legal size (4 only at n = 32, which
+      breaks the ordering) and **never selects `JP-080` Kinkaku-ji at any size**. The instrument
+      cannot hit the target that motivates continuation.
+- [x] **Asset economics recomputed with Phase 4L, not inherited.** Per-batch means 4D 300,620 ·
+      4F 248,056 · 4H 275,509 · 4J 345,434 · **4L 296,387**; weighted mean **294,696 B/asset**
+      (flat, +0.2% against Phase 4K); band 248,056–345,434; pooled acceptance **120/136 = 88.2%**.
+      **Phase 4K's rising-cost trend did not continue** — Phase 4L came in below the 4J peak. No
+      candidate size breaches the 14 MiB hard stop. **STOP is explicitly not justified on asset
+      grounds.** Footprint 42,454,392 B = 40.49 MiB across 144 assets, 82.1% of the 49.33 MiB
+      tracked repository.
+- [x] **Strategy comparison.** STOP preserves monotonic ordering at S 87.5 > A 69.4 > B 56.0.
+      A-only rejected — freezes B and re-widens the A−B gap to 35.2 points, breaks S ≥ A at
+      n = 32, repairs ≤2 prominence gaps. A+B rejected on value not legality — 0 categories,
+      0 hub repair, 2 of 6 prominence gaps, never Kinkaku-ji, two simultaneous caps required,
+      one tranche of headroom. A+B+C+D re-evaluated as a counterfactual and rejected again:
+      C reaches **100%**, above S, A and B, and at n = 8 the selector takes 5 C + 1 D of 8 seats
+      (75%) against an 18.5% pool share — a **4.05×** over-representation — unlocking zero
+      categories.
+- [x] **Policy fidelity proven, not asserted.** The analysis module's selector is the Phase 4I/4K
+      coverage-balanced policy with only the exclusion set parameterized. Replaying the
+      historical 113-record Phase 4K baseline with the historical 15-ID exclusion set reproduces
+      the pinned `data/visual/phase4k-successor-fixture.json` exactly and in order.
+- [x] **Hostile review of the gate's own conclusion — eight objections, all answered in the
+      document.** The strongest (Kinkaku-ji) is **conceded**, not dismissed, and recorded as
+      post-v1 backlog item 1. The decision was re-run against the erroneous 10-B universe and is
+      **identical**, so the divergence is reported because it is real, not because it is
+      load-bearing. Two documentation findings recorded; no executable, data, asset or fixture
+      change required.
+- [x] **Gates run.** Phase 4M tests **48 OK** · full Python suite **543 OK** · photography
+      validator OK · dataset validator OK (214 places, 0 broken references) · Vitest **2440
+      tests / 65 files OK** · lint clean · build OK · whitespace clean.
+- [x] **Design-only scope proved** against base `5707c140`: `data/visual/photography-metadata.json`,
+      `app/src/data/photography-metadata.json` and `data/places.json` byte-identical;
+      canonical/app parity holds; `app/public/images/places/` identical blob-for-blob across all
+      144 assets; no fail-closed ID in the registry; **no fixture pinned**, because no
+      acquisition is authorized. Four changed files: this entry, the design document, the
+      analysis script and its tests.
+
+### Photography v1 completion
+
+Photography for Nihon v1 is **complete at 144/214 = 67.3%**: one photograph per covered place,
+144 records and 144 WebP assets (40.49 MiB), Wikimedia Commons only under CC0 / CC BY / CC BY-SA
+with no legal-clearance claim, 27 of 29 categories represented, all seven hubs represented (four
+at 64.2–69.4%, three at 100%), monotonic editorial ordering S 87.5% > A 69.4% > B 56.0% > C 0% >
+D 0%, 16 carried fail-closed IDs permanently excluded, a documented non-photographic fallback for
+all 70 uncovered places, and zero runtime photography-provider requests. **This is a completion,
+not a pause.**
+
+### Post-v1 optional backlog — recorded, not scheduled
+
+None of these is authorized work and none blocks the Release Candidate; each would need its own
+gate: (1) prominence-targeted first photographs for the six reachable high-prominence gaps —
+JP-080 Kinkaku-ji, JP-019 Tokyo Skytree, JP-072 Tenryū-ji, JP-038 teamLab Planets, JP-153
+Kokusai Street, JP-171 Blue Cave at Cape Maeda — which would need a new prominence-first selector
+*and* an explicit ordering decision, since four are grade B; (2) a fail-closed re-entry research
+gate for the 16 excluded IDs, in particular JP-195 and JP-202, the sole members of the only two
+zero-photo categories, and any S place, whose re-entry is the only thing that could lift the
+87.5% ceiling; (3) a bounded A/B completion tranche of at most 26 A and 7 B, ending at 82.7%,
+only after the ordering invariant is re-examined; (4) a grading review for the nine
+deliberately-deprioritized high-prominence C/D places — an editorial question, not a photography
+one.
+
+**Authorized next phase: Nihon Release Candidate / whole-product closure audit.** It is **not
+started** by Phase 4M and requires its own issue and design gate. The Phase 4M pull request
+remains **Draft** and Issue #116 remains **open** pending an independent closure gate.
