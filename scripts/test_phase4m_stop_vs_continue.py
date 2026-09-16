@@ -453,12 +453,14 @@ class NoSuccessorAuthorisedTests(unittest.TestCase):
 
 
 class DesignOnlyScopeTests(unittest.TestCase):
-    """Phase 4M itself must change no photograph, asset or dataset file.
+    """Phase 4M itself changed no photograph, asset or dataset file.
 
-    Asserted between the Phase 4M base and the working tree, which is correct while this
-    gate is the tip. A later phase that acquires photographs will legitimately change
-    these files; the fixed-pair form used by the Phase 4K test is adopted at closure.
+    This is a historical claim about the Phase 4M design commit range. Pinning both
+    endpoints keeps the proof valid even if a later post-v1 phase legitimately changes
+    photography.
     """
+
+    PHASE_4M_DESIGN_HEAD = "277949e827cb52c2c48cccb038d8a73a04cb348e"
 
     FROZEN = (
         "data/visual/photography-metadata.json",
@@ -466,42 +468,48 @@ class DesignOnlyScopeTests(unittest.TestCase):
         "data/places.json",
     )
 
-    def _base_blob(self, path):
-        return subprocess.check_output(["git", "show", f"{PHASE_4M_BASE}:{path}"])
+    def _blob(self, rev, path):
+        return subprocess.check_output(["git", "show", f"{rev}:{path}"])
 
     def test_phase_4m_changed_no_frozen_file(self):
         for path in self.FROZEN:
             with self.subTest(path=path):
                 self.assertEqual(
-                    hashlib.sha256(self._base_blob(path)).hexdigest(),
-                    hashlib.sha256((ROOT / path).read_bytes()).hexdigest(),
+                    hashlib.sha256(self._blob(PHASE_4M_BASE, path)).hexdigest(),
+                    hashlib.sha256(self._blob(self.PHASE_4M_DESIGN_HEAD, path)).hexdigest(),
                 )
 
-    def test_canonical_and_app_photography_metadata_stay_in_parity(self):
-        self.assertEqual(
-            (ROOT / "data/visual/photography-metadata.json").read_bytes(),
-            (ROOT / "app/src/data/photography-metadata.json").read_bytes(),
+    def test_canonical_and_app_photography_metadata_stayed_in_parity(self):
+        canonical = self._blob(
+            self.PHASE_4M_DESIGN_HEAD, "data/visual/photography-metadata.json"
         )
+        app_copy = self._blob(
+            self.PHASE_4M_DESIGN_HEAD, "app/src/data/photography-metadata.json"
+        )
+        self.assertEqual(canonical, app_copy)
 
     def test_phase_4m_changed_no_image_asset(self):
         base = subprocess.check_output(
             ["git", "ls-tree", "-r", PHASE_4M_BASE, "app/public/images/places/"]
         ).decode()
-        live = subprocess.check_output(
-            ["git", "ls-tree", "-r", "HEAD", "app/public/images/places/"]
+        design = subprocess.check_output(
+            ["git", "ls-tree", "-r", self.PHASE_4M_DESIGN_HEAD, "app/public/images/places/"]
         ).decode()
-        self.assertEqual(base, live)
+        self.assertEqual(base, design)
 
-    def test_no_fail_closed_id_entered_the_registry(self):
-        _places, images = analysis.load_inputs()
-        registered = {record["placeId"] for record in images}
-        self.assertEqual(
-            registered & analysis.CARRIED_FAILED_CLOSED_IDS, set()
+    def test_no_fail_closed_id_entered_the_registry_at_design_head(self):
+        photography = json.loads(
+            self._blob(
+                self.PHASE_4M_DESIGN_HEAD,
+                "data/visual/photography-metadata.json",
+            )
         )
+        registered = {record["placeId"] for record in photography["images"]}
+        self.assertEqual(registered & analysis.CARRIED_FAILED_CLOSED_IDS, set())
 
     def test_phase_4m_changed_only_documentation_analysis_and_tests(self):
         changed = subprocess.check_output(
-            ["git", "diff", "--name-only", PHASE_4M_BASE]
+            ["git", "diff", "--name-only", PHASE_4M_BASE, self.PHASE_4M_DESIGN_HEAD]
         ).decode().split()
         allowed = {
             "docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md",
