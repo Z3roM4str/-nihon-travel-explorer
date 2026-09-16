@@ -1,0 +1,33 @@
+name: Phase 4M closure exact-head
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  phase4m-closure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify exact head
+        run: |
+          echo "HEAD=$(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - name: Install Python test dependency
+        run: python -m pip install pillow
+      - name: Phase 4M focused tests
+        run: python scripts/test_phase4m_stop_vs_continue.py
+      - name: Full Python suite
+        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Photography validator
+        run: python scripts/validate-photography.py
+      - name: Dataset validator
+        run: python scripts/validate-dataset.py
+      - name: Whitespace
+        run: git diff --check 5707c1405febdb467d2af991eb21e731b887b6cd
