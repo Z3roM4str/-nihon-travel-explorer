@@ -5951,3 +5951,67 @@ Acquisition/validation date: **2026-09-16 (America/Mexico_City)**.
 scale-up requires a separate design gate that re-establishes target priority, batch size,
 asset budget and sourcing constraints. PR #111 remains Draft and Issue #110 remains open
 pending an independent closure gate.
+
+## Phase 4K — Photography Coverage Strategy Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_COVERAGE_STRATEGY_DESIGN.md`](PHOTOGRAPHY_COVERAGE_STRATEGY_DESIGN.md).
+
+Base: `caccf2518f7f9adbf2c6c40a1a7f9ae045764221`.
+
+Design date: **2026-09-16 (America/Mexico_City)**.
+
+- [x] **Design-only gate.** No photograph acquired, no photography metadata, image blob,
+      runtime, gallery, ranking, routing, itinerary or grade change. Proven by test against
+      the exact base: canonical and app photography metadata, `data/places.json` and the
+      whole `app/public/images/places/` tree are byte-identical.
+- [x] **Live state recomputed from canonical files.** 214 places, 113 covered, 101
+      uncovered, 52.8%; S 28/32, A 77/147, B 8/25, C 0/6, D 0/4; all 15 carried fail-closed
+      IDs present and still uncovered; eligible universes A 60 / A+B 76 / all 86; only two
+      zero-photo categories remain and both members (JP-195, JP-202) are fail-closed.
+- [x] **Real asset evidence re-measured.** 4D 12/3,607,446 B · 4F 22/5,457,240 B · 4H
+      27/7,438,738 B · 4J 28/9,672,140 B; combined 89/26,175,564 B; weighted mean
+      294,107.46 B/asset; observed batch-mean range 248,056–345,434 and **rising**.
+      Photography is 31.73 MiB, 78.5% of the tracked repository.
+- [x] **Four strategies compared on composition, not percentage.** Coverage ceiling and byte
+      projection are identical across grade scopes at a given size, so raw coverage cannot
+      discriminate. The deciding measurement is the grade→coverage ordering after a
+      32-target tranche: A-only 88/74/32/0/0 (A–B gap widens to 42 pts), **A+B
+      88/69/60/0/0 (gap narrows to 9 pts)**, A+B+C+D 88/65/56/**100**/50 — which breaks
+      monotonicity by putting C above S, A and B.
+- [x] **C/D widening rejected on evidence.** It would invert the editorial signal; the
+      coverage-balanced selector over-weights C by 3.58× at n=16 (25% of the tranche from 7%
+      of the pool); and the breadth argument is false — the four categories reachable only
+      via C/D already hold photographs, so widening unlocks zero new zero-photo categories.
+      C and D stay intentionally uncovered while A/B supply remains.
+- [x] **Size 32 selected from 16/24/32/40.** Category breadth saturates at 13 for A+B at
+      every size, so breadth justifies no size; 40 is rejected because its sensitivity band
+      reaches 13.18 MiB against a 14 MiB hard stop while the per-asset trend is rising; 16
+      and 24 are rejected on fixed-cost efficiency, since 32 is the demonstrated sustainable
+      workload of Phases 4H and 4J. 32 projects 8.98 MiB (7.57–10.54) and leaves 44 eligible.
+- [x] **Asset budget re-calibrated, not inherited.** Soft budget raised **10 → 11 MiB**
+      because 32 accepted at the worst observed batch mean projects 10.54 MiB, so the old
+      soft budget would fire on an ordinary batch. Hard stop **unchanged at 14 MiB**:
+      reaching it would need 458,752 B/asset, 33% above the worst observed mean.
+- [x] **Phase 4I selector retained, with one required change.** Retention is verified, not
+      assumed: replaying the generalised policy against the Phase 4J baseline with the
+      historical 11-ID exclusion set reproduces the pinned Phase 4J fixture exactly and in
+      order. The successor must ship its **own** selector carrying all **15** fail-closed
+      IDs — reusing `scripts/select-ab-photography-batch.py` unchanged would silently
+      re-admit JP-120, JP-211, JP-041 and JP-168, and editing it would break the pinned
+      Phase 4J regression.
+- [x] **Exact successor fixture pinned.** `data/visual/phase4k-successor-fixture.json` —
+      32 targets, 25 A / 7 B, 13 categories, hub quotas Kioto 7 / Okinawa 8 / Osaka 8 /
+      Tokio 9, one temporal-risk target (JP-213), zero C/D, zero fail-closed, zero covered.
+      Deliberately named outside the `*-batch*.json` glob so it does not trip the Phase 4J
+      acquisition-manifest completeness guard.
+- [x] **Fail-closed policy preserved.** All 15 IDs excluded; none retried; no new imagery
+      researched. A possible future re-entry gate is noted for JP-195/JP-202 only because
+      they are the sole members of the two zero-photo categories, without authorising a retry.
+
+**Decision: continue with exactly one more bounded A+B coverage-balanced tranche of 32, then
+re-open the stop-versus-continue question in a fresh gate.**
+
+**Authorized next phase: Phase 4L — A+B Licensed Photography Acquisition Batch II. Phase 4L
+is not started by Phase 4K.** The Phase 4K PR remains Draft and Issue #112 remains open
+pending an independent closure gate.

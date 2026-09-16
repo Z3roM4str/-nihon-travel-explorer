@@ -1,0 +1,316 @@
+{
+  "version": 1,
+  "trancheSize": 32,
+  "gradeScope": [
+    "A",
+    "B"
+  ],
+  "eligibleCount": 76,
+  "hubEligibleCounts": {
+    "Kioto": 17,
+    "Okinawa": 18,
+    "Osaka": 19,
+    "Tokio": 22
+  },
+  "hubQuotas": {
+    "Kioto": 7,
+    "Okinawa": 8,
+    "Osaka": 8,
+    "Tokio": 9
+  },
+  "gradeCounts": {
+    "A": 25,
+    "B": 7
+  },
+  "distinctCategoryCount": 13,
+  "places": [
+    {
+      "placeId": "JP-084",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Shisen-dō",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-190",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Toriike Ponds",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-149",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "MIHO Museum",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-012",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Kabukicho",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-062",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Eikan-dō",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-176",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Kouri Island and bridge",
+      "category": "🌊 Playa/mar/islas",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-122",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Minoh Falls",
+      "category": "🌿 Naturaleza",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-213",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Tokyo Marathon 2027",
+      "category": "🎆 Eventos",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-087",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Hōsen-in",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-200",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Yonaguni Island and underwater monument dive",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-112",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Umeda Sky Building",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-053",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Edo-Tokyo Museum",
+      "category": "🏛️ Museos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-064",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Hōnen-in",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-158",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Tamaudun Royal Mausoleum",
+      "category": "🏯 Historia y patrimonio",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-113",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Grand Green Osaka",
+      "category": "🏙️ Ciudad y barrios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-007",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Ota Memorial Museum of Art",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-063",
+      "hub": "Kioto",
+      "grade": "B",
+      "name": "Philosopher's Path",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-185",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Furuzamami Beach",
+      "category": "🌊 Playa/mar/islas",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-130",
+      "hub": "Osaka",
+      "grade": "B",
+      "name": "Nara Park deer",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-042",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Odaiba Seaside Park + Rainbow Bridge",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-065",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Ginkaku-ji",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-172",
+      "hub": "Okinawa",
+      "grade": "B",
+      "name": "Cape Manzamo",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-139",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Nunobiki Falls and Herb Gardens",
+      "category": "🌿 Naturaleza",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-051",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Mount Takao",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-067",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Tōfuku-ji",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-169",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Zakimi Castle Ruins",
+      "category": "🏯 Historia y patrimonio",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-114",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Nakanoshima waterfront",
+      "category": "🏙️ Ciudad y barrios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-020",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "The Sumida Hokusai Museum",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-186",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Aka Island",
+      "category": "🌊 Playa/mar/islas",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-140",
+      "hub": "Osaka",
+      "grade": "B",
+      "name": "Mount Rokko night view",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-052",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Mount Mitake and Musashi Mitake Shrine",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-017",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Asakusa Culture Tourist Information Center",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    }
+  ]
+}
