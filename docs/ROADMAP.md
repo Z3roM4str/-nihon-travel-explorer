@@ -5881,5 +5881,11 @@ Design date: **2026-09-15 / 2026-09-16 (America/Mexico_City)**.
 - [x] **Narrow successor authorized.** Phase 4J may attempt only the exact documented A+B
       32-place fixture after Phase 4I is independently closure-reviewed and merged.
 
+**Independent closure gate:** passed. The exact 32-place fixture was independently reproduced
+from the Phase 4H merge base: 108 A+B eligible places, quotas Fukuoka 1 / Kioto 7 /
+Okinawa 7 / Osaka 8 / Tokio 9, 23 A + 9 B, 19 categories, zero covered/fail-closed overlap.
+The 61-asset byte evidence and 24/32/40 projections also reproduce exactly. The Phase 4I
+diff remains documentation-only and is authorized for merge; Issue #108 may close completed.
+
 **Authorized next phase: Phase 4J — A+B Licensed Photography Acquisition Batch. Phase 4J is not started by Phase 4I.**
 
