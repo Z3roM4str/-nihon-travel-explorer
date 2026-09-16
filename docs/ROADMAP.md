@@ -5843,3 +5843,49 @@ authorized for merge and Issue #106 for completed closure.
 **Successor boundary:** Phase 4H authorizes no automatic successor acquisition. Any further
 scale-up requires a separate design gate that re-establishes target priority, batch size,
 asset budget and sourcing constraints.
+
+## Phase 4I — Photography Coverage Rebalancing Design Gate
+
+Design authority:
+[`docs/PHOTOGRAPHY_COVERAGE_REBALANCING_DESIGN.md`](PHOTOGRAPHY_COVERAGE_REBALANCING_DESIGN.md).
+
+Base: `485d413c77ff679a7dc8154c23ad05afe21f3c83`.
+
+Design date: **2026-09-15 / 2026-09-16 (America/Mexico_City)**.
+
+- [x] **Design/audit only.** No image, metadata, runtime, gallery, ranking, routing,
+      itinerary or recommendation change.
+- [x] **Live coverage recomputed.** 85/214 covered; 129 uncovered. Grade coverage is
+      S 28/32, A 57/147, B 0/25, C 0/6, D 0/4.
+- [x] **Coverage skew identified.** Fukuoka is 0/1 and Architecture is 0/2; both can only
+      enter through grade B at the current dataset. A-only continuation would preserve those
+      holes by construction.
+- [x] **Eleven fail-closed IDs preserved.** Four from Phase 4D, two from Phase 4F and five
+      from Phase 4H remain excluded absent materially new sourcing evidence.
+- [x] **Scope strategies compared.** A-only, A+B and all-grade balancing were evaluated.
+      A+B is selected: it repairs hub/category gaps while keeping A dominant and defers C/D.
+- [x] **24/32/40 compared using real Phase 4D/4F/4H bytes.** The combined 61 accepted assets
+      average 270,547.93 B. Weighted projections are 6.19 / 8.26 / 10.32 MiB respectively;
+      observed batch-mean envelopes are 5.68–6.88 / 7.57–9.17 / 9.46–11.47 MiB.
+- [x] **32 selected.** The deterministic A+B fixture is 23 A + 9 B, spans 19 categories,
+      and allocates Fukuoka 1 / Kioto 7 / Okinawa 7 / Osaka 8 / Tokio 9.
+- [x] **Selector is coverage-balanced, not ranking-derived.** Category tranche count,
+      existing photographed-category count, grade A-before-B, temporal risk, eligible-category
+      rarity and stable placeId tiebreak determine selection.
+- [x] **Exact 32-target fixture defined.** No replacement queue; every sourcing failure remains
+      fail-closed.
+- [x] **Asset budget retained.** 10 MiB soft / 14 MiB hard stop-review threshold. The 32-target
+      observed envelope remains below the soft budget.
+- [x] **Photography contract preserved.** Commons only, current allowlist, local WebP,
+      first-photo-first, zero runtime photography fetch and no legal-clearance claim.
+- [x] **Narrow successor authorized.** Phase 4J may attempt only the exact documented A+B
+      32-place fixture after Phase 4I is independently closure-reviewed and merged.
+
+**Independent closure gate:** passed. The exact 32-place fixture was independently reproduced
+from the Phase 4H merge base: 108 A+B eligible places, quotas Fukuoka 1 / Kioto 7 /
+Okinawa 7 / Osaka 8 / Tokio 9, 23 A + 9 B, 19 categories, zero covered/fail-closed overlap.
+The 61-asset byte evidence and 24/32/40 projections also reproduce exactly. The Phase 4I
+diff remains documentation-only and is authorized for merge; Issue #108 may close completed.
+
+**Authorized next phase: Phase 4J — A+B Licensed Photography Acquisition Batch. Phase 4J is not started by Phase 4I.**
+
