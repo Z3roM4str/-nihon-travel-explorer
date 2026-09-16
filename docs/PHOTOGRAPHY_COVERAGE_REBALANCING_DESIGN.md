@@ -1,6 +1,6 @@
 # Phase 4I — Photography Coverage Rebalancing Design
 
-Status: **design gate complete; no acquisition started**
+Status: **design gate complete and independently closure-reviewed; no acquisition started**
 
 Base: `485d413c77ff679a7dc8154c23ad05afe21f3c83`  
 Issue: #108  
