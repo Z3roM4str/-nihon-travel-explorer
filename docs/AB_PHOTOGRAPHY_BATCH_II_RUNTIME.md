@@ -306,7 +306,7 @@ resolved to `HEAD is now at 7036d86` and that every gate produced real output:
 
 ## Scope boundary
 
-Ten non-asset files changed against base `524531a`, plus 31 new WebP assets:
+Eleven non-asset files changed against base `524531a`, plus 31 new WebP assets:
 
 ```
 .github/workflows/phase4l-exact-head.yml      (temporary, removed after validation)
