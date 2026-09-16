@@ -13,6 +13,14 @@ SPEC = importlib.util.spec_from_file_location(
 selector = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(selector)
 
+BASELINE_SPEC = importlib.util.spec_from_file_location(
+    "photography_baseline", ROOT / "scripts" / "photography_baseline.py"
+)
+baseline_support = importlib.util.module_from_spec(BASELINE_SPEC)
+BASELINE_SPEC.loader.exec_module(baseline_support)
+
+load_current_inputs = baseline_support.load_current_inputs
+
 EXPECTED_IDS = [
     "JP-101", "JP-156", "JP-121", "JP-207", "JP-028", "JP-070", "JP-161", "JP-111",
     "JP-008", "JP-090", "JP-180", "JP-151", "JP-046", "JP-095", "JP-159", "JP-128",
@@ -29,25 +37,15 @@ EXPECTED_QUOTAS = {
 EXPECTED_FAILED = {"JP-033", "JP-126", "JP-203", "JP-204", "JP-050", "JP-195"}
 
 
-def load_current_inputs():
-    places_doc = json.loads((ROOT / "data" / "places.json").read_text(encoding="utf-8"))
-    places = places_doc if isinstance(places_doc, list) else places_doc["places"]
-    photography = json.loads(
-        (ROOT / "data" / "visual" / "photography-metadata.json").read_text(encoding="utf-8")
-    )
-    return places, photography["images"]
-
-
 def load_phase4g_base_inputs():
-    """Reconstruct the authorized 58-record Phase 4G base after Phase 4H acquisition."""
-    places, current = load_current_inputs()
-    expected = set(EXPECTED_IDS)
-    baseline = [record for record in current if record["placeId"] not in expected]
-    if len(baseline) != 58:
-        raise AssertionError(
-            f"Phase 4G baseline reconstruction expected 58 records, found {len(baseline)}"
-        )
-    return places, baseline
+    """Reconstruct the authorized 58-record Phase 4G photography baseline.
+
+    Delegates to scripts/photography_baseline.py, which derives the baseline both
+    semantically (dropping every place ID claimed by an acquisition batch selected after
+    Phase 4G) and positionally (the append-only registry prefix), and requires the two to
+    agree. See that module for the full contract.
+    """
+    return baseline_support.load_historical_baseline("phase4g")
 
 
 class RealSelectorFixtureTests(unittest.TestCase):

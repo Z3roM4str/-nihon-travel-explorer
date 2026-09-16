@@ -1,0 +1,314 @@
+{
+  "version": 1,
+  "trancheSize": 32,
+  "eligibleCount": 108,
+  "hubEligibleCounts": {
+    "Fukuoka": 1,
+    "Kioto": 24,
+    "Okinawa": 25,
+    "Osaka": 27,
+    "Tokio": 31
+  },
+  "hubQuotas": {
+    "Fukuoka": 1,
+    "Kioto": 7,
+    "Okinawa": 7,
+    "Osaka": 8,
+    "Tokio": 9
+  },
+  "gradeCounts": {
+    "B": 9,
+    "A": 23
+  },
+  "distinctCategoryCount": 19,
+  "places": [
+    {
+      "placeId": "JP-214",
+      "hub": "Fukuoka",
+      "grade": "B",
+      "name": "Yanagawa canal cruise",
+      "category": "🚂 Experiencias especiales",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-100",
+      "hub": "Kioto",
+      "grade": "B",
+      "name": "Uzumasa Kyoto Village / Toei Kyoto Studio Park",
+      "category": "🎭 Cultura tradicional",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-163",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Valley of Gangala",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-123",
+      "hub": "Osaka",
+      "grade": "B",
+      "name": "Church of the Light",
+      "category": "🏛️ Arquitectura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-013",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Golden Gai",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-073",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Ōkōchi Sansō Garden",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-183",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Gesashi Bay Mangrove Kayak",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-120",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "teamLab Botanical Garden Osaka",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-022",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Ameyoko",
+      "category": "🛍️ Compras",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-055",
+      "hub": "Kioto",
+      "grade": "B",
+      "name": "Sannenzaka and Ninenzaka",
+      "category": "🏙️ Ciudad y barrios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-194",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Banna Park",
+      "category": "🌿 Naturaleza",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-211",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "AnimeJapan 2027",
+      "category": "🎆 Eventos",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-014",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Omoide Yokocho",
+      "category": "🍜 Gastronomía",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-059",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Kōdai-ji",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-189",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Irabu Bridge",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-124",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Osaka Aquarium Kaiyukan",
+      "category": "🏛️ Museos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-041",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Unicorn Gundam at DiverCity",
+      "category": "👾 Anime/manga",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-078",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Saiho-ji (Koke-dera)",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-165",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Kudaka Island",
+      "category": "🌊 Playa/mar/islas",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-117",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Osaka Castle Park and exterior",
+      "category": "🏯 Historia y patrimonio",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-043",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "SMALL WORLDS Miniature Museum",
+      "category": "🧩 Extraño/peculiar/único",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-060",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Nanzen-ji",
+      "category": "⛩️ Templos y santuarios",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-168",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Yachimun no Sato",
+      "category": "🎭 Cultura tradicional",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-138",
+      "hub": "Osaka",
+      "grade": "B",
+      "name": "Kobe Kitano Ijinkan",
+      "category": "🏛️ Arquitectura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-006",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Nezu Museum",
+      "category": "🎨 Arte",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-081",
+      "hub": "Kioto",
+      "grade": "A",
+      "name": "Ryōan-ji",
+      "category": "🌸 Jardines y paisajes",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-198",
+      "hub": "Okinawa",
+      "grade": "A",
+      "name": "Pinaisara Falls",
+      "category": "🥾 Senderismo/aventura",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-105",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Hozenji Yokocho",
+      "category": "🌃 Nocturno",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-039",
+      "hub": "Tokio",
+      "grade": "B",
+      "name": "Toyosu Market",
+      "category": "🍜 Gastronomía",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-212",
+      "hub": "Osaka",
+      "grade": "A",
+      "name": "Grand Sumo Tournament Osaka 2027",
+      "category": "🎆 Eventos",
+      "temporalRisk": true,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-011",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Tokyo Metropolitan Government Observatory",
+      "category": "🌅 Miradores",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-047",
+      "hub": "Tokio",
+      "grade": "A",
+      "name": "Edo-Tokyo Open Air Architectural Museum",
+      "category": "🏛️ Museos",
+      "temporalRisk": false,
+      "intendedImageCount": 1
+    }
+  ]
+}
