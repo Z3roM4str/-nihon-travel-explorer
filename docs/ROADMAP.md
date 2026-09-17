@@ -6461,3 +6461,69 @@ product code.
 
 **Authorized next step: the independent Nihon v1.0.0 final closure.** The Phase 5B pull request
 remains **Draft** and Issue #120 remains **open**.
+
+## Block 1 — UX, hierarchy and usability — complete
+
+Post-v1.0.0 product work. Base: `main` at `1a11fe8`. Authority:
+[`docs/BLOCK_1_UX_HIERARCHY_DESIGN.md`](BLOCK_1_UX_HIERARCHY_DESIGN.md).
+
+Nihon v1.0.0 presented a verified research base faithfully and asked the reader to know that
+base's vocabulary before they could use it. This block reorders what the interface says first,
+for a reader who is impatient, on a phone, and deciding whether they would like to go — without
+removing anything it already said.
+
+- [x] **The interest ladder.** `lib/interest-level.ts` translates the dataset's `grade` into
+      Imprescindible / Muy recomendable / Recomendable / Opcional / Prescindible as a pure
+      mapping — no place is re-ranked, and the letter itself stays visible in the place detail.
+      Tourism saturation stays a separate axis, so a crowded place is never silently downgraded.
+      Every level carries a label, a distinct shape glyph and an explanation: never colour alone.
+- [x] **`.badge--grade-A` `#c2701c` → `#a75d12`.** White on the old amber measured ~3.0:1,
+      under WCAG AA for the small text the badge carries. `PlaceMap`'s marker colour moved with
+      it so a pin and its card read as the same level.
+- [x] **Photo-led place cards** (`components/PlaceCard.tsx`) replacing the one-line rows. Fixed
+      aspect ratio, lazy loading, skeleton and error states, and an editorial placeholder
+      carrying the place's own category icon where no licensed photograph exists. Six questions
+      answered per card; everything deeper stays in the detail panel.
+- [x] **Photography presentation only.** No asset acquired, no metadata record written,
+      `place-images.ts` and the acquisition pipeline untouched. The gallery gained a visible
+      photo counter, real hit areas on its dots, and a category-aware fallback.
+- [x] **Phone layout: `Lista | Mapa`,** with the list as the default surface and both panes
+      kept mounted so Leaflet's existing resize observer handles the reveal. "Filtros" opens a
+      sheet over the list instead of replacing it.
+- [x] **Tablet two-column grid** between 620px and 860px, so iPad widths stop stretching phone
+      cards across 800px.
+- [x] **Desktop sidebar split into two regions** — a pinned search/filter block and a results
+      area that owns the scroll. Filter groups collapse behind a disclosure on desktop.
+- [x] **"Grado" filter reworded to "Nivel de interés"** with plain-language chips. Same field,
+      same predicate, same closed vocabulary — `App.test.ts`'s RC-01 regression still governs.
+- [x] **Saving confirmed everywhere.** One announcing wrapper in `App.tsx` for card, detail and
+      saved list; `useSavedPlaces` stays the only writer and `nihon.savedPlaceIds` is unchanged.
+      The heart is the shape the future "❤️ Quiero ir" needs; no backend was introduced.
+- [x] **Three-card first-run explainer** (`nihon.onboarding.seen.v1`), closable four ways
+      through one exit path, reopenable from the header's "?", promising nothing this block
+      does not ship.
+- [x] **Entry-screen orientation**: one line plus the seven hubs and their counts, above the
+      untouched Japan → región → prefectura → hub path.
+- [x] **Deliberate empty states** for a failed search, an over-filtered list, an empty saved
+      panel, a filtered-out map, a missing photograph and a failed image load.
+- [x] **Preservation proved, not asserted.** `src/block1-ux.test.ts` guards every
+      practical-information row, the Feb–Mar 2027 block, the nearby list, official links, all
+      six filter groups, the saved-places storage key, and attribution still rendered with the
+      image rather than behind a disclosure.
+- [x] **Verified.** Vitest **2519**/70 files (from 2450/66; no assertion weakened, skipped or
+      deleted) · oxlint clean · `tsc` clean · production build OK · all six repository
+      validators unchanged from the v1.0.0 baseline ·
+      `scripts/block1-ux-browser-audit.mjs` **142/142** at 390×844, 820×1180 and 1440×900
+      against the production build via `vite preview`, with zero horizontal overflow and zero
+      page or console errors.
+
+### Out of scope here, by instruction
+
+Shared backend, Supabase, cross-device sync, the two-person model, bulk photography
+acquisition, the accommodation module and itinerary optimisation. **No hotel or accommodation
+origin was introduced**; travel times still derive from hubs, zones and access points.
+`OrderedSequenceBuilder` and `SelectionAnalysis` were left untouched — they are planning
+surfaces and belong with the itinerary block.
+
+**Authorized next step: Block 2 — photography coverage and carousels.** See
+[`docs/BLOCK_1_HANDOFF.md`](BLOCK_1_HANDOFF.md).
