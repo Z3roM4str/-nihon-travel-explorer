@@ -6609,5 +6609,71 @@ experience is legally prohibited, and two had no allowlisted image at all. Neith
 percentage; a future block needs a *named* place whose absence is demonstrably costing a
 decision.
 
-**Authorized next step: none in photography.** See
-[`docs/BLOCK_2_HANDOFF.md`](BLOCK_2_HANDOFF.md) for the recommendation.
+**Block 2 closed.** See [`docs/BLOCK_2_HANDOFF.md`](BLOCK_2_HANDOFF.md).
+
+## Block 3 — technical debt, and the accommodation-zone decision layer — complete
+
+Base: `claude/brave-wozniak-f79ie3` at `6aa5c13`. Authority:
+[`docs/BLOCK_3_DESIGN.md`](BLOCK_3_DESIGN.md). Block 3 stops making Nihon prettier and starts
+making it decide things.
+
+### Phase A — debt
+
+- [x] **The Commons acquisition defect is fixed generally, not patched.** Commons renders a
+      thumbnail only when the requested width is strictly smaller than the file's own, so
+      `iiurlwidth=1600` on a file at or below 1600px resolves to the **original**, which the host
+      rate-limits. `choose_render_width()` is a pure function of the file's width; a
+      failure-triggered fallback would make the bytes depend on the host's mood and break
+      reproducibility. The record's own `processing` decides which rendition is fetched, so the
+      seven pre-existing small-file records stay exactly reproducible.
+- [x] **Quality loss can never be silent.** Acquisition recomputes what `processing` must say
+      from what it actually fetched and refuses to write an asset whose provenance would be
+      untrue; it also refuses an original served in place of a rendition, and a file whose
+      dimensions no longer match the record.
+- [x] **Throttling respected**: process-wide minimum interval, `Retry-After` honoured, capped
+      backoff, 503 treated like 429, bounded attempts. 25 new offline tests.
+- [x] **Both Block 2 deferrals resolved.** JP-205 and JP-125 acquired at 1280px through the same
+      gates, including visual inspection as committed WebP. Registry **161 → 163**, galleries
+      **4 → 6**. No other photograph pursued — Block 2's STOP criterion still holds.
+- [x] **Three Python suites were red and Block 2 reported green.** `scripts/test_*.py` is not in
+      `npm test` and was never in that block's baseline. Recorded, not quietly fixed. Block 2's
+      manifests were named `*-plan.json`, which the completeness guard's glob does not match;
+      renamed to `*-batch.json` and registered. Block 2 also introduced a **depth** batch — one
+      whose place was already covered — which the baseline module was never designed for:
+      removing it by place id would have deleted the earlier record and corrupted every
+      historical baseline. Batches now declare `appendedAssetPaths`. **All 13 suites pass.**
+- [x] **`imageStatus` removed.** It was written as the literal `"brief-only"` for all 214 rows
+      and was false for the 157 places that have a photograph — it is what misled the Block 1
+      handoff. Audited first: nothing read it. Removed rather than re-derived, because the
+      registry already answers the question and a second source of truth would drift. Proven
+      surgical: `imageStatus` is the only field that differs across all 214 places.
+      `dataset-contract.test.ts` also fails on any *other* single-valued scalar field.
+
+### Phase B — accommodation zones
+
+- [x] **16 zones — Tokio 6, Kioto 5, Osaka 5 — as distinct strategies, not a directory.** The
+      validator requires 4–7 per hub so the set cannot grow into a list.
+- [x] **A zone is not a Place and not a cluster**, per the Phase 3D-P accommodation gate. The
+      validator rejects a zone carrying place fields; `servesClusters` must resolve against
+      `clusters.json`.
+- [x] **Three kinds of statement, structurally separated and visibly labelled.** Facts carry
+      `provenance` and were researched per zone; editorial is ten axes, integers 1–5, closed
+      vocabulary; derived is straight-line distance from canonical coordinates. The validator
+      rejects facts without provenance and editorial *with* it.
+- [x] **No travel times were invented.** There is no runtime routing and no recorded transfer
+      edge starts at a zone, so distance is reported as *línea recta* in bands, never minutes.
+- [x] **Nothing is declared best.** No composite score exists; `NEUTRAL_AXES` marks the axes
+      where higher is not better; every zone must state at least two honest drawbacks. The single
+      ranking answers one named question — proximity to the places *you* saved — and says so.
+- [x] **Native integration**: entry point in the hub bar, Block 1's overlay pattern, tokens and
+      tap-target rules, selection in `localStorage` per hub, capped at four.
+- [x] **Mobile-first as built**: one block per zone rather than a column-per-zone table, so the
+      panel never scrolls horizontally.
+- [x] **Verified.** Vitest **2583** · oxlint and `tsc` clean · build OK · **all 13 Python
+      suites** · **all 7 validators** · Block 1 **142/142** · Block 2 **69/69** · new Block 3 zone
+      audit **105/105** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 · `git diff --check` clean.
+      Block 1's audit caught a real regression mid-build (the new hub-bar button shrank to 38px
+      on phones, under the 44px token) — the net working as intended.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_3_HANDOFF.md`](BLOCK_3_HANDOFF.md) for
+the recommendation and the decision it needs first.
