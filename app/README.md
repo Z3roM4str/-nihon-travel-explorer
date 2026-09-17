@@ -38,7 +38,7 @@ photograph each, all sourced from Wikimedia Commons under the CC0 / CC BY / CC B
 allowlist. See [`../docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md`](../docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md)
 for the closure decision and [`../docs/PHOTOGRAPHY_PILOT.md`](../docs/PHOTOGRAPHY_PILOT.md)
 for the original pipeline. Every place outside the registry ships
-`imageStatus: "brief-only"`, so the gallery falls back to the editorial `imageBrief`.
+no entry in the photography registry, so the gallery falls back to the editorial `imageBrief`.
 Sixteen places are permanently excluded as fail-closed and must not be retried without a
 separate re-entry gate.
 

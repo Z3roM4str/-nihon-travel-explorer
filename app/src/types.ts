@@ -76,7 +76,6 @@ export type Place = {
   officialUrl: string;
   googleMapsUrl: string;
   imageBrief: string;
-  imageStatus: string;
   /** Present only once the export pipeline carries licensed assets; see `data/place-images.ts`. */
   images?: PlaceImage[];
   nearbyIds: string[];

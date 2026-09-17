@@ -9,8 +9,7 @@ import photographyMetadata from "./photography-metadata.json";
  * pilot (see `docs/PHOTOGRAPHY_PILOT.md`) from `photography-metadata.json` — the
  * authoritative record of every licensed photograph's asset path, alt text, and
  * attribution, produced by `scripts/acquire-photography.py` from
- * `data/visual/photography-metadata.json`. Every place outside the pilot still ships with
- * `imageStatus: "brief-only"` and has no entry here, so the gallery falls back to the
+ * `data/visual/photography-metadata.json`. Every place outside the pilot simply has no entry here, so the gallery falls back to the
  * editorial `imageBrief` exactly as before this phase.
  *
  * To add photography for a place, append a record to `data/visual/photography-metadata.json`

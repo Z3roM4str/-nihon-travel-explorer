@@ -78,7 +78,6 @@ type Place = {
   officialUrl: string;
   googleMapsUrl: string;
   imageBrief: string;
-  imageStatus: "brief-only" | "assets-ready" | "verified" | string;
   nearbyIds: string[];
   hiddenGemStatus?: string;
   alternativeTo?: string;
@@ -595,7 +594,7 @@ live verification against an official source, a date recommendation, or automati
 checked-in (not user-persisted) data artifacts, copied into `app/src/data/` like every other
 root `data/*.json` file. They cover a **24-place pilot only** — see `docs/PHOTOGRAPHY_PILOT.md`
 for the full selection methodology, sourcing policy, and pipeline; the rest of the 214-place
-dataset is untouched and still carries `imageStatus: "brief-only"` with no photography.
+dataset is untouched and carries no photography.
 
 `photography-pilot.json` records which 24 places the pilot targets and why (its selection
 category and reason); `photography-metadata.json` records, per acquired photograph: place id,

@@ -150,7 +150,13 @@ def normalize_place(row, mxn_rate):
         "officialUrl": row.get("Página oficial/fuente"),
         "googleMapsUrl": row.get("Google Maps"),
         "imageBrief": row.get("Imagen recomendada"),
-        "imageStatus": "brief-only",
+        # No `imageStatus` field. It was exported as the literal "brief-only" for all 214 rows
+        # regardless of reality, so it carried no information and, once photography existed,
+        # was actively untrue. Nothing read it. Whether a place has a photograph is answered
+        # authoritatively by `data/visual/photography-metadata.json`, which this exporter knows
+        # nothing about and must not: the workbook is the source of truth for the place, the
+        # registry for its photography. Re-deriving one into the other would create a second
+        # source of truth free to drift. See docs/BLOCK_3_DESIGN.md.
         "nearbyIds": [],
         "hiddenGemStatus": row.get("Hidden Gem Status"),
         "alternativeTo": row.get("Alternativa a"),
