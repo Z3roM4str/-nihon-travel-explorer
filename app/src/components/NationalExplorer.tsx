@@ -8,10 +8,14 @@ import {
   getRegionSummaries,
   getRegionSummary,
 } from "../data/geography";
+import { getHubs, getPlacesByHub } from "../data/store";
 import { useJapanGeometry } from "../data/useJapanGeometry";
 import { NationalMap } from "./NationalMap";
 import { PrefecturePanel } from "./PrefecturePanel";
 import { RegionNavigator } from "./RegionNavigator";
+
+/** Hub → place count, computed once: the entry screen's shortcut row never changes. */
+const HUB_SHORTCUTS = getHubs().map((hub) => ({ hub, placeCount: getPlacesByHub(hub).length }));
 
 type Props = {
   activeRegion: NavigationRegion | null;
@@ -54,6 +58,36 @@ export function NationalExplorer({
   return (
     <div className="national">
       <aside className="national__sidebar" aria-label="Explorar Japón por región y prefectura">
+        {/*
+          The first thing a new arrival sees. The map and the region list are a complete
+          Japan → región → prefectura → hub path, but neither says where to begin, and in
+          practice most visits start at a known city. One line of orientation plus the seven
+          hubs turns the entry screen into something answerable in a second, without removing
+          the geographic route underneath it.
+        */}
+        <section className="national-start" aria-label="Empezar a explorar">
+          <p className="national-start__lead">
+            Elige una ciudad para empezar, o baja para recorrer Japón por regiones.
+          </p>
+          <ul className="national-start__hubs">
+            {HUB_SHORTCUTS.map(({ hub, placeCount }) => (
+              <li key={hub}>
+                <button
+                  type="button"
+                  className="national-start__hub"
+                  onClick={() => onEnterHub(hub)}
+                >
+                  <span className="national-start__hub-name">{hub}</span>
+                  <span className="national-start__hub-count">
+                    {placeCount}
+                    <span className="visually-hidden"> lugares</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <RegionNavigator
           regions={regions}
           activeRegion={activeRegion}
