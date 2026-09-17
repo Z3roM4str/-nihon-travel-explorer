@@ -6,7 +6,7 @@ Nihon turns a structured Japan travel research base into a visual explorer: brow
 
 ## Current status
 
-**Release-candidate audit — Nihon v1**
+**Nihon v1.0.0**
 
 Discovery and manual trip planning are both implemented; photography closed for v1 at Phase 4M.
 

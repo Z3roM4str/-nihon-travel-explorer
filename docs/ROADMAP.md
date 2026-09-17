@@ -6368,3 +6368,96 @@ sits in Kōka, Shiga — a pre-existing `data/places.json` assignment first reco
 **Authorized next step: the independent Nihon v1 RC closure/release gate.** Phase 5A does not
 start it, does not tag or release v1, and does not begin a successor phase. The Phase 5A pull
 request remains **Draft** and Issue #118 remains **open**.
+
+## Phase 5B — Nihon v1.0.0 Final Release Gate
+
+Final release-preparation gate executed on **2026-09-17** from base
+`6b484ffcb72e752bfe15779a411a3410baa8d340` (`main` after Phase 5A / PR #119), against Issue #120.
+Full detail in [`docs/FINAL_RELEASE_GATE.md`](FINAL_RELEASE_GATE.md).
+
+**Decision: RELEASE-READY.** No BLOCKER or MAJOR product defect was found and **no product code
+was changed.** The next step is the independent final closure — review → Ready → merge → close
+Issue #120 → publish `v1.0.0` — which Phase 5B does **not** start. The tag is **not** created and
+the GitHub release is **not** published by this phase.
+
+- [x] **Preflight clean.** `origin/main` at the mandated base; branch **zero commits ahead** of it,
+      so the gate ran against the exact Phase 5A release candidate; working tree clean; PR #119
+      merged; Issue #118 closed completed; Phase 5A's **RC-READY** verdict confirmed in its audit
+      document; **no Phase 4N branch, issue, fixture or selector exists**; and the repository holds
+      **zero tags and zero releases**, so nothing collides with `v1.0.0`. `app/package.json` and the
+      root entry of `app/package-lock.json` both confirmed at `0.0.0` before any edit.
+- [x] **RC invariants independently reproduced**, recomputed rather than copied: **214** places /
+      **214** unique IDs · **144** photography records and **144** local assets resolving under
+      `app/public` · canonical/app photography parity by **identical SHA-256** · **one** photograph
+      per place, no place with more · **zero** duplicate `sourceUrl`, `acquisitionUrl`, `assetPath`
+      or `placeId` · the **16** carried fail-closed IDs all still uncovered, none leaked into the
+      registry. Coverage decomposes exactly: 214 = 144 covered + 16 fail-closed + 54 not-yet-acquired.
+- [x] **Phase 5A's fixes verified still present.** The RC-01 D-grade filter holds in all three
+      layers (`App.tsx` vocabulary `["S","A","B","C","D"]`, `PlaceMap.tsx` `D` marker colour,
+      `App.css` `.tag--grade-D`/`.badge--grade-D`), and browser check `A05` still reports
+      `Tokio:SABC Osaka:SABCD Kioto:SABCD`. The RC-02 RegionNavigator singular/plural ternary is
+      intact in both occurrences.
+- [x] **One apparent divergence investigated to closure — and it was not one.** The build reported
+      `gzip: 260.77 kB` against Phase 5A's recorded **259,730 B**. Treated as presumptively
+      blocking and run to ground: the emitted JS is **1,424,842 B** and the CSS **64,458 B** —
+      byte-for-byte identical to Phase 5A — the content hash `index-pf4I7nMN.js` is unchanged, and
+      standard `gzip -6` reproduces **259,730 B** exactly. The differing number is only the Vite
+      reporter's own compression readout of the same bytes. **No artifact divergence.**
+- [x] **Version metadata `0.0.0` → `1.0.0`** in `app/package.json` and the root package entry of
+      `app/package-lock.json` (both the top-level mirror and `packages[""]`). Proven clean: the
+      lockfiles were compared entry by entry — **173** package entries on both sides, identical key
+      sets, and the **only** field-level difference anywhere is `<root>.version`. **No** changed
+      `resolved`, **no** changed `integrity`, **no** changed dependency version, `lockfileVersion`
+      3 → 3. No `npm update` was run. `rm -rf node_modules && npm ci` then exits **0** without
+      rewriting the lockfile, and the rebuilt artifact is byte-identical — the bump is inert to
+      what ships.
+- [x] **Full release-quality suite re-run on the final tree, after the bump.** Python **543** ·
+      Vitest **2450**/66 files · lint clean · production build OK · all seven repository validators
+      OK · whitespace `git diff --check` clean against both the base and the working tree ·
+      `npm ci` reproducible · RC browser audit **50/50 desktop (1440×900)** and **50/50 mobile
+      (390×844)** against the **production build** via `vite preview`. **No count moved in either
+      direction** — Phase 5B adds no test and needed none, because it changes no behaviour — and
+      **no assertion was weakened, skipped or deleted.**
+- [x] **Runtime/network integrity re-proved live at both viewports.** **Zero** photography-provider
+      requests (0 of 180 desktop, 0 of 108 mobile) · **zero** transit-provider requests · no
+      secret-bearing or localhost request · the **only** external host reached is
+      `tile.openstreetmap.org` across **240** desktop and **153** mobile recorded requests · core UI
+      renders 57 places with every external request stubbed · **0 page errors, 0 console errors**.
+      Corroborated statically: `lib/transit.ts` is imported by no component and its distinctive
+      token appears **0 times** in the production bundle.
+- [x] **Release hygiene clean.** No uncommitted or generated drift; no tracked `dist/`, build
+      artifact or source map; **no `.github/` directory is tracked at all**, so no temporary
+      workflow survives; no `.env`, secret, token or key material tracked; a provider-specific
+      scan (GitHub PAT, OpenAI, AWS, Google, Slack, JWT, PEM) over every tracked file reports
+      **0 hits**; the build reproduces from clean dependencies; licence obligations remain
+      satisfied.
+- [x] **Release documentation prepared.** [`docs/RELEASE_V1.0.0.md`](RELEASE_V1.0.0.md) states what
+      v1 ships and, just as explicitly, its non-goals — no automatic itinerary generation, no live
+      transit or routing provider, no booking execution, no claim that hours or reservation
+      evidence is live beyond its recorded provenance, and the post-v1 photography backlog left
+      deferred. [`docs/FINAL_RELEASE_GATE.md`](FINAL_RELEASE_GATE.md) is the gate authority.
+- [x] **Changed-file scope is release-only.** `app/package.json`, `app/package-lock.json`,
+      `docs/RELEASE_V1.0.0.md`, `docs/FINAL_RELEASE_GATE.md`, `docs/ROADMAP.md`, and a **single
+      status line** in the root `README.md` — which still announced a "Release-candidate audit" and
+      would have been untrue at `1.0.0`. `app/README.md` makes no version claim and was left
+      unchanged. **No app runtime source, dataset, planner/logistics/reservation/temporal library,
+      photography metadata or asset, validator, feature flag, route, filter, styling or
+      dependency was touched**, and the Phase 5A RC harness was reused rather than duplicated.
+
+### Release identity — prepared, not published
+
+Tag **`v1.0.0`** · title **Nihon v1.0.0** · **non-draft**, **non-prerelease** · target the
+eventual **Phase 5B merge commit on `main`** · notes from `docs/RELEASE_V1.0.0.md`. Collision
+re-checked at gate time: the repository has **no tags and no releases**, so `v1.0.0` will be its
+first of each. The exact post-merge tag and release commands are recorded in
+[`docs/FINAL_RELEASE_GATE.md`](FINAL_RELEASE_GATE.md) §12.
+
+### Deferred to post-v1 — unchanged, none release-blocking
+
+`RC-05` the single JS chunk above Vite's 500 kB advisory · `OBS-1` Leaflet's own unlabelled tile
+`<img>` elements · `OBS-2` the 13 pre-existing `validate-dataset.py` secondary-metadata warnings ·
+`OBS-3` the `JP-149` Osaka/Shiga hub convention. None was repaired here: Phase 5B may not change
+product code.
+
+**Authorized next step: the independent Nihon v1.0.0 final closure.** The Phase 5B pull request
+remains **Draft** and Issue #120 remains **open**.
