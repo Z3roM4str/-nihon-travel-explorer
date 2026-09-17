@@ -8,6 +8,7 @@ import { describeTransferForUi, transferListFootnote } from "../lib/transfer-dis
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
+import { interestLevelForPlace } from "../lib/interest-level";
 
 type Props = {
   place: Place;
@@ -96,6 +97,7 @@ export function PlaceDetail({
   const brief = imageBriefText(place);
   const duration = resolveDuration(place.duration);
   const category = splitCategory(place.category);
+  const interest = interestLevelForPlace(place);
   const febMarStatus = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
   const reservation = describeReservationForUi(interpretPlaceReservation(place), place.reservation.leadTime);
   const showExperience = place.experience && place.experience !== place.description;
@@ -151,7 +153,12 @@ export function PlaceDetail({
               </p>
             )}
             <div className="tag-row">
-              <span className={`tag tag--grade-${place.grade}`}>Grado {place.grade}</span>
+              {/* The plain-language level leads; the dataset's own letter stays visible after it,
+                  so nothing that was on this card before has been taken away. */}
+              <span className={`tag tag--grade-${place.grade}`} title={interest.description}>
+                <span aria-hidden="true">{interest.glyph}</span> {interest.label}
+                <span className="tag__grade-letter"> · Grado {place.grade}</span>
+              </span>
               {isHiddenGem(place) && (
                 <span className="tag tag--gem">
                   <span aria-hidden="true">💎</span> {place.hiddenGemStatus}
@@ -170,7 +177,9 @@ export function PlaceDetail({
             onClick={() => onToggleSaved(place.id)}
             aria-pressed={isSaved}
           >
-            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
+            <span aria-hidden="true" className="save-button__icon">
+              {isSaved ? "♥" : "♡"}
+            </span>
             {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
           </button>
 

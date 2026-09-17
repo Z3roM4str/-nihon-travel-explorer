@@ -41,7 +41,7 @@ export function SelectionPanel({
           }`}
         >
           {summary.savedCount === 0 ? (
-            "Guarda lugares desde su ficha"
+            "Pulsa ♥ en cualquier lugar"
           ) : summary.visitTime ? (
             <>
               <span className="visually-hidden">Tiempo estimado de visita: </span>
@@ -59,10 +59,16 @@ export function SelectionPanel({
       {open && (
         <div className="selection-panel__content">
           {summary.savedCount === 0 ? (
-            <p className="selection-panel__empty">
-              Aún no has guardado lugares. Abre una ficha y pulsa <strong>Quiero ir</strong> para
-              añadirla aquí.
-            </p>
+            <div className="selection-panel__empty">
+              <p className="selection-panel__empty-title">
+                <span aria-hidden="true">♡</span> Todavía no hay nada guardado
+              </p>
+              <p className="selection-panel__empty-hint">
+                Pulsa el <strong>♥</strong> de cualquier tarjeta, o el botón{" "}
+                <strong>Quiero ir</strong> dentro de una ficha. Guarda de más: luego se compara y
+                se recorta.
+              </p>
+            </div>
           ) : (
             <>
               <div className="selection-panel__summary">

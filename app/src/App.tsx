@@ -11,6 +11,11 @@ import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
 import { SelectionPanel } from "./components/SelectionPanel";
+import { InterestLegend } from "./components/InterestLegend";
+import { Onboarding } from "./components/Onboarding";
+import { SaveToast } from "./components/SaveToast";
+import { hasSeenOnboarding } from "./lib/onboarding";
+import { useSaveFeedback } from "./useSaveFeedback";
 import { useSavedPlaces } from "./useSavedPlaces";
 import { matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
@@ -34,6 +39,13 @@ type ViewState =
   | { mode: "hub"; hub: string };
 
 const INITIAL_VIEW: ViewState = { mode: "national", region: null, prefectureCode: null };
+
+/**
+ * Which of the two hub surfaces a phone is showing. On desktop both are on screen at once and
+ * this is inert; on a phone there is only room for one, and the list is the default because a
+ * bare map answers none of the questions a first-time reader arrives with.
+ */
+type MobilePane = "list" | "map";
 
 const EMPTY_FILTERS: Filters = {
   query: "",
@@ -94,11 +106,16 @@ export default function App() {
   /** Trail of visited places (any hub), so "nearby" jumps and cross-hub opens can be
    * stepped back through. */
   const [history, setHistory] = useState<string[]>([]);
-  const [explorerOpen, setExplorerOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  /** Phones show one hub surface at a time; the cards come first. */
+  const [mobilePane, setMobilePane] = useState<MobilePane>("list");
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [sequenceBuilderOpen, setSequenceBuilderOpen] = useState(false);
+  /** Shown on the very first visit and reopenable from the header; never blocks the app. */
+  const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
   const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
+  const { feedback, announce } = useSaveFeedback();
   const isDesktop = useIsDesktop();
 
   /** Exactly one of these is non-null; the union above makes the other state unreachable. */
@@ -146,6 +163,35 @@ export default function App() {
 
   const activeFilterCount = countActiveFilters(filters);
 
+  /**
+   * The one save entry point every surface goes through — card, detail panel, saved list — so
+   * the confirmation is guaranteed to match what actually happened to the stored state rather
+   * than what the pressed control assumed. `useSavedPlaces` keeps owning persistence; this only
+   * adds the announcement.
+   */
+  const toggleSavedWithFeedback = useCallback(
+    (id: string) => {
+      const place = getPlaceById(id);
+      const wasSaved = savedIds.includes(id);
+      toggleSaved(id);
+      if (!place) return;
+      announce(
+        wasSaved ? `Quitado de Quiero ir: ${place.name}` : `Guardado en Quiero ir: ${place.name}`,
+        wasSaved ? "removed" : "saved"
+      );
+    },
+    [announce, savedIds, toggleSaved]
+  );
+
+  const removeSavedWithFeedback = useCallback(
+    (id: string) => {
+      const place = getPlaceById(id);
+      removeSaved(id);
+      if (place) announce(`Quitado de Quiero ir: ${place.name}`, "removed");
+    },
+    [announce, removeSaved]
+  );
+
   /** Resolved against the global dataset, so a saved place survives navigation to any hub. */
   const savedPlaces = useMemo(
     () => savedIds.map((id) => getPlaceById(id)).filter((place): place is Place => Boolean(place)),
@@ -155,7 +201,7 @@ export default function App() {
   /**
    * Single source of truth for "go look at this place": moves into the Hub Explorer on the
    * hub the place belongs to — from another hub or straight from the national map — starts a
-   * fresh trail, and closes the mobile filter drawer. Used by the place list, the map and the
+   * fresh trail, and closes the mobile filter sheet. Used by the place list, the map and the
    * saved-places panel, any of which can point at a place outside the current view.
    */
   const selectPlace = useCallback(
@@ -167,7 +213,7 @@ export default function App() {
         setFilters(EMPTY_FILTERS);
       }
       setHistory([id]);
-      setExplorerOpen(false);
+      setFiltersOpen(false);
     },
     [activeHub]
   );
@@ -233,7 +279,8 @@ export default function App() {
     setView({ mode: "hub", hub });
     setFilters(EMPTY_FILTERS);
     setHistory([]);
-    setExplorerOpen(false);
+    setFiltersOpen(false);
+    setMobilePane("list");
   }, []);
 
   /** Hub Explorer → National Explorer. Saved places are untouched; the trail is dropped so
@@ -242,7 +289,8 @@ export default function App() {
     setView(INITIAL_VIEW);
     setFilters(EMPTY_FILTERS);
     setHistory([]);
-    setExplorerOpen(false);
+    setFiltersOpen(false);
+    setMobilePane("list");
   }, []);
 
   const selectRegion = useCallback((region: NavigationRegion | null) => {
@@ -268,17 +316,32 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!explorerOpen) return;
+    if (!filtersOpen) return;
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setExplorerOpen(false);
+      if (event.key === "Escape") setFiltersOpen(false);
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [explorerOpen]);
+  }, [filtersOpen]);
 
   const explorer = (
     <>
-      <FilterPanel
+      <div
+        className={`app__filters ${filtersOpen ? "app__filters--open" : ""}`}
+        id="app-filter-sheet"
+      >
+        <div className="app__filters-bar">
+          <strong>Buscar y filtrar</strong>
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => setFiltersOpen(false)}
+            aria-label="Cerrar búsqueda y filtros"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <FilterPanel
         filters={filters}
         onChange={setFilters}
         categories={categories}
@@ -289,16 +352,20 @@ export default function App() {
         resultCount={filteredPlaces.length}
         totalCount={hubPlaces.length}
         activeFilterCount={activeFilterCount}
-        onReset={resetFilters}
-      />
+          onReset={resetFilters}
+          defaultGroupsOpen={!isDesktop}
+        />
+      </div>
       <PlaceList
         places={filteredPlaces}
         totalCount={hubPlaces.length}
         selectedId={selectedId}
         savedIds={savedIds}
         onSelect={selectPlace}
+        onToggleSaved={toggleSavedWithFeedback}
         onClearFilters={resetFilters}
         hasActiveFilters={activeFilterCount > 0}
+        query={filters.query}
       />
     </>
   );
@@ -335,17 +402,17 @@ export default function App() {
             </>
           )}
         </div>
-        {activeHub && (
+        <div className="app__header-actions">
           <button
             type="button"
-            className="button button--primary app__explorer-toggle"
-            onClick={() => setExplorerOpen((open) => !open)}
-            aria-expanded={explorerOpen}
+            className="app__help"
+            onClick={() => setOnboardingOpen(true)}
+            aria-label="Cómo se usa Nihon"
+            title="Cómo se usa Nihon"
           >
-            <span aria-hidden="true">🔍</span> Buscar y filtrar
-            {activeFilterCount > 0 && <span className="app__filter-badge">{activeFilterCount}</span>}
+            <span aria-hidden="true">?</span>
           </button>
-        )}
+        </div>
       </header>
 
       {activeHub && (
@@ -357,22 +424,46 @@ export default function App() {
             <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
           </div>
 
-          <div className="app__body" id="app-hub-panel" role="tabpanel" aria-label={`Lugares de ${activeHub}`}>
-            <aside
-              className={`app__sidebar ${explorerOpen ? "app__sidebar--open" : ""}`}
-              aria-label="Explorar lugares"
+          {/* Phone-only orientation bar: which surface am I on, and where are the filters.
+              On desktop both surfaces are already visible and this row is hidden in CSS. */}
+          <div className="view-bar">
+            <div className="view-switch" role="group" aria-label="Cómo ver los lugares">
+              <button
+                type="button"
+                className={`view-switch__option ${mobilePane === "list" ? "view-switch__option--active" : ""}`}
+                onClick={() => setMobilePane("list")}
+                aria-pressed={mobilePane === "list"}
+              >
+                <span aria-hidden="true">▤</span> Lista
+              </button>
+              <button
+                type="button"
+                className={`view-switch__option ${mobilePane === "map" ? "view-switch__option--active" : ""}`}
+                onClick={() => setMobilePane("map")}
+                aria-pressed={mobilePane === "map"}
+              >
+                <span aria-hidden="true">🗺</span> Mapa
+              </button>
+            </div>
+            <button
+              type="button"
+              className="view-bar__filters"
+              onClick={() => setFiltersOpen((open) => !open)}
+              aria-expanded={filtersOpen}
+              aria-controls="app-filter-sheet"
             >
-              <div className="app__sidebar-mobile-bar">
-                <strong>Buscar y filtrar</strong>
-                <button
-                  type="button"
-                  className="icon-button"
-                  onClick={() => setExplorerOpen(false)}
-                  aria-label="Cerrar búsqueda y filtros"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
+              <span aria-hidden="true">🔍</span> Filtros
+              {activeFilterCount > 0 && <span className="app__filter-badge">{activeFilterCount}</span>}
+            </button>
+          </div>
+
+          <div
+            className={`app__body app__body--pane-${mobilePane}`}
+            id="app-hub-panel"
+            role="tabpanel"
+            aria-label={`Lugares de ${activeHub}`}
+          >
+            <aside className="app__sidebar" aria-label="Explorar lugares">
               {explorer}
             </aside>
 
@@ -386,9 +477,15 @@ export default function App() {
                 onSelect={selectPlace}
                 panelOffset={isDesktop && selectedPlace ? DETAIL_PANEL_WIDTH : 0}
               />
+              <InterestLegend />
               {filteredPlaces.length === 0 && (
                 <div className="map-empty" role="status">
-                  <p>Ningún lugar coincide con los filtros actuales.</p>
+                  <p className="map-empty__title">
+                    <span aria-hidden="true">🔍</span> Ningún lugar coincide con los filtros
+                  </p>
+                  <p className="map-empty__hint">
+                    Los {hubPlaces.length} lugares de esta zona siguen ahí; solo están filtrados.
+                  </p>
                   <button type="button" className="button button--secondary" onClick={resetFilters}>
                     Limpiar búsqueda y filtros
                   </button>
@@ -401,7 +498,7 @@ export default function App() {
                 <PlaceDetail
                   place={selectedPlace}
                   isSaved={isSaved(selectedPlace.id)}
-                  onToggleSaved={toggleSaved}
+                  onToggleSaved={toggleSavedWithFeedback}
                   onClose={closeDetail}
                   nearby={getNearby(selectedPlace.id)}
                   onSelectNearby={pushPlace}
@@ -429,7 +526,7 @@ export default function App() {
 
       <SelectionPanel
         savedPlaces={savedPlaces}
-        onRemove={removeSaved}
+        onRemove={removeSavedWithFeedback}
         onSelect={selectPlace}
         open={selectionOpen}
         onToggle={() => setSelectionOpen((open) => !open)}
@@ -451,6 +548,10 @@ export default function App() {
           onClose={() => setSequenceBuilderOpen(false)}
         />
       )}
+
+      <SaveToast feedback={feedback} />
+
+      {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
     </div>
   );
 }

@@ -17,7 +17,9 @@ const BOUNDS_PADDING = 32;
 
 const gradeColors: Record<string, string> = {
   S: "#b7282e",
-  A: "#c2701c",
+  // Kept in step with `.badge--grade-A` in App.css, darkened there for WCAG AA contrast — a
+  // marker and its card badge must read as the same interest level, not two different ones.
+  A: "#a75d12",
   B: "#2f6f9f",
   C: "#6b6257",
   // D shares C's neutral treatment rather than introducing a new palette entry; it was

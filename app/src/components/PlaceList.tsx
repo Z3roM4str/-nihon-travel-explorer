@@ -1,6 +1,5 @@
 import type { Place } from "../types";
-import { resolveDuration, formatRange } from "../lib/duration";
-import { isHiddenGem, splitCategory } from "../lib/place";
+import { PlaceCard } from "./PlaceCard";
 
 type Props = {
   places: Place[];
@@ -9,13 +8,44 @@ type Props = {
   selectedId: string | null;
   savedIds: string[];
   onSelect: (id: string) => void;
+  onToggleSaved: (id: string) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
+  /** The free-text term, when there is one — the empty state names it back to the reader. */
+  query?: string;
 };
 
-function durationLabel(place: Place): string {
-  const range = resolveDuration(place.duration);
-  return range ? formatRange(range) : place.duration.raw;
+/**
+ * An empty result is a deliberate state, not a hole in the product: it says what happened, in
+ * the reader's own terms, and always offers the one action that gets them out of it.
+ */
+function EmptyResults({
+  totalCount,
+  hasActiveFilters,
+  query,
+  onClearFilters,
+}: Pick<Props, "totalCount" | "hasActiveFilters" | "onClearFilters" | "query">) {
+  const trimmed = query?.trim() ?? "";
+  return (
+    <div className="place-list__empty" role="status">
+      <span className="place-list__empty-icon" aria-hidden="true">
+        🔍
+      </span>
+      <p className="place-list__empty-title">
+        {trimmed ? <>Nada coincide con “{trimmed}”</> : "Ningún lugar coincide con los filtros"}
+      </p>
+      <p className="place-list__empty-hint">
+        {trimmed
+          ? `Prueba con otro término, o quita los filtros para volver a ver los ${totalCount} lugares de esta zona.`
+          : `Afloja algún filtro para volver a ver los ${totalCount} lugares de esta zona.`}
+      </p>
+      {hasActiveFilters && (
+        <button type="button" className="button button--secondary" onClick={onClearFilters}>
+          Limpiar búsqueda y filtros
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function PlaceList({
@@ -24,67 +54,37 @@ export function PlaceList({
   selectedId,
   savedIds,
   onSelect,
+  onToggleSaved,
   onClearFilters,
   hasActiveFilters,
+  query,
 }: Props) {
   if (places.length === 0) {
     return (
-      <div className="place-list__empty">
-        <p className="place-list__empty-title">Ningún lugar coincide con la búsqueda</p>
-        <p className="place-list__empty-hint">
-          Prueba con otro término o quita algunos filtros para volver a ver los {totalCount} lugares
-          disponibles.
-        </p>
-        {hasActiveFilters && (
-          <button type="button" className="button button--secondary" onClick={onClearFilters}>
-            Limpiar búsqueda y filtros
-          </button>
-        )}
-      </div>
+      <EmptyResults
+        totalCount={totalCount}
+        hasActiveFilters={hasActiveFilters}
+        query={query}
+        onClearFilters={onClearFilters}
+      />
     );
   }
 
+  const savedSet = new Set(savedIds);
+
   return (
     <ul className="place-list" aria-label="Resultados">
-      {places.map((place) => {
-        const { icon, label } = splitCategory(place.category);
-        const saved = savedIds.includes(place.id);
-        return (
-          <li key={place.id}>
-            <button
-              type="button"
-              className={`place-list__item ${place.id === selectedId ? "place-list__item--selected" : ""}`}
-              onClick={() => onSelect(place.id)}
-              aria-current={place.id === selectedId ? "true" : undefined}
-            >
-              <span className={`place-list__grade badge--grade-${place.grade}`} aria-hidden="true">
-                {place.grade}
-              </span>
-              <span className="place-list__text">
-                <span className="place-list__name">
-                  {place.name}
-                  {saved && (
-                    <span className="place-list__saved" title="Guardado en Quiero ir">
-                      <span aria-hidden="true">✓</span>
-                      <span className="visually-hidden">Guardado</span>
-                    </span>
-                  )}
-                  {isHiddenGem(place) && (
-                    <span className="place-list__gem" title={place.hiddenGemStatus}>
-                      <span aria-hidden="true">💎</span>
-                      <span className="visually-hidden">Hidden gem</span>
-                    </span>
-                  )}
-                </span>
-                <span className="place-list__meta">
-                  <span className="visually-hidden">Grado {place.grade}. </span>
-                  {icon} {label} · {place.neighborhood || place.municipality} · {durationLabel(place)}
-                </span>
-              </span>
-            </button>
-          </li>
-        );
-      })}
+      {places.map((place) => (
+        <li key={place.id}>
+          <PlaceCard
+            place={place}
+            selected={place.id === selectedId}
+            saved={savedSet.has(place.id)}
+            onSelect={onSelect}
+            onToggleSaved={onToggleSaved}
+          />
+        </li>
+      ))}
     </ul>
   );
 }
