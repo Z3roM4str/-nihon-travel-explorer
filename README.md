@@ -14,8 +14,11 @@ Discovery and manual trip planning are both implemented; photography closed for 
   administrative geometry, and browses down through region → prefecture → hub → place.
 - All **214** verified places across **7** hubs are reachable, with filters, free-text search,
   place details, nearby jumps, saved places, and activity-time estimates.
-- **144** places carry a licensed photograph with full attribution; the rest show their
-  editorial `imageBrief` fallback. See [the photography closure](docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md).
+- **157** places carry a licensed photograph with full attribution; the rest show their
+  editorial `imageBrief` fallback. Four places carry a second perspective as a gallery. Every
+  photograph also ships a card-sized rendition, which cuts the bytes a phone spends scrolling a
+  hub by **72%**. See [the photography closure](docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md)
+  and [Block 2](docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md).
 - A **manual** planner turns a saved selection into an ordered route: day assignment,
   calendar anchoring from Day 1, stable day identity across reordering, trip bounds, manual
   inter-hub segments, whole-trip composition, and evidence-complete local swap/relocation
@@ -53,6 +56,7 @@ The dataset intentionally preserves uncertainty and operational warnings, includ
 - [Geographic layer, source and licence](docs/GEOGRAPHY.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Block 1 — UX, hierarchy and usability](docs/BLOCK_1_UX_HIERARCHY_DESIGN.md)
+- [Block 2 — the photographic layer](docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md)
 
 ## Portfolio framing
 
