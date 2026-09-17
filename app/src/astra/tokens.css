@@ -1,0 +1,6 @@
+:root {
+  --astra-canvas:#f7f5f0; --astra-surface:#fff; --astra-subtle:#efebe3; --astra-ink:#202621;
+  --astra-muted:#5f685f; --astra-line:#d9ddd5; --astra-control:#788277; --astra-accent:#a83727;
+  --astra-accent-hover:#85291e; --astra-accent-soft:#fbece6; --astra-focus:#175ea8;
+  --astra-attention:#774a10; --astra-attention-soft:#fff1d6;
+}
