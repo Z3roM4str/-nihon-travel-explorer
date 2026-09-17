@@ -14,6 +14,8 @@ import { SelectionPanel } from "./components/SelectionPanel";
 import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
 import { SaveToast } from "./components/SaveToast";
+import { ZoneComparison } from "./components/ZoneComparison";
+import { hubsWithZones } from "./lib/accommodation-zone";
 import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
 import { useSavedPlaces } from "./useSavedPlaces";
@@ -24,6 +26,8 @@ import type { Filters, Place } from "./types";
 import "./App.css";
 
 const HUBS = getHubs();
+/** Hubs where Block 3 modelled accommodation zones; the others offer no comparison. */
+const HUBS_WITH_ZONES = new Set(hubsWithZones());
 const NATIONAL_SUMMARY = getNationalSummary();
 
 /**
@@ -112,6 +116,7 @@ export default function App() {
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [sequenceBuilderOpen, setSequenceBuilderOpen] = useState(false);
+  const [zonesOpen, setZonesOpen] = useState(false);
   /** Shown on the very first visit and reopenable from the header; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
   const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
@@ -260,6 +265,7 @@ export default function App() {
     (hub: string) => {
       if (hub === activeHub) return;
       setView({ mode: "hub", hub });
+      setZonesOpen(false);
       setFilters(EMPTY_FILTERS);
       setHistory((trail) => {
         const openId = trail[trail.length - 1];
@@ -277,6 +283,7 @@ export default function App() {
    */
   const enterHub = useCallback((hub: string) => {
     setView({ mode: "hub", hub });
+    setZonesOpen(false);
     setFilters(EMPTY_FILTERS);
     setHistory([]);
     setFiltersOpen(false);
@@ -287,6 +294,7 @@ export default function App() {
    * no detail drawer is left floating over the national map. */
   const returnToJapan = useCallback(() => {
     setView(INITIAL_VIEW);
+    setZonesOpen(false);
     setFilters(EMPTY_FILTERS);
     setHistory([]);
     setFiltersOpen(false);
@@ -422,6 +430,17 @@ export default function App() {
               <span aria-hidden="true">←</span> Japón
             </button>
             <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
+            {HUBS_WITH_ZONES.has(activeHub) && (
+              <button
+                type="button"
+                className="hub-bar__zones"
+                onClick={() => setZonesOpen(true)}
+                aria-haspopup="dialog"
+              >
+                <span aria-hidden="true">🛏</span>
+                <span className="hub-bar__zones-label">Dónde dormir</span>
+              </button>
+            )}
           </div>
 
           {/* Phone-only orientation bar: which surface am I on, and where are the filters.
@@ -546,6 +565,18 @@ export default function App() {
         <OrderedSequenceBuilder
           savedPlaces={savedPlaces}
           onClose={() => setSequenceBuilderOpen(false)}
+        />
+      )}
+
+      {zonesOpen && activeHub && (
+        <ZoneComparison
+          hub={activeHub}
+          savedPlaces={savedPlaces}
+          onClose={() => setZonesOpen(false)}
+          onSelectPlace={(id) => {
+            selectPlace(id);
+            setZonesOpen(false);
+          }}
         />
       )}
 

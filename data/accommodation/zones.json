@@ -1,0 +1,1081 @@
+{
+  "version": 1,
+  "zoneCount": 16,
+  "hubs": [
+    "Kioto",
+    "Osaka",
+    "Tokio"
+  ],
+  "zones": [
+    {
+      "id": "ZN-TOK-SHINJUKU",
+      "hub": "Tokio",
+      "name": "Shinjuku",
+      "japaneseName": "新宿",
+      "summary": "La máxima conectividad de Tokio, con vida nocturna a la puerta. Ruidoso y enorme.",
+      "anchor": {
+        "label": "Shinjuku Station",
+        "lat": 35.690921,
+        "lng": 139.700258,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Yamanote",
+          "JR Chūō (Rapid)",
+          "JR Chūō–Sōbu",
+          "JR Saikyō",
+          "JR Shōnan–Shinjuku",
+          "Keiō",
+          "Keiō New",
+          "Odakyū Odawara",
+          "Tokyo Metro Marunouchi",
+          "Toei Shinjuku",
+          "Toei Ōedo"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Tokyo",
+          "note": "Sin parada de Shinkansen; se toma en Tokio o Ueno."
+        },
+        "airportLinks": [
+          {
+            "airport": "Narita (NRT)",
+            "service": "Narita Express (N'EX)",
+            "directFromZone": true
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Autobús limusina / vía Shinagawa",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Shinjuku_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR East (Yamanote, Chūō, Chūō-Sōbu, Saikyō, Shōnan-Shinjuku), Keiō, Odakyū, Tokyo Metro Marunouchi, Toei Shinjuku/Ōedo. Sin Shinkansen. El Narita Express sirve la estación."
+        }
+      },
+      "editorial": {
+        "nightlife": 5,
+        "food": 5,
+        "quiet": 1,
+        "walkability": 4,
+        "tourismIntensity": 4,
+        "luggageEase": 2,
+        "firstVisit": 5,
+        "shortStay": 5,
+        "lateArrival": 4,
+        "earlyDeparture": 3
+      },
+      "tradeoffs": [
+        "La estación es la más transitada del mundo: con maletas y sin práctica, cuesta.",
+        "Kabukichō es ruidoso de noche; conviene mirar en qué lado de la estación cae el alojamiento.",
+        "Sin Shinkansen: para Kioto hay que ir antes a Tokio o Shinagawa."
+      ],
+      "servesClusters": [
+        "CL-05",
+        "CL-17",
+        "CL-19",
+        "CL-06"
+      ]
+    },
+    {
+      "id": "ZN-TOK-MARUNOUCHI",
+      "hub": "Tokio",
+      "name": "Estación de Tokio / Marunouchi",
+      "japaneseName": "丸の内",
+      "summary": "Shinkansen bajo los pies y el aeropuerto directo. Tranquilo de noche, caro.",
+      "anchor": {
+        "label": "Tokyo Station",
+        "lat": 35.681382,
+        "lng": 139.766084,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Tōkaidō",
+          "JR Yamanote",
+          "JR Keihin–Tōhoku",
+          "JR Chūō",
+          "JR Sōbu (Rapid)",
+          "JR Yokosuka",
+          "JR Keiyō",
+          "JR Ueno–Tokyo",
+          "Tokyo Metro Marunouchi"
+        ],
+        "shinkansen": {
+          "served": true,
+          "nearestStation": "Tokyo",
+          "lines": [
+            "Tōkaidō",
+            "Tōhoku",
+            "Yamagata",
+            "Akita",
+            "Jōetsu",
+            "Hokuriku"
+          ],
+          "note": "Todas las líneas Shinkansen de Tokio salen de aquí."
+        },
+        "airportLinks": [
+          {
+            "airport": "Narita (NRT)",
+            "service": "Narita Express (N'EX)",
+            "directFromZone": true
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Vía Hamamatsuchō o Shinagawa",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Tokyo_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR East (Tōkaidō, Yamanote, Keihin–Tōhoku, Chūō, Sōbu Rapid, Yokosuka, Keiyō, Ueno–Tokyo), JR Central, Tokyo Metro Marunouchi. Shinkansen Tōkaidō (JR Central) y Tōhoku/Yamagata/Akita/Jōetsu/Hokuriku (JR East). El Narita Express llega por andenes subterráneos."
+        }
+      },
+      "editorial": {
+        "nightlife": 2,
+        "food": 3,
+        "quiet": 4,
+        "walkability": 4,
+        "tourismIntensity": 3,
+        "luggageEase": 5,
+        "firstVisit": 4,
+        "shortStay": 4,
+        "lateArrival": 5,
+        "earlyDeparture": 5
+      },
+      "tradeoffs": [
+        "De noche el barrio se vacía: poca vida de calle alrededor.",
+        "Precio medio alto; es zona de oficinas y hoteles de negocio.",
+        "La estación es enorme por dentro; ir 'a la estación' puede ser 15 minutos andando."
+      ],
+      "servesClusters": [
+        "CL-12",
+        "CL-11",
+        "CL-14"
+      ]
+    },
+    {
+      "id": "ZN-TOK-UENO",
+      "hub": "Tokio",
+      "name": "Ueno",
+      "japaneseName": "上野",
+      "summary": "Shinkansen del norte y el Skyliner a Narita, a precio más bajo que el centro.",
+      "anchor": {
+        "label": "Ueno Station",
+        "lat": 35.713768,
+        "lng": 139.777254,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Yamanote",
+          "JR Keihin–Tōhoku",
+          "JR Utsunomiya",
+          "JR Takasaki",
+          "JR Jōban",
+          "Tokyo Metro Ginza",
+          "Tokyo Metro Hibiya"
+        ],
+        "shinkansen": {
+          "served": true,
+          "nearestStation": "Ueno",
+          "lines": [
+            "Tōhoku",
+            "Yamagata",
+            "Akita",
+            "Jōetsu",
+            "Hokuriku"
+          ],
+          "note": "Shinkansen del norte; el Tōkaidō (a Kioto/Osaka) NO para aquí."
+        },
+        "airportLinks": [
+          {
+            "airport": "Narita (NRT)",
+            "service": "Keisei Skyliner desde Keisei-Ueno",
+            "directFromZone": true
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Vía metro + Keikyū",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ueno_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR East (Tōhoku/Yamagata/Akita/Jōetsu/Hokuriku Shinkansen, Utsunomiya, Takasaki, Keihin–Tōhoku, Yamanote, Jōban) y Tokyo Metro Ginza/Hibiya. Keisei-Ueno, terminal del Keisei Main Line a Narita, está al lado; el Skyliner sale de Keisei-Ueno, no de Ueno."
+        }
+      },
+      "editorial": {
+        "nightlife": 3,
+        "food": 4,
+        "quiet": 3,
+        "walkability": 4,
+        "tourismIntensity": 3,
+        "luggageEase": 4,
+        "firstVisit": 4,
+        "shortStay": 3,
+        "lateArrival": 4,
+        "earlyDeparture": 4
+      },
+      "tradeoffs": [
+        "El Shinkansen de aquí va al norte: para Kioto y Osaka hay que bajar a Tokio.",
+        "Keisei-Ueno es una estación distinta de Ueno: hay que cruzar con las maletas.",
+        "Menos elegante que Marunouchi; el entorno de Ameyoko es bullicioso."
+      ],
+      "servesClusters": [
+        "CL-09",
+        "CL-07",
+        "CL-10",
+        "CL-22",
+        "CL-08"
+      ]
+    },
+    {
+      "id": "ZN-TOK-ASAKUSA",
+      "hub": "Tokio",
+      "name": "Asakusa",
+      "japaneseName": "浅草",
+      "summary": "El Tokio tradicional, más barato y tranquilo, con tren directo a los dos aeropuertos.",
+      "anchor": {
+        "label": "Asakusa Station",
+        "lat": 35.711002,
+        "lng": 139.797818,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "Toei Asakusa",
+          "Tokyo Metro Ginza",
+          "Tobu Skytree"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Ueno",
+          "note": "Ueno queda a pocas paradas en Ginza."
+        },
+        "airportLinks": [
+          {
+            "airport": "Haneda (HND)",
+            "service": "Toei Asakusa ↔ Keikyū, servicio directo",
+            "directFromZone": true
+          },
+          {
+            "airport": "Narita (NRT)",
+            "service": "Toei Asakusa ↔ Keisei / Narita Sky Access, servicio directo",
+            "directFromZone": true
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Asakusa_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "Tobu Skytree Line, Tokyo Metro Ginza y Toei Asakusa. La línea Toei Asakusa ofrece servicio directo a Haneda vía Keikyū y trenes Keisei / Narita Sky Access a Narita circulan por la misma línea."
+        }
+      },
+      "editorial": {
+        "nightlife": 2,
+        "food": 4,
+        "quiet": 4,
+        "walkability": 5,
+        "tourismIntensity": 4,
+        "luggageEase": 4,
+        "firstVisit": 4,
+        "shortStay": 3,
+        "lateArrival": 4,
+        "earlyDeparture": 4
+      },
+      "tradeoffs": [
+        "Está en el extremo noreste: casi todo lo demás queda a 20–35 minutos.",
+        "Muy turístico de día alrededor de Sensō-ji y muy apagado de noche.",
+        "Sin línea Yamanote: casi siempre hay que enlazar."
+      ],
+      "servesClusters": [
+        "CL-07",
+        "CL-08",
+        "CL-22",
+        "CL-09"
+      ]
+    },
+    {
+      "id": "ZN-TOK-SHIBUYA",
+      "hub": "Tokio",
+      "name": "Shibuya",
+      "japaneseName": "渋谷",
+      "summary": "Compras y noche joven, muy bien conectado hacia el oeste y el sur.",
+      "anchor": {
+        "label": "Shibuya Station",
+        "lat": 35.658034,
+        "lng": 139.701636,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Yamanote",
+          "JR Saikyō",
+          "JR Shōnan–Shinjuku",
+          "Tōkyū Den-en-toshi",
+          "Tōkyū Tōyoko",
+          "Tokyo Metro Ginza",
+          "Tokyo Metro Hanzōmon",
+          "Tokyo Metro Fukutoshin",
+          "Keiō Inokashira"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Shinagawa",
+          "note": "Shinagawa (Tōkaidō) está a pocas paradas."
+        },
+        "airportLinks": [
+          {
+            "airport": "Narita (NRT)",
+            "service": "Narita Express (N'EX), servicio limitado",
+            "directFromZone": true
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Vía Shinagawa (Keikyū)",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Shibuya_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR East (Yamanote, Saikyō, Shōnan–Shinjuku), Tōkyū (Den-en-toshi, Tōyoko), Tokyo Metro (Ginza, Hanzōmon, Fukutoshin) y Keiō Inokashira. El Narita Express sirve la estación con servicio limitado."
+        }
+      },
+      "editorial": {
+        "nightlife": 5,
+        "food": 4,
+        "quiet": 1,
+        "walkability": 4,
+        "tourismIntensity": 5,
+        "luggageEase": 2,
+        "firstVisit": 4,
+        "shortStay": 4,
+        "lateArrival": 3,
+        "earlyDeparture": 3
+      },
+      "tradeoffs": [
+        "Obra permanente y estación laberíntica; con maletas es incómodo.",
+        "Precio alto y mucha gente a todas horas.",
+        "El N'EX para, pero con pocas frecuencias: conviene mirar horarios."
+      ],
+      "servesClusters": [
+        "CL-01",
+        "CL-02",
+        "CL-03",
+        "CL-04",
+        "CL-19"
+      ]
+    },
+    {
+      "id": "ZN-TOK-IKEBUKURO",
+      "hub": "Tokio",
+      "name": "Ikebukuro",
+      "japaneseName": "池袋",
+      "summary": "Buena conexión por menos dinero. Menos postal, más práctica.",
+      "anchor": {
+        "label": "Ikebukuro Station",
+        "lat": 35.729503,
+        "lng": 139.7109,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Yamanote",
+          "JR Saikyō",
+          "JR Shōnan–Shinjuku",
+          "Seibu Ikebukuro",
+          "Tōbu Tōjō",
+          "Tokyo Metro Marunouchi",
+          "Tokyo Metro Yūrakuchō",
+          "Tokyo Metro Fukutoshin"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Ueno",
+          "note": "Ueno o Tokio, por Yamanote."
+        },
+        "airportLinks": [
+          {
+            "airport": "Narita (NRT)",
+            "service": "Autobús limusina / vía Nippori (Skyliner)",
+            "directFromZone": false
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Autobús limusina / vía Shinagawa",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Ikebukuro_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR East (Yamanote, Saikyō, Shōnan–Shinjuku), Seibu Ikebukuro, Tōbu Tōjō y Tokyo Metro (Marunouchi, Yūrakuchō, Fukutoshin)."
+        }
+      },
+      "editorial": {
+        "nightlife": 4,
+        "food": 4,
+        "quiet": 2,
+        "walkability": 3,
+        "tourismIntensity": 3,
+        "luggageEase": 3,
+        "firstVisit": 3,
+        "shortStay": 3,
+        "lateArrival": 3,
+        "earlyDeparture": 3
+      },
+      "tradeoffs": [
+        "Ningún tren directo al aeropuerto: siempre hay enlace o autobús.",
+        "Está al norte del círculo Yamanote: Shibuya o Roppongi quedan lejos.",
+        "Menos atractivo urbano que Shinjuku o Shibuya a igualdad de ruido."
+      ],
+      "servesClusters": [
+        "CL-20",
+        "CL-17",
+        "CL-16"
+      ]
+    },
+    {
+      "id": "ZN-KYO-STATION",
+      "hub": "Kioto",
+      "name": "Estación de Kioto",
+      "japaneseName": "京都駅",
+      "summary": "Shinkansen, tren directo a Kansai y todos los autobuses. Poca alma de barrio.",
+      "anchor": {
+        "label": "Kyōto Station",
+        "lat": 34.985849,
+        "lng": 135.758767,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Biwako",
+          "JR Kyoto",
+          "JR Sagano",
+          "JR Nara",
+          "JR Kosei",
+          "JR Kusatsu",
+          "Kintetsu Kyoto",
+          "Kyoto Subway Karasuma"
+        ],
+        "shinkansen": {
+          "served": true,
+          "nearestStation": "Kyōto",
+          "lines": [
+            "Tōkaidō"
+          ],
+          "note": "Parada del Tōkaidō Shinkansen (Tokio ↔ Osaka)."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Limited Express Haruka",
+            "directFromZone": true
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Kyoto_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR West (Biwako, JR Kyoto, Sagano, Nara, Kosei, Kusatsu), JR Central (Tōkaidō Shinkansen), Kintetsu Kyoto y metro municipal Karasuma. El limited express Haruka a Kansai Airport sirve la estación."
+        }
+      },
+      "editorial": {
+        "nightlife": 2,
+        "food": 3,
+        "quiet": 3,
+        "walkability": 3,
+        "tourismIntensity": 4,
+        "luggageEase": 5,
+        "firstVisit": 4,
+        "shortStay": 5,
+        "lateArrival": 5,
+        "earlyDeparture": 5
+      },
+      "tradeoffs": [
+        "El norte de Kioto —Gion, Arashiyama— queda lejos: casi todo empieza con un trayecto.",
+        "El entorno es de estación: funcional, sin el Kioto que la gente viene a ver.",
+        "De noche hay poca vida a pie."
+      ],
+      "servesClusters": [
+        "CL-36",
+        "CL-25",
+        "CL-26",
+        "CL-35"
+      ]
+    },
+    {
+      "id": "ZN-KYO-SHIJO",
+      "hub": "Kioto",
+      "name": "Shijō–Karasuma (centro)",
+      "japaneseName": "四条烏丸",
+      "summary": "El centro real de Kioto: comer, caminar y coger el metro o el Hankyu.",
+      "anchor": {
+        "label": "Karasuma / Shijō Station",
+        "lat": 35.003479,
+        "lng": 135.759293,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "Hankyu Kyoto Main",
+          "Kyoto Subway Karasuma"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Kyōto",
+          "note": "Una parada de metro hasta la estación de Kioto."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Vía Estación de Kioto (Haruka)",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Karasuma_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "Hankyu Kyoto Main Line (Karasuma) conectada por paso subterráneo con Shijō, del metro municipal línea Karasuma."
+        }
+      },
+      "editorial": {
+        "nightlife": 4,
+        "food": 5,
+        "quiet": 2,
+        "walkability": 5,
+        "tourismIntensity": 4,
+        "luggageEase": 4,
+        "firstVisit": 5,
+        "shortStay": 4,
+        "lateArrival": 3,
+        "earlyDeparture": 3
+      },
+      "tradeoffs": [
+        "Sólo dos líneas ferroviarias: para muchos destinos hay que usar autobús.",
+        "Nishiki y Pontochō llenan la zona de gente de día y de noche.",
+        "No hay tren directo al aeropuerto: se enlaza en la estación de Kioto."
+      ],
+      "servesClusters": [
+        "CL-35",
+        "CL-23",
+        "CL-39"
+      ]
+    },
+    {
+      "id": "ZN-KYO-GION",
+      "hub": "Kioto",
+      "name": "Gion–Higashiyama",
+      "japaneseName": "祇園・東山",
+      "summary": "Dormir dentro de la postal. Se camina a los templos; el tren se usa poco.",
+      "anchor": {
+        "label": "Gion-Shijō Station",
+        "lat": 35.003655,
+        "lng": 135.772308,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "Keihan Main"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Kyōto",
+          "note": "Hay que bajar a la estación de Kioto."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Vía Estación de Kioto (Haruka)",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Gion-Shij%C5%8D_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "Keihan Main Line (Keihan Electric Railway). El distrito tiene además Kyoto-kawaramachi (Hankyu Kyoto) y la estación Shijō del metro Karasuma a poca distancia."
+        }
+      },
+      "editorial": {
+        "nightlife": 3,
+        "food": 4,
+        "quiet": 3,
+        "walkability": 5,
+        "tourismIntensity": 5,
+        "luggageEase": 2,
+        "firstVisit": 4,
+        "shortStay": 3,
+        "lateArrival": 2,
+        "earlyDeparture": 2
+      },
+      "tradeoffs": [
+        "Una sola línea propia: la mayoría de trayectos empiezan andando o en autobús.",
+        "Es la zona más saturada de Kioto en horario diurno.",
+        "Calles estrechas y cuestas: con maletas y de noche, incómodo."
+      ],
+      "servesClusters": [
+        "CL-23",
+        "CL-24"
+      ]
+    },
+    {
+      "id": "ZN-KYO-ARASHIYAMA",
+      "hub": "Kioto",
+      "name": "Arashiyama",
+      "japaneseName": "嵐山",
+      "summary": "Río, bambú y silencio cuando se van los autobuses. Lejos de todo lo demás.",
+      "anchor": {
+        "label": "Saga-Arashiyama Station",
+        "lat": 35.019074,
+        "lng": 135.682083,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Sagano",
+          "Randen (Keifuku)",
+          "Hankyu Arashiyama"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Kyōto",
+          "note": "~15 min en JR Sagano hasta la estación de Kioto."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Vía Estación de Kioto (Haruka)",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Saga-Arashiyama_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR West Sagano Line. El distrito tiene además la estación Arashiyama del tranvía Randen (Keifuku) a unos 300 m y la terminal de la Hankyu Arashiyama Line al sur del río Katsura."
+        }
+      },
+      "editorial": {
+        "nightlife": 1,
+        "food": 3,
+        "quiet": 5,
+        "walkability": 4,
+        "tourismIntensity": 5,
+        "luggageEase": 3,
+        "firstVisit": 2,
+        "shortStay": 1,
+        "lateArrival": 1,
+        "earlyDeparture": 2
+      },
+      "tradeoffs": [
+        "Es el extremo oeste: cualquier otra zona de Kioto son 20–40 minutos.",
+        "De día se llena de excursiones; la calma llega sólo por la noche.",
+        "Muy poca oferta para cenar fuera del horario turístico."
+      ],
+      "servesClusters": [
+        "CL-28",
+        "CL-29",
+        "CL-38",
+        "CL-30"
+      ]
+    },
+    {
+      "id": "ZN-KYO-NIJO",
+      "hub": "Kioto",
+      "name": "Nijō",
+      "japaneseName": "二条",
+      "summary": "Céntrico sin el gentío, con metro y JR. La opción tranquila y práctica.",
+      "anchor": {
+        "label": "Nijō Station",
+        "lat": 35.011239,
+        "lng": 135.7387,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Sagano (San'in Main)",
+          "Kyoto Subway Tōzai"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Kyōto",
+          "note": "Dos paradas en JR Sagano."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Vía Estación de Kioto (Haruka)",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Nij%C5%8D_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "San'in Main Line (Sagano Line) y Kyoto Subway Tōzai Line, en Nakagyō-ku."
+        }
+      },
+      "editorial": {
+        "nightlife": 2,
+        "food": 3,
+        "quiet": 4,
+        "walkability": 4,
+        "tourismIntensity": 2,
+        "luggageEase": 4,
+        "firstVisit": 3,
+        "shortStay": 3,
+        "lateArrival": 3,
+        "earlyDeparture": 4
+      },
+      "tradeoffs": [
+        "Menos restaurantes que Shijō a la misma distancia a pie.",
+        "Es zona residencial: poca vida después de cenar.",
+        "Para Gion hay que cruzar el centro."
+      ],
+      "servesClusters": [
+        "CL-35",
+        "CL-31",
+        "CL-28"
+      ]
+    },
+    {
+      "id": "ZN-OSA-UMEDA",
+      "hub": "Osaka",
+      "name": "Umeda / Kita",
+      "japaneseName": "梅田",
+      "summary": "El nudo ferroviario de Osaka, con tren directo a Kansai desde 2023.",
+      "anchor": {
+        "label": "Ōsaka Station (Umeda)",
+        "lat": 34.702485,
+        "lng": 135.495951,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Kyoto",
+          "JR Kōbe",
+          "JR Osaka Loop",
+          "JR Takarazuka",
+          "JR Yumesaki",
+          "JR Osaka Higashi",
+          "Hankyu Kōbe/Takarazuka/Kyoto",
+          "Hanshin Main",
+          "Osaka Metro Midōsuji",
+          "Osaka Metro Yotsubashi",
+          "Osaka Metro Tanimachi"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Shin-Ōsaka",
+          "note": "Shin-Ōsaka a una parada de Midōsuji."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Limited Express Haruka (andenes subterráneos, desde 2023)",
+            "directFromZone": true
+          },
+          {
+            "airport": "Itami (ITM)",
+            "service": "Autobús limusina",
+            "directFromZone": true
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/%C5%8Csaka_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR West (Osaka Higashi, Tōkaidō Main como JR Kyoto y JR Kōbe, Osaka Loop, JR Takarazuka, JR Yumesaki), Osaka Metro (Midōsuji, Yotsubashi, Tanimachi), Hankyu y Hanshin. Los limited express Haruka a Kansai Airport salen de los andenes subterráneos 21 y 24 abiertos el 18 de marzo de 2023."
+        }
+      },
+      "editorial": {
+        "nightlife": 4,
+        "food": 4,
+        "quiet": 2,
+        "walkability": 4,
+        "tourismIntensity": 3,
+        "luggageEase": 4,
+        "firstVisit": 4,
+        "shortStay": 4,
+        "lateArrival": 4,
+        "earlyDeparture": 4
+      },
+      "tradeoffs": [
+        "El complejo Umeda/Osaka es confuso: varias estaciones con el mismo nombre coloquial.",
+        "Menos 'Osaka de postal' que Namba; es zona de negocios y grandes almacenes.",
+        "El Shinkansen exige subir a Shin-Ōsaka."
+      ],
+      "servesClusters": [
+        "CL-43",
+        "CL-44",
+        "CL-45",
+        "CL-46",
+        "CL-49"
+      ]
+    },
+    {
+      "id": "ZN-OSA-NAMBA",
+      "hub": "Osaka",
+      "name": "Namba / Minami",
+      "japaneseName": "難波",
+      "summary": "Comer y salir. Tren directo a Kansai por Nankai, y el metro que cruza la ciudad.",
+      "anchor": {
+        "label": "Namba Station",
+        "lat": 34.66232,
+        "lng": 135.500449,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "Nankai Main",
+          "Nankai Kōya",
+          "Osaka Metro Midōsuji",
+          "Osaka Metro Sennichimae",
+          "Osaka Metro Yotsubashi",
+          "Kintetsu Namba",
+          "Hanshin Namba",
+          "JR Yamatoji (JR Namba)"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Shin-Ōsaka",
+          "note": "Midōsuji directo hasta Shin-Ōsaka."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Nankai Rapi:t (andén 9)",
+            "directFromZone": true
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Namba_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "Nankai (Main, Kōya) y Osaka Metro (Midōsuji, Sennichimae, Yotsubashi); adyacentes Ōsaka Namba (Kintetsu Namba, Hanshin Namba) y JR Namba (Yamatoji). El Airport Limited Express Rapi:t sale del andén 9 hacia Kansai Airport."
+        }
+      },
+      "editorial": {
+        "nightlife": 5,
+        "food": 5,
+        "quiet": 1,
+        "walkability": 5,
+        "tourismIntensity": 5,
+        "luggageEase": 3,
+        "firstVisit": 5,
+        "shortStay": 5,
+        "lateArrival": 4,
+        "earlyDeparture": 4
+      },
+      "tradeoffs": [
+        "Dōtonbori es ruidoso hasta tarde: importa mucho la calle exacta.",
+        "Namba son cuatro estaciones distintas pegadas; los enlaces a pie con maleta cansan.",
+        "Para Kioto conviene subir antes a Umeda o Shin-Ōsaka."
+      ],
+      "servesClusters": [
+        "CL-40",
+        "CL-41",
+        "CL-42",
+        "CL-86"
+      ]
+    },
+    {
+      "id": "ZN-OSA-SHIN-OSAKA",
+      "hub": "Osaka",
+      "name": "Shin-Ōsaka",
+      "japaneseName": "新大阪",
+      "summary": "Para quien entra y sale en Shinkansen. Nada más, y a veces es justo lo que hace falta.",
+      "anchor": {
+        "label": "Shin-Ōsaka Station",
+        "lat": 34.733372,
+        "lng": 135.500218,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Kyoto (Tōkaidō Main)",
+          "JR Osaka Higashi",
+          "Osaka Metro Midōsuji"
+        ],
+        "shinkansen": {
+          "served": true,
+          "nearestStation": "Shin-Ōsaka",
+          "lines": [
+            "Tōkaidō",
+            "San'yō"
+          ],
+          "note": "Nozomi, Hikari y Kodama; enlace natural hacia Hiroshima o Tokio."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Limited Express Haruka",
+            "directFromZone": true
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Shin-%C5%8Csaka_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR Central (Tōkaidō Shinkansen), JR West (San'yō Shinkansen, JR Kyoto Line / Tōkaidō Main, Osaka Higashi) y Osaka Metro Midōsuji. El Kansai Airport Limited Express Haruka sirve la estación."
+        }
+      },
+      "editorial": {
+        "nightlife": 1,
+        "food": 2,
+        "quiet": 4,
+        "walkability": 2,
+        "tourismIntensity": 1,
+        "luggageEase": 5,
+        "firstVisit": 2,
+        "shortStay": 3,
+        "lateArrival": 5,
+        "earlyDeparture": 5
+      },
+      "tradeoffs": [
+        "No hay nada que ver: es una zona de estación y hoteles de paso.",
+        "Para cenar de verdad hay que bajar a Umeda o Namba.",
+        "Sólo compensa si el viaje entra o sale en Shinkansen a horas incómodas."
+      ],
+      "servesClusters": [
+        "CL-49",
+        "CL-43"
+      ]
+    },
+    {
+      "id": "ZN-OSA-TENNOJI",
+      "hub": "Osaka",
+      "name": "Tennōji / Abeno",
+      "japaneseName": "天王寺",
+      "summary": "Buen precio con parada del Haruka y metro directo al centro.",
+      "anchor": {
+        "label": "Tennōji Station",
+        "lat": 34.646476,
+        "lng": 135.513767,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Osaka Loop",
+          "JR Hanwa",
+          "JR Yamatoji",
+          "Osaka Metro Midōsuji",
+          "Osaka Metro Tanimachi",
+          "Kintetsu Minami-Osaka (Ōsaka Abenobashi)",
+          "Hankai Uemachi (tranvía)"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Shin-Ōsaka",
+          "note": "Midōsuji directo hasta Shin-Ōsaka."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Limited Express Haruka",
+            "directFromZone": true
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Tenn%C5%8Dji_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR West (Osaka Loop, Hanwa, Yamatoji), Osaka Metro (Midōsuji, Tanimachi), tranvía Hankai Uemachi y Kintetsu Minami-Osaka vía la estación conectada Ōsaka Abenobashi. Los limited express Haruka a Kansai Airport paran aquí."
+        }
+      },
+      "editorial": {
+        "nightlife": 3,
+        "food": 4,
+        "quiet": 3,
+        "walkability": 3,
+        "tourismIntensity": 3,
+        "luggageEase": 4,
+        "firstVisit": 3,
+        "shortStay": 3,
+        "lateArrival": 4,
+        "earlyDeparture": 4
+      },
+      "tradeoffs": [
+        "Al sur del centro: Umeda queda a unos 20 minutos.",
+        "Shinsekai, al lado, es popular pero de noche pierde ambiente.",
+        "Menos oferta de hoteles altos que Umeda o Namba."
+      ],
+      "servesClusters": [
+        "CL-42",
+        "CL-47",
+        "CL-51"
+      ]
+    },
+    {
+      "id": "ZN-OSA-BAY",
+      "hub": "Osaka",
+      "name": "Bahía / Universal City",
+      "japaneseName": "ユニバーサルシティ",
+      "summary": "Sólo tiene sentido si Universal Studios pesa mucho en el viaje.",
+      "anchor": {
+        "label": "Universal City Station",
+        "lat": 34.667409,
+        "lng": 135.437859,
+        "kind": "station"
+      },
+      "facts": {
+        "railLines": [
+          "JR Yumesaki (Sakurajima)"
+        ],
+        "shinkansen": {
+          "served": false,
+          "nearestStation": "Shin-Ōsaka",
+          "note": "Enlace en Nishikujō y luego Osaka/Umeda."
+        },
+        "airportLinks": [
+          {
+            "airport": "Kansai (KIX)",
+            "service": "Vía Nishikujō y Ōsaka Station",
+            "directFromZone": false
+          }
+        ],
+        "provenance": {
+          "sourceUrl": "https://en.wikipedia.org/wiki/Universal_City_Station",
+          "sourceEntity": "Wikipedia, station article (railway lines and operators)",
+          "consultedAt": "2026-09-17",
+          "evidence": "JR West, JR Yumesaki Line. Desde Ōsaka Station se cambia en Nishikujō."
+        }
+      },
+      "editorial": {
+        "nightlife": 2,
+        "food": 2,
+        "quiet": 3,
+        "walkability": 2,
+        "tourismIntensity": 5,
+        "luggageEase": 4,
+        "firstVisit": 1,
+        "shortStay": 2,
+        "lateArrival": 3,
+        "earlyDeparture": 2
+      },
+      "tradeoffs": [
+        "Una sola línea y siempre con enlace: el resto de Osaka queda a 25–40 minutos.",
+        "La oferta alrededor es del parque; precios altos y poca variedad.",
+        "Fuera de los días de parque, dormir aquí resta tiempo todos los días."
+      ],
+      "servesClusters": [
+        "CL-50",
+        "CL-85"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,486 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MapContainer, Marker, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
+import L from "leaflet";
+import type { Place } from "../types";
+import {
+  EDITORIAL_AXES,
+  NEUTRAL_AXES,
+  PROXIMITY_BANDS,
+  editorialContrasts,
+  getZonesForHub,
+  rankZonesBySavedPlaces,
+  zoneSavedPlacesFit,
+  type AccommodationZone,
+  type ZoneEditorial,
+} from "../lib/accommodation-zone";
+import { MAX_COMPARED, useZoneComparison } from "../useZoneComparison";
+
+type Props = {
+  hub: string;
+  savedPlaces: Place[];
+  onClose: () => void;
+  onSelectPlace: (id: string) => void;
+};
+
+function formatKm(km: number): string {
+  return km < 10 ? `${km.toFixed(1)} km` : `${Math.round(km)} km`;
+}
+
+/** Ordinal 1–5 as five discrete marks. Never a bar chart: this is not a measurement. */
+function Ordinal({ value, neutral }: { value: number; neutral: boolean }) {
+  return (
+    <span className={`zone-ordinal ${neutral ? "zone-ordinal--neutral" : ""}`}>
+      {[1, 2, 3, 4, 5].map((step) => (
+        <span
+          key={step}
+          className={`zone-ordinal__step ${step <= value ? "zone-ordinal__step--on" : ""}`}
+          aria-hidden="true"
+        />
+      ))}
+      <span className="visually-hidden">{value} de 5</span>
+    </span>
+  );
+}
+
+function ShinkansenFact({ zone }: { zone: AccommodationZone }) {
+  const { shinkansen } = zone.facts;
+  if (shinkansen.served) {
+    return (
+      <span className="zone-fact zone-fact--strong">
+        <span aria-hidden="true">🚅</span> Shinkansen aquí
+        {shinkansen.lines && shinkansen.lines.length > 0 && (
+          <span className="zone-fact__detail"> · {shinkansen.lines.join(", ")}</span>
+        )}
+      </span>
+    );
+  }
+  return (
+    <span className="zone-fact">
+      <span aria-hidden="true">🚅</span> Shinkansen en {shinkansen.nearestStation}
+    </span>
+  );
+}
+
+function AirportFacts({ zone }: { zone: AccommodationZone }) {
+  return (
+    <>
+      {zone.facts.airportLinks.map((link) => (
+        <span
+          key={link.airport}
+          className={`zone-fact ${link.directFromZone ? "zone-fact--strong" : ""}`}
+        >
+          <span aria-hidden="true">✈</span> {link.airport}
+          <span className="zone-fact__detail">
+            {" "}
+            · {link.directFromZone ? "directo" : "con enlace"}
+          </span>
+        </span>
+      ))}
+    </>
+  );
+}
+
+/** Fits the map to whatever is on it; re-runs when the selection changes. */
+function FitToMarkers({ points }: { points: [number, number][] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      map.setView(points[0], 13, { animate: false });
+      return;
+    }
+    map.fitBounds(L.latLngBounds(points), { padding: [36, 36], maxZoom: 14, animate: false });
+  }, [map, points]);
+  return null;
+}
+
+function InvalidateOnResize() {
+  const map = useMap();
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }));
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
+  }, [map]);
+  return null;
+}
+
+const zoneIcon = (index: number, selected: boolean) =>
+  L.divIcon({
+    className: "zone-marker",
+    html: `<i class="zone-marker__pin ${selected ? "zone-marker__pin--on" : ""}">${index + 1}</i>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
+  });
+
+const savedIcon = L.divIcon({
+  className: "zone-marker",
+  html: '<i class="zone-marker__saved"></i>',
+  iconSize: [10, 10],
+  iconAnchor: [5, 5],
+});
+
+export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace }: Props) {
+  const zones = useMemo(() => getZonesForHub(hub), [hub]);
+  const { selected, toggle, clear, isFull } = useZoneComparison(hub);
+  const [mode, setMode] = useState<"browse" | "compare">("browse");
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  const hubSaved = useMemo(
+    () => savedPlaces.filter((place) => place.hub === hub),
+    [savedPlaces, hub]
+  );
+
+  const ranked = useMemo(() => rankZonesBySavedPlaces(zones, hubSaved), [zones, hubSaved]);
+  const selectedZones = useMemo(
+    () => selected.map((id) => zones.find((zone) => zone.id === id)).filter((z): z is AccommodationZone => Boolean(z)),
+    [selected, zones]
+  );
+  const contrasts = useMemo(() => editorialContrasts(selectedZones), [selectedZones]);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      event.stopPropagation();
+      if (mode === "compare") setMode("browse");
+      else onClose();
+    }
+    document.addEventListener("keydown", onKey, true);
+    return () => document.removeEventListener("keydown", onKey, true);
+  }, [mode, onClose]);
+
+  const canCompare = selectedZones.length >= 2;
+  const openCompare = useCallback(() => {
+    if (canCompare) setMode("compare");
+  }, [canCompare]);
+
+  const mapPoints = useMemo<[number, number][]>(() => {
+    const shown = selectedZones.length > 0 ? selectedZones : zones;
+    return [
+      ...shown.map((zone) => [zone.anchor.lat, zone.anchor.lng] as [number, number]),
+      ...hubSaved.map((place) => [place.coordinates.lat, place.coordinates.lng] as [number, number]),
+    ];
+  }, [selectedZones, zones, hubSaved]);
+
+  return (
+    <div className="zone-panel" role="dialog" aria-modal="true" aria-labelledby="zone-panel-title">
+      <header className="zone-panel__bar">
+        <div>
+          <h2 id="zone-panel-title">
+            <span aria-hidden="true">🛏</span> Dónde dormir en {hub}
+          </h2>
+          <p className="zone-panel__sub">
+            {mode === "compare"
+              ? `Comparando ${selectedZones.length} zonas`
+              : `${zones.length} zonas con estrategias distintas. Ninguna es "la mejor": cada una cuesta algo.`}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={onClose}
+          ref={closeRef}
+          aria-label="Cerrar dónde dormir"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <div className="zone-panel__scroll">
+        {mode === "browse" ? (
+          <>
+            {hubSaved.length > 0 ? (
+              <p className="zone-panel__note" role="status">
+                <span aria-hidden="true">📍</span> Ordenadas por cercanía a vuestros{" "}
+                <strong>
+                  {hubSaved.length} lugar{hubSaved.length === 1 ? "" : "es"} guardado
+                  {hubSaved.length === 1 ? "" : "s"}
+                </strong>{" "}
+                en {hub}. Es distancia en línea recta, no tiempo de trayecto.
+              </p>
+            ) : (
+              <p className="zone-panel__note zone-panel__note--muted">
+                <span aria-hidden="true">📍</span> Guarda lugares en {hub} y estas zonas se
+                reordenarán según lo que queráis ver.
+              </p>
+            )}
+
+            <ul className="zone-list">
+              {ranked.map(({ zone, fit }, index) => {
+                const checked = selected.includes(zone.id);
+                return (
+                  <li key={zone.id}>
+                    <article className={`zone-card ${checked ? "zone-card--selected" : ""}`}>
+                      <div className="zone-card__head">
+                        <span className="zone-card__index" aria-hidden="true">
+                          {index + 1}
+                        </span>
+                        <div className="zone-card__title">
+                          <h3>{zone.name}</h3>
+                          <p lang="ja" className="zone-card__ja">
+                            {zone.japaneseName}
+                          </p>
+                        </div>
+                        <label className={`zone-card__compare ${isFull && !checked ? "zone-card__compare--full" : ""}`}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={isFull && !checked}
+                            onChange={() => toggle(zone.id)}
+                          />
+                          <span>Comparar</span>
+                        </label>
+                      </div>
+
+                      <p className="zone-card__summary">{zone.summary}</p>
+
+                      <div className="zone-facts">
+                        <ShinkansenFact zone={zone} />
+                        <AirportFacts zone={zone} />
+                        <span className="zone-fact">
+                          <span aria-hidden="true">🚉</span> {zone.facts.railLines.length} líneas
+                        </span>
+                      </div>
+
+                      {fit.consideredCount > 0 && fit.medianKm !== null && (
+                        <p className="zone-card__fit">
+                          <span aria-hidden="true">📍</span> Mediana{" "}
+                          <strong>{formatKm(fit.medianKm)}</strong> a vuestros guardados
+                          {fit.byBand.doorstep > 0 && (
+                            <> · {fit.byBand.doorstep} a pie</>
+                          )}
+                        </p>
+                      )}
+                    </article>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        ) : (
+          <div className="zone-compare">
+            <div className="zone-compare__map">
+              <MapContainer
+                center={[selectedZones[0]?.anchor.lat ?? 35.68, selectedZones[0]?.anchor.lng ?? 139.76]}
+                zoom={12}
+                className="zone-map"
+                zoomControl={false}
+                scrollWheelZoom={false}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  maxZoom={19}
+                />
+                <ZoomControl position="bottomright" />
+                <FitToMarkers points={mapPoints} />
+                <InvalidateOnResize />
+                {hubSaved.map((place) => (
+                  <Marker
+                    key={place.id}
+                    position={[place.coordinates.lat, place.coordinates.lng]}
+                    icon={savedIcon}
+                    title={place.name}
+                    eventHandlers={{ click: () => onSelectPlace(place.id) }}
+                  >
+                    <Tooltip direction="top">{place.name}</Tooltip>
+                  </Marker>
+                ))}
+                {selectedZones.map((zone, index) => (
+                  <Marker
+                    key={zone.id}
+                    position={[zone.anchor.lat, zone.anchor.lng]}
+                    icon={zoneIcon(index, true)}
+                    title={zone.name}
+                  >
+                    <Tooltip direction="top">{zone.anchor.label}</Tooltip>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+
+            {/*
+              One block per zone rather than one wide table. A table with a column per zone is
+              unreadable on a phone and forces horizontal scrolling, which this panel never does.
+            */}
+            <div className="zone-compare__columns">
+              {selectedZones.map((zone, index) => {
+                const fit = zoneSavedPlacesFit(zone, hubSaved);
+                return (
+                  <section key={zone.id} className="zone-column" aria-label={`Zona ${zone.name}`}>
+                    <header className="zone-column__head">
+                      <span className="zone-column__index" aria-hidden="true">
+                        {index + 1}
+                      </span>
+                      <div>
+                        <h3>{zone.name}</h3>
+                        <p className="zone-column__anchor">{zone.anchor.label}</p>
+                      </div>
+                    </header>
+
+                    <p className="zone-column__summary">{zone.summary}</p>
+
+                    <h4 className="zone-column__heading">
+                      Datos <span className="zone-column__tag zone-column__tag--fact">verificables</span>
+                    </h4>
+                    <div className="zone-facts">
+                      <ShinkansenFact zone={zone} />
+                      <AirportFacts zone={zone} />
+                    </div>
+                    <p className="zone-column__lines">
+                      <strong>Líneas:</strong> {zone.facts.railLines.join(" · ")}
+                    </p>
+                    <p className="zone-column__provenance">
+                      <a href={zone.facts.provenance.sourceUrl} target="_blank" rel="noreferrer">
+                        Fuente
+                      </a>{" "}
+                      · consultada el {zone.facts.provenance.consultedAt}
+                    </p>
+
+                    {fit.consideredCount > 0 && fit.medianKm !== null && (
+                      <>
+                        <h4 className="zone-column__heading">
+                          Vuestros guardados{" "}
+                          <span className="zone-column__tag zone-column__tag--derived">calculado</span>
+                        </h4>
+                        <p className="zone-column__fit">
+                          Mediana <strong>{formatKm(fit.medianKm)}</strong> en línea recta sobre{" "}
+                          {fit.consideredCount} lugar{fit.consideredCount === 1 ? "" : "es"}.
+                        </p>
+                        <ul className="zone-nearest">
+                          {fit.nearest.map((entry) => (
+                            <li key={entry.placeId}>
+                              <button type="button" onClick={() => onSelectPlace(entry.placeId)}>
+                                <span>{entry.name}</span>
+                                <span className="zone-nearest__km">
+                                  {PROXIMITY_BANDS[entry.band].label} · {formatKm(entry.km)}
+                                </span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+
+                    <h4 className="zone-column__heading">
+                      A cambio <span className="zone-column__tag zone-column__tag--editorial">criterio</span>
+                    </h4>
+                    <ul className="zone-tradeoffs">
+                      {zone.tradeoffs.map((tradeoff) => (
+                        <li key={tradeoff}>{tradeoff}</li>
+                      ))}
+                    </ul>
+                  </section>
+                );
+              })}
+            </div>
+
+            <section className="zone-contrasts" aria-label="Diferencias entre las zonas elegidas">
+              <h3>
+                Dónde se diferencian de verdad{" "}
+                <span className="zone-column__tag zone-column__tag--editorial">criterio de Nihon</span>
+              </h3>
+              {contrasts.length === 0 ? (
+                <p className="zone-contrasts__empty">
+                  En lo editorial estas zonas se parecen mucho. La diferencia está arriba: en los
+                  datos de transporte y en la distancia a vuestros guardados.
+                </p>
+              ) : (
+                <ul className="zone-contrast-list">
+                  {contrasts.map((axis) => (
+                    <li key={axis.key} className="zone-contrast">
+                      <p className="zone-contrast__label">
+                        {axis.label}
+                        {NEUTRAL_AXES.has(axis.key as keyof ZoneEditorial) && (
+                          <span className="zone-contrast__neutral"> · ni bueno ni malo</span>
+                        )}
+                      </p>
+                      <ul className="zone-contrast__rows">
+                        {selectedZones.map((zone, index) => (
+                          <li key={zone.id}>
+                            <span className="zone-contrast__zone">
+                              <span className="zone-column__index zone-column__index--inline" aria-hidden="true">
+                                {index + 1}
+                              </span>
+                              {zone.name}
+                            </span>
+                            <Ordinal
+                              value={zone.editorial[axis.key as keyof ZoneEditorial]}
+                              neutral={NEUTRAL_AXES.has(axis.key as keyof ZoneEditorial)}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="zone-contrast__hint">Más marcas = {axis.high.toLowerCase()}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <details className="zone-axes">
+              <summary>Ver las diez valoraciones completas</summary>
+              <ul className="zone-axes__list">
+                {EDITORIAL_AXES.map((axis) => (
+                  <li key={axis.key}>
+                    <p className="zone-contrast__label">{axis.label}</p>
+                    <ul className="zone-contrast__rows">
+                      {selectedZones.map((zone, index) => (
+                        <li key={zone.id}>
+                          <span className="zone-contrast__zone">
+                            <span className="zone-column__index zone-column__index--inline" aria-hidden="true">
+                              {index + 1}
+                            </span>
+                            {zone.name}
+                          </span>
+                          <Ordinal
+                            value={zone.editorial[axis.key]}
+                            neutral={NEUTRAL_AXES.has(axis.key)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </div>
+        )}
+      </div>
+
+      <footer className="zone-panel__foot">
+        {mode === "compare" ? (
+          <button type="button" className="button button--secondary" onClick={() => setMode("browse")}>
+            <span aria-hidden="true">←</span> Volver a las zonas
+          </button>
+        ) : (
+          <>
+            <span className="zone-panel__count" role="status">
+              {selectedZones.length === 0
+                ? `Marca 2 o más para comparar (máx. ${MAX_COMPARED})`
+                : `${selectedZones.length} de ${MAX_COMPARED} seleccionadas`}
+            </span>
+            <span className="zone-panel__foot-actions">
+              {selectedZones.length > 0 && (
+                <button type="button" className="link-button" onClick={clear}>
+                  Quitar
+                </button>
+              )}
+              <button
+                type="button"
+                className="button button--primary"
+                onClick={openCompare}
+                disabled={!canCompare}
+              >
+                Comparar
+              </button>
+            </span>
+          </>
+        )}
+      </footer>
+    </div>
+  );
+}
