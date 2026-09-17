@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Nihon · Referencia Astra</title>
+  <link rel="stylesheet" href="./reference.css">
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+  <header class="shell">
+    <a class="brand" href="./index.html">Nihon<span>Japón, a su manera</span></a>
+    <nav aria-label="Principal">
+      <button data-view="explore" aria-current="page">Explorar</button>
+      <button data-view="saved">Nuestro viaje <span id="count">0</span></button>
+    </nav>
+    <span class="profile">Mis gustos</span>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="intro">
+      <p class="eyebrow">JAPÓN, A SU MANERA</p>
+      <h1>¿Qué les gustaría descubrir?</h1>
+      <p>Marca lo que te gusta. El viaje lo armamos después.</p>
+    </section>
+    <section class="controls" aria-label="Buscar lugares">
+      <label class="search"><span id="search-icon" aria-hidden="true"></span><span class="sr">Busca un lugar o una experiencia</span><input id="query" type="search" placeholder="Busca un lugar o una experiencia" autocomplete="off"></label>
+      <div class="quick">
+        <label><span class="sr">Hub</span><select id="hub"><option value="">Todo Japón</option></select></label>
+        <label><span class="sr">Experiencia</span><select id="category"><option value="">Experiencias</option></select></label>
+      </div>
+    </section>
+    <div class="result-bar"><h2 id="result-title">Lugares para descubrir</h2><span id="results" role="status"></span></div>
+    <div id="cards" class="cards"><p>Cargando lugares…</p></div>
+    <button id="more" class="secondary more" hidden>Ver 12 más</button>
+    <aside class="scope">Referencia de diseño Astra: descubrimiento, ficha y corazón. Los gustos de esta referencia son temporales; mapa, pareja, filtros avanzados y planificación se especifican en los documentos.</aside>
+  </main>
+  <dialog id="detail" aria-labelledby="detail-title">
+    <div class="dialog-bar"><span>Nihon · Explorar</span><button id="close" aria-label="Cerrar ficha" class="icon-button">×</button></div>
+    <div id="detail-content"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="./reference.js"></script>
+</body>
+</html>
