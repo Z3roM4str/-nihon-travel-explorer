@@ -7,6 +7,8 @@ type Props = {
   /** Editorial description of the photograph this place should eventually have. */
   imageBrief: string;
   placeName: string;
+  /** The place's own category emoji, so the no-photograph state still says what this is. */
+  categoryIcon?: string;
 };
 
 type LoadState = "loading" | "loaded" | "error";
@@ -59,12 +61,20 @@ function Attribution({ image }: { image: PlaceImage }) {
 }
 
 /** Shown until licensed photography exists for a place — never a stand-in photo of somewhere else. */
-function GalleryFallback({ imageBrief, placeName }: { imageBrief: string; placeName: string }) {
+function GalleryFallback({
+  imageBrief,
+  placeName,
+  categoryIcon,
+}: {
+  imageBrief: string;
+  placeName: string;
+  categoryIcon?: string;
+}) {
   return (
     <div className="gallery gallery--fallback">
       <div className="gallery__fallback-inner">
         <span className="gallery__fallback-icon" aria-hidden="true">
-          ⛩
+          {categoryIcon || "⛩"}
         </span>
         <p className="gallery__fallback-label">Sin fotografía disponible todavía</p>
         {imageBrief && (
@@ -78,7 +88,7 @@ function GalleryFallback({ imageBrief, placeName }: { imageBrief: string; placeN
   );
 }
 
-export function PlaceGallery({ images, imageBrief, placeName }: Props) {
+export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Props) {
   const [index, setIndex] = useState(0);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -148,7 +158,9 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   }, [lightboxOpen]);
 
   if (total === 0) {
-    return <GalleryFallback imageBrief={imageBrief} placeName={placeName} />;
+    return (
+      <GalleryFallback imageBrief={imageBrief} placeName={placeName} categoryIcon={categoryIcon} />
+    );
   }
 
   const current = images[index];
@@ -203,6 +215,9 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
 
         {total > 1 && (
           <>
+            <span className="gallery__counter" aria-hidden="true">
+              {index + 1} / {total}
+            </span>
             <button
               type="button"
               className="gallery__nav gallery__nav--prev"

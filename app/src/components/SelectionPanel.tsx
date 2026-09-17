@@ -1,6 +1,9 @@
 import type { Place } from "../types";
+import { resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
+import { interestLevelForPlace } from "../lib/interest-level";
 import { summarizeSelection } from "../lib/selection";
+import { splitCategory } from "../lib/place";
 
 type Props = {
   savedPlaces: Place[];
@@ -130,12 +133,38 @@ export function SelectionPanel({
               <ul className="selection-list">
                 {savedPlaces.map((place) => {
                   const range = resolveDuration(place.duration);
+                  const interest = interestLevelForPlace(place);
+                  const thumbnail = resolvePlaceImages(place.id, place.images)[0];
+                  const category = splitCategory(place.category);
                   return (
                     <li key={place.id} className="selection-list__item">
                       <button type="button" className="selection-list__name" onClick={() => onSelect(place.id)}>
-                        <span>{place.name}</span>
-                        <span className="selection-list__duration">
-                          {range ? formatRange(range) : place.duration.raw}
+                        {/* The same photograph the card showed, so a saved place is recognised
+                            here by sight rather than re-read by name. */}
+                        <span className="selection-list__thumb" aria-hidden="true">
+                          {thumbnail ? (
+                            <img src={thumbnail.url} alt="" loading="lazy" decoding="async" />
+                          ) : (
+                            <span className="selection-list__thumb-icon">{category.icon || "⛩"}</span>
+                          )}
+                        </span>
+                        <span className="selection-list__text">
+                          <span className="selection-list__place">{place.name}</span>
+                          <span className="selection-list__meta">
+                            <span
+                              className={`selection-list__interest badge--grade-${place.grade}`}
+                              aria-hidden="true"
+                            >
+                              {interest.glyph}
+                            </span>
+                            <span className="visually-hidden">{interest.label}. </span>
+                            {place.hub}
+                            <span aria-hidden="true"> · </span>
+                            <span className="selection-list__duration">
+                              <span className="visually-hidden">Tiempo de visita: </span>
+                              {range ? formatRange(range) : place.duration.raw}
+                            </span>
+                          </span>
                         </span>
                       </button>
                       <button

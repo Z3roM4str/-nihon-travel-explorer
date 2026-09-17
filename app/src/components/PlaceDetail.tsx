@@ -137,7 +137,13 @@ export function PlaceDetail({
       </div>
 
       <div className="place-detail__scroll" ref={scrollRef}>
-        <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
+        <PlaceGallery
+          key={place.id}
+          images={images}
+          imageBrief={brief}
+          placeName={place.name}
+          categoryIcon={category.icon}
+        />
 
         <div className="place-detail__body">
           <header className="place-detail__title-block">

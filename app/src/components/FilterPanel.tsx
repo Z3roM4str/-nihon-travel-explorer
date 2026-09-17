@@ -3,6 +3,7 @@ import type { Filters } from "../types";
 import type { PlanningBlock } from "../lib/planning-block";
 import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
 import { splitCategory } from "../lib/place";
+import { interestLevelForGrade } from "../lib/interest-level";
 
 type Props = {
   filters: Filters;
@@ -156,17 +157,24 @@ export function FilterPanel({
         })}
       </FilterGroup>
 
-      <FilterGroup label="Grado" count={filters.grades.length} defaultOpen>
-        {grades.map((grade) => (
-          <label key={grade} className="filter-chip filter-chip--grade">
-            <input
-              type="checkbox"
-              checked={filters.grades.includes(grade)}
-              onChange={() => onChange({ ...filters, grades: toggleValue(filters.grades, grade) })}
-            />
-            <span>{grade}</span>
-          </label>
-        ))}
+      {/* Still the dataset's `grade` filter — only the wording changed. A bare "S/A/B/C/D" row
+          asked the reader to know the catalogue's internal vocabulary before they could use it. */}
+      <FilterGroup label="Nivel de interés" count={filters.grades.length} defaultOpen>
+        {grades.map((grade) => {
+          const interest = interestLevelForGrade(grade);
+          return (
+            <label key={grade} className="filter-chip filter-chip--grade" title={interest.description}>
+              <input
+                type="checkbox"
+                checked={filters.grades.includes(grade)}
+                onChange={() => onChange({ ...filters, grades: toggleValue(filters.grades, grade) })}
+              />
+              <span>
+                <span aria-hidden="true">{interest.glyph}</span> {interest.label}
+              </span>
+            </label>
+          );
+        })}
       </FilterGroup>
 
       <FilterGroup label="Duración" count={filters.planningBlocks.length} defaultOpen>
