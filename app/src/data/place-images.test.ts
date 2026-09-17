@@ -90,25 +90,31 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly seven WebP-only records and 150 resized+WebP records from the committed metadata", () => {
+  it("derives exactly seven WebP-only records and 154 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(150);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(154);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
   });
 
-  it("carries the Phase 4D batch as exactly one image per newly covered place", () => {
+  it("carries the Phase 4D batch as the first photograph of each newly covered place", () => {
     // Phase 4D acquired 12 of its 16 S-grade targets; the other four failed closed on
     // subject-matter grounds and must still resolve to no photograph at all.
+    //
+    // Asserted as "first", not "only": the registry is append-only, so a later block adding a
+    // second facet (Block 2 did, to JP-205) must leave this batch's own photograph in place and
+    // in position. That is the property worth protecting — a re-ordering or a replacement would
+    // silently rewrite a historical tranche's result.
     const acquired = [
       "JP-044", "JP-066", "JP-096", "JP-135", "JP-142", "JP-143",
       "JP-144", "JP-184", "JP-188", "JP-192", "JP-197", "JP-205",
     ];
     for (const placeId of acquired) {
-      expect(placeImages[placeId]).toHaveLength(1);
+      expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
     }
+    expect(placeImages["JP-205"]?.[0]?.url).toContain("odori-park-snow-festival");
     for (const deferred of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
       expect(placeImages[deferred]).toBeUndefined();
     }
@@ -173,10 +179,41 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     expect(placeImages["JP-140"]).toBeUndefined();
   });
 
-  it("never registers a second image for any place", () => {
+  /**
+   * Phase 4A's "exactly one image per place" invariant, retired deliberately by Block 2 and
+   * replaced rather than deleted.
+   *
+   * It held for five acquisition phases because no phase ever added a second photograph — not
+   * because one was forbidden. Block 2 adds a second facet to six grade S places whose single
+   * image showed an exterior or an aerial and not the experience. What still needs protecting
+   * is that a gallery is a *decision*, never a side effect: every extra image must be an
+   * intended one, on a place that was chosen for it.
+   */
+  it("gives a second photograph only to the places Block 2 deliberately chose", () => {
+    const galleries = Object.entries(placeImages)
+      .filter(([, images]) => images.length > 1)
+      .map(([placeId]) => placeId)
+      .sort();
+    expect(galleries).toEqual(["JP-021", "JP-089", "JP-129", "JP-152"]);
+  });
+
+  it("keeps every other place at exactly one photograph", () => {
+    const depth = new Set(["JP-021", "JP-089", "JP-129", "JP-152"]);
     for (const [placeId, images] of Object.entries(placeImages)) {
+      if (depth.has(placeId)) continue;
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
     }
+  });
+
+  it("never lets a gallery grow past a reviewable size", () => {
+    // Not a supply to be scaled: each extra image is argued for one at a time in
+    // docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md. A jump past three means that stopped happening.
+    for (const [placeId, images] of Object.entries(placeImages)) {
+      expect({ placeId, withinLimit: images.length <= 3 }).toEqual({ placeId, withinLimit: true });
+    }
+  });
+
+  it("covers 157 places", () => {
     expect(Object.keys(placeImages)).toHaveLength(157);
   });
 

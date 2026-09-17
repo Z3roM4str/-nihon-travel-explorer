@@ -1,0 +1,19 @@
+{
+  "phase": "Block 2 — depth on decision-critical places",
+  "acquisitionDate": "2026-09-17",
+  "note": "A second photograph is added only where the existing single image shows one facet that does not convey the actual experience, and a licensable photograph of a materially different facet exists. Ten places were assessed; four failed the criterion and are recorded in the design document.",
+  "entries": [
+    {"placeId": "JP-129", "slug": "todaiji-daibutsu", "title": "File:Daibutsu Grand bouddha - Tōdai-ji - Nara.jpg",
+     "alt": "El Gran Buda de bronce de Tōdai-ji visto entre las columnas bermellones del Daibutsuden, con la mano derecha alzada."},
+    {"placeId": "JP-152", "slug": "benesse-house-museum", "title": "File:150505 Benesse House Museum Naoshima Kagawa pref Japan01b3s5.jpg",
+     "alt": "Terraza de hormigón del Benesse House Museum de Tadao Ando sobre la costa de Naoshima, con el mar interior de Seto al fondo."},
+    {"placeId": "JP-089", "slug": "nijojo-ninomaru-garden", "title": "File:Nijojo-ninomaru-garden01s3s4592.jpg",
+     "alt": "Jardín Ninomaru del Castillo Nijō, con rocas dispuestas alrededor de un estanque y pinos podados reflejados en el agua."},
+    {"placeId": "JP-021", "slug": "tokyo-national-museum-honkan", "title": "File:Tokyo National Museum, Honkan 2010.jpg",
+     "alt": "Edificio Honkan del Museo Nacional de Tokio, de estilo teikan, reflejado en el estanque de su explanada de acceso."},
+    {"placeId": "JP-205", "slug": "sapporo-snow-sculpture", "title": "File:第65回さっぽろ雪まつり（SAPPORO SNOW FESTIVAL 65th） - panoramio.jpg",
+     "alt": "Gran escultura de nieve iluminada de noche en el Festival de la Nieve de Sapporo, con el público en silueta delante para dar escala."},
+    {"placeId": "JP-125", "slug": "usj-wizarding-world-castle", "title": "File:Hogwarts in Universal Studios Japan.jpg",
+     "alt": "Castillo del Mundo Mágico de Harry Potter en Universal Studios Japan, sobre su promontorio rocoso rodeado de árboles."}
+  ]
+}

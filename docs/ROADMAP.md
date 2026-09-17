@@ -6525,5 +6525,89 @@ origin was introduced**; travel times still derive from hubs, zones and access p
 `OrderedSequenceBuilder` and `SelectionAnalysis` were left untouched — they are planning
 surfaces and belong with the itinerary block.
 
-**Authorized next step: Block 2 — photography coverage and carousels.** See
-[`docs/BLOCK_1_HANDOFF.md`](BLOCK_1_HANDOFF.md).
+**Block 1 closed.** See [`docs/BLOCK_1_HANDOFF.md`](BLOCK_1_HANDOFF.md).
+
+## Block 2 — the photographic layer — complete
+
+Base: `claude/brave-wozniak-f79ie3` at `ac54969`. Authority:
+[`docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md`](BLOCK_2_PHOTOGRAPHY_DESIGN.md), which starts from Phase
+4M's ceiling rather than from Phase 4K's or 4L's superseded projections, as Phase 4M §11
+requires of any successor.
+
+Every Phase 4M starting figure was reproduced independently from canonical data before any
+change: 214 places · 144 covered (67.3%) · 70 uncovered · max 1 photograph per place · 40.49
+MiB across 144 assets · the 16 fail-closed ids · eligible universes A 35 / A+B 44 / A+B+C+D 54.
+**All reproduce exactly.**
+
+- [x] **Divergence reported, against the Block 1 handoff.** That handoff claimed uncovered
+      places are identified by `imageStatus: "brief-only"` in `places.json`. They are not:
+      `scripts/export-dataset.py` writes that literal for all 214 unconditionally, and nothing
+      in the app reads it. The registry is the sole source of truth. Corrected in the Block 2
+      design document rather than silently; no figure moves.
+- [x] **The ordering invariant is kept, and Block 1 strengthens the case for it.** Phase 4M's
+      S ≥ A ≥ B ≥ C ≥ D rule existed so photography never contradicts editorial grading. With
+      a photo-led card list, a B place with a photograph visibly outshines an A place without
+      one in the surface where choosing happens. Phase 4M §4's permanent ceiling (≤26 further
+      A, ≤7 further B, programme ceiling 82.7%) is accepted as stated.
+- [x] **Derivative tier — the largest win, and no sourcing risk.** Block 1 made the list
+      photo-led but left it loading the 1600px detail hero into a ~350-390 CSS px card, and the
+      48px saved-list thumbnail. Scrolling one hub cost **9.51 MiB**.
+      `scripts/build-photography-derivatives.py` renders one deterministic, network-free 800px
+      rendition per photograph, named by derivation rather than declared in the registry.
+      Measured in Chromium: **2.63 MiB, −72%**, at both 390×844 DPR 2 and 1440×900, with 37 of
+      37 responses being derivatives. The lightbox still loads the original.
+- [x] **The validator looks at the asset tree for the first time.** Every registered photograph
+      must ship its derivative, and no file may be an orphan. Both rules proven to fail on a
+      planted fault and recover. It stays Pillow-free and network-free.
+- [x] **Prominence-first coverage: 14 attempted, 13 accepted, 1 failed closed.** Coverage
+      **144 → 157 (67.3% → 73.4%)**. S 87.5% · A 69.4% → **76.2%** · B 56.0% → **68.0%**,
+      ordering intact at a **+8.2** point margin. Large-hub spread **5.2 → 3.8 points**, a new
+      programme minimum — the mix was chosen to beat Phase 4M's record, not spend it.
+      `Extremo` prominence **52.3% → 63.6%**, materially repairing the inversion Phase 4M
+      measured. **JP-080 Kinkaku-ji**, which Phase 4M proved no tranche up to n=32 would ever
+      select, is covered by a Commons Featured Picture at 0.01 km.
+- [x] **JP-171 Blue Cave at Cape Maeda fails closed — the 17th.** No licensable photograph of
+      the cave exists; the only allowlisted cape candidate does not show the dive site the place
+      is named for. Fails identification, not licence.
+- [x] **Depth: 10 assessed, 6 accepted, 4 rejected on the stated criterion; 4 shipped.** A second
+      photograph only where the existing one shows a facet that does not convey the experience
+      and a materially different licensable facet exists: JP-129 Tōdai-ji (hall → the Great
+      Buddha), JP-152 Naoshima (**the ferry terminal** → Benesse House), JP-089 Nijō (palace →
+      garden), JP-021 Tokyo National Museum (lobby stair → the Honkan), JP-205 Sapporo (aerial →
+      a sculpture at human scale), JP-125 USJ (entrance plaza → an attraction inside). Rejected:
+      Sanjūsangen-dō and Ghibli (interior photography prohibited, all candidates near-duplicate
+      exteriors), Nintendo Museum and Yambaru (no allowlisted candidate), Himeji and Churaumi
+      (their existing photograph already *is* the experience). **JP-205 and JP-125 are
+      deferred, not fail-closed**: both passed every gate including visual inspection, and
+      `upload.wikimedia.org` refused the download because they are the only two Block 2 files at
+      or below 1600px, where the pipeline fetches an *original* rather than a cached thumbnail.
+      The diagnosis and the proposed fix are in the design document §6.1; their verified plan
+      entries are committed.
+- [x] **The carousel is exercised by real data for the first time.** `PlaceGallery` has shipped
+      swipe, arrows, dots, an `n / total` counter, keyboard navigation and a lightbox focus trap
+      since before Block 1, and `total > 1` had never been true in production.
+- [x] **A wrong image is worse than none — gated three times.** Licence filtered at discovery;
+      Commons GPS within 0.2 km of the place's own coordinates; and every candidate looked at.
+      Sight caught what metadata could not: two candidates passing licence, title and
+      coordinates were rejected on inspection (Sanzen-in foliage with no temple; Hikone blossom
+      with no castle) and replaced, and a "Blue Cave" search returned a cave in **Montenegro**.
+      All 19 accepted assets were re-inspected as committed WebP.
+- [x] **Phase 4A's "one image per place" invariant retired deliberately and replaced**, not
+      deleted: galleries are pinned to the six chosen places, every other place must stay at
+      one, and no gallery may exceed three.
+- [x] **Verified.** Vitest **2569**/73 files · oxlint clean · `tsc` clean · production build OK ·
+      all six repository validators OK · `block1-ux-browser-audit.mjs` **142/142** at 390×844,
+      820×1180 and 1440×900 · `git diff --check` clean.
+
+### STOP criterion
+
+**Coverage stops** because the named product motive is exhausted: five of Phase 4M's six
+reachable prominence gaps are covered and the sixth is fail-closed. What remains is percentage,
+which is the trap Phase 4M §9 identified and is still a trap at 73.4%. **Depth stops** because
+criterion 2 is nearly out of candidates — two rejections were places where photography of the
+experience is legally prohibited, and two had no allowlisted image at all. Neither resumes on a
+percentage; a future block needs a *named* place whose absence is demonstrably costing a
+decision.
+
+**Authorized next step: none in photography.** See
+[`docs/BLOCK_2_HANDOFF.md`](BLOCK_2_HANDOFF.md) for the recommendation.

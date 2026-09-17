@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 157,
+  "imageCount": 161,
   "images": [
     {
       "placeId": "JP-001",
@@ -2515,6 +2515,70 @@
       "originalTitle": "File:Aharen Beach On Tokashiki Island 2009 (7384).jpg",
       "originalWidth": 4000,
       "originalHeight": 3000,
+      "processing": "resized-and-webp-reencoded"
+    },
+    {
+      "placeId": "JP-129",
+      "assetPath": "images/places/JP-129/todaiji-daibutsu.webp",
+      "alt": "El Gran Buda de bronce de Tōdai-ji visto entre las columnas bermellones del Daibutsuden, con la mano derecha alzada.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ADaibutsu_Grand_bouddha_-_T%C5%8Ddai-ji_-_Nara.jpg",
+      "credit": "Gilles Desjardins",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Daibutsu_Grand_bouddha_-_T%C5%8Ddai-ji_-_Nara.jpg",
+      "acquisitionDate": "2026-09-17",
+      "originalTitle": "File:Daibutsu Grand bouddha - Tōdai-ji - Nara.jpg",
+      "originalWidth": 5710,
+      "originalHeight": 3807,
+      "processing": "resized-and-webp-reencoded"
+    },
+    {
+      "placeId": "JP-152",
+      "assetPath": "images/places/JP-152/benesse-house-museum.webp",
+      "alt": "Terraza de hormigón del Benesse House Museum de Tadao Ando sobre la costa de Naoshima, con el mar interior de Seto al fondo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3A150505_Benesse_House_Museum_Naoshima_Kagawa_pref_Japan01b3s5.jpg",
+      "credit": "663highland",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/150505_Benesse_House_Museum_Naoshima_Kagawa_pref_Japan01b3s5.jpg",
+      "acquisitionDate": "2026-09-17",
+      "originalTitle": "File:150505 Benesse House Museum Naoshima Kagawa pref Japan01b3s5.jpg",
+      "originalWidth": 6000,
+      "originalHeight": 4000,
+      "processing": "resized-and-webp-reencoded"
+    },
+    {
+      "placeId": "JP-089",
+      "assetPath": "images/places/JP-089/nijojo-ninomaru-garden.webp",
+      "alt": "Jardín Ninomaru del Castillo Nijō, con rocas dispuestas alrededor de un estanque y pinos podados reflejados en el agua.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANijojo-ninomaru-garden01s3s4592.jpg",
+      "credit": "663highland",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Nijojo-ninomaru-garden01s3s4592.jpg",
+      "acquisitionDate": "2026-09-17",
+      "originalTitle": "File:Nijojo-ninomaru-garden01s3s4592.jpg",
+      "originalWidth": 4592,
+      "originalHeight": 3056,
+      "processing": "resized-and-webp-reencoded"
+    },
+    {
+      "placeId": "JP-021",
+      "assetPath": "images/places/JP-021/tokyo-national-museum-honkan.webp",
+      "alt": "Edificio Honkan del Museo Nacional de Tokio, de estilo teikan, reflejado en el estanque de su explanada de acceso.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_National_Museum%2C_Honkan_2010.jpg",
+      "credit": "Wiiii",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Tokyo_National_Museum%2C_Honkan_2010.jpg",
+      "acquisitionDate": "2026-09-17",
+      "originalTitle": "File:Tokyo National Museum, Honkan 2010.jpg",
+      "originalWidth": 3476,
+      "originalHeight": 2307,
       "processing": "resized-and-webp-reencoded"
     }
   ]
