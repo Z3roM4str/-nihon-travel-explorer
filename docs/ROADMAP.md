@@ -6730,3 +6730,56 @@ any logistics.
 **Authorized next step: none decided.** Block 4 had no authorisation to choose how the two-person
 layer works, and did not. See [`docs/BLOCK_4_HANDOFF.md`](BLOCK_4_HANDOFF.md) for the
 recommendation and the product decision it needs first.
+
+---
+
+## Block 5 — two local travellers — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `9275281` (Block 4 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_5_DESIGN.md`](BLOCK_5_DESIGN.md).
+
+**The product decision Blocks 2, 3 and 4 each deferred was taken by the user: option A — two local
+profiles in one browser.** No backend, no accounts, no login, no cross-device sync; the model is
+nevertheless shaped so a later move to synchronisation would not require re-conceiving the layer.
+
+- [x] **Settled what is shared before writing any component.** The route, the days, the dates, the
+      visit times, the accommodation anchors, the manual legs, the inter-hub segments and the
+      chosen zones belong to the trip — two adults travelling together have one itinerary.
+      **Exactly one thing is personal: does this person want to go here.**
+- [x] **`ManualPlanningDraftV8` is deliberately NOT versioned.** Nothing in it is personal, so
+      bumping to V9 out of symmetry would have added a migration for no change in meaning. Asserted
+      by test: the draft module may not mention a traveller, and the travellers module may not
+      mention a route, day, date, anchor, leg, segment or zone.
+- [x] **The shared shortlist is now DERIVED**, not stored: a place is in play when at least one
+      traveller wants it. `usePlanningDraft(savedIds)` keeps receiving the same `string[]` and
+      reconciles exactly as before. `useSavedPlaces` was removed rather than left as a second
+      writer of the same concept.
+- [x] **Three states, never two.** Silence, interest and explicit refusal stay distinct — the same
+      discipline Phase 3D-P applies to `unselected` vs `no-accommodation`. One person saying no
+      never removes a place the other still wants; the disagreement is shown, not resolved.
+- [x] **Nothing is scored.** "Los dos" is reported as a coincidence of two stated preferences, in
+      those words. No function in the layer returns a number per place, and no surface sorts or
+      filters the catalogue by what people said.
+- [x] **A pre-Block-5 list is carried over without inventing anyone's opinion.** Those places
+      arrive *unclaimed*, say so, and the flag clears when somebody speaks. Attributing them to
+      Persona 1 would have fabricated an opinion about a real person; to both, two. The legacy key
+      is read only when no document exists, and is never written or deleted.
+- [x] **Fail-closed parsing**, including the relational rule only this level can see: a stance
+      referencing an unknown traveller is rejected outright, never dropped and never reattributed.
+- [x] **The UI footprint is one header row.** A marker appears only when it says something the
+      reader does not already know, so most cards look exactly as they did. Saving is still one tap
+      with no person picker; the heart shows YOUR interest, not shared membership; the explicit
+      refusal and the full picture live in the detail; one modal, opened only by the reader, states
+      what a destructive step will cost before it happens.
+- [x] **Regression found and fixed.** Block 3's audit emptied the shortlist by removing
+      `nihon.savedPlaceIds`, which Block 5 made the legacy key, so it never reached the empty state
+      it exists to prove — 6 of 105 checks failed. The audit now clears the current owner too.
+- [x] **Block 4's `useZonePlanChoice` assumption was re-examined and left alone**, as instructed:
+      Block 5 adds a writer of a different key and never touches the planning draft, so the
+      mutual-exclusion assumption still holds and the refactor stays unmade.
+- [x] **Verified.** Vitest **2842** · oxlint and `tsc` clean · build OK · **all 13 Python suites** ·
+      **all 8 argument-free validators** · Block 1 **142/142** · Block 2 **69/69** · Block 3
+      **105/105** · Block 4 **261/261** · new Block 5 audit **225/225** at 390×844 DPR 2,
+      820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_5_HANDOFF.md`](BLOCK_5_HANDOFF.md).
