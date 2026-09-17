@@ -120,7 +120,15 @@ export function PlaceCard({ place, selected, saved, onSelect, onToggleSaved, sho
 
       <div className="place-card__body">
         <h3 className="place-card__heading">
-          <button type="button" className="place-card__open" onClick={() => onSelect(place.id)}>
+          {/* `data-stretch-target` names the element this control's `::after` actually covers.
+              The button's own box is only the title text; its hit area is the whole card, and
+              the tap-target audit needs to be able to tell those apart. */}
+          <button
+            type="button"
+            className="place-card__open"
+            data-stretch-target=".place-card"
+            onClick={() => onSelect(place.id)}
+          >
             {place.name}
             <span className="visually-hidden">
               . {interest.label}. {category.label} en {zone}.

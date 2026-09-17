@@ -252,7 +252,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  min-height: 2.35rem;
+  min-height: var(--tap-target);
   padding: 0.3rem 0.85rem;
   border: none;
   border-radius: 999px;
@@ -274,7 +274,7 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: 2.5rem;
+  min-height: var(--tap-target);
   padding: 0.35rem 0.85rem;
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
@@ -608,9 +608,10 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: 2.25rem;
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
-  padding: 0.35rem 0.7rem;
+  padding: 0.35rem 0.75rem;
   font-size: 0.8rem;
   cursor: pointer;
   background: var(--color-surface);
