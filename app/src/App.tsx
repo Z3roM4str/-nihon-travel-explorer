@@ -259,6 +259,31 @@ export default function App() {
   const closeDetail = useCallback(() => setHistory([]), []);
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
+  /**
+   * Block 4 — the zone comparison and the planner are mutually exclusive, and that is load-bearing
+   * rather than cosmetic.
+   *
+   * Both surfaces write the SAME planning draft under `nihon.manualPlanningDraft`: the planner
+   * through `usePlanningDraft`, which holds it in React state for as long as it is mounted, and the
+   * comparison through `useZonePlanChoice`, which read-modify-writes storage directly. Two live
+   * writers could overwrite each other's work, so there is never more than one: opening either
+   * closes the other. The planner's long-standing "a fresh mount is exactly the builder opening"
+   * lifecycle then guarantees it loads whatever the comparison just wrote.
+   *
+   * It is also simply the right flow. Choosing a zone and then opening the planner is one
+   * continuous movement — comparar → elegir → planificar — not two panels fighting for the screen,
+   * and it needs no new modal to express.
+   */
+  const openZones = useCallback(() => {
+    setSequenceBuilderOpen(false);
+    setZonesOpen(true);
+  }, []);
+
+  const openSequenceBuilder = useCallback(() => {
+    setZonesOpen(false);
+    setSequenceBuilderOpen(true);
+  }, []);
+
   /** Manually switching hubs resets filters and closes any open detail from the previous
    * hub — the policy is deliberately different from pushPlace/goBack, which preserve both. */
   const switchHub = useCallback(
@@ -434,7 +459,7 @@ export default function App() {
               <button
                 type="button"
                 className="hub-bar__zones"
-                onClick={() => setZonesOpen(true)}
+                onClick={openZones}
                 aria-haspopup="dialog"
               >
                 <span aria-hidden="true">🛏</span>
@@ -550,7 +575,7 @@ export default function App() {
         open={selectionOpen}
         onToggle={() => setSelectionOpen((open) => !open)}
         onAnalyze={() => setAnalysisOpen(true)}
-        onBuildSequence={() => setSequenceBuilderOpen(true)}
+        onBuildSequence={openSequenceBuilder}
       />
 
       {analysisOpen && (
@@ -577,6 +602,7 @@ export default function App() {
             selectPlace(id);
             setZonesOpen(false);
           }}
+          onOpenPlanner={openSequenceBuilder}
         />
       )}
 

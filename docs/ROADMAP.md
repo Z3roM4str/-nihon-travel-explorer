@@ -6677,3 +6677,56 @@ making it decide things.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_3_HANDOFF.md`](BLOCK_3_HANDOFF.md) for
 the recommendation and the decision it needs first.
+
+---
+
+## Block 4 — the chosen zone becomes an input to the plan — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `f8f3eb9` (Block 3 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_4_DESIGN.md`](BLOCK_4_DESIGN.md). Block 3 gave the reader
+something substantive to decide; Block 4 makes the decision do something, without Nihon inventing
+any logistics.
+
+### The loop it closes
+
+`COMPARAR → ELEGIR → PLANIFICAR → ver qué implica para los días`, with every step the reader's.
+
+- [x] **A zone can be chosen explicitly**, per hub, from the comparison — in the list and in the
+      side-by-side. The wording is "usar esta zona", never "la mejor zona" and never "te conviene".
+- [x] **The choice seeds an ordinary accommodation anchor** from the zone's own station label and
+      coordinate — the exact two fields `AccommodationAnchor` already requires, and the two the
+      reader would otherwise have retyped. Audited against the code before being built, exactly as
+      the Block 3 handoff proposed.
+- [x] **One truth, not two.** `ManualPlanningDraftV8` adds exactly one field,
+      `zoneAccommodationChoices`, under the same `nihon.manualPlanningDraft` key. The choice and
+      the anchor it created are written, reconciled and deleted together; there is deliberately no
+      `selectedZone` living beside `nihon.zoneComparison.v1`. A choice pointing at a missing anchor
+      is rejected at parse, never repaired.
+- [x] **No manual state is ever destroyed silently.** Changing or removing a zone drops its seeded
+      anchor only when that anchor carries no user work — no boundary selects it and no duration
+      was typed for it. Otherwise it survives as an ordinary anchor and the UI says so. Re-pointing
+      an old anchor at a new zone's coordinate was rejected outright: 25 minutes from Shinjuku is
+      not 25 minutes from Asakusa.
+- [x] **Nothing is derived that cannot be.** No travel time is produced, estimated or implied. The
+      only numbers the new surface renders are kilometres and day ordinals; straight-line distance
+      stays badged *calculado* and worded *línea recta*, and the copy states outright that it is
+      not travel time and does not make a day better.
+- [x] **Multi-hub is structural.** A day whose places span two hubs gets no zone at all, and the
+      reason is shown. One hub's zone never appears as another hub's accommodation — and when the
+      reader deliberately points a Kioto day at a Tokio zone's anchor, that is reported as a
+      neutral fact, not a warning.
+- [x] **Exactly one live writer of the draft.** The comparison and the planner are now mutually
+      exclusive; opening either closes the other. That is also the natural flow.
+- [x] **Two test-gate corrections, recorded not hidden.** `ORS` in the Phase 3D-Q forbidden-claim
+      scan was unanchored and matched the "ors" inside `anchors`; it is now `\bORS\b`, with a test
+      proving it still catches a real claim. And vocabulary scans now assert the disclaimers
+      positively and exclude them before scanning, because Block 4's copy denies in words the very
+      things a blunt keyword scan flags.
+- [x] **Verified.** Vitest **2720** · oxlint and `tsc` clean · build OK · **all 13 Python suites**
+      · **all 8 argument-free validators** · Block 1 **142/142** · Block 2 **69/69** · Block 3
+      **105/105** · new Block 4 zone → planner audit **261/261** at 390×844 DPR 2, 820×1180 DPR 2
+      and 1440×900, against the production build via `vite preview` · `git diff --check` clean.
+
+**Authorized next step: none decided.** Block 4 had no authorisation to choose how the two-person
+layer works, and did not. See [`docs/BLOCK_4_HANDOFF.md`](BLOCK_4_HANDOFF.md) for the
+recommendation and the product decision it needs first.

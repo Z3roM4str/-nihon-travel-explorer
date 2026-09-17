@@ -5011,3 +5011,231 @@ a {
 .local-swap__apply {
   justify-self: start;
 }
+
+/* ---------- Block 4 — choosing a zone, and what it does to the plan ----------
+   The comparison panel gains one action and one status strip; the planner gains one section.
+   Both reuse Block 1's tokens, radii and the 44px tap floor rather than inventing a second visual
+   language, and neither hides anything essential behind hover: every control is a real button with
+   a visible label, and the chosen state is announced as text, not only as colour. */
+
+.zone-choice-banner {
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.zone-choice-banner__line {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.zone-choice-banner__line--empty {
+  color: var(--color-text-muted);
+}
+
+.zone-choice-banner__caveat {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.zone-choice-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+/* The clear control is a link in appearance only; it still has to be thumb-sized. */
+.zone-choice-banner__actions .link-button {
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+.zone-choice-action {
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zone-choice-action__button {
+  flex: 1 1 auto;
+  /* Never narrower than a thumb, and never wider than its column — the comparison panel's
+     no-horizontal-scroll rule is absolute. */
+  min-width: 0;
+}
+
+.zone-choice-action--chosen {
+  justify-content: space-between;
+}
+
+.zone-choice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ---------- Block 4 — the planner's zone section ---------- */
+
+.zone-plan {
+  margin: 1rem 0 0;
+  padding: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.zone-plan > h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.zone-plan__empty {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: var(--color-surface-alt);
+}
+
+.zone-plan__card:last-of-type {
+  margin-bottom: 0;
+}
+
+.zone-plan__card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.zone-plan__card-title {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.zone-plan__card-anchor {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__clear {
+  flex: 0 0 auto;
+}
+
+.zone-plan__caveat,
+.zone-plan__multi-hub,
+.zone-plan__empty-days,
+.zone-plan__derived-note {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__counts {
+  margin: 0.6rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.zone-plan__days {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.zone-plan__day {
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.zone-plan__day-head {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.zone-plan__day-sides {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__day-proximity {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* The same fact/derived/editorial vocabulary Block 3 introduced, so a reader who learned it on the
+   comparison screen reads it identically here. This section only ever shows the derived one. */
+.zone-plan__tag {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.zone-plan__tag--derived {
+  background: #e7eef5;
+  color: var(--color-info);
+}
+
+.accommodation-manager__origin {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+
+@media (min-width: 620px) {
+  .zone-choice-action__button {
+    flex: 0 0 auto;
+  }
+}
+
+.zone-plan__summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}

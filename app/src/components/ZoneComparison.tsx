@@ -14,13 +14,87 @@ import {
   type ZoneEditorial,
 } from "../lib/accommodation-zone";
 import { MAX_COMPARED, useZoneComparison } from "../useZoneComparison";
+import { useZonePlanChoice } from "../useZonePlanChoice";
 
 type Props = {
   hub: string;
   savedPlaces: Place[];
   onClose: () => void;
   onSelectPlace: (id: string) => void;
+  /** Block 4: hands the reader straight from the decision to the plan it now affects. The panel
+   * closes and the planner opens — deliberately a navigation step rather than a second modal. */
+  onOpenPlanner: () => void;
 };
+
+/**
+ * Block 4 — choosing a zone, and what that choice is allowed to mean.
+ *
+ * Pressing "Usar esta zona en el plan" records ONE thing: that the reader decided to sleep in this
+ * zone, for this hub. It seeds an accommodation anchor in the planner from the zone's own station
+ * label and coordinate, because those are the exact two fields the anchor contract already needs
+ * and the two the reader would otherwise have copied across by hand.
+ *
+ * It does NOT book anything, does not pick a hotel, does not assign any day's boundary, and does
+ * not produce a single minute of travel time — the planner still asks the reader for every manual
+ * duration, exactly as it did before. The copy below says all of that out loud, because a button
+ * that quietly did more than it claimed is precisely the failure this layer exists to avoid.
+ *
+ * The wording is also carefully NOT a verdict. It is "usar esta zona", never "la mejor zona" and
+ * never "te conviene": the comparison ranks by proximity to the reader's own saved list and says so,
+ * and choosing is the reader's act, not Nihon's recommendation.
+ */
+
+/** The choose / chosen / change control shown on a zone, in both the list and the comparison. */
+function ZoneChoiceAction({
+  zone,
+  chosenZoneId,
+  onChoose,
+  onClear,
+}: {
+  zone: AccommodationZone;
+  chosenZoneId: string | null;
+  onChoose: (zone: AccommodationZone) => void;
+  onClear: () => void;
+}) {
+  const isChosen = chosenZoneId === zone.id;
+  const hasOtherChoice = chosenZoneId !== null && !isChosen;
+
+  if (isChosen) {
+    return (
+      <p className="zone-choice-action zone-choice-action--chosen">
+        <span className="zone-choice-badge">
+          <span aria-hidden="true">✓</span> Zona elegida para el plan
+        </span>
+        <button
+          type="button"
+          className="button button--secondary zone-choice-action__button"
+          onClick={onClear}
+          aria-label={`Quitar ${zone.name} del plan`}
+        >
+          Quitar del plan
+        </button>
+      </p>
+    );
+  }
+
+  return (
+    <p className="zone-choice-action">
+      <button
+        type="button"
+        className="button button--secondary zone-choice-action__button"
+        onClick={() => onChoose(zone)}
+        aria-label={
+          hasOtherChoice
+            ? `Cambiar la zona del plan a ${zone.name}`
+            : `Usar ${zone.name} en el plan`
+        }
+      >
+        <span aria-hidden="true">🛏</span>{" "}
+        {hasOtherChoice ? "Cambiar a esta zona" : "Usar esta zona en el plan"}
+      </button>
+    </p>
+  );
+}
 
 function formatKm(km: number): string {
   return km < 10 ? `${km.toFixed(1)} km` : `${Math.round(km)} km`;
@@ -119,9 +193,21 @@ const savedIcon = L.divIcon({
   iconAnchor: [5, 5],
 });
 
-export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace }: Props) {
+export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpenPlanner }: Props) {
   const zones = useMemo(() => getZonesForHub(hub), [hub]);
   const { selected, toggle, clear, isFull } = useZoneComparison(hub);
+  const savedIds = useMemo(() => savedPlaces.map((place) => place.id), [savedPlaces]);
+  const {
+    zoneId: chosenZoneId,
+    anchorLabel: chosenAnchorLabel,
+    anchorInUse: chosenAnchorInUse,
+    chooseZone,
+    clearZone,
+  } = useZonePlanChoice(hub, savedIds);
+  const chosenZone = useMemo(
+    () => (chosenZoneId ? zones.find((zone) => zone.id === chosenZoneId) ?? null : null),
+    [chosenZoneId, zones]
+  );
   const [mode, setMode] = useState<"browse" | "compare">("browse");
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -190,6 +276,57 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace }: Pro
       </header>
 
       <div className="zone-panel__scroll">
+        {/*
+          The one place the panel states what the decision did and — just as importantly — what it
+          did not do. It is a `status` region so the change is announced the moment it happens
+          rather than only being visible.
+        */}
+        <div className="zone-choice-banner" role="status">
+          {chosenZone ? (
+            <>
+              <p className="zone-choice-banner__line">
+                <span aria-hidden="true">🛏</span> Para dormir en {hub} habéis elegido{" "}
+                <strong>{chosenZone.name}</strong>
+                {chosenAnchorLabel && (
+                  <>
+                    . En el planificador hay un alojamiento de referencia llamado{" "}
+                    <strong>{chosenAnchorLabel}</strong>
+                  </>
+                )}
+                .
+              </p>
+              <p className="zone-choice-banner__caveat">
+                No es un hotel reservado y <strong>Nihon no ha calculado ningún tiempo</strong>: los
+                minutos de cada trayecto los seguís escribiendo vosotros en el planificador.
+                {chosenAnchorInUse &&
+                  " Ese alojamiento ya se usa en algún día, así que si quitáis la zona el alojamiento se queda (no se borra nada de lo que hayáis escrito)."}
+              </p>
+              <span className="zone-choice-banner__actions">
+                <button type="button" className="button button--secondary" onClick={onOpenPlanner}>
+                  Abrir el planificador <span aria-hidden="true">→</span>
+                </button>
+                {/* A distinct accessible name from the per-zone "Quitar del plan" control below:
+                    two buttons that do the same thing may share a purpose, but sharing a name
+                    leaves a screen-reader user unable to tell which one they are on. */}
+                <button
+                  type="button"
+                  className="link-button"
+                  onClick={clearZone}
+                  aria-label={`Quitar la zona elegida para ${hub}`}
+                >
+                  Quitar la zona elegida
+                </button>
+              </span>
+            </>
+          ) : (
+            <p className="zone-choice-banner__line zone-choice-banner__line--empty">
+              <span aria-hidden="true">🛏</span> Aún no habéis elegido zona para {hub}. Cuando
+              elijáis una, el planificador recibirá su estación como alojamiento de referencia —
+              nada más.
+            </p>
+          )}
+        </div>
+
         {mode === "browse" ? (
           <>
             {hubSaved.length > 0 ? (
@@ -254,6 +391,13 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace }: Pro
                           )}
                         </p>
                       )}
+
+                      <ZoneChoiceAction
+                        zone={zone}
+                        chosenZoneId={chosenZoneId}
+                        onChoose={chooseZone}
+                        onClear={clearZone}
+                      />
                     </article>
                   </li>
                 );
@@ -373,6 +517,13 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace }: Pro
                         <li key={tradeoff}>{tradeoff}</li>
                       ))}
                     </ul>
+
+                    <ZoneChoiceAction
+                      zone={zone}
+                      chosenZoneId={chosenZoneId}
+                      onChoose={chooseZone}
+                      onClear={clearZone}
+                    />
                   </section>
                 );
               })}

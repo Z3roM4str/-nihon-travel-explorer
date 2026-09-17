@@ -30,17 +30,20 @@ import {
   withRoute,
   withStartDate,
   withVisitStartTime,
+  withZoneAccommodationChoice,
   withoutAccommodation,
   withoutEmptyDay,
   withoutInterHubSegment,
+  withoutZoneAccommodationChoice,
   writeDraft,
+  isAccommodationAnchorInUse,
   type DraftStorage,
-  type ManualPlanningDraftV7,
-} from "./lib/planning-draft-v7";
+  type ManualPlanningDraftV8,
+} from "./lib/planning-draft-v8";
 
-/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v7.ts` depends
+/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v8.ts` depends
  * on — mirrors `useSavedPlaces.ts`'s own direct `localStorage` use. Tests exercise the pure
- * `planning-draft-v7.ts` functions directly with an in-memory `DraftStorage` instead. */
+ * `planning-draft-v8.ts` functions directly with an in-memory `DraftStorage` instead. */
 const browserStorage: DraftStorage = {
   getItem: (key) => localStorage.getItem(key),
   setItem: (key, value) => localStorage.setItem(key, value),
@@ -135,6 +138,14 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * straight from the draft and every mutation goes back through the pure module, so no component
  * ever holds a second copy of an anchor, a boundary choice, or a manual duration.
  *
+ * **Block 4 makes `ManualPlanningDraftV8` the canonical runtime draft**, still under that same
+ * single `nihon.manualPlanningDraft` key — V7 → V8 adds `zoneAccommodationChoices: []` and nothing
+ * else. A chosen accommodation zone and the anchor it seeded are therefore ONE piece of state,
+ * loaded, written, reconciled and deleted together; there is deliberately no `selectedZone` living
+ * beside `nihon.zoneComparison.v1` for the planner to fall out of step with. The choice records
+ * only which zone, for which hub, and which anchor it created — no distance, no duration and no
+ * ranking is persisted, because none of those is a decision the user made.
+ *
  * **Phase 3D-S splits the day state into two deliberately unequal views.** `planningDays` is the
  * persisted identity view — day entities carrying an opaque stable id and that day's own
  * accommodation boundary — and it exists only to address identity-aware mutations and to read each
@@ -151,7 +162,7 @@ function resolve<T>(action: SetStateAction<T>, previous: T): T {
  * `withDayAccommodationChoice` on an empty day) leaves the draft untouched rather than coercing it.
  */
 export function usePlanningDraft(savedIds: readonly string[]) {
-  const [draft, setDraft] = useState<ManualPlanningDraftV7>(() =>
+  const [draft, setDraft] = useState<ManualPlanningDraftV8>(() =>
     loadReconciledDraft(browserStorage, savedIds)
   );
 
@@ -337,6 +348,39 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     []
   );
 
+  /**
+   * Block 4: records "for this hub we sleep in this zone", seeding the accommodation anchor that
+   * decision needs from the zone's own station label and coordinate — the exact two fields the
+   * anchor contract already requires, and the two the user would otherwise have retyped by hand.
+   *
+   * Nothing is derived from it here or downstream: no day boundary is assigned, no duration is
+   * produced, no route is computed and no hub is inferred from the coordinate. The seeded anchor is
+   * an ORDINARY anchor, and the user still enters every manual minute exactly as before.
+   *
+   * Replacing a hub's previous choice removes that choice's anchor only when it carries no user
+   * work; an anchor a day boundary selects, or that has a typed duration, is kept rather than
+   * silently deleted. See `withZoneAccommodationChoice` for why re-pointing it would be worse.
+   */
+  const chooseZoneAccommodation = useCallback(
+    (input: { hub: string; zoneId: string; label: string; location: { lat: number; lng: number } }) => {
+      setDraft((current) => withZoneAccommodationChoice(current, input, randomAccommodationId));
+    },
+    []
+  );
+
+  /** Block 4: forgets one hub's zone decision, taking its seeded anchor with it only when that
+   * anchor carries no user work. Never converts a boundary choice to another anchor. */
+  const clearZoneAccommodation = useCallback((hub: string) => {
+    setDraft((current) => withoutZoneAccommodationChoice(current, hub));
+  }, []);
+
+  /** Block 4: does any boundary choice or typed duration still point at this anchor? The UI asks
+   * before offering to remove a zone, so it can say what will actually happen instead of guessing. */
+  const anchorIsInUse = useCallback(
+    (accommodationId: string) => isAccommodationAnchorInUse(draft, accommodationId),
+    [draft]
+  );
+
   /** Creates one explicitly-timed segment from an eligible pair supplied by the planner UI. */
   const addInterHubSegment = useCallback(
     (input: NewManualInterHubSegment) => {
@@ -384,6 +428,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     accommodations: draft.accommodations,
     accommodationLegs: draft.accommodationLegs,
     interHubSegments: draft.interHubSegments,
+    zoneAccommodationChoices: draft.zoneAccommodationChoices,
     setRoute,
     initializeDays,
     movePlaceWithinDay,
@@ -402,6 +447,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     removeAccommodation,
     setDayAccommodationChoice,
     setAccommodationLeg,
+    chooseZoneAccommodation,
+    clearZoneAccommodation,
+    anchorIsInUse,
     addInterHubSegment,
     updateInterHubSegment,
     removeInterHubSegment,
