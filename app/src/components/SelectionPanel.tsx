@@ -4,6 +4,8 @@ import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace } from "../lib/interest-level";
 import { summarizeSelection } from "../lib/selection";
 import { splitCategory } from "../lib/place";
+import { tallySentence, type InterestMarker } from "../lib/traveller-presentation";
+import type { ShortlistTally } from "../lib/travellers";
 
 type Props = {
   savedPlaces: Place[];
@@ -13,6 +15,14 @@ type Props = {
   onToggle: () => void;
   onAnalyze: () => void;
   onBuildSequence: () => void;
+  /**
+   * Block 5: this is the one list where the two-person picture belongs in full — it is where the
+   * two of them look at what they have between them. Counts only, never a score.
+   */
+  tally?: ShortlistTally;
+  interestMarkerFor?: (placeId: string) => InterestMarker | null;
+  /** Names whose "Quitar" this is, so the reader knows it withdraws only their own interest. */
+  activeTravellerLabel?: string | null;
 };
 
 /** Below this many saved places the grouped view has nothing to group. */
@@ -28,6 +38,9 @@ export function SelectionPanel({
   onToggle,
   onAnalyze,
   onBuildSequence,
+  tally,
+  interestMarkerFor,
+  activeTravellerLabel = null,
 }: Props) {
   const summary = summarizeSelection(savedPlaces);
 
@@ -105,6 +118,11 @@ export function SelectionPanel({
                   <span aria-hidden="true">ⓘ</span> Solo tiempo dentro de cada lugar.{" "}
                   <strong>No incluye traslados.</strong>
                 </p>
+                {tally && tally.total > 0 && (
+                  <p className="selection-panel__tally" role="status">
+                    <span aria-hidden="true">👥</span> {tallySentence(tally)}
+                  </p>
+                )}
                 {(summary.savedCount >= ANALYSIS_MIN_SAVED ||
                   summary.savedCount >= SEQUENCE_BUILDER_MIN_SAVED) && (
                   <div className="selection-panel__actions">
@@ -136,6 +154,7 @@ export function SelectionPanel({
                   const interest = interestLevelForPlace(place);
                   const thumbnail = resolvePlaceImages(place.id, place.images)[0];
                   const category = splitCategory(place.category);
+                  const marker = interestMarkerFor ? interestMarkerFor(place.id) : null;
                   return (
                     <li key={place.id} className="selection-list__item">
                       <button type="button" className="selection-list__name" onClick={() => onSelect(place.id)}>
@@ -174,13 +193,28 @@ export function SelectionPanel({
                               <span className="visually-hidden">Tiempo de visita: </span>
                               {range ? formatRange(range) : place.duration.raw}
                             </span>
+                            {marker && (
+                              <>
+                                <span aria-hidden="true"> · </span>
+                                <span
+                                  className={`selection-list__interest-marker selection-list__interest-marker--${marker.tone}`}
+                                >
+                                  <span aria-hidden="true">{marker.glyph}</span> {marker.label}
+                                  <span className="visually-hidden">. {marker.description}</span>
+                                </span>
+                              </>
+                            )}
                           </span>
                         </span>
                       </button>
                       <button
                         type="button"
                         className="icon-button icon-button--small"
-                        aria-label={`Quitar ${place.name} de Quiero ir`}
+                        aria-label={
+                          activeTravellerLabel
+                            ? `Quitar ${place.name} de Quiero ir de ${activeTravellerLabel}`
+                            : `Quitar ${place.name} de Quiero ir`
+                        }
                         onClick={() => onRemove(place.id)}
                       >
                         <span aria-hidden="true">×</span>

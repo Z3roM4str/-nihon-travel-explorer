@@ -5239,3 +5239,320 @@ a {
   font-size: 0.85rem;
   line-height: 1.5;
 }
+
+/* ---------- Block 5 — two local travellers ----------
+   The whole permanent footprint of this layer is one header row. Everything else appears only
+   when it has something to say, so a browse screen with no shared opinions looks exactly as it
+   did before. Every state carries text; `tone` colours it but never carries it alone. */
+
+.traveller-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.traveller-bar__legend {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.traveller-bar__options {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.traveller-bar__option {
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  min-width: 0;
+}
+
+/* The selected half is marked by weight, background AND border, not by hue alone. */
+.traveller-bar__option--active {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+}
+
+.traveller-bar__name {
+  display: block;
+  max-width: 7.5ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.traveller-bar__manage {
+  min-height: var(--tap-target);
+  min-width: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+@media (min-width: 861px) {
+  .traveller-bar__name {
+    max-width: 14ch;
+  }
+}
+
+/* The legend is the first thing to go when the header gets tight; the names never are. */
+@media (max-width: 420px) {
+  .traveller-bar__legend {
+    display: none;
+  }
+}
+
+/* ---------- The contextual marker ---------- */
+
+.place-card__interest,
+.selection-list__interest-marker {
+  font-weight: 600;
+}
+
+.place-card__interest--agreement,
+.selection-list__interest-marker--agreement {
+  color: var(--color-ok);
+}
+
+.place-card__interest--other,
+.selection-list__interest-marker--other {
+  color: var(--color-info);
+}
+
+.place-card__interest--declined,
+.selection-list__interest-marker--declined {
+  color: var(--color-text-muted);
+}
+
+.place-card__interest--unclaimed,
+.selection-list__interest-marker--unclaimed {
+  color: var(--color-warn);
+}
+
+.selection-panel__tally {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---------- The full picture, in the place detail ---------- */
+
+.place-interest {
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+}
+
+.place-interest__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.place-interest__line {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.place-interest__glyph {
+  display: inline-block;
+  width: 1.1em;
+}
+
+.place-interest__line--interested .place-interest__glyph {
+  color: var(--color-accent);
+}
+
+.place-interest__line--not-interested .place-interest__glyph {
+  color: var(--color-text-muted);
+}
+
+.place-interest__line--silent {
+  color: var(--color-text-muted);
+}
+
+.place-interest__decline {
+  margin-top: 0.45rem;
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- The manager ---------- */
+
+.traveller-manager {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(35, 28, 20, 0.45);
+}
+
+.traveller-manager__dialog {
+  width: min(560px, 100%);
+  max-height: min(88vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 1rem;
+}
+
+.traveller-manager__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.traveller-manager__head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.traveller-manager__sub,
+.traveller-manager__note,
+.traveller-manager__add-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__list {
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.traveller-manager__item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem;
+  background: var(--color-surface-alt);
+}
+
+.traveller-manager__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__input {
+  min-height: var(--tap-target);
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.traveller-manager__meta {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.traveller-manager__actions {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.traveller-manager__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-warn-soft);
+  border: 1px solid #f0dcb6;
+  width: 100%;
+}
+
+.traveller-manager__confirm-text {
+  flex: 1 1 100%;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.traveller-manager__confirm .link-button {
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+.traveller-manager__add {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traveller-bar__option,
+  .traveller-manager__dialog {
+    transition: none;
+  }
+}

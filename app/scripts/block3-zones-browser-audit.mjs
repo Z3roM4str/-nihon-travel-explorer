@@ -202,7 +202,14 @@ async function auditViewport(browser, name, url) {
   check("the comparison selection survives a reload", restored === 2, `${restored}`);
 
   // ---- Degrades honestly with nothing saved ----
-  await page.evaluate(() => localStorage.removeItem("nihon.savedPlaceIds"));
+  // Block 5 moved the shortlist's owner: it is now DERIVED from `nihon.travellers.v1`, and
+  // `nihon.savedPlaceIds` is only the legacy key read once during migration. Clearing the old key
+  // alone would leave the list intact and this check would never reach the empty state it exists
+  // to prove. Both are removed so the audit keeps working whichever owner a build has.
+  await page.evaluate(() => {
+    localStorage.removeItem("nihon.savedPlaceIds");
+    localStorage.removeItem("nihon.travellers.v1");
+  });
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
   await page.getByRole("button", { name: /^Tokio/ }).first().click();

@@ -18,7 +18,10 @@ import { ZoneComparison } from "./components/ZoneComparison";
 import { hubsWithZones } from "./lib/accommodation-zone";
 import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
-import { useSavedPlaces } from "./useSavedPlaces";
+import { useTravellers } from "./useTravellers";
+import { TravellerBar } from "./components/TravellerBar";
+import { TravellerManager } from "./components/TravellerManager";
+import { interestMarker } from "./lib/traveller-presentation";
 import { matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import { matchesReservationFilter } from "./lib/reservation";
@@ -119,9 +122,45 @@ export default function App() {
   const [zonesOpen, setZonesOpen] = useState(false);
   /** Shown on the very first visit and reopenable from the header; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
-  const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
+  const [travellerManagerOpen, setTravellerManagerOpen] = useState(false);
+  /**
+   * Block 5 — `savedIds` is now DERIVED: a place is in the shared shortlist when at least one
+   * traveller wants it. Everything downstream (the planner, the map, the saved list) keeps
+   * receiving the same `string[]` it always did.
+   *
+   * `activeInterestedIds` is deliberately a different list: it is what the HEART means — this
+   * reader's own answer — so a place only the other person saved never appears to you as already
+   * hearted while the marker beside it says it is theirs.
+   */
+  const {
+    travellers,
+    activeTraveller,
+    savedIds,
+    activeInterestedIds,
+    isWantedByActive,
+    toggleSaved,
+    removeSaved,
+    setStance,
+    activeStance,
+    interestSummary,
+    tally,
+    setActiveTraveller,
+    renameTraveller,
+    resetTraveller,
+    removeTraveller,
+    addTraveller,
+    placesOnlyWantedBy,
+  } = useTravellers();
   const { feedback, announce } = useSaveFeedback();
   const isDesktop = useIsDesktop();
+
+  /** Block 5: the card marker, resolved per place and deliberately null most of the time — see
+   * `lib/traveller-presentation.ts` for why silence is the default. */
+  const markerFor = useCallback(
+    (placeId: string) =>
+      interestMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
+    [interestSummary, travellers, activeTraveller]
+  );
 
   /** Exactly one of these is non-null; the union above makes the other state unreachable. */
   const activeHub = view.mode === "hub" ? view.hub : null;
@@ -177,15 +216,18 @@ export default function App() {
   const toggleSavedWithFeedback = useCallback(
     (id: string) => {
       const place = getPlaceById(id);
-      const wasSaved = savedIds.includes(id);
+      // The reader's OWN interest decides the wording: "quitado" must mean they withdrew theirs,
+      // not that the place left the shared list — it may well stay, because the other person
+      // still wants it.
+      const wasWanted = isWantedByActive(id);
       toggleSaved(id);
       if (!place) return;
       announce(
-        wasSaved ? `Quitado de Quiero ir: ${place.name}` : `Guardado en Quiero ir: ${place.name}`,
-        wasSaved ? "removed" : "saved"
+        wasWanted ? `Quitado de Quiero ir: ${place.name}` : `Guardado en Quiero ir: ${place.name}`,
+        wasWanted ? "removed" : "saved"
       );
     },
-    [announce, savedIds, toggleSaved]
+    [announce, isWantedByActive, toggleSaved]
   );
 
   const removeSavedWithFeedback = useCallback(
@@ -393,7 +435,8 @@ export default function App() {
         places={filteredPlaces}
         totalCount={hubPlaces.length}
         selectedId={selectedId}
-        savedIds={savedIds}
+        savedIds={activeInterestedIds}
+        interestMarkerFor={markerFor}
         onSelect={selectPlace}
         onToggleSaved={toggleSavedWithFeedback}
         onClearFilters={resetFilters}
@@ -436,6 +479,12 @@ export default function App() {
           )}
         </div>
         <div className="app__header-actions">
+          <TravellerBar
+            travellers={travellers}
+            activeTravellerId={activeTraveller?.id ?? null}
+            onSelect={setActiveTraveller}
+            onManage={() => setTravellerManagerOpen(true)}
+          />
           <button
             type="button"
             className="app__help"
@@ -541,7 +590,11 @@ export default function App() {
               <div className="app__detail">
                 <PlaceDetail
                   place={selectedPlace}
-                  isSaved={isSaved(selectedPlace.id)}
+                  isSaved={isWantedByActive(selectedPlace.id)}
+                  travellers={travellers}
+                  interestSummary={interestSummary(selectedPlace.id)}
+                  activeStance={activeStance(selectedPlace.id)}
+                  onSetStance={setStance}
                   onToggleSaved={toggleSavedWithFeedback}
                   onClose={closeDetail}
                   nearby={getNearby(selectedPlace.id)}
@@ -576,6 +629,9 @@ export default function App() {
         onToggle={() => setSelectionOpen((open) => !open)}
         onAnalyze={() => setAnalysisOpen(true)}
         onBuildSequence={openSequenceBuilder}
+        tally={tally}
+        interestMarkerFor={markerFor}
+        activeTravellerLabel={activeTraveller?.label ?? null}
       />
 
       {analysisOpen && (
@@ -607,6 +663,19 @@ export default function App() {
       )}
 
       <SaveToast feedback={feedback} />
+
+      {travellerManagerOpen && (
+        <TravellerManager
+          travellers={travellers}
+          activeTravellerId={activeTraveller?.id ?? null}
+          placesOnlyWantedBy={placesOnlyWantedBy}
+          onRename={renameTraveller}
+          onReset={resetTraveller}
+          onRemove={removeTraveller}
+          onAdd={addTraveller}
+          onClose={() => setTravellerManagerOpen(false)}
+        />
+      )}
 
       {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
     </div>

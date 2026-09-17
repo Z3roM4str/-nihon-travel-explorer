@@ -79,12 +79,25 @@ describe("nothing the filter panel used to offer was removed", () => {
 });
 
 describe("saved places keep their existing storage contract", () => {
-  it("still reads and writes the same localStorage key", async () => {
-    const source = await src("useSavedPlaces.ts");
-    expect(source).toContain('const STORAGE_KEY = "nihon.savedPlaceIds"');
+  /**
+   * Block 5 replaced `useSavedPlaces` with `useTravellers`: the shortlist is no longer a stored
+   * array of its own but is DERIVED from the travellers document, so that the two-person layer
+   * cannot produce a second list to drift from the first. The contract this phase actually cares
+   * about is unchanged and now stronger — the shortlist has exactly ONE owner, and the old key is
+   * still honoured so nobody's existing list is lost.
+   */
+  it("gives the shortlist a single owner, and still honours the original key", async () => {
+    const source = await src("lib/travellers.ts");
+    expect(source).toContain('export const LEGACY_SAVED_PLACES_KEY = "nihon.savedPlaceIds"');
+    expect(source).toContain('export const TRAVELLERS_STORAGE_KEY = "nihon.travellers.v1"');
+
+    const hook = await src("useTravellers.ts");
+    expect(hook).toContain("shortlistPlaceIds(document)");
+    // No second stored copy of the list: `savedIds` is computed, never written on its own.
+    expect(hook).not.toContain("nihon.savedPlaceIds");
   });
 
-  it("keeps `useSavedPlaces` the only writer — feedback never persists anything", async () => {
+  it("keeps the travellers hook the only writer — feedback never persists anything", async () => {
     const source = await src("useSaveFeedback.ts");
     expect(source).not.toContain("localStorage");
   });

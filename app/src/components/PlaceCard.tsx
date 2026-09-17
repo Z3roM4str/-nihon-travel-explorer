@@ -5,6 +5,7 @@ import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace, tourismCaution } from "../lib/interest-level";
 import { isHiddenGem, splitCategory } from "../lib/place";
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
+import type { InterestMarker } from "../lib/traveller-presentation";
 
 type Props = {
   place: Place;
@@ -14,6 +15,14 @@ type Props = {
   onToggleSaved: (id: string) => void;
   /** Adds the hub chip. Off inside a hub, where every card shares the same hub. */
   showHub?: boolean;
+  /**
+   * Block 5: the two-person layer, and only when it has something to say.
+   *
+   * `null` for the two commonest states — nobody has an opinion, or the reader saved it and the
+   * other person has not seen it yet — so most cards on a browse screen look exactly as they did
+   * before this block. The card never carries a Persona 1 / Persona 2 pair, and never a score.
+   */
+  interestMarker?: InterestMarker | null;
 };
 
 type MediaState = "loading" | "loaded" | "error";
@@ -52,7 +61,15 @@ function reasonText(place: Place): string {
  * save control sits above it in the stacking order. Nesting one button inside another (the
  * obvious shortcut) is invalid HTML and breaks keyboard and screen-reader behaviour.
  */
-export function PlaceCard({ place, selected, saved, onSelect, onToggleSaved, showHub = false }: Props) {
+export function PlaceCard({
+  place,
+  selected,
+  saved,
+  onSelect,
+  onToggleSaved,
+  showHub = false,
+  interestMarker = null,
+}: Props) {
   const [mediaState, setMediaState] = useState<MediaState>("loading");
   const images = resolvePlaceImages(place.id, place.images);
   const image = images[0];
@@ -154,6 +171,16 @@ export function PlaceCard({ place, selected, saved, onSelect, onToggleSaved, sho
         {reason && <p className="place-card__reason">{reason}</p>}
 
         <ul className="place-card__facts">
+          {interestMarker && (
+            <li
+              className={`place-card__fact place-card__interest place-card__interest--${interestMarker.tone}`}
+            >
+              <span aria-hidden="true">{interestMarker.glyph}</span> {interestMarker.label}
+              {/* The short label loses its subject out of context; the spelled-out sentence is
+                  what a screen reader announces. */}
+              <span className="visually-hidden">. {interestMarker.description}</span>
+            </li>
+          )}
           <li className="place-card__fact">
             <span aria-hidden="true">⏱</span>
             <span className="visually-hidden">Tiempo de visita: </span>

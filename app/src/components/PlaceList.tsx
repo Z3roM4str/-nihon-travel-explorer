@@ -1,5 +1,6 @@
 import type { Place } from "../types";
 import { PlaceCard } from "./PlaceCard";
+import type { InterestMarker } from "../lib/traveller-presentation";
 
 type Props = {
   places: Place[];
@@ -13,6 +14,10 @@ type Props = {
   hasActiveFilters: boolean;
   /** The free-text term, when there is one — the empty state names it back to the reader. */
   query?: string;
+  /** Block 5: resolves the two-person marker for one place, or null when there is nothing to say.
+   * Passed as a function rather than a map so the list never builds a marker for a card it is not
+   * about to render. */
+  interestMarkerFor?: (placeId: string) => InterestMarker | null;
 };
 
 /**
@@ -58,6 +63,7 @@ export function PlaceList({
   onClearFilters,
   hasActiveFilters,
   query,
+  interestMarkerFor,
 }: Props) {
   if (places.length === 0) {
     return (
@@ -82,6 +88,7 @@ export function PlaceList({
             saved={savedSet.has(place.id)}
             onSelect={onSelect}
             onToggleSaved={onToggleSaved}
+            interestMarker={interestMarkerFor ? interestMarkerFor(place.id) : null}
           />
         </li>
       ))}

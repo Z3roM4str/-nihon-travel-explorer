@@ -9,11 +9,20 @@ import { describeReservationForUi, interpretPlaceReservation } from "../lib/rese
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
 import { interestLevelForPlace } from "../lib/interest-level";
+import { stanceLines } from "../lib/traveller-presentation";
+import type { InterestStance, PlaceInterestSummary, Traveller } from "../lib/travellers";
 
 type Props = {
   place: Place;
+  /** Block 5: the ACTIVE reader's own interest, not shared-shortlist membership. */
   isSaved: boolean;
   onToggleSaved: (id: string) => void;
+  /** Block 5: the two-person picture, and the explicit refusal. Omitted, the detail renders
+   * exactly as it did before this block. */
+  travellers?: readonly Traveller[];
+  interestSummary?: PlaceInterestSummary;
+  activeStance?: InterestStance | null;
+  onSetStance?: (placeId: string, stance: InterestStance | null) => void;
   onClose: () => void;
   nearby: NearbyRelation[];
   onSelectNearby: (id: string) => void;
@@ -66,6 +75,10 @@ export function PlaceDetail({
   place,
   isSaved,
   onToggleSaved,
+  travellers,
+  interestSummary,
+  activeStance = null,
+  onSetStance,
   onClose,
   nearby,
   onSelectNearby,
@@ -188,6 +201,45 @@ export function PlaceDetail({
             </span>
             {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
           </button>
+
+          {/*
+            Block 5 — the full two-person picture, on the one surface with room for it.
+
+            The browse cards carry at most a short marker; here there is space to say plainly what
+            each person answered, INCLUDING "no ha dicho nada", which is a real answer and not a
+            gap. Nothing is totalled, scored or turned into a suggestion: these are two stated
+            preferences side by side, and what to do about them is the readers' business.
+
+            The explicit refusal lives here rather than on the card because it is a deliberate,
+            infrequent act — putting it next to the heart on every card would invite mis-taps and
+            turn browsing into triage.
+          */}
+          {travellers && travellers.length > 0 && interestSummary && onSetStance && (
+            <section className="place-interest" aria-label="Qué dice cada persona">
+              <ul className="place-interest__lines">
+                {stanceLines(interestSummary, travellers).map((line) => (
+                  <li key={line.travellerId} className={`place-interest__line place-interest__line--${line.stance}`}>
+                    <span aria-hidden="true" className="place-interest__glyph">
+                      {line.stance === "interested" ? "♥" : line.stance === "not-interested" ? "✕" : "·"}
+                    </span>
+                    <strong>{line.label}</strong> {line.text}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="link-button place-interest__decline"
+                aria-pressed={activeStance === "not-interested"}
+                onClick={() =>
+                  onSetStance(place.id, activeStance === "not-interested" ? null : "not-interested")
+                }
+              >
+                {activeStance === "not-interested"
+                  ? "Quitar «no me interesa»"
+                  : "No me interesa"}
+              </button>
+            </section>
+          )}
 
           <p className="place-detail__description">{place.description}</p>
 
