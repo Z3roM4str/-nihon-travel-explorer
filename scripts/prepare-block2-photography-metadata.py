@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Block 2 — turn accepted Commons candidates into registry records.
+
+Usage:
+    python3 scripts/prepare-block2-photography-metadata.py PLAN.json > records.json
+
+The plan is a list of `{placeId, slug, title, alt}`. Everything else in the record —
+licence, licence URL, credit, full-resolution acquisition URL, original pixel dimensions and
+the `processing` value — is read from the Commons API at preparation time rather than typed
+by hand, because every one of those is a field `scripts/validate-photography.py` cross-checks
+and a transcription slip would be caught late or, worse, be internally consistent and wrong.
+
+`processing` is computed from the real dimensions using the same 1600px rule the validator
+applies, so it can never contradict them.
+"""
+import json
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+COMMONS_API = "https://commons.wikimedia.org/w/api.php"
+USER_AGENT = (
+    "NihonTravelExplorerPhotographyPipeline/1.0 "
+    "(https://github.com/Z3roM4str/-nihon-travel-explorer; travel-planning app, "
+    "non-commercial; Block 2 photography preparation)"
+)
+PROCESSING_MAX_DIMENSION = 1600
+
+LICENCE_URLS = {
+    "CC0": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "CC BY 2.0": "https://creativecommons.org/licenses/by/2.0/",
+    "CC BY 2.5": "https://creativecommons.org/licenses/by/2.5/",
+    "CC BY 3.0": "https://creativecommons.org/licenses/by/3.0/",
+    "CC BY 4.0": "https://creativecommons.org/licenses/by/4.0/",
+    "CC BY-SA 2.0": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "CC BY-SA 2.5": "https://creativecommons.org/licenses/by-sa/2.5/",
+    "CC BY-SA 3.0": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "CC BY-SA 4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
+}
+
+
+def _open(url, timeout=40):
+    for attempt in range(7):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code in (429, 503) and attempt < 6:
+                time.sleep(4 * (attempt + 1))
+                continue
+            raise
+    raise RuntimeError("unreachable")
+
+
+def strip_html(value):
+    out, depth = [], 0
+    for ch in value or "":
+        if ch == "<":
+            depth += 1
+        elif ch == ">":
+            depth = max(0, depth - 1)
+        elif depth == 0:
+            out.append(ch)
+    return " ".join("".join(out).split())
+
+
+def normalise_licence(raw):
+    text = strip_html(raw).strip()
+    if text in LICENCE_URLS:
+        return text
+    lowered = text.lower()
+    for allowed in LICENCE_URLS:
+        if lowered.startswith(allowed.lower()):
+            return allowed
+    raise SystemExit(f"licence {text!r} is outside the pipeline's allowlist")
+
+
+def strip_query(url):
+    return urllib.parse.urlsplit(url)._replace(query="", fragment="").geturl()
+
+
+def build(entry, acquisition_date):
+    data = json.loads(
+        _open(
+            COMMONS_API
+            + "?"
+            + urllib.parse.urlencode(
+                {
+                    "action": "query",
+                    "format": "json",
+                    "titles": entry["title"],
+                    "prop": "imageinfo",
+                    "iiprop": "url|size|mime|extmetadata",
+                }
+            )
+        )
+    )
+    pages = data.get("query", {}).get("pages", {})
+    page = next(iter(pages.values()))
+    infos = page.get("imageinfo")
+    if not infos:
+        raise SystemExit(f"{entry['placeId']}: Commons has no imageinfo for {entry['title']!r}")
+    info = infos[0]
+    meta = info.get("extmetadata", {})
+
+    licence = normalise_licence(meta.get("LicenseShortName", {}).get("value"))
+    credit = strip_html(meta.get("Artist", {}).get("value"))
+    if licence != "CC0" and not credit:
+        raise SystemExit(f"{entry['placeId']}: {licence} requires a credit and Commons reports none")
+
+    width, height = info["width"], info["height"]
+    record = {
+        "placeId": entry["placeId"],
+        "assetPath": f"images/places/{entry['placeId']}/{entry['slug']}.webp",
+        "alt": entry["alt"],
+        "source": "Wikimedia Commons",
+        "sourceUrl": f"https://commons.wikimedia.org/wiki/{urllib.parse.quote(entry['title'].replace(' ', '_'))}",
+        "credit": credit,
+        "license": licence,
+        "licenseUrl": LICENCE_URLS[licence],
+        "acquisitionUrl": strip_query(info["url"]),
+        "acquisitionDate": acquisition_date,
+        "originalTitle": entry["title"],
+        "originalWidth": width,
+        "originalHeight": height,
+        "processing": (
+            "resized-and-webp-reencoded"
+            if max(width, height) > PROCESSING_MAX_DIMENSION
+            else "webp-reencoded"
+        ),
+    }
+    return record
+
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit(__doc__)
+    plan = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+    date = plan["acquisitionDate"]
+    records = []
+    for entry in plan["entries"]:
+        records.append(build(entry, date))
+        print(f"prepared {entry['placeId']}", file=sys.stderr)
+        time.sleep(1.0)
+    print(json.dumps(records, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,33 @@
+{
+  "phase": "Block 2 — prominence-first coverage",
+  "acquisitionDate": "2026-09-17",
+  "note": "Every entry was verified before acceptance: licence inside the pipeline allowlist, Commons coordinates within 0.2 km of the place where the file carries GPS, and a visual inspection of the actual photograph. JP-171 Blue Cave at Cape Maeda was attempted and failed closed — see the design document.",
+  "entries": [
+    {"placeId": "JP-019", "slug": "tokyo-skytree", "title": "File:Tokyo Skytree 2014 Ⅲ.jpg",
+     "alt": "La torre Tokyo Skytree elevándose sobre los edificios de Sumida contra un cielo azul despejado."},
+    {"placeId": "JP-038", "slug": "teamlab-planets-tokyo", "title": "File:Photos at teamlab planets tokyo.jpg",
+     "alt": "Sala oscura de teamLab Planets con el suelo cubierto de proyecciones de luz de colores y visitantes descalzos caminando sobre ellas."},
+    {"placeId": "JP-030", "slug": "tokyo-station-marunouchi", "title": "File:Tokyo Station (Marunouchi Building).jpg",
+     "alt": "Fachada de ladrillo rojo restaurada del edificio Marunouchi de la estación de Tokio, con sus cúpulas y la plaza delantera."},
+    {"placeId": "JP-034", "slug": "mori-art-museum", "title": "File:森美術館 (16202551532).jpg",
+     "alt": "Entrada del Mori Art Museum en Roppongi Hills, con su letrero iluminado sobre la escalera mecánica y paredes de listones de madera."},
+    {"placeId": "JP-080", "slug": "kinkakuji-golden-pavilion", "title": "File:Kinkaku-ji in November 2016 -02.jpg",
+     "alt": "El pabellón dorado de Kinkaku-ji reflejado en el estanque Kyōko-chi, rodeado de arces rojos en otoño."},
+    {"placeId": "JP-072", "slug": "tenryuji-sogen-garden", "title": "File:Tenryū-ji Garten.jpg",
+     "alt": "Jardín Sōgen del templo Tenryū-ji, con un arroyo entre musgo, rocas y arces bajo los edificios del templo."},
+    {"placeId": "JP-086", "slug": "sanzenin-goten-mon", "title": "File:Goten-mon gate, Sanzen-in, Ohara, Kyoto - Jun 7, 2011.jpg",
+     "alt": "Puerta Goten-mon del templo Sanzen-in en Ōhara, con tejado de tejas sobre un muro de piedra y escalones de acceso."},
+    {"placeId": "JP-131", "slug": "kasuga-taisha-lanterns", "title": "File:Kasuga-taisha 春日大社 IMG 3690.jpg",
+     "alt": "Edificio bermellón del santuario Kasuga Taisha entre cedros del bosque sagrado, con linternas de piedra cubiertas de musgo."},
+    {"placeId": "JP-148", "slug": "hikone-castle-keep", "title": "File:Hikone Castle November 2016 -01.jpg",
+     "alt": "Torre del homenaje blanca del castillo de Hikone sobre su muro de piedra, enmarcada por arces rojos de otoño."},
+    {"placeId": "JP-119", "slug": "shitennoji-pagoda-dusk", "title": "File:View of Abeno Harukas and Shitennō-ji five-storied pagoda at dusk, January 2024 (clone version) - 9978.jpg",
+     "alt": "Pagoda de cinco pisos de Shitennō-ji iluminada al anochecer, con el rascacielos Abeno Harukas al fondo."},
+    {"placeId": "JP-132", "slug": "isuien-garden-nara", "title": "File:Isuien and Nandaimon.JPG",
+     "alt": "Estanque del jardín Isuien en Nara con pinos podados y arces rojos, y el tejado del Nandaimon de Tōdai-ji al fondo."},
+    {"placeId": "JP-153", "slug": "kokusai-dori-naha", "title": "File:Kokusai-dori08s3s4440.jpg",
+     "alt": "Calle Kokusai de Naha con tiendas de souvenirs, carteles en japonés y palmeras a lo largo de la acera."},
+    {"placeId": "JP-187", "slug": "aharen-beach-tokashiki", "title": "File:Aharen Beach On Tokashiki Island 2009 (7384).jpg",
+     "alt": "Arena blanca y agua turquesa de la playa de Aharen en la isla de Tokashiki, con un promontorio boscoso al fondo."}
+  ]
+}
