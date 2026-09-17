@@ -1,5 +1,5 @@
 import type { Place } from "../types";
-import { resolvePlaceImages } from "../data/place-images";
+import { cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace } from "../lib/interest-level";
 import { summarizeSelection } from "../lib/selection";
@@ -143,7 +143,17 @@ export function SelectionPanel({
                             here by sight rather than re-read by name. */}
                         <span className="selection-list__thumb" aria-hidden="true">
                           {thumbnail ? (
-                            <img src={thumbnail.url} alt="" loading="lazy" decoding="async" />
+                            /* The same card derivative the list already fetched, so this
+                               48px box reuses a cached response instead of decoding the
+                               1600px hero — and never needs a tier of its own. */
+                            <img
+                              src={cardImageUrl(thumbnail.url) ?? thumbnail.url}
+                              alt=""
+                              width={48}
+                              height={48}
+                              loading="lazy"
+                              decoding="async"
+                            />
                           ) : (
                             <span className="selection-list__thumb-icon">{category.icon || "⛩"}</span>
                           )}

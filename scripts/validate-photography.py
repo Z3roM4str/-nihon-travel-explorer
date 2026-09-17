@@ -32,6 +32,20 @@ DEFAULT_ASSET_ROOT = REPO_ROOT / "app/public"
 
 APPROVED_ASSET_PREFIX = "images/places/"
 ASSET_PATH_PATTERN = re.compile(r"^images/places/(JP-\d{3})/[a-z0-9][a-z0-9-]*\.webp$")
+
+# Block 2: the card-sized rendition every registered photograph must also ship.
+# Mirrors `derivative_path_for()` in scripts/build-photography-derivatives.py and
+# `cardImageUrl()` in app/src/data/place-images.ts. This validator stays Pillow-free, so it
+# checks that each derivative exists, is non-empty and is smaller than its original — never
+# that its pixels are right. `build-photography-derivatives.py --check` does that.
+DERIVATIVE_WIDTH = 800
+DERIVATIVE_SUFFIX = f"-{DERIVATIVE_WIDTH}w"
+
+
+def derivative_path_for(asset_path):
+    if not asset_path.endswith(".webp"):
+        return None
+    return asset_path[: -len(".webp")] + DERIVATIVE_SUFFIX + ".webp"
 SUPPORTED_LICENSES = {
     "CC0",
     "CC BY 2.0",
@@ -173,13 +187,37 @@ def validate_metadata(metadata, place_ids, asset_root):
                 errors.append(f"{label}: assetPath place folder {path_place_id!r} does not match placeId {place_id!r}")
             if not asset_path.lower().endswith(".webp"):
                 errors.append(f"{label}: unsupported file format for {asset_path!r} (only .webp is accepted)")
+            if asset_path.endswith(DERIVATIVE_SUFFIX + ".webp"):
+                errors.append(
+                    f"{label}: assetPath {asset_path!r} uses the reserved {DERIVATIVE_SUFFIX!r} "
+                    "derivative suffix; register the full-size original instead"
+                )
 
         if isinstance(asset_path, str):
             if asset_path in seen_asset_paths:
                 errors.append(f"{label}: duplicate assetPath {asset_path!r}")
             seen_asset_paths.add(asset_path)
-            if not (asset_root / asset_path).is_file():
+            original_file = asset_root / asset_path
+            if not original_file.is_file():
                 errors.append(f"{label}: referenced asset is missing on disk: {asset_path}")
+            else:
+                derivative_rel = derivative_path_for(asset_path)
+                derivative_file = asset_root / derivative_rel
+                if not derivative_file.is_file():
+                    errors.append(
+                        f"{label}: card derivative is missing on disk: {derivative_rel} "
+                        "(run scripts/build-photography-derivatives.py)"
+                    )
+                else:
+                    seen_asset_paths.add(derivative_rel)
+                    derivative_size = derivative_file.stat().st_size
+                    if derivative_size == 0:
+                        errors.append(f"{label}: card derivative is empty: {derivative_rel}")
+                    elif derivative_size > original_file.stat().st_size:
+                        errors.append(
+                            f"{label}: card derivative {derivative_rel} is larger than its original; "
+                            "it is meant to be the lighter, card-sized rendition"
+                        )
 
         source = record.get("source")
         if not isinstance(source, str) or not source.strip():
@@ -267,6 +305,22 @@ def validate_metadata(metadata, place_ids, asset_root):
         source_key = original_title or record.get("acquisitionUrl")
         if source_key:
             source_to_places.setdefault(source_key, set()).add(place_id)
+
+    # Every file in the asset tree must be accounted for: a registered original, or the card
+    # derivative of one. Before Block 2 this validator never looked at the tree at all, so an
+    # orphaned blob left behind by a renamed or dropped record would ship unnoticed and
+    # unreferenced. `seen_asset_paths` already holds both classes by this point.
+    tree_root = asset_root / APPROVED_ASSET_PREFIX
+    if tree_root.is_dir():
+        for path in sorted(tree_root.rglob("*")):
+            if not path.is_file():
+                continue
+            relative = path.relative_to(asset_root).as_posix()
+            if relative not in seen_asset_paths:
+                errors.append(
+                    f"orphaned asset on disk: {relative} is neither a registered photograph "
+                    "nor the card derivative of one"
+                )
 
     for source_key, places_using_it in source_to_places.items():
         if len(places_using_it) > 1:

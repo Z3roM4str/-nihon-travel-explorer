@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Place } from "../types";
-import { resolvePlaceImages } from "../data/place-images";
+import { CARD_IMAGE_WIDTH, cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace, tourismCaution } from "../lib/interest-level";
 import { isHiddenGem, splitCategory } from "../lib/place";
@@ -56,6 +56,8 @@ export function PlaceCard({ place, selected, saved, onSelect, onToggleSaved, sho
   const [mediaState, setMediaState] = useState<MediaState>("loading");
   const images = resolvePlaceImages(place.id, place.images);
   const image = images[0];
+  /** Falls back to the original whenever no derivative exists for this URL shape. */
+  const cardSrc = image ? cardImageUrl(image.url) ?? image.url : undefined;
   const hasPhoto = Boolean(image) && mediaState !== "error";
   const category = splitCategory(place.category);
   const interest = interestLevelForPlace(place);
@@ -78,9 +80,16 @@ export function PlaceCard({ place, selected, saved, onSelect, onToggleSaved, sho
         {image && mediaState !== "error" ? (
           <>
             {mediaState === "loading" && <span className="place-card__skeleton" aria-hidden="true" />}
+            {/* The card-sized rendition, not the 1600px detail hero. `sizes` describes the
+                real card geometry at each breakpoint so the browser never fetches more than
+                the slot needs; `width`/`height` are declared so the box is reserved before
+                the bytes arrive and the card cannot shift under the text. */}
             <img
               className="place-card__image"
-              src={image.url}
+              src={cardSrc}
+              width={CARD_IMAGE_WIDTH}
+              height={Math.round((CARD_IMAGE_WIDTH * 9) / 16)}
+              sizes="(min-width: 861px) 348px, (min-width: 620px) 390px, calc(100vw - 1.9rem)"
               alt=""
               loading="lazy"
               decoding="async"

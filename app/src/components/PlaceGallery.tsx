@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlaceImage } from "../types";
 import { describePhotographyProcessing } from "../lib/photography-attribution";
+import { CARD_IMAGE_WIDTH, cardImageUrl } from "../data/place-images";
 
 type Props = {
   images: PlaceImage[];
@@ -164,6 +165,11 @@ export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Pr
   }
 
   const current = images[index];
+  const currentCardUrl = cardImageUrl(current.url);
+  /** Omitted entirely when no derivative exists, so `src` alone decides. */
+  const heroSrcSet = currentCardUrl
+    ? `${currentCardUrl} ${CARD_IMAGE_WIDTH}w, ${current.url} 1600w`
+    : undefined;
 
   return (
     <div className="gallery">
@@ -200,8 +206,14 @@ export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Pr
             onClick={() => setLightboxOpen(true)}
             aria-label={`Ampliar imagen ${index + 1} de ${total}`}
           >
+            {/* Two candidates, one photograph. The hero fills 390 CSS px on a phone and
+                420 in the desktop panel, so a DPR 2 phone is served the 800px rendition
+                instead of the 1600px original — the lightbox below always loads the
+                original, which is where full resolution actually matters. */}
             <img
               src={current.url}
+              srcSet={heroSrcSet}
+              sizes="(min-width: 861px) 420px, 100vw"
               alt={current.alt}
               loading="lazy"
               decoding="async"
