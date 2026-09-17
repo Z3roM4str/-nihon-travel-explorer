@@ -85,7 +85,7 @@ and is explained in §5.
 
 ## 3. Allowed changed-file scope
 
-Exactly four files changed, all within Issue #120 §3:
+Exactly six files changed, all within Issue #120 §3:
 
 ```
 app/package.json          version metadata  0.0.0 → 1.0.0   (§3.1)
