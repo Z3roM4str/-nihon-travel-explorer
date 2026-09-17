@@ -59,9 +59,48 @@ class MetadataValidationTests(unittest.TestCase):
             root = Path(tmp)
             asset = root / "images/places/JP-001/synthetic.webp"
             asset.parent.mkdir(parents=True)
-            asset.write_bytes(b"fake-webp-bytes")
+            asset.write_bytes(b"fake-webp-bytes-original")
+            # Block 2 made the card derivative part of a valid record: every registered
+            # photograph must ship one, and it must be lighter than its original.
+            (asset.parent / "synthetic-800w.webp").write_bytes(b"fake-derivative")
             errs = self.errors([valid_record()], root)
             self.assertEqual(errs, [])
+
+    def test_a_record_without_its_card_derivative_is_invalid(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            asset = root / "images/places/JP-001/synthetic.webp"
+            asset.parent.mkdir(parents=True)
+            asset.write_bytes(b"fake-webp-bytes-original")
+            errs = self.errors([valid_record()], root)
+            self.assertTrue(any("card derivative is missing" in e for e in errs), errs)
+
+    def test_a_derivative_heavier_than_its_original_is_invalid(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            asset = root / "images/places/JP-001/synthetic.webp"
+            asset.parent.mkdir(parents=True)
+            asset.write_bytes(b"small")
+            (asset.parent / "synthetic-800w.webp").write_bytes(b"much-larger-than-the-original")
+            errs = self.errors([valid_record()], root)
+            self.assertTrue(any("larger than its original" in e for e in errs), errs)
+
+    def test_an_orphaned_file_in_the_asset_tree_is_invalid(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            asset = root / "images/places/JP-001/synthetic.webp"
+            asset.parent.mkdir(parents=True)
+            asset.write_bytes(b"fake-webp-bytes-original")
+            (asset.parent / "synthetic-800w.webp").write_bytes(b"fake-derivative")
+            (asset.parent / "left-behind.webp").write_bytes(b"orphan")
+            errs = self.errors([valid_record()], root)
+            self.assertTrue(any("orphaned asset on disk" in e for e in errs), errs)
 
     def test_unknown_place_id(self):
         self.assert_invalid([valid_record(placeId="JP-999")], "unknown placeId")
@@ -164,15 +203,24 @@ class MetadataValidationTests(unittest.TestCase):
     def test_processing_vocabulary_is_fail_closed(self):
         self.assert_invalid([valid_record(processing="cropped")], "processing must be one of")
 
-    def test_processing_must_match_original_dimensions(self):
-        self.assert_invalid(
-            [valid_record(originalWidth=1600, originalHeight=900, processing="resized-and-webp-reencoded")],
-            "contradicts original dimensions",
-        )
+    def test_a_large_file_may_not_claim_it_was_not_resized(self):
+        # Unchanged and still a hard error: a file above the max dimension must have been
+        # resized, so "webp-reencoded" would be a false statement about the asset.
         self.assert_invalid(
             [valid_record(originalWidth=2400, originalHeight=1600, processing="webp-reencoded")],
             "contradicts original dimensions",
         )
+
+    def test_a_small_file_may_be_recorded_as_a_reduced_rendition(self):
+        # Relaxed by Block 3 A1. Commons only serves a cached thumbnail strictly narrower than
+        # the source, so a file at or below the max dimension is legitimately acquired as a
+        # reduced rendition — and must be free to say so. See choose_render_width() in
+        # scripts/acquire-photography.py.
+        errs = self.errors(
+            [valid_record(originalWidth=1600, originalHeight=900, processing="resized-and-webp-reencoded")],
+            Path("/nonexistent"),
+        )
+        self.assertEqual([e for e in errs if "processing" in e], [])
 
     def test_webp_only_processing_is_valid_at_or_below_1600(self):
         record = valid_record(

@@ -1,0 +1,41 @@
+{
+  "phase": "Block 3 A1 — the two Block 2 deferrals",
+  "acquisitionDate": "2026-09-17",
+  "entries": [
+    {
+      "placeId": "JP-205",
+      "slug": "sapporo-snow-sculpture",
+      "title": "File:第65回さっぽろ雪まつり（SAPPORO SNOW FESTIVAL 65th） - panoramio.jpg",
+      "alt": "Gran escultura de nieve iluminada de noche en el Festival de la Nieve de Sapporo, con el público en silueta delante para dar escala."
+    },
+    {
+      "placeId": "JP-125",
+      "slug": "usj-wizarding-world-castle",
+      "title": "File:Hogwarts in Universal Studios Japan.jpg",
+      "alt": "Castillo del Mundo Mágico de Harry Potter en Universal Studios Japan, sobre su promontorio rocoso rodeado de árboles."
+    }
+  ],
+  "places": [
+    {
+      "placeId": "JP-205",
+      "hub": "Sapporo",
+      "grade": "S",
+      "name": "Sapporo Snow Festival",
+      "category": "🎆 Eventos",
+      "intendedImageCount": 1
+    },
+    {
+      "placeId": "JP-125",
+      "hub": "Osaka",
+      "grade": "S",
+      "name": "Universal Studios Japan",
+      "category": "🎢 Entretenimiento",
+      "intendedImageCount": 1
+    }
+  ],
+  "trancheSize": 2,
+  "appendedAssetPaths": [
+    "images/places/JP-205/sapporo-snow-sculpture.webp",
+    "images/places/JP-125/usj-wizarding-world-castle.webp"
+  ]
+}

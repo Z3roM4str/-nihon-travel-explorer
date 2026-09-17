@@ -90,10 +90,10 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly seven WebP-only records and 154 resized+WebP records from the committed metadata", () => {
+  it("derives exactly 7 WebP-only records and 156 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(154);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(156);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -194,11 +194,11 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       .filter(([, images]) => images.length > 1)
       .map(([placeId]) => placeId)
       .sort();
-    expect(galleries).toEqual(["JP-021", "JP-089", "JP-129", "JP-152"]);
+    expect(galleries).toEqual(["JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205"]);
   });
 
   it("keeps every other place at exactly one photograph", () => {
-    const depth = new Set(["JP-021", "JP-089", "JP-129", "JP-152"]);
+    const depth = new Set(["JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205"]);
     for (const [placeId, images] of Object.entries(placeImages)) {
       if (depth.has(placeId)) continue;
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });

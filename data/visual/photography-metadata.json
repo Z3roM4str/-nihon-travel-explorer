@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 161,
+  "imageCount": 163,
   "images": [
     {
       "placeId": "JP-001",
@@ -2579,6 +2579,38 @@
       "originalTitle": "File:Tokyo National Museum, Honkan 2010.jpg",
       "originalWidth": 3476,
       "originalHeight": 2307,
+      "processing": "resized-and-webp-reencoded"
+    },
+    {
+      "placeId": "JP-205",
+      "assetPath": "images/places/JP-205/sapporo-snow-sculpture.webp",
+      "alt": "Gran escultura de nieve iluminada de noche en el Festival de la Nieve de Sapporo, con el público en silueta delante para dar escala.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E7%AC%AC65%E5%9B%9E%E3%81%95%E3%81%A3%E3%81%BD%E3%82%8D%E9%9B%AA%E3%81%BE%E3%81%A4%E3%82%8A%EF%BC%88SAPPORO_SNOW_FESTIVAL_65th%EF%BC%89_-_panoramio.jpg",
+      "credit": "t-konno",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/%E7%AC%AC65%E5%9B%9E%E3%81%95%E3%81%A3%E3%81%BD%E3%82%8D%E9%9B%AA%E3%81%BE%E3%81%A4%E3%82%8A%EF%BC%88SAPPORO_SNOW_FESTIVAL_65th%EF%BC%89_-_panoramio.jpg",
+      "acquisitionDate": "2026-09-17",
+      "originalTitle": "File:第65回さっぽろ雪まつり（SAPPORO SNOW FESTIVAL 65th） - panoramio.jpg",
+      "originalWidth": 1600,
+      "originalHeight": 1067,
+      "processing": "resized-and-webp-reencoded"
+    },
+    {
+      "placeId": "JP-125",
+      "assetPath": "images/places/JP-125/usj-wizarding-world-castle.webp",
+      "alt": "Castillo del Mundo Mágico de Harry Potter en Universal Studios Japan, sobre su promontorio rocoso rodeado de árboles.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHogwarts_in_Universal_Studios_Japan.jpg",
+      "credit": "Leeyj0401",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Hogwarts_in_Universal_Studios_Japan.jpg",
+      "acquisitionDate": "2026-09-17",
+      "originalTitle": "File:Hogwarts in Universal Studios Japan.jpg",
+      "originalWidth": 1440,
+      "originalHeight": 810,
       "processing": "resized-and-webp-reencoded"
     }
   ]

@@ -238,7 +238,7 @@ fallback path into an acquisition pipeline is worse than shipping none.
 
 Both records were therefore **removed from the registry** rather than left dangling: the
 validator refuses a record whose asset is missing, and it was right to. Their entries remain in
-`data/visual/block2-depth-plan.json`, verified and ready, so a future session acquires them with
+`data/visual/block2-depth-batch.json`, verified and ready, so a future session acquires them with
 one command once the fix lands. They are **not** fail-closed — that term is reserved for a
 sourcing or identification failure, and these are neither.
 

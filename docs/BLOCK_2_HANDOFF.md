@@ -33,7 +33,7 @@ Written so the next session, or an auditor, can continue from GitHub and this re
 
 **New tests:** `app/src/photography-derivatives.test.ts` (13), `app/src/photography-depth.test.ts` (12).
 
-**New data:** `data/visual/block2-coverage-plan.json`, `data/visual/block2-depth-plan.json`.
+**New data:** `data/visual/block2-coverage-batch.json`, `data/visual/block2-depth-batch.json`.
 
 **New docs:** `docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md` (the authority — read it before changing any
 of this), this handoff.
@@ -127,7 +127,7 @@ original and the fetch is refused, retry at the largest standard cached width be
 original. This stays inside the existing contract — `PHOTOGRAPHY_MAX_DIMENSION` is a maximum and
 the script already never upscales.
 
-Their verified entries are committed in `data/visual/block2-depth-plan.json`. Re-running
+Their verified entries are committed in `data/visual/block2-depth-batch.json`. Re-running
 `prepare-block2-photography-metadata.py` on that plan plus `acquire-photography.py` completes
 them; then update the gallery pins in `place-images.test.ts` and the two counts beside them.
 

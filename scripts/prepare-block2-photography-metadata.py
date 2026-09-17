@@ -29,6 +29,19 @@ USER_AGENT = (
     "non-commercial; Block 2 photography preparation)"
 )
 PROCESSING_MAX_DIMENSION = 1600
+# Shared with scripts/acquire-photography.py: Commons only serves a cached thumbnail strictly
+# narrower than the source file, so any file at or below the max dimension is acquired as a
+# reduced rendition and must be recorded as one. Importing the rule rather than restating it
+# keeps preparation and acquisition from disagreeing about what a record means.
+STANDARD_THUMB_WIDTHS = (1280, 1024, 800, 640, 480, 320)
+
+
+def planned_processing_for(width, height, max_dimension=PROCESSING_MAX_DIMENSION):
+    if max(width, height) > max_dimension:
+        return "resized-and-webp-reencoded"
+    if any(standard < width for standard in STANDARD_THUMB_WIDTHS):
+        return "resized-and-webp-reencoded"
+    return "webp-reencoded"
 
 LICENCE_URLS = {
     "CC0": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
@@ -128,11 +141,7 @@ def build(entry, acquisition_date):
         "originalTitle": entry["title"],
         "originalWidth": width,
         "originalHeight": height,
-        "processing": (
-            "resized-and-webp-reencoded"
-            if max(width, height) > PROCESSING_MAX_DIMENSION
-            else "webp-reencoded"
-        ),
+        "processing": planned_processing_for(width, height),
     }
     return record
 

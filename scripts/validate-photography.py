@@ -291,15 +291,24 @@ def validate_metadata(metadata, place_ids, asset_root):
                 f"{label}: processing must be one of {sorted(SUPPORTED_PROCESSING)!r}, got {processing!r}"
             )
         elif dimensions_valid:
-            expected_processing = (
-                "resized-and-webp-reencoded"
-                if max(original_width, original_height) > PROCESSING_MAX_DIMENSION
-                else "webp-reencoded"
-            )
-            if processing != expected_processing:
+            # Block 3 A1 relaxed this in one direction only.
+            #
+            # A file larger than the max dimension *must* have been resized, so claiming
+            # `webp-reencoded` for one is still a hard error — that direction is a lie about
+            # the asset. But a file at or below the max dimension may legitimately have been
+            # fetched as a reduced rendition: Commons only serves cached thumbnails strictly
+            # narrower than the source, and asking for the original is what the host refuses
+            # (see `choose_render_width` in scripts/acquire-photography.py). So
+            # `resized-and-webp-reencoded` is valid at any size, and the only forbidden
+            # combination is "not resized" on a file that had to be.
+            if (
+                max(original_width, original_height) > PROCESSING_MAX_DIMENSION
+                and processing != "resized-and-webp-reencoded"
+            ):
                 errors.append(
                     f"{label}: processing {processing!r} contradicts original dimensions "
-                    f"{original_width}x{original_height}; expected {expected_processing!r}"
+                    f"{original_width}x{original_height}; a file larger than "
+                    f"{PROCESSING_MAX_DIMENSION}px must be 'resized-and-webp-reencoded'"
                 )
 
         source_key = original_title or record.get("acquisitionUrl")
