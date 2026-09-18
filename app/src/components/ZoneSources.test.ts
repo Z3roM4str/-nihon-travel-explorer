@@ -69,6 +69,44 @@ describe("opening a source is not choosing a zone", () => {
   });
 });
 
+describe("Block 8 — the airport links say what kind of journey they are", () => {
+  it("renders the mode-explicit label rather than the bare word 'directo'", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("{airportLinkConnection(link)}");
+    // The old ambiguous ternary is gone.
+    expect(panel).not.toMatch(/directFromZone \? "directo" : "con enlace"/);
+  });
+
+  it("spells the connection out for assistive technology", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain(
+      '<span className="visually-hidden">. {airportLinkDescription(link)}</span>'
+    );
+  });
+
+  it("keys a link by airport AND service, so one airport may hold two answers", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("key={airportLinkKey(link)}");
+    expect(panel).not.toContain("key={link.airport}");
+  });
+
+  it("emphasises directness, never a mode", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    const block = panel.slice(panel.indexOf("function AirportFacts"));
+    const component = block.slice(0, block.indexOf("\n}"));
+    expect(component).toContain('link.directFromZone ? "zone-fact--strong" : ""');
+    // Nothing keys a style off the mode.
+    expect(component).not.toMatch(/mode === "bus" \?[^\n]*class|zone-fact--(bus|rail)/);
+  });
+
+  it("adds no control to the fact row", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    const block = panel.slice(panel.indexOf("function AirportFacts"));
+    const component = block.slice(0, block.indexOf("\n}"));
+    expect(component).not.toMatch(/<button|onClick|useState/);
+  });
+});
+
 describe("Block 7 changed nothing else on the card", () => {
   it("adds no control, only a link", async () => {
     const panel = await readSource("ZoneComparison.tsx");

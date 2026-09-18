@@ -42,6 +42,16 @@ FACT_AREAS = ("railLines", "shinkansen", "airportLinks")
 SOURCE_TIERS = ("operator", "authority", "official-tourism", "secondary")
 # A host that cannot honestly be called a primary or operator source, whatever tier it claims.
 SECONDARY_HOSTS = ("wikipedia.org", "wikimedia.org", "britannica.com", "wikivoyage.org")
+# Block 8. How the traveller actually moves on one airport link. A closed vocabulary: the dataset
+# contains trains and coaches and nothing else, and inventing modes it does not carry would be
+# speculation, not a contract.
+AIRPORT_LINK_MODES = ("rail", "bus")
+# A route described as going *via* somewhere is, by its own words, not direct. This is the one
+# text rule worth enforcing: it catches a real contradiction rather than guessing at prose.
+VIA_ROUTE = re.compile(r"\bv[ií]a\b", re.I)
+# Words that can only mean a coach. The converse is deliberately not enforced — a rail service can
+# be named anything, so "no bus word" proves nothing about the mode.
+BUS_SERVICE = re.compile(r"autob[úu]s|limusina|\bbus\b", re.I)
 # Only these hubs are in scope for Block 3; a zone for an unmodelled hub is a mistake, not a
 # feature, because the comparison surface is reached from the hub explorer.
 SUPPORTED_HUBS = {"Tokio", "Kioto", "Osaka"}
@@ -173,6 +183,7 @@ def validate(doc, place_hubs, cluster_ids):
             if not isinstance(links, list) or not links:
                 errors.append(f"{label}: facts.airportLinks must be a non-empty array")
             else:
+                seen_links = set()
                 for link in links:
                     if not isinstance(link, dict):
                         errors.append(f"{label}: each airportLink must be an object")
@@ -181,6 +192,36 @@ def validate(doc, place_hubs, cluster_ids):
                         errors.append(f"{label}: airportLink needs both airport and service")
                     if not isinstance(link.get("directFromZone"), bool):
                         errors.append(f"{label}: airportLink.directFromZone must be a boolean")
+
+                    # ---- Block 8: one record, one service, and what it means ----
+                    mode = link.get("mode")
+                    if mode not in AIRPORT_LINK_MODES:
+                        errors.append(
+                            f"{label}: airportLink.mode {mode!r} must be one of {list(AIRPORT_LINK_MODES)}"
+                        )
+
+                    service = link.get("service") or ""
+                    # `directFromZone` is a claim about THIS service: that it runs between zone and
+                    # airport with no change. A service whose own description routes it via
+                    # somewhere else contradicts that, whatever the boolean says.
+                    if VIA_ROUTE.search(service) and link.get("directFromZone") is True:
+                        errors.append(
+                            f"{label}: airportLink {service!r} is described as a route via another point "
+                            f"but is marked direct"
+                        )
+                    # A coach recorded as rail would make the panel tell the traveller to look for
+                    # a train that does not exist.
+                    if BUS_SERVICE.search(service) and mode != "bus":
+                        errors.append(f"{label}: airportLink {service!r} names a coach but mode is {mode!r}")
+                    if mode == "bus" and not BUS_SERVICE.search(service):
+                        errors.append(f"{label}: airportLink {service!r} is mode 'bus' but names no coach")
+
+                    # Two records for the same airport are how a zone says "a direct coach AND a
+                    # rail route with a change". Two identical ones say nothing twice.
+                    key = (link.get("airport"), service)
+                    if key in seen_links:
+                        errors.append(f"{label}: airportLink {key!r} appears twice")
+                    seen_links.add(key)
 
             provenance = facts.get("provenance")
             if not isinstance(provenance, dict):

@@ -30,7 +30,37 @@ export type ZoneShinkansen = {
   note?: string;
 };
 
-export type ZoneAirportLink = { airport: string; service: string; directFromZone: boolean };
+/**
+ * How the traveller actually moves, for one airport link.
+ *
+ * Block 8 named it because the model could already mark a limousine bus `directFromZone: true`
+ * (Umeda → Itami has done so since Block 3) and the panel rendered it with exactly the same word
+ * as a direct train. Both are genuinely direct; they are not the same journey — one is bound by a
+ * timetable, the other by traffic, and one takes luggage off your hands. The mode is a fact about
+ * the service, never a judgement about which is better.
+ */
+export type ZoneAirportLinkMode = "rail" | "bus";
+
+export const ZONE_AIRPORT_LINK_MODES: readonly ZoneAirportLinkMode[] = ["rail", "bus"];
+
+/**
+ * One way of reaching one airport from one zone.
+ *
+ * **`directFromZone` is a statement about THIS service, not about the airport.** It is true when
+ * the named service carries the traveller between the zone and the airport with no change, and
+ * false when the route it describes needs at least one. It has never been about rail specifically:
+ * a limousine bus that runs without a change is direct, and the dataset has said so since Block 3.
+ *
+ * It follows that one record holds exactly one service. A zone reached both by a direct bus and by
+ * a rail route with a change has two records, because a single boolean cannot be true of one and
+ * false of the other — which is precisely what three records did wrong before Block 8.
+ */
+export type ZoneAirportLink = {
+  airport: string;
+  service: string;
+  directFromZone: boolean;
+  mode: ZoneAirportLinkMode;
+};
 
 /**
  * The three kinds of checkable claim a zone makes. Block 7 named them so a source can say which

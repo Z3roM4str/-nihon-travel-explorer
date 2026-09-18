@@ -15,6 +15,11 @@ import {
   type ZoneEditorial,
 } from "../lib/accommodation-zone";
 import { sourceLinkLabel, sourceName, tierLabel } from "../lib/zone-provenance-presentation";
+import {
+  airportLinkConnection,
+  airportLinkDescription,
+  airportLinkKey,
+} from "../lib/zone-airport-presentation";
 import { MAX_COMPARED, useZoneComparison } from "../useZoneComparison";
 import { useZonePlanChoice } from "../useZonePlanChoice";
 
@@ -137,19 +142,35 @@ function ShinkansenFact({ zone }: { zone: AccommodationZone }) {
   );
 }
 
+/**
+ * Block 8 — the airport links, each saying what kind of journey it is.
+ *
+ * It used to render one word, `directo` or `con enlace`, for every link. Neither said direct *by
+ * what*: a limousine bus and a Narita Express carried the same label. The label now names the
+ * mode and whether a change is needed, and the full sentence is spelled out for assistive
+ * technology, because "directo" is exactly the word a reader can take two ways.
+ *
+ * A zone may hold two records for the same airport — a direct coach and a rail route with a
+ * change are two different answers, and one boolean cannot be true of both — so the key is the
+ * airport AND the service.
+ *
+ * The emphasis on a direct link is about *directness*, which is a fact. It is deliberately not
+ * about the mode: nothing here says a train is better than a coach.
+ */
 function AirportFacts({ zone }: { zone: AccommodationZone }) {
   return (
     <>
       {zone.facts.airportLinks.map((link) => (
         <span
-          key={link.airport}
+          key={airportLinkKey(link)}
           className={`zone-fact ${link.directFromZone ? "zone-fact--strong" : ""}`}
         >
           <span aria-hidden="true">✈</span> {link.airport}
           <span className="zone-fact__detail">
             {" "}
-            · {link.directFromZone ? "directo" : "con enlace"}
+            · {airportLinkConnection(link)}
           </span>
+          <span className="visually-hidden">. {airportLinkDescription(link)}</span>
         </span>
       ))}
     </>

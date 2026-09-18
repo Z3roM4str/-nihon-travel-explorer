@@ -42,12 +42,20 @@
           {
             "airport": "Narita (NRT)",
             "service": "Narita Express (N'EX)",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           },
           {
             "airport": "Haneda (HND)",
-            "service": "Autobús limusina / vía Shinagawa",
-            "directFromZone": false
+            "service": "Autobús limusina a Shinjuku Station West Exit",
+            "directFromZone": true,
+            "mode": "bus"
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Vía Shinagawa (Keikyū)",
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -68,6 +76,16 @@
             "sourceEntity": "Narita International Airport — acceso ferroviario (operador del aeropuerto)",
             "consultedAt": "2026-09-18",
             "evidence": "El aeropuerto lista el Narita Express (JR East) con parada en Shinjuku Station.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          },
+          {
+            "sourceUrl": "https://tokyo-haneda.com/en/access/bus/",
+            "sourceEntity": "Haneda Airport — autobuses expreso (operador del aeropuerto)",
+            "consultedAt": "2026-09-18",
+            "evidence": "El aeropuerto lista un autobús expreso Haneda → «Shinjuku Station West Exit», unos 35 minutos, operado por Airport Transport Service y Tokyu Bus.",
             "tier": "operator",
             "covers": [
               "airportLinks"
@@ -140,12 +158,14 @@
           {
             "airport": "Narita (NRT)",
             "service": "Narita Express (N'EX)",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           },
           {
             "airport": "Haneda (HND)",
             "service": "Vía Hamamatsuchō o Shinagawa",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -234,12 +254,14 @@
           {
             "airport": "Narita (NRT)",
             "service": "Keisei Skyliner desde Keisei-Ueno",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           },
           {
             "airport": "Haneda (HND)",
             "service": "Vía metro + Keikyū",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -319,12 +341,14 @@
           {
             "airport": "Haneda (HND)",
             "service": "Toei Asakusa ↔ Keikyū, servicio directo",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           },
           {
             "airport": "Narita (NRT)",
             "service": "Toei Asakusa ↔ Keisei / Narita Sky Access, servicio directo",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -397,12 +421,14 @@
           {
             "airport": "Narita (NRT)",
             "service": "Narita Express (N'EX), servicio limitado",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           },
           {
             "airport": "Haneda (HND)",
             "service": "Vía Shinagawa (Keikyū)",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -486,13 +512,21 @@
         "airportLinks": [
           {
             "airport": "Narita (NRT)",
-            "service": "Autobús limusina / vía Nippori (Skyliner)",
-            "directFromZone": false
+            "service": "Vía Nippori (Skyliner)",
+            "directFromZone": false,
+            "mode": "rail"
           },
           {
             "airport": "Haneda (HND)",
-            "service": "Autobús limusina / vía Shinagawa",
-            "directFromZone": false
+            "service": "Autobús limusina a Ikebukuro Station West Exit",
+            "directFromZone": true,
+            "mode": "bus"
+          },
+          {
+            "airport": "Haneda (HND)",
+            "service": "Vía Shinagawa (Keikyū)",
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -506,7 +540,19 @@
             "shinkansen",
             "airportLinks"
           ]
-        }
+        },
+        "sources": [
+          {
+            "sourceUrl": "https://tokyo-haneda.com/en/access/bus/",
+            "sourceEntity": "Haneda Airport — autobuses expreso (operador del aeropuerto)",
+            "consultedAt": "2026-09-18",
+            "evidence": "El aeropuerto lista un autobús expreso Haneda → «Ikebukuro Station West Exit», unos 55 minutos, operado por Airport Transport Service y Kokusai Kogyo Bus.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          }
+        ]
       },
       "editorial": {
         "nightlife": 4,
@@ -566,7 +612,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Limited Express Haruka",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -632,7 +679,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Vía Estación de Kioto (Haruka)",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -696,7 +744,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Vía Estación de Kioto (Haruka)",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -761,7 +810,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Vía Estación de Kioto (Haruka)",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -827,7 +877,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Vía Estación de Kioto (Haruka)",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -901,12 +952,14 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Limited Express Haruka (andenes subterráneos, desde 2023)",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           },
           {
             "airport": "Itami (ITM)",
             "service": "Autobús limusina",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "bus"
           }
         ],
         "provenance": {
@@ -979,7 +1032,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Nankai Rapi:t",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -1061,7 +1115,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Limited Express Haruka",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -1130,7 +1185,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Limited Express Haruka",
-            "directFromZone": true
+            "directFromZone": true,
+            "mode": "rail"
           }
         ],
         "provenance": {
@@ -1194,7 +1250,8 @@
           {
             "airport": "Kansai (KIX)",
             "service": "Vía Nishikujō y Ōsaka Station",
-            "directFromZone": false
+            "directFromZone": false,
+            "mode": "rail"
           }
         ],
         "provenance": {

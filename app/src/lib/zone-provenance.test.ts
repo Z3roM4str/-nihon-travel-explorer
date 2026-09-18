@@ -93,11 +93,18 @@ describe("an encyclopedia is never dressed as an operator", () => {
 });
 
 describe("Block 7 actually raised the authority of the airport links", () => {
+  /*
+   * Block 7 put an operator behind four Narita links and one Kansai link. Block 8 added Haneda's
+   * own express-bus page behind the two coach links it split out, so Ikebukuro joined the list —
+   * a widening of the same rule, not a loosening of it. The list stays hard-coded on purpose: it
+   * is what stops a zone acquiring an "operator" source nobody decided to give it.
+   */
   const UPGRADED = [
     "ZN-TOK-SHINJUKU",
     "ZN-TOK-MARUNOUCHI",
     "ZN-TOK-SHIBUYA",
     "ZN-TOK-UENO",
+    "ZN-TOK-IKEBUKURO",
     "ZN-OSA-NAMBA",
   ];
 
@@ -142,7 +149,21 @@ describe("Block 7 actually raised the authority of the airport links", () => {
         hosts.add(new URL(source.sourceUrl).host);
       }
     }
-    expect([...hosts].sort()).toEqual(["www.nankai.co.jp", "www.narita-airport.jp"]);
+    // Two airports and one railway. Exact, so a fourth host cannot appear unnoticed.
+    expect([...hosts].sort()).toEqual([
+      "tokyo-haneda.com",
+      "www.nankai.co.jp",
+      "www.narita-airport.jp",
+    ]);
+  });
+
+  it("gives every extra source the operator tier, since that is why it was added", () => {
+    for (const zone of ZONES) {
+      for (const source of zone.facts.sources ?? []) {
+        expect(source.tier, source.sourceUrl).toBe("operator");
+        expect(source.covers, source.sourceUrl).toEqual(["airportLinks"]);
+      }
+    }
   });
 });
 
