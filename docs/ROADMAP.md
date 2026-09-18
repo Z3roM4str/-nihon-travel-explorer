@@ -7060,3 +7060,79 @@ assigned Block 10 to nothing else.
       DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md).
+
+---
+
+## Block 11 — semantic coverage of provenance in `access-points` and `reservation-mechanisms` — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `109917e8` (Block 10 closed, on
+`claude/brave-wozniak-f79ie3`). Not merged, no pull request. Full record in
+[`docs/BLOCK_11_DESIGN.md`](BLOCK_11_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md). The roadmap
+assigned Block 11 to nothing else.
+
+- [x] **The audit came before the schema.** All twelve records — 8 reservation mechanisms, 4 access
+      points — mapped to the claim each backs, its source, entity, `confidence`, date and age (3–13
+      days). Both systems carry **one provenance per record**, no URL with two dates, and **no
+      authority tier at all**, because both `confidence` enums are `official-*`: every source is the
+      operator or the responsible public body, so Block 7's lower rungs have no members here.
+- [x] **`covers` was the wrong answer, and the block says so.** `covers` exists because one zone
+      record makes three *separable* claims and one source may back any subset. Neither of these
+      systems has that shape: one access point is one arrival point, one mechanism is one sales
+      rule. A `covers` field would ask each record to restate, in a field that can drift, what the
+      record already **is** — the exact failure `covers` was invented to prevent, as ceremony.
+      **Neither schema gained a field, and no data file was touched.**
+- [x] **What was actually missing is the *kind* of claim, and both schemas already stored it.**
+      Access points: `role` separates built fabric from a *served* stop. Reservation mechanisms:
+      `mechanism.kind` separates a standing rule from one dated sale. The class is therefore
+      **derived** from them, never stored beside them — a stored class can be wrong, a derived one
+      cannot disagree with the fact it describes.
+- [x] **The finding that forced the design: `RM-JP-212-001` is not like its seven siblings.** Seven
+      record a standing rule relative to the visit date. The sumo record stores an **absolute**
+      `saleDate` for an **absolute** tournament window: it describes one sale, not how sales work,
+      and expires by its own terms. On 2027-04-01 its check is 201 days old — "fine" under any age
+      model — while the tournament finished four days earlier. **Age is the wrong instrument for
+      it.**
+- [x] **A fourth state, because `null` could not carry the third answer.** `no-periodic-recheck`
+      says *relax*; a ticketing policy is the most volatile claim in the dataset. So
+      `recheck-interval-unknown` was added: *this does want re-reading and we cannot say how often.*
+      A test asserts the two never produce the same wording.
+- [x] **Thresholds only where the domain supplies one.** `served-transit-stop` → **365 days**, the
+      timetable cycle re-derived in this domain rather than borrowed (**0 shipped records; decided
+      in advance so the first cannot inherit a branch by accident**). `built-arrival-point` and
+      `dated-sale-instance` → **none**. `standing-sales-rule` → **no number, deliberately**: Block 10
+      derived 365 from an event you can point at, and ticketing policy supplies no such event.
+      **Recorded as debt rather than invented.**
+- [x] **The engine was extended, not duplicated.** `freshnessForHorizon` is now the one place a
+      `consultedAt` becomes a verdict for all three systems; `freshnessFor` keeps its exact Block 10
+      signature on top of it. **Block 10's own 38 tests were not modified and pass unchanged** — the
+      evidence the refactor preserves behaviour. Pure, `today` explicit, no clock, no storage,
+      inclusive boundary, and a broken date still outranks every horizon, `unknown` included.
+- [x] **`confidence` stays independent**, and it means *how directly the source states the claim* —
+      not authority, not coverage, not age. Proven in both directions: recent-but-derived and
+      eleven-years-old-but-explicit classify identically, and a source scan asserts the module never
+      reads `confidence`, `tier` or `editorial`.
+- [x] **`consultedAt` keeps Block 10's definition exactly**, and nothing looks freshly verified: the
+      class is derived, so there was nothing to migrate. All twelve dates are pinned by test to the
+      values Block 10 recorded.
+- [x] **The two lagging validators caught up.** Block 10 taught the zone validator to refuse
+      impossible and future dates; these two still accepted `2099-01-01`. Both now match, with
+      injectable `today`. Age is never an error — here load-bearing, since a sales rule has no
+      derivable interval. **32 of 32 negative cases behaved correctly** against the real datasets,
+      including the sumo record's future `saleDate`, which must keep passing.
+- [x] **No visible change, and both halves argued.** Access-point provenance has **no UI surface at
+      all** — one non-test importer, type-only. Reservation provenance already shows its check date,
+      and Nihon's own process does not belong in front of the reader. With `unknown`/`none` the only
+      reservation horizons, **no reservation record can ever reach `needs-recheck`** — a real
+      property of the model, stated rather than discovered later. No browser audit added, per §18.
+- [x] **The contract guards were broken on purpose to prove they fire:** a new `role` with no class
+      and a dropped `mechanism.kind` are caught by `tsc` (TS2741); a sales rule quietly given the
+      stable horizon fails 5 tests; an invented 180-day threshold fails 4.
+- [x] **Verified.** Vitest **3117** (89 → 90 files, +36) · oxlint and `tsc` clean · build OK · **all
+      13 Python suites** · **all 8 argument-free validators** · Block 1 **142** · Block 2 **69** ·
+      Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6 **216** · Block 7 **129** ·
+      Block 8 **114** · Block 9 **153** · Block 10 **81**, all unmodified and byte-identical ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_11_HANDOFF.md`](BLOCK_11_HANDOFF.md).
