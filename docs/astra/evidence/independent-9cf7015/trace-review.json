@@ -1,0 +1,114 @@
+[
+  {
+    "trace": "01-viewports.zip",
+    "sha256": "30201d36b8a396579592ba34ed1234d06e3af4e0cc942708b8fce3e46293bcab",
+    "snapshots": 86,
+    "screencastFrames": 20,
+    "calls": 44,
+    "errors": [],
+    "requests": 13,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js"
+    ]
+  },
+  {
+    "trace": "02-plan-safety.zip",
+    "sha256": "fa5befb227248f68cd1d1359cc199c8341bf013e0a36665b67979146562a1c65",
+    "snapshots": 16,
+    "screencastFrames": 11,
+    "calls": 9,
+    "errors": [],
+    "requests": 9,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js"
+    ]
+  },
+  {
+    "trace": "03-history.zip",
+    "sha256": "f5404b67dc7325defb0b288f08a3e29f20f8899d8db44d05aa865592d76c70c2",
+    "snapshots": 23,
+    "screencastFrames": 13,
+    "calls": 12,
+    "errors": [],
+    "requests": 9,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js"
+    ]
+  },
+  {
+    "trace": "04-filters-map.zip",
+    "sha256": "9f88ffbe21822608806e484e864ffed4aec5a82b5e15e4d63dc826dcf17f0da6",
+    "snapshots": 39,
+    "screencastFrames": 40,
+    "calls": 17,
+    "errors": [],
+    "requests": 70,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js",
+      "http://127.0.0.1:36299/assets/PlaceMap-CTMne6Dw.js",
+      "http://127.0.0.1:36299/assets/MapContainer-EaFp7NA1.js",
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js",
+      "http://127.0.0.1:36299/assets/PlaceMap-CTMne6Dw.js",
+      "http://127.0.0.1:36299/assets/MapContainer-EaFp7NA1.js"
+    ]
+  },
+  {
+    "trace": "05-modal-focus.zip",
+    "sha256": "ea72b1468fdc9c1d57da403c7d92471c09632e7ce071d8c03d6cbfa2ba4053dd",
+    "snapshots": 99,
+    "screencastFrames": 28,
+    "calls": 50,
+    "errors": [],
+    "requests": 13,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js"
+    ]
+  },
+  {
+    "trace": "06-image-retry.zip",
+    "sha256": "2d19389f47d4eeafc9ff5758b91f52173bd843cb7a3a0a543bb1228aeb07e011",
+    "snapshots": 23,
+    "screencastFrames": 7,
+    "calls": 15,
+    "errors": [],
+    "requests": 5,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js"
+    ]
+  },
+  {
+    "trace": "07-lazy-network.zip",
+    "sha256": "80477e64a69d3a446a689923fdc455042866895941be85fe3e903852fc61edbe",
+    "snapshots": 9,
+    "screencastFrames": 19,
+    "calls": 5,
+    "errors": [],
+    "requests": 39,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js",
+      "http://127.0.0.1:36299/assets/PlaceMap-CTMne6Dw.js",
+      "http://127.0.0.1:36299/assets/MapContainer-EaFp7NA1.js"
+    ]
+  },
+  {
+    "trace": "08-a11y-reflow.zip",
+    "sha256": "fdbca92c851f291a0b4e0e75a472bb4280036bfd0e8fbec3aaa9ca5a66dab497",
+    "snapshots": 139,
+    "screencastFrames": 36,
+    "calls": 70,
+    "errors": [],
+    "requests": 9,
+    "assets": [
+      "http://127.0.0.1:36299/assets/index-BmUpoEhL.css",
+      "http://127.0.0.1:36299/assets/index-BG4QJj8X.js"
+    ]
+  }
+]
