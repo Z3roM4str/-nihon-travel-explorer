@@ -6836,3 +6836,56 @@ handoff's first recommendation, which is what this block implements, deliberatel
       production build · `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md).
+
+---
+
+## Block 7 — provenance and authority of zone facts — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `86ef3c8` (Block 6 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_7_DESIGN.md`](BLOCK_7_DESIGN.md).
+
+**Authority.** The first recommendation left in [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md),
+unclaimed since Block 4. The roadmap assigned Block 7 to nothing else.
+
+- [x] **The audit came first.** All 16 zones carried exactly one `facts.provenance` record, and
+      all 16 were Wikipedia station articles — one source standing silently behind three different
+      kinds of claim, with no way to say which it supported.
+- [x] **Scope was decided by what could be verified, not by what would look tidiest.** JR East,
+      JR Central, JR West, Tokyo Metro, Toei, Kansai Airport and the Kyoto and Osaka municipal
+      operators all refuse automated requests from this environment, so `railLines` and
+      `shinkansen` were deliberately **not** re-sourced: citing pages nobody had read would have
+      faked the authority this block exists to raise.
+- [x] **Five airport links now rest on an operator's own page.** Narita Airport's rail-access page
+      names the stations each service serves, and Nankai's Rapi:t page names the stations it
+      connects — the exact claims the zones make. Shinjuku, Marunouchi, Shibuya and Ueno for
+      Narita; Namba for Kansai.
+- [x] **Additive schema, nothing removed or retyped.** `ZoneProvenance` gains `tier` and `covers`;
+      `ZoneFacts` gains an optional `sources[]`. A zone without extras is exactly the Block 3
+      record it always was. `tier` is stored rather than inferred from the hostname, because "is
+      this the operator" is a judgement about the claim, not a fact about a domain name.
+- [x] **A claim is never kept alive by a source that does not make it.** Namba's service text drops
+      "(andén 9)": the operator page states the route and no platform. Airport, service and
+      `directFromZone` are unchanged.
+- [x] **The encyclopedia is kept wherever it still carries a claim**, and relieved of the airport
+      links only for Namba, whose single link the operator page fully covers.
+- [x] **The validator now makes an unsourced fact unrepresentable.** It refuses a source covering
+      nothing, a fact area covered by nothing, an encyclopedia claiming to be an operator, a
+      repeated page within one zone, and the new fields leaking into an `editorial` block. Thirteen
+      negative cases were checked by hand; it rejects all thirteen.
+- [x] **Fact / derived / editorial is untouched.** `tier` attaches to a source, never to a zone and
+      never to an axis. A higher tier never turns a judgement into a fact.
+- [x] **One visible change.** The panel rendered a link whose whole text was "Fuente"; it now names
+      each source and says how close it is, in words. No card was redesigned, no rating or ranking
+      touched, no planning decision altered.
+- [x] **Three false positives, all in Block 7's own new audit**, found and fixed before the commit:
+      a focus-trap check comparing class names where two sibling links share a class; a history
+      check that stepped onto `about:blank` because Chromium *replaces* a same-URL navigation; and
+      the audit's own unguarded init script throwing a `SecurityError` on that blank document and
+      reporting it as a product error. No historical audit was modified.
+- [x] **Verified.** Vitest **2969** (84 → 86 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216**, all unmodified · new Block 7 audit **129/129** at 390×844 DPR 2, 820×1180 DPR 2
+      and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md).
