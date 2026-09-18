@@ -6783,3 +6783,56 @@ nevertheless shaped so a later move to synchronisation would not require re-conc
       820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_5_HANDOFF.md`](BLOCK_5_HANDOFF.md).
+
+---
+
+## Block 6 — dónde no coincidimos — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `c260c75` (Block 5 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_6_DESIGN.md`](BLOCK_6_DESIGN.md).
+
+**Authority.** Block 5 closed with *"Authorized next step: none decided"* and no document in the
+repository assigned Block 6 to anything. The only forward-looking authority was the Block 5
+handoff's first recommendation, which is what this block implements, deliberately small.
+
+- [x] **A derived view, not a new document.** No storage key, no version, no migration, no stance
+      and no planning decision. Every value is a function of the Block 5 document plus, for one
+      informational flag, the ids the planner has put in a day. Asserted by test across every
+      Block 6 module and by the audit, which compares the full `nihon.*` key set before and after.
+- [x] **Silence is never reported as a disagreement.** *"Sólo tú lo guardaste. <otra> aún no ha
+      opinado"* and *"Opiniones distintas: una persona quiere ir y la otra ha dicho que no le
+      interesa"* are different kinds in the domain, different copy on screen and different tests.
+      `hasDifferingOpinions()` is about explicit refusal alone.
+- [x] **It lives inside the saved list**, as one row of filter chips — not a second main surface.
+      The row appears only when it could actually partition the list, so a trip where the two of
+      them agree on everything sees no change at all.
+- [x] **One indicator per row, never two.** "Todo" is Block 5's list exactly, markers and all.
+      Inside a filtered view the derived line states the fact in full from the reader's own side
+      and the short marker stands down rather than joining it.
+- [x] **Preference is still not a planning decision.** A place the planner already holds says *"Ya
+      está en un día del recorrido. Esto no lo cambia."* and nothing else happens. The audit
+      asserts the draft is byte-for-byte what the planner left after the view has been opened,
+      filtered and read. `ManualPlanningDraftV8` is untouched and still V8.
+- [x] **The planner is read, never written.** `usePlannedPlaceIds` hands `loadReconciledDraft` a
+      `DraftStorage` whose setter is a no-op, so there is no path from Block 6 to
+      `localStorage.setItem`. "In the planner" means assigned to a day, because `routeIds` is
+      seeded from the saved list and is therefore nobody's decision.
+- [x] **Nothing is scored.** No function returns a number per place; every count is a tally; no
+      surface sorts, ranks, weights, votes or proposes that either person give way.
+- [x] **The filter is view state and is not persisted.** It is what the reader is looking at, not a
+      decision about the trip, and no new key exists for it.
+- [x] **One defect caught by the block's own audit.** With every saved place in one bucket the chip
+      row offered "Todo" and one other chip that selected the same rows — two controls doing the
+      same thing, in a view that is supposed to stay light. `shouldOfferFilters` now requires two
+      populated buckets, keeping a filter the reader has already pressed.
+- [x] **No historical audit was modified.** One false positive came from Block 6's own new audit,
+      which applied a stricter tap floor than the project's: `.icon-button--small` at 36px has been
+      an explicit allowance in Block 1's audit since Block 1. The new audit adopts that allowance
+      rather than re-deciding it, and holds Block 6's own controls to the full 44px.
+- [x] **Verified.** Vitest **2930** (81 → 84 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225**, all unmodified ·
+      new Block 6 audit **216/216** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the
+      production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md).
