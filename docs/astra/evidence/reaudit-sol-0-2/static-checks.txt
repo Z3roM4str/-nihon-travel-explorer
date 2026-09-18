@@ -1,0 +1,21 @@
+TRACK: ASTRA — second audit SOL-0–SOL-2 evidence
+Audited HEAD: 19c168d39d0ed2c052fb95e8497b46011604fcbe
+Base diff: b986a60dc5c115e76af45fd53f8dfd9b7e46d448..19c168d39d0ed2c052fb95e8497b46011604fcbe
+Clean initial tree: yes
+
+PASS npm test -- --run: 70 files, 2463 tests.
+PASS npm run lint: no diagnostics.
+PASS npm run build: lazy chunks PlaceMap 3.65 kB, NationalExplorer 10.22 kB, OrderedSequenceBuilder 127.40 kB, MapContainer 152.65 kB; initial JS 1,136.85 kB / 186.05 kB gzip; >500 kB advisory.
+PASS python scripts/validate-dataset.py: 214 places, 403 relations, 0 broken, 13 known secondary warnings.
+PASS python scripts/validate-photography.py.
+PASS python scripts/validate-geography.py: 47 prefectures, 9 regions, 214 places, 7 hubs.
+PASS python scripts/validate-logistics.py.
+PASS python scripts/validate-reservation-mechanisms.py.
+PASS git diff --check b986a60..HEAD.
+
+Browser capability inventory:
+- command -v chromium chromium-browser google-chrome google-chrome-stable firefox: no result.
+- no matching executable under standard /usr, /opt or /root/.cache/ms-playwright paths.
+- installation NOT retried: prior correction evidence records five identical HTTP 403 failures from the Playwright CDN and the user explicitly prohibited repeating the same blocked installation.
+Missing capability: installed Playwright-compatible browser (or authorized browser runner with localhost access), screenshots, keyboard/focus automation, viewport/reflow emulation and network-request inspection.
+No visual PASS or global approval claimed.
