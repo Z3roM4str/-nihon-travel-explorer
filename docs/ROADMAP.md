@@ -6889,3 +6889,54 @@ unclaimed since Block 4. The roadmap assigned Block 7 to nothing else.
       and 1440×900 against the production build · `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md).
+
+---
+
+## Block 8 — the meaning of `directFromZone` — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `f09047a` (Block 7 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_8_DESIGN.md`](BLOCK_8_DESIGN.md).
+
+**Authority.** The recommendation left in [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md). The
+roadmap assigned Block 8 to nothing else.
+
+- [x] **The obvious diagnosis was the wrong one.** Block 7 flagged Haneda's direct coaches to
+      Shinjuku and Ikebukuro against `directFromZone: false` and suspected the booleans. Testing
+      every candidate meaning against all 23 records gave one hypothesis that fits **23 of 23**:
+      the field is true exactly when the service named in *that record* needs no change.
+- [x] **It was never about rail, and one record proves it.** `ZN-OSA-UMEDA → Itami` is a limousine
+      **coach**, marked direct since Block 3. That single record rules out the "direct rail"
+      reading on its own.
+- [x] **Three records were the defect, not the booleans.** `"Autobús limusina / vía Shinagawa"`
+      packed a direct coach *and* a rail route with a change into one string; one boolean cannot be
+      true of the first and false of the second. `false` was right for half of what it described.
+- [x] **The contract is now written down and tested.** `directFromZone` is a claim about one
+      service, not about the airport, and it is mode-agnostic. One record holds one service, so
+      Shinjuku and Ikebukuro now carry two Haneda records each — a direct coach and a rail route
+      via Shinagawa — which is how a zone tells both answers.
+- [x] **`mode` added, and made to earn it.** Two real cases the old model could not represent: a
+      direct coach and a direct train rendered the identical word, and splitting a bundled record
+      requires saying which half is which. It is a fact about the service and ranks nothing.
+- [x] **One claim dropped rather than invented.** Ikebukuro's Narita coach was not split out: every
+      Narita bus page refuses this environment and the operator's own site carries no destinations
+      in its HTML. Block 7's rule holds — nothing is claimed on a page nobody read.
+- [x] **The copy no longer admits two readings.** `directo` / `con enlace` became `tren directo`,
+      `autobús directo`, `tren con transbordo`, with the full sentence spelled out for assistive
+      technology. The green emphasis still marks *directness*, never a mode: a direct coach is
+      emphasised exactly like a direct train, and nothing says a train is better.
+- [x] **The validator can reject the defect.** Unknown or missing mode, a coach recorded as rail, a
+      service routed *via* somewhere while claiming to be direct, and the same airport-and-service
+      twice in one zone. Ten negative cases run by hand — including reintroducing the old compound
+      record — all ten rejected.
+- [x] **Two Block 7 tests updated, not weakened.** Adding Haneda's page as an operator source
+      legitimately widens the set of zones with an operator behind their airport links; both tests
+      still pin that set exactly, and a new test requires every extra source to be an operator
+      covering `airportLinks`. Investigated as a regression first, as the brief requires.
+- [x] **Verified.** Vitest **3000** (86 → 87 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216** · Block 7 **129/129**, all unmodified · new Block 8 audit **114/114** at
+      390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check`
+      clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md).
