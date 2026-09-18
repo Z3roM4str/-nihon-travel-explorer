@@ -16,6 +16,12 @@ import {
 } from "../lib/accommodation-zone";
 import { sourceLinkLabel, sourceName, tierLabel } from "../lib/zone-provenance-presentation";
 import {
+  NEUTRAL_AXIS_NOTE,
+  axisDirectionHint,
+  editorialDisclosure,
+  ratingAccessibleText,
+} from "../lib/zone-editorial-presentation";
+import {
   airportLinkConnection,
   airportLinkDescription,
   airportLinkKey,
@@ -108,6 +114,13 @@ function formatKm(km: number): string {
 }
 
 /** Ordinal 1–5 as five discrete marks. Never a bar chart: this is not a measurement. */
+/**
+ * One editorial rating, as five marks.
+ *
+ * Block 9 — the accessible reading used to be the bare string "3 de 5", which to a screen reader
+ * has the exact shape of a measurement. It now names the owner, because a judgement that does not
+ * say it is one is being presented as a fact.
+ */
 function Ordinal({ value, neutral }: { value: number; neutral: boolean }) {
   return (
     <span className={`zone-ordinal ${neutral ? "zone-ordinal--neutral" : ""}`}>
@@ -118,7 +131,7 @@ function Ordinal({ value, neutral }: { value: number; neutral: boolean }) {
           aria-hidden="true"
         />
       ))}
-      <span className="visually-hidden">{value} de 5</span>
+      <span className="visually-hidden">{ratingAccessibleText(value)}</span>
     </span>
   );
 }
@@ -606,7 +619,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
                       <p className="zone-contrast__label">
                         {axis.label}
                         {NEUTRAL_AXES.has(axis.key as keyof ZoneEditorial) && (
-                          <span className="zone-contrast__neutral"> · ni bueno ni malo</span>
+                          <span className="zone-contrast__neutral"> · {NEUTRAL_AXIS_NOTE}</span>
                         )}
                       </p>
                       <ul className="zone-contrast__rows">
@@ -625,19 +638,34 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
                           </li>
                         ))}
                       </ul>
-                      <p className="zone-contrast__hint">Más marcas = {axis.high.toLowerCase()}</p>
+                      <p className="zone-contrast__hint">{axisDirectionHint(axis.high)}</p>
                     </li>
                   ))}
                 </ul>
               )}
             </section>
 
+            {/*
+              Block 9 — the surface that shows every rating used to say the least about them: ten
+              rows of marks with no direction, no owner, and neutrality carried by a muted colour
+              alone. It stays a closed disclosure, and it now states what a rating is, who decides
+              it, and which way the marks run.
+            */}
             <details className="zone-axes">
-              <summary>Ver las diez valoraciones completas</summary>
+              <summary>
+                Ver las diez valoraciones completas{" "}
+                <span className="zone-column__tag zone-column__tag--editorial">criterio</span>
+              </summary>
+              <p className="zone-axes__disclosure">{editorialDisclosure()}</p>
               <ul className="zone-axes__list">
                 {EDITORIAL_AXES.map((axis) => (
                   <li key={axis.key}>
-                    <p className="zone-contrast__label">{axis.label}</p>
+                    <p className="zone-contrast__label">
+                      {axis.label}
+                      {NEUTRAL_AXES.has(axis.key) && (
+                        <span className="zone-contrast__neutral"> · {NEUTRAL_AXIS_NOTE}</span>
+                      )}
+                    </p>
                     <ul className="zone-contrast__rows">
                       {selectedZones.map((zone, index) => (
                         <li key={zone.id}>
@@ -654,6 +682,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
                         </li>
                       ))}
                     </ul>
+                    <p className="zone-contrast__hint">{axisDirectionHint(axis.high)}</p>
                   </li>
                 ))}
               </ul>

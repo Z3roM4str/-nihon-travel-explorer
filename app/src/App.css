@@ -2540,10 +2540,23 @@ a {
   min-height: var(--tap-target);
   display: flex;
   align-items: center;
+  /* The criterio tag rides along on a narrow phone rather than pushing the row wider. */
+  flex-wrap: wrap;
+  gap: 0.35rem;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+/* Block 9 — what a rating is, said once, on the surface that shows all ten of them. */
+.zone-axes__disclosure {
+  margin: 0;
+  padding: 0 0.75rem 0.55rem;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .zone-axes__list {

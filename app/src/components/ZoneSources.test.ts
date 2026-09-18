@@ -107,6 +107,77 @@ describe("Block 8 — the airport links say what kind of journey they are", () =
   });
 });
 
+describe("Block 9 — the editorial ratings say what they are", () => {
+  it("makes every ordinal read as criterio rather than a measurement", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("{ratingAccessibleText(value)}");
+    // The bare measurement-shaped string is gone.
+    expect(panel).not.toMatch(/visually-hidden">\{value\} de 5</);
+  });
+
+  it("labels the full-ratings disclosure as criterio, like every other editorial heading", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    const block = panel.slice(panel.indexOf('<details className="zone-axes">'));
+    const details = block.slice(0, block.indexOf("</details>"));
+    expect(details).toContain('zone-column__tag--editorial">criterio</span>');
+  });
+
+  it("states what a rating is on the surface that shows all ten", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    const block = panel.slice(panel.indexOf('<details className="zone-axes">'));
+    const details = block.slice(0, block.indexOf("</details>"));
+    expect(details).toContain("{editorialDisclosure()}");
+  });
+
+  it("gives the full list the direction hint the contrasts section already had", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    const block = panel.slice(panel.indexOf('<details className="zone-axes">'));
+    const details = block.slice(0, block.indexOf("</details>"));
+    expect(details).toContain("{axisDirectionHint(axis.high)}");
+  });
+
+  it("names neutrality in words in the full list, not only in a colour", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    const block = panel.slice(panel.indexOf('<details className="zone-axes">'));
+    const details = block.slice(0, block.indexOf("</details>"));
+    expect(details).toContain("{NEUTRAL_AXIS_NOTE}");
+    expect(details).toContain("NEUTRAL_AXES.has(axis.key)");
+  });
+
+  it("shares one source of truth for the neutral note and the direction hint", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    // Neither string is written inline anywhere, so the two surfaces cannot drift apart.
+    expect(panel).not.toContain("ni bueno ni malo");
+    expect(panel).not.toContain("Más marcas =");
+  });
+
+  it("keeps the full ratings behind a closed disclosure, as Block 3 required", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain('<details className="zone-axes">');
+    // No `open` attribute: it must still start closed.
+    expect(panel).not.toMatch(/<details className="zone-axes" open/);
+  });
+
+  it("adds no control for editing a rating", async () => {
+    const panel = withoutComments(await readSource("ZoneComparison.tsx"));
+    const block = panel.slice(panel.indexOf('<details className="zone-axes">'));
+    const details = block.slice(0, block.indexOf("</details>"));
+    expect(details).not.toMatch(/<button|<input|<select|onClick|onChange/);
+  });
+
+  it("keeps the disclosure summary at the tap-target floor", async () => {
+    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const rule = css.slice(css.indexOf(".zone-axes > summary {"));
+    expect(rule.slice(0, 320)).toContain("min-height: var(--tap-target)");
+  });
+
+  it("lets the disclosure wrap rather than widening the panel", async () => {
+    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const rule = css.slice(css.indexOf(".zone-axes__disclosure {"));
+    expect(rule.slice(0, 260)).toContain("overflow-wrap: anywhere");
+  });
+});
+
 describe("Block 7 changed nothing else on the card", () => {
   it("adds no control, only a link", async () => {
     const panel = await readSource("ZoneComparison.tsx");

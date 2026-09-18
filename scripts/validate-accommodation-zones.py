@@ -55,6 +55,15 @@ BUS_SERVICE = re.compile(r"autob[úu]s|limusina|\bbus\b", re.I)
 # Only these hubs are in scope for Block 3; a zone for an unmodelled hub is a mistake, not a
 # feature, because the comparison surface is reached from the hub explorer.
 SUPPORTED_HUBS = {"Tokio", "Kioto", "Osaka"}
+# Block 9. A zone editorial rating is Nihon's judgement, shared and not editable by a traveller.
+# These two closed lists are what stop it drifting into a score or into personal data.
+COMPOSITE_KEYS = (
+    "score", "overall", "total", "rating", "average", "puntuacion", "puntuación", "nota", "stars",
+)
+PERSONAL_KEYS = (
+    "travellerId", "travellers", "stance", "stances", "perTraveller", "personal", "vote", "votes",
+    "myRating", "userRating", "interest",
+)
 
 
 def check_provenance(provenance, label):
@@ -276,6 +285,16 @@ def validate(doc, place_hubs, cluster_ids):
             leaked = [key for key in ("provenance", "sourceUrl", "sources", "tier", "covers") if key in editorial]
             if leaked:
                 errors.append(f"{label}: editorial must not carry provenance {leaked}; it is Nihon's judgement, not a sourced fact")
+            # Block 9. A rating is Nihon's judgement about a neighbourhood; it is not either
+            # traveller's opinion, and Block 5 settled that the only personal datum in this app is
+            # "does this person want to go here". A per-person axis here would answer a question
+            # nobody asked and would put personal data in a shared document.
+            personal = [key for key in PERSONAL_KEYS if key in editorial]
+            if personal:
+                errors.append(
+                    f"{label}: editorial must not carry per-traveller data {personal}; a rating is "
+                    f"Nihon's judgement, not a traveller's preference"
+                )
 
         tradeoffs = zone.get("tradeoffs")
         if not isinstance(tradeoffs, list) or len(tradeoffs) < 2:
@@ -297,6 +316,26 @@ def validate(doc, place_hubs, cluster_ids):
         for forbidden in ("grade", "category", "duration", "price", "reservation", "placeId", "imageBrief"):
             if forbidden in zone:
                 errors.append(f"{label}: a zone must not carry the place field {forbidden!r}")
+
+        # Block 9. Two axes have no good direction (`tourismIntensity`, `nightlife`), so any total
+        # would have to pretend they did. There is deliberately no composite score in the model, no
+        # function that returns one, and none may appear in the data either.
+        for forbidden in COMPOSITE_KEYS:
+            if forbidden in zone:
+                errors.append(
+                    f"{label}: a zone must not carry an overall score {forbidden!r}; axes without a "
+                    f"good direction cannot be totalled"
+                )
+        # The same rule one level down: no summary number hiding among the axes.
+        if isinstance(zone.get("editorial"), dict):
+            for forbidden in COMPOSITE_KEYS:
+                if forbidden in zone["editorial"]:
+                    errors.append(f"{label}: editorial must not carry an overall score {forbidden!r}")
+
+        # A rating is not a traveller's preference, at zone level either.
+        for forbidden in PERSONAL_KEYS:
+            if forbidden in zone:
+                errors.append(f"{label}: a zone must not carry per-traveller data {forbidden!r}")
 
     for hub, ids in by_hub.items():
         if not (4 <= len(ids) <= 7):
