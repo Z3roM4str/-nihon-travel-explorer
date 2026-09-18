@@ -6940,3 +6940,60 @@ roadmap assigned Block 8 to nothing else.
       clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md).
+
+---
+
+## Block 9 — governance of zone editorial ratings — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `143d912` (Block 8 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_9_DESIGN.md`](BLOCK_9_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md), traced back to
+the debt Block 3 recorded. The roadmap assigned Block 9 to nothing else.
+
+- [x] **The recommendation could not be taken literally, and the repository said why.** "Let the two
+      travellers review the ratings", read as a per-traveller rating, contradicts Block 5 — which
+      settled that exactly one thing is personal, *does this person want to go here*, and which
+      names the chosen zones among the decisions that must **not** be duplicated per person.
+      Nothing in Blocks 6–8 supersedes it, so **no editor and no personal rating were built.**
+- [x] **Block 3's own words were the resolution.** "Sixteen zones × ten axes were authored in one
+      pass … but they have had **no second reader**." That is an authoring-process debt — a request
+      for human peer review — not a product feature. The humans can only do it if the ratings are
+      legible.
+- [x] **The audit found editorial architecturally clean and presentationally broken.** It affects no
+      ranking, filter or planning — ordering is derived distance alone — there is no composite score
+      and no function returning one, and the zone and traveller layers know nothing of each other.
+      But four real defects made a rating hard to scrutinise:
+      the ordinal's accessible reading was the bare string **"3 de 5"**, which to a screen reader
+      has the exact shape of a measurement; the disclosure showing all ten axes showed **no
+      direction at all**, although the contrasts section above it had that hint from the same field;
+      the two axes with no good direction were marked by a **muted colour and nothing else**; and
+      that disclosure was the one editorial heading carrying **no `criterio` tag**.
+- [x] **The contract is now explicit and test-protected.** A rating is Nihon's judgement on a closed
+      1–5 scale; only Nihon can change it, by shipping different data; it is not a fact and carries
+      no provenance; and it is not either traveller's preference — it says what a neighbourhood is
+      like, not whether anyone wants to go. Both halves are asserted, including the negative: no
+      write transition, no control, no storage key.
+- [x] **The rationale that already existed was surfaced**, not invented. Ordinals now read
+      "3 de 5 · criterio de Nihon"; the full list gained the direction hint, the *ni bueno ni malo*
+      note in words, the `criterio` tag, and one sentence saying what a rating is and is not. Both
+      surfaces read those strings from one module, so they cannot drift again.
+- [x] **No data changed.** The 160 values are internally sound — integers 1–5, exactly the ten
+      declared axes, no composite, no provenance leak, three written drawbacks per zone — and with
+      no second reader available, editing them here would be a **third unreviewed pass**. The debt
+      stays open, correctly: it can only be closed by the two travellers reading them.
+- [x] **No persistence added.** Reading a rating writes nothing; there is no key for one.
+- [x] **The composite ban is now enforced rather than merely documented.** The validator refuses a
+      score at zone or axis level, and per-traveller data anywhere in a zone. Twelve negative cases
+      run by hand; all twelve rejected.
+- [x] **One false positive, in Block 9's own new audit** — a `:focus-visible` check using
+      programmatic focus, which Chromium matches only for keyboard focus. Fixed by tabbing to the
+      summary, which also proves it is genuinely reachable. No historical audit was modified.
+- [x] **Verified.** Vitest **3036** (87 → 88 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216** · Block 7 **129/129** · Block 8 **114/114**, all unmodified · new Block 9 audit
+      **153/153** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the production build ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md).
