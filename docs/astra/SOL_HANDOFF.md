@@ -38,3 +38,40 @@ Discovery now spans all canonical places/hubs with accent-normalized canonical s
 ## Exact next objective
 
 Return this committed SOL-0–2 slice to Astra for independent audit. On a browser-equipped runner, render and inspect 375×812, 390×844, 430×932, 768×1024, 1024×768, 1440×900 and 320px/200% reflow; exercise search, pagination, save/reload, detail/back, region entry, Nuestro viaje and planner survival. Record screenshots with route/profile/fixture metadata and issue bounded P0/P1/P2 corrections. Do not begin SOL-3 before that audit.
+
+---
+
+## Correction handoff after Astra audit
+
+### Checkout identity
+
+The correction session was requested against original implementation `fc09e33f906963dd5ed51c2615dd4677060f5432`, while the preceding audit saw a recreated PR commit `523758b07aa054a0376a0be8a28020805c9cc41f`. Neither object exists in this newly supplied checkout. Its starting HEAD was `1ef890b2a765fd59c5494cea67fdb1c2f6ded0f9`, with parent `b986a60`, the same PR title and the same 12-file combined implementation/audit content shown in the prompt. There were no post-PR product changes to preserve and the starting tree was clean. Corrections were made only on local implementation branch `work`; no main/Claude branch was inspected or changed.
+
+### Correction commits
+
+- `2ee3dea` — `astra(sol-2): guard authored plans from save removal`
+- `8af7a69` — `astra(sol-1-2): correct navigation and discovery regressions`
+
+### Audit findings addressed
+
+1. **PLAN-01 / VOTE-05:** both card and trip removal paths now fail closed when the ID is in a parsed authored V7 route. They show a non-destructive Planificar handoff instead of changing saved state. Planner eligibility is the union of current saves and authored route IDs, so opening the planner cannot reconcile against a reduced preference list. Pure V7 regression fixtures verify read-only inspection and malformed-state fail-closed behavior.
+2. **NAV-03 / FIL-01 / MAP-01:** reachable `Filtros (n)` and `Lista / Mapa` controls restore the canonical grade, duration, hidden-gem, tourism and reservation filters and the existing PlaceMap behind a lazy boundary. Regions and all hubs remain reachable.
+3. **NAV-02:** exploration URL state now carries validated hub, query, category, page and list/map mode. Detail entries record a same-app origin, direct links have a replace fallback, Back/Forward drive route state, and nearby navigation creates ordered history entries.
+4. **DIS-01:** national grade buckets now round-robin canonical hubs while keeping stable IDs per hub; explicit hub view remains grade then ID. Tests cover uneven queues, determinism and all 214 unique IDs.
+5. **CARD-01 / IMG-02 / IMG-04:** recommendation/title follow the image directly; attribution no longer interrupts that sequence. Cards have fixed-ratio loading, honest missing/error states and a retry of the same local URL.
+6. **A11Y-02 / DET-01:** detail uses a labelled modal route wrapper with inert shell/content, initial focus, Tab loop, top-layer Escape protection and exact opener restoration. Existing detail facts/gallery are unchanged; SOL-3 was not started.
+7. **PERF-01:** PlaceMap, NationalExplorer and OrderedSequenceBuilder use dynamic React lazy boundaries. Build emits separate map (3.65 kB), national (10.22 kB), planner (127.40 kB), and Leaflet container (152.65 kB) chunks. The remaining initial bundle is 1,136.85 kB and retains a >500 kB advisory; no claim is made that all unrelated legacy code is optimized.
+8. **DIS-01 / A11Y-03:** result live output is debounced 200ms; search has a conditional labelled clear button; pagination retains button focus and announces the appended range.
+
+### Verification at correction HEAD
+
+- PASS: `npm test -- --run` — 70 files / 2463 tests.
+- PASS: `npm run lint` — no diagnostics.
+- PASS with advisory: `npm run build` — dynamic chunks above; initial chunk still >500 kB.
+- PASS: dataset, photography, geography, logistics and reservation-mechanism validators.
+- PASS: `git diff --check`.
+- **PARTIAL visual certification:** no installed Chromium/Chrome/Firefox executable. `npx playwright install chromium` again made five requests for Chrome for Testing 151.0.7922.34 and each returned exact HTTP `403 Forbidden` from `https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip`. No screenshots were fabricated and no viewport/keyboard/network visual PASS is claimed.
+
+### New-audit objective and remaining risks
+
+Astra must re-audit the corrected source and reproduce all required viewports and journeys on a browser-equipped runner, especially byte-equivalent V7 survival after blocked unsave, Back/Forward/nearby history, advanced-filter/map parity, modal/lightbox focus stacking, image retry, and initial-network lazy chunk behavior. Visual items remain PARTIAL until then. The build's initial chunk advisory is recorded. Do not begin SOL-3 before Astra disposes these corrections.
