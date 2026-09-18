@@ -163,3 +163,12 @@ Not executed here. In this order:
 
 **No merge, no Ready, no tag, no GitHub Release and no deployment before the iPhone acceptance check
 is recorded as PASS.** Everything else is ready and waiting on that one result.
+
+## Update — Block 16
+
+The physical iPhone Safari acceptance check has since been run on a real device against a Vercel
+preview built from this exact candidate SHA and recorded as **PASS** on PR #123. Release closure —
+merge, tag, GitHub Release — is carried out in Block 16; see
+[`docs/BLOCK_16_V1_1_RELEASE_CLOSURE.md`](BLOCK_16_V1_1_RELEASE_CLOSURE.md) and
+[`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md) for the final record. This document is left
+otherwise unedited.

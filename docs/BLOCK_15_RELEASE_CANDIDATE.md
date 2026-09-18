@@ -184,7 +184,7 @@ limitations.
 
 ## 10. Gate result
 
-> ## RC-READY — PENDING IPHONE ACCEPTANCE
+> ## RC-READY — PENDING IPHONE ACCEPTANCE *(superseded — see Block 16)*
 
 Every automated gate is green at the exact expected figures; the version metadata is correct and
 provably inert; there is no dependency drift; no product code was touched; `main` has not diverged;
@@ -193,3 +193,9 @@ provably inert; there is no dependency drift; no product code was touched; `main
 **The only outstanding item is a physical iPhone Safari acceptance check of export/import**, which
 cannot be performed from this environment and must not be assumed. Until it is recorded as PASS:
 no merge, no Ready, no tag, no GitHub Release, no deployment.
+
+**Update — Block 16.** The physical iPhone Safari acceptance check has since been run on a real
+device and recorded as **PASS** on PR #123. This candidate's verdict is superseded by
+[`docs/BLOCK_16_V1_1_RELEASE_CLOSURE.md`](BLOCK_16_V1_1_RELEASE_CLOSURE.md), which carries the
+final **RELEASE-READY** decision. This document is left otherwise unedited as the record of the
+gate at the moment the candidate was cut.

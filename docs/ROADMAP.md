@@ -7396,3 +7396,35 @@ no Ready, no tag, no Release, no deployment.
 
 **Authorized next step: the iPhone acceptance check.** See
 [`docs/BLOCK_15_HANDOFF.md`](BLOCK_15_HANDOFF.md).
+
+---
+
+## Block 16 — Nihon v1.1.0 release closure — complete
+
+Closes the v1.1.0 release candidate opened in Block 15 after a physical iPhone Safari acceptance
+check of the portable backup was recorded on PR #123. Full record in
+[`docs/BLOCK_16_V1_1_RELEASE_CLOSURE.md`](BLOCK_16_V1_1_RELEASE_CLOSURE.md) and
+[`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md).
+
+### VERDICT: **RELEASE-READY**
+
+- [x] **Preflight matched exactly.** `origin/main` `1a11fe8`, branch `claude/sleepy-heisenberg-hn7340`
+      at `a6f8058`, PR #123 open/draft/`mergeable_state: clean`, ahead 45 / behind 0, working tree
+      clean, `v1.1.0` tag and Release both absent.
+- [x] **iPhone Safari acceptance recorded as PASS** on PR #123, from a real device against a Vercel
+      preview of the exact candidate SHA. Replace-not-merge on cross-device import confirmed as
+      designed behaviour (Block 13), not a defect.
+- [x] **Final gate reproduced exactly, no regression.** Vitest 3179/92, lint, `tsc`, build, Python
+      13/13, validators 8/8, `bundle-report.mjs`, `git diff --check` — all clean; all 13 browser-audit
+      suites at their exact expected counts, **1,958 / 1,958 checks total**.
+- [x] **PR #123 marked Ready**, auto-merge not enabled, re-verified mergeable before merging.
+- [x] **Merged via merge commit** — not squash, not rebase — preserving the Blocks 1–16 history.
+- [x] **`v1.1.0` tagged** (annotated, on the exact merge commit) and **released** (non-draft,
+      non-prerelease, notes from `docs/RELEASE_V1.1.0.md`). `v1.0.0` untouched.
+- [x] **No production deployment.** The Vercel preview used for acceptance was not promoted; hosting
+      remains a separate, later decision.
+- [x] **Shared-trip synchronization recorded as v1.2.0 discovery input**, not designed or implemented
+      here; no backend provider selected.
+
+**Authorized next step: architecture and threat/data-model design for shared-trip synchronization
+(v1.2.0), not implementation.** See [`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md).
