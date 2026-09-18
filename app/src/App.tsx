@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getNationalSummary, getPrefectureByCode } from "./data/geography";
@@ -6,7 +6,6 @@ import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
-import { OrderedSequenceBuilder } from "./components/OrderedSequenceBuilder";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
@@ -14,7 +13,6 @@ import { SelectionPanel } from "./components/SelectionPanel";
 import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
 import { SaveToast } from "./components/SaveToast";
-import { ZoneComparison } from "./components/ZoneComparison";
 import { hubsWithZones } from "./lib/accommodation-zone";
 import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
@@ -28,6 +26,32 @@ import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning
 import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
 import "./App.css";
+
+/**
+ * Block 12 — the planner and the zone comparison load on demand.
+ *
+ * Both are full-screen overlays behind a `useState(false)` flag: neither can be on screen at first
+ * paint, and reaching either takes a deliberate click. They are also, measured rather than guessed,
+ * the only two surfaces in this app that own enough exclusive code to be worth a boundary —
+ * 246 kB and 38 kB of modules reachable from nowhere else.
+ *
+ * Everything else stays in the entry chunk on purpose. The national map is the *first* thing Nihon
+ * renders, so Leaflet is critical path and splitting it would trade a real first paint for a
+ * cosmetic number. `SelectionAnalysis` and `TravellerManager` own 14 kB and 9 kB — a chunk each
+ * would buy a round trip and save nothing worth having.
+ *
+ * `prefetchOnDemandSurfaces` below removes the cost this would otherwise have: the two chunks are
+ * fetched once the browser is idle after first paint, so by the time a click is possible they are
+ * already in the HTTP cache. The split moves bytes off the critical path without moving the wait
+ * to the user.
+ */
+const loadOrderedSequenceBuilder = () =>
+  import("./components/OrderedSequenceBuilder").then((m) => ({ default: m.OrderedSequenceBuilder }));
+const loadZoneComparison = () =>
+  import("./components/ZoneComparison").then((m) => ({ default: m.ZoneComparison }));
+
+const OrderedSequenceBuilder = lazy(loadOrderedSequenceBuilder);
+const ZoneComparison = lazy(loadZoneComparison);
 
 const HUBS = getHubs();
 /** Hubs where Block 3 modelled accommodation zones; the others offer no comparison. */
@@ -108,6 +132,42 @@ function useIsDesktop(): boolean {
   return isDesktop;
 }
 
+/**
+ * Block 12 — warm the two on-demand chunks once the browser is idle after first paint.
+ *
+ * Without this, splitting would simply move the wait from load to click, which is a worse trade:
+ * a slower first paint is shared by everyone, but a stalled overlay lands on the one person who
+ * asked for it. Idle time after paint is free, and by the time any click is possible the chunks
+ * are in the HTTP cache.
+ *
+ * Deliberately best-effort. `requestIdleCallback` is missing on some browsers (Safari shipped it
+ * late), so it falls back to a timeout; a rejected import is swallowed, because a failed prefetch
+ * must never surface as an error — `React.lazy` will simply fetch it again on open, and report
+ * properly then.
+ */
+function prefetchOnDemandSurfaces(): () => void {
+  let cancelled = false;
+  const warm = () => {
+    if (cancelled) return;
+    void loadOrderedSequenceBuilder().catch(() => {});
+    void loadZoneComparison().catch(() => {});
+  };
+  const idle = (globalThis as { requestIdleCallback?: (cb: () => void) => number })
+    .requestIdleCallback;
+  if (typeof idle === "function") {
+    const handle = idle(warm);
+    return () => {
+      cancelled = true;
+      (globalThis as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
+    };
+  }
+  const timer = setTimeout(warm, 1500);
+  return () => {
+    cancelled = true;
+    clearTimeout(timer);
+  };
+}
+
 export default function App() {
   const [view, setView] = useState<ViewState>(INITIAL_VIEW);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
@@ -132,6 +192,9 @@ export default function App() {
   /** Shown on the very first visit and reopenable from the header; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
   const [travellerManagerOpen, setTravellerManagerOpen] = useState(false);
+
+  // Block 12. Runs once, after mount, and never blocks anything.
+  useEffect(() => prefetchOnDemandSurfaces(), []);
   /**
    * Block 5 — `savedIds` is now DERIVED: a place is in the shared shortlist when at least one
    * traveller wants it. Everything downstream (the planner, the map, the saved list) keeps
@@ -676,25 +739,35 @@ export default function App() {
         />
       )}
 
-      {sequenceBuilderOpen && (
-        <OrderedSequenceBuilder
-          savedPlaces={savedPlaces}
-          onClose={closeSequenceBuilder}
-        />
-      )}
+      {/* Block 12. The boundary sits OUTSIDE the condition on purpose, for two reasons. It keeps
+          the planner mounted only while open — the invariant `ZonePlanSection.test.ts` pins, and
+          the reason reopening re-reads what the comparison wrote — and it keeps one stable
+          boundary rather than one that mounts and unmounts with its own content. `fallback={null}`
+          because the overlay should simply appear, as it always did; a spinner would be new UI
+          reporting on a wait the idle prefetch has usually already removed. */}
+      <Suspense fallback={null}>
+        {sequenceBuilderOpen && (
+          <OrderedSequenceBuilder
+            savedPlaces={savedPlaces}
+            onClose={closeSequenceBuilder}
+          />
+        )}
+      </Suspense>
 
-      {zonesOpen && activeHub && (
-        <ZoneComparison
-          hub={activeHub}
-          savedPlaces={savedPlaces}
-          onClose={() => setZonesOpen(false)}
-          onSelectPlace={(id) => {
-            selectPlace(id);
-            setZonesOpen(false);
-          }}
-          onOpenPlanner={openSequenceBuilder}
-        />
-      )}
+      <Suspense fallback={null}>
+        {zonesOpen && activeHub && (
+          <ZoneComparison
+            hub={activeHub}
+            savedPlaces={savedPlaces}
+            onClose={() => setZonesOpen(false)}
+            onSelectPlace={(id) => {
+              selectPlace(id);
+              setZonesOpen(false);
+            }}
+            onOpenPlanner={openSequenceBuilder}
+          />
+        )}
+      </Suspense>
 
       <SaveToast feedback={feedback} />
 
