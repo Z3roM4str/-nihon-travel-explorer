@@ -3,9 +3,11 @@
 React + TypeScript + Vite app for the whole product described in
 [`../docs/ROADMAP.md`](../docs/ROADMAP.md): a national explorer over all **214** verified
 places in **7** hubs, built from `data/places.json`, with filtering, free-text search, a
-place-detail panel, a local "Quiero ir" selection with a visit-time estimate, and a manual
+place-detail panel, a two-traveller "Quiero ir" model with a visit-time estimate, a manual
 trip planner (ordered route, day assignment, calendar anchoring, trip bounds, manual
-inter-hub segments, whole-trip composition, recorded hours, and reservation planning).
+inter-hub segments, whole-trip composition, recorded hours, and reservation planning), an
+accommodation-zone comparison, and a portable backup that moves the whole trip between
+browsers as a file.
 
 ## Run locally
 
@@ -33,9 +35,9 @@ see `docs/DATA_MODEL.md` for the exact regenerate/validate/copy commands.
 `src/data/photography-metadata.json` (a copy of `data/visual/photography-metadata.json`,
 following the same root-`data/*.json` copy convention as the rest of `src/data/`).
 
-Photography closed for v1 at Phase 4M: the registry holds **144 of 214** places, one
-photograph each, all sourced from Wikimedia Commons under the CC0 / CC BY / CC BY-SA
-allowlist. See [`../docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md`](../docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md)
+Photography closed for v1 at Phase 4M: the registry holds **157 of 214** places and **163**
+photographs (six places carry a second perspective as a gallery), all sourced from Wikimedia
+Commons under the CC0 / CC BY / CC BY-SA allowlist. See [`../docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md`](../docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md)
 for the closure decision and [`../docs/PHOTOGRAPHY_PILOT.md`](../docs/PHOTOGRAPHY_PILOT.md)
 for the original pipeline. Every place outside the registry ships
 no entry in the photography registry, so the gallery falls back to the editorial `imageBrief`.

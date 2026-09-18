@@ -34,7 +34,14 @@ Discovery and manual trip planning are both implemented; photography closed for 
   strategies, comparing sourced transport facts, Nihon's own editorial judgement, and how far each
   zone sits from the places you saved — with facts, computed values and opinion labelled
   separately, and no zone ever called the best. See [Block 3](docs/BLOCK_3_DESIGN.md).
-- Saved places and the planning draft persist locally in the browser.
+- **Two travellers, one trip.** Each person marks what *they* want to see; the shared "Quiero ir"
+  list is derived from both, coincidences and divergences are reported as such, and a preference
+  never becomes a plan on its own. The itinerary stays one shared document — the two of them have
+  one trip. See [Block 5](docs/BLOCK_5_DESIGN.md).
+- **Everything persists locally in the browser**, and nothing leaves it. A portable backup writes
+  the travellers' durable decisions to a JSON file they keep, and reads it back in another browser
+  — replacing, never merging, and never uploading. No account, no server, no sync. See
+  [Block 13](docs/BLOCK_13_DESIGN.md).
 - Still out of scope: automatic itinerary generation, live transit, routing, and booking.
   The planner never reorders a route for the user.
 
@@ -62,6 +69,17 @@ The dataset intentionally preserves uncertainty and operational warnings, includ
 - [Block 1 — UX, hierarchy and usability](docs/BLOCK_1_UX_HIERARCHY_DESIGN.md)
 - [Block 2 — the photographic layer](docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md)
 - [Block 3 — debt, and the accommodation-zone decision layer](docs/BLOCK_3_DESIGN.md)
+- [Block 4 — zone-seeded accommodation](docs/BLOCK_4_DESIGN.md)
+- [Block 5 — two travellers, and what is genuinely personal](docs/BLOCK_5_DESIGN.md)
+- [Block 6 — divergence between the two travellers](docs/BLOCK_6_DESIGN.md)
+- [Block 7 — what each source actually supports](docs/BLOCK_7_DESIGN.md)
+- [Block 8 — airport links and their operators](docs/BLOCK_8_DESIGN.md)
+- [Block 9 — editorial governance](docs/BLOCK_9_DESIGN.md)
+- [Block 10 — `consultedAt`, and when a check has aged](docs/BLOCK_10_DESIGN.md)
+- [Block 11 — semantic coverage of provenance](docs/BLOCK_11_DESIGN.md)
+- [Block 12 — bundle architecture](docs/BLOCK_12_DESIGN.md)
+- [Block 13 — portable backup and restoration](docs/BLOCK_13_DESIGN.md)
+- [Block 14 — release readiness](docs/BLOCK_14_RELEASE_READINESS.md)
 
 ## Portfolio framing
 
