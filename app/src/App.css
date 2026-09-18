@@ -2378,6 +2378,18 @@ a {
   color: var(--color-text-muted);
 }
 
+/*
+  Block 10 — a note about our checking, not an error about the claim.
+
+  Deliberately muted and deliberately NOT red: an unrepeated check has not been contradicted, and
+  colouring it as a fault would say something the data does not support. It inherits the wrapping
+  of the provenance line, so a long note reflows instead of widening the column.
+*/
+.zone-source__recheck {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 .zone-nearest {
   list-style: none;
   margin: 0.4rem 0 0;

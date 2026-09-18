@@ -33,7 +33,9 @@ describe("the source line names its source", () => {
 
   it("gives the link an accessible name carrying the zone and the date", async () => {
     const panel = await readSource("ZoneComparison.tsx");
-    expect(panel).toContain("aria-label={sourceLinkLabel(source, zone.name)}");
+    // Block 10 threads the freshness THROUGH `sourceLinkLabel` rather than appending after it, so
+    // the consultation date stays last and Block 7's `$`-anchored audit keeps passing untouched.
+    expect(panel).toContain("sourceLinkLabel(source, zone.name, freshnessAccessibleText(freshness.state))");
   });
 
   it("lists every distinct source rather than only the first", async () => {
@@ -104,6 +106,55 @@ describe("Block 8 — the airport links say what kind of journey they are", () =
     const block = panel.slice(panel.indexOf("function AirportFacts"));
     const component = block.slice(0, block.indexOf("\n}"));
     expect(component).not.toMatch(/<button|onClick|useState/);
+  });
+});
+
+describe("Block 10 — freshness is shown only when it says something", () => {
+  it("reads the clock once, at the component boundary, and passes it down", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("const today = useMemo(() => todayCivilDate(), []);");
+    expect(panel).toContain("freshnessFor(source, today)");
+    expect(panel).toContain("recheckNote(source, today)");
+  });
+
+  it("keeps the clock out of the domain module entirely", async () => {
+    const code = withoutComments(
+      await readFile(new URL("../lib/source-freshness.ts", import.meta.url), "utf8")
+    );
+    expect(code).not.toMatch(/new Date\(|Date\.now\(|todayCivilDate/);
+  });
+
+  it("renders the re-check note only when there is one", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("{note && (");
+    expect(panel).toContain('className="zone-source__recheck"');
+  });
+
+  it("puts the freshness into the link's accessible name", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("freshnessAccessibleText(freshness.state)");
+  });
+
+  it("styles the note as muted, never as an error", async () => {
+    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const rule = css.slice(css.indexOf(".zone-source__recheck {"));
+    const block = rule.slice(0, rule.indexOf("}"));
+    expect(block).toContain("var(--color-text-muted)");
+    expect(block).not.toMatch(/--color-(danger|error|warn)|red|#f00/i);
+  });
+
+  it("adds no control and no storage for freshness", async () => {
+    const panel = withoutComments(await readSource("ZoneComparison.tsx"));
+    const block = panel.slice(panel.indexOf("function ZoneSources"));
+    const component = block.slice(0, block.indexOf("\n}"));
+    expect(component).not.toMatch(/localStorage|setItem|<button|<input/);
+  });
+
+  it("leaves the tier rendering untouched — authority and freshness stay separate", async () => {
+    const panel = await readSource("ZoneComparison.tsx");
+    expect(panel).toContain("<span className=\"zone-source__tier\"> ({tierLabel(source.tier)})</span>");
+    // Nothing keys a style or a label off both at once.
+    expect(panel).not.toMatch(/tier[^\n]*freshness|freshness[^\n]*tierLabel/);
   });
 });
 

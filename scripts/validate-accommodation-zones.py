@@ -17,6 +17,7 @@ never carries tourism-place data of its own.
 import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,7 +67,23 @@ PERSONAL_KEYS = (
 )
 
 
-def check_provenance(provenance, label):
+def valid_date(value):
+    """A real calendar date in `YYYY-MM-DD`, not merely a string shaped like one.
+
+    Same helper `validate-access-points.py` and `validate-reservation-mechanisms.py` already use.
+    The zone validator checked only the SHAPE until Block 10, so it accepted `2026-02-30` and
+    `2026-13-01` — impossible days that would have made every age computed from them nonsense.
+    """
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return False
+    try:
+        date.fromisoformat(value)
+        return True
+    except ValueError:
+        return False
+
+
+def check_provenance(provenance, label, today=None):
     """One source record: shape, authority tier, and the fact areas it claims to support.
 
     `covers` is the field this validator cares most about. A source that lists an area it does not
@@ -85,8 +102,15 @@ def check_provenance(provenance, label):
     url = provenance.get("sourceUrl", "")
     if not url.startswith("https://"):
         errors.append(f"{label}.sourceUrl must be https")
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", provenance.get("consultedAt", "")):
-        errors.append(f"{label}.consultedAt must be YYYY-MM-DD")
+    # Block 10. `consultedAt` is the civil date on which Nihon opened this source and confirmed it
+    # supported the claim beside it. Two things are objectively impossible and are refused here;
+    # being OLD is neither of them, and is never an error — see `lib/source-freshness.ts`.
+    consulted = provenance.get("consultedAt", "")
+    if not valid_date(consulted):
+        errors.append(f"{label}.consultedAt must be a real YYYY-MM-DD date")
+    elif date.fromisoformat(consulted) > (today or date.today()):
+        # A check dated in the future was never made.
+        errors.append(f"{label}.consultedAt {consulted} is in the future; a check cannot precede itself")
 
     tier = provenance.get("tier")
     if tier not in SOURCE_TIERS:
@@ -107,7 +131,7 @@ def check_provenance(provenance, label):
     return errors
 
 
-def validate(doc, place_hubs, cluster_ids):
+def validate(doc, place_hubs, cluster_ids, today=None):
     errors = []
     zones = doc.get("zones")
     if not isinstance(zones, list) or not zones:
@@ -236,7 +260,7 @@ def validate(doc, place_hubs, cluster_ids):
             if not isinstance(provenance, dict):
                 errors.append(f"{label}: facts.provenance is required — a fact without a source is a heuristic")
             else:
-                errors.extend(check_provenance(provenance, f"{label}: facts.provenance"))
+                errors.extend(check_provenance(provenance, f"{label}: facts.provenance", today))
 
             # ---- Block 7: extra, scoped sources ----
             extra = facts.get("sources")
@@ -248,7 +272,7 @@ def validate(doc, place_hubs, cluster_ids):
                         if not isinstance(source, dict):
                             errors.append(f"{label}: facts.sources[{position}] must be an object")
                             continue
-                        errors.extend(check_provenance(source, f"{label}: facts.sources[{position}]"))
+                        errors.extend(check_provenance(source, f"{label}: facts.sources[{position}]", today))
 
             # Every fact area must be backed by at least one source. This is what makes "which
             # facts have no source" unrepresentable rather than merely undocumented.

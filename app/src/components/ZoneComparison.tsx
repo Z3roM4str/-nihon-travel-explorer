@@ -14,7 +14,16 @@ import {
   type AccommodationZone,
   type ZoneEditorial,
 } from "../lib/accommodation-zone";
-import { sourceLinkLabel, sourceName, tierLabel } from "../lib/zone-provenance-presentation";
+import {
+  consultedOnText,
+  freshnessAccessibleText,
+  recheckNote,
+  sourceLinkLabel,
+  sourceName,
+  tierLabel,
+} from "../lib/zone-provenance-presentation";
+import { freshnessFor } from "../lib/source-freshness";
+import { todayCivilDate } from "../lib/today";
 import {
   NEUTRAL_AXIS_NOTE,
   axisDirectionHint,
@@ -201,33 +210,58 @@ function AirportFacts({ zone }: { zone: AccommodationZone }) {
  * The tier is text, never a colour or an icon on its own, and it is deliberately not a rating: it
  * says where a statement comes from, not whether the zone is a good place to stay.
  */
+/**
+ * Block 10 — `today` is read here, at the presentation boundary, and nowhere else.
+ *
+ * `lib/source-freshness.ts` takes the date as an argument and never calls a clock, so every rule
+ * about ageing is testable at its exact boundary. This is the one place that has to know what day
+ * it is, and it is a component, not domain logic.
+ */
 function ZoneSources({ zone }: { zone: AccommodationZone }) {
   const sources = distinctZoneSources(zone);
+  const today = useMemo(() => todayCivilDate(), []);
   if (sources.length === 0) return null;
   return (
     <p className="zone-column__provenance">
       <span className="zone-column__provenance-label">
         {sources.length === 1 ? "Fuente:" : "Fuentes:"}
       </span>{" "}
-      {sources.map((source, index) => (
-        <span key={source.sourceUrl} className="zone-source">
-          {index > 0 && <span aria-hidden="true"> · </span>}
-          <a
-            className="zone-source__link"
-            href={source.sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={sourceLinkLabel(source, zone.name)}
-            /* Defence in depth, not a fix for a live bug: the column is a plain <section> with
-               no click handler today. Stopping here means that if one is ever added, reading a
-               source cannot quietly become choosing a zone. */
-            onClick={(event) => event.stopPropagation()}
-          >
-            {sourceName(source)}
-          </a>
-          <span className="zone-source__tier"> ({tierLabel(source.tier)})</span>
-        </span>
-      ))}
+      {sources.map((source, index) => {
+        const freshness = freshnessFor(source, today);
+        const note = recheckNote(source, today);
+        return (
+          <span key={source.sourceUrl} className="zone-source">
+            {index > 0 && <span aria-hidden="true"> · </span>}
+            <a
+              className="zone-source__link"
+              href={source.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={sourceLinkLabel(source, zone.name, freshnessAccessibleText(freshness.state))}
+              /* Defence in depth, not a fix for a live bug: the column is a plain <section> with
+                 no click handler today. Stopping here means that if one is ever added, reading a
+                 source cannot quietly become choosing a zone. */
+              onClick={(event) => event.stopPropagation()}
+            >
+              {sourceName(source)}
+            </a>
+            <span className="zone-source__tier"> ({tierLabel(source.tier)})</span>
+            {/*
+              Renders only when a source is past the horizon its claims deserve, which with today's
+              dataset is never — every check is under a fortnight old. It is a note about OUR
+              checking, never about the claim, so it is muted rather than an alarm: an unrepeated
+              check has not been contradicted.
+            */}
+            {note && (
+              <span className="zone-source__recheck">
+                {" "}
+                · {note}
+                <span className="visually-hidden">. {consultedOnText(source)}.</span>
+              </span>
+            )}
+          </span>
+        );
+      })}
     </p>
   );
 }
