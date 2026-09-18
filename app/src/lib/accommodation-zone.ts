@@ -32,18 +32,68 @@ export type ZoneShinkansen = {
 
 export type ZoneAirportLink = { airport: string; service: string; directFromZone: boolean };
 
+/**
+ * The three kinds of checkable claim a zone makes. Block 7 named them so a source can say which
+ * of them it actually supports, instead of one record standing silently behind all three.
+ */
+export type ZoneFactArea = "railLines" | "shinkansen" | "airportLinks";
+
+export const ZONE_FACT_AREAS: readonly ZoneFactArea[] = [
+  "railLines",
+  "shinkansen",
+  "airportLinks",
+];
+
+/**
+ * How close a source is to the thing it describes — Block 7's authority ladder, in order.
+ *
+ * `operator` is the company or airport that runs the service being claimed; `authority` a public
+ * body; `official-tourism` an official destination or administration site; `secondary` anything
+ * else, including an encyclopedia. The tier is stored rather than inferred from the host, because
+ * "is this the operator" is a judgement about the claim, not a fact about a domain name.
+ *
+ * A higher tier never makes a source correct. It is only worth preferring when it genuinely
+ * supports the same claim — see `evidence`, which is where that is recorded.
+ */
+export type ZoneSourceTier = "operator" | "authority" | "official-tourism" | "secondary";
+
+/** Best first. Used only to pick which source to show; never to score or rank a zone. */
+export const ZONE_SOURCE_TIERS: readonly ZoneSourceTier[] = [
+  "operator",
+  "authority",
+  "official-tourism",
+  "secondary",
+];
+
 export type ZoneProvenance = {
   sourceUrl: string;
   sourceEntity: string;
   consultedAt: string;
   evidence: string;
+  /** How close this source is to what it describes. */
+  tier: ZoneSourceTier;
+  /**
+   * Which fact areas this source supports. Never empty.
+   *
+   * Two sources may both cover an area: that means each supports *some* claim in it, not that
+   * either supports all of them. `evidence` is what says which. Listing an area a source does not
+   * actually speak to would be the exact failure this field exists to prevent.
+   */
+  covers: ZoneFactArea[];
 };
 
 export type ZoneFacts = {
   railLines: string[];
   shinkansen: ZoneShinkansen;
   airportLinks: ZoneAirportLink[];
+  /** The zone's station-level source. Present on every zone since Block 3. */
   provenance: ZoneProvenance;
+  /**
+   * Further sources, each scoped by `covers`. Additive: a zone without one is exactly the Block 3
+   * record it always was. Block 7 uses it to put an airport or service operator behind the airport
+   * links that were previously carried by the station's encyclopedia article alone.
+   */
+  sources?: ZoneProvenance[];
 };
 
 /** Every axis is ordinal 1–5. Higher always means "more of the named thing". */
@@ -85,6 +135,67 @@ export function getZonesForHub(hub: string): AccommodationZone[] {
 
 export function getZoneById(id: string): AccommodationZone | undefined {
   return ZONES.find((zone) => zone.id === id);
+}
+
+// ── Provenance ────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Every source behind a zone's facts, station-level record first, in declaration order.
+ *
+ * Reading order is deliberately stable and not sorted: the data says what it says, and a list that
+ * reordered itself would make two zones with the same sources look different.
+ */
+export function zoneSources(zone: AccommodationZone): ZoneProvenance[] {
+  return [zone.facts.provenance, ...(zone.facts.sources ?? [])];
+}
+
+/** The sources that support claims in one fact area, in declaration order. */
+export function sourcesForFactArea(
+  zone: AccommodationZone,
+  area: ZoneFactArea
+): ZoneProvenance[] {
+  return zoneSources(zone).filter((source) => source.covers.includes(area));
+}
+
+/**
+ * The most authoritative source for one fact area, or `null` when nothing covers it.
+ *
+ * Ties are broken by declaration order rather than by anything clever, so the answer is stable and
+ * a reader can find it in the file. This picks which source to *show*; it never decides whether a
+ * claim is true, and it produces no number.
+ */
+export function bestSourceForFactArea(
+  zone: AccommodationZone,
+  area: ZoneFactArea
+): ZoneProvenance | null {
+  let best: ZoneProvenance | null = null;
+  let bestRank = Number.POSITIVE_INFINITY;
+  for (const source of sourcesForFactArea(zone, area)) {
+    const rank = ZONE_SOURCE_TIERS.indexOf(source.tier);
+    const resolved = rank === -1 ? ZONE_SOURCE_TIERS.length : rank;
+    if (resolved < bestRank) {
+      best = source;
+      bestRank = resolved;
+    }
+  }
+  return best;
+}
+
+/**
+ * The distinct sources a zone rests on, for display: one entry per `sourceUrl`, first wins.
+ *
+ * The saved surface shows source *names*, and two entries pointing at the same page would read as
+ * two independent confirmations of the same claim, which they are not.
+ */
+export function distinctZoneSources(zone: AccommodationZone): ZoneProvenance[] {
+  const seen = new Set<string>();
+  const out: ZoneProvenance[] = [];
+  for (const source of zoneSources(zone)) {
+    if (seen.has(source.sourceUrl)) continue;
+    seen.add(source.sourceUrl);
+    out.push(source);
+  }
+  return out;
 }
 
 /** Hubs this layer models. Deliberately a subset: a hub without zones offers no comparison. */

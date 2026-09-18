@@ -33,10 +33,59 @@ EDITORIAL_AXES = (
     "luggageEase", "firstVisit", "shortStay", "lateArrival", "earlyDeparture",
 )
 ORDINAL_MIN, ORDINAL_MAX = 1, 5
-REQUIRED_PROVENANCE = ("sourceUrl", "sourceEntity", "consultedAt", "evidence")
+REQUIRED_PROVENANCE = ("sourceUrl", "sourceEntity", "consultedAt", "evidence", "tier", "covers")
+# Block 7. The three kinds of checkable claim a zone makes, so a source can say which of them it
+# actually supports instead of one record standing silently behind all three.
+FACT_AREAS = ("railLines", "shinkansen", "airportLinks")
+# The authority ladder, best first. Stored rather than inferred from the host: "is this the
+# operator" is a judgement about the claim, not a fact about a domain name.
+SOURCE_TIERS = ("operator", "authority", "official-tourism", "secondary")
+# A host that cannot honestly be called a primary or operator source, whatever tier it claims.
+SECONDARY_HOSTS = ("wikipedia.org", "wikimedia.org", "britannica.com", "wikivoyage.org")
 # Only these hubs are in scope for Block 3; a zone for an unmodelled hub is a mistake, not a
 # feature, because the comparison surface is reached from the hub explorer.
 SUPPORTED_HUBS = {"Tokio", "Kioto", "Osaka"}
+
+
+def check_provenance(provenance, label):
+    """One source record: shape, authority tier, and the fact areas it claims to support.
+
+    `covers` is the field this validator cares most about. A source that lists an area it does not
+    speak to would reintroduce exactly the problem Block 7 set out to remove — a single record
+    standing silently behind claims it never supported — so it must be a non-empty subset of the
+    known areas, and it is never defaulted.
+    """
+    errors = []
+    for field in REQUIRED_PROVENANCE:
+        if field == "covers":
+            continue
+        value = provenance.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"{label}.{field} must be a non-empty string")
+
+    url = provenance.get("sourceUrl", "")
+    if not url.startswith("https://"):
+        errors.append(f"{label}.sourceUrl must be https")
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", provenance.get("consultedAt", "")):
+        errors.append(f"{label}.consultedAt must be YYYY-MM-DD")
+
+    tier = provenance.get("tier")
+    if tier not in SOURCE_TIERS:
+        errors.append(f"{label}.tier {tier!r} must be one of {list(SOURCE_TIERS)}")
+    elif tier != "secondary" and any(host in url for host in SECONDARY_HOSTS):
+        # An encyclopedia is a fine source; calling it the operator is not.
+        errors.append(f"{label}.tier is {tier!r} but sourceUrl is an encyclopedia: {url}")
+
+    covers = provenance.get("covers")
+    if not isinstance(covers, list) or not covers:
+        errors.append(f"{label}.covers must be a non-empty array naming the facts this source supports")
+    else:
+        unknown = [area for area in covers if area not in FACT_AREAS]
+        if unknown:
+            errors.append(f"{label}.covers names unknown fact area(s) {unknown}")
+        if len(set(covers)) != len(covers):
+            errors.append(f"{label}.covers repeats a fact area")
+    return errors
 
 
 def validate(doc, place_hubs, cluster_ids):
@@ -137,15 +186,31 @@ def validate(doc, place_hubs, cluster_ids):
             if not isinstance(provenance, dict):
                 errors.append(f"{label}: facts.provenance is required — a fact without a source is a heuristic")
             else:
-                for field in REQUIRED_PROVENANCE:
-                    value = provenance.get(field)
-                    if not isinstance(value, str) or not value.strip():
-                        errors.append(f"{label}: facts.provenance.{field} must be a non-empty string")
-                url = provenance.get("sourceUrl", "")
-                if not url.startswith("https://"):
-                    errors.append(f"{label}: facts.provenance.sourceUrl must be https")
-                if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", provenance.get("consultedAt", "")):
-                    errors.append(f"{label}: facts.provenance.consultedAt must be YYYY-MM-DD")
+                errors.extend(check_provenance(provenance, f"{label}: facts.provenance"))
+
+            # ---- Block 7: extra, scoped sources ----
+            extra = facts.get("sources")
+            if extra is not None:
+                if not isinstance(extra, list) or not extra:
+                    errors.append(f"{label}: facts.sources, when present, must be a non-empty array")
+                else:
+                    for position, source in enumerate(extra):
+                        if not isinstance(source, dict):
+                            errors.append(f"{label}: facts.sources[{position}] must be an object")
+                            continue
+                        errors.extend(check_provenance(source, f"{label}: facts.sources[{position}]"))
+
+            # Every fact area must be backed by at least one source. This is what makes "which
+            # facts have no source" unrepresentable rather than merely undocumented.
+            all_sources = [s for s in [provenance] + list(extra or []) if isinstance(s, dict)]
+            for area in FACT_AREAS:
+                if not any(area in (s.get("covers") or []) for s in all_sources):
+                    errors.append(f"{label}: no source covers facts.{area}")
+
+            # Two records pointing at the same page are not two confirmations of the same claim.
+            urls = [s.get("sourceUrl") for s in all_sources]
+            if len(set(urls)) != len(urls):
+                errors.append(f"{label}: the same sourceUrl appears twice in facts")
 
         # ---- editorial ----
         editorial = zone.get("editorial")
@@ -165,8 +230,11 @@ def validate(doc, place_hubs, cluster_ids):
                     errors.append(f"{label}: editorial.{axis} must be an integer {ORDINAL_MIN}..{ORDINAL_MAX}, got {value!r}")
             # An editorial block must never carry provenance: it would imply the judgement is
             # sourced, which is exactly the confusion this layer exists to avoid.
-            if "provenance" in editorial or "sourceUrl" in editorial:
-                errors.append(f"{label}: editorial must not carry provenance; it is Nihon's judgement, not a sourced fact")
+            # Block 7 added `tier`, `covers` and `sources`; an editorial block acquiring any of
+            # them would be the same contamination wearing a newer name.
+            leaked = [key for key in ("provenance", "sourceUrl", "sources", "tier", "covers") if key in editorial]
+            if leaked:
+                errors.append(f"{label}: editorial must not carry provenance {leaked}; it is Nihon's judgement, not a sourced fact")
 
         tradeoffs = zone.get("tradeoffs")
         if not isinstance(tradeoffs, list) or len(tradeoffs) < 2:

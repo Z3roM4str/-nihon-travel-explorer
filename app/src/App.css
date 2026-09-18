@@ -2359,6 +2359,23 @@ a {
   margin: 0.35rem 0 0;
   font-size: 0.72rem;
   color: var(--color-text-muted);
+  /* Long operator names wrap rather than widening the column or being clipped mid-word. */
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.zone-column__provenance-label {
+  font-weight: 600;
+}
+
+.zone-source__link {
+  /* The whole column is clickable; an underlined link is what says this one goes elsewhere. */
+  text-decoration: underline;
+}
+
+/* The tier is a word, never a colour or an icon on its own. */
+.zone-source__tier {
+  color: var(--color-text-muted);
 }
 
 .zone-nearest {

@@ -54,8 +54,26 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Shinjuku_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR East (Yamanote, Chūō, Chūō-Sōbu, Saikyō, Shōnan-Shinjuku), Keiō, Odakyū, Tokyo Metro Marunouchi, Toei Shinjuku/Ōedo. Sin Shinkansen. El Narita Express sirve la estación."
-        }
+          "evidence": "JR East (Yamanote, Chūō, Chūō-Sōbu, Saikyō, Shōnan-Shinjuku), Keiō, Odakyū, Tokyo Metro Marunouchi, Toei Shinjuku/Ōedo. Sin Shinkansen. El Narita Express sirve la estación.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
+        },
+        "sources": [
+          {
+            "sourceUrl": "https://www.narita-airport.jp/en/access/train/",
+            "sourceEntity": "Narita International Airport — acceso ferroviario (operador del aeropuerto)",
+            "consultedAt": "2026-09-18",
+            "evidence": "El aeropuerto lista el Narita Express (JR East) con parada en Shinjuku Station.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          }
+        ]
       },
       "editorial": {
         "nightlife": 5,
@@ -134,8 +152,26 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Tokyo_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR East (Tōkaidō, Yamanote, Keihin–Tōhoku, Chūō, Sōbu Rapid, Yokosuka, Keiyō, Ueno–Tokyo), JR Central, Tokyo Metro Marunouchi. Shinkansen Tōkaidō (JR Central) y Tōhoku/Yamagata/Akita/Jōetsu/Hokuriku (JR East). El Narita Express llega por andenes subterráneos."
-        }
+          "evidence": "JR East (Tōkaidō, Yamanote, Keihin–Tōhoku, Chūō, Sōbu Rapid, Yokosuka, Keiyō, Ueno–Tokyo), JR Central, Tokyo Metro Marunouchi. Shinkansen Tōkaidō (JR Central) y Tōhoku/Yamagata/Akita/Jōetsu/Hokuriku (JR East). El Narita Express llega por andenes subterráneos.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
+        },
+        "sources": [
+          {
+            "sourceUrl": "https://www.narita-airport.jp/en/access/train/",
+            "sourceEntity": "Narita International Airport — acceso ferroviario (operador del aeropuerto)",
+            "consultedAt": "2026-09-18",
+            "evidence": "El aeropuerto lista el Narita Express (JR East) con parada en Tokyo Station.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          }
+        ]
       },
       "editorial": {
         "nightlife": 2,
@@ -210,8 +246,26 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Ueno_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR East (Tōhoku/Yamagata/Akita/Jōetsu/Hokuriku Shinkansen, Utsunomiya, Takasaki, Keihin–Tōhoku, Yamanote, Jōban) y Tokyo Metro Ginza/Hibiya. Keisei-Ueno, terminal del Keisei Main Line a Narita, está al lado; el Skyliner sale de Keisei-Ueno, no de Ueno."
-        }
+          "evidence": "JR East (Tōhoku/Yamagata/Akita/Jōetsu/Hokuriku Shinkansen, Utsunomiya, Takasaki, Keihin–Tōhoku, Yamanote, Jōban) y Tokyo Metro Ginza/Hibiya. Keisei-Ueno, terminal del Keisei Main Line a Narita, está al lado; el Skyliner sale de Keisei-Ueno, no de Ueno.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
+        },
+        "sources": [
+          {
+            "sourceUrl": "https://www.narita-airport.jp/en/access/train/",
+            "sourceEntity": "Narita International Airport — acceso ferroviario (operador del aeropuerto)",
+            "consultedAt": "2026-09-18",
+            "evidence": "El aeropuerto lista el Keisei Skyliner (Keisei Electric Railway) con parada en Keisei Ueno Station.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          }
+        ]
       },
       "editorial": {
         "nightlife": 3,
@@ -277,7 +331,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Asakusa_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "Tobu Skytree Line, Tokyo Metro Ginza y Toei Asakusa. La línea Toei Asakusa ofrece servicio directo a Haneda vía Keikyū y trenes Keisei / Narita Sky Access a Narita circulan por la misma línea."
+          "evidence": "Tobu Skytree Line, Tokyo Metro Ginza y Toei Asakusa. La línea Toei Asakusa ofrece servicio directo a Haneda vía Keikyū y trenes Keisei / Narita Sky Access a Narita circulan por la misma línea.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -349,8 +409,26 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Shibuya_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR East (Yamanote, Saikyō, Shōnan–Shinjuku), Tōkyū (Den-en-toshi, Tōyoko), Tokyo Metro (Ginza, Hanzōmon, Fukutoshin) y Keiō Inokashira. El Narita Express sirve la estación con servicio limitado."
-        }
+          "evidence": "JR East (Yamanote, Saikyō, Shōnan–Shinjuku), Tōkyū (Den-en-toshi, Tōyoko), Tokyo Metro (Ginza, Hanzōmon, Fukutoshin) y Keiō Inokashira. El Narita Express sirve la estación con servicio limitado.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
+        },
+        "sources": [
+          {
+            "sourceUrl": "https://www.narita-airport.jp/en/access/train/",
+            "sourceEntity": "Narita International Airport — acceso ferroviario (operador del aeropuerto)",
+            "consultedAt": "2026-09-18",
+            "evidence": "El aeropuerto lista el Narita Express (JR East) con parada en Shibuya Station.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          }
+        ]
       },
       "editorial": {
         "nightlife": 5,
@@ -421,7 +499,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Ikebukuro_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR East (Yamanote, Saikyō, Shōnan–Shinjuku), Seibu Ikebukuro, Tōbu Tōjō y Tokyo Metro (Marunouchi, Yūrakuchō, Fukutoshin)."
+          "evidence": "JR East (Yamanote, Saikyō, Shōnan–Shinjuku), Seibu Ikebukuro, Tōbu Tōjō y Tokyo Metro (Marunouchi, Yūrakuchō, Fukutoshin).",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -489,7 +573,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Kyoto_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR West (Biwako, JR Kyoto, Sagano, Nara, Kosei, Kusatsu), JR Central (Tōkaidō Shinkansen), Kintetsu Kyoto y metro municipal Karasuma. El limited express Haruka a Kansai Airport sirve la estación."
+          "evidence": "JR West (Biwako, JR Kyoto, Sagano, Nara, Kosei, Kusatsu), JR Central (Tōkaidō Shinkansen), Kintetsu Kyoto y metro municipal Karasuma. El limited express Haruka a Kansai Airport sirve la estación.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -549,7 +639,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Karasuma_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "Hankyu Kyoto Main Line (Karasuma) conectada por paso subterráneo con Shijō, del metro municipal línea Karasuma."
+          "evidence": "Hankyu Kyoto Main Line (Karasuma) conectada por paso subterráneo con Shijō, del metro municipal línea Karasuma.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -607,7 +703,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Gion-Shij%C5%8D_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "Keihan Main Line (Keihan Electric Railway). El distrito tiene además Kyoto-kawaramachi (Hankyu Kyoto) y la estación Shijō del metro Karasuma a poca distancia."
+          "evidence": "Keihan Main Line (Keihan Electric Railway). El distrito tiene además Kyoto-kawaramachi (Hankyu Kyoto) y la estación Shijō del metro Karasuma a poca distancia.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -666,7 +768,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Saga-Arashiyama_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR West Sagano Line. El distrito tiene además la estación Arashiyama del tranvía Randen (Keifuku) a unos 300 m y la terminal de la Hankyu Arashiyama Line al sur del río Katsura."
+          "evidence": "JR West Sagano Line. El distrito tiene además la estación Arashiyama del tranvía Randen (Keifuku) a unos 300 m y la terminal de la Hankyu Arashiyama Line al sur del río Katsura.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -726,7 +834,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Nij%C5%8D_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "San'in Main Line (Sagano Line) y Kyoto Subway Tōzai Line, en Nakagyō-ku."
+          "evidence": "San'in Main Line (Sagano Line) y Kyoto Subway Tōzai Line, en Nakagyō-ku.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -799,7 +913,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/%C5%8Csaka_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR West (Osaka Higashi, Tōkaidō Main como JR Kyoto y JR Kōbe, Osaka Loop, JR Takarazuka, JR Yumesaki), Osaka Metro (Midōsuji, Yotsubashi, Tanimachi), Hankyu y Hanshin. Los limited express Haruka a Kansai Airport salen de los andenes subterráneos 21 y 24 abiertos el 18 de marzo de 2023."
+          "evidence": "JR West (Osaka Higashi, Tōkaidō Main como JR Kyoto y JR Kōbe, Osaka Loop, JR Takarazuka, JR Yumesaki), Osaka Metro (Midōsuji, Yotsubashi, Tanimachi), Hankyu y Hanshin. Los limited express Haruka a Kansai Airport salen de los andenes subterráneos 21 y 24 abiertos el 18 de marzo de 2023.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -858,7 +978,7 @@
         "airportLinks": [
           {
             "airport": "Kansai (KIX)",
-            "service": "Nankai Rapi:t (andén 9)",
+            "service": "Nankai Rapi:t",
             "directFromZone": true
           }
         ],
@@ -866,8 +986,25 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Namba_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "Nankai (Main, Kōya) y Osaka Metro (Midōsuji, Sennichimae, Yotsubashi); adyacentes Ōsaka Namba (Kintetsu Namba, Hanshin Namba) y JR Namba (Yamatoji). El Airport Limited Express Rapi:t sale del andén 9 hacia Kansai Airport."
-        }
+          "evidence": "Nankai (Main, Kōya) y Osaka Metro (Midōsuji, Sennichimae, Yotsubashi); adyacentes Ōsaka Namba (Kintetsu Namba, Hanshin Namba) y JR Namba (Yamatoji). El Airport Limited Express Rapi:t sale del andén 9 hacia Kansai Airport.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen"
+          ]
+        },
+        "sources": [
+          {
+            "sourceUrl": "https://www.nankai.co.jp/en_railway/ticket/rapit",
+            "sourceEntity": "Nankai Electric Railway — Rapi:t (operador del servicio)",
+            "consultedAt": "2026-09-18",
+            "evidence": "Nankai opera el Rapi:t entre Kansai Airport Station y Namba Station, parando en Tengachaya y Shin-Imamiya.",
+            "tier": "operator",
+            "covers": [
+              "airportLinks"
+            ]
+          }
+        ]
       },
       "editorial": {
         "nightlife": 5,
@@ -931,7 +1068,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Shin-%C5%8Csaka_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR Central (Tōkaidō Shinkansen), JR West (San'yō Shinkansen, JR Kyoto Line / Tōkaidō Main, Osaka Higashi) y Osaka Metro Midōsuji. El Kansai Airport Limited Express Haruka sirve la estación."
+          "evidence": "JR Central (Tōkaidō Shinkansen), JR West (San'yō Shinkansen, JR Kyoto Line / Tōkaidō Main, Osaka Higashi) y Osaka Metro Midōsuji. El Kansai Airport Limited Express Haruka sirve la estación.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -994,7 +1137,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Tenn%C5%8Dji_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR West (Osaka Loop, Hanwa, Yamatoji), Osaka Metro (Midōsuji, Tanimachi), tranvía Hankai Uemachi y Kintetsu Minami-Osaka vía la estación conectada Ōsaka Abenobashi. Los limited express Haruka a Kansai Airport paran aquí."
+          "evidence": "JR West (Osaka Loop, Hanwa, Yamatoji), Osaka Metro (Midōsuji, Tanimachi), tranvía Hankai Uemachi y Kintetsu Minami-Osaka vía la estación conectada Ōsaka Abenobashi. Los limited express Haruka a Kansai Airport paran aquí.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {
@@ -1052,7 +1201,13 @@
           "sourceUrl": "https://en.wikipedia.org/wiki/Universal_City_Station",
           "sourceEntity": "Wikipedia, station article (railway lines and operators)",
           "consultedAt": "2026-09-17",
-          "evidence": "JR West, JR Yumesaki Line. Desde Ōsaka Station se cambia en Nishikujō."
+          "evidence": "JR West, JR Yumesaki Line. Desde Ōsaka Station se cambia en Nishikujō.",
+          "tier": "secondary",
+          "covers": [
+            "railLines",
+            "shinkansen",
+            "airportLinks"
+          ]
         }
       },
       "editorial": {

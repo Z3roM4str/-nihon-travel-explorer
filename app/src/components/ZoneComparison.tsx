@@ -6,6 +6,7 @@ import {
   EDITORIAL_AXES,
   NEUTRAL_AXES,
   PROXIMITY_BANDS,
+  distinctZoneSources,
   editorialContrasts,
   getZonesForHub,
   rankZonesBySavedPlaces,
@@ -13,6 +14,7 @@ import {
   type AccommodationZone,
   type ZoneEditorial,
 } from "../lib/accommodation-zone";
+import { sourceLinkLabel, sourceName, tierLabel } from "../lib/zone-provenance-presentation";
 import { MAX_COMPARED, useZoneComparison } from "../useZoneComparison";
 import { useZonePlanChoice } from "../useZonePlanChoice";
 
@@ -151,6 +153,48 @@ function AirportFacts({ zone }: { zone: AccommodationZone }) {
         </span>
       ))}
     </>
+  );
+}
+
+/**
+ * Block 7 — where this zone's checkable claims come from, by name.
+ *
+ * Until Block 7 this was a single link whose whole text was "Fuente", so an airport operator's own
+ * access page and an encyclopedia article looked identical until you opened one. Naming the source
+ * and saying how close it is to what it describes is the smallest change that makes provenance
+ * legible, and it is the only thing Block 7 alters on this card.
+ *
+ * The tier is text, never a colour or an icon on its own, and it is deliberately not a rating: it
+ * says where a statement comes from, not whether the zone is a good place to stay.
+ */
+function ZoneSources({ zone }: { zone: AccommodationZone }) {
+  const sources = distinctZoneSources(zone);
+  if (sources.length === 0) return null;
+  return (
+    <p className="zone-column__provenance">
+      <span className="zone-column__provenance-label">
+        {sources.length === 1 ? "Fuente:" : "Fuentes:"}
+      </span>{" "}
+      {sources.map((source, index) => (
+        <span key={source.sourceUrl} className="zone-source">
+          {index > 0 && <span aria-hidden="true"> · </span>}
+          <a
+            className="zone-source__link"
+            href={source.sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={sourceLinkLabel(source, zone.name)}
+            /* Defence in depth, not a fix for a live bug: the column is a plain <section> with
+               no click handler today. Stopping here means that if one is ever added, reading a
+               source cannot quietly become choosing a zone. */
+            onClick={(event) => event.stopPropagation()}
+          >
+            {sourceName(source)}
+          </a>
+          <span className="zone-source__tier"> ({tierLabel(source.tier)})</span>
+        </span>
+      ))}
+    </p>
   );
 }
 
@@ -477,12 +521,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
                     <p className="zone-column__lines">
                       <strong>Líneas:</strong> {zone.facts.railLines.join(" · ")}
                     </p>
-                    <p className="zone-column__provenance">
-                      <a href={zone.facts.provenance.sourceUrl} target="_blank" rel="noreferrer">
-                        Fuente
-                      </a>{" "}
-                      · consultada el {zone.facts.provenance.consultedAt}
-                    </p>
+                    <ZoneSources zone={zone} />
 
                     {fit.consideredCount > 0 && fit.medianKm !== null && (
                       <>
