@@ -1,0 +1,151 @@
+{
+  "labels": [
+    {
+      "title": "Yasaka Kōshin-dō",
+      "badge": "Interés específico"
+    },
+    {
+      "title": "Glico Running Man sign",
+      "badge": "Interés específico"
+    },
+    {
+      "title": "Heart Rock",
+      "badge": "Interés específico"
+    },
+    {
+      "title": "Kuromon Ichiba Market",
+      "badge": "Interés específico"
+    }
+  ],
+  "pagination": {
+    "events": [
+      {
+        "text": "Resultados 13–24 añadidos",
+        "time": 1022.8000000007451
+      }
+    ],
+    "focus": "Ver 12 más",
+    "count": 24
+  },
+  "viewport": [
+    {
+      "width": 375,
+      "height": 812,
+      "overflow": 0,
+      "columns": 1,
+      "frame": {
+        "x": 17,
+        "y": -7163,
+        "width": 341,
+        "height": 255.75,
+        "top": -7163,
+        "right": 358,
+        "bottom": -6907.25,
+        "left": 17
+      },
+      "header": 56
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "overflow": 0,
+      "columns": 1,
+      "frame": {
+        "x": 17,
+        "y": -7293,
+        "width": 356,
+        "height": 267,
+        "top": -7293,
+        "right": 373,
+        "bottom": -7026,
+        "left": 17
+      },
+      "header": 56
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "overflow": 0,
+      "columns": 1,
+      "frame": {
+        "x": 17,
+        "y": -7541,
+        "width": 396,
+        "height": 297,
+        "top": -7541,
+        "right": 413,
+        "bottom": -7244,
+        "left": 17
+      },
+      "header": 56
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "overflow": 0,
+      "columns": 2,
+      "frame": {
+        "x": 25,
+        "y": -3224,
+        "width": 346,
+        "height": 259.5,
+        "top": -3224,
+        "right": 371,
+        "bottom": -2964.5,
+        "left": 25
+      },
+      "header": 64
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "overflow": 0,
+      "columns": 2,
+      "frame": {
+        "x": 25,
+        "y": -3680,
+        "width": 474,
+        "height": 355.5,
+        "top": -3680,
+        "right": 499,
+        "bottom": -3324.5,
+        "left": 25
+      },
+      "header": 64
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "overflow": 0,
+      "columns": 3,
+      "frame": {
+        "x": 81,
+        "y": -2181,
+        "width": 408.65625,
+        "height": 306.484375,
+        "top": -2181,
+        "right": 489.65625,
+        "bottom": -1874.515625,
+        "left": 81
+      },
+      "header": 72
+    },
+    {
+      "width": 320,
+      "height": 800,
+      "overflow": 0,
+      "columns": 1,
+      "frame": {
+        "x": 17,
+        "y": -1945,
+        "width": 286,
+        "height": 214.5,
+        "top": -1945,
+        "right": 303,
+        "bottom": -1730.5,
+        "left": 17
+      },
+      "header": 56
+    }
+  ]
+}

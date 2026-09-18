@@ -1,0 +1,37 @@
+[
+  {
+    "label": "load",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  },
+  {
+    "label": "card blocked",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  },
+  {
+    "label": "card cancelled",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  },
+  {
+    "label": "trip blocked",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  },
+  {
+    "label": "trip cancelled",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  },
+  {
+    "label": "reload",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  },
+  {
+    "label": "planner",
+    "same": true,
+    "saved": "[\"JP-021\",\"JP-054\"]"
+  }
+]

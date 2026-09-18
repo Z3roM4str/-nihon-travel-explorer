@@ -17,6 +17,8 @@ type Props = {
   totalCount: number;
   activeFilterCount: number;
   onReset: () => void;
+  /** Astra owns a single debounced live region outside this panel. */
+  announceResults?: boolean;
 };
 
 function toggleValue<T extends string>(list: T[], value: T): T[] {
@@ -57,6 +59,7 @@ export function FilterPanel({
   totalCount,
   activeFilterCount,
   onReset,
+  announceResults = true,
 }: Props) {
   const searchId = useId();
 
@@ -93,7 +96,7 @@ export function FilterPanel({
       </div>
 
       <div className="filter-panel__status">
-        <p role="status">
+        <p role={announceResults ? "status" : undefined}>
           <strong>{resultCount}</strong> de {totalCount} lugares
         </p>
         {activeFilterCount > 0 && (

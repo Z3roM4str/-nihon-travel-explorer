@@ -1,0 +1,21 @@
+[
+  {
+    "asset": "index-BmUpoEhL.css",
+    "traceContent": {
+      "size": 75936,
+      "mimeType": "text/css",
+      "compression": 58980,
+      "_sha1": "dfb7f09a7e317a3a5e56d3daa5b54f7d2312c560.css"
+    },
+    "sha256": "4afb2231c4c250af9bad69494a43d43752e899be1d28a83d48774a869013b5a9"
+  },
+  {
+    "asset": "index-BG4QJj8X.js",
+    "traceContent": {
+      "size": -1,
+      "mimeType": "text/javascript",
+      "compression": 0
+    },
+    "sha256": "c748b5e8a8e30d66c208a18580836ac94c1f7cfe8bd0bb2e670cc6cc062fa77e"
+  }
+]

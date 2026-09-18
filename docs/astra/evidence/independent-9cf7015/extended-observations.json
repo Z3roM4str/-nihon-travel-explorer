@@ -1,0 +1,1441 @@
+[
+  {
+    "id": "v7-valid-active",
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "data": {
+      "validParser": true,
+      "checks": [
+        {
+          "label": "load",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        },
+        {
+          "label": "card blocked",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        },
+        {
+          "label": "card cancelled",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        },
+        {
+          "label": "trip blocked",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        },
+        {
+          "label": "trip cancelled",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        },
+        {
+          "label": "reload",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        },
+        {
+          "label": "planner",
+          "same": true,
+          "saved": "[\"JP-021\",\"JP-054\"]"
+        }
+      ],
+      "focus": [
+        {
+          "inside": false,
+          "tag": "BUTTON",
+          "text": "Ver 12 más"
+        },
+        {
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Mantener guardado"
+        },
+        {
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Ir a Planificar"
+        },
+        {
+          "inside": false,
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuest"
+        }
+      ],
+      "segmentPresent": true,
+      "planner": "Saltar al contenido\nNihon\nExplorar\nNuestro viaje\n2\nMis gustos ▾\n\nMIS GUARDADOS\n\nNuestro viaje\n\nEsta primera versión conserva una lista local de una sola persona. Las preferencias de pareja se incorporarán en una fase posterior.\n\nTokyo National Museum\nQuitar\nKiyomizu-dera\nQuitar\nComparar selección\nPlanificar con mis guardados\nConstruir recorrido\n\n2 lugares en el recorrido\n\n×\n\nⓘ Tú eliges el orden con las flechas. Nihon describe los traslados de ese orden exacto; no sugiere ni calcula el mejor orden.\n\n💾 Este recorrido se guarda automáticamente en este navegador, junto con el reparto por días si lo creas.\n\n1\nTokyo National Museum\n↑\n↓\n×\n\n❓ Sin traslado registrado\n\n2\nKiyomizu-dera\n↑\n↓\n×\n4 h 30 min–7 h 30 min\ntiempo de visita\n—\ntraslados conocidos · 0/1 tramo cubierto\n1\ntramo sin traslado registrado\n\nⓘ Los traslados conocidos usan la misma clasificación que la ficha de cada lugar: rutas validadas, estimaciones geográficas u horarios en vivo. No incluyen tiempo dentro de cada lugar.\n\nReservas por preparar\n\n1 con mecanismo específico para revisar\n\nTokyo National Museum\nReserva recomendable\nMecanismo específico; revisar\nDato: «Días/semanas para exposiciones»\n\nEsta sección solo describe la anticipación registrada en el dato original de cada lugar. No calcula fechas límite de reserva ni las compara con tu calendario.\n\nHorarios registrados\n\n1 claro · 1 con condiciones\n\nTokyo National Museum\nHorario registrado: 09:30–17:00\nDato: «09:30–17:00 aprox.»\nKiyomizu-dera\nHorario parcialmente registrado; revisar\nDato: «Abre desde 06:00; cierre variable»\n\nEsta sección solo describe qué horario está registrado en el dato original de cada lugar. No determina si el lugar abre o cierra en tu fecha, no revisa festivos ni cierres, y no se compara con la hora del día.\n\nTraslados entre ciudades\n\nTramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos.\n\nTokyo National Museum → Kiyomizu-dera\n\nTokio → Kioto\n\n×\n\nActivo · entre Día 1 y Día 2\n\nModo\nShinkansen\nLimited Express / tren expreso\nVuelo doméstico\nFerry\nAutobús interurbano\nOtro\nDuración manual del tramo principal\n\n140 min registrados manualmente\n\nPosición en el plan\nSelecciona dos puntos consecutivos de hubs distintos\nModo\nSelecciona modo\nShinkansen\nLimited Express / tren expreso\nVuelo doméstico\nFerry\nAutobús interurbano\nOtro\nDuración manual del tramo principal\n＋\nAñadir tramo\n\nNo hay una pareja consecutiva nueva entre hubs distintos en el reparto actual.\n\n⇄\nComparar otro orden\n📅\nDistribuir por días\nResumen del plan completo\n\nDescribe únicamente los datos registrados para este reparto; no puntúa ni recomienda cambios.\n\nVisitas\n\nTiempo de visita cuantificado: 4 h 30 min–7 h 30 min.\n\n2 de 2 lugares con duración numérica.\n\nNo cuantificados: 0; compromisos de escala día: 0; sin clasificación: 0.\n\nTraslados registrados\n\nTraslado registrado: 2 h 35 min. Incluye solo componentes registrados: movimiento entre lugares y minutos manuales de alojamiento. Los desgloses siguientes ya forman parte de esa cifra.\n\nEsta cifra es parcial: hay componentes locales, entre ciudades o de alojamiento sin registrar.\n\nLocales con tiempo: 0; locales faltantes: 0.\n\nEntre ciudades activos: 1; faltantes: 0.\n\nPosiciones de movimiento modeladas: 1.\n\nTodos los tramos entre lugares que este resumen modela tienen tiempo registrado.\n\nAlojamiento\n\nMinutos manuales registrados: 15 min.\n\nTramos manuales: 1; faltantes: 0; sin seleccionar: 1.\n\nSin alojamiento explícito: 2; límites de días vacíos no aplicables: 0.\n\nRango del viaje\n\nvie, 19 feb 2027 – sáb, 20 feb 2027 · 2 días de calendario.\n\nDías creados: 2.\n\nRestablecer recorrido"
+    }
+  },
+  {
+    "id": "filter-roundtrip",
+    "size": {
+      "width": 1024,
+      "height": 768
+    },
+    "data": {
+      "zero": {
+        "url": "http://127.0.0.1:4173/#/explorar?category=%E2%9B%A9%EF%B8%8F+Templos+y+santuarios&category=%F0%9F%8F%9B%EF%B8%8F+Museos&grade=D&duration=medium&reservation=recommended",
+        "text": "0 de 214 lugares\n\nLimpiar (5)"
+      },
+      "note": "D-only + recommended has zero canonical results; added S while retaining D for a nonempty detail journey",
+      "before": {
+        "url": "#/explorar?category=%E2%9B%A9%EF%B8%8F+Templos+y+santuarios&category=%F0%9F%8F%9B%EF%B8%8F+Museos&grade=D&grade=S&duration=medium&reservation=recommended",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio"
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "text": "Filtros (6)"
+        },
+        "count": "1 resultados"
+      },
+      "detailBack": {
+        "url": "#/explorar?category=%E2%9B%A9%EF%B8%8F+Templos+y+santuarios&category=%F0%9F%8F%9B%EF%B8%8F+Museos&grade=D&grade=S&duration=medium&reservation=recommended",
+        "scroll": 506,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio"
+        ],
+        "focus": {
+          "tag": "A",
+          "text": "Tokyo National Museum"
+        },
+        "count": "1 resultados"
+      },
+      "regionsBack": {
+        "url": "#/explorar?category=%E2%9B%A9%EF%B8%8F+Templos+y+santuarios&category=%F0%9F%8F%9B%EF%B8%8F+Museos&grade=D&grade=S&duration=medium&reservation=recommended",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "1 resultados"
+      },
+      "reload": {
+        "url": "#/explorar?category=%E2%9B%A9%EF%B8%8F+Templos+y+santuarios&category=%F0%9F%8F%9B%EF%B8%8F+Museos&grade=D&grade=S&duration=medium&reservation=recommended",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "1 resultados"
+      },
+      "forward": {
+        "url": "#/regiones",
+        "scroll": 0,
+        "cards": [],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾← Volver a Explorar"
+        }
+      },
+      "final": {
+        "url": "#/explorar?category=%E2%9B%A9%EF%B8%8F+Templos+y+santuarios&category=%F0%9F%8F%9B%EF%B8%8F+Museos&grade=D&grade=S&duration=medium&reservation=recommended",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "1 resultados"
+      },
+      "selected": [
+        "⛩️ Templos y santuarios",
+        "🏛️ Museos",
+        "S",
+        "D",
+        "Bloque medio (2–4 h)",
+        "Reserva recomendable"
+      ]
+    }
+  },
+  {
+    "id": "regions-reload-origin",
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "data": {
+      "original": {
+        "url": "#/explorar?hub=Kioto&q=templo&page=2&grade=S",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-096?hub=Kioto"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERAD"
+        },
+        "count": "3 resultados"
+      },
+      "returnHref": "#/explorar",
+      "returned": {
+        "url": "#/explorar",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "214 resultados"
+      }
+    }
+  },
+  {
+    "id": "regions-scroll-24",
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "data": {
+      "before": {
+        "url": "#/explorar?page=2",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "214 resultados"
+      },
+      "after": {
+        "url": "#/explorar?page=2",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "214 resultados"
+      },
+      "note": "region link invoked without scrolling the origin to isolate keyed scroll restoration"
+    }
+  },
+  {
+    "id": "interhub-fixture-24",
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "data": {
+      "fixture": "browser-only response substitution JP-089→JP-021; NOT a factual nearby relation; files unchanged",
+      "replacements": 1,
+      "before": {
+        "url": "#/explorar?page=2",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "A",
+          "text": "Nijō Castle"
+        },
+        "count": "214 resultados"
+      },
+      "target": {
+        "url": "#/lugar/JP-021?hub=Tokio",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        "count": "214 resultados"
+      },
+      "firstBack": {
+        "url": "#/lugar/JP-089?hub=Kioto",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        "count": "214 resultados"
+      },
+      "secondBack": {
+        "url": "#/explorar?page=2",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BODY",
+          "text": "\n    Saltar al contenidoNihonJapón, a su maneraExplorarNuestro viaje Mis gustos ▾JAPÓN, A SU MANERA¿"
+        },
+        "count": "214 resultados"
+      },
+      "forward": {
+        "url": "#/lugar/JP-021?hub=Tokio",
+        "scroll": 9841,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka",
+          "#/lugar/JP-173?hub=Okinawa",
+          "#/lugar/JP-044?hub=Tokio",
+          "#/lugar/JP-089?hub=Kioto",
+          "#/lugar/JP-134?hub=Osaka",
+          "#/lugar/JP-179?hub=Okinawa",
+          "#/lugar/JP-203?hub=Tokio",
+          "#/lugar/JP-096?hub=Kioto",
+          "#/lugar/JP-135?hub=Osaka",
+          "#/lugar/JP-184?hub=Okinawa",
+          "#/lugar/JP-204?hub=Tokio",
+          "#/lugar/JP-097?hub=Kioto",
+          "#/lugar/JP-142?hub=Osaka"
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        "count": "214 resultados"
+      }
+    }
+  },
+  {
+    "id": "keyboard-layers",
+    "size": {
+      "width": 768,
+      "height": 1024
+    },
+    "data": {
+      "detail": [
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Wikimedia Commons"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "CC BY-SA 4.0"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "＋Quiero ir"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Sitio oficial ↗"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Google Maps ↗"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "AmeyokoMismo cluster1.15 kmA pie · 14 minRuta a pie validada"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Kappabashi Kitchen TownCercano1.54 kmA pie · 19 minRuta a pie validada"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Yanaka Ginza and cemetery lanesMismo cluster1.72 kmA pie · 21 minRuta a pie vali"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Wikimedia Commons"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "CC BY-SA 4.0"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "＋Quiero ir"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Sitio oficial ↗"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Google Maps ↗"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "AmeyokoMismo cluster1.15 kmA pie · 14 minRuta a pie validada"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Kappabashi Kitchen TownCercano1.54 kmA pie · 19 minRuta a pie validada"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Yanaka Ginza and cemetery lanesMismo cluster1.72 kmA pie · 21 minRuta a pie vali"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Wikimedia Commons"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "CC BY-SA 4.0"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "＋Quiero ir"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Sitio oficial ↗"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Google Maps ↗"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "AmeyokoMismo cluster1.15 kmA pie · 14 minRuta a pie validada"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Google Maps ↗"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Sitio oficial ↗"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "＋Quiero ir"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "CC BY-SA 4.0"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Wikimedia Commons"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Yanaka Ginza and cemetery lanesMismo cluster1.72 kmA pie · 21 minRuta a pie vali"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Kappabashi Kitchen TownCercano1.54 kmA pie · 19 minRuta a pie validada"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "AmeyokoMismo cluster1.15 kmA pie · 14 minRuta a pie validada"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Google Maps ↗"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Sitio oficial ↗"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "＋Quiero ir"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "CC BY-SA 4.0"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Wikimedia Commons"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Yanaka Ginza and cemetery lanesMismo cluster1.72 kmA pie · 21 minRuta a pie vali"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Kappabashi Kitchen TownCercano1.54 kmA pie · 19 minRuta a pie validada"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "AmeyokoMismo cluster1.15 kmA pie · 14 minRuta a pie validada"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Google Maps ↗"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Sitio oficial ↗"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "＋Quiero ir"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "CC BY-SA 4.0"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "A",
+          "text": "Wikimedia Commons"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        }
+      ],
+      "filter": [
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Ver 214 resultados"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Categoría"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Grado"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Duración"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Hidden gem"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Nivel turístico"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Reserva"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Ver 214 resultados"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Categoría"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Grado"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Duración"
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Duración"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Grado"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Categoría"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Ver 214 resultados"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Reserva"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Nivel turístico"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Hidden gem"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Duración"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Grado"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "SUMMARY",
+          "text": "Categoría"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "×"
+        },
+        {
+          "key": "Shift+Tab",
+          "inside": true,
+          "tag": "BUTTON",
+          "text": "Ver 214 resultados"
+        }
+      ]
+    }
+  },
+  {
+    "id": "live-ax",
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "data": {
+      "closed": [
+        {
+          "nodeId": "182",
+          "ignored": false,
+          "role": {
+            "type": "role",
+            "value": "status"
+          },
+          "chromeRole": {
+            "type": "internalRole",
+            "value": 159
+          },
+          "name": {
+            "type": "computedString",
+            "value": "",
+            "sources": [
+              {
+                "type": "relatedElement",
+                "attribute": "aria-labelledby"
+              },
+              {
+                "type": "attribute",
+                "attribute": "aria-label"
+              },
+              {
+                "type": "attribute",
+                "attribute": "title"
+              }
+            ]
+          },
+          "properties": [
+            {
+              "name": "live",
+              "value": {
+                "type": "token",
+                "value": "polite"
+              }
+            },
+            {
+              "name": "atomic",
+              "value": {
+                "type": "boolean",
+                "value": true
+              }
+            },
+            {
+              "name": "relevant",
+              "value": {
+                "type": "tokenList",
+                "value": "additions text"
+              }
+            }
+          ],
+          "parentId": "179",
+          "childIds": [
+            "556"
+          ],
+          "backendDOMNodeId": 182
+        }
+      ],
+      "open": [],
+      "dom": [
+        {
+          "text": "25 resultados",
+          "inert": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "zoom-200",
+    "size": {
+      "width": 1280,
+      "height": 900
+    },
+    "data": {
+      "baseline": {
+        "width": 1280,
+        "dpr": 1,
+        "scale": 1
+      },
+      "keyboard": {
+        "width": 1280,
+        "dpr": 1,
+        "scale": 1
+      },
+      "measured": {
+        "zoom": "2",
+        "width": 1280,
+        "scrollWidth": 1385,
+        "gridColumns": "170.664px 170.664px 170.672px",
+        "overflow": []
+      },
+      "note": "Headless keyboard zoom may be unsupported; CSS zoom is supplemental, not certified native browser zoom."
+    }
+  },
+  {
+    "id": "text-200-320",
+    "size": {
+      "width": 320,
+      "height": 800
+    },
+    "data": {
+      "width": 320,
+      "scrollWidth": 320,
+      "card": [
+        {
+          "title": "40px",
+          "button": "32px",
+          "buttonRect": {
+            "x": 33,
+            "y": 690.5,
+            "width": 254,
+            "height": 48,
+            "top": 690.5,
+            "right": 287,
+            "bottom": 738.5,
+            "left": 33
+          },
+          "description": {
+            "height": 48,
+            "scrollHeight": 129,
+            "font": "32px",
+            "line": "24px"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "reference",
+    "size": {
+      "width": 1440,
+      "height": 900
+    },
+    "data": [
+      {
+        "width": 390,
+        "height": 844,
+        "title": "Nihon · Referencia Astra"
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "title": "Nihon · Referencia Astra"
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "title": "Nihon · Referencia Astra"
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "title": "Nihon · Referencia Astra"
+      }
+    ]
+  }
+]
