@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "audit:astra:browser": "node scripts/astra-sol-0-2-browser-audit.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },
