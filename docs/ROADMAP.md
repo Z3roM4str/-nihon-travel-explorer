@@ -7342,3 +7342,57 @@ outstanding; a subpath deployment needs `base`; the editorial ratings have one r
 saved-places sheet can overlay the national start screen on a phone.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_14_HANDOFF.md`](BLOCK_14_HANDOFF.md).
+
+---
+
+## Block 15 — Nihon v1.1.0 release candidate / integration gate — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `de653b2` (Block 14 closed). **No merge, no Ready, no
+tag, no GitHub Release, no deployment.** Full record in
+[`docs/BLOCK_15_RELEASE_CANDIDATE.md`](BLOCK_15_RELEASE_CANDIDATE.md).
+
+### VERDICT: **RC-READY — PENDING IPHONE ACCEPTANCE**
+
+- [x] **Ancestry verified before anything was edited.** HEAD `de653b2` on both sides, `origin/main`
+      `1a11fe8`, merge-base **exactly** `origin/main`, **42 ahead / 0 behind**. `main` did not
+      diverge during the block; nothing was rebased or forced.
+- [x] **The previous release was identified correctly, and left alone.** `v1.0.0` → `1a11fe8`, the
+      repository's only tag, GitHub Release published **2026-09-17**. Its tag was not moved, its
+      Release not edited, and `RELEASE_V1.0.0.md` / `FINAL_RELEASE_GATE.md` were **not rewritten** —
+      they remain the record of that release, including its then-correct 144-photograph figure.
+- [x] **No collision.** `v1.1.0` existed as neither tag nor Release, locally or remotely, and neither
+      was created. The only open PR (#122, `codex/…` → `experiment/astra-redesign`) is unrelated.
+- [x] **The delta was derived from the diff, not from handoffs.** `v1.0.0..de653b2` is **42 commits,
+      327 files, +37,506 / −2,133**: photography **144 → 163 images / 144 → 157 places**, 16 new
+      accommodation zones, 182 new image assets, 34 new source modules — and **the catalogue
+      unchanged at 214 places**, because v1.1.0 adds no new research.
+- [x] **1.1.0, and the reasoning is recorded.** A backward-compatible feature release: substantial
+      new capability, nothing broken, a v1.0.0 saved list migrates automatically. MINOR, not a patch
+      and not a major.
+- [x] **Three lines of metadata changed**, and **zero dependency drift** — proven, not asserted:
+      package-entry sets identical, no non-root entry changed in any field, root differs only in
+      `version`, and across **172 packages** no `resolved`, no `integrity` and no `version` moved.
+      `npm ci` leaves the lockfile byte-identical.
+- [x] **Build neutrality proven.** The version is not consumed at runtime, and a clean rebuild after
+      the bump produced **all 333 `dist/` files byte-identical** to the pre-bump build.
+- [x] **No product code touched.** `git diff de653b2` over `app/src/**`, `data/**`, `app/public/**`,
+      `scripts/**` and `app/scripts/**` is empty.
+- [x] **Release notes describe the real product** ([`RELEASE_V1.1.0.md`](RELEASE_V1.1.0.md)), from
+      figures derived at this commit — including freshness stated explicitly as **not live data** and
+      Vite's advisory explained as a raw-byte threshold rather than a user-facing problem.
+- [x] **Full gate green at exact figures.** Vitest **3179 / 92** · lint · `tsc` · build clean ·
+      Python **13/13** · validators **8/8** · Blocks 1–14 audits **all exact, 13/13 suites at
+      `exit=0`, 1,958 checks total** · bundle unchanged, so Block 12's architecture is intact ·
+      `git diff --check` clean.
+- [x] **One recording note, not a regression.** A first batch run dropped Block 4's summary line from
+      its captured output; re-run alone it reports **261 passed, exit 0**, and a second batch
+      capturing per-audit exit codes confirmed all thirteen. Recorded rather than quietly re-run.
+- [x] **A draft pull request into `main`** carries the evidence and states that no merge, tag or
+      Release may happen until the physical iPhone acceptance check is recorded.
+
+**The single outstanding item is a physical iPhone Safari acceptance check of export/import.** It
+cannot be performed from this environment and is not assumed. Until it is recorded as PASS: no merge,
+no Ready, no tag, no Release, no deployment.
+
+**Authorized next step: the iPhone acceptance check.** See
+[`docs/BLOCK_15_HANDOFF.md`](BLOCK_15_HANDOFF.md).
