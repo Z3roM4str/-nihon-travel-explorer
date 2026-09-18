@@ -6997,3 +6997,66 @@ the debt Block 3 recorded. The roadmap assigned Block 9 to nothing else.
       `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md).
+
+---
+
+## Block 10 — freshness and governance of `consultedAt` — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `ff69e70` (Block 9 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_10_DESIGN.md`](BLOCK_10_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md). The roadmap
+assigned Block 10 to nothing else.
+
+- [x] **The inventory came before the policy.** 35 provenance records across three systems — 23
+      zone facts, 8 reservation mechanisms, 4 access points — with no missing date, no duplicate
+      URL carrying two dates, no future date, and an oldest check of **13 days**. **Nothing in the
+      repository is stale**, so this block writes a policy that does not fire today and says so
+      rather than inventing a problem.
+- [x] **`consultedAt` means the date Nihon checked the source against the claim** — not the
+      source's publication date, not a page's last-modified date (operators rarely publish one and
+      inferring it would be inventing a fact), not the day the row landed in the repository. Blocks
+      7 and 8 wrote each date on the day they read the page, and each `evidence` string quotes what
+      it said: the date and the evidence are one act.
+- [x] **Age is not falsehood.** Three derived states, and **`unsupported` is deliberately not one
+      of them** — a source stops supporting a claim when somebody reads it and finds it no longer
+      does, which is evidence, not arithmetic. Nothing deletes a fact, weakens a claim or
+      downgrades a tier because a date got old.
+- [x] **Model B, forced by the domain.** `airportLinks` track services and Japanese operators
+      revise timetables annually — this dataset already carries the scar of one, Umeda's Haruka
+      platforms *"desde 2023"* — so the horizon is **365 days = one revision cycle**, derived
+      rather than chosen. `railLines` and `shinkansen` are infrastructure, changed by announced
+      events rather than schedules, and get **no periodic horizon at all**.
+- [x] **That branch is real, not hypothetical.** After Block 8 moved Namba's airport link to
+      Nankai's own page, `ZN-OSA-NAMBA`'s station article backs `railLines` and `shinkansen` alone —
+      one genuine record with no clock on it, which is why the model is per-area.
+- [x] **Deterministic by construction.** `freshnessFor(source, today)` is pure and takes the date;
+      the module contains no `new Date()`. The boundary is inclusive and tested on the day before,
+      the day of, and the day after, across leap days, month ends and year ends.
+- [x] **The clock lives alone in `lib/today.ts`** — the first attempt put it in `civil-date.ts` and
+      that module's own source scan rejected it, correctly: it is contractually clock-free, while
+      "today" needs local getters. The gate caught the mistake and the fix was to move the function,
+      not to relax the gate.
+- [x] **The trip's dates are deliberately not involved.** Freshness is a property of the dataset and
+      is identical for every reader; "check again before you fly" is a property of one trip.
+- [x] **The validator was the weak outlier and now matches the others.** It checked only the shape
+      until this block, so `2026-02-30`, `2026-13-01` and `2099-01-01` all passed. It now refuses an
+      impossible date and a future one, on the primary record and the extras alike — and **age is
+      never an error**. Eleven negative cases run by hand, plus four that must pass.
+- [x] **Nothing is stored.** The state and the re-check queue are both derived; no storage key was
+      added.
+- [x] **The visible consequence today is none.** A muted, never-red note renders beside a source
+      past its horizon, and no source is. The accessible name now says what the date means, threaded
+      **through** `sourceLinkLabel` so the date stays last and Block 7's anchored audit keeps
+      passing untouched.
+- [x] **One real regression, caught and fixed without weakening anything.** Appending the freshness
+      to the accessible name broke Block 7's `$`-anchored audit. Rather than relax a historical
+      gate, the copy was reordered so the date stays last — all nine historical audits remain
+      byte-identical.
+- [x] **Verified.** Vitest **3081** (88 → 89 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142** · Block 2 **69** ·
+      Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6 **216** · Block 7 **129** ·
+      Block 8 **114** · Block 9 **153**, all unmodified · new Block 10 audit **81/81** at 390×844
+      DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md).
