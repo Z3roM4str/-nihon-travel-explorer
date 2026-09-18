@@ -33,13 +33,17 @@ async function runJourney(id, name, viewport, test) {
   const page = await context.newPage();
   page.setDefaultTimeout(12_000);
   const consoleErrors = [];
-  page.on("console", message => { if (message.type() === "error") consoleErrors.push(message.text()); });
-  page.on("pageerror", error => consoleErrors.push(String(error)));
+  const pageErrors = [];
+  page.on("console", message => {
+    if (message.type() === "error") consoleErrors.push({ text:message.text(), url:message.location().url });
+  });
+  page.on("pageerror", error => pageErrors.push(String(error)));
   let status = "PASS";
   let error = "";
   try {
-    await test(page, context);
-    assert.deepEqual(consoleErrors, [], `browser errors: ${consoleErrors.join(" | ")}`);
+    const expectedConsoleErrors = await test(page, context) ?? [];
+    assert.deepEqual(pageErrors, [], `page errors: ${pageErrors.join(" | ")}`);
+    assert.deepEqual(consoleErrors, expectedConsoleErrors, `console errors: ${JSON.stringify(consoleErrors)}`);
   } catch (cause) {
     status = "FAIL";
     error = cause instanceof Error ? cause.stack ?? cause.message : String(cause);
@@ -126,13 +130,39 @@ try {
   });
 
   await runJourney("06-image-retry", "image failure and independent retry target", { width: 430, height: 932 }, async page => {
-    await page.route("**/images/places/**/*.webp", route => route.abort());
+    const assetPath = "/images/places/JP-001/shibuya-scramble-crossing.webp";
+    const assetUrl = new URL(assetPath, baseURL).href;
+    const assetRequests = [];
+    let abortedRequestUrl = "";
+    let interceptedAttempts = 0;
+    page.on("request", request => { if (request.url() === assetUrl) assetRequests.push(request.url()); });
+    await page.route(assetUrl, async route => {
+      interceptedAttempts += 1;
+      if (interceptedAttempts === 1) {
+        abortedRequestUrl = route.request().url();
+        await route.abort();
+      } else {
+        await route.continue();
+      }
+    });
     await page.goto(`${baseURL}#/explorar`, { waitUntil: "domcontentloaded" });
-    const retry = page.getByRole("button", { name: "Reintentar" }).first();
-    await retry.waitFor();
-    assert.equal(await page.locator(".astra-card a button").count(), 0, "retry button is nested inside a detail link");
+    const card = page.locator(".astra-card").filter({ has: page.locator('a[href*="JP-001"]') }).first();
+    const visibleError = card.getByText("No se pudo cargar la fotografía", { exact:true });
+    await visibleError.waitFor({ state:"visible" });
+    const retry = card.getByRole("button", { name:"Reintentar", exact:true });
+    assert.equal(await retry.evaluate(element => Boolean(element.closest("a"))), false, "retry button is nested inside a detail link");
     await retry.click();
+    await visibleError.waitFor({ state:"detached" });
+    const recoveredImage = card.locator("img");
+    await page.waitForFunction(targetUrl => Array.from(document.images).some(image => image.src === targetUrl && image.complete && image.naturalWidth > 0), assetUrl);
+    assert.equal(await recoveredImage.getAttribute("src"), assetPath, "retry did not recover the same asset");
+    assert.ok(await recoveredImage.evaluate(image => image.naturalWidth) > 0, "retried image did not load");
+    assert.equal(assetRequests.length, 2, `expected exactly two asset requests, received ${assetRequests.length}`);
+    assert.equal(interceptedAttempts, 2, `expected exactly two intercepted attempts, received ${interceptedAttempts}`);
+    assert.equal(abortedRequestUrl, assetUrl, "the aborted request did not match the targeted asset");
+    assert.equal(await visibleError.count(), 0, "image error remained visible after retry");
     assert.equal(await page.getByRole("dialog", { name: /Detalles de/ }).count(), 0, "retry opened detail");
+    return [{ text:"Failed to load resource: net::ERR_FAILED", url:abortedRequestUrl }];
   });
 
   await runJourney("07-lazy-network", "initial list avoids map/planner/provider requests", { width: 1440, height: 900 }, async page => {
