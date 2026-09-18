@@ -7206,3 +7206,74 @@ Blocks 1–11 because it must not be mixed with functional work.
       `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_12_HANDOFF.md`](BLOCK_12_HANDOFF.md).
+
+---
+
+## Block 13 — portable backup and restoration of the trip — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `30c553c` (Block 12 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_13_DESIGN.md`](BLOCK_13_DESIGN.md).
+
+**Authority.** The capability gap: a trip prepared in one browser cannot be moved to another. No
+prior document assigned Block 13 and no conflict was found.
+
+- [x] **The inventory came first, and corrected this block's own premise.** **Five** storage keys
+      exist, not two, and **`nihon.savedPlaceIds` has been legacy since Block 5** — saved places live
+      inside `nihon.travellers.v1` as per-person stances, and "Quiero ir" is *derived* from them by
+      `shortlistPlaceIds()`. No IndexedDB or `sessionStorage` use exists anywhere.
+- [x] **The backup is decisions, not a photograph of storage.** In: the travellers document and the
+      planning draft. Out: the legacy key (a stale second copy of state the file already carries),
+      the derived shortlist, `nihon.zoneComparison.v1` (the *act* of comparing — its *conclusion*
+      lives in the draft as `zoneAccommodationChoices` and **is** in the file) and
+      `nihon.onboarding.seen.v1` (a fact about a browser, not a trip). Copying every `nihon.*` key
+      would have welded the format to today's storage layout.
+- [x] **Two contracts, never one.** The envelope is `version: 1`; the documents carry their own `1`
+      and `8`. Merging the numbers would invalidate every file on disk each time an internal schema
+      moved.
+- [x] **An arbitrary file stays `unknown` until its own parsers accept it.** No `as` cast anywhere,
+      asserted by a test. The envelope is strict — four keys, two under `data` — and `Object.keys`
+      is used so a `"__proto__"` key, which `JSON.parse` makes an ordinary own property, is **seen
+      and refused** rather than ignored.
+- [x] **Envelope before migration.** Validated first, so an internal migrator can never rescue a
+      file that was never valid — tested with a perfectly migratable V3 draft inside a wrong-format
+      envelope. The draft's own `parseStoredDraft` (V1→V8) is delegated to and never duplicated.
+- [x] **Nothing is written before a human confirms**, structurally: `prepareImport` has no access to
+      a writer. Every one of eight blocking errors leaves storage untouched, and losses that *can* be
+      reconciled are **counted and stated**, never swallowed.
+- [x] **Replace, never merge — including by omission.** A `null` draft in the file removes the stored
+      plan rather than leaving the previous itinerary behind. No union of saved places, no
+      newest-draft-wins, no stance reconciliation by timestamp: merging needs semantics nobody has
+      specified.
+- [x] **Best-effort rollback, and called that.** `localStorage` has no transaction. It rolls back
+      only the writes that actually **landed** — the first version undid writes that never happened,
+      usually by asking the same failing storage to accept the same key again; a test caught it — and
+      reports `rolledBack: false` honestly when the rollback itself fails.
+- [x] **The restore ends in a reload, as correctness rather than polish.** `useTravellers` and
+      `usePlanningDraft` hold their documents in React state; a restore replaces those keys
+      underneath them, so the next heart pressed would have written the **previous** trip over the
+      import, silently. The confirmation screen has no other exit.
+- [x] **The two travellers stay two.** Separate identities and stances preserved; a dangling stance
+      rejects the file rather than being reattributed; the itinerary stays **one shared document**.
+- [x] **Nothing leaves the device.** No `fetch`, `XMLHttpRequest`, `sendBeacon`, WebSocket,
+      telemetry or service worker. Proven by a source scan and by three request counters in the
+      audit. The copy never says sincronizado, conectado, nube, cuenta or compartido — enforced by a
+      test.
+- [x] **One real regression, fixed in the product.** `.app__backup` was written at 36px, copying
+      `.app__help`; Block 1's tap-target audit fell to **141/142**. `.app__help` sits on a *named
+      historical allowance*, and a control added today does not join an exemption list — the button
+      was raised to 44px and Block 1 is back at **142**, byte-identical.
+- [x] **`TripBackup` is deliberately not lazy.** Built lazy first and measured at 7.4 kB raw /
+      2.4 kB gzipped — smaller than two surfaces Block 12 examined and left in the entry. The whole
+      feature costs **+3,108 B gzipped** on the critical path; Block 12's two boundaries are
+      untouched.
+- [x] **Recorded rather than claimed:** everything is verified in Chromium. This environment has no
+      iOS, so **no statement is made about Safari's download behaviour** — a gap in evidence, not a
+      known failure.
+- [x] **Verified.** Vitest **3178** (91 → 92 files, +52) · oxlint and `tsc` clean · build OK, RC-05
+      advisory unchanged · **all 13 Python suites** · **all 8 argument-free validators** · Block 1
+      **142** · Block 2 **69** · Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6
+      **216** · Block 7 **129** · Block 8 **114** · Block 9 **153** · Block 10 **81** · Block 12
+      **81**, all unmodified and byte-identical · new Block 13 audit **156/156** at three viewports ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_13_HANDOFF.md`](BLOCK_13_HANDOFF.md).
