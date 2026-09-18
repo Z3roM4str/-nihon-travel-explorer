@@ -24,6 +24,7 @@ describe("Astra SOL-0–2 correction wiring", () => {
     expect(dialog).toContain('role="dialog"');
     expect(dialog).toContain('aria-modal="true"');
     expect(dialog).toContain('setAttribute("inert"');
-    expect(dialog).toContain("returnFocus?.focus()");
+    expect(dialog).toContain('typeof returnFocus === "function" ? returnFocus() : returnFocus');
+    expect(dialog).toContain("target?.focus()");
   });
 });

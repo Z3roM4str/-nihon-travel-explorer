@@ -20,12 +20,13 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
   const category = splitCategory(place.category).label;
   const href = placeHref(place.id, place.hub);
   return <article className="astra-card">
-    <a className="astra-card__image-link" href={href} onClick={e => { e.preventDefault(); onOpen(place.id); }} aria-label={`Ver detalles de ${place.name}`}>
-      <div className="astra-card__frame">
-        {image && loadState !== "error" ? <><div className="astra-card__loading" aria-hidden={loadState === "loaded"}>Cargando fotografía…</div><img key={attempt} src={image.url} alt={image.alt} loading="lazy" decoding="async" data-state={loadState} onLoad={() => setLoadState("loaded")} onError={() => setLoadState("error")} /></> :
-          <div className="astra-card__placeholder"><span aria-hidden="true">▧</span><span>{image ? "No se pudo cargar la fotografía" : "Fotografía pendiente"}</span>{image && <button type="button" onClick={e => { e.preventDefault(); e.stopPropagation(); setAttempt(v=>v+1); setLoadState("loading"); }}>Reintentar</button>}</div>}
-      </div>
-    </a>
+    <div className="astra-card__frame">
+      {image && loadState === "error" ? <div className="astra-card__placeholder"><span aria-hidden="true">▧</span><span>No se pudo cargar la fotografía</span><button type="button" onClick={() => { setAttempt(v=>v+1); setLoadState("loading"); }}>Reintentar</button></div> :
+        <a className="astra-card__image-link" href={href} onClick={e => { e.preventDefault(); onOpen(place.id); }} aria-label={`Ver detalles de ${place.name}`}>
+          {image ? <><div className="astra-card__loading" aria-hidden={loadState === "loaded"}>Cargando fotografía…</div><img key={attempt} src={image.url} alt={image.alt} loading="lazy" decoding="async" data-state={loadState} onLoad={() => setLoadState("loaded")} onError={() => setLoadState("error")} /></> :
+            <div className="astra-card__placeholder"><span aria-hidden="true">▧</span><span>Fotografía pendiente</span></div>}
+        </a>}
+    </div>
     <div className="astra-card__body">
       <span className={`astra-recommendation astra-recommendation--${place.grade.toLowerCase()}`}>{recommendationLabel(place.grade)}</span>
       <h2><a href={href} onClick={e => { e.preventDefault(); onOpen(place.id); }}>{place.name}</a></h2>

@@ -66,15 +66,15 @@ try {
   });
 
   await runJourney("02-plan-safety", "blocked unsave preserves serialized V7", { width: 390, height: 844 }, async page => {
-    const draft = { version:7, routeIds:["JP-001"], days:null, startDate:"2027-02-19", endDate:"2027-02-20", visitStartTimes:{"JP-001":"09:00"}, accommodations:[], accommodationLegs:[], interHubSegments:[] };
+    const draft = { version:7, routeIds:["JP-021"], days:null, startDate:"2027-02-19", endDate:"2027-02-20", visitStartTimes:{"JP-021":"09:00"}, accommodations:[], accommodationLegs:[], interHubSegments:[] };
     const raw = JSON.stringify(draft);
-    await page.addInitScript(({ raw }) => { localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"])); localStorage.setItem("nihon.manualPlanningDraft", raw); }, { raw });
+    await page.addInitScript(({ raw }) => { localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-021"])); localStorage.setItem("nihon.manualPlanningDraft", raw); }, { raw });
     await page.goto(`${baseURL}#/explorar`, { waitUntil: "networkidle" });
-    const card = page.locator(".astra-card").filter({ has: page.locator('a[href*="JP-001"]') }).first();
+    const card = page.locator(".astra-card").filter({ has: page.locator('a[href*="JP-021"]') }).first();
     await card.getByRole("button", { name: /En Mis guardados/ }).click();
     await page.getByRole("alertdialog").waitFor();
     assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), raw);
-    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]")), ["JP-001"]);
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]")), ["JP-021"]);
     await page.getByRole("button", { name: "Mantener guardado" }).click();
   });
 
@@ -96,6 +96,7 @@ try {
   await runJourney("04-filters-map", "filter durability, OR algebra and map parity", { width: 1024, height: 768 }, async page => {
     await page.goto(`${baseURL}#/explorar`, { waitUntil: "networkidle" });
     await page.getByRole("button", { name: "Filtros (0)" }).click();
+    await page.locator("details").filter({ hasText:"Categoría" }).locator("summary").click();
     const categoryChecks = page.getByRole("group", { name: "Categoría" }).getByRole("checkbox");
     await categoryChecks.nth(0).check();
     await categoryChecks.nth(1).check();

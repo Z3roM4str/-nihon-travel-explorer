@@ -16,8 +16,11 @@ describe("Astra URL navigation", () => {
     expect(placeHref("JP-002", "Tokio")).toBe("#/lugar/JP-002?hub=Tokio");
   });
   it("roundtrips exploration state and validates page/mode", () => {
-    const href = exploreHref({ hub: "Tokio", query: "jardín", category: "Arte", page: 2, mode: "mapa" });
-    expect(parseAstraRoute(href)).toMatchObject({ hub: "Tokio", query: "jardín", category: "Arte", page: 2, mode: "mapa" });
+    const href = exploreHref({ hub:"Tokio", query:"jardín", categories:["Arte","Naturaleza"], grades:["S","D"], planningBlocks:["brief"], hiddenGemStatuses:["Hidden gem"], tourismLevels:["Bajo"], reservation:"recommended", page:2, mode:"mapa" });
+    expect(parseAstraRoute(href)).toMatchObject({ hub:"Tokio", query:"jardín", categories:["Arte","Naturaleza"], grades:["S","D"], planningBlocks:["brief"], hiddenGemStatuses:["Hidden gem"], tourismLevels:["Bajo"], reservation:"recommended", page:2, mode:"mapa" });
     expect(parseAstraRoute("#/explorar?page=-4&mode=unknown")).toMatchObject({ page: 1, mode: "lista" });
+  });
+  it("rejects unknown closed-vocabulary filter values and deduplicates repeated values", () => {
+    expect(parseAstraRoute("#/explorar?grade=S&grade=S&grade=Z&duration=brief&duration=fake&tourism=Bajo&tourism=Inventado&reservation=fake")).toMatchObject({ grades:["S"], planningBlocks:["brief"], tourismLevels:["Bajo"], reservation:"all" });
   });
 });

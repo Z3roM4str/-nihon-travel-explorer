@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Filters, Place } from "../types";
 import type { ExploreState } from "./navigation";
 import { matchesQuery } from "../lib/place";
@@ -7,6 +7,7 @@ import { matchesAnyPlanningBlock, availablePlanningBlocks } from "../lib/plannin
 import { FilterPanel } from "../components/FilterPanel";
 import { orderDiscoveryPlaces } from "./discovery-order";
 import { PlaceCard } from "./PlaceCard";
+import { RouteDialog } from "./RouteDialog";
 
 const LazyPlaceMap = lazy(() => import("../components/PlaceMap").then(module => ({ default: module.PlaceMap })));
 const EMPTY_FILTERS: Filters = { query:"", categories:[], grades:[], hiddenGemStatuses:[], tourismLevels:[], reservation:"all", planningBlocks:[] };
@@ -24,29 +25,34 @@ function filterPlace(place: Place, filters: Filters, hub: string | null) {
 
 export function Discovery({ places, hubs, state, savedIds, onToggle, onState, onOpen }: Props) {
   const hub = state.hub && hubs.includes(state.hub) ? state.hub : null;
-  const validCategory = places.some(p => p.category === state.category) ? state.category : "";
-  const [filters, setFilters] = useState<Filters>(() => ({ ...EMPTY_FILTERS, query: state.query, categories: validCategory ? [validCategory] : [] }));
+  const filters: Filters = {
+    query:state.query,
+    categories:state.categories.filter(category => places.some(place => place.category === category)),
+    grades:state.grades,
+    planningBlocks:state.planningBlocks,
+    hiddenGemStatuses:state.hiddenGemStatuses,
+    tourismLevels:state.tourismLevels,
+    reservation:state.reservation,
+  };
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const moreRef = useRef<HTMLButtonElement>(null);
+  const filterButtonRef = useRef<HTMLButtonElement>(null);
+  const getFilterButton = useCallback(() => filterButtonRef.current, []);
+  const closeFilters = useCallback(() => setFiltersOpen(false), []);
   const categories = useMemo(() => [...new Set(places.map(p => p.category))].sort((a,b) => a.localeCompare(b,"es")), [places]);
   const scopePlaces = useMemo(() => hub ? places.filter(p => p.hub === hub) : places, [places, hub]);
   const grades = useMemo(() => ["S","A","B","C","D"].filter(g => scopePlaces.some(p=>p.grade===g)), [scopePlaces]);
   const hidden = useMemo(() => [...new Set(scopePlaces.map(p=>p.hiddenGemStatus).filter(Boolean))] as string[], [scopePlaces]);
   const tourism = useMemo(() => ["Extremo","Alto","Medio","Bajo"].filter(v=>scopePlaces.some(p=>p.tourismLevel===v)), [scopePlaces]);
   const activeCount = filters.categories.length + filters.grades.length + filters.hiddenGemStatuses.length + filters.tourismLevels.length + filters.planningBlocks.length + (filters.reservation === "all" ? 0 : 1);
-  const results = useMemo(() => orderDiscoveryPlaces(places.filter(p => filterPlace(p, filters, hub)), hubs, hub ?? ""), [places, filters, hub, hubs]);
+  const results = orderDiscoveryPlaces(places.filter(p => filterPlace(p, filters, hub)), hubs, hub ?? "");
   const shown = Math.max(12, state.page * 12);
 
   useEffect(() => { const timer = window.setTimeout(() => setAnnouncement(`${results.length} resultados`), 200); return () => clearTimeout(timer); }, [results.length]);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setFilters(current => ({ ...current, query: state.query, categories: validCategory ? [validCategory] : [] })), 0);
-    return () => clearTimeout(timer);
-  }, [state.query, validCategory]);
 
   const updateFilters = (next: Filters) => {
-    setFilters(next);
-    onState({ ...state, query: next.query, category: next.categories.length === 1 ? next.categories[0] : "", page: 1 }, true);
+    onState({ ...state, query:next.query, categories:next.categories, grades:next.grades, planningBlocks:next.planningBlocks, hiddenGemStatuses:next.hiddenGemStatuses, tourismLevels:next.tourismLevels, reservation:next.reservation, page:1 }, true);
   };
   const setHub = (next: string) => onState({ ...state, hub: next || null, page: 1 });
 
@@ -54,11 +60,11 @@ export function Discovery({ places, hubs, state, savedIds, onToggle, onState, on
     <section className="astra-intro"><p className="astra-eyebrow">JAPÓN, A SU MANERA</p><h1>{hub ? `Descubre ${hub}` : "¿Qué les gustaría descubrir?"}</h1><p>Marca lo que te gusta. El viaje lo armamos después.</p></section>
     <section className="astra-controls" aria-label="Buscar lugares">
       <label className="astra-search"><span aria-hidden="true">⌕</span><span className="visually-hidden">Busca un lugar o una experiencia</span><input type="search" value={filters.query} onChange={e => updateFilters({ ...filters, query:e.target.value })} placeholder="Busca un lugar o una experiencia" />{filters.query && <button type="button" aria-label="Borrar búsqueda" onClick={() => updateFilters({ ...filters, query:"" })}>×</button>}</label>
-      <div className="astra-quick"><label><span className="visually-hidden">Hub</span><select value={hub ?? ""} onChange={e => setHub(e.target.value)}><option value="">Todo Japón</option>{hubs.map(h => <option key={h}>{h}</option>)}</select></label><label><span className="visually-hidden">Experiencias</span><select value={filters.categories.length === 1 ? filters.categories[0] : ""} onChange={e => updateFilters({ ...filters, categories:e.target.value ? [e.target.value] : [] })}><option value="">Experiencias</option>{categories.map(c => <option key={c}>{c}</option>)}</select></label><button type="button" className="astra-filter-button" onClick={() => setFiltersOpen(true)}>Filtros ({activeCount})</button><a className="astra-region-link" href="#/regiones">Explorar por región</a></div>
+      <div className="astra-quick"><label><span className="visually-hidden">Hub</span><select value={hub ?? ""} onChange={e => setHub(e.target.value)}><option value="">Todo Japón</option>{hubs.map(h => <option key={h}>{h}</option>)}</select></label><label><span className="visually-hidden">Experiencias</span><select value={filters.categories.length === 1 ? filters.categories[0] : ""} onChange={e => updateFilters({ ...filters, categories:e.target.value ? [e.target.value] : [] })}><option value="">Experiencias</option>{categories.map(c => <option key={c}>{c}</option>)}</select></label><button ref={filterButtonRef} type="button" className="astra-filter-button" onClick={() => setFiltersOpen(true)}>Filtros ({activeCount})</button><a className="astra-region-link" href="#/regiones">Explorar por región</a></div>
     </section>
     <div className="astra-results"><h2>{hub ? `Lugares en ${hub}` : "Lugares para descubrir"}</h2><span aria-hidden="true">{results.length} resultados</span><span className="visually-hidden" role="status" aria-live="polite">{announcement}</span><div className="astra-mode" aria-label="Modo de resultados"><button aria-pressed={state.mode === "lista"} onClick={() => onState({...state,mode:"lista"})}>Lista</button><button aria-pressed={state.mode === "mapa"} onClick={() => onState({...state,mode:"mapa"})}>Mapa</button></div></div>
     {state.mode === "mapa" ? <div className="astra-map"><Suspense fallback={<div className="astra-map__loading" role="status">Cargando mapa…</div>}><LazyPlaceMap places={results} hubPlaces={scopePlaces} activeHub={hub ?? "Todo Japón"} selectedPlace={null} savedIds={savedIds} onSelect={onOpen} panelOffset={0} /></Suspense></div> : results.length ? <div className="astra-grid">{results.slice(0,shown).map(place => <PlaceCard key={place.id} place={place} saved={savedIds.includes(place.id)} onToggle={onToggle} onOpen={onOpen} />)}</div> : <div className="astra-empty"><h2>Ningún lugar coincide</h2><p>Prueba otro término o cambia los filtros.</p></div>}
     {state.mode === "lista" && shown < results.length && <button ref={moreRef} className="astra-more" onClick={() => { const start=shown+1,end=Math.min(shown+12,results.length); onState({...state,page:state.page+1},true); setAnnouncement(`Resultados ${start}–${end} añadidos`); requestAnimationFrame(() => moreRef.current?.focus()); }}>Ver 12 más</button>}
-    {filtersOpen && <div className="astra-filter-overlay" role="dialog" aria-modal="true" aria-label="Filtros avanzados"><div className="astra-filter-sheet"><div className="astra-filter-sheet__bar"><strong>Filtros</strong><button aria-label="Cerrar filtros" onClick={() => setFiltersOpen(false)}>×</button></div><FilterPanel filters={filters} onChange={updateFilters} categories={categories} grades={grades} planningBlocks={availablePlanningBlocks(scopePlaces.map(p=>p.duration))} hiddenGemStatuses={hidden} tourismLevels={tourism} resultCount={results.length} totalCount={scopePlaces.length} activeFilterCount={activeCount} onReset={() => updateFilters({...EMPTY_FILTERS})} /><button className="astra-filter-done" onClick={() => setFiltersOpen(false)}>Ver {results.length} resultados</button></div></div>}
+    {filtersOpen && <RouteDialog label="Filtros avanzados" onClose={closeFilters} returnFocus={getFilterButton} overlayClassName="astra-filter-overlay" panelClassName="astra-filter-sheet"><div className="astra-filter-sheet__bar"><strong>Filtros</strong><button aria-label="Cerrar filtros" onClick={closeFilters}>×</button></div><FilterPanel filters={filters} onChange={updateFilters} categories={categories} grades={grades} planningBlocks={availablePlanningBlocks(scopePlaces.map(p=>p.duration))} hiddenGemStatuses={hidden} tourismLevels={tourism} resultCount={results.length} totalCount={scopePlaces.length} activeFilterCount={activeCount} onReset={() => updateFilters({...EMPTY_FILTERS})} announceResults={false} /><button className="astra-filter-done" onClick={closeFilters}>Ver {results.length} resultados</button></RouteDialog>}
   </>;
 }
