@@ -8,11 +8,21 @@ import { describeTransferForUi, transferListFootnote } from "../lib/transfer-dis
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
+import { interestLevelForPlace } from "../lib/interest-level";
+import { stanceLines } from "../lib/traveller-presentation";
+import type { InterestStance, PlaceInterestSummary, Traveller } from "../lib/travellers";
 
 type Props = {
   place: Place;
+  /** Block 5: the ACTIVE reader's own interest, not shared-shortlist membership. */
   isSaved: boolean;
   onToggleSaved: (id: string) => void;
+  /** Block 5: the two-person picture, and the explicit refusal. Omitted, the detail renders
+   * exactly as it did before this block. */
+  travellers?: readonly Traveller[];
+  interestSummary?: PlaceInterestSummary;
+  activeStance?: InterestStance | null;
+  onSetStance?: (placeId: string, stance: InterestStance | null) => void;
   onClose: () => void;
   nearby: NearbyRelation[];
   onSelectNearby: (id: string) => void;
@@ -65,6 +75,10 @@ export function PlaceDetail({
   place,
   isSaved,
   onToggleSaved,
+  travellers,
+  interestSummary,
+  activeStance = null,
+  onSetStance,
   onClose,
   nearby,
   onSelectNearby,
@@ -96,6 +110,7 @@ export function PlaceDetail({
   const brief = imageBriefText(place);
   const duration = resolveDuration(place.duration);
   const category = splitCategory(place.category);
+  const interest = interestLevelForPlace(place);
   const febMarStatus = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
   const reservation = describeReservationForUi(interpretPlaceReservation(place), place.reservation.leadTime);
   const showExperience = place.experience && place.experience !== place.description;
@@ -135,7 +150,13 @@ export function PlaceDetail({
       </div>
 
       <div className="place-detail__scroll" ref={scrollRef}>
-        <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
+        <PlaceGallery
+          key={place.id}
+          images={images}
+          imageBrief={brief}
+          placeName={place.name}
+          categoryIcon={category.icon}
+        />
 
         <div className="place-detail__body">
           <header className="place-detail__title-block">
@@ -151,7 +172,12 @@ export function PlaceDetail({
               </p>
             )}
             <div className="tag-row">
-              <span className={`tag tag--grade-${place.grade}`}>Grado {place.grade}</span>
+              {/* The plain-language level leads; the dataset's own letter stays visible after it,
+                  so nothing that was on this card before has been taken away. */}
+              <span className={`tag tag--grade-${place.grade}`} title={interest.description}>
+                <span aria-hidden="true">{interest.glyph}</span> {interest.label}
+                <span className="tag__grade-letter"> · Grado {place.grade}</span>
+              </span>
               {isHiddenGem(place) && (
                 <span className="tag tag--gem">
                   <span aria-hidden="true">💎</span> {place.hiddenGemStatus}
@@ -170,9 +196,50 @@ export function PlaceDetail({
             onClick={() => onToggleSaved(place.id)}
             aria-pressed={isSaved}
           >
-            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
+            <span aria-hidden="true" className="save-button__icon">
+              {isSaved ? "♥" : "♡"}
+            </span>
             {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
           </button>
+
+          {/*
+            Block 5 — the full two-person picture, on the one surface with room for it.
+
+            The browse cards carry at most a short marker; here there is space to say plainly what
+            each person answered, INCLUDING "no ha dicho nada", which is a real answer and not a
+            gap. Nothing is totalled, scored or turned into a suggestion: these are two stated
+            preferences side by side, and what to do about them is the readers' business.
+
+            The explicit refusal lives here rather than on the card because it is a deliberate,
+            infrequent act — putting it next to the heart on every card would invite mis-taps and
+            turn browsing into triage.
+          */}
+          {travellers && travellers.length > 0 && interestSummary && onSetStance && (
+            <section className="place-interest" aria-label="Qué dice cada persona">
+              <ul className="place-interest__lines">
+                {stanceLines(interestSummary, travellers).map((line) => (
+                  <li key={line.travellerId} className={`place-interest__line place-interest__line--${line.stance}`}>
+                    <span aria-hidden="true" className="place-interest__glyph">
+                      {line.stance === "interested" ? "♥" : line.stance === "not-interested" ? "✕" : "·"}
+                    </span>
+                    <strong>{line.label}</strong> {line.text}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="link-button place-interest__decline"
+                aria-pressed={activeStance === "not-interested"}
+                onClick={() =>
+                  onSetStance(place.id, activeStance === "not-interested" ? null : "not-interested")
+                }
+              >
+                {activeStance === "not-interested"
+                  ? "Quitar «no me interesa»"
+                  : "No me interesa"}
+              </button>
+            </section>
+          )}
 
           <p className="place-detail__description">{place.description}</p>
 

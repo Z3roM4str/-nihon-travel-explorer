@@ -671,17 +671,45 @@ class CliGuardTests(unittest.TestCase):
             common.sha256_of_file(REPO / "data/logistics/access-points.json"),
         )
 
-        # Everything else, digests included, must still match the committed manifest.
+        # The builder also still hashes the dataset files it claims to hash.
+        self.assertEqual(
+            rebuilt["sourceContext"]["datasetDigest"]["places"],
+            common.sha256_of_file(REPO / "data/places.json"),
+        )
+
+        # Everything else must still match the committed manifest.
+        #
+        # The recorded input digests are frozen alongside the historical results, for the same
+        # reason `accessPointsDigest` is: they describe the inputs as they were when the batch
+        # ran, not a promise that those files may never change again. Block 3 A2 removed
+        # `imageStatus` from `places.json` — a field with no consumer whose value was the same
+        # literal on all 214 rows — which moves the places digest without moving any place,
+        # coordinate, or attribute the walking pipeline reads. Asserting plain equality would
+        # report that evidenced data change as a pipeline defect.
         recorded = copy.deepcopy(committed)
         current = copy.deepcopy(rebuilt)
-        historical_digest = recorded["sourceContext"]["accessPointsDigest"].pop("value")
-        current_digest = current["sourceContext"]["accessPointsDigest"].pop("value")
+        frozen_digests = {}
+        live_digests = {}
+        for section, key in (
+            ("accessPointsDigest", "value"),
+            ("datasetDigest", "places"),
+            ("datasetDigest", "nearby"),
+        ):
+            frozen_digests[(section, key)] = recorded["sourceContext"][section].pop(key)
+            live_digests[(section, key)] = current["sourceContext"][section].pop(key)
         self.assertEqual(recorded, current)
 
-        # The historical digest is a fixed record; it is only allowed to differ from the
-        # live catalog's hash, never to become unreadable or empty.
-        self.assertRegex(historical_digest, r"^[0-9a-f]{64}$")
-        self.assertRegex(current_digest, r"^[0-9a-f]{64}$")
+        # Each historical digest is a fixed record; it is only allowed to differ from the live
+        # file's hash, never to become unreadable or empty.
+        for slot, value in {**frozen_digests, **live_digests}.items():
+            self.assertRegex(value, r"^[0-9a-f]{64}$", str(slot))
+
+        # `nearby.json` was not touched, so its digest must still agree exactly. Only the
+        # inputs a block actually changed are allowed to drift.
+        self.assertEqual(
+            frozen_digests[("datasetDigest", "nearby")],
+            live_digests[("datasetDigest", "nearby")],
+        )
 
 
 if __name__ == "__main__":

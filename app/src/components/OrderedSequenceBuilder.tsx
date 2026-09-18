@@ -117,6 +117,12 @@ import {
   type WholeTripBoundsComposition,
   type WholeTripComposition,
 } from "../lib/whole-trip-composition";
+import { buildZoneDayLinks, buildZoneHubLinks } from "../lib/zone-plan-link";
+import {
+  findZoneChoiceForAnchor,
+  type ZoneAccommodationChoice,
+} from "../lib/zone-accommodation-choice";
+import { ZonePlanSection } from "./ZonePlanSection";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -1323,10 +1329,15 @@ function comparisonResultText(comparison: SequenceComparison): { headline: strin
  */
 function AccommodationManagerSection({
   accommodations,
+  zoneChoices,
   onAdd,
   onRemove,
 }: {
   accommodations: readonly AccommodationAnchor[];
+  /** Block 4: which anchors came from a chosen zone, so the list can say so. A seeded anchor is an
+   * ORDINARY anchor in every other respect — it is offered to every day, it carries no priority,
+   * and it needs the reader's own typed minutes exactly as a hand-made one does. */
+  zoneChoices: readonly ZoneAccommodationChoice[];
   onAdd: (label: string, location: { lat: number; lng: number }) => void;
   onRemove: (accommodationId: string) => void;
 }) {
@@ -1354,27 +1365,48 @@ function AccommodationManagerSection({
         Tú creas cada alojamiento y escribes sus coordenadas. Nihon no busca hoteles, no interpreta
         direcciones y <strong>no usa estas coordenadas para calcular tiempos ni rutas</strong>.
       </p>
+      {zoneChoices.length > 0 && (
+        <p className="accommodation-manager__intro">
+          Los marcados <em>de la zona elegida</em> los creó una zona que elegisteis al comparar.
+          Funcionan igual que los demás. Si borráis uno aquí, se quita también esa zona elegida.
+        </p>
+      )}
 
       {accommodations.length === 0 ? (
         <p className="accommodation-manager__empty">Todavía no has creado ningún alojamiento.</p>
       ) : (
         <ul className="accommodation-manager__list">
-          {accommodations.map((anchor) => (
-            <li key={anchor.id} className="accommodation-manager__item">
-              <span className="accommodation-manager__label">{anchor.label}</span>
-              <span className="accommodation-manager__coords">
-                {anchor.location.lat}, {anchor.location.lng}
-              </span>
-              <button
-                type="button"
-                className="icon-button icon-button--small"
-                onClick={() => onRemove(anchor.id)}
-                aria-label={`Eliminar alojamiento ${anchor.label}`}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-            </li>
-          ))}
+          {accommodations.map((anchor) => {
+            const seeding = findZoneChoiceForAnchor(zoneChoices, anchor.id);
+            return (
+              <li key={anchor.id} className="accommodation-manager__item">
+                <span className="accommodation-manager__label">
+                  {anchor.label}
+                  {seeding && (
+                    <span className="accommodation-manager__origin">
+                      {" "}
+                      · de la zona elegida en {seeding.hub}
+                    </span>
+                  )}
+                </span>
+                <span className="accommodation-manager__coords">
+                  {anchor.location.lat}, {anchor.location.lng}
+                </span>
+                <button
+                  type="button"
+                  className="icon-button icon-button--small"
+                  onClick={() => onRemove(anchor.id)}
+                  aria-label={
+                    seeding
+                      ? `Eliminar alojamiento ${anchor.label} y la zona elegida en ${seeding.hub}`
+                      : `Eliminar alojamiento ${anchor.label}`
+                  }
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
 
@@ -2417,6 +2449,7 @@ function LocalSwapAlternativesSection({
   );
 }
 
+
 function wholeTripUnavailableText(reason: Extract<WholeTripComposition, { kind: "unavailable" }>["reason"]): string {
   switch (reason) {
     case "no-day-assignment":
@@ -2568,6 +2601,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     accommodations,
     accommodationLegs,
     interHubSegments,
+    zoneAccommodationChoices,
     setRoute: setRouteIds,
     initializeDays,
     movePlaceWithinDay,
@@ -2586,6 +2620,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     removeAccommodation,
     setDayAccommodationChoice,
     setAccommodationLeg,
+    clearZoneAccommodation,
     addInterHubSegment,
     updateInterHubSegment,
     removeInterHubSegment,
@@ -2598,6 +2633,34 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   // that same day's own accommodation boundary; no day id is ever passed into a domain module.
   const dayIds = useMemo(() => days ?? [], [days]);
   const dayEntities = useMemo(() => planningDays ?? [], [planningDays]);
+
+  /**
+   * Block 4 — the zone decision, projected onto the days that already exist.
+   *
+   * Both memos are PURE READS. Nothing here writes to the draft, assigns a boundary, creates a leg
+   * or produces a duration: `buildZoneDayLinks` reports which hub each day is in (a catalogue fact),
+   * which anchor each boundary side was pointed at (the reader's own choice), and the straight-line
+   * geometry between the zone's station and the day's places. `placeById` covers the route because
+   * every route place is a saved place; a place it cannot resolve is simply left out of the hub
+   * agreement rather than guessed at.
+   */
+  const zoneDayLinks = useMemo(
+    () =>
+      buildZoneDayLinks(dayEntities, zoneAccommodationChoices, accommodations, {
+        resolvePlace: (placeId) => placeById.get(placeId) ?? null,
+      }),
+    [dayEntities, zoneAccommodationChoices, accommodations, placeById]
+  );
+  const zoneHubLinks = useMemo(
+    () => buildZoneHubLinks(zoneDayLinks, zoneAccommodationChoices, accommodations),
+    [zoneDayLinks, zoneAccommodationChoices, accommodations]
+  );
+  /** Anchor labels for the zone section's boundary lines — the same anchors the per-day selects
+   * already offer, named rather than shown as opaque ids. */
+  const anchorLabelById = useMemo(
+    () => new Map(accommodations.map((anchor) => [anchor.id, anchor.label])),
+    [accommodations]
+  );
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
   // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
@@ -3121,6 +3184,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                     onRemove={removeInterHubSegment}
                   />
 
+                  <ZonePlanSection
+                    variant="summary"
+                    choices={zoneAccommodationChoices}
+                    dayLinks={zoneDayLinks}
+                    hubLinks={zoneHubLinks}
+                    anchorLabelById={anchorLabelById}
+                    onClear={clearZoneAccommodation}
+                  />
+
                   {routePlaces.length >= 2 && (
                     <div className="sequence-secondary-actions">
                       <button
@@ -3304,8 +3376,17 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
 
               <WholeTripCompositionSection composition={wholeTripComposition} />
 
+              <ZonePlanSection
+                choices={zoneAccommodationChoices}
+                dayLinks={zoneDayLinks}
+                hubLinks={zoneHubLinks}
+                anchorLabelById={anchorLabelById}
+                onClear={clearZoneAccommodation}
+              />
+
               <AccommodationManagerSection
                 accommodations={accommodations}
+                zoneChoices={zoneAccommodationChoices}
                 onAdd={addAccommodation}
                 onRemove={removeAccommodation}
               />

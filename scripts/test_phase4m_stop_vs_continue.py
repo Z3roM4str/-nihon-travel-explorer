@@ -142,10 +142,18 @@ class ReproducedStateTests(unittest.TestCase):
 
 
 class AssetEvidenceTests(unittest.TestCase):
-    """Per-batch byte evidence through Phase 4L, measured from the committed assets."""
+    """Per-batch byte evidence through Phase 4L, measured from the committed assets.
+
+    Reads the Phase 4M base registry, like every other test here. Phase 4M reasoned about the
+    catalogue as it stood at its own base, and later blocks legitimately append to it — Block 2
+    took it from 144 records to 161 and Block 3 to 163. The per-batch slices and the footprint
+    are statements about that gate's evidence, not about the live catalogue, so they must be
+    derived from the base or they simply measure a different thing each time the registry grows.
+    The asset blobs themselves are append-only, so the base's records still resolve on disk.
+    """
 
     def setUp(self):
-        _places, self.images = analysis.load_inputs()
+        _places, self.images = load_base_inputs()
         self.evidence = analysis.asset_evidence(self.images)
 
     def test_per_batch_bytes(self):

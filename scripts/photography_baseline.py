@@ -8,9 +8,11 @@ different tranche. The historical baseline must therefore be rebuilt first.
 
 Every baseline here is derived twice, independently, and the two derivations must agree:
 
-1. *Semantically* -- drop every place ID claimed by an acquisition batch manifest whose
-   tranche was selected after that baseline. Failed-closed targets were never acquired,
-   so only accepted records are actually removed.
+1. *Semantically* -- drop every record appended by an acquisition batch whose tranche was
+   selected after that baseline. A batch that declares ``appendedAssetPaths`` is removed by
+   those exact records; older manifests, which predate depth and only ever covered
+   previously-uncovered places, are removed by place ID as before. Failed-closed targets were
+   never acquired, so only accepted records are actually removed.
 2. *Positionally* -- take the leading ``size`` records. The canonical registry grows
    append-only, so each historical era is exactly a prefix of it.
 
@@ -41,6 +43,9 @@ ACQUISITION_BATCH_MANIFESTS = (
     "a-grade-photography-batch-ii.json",   # Phase 4H, batch II
     "a-b-photography-batch.json",          # Phase 4J, A+B batch
     "phase4k-successor-fixture.json",      # Phase 4L, A+B batch II
+    "block2-coverage-batch.json",          # Block 2, prominence-first coverage
+    "block2-depth-batch.json",             # Block 2, depth (second facet on covered places)
+    "block3-deferred-batch.json",          # Block 3 A1, Block 2's two deferred depth records
 )
 
 # Historical catalog sizes, and the batches selected strictly after each one.
@@ -82,12 +87,40 @@ def batch_target_ids(manifest_names):
     """Every place ID claimed by the named acquisition batch manifests."""
     target_ids = set()
     for name in manifest_names:
-        path = VISUAL_DIR / name
-        if not path.is_file():
-            raise AssertionError(f"acquisition batch manifest not found: {path}")
-        doc = json.loads(path.read_text(encoding="utf-8"))
-        target_ids.update(place["placeId"] for place in doc["places"])
+        target_ids.update(place["placeId"] for place in _load_manifest(name)["places"])
     return target_ids
+
+
+def _load_manifest(name):
+    path = VISUAL_DIR / name
+    if not path.is_file():
+        raise AssertionError(f"acquisition batch manifest not found: {path}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def batch_appended_asset_paths(manifest_names):
+    """Asset paths appended by the named batches, for batches that declare them.
+
+    Block 2 introduced **depth**: a batch whose target place was already covered by an earlier
+    batch. Removing such a batch by place ID — which is all a pre-Block-2 manifest supports —
+    would also delete the earlier batch's record and silently corrupt every historical
+    baseline. A batch that can do this therefore declares `appendedAssetPaths`, which
+    identifies the records it actually added rather than the places it touched.
+
+    Returns `(asset_paths, place_ids_of_manifests_without_asset_paths)` so the caller can apply
+    the precise rule where a batch supports it and the historical place-ID rule where it does
+    not.
+    """
+    asset_paths = set()
+    legacy_place_ids = set()
+    for name in manifest_names:
+        doc = _load_manifest(name)
+        declared = doc.get("appendedAssetPaths")
+        if declared:
+            asset_paths.update(declared)
+        else:
+            legacy_place_ids.update(place["placeId"] for place in doc["places"])
+    return asset_paths, legacy_place_ids
 
 
 def load_current_inputs():
@@ -106,9 +139,13 @@ def load_historical_baseline(name):
 
     assert_batch_registry_is_complete()
     places, current = load_current_inputs()
-    post_ids = batch_target_ids(spec["post"])
+    post_asset_paths, post_place_ids = batch_appended_asset_paths(spec["post"])
 
-    baseline = [record for record in current if record["placeId"] not in post_ids]
+    baseline = [
+        record
+        for record in current
+        if record["assetPath"] not in post_asset_paths and record["placeId"] not in post_place_ids
+    ]
     prefix = current[:size]
 
     if len(baseline) != size:
@@ -122,7 +159,15 @@ def load_historical_baseline(name):
             "prefix; a later batch changed record ordering or is missing from "
             "ACQUISITION_BATCH_MANIFESTS"
         )
-    leaked = sorted(post_ids.intersection(r["placeId"] for r in baseline))
+    # A later batch's record must not survive into the baseline. Checked by asset path, which
+    # is what uniquely identifies a record: a depth batch's place legitimately still appears in
+    # the baseline through the earlier record that covered it.
+    leaked = sorted(
+        record["assetPath"] for record in baseline if record["assetPath"] in post_asset_paths
+    )
+    leaked += sorted(
+        record["placeId"] for record in baseline if record["placeId"] in post_place_ids
+    )
     if leaked:
         raise AssertionError(f"post-{name} targets leaked into the baseline: {leaked}")
     return places, baseline

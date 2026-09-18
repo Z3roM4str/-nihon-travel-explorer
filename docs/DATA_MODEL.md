@@ -78,7 +78,6 @@ type Place = {
   officialUrl: string;
   googleMapsUrl: string;
   imageBrief: string;
-  imageStatus: "brief-only" | "assets-ready" | "verified" | string;
   nearbyIds: string[];
   hiddenGemStatus?: string;
   alternativeTo?: string;
@@ -156,12 +155,22 @@ later. Everything it returns is derived on read:
 - Groups by hub, prefecture and hub + cluster hold references to the same `Place` objects,
   never copies.
 
-The saved place ids, under `nihon.savedPlaceIds` in `localStorage`, remain the "Quiero ir"
-selection's only persisted state. Planning blocks, groupings, totals and concentration readings
-are all recomputed from those ids and the dataset, so there is no aggregate to migrate or to
-fall out of sync. Since Phase 3C-D, a second and entirely separate key persists the manual
-planning draft (route order and day assignment) — see "Manual planning draft persistence" below;
-the two keys are never read from or written to each other.
+**Since Block 5 the "Quiero ir" list is derived, not stored.** `nihon.travellers.v1` holds the
+two travellers and each person's stance per place; the shared shortlist is computed on read by
+`shortlistPlaceIds()`, so there is no second list to drift. Planning blocks, groupings, totals and
+concentration readings are all recomputed from that shortlist and the dataset, so there is no
+aggregate to migrate or to fall out of sync.
+
+`nihon.savedPlaceIds` is the **pre-Block-5 key and is now legacy**: it is read only when no
+travellers document exists, purely to migrate an older browser, and is never written. It is not
+authority for anything.
+
+Since Phase 3C-D, a second and entirely separate key persists the manual planning draft (route
+order and day assignment) — see "Manual planning draft persistence" below; the keys are never read
+from or written to each other. Block 13 added a portable backup over the two durable keys
+(`nihon.travellers.v1` and `nihon.manualPlanningDraft`) — see
+[`BLOCK_13_DESIGN.md`](BLOCK_13_DESIGN.md) for the full storage inventory and what is deliberately
+excluded from it.
 
 ## Transfer / logistics domain (derived, Phase 3B1)
 
@@ -595,7 +604,7 @@ live verification against an official source, a date recommendation, or automati
 checked-in (not user-persisted) data artifacts, copied into `app/src/data/` like every other
 root `data/*.json` file. They cover a **24-place pilot only** — see `docs/PHOTOGRAPHY_PILOT.md`
 for the full selection methodology, sourcing policy, and pipeline; the rest of the 214-place
-dataset is untouched and still carries `imageStatus: "brief-only"` with no photography.
+dataset is untouched and carries no photography.
 
 `photography-pilot.json` records which 24 places the pilot targets and why (its selection
 category and reason); `photography-metadata.json` records, per acquired photograph: place id,

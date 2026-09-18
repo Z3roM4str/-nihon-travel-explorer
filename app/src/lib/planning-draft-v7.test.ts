@@ -343,10 +343,23 @@ describe("persistence and domain isolation", () => {
     }
   });
 
-  it("uses V7 as the hook's only canonical draft and creates no second storage key", async () => {
+  /**
+   * Block 4 moved the hook to V8, which is built ON this module: V8 projects every inherited
+   * operation through a `v7View` and lifts the result back, so V7 stays the implementation of
+   * everything except the one field V8 adds. What this phase's contract still requires — and what
+   * this assertion now checks — is that the chain remains single-file and single-key: the hook
+   * holds exactly one draft, and inter-hub segments never acquired a storage key of their own.
+   */
+  it("remains the implementation under the hook's canonical draft, with no second storage key", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    expect(hook).toContain('from "./lib/planning-draft-v7"');
-    expect(hook).toContain("useState<ManualPlanningDraftV7>");
+    expect(hook).toContain('from "./lib/planning-draft-v8"');
+    expect(hook).toContain("useState<ManualPlanningDraftV8>");
+    expect(hook).not.toContain('from "./lib/planning-draft-v7"');
+
+    const v8 = await readFile(new URL("./planning-draft-v8.ts", import.meta.url), "utf8");
+    expect(v8).toContain('from "./planning-draft-v7"');
+
     expect([...hook.matchAll(/nihon\.[A-Za-z]+/g)].map((match) => match[0])).not.toContain("nihon.interHubSegments");
+    expect([...hook.matchAll(/nihon\.[A-Za-z]+/g)].map((match) => match[0])).not.toContain("nihon.zoneChoice");
   });
 });

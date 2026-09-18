@@ -811,10 +811,10 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-L manual visit start time wiri
 describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
   it("exposes the persisted map and a setter that delegates to the pure mutation", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    // Phase 3D-Q moved the canonical runtime draft to V4 and Phase 3D-S to V5 (same storage key
-    // throughout); the pure mutation this phase's contract depends on is unchanged, only the
-    // module that re-exports it.
-    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v7["']/);
+    // Phase 3D-Q moved the canonical runtime draft to V4, Phase 3D-S to V5, Phase 3D-Y to V7 and
+    // Block 4 to V8 (same storage key throughout); the pure mutation this phase's contract depends
+    // on is unchanged, only the module that re-exports it.
+    expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v8["']/);
     expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
     expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
     expect(hook).toMatch(/setVisitStartTime,/);
@@ -826,7 +826,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // not the bare word, which also appears in the import list and in prose.
     const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
     expect(useStateCalls).toHaveLength(1);
-    expect(hook).toMatch(/useState<ManualPlanningDraftV7>/);
+    expect(hook).toMatch(/useState<ManualPlanningDraftV8>/);
     // Every mutation goes through the pure module and is written back by the existing effect.
     expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
   });
@@ -942,11 +942,20 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-Q manual accommodation commute
     expect(code).toContain("{anchor.location.lat}, {anchor.location.lng}");
   });
 
+  // `ORS` is anchored to word boundaries. Unanchored and case-insensitive it also matched the
+  // "ors" inside ordinary English words such as `anchors`, which made the gate fire on prose that
+  // said nothing about a routing provider. The claim it exists to catch — naming openrouteservice
+  // as the source of a duration — is still caught; only the false positive is gone.
   it("uses no forbidden claim about routes, providers, traffic, timetables or hotel quality", async () => {
     const section = extractAccommodationSectionSource(await readSource());
     expect(section).not.toMatch(
-      /ruta óptima|mejor ruta|mejor hotel|hotel más conveniente|tiempo real|tráfico|ruta actual|horario de tren|Google|ORS|transporte confirmado|disponibilidad confirmada|recomend|sugier/i
+      /ruta óptima|mejor ruta|mejor hotel|hotel más conveniente|tiempo real|tráfico|ruta actual|horario de tren|Google|\bORS\b|transporte confirmado|disponibilidad confirmada|recomend|sugier/i
     );
+  });
+
+  it("still catches a real openrouteservice claim", () => {
+    expect("duración según ORS").toMatch(/\bORS\b/i);
+    expect("anchors").not.toMatch(/\bORS\b/i);
   });
 });
 
@@ -954,7 +963,7 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
   it("exposes the persisted accommodation state and setters that delegate to the pure module", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     expect(hook).toMatch(
-      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v7["']/
+      /import\s*\{[\s\S]*?\bwithDayAccommodationChoice\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v8["']/
     );
     expect(hook).toMatch(/accommodations: draft\.accommodations,/);
     // Phase 3D-S: the boundary vector is gone from the hook's surface — each day's choice now
@@ -969,16 +978,17 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
     expect(hook).toMatch(/withAccommodationLeg\(current, direction, accommodationId, placeId, minutes\)/);
   });
 
-  it("keeps V7 as the single canonical runtime draft under the existing storage key", async () => {
+  it("keeps V8 as the single canonical runtime draft under the existing storage key", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     const code = withoutComments(hook);
-    // Still exactly one piece of state: the whole V7 draft. No parallel legacy state, no second key,
-    // and no separate day-id store.
+    // Still exactly one piece of state: the whole V8 draft. No parallel legacy state, no second key,
+    // no separate day-id store, and — Block 4 — no side-car store for the chosen zone either.
     expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
     expect(code).not.toContain("ManualPlanningDraftV3");
     expect(code).not.toContain("ManualPlanningDraftV4");
     expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft["']/);
     expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft-v4["']/);
+    expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft-v7["']/);
     expect(code).not.toMatch(/localStorage\.(getItem|setItem)\((?!key)/);
     // Nothing derived and nothing looked up happens in the hook itself.
     expect(code).not.toMatch(/\bfetch\b|geocod|getBestTransfer|haversine/i);

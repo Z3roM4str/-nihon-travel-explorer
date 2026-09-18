@@ -23,6 +23,15 @@
   --shadow-soft: 0 1px 3px rgba(35, 28, 20, 0.1);
   --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
   --tap-target: 44px;
+  /* Interest ladder — the same five colours the map markers use, so a card and its pin read
+     as the same thing. Never the only signal: every badge also carries its label and glyph. */
+  --color-interest-1: #b7282e;
+  --color-interest-2: #a75d12;
+  --color-interest-3: #2f6f9f;
+  --color-interest-4: #6b6257;
+  --color-interest-5: #7b7469;
+  --shadow-card: 0 1px 2px rgba(35, 28, 20, 0.06), 0 6px 16px rgba(35, 28, 20, 0.07);
+  --shadow-card-hover: 0 2px 4px rgba(35, 28, 20, 0.08), 0 12px 28px rgba(35, 28, 20, 0.12);
   color-scheme: light;
 }
 
@@ -175,11 +184,6 @@ a {
   color: var(--color-text-muted);
 }
 
-.app__explorer-toggle {
-  display: none;
-  position: relative;
-}
-
 .app__filter-badge {
   background: #fff;
   color: var(--color-accent-dark);
@@ -191,6 +195,123 @@ a {
   align-items: center;
   justify-content: center;
   padding: 0 0.35rem;
+}
+
+.app__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Always-available "what is this and how does it work" entry point, so dismissing the
+   first-run explainer is never a one-way door. */
+.app__help {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app__help:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+/* Block 13. The same visual weight as the help control beside it — a backup is a secondary safety
+   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar — but NOT the same size.
+   `.app__help` is 36px under a named historical allowance in Block 1's audit; a control added today
+   meets the 44px floor instead of joining an exemption list. Block 1's audit caught this. */
+.app__backup {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app__backup:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+/* ---------- View bar (phones) ---------- */
+
+/* Hidden on desktop, where the list and the map are both on screen already. */
+.view-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 15;
+}
+
+.view-switch {
+  display: inline-flex;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.view-switch__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.85rem;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.view-switch__option--active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+}
+
+.view-bar__filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--tap-target);
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.view-bar__filters .app__filter-badge {
+  background: var(--color-accent);
+  color: #fff;
 }
 
 /* ---------- Hub selector ---------- */
@@ -236,22 +357,29 @@ a {
 .app__body {
   flex: 1;
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 372px 1fr;
   min-height: 0;
   position: relative;
 }
 
+/*
+ * Two regions, not one scroller: the search/filter block stays put and only the results
+ * scroll. With a single scrolling column, six expanded filter groups pushed the first card
+ * below the fold — the results are the point of the panel, so they own the scroll.
+ */
 .app__sidebar {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
   border-right: 1px solid var(--color-border);
   background: var(--color-surface);
 }
 
-.app__sidebar-mobile-bar {
-  display: none;
+.app__sidebar > .place-list,
+.app__sidebar > .place-list__empty {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
 }
 
 .app__map-area {
@@ -301,11 +429,83 @@ a {
   margin: 0 0 0.75rem;
 }
 
+/* ---------- Filter sheet wrapper ---------- */
+
+/* On desktop this is just the top of the sidebar. On phones it becomes a sheet over the
+   card list, opened from the view bar — see the 860px block. */
+.app__filters {
+  display: block;
+}
+
+.app__filters-bar {
+  display: none;
+}
+
 /* ---------- Search + filters ---------- */
 
 .filter-panel {
-  padding: 0.9rem 1rem 0.5rem;
   border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.filter-panel__head {
+  padding: 0.9rem 1rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.filter-panel__groups {
+  padding: 0 1rem 0.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
+.filter-panel__groups[hidden] {
+  display: none;
+}
+
+.filter-panel__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  margin-bottom: 0.35rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.filter-panel__toggle:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.filter-panel__toggle-caret {
+  font-size: 0.7rem;
+}
+
+.filter-panel__toggle-count {
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 999px;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  padding: 0 0.3rem;
 }
 
 .search-field {
@@ -375,6 +575,10 @@ a {
   padding: 0.15rem 0;
 }
 
+.filter-panel__groups > .filter-group:first-child {
+  border-top: none;
+}
+
 .filter-group__summary {
   display: flex;
   align-items: center;
@@ -427,9 +631,10 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: 2.25rem;
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
-  padding: 0.35rem 0.7rem;
+  padding: 0.35rem 0.75rem;
   font-size: 0.8rem;
   cursor: pointer;
   background: var(--color-surface);
@@ -458,97 +663,320 @@ a {
 }
 
 .filter-chip--grade span {
-  font-weight: 700;
-  min-width: 0.75rem;
-  text-align: center;
+  font-weight: 600;
 }
 
-/* ---------- Result list ---------- */
+/* ---------- Result list — photo-led place cards ---------- */
 
 .place-list {
   list-style: none;
   margin: 0;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.place-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
-.place-list__item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  text-align: left;
-  background: none;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.6rem;
-  cursor: pointer;
-  font: inherit;
-  min-height: var(--tap-target);
+.place-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-border-strong);
 }
 
-.place-list__item:hover {
-  background: var(--color-surface-alt);
+.place-card:focus-within {
+  border-color: var(--color-info);
 }
 
-.place-list__item--selected {
-  background: var(--color-accent-soft);
+.place-card--selected {
   border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-soft), var(--shadow-card-hover);
 }
 
-.place-list__grade {
-  flex-shrink: 0;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 50%;
-  display: inline-flex;
+/* ---- Media ---- */
+
+.place-card__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+
+.place-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.place-card__image[data-state="loaded"] {
+  opacity: 1;
+}
+
+.place-card__skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #eceae5 30%, #f6f4f1 50%, #eceae5 70%);
+  background-size: 300% 100%;
+  animation: card-shimmer 1.4s linear infinite;
+}
+
+@keyframes card-shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* Editorial placeholder. Never a stand-in photograph of somewhere else: the card says, quietly,
+   that this place has no licensed image yet, and shows its own category instead. */
+.place-card__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(183, 40, 46, 0.035) 0 10px,
+      rgba(183, 40, 46, 0) 10px 20px
+    ),
+    var(--color-surface-alt);
 }
 
-.place-list__text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
+.place-card__placeholder-icon {
+  font-size: 2rem;
+  opacity: 0.5;
 }
 
-.place-list__name {
-  font-weight: 600;
-  font-size: 0.88rem;
-  display: flex;
+.interest-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  max-width: calc(100% - 4rem);
 }
 
-.place-list__saved {
-  color: var(--color-ok);
-  font-size: 0.8rem;
+.interest-badge__glyph {
+  font-size: 0.8em;
 }
 
-.place-list__gem {
-  font-size: 0.75rem;
-}
-
-.place-list__meta {
-  font-size: 0.76rem;
-  color: var(--color-text-muted);
+.interest-badge__label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ---- Save control ---- */
+
+.place-card__save {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 2;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: transform 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+
+.place-card__save-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.place-card__save:hover {
+  background: #fff;
+  color: var(--color-accent);
+}
+
+.place-card__save--on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.place-card__save--on:hover {
+  background: var(--color-accent-dark);
+  color: #fff;
+}
+
+.place-card__save:active {
+  transform: scale(0.9);
+}
+
+/* The moment of feedback: the heart pops once as it fills. */
+.place-card__save--on .place-card__save-icon {
+  animation: heart-pop 0.28s ease-out;
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---- Body ---- */
+
+.place-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem 0.85rem 0.85rem;
+}
+
+.place-card__heading {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+/* Stretched link: the whole card opens the place, while the save button above keeps its own
+   hit area. A nested <button> would be invalid HTML and break keyboard and AT behaviour. */
+.place-card__open {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.place-card__open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.place-card__open:focus-visible {
+  outline: none;
+}
+
+.place-card__open:focus-visible::after {
+  outline: 3px solid var(--color-info);
+  outline-offset: -3px;
+  border-radius: var(--radius-lg);
+}
+
+.place-card__where {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.place-card__zone {
+  font-weight: 600;
+}
+
+.place-card__reason {
+  margin: 0.1rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.place-card__facts {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.place-card__fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.place-card__fact--gem {
+  background: #f3eefc;
+  border-color: #ded1f5;
+  color: #543a8c;
+}
+
+.place-card__fact--tourism-extremo {
+  background: var(--color-warn-soft);
+  border-color: #e7c894;
+  color: #7c4a0d;
+}
+
+.place-card__fact--reservation {
+  background: var(--color-accent-soft);
+  border-color: #eec7c5;
+  color: var(--color-accent-dark);
+}
+
+/* ---- Empty results ---- */
+
 .place-list__empty {
-  padding: 1.5rem 1.25rem;
+  padding: 2rem 1.25rem;
   text-align: center;
 }
 
+.place-list__empty-icon {
+  display: block;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.55;
+}
+
 .place-list__empty-title {
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 0.35rem;
 }
 
@@ -556,6 +984,8 @@ a {
   color: var(--color-text-muted);
   font-size: 0.85rem;
   margin: 0 0 0.9rem;
+  max-width: 24rem;
+  margin-inline: auto;
 }
 
 /* ---------- Map markers ---------- */
@@ -748,10 +1178,12 @@ a {
   color: #fff;
 }
 
+/* Darkened from #c2701c: white-on-amber previously sat at ~3.0:1, below WCAG AA for the
+   small text these badges carry. #a75d12 clears 4.5:1 while staying the same hue family. */
 .tag--grade-A,
 .badge--grade-A {
-  background: #c2701c;
-  border-color: #c2701c;
+  background: #a75d12;
+  border-color: #a75d12;
   color: #fff;
 }
 
@@ -1137,24 +1569,52 @@ a {
   right: 0.5rem;
 }
 
+/* Photo counter — the same affordance a phone gallery uses, and the signal that more than one
+   photograph exists at all. */
+.gallery__counter {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(20, 16, 12, 0.66);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .gallery__dots {
   display: flex;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 0.5rem;
+  gap: 0.15rem;
+  padding: 0.2rem;
 }
 
+/* The visible dot stays small; the button around it is a real 28px target with room to spare
+   between neighbours, so the control is usable with a thumb. */
 .gallery__dot {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery__dot::before {
+  content: "";
   width: 0.55rem;
   height: 0.55rem;
-  padding: 0;
   border-radius: 50%;
   border: 1px solid var(--color-border-strong);
   background: var(--color-surface);
-  cursor: pointer;
 }
 
-.gallery__dot--active {
+.gallery__dot--active::before {
   background: var(--color-accent);
   border-color: var(--color-accent);
 }
@@ -1310,6 +1770,7 @@ a {
   margin: 0 0 0.5rem;
   color: var(--color-text-muted);
   font-size: 0.88rem;
+  padding: 0.25rem 0 0.5rem;
 }
 
 .selection-panel__summary {
@@ -1362,15 +1823,73 @@ a {
   gap: 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 0.3rem 0.4rem 0.3rem 0.6rem;
+  padding: 0.3rem 0.4rem;
+}
+
+.selection-list__thumb {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface-alt);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selection-list__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.selection-list__thumb-icon {
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.selection-list__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: left;
+}
+
+.selection-list__place {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.selection-list__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.selection-list__interest {
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  border: 1px solid transparent;
+  flex-shrink: 0;
 }
 
 .selection-list__name {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.6rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -1382,12 +1901,1000 @@ a {
 }
 
 .selection-list__duration {
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
   white-space: nowrap;
 }
 
 /* ---------- Mobile ---------- */
+
+/* ---------- Detail-panel interest tag ---------- */
+
+.tag__grade-letter {
+  opacity: 0.78;
+  font-weight: 600;
+}
+
+.save-button__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/* ---------- Saved-places empty state ---------- */
+
+.selection-panel__empty-title {
+  margin: 0 0 0.3rem;
+  font-weight: 700;
+}
+
+.selection-panel__empty-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ---------- National entry shortcuts ---------- */
+
+.national-start {
+  padding: 0.85rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.national-start__lead {
+  margin: 0 0 0.6rem;
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.national-start__hubs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.national-start__hub {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--tap-target);
+  padding: 0.35rem 0.5rem 0.35rem 0.85rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.national-start__hub:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent-dark);
+}
+
+.national-start__hub-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ---------- Accommodation zones (Block 3) ---------- */
+
+.hub-bar__zones {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  min-height: var(--tap-target);
+  margin-right: 0.75rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.hub-bar__zones:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent-dark);
+}
+
+.zone-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--color-bg);
+}
+
+.zone-panel__bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.zone-panel__bar h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.zone-panel__sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.zone-panel__scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 1rem 1.25rem;
+}
+
+.zone-panel__note {
+  margin: 0 0 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  border: 1px solid #eec7c5;
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+.zone-panel__note--muted {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.zone-panel__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.zone-panel__count {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.zone-panel__foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.zone-panel__foot .button--primary[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---- Zone list ---- */
+
+.zone-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.zone-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 0.85rem;
+  box-shadow: var(--shadow-card);
+  height: 100%;
+}
+
+.zone-card--selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-soft), var(--shadow-card);
+}
+
+.zone-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.zone-card__index,
+.zone-column__index {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--color-text);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.zone-column__index--inline {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.65rem;
+  margin-right: 0.35rem;
+}
+
+.zone-card__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.zone-card__title h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.zone-card__ja {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.zone-card__compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.zone-card__compare:has(input:checked) {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent-dark);
+}
+
+.zone-card__compare--full {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zone-card__compare input {
+  accent-color: var(--color-accent);
+  margin: 0;
+}
+
+.zone-card__summary {
+  margin: 0.5rem 0 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.zone-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.zone-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.zone-fact--strong {
+  background: var(--color-ok-soft);
+  border-color: #b9ddc8;
+  color: #14603b;
+}
+
+.zone-fact__detail {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.zone-card__fit {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+/* ---- Comparison ---- */
+
+.zone-compare__map {
+  height: 210px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  margin-bottom: 0.9rem;
+}
+
+.zone-map {
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface-alt);
+}
+
+.zone-marker {
+  background: none;
+  border: none;
+}
+
+.zone-marker__pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-text);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-style: normal;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.zone-marker__pin--on {
+  background: var(--color-accent);
+}
+
+.zone-marker__saved {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-info);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.zone-compare__columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.zone-column {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 0.85rem;
+}
+
+.zone-column__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.zone-column__head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.zone-column__anchor {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.zone-column__summary {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.zone-column__heading {
+  margin: 0.9rem 0 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/*
+ * The provenance badges. A reader must be able to tell, at a glance, whether a line is a
+ * checkable fact, something Nihon computed, or Nihon's opinion — that separation is the whole
+ * point of this layer, so it is visual and not only structural.
+ */
+.zone-column__tag {
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.zone-column__tag--fact {
+  background: var(--color-ok-soft);
+  border-color: #b9ddc8;
+  color: #14603b;
+}
+
+.zone-column__tag--derived {
+  background: #e9f0f7;
+  border-color: #c3d6e6;
+  color: #1f4d70;
+}
+
+.zone-column__tag--editorial {
+  background: var(--color-warn-soft);
+  border-color: #e7c894;
+  color: #7c4a0d;
+}
+
+.zone-column__lines,
+.zone-column__fit {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.zone-column__provenance {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  /* Long operator names wrap rather than widening the column or being clipped mid-word. */
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.zone-column__provenance-label {
+  font-weight: 600;
+}
+
+.zone-source__link {
+  /* The whole column is clickable; an underlined link is what says this one goes elsewhere. */
+  text-decoration: underline;
+}
+
+/* The tier is a word, never a colour or an icon on its own. */
+.zone-source__tier {
+  color: var(--color-text-muted);
+}
+
+/*
+  Block 10 — a note about our checking, not an error about the claim.
+
+  Deliberately muted and deliberately NOT red: an unrepeated check has not been contradicted, and
+  colouring it as a fault would say something the data does not support. It inherits the wrapping
+  of the provenance line, so a long note reflows instead of widening the column.
+*/
+.zone-source__recheck {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.zone-nearest {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.zone-nearest button {
+  width: 100%;
+  min-height: var(--tap-target);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.zone-nearest button:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.zone-nearest__km {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.zone-tradeoffs {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.zone-tradeoffs li {
+  margin-bottom: 0.25rem;
+}
+
+/* ---- Contrasts ---- */
+
+.zone-contrasts {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.zone-contrasts h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.zone-contrasts__empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.zone-contrast-list,
+.zone-axes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.zone-contrast__label {
+  margin: 0 0 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.zone-contrast__neutral {
+  font-weight: 500;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.zone-contrast__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.zone-contrast__rows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.zone-contrast__zone {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.zone-contrast__hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.zone-ordinal {
+  display: inline-flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.zone-ordinal__step {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-strong);
+}
+
+.zone-ordinal__step--on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.zone-ordinal--neutral .zone-ordinal__step--on {
+  background: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+}
+
+.zone-axes {
+  margin-top: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.zone-axes > summary {
+  min-height: var(--tap-target);
+  display: flex;
+  align-items: center;
+  /* The criterio tag rides along on a narrow phone rather than pushing the row wider. */
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Block 9 — what a rating is, said once, on the surface that shows all ten of them. */
+.zone-axes__disclosure {
+  margin: 0;
+  padding: 0 0.75rem 0.55rem;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.zone-axes__list {
+  padding: 0 0.85rem 0.85rem;
+}
+
+@media (min-width: 861px) {
+  .zone-panel__scroll {
+    padding: 1.1rem 1.5rem 1.5rem;
+  }
+
+  .zone-list {
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  }
+
+  /* Side by side only where there is genuinely room; a phone gets stacked blocks. */
+  .zone-compare__columns {
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  }
+
+  .zone-compare__map {
+    height: 280px;
+  }
+}
+
+@media (min-width: 620px) and (max-width: 860px) {
+  .zone-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .zone-compare__columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  /* The label is dropped to keep the hub bar on one line; the target must not shrink with it,
+     so a min-width holds the button at the project's 44px tap token. */
+  .hub-bar__zones-label {
+    display: none;
+  }
+
+  .hub-bar__zones {
+    justify-content: center;
+    min-width: var(--tap-target);
+    padding: 0.35rem 0.6rem;
+    margin-right: 0.5rem;
+  }
+}
+
+/* ---------- Interest legend ---------- */
+
+.interest-legend {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 10;
+  max-width: min(21rem, calc(100% - 1.5rem));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  font-size: 0.8rem;
+}
+
+.interest-legend__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  list-style: none;
+}
+
+.interest-legend__summary::-webkit-details-marker {
+  display: none;
+}
+
+.interest-legend[open] .interest-legend__summary {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.interest-legend__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0.7rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.interest-legend__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.interest-legend__swatch {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.interest-legend__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.interest-legend__label {
+  font-weight: 700;
+}
+
+.interest-legend__description {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+/* ---------- Save toast ---------- */
+
+.save-toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+  transform: translateX(-50%);
+  z-index: 90;
+  pointer-events: none;
+  width: max-content;
+  max-width: min(26rem, calc(100vw - 2rem));
+}
+
+.save-toast {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: #241f1a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-panel);
+  animation: toast-in 0.2s ease-out;
+}
+
+.save-toast__icon {
+  font-size: 1rem;
+}
+
+.save-toast--saved .save-toast__icon {
+  color: #ff9e9e;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Onboarding ---------- */
+
+.onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(30, 24, 18, 0.55);
+  animation: onboarding-fade 0.18s ease-out;
+}
+
+@keyframes onboarding-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.onboarding__dialog {
+  position: relative;
+  width: min(25rem, 100%);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 1.6rem 1.4rem 1.2rem;
+  text-align: center;
+}
+
+.onboarding__close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  border: none;
+  background: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.onboarding__close:hover {
+  background: var(--color-surface-alt);
+}
+
+.onboarding__art {
+  font-size: 2.6rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.onboarding__step-count {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.onboarding__title {
+  margin: 0.25rem 0 0.45rem;
+  font-size: 1.25rem;
+}
+
+.onboarding__body {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.onboarding__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 1rem 0 0.9rem;
+}
+
+.onboarding__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+}
+
+.onboarding__dot--active {
+  background: var(--color-accent);
+  width: 20px;
+  border-radius: 999px;
+}
+
+.onboarding__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.onboarding__actions .button--primary {
+  flex: 1;
+}
+
+.onboarding__skip {
+  flex-shrink: 0;
+}
+
+/* ---------- Map empty state ---------- */
+
+.map-empty__title {
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+}
+
+.map-empty__hint {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.85rem;
+}
 
 @media (max-width: 860px) {
   .app__header {
@@ -1409,11 +2916,8 @@ a {
     content: "· ";
   }
 
-  .app__explorer-toggle {
-    display: inline-flex;
-    font-size: 0.85rem;
-    padding: 0.5rem 0.85rem;
-    white-space: nowrap;
+  .view-bar {
+    display: flex;
   }
 
   .hub-selector__track {
@@ -1424,19 +2928,60 @@ a {
     grid-template-columns: 1fr;
   }
 
+  /*
+   * One surface at a time. Both panes stay mounted — Leaflet's own ResizeObserver
+   * (`InvalidateOnResize`) recomputes the map the moment it is revealed, which a remount would
+   * turn into a whole re-fit and a fresh tile fetch on every switch.
+   */
   .app__sidebar {
     position: absolute;
     inset: 0;
-    z-index: 60;
-    display: none;
+    z-index: 40;
     border-right: none;
   }
 
-  .app__sidebar--open {
-    display: flex;
+  .app__body--pane-map .app__sidebar {
+    display: none;
   }
 
-  .app__sidebar-mobile-bar {
+  .app__body--pane-list .app__map-area {
+    visibility: hidden;
+  }
+
+  /* The filter sheet slides over the card list rather than replacing it, so the results stay
+     one tap away and the reader never loses their place in the list. */
+  .app__filters {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 55;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--color-surface);
+  }
+
+  .app__filters--open {
+    display: block;
+  }
+
+  /* Inside the sheet the whole panel scrolls as one column; the desktop split (pinned head,
+     scrolling groups) would create a second nested scroller on a phone. */
+  .app__filters .filter-panel {
+    max-height: none;
+    border-bottom: none;
+  }
+
+  .app__filters .filter-panel__groups {
+    overflow-y: visible;
+  }
+
+  /* Redundant inside the sheet: opening the sheet already was the "show me the filters" gesture,
+     and closing it is the way back. */
+  .app__filters .filter-panel__toggle {
+    display: none;
+  }
+
+  .app__filters-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1447,6 +2992,14 @@ a {
     top: 0;
     background: var(--color-surface);
     z-index: 2;
+  }
+
+  /* On the phone the legend belongs to the map pane only; on the list pane the badges are
+     already spelled out on every card. */
+  .interest-legend {
+    left: 0.5rem;
+    bottom: 0.5rem;
+    font-size: 0.78rem;
   }
 
   /* The card takes over the whole map area on phones. */
@@ -1468,6 +3021,17 @@ a {
     gap: 0.1rem;
   }
 
+  .place-list {
+    padding: 0.6rem;
+    gap: 0.6rem;
+  }
+
+  /* A taller crop on a phone: the photograph is the fastest way to tell one place from
+     another, and vertical space is what a phone has most of. */
+  .place-card__media {
+    aspect-ratio: 3 / 2;
+  }
+
   .selection-panel__content {
     max-height: 50vh;
   }
@@ -1483,6 +3047,27 @@ a {
 
   .link-row .button {
     min-width: 7rem;
+  }
+}
+
+/*
+ * Tablets sit below the desktop breakpoint, so they get the single-pane layout — but a card
+ * stretched across 800px of iPad reads worse than the phone it was designed for. Two columns
+ * restores the card proportions without introducing a third layout model.
+ */
+@media (min-width: 620px) and (max-width: 860px) {
+  .place-list {
+    grid-template-columns: 1fr 1fr;
+    padding: 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .place-card__media {
+    aspect-ratio: 16 / 9;
+  }
+
+  .app__filters--open {
+    padding-bottom: 1rem;
   }
 }
 
@@ -3490,4 +5075,795 @@ a {
 
 .local-swap__apply {
   justify-self: start;
+}
+
+/* ---------- Block 4 — choosing a zone, and what it does to the plan ----------
+   The comparison panel gains one action and one status strip; the planner gains one section.
+   Both reuse Block 1's tokens, radii and the 44px tap floor rather than inventing a second visual
+   language, and neither hides anything essential behind hover: every control is a real button with
+   a visible label, and the chosen state is announced as text, not only as colour. */
+
+.zone-choice-banner {
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.zone-choice-banner__line {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.zone-choice-banner__line--empty {
+  color: var(--color-text-muted);
+}
+
+.zone-choice-banner__caveat {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.zone-choice-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+/* The clear control is a link in appearance only; it still has to be thumb-sized. */
+.zone-choice-banner__actions .link-button {
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+.zone-choice-action {
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zone-choice-action__button {
+  flex: 1 1 auto;
+  /* Never narrower than a thumb, and never wider than its column — the comparison panel's
+     no-horizontal-scroll rule is absolute. */
+  min-width: 0;
+}
+
+.zone-choice-action--chosen {
+  justify-content: space-between;
+}
+
+.zone-choice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ---------- Block 4 — the planner's zone section ---------- */
+
+.zone-plan {
+  margin: 1rem 0 0;
+  padding: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.zone-plan > h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.zone-plan__empty {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: var(--color-surface-alt);
+}
+
+.zone-plan__card:last-of-type {
+  margin-bottom: 0;
+}
+
+.zone-plan__card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.zone-plan__card-title {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.zone-plan__card-anchor {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__clear {
+  flex: 0 0 auto;
+}
+
+.zone-plan__caveat,
+.zone-plan__multi-hub,
+.zone-plan__empty-days,
+.zone-plan__derived-note {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__counts {
+  margin: 0.6rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.zone-plan__days {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.zone-plan__day {
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.zone-plan__day-head {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.zone-plan__day-sides {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.zone-plan__day-proximity {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* The same fact/derived/editorial vocabulary Block 3 introduced, so a reader who learned it on the
+   comparison screen reads it identically here. This section only ever shows the derived one. */
+.zone-plan__tag {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.zone-plan__tag--derived {
+  background: #e7eef5;
+  color: var(--color-info);
+}
+
+.accommodation-manager__origin {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+
+@media (min-width: 620px) {
+  .zone-choice-action__button {
+    flex: 0 0 auto;
+  }
+}
+
+.zone-plan__summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ---------- Block 5 — two local travellers ----------
+   The whole permanent footprint of this layer is one header row. Everything else appears only
+   when it has something to say, so a browse screen with no shared opinions looks exactly as it
+   did before. Every state carries text; `tone` colours it but never carries it alone. */
+
+.traveller-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.traveller-bar__legend {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.traveller-bar__options {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.traveller-bar__option {
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  min-width: 0;
+}
+
+/* The selected half is marked by weight, background AND border, not by hue alone. */
+.traveller-bar__option--active {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+}
+
+.traveller-bar__name {
+  display: block;
+  max-width: 7.5ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.traveller-bar__manage {
+  min-height: var(--tap-target);
+  min-width: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+@media (min-width: 861px) {
+  .traveller-bar__name {
+    max-width: 14ch;
+  }
+}
+
+/* The legend is the first thing to go when the header gets tight; the names never are. */
+@media (max-width: 420px) {
+  .traveller-bar__legend {
+    display: none;
+  }
+}
+
+/* ---------- The contextual marker ---------- */
+
+.place-card__interest,
+.selection-list__interest-marker {
+  font-weight: 600;
+}
+
+.place-card__interest--agreement,
+.selection-list__interest-marker--agreement {
+  color: var(--color-ok);
+}
+
+.place-card__interest--other,
+.selection-list__interest-marker--other {
+  color: var(--color-info);
+}
+
+.place-card__interest--declined,
+.selection-list__interest-marker--declined {
+  color: var(--color-text-muted);
+}
+
+.place-card__interest--unclaimed,
+.selection-list__interest-marker--unclaimed {
+  color: var(--color-warn);
+}
+
+.selection-panel__tally {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---------- The full picture, in the place detail ---------- */
+
+.place-interest {
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+}
+
+.place-interest__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.place-interest__line {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.place-interest__glyph {
+  display: inline-block;
+  width: 1.1em;
+}
+
+.place-interest__line--interested .place-interest__glyph {
+  color: var(--color-accent);
+}
+
+.place-interest__line--not-interested .place-interest__glyph {
+  color: var(--color-text-muted);
+}
+
+.place-interest__line--silent {
+  color: var(--color-text-muted);
+}
+
+.place-interest__decline {
+  margin-top: 0.45rem;
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- The manager ---------- */
+
+.traveller-manager {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(35, 28, 20, 0.45);
+}
+
+.traveller-manager__dialog {
+  width: min(560px, 100%);
+  max-height: min(88vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 1rem;
+}
+
+.traveller-manager__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.traveller-manager__head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.traveller-manager__sub,
+.traveller-manager__note,
+.traveller-manager__add-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__list {
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.traveller-manager__item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem;
+  background: var(--color-surface-alt);
+}
+
+.traveller-manager__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__input {
+  min-height: var(--tap-target);
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.traveller-manager__meta {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.traveller-manager__actions {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.traveller-manager__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-warn-soft);
+  border: 1px solid #f0dcb6;
+  width: 100%;
+}
+
+.traveller-manager__confirm-text {
+  flex: 1 1 100%;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.traveller-manager__confirm .link-button {
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+.traveller-manager__add {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+/* ---------- Block 6 — "dónde no coincidimos", inside the saved list ---------- */
+
+/* One scrollable row, so a narrow phone never grows a horizontal page scrollbar and never has to
+   wrap five chips into three lines above the list they filter. */
+.shortlist-filters {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding-bottom: 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.shortlist-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Pressed is marked by weight, background AND border, never by hue alone — the same rule the
+   traveller bar follows, so the two segmented surfaces read identically in greyscale. */
+.shortlist-filters__chip--active {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+}
+
+.shortlist-filters__count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.shortlist-filters__chip--active .shortlist-filters__count {
+  background: var(--color-border-strong);
+}
+
+.selection-panel__filter-status,
+.selection-panel__filter-empty {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.selection-panel__filter-empty {
+  padding: 0.7rem 0.1rem 0.2rem;
+}
+
+/* The derived line appears only inside a filtered view, and replaces the short marker rather than
+   sitting beside it, so a row never carries two indicators saying the same thing. */
+.selection-list__divergence {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  white-space: normal;
+}
+
+.selection-list__planned {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traveller-bar__option,
+  .traveller-manager__dialog,
+  .shortlist-filters__chip {
+    transition: none;
+  }
+}
+
+
+/* ---------- Block 13 — trip backup ---------- */
+
+.trip-backup {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(35, 28, 20, 0.45);
+}
+
+.trip-backup__dialog {
+  width: min(560px, 100%);
+  max-height: min(88vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 1rem;
+}
+
+.trip-backup__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.trip-backup__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.trip-backup__sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.trip-backup__close {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.trip-backup__section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.trip-backup__section h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.trip-backup__note {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.trip-backup__note--warning {
+  color: var(--color-text);
+}
+
+.trip-backup__file {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.trip-backup__result,
+.trip-backup__reassure {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.trip-backup__preview,
+.trip-backup__restored,
+.trip-backup__problem {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.trip-backup__preview p,
+.trip-backup__restored p,
+.trip-backup__problem p {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.trip-backup__summary {
+  margin: 0 0 0.6rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.trip-backup__summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.trip-backup__summary-row dt {
+  color: var(--color-text-muted);
+}
+
+.trip-backup__summary-row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Never red: a reduced restore is not an error, it is a smaller true thing than the file hoped. */
+.trip-backup__warning {
+  font-weight: 600;
+}
+
+.trip-backup__confirm-line {
+  font-weight: 600;
+}
+
+.trip-backup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.trip-backup__actions .button {
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+}
+
+.trip-backup__export,
+.trip-backup__finish {
+  min-height: 2.75rem;
 }

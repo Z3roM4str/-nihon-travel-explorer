@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlaceImage } from "../types";
 import { describePhotographyProcessing } from "../lib/photography-attribution";
+import { CARD_IMAGE_WIDTH, cardImageUrl } from "../data/place-images";
 
 type Props = {
   images: PlaceImage[];
   /** Editorial description of the photograph this place should eventually have. */
   imageBrief: string;
   placeName: string;
+  /** The place's own category emoji, so the no-photograph state still says what this is. */
+  categoryIcon?: string;
 };
 
 type LoadState = "loading" | "loaded" | "error";
@@ -59,12 +62,20 @@ function Attribution({ image }: { image: PlaceImage }) {
 }
 
 /** Shown until licensed photography exists for a place — never a stand-in photo of somewhere else. */
-function GalleryFallback({ imageBrief, placeName }: { imageBrief: string; placeName: string }) {
+function GalleryFallback({
+  imageBrief,
+  placeName,
+  categoryIcon,
+}: {
+  imageBrief: string;
+  placeName: string;
+  categoryIcon?: string;
+}) {
   return (
     <div className="gallery gallery--fallback">
       <div className="gallery__fallback-inner">
         <span className="gallery__fallback-icon" aria-hidden="true">
-          ⛩
+          {categoryIcon || "⛩"}
         </span>
         <p className="gallery__fallback-label">Sin fotografía disponible todavía</p>
         {imageBrief && (
@@ -78,7 +89,7 @@ function GalleryFallback({ imageBrief, placeName }: { imageBrief: string; placeN
   );
 }
 
-export function PlaceGallery({ images, imageBrief, placeName }: Props) {
+export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Props) {
   const [index, setIndex] = useState(0);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -148,10 +159,17 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   }, [lightboxOpen]);
 
   if (total === 0) {
-    return <GalleryFallback imageBrief={imageBrief} placeName={placeName} />;
+    return (
+      <GalleryFallback imageBrief={imageBrief} placeName={placeName} categoryIcon={categoryIcon} />
+    );
   }
 
   const current = images[index];
+  const currentCardUrl = cardImageUrl(current.url);
+  /** Omitted entirely when no derivative exists, so `src` alone decides. */
+  const heroSrcSet = currentCardUrl
+    ? `${currentCardUrl} ${CARD_IMAGE_WIDTH}w, ${current.url} 1600w`
+    : undefined;
 
   return (
     <div className="gallery">
@@ -188,8 +206,14 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
             onClick={() => setLightboxOpen(true)}
             aria-label={`Ampliar imagen ${index + 1} de ${total}`}
           >
+            {/* Two candidates, one photograph. The hero fills 390 CSS px on a phone and
+                420 in the desktop panel, so a DPR 2 phone is served the 800px rendition
+                instead of the 1600px original — the lightbox below always loads the
+                original, which is where full resolution actually matters. */}
             <img
               src={current.url}
+              srcSet={heroSrcSet}
+              sizes="(min-width: 861px) 420px, 100vw"
               alt={current.alt}
               loading="lazy"
               decoding="async"
@@ -203,6 +227,9 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
 
         {total > 1 && (
           <>
+            <span className="gallery__counter" aria-hidden="true">
+              {index + 1} / {total}
+            </span>
             <button
               type="button"
               className="gallery__nav gallery__nav--prev"

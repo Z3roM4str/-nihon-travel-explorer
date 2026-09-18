@@ -52,7 +52,7 @@ def valid_date(value):
         return False
 
 
-def validate_catalog(catalog, place_ids):
+def validate_catalog(catalog, place_ids, today=None):
     errors = []
     if not isinstance(catalog, list):
         return ["access-points.json top level must be an array"]
@@ -119,8 +119,21 @@ def validate_catalog(catalog, place_ids):
         for field in ("sourceEntity", "evidence"):
             if not isinstance(provenance.get(field), str) or not provenance.get(field).strip():
                 errors.append(f"{label}: provenance.{field} must be non-empty")
-        if not valid_date(provenance.get("consultedAt")):
+        # Block 11. `consultedAt` keeps exactly Block 10's meaning: the civil date on which Nihon
+        # opened this source and confirmed it supported the claim beside it. Block 10 taught the
+        # zone validator to refuse the two dates that are objectively impossible and left the other
+        # two validators behind; this closes that gap. Being OLD is neither of them and is never an
+        # error — an access point's claim class decides re-checking, in
+        # `app/src/lib/provenance-claim-class.ts`, and no age makes a gate move.
+        consulted = provenance.get("consultedAt")
+        if not valid_date(consulted):
             errors.append(f"{label}: provenance.consultedAt must be a valid YYYY-MM-DD date")
+        elif date.fromisoformat(consulted) > (today or date.today()):
+            # A check dated in the future was never made.
+            errors.append(
+                f"{label}: provenance.consultedAt {consulted} is in the future; "
+                "a check cannot precede itself"
+            )
         if provenance.get("confidence") not in CONFIDENCES:
             errors.append(f"{label}: unsupported provenance confidence {provenance.get('confidence')!r}")
 
@@ -190,7 +203,7 @@ def find_orphan_endpoint_references(data_dir, access_points_by_id):
     return errors
 
 
-def validate(data_dir=Path("data"), app_path=DEFAULT_APP_PATH):
+def validate(data_dir=Path("data"), app_path=DEFAULT_APP_PATH, today=None):
     data_dir = Path(data_dir)
     source_path = data_dir / "logistics/access-points.json"
     try:
@@ -198,7 +211,9 @@ def validate(data_dir=Path("data"), app_path=DEFAULT_APP_PATH):
         places = load(data_dir / "places.json")
     except (OSError, json.JSONDecodeError) as exc:
         return [f"cannot load required artifact: {exc}"]
-    errors = validate_catalog(catalog, {place.get("id") for place in places if isinstance(place, dict)})
+    errors = validate_catalog(
+        catalog, {place.get("id") for place in places if isinstance(place, dict)}, today
+    )
     errors.extend(
         find_orphan_endpoint_references(
             data_dir, {p.get("id"): p for p in catalog if isinstance(p, dict)}

@@ -1,8 +1,9 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { Filters } from "../types";
 import type { PlanningBlock } from "../lib/planning-block";
 import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
 import { splitCategory } from "../lib/place";
+import { interestLevelForGrade } from "../lib/interest-level";
 
 type Props = {
   filters: Filters;
@@ -17,6 +18,12 @@ type Props = {
   totalCount: number;
   activeFilterCount: number;
   onReset: () => void;
+  /**
+   * Whether the filter groups start expanded. False on desktop, where the panel shares the
+   * sidebar with the results and an always-open stack of six groups pushes the cards below the
+   * fold; true on phones, where the panel only exists because the reader just asked for it.
+   */
+  defaultGroupsOpen?: boolean;
 };
 
 function toggleValue<T extends string>(list: T[], value: T): T[] {
@@ -57,11 +64,22 @@ export function FilterPanel({
   totalCount,
   activeFilterCount,
   onReset,
+  defaultGroupsOpen = false,
 }: Props) {
   const searchId = useId();
+  const groupsId = useId();
+  const [groupsOpen, setGroupsOpen] = useState(defaultGroupsOpen);
+  // Same render-phase sync `HubSelector` uses: crossing the desktop/mobile breakpoint changes
+  // what the default should be, without remounting the panel and without an effect.
+  const [syncedDefault, setSyncedDefault] = useState(defaultGroupsOpen);
+  if (defaultGroupsOpen !== syncedDefault) {
+    setSyncedDefault(defaultGroupsOpen);
+    setGroupsOpen(defaultGroupsOpen);
+  }
 
   return (
     <section className="filter-panel" aria-label="Búsqueda y filtros">
+      <div className="filter-panel__head">
       <div className="filter-panel__search">
         <label htmlFor={searchId} className="visually-hidden">
           Buscar lugares por nombre, barrio o tipo
@@ -103,6 +121,22 @@ export function FilterPanel({
         )}
       </div>
 
+      <button
+        type="button"
+        className="filter-panel__toggle"
+        onClick={() => setGroupsOpen((open) => !open)}
+        aria-expanded={groupsOpen}
+        aria-controls={groupsId}
+      >
+        <span className="filter-panel__toggle-caret" aria-hidden="true">
+          {groupsOpen ? "▾" : "▸"}
+        </span>
+        Filtros
+        {activeFilterCount > 0 && <span className="filter-panel__toggle-count">{activeFilterCount}</span>}
+      </button>
+      </div>
+
+      <div className="filter-panel__groups" id={groupsId} hidden={!groupsOpen}>
       <FilterGroup label="Categoría" count={filters.categories.length}>
         {categories.map((category) => {
           const { icon, label } = splitCategory(category);
@@ -123,17 +157,24 @@ export function FilterPanel({
         })}
       </FilterGroup>
 
-      <FilterGroup label="Grado" count={filters.grades.length} defaultOpen>
-        {grades.map((grade) => (
-          <label key={grade} className="filter-chip filter-chip--grade">
-            <input
-              type="checkbox"
-              checked={filters.grades.includes(grade)}
-              onChange={() => onChange({ ...filters, grades: toggleValue(filters.grades, grade) })}
-            />
-            <span>{grade}</span>
-          </label>
-        ))}
+      {/* Still the dataset's `grade` filter — only the wording changed. A bare "S/A/B/C/D" row
+          asked the reader to know the catalogue's internal vocabulary before they could use it. */}
+      <FilterGroup label="Nivel de interés" count={filters.grades.length} defaultOpen>
+        {grades.map((grade) => {
+          const interest = interestLevelForGrade(grade);
+          return (
+            <label key={grade} className="filter-chip filter-chip--grade" title={interest.description}>
+              <input
+                type="checkbox"
+                checked={filters.grades.includes(grade)}
+                onChange={() => onChange({ ...filters, grades: toggleValue(filters.grades, grade) })}
+              />
+              <span>
+                <span aria-hidden="true">{interest.glyph}</span> {interest.label}
+              </span>
+            </label>
+          );
+        })}
       </FilterGroup>
 
       <FilterGroup label="Duración" count={filters.planningBlocks.length} defaultOpen>
@@ -215,6 +256,7 @@ export function FilterPanel({
           </label>
         ))}
       </FilterGroup>
+      </div>
     </section>
   );
 }

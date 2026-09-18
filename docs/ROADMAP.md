@@ -6461,3 +6461,970 @@ product code.
 
 **Authorized next step: the independent Nihon v1.0.0 final closure.** The Phase 5B pull request
 remains **Draft** and Issue #120 remains **open**.
+
+## Block 1 — UX, hierarchy and usability — complete
+
+Post-v1.0.0 product work. Base: `main` at `1a11fe8`. Authority:
+[`docs/BLOCK_1_UX_HIERARCHY_DESIGN.md`](BLOCK_1_UX_HIERARCHY_DESIGN.md).
+
+Nihon v1.0.0 presented a verified research base faithfully and asked the reader to know that
+base's vocabulary before they could use it. This block reorders what the interface says first,
+for a reader who is impatient, on a phone, and deciding whether they would like to go — without
+removing anything it already said.
+
+- [x] **The interest ladder.** `lib/interest-level.ts` translates the dataset's `grade` into
+      Imprescindible / Muy recomendable / Recomendable / Opcional / Prescindible as a pure
+      mapping — no place is re-ranked, and the letter itself stays visible in the place detail.
+      Tourism saturation stays a separate axis, so a crowded place is never silently downgraded.
+      Every level carries a label, a distinct shape glyph and an explanation: never colour alone.
+- [x] **`.badge--grade-A` `#c2701c` → `#a75d12`.** White on the old amber measured ~3.0:1,
+      under WCAG AA for the small text the badge carries. `PlaceMap`'s marker colour moved with
+      it so a pin and its card read as the same level.
+- [x] **Photo-led place cards** (`components/PlaceCard.tsx`) replacing the one-line rows. Fixed
+      aspect ratio, lazy loading, skeleton and error states, and an editorial placeholder
+      carrying the place's own category icon where no licensed photograph exists. Six questions
+      answered per card; everything deeper stays in the detail panel.
+- [x] **Photography presentation only.** No asset acquired, no metadata record written,
+      `place-images.ts` and the acquisition pipeline untouched. The gallery gained a visible
+      photo counter, real hit areas on its dots, and a category-aware fallback.
+- [x] **Phone layout: `Lista | Mapa`,** with the list as the default surface and both panes
+      kept mounted so Leaflet's existing resize observer handles the reveal. "Filtros" opens a
+      sheet over the list instead of replacing it.
+- [x] **Tablet two-column grid** between 620px and 860px, so iPad widths stop stretching phone
+      cards across 800px.
+- [x] **Desktop sidebar split into two regions** — a pinned search/filter block and a results
+      area that owns the scroll. Filter groups collapse behind a disclosure on desktop.
+- [x] **"Grado" filter reworded to "Nivel de interés"** with plain-language chips. Same field,
+      same predicate, same closed vocabulary — `App.test.ts`'s RC-01 regression still governs.
+- [x] **Saving confirmed everywhere.** One announcing wrapper in `App.tsx` for card, detail and
+      saved list; `useSavedPlaces` stays the only writer and `nihon.savedPlaceIds` is unchanged.
+      The heart is the shape the future "❤️ Quiero ir" needs; no backend was introduced.
+- [x] **Three-card first-run explainer** (`nihon.onboarding.seen.v1`), closable four ways
+      through one exit path, reopenable from the header's "?", promising nothing this block
+      does not ship.
+- [x] **Entry-screen orientation**: one line plus the seven hubs and their counts, above the
+      untouched Japan → región → prefectura → hub path.
+- [x] **Deliberate empty states** for a failed search, an over-filtered list, an empty saved
+      panel, a filtered-out map, a missing photograph and a failed image load.
+- [x] **Preservation proved, not asserted.** `src/block1-ux.test.ts` guards every
+      practical-information row, the Feb–Mar 2027 block, the nearby list, official links, all
+      six filter groups, the saved-places storage key, and attribution still rendered with the
+      image rather than behind a disclosure.
+- [x] **Verified.** Vitest **2519**/70 files (from 2450/66; no assertion weakened, skipped or
+      deleted) · oxlint clean · `tsc` clean · production build OK · all six repository
+      validators unchanged from the v1.0.0 baseline ·
+      `scripts/block1-ux-browser-audit.mjs` **142/142** at 390×844, 820×1180 and 1440×900
+      against the production build via `vite preview`, with zero horizontal overflow and zero
+      page or console errors.
+
+### Out of scope here, by instruction
+
+Shared backend, Supabase, cross-device sync, the two-person model, bulk photography
+acquisition, the accommodation module and itinerary optimisation. **No hotel or accommodation
+origin was introduced**; travel times still derive from hubs, zones and access points.
+`OrderedSequenceBuilder` and `SelectionAnalysis` were left untouched — they are planning
+surfaces and belong with the itinerary block.
+
+**Block 1 closed.** See [`docs/BLOCK_1_HANDOFF.md`](BLOCK_1_HANDOFF.md).
+
+## Block 2 — the photographic layer — complete
+
+Base: `claude/brave-wozniak-f79ie3` at `ac54969`. Authority:
+[`docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md`](BLOCK_2_PHOTOGRAPHY_DESIGN.md), which starts from Phase
+4M's ceiling rather than from Phase 4K's or 4L's superseded projections, as Phase 4M §11
+requires of any successor.
+
+Every Phase 4M starting figure was reproduced independently from canonical data before any
+change: 214 places · 144 covered (67.3%) · 70 uncovered · max 1 photograph per place · 40.49
+MiB across 144 assets · the 16 fail-closed ids · eligible universes A 35 / A+B 44 / A+B+C+D 54.
+**All reproduce exactly.**
+
+- [x] **Divergence reported, against the Block 1 handoff.** That handoff claimed uncovered
+      places are identified by `imageStatus: "brief-only"` in `places.json`. They are not:
+      `scripts/export-dataset.py` writes that literal for all 214 unconditionally, and nothing
+      in the app reads it. The registry is the sole source of truth. Corrected in the Block 2
+      design document rather than silently; no figure moves.
+- [x] **The ordering invariant is kept, and Block 1 strengthens the case for it.** Phase 4M's
+      S ≥ A ≥ B ≥ C ≥ D rule existed so photography never contradicts editorial grading. With
+      a photo-led card list, a B place with a photograph visibly outshines an A place without
+      one in the surface where choosing happens. Phase 4M §4's permanent ceiling (≤26 further
+      A, ≤7 further B, programme ceiling 82.7%) is accepted as stated.
+- [x] **Derivative tier — the largest win, and no sourcing risk.** Block 1 made the list
+      photo-led but left it loading the 1600px detail hero into a ~350-390 CSS px card, and the
+      48px saved-list thumbnail. Scrolling one hub cost **9.51 MiB**.
+      `scripts/build-photography-derivatives.py` renders one deterministic, network-free 800px
+      rendition per photograph, named by derivation rather than declared in the registry.
+      Measured in Chromium: **2.63 MiB, −72%**, at both 390×844 DPR 2 and 1440×900, with 37 of
+      37 responses being derivatives. The lightbox still loads the original.
+- [x] **The validator looks at the asset tree for the first time.** Every registered photograph
+      must ship its derivative, and no file may be an orphan. Both rules proven to fail on a
+      planted fault and recover. It stays Pillow-free and network-free.
+- [x] **Prominence-first coverage: 14 attempted, 13 accepted, 1 failed closed.** Coverage
+      **144 → 157 (67.3% → 73.4%)**. S 87.5% · A 69.4% → **76.2%** · B 56.0% → **68.0%**,
+      ordering intact at a **+8.2** point margin. Large-hub spread **5.2 → 3.8 points**, a new
+      programme minimum — the mix was chosen to beat Phase 4M's record, not spend it.
+      `Extremo` prominence **52.3% → 63.6%**, materially repairing the inversion Phase 4M
+      measured. **JP-080 Kinkaku-ji**, which Phase 4M proved no tranche up to n=32 would ever
+      select, is covered by a Commons Featured Picture at 0.01 km.
+- [x] **JP-171 Blue Cave at Cape Maeda fails closed — the 17th.** No licensable photograph of
+      the cave exists; the only allowlisted cape candidate does not show the dive site the place
+      is named for. Fails identification, not licence.
+- [x] **Depth: 10 assessed, 6 accepted, 4 rejected on the stated criterion; 4 shipped.** A second
+      photograph only where the existing one shows a facet that does not convey the experience
+      and a materially different licensable facet exists: JP-129 Tōdai-ji (hall → the Great
+      Buddha), JP-152 Naoshima (**the ferry terminal** → Benesse House), JP-089 Nijō (palace →
+      garden), JP-021 Tokyo National Museum (lobby stair → the Honkan), JP-205 Sapporo (aerial →
+      a sculpture at human scale), JP-125 USJ (entrance plaza → an attraction inside). Rejected:
+      Sanjūsangen-dō and Ghibli (interior photography prohibited, all candidates near-duplicate
+      exteriors), Nintendo Museum and Yambaru (no allowlisted candidate), Himeji and Churaumi
+      (their existing photograph already *is* the experience). **JP-205 and JP-125 are
+      deferred, not fail-closed**: both passed every gate including visual inspection, and
+      `upload.wikimedia.org` refused the download because they are the only two Block 2 files at
+      or below 1600px, where the pipeline fetches an *original* rather than a cached thumbnail.
+      The diagnosis and the proposed fix are in the design document §6.1; their verified plan
+      entries are committed.
+- [x] **The carousel is exercised by real data for the first time.** `PlaceGallery` has shipped
+      swipe, arrows, dots, an `n / total` counter, keyboard navigation and a lightbox focus trap
+      since before Block 1, and `total > 1` had never been true in production.
+- [x] **A wrong image is worse than none — gated three times.** Licence filtered at discovery;
+      Commons GPS within 0.2 km of the place's own coordinates; and every candidate looked at.
+      Sight caught what metadata could not: two candidates passing licence, title and
+      coordinates were rejected on inspection (Sanzen-in foliage with no temple; Hikone blossom
+      with no castle) and replaced, and a "Blue Cave" search returned a cave in **Montenegro**.
+      All 19 accepted assets were re-inspected as committed WebP.
+- [x] **Phase 4A's "one image per place" invariant retired deliberately and replaced**, not
+      deleted: galleries are pinned to the six chosen places, every other place must stay at
+      one, and no gallery may exceed three.
+- [x] **Verified.** Vitest **2569**/73 files · oxlint clean · `tsc` clean · production build OK ·
+      all six repository validators OK · `block1-ux-browser-audit.mjs` **142/142** at 390×844,
+      820×1180 and 1440×900 · `git diff --check` clean.
+
+### STOP criterion
+
+**Coverage stops** because the named product motive is exhausted: five of Phase 4M's six
+reachable prominence gaps are covered and the sixth is fail-closed. What remains is percentage,
+which is the trap Phase 4M §9 identified and is still a trap at 73.4%. **Depth stops** because
+criterion 2 is nearly out of candidates — two rejections were places where photography of the
+experience is legally prohibited, and two had no allowlisted image at all. Neither resumes on a
+percentage; a future block needs a *named* place whose absence is demonstrably costing a
+decision.
+
+**Block 2 closed.** See [`docs/BLOCK_2_HANDOFF.md`](BLOCK_2_HANDOFF.md).
+
+## Block 3 — technical debt, and the accommodation-zone decision layer — complete
+
+Base: `claude/brave-wozniak-f79ie3` at `6aa5c13`. Authority:
+[`docs/BLOCK_3_DESIGN.md`](BLOCK_3_DESIGN.md). Block 3 stops making Nihon prettier and starts
+making it decide things.
+
+### Phase A — debt
+
+- [x] **The Commons acquisition defect is fixed generally, not patched.** Commons renders a
+      thumbnail only when the requested width is strictly smaller than the file's own, so
+      `iiurlwidth=1600` on a file at or below 1600px resolves to the **original**, which the host
+      rate-limits. `choose_render_width()` is a pure function of the file's width; a
+      failure-triggered fallback would make the bytes depend on the host's mood and break
+      reproducibility. The record's own `processing` decides which rendition is fetched, so the
+      seven pre-existing small-file records stay exactly reproducible.
+- [x] **Quality loss can never be silent.** Acquisition recomputes what `processing` must say
+      from what it actually fetched and refuses to write an asset whose provenance would be
+      untrue; it also refuses an original served in place of a rendition, and a file whose
+      dimensions no longer match the record.
+- [x] **Throttling respected**: process-wide minimum interval, `Retry-After` honoured, capped
+      backoff, 503 treated like 429, bounded attempts. 25 new offline tests.
+- [x] **Both Block 2 deferrals resolved.** JP-205 and JP-125 acquired at 1280px through the same
+      gates, including visual inspection as committed WebP. Registry **161 → 163**, galleries
+      **4 → 6**. No other photograph pursued — Block 2's STOP criterion still holds.
+- [x] **Three Python suites were red and Block 2 reported green.** `scripts/test_*.py` is not in
+      `npm test` and was never in that block's baseline. Recorded, not quietly fixed. Block 2's
+      manifests were named `*-plan.json`, which the completeness guard's glob does not match;
+      renamed to `*-batch.json` and registered. Block 2 also introduced a **depth** batch — one
+      whose place was already covered — which the baseline module was never designed for:
+      removing it by place id would have deleted the earlier record and corrupted every
+      historical baseline. Batches now declare `appendedAssetPaths`. **All 13 suites pass.**
+- [x] **`imageStatus` removed.** It was written as the literal `"brief-only"` for all 214 rows
+      and was false for the 157 places that have a photograph — it is what misled the Block 1
+      handoff. Audited first: nothing read it. Removed rather than re-derived, because the
+      registry already answers the question and a second source of truth would drift. Proven
+      surgical: `imageStatus` is the only field that differs across all 214 places.
+      `dataset-contract.test.ts` also fails on any *other* single-valued scalar field.
+
+### Phase B — accommodation zones
+
+- [x] **16 zones — Tokio 6, Kioto 5, Osaka 5 — as distinct strategies, not a directory.** The
+      validator requires 4–7 per hub so the set cannot grow into a list.
+- [x] **A zone is not a Place and not a cluster**, per the Phase 3D-P accommodation gate. The
+      validator rejects a zone carrying place fields; `servesClusters` must resolve against
+      `clusters.json`.
+- [x] **Three kinds of statement, structurally separated and visibly labelled.** Facts carry
+      `provenance` and were researched per zone; editorial is ten axes, integers 1–5, closed
+      vocabulary; derived is straight-line distance from canonical coordinates. The validator
+      rejects facts without provenance and editorial *with* it.
+- [x] **No travel times were invented.** There is no runtime routing and no recorded transfer
+      edge starts at a zone, so distance is reported as *línea recta* in bands, never minutes.
+- [x] **Nothing is declared best.** No composite score exists; `NEUTRAL_AXES` marks the axes
+      where higher is not better; every zone must state at least two honest drawbacks. The single
+      ranking answers one named question — proximity to the places *you* saved — and says so.
+- [x] **Native integration**: entry point in the hub bar, Block 1's overlay pattern, tokens and
+      tap-target rules, selection in `localStorage` per hub, capped at four.
+- [x] **Mobile-first as built**: one block per zone rather than a column-per-zone table, so the
+      panel never scrolls horizontally.
+- [x] **Verified.** Vitest **2583** · oxlint and `tsc` clean · build OK · **all 13 Python
+      suites** · **all 7 validators** · Block 1 **142/142** · Block 2 **69/69** · new Block 3 zone
+      audit **105/105** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 · `git diff --check` clean.
+      Block 1's audit caught a real regression mid-build (the new hub-bar button shrank to 38px
+      on phones, under the 44px token) — the net working as intended.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_3_HANDOFF.md`](BLOCK_3_HANDOFF.md) for
+the recommendation and the decision it needs first.
+
+---
+
+## Block 4 — the chosen zone becomes an input to the plan — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `f8f3eb9` (Block 3 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_4_DESIGN.md`](BLOCK_4_DESIGN.md). Block 3 gave the reader
+something substantive to decide; Block 4 makes the decision do something, without Nihon inventing
+any logistics.
+
+### The loop it closes
+
+`COMPARAR → ELEGIR → PLANIFICAR → ver qué implica para los días`, with every step the reader's.
+
+- [x] **A zone can be chosen explicitly**, per hub, from the comparison — in the list and in the
+      side-by-side. The wording is "usar esta zona", never "la mejor zona" and never "te conviene".
+- [x] **The choice seeds an ordinary accommodation anchor** from the zone's own station label and
+      coordinate — the exact two fields `AccommodationAnchor` already requires, and the two the
+      reader would otherwise have retyped. Audited against the code before being built, exactly as
+      the Block 3 handoff proposed.
+- [x] **One truth, not two.** `ManualPlanningDraftV8` adds exactly one field,
+      `zoneAccommodationChoices`, under the same `nihon.manualPlanningDraft` key. The choice and
+      the anchor it created are written, reconciled and deleted together; there is deliberately no
+      `selectedZone` living beside `nihon.zoneComparison.v1`. A choice pointing at a missing anchor
+      is rejected at parse, never repaired.
+- [x] **No manual state is ever destroyed silently.** Changing or removing a zone drops its seeded
+      anchor only when that anchor carries no user work — no boundary selects it and no duration
+      was typed for it. Otherwise it survives as an ordinary anchor and the UI says so. Re-pointing
+      an old anchor at a new zone's coordinate was rejected outright: 25 minutes from Shinjuku is
+      not 25 minutes from Asakusa.
+- [x] **Nothing is derived that cannot be.** No travel time is produced, estimated or implied. The
+      only numbers the new surface renders are kilometres and day ordinals; straight-line distance
+      stays badged *calculado* and worded *línea recta*, and the copy states outright that it is
+      not travel time and does not make a day better.
+- [x] **Multi-hub is structural.** A day whose places span two hubs gets no zone at all, and the
+      reason is shown. One hub's zone never appears as another hub's accommodation — and when the
+      reader deliberately points a Kioto day at a Tokio zone's anchor, that is reported as a
+      neutral fact, not a warning.
+- [x] **Exactly one live writer of the draft.** The comparison and the planner are now mutually
+      exclusive; opening either closes the other. That is also the natural flow.
+- [x] **Two test-gate corrections, recorded not hidden.** `ORS` in the Phase 3D-Q forbidden-claim
+      scan was unanchored and matched the "ors" inside `anchors`; it is now `\bORS\b`, with a test
+      proving it still catches a real claim. And vocabulary scans now assert the disclaimers
+      positively and exclude them before scanning, because Block 4's copy denies in words the very
+      things a blunt keyword scan flags.
+- [x] **Verified.** Vitest **2720** · oxlint and `tsc` clean · build OK · **all 13 Python suites**
+      · **all 8 argument-free validators** · Block 1 **142/142** · Block 2 **69/69** · Block 3
+      **105/105** · new Block 4 zone → planner audit **261/261** at 390×844 DPR 2, 820×1180 DPR 2
+      and 1440×900, against the production build via `vite preview` · `git diff --check` clean.
+
+**Authorized next step: none decided.** Block 4 had no authorisation to choose how the two-person
+layer works, and did not. See [`docs/BLOCK_4_HANDOFF.md`](BLOCK_4_HANDOFF.md) for the
+recommendation and the product decision it needs first.
+
+---
+
+## Block 5 — two local travellers — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `9275281` (Block 4 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_5_DESIGN.md`](BLOCK_5_DESIGN.md).
+
+**The product decision Blocks 2, 3 and 4 each deferred was taken by the user: option A — two local
+profiles in one browser.** No backend, no accounts, no login, no cross-device sync; the model is
+nevertheless shaped so a later move to synchronisation would not require re-conceiving the layer.
+
+- [x] **Settled what is shared before writing any component.** The route, the days, the dates, the
+      visit times, the accommodation anchors, the manual legs, the inter-hub segments and the
+      chosen zones belong to the trip — two adults travelling together have one itinerary.
+      **Exactly one thing is personal: does this person want to go here.**
+- [x] **`ManualPlanningDraftV8` is deliberately NOT versioned.** Nothing in it is personal, so
+      bumping to V9 out of symmetry would have added a migration for no change in meaning. Asserted
+      by test: the draft module may not mention a traveller, and the travellers module may not
+      mention a route, day, date, anchor, leg, segment or zone.
+- [x] **The shared shortlist is now DERIVED**, not stored: a place is in play when at least one
+      traveller wants it. `usePlanningDraft(savedIds)` keeps receiving the same `string[]` and
+      reconciles exactly as before. `useSavedPlaces` was removed rather than left as a second
+      writer of the same concept.
+- [x] **Three states, never two.** Silence, interest and explicit refusal stay distinct — the same
+      discipline Phase 3D-P applies to `unselected` vs `no-accommodation`. One person saying no
+      never removes a place the other still wants; the disagreement is shown, not resolved.
+- [x] **Nothing is scored.** "Los dos" is reported as a coincidence of two stated preferences, in
+      those words. No function in the layer returns a number per place, and no surface sorts or
+      filters the catalogue by what people said.
+- [x] **A pre-Block-5 list is carried over without inventing anyone's opinion.** Those places
+      arrive *unclaimed*, say so, and the flag clears when somebody speaks. Attributing them to
+      Persona 1 would have fabricated an opinion about a real person; to both, two. The legacy key
+      is read only when no document exists, and is never written or deleted.
+- [x] **Fail-closed parsing**, including the relational rule only this level can see: a stance
+      referencing an unknown traveller is rejected outright, never dropped and never reattributed.
+- [x] **The UI footprint is one header row.** A marker appears only when it says something the
+      reader does not already know, so most cards look exactly as they did. Saving is still one tap
+      with no person picker; the heart shows YOUR interest, not shared membership; the explicit
+      refusal and the full picture live in the detail; one modal, opened only by the reader, states
+      what a destructive step will cost before it happens.
+- [x] **Regression found and fixed.** Block 3's audit emptied the shortlist by removing
+      `nihon.savedPlaceIds`, which Block 5 made the legacy key, so it never reached the empty state
+      it exists to prove — 6 of 105 checks failed. The audit now clears the current owner too.
+- [x] **Block 4's `useZonePlanChoice` assumption was re-examined and left alone**, as instructed:
+      Block 5 adds a writer of a different key and never touches the planning draft, so the
+      mutual-exclusion assumption still holds and the refactor stays unmade.
+- [x] **Verified.** Vitest **2842** · oxlint and `tsc` clean · build OK · **all 13 Python suites** ·
+      **all 8 argument-free validators** · Block 1 **142/142** · Block 2 **69/69** · Block 3
+      **105/105** · Block 4 **261/261** · new Block 5 audit **225/225** at 390×844 DPR 2,
+      820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_5_HANDOFF.md`](BLOCK_5_HANDOFF.md).
+
+---
+
+## Block 6 — dónde no coincidimos — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `c260c75` (Block 5 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_6_DESIGN.md`](BLOCK_6_DESIGN.md).
+
+**Authority.** Block 5 closed with *"Authorized next step: none decided"* and no document in the
+repository assigned Block 6 to anything. The only forward-looking authority was the Block 5
+handoff's first recommendation, which is what this block implements, deliberately small.
+
+- [x] **A derived view, not a new document.** No storage key, no version, no migration, no stance
+      and no planning decision. Every value is a function of the Block 5 document plus, for one
+      informational flag, the ids the planner has put in a day. Asserted by test across every
+      Block 6 module and by the audit, which compares the full `nihon.*` key set before and after.
+- [x] **Silence is never reported as a disagreement.** *"Sólo tú lo guardaste. <otra> aún no ha
+      opinado"* and *"Opiniones distintas: una persona quiere ir y la otra ha dicho que no le
+      interesa"* are different kinds in the domain, different copy on screen and different tests.
+      `hasDifferingOpinions()` is about explicit refusal alone.
+- [x] **It lives inside the saved list**, as one row of filter chips — not a second main surface.
+      The row appears only when it could actually partition the list, so a trip where the two of
+      them agree on everything sees no change at all.
+- [x] **One indicator per row, never two.** "Todo" is Block 5's list exactly, markers and all.
+      Inside a filtered view the derived line states the fact in full from the reader's own side
+      and the short marker stands down rather than joining it.
+- [x] **Preference is still not a planning decision.** A place the planner already holds says *"Ya
+      está en un día del recorrido. Esto no lo cambia."* and nothing else happens. The audit
+      asserts the draft is byte-for-byte what the planner left after the view has been opened,
+      filtered and read. `ManualPlanningDraftV8` is untouched and still V8.
+- [x] **The planner is read, never written.** `usePlannedPlaceIds` hands `loadReconciledDraft` a
+      `DraftStorage` whose setter is a no-op, so there is no path from Block 6 to
+      `localStorage.setItem`. "In the planner" means assigned to a day, because `routeIds` is
+      seeded from the saved list and is therefore nobody's decision.
+- [x] **Nothing is scored.** No function returns a number per place; every count is a tally; no
+      surface sorts, ranks, weights, votes or proposes that either person give way.
+- [x] **The filter is view state and is not persisted.** It is what the reader is looking at, not a
+      decision about the trip, and no new key exists for it.
+- [x] **One defect caught by the block's own audit.** With every saved place in one bucket the chip
+      row offered "Todo" and one other chip that selected the same rows — two controls doing the
+      same thing, in a view that is supposed to stay light. `shouldOfferFilters` now requires two
+      populated buckets, keeping a filter the reader has already pressed.
+- [x] **No historical audit was modified.** One false positive came from Block 6's own new audit,
+      which applied a stricter tap floor than the project's: `.icon-button--small` at 36px has been
+      an explicit allowance in Block 1's audit since Block 1. The new audit adopts that allowance
+      rather than re-deciding it, and holds Block 6's own controls to the full 44px.
+- [x] **Verified.** Vitest **2930** (81 → 84 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225**, all unmodified ·
+      new Block 6 audit **216/216** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the
+      production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md).
+
+---
+
+## Block 7 — provenance and authority of zone facts — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `86ef3c8` (Block 6 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_7_DESIGN.md`](BLOCK_7_DESIGN.md).
+
+**Authority.** The first recommendation left in [`docs/BLOCK_6_HANDOFF.md`](BLOCK_6_HANDOFF.md),
+unclaimed since Block 4. The roadmap assigned Block 7 to nothing else.
+
+- [x] **The audit came first.** All 16 zones carried exactly one `facts.provenance` record, and
+      all 16 were Wikipedia station articles — one source standing silently behind three different
+      kinds of claim, with no way to say which it supported.
+- [x] **Scope was decided by what could be verified, not by what would look tidiest.** JR East,
+      JR Central, JR West, Tokyo Metro, Toei, Kansai Airport and the Kyoto and Osaka municipal
+      operators all refuse automated requests from this environment, so `railLines` and
+      `shinkansen` were deliberately **not** re-sourced: citing pages nobody had read would have
+      faked the authority this block exists to raise.
+- [x] **Five airport links now rest on an operator's own page.** Narita Airport's rail-access page
+      names the stations each service serves, and Nankai's Rapi:t page names the stations it
+      connects — the exact claims the zones make. Shinjuku, Marunouchi, Shibuya and Ueno for
+      Narita; Namba for Kansai.
+- [x] **Additive schema, nothing removed or retyped.** `ZoneProvenance` gains `tier` and `covers`;
+      `ZoneFacts` gains an optional `sources[]`. A zone without extras is exactly the Block 3
+      record it always was. `tier` is stored rather than inferred from the hostname, because "is
+      this the operator" is a judgement about the claim, not a fact about a domain name.
+- [x] **A claim is never kept alive by a source that does not make it.** Namba's service text drops
+      "(andén 9)": the operator page states the route and no platform. Airport, service and
+      `directFromZone` are unchanged.
+- [x] **The encyclopedia is kept wherever it still carries a claim**, and relieved of the airport
+      links only for Namba, whose single link the operator page fully covers.
+- [x] **The validator now makes an unsourced fact unrepresentable.** It refuses a source covering
+      nothing, a fact area covered by nothing, an encyclopedia claiming to be an operator, a
+      repeated page within one zone, and the new fields leaking into an `editorial` block. Thirteen
+      negative cases were checked by hand; it rejects all thirteen.
+- [x] **Fact / derived / editorial is untouched.** `tier` attaches to a source, never to a zone and
+      never to an axis. A higher tier never turns a judgement into a fact.
+- [x] **One visible change.** The panel rendered a link whose whole text was "Fuente"; it now names
+      each source and says how close it is, in words. No card was redesigned, no rating or ranking
+      touched, no planning decision altered.
+- [x] **Three false positives, all in Block 7's own new audit**, found and fixed before the commit:
+      a focus-trap check comparing class names where two sibling links share a class; a history
+      check that stepped onto `about:blank` because Chromium *replaces* a same-URL navigation; and
+      the audit's own unguarded init script throwing a `SecurityError` on that blank document and
+      reporting it as a product error. No historical audit was modified.
+- [x] **Verified.** Vitest **2969** (84 → 86 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216**, all unmodified · new Block 7 audit **129/129** at 390×844 DPR 2, 820×1180 DPR 2
+      and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md).
+
+---
+
+## Block 8 — the meaning of `directFromZone` — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `f09047a` (Block 7 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_8_DESIGN.md`](BLOCK_8_DESIGN.md).
+
+**Authority.** The recommendation left in [`docs/BLOCK_7_HANDOFF.md`](BLOCK_7_HANDOFF.md). The
+roadmap assigned Block 8 to nothing else.
+
+- [x] **The obvious diagnosis was the wrong one.** Block 7 flagged Haneda's direct coaches to
+      Shinjuku and Ikebukuro against `directFromZone: false` and suspected the booleans. Testing
+      every candidate meaning against all 23 records gave one hypothesis that fits **23 of 23**:
+      the field is true exactly when the service named in *that record* needs no change.
+- [x] **It was never about rail, and one record proves it.** `ZN-OSA-UMEDA → Itami` is a limousine
+      **coach**, marked direct since Block 3. That single record rules out the "direct rail"
+      reading on its own.
+- [x] **Three records were the defect, not the booleans.** `"Autobús limusina / vía Shinagawa"`
+      packed a direct coach *and* a rail route with a change into one string; one boolean cannot be
+      true of the first and false of the second. `false` was right for half of what it described.
+- [x] **The contract is now written down and tested.** `directFromZone` is a claim about one
+      service, not about the airport, and it is mode-agnostic. One record holds one service, so
+      Shinjuku and Ikebukuro now carry two Haneda records each — a direct coach and a rail route
+      via Shinagawa — which is how a zone tells both answers.
+- [x] **`mode` added, and made to earn it.** Two real cases the old model could not represent: a
+      direct coach and a direct train rendered the identical word, and splitting a bundled record
+      requires saying which half is which. It is a fact about the service and ranks nothing.
+- [x] **One claim dropped rather than invented.** Ikebukuro's Narita coach was not split out: every
+      Narita bus page refuses this environment and the operator's own site carries no destinations
+      in its HTML. Block 7's rule holds — nothing is claimed on a page nobody read.
+- [x] **The copy no longer admits two readings.** `directo` / `con enlace` became `tren directo`,
+      `autobús directo`, `tren con transbordo`, with the full sentence spelled out for assistive
+      technology. The green emphasis still marks *directness*, never a mode: a direct coach is
+      emphasised exactly like a direct train, and nothing says a train is better.
+- [x] **The validator can reject the defect.** Unknown or missing mode, a coach recorded as rail, a
+      service routed *via* somewhere while claiming to be direct, and the same airport-and-service
+      twice in one zone. Ten negative cases run by hand — including reintroducing the old compound
+      record — all ten rejected.
+- [x] **Two Block 7 tests updated, not weakened.** Adding Haneda's page as an operator source
+      legitimately widens the set of zones with an operator behind their airport links; both tests
+      still pin that set exactly, and a new test requires every extra source to be an operator
+      covering `airportLinks`. Investigated as a regression first, as the brief requires.
+- [x] **Verified.** Vitest **3000** (86 → 87 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216** · Block 7 **129/129**, all unmodified · new Block 8 audit **114/114** at
+      390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check`
+      clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md).
+
+---
+
+## Block 9 — governance of zone editorial ratings — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `143d912` (Block 8 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_9_DESIGN.md`](BLOCK_9_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_8_HANDOFF.md`](BLOCK_8_HANDOFF.md), traced back to
+the debt Block 3 recorded. The roadmap assigned Block 9 to nothing else.
+
+- [x] **The recommendation could not be taken literally, and the repository said why.** "Let the two
+      travellers review the ratings", read as a per-traveller rating, contradicts Block 5 — which
+      settled that exactly one thing is personal, *does this person want to go here*, and which
+      names the chosen zones among the decisions that must **not** be duplicated per person.
+      Nothing in Blocks 6–8 supersedes it, so **no editor and no personal rating were built.**
+- [x] **Block 3's own words were the resolution.** "Sixteen zones × ten axes were authored in one
+      pass … but they have had **no second reader**." That is an authoring-process debt — a request
+      for human peer review — not a product feature. The humans can only do it if the ratings are
+      legible.
+- [x] **The audit found editorial architecturally clean and presentationally broken.** It affects no
+      ranking, filter or planning — ordering is derived distance alone — there is no composite score
+      and no function returning one, and the zone and traveller layers know nothing of each other.
+      But four real defects made a rating hard to scrutinise:
+      the ordinal's accessible reading was the bare string **"3 de 5"**, which to a screen reader
+      has the exact shape of a measurement; the disclosure showing all ten axes showed **no
+      direction at all**, although the contrasts section above it had that hint from the same field;
+      the two axes with no good direction were marked by a **muted colour and nothing else**; and
+      that disclosure was the one editorial heading carrying **no `criterio` tag**.
+- [x] **The contract is now explicit and test-protected.** A rating is Nihon's judgement on a closed
+      1–5 scale; only Nihon can change it, by shipping different data; it is not a fact and carries
+      no provenance; and it is not either traveller's preference — it says what a neighbourhood is
+      like, not whether anyone wants to go. Both halves are asserted, including the negative: no
+      write transition, no control, no storage key.
+- [x] **The rationale that already existed was surfaced**, not invented. Ordinals now read
+      "3 de 5 · criterio de Nihon"; the full list gained the direction hint, the *ni bueno ni malo*
+      note in words, the `criterio` tag, and one sentence saying what a rating is and is not. Both
+      surfaces read those strings from one module, so they cannot drift again.
+- [x] **No data changed.** The 160 values are internally sound — integers 1–5, exactly the ten
+      declared axes, no composite, no provenance leak, three written drawbacks per zone — and with
+      no second reader available, editing them here would be a **third unreviewed pass**. The debt
+      stays open, correctly: it can only be closed by the two travellers reading them.
+- [x] **No persistence added.** Reading a rating writes nothing; there is no key for one.
+- [x] **The composite ban is now enforced rather than merely documented.** The validator refuses a
+      score at zone or axis level, and per-traveller data anywhere in a zone. Twelve negative cases
+      run by hand; all twelve rejected.
+- [x] **One false positive, in Block 9's own new audit** — a `:focus-visible` check using
+      programmatic focus, which Chromium matches only for keyboard focus. Fixed by tabbing to the
+      summary, which also proves it is genuinely reachable. No historical audit was modified.
+- [x] **Verified.** Vitest **3036** (87 → 88 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142/142** · Block 2
+      **69/69** · Block 3 **105/105** · Block 4 **261/261** · Block 5 **225/225** · Block 6
+      **216/216** · Block 7 **129/129** · Block 8 **114/114**, all unmodified · new Block 9 audit
+      **153/153** at 390×844 DPR 2, 820×1180 DPR 2 and 1440×900 against the production build ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md).
+
+---
+
+## Block 10 — freshness and governance of `consultedAt` — complete
+
+Branch `claude/brave-wozniak-f79ie3`, from `ff69e70` (Block 9 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_10_DESIGN.md`](BLOCK_10_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_9_HANDOFF.md`](BLOCK_9_HANDOFF.md). The roadmap
+assigned Block 10 to nothing else.
+
+- [x] **The inventory came before the policy.** 35 provenance records across three systems — 23
+      zone facts, 8 reservation mechanisms, 4 access points — with no missing date, no duplicate
+      URL carrying two dates, no future date, and an oldest check of **13 days**. **Nothing in the
+      repository is stale**, so this block writes a policy that does not fire today and says so
+      rather than inventing a problem.
+- [x] **`consultedAt` means the date Nihon checked the source against the claim** — not the
+      source's publication date, not a page's last-modified date (operators rarely publish one and
+      inferring it would be inventing a fact), not the day the row landed in the repository. Blocks
+      7 and 8 wrote each date on the day they read the page, and each `evidence` string quotes what
+      it said: the date and the evidence are one act.
+- [x] **Age is not falsehood.** Three derived states, and **`unsupported` is deliberately not one
+      of them** — a source stops supporting a claim when somebody reads it and finds it no longer
+      does, which is evidence, not arithmetic. Nothing deletes a fact, weakens a claim or
+      downgrades a tier because a date got old.
+- [x] **Model B, forced by the domain.** `airportLinks` track services and Japanese operators
+      revise timetables annually — this dataset already carries the scar of one, Umeda's Haruka
+      platforms *"desde 2023"* — so the horizon is **365 days = one revision cycle**, derived
+      rather than chosen. `railLines` and `shinkansen` are infrastructure, changed by announced
+      events rather than schedules, and get **no periodic horizon at all**.
+- [x] **That branch is real, not hypothetical.** After Block 8 moved Namba's airport link to
+      Nankai's own page, `ZN-OSA-NAMBA`'s station article backs `railLines` and `shinkansen` alone —
+      one genuine record with no clock on it, which is why the model is per-area.
+- [x] **Deterministic by construction.** `freshnessFor(source, today)` is pure and takes the date;
+      the module contains no `new Date()`. The boundary is inclusive and tested on the day before,
+      the day of, and the day after, across leap days, month ends and year ends.
+- [x] **The clock lives alone in `lib/today.ts`** — the first attempt put it in `civil-date.ts` and
+      that module's own source scan rejected it, correctly: it is contractually clock-free, while
+      "today" needs local getters. The gate caught the mistake and the fix was to move the function,
+      not to relax the gate.
+- [x] **The trip's dates are deliberately not involved.** Freshness is a property of the dataset and
+      is identical for every reader; "check again before you fly" is a property of one trip.
+- [x] **The validator was the weak outlier and now matches the others.** It checked only the shape
+      until this block, so `2026-02-30`, `2026-13-01` and `2099-01-01` all passed. It now refuses an
+      impossible date and a future one, on the primary record and the extras alike — and **age is
+      never an error**. Eleven negative cases run by hand, plus four that must pass.
+- [x] **Nothing is stored.** The state and the re-check queue are both derived; no storage key was
+      added.
+- [x] **The visible consequence today is none.** A muted, never-red note renders beside a source
+      past its horizon, and no source is. The accessible name now says what the date means, threaded
+      **through** `sourceLinkLabel` so the date stays last and Block 7's anchored audit keeps
+      passing untouched.
+- [x] **One real regression, caught and fixed without weakening anything.** Appending the freshness
+      to the accessible name broke Block 7's `$`-anchored audit. Rather than relax a historical
+      gate, the copy was reordered so the date stays last — all nine historical audits remain
+      byte-identical.
+- [x] **Verified.** Vitest **3081** (88 → 89 files) · oxlint and `tsc` clean · build OK · **all 13
+      Python suites** · **all 8 argument-free validators** · Block 1 **142** · Block 2 **69** ·
+      Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6 **216** · Block 7 **129** ·
+      Block 8 **114** · Block 9 **153**, all unmodified · new Block 10 audit **81/81** at 390×844
+      DPR 2, 820×1180 DPR 2 and 1440×900 against the production build · `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md).
+
+---
+
+## Block 11 — semantic coverage of provenance in `access-points` and `reservation-mechanisms` — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `109917e8` (Block 10 closed, on
+`claude/brave-wozniak-f79ie3`). Not merged, no pull request. Full record in
+[`docs/BLOCK_11_DESIGN.md`](BLOCK_11_DESIGN.md).
+
+**Authority.** The recommendation in [`docs/BLOCK_10_HANDOFF.md`](BLOCK_10_HANDOFF.md). The roadmap
+assigned Block 11 to nothing else.
+
+- [x] **The audit came before the schema.** All twelve records — 8 reservation mechanisms, 4 access
+      points — mapped to the claim each backs, its source, entity, `confidence`, date and age (3–13
+      days). Both systems carry **one provenance per record**, no URL with two dates, and **no
+      authority tier at all**, because both `confidence` enums are `official-*`: every source is the
+      operator or the responsible public body, so Block 7's lower rungs have no members here.
+- [x] **`covers` was the wrong answer, and the block says so.** `covers` exists because one zone
+      record makes three *separable* claims and one source may back any subset. Neither of these
+      systems has that shape: one access point is one arrival point, one mechanism is one sales
+      rule. A `covers` field would ask each record to restate, in a field that can drift, what the
+      record already **is** — the exact failure `covers` was invented to prevent, as ceremony.
+      **Neither schema gained a field, and no data file was touched.**
+- [x] **What was actually missing is the *kind* of claim, and both schemas already stored it.**
+      Access points: `role` separates built fabric from a *served* stop. Reservation mechanisms:
+      `mechanism.kind` separates a standing rule from one dated sale. The class is therefore
+      **derived** from them, never stored beside them — a stored class can be wrong, a derived one
+      cannot disagree with the fact it describes.
+- [x] **The finding that forced the design: `RM-JP-212-001` is not like its seven siblings.** Seven
+      record a standing rule relative to the visit date. The sumo record stores an **absolute**
+      `saleDate` for an **absolute** tournament window: it describes one sale, not how sales work,
+      and expires by its own terms. On 2027-04-01 its check is 201 days old — "fine" under any age
+      model — while the tournament finished four days earlier. **Age is the wrong instrument for
+      it.**
+- [x] **A fourth state, because `null` could not carry the third answer.** `no-periodic-recheck`
+      says *relax*; a ticketing policy is the most volatile claim in the dataset. So
+      `recheck-interval-unknown` was added: *this does want re-reading and we cannot say how often.*
+      A test asserts the two never produce the same wording.
+- [x] **Thresholds only where the domain supplies one.** `served-transit-stop` → **365 days**, the
+      timetable cycle re-derived in this domain rather than borrowed (**0 shipped records; decided
+      in advance so the first cannot inherit a branch by accident**). `built-arrival-point` and
+      `dated-sale-instance` → **none**. `standing-sales-rule` → **no number, deliberately**: Block 10
+      derived 365 from an event you can point at, and ticketing policy supplies no such event.
+      **Recorded as debt rather than invented.**
+- [x] **The engine was extended, not duplicated.** `freshnessForHorizon` is now the one place a
+      `consultedAt` becomes a verdict for all three systems; `freshnessFor` keeps its exact Block 10
+      signature on top of it. **Block 10's own 38 tests were not modified and pass unchanged** — the
+      evidence the refactor preserves behaviour. Pure, `today` explicit, no clock, no storage,
+      inclusive boundary, and a broken date still outranks every horizon, `unknown` included.
+- [x] **`confidence` stays independent**, and it means *how directly the source states the claim* —
+      not authority, not coverage, not age. Proven in both directions: recent-but-derived and
+      eleven-years-old-but-explicit classify identically, and a source scan asserts the module never
+      reads `confidence`, `tier` or `editorial`.
+- [x] **`consultedAt` keeps Block 10's definition exactly**, and nothing looks freshly verified: the
+      class is derived, so there was nothing to migrate. All twelve dates are pinned by test to the
+      values Block 10 recorded.
+- [x] **The two lagging validators caught up.** Block 10 taught the zone validator to refuse
+      impossible and future dates; these two still accepted `2099-01-01`. Both now match, with
+      injectable `today`. Age is never an error — here load-bearing, since a sales rule has no
+      derivable interval. **32 of 32 negative cases behaved correctly** against the real datasets,
+      including the sumo record's future `saleDate`, which must keep passing.
+- [x] **No visible change, and both halves argued.** Access-point provenance has **no UI surface at
+      all** — one non-test importer, type-only. Reservation provenance already shows its check date,
+      and Nihon's own process does not belong in front of the reader. With `unknown`/`none` the only
+      reservation horizons, **no reservation record can ever reach `needs-recheck`** — a real
+      property of the model, stated rather than discovered later. No browser audit added, per §18.
+- [x] **The contract guards were broken on purpose to prove they fire:** a new `role` with no class
+      and a dropped `mechanism.kind` are caught by `tsc` (TS2741); a sales rule quietly given the
+      stable horizon fails 5 tests; an invented 180-day threshold fails 4.
+- [x] **Verified.** Vitest **3117** (89 → 90 files, +36) · oxlint and `tsc` clean · build OK · **all
+      13 Python suites** · **all 8 argument-free validators** · Block 1 **142** · Block 2 **69** ·
+      Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6 **216** · Block 7 **129** ·
+      Block 8 **114** · Block 9 **153** · Block 10 **81**, all unmodified and byte-identical ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_11_HANDOFF.md`](BLOCK_11_HANDOFF.md).
+
+---
+
+## Block 12 — RC-05: performance / bundle architecture audit — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `ae2b30a` (Block 11 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_12_DESIGN.md`](BLOCK_12_DESIGN.md).
+
+**Authority.** `RC-05`, carried in the debt table since
+[`docs/RELEASE_CANDIDATE_AUDIT.md`](RELEASE_CANDIDATE_AUDIT.md) and correctly left untouched through
+Blocks 1–11 because it must not be mixed with functional work.
+
+- [x] **The audit came before the design, and it inverted the original diagnosis.** RC-05 was
+      recorded as *"an ordinary size for React + Leaflet plus the full 214-place dataset"*. Measured
+      by rolldown's own accounting, **the dataset is 43.3% of the bundle and React plus Leaflet
+      together are 32.5%** — the data is larger than either runtime and larger than all of Nihon's
+      own code. The proportions were backwards.
+- [x] **The unit was wrong, which is most of the finding.** Vite's advisory counts raw minified
+      bytes. `walking-scale-results.json` is 253 kB raw and **10 kB gzipped — 4%**, because it is
+      thousands of near-identical records. All the JSON together is **898,690 B raw → 105,116 B
+      gzipped**. Roughly 900 kB of the 1.53 MB "problem" ships as 105 kB, and an audit that stopped
+      at the raw column would have sent the next reader after the wrong 253 kB.
+- [x] **Boundaries were found in the product, not the byte count.** Exclusive weight from the real
+      module graph: planner **246 kB / 27 modules**, zone comparison **38 kB / 8**, `PlaceDetail`
+      25 kB, `SelectionAnalysis` 14 kB, `TravellerManager` 9 kB. Only the first two clear the bar.
+- [x] **Leaflet was measured and kept.** `INITIAL_VIEW.mode` is `"national"`, so the first thing
+      Nihon renders is the national map. Deferring 256 kB of it would trade a real first paint for a
+      cosmetic number — refused, and now test-protected in both directions.
+- [x] **The big JSON stays, with the reason recorded.** The walking datasets (298 kB raw / ~12 kB
+      gzip) are reached from `usePlannedPlaceIds` → the planning-draft migration chain →
+      `transfer.ts`, which indexes at module scope. That is the **draft-restoration path**, running
+      on mount. Moving it needs a functional refactor forbidden by this block's scope, and is worth
+      ~12 kB — so it should be done for architectural reasons if ever, not for size.
+- [x] **Decision A, at exactly two boundaries.** `React.lazy` for the planner and the zone
+      comparison. No `manualChunks`, no vendor splitting, no tiny chunks, no change to
+      `chunkSizeWarningLimit`.
+- [x] **Before / after, reproducible.** Initial JS **1,530,614 → 1,377,479 B raw (−10.0%)**,
+      **284,387 → 250,628 B gzip (−11.9%)**, **227,624 → 201,105 B brotli (−11.7%)**. Two new
+      chunks, 31,917 B and 5,872 B gzipped. **Zero duplication** (104 + 27 + 8 modules, disjoint),
+      initial request count unchanged, no `modulepreload` for either — so no waterfall was added.
+      Re-derive with `node scripts/bundle-report.mjs`.
+- [x] **The split does not move the wait onto the user.** Both chunks are warmed on
+      `requestIdleCallback` after first paint, with a timeout fallback, rejection swallowed so a
+      failed prefetch can never surface as an error, and cancellable.
+- [x] **The warning still fires, and was deliberately not silenced.** The entry is still 1.38 MB raw
+      because it still holds the data a first render needs. Raising the threshold would have made
+      the advisory vanish without changing one byte a user downloads — the cosmetic surgery this
+      block exists to refuse. **RC-05 closes as diagnosed and materially improved, not as
+      "warning gone".**
+- [x] **One historical gate tripped, and the code moved rather than the gate.** Putting `Suspense`
+      inside the condition broke `ZonePlanSection.test.ts`, whose regex pins the condition sitting
+      directly against the component — protecting the invariant that the planner unmounts on close
+      so reopening re-reads the draft. The invariant was never broken, only the adjacency assumed.
+      As in Block 10, the boundary was moved outside instead; the test passes byte-identical, and
+      the result is better React.
+- [x] **Guards assert architecture, never output.** No chunk hash, no byte count, no `dist/`
+      filename. Nine tests pin the shape that causes the split — including the quiet failure where
+      one stray static import undoes it while the build stays green. All four were broken on purpose
+      to prove they fire.
+- [x] **No real-device numbers are claimed.** This environment has no throttled network and no CPU
+      profile, so no parse-time or TTI figure appears anywhere. Every number is a build or network
+      measurement that can be re-derived.
+- [x] **Verified.** Vitest **3126** (90 → 91 files, +9) · oxlint and `tsc` clean · build OK, RC-05
+      advisory intentionally unchanged · **all 13 Python suites** · **all 8 argument-free
+      validators** · Block 1 **142** · Block 2 **69** · Block 3 **105** · Block 4 **261** · Block 5
+      **225** · Block 6 **216** · Block 7 **129** · Block 8 **114** · Block 9 **153** · Block 10
+      **81**, all unmodified and byte-identical · new Block 12 audit **81/81** at three viewports ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_12_HANDOFF.md`](BLOCK_12_HANDOFF.md).
+
+---
+
+## Block 13 — portable backup and restoration of the trip — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `30c553c` (Block 12 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_13_DESIGN.md`](BLOCK_13_DESIGN.md).
+
+**Authority.** The capability gap: a trip prepared in one browser cannot be moved to another. No
+prior document assigned Block 13 and no conflict was found.
+
+- [x] **The inventory came first, and corrected this block's own premise.** **Five** storage keys
+      exist, not two, and **`nihon.savedPlaceIds` has been legacy since Block 5** — saved places live
+      inside `nihon.travellers.v1` as per-person stances, and "Quiero ir" is *derived* from them by
+      `shortlistPlaceIds()`. No IndexedDB or `sessionStorage` use exists anywhere.
+- [x] **The backup is decisions, not a photograph of storage.** In: the travellers document and the
+      planning draft. Out: the legacy key (a stale second copy of state the file already carries),
+      the derived shortlist, `nihon.zoneComparison.v1` (the *act* of comparing — its *conclusion*
+      lives in the draft as `zoneAccommodationChoices` and **is** in the file) and
+      `nihon.onboarding.seen.v1` (a fact about a browser, not a trip). Copying every `nihon.*` key
+      would have welded the format to today's storage layout.
+- [x] **Two contracts, never one.** The envelope is `version: 1`; the documents carry their own `1`
+      and `8`. Merging the numbers would invalidate every file on disk each time an internal schema
+      moved.
+- [x] **An arbitrary file stays `unknown` until its own parsers accept it.** No `as` cast anywhere,
+      asserted by a test. The envelope is strict — four keys, two under `data` — and `Object.keys`
+      is used so a `"__proto__"` key, which `JSON.parse` makes an ordinary own property, is **seen
+      and refused** rather than ignored.
+- [x] **Envelope before migration.** Validated first, so an internal migrator can never rescue a
+      file that was never valid — tested with a perfectly migratable V3 draft inside a wrong-format
+      envelope. The draft's own `parseStoredDraft` (V1→V8) is delegated to and never duplicated.
+- [x] **Nothing is written before a human confirms**, structurally: `prepareImport` has no access to
+      a writer. Every one of eight blocking errors leaves storage untouched, and losses that *can* be
+      reconciled are **counted and stated**, never swallowed.
+- [x] **Replace, never merge — including by omission.** A `null` draft in the file removes the stored
+      plan rather than leaving the previous itinerary behind. No union of saved places, no
+      newest-draft-wins, no stance reconciliation by timestamp: merging needs semantics nobody has
+      specified.
+- [x] **Best-effort rollback, and called that.** `localStorage` has no transaction. It rolls back
+      only the writes that actually **landed** — the first version undid writes that never happened,
+      usually by asking the same failing storage to accept the same key again; a test caught it — and
+      reports `rolledBack: false` honestly when the rollback itself fails.
+- [x] **The restore ends in a reload, as correctness rather than polish.** `useTravellers` and
+      `usePlanningDraft` hold their documents in React state; a restore replaces those keys
+      underneath them, so the next heart pressed would have written the **previous** trip over the
+      import, silently. The confirmation screen has no other exit.
+- [x] **The two travellers stay two.** Separate identities and stances preserved; a dangling stance
+      rejects the file rather than being reattributed; the itinerary stays **one shared document**.
+- [x] **Nothing leaves the device.** No `fetch`, `XMLHttpRequest`, `sendBeacon`, WebSocket,
+      telemetry or service worker. Proven by a source scan and by three request counters in the
+      audit. The copy never says sincronizado, conectado, nube, cuenta or compartido — enforced by a
+      test.
+- [x] **One real regression, fixed in the product.** `.app__backup` was written at 36px, copying
+      `.app__help`; Block 1's tap-target audit fell to **141/142**. `.app__help` sits on a *named
+      historical allowance*, and a control added today does not join an exemption list — the button
+      was raised to 44px and Block 1 is back at **142**, byte-identical.
+- [x] **`TripBackup` is deliberately not lazy.** Built lazy first and measured at 7.4 kB raw /
+      2.4 kB gzipped — smaller than two surfaces Block 12 examined and left in the entry. The whole
+      feature costs **+3,108 B gzipped** on the critical path; Block 12's two boundaries are
+      untouched.
+- [x] **Recorded rather than claimed:** everything is verified in Chromium. This environment has no
+      iOS, so **no statement is made about Safari's download behaviour** — a gap in evidence, not a
+      known failure.
+- [x] **Verified.** Vitest **3178** (91 → 92 files, +52) · oxlint and `tsc` clean · build OK, RC-05
+      advisory unchanged · **all 13 Python suites** · **all 8 argument-free validators** · Block 1
+      **142** · Block 2 **69** · Block 3 **105** · Block 4 **261** · Block 5 **225** · Block 6
+      **216** · Block 7 **129** · Block 8 **114** · Block 9 **153** · Block 10 **81** · Block 12
+      **81**, all unmodified and byte-identical · new Block 13 audit **156/156** at three viewports ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_13_HANDOFF.md`](BLOCK_13_HANDOFF.md).
+
+---
+
+## Block 14 — post-redesign release readiness / whole-product audit — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `894fdc6` (Block 13 closed). Not merged, no pull
+request, no tag, no release, no deployment. Full record in
+[`docs/BLOCK_14_RELEASE_READINESS.md`](BLOCK_14_RELEASE_READINESS.md).
+
+**Authority.** A gate, not a backlog: does Nihon, after Blocks 1–13, actually work as a product on a
+phone, a tablet and a desktop? No feature was added.
+
+### VERDICT: **RELEASE-READY WITH KNOWN LIMITATIONS**
+
+- [x] **Baseline reproduced exactly before any edit.** Vitest 3178/92, all twelve audits at their
+      stated values, 13/13 Python, 8/8 validators. Every figure matched.
+- [x] **The inventory was derived from code**, not memory: 214 places across 7 hubs, **157 places /
+      163 photographs**, 16 zones, 4 access points, 8 reservation mechanisms, and **five** storage
+      keys of which one (`nihon.savedPlaceIds`) is legacy and read-only.
+- [x] **One journey, not thirteen demos.** A single continuous story across **Tokio + Kioto +
+      Osaka** — discovery, search including a zero-result query, filters, detail, both travellers,
+      planner with three days anchored in March 2027, a manual visit time, an inter-hub segment,
+      zone comparison, reload, export, mutate, import, confirm, reload, keep using it — at three
+      viewports against the production build: **226 checks, 0 failed**.
+- [x] **The restore trap is closed and proven.** Restore → forced reload → **then interact** → the
+      replaced trip does not come back. This was Block 13's biggest risk and no isolated audit can
+      see it.
+- [x] **No BLOCKER. No MAJOR.** Four MINOR findings, all fixed; three observations and two debts,
+      all recorded.
+- [x] **F-1 fixed:** the backup revoked its object URL synchronously after the anchor click — no
+      Chromium-only API, but a pattern Safari has historically cancelled downloads for, in the one
+      feature whose purpose is moving a trip to another device. Deferred to a macrotask; regression
+      test proven to fail against the previous code. **A measured risk, not a measured failure**,
+      and recorded as such.
+- [x] **F-2/F-3/F-4 fixed — documentation that had stopped being true.** `app/README.md` claimed
+      "144 of 214" photographs (it is 157); `docs/DATA_MODEL.md` claimed `nihon.savedPlaceIds`
+      "remains" the only persisted state (false since Block 5); both READMEs described a single-user
+      app with no two-traveller model and no portable backup. **Only current-state docs were
+      touched** — the roadmap's per-block entries are a historical record and stay as written.
+- [x] **The code was already clean on the legacy key**: read in exactly one place, only when no
+      travellers document exists, and never written anywhere.
+- [x] **Network verified over the whole journey.** Only `a|b|c.tile.openstreetmap.org`. No
+      photograph fetched at runtime, no secret, no dev endpoint, no dormant provider, no chunk 404.
+      Export and import make **zero** requests. Zero page errors and zero relevant console errors,
+      with **one exact exclusion**: the sandbox has no route to the tile servers.
+- [x] **Static-hosting readiness confirmed.** No Node server, no API, no runtime environment
+      variable, **no client-side router — so no SPA rewrite rule is needed**. One caveat: absolute
+      asset paths, so a subpath deployment needs Vite's `base` (F-7). No PWA was added (§17).
+- [x] **Block 12 intact** (+6 B gzip, the `setTimeout` from F-1; same two lazy chunks, no
+      duplication). **The Vite advisory still fires and is still not silenced.**
+- [x] **The 160 editorial ratings were not touched and the debt was not closed.** Claude is not the
+      second reader. Block 9's fact/editorial boundary holds, so it is editorial debt rather than a
+      technical release blocker.
+- [x] **Five false positives, all in this block's own instrumentation**, recorded separately from
+      the real findings — including a 304 counted as a failure and a "secret" that was React DOM's
+      input-type table.
+- [x] **Verified.** Vitest **3179** (92 files) · lint and `tsc` clean · build OK · **13/13** Python ·
+      **8/8** validators · Blocks 1–13 audits **all at exact baseline and byte-identical** · new
+      Block 14 audit **226/226** at three viewports · `git diff --check` clean.
+
+**Known limitations to state before publishing:** a real Safari/iOS device test of the backup is
+outstanding; a subpath deployment needs `base`; the editorial ratings have one reader; an expanded
+saved-places sheet can overlay the national start screen on a phone.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_14_HANDOFF.md`](BLOCK_14_HANDOFF.md).
+
+---
+
+## Block 15 — Nihon v1.1.0 release candidate / integration gate — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `de653b2` (Block 14 closed). **No merge, no Ready, no
+tag, no GitHub Release, no deployment.** Full record in
+[`docs/BLOCK_15_RELEASE_CANDIDATE.md`](BLOCK_15_RELEASE_CANDIDATE.md).
+
+### VERDICT: **RC-READY — PENDING IPHONE ACCEPTANCE**
+
+- [x] **Ancestry verified before anything was edited.** HEAD `de653b2` on both sides, `origin/main`
+      `1a11fe8`, merge-base **exactly** `origin/main`, **42 ahead / 0 behind**. `main` did not
+      diverge during the block; nothing was rebased or forced.
+- [x] **The previous release was identified correctly, and left alone.** `v1.0.0` → `1a11fe8`, the
+      repository's only tag, GitHub Release published **2026-09-17**. Its tag was not moved, its
+      Release not edited, and `RELEASE_V1.0.0.md` / `FINAL_RELEASE_GATE.md` were **not rewritten** —
+      they remain the record of that release, including its then-correct 144-photograph figure.
+- [x] **No collision.** `v1.1.0` existed as neither tag nor Release, locally or remotely, and neither
+      was created. The only open PR (#122, `codex/…` → `experiment/astra-redesign`) is unrelated.
+- [x] **The delta was derived from the diff, not from handoffs.** `v1.0.0..de653b2` is **42 commits,
+      327 files, +37,506 / −2,133**: photography **144 → 163 images / 144 → 157 places**, 16 new
+      accommodation zones, 182 new image assets, 34 new source modules — and **the catalogue
+      unchanged at 214 places**, because v1.1.0 adds no new research.
+- [x] **1.1.0, and the reasoning is recorded.** A backward-compatible feature release: substantial
+      new capability, nothing broken, a v1.0.0 saved list migrates automatically. MINOR, not a patch
+      and not a major.
+- [x] **Three lines of metadata changed**, and **zero dependency drift** — proven, not asserted:
+      package-entry sets identical, no non-root entry changed in any field, root differs only in
+      `version`, and across **172 packages** no `resolved`, no `integrity` and no `version` moved.
+      `npm ci` leaves the lockfile byte-identical.
+- [x] **Build neutrality proven.** The version is not consumed at runtime, and a clean rebuild after
+      the bump produced **all 333 `dist/` files byte-identical** to the pre-bump build.
+- [x] **No product code touched.** `git diff de653b2` over `app/src/**`, `data/**`, `app/public/**`,
+      `scripts/**` and `app/scripts/**` is empty.
+- [x] **Release notes describe the real product** ([`RELEASE_V1.1.0.md`](RELEASE_V1.1.0.md)), from
+      figures derived at this commit — including freshness stated explicitly as **not live data** and
+      Vite's advisory explained as a raw-byte threshold rather than a user-facing problem.
+- [x] **Full gate green at exact figures.** Vitest **3179 / 92** · lint · `tsc` · build clean ·
+      Python **13/13** · validators **8/8** · Blocks 1–14 audits **all exact, 13/13 suites at
+      `exit=0`, 1,958 checks total** · bundle unchanged, so Block 12's architecture is intact ·
+      `git diff --check` clean.
+- [x] **One recording note, not a regression.** A first batch run dropped Block 4's summary line from
+      its captured output; re-run alone it reports **261 passed, exit 0**, and a second batch
+      capturing per-audit exit codes confirmed all thirteen. Recorded rather than quietly re-run.
+- [x] **A draft pull request into `main`** carries the evidence and states that no merge, tag or
+      Release may happen until the physical iPhone acceptance check is recorded.
+
+**The single outstanding item is a physical iPhone Safari acceptance check of export/import.** It
+cannot be performed from this environment and is not assumed. Until it is recorded as PASS: no merge,
+no Ready, no tag, no Release, no deployment.
+
+**Authorized next step: the iPhone acceptance check.** See
+[`docs/BLOCK_15_HANDOFF.md`](BLOCK_15_HANDOFF.md).
+
+---
+
+## Block 16 — Nihon v1.1.0 release closure — complete
+
+Closes the v1.1.0 release candidate opened in Block 15 after a physical iPhone Safari acceptance
+check of the portable backup was recorded on PR #123. Full record in
+[`docs/BLOCK_16_V1_1_RELEASE_CLOSURE.md`](BLOCK_16_V1_1_RELEASE_CLOSURE.md) and
+[`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md).
+
+### VERDICT: **RELEASE-READY**
+
+- [x] **Preflight matched exactly.** `origin/main` `1a11fe8`, branch `claude/sleepy-heisenberg-hn7340`
+      at `a6f8058`, PR #123 open/draft/`mergeable_state: clean`, ahead 45 / behind 0, working tree
+      clean, `v1.1.0` tag and Release both absent.
+- [x] **iPhone Safari acceptance recorded as PASS** on PR #123, from a real device against a Vercel
+      preview of the exact candidate SHA. Replace-not-merge on cross-device import confirmed as
+      designed behaviour (Block 13), not a defect.
+- [x] **Final gate reproduced exactly, no regression.** Vitest 3179/92, lint, `tsc`, build, Python
+      13/13, validators 8/8, `bundle-report.mjs`, `git diff --check` — all clean; all 13 browser-audit
+      suites at their exact expected counts, **1,958 / 1,958 checks total**.
+- [x] **PR #123 marked Ready**, auto-merge not enabled, re-verified mergeable before merging.
+- [x] **Merged via merge commit** — not squash, not rebase — preserving the Blocks 1–16 history.
+- [x] **`v1.1.0` tagged** (annotated, on the exact merge commit) and **released** (non-draft,
+      non-prerelease, notes from `docs/RELEASE_V1.1.0.md`). `v1.0.0` untouched.
+- [x] **No production deployment.** The Vercel preview used for acceptance was not promoted; hosting
+      remains a separate, later decision.
+- [x] **Shared-trip synchronization recorded as v1.2.0 discovery input**, not designed or implemented
+      here; no backend provider selected.
+
+**Authorized next step: architecture and threat/data-model design for shared-trip synchronization
+(v1.2.0), not implementation.** See [`docs/BLOCK_16_HANDOFF.md`](BLOCK_16_HANDOFF.md).
