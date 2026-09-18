@@ -576,3 +576,28 @@ export function withDayMoved(
 ): ManualPlanningDraftV8 {
   return applyV7(draft, withDayMovedV7, dayId, direction);
 }
+
+/**
+ * The places this draft has actually put in a day, in day order then in each day's own order.
+ *
+ * A read, and nothing else: it takes a draft and returns ids. It is used by Block 6's derived
+ * preferences view to state, as information, that a place whose interest is one-sided is already
+ * on a day — never to move it, remove it, reschedule it or propose a replacement.
+ *
+ * **Route membership is deliberately not the test.** `freshDraft` seeds `routeIds` from the saved
+ * list, so being in the route is not a decision anybody made; being assigned to a day is. With
+ * `days` still `null` nothing has been scheduled and the answer is the empty list.
+ */
+export function dayAssignedPlaceIds(draft: ManualPlanningDraftV8): string[] {
+  if (draft.days === null) return [];
+  const seen = new Set<string>();
+  const ids: string[] = [];
+  for (const day of draft.days) {
+    for (const placeId of day.placeIds) {
+      if (seen.has(placeId)) continue;
+      seen.add(placeId);
+      ids.push(placeId);
+    }
+  }
+  return ids;
+}

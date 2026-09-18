@@ -14,6 +14,7 @@ import {
   withAccommodationLeg,
   withDayAccommodationChoice,
   withDayMoved,
+  dayAssignedPlaceIds,
   withInitialDays,
   withNewAccommodation,
   withNewEmptyDay,
@@ -536,5 +537,38 @@ describe("the module invents nothing", () => {
     expect(source).not.toMatch(/from "\.\/accommodation-zone"/);
     const record = await readFile(new URL("./zone-accommodation-choice.ts", import.meta.url), "utf8");
     expect(record).not.toMatch(/from "\.\/accommodation-zone"/);
+  });
+});
+
+describe("dayAssignedPlaceIds — what the planner has actually scheduled", () => {
+  it("is empty while no day exists, even with a full route", () => {
+    const draft = freshDraft(["tokyo-a", "tokyo-b", "kyoto-a"]);
+    expect(draft.routeIds).toHaveLength(3);
+    expect(draft.days).toBeNull();
+    // Route membership is seeded from the saved list, so it is nobody's decision.
+    expect(dayAssignedPlaceIds(draft)).toEqual([]);
+  });
+
+  it("reports the places in day order, then in each day's own order", () => {
+    expect(dayAssignedPlaceIds(plannedDraft())).toEqual(["tokyo-a", "tokyo-b", "kyoto-a"]);
+  });
+
+  it("reports an empty day as contributing nothing", () => {
+    const draft = withInitialDays(freshDraft(["tokyo-a"]), [[], ["tokyo-a"]], ids("d1", "d2"));
+    expect(dayAssignedPlaceIds(draft)).toEqual(["tokyo-a"]);
+  });
+
+  it("names each place once, whatever the days contain", () => {
+    const ids_ = dayAssignedPlaceIds(plannedDraft());
+    expect(new Set(ids_).size).toBe(ids_.length);
+  });
+
+  it("is a read — it returns a fresh array and mutates nothing", () => {
+    const draft = plannedDraft();
+    const before = JSON.stringify(draft);
+    const result = dayAssignedPlaceIds(draft);
+    result.push("injected");
+    expect(JSON.stringify(draft)).toBe(before);
+    expect(dayAssignedPlaceIds(draft)).not.toContain("injected");
   });
 });

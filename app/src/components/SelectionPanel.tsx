@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { Place } from "../types";
 import { cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
@@ -5,7 +6,20 @@ import { interestLevelForPlace } from "../lib/interest-level";
 import { summarizeSelection } from "../lib/selection";
 import { splitCategory } from "../lib/place";
 import { tallySentence, type InterestMarker } from "../lib/traveller-presentation";
-import type { ShortlistTally } from "../lib/travellers";
+import type { ShortlistTally, Traveller } from "../lib/travellers";
+import {
+  matchesShortlistFilter,
+  shortlistFilterCounts,
+  type DivergenceEntry,
+  type ShortlistFilterKind,
+} from "../lib/interest-divergence";
+import {
+  divergenceLine,
+  emptyFilterSentence,
+  filterStatusSentence,
+  plannedNote,
+} from "../lib/divergence-presentation";
+import { ShortlistFilterBar } from "./ShortlistFilterBar";
 
 type Props = {
   savedPlaces: Place[];
@@ -23,6 +37,16 @@ type Props = {
   interestMarkerFor?: (placeId: string) => InterestMarker | null;
   /** Names whose "Quitar" this is, so the reader knows it withdraws only their own interest. */
   activeTravellerLabel?: string | null;
+  /**
+   * Block 6: the derived "dónde no coincidimos" view — one entry per shortlisted place, grouped by
+   * what the two of them have actually said, with a flag for the ones the planner already holds.
+   *
+   * Derived on every render from the Block 5 document. Nothing here is stored, and nothing here
+   * changes the plan: the filter is a lens over the rows this panel was already rendering.
+   */
+  divergence?: readonly DivergenceEntry[];
+  travellers?: readonly Traveller[];
+  activeTravellerId?: string | null;
 };
 
 /** Below this many saved places the grouped view has nothing to group. */
@@ -41,8 +65,38 @@ export function SelectionPanel({
   tally,
   interestMarkerFor,
   activeTravellerLabel = null,
+  divergence,
+  travellers = [],
+  activeTravellerId = null,
 }: Props) {
   const summary = summarizeSelection(savedPlaces);
+
+  /**
+   * View state, and deliberately only view state.
+   *
+   * It is not persisted. A filter is what the reader is looking at right now, not a decision about
+   * the trip, and the app stores decisions. Reopening Nihon should show the list, not the question
+   * somebody asked of it last Tuesday — and no new `localStorage` key exists for Block 6 at all.
+   */
+  const [filter, setFilter] = useState<ShortlistFilterKind>("all");
+
+  const entries = useMemo(() => divergence ?? [], [divergence]);
+  const counts = useMemo(() => shortlistFilterCounts(entries), [entries]);
+  const groupOf = useMemo(() => {
+    const byPlace = new Map<string, DivergenceEntry>();
+    for (const entry of entries) byPlace.set(entry.placeId, entry);
+    return byPlace;
+  }, [entries]);
+
+  /** "Todo" is Block 5's list, untouched. Any other filter narrows it and nothing else. */
+  const visiblePlaces =
+    filter === "all"
+      ? savedPlaces
+      : savedPlaces.filter((place) => {
+          const entry = groupOf.get(place.id);
+          return entry ? matchesShortlistFilter(entry, filter) : false;
+        });
+  const filtering = filter !== "all";
 
   return (
     <section className="selection-panel" aria-label="Lugares guardados">
@@ -123,6 +177,14 @@ export function SelectionPanel({
                     <span aria-hidden="true">👥</span> {tallySentence(tally)}
                   </p>
                 )}
+                {entries.length > 0 && (
+                  <ShortlistFilterBar counts={counts} active={filter} onSelect={setFilter} />
+                )}
+                {filtering && (
+                  <p className="selection-panel__filter-status" role="status">
+                    {filterStatusSentence(filter, visiblePlaces.length)}
+                  </p>
+                )}
                 {(summary.savedCount >= ANALYSIS_MIN_SAVED ||
                   summary.savedCount >= SEQUENCE_BUILDER_MIN_SAVED) && (
                   <div className="selection-panel__actions">
@@ -148,13 +210,21 @@ export function SelectionPanel({
                 )}
               </div>
 
+              {filtering && visiblePlaces.length === 0 ? (
+                <p className="selection-panel__filter-empty">{emptyFilterSentence(filter)}</p>
+              ) : (
               <ul className="selection-list">
-                {savedPlaces.map((place) => {
+                {visiblePlaces.map((place) => {
                   const range = resolveDuration(place.duration);
                   const interest = interestLevelForPlace(place);
                   const thumbnail = resolvePlaceImages(place.id, place.images)[0];
                   const category = splitCategory(place.category);
-                  const marker = interestMarkerFor ? interestMarkerFor(place.id) : null;
+                  // One indicator per row, never two. While a filter is active the derived line
+                  // below states the same fact in full and from the reader's own side, so Block
+                  // 5's short marker would be a duplicate of it and is stood down.
+                  const marker = filtering || !interestMarkerFor ? null : interestMarkerFor(place.id);
+                  const entry = filtering ? groupOf.get(place.id) ?? null : null;
+                  const note = entry ? plannedNote(entry) : null;
                   return (
                     <li key={place.id} className="selection-list__item">
                       <button type="button" className="selection-list__name" onClick={() => onSelect(place.id)}>
@@ -205,6 +275,14 @@ export function SelectionPanel({
                               </>
                             )}
                           </span>
+                          {entry && (
+                            <span className="selection-list__divergence">
+                              {divergenceLine(entry.group, travellers, activeTravellerId)}
+                              {note && (
+                                <span className="selection-list__planned"> {note}</span>
+                              )}
+                            </span>
+                          )}
                         </span>
                       </button>
                       <button
@@ -223,6 +301,7 @@ export function SelectionPanel({
                   );
                 })}
               </ul>
+              )}
             </>
           )}
         </div>

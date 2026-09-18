@@ -19,6 +19,7 @@ import { hubsWithZones } from "./lib/accommodation-zone";
 import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
 import { useTravellers } from "./useTravellers";
+import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
 import { interestMarker } from "./lib/traveller-presentation";
@@ -119,6 +120,14 @@ export default function App() {
   const [selectionOpen, setSelectionOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [sequenceBuilderOpen, setSequenceBuilderOpen] = useState(false);
+  /**
+   * Block 6 — bumped when the planner closes, which is the moment its draft has settled.
+   *
+   * It is a cache key for a READ, not a copy of anything: see `usePlannedPlaceIds`. Block 4 made
+   * "one live writer at a time" structural by keeping the planner and the zone comparison mutually
+   * exclusive, and this leans on exactly that rather than adding a subscription.
+   */
+  const [plannerRevision, setPlannerRevision] = useState(0);
   const [zonesOpen, setZonesOpen] = useState(false);
   /** Shown on the very first visit and reopenable from the header; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
@@ -150,6 +159,7 @@ export default function App() {
     removeTraveller,
     addTraveller,
     placesOnlyWantedBy,
+    divergenceFor,
   } = useTravellers();
   const { feedback, announce } = useSaveFeedback();
   const isDesktop = useIsDesktop();
@@ -239,6 +249,20 @@ export default function App() {
     [announce, removeSaved]
   );
 
+  /**
+   * Block 6 — which shortlisted places the planner has already put in a day, and the derived
+   * grouping the saved list filters by.
+   *
+   * Both are READS. `plannedPlaceIds` never writes the draft, `divergence` never writes anything
+   * at all, and neither can move, remove or reschedule a place: the flag they carry is shown as
+   * information beside a place whose interest is one-sided, and that is the whole of it.
+   */
+  const plannedPlaceIds = usePlannedPlaceIds(savedIds, plannerRevision);
+  const divergence = useMemo(
+    () => divergenceFor(plannedPlaceIds),
+    [divergenceFor, plannedPlaceIds]
+  );
+
   /** Resolved against the global dataset, so a saved place survives navigation to any hub. */
   const savedPlaces = useMemo(
     () => savedIds.map((id) => getPlaceById(id)).filter((place): place is Place => Boolean(place)),
@@ -324,6 +348,13 @@ export default function App() {
   const openSequenceBuilder = useCallback(() => {
     setZonesOpen(false);
     setSequenceBuilderOpen(true);
+  }, []);
+
+  /** Closing the planner is when its day assignment is final, so that is when Block 6's read-only
+   * snapshot of it is refreshed. Nothing is written here. */
+  const closeSequenceBuilder = useCallback(() => {
+    setSequenceBuilderOpen(false);
+    setPlannerRevision((revision) => revision + 1);
   }, []);
 
   /** Manually switching hubs resets filters and closes any open detail from the previous
@@ -632,6 +663,9 @@ export default function App() {
         tally={tally}
         interestMarkerFor={markerFor}
         activeTravellerLabel={activeTraveller?.label ?? null}
+        divergence={divergence}
+        travellers={travellers}
+        activeTravellerId={activeTraveller?.id ?? null}
       />
 
       {analysisOpen && (
@@ -645,7 +679,7 @@ export default function App() {
       {sequenceBuilderOpen && (
         <OrderedSequenceBuilder
           savedPlaces={savedPlaces}
-          onClose={() => setSequenceBuilderOpen(false)}
+          onClose={closeSequenceBuilder}
         />
       )}
 

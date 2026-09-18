@@ -20,6 +20,7 @@ import {
   type Storage,
   type TravellersDocumentV1,
 } from "./lib/travellers";
+import { divergenceEntries, type DivergenceEntry } from "./lib/interest-divergence";
 
 /**
  * Block 5 — the React integration over `lib/travellers.ts`.
@@ -182,6 +183,20 @@ export function useTravellers() {
     setDocument((current) => withNewTraveller(current, label, randomTravellerId));
   }, []);
 
+  /**
+   * Block 6 — the derived "dónde no coincidimos" view over the document this hook already owns.
+   *
+   * It is a function of `(document, plannedPlaceIds)` and stores nothing. It lives here because
+   * the document lives here, which keeps `TravellersDocumentV1` from having to leak out of the
+   * hook just so a component can group it. The planner ids are passed IN: this layer still never
+   * reads the planning draft.
+   */
+  const divergenceFor = useCallback(
+    (plannedPlaceIds: readonly string[]): DivergenceEntry[] =>
+      divergenceEntries(document, plannedPlaceIds),
+    [document]
+  );
+
   /** How many shortlisted places would leave the list if this traveller were reset or removed.
    * The UI states the number BEFORE acting, so a destructive step is never a surprise. */
   const placesOnlyWantedBy = useCallback(
@@ -213,5 +228,6 @@ export function useTravellers() {
     removeTraveller,
     addTraveller,
     placesOnlyWantedBy,
+    divergenceFor,
   };
 }

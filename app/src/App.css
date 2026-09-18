@@ -5550,9 +5550,92 @@ a {
   align-items: flex-start;
 }
 
+/* ---------- Block 6 — "dónde no coincidimos", inside the saved list ---------- */
+
+/* One scrollable row, so a narrow phone never grows a horizontal page scrollbar and never has to
+   wrap five chips into three lines above the list they filter. */
+.shortlist-filters {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding-bottom: 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.shortlist-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  min-height: var(--tap-target);
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Pressed is marked by weight, background AND border, never by hue alone — the same rule the
+   traveller bar follows, so the two segmented surfaces read identically in greyscale. */
+.shortlist-filters__chip--active {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-soft);
+}
+
+.shortlist-filters__count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.shortlist-filters__chip--active .shortlist-filters__count {
+  background: var(--color-border-strong);
+}
+
+.selection-panel__filter-status,
+.selection-panel__filter-empty {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.selection-panel__filter-empty {
+  padding: 0.7rem 0.1rem 0.2rem;
+}
+
+/* The derived line appears only inside a filtered view, and replaces the short marker rather than
+   sitting beside it, so a row never carries two indicators saying the same thing. */
+.selection-list__divergence {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  white-space: normal;
+}
+
+.selection-list__planned {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .traveller-bar__option,
-  .traveller-manager__dialog {
+  .traveller-manager__dialog,
+  .shortlist-filters__chip {
     transition: none;
   }
 }
