@@ -145,7 +145,7 @@ try {
         await route.continue();
       }
     });
-    await page.goto(`${baseURL}#/explorar`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${baseURL}#/explorar?q=Shibuya%20Crossing`, { waitUntil: "domcontentloaded" });
     const card = page.locator(".astra-card").filter({ has: page.locator('a[href*="JP-001"]') }).first();
     const visibleError = card.getByText("No se pudo cargar la fotografía", { exact:true });
     await visibleError.waitFor({ state:"visible" });
