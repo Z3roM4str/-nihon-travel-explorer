@@ -6,7 +6,10 @@ Nihon turns a structured Japan travel research base into a visual explorer: brow
 
 ## Current status
 
-**Nihon v1.0.0**
+**Nihon v1.1.0** — release candidate. The previously published release is
+[v1.0.0](https://github.com/Z3roM4str/-nihon-travel-explorer/releases/tag/v1.0.0) (2026-09-17);
+v1.1.0 adds two travellers, accommodation zones, provenance and freshness, and a portable backup,
+all backward compatible. See [the v1.1.0 release notes](docs/RELEASE_V1.1.0.md).
 
 Discovery and manual trip planning are both implemented; photography closed for v1 at Phase 4M.
 
@@ -14,8 +17,9 @@ Discovery and manual trip planning are both implemented; photography closed for 
   administrative geometry, and browses down through region → prefecture → hub → place.
 - All **214** verified places across **7** hubs are reachable, with filters, free-text search,
   place details, nearby jumps, saved places, and activity-time estimates.
-- **157** places carry a licensed photograph with full attribution; the rest show their
-  editorial `imageBrief` fallback. Six places carry a second perspective as a gallery. Every
+- **157** of the 214 places carry a licensed photograph with full attribution, **163** images in
+  all; the rest show their editorial `imageBrief` fallback. Six places carry a second perspective
+  as a gallery. Every
   photograph also ships a card-sized rendition, which cuts the bytes a phone spends scrolling a
   hub by **72%**. See [the photography closure](docs/PHOTOGRAPHY_STOP_VS_CONTINUE_DESIGN.md)
   and [Block 2](docs/BLOCK_2_PHOTOGRAPHY_DESIGN.md).
