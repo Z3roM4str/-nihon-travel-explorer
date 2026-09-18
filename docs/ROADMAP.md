@@ -7277,3 +7277,68 @@ prior document assigned Block 13 and no conflict was found.
       `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_13_HANDOFF.md`](BLOCK_13_HANDOFF.md).
+
+---
+
+## Block 14 — post-redesign release readiness / whole-product audit — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `894fdc6` (Block 13 closed). Not merged, no pull
+request, no tag, no release, no deployment. Full record in
+[`docs/BLOCK_14_RELEASE_READINESS.md`](BLOCK_14_RELEASE_READINESS.md).
+
+**Authority.** A gate, not a backlog: does Nihon, after Blocks 1–13, actually work as a product on a
+phone, a tablet and a desktop? No feature was added.
+
+### VERDICT: **RELEASE-READY WITH KNOWN LIMITATIONS**
+
+- [x] **Baseline reproduced exactly before any edit.** Vitest 3178/92, all twelve audits at their
+      stated values, 13/13 Python, 8/8 validators. Every figure matched.
+- [x] **The inventory was derived from code**, not memory: 214 places across 7 hubs, **157 places /
+      163 photographs**, 16 zones, 4 access points, 8 reservation mechanisms, and **five** storage
+      keys of which one (`nihon.savedPlaceIds`) is legacy and read-only.
+- [x] **One journey, not thirteen demos.** A single continuous story across **Tokio + Kioto +
+      Osaka** — discovery, search including a zero-result query, filters, detail, both travellers,
+      planner with three days anchored in March 2027, a manual visit time, an inter-hub segment,
+      zone comparison, reload, export, mutate, import, confirm, reload, keep using it — at three
+      viewports against the production build: **226 checks, 0 failed**.
+- [x] **The restore trap is closed and proven.** Restore → forced reload → **then interact** → the
+      replaced trip does not come back. This was Block 13's biggest risk and no isolated audit can
+      see it.
+- [x] **No BLOCKER. No MAJOR.** Four MINOR findings, all fixed; three observations and two debts,
+      all recorded.
+- [x] **F-1 fixed:** the backup revoked its object URL synchronously after the anchor click — no
+      Chromium-only API, but a pattern Safari has historically cancelled downloads for, in the one
+      feature whose purpose is moving a trip to another device. Deferred to a macrotask; regression
+      test proven to fail against the previous code. **A measured risk, not a measured failure**,
+      and recorded as such.
+- [x] **F-2/F-3/F-4 fixed — documentation that had stopped being true.** `app/README.md` claimed
+      "144 of 214" photographs (it is 157); `docs/DATA_MODEL.md` claimed `nihon.savedPlaceIds`
+      "remains" the only persisted state (false since Block 5); both READMEs described a single-user
+      app with no two-traveller model and no portable backup. **Only current-state docs were
+      touched** — the roadmap's per-block entries are a historical record and stay as written.
+- [x] **The code was already clean on the legacy key**: read in exactly one place, only when no
+      travellers document exists, and never written anywhere.
+- [x] **Network verified over the whole journey.** Only `a|b|c.tile.openstreetmap.org`. No
+      photograph fetched at runtime, no secret, no dev endpoint, no dormant provider, no chunk 404.
+      Export and import make **zero** requests. Zero page errors and zero relevant console errors,
+      with **one exact exclusion**: the sandbox has no route to the tile servers.
+- [x] **Static-hosting readiness confirmed.** No Node server, no API, no runtime environment
+      variable, **no client-side router — so no SPA rewrite rule is needed**. One caveat: absolute
+      asset paths, so a subpath deployment needs Vite's `base` (F-7). No PWA was added (§17).
+- [x] **Block 12 intact** (+6 B gzip, the `setTimeout` from F-1; same two lazy chunks, no
+      duplication). **The Vite advisory still fires and is still not silenced.**
+- [x] **The 160 editorial ratings were not touched and the debt was not closed.** Claude is not the
+      second reader. Block 9's fact/editorial boundary holds, so it is editorial debt rather than a
+      technical release blocker.
+- [x] **Five false positives, all in this block's own instrumentation**, recorded separately from
+      the real findings — including a 304 counted as a failure and a "secret" that was React DOM's
+      input-type table.
+- [x] **Verified.** Vitest **3179** (92 files) · lint and `tsc` clean · build OK · **13/13** Python ·
+      **8/8** validators · Blocks 1–13 audits **all at exact baseline and byte-identical** · new
+      Block 14 audit **226/226** at three viewports · `git diff --check` clean.
+
+**Known limitations to state before publishing:** a real Safari/iOS device test of the backup is
+outstanding; a subpath deployment needs `base`; the editorial ratings have one reader; an expanded
+saved-places sheet can overlay the national start screen on a phone.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_14_HANDOFF.md`](BLOCK_14_HANDOFF.md).
