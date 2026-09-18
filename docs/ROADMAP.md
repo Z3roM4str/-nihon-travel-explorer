@@ -7136,3 +7136,73 @@ assigned Block 11 to nothing else.
       `git diff --check` clean.
 
 **Authorized next step: none decided.** See [`docs/BLOCK_11_HANDOFF.md`](BLOCK_11_HANDOFF.md).
+
+---
+
+## Block 12 — RC-05: performance / bundle architecture audit — complete
+
+Branch `claude/sleepy-heisenberg-hn7340`, from `ae2b30a` (Block 11 closed). Not merged, no pull
+request. Full record in [`docs/BLOCK_12_DESIGN.md`](BLOCK_12_DESIGN.md).
+
+**Authority.** `RC-05`, carried in the debt table since
+[`docs/RELEASE_CANDIDATE_AUDIT.md`](RELEASE_CANDIDATE_AUDIT.md) and correctly left untouched through
+Blocks 1–11 because it must not be mixed with functional work.
+
+- [x] **The audit came before the design, and it inverted the original diagnosis.** RC-05 was
+      recorded as *"an ordinary size for React + Leaflet plus the full 214-place dataset"*. Measured
+      by rolldown's own accounting, **the dataset is 43.3% of the bundle and React plus Leaflet
+      together are 32.5%** — the data is larger than either runtime and larger than all of Nihon's
+      own code. The proportions were backwards.
+- [x] **The unit was wrong, which is most of the finding.** Vite's advisory counts raw minified
+      bytes. `walking-scale-results.json` is 253 kB raw and **10 kB gzipped — 4%**, because it is
+      thousands of near-identical records. All the JSON together is **898,690 B raw → 105,116 B
+      gzipped**. Roughly 900 kB of the 1.53 MB "problem" ships as 105 kB, and an audit that stopped
+      at the raw column would have sent the next reader after the wrong 253 kB.
+- [x] **Boundaries were found in the product, not the byte count.** Exclusive weight from the real
+      module graph: planner **246 kB / 27 modules**, zone comparison **38 kB / 8**, `PlaceDetail`
+      25 kB, `SelectionAnalysis` 14 kB, `TravellerManager` 9 kB. Only the first two clear the bar.
+- [x] **Leaflet was measured and kept.** `INITIAL_VIEW.mode` is `"national"`, so the first thing
+      Nihon renders is the national map. Deferring 256 kB of it would trade a real first paint for a
+      cosmetic number — refused, and now test-protected in both directions.
+- [x] **The big JSON stays, with the reason recorded.** The walking datasets (298 kB raw / ~12 kB
+      gzip) are reached from `usePlannedPlaceIds` → the planning-draft migration chain →
+      `transfer.ts`, which indexes at module scope. That is the **draft-restoration path**, running
+      on mount. Moving it needs a functional refactor forbidden by this block's scope, and is worth
+      ~12 kB — so it should be done for architectural reasons if ever, not for size.
+- [x] **Decision A, at exactly two boundaries.** `React.lazy` for the planner and the zone
+      comparison. No `manualChunks`, no vendor splitting, no tiny chunks, no change to
+      `chunkSizeWarningLimit`.
+- [x] **Before / after, reproducible.** Initial JS **1,530,614 → 1,377,479 B raw (−10.0%)**,
+      **284,387 → 250,628 B gzip (−11.9%)**, **227,624 → 201,105 B brotli (−11.7%)**. Two new
+      chunks, 31,917 B and 5,872 B gzipped. **Zero duplication** (104 + 27 + 8 modules, disjoint),
+      initial request count unchanged, no `modulepreload` for either — so no waterfall was added.
+      Re-derive with `node scripts/bundle-report.mjs`.
+- [x] **The split does not move the wait onto the user.** Both chunks are warmed on
+      `requestIdleCallback` after first paint, with a timeout fallback, rejection swallowed so a
+      failed prefetch can never surface as an error, and cancellable.
+- [x] **The warning still fires, and was deliberately not silenced.** The entry is still 1.38 MB raw
+      because it still holds the data a first render needs. Raising the threshold would have made
+      the advisory vanish without changing one byte a user downloads — the cosmetic surgery this
+      block exists to refuse. **RC-05 closes as diagnosed and materially improved, not as
+      "warning gone".**
+- [x] **One historical gate tripped, and the code moved rather than the gate.** Putting `Suspense`
+      inside the condition broke `ZonePlanSection.test.ts`, whose regex pins the condition sitting
+      directly against the component — protecting the invariant that the planner unmounts on close
+      so reopening re-reads the draft. The invariant was never broken, only the adjacency assumed.
+      As in Block 10, the boundary was moved outside instead; the test passes byte-identical, and
+      the result is better React.
+- [x] **Guards assert architecture, never output.** No chunk hash, no byte count, no `dist/`
+      filename. Nine tests pin the shape that causes the split — including the quiet failure where
+      one stray static import undoes it while the build stays green. All four were broken on purpose
+      to prove they fire.
+- [x] **No real-device numbers are claimed.** This environment has no throttled network and no CPU
+      profile, so no parse-time or TTI figure appears anywhere. Every number is a build or network
+      measurement that can be re-derived.
+- [x] **Verified.** Vitest **3126** (90 → 91 files, +9) · oxlint and `tsc` clean · build OK, RC-05
+      advisory intentionally unchanged · **all 13 Python suites** · **all 8 argument-free
+      validators** · Block 1 **142** · Block 2 **69** · Block 3 **105** · Block 4 **261** · Block 5
+      **225** · Block 6 **216** · Block 7 **129** · Block 8 **114** · Block 9 **153** · Block 10
+      **81**, all unmodified and byte-identical · new Block 12 audit **81/81** at three viewports ·
+      `git diff --check` clean.
+
+**Authorized next step: none decided.** See [`docs/BLOCK_12_HANDOFF.md`](BLOCK_12_HANDOFF.md).
