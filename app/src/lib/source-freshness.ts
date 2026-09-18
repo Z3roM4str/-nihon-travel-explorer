@@ -23,6 +23,15 @@ import type { ZoneFactArea, ZoneProvenance } from "./accommodation-zone";
  * | `current` | checked within the horizon its claims deserve |
  * | `needs-recheck` | still valid, and due for a look |
  * | `no-periodic-recheck` | nothing periodic governs these claims, so no clock applies |
+ * | `recheck-interval-unknown` | these claims do change, and no rhythm supports an interval |
+ *
+ * **Block 11 added the fourth, and it is not a synonym of the third.** `no-periodic-recheck` says
+ * *relax* — a Shinkansen station does not quietly stop being one. `recheck-interval-unknown` says
+ * the opposite: a museum can revise its ticketing rule next Tuesday, so the claim genuinely wants
+ * re-reading, and the only honest thing this module can say is that it does not know when. Folding
+ * the two together would let an operator's sales policy inherit the reassurance owed to concrete
+ * and steel. An interval nobody can derive is left unstated rather than invented — see
+ * `provenance-claim-class.ts`, where the two are decided per domain.
  *
  * **`unsupported` is deliberately not one of them.** A source stops supporting a claim when
  * somebody reads it and finds it no longer does — that is evidence, not arithmetic, and no
@@ -53,7 +62,11 @@ import type { ZoneFactArea, ZoneProvenance } from "./accommodation-zone";
  * be a bug that only appeared west of UTC.
  */
 
-export type SourceFreshnessState = "current" | "needs-recheck" | "no-periodic-recheck";
+export type SourceFreshnessState =
+  | "current"
+  | "needs-recheck"
+  | "no-periodic-recheck"
+  | "recheck-interval-unknown";
 
 /**
  * One Japanese annual timetable-revision cycle, in days.
@@ -94,6 +107,34 @@ export function horizonForCovers(covers: readonly ZoneFactArea[]): number | null
   return strictest;
 }
 
+/**
+ * Block 11 — what governs re-checking one class of claim, as a value rather than a number.
+ *
+ * Block 10 could express a horizon as `number | null`, because its two answers were "365 days" and
+ * "no rhythm exists". Block 11 found a third answer that `null` cannot carry: *these claims change,
+ * and nothing in the domain supplies an interval*. Reservation sales rules are exactly that — an
+ * operator revises them when it decides to, publishing no cycle a number could be derived from.
+ *
+ * Collapsing that into `null` would have made a ticketing policy report `no-periodic-recheck`,
+ * which tells the reader to relax about the most volatile claims in the dataset. So the absence of
+ * a horizon is split into the two things it can mean, and the caller must say which.
+ */
+export type RecheckHorizon =
+  /** A real interval, derived from a real rhythm in the domain. */
+  | { kind: "days"; days: number }
+  /** Nothing periodic governs these claims. Infrastructure, or a fact bounded by its own dates. */
+  | { kind: "none" }
+  /** These claims do change, and no evidence supports an interval. Deliberately unautomated. */
+  | { kind: "unknown" };
+
+export const HORIZON_NONE: RecheckHorizon = { kind: "none" };
+export const HORIZON_UNKNOWN: RecheckHorizon = { kind: "unknown" };
+
+/** A horizon of `days` days. Kept as a constructor so no call site writes the object shape twice. */
+export function horizonOfDays(days: number): RecheckHorizon {
+  return { kind: "days", days };
+}
+
 export type SourceFreshness = {
   state: SourceFreshnessState;
   /** Whole calendar days since the check, or `null` when the date is unusable. */
@@ -103,7 +144,11 @@ export type SourceFreshness = {
 };
 
 /**
- * The freshness of one source, as of `today`.
+ * The freshness of one source under an explicit horizon, as of `today`.
+ *
+ * Block 11's core: the one place a `consultedAt` becomes a verdict, for every system. Domain
+ * knowledge arrives as the `horizon` argument and nothing else, so this function never learns what
+ * a zone, a gate or a ticket is.
  *
  * A date that is malformed, impossible or in the future yields `needs-recheck` with a null age:
  * the validator refuses all three in the dataset, so reaching them here means something upstream
@@ -113,28 +158,55 @@ export type SourceFreshness = {
  * `current`, and becomes `needs-recheck` on the following day. One full cycle has elapsed only
  * once the cycle is over.
  */
+export function freshnessForHorizon(
+  consultedAt: string,
+  horizon: RecheckHorizon,
+  today: string
+): SourceFreshness {
+  const horizonDays = horizon.kind === "days" ? horizon.days : null;
+
+  if (!isValidCivilDate(consultedAt) || !isValidCivilDate(today)) {
+    return { state: "needs-recheck", ageDays: null, horizonDays };
+  }
+  const ageDays = differenceInCivilDays(consultedAt, today);
+  if (ageDays === null || ageDays < 0) {
+    // A check dated in the future was never made. It is not fresh; it is wrong.
+    // This outranks every horizon, `unknown` included: not knowing when to look again is no
+    // reason to accept a date that cannot be a date.
+    return { state: "needs-recheck", ageDays: null, horizonDays };
+  }
+  if (horizon.kind === "none") {
+    return { state: "no-periodic-recheck", ageDays, horizonDays };
+  }
+  if (horizon.kind === "unknown") {
+    // The age is still reported: it is a fact, and the honest one. What is withheld is the
+    // verdict, because no evidence supports one.
+    return { state: "recheck-interval-unknown", ageDays, horizonDays };
+  }
+  return {
+    state: ageDays > horizon.days ? "needs-recheck" : "current",
+    ageDays,
+    horizonDays,
+  };
+}
+
+/**
+ * The freshness of one zone source. Block 10's entry point, unchanged in signature and behaviour.
+ *
+ * Block 11 reimplemented it on top of `freshnessForHorizon` rather than beside it, so the three
+ * systems cannot drift into three readings of the same date. Zone facts reach only `days` and
+ * `none`, so no zone source can produce `recheck-interval-unknown` — asserted in the tests.
+ */
 export function freshnessFor(
   source: Pick<ZoneProvenance, "consultedAt" | "covers">,
   today: string
 ): SourceFreshness {
-  const horizonDays = horizonForCovers(source.covers);
-
-  if (!isValidCivilDate(source.consultedAt) || !isValidCivilDate(today)) {
-    return { state: "needs-recheck", ageDays: null, horizonDays };
-  }
-  const ageDays = differenceInCivilDays(source.consultedAt, today);
-  if (ageDays === null || ageDays < 0) {
-    // A check dated in the future was never made. It is not fresh; it is wrong.
-    return { state: "needs-recheck", ageDays: null, horizonDays };
-  }
-  if (horizonDays === null) {
-    return { state: "no-periodic-recheck", ageDays, horizonDays };
-  }
-  return {
-    state: ageDays > horizonDays ? "needs-recheck" : "current",
-    ageDays,
-    horizonDays,
-  };
+  const days = horizonForCovers(source.covers);
+  return freshnessForHorizon(
+    source.consultedAt,
+    days === null ? HORIZON_NONE : horizonOfDays(days),
+    today
+  );
 }
 
 /** Whether this source is due for a look. Never means the claim is wrong. */

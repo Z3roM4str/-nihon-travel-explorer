@@ -96,6 +96,12 @@ export function freshnessAccessibleText(state: SourceFreshnessState): string {
       return "conviene volver a comprobarla; no significa que el dato sea incorrecto";
     case "no-periodic-recheck":
       return "no necesita comprobaciones periódicas";
+    case "recheck-interval-unknown":
+      // Block 11. Unreachable from a zone source — zone fact areas resolve only to a horizon or to
+      // none — but this function takes a bare state, so the branch is required and is written to be
+      // correct rather than to silence the compiler. It says both halves and neither more: the
+      // claim can move, and Nihon is not pretending to know when to look again.
+      return "puede cambiar sin aviso; Nihon no fija cada cuánto volver a comprobarla";
   }
 }
 

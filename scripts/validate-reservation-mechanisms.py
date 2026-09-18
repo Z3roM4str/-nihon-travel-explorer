@@ -292,7 +292,7 @@ def validate_mechanism(mechanism, label, errors):
             errors.append(f"{label}: appliesToStartDate must not be after appliesToEndDate")
 
 
-def validate_catalog(catalog, place_ids):
+def validate_catalog(catalog, place_ids, today=None):
     errors = []
     if not isinstance(catalog, list):
         return ["reservation-mechanisms.json top level must be an array"]
@@ -374,8 +374,23 @@ def validate_catalog(catalog, place_ids):
         for field in ("sourceEntity", "evidence"):
             if not isinstance(provenance.get(field), str) or not provenance.get(field).strip():
                 errors.append(f"{label}: provenance.{field} must be non-empty")
-        if not valid_date(provenance.get("consultedAt")):
+        # Block 11. `consultedAt` keeps exactly Block 10's meaning: the civil date on which Nihon
+        # opened this source and confirmed it supported the claim beside it. Block 10 taught the
+        # zone validator to refuse the two dates that are objectively impossible and left this one
+        # behind; this closes that gap. Being OLD is never an error here, and deliberately so: a
+        # standing sales rule has no derivable re-check interval (see
+        # `app/src/lib/provenance-claim-class.ts`), so age cannot be made to mean anything. Note
+        # this is a rule about the CHECK's date, never about `mechanism.saleDate` — a sale date in
+        # the future is the normal case and is validated elsewhere, on its own terms.
+        consulted = provenance.get("consultedAt")
+        if not valid_date(consulted):
             errors.append(f"{label}: provenance.consultedAt must be a valid YYYY-MM-DD date")
+        elif date.fromisoformat(consulted) > (today or date.today()):
+            # A check dated in the future was never made.
+            errors.append(
+                f"{label}: provenance.consultedAt {consulted} is in the future; "
+                "a check cannot precede itself"
+            )
         if provenance.get("confidence") not in CONFIDENCES:
             errors.append(f"{label}: unsupported provenance confidence {provenance.get('confidence')!r}")
 
@@ -409,7 +424,7 @@ def validate_catalog(catalog, place_ids):
     return errors
 
 
-def validate(source_path=DEFAULT_SOURCE_PATH, app_path=DEFAULT_APP_PATH, places_path=DEFAULT_PLACES_PATH):
+def validate(source_path=DEFAULT_SOURCE_PATH, app_path=DEFAULT_APP_PATH, places_path=DEFAULT_PLACES_PATH, today=None):
     try:
         catalog = load(source_path)
         places = load(places_path)
@@ -417,7 +432,7 @@ def validate(source_path=DEFAULT_SOURCE_PATH, app_path=DEFAULT_APP_PATH, places_
         return [f"cannot load required artifact: {exc}"]
 
     place_ids = {place.get("id") for place in places if isinstance(place, dict)}
-    errors = validate_catalog(catalog, place_ids)
+    errors = validate_catalog(catalog, place_ids, today)
 
     if app_path is not None:
         try:
