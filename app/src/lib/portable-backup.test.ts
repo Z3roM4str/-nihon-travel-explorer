@@ -673,6 +673,19 @@ describe("Block 13 — the browser edge is confined to one module", () => {
     expect(prepare).not.toMatch(/applyRestore|setItem|removeItem/);
   });
 
+  it("the export uses only APIs available beyond Chromium, and revokes its URL out of band", async () => {
+    // Block 14. No File System Access API, no vendor prefix, and the object URL is not revoked in
+    // the same task as the click — the pattern Safari has historically cancelled downloads for.
+    const code = withoutComments(await hook());
+    expect(code).not.toMatch(/showSaveFilePicker|showOpenFilePicker|FileSystemWritableFileStream|webkit|msSave/);
+    expect(code).toMatch(/new Blob\(/);
+    expect(code).toMatch(/URL\.createObjectURL/);
+    expect(code).toMatch(/setTimeout\(\(\) => URL\.revokeObjectURL\(url\), 0\)/);
+    // The anchor must be in the document when clicked; a detached one is ignored on iOS.
+    const exportFn = code.slice(code.indexOf("const exportBackup"), code.indexOf("const prepareImport"));
+    expect(exportFn.indexOf("document.body.appendChild")).toBeLessThan(exportFn.indexOf("anchor.click()"));
+  });
+
   it("a successful restore ends in a reload, because the in-memory trip is stale", async () => {
     // Without this the next heart pressed would write the PREVIOUS trip over the imported one.
     const code = withoutComments(await hook());

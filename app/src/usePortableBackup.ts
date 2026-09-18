@@ -103,10 +103,19 @@ export function usePortableBackup() {
     anchor.href = url;
     anchor.download = fileName;
     anchor.rel = "noopener";
+    // The anchor is attached before clicking on purpose: a detached anchor's synthetic click is
+    // ignored by some browsers, notably on iOS.
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
+    // Block 14. The revoke is DEFERRED rather than immediate, and that is the one line in this
+    // feature written for a browser this repository cannot run. Revoking synchronously right after
+    // `click()` is a pattern Chromium tolerates — it is what shipped in Block 13 and what 226
+    // passing checks exercise — but Safari has historically cancelled a download whose object URL
+    // disappears in the same task. Deferring to a macrotask is correct everywhere and removes a
+    // known-fragile dependency on one engine's timing before the iPhone test this repo still owes.
+    // Not a measured failure; a measured *risk*, recorded as such in the Block 14 findings.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
     return fileName;
   }, []);
 
