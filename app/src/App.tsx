@@ -17,6 +17,18 @@ import { hubsWithZones } from "./lib/accommodation-zone";
 import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
 import { useTravellers } from "./useTravellers";
+import { usePortableBackup } from "./usePortableBackup";
+/**
+ * Block 13. Static, and measured rather than assumed.
+ *
+ * `TripBackup` is 7.4 kB raw / 2.4 kB gzipped — smaller than `SelectionAnalysis` (14 kB) and
+ * `TravellerManager` (9 kB), both of which Block 12 examined and deliberately left in the entry
+ * chunk because "a chunk each would buy a round trip and save nothing worth having". Splitting
+ * this one would mean applying a threshold to every surface except the one this block happens to
+ * be adding, which is how a rule becomes an exception. It stays in the entry; the whole feature
+ * costs 1.5 kB gzipped on the critical path.
+ */
+import { TripBackup } from "./components/TripBackup";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
@@ -192,6 +204,9 @@ export default function App() {
   /** Shown on the very first visit and reopenable from the header; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
   const [travellerManagerOpen, setTravellerManagerOpen] = useState(false);
+  const [backupOpen, setBackupOpen] = useState(false);
+  const { importState, exportBackup, prepareImport, confirmImport, resetImport, finishRestore } =
+    usePortableBackup();
 
   // Block 12. Runs once, after mount, and never blocks anything.
   useEffect(() => prefetchOnDemandSurfaces(), []);
@@ -581,6 +596,15 @@ export default function App() {
           />
           <button
             type="button"
+            className="app__backup"
+            onClick={() => setBackupOpen(true)}
+            aria-label="Respaldo del viaje"
+            title="Respaldo del viaje"
+          >
+            <span aria-hidden="true">⤓</span>
+          </button>
+          <button
+            type="button"
             className="app__help"
             onClick={() => setOnboardingOpen(true)}
             aria-label="Cómo se usa Nihon"
@@ -768,6 +792,21 @@ export default function App() {
           />
         )}
       </Suspense>
+
+      {backupOpen && (
+          <TripBackup
+            importState={importState}
+            onExport={exportBackup}
+            onChooseFile={prepareImport}
+            onConfirm={(preview) => confirmImport(preview.plan)}
+            onReset={resetImport}
+            onFinishRestore={finishRestore}
+            onClose={() => {
+              resetImport();
+              setBackupOpen(false);
+            }}
+          />
+        )}
 
       <SaveToast feedback={feedback} />
 

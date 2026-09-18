@@ -225,6 +225,29 @@ a {
   color: var(--color-text);
 }
 
+/* Block 13. The same visual weight as the help control beside it — a backup is a secondary safety
+   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar — but NOT the same size.
+   `.app__help` is 36px under a named historical allowance in Block 1's audit; a control added today
+   meets the 44px floor instead of joining an exemption list. Block 1's audit caught this. */
+.app__backup {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app__backup:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
 /* ---------- View bar (phones) ---------- */
 
 /* Hidden on desktop, where the list and the map are both on screen already. */
@@ -5680,4 +5703,167 @@ a {
   .shortlist-filters__chip {
     transition: none;
   }
+}
+
+
+/* ---------- Block 13 — trip backup ---------- */
+
+.trip-backup {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(35, 28, 20, 0.45);
+}
+
+.trip-backup__dialog {
+  width: min(560px, 100%);
+  max-height: min(88vh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: 1rem;
+}
+
+.trip-backup__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.trip-backup__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.trip-backup__sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.trip-backup__close {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.trip-backup__section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.trip-backup__section h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.trip-backup__note {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.trip-backup__note--warning {
+  color: var(--color-text);
+}
+
+.trip-backup__file {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.trip-backup__result,
+.trip-backup__reassure {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.trip-backup__preview,
+.trip-backup__restored,
+.trip-backup__problem {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.trip-backup__preview p,
+.trip-backup__restored p,
+.trip-backup__problem p {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.trip-backup__summary {
+  margin: 0 0 0.6rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.trip-backup__summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.trip-backup__summary-row dt {
+  color: var(--color-text-muted);
+}
+
+.trip-backup__summary-row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Never red: a reduced restore is not an error, it is a smaller true thing than the file hoped. */
+.trip-backup__warning {
+  font-weight: 600;
+}
+
+.trip-backup__confirm-line {
+  font-weight: 600;
+}
+
+.trip-backup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.trip-backup__actions .button {
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+}
+
+.trip-backup__export,
+.trip-backup__finish {
+  min-height: 2.75rem;
 }
