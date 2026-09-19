@@ -27,4 +27,24 @@ describe("Astra SOL-0–2 correction wiring", () => {
     expect(dialog).toContain('typeof returnFocus === "function" ? returnFocus() : returnFocus');
     expect(dialog).toContain("target?.focus()");
   });
+  it("implements the independent F01–F09 correction contracts", async () => {
+    const [app, discovery, card, recommendation, dialog, css] = await Promise.all([
+      source("../App.tsx"), source("./Discovery.tsx"), source("./PlaceCard.tsx"),
+      source("./recommendation.ts"), source("./RouteDialog.tsx"), source("./astra.css"),
+    ]);
+    expect(card.indexOf("astra-card__credit")).toBeLessThan(card.indexOf("astra-card__body"));
+    expect(card).toContain("image.licenseUrl");
+    expect(card).toContain("image.attributionTitle || image.sourceFileTitle");
+    expect(card).toContain('loadState === "loading" &&');
+    expect(recommendation).toContain('D: "Prescindible"');
+    expect(discovery).toContain('<option value="__regions">Explorar por región</option>');
+    expect(discovery).not.toContain("astra-region-link");
+    expect(discovery).toContain("announceResults />");
+    expect(app).toContain('role="alertdialog"');
+    expect(app).toContain("history.state?.astraExploreOrigin");
+    expect(app).toContain('route.surface !== "place"');
+    expect(dialog).toContain('data-astra-modal=""');
+    expect(css).toContain("line-height:1.25");
+    expect(css).not.toContain("-webkit-line-clamp:2");
+  });
 });

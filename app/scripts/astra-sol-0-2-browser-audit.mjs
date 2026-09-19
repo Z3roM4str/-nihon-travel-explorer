@@ -182,7 +182,7 @@ try {
     await filterButton.click();
     const filterDialog = page.getByRole("dialog", { name:"Filtros avanzados" });
     await filterDialog.waitFor();
-    assert.equal(await page.locator('[role="status"]').count(), 1, "duplicate result live regions");
+    assert.equal(await page.locator('[role="status"]:not([inert] [role="status"])').count(), 1, "active layer must expose one result live region");
     for (let i=0;i<30;i++) { await page.keyboard.press("Tab"); assert.equal(await page.evaluate(() => Boolean(document.activeElement?.closest('[aria-label="Filtros avanzados"]'))), true, "focus escaped filter dialog"); }
     await page.keyboard.press("Escape");
     await filterDialog.waitFor({ state:"detached" });
