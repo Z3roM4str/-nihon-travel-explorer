@@ -75,3 +75,17 @@ The correction session was requested against original implementation `fc09e33f90
 ### New-audit objective and remaining risks
 
 Astra must re-audit the corrected source and reproduce all required viewports and journeys on a browser-equipped runner, especially byte-equivalent V7 survival after blocked unsave, Back/Forward/nearby history, advanced-filter/map parity, modal/lightbox focus stacking, image retry, and initial-network lazy chunk behavior. Visual items remain PARTIAL until then. The build's initial chunk advisory is recorded. Do not begin SOL-3 before Astra disposes these corrections.
+
+---
+
+## Independent-audit F01–F09 correction checkpoint (2026-09-19)
+
+Starting point was the exact required audit commit `8350d3ea3b2a7b42dbcc55fe1d2df26815d7795a` on the supplied `work` checkout; it is a descendant of the requested implementation history. No later product correction was present.
+
+The bounded correction commit addresses only F01–F09: complete card attribution directly below photography; exact DA-07 recommendation vocabulary/icons/treatments; region entry and per-hub counts inside the hub selector; reusable alertdialog trapping/restoration; preservation of the original live discovery opener through nearby chains; per-history-entry region origin surviving reload; one accessible result status in the active filter layer; relative card typography without description clipping; and removal of the completed image's loading overlay. Canonical data, photography bytes, V7 structures, legacy detail, and SOL-3+ remain untouched.
+
+Verification: all 70 Vitest files (2464 tests), lint, production build, five passive validators, and `git diff --check` pass. The build retains its pre-existing >500 kB initial-chunk advisory. The browser workflow's live-region assertion was corrected to measure the active non-inert layer instead of counting hidden DOM. Browser evidence could not be regenerated in this container: no browser executable is installed, and five Playwright CDN attempts returned HTTP 403. Therefore rendered approval remains **PARTIAL** and no screenshot is fabricated. Astra should execute `ASTRA_EXPECTED_SHA=<final-sha> ASTRA_AUDIT_OUTPUT=<evidence-dir> npm run audit:astra:browser` from `app/` on the browser-equipped PR runner, inspect the produced screenshots/traces, and specifically recheck F01–F09. SOL-3 is not started.
+
+### Evidence-run availability audit (2026-09-19)
+
+A follow-up environment audit found no installed browser or compatible cache. The checkout has no Git remote, `gh` is unauthenticated, no `GH_TOKEN` exists, and anonymous GitHub API access is blocked by the proxy. Consequently this session cannot verify whether the candidate product commit `0a80f44a6bad44f9c83bb25bf45192c34b7874a1` is the remote PR #122 head, publish it, trigger Actions, download an artifact, or attach externally accessible screenshots. The exact inspected workflow, trigger, artifact name, limitations and minimum external action are recorded in `docs/astra/evidence/corrections-0a80f44/README.md`. No visual PASS is claimed.
