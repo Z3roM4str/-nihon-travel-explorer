@@ -93,9 +93,11 @@ describe("PlaceCard — the two actions", () => {
     expect(source).toContain("Guardar ${place.name} en Quiero ir");
   });
 
-  it("uses a filled/hollow heart, so the state is not carried by colour alone", async () => {
+  it("uses a filled/hollow heart icon, so the state is not carried by colour alone", async () => {
+    // Bloque 17 (B1): sustituye el glifo emoji por el set de iconos de línea propio
+    // (00 "Patrones explícitamente prohibidos" · 03 §8).
     const source = await readSource();
-    expect(source).toContain('saved ? "♥" : "♡"');
+    expect(source).toContain('name={saved ? "corazon-relleno" : "corazon"}');
   });
 });
 
@@ -122,7 +124,9 @@ describe("PlaceCard — photography rules", () => {
   it("shows an editorial placeholder — never a stand-in photograph — when none exists", async () => {
     const source = await readSource();
     expect(source).toContain("place-card__placeholder");
-    expect(source).toContain('category.icon || "⛩"');
+    // Bloque 17 (B1): el marcador ya no lleva el emoji de categoría del dataset, sólo el
+    // icono de línea "imagen" (00 "Patrones explícitamente prohibidos" · 03 §8).
+    expect(source).toContain('<Icon name="imagen"');
   });
 
   it("leaves the decorative card image out of the accessibility tree", async () => {

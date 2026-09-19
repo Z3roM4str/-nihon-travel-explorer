@@ -1,4 +1,5 @@
 import type { Place } from "../types";
+import type { IconName } from "../icons/Icon";
 
 /**
  * Phase 3D-F — Feb–Mar 2027 Status Signals.
@@ -151,14 +152,16 @@ const TIER_TONE: Record<FebMarStatusTier, FebMarStatusTone> = {
 export type FebMarStatusDisplay = {
   tone: FebMarStatusTone;
   cssModifier: "confirmed" | "risk" | "pending";
-  icon: string;
+  /** Bloque 17 (B1): nombre del icono de línea propio, ya no un glifo emoji
+   * (00 "Patrones explícitamente prohibidos" · 03 §8). */
+  icon: IconName;
   label: string;
 };
 
 const TONE_DISPLAY: Record<FebMarStatusTone, Omit<FebMarStatusDisplay, "tone">> = {
-  confirmed: { cssModifier: "confirmed", icon: "✓", label: "Confirmado" },
-  attention: { cssModifier: "risk", icon: "⚠", label: "Requiere atención" },
-  pending: { cssModifier: "pending", icon: "ⓘ", label: "Por confirmar" },
+  confirmed: { cssModifier: "confirmed", icon: "confirmado", label: "Confirmado" },
+  attention: { cssModifier: "risk", icon: "aviso", label: "Requiere atención" },
+  pending: { cssModifier: "pending", icon: "info", label: "Por confirmar" },
 };
 
 /** Derives the display adapter for one `FebMarStatusFact`. Pure — no I/O, no `Place` dependency,

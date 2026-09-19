@@ -24,6 +24,7 @@ import {
 } from "../lib/zone-provenance-presentation";
 import { freshnessFor } from "../lib/source-freshness";
 import { todayCivilDate } from "../lib/today";
+import { Icon } from "../icons/Icon";
 import {
   NEUTRAL_AXIS_NOTE,
   axisDirectionHint,
@@ -85,7 +86,7 @@ function ZoneChoiceAction({
     return (
       <p className="zone-choice-action zone-choice-action--chosen">
         <span className="zone-choice-badge">
-          <span aria-hidden="true">✓</span> Zona elegida para el plan
+          <Icon name="confirmado" size={16} /> Zona elegida para el plan
         </span>
         <button
           type="button"
@@ -111,7 +112,7 @@ function ZoneChoiceAction({
             : `Usar ${zone.name} en el plan`
         }
       >
-        <span aria-hidden="true">🛏</span>{" "}
+        <Icon name="cama" size={16} />{" "}
         {hasOtherChoice ? "Cambiar a esta zona" : "Usar esta zona en el plan"}
       </button>
     </p>
@@ -150,7 +151,7 @@ function ShinkansenFact({ zone }: { zone: AccommodationZone }) {
   if (shinkansen.served) {
     return (
       <span className="zone-fact zone-fact--strong">
-        <span aria-hidden="true">🚅</span> Shinkansen aquí
+        <Icon name="tren" size={16} /> Shinkansen aquí
         {shinkansen.lines && shinkansen.lines.length > 0 && (
           <span className="zone-fact__detail"> · {shinkansen.lines.join(", ")}</span>
         )}
@@ -159,7 +160,7 @@ function ShinkansenFact({ zone }: { zone: AccommodationZone }) {
   }
   return (
     <span className="zone-fact">
-      <span aria-hidden="true">🚅</span> Shinkansen en {shinkansen.nearestStation}
+      <Icon name="tren" size={16} /> Shinkansen en {shinkansen.nearestStation}
     </span>
   );
 }
@@ -187,7 +188,7 @@ function AirportFacts({ zone }: { zone: AccommodationZone }) {
           key={airportLinkKey(link)}
           className={`zone-fact ${link.directFromZone ? "zone-fact--strong" : ""}`}
         >
-          <span aria-hidden="true">✈</span> {link.airport}
+          <Icon name="avion" size={16} /> {link.airport}
           <span className="zone-fact__detail">
             {" "}
             · {airportLinkConnection(link)}
@@ -368,7 +369,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
       <header className="zone-panel__bar">
         <div>
           <h2 id="zone-panel-title">
-            <span aria-hidden="true">🛏</span> Dónde dormir en {hub}
+            <Icon name="cama" size={20} /> Dónde dormir en {hub}
           </h2>
           <p className="zone-panel__sub">
             {mode === "compare"
@@ -397,7 +398,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
           {chosenZone ? (
             <>
               <p className="zone-choice-banner__line">
-                <span aria-hidden="true">🛏</span> Para dormir en {hub} habéis elegido{" "}
+                <Icon name="cama" size={16} /> Para dormir en {hub} habéis elegido{" "}
                 <strong>{chosenZone.name}</strong>
                 {chosenAnchorLabel && (
                   <>
@@ -414,8 +415,10 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
                   " Ese alojamiento ya se usa en algún día, así que si quitáis la zona el alojamiento se queda (no se borra nada de lo que hayáis escrito)."}
               </p>
               <span className="zone-choice-banner__actions">
+                {/* Bloque 17 (B1): sin flecha final (00 "Patrones explícitamente prohibidos"
+                    "→ al final de un botón o enlace"). */}
                 <button type="button" className="button button--secondary" onClick={onOpenPlanner}>
-                  Abrir el planificador <span aria-hidden="true">→</span>
+                  Abrir el planificador
                 </button>
                 {/* A distinct accessible name from the per-zone "Quitar del plan" control below:
                     two buttons that do the same thing may share a purpose, but sharing a name
@@ -432,7 +435,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
             </>
           ) : (
             <p className="zone-choice-banner__line zone-choice-banner__line--empty">
-              <span aria-hidden="true">🛏</span> Aún no habéis elegido zona para {hub}. Cuando
+              <Icon name="cama" size={16} /> Aún no habéis elegido zona para {hub}. Cuando
               elijáis una, el planificador recibirá su estación como alojamiento de referencia —
               nada más.
             </p>
@@ -443,7 +446,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
           <>
             {hubSaved.length > 0 ? (
               <p className="zone-panel__note" role="status">
-                <span aria-hidden="true">📍</span> Ordenadas por cercanía a vuestros{" "}
+                <Icon name="ubicacion" size={16} /> Ordenadas por cercanía a vuestros{" "}
                 <strong>
                   {hubSaved.length} lugar{hubSaved.length === 1 ? "" : "es"} guardado
                   {hubSaved.length === 1 ? "" : "s"}
@@ -452,7 +455,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
               </p>
             ) : (
               <p className="zone-panel__note zone-panel__note--muted">
-                <span aria-hidden="true">📍</span> Guarda lugares en {hub} y estas zonas se
+                <Icon name="ubicacion" size={16} /> Guarda lugares en {hub} y estas zonas se
                 reordenarán según lo que queráis ver.
               </p>
             )}
@@ -490,13 +493,13 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
                         <ShinkansenFact zone={zone} />
                         <AirportFacts zone={zone} />
                         <span className="zone-fact">
-                          <span aria-hidden="true">🚉</span> {zone.facts.railLines.length} líneas
+                          <Icon name="tren" size={16} /> {zone.facts.railLines.length} líneas
                         </span>
                       </div>
 
                       {fit.consideredCount > 0 && fit.medianKm !== null && (
                         <p className="zone-card__fit">
-                          <span aria-hidden="true">📍</span> Mediana{" "}
+                          <Icon name="ubicacion" size={16} /> Mediana{" "}
                           <strong>{formatKm(fit.medianKm)}</strong> a vuestros guardados
                           {fit.byBand.doorstep > 0 && (
                             <> · {fit.byBand.doorstep} a pie</>
@@ -728,7 +731,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
       <footer className="zone-panel__foot">
         {mode === "compare" ? (
           <button type="button" className="button button--secondary" onClick={() => setMode("browse")}>
-            <span aria-hidden="true">←</span> Volver a las zonas
+            <Icon name="atras" size={16} /> Volver a las zonas
           </button>
         ) : (
           <>

@@ -11,6 +11,7 @@ import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/
 import { interestLevelForPlace } from "../lib/interest-level";
 import { stanceLines } from "../lib/traveller-presentation";
 import type { InterestStance, PlaceInterestSummary, Traveller } from "../lib/travellers";
+import { Icon, type IconName } from "../icons/Icon";
 
 type Props = {
   place: Place;
@@ -33,11 +34,11 @@ type Props = {
   onBack: () => void;
 };
 
-function QuickFact({ icon, label, value }: { icon: string; label: string; value: string }) {
+function QuickFact({ icon, label, value }: { icon: IconName; label: string; value: string }) {
   return (
     <div className="quick-fact">
       <span className="quick-fact__icon" aria-hidden="true">
-        {icon}
+        <Icon name={icon} size={20} />
       </span>
       <span className="quick-fact__body">
         <span className="quick-fact__label">{label}</span>
@@ -133,7 +134,7 @@ export function PlaceDetail({
       <div className="place-detail__bar">
         {previousPlace ? (
           <button type="button" className="place-detail__back" onClick={onBack}>
-            <span aria-hidden="true">←</span> {previousPlace.name}
+            <Icon name="atras" size={20} /> {previousPlace.name}
           </button>
         ) : (
           <span />
@@ -145,23 +146,19 @@ export function PlaceDetail({
           ref={closeButtonRef}
           aria-label={`Cerrar la ficha de ${place.name}`}
         >
-          <span aria-hidden="true">×</span>
+          <Icon name="cerrar" size={20} />
         </button>
       </div>
 
       <div className="place-detail__scroll" ref={scrollRef}>
-        <PlaceGallery
-          key={place.id}
-          images={images}
-          imageBrief={brief}
-          placeName={place.name}
-          categoryIcon={category.icon}
-        />
+        <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
 
         <div className="place-detail__body">
           <header className="place-detail__title-block">
             <p className="place-detail__eyebrow">
-              <span aria-hidden="true">{category.icon}</span> {category.label}
+              {/* Bloque 17 (B1): el emoji de categoría del dataset ya no se renderiza como
+                  icono de interfaz (03 §8). */}
+              {category.label}
               <span aria-hidden="true"> · </span>
               {place.neighborhood || place.municipality}
             </p>
@@ -172,15 +169,20 @@ export function PlaceDetail({
               </p>
             )}
             <div className="tag-row">
-              {/* The plain-language level leads; the dataset's own letter stays visible after it,
-                  so nothing that was on this card before has been taken away. */}
-              <span className={`tag tag--grade-${place.grade}`} title={interest.description}>
+              {/* Bloque 17 (B1): la letra de grado cruda (S/A/B/C/D) ya no se muestra en la
+                  ficha (00 "Patrones explícitamente prohibidos": "Mostrar la letra de grado…
+                  Ya está traducida a lenguaje llano"; 03 §1.3 "El único nivel que se muestra en
+                  tarjeta es «Imprescindible»"). El grado original sigue disponible como
+                  `title` y, cuando exista la sección "Fuentes" (B4, `05 §5 pt.14`), vivirá ahí. */}
+              <span
+                className={`tag tag--grade-${place.grade}`}
+                title={`${interest.description} (grado original: ${place.grade})`}
+              >
                 <span aria-hidden="true">{interest.glyph}</span> {interest.label}
-                <span className="tag__grade-letter"> · Grado {place.grade}</span>
               </span>
               {isHiddenGem(place) && (
                 <span className="tag tag--gem">
-                  <span aria-hidden="true">💎</span> {place.hiddenGemStatus}
+                  <Icon name="joya" size={16} /> {place.hiddenGemStatus}
                 </span>
               )}
               <span className="tag tag--muted">Turismo: {place.tourismLevel}</span>
@@ -192,12 +194,12 @@ export function PlaceDetail({
 
           <button
             type="button"
-            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
+            className={`button button--primary button--lg save-button ${isSaved ? "save-button--saved" : ""}`}
             onClick={() => onToggleSaved(place.id)}
             aria-pressed={isSaved}
           >
             <span aria-hidden="true" className="save-button__icon">
-              {isSaved ? "♥" : "♡"}
+              <Icon name={isSaved ? "corazon-relleno" : "corazon"} size={20} />
             </span>
             {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
           </button>
@@ -220,7 +222,13 @@ export function PlaceDetail({
                 {stanceLines(interestSummary, travellers).map((line) => (
                   <li key={line.travellerId} className={`place-interest__line place-interest__line--${line.stance}`}>
                     <span aria-hidden="true" className="place-interest__glyph">
-                      {line.stance === "interested" ? "♥" : line.stance === "not-interested" ? "✕" : "·"}
+                      {line.stance === "interested" ? (
+                        <Icon name="corazon-relleno" size={16} />
+                      ) : line.stance === "not-interested" ? (
+                        <Icon name="cerrar" size={16} />
+                      ) : (
+                        "·"
+                      )}
                     </span>
                     <strong>{line.label}</strong> {line.text}
                   </li>
@@ -259,18 +267,18 @@ export function PlaceDetail({
 
           <div className="quick-facts">
             <QuickFact
-              icon="⏱"
+              icon="reloj"
               label="Tiempo de visita"
               value={duration ? formatRange(duration) : place.duration.raw}
             />
-            <QuickFact icon="💴" label="Precio" value={formatPrice(place)} />
-            <QuickFact icon="🕰" label="Mejor momento" value={place.bestTime} />
-            <QuickFact icon="🗓" label="Mejor época" value={place.bestSeason} />
+            <QuickFact icon="precio" label="Precio" value={formatPrice(place)} />
+            <QuickFact icon="reloj" label="Mejor momento" value={place.bestTime} />
+            <QuickFact icon="calendario" label="Mejor época" value={place.bestSeason} />
           </div>
 
           <section className={`alert alert--${febMarStatus.cssModifier}`}>
             <h3 className="alert__title">
-              <span aria-hidden="true">{febMarStatus.icon}</span> Febrero–marzo 2027
+              <Icon name={febMarStatus.icon} size={20} /> Febrero–marzo 2027
               <span className="alert__severity">{febMarStatus.label}</span>
             </h3>
             <p className="alert__status">{place.febMar2027.status}</p>
@@ -297,12 +305,12 @@ export function PlaceDetail({
           <div className="link-row">
             {place.officialUrl && (
               <a className="button button--secondary" href={place.officialUrl} target="_blank" rel="noreferrer">
-                Sitio oficial <span aria-hidden="true">↗</span>
+                Sitio oficial <Icon name="enlace-externo" size={16} />
               </a>
             )}
             {place.googleMapsUrl && (
               <a className="button button--secondary" href={place.googleMapsUrl} target="_blank" rel="noreferrer">
-                Google Maps <span aria-hidden="true">↗</span>
+                Google Maps <Icon name="enlace-externo" size={16} />
               </a>
             )}
           </div>

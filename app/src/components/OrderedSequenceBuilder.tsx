@@ -36,6 +36,7 @@ import {
 } from "../lib/evidence-complete-two-pair-block-swap";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
+import { Icon } from "../icons/Icon";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
 import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
 import {
@@ -247,16 +248,16 @@ type Props = {
 
 function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
   if (!leg.transfer) {
+    /* Bloque 17 (B1): sin icono "?" — una ausencia conocida no es un error
+       (04 §14 "Sin traslado registrado: … nunca en rojo y nunca con ?"). */
     return (
-      <p className="sequence-leg sequence-leg--unknown">
-        <span aria-hidden="true">❓</span> Sin traslado registrado
-      </p>
+      <p className="sequence-leg sequence-leg--unknown">Sin traslado registrado</p>
     );
   }
   const display = describeTransferForUi(leg.transfer);
   return (
     <p className="sequence-leg">
-      <span aria-hidden="true">{transferModeIcon(leg.transfer.mode)}</span> {display.timeText} ·{" "}
+      <Icon name={transferModeIcon(leg.transfer.mode)} size={16} /> {display.timeText} ·{" "}
       {display.qualityLabel}
     </p>
   );
@@ -354,7 +355,7 @@ function ReorderableList({
                     disabled={!canMoveToPreviousGroup}
                     aria-label={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
                   >
-                    <span aria-hidden="true">←</span>
+                    <Icon name="atras" size={16} />
                   </button>
                 )}
                 <button
@@ -364,7 +365,7 @@ function ReorderableList({
                   disabled={index === 0}
                   aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
                 >
-                  <span aria-hidden="true">↑</span>
+                  <Icon name="arriba" size={16} />
                 </button>
                 <button
                   type="button"
@@ -373,7 +374,7 @@ function ReorderableList({
                   disabled={index === places.length - 1}
                   aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
                 >
-                  <span aria-hidden="true">↓</span>
+                  <Icon name="abajo" size={16} />
                 </button>
                 {onMoveToNextGroup && (
                   <button
@@ -383,7 +384,7 @@ function ReorderableList({
                     disabled={!canMoveToNextGroup}
                     aria-label={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
                   >
-                    <span aria-hidden="true">→</span>
+                    <Icon name="siguiente" size={16} />
                   </button>
                 )}
                 {onRemove && (
@@ -393,7 +394,7 @@ function ReorderableList({
                     onClick={() => onRemove(place.id)}
                     aria-label={`Quitar ${place.name} del recorrido`}
                   >
-                    <span aria-hidden="true">×</span>
+                    <Icon name="cerrar" size={16} />
                   </button>
                 )}
               </div>
@@ -528,7 +529,7 @@ function WeekdayClosureNotice({ signal }: { signal: DayWeekdaySignal }) {
       {matches.length > 0 ? (
         <>
           <p className="weekday-signal__summary weekday-signal__summary--warn">
-            <span aria-hidden="true">⚠</span> {matches.length} posible
+            <Icon name="aviso" size={16} /> {matches.length} posible
             {matches.length === 1 ? "" : "s"} coincidencia{matches.length === 1 ? "" : "s"} con cierre semanal
           </p>
           <ul className="weekday-signal__list">
@@ -593,7 +594,7 @@ function HoursClosureCompositionNotice({
           <span className="hours-closure-composition__name">{placeName}</span>
           {signal.compositionClass === "present-with-caveat" && (
             <p className="hours-closure-composition__caveat">
-              <span aria-hidden="true">⚠</span> Información con salvedad; conviene revisar el texto registrado
+              <Icon name="aviso" size={16} /> Información con salvedad; conviene revisar el texto registrado
               completo.
             </p>
           )}
@@ -813,7 +814,7 @@ function ReservationDeadlineNotice({
           )}
           {febMarTone === "attention" && (
             <p className="reservation-deadline__status-callout reservation-deadline__status-callout--attention">
-              <span aria-hidden="true">⚠</span> Estado Feb–Mar 2027: {febMarLabel}. El calendario/condición
+              <Icon name="aviso" size={16} /> Estado Feb–Mar 2027: {febMarLabel}. El calendario/condición
               registrado para este lugar tiene una salvedad que conviene revisar antes de tomar esta ventana
               como referencia de planificación.
             </p>
@@ -1402,7 +1403,7 @@ function AccommodationManagerSection({
                       : `Eliminar alojamiento ${anchor.label}`
                   }
                 >
-                  <span aria-hidden="true">×</span>
+                  <Icon name="cerrar" size={16} />
                 </button>
               </li>
             );
@@ -1883,7 +1884,7 @@ function InterHubSegmentsSection({
                     onClick={() => onRemove(segment.id)}
                     aria-label={`Eliminar tramo ${fromName} a ${toName}`}
                   >
-                    <span aria-hidden="true">×</span>
+                    <Icon name="cerrar" size={16} />
                   </button>
                 </div>
                 <p className="inter-hub-segments__status">
@@ -2026,7 +2027,7 @@ function TripBoundsNotice({ summary }: { summary: TripBoundsSummary }) {
 
       {unavailableReason === "inverted-range" && (
         <p className="trip-bounds-notice__inverted" role="status">
-          <span aria-hidden="true">⚠</span> La fecha de fin es anterior a la de inicio. Nihon no
+          <Icon name="aviso" size={16} /> La fecha de fin es anterior a la de inicio. Nihon no
           modifica ninguna de las dos ni tus días; revisa las fechas.
         </p>
       )}
@@ -2066,7 +2067,7 @@ function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment
   if (assessment.kind !== "after-trip-end") return null;
   return (
     <p className="day-card__bounds-warning" role="status">
-      <span aria-hidden="true">⚠</span> Este día es posterior a la fecha de fin de tu viaje.
+      <Icon name="aviso" size={16} /> Este día es posterior a la fecha de fin de tu viaje.
     </p>
   );
 }
@@ -3113,12 +3114,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
           <div>
             {view === "compare" && (
               <button type="button" className="link-button sequence-back" onClick={closeComparison}>
-                <span aria-hidden="true">←</span> Volver al recorrido
+                <Icon name="atras" size={16} /> Volver al recorrido
               </button>
             )}
             {view === "days" && (
               <button type="button" className="link-button sequence-back" onClick={closeDayAssignment}>
-                <span aria-hidden="true">←</span> Volver al recorrido
+                <Icon name="atras" size={16} /> Volver al recorrido
               </button>
             )}
             <h2 id="sequence-builder-title">{headerTitle}</h2>
@@ -3131,7 +3132,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
             onClick={onClose}
             aria-label="Cerrar el constructor de recorrido"
           >
-            <span aria-hidden="true">×</span>
+            <Icon name="cerrar" size={16} />
           </button>
         </header>
 
@@ -3143,8 +3144,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                 los traslados de ese orden exacto; <strong>no sugiere ni calcula el mejor orden</strong>.
               </p>
               <p className="analysis-disclaimer">
-                <span aria-hidden="true">💾</span> Este recorrido se guarda automáticamente en este
-                navegador, junto con el reparto por días si lo creas.
+                Este recorrido se guarda automáticamente en este navegador, junto con el reparto
+                por días si lo creas.
               </p>
 
               {routePlaces.length === 0 ? (
@@ -3200,14 +3201,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                         className="button button--secondary sequence-compare-toggle"
                         onClick={openComparison}
                       >
-                        <span aria-hidden="true">⇄</span> Comparar otro orden
+                        <Icon name="comparar" size={16} /> Comparar otro orden
                       </button>
                       <button
                         type="button"
                         className="button button--secondary sequence-compare-toggle"
                         onClick={openDayAssignment}
                       >
-                        <span aria-hidden="true">📅</span> Distribuir por días
+                        <Icon name="calendario" size={16} /> Distribuir por días
                       </button>
                     </div>
                   )}
@@ -3306,7 +3307,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
 
               {!dayAssignment.valid && (
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
-                  <span aria-hidden="true">⚠</span> El reparto actual no coincide exactamente con el
+                  <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
                   recorrido. Vuelve al recorrido e inténtalo de nuevo.
                 </p>
               )}
@@ -3430,7 +3431,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             disabled={!dayEntity || dayIndex === 0}
                             aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
                           >
-                            <span aria-hidden="true">⇧</span>
+                            <Icon name="arriba" size={16} />
                           </button>
                           <button
                             type="button"
@@ -3439,7 +3440,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             disabled={!dayEntity || dayIndex === dayIds.length - 1}
                             aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
                           >
-                            <span aria-hidden="true">⇩</span>
+                            <Icon name="abajo" size={16} />
                           </button>
                           <button
                             type="button"
@@ -3448,7 +3449,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                             disabled={!isEmpty || dayIds.length <= 1}
                             aria-label={`Eliminar Día ${dayIndex + 1}`}
                           >
-                            <span aria-hidden="true">×</span>
+                            <Icon name="cerrar" size={16} />
                           </button>
                         </div>
                       </div>

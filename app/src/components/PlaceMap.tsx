@@ -15,16 +15,20 @@ const SELECTION_ZOOM = 14;
 /** Keeps markers off the viewport edge when a hub's bounds are fit. */
 const BOUNDS_PADDING = 32;
 
+/*
+ * Bloque 17 (B1): el nivel de interés ya no tiene color propio (DD-004, 03 §1.3 "Se retiran
+ * --color-interest-1…5"). Los cinco valores pasan de un hue por grado a tinta — más oscura
+ * cuanto más alto el interés —, en paso con `.badge--grade-*` de App.css. Repintar el marcador
+ * por quién quiere ir (DD-004) es alcance de B5; esto sólo hereda los tokens globales.
+ */
 const gradeColors: Record<string, string> = {
-  S: "#b7282e",
-  // Kept in step with `.badge--grade-A` in App.css, darkened there for WCAG AA contrast — a
-  // marker and its card badge must read as the same interest level, not two different ones.
-  A: "#a75d12",
-  B: "#2f6f9f",
-  C: "#6b6257",
-  // D shares C's neutral treatment rather than introducing a new palette entry; it was
-  // previously reaching the same colour through the `?? gradeColors.C` fallback below.
-  D: "#6b6257",
+  S: "var(--ink-900)",
+  A: "var(--ink-700)",
+  B: "var(--ink-500)",
+  C: "var(--ink-300)",
+  // D shares C's treatment rather than introducing a new step; it was previously reaching the
+  // same colour through the `?? gradeColors.C` fallback below.
+  D: "var(--ink-300)",
 };
 
 function prefersReducedMotion(): boolean {

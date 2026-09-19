@@ -6,6 +6,7 @@ import { interestLevelForPlace, tourismCaution } from "../lib/interest-level";
 import { isHiddenGem, splitCategory } from "../lib/place";
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import type { InterestMarker } from "../lib/traveller-presentation";
+import { Icon } from "../icons/Icon";
 
 type Props = {
   place: Place;
@@ -117,9 +118,10 @@ export function PlaceCard({
           </>
         ) : (
           /* No stand-in photograph of somewhere else is ever shown — an editorial placeholder
-             carrying the place's own category is honest about what is missing. */
+             is honest about what is missing. Bloque 17 (B1): ya no lleva el emoji de categoría
+             del dataset (03 §8 "se recorta el emoji al renderizar"), sólo el icono de línea. */
           <span className="place-card__placeholder" aria-hidden="true">
-            <span className="place-card__placeholder-icon">{category.icon || "⛩"}</span>
+            <Icon name="imagen" className="place-card__placeholder-icon" width={32} height={32} />
           </span>
         )}
 
@@ -139,7 +141,7 @@ export function PlaceCard({
           title={saved ? "Quitar de Quiero ir" : "Quiero ir"}
         >
           <span className="place-card__save-icon" aria-hidden="true">
-            {saved ? "♥" : "♡"}
+            <Icon name={saved ? "corazon-relleno" : "corazon"} size={20} />
           </span>
         </button>
       </div>
@@ -163,7 +165,9 @@ export function PlaceCard({
         </h3>
 
         <p className="place-card__where">
-          <span aria-hidden="true">{category.icon}</span> {category.label}
+          {/* Bloque 17 (B1): el emoji de categoría del dataset ya no se renderiza como icono de
+              interfaz (03 §8). El mapa categoría → icono de línea es alcance de B3. */}
+          {category.label}
           <span aria-hidden="true"> · </span>
           <span className="place-card__zone">{zone}</span>
         </p>
@@ -175,37 +179,37 @@ export function PlaceCard({
             <li
               className={`place-card__fact place-card__interest place-card__interest--${interestMarker.tone}`}
             >
-              <span aria-hidden="true">{interestMarker.glyph}</span> {interestMarker.label}
+              <Icon name={interestMarker.glyph} size={16} /> {interestMarker.label}
               {/* The short label loses its subject out of context; the spelled-out sentence is
                   what a screen reader announces. */}
               <span className="visually-hidden">. {interestMarker.description}</span>
             </li>
           )}
           <li className="place-card__fact">
-            <span aria-hidden="true">⏱</span>
+            <Icon name="reloj" size={16} />
             <span className="visually-hidden">Tiempo de visita: </span>
             {durationLabel(place)}
           </li>
           {showHub && (
             <li className="place-card__fact place-card__fact--hub">
-              <span aria-hidden="true">📍</span>
+              <Icon name="ubicacion" size={16} />
               <span className="visually-hidden">Zona: </span>
               {place.hub}
             </li>
           )}
           {isHiddenGem(place) && (
             <li className="place-card__fact place-card__fact--gem">
-              <span aria-hidden="true">💎</span> Hidden gem
+              <Icon name="joya" size={16} /> Hidden gem
             </li>
           )}
           {caution && (
             <li className={`place-card__fact place-card__fact--tourism-${caution.level}`}>
-              <span aria-hidden="true">👥</span> {caution.label}
+              <Icon name="personas" size={16} /> {caution.label}
             </li>
           )}
           {reservation.tag && (
             <li className="place-card__fact place-card__fact--reservation">
-              <span aria-hidden="true">🎟</span> {reservation.tag.label}
+              <Icon name="ticket" size={16} /> {reservation.tag.label}
             </li>
           )}
         </ul>

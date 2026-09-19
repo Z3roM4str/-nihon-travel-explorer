@@ -1,6 +1,7 @@
 import type { Place } from "../types";
 import { PlaceCard } from "./PlaceCard";
 import type { InterestMarker } from "../lib/traveller-presentation";
+import { Icon } from "../icons/Icon";
 
 type Props = {
   places: Place[];
@@ -34,7 +35,7 @@ function EmptyResults({
   return (
     <div className="place-list__empty" role="status">
       <span className="place-list__empty-icon" aria-hidden="true">
-        🔍
+        <Icon name="buscar" size={24} />
       </span>
       <p className="place-list__empty-title">
         {trimmed ? <>Nada coincide con “{trimmed}”</> : "Ningún lugar coincide con los filtros"}

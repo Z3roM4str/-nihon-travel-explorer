@@ -1,0 +1,157 @@
+/*
+ * Bloque 17 (B1 — Fundación visual).
+ *
+ * Fuente única del nuevo sistema visual de Nihon (Art. 10, 03_SISTEMA_DE_DISENO.md).
+ * Ningún componente define color, tipografía, radio, sombra, espaciado, duración o
+ * easing fuera de aquí. Importado antes que App.css; App.css se migra bloque a
+ * bloque para consumir estas variables, no se reescribe de golpe (08 §"Cómo tratar
+ * el CSS actual").
+ *
+ * Breakpoints conceptuales (min-width únicamente, Art. 8), de
+ * `02_ARQUITECTURA_Y_NAVEGACION.md §"Breakpoints conceptuales"`: sm 600px,
+ * md 840px, lg 1200px, xl 1600px. B1 no introduce navegación nueva; sólo los usa
+ * donde `03` pide que un tamaño tipográfico suba en `md`+.
+ */
+
+@import "./fonts.css";
+
+:root {
+  /* ---------- 1. Color — tinta y papel (03 §1.2) ---------- */
+  --ink-900: #14161a;
+  --ink-700: #3a3e44;
+  --ink-500: #6b7076;
+  --ink-300: #a7acb2;
+
+  --paper: #f5f6f4;
+  --surface: #ffffff;
+  --surface-sunken: #eceeeb;
+  --surface-ink: #191c21;
+
+  --line: #e2e4e0;
+  --line-strong: #c9ccc7;
+
+  /* Marca */
+  --shu-600: #c2362f;
+  --shu-700: #96271f;
+  --shu-050: #fbefee;
+
+  /* Identidad de las personas */
+  --person-a: #1b4d7e;
+  --person-b: #7b3f6b;
+  --person-both: var(--shu-600);
+
+  /* Estados semánticos */
+  --ok-600: #1f6b4a;
+  --ok-050: #e9f3ed;
+  --warn-600: #8a5a10;
+  --warn-050: #faf1e1;
+  --risk-600: #a3301f;
+  --risk-050: #fbedea;
+  --info-600: #1b4d7e;
+  --info-050: #e9eff5;
+
+  /* Scrim sobre fotografía */
+  --scrim-bottom: linear-gradient(
+    to top,
+    rgba(20, 22, 26, 0.78) 0%,
+    rgba(20, 22, 26, 0.42) 34%,
+    rgba(20, 22, 26, 0) 68%
+  );
+  --scrim-top: linear-gradient(to bottom, rgba(20, 22, 26, 0.46) 0%, rgba(20, 22, 26, 0) 100%);
+
+  /* ---------- 2. Tipografía (03 §2) ---------- */
+  --font-voice: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-record: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Tamaño base 16px (03 §2.2 — antes 15px, causaba zoom automático en iOS). */
+  --type-display-size: 32px;
+  --type-display-line: 36px;
+  --type-display-tracking: -0.02em;
+
+  --type-title-l-size: 24px;
+  --type-title-l-line: 30px;
+  --type-title-l-tracking: -0.01em;
+
+  --type-title-m-size: 20px;
+  --type-title-m-line: 26px;
+
+  --type-title-s-size: 17px;
+  --type-title-s-line: 24px;
+
+  --type-quote-size: 19px;
+  --type-quote-line: 30px;
+
+  --type-body-size: 16px;
+  --type-body-line: 26px;
+
+  --type-body-s-size: 14px;
+  --type-body-s-line: 21px;
+
+  --type-label-size: 13px;
+  --type-label-line: 16px;
+  --type-label-tracking: 0.005em;
+
+  --type-caption-size: 12px;
+  --type-caption-line: 16px;
+
+  /* ---------- 3. Espaciado y rejilla — base 4px (03 §3) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  --screen-margin: var(--space-4);
+
+  /* ---------- 4. Radios (03 §4) ---------- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 999px;
+
+  /* ---------- 5. Elevación (03 §5) ---------- */
+  --elev-0: none;
+  --elev-1:
+    0 1px 2px rgba(20, 22, 26, 0.05),
+    0 8px 20px -10px rgba(20, 22, 26, 0.12);
+  --elev-2:
+    0 -2px 8px rgba(20, 22, 26, 0.06),
+    0 24px 56px -16px rgba(20, 22, 26, 0.26);
+
+  /* ---------- 6. Motion (03 §6) ---------- */
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-sheet: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ---------- 7. Áreas táctiles y foco (03 §7) ---------- */
+  --tap-min: 44px;
+  --tap-primary: 48px;
+  --tap-gap: 8px;
+
+  --focus-ring-color: var(--ink-900);
+  --focus-ring-color-on-dark: var(--surface);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+}
+
+/* En md+ (840px, 02 §"Breakpoints conceptuales") suben display y quote; nada más
+   escala con el viewport (03 §2.2). */
+@media (min-width: 840px) {
+  :root {
+    --type-display-size: 40px;
+    --type-display-line: 44px;
+    --type-quote-size: 21px;
+    --type-quote-line: 32px;
+  }
+}

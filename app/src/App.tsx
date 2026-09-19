@@ -9,6 +9,7 @@ import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
+import { Icon } from "./icons/Icon";
 import { SelectionPanel } from "./components/SelectionPanel";
 import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
@@ -601,7 +602,7 @@ export default function App() {
             aria-label="Respaldo del viaje"
             title="Respaldo del viaje"
           >
-            <span aria-hidden="true">⤓</span>
+            <Icon name="descargar" size={20} />
           </button>
           <button
             type="button"
@@ -619,7 +620,7 @@ export default function App() {
         <>
           <div className="hub-bar">
             <button type="button" className="hub-bar__home" onClick={returnToJapan}>
-              <span aria-hidden="true">←</span> Japón
+              <Icon name="atras" size={16} /> Japón
             </button>
             <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
             {HUBS_WITH_ZONES.has(activeHub) && (
@@ -629,7 +630,7 @@ export default function App() {
                 onClick={openZones}
                 aria-haspopup="dialog"
               >
-                <span aria-hidden="true">🛏</span>
+                <Icon name="cama" size={20} />
                 <span className="hub-bar__zones-label">Dónde dormir</span>
               </button>
             )}
@@ -645,7 +646,7 @@ export default function App() {
                 onClick={() => setMobilePane("list")}
                 aria-pressed={mobilePane === "list"}
               >
-                <span aria-hidden="true">▤</span> Lista
+                <Icon name="lista" size={16} /> Lista
               </button>
               <button
                 type="button"
@@ -653,7 +654,7 @@ export default function App() {
                 onClick={() => setMobilePane("map")}
                 aria-pressed={mobilePane === "map"}
               >
-                <span aria-hidden="true">🗺</span> Mapa
+                <Icon name="mapa" size={16} /> Mapa
               </button>
             </div>
             <button
@@ -663,7 +664,7 @@ export default function App() {
               aria-expanded={filtersOpen}
               aria-controls="app-filter-sheet"
             >
-              <span aria-hidden="true">🔍</span> Filtros
+              <Icon name="filtro" size={16} /> Filtros
               {activeFilterCount > 0 && <span className="app__filter-badge">{activeFilterCount}</span>}
             </button>
           </div>
@@ -692,7 +693,7 @@ export default function App() {
               {filteredPlaces.length === 0 && (
                 <div className="map-empty" role="status">
                   <p className="map-empty__title">
-                    <span aria-hidden="true">🔍</span> Ningún lugar coincide con los filtros
+                    <Icon name="buscar" size={20} /> Ningún lugar coincide con los filtros
                   </p>
                   <p className="map-empty__hint">
                     Los {hubPlaces.length} lugares de esta zona siguen ahí; solo están filtrados.

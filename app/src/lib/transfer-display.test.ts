@@ -83,9 +83,11 @@ describe("transferListFootnote", () => {
 
 describe("transferModeIcon", () => {
   it("gives every real mode a distinct icon derived from the closed vocabulary", () => {
-    expect(transferModeIcon("walk")).toBe("🚶");
-    expect(transferModeIcon("local-transit")).toBe("🚇");
-    expect(transferModeIcon("disney-resort-line")).toBe("🚝");
+    // Bloque 17 (B1): devuelve el nombre de un icono de línea propio, no un glifo emoji
+    // (00 "Patrones explícitamente prohibidos" · 03 §8).
+    expect(transferModeIcon("walk")).toBe("a-pie");
+    expect(transferModeIcon("local-transit")).toBe("tren");
+    expect(transferModeIcon("disney-resort-line")).toBe("monorriel");
     const icons = new Set(["walk", "local-transit", "disney-resort-line"].map((m) =>
       transferModeIcon(m as Parameters<typeof transferModeIcon>[0])
     ));
