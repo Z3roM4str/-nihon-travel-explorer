@@ -229,6 +229,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
               className="gallery__nav gallery__nav--prev"
               onClick={() => goTo(index - 1)}
               aria-label="Imagen anterior"
+              title="Imagen anterior"
             >
               <Icon name="atras" size={20} />
             </button>
@@ -237,6 +238,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
               className="gallery__nav gallery__nav--next"
               onClick={() => goTo(index + 1)}
               aria-label="Imagen siguiente"
+              title="Imagen siguiente"
             >
               <Icon name="siguiente" size={20} />
             </button>
@@ -253,7 +255,8 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
               role="tab"
               aria-selected={dotIndex === index}
               aria-label={`Imagen ${dotIndex + 1} de ${total}`}
-              className={`gallery__dot ${dotIndex === index ? "gallery__dot--active" : ""}`}
+              title={`Imagen ${dotIndex + 1} de ${total}`}
+              className={`gallery__dot tap-target-min ${dotIndex === index ? "gallery__dot--active" : ""}`}
               onClick={() => goTo(dotIndex)}
             />
           ))}
@@ -278,6 +281,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
             className="lightbox__close"
             onClick={() => setLightboxOpen(false)}
             aria-label="Cerrar imagen ampliada"
+            title="Cerrar imagen ampliada"
             autoFocus
           >
             <Icon name="cerrar" size={20} />

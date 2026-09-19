@@ -101,9 +101,10 @@ export function FilterPanel({
           {filters.query && (
             <button
               type="button"
-              className="search-field__clear"
+              className="search-field__clear tap-target-min"
               onClick={() => onChange({ ...filters, query: "" })}
               aria-label="Borrar búsqueda"
+              title="Borrar búsqueda"
             >
               ×
             </button>

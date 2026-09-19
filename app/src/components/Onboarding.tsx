@@ -74,7 +74,13 @@ export function Onboarding({ onClose }: Props) {
         aria-labelledby="onboarding-title"
         ref={dialogRef}
       >
-        <button type="button" className="onboarding__close" onClick={close} aria-label="Cerrar la introducción">
+        <button
+          type="button"
+          className="onboarding__close"
+          onClick={close}
+          aria-label="Cerrar la introducción"
+          title="Cerrar la introducción"
+        >
           <Icon name="cerrar" size={20} />
         </button>
 

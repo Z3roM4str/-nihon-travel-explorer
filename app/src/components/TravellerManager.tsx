@@ -106,6 +106,7 @@ export function TravellerManager({
             onClick={close}
             ref={closeRef}
             aria-label="Cerrar las personas del viaje"
+            title="Cerrar las personas del viaje"
           >
             <span aria-hidden="true">×</span>
           </button>

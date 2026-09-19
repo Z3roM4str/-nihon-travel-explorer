@@ -145,6 +145,7 @@ export function PlaceDetail({
           onClick={onClose}
           ref={closeButtonRef}
           aria-label={`Cerrar la ficha de ${place.name}`}
+          title={`Cerrar la ficha de ${place.name}`}
         >
           <Icon name="cerrar" size={20} />
         </button>
@@ -169,15 +170,13 @@ export function PlaceDetail({
               </p>
             )}
             <div className="tag-row">
-              {/* Bloque 17 (B1): la letra de grado cruda (S/A/B/C/D) ya no se muestra en la
-                  ficha (00 "Patrones explícitamente prohibidos": "Mostrar la letra de grado…
-                  Ya está traducida a lenguaje llano"; 03 §1.3 "El único nivel que se muestra en
-                  tarjeta es «Imprescindible»"). El grado original sigue disponible como
-                  `title` y, cuando exista la sección "Fuentes" (B4, `05 §5 pt.14`), vivirá ahí. */}
-              <span
-                className={`tag tag--grade-${place.grade}`}
-                title={`${interest.description} (grado original: ${place.grade})`}
-              >
+              {/* Corrección de cumplimiento (auditoría post-B17): la letra de grado cruda
+                  (S/A/B/C/D) no puede aparecer en NINGUNA parte de la UI, `title` incluido —
+                  00 "Patrones explícitamente prohibidos" dice "Sólo en «Fuentes» plegado", y esa
+                  sección no existe todavía (B4, `05 §5 pt.14`). `place.grade` sigue en el modelo
+                  de datos y sigue decidiendo la clase CSS (`tag--grade-${grade}`, que es un
+                  nombre de clase, no texto visible ni accesible); sólo se retiró del `title`. */}
+              <span className={`tag tag--grade-${place.grade}`} title={interest.description}>
                 <span aria-hidden="true">{interest.glyph}</span> {interest.label}
               </span>
               {isHiddenGem(place) && (

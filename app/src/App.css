@@ -177,6 +177,38 @@ a {
   background: var(--color-surface-alt);
 }
 
+/*
+ * Corrección de cumplimiento normativo (auditoría posterior al cierre del Bloque 17).
+ * Art. 11 exige 44×44 px de área táctil mínima, sin excepción por tamaño visual, y 08
+ * "Orden de precedencia" pone la Constitución por delante de cualquier documento
+ * específico (incluido `04`) cuando entran en conflicto. Varios controles heredados —
+ * `.icon-button--small`, `.app__help`, `.trip-backup__close`, `.gallery__dot`,
+ * `.search-field__clear`, y la variante `ChipToggle` de `.filter-chip` (`04 §3`) — son
+ * visualmente más compactos que 44px a propósito (el trazo del icono, la densidad de una
+ * fila de chips, el tamaño de un punto de paginación). `.tap-target-min` separa el tamaño
+ * VISUAL del ÁREA TÁCTIL real: añade un pseudo-elemento invisible, centrado, del tamaño
+ * del control o `--tap-min` (lo que sea mayor). Un `::after` generado por CSS es, a
+ * efectos de "click forwarding", parte del propio elemento en todos los motores de
+ * render actuales — a un `<label>` o `<button>` no le hace falta que el click caiga
+ * dentro de su caja visual, le basta con cualquier punto dentro de su caja de layout
+ * real, y esta técnica agranda esa caja sin agrandar lo que se pinta. Comprobado con
+ * `scripts/b17-tap-target-check.mjs` (mide el `getBoundingClientRect` real del área
+ * clicable, no el del glifo).
+ */
+.tap-target-min {
+  position: relative;
+}
+
+.tap-target-min::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, var(--tap-min));
+  height: max(100%, var(--tap-min));
+}
+
 .icon-button--small {
   width: 2.25rem;
   height: 2.25rem;
@@ -253,7 +285,9 @@ a {
 }
 
 /* Always-available "what is this and how does it work" entry point, so dismissing the
-   first-run explainer is never a one-way door. */
+   first-run explainer is never a one-way door. 36px visual so it reads as secondary next to
+   `.app__backup`; `.tap-target-min` on the element gives it a real ≥44px hit area — corrección
+   de cumplimiento posterior al cierre del Bloque 17, Art. 11. */
 .app__help {
   width: 2.25rem;
   height: 2.25rem;
@@ -274,9 +308,8 @@ a {
 }
 
 /* Block 13. The same visual weight as the help control beside it — a backup is a secondary safety
-   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar — but NOT the same size.
-   `.app__help` is 36px under a named historical allowance in Block 1's audit; a control added today
-   meets the 44px floor instead of joining an exemption list. Block 1's audit caught this. */
+   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar. Its own visual box
+   already reaches 44px, so it needs no `.tap-target-min`. */
 .app__backup {
   width: 2.75rem;
   height: 2.75rem;
@@ -677,8 +710,14 @@ a {
 }
 
 /* Bloque 17 (B1): variante `ChipToggle` de `04 §3` — la hoja de filtros es la única superficie
-   donde un chip es interactivo, con `aria-pressed` (aquí, `:has(input:checked)`) y 40px de alto. */
+   donde un chip es interactivo, con `aria-pressed` (aquí, `:has(input:checked)`) y 40px de alto.
+   Corrección de cumplimiento (auditoría posterior al cierre del Bloque 17): 40px visual es
+   inferior al suelo de Art. 11, así que `.filter-chip` comparte la técnica `.tap-target-min`
+   (ver comentario junto a esa clase) directamente en su propio selector — cada instancia real
+   (categoría, bloque, reserva, nivel, grado, radio) hereda un área táctil real ≥44×44 sin que
+   el chip crezca visualmente. */
 .filter-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -694,6 +733,16 @@ a {
   background: var(--surface-sunken);
   color: var(--ink-700);
   user-select: none;
+}
+
+.filter-chip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, var(--tap-min));
+  height: max(100%, var(--tap-min));
 }
 
 .filter-chip:hover {
@@ -1656,8 +1705,9 @@ a {
   padding: 0.2rem;
 }
 
-/* The visible dot stays small; the button around it is a real 28px target with room to spare
-   between neighbours, so the control is usable with a thumb. */
+/* The visible dot stays 28px so a row of them stays dense; `.tap-target-min` on the element
+   (className, not here) gives each one a real ≥44px hit area without growing what's painted —
+   corrección de cumplimiento posterior al cierre del Bloque 17, Art. 11. */
 .gallery__dot {
   width: 1.75rem;
   height: 1.75rem;

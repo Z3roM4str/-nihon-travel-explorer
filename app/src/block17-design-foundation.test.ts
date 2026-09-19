@@ -184,4 +184,166 @@ describe("Bloque 17 (B1) — letra de grado retirada de la ficha (Art. 00)", () 
     expect(source).not.toContain("Grado {place.grade}");
     expect(source).not.toContain("tag__grade-letter");
   });
+
+  it("PlaceDetail no longer exposes the raw grade through `title` either (compliance fix)", async () => {
+    // 00 "Patrones explícitamente prohibidos": "Mostrar la letra de grado … Sólo en «Fuentes»
+    // plegado" — that section doesn't exist yet (B4), so the letter must not surface ANYWHERE
+    // in the UI meanwhile, `title`/`aria-label` included. A first B17 pass moved the letter
+    // from visible text into `title={... grado original: ${place.grade}}`, which still exposed
+    // it (an independent audit caught this). `place.grade` may still drive the CSS class
+    // (`tag--grade-${place.grade}`, a class name, never rendered as text or read aloud) and the
+    // internal `interestLevelForGrade`/`markerIcon` lookups — just never a `title`/`aria-label`.
+    const source = await read("components/PlaceDetail.tsx");
+    expect(source).not.toContain("grado original");
+    expect(source).not.toMatch(/title=\{[^}]*place\.grade/);
+    expect(source).toContain("title={interest.description}");
+  });
+
+  it("no title/aria-label anywhere in components/ or lib/ interpolates the raw grade", async () => {
+    // General regression guard, not just PlaceDetail: catches the same mistake if it is ever
+    // reintroduced anywhere else (e.g. a future PlaceCard/SelectionPanel grade tooltip).
+    const files = await sourceFiles(new URL("./", SRC), [], ["data", "icons"]);
+    const offenders: string[] = [];
+    const ATTR_WINDOW = /\b(?:title|aria-label)=(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}|"[^"]*")/g;
+    for (const file of files) {
+      const code = withoutComments(await readFile(file, "utf8"));
+      for (const m of code.matchAll(ATTR_WINDOW)) {
+        if (/\.grade\b/.test(m[1])) {
+          offenders.push(`${file.replace(SRC.pathname, "")}: ${m[0].slice(0, 80)}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  // Self-test: proves the detector above actually catches the exact violation an independent
+  // audit found, so this gate cannot silently stop working.
+  it("(self-test) the title/aria-label grade detector actually fires on the original bug", () => {
+    const ATTR_WINDOW = /\b(?:title|aria-label)=(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}|"[^"]*")/g;
+    const bugged = 'title={`${interest.description} (grado original: ${place.grade})`}';
+    const matches = [...bugged.matchAll(ATTR_WINDOW)].filter((m) => /\.grade\b/.test(m[1]));
+    expect(matches.length).toBe(1);
+  });
+});
+
+describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en conflicto)", () => {
+  it("tokens.css fixes --tap-min at 44px", async () => {
+    const tokens = await read("styles/tokens.css");
+    expect(tokens).toMatch(/--tap-min:\s*44px/);
+  });
+
+  it("the .tap-target-min hit-area technique exists and is anchored to --tap-min", async () => {
+    const css = await read("App.css");
+    expect(css).toContain(".tap-target-min {");
+    expect(css).toContain(".tap-target-min::after {");
+    const after = css.slice(css.indexOf(".tap-target-min::after {"));
+    const block = after.slice(0, after.indexOf("}"));
+    expect(block).toContain("position: absolute");
+    expect(block).toMatch(/width:\s*max\(100%,\s*var\(--tap-min\)\)/);
+    expect(block).toMatch(/height:\s*max\(100%,\s*var\(--tap-min\)\)/);
+  });
+
+  it("ChipToggle (.filter-chip) carries the same hit-area technique on its own selector", async () => {
+    // `.filter-chip` is a <label>, used across 6+ call sites (category/block/reservation/
+    // level/grade/radio filters) — baked into its own rule instead of a className on every
+    // call site, so every instance and future one is covered without touching each usage.
+    const css = await read("App.css");
+    const rule = css.slice(css.indexOf(".filter-chip {"), css.indexOf(".filter-chip {") + 700);
+    expect(rule).toContain("position: relative");
+    const afterRule = css.slice(css.indexOf(".filter-chip::after {"));
+    const afterBlock = afterRule.slice(0, afterRule.indexOf("}"));
+    expect(afterBlock).toContain("position: absolute");
+    expect(afterBlock).toMatch(/width:\s*max\(100%,\s*var\(--tap-min\)\)/);
+  });
+
+  it("every control this correction identified under 44px visual carries .tap-target-min", async () => {
+    // Each pair: file, and a substring that must include "tap-target-min" in the same
+    // className. `.filter-chip` itself is covered by the rule-level fix above, not a className.
+    const targets: Array<[string, string]> = [
+      ["App.tsx", 'className="app__help tap-target-min"'],
+      ["components/TripBackup.tsx", 'className="trip-backup__close tap-target-min"'],
+      ["components/FilterPanel.tsx", 'className="search-field__clear tap-target-min"'],
+      ["components/PlaceGallery.tsx", "gallery__dot tap-target-min"],
+    ];
+    for (const [file, needle] of targets) {
+      const code = await read(file);
+      expect(code, file).toContain(needle);
+    }
+    // icon-button--small: 11 call sites across two files, all sharing the same className string.
+    for (const file of ["components/OrderedSequenceBuilder.tsx", "components/SelectionPanel.tsx"]) {
+      const code = await read(file);
+      const total = (code.match(/icon-button--small/g) ?? []).length;
+      const covered = (code.match(/icon-button icon-button--small tap-target-min/g) ?? []).length;
+      expect(covered, file).toBe(total);
+      expect(covered, file).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("Bloque 17 (B1) — botones de icono sin texto llevan aria-label y title (04 §4)", () => {
+  it("no icon-only <button> in components/ has aria-label without title, or neither", async () => {
+    // Ports scripts/b17-tap-target-check.mjs's companion audit into a permanent, fast,
+    // no-browser gate. A "icon-only" button is one whose rendered children — after stripping
+    // aria-hidden decorative spans, self-closing <Icon/> calls, JSX comments and whitespace-only
+    // expressions — contain no real text. Self-closing buttons (`<button ... />`) count as
+    // icon-only with empty content.
+    const files = await sourceFiles(new URL("./", SRC), [], ["data", "icons"]);
+    const offenders: string[] = [];
+
+    for (const file of files) {
+      const text = await readFile(file, "utf8");
+      let pos = 0;
+      for (;;) {
+        const start = text.indexOf("<button", pos);
+        if (start === -1) break;
+        let depth = 0;
+        let i = start + "<button".length;
+        let tagClose = -1;
+        let selfClosing = false;
+        for (; i < text.length; i++) {
+          const c = text[i];
+          if (c === "{") depth++;
+          else if (c === "}") depth--;
+          else if (c === ">" && depth === 0) {
+            tagClose = i;
+            selfClosing = text[i - 1] === "/";
+            break;
+          }
+        }
+        if (tagClose === -1) {
+          pos = start + 7;
+          continue;
+        }
+        const opening = text.slice(start, tagClose + 1);
+        const hasAria = /aria-label=/.test(opening);
+        const hasTitle = /\btitle=/.test(opening);
+
+        let hasVisibleText = true;
+        if (selfClosing) {
+          pos = tagClose + 1;
+          hasVisibleText = false;
+        } else {
+          const end = text.indexOf("</button>", tagClose);
+          if (end === -1) {
+            pos = tagClose + 1;
+            continue;
+          }
+          const body = text.slice(tagClose + 1, end);
+          pos = end + "</button>".length;
+          let stripped = body.replace(/<span[^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/span>/g, "");
+          stripped = stripped.replace(/<Icon\b[^/]*\/>/g, "");
+          stripped = stripped.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+          stripped = stripped.replace(/\{"\s*"\}/g, "");
+          stripped = stripped.replace(/<[^>]+\/?>/g, "");
+          hasVisibleText = /[A-Za-zÀ-ÿ]{2,}/.test(stripped.trim());
+        }
+
+        if (!hasVisibleText && (!hasAria || !hasTitle)) {
+          const line = text.slice(0, start).split("\n").length;
+          offenders.push(`${file.replace(SRC.pathname, "")}:${line} aria=${hasAria} title=${hasTitle}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });

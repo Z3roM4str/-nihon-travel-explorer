@@ -277,6 +277,7 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose }: Props
             className="icon-button"
             onClick={onClose}
             aria-label="Cerrar el análisis de la selección"
+            title="Cerrar el análisis de la selección"
           >
             <span aria-hidden="true">×</span>
           </button>

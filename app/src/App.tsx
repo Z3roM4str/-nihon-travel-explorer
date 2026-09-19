@@ -522,6 +522,7 @@ export default function App() {
             className="icon-button"
             onClick={() => setFiltersOpen(false)}
             aria-label="Cerrar búsqueda y filtros"
+            title="Cerrar búsqueda y filtros"
           >
             <span aria-hidden="true">×</span>
           </button>
@@ -606,7 +607,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            className="app__help"
+            className="app__help tap-target-min"
             onClick={() => setOnboardingOpen(true)}
             aria-label="Cómo se usa Nihon"
             title="Cómo se usa Nihon"

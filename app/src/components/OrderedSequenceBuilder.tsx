@@ -350,39 +350,43 @@ function ReorderableList({
                 {onMoveToPreviousGroup && (
                   <button
                     type="button"
-                    className="icon-button icon-button--small"
+                    className="icon-button icon-button--small tap-target-min"
                     onClick={() => onMoveToPreviousGroup(index)}
                     disabled={!canMoveToPreviousGroup}
                     aria-label={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
+                    title={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
                   >
                     <Icon name="atras" size={16} />
                   </button>
                 )}
                 <button
                   type="button"
-                  className="icon-button icon-button--small"
+                  className="icon-button icon-button--small tap-target-min"
                   onClick={() => onMoveUp(index)}
                   disabled={index === 0}
                   aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
+                  title={`Mover ${place.name} hacia arriba${labelSuffix}`}
                 >
                   <Icon name="arriba" size={16} />
                 </button>
                 <button
                   type="button"
-                  className="icon-button icon-button--small"
+                  className="icon-button icon-button--small tap-target-min"
                   onClick={() => onMoveDown(index)}
                   disabled={index === places.length - 1}
                   aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
+                  title={`Mover ${place.name} hacia abajo${labelSuffix}`}
                 >
                   <Icon name="abajo" size={16} />
                 </button>
                 {onMoveToNextGroup && (
                   <button
                     type="button"
-                    className="icon-button icon-button--small"
+                    className="icon-button icon-button--small tap-target-min"
                     onClick={() => onMoveToNextGroup(index)}
                     disabled={!canMoveToNextGroup}
                     aria-label={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
+                    title={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
                   >
                     <Icon name="siguiente" size={16} />
                   </button>
@@ -390,9 +394,10 @@ function ReorderableList({
                 {onRemove && (
                   <button
                     type="button"
-                    className="icon-button icon-button--small"
+                    className="icon-button icon-button--small tap-target-min"
                     onClick={() => onRemove(place.id)}
                     aria-label={`Quitar ${place.name} del recorrido`}
+                    title={`Quitar ${place.name} del recorrido`}
                   >
                     <Icon name="cerrar" size={16} />
                   </button>
@@ -1395,9 +1400,14 @@ function AccommodationManagerSection({
                 </span>
                 <button
                   type="button"
-                  className="icon-button icon-button--small"
+                  className="icon-button icon-button--small tap-target-min"
                   onClick={() => onRemove(anchor.id)}
                   aria-label={
+                    seeding
+                      ? `Eliminar alojamiento ${anchor.label} y la zona elegida en ${seeding.hub}`
+                      : `Eliminar alojamiento ${anchor.label}`
+                  }
+                  title={
                     seeding
                       ? `Eliminar alojamiento ${anchor.label} y la zona elegida en ${seeding.hub}`
                       : `Eliminar alojamiento ${anchor.label}`
@@ -1880,9 +1890,10 @@ function InterHubSegmentsSection({
                   </div>
                   <button
                     type="button"
-                    className="icon-button icon-button--small"
+                    className="icon-button icon-button--small tap-target-min"
                     onClick={() => onRemove(segment.id)}
                     aria-label={`Eliminar tramo ${fromName} a ${toName}`}
+                    title={`Eliminar tramo ${fromName} a ${toName}`}
                   >
                     <Icon name="cerrar" size={16} />
                   </button>
@@ -3131,6 +3142,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
             className="icon-button"
             onClick={onClose}
             aria-label="Cerrar el constructor de recorrido"
+            title="Cerrar el constructor de recorrido"
           >
             <Icon name="cerrar" size={16} />
           </button>
@@ -3426,28 +3438,31 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
                         <div className="day-card__header-actions">
                           <button
                             type="button"
-                            className="icon-button icon-button--small"
+                            className="icon-button icon-button--small tap-target-min"
                             onClick={() => dayEntity && moveDay(dayEntity.id, -1)}
                             disabled={!dayEntity || dayIndex === 0}
                             aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
+                            title={`Mover Día ${dayIndex + 1} hacia arriba`}
                           >
                             <Icon name="arriba" size={16} />
                           </button>
                           <button
                             type="button"
-                            className="icon-button icon-button--small"
+                            className="icon-button icon-button--small tap-target-min"
                             onClick={() => dayEntity && moveDay(dayEntity.id, 1)}
                             disabled={!dayEntity || dayIndex === dayIds.length - 1}
                             aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
+                            title={`Mover Día ${dayIndex + 1} hacia abajo`}
                           >
                             <Icon name="abajo" size={16} />
                           </button>
                           <button
                             type="button"
-                            className="icon-button icon-button--small"
+                            className="icon-button icon-button--small tap-target-min"
                             onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
                             disabled={!isEmpty || dayIds.length <= 1}
                             aria-label={`Eliminar Día ${dayIndex + 1}`}
+                            title={`Eliminar Día ${dayIndex + 1}`}
                           >
                             <Icon name="cerrar" size={16} />
                           </button>

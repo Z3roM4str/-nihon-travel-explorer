@@ -288,8 +288,13 @@ export function SelectionPanel({
                       </button>
                       <button
                         type="button"
-                        className="icon-button icon-button--small"
+                        className="icon-button icon-button--small tap-target-min"
                         aria-label={
+                          activeTravellerLabel
+                            ? `Quitar ${place.name} de Quiero ir de ${activeTravellerLabel}`
+                            : `Quitar ${place.name} de Quiero ir`
+                        }
+                        title={
                           activeTravellerLabel
                             ? `Quitar ${place.name} de Quiero ir de ${activeTravellerLabel}`
                             : `Quitar ${place.name} de Quiero ir`

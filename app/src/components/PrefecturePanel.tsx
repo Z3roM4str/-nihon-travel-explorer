@@ -54,6 +54,7 @@ export function PrefecturePanel({ prefecture, onEnterHub, onClose }: Props) {
           className="icon-button"
           onClick={onClose}
           aria-label={`Cerrar la ficha de ${prefecture.displayName}`}
+          title={`Cerrar la ficha de ${prefecture.displayName}`}
         >
           <span aria-hidden="true">×</span>
         </button>

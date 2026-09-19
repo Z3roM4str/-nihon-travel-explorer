@@ -383,6 +383,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
           onClick={onClose}
           ref={closeRef}
           aria-label="Cerrar dónde dormir"
+          title="Cerrar dónde dormir"
         >
           <span aria-hidden="true">×</span>
         </button>
