@@ -1,0 +1,250 @@
+# 04 — Reglas de componentes
+
+Contrato de cada componente reutilizable. Un agente de ingeniería puede construirlos
+sin inventar nada. Lo que no esté aquí ni en `05`, se pregunta.
+
+Convención: todo componente consume tokens de `03`. Ninguno acepta props de estilo
+(`color`, `size` libre, `className` arbitrario para pintar). Las variantes son
+enumeradas.
+
+---
+
+## 1. `PersonToken`
+
+La marca de identidad de una persona. Aparece en cabecera, tarjetas, planner y
+«Quiero ir».
+
+- **Forma**: círculo `--radius-full`, fondo `--person-a` / `--person-b`, texto blanco.
+- **Contenido**: **la inicial** del nombre en `--font-record` 600. Nunca sólo color.
+- **Tamaños**: `xs` 18 px (dentro de una línea de texto), `sm` 24 px (cabecera,
+  tarjetas), `md` 40 px (Nosotros).
+- **Estado «los dos»**: no se apilan dos tokens. Se usa **un token bermellón con el
+  glifo de dos personas**, con `aria-label="Los dos queréis ir"`.
+- Si el nombre está vacío, la inicial es `A` / `B` según el orden de creación.
+
+## 2. `EvidenceMark`
+
+Implementa la gramática de `03 §1.4`.
+
+- **Props**: `level: "verificado" | "registrado" | "estimado" | "nihon"`,
+  `detail?: string` (p. ej. «consultado en 2026-09»), `label?: boolean`.
+- **Render**: glifo (`◼ ◧ ◇ ✎`) 11 px `--ink-500` + etiqueta opcional
+  `--type-caption`. Cuando `label` es falso, el texto va en `aria-label` y `title`.
+- **Prohibido**: colorear el marcador, usarlo como badge destacado, o acompañarlo de
+  un párrafo que repita lo mismo.
+
+## 3. `Chip`
+
+Unidad de metadato. Reemplaza los `place-card__fact` actuales.
+
+- **Variantes**: `neutral` (por defecto), `attention` (aviso real),
+  `person` (lleva `PersonToken`).
+- **Anatomía**: icono 16 px opcional + texto `--type-label`, altura 28 px, padding
+  `--space-1 --space-2`, `--radius-xs`, fondo `--surface-sunken`, texto `--ink-700`.
+  `attention` usa `--warn-050` / `--warn-600`.
+- **No es interactivo** salvo en la hoja de filtros, donde `ChipToggle` añade estado
+  `aria-pressed` y altura 40 px.
+- **Límite duro**: en tarjeta de lugar, **máximo 2 chips**. En ficha, sin límite pero
+  agrupados en su sección.
+
+## 4. `Button`
+
+- **Variantes**: `primary` (fondo `--shu-600`, texto blanco), `secondary` (fondo
+  `--surface`, borde `--line-strong`), `quiet` (sin fondo ni borde, texto `--ink-700`),
+  `danger` (texto `--risk-600`, sin fondo).
+- **Tamaños**: `md` 44 px, `lg` 48 px (acción primaria de pantalla, ancho completo).
+- Texto en `--font-record` 500, caja de frase, **sin flecha final**.
+- Estado pulsado: `press` de `03 §6`. Estado deshabilitado: opacidad .45, sin
+  `pointer-events`, y **siempre** acompañado de un texto que explique por qué.
+- Un botón de icono sin texto exige `aria-label` y `title`.
+
+## 5. `PlaceCard`
+
+El componente más importante del producto. Sustituye al actual, que llega a mostrar
+seis chips con emoji.
+
+```
+┌─────────────────────────────┐
+│                         (♡) │  ← acción guardar, 40px, arriba-dcha
+│        FOTOGRAFÍA           │
+│         (4:3 base)          │
+│  ★ Imprescindible           │  ← sólo si grado S
+│  Shibuya Crossing           │  ← voice 20/26, blanco sobre scrim
+│  Ciudad · Shibuya           │  ← record 13, blanco 82%
+├─────────────────────────────┤
+│ El movimiento colectivo,    │  ← differentiator, body-s, 2 líneas máx
+│ más que un monumento…       │
+│ [⏱ 20–40 min] [🎟 Reserva]  │  ← máximo 2 chips
+└─────────────────────────────┘
+```
+
+**Reglas**
+
+1. **Proporción**: 4:3 en `base`, 16:9 desde `sm` (donde la rejilla la ensancha).
+2. **Nombre sobre la fotografía**, con `--scrim-bottom` obligatorio y `text-shadow`
+   de respaldo. Clamp a 2 líneas. Si el nombre supera 2 líneas, se reduce a
+   `--type-title-s`, nunca se trunca con puntos suspensivos en mitad de una palabra.
+3. **Insignia de nivel**: **sólo** grado S («Imprescindible»), glifo `★` + texto,
+   blanco sobre scrim, sin fondo de color. Los grados A/B/C/D no muestran insignia en
+   tarjeta (Art. 6).
+4. **Acción guardar**: botón circular 40 px, fondo `rgba(255,255,255,.92)`, icono
+   corazón `--ink-700`. Al estar marcado por la persona activa: fondo `--shu-600`,
+   icono blanco, animación `mark`. `aria-pressed` obligatorio.
+5. **Estado de la otra persona**: si la otra persona ha marcado el lugar, un
+   `PersonToken` `xs` aparece **junto al corazón**, no dentro de él. Si lo han marcado
+   las dos, un único token bermellón. Si nadie más ha opinado, no se renderiza nada —
+   nunca «no ha dicho nada».
+6. **Razón**: el `differentiator`; si falta, `description`. `--type-body-s`, 2 líneas.
+7. **Chips**: duración siempre. Segundo chip por prioridad fija, sólo uno:
+   `aviso real` > `reserva obligatoria` > `joya escondida`. Todo lo demás vive en la
+   ficha.
+8. **Sin fotografía**: ver `PhotoPlaceholder` (§9) — nunca un hueco gris.
+9. **Toda la tarjeta abre el lugar**; el corazón y el token de persona están por
+   encima en el orden de apilamiento. Se conserva el patrón actual de
+   `<article>` + botón estirado (es correcto y accesible).
+10. **Variante `compact`**: fila horizontal, miniatura 72×72 `--radius-md`, nombre
+    `--type-title-s`, una línea de metadato. Se usa en «Quiero ir», planner, «Cerca
+    de aquí» y resultados de búsqueda.
+
+## 6. `PhotoGallery`
+
+- **Ficha en teléfono**: a sangre, proporción **4:5** (vertical: la fotografía es el
+  contenido, no una franja). En `md`+ dentro del panel: 4:3.
+- **Navegación**: deslizamiento horizontal nativo con `scroll-snap`, no un carrusel con
+  índice en estado. Flechas sólo en `md`+.
+- **Indicador**: píldora `1/3` abajo-derecha, `--type-num`, fondo
+  `rgba(20,22,26,.55)`. Puntos **sólo** cuando hay ≤5 imágenes, centrados abajo.
+  Con 1 sola imagen no hay ni píldora ni puntos.
+- **Créditos**: **nunca en el flujo**. Botón `ⓘ` 32 px abajo-izquierda que abre
+  `CreditsSheet`. Corrige el defecto D2.
+- **Lightbox**: toque en la imagen. Fondo `--surface-ink`, imagen original, zoom por
+  pellizco, deslizar abajo para cerrar, `×` arriba-derecha. Se conserva la trampa de
+  foco actual, que es correcta.
+- **Carga**: LQIP de fondo → imagen. Sin skeleton gris. Primera imagen de la ficha
+  `fetchpriority="high"`.
+
+## 7. `CreditsSheet`
+
+Hoja inferior. Contiene, por cada imagen visible: fuente (enlace), autor, licencia
+(enlace), título del archivo original y nota de reprocesado. Toda la información de
+atribución actual se conserva íntegra; sólo cambia de sitio.
+
+Encabezado: «Fotografía de {lugar}». Al pie: enlace a «Fuentes y licencias» en
+Nosotros.
+
+## 8. `Sheet` (hoja inferior)
+
+Contenedor de todo lo que hoy es modal centrado.
+
+- Entra con `sheet-rise`. Fondo `--surface`, `--radius-xl` sólo arriba, `--elev-2`.
+- Barra de arrastre 36×4 px `--line-strong` centrada; arrastrar hacia abajo cierra.
+- Altura: `auto` hasta un máximo del 88 % de la altura visible; si el contenido es
+  mayor, scroll interno con `overscroll-behavior: contain`.
+- Fondo de página: `rgba(20,22,26,.38)`, cierra al tocar.
+- Cabecera pegajosa con título `--type-title-s` y `×` a la derecha.
+- `role="dialog"`, `aria-modal`, trampa de foco, `Escape` cierra, foco devuelto al
+  disparador.
+- En `md`+ una hoja puede renderizarse como panel lateral derecho de 420 px. Mismo
+  componente, misma API.
+
+## 9. `PhotoPlaceholder`
+
+Sustituye al recuadro con emoji actual. Un lugar sin fotografía **no puede parecer un
+error**.
+
+- Fondo `--surface-sunken` con una trama sutil de líneas diagonales al 4 % de opacidad
+  (referencia: papel de plano ferroviario).
+- Icono de categoría 32 px `--ink-300` centrado en el tercio superior.
+- Nombre del lugar en `--font-voice` `--type-title-m`, `--ink-700`.
+- Debajo, el `imageBrief` en `--type-caption` `--ink-500`, 2 líneas máx, precedido de
+  `EvidenceMark level="nihon"`.
+- Etiqueta discreta: «Fotografía pendiente».
+- Debe verse **deliberado**: una lista que mezcla fotos y marcadores no puede parecer
+  rota.
+
+## 10. `TabBar` / `NavRail`
+
+- `base`–`sm`: barra inferior fija, 4 destinos, altura 56 px + `safe-area-inset-bottom`,
+  fondo `--surface`, borde superior `--line`. Cada ítem: icono 24 px + etiqueta 11 px.
+  Activo: icono relleno + `--ink-900`; inactivo: `--ink-500`.
+- «Quiero ir» lleva contador `--radius-full` `--shu-600` cuando es > 0. Ninguna otra
+  pestaña lleva indicador.
+- `md`+: raíl vertical izquierdo de 88 px (icono + etiqueta); en `xl` puede expandirse
+  a 232 px con etiqueta a la derecha del icono.
+- La barra **no se oculta al hacer scroll**. La previsibilidad vale más que 56 px.
+
+## 11. `ScreenHeader`
+
+- Altura 56 px. Contenido máximo: **atrás/título + una acción**.
+- Sobre fotografía es transparente con `--scrim-top`; sobre papel es `--surface` con
+  borde inferior `--line` que **sólo aparece al hacer scroll**.
+- Título en `--font-voice` `--type-title-m`. Si la pantalla es una ciudad, el título
+  lleva un icono de expandir y abre el selector de ciudad como `Sheet`.
+- El `PersonToken` de la persona activa vive aquí, a la derecha, 24 px. Es el **único**
+  resto del antiguo conmutador «Eres» (ver `02 §D4`).
+- Prohibido: subtítulos de estadísticas («57 lugares verificados», «47 prefecturas ·
+  6 con lugares verificados…»). Esa información va al cuerpo, no al cromo.
+
+## 12. `SearchBar` + `FilterButton`
+
+Una sola fila pegajosa de 48 px bajo la cabecera de una ciudad. Sustituye a las dos
+barras actuales.
+
+```
+[ ⌕ Buscar en Tokio            ] [ Filtros ② ] [ Mapa ]
+```
+
+- El campo abre la búsqueda como `Sheet` de pantalla casi completa con resultados en
+  vivo (`PlaceCard compact`).
+- `Filtros` abre `FilterSheet`, con contador de filtros activos.
+- `Mapa` alterna a la lente de mapa con `cross-fade`; su etiqueta cambia a `Lista`.
+- Tamaño de fuente del input **≥16 px** para evitar el zoom automático de iOS.
+
+## 13. `FilterSheet`
+
+Hoy es un formulario largo de casillas. Pasa a ser una hoja con grupos plegables:
+
+- Orden fijo: **Nivel de interés · Categoría · Duración · Reserva · Afluencia · Joyas**.
+- Cada grupo es una fila de `ChipToggle` que envuelve; sin casillas de verificación.
+- Contador de resultados en vivo en la cabecera pegajosa: «57 lugares».
+- Pie fijo: `Limpiar` (quiet) + `Ver 57 lugares` (primary, ancho completo).
+- Se conservan **todos** los filtros existentes y su vocabulario de lenguaje llano.
+
+## 14. `DayTimeline` y `TripStop`
+
+El componente que materializa la metáfora del diagrama de línea.
+
+```
+  ┃  ┌──────────────────────────────────────┐
+  ●──┤ [foto]  Shibuya Crossing             │  ← TripStop
+  ┃  │         20–40 min   ◧                │
+  ┃  └──────────────────────────────────────┘
+  ┆   a pie · 13 min  ◼                        ← conector
+  ┃  ┌──────────────────────────────────────┐
+  ●──┤ [foto]  Meiji Jingū                  │
+```
+
+- **Raíl**: línea vertical 2 px `--line-strong` a 12 px del borde izquierdo. Los nodos
+  son círculos de 10 px rellenos de `--ink-700`; el día en curso usa `--shu-600`.
+- **`TripStop`**: miniatura 56×56, nombre `--type-title-s`, duración `--type-num`,
+  `EvidenceMark` cuando procede. Arrastrable (`aria-grabbed`, y **alternativa por
+  teclado obligatoria**: menú «Mover a…»).
+- **Conector**: línea punteada + texto del traslado + marcador de evidencia. Sin
+  traslado registrado: texto `--ink-500` «Traslado sin datos», **nunca en rojo** y
+  nunca con `?`. No es un error: es una ausencia conocida.
+- **Traslado entre ciudades**: variante de conector con icono de tren, fondo
+  `--surface-sunken`, ocupa el ancho completo entre dos días.
+- Se elimina el trío de botones circulares `↑ ↓ ×` por fila. Reordenar es arrastrar;
+  el resto de acciones viven en una hoja al pulsar largo o en el icono de arrastre.
+
+## 15. `EmptyState`
+
+- Icono de línea 32 px `--ink-300`, título `--font-voice` `--type-title-m`, una frase
+  `--type-body-s` `--ink-500`, y **una acción** si la hay.
+- Es una invitación, nunca una disculpa. Texto obligatorio por pantalla en `05`.
+
+## 16. `Toast`
+
+Se conserva el `SaveToast` actual. Ajustes: se ancla **sobre la barra de pestañas**,
+no sobre el borde inferior; duración 2.400 ms; una sola línea; puede llevar una acción
+(«Deshacer»). Nunca dos toasts simultáneos.
