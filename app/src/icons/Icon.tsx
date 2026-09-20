@@ -10,13 +10,24 @@ import type { SVGProps } from "react";
  * inventario real de emoji del cromo (ubicación, avión, joya, precio,
  * ajustes, siguiente, comparar, monorriel, imagen — ninguno tiene overlap de
  * significado con los 25 mínimos).
+ *
+ * Bloque 18, corrección post-cierre (`04 §10`: "Activo: icono relleno +
+ * --ink-900; inactivo: --ink-500"): `explorar-relleno`, `calendario-relleno`
+ * y `personas-relleno` se añaden con la misma técnica que ya usaba
+ * `corazon-relleno` desde el Bloque 17 — la misma geometría de línea, con
+ * `fill="currentColor"` en sus formas cerradas. Ningún icono nuevo, ningún
+ * segundo sistema: es el mismo set, con el estado que `04 §10` exige para los
+ * cuatro destinos de `TabBar`/`NavRail`.
  */
 export type IconName =
   | "explorar"
+  | "explorar-relleno"
   | "corazon"
   | "corazon-relleno"
   | "calendario"
+  | "calendario-relleno"
   | "personas"
+  | "personas-relleno"
   | "buscar"
   | "filtro"
   | "mapa"
@@ -74,6 +85,13 @@ function paths(name: IconName) {
           <path d="M14.8 9.2 13 13l-3.8 1.8L11 11l3.8-1.8Z" />
         </>
       );
+    case "explorar-relleno":
+      return (
+        <>
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M14.8 9.2 13 13l-3.8 1.8L11 11l3.8-1.8Z" fill="currentColor" />
+        </>
+      );
     case "corazon":
       return (
         <path d="M12 20.2S4 15.4 4 9.9C4 7.2 6.1 5 8.7 5c1.5 0 2.8.7 3.3 1.9C12.5 5.7 13.8 5 15.3 5 17.9 5 20 7.2 20 9.9c0 5.5-8 10.3-8 10.3Z" />
@@ -94,6 +112,14 @@ function paths(name: IconName) {
           <line x1="16" y1="3.25" x2="16" y2="7.25" />
         </>
       );
+    case "calendario-relleno":
+      return (
+        <>
+          <rect x="3.75" y="5.25" width="16.5" height="15" rx="2" fill="currentColor" />
+          <line x1="8" y1="3.25" x2="8" y2="7.25" />
+          <line x1="16" y1="3.25" x2="16" y2="7.25" />
+        </>
+      );
     case "personas":
       return (
         <>
@@ -101,6 +127,15 @@ function paths(name: IconName) {
           <circle cx="16" cy="9.5" r="2.25" />
           <path d="M3.5 19.5c0-3 2.3-5 5-5s5 2 5 5" />
           <path d="M14 19.5c0-2.3 1.6-4 3.7-4 2 0 3.8 1.5 3.8 4" />
+        </>
+      );
+    case "personas-relleno":
+      return (
+        <>
+          <circle cx="8.5" cy="8.5" r="2.75" fill="currentColor" />
+          <circle cx="16" cy="9.5" r="2.25" fill="currentColor" />
+          <path d="M3.5 19.5c0-3 2.3-5 5-5s5 2 5 5" fill="currentColor" />
+          <path d="M14 19.5c0-2.3 1.6-4 3.7-4 2 0 3.8 1.5 3.8 4" fill="currentColor" />
         </>
       );
     case "buscar":

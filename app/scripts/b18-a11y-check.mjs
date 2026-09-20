@@ -68,6 +68,26 @@ async function main() {
   const currentLabel = await page.locator(".tab-bar__item[aria-current='page'] .tab-bar__label").textContent();
   check("aria-current=page coincide con el destino activo (Viaje)", currentLabel === "Viaje");
 
+  // Corrección post-cierre, hallazgo 4a (04 §10, Art. 11): el activo no puede distinguirse del
+  // inactivo sólo por color — su icono debe ser una geometría distinta (relleno vs línea), algo
+  // que un lector de pantalla/daltónico también pueda apreciar en el propio SVG, no sólo en el
+  // canal de color del texto.
+  const svgShapes = await page.evaluate(() => {
+    function shapeOf(el) {
+      const svg = el.querySelector(".tab-bar__icon svg");
+      return svg
+        ? [...svg.querySelectorAll("*")].map((n) => `${n.tagName}:${n.getAttribute("fill") ?? ""}`).join("|")
+        : null;
+    }
+    const active = document.querySelector(".tab-bar__item[aria-current='page']");
+    const inactive = document.querySelector(".tab-bar__item:not([aria-current='page'])");
+    return { active: active ? shapeOf(active) : null, inactive: inactive ? shapeOf(inactive) : null };
+  });
+  check(
+    "el icono activo tiene una geometría/relleno distinta del inactivo (no sólo color)",
+    Boolean(svgShapes.active) && Boolean(svgShapes.inactive) && svgShapes.active !== svgShapes.inactive
+  );
+
   // prefers-reduced-motion: la animación de Sheet se reduce a ~0.
   const reducedContext = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -125,6 +145,44 @@ async function main() {
     "un control dentro de un panel oculto no puede recibir el foco (hidden real, no sólo visual)",
     hiddenPanelRefusesFocus === true
   );
+
+  // Corrección post-cierre, hallazgo 4b (04 §11): el borde inferior de la cabecera sólo debe
+  // aparecer al hacer scroll — comprobado antes y después del scroll, en la misma sesión.
+  await page.click(".tab-bar__item:has-text('Explorar')");
+  await page.waitForTimeout(300);
+  const borderBeforeScroll = await page.evaluate(() => {
+    const header = document.querySelector(".app__header");
+    return header ? getComputedStyle(header).borderBottomColor : null;
+  });
+  const sidebar = page.locator(".app__sidebar");
+  await sidebar.evaluate((el) => el.scrollTo({ top: 0 }));
+  await page.waitForTimeout(150);
+  const scrolledClassBefore = await page.evaluate(() =>
+    document.querySelector(".app__header")?.classList.contains("app__header--scrolled")
+  );
+  check("sin scroll, la cabecera no lleva la clase --scrolled", scrolledClassBefore === false);
+
+  await sidebar.evaluate((el) => el.scrollTo({ top: 300 }));
+  await page.waitForTimeout(200);
+  const borderAfterScroll = await page.evaluate(() => {
+    const header = document.querySelector(".app__header");
+    return header ? getComputedStyle(header).borderBottomColor : null;
+  });
+  const scrolledClassAfter = await page.evaluate(() =>
+    document.querySelector(".app__header")?.classList.contains("app__header--scrolled")
+  );
+  check("al hacer scroll, la cabecera gana la clase --scrolled", scrolledClassAfter === true);
+  check(
+    "el color del borde inferior cambia entre sin-scroll y con-scroll (transparente → --line)",
+    borderBeforeScroll !== null && borderAfterScroll !== null && borderBeforeScroll !== borderAfterScroll
+  );
+
+  await sidebar.evaluate((el) => el.scrollTo({ top: 0 }));
+  await page.waitForTimeout(200);
+  const scrolledClassRestored = await page.evaluate(() =>
+    document.querySelector(".app__header")?.classList.contains("app__header--scrolled")
+  );
+  check("volver a scrollTop 0 retira la clase --scrolled de nuevo", scrolledClassRestored === false);
 
   await browser.close();
 

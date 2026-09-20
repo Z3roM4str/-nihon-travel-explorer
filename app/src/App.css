@@ -302,18 +302,28 @@ a {
   overflow: hidden;
 }
 
-/* Cabecera: 56px fijos (04 §11, 05 §4). Contenido máximo: título (con selector de ciudad
-   cuando aplica) + PersonToken — ninguna otra acción permanente. */
+/*
+ * Cabecera: 56px fijos (04 §11, 05 §4). Contenido máximo: título (con selector de ciudad
+ * cuando aplica) + PersonToken — ninguna otra acción permanente.
+ *
+ * `04 §11`: "sobre papel es --surface con borde inferior --line que sólo aparece al hacer
+ * scroll" — el borde vive en `.app__header--scrolled`, no en la regla base; `App.tsx` añade esa
+ * clase cuando la superficie con scroll de la pestaña activa tiene `scrollTop > 0`.
+ */
 .app__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  height: 56px;
+  height: var(--chrome-header-height);
   flex-shrink: 0;
   padding: 0 var(--space-4);
   background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid transparent;
+}
+
+.app__header--scrolled {
+  border-bottom-color: var(--line);
 }
 
 .app__brand {
@@ -408,20 +418,22 @@ button.app__title.app__title--expand {
 }
 
 .person-token--xs {
-  width: 18px;
-  height: 18px;
-  font-size: 10px;
+  width: var(--person-token-xs);
+  height: var(--person-token-xs);
+  /* Sin tamaño de tipo propio para 18px en la escala; --type-caption-size (12px) es el token
+     compatible más próximo (03 §10, "usa un token existente compatible"). */
+  font-size: var(--type-caption-size);
 }
 
 .person-token--sm {
-  width: 24px;
-  height: 24px;
+  width: var(--person-token-sm);
+  height: var(--person-token-sm);
   font-size: var(--type-caption-size);
 }
 
 .person-token--md {
-  width: 40px;
-  height: 40px;
+  width: var(--person-token-md);
+  height: var(--person-token-md);
   font-size: var(--type-body-size);
 }
 
@@ -446,7 +458,7 @@ button.app__title.app__title--expand {
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
-  height: calc(56px + env(safe-area-inset-bottom));
+  height: calc(var(--chrome-tabbar-height) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface);
   border-top: 1px solid var(--line);
@@ -458,7 +470,8 @@ button.app__title.app__title--expand {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  /* Sin token de 2px en la escala (base 4px, 03 §3); --space-1 es el más próximo compatible. */
+  gap: var(--space-1);
   min-height: var(--tap-min);
   border: none;
   background: none;
@@ -484,11 +497,13 @@ button.app__title.app__title--expand {
 .tab-bar__badge,
 .nav-rail__badge {
   position: absolute;
-  top: -4px;
-  right: -8px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
+  /* Sin especificación de tamaño/offset propios (04 §10 sólo pide "contador --radius-full
+     --shu-600"); mapeado a tokens existentes compatibles en vez de literales (03 §10). */
+  top: calc(var(--space-1) * -1);
+  right: calc(var(--space-2) * -1);
+  min-width: var(--space-4);
+  height: var(--space-4);
+  padding: 0 var(--space-1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -496,7 +511,7 @@ button.app__title.app__title--expand {
   background: var(--shu-600);
   color: var(--surface);
   font-family: var(--font-record);
-  font-size: 10px;
+  font-size: var(--type-caption-size);
   font-weight: 700;
 }
 
@@ -514,7 +529,7 @@ button.app__title.app__title--expand {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-2);
-    width: 88px;
+    width: var(--chrome-navrail-width);
     flex-shrink: 0;
     padding-top: var(--space-4);
     background: var(--surface);
@@ -560,7 +575,7 @@ button.app__title.app__title--expand {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(20, 22, 26, 0.38);
+  background: var(--scrim-page);
 }
 
 .sheet {
@@ -575,8 +590,8 @@ button.app__title.app__title--expand {
 }
 
 .sheet__grabber {
-  width: 36px;
-  height: 4px;
+  width: var(--sheet-grabber-width);
+  height: var(--sheet-grabber-height);
   margin: var(--space-2) auto;
   flex-shrink: 0;
   border-radius: var(--radius-full);
@@ -628,7 +643,10 @@ button.app__title.app__title--expand {
   }
 
   .sheet {
-    width: min(480px, 92vw);
+    /* --panel-width: el ancho que `04 §8` nombra para Sheet en md+ ("panel lateral derecho
+       de 420px"); reutilizado aquí para el diálogo centrado en vez de inventar un ancho
+       nuevo para esta variante (03 §10). */
+    width: min(var(--panel-width), 92vw);
     max-height: 88vh;
     border-radius: var(--radius-xl);
   }
@@ -647,13 +665,27 @@ button.app__title.app__title--expand {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* Corrección post-cierre: posiciona la ficha (`.app__detail`) cuando `ficheOrigin` es este
+     destino — necesario para Quiero ir, que no tenía un ancestro `position:relative` propio
+     antes de esta corrección (sólo `.app__body`, dentro de Explorar, lo tenía). */
+  position: relative;
+  overflow: hidden;
 }
 
 .destination-panel[hidden] {
   display: none;
 }
 
+/*
+ * Corrección post-cierre: en Quiero ir, este es ahora un `div` interior distinto de
+ * `.destination-panel` (antes eran el mismo elemento) — para que la ficha, hermana suya dentro
+ * del `.destination-panel` exterior, no scrollee con la lista. Sigue siendo el mismo elemento
+ * que `.destination-panel` en Viaje/Nosotros, donde no hay ficha que anclar; `flex`/`min-height`
+ * son redundantes pero inofensivos ahí (el padre ya los fija).
+ */
 .destination-panel--scroll {
+  flex: 1;
+  min-height: 0;
   gap: var(--space-6);
   padding: var(--space-4);
   overflow-y: auto;
@@ -733,7 +765,7 @@ button.app__title.app__title--expand {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  height: 48px;
+  height: var(--chrome-bar-height);
   flex-shrink: 0;
   padding: 0 var(--space-4);
   background: var(--surface);
@@ -922,7 +954,7 @@ button.app__title.app__title--expand {
   .app__detail {
     position: absolute;
     inset: 0 0 0 auto;
-    width: min(420px, 100%);
+    width: min(var(--panel-width), 100%);
     z-index: 30;
     border-left: 1px solid var(--line);
     box-shadow: var(--elev-2);
@@ -3623,21 +3655,24 @@ button.app__title.app__title--expand {
   right: var(--space-2);
   bottom: var(--space-2);
   z-index: 10;
-  width: 32px;
-  height: 32px;
+  width: var(--info-button-size);
+  height: var(--info-button-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
   border: none;
-  background: rgba(255, 255, 255, 0.88);
+  /* Sin alfa especificado para este botón sobre el mapa; sólido en vez de un valor de
+     transparencia inventado (03 §10). */
+  background: var(--surface);
+  box-shadow: var(--elev-1);
   color: var(--ink-700);
   font-size: var(--type-body-size);
   cursor: pointer;
 }
 
 .national__attribution-button:hover {
-  background: var(--surface);
+  background: var(--surface-sunken);
 }
 
 /* En teléfono el panel contextual de prefectura es una hoja inferior sobre todo el mapa

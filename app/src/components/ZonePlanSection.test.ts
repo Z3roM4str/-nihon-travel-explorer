@@ -237,13 +237,20 @@ describe("App.tsx — exactly one writer of the draft at a time", () => {
     expect(source).not.toMatch(/onClick=\{\(\) => setViajeSection\("dormir"\)\}/);
   });
 
-  it("keeps the planner and the zone comparison mounted only while their section is active", async () => {
+  /**
+   * Corrección post-cierre (auditoría independiente, hallazgo 2): "sólo mientras su sección
+   * está activa" se leyó primero como "mientras `destination === 'viaje'`", lo que desmontaba
+   * el planificador/las zonas al cambiar de pestaña — el handoff original afirmaba lo contrario.
+   * La lectura correcta de `02 §D3` es "mientras `viajeSection` sigue siendo la suya", sin
+   * importar qué pestaña esté activa; `viajeVisited` decide el primer montaje (una sola vez).
+   */
+  it("keeps the planner and the zone comparison mounted by viajeSection, independently of the active tab", async () => {
     const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /\{destination === "viaje" && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
     );
     expect(source).toMatch(
-      /\{destination === "viaje" && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/
+      /\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/
     );
   });
 });

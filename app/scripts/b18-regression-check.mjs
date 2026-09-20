@@ -146,8 +146,12 @@ async function main() {
     Math.abs(scrollAfter - scrollBefore) < 2
   );
 
-  // Guardar en Quiero ir y comprobar el contador de TabBar (Art. 6, gate 11 §3).
-  await page.locator(".place-card__save").first().click();
+  // Guardar en Quiero ir y comprobar el contador de TabBar (Art. 6, gate 11 §3). Se guardan dos
+  // lugares — el segundo hace falta más abajo para que el planificador ofrezca "Comparar otro
+  // orden" (routePlaces.length >= 2).
+  await page.locator(".place-card__save").nth(0).click();
+  await page.waitForTimeout(200);
+  await page.locator(".place-card__save").nth(1).click();
   await page.waitForTimeout(300);
   check(
     "el contador de «Quiero ir» aparece en TabBar tras guardar",
@@ -163,6 +167,49 @@ async function main() {
     "«Quiero ir» muestra el lugar guardado como contenido de la pestaña, no un cajón",
     await page.locator(".selection-panel__content").isVisible()
   );
+
+  // Corrección post-cierre, hallazgo 1: abrir un lugar desde Quiero ir abre la misma ficha SIN
+  // navegar a Explorar (02 §"Mapa completo de pantallas": "Quiero ir └── Lugar · misma ficha
+  // que en Explorar"; 02 §D3: "la profundidad se apila dentro de una pestaña"). Se comprueba
+  // scroll, filtros/segmentos (aquí: qué lugar aparece primero en la lista) y que el destino
+  // activo no cambia — todo debe seguir igual al volver.
+  await page.evaluate(() => document.querySelector(".destination-panel--scroll")?.scrollTo({ top: 40 }));
+  await page.waitForTimeout(150);
+  const quieroIrScrollBefore = await page.evaluate(
+    () => document.querySelector(".destination-panel--scroll")?.scrollTop ?? 0
+  );
+  await page.click(".selection-list__name");
+  await page.waitForTimeout(400);
+  check("abrir un lugar desde Quiero ir abre la ficha", await page.locator(".place-detail").isVisible());
+  const activeDestinationWhileFichaOpen = await page
+    .locator(".tab-bar__item--active .tab-bar__label")
+    .textContent();
+  check(
+    "el destino activo sigue siendo Quiero ir mientras la ficha (abierta desde ahí) está abierta",
+    activeDestinationWhileFichaOpen === "Quiero ir"
+  );
+  check(
+    "la ficha abierta desde Quiero ir también cubre el shell por completo en teléfono",
+    (await page.evaluate(() => {
+      const detail = document.querySelector(".app__detail");
+      const rect = detail?.getBoundingClientRect();
+      return rect ? rect.width === 390 && rect.height === 844 : false;
+    }))
+  );
+  await page.locator(".place-detail__bar .icon-button").click();
+  await page.waitForTimeout(400);
+  check(
+    "cerrar la ficha abierta desde Quiero ir vuelve a Quiero ir, no a Explorar",
+    await page.locator(".selection-panel").isVisible()
+  );
+  const quieroIrScrollAfter = await page.evaluate(
+    () => document.querySelector(".destination-panel--scroll")?.scrollTop ?? 0
+  );
+  check(
+    "Quiero ir → Lugar → volver conserva el scroll de Quiero ir",
+    Math.abs(quieroIrScrollAfter - quieroIrScrollBefore) < 2
+  );
+
   await page.click(".tab-bar__item:has-text('Explorar')");
   await page.waitForTimeout(400);
   check(
@@ -178,6 +225,33 @@ async function main() {
     (await page.locator(".analysis-overlay").count()) === 0 &&
       (await page.locator(".sequence-empty, .analysis-dialog--embedded").count()) > 0
   );
+
+  // Corrección post-cierre, hallazgo 2: el handoff original afirmaba que los cuatro destinos
+  // permanecen montados, pero el planificador se desmontaba de verdad al salir de Viaje. Se
+  // cambia un estado local propio del planificador (`view`, interno a OrderedSequenceBuilder,
+  // nunca persistido en storage — a diferencia del propio recorrido) entrando en "Comparar otro
+  // orden", se navega a otra pestaña y se vuelve, y se comprueba que sigue exactamente en ese
+  // estado: si el componente se hubiera desmontado, `view` habría vuelto a su valor inicial
+  // ("builder"/"Construir recorrido").
+  const compareToggle = page.locator(".sequence-compare-toggle:has-text('Comparar otro orden')");
+  check("hay al menos 2 lugares en el recorrido (necesario para comparar)", await compareToggle.isVisible());
+  await compareToggle.click();
+  await page.waitForTimeout(300);
+  check(
+    "entrar en «Comparar otro orden» cambia el estado local del planificador",
+    (await page.locator("#sequence-builder-title").textContent()) === "Comparar órdenes"
+  );
+  await page.click(".tab-bar__item:has-text('Nosotros')");
+  await page.waitForTimeout(300);
+  await page.click(".tab-bar__item:has-text('Viaje')");
+  await page.waitForTimeout(300);
+  check(
+    "el estado local del planificador (vista «Comparar órdenes») sobrevive a cambiar de pestaña y volver",
+    (await page.locator("#sequence-builder-title").textContent()) === "Comparar órdenes"
+  );
+  await page.click(".link-button.sequence-back");
+  await page.waitForTimeout(300);
+
   await page.click(".viaje-nav__item:has-text('Dónde dormir')");
   await page.waitForTimeout(500);
   check(

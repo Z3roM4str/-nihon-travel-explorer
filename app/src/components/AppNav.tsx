@@ -5,13 +5,16 @@ type NavItem = {
   id: Destination;
   label: string;
   icon: IconName;
+  /** `04 §10`: "Activo: icono relleno + --ink-900; inactivo: --ink-500" — el color solo no
+   * basta (Art. 11), así que el activo también cambia de glifo, no sólo de tinta. */
+  iconActive: IconName;
 };
 
 const ITEMS: NavItem[] = [
-  { id: "explorar", label: "Explorar", icon: "explorar" },
-  { id: "quiero-ir", label: "Quiero ir", icon: "corazon" },
-  { id: "viaje", label: "Viaje", icon: "calendario" },
-  { id: "nosotros", label: "Nosotros", icon: "personas" },
+  { id: "explorar", label: "Explorar", icon: "explorar", iconActive: "explorar-relleno" },
+  { id: "quiero-ir", label: "Quiero ir", icon: "corazon", iconActive: "corazon-relleno" },
+  { id: "viaje", label: "Viaje", icon: "calendario", iconActive: "calendario-relleno" },
+  { id: "nosotros", label: "Nosotros", icon: "personas", iconActive: "personas-relleno" },
 ];
 
 type Props = {
@@ -40,7 +43,7 @@ export function TabBar({ active, onSelect, wantToGoCount }: Props) {
             onClick={() => onSelect(item.id)}
           >
             <span className="tab-bar__icon" aria-hidden="true">
-              <Icon name={item.icon} size={24} />
+              <Icon name={isActive ? item.iconActive : item.icon} size={24} />
               {item.id === "quiero-ir" && wantToGoCount > 0 && (
                 <span className="tab-bar__badge">{wantToGoCount}</span>
               )}
@@ -67,7 +70,7 @@ export function NavRail({ active, onSelect, wantToGoCount }: Props) {
             onClick={() => onSelect(item.id)}
           >
             <span className="nav-rail__icon" aria-hidden="true">
-              <Icon name={item.icon} size={24} />
+              <Icon name={isActive ? item.iconActive : item.icon} size={24} />
               {item.id === "quiero-ir" && wantToGoCount > 0 && (
                 <span className="nav-rail__badge">{wantToGoCount}</span>
               )}
