@@ -4,6 +4,7 @@ import type { PlanningBlock } from "../lib/planning-block";
 import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
 import { splitCategory } from "../lib/place";
 import { interestLevelForGrade } from "../lib/interest-level";
+import { Icon } from "../icons/Icon";
 
 type Props = {
   filters: Filters;
@@ -86,7 +87,7 @@ export function FilterPanel({
         </label>
         <div className="search-field">
           <span className="search-field__icon" aria-hidden="true">
-            🔍
+            <Icon name="buscar" size={16} />
           </span>
           <input
             id={searchId}
@@ -100,9 +101,10 @@ export function FilterPanel({
           {filters.query && (
             <button
               type="button"
-              className="search-field__clear"
+              className="search-field__clear tap-target-min"
               onClick={() => onChange({ ...filters, query: "" })}
               aria-label="Borrar búsqueda"
+              title="Borrar búsqueda"
             >
               ×
             </button>
@@ -139,7 +141,7 @@ export function FilterPanel({
       <div className="filter-panel__groups" id={groupsId} hidden={!groupsOpen}>
       <FilterGroup label="Categoría" count={filters.categories.length}>
         {categories.map((category) => {
-          const { icon, label } = splitCategory(category);
+          const { label } = splitCategory(category);
           return (
             <label key={category} className="filter-chip">
               <input
@@ -149,9 +151,9 @@ export function FilterPanel({
                   onChange({ ...filters, categories: toggleValue(filters.categories, category) })
                 }
               />
-              <span>
-                <span aria-hidden="true">{icon}</span> {label}
-              </span>
+              {/* Bloque 17 (B1): el emoji de categoría del dataset ya no se renderiza como
+                  icono de interfaz (03 §8). */}
+              <span>{label}</span>
             </label>
           );
         })}

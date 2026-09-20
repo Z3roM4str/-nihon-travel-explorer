@@ -1,3 +1,5 @@
+import type { IconName } from "../icons/Icon";
+
 /**
  * Content and persistence for the first-run explainer, kept out of the component so the
  * component file exports nothing but a component (the project's fast-refresh lint rule) and so
@@ -7,7 +9,9 @@
 export const ONBOARDING_STORAGE_KEY = "nihon.onboarding.seen.v1";
 
 export type OnboardingStep = {
-  icon: string;
+  /** Bloque 17 (B1): nombre de un icono de línea propio — "Ninguna pantalla del explicador
+   * usa emoji" (`docs/design/05 §1`). */
+  icon: IconName;
   title: string;
   body: string;
 };
@@ -19,17 +23,17 @@ export type OnboardingStep = {
  */
 export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
   {
-    icon: "🗺",
+    icon: "mapa",
     title: "Explora Japón",
     body: "Elige una zona y ve pasando tarjetas. Cada una dice qué es el lugar, por qué vale la pena y cuánto tiempo pide.",
   },
   {
-    icon: "♥",
+    icon: "corazon",
     title: "Marca lo que te gustaría ver",
     body: "Pulsa el corazón de cualquier tarjeta. No hay que decidir nada todavía: guarda de más, que luego se recorta.",
   },
   {
-    icon: "🧭",
+    icon: "explorar",
     title: "Después comparamos",
     body: "Con la lista de “Quiero ir” hecha, se comparan las elecciones, se depuran juntas y solo al final se arma el itinerario.",
   },

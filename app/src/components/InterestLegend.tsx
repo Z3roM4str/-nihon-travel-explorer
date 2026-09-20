@@ -1,4 +1,5 @@
 import { INTEREST_LEVELS } from "../lib/interest-level";
+import { Icon } from "../icons/Icon";
 
 /**
  * What the colours on the map and the badges on the cards actually mean.
@@ -11,7 +12,7 @@ export function InterestLegend() {
   return (
     <details className="interest-legend">
       <summary className="interest-legend__summary">
-        <span aria-hidden="true">🎨</span> ¿Qué significan los colores?
+        <Icon name="info" size={16} /> ¿Qué significan los colores?
       </summary>
       <ul className="interest-legend__list">
         {INTEREST_LEVELS.map((level) => (

@@ -1,51 +1,57 @@
+/*
+ * Bloque 17 (B1 — Fundación visual): las variables heredadas de este :root ya
+ * no llevan hex propio. Son alias del sistema nuevo (`styles/tokens.css`,
+ * importado antes que este fichero) para que todas las superficies existentes
+ * hereden la identidad sin reescribir cada selector de golpe (08 §"Cómo
+ * tratar el CSS actual"). Un bloque posterior que migre una superficie puede
+ * sustituir el alias por el token directo y, cuando ya no quede ningún uso,
+ * retirar la línea de aquí. `--radius-sm` y `--radius-lg` ya no se redeclaran:
+ * al no sombrear `tokens.css`, los consumidores existentes heredan
+ * directamente `--radius-sm`/`--radius-lg` de `03 §4`.
+ */
 :root {
-  --color-bg: #f6f4f1;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f2efe9;
-  --color-border: #e0dbd3;
-  --color-border-strong: #cdc6ba;
-  --color-text: #1f1e1c;
-  --color-text-muted: #5c574f;
-  --color-accent: #b7282e;
-  --color-accent-dark: #8d1f24;
-  --color-accent-soft: #fbeceb;
-  --color-info: #2f6f9f;
-  --color-ok: #1f7a4d;
-  --color-ok-soft: #e8f5ee;
-  --color-warn: #a86413;
-  --color-warn-soft: #fdf3e2;
-  --color-risk: #b03024;
-  --color-risk-soft: #fdeceb;
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --shadow-panel: 0 8px 32px rgba(35, 28, 20, 0.16);
-  --shadow-soft: 0 1px 3px rgba(35, 28, 20, 0.1);
-  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
-  --tap-target: 44px;
-  /* Interest ladder — the same five colours the map markers use, so a card and its pin read
-     as the same thing. Never the only signal: every badge also carries its label and glyph. */
-  --color-interest-1: #b7282e;
-  --color-interest-2: #a75d12;
-  --color-interest-3: #2f6f9f;
-  --color-interest-4: #6b6257;
-  --color-interest-5: #7b7469;
-  --shadow-card: 0 1px 2px rgba(35, 28, 20, 0.06), 0 6px 16px rgba(35, 28, 20, 0.07);
-  --shadow-card-hover: 0 2px 4px rgba(35, 28, 20, 0.08), 0 12px 28px rgba(35, 28, 20, 0.12);
+  --color-bg: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-sunken);
+  --color-border: var(--line);
+  --color-border-strong: var(--line-strong);
+  --color-text: var(--ink-900);
+  --color-text-muted: var(--ink-500);
+  --color-accent: var(--shu-600);
+  --color-accent-dark: var(--shu-700);
+  --color-accent-soft: var(--shu-050);
+  --color-info: var(--info-600);
+  --color-ok: var(--ok-600);
+  --color-ok-soft: var(--ok-050);
+  --color-warn: var(--warn-600);
+  --color-warn-soft: var(--warn-050);
+  --color-risk: var(--risk-600);
+  --color-risk-soft: var(--risk-050);
+  --radius: var(--radius-md);
+  --shadow-panel: var(--elev-2);
+  --shadow-soft: var(--elev-1);
+  --font-sans: var(--font-record);
+  --tap-target: var(--tap-min);
+  /* Bloque 17 (B1): --color-interest-1…5 quedan retirados (03 §1.3, DD-004 — el nivel de
+     interés ya no tiene color propio). Las clases badge--grade-N y tag--grade-N, y el
+     marcador del mapa (PlaceMap.tsx), usan tinta directamente; nada más los consumía. */
+  --shadow-card: var(--elev-1);
+  --shadow-card-hover: var(--elev-1);
   color-scheme: light;
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-record);
   background: var(--color-bg);
   color: var(--color-text);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
 }
 
 h1,
 h2,
 h3 {
+  font-family: var(--font-voice);
   line-height: 1.25;
 }
 
@@ -65,47 +71,87 @@ a {
   border: 0;
 }
 
+/* Anillo de foco (03 §7). Reemplaza el azul de 3px, que chocaba con el
+   bermellón de marca. */
 :focus-visible {
-  outline: 3px solid var(--color-info);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons (Bloque 17 — B1, 04 §4) ---------- */
 
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  min-height: var(--tap-target);
-  padding: 0.55rem 1rem;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  font: inherit;
-  font-weight: 600;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Acción primaria de pantalla, ancho completo (05 §5 pt.6). */
+.button--lg {
+  min-height: var(--tap-primary);
+  width: 100%;
+  font-size: var(--type-body-size);
 }
 
 .button--primary {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #fff;
+  background: var(--shu-600);
+  border-color: var(--shu-600);
+  color: var(--surface);
 }
 
 .button--primary:hover {
-  background: var(--color-accent-dark);
+  background: var(--shu-700);
+  border-color: var(--shu-700);
 }
 
 .button--secondary {
-  background: var(--color-surface);
-  border-color: var(--color-border-strong);
-  color: var(--color-text);
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--ink-900);
 }
 
 .button--secondary:hover {
-  background: var(--color-surface-alt);
+  background: var(--surface-sunken);
+}
+
+.button--quiet {
+  background: none;
+  border-color: transparent;
+  color: var(--ink-700);
+}
+
+.button--quiet:hover {
+  background: var(--surface-sunken);
+}
+
+.button--danger {
+  background: none;
+  border-color: transparent;
+  color: var(--risk-600);
+}
+
+.button--danger:hover {
+  background: var(--risk-050);
 }
 
 .icon-button {
@@ -117,21 +163,99 @@ a {
   border-radius: 50%;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 1.5rem;
-  line-height: 1;
   cursor: pointer;
   color: var(--color-text);
   flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.icon-button:active {
+  transform: scale(0.98);
 }
 
 .icon-button:hover {
   background: var(--color-surface-alt);
 }
 
+/*
+ * Corrección de cumplimiento normativo (auditoría posterior al cierre del Bloque 17).
+ * Art. 11 exige 44×44 px de área táctil mínima, sin excepción por tamaño visual, y 08
+ * "Orden de precedencia" pone la Constitución por delante de cualquier documento
+ * específico (incluido `04`) cuando entran en conflicto.
+ *
+ * Dos técnicas, según si el control tiene un vecino del mismo tamaño al lado:
+ *
+ * 1. `.tap-target-min` — para un control AISLADO (`.app__help`, `.trip-backup__close`,
+ *    `.search-field__clear`; también la base de `.filter-chip`, más abajo, cuyo ancho
+ *    real siempre supera 44px y cuyo hueco vertical entre filas deja margen de sobra —
+ *    ver el cálculo en el commit de esta corrección). Añade un pseudo-elemento
+ *    invisible, centrado, del tamaño del control o `--tap-min` (lo que sea mayor). Un
+ *    `::after` generado por CSS es, a efectos de "click forwarding", parte del propio
+ *    elemento en todos los motores de render actuales, así que agranda el área
+ *    clicable real sin agrandar lo que se pinta.
+ *
+ * 2. Caja real de 44×44 — para un control que vive en una fila o rejilla apretada junto
+ *    a otros del mismo tipo (`.icon-button--small` en `.sequence-item__controls` y en
+ *    `.day-card__header-actions`; `.gallery__dot` en `.gallery__dots`). Aquí la técnica
+ *    1 es la equivocada: si el hueco real entre dos controles es menor que la suma de
+ *    sus dos expansiones invisibles, esas zonas se solapan, y un click cerca del borde
+ *    puede resolver al vecino equivocado o depender del orden de pintado — una
+ *    ambigüedad que Art. 11 no permite. La caja del propio botón pasa a medir `--tap-min`
+ *    de verdad (participa en el layout, así que dos cajas vecinas nunca se solapan: es
+ *    geometría, no un truco de pintado); el elemento visual pequeño (el círculo, el
+ *    punto) se dibuja aparte, centrado dentro, y es lo único que se mantiene compacto.
+ *
+ * Comprobado en `scripts/b17-tap-target-check.mjs`: cada target mide ≥44×44 de verdad,
+ * y para los grupos de la técnica 2 además: un punto cercano al límite entre dos
+ * vecinos resuelve siempre al más próximo (nunca a los dos), y una rejilla de
+ * `elementFromPoint` sobre cada caja no encuentra solape con ninguna caja vecina.
+ */
+.tap-target-min {
+  position: relative;
+}
+
+.tap-target-min::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, var(--tap-min));
+  height: max(100%, var(--tap-min));
+}
+
+/* Técnica 2 (caja real): usada por `.icon-button--small` (fila de controles, ver arriba).
+   La caja de 44px no lleva fondo/borde propios — eso es del `::before`, que dibuja el
+   círculo de 36px que siempre fue el tamaño visual, centrado dentro de la caja real. */
 .icon-button--small {
+  position: relative;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  background: none;
+  border: none;
+}
+
+.icon-button--small::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 2.25rem;
   height: 2.25rem;
-  font-size: 1.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.icon-button--small:hover {
+  /* Anula el fondo de `.icon-button:hover`, que pintaría la caja real de 44px entera;
+     el estado de hover vive en el círculo visual, no en el área táctil ampliada. */
+  background: none;
+}
+
+.icon-button--small:hover::before {
+  background: var(--color-surface-alt);
 }
 
 .link-button {
@@ -205,7 +329,9 @@ a {
 }
 
 /* Always-available "what is this and how does it work" entry point, so dismissing the
-   first-run explainer is never a one-way door. */
+   first-run explainer is never a one-way door. 36px visual so it reads as secondary next to
+   `.app__backup`; `.tap-target-min` on the element gives it a real ≥44px hit area — corrección
+   de cumplimiento posterior al cierre del Bloque 17, Art. 11. */
 .app__help {
   width: 2.25rem;
   height: 2.25rem;
@@ -226,9 +352,8 @@ a {
 }
 
 /* Block 13. The same visual weight as the help control beside it — a backup is a secondary safety
-   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar — but NOT the same size.
-   `.app__help` is 36px under a named historical allowance in Block 1's audit; a control added today
-   meets the 44px floor instead of joining an exemption list. Block 1's audit caught this. */
+   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar. Its own visual box
+   already reaches 44px, so it needs no `.tap-target-min`. */
 .app__backup {
   width: 2.75rem;
   height: 2.75rem;
@@ -519,13 +644,14 @@ a {
 }
 
 .search-field:focus-within {
-  border-color: var(--color-info);
-  box-shadow: 0 0 0 3px rgba(47, 111, 159, 0.15);
+  border-color: var(--focus-ring-color);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .search-field__icon {
-  font-size: 0.9rem;
-  opacity: 0.7;
+  display: inline-flex;
+  color: var(--ink-500);
 }
 
 .search-field__input {
@@ -627,34 +753,55 @@ a {
   padding: 0 0 0.75rem;
 }
 
+/* Bloque 17 (B1): variante `ChipToggle` de `04 §3` — la hoja de filtros es la única superficie
+   donde un chip es interactivo, con `aria-pressed` (aquí, `:has(input:checked)`) y 40px de alto.
+   Corrección de cumplimiento (auditoría posterior al cierre del Bloque 17): 40px visual es
+   inferior al suelo de Art. 11, así que `.filter-chip` comparte la técnica `.tap-target-min`
+   (ver comentario junto a esa clase) directamente en su propio selector — cada instancia real
+   (categoría, bloque, reserva, nivel, grado, radio) hereda un área táctil real ≥44×44 sin que
+   el chip crezca visualmente. */
 .filter-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  min-height: 2.25rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8rem;
+  gap: var(--space-1);
+  min-height: var(--space-10);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
   cursor: pointer;
-  background: var(--color-surface);
+  background: var(--surface-sunken);
+  color: var(--ink-700);
   user-select: none;
 }
 
+.filter-chip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, var(--tap-min));
+  height: max(100%, var(--tap-min));
+}
+
 .filter-chip:hover {
-  background: var(--color-surface-alt);
+  background: var(--line);
 }
 
 .filter-chip:has(input:checked) {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-  color: var(--color-accent-dark);
-  font-weight: 600;
+  background: var(--shu-050);
+  border-color: var(--shu-600);
+  color: var(--shu-700);
 }
 
 .filter-chip:focus-within {
-  outline: 3px solid var(--color-info);
-  outline-offset: 1px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .filter-chip input {
@@ -695,7 +842,7 @@ a {
 }
 
 .place-card:focus-within {
-  border-color: var(--color-info);
+  border-color: var(--focus-ring-color);
 }
 
 .place-card--selected {
@@ -757,8 +904,7 @@ a {
 }
 
 .place-card__placeholder-icon {
-  font-size: 2rem;
-  opacity: 0.5;
+  color: var(--ink-300);
 }
 
 .interest-badge {
@@ -811,8 +957,7 @@ a {
 }
 
 .place-card__save-icon {
-  font-size: 1.35rem;
-  line-height: 1;
+  display: inline-flex;
 }
 
 .place-card__save:hover {
@@ -893,7 +1038,7 @@ a {
 }
 
 .place-card__open:focus-visible::after {
-  outline: 3px solid var(--color-info);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: -3px;
   border-radius: var(--radius-lg);
 }
@@ -970,9 +1115,8 @@ a {
 
 .place-list__empty-icon {
   display: block;
-  font-size: 1.8rem;
   margin-bottom: 0.5rem;
-  opacity: 0.55;
+  color: var(--ink-300);
 }
 
 .place-list__empty-title {
@@ -1127,14 +1271,20 @@ a {
   margin-top: 0.35rem;
 }
 
+/* Bloque 17 (B1): anatomía de `Chip` (`04 §3`) — icono opcional + texto `--type-label`,
+   `--radius-xs`, fondo `--surface-sunken` por defecto. Los matices de color de cada variante
+   (`--gem`, `--alert`, `--reservation-*`) no tenían token equivalente en `03 §1` y se dejan
+   para cuando su superficie (la ficha, B4) se migre — no son nuevos, son deuda existente. */
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  gap: var(--space-1);
+  border-radius: var(--radius-xs);
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
   background: var(--color-surface-alt);
   color: var(--color-text);
   border: 1px solid var(--color-border);
@@ -1171,36 +1321,43 @@ a {
   color: var(--color-info);
 }
 
+/*
+ * Bloque 17 (B1): la escalera de interés deja de usar color (DD-004, 03 §1.3 "El único nivel
+ * que se muestra en tarjeta es «Imprescindible» … usa tinta sobre papel con su glifo ★, no un
+ * color"). Los cuatro hex por grado se sustituyen por tinta — más oscura cuanto más alto el
+ * interés — en vez de un hue distinto por grado. `--color-interest-1…5` quedan retirados de
+ * `03`; ver el alias temporal en el `:root` de este fichero.
+ */
 .tag--grade-S,
 .badge--grade-S {
-  background: #b7282e;
-  border-color: #b7282e;
-  color: #fff;
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+  color: var(--surface);
 }
 
 /* Darkened from #c2701c: white-on-amber previously sat at ~3.0:1, below WCAG AA for the
    small text these badges carry. #a75d12 clears 4.5:1 while staying the same hue family. */
 .tag--grade-A,
 .badge--grade-A {
-  background: #a75d12;
-  border-color: #a75d12;
-  color: #fff;
+  background: var(--ink-700);
+  border-color: var(--ink-700);
+  color: var(--surface);
 }
 
 .tag--grade-B,
 .badge--grade-B {
-  background: #2f6f9f;
-  border-color: #2f6f9f;
-  color: #fff;
+  background: var(--ink-500);
+  border-color: var(--ink-500);
+  color: var(--surface);
 }
 
 .tag--grade-C,
 .badge--grade-C,
 .tag--grade-D,
 .badge--grade-D {
-  background: #6b6257;
-  border-color: #6b6257;
-  color: #fff;
+  background: var(--surface-sunken);
+  border-color: var(--line-strong);
+  color: var(--ink-700);
 }
 
 .save-button {
@@ -1552,11 +1709,12 @@ a {
   transform: translateY(-50%);
   width: var(--tap-target);
   height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.9);
-  font-size: 1.6rem;
-  line-height: 1;
   cursor: pointer;
   box-shadow: var(--shadow-soft);
 }
@@ -1591,11 +1749,16 @@ a {
   padding: 0.2rem;
 }
 
-/* The visible dot stays small; the button around it is a real 28px target with room to spare
-   between neighbours, so the control is usable with a thumb. */
+/* Segunda corrección de cumplimiento: `.tap-target-min` (un pseudo-elemento invisible
+   absolutamente posicionado) habría dejado zonas de 44px vecinas solapándose, porque
+   `.gallery__dots` separa los puntos con sólo 2.4px de hueco real — muy por debajo de lo
+   que hacía falta para no invadir al vecino. En vez de eso, la propia caja del botón mide
+   `--tap-min` de verdad (participa en el layout, así que dos vecinos nunca se solapan);
+   el punto visible sigue siendo el `::before` de 8.8px, centrado dentro por flexbox, sin
+   necesidad de posicionamiento absoluto. */
 .gallery__dot {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: var(--tap-min);
+  height: var(--tap-min);
   padding: 0;
   border: none;
   background: none;
@@ -1646,8 +1809,7 @@ a {
 }
 
 .gallery__fallback-icon {
-  font-size: 2rem;
-  opacity: 0.55;
+  color: var(--ink-300);
 }
 
 .gallery__fallback-label {
@@ -1690,11 +1852,13 @@ a {
   right: 1rem;
   width: var(--tap-target);
   height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.9);
-  font-size: 1.6rem;
-  line-height: 1;
+  color: var(--ink-900);
   cursor: pointer;
 }
 
@@ -2823,8 +2987,8 @@ a {
 }
 
 .onboarding__art {
-  font-size: 2.6rem;
-  line-height: 1;
+  display: flex;
+  color: var(--ink-700);
   margin-bottom: 0.5rem;
 }
 

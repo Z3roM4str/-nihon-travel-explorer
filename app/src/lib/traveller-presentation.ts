@@ -1,4 +1,5 @@
 import type { PlaceInterestSummary, Traveller } from "./travellers";
+import type { IconName } from "../icons/Icon";
 
 /**
  * Block 5 — how the two-person layer shows up on screen, and how rarely.
@@ -27,8 +28,9 @@ export type InterestMarkerTone = "agreement" | "other" | "declined" | "unclaimed
 export type InterestMarker = {
   /** The primary signal, always present. Never replaced by colour alone. */
   label: string;
-  /** Decorative only; every caller renders it `aria-hidden`. */
-  glyph: string;
+  /** Decorative only; every caller renders it `aria-hidden`. Bloque 17 (B1): nombre de un
+   * icono de línea propio, no un glifo emoji (00 "Patrones explícitamente prohibidos" · 03 §8). */
+  glyph: IconName;
   tone: InterestMarkerTone;
   /** Spelled out for assistive technology, where the short label would lose its subject. */
   description: string;
@@ -59,7 +61,7 @@ export function interestMarker(
     case "unclaimed":
       return {
         label: "Sin reclamar",
-        glyph: "•",
+        glyph: "punto",
         tone: "unclaimed",
         description:
           "Estaba en la lista antes de crear los perfiles. Todavía nadie ha dicho si le interesa.",
@@ -68,7 +70,7 @@ export function interestMarker(
     case "both":
       return {
         label: "Los dos",
-        glyph: "✓",
+        glyph: "confirmado",
         tone: "agreement",
         description: "Las dos personas han dicho que quieren ir.",
       };
@@ -79,7 +81,7 @@ export function interestMarker(
       const who = labelOf(travellers, summary.interestedId);
       return {
         label: `Sólo ${who}`,
-        glyph: "♥",
+        glyph: "corazon-relleno",
         tone: "other",
         description: `${who} quiere ir. Tú todavía no has dicho nada.`,
       };
@@ -93,7 +95,7 @@ export function interestMarker(
         const who = otherId ? labelOf(travellers, otherId) : "La otra persona";
         return {
           label: `${who}: no`,
-          glyph: "✕",
+          glyph: "cerrar",
           tone: "declined",
           description: `Tú quieres ir. ${who} ha dicho que no le interesa.`,
         };
@@ -102,7 +104,7 @@ export function interestMarker(
       const who = otherId ? labelOf(travellers, otherId) : "La otra persona";
       return {
         label: `${who} sí`,
-        glyph: "♥",
+        glyph: "corazon-relleno",
         tone: "other",
         description: `${who} quiere ir. Tú has dicho que no te interesa.`,
       };
@@ -114,7 +116,7 @@ export function interestMarker(
       if (activeDeclined && summary.notInterestedIds.length === 1) {
         return {
           label: "No te interesa",
-          glyph: "✕",
+          glyph: "cerrar",
           tone: "declined",
           description: "Has dicho que no te interesa. La otra persona no ha dicho nada.",
         };
@@ -122,7 +124,7 @@ export function interestMarker(
       if (activeDeclined) {
         return {
           label: "Ninguno",
-          glyph: "✕",
+          glyph: "cerrar",
           tone: "declined",
           description: "Las dos personas han dicho que no les interesa.",
         };
@@ -131,7 +133,7 @@ export function interestMarker(
       const who = otherId ? labelOf(travellers, otherId) : "La otra persona";
       return {
         label: `${who}: no`,
-        glyph: "✕",
+        glyph: "cerrar",
         tone: "declined",
         description: `${who} ha dicho que no le interesa. Tú todavía no has dicho nada.`,
       };

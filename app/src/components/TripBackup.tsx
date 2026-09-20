@@ -118,10 +118,11 @@ export function TripBackup({
           </div>
           <button
             type="button"
-            className="trip-backup__close"
+            className="trip-backup__close tap-target-min"
             onClick={() => (importState.phase === "restored" ? onFinishRestore() : close())}
             ref={closeRef}
             aria-label="Cerrar el respaldo del viaje"
+            title="Cerrar el respaldo del viaje"
           >
             <span aria-hidden="true">×</span>
           </button>

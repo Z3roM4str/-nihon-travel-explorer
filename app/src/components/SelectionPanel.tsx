@@ -4,7 +4,6 @@ import { cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace } from "../lib/interest-level";
 import { summarizeSelection } from "../lib/selection";
-import { splitCategory } from "../lib/place";
 import { tallySentence, type InterestMarker } from "../lib/traveller-presentation";
 import type { ShortlistTally, Traveller } from "../lib/travellers";
 import {
@@ -20,6 +19,7 @@ import {
   plannedNote,
 } from "../lib/divergence-presentation";
 import { ShortlistFilterBar } from "./ShortlistFilterBar";
+import { Icon } from "../icons/Icon";
 
 type Props = {
   savedPlaces: Place[];
@@ -102,7 +102,7 @@ export function SelectionPanel({
     <section className="selection-panel" aria-label="Lugares guardados">
       <button type="button" className="selection-panel__toggle" onClick={onToggle} aria-expanded={open}>
         <span className="selection-panel__title">
-          <span aria-hidden="true">📍</span> Quiero ir
+          <Icon name="ubicacion" size={16} /> Quiero ir
           <span className="selection-panel__count">{summary.savedCount}</span>
         </span>
         <span
@@ -111,7 +111,9 @@ export function SelectionPanel({
           }`}
         >
           {summary.savedCount === 0 ? (
-            "Pulsa ♥ en cualquier lugar"
+            <>
+              Pulsa <Icon name="corazon" size={16} /> en cualquier lugar
+            </>
           ) : summary.visitTime ? (
             <>
               <span className="visually-hidden">Tiempo estimado de visita: </span>
@@ -131,12 +133,12 @@ export function SelectionPanel({
           {summary.savedCount === 0 ? (
             <div className="selection-panel__empty">
               <p className="selection-panel__empty-title">
-                <span aria-hidden="true">♡</span> Todavía no hay nada guardado
+                <Icon name="corazon" size={20} /> Todavía no hay nada guardado
               </p>
               <p className="selection-panel__empty-hint">
-                Pulsa el <strong>♥</strong> de cualquier tarjeta, o el botón{" "}
-                <strong>Quiero ir</strong> dentro de una ficha. Guarda de más: luego se compara y
-                se recorta.
+                Pulsa el <strong><Icon name="corazon" size={16} /></strong> de cualquier tarjeta, o
+                el botón <strong>Quiero ir</strong> dentro de una ficha. Guarda de más: luego se
+                compara y se recorta.
               </p>
             </div>
           ) : (
@@ -174,7 +176,7 @@ export function SelectionPanel({
                 </p>
                 {tally && tally.total > 0 && (
                   <p className="selection-panel__tally" role="status">
-                    <span aria-hidden="true">👥</span> {tallySentence(tally)}
+                    <Icon name="personas" size={16} /> {tallySentence(tally)}
                   </p>
                 )}
                 {entries.length > 0 && (
@@ -194,7 +196,7 @@ export function SelectionPanel({
                         className="button button--secondary selection-panel__analyze"
                         onClick={onAnalyze}
                       >
-                        <span aria-hidden="true">▤</span> Analizar selección
+                        <Icon name="lista" size={16} /> Analizar selección
                       </button>
                     )}
                     {summary.savedCount >= SEQUENCE_BUILDER_MIN_SAVED && (
@@ -203,7 +205,7 @@ export function SelectionPanel({
                         className="button button--secondary selection-panel__analyze"
                         onClick={onBuildSequence}
                       >
-                        <span aria-hidden="true">🧭</span> Construir recorrido
+                        <Icon name="explorar" size={16} /> Construir recorrido
                       </button>
                     )}
                   </div>
@@ -218,7 +220,6 @@ export function SelectionPanel({
                   const range = resolveDuration(place.duration);
                   const interest = interestLevelForPlace(place);
                   const thumbnail = resolvePlaceImages(place.id, place.images)[0];
-                  const category = splitCategory(place.category);
                   // One indicator per row, never two. While a filter is active the derived line
                   // below states the same fact in full and from the reader's own side, so Block
                   // 5's short marker would be a duplicate of it and is stood down.
@@ -244,7 +245,7 @@ export function SelectionPanel({
                               decoding="async"
                             />
                           ) : (
-                            <span className="selection-list__thumb-icon">{category.icon || "⛩"}</span>
+                            <Icon name="imagen" className="selection-list__thumb-icon" size={20} />
                           )}
                         </span>
                         <span className="selection-list__text">
@@ -269,7 +270,7 @@ export function SelectionPanel({
                                 <span
                                   className={`selection-list__interest-marker selection-list__interest-marker--${marker.tone}`}
                                 >
-                                  <span aria-hidden="true">{marker.glyph}</span> {marker.label}
+                                  <Icon name={marker.glyph} size={16} /> {marker.label}
                                   <span className="visually-hidden">. {marker.description}</span>
                                 </span>
                               </>
@@ -293,9 +294,14 @@ export function SelectionPanel({
                             ? `Quitar ${place.name} de Quiero ir de ${activeTravellerLabel}`
                             : `Quitar ${place.name} de Quiero ir`
                         }
+                        title={
+                          activeTravellerLabel
+                            ? `Quitar ${place.name} de Quiero ir de ${activeTravellerLabel}`
+                            : `Quitar ${place.name} de Quiero ir`
+                        }
                         onClick={() => onRemove(place.id)}
                       >
-                        <span aria-hidden="true">×</span>
+                        <Icon name="cerrar" size={16} />
                       </button>
                     </li>
                   );

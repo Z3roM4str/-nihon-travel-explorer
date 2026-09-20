@@ -1,4 +1,5 @@
 import type { SaveFeedback } from "../useSaveFeedback";
+import { Icon } from "../icons/Icon";
 
 /**
  * Immediate, non-blocking confirmation that a save landed.
@@ -14,7 +15,7 @@ export function SaveToast({ feedback }: { feedback: SaveFeedback | null }) {
       {feedback && (
         <p key={feedback.id} className={`save-toast save-toast--${feedback.tone}`}>
           <span className="save-toast__icon" aria-hidden="true">
-            {feedback.tone === "saved" ? "♥" : "♡"}
+            <Icon name={feedback.tone === "saved" ? "corazon-relleno" : "corazon"} size={16} />
           </span>
           {feedback.text}
         </p>

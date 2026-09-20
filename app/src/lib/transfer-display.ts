@@ -1,4 +1,5 @@
 import type { TransferEdge, TransferMode } from "./transfer";
+import type { IconName } from "../icons/Icon";
 
 const NUMBER_FORMAT = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 2 });
 
@@ -43,21 +44,24 @@ export function describeTransferForUi(edge: TransferEdge): TransferDisplay {
 }
 
 /**
- * A visual glyph derived from the edge's own, real `mode` — never guessed from `rawMode` text
+ * An icon name derived from the edge's own, real `mode` — never guessed from `rawMode` text
  * or hardcoded per relation. Kept alongside `describeTransferForUi` so both readings of an
  * edge come from the same closed `TransferMode` vocabulary rather than drifting independently.
+ *
+ * Bloque 17 (B1): devuelve el nombre de un icono de línea propio, no un glifo emoji (00
+ * "Patrones explícitamente prohibidos" · 03 §8). Cada modo sigue teniendo un icono distinto.
  */
-export function transferModeIcon(mode: TransferMode): string {
-  let icon: string;
+export function transferModeIcon(mode: TransferMode): IconName {
+  let icon: IconName;
   switch (mode) {
     case "walk":
-      icon = "🚶";
+      icon = "a-pie";
       break;
     case "local-transit":
-      icon = "🚇";
+      icon = "tren";
       break;
     case "disney-resort-line":
-      icon = "🚝";
+      icon = "monorriel";
       break;
   }
   return icon;

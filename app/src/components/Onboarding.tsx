@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ONBOARDING_STEPS, markOnboardingSeen } from "../lib/onboarding";
+import { Icon } from "../icons/Icon";
 
 /**
  * Three-card first-run explainer.
@@ -73,12 +74,18 @@ export function Onboarding({ onClose }: Props) {
         aria-labelledby="onboarding-title"
         ref={dialogRef}
       >
-        <button type="button" className="onboarding__close" onClick={close} aria-label="Cerrar la introducción">
-          <span aria-hidden="true">×</span>
+        <button
+          type="button"
+          className="onboarding__close"
+          onClick={close}
+          aria-label="Cerrar la introducción"
+          title="Cerrar la introducción"
+        >
+          <Icon name="cerrar" size={20} />
         </button>
 
         <div className="onboarding__art" aria-hidden="true">
-          {current.icon}
+          <Icon name={current.icon} size={24} />
         </div>
 
         <p className="onboarding__step-count">

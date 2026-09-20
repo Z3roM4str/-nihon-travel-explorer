@@ -1,4 +1,5 @@
 import type { Traveller } from "../lib/travellers";
+import { Icon } from "../icons/Icon";
 
 /**
  * Block 5 — the whole of the two-person layer's permanent UI.
@@ -65,7 +66,7 @@ export function TravellerBar({
         aria-label="Editar las personas del viaje"
         title="Editar las personas del viaje"
       >
-        <span aria-hidden="true">⚙</span>
+        <Icon name="ajustes" size={20} />
       </button>
     </div>
   );

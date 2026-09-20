@@ -1,5 +1,6 @@
 import type { NavigationRegion, Prefecture, RegionSummary } from "../data/geography";
 import { countPlacesInPrefecture } from "../data/geography";
+import { Icon } from "../icons/Icon";
 
 type Props = {
   regions: RegionSummary[];
@@ -37,7 +38,7 @@ export function RegionNavigator({
               className="button button--secondary region-nav__back"
               onClick={() => onSelectRegion(null)}
             >
-              <span aria-hidden="true">←</span> Todo Japón
+              <Icon name="atras" size={16} /> Todo Japón
             </button>
           )}
         </div>

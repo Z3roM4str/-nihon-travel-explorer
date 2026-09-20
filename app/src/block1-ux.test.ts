@@ -37,9 +37,15 @@ describe("nothing the detail panel used to show was removed", () => {
     expect(source).toContain("place.googleMapsUrl");
   });
 
-  it("still shows the dataset's own grade letter next to the plain-language level", async () => {
+  it("no longer shows the dataset's raw grade letter in the detail panel (Bloque 17 — B1)", async () => {
+    // Superseded by 00 "Patrones explícitamente prohibidos" ("Mostrar la letra de grado (S/A/B/C/D)
+    // al usuario | Ya está traducida a lenguaje llano | Sólo en «Fuentes» plegado") and
+    // 03 §1.3 ("El único nivel que se muestra en tarjeta es «Imprescindible»"). The plain-language
+    // level (`interest.label`) still carries the information; the raw letter moves to `title`
+    // until B4 gives it a "Fuentes" section (`05 §5` pt. 14).
     const source = await src("components/PlaceDetail.tsx");
-    expect(source).toContain("Grado {place.grade}");
+    expect(source).not.toContain("Grado {place.grade}");
+    expect(source).toContain("interest.description");
   });
 
   it("keeps photography attribution rendered with the image, not behind a disclosure", async () => {
@@ -111,8 +117,12 @@ describe("saved places keep their existing storage contract", () => {
 
 describe("accessibility promises", () => {
   it("keeps a 44px tap-target token and uses it for the card's save control", async () => {
+    // Bloque 17 (B1): `--tap-target` es ahora un alias de `--tap-min` (`styles/tokens.css`,
+    // 03 §7 "Áreas táctiles y foco"), no un literal propio — ver 08 "Cómo tratar el CSS actual".
+    const tokens = await src("styles/tokens.css");
+    expect(tokens).toContain("--tap-min: 44px");
     const css = await src("App.css");
-    expect(css).toContain("--tap-target: 44px");
+    expect(css).toContain("--tap-target: var(--tap-min)");
     const saveRule = css.slice(css.indexOf(".place-card__save {"));
     expect(saveRule.slice(0, 400)).toContain("var(--tap-target)");
   });

@@ -1,4 +1,5 @@
 import { PROXIMITY_BANDS, type ProximityBand } from "../lib/accommodation-zone";
+import { Icon } from "../icons/Icon";
 import type {
   ZoneBoundarySideUse,
   ZoneDayLink,
@@ -121,7 +122,7 @@ function ZoneHubLinkCard({
       ) : (
         <>
           <p className="zone-plan__counts">
-            <span aria-hidden="true">📅</span> Días en {link.hub}:{" "}
+            <Icon name="calendario" size={16} /> Días en {link.hub}:{" "}
             <strong>{link.dayOrdinals.map((ordinal) => ordinal + 1).join(", ")}</strong> · límites
             planificados desde esta zona: <strong>{link.sidesPlannedFromZone}</strong>, desde otro
             alojamiento: <strong>{link.sidesPlannedFromAnotherAnchor}</strong>, sin seleccionar:{" "}

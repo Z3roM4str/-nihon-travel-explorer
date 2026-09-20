@@ -2,14 +2,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlaceImage } from "../types";
 import { describePhotographyProcessing } from "../lib/photography-attribution";
 import { CARD_IMAGE_WIDTH, cardImageUrl } from "../data/place-images";
+import { Icon } from "../icons/Icon";
 
 type Props = {
   images: PlaceImage[];
   /** Editorial description of the photograph this place should eventually have. */
   imageBrief: string;
   placeName: string;
-  /** The place's own category emoji, so the no-photograph state still says what this is. */
-  categoryIcon?: string;
 };
 
 type LoadState = "loading" | "loaded" | "error";
@@ -65,18 +64,15 @@ function Attribution({ image }: { image: PlaceImage }) {
 function GalleryFallback({
   imageBrief,
   placeName,
-  categoryIcon,
 }: {
   imageBrief: string;
   placeName: string;
-  categoryIcon?: string;
 }) {
   return (
     <div className="gallery gallery--fallback">
       <div className="gallery__fallback-inner">
-        <span className="gallery__fallback-icon" aria-hidden="true">
-          {categoryIcon || "⛩"}
-        </span>
+        {/* Bloque 17 (B1): ya no lleva el emoji de categoría del dataset (03 §8). */}
+        <Icon name="imagen" className="gallery__fallback-icon" width={32} height={32} />
         <p className="gallery__fallback-label">Sin fotografía disponible todavía</p>
         {imageBrief && (
           <p className="gallery__fallback-brief">
@@ -89,7 +85,7 @@ function GalleryFallback({
   );
 }
 
-export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Props) {
+export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   const [index, setIndex] = useState(0);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -159,9 +155,7 @@ export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Pr
   }, [lightboxOpen]);
 
   if (total === 0) {
-    return (
-      <GalleryFallback imageBrief={imageBrief} placeName={placeName} categoryIcon={categoryIcon} />
-    );
+    return <GalleryFallback imageBrief={imageBrief} placeName={placeName} />;
   }
 
   const current = images[index];
@@ -235,16 +229,18 @@ export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Pr
               className="gallery__nav gallery__nav--prev"
               onClick={() => goTo(index - 1)}
               aria-label="Imagen anterior"
+              title="Imagen anterior"
             >
-              ‹
+              <Icon name="atras" size={20} />
             </button>
             <button
               type="button"
               className="gallery__nav gallery__nav--next"
               onClick={() => goTo(index + 1)}
               aria-label="Imagen siguiente"
+              title="Imagen siguiente"
             >
-              ›
+              <Icon name="siguiente" size={20} />
             </button>
           </>
         )}
@@ -259,6 +255,7 @@ export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Pr
               role="tab"
               aria-selected={dotIndex === index}
               aria-label={`Imagen ${dotIndex + 1} de ${total}`}
+              title={`Imagen ${dotIndex + 1} de ${total}`}
               className={`gallery__dot ${dotIndex === index ? "gallery__dot--active" : ""}`}
               onClick={() => goTo(dotIndex)}
             />
@@ -284,9 +281,10 @@ export function PlaceGallery({ images, imageBrief, placeName, categoryIcon }: Pr
             className="lightbox__close"
             onClick={() => setLightboxOpen(false)}
             aria-label="Cerrar imagen ampliada"
+            title="Cerrar imagen ampliada"
             autoFocus
           >
-            ×
+            <Icon name="cerrar" size={20} />
           </button>
           <img src={current.url} alt={current.alt} className="lightbox__image" />
         </div>
