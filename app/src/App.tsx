@@ -31,9 +31,23 @@ export default function App() {
     const parsed = typeof saved === "string" ? parseAstraRoute(saved) : null;
     return parsed?.surface === "explore" ? parsed : EMPTY_EXPLORE_STATE;
   });
-  const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
+  const { savedIds, isSaved, toggleSaved, removeSaved, getInterestsForMember, getCoincidences, toggleMemberInterest } = useSavedPlaces();
+  const [tripTab, setTripTab] = useState<"todos" | "fernando" | "lorena" | "coincidencias">("todos");
   const places = useMemo(() => getAllPlaces(), []);
   const savedPlaces = useMemo(() => savedIds.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p)), [savedIds]);
+
+  const fernandoIds = useMemo(() => getInterestsForMember("fernando"), [getInterestsForMember]);
+  const lorenaIds = useMemo(() => getInterestsForMember("lorena"), [getInterestsForMember]);
+  const coincidenceIds = useMemo(() => getCoincidences(), [getCoincidences]);
+
+  const activeTripPlaces = useMemo(() => {
+    let ids: string[] = [];
+    if (tripTab === "todos") ids = savedIds;
+    else if (tripTab === "fernando") ids = fernandoIds;
+    else if (tripTab === "lorena") ids = lorenaIds;
+    else if (tripTab === "coincidencias") ids = coincidenceIds;
+    return ids.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  }, [tripTab, savedIds, fernandoIds, lorenaIds, coincidenceIds]);
   const plannerIds = new Set([...savedIds, ...readAuthoredPlanIds(localStorage)]);
   const plannerPlaces = [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
 
@@ -79,7 +93,48 @@ export default function App() {
     <div id="astra-content">
       {(route.surface === "explore" || route.surface === "place") && <Discovery places={places} hubs={getHubs()} state={route.surface === "explore" ? route : lastExplore} savedIds={savedIds} onToggle={safeToggle} onState={navigateExplore} onOpen={openPlace} onRegions={openRegions} />}
       {route.surface === "regions" && <section className="astra-regions"><a className="astra-back" href={exploreHref(lastExplore)}>← Volver a Explorar</a><Suspense fallback={<div role="status">Cargando regiones…</div>}><LazyNationalExplorer activeRegion={region} selectedCode={prefectureCode} onSelectRegion={setRegion} onSelectPrefecture={(code) => { setPrefectureCode(code); if (code) setRegion(getPrefectureByCode(code)?.region ?? region); }} onEnterHub={(hub) => navigateExplore({...EMPTY_EXPLORE_STATE,hub})} /></Suspense></section>}
-      {route.surface === "trip" && <section className="astra-trip"><p className="astra-eyebrow">MIS GUARDADOS</p><h1>Nuestro viaje</h1><p className="astra-trip__note">Esta primera versión conserva una lista local de una sola persona. Las preferencias de pareja se incorporarán en una fase posterior.</p>{savedPlaces.length ? <ul>{savedPlaces.map(p => <li key={p.id}><a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a><button onClick={() => safeRemove(p.id)}>Quitar</button></li>)}</ul> : <div className="astra-empty"><h2>Aún no guardaste lugares</h2><p>Explora Japón y marca “Quiero ir”.</p><a href="#/explorar">Ir a Explorar</a></div>}<div className="astra-trip__actions"><button onClick={() => setAnalysisOpen(true)}>Comparar selección</button><button onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button></div></section>}
+      {route.surface === "trip" && <section className="astra-trip">
+        <p className="astra-eyebrow">MIS GUARDADOS</p>
+        <h1>Nuestro viaje</h1>
+        <p className="astra-trip__note">Guardados en este dispositivo. Marcar interés no altera el itinerario; quitarlo tampoco elimina actividades.</p>
+
+        <div className="astra-trip__tabs" style={{ display: "flex", gap: "8px", margin: "16px 0" }}>
+          <button type="button" aria-pressed={tripTab === "todos"} onClick={() => setTripTab("todos")}>Todos ({savedIds.length})</button>
+          <button type="button" aria-pressed={tripTab === "fernando"} onClick={() => setTripTab("fernando")}>Fernando ({fernandoIds.length})</button>
+          <button type="button" aria-pressed={tripTab === "lorena"} onClick={() => setTripTab("lorena")}>Lorena ({lorenaIds.length})</button>
+          <button type="button" aria-pressed={tripTab === "coincidencias"} onClick={() => setTripTab("coincidencias")}>Coincidencias ({coincidenceIds.length})</button>
+        </div>
+
+        {activeTripPlaces.length ? (
+          <ul>
+            {activeTripPlaces.map(p => (
+              <li key={p.id}>
+                <a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a>
+                <div style={{ display: "inline-flex", gap: "6px", marginLeft: "12px" }}>
+                  <button type="button" style={{ fontSize: "12px", padding: "2px 6px" }} onClick={() => toggleMemberInterest("fernando", p.id)}>
+                    {fernandoIds.includes(p.id) ? "★ Fernando" : "☆ Fernando"}
+                  </button>
+                  <button type="button" style={{ fontSize: "12px", padding: "2px 6px" }} onClick={() => toggleMemberInterest("lorena", p.id)}>
+                    {lorenaIds.includes(p.id) ? "★ Lorena" : "☆ Lorena"}
+                  </button>
+                  {savedIds.includes(p.id) && <button onClick={() => safeRemove(p.id)}>Quitar</button>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="astra-empty">
+            <h2>No hay lugares en esta vista</h2>
+            <p>Explora Japón y marca “Me gustaría ir”.</p>
+            <a href="#/explorar">Ir a Explorar</a>
+          </div>
+        )}
+
+        <div className="astra-trip__actions">
+          <button onClick={() => setAnalysisOpen(true)}>Comparar selección</button>
+          <button onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
+        </div>
+      </section>}
     </div>
     {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}><PlaceDetail place={place} isSaved={isSaved(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
     {plannedRemoval && <RouteDialog role="alertdialog" labelledBy="planned-title" onClose={() => setPlannedRemoval(null)} returnFocus={removalOpener} overlayClassName="astra-confirm" panelClassName="astra-confirm__panel"><h2 id="planned-title">Este lugar forma parte de tu ruta</h2><p>Para proteger el plan guardado, quítalo primero desde Planificar. No se cambió tu guardado ni tu ruta.</p><button onClick={() => setPlannedRemoval(null)}>Mantener guardado</button><button onClick={() => { setPlannedRemoval(null); setPlannerOpen(true); }}>Ir a Planificar</button></RouteDialog>}

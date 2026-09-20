@@ -13,19 +13,28 @@ type Props = { place: Place; saved: boolean; onToggle: (id: string) => void; onO
 export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
   const [loadState, setLoadState] = useState<"loading"|"loaded"|"error">("loading");
   const [attempt, setAttempt] = useState(0);
-  const image = resolvePlaceImages(place.id, place.images)[0];
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const allImages = resolvePlaceImages(place.id, place.images);
+  const image = allImages[photoIndex] || allImages[0];
   const duration = resolveDuration(place.duration);
   const reservation = interpretPlaceReservation(place);
   const seasonal = interpretPlaceFebMarStatus(place);
   const category = splitCategory(place.category).label;
   const href = placeHref(place.id, place.hub);
   return <article className="astra-card">
-    <div className="astra-card__frame">
+    <div className="astra-card__frame" style={{ position: "relative" }}>
       {image && loadState === "error" ? <div className="astra-card__placeholder"><span aria-hidden="true">▧</span><span>No se pudo cargar la fotografía</span><button type="button" onClick={() => { setAttempt(v=>v+1); setLoadState("loading"); }}>Reintentar</button></div> :
         <a className="astra-card__image-link" href={href} onClick={e => { e.preventDefault(); onOpen(place.id); }} aria-label={`Ver detalles de ${place.name}`}>
-          {image ? <>{loadState === "loading" && <div className="astra-card__loading">Cargando fotografía…</div>}<img key={attempt} src={image.url} alt={image.alt} loading="lazy" decoding="async" data-state={loadState} onLoad={() => setLoadState("loaded")} onError={() => setLoadState("error")} /></> :
+          {image ? <>{loadState === "loading" && <div className="astra-card__loading">Cargando fotografía…</div>}<img key={`${photoIndex}-${attempt}`} src={image.url} alt={image.alt} loading={photoIndex === 0 ? "lazy" : "eager"} decoding="async" data-state={loadState} onLoad={() => setLoadState("loaded")} onError={() => setLoadState("error")} /></> :
             <div className="astra-card__placeholder"><span aria-hidden="true">▧</span><span>Fotografía pendiente</span></div>}
         </a>}
+      {allImages.length > 1 && loadState !== "error" && (
+        <div className="astra-card__gallery-controls" style={{ position: "absolute", bottom: "8px", right: "8px", background: "rgba(0,0,0,0.6)", color: "#fff", padding: "2px 8px", borderRadius: "12px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
+          <button type="button" aria-label="Fotografía anterior" style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "14px", padding: "0 2px" }} onClick={(e) => { e.stopPropagation(); setPhotoIndex(prev => (prev > 0 ? prev - 1 : allImages.length - 1)); setLoadState("loading"); }}>‹</button>
+          <span>{photoIndex + 1} / {allImages.length}</span>
+          <button type="button" aria-label="Fotografía siguiente" style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "14px", padding: "0 2px" }} onClick={(e) => { e.stopPropagation(); setPhotoIndex(prev => (prev < allImages.length - 1 ? prev + 1 : 0)); setLoadState("loading"); }}>›</button>
+        </div>
+      )}
     </div>
     {image && <details className="astra-card__credit"><summary>Crédito de la foto</summary><div className="astra-card__credit-details"><p>{image.sourceUrl ? <a href={image.sourceUrl} target="_blank" rel="noreferrer">{image.source}</a> : image.source}{image.credit && ` · ${image.credit}`}</p>{image.license && <p>Licencia: {image.licenseUrl ? <a href={image.licenseUrl} target="_blank" rel="noreferrer">{image.license}</a> : image.license}</p>}{(image.attributionTitle || image.sourceFileTitle) && <p>Título: {image.attributionTitle || image.sourceFileTitle}</p>}{image.processing && <p>Procesamiento: {image.processing === "resized-and-webp-reencoded" ? "redimensionada y recodificada a WebP" : "recodificada a WebP"}. Recorte de visualización: 4:3.</p>}</div></details>}
     <div className="astra-card__body">
@@ -35,7 +44,7 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
       <p className="astra-card__description">{place.description}</p>
       <div className="astra-card__facts"><span>◷ {duration ? formatRange(duration) : place.duration.raw}</span>{reservation.category !== "not-required" && <span>Reserva: {reservation.raw}</span>}</div>
       {seasonal.tier !== "safe" && <details className="astra-card__season"><summary>Feb–mar: revisar condiciones</summary><p>{place.febMar2027.warning || place.febMar2027.status}</p></details>}
-      <button type="button" className="astra-want" aria-pressed={saved} onClick={() => onToggle(place.id)}><span aria-hidden="true">{saved ? "♥" : "♡"}</span>{saved ? "En Mis guardados" : "Quiero ir"}</button>
+      <button type="button" className="astra-want" aria-pressed={saved} aria-label={saved ? "En Mis guardados" : undefined} onClick={() => onToggle(place.id)}><span aria-hidden="true">{saved ? "♥" : "♡"}</span>{saved ? "Me gustaría ir ✓" : "Me gustaría ir"}</button>
     </div>
   </article>;
 }
