@@ -211,6 +211,47 @@ conserva íntegro, un toque más adentro.
 
 ---
 
+### DD-015 — Apertura de ficha de lugar desde Viaje
+**Estado:** Firme · **Fecha:** 2026-09-20 · **Afecta:** `02 §D3`, `05 §7`/`§8`, `08`
+
+**Decisión.** Un lugar abierto desde Viaje (hoy, «Dónde dormir» › `ZoneComparison`)
+apila la misma `PlaceDetail` dentro de la propia pestaña Viaje — nunca navega a
+Explorar. Cerrar esa ficha (chevron, `×` o back del navegador) devuelve exactamente a
+la superficie que la abrió, con su scroll, su zona seleccionada, su modo
+(`browse`/`compare`) y cualquier otro estado local intactos, porque esa superficie
+nunca se desmonta mientras la ficha está por encima. Abrir un lugar cercano desde ahí
+encadena («Lugar A → Lugar B → Lugar C»), y volver recorre la pila uno a uno antes de
+llegar a la superficie de origen. En cualquier momento, como en el resto del producto,
+una ficha de lugar sólo puede estar abierta en un destino a la vez (instancia única).
+La única acción autorizada a cambiar de pestaña desde una ficha abierta en Viaje es
+«Ver en el mapa», explícita y etiquetada (nunca icon-only): cierra el stack de Viaje,
+cambia a Explorar y centra ese lugar en el mapa — nunca abre su ficha en Explorar, la
+cierra del todo — sin dejar una segunda ficha abierta en Viaje ni en Explorar. En
+teléfono la ficha sigue la regla general de `05 §5` (cubre el
+100 % de la altura visible, incluidos cabecera y `TabBar`) sin excepción para Viaje;
+en `md`+ es el panel derecho de 480 px con `NavRail` visible. Esta decisión generaliza
+la regla de `02 §D3` — «cualquier enlace a un lugar apila la ficha dentro de la
+pestaña activa» — para que no tenga excepciones.
+
+**Alternativas descartadas.** (a) Mantener el comportamiento heredado de B18 (abrir
+siempre en Explorar): contradice la regla ya vigente para Quiero ir y obliga a
+recordar una excepción no documentada cada vez que se toca un lugar desde Viaje. (b)
+Una ficha reducida/alternativa sólo para Viaje: duplica `PlaceDetail` (Bloque 4) y el
+estado de lugares por pestaña, que `02 §D3` prohíbe explícitamente («las pestañas son
+destinos, no historial»). (c) Sin salida explícita hacia el mapa: deja sin resolver el
+caso real de querer ver un lugar guardado en su contexto geográfico, que es
+precisamente lo que Explorar ya resuelve — mejor una acción con nombre que un salto
+implícito.
+
+**Consecuencias.** Deroga la nota abierta de `docs/BLOCK_18_HANDOFF.md` sobre el
+destino de retorno al abrir un lugar desde `ZoneComparison`. Extiende (no sustituye)
+el mecanismo de `ficheOrigin` de B18 con una etiqueta de origen (`ficheOriginLabel`)
+para que el back pueda nombrar la superficie real cuando Viaje tenga más de una que
+abra lugares. No afecta a Explorar ni a Quiero ir, cuyo comportamiento con B18 ya
+cumplía esta misma regla general.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |

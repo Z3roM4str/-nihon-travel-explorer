@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { MAX_TRAVELLERS, type Traveller } from "../lib/travellers";
 
 /**
@@ -22,6 +22,7 @@ export function TravellerManager({
   onRemove,
   onAdd,
   onClose,
+  embedded = false,
 }: {
   travellers: readonly Traveller[];
   activeTravellerId: string | null;
@@ -31,6 +32,11 @@ export function TravellerManager({
   onRemove: (travellerId: string) => void;
   onAdd: (label: string) => void;
   onClose: () => void;
+  /** Bloque 18, `02 §D2` / gate 11: el gestor de viajeros deja de ser un modal global y pasa a
+   * ser contenido de «Nosotros › Viajeros». `embedded` quita el scrim y la trampa de
+   * foco/Escape propias de una capa flotante; sigue siendo el único sitio para renombrar,
+   * reiniciar o quitar a alguien. */
+  embedded?: boolean;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -46,6 +52,7 @@ export function TravellerManager({
   const close = useCallback(() => onClose(), [onClose]);
 
   useEffect(() => {
+    if (embedded) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.stopPropagation();
@@ -75,20 +82,25 @@ export function TravellerManager({
     }
     document.addEventListener("keydown", onKey, true);
     return () => document.removeEventListener("keydown", onKey, true);
-  }, [close, confirming]);
+  }, [close, confirming, embedded]);
+
+  const Outer = embedded ? Fragment : "div";
+  const outerProps = embedded
+    ? {}
+    : {
+        className: "traveller-manager",
+        role: "presentation" as const,
+        onClick: (event: MouseEvent) => {
+          if (event.target === event.currentTarget) close();
+        },
+      };
 
   return (
-    <div
-      className="traveller-manager"
-      role="presentation"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) close();
-      }}
-    >
+    <Outer {...outerProps}>
       <div
-        className="traveller-manager__dialog"
-        role="dialog"
-        aria-modal="true"
+        className={`traveller-manager__dialog ${embedded ? "traveller-manager__dialog--embedded" : ""}`.trim()}
+        role={embedded ? undefined : "dialog"}
+        aria-modal={embedded ? undefined : true}
         aria-labelledby="traveller-manager-title"
         ref={dialogRef}
       >
@@ -100,16 +112,20 @@ export function TravellerManager({
               alojamiento son del viaje y los compartís los dos.
             </p>
           </div>
-          <button
-            type="button"
-            className="icon-button"
-            onClick={close}
-            ref={closeRef}
-            aria-label="Cerrar las personas del viaje"
-            title="Cerrar las personas del viaje"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
+          {/* Bloque 18: embebido, esta sección no se cierra — es «Nosotros › Viajeros» en sí
+              misma, no una capa que se pueda descartar. */}
+          {!embedded && (
+            <button
+              type="button"
+              className="icon-button"
+              onClick={close}
+              ref={closeRef}
+              aria-label="Cerrar las personas del viaje"
+              title="Cerrar las personas del viaje"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          )}
         </header>
 
         <ul className="traveller-manager__list">
@@ -256,6 +272,6 @@ export function TravellerManager({
           entre dispositivos.
         </p>
       </div>
-    </div>
+    </Outer>
   );
 }

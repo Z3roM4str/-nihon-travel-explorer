@@ -66,7 +66,11 @@ Viaje
 │   └── Sin asignar            · cajón inferior con lo guardado y no programado
 ├── Dónde dormir               · comparación de zonas (Bloque 3)
 ├── Reservas                   · mecanismos, fechas oficiales, calendario
-└── Resumen                    · composición del viaje completo
+├── Resumen                    · composición del viaje completo
+└── Lugar                      · misma ficha que en Explorar/Quiero ir; apilada desde
+│                                 «Dónde dormir» (DD-015). Volver devuelve a la
+│                                 superficie exacta de origen; «Ver en el mapa» es la
+│                                 única salida explícita hacia Explorar.
 │
 Nosotros
 ├── Viajeros                   · nombres, colores, qué ha marcado cada uno
@@ -114,6 +118,14 @@ Nosotros
    continuación natural del flujo (p. ej. «Llevar al viaje» en Quiero ir).
 6. **Insignias en pestañas**: sólo «Quiero ir» lleva contador. Ninguna otra pestaña
    lleva punto rojo. Un contador que siempre está encendido no informa (Art. 6).
+7. **Cualquier enlace a un lugar apila la ficha dentro de la pestaña activa. No
+   existen excepciones. Ninguna acción implícita cambia de pestaña; sólo lo hacen
+   acciones explícitas y etiquetadas.** (DD-015, corrección final de B18.) Esto vale
+   igual para Explorar, Quiero ir y Viaje: abrir un lugar desde «Dónde dormir» ya no
+   navega a Explorar — apila la misma ficha dentro de Viaje, exactamente como ya
+   hacía Quiero ir. La única salida hacia otra pestaña es una acción explícita y con
+   etiqueta visible («Ver en el mapa» desde una ficha de Viaje), nunca un efecto
+   secundario de tocar el lugar.
 
 ## D4. Decisión estructural: se retira el conmutador «Eres»
 

@@ -99,9 +99,15 @@ describe("App wiring", () => {
     expect(source).toContain("useState(() => !hasSeenOnboarding())");
   });
 
+  /**
+   * Bloque 18, `02 §D2`: el reabridor deja de ser un «?» suelto en la cabecera y pasa a ser la
+   * sección «Nosotros › Cómo funciona Nihon» que la propia tabla de `02` nombra — no es una
+   * pantalla nueva ni un texto inventado por este bloque, es la reubicación exacta que el
+   * documento pide.
+   */
   it("keeps a way back to it, so dismissing is not a one-way door", async () => {
     const source = await readFile(new URL("../App.tsx", import.meta.url), "utf8");
     expect(source).toContain("setOnboardingOpen(true)");
-    expect(source).toContain("Cómo se usa Nihon");
+    expect(source).toContain("Cómo funciona Nihon");
   });
 });

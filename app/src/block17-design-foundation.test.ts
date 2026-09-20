@@ -171,10 +171,17 @@ describe("Bloque 17 (B1) — controles de retroceso y respaldo usan el set de ic
     }
   });
 
-  it("the header backup control renders the 'descargar' icon, not the raw ⤓ glyph", async () => {
-    const code = await read("App.tsx");
-    expect(code).not.toContain("⤓");
-    expect(code).toContain('name="descargar"');
+  /**
+   * Bloque 18, `02 §D2`: el botón de respaldo deja de vivir en la cabecera — «Copia del viaje»
+   * pasa a ser contenido de Nosotros, sin un icono-botón propio en el cromo permanente. Lo que
+   * este test sigue protegiendo (Art. 00) es que el glifo crudo `⤓` no reaparezca en ninguno de
+   * los dos ficheros que antes lo llevaban.
+   */
+  it("no raw ⤓ glyph survives in App.tsx or TripBackup.tsx", async () => {
+    const app = await read("App.tsx");
+    const backup = await read("components/TripBackup.tsx");
+    expect(app).not.toContain("⤓");
+    expect(backup).not.toContain("⤓");
   });
 });
 
@@ -259,11 +266,14 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
   it("isolated controls under 44px visual carry .tap-target-min", async () => {
     // Each pair: file, and a substring that must include "tap-target-min" in the same
     // className. `.filter-chip` itself is covered by the rule-level fix above, not a className.
-    // These three sit in rows with enough gap that the invisible ::after expansion cannot reach
+    // These sit in rows with enough gap that the invisible ::after expansion cannot reach
     // a sibling (see the dense-row exception below) — confirmed by direct gap-vs-expansion
     // arithmetic against App.css at the time each was added.
+    //
+    // Bloque 18: `.app__help` (el «?» de la cabecera) desapareció con la cabecera antigua — «Cómo
+    // funciona Nihon» es ahora un botón normal `button--secondary` (44px por `04 §4`) dentro de
+    // Nosotros, que no necesita el mecanismo de expansión de esta prueba.
     const targets: Array<[string, string]> = [
-      ["App.tsx", 'className="app__help tap-target-min"'],
       ["components/TripBackup.tsx", 'className="trip-backup__close tap-target-min"'],
       ["components/FilterPanel.tsx", 'className="search-field__clear tap-target-min"'],
     ];

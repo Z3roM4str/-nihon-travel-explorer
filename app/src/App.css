@@ -269,246 +269,612 @@ a {
   text-decoration: underline;
 }
 
-/* ---------- Shell ---------- */
-
+/* ---------- Shell (Bloque 18 — 02 §D2/§D5, 04 §10/§11) ---------- */
+/*
+ * Mobile-first literal (Art. 8): sólo `min-width` de aquí en adelante en esta sección. `.app`
+ * es una fila siempre — `NavRail` ocupa 0px por `display:none` bajo `md` y `TabBar` hace lo
+ * mismo desde `md`, así que no hace falta alternar `flex-direction` con un media query aparte.
+ */
 .app {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
 }
 
+.app__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Entre la cabecera y `TabBar`: el único hijo que crece, y el único que puede scrollear.
+   Sin esto, `flex: 1` en `.destination-panel` no tiene contenedor flex del que heredarlo. */
+.app__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/*
+ * Cabecera: 56px fijos (04 §11, 05 §4). Contenido máximo: título (con selector de ciudad
+ * cuando aplica) + PersonToken — ninguna otra acción permanente.
+ *
+ * `04 §11`: "sobre papel es --surface con borde inferior --line que sólo aparece al hacer
+ * scroll" — el borde vive en `.app__header--scrolled`, no en la regla base; `App.tsx` añade esa
+ * clase cuando la superficie con scroll de la pestaña activa tiene `scrollTop > 0`.
+ */
 .app__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.6rem 1.25rem;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  z-index: 20;
+  gap: var(--space-4);
+  height: var(--chrome-header-height);
+  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid transparent;
 }
 
-.app__brand h1 {
+.app__header--scrolled {
+  border-bottom-color: var(--line);
+}
+
+.app__brand {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+}
+
+.app__title {
   margin: 0;
-  font-size: 1.1rem;
-  letter-spacing: 0.01em;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.app__brand-sub {
-  font-weight: 400;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-}
-
-.app__subtitle {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-}
-
-.app__filter-badge {
-  background: #fff;
-  color: var(--color-accent-dark);
-  border-radius: 999px;
-  font-size: 0.72rem;
-  min-width: 1.3rem;
-  height: 1.3rem;
+button.app__title.app__title--expand {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 0.35rem;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  min-width: 0;
+}
+
+.app__title-back {
+  flex-shrink: 0;
+  color: var(--ink-500);
+}
+
+.app__title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app__header-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   flex-shrink: 0;
 }
 
-/* Always-available "what is this and how does it work" entry point, so dismissing the
-   first-run explainer is never a one-way door. 36px visual so it reads as secondary next to
-   `.app__backup`; `.tap-target-min` on the element gives it a real ≥44px hit area — corrección
-   de cumplimiento posterior al cierre del Bloque 17, Art. 11. */
-.app__help {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  font: inherit;
-  font-weight: 700;
-  font-size: 1rem;
+/* DD-007, `02 §D4`: único resto del antiguo conmutador «Eres» — 44px de área táctil real
+   alrededor del token de 24px, sin fondo ni borde propios (el círculo del token ya es todo
+   lo que se pinta). */
+.app__person-token-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border: none;
+  background: none;
+  padding: 0;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.app__help:hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
+.app__filter-badge {
+  background: var(--shu-600);
+  color: var(--surface);
+  border-radius: var(--radius-full);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  min-width: 1.3rem;
+  height: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-1);
 }
 
-/* Block 13. The same visual weight as the help control beside it — a backup is a secondary safety
-   tool, not a fifth verb competing with Explorar / Quiero ir / Planificar. Its own visual box
-   already reaches 44px, so it needs no `.tap-target-min`. */
-.app__backup {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  font: inherit;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
+/* ---------- PersonToken (04 §1, DD-007) ---------- */
+
+.person-token {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: var(--surface);
+  font-family: var(--font-record);
+  font-weight: 600;
 }
 
-.app__backup:hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
+.person-token--xs {
+  width: var(--person-token-xs);
+  height: var(--person-token-xs);
+  /* Sin tamaño de tipo propio para 18px en la escala; --type-caption-size (12px) es el token
+     compatible más próximo (03 §10, "usa un token existente compatible"). */
+  font-size: var(--type-caption-size);
 }
 
-/* ---------- View bar (phones) ---------- */
+.person-token--sm {
+  width: var(--person-token-sm);
+  height: var(--person-token-sm);
+  font-size: var(--type-caption-size);
+}
 
-/* Hidden on desktop, where the list and the map are both on screen already. */
-.view-bar {
+.person-token--md {
+  width: var(--person-token-md);
+  height: var(--person-token-md);
+  font-size: var(--type-body-size);
+}
+
+.person-token--a {
+  background: var(--person-a);
+}
+
+.person-token--b {
+  background: var(--person-b);
+}
+
+.person-token--both {
+  background: var(--person-both);
+}
+
+/* ---------- TabBar / NavRail (04 §10, 02 §D2/§D5) ---------- */
+/*
+ * Un solo breakpoint (`md`, 840px, `02 §D5`) decide cuál de los dos se ve. Los dos están
+ * siempre montados: nunca hay un ancho donde aparezcan los dos ni ninguno (gate 4).
+ */
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  height: calc(var(--chrome-tabbar-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.tab-bar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Sin token de 2px en la escala (base 4px, 03 §3); --space-1 es el más próximo compatible. */
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  border: none;
+  background: none;
+  color: var(--ink-500);
+  cursor: pointer;
+}
+
+.tab-bar__item--active {
+  color: var(--ink-900);
+}
+
+.tab-bar__icon {
+  position: relative;
+  display: inline-flex;
+}
+
+.tab-bar__label {
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  font-weight: 500;
+}
+
+.tab-bar__badge,
+.nav-rail__badge {
+  position: absolute;
+  /* Sin especificación de tamaño/offset propios (04 §10 sólo pide "contador --radius-full
+     --shu-600"); mapeado a tokens existentes compatibles en vez de literales (03 §10). */
+  top: calc(var(--space-1) * -1);
+  right: calc(var(--space-2) * -1);
+  min-width: var(--space-4);
+  height: var(--space-4);
+  padding: 0 var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--shu-600);
+  color: var(--surface);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.nav-rail {
   display: none;
+}
+
+@media (min-width: 840px) {
+  .tab-bar {
+    display: none;
+  }
+
+  .nav-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    width: var(--chrome-navrail-width);
+    flex-shrink: 0;
+    padding-top: var(--space-4);
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+  }
+
+  .nav-rail__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-height: var(--tap-min);
+    padding: var(--space-2) 0;
+    border: none;
+    background: none;
+    color: var(--ink-500);
+    cursor: pointer;
+  }
+
+  .nav-rail__item--active {
+    color: var(--ink-900);
+  }
+
+  .nav-rail__icon {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .nav-rail__label {
+    font-family: var(--font-record);
+    font-size: var(--type-caption-size);
+    font-weight: 500;
+  }
+}
+
+/* ---------- Sheet (04 §8) ---------- */
+
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--scrim-page);
+}
+
+.sheet {
+  width: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--elev-2);
+  animation: sheet-rise var(--dur-sheet) var(--ease-enter);
+}
+
+.sheet__grabber {
+  width: var(--sheet-grabber-width);
+  height: var(--sheet-grabber-height);
+  margin: var(--space-2) auto;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--line-strong);
+}
+
+.sheet__head {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.45rem 0.75rem;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  z-index: 15;
+  gap: var(--space-4);
+  padding: 0 var(--space-4) var(--space-2);
+  flex-shrink: 0;
 }
 
-.view-switch {
-  display: inline-flex;
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  padding: 2px;
-  gap: 2px;
+.sheet__title {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
 }
 
-.view-switch__option {
+.sheet__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--space-4) var(--space-6);
+}
+
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation-duration: 0.001ms;
+  }
+}
+
+@media (min-width: 840px) {
+  .sheet-scrim {
+    align-items: center;
+  }
+
+  .sheet {
+    /* --sheet-panel-width: el ancho que `04 §8` nombra para Sheet en md+ ("panel lateral
+       derecho de 420px"); reutilizado aquí para el diálogo centrado en vez de inventar un
+       ancho nuevo para esta variante (03 §10). Corrección final: token propio, separado del
+       de la ficha de lugar (--place-detail-panel-width, 480px) — ver tokens.css §8. */
+    width: min(var(--sheet-panel-width), 92vw);
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* ---------- Destinos: contenedor común (02 §D2/§D3) ---------- */
+/*
+ * Los cuatro paneles están siempre montados; `hidden` (no `display:none` de una clase) los
+ * saca del árbol de accesibilidad y detiene su pintado sin desmontarlos, así que el scroll, los
+ * filtros, el lugar abierto y el estado de cada pestaña sobreviven al cambiar de destino
+ * (gate 6/7). Especificidad de atributo, no de `!important`: gana sobre cualquier `display`
+ * de las clases de abajo sin necesidad de forzarlo.
+ */
+.destination-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Corrección post-cierre: posiciona la ficha (`.app__detail`) cuando `ficheOrigin` es este
+     destino — necesario para Quiero ir y (corrección final) Viaje, que no tenían un ancestro
+     `position:relative` propio (sólo `.app__body`, dentro de Explorar, lo tenía). */
+  position: relative;
+  overflow: hidden;
+}
+
+.destination-panel[hidden] {
+  display: none;
+}
+
+/*
+ * Corrección post-cierre: en Quiero ir, este es ahora un `div` interior distinto de
+ * `.destination-panel` (antes eran el mismo elemento) — para que la ficha, hermana suya dentro
+ * del `.destination-panel` exterior, no scrollee con la lista. Corrección final: Viaje adopta
+ * la misma separación (abre lugares desde «Dónde dormir», así que también necesita un exterior
+ * sin scroll donde anclar su ficha). Sigue siendo el mismo elemento que `.destination-panel` en
+ * Nosotros, la única pestaña sin ficha que anclar; `flex`/`min-height` son redundantes pero
+ * inofensivos ahí (el padre ya los fija).
+ */
+.destination-panel--scroll {
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-6);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ---------- Viaje: sub-navegación (05 §7/§8) ---------- */
+
+.viaje-nav {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.viaje-nav__item {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  min-height: var(--tap-target);
-  padding: 0.3rem 0.85rem;
-  border: none;
-  border-radius: 999px;
-  background: none;
-  font: inherit;
-  font-size: 0.85rem;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink-700);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
   font-weight: 600;
-  color: var(--color-text-muted);
   cursor: pointer;
 }
 
-.view-switch__option--active {
-  background: var(--color-surface);
-  color: var(--color-text);
-  box-shadow: var(--shadow-soft);
+.viaje-nav__item--active {
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+  color: var(--surface);
 }
 
-.view-bar__filters {
+.viaje-nav__item:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ---------- Nosotros (05 §11) ---------- */
+
+.nosotros-section {
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.nosotros-section:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.nosotros-section__title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  color: var(--ink-900);
+}
+
+.nosotros-section__text {
+  margin: 0 0 var(--space-3);
+  color: var(--ink-700);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+/* ---------- Barra única de búsqueda/filtros/vista (05 §4) ---------- */
+/*
+ * 48px, pegajosa bajo la cabecera. Sustituye a las antiguas `.hub-bar` + `.view-bar`
+ * (330px de cromo combinado) por una sola fila: objetivo de cromo superior 56+48=104px
+ * (gate G3 / 08). El campo de búsqueda vive aquí directamente, no dentro de la hoja de
+ * filtros — `FilterPanel` se renderiza con `showSearch={false}` cuando se abre en `Sheet`.
+ */
+.explorer-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--chrome-bar-height);
+  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.explorer-bar__search {
+  flex: 1;
+  min-width: 0;
+}
+
+.explorer-bar__filters,
+.explorer-bar__pane {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  min-height: var(--tap-target);
-  padding: 0.35rem 0.85rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
-  font: inherit;
-  font-size: 0.85rem;
+  gap: var(--space-1);
+  height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--ink-900);
   cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.view-bar__filters .app__filter-badge {
-  background: var(--color-accent);
-  color: #fff;
+.explorer-bar__filters:hover,
+.explorer-bar__pane:hover {
+  background: var(--surface-sunken);
 }
 
-/* ---------- Hub selector ---------- */
-
-.hub-selector {
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
-}
+/* ---------- Hub selector (reutilizado dentro del selector de ciudad, `Sheet`) ---------- */
 
 .hub-selector__track {
   display: flex;
-  gap: 0.4rem;
-  overflow-x: auto;
-  padding: 0.5rem 1.25rem;
-  scrollbar-width: thin;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .hub-selector__tab {
   flex-shrink: 0;
   white-space: nowrap;
-  min-height: var(--tap-target);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.85rem;
+  min-height: var(--tap-min);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
   font-weight: 600;
-  padding: 0.4rem 0.9rem;
+  padding: 0 var(--space-4);
   cursor: pointer;
 }
 
 .hub-selector__tab:hover {
-  background: var(--color-surface-alt);
+  background: var(--surface-sunken);
 }
 
 .hub-selector__tab--active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #fff;
-}
-
-.app__body {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 372px 1fr;
-  min-height: 0;
-  position: relative;
+  background: var(--shu-600);
+  border-color: var(--shu-600);
+  color: var(--surface);
 }
 
 /*
- * Two regions, not one scroller: the search/filter block stays put and only the results
- * scroll. With a single scrolling column, six expanded filter groups pushed the first card
- * below the fold — the results are the point of the panel, so they own the scroll.
+ * Bloque 18, `05 §4`: en teléfono, una superficie a la vez — la lista o el mapa, nunca los dos
+ * a medias — conmutada por `.explorer-bar__pane`. Las dos siguen montadas y del mismo tamaño
+ * real (una encima de la otra, `position:absolute`): Leaflet necesita su contenedor con
+ * dimensiones reales incluso mientras no se ve, o `panTo`/`fitBounds` calculan `NaN` sobre una
+ * caja 0×0 y el mapa lanza — `visibility`, nunca `display:none`, es lo que la oculta. Desde
+ * `md` (`02 §D5`) las dos superficies conviven en una fila normal, como en v1.1.0.
  */
-.app__sidebar {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+.app__body {
+  flex: 1;
+  position: relative;
   min-height: 0;
-  border-right: 1px solid var(--color-border);
-  background: var(--color-surface);
+  overflow: hidden;
 }
 
-.app__sidebar > .place-list,
-.app__sidebar > .place-list__empty {
+.app__body--pane-map .app__sidebar {
+  display: none;
+}
+
+.app__body--pane-list .app__map-area {
+  visibility: hidden;
+}
+
+.app__sidebar {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
   overflow-y: auto;
   overscroll-behavior: contain;
-  min-height: 0;
 }
 
 .app__map-area {
-  position: relative;
+  position: absolute;
+  inset: 0;
   min-height: 0;
   overflow: hidden;
 }
@@ -526,13 +892,19 @@ a {
   z-index: 5;
 }
 
+/*
+ * La ficha de lugar (Art. 8, `05 §5`): en teléfono ocupa el 100% de la altura visible, por
+ * encima de la cabecera, la barra única y `TabBar` — nada del shell queda visible detrás.
+ * Desde `md` vuelve a ser el panel derecho de 480px (`02 §D5`, `05 §5`) — corrección final de
+ * B18: antes escrito como 420px compartiendo token con `Sheet` (`04 §8`), error normativo ya
+ * corregido (tokens.css §8). B18 sólo cambia el contenedor/navegación de la ficha, no esta
+ * medida — `05 §5` reserva su rediseño a B4.
+ */
 .app__detail {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(420px, 100%);
-  z-index: 30;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--surface);
 }
 
 .map-empty {
@@ -554,16 +926,47 @@ a {
   margin: 0 0 0.75rem;
 }
 
-/* ---------- Filter sheet wrapper ---------- */
+/*
+ * Bloque 18 — desde `md` (840px, `02 §D5`): lista y mapa conviven, y la ficha vuelve a ser un
+ * panel de 480px en vez de pantalla completa. Único breakpoint de todo el shell — Art. 8
+ * prohíbe `max-width` nuevo, así que todo lo de esta sección es `min-width`.
+ */
+@media (min-width: 840px) {
+  .app__body {
+    display: flex;
+    flex-direction: row;
+  }
 
-/* On desktop this is just the top of the sidebar. On phones it becomes a sheet over the
-   card list, opened from the view bar — see the 860px block. */
-.app__filters {
-  display: block;
-}
+  .app__body--pane-map .app__sidebar,
+  .app__body--pane-list .app__map-area {
+    display: flex;
+    visibility: visible;
+  }
 
-.app__filters-bar {
-  display: none;
+  .app__sidebar {
+    position: static;
+    z-index: auto;
+    width: 372px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--line);
+  }
+
+  .app__map-area {
+    position: relative;
+    flex: 1;
+  }
+
+  .app__detail {
+    position: absolute;
+    inset: 0 0 0 auto;
+    /* Corrección final de B18 (punto 5): token propio (480px, `02 §D5`/`05 §5`), separado del
+       de Sheet (420px, `04 §8`) — antes ambos compartían `--panel-width`, que era el error
+       normativo que describe la auditoría. Ver tokens.css §8. */
+    width: min(var(--place-detail-panel-width), 100%);
+    z-index: 30;
+    border-left: 1px solid var(--line);
+    box-shadow: var(--elev-2);
+  }
 }
 
 /* ---------- Search + filters ---------- */
@@ -1923,11 +2326,14 @@ a {
   flex-shrink: 0;
 }
 
+/*
+ * Bloque 18 (`02 §D2`): esta sección ya no es un cajón inferior que se asoma sobre el mapa —
+ * es el contenido entero de la pestaña «Quiero ir», que scrollea como una página normal. El
+ * tope de 42vh con scroll propio pertenecía a esa vida anterior; aquí forzaría un scroll
+ * anidado dentro de otro scroll.
+ */
 .selection-panel__content {
-  padding: 0 1.25rem 1rem;
-  max-height: 42vh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  padding: 0 var(--space-4) var(--space-4);
 }
 
 .selection-panel__empty {
@@ -2158,28 +2564,53 @@ a {
 
 /* ---------- Accommodation zones (Block 3) ---------- */
 
-.hub-bar__zones {
+/*
+ * Bloque 18, `02 §"Qué se conserva y adónde va"`: el acceso a «Dónde dormir» desde Explorar ›
+ * Ciudad ya no es un icono de cama sin etiqueta en el cromo — vive dentro del selector de
+ * ciudad (`Sheet`), como una fila más, con su etiqueta completa siempre visible.
+ */
+.city-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.city-sheet__japan {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-  min-height: var(--tap-target);
-  margin-right: 0.75rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
-  font: inherit;
-  font-size: 0.85rem;
+  gap: var(--space-2);
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: none;
+  background: none;
+  color: var(--ink-700);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
   font-weight: 600;
-  color: var(--color-text);
   cursor: pointer;
 }
 
-.hub-bar__zones:hover {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-  color: var(--color-accent-dark);
+.city-sheet__zones {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  color: var(--ink-900);
+  cursor: pointer;
+}
+
+.city-sheet__zones:hover {
+  background: var(--shu-050);
+  border-color: var(--shu-600);
+  color: var(--shu-700);
 }
 
 .zone-panel {
@@ -2189,6 +2620,22 @@ a {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   background: var(--color-bg);
+}
+
+/*
+ * Bloque 18 (`02 §D2`, gate 11): la comparación de zonas ya no es un modal global — es el
+ * contenido de «Viaje › Dónde dormir». Deja de ocupar la pantalla entera y de imponer su
+ * propio scroll interno: la pestaña completa scrollea como una página.
+ */
+.zone-panel--embedded {
+  position: static;
+  inset: auto;
+  height: auto;
+  background: none;
+}
+
+.zone-panel--embedded .zone-panel__scroll {
+  overflow-y: visible;
 }
 
 .zone-panel__bar {
@@ -2791,21 +3238,6 @@ a {
   }
 }
 
-@media (max-width: 860px) {
-  /* The label is dropped to keep the hub bar on one line; the target must not shrink with it,
-     so a min-width holds the button at the project's 44px tap token. */
-  .hub-bar__zones-label {
-    display: none;
-  }
-
-  .hub-bar__zones {
-    justify-content: center;
-    min-width: var(--tap-target);
-    padding: 0.35rem 0.6rem;
-    margin-right: 0.5rem;
-  }
-}
-
 /* ---------- Interest legend ---------- */
 
 .interest-legend {
@@ -3060,120 +3492,24 @@ a {
   margin: 0 0 0.85rem;
 }
 
+/*
+ * Bloque 18 — todo lo que vivía aquí sobre cabecera, `hub-bar`/`view-bar`, `app__body`/
+ * `app__sidebar`/`app__detail` y la hoja de filtros ha sido migrado a mobile-first (arriba,
+ * junto a cada regla base) o retirado por completo. Lo que sigue es deuda pre-existente de
+ * superficies que este bloque NO toca (`PlaceDetail`, `PlaceCard`, `PlaceList`,
+ * `SelectionPanel`'s own internal hint) — se conserva como `max-width`, sin migrar, hasta que
+ * el bloque que sí las toque la convierta (`08`: "no antes"). Una sola línea sale de aquí sin
+ * más porque dejó de tener sentido, no porque se migrara: `.selection-panel__content`'s
+ * `max-height: 50vh` pertenecía al cajón inferior colapsable que esta pestaña ya no es
+ * (`02 §D2` — ver la regla base, ahora sin tope de altura).
+ */
 @media (max-width: 860px) {
-  .app__header {
-    padding: 0.45rem 0.75rem;
-  }
-
-  /* Keep the header on one compact line; the map needs the vertical space. */
-  .app__brand h1 {
-    font-size: 1rem;
-    white-space: nowrap;
-  }
-
-  .app__brand-long,
-  .app__subtitle {
-    display: none;
-  }
-
-  .app__brand-sub::before {
-    content: "· ";
-  }
-
-  .view-bar {
-    display: flex;
-  }
-
-  .hub-selector__track {
-    padding: 0.4rem 0.75rem;
-  }
-
-  .app__body {
-    grid-template-columns: 1fr;
-  }
-
-  /*
-   * One surface at a time. Both panes stay mounted — Leaflet's own ResizeObserver
-   * (`InvalidateOnResize`) recomputes the map the moment it is revealed, which a remount would
-   * turn into a whole re-fit and a fresh tile fetch on every switch.
-   */
-  .app__sidebar {
-    position: absolute;
-    inset: 0;
-    z-index: 40;
-    border-right: none;
-  }
-
-  .app__body--pane-map .app__sidebar {
-    display: none;
-  }
-
-  .app__body--pane-list .app__map-area {
-    visibility: hidden;
-  }
-
-  /* The filter sheet slides over the card list rather than replacing it, so the results stay
-     one tap away and the reader never loses their place in the list. */
-  .app__filters {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: 55;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    background: var(--color-surface);
-  }
-
-  .app__filters--open {
-    display: block;
-  }
-
-  /* Inside the sheet the whole panel scrolls as one column; the desktop split (pinned head,
-     scrolling groups) would create a second nested scroller on a phone. */
-  .app__filters .filter-panel {
-    max-height: none;
-    border-bottom: none;
-  }
-
-  .app__filters .filter-panel__groups {
-    overflow-y: visible;
-  }
-
-  /* Redundant inside the sheet: opening the sheet already was the "show me the filters" gesture,
-     and closing it is the way back. */
-  .app__filters .filter-panel__toggle {
-    display: none;
-  }
-
-  .app__filters-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.5rem 0.5rem 0.5rem 1rem;
-    border-bottom: 1px solid var(--color-border);
-    position: sticky;
-    top: 0;
-    background: var(--color-surface);
-    z-index: 2;
-  }
-
   /* On the phone the legend belongs to the map pane only; on the list pane the badges are
      already spelled out on every card. */
   .interest-legend {
     left: 0.5rem;
     bottom: 0.5rem;
     font-size: 0.78rem;
-  }
-
-  /* The card takes over the whole map area on phones. */
-  .app__detail {
-    width: 100%;
-    z-index: 70;
-  }
-
-  .place-detail {
-    border-left: none;
   }
 
   .quick-facts {
@@ -3194,10 +3530,6 @@ a {
      another, and vertical space is what a phone has most of. */
   .place-card__media {
     aspect-ratio: 3 / 2;
-  }
-
-  .selection-panel__content {
-    max-height: 50vh;
   }
 
   .selection-panel__hint {
@@ -3254,82 +3586,55 @@ a {
 
 /* ---------- Hub bar (return to Japan + hub tabs) ---------- */
 
-.hub-bar {
-  display: flex;
-  align-items: stretch;
-  gap: 0.5rem;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  padding-left: 1.25rem;
-}
+/*
+ * Bloque 18 — `.hub-bar` desaparece: el selector de ciudad pasa al título de la cabecera
+ * (`Sheet`, `02 §"Qué se conserva y adónde va"`) y «Dónde dormir» a ese mismo `Sheet`
+ * (`.city-sheet__zones`, arriba). `.hub-selector` sigue viva, reutilizada tal cual dentro de
+ * esa hoja.
+ */
 
-.hub-bar .hub-selector {
-  flex: 1;
-  min-width: 0;
-  border-bottom: none;
-}
-
-.hub-bar .hub-selector__track {
-  padding-left: 0;
-}
-
-.hub-bar__home {
-  flex-shrink: 0;
-  align-self: center;
-  min-height: var(--tap-target);
-  padding: 0.4rem 0.9rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface-alt);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.hub-bar__home:hover {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-  color: var(--color-accent-dark);
-}
-
-/* ---------- National explorer ---------- */
+/* ---------- National explorer (mobile-first: mapa primero, lista debajo) ---------- */
 
 .app__body--national {
-  display: block;
-  grid-template-columns: none;
+  flex: 1;
+  display: flex;
+  min-height: 0;
 }
 
 .national {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
 .national__sidebar {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 1rem 2rem;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-8);
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-right: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--surface);
 }
 
 .national__map-area {
+  /* Mapa primero en teléfono, lista debajo — capacidad existente que se conserva (Art. 12). */
+  order: -1;
   position: relative;
-  min-height: 0;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   background: #eef2f5;
+  border-bottom: 1px solid var(--line);
 }
 
 .national-map {
   width: 100%;
-  height: 100%;
+  height: 44vh;
+  min-height: 240px;
   /* Sea/背景: a flat ground, not a street map — the polygons are the content. */
   background: #dde7ee;
 }
@@ -3342,35 +3647,90 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: 2rem;
+  height: 44vh;
+  min-height: 240px;
+  padding: var(--space-8);
   text-align: center;
   color: var(--color-text-muted);
 }
 
-.national__attribution {
+/*
+ * Bloque 18, `05 §3`: el aviso MLIT deja de ser una franja permanente sobre el mapa (defecto
+ * D5/D11) — ahora es un botón `ⓘ` de 32px en la esquina, que abre el texto íntegro en `Sheet`.
+ */
+.national__attribution-button {
   position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  z-index: 10;
+  width: var(--info-button-size);
+  height: var(--info-button-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  border: none;
+  /* Sin alfa especificado para este botón sobre el mapa; sólido en vez de un valor de
+     transparencia inventado (03 §10). */
+  background: var(--surface);
+  box-shadow: var(--elev-1);
+  color: var(--ink-700);
+  font-size: var(--type-body-size);
+  cursor: pointer;
+}
+
+.national__attribution-button:hover {
+  background: var(--surface-sunken);
+}
+
+/* En teléfono el panel contextual de prefectura es una hoja inferior sobre todo el mapa
+   nacional; desde `md` vuelve a ser una tarjeta flotante en la esquina (ver el `min-width`
+   de abajo). Capacidad existente, sólo reescrita mobile-first. */
+.national__panel {
+  position: fixed;
+  top: auto;
   left: 0;
   right: 0;
   bottom: 0;
-  margin: 0;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.68rem;
-  line-height: 1.35;
-  color: var(--color-text-muted);
-  background: rgba(255, 255, 255, 0.82);
-  border-top: 1px solid var(--color-border);
-  z-index: 10;
+  width: 100%;
+  max-height: 72dvh;
+  overflow-y: auto;
+  z-index: 80;
 }
 
-.national__panel {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: min(360px, calc(100% - 1.5rem));
-  max-height: calc(100% - 3.5rem);
-  overflow-y: auto;
-  z-index: 40;
+@media (min-width: 840px) {
+  .national {
+    flex-direction: row;
+  }
+
+  .national__panel {
+    position: absolute;
+    top: 0.75rem;
+    left: auto;
+    bottom: auto;
+    right: 0.75rem;
+    width: min(360px, calc(100% - 1.5rem));
+    max-height: calc(100% - 3.5rem);
+    z-index: 40;
+  }
+
+  .national__sidebar {
+    width: 340px;
+    flex: 0 0 auto;
+    border-right: 1px solid var(--line);
+  }
+
+  .national__map-area {
+    order: 0;
+    flex: 1;
+    border-bottom: none;
+  }
+
+  .national-map,
+  .national__map-fallback {
+    height: 100%;
+    min-height: 0;
+  }
 }
 
 /* ---------- Region navigator ---------- */
@@ -3515,9 +3875,18 @@ a {
 .prefecture-panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: var(--shadow-panel);
-  padding: 0.9rem 1rem 1.1rem;
+  padding: 0.9rem 1rem 1.5rem;
+}
+
+@media (min-width: 840px) {
+  .prefecture-panel {
+    border-bottom: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem 1.1rem;
+  }
 }
 
 .prefecture-panel__header {
@@ -3589,78 +3958,6 @@ a {
   color: var(--color-text-muted);
 }
 
-/* ---------- National explorer, small screens ---------- */
-
-@media (max-width: 860px) {
-  .hub-bar {
-    padding-left: 0.75rem;
-    gap: 0.4rem;
-  }
-
-  .hub-bar__home {
-    font-size: 0.8rem;
-    padding: 0.35rem 0.7rem;
-  }
-
-  .national {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-
-  /* Map first on phones, then the list controls scroll underneath it. The credit moves
-     out of the map into normal flow so it stops covering a third of a small map. */
-  .national__map-area {
-    order: -1;
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .national-map {
-    height: 44vh;
-    min-height: 240px;
-  }
-
-  .national__map-fallback {
-    height: 44vh;
-    min-height: 240px;
-  }
-
-  .national__attribution {
-    position: static;
-    font-size: 0.64rem;
-    padding: 0.3rem 0.75rem;
-    background: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .national__sidebar {
-    flex: 1;
-    border-right: none;
-    padding: 0.9rem 0.9rem 2rem;
-  }
-
-  /* The contextual card becomes a bottom sheet over the whole national view. */
-  .national__panel {
-    position: fixed;
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    max-height: 72dvh;
-    z-index: 80;
-  }
-
-  .prefecture-panel {
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border-bottom: none;
-    padding-bottom: 1.5rem;
-  }
-}
-
 /* ---------- Duration filter chips ---------- */
 
 .filter-chip__hint {
@@ -3708,6 +4005,22 @@ a {
   background: var(--color-bg);
   border-left: 1px solid var(--color-border);
   box-shadow: var(--shadow-panel);
+}
+
+/*
+ * Bloque 18 (`02 §D2`, gate 11): `SelectionAnalysis` (Quiero ir) y `OrderedSequenceBuilder`
+ * (Viaje › Planificar) ya no son un panel flotante sobre un scrim — son el contenido de su
+ * pestaña. Ancho completo, sin borde ni sombra flotante, altura de contenido en vez de 100%
+ * de un `.analysis-overlay` que, en este modo, ni siquiera se renderiza (ver los componentes:
+ * `embedded` omite el `<div className="analysis-overlay">`/`.analysis-backdrop` por completo).
+ */
+.analysis-dialog--embedded {
+  width: 100%;
+  max-width: none;
+  height: auto;
+  border-left: none;
+  box-shadow: none;
+  background: none;
 }
 
 .analysis-header {
@@ -5521,9 +5834,14 @@ a {
   box-shadow: var(--shadow-soft);
 }
 
+/*
+ * Bloque 18: `7.5ch` truncaba nombres normales («Persona 1») porque este control vivía en la
+ * cabecera estrecha (`02 §D4`, DD-007). Su nuevo sitio, «Nosotros › Viajeros», tiene ancho de
+ * sobra — capacidad conservada (Art. 12), sólo se ajusta el límite a su nuevo contexto.
+ */
 .traveller-bar__name {
   display: block;
-  max-width: 7.5ch;
+  max-width: 16ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -5661,6 +5979,18 @@ a {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
   padding: 1rem;
+}
+
+/* Bloque 18 (`02 §D2`, gate 11): gestor de viajeros como contenido de «Nosotros › Viajeros»,
+   no como modal — sin la caja flotante ni el tope de altura de un diálogo centrado. */
+.traveller-manager__dialog--embedded {
+  width: 100%;
+  max-height: none;
+  overflow-y: visible;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
 .traveller-manager__head {
@@ -5892,6 +6222,18 @@ a {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
   padding: 1rem;
+}
+
+/* Bloque 18 (`02 §D2`, gate 11): copia del viaje como contenido de «Nosotros › Copia del
+   viaje», no como modal — mismo criterio que `.traveller-manager__dialog--embedded`. */
+.trip-backup__dialog--embedded {
+  width: 100%;
+  max-height: none;
+  overflow-y: visible;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
 }
 
 .trip-backup__head {

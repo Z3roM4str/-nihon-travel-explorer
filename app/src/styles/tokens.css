@@ -58,6 +58,11 @@
     rgba(20, 22, 26, 0) 68%
   );
   --scrim-top: linear-gradient(to bottom, rgba(20, 22, 26, 0.46) 0%, rgba(20, 22, 26, 0) 100%);
+  /* `04 §8`: fondo de página de `Sheet`, "rgba(20,22,26,.38), cierra al tocar" — el valor exacto
+     que especifica el documento, nombrado aquí en vez de repetido como literal (Art. 10).
+     20,22,26 es --ink-900 en rgb; se deja como rgba propio porque el canal alfa no tiene
+     equivalente en los tokens de color sólidos. */
+  --scrim-page: rgba(20, 22, 26, 0.38);
 
   /* ---------- 2. Tipografía (03 §2) ---------- */
   --font-voice: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
@@ -143,6 +148,32 @@
   --focus-ring-color-on-dark: var(--surface);
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
+
+  /*
+   * ---------- 8. Cromo del shell (Bloque 18 — 04 §1/§8/§10/§11, 05 §4) ----------
+   * Tamaños exactos que los documentos ya fijan como parte del contrato de cada
+   * componente — no son una decisión visual nueva de este bloque, sólo se nombran
+   * aquí para que ningún componente los escriba como literal (Art. 10).
+   */
+  --chrome-header-height: 56px; /* 04 §11 ScreenHeader */
+  --chrome-bar-height: 48px; /* 05 §4 — barra única de búsqueda/filtros/vista */
+  --chrome-tabbar-height: 56px; /* 04 §10 TabBar */
+  --chrome-navrail-width: 88px; /* 04 §10 NavRail (icono + etiqueta) */
+  --person-token-xs: 18px; /* 04 §1 PersonToken, dentro de una línea de texto */
+  --person-token-sm: 24px; /* 04 §1 PersonToken, cabecera/tarjetas */
+  --person-token-md: 40px; /* 04 §1 PersonToken, Nosotros */
+  --info-button-size: 32px; /* 04 §6 / 05 §3 — botón ⓘ de créditos/atribución */
+  --sheet-grabber-width: 36px; /* 04 §8 — barra de arrastre de Sheet, 36×4px */
+  --sheet-grabber-height: 4px;
+  /*
+   * Corrección final de B18 (punto 5): `--panel-width` compartía un único valor (420px) entre
+   * `Sheet` y la ficha de lugar (`.app__detail`), pero `04 §8` y `02 §D5`/`05 §5` fijan dos
+   * medidas distintas para dos componentes distintos. Un solo token para dos contratos
+   * normativos diferentes es el error que describe la auditoría — se separan aquí, cada uno
+   * consumido por exactamente un componente (App.css).
+   */
+  --sheet-panel-width: 420px; /* 04 §8 — panel lateral derecho de Sheet en md+ */
+  --place-detail-panel-width: 480px; /* 02 §D5, 05 §5 — ficha de lugar en md+ */
 }
 
 /* En md+ (840px, 02 §"Breakpoints conceptuales") suben display y quote; nada más

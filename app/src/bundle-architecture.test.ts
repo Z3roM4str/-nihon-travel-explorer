@@ -126,12 +126,20 @@ describe("Block 12 — the split does not move the wait onto the user", () => {
 
 describe("Block 12 — the deferred surfaces still mount only while open", () => {
   it("the Suspense boundary sits outside the condition, not inside it", async () => {
-    // Block 12 placed the boundary outside so the planner still unmounts on close — the invariant
-    // `ZonePlanSection.test.ts` pins, and the reason reopening re-reads what the comparison wrote.
-    // Asserting it here too states the intent, rather than leaving it to a regex written elsewhere
-    // for a different purpose.
+    // Block 12 placed the boundary outside so each surface still unmounts before it is ever
+    // needed — the invariant `ZonePlanSection.test.ts` pins. Bloque 18 first replaced the two
+    // booleans with a single `viajeSection` enum, then a post-close correction (independent
+    // audit) found that gating the mount on `destination === "viaje"` as well made switching
+    // away from Viaje unmount the active surface for real, contradicting `02 §D3` ("cada
+    // destino conserva su estado interno"). `viajeVisited` — set once, on the first visit, never
+    // reset — now decides the mount instead: `destination` only ever affects the outer panel's
+    // `hidden`, never whether the surface exists.
     const app = await read("App.tsx");
-    expect(app).toMatch(/<Suspense fallback=\{null\}>\s*\{sequenceBuilderOpen && \(/);
-    expect(app).toMatch(/<Suspense fallback=\{null\}>\s*\{zonesOpen && activeHub && \(/);
+    expect(app).toMatch(
+      /<Suspense fallback=\{null\}>\s*\{viajeVisited && viajeSection === "planificar" && \(/
+    );
+    expect(app).toMatch(
+      /<Suspense fallback=\{null\}>\s*\{viajeVisited && viajeSection === "dormir" && zonesHub && \(/
+    );
   });
 });
