@@ -110,9 +110,12 @@ const EMPTY_FILTERS: Filters = {
 
 const EMPTY_PLACES: Place[] = [];
 
-/** Width of the desktop detail panel; used to keep the focused marker out from under it. B18
- * changes only the ficha's container/navigation (see `08 §5`), not this pre-existing value. */
-const DETAIL_PANEL_WIDTH = 420;
+/** Width of the desktop detail panel; used to keep the focused marker out from under it.
+ * Corrección final (punto 5): 480px, `--place-detail-panel-width` en `tokens.css` — `02 §D5`/
+ * `05 §5` fijan la ficha de lugar en 480px desde `md`, distinto del panel de `Sheet` (420px,
+ * `04 §8`). Antes compartía el token `--panel-width` con `Sheet`, que era el error normativo
+ * que esta corrección arregla (ver `docs/BLOCK_18_HANDOFF.md`). */
+const DETAIL_PANEL_WIDTH = 480;
 /** Bloque 18: alineado con el token `md` de `02 §D5` (840px), no con el 861px heredado —
  * es exactamente donde `NavRail` sustituye a `TabBar` en CSS, así que el lado JS del layout
  * (offset del panel de ficha, apertura por defecto de los grupos de filtros) no puede discrepar. */
@@ -211,6 +214,14 @@ export default function App() {
    * "explorar"`, que es cuando esa lista/mapa comparten pantalla con la ficha de verdad).
    */
   const [ficheOrigin, setFicheOrigin] = useState<Destination | null>(null);
+  /**
+   * Corrección final (punto 7): el origen por sí solo no basta para nombrar la etiqueta del
+   * back cuando Viaje tenga más de una superficie que abra lugares (hoy sólo «Dónde dormir»,
+   * mañana quizá «Días»). Metadato explícito, no derivado — se fija junto a `ficheOrigin` en
+   * cada llamada a `selectPlace` y se limpia junto a él en `closeDetail`. `null` para Explorar/
+   * Quiero ir, que no lo necesitan (su `PlaceDetail` no cambia de comportamiento).
+   */
+  const [ficheOriginLabel, setFicheOriginLabel] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [citySheetOpen, setCitySheetOpen] = useState(false);
   /** Phones show one hub surface at a time; the cards come first. */
@@ -446,6 +457,79 @@ export default function App() {
   );
 
   /**
+   * Corrección final (punto 4): puente entre la profundidad de la pila de fichas (`history`,
+   * ya existente) y el historial real del navegador — chevron back, gesto back de iOS y
+   * `page.goBack()` deben recorrer la misma pila. No se introduce React Router ni se cambia la
+   * URL pública (05/02 no la piden): cada entrada llevan sólo un `state` con la profundidad.
+   *
+   * `navDepthRef` es cuántas entradas de `window.history` hemos empujado nosotros para la ficha
+   * abierta ahora mismo; `ignorePopRef` cuenta los `popstate` que vamos a provocar nosotros
+   * mismos (`history.back()`/`history.go()` desde una acción explícita de la UI) para no
+   * volver a aplicar el mismo cambio de estado una segunda vez cuando el evento llega. Los
+   * `Ref` espejo (`historyRef`/`ficheOriginRef`/`activeHubRef`) existen porque el listener de
+   * `popstate` se registra una sola vez (`[]`) y necesita leer el valor más reciente sin
+   * volver a suscribirse en cada render.
+   */
+  const navDepthRef = useRef(0);
+  const ignorePopRef = useRef(0);
+  const historyRef = useRef<string[]>(history);
+  const ficheOriginRef = useRef<Destination | null>(ficheOrigin);
+  const activeHubRef = useRef<string | null>(activeHub);
+  // Sincronizados tras cada commit, nunca durante el render (los refs no deben leerse ni
+  // escribirse mientras React está renderizando) — sólo se leen desde manejadores de eventos y
+  // desde el listener de `popstate`, que siempre corren después de un render ya confirmado.
+  useEffect(() => {
+    historyRef.current = history;
+    ficheOriginRef.current = ficheOrigin;
+    activeHubRef.current = activeHub;
+  });
+
+  /** Misma restauración de hub que `goBack` ya hacía, factorizada para que el handler de
+   * `popstate` (un back real de navegador/gesto, no un clic en la app) pueda reproducirla. */
+  const restoreViewForTrail = useCallback((trail: string[]) => {
+    if (ficheOriginRef.current !== "explorar") return;
+    const nextId = trail[trail.length - 1];
+    const nextPlace = nextId ? getPlaceById(nextId) : undefined;
+    if (nextPlace && nextPlace.hub !== activeHubRef.current) {
+      setView({ mode: "hub", hub: nextPlace.hub });
+    }
+  }, []);
+
+  const syncNavPush = useCallback((depth: number) => {
+    window.history.pushState({ nihonPlaceDepth: depth }, "");
+    navDepthRef.current = depth;
+  }, []);
+  const syncNavReplace = useCallback((depth: number) => {
+    window.history.replaceState({ nihonPlaceDepth: depth }, "");
+    navDepthRef.current = depth;
+  }, []);
+
+  /** A real browser/gesture back (or forward) — never fired by our own `goBack`/`closeDetail`,
+   * which pre-apply the same state change and set `ignorePopRef` so this is a no-op for them. */
+  useEffect(() => {
+    function onPopState(event: PopStateEvent) {
+      if (ignorePopRef.current > 0) {
+        ignorePopRef.current -= 1;
+        return;
+      }
+      const state = event.state as { nihonPlaceDepth?: number } | null;
+      const targetDepth = Math.max(0, state?.nihonPlaceDepth ?? 0);
+      navDepthRef.current = targetDepth;
+      if (targetDepth <= 0) {
+        setHistory([]);
+        setFicheOrigin(null);
+        setFicheOriginLabel(null);
+        return;
+      }
+      const next = historyRef.current.slice(0, targetDepth);
+      restoreViewForTrail(next);
+      setHistory(next);
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [restoreViewForTrail]);
+
+  /**
    * Single source of truth for "go look at this place": starts a fresh trail and closes the
    * mobile filter sheet. `origin` is which destination the ficha belongs to, and it is the
    * corrected reading of `02 §D2`/`02 §D3` and the explicit "Quiero ir └── Lugar · misma ficha
@@ -459,13 +543,20 @@ export default function App() {
    * `origin="quiero-ir"` (SelectionPanel/SelectionAnalysis) never touches `view`/`filters`/
    * `destination` — Explorar's own state is a different destination's business.
    *
-   * `origin="viaje"` (ZoneComparison's saved-place links) is deliberately left on the
-   * `"explorar"` default: `02`/`05` do not name a "Viaje └── Lugar" leaf the way they name one
-   * under Quiero ir, so there is no frozen destination to return to — see
-   * `DESIGN_DECISIONS_REQUIRED.md`-style note in `docs/BLOCK_18_HANDOFF.md`.
+   * Corrección final (`docs/BLOCK_18_HANDOFF.md §"DESIGN DECISION REQUIRED"`, resuelto): la
+   * decisión normativa ya no deja `origin="viaje"` en el valor por defecto. Cualquier enlace a
+   * un lugar apila la ficha dentro de la pestaña activa, sin excepciones (`02 §D3`) — Viaje
+   * (hoy sólo desde `ZoneComparison`/«Dónde dormir») recibe exactamente el mismo trato que
+   * Quiero ir: `origin="viaje"` no toca `view`/`filters`/`destination`, y la única forma de que
+   * un lugar abierto desde Viaje llegue a Explorar es la acción explícita y etiquetada «Ver en
+   * el mapa» (`viewOnMap`, más abajo), nunca un efecto secundario de abrir la ficha.
+   *
+   * `originLabel` es el nombre visible de la superficie que abrió la ficha — hoy sólo relevante
+   * para Viaje, que puede tener más de una superficie que abra lugares (`ficheOrigin` por sí
+   * solo no basta para el back label); Explorar/Quiero ir siguen sin necesitarlo.
    */
   const selectPlace = useCallback(
-    (id: string, origin: Destination = "explorar") => {
+    (id: string, origin: Destination = "explorar", originLabel: string | null = null) => {
       const place = getPlaceById(id);
       if (!place) return;
       if (origin === "explorar") {
@@ -478,8 +569,15 @@ export default function App() {
       setHistory([id]);
       setFiltersOpen(false);
       setFicheOrigin(origin);
+      setFicheOriginLabel(originLabel);
+      // Corrección final (punto 4): abrir una ficha desde cero empuja una entrada de
+      // historial; reemplazar qué lugar se ve mientras una ficha ya está abierta (p. ej. tocar
+      // otra tarjeta de la lista sin haber cerrado la anterior) no crece la pila — sigue siendo
+      // un único nivel de profundidad.
+      if (navDepthRef.current === 0) syncNavPush(1);
+      else syncNavReplace(1);
     },
-    [activeHub]
+    [activeHub, syncNavPush, syncNavReplace]
   );
 
   /** A nearby jump extends the trail so the user can return to where they came from. Filters
@@ -492,25 +590,35 @@ export default function App() {
     (id: string) => {
       const place = getPlaceById(id);
       if (!place) return;
+      if (historyRef.current[historyRef.current.length - 1] === id) return;
       if (ficheOrigin === "explorar" && place.hub !== activeHub) {
         setView({ mode: "hub", hub: place.hub });
       }
-      setHistory((trail) => (trail[trail.length - 1] === id ? trail : [...trail, id]));
+      const next = [...historyRef.current, id];
+      setHistory(next);
+      syncNavPush(next.length);
     },
-    [activeHub, ficheOrigin]
+    [activeHub, ficheOrigin, syncNavPush]
   );
 
   /** Steps back through the trail, restoring whichever hub the previous place belongs to — but
-   * only when the ficha's own destination is Explorar; see `pushPlace`. */
+   * only when the ficha's own destination is Explorar; see `pushPlace`. Also the chevron/UI
+   * "back": it moves the real browser history back by one entry (`ignorePopRef` guards against
+   * re-applying the same change when the resulting `popstate` lands, corrección final punto 4). */
   const goBack = useCallback(() => {
-    const next = history.slice(0, -1);
+    const next = historyRef.current.slice(0, -1);
     const nextId = next[next.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
     if (ficheOrigin === "explorar" && nextPlace && nextPlace.hub !== activeHub) {
       setView({ mode: "hub", hub: nextPlace.hub });
     }
     setHistory(next);
-  }, [history, activeHub, ficheOrigin]);
+    if (navDepthRef.current > 0) {
+      ignorePopRef.current += 1;
+      window.history.back();
+      navDepthRef.current -= 1;
+    }
+  }, [activeHub, ficheOrigin]);
 
   /** The analysis is a lens over the saved places, not a second navigation: opening a place
    * from it goes through the same selectPlace every other surface uses, tagged as belonging to
@@ -523,10 +631,34 @@ export default function App() {
     [selectPlace]
   );
 
+  /** Closes the ficha entirely — chevron/`×` at the base of the stack, or a real browser back
+   * past the last level. Pops however many entries this stack pushed in one go (`history.go`
+   * fires a single `popstate` at its destination, not one per entry, corrección final punto 4),
+   * so the browser's own stack never grows out of sync with `history.length`. */
   const closeDetail = useCallback(() => {
     setHistory([]);
     setFicheOrigin(null);
+    setFicheOriginLabel(null);
+    if (navDepthRef.current > 0) {
+      ignorePopRef.current += 1;
+      window.history.go(-navDepthRef.current);
+      navDepthRef.current = 0;
+    }
   }, []);
+
+  /**
+   * «Ver en el mapa» (punto 3): la única acción, desde una ficha de Viaje, autorizada a cambiar
+   * de contexto. Reutiliza `selectPlace` con `origin="explorar"` en vez de reimplementar su
+   * lógica: eso ya hace exactamente lo que pide la decisión — sustituye (no apila) la profundidad
+   * de Viaje por una única ficha bajo Explorar (nunca deja una segunda ficha fantasma), mueve
+   * `destination` a Explorar y centra/abre el lugar en su mapa (`explorarSelectedPlace`, ya
+   * consumido por `PlaceMap`). `ZoneComparison` (o cualquier otra superficie de Viaje) no se
+   * toca: sigue montada de fondo, así que al volver manualmente a Viaje su estado sigue intacto.
+   */
+  const viewOnMap = useCallback(() => {
+    if (!selectedPlace) return;
+    selectPlace(selectedPlace.id, "explorar");
+  }, [selectedPlace, selectPlace]);
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   /**
@@ -663,8 +795,14 @@ export default function App() {
   /**
    * Bloque 18, corrección post-cierre: una única construcción de la ficha (mismo componente,
    * misma prop list — cero lógica ni contenido duplicado), colocada en exactamente uno de los
-   * paneles de destino según `ficheOrigin`. Nunca se renderiza en dos sitios a la vez porque
-   * `ficheOrigin` sólo puede valer una cosa.
+   * paneles de destino según `ficheOrigin` (ahora también `"viaje"`, corrección final). Nunca se
+   * renderiza en dos sitios a la vez porque `ficheOrigin` sólo puede valer una cosa.
+   *
+   * `originLabel`/`onViewOnMap` sólo se pasan cuando la ficha pertenece a Viaje: es la única de
+   * las tres pestañas que necesita nombrar su superficie de origen en el back (`ficheOrigin` no
+   * distingue entre las superficies de Viaje que puedan abrir lugares) y ofrecer la salida
+   * explícita «Ver en el mapa» — Explorar ya está en su propio mapa, y Quiero ir no gana esta
+   * acción con esta corrección (no está en la decisión de diseño).
    */
   const placeDetailOverlay = selectedPlace ? (
     <div className="app__detail">
@@ -682,6 +820,8 @@ export default function App() {
         getPlace={getPlaceById}
         previousPlace={previousPlace}
         onBack={goBack}
+        originLabel={ficheOrigin === "viaje" ? ficheOriginLabel : null}
+        onViewOnMap={ficheOrigin === "viaje" ? viewOnMap : undefined}
       />
     </div>
   ) : null;
@@ -891,7 +1031,7 @@ export default function App() {
             el contenido que scrollea vive en un `div` interior separado del contenedor de
             destino: la ficha (`ficheOrigin === "quiero-ir"`) se ancla al contenedor exterior, que
             no scrollea, en vez de al interior — si se ancla al que hace scroll, un panel de
-            420px en escritorio se desplazaría con la lista en vez de quedarse fijo.
+            480px en escritorio se desplazaría con la lista en vez de quedarse fijo.
           */}
           <div className="destination-panel" hidden={destination !== "quiero-ir"}>
             <div className="destination-panel--scroll">
@@ -922,50 +1062,63 @@ export default function App() {
             {ficheOrigin === "quiero-ir" && placeDetailOverlay}
           </div>
 
-          {/* ---------------- Viaje ---------------- */}
-          <div className="destination-panel destination-panel--scroll" hidden={destination !== "viaje"}>
-            <div className="viaje-nav" role="group" aria-label="Secciones de Viaje">
-              <button
-                type="button"
-                className={`viaje-nav__item ${viajeSection === "planificar" ? "viaje-nav__item--active" : ""}`}
-                aria-pressed={viajeSection === "planificar"}
-                onClick={() => setViajeSectionTracked("planificar")}
-              >
-                <Icon name="explorar" size={16} /> Planificar
-              </button>
-              <button
-                type="button"
-                className={`viaje-nav__item ${viajeSection === "dormir" ? "viaje-nav__item--active" : ""}`}
-                aria-pressed={viajeSection === "dormir"}
-                onClick={() => setViajeSectionTracked("dormir")}
-                disabled={HUBS_WITH_ZONES.length === 0}
-              >
-                <Icon name="cama" size={16} /> Dónde dormir
-              </button>
+          {/*
+            ---------------- Viaje ----------------
+            Corrección final (punto 1, DESIGN DECISION REQUIRED resuelto): un lugar abierto
+            desde Viaje ("Dónde dormir" → `ZoneComparison`) apila la misma ficha dentro de esta
+            pestaña — ya no navega a Explorar. Misma técnica que la corrección de Quiero ir: el
+            contenido que scrollea (sub-navegación + secciones) vive en un `div` interior
+            separado del `.destination-panel` exterior, para que la ficha (`ficheOrigin ===
+            "viaje"`), hermana suya anclada al exterior, no scrollee con «Dónde dormir»/
+            «Planificar» ni se desplace en el panel de 480px de escritorio.
+          */}
+          <div className="destination-panel" hidden={destination !== "viaje"}>
+            <div className="destination-panel--scroll">
+              <div className="viaje-nav" role="group" aria-label="Secciones de Viaje">
+                <button
+                  type="button"
+                  className={`viaje-nav__item ${viajeSection === "planificar" ? "viaje-nav__item--active" : ""}`}
+                  aria-pressed={viajeSection === "planificar"}
+                  onClick={() => setViajeSectionTracked("planificar")}
+                >
+                  <Icon name="explorar" size={16} /> Planificar
+                </button>
+                <button
+                  type="button"
+                  className={`viaje-nav__item ${viajeSection === "dormir" ? "viaje-nav__item--active" : ""}`}
+                  aria-pressed={viajeSection === "dormir"}
+                  onClick={() => setViajeSectionTracked("dormir")}
+                  disabled={HUBS_WITH_ZONES.length === 0}
+                >
+                  <Icon name="cama" size={16} /> Dónde dormir
+                </button>
+              </div>
+
+              <Suspense fallback={null}>
+                {viajeVisited && viajeSection === "planificar" && (
+                  <OrderedSequenceBuilder
+                    savedPlaces={savedPlaces}
+                    onClose={() => setViajeSectionTracked("dormir")}
+                    embedded
+                  />
+                )}
+              </Suspense>
+
+              <Suspense fallback={null}>
+                {viajeVisited && viajeSection === "dormir" && zonesHub && (
+                  <ZoneComparison
+                    hub={zonesHub}
+                    savedPlaces={savedPlaces}
+                    onClose={() => setViajeSectionTracked("planificar")}
+                    onSelectPlace={(id) => selectPlace(id, "viaje", "Dónde dormir")}
+                    onOpenPlanner={goToPlanner}
+                    embedded
+                  />
+                )}
+              </Suspense>
             </div>
 
-            <Suspense fallback={null}>
-              {viajeVisited && viajeSection === "planificar" && (
-                <OrderedSequenceBuilder
-                  savedPlaces={savedPlaces}
-                  onClose={() => setViajeSectionTracked("dormir")}
-                  embedded
-                />
-              )}
-            </Suspense>
-
-            <Suspense fallback={null}>
-              {viajeVisited && viajeSection === "dormir" && zonesHub && (
-                <ZoneComparison
-                  hub={zonesHub}
-                  savedPlaces={savedPlaces}
-                  onClose={() => setViajeSectionTracked("planificar")}
-                  onSelectPlace={selectPlace}
-                  onOpenPlanner={goToPlanner}
-                  embedded
-                />
-              )}
-            </Suspense>
+            {ficheOrigin === "viaje" && placeDetailOverlay}
           </div>
 
           {/* ---------------- Nosotros ---------------- */}

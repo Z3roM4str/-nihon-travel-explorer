@@ -85,6 +85,31 @@ No se hacen ni preguntando. Requieren cambiar la Constitución primero.
 
 ---
 
+## Invariantes verificables del shell de navegación (DD-015)
+
+Añadidas por la corrección final de B18 que resuelve la apertura de ficha desde
+Viaje (`02 §D3`, `05 §7`/`§8`, DD-015). Se aplican a los cuatro destinos por igual,
+no sólo a Viaje, y cada una es una prueba automatizable, no sólo una intención:
+
+1. **Ninguna apertura implícita de ficha cambia de destino.** Tocar un lugar nunca
+   muta `destination` salvo cuando el propio origen ya es Explorar (que comparte
+   pantalla con la ficha). Verificable: el destino activo antes y después de abrir
+   una ficha desde Quiero ir o Viaje es idéntico.
+2. **Como mucho una ficha activa en un stack a la vez.** Nunca coexisten dos
+   `.app__detail` montados con contenido a la vez, sea cual sea la secuencia de
+   pestañas tocadas. Verificable: contar nodos `.app__detail` en el DOM tras
+   cualquier combinación de aperturas/cierres/cambios de pestaña.
+3. **Cambiar de destino conserva el stack completo**, ficha abierta incluida. Volver
+   manualmente a la pestaña que tenía una ficha abierta la encuentra exactamente
+   donde se dejó — mismo lugar, mismo scroll, misma profundidad de pila.
+Verificable: abrir una ficha, cambiar de pestaña, volver, comparar contra el
+   estado justo antes de cambiar.
+4. **Toda acción explícita de cambio de destino debe cerrar/hacer pop de la ficha de
+   origen.** Ninguna acción etiquetada («Ver en el mapa» y cualquier futura
+   equivalente) puede dejar una ficha fantasma abierta en la pestaña que abandona.
+   Verificable: tras «Ver en el mapa», ningún `.app__detail` sigue montado dentro
+   del panel de la pestaña de origen.
+
 ## Puertas de calidad por bloque
 
 Todo bloque de implementación se cierra sólo si pasa las siete:

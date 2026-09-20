@@ -65,6 +65,19 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
 
   useEffect(() => {
     if (!place) return;
+    /**
+     * Corrección final de B18 («Ver en el mapa», `docs/design/09_DECISIONES_DE_DISENO.md`
+     * DD-015): hasta ahora, `selectedPlace` sólo pasaba a valer algo mientras Explorar ya era
+     * el destino visible — el contenedor de Leaflet tenía tamaño real. «Ver en el mapa» abre un
+     * camino nuevo: `destination` pasa a "explorar" (sacando el panel de `display:none`) en el
+     * mismo render en que `selectedPlace` deja de ser `null`, así que este efecto puede llegar
+     * a correr antes de que `InvalidateOnResize` (que depende del `ResizeObserver`, asíncrono)
+     * haya tenido ocasión de corregir el tamaño cacheado por Leaflet — mismo `Invalid LatLng
+     * (NaN, NaN)` que ya documentó el Bloque 18 para el toggle Lista/Mapa. `invalidateSize` es
+     * barato e idempotente cuando el tamaño no ha cambiado, así que llamarlo aquí no tiene coste
+     * observable en el camino ya existente (Explorar ya visible al seleccionar).
+     */
+    map.invalidateSize({ animate: false });
     const zoom = Math.max(map.getZoom(), SELECTION_ZOOM);
     const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
     const target = map.unproject(point.add([panelOffset / 2, 0]), zoom);

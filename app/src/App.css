@@ -643,10 +643,11 @@ button.app__title.app__title--expand {
   }
 
   .sheet {
-    /* --panel-width: el ancho que `04 §8` nombra para Sheet en md+ ("panel lateral derecho
-       de 420px"); reutilizado aquí para el diálogo centrado en vez de inventar un ancho
-       nuevo para esta variante (03 §10). */
-    width: min(var(--panel-width), 92vw);
+    /* --sheet-panel-width: el ancho que `04 §8` nombra para Sheet en md+ ("panel lateral
+       derecho de 420px"); reutilizado aquí para el diálogo centrado en vez de inventar un
+       ancho nuevo para esta variante (03 §10). Corrección final: token propio, separado del
+       de la ficha de lugar (--place-detail-panel-width, 480px) — ver tokens.css §8. */
+    width: min(var(--sheet-panel-width), 92vw);
     max-height: 88vh;
     border-radius: var(--radius-xl);
   }
@@ -666,8 +667,8 @@ button.app__title.app__title--expand {
   flex-direction: column;
   min-height: 0;
   /* Corrección post-cierre: posiciona la ficha (`.app__detail`) cuando `ficheOrigin` es este
-     destino — necesario para Quiero ir, que no tenía un ancestro `position:relative` propio
-     antes de esta corrección (sólo `.app__body`, dentro de Explorar, lo tenía). */
+     destino — necesario para Quiero ir y (corrección final) Viaje, que no tenían un ancestro
+     `position:relative` propio (sólo `.app__body`, dentro de Explorar, lo tenía). */
   position: relative;
   overflow: hidden;
 }
@@ -679,9 +680,11 @@ button.app__title.app__title--expand {
 /*
  * Corrección post-cierre: en Quiero ir, este es ahora un `div` interior distinto de
  * `.destination-panel` (antes eran el mismo elemento) — para que la ficha, hermana suya dentro
- * del `.destination-panel` exterior, no scrollee con la lista. Sigue siendo el mismo elemento
- * que `.destination-panel` en Viaje/Nosotros, donde no hay ficha que anclar; `flex`/`min-height`
- * son redundantes pero inofensivos ahí (el padre ya los fija).
+ * del `.destination-panel` exterior, no scrollee con la lista. Corrección final: Viaje adopta
+ * la misma separación (abre lugares desde «Dónde dormir», así que también necesita un exterior
+ * sin scroll donde anclar su ficha). Sigue siendo el mismo elemento que `.destination-panel` en
+ * Nosotros, la única pestaña sin ficha que anclar; `flex`/`min-height` son redundantes pero
+ * inofensivos ahí (el padre ya los fija).
  */
 .destination-panel--scroll {
   flex: 1;
@@ -892,8 +895,10 @@ button.app__title.app__title--expand {
 /*
  * La ficha de lugar (Art. 8, `05 §5`): en teléfono ocupa el 100% de la altura visible, por
  * encima de la cabecera, la barra única y `TabBar` — nada del shell queda visible detrás.
- * Desde `md` vuelve a ser el panel derecho de 420px que ya existía (`08`: B18 sólo cambia el
- * contenedor/navegación de la ficha, no esta medida — `05 §5` reserva su rediseño a B4).
+ * Desde `md` vuelve a ser el panel derecho de 480px (`02 §D5`, `05 §5`) — corrección final de
+ * B18: antes escrito como 420px compartiendo token con `Sheet` (`04 §8`), error normativo ya
+ * corregido (tokens.css §8). B18 sólo cambia el contenedor/navegación de la ficha, no esta
+ * medida — `05 §5` reserva su rediseño a B4.
  */
 .app__detail {
   position: fixed;
@@ -923,7 +928,7 @@ button.app__title.app__title--expand {
 
 /*
  * Bloque 18 — desde `md` (840px, `02 §D5`): lista y mapa conviven, y la ficha vuelve a ser un
- * panel de 420px en vez de pantalla completa. Único breakpoint de todo el shell — Art. 8
+ * panel de 480px en vez de pantalla completa. Único breakpoint de todo el shell — Art. 8
  * prohíbe `max-width` nuevo, así que todo lo de esta sección es `min-width`.
  */
 @media (min-width: 840px) {
@@ -954,7 +959,10 @@ button.app__title.app__title--expand {
   .app__detail {
     position: absolute;
     inset: 0 0 0 auto;
-    width: min(var(--panel-width), 100%);
+    /* Corrección final de B18 (punto 5): token propio (480px, `02 §D5`/`05 §5`), separado del
+       de Sheet (420px, `04 §8`) — antes ambos compartían `--panel-width`, que era el error
+       normativo que describe la auditoría. Ver tokens.css §8. */
+    width: min(var(--place-detail-panel-width), 100%);
     z-index: 30;
     border-left: 1px solid var(--line);
     box-shadow: var(--elev-2);

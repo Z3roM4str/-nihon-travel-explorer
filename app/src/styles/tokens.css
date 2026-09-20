@@ -165,8 +165,15 @@
   --info-button-size: 32px; /* 04 §6 / 05 §3 — botón ⓘ de créditos/atribución */
   --sheet-grabber-width: 36px; /* 04 §8 — barra de arrastre de Sheet, 36×4px */
   --sheet-grabber-height: 4px;
-  --panel-width: 420px; /* 04 §8 — panel lateral derecho de Sheet en md+; también el de la
-                            ficha de lugar (05 §5), preexistente a este bloque */
+  /*
+   * Corrección final de B18 (punto 5): `--panel-width` compartía un único valor (420px) entre
+   * `Sheet` y la ficha de lugar (`.app__detail`), pero `04 §8` y `02 §D5`/`05 §5` fijan dos
+   * medidas distintas para dos componentes distintos. Un solo token para dos contratos
+   * normativos diferentes es el error que describe la auditoría — se separan aquí, cada uno
+   * consumido por exactamente un componente (App.css).
+   */
+  --sheet-panel-width: 420px; /* 04 §8 — panel lateral derecho de Sheet en md+ */
+  --place-detail-panel-width: 480px; /* 02 §D5, 05 §5 — ficha de lugar en md+ */
 }
 
 /* En md+ (840px, 02 §"Breakpoints conceptuales") suben display y quote; nada más

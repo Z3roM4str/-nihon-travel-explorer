@@ -12,6 +12,14 @@ import { describe, expect, it } from "vitest";
  * `block17-design-foundation.test.ts`, son pruebas de fuente (sin jsdom): lo que protegen es
  * la estructura del código, no el comportamiento en vivo — eso lo cubren
  * `scripts/b18-*.mjs` contra un build real.
+ *
+ * Corrección final (Viaje → Lugar, `docs/BLOCK_18_HANDOFF.md §"DESIGN DECISION REQUIRED"`
+ * resuelto): describe blocks añadidos al final del fichero cubren la decisión normativa que
+ * cierra esa nota abierta — Viaje apila la ficha dentro de sí mismo, «Ver en el mapa» como
+ * única salida explícita, el back label por origen, el puente con el historial real del
+ * navegador y la separación de los tokens de ancho de Sheet/ficha. El comportamiento en vivo
+ * (stack, scroll, single-instance, `page.goBack()`, responsive) lo cubren
+ * `scripts/b18-viaje-lugar-check.mjs` y `scripts/b18-browser-back-check.mjs`.
  */
 
 async function read(path: string): Promise<string> {
@@ -145,20 +153,56 @@ describe("Bloque 18 — retirada del conmutador «Eres» (DD-007, 02 §D4, gate 
 });
 
 describe("Bloque 18 — ficha a pantalla completa en teléfono (Art. 8, gate 11 §8)", () => {
-  it(".app__detail es fixed/inset:0 en base, y vuelve a ser el panel de 420px sólo desde md", async () => {
+  it(".app__detail es fixed/inset:0 en base, y vuelve a ser el panel de 480px sólo desde md", async () => {
     const css = await read("App.css");
     const base = css.match(/\.app__detail\s*{([^}]*)}/)?.[1] ?? "";
     expect(base).toMatch(/position:\s*fixed/);
     expect(base).toMatch(/inset:\s*0/);
     const mdBlock = css.slice(css.indexOf("@media (min-width: 840px) {\n  .app__body {"));
     expect(mdBlock).toMatch(/\.app__detail\s*{\s*position:\s*absolute;/);
-    expect(mdBlock).toMatch(/width:\s*min\(var\(--panel-width\),\s*100%\)/);
+    // Corrección final (punto 5): `--panel-width` (420px, compartido con `Sheet`) era el error
+    // normativo — `02 §D5`/`05 §5` fijan la ficha en 480px, distinto de `Sheet` (`04 §8`). Cada
+    // uno tiene ahora su propio token.
+    expect(mdBlock).toMatch(/width:\s*min\(var\(--place-detail-panel-width\),\s*100%\)/);
   });
 
   it("el z-index de la ficha supera al de TabBar/NavRail, para cubrirlos de verdad", async () => {
     const css = await read("App.css");
     const detailZ = Number(css.match(/\.app__detail\s*{[^}]*z-index:\s*(\d+)/)?.[1] ?? "0");
     expect(detailZ).toBeGreaterThan(50);
+  });
+});
+
+describe("Bloque 18 — corrección final: Sheet (420px) y ficha de lugar (480px) ya no comparten token (punto 5)", () => {
+  it("tokens.css declara --sheet-panel-width: 420px y --place-detail-panel-width: 480px, y ya no --panel-width", async () => {
+    const tokens = await read("styles/tokens.css");
+    expect(tokens).toContain("--sheet-panel-width: 420px;");
+    expect(tokens).toContain("--place-detail-panel-width: 480px;");
+    expect(tokens).not.toMatch(/--panel-width:/);
+  });
+
+  it("Sheet en md+ consume --sheet-panel-width, no --place-detail-panel-width", async () => {
+    const css = await read("App.css");
+    const sheetMdBlock = css.slice(
+      css.indexOf("@media (min-width: 840px) {\n  .sheet-scrim"),
+      css.indexOf("/* ---------- Destinos: contenedor común")
+    );
+    expect(sheetMdBlock).toMatch(/\.sheet\s*{[^}]*width:\s*min\(var\(--sheet-panel-width\)/);
+  });
+
+  it("ningún componente escribe 420/480px como literal fuera de tokens.css (ambos anchos vía var())", async () => {
+    const css = await read("App.css");
+    const tsx = await read("App.tsx");
+    expect(css).not.toMatch(/width:\s*min\(420px/);
+    expect(css).not.toMatch(/width:\s*min\(480px/);
+    // Lookbehind negativo: no debe atrapar `max-width: 420px`/`min-width: …`, que son media
+    // queries de legado sin relación con el ancho del panel.
+    expect(css).not.toMatch(/(?<!-)\bwidth:\s*420px\b/);
+    expect(css).not.toMatch(/(?<!-)\bwidth:\s*480px\b/);
+    // El único 420/480 aceptable en App.tsx es la constante JS que refleja el token para el
+    // cálculo de `panelOffset` del mapa (no hay CSS-in-JS en este proyecto, así que no puede
+    // leer var() directamente) — ver DETAIL_PANEL_WIDTH.
+    expect(tsx).toContain("const DETAIL_PANEL_WIDTH = 480;");
   });
 });
 
@@ -182,7 +226,10 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
     const source = await read("App.tsx");
     expect(source).toMatch(/<SelectionAnalysis[\s\S]{0,400}embedded/);
     expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,200}embedded/);
-    expect(source).toMatch(/<ZoneComparison[\s\S]{0,300}embedded/);
+    // Corrección final de B18: `onSelectPlace` ahora envuelve `selectPlace` para etiquetar el
+    // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para
+    // seguir alcanzando `embedded` tras esa prop más larga.
+    expect(source).toMatch(/<ZoneComparison[\s\S]{0,400}embedded/);
     expect(source).toMatch(/<TravellerManager[\s\S]{0,400}embedded/);
     expect(source).toMatch(/<TripBackup[\s\S]{0,400}embedded/);
     // Las banderas booleanas de la era de overlays no deben sobrevivir como estado — pueden
@@ -222,10 +269,27 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
    */
   it("selectPlace acepta un origen y sólo navega a Explorar cuando el origen lo es", async () => {
     const source = await read("App.tsx");
+    // Corrección final (punto 7): `selectPlace` gana un tercer parámetro, `originLabel`, para
+    // el back label de Viaje — la firma del origen (y la regla de que sólo "explorar" navega)
+    // no cambia.
     expect(source).toMatch(
-      /const selectPlace = useCallback\(\s*\(id: string, origin: Destination = "explorar"\) => \{/
+      /const selectPlace = useCallback\(\s*\(id: string, origin: Destination = "explorar", originLabel: string \| null = null\) => \{/
     );
     expect(source).toMatch(/if \(origin === "explorar"\) \{[\s\S]*?setDestination\("explorar"\);/);
+  });
+
+  /**
+   * Corrección final (`docs/BLOCK_18_HANDOFF.md`, DESIGN DECISION REQUIRED resuelto): la nota
+   * abierta decía que abrir un lugar desde `ZoneComparison`/«Dónde dormir» navegaba a Explorar
+   * (`ficheOrigin = "explorar"` por defecto) porque `02` no nombraba una ruta "Viaje └── Lugar"
+   * propia. El propietario de diseño resolvió la decisión: apila dentro de Viaje, igual que
+   * Quiero ir — sin excepciones (`02 §D3`, regla añadida).
+   */
+  it("Viaje abre lugares con origin=\"viaje\" y una etiqueta de origen, sin tocar el destino activo", async () => {
+    const source = await read("App.tsx");
+    expect(source).toMatch(
+      /onSelectPlace=\{\(id\) => selectPlace\(id, "viaje", "Dónde dormir"\)\}/
+    );
   });
 
   it("Quiero ir abre lugares con origin=\"quiero-ir\", sin tocar el destino activo", async () => {
@@ -239,8 +303,12 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
     expect(source).toContain("const placeDetailOverlay = selectedPlace ? (");
     const explorarSlot = (source.match(/\{ficheOrigin === "explorar" && placeDetailOverlay\}/g) ?? []).length;
     const quieroIrSlot = (source.match(/\{ficheOrigin === "quiero-ir" && placeDetailOverlay\}/g) ?? []).length;
+    // Corrección final (punto 1): Viaje gana el mismo hueco condicional que Quiero ir ya tenía
+    // — un tercer, y último, posible destino para el único `placeDetailOverlay`.
+    const viajeSlot = (source.match(/\{ficheOrigin === "viaje" && placeDetailOverlay\}/g) ?? []).length;
     expect(explorarSlot).toBe(1);
     expect(quieroIrSlot).toBe(1);
+    expect(viajeSlot).toBe(1);
     // Sólo una construcción de <PlaceDetail — no una copia por cada pestaña que pueda abrirla.
     expect((source.match(/<PlaceDetail\b/g) ?? []).length).toBe(1);
   });
@@ -324,11 +392,28 @@ describe("Bloque 18 — Viaje conserva su estado al cambiar de pestaña (02 §D3
     expect(source).toMatch(/\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/);
   });
 
+  /**
+   * Corrección final (punto 1): Viaje deja de ser un único `div` con ambas clases y pasa a la
+   * misma estructura de dos niveles que Quiero ir ya usaba — exterior sin scroll (donde se
+   * ancla la ficha, hermana de `.destination-panel--scroll`) e interior que sí scrollea
+   * (sub-navegación + secciones). El exterior sigue ocultándose con `hidden` real, sin
+   * desmontar nada; lo que cambia es que ya no lleva también la clase de scroll.
+   */
   it("el panel exterior de Viaje sigue ocultándose con hidden real, no con un desmontaje", async () => {
     const source = await read("App.tsx");
-    expect(source).toMatch(
+    expect(source).toMatch(/<div className="destination-panel" hidden=\{destination !== "viaje"\}>/);
+    expect(source).not.toMatch(
       /<div className="destination-panel destination-panel--scroll" hidden=\{destination !== "viaje"\}>/
     );
+  });
+
+  it("Viaje apila la ficha dentro de su propio panel, hermana del contenido que scrollea, no de Nosotros", async () => {
+    const source = await read("App.tsx");
+    const viajeStart = source.indexOf('<div className="destination-panel" hidden={destination !== "viaje"}>');
+    const viajeEnd = source.indexOf("{/* ---------------- Nosotros ---------------- */}");
+    const viajeBlock = source.slice(viajeStart, viajeEnd);
+    expect(viajeBlock).toContain('<div className="destination-panel--scroll">');
+    expect(viajeBlock).toContain('{ficheOrigin === "viaje" && placeDetailOverlay}');
   });
 });
 
@@ -452,5 +537,115 @@ describe("Bloque 18 — Art. 10 sólo tokens, auditoría diff-scoped (03 §10, g
       return true;
     });
     expect(offenders).toEqual([]);
+  });
+});
+
+/**
+ * Corrección final — punto 3/4: PlaceDetail gana `originLabel` (el back label nombra la
+ * superficie real, nunca "Viaje" a secas) y `onViewOnMap` («Ver en el mapa», la única salida
+ * explícita de una ficha de Viaje). Ninguno de los dos rediseña la ficha del Bloque 4: son
+ * props opcionales, `undefined`/`null` reproduce el comportamiento anterior exactamente.
+ */
+describe("Bloque 18 — corrección final: back label por origen y «Ver en el mapa» en PlaceDetail", () => {
+  it("PlaceDetail acepta originLabel/onViewOnMap como props opcionales, sin tocar el resto de la firma", async () => {
+    const source = await read("components/PlaceDetail.tsx");
+    expect(source).toMatch(/originLabel\?:\s*string \| null;/);
+    expect(source).toMatch(/onViewOnMap\?:\s*\(\) => void;/);
+    expect(source).toContain("originLabel = null,");
+    expect(source).toContain("onViewOnMap,");
+  });
+
+  it("el back label usa originLabel cuando no hay previousPlace, y sigue en blanco si no se pasa ninguno", async () => {
+    const source = await read("components/PlaceDetail.tsx");
+    const barStart = source.indexOf('<div className="place-detail__bar">');
+    const barEnd = source.indexOf("</div>", source.indexOf('aria-label={`Cerrar la ficha'));
+    const bar = source.slice(barStart, barEnd);
+    expect(bar).toContain("previousPlace ? (");
+    expect(bar).toContain(") : originLabel ? (");
+    expect(bar).toContain("onClick={onClose}");
+    expect(bar).toContain("{originLabel}");
+    expect(bar).toContain(") : (\n          <span />");
+  });
+
+  it("«Ver en el mapa» es texto real, nunca icon-only, y sólo se renderiza si onViewOnMap existe", async () => {
+    const source = await read("components/PlaceDetail.tsx");
+    expect(source).toMatch(/\{onViewOnMap && \(/);
+    expect(source).toMatch(/onClick=\{onViewOnMap\}[\s\S]{0,80}>\s*<Icon name="mapa"[^>]*\/>\s*Ver en el mapa/);
+    // Reutiliza el patrón de botón secundario ya existente (mismo que "Abrir el planificador"
+    // en ZoneComparison) — cero clase/CSS nueva para este control.
+    expect(source).toContain('className="button button--secondary place-detail__view-on-map"');
+  });
+
+  it("App.css no define ninguna regla nueva para .place-detail__view-on-map (es sólo un selector de test sobre button--secondary)", async () => {
+    const css = await read("App.css");
+    expect(css).not.toMatch(/\.place-detail__view-on-map\s*{/);
+  });
+});
+
+/**
+ * Corrección final — punto 1/7: la propia decisión de diseño y el mecanismo de `ficheOrigin`/
+ * `ficheOriginLabel`/`viewOnMap` en App.tsx que la implementa.
+ */
+describe("Bloque 18 — corrección final: Viaje → Lugar apila dentro de Viaje (02 §D3, DD-015)", () => {
+  it("ficheOriginLabel se fija junto a ficheOrigin en selectPlace, y se limpia junto a él en closeDetail", async () => {
+    const source = await read("App.tsx");
+    expect(source).toContain(
+      "const [ficheOriginLabel, setFicheOriginLabel] = useState<string | null>(null);"
+    );
+    expect(source).toMatch(/setFicheOrigin\(origin\);\s*setFicheOriginLabel\(originLabel\);/);
+    expect(source).toMatch(/setFicheOrigin\(null\);\s*setFicheOriginLabel\(null\);/);
+  });
+
+  it("viewOnMap reutiliza selectPlace con origin=\"explorar\" — no reimplementa su lógica", async () => {
+    const source = await read("App.tsx");
+    expect(source).toMatch(
+      /const viewOnMap = useCallback\(\(\) => \{\s*if \(!selectedPlace\) return;\s*selectPlace\(selectedPlace\.id, "explorar"\);/
+    );
+  });
+
+  it("placeDetailOverlay sólo pasa originLabel/onViewOnMap cuando ficheOrigin es \"viaje\"", async () => {
+    const source = await read("App.tsx");
+    expect(source).toContain('originLabel={ficheOrigin === "viaje" ? ficheOriginLabel : null}');
+    expect(source).toContain('onViewOnMap={ficheOrigin === "viaje" ? viewOnMap : undefined}');
+  });
+});
+
+/**
+ * Corrección final — punto 4: el puente entre la pila de fichas (`history`) y el historial real
+ * del navegador, para que chevron back, gesto back y `page.goBack()` recorran la misma pila. El
+ * comportamiento en vivo (`page.goBack()` real en Chromium) lo cubre
+ * `scripts/b18-browser-back-check.mjs`; esto sólo protege que el mecanismo siga cableado.
+ */
+describe("Bloque 18 — corrección final: puente con el historial del navegador (punto 4)", () => {
+  it("registra un único listener de popstate, que ignora los eventos auto-provocados", async () => {
+    const source = await read("App.tsx");
+    expect(source).toContain('window.addEventListener("popstate", onPopState);');
+    expect((source.match(/addEventListener\("popstate"/g) ?? []).length).toBe(1);
+    expect(source).toContain("if (ignorePopRef.current > 0) {");
+  });
+
+  it("selectPlace empuja una entrada nueva desde cero, y reemplaza si ya había una ficha abierta", async () => {
+    const source = await read("App.tsx");
+    expect(source).toMatch(/if \(navDepthRef\.current === 0\) syncNavPush\(1\);\s*else syncNavReplace\(1\);/);
+  });
+
+  it("pushPlace (salto «cerca de aquí») empuja una entrada nueva por cada nivel", async () => {
+    const source = await read("App.tsx");
+    expect(source).toMatch(/const next = \[\.\.\.historyRef\.current, id\];\s*setHistory\(next\);\s*syncNavPush\(next\.length\);/);
+  });
+
+  it("goBack/closeDetail mueven el historial real del navegador, no sólo el estado de React", async () => {
+    const source = await read("App.tsx");
+    expect(source).toMatch(/const goBack = useCallback\(\(\) => \{[\s\S]{0,600}window\.history\.back\(\);/);
+    expect(source).toMatch(/const closeDetail = useCallback\(\(\) => \{[\s\S]{0,400}window\.history\.go\(-navDepthRef\.current\);/);
+  });
+
+  it("no cambia la URL pública: pushState/replaceState nunca reciben un segundo argumento de URL con contenido", async () => {
+    const source = await read("App.tsx");
+    const calls = [...source.matchAll(/window\.history\.(pushState|replaceState)\(\{[^}]*\},\s*"([^"]*)"\)/g)];
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      expect(call[2]).toBe("");
+    }
   });
 });

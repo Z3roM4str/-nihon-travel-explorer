@@ -303,6 +303,10 @@ etiquetadas «Comprobado con datos completos», **nunca aplicadas solas**. Botó
 - [ ] Reordenar es posible sólo con teclado.
 - [ ] Nihon sigue sin proponer un orden por su cuenta.
 
+Cuando esta pantalla (o cualquier otra sub-pestaña de Viaje) abra la ficha de un
+lugar, aplica exactamente el mismo contrato que «Dónde dormir» ya implementa —
+ver «Apertura de ficha de lugar desde Viaje» al final de `§8`.
+
 ---
 
 ## 8. Viaje — Dónde dormir
@@ -330,6 +334,42 @@ convertirlo en un ranking.
 - [ ] Hecho, cálculo y opinión son distinguibles sin leer el texto.
 - [ ] Ninguna zona se etiqueta como la mejor.
 - [ ] Los 16 conjuntos de zonas de Tokio, Kioto y Osaka siguen presentes.
+
+### Apertura de ficha de lugar desde Viaje
+
+Corrección final de B18 (DD-015): tocar un lugar guardado desde «Dónde dormir»
+(la lista de zonas o el mapa de comparación) abre la **misma** `PlaceDetail` que
+usan Explorar y Quiero ir — no navega a Explorar. Vale igual para cualquier otra
+sub-pestaña de Viaje que en el futuro abra lugares (p. ej. `Días`, `§7`).
+
+- **Apilado dentro de Viaje.** La ficha se apila dentro de la pestaña Viaje,
+  igual que «Quiero ir └── Lugar» (`02 §"Mapa completo de pantallas"`, `02 §D3`).
+- **Retorno a la superficie exacta de origen.** Cerrar la ficha (chevron, `×` o
+  back del navegador) devuelve a «Dónde dormir» con su scroll, su zona
+  seleccionada y su modo (`browse`/`compare`) intactos — `ZoneComparison` nunca
+  se desmonta mientras se ve un lugar por encima.
+- **El chevron nombra la superficie real**, nunca «Viaje» a secas: «‹ Dónde
+  dormir», no un cierre genérico.
+- **Encadenado.** Si desde esa ficha se abre un lugar cercano, y desde ahí otro,
+  volver los recorre uno a uno antes de volver a «Dónde dormir» — mismo
+  mecanismo de pila que ya usan Explorar/Quiero ir.
+- **Instancia única.** Como en cualquier otra pestaña, la ficha de un lugar sólo
+  puede estar abierta en un destino a la vez.
+- **«Ver en el mapa» es la única salida explícita.** Un botón etiquetado (nunca
+  icon-only) dentro de la ficha cierra el stack de Viaje, cambia a Explorar y
+  centra/abre ese lugar en su mapa. Es la única acción, desde una ficha abierta
+  en Viaje, autorizada a cambiar de pestaña — cualquier otro cierre vuelve a
+  Viaje, nunca a Explorar.
+- **Deroga el comportamiento heredado** de B18 (abrir siempre en Explorar por
+  defecto, documentado como nota abierta en `docs/BLOCK_18_HANDOFF.md`).
+
+**Responsive**
+- `base` (teléfono): la ficha cubre el 100 % de la altura visible — cabecera,
+  `TabBar` y cualquier navegación superior quedan cubiertas, sin excepción para
+  Viaje (`05 §5`).
+- `md`+: panel derecho de 480 px (`02 §D5`); `NavRail` permanece visible, y el
+  destino marcado `aria-current="page"` sigue siendo Viaje mientras la ficha le
+  pertenezca.
 
 ---
 

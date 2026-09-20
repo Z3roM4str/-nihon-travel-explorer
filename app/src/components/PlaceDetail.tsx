@@ -32,6 +32,21 @@ type Props = {
   /** Place the user came from via a "nearby" jump, so they can step back. */
   previousPlace: Place | null;
   onBack: () => void;
+  /**
+   * Corrección final de B18 (punto 3/4): nombre visible de la superficie que abrió esta ficha
+   * cuando no hay un `previousPlace` (base de la pila, no un salto "cerca de aquí") — hoy sólo
+   * lo pasa Viaje («Dónde dormir»), porque es la única pestaña cuyo `ficheOrigin` no basta para
+   * saber a qué volver. `null`/`undefined` reproduce el comportamiento anterior (sin chevron en
+   * la base de la pila, sólo el cierre genérico).
+   */
+  originLabel?: string | null;
+  /**
+   * «Ver en el mapa» (punto 3): la única acción, desde una ficha abierta fuera de Explorar,
+   * autorizada a cambiar de destino. Sólo Viaje la recibe hoy; `undefined` no renderiza nada —
+   * ni Explorar (ya está en su propio mapa) ni Quiero ir (fuera del alcance de esta decisión)
+   * ganan un botón nuevo.
+   */
+  onViewOnMap?: () => void;
 };
 
 function QuickFact({ icon, label, value }: { icon: IconName; label: string; value: string }) {
@@ -86,6 +101,8 @@ export function PlaceDetail({
   getPlace,
   previousPlace,
   onBack,
+  originLabel = null,
+  onViewOnMap,
 }: Props) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -135,6 +152,14 @@ export function PlaceDetail({
         {previousPlace ? (
           <button type="button" className="place-detail__back" onClick={onBack}>
             <Icon name="atras" size={20} /> {previousPlace.name}
+          </button>
+        ) : originLabel ? (
+          /* Corrección final, punto 3/4: en la base de la pila (sin salto "cerca de aquí" de
+             por medio), el chevron vuelve a la superficie que abrió la ficha en vez de quedar
+             en blanco — mismo destino que el `×`, misma acción (`onClose`), la única diferencia
+             es que este nombra la superficie en vez de ser un cierre genérico. */
+          <button type="button" className="place-detail__back" onClick={onClose}>
+            <Icon name="atras" size={20} /> {originLabel}
           </button>
         ) : (
           <span />
@@ -202,6 +227,22 @@ export function PlaceDetail({
             </span>
             {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
           </button>
+
+          {/*
+            Corrección final de B18 (punto 3): la única salida explícita y etiquetada de una
+            ficha abierta desde Viaje. Reutiliza el patrón ya existente de botón secundario
+            (idéntico al "Abrir el planificador" de `ZoneComparison`) en vez de inventar un
+            bloque visual nuevo — cero CSS nuevo. Etiqueta completa, nunca icon-only.
+          */}
+          {onViewOnMap && (
+            <button
+              type="button"
+              className="button button--secondary place-detail__view-on-map"
+              onClick={onViewOnMap}
+            >
+              <Icon name="mapa" size={16} /> Ver en el mapa
+            </button>
+          )}
 
           {/*
             Block 5 — the full two-person picture, on the one surface with room for it.
