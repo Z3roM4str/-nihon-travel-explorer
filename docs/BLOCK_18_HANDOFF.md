@@ -822,10 +822,18 @@ No hay `PlaceCard` v2, ni portada editorial nueva, ni `FilterSheet` nuevo (la ho
 el `FilterPanel` de siempre dentro de un `Sheet` nuevo, pero sus grupos, chips y vocabulario son
 exactamente los de v1.1.0), ni nuevo mapa/teselas, ni rediseño de coincidencias/divergencias de
 Quiero ir, ni rediseño de Nosotros más allá de darle una casa a lo que ya existía, ni
-`DayTimeline` ni rediseño interno del planificador. `PlaceCard.tsx`, `PlaceDetail.tsx`,
-`PlaceGallery.tsx`, `PlaceMap.tsx`, `NationalMap.tsx`, el algoritmo de
-`OrderedSequenceBuilder.tsx` y el de `ZoneComparison.tsx` son, en su contenido, idénticos a los
-de `0833912`.
+`DayTimeline` ni rediseño interno del planificador. `PlaceCard.tsx`, `PlaceGallery.tsx` y
+`NationalMap.tsx` siguen, en su contenido, idénticos a los de `0833912` — ningún cambio de B3,
+B4, B5, B7, B8 ni B9 les ha tocado. `PlaceDetail.tsx` y `PlaceMap.tsx` ya no lo están: las
+correcciones finales de B18 (Viaje → Lugar, `DD-015`) les añadieron las integraciones
+estrictamente necesarias para esa decisión — `originLabel` y el botón «Ver en el mapa» en
+`PlaceDetail.tsx`; una llamada a `map.invalidateSize()` en `PlaceMap.tsx` para el nuevo camino de
+enfoque del mapa sin ficha — ya documentadas en "Archivos" y en "Corrección final #2" más abajo.
+Ninguna de las dos es una capacidad de B3/B4/B5/B7/B8/B9: no se rediseñó el contenido interno de
+la ficha (galería, secciones, datos prácticos) ni el del mapa (geometría, iconos, ajuste de
+límites), sólo se integró la navegación de B18. Los algoritmos internos de
+`OrderedSequenceBuilder.tsx` y de `ZoneComparison.tsx` siguen sin rediseñarse — ningún bloque de
+esta lista los ha tocado.
 
 ## `DESIGN DECISION REQUIRED`
 
