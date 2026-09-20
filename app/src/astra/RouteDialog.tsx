@@ -6,6 +6,15 @@ const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:n
 
 export function RouteDialog({ label, labelledBy, role="dialog", onClose, returnFocus, children, overlayClassName="astra-detail-overlay", panelClassName="astra-detail-panel" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+
+  const onCloseRef = useRef(onClose);
+  const returnFocusRef = useRef(returnFocus);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+    returnFocusRef.current = returnFocus;
+  }, [onClose, returnFocus]);
+
   useEffect(() => {
     const element = ref.current;
     const overlay = element?.parentElement;
@@ -16,7 +25,7 @@ export function RouteDialog({ label, labelledBy, role="dialog", onClose, returnF
     const keydown = (event: KeyboardEvent) => {
       const modals = [...document.querySelectorAll("[data-astra-modal]")];
       if (modals.at(-1) !== overlay) return;
-      if (event.key === "Escape" && !document.querySelector(".lightbox")) { event.preventDefault(); event.stopImmediatePropagation(); onClose(); return; }
+      if (event.key === "Escape" && !document.querySelector(".lightbox")) { event.preventDefault(); event.stopImmediatePropagation(); onCloseRef.current(); return; }
       if (event.key !== "Tab" || !element) return;
       const controls = [...element.querySelectorAll<HTMLElement>(FOCUSABLE)];
       if (!controls.length) { event.preventDefault(); return; }
@@ -25,7 +34,20 @@ export function RouteDialog({ label, labelledBy, role="dialog", onClose, returnF
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     };
     document.addEventListener("keydown", keydown, true);
-    return () => { document.removeEventListener("keydown", keydown, true); queueMicrotask(() => { if (!document.querySelector("[data-astra-modal]")) { shell?.removeAttribute("inert"); discovery?.removeAttribute("inert"); } }); const target=typeof returnFocus === "function" ? returnFocus() : returnFocus; target?.focus(); };
-  }, [onClose, returnFocus]);
+    return () => {
+      document.removeEventListener("keydown", keydown, true);
+      queueMicrotask(() => {
+        if (!document.querySelector("[data-astra-modal]")) {
+          shell?.removeAttribute("inert");
+          discovery?.removeAttribute("inert");
+        }
+        const returnFocus = returnFocusRef.current;
+        const target=typeof returnFocus === "function" ? returnFocus() : returnFocus;
+        if (target?.isConnected && !target.closest("[inert]")) {
+          target?.focus();
+        }
+      });
+    };
+  }, []);
   return createPortal(<div className={overlayClassName} data-astra-modal="" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}><div ref={ref} className={panelClassName} role={role} aria-modal="true" aria-label={label} aria-labelledby={labelledBy}>{children}</div></div>, document.body);
 }

@@ -5,6 +5,7 @@ on:
     branches:
       - experiment/astra-redesign
       - codex/continuar-proyecto-z3rom4str-desde-astra-redesign
+      - codex/implementar-f01f09-siguiendo-auditoria-astra-ca5545
     types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
