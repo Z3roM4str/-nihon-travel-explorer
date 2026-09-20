@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getNationalSummary, getPrefectureByCode } from "./data/geography";
@@ -14,6 +14,12 @@ import { SelectionPanel } from "./components/SelectionPanel";
 import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
 import { SaveToast } from "./components/SaveToast";
+import { Sheet } from "./components/Sheet";
+import { PersonToken } from "./components/PersonToken";
+import { TabBar, NavRail } from "./components/AppNav";
+import { MlitAttribution } from "./components/MlitAttribution";
+import type { Destination } from "./lib/destination";
+import { destinationLabel } from "./lib/destination";
 import { hubsWithZones } from "./lib/accommodation-zone";
 import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
@@ -48,15 +54,10 @@ import "./App.css";
  * the only two surfaces in this app that own enough exclusive code to be worth a boundary —
  * 246 kB and 38 kB of modules reachable from nowhere else.
  *
- * Everything else stays in the entry chunk on purpose. The national map is the *first* thing Nihon
- * renders, so Leaflet is critical path and splitting it would trade a real first paint for a
- * cosmetic number. `SelectionAnalysis` and `TravellerManager` own 14 kB and 9 kB — a chunk each
- * would buy a round trip and save nothing worth having.
- *
- * `prefetchOnDemandSurfaces` below removes the cost this would otherwise have: the two chunks are
- * fetched once the browser is idle after first paint, so by the time a click is possible they are
- * already in the HTTP cache. The split moves bytes off the critical path without moving the wait
- * to the user.
+ * Bloque 18: los dos dejan de ser overlays (`02 §D2`, gate 11) y pasan a ser el contenido de las
+ * dos secciones de «Viaje», pero la razón de la carga diferida no cambia — siguen sin estar en la
+ * ruta crítica de la primera pintura, y `prefetchOnDemandSurfaces` sigue calentando ambos chunks
+ * en cuanto el navegador está ocioso, así que el primer cambio a «Viaje» ya los encuentra en caché.
  */
 const loadOrderedSequenceBuilder = () =>
   import("./components/OrderedSequenceBuilder").then((m) => ({ default: m.OrderedSequenceBuilder }));
@@ -68,15 +69,15 @@ const ZoneComparison = lazy(loadZoneComparison);
 
 const HUBS = getHubs();
 /** Hubs where Block 3 modelled accommodation zones; the others offer no comparison. */
-const HUBS_WITH_ZONES = new Set(hubsWithZones());
+const HUBS_WITH_ZONES = hubsWithZones();
 const NATIONAL_SUMMARY = getNationalSummary();
 
 /**
- * The single piece of state that decides what the application is showing.
+ * The single piece of state that decides what Explorar is showing.
  *
  * A discriminated union rather than a handful of booleans: "national" carries the region and
  * prefecture currently being browsed, "hub" carries the active hub, and no contradictory
- * combination of the two can exist. The app opens on the national view — the first contact
+ * combination of the two can exist. Explorar opens on the national view — the first contact
  * is the whole country, not a city.
  */
 type ViewState =
@@ -92,6 +93,11 @@ const INITIAL_VIEW: ViewState = { mode: "national", region: null, prefectureCode
  */
 type MobilePane = "list" | "map";
 
+/** Bloque 18, `05 §7`: qué contenido de «Viaje» está a la vista. Sustituye a los dos booleanos
+ * mutuamente excluyentes (`sequenceBuilderOpen`/`zonesOpen`) de la era de overlays — ahora son,
+ * literalmente, mutuamente excluyentes por construcción. */
+type ViajeSection = "planificar" | "dormir";
+
 const EMPTY_FILTERS: Filters = {
   query: "",
   categories: [],
@@ -104,9 +110,13 @@ const EMPTY_FILTERS: Filters = {
 
 const EMPTY_PLACES: Place[] = [];
 
-/** Width of the desktop detail panel; used to keep the focused marker out from under it. */
+/** Width of the desktop detail panel; used to keep the focused marker out from under it. B18
+ * changes only the ficha's container/navigation (see `08 §5`), not this pre-existing value. */
 const DETAIL_PANEL_WIDTH = 420;
-const DESKTOP_QUERY = "(min-width: 861px)";
+/** Bloque 18: alineado con el token `md` de `02 §D5` (840px), no con el 861px heredado —
+ * es exactamente donde `NavRail` sustituye a `TabBar` en CSS, así que el lado JS del layout
+ * (offset del panel de ficha, apertura por defecto de los grupos de filtros) no puede discrepar. */
+const DESKTOP_QUERY = "(min-width: 840px)";
 
 function matchesFilters(place: Place, filters: Filters): boolean {
   if (filters.categories.length > 0 && !filters.categories.includes(place.category)) return false;
@@ -182,30 +192,50 @@ function prefetchOnDemandSurfaces(): () => void {
 }
 
 export default function App() {
+  /** Bloque 18 (DD-001, `02 §D2`) — el destino permanente activo. Cambiar de destino nunca
+   * descarta el estado de los demás: cada panel sigue montado (`hidden`), sólo deja de pintarse. */
+  const [destination, setDestination] = useState<Destination>("explorar");
+
+  // ---- Explorar ----
   const [view, setView] = useState<ViewState>(INITIAL_VIEW);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   /** Trail of visited places (any hub), so "nearby" jumps and cross-hub opens can be
    * stepped back through. */
   const [history, setHistory] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [citySheetOpen, setCitySheetOpen] = useState(false);
   /** Phones show one hub surface at a time; the cards come first. */
   const [mobilePane, setMobilePane] = useState<MobilePane>("list");
-  const [selectionOpen, setSelectionOpen] = useState(false);
-  const [analysisOpen, setAnalysisOpen] = useState(false);
-  const [sequenceBuilderOpen, setSequenceBuilderOpen] = useState(false);
+
+  // ---- Quiero ir ----
+  /** Bloque 18: ya no es un panel inferior colapsable de cromo global — es el contenido de la
+   * pestaña, así que empieza abierto. El plegado interno de `SelectionPanel` se conserva por si
+   * el lector quiere recogerlo, pero ya no es la forma de llegar a él (`02 §D2`). */
+  const [selectionOpen, setSelectionOpen] = useState(true);
+  /** Bloque 18: sustituye al modal global `analysisOpen` — «en qué coincidís» es ahora una
+   * sección que se despliega dentro de la propia pestaña (gate 11, DD-010). */
+  const [analysisVisible, setAnalysisVisible] = useState(false);
+
+  // ---- Viaje ----
+  const [viajeSection, setViajeSection] = useState<ViajeSection>("planificar");
   /**
    * Block 6 — bumped when the planner closes, which is the moment its draft has settled.
    *
-   * It is a cache key for a READ, not a copy of anything: see `usePlannedPlaceIds`. Block 4 made
-   * "one live writer at a time" structural by keeping the planner and the zone comparison mutually
-   * exclusive, and this leans on exactly that rather than adding a subscription.
+   * It is a cache key for a READ, not a copy of anything: see `usePlannedPlaceIds`. Bloque 18
+   * bumps it when the reader leaves «Planificar» for «Dónde dormir» instead of when a modal
+   * closes — the planner and the zone comparison are still mutually exclusive by construction,
+   * only now as two sections of one tab rather than two competing overlays.
    */
   const [plannerRevision, setPlannerRevision] = useState(0);
-  const [zonesOpen, setZonesOpen] = useState(false);
-  /** Shown on the very first visit and reopenable from the header; never blocks the app. */
+  /** Which hub's zones «Viaje › Dónde dormir» is showing. `null` until the reader either opens
+   * it from a city in Explorar (which sets this explicitly) or lands on it directly. */
+  const [viajeZonesHub, setViajeZonesHub] = useState<string | null>(null);
+
+  // ---- Nosotros ----
+  /** Shown on the very first visit and reopenable from Nosotros; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
-  const [travellerManagerOpen, setTravellerManagerOpen] = useState(false);
-  const [backupOpen, setBackupOpen] = useState(false);
+  const travellerManagerSectionRef = useRef<HTMLDivElement>(null);
+
   const { importState, exportBackup, prepareImport, confirmImport, resetImport, finishRestore } =
     usePortableBackup();
 
@@ -250,6 +280,11 @@ export default function App() {
       interestMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
     [interestSummary, travellers, activeTraveller]
   );
+
+  /** Bloque 18, `04 §1`: `PersonToken` distingue a/b por orden de creación, no por el `id`
+   * opaco del viajero. */
+  const activeTravellerVariant: "a" | "b" =
+    travellers.length > 0 && travellers[0]?.id === activeTraveller?.id ? "a" : "b";
 
   /** Exactly one of these is non-null; the union above makes the other state unreachable. */
   const activeHub = view.mode === "hub" ? view.hub : null;
@@ -351,8 +386,12 @@ export default function App() {
   /**
    * Single source of truth for "go look at this place": moves into the Hub Explorer on the
    * hub the place belongs to — from another hub or straight from the national map — starts a
-   * fresh trail, and closes the mobile filter sheet. Used by the place list, the map and the
-   * saved-places panel, any of which can point at a place outside the current view.
+   * fresh trail, and closes the mobile filter sheet.
+   *
+   * Bloque 18: la ficha vive dentro del árbol de Explorar (mismo contenedor de siempre), así que
+   * abrir un lugar desde «Quiero ir» o desde «Dónde dormir» cambia también el destino activo a
+   * Explorar — es la misma mecánica de siempre (ya cruzaba de hub si hacía falta), ahora
+   * explícita también entre pestañas en vez de sólo entre ciudades.
    */
   const selectPlace = useCallback(
     (id: string) => {
@@ -364,6 +403,7 @@ export default function App() {
       }
       setHistory([id]);
       setFiltersOpen(false);
+      setDestination("explorar");
     },
     [activeHub]
   );
@@ -392,11 +432,11 @@ export default function App() {
 
   /** The analysis is a lens over the saved places, not a second navigation: opening a place
    * from it goes through the same selectPlace every other surface uses. */
-  const closeAnalysis = useCallback(() => setAnalysisOpen(false), []);
+  const closeAnalysis = useCallback(() => setAnalysisVisible(false), []);
   const openFromAnalysis = useCallback(
     (id: string) => {
       selectPlace(id);
-      setAnalysisOpen(false);
+      setAnalysisVisible(false);
     },
     [selectPlace]
   );
@@ -405,44 +445,45 @@ export default function App() {
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   /**
-   * Block 4 — the zone comparison and the planner are mutually exclusive, and that is load-bearing
-   * rather than cosmetic.
+   * Bloque 18 (`02 §D2`, gate 11) — el planificador y la comparación de zonas dejan de ser
+   * overlays globales mutuamente excluyentes y pasan a ser las dos secciones, también
+   * mutuamente excluyentes, de la pestaña «Viaje».
    *
-   * Both surfaces write the SAME planning draft under `nihon.manualPlanningDraft`: the planner
-   * through `usePlanningDraft`, which holds it in React state for as long as it is mounted, and the
-   * comparison through `useZonePlanChoice`, which read-modify-writes storage directly. Two live
-   * writers could overwrite each other's work, so there is never more than one: opening either
-   * closes the other. The planner's long-standing "a fresh mount is exactly the builder opening"
-   * lifecycle then guarantees it loads whatever the comparison just wrote.
-   *
-   * It is also simply the right flow. Choosing a zone and then opening the planner is one
-   * continuous movement — comparar → elegir → planificar — not two panels fighting for the screen,
-   * and it needs no new modal to express.
+   * La invariante del Bloque 4 se conserva exactamente: los dos escriben el mismo borrador bajo
+   * `nihon.manualPlanningDraft`, así que sigue sin haber más de un escritor a la vez — ahora
+   * porque sólo una sección puede estar activa, no porque cerrar una abra la otra.
    */
-  const openZones = useCallback(() => {
-    setSequenceBuilderOpen(false);
-    setZonesOpen(true);
+  const goToPlanner = useCallback(() => {
+    setDestination("viaje");
+    setViajeSection("planificar");
   }, []);
 
-  const openSequenceBuilder = useCallback(() => {
-    setZonesOpen(false);
-    setSequenceBuilderOpen(true);
+  const goToZones = useCallback((hub: string) => {
+    setViajeZonesHub(hub);
+    setDestination("viaje");
+    setViajeSection("dormir");
+    setCitySheetOpen(false);
   }, []);
 
-  /** Closing the planner is when its day assignment is final, so that is when Block 6's read-only
-   * snapshot of it is refreshed. Nothing is written here. */
-  const closeSequenceBuilder = useCallback(() => {
-    setSequenceBuilderOpen(false);
-    setPlannerRevision((revision) => revision + 1);
+  /** Leaving «Planificar» is when its day assignment is final, so that is when Block 6's
+   * read-only snapshot of it is refreshed — same signal as the old `onClose`, triggered by the
+   * section switch instead of a modal close. */
+  const setViajeSectionTracked = useCallback((section: ViajeSection) => {
+    setViajeSection((current) => {
+      if (current === "planificar" && section !== "planificar") {
+        setPlannerRevision((revision) => revision + 1);
+      }
+      return section;
+    });
   }, []);
 
   /** Manually switching hubs resets filters and closes any open detail from the previous
    * hub — the policy is deliberately different from pushPlace/goBack, which preserve both. */
   const switchHub = useCallback(
     (hub: string) => {
+      setCitySheetOpen(false);
       if (hub === activeHub) return;
       setView({ mode: "hub", hub });
-      setZonesOpen(false);
       setFilters(EMPTY_FILTERS);
       setHistory((trail) => {
         const openId = trail[trail.length - 1];
@@ -460,7 +501,6 @@ export default function App() {
    */
   const enterHub = useCallback((hub: string) => {
     setView({ mode: "hub", hub });
-    setZonesOpen(false);
     setFilters(EMPTY_FILTERS);
     setHistory([]);
     setFiltersOpen(false);
@@ -471,10 +511,10 @@ export default function App() {
    * no detail drawer is left floating over the national map. */
   const returnToJapan = useCallback(() => {
     setView(INITIAL_VIEW);
-    setZonesOpen(false);
     setFilters(EMPTY_FILTERS);
     setHistory([]);
     setFiltersOpen(false);
+    setCitySheetOpen(false);
     setMobilePane("list");
   }, []);
 
@@ -501,329 +541,397 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!filtersOpen) return;
+    if (!filtersOpen && !citySheetOpen) return;
     function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setFiltersOpen(false);
+      if (event.key === "Escape") {
+        setFiltersOpen(false);
+        setCitySheetOpen(false);
+      }
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [filtersOpen]);
+  }, [filtersOpen, citySheetOpen]);
 
-  const explorer = (
-    <>
-      <div
-        className={`app__filters ${filtersOpen ? "app__filters--open" : ""}`}
-        id="app-filter-sheet"
-      >
-        <div className="app__filters-bar">
-          <strong>Buscar y filtrar</strong>
-          <button
-            type="button"
-            className="icon-button"
-            onClick={() => setFiltersOpen(false)}
-            aria-label="Cerrar búsqueda y filtros"
-            title="Cerrar búsqueda y filtros"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <FilterPanel
-        filters={filters}
-        onChange={setFilters}
-        categories={categories}
-        grades={grades}
-        planningBlocks={planningBlocks}
-        hiddenGemStatuses={hiddenGemStatuses}
-        tourismLevels={tourismLevels}
-        resultCount={filteredPlaces.length}
-        totalCount={hubPlaces.length}
-        activeFilterCount={activeFilterCount}
-          onReset={resetFilters}
-          defaultGroupsOpen={!isDesktop}
-        />
-      </div>
-      <PlaceList
-        places={filteredPlaces}
-        totalCount={hubPlaces.length}
-        selectedId={selectedId}
-        savedIds={activeInterestedIds}
-        interestMarkerFor={markerFor}
-        onSelect={selectPlace}
-        onToggleSaved={toggleSavedWithFeedback}
-        onClearFilters={resetFilters}
-        hasActiveFilters={activeFilterCount > 0}
-        query={filters.query}
-      />
-    </>
+  const wantToGoCount = savedIds.length;
+  const zonesHub =
+    viajeZonesHub && HUBS_WITH_ZONES.includes(viajeZonesHub)
+      ? viajeZonesHub
+      : activeHub && HUBS_WITH_ZONES.includes(activeHub)
+        ? activeHub
+        : HUBS_WITH_ZONES[0] ?? null;
+
+  const explorerList = (
+    <PlaceList
+      places={filteredPlaces}
+      totalCount={hubPlaces.length}
+      selectedId={selectedId}
+      savedIds={activeInterestedIds}
+      interestMarkerFor={markerFor}
+      onSelect={selectPlace}
+      onToggleSaved={toggleSavedWithFeedback}
+      onClearFilters={resetFilters}
+      hasActiveFilters={activeFilterCount > 0}
+      query={filters.query}
+    />
   );
 
   return (
     <div className="app">
-      <header className="app__header">
-        <div className="app__brand">
-          {activeHub ? (
-            <>
-              <h1>
-                Nihon{" "}
-                <span className="app__brand-sub">
-                  <span className="app__brand-long">Explorador de </span>
-                  {activeHub}
-                </span>
-              </h1>
-              <p className="app__subtitle">{hubPlaces.length} lugares verificados</p>
-            </>
-          ) : (
-            <>
-              <h1>
-                Nihon{" "}
-                <span className="app__brand-sub">
-                  <span className="app__brand-long">— </span>Explorador de Japón
-                </span>
-              </h1>
-              <p className="app__subtitle">
-                {NATIONAL_SUMMARY.prefectureCount} prefecturas ·{" "}
-                {NATIONAL_SUMMARY.coveredPrefectureCount} con lugares verificados ·{" "}
-                {NATIONAL_SUMMARY.placeCount} lugares en {NATIONAL_SUMMARY.coveredRegionCount} de{" "}
-                {NATIONAL_SUMMARY.regionCount} regiones
-              </p>
-            </>
-          )}
-        </div>
-        <div className="app__header-actions">
-          <TravellerBar
-            travellers={travellers}
-            activeTravellerId={activeTraveller?.id ?? null}
-            onSelect={setActiveTraveller}
-            onManage={() => setTravellerManagerOpen(true)}
-          />
-          <button
-            type="button"
-            className="app__backup"
-            onClick={() => setBackupOpen(true)}
-            aria-label="Respaldo del viaje"
-            title="Respaldo del viaje"
-          >
-            <Icon name="descargar" size={20} />
-          </button>
-          <button
-            type="button"
-            className="app__help tap-target-min"
-            onClick={() => setOnboardingOpen(true)}
-            aria-label="Cómo se usa Nihon"
-            title="Cómo se usa Nihon"
-          >
-            <span aria-hidden="true">?</span>
-          </button>
-        </div>
-      </header>
+      <NavRail active={destination} onSelect={setDestination} wantToGoCount={wantToGoCount} />
 
-      {activeHub && (
-        <>
-          <div className="hub-bar">
-            <button type="button" className="hub-bar__home" onClick={returnToJapan}>
-              <Icon name="atras" size={16} /> Japón
-            </button>
-            <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
-            {HUBS_WITH_ZONES.has(activeHub) && (
+      <div className="app__main">
+        <header className="app__header">
+          <div className="app__brand">
+            {destination === "explorar" && activeHub ? (
               <button
                 type="button"
-                className="hub-bar__zones"
-                onClick={openZones}
+                className="app__title app__title--expand"
+                onClick={() => setCitySheetOpen(true)}
                 aria-haspopup="dialog"
+                aria-expanded={citySheetOpen}
               >
-                <Icon name="cama" size={20} />
-                <span className="hub-bar__zones-label">Dónde dormir</span>
+                <Icon name="atras" size={16} className="app__title-back" aria-hidden="true" />
+                <span className="app__title-text">{activeHub}</span>
+                <Icon name="abajo" size={16} aria-hidden="true" />
               </button>
+            ) : (
+              <h1 className="app__title">{destinationLabel(destination)}</h1>
             )}
           </div>
-
-          {/* Phone-only orientation bar: which surface am I on, and where are the filters.
-              On desktop both surfaces are already visible and this row is hidden in CSS. */}
-          <div className="view-bar">
-            <div className="view-switch" role="group" aria-label="Cómo ver los lugares">
-              <button
-                type="button"
-                className={`view-switch__option ${mobilePane === "list" ? "view-switch__option--active" : ""}`}
-                onClick={() => setMobilePane("list")}
-                aria-pressed={mobilePane === "list"}
-              >
-                <Icon name="lista" size={16} /> Lista
-              </button>
-              <button
-                type="button"
-                className={`view-switch__option ${mobilePane === "map" ? "view-switch__option--active" : ""}`}
-                onClick={() => setMobilePane("map")}
-                aria-pressed={mobilePane === "map"}
-              >
-                <Icon name="mapa" size={16} /> Mapa
-              </button>
-            </div>
+          <div className="app__header-actions">
+            {/* DD-007, `02 §D4`: tocar el token lleva a Nosotros › Viajeros, que es la
+                primera sección de esa pestaña — sin necesidad de scroll adicional. */}
             <button
               type="button"
-              className="view-bar__filters"
-              onClick={() => setFiltersOpen((open) => !open)}
-              aria-expanded={filtersOpen}
-              aria-controls="app-filter-sheet"
+              className="app__person-token-button"
+              onClick={() => setDestination("nosotros")}
+              aria-label={
+                activeTraveller
+                  ? `Eres ${activeTraveller.label}. Ir a Nosotros y Viajeros`
+                  : "Ir a Nosotros y Viajeros"
+              }
+              title="Ir a Nosotros y Viajeros"
             >
-              <Icon name="filtro" size={16} /> Filtros
-              {activeFilterCount > 0 && <span className="app__filter-badge">{activeFilterCount}</span>}
+              <PersonToken
+                traveller={activeTraveller ?? null}
+                variant={activeTravellerVariant}
+                size="sm"
+                className="app__person-token"
+              />
             </button>
           </div>
+        </header>
 
-          <div
-            className={`app__body app__body--pane-${mobilePane}`}
-            id="app-hub-panel"
-            role="tabpanel"
-            aria-label={`Lugares de ${activeHub}`}
-          >
-            <aside className="app__sidebar" aria-label="Explorar lugares">
-              {explorer}
-            </aside>
-
-            <main className="app__map-area">
-              <PlaceMap
-                places={filteredPlaces}
-                hubPlaces={hubPlaces}
-                activeHub={activeHub}
-                selectedPlace={selectedPlace}
-                savedIds={savedIds}
-                onSelect={selectPlace}
-                panelOffset={isDesktop && selectedPlace ? DETAIL_PANEL_WIDTH : 0}
-              />
-              <InterestLegend />
-              {filteredPlaces.length === 0 && (
-                <div className="map-empty" role="status">
-                  <p className="map-empty__title">
-                    <Icon name="buscar" size={20} /> Ningún lugar coincide con los filtros
-                  </p>
-                  <p className="map-empty__hint">
-                    Los {hubPlaces.length} lugares de esta zona siguen ahí; solo están filtrados.
-                  </p>
-                  <button type="button" className="button button--secondary" onClick={resetFilters}>
-                    Limpiar búsqueda y filtros
+        <div className="app__content">
+          {/* ---------------- Explorar ---------------- */}
+          <div className="destination-panel" hidden={destination !== "explorar"}>
+            {activeHub ? (
+              <>
+                <div className="explorer-bar">
+                  <div className="search-field explorer-bar__search">
+                    <span className="search-field__icon" aria-hidden="true">
+                      <Icon name="buscar" size={16} />
+                    </span>
+                    <input
+                      type="search"
+                      className="search-field__input"
+                      placeholder={`Buscar en ${activeHub}`}
+                      value={filters.query}
+                      onChange={(event) => setFilters({ ...filters, query: event.target.value })}
+                      autoComplete="off"
+                    />
+                    {filters.query && (
+                      <button
+                        type="button"
+                        className="search-field__clear tap-target-min"
+                        onClick={() => setFilters({ ...filters, query: "" })}
+                        aria-label="Borrar búsqueda"
+                        title="Borrar búsqueda"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="explorer-bar__filters"
+                    onClick={() => setFiltersOpen(true)}
+                    aria-haspopup="dialog"
+                    aria-expanded={filtersOpen}
+                  >
+                    <Icon name="filtro" size={16} /> Filtros
+                    {activeFilterCount > 0 && (
+                      <span className="app__filter-badge">{activeFilterCount}</span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="explorer-bar__pane"
+                    onClick={() => setMobilePane((pane) => (pane === "list" ? "map" : "list"))}
+                    aria-pressed={mobilePane === "map"}
+                  >
+                    <Icon name={mobilePane === "list" ? "mapa" : "lista"} size={16} />
+                    {mobilePane === "list" ? "Mapa" : "Lista"}
                   </button>
                 </div>
-              )}
-            </main>
 
-            {selectedPlace && (
-              <div className="app__detail">
-                <PlaceDetail
-                  place={selectedPlace}
-                  isSaved={isWantedByActive(selectedPlace.id)}
-                  travellers={travellers}
-                  interestSummary={interestSummary(selectedPlace.id)}
-                  activeStance={activeStance(selectedPlace.id)}
-                  onSetStance={setStance}
-                  onToggleSaved={toggleSavedWithFeedback}
-                  onClose={closeDetail}
-                  nearby={getNearby(selectedPlace.id)}
-                  onSelectNearby={pushPlace}
-                  getPlace={getPlaceById}
-                  previousPlace={previousPlace}
-                  onBack={goBack}
-                />
-              </div>
+                {filtersOpen && (
+                  <Sheet title="Búsqueda y filtros" onClose={() => setFiltersOpen(false)}>
+                    <FilterPanel
+                      filters={filters}
+                      onChange={setFilters}
+                      categories={categories}
+                      grades={grades}
+                      planningBlocks={planningBlocks}
+                      hiddenGemStatuses={hiddenGemStatuses}
+                      tourismLevels={tourismLevels}
+                      resultCount={filteredPlaces.length}
+                      totalCount={hubPlaces.length}
+                      activeFilterCount={activeFilterCount}
+                      onReset={resetFilters}
+                      defaultGroupsOpen
+                      showSearch={false}
+                    />
+                  </Sheet>
+                )}
+
+                {citySheetOpen && (
+                  <Sheet title="Elegir ciudad" onClose={() => setCitySheetOpen(false)}>
+                    <div className="city-sheet">
+                      <button
+                        type="button"
+                        className="city-sheet__japan"
+                        onClick={returnToJapan}
+                      >
+                        <Icon name="atras" size={16} /> Ver todo Japón
+                      </button>
+                      <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
+                      {HUBS_WITH_ZONES.includes(activeHub) && (
+                        <button
+                          type="button"
+                          className="city-sheet__zones"
+                          onClick={() => goToZones(activeHub)}
+                        >
+                          <Icon name="cama" size={20} /> Dónde dormir en {activeHub}
+                        </button>
+                      )}
+                    </div>
+                  </Sheet>
+                )}
+
+                <div
+                  className={`app__body app__body--pane-${mobilePane}`}
+                  id="app-hub-panel"
+                  aria-label={`Lugares de ${activeHub}`}
+                >
+                  <aside className="app__sidebar" aria-label="Explorar lugares">
+                    {explorerList}
+                  </aside>
+
+                  <main className="app__map-area">
+                    <PlaceMap
+                      places={filteredPlaces}
+                      hubPlaces={hubPlaces}
+                      activeHub={activeHub}
+                      selectedPlace={selectedPlace}
+                      savedIds={savedIds}
+                      onSelect={selectPlace}
+                      panelOffset={isDesktop && selectedPlace ? DETAIL_PANEL_WIDTH : 0}
+                    />
+                    <InterestLegend />
+                    {filteredPlaces.length === 0 && (
+                      <div className="map-empty" role="status">
+                        <p className="map-empty__title">
+                          <Icon name="buscar" size={20} /> Ningún lugar coincide con los filtros
+                        </p>
+                        <p className="map-empty__hint">
+                          Los {hubPlaces.length} lugares de esta zona siguen ahí; solo están
+                          filtrados.
+                        </p>
+                        <button type="button" className="button button--secondary" onClick={resetFilters}>
+                          Limpiar búsqueda y filtros
+                        </button>
+                      </div>
+                    )}
+                  </main>
+
+                  {selectedPlace && (
+                    <div className="app__detail">
+                      <PlaceDetail
+                        place={selectedPlace}
+                        isSaved={isWantedByActive(selectedPlace.id)}
+                        travellers={travellers}
+                        interestSummary={interestSummary(selectedPlace.id)}
+                        activeStance={activeStance(selectedPlace.id)}
+                        onSetStance={setStance}
+                        onToggleSaved={toggleSavedWithFeedback}
+                        onClose={closeDetail}
+                        nearby={getNearby(selectedPlace.id)}
+                        onSelectNearby={pushPlace}
+                        getPlace={getPlaceById}
+                        previousPlace={previousPlace}
+                        onBack={goBack}
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              nationalView && (
+                <div className="app__body app__body--national">
+                  <NationalExplorer
+                    activeRegion={nationalView.region}
+                    selectedCode={nationalView.prefectureCode}
+                    onSelectRegion={selectRegion}
+                    onSelectPrefecture={selectPrefecture}
+                    onEnterHub={enterHub}
+                  />
+                </div>
+              )
             )}
           </div>
-        </>
-      )}
 
-      {nationalView && (
-        <div className="app__body app__body--national">
-          <NationalExplorer
-            activeRegion={nationalView.region}
-            selectedCode={nationalView.prefectureCode}
-            onSelectRegion={selectRegion}
-            onSelectPrefecture={selectPrefecture}
-            onEnterHub={enterHub}
-          />
+          {/* ---------------- Quiero ir ---------------- */}
+          <div className="destination-panel destination-panel--scroll" hidden={destination !== "quiero-ir"}>
+            <SelectionPanel
+              savedPlaces={savedPlaces}
+              onRemove={removeSavedWithFeedback}
+              onSelect={selectPlace}
+              open={selectionOpen}
+              onToggle={() => setSelectionOpen((open) => !open)}
+              onAnalyze={() => setAnalysisVisible((open) => !open)}
+              onBuildSequence={goToPlanner}
+              tally={tally}
+              interestMarkerFor={markerFor}
+              activeTravellerLabel={activeTraveller?.label ?? null}
+              divergence={divergence}
+              travellers={travellers}
+              activeTravellerId={activeTraveller?.id ?? null}
+            />
+            {analysisVisible && (
+              <SelectionAnalysis
+                savedPlaces={savedPlaces}
+                onSelectPlace={openFromAnalysis}
+                onClose={closeAnalysis}
+                embedded
+              />
+            )}
+          </div>
+
+          {/* ---------------- Viaje ---------------- */}
+          <div className="destination-panel destination-panel--scroll" hidden={destination !== "viaje"}>
+            <div className="viaje-nav" role="group" aria-label="Secciones de Viaje">
+              <button
+                type="button"
+                className={`viaje-nav__item ${viajeSection === "planificar" ? "viaje-nav__item--active" : ""}`}
+                aria-pressed={viajeSection === "planificar"}
+                onClick={() => setViajeSectionTracked("planificar")}
+              >
+                <Icon name="explorar" size={16} /> Planificar
+              </button>
+              <button
+                type="button"
+                className={`viaje-nav__item ${viajeSection === "dormir" ? "viaje-nav__item--active" : ""}`}
+                aria-pressed={viajeSection === "dormir"}
+                onClick={() => setViajeSectionTracked("dormir")}
+                disabled={HUBS_WITH_ZONES.length === 0}
+              >
+                <Icon name="cama" size={16} /> Dónde dormir
+              </button>
+            </div>
+
+            <Suspense fallback={null}>
+              {destination === "viaje" && viajeSection === "planificar" && (
+                <OrderedSequenceBuilder
+                  savedPlaces={savedPlaces}
+                  onClose={() => setViajeSectionTracked("dormir")}
+                  embedded
+                />
+              )}
+            </Suspense>
+
+            <Suspense fallback={null}>
+              {destination === "viaje" && viajeSection === "dormir" && zonesHub && (
+                <ZoneComparison
+                  hub={zonesHub}
+                  savedPlaces={savedPlaces}
+                  onClose={() => setViajeSectionTracked("planificar")}
+                  onSelectPlace={selectPlace}
+                  onOpenPlanner={goToPlanner}
+                  embedded
+                />
+              )}
+            </Suspense>
+          </div>
+
+          {/* ---------------- Nosotros ---------------- */}
+          <div className="destination-panel destination-panel--scroll" hidden={destination !== "nosotros"}>
+            <section className="nosotros-section" aria-label="Viajeros" ref={travellerManagerSectionRef}>
+              <h2 className="nosotros-section__title">Viajeros</h2>
+              <TravellerBar
+                travellers={travellers}
+                activeTravellerId={activeTraveller?.id ?? null}
+                onSelect={setActiveTraveller}
+                onManage={() =>
+                  travellerManagerSectionRef.current?.scrollIntoView({ behavior: "smooth" })
+                }
+              />
+              <TravellerManager
+                travellers={travellers}
+                activeTravellerId={activeTraveller?.id ?? null}
+                placesOnlyWantedBy={placesOnlyWantedBy}
+                onRename={renameTraveller}
+                onReset={resetTraveller}
+                onRemove={removeTraveller}
+                onAdd={addTraveller}
+                onClose={() => {}}
+                embedded
+              />
+            </section>
+
+            <section className="nosotros-section" aria-label="Copia del viaje">
+              <h2 className="nosotros-section__title">Copia del viaje</h2>
+              <TripBackup
+                importState={importState}
+                onExport={exportBackup}
+                onChooseFile={prepareImport}
+                onConfirm={(preview) => confirmImport(preview.plan)}
+                onReset={resetImport}
+                onFinishRestore={finishRestore}
+                onClose={() => {}}
+                embedded
+              />
+            </section>
+
+            <section className="nosotros-section" aria-label="Cómo funciona Nihon">
+              <h2 className="nosotros-section__title">Cómo funciona Nihon</h2>
+              <p className="nosotros-section__text">
+                Vuelve a ver la explicación de qué es Nihon y cómo marcar lo que os gustaría ver.
+              </p>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setOnboardingOpen(true)}
+              >
+                Ver de nuevo
+              </button>
+            </section>
+
+            <section className="nosotros-section" aria-label="Fuentes y licencias">
+              <h2 className="nosotros-section__title">Fuentes y licencias</h2>
+              <MlitAttribution className="nosotros-section__text" />
+              <p className="nosotros-section__text">
+                {NATIONAL_SUMMARY.placeCount} lugares · {NATIONAL_SUMMARY.coveredPrefectureCount} de{" "}
+                {NATIONAL_SUMMARY.prefectureCount} prefecturas con lugares verificados.
+              </p>
+            </section>
+          </div>
         </div>
-      )}
 
-      <SelectionPanel
-        savedPlaces={savedPlaces}
-        onRemove={removeSavedWithFeedback}
-        onSelect={selectPlace}
-        open={selectionOpen}
-        onToggle={() => setSelectionOpen((open) => !open)}
-        onAnalyze={() => setAnalysisOpen(true)}
-        onBuildSequence={openSequenceBuilder}
-        tally={tally}
-        interestMarkerFor={markerFor}
-        activeTravellerLabel={activeTraveller?.label ?? null}
-        divergence={divergence}
-        travellers={travellers}
-        activeTravellerId={activeTraveller?.id ?? null}
-      />
-
-      {analysisOpen && (
-        <SelectionAnalysis
-          savedPlaces={savedPlaces}
-          onSelectPlace={openFromAnalysis}
-          onClose={closeAnalysis}
-        />
-      )}
-
-      {/* Block 12. The boundary sits OUTSIDE the condition on purpose, for two reasons. It keeps
-          the planner mounted only while open — the invariant `ZonePlanSection.test.ts` pins, and
-          the reason reopening re-reads what the comparison wrote — and it keeps one stable
-          boundary rather than one that mounts and unmounts with its own content. `fallback={null}`
-          because the overlay should simply appear, as it always did; a spinner would be new UI
-          reporting on a wait the idle prefetch has usually already removed. */}
-      <Suspense fallback={null}>
-        {sequenceBuilderOpen && (
-          <OrderedSequenceBuilder
-            savedPlaces={savedPlaces}
-            onClose={closeSequenceBuilder}
-          />
-        )}
-      </Suspense>
-
-      <Suspense fallback={null}>
-        {zonesOpen && activeHub && (
-          <ZoneComparison
-            hub={activeHub}
-            savedPlaces={savedPlaces}
-            onClose={() => setZonesOpen(false)}
-            onSelectPlace={(id) => {
-              selectPlace(id);
-              setZonesOpen(false);
-            }}
-            onOpenPlanner={openSequenceBuilder}
-          />
-        )}
-      </Suspense>
-
-      {backupOpen && (
-          <TripBackup
-            importState={importState}
-            onExport={exportBackup}
-            onChooseFile={prepareImport}
-            onConfirm={(preview) => confirmImport(preview.plan)}
-            onReset={resetImport}
-            onFinishRestore={finishRestore}
-            onClose={() => {
-              resetImport();
-              setBackupOpen(false);
-            }}
-          />
-        )}
+        <TabBar active={destination} onSelect={setDestination} wantToGoCount={wantToGoCount} />
+      </div>
 
       <SaveToast feedback={feedback} />
-
-      {travellerManagerOpen && (
-        <TravellerManager
-          travellers={travellers}
-          activeTravellerId={activeTraveller?.id ?? null}
-          placesOnlyWantedBy={placesOnlyWantedBy}
-          onRename={renameTraveller}
-          onReset={resetTraveller}
-          onRemove={removeTraveller}
-          onAdd={addTraveller}
-          onClose={() => setTravellerManagerOpen(false)}
-        />
-      )}
 
       {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
     </div>

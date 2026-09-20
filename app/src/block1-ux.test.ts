@@ -155,9 +155,13 @@ describe("accessibility promises", () => {
     expect(css).toContain("animation-duration: 0.001ms !important");
   });
 
+  /**
+   * Bloque 18, `05 §4`: las dos barras de vista/filtros se consolidan en la única barra de 48 px
+   * que especifica la pantalla de ciudad — un solo control «Mapa/Lista» cuya etiqueta cambia,
+   * como en el propio boceto de la especificación, no dos botones segmentados independientes.
+   */
   it("marks the phone view switch with its pressed state", async () => {
     const source = await src("App.tsx");
-    expect(source).toContain('aria-pressed={mobilePane === "list"}');
     expect(source).toContain('aria-pressed={mobilePane === "map"}');
   });
 });

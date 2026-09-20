@@ -212,29 +212,39 @@ describe("useZonePlanChoice.ts — one writer, one truth", () => {
   });
 });
 
+/**
+ * Bloque 18 (`02 §D2`, gate 11) — el planificador y la comparación de zonas dejan de ser dos
+ * overlays booleanos independientes ("cerrar uno abre el otro") y pasan a ser las dos secciones,
+ * mutuamente excluyentes POR CONSTRUCCIÓN, de un único `ViajeSection` en la pestaña «Viaje». La
+ * invariante de un solo escritor del borrador (Bloque 4) es la misma; sólo cambia el mecanismo de
+ * ingeniería que la hace cumplir, de dos booleanos coordinados a mano a un enum de un solo valor.
+ */
 describe("App.tsx — exactly one writer of the draft at a time", () => {
-  it("makes the comparison and the planner mutually exclusive", async () => {
+  it("makes the comparison and the planner mutually exclusive via a single section enum", async () => {
     const source = await readAppSource("App.tsx");
-    expect(source).toMatch(/const openZones = useCallback\(\(\) => \{\s*setSequenceBuilderOpen\(false\);\s*setZonesOpen\(true\);/);
+    expect(source).toMatch(/type ViajeSection = "planificar" \| "dormir";/);
+    expect(source).toMatch(/const \[viajeSection, setViajeSection\] = useState<ViajeSection>\("planificar"\);/);
+  });
+
+  it("routes every entry point through the tracked section setter or the planner/zones navigators", async () => {
+    const source = await readAppSource("App.tsx");
+    expect(source).toContain('setViajeSectionTracked("planificar")');
+    expect(source).toContain('setViajeSectionTracked("dormir")');
+    expect(source).toContain("onBuildSequence={goToPlanner}");
+    expect(source).toContain("onOpenPlanner={goToPlanner}");
+    // The raw setter must not be reachable from a rendered control directly — only through the
+    // tracked wrapper, which is what bumps `plannerRevision` on the way out of "planificar".
+    expect(source).not.toMatch(/onClick=\{\(\) => setViajeSection\("dormir"\)\}/);
+  });
+
+  it("keeps the planner and the zone comparison mounted only while their section is active", async () => {
+    const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /const openSequenceBuilder = useCallback\(\(\) => \{\s*setZonesOpen\(false\);\s*setSequenceBuilderOpen\(true\);/
+      /\{destination === "viaje" && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
     );
-  });
-
-  it("routes every entry point through those two callbacks", async () => {
-    const source = await readAppSource("App.tsx");
-    expect(source).toContain("onClick={openZones}");
-    expect(source).toContain("onBuildSequence={openSequenceBuilder}");
-    expect(source).toContain("onOpenPlanner={openSequenceBuilder}");
-    // The raw setters must not be reachable from a rendered control any more.
-    expect(source).not.toMatch(/onClick=\{\(\) => setZonesOpen\(true\)\}/);
-    expect(source).not.toMatch(/onBuildSequence=\{\(\) => setSequenceBuilderOpen\(true\)\}/);
-  });
-
-  it("keeps the planner mounted only while open, so it reloads what the comparison wrote", async () => {
-    const source = await readAppSource("App.tsx");
-    expect(source).toMatch(/\{sequenceBuilderOpen && \(\s*<OrderedSequenceBuilder/);
-    expect(source).toMatch(/\{zonesOpen && activeHub && \(\s*<ZoneComparison/);
+    expect(source).toMatch(
+      /\{destination === "viaje" && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/
+    );
   });
 });
 

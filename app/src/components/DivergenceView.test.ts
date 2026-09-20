@@ -118,9 +118,15 @@ describe("the derived view is wired, once", () => {
     expect(app).toContain("divergence={divergence}");
   });
 
-  it("refreshes the planner snapshot when the planner closes", async () => {
+  /**
+   * Bloque 18 (`02 §D2`): «cerrar el planificador» ya no es un evento de modal — es dejar la
+   * sección «Planificar» de Viaje por «Dónde dormir» (o por otro destino). `setViajeSectionTracked`
+   * es el único punto por el que pasa ese cambio, y sigue siendo el sitio donde se refresca la
+   * foto de sólo lectura del Bloque 6.
+   */
+  it("refreshes the planner snapshot when the reader leaves the planner section", async () => {
     const app = await readAppSource("App.tsx");
-    expect(app).toContain("onClose={closeSequenceBuilder}");
+    expect(app).toContain("const setViajeSectionTracked = useCallback((section: ViajeSection) => {");
     expect(app).toMatch(/setPlannerRevision\(\(revision\) => revision \+ 1\)/);
   });
 

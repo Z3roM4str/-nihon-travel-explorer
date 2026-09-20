@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
@@ -132,6 +132,10 @@ type Props = {
    * here does not unsave it, and this component never calls anything that changes "Quiero ir". */
   savedPlaces: Place[];
   onClose: () => void;
+  /** Bloque 18, `02 §D2` / gate 11: el planner deja de ser un modal global y pasa a ser
+   * contenido navegable bajo «Viaje». `embedded` quita el scrim, el `role="dialog"` y la
+   * trampa de foco/Escape propios de una capa flotante; nada del cálculo cambia. */
+  embedded?: boolean;
 };
 
 /**
@@ -2593,7 +2597,7 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
   );
 }
 
-export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
+export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [reservationReferenceDate] = useState<string | null>(() => captureDeviceLocalCivilDate());
@@ -3071,6 +3075,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
   }, []);
 
   useEffect(() => {
+    if (embedded) return;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.stopPropagation();
@@ -3096,7 +3101,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
     }
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [onClose]);
+  }, [onClose, embedded]);
 
   const resultText = view === "compare" ? comparisonResultText(comparison) : null;
 
@@ -3111,14 +3116,19 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
           }`
         : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`;
 
+  const Outer = embedded ? Fragment : "div";
+  const outerProps = embedded ? {} : { className: "analysis-overlay" };
+
   return (
-    <div className="analysis-overlay">
-      <div className="analysis-backdrop" onClick={onClose} role="presentation" aria-hidden="true" />
+    <Outer {...outerProps}>
+      {!embedded && (
+        <div className="analysis-backdrop" onClick={onClose} role="presentation" aria-hidden="true" />
+      )}
       <div
         ref={dialogRef}
-        className="analysis-dialog"
-        role="dialog"
-        aria-modal="true"
+        className={`analysis-dialog ${embedded ? "analysis-dialog--embedded" : ""}`.trim()}
+        role={embedded ? undefined : "dialog"}
+        aria-modal={embedded ? undefined : true}
         aria-labelledby="sequence-builder-title"
       >
         <header className="analysis-header">
@@ -3591,6 +3601,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose }: Props) {
           )}
         </div>
       </div>
-    </div>
+    </Outer>
   );
 }

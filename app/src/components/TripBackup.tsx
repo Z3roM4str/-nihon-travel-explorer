@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import type { BackupProblem, RestoreSummary } from "../lib/portable-backup";
 import type { ImportPreview, ImportState } from "../usePortableBackup";
 
@@ -29,6 +29,7 @@ export function TripBackup({
   onReset,
   onFinishRestore,
   onClose,
+  embedded = false,
 }: {
   importState: ImportState;
   onExport: () => string;
@@ -37,6 +38,10 @@ export function TripBackup({
   onReset: () => void;
   onFinishRestore: () => void;
   onClose: () => void;
+  /** Bloque 18, `02 §D2` / gate 11: el respaldo deja de ser un modal global y pasa a ser
+   * contenido de «Nosotros › Copia del viaje». `embedded` quita el scrim y la trampa de
+   * foco/Escape propias de una capa flotante; la semántica de reemplazo se conserva íntegra. */
+  embedded?: boolean;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -50,6 +55,7 @@ export function TripBackup({
   const close = useCallback(() => onClose(), [onClose]);
 
   useEffect(() => {
+    if (embedded) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.stopPropagation();
@@ -86,25 +92,30 @@ export function TripBackup({
     }
     document.addEventListener("keydown", onKey, true);
     return () => document.removeEventListener("keydown", onKey, true);
-  }, [close, onReset, onFinishRestore, importState.phase]);
+  }, [close, onReset, onFinishRestore, importState.phase, embedded]);
+
+  const Outer = embedded ? Fragment : "div";
+  const outerProps = embedded
+    ? {}
+    : {
+        className: "trip-backup",
+        role: "presentation" as const,
+        onClick: (event: MouseEvent) => {
+          if (event.target !== event.currentTarget) return;
+          if (importState.phase === "restored") {
+            onFinishRestore();
+            return;
+          }
+          close();
+        },
+      };
 
   return (
-    <div
-      className="trip-backup"
-      role="presentation"
-      onClick={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (importState.phase === "restored") {
-          onFinishRestore();
-          return;
-        }
-        close();
-      }}
-    >
+    <Outer {...outerProps}>
       <div
-        className="trip-backup__dialog"
-        role="dialog"
-        aria-modal="true"
+        className={`trip-backup__dialog ${embedded ? "trip-backup__dialog--embedded" : ""}`.trim()}
+        role={embedded ? undefined : "dialog"}
+        aria-modal={embedded ? undefined : true}
         aria-labelledby="trip-backup-title"
         ref={dialogRef}
       >
@@ -116,16 +127,21 @@ export function TripBackup({
               permite conservarlas o abrirlas en otro dispositivo.
             </p>
           </div>
-          <button
-            type="button"
-            className="trip-backup__close tap-target-min"
-            onClick={() => (importState.phase === "restored" ? onFinishRestore() : close())}
-            ref={closeRef}
-            aria-label="Cerrar el respaldo del viaje"
-            title="Cerrar el respaldo del viaje"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
+          {/* Bloque 18: embebido, esta sección no se cierra — es «Nosotros › Copia del viaje»
+              en sí misma. El botón dedicado de más abajo sigue terminando la restauración
+              cuando `importState.phase === "restored"`. */}
+          {!embedded && (
+            <button
+              type="button"
+              className="trip-backup__close tap-target-min"
+              onClick={() => (importState.phase === "restored" ? onFinishRestore() : close())}
+              ref={closeRef}
+              aria-label="Cerrar el respaldo del viaje"
+              title="Cerrar el respaldo del viaje"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          )}
         </header>
 
         <section className="trip-backup__section" aria-labelledby="trip-backup-export">
@@ -253,7 +269,7 @@ export function TripBackup({
           )}
         </section>
       </div>
-    </div>
+    </Outer>
   );
 }
 

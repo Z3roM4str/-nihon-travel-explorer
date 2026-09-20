@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
 import { formatRange } from "../lib/duration";
 import { planningBlockLabel } from "../lib/planning-block";
@@ -17,6 +17,13 @@ type Props = {
   savedPlaces: Place[];
   onSelectPlace: (id: string) => void;
   onClose: () => void;
+  /**
+   * Bloque 18 — `02 §D2`: esta superficie deja de ser un modal global y pasa a ser contenido de
+   * «Quiero ir» (gate 11). `embedded` quita el scrim, el `role="dialog"` y la trampa de
+   * foco/Escape que sólo tienen sentido para una capa flotante; el contenido que sigue es el
+   * mismo, byte a byte.
+   */
+  embedded?: boolean;
 };
 
 /**
@@ -188,7 +195,7 @@ function HubSection({
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose }: Props) {
+export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose, embedded = false }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -215,8 +222,11 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose }: Props
     };
   }, []);
 
-  // Escape closes; Tab cycles inside the dialog so the map behind never takes focus.
+  // Escape closes; Tab cycles inside the dialog so the map behind never takes focus. Embedded
+  // content (Bloque 18) is not a dialog — nothing here should intercept the page's own Escape
+  // or Tab behaviour.
   useEffect(() => {
+    if (embedded) return;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.stopPropagation();
@@ -242,23 +252,27 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose }: Props
     }
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [onClose]);
+  }, [onClose, embedded]);
 
   const commitments = commitmentSentence(summary);
+  const Outer = embedded ? Fragment : "div";
+  const outerProps = embedded ? {} : { className: "analysis-overlay" };
 
   return (
-    <div className="analysis-overlay">
-      <div
-        className="analysis-backdrop"
-        onClick={onClose}
-        role="presentation"
-        aria-hidden="true"
-      />
+    <Outer {...outerProps}>
+      {!embedded && (
+        <div
+          className="analysis-backdrop"
+          onClick={onClose}
+          role="presentation"
+          aria-hidden="true"
+        />
+      )}
       <div
         ref={dialogRef}
-        className="analysis-dialog"
-        role="dialog"
-        aria-modal="true"
+        className={`analysis-dialog ${embedded ? "analysis-dialog--embedded" : ""}`.trim()}
+        role={embedded ? undefined : "dialog"}
+        aria-modal={embedded ? undefined : true}
         aria-labelledby="analysis-title"
       >
         <header className="analysis-header">
@@ -369,6 +383,6 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose }: Props
           )}
         </div>
       </div>
-    </div>
+    </Outer>
   );
 }

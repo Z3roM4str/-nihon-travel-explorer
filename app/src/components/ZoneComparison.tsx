@@ -47,6 +47,10 @@ type Props = {
   /** Block 4: hands the reader straight from the decision to the plan it now affects. The panel
    * closes and the planner opens — deliberately a navigation step rather than a second modal. */
   onOpenPlanner: () => void;
+  /** Bloque 18, `02 §D2` / gate 11: la comparación de zonas deja de ser un modal global y pasa
+   * a ser contenido navegable bajo «Viaje» (Dónde dormir). `embedded` quita el `role="dialog"`
+   * y la trampa de foco/Escape propios de una capa flotante. */
+  embedded?: boolean;
 };
 
 /**
@@ -306,7 +310,14 @@ const savedIcon = L.divIcon({
   iconAnchor: [5, 5],
 });
 
-export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpenPlanner }: Props) {
+export function ZoneComparison({
+  hub,
+  savedPlaces,
+  onClose,
+  onSelectPlace,
+  onOpenPlanner,
+  embedded = false,
+}: Props) {
   const zones = useMemo(() => getZonesForHub(hub), [hub]);
   const { selected, toggle, clear, isFull } = useZoneComparison(hub);
   const savedIds = useMemo(() => savedPlaces.map((place) => place.id), [savedPlaces]);
@@ -341,6 +352,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
   }, []);
 
   useEffect(() => {
+    if (embedded) return;
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       event.stopPropagation();
@@ -349,7 +361,7 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
     }
     document.addEventListener("keydown", onKey, true);
     return () => document.removeEventListener("keydown", onKey, true);
-  }, [mode, onClose]);
+  }, [mode, onClose, embedded]);
 
   const canCompare = selectedZones.length >= 2;
   const openCompare = useCallback(() => {
@@ -365,7 +377,12 @@ export function ZoneComparison({ hub, savedPlaces, onClose, onSelectPlace, onOpe
   }, [selectedZones, zones, hubSaved]);
 
   return (
-    <div className="zone-panel" role="dialog" aria-modal="true" aria-labelledby="zone-panel-title">
+    <div
+      className={`zone-panel ${embedded ? "zone-panel--embedded" : ""}`.trim()}
+      role={embedded ? undefined : "dialog"}
+      aria-modal={embedded ? undefined : true}
+      aria-labelledby="zone-panel-title"
+    >
       <header className="zone-panel__bar">
         <div>
           <h2 id="zone-panel-title">

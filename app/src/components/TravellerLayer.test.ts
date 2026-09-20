@@ -98,11 +98,17 @@ describe("the layer stays subtle", () => {
     expect(await readSource("PlaceDetail.tsx")).toMatch(/No me interesa/);
   });
 
-  it("adds exactly one modal, opened only by the reader", async () => {
+  /**
+   * Bloque 18 (`02 §D2`, gate 11): `TravellerManager` deja de ser el único modal de esta capa —
+   * se convierte en contenido siempre presente de «Nosotros › Viajeros», sin `useState` booleano
+   * que lo abra o lo cierre. El gesto que antes abría el modal ahora sólo desplaza el scroll
+   * hasta esa sección, que ya está en pantalla.
+   */
+  it("renders embedded in Nosotros instead of as a modal, with nothing opening it automatically", async () => {
     const app = await readAppSource("App.tsx");
-    expect(app).toContain("{travellerManagerOpen && (");
-    expect(app).toContain("onManage={() => setTravellerManagerOpen(true)}");
-    // Nothing opens it automatically.
+    expect(app).toContain("<TravellerManager");
+    expect(app).toMatch(/<TravellerManager[\s\S]*?\bembedded\b/);
+    expect(app).not.toContain("travellerManagerOpen");
     expect(app).not.toMatch(/useEffect\([^)]*setTravellerManagerOpen\(true\)/);
   });
 });
@@ -152,11 +158,19 @@ describe("accessibility", () => {
     expect(panel).toContain("{marker.description}");
   });
 
-  it("gives the manager a dialog role, a label and a focus trap", async () => {
+  /**
+   * Bloque 18, gate 11: `TravellerManager` ya no es siempre un diálogo — hoy se usa siempre
+   * `embedded`, en cuyo caso el rol y la trampa de foco se retiran (no es una capa flotante).
+   * El componente conserva la capacidad de comportarse como diálogo legítimo si algún día se
+   * usa sin `embedded`, y eso es justo lo que este test comprueba: el `role`/`aria-modal`
+   * condicional, no un modal permanente.
+   */
+  it("gives the manager a dialog role, a label and a focus trap when not embedded", async () => {
     const manager = await readSource("TravellerManager.tsx");
-    expect(manager).toContain('role="dialog"');
-    expect(manager).toContain('aria-modal="true"');
+    expect(manager).toContain('role={embedded ? undefined : "dialog"}');
+    expect(manager).toContain("aria-modal={embedded ? undefined : true}");
     expect(manager).toContain('aria-labelledby="traveller-manager-title"');
+    expect(manager).toMatch(/if \(embedded\) return;/);
     expect(manager).toMatch(/event\.key !== "Tab"/);
     expect(manager).toMatch(/event\.key === "Escape"/);
   });
@@ -229,13 +243,20 @@ describe("destruction is never a surprise", () => {
 });
 
 describe("Block 4's assumption is untouched", () => {
+  /**
+   * Bloque 18 (`02 §D2`, gate 11): el mecanismo pasó de dos booleanos coordinados a mano a un
+   * único `ViajeSection`, mutuamente excluyente por construcción — ver `ZonePlanSection.test.ts`
+   * para la cobertura completa del nuevo mecanismo. Aquí sólo se confirma que la invariante en
+   * sí (un solo escritor del borrador a la vez) sigue en pie.
+   */
   it("still keeps the comparison and the planner mutually exclusive", async () => {
     const app = await readAppSource("App.tsx");
+    expect(app).toMatch(/type ViajeSection = "planificar" \| "dormir";/);
     expect(app).toMatch(
-      /const openZones = useCallback\(\(\) => \{\s*setSequenceBuilderOpen\(false\);\s*setZonesOpen\(true\);/
+      /\{destination === "viaje" && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
     );
     expect(app).toMatch(
-      /const openSequenceBuilder = useCallback\(\(\) => \{\s*setZonesOpen\(false\);\s*setSequenceBuilderOpen\(true\);/
+      /\{destination === "viaje" && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/
     );
   });
 

@@ -25,6 +25,12 @@ type Props = {
    * fold; true on phones, where the panel only exists because the reader just asked for it.
    */
   defaultGroupsOpen?: boolean;
+  /**
+   * Bloque 18, `05 §4`: la búsqueda vive ahora en la barra única de 48 px de Explorar › Ciudad,
+   * siempre visible, no dentro de esta hoja. `showSearch=false` evita el campo duplicado cuando
+   * este panel se abre sólo para los filtros; el resto del contrato no cambia.
+   */
+  showSearch?: boolean;
 };
 
 function toggleValue<T extends string>(list: T[], value: T): T[] {
@@ -66,6 +72,7 @@ export function FilterPanel({
   activeFilterCount,
   onReset,
   defaultGroupsOpen = false,
+  showSearch = true,
 }: Props) {
   const searchId = useId();
   const groupsId = useId();
@@ -81,36 +88,38 @@ export function FilterPanel({
   return (
     <section className="filter-panel" aria-label="Búsqueda y filtros">
       <div className="filter-panel__head">
-      <div className="filter-panel__search">
-        <label htmlFor={searchId} className="visually-hidden">
-          Buscar lugares por nombre, barrio o tipo
-        </label>
-        <div className="search-field">
-          <span className="search-field__icon" aria-hidden="true">
-            <Icon name="buscar" size={16} />
-          </span>
-          <input
-            id={searchId}
-            type="search"
-            className="search-field__input"
-            placeholder="Buscar por nombre, barrio o tipo…"
-            value={filters.query}
-            onChange={(event) => onChange({ ...filters, query: event.target.value })}
-            autoComplete="off"
-          />
-          {filters.query && (
-            <button
-              type="button"
-              className="search-field__clear tap-target-min"
-              onClick={() => onChange({ ...filters, query: "" })}
-              aria-label="Borrar búsqueda"
-              title="Borrar búsqueda"
-            >
-              ×
-            </button>
-          )}
+      {showSearch && (
+        <div className="filter-panel__search">
+          <label htmlFor={searchId} className="visually-hidden">
+            Buscar lugares por nombre, barrio o tipo
+          </label>
+          <div className="search-field">
+            <span className="search-field__icon" aria-hidden="true">
+              <Icon name="buscar" size={16} />
+            </span>
+            <input
+              id={searchId}
+              type="search"
+              className="search-field__input"
+              placeholder="Buscar por nombre, barrio o tipo…"
+              value={filters.query}
+              onChange={(event) => onChange({ ...filters, query: event.target.value })}
+              autoComplete="off"
+            />
+            {filters.query && (
+              <button
+                type="button"
+                className="search-field__clear tap-target-min"
+                onClick={() => onChange({ ...filters, query: "" })}
+                aria-label="Borrar búsqueda"
+                title="Borrar búsqueda"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="filter-panel__status">
         <p role="status">

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { NavigationRegion } from "../data/geography";
 import {
   countPlacesInPrefecture,
@@ -13,6 +13,8 @@ import { useJapanGeometry } from "../data/useJapanGeometry";
 import { NationalMap } from "./NationalMap";
 import { PrefecturePanel } from "./PrefecturePanel";
 import { RegionNavigator } from "./RegionNavigator";
+import { Sheet } from "./Sheet";
+import { MlitAttribution } from "./MlitAttribution";
 
 /** Hub → place count, computed once: the entry screen's shortcut row never changes. */
 const HUB_SHORTCUTS = getHubs().map((hub) => ({ hub, placeCount: getPlacesByHub(hub).length }));
@@ -38,6 +40,7 @@ export function NationalExplorer({
   onEnterHub,
 }: Props) {
   const geometry = useJapanGeometry();
+  const [attributionOpen, setAttributionOpen] = useState(false);
   const regions = useMemo(() => getRegionSummaries(), []);
   const selectedPrefecture = selectedCode ? getPrefectureByCode(selectedCode) ?? null : null;
 
@@ -144,21 +147,25 @@ export function NationalExplorer({
           </div>
         )}
 
-        {/* Attribution only — the polygons themselves are always served locally; the app
-            never requests anything from MLIT at runtime. */}
-        <p className="national__attribution">
-          Geometría derivada del{" "}
-          <a
-            href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span lang="ja">国土数値情報 行政区域データ</span> (N03, 2026)
-            <span className="visually-hidden"> — se abre en una pestaña nueva</span>
-          </a>{" "}
-          del <span lang="ja">国土交通省</span> / MLIT. Versión simplificada creada por Nihon;
-          no es un producto oficial de MLIT.
-        </p>
+        {/*
+          Bloque 18, `05 §3`: el aviso ya no ocupa una franja permanente bajo el mapa (defecto
+          D5/D11) — vive detrás de este `ⓘ` y, íntegro, en Nosotros › Fuentes y licencias. Ni la
+          geometría ni la navegación región/prefectura/hub cambian: sólo se reubica el texto.
+        */}
+        <button
+          type="button"
+          className="national__attribution-button tap-target-min"
+          onClick={() => setAttributionOpen(true)}
+          aria-label="Fuente de la geometría del mapa (MLIT)"
+          title="Fuente de la geometría del mapa (MLIT)"
+        >
+          <span aria-hidden="true">ⓘ</span>
+        </button>
+        {attributionOpen && (
+          <Sheet title="Fuente del mapa" onClose={() => setAttributionOpen(false)}>
+            <MlitAttribution />
+          </Sheet>
+        )}
 
         {selectedPrefecture && (
           <div className="national__panel">
