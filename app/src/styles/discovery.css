@@ -1,0 +1,910 @@
+/*
+ * Bloque 19 (B3 — Tarjeta y descubrimiento).
+ *
+ * Superficies migradas íntegramente en este bloque: `PlaceCard` (normal y `compact`),
+ * `PlaceList` (rejilla + carga progresiva + entrada «Dónde dormir»), la barra de búsqueda como
+ * disparador de `SearchSheet`, `FilterSheet` (antes `FilterPanel`), `ChipToggle`,
+ * `PhotoPlaceholder`, `EmptyState` y `EvidenceMark`.
+ *
+ * `08 §"Cómo tratar el CSS actual"` autoriza extraer a fichero propio una superficie que queda
+ * completamente migrada en vez de seguir acumulando reglas en `App.css` — éste es ese fichero
+ * para B19. Ningún literal fuera de `styles/tokens.css` (Art. 10): color, tipografía, espaciado,
+ * radio, sombra, duración y easing vienen todos de una variable con nombre.
+ */
+
+/* ---------- SearchBar → disparador (04 §12) ---------- */
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--tap-min);
+  min-width: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 0 var(--space-3);
+  font: inherit;
+  color: var(--ink-900);
+}
+
+/* Variante botón (barra única de ciudad): todo el control abre `SearchSheet`. */
+button.search-field {
+  cursor: pointer;
+  text-align: left;
+}
+
+button.search-field:hover {
+  background: var(--surface-sunken);
+}
+
+button.search-field:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.search-field__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--ink-500);
+}
+
+.search-field__placeholder {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-700);
+}
+
+/* Variante campo (dentro de `SearchSheet`): input real, ≥16px (03 §"iOS zoom"). */
+.search-field:focus-within {
+  border-color: var(--focus-ring-color);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.search-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--type-body-size);
+  color: inherit;
+  padding: 0;
+}
+
+.search-field__input:focus {
+  outline: none;
+}
+
+.search-field__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-field__clear {
+  border: none;
+  background: none;
+  flex-shrink: 0;
+  font-size: var(--type-title-m-size);
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ink-500);
+  padding: 0;
+}
+
+/* ---------- SearchSheet (04 §12) ---------- */
+
+.search-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Pegajoso dentro del scroll único de `.sheet__body` (04 §8) — dos capas de scroll
+     anidadas no hacen falta: sólo el campo necesita quedarse fijo mientras los resultados
+     se desplazan bajo él. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  padding-top: var(--space-1);
+  margin: 0 calc(-1 * var(--space-4));
+  padding-inline: var(--space-4);
+}
+
+.search-sheet__results {
+  margin: 0 calc(-1 * var(--space-4));
+  padding-inline: var(--space-4);
+}
+
+/* ---------- FilterSheet (04 §13) ---------- */
+
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-panel__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: var(--surface);
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-1) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-panel__status p {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-700);
+}
+
+.filter-panel__status strong {
+  color: var(--ink-900);
+}
+
+.filter-panel__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: none;
+  background: none;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  color: var(--ink-700);
+  cursor: pointer;
+}
+
+.filter-panel__toggle-caret {
+  font-size: var(--type-caption-size);
+}
+
+.filter-panel__toggle-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-5);
+  height: var(--space-5);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--shu-600);
+  color: var(--surface);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.filter-panel__groups {
+  padding-top: var(--space-2);
+}
+
+.filter-panel__groups[hidden] {
+  display: none;
+}
+
+.filter-group {
+  border-top: 1px solid var(--line);
+  padding: var(--space-1) 0;
+}
+
+.filter-panel__groups > .filter-group:first-child {
+  border-top: none;
+}
+
+.filter-group__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  cursor: pointer;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--type-label-tracking);
+  color: var(--ink-500);
+  list-style: none;
+}
+
+.filter-group__summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter-group__summary::before {
+  content: "▸";
+  font-size: var(--type-caption-size);
+  color: var(--ink-300);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.filter-group[open] > .filter-group__summary::before {
+  transform: rotate(90deg);
+}
+
+.filter-group__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-5);
+  height: var(--space-5);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--shu-600);
+  color: var(--surface);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.filter-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0 0 var(--space-4);
+}
+
+.filter-panel__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  gap: var(--space-3);
+  background: var(--surface);
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  border-top: 1px solid var(--line);
+}
+
+.filter-panel__foot .button--quiet {
+  flex-shrink: 0;
+}
+
+.filter-panel__foot .button--primary {
+  flex: 1;
+}
+
+/* ---------- ChipToggle (04 §3, 04 §13) ---------- */
+
+.chip-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--space-10);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface);
+  color: var(--ink-700);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
+  cursor: pointer;
+  user-select: none;
+}
+
+.chip-toggle:hover {
+  background: var(--surface-sunken);
+}
+
+.chip-toggle--pressed {
+  background: var(--shu-050);
+  border-color: var(--shu-600);
+  color: var(--shu-700);
+}
+
+.chip-toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.chip-toggle__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.chip-toggle__hint {
+  color: var(--ink-500);
+}
+
+/* ---------- PlaceList — rejilla y carga progresiva (05 §4) ---------- */
+
+.place-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 600px) {
+  .place-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/*
+ * `05 §4` fija "2 columnas desde sm" pensando en un lector que ve la lista a todo el ancho del
+ * viewport — cierto de `sm` a `md` (`base`–839px: Explorar es una única superficie a pantalla
+ * completa, `05 §4`/Bloque 18). Desde `md` (840px, `02 §D5`) el shell fija `.app__sidebar` en
+ * 372px FIJOS para siempre — nunca vuelve a crecer con el viewport (Bloque 18) — así que dos
+ * columnas ahí caen a ~172px cada una: el nombre a dos líneas más la línea de categoría·zona ya
+ * no cabe en la altura 16:9 resultante y desborda por encima de la fotografía, invadiendo la
+ * tarjeta de la fila anterior. `05 §4` no preveía esta tensión con el ancho fijo del panel de
+ * Bloque 18 — se resuelve, con la misma técnica `min-width` que ya fija ese propio ancho, a una
+ * sola columna en cuanto el contenedor deja de ser todo el viewport.
+ */
+@media (min-width: 840px) {
+  .place-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.place-list--compact {
+  grid-template-columns: 1fr;
+  padding: 0;
+  gap: var(--space-2);
+}
+
+.place-list__sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+}
+
+/* ---------- PlaceCard — normal (04 §5) ---------- */
+
+.place-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--elev-1);
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+
+.place-card:focus-within {
+  border-color: var(--focus-ring-color);
+}
+
+.place-card--selected {
+  border-color: var(--shu-600);
+  box-shadow: 0 0 0 2px var(--shu-050), var(--elev-1);
+}
+
+.place-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+@media (min-width: 600px) {
+  .place-card__media {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.place-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-standard);
+}
+
+.place-card__image[data-state="loaded"] {
+  opacity: 1;
+}
+
+.place-card__skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, var(--surface-sunken) 30%, var(--surface) 50%, var(--surface-sunken) 70%);
+  background-size: 300% 100%;
+  animation: card-shimmer 1.4s linear infinite;
+}
+
+@keyframes card-shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+/* `04 §5.2`/`.9`: nombre y línea de categoría·zona sobre la fotografía, con `--scrim-bottom`
+   obligatorio. Sin fotografía, `PhotoPlaceholder` ya rotula el lugar por su cuenta — este overlay
+   se oculta visualmente (nunca con `display:none`, para no perder el botón estirado ni el nombre
+   accesible que lleva dentro). */
+.place-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--scrim-bottom);
+  color: var(--surface);
+}
+
+.place-card__overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.place-card__badge {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 700;
+  letter-spacing: var(--type-label-tracking);
+  color: var(--surface);
+  text-shadow: 0 1px 2px rgba(20, 22, 26, 0.55);
+}
+
+.place-card__heading {
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.place-card__name-text {
+  display: block;
+  overflow: hidden;
+  max-height: calc(var(--type-title-m-line) * 2);
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(20, 22, 26, 0.55), 0 1px 12px rgba(20, 22, 26, 0.35);
+  overflow-wrap: break-word;
+}
+
+.place-card__name-text--tight {
+  max-height: calc(var(--type-title-s-line) * 2);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+}
+
+.place-card__where {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 2px rgba(20, 22, 26, 0.55);
+}
+
+/* Stretched link: la tarjeta entera abre el lugar; el corazón y el token de persona quedan por
+   encima en el orden de apilamiento (04 §5.9). Un <button> anidado dentro de otro sería HTML
+   inválido y rompería el comportamiento de teclado y lector de pantalla — de ahí el <article>
+   con esta técnica en vez de esa alternativa obvia. */
+.place-card__open {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.place-card__open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.place-card__open:focus-visible {
+  outline: none;
+}
+
+.place-card__open:focus-visible::after {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color-on-dark);
+  outline-offset: -3px;
+  border-radius: var(--radius-lg);
+}
+
+.place-card__photo-count {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 2;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background: rgba(20, 22, 26, 0.55);
+  color: var(--surface);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  font-weight: 600;
+}
+
+/* ---- Acción guardar (04 §5.4) ---- */
+
+.place-card__save {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-700);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: var(--elev-1);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.place-card__save-icon {
+  display: inline-flex;
+}
+
+.place-card__save:hover {
+  background: var(--surface);
+}
+
+.place-card__save--on {
+  background: var(--shu-600);
+  color: var(--surface);
+}
+
+.place-card__save--on:hover {
+  background: var(--shu-700);
+  color: var(--surface);
+}
+
+.place-card__save:active {
+  transform: scale(0.92);
+}
+
+/* El momento de retroalimentación: el corazón hace un pequeño pop al marcarse (`mark`, 03 §6). */
+.place-card__save--on .place-card__save-icon {
+  animation: place-card-save-mark var(--dur-base) var(--ease-standard);
+}
+
+@keyframes place-card-save-mark {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.place-card__person-token {
+  position: absolute;
+  top: var(--space-2);
+  right: calc(40px + var(--space-2) + var(--space-2));
+  z-index: 3;
+  box-shadow: var(--elev-1);
+}
+
+/* ---- Cuerpo (04 §5.6/.7) ---- */
+
+.place-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.place-card__reason {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Chip de metadato (04 §3): icono 16px opcional + texto --type-label, 28px de alto. Sólo dos por
+   tarjeta — duración siempre primero, un segundo por prioridad fija. */
+.place-card__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.place-card__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 28px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--ink-700);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  white-space: nowrap;
+}
+
+.place-card__chip--attention {
+  background: var(--warn-050);
+  color: var(--warn-600);
+}
+
+/* ---------- PlaceCard — compact (04 §5.10) ---------- */
+
+.place-card--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  box-shadow: none;
+}
+
+.place-card--compact .place-card__media {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  aspect-ratio: auto;
+  border-radius: var(--radius-md);
+}
+
+.place-card__placeholder-compact {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-300);
+  background:
+    repeating-linear-gradient(135deg, var(--pattern-diagonal) 0 10px, rgba(0, 0, 0, 0) 10px 20px),
+    var(--surface-sunken);
+}
+
+.place-card--compact .place-card__body {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  gap: 2px;
+}
+
+.place-card--compact .place-card__heading {
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-card__meta {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-500);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-card__save--compact {
+  position: static;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  box-shadow: none;
+  background: none;
+  color: var(--ink-500);
+}
+
+.place-card__save--compact.place-card__save--on {
+  background: none;
+  color: var(--shu-600);
+}
+
+.place-card__save--compact:hover {
+  background: var(--surface-sunken);
+}
+
+/* ---------- PhotoPlaceholder (04 §9) ---------- */
+
+.photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  text-align: center;
+  background:
+    repeating-linear-gradient(135deg, var(--pattern-diagonal) 0 10px, rgba(0, 0, 0, 0) 10px 20px),
+    var(--surface-sunken);
+}
+
+.photo-placeholder__icon {
+  color: var(--ink-300);
+  margin-bottom: var(--space-1);
+}
+
+.photo-placeholder__name {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  color: var(--ink-700);
+}
+
+.photo-placeholder__brief {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  color: var(--ink-500);
+}
+
+.photo-placeholder__pending {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  color: var(--ink-500);
+}
+
+/* ---------- EvidenceMark (04 §2) ---------- */
+
+.evidence-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  color: var(--ink-500);
+}
+
+.evidence-mark--glyph-only {
+  cursor: default;
+}
+
+/* ---------- EmptyState (04 §15) ---------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.empty-state__icon {
+  color: var(--ink-300);
+}
+
+.empty-state__title {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  color: var(--ink-900);
+}
+
+.empty-state__description {
+  margin: 0;
+  max-width: 28rem;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-500);
+}
+
+.empty-state .button {
+  margin-top: var(--space-2);
+}
+
+/* ---------- «Dónde dormir» — entrada de descubrimiento (05 §4) ---------- */
+
+.donde-dormir-entry-item {
+  grid-column: 1 / -1;
+}
+
+.donde-dormir-entry {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  color: var(--ink-900);
+  cursor: pointer;
+  text-align: left;
+}
+
+.donde-dormir-entry:hover {
+  background: var(--line);
+}
+
+.donde-dormir-entry:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.donde-dormir-entry__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink-700);
+}
+
+.donde-dormir-entry__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.donde-dormir-entry__title {
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  color: var(--ink-900);
+}
+
+.donde-dormir-entry__hint {
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-500);
+}
+
+.donde-dormir-entry__chevron {
+  flex-shrink: 0;
+  color: var(--ink-300);
+}

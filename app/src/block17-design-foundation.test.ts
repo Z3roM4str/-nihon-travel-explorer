@@ -57,8 +57,14 @@ const EMOJI_PATTERN =
  *   the credits/info button glyph named explicitly in `04 §6`/`05 §3`/`05 §5`.
  * - `★` (U+2605, Misc Symbols): the "Imprescindible" badge glyph, `03 §1.4`/`04 §5.3`. It falls
  *   inside `EMOJI_PATTERN`'s range, so it is the one explicit allowance below.
+ * - `✎` (U+270E, Dingbats): Bloque 19 (B3) — one of the four evidence-grammar glyphs `03 §1.4`
+ *   fixes by shape, not colour (`◼ ◧ ◇ ✎`); `EvidenceMark` (`04 §2`) is its only renderer. The
+ *   other three (`◼◧◇`) already sit in the excluded Geometric Shapes block; this one alone falls
+ *   inside Dingbats, so it needs the same explicit allowance as `★` for the same reason: it is
+ *   normative typographic punctuation the frozen system names by codepoint, not a UI icon a
+ *   component invented.
  */
-const ALLOWED_GLYPHS = new Set(["★"]);
+const ALLOWED_GLYPHS = new Set(["★", "✎"]);
 
 describe("Bloque 17 (B1) — cero emoji en iconografía de interfaz (gate G4)", () => {
   it("no component or lib source renders a pictographic character as a UI icon", async () => {
@@ -250,14 +256,18 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     expect(block).toMatch(/height:\s*max\(100%,\s*var\(--tap-min\)\)/);
   });
 
-  it("ChipToggle (.filter-chip) carries the same hit-area technique on its own selector", async () => {
-    // `.filter-chip` is a <label>, used across 6+ call sites (category/block/reservation/
-    // level/grade/radio filters) — baked into its own rule instead of a className on every
-    // call site, so every instance and future one is covered without touching each usage.
+  it("ChipToggle carries the same hit-area technique via its own className", async () => {
+    // Bloque 19 (B3): `.filter-chip` (a checkbox-carrying <label>) was replaced by
+    // `ChipToggle` — a <button>, used across the six FilterSheet groups (`04 §3`/`§13`). It
+    // reuses `.tap-target-min` directly as a className (`ChipToggle.tsx`) instead of baking the
+    // technique into its own rule, which is an equally valid application of the same pattern —
+    // see `.tap-target-min`'s own module comment in App.css for why a `::after` pseudo-element
+    // is a real hit-area expansion in every current render engine.
+    const component = await read("components/ChipToggle.tsx");
+    expect(component).toContain('className={`chip-toggle tap-target-min');
     const css = await read("App.css");
-    const rule = css.slice(css.indexOf(".filter-chip {"), css.indexOf(".filter-chip {") + 700);
-    expect(rule).toContain("position: relative");
-    const afterRule = css.slice(css.indexOf(".filter-chip::after {"));
+    expect(css).toContain(".tap-target-min {");
+    const afterRule = css.slice(css.indexOf(".tap-target-min::after {"));
     const afterBlock = afterRule.slice(0, afterRule.indexOf("}"));
     expect(afterBlock).toContain("position: absolute");
     expect(afterBlock).toMatch(/width:\s*max\(100%,\s*var\(--tap-min\)\)/);
@@ -275,7 +285,9 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     // Nosotros, que no necesita el mecanismo de expansión de esta prueba.
     const targets: Array<[string, string]> = [
       ["components/TripBackup.tsx", 'className="trip-backup__close tap-target-min"'],
-      ["components/FilterPanel.tsx", 'className="search-field__clear tap-target-min"'],
+      // Bloque 19 (B3): el campo de búsqueda libre vivía dentro de `FilterPanel.tsx`; ahora es
+      // `SearchSheet.tsx` (`04 §12`) — el botón de borrar se mudó con él, mismo className.
+      ["components/SearchSheet.tsx", 'className="search-field__clear tap-target-min"'],
     ];
     for (const [file, needle] of targets) {
       const code = await read(file);

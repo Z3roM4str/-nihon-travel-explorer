@@ -92,9 +92,12 @@ describe("the surfaces that must use the derivative do", () => {
   });
 
   it("the place card declares its box so the image cannot shift the text under it", async () => {
+    // Bloque 19 (B3, `04 §5.1`): la proporción base pasa de 16:9 fija a 4:3 en `base` (16:9 sólo
+    // desde `sm`, donde la rejilla ensancha la tarjeta) — el `height` declarado en el <img>
+    // refleja la proporción de `base`, la misma que fija `.place-card__media` sin media query.
     const source = await src("components/PlaceCard.tsx");
     expect(source).toContain("width={CARD_IMAGE_WIDTH}");
-    expect(source).toContain("height={Math.round((CARD_IMAGE_WIDTH * 9) / 16)}");
+    expect(source).toContain("height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}");
     expect(source).toContain("sizes=");
   });
 

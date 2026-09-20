@@ -113,9 +113,17 @@ describe("Bloque 18 — cromo consolidado (05 §4, gate 11 §1)", () => {
   });
 
   it("la búsqueda vive en la barra única, no duplicada dentro de la hoja de filtros", async () => {
+    // Bloque 19 (B3, `04 §12`): la barra única ya no filtra un campo en el sitio — abre
+    // `SearchSheet` como hoja casi a pantalla completa. `showSearch={false}` (el mecanismo B18
+    // usaba para apagar un campo que `FilterPanel` sabía renderizar) desaparece porque
+    // `FilterPanel` ya no sabe renderizar ningún campo de búsqueda en absoluto: la garantía de
+    // "no duplicada" es ahora estructural, no un prop que hay que recordar poner en `false`.
     const tsx = await read("App.tsx");
     expect(tsx).toContain("explorer-bar__search");
-    expect(tsx).toMatch(/<FilterPanel[\s\S]*?showSearch=\{false\}/);
+    expect(tsx).toMatch(/<SearchSheet[\s\S]{0,600}\/>/);
+    const filterPanel = await read("components/FilterPanel.tsx");
+    expect(filterPanel).not.toContain("search-field");
+    expect(filterPanel).not.toContain('type="search"');
   });
 });
 
@@ -363,9 +371,12 @@ describe("Bloque 18 — sin @media (max-width) nuevo (Art. 8, gate G4)", () => {
 
   it("toda regla nueva de shell usa min-width, nunca max-width", async () => {
     const css = await read("App.css");
+    // Bloque 19 (B3): la sección "Search + filters" de App.css quedó migrada por completo a
+    // `styles/discovery.css` (08 §"Cómo tratar el CSS actual") y su comentario de cabecera
+    // cambió en consecuencia — el límite de esta rebanada se actualiza con él.
     const shellSection = css.slice(
       css.indexOf("/* ---------- Shell (Bloque 18"),
-      css.indexOf("/* ---------- Search + filters ---------- */")
+      css.indexOf("/* ---------- Search + filters, PlaceCard, PlaceList")
     );
     expect(shellSection).not.toMatch(/@media\s*\(\s*max-width/);
     expect(shellSection).toMatch(/@media \(min-width: 840px\)/);
@@ -529,6 +540,14 @@ describe("Bloque 18 — Art. 10 sólo tokens, auditoría diff-scoped (03 §10, g
       // aplicar la misma cifra ya aceptada a la animación nueva de `Sheet` no es un valor de
       // duración distinto, es la misma convención.
       "0.001ms",
+      // Bloque 19 (B3): `.map-empty` es legado de v1.1.0, sin tocar por B18 ni por B19 — pero la
+      // gran eliminación de B19 en otro punto del fichero (la sección "Search + filters" migrada
+      // a `styles/discovery.css`) desplaza lo suficiente el resto del archivo como para que el
+      // diff línea a línea de `git diff` deje de alinear `.map-empty` con su versión anterior a
+      // B18 y la marque como "añadida" — un artefacto de la herramienta de diff, no un valor
+      // nuevo. Las dos cifras de esa regla, documentadas aquí igual que el resto de legado.
+      "50%",
+      "1.25rem",
     ];
     const offenders = lines.filter((line) => {
       const match = line.match(propertyPattern);

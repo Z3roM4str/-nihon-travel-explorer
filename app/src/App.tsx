@@ -39,12 +39,16 @@ import { TripBackup } from "./components/TripBackup";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
-import { interestMarker } from "./lib/traveller-presentation";
+import { interestMarker, otherPersonMarker } from "./lib/traveller-presentation";
+import { getZonesForHub } from "./lib/accommodation-zone";
+import { categoryPresentation } from "./lib/category-presentation";
+import { SearchSheet } from "./components/SearchSheet";
 import { matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
 import "./App.css";
+import "./styles/discovery.css";
 
 /**
  * Block 12 — the planner and the zone comparison load on demand.
@@ -223,6 +227,9 @@ export default function App() {
    */
   const [ficheOriginLabel, setFicheOriginLabel] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  /** Bloque 19 (B3, `04 §12`): «Buscar en {ciudad}» abre esta hoja en vez de filtrar en el
+   * sitio — el propio campo de texto, y `filters.query` que sigue alimentando, viven dentro. */
+  const [searchOpen, setSearchOpen] = useState(false);
   const [citySheetOpen, setCitySheetOpen] = useState(false);
   /** Phones show one hub surface at a time; the cards come first. */
   const [mobilePane, setMobilePane] = useState<MobilePane>("list");
@@ -325,6 +332,15 @@ export default function App() {
     [interestSummary, travellers, activeTraveller]
   );
 
+  /** Bloque 19 (B3, `04 §5.5`): el `PersonToken` junto al corazón de `PlaceCard` — distinto de
+   * `markerFor`, que sigue alimentando el chip de texto de Quiero ir. Mismo patrón: función, no
+   * un mapa precomputado. */
+  const otherPersonMarkerFor = useCallback(
+    (placeId: string) =>
+      otherPersonMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
+    [interestSummary, travellers, activeTraveller]
+  );
+
   /** Bloque 18, `04 §1`: `PersonToken` distingue a/b por orden de creación, no por el `id`
    * opaco del viajero. */
   const activeTravellerVariant: "a" | "b" =
@@ -342,6 +358,23 @@ export default function App() {
     () => [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) => a.localeCompare(b, "es")),
     [hubPlaces]
   );
+  /**
+   * Bloque 19 (B3, `03 §8`, OD-02): el filtro «Categoría» agrupa las hasta 29 cadenas fuente por
+   * su etiqueta de presentación ya colapsada (26 valores) — el dato que se guarda en
+   * `filters.categories` sigue siendo la(s) cadena(s) cruda(s) del dataset (cero cambio de
+   * lógica/valores/conteo de lugares); lo único que cambia es que un chip colapsado representa
+   * uno o dos valores fuente a la vez, y los activa/desactiva juntos.
+   */
+  const categoryGroups = useMemo(() => {
+    const byLabel = new Map<string, string[]>();
+    for (const raw of categories) {
+      const { label } = categoryPresentation(raw);
+      const values = byLabel.get(label);
+      if (values) values.push(raw);
+      else byLabel.set(label, [raw]);
+    }
+    return [...byLabel.entries()].map(([label, values]) => ({ label, values }));
+  }, [categories]);
   /** Editorial order, not alphabetical — and every grade the catalogue actually uses. Omitting
    * one would silently hide its places whenever the user ticks all the grades on offer, with no
    * way to filter to them: `matchesFilters` treats a non-empty `grades` list as exhaustive. */
@@ -841,18 +874,31 @@ export default function App() {
         ? activeHub
         : HUBS_WITH_ZONES[0] ?? null;
 
+  /** Bloque 19 (B3, `05 §4`): la entrada «Dónde dormir» de la lista de ciudad vive sólo en las
+   * ciudades con zonas modeladas — misma lista (`HUBS_WITH_ZONES`) que ya gobierna el acceso
+   * desde el selector de ciudad (B18), no una segunda fuente de verdad. */
+  const activeHubHasZones = Boolean(activeHub && HUBS_WITH_ZONES.includes(activeHub));
+  const activeHubZoneCount = useMemo(
+    () => (activeHub && activeHubHasZones ? getZonesForHub(activeHub).length : 0),
+    [activeHub, activeHubHasZones]
+  );
+
   const explorerList = (
     <PlaceList
       places={filteredPlaces}
       totalCount={hubPlaces.length}
       selectedId={explorarSelectedId}
       savedIds={activeInterestedIds}
-      interestMarkerFor={markerFor}
+      otherPersonMarkerFor={otherPersonMarkerFor}
       onSelect={selectPlace}
       onToggleSaved={toggleSavedWithFeedback}
       onClearFilters={resetFilters}
       hasActiveFilters={activeFilterCount > 0}
       query={filters.query}
+      hubName={activeHub ?? ""}
+      hasZones={activeHubHasZones}
+      zoneCount={activeHubZoneCount}
+      onOpenDondeDormir={() => activeHub && goToZones(activeHub)}
     />
   );
 
@@ -943,30 +989,23 @@ export default function App() {
             {activeHub ? (
               <>
                 <div className="explorer-bar">
-                  <div className="search-field explorer-bar__search">
+                  {/* Bloque 19 (B3, `04 §12`): «Buscar en {ciudad}» ya no filtra en el sitio —
+                      abre la hoja de búsqueda casi a pantalla completa (`SearchSheet`). Mismo
+                      contenedor visual que antes (`search-field`), ahora un botón. */}
+                  <button
+                    type="button"
+                    className="search-field explorer-bar__search"
+                    onClick={() => setSearchOpen(true)}
+                    aria-haspopup="dialog"
+                    aria-expanded={searchOpen}
+                  >
                     <span className="search-field__icon" aria-hidden="true">
                       <Icon name="buscar" size={16} />
                     </span>
-                    <input
-                      type="search"
-                      className="search-field__input"
-                      placeholder={`Buscar en ${activeHub}`}
-                      value={filters.query}
-                      onChange={(event) => setFilters({ ...filters, query: event.target.value })}
-                      autoComplete="off"
-                    />
-                    {filters.query && (
-                      <button
-                        type="button"
-                        className="search-field__clear tap-target-min"
-                        onClick={() => setFilters({ ...filters, query: "" })}
-                        aria-label="Borrar búsqueda"
-                        title="Borrar búsqueda"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
+                    <span className="search-field__placeholder">
+                      {filters.query.trim() || `Buscar en ${activeHub}`}
+                    </span>
+                  </button>
                   <button
                     type="button"
                     className="explorer-bar__filters"
@@ -990,12 +1029,27 @@ export default function App() {
                   </button>
                 </div>
 
+                {searchOpen && (
+                  <SearchSheet
+                    hubName={activeHub}
+                    query={filters.query}
+                    onQueryChange={(query) => setFilters({ ...filters, query })}
+                    results={filteredPlaces}
+                    savedIds={activeInterestedIds}
+                    selectedId={explorarSelectedId}
+                    onSelect={selectPlace}
+                    onToggleSaved={toggleSavedWithFeedback}
+                    otherPersonMarkerFor={otherPersonMarkerFor}
+                    onClose={() => setSearchOpen(false)}
+                  />
+                )}
+
                 {filtersOpen && (
-                  <Sheet title="Búsqueda y filtros" onClose={() => setFiltersOpen(false)}>
+                  <Sheet title="Filtros" onClose={() => setFiltersOpen(false)}>
                     <FilterPanel
                       filters={filters}
                       onChange={setFilters}
-                      categories={categories}
+                      categoryGroups={categoryGroups}
                       grades={grades}
                       planningBlocks={planningBlocks}
                       hiddenGemStatuses={hiddenGemStatuses}
@@ -1005,7 +1059,7 @@ export default function App() {
                       activeFilterCount={activeFilterCount}
                       onReset={resetFilters}
                       defaultGroupsOpen
-                      showSearch={false}
+                      onApply={() => setFiltersOpen(false)}
                     />
                   </Sheet>
                 )}

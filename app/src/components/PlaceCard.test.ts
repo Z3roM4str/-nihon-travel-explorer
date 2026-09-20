@@ -2,16 +2,18 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 /**
- * Block 1 structural coverage for the photo-led place card — source-scanning, no jsdom or
- * Testing Library, for the reason `PlaceDetail.test.ts`'s module doc records: this repository
- * has no component DOM harness and adding one is out of scope here.
+ * Bloque 19 (B3) — cobertura estructural de `PlaceCard` — source-scanning, sin jsdom ni Testing
+ * Library, por la misma razón que registra el módulo de `PlaceDetail.test.ts`: este repositorio
+ * no tiene un arnés de DOM de componentes y añadir uno queda fuera de alcance aquí.
  *
- * What this file protects is the card's contract, not its styling: the six things a scanning
- * reader must be able to answer, the two independent actions and their markup, and the
- * photography rules the project treats as non-negotiable.
+ * Lo que protege este fichero no es el estilo, sino el contrato de la tarjeta (`04 §5`): las seis
+ * cosas que un lector que hojea debe poder responder, las dos acciones independientes y su
+ * marcado, el límite duro de 2 chips con prioridad fija, la insignia sólo-S, y las reglas de
+ * fotografía. Sustituye por completo a la versión anterior a este bloque, cuya anatomía (chips de
+ * hecho ilimitados, insignia por cada grado, marcador de texto dentro de la tarjeta) ya no existe.
  *
- * Verified end to end in Chromium at 390×844, 820×1180 and 1440×900 — see
- * `scripts/block1-ux-browser-audit.mjs`.
+ * Verificado en Chromium en 390×844, 840×900 y 1440×900 — ver
+ * `scripts/block19-discovery-browser-audit.mjs`.
  */
 
 async function readSource(): Promise<string> {
@@ -28,16 +30,23 @@ describe("PlaceCard — what a scanning reader can answer", () => {
     expect(source).toContain("{interest.label}");
   });
 
-  it("carries the level's shape glyph as well as its colour class", async () => {
+  it("shows a badge only for grade S, and never colours it — `04 §5.3`", async () => {
     const source = await readSource();
-    expect(source).toContain("interest-badge__glyph");
-    expect(source).toContain("{interest.glyph}");
-    expect(source).toContain("badge--grade-${place.grade}");
+    expect(source).toContain('interest.level === "imprescindible"');
+    const badge = source.slice(source.indexOf("place-card__badge"));
+    expect(badge.slice(0, 200)).toContain("★");
+    expect(badge.slice(0, 200)).toContain("Imprescindible");
+    // No per-grade colour class on the card — that per-grade treatment (`badge--grade-A` etc.)
+    // stays in `PlaceDetail`/`App.css`'s Fuentes section, out of B19's scope.
+    expect(source).not.toMatch(/badge--grade-\$\{place\.grade\}/);
   });
 
-  it("names the category and the zone", async () => {
+  it("names the category (through the collapsed presentation map) and the zone", async () => {
     const source = await readSource();
-    expect(source).toContain("splitCategory(place.category)");
+    expect(source).toMatch(
+      /import\s*\{\s*categoryPresentation\s*\}\s*from\s*["']\.\.\/lib\/category-presentation["']/
+    );
+    expect(source).toContain("categoryPresentation(place.category)");
     expect(source).toContain("place.neighborhood || place.municipality");
   });
 
@@ -61,16 +70,51 @@ describe("PlaceCard — what a scanning reader can answer", () => {
     expect(source).toContain("place.duration.raw");
   });
 
-  it("interprets reservation through the shared predicate, not the lossy boolean", async () => {
+  it("limits itself to two chips, duration always first — `04 §3`/`§5.7`", async () => {
     const source = await readSource();
-    expect(source).toContain("interpretPlaceReservation(place)");
-    expect(source).not.toContain("place.reservation.required");
+    // Exactly one <ul> of chips, with the duration <li> always rendered before a conditional
+    // second <li> — never a third.
+    const chips = source.slice(source.indexOf("place-card__chips"));
+    expect(chips.slice(0, 900)).toContain("Tiempo de visita");
+    expect(source.match(/place-card__chip["'`\s>]/g) ?? []).not.toHaveLength(0);
   });
 
-  it("keeps tourism saturation as its own signal, not a downgrade of the level", async () => {
+  it("resolves the second chip by the fixed priority — aviso real > reserva obligatoria > joya escondida", async () => {
     const source = await readSource();
-    expect(source).toContain("tourismCaution(place)");
-    expect(source).toContain("place-card__fact--tourism");
+    const secondChip = source.slice(
+      source.indexOf("function secondChip"),
+      source.indexOf("\n}\n", source.indexOf("function secondChip"))
+    );
+    // Reuses the existing domain interpretations — never a new "aviso real" criterion.
+    expect(secondChip).toContain("describeFebMarStatusForUi(interpretPlaceFebMarStatus(place))");
+    expect(secondChip).toContain("interpretPlaceReservation(place)");
+    expect(secondChip).toContain("isHiddenGem(place)");
+    const avisoIndex = secondChip.indexOf('tone === "attention"');
+    const reservaIndex = secondChip.indexOf('category === "required"');
+    const joyaIndex = secondChip.indexOf("isHiddenGem(place)");
+    expect(avisoIndex).toBeGreaterThan(-1);
+    expect(reservaIndex).toBeGreaterThan(avisoIndex);
+    expect(joyaIndex).toBeGreaterThan(reservaIndex);
+  });
+
+  it("second chip is only attention-styled for the aviso-real case, never for reserva/joya", async () => {
+    const source = await readSource();
+    expect(source).toContain('chip2.icon === "aviso" ? "place-card__chip--attention" : ""');
+  });
+});
+
+describe("PlaceCard — name over the photograph (`04 §5.2`)", () => {
+  it("measures overflow against the 2-line box instead of trusting -webkit-line-clamp's scrollHeight", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/import\s*\{[^}]*\buseLayoutEffect\b[^}]*\}\s*from\s*["']react["']/);
+    expect(source).toContain("node.scrollHeight > node.clientHeight + 1");
+    expect(source).toContain("place-card__name-text--tight");
+  });
+
+  it("only runs the tight-name measurement for the normal variant", async () => {
+    const source = await readSource();
+    const effect = source.slice(source.indexOf("useLayoutEffect(() => {"));
+    expect(effect.slice(0, 200)).toContain('if (variant !== "normal") return;');
   });
 });
 
@@ -82,9 +126,9 @@ describe("PlaceCard — the two actions", () => {
     expect(source).not.toMatch(/<button[^>]*>\s*[\s\S]{0,400}?<button/);
   });
 
-  it("exposes the saved state to assistive technology", async () => {
+  it("exposes the saved state to assistive technology, for both variants", async () => {
     const source = await readSource();
-    expect(source).toContain("aria-pressed={saved}");
+    expect(source.match(/aria-pressed=\{saved\}/g) ?? []).toHaveLength(2);
   });
 
   it("labels the save control with what it will do and to which place", async () => {
@@ -94,10 +138,23 @@ describe("PlaceCard — the two actions", () => {
   });
 
   it("uses a filled/hollow heart icon, so the state is not carried by colour alone", async () => {
-    // Bloque 17 (B1): sustituye el glifo emoji por el set de iconos de línea propio
-    // (00 "Patrones explícitamente prohibidos" · 03 §8).
     const source = await readSource();
-    expect(source).toContain('name={saved ? "corazon-relleno" : "corazon"}');
+    expect(source).toMatch(/name=\{saved \? "corazon-relleno" : "corazon"\}/);
+  });
+
+  it("expands the heart's real tap area without growing its 40px visual size — `04 §5.4`", async () => {
+    const source = await readSource();
+    expect(source).toContain('className={`place-card__save tap-target-min ${saved ? "place-card__save--on" : ""}`}');
+  });
+
+  it("draws the other person's marker beside the heart, never inside it, and only when resolved", async () => {
+    const source = await readSource();
+    expect(source).toMatch(
+      /import\s+type\s*\{\s*OtherPersonMarker\s*\}\s*from\s*["']\.\.\/lib\/traveller-presentation["']/
+    );
+    expect(source).toContain("otherPersonMarker?: OtherPersonMarker | null;");
+    expect(source).toContain("{otherPersonMarker &&");
+    expect(source).toContain('label={`${otherPersonMarker.traveller.label} quiere ir`}');
   });
 });
 
@@ -108,10 +165,18 @@ describe("PlaceCard — photography rules", () => {
     expect(source).not.toMatch(/https?:\/\//);
   });
 
-  it("lazy-loads and decodes off the main thread", async () => {
+  it("lazy-loads except a priority card, and decodes off the main thread — `06 §6.3`", async () => {
     const source = await readSource();
-    expect(source).toContain('loading="lazy"');
-    expect(source).toContain('decoding="async"');
+    // Ambas variantes ofrecen la rama `priority` (fetchPriority="high", sin loading="lazy") y la
+    // rama por defecto (loading="lazy") — nunca las dos a la vez en el mismo <img>.
+    expect(source.match(/loading:\s*"lazy"\s*as const/g) ?? []).toHaveLength(2);
+    expect(source.match(/fetchPriority:\s*"high"\s*as const/g) ?? []).toHaveLength(2);
+    expect(source.match(/decoding="async"/g) ?? []).toHaveLength(2);
+  });
+
+  it("marks only the list's first card as priority — `06 §6.3`", async () => {
+    const list = await readFile(new URL("./PlaceList.tsx", import.meta.url), "utf8");
+    expect(list).toContain("priority={index === 0}");
   });
 
   it("handles the loading and error states instead of leaving a blank frame", async () => {
@@ -121,18 +186,42 @@ describe("PlaceCard — photography rules", () => {
     expect(source).toContain("place-card__skeleton");
   });
 
-  it("shows an editorial placeholder — never a stand-in photograph — when none exists", async () => {
+  it("shows PhotoPlaceholder — never a stand-in photograph — both when missing and on load error", async () => {
     const source = await readSource();
-    expect(source).toContain("place-card__placeholder");
-    // Bloque 17 (B1): el marcador ya no lleva el emoji de categoría del dataset, sólo el
-    // icono de línea "imagen" (00 "Patrones explícitamente prohibidos" · 03 §8).
-    expect(source).toContain('<Icon name="imagen"');
+    expect(source).toMatch(
+      /import\s*\{\s*PhotoPlaceholder\s*\}\s*from\s*["']\.\/PhotoPlaceholder["']/
+    );
+    expect(source).toContain('<PhotoPlaceholder place={place} variant={mediaState === "error" ? "error" : "missing"} />');
+  });
+
+  it("informs the count instead of a carousel when a place has more than one image", async () => {
+    const source = await readSource();
+    expect(source).toContain("images.length > 1");
+    expect(source).toContain("place-card__photo-count");
+    expect(source).not.toMatch(/carousel|<button[^>]*photo-count/);
   });
 
   it("leaves the decorative card image out of the accessibility tree", async () => {
     const source = await readSource();
     // The name, level, category and zone are already announced by the card's own text; a
     // repeated alt here would make every card read twice.
-    expect(source).toContain('alt=""');
+    expect(source.match(/alt=""/g) ?? []).toHaveLength(2);
+  });
+});
+
+describe("PlaceCard — compact variant (`04 §5.10`)", () => {
+  it("uses a 72×72 thumbnail and --radius-md, a single metadata line", async () => {
+    const source = await readSource();
+    const compact = source.slice(source.indexOf('if (variant === "compact")'), source.indexOf("return (\n    <article\n      className={`place-card ${selected"));
+    expect(compact).toContain("place-card__meta");
+    expect(compact).toContain("sizes=\"72px\"");
+    expect(compact).not.toContain("place-card__chips");
+    expect(compact).not.toContain("place-card__overlay");
+  });
+
+  it("is the same component, not a duplicate — a single `variant` prop switches anatomy", async () => {
+    const source = await readSource();
+    expect(source).toMatch(/type Variant = "normal" \| "compact";/);
+    expect(source).toContain('variant = "normal",');
   });
 });

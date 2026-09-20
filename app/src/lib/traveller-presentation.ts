@@ -142,6 +142,49 @@ export function interestMarker(
 }
 
 /**
+ * Bloque 19 (B3, `04 §5.5`) — el `PersonToken` junto al corazón de `PlaceCard`.
+ *
+ * Distinto de `interestMarker`: ese devuelve un texto para el chip de hechos de la tarjeta
+ * (incluye «no le interesa», «sin reclamar»…); esto devuelve, específicamente, si hay que pintar
+ * un `PersonToken` junto al corazón — y sólo cuando alguien **además** de la persona activa ha
+ * dicho que sí. El corazón ya cuenta la respuesta de la persona activa; este marcador cuenta la
+ * de la otra. Si nadie más ha opinado, o si la otra persona ha dicho que no, no se renderiza
+ * nada — nunca un token que signifique "no".
+ */
+export type OtherPersonMarker =
+  | { both: true }
+  | { both: false; traveller: Traveller; variant: "a" | "b" };
+
+/** `a`/`b` por orden de creación (`04 §1`), igual que `App.tsx` ya resuelve para el token de la
+ * cabecera — nunca por el `id` opaco del viajero. */
+function travellerVariant(travellers: readonly Traveller[], travellerId: string): "a" | "b" {
+  return travellers[0]?.id === travellerId ? "a" : "b";
+}
+
+export function otherPersonMarker(
+  summary: PlaceInterestSummary,
+  travellers: readonly Traveller[],
+  activeTravellerId: string | null
+): OtherPersonMarker | null {
+  if (summary.kind === "both") return { both: true };
+
+  if (summary.kind === "only" && summary.interestedId !== activeTravellerId) {
+    const traveller = travellers.find((entry) => entry.id === summary.interestedId);
+    if (!traveller) return null;
+    return { both: false, traveller, variant: travellerVariant(travellers, traveller.id) };
+  }
+
+  if (summary.kind === "split") {
+    const otherId = summary.interestedIds.find((id) => id !== activeTravellerId);
+    const traveller = otherId ? travellers.find((entry) => entry.id === otherId) : undefined;
+    if (!traveller) return null;
+    return { both: false, traveller, variant: travellerVariant(travellers, traveller.id) };
+  }
+
+  return null;
+}
+
+/**
  * The full, unabbreviated picture, for the place detail — the one surface with room for it.
  *
  * One line per traveller, each a plain statement of what that person said, including "no ha dicho
