@@ -256,27 +256,62 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     expect(afterBlock).toMatch(/width:\s*max\(100%,\s*var\(--tap-min\)\)/);
   });
 
-  it("every control this correction identified under 44px visual carries .tap-target-min", async () => {
+  it("isolated controls under 44px visual carry .tap-target-min", async () => {
     // Each pair: file, and a substring that must include "tap-target-min" in the same
     // className. `.filter-chip` itself is covered by the rule-level fix above, not a className.
+    // These three sit in rows with enough gap that the invisible ::after expansion cannot reach
+    // a sibling (see the dense-row exception below) — confirmed by direct gap-vs-expansion
+    // arithmetic against App.css at the time each was added.
     const targets: Array<[string, string]> = [
       ["App.tsx", 'className="app__help tap-target-min"'],
       ["components/TripBackup.tsx", 'className="trip-backup__close tap-target-min"'],
       ["components/FilterPanel.tsx", 'className="search-field__clear tap-target-min"'],
-      ["components/PlaceGallery.tsx", "gallery__dot tap-target-min"],
     ];
     for (const [file, needle] of targets) {
       const code = await read(file);
       expect(code, file).toContain(needle);
     }
-    // icon-button--small: 11 call sites across two files, all sharing the same className string.
+  });
+
+  it("dense-row controls (icon-button--small, gallery__dot) do NOT use .tap-target-min", async () => {
+    // Second compliance correction: `.sequence-item__controls`, `.day-card__header-actions` and
+    // `.gallery__dots` pack same-sized siblings closer together than twice the ::after
+    // expansion needs, so the invisible-expansion technique would make neighbouring 44×44 hit
+    // zones overlap. These use a REAL 44×44 box instead (see the next test), so the className
+    // must never regain `tap-target-min` — that would silently reintroduce the overlap bug.
     for (const file of ["components/OrderedSequenceBuilder.tsx", "components/SelectionPanel.tsx"]) {
       const code = await read(file);
-      const total = (code.match(/icon-button--small/g) ?? []).length;
-      const covered = (code.match(/icon-button icon-button--small tap-target-min/g) ?? []).length;
-      expect(covered, file).toBe(total);
-      expect(covered, file).toBeGreaterThan(0);
+      expect(code, file).not.toContain("tap-target-min");
+      expect((code.match(/icon-button--small/g) ?? []).length, file).toBeGreaterThan(0);
     }
+    const gallery = await read("components/PlaceGallery.tsx");
+    expect(gallery).not.toContain("gallery__dot tap-target-min");
+    expect(gallery).toContain("gallery__dot");
+  });
+
+  it("icon-button--small grows its REAL box to --tap-min and keeps the visual small via ::before", async () => {
+    const css = await read("App.css");
+    const rule = css.slice(css.indexOf(".icon-button--small {"), css.indexOf(".icon-button--small {") + 400);
+    expect(rule).toMatch(/width:\s*var\(--tap-min\)/);
+    expect(rule).toMatch(/height:\s*var\(--tap-min\)/);
+    expect(css).toContain(".icon-button--small::before {");
+    const before = css.slice(css.indexOf(".icon-button--small::before {"));
+    const beforeBlock = before.slice(0, before.indexOf("}"));
+    expect(beforeBlock).toContain("position: absolute");
+    // The visual circle must stay a fixed, small size — never var(--tap-min) — or the box and
+    // its painted content would grow together and the row would stop being dense.
+    expect(beforeBlock).not.toMatch(/var\(--tap-min\)/);
+  });
+
+  it("gallery__dot grows its REAL box to --tap-min and keeps the visual dot small via ::before", async () => {
+    const css = await read("App.css");
+    const rule = css.slice(css.indexOf(".gallery__dot {"), css.indexOf(".gallery__dot {") + 400);
+    expect(rule).toMatch(/width:\s*var\(--tap-min\)/);
+    expect(rule).toMatch(/height:\s*var\(--tap-min\)/);
+    expect(css).toContain(".gallery__dot::before {");
+    const before = css.slice(css.indexOf(".gallery__dot::before {"));
+    const beforeBlock = before.slice(0, before.indexOf("}"));
+    expect(beforeBlock).not.toMatch(/var\(--tap-min\)/);
   });
 });
 

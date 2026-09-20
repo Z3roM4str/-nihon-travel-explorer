@@ -181,19 +181,34 @@ a {
  * Corrección de cumplimiento normativo (auditoría posterior al cierre del Bloque 17).
  * Art. 11 exige 44×44 px de área táctil mínima, sin excepción por tamaño visual, y 08
  * "Orden de precedencia" pone la Constitución por delante de cualquier documento
- * específico (incluido `04`) cuando entran en conflicto. Varios controles heredados —
- * `.icon-button--small`, `.app__help`, `.trip-backup__close`, `.gallery__dot`,
- * `.search-field__clear`, y la variante `ChipToggle` de `.filter-chip` (`04 §3`) — son
- * visualmente más compactos que 44px a propósito (el trazo del icono, la densidad de una
- * fila de chips, el tamaño de un punto de paginación). `.tap-target-min` separa el tamaño
- * VISUAL del ÁREA TÁCTIL real: añade un pseudo-elemento invisible, centrado, del tamaño
- * del control o `--tap-min` (lo que sea mayor). Un `::after` generado por CSS es, a
- * efectos de "click forwarding", parte del propio elemento en todos los motores de
- * render actuales — a un `<label>` o `<button>` no le hace falta que el click caiga
- * dentro de su caja visual, le basta con cualquier punto dentro de su caja de layout
- * real, y esta técnica agranda esa caja sin agrandar lo que se pinta. Comprobado con
- * `scripts/b17-tap-target-check.mjs` (mide el `getBoundingClientRect` real del área
- * clicable, no el del glifo).
+ * específico (incluido `04`) cuando entran en conflicto.
+ *
+ * Dos técnicas, según si el control tiene un vecino del mismo tamaño al lado:
+ *
+ * 1. `.tap-target-min` — para un control AISLADO (`.app__help`, `.trip-backup__close`,
+ *    `.search-field__clear`; también la base de `.filter-chip`, más abajo, cuyo ancho
+ *    real siempre supera 44px y cuyo hueco vertical entre filas deja margen de sobra —
+ *    ver el cálculo en el commit de esta corrección). Añade un pseudo-elemento
+ *    invisible, centrado, del tamaño del control o `--tap-min` (lo que sea mayor). Un
+ *    `::after` generado por CSS es, a efectos de "click forwarding", parte del propio
+ *    elemento en todos los motores de render actuales, así que agranda el área
+ *    clicable real sin agrandar lo que se pinta.
+ *
+ * 2. Caja real de 44×44 — para un control que vive en una fila o rejilla apretada junto
+ *    a otros del mismo tipo (`.icon-button--small` en `.sequence-item__controls` y en
+ *    `.day-card__header-actions`; `.gallery__dot` en `.gallery__dots`). Aquí la técnica
+ *    1 es la equivocada: si el hueco real entre dos controles es menor que la suma de
+ *    sus dos expansiones invisibles, esas zonas se solapan, y un click cerca del borde
+ *    puede resolver al vecino equivocado o depender del orden de pintado — una
+ *    ambigüedad que Art. 11 no permite. La caja del propio botón pasa a medir `--tap-min`
+ *    de verdad (participa en el layout, así que dos cajas vecinas nunca se solapan: es
+ *    geometría, no un truco de pintado); el elemento visual pequeño (el círculo, el
+ *    punto) se dibuja aparte, centrado dentro, y es lo único que se mantiene compacto.
+ *
+ * Comprobado en `scripts/b17-tap-target-check.mjs`: cada target mide ≥44×44 de verdad,
+ * y para los grupos de la técnica 2 además: un punto cercano al límite entre dos
+ * vecinos resuelve siempre al más próximo (nunca a los dos), y una rejilla de
+ * `elementFromPoint` sobre cada caja no encuentra solape con ninguna caja vecina.
  */
 .tap-target-min {
   position: relative;
@@ -209,9 +224,38 @@ a {
   height: max(100%, var(--tap-min));
 }
 
+/* Técnica 2 (caja real): usada por `.icon-button--small` (fila de controles, ver arriba).
+   La caja de 44px no lleva fondo/borde propios — eso es del `::before`, que dibuja el
+   círculo de 36px que siempre fue el tamaño visual, centrado dentro de la caja real. */
 .icon-button--small {
+  position: relative;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  background: none;
+  border: none;
+}
+
+.icon-button--small::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 2.25rem;
   height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.icon-button--small:hover {
+  /* Anula el fondo de `.icon-button:hover`, que pintaría la caja real de 44px entera;
+     el estado de hover vive en el círculo visual, no en el área táctil ampliada. */
+  background: none;
+}
+
+.icon-button--small:hover::before {
+  background: var(--color-surface-alt);
 }
 
 .link-button {
@@ -1705,12 +1749,16 @@ a {
   padding: 0.2rem;
 }
 
-/* The visible dot stays 28px so a row of them stays dense; `.tap-target-min` on the element
-   (className, not here) gives each one a real ≥44px hit area without growing what's painted —
-   corrección de cumplimiento posterior al cierre del Bloque 17, Art. 11. */
+/* Segunda corrección de cumplimiento: `.tap-target-min` (un pseudo-elemento invisible
+   absolutamente posicionado) habría dejado zonas de 44px vecinas solapándose, porque
+   `.gallery__dots` separa los puntos con sólo 2.4px de hueco real — muy por debajo de lo
+   que hacía falta para no invadir al vecino. En vez de eso, la propia caja del botón mide
+   `--tap-min` de verdad (participa en el layout, así que dos vecinos nunca se solapan);
+   el punto visible sigue siendo el `::before` de 8.8px, centrado dentro por flexbox, sin
+   necesidad de posicionamiento absoluto. */
 .gallery__dot {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: var(--tap-min);
+  height: var(--tap-min);
   padding: 0;
   border: none;
   background: none;

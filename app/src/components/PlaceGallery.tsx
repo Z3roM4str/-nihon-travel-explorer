@@ -256,7 +256,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
               aria-selected={dotIndex === index}
               aria-label={`Imagen ${dotIndex + 1} de ${total}`}
               title={`Imagen ${dotIndex + 1} de ${total}`}
-              className={`gallery__dot tap-target-min ${dotIndex === index ? "gallery__dot--active" : ""}`}
+              className={`gallery__dot ${dotIndex === index ? "gallery__dot--active" : ""}`}
               onClick={() => goTo(dotIndex)}
             />
           ))}

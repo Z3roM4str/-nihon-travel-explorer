@@ -44,6 +44,116 @@ async function effectiveHitBox(locator) {
   });
 }
 
+/**
+ * Segunda corrección de cumplimiento: técnica 2 (caja real de 44×44) para filas densas de
+ * controles del mismo tamaño (`.icon-button--small`, `.gallery__dot`). A diferencia de
+ * `effectiveHitBox` (que une la caja propia con un `::after` invisible), aquí la caja real YA
+ * mide --tap-min, así que lo que hay que demostrar es distinto: que ninguna caja real se solapa
+ * con la de su vecina (geometría, no una zona pintada por encima de otra), y que un click justo
+ * al lado del límite entre dos controles resuelve siempre al control más próximo — nunca al
+ * vecino, nunca a ninguno.
+ *
+ * Cuando `containerSelector` matchea varias filas (p. ej. una `.sequence-item__controls` por
+ * cada lugar de la lista, o una `.day-card__header-actions` por día), elige la fila con más
+ * controles — la más apretada, y por tanto el peor caso real disponible en la página.
+ */
+async function checkDenseRow(page, containerSelector, itemSelector, label, results) {
+  const data = await page.evaluate(
+    ({ containerSelector, itemSelector }) => {
+      const containers = Array.from(document.querySelectorAll(containerSelector));
+      let bestContainer = null;
+      let items = [];
+      for (const candidate of containers) {
+        const found = Array.from(candidate.querySelectorAll(itemSelector));
+        if (found.length > items.length) {
+          items = found;
+          bestContainer = candidate;
+        }
+      }
+      if (items.length < 2) return { count: items.length };
+
+      // `elementFromPoint` only resolves points inside the currently visible viewport — a
+      // container scrolled far down a long dialog (e.g. the Nth `.day-card` in "Distribuir por
+      // días") would otherwise report every point as null, not because of an overlap bug but
+      // because the coordinates fall outside what is actually painted right now.
+      bestContainer.scrollIntoView({ block: "center", inline: "center" });
+
+      const rects = items.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom };
+      });
+      const perItem = rects.map((r) => ({
+        width: r.width,
+        height: r.height,
+        ok44: r.width >= 43.5 && r.height >= 43.5,
+      }));
+
+      // Adjacent pairs in visual (left-to-right) order — the only order that matters for a
+      // single flex row, which is what every dense group this correction found actually is.
+      const order = items.map((_, i) => i).sort((a, b) => rects[a].x - rects[b].x);
+      const overlaps = [];
+      const boundaries = [];
+      for (let k = 0; k < order.length - 1; k++) {
+        const ia = order[k];
+        const ib = order[k + 1];
+        const a = rects[ia];
+        const b = rects[ib];
+        const overlapX = Math.min(a.right, b.right) - Math.max(a.x, b.x);
+        const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y);
+        const boxesOverlap = overlapX > 0.5 && overlapY > 0.5;
+        overlaps.push({ ia, ib, overlaps: boxesOverlap, overlapX, overlapY });
+
+        // The boundary that matters is each box's own edge facing its neighbour, not the
+        // midpoint of whatever gap separates them (a real gap resolves to neither control,
+        // by design, and testing it would prove nothing). 1px inside A's edge nearest B must
+        // still resolve to A — never to B, and never to nothing — and the mirror point 1px
+        // inside B's edge nearest A must resolve to B. This is exactly what would fail if the
+        // old invisible-::after technique's expanded zones were still reaching into a
+        // neighbour: the resolution right at the edge would go to the wrong control.
+        const midY = (Math.max(a.y, b.y) + Math.min(a.bottom, b.bottom)) / 2;
+        const edgeOfAEl = document.elementFromPoint(a.right - 1, midY);
+        const edgeOfBEl = document.elementFromPoint(b.x + 1, midY);
+        boundaries.push({
+          ia,
+          ib,
+          edgeOfAResolvesToA: edgeOfAEl ? edgeOfAEl.closest(itemSelector) === items[ia] : false,
+          edgeOfBResolvesToB: edgeOfBEl ? edgeOfBEl.closest(itemSelector) === items[ib] : false,
+        });
+      }
+      return { count: items.length, perItem, overlaps, boundaries };
+    },
+    { containerSelector, itemSelector }
+  );
+
+  if (data.count < 2) {
+    console.log(`SKIP ${label}: only ${data.count} matching control(s) found, nothing to compare`);
+    return;
+  }
+
+  data.perItem.forEach((item, i) => {
+    results.push({ label: `${label} [${i}] real box ≥44×44`, ok: item.ok44 });
+    console.log(
+      `${item.ok44 ? "OK  " : "FAIL"} ${label} [${i}] real box: ${item.width.toFixed(1)}x${item.height.toFixed(1)}`
+    );
+  });
+  data.overlaps.forEach(({ ia, ib, overlaps, overlapX, overlapY }) => {
+    const ok = !overlaps;
+    results.push({ label: `${label} [${ia}]/[${ib}] no overlap between neighbours`, ok });
+    console.log(
+      `${ok ? "OK  " : "FAIL"} ${label} boxes ${ia}/${ib} no overlap (overlapX=${overlapX.toFixed(
+        1
+      )}, overlapY=${overlapY.toFixed(1)})`
+    );
+  });
+  data.boundaries.forEach(({ ia, ib, edgeOfAResolvesToA, edgeOfBResolvesToB }) => {
+    const ok = edgeOfAResolvesToA && edgeOfBResolvesToB;
+    results.push({ label: `${label} [${ia}]/[${ib}] each box's own edge resolves to itself`, ok });
+    console.log(
+      `${ok ? "OK  " : "FAIL"} ${label} boundary ${ia}/${ib}: edge of ${ia}→${ia}? ${edgeOfAResolvesToA}, edge of ${ib}→${ib}? ${edgeOfBResolvesToB}`
+    );
+  });
+}
+
 async function main() {
   const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -115,33 +225,33 @@ async function main() {
   }
 
   // Place detail close (.icon-button, already 44px) + gallery dots + gallery nav.
-  // Try cards by index until one has a multi-image gallery (dots only render when total > 1);
-  // close each ficha before trying the next one (only if it is actually open).
+  // The dataset has exactly 6 places with a 2-photo gallery (dots only render when total > 1);
+  // "Tokyo National Museum" (JP-021) is one and lives in the Tokio hub already open here, so
+  // it is targeted directly instead of guessing through the first N cards — the earlier version
+  // of this script never actually found a gallery this way, which is why the compliance
+  // correction's live verification for `.gallery__dot` was previously left incomplete.
   let galleryDot = null;
-  const cardCount = await page.locator(".place-card__open").count();
-  for (let i = 0; i < Math.min(10, cardCount); i++) {
-    await page.locator(".place-card__open").nth(i).click();
+  const museumCard = page.locator(".place-card", { hasText: "Tokyo National Museum" }).first();
+  if (await museumCard.count()) {
+    await museumCard.locator(".place-card__open").click();
     await page.waitForSelector(".place-detail", { timeout: 15000 });
     const dot = page.locator(".gallery__dot").first();
-    if (await dot.count()) {
-      galleryDot = dot;
-      break;
-    }
-    await page.locator(".place-detail__bar .icon-button").first().click();
-    await page.waitForTimeout(150);
+    if (await dot.count()) galleryDot = dot;
   }
   if (galleryDot) {
     record("PlaceGallery .gallery__dot (first)", await effectiveHitBox(galleryDot));
 
-    // Click test: a point inside the expanded (44px) zone but outside the visual 28px dot.
+    // The dot's real box now measures --tap-min (44px) directly — no ::after involved — with
+    // the small visible circle drawn by an inner ::before. Click 2px inside the real box's top
+    // edge (well outside the ~9px visual circle, but still inside the real 44px box) and confirm
+    // the click still activates the button, proving the enlarged AREA is what is interactive,
+    // not just what is painted.
     const box = await galleryDot.evaluate((el) => {
       const r = el.getBoundingClientRect();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
     });
-    // The dot is centered in its own box; click 15px above its own center (inside a 44px
-    // effective box, outside a 28px visual one) and check the click still lands on the button.
     const clickX = box.x + box.width / 2;
-    const clickY = box.y - 6; // 6px above the visual box's top edge, inside the +8px expansion
+    const clickY = box.y + 2;
     const hit = await page.evaluate(
       ([x, y]) => {
         const el = document.elementFromPoint(x, y);
@@ -149,8 +259,19 @@ async function main() {
       },
       [clickX, clickY]
     );
-    results.push({ label: "gallery__dot expanded zone resolves to the button", ok: hit });
-    console.log(`${hit ? "OK  " : "FAIL"} gallery__dot expanded zone resolves to the button`);
+    results.push({ label: "gallery__dot's real 44px box (not just the visual dot) resolves to the button", ok: hit });
+    console.log(
+      `${hit ? "OK  " : "FAIL"} gallery__dot's real 44px box (not just the visual dot) resolves to the button`
+    );
+
+    await checkDenseRow(page, ".gallery__dots", ".gallery__dot", "PlaceGallery .gallery__dots (dense row)", results);
+  } else {
+    results.push({ label: "PlaceGallery .gallery__dot reachable (Tokyo National Museum)", ok: false });
+    console.log("FAIL PlaceGallery .gallery__dot reachable (Tokyo National Museum): card or dots not found");
+  }
+  if (await page.locator(".place-detail").isVisible().catch(() => false)) {
+    await page.locator(".place-detail__bar .icon-button").first().click();
+    await page.waitForTimeout(150);
   }
 
   // TripBackup close (40px) — close whichever ficha is still open, if any.
@@ -183,6 +304,31 @@ async function main() {
     const small = page.locator(".icon-button--small").first();
     if (await small.count()) {
       record("OrderedSequenceBuilder .icon-button--small (first)", await effectiveHitBox(small));
+    }
+
+    await checkDenseRow(
+      page,
+      ".sequence-item__controls",
+      ".icon-button--small",
+      "OrderedSequenceBuilder .sequence-item__controls (dense row)",
+      results
+    );
+    // `.day-card__header-actions` only renders in the "Distribuir por días" view, a second
+    // view of the same route reached from the builder toolbar.
+    const daysButton = page.locator("button:has-text('Distribuir por días')");
+    if (await daysButton.isVisible().catch(() => false)) {
+      await daysButton.click();
+      await page.waitForTimeout(300);
+      await checkDenseRow(
+        page,
+        ".day-card__header-actions",
+        ".icon-button--small",
+        "OrderedSequenceBuilder .day-card__header-actions (dense row)",
+        results
+      );
+    } else {
+      results.push({ label: "OrderedSequenceBuilder .day-card__header-actions reachable", ok: false });
+      console.log("FAIL OrderedSequenceBuilder .day-card__header-actions reachable: 'Distribuir por días' button not found");
     }
   }
 

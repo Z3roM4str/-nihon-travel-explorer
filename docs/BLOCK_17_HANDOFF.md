@@ -252,41 +252,96 @@ button already had *an* accessible name — but `04 §4` requires both.
 
 **Fix.**
 - `.tap-target-min` applied (as a `className`, since each is its own distinct rule) to
-  `.app__help`, `.trip-backup__close`, `.search-field__clear`, `.gallery__dot`, and all 11
-  `.icon-button--small` call sites (`OrderedSequenceBuilder.tsx` ×10, `SelectionPanel.tsx` ×1).
-  `.app__backup` (already 44px) needed no change; its comment, which had framed `.app__help`'s
-  36px as an accepted exemption, was rewritten to state the actual fix instead.
+  `.app__help`, `.trip-backup__close`, and `.search-field__clear`. `.gallery__dot` and all 11
+  `.icon-button--small` call sites (`OrderedSequenceBuilder.tsx` ×10, `SelectionPanel.tsx` ×1)
+  initially received the same treatment in this pass, but a second audit (§4 below) found that
+  technique unsafe for those two specifically — they were moved to a different mechanism there,
+  not left on `.tap-target-min`. `.app__backup` (already 44px) needed no change; its comment,
+  which had framed `.app__help`'s 36px as an accepted exemption, was rewritten to state the
+  actual fix instead.
 - `title={<same text as the existing aria-label>}` added to all 22 buttons found missing it
   (a literal string where the label was static, the identical template expression where it was
   computed from props — e.g. `` title={`Mover ${place.name} hacia arriba${labelSuffix}`} ``
   next to the equivalent `aria-label`).
 
 **Verified.** `scripts/b17-tap-target-check.mjs` additionally measured `.app__help`
-(36→44 effective), `.trip-backup__close` (40→44), and one `.icon-button--small` instance
-(36→44) live in the browser; all three passed. `.gallery__dot`'s live re-measurement was not
-completed in this session (the only place in the seeded dataset with a multi-photo gallery,
-Tokyo National Museum, proved awkward to reach reliably through the app's list virtualisation
-in a scripted run) — it shares the byte-identical `.tap-target-min` CSS mechanism already proven
-correct on three other elements, so this is a documentation gap in the live-click-through
-evidence, not an open question about whether the fix itself works.
+(36→44 effective) and `.trip-backup__close` (40→44) live in the browser; both passed.
+`.icon-button--small` and `.gallery__dot`'s live verification is covered in §4 below, under the
+mechanism they actually ended up using.
 
 **Guard added.** A new `block17-design-foundation.test.ts` describe block ports the exact
 22-button audit into a permanent, browser-free gate: it parses every `<button>` (including
 self-closing ones) in every `components/` file, strips `aria-hidden` decorative content,
 `<Icon/>` calls, comments and whitespace-only expressions from what's left, and fails if any
 button with no remaining visible text lacks either `aria-label` or `title`. A second test
-confirms the exact `className` string (`"... tap-target-min"`) is present at each of the five
-named single-instance call sites, and that the `icon-button--small` count of
-`tap-target-min`-qualified occurrences equals the total `icon-button--small` count in both files
-that use it (11, currently) — so a 12th call site added later without the class fails the gate
-immediately.
+confirms the exact `className` string (`"... tap-target-min"`) is present at the three
+single-instance call sites that kept this mechanism (`.app__help`, `.trip-backup__close`,
+`.search-field__clear`); `.icon-button--small` and `.gallery__dot`'s guards moved to §4.
+
+### 4. Overlapping hit targets between neighbouring controls
+
+**Finding.** §3's fix gave `.icon-button--small` and `.gallery__dot` the same `.tap-target-min`
+treatment as every other under-sized control: an invisible, absolutely-positioned `::after`
+centered on the element, sized `max(100%, var(--tap-min))`. That technique is correct for a
+control with no same-sized neighbour close by, but wrong wherever several such controls sit in a
+tight row — `.sequence-item__controls` (5 `.icon-button--small` buttons, `0.3rem`/4.8px real
+gap), `.day-card__header-actions` (3 buttons, `0.25rem`/4px gap), and `.gallery__dots` (up to
+several dots, `0.15rem`/2.4px gap). In every one of these, the gap between two real 36px (or
+28px) boxes is smaller than the sum of the two invisible 4–8px-per-side expansions those boxes
+would need to reach 44px, so the expanded zones would overlap: a click near the shared border
+between two adjacent controls would land on whichever pseudo-element painting order happened to
+resolve first, not deterministically on the nearer control — an ambiguity Art. 11 does not allow,
+even though each individual box measured ≥44×44px in isolation.
+
+**Fix.** Both groups moved to a second technique instead of the invisible-`::after` expansion:
+the control's own real layout box — the thing `getBoundingClientRect()` reports with no
+pseudo-element involved — now measures `var(--tap-min)` (44×44px) directly, and the small visual
+appearance (the 36px circle, the small dot) is drawn by an inner element that stays compact and
+centered:
+- `.icon-button--small`: `width`/`height: var(--tap-min)`, no background/border of its own; a
+  `::before` (absolute, centered, `2.25rem`/36px, `border-radius: 50%`) paints the circle that
+  was always the visual size. `.icon-button--small:hover` explicitly resets `background: none`
+  (the base `.icon-button:hover` rule would otherwise paint the enlarged real box, not just the
+  circle) and `.icon-button--small:hover::before` carries the hover fill instead.
+- `.gallery__dot`: already painted its visible dot via a `::before` inside a flex-centered real
+  box (never absolute positioning), so the fix is a one-line change — `width`/`height` on the
+  real box go from `1.75rem` (28px) to `var(--tap-min)` (44px); flex centering keeps the small
+  dot centered with no further change.
+Because both are now real layout boxes, not painted-over invisible zones, two neighbours
+literally cannot overlap — it is the same geometric guarantee that keeps two adjacent `<div>`s in
+a flex row from occupying the same pixels, not a claim that needs a runtime check to believe, but
+one this correction still measures directly (below) rather than trusting by inspection alone.
+
+**Verified.** `scripts/b17-tap-target-check.mjs` gained a `checkDenseRow()` helper, run against
+the densest real row of each group in a live browser (390×844 viewport): `.sequence-item__controls`
+(3 buttons visible for that list position), `.day-card__header-actions` (3 buttons), and
+`.gallery__dots` (2 dots — Tokyo National Museum, JP-021, is one of only 6 places in the dataset
+with a 2-photo gallery, and is now targeted directly by name instead of guessing through the
+first N cards, which is why this group's live verification was previously incomplete; see §3's
+note in the first correction pass). For every adjacent pair in each group it asserts three things
+in the same pass: (a) each control's own `getBoundingClientRect()` is ≥44×44px with no
+pseudo-element involved, (b) the two neighbours' real boxes do not overlap on both axes, and (c)
+`document.elementFromPoint()` 1px inside each box's edge facing its neighbour resolves to that
+box's own control — never to the neighbour, never to nothing. All 26 checks in the script pass,
+including the 15 added by this correction (3 dense-row checks × the box/overlap/boundary triplet,
+across the three groups, plus the new direct gallery-dot reachability and box tests).
+
+**Guard added.** `block17-design-foundation.test.ts`'s tap-target describe block was split: one
+test still confirms `.tap-target-min` on the three controls that legitimately keep it
+(isolated, no same-sized neighbour close enough to conflict); a new test asserts
+`.icon-button--small` and `.gallery__dot` **do not** carry `tap-target-min` (a regression here
+would silently reintroduce the overlap); and two more tests read `App.css` directly to confirm
+each control's own rule sets `width`/`height: var(--tap-min)` while its paired `::before` rule
+stays a fixed, small size (never `var(--tap-min)`) — so the box and its painted content cannot
+grow back into lockstep and the row stop being dense.
 
 ### Verification after the correction
 
 Lint, `tsc -b`, `vite build`, the full Vitest suite, the responsive overflow check (6
 breakpoints), the functional regression script, and the tap-target script were all re-run
-end to end after every fix above. Results are folded into the "Gates — result" and "Baseline
-vs. final" tables below, which already reflect the corrected numbers.
+end to end after every fix above, including this document's second pass covering §4. Results
+are folded into the "Gates — result" and "Baseline vs. final" tables below, which already
+reflect the corrected numbers.
 
 ## Deliberately deferred (not this block's job)
 
@@ -305,28 +360,29 @@ vs. final" tables below, which already reflect the corrected numbers.
 
 | Gate | Result |
 |---|---|
-| G1 — Tests | **3197 / 93** files, all green. Baseline (before this block): 3179 / 92. `block17-design-foundation.test.ts` grew from 8 tests at the first close to **26** after the compliance correction (grade/title guards, `.tap-target-min` mechanism checks, the 102-button icon-only/title audit, a self-test proving the grade detector fires). 5 pre-existing tests were edited across the whole block (not deleted), each with an inline citation to the document/section that justifies the change: `block1-ux.test.ts` (grade-letter test inverted to assert the letter is gone, per Art. 00 + `03 §1.3`; the `--tap-target` literal-value test updated to check the new token alias, per `03 §7`), `PlaceCard.test.ts` (2 cases, glyph→icon), `transfer-display.test.ts` (1 case, glyph→icon-name). |
+| G1 — Tests | **3200 / 93** files, all green. Baseline (before this block): 3179 / 92. `block17-design-foundation.test.ts` grew from 8 tests at the first close to 17 after the first compliance correction, then to **21** after the second (overlapping-hit-target) correction — the single test asserting `.tap-target-min` on `.icon-button--small`/`.gallery__dot` was replaced with four narrower ones: isolated controls still carry it, the two dense-row controls explicitly do not, and each of those two has its own real-box/small-visual CSS assertion. 5 pre-existing tests were edited across the whole block (not deleted), each with an inline citation to the document/section that justifies the change: `block1-ux.test.ts` (grade-letter test inverted to assert the letter is gone, per Art. 00 + `03 §1.3`; the `--tap-target` literal-value test updated to check the new token alias, per `03 §7`), `PlaceCard.test.ts` (2 cases, glyph→icon), `transfer-display.test.ts` (1 case, glyph→icon-name). |
 | G2 — No capability regression | Checklist below (§"Regression audit"); all pass, re-verified after the correction. |
 | G3 — Phone chrome | Not this block's gate — B2 owns cromo consolidation (`10_ROADMAP` B1 doesn't list a chrome-height criterion; B2 does). No chrome was restructured here. |
 | G4 — No tokens outside system | Automated: `block17-design-foundation.test.ts` — 0 emoji in component/lib source (excluding `data/`, comments, and the two sanctioned glyphs `ⓘ`/`★`), 0 new hex (`git diff` grep confirms zero `#`-hex added across `App.css`/`components/`/`lib/`, re-checked after the correction too), 0 new `@media (max-width:…)` (tokens.css/fonts.css/index.css: none ever; App.css: 9, unchanged from before this block). |
-| G5 — Accessibility | Tap targets: **every** identified control now has a real, measured ≥44×44px hit area — `.filter-chip`'s 40px, `.icon-button--small`'s 36px, `.app__help`'s 36px, `.trip-backup__close`'s 40px and `.gallery__dot`'s 28px are all *visual* sizes only; `.tap-target-min` (and `.filter-chip`'s own matching rule) gives each a ≥44px effective click/tap target, measured live in a browser by `scripts/b17-tap-target-check.mjs`, not just declared in CSS (see "Corrección de cumplimiento normativo"). All 102 `<button>` elements in `components/` were audited; the 22 icon-only ones missing `title` now have it alongside their existing `aria-label`, per `04 §4`. Contrast: every new colour pairing checked against WCAG (`white`/`--shu-600` 5.44:1, `white`/`--shu-700` 8.06:1, `--ink-900`/`--surface` 18.11:1, `--ink-700`/`--surface-sunken` 9.22:1, `--risk-600`/`--surface` 7.0:1, grade badges' worst case `--surface`/`--ink-500` 4.99:1, filter-chip selected state `--shu-700`/`--shu-050` 7.17:1 text and `--shu-600` border 4.84:1 graphic). Focus ring: `--ink-900`, 2px, 18.11:1 against `--surface`. Keyboard: verified via `scripts/b17-regression-check.mjs` (Tab moves focus; Escape closes the lightbox). |
-| G6 — Performance | Entry chunk: 1,398,760 B (gzip 259,970 B) vs. the Block 16 baseline 1,389,652 B (gzip 257,540 B) — **+0.7%**, the 34-icon SVG set, the token/font-face CSS, and the compliance correction's `title`/class additions this block exists to add, not incidental bloat. CSS: 106.04 kB vs. baseline 98.17 kB (+8.0%, same reason plus `.tap-target-min`). Fonts: 3.2 MB total across 15 self-hosted `woff2` files, but every one is behind a `unicode-range`; a browsing session that never opens a ficha (never renders `lang="ja"` text) never fetches the ~1MB-per-weight Japanese chunks at all. |
+| G5 — Accessibility | Tap targets: **every** identified control now has a real, measured ≥44×44px hit area with no ambiguous overlap between neighbours — `.filter-chip`'s 40px, `.app__help`'s 36px and `.trip-backup__close`'s 40px are *visual* sizes only, made ≥44px via `.tap-target-min`'s invisible `::after` expansion (safe here: no same-sized sibling sits close enough for the expansions to reach each other); `.icon-button--small`'s 36px circle and `.gallery__dot`'s dot sit inside a real 44×44px layout box instead, because both live in tight rows (`.sequence-item__controls`, `.day-card__header-actions`, `.gallery__dots`) where the invisible-expansion technique would have let adjacent controls' expanded zones overlap. `scripts/b17-tap-target-check.mjs` measures all of this live in a browser — box size, and for the dense-row groups also no overlap between neighbours and correct `elementFromPoint()` resolution at each box's own edge — not just declared in CSS (see "Corrección de cumplimiento normativo," §§2–4). All 102 `<button>` elements in `components/` were audited; the 22 icon-only ones missing `title` now have it alongside their existing `aria-label`, per `04 §4`. Contrast: every new colour pairing checked against WCAG (`white`/`--shu-600` 5.44:1, `white`/`--shu-700` 8.06:1, `--ink-900`/`--surface` 18.11:1, `--ink-700`/`--surface-sunken` 9.22:1, `--risk-600`/`--surface` 7.0:1, grade badges' worst case `--surface`/`--ink-500` 4.99:1, filter-chip selected state `--shu-700`/`--shu-050` 7.17:1 text and `--shu-600` border 4.84:1 graphic). Focus ring: `--ink-900`, 2px, 18.11:1 against `--surface`. Keyboard: verified via `scripts/b17-regression-check.mjs` (Tab moves focus; Escape closes the lightbox). |
+| G6 — Performance | Entry chunk: 1,398,734 B (gzip 258,978 B) vs. the Block 16 baseline 1,389,652 B (gzip 257,540 B) — **+0.7%**, the 34-icon SVG set, the token/font-face CSS, and the two compliance corrections' `title`/class/CSS additions this block exists to add, not incidental bloat. CSS: 106,443 B vs. baseline 98,170 B (+8.4%, same reason plus `.tap-target-min` and the dense-row real-box rules). Fonts: 3.2 MB total across 15 self-hosted `woff2` files, but every one is behind a `unicode-range`; a browsing session that never opens a ficha (never renders `lang="ja"` text) never fetches the ~1MB-per-weight Japanese chunks at all. |
 | G7 — Visual review | Screenshots below (unaffected by the correction — every fix is invisible or near-invisible by design). |
 
 ## Baseline vs. final, exact figures
 
 | Check | Baseline (`ccc269b`) | Final (this block's head, post-correction) |
 |---|---|---|
-| Vitest | 3179 / 92 files | **3197 / 93 files** |
+| Vitest | 3179 / 92 files | **3200 / 93 files** |
 | Lint (`oxlint`) | clean | clean |
 | `tsc -b` / `vite build` | clean | clean |
-| Entry JS chunk | 1,389,620 B / gzip 257,540 B | 1,398,760 B / gzip 259,970 B |
-| CSS bundle | 98,170 B / gzip 19,590 B | 106,040 B / gzip 20,960 B |
+| Entry JS chunk | 1,389,620 B / gzip 257,540 B | 1,398,734 B / gzip 258,978 B |
+| CSS bundle | 98,170 B / gzip 19,590 B | 106,443 B / gzip 20,525 B |
 | `@media (max-width:…)` in `App.css` | 9 | 9 (unchanged) |
 | Hex literals added | — | 0 |
 | Emoji-as-icon occurrences | ~50 across 16 files (per audit) | 0 |
 | Icon-only `<button>`s missing `title` (of 102 total) | n/a (pre-existing condition) | 0 |
 | Interactive controls with a visual size <44px and no measured ≥44px hit area | n/a (pre-existing condition) | 0 |
+| Adjacent same-sized controls whose ≥44px hit zones could ambiguously overlap | n/a (pre-existing condition) | 0 |
 | Raw grade letter reachable anywhere in rendered UI (text, `title`, `aria-label`) | n/a (pre-existing condition) | 0 |
 
 ## Responsive sanity check
