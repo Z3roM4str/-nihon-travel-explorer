@@ -324,7 +324,10 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
     expect(source).toContain('const explorarSelectedId = ficheOrigin === "explorar" ? selectedId : null;');
     expect(source).toContain('const explorarSelectedPlace = ficheOrigin === "explorar" ? selectedPlace : null;');
     expect(source).toContain("selectedId={explorarSelectedId}");
-    expect(source).toContain("selectedPlace={explorarSelectedPlace}");
+    // Corrección final #2: PlaceMap ya no recibe explorarSelectedPlace en crudo — recibe
+    // explorarMapPlace (explorarSelectedPlace, o si no hay ficha abierta, el foco dejado por
+    // «Ver en el mapa»). PlaceList no cambia: sigue sin abrir nunca una ficha que no sea suya.
+    expect(source).toContain("selectedPlace={explorarMapPlace}");
   });
 
   it("cerrar la ficha limpia también ficheOrigin, no sólo el historial", async () => {
@@ -596,17 +599,99 @@ describe("Bloque 18 — corrección final: Viaje → Lugar apila dentro de Viaje
     expect(source).toMatch(/setFicheOrigin\(null\);\s*setFicheOriginLabel\(null\);/);
   });
 
-  it("viewOnMap reutiliza selectPlace con origin=\"explorar\" — no reimplementa su lógica", async () => {
-    const source = await read("App.tsx");
-    expect(source).toMatch(
-      /const viewOnMap = useCallback\(\(\) => \{\s*if \(!selectedPlace\) return;\s*selectPlace\(selectedPlace\.id, "explorar"\);/
-    );
-  });
-
   it("placeDetailOverlay sólo pasa originLabel/onViewOnMap cuando ficheOrigin es \"viaje\"", async () => {
     const source = await read("App.tsx");
     expect(source).toContain('originLabel={ficheOrigin === "viaje" ? ficheOriginLabel : null}');
     expect(source).toContain('onViewOnMap={ficheOrigin === "viaje" ? viewOnMap : undefined}');
+  });
+});
+
+/**
+ * Corrección final #2 — hallazgo posterior: la primera implementación de `viewOnMap` reutilizaba
+ * `selectPlace(id, "explorar")`, que abre `PlaceDetail` de verdad (misma pila `history`/
+ * `ficheOrigin` que cualquier apertura normal). La decisión aprobada es "cambia a Explorar y
+ * centra el mapa", no "abre la ficha en Explorar" — en teléfono, donde la ficha es pantalla
+ * completa, el mapa quedaba tapado justo tras pulsar el botón que decía llevar a verlo. Corregido
+ * para cerrar el stack de Viaje del todo y centrar el mapa con un foco separado (`mapFocusId`),
+ * sin volver a montar `PlaceDetail`. Comportamiento en vivo:
+ * `scripts/b18-viaje-lugar-check.mjs`.
+ */
+describe("Bloque 18 — corrección final #2: «Ver en el mapa» centra el mapa sin reabrir la ficha", () => {
+  it("mapFocusId es estado propio, separado de history/ficheOrigin — no un segundo store de lugar", async () => {
+    const source = await read("App.tsx");
+    expect(source).toContain("const [mapFocusId, setMapFocusId] = useState<string | null>(null);");
+    // Sólo hay una construcción de PlaceDetail y sigue siendo la misma de siempre — mapFocusId
+    // no introduce una segunda ficha ni un segundo camino de renderizado hacia PlaceDetail.
+    expect((source.match(/<PlaceDetail\b/g) ?? []).length).toBe(1);
+  });
+
+  it("explorarMapPlace prioriza una ficha real abierta y sólo si no la hay usa el foco de «Ver en el mapa»", async () => {
+    const source = await read("App.tsx");
+    expect(source).toContain(
+      "const explorarMapPlace = explorarSelectedPlace ?? mapFocusPlace;"
+    );
+    expect(source).toContain('selectedPlace={explorarMapPlace}');
+    // panelOffset (el hueco reservado para el panel de escritorio) sigue atado sólo a que haya
+    // una ficha de verdad — un foco de mapa sin ficha no debe reservar hueco de panel.
+    expect(source).toContain('panelOffset={isDesktop && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}');
+  });
+
+  it("viewOnMap NO llama a selectPlace — cierra history/ficheOrigin directamente, como closeDetail", async () => {
+    const source = await read("App.tsx");
+    const start = source.indexOf("const viewOnMap = useCallback(() => {");
+    const end = source.indexOf("}, [selectedPlace, activeHub]);", start);
+    const body = source.slice(start, end);
+    expect(body).toContain("setMapFocusId(place.id);");
+    expect(body).toContain("setHistory([]);");
+    expect(body).toContain("setFicheOrigin(null);");
+    expect(body).toContain("setFicheOriginLabel(null);");
+    expect(body).not.toContain("selectPlace(");
+  });
+
+  it("viewOnMap deshace del historial real del navegador toda la profundidad empujada por el stack de Viaje", async () => {
+    const source = await read("App.tsx");
+    const start = source.indexOf("const viewOnMap = useCallback(() => {");
+    const end = source.indexOf("}, [selectedPlace, activeHub]);", start);
+    const body = source.slice(start, end);
+    expect(body).toMatch(/if \(navDepthRef\.current > 0\) \{\s*ignorePopRef\.current \+= 1;\s*window\.history\.go\(-navDepthRef\.current\);\s*navDepthRef\.current = 0;\s*\}/);
+  });
+
+  it("viewOnMap cambia a Explorar, selecciona el hub del lugar, y en teléfono cambia a la vista Mapa", async () => {
+    const source = await read("App.tsx");
+    const start = source.indexOf("const viewOnMap = useCallback(() => {");
+    const end = source.indexOf("}, [selectedPlace, activeHub]);", start);
+    const body = source.slice(start, end);
+    expect(body).toContain('setDestination("explorar");');
+    expect(body).toContain("if (place.hub !== activeHub) {");
+    expect(body).toContain('setMobilePane("map");');
+  });
+
+  it("mapFocusId se limpia en cuanto una apertura real de ficha o un cambio de hub lo vuelven obsoleto", async () => {
+    const source = await read("App.tsx");
+    /** Extrae el código fuente entre dos marcadores, en el orden en que aparecen en App.tsx. */
+    function between(startMarker: string, endMarker: string): string {
+      const start = source.indexOf(startMarker);
+      const end = source.indexOf(endMarker, start);
+      expect(start, startMarker).toBeGreaterThan(-1);
+      expect(end, endMarker).toBeGreaterThan(start);
+      return source.slice(start, end);
+    }
+    // selectPlace: cualquier apertura real de lugar (incluido un click normal tras «Ver en el
+    // mapa») limpia un foco de mapa que hubiera quedado suelto.
+    expect(between("const selectPlace = useCallback(", "const pushPlace = useCallback(")).toContain(
+      "setMapFocusId(null);"
+    );
+    // Cambiar de hub (manual, entrar desde el mapa nacional, o volver a Japón) también lo limpia
+    // — el foco no tiene sentido en una ciudad distinta a la que se centró.
+    expect(between("const switchHub = useCallback(", "const enterHub = useCallback(")).toContain(
+      "setMapFocusId(null);"
+    );
+    expect(between("const enterHub = useCallback(", "const returnToJapan = useCallback(")).toContain(
+      "setMapFocusId(null);"
+    );
+    expect(between("const returnToJapan = useCallback(", "const selectRegion = useCallback(")).toContain(
+      "setMapFocusId(null);"
+    );
   });
 });
 

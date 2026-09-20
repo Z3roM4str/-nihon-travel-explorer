@@ -357,9 +357,10 @@ sub-pestaña de Viaje que en el futuro abra lugares (p. ej. `Días`, `§7`).
   puede estar abierta en un destino a la vez.
 - **«Ver en el mapa» es la única salida explícita.** Un botón etiquetado (nunca
   icon-only) dentro de la ficha cierra el stack de Viaje, cambia a Explorar y
-  centra/abre ese lugar en su mapa. Es la única acción, desde una ficha abierta
-  en Viaje, autorizada a cambiar de pestaña — cualquier otro cierre vuelve a
-  Viaje, nunca a Explorar.
+  centra ese lugar en el mapa — **nunca abre su ficha en Explorar**: la ficha
+  se cierra del todo, no se traslada de pestaña. Es la única acción, desde una
+  ficha abierta en Viaje, autorizada a cambiar de pestaña — cualquier otro
+  cierre vuelve a Viaje, nunca a Explorar.
 - **Deroga el comportamiento heredado** de B18 (abrir siempre en Explorar por
   defecto, documentado como nota abierta en `docs/BLOCK_18_HANDOFF.md`).
 

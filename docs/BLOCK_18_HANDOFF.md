@@ -13,16 +13,18 @@ repositorio. Nada aquí depende de la conversación que lo produjo. Numeración:
 | SHA inicial (`origin/main`) | `0833912c308fb28f203b69eaae716f5b566f7936` |
 | SHA final | ver `git log -1` en esta rama tras el commit de este bloque |
 | ¿Fusionado a `main`? | No. No se ha abierto pull request (no se pidió). |
-| Estado del Bloque 18 | **Cerrado**, tras una corrección de cumplimiento normativo y una corrección final que resuelve la decisión de diseño pendiente sobre Viaje → Lugar (DD-015; ver ambas secciones de corrección más abajo). Las 12 puertas de "Gates" siguen en verde, más los gates nuevos de la corrección final. |
+| Estado del Bloque 18 | **Cerrado**, tras una corrección de cumplimiento normativo, una corrección final que resuelve la decisión de diseño pendiente sobre Viaje → Lugar (DD-015), y una tercera corrección puntual sobre esa misma decisión (ver las tres secciones de corrección más abajo). Las 12 puertas de "Gates" siguen en verde, más los gates nuevos de las correcciones finales. |
 
-**Este handoff fue corregido dos veces tras el cierre original.** Primero, una auditoría
+**Este handoff fue corregido tres veces tras el cierre original.** Primero, una auditoría
 independiente encontró cuatro incumplimientos normativos (sección "Corrección de cumplimiento
 normativo"). Después, el propietario de diseño resolvió el único `DESIGN DECISION REQUIRED` que
 esa auditoría había dejado abierto — el destino de retorno al abrir un lugar desde Viaje — y esta
-sesión implementó esa decisión (sección "Corrección final: Viaje → Lugar (DD-015)"). Nada de lo
-que hay por encima de esa última sección debe leerse como una descripción del comportamiento
-actual del código allí donde lo contradiga; todas las cifras y descripciones de este documento son
-posteriores a ambas correcciones.
+sesión implementó esa decisión (sección "Corrección final: Viaje → Lugar (DD-015)"). Por último,
+una revisión de esa implementación encontró que «Ver en el mapa» reabría la ficha en Explorar en
+vez de sólo centrar el mapa, corregido en "Corrección final #2". Nada de lo que hay por encima de
+esa última sección debe leerse como una descripción del comportamiento actual del código allí
+donde lo contradiga; todas las cifras y descripciones de este documento son
+posteriores a las tres correcciones.
 
 ## Preflight (antes de cualquier cambio)
 
@@ -177,30 +179,34 @@ v1.1.0 se ha eliminado; todas están re-ubicadas según la tabla de `02
 algoritmos de `OrderedSequenceBuilder.tsx` y `ZoneComparison.tsx`, cualquier `lib/` de
 planificación, reservas, provenance o freshness, `icons/`, `styles/fonts.css`.
 
-### Archivos — corrección final (Viaje → Lugar, `DD-015`)
+### Archivos — corrección final (Viaje → Lugar, `DD-015`) y corrección final #2
+
+Tabla combinada de las dos rondas sobre `DD-015`; cada fila ya refleja el estado final (post
+corrección final #2). El desglose por ronda está en "Corrección final #2" más abajo.
 
 **Nuevos**
 
 | Fichero | Qué es |
 |---|---|
-| `app/scripts/b18-viaje-lugar-check.mjs` | Stack/retorno a origen, scroll, modo `browse`/`compare` preservado, encadenado, instancia única, «Ver en el mapa», tokens 420/480 medidos en vivo, `md`+ (28/28). |
+| `app/scripts/b18-viaje-lugar-check.mjs` | Stack/retorno a origen, scroll, modo `browse`/`compare` preservado, encadenado, instancia única, «Ver en el mapa» (incluido el caso encadenado A → B → «Ver en el mapa» y el `history.state` sin residuo), tokens 420/480 medidos en vivo, `md`+ (38/38). |
 | `app/scripts/b18-browser-back-check.mjs` | `page.goBack()` real en Quiero ir, Viaje y una cadena de 2+ lugares en cada uno (15/15). |
 
 **Modificados**
 
 | Fichero | Qué cambió |
 |---|---|
-| `App.tsx` | `ficheOrigin` gana `"viaje"`; `ficheOriginLabel` nuevo; puente con `window.history` (`navDepthRef`/`ignorePopRef`/`syncNavPush`/`syncNavReplace`/listener de `popstate`); `viewOnMap`; Viaje reestructurado en dos niveles (exterior sin scroll + interior `--scroll`, como Quiero ir); `ZoneComparison` recibe `onSelectPlace={(id) => selectPlace(id, "viaje", "Dónde dormir")}`; `DETAIL_PANEL_WIDTH` 420 → 480. |
+| `App.tsx` | `ficheOrigin` gana `"viaje"`; `ficheOriginLabel` nuevo; puente con `window.history` (`navDepthRef`/`ignorePopRef`/`syncNavPush`/`syncNavReplace`/listener de `popstate`); Viaje reestructurado en dos niveles (exterior sin scroll + interior `--scroll`, como Quiero ir); `ZoneComparison` recibe `onSelectPlace={(id) => selectPlace(id, "viaje", "Dónde dormir")}`; `DETAIL_PANEL_WIDTH` 420 → 480. `viewOnMap` (corrección final #2): ya no llama a `selectPlace` — cierra `history`/`ficheOrigin`/`ficheOriginLabel` directamente, deshace `window.history` con el mismo mecanismo que `closeDetail`, y fija `mapFocusId` (nuevo) en vez de reabrir la ficha; `explorarMapPlace` (nuevo, `explorarSelectedPlace ?? mapFocusPlace`) es lo único que ve `<PlaceMap>`. |
 | `components/PlaceDetail.tsx` | `originLabel`/`onViewOnMap`, ambos opcionales. Back label nombra la superficie de origen cuando no hay salto "cerca de aquí"; botón «Ver en el mapa» junto al de "Quiero ir" (reutiliza `button button--secondary`, cero CSS nueva). Resto de la ficha (Bloque 4): sin cambios. |
-| `components/PlaceMap.tsx` | Una línea (`map.invalidateSize({ animate: false })` en `FocusSelected`) — arregla el `Invalid LatLng (NaN, NaN)` que "Ver en el mapa" podía disparar al hacer visible el mapa y enfocar un lugar en el mismo render (ver "Corrección final" § «Ver en el mapa»). Nada más de este fichero (geometría, iconos, `FitHubBounds`, `InvalidateOnResize`) cambia. |
+| `components/PlaceMap.tsx` | Una línea (`map.invalidateSize({ animate: false })` en `FocusSelected`) — arregla el `Invalid LatLng (NaN, NaN)` que "Ver en el mapa" podía disparar al hacer visible el mapa y enfocar un lugar en el mismo render (ver § «Ver en el mapa»). Sigue vigente tras la corrección final #2. Nada más de este fichero (geometría, iconos, `FitHubBounds`, `InvalidateOnResize`) cambia. |
 | `styles/tokens.css` | `--panel-width` (420px, compartido) se separa en `--sheet-panel-width: 420px` y `--place-detail-panel-width: 480px`. |
 | `App.css` | `.sheet` (md+) consume `--sheet-panel-width`; `.app__detail` (md+) consume `--place-detail-panel-width`; comentarios corregidos (420px → 480px donde describían la ficha, no `Sheet`). |
-| `block18-shell.test.ts` | +17 tests; 4 reescritos (ver "Tests"). |
+| `block18-shell.test.ts` | +22 tests sobre el cierre original de B18 (41 → 63); varios reescritos entre las dos rondas (ver "Tests"). |
 
-**No tocados en esta ronda, pese a estar cerca del cambio**: `ZoneComparison.tsx` (sólo cambió cómo
-la llama `App.tsx`, no su propio código), `SelectionPanel.tsx`/`SelectionAnalysis.tsx` (Quiero ir
-no gana `originLabel` ni «Ver en el mapa» — fuera del alcance de `DD-015`), `OrderedSequenceBuilder
-.tsx` (no abre lugares), `PlaceGallery.tsx`, `PlaceCard.tsx`, `PlaceList.tsx`.
+**No tocados**, pese a estar cerca del cambio, en ninguna de las dos rondas: `ZoneComparison.tsx`
+(sólo cambió cómo la llama `App.tsx`, no su propio código), `SelectionPanel.tsx`/
+`SelectionAnalysis.tsx` (Quiero ir no gana `originLabel` ni «Ver en el mapa» — fuera del alcance
+de `DD-015`), `OrderedSequenceBuilder.tsx` (no abre lugares), `PlaceGallery.tsx`, `PlaceCard.tsx`,
+`PlaceList.tsx`.
 
 ## Qué overlays dejaron de ser overlays
 
@@ -304,12 +310,12 @@ scroll, cambia de color (`transparent` → `--line`), y se retira de nuevo al vo
 
 ## Baseline → final
 
-| Medición | Baseline (`0833912`) | Final (esta rama, tras la corrección final) |
+| Medición | Baseline (`0833912`) | Final (esta rama, tras la corrección final #2) |
 |---|---|---|
-| Vitest | 93 archivos / 3200 tests | **94 archivos / 3258 tests** |
+| Vitest | 93 archivos / 3200 tests | **94 archivos / 3263 tests** |
 | Lint (`oxlint`) | limpio | limpio |
 | `tsc -b` / `vite build` | limpio | limpio |
-| Entry JS | 1,398,734 B / gzip 259.95 kB | 1,408,886 B / gzip 262.22 kB (+0.7% / +0.9%) |
+| Entry JS | 1,398,734 B / gzip 259.95 kB | 1,409,159 B / gzip 262.31 kB (+0.7% / +0.9%) |
 | CSS | 106,443 B / gzip 20.98 kB | 110,864 B / gzip 21.64 kB (+4.1% / +3.1%) |
 | `ZoneComparison` chunk | 19,010 B / gzip 5.87 kB | 19,093 B / gzip 5.91 kB |
 | `OrderedSequenceBuilder` chunk | 136,800 B / gzip 32.18 kB | 136,909 B / gzip 32.26 kB |
@@ -318,14 +324,17 @@ scroll, cambia de color (`transparent` → `--line`), y se retira de nuevo al vo
 | Cromo total (+ navegación permanente) | ~330px (sin `TabBar` propio) | **160px** |
 
 El crecimiento respecto al cierre original de B18 (que reportaba 94/3226 y 109,926 B de CSS)
-proviene de las dos correcciones posteriores. La corrección de cumplimiento normativo aportó los
+proviene de las tres correcciones posteriores. La corrección de cumplimiento normativo aportó los
 tokens de `tokens.css` (Sección 8, "Cromo del shell"), los tres iconos `-relleno` de `Icon.tsx`, y
-el estado `ficheOrigin`/`viajeVisited`/`headerScrolled`. La corrección final (Viaje → Lugar)
-aporta el resto: `ficheOriginLabel`, el puente con `window.history` (`navDepthRef`/`ignorePopRef`/
-`syncNavPush`/`syncNavReplace`/el listener de `popstate`), «Ver en el mapa» en `PlaceDetail`, la
-llamada a `invalidateSize` en `PlaceMap.tsx` (el único fichero tocado que no es shell), la
-separación `--sheet-panel-width`/`--place-detail-panel-width`, y las 17 pruebas nuevas o
-reescritas en `block18-shell.test.ts`. Ningún byte proviene de trabajo de B19+.
+el estado `ficheOrigin`/`viajeVisited`/`headerScrolled`. La corrección final (Viaje → Lugar) aportó
+`ficheOriginLabel`, el puente con `window.history` (`navDepthRef`/`ignorePopRef`/`syncNavPush`/
+`syncNavReplace`/el listener de `popstate`), «Ver en el mapa» en `PlaceDetail`, la llamada a
+`invalidateSize` en `PlaceMap.tsx` (el único fichero tocado que no es shell), la separación
+`--sheet-panel-width`/`--place-detail-panel-width`, y 17 pruebas nuevas o reescritas en
+`block18-shell.test.ts`. La corrección final #2 no toca CSS ni tokens — sólo `App.tsx`
+(`mapFocusId`, `explorarMapPlace`, `viewOnMap` reescrito) y 5 tests netos más en
+`block18-shell.test.ts` (22 en total sobre el cierre original). Ningún byte proviene de trabajo de
+B19+.
 
 ## Tests
 
@@ -364,9 +373,30 @@ relajado: el ancho de `.app__detail` en `md`+ (`--panel-width` → `--place-deta
 firma de `selectPlace` (gana `originLabel`), la ventana de caracteres que verifica
 `<ZoneComparison … embedded` (creció porque `onSelectPlace` ahora envuelve `selectPlace` con la
 etiqueta de origen), y la estructura de Viaje (`div` combinado → exterior/interior). Dos scripts
-Playwright nuevos, ambos en verde contra un build real: `scripts/b18-viaje-lugar-check.mjs`
-(28/28) y `scripts/b18-browser-back-check.mjs` (15/15) — ver "Corrección final: Viaje → Lugar
-(DD-015)" para qué cubre cada uno.
+Playwright nuevos: `scripts/b18-viaje-lugar-check.mjs` y `scripts/b18-browser-back-check.mjs` — ver
+"Corrección final: Viaje → Lugar (DD-015)" para qué cubre cada uno.
+
+**Corrección final #2** («Ver en el mapa» no debe reabrir la ficha — ver esa sección para el
+detalle): `block18-shell.test.ts` pasó de 58 a **63 tests** (22 en total sobre el cierre original
+de B18). Se retiró el test que exigía literalmente que `viewOnMap` llamara a `selectPlace(
+selectedPlace.id, "explorar")` — esa firma era justo la implementación incorrecta que esta
+corrección reemplaza — y se sustituyó por seis pruebas bajo "corrección final #2": `mapFocusId`
+como estado separado de `history`/`ficheOrigin` (una sola construcción de `<PlaceDetail` sigue
+existiendo), `explorarMapPlace` con la prioridad correcta (ficha real > foco de mapa) y
+`panelOffset` sin reservar hueco de panel para un foco sin ficha, que `viewOnMap` ya no contiene
+ninguna llamada a `selectPlace`, que deshace `window.history` con el mecanismo de `closeDetail`
+(`go(-navDepthRef.current)`, no `replaceState`), que cambia destino/hub/vista móvil en el orden
+correcto, y que `mapFocusId` se limpia en `selectPlace`/`switchHub`/`enterHub`/`returnToJapan`. El
+test que verificaba qué recibía `PlaceMap` (`selectedPlace={explorarSelectedPlace}`) se actualizó
+para reflejar que ahora recibe `explorarMapPlace`, sin relajar la aserción original (PlaceList
+sigue sin reaccionar nunca a una selección ajena).
+
+`scripts/b18-viaje-lugar-check.mjs` creció de 28/28 a **38/38**: reescribió por completo las
+comprobaciones de «Ver en el mapa» (destino Explorar, vista Mapa en teléfono, `.app__detail`
+=== 0, mapa visible, marcador resaltado, `history.state` sin residuo) y añadió el caso encadenado
+que pide explícitamente esta corrección — Lugar A → Lugar B → «Ver en el mapa» — con la misma
+comprobación de `history.state`. `scripts/b18-browser-back-check.mjs` no cambió (15/15): no tenía
+ninguna aserción sobre «Ver en el mapa».
 
 ## Rendimiento
 
@@ -603,22 +633,29 @@ de al menos dos lugares en cada uno — `scripts/b18-browser-back-check.mjs`, 15
 Única acción, desde una ficha abierta en Viaje, autorizada a cambiar de pestaña. Botón de texto
 completo (nunca icon-only) dentro del cuerpo de la ficha, junto al botón "Quiero ir" — cero bloque
 visual nuevo, reutiliza el patrón ya existente de botón secundario (`button button--secondary`,
-el mismo que "Abrir el planificador" en `ZoneComparison`). Al pulsarlo: cierra/hace pop del stack
-de Viaje, cambia el destino a Explorar, y abre/centra el mismo lugar en su mapa — reutilizando
-`selectPlace(id, "explorar")` tal cual, sin reimplementar su lógica, así que nunca deja una
-segunda ficha fantasma abierta en Viaje (sólo puede haber una a la vez, por construcción).
+el mismo que "Abrir el planificador" en `ZoneComparison`). La decisión aprobada es exactamente
+"cambia a Explorar y centra el mapa" — **nunca** "abre la ficha en Explorar": al pulsarlo, cierra
+el stack de ficha de Viaje del todo (`history`/`ficheOrigin`/`ficheOriginLabel` a su valor vacío,
+más las entradas correspondientes de `window.history` — ver "Corrección final #2" para el detalle
+de por qué la primera implementación no hacía esto y cómo se arregló), cambia el destino a
+Explorar, selecciona el hub del lugar, cambia a la vista Mapa en teléfono, y centra/resalta ese
+lugar en `PlaceMap` mediante `mapFocusId` — un estado mínimo y separado de `history`, que nunca
+monta `PlaceDetail`. `ZoneComparison` (o cualquier otra superficie de Viaje) no se toca: sigue
+montada de fondo, así que al volver manualmente a Viaje su estado sigue intacto. Un click normal
+posterior sobre cualquier lugar en Explorar sigue pasando por `selectPlace` tal cual, sin relación
+con `mapFocusId` — abre su ficha exactamente como siempre.
 
-Al implementarlo se encontró y arregló un bug real, no cosmético: `PlaceMap` (`components/
-PlaceMap.tsx`, no tocado por B18 hasta ahora) lanzaba `Invalid LatLng object: (NaN, NaN)` cuando
-"Ver en el mapa" hacía que `destination` pasara a `"explorar"` (sacando el mapa de `display:none`)
-en el mismo render en que `selectedPlace` dejaba de ser `null` — el contenedor de Leaflet podía
-no tener aún un tamaño real cuando `FocusSelected` calculaba `map.project()`, porque el
-`ResizeObserver` que normalmente corrige el tamaño cacheado (`InvalidateOnResize`) es asíncrono.
-Antes de esta corrección esa combinación (destino oculto → visible + lugar seleccionado, en el
-mismo tick) no podía ocurrir; "Ver en el mapa" es el primer camino que la produce. Arreglado con
-una llamada a `map.invalidateSize({ animate: false })` al principio del efecto de `FocusSelected`
-— barata e idempotente cuando el tamaño no ha cambiado, así que no tiene coste en el camino ya
-existente (Explorar ya visible al seleccionar).
+Al implementarlo (en la primera ronda de esta corrección) se encontró y arregló un bug real, no
+cosmético: `PlaceMap` (`components/PlaceMap.tsx`, no tocado por B18 hasta entonces) lanzaba
+`Invalid LatLng object: (NaN, NaN)` cuando "Ver en el mapa" hacía que `destination` pasara a
+`"explorar"` (sacando el mapa de `display:none`) en el mismo render en que había un lugar
+enfocado — el contenedor de Leaflet podía no tener aún un tamaño real, porque el `ResizeObserver`
+que normalmente corrige el tamaño cacheado (`InvalidateOnResize`) es asíncrono. Arreglado con una
+llamada a `map.invalidateSize({ animate: false })` al principio del efecto de `FocusSelected` —
+barata e idempotente cuando el tamaño no ha cambiado, así que no tiene coste en el camino ya
+existente (Explorar ya visible al seleccionar). Este arreglo sigue vigente tras la corrección
+final #2 — el bug era del propio cambio de visibilidad del mapa, no de qué estado concreto lo
+dispara.
 
 ### 420 Sheet / 480 ficha
 
@@ -650,31 +687,122 @@ adoptó también la misma reestructuración en dos niveles que Quiero ir ya ten�
 con «Dónde dormir»/«Planificar» al hacer scroll. `viajeVisited` y la garantía de montaje de la
 corrección anterior no se tocaron.
 
+Corrección final #2: `mapFocusId` (`string | null`, nuevo) es el único estado añadido para «Ver
+en el mapa» — deliberadamente separado de `history`/`ficheOrigin`, para que centrar el mapa nunca
+implique montar `PlaceDetail`. No es un segundo store de lugar ni un segundo stack: sigue habiendo
+una sola construcción de `<PlaceDetail` en todo `App.tsx`, gobernada exclusivamente por `history`/
+`ficheOrigin` como siempre. `explorarMapPlace` (`explorarSelectedPlace ?? mapFocusPlace`) es lo
+único nuevo que ve `PlaceMap`: una ficha real abierta manda siempre (ningún cambio de
+comportamiento para un click normal); a falta de una, el foco de «Ver en el mapa» toma su lugar,
+reutilizando tal cual el mecanismo que `PlaceMap` ya tenía para `selectedPlace` (`FocusSelected`,
+marcador `place-marker--selected`, visible pese a los filtros) — cero UI nueva. Se limpia en
+`selectPlace` (cualquier apertura real de lugar lo vuelve obsoleto) y en `switchHub`/`enterHub`/
+`returnToJapan` (un cambio de ciudad también lo vuelve obsoleto).
+
 ### Gates nuevos
 
 Dos scripts nuevos, mismo patrón que los `b18-*.mjs` existentes (Playwright contra un build real,
-`chromium.launch` con el binario preinstalado, sin mocks):
+`chromium.launch` con el binario preinstalado, sin mocks). Cifras finales, tras la corrección
+final #2 (ver esa sección para qué añadió cada una):
 
-- **`scripts/b18-viaje-lugar-check.mjs` (28/28):** stack y retorno a origen exacto, scroll ±2px,
+- **`scripts/b18-viaje-lugar-check.mjs` (38/38):** stack y retorno a origen exacto, scroll ±2px,
   modo `browse`/`compare` preservado, encadenado de 2+ lugares, instancia única
-  (`.app__detail` nunca duplicado), «Ver en el mapa» (cambia destino, centra el lugar, sin ficha
-  fantasma, verificado también en `md`+ con `aria-current`), cambiar de pestaña manualmente con la
-  ficha abierta y volver (invariante del stack, verificado en `md`+ vía `NavRail`, ya que en
-  teléfono la ficha cubre `TabBar` por completo y no es una acción alcanzable ahí), y los tokens
-  420/480 medidos en el navegador (no sólo en CSS fuente).
+  (`.app__detail` nunca duplicado), «Ver en el mapa» (cambia destino, vista Mapa en teléfono,
+  centra/resalta el lugar, **cero** `.app__detail` al llegar, sin `nihonPlaceDepth` residual en
+  `window.history`, verificado también encadenado — A → B → «Ver en el mapa» — y en `md`+ con
+  `aria-current`), cambiar de pestaña manualmente con la ficha abierta y volver (invariante del
+  stack, verificado en `md`+ vía `NavRail`, ya que en teléfono la ficha cubre `TabBar` por completo
+  y no es una acción alcanzable ahí), y los tokens 420/480 medidos en el navegador (no sólo en CSS
+  fuente).
 - **`scripts/b18-browser-back-check.mjs` (15/15):** `page.goBack()` real en Quiero ir, Viaje, y una
   cadena de al menos dos lugares en cada uno — cubre exactamente el punto 4 de esta corrección.
 
-Además, `block18-shell.test.ts` sumó 17 tests (41 → 58): back label/«Ver en el mapa» en
-`PlaceDetail`, `ficheOriginLabel`/`viewOnMap` en `App.tsx`, el puente con `window.history`
-(listener de `popstate`, push/replace/go en cada punto de entrada/salida de la pila, sin URL
-pública nueva), la reestructuración de dos niveles de Viaje, y los tokens `--sheet-panel-width`/
-`--place-detail-panel-width` (declarados, consumidos por el componente correcto, sin literales
-420/480 fuera de `tokens.css`). Cero tests relajados: los cuatro que esta corrección invalidó
-(`--panel-width` compartido, el `div` combinado de Viaje, la firma de `selectPlace` sin
-`originLabel`, y la ventana de caracteres del test que verifica `<ZoneComparison … embedded`) se
-reescribieron para verificar el nuevo mecanismo con el mismo o mayor detalle, cada uno con un
-comentario que cita esta corrección.
+Además, `block18-shell.test.ts` sumó 22 tests en total sobre el cierre original de B18 (41 → 63):
+17 en la primera ronda (back label/«Ver en el mapa» en `PlaceDetail`, `ficheOriginLabel` en
+`App.tsx`, el puente con `window.history`, la reestructuración de dos niveles de Viaje, los tokens
+`--sheet-panel-width`/`--place-detail-panel-width`) y 5 netos más en la corrección final #2
+(`mapFocusId` como estado separado, `explorarMapPlace`, que `viewOnMap` ya no llama a
+`selectPlace`, que deshace la profundidad completa de `window.history`, y que `mapFocusId` se
+limpia en cada punto de entrada que lo vuelve obsoleto — un test de la primera ronda que
+verificaba literalmente la implementación incorrecta de `viewOnMap` se sustituyó por estos).
+Cero tests relajados: cada uno que esta corrección invalidó se reescribió para verificar el
+mecanismo correcto con el mismo o mayor detalle, con un comentario que cita la corrección.
+
+## Corrección final #2: «Ver en el mapa» no debe reabrir la ficha en Explorar
+
+Tercera ronda sobre este bloque. Encontrada tras revisar la implementación de la corrección
+anterior contra la decisión de diseño aprobada.
+
+### Hallazgo
+
+`viewOnMap` (la corrección final, arriba) llamaba a `selectPlace(selectedPlace.id, "explorar")`.
+`selectPlace` es el punto de entrada que **abre** `PlaceDetail` — mismo mecanismo que cualquier
+apertura normal de ficha (`history`/`ficheOrigin`), así que "Ver en el mapa" terminaba
+convirtiendo la ficha de Viaje en una ficha de Explorar, en vez de cerrarla y sólo centrar el
+mapa. La decisión aprobada es explícita: *"«Ver en el mapa» cambia a Explorar y centra el mapa.
+Al ejecutarla, Viaje hace pop de la ficha y queda en la pantalla de origen."* — no dice, en
+ningún momento, que la ficha deba reaparecer en Explorar.
+
+El defecto era especialmente grave en teléfono: `PlaceDetail` de Explorar es pantalla completa
+(`05 §5`, sin excepción), así que justo después de pulsar un botón que promete llevar al mapa, el
+mapa quedaba tapado por completo — el resultado observable era el opuesto del prometido.
+
+Además, reutilizar `selectPlace` para este caso interactuaba mal con el puente de
+`window.history`: como `navDepthRef.current` ya era mayor que 0 (la ficha de Viaje que se estaba
+cerrando), `selectPlace` tomaba su rama de `replaceState` (pensada para "sustituir qué lugar se ve
+en el mismo nivel de profundidad", no para "cerrar del todo") — con una cadena de 2+ lugares
+(`navDepthRef` ≥ 2), eso dejaba una entrada de profundidad empujada por el nivel más profundo sin
+desalojar del historial real del navegador, huérfana bajo la entrada que sí se reemplazaba.
+
+### Fix
+
+`viewOnMap` deja de llamar a `selectPlace` y pasa a hacer, en este orden, exactamente lo que pide
+la decisión:
+
+1. Guarda el lugar a centrar en `mapFocusId` — estado nuevo, mínimo, deliberadamente separado de
+   `history`/`ficheOrigin` (ver "Arquitectura", arriba). No es un segundo store de lugar ni un
+   segundo stack: `PlaceDetail` sigue teniendo una única instancia lógica.
+2. Cierra el stack de ficha de Viaje del todo — `setHistory([])`/`setFicheOrigin(null)`/
+   `setFicheOriginLabel(null)`, igual que `closeDetail`, no un nivel menos.
+3. Deshace del historial real del navegador toda la profundidad que ese stack había empujado:
+   `if (navDepthRef.current > 0) { ignorePopRef.current += 1; window.history.go(-navDepthRef.current); navDepthRef.current = 0; }`
+   — el mismo mecanismo que ya usaba `closeDetail` (un único `popstate`, ignorado, para cualquier
+   profundidad), aplicado aquí en vez de la rama de `replaceState` de `selectPlace`. Con una
+   cadena de 2 lugares esto hace `go(-2)` en una sola pasada — confirmado en un navegador real
+   (Chromium) que aterriza exactamente en la entrada de profundidad 0 (`history.state === null`),
+   sin ninguna entrada `nihonPlaceDepth` residual.
+4. Viaje no se toca — `ZoneComparison` sigue montada de fondo.
+5. Cambia el destino a Explorar y selecciona el hub del lugar (mismo criterio que `selectPlace`:
+   sólo si el hub difiere del activo).
+6. En teléfono cambia la vista de Explorar a Mapa (`setMobilePane("map")`).
+7. `mapFocusId` hace que `PlaceMap` centre/resalte el lugar — `explorarMapPlace` (nuevo,
+   `explorarSelectedPlace ?? mapFocusPlace`) es lo único que cambia en el `<PlaceMap>` de Explorar;
+   reutiliza tal cual el mecanismo que ya tenía para `selectedPlace` (`FocusSelected`, marcador
+   `place-marker--selected`, visible pese a los filtros) — cero UI nueva.
+8. Nunca se toca `history`/`ficheOrigin` con este lugar, así que `PlaceDetail` no se abre.
+
+Un click normal posterior sobre cualquier lugar en Explorar sigue pasando por `selectPlace` tal
+cual — `mapFocusId` no interfiere; se limpia automáticamente en `selectPlace` y en los tres
+cambios de hub (`switchHub`/`enterHub`/`returnToJapan`) para que no sobreviva a una navegación que
+lo vuelve obsoleto.
+
+### Verificado
+
+`scripts/b18-viaje-lugar-check.mjs` (38/38) añadió, en 390×844: abrir ficha desde Viaje → «Ver en
+el mapa» → destino Explorar, vista Mapa, `.app__detail === 0`, mapa visible, marcador del lugar
+resaltado, `history.state` sin `nihonPlaceDepth`; y, manualmente, volver a Viaje restaura
+exactamente «Dónde dormir»/`ZoneComparison` sin ficha abierta. Además, el caso encadenado exigido
+explícitamente por esta corrección: Lugar A → Lugar B → «Ver en el mapa» → mismas comprobaciones,
+más la confirmación de que el historial aterriza en profundidad 0 en una sola pasada. Mismas
+comprobaciones repetidas en `md`+ (1280×900) vía `aria-current`/ancho de panel. `block18-shell
+.test.ts` verifica en código fuente que `viewOnMap` ya no contiene ninguna llamada a `selectPlace`.
+
+### Guard añadido
+
+El test de fuente que antes exigía literalmente `viewOnMap` con `selectPlace(selectedPlace.id,
+"explorar")` se invirtió: ahora falla si `viewOnMap` vuelve a contener la cadena `"selectPlace("`.
+El gate de `b18-viaje-lugar-check.mjs` sobre el caso encadenado falla si `history.state` conserva
+`nihonPlaceDepth` tras «Ver en el mapa» — el síntoma exacto de esta regresión.
 
 ## Deuda diferida a B19+ (deliberadamente, no implementada aquí)
 
@@ -718,3 +846,11 @@ ningún `DESIGN DECISION REQUIRED` nuevo al implementarla — todo lo que no est
 (el mecanismo de `window.history`, la ubicación del botón «Ver en el mapa» dentro de la ficha, la
 separación de tokens 420/480) cae bajo `08 §"Lo que ingeniería decide libremente"` y está
 registrado en esa misma sección con su razón.
+
+**La corrección final #2** (`viewOnMap` reabría la ficha en Explorar en vez de sólo centrar el
+mapa — sección "Corrección final #2" de este documento) fue un defecto de implementación contra
+la propia decisión ya aprobada, no una decisión de diseño distinta: el texto de `DD-015` ya decía
+"cambia a Explorar y centra el mapa", nunca "abre su ficha". Tampoco surgió aquí ningún
+`DESIGN DECISION REQUIRED` — el único elemento sin especificar (`mapFocusId` como mecanismo
+concreto para centrar el mapa sin abrir una ficha) cae igualmente bajo
+`08 §"Lo que ingeniería decide libremente"`.

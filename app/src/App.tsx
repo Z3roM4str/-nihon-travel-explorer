@@ -226,6 +226,16 @@ export default function App() {
   const [citySheetOpen, setCitySheetOpen] = useState(false);
   /** Phones show one hub surface at a time; the cards come first. */
   const [mobilePane, setMobilePane] = useState<MobilePane>("list");
+  /**
+   * Corrección final #2 (hallazgo: «Ver en el mapa» abría una `PlaceDetail` de Explorar en vez
+   * de sólo centrar el mapa). Estado mínimo, deliberadamente separado de `history`/
+   * `ficheOrigin`: sólo dice qué lugar debe quedar centrado/resaltado en `PlaceMap` cuando NO
+   * hay ninguna ficha abierta en Explorar. No es un segundo store de lugar ni un segundo
+   * stack — `PlaceDetail` sigue teniendo una única instancia lógica, gobernada exclusivamente
+   * por `history`/`ficheOrigin` como siempre. Se limpia en cuanto cualquier navegación hace que
+   * el foco deje de tener sentido (abrir un lugar de verdad, cambiar de hub, volver a Japón).
+   */
+  const [mapFocusId, setMapFocusId] = useState<string | null>(null);
 
   // ---- Quiero ir ----
   /** Bloque 18: ya no es un panel inferior colapsable de cromo global — es el contenido de la
@@ -367,6 +377,16 @@ export default function App() {
    */
   const explorarSelectedId = ficheOrigin === "explorar" ? selectedId : null;
   const explorarSelectedPlace = ficheOrigin === "explorar" ? selectedPlace : null;
+  /**
+   * Corrección final #2: qué lugar centra/resalta `PlaceMap` en Explorar. Una ficha realmente
+   * abierta manda siempre (comportamiento sin cambios para un click normal); a falta de una, el
+   * foco dejado por «Ver en el mapa» (`mapFocusId`) toma su lugar — mismo mecanismo de
+   * `FocusSelected`/marcador seleccionado/"visible pese a los filtros" que `PlaceMap` ya tenía
+   * para `selectedPlace`, reutilizado tal cual, sin ningún camino nuevo de renderizado. Nunca
+   * abre `PlaceDetail`: eso sigue dependiendo únicamente de `explorarSelectedPlace`.
+   */
+  const mapFocusPlace = mapFocusId ? getPlaceById(mapFocusId) ?? null : null;
+  const explorarMapPlace = explorarSelectedPlace ?? mapFocusPlace;
 
   const filteredPlaces = useMemo(
     () => hubPlaces.filter((place) => matchesFilters(place, filters)),
@@ -570,6 +590,11 @@ export default function App() {
       setFiltersOpen(false);
       setFicheOrigin(origin);
       setFicheOriginLabel(originLabel);
+      // Una apertura real de ficha manda sobre cualquier foco de mapa que hubiera quedado de un
+      // «Ver en el mapa» anterior — evita que un lugar visto hace rato siga resaltado tras
+      // cerrar esta ficha nueva (`explorarMapPlace` ya prioriza la ficha mientras está abierta,
+      // pero sin esto reaparecería el foco viejo, no ninguno, al cerrarla).
+      setMapFocusId(null);
       // Corrección final (punto 4): abrir una ficha desde cero empuja una entrada de
       // historial; reemplazar qué lugar se ve mientras una ficha ya está abierta (p. ej. tocar
       // otra tarjeta de la lista sin haber cerrado la anterior) no crece la pila — sigue siendo
@@ -647,18 +672,54 @@ export default function App() {
   }, []);
 
   /**
-   * «Ver en el mapa» (punto 3): la única acción, desde una ficha de Viaje, autorizada a cambiar
-   * de contexto. Reutiliza `selectPlace` con `origin="explorar"` en vez de reimplementar su
-   * lógica: eso ya hace exactamente lo que pide la decisión — sustituye (no apila) la profundidad
-   * de Viaje por una única ficha bajo Explorar (nunca deja una segunda ficha fantasma), mueve
-   * `destination` a Explorar y centra/abre el lugar en su mapa (`explorarSelectedPlace`, ya
-   * consumido por `PlaceMap`). `ZoneComparison` (o cualquier otra superficie de Viaje) no se
-   * toca: sigue montada de fondo, así que al volver manualmente a Viaje su estado sigue intacto.
+   * «Ver en el mapa» (punto 3, corregido en la segunda ronda): la única acción, desde una ficha
+   * de Viaje, autorizada a cambiar de contexto. La decisión aprobada es "cambia a Explorar y
+   * centra el mapa" — **no** "abre la ficha en Explorar". La primera implementación reutilizaba
+   * `selectPlace(id, "explorar")`, que sí abre `PlaceDetail` (misma pila `history`/`ficheOrigin`
+   * que cualquier apertura normal): en teléfono, donde la ficha es pantalla completa, el mapa
+   * quedaba tapado justo después de pulsar el botón que decía llevarte a verlo. Corregido para
+   * hacer exactamente los pasos de la decisión, en orden:
+   *
+   * 1. guarda qué lugar centrar (`mapFocusId`, antes de tocar `history`);
+   * 2-3. cierra el stack de ficha de Viaje del todo (`history`/`ficheOrigin`/`ficheOriginLabel`
+   *    a su valor vacío — igual que `closeDetail`, no un nivel menos);
+   * 4. deshace del historial real del navegador las entradas de profundidad que ese stack había
+   *    empujado (`history.go(-navDepthRef.current)`, mismo mecanismo que `closeDetail` — un único
+   *    `popstate` para cualquier profundidad, `navDepthRef` vuelve a 0, sin entradas residuales);
+   * 5. Viaje no se toca — `ZoneComparison` sigue montada de fondo con su estado intacto;
+   * 6-7. cambia el destino a Explorar y selecciona el hub del lugar;
+   * 8. en teléfono (y en cualquier ancho por debajo de `md`, donde `mobilePane` decide qué pane
+   *    se ve) cambia a la vista Mapa;
+   * 9. `mapFocusId` hace que `PlaceMap` centre/resalte el lugar vía `explorarMapPlace`, sin que
+   *    ninguna ficha se monte — la reutilización de `FocusSelected`/marcador seleccionado que
+   *    `PlaceMap` ya tenía es la única "UI nueva", y no es nueva en absoluto;
+   * 10. nunca se toca `history`/`ficheOrigin` con este lugar, así que `PlaceDetail` no se abre.
+   *
+   * Un click normal posterior sobre cualquier lugar en Explorar sigue pasando por `selectPlace`
+   * tal cual, sin relación con `mapFocusId` — abre la ficha exactamente como siempre.
    */
   const viewOnMap = useCallback(() => {
     if (!selectedPlace) return;
-    selectPlace(selectedPlace.id, "explorar");
-  }, [selectedPlace, selectPlace]);
+    const place = selectedPlace;
+
+    setMapFocusId(place.id);
+
+    setHistory([]);
+    setFicheOrigin(null);
+    setFicheOriginLabel(null);
+    if (navDepthRef.current > 0) {
+      ignorePopRef.current += 1;
+      window.history.go(-navDepthRef.current);
+      navDepthRef.current = 0;
+    }
+
+    setDestination("explorar");
+    if (place.hub !== activeHub) {
+      setView({ mode: "hub", hub: place.hub });
+      setFilters(EMPTY_FILTERS);
+    }
+    setMobilePane("map");
+  }, [selectedPlace, activeHub]);
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   /**
@@ -707,6 +768,7 @@ export default function App() {
         const openPlace = openId ? getPlaceById(openId) : undefined;
         return openPlace && openPlace.hub !== hub ? [] : trail;
       });
+      setMapFocusId(null);
     },
     [activeHub]
   );
@@ -722,6 +784,7 @@ export default function App() {
     setHistory([]);
     setFiltersOpen(false);
     setMobilePane("list");
+    setMapFocusId(null);
   }, []);
 
   /** Hub Explorer → National Explorer. Saved places are untouched; the trail is dropped so
@@ -733,6 +796,7 @@ export default function App() {
     setFiltersOpen(false);
     setCitySheetOpen(false);
     setMobilePane("list");
+    setMapFocusId(null);
   }, []);
 
   const selectRegion = useCallback((region: NavigationRegion | null) => {
@@ -984,7 +1048,7 @@ export default function App() {
                       places={filteredPlaces}
                       hubPlaces={hubPlaces}
                       activeHub={activeHub}
-                      selectedPlace={explorarSelectedPlace}
+                      selectedPlace={explorarMapPlace}
                       savedIds={savedIds}
                       onSelect={selectPlace}
                       panelOffset={isDesktop && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}

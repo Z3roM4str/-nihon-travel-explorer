@@ -225,8 +225,9 @@ llegar a la superficie de origen. En cualquier momento, como en el resto del pro
 una ficha de lugar sólo puede estar abierta en un destino a la vez (instancia única).
 La única acción autorizada a cambiar de pestaña desde una ficha abierta en Viaje es
 «Ver en el mapa», explícita y etiquetada (nunca icon-only): cierra el stack de Viaje,
-cambia a Explorar y centra/abre ese lugar en su mapa, sin dejar una segunda ficha
-abierta en Viaje. En teléfono la ficha sigue la regla general de `05 §5` (cubre el
+cambia a Explorar y centra ese lugar en el mapa — nunca abre su ficha en Explorar, la
+cierra del todo — sin dejar una segunda ficha abierta en Viaje ni en Explorar. En
+teléfono la ficha sigue la regla general de `05 §5` (cubre el
 100 % de la altura visible, incluidos cabecera y `TabBar`) sin excepción para Viaje;
 en `md`+ es el panel derecho de 480 px con `NavRail` visible. Esta decisión generaliza
 la regla de `02 §D3` — «cualquier enlace a un lugar apila la ficha dentro de la
