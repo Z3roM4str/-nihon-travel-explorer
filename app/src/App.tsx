@@ -14,6 +14,7 @@ import { SelectionPanel } from "./components/SelectionPanel";
 import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
 import { SaveToast } from "./components/SaveToast";
+import { PersistenceNotice } from "./components/PersistenceNotice";
 import { Sheet } from "./components/Sheet";
 import { PersonToken } from "./components/PersonToken";
 import { TabBar, NavRail } from "./components/AppNav";
@@ -1327,6 +1328,14 @@ export default function App() {
       </div>
 
       <SaveToast feedback={feedback} />
+
+      {/* DDR-03 / `04 §17`: UNA sola vez, en la raíz, para toda la aplicación. Vive fuera de
+          `.app__main` —y por tanto fuera de los cuatro paneles de destino— a propósito: el estado
+          de persistencia es uno, no cuatro, y este aviso tiene que seguir visible con la ficha
+          abierta sin que exista un segundo aviso en ninguna parte. Él mismo decide si se
+          renderiza, leyendo la única fuente de verdad; aquí no hay condición que pueda
+          desincronizarse. */}
+      <PersistenceNotice />
 
       {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
     </div>

@@ -650,10 +650,31 @@ describe("Block 13 — the core is pure", () => {
 describe("Block 13 — the browser edge is confined to one module", () => {
   const hook = () => readFile(new URL("../usePortableBackup.ts", import.meta.url), "utf8");
 
-  it("only the hook reads the clock or storage; the core does neither", async () => {
+  /*
+   * DDR-03 refina de dónde sale el almacenamiento, sin relajar nada.
+   *
+   * El requisito es el mismo: el borde del navegador vive confinado y el núcleo puro no toca ni
+   * el reloj ni el almacenamiento. Lo que cambia es que ese borde ya no lo declara cada hook por
+   * su cuenta — `usePortableBackup` declaraba su propio `browserStorage` con `localStorage`
+   * dentro, igual que otros cuatro módulos —, sino que los cinco comparten
+   * `lib/device-storage.ts`, que es además la única fuente de verdad del estado de persistencia.
+   * El confinamiento es ahora MÁS estricto: un solo módulo en toda la aplicación toca
+   * `localStorage`, en vez de cinco. El reloj sigue siendo de este hook y de nadie más.
+   */
+  it("the clock lives in the hook, storage lives in one shared module, and the core has neither", async () => {
     const code = withoutComments(await hook());
-    expect(code).toMatch(/localStorage/);
     expect(code).toMatch(/new Date\(\)/);
+    // El hook ya no habla con `localStorage`: pasa por el adaptador compartido.
+    expect(code).not.toMatch(/localStorage/);
+    expect(code).toMatch(/deviceStorage/);
+
+    const edge = withoutComments(
+      await readFile(new URL("./device-storage.ts", import.meta.url), "utf8")
+    );
+    expect(edge).toMatch(/localStorage/);
+    // El borde no lee el reloj: eso sigue siendo del hook.
+    expect(edge).not.toMatch(/new Date\(/);
+
     const core = withoutComments(await readFile(new URL("./portable-backup.ts", import.meta.url), "utf8"));
     expect(core).not.toMatch(/localStorage|new Date\(/);
   });

@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint G — **DDR-02 verificada e integrada; B19 cerrado**
+**Última actualización:** 2026-09-21 · checkpoint H — **DDR-03 resuelta e implementada; B19 cerrado**
 
 ---
 
@@ -13,10 +13,10 @@
 
 | | |
 |---|---|
-| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02 y los cinco gates heredados) |
+| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `308415b` — `fix(block-19): verifica e integra DDR-02 de Codex; registra DDR-03` |
-| **Último SHA con cambio de producto** | `308415b` — DDR-02 (Codex, `5028647`) más la corrección del anillo de foco |
+| **Último SHA estable pusheado** | el checkpoint H (ver `git log -1`) |
+| **Último SHA con cambio de producto** | checkpoint H — `lib/device-storage.ts` y `PersistenceNotice` (DDR-03) |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
@@ -81,6 +81,13 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
     (centro, zoom, pin/selección), no la visibilidad: al cerrar, el mapa reaparece idéntico.
     `panelOffset` sobrevive como mecanismo, pero **sólo actúa donde mapa y panel se ven a la
     vez**.
+11. **DDR-02 — toda la tarjeta abre el lugar.** El control principal es hijo directo del
+    `<article>`, cubre la tarjeta entera y no nace dentro de `.place-card__media`, que conserva su
+    `overflow: hidden`. Corazón y token quedan por encima y no abren.
+12. **DDR-03 — la persistencia no falla en silencio.** **Una sola fuente de verdad**
+    (`lib/device-storage.ts`), **un solo aviso** renderizado en la raíz (`04 §17`), copy exacto, y
+    «Reintentar» que reescribe la carga que falló sin descartar nunca datos. Mientras hay error,
+    ninguna superficie afirma que los cambios quedaron guardados.
 
 ---
 
@@ -139,7 +146,7 @@ Todo desde `app/`. Los gates de navegador necesitan un `vite preview` en marcha:
 npm ci
 npm run build            # tsc -b && vite build
 npm run lint             # oxlint — debe salir sin una sola advertencia
-npx vitest run           # 94 ficheros / 3273 tests
+npx vitest run           # 95 ficheros / 3286 tests
 
 npx vite preview --port 4181 --strictPort &   # necesario para los gates de navegador
 export NIHON_BASE_URL=http://localhost:4181
@@ -149,6 +156,7 @@ Gates que **deben** pasar (todos ejecutados en el checkpoint G, con Chromium rea
 
 | Gate | Resultado |
 |---|---|
+| `node scripts/ddr03-persistence-check.mjs` | **43/43** — las once comprobaciones de DDR-03 en teléfono y escritorio, más los cinco breakpoints |
 | `node scripts/block19-grid-check.mjs` | **52/52** — seis viewports, ≥264 px, proporción, raíl ≤50 %, estabilidad del mapa, DDR-02 (fotografía/nombre/razón/chips, con y sin foto, corazón y token independientes, geometría del target, teclado y anillo de foco legible), cero `text-shadow` |
 | `node scripts/block19-contrast-check.mjs` | Dentro de contrato — scrim 0,811–0,944; nombre ≥12,78:1; categoría·zona ≥9,15:1 |
 | `node scripts/block19-discovery-browser-audit.mjs` | 30/30 |
@@ -273,7 +281,22 @@ tarjeta entera y no nace dentro de `.place-card__media`, que conserva su `overfl
 
 ## 9. DESIGN DECISION REQUIRED
 
-**Pendientes: una — DDR-03.** DDR-01 y DDR-02 están resueltas.
+**Pendientes: ninguna.** DDR-01, DDR-02 y DDR-03 están resueltas.
+
+### DDR-03 — RESUELTA el 2026-09-21: la persistencia no falla en silencio
+
+- **El defecto.** Cada módulo puro envolvía su `setItem` en un `try/catch` que se tragaba el
+  error. La persona marcaba lugares, la interfaz confirmaba cada marca, y al cerrar no quedaba
+  nada.
+- **La auditoría previa.** No hacía falta una capa nueva: **ya existía el punto común**. Los cinco
+  escritores (`useTravellers`, `usePlanningDraft`, `useZonePlanChoice`, `usePortableBackup`,
+  `useZoneComparison`) pasaban por un adaptador con la misma forma. Ahora comparten
+  `lib/device-storage.ts`, que registra el resultado y **vuelve a lanzar**: el camino de datos no
+  cambia, y los `try/catch` existentes siguen comportándose igual.
+- **`lib/onboarding.ts` queda fuera a propósito**: su clave es una preferencia de interfaz, no un
+  cambio del viaje. Avisar de pérdida antes de que haya nada que perder sería un falso positivo.
+- **Verificado** por `scripts/ddr03-persistence-check.mjs` (43/43) y
+  `src/lib/device-storage.test.ts` (13 casos). Detalle en `09` y `04 §17`.
 
 ### DDR-03 — ABIERTA: qué dice Nihon cuando no consigue guardar en el dispositivo
 
@@ -328,6 +351,30 @@ otro) **no tiene autoridad** para:
 6. Empezar el siguiente bloque (B4) ni ningún otro.
 7. Desactivar, relajar o saltarse un gate para poner algo en verde.
 8. Cambiar de rama o abrir una nueva.
+9. **Tomar la línea Astra como referencia.** Ver el cuadro de abajo — es una prohibición dura.
+
+### Qué línea de producto es autoritativa (guardrail Astra)
+
+| Línea | Ramas | Documentos | Estatus |
+|---|---|---|---|
+| **Nihon** | `claude/*` | `docs/design/` | **Autoritativa.** Es la que manda. |
+| **Astra** | `astra/*` | `docs/astra/` | Experimento paralelo. **No es fuente de verdad** para esta línea. |
+
+- **Ninguna rama `astra/*` sirve de base.** No se parte de ella, no se rebasea contra ella y no se
+  cherry-pickea código desde ella hacia `claude/*`.
+- **Ninguna discrepancia se resuelve a favor de Astra** sin instrucción explícita: si `docs/astra/`
+  y `docs/design/` dicen cosas distintas, gana `docs/design/`.
+- **El trabajo de Astra NO se borra, ni se archiva, ni se modifica.** Es un experimento legítimo,
+  con su propia historia y su propia autoría. Lo único que se evita es que vuelva a confundirse
+  con esta línea.
+- **Cómo reconocerla de un vistazo:** una rama Astra **no contiene `docs/design/`** (bifurca de
+  `1a11fe8`, anterior al congelado del sistema) y su código vive en `app/src/astra/`. Si estás en
+  un árbol sin `docs/design/`, no estás en esta línea.
+
+Esto no es teórico: en el checkpoint G se revisó un trabajo completo y correcto en su intención
+—un aviso de fallo de persistencia— que no se pudo integrar porque estaba construido sobre Astra.
+La idea se recuperó como DDR-03 y se implementó de cero en esta línea; el código no se portó.
+Versión normativa completa en `08` §«Líneas de producto».
 
 Si durante la implementación aparece algo que exige una decisión de diseño nueva, **no se
 improvisa**: se documenta como `DESIGN DECISION REQUIRED` en

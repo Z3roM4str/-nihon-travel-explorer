@@ -47,7 +47,26 @@ function addedLines(relativePath: string): string[] | null {
   } catch {
     return null;
   }
-  return diff.split("\n").filter((line) => line.startsWith("+") && !line.startsWith("+++"));
+  const added = diff.split("\n").filter((line) => line.startsWith("+") && !line.startsWith("+++"));
+  /*
+   * Un `git diff` atribuye como «añadida» cualquier línea cuyo contexto se haya desplazado, no
+   * sólo las nuevas de verdad: insertar una sección en medio del fichero hace que líneas
+   * heredadas e intactas reaparezcan en el lado `+`. Eso convertía este gate en un detector de
+   * ruido —`.save-toast`'s `#ff9e9e`, de v1.1.0, saltó así al añadir `PersistenceNotice`— en vez
+   * de un detector de valores nuevos. Se descuenta lo que YA ESTABA en la versión base: un color
+   * que ya existía no es un color que este bloque introduzca.
+   */
+  let base: string;
+  try {
+    base = execFileSync("git", ["show", `${PRE_B18_SHA}:${relativePath}`], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+    });
+  } catch {
+    return added;
+  }
+  const baseLines = new Set(base.split("\n").map((line) => line.trim()));
+  return added.filter((line) => !baseLines.has(line.slice(1).trim()));
 }
 
 describe("Bloque 18 — cuatro destinos permanentes (DD-001, 02 §D2)", () => {

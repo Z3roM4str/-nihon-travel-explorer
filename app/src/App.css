@@ -2865,6 +2865,89 @@ button.app__title.app__title--expand {
   }
 }
 
+/* ---------- PersistenceNotice (04 §17, DDR-03) ---------- */
+/*
+ * Anclado SOBRE la barra de pestañas, no sobre el borde inferior: es el mismo idioma que `04 §16`
+ * fija para `Toast`, y por la misma razón — el borde inferior es de la navegación.
+ *
+ * `z-index: 210` es la única cifra pensada de esta regla. Tiene que quedar por encima de la ficha
+ * y del onboarding (200) para seguir visible con la ficha abierta a pantalla completa (`05 §5`),
+ * y por debajo de `Sheet` (300), que es una tarea modal con su propio fondo: el aviso reaparece
+ * en cuanto la hoja se cierra. Entre 200 y 300 no hay nada más, así que no se pisa con nadie.
+ *
+ * `pointer-events` NO se apaga (a diferencia de `.save-toast-region`): este aviso lleva una
+ * acción, «Reintentar», y tiene que poder pulsarse.
+ */
+.persistence-notice {
+  position: fixed;
+  z-index: 210;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: calc(var(--chrome-tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-3));
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--risk-600);
+  border-radius: var(--radius-lg);
+  background: var(--risk-050);
+  color: var(--risk-600);
+  box-shadow: var(--elev-2);
+}
+
+.persistence-notice__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.persistence-notice__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+/* `04 §17.6`: la acción cumple los 44px de `03 §7` por caja real, no por expansión invisible —
+   está junto al texto, no junto a otro control, y conviene que su superficie pulsable coincida
+   con lo que se pinta. */
+.persistence-notice__retry {
+  flex-shrink: 0;
+  min-height: var(--tap-min);
+  border-color: var(--risk-600);
+  color: var(--risk-600);
+}
+
+.persistence-notice__retry:hover {
+  background: var(--surface);
+}
+
+/*
+ * Desde `md` la barra de pestañas desaparece (la sustituye `NavRail`, `02 §D5`), así que el aviso
+ * ya no tiene que esquivarla por abajo — pero sí por la izquierda: `NavRail` es navegación y
+ * `04 §17.4` prohíbe taparla.
+ */
+@media (min-width: 840px) {
+  .persistence-notice {
+    left: calc(var(--chrome-navrail-width) + var(--space-4));
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+}
+
+/*
+ * En `lg`+ el contenido crece mucho a lo ancho y una banda de 1.400px de aviso se lee peor que
+ * una acotada. Se limita con `min()`, no con un `max-width` en un `@media (max-width: …)` que
+ * Art. 8 prohíbe, y se deja pegada al lado de la lista, que es donde ocurre la escritura.
+ */
+@media (min-width: 1200px) {
+  .persistence-notice {
+    right: auto;
+    width: min(36rem, calc(100vw - var(--chrome-navrail-width) - var(--space-8)));
+  }
+}
+
 /* ---------- Onboarding ---------- */
 
 .onboarding {
