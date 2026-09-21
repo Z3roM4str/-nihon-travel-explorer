@@ -496,6 +496,7 @@ Ninguna capacidad se pierde (Art. 12). Verificable en revisión:
 | Comparación de órdenes | conservado, local al día | 7 |
 | Alternativas verificadas | conservadas, como opción | 7 |
 | Traslados entre ciudades | conservados | 7 |
+| Persistencia local silenciosa al fallar | **corregido**: aviso único y reintento real (DDR-03) | raíz, `04 §17` |
 | Zonas de alojamiento y comparación | conservadas, sin ranking | 8 |
 | Reservas y calendario oficial | conservados, agrupados | 9 |
 | Composición del viaje | conservada | 10 |

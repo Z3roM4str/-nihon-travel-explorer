@@ -169,6 +169,49 @@ es una prueba automatizable — `app/scripts/block19-grid-check.mjs` las ejecuta
    comportamiento independiente. Verificable por puntero y teclado, incluidos fotografía,
    nombre, razón y chips, y comprobando que el target no sobresale de la tarjeta.
 
+## Líneas de producto: cuál es autoritativa (guardrail Astra)
+
+El repositorio contiene **dos líneas de rediseño** que no son intercambiables. Confundirlas ya
+costó un trabajo completo que no se pudo integrar, así que queda escrito:
+
+| Línea | Ramas | Documentos | Estatus |
+|---|---|---|---|
+| **Nihon** | `claude/*` | `docs/design/` | **Autoritativa.** Es esta carpeta, y es la que manda. |
+| **Astra** | `astra/*` | `docs/astra/` | Experimento paralelo. **No es fuente de verdad** para esta línea. |
+
+Reglas, para cualquier agente:
+
+1. **Ninguna rama `astra/*` sirve de base.** No se parte de ella, no se rebasea contra ella y no
+   se cherry-pickea código desde ella hacia `claude/*`.
+2. **Ninguna discrepancia se resuelve a favor de Astra** sin instrucción explícita. Si `docs/astra/`
+   y `docs/design/` dicen cosas distintas, gana `docs/design/` — sin excepciones y sin preguntar.
+3. **El trabajo de Astra no se borra, ni se archiva, ni se modifica.** Es un experimento legítimo
+   con su propia historia y su propia autoría. Lo único que se evita es que vuelva a confundirse
+   con esta línea.
+4. **Señal práctica para reconocerla**: una rama de la línea Astra **no contiene `docs/design/`**
+   (bifurca de `1a11fe8`, anterior al congelado del sistema) y su código vive en `app/src/astra/`
+   con un modelo de datos propio (`nihon.memberInterests.v1`, miembros fijos). Si estás mirando un
+   árbol sin `docs/design/`, no estás en esta línea.
+
+## Invariantes verificables de la persistencia (DDR-03)
+
+1. **Una sola fuente de verdad.** El estado de persistencia es uno para todo el producto. No hay
+   estado por destino, y el aviso se renderiza una única vez en la raíz. Verificable: contar nodos
+   del aviso en el DOM tras cualquier combinación de destinos y de ficha abierta ⇒ siempre 0 o 1.
+2. **Silencio cuando todo va bien.** Con la persistencia sana, no existe aviso alguno.
+3. **Ninguna afirmación falsa.** Mientras el estado es de error, ninguna superficie afirma que los
+   cambios quedaron guardados.
+4. **Visible donde se escribe.** El aviso es perceptible desde cualquier destino donde pueda
+   producirse una escritura, y **sigue visible con la ficha abierta**, incluido su modo a pantalla
+   completa (`05 §5`), sin duplicarse.
+5. **El reintento escribe de verdad.** «Reintentar» reintenta la carga que falló a través de la
+   infraestructura vigente. Éxito ⇒ estado normal. Fallo ⇒ el error permanece. Nunca descarta ni
+   reinicia datos de la persona. Verificable: forzar el fallo, reintentar con el fallo activo
+   (sigue el aviso), levantar el fallo, reintentar (desaparece) y comprobar que el dato escrito es
+   el que se había intentado guardar.
+6. **No modal, sin robo de foco, anunciado.** Verificable: al entrar en error el foco no se mueve,
+   el aviso tiene `role="alert"`, y «Reintentar» mide ≥44×44 y es alcanzable por teclado.
+
 ## Puertas de calidad por bloque
 
 Todo bloque de implementación se cierra sólo si pasa las siete:

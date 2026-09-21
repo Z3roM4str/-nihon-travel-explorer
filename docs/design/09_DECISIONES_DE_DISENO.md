@@ -421,36 +421,63 @@ quedan actualizados al mismo contrato.
 ---
 
 ### DDR-03 — Qué dice Nihon cuando no consigue guardar en el dispositivo
-**Abierta desde:** 2026-09-21 · **Afecta:** `02 §D4`, `04 §16`, `05 §6`, `08` · **Bloquea:** nada hoy
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `04 §17`, `05 §12`, `08`
 
-**De dónde sale.** Un agente externo (Jules) implementó, en la línea **Astra** —un rediseño
-paralelo cuya base precede al congelado de `docs/design/`—, un aviso de fallo de persistencia con
-acción «Reintentar guardar». Ese trabajo **no es portable**: su arquitectura, su modelo de datos
-(`nihon.memberInterests.v1`, miembros fijos) y su vocabulario de pantallas son los de Astra, no
-los de `02 §D2`. Pero el problema que señala **sí existe aquí y no está resuelto**.
+**El problema.** Nihon guarda en `localStorage` y construye todo su discurso sobre eso («vive sólo
+en este navegador», `TravellerManager`; «se guarda automáticamente», el planificador). Si la
+escritura falla —cuota llena, modo privado, almacenamiento bloqueado— el producto **no lo contaba**:
+cada módulo puro envolvía su `setItem` en un `try/catch` que se tragaba el error con un comentario
+(«storage unavailable — the roster stays in memory for this session»). La persona seguía marcando
+lugares, la interfaz confirmaba cada marca, y al volver no quedaba nada. Es la peor clase de fallo
+silencioso y contradice de frente el compromiso de `00` de no afirmar lo que no se sabe.
 
-**El problema real.** Nihon guarda en `localStorage` y lo dice: «Guardados en este dispositivo».
-Si esa escritura falla —cuota llena, modo privado, almacenamiento bloqueado—, hoy el producto
-**no lo cuenta**: la persona sigue marcando lugares, la interfaz confirma cada marca, y al volver
-se encuentra con que no quedó nada. Es la peor clase de fallo silencioso, y contradice de frente
-el compromiso de `00` de no afirmar lo que no se sabe.
+**Decisión aprobada.**
 
-**Qué hay que decidir** (nada de esto lo cierra ingeniería):
-1. **Si se avisa, y dónde.** Un aviso de error es «texto visible nuevo» y, si es permanente, un
-   «control permanente nuevo»: `08` §«Lo que requiere revisión de diseño» lo reserva a diseño.
-   ¿Vive en la superficie donde ocurre el fallo, en las cuatro pestañas, o en una sola?
-2. **Qué dice exactamente**, en la voz de `03 §10`. La redacción de Astra («Atención: No se
-   pudieron guardar los cambios…» + el error técnico entre paréntesis) no cumple ese léxico.
-3. **Si «Guardados en este dispositivo» debe dejar de afirmarse** mientras el estado es de error.
-   Esto no es discutible como comportamiento —afirmar algo falso está prohibido— pero sí lo es
-   **con qué frase se sustituye**.
-4. **Si hay reintento explícito**, y si es un botón (`04 §4`) con su área táctil de 44 px, o el
-   producto reintenta solo.
-5. **Cómo se comporta con la ficha abierta**, que en teléfono cubre el 100 % de la altura
-   (`05 §5`): un aviso que quede debajo no sirve de nada.
+*Estado normal.* Mientras la persistencia funciona, es lícito afirmar que los cambios quedan
+guardados en el dispositivo — **pero sólo mientras sea verdad**.
 
-**Qué NO se ha hecho.** No se ha portado nada del código de Astra, no se ha inventado copy, y no
-se ha tocado ninguna superficie. `05 §6` y `04 §16` (`Toast`) siguen como estaban.
+*Estado de error.* En cuanto una operación de persistencia falle:
+- **no se muestra ni se mantiene ninguna afirmación** de que los cambios están guardados;
+- se muestra **un único aviso**, no modal, con este texto exacto:
+  «No pudimos guardar los cambios en este dispositivo. Pueden perderse al cerrar la app.»
+- con una sola acción: **«Reintentar»**.
+
+*Reintentar.* No puede limitarse a ocultar el aviso: ejecuta una **escritura real** a través de la
+infraestructura de persistencia vigente, reintentando exactamente la carga que falló. Si tiene
+éxito, el estado vuelve a normal y el aviso desaparece. Si vuelve a fallar, el estado y el aviso
+permanecen. **Nunca descarta ni reinicia datos de la persona** como parte del reintento.
+
+*Arquitectura.* **Una sola fuente de verdad** del estado de persistencia para todo el producto. No
+hay estados independientes por destino: Explorar, Ficha, Quiero ir y Viaje leen el mismo. El aviso
+se renderiza **una sola vez**, en la raíz de la aplicación, nunca por destino.
+
+*Ubicación y forma.* Se ancla **sobre la barra de pestañas**, el mismo idioma que `04 §16` fija
+para `Toast`, y por encima de la ficha en el orden de apilamiento, de modo que siga visible con la
+ficha abierta —incluido su modo a pantalla completa de `05 §5`— sin crear un segundo aviso. No es
+modal, no roba el foco al aparecer, se anuncia a la tecnología asistiva al entrar en error, no
+tapa la navegación ni los controles de la ficha, y «Reintentar» cumple los 44 px de `03 §7`. Sólo
+tokens existentes: ningún hex crudo ni estilo ad hoc.
+
+**Alternativas descartadas.** (a) Un aviso por destino: cuatro estados que pueden discreparse
+entre sí, y dos avisos simultáneos en cuanto la ficha se abre sobre Explorar. (b) Un `Toast`: `04
+§16` lo fija en 2.400 ms y este estado dura hasta que se resuelva; un aviso que se va solo diría
+que el problema se fue solo. (c) Un modal: robaría el foco y bloquearía justo lo que la persona
+intenta hacer, cuando lo que hay que comunicar es que puede seguir, pero sin garantías. (d) Portar
+la implementación de la línea Astra: base, arquitectura y modelo de datos incompatibles — ver el
+guardrail de `08`.
+
+**Cómo se ha cerrado.** No se creó una segunda capa: **ya existía un punto común**. Cada escritura
+persistente pasaba por un adaptador inyectado `{getItem, setItem, removeItem}`, declarado por
+separado en cuatro módulos (`useTravellers`, `usePlanningDraft`, `useZonePlanChoice`,
+`usePortableBackup`) y en línea en un quinto (`useZoneComparison`). Los cinco pasan a compartir
+`lib/device-storage.ts`, que es ese mismo adaptador con una responsabilidad añadida: registrar el
+resultado de cada escritura y **volver a lanzar** el error, para que el `try/catch` de cada módulo
+puro siga comportándose exactamente igual que antes. El camino de datos no cambia; lo que cambia
+es que el fallo deja de ser invisible.
+
+`lib/onboarding.ts` queda deliberadamente fuera: su clave es una preferencia de interfaz («ya vi
+la explicación»), no un cambio de la persona sobre su viaje. Avisar de pérdida de datos antes de
+que exista un dato que perder sería un falso positivo.
 
 ---
 
@@ -463,4 +490,3 @@ se ha tocado ninguna superficie. `05 §6` y `04 §16` (`Toast`) siguen como esta
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
-| **DDR-03** | ¿Qué dice y dónde aparece el aviso de fallo de persistencia? (ver arriba) | Producto + diseño | Nada hoy |

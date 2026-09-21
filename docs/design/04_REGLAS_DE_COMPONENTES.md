@@ -271,3 +271,36 @@ El componente que materializa la metáfora del diagrama de línea.
 Se conserva el `SaveToast` actual. Ajustes: se ancla **sobre la barra de pestañas**,
 no sobre el borde inferior; duración 2.400 ms; una sola línea; puede llevar una acción
 («Deshacer»). Nunca dos toasts simultáneos.
+
+## 17. `PersistenceNotice` (DDR-03)
+
+El aviso de que Nihon **no ha conseguido guardar** en el dispositivo. No es un `Toast`:
+un `Toast` se va solo a los 2.400 ms, y este estado dura hasta que se resuelva.
+
+```
+┌──────────────────────────────────────────────┐
+│ No pudimos guardar los cambios en este       │
+│ dispositivo. Pueden perderse al cerrar la    │
+│ app.                          [ Reintentar ] │
+└──────────────────────────────────────────────┘
+```
+
+**Reglas**
+
+1. **Copy exacto**, sin variantes: «No pudimos guardar los cambios en este dispositivo.
+   Pueden perderse al cerrar la app.» Acción: «Reintentar».
+2. **Uno solo, en la raíz.** Se renderiza una única vez para toda la aplicación, desde una
+   **única fuente de verdad** del estado de persistencia. Nunca uno por destino, nunca dos
+   a la vez.
+3. **Sólo en error.** Mientras la persistencia funciona no se renderiza nada; y mientras hay
+   error, **ninguna superficie puede afirmar** que los cambios quedaron guardados.
+4. **Posición**: anclado sobre la barra de pestañas, el mismo idioma que §16, y **por encima
+   de la ficha** en el orden de apilamiento, para seguir visible con la ficha abierta
+   —incluido su modo a pantalla completa de `05 §5`—. No tapa la navegación ni los controles
+   de la ficha.
+5. **No es modal y no roba el foco.** Se anuncia a la tecnología asistiva al entrar en error
+   (`role="alert"`, que anuncia sin mover el foco). Alcanzable por teclado en el orden natural.
+6. **«Reintentar»** es un `Button` `quiet` con área táctil ≥44 px (`03 §7`). Ejecuta una
+   escritura real; **nunca descarta ni reinicia datos**. Éxito ⇒ estado normal y el aviso
+   desaparece. Fallo ⇒ estado y aviso permanecen.
+7. **Sólo tokens.** Ningún hex crudo, ningún estilo en línea, ninguna sombra fuera de `03 §5`.
