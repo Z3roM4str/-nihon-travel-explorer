@@ -320,44 +320,72 @@ de verdad en toda la banda de texto y en los dos regímenes de proporción.
 
 ---
 
+### DD-017 — En `lg`/`xl`, mapa y ficha son una sola región; la ficha puede cubrir el mapa
+**Estado:** Firme · **Fecha:** 2026-09-21 · **Afecta:** `02 §D5`, `05 §5`, `08` · **Cierra:** DDR-01
+
+**Decisión.** En `lg`/`xl`, el mapa y la ficha de lugar **no son dos superficies que compiten
+por el espacio: son una sola región** — el raíl derecho de `02 §D5`. De ahí, el contrato
+completo:
+
+1. **Con la ficha cerrada, el mapa funciona con normalidad.** Nada de esta decisión le quita
+   capacidades: encuadra, centra al seleccionar desde la lista, responde a «Ver en el mapa».
+2. **Al abrir la ficha, ésta puede cubrir el mapa por completo.** No existe obligación de
+   mantener visible el marcador seleccionado.
+3. **Mientras está cubierto, el mapa conserva centro, zoom y pin/selección.** No se
+   reinicializa, no se reencuadra, no se redimensiona y no pierde el marcador.
+4. **Al cerrar la ficha, el mapa reaparece exactamente en el estado en que se quedó.**
+5. **`panelOffset` se conserva como mecanismo, con alcance acotado**: sólo actúa en una
+   geometría donde el mapa y el panel sean **simultáneamente visibles**. Cuando el panel cubre
+   el mapa entero, no desplaza nada.
+6. **No se fabrica una franja residual de mapa** para poder seguir cumpliendo la regla del
+   marcador visible. Un mapa de 40 px no es un mapa: es un adorno que cuesta una columna de
+   lista.
+
+**Por qué.** La redacción anterior de `05 §5` («el panel no oculta el marcador seleccionado en
+el mapa, se conserva `panelOffset`») presuponía un raíl más ancho que la ficha. La fórmula de
+cabida de DD-016 lo fija en exactamente una ficha de ancho, y no por gusto: a 1200 px, con el
+`NavRail` de 88 px y el mínimo de 264 px por tarjeta, la región de lista necesita ≥564 px para
+dar dos columnas, así que el raíl no puede pasar de 548 px. Cualquier raíl entre 481 y 548 px
+deja una tira de mapa de 1 a 68 px. La elección real era: **una columna de lista menos, o un
+marcador que no se ve mientras se lee la ficha.** Gana la lista — y además, mover el mapa
+mientras está tapado es activamente peor que no moverlo, porque el lector se lo encuentra
+descolocado al cerrar.
+
+**Alternativas descartadas.** (a) Estrechar la ficha por debajo de 480 px en `lg`+ para dejar
+mapa a la vista: rompe `02 §D5`/`05 §5` a la vez y convierte la ficha —«la pantalla donde Nihon
+demuestra que tiene criterio»— en la superficie sacrificada. (b) Bajar el mínimo de 264 px de
+`PlaceCard`: paga el marcador con la legibilidad de toda la lista, que es la superficie
+primaria. (c) Dejar que `FocusSelected` siga centrando el mapa aunque esté tapado: es trabajo
+invisible cuyo único efecto observable es destruir la vista que el lector tenía.
+
+**Consecuencias.** `05 §5` queda reescrito. `08` gana un invariante verificable con el alcance
+de `panelOffset`. En código no hace falta cambiar nada: `panelCoversMap()` en `PlaceMap.tsx` ya
+implementa exactamente el punto 5, y `block19-grid-check.mjs` ya verifica los puntos 2–4 sobre
+el ciclo completo (antes de abrir → abierta → después de cerrar). **DDR-01 queda cerrada.**
+
+---
+
 ## DESIGN DECISION REQUIRED
 
 Contradicciones reales entre el sistema congelado y una decisión ya tomada. **No se
 improvisa una arquitectura para taparlas**: se dejan escritas aquí, con su tensión exacta,
-hasta que producto o diseño las cierren.
+hasta que producto o diseño las cierren. Se conservan cerradas, con su resolución, para que
+quede el rastro de por qué el documento dice lo que dice.
 
-### DDR-01 — `05 §5` pide conservar `panelOffset`; la geometría del raíl lo deja sin sitio
-**Abierta desde:** 2026-09-21 · **Afecta:** `05 §5`, DD-016 · **Bloquea:** nada hoy; B4
-tendrá que resolverlo al rediseñar la ficha
+### DDR-01 — `05 §5` pedía conservar `panelOffset`; la geometría del raíl lo dejaba sin sitio
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 por **DD-017**
 
-**Qué dice un lado.** `05 §5`, *Responsive*: «`lg`+: el panel no oculta el marcador
-seleccionado en el mapa (se conserva `panelOffset`)». Eso presupone que el raíl del mapa
-es **más ancho** que la ficha, de modo que quede una franja de mapa a la vista sobre la
-que desplazar el marcador.
+**La tensión que se planteó.** `05 §5` decía: «`lg`+: el panel no oculta el marcador
+seleccionado en el mapa (se conserva `panelOffset`)». Eso presupone un raíl del mapa **más
+ancho** que la ficha. La fórmula de cabida de DD-016 fija el raíl en exactamente una ficha de
+ancho (`min(480 px, 50 %)`), así que la ficha lo cubre entero y no queda marcador que salvar.
+No era una elección estética: a 1200 px el raíl no puede pasar de 548 px sin dejar `lg` en una
+sola columna, y entre 481 y 548 px la tira de mapa visible va de 1 a 68 px.
 
-**Qué dice el otro.** La fórmula de cabida de DD-016 fija el raíl en exactamente una
-ficha de ancho (`min(480 px, 50 %)`). No es una elección estética: a 1200 px, con el
-`NavRail` de 88 px y el mínimo de 264 px por tarjeta, la región de lista necesita ≥564 px
-para dar dos columnas, así que el raíl no puede pasar de 548 px; y cualquier raíl entre
-481 y 548 px deja una tira de mapa de 1 a 68 px, que no es un mapa. Con el raíl a 480 px,
-**la ficha lo cubre entero** y no queda marcador que salvar. La propia DD-016 exige además
-que el mapa conserve centro, zoom y marcador al abrir y cerrar la ficha, lo que es
-incompatible con moverlo al abrirla.
-
-**Qué se ha hecho mientras tanto.** Se ha implementado la resolución: `panelOffset` sigue
-existiendo y sigue significando lo mismo («cuánto del mapa tapa la ficha por la derecha»),
-pero `PlaceMap` ya no desplaza el mapa cuando ese valor cubre el contenedor entero. El
-mecanismo que `05 §5` manda conservar está **intacto y operativo** para el día en que la
-ficha sea más estrecha que el raíl; hoy simplemente no tiene nada que compensar. No se ha
-tocado `05 §5`.
-
-**Qué habría que decidir.** Una de tres: (a) aceptar que en `lg`/`xl` la ficha cubre el
-mapa y retirar la frase de `05 §5`; (b) estrechar la ficha por debajo de 480 px en `lg`+
-para que quede mapa visible, lo que toca `02 §D5` y `05 §5` a la vez; o (c) bajar el
-mínimo de 264 px de `PlaceCard`, lo que permitiría un raíl más ancho a costa de la
-tarjeta. Nada de esto lo puede decidir ingeniería.
-
----
+**Cómo se ha cerrado.** Ver **DD-017**. En corto: mapa y ficha son una sola región; la ficha
+puede cubrir el mapa del todo; lo que se conserva es el **estado** del mapa (centro, zoom,
+selección), no su visibilidad; `panelOffset` sobrevive con su alcance acotado a las geometrías
+donde mapa y panel se ven a la vez; y no se fabrica ninguna franja residual de mapa.
 
 ## Decisiones abiertas
 
@@ -368,4 +396,3 @@ tarjeta. Nada de esto lo puede decidir ingeniería.
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
-| **DDR-01** | ¿`panelOffset` en `lg`+, o ficha que cubre el mapa? (ver arriba) | Producto + diseño | Nada hoy; B4 al rediseñar la ficha |

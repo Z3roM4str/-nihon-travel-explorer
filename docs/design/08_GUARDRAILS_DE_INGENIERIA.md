@@ -141,10 +141,16 @@ es una prueba automatizable — `app/scripts/block19-grid-check.mjs` las ejecuta
    seis casos.
 5. **El raíl derecho nunca pasa del 50 % del ancho del cuerpo.** Verificable: comparar la
    caja del raíl (ficha o mapa, el que esté visible) con la del cuerpo.
-6. **La ficha no mueve el mapa en `lg`/`xl`.** Abrir y cerrar la ficha deja el mapa con
-   el mismo tamaño de caja, el mismo centro, el mismo zoom y el mismo marcador
-   seleccionado. Verificable: leer las tres cosas antes de abrir, con la ficha abierta y
+6. **La ficha no mueve el mapa en `lg`/`xl`** (DD-017). Mapa y ficha son una sola región:
+   la ficha **puede** cubrir el mapa del todo, y no se fabrica una franja residual de mapa
+   para evitarlo. Lo que se conserva es el **estado**, no la visibilidad — abrir y cerrar la
+   ficha deja el mapa con el mismo tamaño de caja, el mismo centro, el mismo zoom y la misma
+   selección. Verificable: leer las cuatro cosas antes de abrir, con la ficha abierta y
    después de cerrar, y comprobar que no cambian.
+6.b **`panelOffset` sólo actúa donde mapa y panel se ven a la vez** (DD-017). Es el hueco
+   que el panel tapa por la derecha; cuando el panel cubre el mapa entero, no desplaza nada.
+   Verificable: con la ficha abierta en `lg`/`xl`, el centro del mapa es idéntico al que
+   tenía antes de abrirla.
 7. **Ningún `text-shadow`, en ninguna parte** (`03 §5`). Verificable: recorrer el DOM de
    la superficie tocada y comprobar que ningún elemento tiene `text-shadow` calculado
    distinto de `none`.

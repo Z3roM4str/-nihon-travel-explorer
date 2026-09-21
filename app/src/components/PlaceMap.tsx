@@ -56,14 +56,16 @@ function markerIcon(grade: string, isSelected: boolean, isSaved: boolean): L.Div
 }
 
 /**
- * Corrección de B19 (DD-016): `panelOffset` es cuánto del mapa tapa la ficha por la derecha.
- * Desde que el raíl mide exactamente una ficha (`min(--place-detail-panel-width, 50%)`,
- * `02 §D5`/`05 §4`), abrir la ficha en `lg`/`xl` cubre el raíl ENTERO: ya no queda franja
- * visible a la que desplazar el marcador, y mover el mapa mientras nadie lo ve sólo consigue
- * que, al cerrar la ficha, el lector se encuentre el mapa en otro sitio. Cuando el panel cubre
- * el mapa entero, el mapa se queda exactamente como estaba — mismo centro, mismo zoom, mismo
- * marcador seleccionado. Ver la DESIGN DECISION REQUIRED sobre `05 §5` («se conserva
- * `panelOffset`») en `docs/design/09_DECISIONES_DE_DISENO.md`.
+ * `panelOffset` es cuánto del mapa tapa la ficha por la derecha.
+ *
+ * DD-017 (`09`, `05 §5`) acota su alcance: **sólo actúa en una geometría donde el mapa y el
+ * panel sean simultáneamente visibles**. Desde que el raíl mide exactamente una ficha
+ * (`min(--place-detail-panel-width, 50%)`, DD-016/`02 §D5`), abrir la ficha en `lg`/`xl` cubre
+ * el raíl ENTERO — y eso está permitido: mapa y ficha son una sola región, y no se fabrica una
+ * franja residual de mapa sólo para tener dónde desplazar el marcador. Lo que se conserva es el
+ * ESTADO del mapa, no su visibilidad: mientras está tapado mantiene centro, zoom y selección, y
+ * al cerrar la ficha reaparece exactamente igual. Mover un mapa que nadie ve sólo consigue que
+ * el lector se lo encuentre descolocado al cerrar.
  */
 function panelCoversMap(map: L.Map, panelOffset: number): boolean {
   return panelOffset > 0 && panelOffset >= map.getSize().x - 1;
@@ -92,7 +94,7 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
      * observable en el camino ya existente (Explorar ya visible al seleccionar).
      */
     map.invalidateSize({ animate: false });
-    // Corrección de B19: con el mapa íntegramente detrás de la ficha no hay nada que centrar.
+    // DD-017: con el mapa íntegramente detrás de la ficha no hay nada que centrar.
     if (panelCoversMap(map, panelOffset)) return;
     const zoom = Math.max(map.getZoom(), SELECTION_ZOOM);
     const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
@@ -123,9 +125,9 @@ function FitHubBounds({ hub, places, panelOffset }: { hub: string; places: Place
   useLayoutEffect(() => {
     if (places.length === 0) return;
     const bounds = L.latLngBounds(places.map((place) => [place.coordinates.lat, place.coordinates.lng]));
-    // Corrección de B19: si la ficha cubre el mapa entero, reservarle sitio dentro del encuadre
-    // dejaría un padding mayor que el propio contenedor (Leaflet devuelve un zoom absurdo). El
-    // encuadre se hace entonces sobre el mapa completo, que es lo que se verá al cerrar la ficha.
+    // DD-017: si la ficha cubre el mapa entero, reservarle sitio dentro del encuadre dejaría un
+    // padding mayor que el propio contenedor (Leaflet devuelve un zoom absurdo). El encuadre se
+    // hace entonces sobre el mapa completo, que es lo que se verá al cerrar la ficha.
     const rightPadding = panelCoversMap(map, panelOffset) ? BOUNDS_PADDING : BOUNDS_PADDING + panelOffset;
     const options = {
       paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],

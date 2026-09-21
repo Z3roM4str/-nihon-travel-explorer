@@ -344,15 +344,20 @@ toda la banda de texto y en los dos regímenes de proporción:
 Mínimos exigidos: scrim 0,60 y contraste 4,5:1, sobre las 10 fotografías más claras del
 catálogo.
 
-## Contradicción registrada, no improvisada
+## Contradicción registrada y después cerrada
 
-`05 §5` pide conservar `panelOffset` en `lg`+ («el panel no oculta el marcador
+`05 §5` pedía conservar `panelOffset` en `lg`+ («el panel no oculta el marcador
 seleccionado en el mapa»), lo que presupone un raíl más ancho que la ficha. La fórmula de
 cabida fija el raíl en exactamente una ficha de ancho, así que la ficha lo cubre entero y
-no queda marcador que salvar. No se ha inventado una arquitectura para taparlo: está
-escrito como **DDR-01** en `09_DECISIONES_DE_DISENO.md` § DESIGN DECISION REQUIRED, con
-las tres salidas posibles y quién puede elegirlas. El mecanismo de `panelOffset` sigue
-intacto y operativo.
+no queda marcador que salvar. No se inventó una arquitectura para taparlo: se escribió
+como **DDR-01** con las tres salidas posibles y quién podía elegirlas.
+
+**Cerrada el 2026-09-21 por DD-017** (`09_DECISIONES_DE_DISENO.md`): en `lg`/`xl`, mapa y
+ficha son una sola región; la ficha **puede** cubrir el mapa del todo; lo que se conserva
+es el **estado** del mapa (centro, zoom, selección), no su visibilidad; `panelOffset`
+sobrevive con su alcance acotado a las geometrías donde mapa y panel se ven a la vez; y no
+se fabrica ninguna franja residual de mapa. `05 §5` quedó reescrito y `08` ganó el
+invariante 6.b. El código no necesitó cambios: `panelCoversMap()` ya lo implementaba.
 
 ## Fallos preexistentes encontrados al correr las auditorías (no son de esta corrección)
 

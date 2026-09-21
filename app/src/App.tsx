@@ -1115,9 +1115,10 @@ export default function App() {
                       selectedPlace={explorarMapPlace}
                       savedIds={savedIds}
                       onSelect={selectPlace}
-                      /* Corrección de B19 (DD-016): sólo desde `lg` la ficha se apoya sobre el
-                         raíl del mapa y llega a cubrirlo entero; en `md` son hermanas y el mapa
-                         conserva su propio sitio, así que no hay nada que compensar. */
+                      /* DD-016/DD-017: sólo desde `lg` la ficha se apoya sobre el raíl del
+                         mapa y llega a cubrirlo entero — cubrirlo está permitido, y `PlaceMap`
+                         conserva entonces centro, zoom y selección. En `md` son superficies
+                         hermanas: el mapa conserva su propio sitio y no hay nada que compensar. */
                       panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
                     />
                     <InterestLegend />

@@ -229,8 +229,21 @@ desaparece (corrige D4).
     `consultedAt`/freshness, `updatedAt`, versión del dataset, enlaces oficiales.
     **Aquí vive todo lo que hoy se derrama por la ficha.**
 
-**Responsive.** `md`+: panel derecho de 480 px, galería 4:3, mismo orden. `lg`+: el
-panel no oculta el marcador seleccionado en el mapa (se conserva `panelOffset`).
+**Responsive (DD-016, DD-017).** `md`+: panel derecho de 480 px, galería 4:3, mismo
+orden. La ficha **es** el raíl derecho (`02 §D5`): en `md` lo crea ella, y en `lg`+ lo
+comparte con el mapa, que ya vive ahí.
+
+`lg`/`xl` — **mapa y ficha son una sola región** (DD-017). Con la ficha cerrada el mapa
+funciona con normalidad. Al abrirla, **la ficha puede cubrir el mapa por completo**: no
+hay obligación de mantener visible el marcador seleccionado, y **no se fabrica una franja
+residual de mapa** para simular que sí. Lo que sí es obligatorio es que el mapa **no se
+entere**: conserva centro, zoom y selección mientras está tapado, y al cerrar la ficha
+reaparece exactamente en el mismo estado en que se quedó.
+
+`panelOffset` se conserva como mecanismo, con su alcance acotado: **sólo actúa en una
+geometría donde el mapa y el panel sean simultáneamente visibles**. Cuando el panel cubre
+el mapa entero, no desplaza nada — mover un mapa que nadie ve sólo consigue que el lector
+se lo encuentre en otro sitio al cerrar la ficha.
 
 **Criterios de aceptación**
 - [ ] En teléfono, la ficha ocupa el 100 % de la altura visible; ninguna barra de

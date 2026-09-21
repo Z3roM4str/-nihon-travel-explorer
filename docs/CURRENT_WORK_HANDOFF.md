@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21
+**Última actualización:** 2026-09-21 · checkpoint A (DDR-01 cerrada)
 
 ---
 
@@ -13,17 +13,17 @@
 
 | | |
 |---|---|
-| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **corrección DD-016 CERRADA** |
+| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · corrección DD-016 cerrada · **cierre de B19 en curso** |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `bb46042` — `fix(block-19): la rejilla de descubrimiento responde a su contenedor (DD-016)` |
+| **Último SHA estable pusheado** | `cc6392e` — `docs: handoff reanudable y protocolo de continuidad por checkpoints` |
+| **Último SHA con cambio de producto** | `bb46042` — `fix(block-19): la rejilla … (DD-016)` |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera (detalle en §7) |
 | **Siguiente bloque** | B4 — Ficha de lugar y capa fotográfica. **NO EMPEZADO. No empezarlo sin instrucción explícita de Claude.** |
 
-> El commit de este fichero es posterior a `bb46042` y es **sólo documentación**: no toca código,
-> así que `bb46042` sigue siendo el último SHA estable de producto. A partir del siguiente
-> checkpoint, este cuadro se actualiza con el SHA de cada checkpoint.
+> Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
+> remota (`git reset --hard origin/claude/block-19-b3-card-discovery`), no un SHA copiado a mano.
 
 ---
 
@@ -75,6 +75,12 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
    fotografía más clara del catálogo y para **cada** color de texto de la banda.
 9. **Ningún token nuevo.** El suelo de scrim de la banda reutiliza el valor que `--scrim-bottom`
    ya declara en su parada inferior.
+10. **DD-017 — mapa y ficha son una sola región en `lg`/`xl`.** Con la ficha cerrada el mapa
+    funciona con normalidad; al abrirla, **la ficha puede cubrir el mapa por completo** y no se
+    fabrica una franja residual de mapa para evitarlo. Lo que se conserva es el **estado**
+    (centro, zoom, pin/selección), no la visibilidad: al cerrar, el mapa reaparece idéntico.
+    `panelOffset` sobrevive como mecanismo, pero **sólo actúa donde mapa y panel se ven a la
+    vez**.
 
 ---
 
@@ -101,30 +107,44 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 
 ## 5. Qué falta
 
-**Del bloque 19: nada.** La corrección está cerrada, verificada y empujada.
+Para cerrar B19 quedan **dos frentes**, ambos encargados y en curso:
 
-Pendientes que **NO** son de este bloque y que nadie debe abordar sin instrucción explícita:
+1. **~~DDR-01~~ — CERRADA** el 2026-09-21 por **DD-017** (checkpoint A). Ver §9.
+2. **Los cinco gates heredados** (§8): por cada uno hay que identificar qué requisito
+   protegía, si ese requisito sigue vigente tras B18/B19, y entonces actualizarlo al
+   comportamiento actual —priorizando comportamiento y semántica sobre selectores internos
+   frágiles— o retirarlo documentando qué prueba lo cubre ahora. **Nunca** se toca código de
+   producción para satisfacer una prueba obsoleta, ni se borra una prueba sin justificar qué
+   contrato desapareció.
 
-- **DDR-01** (ver §9): requiere decisión de producto/diseño.
-- **Gates antiguos rotos desde antes de esta corrección** (ver §8): actualizarlos es trabajo de
-  otro bloque. No mezclarlos en este diff.
+No es de este bloque y nadie debe abordarlo sin instrucción explícita:
+
 - **B4 — Ficha de lugar y capa fotográfica**: siguiente bloque del roadmap
   (`docs/design/10_ROADMAP_DE_BLOQUES.md` § B4). **No empezado, no empezar.**
 
----
-
 ## 6. Siguiente acción concreta
 
-**Ninguna acción de implementación pendiente.** El estado está cerrado y es recuperable.
+**Frente 2 de §5: los cinco gates heredados de §8.** Se trabajan de uno en uno o de dos en
+dos, cada tanda con su propio checkpoint (verificaciones → commit → push → actualizar este
+fichero). Orden sugerido, de menos a más invasivo:
 
-Quien retome el trabajo debe:
+1. `b17-regression-check.mjs` y `block2-photography-browser-audit.mjs` — los dos fallan por el
+   mismo motivo (`.view-bar__filters`, sustituido por la barra única de B18).
+2. `b17-tap-target-check.mjs` — `.app__help` ya no existe.
+3. `block1-ux-browser-audit.mjs` — `.interest-badge__label`: hay que decidir, requisito a
+   requisito, cuáles sobreviven a `PlaceCard` v2 y `04 §5.3` (sólo grado S lleva insignia).
+4. `phase5a-rc-browser-audit.mjs` — `.selection-panel__toggle`.
 
-1. `git fetch origin && git checkout claude/block-19-b3-card-discovery && git reset --hard origin/claude/block-19-b3-card-discovery`
-2. `cd app && npm ci`
-3. Ejecutar los gates de §7 para confirmar que el estado sigue verde.
-4. **Detenerse ahí** y esperar instrucción. No abrir B4. No tocar nada de §10.
+Después: la verificación final completa de §7 y el cierre de B19.
 
----
+Para arrancar desde cero:
+
+```bash
+git fetch origin
+git checkout claude/block-19-b3-card-discovery
+git reset --hard origin/claude/block-19-b3-card-discovery
+cd app && npm ci
+```
 
 ## 7. Comandos y gates que deben ejecutarse
 
@@ -191,22 +211,25 @@ Otros riesgos anotados:
 
 ---
 
-## 9. DESIGN DECISION REQUIRED pendientes
+## 9. DESIGN DECISION REQUIRED
 
-### DDR-01 — `05 §5` pide conservar `panelOffset`; la geometría del raíl lo deja sin sitio
+**Pendientes: ninguna.**
 
-Texto completo en `docs/design/09_DECISIONES_DE_DISENO.md` § DESIGN DECISION REQUIRED.
+### DDR-01 — CERRADA el 2026-09-21 por DD-017
 
-- **Tensión.** `05 §5` dice que en `lg`+ «el panel no oculta el marcador seleccionado en el mapa
-  (se conserva `panelOffset`)», lo que presupone un raíl **más ancho** que la ficha. La fórmula de
-  cabida de DD-016 fija el raíl en exactamente una ficha de ancho, así que la ficha lo cubre
-  entero y no queda marcador que salvar.
-- **Estado del código.** El mecanismo de `panelOffset` sigue **intacto y operativo**; sólo deja de
-  mover un mapa que nadie ve. `05 §5` **no se ha tocado**.
-- **Quién decide.** Producto + diseño. Ingeniería no puede cerrarlo.
-- **Bloquea.** Nada hoy. B4 tendrá que resolverlo al rediseñar la ficha.
+- **Qué se planteó.** `05 §5` pedía conservar `panelOffset` en `lg`+ («el panel no oculta el
+  marcador seleccionado en el mapa»), lo que presupone un raíl más ancho que la ficha. La
+  fórmula de cabida de DD-016 lo fija en exactamente una ficha de ancho.
+- **Qué se decidió** (`09` § DD-017, y §3 punto 10 de este fichero). Mapa y ficha son una sola
+  región en `lg`/`xl`; la ficha puede cubrir el mapa del todo; se conserva el **estado**
+  (centro, zoom, selección), no la visibilidad; `panelOffset` sólo actúa donde mapa y panel se
+  ven a la vez; no se fabrica franja residual de mapa.
+- **Qué cambió en código.** Nada: `panelCoversMap()` en `PlaceMap.tsx` ya lo implementaba, y
+  `block19-grid-check.mjs` ya lo verificaba sobre el ciclo completo. Cambiaron `05 §5`, `08`
+  (invariantes 6 y 6.b), `09` y los comentarios que citaban la decisión como pendiente.
 
----
+> Si durante la implementación aparece algo que exija una decisión de diseño nueva, **no se
+> improvisa**: se documenta aquí y en `09`, y se continúa sólo con lo que no dependa de ella.
 
 ## 10. Lo que un agente sustituto NO puede cambiar
 
