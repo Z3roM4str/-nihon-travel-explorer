@@ -77,7 +77,12 @@ try {
 
   /** Every acquired record must serve locally and credit its own Commons file and license. */
   async function assertAttribution({ label, credit, license, licenseHref, sourceHref }) {
-    const credit_ = page.locator(".gallery__credit");
+    // Bloque 20 (B4, `04 §7`): la atribución sale del flujo de lectura —defecto D2— y vive en
+    // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
+    // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
+    // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
+    await page.locator(".gallery__credits").click();
+    const credit_ = page.locator(".credits-sheet__list");
     await credit_.waitFor();
 
     const image = page.locator(".gallery__image");
@@ -93,10 +98,11 @@ try {
 
     const text = await credit_.innerText();
     assert.match(text, new RegExp(credit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${label}: credit`);
-    assert.match(text, /Archivo de Commons: File:/, `${label}: Commons provenance`);
+    assert.match(text, /Archivo de Commons\s*File:/, `${label}: Commons provenance`);
     assert.match(text, /Archivo optimizado por Nihon:/, `${label}: processing disclosure`);
     // Phase 4D invented no attribution titles, so none may appear for these records.
-    assert.doesNotMatch(text, /Título de atribución:/, `${label}: no invented attribution title`);
+    assert.doesNotMatch(text, /Título de atribución/, `${label}: no invented attribution title`);
+    await page.keyboard.press("Escape");
     return src;
   }
 
@@ -129,7 +135,9 @@ try {
   record("B. branded subject renders", "JP-044 Ghibli Museum exterior");
 
   // The gallery must claim no legal clearance anywhere on the branded record.
-  const ghibliText = await page.locator(".gallery__credit").innerText();
+  await page.locator(".gallery__credits").click();
+  const ghibliText = await page.locator(".credits-sheet__list").innerText();
+  await page.keyboard.press("Escape");
   for (const forbidden of [/libre de derechos/i, /uso comercial/i, /sin restricciones/i, /autorizado por/i]) {
     assert.doesNotMatch(ghibliText, forbidden, "branded record must not claim clearance");
   }
@@ -140,7 +148,7 @@ try {
   for (const deferred of ["teamLab Borderless", "Tokyo Disneyland"]) {
     await openPlace(deferred);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
-    assert.equal(await page.locator(".gallery__credit").count(), 0, `${deferred} must show no credit`);
+    assert.equal(await page.locator(".gallery__credits").count(), 0, `${deferred} must show no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${deferred} must show no image`);
     await closePlace(deferred);
   }

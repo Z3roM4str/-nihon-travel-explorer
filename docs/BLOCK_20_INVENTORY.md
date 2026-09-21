@@ -45,15 +45,15 @@ Orden de la columna «destino» = los 14 puntos de `05 §5`. «Hoy» es el rende
 | 16 | `neighborhood \|\| municipality` | ídem | pt. 4 — misma línea | No |
 | 17 | `name` | `<h2 id="place-detail-title">` | pt. 3 — `--type-display` | Tipografía |
 | 18 | `japaneseName` | `place-detail__japanese` `lang="ja"` | pt. 3 — debajo, `--ink-500` | No |
-| 19 | `grade` → nivel de interés (glifo + etiqueta) | `tag tag--grade-*` | pt. 5 — insignia **sólo si grado S**; el resto no muestra insignia | **A/B/C/D dejan de rotularse** |
+| 19 | `grade` → nivel de interés (glifo + etiqueta y su descripción) | `tag tag--grade-*` (+ `title`) | pt. 5 — insignia **sólo si grado S**; para el resto, etiqueta y descripción bajan a «Fuentes» junto a la letra | **A/B/C/D dejan de rotularse en el cuerpo** |
 | 20 | `grade` (letra cruda) | Sólo clase CSS; **no visible** hoy | pt. 14 — **«Fuentes»**, plegado (DDR-04) | Reaparece, dentro de Fuentes |
-| 21 | `hiddenGemStatus` | `tag tag--gem` | Chip/etiqueta en cabecera (se conserva) | Por confirmar en maquetación |
-| 22 | `tourismLevel` | `tag tag--muted` «Turismo: X» | pt. 10 — fila **«Afluencia»** de datos prácticos | Baja al bloque práctico |
-| 23 | `reservation` → etiqueta | `tag ${reservation.tag.className}` | pt. 10 — fila «Reserva» | Se unifica con la fila |
+| 21 | `hiddenGemStatus` | `tag tag--gem` | Línea propia en la cabecera, bajo categoría·barrio (`place-detail__gem`) | Deja de ser chip |
+| 22 | `tourismLevel` | `tag tag--muted` «Turismo: X» | pt. 10 — fila **«Turismo»** de datos prácticos (ver §2.b) | Baja al bloque práctico |
+| 23 | `reservation` → etiqueta | `tag ${reservation.tag.className}` | pt. 10 — fila «Reserva», vía `reservation.practicalRow` | Se unifica con la fila (§2.c) |
 | 24 | Botón «Quiero ir» / «Guardado en Quiero ir» | `save-button` | pt. 6 — `primary lg` a ancho completo | Copy: `05 §5` dice «Ya lo quieres ver» |
 | 25 | «No me interesa» | `place-interest__decline` | pt. 6 — botón `quiet` **junto** al primario | Sube junto al primario |
 | 26 | «Ver en el mapa» (sólo origen Viaje) | `place-detail__view-on-map` | Se conserva (DD-015) | No |
-| 27 | Chevron atrás / `×` cerrar | `place-detail__bar` | `05 §5` — botón atrás **flotante** sobre `--scrim-top`; el `×` flotante **desaparece** (D4) | **Reestructura** |
+| 27 | Chevron atrás / `×` cerrar | `place-detail__bar` | `05 §5` — un único botón atrás **flotante** sobre `--scrim-top`, que cierra la ficha cuando no hay a dónde volver y conserva el nombre accesible «Cerrar la ficha de …»; el `×` flotante **desaparece** (D4) | **Reestructura** |
 
 ### Cuerpo editorial
 
@@ -126,6 +126,55 @@ pérdida.
 
 ---
 
+## 2.b Dos precisiones de la matriz, hechas al implementar
+
+Ninguna es una contradicción normativa —`05 §5` no cierra la lista de filas prácticas— así que
+no abren DDR. Se anotan porque cambian una celda de la matriz de arriba, y esta lista es el
+guardián firmado.
+
+- **Fila 22 — `tourismLevel` no cabe en «Afluencia».** La matriz mandaba `tourismLevel` a la
+  fila «Afluencia», que es también el destino de `crowdLevel` (fila 41). Son **dos campos
+  distintos del dataset**; fundirlos en un solo valor habría perdido uno de los dos, que es
+  justo lo que este bloque tiene prohibido. `crowdLevel` se queda con «Afluencia» —el término
+  que `05 §5` pt. 10 usa— y `tourismLevel` gana su propia fila, **«Turismo»**, que es la palabra
+  que ya era visible hoy («Turismo: X»). Texto visible: ninguno nuevo.
+- **Fila 23 — la etiqueta de reserva se unifica sin pérdida.** `describeReservationForUi` produce
+  una etiqueta y una fila. Para las tres categorías que tenían etiqueta, la fila dice lo mismo
+  con **más** detalle («Requiere reserva» → «Necesaria · 2–4 semanas»), y para las que no la
+  tenían la fila ya era su único sitio. Unificar en la fila no pierde nada; conservar las dos
+  sería decir la misma cosa dos veces en la misma pantalla.
+
+---
+
+## 2.c Estado de cierre — las 55 filas
+
+**Cerradas: 55 de 55.** Cada fila tiene destino verificado por al menos un gate automático. Los
+dos guardianes:
+
+- `app/src/block20-place-detail.test.ts` — 21 comprobaciones de fuente: las tres DDR, los cuatro
+  defectos, y la lista de campos que la ficha tiene que seguir leyendo.
+- `app/scripts/block20-place-detail-check.mjs` — **73/73** sobre un build real, en teléfono y
+  escritorio: geometría, orden, contadores según cantidad, y lo que llega a tecnología asistiva.
+
+Además siguen vigilando lo suyo: `block2-photography-browser-audit` (81/81) para la galería, los
+créditos y las renditions; `block1-ux-browser-audit` (153/153) para «nada de la ficha se perdió»;
+y `b18-viaje-lugar-check` / `b18-browser-back-check` para el encadenado «Cerca de aquí».
+
+Gates que existen por petición explícita de las tres decisiones:
+
+| Lo que demuestra | Dónde |
+|---|---|
+| «Fuentes» no inventa `provenance`, `consultedAt`, frescura ni versión | test §DDR-04 · gate «no inventa …» (×5) |
+| `updatedAt` no se presenta como fecha de consulta | test «no presenta `updatedAt` como fecha de consulta» · gate «la fecha del REGISTRO» |
+| `Dato:` no aparece en `PlaceDetail` ni en nada que B20 introduzca | test §DDR-05 · gate «la cadena `Dato:` no aparece» |
+| El planificador no se modifica | test «B20 no modifica OrderedSequenceBuilder.tsx» (`git diff --name-only` contra `62050c2`) |
+| «Cerca de aquí» no muestra `transferListFootnote` | test «ya no renderiza transferListFootnote» · gate «la sección NO renderiza nota al pie» |
+| Cada traslado conserva la distinción semántica en su `EvidenceMark` | test «el detalle conserva las cuatro distinciones» · gate «cada marcador conserva la distinción» |
+| Un lector de pantalla puede obtenerla | gate «esa distinción es alcanzable por un lector de pantalla» |
+| No hay duplicación marcador + descargo | gate «no queda descargo en prosa junto al marcador» (`04 §2`) |
+
+---
+
 ## 3. Contradicciones normativas encontradas — RESUELTAS el 2026-09-21
 
 Se registraron en `09` como DESIGN DECISION REQUIRED antes de implementar, conforme al protocolo,
@@ -149,3 +198,5 @@ y se cerraron antes de tocar código. Texto completo en `09`.
   procedencia nueva y sin ascensos de confianza.
 
 **Ninguna bloquea ya. La matriz completa es implementable.**
+
+**Ninguna bloqueó. La matriz completa está implementada y cerrada (§2.c).**

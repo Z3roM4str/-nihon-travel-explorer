@@ -170,7 +170,7 @@ async function main() {
     await page.waitForTimeout(1500);
     const open = await readMap();
 
-    await page.click(".app__detail .place-detail__bar .icon-button");
+    await page.click(".app__detail .place-detail__back");
     await page.waitForTimeout(1500);
     const closed = await readMap();
 
@@ -249,7 +249,7 @@ async function main() {
     const withoutPhoto = cards.filter({ has: page.locator(".photo-placeholder") }).first();
 
     const closeDetail = async () => {
-      await page.locator(".app__detail .place-detail__bar .icon-button").click();
+      await page.locator(".app__detail .place-detail__back").click();
       await page.waitForSelector(".app__detail", { state: "detached" });
     };
     /*

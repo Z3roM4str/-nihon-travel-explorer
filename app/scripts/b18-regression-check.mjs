@@ -160,7 +160,7 @@ async function main() {
     check("lightbox abre desde la galería (sin foto en este lugar, se omite)", true);
   }
 
-  await page.locator(".place-detail__bar .icon-button").click();
+  await page.locator(".place-detail__back").click();
   await page.waitForTimeout(300);
   check("cerrar ficha vuelve a la lista", await page.locator(".place-card").first().isVisible());
   const scrollAfter = await page.evaluate(() => document.querySelector(".app__sidebar")?.scrollTop ?? 0);
@@ -219,7 +219,7 @@ async function main() {
       return rect ? rect.width === 390 && rect.height === 844 : false;
     }))
   );
-  await page.locator(".place-detail__bar .icon-button").click();
+  await page.locator(".place-detail__back").click();
   await page.waitForTimeout(400);
   check(
     "cerrar la ficha abierta desde Quiero ir vuelve a Quiero ir, no a Explorar",

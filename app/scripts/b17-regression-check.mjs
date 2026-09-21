@@ -126,7 +126,7 @@ async function main() {
   );
 
   const closeDetail = async () => {
-    await page.locator(".place-detail__bar .icon-button").click();
+    await page.locator(".place-detail__back").click();
     await page.waitForTimeout(400);
   };
   const reopenSavedPlace = async () => {

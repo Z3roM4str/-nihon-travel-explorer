@@ -132,7 +132,7 @@ async function main() {
 
       // Encadenado: si el lugar tiene "Cerca de aquí", saltar a un segundo lugar y volver dos
       // veces debe recorrer Lugar B → Lugar A → «Dónde dormir» (punto 1, "Encadenado").
-      const nearbyItems = page.locator(".nearby-item");
+      const nearbyItems = page.locator(".nearby-carousel__item .place-card__open");
       if ((await nearbyItems.count()) > 0) {
         await nearbyItems.first().click();
         await page.waitForTimeout(250);
@@ -238,7 +238,7 @@ async function main() {
     {
       await openZoneCompareMode(page);
       const nearestButtons = page.locator(".zone-nearest button");
-      const nearbyItems = page.locator(".nearby-item");
+      const nearbyItems = page.locator(".nearby-carousel__item .place-card__open");
       if ((await nearestButtons.count()) === 0) {
         check("cadena Lugar A → Lugar B → «Ver en el mapa» (sin lugares cercanos calculados, se omite)", true);
       } else {

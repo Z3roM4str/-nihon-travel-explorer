@@ -442,10 +442,15 @@ try {
     assert.ok(loaded, "gallery image did not decode");
     const alt = await img.getAttribute("alt");
     assert.ok(alt && alt.trim().length > 0, "gallery image missing alt text");
-    const credit = detail().locator(".gallery__credit");
+    // Bloque 20 (B4, `04 §7`): la atribución sale del flujo y vive tras el `ⓘ` de la galería.
+    // El requisito —que el enlace a la fuente exista y sea alcanzable— no cambia de sitio en el
+    // recorrido dorado, sólo de superficie.
+    await detail().locator(".gallery__credits").click();
+    const credit = page.locator(".credits-sheet__list");
     await credit.waitFor();
     assert.ok(await credit.getByRole("link", { name: "Wikimedia Commons" }).count(),
       "missing Commons source link");
+    await page.keyboard.press("Escape");
     return "local asset + credit + alt";
   });
 

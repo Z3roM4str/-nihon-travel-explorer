@@ -440,7 +440,7 @@ async function main() {
     console.log("FAIL PlaceGallery .gallery__dot reachable (Tokyo National Museum): card or dots not found");
   }
   if (await page.locator(".place-detail").isVisible().catch(() => false)) {
-    await page.locator(".place-detail__bar .icon-button").first().click();
+    await page.locator(".place-detail__back").first().click();
     await page.waitForTimeout(150);
   }
 
@@ -460,7 +460,7 @@ async function main() {
   // `.icon-button--small` dentro del planificador. B18 llevó «Quiero ir» a su propia pestaña
   // (`02 §D2`), así que se llega por ahí en vez de por un toggle dentro de Explorar.
   if (await page.locator(".place-detail").isVisible().catch(() => false)) {
-    await page.locator(".place-detail__bar .icon-button").first().click();
+    await page.locator(".place-detail__back").first().click();
     await page.waitForTimeout(200);
   }
   const saveButtons = page.locator(".place-card__save");

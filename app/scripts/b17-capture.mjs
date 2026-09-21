@@ -45,7 +45,7 @@ async function main() {
   await page.locator(".place-card__open").first().click();
   await page.waitForSelector(".place-detail", { timeout: 15000 });
   await shot(page, "3-ficha-de-lugar");
-  await page.locator(".place-detail__bar .icon-button, .place-detail__back").first().click().catch(() => {});
+  await page.locator(".place-detail__back").first().click().catch(() => {});
   await page.waitForTimeout(300);
 
   // Save a couple of places so "Quiero ir" and the planner have content.

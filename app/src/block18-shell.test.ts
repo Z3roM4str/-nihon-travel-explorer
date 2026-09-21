@@ -601,16 +601,25 @@ describe("Bloque 18 — corrección final: back label por origen y «Ver en el m
     expect(source).toContain("onViewOnMap,");
   });
 
-  it("el back label usa originLabel cuando no hay previousPlace, y sigue en blanco si no se pasa ninguno", async () => {
+  it("el back label usa previousPlace, luego originLabel, y si no hay ninguno cierra la ficha", async () => {
+    // **Actualizada por el Bloque 20 (B4).** El requisito de B18 —el chevron nombra la
+    // superficie real a la que vuelve, y `originLabel` decide cuál cuando no hay salto «cerca
+    // de aquí»— sigue vigente palabra por palabra. Lo que cambió es el cromo que lo contenía:
+    // `05 §5` retira el `×` flotante (defecto D4) y con él `.place-detail__bar`, así que la
+    // prioridad ya no se expresa como un ternario de JSX dentro de la barra sino como un único
+    // botón flotante cuyo destino se resuelve antes de renderizar. El tercer caso deja de ser
+    // un `<span />` de relleno: el mismo botón cierra la ficha, conservando el nombre accesible
+    // exacto de v1.1.0.
     const source = await read("components/PlaceDetail.tsx");
-    const barStart = source.indexOf('<div className="place-detail__bar">');
-    const barEnd = source.indexOf("</div>", source.indexOf('aria-label={`Cerrar la ficha'));
-    const bar = source.slice(barStart, barEnd);
-    expect(bar).toContain("previousPlace ? (");
-    expect(bar).toContain(") : originLabel ? (");
-    expect(bar).toContain("onClick={onClose}");
-    expect(bar).toContain("{originLabel}");
-    expect(bar).toContain(") : (\n          <span />");
+    expect(source).toContain("const backTarget = previousPlace");
+    expect(source).toContain("{ label: previousPlace.name, action: onBack }");
+    expect(source).toContain("{ label: originLabel, action: onClose }");
+    expect(source).toContain("{ label: null, action: onClose }");
+    expect(source).toContain("aria-label={backAccessibleName}");
+    expect(source).toContain("`Cerrar la ficha de ${place.name}`");
+    // D4: ni barra ni `×` flotante.
+    expect(source).not.toContain('className="place-detail__bar"');
+    expect(source).not.toMatch(/<Icon name="cerrar"/);
   });
 
   it("«Ver en el mapa» es texto real, nunca icon-only, y sólo se renderiza si onViewOnMap existe", async () => {

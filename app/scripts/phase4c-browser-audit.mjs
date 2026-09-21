@@ -61,7 +61,12 @@ try {
   await page.getByRole("button", { name: /Explorar desde Tokio/ }).first().click();
   await page.locator(".place-list__item").filter({ hasText: "SHIBUYA SKY" }).click();
 
-  const credit = page.locator(".gallery__credit");
+  // Bloque 20 (B4, `04 §7`): la atribución sale del flujo de lectura —defecto D2— y vive en
+  // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
+  // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
+  // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
+  await page.locator(".gallery__credits").click();
+  const credit = page.locator(".credits-sheet__list");
   await credit.waitFor();
 
   // Phase 4C serves every photograph from the local build and fetches nothing at runtime. Prove it
@@ -127,7 +132,9 @@ try {
   // Museum previously stood here and was acquired in Phase 4J.
   await page.locator(".place-list__item").filter({ hasText: "PokéPark KANTO" }).click();
   await page.getByText("Sin fotografía disponible todavía").waitFor();
-  assert.equal(await page.locator(".gallery__credit").count(), 0);
+  // Sin atribución que mostrar no hay botón `ⓘ`: un control que abre una hoja vacía sería
+  // «UI de funciones que no existen» (`08` prohibición 8).
+  assert.equal(await page.locator(".gallery__credits").count(), 0);
 
   assert.deepEqual(consoleErrors, []);
   assert.deepEqual(pageErrors, []);

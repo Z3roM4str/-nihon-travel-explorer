@@ -67,7 +67,12 @@ try {
   }
 
   async function assertAttribution({ label, credit, license, licenseHref, sourceHref, assetPath }) {
-    const creditNode = page.locator(".gallery__credit");
+    // Bloque 20 (B4, `04 §7`): la atribución sale del flujo de lectura —defecto D2— y vive en
+    // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
+    // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
+    // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
+    await page.locator(".gallery__credits").click();
+    const creditNode = page.locator(".credits-sheet__list");
     await creditNode.waitFor();
 
     const image = page.locator(".gallery__image");
@@ -82,9 +87,10 @@ try {
 
     const visibleText = await creditNode.innerText();
     if (credit) assert.ok(visibleText.includes(credit), `${label}: missing credit ${credit}`);
-    assert.match(visibleText, /Archivo de Commons: File:/);
+    assert.match(visibleText, /Archivo de Commons\s*File:/);
     assert.match(visibleText, /Archivo optimizado por Nihon:/);
-    assert.doesNotMatch(visibleText, /Título de atribución:/);
+    assert.doesNotMatch(visibleText, /Título de atribución/);
+    await page.keyboard.press("Escape");
     return visibleText;
   }
 
@@ -93,7 +99,7 @@ try {
     await enterHub(hub);
     await openPlace(name);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
-    assert.equal(await page.locator(".gallery__credit").count(), 0, `${name}: no credit`);
+    assert.equal(await page.locator(".gallery__credits").count(), 0, `${name}: no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${name}: no image`);
     await closePlace(name);
   }

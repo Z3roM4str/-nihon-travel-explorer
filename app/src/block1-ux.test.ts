@@ -15,10 +15,26 @@ const src = (path: string) => readFile(new URL(`./${path}`, import.meta.url), "u
 
 describe("nothing the detail panel used to show was removed", () => {
   it("still renders every practical-information row", async () => {
+    // Bloque 20 (B4, `05 §5` pt. 10): la fila «Aglomeración» pasa a llamarse **«Afluencia»** —
+    // es el término que la especificación usa, y el cambio es de rótulo, no de dato
+    // (`place.crowdLevel` sigue siendo su valor). Y se añade «Turismo» (`place.tourismLevel`),
+    // que hasta v1.1.0 vivía como etiqueta suelta en la cabecera: baja al bloque práctico con
+    // su propia fila en vez de fundirse con «Afluencia», porque son dos campos distintos del
+    // dataset y fundirlos perdería uno de los dos.
     const source = await src("components/PlaceDetail.tsx");
-    for (const row of ["Horario", "Cierres", "Reserva", "Cómo llegar", "Accesibilidad", "Aglomeración"]) {
+    for (const row of [
+      "Horario",
+      "Cierres",
+      "Reserva",
+      "Cómo llegar",
+      "Accesibilidad",
+      "Afluencia",
+      "Turismo",
+    ]) {
       expect(source, row).toContain(`label="${row}"`);
     }
+    expect(source).toContain("place.crowdLevel");
+    expect(source).toContain("place.tourismLevel");
   });
 
   it("still renders the February–March 2027 seasonal block with its action", async () => {
@@ -48,11 +64,24 @@ describe("nothing the detail panel used to show was removed", () => {
     expect(source).toContain("interest.description");
   });
 
-  it("keeps photography attribution rendered with the image, not behind a disclosure", async () => {
-    const source = await src("components/PlaceGallery.tsx");
-    expect(source).toContain("gallery__credit");
-    // A licence obligation must not become something the reader has to go looking for.
-    expect(source).not.toMatch(/<details[\s\S]*gallery__credit/);
+  it("keeps photography attribution reachable from the image, now out of the reading flow", async () => {
+    // **Sustituida por el Bloque 20 (B4).** La versión anterior de esta prueba exigía que la
+    // atribución se pintara junto a la imagen, en el flujo. Eso es exactamente el defecto D2:
+    // `04 §6` («Créditos: **nunca en el flujo**»), `04 §7`, `08` prohibición 9 y el criterio de
+    // aceptación de `05 §5` («entre la fotografía y el nombre no hay ningún texto de
+    // atribución») dicen lo contrario. La obligación de licencia que la prueba protegía sigue
+    // protegida, y mejor: un botón `ⓘ` de 32px es más alcanzable que un párrafo de 11px en
+    // gris, y la hoja muestra los seis campos etiquetados por cada imagen, no sólo por la
+    // visible. Lo que se comprueba ahora es eso: que existe el camino y que no está en el flujo.
+    const gallery = await src("components/PlaceGallery.tsx");
+    const sheet = await src("components/CreditsSheet.tsx");
+    expect(gallery).toContain("gallery__credits");
+    expect(gallery).toContain("CreditsSheet");
+    // El camino es un control visible y etiquetado, nunca un `<details>` que haya que descubrir.
+    expect(gallery).not.toMatch(/<details/);
+    for (const field of ["image.source", "image.credit", "image.license"]) {
+      expect(sheet, field).toContain(field);
+    }
   });
 });
 

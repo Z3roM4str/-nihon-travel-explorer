@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · **B20** — DDR-04/05/06 RESUELTAS; implementación en curso
+**Última actualización:** 2026-09-21 · **B20** — los ocho pasos implementados; 55/55 filas cerradas
 
 ---
 
@@ -13,10 +13,10 @@
 
 | | |
 |---|---|
-| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica)** · preflight, inventario y las tres decisiones cerradas; implementación en curso |
+| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica)** · los ocho pasos implementados y verificados; las 55 filas del inventario con destino comprobado por gate |
 | **Rama** | `claude/block-20-b4-place-detail-photography` |
 | **Último SHA estable pusheado** | el checkpoint de apertura de B20 (ver `git log -1`) |
-| **Último SHA con cambio de producto** | `6a5ab0b` (en B19) — B20 aún no ha tocado código |
+| **Último SHA con cambio de producto** | el checkpoint de la ficha reconstruida en B20 (ver `git log -1`) |
 | **SHA de partida del bloque** | `62050c2` — cierre definitivo de B19 (= `7b8f54f` + el registro de las dos precisiones de DDR-03) |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
@@ -91,10 +91,29 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 
 ## 4. Qué está terminado
 
-**De B20:** el preflight (rama nacida de `62050c2`, que contiene `7b8f54f`), la relectura
-normativa (`03`, `04`, `05 §5`, `08`, `09`, `10 §B4`), el **inventario completo de `PlaceDetail`
-v1.1.0** y la **matriz campo→destino** (`docs/BLOCK_20_INVENTORY.md`, 55 filas), y el registro de
-las tres contradicciones como DDR-04/05/06.
+**De B20:** el preflight, la relectura normativa, el **inventario completo de `PlaceDetail`
+v1.1.0** con su matriz campo→destino (`docs/BLOCK_20_INVENTORY.md`, 55 filas), el cierre de
+DDR-04/05/06 **antes** de tocar código, y **los ocho pasos del plan**:
+
+1. **Galería** — pista con `scroll-snap`, 4:5 en teléfono y 4:3 en `md`+, índice derivado del
+   scroll, flechas sólo `md`+, puntos sólo con ≤5, contador como píldora, sin skeleton gris.
+2. **`CreditsSheet`** — los seis campos de atribución salen del flujo (D2) y viven tras el `ⓘ`,
+   etiquetados uno a uno y por cada imagen; pie hacia Nosotros › Fuentes y licencias.
+3. **Cabecera y acciones** — nombre `--type-display`, japonés debajo, una línea de
+   categoría·barrio con un solo `·`, insignia sólo grado S, primario a ancho completo con «Ya lo
+   quieres ver» y «No me interesa» en `quiet` a su lado, botón atrás flotante único (D4).
+4. **Cuerpo editorial** — «Por qué vale la pena» en `--type-quote`/`--font-voice` con filete
+   bermellón de 2 px, «Qué es», «Qué se hace o se ve», y la franja de los dos condicional (D8).
+5. **Datos prácticos** — rejilla de 2 columnas más filas, cada valor con `EvidenceMark ◧`,
+   títulos en caja de frase, «Aglomeración» → «Afluencia» y «Turismo» con fila propia.
+6. **Aviso feb–mar 2027** — condicional (DD-011), y su degradación a línea de «Horario» con `◧`.
+7. **«Cerca de aquí»** — carrusel de `PlaceCard compact` con miniatura, sin nota al pie, con la
+   semántica de la nota trasladada al `detail` del marcador de cada traslado (DDR-06).
+8. **«Fuentes»** — plegada, con grado original, nivel en lenguaje llano, fecha de actualización
+   del registro y enlaces. Nada inventado (DDR-04).
+
+**Verificación del bloque:** `vite build`, `oxlint` sin advertencias, **95 ficheros / 3310
+tests**, y los gates de navegador de §7 con Chromium real.
 
 **De B19 (cerrado, en su propia rama):** ver `docs/BLOCK_19_HANDOFF.md`.
 
@@ -102,21 +121,29 @@ las tres contradicciones como DDR-04/05/06.
 
 ## 5. Qué falta
 
-**Todo el código de B20.** El plan está en `docs/BLOCK_20_INVENTORY.md` §1 (matriz) y el orden de
-ataque más abajo. **Nada queda bloqueado**: las tres decisiones se cerraron antes de tocar código.
+**De B20, nada del alcance de `05 §5`.** Los ocho pasos están hechos y las 55 filas cerradas
+(`docs/BLOCK_20_INVENTORY.md` §2.c). Lo que queda son revisiones y bloques posteriores, que **no
+se empiezan**.
 
-Lo que las decisiones acotan:
-- «Fuentes» se construye **sólo** con grado original, `updatedAt` y enlaces reales → **DDR-04**.
-- `Dato:` se vigila **en la ficha**; el planificador no se toca → **DDR-05**.
-- «Cerca de aquí» pierde la nota al pie y **gana la misma información** en el `detail` del
-  `EvidenceMark` de cada traslado → **DDR-06**.
+Deuda anotada, fuera del alcance de este bloque:
+
+- **Seis auditorías `phase4*` están obsoletas desde B18/B19, no por B20.** `phase4c`, `4d`, `4f`,
+  `4h`, `4j` y `4l` fallan en su helper de **navegación** (`enterHub`, «Explorar desde X», que el
+  shell de B18 sustituyó), **antes** de llegar a ninguna comprobación de fotografía. B20 sí ha
+  actualizado su lectura de atribución a `CreditsSheet` —quedan correctas para cuando alguien
+  repare la navegación— pero reparar seis auditorías heredadas es un trabajo propio, del mismo
+  tipo que «los cinco gates heredados» de B19, y no se mete de matute en este diff.
+- **`02 §D5` fija 1440 px de ancho máximo de contenido en `xl` y sigue sin implementarse.**
+  Anterior a este bloque; comprobado que no cambia el resultado de la rejilla.
 
 ---
 
 ## 6. Siguiente acción concreta
 
-**Implementar B20** en el orden de ocho pasos de abajo, en checkpoints pequeños. Las tres
-decisiones ya están cerradas (§9), así que ningún paso espera nada.
+**Revisar B20 y cerrarlo.** La implementación está completa y verificada; lo que queda es la
+revisión del bloque, no más código. **No se empieza ningún bloque posterior a B20.**
+
+El orden en que se implementó, por si hay que auditarlo paso a paso:
 
 1. **Galería** (`04 §6`): 4:5 a sangre, `scroll-snap`, flechas sólo `md`+, puntos sólo con ≤5,
    contador como píldora. Gate de geometría y de «una imagen ⇒ sin puntos, contador ni flechas».
@@ -143,16 +170,17 @@ Todo desde `app/`. Los gates de navegador necesitan un `vite preview` en marcha:
 npm ci
 npm run build            # tsc -b && vite build
 npm run lint             # oxlint — debe salir sin una sola advertencia
-npx vitest run           # 95 ficheros / 3286 tests
+npx vitest run           # 95 ficheros / 3310 tests
 
 npx vite preview --port 4181 --strictPort &   # necesario para los gates de navegador
 export NIHON_BASE_URL=http://localhost:4181
 ```
 
-Gates que **deben** pasar (todos ejecutados en el checkpoint G, con Chromium real):
+Gates que **deben** pasar (todos reejecutados en el cierre de B20, con Chromium real):
 
 | Gate | Resultado |
 |---|---|
+| `node scripts/block20-place-detail-check.mjs` | **73/73** — teléfono y escritorio: D2/D3/D4/D8, galería por cantidad de imágenes, solape del cuerpo, marcador en cada valor práctico, caja de frase, «Fuentes» plegada sin procedencia inventada, `Dato:` ausente, la letra de grado sólo en «Fuentes», y «Cerca de aquí» sin nota al pie con la distinción de cada traslado legible por lector de pantalla |
 | `node scripts/ddr03-persistence-check.mjs` | **43/43** — las once comprobaciones de DDR-03 en teléfono y escritorio, más los cinco breakpoints |
 | `node scripts/block19-grid-check.mjs` | **52/52** — seis viewports, ≥264 px, proporción, raíl ≤50 %, estabilidad del mapa, DDR-02 (fotografía/nombre/razón/chips, con y sin foto, corazón y token independientes, geometría del target, teclado y anillo de foco legible), cero `text-shadow` |
 | `node scripts/block19-contrast-check.mjs` | Dentro de contrato — scrim 0,811–0,944; nombre ≥12,78:1; categoría·zona ≥9,15:1 |
@@ -173,13 +201,27 @@ Gates que **deben** pasar (todos ejecutados en el checkpoint G, con Chromium rea
 
 Los cuatro últimos levantan su propio `vite preview`, así que no necesitan `NIHON_BASE_URL`.
 
+**Actualizado en B20:** `block2-photography-browser-audit` pasa de 69 a **81** comprobaciones (el
+`ⓘ` y `CreditsSheet` añaden las suyas), y `block20-place-detail-check.mjs` es nuevo. Las seis
+auditorías `phase4*` **no** están en esta tabla y siguen sin estarlo: fallan en su navegación
+desde B18/B19, antes de llegar a la fotografía (ver §5).
+
 **Nota de entorno.** Los gates nuevos lanzan Chromium con
 `executablePath: "/opt/pw-browsers/chromium"`. Los gates antiguos no lo hacen y esperan la
-revisión que pide `playwright-core/browsers.json` (1234) mientras el entorno tiene la 1194; en
-esta sesión se salvó con enlaces simbólicos **fuera del repositorio**
-(`/opt/pw-browsers/chromium-1234`, `/opt/pw-browsers/chromium_headless_shell-1234/...`). Eso **no
-está versionado** y hay que rehacerlo en un contenedor nuevo si se quieren correr los gates
-antiguos.
+revisión que pide `playwright-core/browsers.json` (1234) mientras el entorno tiene la 1194. Hay
+que rehacer los enlaces simbólicos **fuera del repositorio** en cada contenedor nuevo; los
+exactos que funcionan:
+
+```bash
+ln -sfn /opt/pw-browsers/chromium-1194 /opt/pw-browsers/chromium-1234
+mkdir -p /opt/pw-browsers/chromium_headless_shell-1234
+ln -sfn /opt/pw-browsers/chromium_headless_shell-1194/chrome-linux \
+        /opt/pw-browsers/chromium_headless_shell-1234/chrome-headless-shell-linux64
+ln -sfn headless_shell \
+        /opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/chrome-headless-shell
+```
+
+Eso **no está versionado** a propósito: toca `/opt`, no el repositorio.
 
 ---
 

@@ -157,7 +157,9 @@ export type OtherPersonMarker =
 
 /** `a`/`b` por orden de creación (`04 §1`), igual que `App.tsx` ya resuelve para el token de la
  * cabecera — nunca por el `id` opaco del viajero. */
-function travellerVariant(travellers: readonly Traveller[], travellerId: string): "a" | "b" {
+/** Bloque 20 (B4): la franja de los dos de `05 §5` pt. 7 también necesita el orden de creación
+ * para pintar su `PersonToken`, así que deja de ser privada. Misma función, mismo criterio. */
+export function travellerVariant(travellers: readonly Traveller[], travellerId: string): "a" | "b" {
   return travellers[0]?.id === travellerId ? "a" : "b";
 }
 

@@ -943,6 +943,7 @@ export default function App() {
       <PlaceDetail
         place={selectedPlace}
         isSaved={isWantedByActive(selectedPlace.id)}
+        isPlaceSaved={isWantedByActive}
         travellers={travellers}
         interestSummary={interestSummary(selectedPlace.id)}
         activeStance={activeStance(selectedPlace.id)}

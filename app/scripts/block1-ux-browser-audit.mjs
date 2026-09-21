@@ -419,26 +419,50 @@ containsText(await page.locator(".onboarding__step-count").innerText(), "1 de 3"
   const detail = page.locator(".place-detail");
   check("the place detail opens", (await detail.count()) === 1);
   const detailText = await detail.innerText();
-  for (const expected of ["Febrero–marzo 2027", "Información práctica", "Horario", "Cómo llegar", "Accesibilidad"]) {
+  // Bloque 20 (B4): «Información práctica» pasa a llamarse **«Datos prácticos»** (`05 §5`
+  // pt. 10). Es un rótulo, no un dato: las filas que contiene se siguen comprobando una a una.
+  for (const expected of ["Datos prácticos", "Horario", "Cómo llegar", "Accesibilidad"]) {
     check(`the detail still carries "${expected}"`, containsText(detailText, expected));
   }
-  check("the detail leads with the plain-language level", /Imprescindible|Muy recomendable|Recomendable|Opcional|Prescindible/.test(detailText));
+
+  /*
+   * DD-011 / `05 §5` pt. 11 — el aviso de febrero–marzo 2027 deja de ser permanente. La versión
+   * anterior de esta comprobación exigía el texto «Febrero–marzo 2027» en TODA ficha, que es
+   * justo la fatiga de alerta que el bloque corrige: con el estado «pendiente de confirmar» no
+   * hay recuadro, sino una línea dentro de «Horario». El requisito —que la información de
+   * feb–mar 2027 siga presente— no se relaja: se comprueba que esté en UNA de sus dos formas,
+   * que es exactamente lo que la decisión fija.
+   */
+  check(
+    "the Feb–Mar 2027 information is still present, as alert or as a Horario line (DD-011)",
+    containsText(detailText, "Febrero–marzo 2027") ||
+      containsText(detailText, "Sin cierre confirmado para feb–mar 2027")
+  );
+
+  /*
+   * `05 §5` pt. 5 — la insignia de nivel es **sólo** para grado S; A/B/C/D no se rotulan en la
+   * ficha (Art. 6). El nivel en lenguaje llano no desaparece: baja a «Fuentes» (pt. 14), donde
+   * acompaña a la letra de grado. Así que se comprueba donde ahora vive, abriendo el plegado.
+   */
+  await detail.locator(".place-sources__summary").click();
+  await page.waitForTimeout(200);
+  const sourcesText = await detail.locator(".place-sources__list").innerText();
+  check(
+    "the plain-language level is still shown, now inside «Fuentes»",
+    /Imprescindible|Muy recomendable|Recomendable|Opcional|Prescindible/.test(sourcesText)
+  );
   /*
    * Requisito INVERTIDO a propósito por el diseño congelado. `05 §5.5` («Nunca "Grado A"») y
    * `08`, prohibición 11 («Mostrar la letra de grado fuera de "Fuentes"») la sacan del cuerpo de
    * la ficha: era redundante con el nivel en lenguaje llano y se leía como una nota del dataset.
    *
-   * Hoy la letra no aparece en NINGUNA parte de la interfaz, ni siquiera en un `title`: la
-   * sección «Fuentes», que es su único destino autorizado, **todavía no existe** — la construye
-   * B4 (`05 §5` pt. 14). Así que lo que se puede comprobar ahora es la mitad prohibitiva. El día
-   * que B4 añada «Fuentes», esta comprobación pasa a ser «sólo dentro de Fuentes», y el dato
-   * sigue vivo en el modelo (`place.grade` gobierna la clase CSS, que no es texto visible).
+   * **Bloque 20 (B4) completa la otra mitad.** «Fuentes» ya existe (`05 §5` pt. 14, DDR-04), así
+   * que la comprobación pasa a ser la definitiva: la letra aparece dentro de «Fuentes» y en
+   * ningún otro sitio de la ficha.
    */
-  check("the grade letter appears nowhere in the interface", !/Grado [SABCD]/.test(detailText));
-  check(
-    "the plain-language level replaced it, and carries a glyph as well as colour",
-    (await detail.locator(".tag-row .tag [aria-hidden='true']").first().innerText()).trim().length > 0
-  );
+  const bodyWithoutSources = detailText.replace(sourcesText, "");
+  check("the grade letter appears nowhere outside «Fuentes»", !/\bGrado [SABCD]\b/.test(bodyWithoutSources));
+  check("«Fuentes» is where the original grade lives (05 §5 pt.14)", /Grado original/i.test(sourcesText));
   check("the detail's primary action is the heart", (await detail.locator(".save-button__icon").count()) === 1);
 
   overflow = await noOverflow(page);

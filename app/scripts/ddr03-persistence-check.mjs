@@ -216,7 +216,7 @@ async function main() {
     check(`${label}: el aviso no tapa la navegación`, withDetail.coversNav === false);
 
     // Cerrar la ficha y recorrer los demás destinos.
-    await page.locator(".place-detail__bar .icon-button").click();
+    await page.locator(".place-detail__back").click();
     await page.waitForTimeout(400);
 
     // 6. Disponible desde Quiero ir y Viaje.

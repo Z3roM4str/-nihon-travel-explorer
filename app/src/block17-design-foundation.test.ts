@@ -91,8 +91,11 @@ describe("Bloque 17 (B1) — cero emoji en iconografía de interfaz (gate G4)", 
       "components/SelectionPanel.tsx",
     ]) {
       const code = await read(file);
+      // Lo prohibido es el GLIFO DEL DATASET: `splitCategory(...).icon`. El icono de línea
+      // propio (`categoryPresentation(...).icon`, B19 `03 §8`) es justamente su sustituto
+      // aprobado, y `PlaceCard` ya lo usa; B20 lo lleva también a la ficha (`05 §5` pt. 4).
       expect(code, file).not.toContain("category.icon");
-      expect(code, file).not.toContain("categoryIcon");
+      expect(code, file).not.toMatch(/splitCategory\([^)]*\)\.icon/);
     }
   });
 });
@@ -198,18 +201,25 @@ describe("Bloque 17 (B1) — letra de grado retirada de la ficha (Art. 00)", () 
     expect(source).not.toContain("tag__grade-letter");
   });
 
-  it("PlaceDetail no longer exposes the raw grade through `title` either (compliance fix)", async () => {
-    // 00 "Patrones explícitamente prohibidos": "Mostrar la letra de grado … Sólo en «Fuentes»
-    // plegado" — that section doesn't exist yet (B4), so the letter must not surface ANYWHERE
-    // in the UI meanwhile, `title`/`aria-label` included. A first B17 pass moved the letter
-    // from visible text into `title={... grado original: ${place.grade}}`, which still exposed
-    // it (an independent audit caught this). `place.grade` may still drive the CSS class
-    // (`tag--grade-${place.grade}`, a class name, never rendered as text or read aloud) and the
-    // internal `interestLevelForGrade`/`markerIcon` lookups — just never a `title`/`aria-label`.
+  it("PlaceDetail muestra la letra de grado SÓLO dentro de «Fuentes» (00, 08 prohibición 11)", async () => {
+    // **Actualizada por el Bloque 20 (B4).** La regla de `00` siempre fue «Sólo en «Fuentes»
+    // plegado»; lo que cambiaba era que esa sección no existía todavía, así que hasta B4 la
+    // letra no podía aparecer en ninguna parte. Ahora existe (`05 §5` pt. 14, DDR-04) y la
+    // letra vuelve, dentro de ella y en ningún otro sitio. Lo que la prueba vigila es eso:
+    // exactamente un `place.grade` renderizado, dentro del `<details>` de «Fuentes», y ni un
+    // `title`/`aria-label` que lo interpole en el resto de la ficha.
     const source = await read("components/PlaceDetail.tsx");
-    expect(source).not.toContain("grado original");
     expect(source).not.toMatch(/title=\{[^}]*place\.grade/);
-    expect(source).toContain("title={interest.description}");
+    expect(source).not.toMatch(/aria-label=\{[^}]*place\.grade/);
+
+    const sourcesStart = source.indexOf('<details className="place-sources">');
+    expect(sourcesStart).toBeGreaterThan(-1);
+    const sourcesEnd = source.indexOf("</details>", sourcesStart);
+    const inSources = source.slice(sourcesStart, sourcesEnd);
+    expect(inSources).toContain("{place.grade}");
+
+    const outsideSources = source.slice(0, sourcesStart) + source.slice(sourcesEnd);
+    expect(outsideSources).not.toContain("{place.grade}");
   });
 
   it("no title/aria-label anywhere in components/ or lib/ interpolates the raw grade", async () => {
