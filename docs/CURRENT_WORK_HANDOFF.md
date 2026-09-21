@@ -87,7 +87,11 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 12. **DDR-03 — la persistencia no falla en silencio.** **Una sola fuente de verdad**
     (`lib/device-storage.ts`), **un solo aviso** renderizado en la raíz (`04 §17`), copy exacto, y
     «Reintentar» que reescribe la carga que falló sin descartar nunca datos. Mientras hay error,
-    ninguna superficie afirma que los cambios quedaron guardados.
+    ninguna superficie afirma que los cambios quedaron guardados. Dos precisiones aprobadas el
+    2026-09-21, ya implementadas: **(a)** el aviso aparece con el primer fallo real, incluido el de
+    la escritura de arranque, sin esperar al primer gesto; **(b)** queda por debajo de `Sheet` y de
+    cualquier superficie modal enfocada y reaparece al cerrarlas, pero **sigue por encima de
+    `PlaceDetail`**, incluido su modo a pantalla completa.
 
 ---
 

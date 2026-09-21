@@ -458,6 +458,19 @@ modal, no roba el foco al aparecer, se anuncia a la tecnología asistiva al entr
 tapa la navegación ni los controles de la ficha, y «Reintentar» cumple los 44 px de `03 §7`. Sólo
 tokens existentes: ningún hex crudo ni estilo ad hoc.
 
+*Cuándo aparece — aprobado 2026-09-21.* **En cuanto falle una escritura real, incluida la que la
+aplicación hace al arrancar.** No espera al primer gesto de la persona. Nihon persiste su
+documento de viajeros al montar; si esa escritura ya falla, es verdad que no se va a poder guardar
+nada, y decirlo entonces evita trabajo que se perdería. No es un falso positivo porque no se
+dispara por una suposición sino por un fallo ocurrido: con la persistencia sana no aparece nunca.
+
+*Qué puede taparlo — aprobado 2026-09-21.* Queda **por debajo de `Sheet` y de cualquier superficie
+modal enfocada** (`04 §8`), y **reaparece en cuanto se cierran**. Una hoja modal es una tarea
+enfocada con su propio fondo de página: superponerle un aviso persistente competiría con lo que la
+persona acaba de abrir. Esto **no relaja** la regla anterior: el aviso sigue estando por encima de
+`PlaceDetail`, incluido su modo a pantalla completa, porque la ficha no es una tarea modal sino la
+superficie donde se lee y se marca — y marcar es justo lo que no se va a poder guardar.
+
 **Alternativas descartadas.** (a) Un aviso por destino: cuatro estados que pueden discreparse
 entre sí, y dos avisos simultáneos en cuanto la ficha se abre sobre Explorar. (b) Un `Toast`: `04
 §16` lo fija en 2.400 ms y este estado dura hasta que se resuelva; un aviso que se va solo diría

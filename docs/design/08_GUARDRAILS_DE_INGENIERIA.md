@@ -203,7 +203,11 @@ Reglas, para cualquier agente:
    cambios quedaron guardados.
 4. **Visible donde se escribe.** El aviso es perceptible desde cualquier destino donde pueda
    producirse una escritura, y **sigue visible con la ficha abierta**, incluido su modo a pantalla
-   completa (`05 §5`), sin duplicarse.
+   completa (`05 §5`), sin duplicarse. Queda por debajo de `Sheet` y de cualquier superficie modal
+   enfocada, y reaparece al cerrarlas.
+4.b **Avisa con el primer fallo real**, incluido el de la escritura de arranque: no espera a que
+   la persona toque nada. Verificable: con el almacenamiento roto, el aviso está presente antes de
+   cualquier interacción; con el almacenamiento sano no aparece nunca.
 5. **El reintento escribe de verdad.** «Reintentar» reintenta la carga que falló a través de la
    infraestructura vigente. Éxito ⇒ estado normal. Fallo ⇒ el error permanece. Nunca descarta ni
    reinicia datos de la persona. Verificable: forzar el fallo, reintentar con el fallo activo

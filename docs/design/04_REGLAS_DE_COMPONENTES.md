@@ -297,10 +297,16 @@ un `Toast` se va solo a los 2.400 ms, y este estado dura hasta que se resuelva.
 4. **Posición**: anclado sobre la barra de pestañas, el mismo idioma que §16, y **por encima
    de la ficha** en el orden de apilamiento, para seguir visible con la ficha abierta
    —incluido su modo a pantalla completa de `05 §5`—. No tapa la navegación ni los controles
-   de la ficha.
-5. **No es modal y no roba el foco.** Se anuncia a la tecnología asistiva al entrar en error
+   de la ficha. Queda **por debajo de `Sheet` y de cualquier superficie modal enfocada**
+   (`04 §8`) y **reaparece al cerrarlas**: una hoja modal tiene su propio fondo de página y es
+   una tarea enfocada; la ficha no lo es.
+5. **Aparece con el primer fallo real**, incluido el de la escritura que la aplicación hace al
+   arrancar. No espera a que la persona toque nada: si ya no se puede guardar, decirlo pronto
+   evita trabajo que se perdería. Con la persistencia sana no se renderiza nunca, que es lo que
+   garantiza que no hay falsos positivos.
+6. **No es modal y no roba el foco.** Se anuncia a la tecnología asistiva al entrar en error
    (`role="alert"`, que anuncia sin mover el foco). Alcanzable por teclado en el orden natural.
-6. **«Reintentar»** es un `Button` `quiet` con área táctil ≥44 px (`03 §7`). Ejecuta una
+7. **«Reintentar»** es un `Button` `quiet` con área táctil ≥44 px (`03 §7`). Ejecuta una
    escritura real; **nunca descarta ni reinicia datos**. Éxito ⇒ estado normal y el aviso
    desaparece. Fallo ⇒ estado y aviso permanecen.
-7. **Sólo tokens.** Ningún hex crudo, ningún estilo en línea, ninguna sombra fuera de `03 §5`.
+8. **Sólo tokens.** Ningún hex crudo, ningún estilo en línea, ninguna sombra fuera de `03 §5`.
