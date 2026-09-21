@@ -1,125 +1,110 @@
 {
   "JP-034": {
-    "reason": "sin licencia compatible: las fotos de la vista nocturna desde Roppongi Hills / Mori Tower en Commons no cuentan con autor o licencia libre en el allowlist.",
+    "reason": "sin licencia compatible: las fotografías de Tokyo City View / Mori Tower en Commons están bajo licencias CC BY-NC o carecen de autor verificado.",
     "sources": [
-      "Wikimedia Commons: Category:Tokyo City View",
-      "Category:Roppongi Hills Mori Tower"
+      "https://commons.wikimedia.org/wiki/Category:Tokyo_City_View"
     ]
   },
   "JP-038": {
-    "reason": "identidad / licencias: las fotos de la instalación interior de teamLab Planets en Commons muestran retratos personales o carecen de autor verificado.",
+    "reason": "identidad / licencias: las fotos interiores de teamLab Planets muestran retratos personales o carecen de autor verificado.",
     "sources": [
-      "Wikimedia Commons: Category:teamLab Planets TOKYO"
+      "https://commons.wikimedia.org/wiki/Category:teamLab_Planets_TOKYO"
     ]
   },
   "JP-041": {
-    "reason": "fail-closed: estatua de personaje protegido (Unicorn Gundam) que domina todo el encuadre (restricción de libertad de panorama sobre esculturas artísticas modernas protegidas).",
+    "reason": "fail-closed: estatua de personaje protegido (Unicorn Gundam) que domina todo el encuadre (restricción de libertad de panorama sobre esculturas artísticas modernas).",
     "sources": [
-      "Wikimedia Commons: Category:Unicorn Gundam (Odaiba)"
-    ]
-  },
-  "JP-045": {
-    "reason": "sin revisión / sujeto impreciso: las búsquedas devolvieron fotos lejanas del viaducto de la estación de Kichijoji en lugar del parque Inokashira.",
-    "sources": [
-      "Wikimedia Commons: Category:Kichijōji Station",
-      "Inokashira Park"
+      "https://commons.wikimedia.org/wiki/Category:Unicorn_Gundam_(Odaiba)"
     ]
   },
   "JP-050": {
-    "reason": "sin candidato: PokéPark KANTO no cuenta con fotografías reales del recinto bajo licencias libres aplicables.",
+    "reason": "sin candidato: PokéPark KANTO no cuenta con fotografías factuales del recinto bajo licencias libres en Commons.",
     "sources": [
-      "Wikimedia Commons: PokéPark KANTO"
+      "https://commons.wikimedia.org/wiki/Pok%C3%A9Park_KANTO"
     ]
   },
   "JP-079": {
-    "reason": "sin candidato / archivos históricos: las búsquedas de Kyoto Rakusai Bamboo Park devolvieron documentos de archivo y reglas de bambú sin vista del parque.",
+    "reason": "sin candidato / archivos históricos: las búsquedas de Kyoto Rakusai Bamboo Park devolvieron documentos de archivo y artefactos sin vista representativa del parque.",
     "sources": [
-      "Wikimedia Commons: Category:Rakusai Bamboo Park"
+      "https://commons.wikimedia.org/wiki/Category:Rakusai_Bamboo_Park"
     ]
   },
   "JP-095": {
-    "reason": "sin candidato: no existen fotografías de la instalación futura/reciente teamLab Biovortex Kyoto en Commons.",
+    "reason": "sin candidato: no existen fotografías del recinto teamLab Biovortex Kyoto en Commons.",
     "sources": [
-      "Wikimedia Commons: teamLab Biovortex Kyoto"
+      "https://commons.wikimedia.org/wiki/teamLab_Biovortex_Kyoto"
     ]
   },
   "JP-120": {
     "reason": "identidad dudosa: teamLab Botanical Garden Osaka no tiene fotos de la exhibición de arte digital nocturno; solo existen fotos diurnas del parque botánico host Nagai.",
     "sources": [
-      "Wikimedia Commons: Category:Nagai Botanical Garden"
+      "https://commons.wikimedia.org/wiki/Category:Nagai_Botanical_Garden"
     ]
   },
   "JP-121": {
     "reason": "fail-closed: obra artística moderna protegida (Torre del Sol de Taro Okamoto) con restricciones de libertad de panorama en Japón.",
     "sources": [
-      "Wikimedia Commons: Category:Tower of the Sun"
+      "https://commons.wikimedia.org/wiki/Category:Tower_of_the_Sun"
     ]
   },
   "JP-140": {
-    "reason": "calidad / sujeto no representativo: la única panorámica nocturna genuina desde el monte Rokko es una tira ultraancha de 6.7:1 (27439x4116) inutilizable en galería o atribuida a autor desconocido.",
+    "reason": "calidad / sujeto no representativo: la única panorámica nocturna desde el monte Rokko es una tira ultraancha 6.7:1 (27439x4116) inutilizable en galería o atribuida a autor desconocido.",
     "sources": [
-      "Wikimedia Commons: Category:Mount Rokko"
+      "https://commons.wikimedia.org/wiki/Category:Mount_Rokko"
     ]
   },
   "JP-147": {
     "reason": "sin licencia compatible: las imágenes de Enryaku-ji en el monte Hiei están marcadas con licencias no permitidas o falta de autor en los metadatos.",
     "sources": [
-      "Wikimedia Commons: Category:Enryaku-ji"
+      "https://commons.wikimedia.org/wiki/Category:Enryaku-ji"
     ]
   },
   "JP-156": {
-    "reason": "sin licencia compatible: las fotos del mercado de Sakaemachi en Naha están marcadas como Dominio Público o sin licencia bajo el contrato CC BY/CC BY-SA/CC0.",
+    "reason": "sin licencia compatible: las fotos del mercado de Sakaemachi en Naha están marcadas como Dominio Público sin autor o sin licencia permitida bajo CC BY/CC BY-SA/CC0.",
     "sources": [
-      "Wikimedia Commons: Category:Sakaemachi Market"
-    ]
-  },
-  "JP-166": {
-    "reason": "sin candidato: las fotos encontradas de Mihama American Village corresponden a imágenes de uso justo o sin atribución adecuada.",
-    "sources": [
-      "Wikimedia Commons: Category:Mihama American Village"
+      "https://commons.wikimedia.org/wiki/Category:Sakaemachi_Market"
     ]
   },
   "JP-168": {
     "reason": "sin candidato / geografía errónea: las búsquedas de Yachimun no Sato devolvieron únicamente un horno en Seto, Aichi (distrito cerámico incorrecto en otra prefectura).",
     "sources": [
-      "Wikimedia Commons: Yachimun no Sato"
+      "https://commons.wikimedia.org/wiki/Yachimun_no_Sato"
     ]
   },
   "JP-171": {
     "reason": "sin candidato / ambigüedad: las búsquedas de la Cueva Azul de Cabo Maeda devolvieron fotos de la Grotta Azzurra en Capri, Italia.",
     "sources": [
-      "Wikimedia Commons: Category:Cape Maeda"
+      "https://commons.wikimedia.org/wiki/Category:Cape_Maeda"
     ]
   },
   "JP-177": {
     "reason": "sin candidato / ambigüedad: las búsquedas de Heart Rock en Kouri/Okinawa devolvieron fotos de la formación Heart Rock en Folsom, California.",
     "sources": [
-      "Wikimedia Commons: Heart Rock Okinawa"
+      "https://commons.wikimedia.org/wiki/Heart_Rock_Okinawa"
     ]
   },
   "JP-178": {
     "reason": "sin candidato: el parque temático en construcción JUNGLIA OKINAWA no cuenta con fotografías factuales del recinto final.",
     "sources": [
-      "Wikimedia Commons: JUNGLIA Okinawa"
+      "https://commons.wikimedia.org/wiki/JUNGLIA_Okinawa"
     ]
   },
-  "JP-195": "sin candidato: no existen fotografías del servicio de observación astronómica de Yaeyama bajo licencias libres.",
-  "JP-199": {
-    "reason": "identidad: las búsquedas de la isla de Hateruma devolvieron fotos de cabras (Haterumajima Goat) sin vista representativa del paisaje/playa.",
+  "JP-195": {
+    "reason": "sin candidato: no existen fotografías del servicio de observación astronómica de Yaeyama bajo licencias libres.",
     "sources": [
-      "Wikimedia Commons: Category:Hateruma Island"
+      "https://commons.wikimedia.org/wiki/Yaeyama_stargazing"
     ]
   },
   "JP-202": {
     "reason": "identidad / formato: la observación de ballenas en las Kerama solo produjo un archivo de video WebM submarino sin fotografía fija representativa.",
     "sources": [
-      "Wikimedia Commons: Kerama whale watching"
+      "https://commons.wikimedia.org/wiki/Kerama_whale_watching"
     ]
   },
   "JP-211": {
-    "reason": "identidad / marcas: las fotos de AnimeJapan están dominadas por cosplayers y personajes protegidos con derechos de marca/imagen.",
+    "reason": "identidad / marcas: las fotos de AnimeJapan están dominadas por cosplayers y personajes protegidos con derechos de marca e imagen.",
     "sources": [
-      "Wikimedia Commons: Category:AnimeJapan"
+      "https://commons.wikimedia.org/wiki/Category:AnimeJapan"
     ]
   }
 }
