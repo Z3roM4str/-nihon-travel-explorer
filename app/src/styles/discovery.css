@@ -496,9 +496,19 @@ button.search-field:focus-visible {
   color: var(--surface);
 }
 
+/*
+ * `opacity: 0`, pero SIN `pointer-events: none`.
+ *
+ * Sin fotografía, `PhotoPlaceholder` ya rotula el lugar (`04 §9`) y este overlay se oculta para
+ * no duplicar el nombre. Pero el botón que ABRE la ficha vive dentro de él, estirado sobre toda
+ * la tarjeta por `.place-card__open::after` (`04 §5.9`, «toda la tarjeta abre el lugar»), así
+ * que apagarle los eventos de puntero dejaba muerta la tarjeta entera: los ~53 lugares sin
+ * fotografía del catálogo (`06`) no se podían abrir haciendo click. `opacity: 0` ya basta para
+ * que no se vea; el corazón (`z-index: 3`) y el token de persona siguen por encima del `::after`
+ * (`z-index: 1`), así que el orden de apilamiento de `04 §5.9` no cambia.
+ */
 .place-card__overlay--hidden {
   opacity: 0;
-  pointer-events: none;
 }
 
 /*
@@ -549,10 +559,28 @@ button.search-field:focus-visible {
   color: var(--surface);
 }
 
+/*
+ * Sin `position: relative`.
+ *
+ * `.place-card__open::after` es el enlace estirado de `04 §5.9` («toda la tarjeta abre el
+ * lugar»): `position: absolute; inset: 0`, que se resuelve contra el ANCESTRO POSICIONADO más
+ * cercano. Con el `<h3>` posicionado, ese ancestro era el propio `<h3>` — el enlace se encogía
+ * al recuadro del texto del nombre (medido: 271×29px en una tarjeta de 271×270), así que tocar
+ * la fotografía no abría nada. Sin él, el ancestro pasa a ser `.place-card__media` y el enlace
+ * cubre la fotografía entera, banda de texto incluida.
+ *
+ * El `z-index: 1` que venía con él no hacía falta: un hijo pinta por encima del fondo de su
+ * padre sin necesidad de apilarse, y el corazón (`z-index: 3`) sigue por encima del `::after`
+ * (`z-index: 1`), que es el orden que `04 §5.9` exige.
+ *
+ * El cuerpo de la tarjeta (razón y chips) sigue sin abrir el lugar: `.place-card__media` tiene
+ * `overflow: hidden`, así que ningún pseudo-elemento nacido dentro de ella puede alcanzarlo.
+ * Cerrarlo del todo exige sacar el botón del nombre fuera de la fotografía, que es anatomía de
+ * componente y no decisión de ingeniería — está registrado como DDR-02 en
+ * `docs/design/09_DECISIONES_DE_DISENO.md`.
+ */
 .place-card__heading {
   margin: 0;
-  position: relative;
-  z-index: 1;
 }
 
 .place-card__name-text {

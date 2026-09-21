@@ -387,6 +387,33 @@ puede cubrir el mapa del todo; lo que se conserva es el **estado** del mapa (cen
 selección), no su visibilidad; `panelOffset` sobrevive con su alcance acotado a las geometrías
 donde mapa y panel se ven a la vez; y no se fabrica ninguna franja residual de mapa.
 
+### DDR-02 — El cuerpo de la tarjeta no abre el lugar, y `04 §5.9` no admite excepciones
+**Abierta desde:** 2026-09-21 · **Afecta:** `04 §5` · **Bloquea:** nada hoy; B4 al rediseñar la ficha y sus tarjetas
+
+**Qué dice la norma.** `04 §5.9`: «**Toda la tarjeta abre el lugar**; el corazón y el token de
+persona están por encima en el orden de apilamiento. Se conserva el patrón actual de `<article>`
++ botón estirado (es correcto y accesible)».
+
+**Qué pasa de verdad.** El botón estirado nace dentro de `.place-card__media`, porque el nombre
+va sobre la fotografía (`04 §5.2`). `.place-card__media` tiene `overflow: hidden` —lo necesita
+para recortar la foto a la proporción—, así que **ningún pseudo-elemento nacido dentro de ella
+puede llegar al cuerpo de la tarjeta**. Resultado medido: la fotografía y su banda de texto
+abren el lugar; la razón y los chips, no. (Hasta esta corrección era peor: el enlace se encogía
+al recuadro del texto del nombre, 271×29px en una tarjeta de 271×270, y ni siquiera la fotografía
+abría nada. Eso sí era un defecto inequívoco y está corregido.)
+
+**Por qué no lo cierra ingeniería.** Las salidas posibles cambian la anatomía del componente que
+`04 §5` dibuja: (a) sacar el botón del nombre fuera de `.place-card__media`, dejando el nombre
+sobre la foto por posicionamiento en vez de por anidamiento; (b) quitar `overflow: hidden` de la
+fotografía y recortarla de otro modo; (c) aceptar que el cuerpo no abre el lugar y reescribir
+`04 §5.9`. Ninguna es una decisión de implementación.
+
+**Qué se ha hecho mientras tanto.** Se ha corregido la mitad inequívoca —la fotografía entera
+abre el lugar, con y sin foto— y se ha dejado vigilada en `block19-grid-check.mjs`. No se ha
+tocado `04 §5.9`.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -396,3 +423,4 @@ donde mapa y panel se ven a la vez; y no se fabrica ninguna franja residual de m
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
+| **DDR-02** | ¿El cuerpo de la tarjeta debe abrir el lugar? (ver arriba) | Producto + diseño | Nada hoy; B4 |

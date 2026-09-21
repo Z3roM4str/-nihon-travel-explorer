@@ -210,6 +210,58 @@ async function main() {
     await context.close();
   }
 
+  // ---------- Toda la tarjeta abre el lugar, TAMBIÉN sin fotografía (04 §5.9) ----------
+  /*
+   * `04 §5.9` no admite excepciones: «toda la tarjeta abre el lugar». La tarjeta sin fotografía
+   * oculta su overlay para no duplicar el nombre que ya pone `PhotoPlaceholder` — pero el botón
+   * estirado que abre la ficha vive DENTRO de ese overlay, así que apagarle los eventos de
+   * puntero dejaba muerta la tarjeta entera. Afectaba a los ~53 lugares sin fotografía del
+   * catálogo (`06`). Se comprueba sobre una tarjeta de cada clase, con y sin foto.
+   */
+  {
+    const context = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+    const page = await context.newPage();
+    await openTokio(page);
+    // Se carga toda la ciudad para asegurar que hay al menos una tarjeta sin fotografía.
+    for (let i = 0; i < 20; i += 1) {
+      await page.locator(".app__sidebar").evaluate((el) => el.scrollBy(0, 1200));
+      await page.waitForTimeout(90);
+    }
+    // El desplazamiento y la medición van en pasos separados: `scrollIntoView` dentro del mismo
+    // `evaluate` no ha asentado nada todavía cuando se lee `getBoundingClientRect`, y medir ahí
+    // da falsos negativos que no dicen nada del contrato.
+    const centreResolvesToOpen = async (locator) => {
+      if ((await locator.count()) === 0) return null;
+      await locator.evaluate((el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
+      await page.waitForTimeout(300);
+      return locator.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const at = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+        return Boolean(at && at.closest(".place-card__open"));
+      });
+    };
+    const allCards = page.locator(".place-card:not(.place-card--compact)");
+    const withPhoto = allCards.filter({ has: page.locator(".place-card__image") }).first();
+    const withoutPhoto = allCards.filter({ has: page.locator(".photo-placeholder") }).first();
+    const probe = {
+      total: await allCards.count(),
+      withoutPhotoFound: (await withoutPhoto.count()) > 0,
+      photoOpens: await centreResolvesToOpen(withPhoto),
+      placeholderOpens: await centreResolvesToOpen(withoutPhoto),
+    };
+    check(
+      "una tarjeta CON fotografía abre el lugar desde cualquier punto",
+      probe.photoOpens === true,
+      `tarjetas=${probe.total}`
+    );
+    check(
+      "una tarjeta SIN fotografía abre el lugar igual (04 §5.9, sin excepciones)",
+      probe.withoutPhotoFound ? probe.placeholderOpens === true : true,
+      probe.withoutPhotoFound ? `placeholder→open=${probe.placeholderOpens}` : "ninguna sin foto en esta ciudad"
+    );
+    await context.close();
+  }
+
   // ---------- Ningún text-shadow en la superficie de descubrimiento ----------
   {
     const context = await browser.newContext({ viewport: { width: 1200, height: 900 } });

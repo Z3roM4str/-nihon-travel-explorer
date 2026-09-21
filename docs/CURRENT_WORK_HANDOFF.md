@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint D (4 de 5 gates heredados)
+**Última actualización:** 2026-09-21 · checkpoint E — **B19 cerrado**
 
 ---
 
@@ -13,10 +13,10 @@
 
 | | |
 |---|---|
-| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · corrección DD-016 cerrada · **cierre de B19 en curso** |
+| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `2ee8bf5` — `test(block-19): block2-photography al día con B18/B19 y DD-016` |
-| **Último SHA con cambio de producto** | `bb46042` — `fix(block-19): la rejilla … (DD-016)` |
+| **Último SHA estable pusheado** | `50eb46c` — `fix(block-19): tercer defecto de área táctil, y block1-ux al día` |
+| **Último SHA con cambio de producto** | el checkpoint E (este) — cuatro correcciones de `discovery.css`/`App.tsx` |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera (detalle en §7) |
@@ -107,40 +107,19 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 
 ## 5. Qué falta
 
-Para cerrar B19 quedan **dos frentes**, ambos encargados y en curso:
+**Del bloque 19: nada.** DD-016 implementado y verificado, DDR-01 cerrada por DD-017, y los cinco
+gates heredados resueltos (§8). Cuatro defectos reales encontrados y corregidos por el camino.
 
-1. **~~DDR-01~~ — CERRADA** el 2026-09-21 por **DD-017** (checkpoint A). Ver §9.
-2. **Los cinco gates heredados** (§8). Hechos: `b17-regression-check.mjs` (18/18),
-   `b17-tap-target-check.mjs` (16/16), `block2-photography-browser-audit.mjs` (69/69) y
-   `block1-ux-browser-audit.mjs` (153/153). Queda **uno**: `phase5a-rc-browser-audit.mjs`.
-   Por cada uno:
-   identificar qué requisito protegía, si sigue vigente tras B18/B19, y entonces actualizarlo al
-   comportamiento actual —priorizando comportamiento y semántica sobre selectores internos
-   frágiles— o retirarlo documentando qué prueba lo cubre ahora. **Nunca** se toca código de
-   producción para satisfacer una prueba obsoleta, ni se borra una prueba sin justificar qué
-   contrato desapareció.
+Pendiente, y que **nadie debe abordar sin instrucción explícita**:
 
-No es de este bloque y nadie debe abordarlo sin instrucción explícita:
-
+- **DDR-02** (§9): requiere decisión de producto/diseño.
 - **B4 — Ficha de lugar y capa fotográfica**: siguiente bloque del roadmap
   (`docs/design/10_ROADMAP_DE_BLOQUES.md` § B4). **No empezado, no empezar.**
 
 ## 6. Siguiente acción concreta
 
-**Frente 2 de §5: los tres gates heredados que quedan.** Cada tanda con su propio checkpoint
-(verificaciones → commit → push → actualizar este fichero). Orden sugerido:
-
-1. `phase5a-rc-browser-audit.mjs` — el único que queda, y el más grande (939 líneas). Sus cinco
-   recorridos dorados usan el modelo de navegación anterior a B18 entero: `.place-list__item`,
-   el toggle «Buscar y filtrar», `.app__sidebar` oculto por debajo de 861px,
-   `.selection-panel__toggle` alcanzado desde Explorar. El requisito (los cinco recorridos de
-   extremo a extremo sobre el build de producción, más la prueba de integridad en tiempo de
-   ejecución) sigue siendo normativo: hay que reescribir sus ayudantes de navegación al shell de
-   cuatro destinos, no sus recorridos.
-
-Después: la verificación final completa de §7 y el cierre de B19.
-
-Para arrancar desde cero:
+**Ninguna acción de implementación pendiente.** El estado está cerrado, verificado y es
+recuperable. Quien retome el trabajo debe:
 
 ```bash
 git fetch origin
@@ -148,6 +127,9 @@ git checkout claude/block-19-b3-card-discovery
 git reset --hard origin/claude/block-19-b3-card-discovery
 cd app && npm ci
 ```
+
+…ejecutar los gates de §7 para confirmar que sigue verde, y **detenerse ahí a esperar
+instrucción**. No abrir B4. No tocar nada de §10.
 
 ## 7. Comandos y gates que deben ejecutarse
 
@@ -163,20 +145,28 @@ npx vite preview --port 4181 --strictPort &   # necesario para los gates de nave
 export NIHON_BASE_URL=http://localhost:4181
 ```
 
-Gates que **deben** pasar (último resultado conocido, en `bb46042`):
+Gates que **deben** pasar (último resultado conocido, checkpoint E):
 
 | Gate | Resultado |
 |---|---|
-| `node scripts/block19-grid-check.mjs` | 35/35 — los seis viewports, ≥264 px, proporción, raíl ≤50 %, mapa estable, cero `text-shadow` |
+| `node scripts/block19-grid-check.mjs` | **37/37** — seis viewports, ≥264 px, proporción, raíl ≤50 %, estabilidad del mapa, tarjeta con y sin foto, cero `text-shadow` |
 | `node scripts/block19-contrast-check.mjs` | Dentro de contrato — scrim 0,811–0,944; nombre ≥12,78:1; categoría·zona ≥9,15:1 |
 | `node scripts/block19-discovery-browser-audit.mjs` | 30/30 |
+| `node scripts/b17-regression-check.mjs` | **18/18** |
+| `node scripts/b17-tap-target-check.mjs` | **16/16** |
+| `node scripts/b17-responsive-check.mjs` | Sin overflow horizontal |
 | `node scripts/b18-a11y-check.mjs` | 23/23 |
 | `node scripts/b18-browser-back-check.mjs` | 15/15 |
 | `node scripts/b18-chrome-check.mjs` | 6/6 |
 | `node scripts/b18-regression-check.mjs` | 40/40 |
+| `node scripts/b18-responsive-check.mjs` | Sin overflow; `TabBar`/`NavRail` mutuamente exclusivos |
 | `node scripts/b18-viaje-lugar-check.mjs` | 38/38 |
-| `node scripts/b18-responsive-check.mjs` | Sin overflow horizontal; `TabBar`/`NavRail` mutuamente exclusivos |
-| `node scripts/b17-responsive-check.mjs` | Sin overflow horizontal |
+| `node scripts/block1-ux-browser-audit.mjs` | **153/153** (tres viewports) |
+| `node scripts/block2-photography-browser-audit.mjs` | **69/69** (tres viewports) |
+| `node scripts/phase5a-rc-browser-audit.mjs --viewport=desktop` | **50/50** |
+| `node scripts/phase5a-rc-browser-audit.mjs --viewport=mobile` | **50/50** |
+
+Los cuatro últimos levantan su propio `vite preview`, así que no necesitan `NIHON_BASE_URL`.
 
 **Nota de entorno.** Los gates nuevos lanzan Chromium con
 `executablePath: "/opt/pw-browsers/chromium"`. Los gates antiguos no lo hacen y esperan la
@@ -190,33 +180,69 @@ antiguos.
 
 ## 8. Riesgos y hallazgos
 
-**Cinco gates antiguos fallan idénticamente en `b82451a` (SHA de partida) y en `bb46042`.** No son
-regresiones de esta corrección; esperan marcado que B18/B19 ya habían sustituido. Comprobado
-construyendo `b82451a` en un worktree aparte y corriendo cada gate contra los dos builds:
+### Los cinco gates heredados — RESUELTOS
 
-| Gate | Espera | Roto desde |
-|---|---|---|
-| `b17-regression-check.mjs` | `.view-bar__filters` | B18 (la barra única lo sustituyó) |
-| `b17-tap-target-check.mjs` | `.app__help` | Antes de B19 (el elemento no existe) |
-| `block1-ux-browser-audit.mjs` | `.interest-badge__label` en `.place-card` | B19 (`PlaceCard` v2) |
-| `block2-photography-browser-audit.mjs` | `.view-bar__filters` | B18 |
-| `phase5a-rc-browser-audit.mjs` | `.selection-panel__toggle` | Antes de B19 |
+Los cinco fallaban idénticamente en `b82451a` y ninguno llegaba a ejecutar una sola comprobación.
+Requisito a requisito: lo vigente se actualizó al comportamiento actual, priorizando conducta y
+semántica sobre selectores internos; lo que el diseño sustituyó a propósito se sustituyó también
+en la prueba, nunca se borró sin dejar escrito dónde queda cubierto.
 
-Otros riesgos anotados:
+| Gate | Causa del fallo | Requisito original | ¿Vigente? | Acción | Sucesor | Resultado |
+|---|---|---|---|---|---|---|
+| `b17-regression-check.mjs` | `.view-bar__filters` (barra única de B18) | Las capacidades de v1.1.0 siguen alcanzables (G2) | Sí | Reescrito al shell vigente, por rol y nombre accesible | él mismo | **18/18** |
+| `b17-tap-target-check.mjs` | `.app__help` (retirado por B18) | 44×44 reales, con la zona ampliada respondiendo (G5) | Sí | Controles actualizados; `.trip-backup__close` retirado (el control ya no existe); medición de conducta, no de coordenadas | él mismo; el respaldo lo cubre `b17-regression-check` | **16/16** |
+| `block1-ux-browser-audit.mjs` | `.interest-badge__label` (`PlaceCard` v2) | Jerarquía y usabilidad medidas en layout real | Sí, salvo dos requisitos | Dos comprobaciones **sustituidas** por decisión congelada: la insignia sólo para grado S (`04 §5.3`/Art. 6) y búsqueda/filtros como hoja a cualquier ancho (`04 §12`/`§13`); una tercera estaba invertida (exigía la letra de grado que `08` prohíbe) | él mismo; el nivel se comprueba ahora en el nombre accesible | **153/153** |
+| `block2-photography-browser-audit.mjs` | `.view-bar__filters` | Renditions, bytes, CLS, carrusel, lightbox, atribución | Sí | Camino actualizado; proporción derivada del número de columnas (DD-016) en vez de breakpoints; scroll pedido a `.app__sidebar`, que es quien scrollea | él mismo | **69/69** |
+| `phase5a-rc-browser-audit.mjs` | `.selection-panel__toggle` desde Explorar | Cinco recorridos dorados + integridad en runtime | Sí | Ayudantes de navegación reescritos al shell de cuatro destinos; `readSaved`/`seedPlan` al modelo de viajeros (el Bloque 5 dejó `nihon.savedPlaceIds` sin escribir); F01 y F05 reexpresados | él mismo | **50/50** ×2 viewports |
+
+### Cuatro defectos reales que los gates encontraron (todos corregidos)
+
+1. **`.place-card__save--compact` con `position: static`** anulaba el `position: relative` de
+   `.tap-target-min`: su `::after` medía 356×88 px y cubría la tarjeta compacta entera. Tocar el
+   nombre en los resultados de búsqueda **guardaba** el lugar en vez de abrirlo (`04 §5.9`).
+2. **Chips de `FilterSheet` pegados a su `<summary>`**: separación 0 entre dos objetivos táctiles,
+   contra los 8 px de `--tap-gap` (`03 §7`).
+3. **El botón del título de ciudad medía 88×26 px**. Es el selector de ciudad (`05 §4`), o sea
+   navegación, y estaba por debajo de los 44 px de Art. 11.
+4. **Las tarjetas sin fotografía no se podían abrir** (`pointer-events: none` mataba el enlace
+   estirado) y, en TODAS las tarjetas, ese enlace se encogía al recuadro del texto del nombre
+   (271×29 px en una tarjeta de 271×270) porque `.place-card__heading` estaba posicionado. Los
+   ~53 lugares sin foto del catálogo eran inalcanzables con el ratón. Ambos vigilados ahora por
+   `block19-grid-check.mjs`.
+
+### Otros riesgos anotados
 
 - **`02 §D5` fija un ancho máximo de contenido de 1440 px centrado en `xl`, y no está
-  implementado.** Es anterior a esta corrección y queda fuera de alcance. Comprobado que no
-  cambia el resultado: a 1600 px la lista da 3 columnas con el tope de 1440 px y sin él.
-- **El gate de contraste no ha encontrado una tarjeta con insignia «★ Imprescindible»** entre las
-  que tienen fotografía cargada en el momento de medir (informa `insignia ausente`). El suelo de
-  scrim de la banda es plano, así que la fila de la insignia recibe el mismo valor que el resto;
-  aun así, si alguna vez se cambia ese suelo por un degradado, hay que revisar este punto.
-
----
+  implementado.** Anterior a esta corrección y fuera de alcance. Comprobado que no cambia el
+  resultado: a 1600 px la lista da 3 columnas con el tope y sin él.
+- **El gate de contraste no encuentra una tarjeta con insignia «★ Imprescindible»** entre las que
+  tienen fotografía cargada al medir (informa `insignia ausente`). El suelo de scrim de la banda
+  es plano, así que la fila de la insignia recibe el mismo valor; si alguna vez se cambia ese
+  suelo por un degradado, hay que revisarlo.
+- **Entorno**: los gates antiguos no fijan `executablePath` y esperan la revisión de Chromium que
+  pide `playwright-core/browsers.json` (1234) mientras el contenedor tiene la 1194. En esta
+  sesión se salvó con enlaces simbólicos **fuera del repositorio**
+  (`/opt/pw-browsers/chromium-1234`, `/opt/pw-browsers/chromium_headless_shell-1234/...`). No
+  está versionado: hay que rehacerlo en un contenedor nuevo.
 
 ## 9. DESIGN DECISION REQUIRED
 
-**Pendientes: ninguna.**
+**Pendientes: una — DDR-02.**
+
+### DDR-02 — ABIERTA: el cuerpo de la tarjeta no abre el lugar
+
+- **Qué dice la norma.** `04 §5.9`: «toda la tarjeta abre el lugar», sin excepciones.
+- **Qué pasa.** El botón estirado nace dentro de `.place-card__media`, porque el nombre va sobre
+  la fotografía (`04 §5.2`), y la fotografía tiene `overflow: hidden` para recortarse a su
+  proporción. Ningún pseudo-elemento nacido ahí puede alcanzar el cuerpo de la tarjeta. Medido:
+  la fotografía y su banda **sí** abren el lugar; la razón y los chips, no.
+- **Qué se ha hecho mientras tanto.** Corregida la mitad inequívoca —antes ni la fotografía
+  abría: el enlace se encogía al texto del nombre— y dejada vigilada en `block19-grid-check.mjs`.
+  `04 §5.9` **no se ha tocado**.
+- **Qué habría que decidir.** (a) Sacar el botón del nombre fuera de la fotografía; (b) quitar el
+  `overflow: hidden` y recortar de otro modo; (c) aceptar que el cuerpo no abre y reescribir
+  `04 §5.9`. Las tres cambian la anatomía que `04 §5` dibuja: no las cierra ingeniería.
+- **Bloquea.** Nada hoy. B4, al rediseñar la ficha y sus tarjetas.
 
 ### DDR-01 — CERRADA el 2026-09-21 por DD-017
 
