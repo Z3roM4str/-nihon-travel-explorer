@@ -16,6 +16,14 @@ import "./astra/astra.css";
 const LazyNationalExplorer = lazy(() => import("./components/NationalExplorer").then(module => ({ default: module.NationalExplorer })));
 const LazyPlanner = lazy(() => import("./components/OrderedSequenceBuilder").then(module => ({ default: module.OrderedSequenceBuilder })));
 
+function PersistenceNotice({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+  return <div role="alert" className="astra-persistence-notice"><div>
+    <strong>No se pudieron guardar los cambios en este dispositivo.</strong>
+    <p>Tus cambios siguen disponibles en esta sesión. Intenta guardarlos de nuevo.</p>
+    {error && <p className="astra-persistence-notice__detail">Detalle: {error}</p>}
+  </div><button type="button" onClick={onRetry}>Reintentar guardar</button></div>;
+}
+
 export default function App() {
   const [route, setRoute] = useState(() => parseAstraRoute(location.hash));
   const [region, setRegion] = useState<NavigationRegion | null>(null);
@@ -97,20 +105,15 @@ export default function App() {
   return <AppShell destination={destination} savedCount={todosIds.length}>
     <div id="astra-content">
       {(route.surface === "explore" || route.surface === "place") && <Discovery places={places} hubs={getHubs()} state={route.surface === "explore" ? route : lastExplore} savedIds={savedIds} onToggle={safeToggle} onState={navigateExplore} onOpen={openPlace} onRegions={openRegions} />}
+      {route.surface === "explore" && syncState === "error" && <PersistenceNotice error={saveError} onRetry={retrySave} />}
       {route.surface === "regions" && <section className="astra-regions"><a className="astra-back" href={exploreHref(lastExplore)}>← Volver a Explorar</a><Suspense fallback={<div role="status">Cargando regiones…</div>}><LazyNationalExplorer activeRegion={region} selectedCode={prefectureCode} onSelectRegion={setRegion} onSelectPrefecture={(code) => { setPrefectureCode(code); if (code) setRegion(getPrefectureByCode(code)?.region ?? region); }} onEnterHub={(hub) => navigateExplore({...EMPTY_EXPLORE_STATE,hub})} /></Suspense></section>}
       {route.surface === "trip" && <section className="astra-trip">
         <p className="astra-eyebrow">MIS GUARDADOS</p>
         <h1>Nuestro viaje</h1>
-        <p className="astra-trip__note">Guardados en este dispositivo. Marcar interés no altera el itinerario; quitarlo tampoco elimina actividades.</p>
+        <p className="astra-trip__note">{syncState === "error" ? "Los cambios de esta sesión aún no se guardaron en el dispositivo." : "Guardados en este dispositivo."} Marcar interés no altera el itinerario; quitarlo tampoco elimina actividades.</p>
 
         {syncState === "error" && (
-          <div role="alert" aria-live="assertive" className="astra-trip__error-banner" style={{ background: "#fef2f2", color: "#991b1b", border: "1px solid #f87171", padding: "12px 16px", borderRadius: "12px", margin: "16px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-            <div>
-              <strong>Atención: No se pudieron guardar los cambios en este dispositivo.</strong>
-              <p style={{ margin: "4px 0 0", fontSize: "14px" }}>Tus preferencias se conservan en memoria. {saveError && `(${saveError})`}</p>
-            </div>
-            <button type="button" style={{ minHeight: "36px", padding: "0 12px", fontSize: "13px" }} onClick={retrySave}>Reintentar guardar</button>
-          </div>
+          <PersistenceNotice error={saveError} onRetry={retrySave} />
         )}
 
         <div className="astra-trip__tabs">
@@ -171,7 +174,7 @@ export default function App() {
         </div>
       </section>}
     </div>
-    {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}><PlaceDetail place={place} isSaved={isSaved(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
+    {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}>{syncState === "error" && <PersistenceNotice error={saveError} onRetry={retrySave} />}<PlaceDetail place={place} isSaved={isSaved(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
     {plannedRemoval && <RouteDialog role="alertdialog" labelledBy="planned-title" onClose={() => setPlannedRemoval(null)} returnFocus={removalOpener} overlayClassName="astra-confirm" panelClassName="astra-confirm__panel"><h2 id="planned-title">Este lugar forma parte de tu ruta</h2><p>Para proteger el plan guardado, quítalo primero desde Planificar. No se cambió tu guardado ni tu ruta.</p><button onClick={() => setPlannedRemoval(null)}>Mantener guardado</button><button onClick={() => { setPlannedRemoval(null); setPlannerOpen(true); }}>Ir a Planificar</button></RouteDialog>}
     {analysisOpen && <SelectionAnalysis savedPlaces={savedPlaces} onSelectPlace={(id) => { setAnalysisOpen(false); openPlace(id); }} onClose={() => setAnalysisOpen(false)} />}
     {plannerOpen && <Suspense fallback={<div className="astra-lazy-modal" role="status">Cargando Planificar…</div>}><LazyPlanner savedPlaces={plannerPlaces} onClose={() => setPlannerOpen(false)} /></Suspense>}
