@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint A (DDR-01 cerrada)
+**Última actualización:** 2026-09-21 · checkpoint B (2 de 5 gates heredados)
 
 ---
 
@@ -15,7 +15,7 @@
 |---|---|
 | **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · corrección DD-016 cerrada · **cierre de B19 en curso** |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `cc6392e` — `docs: handoff reanudable y protocolo de continuidad por checkpoints` |
+| **Último SHA estable pusheado** | `89e23ca` — `docs(block-19): DDR-01 resuelta — DD-017` |
 | **Último SHA con cambio de producto** | `bb46042` — `fix(block-19): la rejilla … (DD-016)` |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
@@ -110,8 +110,10 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 Para cerrar B19 quedan **dos frentes**, ambos encargados y en curso:
 
 1. **~~DDR-01~~ — CERRADA** el 2026-09-21 por **DD-017** (checkpoint A). Ver §9.
-2. **Los cinco gates heredados** (§8): por cada uno hay que identificar qué requisito
-   protegía, si ese requisito sigue vigente tras B18/B19, y entonces actualizarlo al
+2. **Los cinco gates heredados** (§8). Hechos: `b17-regression-check.mjs` (18/18) y
+   `b17-tap-target-check.mjs` (16/16). Quedan: `block1-ux-browser-audit.mjs`,
+   `block2-photography-browser-audit.mjs` y `phase5a-rc-browser-audit.mjs`. Por cada uno:
+   identificar qué requisito protegía, si sigue vigente tras B18/B19, y entonces actualizarlo al
    comportamiento actual —priorizando comportamiento y semántica sobre selectores internos
    frágiles— o retirarlo documentando qué prueba lo cubre ahora. **Nunca** se toca código de
    producción para satisfacer una prueba obsoleta, ni se borra una prueba sin justificar qué
@@ -124,16 +126,16 @@ No es de este bloque y nadie debe abordarlo sin instrucción explícita:
 
 ## 6. Siguiente acción concreta
 
-**Frente 2 de §5: los cinco gates heredados de §8.** Se trabajan de uno en uno o de dos en
-dos, cada tanda con su propio checkpoint (verificaciones → commit → push → actualizar este
-fichero). Orden sugerido, de menos a más invasivo:
+**Frente 2 de §5: los tres gates heredados que quedan.** Cada tanda con su propio checkpoint
+(verificaciones → commit → push → actualizar este fichero). Orden sugerido:
 
-1. `b17-regression-check.mjs` y `block2-photography-browser-audit.mjs` — los dos fallan por el
-   mismo motivo (`.view-bar__filters`, sustituido por la barra única de B18).
-2. `b17-tap-target-check.mjs` — `.app__help` ya no existe.
-3. `block1-ux-browser-audit.mjs` — `.interest-badge__label`: hay que decidir, requisito a
+1. `block2-photography-browser-audit.mjs` — `.view-bar__filters` (barra única de B18) y la
+   proporción esperada, que DD-016 cambió a «4:3 con una columna, 16:9 con dos o más».
+2. `block1-ux-browser-audit.mjs` — `.interest-badge__label`: hay que decidir, requisito a
    requisito, cuáles sobreviven a `PlaceCard` v2 y `04 §5.3` (sólo grado S lleva insignia).
-4. `phase5a-rc-browser-audit.mjs` — `.selection-panel__toggle`.
+3. `phase5a-rc-browser-audit.mjs` — el más grande: sus cinco recorridos usan el modelo de
+   navegación anterior a B18 entero (`.place-list__item`, «Buscar y filtrar»,
+   `.selection-panel__toggle` desde Explorar).
 
 Después: la verificación final completa de §7 y el cierre de B19.
 

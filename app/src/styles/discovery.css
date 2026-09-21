@@ -246,11 +246,20 @@ button.search-field:focus-visible {
   font-weight: 700;
 }
 
+/*
+ * `padding-top: var(--tap-gap)`, no 0.
+ *
+ * `03 §7` fija `--tap-gap: 8px`, «separación mínima entre dos objetivos adyacentes». El
+ * `<summary>` de cada grupo ES un objetivo táctil —abre y cierra el grupo— y la lista estaba
+ * pegada a él: separación real 0, con los 2px que el `::after` de `.tap-target-min` añade por
+ * arriba cayendo dentro de la caja del `<summary>`. Los 8px cumplen la regla sin tocar el tamaño
+ * del chip, que `04 §3` fija en 40px.
+ */
 .filter-chip-list {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  padding: 0 0 var(--space-4);
+  padding: var(--tap-gap) 0 var(--space-4);
 }
 
 .filter-panel__foot {
@@ -799,8 +808,22 @@ button.search-field:focus-visible {
   white-space: nowrap;
 }
 
+/*
+ * `position: relative`, NO `static`.
+ *
+ * Lo único que hay que deshacer de `.place-card__save` es su `position: absolute` con
+ * `top`/`right` — eso lo hace `inset: auto`. Poner `static` además anulaba el
+ * `position: relative` que `.tap-target-min` necesita (App.css §Áreas táctiles): su `::after`
+ * es `position:absolute` con `width/height: max(100%, var(--tap-min))`, así que sin un ancestro
+ * posicionado propio resolvía ese `100%` contra `.place-card` — un área táctil invisible de
+ * 356×88 px que cubría la tarjeta compacta ENTERA y se tragaba el botón del nombre. Efecto real:
+ * en los resultados de búsqueda, tocar el nombre guardaba el lugar en vez de abrirlo (Art. 11 y
+ * `04 §5.9`, «toda la tarjeta abre el lugar; el corazón está por encima» — por encima, no encima
+ * de todo). Lo vigila `b17-tap-target-check.mjs`.
+ */
 .place-card__save--compact {
-  position: static;
+  position: relative;
+  inset: auto;
   flex-shrink: 0;
   width: 32px;
   height: 32px;
