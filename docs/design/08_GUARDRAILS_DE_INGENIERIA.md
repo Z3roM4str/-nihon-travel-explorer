@@ -1,6 +1,12 @@
 # 08 — Guardrails de ingeniería
 
-Para Claude Code, Codex, ChatGPT o cualquier otro agente que implemente este diseño.
+Para Claude Code, Codex, Jules, ChatGPT o cualquier otro agente que implemente este
+diseño.
+
+> **Antes de tocar nada, lee `docs/CURRENT_WORK_HANDOFF.md`.** Dice en qué bloque estamos,
+> cuál es el último SHA estable empujado, qué está terminado, qué falta, cuál es la
+> siguiente acción concreta y —sobre todo— qué NO puede cambiar un agente de
+> implementación. Se actualiza en cada checkpoint, no sólo al cerrar un bloque.
 
 ---
 
