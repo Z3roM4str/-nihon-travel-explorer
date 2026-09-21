@@ -162,6 +162,12 @@ es una prueba automatizable — `app/scripts/block19-grid-check.mjs` las ejecuta
    que una rejilla cambia de columnas son consecuencia de la fórmula (mínimo de tarjeta,
    `gap`, `padding`, cromo); si aparecen escritos en el CSS o en la documentación, la
    fórmula ha dejado de ser la fuente y hay que quitarlos.
+10. **Toda `PlaceCard` abre desde toda superficie no interactiva** (DDR-02), con y sin
+   fotografía. El target principal pertenece al nivel del `<article>`, coincide con sus
+   límites y no nace dentro de `.place-card__media`; ésta conserva `overflow: hidden`.
+   Corazón y token de persona quedan por encima, no abren la ficha y mantienen su
+   comportamiento independiente. Verificable por puntero y teclado, incluidos fotografía,
+   nombre, razón y chips, y comprobando que el target no sobresale de la tarjeta.
 
 ## Puertas de calidad por bloque
 

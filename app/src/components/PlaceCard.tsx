@@ -90,11 +90,11 @@ function secondChip(place: Place): SecondChip {
  * Photo-led place card (`04 §5`).
  *
  * Markup note: the card is an `<article>`, not a `<button>`, because it carries two independent
- * actions — open the place, and save it. The name's button is stretched over the whole card via
- * `.place-card__open::after` so the entire surface opens the place on any pointer, while the
- * save control (and the other person's token, when there is one) sit above it in the stacking
- * order. Nesting one button inside another (the obvious shortcut) is invalid HTML and breaks
- * keyboard and screen-reader behaviour.
+ * actions — open the place, and save it. DDR-02 places the stretched open button directly under
+ * the `<article>` so its box can cover media and body without escaping either one; the visible
+ * name remains in the photographic band. The save control (and the other person's token, when
+ * there is one) sit above that target. Nesting one button inside another is invalid HTML and
+ * breaks keyboard and screen-reader behaviour.
  */
 export function PlaceCard({
   place,
@@ -153,12 +153,8 @@ export function PlaceCard({
       className="place-card__open"
       data-stretch-target=".place-card"
       onClick={() => onSelect(place.id)}
-    >
-      {nameSlot}
-      <span className="visually-hidden">
-        . {interest.label}. {category.label} en {zone}.
-      </span>
-    </button>
+      aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}
+    />
   );
 
   if (variant === "compact") {
@@ -169,6 +165,7 @@ export function PlaceCard({
         }`}
         aria-current={selected ? "true" : undefined}
       >
+        {openButton}
         <div className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
           {image && mediaState !== "error" ? (
             <img
@@ -191,7 +188,7 @@ export function PlaceCard({
           )}
         </div>
         <div className="place-card__body">
-          <h3 className="place-card__heading">{openButton}</h3>
+          <h3 className="place-card__heading">{nameSlot}</h3>
           <p className="place-card__meta">
             {categoryLabel}
             <span aria-hidden="true"> · </span>
@@ -223,6 +220,7 @@ export function PlaceCard({
       }`}
       aria-current={selected ? "true" : undefined}
     >
+      {openButton}
       <div className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
         {image && mediaState !== "error" ? (
           <>
@@ -272,7 +270,7 @@ export function PlaceCard({
                 <span aria-hidden="true">★</span> Imprescindible
               </span>
             )}
-            <h3 className="place-card__heading">{openButton}</h3>
+            <h3 className="place-card__heading">{nameSlot}</h3>
             <p className="place-card__where">
               {categoryLabel}
               <span aria-hidden="true"> · </span>

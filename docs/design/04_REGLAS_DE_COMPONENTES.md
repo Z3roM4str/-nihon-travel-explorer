@@ -117,9 +117,14 @@ seis chips con emoji.
    `aviso real` > `reserva obligatoria` > `joya escondida`. Todo lo demás vive en la
    ficha.
 8. **Sin fotografía**: ver `PhotoPlaceholder` (§9) — nunca un hueco gris.
-9. **Toda la tarjeta abre el lugar**; el corazón y el token de persona están por
-   encima en el orden de apilamiento. Se conserva el patrón actual de
-   `<article>` + botón estirado (es correcto y accesible).
+9. **Toda la tarjeta abre el lugar** (DDR-02): fotografía, nombre, razón, chips y
+   cualquier otra superficie no interactiva. El control principal pertenece
+   estructuralmente al nivel del `<article>`/`PlaceCard` y cubre exactamente la tarjeta;
+   **no nace dentro de `.place-card__media`**, cuyo `overflow: hidden` se conserva. El
+   nombre continúa visualmente sobre la fotografía. Corazón y token de persona quedan
+   por encima y conservan su comportamiento independiente, sin controles interactivos
+   anidados ni targets invisibles fuera de la tarjeta. El control principal es enfocable
+   y operable por teclado.
 10. **Variante `compact`**: fila horizontal, miniatura 72×72 `--radius-md`, nombre
     `--type-title-s`, una línea de metadato. Se usa en «Quiero ir», planner, «Cerca
     de aquí» y resultados de búsqueda.

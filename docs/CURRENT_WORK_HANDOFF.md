@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint E — **B19 cerrado**
+**Última actualización:** 2026-09-21 · checkpoint F — **DDR-02 resuelta; B19 cerrado**
 
 ---
 
@@ -13,13 +13,13 @@
 
 | | |
 |---|---|
-| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017 y los cinco gates heredados) |
+| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `9ed139b` — `fix(block-19): cierra los cinco gates heredados, y dos defectos más` |
-| **Último SHA con cambio de producto** | `9ed139b` — las cuatro correcciones de área táctil y enlace estirado |
+| **Último SHA estable local** | `67d9cdb` — `fix(block-19): resuelve DDR-02 en PlaceCard` (push bloqueado por HTTP 403 en este entorno) |
+| **Último SHA con cambio de producto** | `67d9cdb` — target completo de PlaceCard según DDR-02 |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
-| **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
-| **Estado de la suite** | Verde entera (detalle en §7) |
+| **Estado del working tree** | Limpio tras el commit de checkpoint F. El remoto no es accesible desde este entorno (HTTP 403). |
+| **Estado de la suite** | Build, lint y suite completa verdes; gate de navegador bloqueado por ausencia de Chromium (detalle en §7). |
 | **Siguiente bloque** | B4 — Ficha de lugar y capa fotográfica. **NO EMPEZADO. No empezarlo sin instrucción explícita de Claude.** |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
@@ -107,12 +107,12 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 
 ## 5. Qué falta
 
-**Del bloque 19: nada.** DD-016 implementado y verificado, DDR-01 cerrada por DD-017, y los cinco
+**Del bloque 19: nada.** DD-016 implementado y verificado, DDR-01 cerrada por DD-017, DDR-02
+cerrada con el target principal al nivel del `<article>` y los cinco
 gates heredados resueltos (§8). Cuatro defectos reales encontrados y corregidos por el camino.
 
 Pendiente, y que **nadie debe abordar sin instrucción explícita**:
 
-- **DDR-02** (§9): requiere decisión de producto/diseño.
 - **B4 — Ficha de lugar y capa fotográfica**: siguiente bloque del roadmap
   (`docs/design/10_ROADMAP_DE_BLOQUES.md` § B4). **No empezado, no empezar.**
 
@@ -139,17 +139,18 @@ Todo desde `app/`. Los gates de navegador necesitan un `vite preview` en marcha:
 npm ci
 npm run build            # tsc -b && vite build
 npm run lint             # oxlint — debe salir sin una sola advertencia
-npx vitest run           # 94 ficheros / 3272 tests
+npx vitest run           # 94 ficheros / 3273 tests
 
 npx vite preview --port 4181 --strictPort &   # necesario para los gates de navegador
 export NIHON_BASE_URL=http://localhost:4181
 ```
 
-Gates que **deben** pasar (último resultado conocido, checkpoint E):
+Gates que **deben** pasar (estado del checkpoint F; donde no se indica lo contrario se conserva
+el último resultado ejecutado del checkpoint E):
 
 | Gate | Resultado |
 |---|---|
-| `node scripts/block19-grid-check.mjs` | **37/37** — seis viewports, ≥264 px, proporción, raíl ≤50 %, estabilidad del mapa, tarjeta con y sin foto, cero `text-shadow` |
+| `node scripts/block19-grid-check.mjs` | Gate ampliado para DDR-02: fotografía, nombre, razón y chips; corazón/token independientes; con/sin foto; teclado; target confinado. No ejecutable en este contenedor: falta `/opt/pw-browsers/chromium` y la descarga devuelve HTTP 403. |
 | `node scripts/block19-contrast-check.mjs` | Dentro de contrato — scrim 0,811–0,944; nombre ≥12,78:1; categoría·zona ≥9,15:1 |
 | `node scripts/block19-discovery-browser-audit.mjs` | 30/30 |
 | `node scripts/b17-regression-check.mjs` | **18/18** |
@@ -227,24 +228,21 @@ en la prueba, nunca se borró sin dejar escrito dónde queda cubierto.
 
 ## 9. DESIGN DECISION REQUIRED
 
-**Pendientes: una — DDR-02.**
+**Pendientes: ninguna. DDR-01 y DDR-02 están resueltas.**
 
-### DDR-02 — ABIERTA: el cuerpo de la tarjeta no abre el lugar
+### DDR-02 — RESUELTA el 2026-09-20: toda la tarjeta abre el lugar
 
 - **Qué dice la norma.** `04 §5.9`: «toda la tarjeta abre el lugar», sin excepciones.
-- **Qué pasa.** El botón estirado nace dentro de `.place-card__media`, porque el nombre va sobre
-  la fotografía (`04 §5.2`), y la fotografía tiene `overflow: hidden` para recortarse a su
-  proporción. Ningún pseudo-elemento nacido ahí puede alcanzar el cuerpo de la tarjeta. Medido:
-  la fotografía y su banda **sí** abren el lugar; la razón y los chips, no.
-- **Qué se ha hecho mientras tanto.** Corregida la mitad inequívoca —antes ni la fotografía
-  abría: el enlace se encogía al texto del nombre— y dejada vigilada en `block19-grid-check.mjs`.
-  `04 §5.9` **no se ha tocado**.
-- **Qué habría que decidir.** (a) Sacar el botón del nombre fuera de la fotografía; (b) quitar el
-  `overflow: hidden` y recortar de otro modo; (c) aceptar que el cuerpo no abre y reescribir
-  `04 §5.9`. Las tres cambian la anatomía que `04 §5` dibuja: no las cierra ingeniería.
-- **Bloquea.** Nada hoy. B4, al rediseñar la ficha y sus tarjetas.
+- **Qué pasaba.** El botón estirado nacía dentro de `.place-card__media`, cuyo recorte impedía
+  alcanzar la razón y los chips del cuerpo.
+- **Decisión aprobada.** Se adopta (a): el botón principal nace como hijo directo del
+  `<article>` y cubre exactamente la tarjeta; el nombre sigue visualmente sobre la fotografía y
+  `.place-card__media` conserva `overflow: hidden`. Corazón y token quedan por encima y no abren.
+- **Qué cambió.** `PlaceCard.tsx` separa el botón accesible del nombre visual;
+  `discovery.css` confina el target al artículo; `block19-grid-check.mjs` vigila las ocho
+  conductas aprobadas. `04 §5.9`, `08` y `09` quedan sincronizados.
 
-### DDR-01 — CERRADA el 2026-09-21 por DD-017
+### DDR-01 — CERRADA el 2026-09-20 por DD-017
 
 - **Qué se planteó.** `05 §5` pedía conservar `panelOffset` en `lg`+ («el panel no oculta el
   marcador seleccionado en el mapa»), lo que presupone un raíl más ancho que la ficha. La

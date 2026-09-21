@@ -373,7 +373,7 @@ hasta que producto o diseño las cierren. Se conservan cerradas, con su resoluci
 quede el rastro de por qué el documento dice lo que dice.
 
 ### DDR-01 — `05 §5` pedía conservar `panelOffset`; la geometría del raíl lo dejaba sin sitio
-**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 por **DD-017**
+**Estado: RESUELTA** · Abierta 2026-09-20 · Cerrada 2026-09-20 por **DD-017**
 
 **La tensión que se planteó.** `05 §5` decía: «`lg`+: el panel no oculta el marcador
 seleccionado en el mapa (se conserva `panelOffset`)». Eso presupone un raíl del mapa **más
@@ -388,7 +388,7 @@ selección), no su visibilidad; `panelOffset` sobrevive con su alcance acotado a
 donde mapa y panel se ven a la vez; y no se fabrica ninguna franja residual de mapa.
 
 ### DDR-02 — El cuerpo de la tarjeta no abre el lugar, y `04 §5.9` no admite excepciones
-**Abierta desde:** 2026-09-21 · **Afecta:** `04 §5` · **Bloquea:** nada hoy; B4 al rediseñar la ficha y sus tarjetas
+**Estado: RESUELTA** · Abierta 2026-09-20 · Cerrada 2026-09-20 · **Afecta:** `04 §5`, `08`
 
 **Qué dice la norma.** `04 §5.9`: «**Toda la tarjeta abre el lugar**; el corazón y el token de
 persona están por encima en el orden de apilamiento. Se conserva el patrón actual de `<article>`
@@ -402,15 +402,21 @@ abren el lugar; la razón y los chips, no. (Hasta esta corrección era peor: el 
 al recuadro del texto del nombre, 271×29px en una tarjeta de 271×270, y ni siquiera la fotografía
 abría nada. Eso sí era un defecto inequívoco y está corregido.)
 
-**Por qué no lo cierra ingeniería.** Las salidas posibles cambian la anatomía del componente que
-`04 §5` dibuja: (a) sacar el botón del nombre fuera de `.place-card__media`, dejando el nombre
-sobre la foto por posicionamiento en vez de por anidamiento; (b) quitar `overflow: hidden` de la
-fotografía y recortarla de otro modo; (c) aceptar que el cuerpo no abre el lugar y reescribir
-`04 §5.9`. Ninguna es una decisión de implementación.
+**Decisión aprobada.** Se mantiene íntegramente `04 §5.9` y se adopta la alternativa (a). El
+control principal que abre el lugar pertenece estructuralmente al nivel del
+`<article>`/`PlaceCard`, cubre exactamente la tarjeta completa y no nace dentro de
+`.place-card__media`. La media conserva `overflow: hidden`; el nombre continúa visualmente sobre
+la fotografía. Fotografía, nombre, razón, chips y cualquier otra superficie no interactiva
+abren el lugar. Corazón y token de persona permanecen por encima, conservan su comportamiento
+independiente y no abren la ficha. No se anidan controles interactivos ni se extiende ningún
+target invisible fuera de la tarjeta; el control principal mantiene semántica de botón, foco
+visible y activación por teclado.
 
-**Qué se ha hecho mientras tanto.** Se ha corregido la mitad inequívoca —la fotografía entera
-abre el lugar, con y sin foto— y se ha dejado vigilada en `block19-grid-check.mjs`. No se ha
-tocado `04 §5.9`.
+**Cómo se ha cerrado.** `PlaceCard` renderiza el botón principal como hijo directo del
+`<article>` y presenta el nombre por separado dentro de la banda fotográfica. El gate
+`app/scripts/block19-grid-check.mjs` prueba cada zona, las acciones independientes, ambos estados
+fotográficos, teclado y límites geométricos del target. `04 §5.9` y los invariantes de `08`
+quedan actualizados al mismo contrato.
 
 ---
 
@@ -423,4 +429,3 @@ tocado `04 §5.9`.
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
-| **DDR-02** | ¿El cuerpo de la tarjeta debe abrir el lugar? (ver arriba) | Producto + diseño | Nada hoy; B4 |

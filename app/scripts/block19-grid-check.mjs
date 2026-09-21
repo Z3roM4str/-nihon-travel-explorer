@@ -210,55 +210,97 @@ async function main() {
     await context.close();
   }
 
-  // ---------- Toda la tarjeta abre el lugar, TAMBIÉN sin fotografía (04 §5.9) ----------
-  /*
-   * `04 §5.9` no admite excepciones: «toda la tarjeta abre el lugar». La tarjeta sin fotografía
-   * oculta su overlay para no duplicar el nombre que ya pone `PhotoPlaceholder` — pero el botón
-   * estirado que abre la ficha vive DENTRO de ese overlay, así que apagarle los eventos de
-   * puntero dejaba muerta la tarjeta entera. Afectaba a los ~53 lugares sin fotografía del
-   * catálogo (`06`). Se comprueba sobre una tarjeta de cada clase, con y sin foto.
-   */
+  // ---------- DDR-02: toda la tarjeta abre; acciones independientes quedan por encima ----------
   {
     const context = await browser.newContext({ viewport: { width: 1200, height: 900 } });
     const page = await context.newPage();
     await openTokio(page);
-    // Se carga toda la ciudad para asegurar que hay al menos una tarjeta sin fotografía.
     for (let i = 0; i < 20; i += 1) {
       await page.locator(".app__sidebar").evaluate((el) => el.scrollBy(0, 1200));
       await page.waitForTimeout(90);
     }
-    // El desplazamiento y la medición van en pasos separados: `scrollIntoView` dentro del mismo
-    // `evaluate` no ha asentado nada todavía cuando se lee `getBoundingClientRect`, y medir ahí
-    // da falsos negativos que no dicen nada del contrato.
-    const centreResolvesToOpen = async (locator) => {
-      if ((await locator.count()) === 0) return null;
-      await locator.evaluate((el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
-      await page.waitForTimeout(300);
-      return locator.evaluate((el) => {
-        const r = el.getBoundingClientRect();
-        const at = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-        return Boolean(at && at.closest(".place-card__open"));
-      });
+
+    const cards = page.locator(".place-card:not(.place-card--compact)");
+    const withPhoto = cards.filter({ has: page.locator(".place-card__image") }).first();
+    const withoutPhoto = cards.filter({ has: page.locator(".photo-placeholder") }).first();
+
+    const closeDetail = async () => {
+      await page.locator(".app__detail .place-detail__bar .icon-button").click();
+      await page.waitForSelector(".app__detail", { state: "detached" });
     };
-    const allCards = page.locator(".place-card:not(.place-card--compact)");
-    const withPhoto = allCards.filter({ has: page.locator(".place-card__image") }).first();
-    const withoutPhoto = allCards.filter({ has: page.locator(".photo-placeholder") }).first();
-    const probe = {
-      total: await allCards.count(),
-      withoutPhotoFound: (await withoutPhoto.count()) > 0,
-      photoOpens: await centreResolvesToOpen(withPhoto),
-      placeholderOpens: await centreResolvesToOpen(withoutPhoto),
+    const opensFrom = async (card, selector) => {
+      await card.scrollIntoViewIfNeeded();
+      await card.locator(selector).click();
+      const opened = await page.locator(".app__detail").count();
+      if (opened) await closeDetail();
+      return opened === 1;
     };
+
+    for (const [kind, card] of [
+      ["con foto", withPhoto],
+      ["sin foto", withoutPhoto],
+    ]) {
+      const exists = (await card.count()) > 0;
+      check(`DDR-02: existe tarjeta ${kind}`, exists);
+      if (!exists) continue;
+      check(`${kind}: fotografía/placeholder abre`, await opensFrom(card, ".place-card__media"));
+      check(`${kind}: nombre abre`, await opensFrom(card, ".place-card__heading"));
+      check(`${kind}: razón abre`, await opensFrom(card, ".place-card__reason"));
+      check(`${kind}: chip abre`, await opensFrom(card, ".place-card__chip"));
+    }
+
+    const actionCard = cards.filter({ has: page.locator(".place-card__person-token") }).first();
+    check("DDR-02: existe tarjeta con token de persona", (await actionCard.count()) === 1);
+    if ((await actionCard.count()) === 1) {
+      await actionCard.scrollIntoViewIfNeeded();
+      const save = actionCard.locator(".place-card__save");
+      const before = await save.getAttribute("aria-pressed");
+      await save.click();
+      const after = await save.getAttribute("aria-pressed");
+      check(
+        "corazón guarda/quita guardado y NO abre",
+        before !== after && (await page.locator(".app__detail").count()) === 0,
+        `${before}→${after}`
+      );
+
+      const token = actionCard.locator(".place-card__person-token");
+      const tokenLabel = await token.getAttribute("aria-label");
+      await token.click();
+      check(
+        "token de persona conserva su superficie propia y NO abre",
+        Boolean(tokenLabel) && (await page.locator(".app__detail").count()) === 0,
+        tokenLabel
+      );
+    }
+
+    await withPhoto.scrollIntoViewIfNeeded();
+    const targetGeometry = await withPhoto.evaluate((card) => {
+      const target = card.querySelector(".place-card__open");
+      const c = card.getBoundingClientRect();
+      const t = target.getBoundingClientRect();
+      const outside = document.elementFromPoint(c.right + 2, c.top + c.height / 2);
+      return {
+        sameBounds:
+          Math.abs(c.left - t.left) < 0.5 &&
+          Math.abs(c.top - t.top) < 0.5 &&
+          Math.abs(c.width - t.width) < 0.5 &&
+          Math.abs(c.height - t.height) < 0.5,
+        outsideIsTarget: Boolean(outside?.closest(".place-card__open")),
+      };
+    });
     check(
-      "una tarjeta CON fotografía abre el lugar desde cualquier punto",
-      probe.photoOpens === true,
-      `tarjetas=${probe.total}`
+      "target principal coincide con la tarjeta y no sale de ella",
+      targetGeometry.sameBounds && !targetGeometry.outsideIsTarget,
+      JSON.stringify(targetGeometry)
     );
-    check(
-      "una tarjeta SIN fotografía abre el lugar igual (04 §5.9, sin excepciones)",
-      probe.withoutPhotoFound ? probe.placeholderOpens === true : true,
-      probe.withoutPhotoFound ? `placeholder→open=${probe.placeholderOpens}` : "ninguna sin foto en esta ciudad"
-    );
+
+    const open = withPhoto.locator(".place-card__open");
+    await open.focus();
+    check("teclado: el target principal recibe foco", await open.evaluate((el) => el === document.activeElement));
+    await page.keyboard.press("Enter");
+    check("teclado: Enter abre el lugar", (await page.locator(".app__detail").count()) === 1);
+    await closeDetail();
+
     await context.close();
   }
 

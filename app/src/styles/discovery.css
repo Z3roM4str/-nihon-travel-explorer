@@ -484,8 +484,8 @@ button.search-field:focus-visible {
 
 /* `04 §5.2`/`.9`: nombre y línea de categoría·zona sobre la fotografía, con `--scrim-bottom`
    obligatorio. Sin fotografía, `PhotoPlaceholder` ya rotula el lugar por su cuenta — este overlay
-   se oculta visualmente (nunca con `display:none`, para no perder el botón estirado ni el nombre
-   accesible que lleva dentro). */
+   se oculta visualmente. El botón estirado ya no nace aquí: DDR-02 lo sitúa como hijo directo del
+   `<article>` para que alcance también el cuerpo sin quitar el recorte de la fotografía. */
 .place-card__overlay {
   position: absolute;
   inset: 0;
@@ -496,17 +496,6 @@ button.search-field:focus-visible {
   color: var(--surface);
 }
 
-/*
- * `opacity: 0`, pero SIN `pointer-events: none`.
- *
- * Sin fotografía, `PhotoPlaceholder` ya rotula el lugar (`04 §9`) y este overlay se oculta para
- * no duplicar el nombre. Pero el botón que ABRE la ficha vive dentro de él, estirado sobre toda
- * la tarjeta por `.place-card__open::after` (`04 §5.9`, «toda la tarjeta abre el lugar»), así
- * que apagarle los eventos de puntero dejaba muerta la tarjeta entera: los ~53 lugares sin
- * fotografía del catálogo (`06`) no se podían abrir haciendo click. `opacity: 0` ya basta para
- * que no se vea; el corazón (`z-index: 3`) y el token de persona siguen por encima del `::after`
- * (`z-index: 1`), así que el orden de apilamiento de `04 §5.9` no cambia.
- */
 .place-card__overlay--hidden {
   opacity: 0;
 }
@@ -559,26 +548,6 @@ button.search-field:focus-visible {
   color: var(--surface);
 }
 
-/*
- * Sin `position: relative`.
- *
- * `.place-card__open::after` es el enlace estirado de `04 §5.9` («toda la tarjeta abre el
- * lugar»): `position: absolute; inset: 0`, que se resuelve contra el ANCESTRO POSICIONADO más
- * cercano. Con el `<h3>` posicionado, ese ancestro era el propio `<h3>` — el enlace se encogía
- * al recuadro del texto del nombre (medido: 271×29px en una tarjeta de 271×270), así que tocar
- * la fotografía no abría nada. Sin él, el ancestro pasa a ser `.place-card__media` y el enlace
- * cubre la fotografía entera, banda de texto incluida.
- *
- * El `z-index: 1` que venía con él no hacía falta: un hijo pinta por encima del fondo de su
- * padre sin necesidad de apilarse, y el corazón (`z-index: 3`) sigue por encima del `::after`
- * (`z-index: 1`), que es el orden que `04 §5.9` exige.
- *
- * El cuerpo de la tarjeta (razón y chips) sigue sin abrir el lugar: `.place-card__media` tiene
- * `overflow: hidden`, así que ningún pseudo-elemento nacido dentro de ella puede alcanzarlo.
- * Cerrarlo del todo exige sacar el botón del nombre fuera de la fotografía, que es anatomía de
- * componente y no decisión de ingeniería — está registrado como DDR-02 en
- * `docs/design/09_DECISIONES_DE_DISENO.md`.
- */
 .place-card__heading {
   margin: 0;
 }
@@ -607,11 +576,13 @@ button.search-field:focus-visible {
   color: rgba(255, 255, 255, 0.82);
 }
 
-/* Stretched link: la tarjeta entera abre el lugar; el corazón y el token de persona quedan por
-   encima en el orden de apilamiento (04 §5.9). Un <button> anidado dentro de otro sería HTML
-   inválido y rompería el comportamiento de teclado y lector de pantalla — de ahí el <article>
-   con esta técnica en vez de esa alternativa obvia. */
+/* DDR-02 / `04 §5.9`: el control principal es hijo directo del `<article>` y su caja coincide
+   exactamente con la tarjeta. No nace dentro de `.place-card__media`, cuyo `overflow: hidden`
+   permanece intacto. Corazón y token (z-index 3) conservan sus acciones por encima. */
 .place-card__open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   background: none;
   border: none;
   padding: 0;
@@ -622,18 +593,7 @@ button.search-field:focus-visible {
   cursor: pointer;
 }
 
-.place-card__open::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
 .place-card__open:focus-visible {
-  outline: none;
-}
-
-.place-card__open:focus-visible::after {
   outline: var(--focus-ring-width) solid var(--focus-ring-color-on-dark);
   outline-offset: -3px;
   border-radius: var(--radius-lg);

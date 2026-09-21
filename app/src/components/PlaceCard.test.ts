@@ -126,6 +126,14 @@ describe("PlaceCard — the two actions", () => {
     expect(source).not.toMatch(/<button[^>]*>\s*[\s\S]{0,400}?<button/);
   });
 
+  it("keeps the DDR-02 open control at article level, separate from media and visible name", async () => {
+    const source = await readSource();
+    const normal = source.slice(source.indexOf("return (\n    <article\n      className={`place-card ${selected"));
+    expect(normal.indexOf("{openButton}")).toBeLessThan(normal.indexOf('className={`place-card__media'));
+    expect(source).toContain('<h3 className="place-card__heading">{nameSlot}</h3>');
+    expect(source).toContain('aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}');
+  });
+
   it("exposes the saved state to assistive technology, for both variants", async () => {
     const source = await readSource();
     expect(source.match(/aria-pressed=\{saved\}/g) ?? []).toHaveLength(2);

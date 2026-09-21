@@ -145,7 +145,9 @@ describe("accessibility promises", () => {
     const source = await src("components/PlaceCard.tsx");
     expect(source).toContain('interest.level === "imprescindible"');
     expect(source).toContain("★</span> Imprescindible");
-    expect(source).toContain(". {interest.label}. {category.label} en {zone}.");
+    expect(source).toContain(
+      'aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}'
+    );
   });
 
   it("has a badge colour for every level in the ladder", async () => {
