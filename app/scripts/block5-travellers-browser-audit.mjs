@@ -210,10 +210,18 @@ async function auditViewport(browser, name, url) {
   await secondCard.locator(".place-card__open").click();
   await page.waitForTimeout(700);
 
-  const interest = page.locator(".place-interest");
+  /*
+   * Bloque 20 (B4, `05 §5` pt. 7 — defecto D8). El requisito del Bloque 5 sigue intacto: la ficha
+   * muestra el cuadro completo, una afirmación por viajero, y **el silencio sigue siendo una
+   * respuesta de primera clase**. Lo que cambia es que ya no se renderiza una `<section>` con dos
+   * filas siempre: `05 §5` pt. 7 pide UNA línea, y sólo cuando alguien ha opinado —hasta v1.1.0
+   * la ficha se estrenaba con dos silencios presentados como si fueran información—. Aquí la ha
+   * habido (la otra persona marcó el lugar), así que la línea existe y dice las dos cosas.
+   */
+  const interest = page.locator(".place-interest__line");
   check("the detail shows the full picture", (await interest.count()) === 1, secondName);
-  const lines = await interest.locator(".place-interest__line").allInnerTexts();
-  check("one line per traveller", lines.length === 2, JSON.stringify(lines));
+  const lines = await interest.locator(".place-interest__person").allInnerTexts();
+  check("one statement per traveller", lines.length === 2, JSON.stringify(lines));
   check(
     "including silence as a real answer",
     lines.some((line) => /no ha dicho nada/.test(line)),

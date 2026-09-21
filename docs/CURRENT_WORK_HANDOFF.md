@@ -23,7 +23,8 @@
 | **Bloque anterior** | Bloque 19 (B3), **CERRADO** en `62050c2` sobre `claude/block-19-b3-card-discovery`: DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados. Esa rama no se toca más. |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
-> remota (`git reset --hard origin/claude/block-19-b3-card-discovery`), no un SHA copiado a mano.
+> remota (`git reset --hard origin/claude/block-20-b4-place-detail-photography`), no un SHA
+> copiado a mano.
 
 ---
 
@@ -133,6 +134,12 @@ Deuda anotada, fuera del alcance de este bloque:
   actualizado su lectura de atribución a `CreditsSheet` —quedan correctas para cuando alguien
   repare la navegación— pero reparar seis auditorías heredadas es un trabajo propio, del mismo
   tipo que «los cinco gates heredados» de B19, y no se mete de matute en este diff.
+- **`block5-travellers-browser-audit.mjs` también está obsoleta desde B18, no por B20.** Falla en
+  `beTraveller()`, que pulsa `.traveller-bar__option` en la cabecera; DD-007/`02 §D4` sustituyeron
+  ese conmutador por el `PersonToken`, y `TravellerBar` ya sólo vive en Nosotros. El fallo ocurre
+  **antes** de llegar a la franja de los dos. B20 sí ha puesto al día su lectura de esa franja
+  (una línea condicional en vez de una `<section>` con dos filas, `05 §5` pt. 7), así que queda
+  correcta para cuando alguien repare su navegación.
 - **`02 §D5` fija 1440 px de ancho máximo de contenido en `xl` y sigue sin implementarse.**
   Anterior a este bloque; comprobado que no cambia el resultado de la rejilla.
 
