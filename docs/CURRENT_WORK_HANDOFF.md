@@ -113,7 +113,7 @@ DDR-04/05/06 **antes** de tocar código, y **los ocho pasos del plan**:
 8. **«Fuentes»** — plegada, con grado original, nivel en lenguaje llano, fecha de actualización
    del registro y enlaces. Nada inventado (DDR-04).
 
-**Verificación del bloque:** `vite build`, `oxlint` sin advertencias, **95 ficheros / 3310
+**Verificación del bloque:** `vite build`, `oxlint` sin advertencias, **96 ficheros / 3310
 tests**, y los gates de navegador de §7 con Chromium real.
 
 **De B19 (cerrado, en su propia rama):** ver `docs/BLOCK_19_HANDOFF.md`.
@@ -177,7 +177,7 @@ Todo desde `app/`. Los gates de navegador necesitan un `vite preview` en marcha:
 npm ci
 npm run build            # tsc -b && vite build
 npm run lint             # oxlint — debe salir sin una sola advertencia
-npx vitest run           # 95 ficheros / 3310 tests
+npx vitest run           # 96 ficheros / 3310 tests
 
 npx vite preview --port 4181 --strictPort &   # necesario para los gates de navegador
 export NIHON_BASE_URL=http://localhost:4181
