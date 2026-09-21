@@ -7,7 +7,7 @@ import { preview } from "vite";
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
-const outputRoot = process.env.ASTRA_AUDIT_OUTPUT ?? `${repoRoot}/artifacts/astra-sol-0-2`;
+const outputRoot = process.env.ASTRA_AUDIT_OUTPUT ?? `${repoRoot}/docs/astra/evidence/pr135-audit`;
 const expectedSha = process.env.ASTRA_EXPECTED_SHA;
 const actualSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 assert.ok(expectedSha, "ASTRA_EXPECTED_SHA is required; pass the PR head SHA");

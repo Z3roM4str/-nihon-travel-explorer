@@ -31,7 +31,7 @@ export default function App() {
     const parsed = typeof saved === "string" ? parseAstraRoute(saved) : null;
     return parsed?.surface === "explore" ? parsed : EMPTY_EXPLORE_STATE;
   });
-  const { savedIds, isSaved, toggleSaved, removeSaved, getInterestsForMember, getCoincidences, toggleMemberInterest } = useSavedPlaces();
+  const { savedIds, isSaved, toggleSaved, removeSaved, getInterestsForMember, getCoincidences, toggleMemberInterest, syncState, saveError, retrySave } = useSavedPlaces();
   const [tripTab, setTripTab] = useState<"todos" | "fernando" | "lorena" | "coincidencias">("todos");
   const places = useMemo(() => getAllPlaces(), []);
 
@@ -51,8 +51,10 @@ export default function App() {
     return ids.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
   }, [tripTab, todosIds, fernandoIds, lorenaIds, coincidenceIds]);
 
-  const plannerIds = useMemo(() => new Set([...todosIds, ...readAuthoredPlanIds(localStorage)]), [todosIds]);
-  const plannerPlaces = useMemo(() => [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p)), [plannerIds]);
+  const plannerPlaces = useMemo(() => {
+    const plannerIds = new Set([...todosIds, ...readAuthoredPlanIds(localStorage)]);
+    return [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  }, [todosIds, plannerOpen]);
 
   useEffect(() => {
     const update = () => { const next=parseAstraRoute(location.hash); if (next.surface === "explore") setLastExplore(next); setRoute(next); };
@@ -100,6 +102,16 @@ export default function App() {
         <p className="astra-eyebrow">MIS GUARDADOS</p>
         <h1>Nuestro viaje</h1>
         <p className="astra-trip__note">Guardados en este dispositivo. Marcar interés no altera el itinerario; quitarlo tampoco elimina actividades.</p>
+
+        {syncState === "error" && (
+          <div role="alert" aria-live="assertive" className="astra-trip__error-banner" style={{ background: "#fef2f2", color: "#991b1b", border: "1px solid #f87171", padding: "12px 16px", borderRadius: "12px", margin: "16px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+            <div>
+              <strong>Atención: No se pudieron guardar los cambios en este dispositivo.</strong>
+              <p style={{ margin: "4px 0 0", fontSize: "14px" }}>Tus preferencias se conservan en memoria. {saveError && `(${saveError})`}</p>
+            </div>
+            <button type="button" style={{ minHeight: "36px", padding: "0 12px", fontSize: "13px" }} onClick={retrySave}>Reintentar guardar</button>
+          </div>
+        )}
 
         <div className="astra-trip__tabs">
           <button type="button" aria-pressed={tripTab === "todos"} onClick={() => setTripTab("todos")}>Todos ({todosIds.length})</button>

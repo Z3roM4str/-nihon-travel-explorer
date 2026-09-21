@@ -22,4 +22,5 @@ export interface InterestAdapter {
   getInterestsForMember(memberId: string): string[];
   getCoincidences(): string[]; // places interested by both Fernando & Lorena
   toggleInterest(memberId: string, placeId: string): void;
+  retrySave(): void;
 }
