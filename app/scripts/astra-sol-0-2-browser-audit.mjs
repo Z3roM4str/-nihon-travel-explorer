@@ -61,7 +61,7 @@ try {
     for (const [label, width, height] of VIEWPORTS) {
       await page.setViewportSize({ width, height });
       await page.goto(`${baseURL}#/explorar`, { waitUntil: "networkidle" });
-      await page.getByRole("heading", { name: "¿Qué les gustaría descubrir?" }).waitFor();
+      await page.getByRole("heading", { name: "¿Qué te gustaría vivir en Japón?" }).waitFor();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       assert.ok(overflow <= 1, `${label}: horizontal overflow ${overflow}px`);
       assert.equal(await page.getByRole("navigation", { name: "Principal" }).getByRole("link").count(), 2, `${label}: two destinations`);
@@ -75,7 +75,7 @@ try {
     await page.addInitScript(({ raw }) => { localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-021"])); localStorage.setItem("nihon.manualPlanningDraft", raw); }, { raw });
     await page.goto(`${baseURL}#/explorar`, { waitUntil: "networkidle" });
     const card = page.locator(".astra-card").filter({ has: page.locator('a[href*="JP-021"]') }).first();
-    await card.getByRole("button", { name: /En Mis guardados/ }).click();
+    await card.getByRole("button", { name: /Me gustaría ir/ }).click();
     await page.getByRole("alertdialog").waitFor();
     assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), raw);
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]")), ["JP-021"]);

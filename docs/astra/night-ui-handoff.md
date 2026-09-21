@@ -1,38 +1,53 @@
-# Entregable y Handoff — Experiencia Visual Astra (`astra/night-ui`)
+# Entregable y Handoff — Experiencia Visual Astra (`astra/night-ui` — PR #131)
 
-## 1. Base y Compromisos
-- **Commit Base**: `d24997aa7afa2e2f13079aa0c67d8f51d7414036` (Línea exclusiva de Astra).
-- **Rama**: `astra/night-ui`
-- **Contrato de Datos y Fotografías**: No se modificaron archivos canónicos de lugares (`data/places.json`), backend ni permisos. Las galerías consumen directamente la infraestructura de imágenes existente vía props/resolución de utilidades.
+## 1. Comportamiento Resultante y Correcciones Aplicadas
 
-## 2. Cambios de Interfaz e Implementación
-- **Descubrir (`app/src/astra/Discovery.tsx`)**:
-  - Título actualizado: `¿Qué te gustaría vivir en Japón?`.
-  - Agrupación visual de las 5 categorías iniciales en el selector rápido ("Japón tradicional", "Naturaleza y jardines", "Anime y videojuegos", "Parques y diversión", "Comida y barrios") manteniendo acceso a todas las subcategorías canónicas sin alterar sus IDs ni filtros.
-- **Tarjeta de Lugar (`app/src/astra/PlaceCard.tsx`)**:
-  - Soporte de galería con indicador de fotos y controles de navegación previos/siguientes.
-  - Acción reversible con botón `Me gustaría ir` / `Me gustaría ir ✓`.
-  - Atributo `aria-label` para compatibilidad completa con la suite de auditoría de accesibilidad.
-- **Nuestros Lugares (`app/src/App.tsx`, `app/src/useSavedPlaces.ts`, `app/src/astra/interestAdapter.ts`)**:
-  - Creada la abstracción/adaptador `interestAdapter.ts` para los tipos `TripMember` y `PlaceInterest`.
-  - Vistas con pestañas: `Todos`, `Fernando`, `Lorena` y `Coincidencias`.
-  - Identificación clara y honesta de los guardados como "Guardados en este dispositivo" sin simular sincronización ni servidor ficticio.
-  - La marcación/desmarcación de interés no afecta las rutas guardadas del itinerario.
+### Preferencias y Vista "Todos"
+- **Unión sin duplicados**: La vista "Todos" deduce de manera unificada los lugares guardados heredados (`savedIds`) y los lugares con interés activo de Fernando y Lorena, sin duplicados.
+- **Pestañas por persona**: Las pestañas `Todos`, `Fernando`, `Lorena` y `Coincidencias` muestran sus respectivos contadores y listas de lugares.
+- **Acciones honestas**: Se distingue claramente entre "Quitar guardado heredado" (que remueve la marca general previa) y los botones de interés personal de Fernando y Lorena (`★ Fernando` / `☆ Fernando`, `★ Lorena` / `☆ Lorena`). Desmarcar un interés personal no altera el de la otra persona, ni borra guardados generales ni modifica actividades de itinerarios existentes.
+- **Coherencia global**: Los contadores del header, la herramienta "Comparar selección" y la selección disponible para "Planificar con mis guardados" respetan la semántica unificada.
 
-## 3. Pruebas y Verificación
-- **Pruebas unitarias**: `npm run test` paso 70/70 archivos con 2465 tests aprobados.
-- **Linter**: `npm run lint` paso con 0 errores.
-- **Build**: `npm run build` compiló sin errores.
-- **Auditoría de Navegador Playwright**: Se corrió la suite `ASTRA_EXPECTED_SHA=d24997aa7afa2e2f13079aa0c67d8f51d7414036 ASTRA_AUDIT_OUTPUT=/tmp/astra-audit node scripts/astra-sol-0-2-browser-audit.mjs` y se aprobaron los 8 recorridos en viewports 320, 375, 390, 430, 768, 1024 y 1440 px.
-- **Capturas de pantalla generadas**: Ubicadas en `/tmp/astra-audit/screenshots/`.
+### Galería con Imágenes Fallidas
+- **Controles persistentes**: Ante el fallo de carga de una imagen (`loadState === "error"`), los controles de navegación (`‹` y `›`) permanecen interactivos para permitir cambiar a otra fotografía.
+- **Reintento independiente**: El botón "Reintentar" reinicia el estado de carga y detiene la propagación para evitar la apertura accidental del detalle.
+- **Sincronización de metadatos**: El texto alternativo (`alt`) y los créditos/licencia de la fotografía en `<details>` corresponden exactamente a la imagen seleccionada (`photoIndex`).
 
-## 4. Archivos Modificados
+### Accesibilidad
+- **Etiquetas accesibles con texto visible**: Se eliminaron etiquetas antiguas u ocultas (como `<span className="visually-hidden"> ¿Qué les gustaría descubrir?</span>` y `aria-label="En Mis guardados"`). Los nombres accesibles derivan de su texto visible ("¿Qué te gustaría vivir en Japón?", "Me gustaría ir ✓").
+- **Estados seleccionados expuestos**: Los botones de interés personal exponen explícitamente `aria-pressed={isInterested}`.
+
+### Persistencia y Adaptador
+- **Sanitización estricta de almacenamiento**: `readStorage()` y `readMemberInterests()` validan tipos, ignoran registros nulos o corruptos y eliminan duplicados.
+- **Estado de sincronización honesto**: `InterestAdapter` reporta `syncState: "local-only"` para operaciones locales exitosas o `syncState: "error"` con `saveError` si falla la escritura en almacenamiento.
+
+### Comportamiento Responsive
+- Las pestañas de `Nuestro viaje` y los controles de filas se adaptan a teléfonos estrechos (320px–375px), tablets y escritorios sin desbordamiento horizontal (`overflow: 0px`) y con tamaños de toque óptimos (mínimo 44px).
+
+---
+
+## 2. Archivos Modificados
 - `app/src/App.tsx`
 - `app/src/astra/Discovery.tsx`
 - `app/src/astra/PlaceCard.tsx`
+- `app/src/astra/interestAdapter.ts`
 - `app/src/useSavedPlaces.ts`
-- `app/src/astra/interestAdapter.ts` (Nuevo)
+- `app/src/astra/astra.css`
+- `app/src/astra/corrections-integration.test.ts`
+- `app/src/astra/night-ui-corrections.test.ts` *(Nuevo suite de pruebas)*
+- `app/scripts/astra-sol-0-2-browser-audit.mjs`
+- `docs/astra/night-ui-handoff.md`
 
-## 5. Próximos Pasos
-- Conectar `app/src/astra/content/place-enrichment.v1.json` cuando el trabajador de contenido entregue las fotos enriquecidas.
-- Conectar el servidor de sincronización remoto cuando el backend provea la API de `TripMember` y `PlaceInterest`.
+---
+
+## 3. Pruebas y Evidencia
+- **Pruebas unitarias/integración (Vitest)**: 71 archivos aprobados, 2470 pruebas pasadas (`npm run test`).
+- **Linter (Oxlint)**: 0 errores (`npm run lint`).
+- **Compilación (TypeScript + Vite)**: Exitoso sin errores (`npm run build`).
+- **Auditoría Playwright (`astra-sol-0-2-browser-audit.mjs`)**: 8/8 recorridos pasados (PASS) en viewports 320, 375, 390, 430, 768, 1024 y 1440 px.
+- **Capturas y Video de Verificación**: Generados en `/home/jules/verification/screenshots/` y `/home/jules/verification/videos/`.
+
+---
+
+## 4. Dependencias Pendientes
+- **Integración con #133 / #134**: Integración de fotografía enriquecida separada pendiente cuando se apruebe el lote de imágenes.

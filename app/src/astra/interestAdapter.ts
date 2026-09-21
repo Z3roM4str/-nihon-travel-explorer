@@ -12,12 +12,13 @@ export type PlaceInterest = {
   updatedAt: string;
 };
 
-export type SyncState = "loading" | "saving" | "synced" | "offline" | "error";
+export type SyncState = "loading" | "saving" | "synced" | "offline" | "error" | "local-only";
 
 export interface InterestAdapter {
   members: TripMember[];
   interests: PlaceInterest[];
   syncState: SyncState;
+  saveError: string | null;
   getInterestsForMember(memberId: string): string[];
   getCoincidences(): string[]; // places interested by both Fernando & Lorena
   toggleInterest(memberId: string, placeId: string): void;
