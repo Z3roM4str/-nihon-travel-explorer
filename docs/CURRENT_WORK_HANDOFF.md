@@ -15,8 +15,8 @@
 |---|---|
 | **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `50eb46c` — `fix(block-19): tercer defecto de área táctil, y block1-ux al día` |
-| **Último SHA con cambio de producto** | el checkpoint E (este) — cuatro correcciones de `discovery.css`/`App.tsx` |
+| **Último SHA estable pusheado** | `9ed139b` — `fix(block-19): cierra los cinco gates heredados, y dos defectos más` |
+| **Último SHA con cambio de producto** | `9ed139b` — las cuatro correcciones de área táctil y enlace estirado |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera (detalle en §7) |
