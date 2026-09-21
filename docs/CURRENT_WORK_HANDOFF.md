@@ -15,8 +15,8 @@
 |---|---|
 | **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica), CERRADO.** Los ocho pasos implementados, las 55 filas del inventario con destino comprobado por gate, y las siete auditorías heredadas reparadas y en verde. No hay bloque abierto. |
 | **Rama** | `claude/block-20-b4-place-detail-photography` |
-| **Último SHA estable pusheado** | El HEAD de `origin/claude/block-20-b4-place-detail-photography`. El commit de cierre del bloque es `__CLOSE_SHA__`; lo único que puede venir después es este cuadro fijando ese SHA. |
-| **Último SHA con cambio de producto** | `__CLOSE_SHA__` — el saneamiento de cierre (retirada de `--overlay-paper-soft` y el punto de galería por forma). El anterior fue `d464b4d`, la ficha reconstruida (`05 §5`). |
+| **Último SHA estable pusheado** | El HEAD de `origin/claude/block-20-b4-place-detail-photography`. El commit de cierre del bloque es `b051606`; lo único que puede venir después es este cuadro fijando ese SHA. |
+| **Último SHA con cambio de producto** | `b051606` — el saneamiento de cierre (retirada de `--overlay-paper-soft` y el punto de galería por forma). El anterior fue `d464b4d`, la ficha reconstruida (`05 §5`). |
 | **SHA de partida del bloque** | `62050c2` — cierre definitivo de B19 (= `7b8f54f` + el registro de las dos precisiones de DDR-03) |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
