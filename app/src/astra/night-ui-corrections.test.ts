@@ -8,13 +8,22 @@ import App from "../App";
 import { getPlaceById } from "../data/store";
 
 describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", () => {
+  let scrollToDescriptor: PropertyDescriptor | undefined;
+
   beforeEach(() => {
     cleanup();
     localStorage.clear();
     location.hash = "#/explorar";
+    scrollToDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollTo");
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+      configurable: true,
+      value: vi.fn(),
+    });
   });
 
   afterEach(() => {
+    if (scrollToDescriptor) Object.defineProperty(HTMLElement.prototype, "scrollTo", scrollToDescriptor);
+    else delete (HTMLElement.prototype as { scrollTo?: unknown }).scrollTo;
     vi.restoreAllMocks();
   });
 

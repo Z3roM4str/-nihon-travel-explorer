@@ -74,3 +74,9 @@
 - **Auditoría y revisión visual no ejecutadas:** dependen de un build correcto. Por tanto, no se declaran aprobadas ni se fabrican capturas/trazas.
 
 La evidencia existente en `docs/astra/evidence/pr135-audit/results.json`, `summary.md`, `screenshots/` y `traces/` sigue siendo la auditoría histórica de `79748e85b7884c8f85ea1d71066ae72b72e4bd95`. El intento separado y sus limitaciones están registrados en `verification-92791f3.md`; debe reemplazarse por resultados nuevos únicamente después de ejecutar la auditoría contra el SHA de código correspondiente.
+
+### Corrección JSDOM posterior — PR #137
+- **Commit de código objetivo:** `6d50ab86f5ab9cd0d734b448f9e5307935d5f235`.
+- Se añadió exclusivamente en el test una simulación controlada de `HTMLElement.scrollTo`: conserva el descriptor original y lo restaura en `afterEach` (o elimina la propiedad creada). La producción no fue modificada.
+- La verificación independiente del commit anterior comunicó: build correcto, lint sin errores con cuatro advertencias, 2473 pruebas aprobadas y una fallida por la ausencia de `scrollTo` en JSDOM.
+- La repetición local completa quedó bloqueada tras `npm ci`: faltan ejecutables/dependencias en `node_modules`; la auditoría además carece del binario Chromium de Playwright. No se declara resuelto por ejecución ni visualmente aprobado. El detalle está en `docs/astra/evidence/pr135-audit/verification-6d50ab8.md`.
