@@ -15,8 +15,8 @@
 |---|---|
 | **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | el checkpoint H (ver `git log -1`) |
-| **Último SHA con cambio de producto** | checkpoint H — `lib/device-storage.ts` y `PersistenceNotice` (DDR-03) |
+| **Último SHA estable pusheado** | `6a5ab0b` — `feat(ddr-03): la persistencia deja de fallar en silencio` |
+| **Último SHA con cambio de producto** | `6a5ab0b` — `lib/device-storage.ts` y `PersistenceNotice` (DDR-03) |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
