@@ -29,6 +29,20 @@ import { preview } from "vite";
  * - **la proporción esperada**: ya no es «3:2 en móvil, 16:9 en lo demás» sino la regla de
  *   DD-016 — 4:3 con UNA columna, 16:9 con DOS O MÁS, decidida por el ancho real de la región
  *   de lista y no por el viewport. El gate la deriva contando columnas, como el producto.
+ *
+ * **Actualizado de nuevo por el Bloque 20 (B4).** El carrusel, el lightbox y la atribución
+ * siguen siendo requisitos vigentes; lo que cambió es el contrato de la galería (`04 §6`/`§7`,
+ * `05 §5` pt. 1), así que el gate mide el contrato nuevo en vez del viejo:
+ *
+ * - `.gallery__frame` (una sola imagen en estado) → `.gallery__track`, una pista con
+ *   `scroll-snap` donde todas las diapositivas existen.
+ * - **las flechas son sólo de `md`+**: siguen en el DOM, pero en teléfono no se ven. El avance
+ *   se pide por teclado sobre la pista, que funciona en los tres viewports y es además lo que
+ *   comprueba la accesibilidad real del carrusel.
+ * - `.gallery__credit` (párrafo de atribución EN EL FLUJO) → botón `ⓘ` + `CreditsSheet`. El
+ *   requisito «la atribución existe y nombra la fuente» se conserva palabra por palabra, en su
+ *   nuevo sitio; y se añade el que antes no se podía comprobar: que entre la fotografía y el
+ *   nombre del lugar no queda ni un carácter de atribución (defecto D2).
  */
 
 const VIEWPORTS = {
@@ -181,33 +195,64 @@ async function auditViewport(browser, name, url) {
   const counterBefore = await page.locator(".gallery__counter").innerText();
   check("the counter starts at the first image", counterBefore.trim().startsWith("1 /"), counterBefore);
   check("navigation arrows are present", (await page.locator(".gallery__nav").count()) === 2);
+  // `04 §6`: «Flechas sólo en `md`+». En teléfono el gesto es el dedo sobre la pista; dibujar
+  // flechas ahí sería cromo que compite con la fotografía.
+  const arrowVisible = await page.locator(".gallery__nav--next").isVisible();
+  check(
+    "arrows show only from md+ (04 §6)",
+    arrowVisible === width >= 840,
+    `${width}px → ${arrowVisible ? "visible" : "oculta"}`
+  );
   const dots = await page.locator(".gallery__dot").count();
-  check("one dot per photograph", dots >= 2, `${dots}`);
+  check("one dot per photograph, up to the cap of 5 (04 §6)", dots >= 2 && dots <= 5, `${dots}`);
 
   const firstSrc = await page.locator(".gallery__image").first().evaluate((el) => el.currentSrc);
-  await page.locator(".gallery__nav--next").click();
+  // El avance se pide por teclado sobre la pista: es el único camino disponible en los tres
+  // viewports (las flechas son de `md`+) y de paso prueba que el carrusel es operable sin ratón.
+  await page.locator(".gallery__track").focus();
+  await page.keyboard.press("ArrowRight");
   await page.waitForTimeout(900);
   const counterAfter = await page.locator(".gallery__counter").innerText();
-  const secondSrc = await page.locator(".gallery__image").first().evaluate((el) => el.currentSrc);
+  const secondSrc = await page
+    .locator(".gallery__slide")
+    .nth(1)
+    .locator(".gallery__image")
+    .evaluate((el) => el.currentSrc);
   check("advancing moves the counter", counterAfter.trim().startsWith("2 /"), counterAfter);
   check("advancing actually changes the photograph", firstSrc !== secondSrc);
 
-  // Attribution must follow the image, not stay on the first one.
-  const credit = await page.locator(".gallery__credit").innerText();
-  check("attribution is rendered for the second image too", credit.trim().length > 10);
+  // Defecto D2 (`05 §5`, criterio de aceptación): entre la fotografía y el nombre del lugar no
+  // puede quedar ni un carácter de atribución. Antes de B20 el párrafo `.gallery__credit` vivía
+  // exactamente ahí.
+  check(
+    "no attribution paragraph is left in the reading flow (D2)",
+    (await page.locator(".gallery__credit").count()) === 0
+  );
+
+  // Y la atribución sigue existiendo, íntegra, detrás del `ⓘ` (`04 §7`).
+  await page.locator(".gallery__credits").click();
+  await page.waitForSelector(".credits-sheet__list", { timeout: 10000 });
+  const credit = await page.locator(".credits-sheet__list").innerText();
+  check("attribution is rendered inside CreditsSheet", credit.trim().length > 10);
   check("attribution names the source", /Commons/i.test(credit));
+  check("attribution keeps its licence link", (await page.locator(".credits-sheet__field a").count()) > 0);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(500);
+  check("Escape closes the credits sheet", (await page.locator(".credits-sheet__list").count()) === 0);
 
   // Keyboard navigation back.
-  await page.locator(".gallery__frame").focus();
+  await page.locator(".gallery__track").focus();
   await page.keyboard.press("ArrowLeft");
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(900);
   check(
     "keyboard navigation returns to the first photograph",
     (await page.locator(".gallery__counter").innerText()).trim().startsWith("1 /")
   );
 
   // ---- Lightbox keeps full resolution ----
-  await page.locator(".gallery__zoom").click();
+  // La pista tiene ahora un botón de zoom por diapositiva; el lightbox se abre desde la que
+  // está visible, que tras la vuelta por teclado es la primera.
+  await page.locator(".gallery__zoom").first().click();
   await page.waitForTimeout(900);
   check("the lightbox opens", (await page.locator(".lightbox").count()) === 1);
   const lightboxSrc = await page.locator(".lightbox__image").evaluate((el) => el.currentSrc);

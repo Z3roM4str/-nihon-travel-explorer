@@ -109,9 +109,16 @@ describe("the carousel is now reachable by real data", () => {
   });
 
   it("keeps the gallery's multi-image affordances wired to the real count", async () => {
+    // Bloque 20 (B4, `04 §6`): el requisito —los indicadores dependen de la CANTIDAD real de
+    // imágenes, no del breakpoint— sigue vigente palabra por palabra. Lo que cambia es que
+    // ahora hay tres umbrales distintos en vez de uno, porque el contrato los distingue:
+    // píldora y flechas con >1, puntos sólo con ≤5. La condición `{total > 1 && (` se sustituye
+    // por las tres banderas nombradas que la derivan.
     const source = await readFile(new URL("./components/PlaceGallery.tsx", import.meta.url), "utf8");
     expect(source).toContain("const total = images.length");
-    expect(source).toContain("{total > 1 && (");
+    expect(source).toContain("const showCounter = total > 1");
+    expect(source).toContain("const showArrows = total > 1");
+    expect(source).toContain("const showDots = total > 1 && total <= MAX_DOTS");
     expect(source).toContain("gallery__counter");
   });
 });

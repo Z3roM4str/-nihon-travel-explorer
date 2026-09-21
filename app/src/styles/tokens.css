@@ -64,6 +64,18 @@
      equivalente en los tokens de color sólidos. */
   --scrim-page: rgba(20, 22, 26, 0.38);
 
+  /*
+   * Bloque 20 (B4) — controles flotantes SOBRE fotografía. No son colores nuevos: son los
+   * valores exactos que `04 §6` («píldora `1/3` … fondo rgba(20,22,26,.55)») y `04 §5.4`
+   * («botón circular 40px, fondo rgba(255,255,255,.92)») ya escriben literalmente en el
+   * contrato de cada componente. Se nombran aquí, una sola vez, porque Art. 10 prohíbe que un
+   * componente escriba un color como literal — misma convención que --scrim-page, y por la
+   * misma razón: el canal alfa no tiene equivalente en los tokens de color sólidos.
+   */
+  --overlay-ink: rgba(20, 22, 26, 0.55); /* 04 §6 — píldora de contador, botón ⓘ */
+  --overlay-paper: rgba(255, 255, 255, 0.92); /* 04 §5.4 / §6 — botón circular, flechas */
+  --overlay-paper-soft: rgba(255, 255, 255, 0.55); /* 04 §6 — punto inactivo sobre foto */
+
   /* ---------- 2. Tipografía (03 §2) ---------- */
   --font-voice: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
   --font-record: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;

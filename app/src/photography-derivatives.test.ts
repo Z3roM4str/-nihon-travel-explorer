@@ -107,9 +107,14 @@ describe("the surfaces that must use the derivative do", () => {
   });
 
   it("the detail hero offers both renditions and lets the browser choose", async () => {
+    // Bloque 20 (B4, `04 §6`): la galería pasa de una sola imagen en estado a una pista con
+    // `scroll-snap` donde TODAS las diapositivas existen, así que el `srcSet` se calcula por
+    // diapositiva (`image`) en vez de una sola vez para la actual (`current`). El requisito
+    // —dos candidatas y que el navegador elija— es exactamente el mismo, y ahora se cumple
+    // para todas las imágenes del lugar, no sólo para la visible.
     const source = await src("components/PlaceGallery.tsx");
-    expect(source).toContain("srcSet={heroSrcSet}");
-    expect(source).toContain(`\${CARD_IMAGE_WIDTH}w, \${current.url} 1600w`);
+    expect(source).toContain("srcSet={srcSet}");
+    expect(source).toContain(`\${CARD_IMAGE_WIDTH}w, \${image.url} 1600w`);
   });
 
   it("the lightbox still loads the full-resolution original", async () => {

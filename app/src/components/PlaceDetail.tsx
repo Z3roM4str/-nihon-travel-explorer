@@ -47,6 +47,13 @@ type Props = {
    * ganan un botón nuevo.
    */
   onViewOnMap?: () => void;
+  /**
+   * Bloque 20 (B4, `04 §7`): el pie de `CreditsSheet` enlaza a «Fuentes y licencias» en
+   * Nosotros. Es una acción explícita de cambio de destino, así que cumple la invariante 4 de
+   * DD-015 —cierra la ficha de origen— y la ejecuta `App`, no este componente. `undefined` no
+   * renderiza el pie: nunca un enlace que no lleva a ninguna parte.
+   */
+  onOpenSources?: () => void;
 };
 
 function QuickFact({ icon, label, value }: { icon: IconName; label: string; value: string }) {
@@ -103,6 +110,7 @@ export function PlaceDetail({
   onBack,
   originLabel = null,
   onViewOnMap,
+  onOpenSources,
 }: Props) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -177,7 +185,13 @@ export function PlaceDetail({
       </div>
 
       <div className="place-detail__scroll" ref={scrollRef}>
-        <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
+        <PlaceGallery
+          key={place.id}
+          images={images}
+          imageBrief={brief}
+          placeName={place.name}
+          onOpenSources={onOpenSources}
+        />
 
         <div className="place-detail__body">
           <header className="place-detail__title-block">

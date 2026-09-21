@@ -762,6 +762,21 @@ export default function App() {
     }
     setMobilePane("map");
   }, [selectedPlace, activeHub]);
+  /**
+   * Bloque 20 (B4, `04 §7`) — el pie de `CreditsSheet`: «Fuentes y licencias» en Nosotros, que
+   * es donde vive el texto íntegro (licencia MLIT, licencias fotográficas, enlaces).
+   *
+   * Es una acción explícita y etiquetada de cambio de destino, así que sigue la misma
+   * disciplina que «Ver en el mapa» y cumple la invariante 4 de DD-015: **cierra la ficha de
+   * origen** antes de cambiar de pestaña, para no dejar una ficha fantasma montada en la
+   * pestaña que se abandona. No abre nada nuevo ni inventa una pantalla: Nosotros ya existe y
+   * su sección «Fuentes y licencias» también.
+   */
+  const openSources = useCallback(() => {
+    closeDetail();
+    setDestination("nosotros");
+  }, [closeDetail]);
+
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   /**
@@ -941,6 +956,7 @@ export default function App() {
         onBack={goBack}
         originLabel={ficheOrigin === "viaje" ? ficheOriginLabel : null}
         onViewOnMap={ficheOrigin === "viaje" ? viewOnMap : undefined}
+        onOpenSources={openSources}
       />
     </div>
   ) : null;

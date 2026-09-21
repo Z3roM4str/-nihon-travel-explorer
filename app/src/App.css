@@ -1540,18 +1540,48 @@ button.app__title.app__title--expand {
   margin-top: 0.5rem;
 }
 
-/* ---------- Gallery ---------- */
+/* ---------- Gallery (Bloque 20 — B4, `04 §6` / `05 §5` pt. 1) ---------- */
 
 .gallery {
-  background: var(--color-surface-alt);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--surface-sunken);
 }
 
-.gallery__frame {
+/* La caja que recorta la pista y ancla los tres indicadores del contrato: píldora del
+   contador (abajo-derecha), puntos (centrados abajo) y `ⓘ` de créditos (abajo-izquierda). */
+.gallery__viewport {
   position: relative;
-  aspect-ratio: 16 / 10;
-  background: #ded8cf;
-  overflow: hidden;
+}
+
+/*
+ * `04 §6`: «deslizamiento horizontal nativo con `scroll-snap`, no un carrusel con índice en
+ * estado». La pista es el elemento que scrollea; el componente sólo LEE su posición.
+ * `04 §6` también fija la proporción: 4:5 en teléfono —vertical, la fotografía es el
+ * contenido— y 4:3 en `md`+ dentro del panel.
+ */
+.gallery__track {
+  display: flex;
+  aspect-ratio: 4 / 5;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gallery__track::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  /* `04 §6`: «Carga: LQIP de fondo → imagen. **Sin skeleton gris**». Mientras la imagen no
+     ha llegado se ve el papel hundido, no una animación que finge actividad. */
+  background: var(--surface-sunken);
 }
 
 .gallery__zoom {
@@ -1569,28 +1599,16 @@ button.app__title.app__title--expand {
   height: 100%;
   object-fit: cover;
   display: block;
-  opacity: 1;
 }
 
-.gallery__image[data-state="loading"] {
-  opacity: 0;
-}
-
-.gallery__skeleton {
+/* `03 §5`: la legibilidad sobre fotografía la da el scrim y sólo el scrim. Los tres
+   indicadores viven sobre esta banda; ninguno lleva `text-shadow`. */
+.gallery__viewport::after {
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, #e4ded5 30%, #efeae3 50%, #e4ded5 70%);
-  background-size: 200% 100%;
-  animation: gallery-shimmer 1.4s ease-in-out infinite;
-}
-
-@keyframes gallery-shimmer {
-  from {
-    background-position: 150% 0;
-  }
-  to {
-    background-position: -50% 0;
-  }
+  background: var(--scrim-bottom);
+  pointer-events: none;
 }
 
 .gallery__error {
@@ -1599,65 +1617,108 @@ button.app__title.app__title--expand {
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 1.5rem;
+  padding: var(--space-6);
   text-align: center;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+  color: var(--ink-500);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
 }
 
+/* `04 §6`: «Flechas sólo en `md`+». En teléfono el gesto es el dedo sobre la pista. */
 .gallery__nav {
+  display: none;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: var(--tap-target);
-  height: var(--tap-target);
-  display: inline-flex;
+  width: var(--tap-min);
+  height: var(--tap-min);
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--overlay-paper);
+  color: var(--ink-900);
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--elev-1);
+  z-index: 2;
+}
+
+@media (min-width: 840px) {
+  .gallery__track {
+    aspect-ratio: 4 / 3;
+  }
+
+  .gallery__nav {
+    display: inline-flex;
+  }
 }
 
 .gallery__nav--prev {
-  left: 0.5rem;
+  left: var(--space-2);
 }
 
 .gallery__nav--next {
-  right: 0.5rem;
+  right: var(--space-2);
 }
 
-/* Photo counter — the same affordance a phone gallery uses, and the signal that more than one
-   photograph exists at all. */
+/*
+ * `04 §6`: «Indicador: píldora `1/3` abajo-derecha, `--type-num`, fondo --overlay-ink».
+ * `--type-num` no es un valor propio sino un tratamiento (`03 §2.2`: «hereda, `tabular-nums`,
+ * record 500»), así que se escribe con los tokens que ya existen en vez de inventar uno nuevo.
+ *
+ * El desplazamiento inferior deja libre el solape de 20px con que el cuerpo monta sobre la
+ * fotografía (`05 §5` pt. 2): los tres indicadores quedan por encima de ese borde, no debajo.
+ */
 .gallery__counter {
   position: absolute;
-  right: 0.5rem;
-  bottom: 0.5rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(20, 16, 12, 0.66);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  right: var(--space-3);
+  bottom: calc(var(--space-5) + var(--space-2));
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--overlay-ink);
+  color: var(--surface);
+  font-family: var(--font-record);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  z-index: 2;
 }
 
+/* `04 §7` / `05 §5` pt. 1: el botón que saca los créditos del flujo de lectura (defecto D2). */
+.gallery__credits {
+  position: absolute;
+  left: var(--space-3);
+  bottom: calc(var(--space-5) + var(--space-2));
+  width: var(--info-button-size);
+  height: var(--info-button-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--overlay-ink);
+  color: var(--surface);
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* `04 §6`: «Puntos sólo cuando hay ≤5 imágenes, centrados abajo». */
 .gallery__dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--space-5);
   display: flex;
   justify-content: center;
-  gap: 0.15rem;
-  padding: 0.2rem;
+  gap: var(--space-1);
+  z-index: 2;
 }
 
-/* Segunda corrección de cumplimiento: `.tap-target-min` (un pseudo-elemento invisible
-   absolutamente posicionado) habría dejado zonas de 44px vecinas solapándose, porque
-   `.gallery__dots` separa los puntos con sólo 2.4px de hueco real — muy por debajo de lo
-   que hacía falta para no invadir al vecino. En vez de eso, la propia caja del botón mide
-   `--tap-min` de verdad (participa en el layout, así que dos vecinos nunca se solapan);
-   el punto visible sigue siendo el `::before` de 8.8px, centrado dentro por flexbox, sin
-   necesidad de posicionamiento absoluto. */
+/* Segunda corrección de cumplimiento (B17): la propia caja del botón mide `--tap-min` de
+   verdad y participa en el layout, así que dos vecinos nunca se solapan; el punto visible
+   sigue siendo el `::before`, centrado dentro por flexbox. */
 .gallery__dot {
   width: var(--tap-min);
   height: var(--tap-min);
@@ -1672,24 +1733,75 @@ button.app__title.app__title--expand {
 
 .gallery__dot::before {
   content: "";
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--overlay-paper-soft);
 }
 
 .gallery__dot--active::before {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--surface);
 }
 
-.gallery__credit {
+/* ---------- CreditsSheet (Bloque 20 — B4, `04 §7`) ---------- */
+
+.credits-sheet__list {
+  list-style: none;
   margin: 0;
-  padding: 0 0.75rem 0.5rem;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  text-align: right;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.credits-sheet__item + .credits-sheet__item {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-5);
+}
+
+.credits-sheet__image-label {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-record);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-500);
+}
+
+.credits-sheet__fields {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.credits-sheet__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.credits-sheet__field dt {
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-500);
+}
+
+.credits-sheet__field dd {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.credits-sheet__foot {
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
 }
 
 .gallery--fallback {
