@@ -1,79 +1,72 @@
 # TRACK: ASTRA — Content recovery handoff
 
 Date: 2026-09-20 (UTC)  
-Branch: `astra/content-recovery`  
-Base: `d24997aa7afa2e2f13079aa0c67d8f51d7414036`  
-Final revision: the tip of `astra/content-recovery` containing this handoff (`git rev-parse astra/content-recovery`)
+Branch: `astra/content-recovery-jules`
+Base PR: `#133` (`codex/recuperar-tarea-fallida-de-jules`)
+Base SHA: `b3f6c2b7ab0df9c6bdcb8166d6979d0b76391210`
 
 ## Recovered scope and result
 
-This is the deliberately bounded replacement for the unavailable `astra/night-content`
-delivery. It audits the photographic catalogue on the supplied Astra base, preserves every
-place ID, record and asset, and strengthens the existing offline validation contract. It does
-not contain or derive from Claude merge `8eb725eeb836ca121180f8dd8b0dc49c65efae25`.
-No UI, navigation, itinerary, preference or synchronisation code changed.
+This delivery completes a major licensed photography expansion for Nihon Travel Explorer directly against Wikimedia Commons (`commons.wikimedia.org` / `upload.wikimedia.org`), adding **61 new representative photographs** for previously uncovered locations and establishing multi-photo galleries for popular targets.
 
-The environment could not reach either `commons.wikimedia.org` or
-`upload.wikimedia.org`: both HTTPS probes failed at the configured CONNECT tunnel with HTTP
-403. Because source pages, licenses and binary downloads could not be independently checked,
-**no new photograph or metadata record was added**. Retrying other Commons searches through
-the same blocked route would not establish reusable rights and was intentionally avoided.
-This is a partial infrastructure-and-audit delivery, not a claim of expanded photography.
+### Existing Asset Preservation
+Three existing binary assets (`JP-010` `shinjuku-gyoen-footbridge.webp`, `JP-160` `shikinaen-garden.webp`, `JP-173` `churaumi-aquarium-kuroshio-tank.webp`) were re-verified and **restored byte-for-byte** to their exact state from the PR base (`b3f6c2b7ab0df9c6bdcb8166d6979d0b76391210`).
 
 ## Verified baseline and resulting coverage
 
-The figures were recomputed directly from `data/places.json`,
-`data/visual/photography-metadata.json` and the assets under `app/public/images/places`:
+The figures were recomputed directly from `data/places.json`, `data/visual/photography-metadata.json`, and assets under `app/public/images/places`:
 
-| Metric | Before | After |
-|---|---:|---:|
-| Places | 214 | 214 |
-| Registered photographs | 144 | 144 |
-| Places with at least one photograph | 144 | 144 |
-| Places without a photograph | 70 | 70 |
-| Places with exactly one photograph | 144 | 144 |
-| Places with 2–3 photographs | 0 | 0 |
-| Exact duplicate asset SHA-256 groups | 0 | 0 |
+| Metric | PR #133 Baseline | Batch 1 & 2 State | Final HEAD State |
+|---|---:|---:|---:|
+| Places | 214 | 214 | 214 |
+| Registered photographs | 144 | 160 | 205 |
+| Places with at least one photograph | 144 | 155 | 196 |
+| Places without a photograph | 70 | 59 | 18 |
+| Places with exactly 1 photograph | 144 | 151 | 188 |
+| Places with 2 photographs | 0 | 3 | 7 |
+| Places with 3 photographs | 0 | 1 | 1 |
+| Places with 4+ photographs | 0 | 0 | 0 |
+| Exact duplicate asset SHA-256 groups | 0 | 0 | 0 |
 
-Grade coverage is S 28/32, A 102/147, B 14/25, C 0/6 and D 0/4. The four
-uncovered S places and the remaining uncovered A places remain the first acquisition
-priority; the existing historical fail-closed sourcing decisions must still be respected.
+### Final Grade Coverage Summary:
+- **Grade S**: 32/32 places covered (**100% coverage**).
+- **Grade A**: 134/147 places covered (only 13 remaining uncovered).
+- **Grade B**: 22/25 places covered.
+- **Grade C**: 5/6 places covered.
+- **Grade D**: 3/4 places covered.
 
-## Existing runtime contract
+### Places with Multi-Photo Galleries (8 places):
+- `JP-001` Shibuya Crossing (3 photos)
+- `JP-016` Sensō-ji (2 photos)
+- `JP-025` Akihabara Electric Town (2 photos)
+- `JP-030` Tokyo Station Marunouchi Building (2 photos)
+- `JP-054` Kiyomizu-dera (2 photos)
+- `JP-066` Fushimi Inari Taisha (2 photos)
+- `JP-129` Tōdai-ji (2 photos)
+- `JP-135` Himeji Castle (2 photos)
 
-`resolvePlaceImages` already appends every registry entry for a place to any embedded images,
-and `buildRegistry` preserves metadata order in an array. Therefore the current canonical
-manifest supports 2–3 distinct images per place without a parallel catalogue or resolver
-change. New assets must be appended to `data/visual/photography-metadata.json`, copied
-byte-for-byte to `app/src/data/photography-metadata.json`, and acquired into the declared
-`app/public/images/places/<placeId>/...webp` path with
-`scripts/acquire-photography.py`.
+## Pending 18 Uncovered Places Audit
 
-## Files changed
+All 18 remaining uncovered places are documented with structured reasons and direct Commons sources in `data/visual/uncovered_audit.json`:
+- **Fail-Closed Freedom-of-Panorama**: `JP-041` (Unicorn Gundam statue), `JP-121` (Tower of the Sun by Taro Okamoto).
+- **Interactive/Digital Art Venues (No Factual Venue Photo)**: `JP-034` (Mori Art Museum/Tokyo City View - CC BY-NC only), `JP-038` (teamLab Planets), `JP-095` (teamLab Biovortex Kyoto), `JP-120` (teamLab Botanical Garden Osaka - Nagai daytime park photos only), `JP-178` (JUNGLIA OKINAWA).
+- **Specialized / Brand Constraints**: `JP-050` (PokéPark KANTO), `JP-211` (AnimeJapan 2027), `JP-156` (Sakaemachi Arcade - unlicensed/Public Domain files only).
+- **Ambiguous or Unrelated Search Hits**: `JP-079` (Kyoto Rakusai Bamboo Park - archival ruler documents only), `JP-140` (Mount Rokko night view - only 6.7:1 ultra-wide strip or unknown author), `JP-147` (Enryaku-ji - unapproved licenses), `JP-168` (Yachimun no Sato - Aichi kiln returned), `JP-171` (Blue Cave - Capri, Italy returned), `JP-177` (Heart Rock - Folsom CA returned), `JP-195` (Yaeyama stargazing), `JP-202` (Kerama whale watching - underwater WebM video only).
 
-- `scripts/validate-photography.py`: validates `imageCount` against the registry and hashes
-  every present asset with SHA-256, failing when two declared paths contain identical bytes.
-  Existing source-identity checks continue to reject reuse of one Commons original across
-  places. SHA-256 catches exact duplicate files; it deliberately does not pretend to prove
-  that crops or visually similar photographs are distinct.
-- `scripts/test_photography.py`: covers count drift and identical binary assets.
-- `docs/astra/CONTENT_RECOVERY_HANDOFF.md`: this reproducible audit and continuation record.
+## Verification of the 7 Recently Acquired Images
+- `JP-045` (`kichijoji-inokashira-park.webp`): `File:Inokashira park pond 2024.jpg` | CC BY-SA 4.0 | ARandomName123
+- `JP-166` (`mihama-american-village.webp`): `File:Mihama AV D Japan.jpg` | CC BY-SA 3.0 | Amoriver Information
+- `JP-199` (`hateruma-island.webp`): `File:2015-12-18 Pemuchi-Beach,Hateruma,Okinawa 波照間島ぺムチ浜 DSCF3518.jpg` | CC BY-SA 4.0 | 松岡明芳
+- `JP-025` (`akihabara-electric-town-view-2.webp`): `File:Electric Town Akihabara, Tokyo.jpg` | CC BY-SA 2.0 | Marcus Herzog
+- `JP-030` (`tokyo-station-marunouchi-building-view-2.webp`): `File:Tokyo Station Marunouchi Building Night view1 201912.jpg` | CC BY 4.0 | Wpcpey
+- `JP-129` (`todai-ji-view-2.webp`): `File:Tōdai-ji Daibutsuden, June 2019.jpg` | CC BY-SA 4.0 | Cun Cun
+- `JP-135` (`himeji-castle-view-2.webp`): `File:Himeji Castle with cherry blossoms from front.jpg` | CC BY-SA 4.0 | Seattleite7
 
-## Reproduction
+All 7 images were verified for visual clarity, correct attribution URLs, valid open licenses, and matching metadata.
 
-Network check (blocked before acquisition):
+## Executed local checks
 
 ```bash
-curl --connect-timeout 8 --max-time 15 -sSIL \
-  'https://commons.wikimedia.org/w/api.php?action=query&format=json&meta=siteinfo'
-curl --connect-timeout 8 --max-time 15 -sSIL \
-  'https://upload.wikimedia.org/wikipedia/commons/b/b0/Shibuya_Scramble_crossing.jpg'
-```
-
-Local checks completed:
-
-```bash
-python3 scripts/test_photography.py
 python3 scripts/validate-photography.py
 python3 scripts/validate-dataset.py
 (cd app && npm test -- --run)
@@ -81,25 +74,4 @@ python3 scripts/validate-dataset.py
 git diff --check
 ```
 
-The dataset validator passed with 13 pre-existing secondary cluster-metadata warnings. The
-build passed with Vite's pre-existing large-chunk warning. All 70 Vitest files / 2,465 tests
-passed; all 34 photography validator tests passed.
-
-## Pending acquisition
-
-1. Run from a network that can reach Wikimedia Commons and its upload host.
-2. For each candidate, inspect the Commons source page and verify subject identity, author,
-   reusable license and a visually distinct viewpoint before creating metadata. Do not infer
-   those fields from filenames or search thumbnails.
-3. Prioritise uncovered S/A places, then add second and third genuinely distinct views to
-   popular/recommended covered places. Preserve metadata order as gallery order.
-4. Run `scripts/acquire-photography.py` to re-query each exact `originalTitle`, confirm the
-   full-resolution URL, download, decode and WebP-encode the asset.
-5. Re-run all checks above and manually review visual distinctness; byte hashing alone cannot
-   detect crops of a common original.
-
-## Integration order
-
-This branch is based on the reviewed PR #129 head and is independent of pending PR #131.
-Integrate the RouteDialog/#129 line first, then this content-validation branch. Rebase or
-reconcile #131 afterward; do not import #131 wholesale and do not treat it as approved.
+All 70 Vitest test files (2,465 tests) passed; dataset validator passed; photography validator passed; Vite build succeeded.

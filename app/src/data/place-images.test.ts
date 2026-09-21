@@ -90,27 +90,23 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly seven WebP-only records and 137 resized+WebP records from the committed metadata", () => {
+  it("derives exactly 18 WebP-only records and 187 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
-    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(137);
+    expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(18);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(187);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
   });
 
-  it("carries the Phase 4D batch as exactly one image per newly covered place", () => {
-    // Phase 4D acquired 12 of its 16 S-grade targets; the other four failed closed on
-    // subject-matter grounds and must still resolve to no photograph at all.
+  it("carries the Phase 4D batch as acquired targets (now including recovered S-grade targets)", () => {
     const acquired = [
       "JP-044", "JP-066", "JP-096", "JP-135", "JP-142", "JP-143",
       "JP-144", "JP-184", "JP-188", "JP-192", "JP-197", "JP-205",
+      "JP-033", "JP-126", "JP-203", "JP-204",
     ];
     for (const placeId of acquired) {
-      expect(placeImages[placeId]).toHaveLength(1);
-    }
-    for (const deferred of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
-      expect(placeImages[deferred]).toBeUndefined();
+      expect(placeImages[placeId].length).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -129,7 +125,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("carries the Phase 4H tranche as 27 acquired targets and five explicit fallbacks", () => {
+  it("carries the Phase 4H tranche as acquired targets and five explicit fallbacks", () => {
     const acquired = [
       "JP-101", "JP-207", "JP-028", "JP-070", "JP-161", "JP-111", "JP-008",
       "JP-090", "JP-180", "JP-151", "JP-046", "JP-159", "JP-128", "JP-016",
@@ -137,7 +133,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-182", "JP-118", "JP-049", "JP-058", "JP-181", "JP-015",
     ];
     for (const placeId of acquired) {
-      expect(placeImages[placeId], placeId).toHaveLength(1);
+      expect(placeImages[placeId].length, placeId).toBeGreaterThanOrEqual(1);
     }
     for (const deferred of ["JP-121", "JP-156", "JP-095", "JP-079", "JP-202"]) {
       expect(placeImages[deferred], deferred).toBeUndefined();
@@ -173,11 +169,16 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     expect(placeImages["JP-140"]).toBeUndefined();
   });
 
-  it("never registers a second image for any place", () => {
-    for (const [placeId, images] of Object.entries(placeImages)) {
-      expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
-    }
-    expect(Object.keys(placeImages)).toHaveLength(144);
+  it("supports multi-photo galleries for selected popular targets", () => {
+    expect(placeImages["JP-001"]).toHaveLength(3);
+    expect(placeImages["JP-016"]).toHaveLength(2);
+    expect(placeImages["JP-054"]).toHaveLength(2);
+    expect(placeImages["JP-066"]).toHaveLength(2);
+    expect(placeImages["JP-025"]).toHaveLength(2);
+    expect(placeImages["JP-030"]).toHaveLength(2);
+    expect(placeImages["JP-129"]).toHaveLength(2);
+    expect(placeImages["JP-135"]).toHaveLength(2);
+    expect(Object.keys(placeImages)).toHaveLength(196);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {

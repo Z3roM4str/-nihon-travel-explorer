@@ -1,0 +1,110 @@
+{
+  "JP-034": {
+    "reason": "sin licencia compatible: las fotografías de Tokyo City View / Mori Tower en Commons están bajo licencias CC BY-NC o carecen de autor verificado.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Tokyo_City_View"
+    ]
+  },
+  "JP-038": {
+    "reason": "identidad / licencias: las fotos interiores de teamLab Planets muestran retratos personales o carecen de autor verificado.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:teamLab_Planets_TOKYO"
+    ]
+  },
+  "JP-041": {
+    "reason": "fail-closed: estatua de personaje protegido (Unicorn Gundam) que domina todo el encuadre (restricción de libertad de panorama sobre esculturas artísticas modernas).",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Unicorn_Gundam_(Odaiba)"
+    ]
+  },
+  "JP-050": {
+    "reason": "sin candidato: PokéPark KANTO no cuenta con fotografías factuales del recinto bajo licencias libres en Commons.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Pok%C3%A9Park_KANTO"
+    ]
+  },
+  "JP-079": {
+    "reason": "sin candidato / archivos históricos: las búsquedas de Kyoto Rakusai Bamboo Park devolvieron documentos de archivo y artefactos sin vista representativa del parque.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Rakusai_Bamboo_Park"
+    ]
+  },
+  "JP-095": {
+    "reason": "sin candidato: no existen fotografías del recinto teamLab Biovortex Kyoto en Commons.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/teamLab_Biovortex_Kyoto"
+    ]
+  },
+  "JP-120": {
+    "reason": "identidad dudosa: teamLab Botanical Garden Osaka no tiene fotos de la exhibición de arte digital nocturno; solo existen fotos diurnas del parque botánico host Nagai.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Nagai_Botanical_Garden"
+    ]
+  },
+  "JP-121": {
+    "reason": "fail-closed: obra artística moderna protegida (Torre del Sol de Taro Okamoto) con restricciones de libertad de panorama en Japón.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Tower_of_the_Sun"
+    ]
+  },
+  "JP-140": {
+    "reason": "calidad / sujeto no representativo: la única panorámica nocturna desde el monte Rokko es una tira ultraancha 6.7:1 (27439x4116) inutilizable en galería o atribuida a autor desconocido.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Mount_Rokko"
+    ]
+  },
+  "JP-147": {
+    "reason": "sin licencia compatible: las imágenes de Enryaku-ji en el monte Hiei están marcadas con licencias no permitidas o falta de autor en los metadatos.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Enryaku-ji"
+    ]
+  },
+  "JP-156": {
+    "reason": "sin licencia compatible: las fotos del mercado de Sakaemachi en Naha están marcadas como Dominio Público sin autor o sin licencia permitida bajo CC BY/CC BY-SA/CC0.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Sakaemachi_Market"
+    ]
+  },
+  "JP-168": {
+    "reason": "sin candidato / geografía errónea: las búsquedas de Yachimun no Sato devolvieron únicamente un horno en Seto, Aichi (distrito cerámico incorrecto en otra prefectura).",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Yachimun_no_Sato"
+    ]
+  },
+  "JP-171": {
+    "reason": "sin candidato / ambigüedad: las búsquedas de la Cueva Azul de Cabo Maeda devolvieron fotos de la Grotta Azzurra en Capri, Italia.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:Cape_Maeda"
+    ]
+  },
+  "JP-177": {
+    "reason": "sin candidato / ambigüedad: las búsquedas de Heart Rock en Kouri/Okinawa devolvieron fotos de la formación Heart Rock en Folsom, California.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Heart_Rock_Okinawa"
+    ]
+  },
+  "JP-178": {
+    "reason": "sin candidato: el parque temático en construcción JUNGLIA OKINAWA no cuenta con fotografías factuales del recinto final.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/JUNGLIA_Okinawa"
+    ]
+  },
+  "JP-195": {
+    "reason": "sin candidato: no existen fotografías del servicio de observación astronómica de Yaeyama bajo licencias libres.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Yaeyama_stargazing"
+    ]
+  },
+  "JP-202": {
+    "reason": "identidad / formato: la observación de ballenas en las Kerama solo produjo un archivo de video WebM submarino sin fotografía fija representativa.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Kerama_whale_watching"
+    ]
+  },
+  "JP-211": {
+    "reason": "identidad / marcas: las fotos de AnimeJapan están dominadas por cosplayers y personajes protegidos con derechos de marca e imagen.",
+    "sources": [
+      "https://commons.wikimedia.org/wiki/Category:AnimeJapan"
+    ]
+  }
+}
