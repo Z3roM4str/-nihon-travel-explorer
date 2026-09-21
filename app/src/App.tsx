@@ -954,7 +954,13 @@ export default function App() {
             {destination === "explorar" && activeHub ? (
               <button
                 type="button"
-                className="app__title app__title--expand"
+                /* `03 §7`/Art. 11: el título es el selector de ciudad (`05 §4`, «el selector de
+                   ciudad… es el menú del título»), así que es un control de navegación de pleno
+                   derecho. Su caja de texto mide 26px de alto; `.tap-target-min` le da los 44
+                   reales sin agrandar lo que se pinta. Es un control aislado en la cabecera —el
+                   token de persona vive al otro extremo—, así que la técnica 1 es la correcta
+                   (ver App.css §Áreas táctiles). Lo vigila `block1-ux-browser-audit.mjs`. */
+                className="app__title app__title--expand tap-target-min"
                 onClick={() => setCitySheetOpen(true)}
                 aria-haspopup="dialog"
                 aria-expanded={citySheetOpen}
