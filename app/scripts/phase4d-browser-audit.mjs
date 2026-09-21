@@ -5,6 +5,15 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import {
+  closeCredits,
+  closePlace as shellClosePlace,
+  creditsButtonCount,
+  dismissOnboarding,
+  enterHub as shellEnterHub,
+  openCredits,
+  openPlace as shellOpenPlace,
+} from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 4D — browser acceptance for the S-grade photography acquisition batch.
@@ -58,21 +67,29 @@ try {
     return route.fulfill({ status: 200, contentType: "image/png", body: BLANK_PNG });
   });
 
-  await page.goto(url);
+  await dismissOnboarding(page, url);
 
   const record = (name, detail) => results.push(`  ${name.padEnd(42)}: pass${detail ? ` (${detail})` : ""}`);
 
+  /*
+   * Navegación al shell vigente (B18/B19/B20), compartida en `lib/shell-navigation.mjs`. El
+   * camino «prefectura → Explorar desde X» y la lista `.place-list__item` desaparecieron con
+   * `05 §2` y `04 §12`; el `×` de la ficha, con el defecto D4 de `05 §5`. Lo que esta auditoría
+   * mide —asset local, atribución completa, cero afirmaciones de licencia— es idéntico.
+   */
+  let currentHub = null;
+
   async function enterHub(hub) {
-    await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-    await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    currentHub = hub;
+    await shellEnterHub(page, hub);
   }
 
   async function openPlace(name) {
-    await page.locator(".place-list__item").filter({ hasText: name }).first().click();
+    await shellOpenPlace(page, name, currentHub);
   }
 
-  async function closePlace(name) {
-    await page.getByRole("button", { name: new RegExp(`Cerrar la ficha de ${name}`) }).click();
+  async function closePlace() {
+    await shellClosePlace(page);
   }
 
   /** Every acquired record must serve locally and credit its own Commons file and license. */
@@ -81,9 +98,7 @@ try {
     // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
     // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
     // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
-    await page.locator(".gallery__credits").click();
-    const credit_ = page.locator(".credits-sheet__list");
-    await credit_.waitFor();
+    const credit_ = await openCredits(page);
 
     const image = page.locator(".gallery__image");
     const src = await image.getAttribute("src");
@@ -102,7 +117,7 @@ try {
     assert.match(text, /Archivo optimizado por Nihon:/, `${label}: processing disclosure`);
     // Phase 4D invented no attribution titles, so none may appear for these records.
     assert.doesNotMatch(text, /Título de atribución/, `${label}: no invented attribution title`);
-    await page.keyboard.press("Escape");
+    await closeCredits(page);
     return src;
   }
 
@@ -118,10 +133,10 @@ try {
   });
   assert.equal(inariSrc, "/images/places/JP-066/senbon-torii-path.webp");
   record("A. heritage subject renders", "JP-066 Fushimi Inari, local asset");
-  await closePlace("Fushimi Inari Taisha");
+  await closePlace();
 
   // ── B. branded / copyright-sensitive subject that passed sourcing ──
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Tokio");
   await openPlace("Ghibli Museum, Mitaka");
   const ghibliSrc = await assertAttribution({
@@ -135,22 +150,21 @@ try {
   record("B. branded subject renders", "JP-044 Ghibli Museum exterior");
 
   // The gallery must claim no legal clearance anywhere on the branded record.
-  await page.locator(".gallery__credits").click();
-  const ghibliText = await page.locator(".credits-sheet__list").innerText();
-  await page.keyboard.press("Escape");
+  const ghibliText = await (await openCredits(page)).innerText();
+  await closeCredits(page);
   for (const forbidden of [/libre de derechos/i, /uso comercial/i, /sin restricciones/i, /autorizado por/i]) {
     assert.doesNotMatch(ghibliText, forbidden, "branded record must not claim clearance");
   }
   record("C. no legal-clearance claim", "branded record");
-  await closePlace("Ghibli Museum, Mitaka");
+  await closePlace();
 
   // ── D. a target that failed closed keeps the untouched no-photo fallback ──
   for (const deferred of ["teamLab Borderless", "Tokyo Disneyland"]) {
     await openPlace(deferred);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
-    assert.equal(await page.locator(".gallery__credits").count(), 0, `${deferred} must show no credit`);
+    assert.equal(await creditsButtonCount(page), 0, `${deferred} must show no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${deferred} must show no image`);
-    await closePlace(deferred);
+    await closePlace();
   }
   record("D. deferred targets keep fallback", "teamLab Borderless, Tokyo Disneyland");
 

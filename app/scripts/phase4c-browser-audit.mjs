@@ -5,6 +5,15 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import {
+  closeCredits,
+  closePlace,
+  creditsButtonCount,
+  dismissOnboarding,
+  enterHub,
+  openCredits,
+  openPlace,
+} from "./lib/shell-navigation.mjs";
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4c-vite-"));
@@ -53,21 +62,23 @@ try {
     return route.fulfill({ status: 200, contentType: "image/png", body: BLANK_PNG });
   });
 
-  await page.goto(url);
+  await dismissOnboarding(page, url);
 
-  // The application opens on the national explorer. Enter the Tokio hub through the
-  // keyboard-accessible prefecture path before exercising a place detail.
-  await page.getByRole("button", { name: /^Tokio/ }).click();
-  await page.getByRole("button", { name: /Explorar desde Tokio/ }).first().click();
-  await page.locator(".place-list__item").filter({ hasText: "SHIBUYA SKY" }).click();
+  /*
+   * La aplicación abre en la portada nacional. B18 (`05 §2`) sustituyó el camino
+   * «prefectura → Explorar desde Tokio» por los atajos de ciudad, y B19 (`04 §12`) llevó la
+   * búsqueda a su propia hoja: ese es el camino vigente hasta un lugar concreto, y el que esta
+   * auditoría usa ahora. Lo que mide —dónde se sirve la fotografía, qué dice la atribución, la
+   * trampa de foco del lightbox— no cambia. Camino compartido en `lib/shell-navigation.mjs`.
+   */
+  await enterHub(page, "Tokio");
+  await openPlace(page, "SHIBUYA SKY", "Tokio");
 
   // Bloque 20 (B4, `04 §7`): la atribución sale del flujo de lectura —defecto D2— y vive en
   // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
   // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
   // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
-  await page.locator(".gallery__credits").click();
-  const credit = page.locator(".credits-sheet__list");
-  await credit.waitFor();
+  const credit = await openCredits(page);
 
   // Phase 4C serves every photograph from the local build and fetches nothing at runtime. Prove it
   // twice: no intercepted request was a photography host, and the rendered image is same-origin. The
@@ -106,14 +117,20 @@ try {
   );
   assert.match(
     creditText,
-    /Título de atribución: Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck/
+    /Título de atribución\s+Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck/
   );
   assert.match(
     creditText,
     /Archivo optimizado por Nihon: redimensionado y convertido a WebP\./
   );
 
-  const zoom = page.getByRole("button", { name: /Ampliar imagen/ });
+  // La hoja es modal y atrapa el foco (`04 §8`): se cierra antes de seguir con el lightbox, que
+  // es lo que esta auditoría mide a continuación.
+  await closeCredits(page);
+
+  // B20 (`04 §6`): la galería es una pista con una diapositiva por imagen, así que hay un botón
+  // de zoom por diapositiva; se abre el de la que está visible.
+  const zoom = page.getByRole("button", { name: /Ampliar imagen/ }).first();
   await zoom.click();
   const close = page.getByRole("button", { name: "Cerrar imagen ampliada" });
   await close.waitFor();
@@ -126,15 +143,15 @@ try {
   await close.waitFor({ state: "detached" });
   assert.equal(await zoom.evaluate((element) => element === document.activeElement), true);
 
-  await page.getByRole("button", { name: /Cerrar la ficha de SHIBUYA SKY/ }).click();
+  await closePlace(page);
   // Uses a carried fail-closed place, which cannot gain a photograph without a separate
   // design gate, so this fallback assertion survives later acquisition batches. Nezu
   // Museum previously stood here and was acquired in Phase 4J.
-  await page.locator(".place-list__item").filter({ hasText: "PokéPark KANTO" }).click();
+  await openPlace(page, "PokéPark KANTO", "Tokio");
   await page.getByText("Sin fotografía disponible todavía").waitFor();
   // Sin atribución que mostrar no hay botón `ⓘ`: un control que abre una hoja vacía sería
   // «UI de funciones que no existen» (`08` prohibición 8).
-  assert.equal(await page.locator(".gallery__credits").count(), 0);
+  assert.equal(await creditsButtonCount(page), 0);
 
   assert.deepEqual(consoleErrors, []);
   assert.deepEqual(pageErrors, []);

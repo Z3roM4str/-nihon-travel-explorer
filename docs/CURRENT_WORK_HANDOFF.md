@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · **B20** — los ocho pasos implementados; 55/55 filas cerradas
+**Última actualización:** 2026-09-21 · **B20 CERRADO** — 55/55 filas, y las siete auditorías heredadas verdes
 
 ---
 
@@ -13,13 +13,14 @@
 
 | | |
 |---|---|
-| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica)** · los ocho pasos implementados y verificados; las 55 filas del inventario con destino comprobado por gate |
+| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica), CERRADO.** Los ocho pasos implementados, las 55 filas del inventario con destino comprobado por gate, y las siete auditorías heredadas reparadas y en verde. No hay bloque abierto. |
 | **Rama** | `claude/block-20-b4-place-detail-photography` |
-| **Último SHA estable pusheado** | el checkpoint de apertura de B20 (ver `git log -1`) |
-| **Último SHA con cambio de producto** | el checkpoint de la ficha reconstruida en B20 (ver `git log -1`) |
+| **Último SHA estable pusheado** | El HEAD de `origin/claude/block-20-b4-place-detail-photography`. El commit de cierre del bloque es `__CLOSE_SHA__`; lo único que puede venir después es este cuadro fijando ese SHA. |
+| **Último SHA con cambio de producto** | `__CLOSE_SHA__` — el saneamiento de cierre (retirada de `--overlay-paper-soft` y el punto de galería por forma). El anterior fue `d464b4d`, la ficha reconstruida (`05 §5`). |
 | **SHA de partida del bloque** | `62050c2` — cierre definitivo de B19 (= `7b8f54f` + el registro de las dos precisiones de DDR-03) |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
+| **Siguiente bloque** | **B21 no está abierto.** El roadmap (`10`) dice cuál toca; nadie lo ha empezado y nada de esta rama lo adelanta. |
 | **Bloque anterior** | Bloque 19 (B3), **CERRADO** en `62050c2` sobre `claude/block-19-b3-card-discovery`: DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados. Esa rama no se toca más. |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
@@ -68,8 +69,17 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
    scrim y sólo el scrim.
 8. **Scrim efectivo ≥0.60 bajo toda la banda de texto**, con contraste AA (4.5:1) usando la
    fotografía más clara del catálogo y para **cada** color de texto de la banda.
-9. **Ningún token nuevo.** El suelo de scrim de la banda reutiliza el valor que `--scrim-bottom`
-   ya declara en su parada inferior.
+9. **Ningún token nuevo *para resolver el suelo de scrim de `PlaceCard`*.** La banda reutiliza el
+   valor que `--scrim-bottom` ya declara en su parada inferior, en vez de inventar un token de
+   scrim propio. **Alcance (aclarado en el cierre de B20):** esto es una decisión sobre CÓMO se
+   resuelve ese problema concreto —no fabricar un valor nuevo cuando el sistema ya tiene el
+   correcto—, **no una prohibición global** de que un bloque posterior dé nombre en `tokens.css`
+   a un valor que `03`/`04` ya prescriben literalmente. Lo contrario chocaría con Art. 10, que
+   exige justo eso: que ningún componente escriba un color como literal. La prueba está en el
+   propio fichero, que ya nombraba `--scrim-page` (`04 §8`) y `--pattern-diagonal` (`04 §9`) por
+   esa misma razón y bajo esta misma decisión. Lo que sigue prohibido, sin matices, es **un valor
+   nuevo**: un color, tamaño, radio, sombra, duración o easing que ningún documento normativo
+   haya fijado (`08` §«Lo que requiere revisión de diseño»).
 10. **DD-017 — mapa y ficha son una sola región en `lg`/`xl`.** Con la ficha cerrada el mapa
     funciona con normalidad; al abrirla, **la ficha puede cubrir el mapa por completo** y no se
     fabrica una franja residual de mapa para evitarlo. Lo que se conserva es el **estado**
@@ -113,7 +123,7 @@ DDR-04/05/06 **antes** de tocar código, y **los ocho pasos del plan**:
 8. **«Fuentes»** — plegada, con grado original, nivel en lenguaje llano, fecha de actualización
    del registro y enlaces. Nada inventado (DDR-04).
 
-**Verificación del bloque:** `vite build`, `oxlint` sin advertencias, **96 ficheros / 3310
+**Verificación del bloque:** `vite build`, `oxlint` sin advertencias, **96 ficheros / 3313
 tests**, y los gates de navegador de §7 con Chromium real.
 
 **De B19 (cerrado, en su propia rama):** ver `docs/BLOCK_19_HANDOFF.md`.
@@ -126,31 +136,30 @@ tests**, y los gates de navegador de §7 con Chromium real.
 (`docs/BLOCK_20_INVENTORY.md` §2.c). Lo que queda son revisiones y bloques posteriores, que **no
 se empiezan**.
 
-Deuda anotada, fuera del alcance de este bloque:
+**Las siete auditorías heredadas ya no son deuda: están reparadas y verdes** (§8). Lo que queda
+anotado, y sigue fuera del alcance de este bloque:
 
-- **Seis auditorías `phase4*` están obsoletas desde B18/B19, no por B20.** `phase4c`, `4d`, `4f`,
-  `4h`, `4j` y `4l` fallan en su helper de **navegación** (`enterHub`, «Explorar desde X», que el
-  shell de B18 sustituyó), **antes** de llegar a ninguna comprobación de fotografía. B20 sí ha
-  actualizado su lectura de atribución a `CreditsSheet` —quedan correctas para cuando alguien
-  repare la navegación— pero reparar seis auditorías heredadas es un trabajo propio, del mismo
-  tipo que «los cinco gates heredados» de B19, y no se mete de matute en este diff.
-- **`block5-travellers-browser-audit.mjs` también está obsoleta desde B18, no por B20.** Falla en
-  `beTraveller()`, que pulsa `.traveller-bar__option` en la cabecera; DD-007/`02 §D4` sustituyeron
-  ese conmutador por el `PersonToken`, y `TravellerBar` ya sólo vive en Nosotros. El fallo ocurre
-  **antes** de llegar a la franja de los dos. B20 sí ha puesto al día su lectura de esa franja
-  (una línea condicional en vez de una `<section>` con dos filas, `05 §5` pt. 7), así que queda
-  correcta para cuando alguien repare su navegación.
 - **`02 §D5` fija 1440 px de ancho máximo de contenido en `xl` y sigue sin implementarse.**
   Anterior a este bloque; comprobado que no cambia el resultado de la rejilla.
+- **El buscador de ciudad no dice nunca qué hace.** `App.tsx` pinta
+  `filters.query.trim() || "Buscar en {ciudad}"`, así que en cuanto hay una consulta activa el
+  **nombre accesible** del control pasa a ser lo que el lector escribió, y deja de nombrar su
+  acción. No viola ninguna norma —`04 §4` sólo exige `aria-label` a los botones de icono sin
+  texto—, así que no abre DDR; pero es la superficie de Explorar (`05 §4`), no la ficha, y
+  arreglarlo aquí sería cambiar producción para satisfacer un gate. Anotado para quien tome esa
+  superficie. Mientras tanto, `lib/shell-navigation.mjs` lo localiza por la clase del componente
+  que `04 §12` nombra, con el motivo escrito al lado.
 
 ---
 
 ## 6. Siguiente acción concreta
 
-**Revisar B20 y cerrarlo.** La implementación está completa y verificada; lo que queda es la
-revisión del bloque, no más código. **No se empieza ningún bloque posterior a B20.**
+**Ninguna dentro de B20: el bloque está cerrado.** Implementación, revisión y saneamiento hechos
+y verificados. Lo que sigue es **abrir el bloque que el roadmap (`10`) ponga a continuación**, con
+su propio preflight, su propio inventario si procede y su propia rama. **Nada de esta rama lo
+adelanta.**
 
-El orden en que se implementó, por si hay que auditarlo paso a paso:
+El orden en que se implementó B20, por si hay que auditarlo paso a paso:
 
 1. **Galería** (`04 §6`): 4:5 a sangre, `scroll-snap`, flechas sólo `md`+, puntos sólo con ≤5,
    contador como píldora. Gate de geometría y de «una imagen ⇒ sin puntos, contador ni flechas».
@@ -177,7 +186,7 @@ Todo desde `app/`. Los gates de navegador necesitan un `vite preview` en marcha:
 npm ci
 npm run build            # tsc -b && vite build
 npm run lint             # oxlint — debe salir sin una sola advertencia
-npx vitest run           # 96 ficheros / 3310 tests
+npx vitest run           # 96 ficheros / 3313 tests
 
 npx vite preview --port 4181 --strictPort &   # necesario para los gates de navegador
 export NIHON_BASE_URL=http://localhost:4181
@@ -202,16 +211,24 @@ Gates que **deben** pasar (todos reejecutados en el cierre de B20, con Chromium 
 | `node scripts/b18-responsive-check.mjs` | Sin overflow; `TabBar`/`NavRail` mutuamente exclusivos |
 | `node scripts/b18-viaje-lugar-check.mjs` | 38/38 |
 | `node scripts/block1-ux-browser-audit.mjs` | **153/153** (tres viewports) |
-| `node scripts/block2-photography-browser-audit.mjs` | **69/69** (tres viewports) |
+| `node scripts/block2-photography-browser-audit.mjs` | **81/81** (tres viewports) — B20 le añadió el `ⓘ`, `CreditsSheet` y la ausencia de atribución en el flujo |
 | `node scripts/phase5a-rc-browser-audit.mjs --viewport=desktop` | **50/50** |
 | `node scripts/phase5a-rc-browser-audit.mjs --viewport=mobile` | **50/50** |
+| `node scripts/block5-travellers-browser-audit.mjs` | **231/231** (tres viewports) — reparada en el cierre de B20 |
+| `node scripts/phase4c-browser-audit.mjs` | **PASS** — reparada en el cierre de B20 |
+| `node scripts/phase4d-browser-audit.mjs` | **PASS** — ídem |
+| `node scripts/phase4f-browser-audit.mjs` | **PASS** — ídem |
+| `node scripts/phase4h-browser-audit.mjs` | **PASS** — ídem |
+| `node scripts/phase4j-browser-audit.mjs` | **PASS** — ídem |
+| `node scripts/phase4l-browser-audit.mjs` | **PASS** — ídem |
 
 Los cuatro últimos levantan su propio `vite preview`, así que no necesitan `NIHON_BASE_URL`.
 
-**Actualizado en B20:** `block2-photography-browser-audit` pasa de 69 a **81** comprobaciones (el
-`ⓘ` y `CreditsSheet` añaden las suyas), y `block20-place-detail-check.mjs` es nuevo. Las seis
-auditorías `phase4*` **no** están en esta tabla y siguen sin estarlo: fallan en su navegación
-desde B18/B19, antes de llegar a la fotografía (ver §5).
+**Actualizado en el cierre de B20:** `block2-photography-browser-audit` pasa de 69 a **81**
+comprobaciones (el `ⓘ` y `CreditsSheet` añaden las suyas), `block20-place-detail-check.mjs` es
+nuevo, y las **siete auditorías heredadas entran en esta tabla por primera vez**, reparadas y en
+verde (§8). Las seis `phase4*` levantan su propio servidor de Vite, así que tampoco necesitan
+`NIHON_BASE_URL`.
 
 **Nota de entorno.** Los gates nuevos lanzan Chromium con
 `executablePath: "/opt/pw-browsers/chromium"`. Los gates antiguos no lo hacen y esperan la
@@ -246,8 +263,39 @@ en la prueba, nunca se borró sin dejar escrito dónde queda cubierto.
 | `b17-regression-check.mjs` | `.view-bar__filters` (barra única de B18) | Las capacidades de v1.1.0 siguen alcanzables (G2) | Sí | Reescrito al shell vigente, por rol y nombre accesible | él mismo | **18/18** |
 | `b17-tap-target-check.mjs` | `.app__help` (retirado por B18) | 44×44 reales, con la zona ampliada respondiendo (G5) | Sí | Controles actualizados; `.trip-backup__close` retirado (el control ya no existe); medición de conducta, no de coordenadas | él mismo; el respaldo lo cubre `b17-regression-check` | **16/16** |
 | `block1-ux-browser-audit.mjs` | `.interest-badge__label` (`PlaceCard` v2) | Jerarquía y usabilidad medidas en layout real | Sí, salvo dos requisitos | Dos comprobaciones **sustituidas** por decisión congelada: la insignia sólo para grado S (`04 §5.3`/Art. 6) y búsqueda/filtros como hoja a cualquier ancho (`04 §12`/`§13`); una tercera estaba invertida (exigía la letra de grado que `08` prohíbe) | él mismo; el nivel se comprueba ahora en el nombre accesible | **153/153** |
-| `block2-photography-browser-audit.mjs` | `.view-bar__filters` | Renditions, bytes, CLS, carrusel, lightbox, atribución | Sí | Camino actualizado; proporción derivada del número de columnas (DD-016) en vez de breakpoints; scroll pedido a `.app__sidebar`, que es quien scrollea | él mismo | **69/69** |
+| `block2-photography-browser-audit.mjs` | `.view-bar__filters` | Renditions, bytes, CLS, carrusel, lightbox, atribución | Sí | Camino actualizado; proporción derivada del número de columnas (DD-016) en vez de breakpoints; scroll pedido a `.app__sidebar`, que es quien scrollea | él mismo | **69/69** en B19; **81/81** tras la ampliación de B20 |
 | `phase5a-rc-browser-audit.mjs` | `.selection-panel__toggle` desde Explorar | Cinco recorridos dorados + integridad en runtime | Sí | Ayudantes de navegación reescritos al shell de cuatro destinos; `readSaved`/`seedPlan` al modelo de viajeros (el Bloque 5 dejó `nihon.savedPlaceIds` sin escribir); F01 y F05 reexpresados | él mismo | **50/50** ×2 viewports |
+
+### Las siete auditorías heredadas — RESUELTAS en el cierre de B20
+
+Mismo método que «los cinco gates heredados» de B19, y por la misma razón: siete auditorías que
+**no llegaban a ejecutar una sola comprobación** porque se rompían en la NAVEGACIÓN. No era un
+fallo de siete requisitos, era un camino repetido siete veces —«entra a la ciudad, abre este
+lugar, cierra la ficha»— que B18 (`05 §2`, cromo de cuatro destinos), B19 (`04 §12`, la búsqueda
+como hoja) y B20 (`05 §5`, el `×` de D4) fueron moviendo sin que nadie actualizara las copias.
+
+Ese camino vive ahora en **`app/scripts/lib/shell-navigation.mjs`**, uno solo, por rol y nombre
+accesible salvo donde el shell no ofrece un nombre estable —y ahí, por la clase que el documento
+normativo nombra, con el motivo escrito al lado—. La próxima vez que el shell se mueva habrá un
+sitio que tocar, no siete.
+
+| Gate | Requisito original | Causa del fallo | ¿Vigente? | Acción | Cobertura sucesora | Resultado |
+|---|---|---|---|---|---|---|
+| `phase4c-browser-audit.mjs` | La fotografía se sirve del build local y nada se pide en runtime; la atribución nombra fuente, autoría, licencia, archivo y reprocesado; el lightbox atrapa el foco y lo devuelve | `getByRole("button", {name: /^Tokio/})` empataba con el atajo de ciudad **y** con la prefectura del navegador de regiones (`05 §2` + `05 §3` coexisten desde B18) | **Sí, entero** | Navegación al camino vigente (atajo de ciudad acotado por rol de región + hoja de búsqueda); la atribución se lee en `CreditsSheet`; el zoom se pide a la diapositiva visible (`04 §6`: una por imagen) | él mismo | **PASS** |
+| `phase4d-browser-audit.mjs` | Cada registro adquirido sirve local y acredita su propio archivo y licencia; el registro de marca no afirma ninguna liberación de derechos | `enterHub` + `.place-list__item` + `«Cerrar la ficha de …»` (el `×` que D4 retira) | **Sí, entero** | Navegación compartida; créditos vía `ⓘ`; cierre por el botón atrás flotante | él mismo | **PASS** |
+| `phase4f-browser-audit.mjs` | Lote 4F: asset local, atribución completa, y los objetivos fallidos conservan el marcador sin foto | ídem | **Sí, entero** | ídem | él mismo | **PASS** |
+| `phase4h-browser-audit.mjs` | Lote 4H, incluido el objetivo de marca y el temporal, que siguen siendo factuales | ídem | **Sí, entero** | ídem | él mismo | **PASS** |
+| `phase4j-browser-audit.mjs` | Lote 4J, cinco objetivos y su *fallback* | ídem, más el nombre del lugar anclado a la cadena exacta del catálogo | **Sí, entero** | ídem; el nombre se ancla al PRINCIPIO del nombre accesible, no a la cadena completa — las auditorías nombran «Tokyo Marathon», el dataset guarda «Tokyo Marathon 2027» | él mismo | **PASS** |
+| `phase4l-browser-audit.mjs` | Lote 4L, más la comprobación de que cada imagen afirmada decodifica de verdad | ídem | **Sí, entero** | ídem | él mismo | **PASS** |
+| `block5-travellers-browser-audit.mjs` | La capa de dos personas desaparece cuando no tiene nada que decir; guardar sigue siendo un toque sin selector de persona; los dos lectores ven el mismo estado desde su lado; un rechazo explícito nunca borra lo que la otra quiere; un paso destructivo dice su coste antes | `.traveller-bar__option` en la cabecera (DD-007 lo movió a Nosotros); `.place-card__interest` (B19 lo sustituyó por `PersonToken`); `.selection-panel__count` y «Construir recorrido» (B18 llevó «Quiero ir» a su propia pestaña); el `×` de la ficha (D4) | **Sí**, salvo dos comprobaciones | Navegación por rol y nombre accesible; el cambio de persona se hace por donde el lector lo hace ahora (cabecera → Nosotros › Viajeros); el marcador se lee del `aria-label` del `PersonToken`; el recuento, del contador de la pestaña (`04 §10`). **Dos sustituidas**: «el gestor abre como diálogo etiquetado» → *es una sección etiquetada de Nosotros* (B18 lo embebió: un modal menos), y «`Escape` cierra el gestor» → *`Escape` no lo desmonta ni navega a otro sitio*, porque una sección embebida no tiene nada que cerrar | él mismo; la salida por teclado del shell la cubre `b18-a11y-check` (23/23) | **231/231** |
+
+**Un hallazgo real, corregido.** `block5-travellers` «pasaba» sus comprobaciones de la lista
+compartida sin navegar a «Quiero ir»: leía el panel con `innerText` mientras estaba oculto, y en
+Chromium `innerText` sobre un elemento no renderizado cae a `textContent`. Ahora abre la pestaña,
+así que las mismas aserciones miden la superficie **visible**. Es más estricto que antes, no menos.
+
+**Ninguna reparación tocó producción para satisfacer un selector.** Los dos únicos cambios de
+producto del checkpoint salen de la revisión de tokens (abajo), no de un gate.
 
 ### Cuatro defectos reales que los gates encontraron (todos corregidos)
 
@@ -309,6 +357,27 @@ tarjeta entera y no nace dentro de `.place-card__media`, que conserva su `overfl
 - **Conclusión.** No se descarta la idea —un aviso honesto cuando la persistencia falla es
   valioso y no existe hoy en esta rama— pero no se puede portar código de una arquitectura que
   el sistema congelado reemplazó. Queda como **DDR-03**, abierta, en `09`.
+
+### Revisión de los tres `--overlay-*` (Art. 10)
+
+Pedida en el cierre. Resultado: **dos se quedan, uno se retira.**
+
+| Token | ¿Lo prescribe el sistema? | Resultado |
+|---|---|---|
+| `--overlay-ink: rgba(20,22,26,.55)` | **Sí, literal.** `04 §6`: «píldora `1/3` abajo-derecha, `--type-num`, fondo `rgba(20,22,26,.55)`» | Se queda. Es centralización pura: Art. 10 prohíbe que un componente escriba un color como literal, así que nombrarlo es lo correcto |
+| `--overlay-paper: rgba(255,255,255,.92)` | **Sí, literal.** `04 §5.4`: «botón circular 40 px, fondo `rgba(255,255,255,.92)`» | Se queda, por lo mismo |
+| `--overlay-paper-soft: rgba(255,255,255,.55)` | **No. Ningún documento fija el color del punto inactivo de la galería** | **Retirado.** No era centralizar un valor del sistema: era estrenar uno |
+
+El punto inactivo se distingue ahora **por forma** —contorno frente a relleno, ambos `--surface`—,
+que es lo que `03 §1.4` prescribe para el producto entero («forma y peso, no matiz») y lo que los
+puntos ya hacían antes de B20. Cero valores nuevos, y sin necesidad de decisión de diseño: quitar
+un valor no autorizado apoyándose en lo que el sistema ya da es cumplimiento, no diseño.
+
+De paso, `.alert__severity` dejó de usar `--overlay-paper` y pasa a `--surface`: no es un control
+flotante sobre fotografía, y ese token significa exactamente eso.
+
+Vigilado por `block20-place-detail.test.ts` §«Art. 10», que falla si aparece un tercer
+`--overlay-*` o si el punto vuelve a distinguirse por matiz.
 
 ### Otros riesgos anotados
 
@@ -380,17 +449,6 @@ se repite como párrafo visible.
   cambio del viaje. Avisar de pérdida antes de que haya nada que perder sería un falso positivo.
 - **Verificado** por `scripts/ddr03-persistence-check.mjs` (43/43) y
   `src/lib/device-storage.test.ts` (13 casos). Detalle en `09` y `04 §17`.
-
-### DDR-03 — ABIERTA: qué dice Nihon cuando no consigue guardar en el dispositivo
-
-Nihon afirma «Guardados en este dispositivo». Si `localStorage` falla —cuota, modo privado,
-almacenamiento bloqueado— hoy **no lo cuenta**: la interfaz confirma cada marca y al volver no
-queda nada. Un aviso de error es texto visible nuevo y, si es permanente, un control permanente
-nuevo: `08` §«Lo que requiere revisión de diseño» lo reserva a diseño. Hay que decidir si se
-avisa y dónde, qué dice en la voz de `03 §10`, con qué frase se sustituye la afirmación falsa,
-si hay reintento explícito (y con sus 44 px), y cómo convive con la ficha a pantalla completa de
-`05 §5`. Texto completo en `09`. **No se ha portado nada del código de Astra ni se ha inventado
-copy.**
 
 ### DDR-02 — RESUELTA el 2026-09-21: toda la tarjeta abre el lugar
 

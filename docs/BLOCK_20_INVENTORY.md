@@ -151,14 +151,18 @@ guardián firmado.
 **Cerradas: 55 de 55.** Cada fila tiene destino verificado por al menos un gate automático. Los
 dos guardianes:
 
-- `app/src/block20-place-detail.test.ts` — 21 comprobaciones de fuente: las tres DDR, los cuatro
-  defectos, y la lista de campos que la ficha tiene que seguir leyendo.
+- `app/src/block20-place-detail.test.ts` — 24 comprobaciones de fuente: las tres DDR, los cuatro
+  defectos, la lista de campos que la ficha tiene que seguir leyendo, y el alcance de los tokens
+  `--overlay-*` (Art. 10).
 - `app/scripts/block20-place-detail-check.mjs` — **73/73** sobre un build real, en teléfono y
   escritorio: geometría, orden, contadores según cantidad, y lo que llega a tecnología asistiva.
 
 Además siguen vigilando lo suyo: `block2-photography-browser-audit` (81/81) para la galería, los
 créditos y las renditions; `block1-ux-browser-audit` (153/153) para «nada de la ficha se perdió»;
-y `b18-viaje-lugar-check` / `b18-browser-back-check` para el encadenado «Cerca de aquí».
+`b18-viaje-lugar-check` / `b18-browser-back-check` para el encadenado «Cerca de aquí»; y, desde el
+cierre del bloque, las **siete auditorías heredadas** —`phase4c`…`phase4l` y `block5-travellers`—,
+reparadas y en verde, que vuelven a comprobar la atribución fotográfica y la capa de dos personas
+sobre el shell vigente.
 
 Gates que existen por petición explícita de las tres decisiones:
 

@@ -299,3 +299,32 @@ describe("B20 — ningún dato de PlaceDetail v1.1.0 desaparece (las 55 filas)",
     expect(source).toContain('const RECORDED = "registrado" as const');
   });
 });
+
+// ---------------------------------------------------------------------------------------
+// Art. 10 — los tokens que B20 añadió son centralización, no diseño nuevo
+// ---------------------------------------------------------------------------------------
+
+describe("B20 — `--overlay-*` sólo centraliza valores que 04 ya prescribe (Art. 10)", () => {
+  it("declara exactamente los dos valores que `04 §6` y `04 §5.4` escriben literalmente", async () => {
+    const tokens = await read("styles/tokens.css");
+    // `04 §6`: «píldora `1/3` abajo-derecha, `--type-num`, fondo rgba(20,22,26,.55)».
+    expect(tokens).toMatch(/--overlay-ink:\s*rgba\(20,\s*22,\s*26,\s*0?\.55\);/);
+    // `04 §5.4`: «botón circular 40 px, fondo rgba(255,255,255,.92)».
+    expect(tokens).toMatch(/--overlay-paper:\s*rgba\(255,\s*255,\s*255,\s*0?\.92\);/);
+  });
+
+  it("y ninguno más: un tercero que el sistema no prescribe es un valor nuevo, no centralización", async () => {
+    const tokens = await read("styles/tokens.css");
+    const declared = [...tokens.matchAll(/^\s*(--overlay-[a-z-]+):/gm)].map((match) => match[1]);
+    expect(declared.sort()).toEqual(["--overlay-ink", "--overlay-paper"]);
+  });
+
+  it("el punto inactivo de la galería se distingue por forma, no por un matiz inventado (03 §1.4)", async () => {
+    const css = await read("App.css");
+    const rule = css.slice(css.indexOf(".gallery__dot::before {"));
+    const body = rule.slice(0, rule.indexOf("}"));
+    expect(body).toContain("border: 1px solid var(--surface)");
+    expect(body).toContain("background: transparent");
+    expect(body).not.toMatch(/rgba?\(/);
+  });
+});

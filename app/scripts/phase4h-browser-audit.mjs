@@ -5,6 +5,12 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import {
+  dismissOnboarding,
+  enterHub as shellEnterHub,
+  openPlace as shellOpenPlace,
+} from "./lib/shell-navigation.mjs";
+
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4h-vite-"));
@@ -49,17 +55,23 @@ try {
   const record = (name, detail) =>
     results.push(`  ${name.padEnd(46)}: pass${detail ? ` (${detail})` : ""}`);
 
+  /*
+   * Navegación al shell vigente (B18/B19/B20). El camino «prefectura → Explorar desde X» y la
+   * lista `.place-list__item` que esta fase usaba dejaron de existir: `05 §2` puso los atajos de
+   * ciudad en la portada y `04 §12` llevó la búsqueda a su propia hoja. Lo que esta auditoría
+   * MIDE no cambia ni una coma; sólo cambia cómo se llega. Camino compartido por las seis
+   * auditorías de fotografía en `scripts/lib/shell-navigation.mjs`, para que la próxima vez que
+   * el shell se mueva haya un solo sitio que tocar.
+   */
+  let currentHub = null;
+
   async function enterHub(hub) {
-    const prefectureEntry = {
-      Sapporo: "Hokkaido",
-      Nagoya: "Aichi",
-    }[hub] ?? hub;
-    await page.getByRole("button", { name: new RegExp(`^${prefectureEntry}`) }).first().click();
-    await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    currentHub = hub;
+    await shellEnterHub(page, hub);
   }
 
   async function openPlace(name) {
-    await page.locator(".place-list__item").filter({ hasText: name }).first().click();
+    await shellOpenPlace(page, name, currentHub);
   }
 
   async function assertAttribution({ label, credit, license, licenseHref, sourceHref, assetPath }) {
@@ -90,7 +102,7 @@ try {
   }
 
   async function assertFallback(hub, name) {
-    await page.goto(url);
+    await dismissOnboarding(page, url);
     await enterHub(hub);
     await openPlace(name);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
@@ -99,7 +111,7 @@ try {
   }
 
   // A. Ordinary subject.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Tokio");
   await openPlace("Jimbocho Book Town");
   await assertAttribution({
@@ -114,7 +126,7 @@ try {
   record("A. ordinary target renders", "JP-028 Jimbocho");
 
   // B. Branded/sensitive subject.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Tokio");
   await openPlace("Shibuya PARCO + Nintendo TOKYO");
   await assertAttribution({
@@ -128,7 +140,7 @@ try {
   record("B. branded target stays factual", "JP-008 Nintendo TOKYO");
 
   // C. Temporal subject uses prior-edition imagery without a 2027 claim.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Sapporo");
   await openPlace("Lake Shikotsu Ice Festival");
   const temporalText = await assertAttribution({

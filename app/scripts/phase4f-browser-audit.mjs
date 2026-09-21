@@ -5,6 +5,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import {
+  closePlace as shellClosePlace,
+  dismissOnboarding,
+  enterHub as shellEnterHub,
+  openPlace as shellOpenPlace,
+} from "./lib/shell-navigation.mjs";
+
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4f-vite-"));
@@ -49,21 +56,27 @@ try {
   const record = (name, detail) =>
     results.push(`  ${name.padEnd(44)}: pass${detail ? ` (${detail})` : ""}`);
 
+  /*
+   * Navegación al shell vigente (B18/B19/B20). El camino «prefectura → Explorar desde X» y la
+   * lista `.place-list__item` que esta fase usaba dejaron de existir: `05 §2` puso los atajos de
+   * ciudad en la portada y `04 §12` llevó la búsqueda a su propia hoja. Lo que esta auditoría
+   * MIDE no cambia ni una coma; sólo cambia cómo se llega. Camino compartido por las seis
+   * auditorías de fotografía en `scripts/lib/shell-navigation.mjs`, para que la próxima vez que
+   * el shell se mueva haya un solo sitio que tocar.
+   */
+  let currentHub = null;
+
   async function enterHub(hub) {
-    const prefectureEntry = {
-      Sapporo: "Hokkaido",
-      Nagoya: "Aichi",
-    }[hub] ?? hub;
-    await page.getByRole("button", { name: new RegExp(`^${prefectureEntry}`) }).first().click();
-    await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    currentHub = hub;
+    await shellEnterHub(page, hub);
   }
 
   async function openPlace(name) {
-    await page.locator(".place-list__item").filter({ hasText: name }).first().click();
+    await shellOpenPlace(page, name, currentHub);
   }
 
-  async function closePlace(name) {
-    await page.getByRole("button", { name: new RegExp(`Cerrar la ficha de ${name}`) }).click();
+  async function closePlace() {
+    await shellClosePlace(page);
   }
 
   async function assertAttribution({ label, credit, license, licenseHref, sourceHref, assetPath }) {
@@ -95,17 +108,17 @@ try {
   }
 
   async function assertFallback(hub, name) {
-    await page.goto(url);
+    await dismissOnboarding(page, url);
     await enterHub(hub);
     await openPlace(name);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
     assert.equal(await page.locator(".gallery__credits").count(), 0, `${name}: no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${name}: no image`);
-    await closePlace(name);
+    await closePlace();
   }
 
   // A. Ordinary Phase 4F subject.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Osaka");
   await openPlace("Dotonbori");
   await assertAttribution({
@@ -117,10 +130,10 @@ try {
     assetPath: "/images/places/JP-103/dotonbori-night.webp",
   });
   record("A. ordinary target renders", "JP-103 Dotonbori");
-  await closePlace("Dotonbori");
+  await closePlace();
 
   // B. Temporal-risk subject: prior-edition image must not masquerade as 2027.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Sapporo");
   await openPlace("Otaru Snow Light Path");
   const otaruText = await assertAttribution({
@@ -134,7 +147,7 @@ try {
   });
   assert.doesNotMatch(otaruText, /2027/);
   record("B. temporal target stays factual", "JP-206 prior-edition image");
-  await closePlace("Otaru Snow Light Path");
+  await closePlace();
 
   // C. Both failed targets retain the existing fallback; no substitute image.
   await assertFallback("Tokio", "PokéPark KANTO");
