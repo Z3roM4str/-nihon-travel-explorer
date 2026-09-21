@@ -593,9 +593,22 @@ button.search-field:focus-visible {
   cursor: pointer;
 }
 
+/*
+ * Anillo de foco OSCURO y POR FUERA, no blanco y por dentro.
+ *
+ * `03 §7` da dos colores según la superficie: `--focus-ring-color` (`--ink-900`) sobre
+ * superficies claras y `--focus-ring-color-on-dark` (`--surface`) sobre fotografía. Mientras el
+ * target vivía dentro de `.place-card__media` el blanco era el correcto: sólo pisaba fotografía.
+ * Desde DDR-02 el target es la tarjeta ENTERA, y el ~40% inferior de una tarjeta es papel
+ * (`--surface`): un anillo blanco ahí, además metido 3px hacia dentro, es sencillamente
+ * invisible. Dibujándolo por fuera con el desplazamiento del sistema, el anillo cae siempre
+ * sobre el papel de la lista, que es la superficie clara para la que `03 §7` fija `--ink-900`.
+ * Es la forma literal que ese documento prescribe, sin inventar un tercer color ni un anillo
+ * bicolor. El borde de la tarjeta (`:focus-within` → `--focus-ring-color`) lo refuerza.
+ */
 .place-card__open:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color-on-dark);
-  outline-offset: -3px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-lg);
 }
 

@@ -858,13 +858,24 @@ try {
       const unlabelled = images
         .filter((i) => !i.alt && !decorative(i))
         .map((i) => i.currentSrc || i.src);
-      // Una tarjeta con imagen decorativa tiene que nombrar el lugar en su propio control.
+      /*
+       * Una tarjeta con imagen decorativa tiene que nombrar el lugar por algún medio accesible.
+       * DDR-02 cambió CUÁL: el control que abre es ahora un botón vacío que cubre la tarjeta y
+       * lleva el nombre en `aria-label`, mientras el nombre visible vive en su propio elemento.
+       * El requisito no cambia —la tarjeta nombra el lugar—, así que se aceptan las dos formas.
+       */
       const unnamedCards = [...document.querySelectorAll(".place-card")]
         .filter((card) => {
           const img = card.querySelector("img");
           if (!img || !decorative(img)) return false;
           const opener = card.querySelector(".place-card__open");
-          return !opener || (opener.textContent ?? "").trim().length === 0;
+          const accessibleName = (opener?.getAttribute("aria-label") ?? "").trim();
+          const openerText = (opener?.textContent ?? "").trim();
+          const visibleName = (
+            card.querySelector(".place-card__name-text, .photo-placeholder__name, .place-card__heading")
+              ?.textContent ?? ""
+          ).trim();
+          return accessibleName.length === 0 && openerText.length === 0 && visibleName.length === 0;
         })
         .map((card) => card.className);
       return { unlabelled, unnamedCards, total: images.length };

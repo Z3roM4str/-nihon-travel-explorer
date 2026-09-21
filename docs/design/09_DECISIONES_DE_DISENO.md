@@ -373,7 +373,7 @@ hasta que producto o diseño las cierren. Se conservan cerradas, con su resoluci
 quede el rastro de por qué el documento dice lo que dice.
 
 ### DDR-01 — `05 §5` pedía conservar `panelOffset`; la geometría del raíl lo dejaba sin sitio
-**Estado: RESUELTA** · Abierta 2026-09-20 · Cerrada 2026-09-20 por **DD-017**
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 por **DD-017**
 
 **La tensión que se planteó.** `05 §5` decía: «`lg`+: el panel no oculta el marcador
 seleccionado en el mapa (se conserva `panelOffset`)». Eso presupone un raíl del mapa **más
@@ -388,7 +388,7 @@ selección), no su visibilidad; `panelOffset` sobrevive con su alcance acotado a
 donde mapa y panel se ven a la vez; y no se fabrica ninguna franja residual de mapa.
 
 ### DDR-02 — El cuerpo de la tarjeta no abre el lugar, y `04 §5.9` no admite excepciones
-**Estado: RESUELTA** · Abierta 2026-09-20 · Cerrada 2026-09-20 · **Afecta:** `04 §5`, `08`
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `04 §5`, `08`
 
 **Qué dice la norma.** `04 §5.9`: «**Toda la tarjeta abre el lugar**; el corazón y el token de
 persona están por encima en el orden de apilamiento. Se conserva el patrón actual de `<article>`
@@ -420,6 +420,40 @@ quedan actualizados al mismo contrato.
 
 ---
 
+### DDR-03 — Qué dice Nihon cuando no consigue guardar en el dispositivo
+**Abierta desde:** 2026-09-21 · **Afecta:** `02 §D4`, `04 §16`, `05 §6`, `08` · **Bloquea:** nada hoy
+
+**De dónde sale.** Un agente externo (Jules) implementó, en la línea **Astra** —un rediseño
+paralelo cuya base precede al congelado de `docs/design/`—, un aviso de fallo de persistencia con
+acción «Reintentar guardar». Ese trabajo **no es portable**: su arquitectura, su modelo de datos
+(`nihon.memberInterests.v1`, miembros fijos) y su vocabulario de pantallas son los de Astra, no
+los de `02 §D2`. Pero el problema que señala **sí existe aquí y no está resuelto**.
+
+**El problema real.** Nihon guarda en `localStorage` y lo dice: «Guardados en este dispositivo».
+Si esa escritura falla —cuota llena, modo privado, almacenamiento bloqueado—, hoy el producto
+**no lo cuenta**: la persona sigue marcando lugares, la interfaz confirma cada marca, y al volver
+se encuentra con que no quedó nada. Es la peor clase de fallo silencioso, y contradice de frente
+el compromiso de `00` de no afirmar lo que no se sabe.
+
+**Qué hay que decidir** (nada de esto lo cierra ingeniería):
+1. **Si se avisa, y dónde.** Un aviso de error es «texto visible nuevo» y, si es permanente, un
+   «control permanente nuevo»: `08` §«Lo que requiere revisión de diseño» lo reserva a diseño.
+   ¿Vive en la superficie donde ocurre el fallo, en las cuatro pestañas, o en una sola?
+2. **Qué dice exactamente**, en la voz de `03 §10`. La redacción de Astra («Atención: No se
+   pudieron guardar los cambios…» + el error técnico entre paréntesis) no cumple ese léxico.
+3. **Si «Guardados en este dispositivo» debe dejar de afirmarse** mientras el estado es de error.
+   Esto no es discutible como comportamiento —afirmar algo falso está prohibido— pero sí lo es
+   **con qué frase se sustituye**.
+4. **Si hay reintento explícito**, y si es un botón (`04 §4`) con su área táctil de 44 px, o el
+   producto reintenta solo.
+5. **Cómo se comporta con la ficha abierta**, que en teléfono cubre el 100 % de la altura
+   (`05 §5`): un aviso que quede debajo no sirve de nada.
+
+**Qué NO se ha hecho.** No se ha portado nada del código de Astra, no se ha inventado copy, y no
+se ha tocado ninguna superficie. `05 §6` y `04 §16` (`Toast`) siguen como estaban.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -429,3 +463,4 @@ quedan actualizados al mismo contrato.
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
+| **DDR-03** | ¿Qué dice y dónde aparece el aviso de fallo de persistencia? (ver arriba) | Producto + diseño | Nada hoy |

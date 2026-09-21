@@ -214,6 +214,30 @@ async function main() {
   {
     const context = await browser.newContext({ viewport: { width: 1200, height: 900 } });
     const page = await context.newPage();
+    // `04 §5.5`: el `PersonToken` sólo aparece cuando la OTRA persona ha marcado el lugar. Sin
+    // sembrarlo no existe ninguna tarjeta con token, y la comprobación de que el token conserva
+    // su superficie propia no llegaría a ejercitarse nunca.
+    await page.goto(BASE_URL, { waitUntil: "networkidle" });
+    await page.evaluate(() => {
+      try {
+        localStorage.setItem(
+          "nihon.travellers.v1",
+          JSON.stringify({
+            version: 1,
+            travellers: [
+              { id: "trav-a", label: "Ana" },
+              { id: "trav-b", label: "Beto" },
+            ],
+            activeTravellerId: "trav-a",
+            interests: [
+              { placeId: "JP-001", stances: [{ travellerId: "trav-b", stance: "interested" }], carriedOver: false },
+            ],
+          })
+        );
+      } catch {
+        /* ignore */
+      }
+    });
     await openTokio(page);
     for (let i = 0; i < 20; i += 1) {
       await page.locator(".app__sidebar").evaluate((el) => el.scrollBy(0, 1200));
@@ -228,9 +252,26 @@ async function main() {
       await page.locator(".app__detail .place-detail__bar .icon-button").click();
       await page.waitForSelector(".app__detail", { state: "detached" });
     };
+    /*
+     * Se pulsa por COORDENADAS, no por locator.
+     *
+     * `locator.click()` exige que el elemento no esté tapado, y aquí el botón principal tapa —a
+     * propósito— toda la tarjeta: Playwright aborta con «intercepts pointer events» sobre
+     * `.place-card__media`, `.place-card__reason` y cualquier otra zona. Eso no es un fallo del
+     * producto, es el contrato de DDR-02 funcionando. Lo que hay que reproducir es lo que hace
+     * un dedo: caer sobre ESAS coordenadas y que se abra el lugar. `page.mouse.click` sobre el
+     * centro de la zona lo hace exactamente así, sin `force` (que saltaría la comprobación y
+     * pulsaría el elemento equivocado).
+     */
     const opensFrom = async (card, selector) => {
       await card.scrollIntoViewIfNeeded();
-      await card.locator(selector).click();
+      await page.waitForTimeout(250);
+      const zone = card.locator(selector).first();
+      if ((await zone.count()) === 0) return null;
+      const box = await zone.boundingBox();
+      if (!box) return null;
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      await page.waitForTimeout(500);
       const opened = await page.locator(".app__detail").count();
       if (opened) await closeDetail();
       return opened === 1;
@@ -243,10 +284,19 @@ async function main() {
       const exists = (await card.count()) > 0;
       check(`DDR-02: existe tarjeta ${kind}`, exists);
       if (!exists) continue;
-      check(`${kind}: fotografía/placeholder abre`, await opensFrom(card, ".place-card__media"));
-      check(`${kind}: nombre abre`, await opensFrom(card, ".place-card__heading"));
-      check(`${kind}: razón abre`, await opensFrom(card, ".place-card__reason"));
-      check(`${kind}: chip abre`, await opensFrom(card, ".place-card__chip"));
+      for (const [zone, selector] of [
+        ["fotografía/placeholder", ".place-card__media"],
+        ["nombre", ".place-card__heading"],
+        ["razón", ".place-card__reason"],
+        ["chip", ".place-card__chip"],
+      ]) {
+        const result = await opensFrom(card, selector);
+        check(
+          `${kind}: ${zone} abre`,
+          result === true,
+          result === null ? "zona ausente en esta tarjeta" : undefined
+        );
+      }
     }
 
     const actionCard = cards.filter({ has: page.locator(".place-card__person-token") }).first();
@@ -274,29 +324,80 @@ async function main() {
     }
 
     await withPhoto.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(250);
+    /*
+     * El target cubre la CAJA DE RELLENO de la tarjeta, no su caja de borde.
+     *
+     * `inset: 0` sobre un elemento posicionado se resuelve contra la caja de relleno del
+     * contenedor, y `.place-card` lleva `border: 1px`. Así que el target queda encajado 1px por
+     * cada lado: cubre toda la superficie útil y NO se monta sobre el borde ni puede invadir a la
+     * tarjeta vecina. Eso es lo correcto, no una desviación — exigir coincidencia exacta con la
+     * caja de borde haría fallar el contrato por cumplirlo.
+     */
     const targetGeometry = await withPhoto.evaluate((card) => {
       const target = card.querySelector(".place-card__open");
       const c = card.getBoundingClientRect();
       const t = target.getBoundingClientRect();
+      const cs = getComputedStyle(card);
+      const border = {
+        top: parseFloat(cs.borderTopWidth),
+        right: parseFloat(cs.borderRightWidth),
+        bottom: parseFloat(cs.borderBottomWidth),
+        left: parseFloat(cs.borderLeftWidth),
+      };
+      const near = (a, b) => Math.abs(a - b) < 0.5;
       const outside = document.elementFromPoint(c.right + 2, c.top + c.height / 2);
       return {
-        sameBounds:
-          Math.abs(c.left - t.left) < 0.5 &&
-          Math.abs(c.top - t.top) < 0.5 &&
-          Math.abs(c.width - t.width) < 0.5 &&
-          Math.abs(c.height - t.height) < 0.5,
+        coversPaddingBox:
+          near(t.left, c.left + border.left) &&
+          near(t.top, c.top + border.top) &&
+          near(t.right, c.right - border.right) &&
+          near(t.bottom, c.bottom - border.bottom),
+        containedInCard: t.left >= c.left - 0.5 && t.right <= c.right + 0.5 && t.top >= c.top - 0.5 && t.bottom <= c.bottom + 0.5,
         outsideIsTarget: Boolean(outside?.closest(".place-card__open")),
+        border,
       };
     });
     check(
-      "target principal coincide con la tarjeta y no sale de ella",
-      targetGeometry.sameBounds && !targetGeometry.outsideIsTarget,
+      "target principal cubre la tarjeta entera y no sale de ella",
+      targetGeometry.coversPaddingBox && targetGeometry.containedInCard && !targetGeometry.outsideIsTarget,
       JSON.stringify(targetGeometry)
     );
 
     const open = withPhoto.locator(".place-card__open");
+    // `:focus-visible` sólo se enciende cuando la modalidad de interacción es el teclado. Tras
+    // los clics de las comprobaciones anteriores, un `focus()` programático a secas NO lo activa,
+    // y el anillo se leería como inexistente — un falso negativo. Un `Tab` devuelve la modalidad
+    // a teclado, que es además el caso que esta comprobación quiere describir.
+    await page.keyboard.press("Tab");
     await open.focus();
     check("teclado: el target principal recibe foco", await open.evaluate((el) => el === document.activeElement));
+    /*
+     * `03 §7` / gate G5: el foco tiene que VERSE. Desde DDR-02 el target abarca fotografía y
+     * papel a la vez, así que un anillo del color del papel queda invisible en la mitad inferior
+     * de la tarjeta. Se comprueba lo que de verdad importa: que el anillo no sea del mismo color
+     * que la superficie sobre la que se dibuja.
+     */
+    const ring = await open.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const card = el.closest(".place-card");
+      return {
+        color: cs.outlineColor,
+        width: cs.outlineWidth,
+        style: cs.outlineStyle,
+        offset: cs.outlineOffset,
+        cardBackground: getComputedStyle(card).backgroundColor,
+        listBackground: getComputedStyle(card.closest(".app__sidebar") ?? document.body).backgroundColor,
+      };
+    });
+    check(
+      "el anillo de foco se distingue de la superficie sobre la que cae",
+      ring.style !== "none" &&
+        parseFloat(ring.width) > 0 &&
+        ring.color !== ring.cardBackground &&
+        ring.color !== ring.listBackground,
+      `${ring.style} ${ring.width} ${ring.color} @ ${ring.offset} sobre ${ring.cardBackground}`
+    );
     await page.keyboard.press("Enter");
     check("teclado: Enter abre el lugar", (await page.locator(".app__detail").count()) === 1);
     await closeDetail();

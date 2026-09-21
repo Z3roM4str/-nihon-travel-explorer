@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint F — **DDR-02 resuelta; B19 cerrado**
+**Última actualización:** 2026-09-21 · checkpoint G — **DDR-02 verificada e integrada; B19 cerrado**
 
 ---
 
@@ -15,11 +15,11 @@
 |---|---|
 | **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable local** | `67d9cdb` — `fix(block-19): resuelve DDR-02 en PlaceCard` (push bloqueado por HTTP 403 en este entorno) |
-| **Último SHA con cambio de producto** | `67d9cdb` — target completo de PlaceCard según DDR-02 |
+| **Último SHA estable pusheado** | `5028647` — `docs: deja consistente el checkpoint F` (Codex) + el checkpoint G de verificación |
+| **Último SHA con cambio de producto** | `5028647` — target completo de `PlaceCard` según DDR-02 |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
-| **Estado del working tree** | Limpio tras el commit de checkpoint F. El remoto no es accesible desde este entorno (HTTP 403). |
-| **Estado de la suite** | Build, lint y suite completa verdes; gate de navegador bloqueado por ausencia de Chromium (detalle en §7). |
+| **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
+| **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
 | **Siguiente bloque** | B4 — Ficha de lugar y capa fotográfica. **NO EMPEZADO. No empezarlo sin instrucción explícita de Claude.** |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
@@ -145,12 +145,11 @@ npx vite preview --port 4181 --strictPort &   # necesario para los gates de nave
 export NIHON_BASE_URL=http://localhost:4181
 ```
 
-Gates que **deben** pasar (estado del checkpoint F; donde no se indica lo contrario se conserva
-el último resultado ejecutado del checkpoint E):
+Gates que **deben** pasar (todos ejecutados en el checkpoint G, con Chromium real):
 
 | Gate | Resultado |
 |---|---|
-| `node scripts/block19-grid-check.mjs` | Gate ampliado para DDR-02: fotografía, nombre, razón y chips; corazón/token independientes; con/sin foto; teclado; target confinado. No ejecutable en este contenedor: falta `/opt/pw-browsers/chromium` y la descarga devuelve HTTP 403. |
+| `node scripts/block19-grid-check.mjs` | **52/52** — seis viewports, ≥264 px, proporción, raíl ≤50 %, estabilidad del mapa, DDR-02 (fotografía/nombre/razón/chips, con y sin foto, corazón y token independientes, geometría del target, teclado y anillo de foco legible), cero `text-shadow` |
 | `node scripts/block19-contrast-check.mjs` | Dentro de contrato — scrim 0,811–0,944; nombre ≥12,78:1; categoría·zona ≥9,15:1 |
 | `node scripts/block19-discovery-browser-audit.mjs` | 30/30 |
 | `node scripts/b17-regression-check.mjs` | **18/18** |
@@ -211,6 +210,52 @@ en la prueba, nunca se borró sin dejar escrito dónde queda cubierto.
    ~53 lugares sin foto del catálogo eran inalcanzables con el ratón. Ambos vigilados ahora por
    `block19-grid-check.mjs`.
 
+### Trabajo externo revisado en el checkpoint G
+
+**Codex — PR #136, `codex/implementar-decisiones-de-diseno-para-placecard` @ `5028647`: INTEGRADO.**
+Partía exactamente de `d52b6b4`, un solo commit, fast-forward limpio. Cierra DDR-02 con la
+alternativa (a) ya aprobada: el botón principal pasa a ser hijo directo del `<article>`, cubre la
+tarjeta entera y no nace dentro de `.place-card__media`, que conserva su `overflow: hidden`. `04
+§5.9`, `08` y `09` quedan reforzados, no debilitados. Correcciones que hubo que hacerle encima
+(checkpoint G), todas mecánicas y ninguna de diseño:
+
+1. **Su gate no podía pasar.** Pulsaba con `locator.click()` sobre `.place-card__media`, y
+   Playwright lo rechaza porque el botón la cubre — que es el contrato funcionando. Se pulsa
+   ahora por coordenadas, que es lo que hace un dedo.
+2. **Regresión de foco.** El anillo pasó a abarcar la tarjeta entera conservando
+   `--focus-ring-color-on-dark` (blanco) metido 3px hacia dentro: invisible sobre el ~40 % de
+   papel de la tarjeta, contra `03 §7` y la puerta G5. Se dibuja por fuera con
+   `--focus-ring-color`, que es la forma literal que `03 §7` prescribe para superficie clara.
+3. **Geometría mal tolerada.** Exigía coincidencia exacta con la caja de borde; `inset: 0` se
+   resuelve contra la caja de relleno, así que el target queda encajado 1px por el borde de la
+   tarjeta — correcto y deseable. Ahora se comprueba eso.
+4. **Selectores heredados.** Tres comprobaciones leían el nombre del lugar del texto del botón,
+   que DDR-02 vació; se leen del `aria-label` y del nombre visible.
+5. **Referencia obsoleta.** El handoff citaba `67d9cdb`, un SHA que no existe en el remoto.
+
+**Jules — `astra/night-ui-16277665032912679884-15623783607311441052` @ `ade9ec2`: NO INTEGRADO.**
+
+- **Base incompatible.** Bifurca en `1a11fe8` (2026-09-16), que es el merge-base con `main` y con
+  esta rama. Precede a los bloques 16–19 y al congelado del sistema de diseño (`d43735d`,
+  2026-09-19): **`docs/design/` no existe en esa rama**. Es la línea «Astra», un rediseño
+  paralelo con su propia autoridad (`docs/astra/`) y su propio modelo (`Descubrir`, «Nuestros
+  Lugares», «Nuestro viaje»), que el sistema congelado sustituyó.
+- **Cero solape.** Ni un fichero coincide: no tiene `PlaceCard.tsx`, ni `AppNav.tsx`, ni
+  `styles/discovery.css`, ni `09_DECISIONES_DE_DISENO.md`. Su modelo de datos es
+  `nihon.memberInterests.v1` con miembros fijos `fernando`/`lorena` y `tripId: "trip-2027"`;
+  el de esta rama es `nihon.travellers.v1` con viajeros renombrables (`02 §D4`).
+- **El resumen no coincide con el diff.** Se informó de un banner «across Explorar, Ficha, and
+  Nuestro viaje» y «rendered in PlaceDetail». El diff lo renderiza **una sola vez**, en la
+  superficie `astra-trip` (`App.tsx:106`); `PlaceDetail.tsx` existe en esa rama y **no fue
+  tocado**. Y la frase «Guardados en este dispositivo» **sigue sin condicionar** (`App.tsx:104`),
+  justo encima del banner: el estado contradictorio que se decía evitado está exactamente ahí.
+- **Además contraviene normativa.** Estilos en línea con hex crudos (`#fef2f2`, `#991b1b`,
+  `#f87171`) contra `08` prohibición 6 y `03 §1`; botón «Reintentar guardar» con
+  `minHeight: 36px`, por debajo de los 44 px de `03 §7`/Art. 11.
+- **Conclusión.** No se descarta la idea —un aviso honesto cuando la persistencia falla es
+  valioso y no existe hoy en esta rama— pero no se puede portar código de una arquitectura que
+  el sistema congelado reemplazó. Queda como **DDR-03**, abierta, en `09`.
+
 ### Otros riesgos anotados
 
 - **`02 §D5` fija un ancho máximo de contenido de 1440 px centrado en `xl`, y no está
@@ -228,9 +273,20 @@ en la prueba, nunca se borró sin dejar escrito dónde queda cubierto.
 
 ## 9. DESIGN DECISION REQUIRED
 
-**Pendientes: ninguna. DDR-01 y DDR-02 están resueltas.**
+**Pendientes: una — DDR-03.** DDR-01 y DDR-02 están resueltas.
 
-### DDR-02 — RESUELTA el 2026-09-20: toda la tarjeta abre el lugar
+### DDR-03 — ABIERTA: qué dice Nihon cuando no consigue guardar en el dispositivo
+
+Nihon afirma «Guardados en este dispositivo». Si `localStorage` falla —cuota, modo privado,
+almacenamiento bloqueado— hoy **no lo cuenta**: la interfaz confirma cada marca y al volver no
+queda nada. Un aviso de error es texto visible nuevo y, si es permanente, un control permanente
+nuevo: `08` §«Lo que requiere revisión de diseño» lo reserva a diseño. Hay que decidir si se
+avisa y dónde, qué dice en la voz de `03 §10`, con qué frase se sustituye la afirmación falsa,
+si hay reintento explícito (y con sus 44 px), y cómo convive con la ficha a pantalla completa de
+`05 §5`. Texto completo en `09`. **No se ha portado nada del código de Astra ni se ha inventado
+copy.**
+
+### DDR-02 — RESUELTA el 2026-09-21: toda la tarjeta abre el lugar
 
 - **Qué dice la norma.** `04 §5.9`: «toda la tarjeta abre el lugar», sin excepciones.
 - **Qué pasaba.** El botón estirado nacía dentro de `.place-card__media`, cuyo recorte impedía
@@ -242,7 +298,7 @@ en la prueba, nunca se borró sin dejar escrito dónde queda cubierto.
   `discovery.css` confina el target al artículo; `block19-grid-check.mjs` vigila las ocho
   conductas aprobadas. `04 §5.9`, `08` y `09` quedan sincronizados.
 
-### DDR-01 — CERRADA el 2026-09-20 por DD-017
+### DDR-01 — CERRADA el 2026-09-21 por DD-017
 
 - **Qué se planteó.** `05 §5` pedía conservar `panelOffset` en `lg`+ («el panel no oculta el
   marcador seleccionado en el mapa»), lo que presupone un raíl más ancho que la ficha. La

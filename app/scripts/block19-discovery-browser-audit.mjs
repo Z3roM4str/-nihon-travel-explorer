@@ -172,7 +172,9 @@ async function main() {
 
   // ---------- 6. PersonToken de la otra persona, junto al corazón ----------
   {
-    const card = page.locator(`.place-card:has(.place-card__open:has-text("Shibuya Crossing"))`).first();
+    // DDR-02: el botón principal ya no lleva el nombre como texto — es un control vacío con
+    // `aria-label`, y el nombre visible vive en `.place-card__name-text`. Se selecciona por ahí.
+    const card = page.locator(`.place-card:has(.place-card__name-text:has-text("Shibuya Crossing"))`).first();
     await card.scrollIntoViewIfNeeded();
     const token = card.locator(".place-card__person-token");
     check("el token de la otra persona existe junto al corazón", (await token.count()) > 0);
@@ -262,8 +264,11 @@ async function main() {
 
   // ---------- 10. Carga progresiva 12 → 24 → 36, sin reordenar ni duplicar ----------
   {
+    // DDR-02: el nombre visible ya no está dentro del botón; se lee del elemento que lo pinta.
     const namesAt = async () =>
-      page.$$eval(".place-card:not(.place-card--compact) .place-card__open", (nodes) => nodes.map((n) => n.textContent.trim()));
+      page.$$eval(".place-card:not(.place-card--compact) .place-card__name-text", (nodes) =>
+        nodes.map((n) => n.textContent.trim())
+      );
     const first = await namesAt();
     check("primer render ≤12 lugares", first.length <= 12, String(first.length));
     for (let i = 0; i < 4; i++) {

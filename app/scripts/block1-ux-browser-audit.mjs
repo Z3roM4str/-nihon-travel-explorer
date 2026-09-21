@@ -248,7 +248,14 @@ containsText(await page.locator(".onboarding__step-count").innerText(), "1 de 3"
   // `04 §5.3` + Art. 6: el nivel de interés ya no se rotula en cada tarjeta — sólo el grado S
   // lleva insignia. Pero no se ha perdido: sigue en el nombre accesible de la tarjeta, que es
   // donde de verdad hace falta. Y la letra de grado no puede asomar en ninguna (`08`, 11).
-  const accessibleName = await firstCard.locator(".place-card__open").innerText();
+  // DDR-02 movió el nombre accesible del interior del botón (un `<span visually-hidden>`) a su
+  // `aria-label`: el botón es ahora un control vacío que cubre la tarjeta. Lo que el requisito
+  // pide —que la tarjeta siga declarando el nivel de interés a la tecnología asistiva— no ha
+  // cambiado; lo que cambia es de dónde se lee. Se toma el nombre accesible, con el texto
+  // interno como respaldo por si alguna variante vuelve a rotularlo dentro.
+  const accessibleName = await firstCard.locator(".place-card__open").evaluate(
+    (el) => el.getAttribute("aria-label") || el.innerText || ""
+  );
   check(
     "cards still state the interest level in their accessible name",
     /imprescindible|recomendable|opcional|si sobra tiempo|prescindible/i.test(accessibleName),
