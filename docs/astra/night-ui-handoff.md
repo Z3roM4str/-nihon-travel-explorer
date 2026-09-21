@@ -57,3 +57,20 @@
 
 ## 4. Dependencias Pendientes
 - **Integración con #133 / #134**: La integración de la tubería de imágenes enriquecidas separada se realizará una vez aprobado ese lote.
+
+---
+
+## 5. Continuación de persistencia — PR #137
+
+### Código preparado
+- El código de producto a verificar es `92791f33aba27b675dad63888743d15185ba05a5`: aviso y reintento desde Explorar, ficha y Nuestro viaje, sin duplicar el anuncio cuando la ficha está abierta.
+- La prueba del planificador ahora espera el diálogo real, cierra, modifica el borrador V7 persistido sin cambiar intereses, reabre y comprueba lugares y `visitStartTimes` conservados.
+- La auditoría de navegador añade `09-persistence-recovery`, con las tres superficies a 375×812 px, pertenencia del aviso al modal, unicidad del `role="alert"` y objetivo táctil de 44 px.
+
+### Verificación real en este entorno (2026-09-21 UTC)
+- **Lint ejecutado:** sin errores; cuatro advertencias ya presentes en `App.tsx`, `useSavedPlaces.ts` y `Discovery.tsx`.
+- **Tests bloqueados por entorno:** falta `jsdom` en `node_modules`; `npm install` y `npm ci` quedaron esperando la red del registro y se interrumpieron.
+- **Build bloqueado por entorno:** TypeScript no puede resolver la instalación local incompleta de `@testing-library/react`.
+- **Auditoría y revisión visual no ejecutadas:** dependen de un build correcto. Por tanto, no se declaran aprobadas ni se fabrican capturas/trazas.
+
+La evidencia existente en `docs/astra/evidence/pr135-audit/results.json`, `summary.md`, `screenshots/` y `traces/` sigue siendo la auditoría histórica de `79748e85b7884c8f85ea1d71066ae72b72e4bd95`. El intento separado y sus limitaciones están registrados en `verification-92791f3.md`; debe reemplazarse por resultados nuevos únicamente después de ejecutar la auditoría contra el SHA de código correspondiente.
