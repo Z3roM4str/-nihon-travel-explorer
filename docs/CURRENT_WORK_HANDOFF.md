@@ -15,8 +15,8 @@
 |---|---|
 | **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02 y los cinco gates heredados) |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `5028647` — `docs: deja consistente el checkpoint F` (Codex) + el checkpoint G de verificación |
-| **Último SHA con cambio de producto** | `5028647` — target completo de `PlaceCard` según DDR-02 |
+| **Último SHA estable pusheado** | `308415b` — `fix(block-19): verifica e integra DDR-02 de Codex; registra DDR-03` |
+| **Último SHA con cambio de producto** | `308415b` — DDR-02 (Codex, `5028647`) más la corrección del anillo de foco |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
