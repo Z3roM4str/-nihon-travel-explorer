@@ -495,55 +495,86 @@ que exista un dato que perder sería un falso positivo.
 ---
 
 ### DDR-04 — «Fuentes» pide campos que el modelo `Place` no tiene
-**Abierta desde:** 2026-09-21 · **Afecta:** `05 §5` pt. 14, `10 §B4` · **Bloquea:** la sección «Fuentes» de B4
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `05 §5` pt. 14, `10 §B4`
 
-**Qué pide la norma.** `05 §5` pt. 14: «**Fuentes** — desplegable cerrado por defecto. Contiene:
+**Qué pedía la norma.** `05 §5` pt. 14: «**Fuentes** — desplegable cerrado por defecto. Contiene:
 grado original, `provenance`, `consultedAt`/freshness, `updatedAt`, versión del dataset, enlaces
-oficiales.» `10 §B4` lo repite: «Sección «Fuentes» plegada con grado, provenance, freshness y
+oficiales.» `10 §B4` lo repetía: «Sección «Fuentes» plegada con grado, provenance, freshness y
 fechas.»
 
 **Qué hay.** De esos seis, el tipo `Place` (`app/src/types.ts`) sólo tiene **dos**: `grade` y
 `updatedAt`, más `officialUrl`/`googleMapsUrl`. **No existe `provenance` por lugar, ni
-`consultedAt`, ni una versión de dataset en ninguna parte de la aplicación.** `lib/source-freshness.ts`
-sí implementa la gramática de frescura, pero sirve a zonas de alojamiento, puntos de acceso y
-mecanismos de reserva — no a los 214 lugares del catálogo.
+`consultedAt`, ni una versión de dataset en ninguna parte de la aplicación.**
+`lib/source-freshness.ts` sí implementa la gramática de frescura, pero sirve a zonas de
+alojamiento, puntos de acceso y mecanismos de reserva — no a los 214 lugares del catálogo.
 
-**Por qué no lo cierra ingeniería.** Las salidas cambian el contrato o el dataset: (a) «Fuentes»
-muestra sólo lo que existe —grado, `updatedAt`, enlaces oficiales— y `05 §5` pt. 14 se reescribe
-para no prometer lo que no hay; (b) el dataset gana `provenance`/`consultedAt` por lugar, que es
-trabajo de datos y de investigación, no de B4; (c) se deriva una frescura por lugar desde
-`updatedAt` con el umbral de `source-freshness.ts`, lo que **inventaría** una afirmación de
-procedencia que nadie ha verificado — y eso es exactamente lo que `00` prohíbe.
+**Decisión aprobada.** Se adopta la alternativa (a): **«Fuentes» sólo muestra evidencia que
+realmente existe.** La sección se conserva, plegada por defecto, y en B4 puede contener
+exclusivamente:
 
-**Qué se hace mientras tanto.** Se implementa todo B4 salvo los tres campos inexistentes. La
-sección «Fuentes» se construye con grado, `updatedAt` y enlaces oficiales, que sí existen, y no se
-fabrica ninguno de los otros tres.
+- el **grado original** (la letra, que fuera de aquí sigue prohibida);
+- **`updatedAt`**;
+- el **enlace oficial** cuando exista;
+- cualquier otro enlace que el contrato ya reconozca como fuente real.
+
+**Lo que queda expresamente prohibido en B4.** No se crea ni se deriva `provenance`, ni
+`consultedAt`, ni una frescura por lugar, ni una versión del dataset, **ni ninguna etiqueta
+equivalente inferida desde `updatedAt`**.
+
+**`updatedAt` significa una sola cosa: cuándo se actualizó el registro.** No es fecha de consulta
+de una fuente y no autoriza a inferir frescura. Presentarlo como «consultado en…» sería exactamente
+la afirmación sin verificar que `00` prohíbe.
+
+**Tampoco se rellenan huecos con placeholders.** No se muestran filas del tipo «Procedencia: no
+disponible» ni ningún marcador de posición para un campo inexistente: esos campos **no existen
+todavía** en esta sección, y una fila que anuncia su ausencia es ruido que además sugiere que
+alguien los buscó lugar por lugar.
+
+**Qué no entra en B4.** Ampliar el dataset con `provenance`/`consultedAt` por lugar es trabajo de
+datos y de investigación; queda fuera del alcance de este bloque y no lo bloquea. Cuando exista
+evidencia real en datos, `05 §5` pt. 14 podrá volver a admitir esos campos — hasta entonces la
+especificación dice lo que la sección puede mostrar hoy, no lo que se desearía mostrar.
+
+**Alternativas descartadas.** (b) Ampliar el dataset dentro de B4: convierte un bloque de
+presentación en un proyecto de investigación y retrasa indefinidamente la ficha. (c) Derivar una
+frescura por lugar desde `updatedAt` con el umbral de `source-freshness.ts`: **inventa** una
+afirmación de procedencia que nadie ha verificado, que es justo lo que `00` prohíbe. (d) Mostrar
+filas vacías o «no disponible»: mismo error, en voz baja.
+
+**Cómo se ha cerrado.** `05 §5` pt. 14 y `10 §B4` quedan reescritos para prometer sólo lo que
+existe. La sección se implementa con grado, `updatedAt` y enlaces, y un gate comprueba que no
+aparece ninguna de las cuatro etiquetas prohibidas ni una presentación de `updatedAt` como fecha
+de consulta.
 
 ---
 
 ### DDR-05 — El criterio «la cadena `Dato:` no aparece» es de B4, pero el texto vive en B9
-**Abierta desde:** 2026-09-21 · **Afecta:** `05 §11`, `10 §B4`, `10 §B9.5` · **Bloquea:** nada de la ficha
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `05 §11`, `10 §B4`, `10 §B9.5`
 
-**La tensión.** `10 §B4` pone entre los criterios de aceptación de este bloque: «La cadena `Dato:`
-no aparece». `05 §11` lo dice aún más amplio: «no aparece **en ninguna parte de la interfaz**».
-Pero las cuatro apariciones reales están en `OrderedSequenceBuilder.tsx` —el planificador, pantalla
-`05 §7`/`§11`— y **ninguna en la ficha**. Y `10 §B9.5` asigna expresamente su retirada a B9.5:
-«Sub-pestañas propias; **se elimina `Dato:`**».
+**La tensión.** `10 §B4` ponía entre los criterios de aceptación de este bloque: «La cadena
+`Dato:` no aparece». `05 §11` lo decía aún más amplio: «no aparece **en ninguna parte de la
+interfaz**». Pero las cuatro apariciones reales están en `OrderedSequenceBuilder.tsx` —el
+planificador, pantalla `05 §7`/`§11`— y **ninguna en la ficha**. Y `10 §B9.5` asigna expresamente
+su retirada a B9.5: «Sub-pestañas propias; **se elimina `Dato:`**».
 
-**Qué se puede afirmar hoy.** Que la ficha no la contiene, y que B4 no la introduce. Eso es
-verificable y se vigila con un gate. Lo que B4 **no puede** es retirarla del planificador sin
-invadir el alcance que el roadmap da a B9.5 — y hacerlo «de paso» metería en este diff una
-superficie que nadie ha revisado en este bloque.
+**Decisión aprobada.** Se adopta la alternativa (a). **El criterio de aceptación de B20 se acota
+explícitamente a la superficie B4**: la cadena `Dato:` no aparece en `PlaceDetail` ni en ninguna
+superficie que B20 introduzca. B20 **no modifica `OrderedSequenceBuilder.tsx` ni el planificador**.
+La eliminación global de las cuatro apariciones actuales **permanece en B9.5**, tal como ya
+establece el roadmap, con la sustitución que `03 §10` fija (texto entre comillas con marcador
+`◧ Registrado`).
 
-**Qué habría que decidir.** (a) El criterio de B4 se lee acotado a la ficha, y la retirada global
-sigue siendo de B9.5 tal como dice `10 §B9.5`; (b) B4 amplía su alcance al planificador y aplica
-la sustitución que `03 §10` ya fija (texto entre comillas con marcador `◧ Registrado`), asumiendo
-que toca una pantalla fuera de `05 §5`.
+**Qué sí hace B20.** Mantiene un gate que garantiza que la ficha no contiene `Dato:` y que este
+bloque no la introduce. Es una afirmación verificable hoy y barata de sostener; no duplica el
+trabajo de B9.5 ni lo adelanta.
+
+**Alternativa descartada.** (b) Ampliar B4 al planificador: mete en este diff una pantalla que
+nadie ha revisado en este bloque, y se apropia de un alcance que el roadmap ya asignó.
 
 ---
 
 ### DDR-06 — «Cerca de aquí»: nota al pie y `EvidenceMark` a la vez
-**Abierta desde:** 2026-09-21 · **Afecta:** `04 §2`, `05 §5` pt. 12 · **Bloquea:** el pie de «Cerca de aquí»
+**Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `04 §2`, `05 §5` pt. 12, `05 §12`
 
 **La tensión.** `05 §5` pt. 12 pide que cada lugar cercano lleve «distancia, modo y `EvidenceMark`
 según su confianza». Hoy, además, hay una nota al pie por sección (`transferListFootnote`) que
@@ -551,10 +582,45 @@ explica en prosa de dónde salen esos traslados. Pero `04 §2` prohíbe expresam
 con marcador» lleve «además un párrafo que repita lo mismo»: **el marcador sustituye al descargo**.
 Y `05 §11` lo generaliza: «una sola nota al pie por sección, no un descargo por bloque».
 
-**Qué habría que decidir.** (a) El marcador sustituye a la nota y `transferListFootnote`
-desaparece de la ficha; (b) la nota se conserva porque dice algo que el marcador no dice —y
-entonces hay que enunciar qué— y se acota a una sola por sección. La diferencia no es cosmética:
-(a) retira texto que hoy existe, y este bloque tiene por contrato no perder información.
+**Decisión aprobada.** Se adopta la alternativa (a). En «Cerca de aquí»:
+
+- **cada tarjeta compacta lleva su `EvidenceMark`**;
+- **`transferListFootnote` deja de mostrarse en esta sección**;
+- **no queda ningún párrafo de descargo** que repita la confianza que ya expresa el marcador.
+
+**Pero el contrato «ninguna información desaparece» sigue vigente.** Esto es una **reubicación de
+información, no una pérdida**: la semántica que hoy comunica la nota pasa al `detail` accesible del
+`EvidenceMark` de **cada** traslado, que es además donde es cierta —la nota hablaba de la lista
+entera y por eso tenía que generalizar—. Cada traslado conserva explícitamente su distinción:
+
+- una **ruta validada** sigue dejando claro que son **datos de ruta validados y estáticos, no un
+  horario en vivo**;
+- una **estimación geográfica** sigue dejando claro que es una **estimación, no una ruta
+  validada**;
+- un traslado **schedule-aware**, si existe, sigue distinguiéndose **explícitamente** como horario
+  en vivo;
+- cualquier **fallback** que hoy se presente legítimamente como estimación geográfica **mantiene
+  esa semántica**, sin ascender de nivel.
+
+**Sin procedencia nueva y sin ascensos de confianza.** Se usan la gramática y el mapeo de evidencia
+ya existentes (`03 §1.4`, `04 §2`, `lib/transfer-display.ts`): `validated-static` → `◼`,
+`schedule-aware` → `◼` con su detalle propio, estimación y ausencia de traslado → `◇`. **Ningún
+traslado sube a «Verificado» salvo donde el contrato existente ya lo determina.**
+
+**Dónde vive el texto.** En `detail`, `aria-label` y/o `title`, conforme al contrato de
+`EvidenceMark` (`04 §2`: cuando `label` es falso, el texto va a `aria-label` y `title` — no
+desaparece de la información accesible, sólo del trazo visual). **No necesita repetirse como
+párrafo visible**, y repetirlo sería precisamente lo que `04 §2` prohíbe.
+
+**Alternativa descartada.** (b) Conservar la nota: obliga a enunciar qué dice que el marcador no
+dice, y la respuesta honesta es «nada» — la nota generaliza sobre la lista lo que el marcador
+afirma por traslado, con menos precisión.
+
+**Cómo se ha cerrado.** `04 §2`, `05 §5` pt. 12, `05 §12` y `10 §B4` quedan explícitos en que esto
+es una reubicación. `transferListFootnote` **sigue existiendo y sigue probado** en
+`lib/transfer-display.ts` (otras superficies pueden usarlo); lo que cambia es que la ficha ya no lo
+renderiza. Gates: la sección no contiene párrafo de descargo, cada traslado lleva marcador, y el
+texto de la distinción es legible por un lector de pantalla.
 
 ---
 
@@ -567,6 +633,6 @@ entonces hay que enunciar qué— y se acota a una sola por sección. La diferen
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
-| **DDR-04** | «Fuentes» pide `provenance`/`consultedAt`/versión que no existen | Producto + datos | La sección «Fuentes» de B4 |
-| **DDR-05** | ¿`Dato:` lo retira B4 del planificador, o sigue siendo de B9.5? | Producto | Nada de la ficha |
-| **DDR-06** | ¿El `EvidenceMark` de «Cerca de aquí» sustituye a la nota al pie? | Diseño | El pie de esa sección |
+
+> **DDR-01, DDR-02, DDR-03, DDR-04, DDR-05 y DDR-06 están RESUELTAS.** No queda ninguna
+> decisión de diseño pendiente que bloquee B20.

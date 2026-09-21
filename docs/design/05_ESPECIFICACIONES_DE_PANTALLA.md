@@ -224,10 +224,30 @@ desaparece (corrige D4).
 12. **Cerca de aquí** — carrusel horizontal de `PlaceCard compact` **con miniatura**
     (hoy es una lista de texto). Cada uno con distancia, modo y `EvidenceMark` según su
     confianza (`validated-static` → `◼`, geográfica → `◇`).
+
+    **Sin nota al pie (DDR-06).** El marcador sustituye al descargo en prosa: esta sección
+    **no renderiza `transferListFootnote`** ni ningún párrafo que repita lo que el marcador ya
+    dice (`04 §2`). Es una **reubicación de información, no una pérdida**: la semántica que la
+    nota comunicaba pasa al `detail` accesible del `EvidenceMark` de **cada** traslado, que es
+    donde además es exacta. Cada traslado conserva explícitamente su distinción —ruta validada
+    (datos de ruta estáticos, **no** un horario en vivo), estimación geográfica (**no** una ruta
+    validada), horario en vivo cuando lo haya, y el *fallback* sin traslado registrado, que sigue
+    siendo estimación—. Se usa la gramática de evidencia existente (`03 §1.4`, `04 §2`): ninguna
+    procedencia nueva, ningún ascenso a «Verificado» fuera de lo que el contrato ya determina. El
+    texto puede vivir en `detail`, `aria-label` y/o `title`; no se repite como párrafo visible.
 13. **Enlaces**: sitio oficial, Google Maps.
-14. **Fuentes** — desplegable cerrado por defecto. Contiene: grado original, `provenance`,
-    `consultedAt`/freshness, `updatedAt`, versión del dataset, enlaces oficiales.
-    **Aquí vive todo lo que hoy se derrama por la ficha.**
+14. **Fuentes** — desplegable cerrado por defecto. Contiene **los metadatos de procedencia
+    disponibles en el modelo actual** (DDR-06 no aplica aquí; ver DDR-04): grado original,
+    `updatedAt`, el enlace oficial cuando exista, y cualquier otro enlace que el contrato ya
+    reconozca como fuente real. **Aquí vive todo lo que hoy se derrama por la ficha.**
+
+    **No se inventa lo que no hay (DDR-04).** `provenance`, `consultedAt`/freshness y la versión
+    del dataset **no existen por lugar** en el modelo `Place`, así que esta sección **no los crea
+    ni los deriva**, y no admite ninguna etiqueta equivalente inferida desde `updatedAt`.
+    `updatedAt` significa únicamente **cuándo se actualizó el registro**: no es fecha de consulta
+    de una fuente y no permite inferir frescura. Tampoco se muestran filas del tipo «Procedencia:
+    no disponible» ni placeholders para campos inexistentes. Esos campos **sólo podrán añadirse
+    aquí cuando exista evidencia real en datos**, que es trabajo de dataset, no de esta pantalla.
 
 **Responsive (DD-016, DD-017).** `md`+: panel derecho de 480 px, galería 4:3, mismo
 orden. La ficha **es** el raíl derecho (`02 §D5`): en `md` lo crea ella, y en `lg`+ lo
@@ -254,6 +274,12 @@ se lo encuentre en otro sitio al cerrar la ficha.
       «pendiente».
 - [ ] Toda la información de `PlaceDetail` v1.1.0 sigue presente en alguna sección, y
       esta especificación dice en cuál.
+- [ ] «Fuentes» no muestra `provenance`, `consultedAt`, frescura por lugar ni versión del
+      dataset, y `updatedAt` no se presenta como fecha de consulta (DDR-04).
+- [ ] «Cerca de aquí» no renderiza nota al pie, y cada traslado conserva su distinción
+      semántica en el `EvidenceMark`, legible por un lector de pantalla (DDR-06).
+- [ ] La cadena `Dato:` no aparece en la ficha ni en ninguna superficie que B4 introduzca
+      (DDR-05; la retirada global sigue siendo de B9.5).
 - [ ] Vuelta atrás restaura la posición de scroll exacta de la lista.
 
 ---
@@ -488,6 +514,7 @@ Ninguna capacidad se pierde (Art. 12). Verificable en revisión:
 | Filtros (categoría, grado, joya, turismo, reserva, duración) | conservados | 4 |
 | Nivel de interés en lenguaje llano | conservado, menos visible en tarjeta | 4, 5 |
 | Galería y créditos | conservados, créditos reubicados | 5 |
+| Nota al pie de traslados en «Cerca de aquí» | **reubicada**, no perdida: su semántica pasa al `detail` del `EvidenceMark` de cada traslado (DDR-06) | 5 |
 | Fallback `imageBrief` | conservado, rediseñado | `04 §9` |
 | «Quiero ir» por persona | conservado | 6 |
 | Coincidencias y divergencias | **promovido** a vista principal | 6 |

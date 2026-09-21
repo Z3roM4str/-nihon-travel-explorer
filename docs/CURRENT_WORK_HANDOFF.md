@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · **B20 abierto** — preflight, inventario y plan
+**Última actualización:** 2026-09-21 · **B20** — DDR-04/05/06 RESUELTAS; implementación en curso
 
 ---
 
@@ -13,7 +13,7 @@
 
 | | |
 |---|---|
-| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica)** · preflight e inventario hechos; implementación **no iniciada** |
+| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica)** · preflight, inventario y las tres decisiones cerradas; implementación en curso |
 | **Rama** | `claude/block-20-b4-place-detail-photography` |
 | **Último SHA estable pusheado** | el checkpoint de apertura de B20 (ver `git log -1`) |
 | **Último SHA con cambio de producto** | `6a5ab0b` (en B19) — B20 aún no ha tocado código |
@@ -40,8 +40,8 @@ plegada.
 matriz campo→destino están en **`docs/BLOCK_20_INVENTORY.md`**, escrita antes de tocar código. Es
 el guardián: si al terminar hay una fila sin destino verificado, B4 no está cerrado.
 
-**Estado: implementación NO iniciada.** Hay tres contradicciones normativas abiertas (§9) que
-bloquean partes concretas del alcance. Lo que no depende de ellas es implementable sin ambigüedad.
+**Las tres contradicciones normativas están CERRADAS** (§9): DDR-04, DDR-05 y DDR-06 se
+resolvieron el 2026-09-21, las tres por la opción (a). Nada del alcance queda bloqueado.
 
 ## 3. Decisiones de diseño CONGELADAS (no se tocan)
 
@@ -103,22 +103,20 @@ las tres contradicciones como DDR-04/05/06.
 ## 5. Qué falta
 
 **Todo el código de B20.** El plan está en `docs/BLOCK_20_INVENTORY.md` §1 (matriz) y el orden de
-ataque más abajo. No se empieza hasta que DDR-04/05/06 estén cerradas **o** se acote la
-implementación a lo que no depende de ellas.
+ataque más abajo. **Nada queda bloqueado**: las tres decisiones se cerraron antes de tocar código.
 
-Bloqueado por decisión pendiente:
-- La sección «Fuentes» completa → **DDR-04**.
-- La retirada de `Dato:` del planificador → **DDR-05** (la ficha no la contiene; eso sí es
-  verificable ya).
-- El pie de «Cerca de aquí» → **DDR-06**.
+Lo que las decisiones acotan:
+- «Fuentes» se construye **sólo** con grado original, `updatedAt` y enlaces reales → **DDR-04**.
+- `Dato:` se vigila **en la ficha**; el planificador no se toca → **DDR-05**.
+- «Cerca de aquí» pierde la nota al pie y **gana la misma información** en el `detail` del
+  `EvidenceMark` de cada traslado → **DDR-06**.
 
 ---
 
 ## 6. Siguiente acción concreta
 
-**Cerrar DDR-04, DDR-05 y DDR-06** (§9) — son de producto y diseño, no de ingeniería.
-
-Con eso resuelto, el orden de implementación propuesto, en checkpoints pequeños:
+**Implementar B20** en el orden de ocho pasos de abajo, en checkpoints pequeños. Las tres
+decisiones ya están cerradas (§9), así que ningún paso espera nada.
 
 1. **Galería** (`04 §6`): 4:5 a sangre, `scroll-snap`, flechas sólo `md`+, puntos sólo con ≤5,
    contador como píldora. Gate de geometría y de «una imagen ⇒ sin puntos, contador ni flechas».
@@ -133,7 +131,7 @@ Con eso resuelto, el orden de implementación propuesto, en checkpoints pequeño
    de frase, «Aglomeración» → «Afluencia».
 6. **Aviso feb–mar 2027** condicional (DD-011) y su degradación a línea de «Horario» con `◧`.
 7. **«Cerca de aquí»** con `PlaceCard compact` y miniaturas.
-8. **«Fuentes»** plegada — sólo tras DDR-04.
+8. **«Fuentes»** plegada — grado original, `updatedAt` y enlaces; nada inventado (DDR-04).
 
 Cada paso: verificación → commit → push → actualizar este fichero.
 
@@ -280,35 +278,44 @@ tarjeta entera y no nace dentro de `.place-card__media`, que conserva su `overfl
 
 ## 9. DESIGN DECISION REQUIRED
 
-**Pendientes: tres — DDR-04, DDR-05 y DDR-06**, las tres abiertas por B20. DDR-01, DDR-02 y
-DDR-03 están resueltas.
+**Pendientes: ninguna.** DDR-01…DDR-06 están todas resueltas. Las tres que abrió B20 se
+cerraron el 2026-09-21, las tres por la opción (a); texto completo en `09`.
 
-### DDR-04 — ABIERTA: «Fuentes» pide campos que el modelo `Place` no tiene
+### DDR-04 — RESUELTA el 2026-09-21: «Fuentes» sólo muestra evidencia que existe
 
-`05 §5` pt. 14 y `10 §B4` exigen que «Fuentes» contenga grado, `provenance`, `consultedAt`/
-freshness, `updatedAt`, versión del dataset y enlaces oficiales. De los seis, el tipo `Place` sólo
-tiene **`grade` y `updatedAt`**, más los enlaces: **no existe `provenance` por lugar, ni
-`consultedAt`, ni versión de dataset** en ninguna parte. `lib/source-freshness.ts` sirve a zonas,
-puntos de acceso y mecanismos de reserva, no al catálogo de lugares. Derivar una procedencia desde
-`updatedAt` inventaría una afirmación que nadie ha verificado, que es justo lo que `00` prohíbe.
-**Bloquea** la sección «Fuentes». Texto completo en `09`.
+Se adopta la opción **(a)**. La sección se conserva, plegada por defecto, y sólo puede mostrar
+datos realmente presentes y verificables para ese lugar: **grado original**, **`updatedAt`**, el
+**enlace oficial** cuando exista y cualquier otro enlace que el contrato ya reconozca como fuente
+real. **No se crean ni se derivan** `provenance`, `consultedAt`, frescura por lugar, versión del
+dataset ni ninguna etiqueta equivalente inferida desde `updatedAt`. `updatedAt` significa
+únicamente **actualización del registro**: no es fecha de consulta y no permite inferir frescura.
+**Nada de placeholders** («Procedencia: no disponible») para campos inexistentes. Ampliar el
+dataset es trabajo de datos y **no entra en B20**; cuando exista evidencia real, `05 §5` pt. 14
+podrá volver a admitir esos campos.
 
-### DDR-05 — ABIERTA: el criterio de `Dato:` es de B4, pero el texto vive en B9
+### DDR-05 — RESUELTA el 2026-09-21: `Dato:` sigue siendo de B9.5 fuera de la ficha
 
-`10 §B4` pide que «la cadena `Dato:` no aparezca» y `05 §11` lo amplía a toda la interfaz, pero
-las cuatro apariciones reales están en `OrderedSequenceBuilder.tsx` —el planificador— y ninguna en
-la ficha; y `10 §B9.5` asigna expresamente su retirada a B9.5. B4 puede afirmar y vigilar que la
-ficha no la contiene; retirarla del planificador invadiría otro bloque. **No bloquea** nada de la
-ficha. Texto completo en `09`.
+Se adopta la opción **(a)**. El criterio de aceptación de B20 queda acotado a la superficie B4:
+la cadena `Dato:` **no aparece en `PlaceDetail` ni en ninguna superficie que B20 introduzca**.
+**B20 no modifica `OrderedSequenceBuilder.tsx` ni el planificador.** La eliminación global de las
+cuatro apariciones actuales **permanece en B9.5**, como ya establece el roadmap. B20 mantiene un
+gate que garantiza que no introduce `Dato:` en la ficha; no duplica ese trabajo.
 
-### DDR-06 — ABIERTA: «Cerca de aquí», nota al pie y `EvidenceMark` a la vez
+### DDR-06 — RESUELTA el 2026-09-21: el `EvidenceMark` sustituye a la nota al pie
 
-`05 §5` pt. 12 pide `EvidenceMark` por lugar cercano; hoy hay además una nota al pie en prosa.
-`04 §2` prohíbe que un bloque con marcador lleve «además un párrafo que repita lo mismo», y
-`05 §11` pide «una sola nota al pie por sección». Decidir si el marcador sustituye a la nota o si
-la nota dice algo que el marcador no dice. No es cosmético: retirar la nota quita texto que hoy
-existe, y este bloque tiene por contrato no perder información. **Bloquea** el pie de esa sección.
-Texto completo en `09`.
+Se adopta la opción **(a)**. En «Cerca de aquí» cada tarjeta compacta lleva su `EvidenceMark`,
+`transferListFootnote` **deja de mostrarse** en esta sección y no queda párrafo de descargo que
+repita la confianza que ya expresa el marcador.
+
+Pero **ninguna información desaparece**: es una **reubicación**. La semántica que hoy comunica la
+nota pasa al `detail` accesible del `EvidenceMark` de **cada** traslado —una ruta validada sigue
+diciendo que son datos de ruta validados y **estáticos**, no un horario en vivo; una estimación
+geográfica sigue diciendo que es una estimación y **no** una ruta validada; un traslado
+*schedule-aware* se distingue explícitamente como tal; y cualquier *fallback* que hoy se presente
+legítimamente como estimación geográfica **mantiene esa semántica**—. Se usan la gramática y el
+mapeo de evidencia existentes: **ninguna procedencia nueva** y **ningún ascenso a «Verificado»**
+fuera de lo que el contrato ya determina. El texto vive en `detail`, `aria-label` y/o `title`; no
+se repite como párrafo visible.
 
 ### DDR-03 — RESUELTA el 2026-09-21: la persistencia no falla en silencio
 

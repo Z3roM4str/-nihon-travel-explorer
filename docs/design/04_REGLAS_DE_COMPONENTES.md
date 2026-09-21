@@ -32,6 +32,15 @@ Implementa la gramática de `03 §1.4`.
   `--type-caption`. Cuando `label` es falso, el texto va en `aria-label` y `title`.
 - **Prohibido**: colorear el marcador, usarlo como badge destacado, o acompañarlo de
   un párrafo que repita lo mismo.
+- **El marcador sustituye al descargo, y se queda con su información (DDR-06).** Cuando un
+  bloque cambia un párrafo de descargo por marcadores, eso es una **reubicación de
+  información, no una pérdida**: lo que el párrafo afirmaba tiene que seguir siendo
+  recuperable desde el marcador —en `detail`, y por tanto en `aria-label`/`title` cuando
+  `label` es falso—, por elemento y no en general. Retirar el párrafo **sin** trasladar su
+  semántica sí sería una pérdida, y está prohibido. El caso que fija la regla es «Cerca de
+  aquí» (`05 §5` pt. 12): cada traslado conserva en su marcador la distinción que la nota al
+  pie explicaba para la lista entera —ruta validada estática frente a estimación geográfica
+  frente a horario en vivo—, sin inventar procedencia ni subir de nivel de confianza.
 
 ## 3. `Chip`
 

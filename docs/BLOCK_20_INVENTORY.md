@@ -46,7 +46,7 @@ Orden de la columna «destino» = los 14 puntos de `05 §5`. «Hoy» es el rende
 | 17 | `name` | `<h2 id="place-detail-title">` | pt. 3 — `--type-display` | Tipografía |
 | 18 | `japaneseName` | `place-detail__japanese` `lang="ja"` | pt. 3 — debajo, `--ink-500` | No |
 | 19 | `grade` → nivel de interés (glifo + etiqueta) | `tag tag--grade-*` | pt. 5 — insignia **sólo si grado S**; el resto no muestra insignia | **A/B/C/D dejan de rotularse** |
-| 20 | `grade` (letra cruda) | Sólo clase CSS; **no visible** hoy | pt. 14 — **«Fuentes»**, plegado | Reaparece, dentro de Fuentes |
+| 20 | `grade` (letra cruda) | Sólo clase CSS; **no visible** hoy | pt. 14 — **«Fuentes»**, plegado (DDR-04) | Reaparece, dentro de Fuentes |
 | 21 | `hiddenGemStatus` | `tag tag--gem` | Chip/etiqueta en cabecera (se conserva) | Por confirmar en maquetación |
 | 22 | `tourismLevel` | `tag tag--muted` «Turismo: X» | pt. 10 — fila **«Afluencia»** de datos prácticos | Baja al bloque práctico |
 | 23 | `reservation` → etiqueta | `tag ${reservation.tag.className}` | pt. 10 — fila «Reserva» | Se unifica con la fila |
@@ -100,8 +100,8 @@ Orden de la columna «destino» = los 14 puntos de `05 §5`. «Hoy» es el rende
 | 51 | `relation["Distancia km"]` / `transfer.distanceText` | `nearby-item__distance` | pt. 12 — distancia | Reubicado |
 | 52 | `relation["Modo"]` / `transfer.timeText` | `nearby-item__mode` | pt. 12 — modo | Reubicado |
 | 53 | Calidad del traslado (`qualityLabel`) | `nearbyQualityClassName` | pt. 12 — **`EvidenceMark`**: `validated-static` → `◼`, geográfica → `◇` | Pasa a marcador |
-| 54 | `transferListFootnote` | `place-detail__footnote` | pt. 12 — **una sola nota al pie**, o la sustituye el marcador (`04 §2`: «un bloque con marcador no lleva además un párrafo que repita lo mismo») | **Ver DDR-06** |
-| 55 | `updatedAt` | «Datos actualizados el …» | pt. 14 — **«Fuentes»**, plegado | Baja a Fuentes |
+| 54 | `transferListFootnote` | `place-detail__footnote` | pt. 12 — **el marcador la sustituye** (DDR-06 (a)): la nota deja de renderizarse y su semántica pasa al `detail` del `EvidenceMark` de **cada** traslado | **Reubicada, no perdida** |
+| 55 | `updatedAt` | «Datos actualizados el …» | pt. 14 — **«Fuentes»**, plegado, como **fecha de actualización del registro** (DDR-04); nunca como fecha de consulta | Baja a Fuentes |
 
 ### Campos de `Place` que hoy NO se renderizan en la ficha
 
@@ -126,16 +126,26 @@ pérdida.
 
 ---
 
-## 3. Contradicciones normativas encontradas — NO se resuelven aquí
+## 3. Contradicciones normativas encontradas — RESUELTAS el 2026-09-21
 
-Registradas en `09` como DESIGN DECISION REQUIRED antes de implementar, conforme al protocolo.
+Se registraron en `09` como DESIGN DECISION REQUIRED antes de implementar, conforme al protocolo,
+y se cerraron antes de tocar código. Texto completo en `09`.
 
-- **DDR-04** — «Fuentes» pide `provenance`, `consultedAt`/freshness y «versión del dataset»:
-  ninguno existe en el modelo `Place`.
-- **DDR-05** — El criterio «la cadena `Dato:` no aparece» es de B4, pero las cuatro apariciones
-  reales están en el planificador, que `10 §B9.5` asigna a B9.5.
-- **DDR-06** — `05 §5` pt. 12 pide nota al pie **y** `EvidenceMark` en «Cerca de aquí»; `04 §2`
-  prohíbe que un bloque con marcador lleve además un párrafo que repita lo mismo.
+- **DDR-04 — RESUELTA, opción (a).** «Fuentes» sólo muestra evidencia que realmente existe: grado
+  original, `updatedAt`, enlace oficial y cualquier otro enlace que el contrato ya reconozca como
+  fuente real. **No se crean ni se derivan** `provenance`, `consultedAt`, frescura por lugar ni
+  versión del dataset, ni ninguna etiqueta equivalente inferida desde `updatedAt`, que significa
+  únicamente «cuándo se actualizó el registro». **No se muestran placeholders** de campos
+  inexistentes. Ampliar el dataset no entra en B20.
+- **DDR-05 — RESUELTA, opción (a).** El criterio se acota a la superficie B4: `Dato:` no aparece
+  en `PlaceDetail` ni en ninguna superficie que B20 introduzca. **B20 no modifica
+  `OrderedSequenceBuilder.tsx` ni el planificador**; la retirada global sigue en B9.5. Se mantiene
+  un gate que garantiza que la ficha no la introduce.
+- **DDR-06 — RESUELTA, opción (a).** En «Cerca de aquí» cada tarjeta compacta lleva su
+  `EvidenceMark` y `transferListFootnote` deja de mostrarse; no queda párrafo de descargo. La
+  información que la nota comunicaba **se traslada** al `detail` accesible del marcador de cada
+  traslado: ruta validada estática (no horario en vivo), estimación geográfica (no ruta validada),
+  horario en vivo cuando lo haya, y el *fallback* sin traslado, que sigue siendo estimación. Sin
+  procedencia nueva y sin ascensos de confianza.
 
-**Mientras estén abiertas, no se implementa la parte que dependa de ellas.** Todo lo demás de la
-matriz es implementable sin ambigüedad.
+**Ninguna bloquea ya. La matriz completa es implementable.**

@@ -123,12 +123,19 @@ contadores.
 - Galería a sangre 4:5, `scroll-snap`, contador y puntos según cantidad.
 - `CreditsSheet` tras `ⓘ`. **Arregla D2.**
 - `EvidenceMark` en datos prácticos, horarios, reservas y traslados: sustituye a los
-  descargos en prosa.
+  descargos en prosa. **DDR-06**: en «Cerca de aquí» el marcador sustituye a
+  `transferListFootnote`, y la semántica de la nota se traslada al `detail` accesible del
+  marcador de cada traslado. Es una **reubicación, no una pérdida**.
 - El aviso de feb–mar 2027 pasa a condicional (DD-011). **Arregla la fatiga de alerta.**
 - «Por qué vale la pena» recibe `--type-quote` y filete bermellón.
 - Franja de los dos: sólo si alguien ha opinado. **Arregla D8.**
 - «Cerca de aquí» con miniaturas.
-- Sección «Fuentes» plegada con grado, provenance, freshness y fechas.
+- Sección «Fuentes» plegada con **los metadatos de procedencia disponibles en el modelo
+  actual**: grado original, `updatedAt` y enlaces oficiales. **DDR-04**: `provenance`,
+  `consultedAt`/freshness y la versión del dataset **no existen por lugar** y este bloque
+  **no los crea, no los deriva y no los sustituye por placeholders**; `updatedAt` es la
+  fecha de actualización del registro, nunca una fecha de consulta. Podrán añadirse cuando
+  exista evidencia real en datos — ese trabajo de dataset **no entra en B4**.
 
 **Qué NO cambia.** Ningún dato desaparece; todo tiene destino en `05 §5`.
 
@@ -136,7 +143,14 @@ contadores.
 - [ ] Entre la fotografía y el nombre no hay texto de atribución.
 - [ ] Cada campo de `PlaceDetail` v1.1.0 aparece en la ficha nueva; lista firmada.
 - [ ] Con una sola imagen no hay puntos, contador ni flechas.
-- [ ] La cadena `Dato:` no aparece.
+- [ ] **(DDR-05, acotado)** La cadena `Dato:` no aparece **en `PlaceDetail` ni en ninguna
+      superficie que este bloque introduzca**. B4 **no toca `OrderedSequenceBuilder.tsx` ni el
+      planificador**: la retirada global de las cuatro apariciones actuales sigue siendo de
+      B9.5, como establece `10 §B9.5`.
+- [ ] **(DDR-04)** «Fuentes» no muestra `provenance`, `consultedAt`, frescura por lugar ni
+      versión del dataset, y no presenta `updatedAt` como fecha de consulta.
+- [ ] **(DDR-06)** «Cerca de aquí» no renderiza nota al pie, y cada traslado conserva en su
+      `EvidenceMark` —accesible a lector de pantalla— la distinción que la nota explicaba.
 
 ---
 
@@ -259,6 +273,12 @@ opinión separados visualmente. **Arregla D7.**
 
 **B9.5 — Reservas y Resumen.** Sub-pestañas propias; se elimina `Dato:`; línea de
 tiempo comprimida del viaje.
+
+> **DDR-05 (resuelta).** Las cuatro apariciones reales de `Dato:` viven en
+> `OrderedSequenceBuilder.tsx`, y su retirada **sigue siendo de este bloque**, no de B4. B4 se
+> limita a afirmar y vigilar que la ficha no la contiene y que no la introduce; **no modifica el
+> planificador**. La sustitución es la que `03 §10` ya fija: texto entre comillas con marcador
+> `◧ Registrado`.
 
 **Qué NO cambia.** Absolutamente nada del cálculo: traslados, identidad estable de día,
 anclaje de calendario, límites del viaje, mecanismos de reserva, fechas oficiales,
