@@ -15,6 +15,20 @@ import { preview } from "vite";
  * failed image load, aspect ratio, and layout shift while images stream in.
  *
  * Usage: node scripts/block2-photography-browser-audit.mjs [--viewport=phone|tablet|desktop|all]
+ *
+ * **Actualizado el 2026-09-21.** Todo lo que este gate mide sigue siendo normativo —las
+ * renditions, el presupuesto de bytes, el CLS, el carrusel, el lightbox, la atribución, la
+ * miniatura de «Quiero ir»—; lo que cambió fue el camino y una de las expectativas:
+ *
+ * - `.view-bar__filters` + campo de búsqueda en la barra → B18 dejó una barra única (`05 §4`) y
+ *   B19 movió la búsqueda a `SearchSheet` (`04 §12`).
+ * - el scroll de la lista se pedía a `.place-list`, que no scrollea: quien scrollea es
+ *   `.app__sidebar`. Con `scrollBy` sobre el `<ul>` la carga progresiva no llegaba a dispararse.
+ * - `.place-card__placeholder` → `.photo-placeholder` (B19, `04 §9`).
+ * - `.selection-panel__toggle` desde Explorar → B18 llevó «Quiero ir» a su propia pestaña.
+ * - **la proporción esperada**: ya no es «3:2 en móvil, 16:9 en lo demás» sino la regla de
+ *   DD-016 — 4:3 con UNA columna, 16:9 con DOS O MÁS, decidida por el ancho real de la región
+ *   de lista y no por el viewport. El gate la deriva contando columnas, como el producto.
  */
 
 const VIEWPORTS = {
@@ -85,7 +99,10 @@ async function auditViewport(browser, name, url) {
   await page.getByRole("button", { name: new RegExp(`^${GALLERY_HUB}`) }).first().click();
   await page.waitForTimeout(1400);
 
-  const scroller = ".app__sidebar .place-list";
+  // `.app__sidebar` es quien scrollea (`overflow-y: auto`); `.place-list` es el `<ul>` de dentro
+  // y `scrollBy` sobre él no hace nada — con el selector anterior la carga progresiva de B19
+  // (12 en 12, `05 §4`) no llegaba a dispararse nunca.
+  const scroller = ".app__sidebar";
   for (let i = 0; i < 45; i += 1) {
     await page.locator(scroller).evaluate((el) => el.scrollBy(0, 900));
     await page.waitForTimeout(110);
@@ -108,8 +125,19 @@ async function auditViewport(browser, name, url) {
   // ---- Aspect ratio and reserved box ----
   const media = await page.locator(".place-card__media").first().boundingBox();
   const ratio = media ? media.width / media.height : 0;
-  const expected = isMobileLayout && width < 620 ? 3 / 2 : 16 / 9;
-  check("card media holds its declared aspect ratio", Math.abs(ratio - expected) < 0.05, `${ratio.toFixed(3)} vs ${expected.toFixed(3)}`);
+  // DD-016 / `04 §5.1`: la proporción la decide EL NÚMERO DE COLUMNAS, no el viewport. Se cuenta
+  // igual que lo hace el producto — pistas declaradas por la rejilla — en vez de reimplementar
+  // aquí una regla de breakpoints que ya no existe.
+  const columns = await page
+    .locator(".place-list:not(.place-list--compact)")
+    .first()
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
+  const expected = columns === 1 ? 4 / 3 : 16 / 9;
+  check(
+    `card media holds the ratio its column count implies (${columns} col)`,
+    Math.abs(ratio - expected) < 0.05,
+    `${ratio.toFixed(3)} vs ${expected.toFixed(3)}`
+  );
   const declared = await page.locator(".place-card__image").first().evaluate((el) => ({
     w: el.getAttribute("width"),
     h: el.getAttribute("height"),
@@ -135,23 +163,18 @@ async function auditViewport(browser, name, url) {
   check("cumulative layout shift stays in the 'good' band", shift < 0.1, `CLS ${Number(shift).toFixed(4)}`);
 
   // ---- A place with no photograph ----
-  const placeholders = await page.locator(".place-card__placeholder").count();
+  // B19 (`04 §9`) renombró el marcador editorial a `.photo-placeholder`.
+  const placeholders = await page.locator(".photo-placeholder").count();
   check("uncovered places still render the editorial placeholder", placeholders > 0, `${placeholders}`);
 
   // ---- The carousel, on a place that now has two photographs ----
-  // On a phone the search field lives inside the filter sheet; on desktop it is pinned above
-  // the results. Open whichever is needed before typing.
-  if (isMobileLayout) {
-    await page.locator(".view-bar__filters").click();
-    await page.waitForTimeout(450);
-  }
-  await page.locator(".search-field__input").fill(GALLERY_PLACE);
-  await page.waitForTimeout(600);
-  if (isMobileLayout) {
-    await page.getByRole("button", { name: "Cerrar búsqueda y filtros" }).click();
-    await page.waitForTimeout(450);
-  }
-  await page.locator(".place-card__open").first().click();
+  // B19 (`04 §12`): la búsqueda es una hoja propia a cualquier ancho — mismo camino en teléfono,
+  // tableta y escritorio, que es además el que un lector usa para encontrar un lugar concreto.
+  await page.getByRole("button", { name: new RegExp(`^Buscar en ${GALLERY_HUB}`) }).click();
+  await page.waitForSelector(".search-sheet", { timeout: 10000 });
+  await page.locator(".search-sheet .search-field__input").fill(GALLERY_PLACE);
+  await page.waitForTimeout(700);
+  await page.locator(".search-sheet .place-card__open").first().click();
   await page.waitForTimeout(1200);
 
   check("the gallery reports more than one photograph", (await page.locator(".gallery__counter").count()) === 1);
@@ -194,12 +217,23 @@ async function auditViewport(browser, name, url) {
   check("Escape closes the lightbox and keeps the detail open", (await page.locator(".lightbox").count()) === 0 && (await page.locator(".place-detail").count()) === 1);
 
   // ---- Saved list reuses the same rendition ----
-  await page.locator(".save-button").click();
+  await page.locator(".place-detail .save-button").click();
   await page.waitForTimeout(400);
   await page.keyboard.press("Escape");
-  await page.waitForTimeout(400);
-  await page.locator(".selection-panel__toggle").click();
   await page.waitForTimeout(600);
+  // B18 (`02 §D2`): «Quiero ir» es una pestaña, no un panel desplegable dentro de Explorar.
+  await page
+    .getByRole("navigation", { name: "Navegación principal" })
+    .getByRole("button", { name: "Quiero ir" })
+    .click();
+  await page.waitForTimeout(600);
+  // En su propia pestaña el panel nace abierto (B18); el plegado se conserva por si el lector
+  // lo quiere cerrar. Sólo se pulsa el toggle si hace falta — pulsarlo siempre lo cerraría.
+  const toggle = page.locator(".destination-panel:not([hidden]) .selection-panel__toggle");
+  if ((await toggle.getAttribute("aria-expanded").catch(() => null)) === "false") {
+    await toggle.click();
+    await page.waitForTimeout(600);
+  }
   const thumbSrc = await page.locator(".selection-list__thumb img").first().evaluate((el) => el.currentSrc);
   check("the saved-list thumbnail uses the card rendition", thumbSrc.includes("-800w"), thumbSrc.split("/").pop());
 

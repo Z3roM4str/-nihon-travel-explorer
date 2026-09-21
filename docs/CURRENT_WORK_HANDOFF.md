@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint B (2 de 5 gates heredados)
+**Última actualización:** 2026-09-21 · checkpoint C (3 de 5 gates heredados)
 
 ---
 
@@ -15,7 +15,7 @@
 |---|---|
 | **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · corrección DD-016 cerrada · **cierre de B19 en curso** |
 | **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `89e23ca` — `docs(block-19): DDR-01 resuelta — DD-017` |
+| **Último SHA estable pusheado** | `7dfddf9` — `fix(block-19): dos defectos reales de área táctil, y los gates B17 al día` |
 | **Último SHA con cambio de producto** | `bb46042` — `fix(block-19): la rejilla … (DD-016)` |
 | **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
@@ -110,9 +110,10 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 Para cerrar B19 quedan **dos frentes**, ambos encargados y en curso:
 
 1. **~~DDR-01~~ — CERRADA** el 2026-09-21 por **DD-017** (checkpoint A). Ver §9.
-2. **Los cinco gates heredados** (§8). Hechos: `b17-regression-check.mjs` (18/18) y
-   `b17-tap-target-check.mjs` (16/16). Quedan: `block1-ux-browser-audit.mjs`,
-   `block2-photography-browser-audit.mjs` y `phase5a-rc-browser-audit.mjs`. Por cada uno:
+2. **Los cinco gates heredados** (§8). Hechos: `b17-regression-check.mjs` (18/18),
+   `b17-tap-target-check.mjs` (16/16) y `block2-photography-browser-audit.mjs` (69/69 en los
+   tres viewports). Quedan: `block1-ux-browser-audit.mjs` y `phase5a-rc-browser-audit.mjs`.
+   Por cada uno:
    identificar qué requisito protegía, si sigue vigente tras B18/B19, y entonces actualizarlo al
    comportamiento actual —priorizando comportamiento y semántica sobre selectores internos
    frágiles— o retirarlo documentando qué prueba lo cubre ahora. **Nunca** se toca código de
@@ -129,11 +130,9 @@ No es de este bloque y nadie debe abordarlo sin instrucción explícita:
 **Frente 2 de §5: los tres gates heredados que quedan.** Cada tanda con su propio checkpoint
 (verificaciones → commit → push → actualizar este fichero). Orden sugerido:
 
-1. `block2-photography-browser-audit.mjs` — `.view-bar__filters` (barra única de B18) y la
-   proporción esperada, que DD-016 cambió a «4:3 con una columna, 16:9 con dos o más».
-2. `block1-ux-browser-audit.mjs` — `.interest-badge__label`: hay que decidir, requisito a
+1. `block1-ux-browser-audit.mjs` — `.interest-badge__label`: hay que decidir, requisito a
    requisito, cuáles sobreviven a `PlaceCard` v2 y `04 §5.3` (sólo grado S lleva insignia).
-3. `phase5a-rc-browser-audit.mjs` — el más grande: sus cinco recorridos usan el modelo de
+2. `phase5a-rc-browser-audit.mjs` — el más grande: sus cinco recorridos usan el modelo de
    navegación anterior a B18 entero (`.place-list__item`, «Buscar y filtrar»,
    `.selection-panel__toggle` desde Explorar).
 
