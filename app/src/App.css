@@ -860,6 +860,14 @@ button.app__title.app__title--expand {
   visibility: hidden;
 }
 
+/*
+ * La región de lista de Explorar. Corrección de B19 (DD-016): además de contener la lista, es
+ * su CONTENEDOR DE CONSULTA — `styles/discovery.css` decide el número de columnas leyendo
+ * `@container lista-explorar (…)`, es decir el ancho real de esta caja, no el del viewport. Es
+ * lo único que puede resolver el caso de `md`, donde abrir la ficha estrecha esta región de
+ * ~752px a ~376px sin que el viewport cambie ni un píxel. Los topes por breakpoint siguen
+ * viviendo en `@media` (`02 §D5`); aquí sólo se declara la caja que se mide.
+ */
 .app__sidebar {
   position: absolute;
   inset: 0;
@@ -870,6 +878,8 @@ button.app__title.app__title--expand {
   background: var(--surface);
   overflow-y: auto;
   overscroll-behavior: contain;
+  container-type: inline-size;
+  container-name: lista-explorar;
 }
 
 .app__map-area {
@@ -927,9 +937,32 @@ button.app__title.app__title--expand {
 }
 
 /*
- * Bloque 18 — desde `md` (840px, `02 §D5`): lista y mapa conviven, y la ficha vuelve a ser un
- * panel de 480px en vez de pantalla completa. Único breakpoint de todo el shell — Art. 8
- * prohíbe `max-width` nuevo, así que todo lo de esta sección es `min-width`.
+ * Corrección de B19 (DD-016, `02 §D5`, `05 §4`/`§5`) — el raíl derecho y la región de lista.
+ *
+ * B18 dejó la lista clavada en 372px fijos desde `md`, con el mapa ocupando todo lo demás. Eso
+ * hacía imposible lo que `05 §4` pide literalmente («`md`: 2 columnas + ficha como panel derecho
+ * de 480 px») y lo que la fórmula de cabida exige (`PlaceCard` nunca por debajo de 264px): en un
+ * panel de 372px sólo cabe una columna a cualquier ancho de pantalla. La corrección invierte la
+ * prioridad — **la lista es la superficie primaria y se queda con todo el ancho que el raíl no
+ * usa**, y el raíl mide exactamente una ficha:
+ *
+ *     raíl = min(var(--place-detail-panel-width), 50%)          ← «el mapa nunca pasa de la
+ *                                                                  mitad del ancho», `02 §D5`
+ *
+ * Quién ocupa el raíl:
+ *   - `md` (840–1199): sólo la ficha, y sólo mientras está abierta (`.app__body--detail`). El
+ *     mapa sigue siendo una superficie conmutada por `.explorer-bar__pane`, igual que en
+ *     teléfono — `02 §D5` y `05 §4` reservan el mapa persistente para `lg`, no para `md`. Por eso
+ *     abrir la ficha en `md` estrecha la lista y la baja de 2 columnas a 1 sin tocar el viewport:
+ *     es el caso que obliga a que la rejilla lea su propio contenedor y no los breakpoints.
+ *   - `lg`+ (1200+): el mapa ocupa el raíl de forma permanente (`02 §D5`) y la ficha se apoya
+ *     encima del mismo raíl, con la misma caja. El mapa nunca cambia de tamaño al abrir o cerrar
+ *     la ficha, así que conserva centro, zoom y marcador seleccionado.
+ *
+ * Las dos superficies de Explorar siguen siendo `position: absolute` a todos los anchos (nunca
+ * `display:none` para el mapa: Leaflet necesita una caja real o `panTo`/`fitBounds` calculan
+ * `NaN`). El único cambio con el ancho es dónde termina cada una — `right` —, no su mecanismo.
+ * Art. 8 prohíbe `max-width` nuevo: todo lo de esta sección es `min-width`.
  */
 @media (min-width: 840px) {
   .app__body {
@@ -937,23 +970,15 @@ button.app__title.app__title--expand {
     flex-direction: row;
   }
 
-  .app__body--pane-map .app__sidebar,
-  .app__body--pane-list .app__map-area {
-    display: flex;
-    visibility: visible;
-  }
-
   .app__sidebar {
-    position: static;
-    z-index: auto;
-    width: 372px;
-    flex-shrink: 0;
+    z-index: 10;
     border-right: 1px solid var(--line);
   }
 
-  .app__map-area {
-    position: relative;
-    flex: 1;
+  /* Sin ficha abierta la lista es TODO el cuerpo: es lo que hace que 840px dé 2 columnas. */
+  .app__body--detail .app__sidebar,
+  .app__body--detail .app__map-area {
+    right: min(var(--place-detail-panel-width), 50%);
   }
 
   .app__detail {
@@ -961,11 +986,44 @@ button.app__title.app__title--expand {
     inset: 0 0 0 auto;
     /* Corrección final de B18 (punto 5): token propio (480px, `02 §D5`/`05 §5`), separado del
        de Sheet (420px, `04 §8`) — antes ambos compartían `--panel-width`, que era el error
-       normativo que describe la auditoría. Ver tokens.css §8. */
-    width: min(var(--place-detail-panel-width), 100%);
+       normativo que describe la auditoría. Ver tokens.css §8. Corrección de B19: el `100%` pasa
+       a `50%` — la ficha es el raíl, y `02 §D5` acota el raíl a la mitad del ancho. */
+    width: min(var(--place-detail-panel-width), 50%);
     z-index: 30;
     border-left: 1px solid var(--line);
     box-shadow: var(--elev-2);
+  }
+}
+
+/*
+ * `lg` (1200px, `02 §D5`): «Explorar añade panel de mapa persistente a la derecha». A partir de
+ * aquí el raíl existe siempre, lo ocupe la ficha o no, y el conmutador Lista/Mapa deja de tener
+ * nada que conmutar — se retira en vez de quedarse como un control que no hace nada.
+ */
+@media (min-width: 1200px) {
+  .explorer-bar__pane {
+    display: none;
+  }
+
+  .app__map-area,
+  .app__body--detail .app__map-area {
+    left: auto;
+    right: 0;
+    width: min(var(--place-detail-panel-width), 50%);
+  }
+
+  .app__sidebar,
+  .app__body--detail .app__sidebar {
+    right: min(var(--place-detail-panel-width), 50%);
+  }
+
+  /* El conmutador ya no manda: con mapa permanente, las dos superficies se ven siempre. */
+  .app__body--pane-map .app__sidebar {
+    display: flex;
+  }
+
+  .app__body--pane-list .app__map-area {
+    visibility: visible;
   }
 }
 

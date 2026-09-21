@@ -318,37 +318,71 @@ button.search-field:focus-visible {
   color: var(--ink-500);
 }
 
-/* ---------- PlaceList — rejilla y carga progresiva (05 §4) ---------- */
+/* ---------- PlaceList — rejilla y carga progresiva (05 §4, DD-016) ---------- */
 
+/*
+ * LA REJILLA NO DECIDE SUS COLUMNAS POR EL VIEWPORT.
+ *
+ * El número de columnas es el mínimo entre dos cosas, y en este orden:
+ *
+ *   1. **Cabida real**: cuántas tarjetas de ≥264px de ancho caben en el ancho EFECTIVO de la
+ *      región de lista — no del viewport. Lo resuelve `repeat(auto-fill, minmax(264px, 1fr))`
+ *      leyendo su propia caja, y lo acotan `@container lista-explorar (…)` (el contenedor lo
+ *      declara `.app__sidebar` en `App.css`).
+ *   2. **Tope por breakpoint** (`02 §D5`): `base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3. Es un
+ *      techo, nunca un suelo: a 1200px caben 2 y el tope es 2; a 1440px cabrían 3 y el tope
+ *      las baja a 2.
+ *
+ * Por qué no basta con `@media`: en `md`, abrir la ficha estrecha la región de lista de ~752px
+ * a ~376px SIN QUE EL VIEWPORT CAMBIE, y la lista tiene que pasar de 2 columnas a 1. Ningún
+ * `@media` puede ver eso; `@container` sí. El ancho de viewport donde `lg` pasa a 2 columnas
+ * (~1090–1140px, según el cromo real) es una CONSECUENCIA de la fórmula de cabida, no un
+ * breakpoint: no aparece escrito en ninguna parte de esta hoja y no debe aparecer.
+ *
+ * Aritmética de los umbrales de `@container` (ancho de la región, con `padding` y `gap` de
+ * `--space-3` = 12px):
+ *
+ *     n columnas caben  ⇔  región ≥ n·264 + (n−1)·12 + 2·12
+ *       n=2 →  564px        n=3 →  840px        n=4 → 1116px
+ *
+ * Los umbrales que aquí se escriben son los de n+1: el punto donde la cabida SUPERARÍA el tope
+ * y hay que fijar el número de columnas a mano.
+ */
 .place-list {
   list-style: none;
   margin: 0;
   padding: var(--space-3);
   display: grid;
+  /* `base`: tope 1 columna (`02 §D5`). */
   grid-template-columns: 1fr;
   gap: var(--space-3);
 }
 
+/* `sm`/`md`/`lg`: tope 2 columnas. El número efectivo lo pone la cabida. */
 @media (min-width: 600px) {
-  .place-list {
-    grid-template-columns: repeat(2, 1fr);
+  .place-list:not(.place-list--compact) {
+    grid-template-columns: repeat(auto-fill, minmax(min(264px, 100%), 1fr));
+  }
+
+  /* Desde 840px de REGIÓN cabrían 3; el tope de `sm`–`lg` las deja en 2. */
+  @container lista-explorar (min-width: 840px) {
+    .place-list:not(.place-list--compact) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 }
 
-/*
- * `05 §4` fija "2 columnas desde sm" pensando en un lector que ve la lista a todo el ancho del
- * viewport — cierto de `sm` a `md` (`base`–839px: Explorar es una única superficie a pantalla
- * completa, `05 §4`/Bloque 18). Desde `md` (840px, `02 §D5`) el shell fija `.app__sidebar` en
- * 372px FIJOS para siempre — nunca vuelve a crecer con el viewport (Bloque 18) — así que dos
- * columnas ahí caen a ~172px cada una: el nombre a dos líneas más la línea de categoría·zona ya
- * no cabe en la altura 16:9 resultante y desborda por encima de la fotografía, invadiendo la
- * tarjeta de la fila anterior. `05 §4` no preveía esta tensión con el ancho fijo del panel de
- * Bloque 18 — se resuelve, con la misma técnica `min-width` que ya fija ese propio ancho, a una
- * sola columna en cuanto el contenedor deja de ser todo el viewport.
- */
-@media (min-width: 840px) {
-  .place-list {
-    grid-template-columns: 1fr;
+/* `xl`: tope 3 columnas. Se devuelve la cabida libre (levantando el tope de 2 de arriba) y se
+   vuelve a acotar donde cabrían 4. */
+@media (min-width: 1600px) {
+  .place-list:not(.place-list--compact) {
+    grid-template-columns: repeat(auto-fill, minmax(min(264px, 100%), 1fr));
+  }
+
+  @container lista-explorar (min-width: 1116px) {
+    .place-list:not(.place-list--compact) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 }
 
@@ -388,6 +422,14 @@ button.search-field:focus-visible {
   box-shadow: 0 0 0 2px var(--shu-050), var(--elev-1);
 }
 
+/*
+ * `04 §5.1`: «4:3 en `base`, 16:9 desde `sm`, donde la rejilla la ensancha». Lo que decide la
+ * proporción es EL NÚMERO DE COLUMNAS, no el viewport — la frase de `04 §5.1` sólo las hacía
+ * coincidir porque daba por hecho que la lista ocupa siempre la pantalla entera. Corrección de
+ * B19 (DD-016): una columna ⇒ 4:3; dos o más ⇒ 16:9, con exactamente las mismas dos condiciones
+ * que gobiernan la rejilla (tope por breakpoint + cabida real de la región). Así, en `md`, abrir
+ * la ficha devuelve la tarjeta a 4:3 en el mismo momento en que la lista baja a 1 columna.
+ */
 .place-card__media {
   position: relative;
   aspect-ratio: 4 / 3;
@@ -396,8 +438,11 @@ button.search-field:focus-visible {
 }
 
 @media (min-width: 600px) {
-  .place-card__media {
-    aspect-ratio: 16 / 9;
+  /* 564px de región = el punto exacto donde `auto-fill` da su segunda columna (ver arriba). */
+  @container lista-explorar (min-width: 564px) {
+    .place-list:not(.place-list--compact) .place-card__media {
+      aspect-ratio: 16 / 9;
+    }
   }
 }
 
@@ -438,8 +483,6 @@ button.search-field:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: var(--space-1);
-  padding: var(--space-3);
   background: var(--scrim-bottom);
   color: var(--surface);
 }
@@ -447,6 +490,42 @@ button.search-field:focus-visible {
 .place-card__overlay--hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+/*
+ * LA BANDA DE TEXTO Y SU SUELO DE SCRIM (`03 §5`, `04 §5.2`, DD-016).
+ *
+ * `03 §5` es tajante: «las superficies sobre fotografía no usan sombra: usan `--scrim-*`».
+ * Un `text-shadow` de respaldo es exactamente esa sombra prohibida, y además es un parche: tapa
+ * el síntoma (texto ilegible) sin arreglar la causa (scrim insuficiente). Aquí no queda ninguno.
+ *
+ * `--scrim-bottom` es un desvanecido largo (0.78 → 0.42 al 34% → 0 al 68% de la ALTURA DE LA
+ * FOTOGRAFÍA). A 16:9 la banda de texto ocupa ~60% de esa altura, así que su borde superior cae
+ * donde el degradado ya vale ~0.05: el nombre se apoyaba en la sombra, no en el scrim. La
+ * corrección da a la banda su propio suelo, con el MISMO valor que `--scrim-bottom` ya declara
+ * en su parada inferior (0.78 sobre `--ink-900` en rgb) — ni un color nuevo ni un token nuevo,
+ * sólo dejar de diluirlo justo donde hay texto:
+ *
+ *   - bajo todo el texto: alfa 0.78 plana (efectiva ≥0.78 al componerse sobre el degradado del
+ *     overlay), muy por encima del mínimo de 0.60 que fija DD-016;
+ *   - por encima del texto: una franja de `--space-8` donde ese suelo baja a 0 y entrega el
+ *     relevo al degradado del overlay, para que no haya ningún canto horizontal sobre la foto.
+ *
+ * Contraste resultante sobre una fotografía completamente blanca (el peor caso imaginable, más
+ * claro que cualquier imagen del catálogo): 8.98:1 el nombre en blanco y 6.69:1 la línea de
+ * categoría·zona al 82%. Lo mide `scripts/block19-contrast-check.mjs`.
+ */
+.place-card__band {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-8) var(--space-3) var(--space-3);
+  background: linear-gradient(
+    to top,
+    rgba(20, 22, 26, 0.78) 0%,
+    rgba(20, 22, 26, 0.78) calc(100% - var(--space-8)),
+    rgba(20, 22, 26, 0) 100%
+  );
 }
 
 .place-card__badge {
@@ -459,7 +538,6 @@ button.search-field:focus-visible {
   font-weight: 700;
   letter-spacing: var(--type-label-tracking);
   color: var(--surface);
-  text-shadow: 0 1px 2px rgba(20, 22, 26, 0.55);
 }
 
 .place-card__heading {
@@ -476,7 +554,6 @@ button.search-field:focus-visible {
   font-size: var(--type-title-m-size);
   line-height: var(--type-title-m-line);
   font-weight: 500;
-  text-shadow: 0 1px 3px rgba(20, 22, 26, 0.55), 0 1px 12px rgba(20, 22, 26, 0.35);
   overflow-wrap: break-word;
 }
 
@@ -491,7 +568,6 @@ button.search-field:focus-visible {
   font-family: var(--font-record);
   font-size: var(--type-label-size);
   color: rgba(255, 255, 255, 0.82);
-  text-shadow: 0 1px 2px rgba(20, 22, 26, 0.55);
 }
 
 /* Stretched link: la tarjeta entera abre el lugar; el corazón y el token de persona quedan por

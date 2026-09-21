@@ -171,7 +171,12 @@ describe("Bloque 18 — ficha a pantalla completa en teléfono (Art. 8, gate 11 
     // Corrección final (punto 5): `--panel-width` (420px, compartido con `Sheet`) era el error
     // normativo — `02 §D5`/`05 §5` fijan la ficha en 480px, distinto de `Sheet` (`04 §8`). Cada
     // uno tiene ahora su propio token.
-    expect(mdBlock).toMatch(/width:\s*min\(var\(--place-detail-panel-width\),\s*100%\)/);
+    //
+    // Corrección de B19 (DD-016, `09 §DD-016`): el segundo término pasa de `100%` a `50%`. La
+    // ficha ES el raíl derecho desde `md`, y `02 §D5` acota el raíl a la mitad del ancho («el
+    // mapa nunca pasa de la mitad del ancho»); con `100%` la ficha podía comerse la región de
+    // lista entera en los anchos bajos de `md`. El token de 480px no cambia.
+    expect(mdBlock).toMatch(/width:\s*min\(var\(--place-detail-panel-width\),\s*50%\)/);
   });
 
   it("el z-index de la ficha supera al de TabBar/NavRail, para cubrirlos de verdad", async () => {
@@ -652,7 +657,13 @@ describe("Bloque 18 — corrección final #2: «Ver en el mapa» centra el mapa 
     expect(source).toContain('selectedPlace={explorarMapPlace}');
     // panelOffset (el hueco reservado para el panel de escritorio) sigue atado sólo a que haya
     // una ficha de verdad — un foco de mapa sin ficha no debe reservar hueco de panel.
-    expect(source).toContain('panelOffset={isDesktop && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}');
+    //
+    // Corrección de B19 (DD-016, `09 §DD-016`): la consulta pasa de `md` a `lg`
+    // (`hasMapRail`/`MAP_RAIL_QUERY`). Desde `md` la ficha y el mapa ya no se solapan — son
+    // superficies hermanas dentro del cuerpo —, y el mapa sólo vive permanentemente en el raíl
+    // desde `lg` (`02 §D5`), que es el único ancho donde la ficha llega a cubrirlo. La condición
+    // «sólo con una ficha de verdad abierta» es exactamente la misma.
+    expect(source).toContain('panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}');
   });
 
   it("viewOnMap NO llama a selectPlace — cierra history/ficheOrigin directamente, como closeDetail", async () => {

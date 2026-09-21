@@ -141,15 +141,46 @@ actual del dataset. Carga progresiva de 12 en 12 al hacer scroll.
 - *Búsqueda sin resultados*: «Nada con "onsen" en Tokio. Prueba en otra ciudad o quita
   los filtros.»
 
-**Responsive.** `sm`: 2 columnas. `md`: 2 columnas + ficha como panel derecho de
-480 px. `lg`: lista (2 col) + mapa persistente a la derecha, **máximo 50 % del ancho**
-(hoy es 74 %). `xl`: 3 columnas de lista + mapa.
+**Responsive (DD-016).** La lista es la superficie primaria: se queda con todo el ancho
+que el **raíl derecho** no usa, y el raíl mide `min(480 px, 50 % del cuerpo)` (`02 §D5`).
+El número de columnas **no lo decide el viewport**: lo decide la cabida real del ancho
+efectivo de la región de lista —con `PlaceCard` nunca por debajo de 264 px (`04 §5`)—,
+acotada por el tope del breakpoint. Topes: `base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3.
+
+- `sm`: la lista ocupa la pantalla; 2 columnas.
+- `md`: la lista ocupa el cuerpo entero (2 columnas). Al abrir la ficha, ésta pasa a ser
+  el raíl y la región de lista se estrecha: **2 columnas → 1**, sin que el viewport
+  cambie. El mapa sigue siendo una superficie conmutada, como en teléfono.
+- `lg`: mapa persistente en el raíl, **máximo 50 % del ancho** (hoy es 74 %); lista a
+  2 columnas. La ficha se apoya sobre el mismo raíl, así que el mapa no cambia de tamaño
+  al abrirla ni al cerrarla y conserva centro, zoom y marcador seleccionado.
+- `xl`: lo mismo con 3 columnas de lista.
+
+El ancho de viewport en el que `lg` llega a 2 columnas (~1090–1140 px según el cromo
+real) es una **consecuencia aritmética** de esa fórmula, no un breakpoint: no se escribe
+en el código ni en este documento.
+
+**Comportamiento de referencia** (lo que mide `app/scripts/block19-grid-check.mjs`):
+
+| Viewport | Ficha | Columnas |
+|---|---|---|
+| 360 | cerrada | 1 |
+| 600 | cerrada | 2 |
+| 840 | cerrada | 2 |
+| 840 | **abierta** | **1** |
+| 1200 | cerrada | 2 |
+| 1600 | cerrada | 3 |
 
 **Criterios de aceptación**
 - [ ] En 390×844, el cromo permanente superior mide ≤112 px.
 - [ ] Existe una sola barra de controles, no tres.
 - [ ] Todos los filtros de v1.1.0 siguen disponibles y con el mismo vocabulario.
 - [ ] «Dónde dormir» sigue alcanzable desde la ciudad, ahora con etiqueta visible.
+- [ ] Los seis casos de la tabla de arriba dan exactamente 1/2/2/1/2/3 columnas.
+- [ ] Ninguna `PlaceCard` mide menos de 264 px de ancho a ningún ancho de pantalla.
+- [ ] El raíl derecho nunca pasa del 50 % del ancho del cuerpo.
+- [ ] En `lg`/`xl`, abrir y cerrar la ficha deja el mapa con el mismo centro, el mismo
+      zoom y el mismo marcador seleccionado.
 
 ---
 

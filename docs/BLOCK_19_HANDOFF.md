@@ -276,3 +276,97 @@ existente, no inventando lenguaje visual nuevo:
 - La colisión entre "2 columnas desde `sm`" (`05 §4`) y el panel de 372px fijos de `md`+ (B18) se
   resolvió con la misma técnica `min-width` que B18 ya usa para fijar ese ancho — geometría, no
   una decisión de diseño nueva.
+
+---
+
+# Corrección de B19 — la rejilla responde a su contenedor (DD-016)
+
+**Fecha:** 2026-09-21 · **Rama:** `claude/block-19-b3-card-discovery`
+
+## Qué deroga de este mismo documento
+
+Lo que arriba se llamó «Regresión 1» y se despachó como «geometría, no una decisión de
+diseño nueva» **no era geometría: era la decisión equivocada**. Revertir a una columna
+desde `md` hacía aritméticamente imposible lo que `05 §4` pide literalmente («`md`:
+2 columnas + ficha como panel derecho de 480 px»), y lo hacía porque daba por bueno el
+panel de 372 px fijos que B18 había instalado. El diagnóstico del desbordamiento era
+correcto; la conclusión, no. Quedan derogados los puntos 1 y 2 de «Regresiones» y la
+última viñeta de «Decisiones tomadas dentro del margen de ingeniería».
+
+## Qué se ha hecho en su lugar
+
+Ver `docs/design/09_DECISIONES_DE_DISENO.md` § DD-016 para la decisión completa. En
+resumen:
+
+- **La lista es la superficie primaria.** El raíl derecho mide `min(480 px, 50 %)` y la
+  lista se queda con el resto. Se acabó el panel de 372 px fijos.
+- **Las columnas las decide el contenedor**, con `@container` sobre `.app__sidebar`
+  (`container-name: lista-explorar`), acotadas por los topes de `02 §D5`
+  (`base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3) y por el mínimo de 264 px de `PlaceCard`.
+- **El mapa persistente empieza en `lg`**, no en `md`, como `02 §D5` y `05 §4` decían
+  desde el principio. En `md` el mapa vuelve a ser la superficie conmutada que ya era en
+  teléfono, con el control Lista/Mapa que hasta ahora no hacía nada a esos anchos. El
+  control se retira en `lg`+, donde ya no tiene nada que conmutar.
+- **La proporción sigue al número de columnas** (4:3 con una, 16:9 con dos o más), no al
+  breakpoint.
+- **Cero `text-shadow`** (`03 §5`): la banda de texto lleva su propio suelo de scrim, con
+  el mismo valor que `--scrim-bottom` declara en su parada inferior. Ningún token nuevo.
+- **`panelOffset`** pasa de colgar de `md` a colgar de `lg`, y `PlaceMap` no mueve el mapa
+  cuando la ficha lo cubre entero — ver DDR-01 más abajo.
+
+## Comportamiento verificado
+
+`app/scripts/block19-grid-check.mjs` (35/35) mide los seis casos normativos:
+
+| Viewport | Ficha | Columnas | Tarjeta más estrecha | Proporción | Raíl |
+|---|---|---|---|---|---|
+| 360 | cerrada | 1 | 336,0 px | 4:3 | 0 px (0 %) |
+| 600 | cerrada | 2 | 282,0 px | 16:9 | 0 px (0 %) |
+| 840 | cerrada | 2 | 357,5 px | 16:9 | 0 px (0 %) |
+| 840 | **abierta** | **1** | 351,0 px | **4:3** | 376 px (50,0 %) |
+| 1200 | cerrada | 2 | 297,5 px | 16:9 | 480 px (43,2 %) |
+| 1600 | cerrada | 3 | 327,7 px | 16:9 | 480 px (31,7 %) |
+
+Mapa en `lg`/`xl`, ciclo completo (antes de abrir → ficha abierta → después de cerrar):
+caja 480×796 sin cambio, `transform` del lienzo idéntica, capa de teselas sin cambio, 57
+marcadores en los tres momentos y exactamente 1 marcador seleccionado con la ficha
+abierta. `text-shadow` calculado distinto de `none` en `.place-card` y descendientes: 0.
+
+`app/scripts/block19-contrast-check.mjs`, reescrito para medir **píxeles realmente
+compuestos** (sustituye la fotografía, oculta el texto, captura y lee el resultado) en
+toda la banda de texto y en los dos regímenes de proporción:
+
+| Régimen | Banda | Scrim efectivo | Nombre (blanco) | Categoría·zona (blanco 82 %) |
+|---|---|---|---|---|
+| 390 · 1 col · 4:3 | 59,4 px de 273,0 px (22 %) | 0,889–0,944 | ≥14,08:1 | ≥9,97:1 |
+| 1200 · 2 col · 16:9 | 85,4 px de 166,2 px (51 %) | 0,811–0,935 | ≥12,78:1 | ≥9,15:1 |
+
+Mínimos exigidos: scrim 0,60 y contraste 4,5:1, sobre las 10 fotografías más claras del
+catálogo.
+
+## Contradicción registrada, no improvisada
+
+`05 §5` pide conservar `panelOffset` en `lg`+ («el panel no oculta el marcador
+seleccionado en el mapa»), lo que presupone un raíl más ancho que la ficha. La fórmula de
+cabida fija el raíl en exactamente una ficha de ancho, así que la ficha lo cubre entero y
+no queda marcador que salvar. No se ha inventado una arquitectura para taparlo: está
+escrito como **DDR-01** en `09_DECISIONES_DE_DISENO.md` § DESIGN DECISION REQUIRED, con
+las tres salidas posibles y quién puede elegirlas. El mecanismo de `panelOffset` sigue
+intacto y operativo.
+
+## Fallos preexistentes encontrados al correr las auditorías (no son de esta corrección)
+
+Tres gates antiguos fallan **idénticamente** en `b82451a` (el SHA de partida) y en esta
+rama, por esperar marcado que B18/B19 ya habían sustituido:
+
+| Gate | Espera | Estado |
+|---|---|---|
+| `b17-regression-check.mjs` | `.view-bar__filters` | Roto desde B18 (la barra única lo sustituyó) |
+| `b17-tap-target-check.mjs` | `.app__help` | Roto desde antes de B19 (el elemento no existe) |
+| `block1-ux-browser-audit.mjs` | `.interest-badge__label` en `.place-card` | Roto desde B19 (`PlaceCard` v2) |
+| `block2-photography-browser-audit.mjs` | `.view-bar__filters` | Roto desde B18 |
+| `phase5a-rc-browser-audit.mjs` | `.selection-panel__toggle` | Roto desde antes de B19 |
+
+Comprobado construyendo `b82451a` en un worktree aparte y corriendo cada gate contra los
+dos builds. **No se han tocado**: actualizarlos es trabajo de otro bloque, y hacerlo aquí
+habría mezclado dos cosas distintas en el mismo diff.

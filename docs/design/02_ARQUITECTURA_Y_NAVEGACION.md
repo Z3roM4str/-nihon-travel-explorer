@@ -151,10 +151,29 @@ arregla el defecto crítico y la UX no cambia el día que llegue el sync.
 | Token | Desde | Dispositivo objetivo | Cambio estructural |
 |---|---|---|---|
 | `base` | 0 | Teléfono (diseño a 390) | Una columna. Pestañas abajo. |
-| `sm` | 600 px | Teléfono apaisado, tablet pequeña | Rejilla de 2 columnas en listas. |
-| `md` | 840 px | Tablet | Raíl lateral sustituye a las pestañas. Maestro/detalle: lista + ficha. |
-| `lg` | 1200 px | Portátil | Explorar añade panel de mapa persistente a la derecha. Viaje añade columna de «Sin asignar». |
-| `xl` | 1600 px | Escritorio grande | Contenido con ancho máximo 1440 px, centrado. El exceso es margen, no más columnas. |
+| `sm` | 600 px | Teléfono apaisado, tablet pequeña | Tope de 2 columnas en listas. |
+| `md` | 840 px | Tablet | Raíl lateral sustituye a las pestañas. Maestro/detalle: lista + ficha. Tope de 2 columnas. |
+| `lg` | 1200 px | Portátil | Explorar añade panel de mapa persistente a la derecha. Viaje añade columna de «Sin asignar». Tope de 2 columnas. |
+| `xl` | 1600 px | Escritorio grande | Contenido con ancho máximo 1440 px, centrado. El exceso es margen. Tope de 3 columnas. |
+
+### El raíl derecho (DD-016)
+
+Desde `md`, Explorar se parte en dos: la **región de lista** y el **raíl derecho**.
+
+```
+raíl = min(480 px, 50 % del cuerpo)        480 px = --place-detail-panel-width
+región de lista = cuerpo − raíl
+```
+
+- **La lista es la superficie primaria**: se queda con todo el ancho que el raíl no usa.
+  El raíl nunca crece a costa de la lista, y nunca pasa de la mitad del ancho.
+- **Quién ocupa el raíl**: en `md`, sólo la ficha de lugar, y sólo mientras está abierta
+  (el mapa sigue siendo una superficie conmutada, como en teléfono). En `lg`+, el mapa
+  de forma permanente, con la ficha apoyada encima sobre la misma caja.
+- **Abrir la ficha en `md` estrecha la lista** y la baja de 2 columnas a 1 sin que el
+  viewport cambie. Es el caso que obliga a la regla de la rejilla de aquí abajo.
+- **El mapa no se entera de la ficha** en `lg`/`xl`: su caja no cambia de tamaño al
+  abrirla ni al cerrarla, así que conserva centro, zoom y marcador seleccionado.
 
 ### Reglas de escalado
 
@@ -163,10 +182,24 @@ arregla el defecto crítico y la UX no cambia el día que llegue el sync.
   escritorio.
 - **El mapa nunca pasa de la mitad del ancho** en `lg`/`xl`. Hoy ocupa el 74 % y
   muestra sobre todo mar.
-- **La ficha de lugar** es pantalla completa en `base`, panel de 480 px a la derecha en
-  `md`+, y en `lg`+ conserva su galería a sangre dentro del panel.
-- **La tarjeta de lugar** mantiene proporción 4:3 en `base` y 16:9 a partir de `sm`,
-  donde la rejilla la ensancha.
+- **La ficha de lugar** es pantalla completa en `base`, y desde `md` es el raíl derecho:
+  480 px, o la mitad del cuerpo cuando 480 px pasarían de ella. En `lg`+ conserva su
+  galería a sangre dentro del panel.
+- **Ninguna rejilla decide sus columnas sólo por el viewport** (DD-016). El número de
+  columnas es el menor de dos cosas, en este orden:
+  1. **la cabida real** del ancho efectivo de su propio contenedor — nunca del viewport —,
+     con un ancho mínimo de tarjeta que la rejilla no puede violar (264 px en `PlaceCard`,
+     `04 §5`);
+  2. **el tope del breakpoint**: `base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3. Es un
+     techo, nunca un suelo.
+
+  El mecanismo es `@container` (o equivalente que mida el contenedor, no la pantalla).
+  Los anchos de viewport en los que una rejilla cambia de número de columnas son una
+  **consecuencia** de esa fórmula: no se escriben como breakpoints en ninguna parte.
+- **La tarjeta de lugar** mantiene proporción 4:3 cuando la rejilla le da **una** columna
+  y 16:9 cuando le da **dos o más**, con las mismas dos condiciones de arriba. No es una
+  regla de viewport: en `md`, abrir la ficha la devuelve a 4:3 en el mismo momento en que
+  la lista baja a una columna.
 - **Máximo 72 caracteres** de longitud de línea en cualquier texto corrido; en `lg`+ el
   texto no se estira aunque haya sitio.
 - **El raíl de `md`** es de iconos + etiqueta (88 px); en `xl` puede expandirse a 232 px.

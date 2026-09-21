@@ -120,10 +120,18 @@ const EMPTY_PLACES: Place[] = [];
  * `04 §8`). Antes compartía el token `--panel-width` con `Sheet`, que era el error normativo
  * que esta corrección arregla (ver `docs/BLOCK_18_HANDOFF.md`). */
 const DETAIL_PANEL_WIDTH = 480;
-/** Bloque 18: alineado con el token `md` de `02 §D5` (840px), no con el 861px heredado —
- * es exactamente donde `NavRail` sustituye a `TabBar` en CSS, así que el lado JS del layout
- * (offset del panel de ficha, apertura por defecto de los grupos de filtros) no puede discrepar. */
-const DESKTOP_QUERY = "(min-width: 840px)";
+/**
+ * `lg` (1200px, `02 §D5`): «Explorar añade panel de mapa persistente a la derecha». Mismo valor
+ * que el `@media (min-width: 1200px)` de `App.css`, por la misma razón por la que B18 alineó su
+ * propia consulta con el `md` del CSS: el lado JS del layout y el CSS no pueden discrepar sobre
+ * dónde está el breakpoint.
+ *
+ * Corrección de B19 (DD-016): el offset del panel de ficha colgaba de `md` (840px) porque la
+ * ficha se apoyaba sobre el mapa desde ahí. Ya no: desde `md` la ficha y el mapa son superficies
+ * hermanas dentro del cuerpo y no se solapan nunca; el mapa sólo pasa a vivir permanentemente en
+ * el raíl desde `lg`, que es el único ancho donde la ficha llega a cubrirlo.
+ */
+const MAP_RAIL_QUERY = "(min-width: 1200px)";
 
 function matchesFilters(place: Place, filters: Filters): boolean {
   if (filters.categories.length > 0 && !filters.categories.includes(place.category)) return false;
@@ -151,15 +159,15 @@ function countActiveFilters(filters: Filters): number {
   );
 }
 
-function useIsDesktop(): boolean {
-  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(DESKTOP_QUERY).matches);
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
-    const media = window.matchMedia(DESKTOP_QUERY);
-    const update = () => setIsDesktop(media.matches);
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, []);
-  return isDesktop;
+  }, [query]);
+  return matches;
 }
 
 /**
@@ -322,7 +330,7 @@ export default function App() {
     divergenceFor,
   } = useTravellers();
   const { feedback, announce } = useSaveFeedback();
-  const isDesktop = useIsDesktop();
+  const hasMapRail = useMediaQuery(MAP_RAIL_QUERY);
 
   /** Block 5: the card marker, resolved per place and deliberately null most of the time — see
    * `lib/traveller-presentation.ts` for why silence is the default. */
@@ -1089,7 +1097,9 @@ export default function App() {
                 )}
 
                 <div
-                  className={`app__body app__body--pane-${mobilePane}`}
+                  className={`app__body app__body--pane-${mobilePane}${
+                    explorarSelectedPlace ? " app__body--detail" : ""
+                  }`}
                   id="app-hub-panel"
                   aria-label={`Lugares de ${activeHub}`}
                 >
@@ -1105,7 +1115,10 @@ export default function App() {
                       selectedPlace={explorarMapPlace}
                       savedIds={savedIds}
                       onSelect={selectPlace}
-                      panelOffset={isDesktop && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
+                      /* Corrección de B19 (DD-016): sólo desde `lg` la ficha se apoya sobre el
+                         raíl del mapa y llega a cubrirlo entero; en `md` son hermanas y el mapa
+                         conserva su propio sitio, así que no hay nada que compensar. */
+                      panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
                     />
                     <InterestLegend />
                     {filteredPlaces.length === 0 && (

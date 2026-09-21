@@ -56,6 +56,20 @@ function markerIcon(grade: string, isSelected: boolean, isSaved: boolean): L.Div
 }
 
 /**
+ * Corrección de B19 (DD-016): `panelOffset` es cuánto del mapa tapa la ficha por la derecha.
+ * Desde que el raíl mide exactamente una ficha (`min(--place-detail-panel-width, 50%)`,
+ * `02 §D5`/`05 §4`), abrir la ficha en `lg`/`xl` cubre el raíl ENTERO: ya no queda franja
+ * visible a la que desplazar el marcador, y mover el mapa mientras nadie lo ve sólo consigue
+ * que, al cerrar la ficha, el lector se encuentre el mapa en otro sitio. Cuando el panel cubre
+ * el mapa entero, el mapa se queda exactamente como estaba — mismo centro, mismo zoom, mismo
+ * marcador seleccionado. Ver la DESIGN DECISION REQUIRED sobre `05 §5` («se conserva
+ * `panelOffset`») en `docs/design/09_DECISIONES_DE_DISENO.md`.
+ */
+function panelCoversMap(map: L.Map, panelOffset: number): boolean {
+  return panelOffset > 0 && panelOffset >= map.getSize().x - 1;
+}
+
+/**
  * Centres the selected place in the part of the map the detail panel does not cover, so the
  * marker stays visible next to its own card on desktop.
  */
@@ -78,6 +92,8 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
      * observable en el camino ya existente (Explorar ya visible al seleccionar).
      */
     map.invalidateSize({ animate: false });
+    // Corrección de B19: con el mapa íntegramente detrás de la ficha no hay nada que centrar.
+    if (panelCoversMap(map, panelOffset)) return;
     const zoom = Math.max(map.getZoom(), SELECTION_ZOOM);
     const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
     const target = map.unproject(point.add([panelOffset / 2, 0]), zoom);
@@ -107,9 +123,13 @@ function FitHubBounds({ hub, places, panelOffset }: { hub: string; places: Place
   useLayoutEffect(() => {
     if (places.length === 0) return;
     const bounds = L.latLngBounds(places.map((place) => [place.coordinates.lat, place.coordinates.lng]));
+    // Corrección de B19: si la ficha cubre el mapa entero, reservarle sitio dentro del encuadre
+    // dejaría un padding mayor que el propio contenedor (Leaflet devuelve un zoom absurdo). El
+    // encuadre se hace entonces sobre el mapa completo, que es lo que se verá al cerrar la ficha.
+    const rightPadding = panelCoversMap(map, panelOffset) ? BOUNDS_PADDING : BOUNDS_PADDING + panelOffset;
     const options = {
       paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],
-      paddingBottomRight: [BOUNDS_PADDING + panelOffset, BOUNDS_PADDING] as [number, number],
+      paddingBottomRight: [rightPadding, BOUNDS_PADDING] as [number, number],
       maxZoom: SELECTION_ZOOM,
     };
     if (prefersReducedMotion()) {

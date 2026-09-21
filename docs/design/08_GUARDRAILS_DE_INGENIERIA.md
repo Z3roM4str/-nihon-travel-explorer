@@ -110,16 +110,57 @@ Verificable: abrir una ficha, cambiar de pestaña, volver, comparar contra el
    Verificable: tras «Ver en el mapa», ningún `.app__detail` sigue montado dentro
    del panel de la pestaña de origen.
 
+## Invariantes verificables de la rejilla de descubrimiento (DD-016)
+
+Añadidas por la corrección de B19 que resuelve el número de columnas de Explorar
+(`02 §D5`, `03 §5`, `04 §5`, `05 §4`, DD-016). Sustituyen a la regla que B18/B19 habían
+dejado en pie («2 columnas desde `sm`, 1 desde `md`», consecuencia del panel de 372 px
+fijos) y se aplican a cualquier rejilla de tarjetas, no sólo a la de Explorar. Cada una
+es una prueba automatizable — `app/scripts/block19-grid-check.mjs` las ejecuta todas:
+
+1. **Ninguna rejilla decide sus columnas sólo con `@media`.** El número de columnas se
+   calcula sobre el **ancho efectivo del contenedor** (`@container` o equivalente que
+   mida el contenedor, nunca la pantalla), acotado por el tope del breakpoint. Es
+   obligatorio, no preferible: en `md`, abrir la ficha estrecha la región de lista sin
+   que el viewport cambie, y la rejilla tiene que reaccionar. Verificable: a 840 px, la
+   lista da 2 columnas con la ficha cerrada y 1 con la ficha abierta.
+2. **Topes por breakpoint, nunca suelos**: `base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3.
+   Verificable: los seis casos de referencia (360 / 600 / 840 / 840 con ficha / 1200 /
+   1600) dan exactamente 1 / 2 / 2 / 1 / 2 / 3 columnas.
+3. **`PlaceCard` nunca baja de 264 px de ancho**, a ningún ancho de pantalla y con
+   cualquier combinación de raíl abierto o cerrado. Verificable: medir la tarjeta más
+   estrecha del DOM en los seis casos.
+4. **La proporción sigue al número de columnas, no al breakpoint**: 4:3 con una columna,
+   16:9 con dos o más. Verificable: medir `width/height` de `.place-card__media` en los
+   seis casos.
+5. **El raíl derecho nunca pasa del 50 % del ancho del cuerpo.** Verificable: comparar la
+   caja del raíl (ficha o mapa, el que esté visible) con la del cuerpo.
+6. **La ficha no mueve el mapa en `lg`/`xl`.** Abrir y cerrar la ficha deja el mapa con
+   el mismo tamaño de caja, el mismo centro, el mismo zoom y el mismo marcador
+   seleccionado. Verificable: leer las tres cosas antes de abrir, con la ficha abierta y
+   después de cerrar, y comprobar que no cambian.
+7. **Ningún `text-shadow`, en ninguna parte** (`03 §5`). Verificable: recorrer el DOM de
+   la superficie tocada y comprobar que ningún elemento tiene `text-shadow` calculado
+   distinto de `none`.
+8. **Scrim efectivo ≥0.60 bajo toda la banda de texto sobre fotografía**, con contraste
+   AA usando la fotografía más clara del catálogo y para cada color de texto de la banda.
+   Verificable sobre píxeles realmente compuestos, no sobre aritmética de degradados:
+   `app/scripts/block19-contrast-check.mjs`.
+9. **Ningún ancho de viewport «de cabida» escrito como breakpoint.** Los anchos en los
+   que una rejilla cambia de columnas son consecuencia de la fórmula (mínimo de tarjeta,
+   `gap`, `padding`, cromo); si aparecen escritos en el CSS o en la documentación, la
+   fórmula ha dejado de ser la fuente y hay que quitarlos.
+
 ## Puertas de calidad por bloque
 
 Todo bloque de implementación se cierra sólo si pasa las siete:
 
 | # | Puerta | Cómo se comprueba |
 |---|---|---|
-| G1 | Tests verdes | La suite completa (hoy 91 ficheros / ~3.179 tests). Un test que cambia debe justificarse por una decisión de esta carpeta, citando documento y sección. |
+| G1 | Tests verdes | La suite completa (hoy 94 ficheros / 3.272 tests). Un test que cambia debe justificarse por una decisión de esta carpeta, citando documento y sección. |
 | G2 | Sin regresión de capacidades | Checklist de `05 §12` para las superficies tocadas. |
 | G3 | Cromo en teléfono | Medición automática a 390×844: cromo superior ≤112 px, total ≤168 px. |
-| G4 | Sin tokens fuera de sistema | Lint de CSS: cero hex literales, cero `max-width` media queries nuevas, cero emoji en fuentes de componentes. |
+| G4 | Sin tokens fuera de sistema | Lint de CSS: cero hex literales, cero `max-width` media queries nuevas, cero emoji en fuentes de componentes, cero `text-shadow` (`03 §5`). |
 | G5 | Accesibilidad | Áreas ≥44 px, contraste 4.5:1 / 3:1, foco visible, recorrido de teclado completo en la superficie tocada. |
 | G6 | Rendimiento | Presupuesto de imágenes por ciudad ≤3,5 MB; sin regresión del chunk de entrada frente a la medición de v1.1.0. |
 | G7 | Revisión visual | Capturas a 390×844 y 1440×900 de cada superficie tocada, comparadas contra la especificación. |

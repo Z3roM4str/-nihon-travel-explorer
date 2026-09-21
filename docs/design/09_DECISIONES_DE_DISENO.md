@@ -252,6 +252,113 @@ cumplía esta misma regla general.
 
 ---
 
+### DD-016 — La rejilla de descubrimiento responde a su contenedor, no al viewport
+**Estado:** Firme · **Fecha:** 2026-09-21 · **Afecta:** `02 §D5`, `03 §5`, `04 §5`, `05 §4`, `08`
+
+**Decisión.** Tres reglas, que se sostienen entre sí:
+
+1. **El número de columnas es el menor de dos números, en este orden.** Primero, la
+   **cabida real**: cuántas `PlaceCard` de **264 px mínimo** caben en el **ancho efectivo
+   de la región de lista** — nunca en el del viewport. Después, el **tope del
+   breakpoint**: `base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3. El tope es un techo, jamás
+   un suelo: a 1440 px caben tres columnas y el tope de `lg` las deja en dos.
+2. **El mecanismo tiene que medir el contenedor** (`@container`, o equivalente). No basta
+   con `@media`, y no es una preferencia de implementación: en `md`, abrir la ficha
+   estrecha la región de lista de ~752 px a ~376 px **sin que el viewport cambie**, y la
+   lista tiene que bajar de 2 columnas a 1. Ningún `@media` puede ver eso.
+3. **La lista es la superficie primaria; el raíl derecho es lo secundario.** El raíl mide
+   `min(480 px, 50 % del cuerpo)` y la lista se queda con el resto. En `md` el raíl sólo
+   existe mientras hay una ficha abierta (el mapa sigue conmutado, como en teléfono); en
+   `lg`+ lo ocupa el mapa de forma permanente y la ficha se apoya encima, sobre la misma
+   caja, de modo que el mapa **no cambia de tamaño** al abrir ni al cerrar la ficha y
+   conserva centro, zoom y marcador.
+
+La proporción de la tarjeta sigue al número de columnas, no al breakpoint: 4:3 con una
+columna, 16:9 con dos o más. Y el scrim de la banda de texto deja de apoyarse en un
+`text-shadow` (prohibido por `03 §5`) para apoyarse en un **suelo de scrim propio de la
+banda**, con scrim efectivo **≥0.60 bajo todo el texto** y contraste AA con la fotografía
+más clara del catálogo. Sin tokens nuevos: el suelo usa el mismo valor que
+`--scrim-bottom` ya declara en su parada inferior.
+
+**El ancho de viewport en el que `lg` llega a dos columnas (~1090–1140 px según el cromo
+real) NO es un breakpoint.** Es una consecuencia aritmética de la fórmula de cabida, y no
+se escribe en ninguna parte: si mañana cambia el ancho del `NavRail` o el `--space-3` de
+la rejilla, ese número cambia solo, y nada hay que tocar.
+
+**Contradicciones que esta decisión resuelve** (estaban en los documentos congelados, no
+sólo en el código):
+
+- `04 §5.2` exigía «`text-shadow` de respaldo» y `03 §5` lo prohíbe («las superficies
+  sobre fotografía no usan sombra: usan `--scrim-*`»). Gana `03 §5`: la sombra tapaba el
+  síntoma en vez de arreglar el scrim, y fallaba justo con las fotografías más claras.
+  `04 §5.2` queda reescrito.
+- `02 §D5` y `05 §4` sitúan el **mapa persistente en `lg`**, pero B18 lo instaló desde
+  `md` y clavó la lista en 372 px fijos, lo que hacía aritméticamente imposible el «`md`:
+  2 columnas» que `05 §4` pide. Gana el documento: el mapa persistente empieza en `lg`, y
+  en `md` sigue siendo una superficie conmutada por el control Lista/Mapa que ya existe
+  (que hasta ahora no hacía nada a esos anchos). Ese control se retira en `lg`+, donde ya
+  no tiene nada que conmutar.
+
+**Alternativas descartadas.** (a) Seguir con `@media` y elegir un breakpoint alrededor de
+1090 px: codifica como causa lo que es un efecto, y sigue sin poder ver el caso de `md`
+con la ficha abierta, que es el que originó todo esto. (b) Dejar el raíl en el 50 % pleno
+en `lg`: con 264 px de mínimo y el `NavRail`, la lista se queda a 8 px de poder dar dos
+columnas y `lg` cae a una — el «máximo 50 %» de `02 §D5` es un techo, no una medida. (c)
+Subir la opacidad de `--scrim-bottom` en `tokens.css` para salvar la banda de texto:
+oscurece **todas** las fotografías del producto (portada, galería, ficha) para arreglar un
+problema que sólo tiene la tarjeta, y contradice `06`.
+
+**Consecuencias.** `.app__sidebar` pasa a ser contenedor de consulta
+(`container-type: inline-size`). `panelOffset` deja de colgar de `md` y pasa a colgar de
+`lg`, y `PlaceMap` no mueve el mapa cuando la ficha lo cubre entero — ver la DESIGN
+DECISION REQUIRED de abajo sobre `05 §5`. Dos aserciones de `block18-shell.test.ts` se
+actualizan citando esta decisión (ancho de `.app__detail`, consulta de `panelOffset`).
+Gates nuevos: `app/scripts/block19-grid-check.mjs` (los seis viewports, el mínimo de
+264 px, el raíl ≤50 %, la estabilidad del mapa y la ausencia de `text-shadow`) y la
+reescritura de `app/scripts/block19-contrast-check.mjs`, que ahora mide píxeles compuestos
+de verdad en toda la banda de texto y en los dos regímenes de proporción.
+
+---
+
+## DESIGN DECISION REQUIRED
+
+Contradicciones reales entre el sistema congelado y una decisión ya tomada. **No se
+improvisa una arquitectura para taparlas**: se dejan escritas aquí, con su tensión exacta,
+hasta que producto o diseño las cierren.
+
+### DDR-01 — `05 §5` pide conservar `panelOffset`; la geometría del raíl lo deja sin sitio
+**Abierta desde:** 2026-09-21 · **Afecta:** `05 §5`, DD-016 · **Bloquea:** nada hoy; B4
+tendrá que resolverlo al rediseñar la ficha
+
+**Qué dice un lado.** `05 §5`, *Responsive*: «`lg`+: el panel no oculta el marcador
+seleccionado en el mapa (se conserva `panelOffset`)». Eso presupone que el raíl del mapa
+es **más ancho** que la ficha, de modo que quede una franja de mapa a la vista sobre la
+que desplazar el marcador.
+
+**Qué dice el otro.** La fórmula de cabida de DD-016 fija el raíl en exactamente una
+ficha de ancho (`min(480 px, 50 %)`). No es una elección estética: a 1200 px, con el
+`NavRail` de 88 px y el mínimo de 264 px por tarjeta, la región de lista necesita ≥564 px
+para dar dos columnas, así que el raíl no puede pasar de 548 px; y cualquier raíl entre
+481 y 548 px deja una tira de mapa de 1 a 68 px, que no es un mapa. Con el raíl a 480 px,
+**la ficha lo cubre entero** y no queda marcador que salvar. La propia DD-016 exige además
+que el mapa conserve centro, zoom y marcador al abrir y cerrar la ficha, lo que es
+incompatible con moverlo al abrirla.
+
+**Qué se ha hecho mientras tanto.** Se ha implementado la resolución: `panelOffset` sigue
+existiendo y sigue significando lo mismo («cuánto del mapa tapa la ficha por la derecha»),
+pero `PlaceMap` ya no desplaza el mapa cuando ese valor cubre el contenedor entero. El
+mecanismo que `05 §5` manda conservar está **intacto y operativo** para el día en que la
+ficha sea más estrecha que el raíl; hoy simplemente no tiene nada que compensar. No se ha
+tocado `05 §5`.
+
+**Qué habría que decidir.** Una de tres: (a) aceptar que en `lg`/`xl` la ficha cubre el
+mapa y retirar la frase de `05 §5`; (b) estrechar la ficha por debajo de 480 px en `lg`+
+para que quede mapa visible, lo que toca `02 §D5` y `05 §5` a la vez; o (c) bajar el
+mínimo de 264 px de `PlaceCard`, lo que permitiría un raíl más ancho a costa de la
+tarjeta. Nada de esto lo puede decidir ingeniería.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -261,3 +368,4 @@ cumplía esta misma regla general.
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
+| **DDR-01** | ¿`panelOffset` en `lg`+, o ficha que cubre el mapa? (ver arriba) | Producto + diseño | Nada hoy; B4 al rediseñar la ficha |

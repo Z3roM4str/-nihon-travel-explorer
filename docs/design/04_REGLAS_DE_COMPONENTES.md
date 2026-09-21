@@ -67,7 +67,7 @@ seis chips con emoji.
 ┌─────────────────────────────┐
 │                         (♡) │  ← acción guardar, 40px, arriba-dcha
 │        FOTOGRAFÍA           │
-│         (4:3 base)          │
+│     (4:3 a una columna)     │
 │  ★ Imprescindible           │  ← sólo si grado S
 │  Shibuya Crossing           │  ← voice 20/26, blanco sobre scrim
 │  Ciudad · Shibuya           │  ← record 13, blanco 82%
@@ -80,10 +80,28 @@ seis chips con emoji.
 
 **Reglas**
 
-1. **Proporción**: 4:3 en `base`, 16:9 desde `sm` (donde la rejilla la ensancha).
-2. **Nombre sobre la fotografía**, con `--scrim-bottom` obligatorio y `text-shadow`
-   de respaldo. Clamp a 2 líneas. Si el nombre supera 2 líneas, se reduce a
-   `--type-title-s`, nunca se trunca con puntos suspensivos en mitad de una palabra.
+0. **Ancho mínimo (DD-016)**: la tarjeta **nunca** mide menos de **264 px** de ancho.
+   Es la restricción que manda sobre cualquier rejilla que la contenga: si a un ancho
+   dado no caben `n` tarjetas de 264 px, la rejilla baja a `n−1` columnas, sea cual sea
+   el viewport. El número de columnas se calcula sobre el **ancho efectivo del
+   contenedor** (`02 §D5`), nunca sobre el del viewport.
+1. **Proporción (DD-016)**: 4:3 cuando la rejilla le da **una** columna, 16:9 cuando le
+   da **dos o más**. Lo que manda es el número de columnas, no el breakpoint: en `md`,
+   abrir la ficha estrecha la lista a una columna y la tarjeta vuelve a 4:3 sin que el
+   viewport cambie.
+2. **Nombre sobre la fotografía**, con `--scrim-bottom` obligatorio. Clamp a 2 líneas.
+   Si el nombre supera 2 líneas, se reduce a `--type-title-s`, nunca se trunca con
+   puntos suspensivos en mitad de una palabra.
+
+   **Sin `text-shadow` (DD-016, `03 §5`).** La versión anterior de esta regla pedía un
+   `text-shadow` «de respaldo», que `03 §5` prohíbe expresamente («las superficies sobre
+   fotografía no usan sombra: usan `--scrim-*`») y que además enmascaraba el problema
+   real: a 16:9 la banda de texto ocupa ~50 % de la fotografía, y ahí `--scrim-bottom`
+   ya vale ~0.05. La banda —insignia, nombre y línea de categoría·zona— lleva **su
+   propio suelo de scrim**, con el mismo valor que `--scrim-bottom` declara en su parada
+   inferior, de modo que el scrim efectivo sea **≥0.60 bajo todo el texto** y el
+   contraste llegue a AA con la fotografía más clara del catálogo (`03 §5`, «Scrim bajo
+   texto»). Ningún token nuevo.
 3. **Insignia de nivel**: **sólo** grado S («Imprescindible»), glifo `★` + texto,
    blanco sobre scrim, sin fondo de color. Los grados A/B/C/D no muestran insignia en
    tarjeta (Art. 6).

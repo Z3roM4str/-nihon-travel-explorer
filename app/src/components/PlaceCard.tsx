@@ -236,10 +236,13 @@ export function PlaceCard({
               src={cardSrc}
               width={CARD_IMAGE_WIDTH}
               height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}
-              // `md`+ (840px, `02 §D5`): la lista vive confinada al panel lateral de 372px fijos
-              // (Bloque 18) — nunca vuelve a crecer con el viewport, así que deja de ser 50vw ahí
-              // (ver el ajuste a 1 columna en discovery.css junto a este mismo umbral).
-              sizes="(min-width: 840px) 340px, (min-width: 600px) calc(50vw - 2rem), calc(100vw - 1.9rem)"
+              // Corrección de B19 (DD-016): la geometría real de la ranura en cada tramo, ahora
+              // que la lista se queda con todo el ancho que el raíl no usa (`App.css`) y decide
+              // sus columnas por el ancho de su propia región (`discovery.css`). `NavRail` mide
+              // 88px desde `md` y el raíl del mapa 480px desde `lg`; `padding`/`gap` de la
+              // rejilla son 12px. Es una pista para el selector de resolución, no un breakpoint
+              // de layout: aproximar por lo alto no rompe nada, servir de más sí.
+              sizes="(min-width: 1200px) 340px, (min-width: 840px) calc(50vw - 62px), (min-width: 600px) calc(50vw - 18px), calc(100vw - 24px)"
               alt=""
               {...(priority ? { fetchPriority: "high" as const } : { loading: "lazy" as const })}
               decoding="async"
@@ -258,17 +261,24 @@ export function PlaceCard({
             botón que abre la ficha (y su nombre accesible) sigue existiendo, para que el
             comportamiento de apertura/foco no dependa de si hay foto. */}
         <div className={`place-card__overlay ${hasPhoto ? "" : "place-card__overlay--hidden"}`}>
-          {interest.level === "imprescindible" && (
-            <span className="place-card__badge">
-              <span aria-hidden="true">★</span> Imprescindible
-            </span>
-          )}
-          <h3 className="place-card__heading">{openButton}</h3>
-          <p className="place-card__where">
-            {categoryLabel}
-            <span aria-hidden="true"> · </span>
-            {zone}
-          </p>
+          {/* Corrección de B19 (DD-016): la banda es un elemento propio porque su scrim tiene
+              que apoyarse en SU altura —la del texto—, no en la de la fotografía. Con el
+              degradado puesto sobre el overlay entero, el borde superior del texto caía donde
+              `--scrim-bottom` ya vale ~0.05 y sólo un `text-shadow` (prohibido por `03 §5`) lo
+              sostenía. Ver `styles/discovery.css`, `.place-card__band`. */}
+          <div className="place-card__band">
+            {interest.level === "imprescindible" && (
+              <span className="place-card__badge">
+                <span aria-hidden="true">★</span> Imprescindible
+              </span>
+            )}
+            <h3 className="place-card__heading">{openButton}</h3>
+            <p className="place-card__where">
+              {categoryLabel}
+              <span aria-hidden="true"> · </span>
+              {zone}
+            </p>
+          </div>
         </div>
 
         {images.length > 1 && (
