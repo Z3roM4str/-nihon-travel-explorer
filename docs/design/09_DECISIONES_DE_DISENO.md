@@ -494,6 +494,70 @@ que exista un dato que perder sería un falso positivo.
 
 ---
 
+### DDR-04 — «Fuentes» pide campos que el modelo `Place` no tiene
+**Abierta desde:** 2026-09-21 · **Afecta:** `05 §5` pt. 14, `10 §B4` · **Bloquea:** la sección «Fuentes» de B4
+
+**Qué pide la norma.** `05 §5` pt. 14: «**Fuentes** — desplegable cerrado por defecto. Contiene:
+grado original, `provenance`, `consultedAt`/freshness, `updatedAt`, versión del dataset, enlaces
+oficiales.» `10 §B4` lo repite: «Sección «Fuentes» plegada con grado, provenance, freshness y
+fechas.»
+
+**Qué hay.** De esos seis, el tipo `Place` (`app/src/types.ts`) sólo tiene **dos**: `grade` y
+`updatedAt`, más `officialUrl`/`googleMapsUrl`. **No existe `provenance` por lugar, ni
+`consultedAt`, ni una versión de dataset en ninguna parte de la aplicación.** `lib/source-freshness.ts`
+sí implementa la gramática de frescura, pero sirve a zonas de alojamiento, puntos de acceso y
+mecanismos de reserva — no a los 214 lugares del catálogo.
+
+**Por qué no lo cierra ingeniería.** Las salidas cambian el contrato o el dataset: (a) «Fuentes»
+muestra sólo lo que existe —grado, `updatedAt`, enlaces oficiales— y `05 §5` pt. 14 se reescribe
+para no prometer lo que no hay; (b) el dataset gana `provenance`/`consultedAt` por lugar, que es
+trabajo de datos y de investigación, no de B4; (c) se deriva una frescura por lugar desde
+`updatedAt` con el umbral de `source-freshness.ts`, lo que **inventaría** una afirmación de
+procedencia que nadie ha verificado — y eso es exactamente lo que `00` prohíbe.
+
+**Qué se hace mientras tanto.** Se implementa todo B4 salvo los tres campos inexistentes. La
+sección «Fuentes» se construye con grado, `updatedAt` y enlaces oficiales, que sí existen, y no se
+fabrica ninguno de los otros tres.
+
+---
+
+### DDR-05 — El criterio «la cadena `Dato:` no aparece» es de B4, pero el texto vive en B9
+**Abierta desde:** 2026-09-21 · **Afecta:** `05 §11`, `10 §B4`, `10 §B9.5` · **Bloquea:** nada de la ficha
+
+**La tensión.** `10 §B4` pone entre los criterios de aceptación de este bloque: «La cadena `Dato:`
+no aparece». `05 §11` lo dice aún más amplio: «no aparece **en ninguna parte de la interfaz**».
+Pero las cuatro apariciones reales están en `OrderedSequenceBuilder.tsx` —el planificador, pantalla
+`05 §7`/`§11`— y **ninguna en la ficha**. Y `10 §B9.5` asigna expresamente su retirada a B9.5:
+«Sub-pestañas propias; **se elimina `Dato:`**».
+
+**Qué se puede afirmar hoy.** Que la ficha no la contiene, y que B4 no la introduce. Eso es
+verificable y se vigila con un gate. Lo que B4 **no puede** es retirarla del planificador sin
+invadir el alcance que el roadmap da a B9.5 — y hacerlo «de paso» metería en este diff una
+superficie que nadie ha revisado en este bloque.
+
+**Qué habría que decidir.** (a) El criterio de B4 se lee acotado a la ficha, y la retirada global
+sigue siendo de B9.5 tal como dice `10 §B9.5`; (b) B4 amplía su alcance al planificador y aplica
+la sustitución que `03 §10` ya fija (texto entre comillas con marcador `◧ Registrado`), asumiendo
+que toca una pantalla fuera de `05 §5`.
+
+---
+
+### DDR-06 — «Cerca de aquí»: nota al pie y `EvidenceMark` a la vez
+**Abierta desde:** 2026-09-21 · **Afecta:** `04 §2`, `05 §5` pt. 12 · **Bloquea:** el pie de «Cerca de aquí»
+
+**La tensión.** `05 §5` pt. 12 pide que cada lugar cercano lleve «distancia, modo y `EvidenceMark`
+según su confianza». Hoy, además, hay una nota al pie por sección (`transferListFootnote`) que
+explica en prosa de dónde salen esos traslados. Pero `04 §2` prohíbe expresamente que «un bloque
+con marcador» lleve «además un párrafo que repita lo mismo»: **el marcador sustituye al descargo**.
+Y `05 §11` lo generaliza: «una sola nota al pie por sección, no un descargo por bloque».
+
+**Qué habría que decidir.** (a) El marcador sustituye a la nota y `transferListFootnote`
+desaparece de la ficha; (b) la nota se conserva porque dice algo que el marcador no dice —y
+entonces hay que enunciar qué— y se acota a una sola por sección. La diferencia no es cosmética:
+(a) retira texto que hoy existe, y este bloque tiene por contrato no perder información.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -503,3 +567,6 @@ que exista un dato que perder sería un falso positivo.
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
+| **DDR-04** | «Fuentes» pide `provenance`/`consultedAt`/versión que no existen | Producto + datos | La sección «Fuentes» de B4 |
+| **DDR-05** | ¿`Dato:` lo retira B4 del planificador, o sigue siendo de B9.5? | Producto | Nada de la ficha |
+| **DDR-06** | ¿El `EvidenceMark` de «Cerca de aquí» sustituye a la nota al pie? | Diseño | El pie de esa sección |

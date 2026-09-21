@@ -5,7 +5,7 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · checkpoint H — **DDR-03 resuelta e implementada; B19 cerrado**
+**Última actualización:** 2026-09-21 · **B20 abierto** — preflight, inventario y plan
 
 ---
 
@@ -13,14 +13,14 @@
 
 | | |
 |---|---|
-| **Bloque actual** | Bloque 19 (B3 — Tarjeta y descubrimiento) · **CERRADO** (DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados) |
-| **Rama** | `claude/block-19-b3-card-discovery` |
-| **Último SHA estable pusheado** | `6a5ab0b` — `feat(ddr-03): la persistencia deja de fallar en silencio` |
-| **Último SHA con cambio de producto** | `6a5ab0b` — `lib/device-storage.ts` y `PersistenceNotice` (DDR-03) |
-| **SHA de partida del bloque** | `b82451a` — `feat(block-19): implement B3 card and discovery surface` |
+| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica)** · preflight e inventario hechos; implementación **no iniciada** |
+| **Rama** | `claude/block-20-b4-place-detail-photography` |
+| **Último SHA estable pusheado** | el checkpoint de apertura de B20 (ver `git log -1`) |
+| **Último SHA con cambio de producto** | `6a5ab0b` (en B19) — B20 aún no ha tocado código |
+| **SHA de partida del bloque** | `62050c2` — cierre definitivo de B19 (= `7b8f54f` + el registro de las dos precisiones de DDR-03) |
 | **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
 | **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
-| **Siguiente bloque** | B4 — Ficha de lugar y capa fotográfica. **NO EMPEZADO. No empezarlo sin instrucción explícita de Claude.** |
+| **Bloque anterior** | Bloque 19 (B3), **CERRADO** en `62050c2` sobre `claude/block-19-b3-card-discovery`: DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados. Esa rama no se toca más. |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
 > remota (`git reset --hard origin/claude/block-19-b3-card-discovery`), no un SHA copiado a mano.
@@ -29,25 +29,19 @@
 
 ## 2. Objetivo exacto del trabajo en curso
 
-**Terminado.** El objetivo era corregir B19 para que la rejilla de descubrimiento deje de decidir
-sus columnas por breakpoints del viewport y pase a responder al **ancho efectivo de su propio
-contenedor**, con topes por breakpoint, y para que la tarjeta cumpla el contrato de scrim y
-contraste sin `text-shadow`.
+**Bloque 20 (B4) — Ficha de lugar y capa fotográfica.** Alcance normativo en `05 §5`, `04 §6`/`§7`
+y `10 §B4`: reordenación completa de `PlaceDetail`, galería a sangre 4:5 con `scroll-snap`,
+contador y puntos según cantidad real de imágenes, `CreditsSheet` tras `ⓘ`, `EvidenceMark` en datos
+prácticos, aviso feb–mar 2027 condicional (DD-011), «Por qué vale la pena» con `--type-quote` y
+filete bermellón, franja de los dos condicional, «Cerca de aquí» con miniaturas, y «Fuentes»
+plegada.
 
-Comportamiento de referencia exigido y **verificado**:
+**El contrato que manda sobre todo lo demás: ningún dato desaparece.** El inventario completo y la
+matriz campo→destino están en **`docs/BLOCK_20_INVENTORY.md`**, escrita antes de tocar código. Es
+el guardián: si al terminar hay una fila sin destino verificado, B4 no está cerrado.
 
-| Viewport | Ficha | Columnas |
-|---|---|---|
-| 360 | cerrada | 1 |
-| 600 | cerrada | 2 |
-| 840 | cerrada | 2 |
-| 840 | **abierta** | **1** |
-| 1200 | cerrada | 2 |
-| 1600 | cerrada | 3 |
-
-No queda nada pendiente de este objetivo. Lo que queda abierto está en §5 y §9.
-
----
+**Estado: implementación NO iniciada.** Hay tres contradicciones normativas abiertas (§9) que
+bloquean partes concretas del alcance. Lo que no depende de ellas es implementable sin ambigüedad.
 
 ## 3. Decisiones de diseño CONGELADAS (no se tocan)
 
@@ -97,50 +91,51 @@ Fuente normativa: `docs/design/09_DECISIONES_DE_DISENO.md` § **DD-016**, más `
 
 ## 4. Qué está terminado
 
-- **Shell** (`app/src/App.css`, `app/src/App.tsx`): raíl derecho parametrizado, fin del panel de
-  372 px fijos, mapa persistente desde `lg`, `.app__body--detail`, `.app__sidebar` como contenedor
-  de consulta (`container-name: lista-explorar`).
-- **Rejilla** (`app/src/styles/discovery.css`): columnas por `@container` con topes por `@media`;
-  proporción 4:3 / 16:9 gobernada por las mismas condiciones.
-- **Tarjeta** (`app/src/components/PlaceCard.tsx`, `discovery.css`): banda de texto
-  (`.place-card__band`) con suelo de scrim propio; tres `text-shadow` eliminados; `sizes`
-  corregido a la geometría real.
-- **Mapa** (`app/src/components/PlaceMap.tsx`): `panelCoversMap()` — no mueve el mapa cuando la
-  ficha lo cubre entero; `panelOffset` pasa de colgar de `md` a colgar de `lg`.
-- **Gates**: `app/scripts/block19-grid-check.mjs` (nuevo, 35 comprobaciones) y
-  `app/scripts/block19-contrast-check.mjs` (reescrito: mide píxeles realmente compuestos).
-- **Documentación al mismo contrato**: `02 §D5`, `03 §5`, `04 §5`, `05 §4`, `08` (invariantes
-  nuevas + G1/G4), `09` (DD-016 y DDR-01), `docs/BLOCK_19_HANDOFF.md` (deroga sus propios puntos
-  1 y 2 de «Regresiones»).
-- **Tests**: dos aserciones de `app/src/block18-shell.test.ts` actualizadas citando DD-016.
+**De B20:** el preflight (rama nacida de `62050c2`, que contiene `7b8f54f`), la relectura
+normativa (`03`, `04`, `05 §5`, `08`, `09`, `10 §B4`), el **inventario completo de `PlaceDetail`
+v1.1.0** y la **matriz campo→destino** (`docs/BLOCK_20_INVENTORY.md`, 55 filas), y el registro de
+las tres contradicciones como DDR-04/05/06.
+
+**De B19 (cerrado, en su propia rama):** ver `docs/BLOCK_19_HANDOFF.md`.
 
 ---
 
 ## 5. Qué falta
 
-**Del bloque 19: nada.** DD-016 implementado y verificado, DDR-01 cerrada por DD-017, DDR-02
-cerrada con el target principal al nivel del `<article>` y los cinco
-gates heredados resueltos (§8). Cuatro defectos reales encontrados y corregidos por el camino.
+**Todo el código de B20.** El plan está en `docs/BLOCK_20_INVENTORY.md` §1 (matriz) y el orden de
+ataque más abajo. No se empieza hasta que DDR-04/05/06 estén cerradas **o** se acote la
+implementación a lo que no depende de ellas.
 
-Pendiente, y que **nadie debe abordar sin instrucción explícita**:
+Bloqueado por decisión pendiente:
+- La sección «Fuentes» completa → **DDR-04**.
+- La retirada de `Dato:` del planificador → **DDR-05** (la ficha no la contiene; eso sí es
+  verificable ya).
+- El pie de «Cerca de aquí» → **DDR-06**.
 
-- **B4 — Ficha de lugar y capa fotográfica**: siguiente bloque del roadmap
-  (`docs/design/10_ROADMAP_DE_BLOQUES.md` § B4). **No empezado, no empezar.**
+---
 
 ## 6. Siguiente acción concreta
 
-**Ninguna acción de implementación pendiente.** El estado está cerrado, verificado y es
-recuperable. Quien retome el trabajo debe:
+**Cerrar DDR-04, DDR-05 y DDR-06** (§9) — son de producto y diseño, no de ingeniería.
 
-```bash
-git fetch origin
-git checkout claude/block-19-b3-card-discovery
-git reset --hard origin/claude/block-19-b3-card-discovery
-cd app && npm ci
-```
+Con eso resuelto, el orden de implementación propuesto, en checkpoints pequeños:
 
-…ejecutar los gates de §7 para confirmar que sigue verde, y **detenerse ahí a esperar
-instrucción**. No abrir B4. No tocar nada de §10.
+1. **Galería** (`04 §6`): 4:5 a sangre, `scroll-snap`, flechas sólo `md`+, puntos sólo con ≤5,
+   contador como píldora. Gate de geometría y de «una imagen ⇒ sin puntos, contador ni flechas».
+2. **`CreditsSheet`** (`04 §7`): sacar `<Attribution>` del flujo —hoy se renderiza justo entre la
+   fotografía y el cuerpo, que es el defecto D2— y llevarlo íntegro tras `ⓘ`. Gate: cero texto de
+   atribución entre foto y nombre; los seis campos siguen presentes dentro de la hoja.
+3. **Cabecera y acciones**: nombre `--type-display`, línea única categoría·barrio, insignia sólo
+   grado S, primario + `quiet` juntos, botón atrás flotante y retirada del `×` (D4).
+4. **Cuerpo editorial**: «Por qué vale la pena» con `--type-quote` y filete, «Qué es», «Qué se hace
+   o se ve», franja de los dos condicional (D8).
+5. **Datos prácticos**: rejilla 2 columnas + filas, cada valor con `EvidenceMark`, títulos en caja
+   de frase, «Aglomeración» → «Afluencia».
+6. **Aviso feb–mar 2027** condicional (DD-011) y su degradación a línea de «Horario» con `◧`.
+7. **«Cerca de aquí»** con `PlaceCard compact` y miniaturas.
+8. **«Fuentes»** plegada — sólo tras DDR-04.
+
+Cada paso: verificación → commit → push → actualizar este fichero.
 
 ## 7. Comandos y gates que deben ejecutarse
 
@@ -285,7 +280,35 @@ tarjeta entera y no nace dentro de `.place-card__media`, que conserva su `overfl
 
 ## 9. DESIGN DECISION REQUIRED
 
-**Pendientes: ninguna.** DDR-01, DDR-02 y DDR-03 están resueltas.
+**Pendientes: tres — DDR-04, DDR-05 y DDR-06**, las tres abiertas por B20. DDR-01, DDR-02 y
+DDR-03 están resueltas.
+
+### DDR-04 — ABIERTA: «Fuentes» pide campos que el modelo `Place` no tiene
+
+`05 §5` pt. 14 y `10 §B4` exigen que «Fuentes» contenga grado, `provenance`, `consultedAt`/
+freshness, `updatedAt`, versión del dataset y enlaces oficiales. De los seis, el tipo `Place` sólo
+tiene **`grade` y `updatedAt`**, más los enlaces: **no existe `provenance` por lugar, ni
+`consultedAt`, ni versión de dataset** en ninguna parte. `lib/source-freshness.ts` sirve a zonas,
+puntos de acceso y mecanismos de reserva, no al catálogo de lugares. Derivar una procedencia desde
+`updatedAt` inventaría una afirmación que nadie ha verificado, que es justo lo que `00` prohíbe.
+**Bloquea** la sección «Fuentes». Texto completo en `09`.
+
+### DDR-05 — ABIERTA: el criterio de `Dato:` es de B4, pero el texto vive en B9
+
+`10 §B4` pide que «la cadena `Dato:` no aparezca» y `05 §11` lo amplía a toda la interfaz, pero
+las cuatro apariciones reales están en `OrderedSequenceBuilder.tsx` —el planificador— y ninguna en
+la ficha; y `10 §B9.5` asigna expresamente su retirada a B9.5. B4 puede afirmar y vigilar que la
+ficha no la contiene; retirarla del planificador invadiría otro bloque. **No bloquea** nada de la
+ficha. Texto completo en `09`.
+
+### DDR-06 — ABIERTA: «Cerca de aquí», nota al pie y `EvidenceMark` a la vez
+
+`05 §5` pt. 12 pide `EvidenceMark` por lugar cercano; hoy hay además una nota al pie en prosa.
+`04 §2` prohíbe que un bloque con marcador lleve «además un párrafo que repita lo mismo», y
+`05 §11` pide «una sola nota al pie por sección». Decidir si el marcador sustituye a la nota o si
+la nota dice algo que el marcador no dice. No es cosmético: retirar la nota quita texto que hoy
+existe, y este bloque tiene por contrato no perder información. **Bloquea** el pie de esa sección.
+Texto completo en `09`.
 
 ### DDR-03 — RESUELTA el 2026-09-21: la persistencia no falla en silencio
 
