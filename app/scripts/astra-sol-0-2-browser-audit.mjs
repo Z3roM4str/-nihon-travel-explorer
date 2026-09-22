@@ -233,6 +233,7 @@ try {
 
     await page.evaluate(() => localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"])));
     await page.goto(`${baseURL}#/viaje`, { waitUntil: "networkidle" });
+    await page.reload({ waitUntil: "networkidle" });
     await setFailure(true);
     await page.getByRole("button", { name: "☆ Lorena" }).click();
     await verifyNoticeAndRecover(page, "09-trip-mobile");
