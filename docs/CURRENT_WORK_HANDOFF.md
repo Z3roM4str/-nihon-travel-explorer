@@ -5,7 +5,8 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · **B20 CERRADO** — 55/55 filas, y las siete auditorías heredadas verdes
+**Última actualización:** 2026-09-21 · **B21 ABIERTO — checkpoint A** (preflight,
+baseline, inventario y auditoría DD-003/DD-004; todavía sin cambios de UI)
 
 ---
 
@@ -13,19 +14,53 @@
 
 | | |
 |---|---|
-| **Bloque actual** | **Bloque 20 (B4 — Ficha de lugar y capa fotográfica), CERRADO.** Los ocho pasos implementados, las 55 filas del inventario con destino comprobado por gate, y las siete auditorías heredadas reparadas y en verde. No hay bloque abierto. |
-| **Rama** | `claude/block-20-b4-place-detail-photography` |
-| **Último SHA estable pusheado** | El HEAD de `origin/claude/block-20-b4-place-detail-photography`. El commit de cierre del bloque es `b051606`; lo único que puede venir después es este cuadro fijando ese SHA. |
-| **Último SHA con cambio de producto** | `b051606` — el saneamiento de cierre (retirada de `--overlay-paper-soft` y el punto de galería por forma). El anterior fue `d464b4d`, la ficha reconstruida (`05 §5`). |
-| **SHA de partida del bloque** | `62050c2` — cierre definitivo de B19 (= `7b8f54f` + el registro de las dos precisiones de DDR-03) |
-| **Estado del working tree** | Limpio. Local y `origin` al mismo SHA. |
-| **Estado de la suite** | Verde entera, gates de navegador incluidos (detalle en §7). |
-| **Siguiente bloque** | **B21 no está abierto.** El roadmap (`10`) dice cuál toca; nadie lo ha empezado y nada de esta rama lo adelanta. |
-| **Bloque anterior** | Bloque 19 (B3), **CERRADO** en `62050c2` sobre `claude/block-19-b3-card-discovery`: DD-016, DD-017, DDR-02, DDR-03 y los cinco gates heredados. Esa rama no se toca más. |
+| **Bloque actual** | **Bloque 21 (B5 — Explorar: portada y mapa), ABIERTO en checkpoint A.** Preflight, baseline, inventario y auditorías DD-003/DD-004 completos. No se ha implementado UI de B21. |
+| **Rama** | `codex/block-21-b5-explore-home-map` |
+| **Último SHA estable pusheado** | El HEAD de `origin/codex/block-21-b5-explore-home-map` después de empujar este checkpoint. La rama remota, no un SHA copiado dentro de este mismo commit, es la fuente de verdad reanudable. |
+| **Último SHA con cambio de producto** | `b051606` dentro de la historia cerrada de B20; B21 todavía no contiene cambios de producto. |
+| **SHA de partida del bloque** | `e3fca24a362efcfa99bd141599972944c0fabb99` — cierre documental de B20. Verificado como ancestro y HEAD inicial exacto. |
+| **Estado del working tree** | El diff rastreado del checkpoint es sólo documentación. Persisten dos directorios no rastreados preexistentes y ajenos (`phase3b2b-run-audit/`, `worktree/`), conservados intactos. |
+| **Estado de la suite** | Build/lint verdes; gates de navegador B17–B20, DDR-03, Explorar y fotografía verdes. Vitest: 3299/3313 por 14 fallos heredados de paths/CRLF en Windows, documentados en `BLOCK_21_INVENTORY.md §8.1`. |
+| **Siguiente acción** | Diseño/producto debe cerrar DDR-B21-01…06. Después, checkpoint B puede implementar sólo las partes desbloqueadas de la portada, sin elegir proveedor/copy/navegación por cuenta propia. |
+| **Bloque anterior** | Bloque 20 (B4), **CERRADO** en `e3fca24a362efcfa99bd141599972944c0fabb99`. B6.1 sigue separado en PR #138 y no se integra todavía. |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
-> remota (`git reset --hard origin/claude/block-20-b4-place-detail-photography`), no un SHA
-> copiado a mano.
+> remota B21. No usar `main`, la rama B6.1 ni ninguna rama `astra/*`.
+
+### 1.A Checkpoint A de B21
+
+**Hecho**
+
+- Rama corregida: al iniciar, el nombre B21 apuntaba indebidamente al SHA de B6.1 (`e6693a4`).
+  Se hizo detach en `e3fca24…`, se recreó `codex/block-21-b5-explore-home-map` desde esa base y
+  se verificó `merge-base --is-ancestor` con resultado 0. La rama B6.1 no se modificó.
+- Leídos completos los diez documentos obligatorios del prompt B21.
+- Creado `docs/BLOCK_21_INVENTORY.md`: Explorar nacional, mapa nacional, mapa de ciudad,
+  derivación de las cuatro colecciones, matriz capacidad → destino → gate y baseline.
+- DD-004 está firme e implementable literalmente. DD-003 sigue provisional y su elección
+  concreta queda bloqueada.
+- Baseline de navegador ejecutada con Edge real. Resultados exactos en el inventario §8.
+- B6.1/PR #138 no se integró; no se tocó el pipeline fotográfico.
+
+**Falta**
+
+- Toda implementación de portada, mapa nacional y mapa de ciudad.
+- Gates B21 nuevos, revisión visual y checkpoints B–E.
+- La prueba temporal de integración con B6.1, que sólo procede tras un SHA técnico estable de
+  B21 y una instrucción posterior.
+
+**DESIGN DECISION REQUIRED**
+
+1. **DDR-B21-01:** CARTO Positron u OSM filtrado (DD-003).
+2. **DDR-B21-02:** `05 §2` exige «Cobertura inicial», pero `00` Art. 7 prohíbe «cobertura» visible.
+3. **DDR-B21-03:** `05 §2` dice 6 prefecturas con lugares; el dataset deriva 15.
+4. **DDR-B21-04:** faltan las cuatro líneas editoriales obligatorias de las colecciones.
+5. **DDR-B21-05:** «Buscar en todo Japón» no tiene contrato de resultados/navegación/back.
+6. **DDR-B21-06:** no existe metadato aprobado para los nombres japoneses de los hubs.
+
+Cada pregunta, opciones, documentos, impacto y alcance bloqueante están en
+`docs/BLOCK_21_INVENTORY.md §7`. Ninguna autoriza improvisar. Las partes independientes podrán
+continuar cuando se abra el siguiente checkpoint.
 
 ---
 
