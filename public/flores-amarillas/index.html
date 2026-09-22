@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#0a0f17" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta property="og:title" content="Tengo algo para ti 💛" />
+<meta property="og:description" content="Solo ábrelo." />
+<title>Para ti 💛</title>
+<style>
+  :root{
+    --bg:#080d14;
+    --bg2:#111a27;
+    --cream:#fff9df;
+    --muted:rgba(255,249,223,.55);
+    --yellow:#ffd633;
+    --yellow2:#fff0a3;
+    --green:#678f60;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--cream)}
+  body{touch-action:none;overscroll-behavior:none}
+  button{font:inherit}
+  #app{position:relative;width:100%;height:100%;overflow:hidden;background:linear-gradient(180deg,var(--bg2),var(--bg));isolation:isolate}
+  #sky{position:absolute;inset:0;background:
+    radial-gradient(circle at 50% 32%,rgba(255,214,51,.07),transparent 25%),
+    linear-gradient(180deg,#152235 0%,#0b121d 64%,#080d14 100%);
+    transition:filter 1.6s ease,transform 2.5s cubic-bezier(.22,.76,.16,1)}
+  #stars{position:absolute;inset:0;opacity:.28;background-image:radial-gradient(rgba(255,255,255,.55) .7px,transparent .8px);background-size:34px 34px;mask-image:linear-gradient(#000,transparent 72%)}
+  #ground{position:absolute;left:-10%;right:-10%;bottom:-8%;height:42%;border-radius:50% 50% 0 0/14% 14% 0 0;background:linear-gradient(180deg,#17251d,#0d1711);box-shadow:0 -1px 0 rgba(255,255,255,.035);transition:transform 2.7s cubic-bezier(.22,.76,.16,1),opacity 1.2s ease}
+  #ground::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.03),transparent 38%)}
+
+  #copy{position:absolute;z-index:20;top:max(30px,env(safe-area-inset-top));left:20px;right:20px;text-align:center;transition:opacity .7s ease,transform .7s ease}
+  #copy .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+  #copy .line{margin-top:9px;font-size:clamp(18px,5.3vw,23px);font-weight:560;letter-spacing:-.02em;color:rgba(255,249,223,.92)}
+  #copy.hide{opacity:0;transform:translateY(-10px)}
+
+  #instruction{position:absolute;z-index:25;left:50%;bottom:max(27px,env(safe-area-inset-bottom));transform:translateX(-50%);font-size:11px;letter-spacing:.17em;text-transform:uppercase;color:rgba(255,249,223,.43);white-space:nowrap;transition:opacity .5s ease}
+
+  .seed{position:absolute;z-index:12;width:70px;height:70px;margin:-35px 0 0 -35px;border:none;background:transparent;padding:0;border-radius:50%;cursor:pointer}
+  .seed .halo{position:absolute;inset:8px;border-radius:50%;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.012);transition:.28s ease}
+  .seed .grain{position:absolute;left:50%;top:50%;width:13px;height:19px;margin:-9.5px 0 0 -6.5px;border-radius:63% 37% 56% 44%;background:linear-gradient(145deg,#b8895b,#704a2f);transform:rotate(26deg);box-shadow:inset -2px -2px rgba(0,0,0,.16);transition:.35s ease}
+  .seed .stem{position:absolute;left:50%;bottom:17px;width:2px;height:0;background:linear-gradient(#87b77f,#567e52);border-radius:2px;transform:translateX(-50%);transition:height .58s cubic-bezier(.2,.8,.2,1)}
+  .seed .leaf{position:absolute;width:12px;height:7px;background:#729c6b;opacity:0;transition:opacity .25s ease .3s}
+  .seed .leaf.l{left:-10px;top:9px;border-radius:100% 0 100% 0;transform:rotate(12deg)}
+  .seed .leaf.r{left:1px;top:19px;border-radius:0 100% 0 100%;transform:rotate(-12deg)}
+  .seed .bud{position:absolute;left:-5px;top:-7px;width:12px;height:12px;border-radius:60% 40% 60% 40%;background:var(--yellow);transform:scale(0) rotate(45deg);box-shadow:0 0 18px rgba(255,214,51,.35);transition:transform .38s cubic-bezier(.2,.9,.2,1) .45s}
+  .seed .ripple{position:absolute;inset:12px;border-radius:50%;border:1px solid transparent;opacity:0}
+  .seed.watered .halo{border-color:rgba(255,214,51,.22);background:rgba(255,214,51,.025)}
+  .seed.watered .grain{opacity:0;transform:translateY(9px) rotate(26deg) scale(.58)}
+  .seed.watered .stem{height:39px}
+  .seed.watered .leaf{opacity:1}
+  .seed.watered .bud{transform:scale(1) rotate(45deg)}
+  .seed.watered .ripple{animation:ripple .7s ease-out}
+  @keyframes ripple{0%{opacity:.85;transform:scale(.45);border-color:rgba(255,214,51,.8)}100%{opacity:0;transform:scale(2);border-color:rgba(255,214,51,0)}}
+  @media(hover:hover) and (pointer:fine){.seed:hover .halo{transform:scale(1.08);border-color:rgba(255,214,51,.28)}}
+
+  #drop{position:absolute;z-index:40;width:18px;height:24px;margin:-12px 0 0 -9px;border-radius:60% 40% 60% 40%;background:linear-gradient(145deg,#fffbdc,var(--yellow2));box-shadow:0 0 22px rgba(255,214,51,.3);transform:rotate(45deg) scale(.8);opacity:0;pointer-events:none;transition:opacity .18s ease}
+  #drop.show{opacity:.95}
+
+  #progress{position:absolute;z-index:22;left:50%;bottom:max(49px,calc(env(safe-area-inset-bottom) + 49px));transform:translateX(-50%);display:flex;gap:7px;transition:opacity .5s ease}
+  #progress i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.16);transition:.3s ease}
+  #progress i.on{background:var(--yellow);box-shadow:0 0 12px rgba(255,214,51,.45)}
+
+  #fx{position:absolute;inset:0;z-index:30;pointer-events:none}
+  .rocket{position:absolute;width:20px;height:42px;opacity:0;transform:translate(-50%,-50%);filter:drop-shadow(0 0 10px rgba(255,214,51,.16))}
+  .rocket .body{position:absolute;left:6px;top:5px;width:8px;height:25px;border-radius:8px 8px 3px 3px;background:linear-gradient(#fff8cc,var(--yellow))}
+  .rocket .body::before{content:"";position:absolute;left:0;top:-4px;width:8px;height:8px;border-radius:2px;background:#fffdf1;transform:rotate(45deg)}
+  .rocket .flame{position:absolute;left:7px;top:29px;width:6px;height:14px;border-radius:50% 50% 70% 70%;background:linear-gradient(#fff,var(--yellow),#ff8c42)}
+  .rocket.fly{animation:launch 2.45s cubic-bezier(.2,.72,.2,1) forwards}
+  @keyframes launch{0%{opacity:0;transform:translate(-50%,-50%) translateY(0) scale(.72)}7%{opacity:1}92%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) translateY(-122vh) scale(.98)}}
+
+  #canvas{position:absolute;inset:0;z-index:31;width:100%;height:100%;pointer-events:none}
+
+  #garden{position:absolute;z-index:28;left:0;right:0;bottom:-5px;height:56%;opacity:0;transform:translateY(28px);transition:opacity 1.05s ease,transform 1.25s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+  #garden.show{opacity:1;transform:translateY(0)}
+  .flower{position:absolute;bottom:-12px;width:48px;height:165px;transform-origin:50% 100%;animation:sway 3.4s ease-in-out infinite alternate}
+  .flower .stem{position:absolute;left:23px;bottom:0;width:2px;height:118px;border-radius:2px;background:linear-gradient(#7fad77,#4f794b)}
+  .flower .leaf{position:absolute;width:18px;height:8px;background:#668e60}
+  .flower .leaf.l{left:6px;bottom:52px;border-radius:100% 0 100% 0;transform:rotate(10deg)}
+  .flower .leaf.r{left:22px;bottom:75px;border-radius:0 100% 0 100%;transform:rotate(-10deg)}
+  .flower .head{position:absolute;left:7px;top:8px;width:34px;height:34px}
+  .flower .petal{position:absolute;left:12px;top:0;width:10px;height:20px;border-radius:55% 55% 45% 45%;background:linear-gradient(#fff09a,var(--yellow));transform-origin:50% 100%}
+  .flower .petal:nth-child(1){transform:rotate(0deg) translateY(-5px)}
+  .flower .petal:nth-child(2){transform:rotate(60deg) translateY(-5px)}
+  .flower .petal:nth-child(3){transform:rotate(120deg) translateY(-5px)}
+  .flower .petal:nth-child(4){transform:rotate(180deg) translateY(-5px)}
+  .flower .petal:nth-child(5){transform:rotate(240deg) translateY(-5px)}
+  .flower .petal:nth-child(6){transform:rotate(300deg) translateY(-5px)}
+  .flower .center{position:absolute;left:11px;top:11px;width:12px;height:12px;border-radius:50%;background:#7e5920}
+  @keyframes sway{from{rotate:-1.6deg}to{rotate:1.6deg}}
+
+  #final{position:absolute;z-index:45;left:0;right:0;top:34%;padding:0 22px;text-align:center;opacity:0;transform:translateY(14px);transition:opacity 1s ease,transform 1s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+  #final.show{opacity:1;transform:translateY(0);pointer-events:auto}
+  #final h1{margin:0;font-size:clamp(54px,15vw,94px);line-height:.84;letter-spacing:-.07em;font-weight:850;color:#fff8d8;text-shadow:0 0 34px rgba(255,214,51,.11)}
+  #final p{margin:17px 0 0;font-size:11px;font-weight:760;letter-spacing:.19em;text-transform:uppercase;color:rgba(255,248,216,.56)}
+  #again{margin-top:25px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.035);color:rgba(255,255,255,.72);font-size:18px;cursor:pointer;backdrop-filter:blur(6px)}
+
+  #start{position:absolute;inset:0;z-index:80;display:grid;place-items:center;background:linear-gradient(180deg,#111a27,#080d14);transition:opacity .7s ease,visibility .7s ease}
+  #start.hide{opacity:0;visibility:hidden;pointer-events:none}
+  #start button{border:0;background:transparent;color:var(--cream);text-align:center;padding:26px;cursor:pointer}
+  #start .tiny{display:block;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  #start .big{display:block;font-size:clamp(28px,8vw,38px);font-weight:650;letter-spacing:-.035em}
+  #start .pulse{display:block;width:7px;height:7px;border-radius:50%;background:var(--yellow);margin:22px auto 0;box-shadow:0 0 0 0 rgba(255,214,51,.32);animation:pulse 1.8s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 16px rgba(255,214,51,0)}100%{box-shadow:0 0 0 0 rgba(255,214,51,0)}}
+
+  .launching #copy,.launching #progress,.launching #instruction{opacity:0}
+  .launching #ground{transform:translateY(62%);opacity:.2}
+  .launching #sky{transform:scale(1.035);filter:brightness(.72) saturate(1.08)}
+
+  @media (max-height:650px){#copy{top:18px}#copy .line{font-size:17px}.seed{width:60px;height:60px;margin:-30px 0 0 -30px}.seed .halo{inset:6px}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="sky"><div id="stars"></div></div>
+  <div id="ground"></div>
+
+  <div id="copy">
+    <div class="kicker">para ti</div>
+    <div class="line">hazlas florecer</div>
+  </div>
+
+  <div id="progress" aria-label="Progreso"></div>
+  <div id="instruction">toca cada semilla</div>
+  <div id="drop" aria-hidden="true"></div>
+  <div id="fx"></div>
+  <canvas id="canvas"></canvas>
+  <div id="garden"></div>
+
+  <section id="final" aria-live="polite">
+    <h1>te amo</h1>
+    <p>tus flores amarillas</p>
+    <button id="again" type="button" aria-label="Repetir">↻</button>
+  </section>
+
+  <div id="start">
+    <button id="startBtn" type="button" aria-label="Abrir sorpresa">
+      <span class="tiny">tengo algo para ti</span>
+      <span class="big">toca para abrir</span>
+      <span class="pulse"></span>
+    </button>
+  </div>
+</div>
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const start = document.getElementById('start');
+  const startBtn = document.getElementById('startBtn');
+  const copy = document.getElementById('copy');
+  const progress = document.getElementById('progress');
+  const instruction = document.getElementById('instruction');
+  const drop = document.getElementById('drop');
+  const fx = document.getElementById('fx');
+  const canvas = document.getElementById('canvas');
+  const garden = document.getElementById('garden');
+  const final = document.getElementById('final');
+  const again = document.getElementById('again');
+  const ctx = canvas.getContext('2d');
+  const seedPos = [[16,73],[30,82],[44,71],[58,82],[72,71],[85,79]];
+  let count = 0, locked = false, particles = [], raf = 0, timers = [], dpr = 1;
+
+  const later=(fn,ms)=>{const id=setTimeout(fn,ms);timers.push(id);return id};
+  const haptic=()=>{try{if(navigator.vibrate)navigator.vibrate(10)}catch(_){}};
+
+  function resizeCanvas(){
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    const r=app.getBoundingClientRect();
+    canvas.width=Math.floor(r.width*dpr);canvas.height=Math.floor(r.height*dpr);
+    canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function seedHTML(){return '<span class="halo"></span><span class="grain"></span><span class="stem"><i class="leaf l"></i><i class="leaf r"></i><i class="bud"></i></span><span class="ripple"></span>'}
+  function flowerHTML(){return '<span class="stem"></span><i class="leaf l"></i><i class="leaf r"></i><span class="head">'+('<i class="petal"></i>'.repeat(6))+'<i class="center"></i></span>'}
+
+  function setup(){
+    timers.forEach(clearTimeout);timers=[];cancelAnimationFrame(raf);raf=0;particles=[];ctx.clearRect(0,0,canvas.width,canvas.height);
+    count=0;locked=false;app.classList.remove('launching');garden.classList.remove('show');final.classList.remove('show');copy.classList.remove('hide');
+    fx.innerHTML='';garden.innerHTML='';progress.innerHTML='';
+    app.querySelectorAll('.seed').forEach(n=>n.remove());
+    seedPos.forEach((p,i)=>{
+      const dot=document.createElement('i');progress.appendChild(dot);
+      const b=document.createElement('button');b.type='button';b.className='seed';b.style.left=p[0]+'%';b.style.top=p[1]+'%';b.setAttribute('aria-label','Regar semilla '+(i+1));b.innerHTML=seedHTML();
+      b.addEventListener('click',ev=>water(b,i,ev));app.appendChild(b);
+    });
+    progress.style.opacity='';instruction.style.opacity='';copy.style.opacity='';
+  }
+
+  function water(b,i,ev){
+    if(locked||b.classList.contains('watered'))return;
+    const r=app.getBoundingClientRect(),br=b.getBoundingClientRect();const px=(typeof ev.clientX==='number'&&ev.clientX)?ev.clientX:(br.left+br.width/2);const py=(typeof ev.clientY==='number'&&ev.clientY)?ev.clientY:(br.top+br.height/2);drop.style.left=(px-r.left)+'px';drop.style.top=(py-r.top)+'px';drop.classList.add('show');later(()=>drop.classList.remove('show'),240);
+    b.classList.add('watered');progress.children[i].classList.add('on');haptic();count++;
+    if(count===seedPos.length){locked=true;instruction.textContent='mira arriba';later(launchAll,850)}
+  }
+
+  function makeRocket(seed,delay){
+    const sr=seed.getBoundingClientRect(),ar=app.getBoundingClientRect();
+    const rocket=document.createElement('span');rocket.className='rocket';rocket.style.left=(sr.left-ar.left+sr.width/2)+'px';rocket.style.top=(sr.top-ar.top+sr.height/2)+'px';rocket.innerHTML='<i class="body"></i><i class="flame"></i>';fx.appendChild(rocket);
+    later(()=>rocket.classList.add('fly'),delay);later(()=>rocket.remove(),delay+2600);
+  }
+
+  function launchAll(){
+    app.classList.add('launching');copy.classList.add('hide');
+    [...app.querySelectorAll('.seed')].forEach((s,i)=>{makeRocket(s,i*85);later(()=>s.style.opacity='0',160+i*35)});
+    later(()=>fireworkSequence(),2400);
+  }
+
+  function burst(x,y,flowerShape=false){
+    const petals=flowerShape?18:28;
+    for(let i=0;i<petals;i++){
+      const a=(Math.PI*2*i/petals)+(flowerShape?Math.sin(i*5)*.08:Math.random()*.18);
+      const speed=flowerShape?(1.45+(i%3)*.18):(1.2+Math.random()*2.2);
+      particles.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1,size:1.5+Math.random()*2.2,drag:.986,gravity:.011,hue:Math.random()>.2?'#ffd633':'#fff3a8'});
+    }
+    for(let i=0;i<10;i++) particles.push({x,y,vx:(Math.random()-.5)*1.6,vy:Math.random()*1.5+.2,life:1,size:2+Math.random()*3,drag:.99,gravity:.02,hue:'#ffd633',petal:true,rot:Math.random()*6});
+  }
+
+  function animate(){
+    const r=app.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);
+    particles=particles.filter(p=>p.life>.02);
+    for(const p of particles){
+      p.x+=p.vx;p.y+=p.vy;p.vx*=p.drag;p.vy=p.vy*p.drag+p.gravity;p.life*=.976;
+      ctx.globalAlpha=Math.min(1,p.life*1.3);ctx.fillStyle=p.hue;ctx.shadowColor=p.hue;ctx.shadowBlur=p.petal?5:9;
+      if(p.petal){ctx.save();ctx.translate(p.x,p.y);p.rot+=.06;ctx.rotate(p.rot);ctx.beginPath();ctx.ellipse(0,0,p.size*1.5,p.size*.75,0,0,Math.PI*2);ctx.fill();ctx.restore()}else{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()}
+    }
+    ctx.globalAlpha=1;ctx.shadowBlur=0;
+    if(particles.length)raf=requestAnimationFrame(animate);else raf=0;
+  }
+
+  function fireworkSequence(){
+    resizeCanvas();const r=app.getBoundingClientRect();const pts=[[.2,.24],[.39,.16],[.59,.25],[.79,.17],[.50,.36]];
+    pts.forEach((p,i)=>later(()=>{burst(r.width*p[0],r.height*p[1],true);if(!raf)raf=requestAnimationFrame(animate);},i*125));
+    later(revealGarden,980);
+  }
+
+  function revealGarden(){
+    const width=app.getBoundingClientRect().width;const n=Math.max(19,Math.min(30,Math.round(width/19)));
+    for(let i=0;i<n;i++){
+      const f=document.createElement('span');f.className='flower';f.innerHTML=flowerHTML();f.style.left=((i/(n-1))*108-4)+'%';f.style.bottom=(-13-Math.random()*36)+'px';const s=.62+Math.random()*.72;f.style.scale=s;f.style.animationDelay=(-Math.random()*3)+'s';f.style.opacity=(.76+Math.random()*.24).toFixed(2);garden.appendChild(f);
+    }
+    garden.classList.add('show');later(()=>final.classList.add('show'),430);
+  }
+
+  startBtn.addEventListener('click',()=>{start.classList.add('hide');haptic();later(setup,260)});
+  again.addEventListener('click',()=>{start.classList.remove('hide');setup()});
+  window.addEventListener('resize',resizeCanvas,{passive:true});
+  resizeCanvas();setup();
+})();
+</script>
+</body>
+</html>
