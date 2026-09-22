@@ -5,8 +5,8 @@
 > agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
 > este fichero y los documentos normativos de `docs/design/`.
 
-**Última actualización:** 2026-09-21 · **B21 ABIERTO — checkpoint A** (preflight,
-baseline, inventario y auditoría DD-003/DD-004; todavía sin cambios de UI)
+**Última actualización:** 2026-09-21 · **B21 ABIERTO — checkpoint A y cierre de continuidad**
+(preflight, baseline, inventario y auditoría DD-003/DD-004; todavía sin cambios de UI)
 
 ---
 
@@ -16,12 +16,12 @@ baseline, inventario y auditoría DD-003/DD-004; todavía sin cambios de UI)
 |---|---|
 | **Bloque actual** | **Bloque 21 (B5 — Explorar: portada y mapa), ABIERTO en checkpoint A.** Preflight, baseline, inventario y auditorías DD-003/DD-004 completos. No se ha implementado UI de B21. |
 | **Rama** | `codex/block-21-b5-explore-home-map` |
-| **Último SHA estable pusheado** | El HEAD de `origin/codex/block-21-b5-explore-home-map` después de empujar este checkpoint. La rama remota, no un SHA copiado dentro de este mismo commit, es la fuente de verdad reanudable. |
+| **Último SHA estable pusheado** | El HEAD de `origin/codex/block-21-b5-explore-home-map`. El checkpoint sustantivo de inventario es `57e5f7775ad1c59eda65df8428b61f7d0ebbccff`; el commit posterior sólo actualiza este handoff de continuidad. La rama remota es la fuente de verdad reanudable. |
 | **Último SHA con cambio de producto** | `b051606` dentro de la historia cerrada de B20; B21 todavía no contiene cambios de producto. |
 | **SHA de partida del bloque** | `e3fca24a362efcfa99bd141599972944c0fabb99` — cierre documental de B20. Verificado como ancestro y HEAD inicial exacto. |
-| **Estado del working tree** | El diff rastreado del checkpoint es sólo documentación. Persisten dos directorios no rastreados preexistentes y ajenos (`phase3b2b-run-audit/`, `worktree/`), conservados intactos. |
+| **Estado del working tree** | Limpio para archivos rastreados. Persisten dos directorios no rastreados preexistentes y ajenos (`phase3b2b-run-audit/`, `worktree/`), conservados intactos y excluidos de los commits B21. |
 | **Estado de la suite** | Build/lint verdes; gates de navegador B17–B20, DDR-03, Explorar y fotografía verdes. Vitest: 3299/3313 por 14 fallos heredados de paths/CRLF en Windows, documentados en `BLOCK_21_INVENTORY.md §8.1`. |
-| **Siguiente acción** | Diseño/producto debe cerrar DDR-B21-01…06. Después, checkpoint B puede implementar sólo las partes desbloqueadas de la portada, sin elegir proveedor/copy/navegación por cuenta propia. |
+| **Siguiente acción** | Confirmar contra la instrucción autorizada y registrar en `09_DECISIONES_DE_DISENO.md` las respuestas aprobadas a DDR-B21-01…06. Después abrir checkpoint B e implementar sólo las partes resueltas de la portada, empezando por sus gates; no elegir proveedor, copy ni navegación por cuenta propia. |
 | **Bloque anterior** | Bloque 20 (B4), **CERRADO** en `e3fca24a362efcfa99bd141599972944c0fabb99`. B6.1 sigue separado en PR #138 y no se integra todavía. |
 
 > Este cuadro se actualiza en cada checkpoint. Para retomar, lo que manda es el HEAD de la rama
@@ -62,23 +62,36 @@ Cada pregunta, opciones, documentos, impacto y alcance bloqueante están en
 `docs/BLOCK_21_INVENTORY.md §7`. Ninguna autoriza improvisar. Las partes independientes podrán
 continuar cuando se abra el siguiente checkpoint.
 
+### 1.B Cierre de continuidad de la sesión
+
+- Al cerrar la sesión, `HEAD` seguía en `57e5f7775ad1c59eda65df8428b61f7d0ebbccff` y no existía
+  ningún cambio rastreado, commit adicional ni implementación parcial posterior a ese SHA.
+- No hay en este checkout una resolución de DDR-B21-01…06 registrada en la autoridad normativa ni
+  aplicada al producto. Continúan pendientes exactamente como se documentan en
+  `BLOCK_21_INVENTORY.md §7`.
+- No repetir el preflight, el conteo de dataset, la matriz de conservación ni la baseline completa:
+  ya están cerrados en el checkpoint A. Antes de implementar, ejecutar sólo los gates mínimos de
+  la superficie que cambie y conservar los gates de cierre enumerados en el inventario.
+- No repetir la investigación de los 14 fallos de Vitest en Windows ni del gate heredado de B12:
+  sus causas y tratamiento están documentados en `BLOCK_21_INVENTORY.md §8.1`.
+- No tocar ni añadir `phase3b2b-run-audit/` o `worktree/`; son material local preexistente y ajeno.
+- PR #138/B6.1, `main`, B6.2 y cualquier rama `astra/*` permanecen fuera del alcance.
+
 ---
 
 ## 2. Objetivo exacto del trabajo en curso
 
-**Bloque 20 (B4) — Ficha de lugar y capa fotográfica.** Alcance normativo en `05 §5`, `04 §6`/`§7`
-y `10 §B4`: reordenación completa de `PlaceDetail`, galería a sangre 4:5 con `scroll-snap`,
-contador y puntos según cantidad real de imágenes, `CreditsSheet` tras `ⓘ`, `EvidenceMark` en datos
-prácticos, aviso feb–mar 2027 condicional (DD-011), «Por qué vale la pena» con `--type-quote` y
-filete bermellón, franja de los dos condicional, «Cerca de aquí» con miniaturas, y «Fuentes»
-plegada.
+**Bloque 21 (B5) — Explorar: portada y mapa.** El alcance normativo está en `05 §2`/`§3`,
+`03 §9`, `09` DD-003/DD-004 y `10 §B5`. El checkpoint A no modifica producto: deja cerrados el
+preflight, la baseline, la derivación de las cuatro colecciones y las matrices de conservación de
+portada, mapa nacional y mapa de ciudad.
 
-**El contrato que manda sobre todo lo demás: ningún dato desaparece.** El inventario completo y la
-matriz campo→destino están en **`docs/BLOCK_20_INVENTORY.md`**, escrita antes de tocar código. Es
-el guardián: si al terminar hay una fila sin destino verificado, B4 no está cerrado.
+**El contrato que manda sobre todo lo demás: ninguna capacidad desaparece.** El inventario y la
+matriz capacidad→destino→gate están en **`docs/BLOCK_21_INVENTORY.md`**. El siguiente checkpoint
+debe partir de ese documento, no rehacerlo.
 
-**Las tres contradicciones normativas están CERRADAS** (§9): DDR-04, DDR-05 y DDR-06 se
-resolvieron el 2026-09-21, las tres por la opción (a). Nada del alcance queda bloqueado.
+**Decisiones de B21:** DD-004 está firme y se puede aplicar literalmente. DD-003 sigue provisional.
+DDR-B21-01…06 siguen pendientes; no hay resolución aplicada ni autorización para inventarla.
 
 ## 3. Decisiones de diseño CONGELADAS (no se tocan)
 
