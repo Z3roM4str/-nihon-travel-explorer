@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 163,
+  "imageCount": 167,
   "images": [
     {
       "placeId": "JP-001",
@@ -2938,6 +2938,78 @@
       "processing": "resized-and-webp-reencoded",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRkQBAABXRUJQVlA4IDgBAACwBgCdASoUAAsAAAAAJZwCdD3wMlSpwBioFUA/sH4zdFD2M9wT+G/yX+u/k9/WeQg/Uk6aGS4IYpkuvxamAAD+//6dn1f3MrWWt0v+7LZH5rtqD59XlPszC6pqusbBah92b7Ge2nv7rlJ8T/oWRqIGNp//XVrO5qsIKB/2Ub9PQlJ+nMAt/9Dr/5cC/J16XWrRvojqDuT/9fCXemr5wyWaFmK97sOemI//cT/+7a/1r1n/r0ZX3uMzrcIPlM+oPj+Fib/hpZrO5Z1goTSMRGtm//uSx64FYTFFtejL+8Pfnf91/4E0yXJ0Tbxt+9J4sca4vlRP69Cf0s9JoKB55XJsxFXXXFPKLmofPBbUfMH/0/hf/3PGH/IRuUoXJ+GUAcuLw5huW/9cQYrITxh2DNbIRQkpuQ4RwAA="
+    },
+    {
+      "placeId": "JP-033",
+      "assetPath": "images/places/JP-033/teamlab-borderless-azabudai-light-sculpture.webp",
+      "alt": "Visitantes rodeados por haces de luz blanca en la instalación Light Sculpture de teamLab Borderless, Azabudai Hills.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATeamLab_Borderless_Azabudai_Hills.jpg",
+      "credit": "DannyWithLove",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/0/07/TeamLab_Borderless_Azabudai_Hills.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:TeamLab Borderless Azabudai Hills.jpg",
+      "originalWidth": 3852,
+      "originalHeight": 2889,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpIBAABXRUJQVlA4IIYBAAAwCgCdASoUAA8AAAAAJaQCdH8GJ/sUF69el/7HZaL5T+GGet/FzJH/x78d9Rc/I7XZ/2v8bvaSzNvH3+U9wD+M/yn+6/kX/W///ykX6dm1AH0N4BgOEHapuqAA/vxqpLYQr/9cDIsLZH/v8DFJHsAH4QLUoVX620zfesptKU2T1evulB9zri8RWwX/96pf//ucfdo57UCwdjJY/HTSj+HufPT1Px4z2jq3///ZAlcXM2oB17Ca4LWqjUKiBQ3yd33NbkkuF84bT/zHMr/fQ8Sjqb//lsyexP+P1tTpL5QHdMgeZHqOw/Yon867Nf0ZtRDFvNAMfSW/Uf8f/quK0azTOnsf38basGISXpUZBDCGh4zN+NnLcD9hWFl39zK+BaFiPwq9H4/j/6GAOUPg4r5Yo0RiGMSI93hsn7MNh0bO5YZf26cbfXq3gp+eigr9PNa7/t7hq96kgZc+6hV4SLQXk1aIhjczbO1KFrd2iw5K6zK07YHGVEvAWA+QnEFvwO54JUMAAAA="
+    },
+    {
+      "placeId": "JP-126",
+      "assetPath": "images/places/JP-126/super-nintendo-world-fifth-anniversary-entrance.webp",
+      "alt": "Entrada nocturna de SUPER NINTENDO WORLD en Universal Studios Japan, decorada por su quinto aniversario y rodeada de tuberías verdes.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASuper_Nintendo_World_Entrance_5th_Anniversary_decoration_at_Universal_Studios_Japan.jpg",
+      "credit": "archive 2025 ark",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Super_Nintendo_World_Entrance_5th_Anniversary_decoration_at_Universal_Studios_Japan.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:Super Nintendo World Entrance 5th Anniversary decoration at Universal Studios Japan.jpg",
+      "originalWidth": 4000,
+      "originalHeight": 3000,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRugBAABXRUJQVlA4INwBAACQDQCdASoUAA8AAAAAJaACdMoR3L8C7AZKPUAn1XrAPQA/Wb0l/1g+B/9hf2x9nOjMfgB+wGWn+ofi7ogP6B+IGSP/mH5FaiB+OWu7/s34q+3Tiif4D3AP4l/HP7L+Vv9G///KUfroffC5jK7cruohdLKZbAAA/v//wtS5sYoDuG7Wxf02URVfGQeDh0ralmr2z8cbhFefTTMJGpgXu/+w678SWdrpsu+/lHjB7u9i9fC6QV//hkr17MmWjNzOGFIf2yjXx1KWz/RKWdRrOL/+EXczJYnYEwMRjf/sa8aD//6zxbB2icz+L1NfaJhUDl7H16+CncNZkXwDvVHnNl8eihoJ0Wlrar4Cjz9d4Enb+LWZbpSI4zAkG1fS2KC62SpNCzZvf8BnRu6QI9iHgzzuTLzlFq/BVxeNzHgBvRkm578B2+fnsv4uFJ+xNkJIteJwK7H/V4rLprPPC1yze/SWaf+mD+Tv8ZKFBWYTXZrf3X8SyZ8k9f+lVcfrAeRSZSKW3Ti6fvAldZ5nPtL6MWZz4mMgkE8ng86z9G/y1MJYDzJ4Fv6T5YfuXdPhvHaEjzjyeD7p3AtONYKW9n8c5ubsfE9uOy0jrR9c/yfaKSzhnoRxwWFsCzP3rAAAAA=="
+    },
+    {
+      "placeId": "JP-203",
+      "assetPath": "images/places/JP-203/tokyo-disneyland-main-entrance-2025.webp",
+      "alt": "Entrada principal de Tokyo Disneyland con el rótulo del parque centrado sobre los arcos de acceso.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_Disneyland_Main_Entrance_%28June_2025%29.jpg",
+      "credit": "Fred Cherrygarden",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Tokyo_Disneyland_Main_Entrance_%28June_2025%29.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:Tokyo Disneyland Main Entrance (June 2025).jpg",
+      "originalWidth": 6000,
+      "originalHeight": 4000,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRm4BAABXRUJQVlA4IGIBAACQCACdASoUAA0AAAAAJYwCdMoMYOE1ygH4AcAD9gP0A9/+7sf1g+DL/YKYAn026fPIn9u9wD+J/xv/C/anyF/6qnXy30kkNh3H/TaeoAD+//89GrULMpcrI+KJ/MfU3npR/cteS+zzbJv/+FWuy1ZZ67JO11N7Gf/YtygCl+jkh0EkDM+g/X8CWY/+3SZQzYafr9ofzDXTB+j8/28T/I/ffXXt/80GpfJI4YLJ+PEmNUIElpM73UK8+n+IWv/dIDqqwFJlKfpH8sWfmTRTEhhlv6/Ptv9/0l+Q583p//9YWVPX4F//Q8vEV7mUddFGHXkv6Y/qHA1Du4OKFdFoFA2r/9Uvegy7OwrXNJj/9p4rU7Yxcdu10ki9+f/1UvM/Ja8IP7Fkj//u9t18xfJhKeR6pmrN/uwitcg80X7+ebEcY0N0vYTgp6psIOvB8NAPTPYwB5DkwNPNxyTtkGPgclIAAAA="
+    },
+    {
+      "placeId": "JP-204",
+      "assetPath": "images/places/JP-204/tokyo-disneysea-mount-prometheus-fortress.webp",
+      "alt": "Mount Prometheus elevándose tras Fortress Expeditions y los canales de Tokyo DisneySea.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_DisneySea-Volcania.jpg",
+      "credit": "Okwhatev at en.wikipedia",
+      "license": "CC BY-SA 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Tokyo_DisneySea-Volcania.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:Tokyo DisneySea-Volcania.jpg",
+      "originalWidth": 2560,
+      "originalHeight": 1920,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRp4BAABXRUJQVlA4IJIBAADwCQCdASoUAA8AAAAAJZQCdMoLUCsM/XV0wDnoPZNpwDps/RqYS/KrmD/7h+Kv5AakBlqv9J/Hf1m9ZvyF/p/cA/TL/G/a5yIn7GH1R1sbF51S12WbQXBAAP7//3f2sgDTQ3MSdOmle///1J//Los0l4vvUFhdC3O9/tcwrfcOZO5uwp/1E8GK/F+f/vf7p/RefMSZ3hFqI2xqkbmQiUZZjj9K+uTsrLciGyFee9okDZK5xc93OQs7K8y+fKj5uv9bbMiaYsBFs+fl2Gb5hUD7VqIKprwTX/snGYP+21+cwmlrXRBO+xcPUc96/GYYJfVgMTgdBkIKWf/0WUXx4/Ng5CJlkLH/iNJeAdqu/PjnG+KlLn8L/0eE2Tl7/D/PbbKFLiX/yZZxmIZQs/77Ii/uZeb0aHj/h4oeX87G/E+P+bVnjMoj/0kwF+1LsHiTe808v38lRCDJqb0faX/sxIfHTuIM52frZRkls6yvS+vtUmoZ7OUbvXVFXMZ92dERQ+W0XdxPLMsT8tAlPugMtOAAAAA="
     }
   ]
 }
