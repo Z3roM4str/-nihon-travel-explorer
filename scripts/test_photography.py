@@ -4,6 +4,7 @@
 No network access, no image decoding — these exercise the validator's pure functions
 against synthetic in-memory data, mirroring scripts/test_access_points.py.
 """
+import base64
 import importlib.util
 import unittest
 from pathlib import Path
@@ -20,6 +21,9 @@ selector = importlib.util.module_from_spec(SELECTOR_SPEC)
 SELECTOR_SPEC.loader.exec_module(selector)
 
 PLACE_IDS = {"JP-001", "JP-002", "JP-003", "JP-999-not-real"} - {"JP-999-not-real"}
+FIXTURE_LQIP = "data:image/webp;base64," + base64.b64encode(
+    b"RIFF" + b"\x00" * 4 + b"WEBP" + b"x" * 260
+).decode("ascii")
 
 
 def valid_record(**updates):
@@ -27,6 +31,8 @@ def valid_record(**updates):
         "placeId": "JP-001",
         "assetPath": "images/places/JP-001/synthetic.webp",
         "alt": "Escena sintética con suficiente descripción para pasar la validación.",
+        "role": "identity",
+        "lqip": FIXTURE_LQIP,
         "source": "Wikimedia Commons",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Synthetic.jpg",
         "credit": "Synthetic Author",
@@ -62,7 +68,8 @@ class MetadataValidationTests(unittest.TestCase):
             asset.write_bytes(b"fake-webp-bytes-original")
             # Block 2 made the card derivative part of a valid record: every registered
             # photograph must ship one, and it must be lighter than its original.
-            (asset.parent / "synthetic-800w.webp").write_bytes(b"fake-derivative")
+            (asset.parent / "synthetic-400w.webp").write_bytes(b"fake-400")
+            (asset.parent / "synthetic-800w.webp").write_bytes(b"fake-800")
             errs = self.errors([valid_record()], root)
             self.assertEqual(errs, [])
 
@@ -75,7 +82,8 @@ class MetadataValidationTests(unittest.TestCase):
             asset.parent.mkdir(parents=True)
             asset.write_bytes(b"fake-webp-bytes-original")
             errs = self.errors([valid_record()], root)
-            self.assertTrue(any("card derivative is missing" in e for e in errs), errs)
+            self.assertTrue(any("400w derivative is missing" in e for e in errs), errs)
+            self.assertTrue(any("800w derivative is missing" in e for e in errs), errs)
 
     def test_a_derivative_heavier_than_its_original_is_invalid(self):
         import tempfile
@@ -85,6 +93,7 @@ class MetadataValidationTests(unittest.TestCase):
             asset = root / "images/places/JP-001/synthetic.webp"
             asset.parent.mkdir(parents=True)
             asset.write_bytes(b"small")
+            (asset.parent / "synthetic-400w.webp").write_bytes(b"tiny")
             (asset.parent / "synthetic-800w.webp").write_bytes(b"much-larger-than-the-original")
             errs = self.errors([valid_record()], root)
             self.assertTrue(any("larger than its original" in e for e in errs), errs)
@@ -97,7 +106,8 @@ class MetadataValidationTests(unittest.TestCase):
             asset = root / "images/places/JP-001/synthetic.webp"
             asset.parent.mkdir(parents=True)
             asset.write_bytes(b"fake-webp-bytes-original")
-            (asset.parent / "synthetic-800w.webp").write_bytes(b"fake-derivative")
+            (asset.parent / "synthetic-400w.webp").write_bytes(b"fake-400")
+            (asset.parent / "synthetic-800w.webp").write_bytes(b"fake-800")
             (asset.parent / "left-behind.webp").write_bytes(b"orphan")
             errs = self.errors([valid_record()], root)
             self.assertTrue(any("orphaned asset on disk" in e for e in errs), errs)
@@ -244,6 +254,14 @@ class MetadataValidationTests(unittest.TestCase):
         self.assert_invalid([valid_record(alt="  ")], "alt text")
         self.assert_invalid([valid_record(alt="JP-001")], "alt text")
         self.assert_invalid([valid_record(alt="Imagen de Shibuya")], "alt text")
+
+    def test_role_is_required_and_fail_closed(self):
+        self.assert_invalid([valid_record(role=None)], "role must be one of")
+        self.assert_invalid([valid_record(role="cover")], "role must be one of")
+
+    def test_lqip_is_required_and_must_be_inline_webp(self):
+        self.assert_invalid([valid_record(lqip=None)], "lqip must be")
+        self.assert_invalid([valid_record(lqip="data:image/jpeg;base64,abcd")], "lqip must be")
 
     def test_unsupported_file_format_rejected(self):
         self.assert_invalid(
