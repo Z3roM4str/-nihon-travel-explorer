@@ -75,8 +75,9 @@
 
 La evidencia existente en `docs/astra/evidence/pr135-audit/results.json`, `summary.md`, `screenshots/` y `traces/` sigue siendo la auditoría histórica de `79748e85b7884c8f85ea1d71066ae72b72e4bd95`. El intento separado y sus limitaciones están registrados en `verification-92791f3.md`; debe reemplazarse por resultados nuevos únicamente después de ejecutar la auditoría contra el SHA de código correspondiente.
 
-### Corrección JSDOM posterior y Auditoría de Navegador Completada — PR #137
-- **Entorno de verificación:** Se instalaron las dependencias (`npm ci`) y el ejecutable de Chromium 1234 (`npx playwright install chromium`).
+### Evidencia histórica recibida — PR #137
+- Los artefactos publicados declaran como código auditado `abe7a624001d3b86727ece19201aa895eee63271`, pero ese objeto no está disponible en el checkout y no se pudo recuperar de GitHub desde este entorno. Por ello, los resultados y capturas se conservan sin alterarlos, pero **no prueban el HEAD `9408e27ec279e6ec80bd27632e656d4f6c265384`**.
+- La ejecución histórica declaró que se instalaron las dependencias (`npm ci`) y el ejecutable de Chromium 1234 (`npx playwright install chromium`).
 - **Pruebas unitarias e integración (Vitest):** 71 archivos / 2474 pruebas pasadas (`npm run test`).
 - **Linter (Oxlint):** 0 errores, 4 advertencias no bloqueantes (`npm run lint`).
 - **Build (TypeScript + Vite):** Compilación exitosa (`npm run build`).
@@ -87,3 +88,12 @@ La evidencia existente en `docs/astra/evidence/pr135-audit/results.json`, `summa
   - Aviso de fallo de guardado visible en contenedor rojo con bordes definidos.
   - Botón "Reintentar guardar" interactivo, sin desbordamientos (0px overflow) y con objetivo táctil accesible (>= 44px de altura).
   - En la ficha modal, el aviso de recuperación está autocontenido dentro de la ventana modal activa y limpia su anuncio accesible tras reintentar.
+
+### Verificación de trazabilidad del HEAD `9408e27` (2026-09-22 UTC)
+
+- **Rama esperada/local:** `codex/completa-pr-#135-de-astra-16422227132192129267`; SHA inicial y SHA de código verificado: `9408e27ec279e6ec80bd27632e656d4f6c265384`.
+- **Estado remoto:** `.git/FETCH_HEAD` vincula ese SHA a la rama esperada. GitHub y `git ls-remote` respondieron 401/403, de modo que no fue posible reconfirmar el HEAD remoto ni editar la descripción del PR.
+- **Checks ejecutados en `9408e27`:** 71 archivos / 2474 pruebas aprobadas; build correcto; lint con 0 errores y 4 advertencias; los cinco validadores terminaron correctamente y el validador de dataset comunicó 13 advertencias de metadatos secundarios.
+- **Auditoría de navegador nueva:** bloqueada antes de iniciar recorridos. `npm ci` terminó correctamente, pero `npx playwright install chromium` recibió HTTP 403 en todos los intentos y no existe un Chromium del sistema. La ejecución con `ASTRA_EXPECTED_SHA=9408e27ec279e6ec80bd27632e656d4f6c265384` confirmó la ausencia del ejecutable. Por tanto, se registran **0/9 recorridos nuevos ejecutados**, no 9/9.
+- **Revisión visual:** se inspeccionaron manualmente las capturas ya publicadas de 320, 375, 390, 430, 768, 1024 y 1440 px, además de fallo/recuperación en Explorar, ficha y Nuestro viaje. No se observaron recortes ni desbordamiento horizontal; los avisos de error y botones de reintento son visibles, y la captura final de Nuestro viaje muestra la recuperación. Esta es una revisión visual de artefactos **históricos de procedencia no verificable**, no una aprobación visual de `9408e27`.
+- **Resultado:** no se detectó un fallo de producto en los checks ejecutables y no se cambió código. El detalle reproducible queda en `docs/astra/evidence/pr135-audit/verification-9408e27.md`. El commit posterior a `9408e27` incorpora exclusivamente esta documentación de trazabilidad; su SHA debe consignarse en la descripción del PR una vez creado.
