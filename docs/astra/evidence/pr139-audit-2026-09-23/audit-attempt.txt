@@ -1,0 +1,26 @@
+$ ASTRA_EXPECTED_SHA=9408e27ec279e6ec80bd27632e656d4f6c265384 ASTRA_AUDIT_OUTPUT=/workspace/-nihon-travel-explorer/docs/astra/evidence/pr139-audit-2026-09-23 npm run audit:astra:browser
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> app@1.0.0 audit:astra:browser
+> node scripts/astra-sol-0-2-browser-audit.mjs
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Executable doesn't exist at /root/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at /workspace/-nihon-travel-explorer/app/scripts/astra-sol-0-2-browser-audit.mjs:27:32 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v20.20.2
+exit=1
