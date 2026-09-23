@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 163,
+  "imageCount": 167,
   "images": [
     {
       "placeId": "JP-001",
@@ -16,7 +16,9 @@
       "originalTitle": "File:Shibuya Scramble crossing.jpg",
       "originalWidth": 4080,
       "originalHeight": 3072,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRroBAABXRUJQVlA4IK4BAABQCwCdASoUAA8AAAAAJZwCdMoLUDqgT6B1gG8Z/s5+t3tHXID8AP1mswP5L+KuYgZBX+QGqAf0n8gNdn/gOW58h/3j3AP4X/Jf73+Un9I///Kifq6arGFomikBsKY9HLU1LgAA/u+vrdnxWh8QZ/netp7Nr4WswrsZ2veL5X/+jytdpu1DPX9Ztvbpn66+EP2gRsGv3f5hDTaFgeEnToX/uJclCv857HqhlLGje2e/wAUMz6z+hjXDWU4RjRk+iGtj7/mlKyBU/k3ON1P9jsDjfJ2UvnlXs4FLHondDSbOkgXXcs3TpJdls/m9FvE2mymLv/+Xckvf/+e8yl8sf0CHIT0lR7G9P64yWqhbwIcb4vyZLY7YXD9P9UjSPeC8FG/HLK4HI1P+mW/vn6l6v9bIX326k8JR7c7opE8a96gv6k6iQ6Z9G08/FTYZbKapD+F/ah4X7++BeG/+B64BUMMvtsF/7anzEZ+3/6N1xzoSKC6+V204+A///iaShLh5w9+RSd/MmBXyKCD3QpQPT/eFdx4bDCf+J9qD5wk8NPsxnUWZs0nucyrit/wAAAAA"
     },
     {
       "placeId": "JP-002",
@@ -33,7 +35,9 @@
       "originalWidth": 4032,
       "originalHeight": 3024,
       "processing": "resized-and-webp-reencoded",
-      "attributionTitle": "Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck"
+      "attributionTitle": "Yoyogi Park and Shinjuku Skyline from Shibuya Sky Observation Deck",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqwBAABXRUJQVlA4IKABAAAQCgCdASoUAA8AAAAAJYwCdMoMYOEBb4+mAbxXMAdkr7hkleSP/sH4zfkBsAH+A1gD+bf1XygPLj67e4B/EP43/dP6X+0f9u///KAfpudm9dzM/1Bx4XYAAAD+//78eLJQ3g/VqdxcdJkmxwMYxPOhdHP9GIgC35DxYCHYMRfkI6kt/1Fv/EzLPOeHUzuZP9MP/4fNM+qvPhJtS+SlHb4/YObehdn+HIJPjH8f8k//neDD88txarBCPr//JN/3/rygBfrA6XXxr/j6P+jNx2tiFZPQ76b9/WZG6+/j+xaDdPdCY5Dv7ku5SvaPyTx/nayQap/QWTAYWW/fPsWltVq//sOuv3a88JdCik1zWumfi60r8Y4FoEifWF+277yhn9Vsf4wrSTOj//zObd956HH/+hzkvW1Y0mRbsc5CsZSsdX/ztSPW8iHCn/8nQghK93zqZq6x21GcEjyMaMZS+5ebv4BW8ccauX2riP7XdQ/yGP7pek+BBlJV1yPP69RRMCDuUVHruez8tbjcOZ+A0CijufIhJQV5XHEDUSmHZc/gAA=="
     },
     {
       "placeId": "JP-003",
@@ -49,7 +53,9 @@
       "originalTitle": "File:Meiji-jingu Torii 1.jpg",
       "originalWidth": 4592,
       "originalHeight": 3448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAAAwCwCdASoUAA8AAAAAJZQCdMoRwIsCrV4Ll+s2WAbxjWJeSz9GskE82/FXPc/i5+DuWq/jNqN2o3/rv43e5p/HeRr44/0nuAfxz+Uf5X8u+4B5JJ4zV4Vr3sMSj2/DWb/eAAD+/8X72E8OoAW/m3cmEyxiAQB/tsG6ProZr/+hxTfFpoBTZGeA69y9xD6Q5GsQq9mp+9f5w9Bncbcy7qBAyRmRg9UvVK/WLurz2EgQ9ys/W1VHm0gziyqOWU94+WuZ+1AlapLUkPAX9Xy3t6gvketChjzQ6+iTig9/8hEv/aNcyV+TqWfpGmoQ3ygyYLcPM8iQCkH3fcpJ71UDsLujbQCgrfBmglM+Cd9H6SX5HTLH/P1tL4T3Q6lKymPfqkJafmb/hE698vBO9v5gvPWJhUyZIkX3d6zNq/mKWW4sdKf/b/pjWP9/9dDZ+lx3e792pG30c/y27U03/W4vk7DajHz44E6H3cCxDHOTNdl9BF4J9DA4iZsQWLu3cCV6sumnBiczt/qFhtldYxFZ0SjYnZ5/11WDNVNpG7sqRoxIfiauE/49KM1DY6/4v30OYCGvsO4ubw277BMAAAA="
     },
     {
       "placeId": "JP-010",
@@ -65,7 +71,9 @@
       "originalTitle": "File:Wooden footbridge in Shinjuku Gyoen National Garden, Tokyo, Japan, a sunny day with blue sky.jpg",
       "originalWidth": 6720,
       "originalHeight": 4480,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRq4BAABXRUJQVlA4IKIBAABQCwCdASoUAA0AAAAAJZgCdMoRwN6B+Fb7K/wA3jP/AZQBzzPsSftF+wHs5Uaj8L/2OywTzz8O88t8s2Wjd4D7b/YBzEv+V9g7+Lf2z8p/7R//+Uz/UA8t3vvVrurczWewPQAA/eoznRvw5vrtekDy9ZA31hNxfR6cu9rhWazRplelm69CP/5OfF8ZvUy9kAlKHwuraMa1phy0NAPBR5A0DBXSu+8x7t+F1UlvZ8NU3kRltny+/MH7J0TMlNzXJMOTq2/P47tV/9xWeqJ3P7/UczuYI/87ctuID6Ck/e7XKeZgTYS13IKuUyMpeB8Qd8Qdd277JXL/K4zsvvnrhP/9tvu236W5HmVvmPJaS+rDVPeSkywDWURFKXrkl/f/+0w5L//ysbOsZyEnXd//O2qfDPvDev+/6fJfj/p7HbU9/XzKOCdi4qrPQf9efP8hXD55UJuWv/VFPi3MaGxE+pqxGQdmv1sm+J0LxdP/9HPjVk8mhsBXrMASvVG2SCrysv7YxE79opLv/kz9jkz1kv9AX8yQn/PwYn2vfp+5+1ryAAAA"
     },
     {
       "placeId": "JP-021",
@@ -81,7 +89,9 @@
       "originalTitle": "File:Tokyo National Museum Main Building PB304920.jpg",
       "originalWidth": 4548,
       "originalHeight": 3376,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrABAABXRUJQVlA4IKQBAABQCgCdASoUAA8AAAAAJZQCdMoRwN6B+Fd0HaBngH6Z9f/j3X6AfCRWJeErx2f4qzjv+MGpAfjdrQHon5tvlj/Re4B+lX9c/ML+58hX+wCLQLeSmTHt8fTfGTSwAP7//qC/er62s/rucP9pgOv8fOmyTvFST31a8OtQnUfDV/4aIom5A7LGXNVG/9/5tLzg/TWm9khY92/8RMv7/Bndv/8PQ+YK1OIL13JbJT/ZHmf20qK9HL9RUUvcHCu01T/TFe6ZVvwdlsgNiSfx11yY5W7oW8I3ftNU3/PBzKk99StU6LurNOPt05HDDZRXPPupSIfrCJPSXQO1LP8cWzR4brYRXMQKt0uequt+MOZ2/M5f8/r6V74KwItXRI6AYkm/JiuypmtLV6+UppkagDPRATF/Pmtg6sTyM8Wu/9E80tzFf/P/niXGlScb76dxgYi/Ifhdqlq//E0/OyKX7zxazL6vHhfv8jT3JqSHd3citSRpsc9er7FZlk5RYW+kC4X9BDcxt/2ek089/y3tKynlX4iVDGDm74O38OTRg74O38OV/uinoAA="
     },
     {
       "placeId": "JP-025",
@@ -97,7 +107,9 @@
       "originalTitle": "File:Akihabara Electric Town 06.jpg",
       "originalWidth": 4592,
       "originalHeight": 3448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRroBAABXRUJQVlA4IK4BAADwCwCdASoUAA8AAAAAJZwCdMoR3JoM4EaAt9vnQOAA6Sz7ZvaMuQH0Z9gN1E9GMma9E/EbPZ/iB+R2Wufkdqh/8w/E/XW/4D7Zvfvzi/DXsAfxb+V/4b8ueNNNpODvWnYVy9y0rAGRAAD+/+/d1tjlRHLxTCP2kXE6UR8DgVot0aE+yKlO+//6Lf7alyhhJOz/67ItA2FWvEqVz5D8U4air3J3T+Rv4R4X/n/xhhCfY4P2eKyzUr2uv8UxVniPfcibENvRp4NbjqPFnP3wzXa/6fH9N/wXCu+eua0+TVD9JM4u5gqMzbHX4feW5XmAtr/tiRhPqjaT/dyxtmyl+tl/f6f115//XQehhDoEW0PBip3OH/4KrACIgHehVFOBL3h/E2eqbghHeLZd4Twee6Hl1S2WX12IkyvVWp/b3NlOuv88MvaxdXKUH/UZCzPT0/9j/nou0ORElZaX072Af3biUM5ja8k6u4jNl0H7FXWQxlWtg3ynW+OZyPZIEO47NOUlWU1C+oLqloP4Mq8f2j5x/BhhnUUBc5God/jRulVvTDmNc+3Q/a+Xr71jQAAA"
     },
     {
       "placeId": "JP-089",
@@ -113,7 +125,9 @@
       "originalTitle": "File:Ninomaru Palace, November 2016.jpg",
       "originalWidth": 4539,
       "originalHeight": 2864,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAACQDACdASoUAA0AAAAAJZgCdMoRwN5B+Ev5AcgEYA7B3/AbwBwAHlOexP+2fpM3KX8AP1Vs3f5h+Cn7Vf6rSX/g7kgP7H+QHkBSAH9r1In+M+2bdEP4n/Y/yh/uP//40A+3jA2JCBv6UxOtPuISAP7//yWai5Y2z3l/8gG6AKDRjOA2DLGaChejIode1hyqv/99Y9IFlXA2cD7e+YQTzYrBf//TTx/7SoDO2wdIG394pcLbuAvH68UMycv/M1HmO36m3lJXx/lSvdcWP/F3/nzB9I8yT8sqXGjOqdBjb//1mzgf96LAPapeoqXIjQPJFP2/gSbZTX2biU6MGkP2xNF6uYtwIfPE5O35mjsE/nf0C2/0M5B0qIP6wWc7wcf/920j/5M5/RXqArmLv/65gF7pE32/9J3X8bMDFCY/v//P+vc7dpD8+//9F+/nu/BTqfGfwwUbRCcmlnxsyjGKLNanL1SUXc1IH37EcnnRu5BhhO1f/887mP+xPfvdbR0Gxv9Wu91ete/xkecU3jkzg7xRydspX1Rw/yrN7EH4ulNqGf/z/oNVRcKXsfrlHkEiMMoe8c3NGu+Jk98sOd9AAA=="
     },
     {
       "placeId": "JP-054",
@@ -129,7 +143,9 @@
       "originalTitle": "File:Kiyomizu-dera, Kyoto, November 2016 -01.jpg",
       "originalWidth": 5852,
       "originalHeight": 3601,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpABAABXRUJQVlA4IIQBAADwCgCdASoUAAwAAAAAJagCdMoR3N6TvARgFWA/wFDM6WF7EHlAXIDkm/UDJBNMGeT/Hb9bv7dlpuic49b+3eR35m/1XuAfxP+U/2/8sf6hyHP6kndZpVluvVoVy+fzyGgA/v//nQJgSKO5M75qv4/Xj7yz8F3IoTtIqlkl1dDHtWxF1z/iBA8lTiozRWGN1Nsf9aod/Z4B4VCLQo4fYQWNfZw/XH7lZ9gxjTlvOYl2E6caRxwJ6KOG7LAv3zP4ACx4pB6ENkk7/9bmfq0BfSsPHBkX0hzNd+9gB7XV7t/p4ndesSv+JrPmX1a7rsU4ee+yKC6Jrli45385u8/CMmYU0Nzl4hsxSWRf+Hgfly5Wv5//60zK9Ybbv0/f/nbePvQkI8v5IqIv/1rsa3zr9+x8e49S/Qf9yiXExPDeI+zIXXn3nNEyvkKfCP83cvmnE6tWQteZ8aCl+MNpNlCiT/WiHw0t+9WghQQF0DhY+S8VN8K7M1y6iRbNbwROiWUz38JSEAAA"
     },
     {
       "placeId": "JP-057",
@@ -145,7 +161,9 @@
       "originalTitle": "File:Shirakara Canal, Gion, Kyoto.jpg",
       "originalWidth": 3036,
       "originalHeight": 2112,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpgBAABXRUJQVlA4IIwBAABQCQCdASoUAA4APhkIg0EhBgEABABhLGATplCO5vSaYC7AXZXz3v6q/BY3wT1X8Zs9v8s2XAU7vzH85/zL/tPcA/UjfRh8XicX3cFrpuqb0KWAAAD++JQ/o6rm0uBfpiB8tn/i5dUKiwv/URO0T0hPz9JONcDqe0qvt8S/j2aKd+FF3VzaciiXOS6Z/1GY99zLx4RwPe9vAZw46TlPhHe8rI8ij31/9Ow9rcDUp8D1xj/yeX5vd+ZpH/HXHmNPQ2oFaOk2/1SkXajaP1ZfFh8MdcSsj6cM9xd84r1uID/g4QA6zAYQmCNf//9K+/Wfj95yCXQXgFXCxXdmb6TevtIx4faO57si9bxyN5D/GSEw/v+8UvJz80X/O4DhKKZnnOkhf4f7gdR/0x/UZFf8q73xNhMCxmEWRX9+xvw6/0rP8yA3/4tk3ai//a3H+IOAff5Ff2S03/Au9om7Rkx993KA+p/1H68PDJ/DtHuePcN2q25z9AUS9XKe7bczZ7/i2Ov20u8zt901PAAAAAA="
     },
     {
       "placeId": "JP-077",
@@ -162,7 +180,9 @@
       "originalWidth": 1600,
       "originalHeight": 900,
       "processing": "webp-reencoded",
-      "attributionTitle": "Katsura Imperial Villa / 桂離宮 X"
+      "attributionTitle": "Katsura Imperial Villa / 桂離宮 X",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtABAABXRUJQVlA4IMQBAACQDACdASoUAAsAAAAAJaACdMoRIBwgTYZwI0BgwH6Ae91zoGnZexd+0XpAXIDhQP1Vy1nzf8Rs8B+IH65f47LRvwg/G7XQPxV13f+A8lXvAPxy+gD+GfxP+s/knxp/6coe/VDwqz1YNCwgrKUAAP7//sVQKtflR+rPvdoN9RmjTIg9WFeafYTU9TObP5mjinOM7v4+QjGeGpeIBzKVFd8OQQD/rc38MuLryemv4dW6u56mksXI1+Zyh3JRiszPQalTOLkC6c6PDn++74l2LJHDRALiViLpwLtk0vs1T/CtptGa4o2zrCJxCQmekGsjP/4pxWHm0EJB5PQxpCE1ittBnvmRD/GGJKBVltmL+KZ/1mm5XQ/i0CPJtP80X/7ea8b63YcZkAd/3Rv/buWS5yeKbn+VkA2OKApPvL/15gOd4v5xuEax07//IHo/8FVhm+qtbqOrj/7JS1gVW+/hJGvT///tIkLu5FZKC899p0SsQ73IISlDm7q/1RkpYz3daduWOvGuKrjwNa6L76K/+tKYUrpuKNkJf4jxpOjy39/ELS6E/V101I6WtO9euHlfGOtB3JD5vC/5jx3wbCG+gOB8pAAAAA=="
     },
     {
       "placeId": "JP-094",
@@ -178,7 +198,9 @@
       "originalTitle": "File:Kyoto National Museum (2020) - img 05.jpg",
       "originalWidth": 3687,
       "originalHeight": 2765,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuoBAABXRUJQVlA4IN4BAABwDQCdASoUAA8AAAAAJYgCdMoRwN4BTAaIB/QOcA9QH6V/rdlgHoAdJh+0/om3KXnBUAf0D8QNEB/UPx0yT38i/GP8YNdu1IH+V9AH+A/ID1WfG/+X9wP+J/zD+n/lN/WP//ywH6wH3YnvdrWLkt+BlksTuAD+/3wL/bWC8li/j787VqjvXX/+FnEqA+AsGUFf4aJO7y8Kk5wvScekbu2Zq36rkXLHrxq1LKAP3Cm8Lz+WOTXKX7I/ouXWZTUeCLRUMC51XT8CEhF23M1/nsOjhLjjN/5QG+2vW0rMue78nQKN/zaCH/ys/xKgV0IUpWBv3VRPln4UNNUSrzCtuODcR4D/+bOJwT+FBrqQBNHLuVi9rnSQz0c2AkIAd0PD/MyEhNA//TRwH2rGZa8wk7KhgLsN8z3/vJ1WXzbOt/h6icgWO1zsOuSIOfyPKcz4/dmZtwdpokhk5vir8v/2vcX/wWqLb10b8DYe5t1YneL9wwA+ZsJy8oH+7Vu4gGIPiYPngvG+WGzc3bcsZNeLl1g7T2g173NiB0BTHfcEP+Jtdpkf9ujUOEr9hM9gj7b22dTYRfKWAEoEmGI0mP7Q3NpP6EaZ/BhasON57ctzR/wLpG83nfW+ka9Zi0jfcAAA"
     },
     {
       "placeId": "JP-097",
@@ -194,7 +216,9 @@
       "originalTitle": "File:Nintendo Museum Entrance.jpg",
       "originalWidth": 3302,
       "originalHeight": 1960,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrwBAABXRUJQVlA4ILABAAAwDQCdASoUAAwAAAAAJQBOmUI4G8A/ECWAcpXtoH+O/s3v/6YB6AHkyf4z/AfBL+t363e09bAH6zcwB+pOWCaSc8x8s2WMfhnqgH9r1Ff9m9BnN38if4D3AP4p/JP7l+TPGX/rkebdBYv1QTXCydgSvgAA/tK/fk/N5p22x94SI+s/ZsR//4HGW0vA48wLMe/XTtcyaf9csZoLmE9PszpP7NeL+jcR/8tw2hHRBLQVkvKXYBQs2LzIRiw/z/KPyVlF+JoMjzMHdAdy/ZW7e72sYMj/3fpFvtneVPK/V7H1PdFYj2/o4sHIjGIDNMPtQrc+ONdV8yj5ak7q4cYvnUZ5PBfz4YAcZOyqMDWKjUBdUXyf/9mIL7iBIe3w9+R78DIvFt/+3vHlsrrqHsLUQ5cUabyieRF7NRmv/7exP6cu5/82aB8RDwlQ//y5uf0Nemyz3mvd5gqtRhuM2yKMT1vhhrjW/bXU/JBSjzUtldcA8li2L+4btJz2tpS8nUW0WJr/Gp3ydrf4cvPqMnc3kD/gw4JoJjj/4kw5gLl+LRIzvlKisl3Ciuz5D4X9zhQAAAA="
     },
     {
       "placeId": "JP-134",
@@ -210,7 +234,9 @@
       "originalTitle": "File:Horyu-ji Kondo and Five-story Pagoda 2022.jpg",
       "originalWidth": 3931,
       "originalHeight": 2624,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAAAwCwCdASoUAA0AAAAAJagCdMoRwN6B+AH6V1YHUa5QCaAOlF/XmuS/gB+wHYCoP/pf41/iTPgP7H+QGozfkBrKv5Ae4zhAe4B/Df5X/bvyI/fPlJf0rOmidIpTiMfkeUpEoAD+//9CNwMV/bndafAWhAeuv0veZlLt/+1IgFv1OoUo+ylrrdmrhztgf7IO3ED2d1yPrt/6YrrkpJPjyvXEgc1Kf0/j/9q+bLfrthLt2nuAnz/sLyB//pXi+FuxxGb3zso+kNBsNdvowOGaX/rf/3pusN/7iU+zeBp3G//8onE//lJB0lhTMbl9j//f4p/jVoGlWqpIAf7UK//8ouEyK+TKgEUxnyTKch6fKlk1r+YIH4//uyL+k6EvfQt2+On62UvKyVemPoalDciL7H/9UpyBHXIxP56v6mp8fV37ByvkUqF04ny/KTIfSV2TYDSWISG/w6Ps1I6YB8HoQus+6p9nT//ExsBfC80X9IUUwgtsXfYj0jmiOfBTWGNjla0wXxti2Fc1/uKh6ei71Shr9wQAAA=="
     },
     {
       "placeId": "JP-129",
@@ -226,7 +252,9 @@
       "originalTitle": "File:The Great Buddha Hall of Tōdai-ji, Nara, November 2016.jpg",
       "originalWidth": 4361,
       "originalHeight": 2923,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAADwDQCdASoUAA0AAAAAJQBOmUI4G9A/FWpA0AD0M/4BzoH6ze+3zwHWAc8V7Gvk8XYFyAdgN2z9TcmL9azFf4zfsB/gMwB/Vfxg8gKNr/G7Xgf5XyVfAo/o3uC/wr+Mf0b8i/7T/6OVE/UY+q7CJqsGzhtBmhEsPAAA/v//nu2QLBjP3/yYuauwSwNLdAvBzVrufE3uxuxqzXVAiVd7ztkJdmghOQWFesCZl7vyMNKoIyl4Me2P/1XOYfaV0eFQ59YO4BBuB7srsf/6PvUhLy4Mk8nt+j135El/sTXa9OmaytUW//meg561R7XyJuZlvir6BdnqA4FLLZ1RTL0N7t1jdMrb5z+lKqjmVRAUG6WdUSvxZdMVE3sszAHVib6/Slmt3shUmuuID9d0cmPLUZa22ML9ZU7ShyEH6z0gEyDeTb6Sd9P6rrnvvkn0I3pO2pRL1RH3Rz4zKaueB7SJthitJmxiV9Ztbz1Ga6VBmtP3Am6M0iQGVDb0sSn3QvqvXSImEySABUu0l8JPQ81y7tnv5/vrb5i1ot/mlHn5wLrG6mmXyJSO0I9YkFoNdRTkeVbd36+b+0d3u6KnQaoHPWUJrcGhHqC7Z3Cm4aAAAAA="
     },
     {
       "placeId": "JP-109",
@@ -242,7 +270,9 @@
       "originalTitle": "File:Shinsekai and Tsutenkaku Tower.jpg",
       "originalWidth": 5624,
       "originalHeight": 4218,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtABAABXRUJQVlA4IMQBAAAwDQCdASoUAA8APhkIg0EhBgEABABhLEATplCOBFgPsB+mfmS/sBlgHoAeWB/gPcR/bn0kLsB7gntP4zfkBpVfxVywL2A/CXUQPyO11v+S+1X4K8yLy//uvcA/jn83/y35i8ZWOnms7Un6hhIprS86JHAA/tDQVG/BLCiPFlp//2lUHrKrOWT/rfCjPeN+1AL/BYKAF+XMhzbefLa7n3G07WDEXLh/56y8Zj/+sr2G/+f93VXKwwPdWeJjWSv9fywma59ZsVTLUJVn5OWINJSa37UfHV8WOE1WaESR//g+npRjToZvyieyO3X08RdbD3/dZ8TdOVDvTqEhvIOBbT5vdDzpK0BKNlcL+/sb8MxMSqttN7V85/NW3en01rVPcRucWDHzI9klhRW7xuMkPQJcvRl92LtJLYn+LCl91aXN6TvbYAQ68LQHRVPxwtORcDVkuD/7RMu/J+D7VG8W9Mhs4wEGMj66/+Srfn6u2TipS1P+ubg++Jn7Ay7m9nnv8Af/wX+9Pw/+5wQ5ABIIYiA/+P4Ac0H0AXFOf9awoLGod/yyjetJZOFSUeqTzsg8tmVyvB6ObWBYO/fS/Mp6NuwnQAAAAA=="
     },
     {
       "placeId": "JP-145",
@@ -258,7 +288,9 @@
       "originalTitle": "File:Nachikatsuura Seiganto-ji Three-Storied Pagoda & Nachi Falls 01.jpg",
       "originalWidth": 5184,
       "originalHeight": 3809,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRu4BAABXRUJQVlA4IOIBAABQDgCdASoUAA8AAAAAJYwCdMoMYPYEaa/quIA/SL+n+3/kAHlEfsB8DH7D+jpdgXLN2A3Xr1GyQTy38SdEB/VfxV/IDMH/x78d/xgrYH+q9Fj+A/Gb1X/HH+q9wL+KfyP+sflh/b///yqv6ZnjzlwOJuJ3VB4ygf5NyAAA4n/9Uz8dWyD/gY0Y7ZF8osDxPVjOFftzeqvzkfHnF07DJmU2/LxPn9/hS8+ZK4Pox8q1XikGnZbIkwKxeoclPYCcSqeYtcVqE0asa2ZfXTUM9XNOGQVDJKrsPeyONn8ZvZh6JC5T7K/QJahX2H85fDmg1+v6RkGQsvh/aVVxdT/jlj20TXh773qv6YyjD9f/ZZ+5qrrJY1YVTHlQioA7Fe5s/JQ1XV8uY1ht3qu4PzeP7iVWR1V7M3b81SKv//lO/FG02oLekkhFULZvbB316sLLaSA1unaTT5G75ZrzDP3/rmK6dx+Nzh5FquP/kErlsDBYEv+R97/WcVCowqM+f/hGYmLfSWjPtMr+/PbrTZ1yyzL07Jj6ZVrJZaQRq/+uG26vcaW2XkWtsHdboP+vW8dofErVQ0eTw4RTrKCLbtnbykIGB2ajfRFAVgLoRhvaCc6bmdSWwSlX0trWN6DPXcoYdLoAAA=="
     },
     {
       "placeId": "JP-152",
@@ -274,7 +306,9 @@
       "originalTitle": "File:Naoshima Ferry Terminal.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRkYBAABXRUJQVlA4IDoBAAAQBwCdASoUAA0AAAAAJZwCdMoO4CbDOBG9rf/YoIqfNE/6f+Dv4wa6rpt3EzewT/KP7z+Xf9fNCElWksAN0WKxAAD+//+e0H/GXUFLWRlfoVtUR/5YViBHb/YzlEgJt0bf/zEumP/2byAxTPw7HmQ7bVY35kGbNiXctJQ816sEa6Z/67JcMpZ2bzj91+t/y1XSAfGoCrxe/Svv9f4g5IM/beAq/YEoog/h3hTqeaL+Dyziuz9Y2h5rcGoOyw3+p+fvRgNo559hueqZ+W/pOScLsUvfL8vwCOlmpP3crfK66so/kx8Fn/0Or/5fe1TNWkyr0BMCnoQS5yMJHGuKm4l4j2KcHIJ3JQEBK3+wl9LYuSf3tWMS/zBsn/b/KLP9kBk8u4fcR3zTM6zXm2vsd/+QfQm/UQGYYAAAAA=="
     },
     {
       "placeId": "JP-125",
@@ -290,7 +324,9 @@
       "originalTitle": "File:UNIVERSAL STUDIOS JAPAN ENTRANCE.jpg",
       "originalWidth": 2572,
       "originalHeight": 1908,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAABQDACdASoUAA8AAAAAJZQCdMoRwIsyhAZjNkgHPPexN5Jdyl5wbuF6c/rdlgnmf5AfkBpPPxj/CDLQPyO/EDXdPxV1yn8r/DP3WP5nvSfcA/iH8h/sP5Qfv/ygH6cnTQzOSMJS+WGLaMrxMAD+//+axLWfZ0DAA7jcKQKbrJ4K1r6/2UL/6NKm0kevInAI4aVNtwxfu3iP0Tu4j/ePSdhP1j/cqbyo5ZQqNf63+/Pp2PWsNiNyI033dkeanq//sH6n7I/njD8Lrcr7QHq5r3022FI8ppqCSjzj48WNflzOSDO48nZuGdiaOhS56+ajhdYpVudQcOirJVsgOVWlMskOom3xs4EQWzC8Te6VR9T4wRYo7m6nkPeVtABZvlXdvMpOrz482v6wPTnshJCeZRA7q3q+lfR9SK4gRXeElaz7sY1U7bl1Bpb9yx6/+eJ+xc5zZljPSTmOOWKtAi1bzWCEo//6NmIhkdkIgmDM5yitrbRfMgKEA6/O2oOwOWf/8tkyatMouYEl8lJo5xHa/u3zyaohst6RmpmwAXfeX/7U3lwPwcn24XuuWsDo2XyP/RvtYAAA"
     },
     {
       "placeId": "JP-157",
@@ -306,7 +342,9 @@
       "originalTitle": "File:Shurei-mon 2023.jpg",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRvIBAABXRUJQVlA4IOYBAACQDACdASoUAA8AAAAAJYwCdMoR3N6TTAVgB+x3v/6YBzx/6zfBN9s3swXID6M+wG6fHl/w/8QP2A0Wf1AZZD+7/iB+FeuUai/+5ehF/AeR35P/wHuAfxb+Sf2T8pONJ/U00isRGelWQUTXQ6oEAP7/jI6+/wh4Ux3++z9Wo4TKNYIqf/+JGRgLjnN7UOMN/00bM3CXW0k89ZAspoCjkDqagh3ZkSjV/X1oXP2jsLn/MOF9GZRx6ObtYxpfi3OP4jwceF7eM/Zl/jkJb+cgs6e6u09sso8c768ps0fQG/nv7tcWmcTXpWfQaId//a7i/Ffam3vD/XXM+jjr3osZPwzayLv8iDsI14+9rFEF/1C9DLRK7Wipv5vd/3u1BKcVqf8knoh9929VSZ8d2wG7dVLNX3SZT1YhTD68B0Ds8b8d+sn7/YhP8//ij1qysEJ/Lh9Ux9WT0NSrEt+4jo4//GOVP7C8vIz91eEcemRaB/7L/mML9knWAb7M0/fCICkVOO69+brP5OjLpuHrEbvvTpl3HLZiLxsBndSkJjbK7YaUi/Xshx5rGwm/WK9Dx3PVoehoTvvquwqGv9HdeO+PvqZbba35WG597u3dCfRz80se99tu7iIMqUbVfOF12D79B6chtLiAAAA="
     },
     {
       "placeId": "JP-162",
@@ -322,7 +360,9 @@
       "originalTitle": "File:Okinawa Nanjo Sefa-utaki Gusuku site Yuinchi 04.jpg",
       "originalWidth": 4632,
       "originalHeight": 3474,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAAAQDQCdASoUAA8AAAAAJYwCdMoRiu3DlZ+bn+k8wBugP1P9cDnAOAA8qT2KP239FK5AfSBzKuSn+H/khogP4f+PGWBfDv7J+On5AVpT/Veed/GeTX45/z3uAfx3+W/4X8vuNV/WZDyDameu4aUUOaAN0AD+wEHb5//lTfML3kbKxRN9bXgpqgnOWiIkONQ+WuhR2MlmiGBRkpZp4nPGo37xvWavRcEK5Tb23YPd2QXP4KPRqEXnrffJ790l5J93xJpwVsM7M9t7kUEcn/ETjRXHDxHaSNXR/FSv3jQ1aZJAtsJfXWdap/2fiI9Tt7YpykqmhJd/8tgwV8ox9lb3ZnL4ZN6NPRs1En6cFi1uXCoiC6gkSBYT/uzmM/+B2XcMH4yQP+TdhSdEHFLe+OxyqCSyvG6+ebYs93m55mpH2WKkg2puq5L8ly65hIqMI//u/WJYXqOTzsCIcMHb+1/w1+OV9EOTN6EFP+9fuA34v9Jhgs/HnGlGzhSB2sPEg3VQEHvPf3+RnGKr31uJDrYzuU+tviryS+bTV5aQoTGFhS66LYd9H9XIRWeqZn++ReanlIGFv/tFHAnwYhjrvKHMOYlo1yyIcqtVH9IoyIdHhFGQAAAA"
     },
     {
       "placeId": "JP-196",
@@ -338,7 +378,9 @@
       "originalTitle": "File:Walk in Taketomi Island 17.jpg",
       "originalWidth": 4080,
       "originalHeight": 3072,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAACwCwCdASoUAA8AAAAAJYgCdMoRwN6B+KvCBGASIBtl/6Qe+3pgHPXew5+z/7R+05Sgm0D9gMsE9k/EbPj/jtkk/7t+JNU3/0f2AdJT5Y/3HuB/xz+Z/3j8py9XlcCazRrw7lUJXgAA/v//kWE8G2Ijvw6bOv9k8whS/+YwVqIBkoK93YnOA6nqf/ef8Bf+DX4RIRZcG7c//36em0P5EZx+Gb+fjOzpgj+UH/FS1Ll+f9w+8U2bg61eb8KTVxRk94sojYI4AMfHtR2//MRB8reh4f4fIvYH+nu6P+klPF40GNHh7/7ec2KKOHeGxsky5Jqaclwqgwl/b/Xee9g5OPDq1p6kPjvCtT4/29DO7//85NPefAaePbWWp6irWX38cu13EffbHvH//5k74cY2KkEwZX9LnI2JQMb7/yZOjL9ICEi8+2f4QCb6h18TT6Sk9vf+od24PY5l//Db5UJcw8Q34sdAsfl7T8/VxcPn/pDBamPf9+V4B8L1PUYjLO1o/VWyzpZmCBzRrF84Vv/5TsqH/xS9PLFYN15Fb4JSSKIROw6lh4+rtVG0/6hQey1uL5YpNXn138z2QRN/F7VMK/70TzDP8Xno9jmjabv/kPDj2AAA"
     },
     {
       "placeId": "JP-179",
@@ -355,7 +397,9 @@
       "originalWidth": 5842,
       "originalHeight": 3441,
       "processing": "resized-and-webp-reencoded",
-      "attributionTitle": "DSC04640"
+      "attributionTitle": "DSC04640",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRjgBAABXRUJQVlA4ICwBAABQBgCdASoUAAwAAAAAJQBOmUIkAug7QRqXiAN4a/x2UAbzGzQClVZu13o/ogb4AdlmtcK+3kOj2eQGeAD+/ypRNd8GlA7iFIvgHWVBaZn3LGy4XXknAsBEMX45is//+h6X/TG/9cPA1diSqeOr4FuQfQFj/gdMGU/6/BSuBt1+NTTvORy1NF5yfh7e2X5mH1CPFIEGK+MZn/ymfFL8xRPBaj5Ocv5MnokpS/58Q1NuQ4oLlEqg1l29v/LjSHuRTK07Gbw2QFrZZpv/1AGfcNG362SNYYn/87l/v9DBa0P7fKd0x27p01cM5HO4s/aHHPnz7p4506LUK9vyG/qeB6SiHvPcMy5p4SyhxAOSVd3csmWJyEt2VEE2thtXY440cKR9CC0Iwiwy3QAAAAA="
     },
     {
       "placeId": "JP-173",
@@ -371,7 +415,9 @@
       "originalTitle": "File:Main tank of the Kuroshio Sea in Okinawa Churaumi Aquarium.JPG",
       "originalWidth": 3264,
       "originalHeight": 2448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAACQCwCdASoUAA8AAAAAJbACdMoRwN6B+Kv6AfwDkAjAJEA/ADqAPNV/oHtZ6YBvIH6u+kVRgPxGyVO6Bjk/uAqlf+Z8oDyp/MnsB/xD+V/5/8vP6l3pf1V9DM7LtRIi7nSxFtUT0AD+//7MgP//1vpyPywnG0RjG/29U/9MWrG2y0pCTt00rXvFoYLVb4wBHYf/zbXzx3+NUDr4dESyUT4hqV7E+cheoQ5RGMPVBHvwg6ucNXX0f/nHZMO1RLw5cJDcv4H/NlYwdzXP2+U3DKRIDu7LYoLwvdg0kl4vAE1Zr/n/88x9uf3Fb+JjdrDt//IXVna5fFN7w96/3ZnaqMTQz9MRxgGBSKSYZK9X3/CQtvjg2rCCqkfmd//uv5/hmqGBzqJAUv9/a/nNvs6YDK1Kgpxvv+3kEn9zuf/QvkttDr//vtWu56Nn8dWMdV3xApj/kP2Av63L3+/dD6TvdV/8Rn/+nDPaInQ/15BykS19v32FNIcHZ9EfC+OvabS6QffWl6rqDORN8vCCf/e8TnqeCxmCHim7QSMgiUanmJ9j7KiD9XiSMDqLHB4Pgn35a/YAAA=="
     },
     {
       "placeId": "JP-154",
@@ -387,7 +433,9 @@
       "originalTitle": "File:Seafood stall Makishi First Public Market 01.jpg",
       "originalWidth": 4608,
       "originalHeight": 3456,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrABAABXRUJQVlA4IKQBAACwCgCdASoUAA8APhkIg0EhBgEABABhKAJ0yhHA3ktMB1K7f/6MzJMf3C9JW5AcJzkgntmYg/IDJAfzD8nZ61/o/Jl81ewB/I/5h/ofzO4039SR0VuoUmC+7L8GfqsAAP7+6RRLg6LEjdPIZaiST+UAC2UzPDxuaEnqWB7/Dy6H3p6IAake68SIl/ydxz7+6xrxzr/yDE2xuuWprm6dnXBYuat90gfWkY0f+FyplCkbhntOz2cKDuVgFOwPtzuKDiNjx+wDa506HIJX207QwctWD3/Y4WgnZY98MDlUlNLH85Kv/+s2v41HS+sHulR3ZJb1S1ZoMHvFlzmDLdG3ZwwFihGjkf+uVtPityx2glpojlOEDBi4MTf5/+cs1IJCH5LgQP4o3mfUNtfJOHrkwJELB0M9Zh/M7/h3wrV1d7W44UGz+1/1r2daTkwOP/9sm+7W4///KtA6AhivdEp61fg4R6O/0ef/0d3xslomRYu/9P0f/00N/ys0ViEo7j8DJ4eGyQgvg59a3fykPF+8GVe/a1bFY9FRyR3H6b9jayO9fCEAAAA="
     },
     {
       "placeId": "JP-044",
@@ -403,7 +451,9 @@
       "originalTitle": "File:Ghibli Museum 06.jpg",
       "originalWidth": 3072,
       "originalHeight": 2304,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnYBAABXRUJQVlA4IGoBAACwCACdASoUAA8APhkIg0EhBgEABABhLGATplCOBFgVdXQAXZLvGFYA5JslgeYB/VfyA15fl8Zk/lz2AP1A/yI2dF8RW7fFGzHClIkloQAA/v5Gea79mYx/+f1PzcivqpNL1tkeff4Ner8PBP/s7/q9JWZf8h3h1mW0//IZm//18YvMiCEt9X21tdYgzLv323Wkk/1rgf6Ib/zfoSfQTy+FWSZz8X/HFg4vdqBRl9UFfWnq6D7nal4/6Rr1raPIHqDBBkVFheMJf5eF7wT/82BzSLITr4D9sJJOa9hsEDzP5/YPyfRv4bkQ38P/5ur9EzObvNreWvvY+P3ru0o0YIDdn83F7TCarEFD/m1DEuWggBjY0UrM5qRSxXd/345nQD2dz/xEfZrjeB2/G3sQQy0N06FqJxa4yL/aXGMbpFR3j66efncrdUu6g/Y1hY/uObbSZ5vlw0bTlBRPK4y8G4+a+eNxBHVfDwAAAA=="
     },
     {
       "placeId": "JP-066",
@@ -419,7 +469,9 @@
       "originalTitle": "File:Fushimi Inari Taisha tunnel droit.jpg",
       "originalWidth": 5184,
       "originalHeight": 3456,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAABQCwCdASoUAA0AAAAAJbACdMoRwN4B+AH7Af0CsA+QL6N9qtyjbpnwAH6zdaH+0Xox3IDkwvVXJi/Lcx3bgX5nxO2od/yH4S9D74Y9Rn+Yf4T8h/3/5R1BnY5dwPJyuzwIxtAA/v/2VnL4waB8yIPu39+uX9H4l72Pwb+w13jjfSWfQGYTw/zPoQl7JNhz20/P75/Sq+rW3E61LzIJ5+4fzfhOSM8j3J6ESCcH+5zi3H/aIa/DNJPOgtcTv2hL3A0Eh834Zqb5jaBbsRitF+Dpf1ESYVjB/p0SbiY+hUgm//048mt7dADI327/rtov6cxszf3me/SIQNI4x9B1//8a9uRZC3+xQbRydTokLxpmb9ROgNa///CQr6QLy8WhpxWK+5R/iv74G2Tujz5F37aWSW2rk7/++f9NKoiF5lWz//1pOECpfGR6BLuf++ZWVxm9IUNBiY7auOP00WmFAe/0NOI/UYdRh7Kz2DI/fT5Ai/1i4jaWrMtWZdfaCTdfW7Hw6D9rOugBhPn2HeiP8K5o1xgkjiM/z2cyRUMfJx99Ht//VO5RwHqlcxnEB8RcGk5x4OLPCKeH8Q81sQEAAA=="
     },
     {
       "placeId": "JP-096",
@@ -435,7 +487,9 @@
       "originalTitle": "File:Sanjusangendo-building-dec2013.jpg",
       "originalWidth": 4320,
       "originalHeight": 2880,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRn4BAABXRUJQVlA4IHIBAADwBwCdASoUAA0AAAAAJYwCdMoRwIsB9gLsA3j/yo3er/DP8gM1AywH9V/EDUVfyAyu+cX/jn9y/M7jIDrT5eQBJjvgPecJ/wQA/v//vYTwBr72OreM87Uqf53pnYzAbiS3n5tPSNc3/0rvIsb7lSqU+f//zxL28v9XdP6MTfzt7WdpPbIz7vROB2uMA4+zIZcnP//+egDjsAfIXFmaP/gL4O1PVOZdWfWUKO8q+ffbax43Fl0J/0NP/9gWFuP73lUGZ0rl3p4HSXZWqKI/nf/3T5/4tPNarYHyv2R0xoXGfHgHn2YS//BpxP/Z5Pkmr27BXfmHHX9dUYz/f5HDFZPz/5pc9u/6l9FzQYN1/8N9d7/fWT7/T/j9kOnVCH6snDEUMNmtVBRLZDcSRqyHr9fdoAHoAD1gm5khQf6UeGyES0s44+Pgf++8w/knCrXhDBu2VwPFUa1089/obbnWl+gkxA1Oilg7yzFvNOE/xPd7RAAA"
     },
     {
       "placeId": "JP-135",
@@ -451,7 +505,9 @@
       "originalTitle": "File:20260429 Burg Himeji 01, Hyōgo, Japan anagoria.jpg",
       "originalWidth": 12000,
       "originalHeight": 6752,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnoBAABXRUJQVlA4IG4BAAAwCQCdASoUAAsAAAAAJZACdMoR3IsCrZ4YD9KMkA56X2S5MlyQT0TMLfiNkF/45ai7psHLi+D/7B7gf8R/lP92/Hr98+VA/YA+7C3ZdoYxmC4oAP7//zOZmc4X9Y+PrfkR4n+GOoQxr4IP/oSi8DvNgOXbxXtxUCERf/7s3vMu9NeMXobb8+djL+fnfROvo4jFuZDwEPdN9B6PwozyUJ/BC0Zt+j+DSwvRzofm9nF7BxDF/6QUP+yuC+HwHEP+xsnfmjghDKhC5CWG/7/O9xD84YtxlCzaklZCCpTUoyOI3oI7Wpq1QGmnFwEmKdGz7uu/ybe0fH/P9tc8xzP/wKoSXtD/4KkHUx9X/iMPtXTn3p//aC3dlhdjy/8dSwmxFAIr+w2IPtFPdwbiUi3/3IrYAOz94a/XJL22/asL4xp1GHJcS+hD7y3da2n1IuoExizzM/q0K994V8r3sobOaIrl9hHIUBiGVqhsnqgAAAA="
     },
     {
       "placeId": "JP-142",
@@ -467,7 +523,9 @@
       "originalTitle": "File:Kinosaki Onsen Otani River 2026-02 ac (1).jpg",
       "originalWidth": 4080,
       "originalHeight": 2720,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpoBAABXRUJQVlA4II4BAACwCQCdASoUAA0AAAAAJZwCdMoMYNcBhYGmAbx3LL/wAx2/4X55j8Tf1uylXuAPwA5V38btdR/RvyA/oHOZ+oj/Hf7X+TnGjfpAdo1Toephhg8Yv700oAD+//82saC5RI4EfUoyj7teUmUpRRPqEf3Ad6TB+fEkW23u49ULCP/11lRvvb3JtfHL//mJSVO90o2Y8GIu7A07M/xnESxuG47hPdTiDdq/hR6WhYf9nfTx+irseuCDPn/9DbJA/lpjx/L/9/2fVxCUwUg1aHh2s/654yqrSvX+UB/arM2yVbRSRLqijjogvdVEqH/+9qy6fRyuILGE7/ze9ZmuiGMfvn/X//2DhIn7+kwrkpCfXmBxR3LJlGwJyimtNU9UFIK5gtcPJdWW4xYLjMdV3vjXBbe+QxczD92QiVDxGMNsAfq3PL78fFfr3KXfb5+rj6t1awpFDtGYz/EfIGKJfealBnxxBvzYpC2nXX8tf+m1he6/jdwv8in4siGAt/ySpV6Kq/Hflf4RR+gjgYejjKF4AA=="
     },
     {
       "placeId": "JP-143",
@@ -483,7 +541,9 @@
       "originalTitle": "File:Ren'ge-in (Wakayama Koyasan) Temple hdsr S5 04.jpg",
       "originalWidth": 5328,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRs4BAABXRUJQVlA4IMIBAAAwDgCdASoUAA8AAAAAJQBOmUI4EWBVq/5ntgH9A5yv9Zveq0wDeOP2d9HC5AfhL+wHYDdg/TP9gMuL9L/ID8gNQB/Lfw3/XT/R5gD+oflH+IGwAfzv8gNdL/leMd9gD+I/xb+pflB+//KjfsAgX/j7PsKRdUO85KzpgAD+//t3vKUqMraM89PUzBbOrx7nIo5BZv4xH/RjiU6LV39Rfoxb3xCGMqy3AdSvWwCxeMm/zr6wWNITT0Eqo68c4La6i1fxV063M4+a7f2Xz+lgEJwp2cA0+2h4ztMGLt2XVgZ75xsXOSTtXtMyNw6wxWkuXaZSqu1rfWxtycV4Q6w6hOWUwsc83C3ivLGsWD5jwA+T1hcdC20Dwht/9syj+Kuluaj3/zU1Nse66Nz6C4eX/0AaF/k7yd/Ga4sNJDOw/Vqvpy3r4N/2/Rc/ycAv8iWRx7wECbtuIfgW/GWEpde+hca4ZVqpKZPuW1sX6j939R5s/2It4qaZEKOZcgRF/8CkYbYGxD5nKYwhO7BGQtGPP/jdgz/VMB/J86EV+9Sh/XSUf8X8I2s/ibhUufsZyUOU/GLLyR+34BLwMwEOErWtfTQAAAA="
     },
     {
       "placeId": "JP-144",
@@ -499,7 +559,9 @@
       "originalTitle": "File:OKU - Jizo statues and memorials at Okunoin Cemetery, Koyasan, Japan, 2015.jpg",
       "originalWidth": 4288,
       "originalHeight": 2848,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAABQCgCdASoUAA0AAAAAJZQCdMoR3JoM4Ear/gFxR6YBvGtOgWYH9a/GPRAf1X8Tckn/KPyj8gL9V4nTHg80Xyr+gHuNfxr/Dfl9xrv63HFdhnu8D4Ka1EKg8wwAAP7//2NHc3mOjztd5dkL2owDR+hOyVITCH/7jOslvPFEqRfsFVHZlN/X1L/2B+bLK7TxBt38T7H66Y6M6kwKKX7DZLtIJoMc2d8nK5yO63vyhgIv63Pz9Wzc+T9XxVxoLTlqWbKDf6LKTe+1SvF84eqTL/5vQqWk7y50HIK0LMSp91/5KY8nesnyRVBvZQQV2qAv/ehFl5Wc6dhYhdEFrG+P+xV3EbkwjFwN/+2p70f6nzySASouHBAV8bL/IP/P/XJ9P+f996zrP8Z/0rJXw3n6yqP9A/v+pm/fGPE5+wc4+mN0+7Fuv0CI//vstPvzA2dR7leYUFlB6Nf/N6/nq0sKBVNL4jgq4k5VAJdpHoz/sTR2MMo0NRRISarJt+z++yY27DETn5YKRftsEX4W+oOzMAAA"
     },
     {
       "placeId": "JP-184",
@@ -515,7 +577,9 @@
       "originalTitle": "File:View of the ocean from Zamami Island, Okinawa, Japan (1) - October 2015.jpg",
       "originalWidth": 4128,
       "originalHeight": 2322,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmYBAABXRUJQVlA4IFoBAABwBwCdASoUAAsAAAAAJQBOmUI4C5TclJ55X9QPZu/QD2JbkBvoGSWzFHyzZgD7gJ8B4080X/DfkAapHnq6DAlROyyToAD+adT+2YvQH2M2utguQuzJjR/C/JnOmNG4xwd/ekbORlP63UTT/Vhr//gTqg4MrnnUqX1LMO5rPuDIA32wcMenH/I/f+RFP1fdn/0xZz9tZPOO8nOr/9w5/D/T0nL69j1O+z/3EfVc1f/9dNBT16P2ebASH7lPno5Jj/17yN4rSbXKziY16P0TcY0jwa3//E3wP45iE8+eo5/3/HjxOZWl1UpvPDWoOn/+5Lf8/xJbWd/59e6ObOtaz9qZNUX33osRy9cOcTwY6WHhboA/vQeOtMP3/Jv7nn//Jt/+3jrpKI9BqzkY07STfOyZrFV91gXa/3bP2IYgGwwfO1zz6te1qC+CFVxfatibKRFFpr0eJKsVVuAA"
     },
     {
       "placeId": "JP-188",
@@ -531,7 +595,9 @@
       "originalTitle": "File:Yonahamaehama Miyakojima Okinawa Japan01bs3s4592.jpg",
       "originalWidth": 4592,
       "originalHeight": 3056,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRkgBAABXRUJQVlA4IDwBAAAQBwCdASoUAA0AAAAAJZgCdMoRwN5BTAdQDDAfrv68HRM6Up7Efkk0Zr8AMlU9mmWaCO/8B+RBoVukFgJnTx98oAD+//6vkMrUFEkKEm/Wx2kFpkjRb0od9T/D/U/8nRp/Mf9LNHL0b/8lLOfSLWeb4E+6vIbsLeQrz+TAH7WHv3/86eFFugcwxBF6j/sJn5Kx8y0yUvy/pUcT/7EP8ZL/zvVMQlI4X1r/616lfz/WYsbCnf/H/9psx//B7YzL83fmjOtfp0bP/4EHJm63Gfob4K/xG2B/dMn/YO6ynoL/807pf3/uQfAI//z8lJxQdTJv+nYy2LJrPUstpIw9BHu5CPnv6I6o5wwh5GdEp2RZT//b0wu5h/+TSJUECkjzSC1kZ9OE0jjdZbefXc78hUAPEtRogBUDq24XQAAA"
     },
     {
       "placeId": "JP-192",
@@ -547,7 +613,9 @@
       "originalTitle": "File:Kabira Bay Ishigaki Island08s3s4592.jpg",
       "originalWidth": 4592,
       "originalHeight": 3056,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAACwCQCdASoUAA0AAAAAJYwCdMoR4PoM4EaAwwH6m/qB7/93Z+y95OlsAc+EeZHr/xV/YDLAf0n8ZvyA2AD7gMlm8juoB/EP5X/kfy6N2Ot0p//sq9U+gAD+//7oa1IkVuDAUte2fLPhGt2368U+MHR4xQCl2rj0OCQX+uYva1Ni4tO2/7/x9EqsvsMef4qzkBK9N3tYmnrP/DOGf8yr7/4Oac8na93FCmmt4andP+WZrkfpc4Yn3P/5knQCzap85afpc4zf+rFsUQ73qUIcBnsthv+ev48f1BI4fmN/N683kcy9/3epZYoukDar8OrzxlJwMvrnlK1GnGLg1UhdrR/dsf7gwf8LjBcKs6/vi/nOvPCwVza81wD6vXH/6YNtdVEzJpNbR//lW8f5TvJhN/0wMR3/yblXs5Dx74aEv42/qKeZ3P/65SiDX+tQu8B/DXzxPBRGQ0ZzBGGsggL2/7//yFHTxhgrwATkdzMCq652jBVKSSnYPgSKPWOoKllqG+na/g/YC0WuQ7jsofdpAdEL/AAAAA=="
     },
     {
       "placeId": "JP-197",
@@ -563,7 +631,9 @@
       "originalTitle": "File:Nakama River Iriomote Okinawa Japan05s3.jpg",
       "originalWidth": 4350,
       "originalHeight": 2900,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAACQCgCdASoUAA0AAAAAJYwCdMoRwN4AniDeSf2A9IC5AfhLYn/yD8gM8p+KuST/p/4q+QFG6fhXrxP8Z+M3RN+M/8b7g38a/m/9c/LD+t8hz+pJ2jQaP7uV42LV/sAA/v/RhpjfbLJ+ot3jBZN/NjsWKDiWcdIpxmZgFi3K0RGD//BdhfkU2fLbu6rTDcB6pPn07MeB6mPvfeCkp4Ghb+GLWAkLb8btBcfeR1TaGFO1hvbQj7Lp+CI5f8Tv1mgOV/9W56RV9gH85H3FyUcvP96QEs/3ta++pX4EGYk65TlIcLTWjuOI74Is//BXf6AOoA6LL17cMBXP8OPh7brJ8TEB7iEGIL7QOGvOB00f/607WA/9eJZqM1Lb6QGwt/iAWcv611GBnun9DmZ8dOh1SWoj/8MWUp4tSP9RudkPe3QYTpVZOC381F//9oC9R7oMaxWTdJjYCjRYt/kJhruWyyLpXB/NY71dj/6hDgukDZneigZabA7fPw54Xt5Bliqf5r35aG8yMlwjTBpSYK0gk7AA"
     },
     {
       "placeId": "JP-205",
@@ -579,7 +649,9 @@
       "originalTitle": "File:Odori Park Sapporo Snow Festival 2007.JPG",
       "originalWidth": 2260,
       "originalHeight": 3390,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqIBAABXRUJQVlA4IJYBAABQCACdASoUAB4APjEUiEKiISEYDAQAIAMEs4BOnKCquW/kyBqN3GB9FrvNzx/QHsCk5pSr7bQV4rl/jtC+WeNt6+GsyFS3u+ZunwAA/vj1cA0LsVrPMitNU46bKB492ydlcoQDkGGU9GoMd07mWcXsQoeM7cboUGY6Xjd7ACPQXWMFFy4SBakfmvFs9iKvR1TuVCfVKcX/XqwzN83pHyRg3qlwXRze9L8mQ1Rj28m7yI/1jLf6iA0f2uEooV5x8cdZv90PgQkHNUftN6VLf+cvb81o8z7JSmw1RbLdkUqsx+7XCknlz/UfzLpX+ed2sbck5LZ1Fzjl/dvHwW1/sf/Wo/pz9OuRbHinAbNCL3v99Bh4x8MS7BSOE7PTqtHt5j2+yOtf5KcSajooLd2wm4fgE/ur1a4d2XHoWiZ0dQqe7C9DDUo48OT5oJ3ZPvSsg/8IMvwB7cYfO//yXAKlAYpMUkTvb8/2+wkO3BdFB8GP85oYEeEP/r3/Iotxuf5nNv8Dk+8O5HBRP/liTukxSwpgHDHCM34A"
     },
     {
       "placeId": "JP-068",
@@ -595,7 +667,9 @@
       "originalTitle": "File:Gekkeikan Okura Sake Museum01nt3200.jpg",
       "originalWidth": 3200,
       "originalHeight": 2130,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpgBAABXRUJQVlA4IIwBAACQCgCdASoUAA0AAAAAJZwCdMoMYGpYexZ+3s0CbAMkE8e/Ij8SdIn+Hf6zf4DMAfzf8o/1A1lXTSeYB8q/3D8jvoA/iv8o/s/5Q/2HkOf1JPPW6UI34ZgbByM25zAA/v+RHUpZb+wUdODMSiJ625uOhcPeh8aiRe8YJpX/9tT80XpaZeMRTEBJdj9fPbf5iuaBuBMbTkzE3/+x4RgdNUm6XCH305SbAaLqb/Knmive1FZB/15nHGXN8dmiDqY4cqovp/3Ds4tB7S+4Jp50DqTZu1fIoP8SfqXsef2YOO30qcGCmmxA//1OHSqJjN1vIQWVXjjtql9v94lix8532tF36f6/GrLkz/4VuwKQl+YfZEPwfHU+fQtw3rSXHFOsf8+erEsBebW4uPIB/VEPOixytZ+928eeiVl6Kp6olcPypmsEPys4OEy/uyr+82weic9xKWCooCLxZKyNtxRF7Bc/oWygY0MOT78pTB2cmHkUacXx3GOn8p5MjXWacjgKAt5T0I5L1v5TOEtIAAA="
     },
     {
       "placeId": "JP-210",
@@ -611,7 +685,9 @@
       "originalTitle": "File:Takayama Old Town (Sanmachi Suji) (35819349621).jpg",
       "originalWidth": 4032,
       "originalHeight": 3024,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRn4BAABXRUJQVlA4IHIBAACQCACdASoUAA8APhkIg0EhBgEABABhLMATplCPCPgXYDJA6kviA/wGkA/U/JAOfC9lWpAGQTmxHjx1AP02/xw60V3NgR+vymvh689hAAD+/pMc/90wrzB/7nR027o2h+EH7H1yUliG3Et0tbjBc4+ntaP+gbeLKYrT+1r/+1EfJ/zUGUN/QmwlK530iW7GdrQ1Php6fmKNef4w9z6tvewJ3ywpCq/wl9k6iRYOKELPDq/n09dHAME8iS0L7p+asIZ8Oy6sgncXkaZJJkS6YUO//JtR9XzGdno4k+IOWl/7ggfmdzKGrW0mq3BXcd9vaZhQUnJzfP/yUEP5/8Shz3dCSBaCDYdTfORHw6I+uen4dV/507/8rP/y4ui5Pfyr/M4Lq2Ji+EoHhVcpnB/BCuBtVoYJGJddYeaVdfx/dp5Mv+F0f+0nm5f8AMitsLsT8LSNX/7nFn5jgC9BgDRIg9eHL0jnDRx1hpKYAzHzIpTV00AA"
     },
     {
       "placeId": "JP-155",
@@ -627,7 +703,9 @@
       "originalTitle": "File:Tsuboya Yachimun Street.jpg",
       "originalWidth": 640,
       "originalHeight": 480,
-      "processing": "webp-reencoded"
+      "processing": "webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpoBAABXRUJQVlA4II4BAACQCACdASoUAA8APhkIg0EhBgEABABhLKATplCOBFgUICWAPQA8sv2PZaB+HOPmd6TkBuY75j/4/uAfqj/mBsbpbSgv/byEJyOOIeB3AAD+/XTE8PRt9W1Zg+KQGJIfe0Tiw2dV4jCNUF0/79s9B81FJcgr/KpULh2Ve/4Jjlanelodf/2vQ6nzA6NEn5EKP91PsB+KHmjX5ub2EIpzwe6f+VX+yp/85XU8mtIIgHcBW//ZjmLDTLN1+rB95DfH//HZZ/IXLs7A8aM0gWH2lv/lWp/yP9r53nmTver+97ajMBfW2M4IJf4LwhiTHS3zAj6Hg//mG+U0PmBs+TWwr8fpvD93R+Xx/weEgBx3r54+JbH4X42X0wz1fA0M2IctbMpBercXfgbNAmj/3KQytsPP/KQ4+kP9YQldz41D58ATxv2s+rqU8e424PWOjXO6+6BRvfUOHOPf/pzk00Z/rxUTBd7a/2hVzRxn+zjow73pKM881gf/HecOW9j8fY36CVOTY6if2s1idui/YVEAAA=="
     },
     {
       "placeId": "JP-103",
@@ -643,7 +721,9 @@
       "originalTitle": "File:Osaka Dotonbori yoru.jpg",
       "originalWidth": 5707,
       "originalHeight": 3805,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRswBAABXRUJQVlA4IMABAADwDACdASoUAA0AAAAAJbACdMoRwN6TvARgFWrwXTJAOfC/VX4OPJAuQH0zdgN1E9L/2Oy065L+IH7HfznMAf1X8gPxm12v8btch/Zvw59QDwGP417CH8W/sn5Df2P/7cq7+pKICEzxGwMLmJoETxoAAP7//5g//7wcxsm4Qh7olVke5Tndcy9FY16e4bYnBA/vyAvABf/5UXtObkNdQSTtY+oDKB9s6uCN6RcSbLnTycjeEtumBnJISX46Bcz70dvBjKVdHiItWlc6T6sp5nL4NKx+6Qav+4I1yx/4SYq3uVn9040+bBucV3p+YB1Hxs3DEypf9wuX3HjPwxJruenE+5NTPk3zLWFa5wEU4YxdRBt+OdmK/8kX/+taa4rsjKR9l//AiPt/skP69Ju+9tf8q7ULj+mc1mkcZgyM/Oi/N9XzWRIQ0P59jIL7/0ACWtf9dkp3EBe3Ma2STAR3H3HZmQAd7Bax37jcJFRqB//ZnFr6rPPlT0kcqfySJYFab31u74BqVwGeViW4hIB4wgMLBBTzzLzjvtmO/mMfVr93bHyciKdfuj0D1Un1ijj8QLxaUSdPOCLljiLIzfDnOAAA"
     },
     {
       "placeId": "JP-206",
@@ -659,7 +739,9 @@
       "originalTitle": "File:小樽雪あかりの路（Otaru Snow Light Path Festival） - panoramio (2).jpg",
       "originalWidth": 3024,
       "originalHeight": 2016,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrYBAABXRUJQVlA4IKoBAABwCwCdASoUAA0AAAAAJQBOmUI8HWBVgPAA0gH2AegBlgH6gejT/sfcr8jGlA7E/yD8Sf2Z0TH4Z5Bf+HPiAcTpqSf6byyvkv/K+4H/Df4t/W/yO42v9JT76sgJkC/ptcPnq0QAAP7//7AoEz5IDf59pXAjJ01SY/BajuxGvXWXLhxnBSMija9P8///ySg/2q9PITjmqtm2ac7/UDdjUfSZdfYSugB3yeeJXX/nw3+mI7h2v0bh2HI2qHhYV/gAAOt8arS4/okD3tHe2unsXmoUq8WU7IdGGL7ff5Jvi/wy1tbi3aomBD/Vr0Yi7LOrboXPYYcyD/G+B/wzYSOo6eXCtQVcR3LjfrXn+0un22sf/is1dz8xF4BGvkBf425bwFTZaW/0qplE+FzCb/7X90fzO9ectJw65ndXT/w18YoVpLb/qqJoVlBs/Q2MO5z6lYvz7urX3eVinUI1Lsr9ueCJB4azza59BPscQx9yBXu7w49e+pmj4YrH/Q6lWVBay+W9oWAjuhNd3nZ30IRC8ovTkUaLdPywnx01QQs+l59LZMliiZS5cLYAAAA="
     },
     {
       "placeId": "JP-009",
@@ -675,7 +757,9 @@
       "originalTitle": "File:Daikanyama T-Site Building 3 2018.jpg",
       "originalWidth": 2736,
       "originalHeight": 1824,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtIBAABXRUJQVlA4IMYBAABQDQCdASoUAA0AAAAAJYwCdMoRwN5BvARgFWr/meEwZIBz4vspeSTcgPoz6UrtVy0/1D8L/xV0i34u/rdlgP6B+OX4za6b+EuuR/rn45eoB3qv4gfQT/Cf4v/RPyM/qv/i5Rj9Zj0cvfBPHwqDAE9S4zIAAP7//qXfx0q//0cP7r7OhxfpVBicvJZYYlz7NKwulv+8f+MvIjNyUlvw5d8nzgHo4oPNR4Pt1J7JJJv1YiPV5s+8j9dKMXbFP86ACPivlfopwdTKMb464+kUP68fe+SqpiJvCs809mkZDf/tQE0Q1dblWgdequhV3qGuSwvn1yMrAme9kCxfLOYyVQxevX0QE53uhcn9+ctt8b9TzSkKi3lRxzU4jV//3Cd+wQ9rbP2EqxUd5KW9/9QjC2UYfrTzo68b+o3H/aN7/5//PafH3Z4Xr8iQ89yZoJ1uPS+BOK85NY2F5PnX92wtifX8uI5eV4zniA+P/xJi+AIcmZtMpEI6NV1CCM8s3IF/J5+rt0j11MDLzpo/G4Xb9i5+cWaoh8P4JkYL0JO/8Fu0RUDlM4BtXDSlw9p0mudLN0RvwkKMjsxPFq3CEi/H1shQ9PZ4AAAA"
     },
     {
       "placeId": "JP-099",
@@ -691,7 +775,9 @@
       "originalTitle": "File:ไร่ชาเขียวที่แท้ทรู.jpg",
       "originalWidth": 3072,
       "originalHeight": 2304,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqgBAABXRUJQVlA4IJwBAAAQCwCdASoUAA8AAAAAJZwCdMoMYKNJyQDeXKwB+Ev6V9OF6c5Kf61+F/5HagD7ZssC+Hf3L8ZtRV/E3XAf1X8mfcWzaKgH8b/kH93/KT9/+Ud/WAy+eyF7x17HuNZGeRXQAP7//1pTw9xmtcgRCDQ5z9m7w8026hSPx9G5Le+KOlQC5GhTMXfU0Bsjf/UeMuQHQ9XPwfv//7IfLJ+rkANril+cfwLNGFtFg6//h7NQe/96Eqqm7BKIkfm+qZzgb7w7I+b//6Id/6Oljc9csDO5ZxTLt/Lw20NqMHEM7ofM9J0G3rJPsqNL8ANgwqzYI1diJAHStoP+MItZZ6Vf+4RW9AEE4iN6N/4UVvycCCPh95/R9LgJjaeoSQ3+wr+fVAvGpn2AIKYLh5h0fBnAAI8ithcjyeRjBzP8epr8HuZuF03i8SCc/XpsvGOzfWRcPE+L7/9fC1I33NlXIBZCshX/wnYZBj51k9L+hD9GTdsZ8gxYTMUZxNnJNOJtyQQNnyCt5Nr1b3SqFo8CrjRYTnoUxtv6kQRU/6jSyOAA"
     },
     {
       "placeId": "JP-108",
@@ -707,7 +793,9 @@
       "originalTitle": "File:Den den town, osaka.JPG",
       "originalWidth": 2816,
       "originalHeight": 2112,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnwBAABXRUJQVlA4IHABAADwCACdASoUAA8APhkIg0EhBgEABABhLEATplCOBvIKYDqQbQBucGmAc+T7In+urUtZJmiOg6aiv+zejnm+eUPYD/UUZotTnTLoLYaOMhcjoAD+/8Go7VvQ91XpE6dLVx+Fcufrsk2E7c1e/ng/4rVtbfb/orhjnukHG9684mXr4cy8bRXmFYF9jIOkzvU/5Vj08vES6r/TG+HWe0+ey7rS1jn/0magGEDKvgXfLDTQmgTUXuJG2z1u/5NBL00CfTws/EEQtHi/J2rGKnD932/f24u9gN86hrDTf8rRxhFX6VnTBqWIl2mUlI4v/UU9F/L+kVpbn68COTF3ZAfp1tA/kyX4GjXB88/8lneMMz//6fR1YpGH31IcW5QyJ3CV+Hjd1Gqacx55//jE+3/+s5ufAhfYv/baVf6Vln0j1GPyP5VGIYn37dv6qb1fvJgHcE94KUukPY/5LUPjv+/s60iH7Lg92XPH83ph0tIL8eQAAA=="
     },
     {
       "placeId": "JP-018",
@@ -723,7 +811,9 @@
       "originalTitle": "File:Kappabashi-dori streetcorner (Kitchen town - southern end) a sunny morning in Tokyo Japan.jpg",
       "originalWidth": 4488,
       "originalHeight": 3572,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuYBAABXRUJQVlA4INoBAABwCwCdASoUABAAAAAAJYgCdMoR4OsCrAcSBwAP0U/RjLAPQA8r32Gf2v9ICgIMeBnAP4j+QGSO/o/4x/kBrpuoA/qvot5rPlz2Av49/Jf7/+Zf9p5Cj9RjtjTYg3hvZKeew55AAOJ/kE68fqdSvtuDrlfzYraxG6/WuM2cwnLpp/yjC1Va6h+qhlLm3qnDn/TlAXK8jLfDNLecaX9ts+F5cnm3kCaGKS/EpmvFWIrgzPeGHFKibt/t8F682NqUx3nr73a2iXM4XfZMqah/oOypm80X2rJFe+FXeHKRZr/kiAV87vh//f/r3Hs6/mdWSGB1jmPiyolf/brSUsyT5l+cdTOrIwjH/aWClpnO0mTBC7GI/mH2NX8FLT7RTr443kf/xKEYP4di2Pd8N/9/A/4mc1Kc319OAfDsR9K1wJghzKFsb/djb/1Xz68r3af/+uvrHGd8UARK/LHlP1VnyBLgFDnNCWNHBTZL/Gege/tMP+W62L/1bHizxhO8ifM3Kt7HXf/7LHdFMvDeQ900CxEBYBlGtV8jsHCmOeEy/dP+M5jtzqZG/zMXkzxf/xsW/Aj6JED/509Fx8AZ/fjay+v/OK64PKgCfxhFqeCH73/Hh+Yz0j8BYTdYwAA="
     },
     {
       "placeId": "JP-085",
@@ -739,7 +829,9 @@
       "originalTitle": "File:Kurama-Dera (Kyoto Sakyo-ku) west gate Nishimon hdsr S5 04.jpg",
       "originalWidth": 5328,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRoIBAABXRUJQVlA4IHYBAAAwBwCdASoUAA8APhkIg0EhBgEABABhKAJ0ygxg4TsWAc917E37cH6nziDxifMv+09wD9PP9dwIAzZKEiHbaHYZyqAA/bz6VcXlOq56T/ftoPgzklVMrp6LrZX15Q4RwPzK//oWA9uyhu8+8KKuCM8maM9QtSvIJ8f8v57p8+RCzBChwDsy8RlsP9hwUgcXMjVm858YzPohj2W6oAvgtHfgwdFwz6Zu11Z/+ed//dYfdy8vzZx/sYPSviLqm/UVi8dO4+QdDxX7f5HwL/3xI9v35D02wL/9h2oP5O/dMxwxPOe1+I19QwLnhrcf9/x+670WvhajKW8Tb+VtAg/q5Uf3foIPn/hV2NDAJ55vnf/47E/G7PoWqi3uLdv/CA6Fzr8sd75dStIxXduJf/Xv/90Ec/4wr8moRJ07UMV73KO8R+qbqVk8xO/CH/4nIPcNXDf5UWvg3/0RH8Nf+zlpH/96d/DX/s5D7b8aMfoY3YdX0Q+9EOAAAA=="
     },
     {
       "placeId": "JP-164",
@@ -755,7 +847,9 @@
       "originalTitle": "File:Cape Chinen Park and Kudakajima Island.JPG",
       "originalWidth": 3264,
       "originalHeight": 2448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqIBAABXRUJQVlA4IJYBAABwCQCdASoUAA8AAAAAJYgCdMoR3NsAqQKwA/YD3/+jAyU39bvSIuQH0zdgN3BrEv4q5a7+AGo14zN9oHtc+WfQk/wX5ZcYB+lZ4z/qPHL5/OGs+hAA/vpYf/lAe4EdXD/6tGh/0/oyJQpUPd/53r/97Y3sjUs9cB408azsHAAltn7fE7vcqdRevD3b/8V+HErDDbwGF/hN/WT15zH2TZrlvMj/okcb36sn7Xohxx0uF/8aVRB08Qqz/ElqC+/avB+uDRPZuerId//iF1Fa0Ie4yJ1weGjZs4HW2l/+qHZCziG/8L/KbEM/dwqTTcrfmRsdfz6iiPXbmIArVBF1b2sZYs8Gdtl79fhUrGlmwzP/+S///w+emNGLZhUAx3lJVZ+/+P/ybfelc7r1u1/R/4pR/8S1FU//lTSf+RZ3P9FeXb6+lkrr6b8k89vp5rjt/MGL7yt6Yeslnw4SID53zdXwfaQC27z9hLpW/Rdu5uiA/adi/KvyENZ1d1t9qYb5yCWG7R9FDE/wpeqk2ff+8OyE+7mh/AAA"
     },
     {
       "placeId": "JP-115",
@@ -771,7 +865,9 @@
       "originalTitle": "File:Nakanoshima Museum of Art, Osaka.jpg",
       "originalWidth": 3811,
       "originalHeight": 2541,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRroBAABXRUJQVlA4IK4BAADwCwCdASoUAA0AAAAAJYgCdMoRwN4B+IFSBWOWSAegB0oXk4UoJ5R+LuSCec/i5+x2i7/Gb9gMsB/JfxV8gL8A/GblZvyA1yf87/IDoofNf9u9gP+S/278sOEAPqzoOa1TTUr9d7+rlAD+/5CtY7bmgqYlPh6v/9/OcHwKZ+BAupnF9PWW1Y0Ouvtp2X4Lq/zHigSc40rqcuLWDTh69g55fU9JJfymbAff1+n3g+uaGbH6+2UuO+ZHrDdPra50gHW1tUAK74B4tz8E2HOuD0R9th8wz5LFGw1U9Myn1NrtPqe3WVbwY/G8masqft44iX16o/l0yDylK8F014truSVyYl1wFrwM4+GeahOdlZL3/+htL/5MaN/yr+j85JPtzxmv8MBmDfuPPt789ypID9b83Zrtu+XxWa//vjXv+GFyi4mujev6ue9LtMYqQiRIdXaltVaf/1pRMjQHXdMcnU9AAv3P4685AyPXDQtoljTUaPFITV6Xf/Jj3oiJb7UotmkoydTK7f3/Yyx/A/c+ztf7tnnAHLgnBZpcXyEFvP4l1l8W6pLI2cb1f55gZRAA"
     },
     {
       "placeId": "JP-037",
@@ -787,7 +883,9 @@
       "originalTitle": "File:Tokyo Zōjō-ji Main Hall and Tokyo Tower.jpg",
       "originalWidth": 3516,
       "originalHeight": 2574,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrYBAABXRUJQVlA4IKoBAADwCgCdASoUAA8AAAAAJZQCdMoRwIsCrARYBz13sYVwF8g5wbtn6m5MX7TnAP6B9QH+AzB/+H/GDURvyA11/9y/Gb3Q872oH/Hv5d/ZPyf40b9gDrwz1nX5PGhsJb3+DAAA/v//pdtA30CrF14ImTvyW+JeeAyBL+m/fZvNxFlnw/5lv7JBZvqt1YJjkOc2+MBFT7/7Ab//MStQW/fc/9yBfy3mbhYcsoZsy/2k2jmVAwIKdLUKSJFbXafjnjtXRFtrc5ck5nkzp2P+PTEbROTkS8G1ov/ntnKlR10Uzpmw7Qkic0Q/UqDVkCemP/H1//cgATBXuekvrHriAf+JdS2v+79SC4fDnf0OyTC0J2gGQeecz/fwf59yJ5/tZEe1Uma4P8XO+U6oUquXGtTO1+Bf/4t/+O4nZ9/t+v+qIN9R/sbVsl/aP03+n/TyaWBF7L/fvnc1hrs/0satr7aisax2TaOCX41+Kq2XhooZ+JBHcGZ6r0qhdamL+pTPBtANU+1CeXhK1Fu4/az+3HWT9iRTP+ffhM9D94QaGdFWZsV+X2AOlLjGWvy8AAA="
     },
     {
       "placeId": "JP-093",
@@ -803,7 +901,9 @@
       "originalTitle": "File:Kyoto Railway Museum, enkei.jpg",
       "originalWidth": 6016,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnABAABXRUJQVlA4IGQBAACQBwCdASoUAA0AAAAAJZwCdL1Copv1J+DusAckH6m5IJ6X+QE4u2YDngs7jwf/lvU5/xn5QcZL+qp2b01tYREWmGM97AAA/v//VG8/6meVpR5Z370SOfIGlp65YC/eXwPjgzD7C7//Nr//RqtjMDBQPbovXD/sino/5V/5aDAdNpZK/hl//64+7+GFf0+6ifCYnSOi8botkCH0dYfcTAJuqYBy+RURLDY9SBHPaBvWNkSb8GrQB4q3HU/+XbBQdP/SMYmvU9rcyi+iP+g99tgz/NsM/Z5Lb/4uSK4MB2/8UDtE/mSI4peBzLRmNQghYHhl0YTnn/9ZRGJpv16vJwgDAQJfa8gW/b7v1/40yUbA/Hac/+ks7ImeJ/0uV9BmfLn2r1PE/41uu7B7v/F5p4/Y/xAx6B/7XdobIiQLs7lHolWf78fd6npj04jq3vgriZyO/QrN7N+q1Tmtxafwb7pGBK0AAA=="
     },
     {
       "placeId": "JP-160",
@@ -819,7 +919,9 @@
       "originalTitle": "File:Shikinaen Okinawa Japan 沖縄 識名園 - panoramio (2).jpg",
       "originalWidth": 2400,
       "originalHeight": 1800,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAACwCwCdASoUAA8AAAAAJQBOmUHcBGAO4B+lf63e//dz36zfAx+z3ozXKX6ZuwFQf/Wvxd0QH9L+YDMAf478YNRP/I7XJ/gB66+Zj5i9gT+Nfy3++/k/xnP63HZtKMtmBqLku94UXQAA/v/+XZO/7XB7XfXw/RiQsRftWCGfnN3V7ukxzJadc/ocTVbnnOrm3TNCKfu3gtuaCUTh6uB//8QrKf+WgS3zv/e+/P2knh69/26dLkk8a9UnVPOAesJksTgPcgxG/lyh7a26u21u3xisDVqW3LTmexTz6ErbV5RW5EUhrj/z+IMR2huRd4N8fqz9WBaGH/+DeE21I2sqR9NI5a55xO+kz5vCM0cjiVZxHf7XXlEqozGP1oNFxQJe5u24PN26JOjhTxvyT/K0wg9PryP/tmzsA38W/7PxcpXb//Sw56FUuxj4+8/D8Jl2lgkxr5uj/Qk/lPNE84ZdD0I3/kGJATad/z/+fdXp074LaI3XWs4/VrDrGZDwvhNXrDjcX/C+vh1JAvkUy8lyIZ22KC3Sta5v5CupwzkPKm6c2wSdbVsSUL0Zz124+zt9nGQne2+/9O697B59VbmJT5wuLwj68/1X4fy8fcRztXdXQAAA"
     },
     {
       "placeId": "JP-141",
@@ -835,7 +937,9 @@
       "originalTitle": "File:Arima Onsen Yumotozaka01s3200.jpg",
       "originalWidth": 3200,
       "originalHeight": 2142,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAADQCgCdASoUAA0AAAAAJQBOmUIkAqQOpXPoHAAfpn1pv7O+iPRs/wAyVT0T8Xc9f+HP43ZZz+JPkBfmfENfjlrgPFA/AD1m6BH8W/r/5YcZX+jR2oHG+18VvVpF+mXhOAD+//+Vk/UlfCUWknSNSv2SaMmgDBn9ZrP/lUSJnUav//ViBI+FwD/tH/+3Y702nyYuRH2x67uLaMI3n0//v37fztME9ETz/rT5lgbd//hW7xyxwDgkllv9FSd9UL3ybPQXaERlTVNWsf7nNPHC/7pzpu3Y7Xjvk5j45Tk4oywET/NQYw0Mb9Y9mxz+ublIfsRFNdo/9DV3KqY9+kzPXXWntrsw66BsJGBFLH/5CyG9M/uX2xETmmvH+4IP/8BJ2Gnv9R/8dv+N242bzU3tuDx/9rD/VXf/L1Q/DhL18XmEJ+D8Ef+006ufWh5pz4nv/ia66SNJSF1P+0EmL/71tTLTZF1msCOypP5xC7/Mlf1SeHc4/OOwjM/80KumWnDhwL+5iROsrPaGbWpbhcIbEXH/4c7n3G/xVUKhg/YVgPCf/OqLOhsP63DfADmisRPvM2jLUhgO8fsmLsvBQAA="
     },
     {
       "placeId": "JP-040",
@@ -851,7 +955,9 @@
       "originalTitle": "File:2018 Miraikan.jpg",
       "originalWidth": 2500,
       "originalHeight": 1711,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRs4BAABXRUJQVlA4IMIBAABwCgCdASoUAA4AAAAAJYgCdMoR4T4B+FdSA9QDeMP2h9Hm5S8ln6Z5Kf6XmJfxAySH9E/KPUQPyO1yf92/G73Z82ioH/Gf5L/gfyg/f/6STBXqgFRXI7b5L3DsAAD+//4kfciLc8qn5/YKMcv9FQUMsttze/qkdxHRyNJBEm1ql/X6Prsf/0L0lIz8plBJ8n7/y8bzwfT6FdGvnO9cJwHs0b1cR9FywTRJOJXQB483Qh8DrO//kG71PCf+HD/f/+2NOMv/O6Ix41j+BDBcN5Y//VEWiIOISRkQpT0vj9o/5ZS54b/vLGiUTTfJ1G4mL56zsUgP8Tvbf9PtF0b/NqpYU73kxwMF8XLbJyFdGmvF9we50HUfE/0YQG1n31Ayc/WwX/+23/xc/g1jOT6aqKHMxBMn8Gv/CceE/40O/iV+dbExbJ82D3f/zGa/gyy+xM6bRu+A6/3OxKKTi62hF24sfktCDiAz0CVaIB5iGo9EO/kFVV6Po8bwy/zBQY25s/32loa7g3HvIc7p6OLD9oJEDvDyN4VT+3u40fzb/ve5/+4ymlIYbUwnBobng2WsV59G0+ZzZN12SgtEIVDlOwqXAAA="
     },
     {
       "placeId": "JP-102",
@@ -867,7 +973,9 @@
       "originalTitle": "File:RZ Demachi Masugata shopping street C.jpg",
       "originalWidth": 5861,
       "originalHeight": 3898,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtYBAABXRUJQVlA4IMoBAACwDACdASoUAA0AAAAAJbACdMoRwN4B+IFSB0gHsAzFX+V5QB6AHlRfqr8Evk8WwB1A3Xr1GyQTzbJJcgr7wL8r4iv8mdZN8wL9V8CX+q/kB9Af8K/i39k/JP+3f//lSf0zPc5NqWu9VNgReERgoAD+/8WMbf7quj1rlsBX5c5vQ//3Kf3J2gnmUY6uJ45VDVrM9G6st9SbRVX2ID9sugyB/MK7Pq7XSkxu1Pt7/HHj6uASB/gUAw4gqlVv2fwjCmg5Dn4xUtP80zkvrG6TxSn9hBtJfFXTocR60QQbWBNfb83eZLLiL7jpNvMg0SBslkjVCSCe6R+uKjLf7n2WdhtCEQw8go50nPkBV6Qe9nFPCl4vXjs2IuCHks4R++1Kd/X//unO785ZTxqEKtyZryEXdzaDXnktNJ//bP73S/fryOxTTvvlqED81rACkpMv/ROaIz/1B37DQzWvkvB5Sp6xxPb0njkCxN3FNvCjCUEA66A7Tf3/3PJnz5msiMfhcmzNUkPo1lqCP/Fz2jC74naXjtMurbefeQep5UPAz2gicgcpbGIl7D2r/U8X+Dv/3JX53VftEugQ9ySPhzdZ2ocxcWpSRl8P8YAAAA=="
     },
     {
       "placeId": "JP-174",
@@ -883,7 +991,9 @@
       "originalTitle": "File:Fukugi trees at Bise Village, Okinawa.jpg",
       "originalWidth": 1920,
       "originalHeight": 1080,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAAAwCwCdASoUAAsAAAAAJZQCdMoR3N6S4ztgS/oB6UvsZ1gDkm/SDJBPN/xG/IDSb/jp+wH+AzCegZ/kBrmP8Byx/lr/O+4B/FP5N/ffy77lf6zeyr+qp5q3+OQEhlqG4VPQAAD+//6gT6F+eEf9xomOZc2f8DxYMfKf/+B6i35Ug4n/XodJx7/+Tez2XIPpi9wvgfM5zf/7csdGcecvuCbigH0xTuBM0PauPL5F/8GdgO/QWTP/8bwY70p9NuFWC/7X1uHeMw5E0/B4EUsCwTWYvgldXx6kG4CetZ9fnlc5TP9ptazfP7RR13MzVXG7a9jb9OX+SQdsyAPAVXj+j/lfS0jqSZPtgjQ49r7jv//FjR6rS323/HjP0mfb9f5SzmmgP3pzm08ZoXtP2+sqfFRTdV/X/rDpugyuLBf0CR/2lD0WdXzxyFKQhwpI8lPlo44tMmuZxX5CUf1dOnGRFFztb1/CPaOsr2Z0NT4aOKMQepa/untfCnQCpmUWHRW/Hx3T79Vj6IBOrVX9VHEIQAAA"
     },
     {
       "placeId": "JP-116",
@@ -899,7 +1009,9 @@
       "originalTitle": "File:Museum of Housing and Living (Osaka Kita-ku) hdsr S5 23.jpg",
       "originalWidth": 5089,
       "originalHeight": 3821,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpABAABXRUJQVlA4IIQBAACwCACdASoUAA8AAAAAJZQCdLoBbgwhf9qqlA6YP1NyU/0v8Vc93+Gf6QZTNolGoW/rvoe511QP9Jf6r+YHGQfpKffb6birPJAvb7+gLKAA/vC3oaXrzSB739/8GQCpFfw9gVLz8xrDm/sC3grCqDvGwJvh2xbgsfdupI+P6Kvk2Bs4tWurU161Jfn8b9uCBXq/40n/bkdo5II2Mw27cjpSf+us+C+sGNf+GhrcP/BIPigzi+G5Ijr+tWf/7eyT9/ZL3EgMHU/Q+bq//EU+50VM5d/qnHoZokT9idHYKTH3VD4T88JZY2Y5h19MvJnQFT/LaBlQsS90JBwTWawlB8lvnrf5QTulwq/R0//9HUZMripI/0DHufrZMK7Q/sNye9+X79vu01Z8GooY7fxcKhu/Jv/jt/3+zVSbsueF222z/Jvy46pP1/WkXieTkD39/wf5/2bbTxQXtj/tf4qj7CuUed/1Cj/g0arf3gpZGzFSUE0YPPhwou0HPc7NzCoRJ4QmAAAA"
     },
     {
       "placeId": "JP-092",
@@ -915,7 +1027,9 @@
       "originalTitle": "File:Kyoto International Manga Museum exterior.jpg",
       "originalWidth": 3264,
       "originalHeight": 2448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtABAABXRUJQVlA4IMQBAABwCwCdASoUAA8AAAAAJQBOmUGMHCl4gDeRuoBvAHPIexv+0dSgdNn3AZK/MLfi7kkP5n+IGqAf2b8ctcB/dvwl9yvN88n/5z3AP4j/KP71+W3wgdS5+nJqoFu+V6yuq5UfDHlAAP7/Oa/lxtURM7nVUKxkMLfCG/5alXj7hFDyKu2SmJ7EXm/O0dD+I78FQgYIH6k/ZWajurqK+8TMRIprwzXg7h9kxf3//385yzebtn8N/uHdvt0sceRw2+ju/hVW3fwIf+CB7EdrDaf+bO0Ymn9YxPMAKlUQMcS7eSM2M5xtmv1Q00L/TFGTY/dMuEbuZJxwXmyKNXXit/wzp2b9sX4X9NL0y3e6n+9HeQgDn4WG+/1v5pCvnMWU7mr99G7oECRh/VBn5FvbVZnpUYbtvgy7vz/0bJl3/M7/4+K5l9OWP1c+fRcrvlMjX9l2iuf+u//vxd/xglTqe+Euu1b6AAfdRR8TD72FyjXaCk0gO7jSzldd4MS9z64QCX6BR78lZ0QCF0uji4DrW0zHPkJknmEqIYlQ9dye4INyemDlRP0n/mdzg1Xjha+El6FGvi14ttSG/o5VK5v/3OPYSbx6T4YAAA=="
     },
     {
       "placeId": "JP-005",
@@ -931,7 +1045,9 @@
       "originalTitle": "File:Cat Street, Ura Harajuku 1.jpg",
       "originalWidth": 2048,
       "originalHeight": 1536,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuwBAABXRUJQVlA4IOABAACwDQCdASoUAA8AAAAAJZQCdMoR4OsCrS/1XxQNIB+puSAegB5S/sTfsb6R1yA/CXkIMlP8ezgH85/En9mc0C+Nfx38sNUa/uX4zbIB/Of8B9t3S7+Lf9F7gX8R/kH9p/K3+ych3+sx3Rbdz8SBl4Q1AWC6UfOAAP7+6+zB/w3KMdfpn+O/dHP5Vk7PrCc/wIewqTp38+nL3oGlv//72kQ2QQlvwNN1O6nBNqkQZUzAtrlJV0yyljdgflt4rEUiQ4lfRdLr2/+EVOR8c1rT6yl/Q6OhEDUf/3TKkIG4tUP80CLKbC1uxpM8ZIoAqd22X+4QkjjxRN1NGfjfiT//61ouadEzJ3pwx8J6ibQVf/kFgIIGZ3llFkR3hcZRdUDyP4nNHNrdq/7//HFSNqLnHrcA4Q+5meWlx902/p1t/+HXjXz/137TdYTangNwtR/N7Cp/nw+PrcCT3ekpRy99t/zsk4nbXp4Q+3UH+iueK8SeXz1BdLFe25KRLiYFfxZBhBKy+3GgZ5JmaqLh/vb3D3ZD/EOp+Gb2lNB8DGkFnC0WgmbPIyt/wPYrrhsFS+Jk4vt9XLPYprinuzynL5d/+IuU4ZgOYtwCGL4IrewE67ztEjAWP/869bF3xkzbJx8AAAA="
     },
     {
       "placeId": "JP-101",
@@ -947,7 +1063,9 @@
       "originalTitle": "File:2014-08-17 Kyoto Gion Corner.jpg",
       "originalWidth": 3250,
       "originalHeight": 4333,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRu4BAABXRUJQVlA4IOIBAACQCgCdASoUABsAPlEgjEQjoiEYBAA4BQS2AE6ZQj8b1Xh3OAWwzmd4p4gHrVaZX6AHS6f7CXqy0mAM/N55+OeF6I9GH/ci1h1qCNxfWshllxqBuAMg674pQBHpfhAA/vqdqGSluTHYTKRmyl9PajmuyrUfmep5ee6InRCFZNXLknx8OBYtueyeUedNl7W6s6Iu40sY2+xrvxgsh+2r6Kf4cbYnbvtg761B6/d9kbRpX6+74BbKwqJC2ZK7Y/2bpav8rt+XgWWgauI8DsWXv69cJluYopj0xYtWVcjzP72/vLbvTEr86GYM5em218B9rRQYPy57QsloPB8Q/d2+ZTfmA6J2MSKlHdAt0bONM8uViKyP+zmMNdKLhzpXH4/Tqj4peeRYCPfOZ90P2HYvvfzqDuI0Idv1/skI9PXQc0UzD4R8gzf8zn6mxJ6Yho9mxlDRCLYzsBi+mcy78mrBYFTkB4kCviqJ/FU0x5Aj/oRlr6Hzjwy7WT/FoYr1AlIHq0aCLwIRx+d5LwKGPt5AyaUeU4/S5kt2GNHXoZDG4kFP+Yzf/+3vKrtXvAwZQn3/tjR8/0d//mbBEnUI4P/Yt+f70g3ns3olVH0y8RBAZ/vGIooS/4Rzf8TtG2Q/dOYLnpQAAA=="
     },
     {
       "placeId": "JP-207",
@@ -963,7 +1081,9 @@
       "originalTitle": "File:千歳・支笏湖氷濤まつり2015（Lake Shikotsu Ice Festival 2015） - panoramio (4).jpg",
       "originalWidth": 3024,
       "originalHeight": 2016,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRq4BAABXRUJQVlA4IKIBAACwCQCdASoUAA0AAAAAJbACdMoR3N6T+Gf6gf0DdAMoDPQP2A31XrAPQA/UD0o/1u+C/9c/RhpQOxX2TfwlqYDjK/8R7gH6bf3j8xeFAO1JdamZ0pM+QAD+///ElJbmN3+knif/hAIgI4m2fQEKG/zV/qDeCSP7jNMyz1m9/0Ef+7E1m7/WloPidk+6P/3E/24mhivx/31XM91IT5iYf6xO//3f1/2lsB/46wrgCy9Xglnf/Yt0a5eGvkc4o9d8LEI//zo+1moO9cLYyvMya1//8K/aBZPyDx3HnvQklWY9Gg//dyBRFcPQLr//DXXhv8OEH+Vvr7sb/1Ha29dD+GzzfcmPFjr+7QGuw7DhS6gErP/7bdn/uMa3v0hggv5B/yY7/5MpxLhnHoJocrH/pEbwoj2eg6nLqOP4eCd4JiZ6yt9o5LTvOy9bf3fxMfwXphdFX1+10ujpy8yCvgKWmBHHgDdvd+zaCP+IsUhy2RIvDZ9cV/huZD9HwGhB+P+GtP+IIvBw3/SYSNZhH+snG78gjvqb7kJ8/rLHX1X7w8qLCgAA"
     },
     {
       "placeId": "JP-028",
@@ -979,7 +1099,9 @@
       "originalTitle": "File:Books along a walkway in the Kanda-Jimbocho area of Tokyo.JPG",
       "originalWidth": 3264,
       "originalHeight": 2448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtYBAABXRUJQVlA4IMoBAADwDACdASoUAA8AAAAAJZQCdMoR4T5XTAdQD1AYX/pgHPc+xb+vHpMvEDwAfzb6Vc0C+Hf4D8jv1A1xD+q/kBrlP7X9s3xBftf2q+0T5Z/rXuB/yL+X/2z8we6r+wHsO/sAdz95pR/GK1UJD2RVmMUAAP7//o2d+waTmF/IlETrgef0QuidnVh1awokyUQlJtT8xSIEC/z5tGctowI9//+CDTuMuWl/nB7q54tMk+80rFfzak8cShMHFawtK/75r/1l1tjeusROq89omae2Vh71Mjx0RKCwT6y5J5ManhxSY5c4e4uJv+wXlkpnPyidSq7rMA35/52gxNrhrnSdkTj1RQVxInifP/eSs/tfDTDBNUtqMvhv1CX3lg+nw/KJks+z1tvzNVsOfs+yjplvkdn9I2cR2kP/uzIKiqvzjQOkoY+c38frYSmGc/AFt5nf60LsPvwzNpvDH2I7uNg6xyk3/WWtiPwm6B3JtBAHT0yfoweRnfOddRMAxHXwQnxf3vxqy4gbf/LRLx6L3RR2531z//21HdKTx48FGSdaP9KxPruAAeYkDmuGhcmv5iq41YE/EP/Gi735rxpn/Gi73wV5viM8Xm5xLwAAAA=="
     },
     {
       "placeId": "JP-070",
@@ -995,7 +1117,9 @@
       "originalTitle": "File:KTO1804-026 (49763326698).jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAADwCgCdASoUAA0AAAAAJZQCdMoKBLgsH6zZZLvGUsY/E39bssE9Q/C/Pb/i7kk/5R+RnkBSAH9j/IDXc/6T7ZumJ8e/3D3Bf4f/Jv8H+Yn9G5Eb9ADtIB2Z+yGmy0kdaegA/m0si9Jsnddo9MxJf/jzu3ShhwKMP5DwiLxx1/vrO00aOg7lN6Gf/oivGrcEBGslk15C/lUAD//XqEYptzyA7lDOryxlI9h1wGnxF8dTztBJ4JBcqsBCsQ86JIFP5e0E9QCLgCD5Z+VSdKyKfxjHenvDKY+jyGOS+e86vPaCaoCMnomf3x1rAXUVyI9S0kmYtDF7rf3VEbc4koOTOTDxxm/Odfqq8BmhV0kL/o/bx7v8Dx2Lbv4/5++vzEAP8Pnl70VX5QdSZR/2Mvnlp2q2Rch7mUGioB/AxYemW6d7GPi5t2uRIYzr+hVEJ307CjHovSLstsmurdseunv8wVIKaii68hEe9taodwz0O69zsiqUP1dPFer9JYJcWXAqEgAAAA=="
     },
     {
       "placeId": "JP-161",
@@ -1011,7 +1135,9 @@
       "originalTitle": "File:JP Japan 那霸省公立歷史博物館及藝術館Okinawa Prefectural Museum & Art Museum February 2026 N13P 04.jpg",
       "originalWidth": 3060,
       "originalHeight": 4080,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAACQBwCdASoUABsAPjEWiEMiISEUBVQgAwSzgE6QQR1Rz8ww7LOL9PewH+rO+uh0oQSoQCDPH7OXBFOvgxCTktTFm7viiUAA/pgJ59ZjLeRx0udwup8w7+Sd/klUWJBJvQWj91WwuYIbUXosKk72K9G4GN7S7CG/tfuY8IYGm+9+4RTO3hE9mpUXa5P5PauBeWX3iFtV2eGgxSRbNN86Z4f2LBC7YimsCTaty8vUwsiaSbmH33IR2MrVZvMFTMnZLip1yiVLk60Xt3BNFUr9XMx2YBs9pjYwF/A3Hsj9Tb9TIe/ZFkCfWO7JNG5oUAO7T//JsArCZcU+Amx9Fg0+Idu71UqG15SpX0BPIJ349KbJJ/AuZYAn2D/Yv8SNfex5kcXbi+vltL2DOqSCIvYf35HsndQviCKEdukMGv3am6NC4/sfl00LdwCE+OlP+xyQplVxj+tbOAvGGHFidUslNwwHz4DqdmoQ3iyyOsT/xV/p/3GZ451HHKBdTKxf/tCLWdmvQ1GlkxAyVPVOKG0TZIAH+gwAAA=="
     },
     {
       "placeId": "JP-111",
@@ -1027,7 +1153,9 @@
       "originalTitle": "File:Abeno Harukas Osaka Japan01-r.jpg",
       "originalWidth": 2672,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqYBAABXRUJQVlA4IJoBAABwCACdASoUAB4APjEUh0KiIQwGAwAQAYJQBOmUI/w9A/FW73thmu9BBzyGmuvY83AiQDjir+s/ZMEcR3C/xFV4iGLSCb4MPbG90HAcAP7onbXB/sMsveNW/9azmcfQwC7aTOQPig8BcJilHAJsjsHpqKib9+Tz82dARkTuUffvP19Rw1kPmn7gcOZQ/m6sY71H/x4e+QjnoFsmAwof/YjA1YSjZ+MQnir2Af/OICWwG/mocCZURd+Tf/8nRrbXvVek3veDcGkuudaWByciqOvcGYaFceH4IDUbdj/nGLzWebpI/Ny2gyRiLcBPrv3LjDm6nEHrlM2X22cpxeoeQC7F4t7Y+ouQzHUSjxfSGu2oxUVmtbKMnFvaVWJbOQCoU/YIPHWmwtF5Z6rZeDUcVMu0MqNcb4bS+ZNazpAz+keCmfPxykeNwXCOmzXRxq3ILYhSMA5bG4yI7aXwDa9cVU7YgvNjRX49Xyff9/OSc3ZBSVq+Wzns0n7SQ1MeTps/YXFNLPVNur7W5IHRMOkc2y1rp0HS17oaqJLAAA=="
     },
     {
       "placeId": "JP-008",
@@ -1043,7 +1171,9 @@
       "originalTitle": "File:Nintendo TOKYO (52505969791).jpg",
       "originalWidth": 5795,
       "originalHeight": 3863,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqwBAABXRUJQVlA4IKABAAAwCgCdASoUAA0AAAAAJbACdMoRwN6BTARQBlIX7HejlcgOEg/W7LBPLfxu/YDOIPxuzCf8U/ID8gPQA3wDWYPRMnHf49/V/y5/rXEAHjw8Gg0/sv8+aeapv4AA/v/+8LH3nBa6GX1M+AFQTQeeQ//p8gzzz9OF/+Xu3hdZ7TiKcGeO90X5/brEJi8uA9j//qbvwywL8yibr36oX0UtTZ/e1OpjnDPuX4dRRr9O3ks//8pw/dS4v+aUWiUadKmfwPAZ+GlEzJdQdJZcMKvSXB4Ar+ilHjp6oz5wOXJNZkH/uQk0Og3ef2P+ZyodjbXc41stDJuDEnOor+langzynb7+SPPNOuKeymv3sgrFCCep/qH+LMWTcg/22/DqtQDuByfJc3Jf2tm/OPWsbCH+7KP+jz/s17fOzxD5jX/gkQFKPz7hX2I0zN/qf3Wd+9cNqDf2/3qA7vvGr63d4DmUsqPR+V6l7yZKQMp2LcD9kQHEb0595ORRH0dKzom/DTw6S3Y3QOPqmQ06pkV0f9e76ufG7+3Du4LEd3ri6Lm2KoAAAA=="
     },
     {
       "placeId": "JP-090",
@@ -1059,7 +1189,9 @@
       "originalTitle": "File:Kyoto Imperial Palace (Kyoto-Gosho) Kogosho (52980159201).jpg",
       "originalWidth": 3365,
       "originalHeight": 2418,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuwBAABXRUJQVlA4IOABAACQDQCdASoUAA4AAAAAJZQCdMoR3IsCrAeAB6gH9A/FXgAfrvkkHPAfqb8Ffku3ID6ZumD9GskE9H/DvRAfyn8YP1myx39H/HbVEP7NpwH4ze5pnNdiPcA/jP8a/uv5T/2v//8qB+xxxRgi7cvAHVLRuQhZDMAA/v/+lf6Bi9svyFD+MPyvs85Hq/kf/bRGHlXUm1lJA3kr4q//odZX6H02gJZomXN208WjuDeoAEsz+gLbiefJtifppHpFh8enoWdk24r/DYux25I54PY9/vlhHVjdEe3dqFHDewgM20X64ZREkPbJ9vvT5m4xQ5ml/zaAz7D+vLOF5S9/7KJPHhqHKy9UgOwsHijwXA3inKdy5YETaRzfwG8gk/FcqaprulqfTifkW0Kz6497f+8EP1JB1m3+JwwJMXQP62dzeJP/eBTAzmpKCa/pz0BfJaeJ9zmd+S1Hyd/fhT45/nc54EU50c+591/ykTn/C48NmiZH5DHyz0RzuvL/Yy+/SIGMJXxVGxU9/d8/e2bnlwmaaWa5AXLk9//WimUN+/zeeU6ee2jS4+bk2hSjTbGMd31S4dUlnYztlbonyy9H17B4q9n1hpTqmDkpjWoR7oQzRY3oaxjdCu4u5QHev3CklydoAAA="
     },
     {
       "placeId": "JP-180",
@@ -1075,7 +1207,9 @@
       "originalTitle": "File:Hiji Waterfall 202105.jpg",
       "originalWidth": 4000,
       "originalHeight": 6000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRs4BAABXRUJQVlA4IMIBAADwBwCdASoUAB4APjEUiEKiISEYBAAgAwSygF2QON0Bz1TbjLZw90vORzkPR/sD7pWNqdZcHWwzx3c0L5h0BC1XX6wQfFrNd7gA/vTFltzZGCKw8/1vsc55zssbjAWwn+2Nc7dUhN9VwurU30/BD+MOkySUQi14xF97k8eBdeiz9sXmg+RkSgke7g9v6YAFaO8r3vD5kjqSVvb/NiV3hvo1KPXoZXSaOUJL6NEptxoNgVVqQw8T6lxNv/0gsOrzcdg2/jfzI9AOOkkacWdVn17dautsPDdraboB8ZFBQrQmVfO95/Vfb28KgF4D8d8e1zKhlqpnRSzXt1Bu0rpl//f+7dDKj/B0035/enA6cl8fw3KIxAIdDgFQEmHh+9Nrm32TNSWHBro/LPgwYF1f16dIekod9OtNzxm+rIp9xdVgl5yDhqt+OfDd9nd0Dvns2n3fz+dJprCUR971Br7VssPrtH9s3LAv/+w98kzXw8qMfyyXM3aNGuuFQtqVLcyHf70XIE7lyCfL5+c2ev4sdSSC2uEg7rygrHkwr2d/iHXdbET7+iXnN7DDkxr5V2U/Rr8GNoBwDpas1FBkHAxF8sQAAAA="
     },
     {
       "placeId": "JP-151",
@@ -1091,7 +1225,9 @@
       "originalTitle": "File:Funaya in Ine Town, Yosa District, Kyoto Prefecture 001.jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnYBAABXRUJQVlA4IGoBAACwBwCdASoUAA0AAAAAJZACdMoRwN6BTAVgB+gHv/2SdJkrjAf0n8gKo1yYvl3/Se4B/FP5z/dPycMeZ+6/Oxt+fRLHyQYAAP7/06P/+gDu9IHBhx/+EB/6HPWx2Zf9TubNvjpEH7PaxnaPcJnpXor7cfZh2zitaX7EcfWJ+L7tytNn2LrUX0b8Pktf4XvOvMlawLgALyfKU7FWCoNeEadF/bws//66zsgP/O9DtYJC6+Nn/3keb7F44PVSa+qeiOB9EtUE5t4Lq5bH+K4KFDMdP7wrr/+2DHtkpIPDJiZ/z//vbX+vaXYKP/f/L1rxfTo10n91x7dWH/tV8zOv9M//2v/+XHzHEo/9+kmw3LI67/7caM7fxU//7BNpb7t/7H/k2G40+unt+HyXh/Uf88U1/2sONrpc0rqSUbPfh/eCiF5XkvW2pkspH9Y9dl2mCeDqOLtm68+Mqhz2KByJKRaUX03q3VRtEoAAAA=="
     },
     {
       "placeId": "JP-046",
@@ -1107,7 +1243,9 @@
       "originalTitle": "File:Broadway Arcade Nakano Tokyo.jpg",
       "originalWidth": 930,
       "originalHeight": 523,
-      "processing": "webp-reencoded"
+      "processing": "webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAADwCwCdASoUAAsAAAAAJQBOmUI8HWBVgP5nhI36q75nwAH6Aek57EH7c+ktaAFmn/O/xm0QH9V/BrIK9IA/p/4q65T+1+gD+QfaB6AH9A9wD+K/xH+vfkz/YeRGPCbV/fvI4fTZS10MqAD++CYmyjarFL9rmjcrJh4ynJ3xt2NjmUzz04f+YlERfbfyd/Ptr+dmHY1SSPqxF/rMfboWKam+5x0sebt7iu7spMaoVIVvQbz5Agif//E4Yrlfeq+mbFnKouP/TLG59Oe5zdr9l8rjo21X2/YuLuFyesGdOkwvOV+pDdh9xK//9LtVM0b+9eT1daEzT+fP+Xcv/f//P7wmudk9/aM5+BfKHNj/bkClfYTMPcdzavJG8zqwcuOUl/+bj/myGYneRxpa5fs5F/8P+Cj/OzzHjuY//+tMUaXFCNZ7vmaCl+El3o7vJFqouiZeoLx1wX5b4Aq/7r4jmH/2va01Qen3/GFnBFlkL3hswM7eJ1KcDqFccdMJEY8KlVXLXf9vYb4swkVcVF5RAEBytH+Xf/7uXX8hJc74zA/qqp4v/45Y9/r/CZqAf61fNgBDn+7+Oz8Q6PDTjT0/GBb5UNBr7JfbBnp7+FqgAAA="
     },
     {
       "placeId": "JP-159",
@@ -1123,7 +1261,9 @@
       "originalTitle": "File:Kinjocho ishidatami-michi Shuri Naha01n4272.jpg",
       "originalWidth": 4500,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqwBAABXRUJQVlA4IKABAACwCwCdASoUAA0AAAAAJZQCdMoRiv8M7oKkBoYGSl+TBbAHUDdRPUbJRfNvxm/Y7/HZ4B+R2YA/ifcZ/gBzAH8o1D39m/FX2rc0XyJ6in8i/s35N/2P5QOogPFThcCdRiNzzm6yRwAA/vlQDbe390ICI2mXn4nSI/7h5NrO3WZnePQGGrr/eqJgfOUOqjh6aSug/P/5x2r9/A5ONGg6m+6SvdvfRh5fvUKmq9fu7dIxNVw8TOAayVVC4UK7Kv52rPMZv/NzPd/9LnboZH+k/q3b0ohUO1ZKp/qpjy7to62qLAfe/2S6SIF4IkuW29DKraP6iNU147vinosBeEkzasWC4IqtUV2MsGB1Vgr/ydu/2iTGCrCPrWwQAA/wUlLLb+3P/5FXsVNA2ygb9r4I/jX99KJb66mEkuT3j/RB7q57Xtv9NPB43eG2WH57XdSFIjIjcMTLTgDrP/WQdkiLopE7wsRx+btHwpPra6ebRDsAAYIxgeLI/s3BVpAkgW9xWFZbpFf3h/dfeCiIw67wQof+vHUy/K+l146wRGvFuPCAAA=="
     },
     {
       "placeId": "JP-128",
@@ -1139,7 +1279,9 @@
       "originalTitle": "File:Kishiwada Castle Hachijin no niwa garden.jpg",
       "originalWidth": 5184,
       "originalHeight": 3888,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtYBAABXRUJQVlA4IMoBAADwCgCdASoUAA8AAAAAJZQCdMoRwIsCrAYYD9ZskA3kf7QKtA5iXJT/MPxj0QH8d/FDIbvyA1Fz8ctcB/u/PpxKP7p7gH8K/iH9u/Lf+zchh+p53Q+pfMm8rVXT2q/HqgAA/v9bVku8OA/MZgy3rgTF53/fJDPaHRHKqUv3OqsTiS+F4tL45zMe//gH9oCoaK1/8UsWKub97fHpQ4zB+zK3K3uDv/tsHeyN41BbUqRTYjNBcSi6YT6c37xEmv+NPT4Vg5J8EfPoWyBOIieb3zvyp73FYAErqnHERJWmRaJr2T6euTcw5dIbNnvVC0NOxY7P/2KELyR86XAiIve+gvn5P5Hax/52mxpW0WIW7/42B0RXuTNTfP7b9lJKldTI+CDrI2c1YIvOqkscADl//wwVDopEaFJN+9z/8mOddf+ADAcf2xf/h2OM2vB9YS+8mksGBaZWQ1+8L/fDozlyl+vptv9ZBg1UemvER6bZafGTPqSbX9c0xIu5sUMSQn/jwysTnX2PgkgutjhTEgHzQP4YdHBVgwJbGMoNxf2PDmihgvS9Za3h2Hz+VClreHXx/6E3i/xclBugA/lHMURrrMb7m2yyhR05MEAAAA=="
     },
     {
       "placeId": "JP-016",
@@ -1155,7 +1297,9 @@
       "originalTitle": "File:20181123 Sensō-ji-1.jpg",
       "originalWidth": 3840,
       "originalHeight": 5760,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAAAwCACdASoUAB4APlEgjEQjoiEYBAA4BQS1AE6ZQjzL/eYBQgNtRz7umgcpmQVH7JiucuOapTdqt0Kv3ZR0GTBnuOeNpXxNriEGgAD+9BcgF5Gk0P/Y4HGap+EuXrx6YK7vU1UhSfliAlnTbi9n++fmb+qQFw+j/pX9ce3+y0kKPPFnIH/AHz13Qj1jCz1PQ5z7dxWy3g5+EPxobaTEJFv6bHK8Nkmv6z6ex+tgLPOs/1YqSenWJoj2N4kO6x9w3SuftzYqfkXKgYZWj9p+kxnP9lUL26rbbBdnK/4acH74aAof2tcuFX9mYYJ7USy6eNuKVYSs9CmEoPTgxRkw7O5pLZ+2D7yk/z4DrKbHoe7xLRyx/XYKS7m7vEJrFrUSknH4AmqusXGCYoG3dKHcMOLepAoJ1f0M1tN9PY8Fe99AdYf4TsxI0QeZbfFyS75Ttb08du3vwuNgCC/v9ffX2yYHTC2Gzm3Jv4578C/wkxm4n60LcY04d1lsqr7gnpNqut3dU8nh7IcsItEqocp14QGmVAAAAA=="
     },
     {
       "placeId": "JP-127",
@@ -1171,7 +1315,9 @@
       "originalTitle": "File:Cutlery heritage museum in Sakai city, Japan.jpg",
       "originalWidth": 4300,
       "originalHeight": 967,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRhABAABXRUJQVlA4IAQBAACQBwCdASoUAAQAAAAAJYwCdMoRwIVnagH+A/oHoAawB+gHsAfqT5AHwW/sY4QEyAaIB+GdiD/xX+a/kL/NzRuhSLViBUgA/v7/J//wvjHVQBhEoUY//2OEEaCBdbwTojM48+FfufyzyvtrAgkMh/KGeRwy2+I/8+/+7uv0UM2F94YCow8OnOWj3/87lNvp/W5ZU/+MWDvyC4uztzcR7s2eQf8fHH+VD/+lDpxPNk7mufuu52L7FIIQGGWfmQ0r7//wIpZZ/+VzAPjtBr/7m/HlRbEJVLp/nOrBX+9eZ6B96sv5NMb+YzbWm86Sap51/n9DWL2HHBmHfuo5aw57bHj5ByAAAA=="
     },
     {
       "placeId": "JP-208",
@@ -1187,7 +1333,9 @@
       "originalTitle": "File:Kawazuzakura in Izu Peninsula, Shizuoka Prefecture; February 2019 (01).jpg",
       "originalWidth": 5797,
       "originalHeight": 3865,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAADQCwCdASoUAA0AAAAAJQBOmUI4G8ApgPdn5gMMB+nf+Z/leWAc9J+wHwRfsB6OFyA5wVAH8tzCf4n/sdlgP53+QH4zegBVuOaL45/wHsO/yn+q/kz+//KAfpyePApHlqcHtsPGzz8iAP7//stf7QA0Zyo1VHFbclDBD1i8ttWHDgiK1viN1MGZv8brLP++lf7ZMiuk1EE/eFi35kKXpa9hX9qtO4qPnXEUZhR/Hkf9DGBsI9nPGe9gt/5k+M2OaKtdW5kAfID/H1MuU45fYFRUTa4/LOHX6pk/f94+1Rz459HIUm4kAMDMg8FOIkdpkNjMq6AiDEXjB1gJ6CcP2o19YiUfoJGrX8//WLS6MD/vahfz3Mu+pIm0eT/Jpg+pKgy/+af5uPVyKrw692O1fRv4NfQM7p8zVj/uU/ymoenuPyBaX+X50vB5+mN3XbSedc/++QynVh+snN0cLjmrrAtmJiNrmAbeztfaIYMxnBpS30Zj+Pxux02OUmOmWym4BatzcUgdr6BXfLmT1Xgiv7JgvEc3Uqe4JOm8EE8VhqjZ57/0HttDAsfAle5+1TRC0IAAAA=="
     },
     {
       "placeId": "JP-098",
@@ -1203,7 +1351,9 @@
       "originalTitle": "File:Byodoin Phoenix Hall Uji 10-1R.jpg",
       "originalWidth": 2940,
       "originalHeight": 1610,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqIBAABXRUJQVlA4IJYBAACQCwCdASoUAAsAAAAAJZQCdMoRwJoH0AZIBvHnk9WwB+s3MS/qrlqnon46fkBpN/x0/YD/AZZf+DuogfkBrq/8z5zf8B5bvkn/Ve4B/Fv5x/c/yH/pv//4zM82Qb1iYUZr4sOWYAD+/uu4fj/peRjs7WAFmpXq1d9tOpeKEKECab/+d/xaQC/mIIpR+Mbj3nz2JywHh4f22NcpV2D9B2HIDh+YNK/71zrJB6Irbck386d/Ck2vNeC8lJ/+wfk3l0iFwonc2N7k+dTQRES4Nk62n6gscvOd9fKVHAcU2CPfrAb9/lfs2l/9aDqSquXW0zYMAU1El1qKuL2RugZd3GuRSngyYYFYhj/tVluMOvfJfd3//wY8w4CPMv/opt/H/P/9uK4P8Y2ff6uYvecePYPFzcxOPuJZkIb0AepPrkeP/iSGXu+F/d27QQaaUT/vcnfNNf+m0lsiVc8Q0A890fXr5/HIydpUXMVFBjrjee771klH49TLORhn/E5dvLeyN/7HHyAV820vuJ88hazxqb2wmJfjwAAA"
     },
     {
       "placeId": "JP-167",
@@ -1219,7 +1369,9 @@
       "originalTitle": "File:コザミュージックタウン音市場.jpg",
       "originalWidth": 1024,
       "originalHeight": 718,
-      "processing": "webp-reencoded"
+      "processing": "webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrwBAABXRUJQVlA4ILABAADQCgCdASoUAA4AAAAAJbACdMoRwNsA/UCrA6oGaAeYx+gHv/6YBvG1YA5ET1GyQT0DOAf0T8Rsk9/RPxd0WbXd/2bjHfYA/iH8b/rn5UcZz+kp2bs83NaixZ/zLxyccAD+//73KkctjFW9TS+rDRwpVqvfzqjBaYIu3Y78JZaGQNOKex0M/+Yop71gVXDn78D1rqaq29O1e6OW6ZFd9WQfd2n//nAubhp/B6thwgGDMbVq9V+R/j++RPA8X6pXeWKxlVOAXH//0eeIB9BFDGWsHK/37X/+MX1n/nepd/P1zMbUu93Hwt5buQYtP/3pmSqmq/7MmPm/cA85v322sxQevNtMGMLAq534/RE3YdN3L558yoySQ68yK401x+Bz2wv/920j/W/VznDR+3+7cnv0u/PPhc9sp8rX39u+v6c41D/6Z9CZEivo//04f7fbf/qzxCeB4/6XM/Gb2p29Hya/3bZk7Z//LCdjzKvMPiOMOTGSexomPjPFH/hMQD0/acLYuvE51LvRrP5q8kyggJ8y5cPWuKjSKPI6bRE8N/uCaKKP9+HsMXhuD5fvBDKygAA="
     },
     {
       "placeId": "JP-146",
@@ -1235,7 +1387,9 @@
       "originalTitle": "File:Wakayama tomogashima.jpg",
       "originalWidth": 2048,
       "originalHeight": 1536,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmYBAABXRUJQVlA4IFoBAAAwCACdASoUAA8AAAAAJaQCdH8GJwMUF7ZngX2T8Rs+h+LuSA/t2i16hb+6fbN0xPlz/Ve4H/FP5r/oPy6N3/gwijI5rrKH+ZZ7AAD+//8Rn9Gz8DMNHTUQ3duEf+EkZ/miK/IIHfpep/p//LpeN9OmJ8pTOTd/X8bhwVQeGVyAhlLY/gR7i8ViL5/Ba7VDOPH/6RSIGq8ojr/if743FLQgDm9hPhoYSLc7whO/1C8y7v+wNK1yHNut3G95sYflu/9pDAX5e5TRMHW+vGO2VD45SxUP5StS7UbBi7L98gqTPd6DMaFjvyDTmDCUQbnss//XONgsGEC/zwy2tOr3td9e2p7hlmd80kjr2U6+Igficd534cLU1VT/uJQGJIG9ONfCZmPqoLUEwwcWNEI9qZ/qUqm9BfGze9aJ9I0GuX+q1Txxr/MYOZ6sXCyhs3kjw76tsdyn80qfXAAA"
     },
     {
       "placeId": "JP-026",
@@ -1251,7 +1405,9 @@
       "originalTitle": "File:Akihabara - Super Potato Retro Game Shop.jpg",
       "originalWidth": 1800,
       "originalHeight": 3034,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuQBAABXRUJQVlA4INgBAACwCQCdASoUACIAPm0uk0ckIiGhKqgAgA2JZAC1GsvFKGUox4mfrgehjeAN5smL34BLgkwDzFc/moMI+2u7pqD/uQR+MkVsFDqEbAH/gH6ihsmmyOAfAAD++7hyzWq3CEAL5oHtbNoWSjZAacfaEKyTgI9WSdKc/NNHJHbeHtQ3IF7beVjG1Sj7O+0qmgNZx4vQZpWlAM4FsPnQAdXOaLD0sDVKxLiq1ukjpv109GCcAcIZjM035OcPGR11w1aw9kx8pfwOZIAFFZ1Qff0r8zYJfJWIpn/g/vxj9WElTeP+QILUYM9oe40pXqjAqGaeG3vciuZt+THbcclR/Vb+FKQYQ0tCbsO5zVL/wtZx5o+VgY45m3ZezJyKovZV+Nvh7/gxBxSUDojtfwnXOz5e3R+OGc0hqBrqM79w5XAQY/68zX0BF8zrVqmnq63dvimaXOxri7lZ1qG5/2nRXoSEgWn8my8l3Y6Bb9RVf8+yVysGs7peKyvzv90lPy/zSK6OP7/jLcfEfZPtBzUI3WHSgUk6JpRWMSiY438G295bRT0IzCQjxzXKFxS1H68KTJMV9wK3BPvXaE3PakHbMuCSlhnOSSOPezn1WmEbsfrBk01wC7AenLf4AAAA"
     },
     {
       "placeId": "JP-061",
@@ -1267,7 +1423,9 @@
       "originalTitle": "File:Murin-an.jpg",
       "originalWidth": 845,
       "originalHeight": 634,
-      "processing": "webp-reencoded"
+      "processing": "webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRswBAABXRUJQVlA4IMABAABwCwCdASoUAA8AAAAAJQBOmUGMFGX/sBvqvAAeVJ7Bv7N/rp7NdyA4UD9gMuV9QzgH9Q/EbJI/1z8VdR0/IDXd/5n0gv5Xyg/If+A9wD+Qfy7/J/mZwpJ92rd3U7AyPooDBX7gAP7/4WN4aekVcDjFzkWNqzFkCFAuxf/0S79FzCFzemqwGN3HfEf/1eYBgL3/C19n9/mglxUf3gyXxeoVj/SaO57SlY9cjwXhgMwj0+n760irZA1+qot/voC1TSa8qMoiM6eCXJkTDiEtz8mD6Ff1c1HFHnzvQePqjwiZUlxVFeW6GnlwtdzJ+d8huDfZLFGOHdIAj+ewl5fe09wqcX9OpaLlB03vCj3JRAsNL8a5NQRdPyGuK//2v/zGCv/aryreaZef6iqWHnyybK//29//aP7d3U3qpzVEx/6e71FuYvZXGgrbv90WhytzFvU3/8NTCzTnUlf9w7AKjJQFv/vy13Mg73dibDj65VoUGO/OCLCbJbBn3RLunk6qqG4AdIptBDJN+UmZMk6L468t5REjVXcbVh1Tr9Zt4qogZ1R3evlvonNv5LfNV+6M0hPcW/fAPgP0qz7OioK30AAA"
     },
     {
       "placeId": "JP-182",
@@ -1283,7 +1441,9 @@
       "originalTitle": "File:Cape Hedo 202011.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRkIBAABXRUJQVlA4IDYBAAAwBwCdASoUAA0AAAAAJbACdMoRwN6B+FdSBWAH9m9qrTAN5P/XT9gJpfJpOSA/mf5AT2b/Hcpj/hzMlLCcNUiGb4AA/v/+RUqSgTnNWHf/t0S/9yU7iotBeHN7wvNd7+F+4HmP9NEMkQGyjvw/SE48S37bOpf2227b0B2vaZ4V0/Pz/tUnsF/a/yrfUBgvl//3a2WVyp7x3+C6cVHJ/+jTRRyun033MLh25Xoye3Hpo6f0yPOPyQ4x3Mbv5Bf/l3X/9lNAaqz2n/HVptkuv5C5pD/B5nKdpmCJk5v+9bdOBQr//JCkS+DvajBrVYd5y8+1RIHBrgVdnf/n9HyK4AvT+agX5uyej6lNF/Nts3TxoaxVtW/oIwP9V7vVR6d/5hbH/Y8iYoITPSSCBAOzcn+TqUnGAAAA"
     },
     {
       "placeId": "JP-118",
@@ -1299,7 +1459,9 @@
       "originalTitle": "File:140923 Osaka Museum of History Osaka Japan01s3.jpg",
       "originalWidth": 2960,
       "originalHeight": 4440,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAADwCACdASoUAB4APjEShkKiIQwDABABglsAJ0yhHUHgH46cgZtt3j/EDL2hYqyaJa1j5MKJ/o/TfzvlMkdGKk0WVArCIyqLRae3+111QMmB3AD+T/+Rm2YXN6GCJrt8laPFPnFdEGj884RUYT2h4+p1DbxmldBbRVyOXv8DKNxEplAFR3wgm4+zOoTMRnnIX1qGF9M6VQ4Cgcn/nk/kY2pdky4jSRhTY7D00qip0pjqLRG/6z6n6K/+ZOJ9mo8sUXPJtuDaKH38iVxBOM/+D+jv2PFv8CdBZPAq0oH3JRJKkTLlP0rgFGAisQwbTXGTtiClSadspITGr//bdWVVd0SJDz7euJ9u0Q5THyQuTKy2B8O/qy9k2Fcf+xFvQol5/0//h07DgMRrBbS05m7t8/fcafyKUWF3vJ1o3n6d5VOigd+744OD1piYPx1flGv/CXpHbFzj+//7k02a6M1fPb7/8SSZMdjrNKdl4GbjQs8tRqSr7uvMGW7AuIfcUZ+JKPzr+OgJVja0mMfdEI6k2dbNpYfzsnW3fv8K3Yv5BjXuGMsN+CNwl7WCaIw8Vg+6RnD6wAAA"
     },
     {
       "placeId": "JP-049",
@@ -1315,7 +1477,9 @@
       "originalTitle": "File:Animate Ikebukuro 20120613 2.jpg",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAADwCgCdASoUAA8AAAAAJZwCdMoMYHYAc917FX2zWCX6M+lE9L8lK9H/HbPS/iB+uWWT/p/5Hah3+QGuQ/xHnnf0flB1AP43/I/75+XnwzdSb+tx6eQO77vv7un/vQQXvMAA/vzCugRU5/Wjqt2fnsZBXU7iHOlf/7s968cfnkLQOV9gp4wuv/EUDnnWdGj0lPo2OTy/UDJinTl199TE36YjKzionreOlwD1WxZXXOsf/+6Id31cbJUu3mnnfQg3/RG/ulbpYiur0jalqteZNp1JWR73dEjbnu86/f8CYldqSZAtlnbk6bp3Osmwl3ir/+0I5p4GeD6+P+7Kb/YQaWLPTTwfWfk0hOdk0h5mP6YS5pOuNfpqsWwfHfXRF//avgu/U1Mqniov//34VGz7/ryt0Bv+P//xwQljd1vgkw/sOv4gOUtojkt8ST+kbvWCiDqp3mru3lf7oA22QQN+DUzGFfa0wqbWj4OYAsa9tEXxMgkCqo//mZ7hftuUz8wK+F2X9IEZ3zSpP8S3mBNIyMc3VQyxp4s/7jmmWTANBvFVChR+N8oCz1TONaSwd+YJaAAAAA=="
     },
     {
       "placeId": "JP-058",
@@ -1331,7 +1495,9 @@
       "originalTitle": "File:Architectural Detail - Kennin-ji Zen Temple - Kyoto - Japan (47929070538).jpg",
       "originalWidth": 2736,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAADwBwCdASoUABsAPjEUiUMiISEUBVQgAwSxgE6Zcb2njAQlfHf2uWyNjL9F+wN+qn+qDQHcth+05ls5YzXXZh3ZjvXeGJ2+4GgA/op38g/7f/qfb5LsNrQ4HwURPIX7MXjF+db2BnV1Z4Cd08Xb/+lIydQ1gn7g9sDt4e0nlA2qzPpT7+rHXQTfkEJZRJvqTmczTwZxHnTluo5m0Ga+CyWqa1ACkeqvwP5+ZDy+X7TVTzaCC612Q/fjX8hw1OTptpp0a1QMJs3Ij5T269Bdr7Er25kKyCn2M/3olNFw7KvWWDY+I/8GvySxCRKN2m6c7uP/+08UH/2bs/ae/OzGz1+g3xxOGWIR7//NilP/tYrjN9CyTfWd6BEKRcKbGy/JVK3bPm04c0n+rv9xX7e+u7j3WRUi9VaqaQn2oyoUn8nhblY/pds93e56Bss9ZCS3HGpvz4ct/OhevnTMlthXUYxArkkgVLPVAzbxyisKEZ+LOtkrcOlYX0WgR/41fTwCvkQZs0/ndU8eybf7CiIAAAAA"
     },
     {
       "placeId": "JP-181",
@@ -1347,7 +1513,9 @@
       "originalTitle": "File:AsimuiRockyMountain.jpg",
       "originalWidth": 3264,
       "originalHeight": 2448,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRogBAABXRUJQVlA4IHwBAADQCACdASoUAA8AAAAAJaACdMoR3N4B+Ev4q1gG2zaQD9AP7X/AMsA56f2Y/KZuQH0gdgHsr/GbIL/yOkrfIo/tH5oGhZwPLGmw5wR/gJqAAP7/wbUpikLWnHoXaQR9FjL5e/7Ar9AyAiQvmlSF1t9M6SAQf/v/4GlZDj/an6dq4EfM//dEP6CVBZBN/ERLgEYHk9offvggf/n+9+PPQB7nD9PJlW7H8vPdtqeK/kIKVX2Zj/RTX+dBiX78R8r27+n39L/7hTf+dS5a/Mulsq0b8Z+557Y74gMMArpDj7MXWh1PyleRSHs7/+wk//kvU/b+hOIU7R6Dvh8nGvSY9kD3iro1bjP/4cWctCe3B2VHs6uuT8sq6tTCmb85Q5/kpep2WiTXpv7CWsU0X4zQ+FgrhLXx4hBbPckxzjUbY/k7oUn+m4GdRKiTSUKzsRoOuxGXf/T47udsr/7ELF+JLfl2bV6EEgEt8ES7x+OPjkLpJQxe7cQ1Qu5B9zgAAA=="
     },
     {
       "placeId": "JP-015",
@@ -1363,7 +1531,9 @@
       "originalTitle": "File:Kagurazaka path 2009.JPG",
       "originalWidth": 2592,
       "originalHeight": 1944,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmgBAABXRUJQVlA4IFwBAADQCQCdASoUAA8AAAAAJZwCdDiAI0B+Ev6V9gN3C9Of1uy5X0D8a/1J/t2egZJP+d/jNqgH9J/IDXYf4rld6gf8K/k/+D/LvjOf0APTTl9tDRjIJnRyvcAA/v//k2TA/kGbuRMXLF/xpWSMwuxX7dEVS6N/VRLwzeqTNSjcRQAfH9Gnz+SKXmb3q3d5H76KZ3BGnWAu+XN3MymSNu/lKP2mqS+6GEVmmCgKrb8d33t//vCFn+p+Z2x1GXqvF8aPk4/TrDf7DH/4OsIhy3qe5MgC/TYS4v54KUFRAoli3bSZILEo12ku8rAf4h+qAVxGv/2WKA/fCJxTnk7cKp0x9FBqbYDOLyjMqp4210Jyjcz7eTx1IwlY6xy0M9RIwhVvb39ddSdtw/iAmDOn6Km1Q8WDpdYZ9aopAEIMp63inoekvPGXpFEZq4szu7jgn598CInklLYO/VTEm9fAAAA="
     },
     {
       "placeId": "JP-214",
@@ -1379,7 +1549,9 @@
       "originalTitle": "File:Yanagawa cruise ac (7).jpg",
       "originalWidth": 5981,
       "originalHeight": 3977,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAACQCgCdASoUAA0AAAAAJZwCdMoMYPYEbAt//TAN5VrAH4Afrd2A3YP1NyUXyn8YPyAniv8Tfxu9AD8AOVd04DjGP7N7gf8M/iP9u/LzjM/1APrKrc0H9eKUry8O0Q4A/v6pOgY4s+Vf+GQyhFCaxufiWqGuCcp9RrOyxZFJXRn5t29hpJ6XLke2SKP185Mv5UgVzfB214kgbvF5mMErUIa3HQ0+jh0cacyZ0LjhIO9FsHW8vUPPn9WeQycTOXoJnx7L//n7ztWSpNpNkwXF7GxT1csqZf/9XEu7+PcThXdlKFu1ftNSf+oElBu4aqg5dc9oo//O/C8dmVzp+uBtH69Xi5Trzo/Kb7gSDb4/2QyJbKjbf+rDuMjKHh6oloUD2CHv6kmTZbytnWHU7pCUNqscNyWL1b8m/8TANEkwl/8iIdrOlvWFfWlg6D/0tGQTa4mfuxV/SlP5/7rIzx/3kf08W1lOzZ7jD2RC97weNstuwnZlQgr+1ZBKLi5x8zRyIbvgAA=="
     },
     {
       "placeId": "JP-100",
@@ -1395,7 +1567,9 @@
       "originalTitle": "File:Toei Kyoto Studio Park from above.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRogBAABXRUJQVlA4IHwBAABwCACdASoUAA0AAAAAJQBOmUGMHCAwwGOAbyf9s00v/B3JlfQPyAz4H4c5Ax+M2oAeKBeCH8Y/uv5d8aB+qqHZmrW/3/LSZh8gnWcAAP7//whb++3122dAoBLde9IVex6nZ6RfvtsaX//5aKr9jB92FULvdfmmHg9+MmnY/WvsUHfvCT1nXtUjwb3X/A1/GoOGF/5VxcvMZ1SO8yp3lz7q+TBvH/qnf/82WEWL4w45/FsXO3PxD2JXHvEB/2ek6EBiXNMv/88dwj+aG6b5DAW86yI8sCJ9g/9fwyaf/cpCJPleP4nPZr+9n24qsVP57/+rz14n9YC071cz/+ugz/jQfzDPMYaw9jZzXcz/Md2bmpL3/9HjUP/nwTK//050tn3EXnVW78F7jswIcVJ8Lt9+K/jpLEZNsqyduR+0JcqGJfNTSL5rN94jOn+6WH/3VQTRzGpOKvFx8v+0vhgurnUa9J7d+3L/hOu3naghY5NMwLZ2RSqQ2WMyfAAAAA=="
     },
     {
       "placeId": "JP-163",
@@ -1411,7 +1585,9 @@
       "originalTitle": "File:Walking Banyan Tree in the Valley of Gangala 202312.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAAAwDACdASoUAA0AAAAAJQBOmUI4G2AVIFY5fzPegOsA/QD2APJm/bv4Ev17/Yr2mLsCoX/g7kp/rX4X/jlpN/x0yGPRTdQB/YPyZ/lfSm+Nv8R7Cn8q/zn5UfAB0Mx5L4BR+T+/qt/0EDYAAP7//r2NwYgoQ/EIqnrantPw7FuJLy6P/8IbdmbK3h7hp9K7/l0xc7/4ndn8yPIfXkt+Tdy+TRa4v+/w9gGf7qCwxkBT0xQEJxHXKiF3Wu+0nBb8QVs9s5+SyrAT6s1oL8B8R15DLxq03nF/7AMNbPRHTqF1XJOX9tH0QIC0PMLxQkU7kApP//RokzBqiKcHdfYCUPfcqurnbN3/3I15Zbd59uWIn3v6GF41f/96ZPSZ/YZUutMv2sO6sFiG+9STHlMJFfOGlBX+oeljsLLROC//wzu+r7U/G7b1PDIcyipqhof8gG2LXTjctKmClbTmgnBVNF8dO3Bz8KxwgLKl+s6guN4Odmg2g0kZp8JZCpT5MJdelEfCa/Y5mdKoImTwHY0xcsBI6d+oi0S7/mUk01qCyGcZ5uuyfYYBXv6G4YYI1O/rr7iWWQbmTnX+m7BgEAAAAA=="
     },
     {
       "placeId": "JP-123",
@@ -1427,7 +1603,9 @@
       "originalTitle": "File:Church of Light.JPG",
       "originalWidth": 1536,
       "originalHeight": 2048,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsQBAABXRUJQVlA4ILgBAAAwCQCdASoUABsAPhkKhEEhBgEABABhLOAVhl646+TW2o/XJjHeVVPhvwGZNxofvcPcvz+v6TzbfPf/F9LQV/WWt3VHL76aCGCT1wEjwdo5YhAAAP74qvbnftXMT8VdmYrt95NoN/90DbgA/7k9GnQkWUJT4OYvr9Al3AzMkTu6sOb607pxDufEwpxVZV+wKpzGYh8rH/yr+joODVIav2SgLOB4aCCjty5z/sdNy6twEnKL3oeGDr530WpxAgH6GPyBxPhEM1qx96es+xgLyqIEvK8B7lsHJ8VMV6rsd2Ji5onBnqIW1TMAZX5HU9BhQu0PQv3/9v45RfWRlEakN/3fMSeECqR73v2gH/ycfgx5RNE4xEUJB6fYRQk7hnofO4l39+F+r5T7dZN9rPDg3zcnh1cf/BwFg953eKVimraAelZ/UN/A7lTJdPiFeMOEv+DPs4biVeBcSJuV2ZNod2/AD20TlV1KJdezBIj3X94sYV//8Qu746ZX7x1ajOKfmve7ahhDfurlKmaCGfbix3g3awf0v/y5N1CL9JskpjNPgCbpxndNmDIDTPIkXBN/FvNFNJd2DIAAAA=="
     },
     {
       "placeId": "JP-013",
@@ -1443,7 +1621,9 @@
       "originalTitle": "File:Shinjuku Golden Gai (53147651689).jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAAAwDACdASoUAA0AAAAAJZQCdMoJFm0gH6b/6P+k8GB1AG8m+TTRqPwv/XLLBPVfyA/IDSJ/hR+0f9dzAH9c/Dn8bvUCkAP7X+AGyAf1XhcvYR/jX9X/Hf+udqB7AH6SnTLfAs+3Qz1O1hQoAP7//7kOi0b7C2N9MgF57qUUwLp4r21UICMzv//moLSMfArT2hwN1a7R8/hmF7gPto7Ybx6wYbbkP1I9P/92+c/biv/W8xFiX/a8gZAPAJ4hnXWL66/SVrFstBkJWz40NjVZvAWv/1uKb9x/kyStRAPnVB0NN///ydW0KzwIdVjge5BdcVFkV/OiPBuUuIkfTkiDeTPonKfGjWOw1mFX0hfrPzdhsN99wf1UUhIx+ppMAJFP8tb/tA+9pm6hUMlim5qcrCkNC3A3HctU5hQo5Q34C4/wzhun6//pl9V3lf75UUzlNHV6f/xoAFdv9Q1mF+glzFLdX2z64OMMa+iGKzy5Hh+odkwlRktjy6D/9kwD5M2d6Y/thBoJFgkRaJq/f7GDpZo/VJIryvz76OUt0CYd06tX9gvUagY211HzLez/9yQQOEhbUtY/yhTyyCkEhZAAAA=="
     },
     {
       "placeId": "JP-073",
@@ -1459,7 +1639,9 @@
       "originalTitle": "File:Wooden gate in Okochi Sanso Garden, Kyoto, Japan.jpg",
       "originalWidth": 6098,
       "originalHeight": 4065,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsQBAABXRUJQVlA4ILgBAABQCwCdASoUAA0AAAAAJYgCdMoRwN6B+AFSA9QDnwPYU/bX0qrkB+AHOoenOSn+W5iv8Zsgd7wL8A/DPmAP53qMP7H54Wbb4l9gX+G/yz+6flL+//Ku/rcebGASQlF+Q2/z/IAA/v9BG5fNA+fLzT/9jvjuR9Vc3+/1QL3jf/ZNjtrsZ/xdZrt+q6UYIWRZESyHMzhii9MDeqaWNt/+Wf6f/FxDmb/zvgP1opKK/uyx//VDTU+jQkSImdWopLiO6//57Oh/0DZ/Rp/yZH/qb8/AszhbjAlzH/vS5pw4KfCjIBFxQ9Xb25/pNdwqrIUd/MPx8BkaJroTcrGyX/h9Uro9/F4kpF62/mQR4KLX/Xyubqyj+a3zHX//tBS6urnk7+3KaeJFtYfv+/+It+7/879sMfhLqir/X/ic+W6F2f/XzB57zYCPc4lZ0mrak6B0+LWc821GF1CFWjr35ym9f/pv3t3/yh7wR9Kt9ByMTnZ4Ngx5d2Vq+rPmn93ioNCNvfQEoZSn+P2iNCc/gvs27hkAZQ5qL4v+kP/Dj+QrHYjf9G98m8LxIVOK8WVc15/GBR////R70SGAAA=="
     },
     {
       "placeId": "JP-183",
@@ -1475,7 +1657,9 @@
       "originalTitle": "File:Mangroves at Gesashi Bay 202310.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAACQCQCdASoUAA0AAAAAJZgCdMoRwNsAqQOqrgnP6k+//pgG8oeTNdgPdOuV45P+x/jBqOmoU8nH+A5wP+G/xf+5/mBxqv6qn1lVvXnKkx96b03Ot24AAP72+7tQKv9VBHPpv5h1aiu9tI8lTSuFr1upHAfcufydir9e9/zkP9HFBZpJ7gnhfIH+1UcXiRXwTqBO9B45SZgHor9nIV1kVXqYltzPiAF71xqmqPrqbJz7/wwn/dtD/FtiDtIK/idoPv6LRp//cOxZgayGh/Qz/R/6CP3RdswxllqeE/saSB85mWn/W3vvnz6Y/4//4Dh0rHD//5Fr7Xl/aoxNHXf1/95RRA79S/+clQkfuIVlo/WhuI3w/ZdRy77aDnD7+vgvarz/a4jP/51rnKuAMDcNTu/VFtk16nZ1TbnCUVRxwTiOrSgtjgfj9jaMuaPD/PQB/B8xq8bL/lI1HhgnhYtlSv+6cBgtV2i5T9nNFqw/wJOd/O7QO/nd0ZtHstZ1ZJ6TlPeAAA=="
     },
     {
       "placeId": "JP-022",
@@ -1491,7 +1675,9 @@
       "originalTitle": "File:Ameya-Yokochō Entrance.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRoYBAABXRUJQVlA4IHoBAACQCQCdASoUAA0AAAAAJZQCdMoR3IsB2Kv7Ae//d03sceUdcgOSbPAumDMVfyAyxb8RtRN1Ff+A87PET/xXuB/xz+P/5H8xeNV/YA+q/744QMnTfErAAP7//264nXPndZuW2lQq5r94nob0xup671VObN/nMJhSES/Brd84Szq/oL+8ryisfxz2ojXe2eeQNquXhSejHO4FJ/s6+9IzdKWz9djvH/6E2ZH24pqv41D6CrpDxGH/OWOeemLxgpAcvSN/9KD6Onvr/5ogNtlAfn/bOC1heNjtWoCz7u/kNNPNyy/CqFKoWs625P/47K9+r2/wiUyW8ZXaSWgSyYgUikGmDpgKC9G6AdCLWz3cixYHc/qLiCvkLAwNVA2A/9SIj2VXI2zp7/jb47RNRxFUIttAx9wf9v5UwAqAkGNv8ONw/uGaYNGenv99fP/qGw/5f4noFsdzPy70KbksDtd3+KzH4bsZ+e4WNfeK04fs6S8Z6N5r9z1vh6fgAAA="
     },
     {
       "placeId": "JP-055",
@@ -1507,7 +1693,9 @@
       "originalTitle": "File:Pedestrian road with pavements and paper umbrellas, Higashiyama-ku, Kyoto, Japan, early morning.jpg",
       "originalWidth": 6438,
       "originalHeight": 4292,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrwBAABXRUJQVlA4ILABAABQCwCdASoUAA0AAAAAJZQCdMoMYKEA9+O7t/Ys/bKaBPKPxdyQTzP8YM8n+J/7Hf47MAf2P8INRP/I7XZ/1Xzcf4DwHfYJ/g/8Q/qP5Of2b/3cpL+lZ9ZVw2NkQTXLovpj2oAA/vxDdzT+3Pwqt4CHI6XvXT37+/11KOvyK//3b7iC1sF6vv/4V68hVGssv/JdWhzy67GyJLqKXNclIGRZkyGfZNFmGUFmgUesuNuS80FvB6d/H/6GmdQ69eEYeC1tJvvRPWdlDvZ+iPShtq2bEn5RBsXct75gKkhIZFjdYLgGbT1mBwszP6DxQKlNBTtRlBCvJuaH/Yohl1j9X8KHNW4hXJA7HkVm8j2/74Sv/wzjxugICldkF7P/fT/5G/qHXJ69Sp/jzvvKYIaevWr/93Kf2Ra3PxXdD//iXG6uP6Sjp89+/4gj+cYyTvEjn+4sC/kX9AoFaf/wOKv2ngRkTP3S9AXopcSwmd2oRqDCbF27YUiHXb5VAYnaWIpvzwin+6xdcErf/gpRqzk+amy3I7K1Yf5n/n/7G6M92cNCMwkYa6bI28f8fbxnkB7LAAA="
     },
     {
       "placeId": "JP-194",
@@ -1523,7 +1711,9 @@
       "originalTitle": "File:Banna Park south gate, Ishigaki, Okinawa.jpg",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAAAwDgCdASoUAA8AAAAAJQBOmUI7j3Qf27mANtG/VX3/+cr4ADpLP2I/W72MLlL+AH7AcxXkgnpf4gZ4D8UP2M/umYA/lv43fkBsAH9Q/KPXS/4D7M/gQ/jPI78k/3f3AP4t/Iv75+V/9T5CX9VSuUame6UQ0prUighGAAD+//6oYfhY7Xa/oU3wNVablhhIpZgX/JnZ3/UW/V6mOcq34hSnzTEkFPQa71trhxqAnF7kC3rH53+sCbdPrxNC1gWpg2WW+ToS+RCNxZ0UriV42Mxs+61f/aAGXzsvofkr/+q/S4ivYyrxair/I8OKcXJ41B9BodyTN8netd0hYOtgIhRkTGJzo5NZckVluadqJnq3f33NZdT1HsjvoKqUQ4rPNnp8mxCvYkq5kRux5bej0rKdFiVNz3D59zffWOD7ghP//O1ImLnT/ITdcJHuJ4r7CkmHgd4eybXzfwfjF+SOFOiMci/wMN5zisioV+b33x8aiB4bghcQwsDTK03rx99HyKVMR8TA9uxR45KI66Eij7tGK/pf2OnlIt0Nv6lLu2TkVdC3/IGcsboBKlP9mt+2Zr9QB503OMX4LN/sQTCkitRUlY2hMxMk63qFR6AAAAA="
     },
     {
       "placeId": "JP-014",
@@ -1539,7 +1729,9 @@
       "originalTitle": "File:Shinjuku-West Omoide-Yokocho.jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAACwDQCdASoUAA0AAAAAJZgCdMoRwN4B+MFSB1APUBnAP10vgDyqv2A+DfybrYA/Wbpg/Rr9jslL+Ff7AaK/GOfxu/UD0AvzP8QOYA/pP4za5H+k/kB/ZvfU/gPxA8xj1Ef4l/Xvyi4y/9VT6s/9OYn5j8Qv7XGwAP7//jgneAZdc/g9Y2oIL0vev893dcdvF4jcvV+lvtqHeN0+h7h/5MqMdAtZfFhvtwopvHUdMuPOjnf+lTb2PCNg7QHi/JZxbJtWhFMXKoAlLPxW4u1JteDYtzDiE+Qb9Ka4lRcp9dxlpZBh2NrOzueuSfw9G42aLw4rHQAoEb/rPTB11tnx593P9nrO4ZZZc/+GioEm3noHDrtMBHf/7dj+P4uQR7DTxH9POkJbfoCyj+hD58jfzFoTKjxmmOhIvXfgf5chee6/3Nxsj9U20/pFaBc/UP953fxRvAvpgBv0zZ2Xi4ncvue0JSgGf8NMx3P5PsKRnQTz9T3S8aHOBmL02tt46xf/zNE3+Jvhjtdzqa3/bMYPOti/tB9iiFqD/NB1orJ+uyOhbFq2bz+tYVOTB60Z9P56z82P513BFW2OVAlgc3bQAA=="
     },
     {
       "placeId": "JP-059",
@@ -1555,7 +1747,9 @@
       "originalTitle": "File:170923 Kodaiji Kyoto Japan09n.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrgBAABXRUJQVlA4IKwBAACQCgCdASoUAA0AAAAAJbACdMoRwNsAqQOqrfoFUT1IBYvfzP8QM9L+Ff7M/2bMJ/zv8gNUA/p+oi/u3GUf4z3B/4T/Ev6l+SH9q/+HKLfsYe5itzF56V2OZOHFeQAA/v/+nZ8Pw4LZHbTowXgtv2zzsKCHS/r+UB4ly7jX/pkqSmt/pmyd0/pHhI4Bcl10S2jyCKngwXj7Mh5hU/+hWFx/liSnuq26kdyx8cuNdfnf9ooGyTd94P1xHp4fCB//4Y9cUOefOLDD9Lh+ADVcM75jqtY8/8qZj/5T2+3JvhSlMn+p4NhjKo2J7FQf7bF00H/IauamwMOc7J/PYQ+zg3RZoh1H3mlin8opF/naQDGP9v+x///7XjGa8/Kf/r5CTQ912JWnj+LiQ/9st/Fx30lf6X2hvv7EA9rB/7if/qNzka/4OYDT5HhqxRzub3ORv8WWPwjinZzNMPWB4atQEIP8jtKbEP3bmFp1v0y0Yo5nXNWsUP+P2IKjT+T7lX+dA3/3O/H5MSNF7l/wQTVyG0X/BD+/7J08Ofr/8OpGV/iP3tYaJKzrx/7vjWYAAA=="
     },
     {
       "placeId": "JP-189",
@@ -1571,7 +1765,9 @@
       "originalTitle": "File:Irabu Bridge (52204774130).jpg",
       "originalWidth": 5886,
       "originalHeight": 3924,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrIBAABXRUJQVlA4IKYBAACwCwCdASoUAA0AAAAAJZACdMoRwN5B+Ev4q1gHUA/quIA/YD9K8sA57r2Nv2d9GO5AcmEeBfZPpm0ZOOT/p/4O+QFG6aQBzTfh7/VfjN8if8a/vX5b8Y7+wB9s0tDiwyqlkKKp/GAA/v7fy73b7xc0AJR3Cdh7BFpAIc0ESpIz1/S5HuKx9crS0H+xTxAdTZOpSM5bWOOVeJyqD//uwHeYwg1GMUthawwsOcsv0DpQNswm2gt0/SfXLv+2Kf/T0skXHj77B/7/+xM6j0Et3letmUxSriAuk8ImIfV8NMudd+1Ef+2kfp8Opjx1ahf/qSbNyd5vdmsLK9opwJi/5PViv/pPDU2L5j/++SU3oAr/+5h/S6tbva4H8zo6iEKin3GC1gNPXn+XF8s6AiBB/90XzJbuoYYlEfH0s0L+1etHvDfb/P/LODxm8YNtH5T6glbMWmSjxY+JVA8OpWrnLiwMD6njKLMMtZxdclo0ZpfiXiNF/2O3Z4OrcPomfQ8XLo3GCc10z++cztEhV5Xr724z+MTlJXsuH+9O50//GEujp8/TD0AAAA=="
     },
     {
       "placeId": "JP-124",
@@ -1587,7 +1783,9 @@
       "originalTitle": "File:Osaka Aquarium Kaiyukan 2022-04-24.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtwBAABXRUJQVlA4INABAACQDQCdASoUAA0AAAAAJYwCdMoMYPYEaA/wGIA/Sv/M/1XfZtOA/aP4Hf2A9C+0AOwG6ierv63ZKD8gPxu0pP4m5JP+x/iB5AUbN+Kuui/p/5HfzP36c0Xrl7Cv8c/tP5O/2b//8qAd81F40F8vsjbRZYZF7MAA/v//nwCmdTpUZMhf5bzqYBHrxoeGNTiwb/hplrzFa/haqfEeUmu4r1WpkAv1EXji/H/NZhbUv/lIRrvUmrzrZ+7GOn+Z2tX2n6S5A926/74ccnNsqf7/sSyvzATm3+X7fkFu+4khst5I09lf7F+R3k0BuXqtf3QV3KVbfXO//EWCPbY73OvQWktciq206KdqLXgUOHsGVlYyup//6eIfwbxpE4/7gPUJjjcmLFT++LX1bpTW5nf+5XXy0FfAc3Dh/DGKXnXOou37yoR7mfv/hbxSN0v/yJibUP+5khmM+B7b1/VkUu8PK/jw3/O13+4h+PmpiPYap8/tLuoAlpfoSgrZmKz1/r6pYbX4Fp9PHoZ3VrrTgXrWUaSfsHlYS3ygZNFnoMoyuqucBfwyU4outUy3aGGQnhxGGppwzORQpBpxb3YNc6/OfVobJ2+K3VVeGKqhmqatFTEAAA=="
     },
     {
       "placeId": "JP-078",
@@ -1603,7 +1801,9 @@
       "originalTitle": "File:Saihō-ji (Nishikyo Kyoto) hdsr Garden S5 520.jpg",
       "originalWidth": 5328,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRvIBAABXRUJQVlA4IOYBAAAQDQCdASoUAA8AAAAAJQBOmUI4G2Z1IHUAwwH6q/oB74HOAcAB+s3pY+xf5S1yA/ACxA/h35HZ578RPyMyyjSD/7T+TOyAfw7+q/hX7YWaL4n/0v5AfQJ/EP5F/ZPy9/f/jKz0ckpnwvq9snLJIvjzXAD+/fbzmdDHlVCF3U7G7vTj3cL//OEYiWtkUd3BiGJb1ynSLw5IP7Edr2479ClOfSbEasAc3PifFop4o1Pb6c0KV14Jad5KmK8JF2d6vlXiB8P0MU3t7HIlVjU1d3vQAf8QLkFvf0yOBXh9v/nB7+Yf/78Vq2GNyDmqGHJf6JIzj5uVM8lR5Lyd/1K87Tf/7yvzHkAFOAQJXdH/ZlhKEbhjWvySFDAF/UGqp//82L7KFRSPA62XfIaBnfVJ1ktv8WUA195xrq8Anuv/+nMOT6Ws1i4xdfrr78wFViPNLv0qo+Vi/wDmVVIVuGTLflQ//B+9/xGW5C3rF2Pa0OKcnJYfgj0nrMWw5j/bM39hCkxUwniEW/IubQoFzkVbSXR1BKH+85hqelW+NOearDZ9SmA0YCrqjsX/imGMhQHx0pEr+P7VJ1gL33Miof5A96coTPUfeMcFjv/hggnUY5Fb/8qwcCYMqryHyxIgh0KG0ypk1NqAAAA="
     },
     {
       "placeId": "JP-165",
@@ -1619,7 +1819,9 @@
       "originalTitle": "File:Street in Kudaka Island 202401 02.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAABQDgCdASoUAA0AAAAAJZgCdMoRwN6B+AD7K9H/5wDgAP1A6w/7QPYXtEDsBuwfpnkgnk/40/rN/mdQB/Efxu/IDLT/sA/QDYAP6f+OWyAfx3+4fir6oHkv+Hv6J+Uf0D/w7+Sf1T8pf7ByDH6AHlOfLY5lKsLkHnhGCaAA/v7rDq9HucDiUk7RcfmoNs2LdrqehULfgBiA4eN+MWgEFMlRbnIf/9f/JAm5kxOFvT9LJzJnT7/rpWqGEF/9b/eK12BBj+G6A9EvLQvV6K1jxTXkmZEq8LvmOn52knZHDqkpYmqo5F5N6+j+yu8DhfX8M7E+mUWXYN1naL2yW6pJT/VOdVpZXYkjWYNgsVYW+hFCl2QAB1H4XB3sMYPUPTsF4LC8xxMBf+jgciw8o3/02VgFb0gJiqUIf/+5TB8TH+98lUBYLE8iXmdS/0m66sigdX7G5SD/8YB8/4/GOcRqlAmyuqH9zfjxqGYeaqn1OP7eSECaeCBCzMAe/5v/5JPtK8R+p03TG9+/qvpV85VqrkXq4lcyhjlcP2avfpOadWmz6w5MCzdta/xJwubb872fuaUSh//Jm9/6aBSlSb+RECMQv5Jd6zFrkhZh/O0o53tUxwAA"
     },
     {
       "placeId": "JP-117",
@@ -1635,7 +1837,9 @@
       "originalTitle": "File:Sengan-yagura Turret at Osaka Castle Park, September 2017.jpg",
       "originalWidth": 5984,
       "originalHeight": 3376,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrYBAABXRUJQVlA4IKoBAAAQDQCdASoUAAsAAAAAJZgCdMoRwN6B+KvCBdgMkDqAcoBugP0l3QDrAPQA6VP9lvSAoADJBPKMxv+DH7M/03MI/yX8gPyA1y/ULf0b7bvfp8APMw/p/5HfQH/GP4//ZPyk4Ss7puIML6NskbYNrefMgAD+/sgyHEi+Q887+1HOxf5vMGCMfwtLCPOIh8h0qnGDlBWfFz5vCD/9q4+uIlmn/9abXcl83bc//7f6rmzHEoUfs5QfjmYD74V9v2mzEJOYN2eDJ6vsrxE7CbBB7MA1a+OOM1Yz3q3s7sPIbDkzX/4sywx8F8wErloj/b/sw9xn7j7vpTrur6QW8cE3Um3k5z4pZqV+kb2ps3Z6857Ra6VEnjH68DBzN7//POP57/qnlc509HfsGd47c6eDTrGU7lMrmxd8R7nmFb/++1H79TXn8YDiz1lod45NYBcID9WwLA3mz4Tc9XC6Xa6/AwrejCAwGqGlVDI4eoCm+t0FQL7a7hh9aDkDKHEuVoZEryvfX/SFVpMEeDOu94W/l9i/Gp35WGmcBY4dTOT6ZTAckqS+kyGdoziAAAA="
     },
     {
       "placeId": "JP-043",
@@ -1651,7 +1855,9 @@
       "originalTitle": "File:Small Worlds Tokyo Koto-ku Tokyo.jpg",
       "originalWidth": 1500,
       "originalHeight": 1000,
-      "processing": "webp-reencoded"
+      "processing": "webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrIBAABXRUJQVlA4IKYBAACwCwCdASoUAA0AAAAAJQBOmUI7m8lpgOpzgkH6S5YB6AHlXeyJ+zvpY3KX6ZuwG7Z+meSCe2fgx+QGeS/sBlDX5HeQFIAfcBrvP87tA/8c/g3+A/Mr+2cTMdpQZrnwfX6BCM3ctcQA/vqBw/XAq0myD/+c9UhEsaXki8HHQDb83jhAGQEs6rpjjGhHcrJBjyBcHeTrTUiX7N/5jOVDjV0ulm1cRPUvE359lvdxOSlnKcr8xe7LJ27wZzLZLV3j/SL8adBPAjCEP/+JRKbW/RyxJjonSjk/jp0a+yZvwu1gLbBL7MdtdRmGFf++FDD/22oC3/+/W3p3/mYP6L/9sehH08GSdfkW/I9R/2f/q//9PcWMkBX5zkZ8KGhzr/Fx0f1/7yl4dbwx5DI+MjvSO//S+VGY/6QZ95/q6cKp0B/T9fDsQzeMlFrNGXjaVRrcqHfPWvyJZW0L28yYmt+zF5W+UAqdklyf/uFFIli+nSaHcA2W20dpeNbclOCYhpl/s+VYfe/4o5xPEh7zK2SxhxuyD0Jt0cTikf5hfu/OriN38SrdJwkgAA=="
     },
     {
       "placeId": "JP-060",
@@ -1667,7 +1873,9 @@
       "originalTitle": "File:251213 Nanzen-ji Suirokaku Kyoto Japan01s3.jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtABAABXRUJQVlA4IMQBAACwCwCdASoUAA0AAAAAJZQCdMoRwIsCrAeABpAP0r3oDfAP1A9Jn2K/2z9HR4p/j34iZ8n8ZvyAyy/uAOMA+zPXKf0D8cvabzgfFf9m9hf+Sf2P8xuNV/Ss4rMmP2g0wsHtiB/1hAAA/v/+zSLB4aZ2XP7Wgsv1Vbf/9SpXgHbpjtlHUd4kgdJdfQVU/9uuHbe//619XzRgkRnTnQ3ZQBnl/9o/7f57zva6kNXCl5bpwf/tumFif9R+RyubFsfLoizWj9N3DO5XjDPHZ5kZkSkTaEB/+fj6u9D/9HcP/J9EGAJxVl69x3fvN3kKE5FY2bCTafYvdD51m8z9y2Xzv9PRaRvztxXf1Dt3cbXPsv6q+2a6/DIRn52VF/3/DzV95f/yK+n/xMctn/Ea6S+qZaOYqrJeMoWKZzG2oa9Il30+aKY//woHE7f6rvrHdR//g0/P8F97QAOFpwT7JhWZo8JH3dvudIr+60725yfhcRT0X9Y+O38maGaukBSk69tDO+tJ/mVbPHz7XN+TAa/+Tff9K6n20E899NphVnzrybKH0QMGUOY27dmrA3zOWH23O2lbrycZ1uSuLwYUTKlgFuEysE0gAA=="
     },
     {
       "placeId": "JP-138",
@@ -1683,7 +1891,9 @@
       "originalTitle": "File:Weathercock House Kobe Kitano Ijinkan 風見鶏の館（旧トーマス住宅）.jpg",
       "originalWidth": 4592,
       "originalHeight": 3056,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtABAABXRUJQVlA4IMQBAAAQDACdASoUAA0AAAAAJZgCdMoRwN4B+MFSBdgP1V/oHoZ7rN1gHoAeUt+zPwXftV6MVyl+kDmAMlP8tmTvuM/xA5U3Uify/7gPdxzT/KH+M9hf+M/3v8y/7dyHJ84kYDMpScBSgEd7fggA/v//TdAZ6IDT1yKH96jz6oqa39IP/3sVw4PM72ZL9RnpWICPdpeRSOFhC+Jz3/zL/xYf+lbmv0O5TQ/0OLD3LV2/DML0xz5orTmmH1ELAf9M3fY+nMsuWF/6f5BVnR23Xh3ZWCfjMJ7/46XseOd1ctBfrJ5uXQP+TEF+Yg3/+szYr8isgP/y1bJ9GEkDuNUadcuTwG5Qjv/I8XbO4pBq0bJL6Gyxme4XwfeCqCpvifLnWO2x//e2Ov80Xz4PN8U6ut/6WHpMhO8Eqk+Ov4rOVlugIZ2/61/JMXdQRrh/3Y/GeMhR/U9bk1/4xe9g6eeN7D8DO0eeTD9e0D/GW3SZjztvDJaUVtxdB6UxI2VcT/vFMg75iEKnMxPuf/Pj/Qytd8wU4L6gf/oPEPK/yPCrHjIbSe1v8a52PU80kPNrpFQpYfTOzGXo9CjM//WTqdYurvoFiIlsaiAAAA=="
     },
     {
       "placeId": "JP-006",
@@ -1699,7 +1909,9 @@
       "originalTitle": "File:Nezu Museum Garten-20091020-RM-114344.jpg",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAABwCwCdASoUAA8AAAAAJYwCdMoLUC4APMz/VX34OiZ6gDnyf1m+CD9lfSWtgDqBuonq7kgno+Ye/IjJIaEh+N2UZf1XkC+Hf7B7gH8W/jP+L/NH+5cir+sxgfC+oSz3eURw2CsAAP7//shcuKTz7hY2/Jk4//iZBz2Gk1+WkK5Ws/H/7//LWF7InfBHIfMqNCg//wsYP8HGAOxPMm/MzreuYxrn/sGZ+39YvKS/1TshzH5JAfh7DoQtRlttOaaqj3B+m/+c88z1IkUqsQJTf+EB2ZDYq+CXfKjPvhW5mgT/+/Mf/N/nQkg2So6C8T00iGJ6ZaiUf/xkn/dIH25cqLGsdZkdGlBzQDjC+j5wzGJxga8gIYl2uxwNmfo/D66v5f93zgDzvchcwtz/53//UdvaxAXnX2574P+2wxz8eVo3/e2pN4eXmr9n7xNogJ+nvM8dD45Z65fXZC20hfIoL9hLT5urclHSy38S4YzyvIOynnk75cV/YaPyG+tlVX5oLp4Lt18By7EDYJXLrn/+Byj5Z65Jq/t1GOBrBmUc3Okr+Bd/Blouf2vKP/yqrLx2kPU+21gfv7ecxR9/jCtBi9eWGfKROX3L771qejgAAAA="
     },
     {
       "placeId": "JP-081",
@@ -1715,7 +1927,9 @@
       "originalTitle": "File:Ninna-ji and Ryoan-ji, Kyoto - Ryoanji7753.jpg",
       "originalWidth": 5602,
       "originalHeight": 4053,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACQCgCdASoUAA4AAAAAJQBOmUI8J8A3gIwB2JP6gZZBzGfuK/sB/mfWZuQH0zWJTJOfxJzB/9A/FXUXchPzn/Gf+m9wf+Q/yj/GflpxoH65HT//GqCLzGyYMWOoWIAA/v+03cVcd5uP9XzjAbWbmV5+S/t2lmNCUtO3iTp89CXhMNE+/H9xFs+PNQCADoooK/OVmXyK9u/J6T9+TdhsPr+gj5PXLUzlfbsn/MxmCdQ7dRNjhHv9f5yxM53UgGaqlPbdZ0f2H9RJXT8QKY21EAXLxAWzJUzg/1v2//80X+Js3xzH7+J+/HZoOT4dn82/Mf7e9Pet5/1w0jFBP6/ts79CmPwLVODrgKO34nyRyOqHTBAeYk3/2fv/dfHoIZgi/uZ34f5n5EA4lwPN6PRb7FyYP8h//dA4f47fpRR6//prRp/nQ9v6HVkv/iBCZjHGLSuTZwPLD0/+D6+Bk3Z/7nwfB4yjmwN/dLVG/76oZ74axQH56ZEptKFPJ+G9efQOqwhVTNlMY7zFN219ycVYzIgcIzu1zjNcAuVKcXT0xZ4gNXT74II8UHqGme3vn/7dMlfpEZ0P+g1dIAAA"
     },
     {
       "placeId": "JP-198",
@@ -1731,7 +1945,9 @@
       "originalTitle": "File:Pinaisara Falls (52117077706).jpg",
       "originalWidth": 5812,
       "originalHeight": 3875,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqIBAABXRUJQVlA4IJYBAAAwCgCdASoUAA0AAAAAJaACdMoRwNszUIBvHlOAdNn6m5IJ6P+J+e3/F38bssr/JnRZtdR/jPtA91nME8d/032E/4//WfzY/sfygdSB+lZ05UaoZfqz2oBQx8AA/ul2tmXgssFMkcS+f/hjSZGsySJkqYnY28sOKa+0C9Ea1F7cP1w2f8OZKPZidyj1BpfatfPY9/3yf9IDQR9voYIMLA9MM5MwW3uv3ReUJ1gaI/3QYw4/tHxAC7XQ69mX1dcyvVtgSPO3W01f7o3jyaT2VH/8In//FvLNBwaxs/bSgRjV5ZmVfhoT2pBjM8V+Ygb7WjyqHvpxk+Ho+KW8OaxLHs3p//+aYezvcMr/igf+5NSP/+OE+AP4vLMbXMv8w6f5Vv4nfhd5PE79WSdv8j35/5YyTz/8qW/2ZOVd/+JYP6WHScOm48HNWxI2SJehhmGH9Ufh5Y/ijkp1Pxq28OvVfPXTItb8nTq3gOpM5LcqI0EOc5Wiw4TkXL9jymQjfs6TgAM2795Cy/z54Dx38X8gaZt/4UbX6AAA"
     },
     {
       "placeId": "JP-105",
@@ -1747,7 +1963,9 @@
       "originalTitle": "File:Osaka - Osaka194.jpg",
       "originalWidth": 5211,
       "originalHeight": 3474,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtwBAABXRUJQVlA4INABAAAwDACdASoUAA0AAAAAJQBOmUI8J2APwA3AH6V/rBvkHWAegB+s3kZ/BX+t/ogXID8AOd69XckE8r/HfPV44D+d/kz5AUgB/Fvx01239V80qcZ/k392/Jv9//pA6EA2n7G8NM86UEGyhHSMAP7//52FDQKWAb/QjG2fx/8VXta1HowXXmxCAlvKZ/93fhrv+qv6fz9e4+PHpn/TmX5oSj/kWH/aIqPf/9BmIO/VfEFgd5SFwwTXsxDuPzTLqlh0rbu1vb88/I2CP9DRRoDu8b/r38owUYJ+KjXRCtgyM17+i/hcGf9UG8NLrrmBwv/+5ogcB3Yb4P8p3fxZbA6GXfb6+j0vipBaL6DM57ZaoG3A+D6ohSjt4gjcBrOjv4f/+Yz71ji83dxmuHdmjZg5AAJivcFR8x/zN8ZCGCECV//6jLu2Q8+PEgi2F28f2/pIz/3kgLhgkCf+jruHnRbfh88+b25rvfHggHWR//82/++Izn/8dvk2XK5+5PExUJbiU87qb399nf/s0sFrRjttd31dG0+uCcW0a0aRC1hJ/584bPf8O7LMAwrmq8LfNAjAeKi3MZT8q/iHhHhUbxUX/MoHyO23uA+HQmoQPHk47JAAAA=="
     },
     {
       "placeId": "JP-039",
@@ -1763,7 +1981,9 @@
       "originalTitle": "File:Toyosu fish market, at Toyosu, Koto, Tokyo (2019-01-01) 01.jpg",
       "originalWidth": 5056,
       "originalHeight": 3792,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRn4BAABXRUJQVlA4IHIBAAAwCQCdASoUAA8AAAAAJYwCdMoMYOEB/YMQB+un+A9sfTAOe6/VX4JP2q/YCagfhzkzXquYA+WbMJ/2OMgPcE/Sr/KflqbvHnXdIIEQ8v8JIebgAP7//r8bdjR5nCT2mOlHB4znb3PH0h/xq36wQZG+38YhCD/8YYoFik/Pj2/ahuuuixcC9EOf6bBj5Ha+mWjWXE/Vj39U/A25tqv7ks5+JE/+Vf/90R6cwabf5i+u85M7j9Iguen9DQOQkPfrwYv7ku6pwjD+P1yTujj+53oXguZnnfJCzcFpTnEeeCrz47hJqhUw73XDPFSP/ugIf8z/fZEi/ewc//sxBfrobq/fEPDar5pZ6YNKuP6U3+IYnP/qffi/5WpMGXl//Hf7KU9CiwpbEcBqssZ4x2nm8yFArC5qy69f8Nf+JU1lUuzgFddrwMsI6R88Qy+r9IBV77Gu93L53ZF1i7gjC2cTaMBWUg4NrWbCED8ucqZEb1ZoAAAA"
     },
     {
       "placeId": "JP-212",
@@ -1779,7 +1999,9 @@
       "originalTitle": "File:Sumo -Osaka 2010 03 23 a.jpg",
       "originalWidth": 3456,
       "originalHeight": 2298,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACQDACdASoUAA0AAAAAJYwCdMoRwNsAqQNAr5wDzK/1mwADpGPKMuQH4S89mbQ/HT8K9JX+M36q5ZP+d/ibqgH9J/BrXgf2v8bvYC/mfAT/xXsLfyP+ofkP/Tf//yjv6gHl37hRhAPuuEWGBJcAAP7//zzEaDVjp+wOhV75KfN/+n/43tHbcq+vQRlp/MO96wV3n+P88yjSC5ZFpe19TrXjM5yE5ivM6qoxJlljvRh77Z3//CAwbOO5kQX4ix+Ip/5lS603S2lnRafkniQwmXZP61iYycLJc/NEy9Ln5xAaqSTR+xeFJDJM3sMZ/3sR0LI/lwgCzbi2NL6hqs3/7xhSu8a7OYzaM7HppDYQJ38uZwiPUMJECUr/JM4E3bXczCf/wfHRJxic6fxP/f//5ihvCcn0aE6+zr9cehvrKkgfXv/xc7mPPE7SQomT8U/Xe/8iuM8Kdhf/+TUm0lOQlBL0XfajQN47lTxb1zBfwqWLqDP+VhWaXO85c8tNSiYtY5A5FO1tVerHbvboTAkPH6lqyEDTEEwGkjk4ZgfIDeMPgP/GDMFuQV27+B1S7jYSWlCmKBVOwApioAAA"
     },
     {
       "placeId": "JP-011",
@@ -1795,7 +2017,9 @@
       "originalTitle": "File:Tokyo Metropolitan Government Building taken from Shinjuku NS Building.jpg",
       "originalWidth": 5328,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAACwDACdASoUAA8AAAAAJYwCdLwGUBnlf8A3lXgAPKe/YD4D/JuuQH4S8ir+wGWi+o/jH+wGmA/jv44fkdmD/8PpB/9g/IDXl/4D8gPaPzcvL/+09wD+IfyH+5/lf/ZOJVPvLPCdOAO/BuUnYfr+YAD+//8EnEwrfQcba9rv20gc+wh52fSz79k3uwpB8ebNht/vOU4Xuz3/rwpd9pxkfs+mS/7+4Ki7W6SxoAPDgzVmFAHFf+WHGXiQ9Nh+Ekxkg+f1F898YgwmN7XC/6ddGWYgMD7oSCFy9yS8ox7UmM/eoVLIP4XJaaICcLqvjnt7u9Komga6oaOBZq3IidnSvKx65IBDn2IxGsSIZZFJVoi62z/n6JdgM7CTvuV28eEXq32RjuuThbnqHHvhYSJrllizputywar7e6n/oef4ud5LiBVH2jsG94qeL41y1pEkA0z/h0f8d9udaGUHNun7mkvQNeYm/+/g+mseW0UwJQyCE5H+mJ80Bz7MNOwrbq9HKfh3JO/S1RZ8NtfkdGu9Q+iFxvWymRKhRu57zxHBMwZMDyFCIFZSkiBz9lb/ngupBHnUKMfF8L4Gwo6u8jtsi69fMRTLGX58g/pnTDIAAAA="
     },
     {
       "placeId": "JP-047",
@@ -1811,7 +2035,9 @@
       "originalTitle": "File:Tokyo Edo-Tokyo Open Air Architectural Museum entrance.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqoBAABXRUJQVlA4IJ4BAAAwCgCdASoUAA0AAAAAJQBOmUI4DdK6UA56T2Lftm9qp4gnnP43fkBpJflVyxj8gNRd/EnXLf3T7QPeD/gPtm8273Bf4t/Jf67+VPGV/oAeime/jFYC3tsG3qAA/v6qZ115dxZsfyZcREf2v63H/9UzTMNKFzpjabddftVWfYv3cm7+yF/GgC+Xy3LNOHLn8d6fpuquON8ItP+yoTDZU+BsG8wHrTP+3WytTIt9fHopY5Xvx9oBjJEe/ypE6Ax9lxff//1J/PWb2KN7rkVjTsZTh03C/zPQo1u7j8vvMlKZCgn1ekayrV/Gn4MTxBi+35Ef/o+ZQYED//7MC/EPYOo7Ljd0vpTgW7MOGnO3pe6LP+YdmP+eml/8wHe0CXQf+e3iYi+//+kBzqW/G4/+fh6K/+GMJy0CDP8Lnpv/BJYKT+qBUrbu1WZB1Zbkv5/40BCVaheRsPIY6E4g/La//xUoqHqMduEWQXT/h+BLPTEi/iSt+XBa7rEDQzxpvWXF/4MiDNZDDNUO1ILcKzpXQR49CR4vE5T4D619SY9YAAA="
     },
     {
       "placeId": "JP-084",
@@ -1827,7 +2053,9 @@
       "originalTitle": "File:詩仙堂 02.jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRooBAABXRUJQVlA4IH4BAADwCACdASoUAA0APhkIg0EhBgEABABhLEATplCO5vJfxVqQOoBFgHPd/rd8G37PVyX6ZrNPKX/irkk/7H+QE6q8pr/o/y3Gha2nYsj2BpCzoAD+//joJz5dfgXiG9sbpOb9gHox/BfdZDdqF+S4qaNTSkqOPHGyPMjEbF9pHyx/Oo79fiGQQfmGHx7Zfz+Ilat/wxNm8xDelGZwWiPK/+Ndc3/b9ZL8W+Q9gn8duncJ1KfXnwrwcV5a3/+qtWo8lv6Rf5VkJJ8PHOGWOD+x31Lgrcvy9OK0juwPU/OCZXqn/3tMXKkC7yZPKdvpB3v4MqZCcf54uT/u6zb/J3OT4c2mdqiyr1iT2UI/+6f8fbIs4b6tH7jHqfGvH+5vcjL2S/9yn/+v5wYvV9tj9ejX7C1/HX57vf/4M5HpBoBwObu017La7/+Vf/9eTEqR6OJZmPATIDl6nGX0X2ejTpHjd2a01H518ZdaoeJfTvJf7ngB/cVqZ7w+mcT38WpalAAA"
     },
     {
       "placeId": "JP-190",
@@ -1843,7 +2071,9 @@
       "originalTitle": "File:Toriike.jpg",
       "originalWidth": 1280,
       "originalHeight": 960,
-      "processing": "webp-reencoded"
+      "processing": "webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqYBAABXRUJQVlA4IJoBAABwCgCdASoUAA8AAAAAJbACdMoR3L8C7AZIFYjfqT77dyAfDXWJeTC9VckE9k+UDUAfyv8d8sC+G/178gPyA13S6XvKf/C9wf+O/z7/Bfmdwsx2chTKnELhyv7awAD+//7Ap0H80HW9y+7b+VJx3v0Qn5voBtF9s0eF2u6BHL1nQD//hn4Lz9V0/A7/xU1vw1W7MtWTl2fhguVk63KEZMDM5/nXbTi2lOu3Ooq95YYZmX7DKi6jwHPDyo0cbUBblaOat/r9JedUSf1Z99o5abqUJRbB0ajsEvD/8xeVoqfPuJP86lDZxzoqwN//MGHwj3vK6ebV/+GkcE8oAVgyT916EEdsqBgOnZA02Dxfkf/ujf/XQef/Mo/+W8/z/4qvL3xf+7VAIsn+6hf0DJGEq6f6Gry/9qv+wOQ0xei/qqDn12vK58vo2Su7dJxR9rF8VmKjI9Y8anmWwx2h5Tl+6v8RA0tiV7P8gNEks6zOYVi3dnWHV7vXtarYewQV/YZ3IVj/vLPL/2iP/9cv2HlDsa5uQMbwvCuZqU6AAA=="
     },
     {
       "placeId": "JP-149",
@@ -1859,7 +2089,9 @@
       "originalTitle": "File:241119 MIHO MUSEUM Koga Shiga pref Japan08s3.jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrIBAABXRUJQVlA4IKYBAAAQCwCdASoUAA0AAAAAJaACdMoRwN5L+FdSBmoG6gbyBwAH6gdZ1+w/7He0NcgOFAyVTzP8a8w5ySf9P/I6pSfPC/VfKz8of3P8o/kP/m/9V/MA1rPFAXpiJ/pu13iS21PAAP7//hpH//QxYyP680+cOWzVnDiBpSxMgWG3vnvztww7SA7aK3I4PoH/ImpJpdpv1E/mD5n4qESlBWjJTz/0SszBqj4oJVGmLs//lf43OEbyHggaGSXPkz//6hHjJp//vV0UgnwvzZxT/6Nn3/+nNdrf28yi57M7f/T34U/0JnQ3Oexevce8//82aCm0Pr/Rbmvi/eJ/nu0Qu0Cv5GA1O9b2kKC69hH+2eysxm9/blDWMg/5Z/tfT0Vybecoo0VTTSqI39Pk7A/PWRc7jpyPqz6Qw3Kj/8//2bf/yW5hdEL03yWvGvZI8/8B9YPXzup2Wkg/VI8XpTAVoeWKuFKE4j4ktc4D8fXgEe3zknH2BWZ0rt6/pagzaNIY4rMxWeEfb/gCvlZsmHDzBhM6Qps4Q5LHPfXQSEEXpef78GilcNPsLxTwAA=="
     },
     {
       "placeId": "JP-012",
@@ -1875,7 +2107,9 @@
       "originalTitle": "File:Colorful neon street signs in Kabukichō, Shinjuku, Tokyo.jpg",
       "originalWidth": 6521,
       "originalHeight": 4347,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuIBAABXRUJQVlA4INYBAACwDACdASoUAA0AAAAAJQBOmUI4EWBVgP7dzAG2V/2b+Ab7d1gHoAeSl7Gf61/rd7H1KB2J/nn4n55P8Y/yAy13SAP6r+EGuz/wH4V8xn/cPcH/hX8n/wP5U/2HkAP1APtixMUcYoYz6ELkug2vAAD+//9DJqmpzlSgdrbA27XqIq953HyUAsTNfp//9H/6PiDsEbhSeTRthnvf1X53gH0oxq9UE7dcvy10uP15bes3j36A4aIogQhWCLv/45CiO7hBGcUCp/9uxziT9/Zbz9sH4En15rB4mou+sDei1kzUL+TKKSf+LRPgUNnTZdvY3Vn+2I0QWuAYw0WaZbt/b/1BNRoFv9vzFZ309v5dt6Jz/EJRGTef3c3f8m+hTZU0uZ2M//FaLlQeuK3+HRLr+IDMsocV2c/kiz44Vd0pAEf+MRAJ//obLil/V8xYvPbwwsLotD/hd87R6YNgn/hvPqmi2yckSXK8AKmg5x0HVk3+5TCUy5s0MXall5+GNShE/vlvnnwQm0UpHC148Xu8W7qByr//mwFfxLOakDBkMtA//x//q6F+Faqd6kFmgRnugXfmtyMgAl6Q/GvVkXf7yTgU7BPzqycrt36v8GVRxeVBaQ0ROAAAAA=="
     },
     {
       "placeId": "JP-062",
@@ -1891,7 +2125,9 @@
       "originalTitle": "File:Eikan-do Zenrin-ji, November 2016 -03.jpg",
       "originalWidth": 5816,
       "originalHeight": 3877,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrwBAABXRUJQVlA4ILABAAAQDACdASoUAA0AAAAAJbACdMoRwN5B+EtSBcAGiZ9YB6AH6zekb+zvwOfsr+sHs03ID8AP2A7Abp96q/sBlp/peZJxwH83/F2qLf6Pld/JvqHfzD/EfmL/VeIrPJaCjxyZ6f4MzT2auoAA/u0t7i5WPG7eLCc2moEJyfP7Uy/1RUi/9KiivBDtQDo1eupG/iax2M9EOBtEypuvd97SmRq31lyiNyL/XrCFxc0koUYvGOztdJos2DywnnMDXomVeThZT+2fELX/tn3T1bA5s21uFsRC6hS8g/s7295yUT22g8XKHudrye+V3WD/H3bNB2sEfrC9rt0dq/1LCK7/4Zso0ujeTnwX+MPS//Br/rEN+VfhEsB3m0f/qNHhd46uLLIq5C6hXVScf8gn66IchJldyn+SXUf7gJ4+0EhF+nv/jEEyXt5Gcshv+L1HnKCl/zb/4Nb6ueMJJd5+EpIsb7gqxz1PkIP+3/3zZTBZL9Ozz6zua2ySsW1JUNblONfDENxXgXnUOdRkXoqDxv2ORtDT/IWYzoRJCvmBnqKfvrp+u2nhvxgMG9+LiJSehAb0AAA="
     },
     {
       "placeId": "JP-176",
@@ -1907,7 +2143,9 @@
       "originalTitle": "File:Kouri Bridge 202006.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRooBAABXRUJQVlA4IH4BAADQCACdASoUAA0AAAAAJQBOmUDhK/X/0wDnmfYY8ma5S84N2D9M5hfjk/7H+QHkA+3f+Z8/LEz/wHuDfpH/n/y94zNDGfG71efQspOg75DAAP7/uT3WvN+XBbGJT/sXaxBe385qL+N35i4GKCGsBjicI2C2a+/6Q/m/5/wJ3vWvDafHO7V5QVFTMaGu5rgf3d3qUd/GL8uLnTc1ENlXDeDt/xJfYKPaf/A3WM2g8rVKtotNTeC+/785mKg/maEt/LI7laOmOPMF887/qANo/spI3v8//Rtw7j/b3/GH7VsTGQOeJmJa9LaZf1JwyyDoy/luuwyqHWdqFqt///UYU83yOvpF8TNf//9h6v7L6QOcOC/NYFP0wja8suEkdn/3WFYLO7e+C/zl2fN//apH+qFtri6fz3LL7QOUyUa+mK0GomSl+/OUi7jSxN2y5u7B2mp7Y+8k57zQtpSnrdQg2/51+fI7Xn/7pLyIQStZTEyYy0cGErjgRo5VJ0HmvgAA"
     },
     {
       "placeId": "JP-122",
@@ -1923,7 +2161,9 @@
       "originalTitle": "File:Minoh Falls Minoh Osaka pref Japan05s5.jpg",
       "originalWidth": 4800,
       "originalHeight": 3200,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmgBAABXRUJQVlA4IFwBAAAwCQCdASoUAA0AAAAAJZwCdMoMYOGf/jrj/X5Lkgnlf5EfrdoqPlAyyv8mfxA1y/8VdZV85vFH/zvuAfxT+Q/3v8uONdNxfzCpuQCLZYL+b+IAAP7//4y1HpC421rU86f9cCXg8TbvcKGG49RHBQ045CUTHDk7mV9t///IdYLi1xKU/fK7AeqigSHAQcigW9mPKX1nHP5zPSpovZpQ0kJqey3XPhywGp+jn3y14iLFv//32ZE/RWx5RaBT64DUR7TjdVMxTvc35D/cRhL/hhPwyn/+Ov47H5v7G1wf+GfupD/prx9BX9f8zhZf0Nv2uJYNRWdX+4xm//eynytYac4esiyBz6iz2uixHZWKPrP26CASl5uSY5oU+AahXjIBHJkW1p0t9VcA+lesnR9JMI3VBqwexEs2yJzmsUvzHM+ycIQsK2k2eGTOxfJ3QC8XMMOF5NPp0KMZA2cAAAA="
     },
     {
       "placeId": "JP-213",
@@ -1939,7 +2179,9 @@
       "originalTitle": "File:Tokyo Marathon 2019 Runner (46348789105).jpg",
       "originalWidth": 4608,
       "originalHeight": 3456,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAABwDACdASoUAA8AAAAAJZwCdMoRgC3DYVxYB6AH6AemL7Ef7Kei3//7oB+AH6k2bv8g/G79gNFnjLv43ajdqUP9H6DP9v+IHrK+a/8B7gH6Rf2L8rv5l///pV8wD2VTo2a928RFY81HjCsJ6wAA/v/tZLylWUhCvV2AvnWBOumg5/Jp8iPmYO31Llr53J1+APM4nzDEhVJbt8NgiOBasY6uPz5P81vj1v7SS+fiFJotmfX+F353wf7eaejebt8Cdj/nb94b43hFtjfW2w3q2/CeZMrdB9WSv1hFnZcpYCZx7eEYizyL9am73//TEk0DKdvzT35/+bc4pP6i14rMN8XUn66+Uk93//kOrB6QRX0B3sGsfq1d8fmpnJ3S1+IZygcMUdDd8xAglO9HHUaw05hr0livH+laCWgwQNo3ftz8ITiq+Rh7UCxT7QjE/7lq49sc70jqHof4a/8S6lfNQ6l3uM/5kAXXtrvnP4moPLH/zkU/4IKtbnT/cDxbc//7T1quywi74fJAHTw2kjfrFP1Mp+zNe+nlj479G03fS0wy/NaqWUJZzRdapPTgdYvGg2bGms0qcAQzbv8TpQkWaBWV5/ApFT3/Vz0YkMWUx/ocmcAAAAA="
     },
     {
       "placeId": "JP-087",
@@ -1955,7 +2197,9 @@
       "originalTitle": "File:Hosenin (Kyoto) ac (3).jpg",
       "originalWidth": 6016,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAACwCwCdASoUAA0AAAAAJYwCdMoRwIsBxf/OAcAB5QHsY/tj+pPtSXIDkj/QDJT/UPxd/EnSgfir+quUu/iT5AUbd+QGvA/yvGW/1z2DP4t/Yvyv/tXIu/pKejld8JtF9vbSuDrqOhgA/v/oS4VfuP+WYo98t/8Il96vMhtv6u16OZy0jeuOsukVW9/sojQlGn6yGubef9zBkrSlnvQPyttPUyin/xkDXogOhdw48wtJ4Vo0kB9C4qLOcoG/Z/y4/W+XhnR/obOYJ9v+XzcxTf/pjSp0LmXRvC+OzvEB+EY04PtQ9ITGJkf/9R///EcJap/942vyIPT7/7pb9s1Wv+fx+QVx4fe9S5ShR7pIR1kN5x/vJaDNwpDs/m2F/BMH/o1pc2qGjeKf56JbTzjlgSmSXfgnf5lp3YVqaU2LOf2F3S/xUl8k2eT8j9p7eKYjUyDgB0+/X25K5uBhMZyyDr3gOC4hY4It5EoK+q4ZB2R2km6xHeF3wBXTJYi7m4f5z/gTNJRRwiqmuJ//zmv7+7ICXwVbtxHfAYW/9t+Jg4vRoaGL/3JLwPrpym4NSS72tAAAAA=="
     },
     {
       "placeId": "JP-200",
@@ -1971,7 +2215,9 @@
       "originalTitle": "File:Yonaguni Monument Main Terrace.jpg",
       "originalWidth": 4608,
       "originalHeight": 3456,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmwBAABXRUJQVlA4IGABAABwBwCdASoUAA8AAAAAJbACdMoRwN4B+AH7Af0DkAjAKtLFgG8m1gDkUPVXJT/Wsxg517QD7Eeqb/piUZBZdrJZ5u9sUAD+8baECdln/qh9u5Q/cn/PjfQzDkSZqYuiEf8E6P61ETgioA1/1k8NN3FtpWW5Kz0y2f85xvO/0Xa+j9iZd+8tqfKe1TltUynigh44ysAEF7F7aI73+ewhP+UMSPQdEDos5jT8uo59TwN8J+SJnW7mNVf+hG6fjFb/9Y4YkGSuv/2EGnzPMLw1wPIAGr/iIIkv4xRiEn//0xDo+1EUMRv7nJ9HlPnNpGkgLBTpv+3d2Fn//bhMyi7HhAwXT7X7zdajcGL5Gb0/Y98g+tZEP++ylv/8zvH0lVKbeuEeCGCLkxOJLtNhqor2Qtp3kJ0DP0KvbnqU0AoXaXW+p4C0O3KSXjiW/fi6dhHFq0hFT0QdDFrB7T06bvKOAAAA"
     },
     {
       "placeId": "JP-112",
@@ -1987,7 +2233,9 @@
       "originalTitle": "File:Umeda Sky Building, Osaka, November 2016 -01.jpg",
       "originalWidth": 5558,
       "originalHeight": 3568,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpQBAABXRUJQVlA4IIgBAADQCgCdASoUAA0APhkIg0EhBgEABABhLEATplBagVhB+s3B/6VL7Gvk73KXnBuvXpfkpXsmYU/FX8gMtA/HKpbvtA6WXyB6if8//x/WA/UD0QB9V4hCURAZoxKzKjrzAAD+9MZJDik8xhRqraF8qesndcpNv7OTE+bpwOsuH/MxlMM/Iw2WT7f/+rjnjdvwKjrZt36HGZr9L9D6OrGmLZHbR66qv2kZ/8MfDWXYv+qC/s+zfvCRzTfKHfbks1TbtU9uH6dlmEmGqcnx+c2pU+SUHlsi1Ro/E2m87Y7SnWTkplWU26e0huqaT/Z792qFcLJ/8ijC/xTpZgeaiw31fpTgwGM1TyPJ8CAenZqh3Rl4mzkBAOQWJ38HwLXadXtD+IC7Gk/nCR9V/mMbZmYd/I4J9r//Bbv/xLjabHxbP2H/Ls43f/+yazdyWLtwEWuErl8Qp7+h7L/3bvE9qjwC+//o1NfG+SabnQ6ncAb8cdBP7X6cWvwbCoNYcxC0P/WU43Hi/qntTyeAAA=="
     },
     {
       "placeId": "JP-053",
@@ -2003,7 +2251,9 @@
       "originalTitle": "File:Edo-Tokyo Museum.jpg",
       "originalWidth": 2000,
       "originalHeight": 1600,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAACQDACdASoUABAAAAAAJbACdMoRwN4B+IH6AVaMUV9YB6AHSU+UBSgnpP4Z5Kf61+I2iA/lv4k/sBlnf7B+Geok/kBru/7N+FftT4mH9j/ED6AP4d/Hv7J+Pn7w8pR+ox0/Ol9X1EDlAQI4vr2AAP7/LZfuW/dycuPr0oNB5yv85SVtb7wzn7M9D+kmu7wIwFAJ+UAoh9DGf/AtUvktfS5SJu3Qw7f9CWRhqzpF5rlg/uOpzXEMU48Cw8bh6nbzYCiiVdlxCr/jXEIV0oQ0uqPJ+CR4JBxhZGLBQ0WE//n/gf+Otu794MH7lehhGnbINZfJFfB3HGj8CWPfpYSl1SifruU09m+fjh+JYzf9z9JrRrfohItd1O0WnuUL+eYqaVFTzzZV15ynxKi7hn+/5vVulB//GfbfuwuNE0KH66Q+y/7di/4qbjwaCesUnFsn/+6vafloAK0OPP9u/xNotUsS5oDnf73THmz50NvmJIT/y+GCTLzfSE++RTXaqHW64KS4Eba8G7zQYNe/9uIkS8XNRXe5lSbZ+3WvQiU44ShOoJ3+/muOJoBbaqKH6ZB5xdBRw10XQruAS6N9MA8xWCNCqvvlTuBpT3Kpn/cIAAA="
     },
     {
       "placeId": "JP-064",
@@ -2019,7 +2269,9 @@
       "originalTitle": "File:Kyoto, Honen-in - panoramio (1).jpg",
       "originalWidth": 5236,
       "originalHeight": 3491,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAACwCQCdASoUAA0AAAAAJZwCdMoLUDqAfzO429MA3kjydLlLXPfzP8a8+B+KuSA/p+i6firxAHQV/wHOC/wz+M/3L8rP7d//+NVPrlqBnsluQkPRfvhhAAD+//8bUQgdT9w/Gq7d9QYc+VWpVUjbVqEvWMv/zQOsEqm3EQSNPMrFvqbH/+wzpdf/Ym1c8tVX9k/1XQNf1T/5/EN1eTQu+1QVh2Ee3GfmzxGMiG+ylH1oDD0WU/6XEiJjo7f/LIFsJIGg0TWi3kkhf6B+BLvqo0vpYsDx3iWrMCHG8DFMHyZjuJTlFPbX/c/40dmn4lsG8r9r4zh9Nv7uMZ/a7IWjf/6AP8Ul89wxom3rJdLFFX6XkE/5N6Z4HjZUudzGDzPF/973Rir4189aD/87Fz4pm4ejzpJx//9oJicedr6fB3DOBJ/8wD388H2ohYTeStx8ged4cfe53YY1Zd+ZewnWDkT7/+BrhwXef/40DfoV//ABLoHu4jQIS5rNLVFMLw+aC8CxOv/izJmFrnTJNYMg8AAA"
     },
     {
       "placeId": "JP-158",
@@ -2035,7 +2287,9 @@
       "originalTitle": "File:Tamaudun01s3s4592.jpg",
       "originalWidth": 4592,
       "originalHeight": 3056,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAAAwCACdASoUAA0AAAAAJYgCdMoR3N5LdH2gbwDxAPXHsjeWO4q/8Vc878s2YA/tf43TxjlDP49/YPy041X9VTuvHvrHc3T9TrxcAAD+/+Hlm8rytlO1c65w47X40/TGcysAM9U+//5oLeie1zfzZhJxPdND/x+6+PL0BB8J1/y1SVT6ihh+Q4yYnf/vS9vzS9/AE5P/5CilWaWH+KD1pXGy//xMJH/858GoHxvQmpIZ9//iwYzxfEIJ3FkmDBckMP//T/pHT0H/8ED/92NxXx1cYdDGb1jlznB7QhEIvYH79f/4aA6/lr3/h3H8eCD3+P//X+//8YQ/+8oXSUc1/+6fR+/Jdf/q9OeFX9pywIzcKtTafP/93kf53/hxif/qyZf2/R/MZ6S51Pd+fJIEORoLH+X29nh+sGNZym7Yp/ejo0HHC9Ofl8H//WjPS5v/wXKILSFK5Ehrxbg1/lpwmp/PEFAf/yrH/mmD+Blzrjx+Jqf5x4r8Fwa9Bf7EllpILPgAAA=="
     },
     {
       "placeId": "JP-113",
@@ -2051,7 +2305,9 @@
       "originalTitle": "File:Grand Green Osaka 20250831.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRq4BAABXRUJQVlA4IKIBAADQCgCdASoUAA0AAAAAJbACdMoRwN4B+AH6gf4CsA2wD0ANtg/s2UZ7yR+ztcA+mazA/r35AaID+q/ib+N0kAcSv+zeUB4Jf9A9g7+Y/2f8uOEzO3zPor56oPYBdmE2wAD+90Y/BTyBaBoKMmDh/E0TNhA9FpYf/P8/JY1fz+n9MiufzHLP4+VQqg8gbynxqH+6eF0pyBKZdfyCIufIFOe68Lsf38ELAtU9O7YS7/a58jxziIHv3ED9TH/EvwRj7soqA/+xFAYtPR0Xd1v3/Zr9be/eLz/21zNta9vTH/zL7IkhnQ1+UB+PCB3cv9M0gpR1+un23bfI56YRaUtKq3f/PZNCX3/mDY+TUhfVOYk1o+eH//2gP+bdCQhGOtN5/9P+KH/qXZcd+vYwXfHiVSkJgeN//uqEeVKmiaa9OYF6d8nf1/6uz7Z+bO6Are+52fcMI8j/bJlhELvV/5aKYiOa6CwWN1/Nrl6lsXqv5aP8Z//zE1OFbKGiiZb7g566bhEBjvf0ym9/5NLuM1eB8Q04iQ++iIqVZQX334GX4LyKvFgA"
     },
     {
       "placeId": "JP-007",
@@ -2067,7 +2323,9 @@
       "originalTitle": "File:Ota Memorial Museum of Art, exterior 2018.JPG",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRswBAABXRUJQVlA4IMABAACQCwCdASoUAA8AAAAAJZQCdMoR3IsCrgYYDHM945lneOB/R/x2/G7Stfi7kj/5h+J/45bAd/ZPxG1oD0Fv47y4/GP9p9wD+M/xX+3/kN+//0zdSB+qp3UOdE9SdQFpOgG3MpaXwAD+//+NYh+7X2Mw/FV77NQ0Ir3jYkRCd69xLP/Zvx1/HuhpzSfHK7hje/I0+OxeCFFDNmfqPqRh//o6L/+ceRWMA/TpORoSVgtmZ0jT0ngflnCn+k0Ge7O3Mq6N9xxi8q+FZfy2LZmk333tRt2I/6l7TUUsclI42FiAPzM/joT5Ioa+ZJGMsq41yKtwNEsAUQ3ZIJvg/5otnuaKSCMBNd6+n+9eEMBmdtUBL5/AsrI+gpCAVvfUqEx8YQBvubA1dgoyH0qD7ZJW7+3v9A4rk77ssodznEtar5oNT5/k49XQGovf1+/fRlFsBY4/un/P9dfv8+IoZUynsdW/1Luv/gzFhVLTe83PRYqUacX9+U4eW2+bfjV6uPDOkQMdeGHoo9drrtHO7l9wLi6EiQAUxVtNcc+peEAIzcgz3J0tx91qHlL5mkFy9LF/iXmzFtexNH1SWc1LSIj7fwAA"
     },
     {
       "placeId": "JP-063",
@@ -2083,7 +2341,9 @@
       "originalTitle": "File:Tetsugaku-no-michi - Philosopher's Walk - Kyoto.jpg",
       "originalWidth": 5568,
       "originalHeight": 3712,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrgBAABXRUJQVlA4IKwBAABQCgCdASoUAA0AAAAAJQBOmUI4EWBVgIsA3kCTAP1uywTx7MUfhf+x2WA/pP4Z/jB6AHEc/iTrJv4k9C/4l/qvsFfxr+vflD+//Kk/pmeUspziWRjE8wk/bPMgAP7//jgMEER/Lh0B8gRc+1DoEah+KMNdGmmGq/OhH/MByy5X/ulPtbN9x/SpvK2zezruPZP7lcuH7X0avvCwhI8uDR3xl9yWhLFmbjKT9ux5oq/prH/+O18K5xvAO7CAn7L9j1Oi9CKVmm+cpSBSwhM/+6qJS1vmvJ/x1KD7CssAriGIVYPCGNbg7NjP8YB74V97ie88TO9zLQjGBE1AESmMSSRSqYqYf9LsuXzMva6PTW6LtVv2g3aflN95f/z/ndn/nO/fxeHuZ/+0hfxcT1Px/M/5tiC38ltfmQKV+q7p7UKHq++2ORGVcbH92lHD9ZZAQKL1BcflE2Af1WZ95tB3HZ9+l3rH3lUYl37rKDSnxklUwJ6bjCc+khb9Rn/49rbzToxD/5ndZRwsWUlfBf4IcvgA1fj/8K4dmWF7iG8+fYSBX/Y5Mqm1Wc0BGgaQAA=="
     },
     {
       "placeId": "JP-185",
@@ -2099,7 +2359,9 @@
       "originalTitle": "File:Furuzamami beach Okinawa Zamami.jpg",
       "originalWidth": 3872,
       "originalHeight": 2592,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRloBAABXRUJQVlA4IE4BAABwBgCdASoUAA0AAAAAJQBOmUI8J2AXQbCXBM/7BvzOlLfpX8Gfkoky55iP8+/zpm4fNXplKN5jB1Up8uAA/upf/0g//auO4bc847Mb2gzjS6jtWOf/yr9/tMD3j/xJqH7///faX/tYd2v/6yzXysz47N0XEfb/tybrN1A7jf/rS7++/tY7HPl1dL0/vX+v4sB9ODujEZEBLobXlZjM62i8cHP+cq60RWn8Ln08lmYnEFjcoEjjVytDBCjhx+73BxBPqduAzJ/7X/4lv61rtiTy6/6Fzfr8Jalffp1/CTWTzMUk0L+ndO6jN7/+d//4ufrpjvhgdn8G8nfJE4P9NwRaLLxp0jS2yRiv0f/30Id//f4ER+molP61nL01MTN3iuLyjUXDjzeBR1cLcfyuMHRN1m3b+h3Af5vDkPeyaN0B/HYoKPRWc9e3wQcwpFYA"
     },
     {
       "placeId": "JP-130",
@@ -2115,7 +2377,9 @@
       "originalTitle": "File:Sika deer doe and fawn Nara 2026 dllu.jpg",
       "originalWidth": 9907,
       "originalHeight": 6288,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrgBAABXRUJQVlA4IKwBAADwCwCdASoUAA0AAAAAJQBOmUI4G8gpgKwg/pPtgaYBvHXlR3IDnBtKuSleyfjpnlvxd/G7MAfxj8M9RG/EDXb/3T8gPaz/mfxA8xP+n/jl8iX8g/vf9F/br+0cTMdnN5KUidcRPXrBsAD+//8xbM+bXxxjFZgBwBOZBHV4nvr3n4VpLWbjX8vobwml9bRUg/3sggyrKQPTCw3b28uSC9S8PmburokvfP5X7npk2lAtXZgqCyYIfrH5Ju/6UHsQ7hB85roN/YFNxWPb9w/k+fPMd4yG1e1oUGY+f8g0U4jAuvEtHdQyUjfnPEUgdOnq2lE3/DMcvuF7q7HcjZWfNzrEAy0p5Jmd9ypTr86zLO1eDkn1lcr5X9//aC53LVj8wElvyP8rP/Fz+cp0n+J367ocJ+ZS/Xp215Ytb/6ALf2Iiv7Sv516L+av//Km+xRte9HtqAD0LpfdHSkF9hl2Z/vLR//NvZ54pI76wOvzMZ6uirO3nvztFirrPwmA0redM+kj7zYNKv+EBwj3UnTcqE/iVAZ4HOuY3GIDRtkhwENnwWDGfkbuRtvdhHuAAA=="
     },
     {
       "placeId": "JP-042",
@@ -2131,7 +2395,9 @@
       "originalTitle": "File:Rainbow Bridge, Tokyo, South view from Odaiba 20190419 1.jpg",
       "originalWidth": 7567,
       "originalHeight": 5045,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRjwBAABXRUJQVlA4IDABAAAQBwCdASoUAA0AAAAAJZwCdMoGv/tgA/WaDAYyr+IFSq+fT+3eBf/cvYX/jn90/LLjAP0AOt57qZrg/ucdq9T76AD+//9RoH2/5ggKtj6P0x1dyBF9+SOXGi7VAkpdnmXZ5yatTc8vz/45/7sq2HL//vSJLrUEEoIx8r//f+hP93910teDVGPp/TWFFAZJfzj1mHaLwR+Kx//+2vOQrpMW+a4X4uKq/ozG6bw3UooOiAPZ/OTZDzvfV40eo+OP9l+G/iHJTu+ngviY1VbT5P4HzF+Hn6PYFl/41fUYp4emvKobs+f5bk0n3JxIzUpgIbF8KomAQcbIFjGJe2Hca4ZYxcWHacybG7bTLnOUBvForOk7lrjmy5nQyKS7qWdIHDNV0OarbXrt6iCwgbhwAAAA"
     },
     {
       "placeId": "JP-065",
@@ -2147,7 +2413,9 @@
       "originalTitle": "File:Sunlight through clouds and view of Ginkaku-ji Temple from above, Kyoto, Japan.jpg",
       "originalWidth": 6720,
       "originalHeight": 4480,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAABwCgCdASoUAA0AAAAAJZACdMoRwN5BTAdQD1AYX/0YHUAbxr+2f7AWCXnBtAGPQzF+OA/kv4q/kB6GfEq3Ap/gPYU/kX94/LD+194D9QPY5Ov0g0WB9cfQD5/jAAD+9Vw2vU8WiSL+S+f7bB/lZ/3uwkPx45NdI0rISx+1f7S1kqmAxlf/NaP+3Akff5b5LZaXr9Zaf/l3OscNpIYJ0rf4nO7H04n8q9pc4+VqRSAdpb5kBx9Wuj9BzLq+Em6rM1/IqCzj/1qObGfxH/2OcUkFAgYYHBXKbqRW83x79MFPLV//llg7rK24fDIQlr5/+WqEVCyomDpDsawnz/7R4GF/pJAskzxQbkfT826UNrqtfXWM/9q93QxVxBqJ/m0H29/8OseWas3in+Pz8Sao+fmV63PdfywY/z/zcntq4d3zYFhAkgCBAaApL8jextkcn9EgrQ5pMbo5KikAODnohAnkoEn5Nv5B6nB9TVLGM5sPQGD3VO8+PVNqf+UlVA6e0y9en1Gop0tgaizRdVLMAAAA"
     },
     {
       "placeId": "JP-172",
@@ -2163,7 +2431,9 @@
       "originalTitle": "File:Onna Okinawa Japan Cape-Manzamo-01.jpg",
       "originalWidth": 5387,
       "originalHeight": 3591,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACQDACdASoUAA0AAAAAJQBOmUIwBvATYZwI2Bgo36Z+//0QHUAc8z7FH66/rp7RdyA5LP0a/Y7LSvVfxAz1/0zZSr+QHkBfmf4AcqT+M2sk+gDnwUEP5X/U/yA/qX/05Tn9STssei5pd4YY9oQ4AP7//qm5Dx7a/MGaFf/i+RHIQn/qjt3Y2D8DvebmZ3Z6D3PTZkV+gzb/yzW70b6XIenRdpDEw2s7hZ36Kf/fW1WXwJZvT+anfBZHgn/6+qqOFy/U/yZN6R/2eTypYudAD4uBXs8jADBTTHnSg5sp1SKSRObWOpmACoH00rD+5Sy0j3ja4SMR/pZKKInOXcgpFv/7sUyiRKJA2/907vRhkpC3BKxRiv7W8rQljYg3t/cy+mvOROrQQE/NS/4a0/4j101iy8xW+v3YjiR4dVEtQ/F0/ROXvCrlfdF7UvHEm0P+ev9dadAVc//i4b/5Gvl+nZcAPnKYHJx0FKSjvUW/clFARosbw9RhGPyhU2dSU1mCqKmr9+NXSquNNpUcHsf9LNRLf+nLjZMinpMjpGXxeifN3NDzRhikJUUHf9aj8fYc8KrBnMH/uSXoAAAA"
     },
     {
       "placeId": "JP-139",
@@ -2179,7 +2449,9 @@
       "originalTitle": "File:Nunobiki Falls Kobe 2026 dllu.jpg",
       "originalWidth": 8736,
       "originalHeight": 11648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAABwBwCdASoUABsAPjEUiUMiISEUBVQgAwSgC7MzKVFCAK5z+95wuCA5RXOL9FBTeDCG+YCzHgBL8JukcpY+liZMgsrjwAD++xXpGTZXfgM79+UIIUYPSD2pPFVofrI/45i3C5T9+KcKPSEv5vvSw6ZRZf+/m1SIcGMq/V/ZuHg5QOVArlpktV2/d3Lx2lVSNqhQ5kGupNNj5b/qhev9mFFeTuS3/lZ6eWgwZDslhjBsI4Zfyzz9EA/rN5bd/yX0Mf8fCYmlPmPweJ9JDnwGMh/Uu1/K9fA6Zu/lwzjn00F2lxoBxsfya77R9TWYn5D7uOMXXnRd/Rf4mN60rHwGVmgvUeXn09353obTq95ypOEBBvxCQn+zZsofyRxt4jxxRxavD/Bn7J0ltrL6dhtNj9depSXb2ZRrU0dim7mqn+EG+aaa29EhRG+Uh68D0f+KPDXvctWNjmwWrvVHDuapmrKESy6B+nlAHg3+tQ6bKrx5ze54hhLWyVwYYAoUDnTJJxLIRCREB2wvhhy604exU1rpV1AAAA=="
     },
     {
       "placeId": "JP-051",
@@ -2195,7 +2467,9 @@
       "originalTitle": "File:Takao-san hike during winter 11.jpg",
       "originalWidth": 4080,
       "originalHeight": 3072,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmwBAABXRUJQVlA4IGABAAAQCACdASoUAA8AAAAAJYgCdMoRwIsCqAMJJ/Wb30dMA3i7/UeaA8VT2bMd44D7gJJX9S/8Z7D38r/2/AcnVx0ZtfapLMMR9/HAAP7//ys//9OPoUnssR3hKxF5sYjgiAkQe5JESl0lejkQ22x1SSqGHSxat833jksilu1u8ZL7P/+YAGAH8kZpIV//xUP9az/4i/rf/my1xp/kZH+Rn+DX+xrXIJP0nnz4//8rPZYjFGBdGQNcmt3U+4DFGAt94kyZgY1/mzU+i8kD+nagweFI78Jq9SRg3zef6+Fa4bm7gKzXLAU9+nXfZcWLswBif/yXWXGz/+PodPa+qyn+o+RFkSbb92wD+3dorVX/+lAP2ZmZ/+mffStEAAQnUTtPmgEc3hsipNy3NMMIIbxNILZuLYXGXC4LffDFn01+UjMqVmKOdIbJOni2hO4gBO4gPwpaRQKNG+Fo7m70WTcPogAA"
     },
     {
       "placeId": "JP-067",
@@ -2211,7 +2485,9 @@
       "originalTitle": "File:Kyoto Tofuku-ji Tsuten-kyo 04.jpg",
       "originalWidth": 4569,
       "originalHeight": 2749,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqoBAABXRUJQVlA4IJ4BAABQCwCdASoUAAwAAAAAJQBOmUI8HWA7ADdQN4A9LD9QPhR/VX0UbYA/TOxV/TNomPwz/CDLTfxu1HbUX/3L8M/atwcvxm+gD+Ffxf+mfk//S/kA6gD9TTcaXi434FeRwh+PxgAA/v/+HR4CSO85J9/J53yiYlZtj3F2EYSB/0a7+sHtWi+0LUC6Pw8x5wnVAS3gWNzygdFZg+SXkZ/bXmdOdyYr9pJa2DdztPwJ19HzSTKg25RKNMXf/zkDPsngV4QhR/Pi8S9aHwWYFUCgfm/8g+kp2/vsagH+XeC3u+ZNyyPjrc5gsHCXUWg2o3+lC/rlP6SS0BV4u/iISNQyGpDEtd73/ficDz7gRFXfPhiLoj/8xn/hr9wb30ca7zFET59s/+nP7B/3nZC3soF3hbdYgvf9rzHnHkRqPNEP9/6M3s7/h7tdyt+l++cKM3lcncFgJSC1RsQNvd8gr8TKIpnt0oD3UDrnUirdsL53mJlW45k6z61riUeUZGl82ynKATt37Q38zu6TOWuS3I0/ps5ni/sYMsx46BPIoGQEAAA="
     },
     {
       "placeId": "JP-169",
@@ -2227,7 +2503,9 @@
       "originalTitle": "File:座喜味城趾 - panoramio.jpg",
       "originalWidth": 5472,
       "originalHeight": 3648,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRogBAABXRUJQVlA4IHwBAACwBwCdASoUAA0AAAAAJQBOmUI7m2ALUA4AD9Zush/Gb1Gnfc/FXPZtkf8ff4z2FP6L/lPyj4yX9gDtTGocmPtfx3T8AXQAAP7Q89xkqnuusSAnXD/XS6uxWkdvdmOZasJX3/6eReZ2fFptp3/6sOHDfxSvH5/iesPhNm8P/zDp+S//6uLf+Qx1sMOrsyFtvDw6t+XT8hcZRIKYfov7Kf9q4gDd0/L9J/kHzvP/+nJKIbcRpqSiYhZ/BMoq1k21B2dVIN6Pffr/8q/Kgx5bqkaP6Pz1cyef/tIeGoIYwe/Gl/99XkH/9Cw//ZbSIP+oa3ct7P/bb/412LOej5Cn7+uf/wgP+KXenPqx/qP/4ZsEZapjKX7/6b0/02y7zpjxtzPqf9OeDmHm667k/1z6FlBPP6EJhyTPu9bE8vv/i3ijawhnuCD34g9lgm5bTIOvgqPVYW2TyBYFfeh+Wc/E//8tNB3dXjb5kgsUIm8Yep6oDeHZ9VyDboZW6pQAAA=="
     },
     {
       "placeId": "JP-114",
@@ -2243,7 +2521,9 @@
       "originalTitle": "File:Nakanoshima 2023-09-01 (2).jpg",
       "originalWidth": 9000,
       "originalHeight": 12000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuQBAABXRUJQVlA4INgBAABwCQCdASoUABsAPhkIg0EhBgMBgAQAYS0AE6ZappIQORLhgP2S/VXLAN498oq5m1nn8TV3p53Hbf3AP1B/0oZlxVlkSUF8DuFakmOu7wvJuyuCEqAA/vqY9jH9cxMICl1ms//jqOdAHDh+E2TTJ+oRkIhWU11f2Fr/ptty3TqTd9swn94AhWpGVlvRn4WJKv+M/CVtobAT/hb23k+4cm8bj3MXVpe5PPGPl5sjLsbtkCaR8efJPXvmZ/AikFCnK99IHeJXgOEUk3HIraaCDr9qM0/f/jVMPinKKv/5B+s6ui1XXVtoSScf8fwsYn/9KPYmOprXd//sEY3PCjeYXgjLmqa/6n7R/3/x99TX2M+hHkaBHfnf8jb7LmzQD48+89/8dvyR16R9cFAnYF43t//V4/XHeV3WvHku3eGm+uOE0Bs16g++l7u/4xOaogBW5xLf8G/3WoZ7rXr//790J5yd/NGaEmEM0I/vFVP7N/8Pdwswv8YDl/W4InafOPMk1/CqB9oX1hMZzwyVZgjEuIX8BdF+OK95j6ztTwiDnh7Ze+Yv0+tA9X7WUShoi19f7pWsI0rMqHz0/JMVlcg52CFEVmlWuzYM2VF9BSuGeyC28WCgnT0CAAAA"
     },
     {
       "placeId": "JP-020",
@@ -2259,7 +2539,9 @@
       "originalTitle": "File:Tokyo, sumida hokusai museum, esterno 01.jpg",
       "originalWidth": 5202,
       "originalHeight": 3318,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRroBAABXRUJQVlA4IK4BAAAQDACdASoUAA0AAAAAJYgCdMoRgDeAjAKsB4gP6roAH66e9Vd4H6V/Bn5QFyA/CX9gOZAx8GYT/Dv8TcwB/QPwd/IDYAP6r+MGui/xXGRf532Gv5L/dvyx/sPEZnaf9iRhhBxdjnE/O4AA/t4/4eNs1d0Vq1xv8KaSvMqX9Yi7+saq/ToH/iQyAC1OdoOKiPCY57O/Q1g/vFwr7h6g09OkAoPbe3JOzp4uTeeU0l7mJmE/deA3/xc8Im0KNT36a8Z6bqPSnzwh9fgZ/t//niZOmf/v+wYj5Ldxz+cSPepI6XVh/IoBwGDutyoq7Wf/6srrfp9SvMcc+SDPO6F9RTtyYO15KeCWujYpOGoh0aj63rPMYYu/ZpsuS783E1UPfePxXyIvG9/+affzkKcfujY/5fvWHh5Yx/XF3k0aks5airXhcxznB7/gpTYP/Zt1sg8K1dE/Remim0VO51YGY/9kWnEdumFcrLIn8EFefD5CiQGOz+vj2oQqTXPm5trhs1Pbf8o0GkoCRAdI7+Vdpmse1sqwYRFzpNzQAeVavqhPJ/RxWUVWBS5qglnKAAAA"
     },
     {
       "placeId": "JP-186",
@@ -2275,7 +2557,9 @@
       "originalTitle": "File:Aka Beach And Aka Village 2010 (7788).JPG",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRmwBAABXRUJQVlA4IGABAADwBwCdASoUAA8AAAAAJYgCdMoRIBUgdSDlAPwz4AHn/9GZkn36x/rdNQPwdyVitA/FXLT4/j9XfYA/Sj/RGY9YvoYGROsdJYAA/uYIkg80IbQKbKfZV29O29Hfl/8TP/4nDn+gVAR+aCxzhWn6ssP1fO3r92Uv0jvMObS9uG5ed8n6FF/zsSX/11+fP93h5c6s/7fzR/f+DUgg/gD/d/0719n62GVvRlfrZoRmlXkD1RYUr5/3//+H72Vz2oirDoa9qwfxiJEqMl7YuF24aN0fa5yoygKnQL1cNukXi5ee//+F81UT7pY/k7rK7v9L/f564Yra/4s6cYX+f4AQC+oWNzq2//eBTlb+P+bBZRf/BUuYEi/xI4fF32nUlEibi/kmf4suJA6AcjJx46kRAV+7/GBt+0DdLkaLQ2ZBtNlsxFE4fo8LmykjL97G790ysCAgxyCcXpBeoK4QBZQevPgA"
     },
     {
       "placeId": "JP-052",
@@ -2291,7 +2575,9 @@
       "originalTitle": "File:Mitake Shrine @ Hike from Mitake to Okutama (10181698756).jpg",
       "originalWidth": 3648,
       "originalHeight": 2736,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpABAABXRUJQVlA4IIQBAABwCQCdASoUAA8APhkIg0EhBgEABABhKAJ0yhHc3ktMBWGeSAbw430/3D5ANIt+F+STzWbWbvRbzx/In+69wD9Sf8tvGY7aQ7UgzMe/63SIXzDQNgAA/v/jd1kAdPQQfzX5i8VzQXV5cOLh63Waf8z7YB6pzt87WB9QdrW7B9AaWPEE3ojH1EPZQde//KkH1x4OH/+/J+lH9oHXctu9GiYNEbzf/5et/wyOJ1D0byMq6/ubsmm+6kdHZ7kbrwNhU7/dGRb3yx+0mAt3aDD/miA1i7invt365mgi5ACMDQt51eGjM+Rob0jABJNDb/m5f+0431blZiVk7cV4Bi5O40q4zq1/HxrJ+NmlCbqFh14v8/RzyLjjuDhfsZ9tEkpfHOeXbDCn4NRqlQcnCe1H//NENl8XwHCcUvuECSh+Yjv3Sof9QFisRItgLvX43CkOq8P7b14gS+7zSZIK2lCtA/jdyDzwbp8cSf1MkvxwL/JRFwBFfq53acP66u3v/VOTkz/QAAAA"
     },
     {
       "placeId": "JP-017",
@@ -2307,7 +2593,9 @@
       "originalTitle": "File:Asakusa Culture Tourist Information Center 2016.jpg",
       "originalWidth": 1500,
       "originalHeight": 2217,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrQBAABXRUJQVlA4IKgBAAAwCACdASoUAB4APlEijESjoiEYDAQAOAUEsQBOmUI660GcgOAW8rpoBHghmPkP+jPYGC4TqOuuWuEjMwQVUs2d0X9y6ZYEyJUrgAD++DbXbGsA/KFXgcrbHbyK9LG5uuebC/m6lRXsZGbzIGNAiO80HF04JgmJ4GY3VCIj6EPeKqKJr9LojPGV/+/N9NOT5ScEmEE9/jOA2ZEMKIqbnn7QVIqq/4zCMv/eIC70msroBzf5CF52jSyaAS6+571hO4Jq2/Gndmx8IzFvevCOhxnKIHrjz78/ipM+N2hur9RURp09ZjQ1g5K+le1+FB7D9TcEu+sM6Vmf5FhJrfOi5Mk7tPNAq5s7ocz/vw606ACM/Qm0aW8RpeoJzxets455kZ9dq3LLjQasMvYUC421KieByUrx1LO8nJbJSiwwGxBbnBkXI474zToLnDYrzflBvnRCQAW7y9rGAkENeelqfOdn0BAKhTia0Tann/0LSBeYb4aUM+m6HSsfjRv0875rONbFimTfTAW/dAJcqO5zjFH+6hUscFCsjnHx/YqZgmZfiBzA9VpqRAAA"
     },
     {
       "placeId": "JP-019",
@@ -2323,7 +2611,9 @@
       "originalTitle": "File:Tokyo Skytree 2014 Ⅲ.jpg",
       "originalWidth": 1632,
       "originalHeight": 2500,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRswBAABXRUJQVlA4IMABAADwCQCdASoUAB8AAAAAJZACdMoRwN6r+IH6AcwYwBljjYFv/+hjnbvYz3nJmku3Aw2bxAOIA/IDWgONa/xXqV/2z8uTQq6+16iku3vfNsslunv90L3fgikOAP7//yblhmLN2IuYz+MK1krw/LB6l8HT4JsrzjXD4C2GH1uIaWi3O6GxnUq323fT7RV0gfD48fqZolNIMd8wXuREdb8ZWAsB6aj8w4XPJ//Zz2hAUXdPO5ZXsP8uS9GG//96zpS5rdjfKlekfZqU3wEk0+2opVJLoSIHK3h3tbtiRcO/k/7HsyRrF8S5jRYZHeW398Z/KWF5aWTjf/lxh5Zd8uxC3B1zg0j8QkNKRxh9nhK5Dnxc/rcHeNk+Pr2L/9GB+mtSL2ZF/5iX2dvwKxK/P+CCpLleEWPp/r8P0bn/8zJ//O41uB2P/3Wf/4QH/mZgsdub41HFYPtdKvhaoR/vvYyFP/+NeLWs/13A6l8ddjmrRQiUtZh/dDsYdG11SXP2M0QkI9B095WCW8Inwqo4bSn/0S4JfGjCd+7Hi5JSSCl//SiQLwE4/dYDRv2nyUmc6Zqr07Seq+cbqVXTUAKNV/97UAAA"
     },
     {
       "placeId": "JP-038",
@@ -2339,7 +2629,9 @@
       "originalTitle": "File:Photos at teamlab planets tokyo.jpg",
       "originalWidth": 4032,
       "originalHeight": 2268,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRloBAABXRUJQVlA4IE4BAAAQBwCdASoUAAsAAAAAJaACdMoRgD8ALoO0EbAwUn9QN8A4ADpMfJPoCuYOs0A/i/8d/x35hGhZLKANy9gJnOvWAAD+//+wEMw0bN0JdglVjTAvwDD/F96f6z///NsTBb7rfv2Ok8tBmftCP/8WgO/MuS4c7N470z/nH4r7Wsjv9oHHlQx/2U5H/7HZhlvFe7E/v/XswC8Wwv2TU6X+RaH/+8APC5+8S1l9yfYrsw+XGf/3dlo+zl/8/qMy/0gMflMnPD+mkx1O//1Ef7m5WcI+KsDcSQ5/YSfsPqq3K/xpXHGf/7e9Yqe785QZL7/RwPh03HVN0WO1Mx9huMvP+rEl/Ssy/G6un/xXlqyVc/lXvqeyH/ju2rxY5M2QwbL9ou5ADSQLxUZ9wwytJRJO58dfYMZL5jADF/ZS/qsW/TP4ZSNPZjhEMvF1/bUFAgAA"
     },
     {
       "placeId": "JP-030",
@@ -2355,7 +2647,9 @@
       "originalTitle": "File:Tokyo Station (Marunouchi Building).jpg",
       "originalWidth": 4272,
       "originalHeight": 2848,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAADwCwCdASoUAA0AAAAAJQBOmUGMHsCNAcoB+N3AA/WP9Zvf/51XrM/QA8q79QPhE/ZX0kqUDqofLNpFvx0yQH8l/IDUFPyV13n+x4o73Bf4d/Fv7j+Xf934is98lfo372n//RpBHDZ5wAD+//+Fv3lcuT/B25kZ69z/MzTV/JTKueAPf5N1kfPr2q36t9Kcf/Mu/+E0ZywHjBSmfiz8b7l4N+sE78Uhe1T8gs/gpkVxVRULKVJc1iwk/90aC4FCSK5Ja7dMeL//yy7gk69YPzKwJyGZ/vJb+9avjx+Th7A+K//6Wp/JJJ3Gxz1B4dMzcTld0nT55KTCZ9R7AxJsam7BtELj67T3JMm/Ky3b+HW0ZHt19vStI2HeGg/4u1tZKnSqkVaqyJBfDfcWYr7X/96R7yk9Hvsnb/4Oz/kqxTXNl/+6ozfMeZfNBNaDt8QfuINjhrIG4NlP/Rqv4Ml05/2Xe/sbYpCQ7DzBMiOHf/jpOlx6f3Q6cDWjiRQvzlxNuCPnLZ+RJlNI/LPn/AJWon+fiOz0R3/WPmfX5LvJtl7hxppWNHC9kP8TfvAxw/ng+ABrQOH553OZCCFOAAA="
     },
     {
       "placeId": "JP-034",
@@ -2371,7 +2665,9 @@
       "originalTitle": "File:森美術館 (16202551532).jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAAAQCQCdASoUAA0AAAAAJZACdMoRwN6B+FfCA+AGCzboBwAHSe/tP6QFylrjv7JmO5pm0zn7ZvZV8rnyT/iPxu+DD/Ymxq6fcP+VbrQY6QoQwgAA/v/7d/Yc21NuwQ/ybd9JximPExMV0Xyp0u1t8PxP/y89XSPqwP9ZTb5ZI/ntKMS05NvsHfr3Vn+B2ZUtLa4Xm/9mYHsL8uC/FOq2r3+qL1cWPjh35A+Rz6sf4kgKJaYmvc//1G0NpNlM5LWWST51zihN9/HQBJvJ9/eO/z/ggf/3wr/XS+5IHj2tViDSkxb4f/WZexcz9thb39pX52kcf/nyn/4mtUWnJMXt+B/oE//70z/xb//OnW3ruCx08b9/bfPjZ9/JEZ3NX5W2FYd4wN5u0b//o/9eB+N/ceZ102yGP/hr8eeH8jsiD13icP9cvZ/yJzVDaSp7r3DLPsCZsHIGzOMjVGIxnkrtWbzBI8HlEnmpA/Hn4f+raLQw7Umbp9y11/Xi5SG44NpQkzFgAA=="
     },
     {
       "placeId": "JP-080",
@@ -2387,7 +2683,9 @@
       "originalTitle": "File:Kinkaku-ji in November 2016 -02.jpg",
       "originalWidth": 3343,
       "originalHeight": 4457,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRrABAABXRUJQVlA4IKQBAAAQCACdASoUABsAPlEejUSjoaEYDAQAOAUEtgBOmUI6e0Gc2tueoDlANzbskQr1kzTx9kXZn2FcXz214aJAexqP68o758CmsHTAAP3FolH0YF3avE7qQa+93ZYnYQRzosjLDoihE6SOEUh5ssua5HGqeyBXCRpz4LdLMcGlvPjrQDPz5Ufszk5I4J/xrVM+LIYXVoDcHpYG1DKoMmSq34dq1X/8S3GX/0djWaifz/x75sI2nidynBG3+snD9n8wr3hq2qGrns+q3txJhnpZn4/Mo6IpN5PwIKgSTCBQJenn8qONATcH4b7Rd9KJjn0OUZI7+dDvFSf1rr8S4b8dXj6oWb2nPdmi0TrTMhOeXYGD6vX+cEwc5HhVbFlQxUooIgALFNrZySSzZh739zaumNdzMeZ53VCT+echTAOnIjlseysoVaZbJXcw/x83rbOkUPans4FKSly+0eb8ZKUm/iwUO2hS6Meb6ifJ2WRH0i5xYz5/eCoOz34BUvttoDuOlBnkbjCLUaekX02SfOYKmXFvHwHBYmPZmdYAANa8HYx/0LiTYAA="
     },
     {
       "placeId": "JP-072",
@@ -2403,7 +2701,9 @@
       "originalTitle": "File:Tenryū-ji Garten.jpg",
       "originalWidth": 5616,
       "originalHeight": 3114,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnIBAABXRUJQVlA4IGYBAAAwCACdASoUAAsAAAAAJYwCdMoRgC3DtBGgMFy/TP3urJY8lW5AfgBXxvxAnSf87/ICegd4B7Af6Of378reEAPPMsMaS0R5cbvc7AD+//4dGXlkpCSX/8bMCe4TfmeY/a2m1Ms2VfM55Wxy8pD3//yKM7iFl/3Mk+j9n5RPmIyzjWlbjHj/GV/6VXZa6agfklTxa+3//ULOfxGR7uv61TvsNrjSuf+cpZqF+c70ChYGSn6N7SboOO2mrXdHunLuFn3Xz73i0tjehA2d+f7enM/t7a37kf5cUaMdZuz9U+fjiCQ7w55MSMqh0Y/P/sgzuLv7eRf6bxHHf+jJM9/f/t/9BDoBtk3fscsTRQyuovUkh8/DkKuJ1HOznreWM/UGX/7INhEvOkG5rnput//ZjeO9DP57wf7Sckp3EuYXFv2UporPp3OFykuyKRZvyhzwG+wfhFEqMPmUph6MCaJ/gHI6yPqqIKAA"
     },
     {
       "placeId": "JP-086",
@@ -2419,7 +2719,9 @@
       "originalTitle": "File:Goten-mon gate, Sanzen-in, Ohara, Kyoto - Jun 7, 2011.jpg",
       "originalWidth": 2640,
       "originalHeight": 1760,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuIBAABXRUJQVlA4INYBAABwDQCdASoUAA0AAAAAJQBOmUI4G9ApgOpXhgP1J3UDgAPKl9ibyVbYA/TPsBu0/pf+quWCeH/iX+wH+A0gH4jZID+Lfi75AX7dxF/4c7IB/RP65+KvMd/2b3B/4Z/Ff63+UP9e4gA87D7QhgxydnzZQv7iIAD+/tRHvTERZunhwmGdi03aHu3CI2pEvzC83Iqg7lbw3XBg+PO5TBRV/MCZAGNeeu//5QHPkV53+nmEg0EisiSAZDDX1C0uSWIbgyGe7aUfLoTnv2q8xw7XTrMjJ98WCl9w/elA1nwV4JHch2i/8/tZZFGEikLm4//wD9aUqjMS3e88h2Bx+PG+LQgUSuP/zNMyCugB6LvJwG6r/XD/+CvC1P/qa1w8klueGuTYC/+c94FLoAxEZ3fX/5ENvhhFSxmaKoH/47fDxEVbTTTrVcIrGkJ52rx//NtT2Y9c6d1lzwb7/Ir56sREbiFe2idUysA7EMF6nrqH/sKRgXbz3KL/NGgb0gFs5b1p1wG/+kgnBBJgyNh/IGKN4S24P/ri/TmzoOyKJb2f8yfL5TOpLf1pdjDZ3XwLX+mYmIvi/gQsrDFWEIXXuTVLNxeVN+WrnYolAlvFelwtDHq3V3w1BAAAAA=="
     },
     {
       "placeId": "JP-131",
@@ -2435,7 +2737,9 @@
       "originalTitle": "File:Kasuga-taisha 春日大社 IMG 3690.jpg",
       "originalWidth": 3456,
       "originalHeight": 5184,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAACwCACdASoUAB4APm0qkUWkIqGYBABABsSxAE6ZdcwWUTnsbJ1nwXH9vGSBeyefB0CPSnsC/qmJSwlwSXXZIZmutRFXrZtFjV598LkW9vAA/u0dqfiwYece9rHmiFkkvO7osgT3MVmlGOApWPGznsKRxgkdddZhlsyJ/5b9jt49fOJL2SXCAYJWtV1+21gy5zJVp5Iyo3xAzlPUfl4E26YEgP2JSHW9usIQSdeelmOgWV3LXLL91GKWd2VPHAxvkT/83BI5V4ILk/cy5mcgtHuN5hkKL5/CRvblELVv9ch/2eIv4vf4wQcTdjQs0CQZEbos6itBPP/l5nk/EX1X8ngq8V3JWefOHoIdMNljGFPwVArE/j+zBjlMqOXW/ausSlkSHofN6t40nz1NaAvVp0srJ8wsALHyZ7PjpuzfmW0cw5Xw1iPQsGAVQJdVvAQ+GiqddFdb8+aEYEGo2X0wzuo0m8Us+JEBjEFFVU3v11ZJ5ZrsX9ZcMLUAU3IN0ZK7LQZCNiP/8FAy5b+p1yUv9jTKNVWHNhsTIF8rqwngsEqAaA0yAdjp73kyPsqvjaRZxE979zhhBCBKWsQpSgA="
     },
     {
       "placeId": "JP-148",
@@ -2451,7 +2755,9 @@
       "originalTitle": "File:Hikone Castle November 2016 -01.jpg",
       "originalWidth": 3159,
       "originalHeight": 3601,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAADQCgCdASoUABcAPjEWiUOiISEUBAAgAwSxgE6ZQkB/6Z0M3H/gMKA/TOqXawBygPpvj8syhjlv7pN/PGV9Bf8L3Bv0t/3fAgBP0PPgURAxQNr81Sy0JZqgxBKlUG3EgAD+bTuT6bR2X2Vef3I6rDwa/5uMt74uCGKf+SzQL1QfEereiw7Urkoq7v0ePif2acBAk2bLx3+x+fE0kTz4qdj+clP/idjQyaqbIlXvHS9vqZtQb+Ftqq+g+FIstn7tNJ5Wnjg8wqK/+EAKu7uDfJkVuzhs8xF+xrecUq1ru3P/1p38Du3xe6Jplp8n8Yp/bn3ND6k9/avB+xOCzh1UUQQwNvBS6ETZB8kpU8+/CV0+Fm8///4xjZJROqs68dSd7c36/Lf1/haZDXXzE3urMO8RNUPu/Pa+nbrTuTkPSX5/d1r1ojuzjVdH6X73HFogDxrWv75QVAAe2Am6M8/IuuPIR0TjJ9mK4/3LROsiruDxrrZmK+OZL4DnY+MMKVRRrBLnyR4WhNLqo1WdsifitOYGq0kmtGu9mP0sEC/Zrrb4nMm9kJ6uVrZYdiiASQSsO0U3tfrn3jn4XTgmA4HcZKJ2FqXBIO7QgL3GtiU3ZXUmi1cDgAA="
     },
     {
       "placeId": "JP-119",
@@ -2467,7 +2773,9 @@
       "originalTitle": "File:View of Abeno Harukas and Shitennō-ji five-storied pagoda at dusk, January 2024 (clone version) - 9978.jpg",
       "originalWidth": 4975,
       "originalHeight": 3675,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRnABAABXRUJQVlA4IGQBAACQBwCdASoUAA8AAAAAJagCdMoRwN4BTAdSv+Z4SrkgG8R/tx6QDvjZhrHAUxr/HelZQAfpT/hDZj1N8qq2nncwgkpO49AA/v//nm6qY4oVeTAnvVojT6WR4Dzm00l5iBrm7nbuvpoycgdDQYV1Y8fHW8ncr/ee/oz8XIV/0bXd/t8yBPjS/5VXEKkeY/9KP/XDnrPkm/4EeaXhtR6MIHnf+I8kXowwZruIYNH/HT/EyNheC/T//9/q4K/Q6Kx772k8RqZOhb/u/Zvceci4vAoRcLbHPs6zbc5fuMql//q+HoCa/68l3v7+a01Na/b8/ZD/H/A7uCy3x7j5hH+mj7Pyf/8jb6n+s/zRBbMjOnfWXd8caoYQZo+fJuzQpJXHDkqiYZjzOH66WhuY1KZvLCbzqyQOUJ5C3gG453O9Sj/E7vOeSAII7pnjAtqiKiluOD74L83DVrIAe4OTP5N5kV9mtIAAAA=="
     },
     {
       "placeId": "JP-132",
@@ -2483,7 +2791,9 @@
       "originalTitle": "File:Isuien and Nandaimon.JPG",
       "originalWidth": 3504,
       "originalHeight": 2336,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtwBAABXRUJQVlA4INABAABQDQCdASoUAA0AAAAAJZACdMoRwN6BvARgFUAeIBuAHmV/2beQOsz5479YPgn8k25AfSBzIH6q5YJ5n+NeeU/ED9cv7lmEf65+DvkA+2H9P82LNK8W/278gPoH/jf8m/qn5df3PkQP0rNUrmm/mX70SGGkAP7+X/ki17LtiN9aW5YKQu9+aX5cR/omYnbgn6omyPQAp9v/4WD6I1ND8/iaMaAyHtFkylct1/170kpmY9q2n1j/LMEpIDkrooecBZm8+bDnbGdoPC7nU3qPS8G4v4l0sCJhqBt3/3svsnEqSD/nUVUb66s3C0Vc8Em9trl3X8/5nsvJsj3fS/8xngO3fubVKkMCfopuPKssW5dijvbSPrAN9LuV1/hr8TRqndipZstb/+9Mz/tJ0g6o+/gMGtN//iWQLEnIooNWdXL+f0lBBohmer4/yMUeQv5DV//lvqfGtgFh6O9H2ggTg+DkiKmx6Yhi7x/iXLxCLYmfSkyf/9MR+7QM/7QjBIJ5FZQ1bUFllsbEEOP+Hev+j66YPjPBf+hDu/3Lc9e/bSNoQrhYE3+JjwAiUjfucokfx95v1Bt5jUI7ferDQEy35UWL/y35UWkE0l6oRAqKwaAAAA=="
     },
     {
       "placeId": "JP-153",
@@ -2499,7 +2809,9 @@
       "originalTitle": "File:Kokusai-dori08s3s4440.jpg",
       "originalWidth": 4440,
       "originalHeight": 2960,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRtgBAABXRUJQVlA4IMwBAAAQDQCdASoUAA0AAAAAJYwCdMoR3N5LTAdSX+V/hn0gG6A/Rj/Ab0B1lfPb+yF+yXoh3ID6ZuZVyQTzb8d8+T+Jv63ZYD+d/hn5AUaNqS/8BxjH+A9wP+Hfx7+x/lf/duQY/TM+yM3ymr/n3A5KM7XCAAD+//6MxPuzeRr/01fMmzatTjcZ0vXgcwOScTR8BF8B22ky9TbT5Zs/TdIXbmHWAmqhNFdffnHYU31J70lu6aODa3/GrbDsUb41sw/1rin+y2jvWL7fBy7jZR98ilXgEIWP/4rgeCyBre5AN1W2sPI98IHnBco/KXvbrU/JCRKPD78zr0jz8eeV0jC5O1wTENbFncAOW9fCKZKycRE/7lJ2OHRqjYtHaG4uzKKBLBu76ACr29fnBeZ/RiB/9Vr4ffl9wlvmKf/DG/1L3mgN0DSMcN8lgGF3o885JrElH8MknAr/Rc9bCWBnz1yXD799b6qROmBYskBbYc7/dU9dvFkKprJiLSl6zXF2e9y24afTC6/I7/98T/nLqG+o4Zp7MlN1P6Yrq/5yjNCtg6II+/sBlt3/Sw8TIGn5viPPiTiwsh5tV69c/piowLJmBsu7jDN62iwGb4QkAAAA"
     },
     {
       "placeId": "JP-187",
@@ -2515,7 +2827,9 @@
       "originalTitle": "File:Aharen Beach On Tokashiki Island 2009 (7384).jpg",
       "originalWidth": 4000,
       "originalHeight": 3000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRlwBAABXRUJQVlA4IFABAADwBgCdASoUAA8AAAAAJYwCdMoKAB4M2gu/pn7//R/6UP7JflVPFP9AmWuPh/Vn/M+px/g/yGNJEHp9aD0XYjsAAP7//rqS/45wZ8+0e3D2zJ/lRH2YzUUMsFUjdHmQ79lc7V8lw1gkCFVUXQm/71f6g0UmPX8Hw3b/Mt6jLT/4Z7ATrLz5/+osCP65ua1+D8E2m6Tv2/+6HI8/++feUav+w3IE0L4//+FzDy8jO2/ZiAPSZMsDrr4NxiNJHNDezpxjPk3dkBTA0sc3M//1cqtLnFvwb//CQwsip36u+YO1x/TeGKv7bpVcdhqv/52Hfh87/y9EWWFjBlr/z1sJMy/dI5s79HMD5qWFBEMWtGpN/0W/7CP/254N/pA3g4WcxT2P734+ivgckJP8QVpF8CwkjojjZ1Njg8hVnIh7qQnMk+fdzsBWPKcFsZRnQyIAAAA="
     },
     {
       "placeId": "JP-129",
@@ -2531,7 +2845,9 @@
       "originalTitle": "File:Daibutsu Grand bouddha - Tōdai-ji - Nara.jpg",
       "originalWidth": 5710,
       "originalHeight": 3807,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAAAwDQCdASoUAA0AAAAAJZACdMoR3N6T+GdSB1JcMB+wG6k8AB+pvpVewv+13pDWiB2AqAP6J+N2iA/on4u5JP+7d4F+Z8TH+IGuP/mH47fwDpX/In9d9g7+Pf238rv7JyHP6SnFZm+QStflne0jvQrHWgAA/v/+cT4xwX+sZ7KtRSg6U3ld64/0L80br7NUuluTi3b8e0szhVADABPoQ//rMDzG1IggbA3S/PEL04gjD/BuBdSrEXzO/9Pg6V5+V/pl/8MDmGj/3/7VZ8NWKbmocxrNt8XlgJSHUVsdlA965oJH+/9LSD+c691RvPw13kQbqKQ1GC2QDCG4uJKnKgTHLPv0NHdYX9MmhZR+9myrvgTcBW2OxANxzvM9zC3/yo2tU///tZjd+9QIAtoO0Eq/F1NBaw/Ide3ej+yHfuJDmdRf/c3P9HHr/6bC9jSVryVcc1gUL8T/IXSfxinlrdxmK9Z/+j8f2v+SyO15zTD8flati+yib//hnGKwoqYGivmxMwVluSMghvktbH0k1sErB8bqjLIY//5DyqHUCOqPdEgsb/pS2vqBg9ANHg9j8XaFhQ0Ibqnp+/5LGhGwzVm85JwckC7bISxlCLhXVFIo1qAAAAA="
     },
     {
       "placeId": "JP-152",
@@ -2547,7 +2863,9 @@
       "originalTitle": "File:150505 Benesse House Museum Naoshima Kagawa pref Japan01b3s5.jpg",
       "originalWidth": 6000,
       "originalHeight": 4000,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRs4BAABXRUJQVlA4IMIBAADwDACdASoUAA0AAAAAJZgCdMoRwN5L+AFSB1AMEW/un8z9+DTAOeX/YD4Q/1d/YD2pKUE2S5Kf61mKPwY/JnMAfzP8a9EA14n908oDwRP677g/8Y/iv9N/KL+tf/T6QOod/WA7Rjf3q/9bNF/aUfWEAP7KsU+RVQ3hf+LAMQ5bpuf+BbKqlLAYC0pOtv8umA5JO3P1bs+5TzKWiP1RuH//4vTcd7hb//s+MJ4d+WTuh3ypupKVdfmSpGJYRnZ+Zl+VbVWqip8/JKi/TNGvzpA5Dml4LREBD/896iyBoh9miv1nolGFO/hy/bS7Newr6WX5E5WPO/kK7wR0/4UDELoqpCTz7eGA96yuEHtj9P325Gr+b3/9dn/vhK+P6m36SAjU/4Nutm53Uv8SP/nIYzefXuU1qHLf0ODrL8ZU4qZ346Cxzj9rctXpwoQb/6/728fSv/7//kP7Wt0c+XwwTNvQ77Vv9rINlePdbDHlaq5WPntDb95mgYd+BF33lD5eC/qlR1w6eC7fDAONF5pRgtjWJSen0TfNQmhFciLWPn+rEkgR7VWkLq8lfV17Sdjbl0xc7tqbjYfvghZoHdpqJ0wAAAA="
     },
     {
       "placeId": "JP-089",
@@ -2563,7 +2881,9 @@
       "originalTitle": "File:Nijojo-ninomaru-garden01s3s4592.jpg",
       "originalWidth": 4592,
       "originalHeight": 3056,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRtIBAABXRUJQVlA4IMYBAAAwDgCdASoUAA0AAAAAJZQCdMoRwIsCnANQB+pPTgaYBz5fsZftF6R1yl/ADqBuvXpfkovlP4oflHqAP5n+C35GZgD+3fiB+QHq4/lf4zcqN+QGuP/sH5M/1XnHfYJ/h/8c/r/5Ff2n/78o1+gB99U0YiUl9prGQg97cAD+//98bnNPAMJ/iL5Sy/9vWmq+GEMAtlCr3dXwDFMJDwM139eyg/RwufCnj9uZ29VicHDvruj3OLOaTq8f/+kh7aRB0RYpWLKY2zrZqfZgNAoxfb9L4ubxXc55mkmGY7bSO+a2rkuW6HTLL+I1EBY/328ME/+a7T5lPU7gY0ZHrMSfLxNIwP30MFyr/+GlKVA0Q/+ZeDYshlW1jVu4iuXmrUkGwETt3rHoIph7LGJVNn+yL+D3p7G/uJ/G1JClJ/6mct7u+srXBqhtROX/znN363SI7maI49+FKq7AL5O3Tm1bA731RHkRTMxi5k+32uw5eNAhXXq0sNBLA1p2NERW3+78DnThQkbWP+k0GUvObdRwPDfMZ82C6qKtN5agIkNsxBN/W/2+MhDiR+Y63+7QrQqJ0ymhMkNWLvRTUKK7CijB+GIjaqrDAAAA"
     },
     {
       "placeId": "JP-021",
@@ -2579,7 +2899,9 @@
       "originalTitle": "File:Tokyo National Museum, Honkan 2010.jpg",
       "originalWidth": 3476,
       "originalHeight": 2307,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAADQCgCdASoUAA0AAAAAJQBOmUI7m8ApgOoB4GekA/RH9QPfM5wDgAPKn9i7yZHe3/HTPd/TNlDH4m6iB+Kuua/uXGq/1z3AP4T/JP7F+XfGO/qAarE0/1hWMCPDffD24AD+//7mOau9hODas/aOeTKlafsQ8+TGgZw9xM3oNUI6Q6rOk6I/2KkGpZ54IzNxFuYMsK/gF/o708g37AJMsYg/E+/ytTygh/kT4X3uP0DT4F/IrDrRRyfiAH0T6VA89vi0HKAFSSthf44xLROG8uCkrtfrac47w+6Lc8pDZd19/VmMZ9KKf74wUO0DuN4ml2VNP/+rFpREJ9cycwEqpa/+O3H/0LAM4v0zv2Mt4K/N+IinA7CGjtdPDsMcHttXl/zdB/lRsolse048J4dnjhXq8unebovki8Pm3C5U0ue0q5CSXlRTs+1U0XvFaDx1vWv37RNwlg8v9iY45f/tdxGvk/Qwn/BMDrcpEx9GAR6JBjHVgW28lHe1JqLeuEdyzlhf2NWRVyrLyI6rHTEtnVepT8gAAA=="
     },
     {
       "placeId": "JP-205",
@@ -2595,7 +2917,9 @@
       "originalTitle": "File:第65回さっぽろ雪まつり（SAPPORO SNOW FESTIVAL 65th） - panoramio.jpg",
       "originalWidth": 1600,
       "originalHeight": 1067,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRooBAABXRUJQVlA4IH4BAACwCACdASoUAA0AAAAAJbACdMoRwFyk2NF7G3kn3ICuA/oHyZ6Rb8L8hA0Wb8gNdfyIPY73AP4x/GP7b+S3GAfpmePD1gznM7Ts0UQwYwAA/v//wBjeqOXIt0Z3MS/PYK+5g+FyUsgfwbslZHOASrf8lj/9eUt2/r/Smv1SKnzKHhA2fcPcdIf+2T9MV/5hvH9s/+69EWx2E7uPuv/9MUgnsoaZMfk6sm47rH//5d9NNTy/8h3BZJmxwHlhf5gJu2iFnKP/+a4scuX2P7/jBz8HSBCN9J3fi82oEZzoYeX2Ehumu3bz2Tu+KD6ESG3o4y4YJoXalzWyQT/+Sb/4ufx1C/0//bITPz7lny//tgI/xMfSMUf/eUv2+16pGnRwasB9X/7iH/v6i9f9fbq2Rvf/mgTf3m7p+Lw0jFmLWixcLdYdgv/00R03Gyp9s+gp/+wUwOISQTXhRfAGXyjUqaZkdWeA9w6PXHO83TtQEZu0G2DuelQdlfeIfS60/YAA"
     },
     {
       "placeId": "JP-125",
@@ -2611,7 +2935,81 @@
       "originalTitle": "File:Hogwarts in Universal Studios Japan.jpg",
       "originalWidth": 1440,
       "originalHeight": 810,
-      "processing": "resized-and-webp-reencoded"
+      "processing": "resized-and-webp-reencoded",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRkQBAABXRUJQVlA4IDgBAACwBgCdASoUAAsAAAAAJZwCdD3wMlSpwBioFUA/sH4zdFD2M9wT+G/yX+u/k9/WeQg/Uk6aGS4IYpkuvxamAAD+//6dn1f3MrWWt0v+7LZH5rtqD59XlPszC6pqusbBah92b7Ge2nv7rlJ8T/oWRqIGNp//XVrO5qsIKB/2Ub9PQlJ+nMAt/9Dr/5cC/J16XWrRvojqDuT/9fCXemr5wyWaFmK97sOemI//cT/+7a/1r1n/r0ZX3uMzrcIPlM+oPj+Fib/hpZrO5Z1goTSMRGtm//uSx64FYTFFtejL+8Pfnf91/4E0yXJ0Tbxt+9J4sca4vlRP69Cf0s9JoKB55XJsxFXXXFPKLmofPBbUfMH/0/hf/3PGH/IRuUoXJ+GUAcuLw5huW/9cQYrITxh2DNbIRQkpuQ4RwAA="
+    },
+    {
+      "placeId": "JP-033",
+      "assetPath": "images/places/JP-033/teamlab-borderless-azabudai-light-sculpture.webp",
+      "alt": "Visitantes rodeados por haces de luz blanca en la instalación Light Sculpture de teamLab Borderless, Azabudai Hills.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATeamLab_Borderless_Azabudai_Hills.jpg",
+      "credit": "DannyWithLove",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/0/07/TeamLab_Borderless_Azabudai_Hills.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:TeamLab Borderless Azabudai Hills.jpg",
+      "originalWidth": 3852,
+      "originalHeight": 2889,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRpIBAABXRUJQVlA4IIYBAAAwCgCdASoUAA8AAAAAJaQCdH8GJ/sUF69el/7HZaL5T+GGet/FzJH/x78d9Rc/I7XZ/2v8bvaSzNvH3+U9wD+M/yn+6/kX/W///ykX6dm1AH0N4BgOEHapuqAA/vxqpLYQr/9cDIsLZH/v8DFJHsAH4QLUoVX620zfesptKU2T1evulB9zri8RWwX/96pf//ucfdo57UCwdjJY/HTSj+HufPT1Px4z2jq3///ZAlcXM2oB17Ca4LWqjUKiBQ3yd33NbkkuF84bT/zHMr/fQ8Sjqb//lsyexP+P1tTpL5QHdMgeZHqOw/Yon867Nf0ZtRDFvNAMfSW/Uf8f/quK0azTOnsf38basGISXpUZBDCGh4zN+NnLcD9hWFl39zK+BaFiPwq9H4/j/6GAOUPg4r5Yo0RiGMSI93hsn7MNh0bO5YZf26cbfXq3gp+eigr9PNa7/t7hq96kgZc+6hV4SLQXk1aIhjczbO1KFrd2iw5K6zK07YHGVEvAWA+QnEFvwO54JUMAAAA="
+    },
+    {
+      "placeId": "JP-126",
+      "assetPath": "images/places/JP-126/super-nintendo-world-fifth-anniversary-entrance.webp",
+      "alt": "Entrada nocturna de SUPER NINTENDO WORLD en Universal Studios Japan, decorada por su quinto aniversario y rodeada de tuberías verdes.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASuper_Nintendo_World_Entrance_5th_Anniversary_decoration_at_Universal_Studios_Japan.jpg",
+      "credit": "archive 2025 ark",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Super_Nintendo_World_Entrance_5th_Anniversary_decoration_at_Universal_Studios_Japan.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:Super Nintendo World Entrance 5th Anniversary decoration at Universal Studios Japan.jpg",
+      "originalWidth": 4000,
+      "originalHeight": 3000,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRugBAABXRUJQVlA4INwBAACQDQCdASoUAA8AAAAAJaACdMoR3L8C7AZKPUAn1XrAPQA/Wb0l/1g+B/9hf2x9nOjMfgB+wGWn+ofi7ogP6B+IGSP/mH5FaiB+OWu7/s34q+3Tiif4D3AP4l/HP7L+Vv9G///KUfroffC5jK7cruohdLKZbAAA/v//wtS5sYoDuG7Wxf02URVfGQeDh0ralmr2z8cbhFefTTMJGpgXu/+w678SWdrpsu+/lHjB7u9i9fC6QV//hkr17MmWjNzOGFIf2yjXx1KWz/RKWdRrOL/+EXczJYnYEwMRjf/sa8aD//6zxbB2icz+L1NfaJhUDl7H16+CncNZkXwDvVHnNl8eihoJ0Wlrar4Cjz9d4Enb+LWZbpSI4zAkG1fS2KC62SpNCzZvf8BnRu6QI9iHgzzuTLzlFq/BVxeNzHgBvRkm578B2+fnsv4uFJ+xNkJIteJwK7H/V4rLprPPC1yze/SWaf+mD+Tv8ZKFBWYTXZrf3X8SyZ8k9f+lVcfrAeRSZSKW3Ti6fvAldZ5nPtL6MWZz4mMgkE8ng86z9G/y1MJYDzJ4Fv6T5YfuXdPhvHaEjzjyeD7p3AtONYKW9n8c5ubsfE9uOy0jrR9c/yfaKSzhnoRxwWFsCzP3rAAAAA=="
+    },
+    {
+      "placeId": "JP-203",
+      "assetPath": "images/places/JP-203/tokyo-disneyland-main-entrance-2025.webp",
+      "alt": "Entrada principal de Tokyo Disneyland con el rótulo del parque centrado sobre los arcos de acceso.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_Disneyland_Main_Entrance_%28June_2025%29.jpg",
+      "credit": "Fred Cherrygarden",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Tokyo_Disneyland_Main_Entrance_%28June_2025%29.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:Tokyo Disneyland Main Entrance (June 2025).jpg",
+      "originalWidth": 6000,
+      "originalHeight": 4000,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRm4BAABXRUJQVlA4IGIBAACQCACdASoUAA0AAAAAJYwCdMoMYOE1ygH4AcAD9gP0A9/+7sf1g+DL/YKYAn026fPIn9u9wD+J/xv/C/anyF/6qnXy30kkNh3H/TaeoAD+//89GrULMpcrI+KJ/MfU3npR/cteS+zzbJv/+FWuy1ZZ67JO11N7Gf/YtygCl+jkh0EkDM+g/X8CWY/+3SZQzYafr9ofzDXTB+j8/28T/I/ffXXt/80GpfJI4YLJ+PEmNUIElpM73UK8+n+IWv/dIDqqwFJlKfpH8sWfmTRTEhhlv6/Ptv9/0l+Q583p//9YWVPX4F//Q8vEV7mUddFGHXkv6Y/qHA1Du4OKFdFoFA2r/9Uvegy7OwrXNJj/9p4rU7Yxcdu10ki9+f/1UvM/Ja8IP7Fkj//u9t18xfJhKeR6pmrN/uwitcg80X7+ebEcY0N0vYTgp6psIOvB8NAPTPYwB5DkwNPNxyTtkGPgclIAAAA="
+    },
+    {
+      "placeId": "JP-204",
+      "assetPath": "images/places/JP-204/tokyo-disneysea-mount-prometheus-fortress.webp",
+      "alt": "Mount Prometheus elevándose tras Fortress Expeditions y los canales de Tokyo DisneySea.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_DisneySea-Volcania.jpg",
+      "credit": "Okwhatev at en.wikipedia",
+      "license": "CC BY-SA 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Tokyo_DisneySea-Volcania.jpg",
+      "acquisitionDate": "2026-09-21",
+      "originalTitle": "File:Tokyo DisneySea-Volcania.jpg",
+      "originalWidth": 2560,
+      "originalHeight": 1920,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRp4BAABXRUJQVlA4IJIBAADwCQCdASoUAA8AAAAAJZQCdMoLUCsM/XV0wDnoPZNpwDps/RqYS/KrmD/7h+Kv5AakBlqv9J/Hf1m9ZvyF/p/cA/TL/G/a5yIn7GH1R1sbF51S12WbQXBAAP7//3f2sgDTQ3MSdOmle///1J//Los0l4vvUFhdC3O9/tcwrfcOZO5uwp/1E8GK/F+f/vf7p/RefMSZ3hFqI2xqkbmQiUZZjj9K+uTsrLciGyFee9okDZK5xc93OQs7K8y+fKj5uv9bbMiaYsBFs+fl2Gb5hUD7VqIKprwTX/snGYP+21+cwmlrXRBO+xcPUc96/GYYJfVgMTgdBkIKWf/0WUXx4/Ng5CJlkLH/iNJeAdqu/PjnG+KlLn8L/0eE2Tl7/D/PbbKFLiX/yZZxmIZQs/77Ii/uZeb0aHj/h4oeX87G/E+P+bVnjMoj/0kwF+1LsHiTe808v38lRCDJqb0faX/sxIfHTuIM52frZRkls6yvS+vtUmoZ7OUbvXVFXMZ92dERQ+W0XdxPLMsT8tAlPugMtOAAAAA="
     }
   ]
 }

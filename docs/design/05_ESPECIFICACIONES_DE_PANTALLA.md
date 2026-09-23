@@ -52,23 +52,23 @@ de licencia).
 **Contenido, en orden**
 
 1. **Cabecera** (56 px): «Explorar» + `PersonToken` activo.
-2. **Buscador** pegajoso: «Buscar en todo Japón».
+2. **Buscador** pegajoso: «Buscar en todo Japón». Implementa búsqueda real sobre todos los lugares (DDR-B21-05), orden conservado del dataset, sin resultados ante consulta vacía. Mensaje sin resultados: «Nada con “{consulta}” en Japón. Prueba con otro nombre.». Seleccionar resultado abre la misma `PlaceDetail` sobre Explorar sin cambiar de hub activo; volver en historial conserva consulta, resultados y scroll.
 3. **Ciudades** — tarjetas fotográficas a ancho completo, 16:9, apiladas:
    Tokio (57), Kioto (49), Osaka (53), Okinawa (50). Cada una: fotografía de un lugar
    grado S de esa ciudad, nombre en `--font-voice` `--type-title-l` y el nombre japonés
-   debajo, más «57 lugares» en `--type-num`.
-4. **Cobertura inicial** — fila horizontal de tarjetas `compact`: Sapporo (3),
-   Nagoya (1), Fukuoka (1), con la etiqueta honesta **«Cobertura inicial»**. Corrige
+   debajo (Tokio → 東京, Kioto → 京都, Osaka → 大阪, Okinawa → 沖縄 con `lang="ja"`, DDR-B21-06), más «57 lugares» en `--type-num`.
+4. **Más destinos** — fila horizontal de tarjetas `compact`: Sapporo (3),
+   Nagoya (1), Fukuoka (1), con el título exacto **«Más destinos»** (DDR-B21-02) y contador pluralizado («3 lugares por ahora» / «1 lugar por ahora»). Corrige
    el defecto D6: un hub con un lugar no puede presentarse como igual a Tokio.
 5. **Colecciones** — carruseles horizontales de `PlaceCard` (proporción 3:4, ancho
    264 px), derivados de campos que ya existen:
-   - «Imprescindibles» → grado S (32 lugares)
-   - «Joyas escondidas» → `hiddenGemStatus = Hidden Gem real` (35)
-   - «Menos saturado» → `Alternativa menos saturada` (14)
-   - «Para una tarde» → duración ≤ 2 h
-   Cada colección: título `--type-title-m` + una línea editorial. **Sin ordinales.**
+   - «Imprescindibles» (*Los lugares que más justifican el viaje.*) → grado S (32 lugares)
+   - «Joyas escondidas» (*Sitios especiales que suelen quedar fuera de lo más obvio.*) → `hiddenGemStatus = Hidden Gem real` (35)
+   - «Menos saturado» (*Alternativas para disfrutar con menos gente alrededor.*) → `Alternativa menos saturada` (14)
+   - «Para una tarde» (*Planes que caben bien en un par de horas.*) → duración ≤ 2 h
+   Cada colección: título `--type-title-m` + su línea editorial (DDR-B21-04). **Sin ordinales.**
 6. **Mapa de Japón** — tarjeta ancha con miniatura de la silueta, texto «Ver Japón en
-   el mapa» y «47 prefecturas, 6 con lugares verificados». Abre la pantalla 3.
+   el mapa» y «47 prefecturas · 15 con lugares en Nihon» dinámico (DDR-B21-03). Abre la pantalla 3.
 
 **Por qué las colecciones.** Es el cambio que más barato convierte «base de datos» en
 «producto editorial»: no requiere ningún dato nuevo, sólo consultas sobre campos que ya
@@ -83,7 +83,7 @@ es una tarjeta, no una lente).
       390×844.
 - [ ] Ningún aviso de licencia aparece en esta pantalla.
 - [ ] Las cuatro colecciones se derivan del dataset existente, sin campos nuevos.
-- [ ] Los hubs de 1–3 lugares aparecen separados y etiquetados como cobertura inicial.
+- [ ] Los hubs de 1–3 lugares aparecen separados en la sección «Más destinos» con pluralización.
 
 ---
 

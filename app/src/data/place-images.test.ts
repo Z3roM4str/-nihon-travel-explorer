@@ -90,18 +90,18 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly 7 WebP-only records and 156 resized+WebP records from the committed metadata", () => {
+  it("derives exactly 7 WebP-only records and 160 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(156);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(160);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
   });
 
   it("carries the Phase 4D batch as the first photograph of each newly covered place", () => {
-    // Phase 4D acquired 12 of its 16 S-grade targets; the other four failed closed on
-    // subject-matter grounds and must still resolve to no photograph at all.
+    // Phase 4D acquired 12 of its 16 S-grade targets. Its four fail-closed decisions remain
+    // historical facts; Block 22 B6.1 later found and reviewed different source files for them.
     //
     // Asserted as "first", not "only": the registry is append-only, so a later block adding a
     // second facet (Block 2 did, to JP-205) must leave this batch's own photograph in place and
@@ -115,8 +115,15 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
     }
     expect(placeImages["JP-205"]?.[0]?.url).toContain("odori-park-snow-festival");
-    for (const deferred of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
-      expect(placeImages[deferred]).toBeUndefined();
+  });
+
+  it("carries the four Block 22 B6.1 identity photographs without rewriting Phase 4D", () => {
+    expect(placeImages["JP-033"]?.[0]?.url).toContain("teamlab-borderless-azabudai-light-sculpture");
+    expect(placeImages["JP-126"]?.[0]?.url).toContain("super-nintendo-world-fifth-anniversary-entrance");
+    expect(placeImages["JP-203"]?.[0]?.url).toContain("tokyo-disneyland-main-entrance-2025");
+    expect(placeImages["JP-204"]?.[0]?.url).toContain("tokyo-disneysea-mount-prometheus-fortress");
+    for (const placeId of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
     }
   });
 
@@ -213,8 +220,8 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 157 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(157);
+  it("covers 161 places", () => {
+    expect(Object.keys(placeImages)).toHaveLength(161);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {

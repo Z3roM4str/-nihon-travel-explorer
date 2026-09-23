@@ -10,12 +10,16 @@ import registry from "./data/photography-metadata.json";
  * These tests hold that agreement, and hold the size claim that justifies the tier existing.
  */
 
-type Record = { placeId: string; assetPath: string };
+type Record = { placeId: string; assetPath: string; role: string; lqip: string };
 const records = (registry as { images: Record[] }).images;
 const assetRoot = new URL("../public/", import.meta.url);
 
 function derivativeOf(assetPath: string): string {
   return `${assetPath.slice(0, -".webp".length)}-${CARD_IMAGE_WIDTH}w.webp`;
+}
+
+function listDerivativeOf(assetPath: string): string {
+  return `${assetPath.slice(0, -".webp".length)}-400w.webp`;
 }
 
 describe("cardImageUrl mirrors the build script's naming rule", () => {
@@ -59,6 +63,20 @@ describe("every registered photograph ships its card derivative", () => {
 
   it("registers no derivative as if it were an original", () => {
     expect(records.filter((r) => r.assetPath.endsWith(`-${CARD_IMAGE_WIDTH}w.webp`))).toEqual([]);
+  });
+
+  it("also ships the 400w list rendition and a generated inline WebP LQIP", async () => {
+    const missing: string[] = [];
+    for (const record of records) {
+      try {
+        await stat(new URL(listDerivativeOf(record.assetPath), assetRoot));
+      } catch {
+        missing.push(record.assetPath);
+      }
+      expect(record.lqip, record.placeId).toMatch(/^data:image\/webp;base64,/);
+      expect(["identity", "context", "detail", "experience"], record.placeId).toContain(record.role);
+    }
+    expect(missing).toEqual([]);
   });
 
   it("keeps every derivative lighter than its original", async () => {

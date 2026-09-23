@@ -1004,7 +1004,367 @@ button.search-field:focus-visible {
   color: var(--ink-500);
 }
 
+/* ---------- Tile Filter (DD-003 / DDR-B21-01) ---------- */
+
+.leaflet-tile-pane {
+  filter: saturate(.25) contrast(.92) brightness(1.04);
+}
+
+/* ---------- NationalExplorer Sheet (05 §3) ---------- */
+
+.national__top-controls {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 20;
+}
+
+.national__sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--elev-2);
+  display: flex;
+  flex-direction: column;
+  transition: height var(--dur-base) var(--ease-standard);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.national__sheet--asa {
+  height: 60px;
+}
+
+.national__sheet--25 {
+  height: 25vh;
+  min-height: 160px;
+}
+
+.national__sheet--75 {
+  height: 75vh;
+}
+
+.national__sheet-handle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.national__sheet-asa {
+  background: none;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-min);
+}
+
+.national__sheet-asa:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.national__sheet-asa-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--line-strong);
+}
+
+.national__sheet-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.national__sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overscroll-behavior: contain;
+}
+
 .donde-dormir-entry__chevron {
   flex-shrink: 0;
   color: var(--ink-300);
+}
+
+/* ---------- ExplorerHome (05 §2) ---------- */
+
+.explorer-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-4);
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.explorer-home__search-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface);
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-2);
+}
+
+.explorer-home__search-button {
+  width: 100%;
+}
+
+.explorer-home__section-title {
+  margin: 0 0 var(--space-3) 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  color: var(--ink-900);
+}
+
+/* Ciudades */
+.explorer-home__cities {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 600px) {
+  .explorer-home__cities {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.explorer-home__city-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  box-shadow: var(--elev-1);
+  transition: box-shadow var(--dur-base) var(--ease-standard), border-color var(--dur-base) var(--ease-standard);
+}
+
+.explorer-home__city-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--elev-2);
+}
+
+.explorer-home__city-card:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.explorer-home__city-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.explorer-home__city-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--surface-sunken);
+}
+
+.explorer-home__city-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-4);
+  background: var(--scrim-bottom);
+  color: var(--surface);
+}
+
+.explorer-home__city-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.explorer-home__city-name {
+  font-family: var(--font-voice);
+  font-size: var(--type-title-l-size);
+  line-height: var(--type-title-l-line);
+  font-weight: 500;
+  color: var(--surface);
+}
+
+.explorer-home__city-ja {
+  font-family: var(--font-voice);
+  font-size: var(--type-body-s-size);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.explorer-home__city-count {
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Más destinos */
+.explorer-home__more-row {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  scroll-snap-type: x mandatory;
+}
+
+.explorer-home__more-card {
+  flex: 0 0 200px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.explorer-home__more-card:hover {
+  background: var(--surface-sunken);
+}
+
+.explorer-home__more-card:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.explorer-home__more-name {
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  color: var(--ink-900);
+}
+
+.explorer-home__more-count {
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-500);
+}
+
+/* Colecciones */
+.explorer-home__collections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.explorer-home__collection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.explorer-home__collection-title {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  color: var(--ink-900);
+}
+
+.explorer-home__collection-subtitle {
+  margin: var(--space-1) 0 0 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-500);
+}
+
+.explorer-home__collection-carousel {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  scroll-snap-type: x mandatory;
+}
+
+.explorer-home__collection-item {
+  flex: 0 0 264px;
+  width: 264px;
+  scroll-snap-align: start;
+}
+
+/* Mapa de Japón Card */
+.explorer-home__map-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.explorer-home__map-card:hover {
+  background: var(--surface-sunken);
+}
+
+.explorer-home__map-card:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.explorer-home__map-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--ink-700);
+  flex-shrink: 0;
+}
+
+.explorer-home__map-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.explorer-home__map-card-title {
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  color: var(--ink-900);
+}
+
+.explorer-home__map-card-subtitle {
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  color: var(--ink-500);
 }

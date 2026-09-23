@@ -1,10 +1,11 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
+import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getNationalSummary, getPrefectureByCode } from "./data/geography";
 import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
+import { ExplorerHome } from "./components/ExplorerHome";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
@@ -86,10 +87,10 @@ const NATIONAL_SUMMARY = getNationalSummary();
  * is the whole country, not a city.
  */
 type ViewState =
-  | { mode: "national"; region: NavigationRegion | null; prefectureCode: string | null }
+  | { mode: "national"; mapOpen?: boolean; region: NavigationRegion | null; prefectureCode: string | null }
   | { mode: "hub"; hub: string };
 
-const INITIAL_VIEW: ViewState = { mode: "national", region: null, prefectureCode: null };
+const INITIAL_VIEW: ViewState = { mode: "national", mapOpen: false, region: null, prefectureCode: null };
 
 /**
  * Which of the two hub surfaces a phone is showing. On desktop both are on screen at once and
@@ -240,6 +241,13 @@ export default function App() {
    * sitio — el propio campo de texto, y `filters.query` que sigue alimentando, viven dentro. */
   const [searchOpen, setSearchOpen] = useState(false);
   const [citySheetOpen, setCitySheetOpen] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [globalQuery, setGlobalQuery] = useState("");
+
+  const globalSearchPlaces = useMemo(() => {
+    if (!globalQuery.trim()) return [];
+    return getAllPlaces().filter((p) => matchesQuery(p, globalQuery));
+  }, [globalQuery]);
   /** Phones show one hub surface at a time; the cards come first. */
   const [mobilePane, setMobilePane] = useState<MobilePane>("list");
   /**
@@ -858,7 +866,7 @@ export default function App() {
 
   const selectRegion = useCallback((region: NavigationRegion | null) => {
     setView((current) =>
-      current.mode === "national" ? { mode: "national", region, prefectureCode: null } : current
+      current.mode === "national" ? { mode: "national", mapOpen: true, region, prefectureCode: null } : current
     );
   }, []);
 
@@ -871,10 +879,10 @@ export default function App() {
   const selectPrefecture = useCallback((code: string | null) => {
     setView((current) => {
       if (current.mode !== "national") return current;
-      if (!code) return { ...current, prefectureCode: null };
+      if (!code) return { ...current, mapOpen: true, prefectureCode: null };
       const prefecture = getPrefectureByCode(code);
       if (!prefecture) return current;
-      return { mode: "national", region: prefecture.region, prefectureCode: code };
+      return { mode: "national", mapOpen: true, region: prefecture.region, prefectureCode: code };
     });
   }, []);
 
@@ -1144,6 +1152,8 @@ export default function App() {
                          conserva entonces centro, zoom y selección. En `md` son superficies
                          hermanas: el mapa conserva su propio sitio y no hay nada que compensar. */
                       panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
+                      travellers={travellers}
+                      interestSummaryFor={interestSummary}
                     />
                     <InterestLegend />
                     {filteredPlaces.length === 0 && (
@@ -1161,23 +1171,63 @@ export default function App() {
                       </div>
                     )}
                   </main>
-
-                  {ficheOrigin === "explorar" && placeDetailOverlay}
                 </div>
               </>
             ) : (
               nationalView && (
                 <div className="app__body app__body--national">
-                  <NationalExplorer
-                    activeRegion={nationalView.region}
-                    selectedCode={nationalView.prefectureCode}
-                    onSelectRegion={selectRegion}
-                    onSelectPrefecture={selectPrefecture}
-                    onEnterHub={enterHub}
-                  />
+                  {nationalView.mapOpen ? (
+                    <NationalExplorer
+                      activeRegion={nationalView.region}
+                      selectedCode={nationalView.prefectureCode}
+                      onSelectRegion={selectRegion}
+                      onSelectPrefecture={selectPrefecture}
+                      onEnterHub={enterHub}
+                      onCloseMap={() =>
+                        setView({ mode: "national", mapOpen: false, region: null, prefectureCode: null })
+                      }
+                    />
+                  ) : (
+                    <ExplorerHome
+                      onEnterHub={enterHub}
+                      onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
+                      onOpenNationalMap={() =>
+                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null })
+                      }
+                      onSelectPlace={(id) => selectPlace(id, "explorar")}
+                      onToggleSaved={toggleSavedWithFeedback}
+                      savedIds={activeInterestedIds}
+                      otherPersonMarkerFor={otherPersonMarkerFor}
+                    />
+                  )}
+
                 </div>
               )
             )}
+
+            {globalSearchOpen && (
+              <SearchSheet
+                hubName="todo Japón"
+                title="Buscar en todo Japón"
+                placeholder="Buscar en todo Japón"
+                query={globalQuery}
+                onQueryChange={setGlobalQuery}
+                results={globalSearchPlaces}
+                savedIds={activeInterestedIds}
+                selectedId={explorarSelectedId}
+                onSelect={(id) => selectPlace(id, "explorar")}
+                onToggleSaved={toggleSavedWithFeedback}
+                otherPersonMarkerFor={otherPersonMarkerFor}
+                emptyDescription={
+                  globalQuery.trim()
+                    ? `Nada con “${globalQuery.trim()}” en Japón. Prueba con otro nombre.`
+                    : undefined
+                }
+                onClose={() => setGlobalSearchOpen(false)}
+              />
+            )}
+
+            {ficheOrigin === "explorar" && placeDetailOverlay}
           </div>
 
           {/*

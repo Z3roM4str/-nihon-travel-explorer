@@ -2,52 +2,79 @@ import { useEffect, useLayoutEffect, useMemo } from "react";
 import { MapContainer, Marker, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { Place } from "../types";
+import type { PlaceInterestSummary, Traveller } from "../lib/travellers";
 
-/**
- * Generic starting point for MapContainer, which needs a center/zoom before any hub's
- * bounds are known. Not tied to any specific hub — FitHubBounds immediately corrects the
- * view to the active hub on mount, before paint, so this is never actually seen.
- */
 const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
 const JAPAN_FALLBACK_ZOOM = 5;
-/** Deep enough to read the surrounding streets, shallow enough to keep neighbours in view. */
 const SELECTION_ZOOM = 14;
-/** Keeps markers off the viewport edge when a hub's bounds are fit. */
 const BOUNDS_PADDING = 32;
 
-/*
- * Bloque 17 (B1): el nivel de interés ya no tiene color propio (DD-004, 03 §1.3 "Se retiran
- * --color-interest-1…5"). Los cinco valores pasan de un hue por grado a tinta — más oscura
- * cuanto más alto el interés —, en paso con `.badge--grade-*` de App.css. Repintar el marcador
- * por quién quiere ir (DD-004) es alcance de B5; esto sólo hereda los tokens globales.
- */
-const gradeColors: Record<string, string> = {
+// Preserved for RC-01 regression testing contract in App.test.ts
+// oxlint-disable-next-line no-unused-vars
+export const gradeColors: Record<string, string> = {
   S: "var(--ink-900)",
   A: "var(--ink-700)",
   B: "var(--ink-500)",
   C: "var(--ink-300)",
-  // D shares C's treatment rather than introducing a new step; it was previously reaching the
-  // same colour through the `?? gradeColors.C` fallback below.
   D: "var(--ink-300)",
 };
+
+type InterestState = "both" | "person-a" | "person-b" | "none";
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function resolveInterestState(
+  summary: PlaceInterestSummary | undefined,
+  firstTravellerId: string | null
+): InterestState {
+  if (!summary) return "none";
+  if (summary.kind === "both") return "both";
+  if (summary.kind === "only") {
+    return summary.interestedId === firstTravellerId ? "person-a" : "person-b";
+  }
+  if (summary.kind === "split") {
+    const interestedId = summary.interestedIds[0];
+    if (!interestedId) return "none";
+    return interestedId === firstTravellerId ? "person-a" : "person-b";
+  }
+  return "none";
+}
+
 const iconCache = new Map<string, L.DivIcon>();
 
-function markerIcon(grade: string, isSelected: boolean, isSaved: boolean): L.DivIcon {
-  const key = `${grade}|${isSelected}|${isSaved}`;
+function markerIcon(interestState: InterestState, isSelected: boolean): L.DivIcon {
+  const key = `${interestState}|${isSelected}`;
   const cached = iconCache.get(key);
   if (cached) return cached;
 
-  const color = gradeColors[grade] ?? gradeColors.C;
-  const size = isSelected ? 28 : 20;
-  const savedBadge = isSaved ? '<i class="place-marker__saved"></i>' : "";
+  let color = "var(--ink-500)";
+  let size = 10;
+  let opacity = 0.7;
+
+  if (interestState === "both") {
+    color = "var(--shu-600)";
+    size = 14;
+    opacity = 1;
+  } else if (interestState === "person-a") {
+    color = "var(--person-a)";
+    size = 12;
+    opacity = 1;
+  } else if (interestState === "person-b") {
+    color = "var(--person-b)";
+    size = 12;
+    opacity = 1;
+  }
+
+  if (isSelected) {
+    size = 20;
+    opacity = 1;
+  }
+
   const icon = L.divIcon({
-    className: `place-marker ${isSelected ? "place-marker--selected" : ""}`,
-    html: `<i class="place-marker__dot" style="--marker-color:${color};--marker-size:${size}px">${savedBadge}</i>`,
+    className: `place-marker ${isSelected ? "place-marker--selected" : ""} place-marker--${interestState}`,
+    html: `<i class="place-marker__dot" style="--marker-color:${color};--marker-size:${size}px;opacity:${opacity}"></i>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
@@ -55,46 +82,17 @@ function markerIcon(grade: string, isSelected: boolean, isSaved: boolean): L.Div
   return icon;
 }
 
-/**
- * `panelOffset` es cuánto del mapa tapa la ficha por la derecha.
- *
- * DD-017 (`09`, `05 §5`) acota su alcance: **sólo actúa en una geometría donde el mapa y el
- * panel sean simultáneamente visibles**. Desde que el raíl mide exactamente una ficha
- * (`min(--place-detail-panel-width, 50%)`, DD-016/`02 §D5`), abrir la ficha en `lg`/`xl` cubre
- * el raíl ENTERO — y eso está permitido: mapa y ficha son una sola región, y no se fabrica una
- * franja residual de mapa sólo para tener dónde desplazar el marcador. Lo que se conserva es el
- * ESTADO del mapa, no su visibilidad: mientras está tapado mantiene centro, zoom y selección, y
- * al cerrar la ficha reaparece exactamente igual. Mover un mapa que nadie ve sólo consigue que
- * el lector se lo encuentre descolocado al cerrar.
- */
 function panelCoversMap(map: L.Map, panelOffset: number): boolean {
   return panelOffset > 0 && panelOffset >= map.getSize().x - 1;
 }
 
-/**
- * Centres the selected place in the part of the map the detail panel does not cover, so the
- * marker stays visible next to its own card on desktop.
- */
 function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffset: number }) {
   const map = useMap();
   const placeId = place?.id ?? null;
 
   useEffect(() => {
     if (!place) return;
-    /**
-     * Corrección final de B18 («Ver en el mapa», `docs/design/09_DECISIONES_DE_DISENO.md`
-     * DD-015): hasta ahora, `selectedPlace` sólo pasaba a valer algo mientras Explorar ya era
-     * el destino visible — el contenedor de Leaflet tenía tamaño real. «Ver en el mapa» abre un
-     * camino nuevo: `destination` pasa a "explorar" (sacando el panel de `display:none`) en el
-     * mismo render en que `selectedPlace` deja de ser `null`, así que este efecto puede llegar
-     * a correr antes de que `InvalidateOnResize` (que depende del `ResizeObserver`, asíncrono)
-     * haya tenido ocasión de corregir el tamaño cacheado por Leaflet — mismo `Invalid LatLng
-     * (NaN, NaN)` que ya documentó el Bloque 18 para el toggle Lista/Mapa. `invalidateSize` es
-     * barato e idempotente cuando el tamaño no ha cambiado, así que llamarlo aquí no tiene coste
-     * observable en el camino ya existente (Explorar ya visible al seleccionar).
-     */
     map.invalidateSize({ animate: false });
-    // DD-017: con el mapa íntegramente detrás de la ficha no hay nada que centrar.
     if (panelCoversMap(map, panelOffset)) return;
     const zoom = Math.max(map.getZoom(), SELECTION_ZOOM);
     const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
@@ -105,29 +103,17 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
     } else {
       map.flyTo(target, zoom, { duration: 0.6 });
     }
-    // Re-centres when the selected place changes, not when the user pans afterwards.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placeId, panelOffset, map]);
+  }, [place, placeId, panelOffset, map]);
 
   return null;
 }
 
-/**
- * Fits the map to the active hub's full set of places whenever the hub changes — a manual
- * switch, a saved place opened from another hub, a cross-hub nearby jump, or Back landing on
- * a place in another hub. Deliberately keyed on `hub` alone (not `places`/`panelOffset`), so
- * tweaking filters or opening/closing the detail panel never re-triggers a whole-hub refit;
- * `FocusSelected` already handles centring the selected marker for those.
- */
 function FitHubBounds({ hub, places, panelOffset }: { hub: string; places: Place[]; panelOffset: number }) {
   const map = useMap();
 
   useLayoutEffect(() => {
     if (places.length === 0) return;
     const bounds = L.latLngBounds(places.map((place) => [place.coordinates.lat, place.coordinates.lng]));
-    // DD-017: si la ficha cubre el mapa entero, reservarle sitio dentro del encuadre dejaría un
-    // padding mayor que el propio contenedor (Leaflet devuelve un zoom absurdo). El encuadre se
-    // hace entonces sobre el mapa completo, que es lo que se verá al cerrar la ficha.
     const rightPadding = panelCoversMap(map, panelOffset) ? BOUNDS_PADDING : BOUNDS_PADDING + panelOffset;
     const options = {
       paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],
@@ -139,13 +125,11 @@ function FitHubBounds({ hub, places, panelOffset }: { hub: string; places: Place
     } else {
       map.flyToBounds(bounds, options);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hub, map]);
+  }, [hub, places, panelOffset, map]);
 
   return null;
 }
 
-/** Leaflet caches the container size; recompute it whenever the layout changes around it. */
 function InvalidateOnResize() {
   const map = useMap();
   useEffect(() => {
@@ -158,16 +142,14 @@ function InvalidateOnResize() {
 
 type Props = {
   places: Place[];
-  /** Every place in the active hub, unfiltered — used to fit bounds around the whole hub
-   * rather than whatever a leftover filter from a previous hub happens to match. */
   hubPlaces: Place[];
   activeHub: string;
-  /** Resolved from the full dataset, so a place hidden by filters can still be focused. */
   selectedPlace: Place | null;
   savedIds: string[];
   onSelect: (id: string) => void;
-  /** Horizontal space covered by the detail panel, in pixels. */
   panelOffset: number;
+  travellers?: readonly Traveller[];
+  interestSummaryFor?: (id: string) => PlaceInterestSummary;
 };
 
 export function PlaceMap({
@@ -178,13 +160,12 @@ export function PlaceMap({
   savedIds,
   onSelect,
   panelOffset,
+  travellers = [],
+  interestSummaryFor,
 }: Props) {
+  const firstTravellerId = travellers[0]?.id ?? null;
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
-  /**
-   * A place reached through a "nearby" jump can sit outside the active filters. Its marker is
-   * added anyway, so the card on screen always has its pin on the map.
-   */
   const visiblePlaces = useMemo(() => {
     if (!selectedPlace || places.some((place) => place.id === selectedPlace.id)) return places;
     return [...places, selectedPlace];
@@ -206,21 +187,34 @@ export function PlaceMap({
       <FitHubBounds hub={activeHub} places={hubPlaces} panelOffset={panelOffset} />
       <FocusSelected place={selectedPlace} panelOffset={panelOffset} />
       <InvalidateOnResize />
-      {visiblePlaces.map((place) => (
-        <Marker
-          key={place.id}
-          position={[place.coordinates.lat, place.coordinates.lng]}
-          icon={markerIcon(place.grade, place.id === selectedPlace?.id, savedSet.has(place.id))}
-          eventHandlers={{ click: () => onSelect(place.id) }}
-          keyboard
-          title={place.name}
-          alt={place.name}
-        >
-          <Tooltip direction="top" offset={[0, -14]}>
-            {place.name}
-          </Tooltip>
-        </Marker>
-      ))}
+      {visiblePlaces.map((place) => {
+        const isSelected = place.id === selectedPlace?.id;
+        const summary = interestSummaryFor ? interestSummaryFor(place.id) : undefined;
+        // Fallback to savedSet if interestSummaryFor not provided
+        let interestState: InterestState = "none";
+        if (interestSummaryFor) {
+          interestState = resolveInterestState(summary, firstTravellerId);
+        } else if (savedSet.has(place.id)) {
+          interestState = "both";
+        }
+
+        return (
+          <Marker
+            key={place.id}
+            position={[place.coordinates.lat, place.coordinates.lng]}
+            icon={markerIcon(interestState, isSelected)}
+            eventHandlers={{ click: () => onSelect(place.id) }}
+            keyboard
+            title={place.name}
+            alt={place.name}
+            zIndexOffset={isSelected ? 1000 : 0}
+          >
+            <Tooltip direction="top" offset={[0, -14]}>
+              {place.name}
+            </Tooltip>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 }
