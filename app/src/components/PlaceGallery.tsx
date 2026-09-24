@@ -59,28 +59,21 @@ function Attribution({ image }: { image: PlaceImage }) {
 }
 
 /** Shown until licensed photography exists for a place — never a stand-in photo of somewhere else. */
-function GalleryFallback({ imageBrief, placeName }: { imageBrief: string; placeName: string }) {
+function GalleryFallback({ placeName }: { placeName: string }) {
   return (
     <div className="gallery gallery--fallback">
       <div className="gallery__fallback-inner">
-        <span className="gallery__fallback-icon" aria-hidden="true">
-          ⛩
-        </span>
         <p className="gallery__fallback-label">Sin fotografía disponible todavía</p>
-        {imageBrief && (
-          <p className="gallery__fallback-brief">
-            <span className="visually-hidden">Imagen prevista para {placeName}: </span>
-            {imageBrief}
-          </p>
-        )}
+        <span className="visually-hidden">{placeName}</span>
       </div>
     </div>
   );
 }
 
-export function PlaceGallery({ images, imageBrief, placeName }: Props) {
+export function PlaceGallery({ images, placeName }: Props) {
   const [index, setIndex] = useState(0);
   const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [attempt, setAttempt] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const zoomButtonRef = useRef<HTMLButtonElement>(null);
@@ -148,7 +141,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   }, [lightboxOpen]);
 
   if (total === 0) {
-    return <GalleryFallback imageBrief={imageBrief} placeName={placeName} />;
+    return <GalleryFallback placeName={placeName} />;
   }
 
   const current = images[index];
@@ -178,7 +171,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
         {loadState === "error" ? (
           <div className="gallery__error">
             <p>No se pudo cargar la imagen.</p>
-            {imageBrief && <p className="gallery__fallback-brief">{imageBrief}</p>}
+            <button type="button" onClick={() => { setAttempt(value => value + 1); setLoadState("loading"); }}>Reintentar imagen</button>
           </div>
         ) : (
           <button
@@ -189,6 +182,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
             aria-label={`Ampliar imagen ${index + 1} de ${total}`}
           >
             <img
+              key={`${index}-${attempt}`}
               src={current.url}
               alt={current.alt}
               loading="lazy"
@@ -239,7 +233,7 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
         </div>
       )}
 
-      <Attribution image={current} />
+      <details className="gallery__attribution"><summary>Crédito de la foto</summary><Attribution image={current} /></details>
       <p className="visually-hidden" role="status">
         Imagen {index + 1} de {total}
       </p>

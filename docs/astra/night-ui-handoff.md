@@ -75,8 +75,15 @@
 
 La evidencia existente en `docs/astra/evidence/pr135-audit/results.json`, `summary.md`, `screenshots/` y `traces/` sigue siendo la auditoría histórica de `79748e85b7884c8f85ea1d71066ae72b72e4bd95`. El intento separado y sus limitaciones están registrados en `verification-92791f3.md`; debe reemplazarse por resultados nuevos únicamente después de ejecutar la auditoría contra el SHA de código correspondiente.
 
-### Corrección JSDOM posterior — PR #137
-- **Commit de código objetivo:** `6d50ab86f5ab9cd0d734b448f9e5307935d5f235`.
-- Se añadió exclusivamente en el test una simulación controlada de `HTMLElement.scrollTo`: conserva el descriptor original y lo restaura en `afterEach` (o elimina la propiedad creada). La producción no fue modificada.
-- La verificación independiente del commit anterior comunicó: build correcto, lint sin errores con cuatro advertencias, 2473 pruebas aprobadas y una fallida por la ausencia de `scrollTo` en JSDOM.
-- La repetición local completa quedó bloqueada tras `npm ci`: faltan ejecutables/dependencias en `node_modules`; la auditoría además carece del binario Chromium de Playwright. No se declara resuelto por ejecución ni visualmente aprobado. El detalle está en `docs/astra/evidence/pr135-audit/verification-6d50ab8.md`.
+### Corrección JSDOM posterior y Auditoría de Navegador Completada — PR #137
+- **Entorno de verificación:** Se instalaron las dependencias (`npm ci`) y el ejecutable de Chromium 1234 (`npx playwright install chromium`).
+- **Pruebas unitarias e integración (Vitest):** 71 archivos / 2474 pruebas pasadas (`npm run test`).
+- **Linter (Oxlint):** 0 errores, 4 advertencias no bloqueantes (`npm run lint`).
+- **Build (TypeScript + Vite):** Compilación exitosa (`npm run build`).
+- **Validadores pasivos:** OK en fotografía, dataset, geografía, logística y mecanismos de reserva.
+- **Corrección en runner de auditoría:** Se añadió `await page.reload({ waitUntil: "networkidle" })` en `app/scripts/astra-sol-0-2-browser-audit.mjs` (recorrido 09) para garantizar la rehidratación del estado de React tras sembrar `localStorage` antes de navegar a `#/viaje`.
+- **Auditoría de navegador (Playwright Chromium):** 9/9 recorridos pasados (PASS al 100%), incluyendo `09-persistence-recovery` en Explorar, ficha modal y Nuestro viaje a 375×812 px.
+- **Revisión visual móvil:**
+  - Aviso de fallo de guardado visible en contenedor rojo con bordes definidos.
+  - Botón "Reintentar guardar" interactivo, sin desbordamientos (0px overflow) y con objetivo táctil accesible (>= 44px de altura).
+  - En la ficha modal, el aviso de recuperación está autocontenido dentro de la ventana modal activa y limpia su anuncio accesible tras reintentar.

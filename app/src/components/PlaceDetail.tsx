@@ -8,6 +8,7 @@ import { describeTransferForUi, transferListFootnote } from "../lib/transfer-dis
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
+import { recommendationLabel } from "../astra/recommendation";
 
 type Props = {
   place: Place;
@@ -151,7 +152,7 @@ export function PlaceDetail({
               </p>
             )}
             <div className="tag-row">
-              <span className={`tag tag--grade-${place.grade}`}>Grado {place.grade}</span>
+              <span className={`tag tag--grade-${place.grade}`}>{recommendationLabel(place.grade)}</span>
               {isHiddenGem(place) && (
                 <span className="tag tag--gem">
                   <span aria-hidden="true">💎</span> {place.hiddenGemStatus}
@@ -163,16 +164,6 @@ export function PlaceDetail({
               )}
             </div>
           </header>
-
-          <button
-            type="button"
-            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
-            onClick={() => onToggleSaved(place.id)}
-            aria-pressed={isSaved}
-          >
-            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
-            {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
-          </button>
 
           <p className="place-detail__description">{place.description}</p>
 
@@ -214,6 +205,16 @@ export function PlaceDetail({
               </p>
             )}
           </section>
+
+          <button
+            type="button"
+            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
+            onClick={() => onToggleSaved(place.id)}
+            aria-pressed={isSaved}
+          >
+            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
+            {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
+          </button>
 
           <section className="place-detail__section">
             <h3>Información práctica</h3>

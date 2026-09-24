@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "auditedSha": "79748e85b7884c8f85ea1d71066ae72b72e4bd95",
-  "generatedAt": "2026-09-21T02:59:16.410Z",
-  "baseURL": "http://127.0.0.1:35081/",
+  "auditedSha": "abe7a624001d3b86727ece19201aa895eee63271",
+  "generatedAt": "2026-09-22T01:22:59.229Z",
+  "baseURL": "http://127.0.0.1:34225/",
   "results": [
     {
       "id": "01-viewports",
@@ -81,6 +81,16 @@
       "viewport": {
         "width": 320,
         "height": 800
+      },
+      "error": ""
+    },
+    {
+      "id": "09-persistence-recovery",
+      "name": "save failure and retry on explore, detail and trip",
+      "status": "PASS",
+      "viewport": {
+        "width": 375,
+        "height": 812
       },
       "error": ""
     }

@@ -1,0 +1,186 @@
+{
+  "checks": [
+    {
+      "width": 320,
+      "overflow": 0,
+      "columns": "288px",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 288,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 288,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    },
+    {
+      "width": 375,
+      "overflow": 0,
+      "columns": "343px",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 343,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 343,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    },
+    {
+      "width": 390,
+      "overflow": 0,
+      "columns": "358px",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 358,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 358,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    },
+    {
+      "width": 430,
+      "overflow": 0,
+      "columns": "398px",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 398,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 398,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    },
+    {
+      "width": 768,
+      "overflow": 0,
+      "columns": "none",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 178,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 240,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    },
+    {
+      "width": 1024,
+      "overflow": 0,
+      "columns": "none",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 178,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 240,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    },
+    {
+      "width": 1440,
+      "overflow": 0,
+      "columns": "none",
+      "selects": [
+        {
+          "text": "Todo Japón (214)",
+          "width": 178,
+          "height": 48,
+          "textWidth": 107.6455078125,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        },
+        {
+          "text": "Todas las experiencias",
+          "width": 240,
+          "height": 48,
+          "textWidth": 139.5556640625,
+          "paddingLeft": 16,
+          "paddingRight": 16,
+          "visibleEnough": true
+        }
+      ],
+      "operated": true
+    }
+  ]
+}
