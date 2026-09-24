@@ -9,7 +9,7 @@ Pulido editorial/UX/UI de la aplicación Astra existente, con datos y funciones 
 ## Checkout
 
 - Repositorio: `Z3roM4str/-nihon-travel-explorer`.
-- Worktree de trabajo: `C:/Users/Fer/OneDrive/Documentos/ChatGPT/nihon/astra-editorial-v1`.
+- Worktree de trabajo: `C:/Users/Fer/.codex/worktrees/astra-editorial-v1/nihon`.
 - Rama: `codex/astra-editorial-v1`.
 - Base verificada: `1d4c9cee7ad9ee864b7d4d4b3fdd79e0fd0625e4`, descendiente de la corrección CSS `95377a20ab06868ac0e5e631a92109a15f08686c`.
 - SHA de producto auditado: `e865bb7641dcb07848117cdc399aa7ee1cadbb77` (commits de producto `4e743a79a83f96f70701b7dac40fed5ca66b0a6d` y `e865bb7`). El commit posterior de este documento, si existe, no cambia producto; verificar el HEAD actual con `git rev-parse HEAD`.
