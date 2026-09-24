@@ -12,7 +12,7 @@ Pulido editorial/UX/UI de la aplicación Astra existente, con datos y funciones 
 - Worktree de trabajo: `C:/Users/Fer/.codex/worktrees/astra-editorial-v1/nihon`.
 - Rama: `codex/astra-editorial-v1`.
 - Base verificada: `1d4c9cee7ad9ee864b7d4d4b3fdd79e0fd0625e4`, descendiente de la corrección CSS `95377a20ab06868ac0e5e631a92109a15f08686c`.
-- SHA de producto auditado: `e865bb7641dcb07848117cdc399aa7ee1cadbb77` (commits de producto `4e743a79a83f96f70701b7dac40fed5ca66b0a6d` y `e865bb7`). El commit posterior de este documento, si existe, no cambia producto; verificar el HEAD actual con `git rev-parse HEAD`.
+- SHA de producto auditado en el cierre anterior: `e865bb7641dcb07848117cdc399aa7ee1cadbb77`. Para el estado más reciente, consulta la sección Actualización de cierre 2026-09-24 al final; su commit de documentación posterior no cambia producto.
 - Worktree Astra histórico `C:/Users/Fer/.codex/worktrees/astra-pr139-audit/nihon` permanece en `1d4c9ce`, limpio al preflight. El checkout B21 principal y sus archivos sin seguimiento no se tocaron.
 
 ## Terminado
@@ -48,3 +48,21 @@ No se hizo push, merge, PR ni despliegue. GitHub remoto presenta el bloqueo hist
 Tras el commit de este documento debe quedar el worktree limpio. Consultar `git status --short` para confirmar. No incluir capturas masivas ni el script temporal en Git; están en la ruta de evidencia externa indicada arriba.
 
 **Siguiente acción concreta:** iniciar revisión independiente con el SHA de producto y las evidencias indicadas. Si se autoriza publicación, verificar primero el HEAD remoto del PR y resolver TLS/autenticación mediante mecanismos autorizados; no mezclar Claude/B21 ni tocar `main`.
+
+## Actualización de cierre 2026-09-24
+
+Este bloque registra el estado vigente y complementa la auditoría anterior de e865bb7. Al retomar, lee primero este archivo y confirma git status, rama y git rev-parse HEAD antes de editar.
+
+- Base de este cierre: 557d60ceb6cd5a9d5b4a216e258f5e1ceee20773.
+- Código final de Astra verificado: c40281322930e4995fb6ccc48da686cabfbc7a64, rama codex/astra-editorial-v1, worktree C:/Users/Fer/.codex/worktrees/astra-editorial-v1/nihon. El commit siguiente contiene solo esta actualización de continuidad.
+- Correcciones: ambos accesos a “Limpiar filtros” llaman a la misma operación y preservan destino/modo; la acción Explorar domina cuando no hay guardados ni plan y un plan V7 existente conserva su acceso principal; los controles para reordenar el recorrido tienen 44 px.
+- Pruebas de comportamiento nuevas: cuatro pruebas Astra sobre reset desde resumen/panel, estado vacío y plan existente sin guardados. La última confirma que el contenido V7 y el almacenamiento no cambian al abrirlo.
+- Sobre el SHA c402813: lint salida 0 (tres advertencias existentes); build salida 0 (aviso existente de bundle mayor de 500 kB); npx vitest run src/astra --reporter=dot pasó 6 archivos/28 pruebas; npm test -- --reporter=dot pasó 69/72 archivos y 2475/2478 pruebas. Los tres fallos restantes son los chequeos de texto sensibles a CRLF documentados abajo. No se cambiaron ni debilitaron pruebas.
+- Diagnóstico CRLF: fallan OrderedSequenceBuilder.interior-transposition.test.ts, OrderedSequenceBuilder.local-swap.test.ts y feb-mar-status.test.ts, al comparar literalmente fuente CRLF. La reproducción controlada anterior normalizó solamente OrderedSequenceBuilder.tsx y scripts/temporal_data_lib.py a LF en una copia aislada y pasó 2474/2474 en e865bb7. Estas correcciones no alteran esos archivos ni pruebas; no se repitió esa normalización. En el cierre actual las mismas tres comprobaciones fallan y 2475 pruebas pasan.
+- Auditoría de navegador sobre c402813: 9/9 PASS al repetirla en aislamiento. La ejecución paralela inicial tuvo un timeout en image-retry; su reintento aislado pasó. La suite Astra también tuvo dos esperas de carga diferida en una primera ejecución concurrente; la repetición aislada pasó 28/28.
+- Revisión visual sobre c402813: 17 capturas nuevas en 320, 390 y 1440 px: cuatro estados de Nuestro viaje, comparación, planificador con ruta V7, estados vacío y V7 sin guardados, y Regiones. El mapa terminó de cargar con 47 geometrías y 24 accesos de región en cada ancho. Cero fallos de recurso en las capturas. No hubo overflow horizontal. Todas las acciones de las cuatro filas midieron al menos 44 px. JP-004 (Takeshita Street) no tiene imagen en los datos y se muestra sin miniatura fabricada.
+- Evidencia completa del cierre: C:/Users/Fer/.codex/visualizations/2026/09/24/01a0d19e-6a10-7062-964e-67a1b9a9ee8c/astra-editorial-close-c402813-visual/.
+- Paquete ligero para revisión: C:/Users/Fer/.codex/visualizations/2026/09/24/01a0d19e-6a10-7062-964e-67a1b9a9ee8c/ASTRA_REVISION_CIERRE.zip. El ZIP anterior completo C:/Users/Fer/OneDrive/ASTRA_REVISION_FINAL.zip no se duplicó.
+- Sin push, merge, PR ni despliegue; main y Claude/B21 no se modificaron. Pendientes: revisión independiente y publicación autorizada con acceso GitHub válido. Las tres pruebas CRLF siguen fallando en el checkout Windows, aunque la causa está reproducida y aislada.
+
+Siguiente acción concreta: revisar ASTRA_REVISION_CIERRE.zip, comenzando por su README.md; si se solicita una corrección a partir de esa revisión, trabajar solo en codex/astra-editorial-v1.
