@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 200,
+  "imageCount": 203,
   "images": [
     {
       "placeId": "JP-001",
@@ -3604,6 +3604,60 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRnoBAABXRUJQVlA4IG4BAADwBwCdASoUAA8APhkIg0EhBgEABABhKAJ0yhHAiwKEBtgP0lvQDeRW+s+uTQ+OT/T72AP4//Nv8b+ZY3Xz5tliEKGdBooIwYAA/vmj1nvDTBJyCCP+8+x89B/Wg5TlRfw/+9T/PN3+GDV9viuKn/DX/+qgC8uPdt/9ZABh4BaDToPVuY8d5FWNLbzn/SbeifO0fAyV3154F+NiNaihT8JaX/8krJrOeyCmmb+VErf+fh2khdq2ZyJ+zzr0UubrwOOPf+FP3bel5hdSyNAP1LWH3of80vH85kRqhzL3jB6gZ3LvL8Gv+P+3/P8tf9eRecHLiD85TC/mz2LsaKVVFGf8Dn/mv7mfoOBXHNL3lGP63bK52x2mNW/wMinP9XrnSOz9Ns3qCOUmL8z3/+bdKBVN1teL/xcv2FL/fz0WRm0RuCeg8frKuDU3T2Xep10y6xgjv7Hhb5GayN+I6NeMheo8beC9NyS/GZV/6OTJ8AA="
+    },
+    {
+      "placeId": "JP-025",
+      "assetPath": "images/places/JP-025/akihabara-pedestrian-crossing.webp",
+      "alt": "Peatones cruzan una calle de Akihabara entre los edificios de tiendas y electrónica del barrio.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AAkhibara_Crossing_%2814663984721%29.jpg",
+      "credit": "Julien G.",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Akhibara_Crossing_%2814663984721%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Akhibara Crossing (14663984721).jpg",
+      "originalWidth": 4928,
+      "originalHeight": 3264,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAAAQDACdASoUAA0AAAAAJZwCdMoRwIsCrqxYBzunsbfsl+wHtKXKX6AOmP9OclP8t/En8mdQB/M/xA/XLLAfyX8QPxy13T8gNeJ/jPPC/jvIF8N/6X1JP8F+WnGjHlSRw8Lyo4FcPEU/wCAA/v//pbYO+RTUam6FGbb1f7QAF+Umq+ZNb8tu3Xuts39/2C9ruajZLJYh505mUzg/MW9JuxBtddH+b39qoVC+TkcvG+2/uAUyESn+5dlDqixNXStregwWszaCCQyT/BKWbyGZ5Qn/2J6Uc6+3khVZILLTn72DhCdsResAY9k3AQJ/VfQxjvRAHRLQyHMCxPm1YpLXd9ZXvMxDVtIIc//bVAP/1P3/lye2rB5TPUP/8XLHtlSJeimWNfArwl+LiwGLP7KOX6uf7oBlXWg3PY3+1Ip7t5Pd1f6UvSZHz09xWTV/vX/4hN8m389/jjAxdnd9KgJNsQ+axdYfzSZmstko2///KrCowwD5rIBzMrRWnbtjOY4pVNFHD+r3Qmb83+F4mC1Tm+oL3dtDIncAAAA="
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-otowa-fountain-visitors.webp",
+      "alt": "Visitantes esperan su turno en la fuente Otowa de Kiyomizu-dera, bajo los tejados y árboles del recinto.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AJapan_Kyoto_KiyoMizuDera_crowds_queueing_fountain_DSC00685.jpg",
+      "credit": "David Monniaux",
+      "license": "CC BY-SA 3.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Japan_Kyoto_KiyoMizuDera_crowds_queueing_fountain_DSC00685.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Japan Kyoto KiyoMizuDera crowds queueing fountain DSC00685.jpg",
+      "originalWidth": 2592,
+      "originalHeight": 1728,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAAAQDACdASoUAA0AAAAAJZACdMoRwN6B+KtSBuANEB+i2SAc977GvlFUoJ6B+HOSi+ifi5nlPxryC/7APMC/ALiJ/jPtm9kDwIP8B7gv8V/kP9k/Iz99fpA6hr9jjxlNWNIfA3Pb1w3bjCAA/v/+f6G/4LnS3RUo6E2u09zzQQLGoKXzqA97eW3Z0ucbZa/Uqn+n//2jSuyn6rr/JkDaLeyPL3vhUB/SkP6/MJyvvDvdhkScg4HZk34etArRn+1Rl+H/97OtvUfvLbQxAa25QH/yTFnwPqpyRo972KX//RRpep6a4Xao9aJVHKnmestSLaSfAl03ekEetL6/xHoueyyhQIg/E4fxDdZ7e2kMiO6XvDuQvivwGhvCYq0XWDqmLYr/8a1ftbjmmvKZ/qP/i0w40Xn02uGZyxy2tR34uXp/2Y+wCqN+e0Dm7/+GlWNhBNqnfGKH3Y+zp6b6L39Rt7i/Ik/b3nJntsJ/57s+kKJkXwMcEtYstCP6SUpXb+H/NwsUkPu1CWq6dH25kXXAD+XGqxzAfDAw3rYf/z2iC/HtGP9qTgKB9qTWQjeb2IkRO16u3AAA"
+    },
+    {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/fushimi-inari-shrine-visitors.webp",
+      "alt": "Visitantes recorren la escalinata frente a uno de los edificios bermellones del santuario Fushimi Inari.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AVisitors_at_Fushimi_Inari_temple_in_Kyoto_%2853612593452%29.jpg",
+      "credit": "Sergiy Galyonkin from Raleigh, USA",
+      "license": "CC BY-SA 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/2/28/Visitors_at_Fushimi_Inari_temple_in_Kyoto_%2853612593452%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Visitors at Fushimi Inari temple in Kyoto (53612593452).jpg",
+      "originalWidth": 8682,
+      "originalHeight": 5692,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAABwDACdASoUAA0AAAAAJYgCdMoR3N6TTAVwD9Jf8B/K/f/0wDnnvYV/ZT0arkB+AH6S9gN2z9TckE82/HfPb/iNkgP6r+IHiAb7NrMHGof3T3Bv4h/FP51+Tv965Br9VTLT0/nSEV6kRJx3mYAA/v/+3m9Ivpi1OzbuZzMx/LFcakb4eMba/lxlNwt/CL9QLad+89Ezil4UJCSaM8uLCkng16IoM3zjkQzm9vjgaPzsuRn4MlqGGm2w/snI/wLm7+lMwU9Q87paVfOf2JD/hwA7UoehraL+n4iMSBHrdDaoE10rGwsZ0KmmDJZDQQZdQJjk0Pkhnst392ctN/fRZFj1j7s32+Hf8pV5fKh9kAArfi2n/47A/jf6lHJ+2sOFFv0bV+5uCFj/E93yR7XzMu8jGAv//zuX+O8CxMH1v/1//Ibbw/OriG1maHw/VH+//xJrEf9uz/hWyf45bsXpSbd3r8953c/wkWonif/tWDV3iLgMPfjzQWn+dZnz70wyuEy8Wub+W2gax/3P4Cqkks1ntbYA9cD7jIPIrZJ9v7NdKw0vlDnW11R8hT1mf5p9/y431f/5Ufvk7+uMV4qm81/St21hPA+Evw+ulQ3YTF+uyO/gAAA="
     }
   ]
 }

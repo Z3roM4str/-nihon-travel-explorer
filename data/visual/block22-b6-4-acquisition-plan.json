@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "acquisitionDate": "2026-09-24",
+  "batchSize": 8,
+  "batches": [
+    {
+      "batch": 1,
+      "entries": [
+        {
+          "placeId": "JP-025",
+          "slug": "akihabara-pedestrian-crossing",
+          "title": "File:Akhibara Crossing (14663984721).jpg",
+          "role": "experience",
+          "alt": "Peatones cruzan una calle de Akihabara entre los edificios de tiendas y electrónica del barrio.",
+          "whyExperience": "Muestra peatones caminando y la escala de la calle en uso, en vez de la intersección vacía que presenta la identity.",
+          "identityComparison": "El candidato está tomado desde otra calle y centra el cruce y el flujo de peatones; la identity es una intersección diurna con edificios y señalética. La escala humana y el movimiento son información nueva.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Akhibara_Crossing_(14663984721).jpg",
+          "originalPage": "https://www.flickr.com/photos/bfishadow/14663984721/"
+        },
+        {
+          "placeId": "JP-054",
+          "slug": "kiyomizu-dera-otowa-fountain-visitors",
+          "title": "File:Japan Kyoto KiyoMizuDera crowds queueing fountain DSC00685.jpg",
+          "role": "experience",
+          "alt": "Visitantes esperan su turno en la fuente Otowa de Kiyomizu-dera, bajo los tejados y árboles del recinto.",
+          "whyExperience": "La cola en la fuente documenta un ritual que hacen los visitantes y ofrece escala humana dentro del recinto.",
+          "identityComparison": "La identity es una vista amplia del salón principal con follaje otoñal y sin actividad. El candidato muestra el ritual de Otowa desde otro punto del templo, con visitantes en circulación; no repite la fachada.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Japan_Kyoto_KiyoMizuDera_crowds_queueing_fountain_DSC00685.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Japan_Kyoto_KiyoMizuDera_crowds_queueing_fountain_DSC00685.jpg"
+        },
+        {
+          "placeId": "JP-066",
+          "slug": "fushimi-inari-shrine-visitors",
+          "title": "File:Visitors at Fushimi Inari temple in Kyoto (53612593452).jpg",
+          "role": "experience",
+          "alt": "Visitantes recorren la escalinata frente a uno de los edificios bermellones del santuario Fushimi Inari.",
+          "whyExperience": "Presenta el acceso al santuario en uso con visitantes y escala de la arquitectura.",
+          "identityComparison": "La identity muestra un corredor de torii vacío. El candidato cambia de punto y de sujeto: personas suben la escalinata hacia un edificio del santuario. Añade visita y escala sin duplicar el pasaje de torii.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Visitors_at_Fushimi_Inari_temple_in_Kyoto_(53612593452).jpg",
+          "originalPage": "https://www.flickr.com/photos/22974618@N00/53612593452"
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-021",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Las fotos localizadas de interiores con visitantes eran vacías o mostraban objetos sin una experiencia espacial. La única escena de visita activa localizada muestra de forma prominente a Hello Kitty durante un evento temporal; se rechaza porque la licencia del fotógrafo no resuelve los derechos del personaje. No se cambia el rol de la imagen context existente.",
+          "searchSources": ["Wikimedia Commons", "Flickr", "Tokyo National Museum official photography guidance"],
+          "candidatesRejected": [
+            {
+              "title": "Tokyo National Museum (54166142528).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Tokyo_National_Museum_(54166142528).jpg",
+              "reason": "Escena de evento con Hello Kitty y señal promocional como elementos centrales; riesgo de copyright de personaje no resuelto."
+            },
+            {
+              "title": "Interior view - Tokyo National Museum - DSC05447.JPG",
+              "url": "https://commons.wikimedia.org/wiki/File:Interior_view_-_Tokyo_National_Museum_-_DSC05447.JPG",
+              "reason": "CC0 y ubicación verificables, pero sala vacía con ornamentación; no comunica visita, recorrido ni escala humana."
+            },
+            {
+              "title": "Tokyo National Museum closed by COVID-19.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Tokyo_National_Museum_closed_by_COVID-19.jpg",
+              "reason": "Exterior cerrado y sin visitantes; no representa la experiencia dentro del museo."
+            }
+          ],
+          "officialGuidance": "https://www.tnm.jp/modules/r_free_page/index.php?id=127&lang=en"
+        },
+        {
+          "placeId": "JP-033",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "La identity actual corresponde a la sede de Azabudai Hills inaugurada en 2024. Las imágenes con experiencia encontradas de la sede nueva muestran obras inmersivas de teamLab; la licencia CC del fotógrafo no aclara los derechos de esas obras. Las imágenes licenciadas de Odaiba son de una sede anterior y no representan el lugar actual.",
+          "searchSources": ["Wikimedia Commons", "Flickr"],
+          "candidatesRejected": [
+            {
+              "title": "TeamLab Borderless, Odaiba, Tokyo, Japan (49070113608).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:TeamLab_Borderless,_Odaiba,_Tokyo,_Japan_(49070113608).jpg",
+              "reason": "Sede anterior de Odaiba, no la ubicación actual de Azabudai Hills; además muestra una instalación artística contemporánea."
+            },
+            {
+              "title": "teamLab Borderless: MORI Building DIGITAL ART MUSEUM",
+              "url": "https://www.flickr.com/photos/greentulips/sets/72177720329401968",
+              "reason": "Las escenas de instalación que muestran el recorrido están dominadas por obras de teamLab cuyos derechos no se resuelven con la licencia del fotógrafo."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-044",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "El museo prohíbe fotografiar sus interiores. Las escenas de visita encontradas en fuentes licenciadas dependen de personajes y diseños de Studio Ghibli (incluido el acceso/taquilla de Totoro), cuyos derechos no quedan cubiertos por la licencia del fotógrafo. Los registros externos restantes muestran solo el edificio vacío y no añaden experiencia frente a la identity.",
+          "searchSources": ["Wikimedia Commons", "Flickr", "Ghibli Museum official visitor guidance"],
+          "candidatesRejected": [
+            {
+              "title": "Ghibli Museum Exterior Entrance Totoro Ticket Booth, Inokishira Park",
+              "url": "https://www.flickr.com/photos/joshuamellin/53491817733/",
+              "reason": "El puesto/figura de Totoro es un elemento central con copyright contemporáneo no aclarado."
+            },
+            {
+              "title": "TT061204-16J ghibli museum entrance sign.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:TT061204-16J_ghibli_museum_entrance_sign.jpg",
+              "reason": "Señal y exterior estáticos, sin personas ni recorrido; no aporta una segunda dimensión experience."
+            },
+            {
+              "title": "Ghibli museum.png",
+              "url": "https://commons.wikimedia.org/wiki/File:Ghibli_museum.png",
+              "reason": "Exterior vacío y casi frontal, redundante con la identity."
+            }
+          ],
+          "officialGuidance": "https://www.ghibli-museum.jp/en/"
+        },
+        {
+          "placeId": "JP-077",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "Se buscaron rutas, senderos y casas de té con personas en Commons, repositorios DPLA y Flickr. Las rutas con licencia compatible disponibles son reproducciones de archivo subexpuestas y sin visitantes; una escena con personas es también muy oscura y no permite apreciar la experiencia. Las imágenes adecuadas para ver jardines son vacías y repiten la información de paisaje de la identity.",
+          "searchSources": ["Wikimedia Commons", "Digital Public Library of America", "Flickr"],
+          "candidatesRejected": [
+            {
+              "title": "Katsura Imperial Villa: Stone walkway and porch (DPLA/Commons scan)",
+              "url": "https://commons.wikimedia.org/wiki/Category:Katsura_Imperial_Villa",
+              "reason": "Archivo con licencia CC BY 4.0 pero severamente subexpuesto; no permite leer el recorrido o la relación con la arquitectura."
+            },
+            {
+              "title": "Katsura Imperial Villa garden path (DPLA/Commons scan)",
+              "url": "https://commons.wikimedia.org/wiki/Category:Katsura_Imperial_Villa",
+              "reason": "Sendero vacío y muy oscuro, sin escala humana ni lectura clara del recorrido."
+            },
+            {
+              "title": "Katsura Imperial Villa visit photo",
+              "url": "https://www.flickr.com/photos/freakland/217158196/",
+              "reason": "La página solo declara Some rights reserved y no identifica una licencia reutilizable permitida."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-089",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "Se buscaron jardines, rutas interiores y escenas con visitantes en Commons, Flickr y Openverse. Los candidatos licenciados localizados muestran jardines vacíos y aportan contexto o detalle, pero no muestran recorrido, personas ni uso del palacio. Una segunda arquitectura vacía sería redundante con la identity.",
+          "searchSources": ["Wikimedia Commons", "Flickr", "Openverse"],
+          "candidatesRejected": [
+            {
+              "title": "Nijojo-ninomaru-garden04s3s4592.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Nijojo-ninomaru-garden04s3s4592.jpg",
+              "reason": "Jardín vacío; aporta contexto del recinto, no cómo se recorre o se usa."
+            },
+            {
+              "title": "Gardens of the Nijo Castle, Kyoto (14635952117).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Gardens_of_the_Nijo_Castle,_Kyoto_(14635952117).jpg",
+              "reason": "CC0 pero composición de jardín vacía y sin visitantes; no se considera experience."
+            },
+            {
+              "title": "Ninomaru Garden @ Nijo Castle @ Kyoto (13405502463).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Ninomaru_Garden_%40_Nijo_Castle_%40_Kyoto_(13405502463).jpg",
+              "reason": "Otra vista de jardín vacío, redundante con la identity y sin información de actividad o recorrido."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
