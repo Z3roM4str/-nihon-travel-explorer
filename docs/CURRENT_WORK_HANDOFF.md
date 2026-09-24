@@ -8,7 +8,7 @@
 | B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
 | B6.2 | **CERRADO CON 9 UNRESOLVED** — 26/35 objetivos Grado A adquiridos; **no apto para integración** sin decisión sobre los unresolved. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
 | Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` (base `88b9592c4351c8a48ccd216d372797d535d63968`) |
-| SHA estable final B6.2 | `@@CLOSE_SHA@@` (commit de cierre) + el commit de este handoff, sólo documental |
+| SHA estable final B6.2 | `3c108c4d6490bcc305f34560e89e096c7837f334` (commit de cierre) + el commit de este handoff, sólo documental |
 | Cobertura Grado A | **138/147** (antes 112/147); 9 sin fotografía: JP-050, JP-079, JP-095, JP-120, JP-121, JP-156, JP-168, JP-195, JP-202 |
 | Registro | **193 imágenes / 187 lugares** (no 202/196: faltan los 9 unresolved) |
 | Grado S | **32/32** |
