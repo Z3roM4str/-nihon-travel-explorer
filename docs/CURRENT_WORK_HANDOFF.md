@@ -1,57 +1,28 @@
-# Handoff reanudable — estado actual del trabajo
+# Handoff reanudable — B21 + B6.1
 
-> **Este fichero es la única fuente de verdad para retomar el trabajo.** Se actualiza y se
-> empuja en cada checkpoint estable, no sólo al cerrar un bloque. Si una sesión se corta, otro
-> agente debe poder continuar usando exclusivamente: la rama remota, el último SHA pusheado,
-> este fichero y los documentos normativos de `docs/design/`.
+**Última actualización:** 2026-09-23. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
-**Última actualización:** 2026-09-21 · **INTEGRACIÓN B21 + B6.1 COMPLETADA Y VERIFICADA EN `integration/b21-b6-1`**
-
----
-
-## 1. Dónde estamos
-
-| | |
+| Campo | Estado remoto observable |
 |---|---|
-| **Bloque actual** | **Bloque 21 (B5 — Explorar: portada y mapa) + Bloque 22 (B6.1 — Fotografía Grado S). INTEGRACIÓN FINALIZADA.** |
-| **Rama actual** | `integration/b21-b6-1` (rama de integración derivada de B21 `b16a9e6` e integrando B6.1 `e6693a4`) |
-| **Último SHA estable B21** | `b16a9e62fe09d57fbba86cf16fb43ecfd2aa3496` en `codex/block-21-b5-explore-home-map` |
-| **SHA B6.1 / PR #138** | `e6693a4ffe89400b356c8159fb47865d075808a4` en `codex/block-22-b6-1-grade-s-photography` |
-| **Estado del working tree** | Limpio para archivos rastreados. |
-| **Estado de la suite** | Build/lint verdes (`0 warnings, 0 errors`); suite Vitest completa verde (`99 test files / 3324 tests passing`). Validadores Python de fotografía (38/38 y 28/28 passing). Gates Phase 5A RC verdes (50/50 desktop & mobile). |
-| **Siguiente acción** | Confirmación final de la integración y entrega al usuario. |
+| Bloque actual | B21 implementado y B6.1 integrado/verificado dentro del PR #141; certificación final B21 PASS tras corregir origen, hub, browser back y scroll de búsqueda global |
+| Rama actual | `codex/block-21-b5-explore-home-map-10303448645469361664` |
+| PR de consolidación | [#141](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/141), abierto contra la rama canónica B21 |
+| Base canónica B21 | `codex/block-21-b5-explore-home-map` @ `7e0e83339ad0ea46be8cfb52befd14b3e67d0632` |
+| HEAD remoto de #141 al iniciar la auditoría | `80f148b5380bc2ba022f22eac36163f1f1e089ff` |
+| B6.1 fuente | `e6693a4ffe89400b356c8159fb47865d075808a4` / [PR #138](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/138), abierto y sin merge |
 
----
+La historia remota de #141 contiene un solo commit posterior a la base B21. El SHA B6.1 no es ancestro del PR, pero los archivos de fotografía consolidados coinciden por contenido con la fuente. No existe remotamente `integration/b21-b6-1`; los checkpoints locales antes citados no representan commits publicados por separado. Véase `docs/B21_B6_1_INTEGRATION_REPORT.md` para el diff, los gates y la evidencia.
 
-## 2. Estado de Checkpoints B21
+## Certificación técnica de esta auditoría
 
-1. **Checkpoint Documental (DDR-B21-01…06):** RESUELTO y registrado (`dc2fd7b`).
-   - DDR-B21-01 (DD-003): OSM tile filter `saturate(.25) contrast(.92) brightness(1.04)` aplicado.
-   - DDR-B21-02: Sección «Más destinos» con contadores dinámicos ("X lugar(es) por ahora").
-   - DDR-B21-03: Subtítulo dinámico «47 prefecturas · 15 con lugares en Nihon».
-   - DDR-B21-04: Líneas editoriales exactas fijadas en las 4 colecciones derivativas.
-   - DDR-B21-05: Búsqueda global «Buscar en todo Japón» sobre los 214 lugares con retención de estado de vuelta a Portada.
-   - DDR-B21-06: Mapa de nombres japoneses (Tokio → 東京, Kioto → 京都, Osaka → 大阪, Okinawa → 沖縄) con `lang="ja"`.
-2. **Checkpoint B (Portada):** COMPLETADO (`0ef1fb1`). `ExplorerHome` implementado con cabecera, búsqueda global, 4 tarjetas de ciudad principales con nombres en japonés, «Más destinos» (Sapporo, Nagoya, Fukuoka) con contadores y pluralización dinámica, 4 colecciones derivadas y tarjeta «Ver Japón en el mapa».
-3. **Checkpoint C (Mapa Nacional):** COMPLETADO (`df16689`, `952d436`). Superficie nacional a pantalla completa con geometría GeoJSON de MLIT para 47 prefecturas y 9 regiones, bottom sheet de 3 posiciones (`asa`, `25%`, `75%`) navegable por táctil/teclado, atribución MLIT en modal/sheet y botón «‹ Volver a la portada».
-4. **Checkpoint D (Mapa de Ciudad + Responsive):** COMPLETADO (`fa6a91b`). Implementación literal de DD-004 (marcadores de mapa codificados por interés de persona: `both`, `person-a`, `person-b`, `none`, `selected`), `InterestLegend` actualizado para describir el interés por persona, filtro OSM DD-003 aplicado y preservados todos los invariantes DD-015/016/017.
-5. **Checkpoint E (Cierre Técnico):** COMPLETADO. Build, oxlint, Vitest (99/99 ficheros, 3322/3322 tests), audits de navegador B17–B21 / Phase 5A RC ejecutados y verdes.
-6. **Checkpoint F (Integración B21 + B6.1):** COMPLETADO en rama `integration/b21-b6-1`. Merge sin conflictos, validadores de fotografía Python (38/38, 28/28), build, oxlint (0 errors, 0 warnings), Vitest (99 test files / 3324 tests passing) y audit Phase 5A RC (50/50 desktop, 50/50 mobile). Documentado en `docs/B21_B6_1_INTEGRATION_REPORT.md`.
+- Fotografía: 167 imágenes, 161 lugares, 32/32 S; `validate-photography.py` PASS; Python 38/38, 28/28 y 8/8; derivados 400/800 px PASS.
+- Frontend: build PASS; lint código 0 con una advertencia de Fast Refresh; Vitest 100 archivos, 3327/3327. La advertencia Fast Refresh de `PlaceMap.tsx:14` es heredada de la base B21; la afirmación anterior de 0 warnings era incorrecta.
+- Gates heredados: B17, B18, B19, B20, DDR-03, Block 1 UX, Block 2 Photography, Phase 5A RC y seis auditorías Phase 4 Photography ejecutados; resultados individuales en el informe.
+- Navegador B21: portada, búsqueda, mapas, fotografía local, ficha y responsive comprobados en 390×844, 1440×900 y 1600×900; raíl xl 31,7 % del cuerpo; sin overflow, errores de consola o fetch fotográfico externo.
+- **B21 corregido:** `exploreDetailReturnRef` identifica explícitamente la ficha abierta desde búsqueda global; no cambia el hub subyacente. `Sheet` restaura `.sheet__body.scrollTop` desde un ref y `focus({ preventScroll: true })` evita el reset posterior. El cierre explícito limpia el contexto; la búsqueda de ciudad conserva su comportamiento.
+- **Gate B21 permanente:** `b21-global-search-browser-audit.mjs` PASS 33/33 en móvil y 33/33 en escritorio; UI back, browser back y cadena Cerca de aquí restauran consulta `a`, 214 resultados y scroll 360→360 tras dos frames. La portada nacional sigue subyacente, el cierre vuelve a portada y Buscar en Tokio no hereda retorno global.
+- **Regresión repetida tras el arreglo:** B18 browser back 15/15, regression 40/40; B19 discovery 30/30, grid 52/52; B20 73/73; DDR-03 43/43; Block 1 UX 153/153; Phase 5A desktop/mobile 50/50 cada uno. Build PASS, lint exit 0 con una advertencia heredada, Vitest 100 archivos/3327 tests. Fotografía B6.1 sin cambios; se conserva toda su evidencia anterior.
 
----
+## Estado de entrega
 
-## 3. Resumen de Commits Locales en B21
-
-- `dc2fd7b` — `docs: registra y reconcilia DDR-B21-01...06`
-- `0ef1fb1` — `feat(B21): implementa Checkpoint B - Explorar Inicio (portada)`
-- `df16689` — `feat(B21): implementa Checkpoint C - Mapa Nacional (Explorar Mapa de Japón)`
-- `952d436` — `docs: actualiza handoff para Checkpoint C (Mapa Nacional)`
-- `fa6a91b` — `feat(B21): implementa Checkpoint D - Mapa de Ciudad + Responsive (DD-003, DD-004)`
-- `b16a9e6` — `docs: actualiza handoff para Checkpoint E (Cierre Técnico)`
-- `integration/b21-b6-1` merge commit — `merge: integra B21 (Explorar) y B6.1 (Fotografía Grado S / PR #138)`
-
----
-
-## 4. Próximos pasos
-
-Proceder a la entrega final.
+La corrección está certificada localmente. Publicar los commits de código/gates y documentación en la rama de #141, verificar HEAD remoto, PR abierto/mergeable y árbol rastreado limpio. **No hacer merge**, no cerrar #138 y no tocar `main`.
