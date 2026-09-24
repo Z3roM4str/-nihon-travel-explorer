@@ -164,16 +164,6 @@ export function PlaceDetail({
             </div>
           </header>
 
-          <button
-            type="button"
-            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
-            onClick={() => onToggleSaved(place.id)}
-            aria-pressed={isSaved}
-          >
-            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
-            {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
-          </button>
-
           <p className="place-detail__description">{place.description}</p>
 
           {place.differentiator && (
@@ -214,6 +204,16 @@ export function PlaceDetail({
               </p>
             )}
           </section>
+
+          <button
+            type="button"
+            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
+            onClick={() => onToggleSaved(place.id)}
+            aria-pressed={isSaved}
+          >
+            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
+            {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
+          </button>
 
           <section className="place-detail__section">
             <h3>Información práctica</h3>

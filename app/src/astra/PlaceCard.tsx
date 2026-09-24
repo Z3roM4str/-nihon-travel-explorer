@@ -22,7 +22,7 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
   const category = splitCategory(place.category).label;
   const href = placeHref(place.id, place.hub);
   return <article className="astra-card">
-    <div className="astra-card__frame" style={{ position: "relative" }}>
+    <div className="astra-card__frame">
       {image && loadState === "error" ? (
         <div className="astra-card__placeholder">
           <span aria-hidden="true">▧</span>
@@ -64,27 +64,10 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
         </a>
       )}
       {allImages.length > 1 && (
-        <div
-          className="astra-card__gallery-controls"
-          style={{
-            position: "absolute",
-            bottom: "8px",
-            right: "8px",
-            background: "rgba(0,0,0,0.6)",
-            color: "#fff",
-            padding: "2px 8px",
-            borderRadius: "12px",
-            fontSize: "12px",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            zIndex: 2,
-          }}
-        >
+        <div className="astra-card__gallery-controls">
           <button
             type="button"
             aria-label="Fotografía anterior"
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "14px", padding: "0 2px" }}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -98,7 +81,6 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
           <button
             type="button"
             aria-label="Fotografía siguiente"
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "14px", padding: "0 2px" }}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -141,7 +123,7 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
       <p className="astra-card__meta">{place.hub} · {place.neighborhood || place.municipality}<br />{category}</p>
       <p className="astra-card__description">{place.description}</p>
       <div className="astra-card__facts"><span>◷ {duration ? formatRange(duration) : place.duration.raw}</span>{reservation.category !== "not-required" && <span>Reserva: {reservation.raw}</span>}</div>
-      {seasonal.tier !== "safe" && <details className="astra-card__season"><summary>Feb–mar: revisar condiciones</summary><p>{place.febMar2027.warning || place.febMar2027.status}</p></details>}
+      {seasonal.tier !== "safe" && <p className="astra-card__season"><strong>Feb–mar: revisar condiciones.</strong> {place.febMar2027.warning || place.febMar2027.status}</p>}
       <button
         type="button"
         className="astra-want"
