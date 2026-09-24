@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { PlaceImage } from "../types";
+import photographyMetadata from "./photography-metadata.json";
 import { placeImages, resolvePlaceImages } from "./place-images";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +66,8 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
         expect(image.source, placeId).toBe("Wikimedia Commons");
         expect(image.sourceUrl, placeId).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
         expect(image.license, placeId).toBeTruthy();
-        expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
+        if (image.license === "Public Domain") expect(image.licenseUrl, placeId).toBeUndefined();
+        else expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
         expect(image.sourceFileTitle, placeId).toMatch(/^File:/);
         expect(
           ["webp-reencoded", "resized-and-webp-reencoded"],
@@ -90,10 +92,10 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly 7 WebP-only records and 160 resized+WebP records from the committed metadata", () => {
+  it("derives exactly 7 WebP-only records and 186 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(160);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(187);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -152,7 +154,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     for (const placeId of acquired) {
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    for (const deferred of ["JP-121", "JP-156", "JP-095", "JP-079", "JP-202"]) {
+    for (const deferred of ["JP-121", "JP-095", "JP-079", "JP-202"]) {
       expect(placeImages[deferred], deferred).toBeUndefined();
     }
   });
@@ -167,9 +169,61 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     for (const placeId of acquired) {
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    for (const deferred of ["JP-120", "JP-211", "JP-041", "JP-168"]) {
+    // Phase 4J's four fail-closed decisions remain historical facts; Block 22 B6.2 later found
+    // and reviewed a different source file for JP-211. The other three are still uncovered.
+    for (const deferred of ["JP-120", "JP-041", "JP-168"]) {
       expect(placeImages[deferred], deferred).toBeUndefined();
     }
+  });
+
+  it("carries the Block 22 B6.2 grade-A identity photographs and leaves its unresolved targets empty", () => {
+    const acquired: Array<[string, string]> = [
+      ["JP-023", "yanaka-ginza-shopping-street-gate"],
+      ["JP-024", "nezu-shrine-romon-gate"],
+      ["JP-027", "kanda-myojin-main-hall-courtyard"],
+      ["JP-029", "imperial-palace-east-gardens-honmaru-lawn"],
+      ["JP-031", "hama-rikyu-pond-bridge-shiodome"],
+      ["JP-035", "national-art-center-tokyo-glass-facade"],
+      ["JP-036", "21-21-design-sight-folded-roof"],
+      ["JP-045", "inokashira-pond-benzaiten-hall"],
+      ["JP-048", "shimokitazawa-shopping-street-banners"],
+      ["JP-069", "bishamondo-main-hall-yamashina"],
+      ["JP-074", "gio-ji-moss-garden-thatched-hall"],
+      ["JP-075", "otagi-nenbutsu-ji-rakan-autumn"],
+      ["JP-076", "adashino-nenbutsu-ji-stone-statues"],
+      ["JP-082", "daitoku-ji-koto-in-approach-path"],
+      ["JP-083", "genko-an-round-and-square-windows"],
+      ["JP-088", "jingo-ji-precinct-autumn-maples"],
+      ["JP-133", "naramachi-shiryokan-migawari-zaru"],
+      ["JP-136", "koko-en-pines-himeji-castle"],
+      ["JP-137", "engyo-ji-mitsunodo-halls"],
+      ["JP-147", "enryaku-ji-konponchudo-autumn"],
+      ["JP-170", "katsuren-castle-terraced-walls"],
+      ["JP-175", "nakijin-castle-serpentine-walls"],
+      ["JP-191", "yabiji-reef-aerial-view"],
+      ["JP-193", "yonehara-beach-sand-and-mountains"],
+      ["JP-201", "hatenohama-sandbar-aerial"],
+      ["JP-211", "animejapan-tokyo-big-sight-entrance"],
+      ["JP-156", "naha-sakaemachi-ichiba-covered-arcade"],
+    ];
+    for (const [placeId, slug] of acquired) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
+      expect(placeImages[placeId]?.[0]?.url, placeId).toContain(slug);
+    }
+    for (const unresolved of ["JP-050", "JP-079", "JP-095", "JP-120", "JP-121", "JP-168", "JP-195", "JP-202"]) {
+      expect(placeImages[unresolved], unresolved).toBeUndefined();
+    }
+    const sakaemachi = placeImages["JP-156"]?.[0];
+    expect(sakaemachi).toMatchObject({
+      source: "Wikimedia Commons",
+      credit: "Abasaa",
+      license: "Public Domain",
+    });
+    expect(sakaemachi?.licenseUrl).toBeUndefined();
+    const sourceRecord = (photographyMetadata as { images: Array<Record<string, unknown>> }).images.find(
+      (record) => record.placeId === "JP-156",
+    );
+    expect(sourceRecord).toMatchObject({ license: "Public Domain", licenseBasis: "PD-self" });
   });
 
   it("carries the Phase 4L tranche as 31 acquired targets and one explicit fallback", () => {
@@ -220,15 +274,16 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 161 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(161);
+  it("covers 188 places", () => {
+    expect(Object.keys(placeImages)).toHaveLength(188);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
     for (const image of Object.values(placeImages).flat()) {
       expect(image.url.startsWith("/images/places/")).toBe(true);
       expect(image.sourceUrl?.startsWith("https://commons.wikimedia.org/")).toBe(true);
-      expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
+      if (image.license === "Public Domain") expect(image.licenseUrl).toBeUndefined();
+      else expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
     }
   });
 

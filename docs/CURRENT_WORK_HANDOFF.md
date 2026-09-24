@@ -1,17 +1,33 @@
-# Handoff reanudable — B21 + B6.1 (consolidados)
+# Handoff reanudable — B21 + B6.1 + B6.2
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
 | Campo | Estado |
 |---|---|
 | B21 | **CERRADO** |
-| B6.1 | **INTEGRADO Y CERRADO** (vía PR #141; PR #138 cerrado sin merge como superado, rama `codex/block-22-b6-1-grade-s-photography` @ `e6693a4` conservada) |
-| Rama canónica | `codex/block-21-b5-explore-home-map` |
-| PR #141 | [merged](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/141) con merge commit normal `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (head certificado `c3b7b89`, base `7e0e833`) |
-| SHA canónico final | `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (árbol idéntico a `c3b7b89`) + el commit de este handoff, sólo documental |
+| B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
+| B6.2 | **APTO PARA INTEGRACIÓN CON EXCEPCIONES DOCUMENTADAS** — B6.2-R adquirió 27/35; quedan 8 excepciones con PhotoPlaceholder e imageBrief. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
+| Rama B6.2 | `codex/block-22-b6-2-grade-a-photography`; B6.2-R parte del HEAD remoto `019ed2f47bb39653f41cbfdb506ff42d858b32fa` |
+| SHA de cierre B6.2-R | Se verifica como HEAD de la rama tras el commit y push indicados en el resultado de cierre |
+| Cobertura Grado A | **139/147 con fotografía + 8 excepciones documentadas**: JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202 |
+| Registro | **194 imágenes / 188 lugares**; Grado S **32/32** |
+| Grado S | **32/32** |
+| Rama canónica | `codex/block-21-b5-explore-home-map` @ `88b9592` — **sin merge de B6.2** |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente bloque | **B6.2 — fotografía Grado A** (NO iniciado) |
+| Siguiente paso | B6.2 está listo para integración con las 8 excepciones documentadas. **No se ha hecho merge. B6.3 NO iniciado.** |
 
+## B6.2 — verificación de cierre (2026-09-24, Linux)
+
+- Adquisición vía `acquire-photography.py` + `prepare-block22-b6-2-photography-metadata.py` (contrato Block 2), 4 batches con commit y push cada uno; `place-images.ts` sin cambios (SHA-256 `6e690411…af9d`, igual a la base).
+- Presupuesto al cierre original de B6.2, antes de recuperar JP-156: Tokio superó 3,5 MB tras el batch 1 (3.886.132 B). Corregido en el pipeline: `-800w` > 70.000 B baja calidad en pasos de 4 hasta 48. Entonces: Tokio 3.421.914, Kioto 3.408.406, Osaka 2.960.618, Okinawa 2.740.472 B. 82 `-800w` preexistentes re-codificadas. El presupuesto final tras B6.2-R aparece en la fila de resultado.
+- `validate-photography.py` PASS; Python fotografía 40/40, rendiciones 28/28, Block 22 8/8, B6.2 11/11; derivados `--check` PASS (194), `select-block22-b6-2-targets.py --check` PASS (35).
+- `PD-self` se normaliza como `Public Domain` con `licenseBasis: PD-self`, procedencia Commons y sin `licenseUrl`; no se inventó un enlace.
+- Build PASS; lint exit 0 (1 advertencia heredada `PlaceMap.tsx:14`); Vitest 100 archivos, 3328/3328.
+- Navegador: B6.2 250/250 (7 lugares nuevos en 4 hubs, con JP-156, teléfono/escritorio y fallbacks), B20 73/73, Block 2 81/81.
+- Resultado: 194 imágenes / 188 lugares, 139/147 Grado A con fotografía + 8 excepciones documentadas. Presupuesto `-800w`: Tokio 3.421.914, Kioto 3.408.406, Osaka 2.960.618, Okinawa 2.796.354 B; todos bajo 3.500.000 B.
+- Brecha heredada anotada: el UI aún no pinta `lqip` (usa `place-card__skeleton`); fuera de alcance por la regla de cero cambios de UI.
+
+## Historial B21 + B6.1
 ## Verificación post-merge (2026-09-24, Linux)
 
 - Build PASS; lint exit 0 (1 advertencia heredada Fast Refresh `PlaceMap.tsx:14`); Vitest 100 archivos, 3327/3327.
@@ -35,4 +51,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-Consolidación completada. No tocar `main`. No iniciar B6.2 sin instrucción explícita.
+B6.2-R cerrado y apto para integración con ocho excepciones documentadas. El resultado final comunica el HEAD verificado tras el push a esta misma rama. No se hizo merge ni se inició B6.3.

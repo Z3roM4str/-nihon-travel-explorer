@@ -20,6 +20,12 @@ SELECTOR_SPEC = importlib.util.spec_from_file_location(
 selector = importlib.util.module_from_spec(SELECTOR_SPEC)
 SELECTOR_SPEC.loader.exec_module(selector)
 
+PREPARER_SPEC = importlib.util.spec_from_file_location(
+    "prepare_block2_photography_metadata", SCRIPT_DIR / "prepare-block2-photography-metadata.py"
+)
+preparer = importlib.util.module_from_spec(PREPARER_SPEC)
+PREPARER_SPEC.loader.exec_module(preparer)
+
 PLACE_IDS = {"JP-001", "JP-002", "JP-003", "JP-999-not-real"} - {"JP-999-not-real"}
 FIXTURE_LQIP = "data:image/webp;base64," + base64.b64encode(
     b"RIFF" + b"\x00" * 4 + b"WEBP" + b"x" * 260
@@ -146,6 +152,9 @@ class MetadataValidationTests(unittest.TestCase):
                 if license_ == "CC0":
                     record["credit"] = ""
                     record["licenseUrl"] = "https://creativecommons.org/publicdomain/zero/1.0/deed.en"
+                elif license_ == "Public Domain":
+                    record["licenseBasis"] = "PD-self"
+                    record.pop("licenseUrl")
                 errs = self.errors([record], Path("/nonexistent"))
                 # Only the "missing asset" error should remain for a supported license.
                 self.assertTrue(all("license" not in e or "unsupported" not in e for e in errs), errs)
@@ -203,8 +212,39 @@ class MetadataValidationTests(unittest.TestCase):
     def test_every_supported_license_has_a_canonical_url_path(self):
         """Adding a license to SUPPORTED_LICENSES must not silently skip the agreement check."""
         for license_ in validator.SUPPORTED_LICENSES:
+            if license_ == "Public Domain":
+                continue
             with self.subTest(license=license_):
                 self.assertIsNotNone(validator.expected_license_path(license_))
+
+    def test_public_domain_requires_pd_self_and_commons_provenance_without_license_url(self):
+        record = valid_record(license="Public Domain", licenseBasis="PD-self")
+        record.pop("licenseUrl")
+        errs = self.errors([record], Path("/nonexistent"))
+        self.assertFalse(any("Public Domain" in e for e in errs), errs)
+
+        self.assert_invalid(
+            [valid_record(license="Public Domain", licenseBasis="PD-self", licenseUrl="https://example.org/license")],
+            "must not carry an invented licenseUrl",
+        )
+        self.assert_invalid(
+            [valid_record(license="Public Domain", licenseBasis="pd-self")],
+            "requires the verified licenseBasis 'PD-self'",
+        )
+        self.assert_invalid(
+            [valid_record(license="Public Domain", licenseBasis="PD-self", sourceUrl="https://example.org/photo")],
+            "must point to its Wikimedia Commons file page",
+        )
+
+    def test_public_domain_normalizer_accepts_only_an_explicit_pd_self_marker(self):
+        self.assertEqual(
+            preparer.normalise_licence("Public domain", "Self-published work|PD-self|Shopping arcades in Naha"),
+            "Public Domain",
+        )
+        for categories in ("", "PD-old", "Public domain|Photography"):
+            with self.subTest(categories=categories):
+                with self.assertRaises(SystemExit):
+                    preparer.normalise_licence("Public domain", categories)
 
     def test_attribution_title_must_be_non_empty_when_present(self):
         self.assert_invalid([valid_record(attributionTitle="")], "attributionTitle must be")

@@ -96,8 +96,12 @@ class Block22PhotographyTests(unittest.TestCase):
         self.assertEqual(METADATA_PATH.read_bytes(), APP_METADATA_PATH.read_bytes())
 
     def test_place_images_source_was_not_manually_edited(self):
-        digest = hashlib.sha256(PLACE_IMAGES_TS.read_bytes()).hexdigest()
-        self.assertEqual(digest, self.baseline["placeImagesTsSha256"])
+        source = PLACE_IMAGES_TS.read_bytes().replace(b"\r\n", b"\n")
+        digests = {
+            hashlib.sha256(source).hexdigest(),
+            hashlib.sha256(source.replace(b"\n", b"\r\n")).hexdigest(),
+        }
+        self.assertIn(self.baseline["placeImagesTsSha256"], digests)
 
     def test_city_list_payloads_stay_within_contract(self):
         first_by_place = {place_id: records[0] for place_id, records in self.by_place.items()}

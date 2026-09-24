@@ -20,6 +20,7 @@ which runs separately and only when photographs are (re)sourced.
 """
 import base64
 import binascii
+import hashlib
 import json
 import re
 import sys
@@ -56,6 +57,7 @@ def derivative_path_for(asset_path, width=800):
     return asset_path[: -len(".webp")] + f"-{width}w.webp"
 SUPPORTED_LICENSES = {
     "CC0",
+    "Public Domain",
     "CC BY 2.0",
     "CC BY 2.5",
     "CC BY 3.0",
@@ -259,28 +261,43 @@ def validate_metadata(metadata, place_ids, asset_root):
                 errors.append(f"{label}: license {license_!r} requires a non-empty credit")
 
         if license_ in SUPPORTED_LICENSES:
-            license_url = record.get("licenseUrl")
-            if not valid_url(license_url):
-                errors.append(
-                    f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license"
-                )
+            if license_ == "Public Domain":
+                if record.get("licenseBasis") != "PD-self":
+                    errors.append(f"{label}: Public Domain requires the verified licenseBasis 'PD-self'")
+                if record.get("source") != "Wikimedia Commons" or urlparse(
+                    record.get("sourceUrl") or ""
+                ).netloc != "commons.wikimedia.org":
+                    errors.append(f"{label}: PD-self provenance must point to its Wikimedia Commons file page")
+                original_title = record.get("originalTitle")
+                if not isinstance(original_title, str) or not original_title.strip():
+                    errors.append(f"{label}: PD-self provenance requires originalTitle")
+                if record.get("licenseUrl"):
+                    errors.append(f"{label}: Public Domain must not carry an invented licenseUrl")
             else:
-                # A well-formed URL is not enough: the visible attribution links this URL as the
-                # license, so a by-sa URL under a `CC BY` record would publish a legally wrong
-                # claim while passing every other check.
-                expected_path = expected_license_path(license_)
-                parsed = urlparse(license_url)
-                if expected_path is None:
+                license_url = record.get("licenseUrl")
+                if not valid_url(license_url):
                     errors.append(
-                        f"{label}: no canonical license URL is defined for license {license_!r}"
+                        f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license"
                     )
-                elif parsed.netloc != "creativecommons.org" or not parsed.path.rstrip("/").startswith(
-                    expected_path
-                ):
-                    errors.append(
-                        f"{label}: licenseUrl {license_url!r} does not match declared license "
-                        f"{license_!r}; expected creativecommons.org{expected_path}"
-                    )
+                else:
+                    # A well-formed URL is not enough: the visible attribution links this URL as the
+                    # license, so a by-sa URL under a `CC BY` record would publish a legally wrong
+                    # claim while passing every other check.
+                    expected_path = expected_license_path(license_)
+                    parsed = urlparse(license_url)
+                    if expected_path is None:
+                        errors.append(
+                            f"{label}: no canonical license URL is defined for license {license_!r}"
+                        )
+                    elif parsed.netloc != "creativecommons.org" or not parsed.path.rstrip("/").startswith(
+                        expected_path
+                    ):
+                        errors.append(
+                            f"{label}: licenseUrl {license_url!r} does not match declared license "
+                            f"{license_!r}; expected creativecommons.org{expected_path}"
+                        )
+        elif record.get("licenseBasis"):
+            errors.append(f"{label}: licenseBasis is only valid for the Public Domain license")
 
         if not is_usable_alt(record.get("alt")):
             errors.append(f"{label}: alt text is missing, too short, or looks like a placeholder")
@@ -384,6 +401,32 @@ def validate_metadata(metadata, place_ids, asset_root):
     return errors, images_by_place
 
 
+def validate_unique_asset_bytes(metadata, asset_root):
+    """B6.2: no two registered files (originals or renditions) may share their bytes.
+
+    The title/URL check above catches the same Commons source declared twice; this catches
+    the same photograph committed under two names or reused for two places, which a renamed
+    or re-downloaded copy would otherwise slip past. Pure hashlib, still Pillow-free.
+    """
+    errors = []
+    seen = {}
+    for record in metadata.get("images", []) if isinstance(metadata, dict) else []:
+        asset_path = record.get("assetPath") if isinstance(record, dict) else None
+        if not isinstance(asset_path, str) or not asset_path.endswith(".webp"):
+            continue
+        paths = [asset_path] + [derivative_path_for(asset_path, width) for width in DERIVATIVE_WIDTHS]
+        for rel in paths:
+            file = asset_root / rel
+            if not file.is_file():
+                continue
+            digest = hashlib.sha256(file.read_bytes()).hexdigest()
+            if digest in seen:
+                errors.append(f"{rel}: byte-identical to {seen[digest]} (duplicate photograph)")
+            else:
+                seen[digest] = rel
+    return errors
+
+
 def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_path=DEFAULT_APP_METADATA_PATH):
     data_dir = Path(data_dir)
     errors = []
@@ -405,6 +448,8 @@ def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_
     for place_id in pilot_place_ids:
         if place_id and not images_by_place.get(place_id):
             errors.append(f"pilot place {place_id!r} has no photograph in photography-metadata.json")
+
+    errors.extend(validate_unique_asset_bytes(metadata, asset_root))
 
     places_by_id = {place.get("id"): place for place in places if isinstance(place, dict)}
     for hub in sorted({place.get("hub") for place in places_by_id.values()}):
