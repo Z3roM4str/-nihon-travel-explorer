@@ -8,6 +8,7 @@ import { describeTransferForUi, transferListFootnote } from "../lib/transfer-dis
 import { describeReservationForUi, interpretPlaceReservation } from "../lib/reservation";
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
+import { recommendationLabel } from "../astra/recommendation";
 
 type Props = {
   place: Place;
@@ -151,7 +152,7 @@ export function PlaceDetail({
               </p>
             )}
             <div className="tag-row">
-              <span className={`tag tag--grade-${place.grade}`}>Grado {place.grade}</span>
+              <span className={`tag tag--grade-${place.grade}`}>{recommendationLabel(place.grade)}</span>
               {isHiddenGem(place) && (
                 <span className="tag tag--gem">
                   <span aria-hidden="true">💎</span> {place.hiddenGemStatus}

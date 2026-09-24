@@ -170,7 +170,7 @@ export default function App() {
           <div className="astra-empty">{tripTab === "coincidencias" ? <><h2>Todavía no han marcado el mismo lugar</h2><p>Sus elecciones individuales siguen guardadas.</p></> : <><h2>Empiecen por un lugar que les emocione</h2><a href="#/explorar">Explorar lugares</a></>}</div>
         )}
 
-        <p className="astra-trip__help">Los intereses de Fernando y Lorena se mantienen al quitar un lugar de guardados generales.</p>
+        {savedIds.length > 0 && <p className="astra-trip__help">Los intereses de Fernando y Lorena se mantienen al quitar un lugar de guardados generales.</p>}
         <div className="astra-trip__actions">
           <button onClick={() => setAnalysisOpen(true)}>Comparar selección</button>
           <button onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>

@@ -112,7 +112,7 @@
 .astra-detail-panel .place-detail__body { padding: 24px 32px 48px; gap: 20px; }
 .astra-detail-panel .place-detail__title-block h2 { font-size: 30px; line-height: 34px; }
 .astra-detail-panel .place-detail__eyebrow, .astra-detail-panel .gallery__credit { font-size: 14px; line-height: 20px; }
-.astra-detail-panel .gallery__frame { aspect-ratio: 4/3; max-height: 480px; }
+.astra-detail-panel .gallery__frame { width: 100%; height: min(48vh, 480px); aspect-ratio: auto; }
 .astra-detail-panel .gallery__error button { min-height: 44px; }
 .astra-detail-panel .gallery__attribution { padding: 0 16px 8px; color: var(--astra-muted); font-size: 13px; line-height: 18px; }
 .astra-detail-panel .gallery__attribution summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; text-decoration: underline; }
@@ -133,6 +133,12 @@
 .astra-persistence-notice__detail { overflow-wrap: anywhere; }
 .astra-persistence-notice button { min-height: 44px; padding: 0 14px; border: 1px solid #991b1b; border-radius: 10px; background: #fff; color: #7f1d1d; font-weight: 700; flex: none; }
 .astra-detail-panel > .astra-persistence-notice { margin: 16px 16px 0; }
+.astra-regions .national { border: 1px solid var(--astra-line); border-radius: 20px; overflow: hidden; background: var(--astra-surface); }
+.astra-app .analysis-dialog { background: var(--astra-canvas); color: var(--astra-ink); }
+.astra-app .analysis-header { background: var(--astra-surface); border-color: var(--astra-line); }
+.astra-app .analysis-body { min-width: 0; }
+.astra-app .analysis-section, .astra-app .day-card { border-radius: 20px; }
+.astra-app .comparison-candidates, .astra-app .comparison-result { max-width: 100%; overflow-x: auto; }
 
 @media (min-width: 768px) and (max-width: 1199px) {
   .astra-shell { height: 64px; padding: 0 24px; }
@@ -165,6 +171,8 @@
   .astra-detail-overlay, .astra-filter-overlay { padding: 0; }
   .astra-detail-panel, .astra-filter-sheet { width: 100%; height: 100dvh; max-height: none; border-radius: 0; }
   .astra-detail-panel .place-detail__body { padding: 20px 16px 40px; }
+  .astra-detail-panel .gallery__frame { height: auto; aspect-ratio: 4/3; }
+  .astra-regions .national { border-radius: 12px; }
   .astra-filter-sheet { padding: 20px; }
   .astra-trip li { align-items: flex-start; }
   .astra-trip__item-actions { width: 100%; }
