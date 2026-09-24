@@ -100,8 +100,8 @@
 .astra-trip__item-actions button:hover { background: var(--astra-subtle); }
 .astra-trip__help { color: var(--astra-muted); font-size: 14px; line-height: 20px; }
 .astra-trip__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
-.astra-trip__actions button:last-child { background: var(--astra-accent); border-color: var(--astra-accent); color: #fff; }
-.astra-trip__actions button:last-child:hover { background: var(--astra-accent-hover); }
+.astra-trip__actions .astra-trip__planner-action--primary { background: var(--astra-accent); border-color: var(--astra-accent); color: #fff; }
+.astra-trip__actions .astra-trip__planner-action--primary:hover { background: var(--astra-accent-hover); }
 .astra-back { display: inline-flex; min-height: 48px; align-items: center; margin-bottom: 16px; font-weight: 700; }
 .astra-map { height: calc(100dvh - 260px); min-height: 420px; }
 .astra-map .place-map, .astra-map__loading { height: 100%; border-radius: 20px; overflow: hidden; }

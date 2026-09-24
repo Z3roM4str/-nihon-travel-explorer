@@ -61,6 +61,8 @@ export default function App() {
     return ids.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
   }, [tripTab, todosIds, fernandoIds, lorenaIds, coincidenceIds]);
 
+  const hasPlannerContent = todosIds.length > 0 || readAuthoredPlanIds(localStorage).size > 0;
+
   const plannerPlaces = useMemo(() => {
     const plannerIds = new Set([...todosIds, ...readAuthoredPlanIds(localStorage)]);
     return [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
@@ -173,7 +175,7 @@ export default function App() {
         {savedIds.length > 0 && <p className="astra-trip__help">Los intereses de Fernando y Lorena se mantienen al quitar un lugar de guardados generales.</p>}
         <div className="astra-trip__actions">
           <button onClick={() => setAnalysisOpen(true)}>Comparar selección</button>
-          <button onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
+          <button className={hasPlannerContent ? "astra-trip__planner-action astra-trip__planner-action--primary" : "astra-trip__planner-action"} onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
         </div>
       </section>}
     </div>
