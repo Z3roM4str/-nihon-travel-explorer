@@ -90,10 +90,10 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly 7 WebP-only records and 176 resized+WebP records from the committed metadata", () => {
+  it("derives exactly 7 WebP-only records and 183 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(176);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(183);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -220,8 +220,8 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 177 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(177);
+  it("covers 184 places", () => {
+    expect(Object.keys(placeImages)).toHaveLength(184);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {

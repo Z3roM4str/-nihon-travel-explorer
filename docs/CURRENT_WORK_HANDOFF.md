@@ -10,7 +10,7 @@
 | PR #141 | [merged](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/141) con merge commit normal `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (head certificado `c3b7b89`, base `7e0e833`) |
 | SHA canónico final | `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (árbol idéntico a `c3b7b89`) + el commit de este handoff, sólo documental |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente bloque | **B6.2 — fotografía Grado A** — EN CURSO en `codex/block-22-b6-2-grade-a-photography` (batch 2/4 cerrado; ver `docs/BLOCK_22_B6_2_REPORT.md`) |
+| Siguiente bloque | **B6.2 — fotografía Grado A** — EN CURSO en `codex/block-22-b6-2-grade-a-photography` (batch 3/4 cerrado; ver `docs/BLOCK_22_B6_2_REPORT.md`) |
 
 ## Verificación post-merge (2026-09-24, Linux)
 

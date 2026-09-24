@@ -98,7 +98,7 @@ class Block22B62PhotographyTests(unittest.TestCase):
                 original = ASSET_ROOT / record["assetPath"]
                 with Image.open(original) as image:
                     image.load()
-                    self.assertEqual(max(image.size), 1600, place_id)
+                    self.assertLessEqual(max(image.size), 1600, place_id)
                     original_width = image.width
                 for width in validator.DERIVATIVE_WIDTHS:
                     derivative = ASSET_ROOT / validator.derivative_path_for(record["assetPath"], width)

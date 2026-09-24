@@ -146,6 +146,69 @@
       "alt": "Recinto de montaña de Jingo-ji visto desde lo alto, con tejados del templo, una amplia explanada de grava y arces rojos y amarillos.",
       "role": "identity",
       "whyIdentity": "La fuente identifica Jingo-ji (Ukyō-ku); el recinto elevado entre bosque transmite el aislamiento que el lugar ofrece tras la subida."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-133",
+      "slug": "naramachi-shiryokan-migawari-zaru",
+      "title": "File:Naramachi-shiryokan Nara02n3200.jpg",
+      "alt": "Entrada del museo Naramachi Shiryōkan con farolillos y amuletos rojos migawari-zaru colgando del alero, junto a una calle de casas de madera.",
+      "role": "identity",
+      "whyIdentity": "La fuente lo sitúa en Naramachi (Nara); los migawari-zaru rojos y el rótulo del museo local son el signo propio del barrio y no de otra ciudad."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-136",
+      "slug": "koko-en-pines-himeji-castle",
+      "title": "File:Kokoen 2009-04-08 (3640594934).jpg",
+      "alt": "Pinos podados y linterna de piedra en un patio de Kōko-en, con los muros blancos y una torre del castillo de Himeji al fondo.",
+      "role": "identity",
+      "whyIdentity": "Kōko-en linda con el castillo de Himeji; la torre al fondo sobre el jardín de pinos lo distingue de cualquier otro jardín japonés."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-137",
+      "slug": "engyo-ji-mitsunodo-halls",
+      "title": "File:Engyoji05s4592.jpg",
+      "alt": "Grandes salas de madera del Mitsunodō de Engyō-ji en el monte Shosha, con su explanada de grava y el bosque de cedros detrás.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica Engyō-ji en Himeji; el conjunto de tres salas del Mitsunodō en el bosque es la vista monumental característica del monte Shosha."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-147",
+      "slug": "enryaku-ji-konponchudo-autumn",
+      "title": "File:Enryakuji Konponchudo04n4272.jpg",
+      "alt": "Konpon-chūdō de Enryaku-ji en el monte Hiei visto entre cedros, con tejados grises y arces rojos en otoño.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica el Konpon-chūdō, tesoro nacional y sala central de Enryaku-ji; su escala entre el bosque del monte Hiei es la identidad del lugar."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-170",
+      "slug": "katsuren-castle-terraced-walls",
+      "title": "File:Katsuren Castle ruins.jpg",
+      "alt": "Murallas curvas de piedra caliza de las ruinas del castillo de Katsuren subiendo en terrazas por una colina herbosa bajo un cielo con nubes.",
+      "role": "identity",
+      "whyIdentity": "Las terrazas amuralladas que ascienden hacia la cima son la forma reconocible de Katsuren; la fuente la sitúa en Uruma, Okinawa."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-175",
+      "slug": "nakijin-castle-serpentine-walls",
+      "title": "File:Nakijin Gusuku - panoramio.jpg",
+      "alt": "Muralla serpenteante de piedra del castillo de Nakijin rodeando una explanada de hierba, con colinas boscosas detrás.",
+      "role": "identity",
+      "whyIdentity": "La muralla ondulante de piedra caliza es el rasgo inconfundible de Nakijin Gusuku; la fuente la nombra explícitamente."
+    },
+    {
+      "batch": 3,
+      "placeId": "JP-191",
+      "slug": "yabiji-reef-aerial-view",
+      "title": "File:Miyako yabiji.jpg",
+      "alt": "Vista aérea de los bancos de coral de Yabiji frente a Miyako: manchas turquesa y blancas de arrecife sobre el mar azul entre nubes.",
+      "role": "identity",
+      "whyIdentity": "La fuente la describe como 八重干瀬 (Yabiji, Miyakojima); la vista aérea muestra la escala del sistema de arrecifes que ninguna toma submarina puede situar."
     }
   ],
   "rejected": [
@@ -303,6 +366,91 @@
       "placeId": "JP-120",
       "title": "File:Nemophila field at Nagai Botanical Garden.jpg",
       "reason": "Jardín botánico de Nagai de día: no muestra la obra nocturna de teamLab que define el lugar."
+    },
+    {
+      "placeId": "JP-121",
+      "title": "Category:Tower of the Sun",
+      "reason": "La Torre del Sol es obra protegida de Tarō Okamoto y Japón no tiene libertad de panorama para esculturas: Commons borra las fotos centradas en ella (categoría de solicitudes de borrado)."
+    },
+    {
+      "placeId": "JP-121",
+      "title": "File:Expo70 Park (Suite Osaka) hdsr S5 06.jpg",
+      "reason": "Vista desde el parque hacia el monorraíl y Expocity: no muestra la torre ni el parque de forma reconocible."
+    },
+    {
+      "placeId": "JP-121",
+      "title": "File:EXPO '70 PAVILION bekkan 2.jpg",
+      "reason": "Patio del anexo del pabellón Expo'70: no identifica el parque ni la torre."
+    },
+    {
+      "placeId": "JP-133",
+      "title": "File:Naramachii01n3200.jpg",
+      "reason": "Calle de machiya válida pero intercambiable con otros barrios históricos; se prefiere la toma con los migawari-zaru y el rótulo del museo."
+    },
+    {
+      "placeId": "JP-136",
+      "title": "File:Chicken February 2009-1.jpg",
+      "reason": "Resultado de búsqueda sin relación con el lugar."
+    },
+    {
+      "placeId": "JP-136",
+      "title": "File:Himeji Koukoen32n4592.jpg",
+      "reason": "Estanque otoñal bonito pero sin elemento que distinga Kōko-en de otro jardín; la toma con el castillo lo sitúa."
+    },
+    {
+      "placeId": "JP-137",
+      "title": "File:Engyô-ji Temple - Paper lanterns.jpg",
+      "reason": "Detalle de farolillos: detail, no identity."
+    },
+    {
+      "placeId": "JP-147",
+      "title": "File:Enryakuji - IMG 6251.JPG",
+      "reason": "Sendero en el bosque sin edificios del templo."
+    },
+    {
+      "placeId": "JP-147",
+      "title": "File:Yamagata Risshaku-ji Konpon Chudo Main Hall 1.jpg",
+      "reason": "Es el Konpon-chūdō de Risshaku-ji (Yamagata): lugar diferente."
+    },
+    {
+      "placeId": "JP-156",
+      "title": "File:Naha Sakaemachi Ichiba 01.JPG",
+      "reason": "Identifica el mercado (rótulo 栄町市場), pero su licencia es PD-self; el contrato actual del pipeline/validador sólo representa CC0, CC BY y CC BY-SA con licenseUrl de creativecommons.org, y no se inventa una URL de licencia."
+    },
+    {
+      "placeId": "JP-156",
+      "title": "File:栄町りうぼう リウボウストア 那覇市安里 Sep 10, 2011 (1).jpg",
+      "reason": "Supermercado Ryubo de Sakaemachi, no la galería comercial nocturna."
+    },
+    {
+      "placeId": "JP-168",
+      "title": "File:Yomitan Yachimun no Sato.jpg",
+      "reason": "450×338 px: resolución insuficiente para portada (el pipeline sirve hasta 1600 px y no reescala al alza)."
+    },
+    {
+      "placeId": "JP-168",
+      "title": "File:Kitagama-Kasen(Akazu-chō).jpg",
+      "reason": "Horno Kitagama de Akazu (Seto, Aichi): lugar diferente pese al nombre."
+    },
+    {
+      "placeId": "JP-170",
+      "title": "File:Katsuren Castle support column ruins.jpg",
+      "reason": "Basas de columnas en la cima: detail, no identity."
+    },
+    {
+      "placeId": "JP-175",
+      "title": "File:Nakijin-Castle Ticket-counter.jpg",
+      "reason": "Taquilla de acceso, no las ruinas."
+    },
+    {
+      "placeId": "JP-191",
+      "title": "File:Yabishi1.jpg",
+      "reason": "Coral submarino genérico y sin autor declarado en Commons (CC BY 3.0 exige crédito)."
+    },
+    {
+      "placeId": "JP-191",
+      "title": "File:Yabiji coral reef Aerial photograph.2008.jpg",
+      "reason": "Ortofoto del GSI con licencia 'Attribution' propia fuera de la lista del pipeline."
     }
   ],
   "unresolved": [
@@ -321,6 +469,18 @@
     {
       "placeId": "JP-120",
       "reason": "Commons sólo tiene fotografías diurnas del Jardín Botánico de Nagai; ninguna muestra teamLab Botanical Garden Osaka."
+    },
+    {
+      "placeId": "JP-121",
+      "reason": "La Torre del Sol no tiene fotografías libres en Commons (obra protegida, sin libertad de panorama en Japón); las vistas incidentales del parque no identifican el lugar."
+    },
+    {
+      "placeId": "JP-156",
+      "reason": "Las únicas fotografías de la galería Sakaemachi son PD-self. Aceptarlas requiere ampliar el contrato de licencias del pipeline/validador (licenseUrl no-CC); queda para decisión explícita fuera de B6.2."
+    },
+    {
+      "placeId": "JP-168",
+      "reason": "Sólo existe una foto de 450 px de Yachimun no Sato; el resto de resultados son de otros lugares."
     }
   ]
 }
