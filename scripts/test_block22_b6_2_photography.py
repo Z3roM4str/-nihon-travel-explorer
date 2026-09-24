@@ -65,7 +65,12 @@ class Block22B62PhotographyTests(unittest.TestCase):
         self.assertEqual(acquired, set(self.planned) & acquired)
         for place_id in self.unresolved:
             self.assertNotIn(place_id, self.by_place, place_id)
-        new_records = self.metadata["images"][self.baseline["imageCount"]:]
+        # Later photography blocks append records after B6.2; keep this regression
+        # scoped to the original grade-A target set.
+        new_records = [
+            record for record in self.metadata["images"][self.baseline["imageCount"]:]
+            if record["placeId"] in self.targets
+        ]
         self.assertEqual({r["placeId"] for r in new_records}, acquired)
         self.assertEqual(len(new_records), len(acquired))
 

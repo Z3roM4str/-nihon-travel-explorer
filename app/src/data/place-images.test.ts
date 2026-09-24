@@ -92,10 +92,10 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly 7 WebP-only records and 186 resized+WebP records from the committed metadata", () => {
+  it("derives exactly 7 WebP-only records and 193 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(187);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(193);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -237,7 +237,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     for (const placeId of acquired) {
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    expect(placeImages["JP-140"]).toBeUndefined();
+    // JP-140 is acquired by B6.3; Phase 4L's historical tranche stays unchanged.
   });
 
   /**
@@ -274,8 +274,8 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 188 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(188);
+  it("covers 194 places", () => {
+    expect(Object.keys(placeImages)).toHaveLength(194);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
