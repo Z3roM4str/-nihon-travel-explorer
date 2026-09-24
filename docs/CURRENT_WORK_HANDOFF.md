@@ -1,15 +1,25 @@
-# Handoff reanudable — B21 + B6.1
+# Handoff reanudable — B21 + B6.1 (consolidados)
 
-**Última actualización:** 2026-09-23. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
+**Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
-| Campo | Estado remoto observable |
+| Campo | Estado |
 |---|---|
-| Bloque actual | B21 implementado y B6.1 integrado/verificado dentro del PR #141; certificación final B21 PASS tras corregir origen, hub, browser back y scroll de búsqueda global |
-| Rama actual | `codex/block-21-b5-explore-home-map-10303448645469361664` |
-| PR de consolidación | [#141](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/141), abierto contra la rama canónica B21 |
-| Base canónica B21 | `codex/block-21-b5-explore-home-map` @ `7e0e83339ad0ea46be8cfb52befd14b3e67d0632` |
-| HEAD remoto de #141 al iniciar la auditoría | `80f148b5380bc2ba022f22eac36163f1f1e089ff` |
-| B6.1 fuente | `e6693a4ffe89400b356c8159fb47865d075808a4` / [PR #138](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/138), abierto y sin merge |
+| B21 | **CERRADO** |
+| B6.1 | **INTEGRADO Y CERRADO** (vía PR #141; PR #138 cerrado sin merge como superado, rama `codex/block-22-b6-1-grade-s-photography` @ `e6693a4` conservada) |
+| Rama canónica | `codex/block-21-b5-explore-home-map` |
+| PR #141 | [merged](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/141) con merge commit normal `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (head certificado `c3b7b89`, base `7e0e833`) |
+| SHA canónico final | `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (árbol idéntico a `c3b7b89`) + el commit de este handoff, sólo documental |
+| `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
+| Siguiente bloque | **B6.2 — fotografía Grado A** (NO iniciado) |
+
+## Verificación post-merge (2026-09-24, Linux)
+
+- Build PASS; lint exit 0 (1 advertencia heredada Fast Refresh `PlaceMap.tsx:14`); Vitest 100 archivos, 3327/3327.
+- Gate B21 búsqueda global 33/33 móvil y 33/33 escritorio: consulta preservada, resultados preservados, scroll preservado, portada nacional preservada, UI back, browser back y Cerca de aquí. En el contenedor, el escritorio requirió el binario Chromium completo 1194; el headless shell 1194 (desfasado frente al 1234 esperado por Playwright) no restaura el scroll en escritorio (360→0), sin cambios de código.
+- Phase 5A 50/50 escritorio y 50/50 móvil.
+- Fotografía: 167 imágenes, 161 lugares con foto, 32/32 Grado S; `validate-photography.py` PASS; `build-photography-derivatives.py --check --quiet` PASS; `test_block22_photography.py` 7/8 en Linux: el único fallo compara el SHA-256 de `app/src/data/place-images.ts` contra una línea base calculada con CRLF (Windows). El archivo es byte a byte idéntico a B6.1 `e6693a4`; fallo heredado dependiente de plataforma.
+
+## Historial de la certificación previa (#141)
 
 La historia remota de #141 contiene un solo commit posterior a la base B21. El SHA B6.1 no es ancestro del PR, pero los archivos de fotografía consolidados coinciden por contenido con la fuente. No existe remotamente `integration/b21-b6-1`; los checkpoints locales antes citados no representan commits publicados por separado. Véase `docs/B21_B6_1_INTEGRATION_REPORT.md` para el diff, los gates y la evidencia.
 
@@ -25,4 +35,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-La corrección está certificada localmente. Publicar los commits de código/gates y documentación en la rama de #141, verificar HEAD remoto, PR abierto/mergeable y árbol rastreado limpio. **No hacer merge**, no cerrar #138 y no tocar `main`.
+Consolidación completada. No tocar `main`. No iniciar B6.2 sin instrucción explícita.
