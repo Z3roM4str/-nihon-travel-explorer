@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 190,
+  "imageCount": 193,
   "images": [
     {
       "placeId": "JP-001",
@@ -3424,6 +3424,60 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRsIBAABXRUJQVlA4ILYBAADQCgCdASoUAA8AAAAAJaACdMoRwN6B+AH6q8YEYA+DO9AN4t/ZmYUfiNkpXnP43Z63HH/1D8o9UA/t2QpZr3wf+q/533A/05/wH5g/2X5gOgzOhmKpeTG/t4XMFmzloAD84f/bYO2INOC9s+YF+kjjL/AjefL3XpcGui9MD9H/fpCAzGv/yXT//qs5H/5s18dbbcH4xLy3R/Yi/0JnLJFTEpzjf6pVnzwnkQz/Ai7/wMozL++/lv+NX/5uP/7q6GtHlkhetY0Rn8tZfphQ7Vp6//6+4Eh5hEJJSKPmmS4GlV6tH/1v1WaD3zFyz9HkNF1/eL/aCeeTDjA4E7z9/t5MrwoiY5fFqx9v6RnCeqhPis4cty4GGpRd5bvZz/+38Fz78MQI5KcF+v33l1Y8nm25YP6Eq78f8e1BJlmn/7hbOFyOfQSSP78Z+ID+kbRBiRYArAz/iZyhK65f25tuAdAd3yFlTJU2FJ4QESpxTaVv/wyAObcd6tXS4NAMEzEVF401BW8IFqd35jD+f+lsjagGx/FickndK4MrnayAjtyCx8o+9pBxu4pBvtMjqCx0IyP7iYAAAAA="
+    },
+    {
+      "placeId": "JP-193",
+      "assetPath": "images/places/JP-193/yonehara-beach-sand-and-mountains.webp",
+      "alt": "Playa de arena blanca de Yonehara en Ishigaki, con arbustos costeros en primer plano, el arrecife poco profundo y los montes verdes del norte de la isla detrás.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AYonehara_Beach_5.jpg",
+      "credit": "Syced",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/Yonehara_Beach_5.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Yonehara Beach 5.jpg",
+      "originalWidth": 4080,
+      "originalHeight": 3072,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAABwCgCdASoUAA8AAAAAJQBOmUI7m2AVIFwAdP/ZGH2zWCXkUO2bLT/IPxJ/GbSl/irkgP7T+M34V1pj+zeghmWea/8l7gv8d/lX90/LTuAfsAdaNZco9NTwQndDwAD+//8+yOQg0bBF2hLVZ+AvLMGYp4J//zliKz1IUMDI0T/bzSvOf5zHl5o84UyOB+38VLI0bMUeXXwB0jr/SUMOSjVpr+8BdnKGwqQ0Exhne6UBFsj4tTq2vbA5CNFC11Bb6t1+YAJ786TBVnzwu9vY35dXK/TFYPnCKym+YtzFrz6Y4bnEuNi+HtFn4mjKE9p/4Ww9qL/4uS39d8E8BxCmU/f8Q57YH15ON/mz55AK/5YIL/8SOcJLuE8TIp8wV53xNR6E7DO6k2AD6MpCY1P/5/Xz25O6f/am8lj4ifo790lHD+ImPr8Ms+MC65UXtn2G4X56ua683r91HANVfkXa1e0aEHwuGV8L7w+J8r2+DZrLBvkuF8ghVwlSZL/CipmghV3AOHkiGiCFr3lgCgvXQ/ZDc6qTn5Mf5f51/1pwA35V7/Y1ue11sf7RWN4P/tJa72iu4AAA"
+    },
+    {
+      "placeId": "JP-201",
+      "assetPath": "images/places/JP-201/hatenohama-sandbar-aerial.webp",
+      "alt": "Vista aérea del banco de arena blanca de Hate no Hama curvándose entre aguas turquesa y arrecifes, con Kumejima al fondo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AOkinawa-kumejima_Hatenohama_Beach-xl.jpg",
+      "credit": "Kumejima93_OKINAWA",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Okinawa-kumejima_Hatenohama_Beach-xl.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Okinawa-kumejima Hatenohama Beach-xl.jpg",
+      "originalWidth": 3872,
+      "originalHeight": 2592,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqwBAABXRUJQVlA4IKABAAAwCgCdASoUAA0AAAAAJbACdMoRwN4B+AH7AVYFYm5IBvEP2q+1jcpfoA7AVAH9NzG/4u5JP+Kfkr+M3qs/wFvAeiZnFzJf7j+VvGc/rcdmdFd7hQd6ZLsM9gAA/vyhC6fPpujvudgmK4dNm4ZHGvi8tZPG1y3AP+PZMKbVOk5oq4GIaNbSlNH/at15KzPAK3b5TPTRrKgZdAqUb9Q2eATvKuQGB7CTjL/jZJ70WApHB+6Oq0OZqxAgzv6GUT5Pfpvw0/UPQIqYOl1jYzMvweJfGTskXTv7SbY2XmHMQy2Ww1EE9J/00S2LrHrGl+d0HSf/+RRH/4d9lrkpDFovGjrp2P1VnnbLJt9kQAUnBLd//84T/0uexPqDKNmf+SsZnRoTK61u+G9/nxTPN4p/3Nn/hrBf9yj52fjkf5uf+6/ucpn//HSyGBiKH+iyGGqP/q/Mpgv/9YB7/cUv15RMv/XtHXZjO+Qzk5Y/jx/g2ubOqf6UTxbB17Jc9R21RQ9+IqWfR5qqSz/kiK+t/z3s4832lG7A3GtLfv4lf5Yo1gAAAA=="
+    },
+    {
+      "placeId": "JP-211",
+      "assetPath": "images/places/JP-211/animejapan-tokyo-big-sight-entrance.webp",
+      "alt": "Visitantes ante la entrada del Tokyo Big Sight bajo sus pirámides invertidas, con carteles y señalética de AnimeJapan 2014.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AAnimeJapan_2014_%2813370919653%29.jpg",
+      "credit": "James Dennes",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f2/AnimeJapan_2014_%2813370919653%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:AnimeJapan 2014 (13370919653).jpg",
+      "originalWidth": 3264,
+      "originalHeight": 2448,
+      "processing": "resized-and-webp-reencoded",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRqYBAABXRUJQVlA4IJoBAADwCgCdASoUAA8APhkIg0EhBgEABABhKAJ0yhHAmgzgRqv+Z4gD9L/7l/QPf/6HL+zdYBz2H7AfCJ+zvox0av8Gv1Vl0D8gHuY5GXzR/uvVT/z/5XjNyWe9ugzSqmvsw4AA/vdpzqIw6GDqDgz3WJf/xyH/yHHcjdzrht6Wf3xlVFdLkAsl5fbvxvYUe6IYpy/vGfDa2V+Ln4sGp/6ynyb2zDaXpaHvs8KKocP2V+4GIQDwSru8x7//D3q+gn/OaoK1Acw+V8rf+lVtfzb//X8hkBo/DY7Wp/HJqRWZtf7raDZ5k/dN67jKN01CbFV//3AnkVNl0dPjGF0itd+3lW1NRPONwwCd6n4W/xLqxw8ZxwZBzCe43VTTmz74hpnL8F9ZBWYZftyFvdZSRA6q2Pv/wgODcJ6PPgGP48ocjtuW/4X/Jj/9VikiFv2IfYf+7qo3/8I+//xiYw/3/K8oy1Ys9GkcMhjd3/+CqsfL/y9yg2ZP//d270JHj+FogASe+apt7Px6ASvxgU8hwzE/bVrvPmv75XWHi7LAAA=="
     }
   ]
 }

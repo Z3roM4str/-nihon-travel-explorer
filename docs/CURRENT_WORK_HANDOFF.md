@@ -1,17 +1,31 @@
-# Handoff reanudable — B21 + B6.1 (consolidados)
+# Handoff reanudable — B21 + B6.1 + B6.2
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
 | Campo | Estado |
 |---|---|
 | B21 | **CERRADO** |
-| B6.1 | **INTEGRADO Y CERRADO** (vía PR #141; PR #138 cerrado sin merge como superado, rama `codex/block-22-b6-1-grade-s-photography` @ `e6693a4` conservada) |
-| Rama canónica | `codex/block-21-b5-explore-home-map` |
-| PR #141 | [merged](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/141) con merge commit normal `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (head certificado `c3b7b89`, base `7e0e833`) |
-| SHA canónico final | `201dba7b8b9f1b71b3ca98f6132fe4bd8ca6339a` (árbol idéntico a `c3b7b89`) + el commit de este handoff, sólo documental |
+| B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
+| B6.2 | **CERRADO CON 9 UNRESOLVED** — 26/35 objetivos Grado A adquiridos; **no apto para integración** sin decisión sobre los unresolved. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
+| Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` (base `88b9592c4351c8a48ccd216d372797d535d63968`) |
+| SHA estable final B6.2 | `@@CLOSE_SHA@@` (commit de cierre) + el commit de este handoff, sólo documental |
+| Cobertura Grado A | **138/147** (antes 112/147); 9 sin fotografía: JP-050, JP-079, JP-095, JP-120, JP-121, JP-156, JP-168, JP-195, JP-202 |
+| Registro | **193 imágenes / 187 lugares** (no 202/196: faltan los 9 unresolved) |
+| Grado S | **32/32** |
+| Rama canónica | `codex/block-21-b5-explore-home-map` @ `88b9592` — **sin merge de B6.2** |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente bloque | **B6.2 — fotografía Grado A** — EN CURSO en `codex/block-22-b6-2-grade-a-photography` (batch 3/4 cerrado; ver `docs/BLOCK_22_B6_2_REPORT.md`) |
+| Siguiente paso | Decidir los 9 unresolved de B6.2 (aceptar como cobertura pendiente o sub-bloque de fuentes/licencias, p. ej. PD-self para JP-156). Después: **B6.3 — 8 lugares Grado B sin fotografía**. **B6.3 NO iniciado.** |
 
+## B6.2 — verificación de cierre (2026-09-24, Linux)
+
+- Adquisición vía `acquire-photography.py` + `prepare-block22-b6-2-photography-metadata.py` (contrato Block 2), 4 batches con commit y push cada uno; `place-images.ts` sin cambios (SHA-256 `6e690411…af9d`, igual a la base).
+- Presupuesto: Tokio superó 3,5 MB tras el batch 1 (3.886.132 B). Corregido en el pipeline: `-800w` > 70.000 B baja calidad en pasos de 4 hasta 48. Final: Tokio 3.421.914, Kioto 3.408.406, Osaka 2.960.618, Okinawa 2.740.472 B. 82 `-800w` preexistentes re-codificadas.
+- `validate-photography.py` PASS (con nuevo check de duplicados por bytes); Python 38/38, 28/28, B6.2 11/11; `test_block22_photography.py` 7/8 (fallo heredado CRLF, no funcional); derivados `--check` PASS (193).
+- Build PASS; lint exit 0 (1 advertencia heredada `PlaceMap.tsx:14`); Vitest 100 archivos, 3328/3328.
+- Navegador: B6.2 216/216 (6 lugares nuevos en 4 hubs, teléfono y escritorio, fallback incluido), B20 73/73, Block 2 81/81.
+- Brecha heredada anotada: el UI aún no pinta `lqip` (usa `place-card__skeleton`); fuera de alcance por la regla de cero cambios de UI.
+
+## Historial B21 + B6.1
 ## Verificación post-merge (2026-09-24, Linux)
 
 - Build PASS; lint exit 0 (1 advertencia heredada Fast Refresh `PlaceMap.tsx:14`); Vitest 100 archivos, 3327/3327.
@@ -35,4 +49,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-Consolidación completada. No tocar `main`. No iniciar B6.2 sin instrucción explícita.
+B6.2 cerrado con 9 unresolved documentados. No tocar `main`. No mergear B6.2 ni iniciar B6.3 sin instrucción explícita.

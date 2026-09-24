@@ -209,6 +209,33 @@
       "alt": "Vista aérea de los bancos de coral de Yabiji frente a Miyako: manchas turquesa y blancas de arrecife sobre el mar azul entre nubes.",
       "role": "identity",
       "whyIdentity": "La fuente la describe como 八重干瀬 (Yabiji, Miyakojima); la vista aérea muestra la escala del sistema de arrecifes que ninguna toma submarina puede situar."
+    },
+    {
+      "batch": 4,
+      "placeId": "JP-193",
+      "slug": "yonehara-beach-sand-and-mountains",
+      "title": "File:Yonehara Beach 5.jpg",
+      "alt": "Playa de arena blanca de Yonehara en Ishigaki, con arbustos costeros en primer plano, el arrecife poco profundo y los montes verdes del norte de la isla detrás.",
+      "role": "identity",
+      "whyIdentity": "Commons la clasifica en Category:Yonehara Beach; la playa con el arrecife somero y la cordillera de Ishigaki detrás sitúa el lugar frente a otra playa genérica."
+    },
+    {
+      "batch": 4,
+      "placeId": "JP-201",
+      "slug": "hatenohama-sandbar-aerial",
+      "title": "File:Okinawa-kumejima Hatenohama Beach-xl.jpg",
+      "alt": "Vista aérea del banco de arena blanca de Hate no Hama curvándose entre aguas turquesa y arrecifes, con Kumejima al fondo.",
+      "role": "identity",
+      "whyIdentity": "La lengua de arena deshabitada entre arrecifes frente a Kumejima es exactamente Hate no Hama; la fuente (proyecto FIND/47) la nombra así."
+    },
+    {
+      "batch": 4,
+      "placeId": "JP-211",
+      "slug": "animejapan-tokyo-big-sight-entrance",
+      "title": "File:AnimeJapan 2014 (13370919653).jpg",
+      "alt": "Visitantes ante la entrada del Tokyo Big Sight bajo sus pirámides invertidas, con carteles y señalética de AnimeJapan 2014.",
+      "role": "identity",
+      "whyIdentity": "Coincide con el brief editorial (pabellón principal y señalética del evento): la sede con la señalética de AnimeJapan identifica la feria; el alt declara que es la edición de 2014."
     }
   ],
   "rejected": [
@@ -451,6 +478,56 @@
       "placeId": "JP-191",
       "title": "File:Yabiji coral reef Aerial photograph.2008.jpg",
       "reason": "Ortofoto del GSI con licencia 'Attribution' propia fuera de la lista del pipeline."
+    },
+    {
+      "placeId": "JP-193",
+      "title": "File:Yonehara Beach 20.jpg",
+      "reason": "Acceso por carretera con vallas y contenedores: no muestra la playa."
+    },
+    {
+      "placeId": "JP-193",
+      "title": "File:Yonehara Beach 24.jpg",
+      "reason": "Aparcamiento de coches."
+    },
+    {
+      "placeId": "JP-195",
+      "title": "File:Milky Way - 7 July 2013.jpg",
+      "reason": "Vía Láctea fotografiada en Okayama: otro lugar."
+    },
+    {
+      "placeId": "JP-195",
+      "title": "File:Milky Way and Sagittarius.JPG",
+      "reason": "Tomada desde el monte Yakushi (Alpes japoneses): otro lugar."
+    },
+    {
+      "placeId": "JP-195",
+      "title": "File:Haterumajima Observatory Tower.jpg",
+      "reason": "Torre de observación de Hateruma de día: un edificio concreto, no el cielo nocturno que define la experiencia en Yaeyama."
+    },
+    {
+      "placeId": "JP-201",
+      "title": "File:Hateno-hama beach はての浜 DSCF7906.JPG",
+      "reason": "Pareja identificable sentada en la arena como sujeto principal."
+    },
+    {
+      "placeId": "JP-202",
+      "title": "File:Kerama Island.jpg",
+      "reason": "Paisaje de islas: no muestra ballenas; sustituiría la experiencia por otro sujeto."
+    },
+    {
+      "placeId": "JP-202",
+      "title": "File:Okinawa Churaumi Aquarium.jpg",
+      "reason": "Acuario Churaumi: otro lugar."
+    },
+    {
+      "placeId": "JP-211",
+      "title": "Category:AnimeJapan 2015",
+      "reason": "Retratos de cosplayers y azafatas identificables: personas como sujeto, no el evento."
+    },
+    {
+      "placeId": "JP-211",
+      "title": "File:Animejapanlogo.png",
+      "reason": "Logotipo, no fotografía."
     }
   ],
   "unresolved": [
@@ -481,6 +558,14 @@
     {
       "placeId": "JP-168",
       "reason": "Sólo existe una foto de 450 px de Yachimun no Sato; el resto de resultados son de otros lugares."
+    },
+    {
+      "placeId": "JP-195",
+      "reason": "No existe en Commons una fotografía del cielo nocturno verificablemente tomada en Yaeyama (Ishigaki, Iriomote o Hateruma); las de Vía Láctea son de otras regiones."
+    },
+    {
+      "placeId": "JP-202",
+      "reason": "Ninguna fotografía de ballenas jorobadas en aguas de Kerama (búsquedas en inglés, japonés y latín); los paisajes de las islas no representan la experiencia."
     }
   ]
 }
