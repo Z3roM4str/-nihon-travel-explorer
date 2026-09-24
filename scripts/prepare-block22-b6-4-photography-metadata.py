@@ -77,27 +77,37 @@ def main():
     if any(not row.get("candidatesRejected") or not row.get("reason") for row in unresolved):
         raise SystemExit("each unresolved row needs a reason and rejected candidate evidence")
 
-    initial_count = baseline["imageCount"]
     images = metadata["images"]
-    current_new = images[initial_count:]
-    previous_targets = {pid for batch in batches[:args.batch - 1] for pid in batch}
+    plan_entries = {
+        item["placeId"]: item
+        for row in plan["batches"] if row["batch"] <= args.batch
+        for item in row.get("entries", [])
+    }
     previous_entries = {
         item["placeId"]
         for row in plan["batches"] if row["batch"] < args.batch
         for item in row.get("entries", [])
     }
-    if {row["placeId"] for row in current_new} != previous_entries:
-        if current_new:
-            raise SystemExit("registry additions do not match completed earlier batches; inspect before proceeding")
+    previous_entries_ordered = [
+        item["placeId"]
+        for row in sorted(plan["batches"], key=lambda value: value["batch"]) if row["batch"] < args.batch
+        for item in row.get("entries", [])
+    ]
+    current_records = [row for row in images if row.get("originalTitle") in {item["title"] for item in plan_entries.values()}]
+    current_by_place = {row["placeId"]: row for row in current_records}
+    if len(current_records) != len(current_by_place) or set(current_by_place) != previous_entries | (set(current_by_place) & expected_places):
+        raise SystemExit("registry additions do not match completed earlier batches; inspect before proceeding")
+    if set(current_by_place) - previous_entries - expected_places:
+        raise SystemExit("registry contains an unplanned B6.4 record; inspect before proceeding")
 
     accepted = {row["placeId"]: row for row in entries}
-    already = {row["placeId"] for row in current_new}
+    already = set(current_by_place)
     batch_existing = already & expected_places
     if batch_existing and batch_existing != set(accepted):
         raise SystemExit("partial batch records already exist; inspect the working tree before retrying")
 
     if batch_existing:
-        records = [row for row in current_new if row["placeId"] in accepted]
+        records = [current_by_place[row["placeId"]] for row in entries]
         if any(row.get("role") != "experience" for row in records):
             raise SystemExit("existing batch record has a non-experience role")
         print(f"Using {len(records)} already-prepared experience record(s) for batch {args.batch}")
@@ -114,8 +124,26 @@ def main():
         if any(row["originalTitle"] in titles for row in records):
             raise SystemExit("a selected Commons originalTitle already exists in the registry")
         images.extend(records)
-        metadata["imageCount"] = len(images)
-        atomic_json(METADATA, metadata)
+
+    # Keep each gallery in the established identity → experience → detail/context → seasonal
+    # order. Records are still validated as a stable batch sequence by place ID, rather than by
+    # their position in the global metadata array.
+    all_new = [current_by_place[pid] for pid in previous_entries_ordered]
+    all_new.extend(records)
+    new_titles = {row["originalTitle"] for row in all_new}
+    images[:] = [row for row in images if row.get("originalTitle") not in new_titles]
+    for record in all_new:
+        identity_index = next(
+            (index for index, row in enumerate(images)
+             if row.get("placeId") == record["placeId"] and row.get("role") == "identity"),
+            None,
+        )
+        if identity_index is None:
+            raise SystemExit(f"cannot order experience without preserved identity: {record['placeId']}")
+        images.insert(identity_index + 1, record)
+
+    metadata["imageCount"] = len(images)
+    atomic_json(METADATA, metadata)
 
     manifest = ROOT / f"data/visual/.b6-4-batch-{args.batch}-acquisition.json"
     atomic_json(manifest, {"images": records})

@@ -45,8 +45,6 @@ class B64PhotographyTests(unittest.TestCase):
         cls.batch_size = cls.plan["batchSize"]
         cls.batches = expected_batches(cls.baseline, cls.batch_size)
         cls.through_batch = min(BATCH_LIMIT or len(cls.plan["batches"]), len(cls.batches))
-        cls.base_images = cls.images[:cls.baseline["imageCount"]]
-        cls.new_images = cls.images[cls.baseline["imageCount"]:]
         cls.plan_batches = {row["batch"]: row for row in cls.plan["batches"]}
         cls.processed_batches = range(1, cls.through_batch + 1)
         cls.decisions = {}
@@ -60,6 +58,14 @@ class B64PhotographyTests(unittest.TestCase):
         cls.expected_acquired = {
             pid for pid, (state, _) in cls.decisions.items() if state == "acquired"
         }
+        cls.expected_acquisition_titles = {
+            entry["title"]
+            for number in cls.processed_batches
+            for entry in cls.plan_batches[number].get("entries", [])
+        }
+        cls.new_images = [row for row in cls.images if row.get("originalTitle") in cls.expected_acquisition_titles]
+        cls.new_titles = {row["originalTitle"] for row in cls.new_images}
+        cls.base_images = [row for row in cls.images if row.get("originalTitle") not in cls.new_titles]
         cls.expected_unresolved = {
             pid for pid, (state, _) in cls.decisions.items() if state == "unresolved"
         }
@@ -92,6 +98,11 @@ class B64PhotographyTests(unittest.TestCase):
             ids = [entry["placeId"] for entry in decisions]
             self.assertEqual(set(ids), set(self.batches[number - 1]), f"batch {number}")
             self.assertEqual(len(ids), len(set(ids)), f"batch {number} duplicate decisions")
+            self.assertEqual(
+                [entry["placeId"] for entry in row.get("entries", [])],
+                [pid for pid in self.batches[number - 1] if pid in {entry["placeId"] for entry in row.get("entries", [])}],
+                f"batch {number} acquisitions must follow stable data order",
+            )
             for entry in row.get("entries", []):
                 self.assertEqual(entry.get("role"), "experience")
                 self.assertTrue(entry.get("whyExperience"))
@@ -132,13 +143,13 @@ class B64PhotographyTests(unittest.TestCase):
             for number in self.processed_batches
             for entry in self.plan_batches[number].get("entries", [])
         ]
-        self.assertEqual([row["placeId"] for row in self.new_images], expected_order)
+        self.assertEqual(set(row["placeId"] for row in self.new_images), set(expected_order))
         self.assertEqual(set(expected_order), self.expected_acquired)
         self.assertEqual(len(self.new_images), len(self.expected_acquired))
         self.assertTrue(self.expected_targets <= set(self.decisions))
         for place_id, (state, entry) in self.decisions.items():
             if state == "unresolved":
-                self.assertFalse(any(row.get("role") == "experience" for row in self.by_place[place_id] if row in self.new_images), place_id)
+                self.assertFalse(any(row.get("role") == "experience" for row in self.by_place[place_id] if row.get("originalTitle") in self.new_titles), place_id)
                 continue
             records = [row for row in self.new_images if row["placeId"] == place_id]
             self.assertEqual(len(records), 1, place_id)

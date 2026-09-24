@@ -45,7 +45,11 @@
           "placeId": "JP-021",
           "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
           "reason": "Las fotos localizadas de interiores con visitantes eran vacías o mostraban objetos sin una experiencia espacial. La única escena de visita activa localizada muestra de forma prominente a Hello Kitty durante un evento temporal; se rechaza porque la licencia del fotógrafo no resuelve los derechos del personaje. No se cambia el rol de la imagen context existente.",
-          "searchSources": ["Wikimedia Commons", "Flickr", "Tokyo National Museum official photography guidance"],
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Tokyo National Museum official photography guidance"
+          ],
           "candidatesRejected": [
             {
               "title": "Tokyo National Museum (54166142528).jpg",
@@ -69,7 +73,10 @@
           "placeId": "JP-033",
           "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
           "reason": "La identity actual corresponde a la sede de Azabudai Hills inaugurada en 2024. Las imágenes con experiencia encontradas de la sede nueva muestran obras inmersivas de teamLab; la licencia CC del fotógrafo no aclara los derechos de esas obras. Las imágenes licenciadas de Odaiba son de una sede anterior y no representan el lugar actual.",
-          "searchSources": ["Wikimedia Commons", "Flickr"],
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr"
+          ],
           "candidatesRejected": [
             {
               "title": "TeamLab Borderless, Odaiba, Tokyo, Japan (49070113608).jpg",
@@ -87,7 +94,11 @@
           "placeId": "JP-044",
           "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
           "reason": "El museo prohíbe fotografiar sus interiores. Las escenas de visita encontradas en fuentes licenciadas dependen de personajes y diseños de Studio Ghibli (incluido el acceso/taquilla de Totoro), cuyos derechos no quedan cubiertos por la licencia del fotógrafo. Los registros externos restantes muestran solo el edificio vacío y no añaden experiencia frente a la identity.",
-          "searchSources": ["Wikimedia Commons", "Flickr", "Ghibli Museum official visitor guidance"],
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Ghibli Museum official visitor guidance"
+          ],
           "candidatesRejected": [
             {
               "title": "Ghibli Museum Exterior Entrance Totoro Ticket Booth, Inokishira Park",
@@ -111,7 +122,11 @@
           "placeId": "JP-077",
           "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
           "reason": "Se buscaron rutas, senderos y casas de té con personas en Commons, repositorios DPLA y Flickr. Las rutas con licencia compatible disponibles son reproducciones de archivo subexpuestas y sin visitantes; una escena con personas es también muy oscura y no permite apreciar la experiencia. Las imágenes adecuadas para ver jardines son vacías y repiten la información de paisaje de la identity.",
-          "searchSources": ["Wikimedia Commons", "Digital Public Library of America", "Flickr"],
+          "searchSources": [
+            "Wikimedia Commons",
+            "Digital Public Library of America",
+            "Flickr"
+          ],
           "candidatesRejected": [
             {
               "title": "Katsura Imperial Villa: Stone walkway and porch (DPLA/Commons scan)",
@@ -134,7 +149,11 @@
           "placeId": "JP-089",
           "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
           "reason": "Se buscaron jardines, rutas interiores y escenas con visitantes en Commons, Flickr y Openverse. Los candidatos licenciados localizados muestran jardines vacíos y aportan contexto o detalle, pero no muestran recorrido, personas ni uso del palacio. Una segunda arquitectura vacía sería redundante con la identity.",
-          "searchSources": ["Wikimedia Commons", "Flickr", "Openverse"],
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Openverse"
+          ],
           "candidatesRejected": [
             {
               "title": "Nijojo-ninomaru-garden04s3s4592.jpg",
@@ -150,6 +169,152 @@
               "title": "Ninomaru Garden @ Nijo Castle @ Kyoto (13405502463).jpg",
               "url": "https://commons.wikimedia.org/wiki/File:Ninomaru_Garden_%40_Nijo_Castle_%40_Kyoto_(13405502463).jpg",
               "reason": "Otra vista de jardín vacío, redundante con la identity y sin información de actividad o recorrido."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "entries": [
+        {
+          "placeId": "JP-096",
+          "slug": "sanjusangendo-couple-observes-gate",
+          "title": "File:A couple looking at the gates (52370163970).jpg",
+          "role": "experience",
+          "alt": "Una pareja observa la entrada de Sanjūsangen-dō desde el patio; la larga estructura del templo ocupa el fondo.",
+          "whyExperience": "La pareja orienta la mirada hacia el recinto y ofrece escala humana; la arquitectura del templo sigue dominando la escena.",
+          "identityComparison": "La identity actual es una vista vacía de la fachada lateral del salón principal. Esta toma muestra la puerta exterior desde el patio y dos visitantes mirando el recinto, aportando relación visitante-lugar y escala, con composición distinta.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:A_couple_looking_at_the_gates_(52370163970).jpg",
+          "originalPage": "https://www.flickr.com/photos/22974618@N00/52370163970/"
+        },
+        {
+          "placeId": "JP-129",
+          "slug": "todaiji-visitors-and-deer",
+          "title": "File:Todaiji con visitantes y ciervos, Nara.jpg",
+          "role": "experience",
+          "alt": "Visitantes caminan por la entrada exterior de Tōdai-ji mientras varios ciervos se acercan por el sendero.",
+          "whyExperience": "La escena combina la llegada de visitantes con los ciervos que circulan por el recinto de Nara y comunica una actividad propia del lugar.",
+          "identityComparison": "La identity muestra el Gran Salón de Buda de frente, con personas pequeñas en el acceso. El candidato cambia al portal exterior y muestra visitantes interactuando en el sendero con ciervos; añade recorrido y ambiente, no otra fachada del Gran Salón.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Todaiji_con_visitantes_y_ciervos,_Nara.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Todaiji_con_visitantes_y_ciervos,_Nara.jpg"
+        },
+        {
+          "placeId": "JP-135",
+          "slug": "himeji-castle-visitor-approach",
+          "title": "File:Throngs of people walking towards Himeji Castle, Himeji, 2016.jpg",
+          "role": "experience",
+          "alt": "Una multitud camina por la plaza arbolada hacia el castillo de Himeji, visible al fondo.",
+          "whyExperience": "La imagen documenta la aproximación peatonal y la escala del castillo en relación con sus visitantes.",
+          "identityComparison": "La identity actual observa el castillo elevado desde el exterior del foso. El candidato muestra la ruta de llegada a nivel del suelo, con visitantes de espaldas y el castillo en segundo plano; cambia el punto de vista y aporta escala y recorrido.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Throngs_of_people_walking_towards_Himeji_Castle,_Himeji,_2016.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Throngs_of_people_walking_towards_Himeji_Castle,_Himeji,_2016.jpg"
+        },
+        {
+          "placeId": "JP-142",
+          "slug": "kinosaki-yukata-street-walk",
+          "title": "File:Kinosaki Aruki.jpg",
+          "role": "experience",
+          "alt": "Visitantes con yukata pasean por una calle de Kinosaki Onsen entre tiendas y casas de baño.",
+          "whyExperience": "Los visitantes caminando con yukata representan el paseo entre baños y comercios que caracteriza la estancia en Kinosaki.",
+          "identityComparison": "La identity es un canal nevado visto sin actividad. El candidato muestra una calle comercial a nivel peatonal con personas en yukata; cambia lugar, temporada, encuadre y actividad, y expresa cómo se recorre el onsen town.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kinosaki_Aruki.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Kinosaki_Aruki.jpg"
+        },
+        {
+          "placeId": "JP-143",
+          "slug": "koyasan-shukubo-room-guest-experience",
+          "title": "File:Temple lodging at Shojoshin-in on Koyasan (3810898436).jpg",
+          "role": "experience",
+          "alt": "Un huésped descansa en una habitación de tatami del alojamiento monástico Shōjōshin-in, junto al tokonoma y las puertas corredizas.",
+          "whyExperience": "Muestra la estancia desde dentro: escala del cuarto, asiento de tatami y espacio del huésped. El cuarto, no el retrato, ocupa la mayor parte del encuadre.",
+          "identityComparison": "La identity muestra desde fuera el edificio del hospedaje con jardín. El candidato abre una dimensión interior y doméstica: un huésped en la habitación tradicional, sin repetir fachada ni jardín.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Temple_lodging_at_Shojoshin-in_on_Koyasan_(3810898436).jpg",
+          "originalPage": "https://web.archive.org/web/20190120221410/https://www.flickr.com/photos/49021451@N00/3810898436/"
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-097",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "La única imagen abierta localizada del museo es la fachada exterior vacía y se solapa con la identity. Las escenas de actividad del museo disponibles en Reuters y prensa muestran visitantes jugando con consolas, personajes y productos Nintendo; sus derechos del sujeto no quedan resueltos por la licencia de la fotografía. No se obtuvo una escena de visita legalmente reutilizable y visualmente complementaria.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Nintendo Museum official site",
+            "Reuters Connect"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "Nintendo Museum Entrance.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Nintendo_Museum_Entrance.jpg",
+              "reason": "CC BY-SA 4.0 y lugar verificable, pero exterior vacío que repite la dimensión arquitectónica de la identity; no muestra una experiencia de visita."
+            },
+            {
+              "title": "Nintendo Museum | jpellgen, Flickr",
+              "url": "https://www.flickr.com/photos/jpellgen/54162327141/",
+              "reason": "La página original solo declara ‘Some rights reserved’ sin licencia permitida verificable; además muestra la fachada, no actividad de visitantes."
+            },
+            {
+              "title": "A visitor plays a game at the Nintendo Museum during a press preview in Uji",
+              "url": "https://www.reutersconnect.com/item/a-visitor-plays-a-game-at-the-nintendo-museum-during-a-press-preview-in-uji/dGFnOnJldXRlcnMuY29tLDIwMjQ6bmV3c21sX1JDMkc3QUEzN0VHSQ",
+              "reason": "Imagen con licencia comercial de Reuters y un juego Nintendo como sujeto; no es una licencia reutilizable permitida y permanecen los derechos de la obra mostrada."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-126",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Las imágenes con visitantes y actividad dentro de SUPER NINTENDO WORLD se centran en escenografía, juegos, personajes y elementos de Nintendo. Las licencias CC de sus fotógrafos no resuelven los derechos de esas obras contemporáneas e instalaciones. Las vistas licenciadas sin esos elementos son fachadas estáticas o encuadres redundantes, por lo que no se fuerza una experience.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Openverse",
+            "Universal Studios Japan official site"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "USJ Super Nintendo World overview.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:USJ_Super_Nintendo_World_overview.jpg",
+              "reason": "Panorámica de parque temático con arquitectura y objetos de Nintendo protegidos como protagonistas; la licencia fotográfica no limpia los derechos del sujeto."
+            },
+            {
+              "title": "Super Nintendo World Entrance.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World_Entrance.jpg",
+              "reason": "La instalación con branding y elementos reconocibles del mundo de Super Mario ocupa casi todo el encuadre; el riesgo de copyright no está resuelto."
+            },
+            {
+              "title": "Super Nintendo World Theme Park at USJ Osaka Evening Sky",
+              "url": "https://www.flickr.com/search/?text=Super%20Nintendo%20World%20USJ%20Osaka",
+              "reason": "Las fotos de actividad encontradas muestran personajes y decorados del parque como sujeto principal. No se aprueba una búsqueda genérica como una página de fuente ni se usa como activo."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-134",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "Commons, DPLA, Flickr y la guía turística oficial se buscaron para recorridos y visitantes del complejo. Los archivos libres localizados son vistas vacías del pórtico o de la pagoda; una diapositiva de archivo de 1963 con una figura diminuta es otra vista arquitectónica y no añade actividad o recorrido. El resultado visual complementario disponible en Flickr declara CC BY-NC-ND y no puede usarse.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Digital Public Library of America",
+            "Flickr",
+            "Visit Nara official guide"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "(Pagoda at Horyuji Temple, Japan) - DPLA - d98c2a15b3edeb2000a4eaeb52c9b137.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:(Pagoda_at_Horyuji_Temple,_Japan)_-_DPLA_-_d98c2a15b3edeb2000a4eaeb52c9b137.jpg",
+              "reason": "CC BY 4.0, pero diapositiva de archivo de 1963 centrada en la pagoda; la pequeña figura al borde no muestra recorrido ni experiencia significativa y la composición repite la arquitectura de la identity."
+            },
+            {
+              "title": "HoryujiGate0308.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:HoryujiGate0308.jpg",
+              "reason": "Puerta vacía en resolución baja, sin actividad de visita ni escala humana visible."
+            },
+            {
+              "title": "Temple Horyuji in Nara | Japan-Kyoto.de",
+              "url": "https://www.flickr.com/photos/satorinihon/8674127287/",
+              "reason": "La página original declara CC BY-NC-ND 4.0, que está fuera de las licencias permitidas."
             }
           ]
         }
