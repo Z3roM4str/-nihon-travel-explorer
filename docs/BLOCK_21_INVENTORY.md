@@ -42,7 +42,7 @@ existen en la base B20 y se ejecutaron durante el preflight.
 | La cobertura por prefectura/región se deriva de los 214 lugares; no hay conteos escritos a mano | La portada sólo comunica profundidad editorial real; el mapa conserva las 47 geometrías y su estado con/sin lugares sin convertir geometría en cobertura | `phase5a` A02 + **B21-HOME-05/B21-NAT-02 (nuevos)** |
 | Prefecturas/regiones sin lugares permanecen navegables y dicen «Sin lugares aún» / «Todavía no tenemos…» | Siguen visibles en el mapa; al seleccionarlas muestran el estado de `05 §3`: «Todavía sin lugares verificados» | `RegionNavigator.test.ts` + **B21-NAT-03 (nuevo)** |
 | Entrar a un hub reinicia filtros, ficha, foco de mapa y vuelve a lista | La portada y el mapa nacional reutilizan `enterHub`; el destino exacto sigue siendo Explorar › Ciudad, lista primero | `b17-regression-check.mjs`, `b18-regression-check.mjs`, `phase5a` A03 + **B21-NAV-01 (nuevo)** |
-| Buscar/filtrar sólo es posible dentro de una ciudad; la superficie nacional actual no tiene búsqueda global funcional | La portada prescribe «Buscar en todo Japón», pero no existe hoy lógica global ni contrato de resultados. No se simulará ni se convertirá en UI muerta; queda bloqueado por decisión de navegación/alcance (§7) | **B21-HOME-06 (nuevo, pendiente de decisión)** |
+| Buscar/filtrar sólo es posible dentro de una ciudad; la superficie nacional actual no tiene búsqueda global funcional | La portada implementa búsqueda global real sobre los 214 lugares («Buscar en todo Japón», DDR-B21-05), abriendo `PlaceDetail` sobre Explorar sin cambiar de hub | **B21-HOME-06 (nuevo)** |
 | La atribución MLIT está detrás de `ⓘ` en el mapa y completa en Nosotros › Fuentes y licencias | No aparece en contenido principal de la portada. Permanece íntegra, accesible y enlazada desde el mapa y Nosotros | `b18-regression-check.mjs` + **B21-HOME-07/B21-NAT-04 (nuevos)** |
 
 ---
@@ -147,78 +147,16 @@ No hay autorización para nuevos colores, badges, símbolos, estados ni ranking 
 
 ## 7. DESIGN DECISION REQUIRED
 
-### DDR-B21-01 — solución concreta de DD-003
+### DDR-B21-01…06 — RESUELTAS (2026-09-21)
 
-**Bloque:** B21/B5
-**Superficie:** Explorar › Mapa de ciudad (y cualquier base cartográfica de B21)
-**Pregunta:** ¿B21 debe usar CARTO Positron, previa confirmación de licencia/política, u OSM con
-el filtro CSS ya aceptado?
-**Consultado:** `03 §9`, `05 §3`, `10 §B5`, `09 DD-003`, prompt B21.
-**Opciones reales:** (a) CARTO Positron; (b) OSM filtrado con la fórmula exacta de DD-003.
-**Impacto:** proveedor/red, atribución, aspecto cartográfico y gates de tiles.
-**Bloqueante:** **sí, sólo para cambiar la base cartográfica**; no bloquea portada, datos,
-conservación ni DD-004.
+Todas las seis decisiones de B21 están **RESUELTAS y aprobadas**:
 
-### DDR-B21-02 — copy prohibido frente a copy prescrito
-
-**Bloque:** B21/B5
-**Superficie:** Explorar › Inicio › destinos con 1–3 lugares
-**Pregunta:** `05 §2` exige la etiqueta visible «Cobertura inicial», pero `00` Art. 7 prohíbe la
-palabra visible «cobertura». ¿Cuál es el copy aprobado?
-**Consultado:** `00` Art. 7, `05 §2`, `10 §B5`, prompt B21.
-**Opciones reales:** (a) autorizar la excepción literal de `05 §2`; (b) aprobar otra etiqueta de
-viajero que mantenga la distinción; (c) corregir `05 §2` con copy nuevo decidido por diseño.
-**Impacto:** título de la sección Sapporo/Nagoya/Fukuoka y sus gates de copy.
-**Bloqueante:** **sí para esa etiqueta**, no para derivar ni renderizar los destinos.
-
-### DDR-B21-03 — conteo falso en la tarjeta de mapa
-
-**Bloque:** B21/B5
-**Superficie:** Explorar › Inicio › tarjeta «Ver Japón en el mapa»
-**Pregunta:** `05 §2` prescribe «47 prefecturas, 6 con lugares verificados», pero el dataset
-actual deriva **15** prefecturas con lugares. ¿Debe el texto ser dinámico (47/15) o debe cambiar
-la unidad que el «6» pretendía describir?
-**Consultado:** `00` Arts. 3–4, `05 §2`, `data/geography.ts`, `prefectures.json`, `places.json`.
-**Opciones reales:** (a) contador dinámico de prefecturas (hoy 15); (b) copy corregido con otra
-unidad aprobada; (c) retirar el segundo número mediante copy aprobado.
-**Impacto:** honestidad del acceso al mapa y aserción exacta del gate de portada.
-**Bloqueante:** **sí para el subtítulo**, no para la tarjeta ni su navegación.
-
-### DDR-B21-04 — copy editorial de las colecciones
-
-**Bloque:** B21/B5
-**Superficie:** Explorar › Inicio › cuatro colecciones
-**Pregunta:** `05 §2` exige «una línea editorial» bajo cada título, pero ninguna de las cuatro
-líneas está congelada y Codex no puede escribir copy visible nuevo. ¿Cuáles son las cuatro líneas?
-**Consultado:** `01` (voz), `03 §10`, `05 §2`, `08` (copy nuevo requiere revisión), `09 DD-014`.
-**Opciones reales:** (a) diseño entrega cuatro líneas; (b) diseño elimina formalmente la línea;
-(c) diseño autoriza un campo existente concreto como texto sin reescritura.
-**Impacto:** jerarquía y copy de las cuatro colecciones; la derivación de datos ya está cerrada.
-**Bloqueante:** **sí para los subtítulos**, no para las consultas ni sus tests de pureza.
-
-### DDR-B21-05 — búsqueda nacional sin contrato funcional
-
-**Bloque:** B21/B5
-**Superficie:** Explorar › Inicio › «Buscar en todo Japón»
-**Pregunta:** ¿Qué resultados, filtros, destino al seleccionar y comportamiento de back debe
-tener el buscador nacional? La aplicación sólo tiene `SearchSheet` acotado al hub activo.
-**Consultado:** `02` mapa de pantallas, `04 §12`, `05 §2`/`§4`, `08` navegación/copy.
-**Opciones reales:** (a) búsqueda global en los 214 lugares con ficha dentro de Explorar y retorno
-a portada; (b) selector de ciudad antes de buscar; (c) retirar la fila hasta que exista contrato.
-**Impacto:** navegación, estado, filtros, back y copy de vacío; no es un cambio interno.
-**Bloqueante:** **sí para el buscador de portada**, no para el resto de la portada.
-
-### DDR-B21-06 — nombre japonés de los hubs principales
-
-**Bloque:** B21/B5
-**Superficie:** Explorar › Inicio › tarjetas de Tokio/Kioto/Osaka/Okinawa
-**Pregunta:** `05 §2` exige el nombre japonés bajo cada hub, pero no existe metadato de hub;
-`prefectures.json` describe prefecturas y no siempre una ciudad. ¿Qué fuente/copy se aprueba?
-**Consultado:** `05 §2`, `data/store.ts`, `prefectures.json`, `places.json`, `08`.
-**Opciones reales:** (a) añadir metadato normativo de hubs; (b) aprobar un mapa de presentación
-con las cuatro grafías; (c) retirar ese renglón mediante cambio de especificación.
-**Impacto:** copy y modelo de presentación de las cuatro tarjetas.
-**Bloqueante:** **sí para ese renglón**, no para fotografía, nombre español, contador o navegación.
+- **DDR-B21-01 (DD-003):** Se usa OSM actual con filtro CSS `saturate(.25) contrast(.92) brightness(1.04)`. DD-003 pasa a Firme.
+- **DDR-B21-02:** Título «Más destinos» para Sapporo/Nagoya/Fukuoka con contador «X lugar(es) por ahora».
+- **DDR-B21-03:** Subtítulo de tarjeta de mapa dinámico «47 prefecturas · 15 con lugares en Nihon».
+- **DDR-B21-04:** Líneas editoriales exactas para Imprescindibles (*Los lugares que más justifican el viaje.*), Joyas escondidas (*Sitios especiales que suelen quedar fuera de lo más obvio.*), Menos saturado (*Alternativas para disfrutar con menos gente alrededor.*) y Para una tarde (*Planes que caben bien en un par de horas.*).
+- **DDR-B21-05:** Búsqueda real sobre todos los lugares («Buscar en todo Japón»), orden del dataset, PlaceDetail abre en Explorar sin cambiar de hub, back retiene consulta, resultados y scroll.
+- **DDR-B21-06:** Nombres japoneses con `lang="ja"`: Tokio → 東京, Kioto → 京都, Osaka → 大阪, Okinawa → 沖縄.
 
 ---
 

@@ -32,6 +32,12 @@ PREPARE_SPEC = importlib.util.spec_from_file_location(
 prepare = importlib.util.module_from_spec(PREPARE_SPEC)
 PREPARE_SPEC.loader.exec_module(prepare)
 
+DERIVATIVE_SPEC = importlib.util.spec_from_file_location(
+    "build_photography_derivatives", SCRIPT_DIR / "build-photography-derivatives.py"
+)
+derivatives = importlib.util.module_from_spec(DERIVATIVE_SPEC)
+DERIVATIVE_SPEC.loader.exec_module(derivatives)
+
 MAX = acquire.PHOTOGRAPHY_MAX_DIMENSION
 
 
@@ -225,6 +231,33 @@ class RegistryConsistencyTests(unittest.TestCase):
         # These predate Block 3 A1 and depend on the host serving originals. New records must
         # never join them: `planned_processing_for` records small files as reduced renditions.
         self.assertEqual(len(legacy), 7, legacy)
+
+
+class Block22DerivativeContractTests(unittest.TestCase):
+    def test_both_derivative_names_are_derived_from_the_original(self):
+        asset = "images/places/JP-001/example.webp"
+        self.assertEqual(
+            derivatives.derivative_path_for(asset, 400),
+            "images/places/JP-001/example-400w.webp",
+        )
+        self.assertEqual(
+            derivatives.derivative_path_for(asset, 800),
+            "images/places/JP-001/example-800w.webp",
+        )
+
+    def test_unknown_derivative_width_fails_closed(self):
+        with self.assertRaises(ValueError):
+            derivatives.derivative_path_for("images/places/JP-001/example.webp", 600)
+
+    def test_lqip_is_generated_from_pixels_with_the_prescribed_shape(self):
+        from io import BytesIO
+        from PIL import Image
+
+        source = BytesIO()
+        Image.new("RGB", (160, 90), (64, 128, 192)).save(source, format="WEBP", quality=90)
+        lqip = derivatives.encode_lqip(source.getvalue())
+        self.assertTrue(lqip.startswith("data:image/webp;base64,"))
+        self.assertLessEqual(len(lqip.encode("ascii")), derivatives.LQIP_MAX_DATA_URL_BYTES)
 
 
 if __name__ == "__main__":

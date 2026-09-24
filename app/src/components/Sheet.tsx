@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { Icon } from "../icons/Icon";
 
 type Props = {
@@ -6,6 +6,8 @@ type Props = {
   onClose: () => void;
   children: React.ReactNode;
   labelledBy?: string;
+  initialBodyScrollTop?: number;
+  onBodyScroll?: (scrollTop: number) => void;
 };
 
 const FOCUSABLE =
@@ -19,18 +21,25 @@ const FOCUSABLE =
  * ciudad y por la hoja de filtros; ambos sustituyen construcciones ad hoc que hacían lo mismo
  * con menos disciplina de foco.
  */
-export function Sheet({ title, onClose, children, labelledBy }: Props) {
+export function Sheet({ title, onClose, children, labelledBy, initialBodyScrollTop, onBodyScroll }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const titleId = labelledBy ?? "sheet-title";
+
+  useLayoutEffect(() => {
+    if (initialBodyScrollTop !== undefined && bodyRef.current) {
+      bodyRef.current.scrollTop = initialBodyScrollTop;
+    }
+  }, [initialBodyScrollTop]);
 
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
-    closeRef.current?.focus();
+    closeRef.current?.focus({ preventScroll: true });
     return () => {
       const active = document.activeElement;
       if (active && active !== document.body) return;
-      if (opener && opener.isConnected) opener.focus();
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
     };
   }, []);
 
@@ -88,7 +97,13 @@ export function Sheet({ title, onClose, children, labelledBy }: Props) {
             <Icon name="cerrar" size={16} />
           </button>
         </header>
-        <div className="sheet__body">{children}</div>
+        <div
+          ref={bodyRef}
+          className="sheet__body"
+          onScroll={onBodyScroll ? (event) => onBodyScroll(event.currentTarget.scrollTop) : undefined}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

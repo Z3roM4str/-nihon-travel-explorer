@@ -1,10 +1,11 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
+import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getNationalSummary, getPrefectureByCode } from "./data/geography";
 import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
+import { ExplorerHome } from "./components/ExplorerHome";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
@@ -86,10 +87,10 @@ const NATIONAL_SUMMARY = getNationalSummary();
  * is the whole country, not a city.
  */
 type ViewState =
-  | { mode: "national"; region: NavigationRegion | null; prefectureCode: string | null }
+  | { mode: "national"; mapOpen?: boolean; region: NavigationRegion | null; prefectureCode: string | null }
   | { mode: "hub"; hub: string };
 
-const INITIAL_VIEW: ViewState = { mode: "national", region: null, prefectureCode: null };
+const INITIAL_VIEW: ViewState = { mode: "national", mapOpen: false, region: null, prefectureCode: null };
 
 /**
  * Which of the two hub surfaces a phone is showing. On desktop both are on screen at once and
@@ -240,6 +241,32 @@ export default function App() {
    * sitio — el propio campo de texto, y `filters.query` que sigue alimentando, viven dentro. */
   const [searchOpen, setSearchOpen] = useState(false);
   const [citySheetOpen, setCitySheetOpen] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [globalQuery, setGlobalQuery] = useState("");
+  const [globalSearchRestoreScrollTop, setGlobalSearchRestoreScrollTop] = useState(0);
+  /** La búsqueda global conserva su propio scroll aunque la Sheet se desmonte durante una ficha. */
+  const globalSearchScrollTopRef = useRef(0);
+  /** Contexto explícito de la pila de fichas; no se infiere del hub activo. */
+  const exploreDetailReturnRef = useRef<"global-search" | null>(null);
+
+  const closeGlobalSearch = useCallback(() => {
+    setGlobalSearchOpen(false);
+    exploreDetailReturnRef.current = null;
+    globalSearchScrollTopRef.current = 0;
+    setGlobalSearchRestoreScrollTop(0);
+  }, []);
+
+  const restoreGlobalSearchAfterDetail = useCallback(() => {
+    if (exploreDetailReturnRef.current !== "global-search") return;
+    exploreDetailReturnRef.current = null;
+    setGlobalSearchRestoreScrollTop(globalSearchScrollTopRef.current);
+    setGlobalSearchOpen(true);
+  }, []);
+
+  const globalSearchPlaces = useMemo(() => {
+    if (!globalQuery.trim()) return [];
+    return getAllPlaces().filter((p) => matchesQuery(p, globalQuery));
+  }, [globalQuery]);
   /** Phones show one hub surface at a time; the cards come first. */
   const [mobilePane, setMobilePane] = useState<MobilePane>("list");
   /**
@@ -549,7 +576,7 @@ export default function App() {
   /** Misma restauración de hub que `goBack` ya hacía, factorizada para que el handler de
    * `popstate` (un back real de navegador/gesto, no un clic en la app) pueda reproducirla. */
   const restoreViewForTrail = useCallback((trail: string[]) => {
-    if (ficheOriginRef.current !== "explorar") return;
+    if (ficheOriginRef.current !== "explorar" || exploreDetailReturnRef.current === "global-search") return;
     const nextId = trail[trail.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
     if (nextPlace && nextPlace.hub !== activeHubRef.current) {
@@ -581,6 +608,7 @@ export default function App() {
         setHistory([]);
         setFicheOrigin(null);
         setFicheOriginLabel(null);
+        restoreGlobalSearchAfterDetail();
         return;
       }
       const next = historyRef.current.slice(0, targetDepth);
@@ -589,7 +617,7 @@ export default function App() {
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [restoreViewForTrail]);
+  }, [restoreGlobalSearchAfterDetail, restoreViewForTrail]);
 
   /**
    * Single source of truth for "go look at this place": starts a fresh trail and closes the
@@ -618,11 +646,17 @@ export default function App() {
    * solo no basta para el back label); Explorar/Quiero ir siguen sin necesitarlo.
    */
   const selectPlace = useCallback(
-    (id: string, origin: Destination = "explorar", originLabel: string | null = null) => {
+    (
+      id: string,
+      origin: Destination = "explorar",
+      originLabel: string | null = null,
+      exploreReturnSurface: "global-search" | null = null
+    ) => {
       const place = getPlaceById(id);
       if (!place) return;
+      exploreDetailReturnRef.current = exploreReturnSurface;
       if (origin === "explorar") {
-        if (place.hub !== activeHub) {
+        if (exploreReturnSurface !== "global-search" && place.hub !== activeHub) {
           setView({ mode: "hub", hub: place.hub });
           setFilters(EMPTY_FILTERS);
         }
@@ -658,7 +692,7 @@ export default function App() {
       const place = getPlaceById(id);
       if (!place) return;
       if (historyRef.current[historyRef.current.length - 1] === id) return;
-      if (ficheOrigin === "explorar" && place.hub !== activeHub) {
+      if (ficheOrigin === "explorar" && exploreDetailReturnRef.current !== "global-search" && place.hub !== activeHub) {
         setView({ mode: "hub", hub: place.hub });
       }
       const next = [...historyRef.current, id];
@@ -676,16 +710,17 @@ export default function App() {
     const next = historyRef.current.slice(0, -1);
     const nextId = next[next.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
-    if (ficheOrigin === "explorar" && nextPlace && nextPlace.hub !== activeHub) {
+    if (ficheOrigin === "explorar" && exploreDetailReturnRef.current !== "global-search" && nextPlace && nextPlace.hub !== activeHub) {
       setView({ mode: "hub", hub: nextPlace.hub });
     }
     setHistory(next);
+    if (next.length === 0) restoreGlobalSearchAfterDetail();
     if (navDepthRef.current > 0) {
       ignorePopRef.current += 1;
       window.history.back();
       navDepthRef.current -= 1;
     }
-  }, [activeHub, ficheOrigin]);
+  }, [activeHub, ficheOrigin, restoreGlobalSearchAfterDetail]);
 
   /** The analysis is a lens over the saved places, not a second navigation: opening a place
    * from it goes through the same selectPlace every other surface uses, tagged as belonging to
@@ -702,16 +737,18 @@ export default function App() {
    * past the last level. Pops however many entries this stack pushed in one go (`history.go`
    * fires a single `popstate` at its destination, not one per entry, corrección final punto 4),
    * so the browser's own stack never grows out of sync with `history.length`. */
-  const closeDetail = useCallback(() => {
+  const closeDetail = useCallback((returnToGlobalSearch = true) => {
     setHistory([]);
     setFicheOrigin(null);
     setFicheOriginLabel(null);
+    if (returnToGlobalSearch) restoreGlobalSearchAfterDetail();
+    else exploreDetailReturnRef.current = null;
     if (navDepthRef.current > 0) {
       ignorePopRef.current += 1;
       window.history.go(-navDepthRef.current);
       navDepthRef.current = 0;
     }
-  }, []);
+  }, [restoreGlobalSearchAfterDetail]);
 
   /**
    * «Ver en el mapa» (punto 3, corregido en la segunda ronda): la única acción, desde una ficha
@@ -773,7 +810,7 @@ export default function App() {
    * su sección «Fuentes y licencias» también.
    */
   const openSources = useCallback(() => {
-    closeDetail();
+    closeDetail(false);
     setDestination("nosotros");
   }, [closeDetail]);
 
@@ -858,7 +895,7 @@ export default function App() {
 
   const selectRegion = useCallback((region: NavigationRegion | null) => {
     setView((current) =>
-      current.mode === "national" ? { mode: "national", region, prefectureCode: null } : current
+      current.mode === "national" ? { mode: "national", mapOpen: true, region, prefectureCode: null } : current
     );
   }, []);
 
@@ -871,10 +908,10 @@ export default function App() {
   const selectPrefecture = useCallback((code: string | null) => {
     setView((current) => {
       if (current.mode !== "national") return current;
-      if (!code) return { ...current, prefectureCode: null };
+      if (!code) return { ...current, mapOpen: true, prefectureCode: null };
       const prefecture = getPrefectureByCode(code);
       if (!prefecture) return current;
-      return { mode: "national", region: prefecture.region, prefectureCode: code };
+      return { mode: "national", mapOpen: true, region: prefecture.region, prefectureCode: code };
     });
   }, []);
 
@@ -1144,6 +1181,8 @@ export default function App() {
                          conserva entonces centro, zoom y selección. En `md` son superficies
                          hermanas: el mapa conserva su propio sitio y no hay nada que compensar. */
                       panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
+                      travellers={travellers}
+                      interestSummaryFor={interestSummary}
                     />
                     <InterestLegend />
                     {filteredPlaces.length === 0 && (
@@ -1161,23 +1200,71 @@ export default function App() {
                       </div>
                     )}
                   </main>
-
-                  {ficheOrigin === "explorar" && placeDetailOverlay}
                 </div>
               </>
             ) : (
               nationalView && (
                 <div className="app__body app__body--national">
-                  <NationalExplorer
-                    activeRegion={nationalView.region}
-                    selectedCode={nationalView.prefectureCode}
-                    onSelectRegion={selectRegion}
-                    onSelectPrefecture={selectPrefecture}
-                    onEnterHub={enterHub}
-                  />
+                  {nationalView.mapOpen ? (
+                    <NationalExplorer
+                      activeRegion={nationalView.region}
+                      selectedCode={nationalView.prefectureCode}
+                      onSelectRegion={selectRegion}
+                      onSelectPrefecture={selectPrefecture}
+                      onEnterHub={enterHub}
+                      onCloseMap={() =>
+                        setView({ mode: "national", mapOpen: false, region: null, prefectureCode: null })
+                      }
+                    />
+                  ) : (
+                    <ExplorerHome
+                      onEnterHub={enterHub}
+                      onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
+                      onOpenNationalMap={() =>
+                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null })
+                      }
+                      onSelectPlace={(id) => selectPlace(id, "explorar")}
+                      onToggleSaved={toggleSavedWithFeedback}
+                      savedIds={activeInterestedIds}
+                      otherPersonMarkerFor={otherPersonMarkerFor}
+                    />
+                  )}
+
                 </div>
               )
             )}
+
+            {globalSearchOpen && (
+              <SearchSheet
+                hubName="todo Japón"
+                title="Buscar en todo Japón"
+                placeholder="Buscar en todo Japón"
+                query={globalQuery}
+                onQueryChange={setGlobalQuery}
+                results={globalSearchPlaces}
+                savedIds={activeInterestedIds}
+                selectedId={explorarSelectedId}
+                onSelect={(id) => {
+                  selectPlace(id, "explorar", null, "global-search");
+                  setGlobalSearchOpen(false);
+                }}
+                closeOnSelect={false}
+                initialBodyScrollTop={globalSearchRestoreScrollTop}
+                onBodyScroll={(scrollTop) => {
+                  globalSearchScrollTopRef.current = scrollTop;
+                }}
+                onToggleSaved={toggleSavedWithFeedback}
+                otherPersonMarkerFor={otherPersonMarkerFor}
+                emptyDescription={
+                  globalQuery.trim()
+                    ? `Nada con “${globalQuery.trim()}” en Japón. Prueba con otro nombre.`
+                    : undefined
+                }
+                onClose={closeGlobalSearch}
+              />
+            )}
+
+            {ficheOrigin === "explorar" && placeDetailOverlay}
           </div>
 
           {/*

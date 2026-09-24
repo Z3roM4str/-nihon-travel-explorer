@@ -11,12 +11,12 @@ import { describe, expect, it } from "vitest";
  * reach the shared plan.
  */
 
-function readSource(name: string): Promise<string> {
-  return readFile(new URL(`./${name}`, import.meta.url), "utf8");
+async function readSource(name: string): Promise<string> {
+  return (await readFile(new URL(`./${name}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 
-function readAppSource(name: string): Promise<string> {
-  return readFile(new URL(`../${name}`, import.meta.url), "utf8");
+async function readAppSource(name: string): Promise<string> {
+  return (await readFile(new URL(`../${name}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 
 /** Strips comments, so a vocabulary scan asserts on what a module RENDERS rather than on what its

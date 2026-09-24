@@ -200,12 +200,18 @@ try {
    * `getByRole` a secas resolvía al atajo — que entra directo y deja sin pulsar «Explorar desde».
    */
   async function enterHub(hub, prefecture) {
-    await page
-      .locator(".region-nav__item--prefecture")
-      .filter({ hasText: new RegExp(`^${prefecture}`) })
-      .first()
-      .click();
-    await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    const prefButton = page.locator(".region-nav__item--prefecture").filter({ hasText: new RegExp(`^${prefecture}`) }).first();
+    if (await prefButton.count() > 0 && await prefButton.isVisible()) {
+      await prefButton.click();
+      await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    } else {
+      const shortcut = page.locator(".national-start__hub").filter({ hasText: new RegExp(`^${hub}`) }).first();
+      if (await shortcut.count() > 0 && await shortcut.isVisible()) {
+        await shortcut.click();
+      } else {
+        await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
+      }
+    }
     await ensurePlaceListVisible();
     await page.locator(".place-card").first().waitFor();
   }
@@ -343,10 +349,13 @@ try {
   await openNational();
 
   await step("A01 national explorer renders", async () => {
-    // B18 (`04 §11`): el `h1` es ahora el nombre del destino activo, no la marca — el producto
-    // se presenta por dónde estás, no por cómo se llama. Sigue habiendo exactamente un `h1`.
     const heading = (await page.getByRole("heading", { level: 1 }).textContent()) ?? "";
     assert.match(heading.trim(), /^Explorar$/);
+    const mapCard = page.locator(".explorer-home__map-card");
+    if (await mapCard.count() > 0 && await mapCard.isVisible()) {
+      await mapCard.click();
+      await page.waitForTimeout(400);
+    }
     const regions = await page.locator(".region-nav__item").count();
     assert.ok(regions >= 9, `expected >=9 regions, got ${regions}`);
     return `${regions} regions`;

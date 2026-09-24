@@ -158,15 +158,16 @@ try {
   record("C. no legal-clearance claim", "branded record");
   await closePlace();
 
-  // ── D. a target that failed closed keeps the untouched no-photo fallback ──
-  for (const deferred of ["teamLab Borderless", "Tokyo Disneyland"]) {
+  // ── D. uncovered places still keep the no-photo fallback after B6.1 ──
+  // The original two targets gained licensed photographs in B6.1.
+  for (const deferred of ["Takeshita Street", "Nezu Shrine"]) {
     await openPlace(deferred);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
     assert.equal(await creditsButtonCount(page), 0, `${deferred} must show no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${deferred} must show no image`);
     await closePlace();
   }
-  record("D. deferred targets keep fallback", "teamLab Borderless, Tokyo Disneyland");
+  record("D. uncovered targets keep fallback", "Takeshita Street, Nezu Shrine");
 
   // ── E. nothing about photography is fetched at runtime ──
   const photographyHosts = /wikimedia\.org|wikipedia\.org|creativecommons\.org/i;

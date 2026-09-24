@@ -105,7 +105,7 @@ describe("the carousel is now reachable by real data", () => {
   });
 
   it("still resolves none for an uncovered place", () => {
-    expect(resolvePlaceImages("JP-033")).toHaveLength(0);
+    expect(resolvePlaceImages("JP-121")).toHaveLength(0);
   });
 
   it("keeps the gallery's multi-image affordances wired to the real count", async () => {

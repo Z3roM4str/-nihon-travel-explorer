@@ -20,6 +20,12 @@ type Props = {
   onToggleSaved: (id: string) => void;
   otherPersonMarkerFor?: (placeId: string) => OtherPersonMarker | null;
   onClose: () => void;
+  title?: string;
+  placeholder?: string;
+  emptyDescription?: string;
+  closeOnSelect?: boolean;
+  initialBodyScrollTop?: number;
+  onBodyScroll?: (scrollTop: number) => void;
 };
 
 /**
@@ -39,6 +45,12 @@ export function SearchSheet({
   onToggleSaved,
   otherPersonMarkerFor,
   onClose,
+  title,
+  placeholder,
+  emptyDescription,
+  closeOnSelect = true,
+  initialBodyScrollTop,
+  onBodyScroll,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,15 +58,26 @@ export function SearchSheet({
   // resto de sus usos); una búsqueda necesita el campo de texto listo para escribir de
   // inmediato, así que este efecto —que corre después, tras el primer pintado— se lo quita.
   useEffect(() => {
-    const frame = requestAnimationFrame(() => inputRef.current?.focus());
+    const frame = requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
     return () => cancelAnimationFrame(frame);
   }, []);
 
   const trimmed = query.trim();
   const savedSet = new Set(savedIds);
 
+  const sheetTitle = title ?? `Buscar en ${hubName}`;
+  const inputPlaceholder = placeholder ?? `Buscar en ${hubName}`;
+  const noResultsDescription =
+    emptyDescription ??
+    `Nada con “${trimmed}” en ${hubName}. Prueba en otra ciudad o quita los filtros.`;
+
   return (
-    <Sheet title={`Buscar en ${hubName}`} onClose={onClose}>
+    <Sheet
+      title={sheetTitle}
+      onClose={onClose}
+      initialBodyScrollTop={initialBodyScrollTop}
+      onBodyScroll={onBodyScroll}
+    >
       <div className="search-sheet">
         <div className="search-sheet__field">
           <div className="search-field">
@@ -62,7 +85,7 @@ export function SearchSheet({
               ref={inputRef}
               type="search"
               className="search-field__input"
-              placeholder={`Buscar en ${hubName}`}
+              placeholder={inputPlaceholder}
               value={query}
               onChange={(event) => onQueryChange(event.target.value)}
               autoComplete="off"
@@ -86,7 +109,7 @@ export function SearchSheet({
             <EmptyState
               icon="buscar"
               title="Sin resultados"
-              description={`Nada con “${trimmed}” en ${hubName}. Prueba en otra ciudad o quita los filtros.`}
+              description={noResultsDescription}
             />
           ) : (
             <ul className="place-list place-list--compact" aria-label="Resultados de la búsqueda">
@@ -99,7 +122,7 @@ export function SearchSheet({
                     saved={savedSet.has(place.id)}
                     onSelect={(id) => {
                       onSelect(id);
-                      onClose();
+                      if (closeOnSelect) onClose();
                     }}
                     onToggleSaved={onToggleSaved}
                     otherPersonMarker={otherPersonMarkerFor ? otherPersonMarkerFor(place.id) : null}

@@ -1,4 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -31,7 +32,7 @@ async function sourceFiles(dir = SRC, acc: string[] = []): Promise<string[]> {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const child = new URL(entry.name + (entry.isDirectory() ? "/" : ""), dir);
     if (entry.isDirectory()) await sourceFiles(child, acc);
-    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) acc.push(child.pathname);
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) acc.push(fileURLToPath(child));
   }
   return acc;
 }

@@ -51,18 +51,17 @@ encuadre y su presentación. Es el bloque de implementación más grande (B7).
 ---
 
 ### DD-003 — Base cartográfica apagada
-**Estado:** Provisional · **Afecta:** `03 §9`, `05 §3`, `05 §4`
+**Estado:** Firme · **Fecha:** 2026-09-21 · **Afecta:** `03 §9`, `05 §3`, `05 §4` · **Cierra:** DDR-B21-01
 
-**Decisión.** Se abandonan las teselas OSM crudas por una base gris clara con poca
-rotulación.
+**Decisión.** Se mantiene el proveedor OSM actual aplicando únicamente a la capa de
+teselas el filtro CSS `saturate(.25) contrast(.92) brightness(1.04)`.
 
-**Alternativas descartadas.** OSM sin cambios: es el motivo principal de que la vista
-de ciudad parezca un clon de Google Maps, y su saturación compite con los marcadores.
+**Alternativas descartadas.** (a) CARTO Positron: requiere gestión de proveedor/clave
+y riesgo de política de uso sin aportar ventaja sobre el filtro CSS aprobado. (b) OSM sin
+filtro: la saturación compite con los marcadores.
 
-**Abierto.** El proveedor concreto depende de licencia y de política de uso. Preferido:
-CARTO Positron. Alternativa aceptada sin coste ni dependencia nueva: OSM con filtro
-CSS `saturate(.25) contrast(.92) brightness(1.04)`. Ingeniería puede elegir entre esas
-dos e informar; cualquier tercera opción requiere revisión.
+**Consecuencias.** No se modifican URL de tiles, atribución OSM, geometría, marcadores,
+controles ni paneles. DD-003 pasa a estado **Firme**.
 
 ---
 
@@ -573,6 +572,42 @@ nadie ha revisado en este bloque, y se apropia de un alcance que el roadmap ya a
 
 ---
 
+### DDR-B21-01…06 — Resoluciones del Bloque 21 (Explorar: portada y mapa)
+**Estado: RESUELTAS** · Fecha: 2026-09-21 · **Afecta:** `05 §2`/`§3`/`§4`, `03 §9`, `09`, `10 §B5`
+
+1. **DDR-B21-01 (DD-003): Base cartográfica**
+   Usar el proveedor OSM actual aplicando a la capa de teselas el filtro CSS:
+   `saturate(.25) contrast(.92) brightness(1.04)`. No usar CARTO. Atribución, geometría,
+   marcadores y controles permanecen intactos. DD-003 pasa a estado Firme.
+
+2. **DDR-B21-02: Destinos con 1–3 lugares**
+   La palabra visible «cobertura» sigue prohibida. La sección de Sapporo/Nagoya/Fukuoka se llama
+   exactamente «Más destinos». Contadores dinámicos con pluralización: «3 lugares por ahora» /
+   «1 lugar por ahora».
+
+3. **DDR-B21-03: Conteo dinámico de prefecturas**
+   Eliminar el literal obsoleto «47 prefecturas, 6 con lugares verificados». Usar dinámicamente:
+   «47 prefecturas · 15 con lugares en Nihon» (ambos números derivados del modelo).
+
+4. **DDR-B21-04: Líneas editoriales de colecciones**
+   - Imprescindibles: *Los lugares que más justifican el viaje.*
+   - Joyas escondidas: *Sitios especiales que suelen quedar fuera de lo más obvio.*
+   - Menos saturado: *Alternativas para disfrutar con menos gente alrededor.*
+   - Para una tarde: *Planes que caben bien en un par de horas.*
+
+5. **DDR-B21-05: Búsqueda global**
+   Título/placeholder: «Buscar en todo Japón». Búsqueda real sobre todos los lugares sin ranking,
+   conservando el orden del dataset. Consulta vacía no muestra resultados. Sin resultados:
+   «Nada con “{consulta}” en Japón. Prueba con otro nombre.». Seleccionar un resultado abre
+   `PlaceDetail` como superposición dentro de Explorar sin cambiar implícitamente la ciudad activa.
+   Navegación back retiene consulta, resultados y scroll. Cierre de búsqueda/back devuelve a la portada.
+
+6. **DDR-B21-06: Nombres japoneses de hubs**
+   Mapa de presentación tipado y centralizado: Tokio → 東京, Kioto → 京都, Osaka → 大阪,
+   Okinawa → 沖縄, renderizados con `lang="ja"` y fuente de voz. Sin cambios en dataset/workbook.
+
+---
+
 ### DDR-06 — «Cerca de aquí»: nota al pie y `EvidenceMark` a la vez
 **Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `04 §2`, `05 §5` pt. 12, `05 §12`
 
@@ -628,7 +663,6 @@ texto de la distinción es legible por un lector de pantalla.
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
 |---|---|---|---|
-| **DD-003** | Proveedor de teselas apagadas | Ingeniería, entre las dos opciones dadas | B5 |
 | **OD-01** | ¿Se añade modo oscuro en esta evolución? | Producto | Nada; los tokens ya lo permiten |
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
