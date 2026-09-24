@@ -66,3 +66,14 @@ Este bloque registra el estado vigente y complementa la auditoría anterior de e
 - Sin push, merge, PR ni despliegue; main y Claude/B21 no se modificaron. Pendientes: revisión independiente y publicación autorizada con acceso GitHub válido. Las tres pruebas CRLF siguen fallando en el checkout Windows, aunque la causa está reproducida y aislada.
 
 Siguiente acción concreta: revisar ASTRA_REVISION_CIERRE.zip, comenzando por su README.md; si se solicita una corrección a partir de esa revisión, trabajar solo en codex/astra-editorial-v1.
+
+## Publicación autorizada 2026-09-24
+
+- La revisión independiente de ChatGPT dio por resueltos los pendientes de Astra Editorial v1. El usuario autorizó push normal y un único PR, sin merge ni despliegue manual.
+- PR abierto: https://github.com/Z3roM4str/-nihon-travel-explorer/pull/144. Origen `codex/astra-editorial-v1`; destino `codex/completa-pr-#135-de-astra-16422227132192129267`, rama fuente abierta de #139. Su SHA remoto se comprobó en vivo: `9408e27ec279e6ec80bd27632e656d4f6c265384`. No existía otro PR editorial.
+- El push normal publicó `81eba120244b331a0190dffe7d5aea96e67bb126` sin divergencia. El producto auditado permanece en `c40281322930e4995fb6ccc48da686cabfbc7a64`; este registro es solo documental. El SHA operativo es el HEAD de esta rama; verificarlo con git rev-parse HEAD y con ls-remote antes de retomar.
+- Las comprobaciones de acceso dentro del aislamiento de red devolvieron token inválido y Schannel `SEC_E_NO_CREDENTIALS`; fuera de ese aislamiento, la sesión oficial de `gh` y Git HTTPS funcionaron. No se cambiaron credenciales, certificados ni configuración global.
+- En la primera consulta del PR, Vercel y Vercel Preview Comments figuraban aprobados; no aparecían checks de lint, build o pruebas en GitHub. Los resultados locales siguen siendo los documentados sobre `c402813`, no equivalen a CI.
+- No se hizo merge, despliegue manual, cambio a main ni modificación de Claude/B21. El repositorio activó automáticamente una vista previa de Vercel al abrir el PR; su check completó correctamente.
+
+**Siguiente acción concreta:** revisar el diff y los checks del PR #144; mantener merge y despliegue de producción pendientes de autorización separada.
