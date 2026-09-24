@@ -82,13 +82,18 @@ class Block22B62PhotographyTests(unittest.TestCase):
             self.assertEqual(record["alt"], entry["alt"], place_id)
             self.assertIn(record["license"], validator.SUPPORTED_LICENSES, place_id)
             for field in (
-                "assetPath", "alt", "source", "sourceUrl", "credit", "license", "licenseUrl",
+                "assetPath", "alt", "source", "sourceUrl", "credit", "license",
                 "acquisitionUrl", "acquisitionDate", "originalTitle", "originalWidth",
                 "originalHeight", "processing", "lqip",
             ):
                 if field == "credit" and record["license"] == "CC0":
                     continue
                 self.assertTrue(record.get(field), f"{place_id}: missing {field}")
+            if record["license"] == "Public Domain":
+                self.assertEqual(record.get("licenseBasis"), "PD-self", place_id)
+                self.assertNotIn("licenseUrl", record, place_id)
+            else:
+                self.assertTrue(record.get("licenseUrl"), f"{place_id}: missing licenseUrl")
             self.assertTrue(validator.valid_lqip(record["lqip"]), place_id)
             self.assertTrue(validator.is_usable_alt(record["alt"]), place_id)
 
@@ -117,8 +122,12 @@ class Block22B62PhotographyTests(unittest.TestCase):
         self.assertEqual(METADATA_PATH.read_bytes(), APP_METADATA_PATH.read_bytes())
 
     def test_place_images_source_is_unchanged_from_b6_2_base(self):
-        digest = hashlib.sha256(PLACE_IMAGES_TS.read_bytes()).hexdigest()
-        self.assertEqual(digest, self.baseline["placeImagesTsSha256"])
+        source = PLACE_IMAGES_TS.read_bytes().replace(b"\r\n", b"\n")
+        digests = {
+            hashlib.sha256(source).hexdigest(),
+            hashlib.sha256(source.replace(b"\n", b"\r\n")).hexdigest(),
+        }
+        self.assertIn(self.baseline["placeImagesTsSha256"], digests)
 
     def test_every_hub_list_payload_stays_within_contract(self):
         hub_of = {p["id"]: p["hub"] for p in self.places}

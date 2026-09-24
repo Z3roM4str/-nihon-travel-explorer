@@ -236,6 +236,15 @@
       "alt": "Visitantes ante la entrada del Tokyo Big Sight bajo sus pirámides invertidas, con carteles y señalética de AnimeJapan 2014.",
       "role": "identity",
       "whyIdentity": "Coincide con el brief editorial (pabellón principal y señalética del evento): la sede con la señalética de AnimeJapan identifica la feria; el alt declara que es la edición de 2014."
+    },
+    {
+      "batch": 5,
+      "placeId": "JP-156",
+      "slug": "naha-sakaemachi-ichiba-covered-arcade",
+      "title": "File:Naha Sakaemachi Ichiba 01.JPG",
+      "alt": "Rótulo 栄町市場 sobre la galería cubierta de Sakaemachi en Naha, con el pasillo comercial y sus negocios bajo el techo.",
+      "role": "identity",
+      "whyIdentity": "La página original de Commons nombra el propio Sakaemachi Ichiba (栄町市場); la imagen muestra el mercado y su galería comercial, no un establecimiento cercano."
     }
   ],
   "rejected": [
@@ -441,11 +450,6 @@
     },
     {
       "placeId": "JP-156",
-      "title": "File:Naha Sakaemachi Ichiba 01.JPG",
-      "reason": "Identifica el mercado (rótulo 栄町市場), pero su licencia es PD-self; el contrato actual del pipeline/validador sólo representa CC0, CC BY y CC BY-SA con licenseUrl de creativecommons.org, y no se inventa una URL de licencia."
-    },
-    {
-      "placeId": "JP-156",
       "title": "File:栄町りうぼう リウボウストア 那覇市安里 Sep 10, 2011 (1).jpg",
       "reason": "Supermercado Ryubo de Sakaemachi, no la galería comercial nocturna."
     },
@@ -533,39 +537,35 @@
   "unresolved": [
     {
       "placeId": "JP-050",
-      "reason": "Commons (Category:PokéPark Kanto y búsquedas en inglés/japonés) sólo contiene el logotipo y una sala interior no representativa. Ninguna fotografía con licencia verificable muestra el recorrido forestal ni las figuras de Pokémon."
+      "reason": "Commons Category:PokéPark Kanto contiene una foto CC BY 4.0 de Sekkoku Lab (5184×3456), pero muestra un interior genérico de la zona junto al Pokémon Forest sin entrada, nombre del parque ni señalética identificadora. El logotipo de Commons tampoco es una fotografía."
     },
     {
       "placeId": "JP-079",
-      "reason": "Sin archivos en Commons para el Parque de Bambú de Rakusai (búsquedas 'Rakusai Bamboo Park', 'Rakusai chikurin', '洛西竹林公園' y categorías Rakusai). Un bambú genérico de otro sitio no es aceptable."
+      "reason": "Las páginas originales de Flickr para Rakusai Bamboo Park 3 (Mark Fountain, 2008-09-30) y Rakusai Bamboo Park, Kyoto (kyoshiok, 2016-10-17) marcan ambas All rights reserved; no se halló candidata bajo PD/CC0/CC BY/CC BY-SA."
     },
     {
       "placeId": "JP-095",
-      "reason": "teamLab Biovortex Kyoto (abierto en 2025) no tiene fotografías en Commons ni en Category:TeamLab; las obras de teamLab de otras sedes no sirven."
+      "reason": "La foto original de Flickr Outside teamLab Biovortex (Joe Shlabotnik, 2026-04-04) es exterior, pero CC BY-NC-SA 4.0 excluye uso comercial. Los interiores representan obras contemporáneas de teamLab; la licencia del fotógrafo no concede los derechos de esas obras."
     },
     {
       "placeId": "JP-120",
-      "reason": "Commons sólo tiene fotografías diurnas del Jardín Botánico de Nagai; ninguna muestra teamLab Botanical Garden Osaka."
+      "reason": "La foto de entrada de Osaka Metro Nine sí identifica el recinto, pero su página no concede una licencia PD/CC compatible. Las fotos originales de Flickr teamLab Botanical Garden de banzainetsurfer (2024-09-28) aparecen All rights reserved; las instalaciones interiores además plantean derechos de las obras contemporáneas."
     },
     {
       "placeId": "JP-121",
-      "reason": "La Torre del Sol no tiene fotografías libres en Commons (obra protegida, sin libertad de panorama en Japón); las vistas incidentales del parque no identifican el lugar."
-    },
-    {
-      "placeId": "JP-156",
-      "reason": "Las únicas fotografías de la galería Sakaemachi son PD-self. Aceptarlas requiere ampliar el contrato de licencias del pipeline/validador (licenseUrl no-CC); queda para decisión explícita fuera de B6.2."
+      "reason": "La foto original de Flickr The Tower of the Sun (Masakazu Matsumoto, 2012-07-29) tiene CC BY 2.0 y está centrada en la escultura. Commons señala que Japón no permite reutilizar comercialmente obras artísticas modernas mediante libertad de panorama; esta imagen no supera derechos subyacentes ni identidad incidental."
     },
     {
       "placeId": "JP-168",
-      "reason": "Sólo existe una foto de 450 px de Yachimun no Sato; el resto de resultados son de otros lugares."
+      "reason": "La foto directa de Commons Yomitan Yachimun no Sato.jpg está liberada por su autora al dominio público, pero el original mide 450×338. Photozou ofrece otras vistas del mismo sitio bajo CC BY-NC-ND; no son admisibles y ninguna candidata compatible de ≥1600 px se verificó."
     },
     {
       "placeId": "JP-195",
-      "reason": "No existe en Commons una fotografía del cielo nocturno verificablemente tomada en Yaeyama (Ishigaki, Iriomote o Hateruma); las de Vía Láctea son de otras regiones."
+      "reason": "Flickr confirma que Milky Way, which rise from the forest fue tomada en Ishigaki, pero la página original indica All rights reserved. La candidata de Ogansaki Lighthouse en Pixabay confirma Ishigaki y 3300×2200, pero usa la licencia propia de Pixabay, no PD/CC0/CC BY/CC BY-SA."
     },
     {
       "placeId": "JP-202",
-      "reason": "Ninguna fotografía de ballenas jorobadas en aguas de Kerama (búsquedas en inglés, japonés y latín); los paisajes de las islas no representan la experiencia."
+      "reason": "La página original de Flickr humpback whale breaching off Kerama island Okinawa Japan documenta una jorobada y Kerama, pero marca All rights reserved. La foto CC BY 2.0 de Kerama Island en Commons muestra sólo islas y mar, sin ballena ni actividad."
     }
   ]
 }

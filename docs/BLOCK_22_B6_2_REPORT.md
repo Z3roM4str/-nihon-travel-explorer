@@ -1,14 +1,14 @@
 # Bloque 22 — B6.2: fotografía Grado A sin cobertura
 
-**Estado:** CERRADO CON UNRESOLVED — 26 de 35 objetivos adquiridos; 9 unresolved documentados.
-**No apto para integración** hasta que se decida qué hacer con los 9 unresolved (ver §11 y §20).
+**Estado:** B6.2-R cerrado — 27 de 35 objetivos adquiridos; 8 excepciones finales documentadas.
+**Apto para integración con excepciones documentadas**; los 8 lugares mantienen PhotoPlaceholder deliberado.
 
 **Rama:** `codex/block-22-b6-2-grade-a-photography` · **Fecha de adquisición:** 2026-09-24
 
 ## 1. SHA base
 
 `88b9592c4351c8a48ccd216d372797d535d63968` (`codex/block-21-b5-explore-home-map`, B21 + B6.1 cerrados).
-Verificado con `git rev-parse HEAD` tras el `reset --hard` del preflight. La rama B6.2 no existía en remoto.
+Este SHA es la base histórica de B6.2, verificada tras el `reset --hard` del preflight. Para B6.2-R, la rama remota ya existente parte de `019ed2f47bb39653f41cbfdb506ff42d858b32fa`, como se detalla en el addendum de recuperación.
 
 ## 2. Lista exacta de los 35 objetivos
 
@@ -45,7 +45,7 @@ base y el test B6.2 lo comprueba.
 | 23 | JP-136 | Kōko-en | Osaka | 3 | adquirido |
 | 24 | JP-137 | Engyō-ji on Mount Shosha | Osaka | 3 | adquirido |
 | 25 | JP-147 | Enryaku-ji | Osaka | 3 | adquirido |
-| 26 | JP-156 | Sakaemachi Arcade nightlife | Okinawa | 3 | **unresolved** |
+| 26 | JP-156 | Sakaemachi Arcade nightlife | Okinawa | 5 (B6.2-R) | **adquirido** |
 | 27 | JP-168 | Yachimun no Sato | Okinawa | 3 | **unresolved** |
 | 28 | JP-170 | Katsuren Castle Ruins | Okinawa | 3 | adquirido |
 | 29 | JP-175 | Nakijin Castle Ruins | Okinawa | 3 | adquirido |
@@ -201,38 +201,21 @@ Lista completa y estructurada en `data/visual/block22-b6-2-acquisition-plan.json
 | JP-211 | `Category:AnimeJapan 2015` | Retratos de cosplayers y azafatas identificables: personas como sujeto, no el evento. |
 | JP-211 | `File:Animejapanlogo.png` | Logotipo, no fotografía. |
 
-## 11. Unresolved
+## 11. Excepciones finales
 
-Ninguno se sustituyó por una imagen incorrecta, genérica o de otro lugar.
-
-| ID | Lugar | Causa |
-|---|---|---|
-| JP-050 | PokéPark KANTO | Commons (Category:PokéPark Kanto y búsquedas en inglés/japonés) sólo contiene el logotipo y una sala interior no representativa. Ninguna fotografía con licencia verificable muestra el recorrido forestal ni las figuras de Pokémon. |
-| JP-079 | Kyoto Rakusai Bamboo Park | Sin archivos en Commons para el Parque de Bambú de Rakusai (búsquedas 'Rakusai Bamboo Park', 'Rakusai chikurin', '洛西竹林公園' y categorías Rakusai). Un bambú genérico de otro sitio no es aceptable. |
-| JP-095 | teamLab Biovortex Kyoto | teamLab Biovortex Kyoto (abierto en 2025) no tiene fotografías en Commons ni en Category:TeamLab; las obras de teamLab de otras sedes no sirven. |
-| JP-120 | teamLab Botanical Garden Osaka | Commons sólo tiene fotografías diurnas del Jardín Botánico de Nagai; ninguna muestra teamLab Botanical Garden Osaka. |
-| JP-121 | Expo ’70 Park + Tower of the Sun | La Torre del Sol no tiene fotografías libres en Commons (obra protegida, sin libertad de panorama en Japón); las vistas incidentales del parque no identifican el lugar. |
-| JP-156 | Sakaemachi Arcade nightlife | Las únicas fotografías de la galería Sakaemachi son PD-self. Aceptarlas requiere ampliar el contrato de licencias del pipeline/validador (licenseUrl no-CC); queda para decisión explícita fuera de B6.2. |
-| JP-168 | Yachimun no Sato | Sólo existe una foto de 450 px de Yachimun no Sato; el resto de resultados son de otros lugares. |
-| JP-195 | Yaeyama stargazing experience | No existe en Commons una fotografía del cielo nocturno verificablemente tomada en Yaeyama (Ishigaki, Iriomote o Hateruma); las de Vía Láctea son de otras regiones. |
-| JP-202 | Whale watching in the Kerama waters | Ninguna fotografía de ballenas jorobadas en aguas de Kerama (búsquedas en inglés, japonés y latín); los paisajes de las islas no representan la experiencia. |
-
-Posibles vías, todas fuera del alcance de B6.2 y pendientes de decisión explícita:
-- JP-156: aceptar `PD-self` exige ampliar el contrato de licencias (`validate-photography.py`,
-  `prepare-block2-…`, y el test de Vitest que exige `licenseUrl` en creativecommons.org).
-- El resto: sólo hay material con licencia verificable fuera de Commons o no hay ninguno; el
-  pipeline actual (`acquire-photography.py`) es exclusivamente Commons.
-- JP-121 (Torre del Sol) y JP-095/JP-120 (teamLab) son obras protegidas: no es previsible que
-  aparezca material libre.
+Quedan ocho destinos sin una imagen admisible. La evidencia directa, fuentes revisadas, candidato,
+licencia, resolución, derechos subyacentes y decisión normalizada se detallan en **B6.2-R —
+recuperación de excepciones** al final del informe. No se sustituyó ningún destino por una foto
+incorrecta, genérica o de otro lugar.
 
 ## 12. Conteos antes/después
 
 | Métrica | Antes (base) | Después | Esperado si 35/35 |
 |---|---:|---:|---:|
-| Imágenes registradas | 167 | **193** | 202 |
-| Lugares con fotografía | 161 | **187** | 196 |
-| Grado A con ≥1 fotografía | 112/147 | **138/147** | 147/147 |
-| Grado A sin fotografía | 35 | **9** | 0 |
+| Imágenes registradas | 167 | **194** | 202 |
+| Lugares con fotografía | 161 | **188** | 196 |
+| Grado A con ≥1 fotografía | 112/147 | **139/147** | 147/147 |
+| Grado A sin fotografía | 35 | **8 excepciones documentadas** | 0 |
 | Grado S con fotografía | 32/32 | **32/32** | 32/32 |
 
 Los conteos los calculan los gates (`test_block22_b6_2_photography.py`, `place-images.test.ts`),
@@ -273,11 +256,11 @@ Osaka 2.919.480 / 2.919.480; Okinawa 2.662.306 / 2.662.306. Todos < 3.500.000 B.
 | Gate | Resultado |
 |---|---|
 | `python3 scripts/validate-photography.py` | PASS |
-| `python3 scripts/test_photography.py` | PASS — 38/38 |
+| `python3 scripts/test_photography.py` | PASS — 40/40 (incluye normalización y validación PD-self) |
 | `python3 scripts/test_photography_rendition.py` | PASS — 28/28 |
-| `python3 scripts/test_block22_photography.py` | 7/8 — único fallo: **heredado CRLF** |
-| `python3 scripts/test_block22_b6_2_photography.py` (nuevo) | PASS — 11/11 |
-| `python3 scripts/build-photography-derivatives.py --check --quiet` | PASS — 193 registros, 400w + 800w + LQIP |
+| `python3 scripts/test_block22_photography.py` | PASS — 8/8 (comparación del hash ahora normaliza LF/CRLF) |
+| `python3 scripts/test_block22_b6_2_photography.py` | PASS — 11/11 |
+| `python3 scripts/build-photography-derivatives.py --check --quiet` | PASS — 194 registros, 400w + 800w + LQIP |
 | `python3 scripts/select-block22-b6-2-targets.py --check` | PASS — 35 objetivos re-derivados |
 
 **Fallo heredado CRLF (no funcional):** `test_place_images_source_was_not_manually_edited` compara el
@@ -297,10 +280,10 @@ original ni rendición registrada comparte bytes con otra. Resultado: 579 archiv
 | `npm run lint` | exit 0 — 1 advertencia heredada Fast Refresh `PlaceMap.tsx:14` (no tocada) |
 | `npx vitest run` | **100/100 archivos, 3328/3328** (base 3327 + 1 test B6.2 nuevo) |
 
-`place-images.test.ts` fija conteos del registro por convención (B6.1 también los actualizó):
-7 WebP-only / 186 redimensionados, 187 lugares. El fallback histórico de Phase 4J para JP-211 se
-conserva como hecho histórico para JP-120/JP-041/JP-168 y se añade un test B6.2 que fija las 26
-adquisiciones (por slug) y los 9 unresolved sin fotografía.
+`place-images.test.ts` fija conteos del registro por convención: 7 WebP-only / 187 redimensionados,
+188 lugares. El fallback histórico de Phase 4J para JP-211 se conserva como hecho histórico para
+JP-120/JP-041/JP-168; el test B6.2 fija ahora las 27 adquisiciones (por slug), los 8 unresolved y la
+atribución sin URL inventada de JP-156.
 
 ## 16. Regresión visual
 
@@ -308,13 +291,13 @@ Build de producción con `vite preview`, Chromium 1194 (`/opt/pw-browsers`).
 
 | Gate | Resultado |
 |---|---|
-| `app/scripts/block22-b6-2-photography-browser-audit.mjs` (nuevo) | **216/216** |
+| `app/scripts/block22-b6-2-photography-browser-audit.mjs` | **250/250** |
 | `app/scripts/block20-place-detail-check.mjs` | **73/73** |
 | `app/scripts/block2-photography-browser-audit.mjs` (teléfono, tableta, escritorio) | **81/81** |
 
 El gate B6.2 muestrea lugares nuevos de los cuatro hubs — JP-024 Nezu (Tokio), JP-083 Genkō-an
-(Kioto), JP-147 Enryaku-ji y JP-211 AnimeJapan (Osaka), JP-175 Nakijin y JP-201 Hate no Hama
-(Okinawa) — en teléfono 390 y escritorio 1440, y comprueba: PlaceCard con la `-800w` nueva y
+(Kioto), JP-147 Enryaku-ji y JP-211 AnimeJapan (Osaka), JP-175 Nakijin, JP-201 Hate no Hama y
+JP-156 Sakaemachi (Okinawa) — en teléfono 390 y escritorio 1440, y comprueba: PlaceCard con la `-800w` nueva y
 decodificada; la capa de carga desaparece tras `load`; ficha con una sola diapositiva, sin contador,
 sin puntos y sin flechas; alt del registro en la ficha; `CreditsSheet` con autor, licencia, Commons y
 enlace de licencia exactos del registro; ninguna petición de imagen fuera del origen; ninguna imagen
@@ -348,12 +331,12 @@ Ningún archivo, rama ni documento Astra se leyó, creó o modificó.
 No se hizo checkout, commit, merge ni push a `main`; no se abrió PR. Todo el trabajo está en
 `codex/block-22-b6-2-grade-a-photography`.
 
-## 20. Siguiente bloque permitido
+## 20. Cierre de B6.2
 
-B6.2 **no** alcanza 147/147. Antes de B6.3 hace falta una decisión explícita sobre los 9 unresolved:
-aceptarlos como cobertura pendiente (con `PhotoPlaceholder` e `imageBrief`, comportamiento vigente)
-o abrir un sub-bloque que amplíe fuentes/licencias (p. ej. PD-self para JP-156). Una vez decidido,
-el siguiente bloque del backlog es **B6.3 — 8 lugares Grado B sin fotografía**, **NO iniciado**.
+B6.2-R investigó los nueve casos, recuperó JP-156 con la licencia pública que permite la estrategia
+y documentó las ocho excepciones restantes. B6.2 queda apto para integración con excepciones
+documentadas; no se exige 147/147. Los ocho lugares sin imagen conservan `PhotoPlaceholder` e
+`imageBrief`. No se hizo merge y B6.3 no se inició.
 
 ## Archivos
 
@@ -365,3 +348,55 @@ el siguiente bloque del backlog es **B6.3 — 8 lugares Grado B sin fotografía*
 - Datos: ambas copias de `photography-metadata.json`, `block22-b6-2-baseline.json`,
   `block22-b6-2-acquisition-plan.json`.
 - Assets: 78 archivos nuevos (26 × original/`-800w`/`-400w`) y 82 `-800w` preexistentes re-codificadas.
+
+## B6.2-R — recuperación de excepciones
+
+La recuperación se ejecutó en la misma rama `codex/block-22-b6-2-grade-a-photography`, desde
+`019ed2f47bb39653f41cbfdb506ff42d858b32fa`. No se crearon ramas, no se integró y B6.3 no se inició.
+
+### Corrección de dominio público y adquisición JP-156
+
+La estrategia fotográfica §4 ya permite dominio público, CC0, CC-BY y CC-BY-SA. Commons confirma
+para [Naha Sakaemachi Ichiba 01.JPG](https://commons.wikimedia.org/wiki/File:Naha_Sakaemachi_Ichiba_01.JPG)
+2560×1920, obra propia de Abasaa, y una dedicación del titular al dominio público mundial mediante
+`{{PD-self}}`. La API expone `LicenseShortName: Public domain` y `Categories` con `PD-self`.
+
+El normalizador sólo transforma `Public domain` en `Public Domain` cuando la respuesta de Commons
+incluye la categoría explícita `PD-self`. El registro conserva `sourceUrl` a la página de Commons,
+`credit: Abasaa`, `license: Public Domain` y `licenseBasis: PD-self`; `licenseUrl` se omite porque
+no existe una URL canónica para la dedicación y no se inventa ninguna. El validador exige esa base,
+la procedencia Commons, el título original y crédito; rechaza una licencia pública sin la base
+verificada o con una URL de licencia. Los tests unitarios cubren la normalización y esos rechazos.
+
+JP-156 se adquirió por `prepare-block22-b6-2-photography-metadata.py` y
+`acquire-photography.py` como `role: identity`. Asset WebP: 1600×1200, 261.712 B; `-800w`: 55.882 B;
+`-400w`: 15.680 B; LQIP: 639 B. La página original y la foto muestran la galería cubierta y el
+rótulo 栄町市場; el alt del registro describe esos elementos. El gate de navegador comprueba la
+foto en teléfono y escritorio, y que Créditos muestra `Public Domain` como texto sin enlace.
+
+### Decisión final para los nueve casos
+
+Openverse se usó sólo para descubrir posibles imágenes; se revisó la página original de cada
+candidato citado. Un resultado de Openverse por sí solo no se contó como prueba de licencia.
+Resoluciones de Flickr identificadas como “preview” son las del recurso público enlazado por la
+página, no una afirmación sobre el original descargable.
+
+| ID | Fuentes investigadas y candidato directo | Licencia, resolución y derechos subyacentes | Decisión final |
+|---|---|---|---|
+| JP-050 PokéPark KANTO | Commons, `Category:PokéPark Kanto`, búsquedas en inglés/japonés, y Openverse como índice. Candidato: [ProfSekkokuLab_20260205.jpg](https://commons.wikimedia.org/wiki/File:ProfSekkokuLab_20260205.jpg). La categoría contiene esa toma y un logotipo, no una foto de acceso. | La toma mide 5184×3456 y es CC BY 4.0 de ぶい133, pero muestra el interior de Sekkoku Lab junto a la zona Pokémon Forest; no hay acceso, rótulo del parque ni elemento que identifique inequívocamente PokéPark. El logotipo no es una fotografía. | **UNRESOLVED — NO REPRESENTATIVE IMAGE** |
+| JP-079 Rakusai Bamboo Park | Búsqueda por “Rakusai Bamboo Park”, “Rakusai Bamboo Park, Kyoto”, “Rakusai chikurin” y 洛西竹林公園 en Commons, Flickr y Openverse. Candidatos originales: [Rakusai Bamboo Park 3](https://www.flickr.com/photos/markfountain/2900788637) y [Rakusai Bamboo Park, Kyoto](https://www.flickr.com/photos/k4040k/30335937201). | Las páginas originales de Flickr muestran “All rights reserved”. Sus previews son 1024×688 y 1024×680; no se usaron como imagen. No se verificó una alternativa representativa con PD, CC0, CC BY o CC BY-SA. | **UNRESOLVED — LICENSE** |
+| JP-095 teamLab Biovortex | Commons y Openverse no dieron candidato libre; se revisaron Flickr y la página del recinto. La toma exterior [Outside teamLab Biovortex](https://www.flickr.com/photos/joeshlabotnik/55275306905/) identifica el edificio. | La página original acredita CC BY-NC-SA 4.0; su preview es 1024×683. La condición NC excluye el uso comercial. Las fotos interiores de las instalaciones representan obras contemporáneas de teamLab: la licencia del fotógrafo no libera los derechos de esas obras, y no se encontró una toma libre de entrada/señalética sin ellas. | **UNRESOLVED — LICENSE** |
+| JP-120 teamLab Botanical Garden | Se revisaron Commons, Flickr, Openverse, la página de [Osaka Metro Nine](https://metronine.osaka/en/article_tour/20230901-teamlab-botanicalgarden/) y la página oficial del recinto. La imagen de entrada de Osaka Metro Nine identifica el acceso, pero no publica una licencia compatible. | La foto original de Flickr [teamLab Botanical Garden](https://www.flickr.com/photos/banzainetsurfer/54104310995/) fue tomada el 28-09-2024; la página marca “All rights reserved” (preview 1024×683). Las tomas de instalaciones interiores también muestran como sujeto obras contemporáneas protegidas. Las fotos diurnas del jardín botánico de Nagai no identifican el evento teamLab. | **UNRESOLVED — LICENSE** |
+| JP-121 Tower of the Sun | Commons, la categoría de la escultura, libertad de panorama en Japón, Flickr y Openverse. Candidato original: [The Tower of the Sun](https://www.flickr.com/photos/77581941@N00/7676503966), de Masakazu Matsumoto, tomada en Expo Commemoration Park el 29-07-2012. | Flickr declara CC BY 2.0; el preview indexado mide 1024×512. Commons advierte que Japón no permite tratar una fotografía centrada en una obra artística moderna como libre para reutilización comercial por libertad de panorama. La Torre es el sujeto principal y una vista incidental perdería el criterio identity. | **UNRESOLVED — COPYRIGHTED SUBJECT** |
+| JP-156 Sakaemachi | Commons, página original, historial de archivo y datos estructurados. Candidato: [Naha Sakaemachi Ichiba 01.JPG](https://commons.wikimedia.org/wiki/File:Naha_Sakaemachi_Ichiba_01.JPG). | 2560×1920; obra propia; el titular dedica expresamente la imagen al dominio público (`PD-self`). Procedencia y crédito comprobados. Se adquirió como identity y se generaron original WebP, 800w, 400w y LQIP. | **ACQUIRED** |
+| JP-168 Yachimun no Sato | Commons, búsquedas en Flickr/Openverse, Photozou e información turística institucional. Candidato admisible por licencia: [Yomitan Yachimun no Sato.jpg](https://commons.wikimedia.org/wiki/File:Yomitan_Yachimun_no_Sato.jpg). Candidato Photozou: [読谷やちむんの里／１](https://photozou.jp/photo/show/194005/27820185). | Commons confirma dominio público por la autora, pero el archivo original mide sólo 450×338; no se amplió artificialmente. Photozou indica CC BY-NC-ND, excluida por NC y ND. Otras páginas institucionales no publican una licencia compatible. | **UNRESOLVED — RESOLUTION** |
+| JP-195 Cielo nocturno de Yaeyama | Commons, Openverse y Flickr; se contrastó ubicación en las páginas originales. [Milky Way, which rise from the forest](https://www.flickr.com/photos/130428544@N03/27761380233) indica Ishigaki, Okinawa. La alternativa [Lighthouse, Starry sky, Universe](https://pixabay.com/photos/lighthouse-starry-sky-universe-6785763/) declara Ogansaki Lighthouse, Ishigaki. | Flickr marca “All rights reserved” (preview 1024×683). Pixabay muestra 3300×2200, pero su Pixabay Content License es una licencia propia y no está entre PD/CC0/CC BY/CC BY-SA. La localización está verificada; la licencia no es admisible. | **UNRESOLVED — LICENSE** |
+| JP-202 Ballenas de Kerama | Commons, Openverse y Flickr. Candidato específico: [humpback whale breaching off Kerama island Okinawa Japan](https://www.flickr.com/photos/60371601@N04/16815570951); se comparó con la foto CC BY 2.0 de [Kerama Island](https://www.flickr.com/photos/41614647@N04/6081216280). | Flickr identifica una ballena jorobada y Kerama, pero marca “All rights reserved” (preview 1024×1024). La foto CC BY 2.0 muestra isla y mar sin ballena; no identifica la actividad. No se encontró candidato con licencia admitida que reúna ballena y aguas de Kerama. | **UNRESOLVED — LICENSE** |
+
+### Cierre cuantitativo B6.2-R
+
+- Recuperados de los nueve: **JP-156**. Excepciones definitivas: **8** (JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195 y JP-202), con las razones normalizadas de la tabla.
+- Cobertura A: **139/147 con fotografía + 8 excepciones documentadas**. Registro final: **194 imágenes / 188 lugares**; Grado S: **32/32**.
+- Presupuesto de `-800w` por hub: Tokio **3.421.914 B**, Kioto **3.408.406 B**, Osaka **2.960.618 B**, Okinawa **2.796.354 B**, Sapporo **166.986 B**, Nagoya **69.552 B** y Fukuoka **69.284 B**. Todos cumplen el límite de 3.500.000 B.
+- Suites: validador fotográfico PASS; fotografía **40/40**; rendiciones **28/28**; Block 22 **8/8**; B6.2 **11/11**; derivados `--check` PASS en 194 registros; build PASS; lint exit 0 con la advertencia heredada de `PlaceMap.tsx:14`; Vitest **100/100 archivos, 3328/3328**; browser gate B6.2 **250/250**.
+- Las ocho excepciones conservan `PhotoPlaceholder` e `imageBrief`. Ningún lugar recibe una fotografía con licencia incompatible, de otro sitio o que no lo represente.

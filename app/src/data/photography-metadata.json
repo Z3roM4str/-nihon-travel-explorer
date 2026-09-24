@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 193,
+  "imageCount": 194,
   "images": [
     {
       "placeId": "JP-001",
@@ -3478,6 +3478,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRqYBAABXRUJQVlA4IJoBAADwCgCdASoUAA8APhkIg0EhBgEABABhKAJ0yhHAmgzgRqv+Z4gD9L/7l/QPf/6HL+zdYBz2H7AfCJ+zvox0av8Gv1Vl0D8gHuY5GXzR/uvVT/z/5XjNyWe9ugzSqmvsw4AA/vdpzqIw6GDqDgz3WJf/xyH/yHHcjdzrht6Wf3xlVFdLkAsl5fbvxvYUe6IYpy/vGfDa2V+Ln4sGp/6ynyb2zDaXpaHvs8KKocP2V+4GIQDwSru8x7//D3q+gn/OaoK1Acw+V8rf+lVtfzb//X8hkBo/DY7Wp/HJqRWZtf7raDZ5k/dN67jKN01CbFV//3AnkVNl0dPjGF0itd+3lW1NRPONwwCd6n4W/xLqxw8ZxwZBzCe43VTTmz74hpnL8F9ZBWYZftyFvdZSRA6q2Pv/wgODcJ6PPgGP48ocjtuW/4X/Jj/9VikiFv2IfYf+7qo3/8I+//xiYw/3/K8oy1Ys9GkcMhjd3/+CqsfL/y9yg2ZP//d270JHj+FogASe+apt7Px6ASvxgU8hwzE/bVrvPmv75XWHi7LAAA=="
+    },
+    {
+      "placeId": "JP-156",
+      "assetPath": "images/places/JP-156/naha-sakaemachi-ichiba-covered-arcade.webp",
+      "alt": "Rótulo 栄町市場 sobre la galería cubierta de Sakaemachi en Naha, con el pasillo comercial y sus negocios bajo el techo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANaha_Sakaemachi_Ichiba_01.JPG",
+      "credit": "Abasaa",
+      "license": "Public Domain",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Naha_Sakaemachi_Ichiba_01.JPG",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Naha Sakaemachi Ichiba 01.JPG",
+      "originalWidth": 2560,
+      "originalHeight": 1920,
+      "processing": "resized-and-webp-reencoded",
+      "licenseBasis": "PD-self",
+      "role": "identity",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAADwCwCdASoUAA8AAAAAJZQCdMoGv/86BpyXsgVgD8AOQryUryv8iPxu0iH4iftH/jNsA8AH9p/DPVD/6h+RmuT/sf5Ae3TnU9dPyA+gD+O/yD+y/lF/ZeRr/W40im+uYMA1psK79rPSAAD+/vK55fAgpYGmbYMvgwj/f/+Xg+NlacpKzZJR8IqJxG8qW74StOrSkz+fm762nSeIuFvHfeMHJqGfZBwnegFTVi+9Nc/nBLycNh49++mqBASl4fCNPw387rqP2BC9saVP/MdBNjRds///kDEo28HhLDr5VkXW4uiwBVYFw0PrZnlIcmMOWe7knrcuKqQ/Gy6ji5M9LOktgOqCyrxJNJE7/VDT0rLohHMPc0/zjGpUSOiml7+pDAqz7sKvQlTbZabEZQgY+2hMk3YJ//neqn/v/zkZ+cB5bntjf+f4eOstn+6T1/Ec96z4LKv/rAv+n/Gv/7Ik8rX0V/zuIBHAGW/E7+P4IxvVK8HvBbL0HNqWFf47MrdQ+6+AJ2eAan/xUXANIyX7NEIroPVJOEdBNFDCVx7Q04VlZN6sLmnMPFPUwp/OycG65CTgSQjWEt4kAAAA"
     }
   ]
 }

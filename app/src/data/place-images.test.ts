@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { PlaceImage } from "../types";
+import photographyMetadata from "./photography-metadata.json";
 import { placeImages, resolvePlaceImages } from "./place-images";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +66,8 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
         expect(image.source, placeId).toBe("Wikimedia Commons");
         expect(image.sourceUrl, placeId).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
         expect(image.license, placeId).toBeTruthy();
-        expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
+        if (image.license === "Public Domain") expect(image.licenseUrl, placeId).toBeUndefined();
+        else expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
         expect(image.sourceFileTitle, placeId).toMatch(/^File:/);
         expect(
           ["webp-reencoded", "resized-and-webp-reencoded"],
@@ -93,7 +95,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
   it("derives exactly 7 WebP-only records and 186 resized+WebP records from the committed metadata", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(186);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(187);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -152,7 +154,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     for (const placeId of acquired) {
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    for (const deferred of ["JP-121", "JP-156", "JP-095", "JP-079", "JP-202"]) {
+    for (const deferred of ["JP-121", "JP-095", "JP-079", "JP-202"]) {
       expect(placeImages[deferred], deferred).toBeUndefined();
     }
   });
@@ -202,14 +204,26 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       ["JP-193", "yonehara-beach-sand-and-mountains"],
       ["JP-201", "hatenohama-sandbar-aerial"],
       ["JP-211", "animejapan-tokyo-big-sight-entrance"],
+      ["JP-156", "naha-sakaemachi-ichiba-covered-arcade"],
     ];
     for (const [placeId, slug] of acquired) {
       expect(placeImages[placeId], placeId).toHaveLength(1);
       expect(placeImages[placeId]?.[0]?.url, placeId).toContain(slug);
     }
-    for (const unresolved of ["JP-050", "JP-079", "JP-095", "JP-120", "JP-121", "JP-156", "JP-168", "JP-195", "JP-202"]) {
+    for (const unresolved of ["JP-050", "JP-079", "JP-095", "JP-120", "JP-121", "JP-168", "JP-195", "JP-202"]) {
       expect(placeImages[unresolved], unresolved).toBeUndefined();
     }
+    const sakaemachi = placeImages["JP-156"]?.[0];
+    expect(sakaemachi).toMatchObject({
+      source: "Wikimedia Commons",
+      credit: "Abasaa",
+      license: "Public Domain",
+    });
+    expect(sakaemachi?.licenseUrl).toBeUndefined();
+    const sourceRecord = (photographyMetadata as { images: Array<Record<string, unknown>> }).images.find(
+      (record) => record.placeId === "JP-156",
+    );
+    expect(sourceRecord).toMatchObject({ license: "Public Domain", licenseBasis: "PD-self" });
   });
 
   it("carries the Phase 4L tranche as 31 acquired targets and one explicit fallback", () => {
@@ -260,15 +274,16 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 187 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(187);
+  it("covers 188 places", () => {
+    expect(Object.keys(placeImages)).toHaveLength(188);
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
     for (const image of Object.values(placeImages).flat()) {
       expect(image.url.startsWith("/images/places/")).toBe(true);
       expect(image.sourceUrl?.startsWith("https://commons.wikimedia.org/")).toBe(true);
-      expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
+      if (image.license === "Public Domain") expect(image.licenseUrl).toBeUndefined();
+      else expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
     }
   });
 

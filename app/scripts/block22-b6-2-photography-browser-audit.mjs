@@ -27,6 +27,7 @@ const SAMPLES = [
   { id: "JP-211", hub: "Osaka" },
   { id: "JP-175", hub: "Okinawa" },
   { id: "JP-201", hub: "Okinawa" },
+  { id: "JP-156", hub: "Okinawa" },
 ];
 const FALLBACK_SAMPLE = { id: "JP-088", hub: "Kioto" };
 const VIEWPORTS = {
@@ -128,8 +129,13 @@ async function auditSample(browser, url, viewportName, sample) {
   check("CreditsSheet names the author", record.license === "CC0" || credits.includes(record.credit), record.credit);
   check("CreditsSheet names the licence", credits.includes(record.license), record.license);
   check("CreditsSheet names Commons", /Commons/i.test(credits));
-  const licenceHrefs = await page.locator(".credits-sheet__field a").evaluateAll((as) => as.map((a) => a.href));
-  check("CreditsSheet links the licence URL", licenceHrefs.some((h) => h.startsWith(record.licenseUrl.replace(/\/$/, ""))), licenceHrefs.join(" "));
+  const licenseField = page.locator(".credits-sheet__fields .credits-sheet__field").filter({ hasText: record.license });
+  const licenseHrefs = await licenseField.locator("a").evaluateAll((as) => as.map((a) => a.href));
+  if (record.licenseUrl) {
+    check("CreditsSheet links the licence URL", licenseHrefs.some((h) => h.startsWith(record.licenseUrl.replace(/\/$/, ""))), licenseHrefs.join(" "));
+  } else {
+    check("CreditsSheet keeps Public Domain as plain text", licenseHrefs.length === 0, licenseHrefs.join(" "));
+  }
   await page.keyboard.press("Escape");
 
   check("no image request left the app origin", external.length === 0, external.slice(0, 3).join(" "));

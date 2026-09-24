@@ -6,23 +6,25 @@
 |---|---|
 | B21 | **CERRADO** |
 | B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
-| B6.2 | **CERRADO CON 9 UNRESOLVED** — 26/35 objetivos Grado A adquiridos; **no apto para integración** sin decisión sobre los unresolved. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
-| Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` (base `88b9592c4351c8a48ccd216d372797d535d63968`) |
-| SHA estable final B6.2 | `3c108c4d6490bcc305f34560e89e096c7837f334` (commit de cierre) + el commit de este handoff, sólo documental |
-| Cobertura Grado A | **138/147** (antes 112/147); 9 sin fotografía: JP-050, JP-079, JP-095, JP-120, JP-121, JP-156, JP-168, JP-195, JP-202 |
-| Registro | **193 imágenes / 187 lugares** (no 202/196: faltan los 9 unresolved) |
+| B6.2 | **APTO PARA INTEGRACIÓN CON EXCEPCIONES DOCUMENTADAS** — B6.2-R adquirió 27/35; quedan 8 excepciones con PhotoPlaceholder e imageBrief. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
+| Rama B6.2 | `codex/block-22-b6-2-grade-a-photography`; B6.2-R parte del HEAD remoto `019ed2f47bb39653f41cbfdb506ff42d858b32fa` |
+| SHA de cierre B6.2-R | Se verifica como HEAD de la rama tras el commit y push indicados en el resultado de cierre |
+| Cobertura Grado A | **139/147 con fotografía + 8 excepciones documentadas**: JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202 |
+| Registro | **194 imágenes / 188 lugares**; Grado S **32/32** |
 | Grado S | **32/32** |
 | Rama canónica | `codex/block-21-b5-explore-home-map` @ `88b9592` — **sin merge de B6.2** |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente paso | Decidir los 9 unresolved de B6.2 (aceptar como cobertura pendiente o sub-bloque de fuentes/licencias, p. ej. PD-self para JP-156). Después: **B6.3 — 8 lugares Grado B sin fotografía**. **B6.3 NO iniciado.** |
+| Siguiente paso | B6.2 está listo para integración con las 8 excepciones documentadas. **No se ha hecho merge. B6.3 NO iniciado.** |
 
 ## B6.2 — verificación de cierre (2026-09-24, Linux)
 
 - Adquisición vía `acquire-photography.py` + `prepare-block22-b6-2-photography-metadata.py` (contrato Block 2), 4 batches con commit y push cada uno; `place-images.ts` sin cambios (SHA-256 `6e690411…af9d`, igual a la base).
-- Presupuesto: Tokio superó 3,5 MB tras el batch 1 (3.886.132 B). Corregido en el pipeline: `-800w` > 70.000 B baja calidad en pasos de 4 hasta 48. Final: Tokio 3.421.914, Kioto 3.408.406, Osaka 2.960.618, Okinawa 2.740.472 B. 82 `-800w` preexistentes re-codificadas.
-- `validate-photography.py` PASS (con nuevo check de duplicados por bytes); Python 38/38, 28/28, B6.2 11/11; `test_block22_photography.py` 7/8 (fallo heredado CRLF, no funcional); derivados `--check` PASS (193).
+- Presupuesto al cierre original de B6.2, antes de recuperar JP-156: Tokio superó 3,5 MB tras el batch 1 (3.886.132 B). Corregido en el pipeline: `-800w` > 70.000 B baja calidad en pasos de 4 hasta 48. Entonces: Tokio 3.421.914, Kioto 3.408.406, Osaka 2.960.618, Okinawa 2.740.472 B. 82 `-800w` preexistentes re-codificadas. El presupuesto final tras B6.2-R aparece en la fila de resultado.
+- `validate-photography.py` PASS; Python fotografía 40/40, rendiciones 28/28, Block 22 8/8, B6.2 11/11; derivados `--check` PASS (194), `select-block22-b6-2-targets.py --check` PASS (35).
+- `PD-self` se normaliza como `Public Domain` con `licenseBasis: PD-self`, procedencia Commons y sin `licenseUrl`; no se inventó un enlace.
 - Build PASS; lint exit 0 (1 advertencia heredada `PlaceMap.tsx:14`); Vitest 100 archivos, 3328/3328.
-- Navegador: B6.2 216/216 (6 lugares nuevos en 4 hubs, teléfono y escritorio, fallback incluido), B20 73/73, Block 2 81/81.
+- Navegador: B6.2 250/250 (7 lugares nuevos en 4 hubs, con JP-156, teléfono/escritorio y fallbacks), B20 73/73, Block 2 81/81.
+- Resultado: 194 imágenes / 188 lugares, 139/147 Grado A con fotografía + 8 excepciones documentadas. Presupuesto `-800w`: Tokio 3.421.914, Kioto 3.408.406, Osaka 2.960.618, Okinawa 2.796.354 B; todos bajo 3.500.000 B.
 - Brecha heredada anotada: el UI aún no pinta `lqip` (usa `place-card__skeleton`); fuera de alcance por la regla de cero cambios de UI.
 
 ## Historial B21 + B6.1
@@ -49,4 +51,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-B6.2 cerrado con 9 unresolved documentados. No tocar `main`. No mergear B6.2 ni iniciar B6.3 sin instrucción explícita.
+B6.2-R cerrado y apto para integración con ocho excepciones documentadas. El resultado final comunica el HEAD verificado tras el push a esta misma rama. No se hizo merge ni se inició B6.3.
