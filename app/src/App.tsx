@@ -5,6 +5,8 @@ import { EMPTY_EXPLORE_STATE, exploreHref, parseAstraRoute, type ExploreState } 
 import { canRemoveSavedPlace, readAuthoredPlanIds } from "./astra/plan-safety";
 import { RouteDialog } from "./astra/RouteDialog";
 import { getAllPlaces, getHubs, getNearby, getPlaceById } from "./data/store";
+import { resolvePlaceImages } from "./data/place-images";
+import { resolveDuration, formatRange } from "./lib/duration";
 import { PlaceDetail } from "./components/PlaceDetail";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { useSavedPlaces } from "./useSavedPlaces";
@@ -15,6 +17,14 @@ import "./astra/astra.css";
 
 const LazyNationalExplorer = lazy(() => import("./components/NationalExplorer").then(module => ({ default: module.NationalExplorer })));
 const LazyPlanner = lazy(() => import("./components/OrderedSequenceBuilder").then(module => ({ default: module.OrderedSequenceBuilder })));
+
+function PersistenceNotice({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+  return <div role="alert" className="astra-persistence-notice"><div>
+    <strong>No se pudieron guardar los cambios en este dispositivo.</strong>
+    <p>Tus cambios siguen disponibles en esta sesión. Intenta guardarlos de nuevo.</p>
+    {error && <p className="astra-persistence-notice__detail">Detalle: {error}</p>}
+  </div><button type="button" onClick={onRetry}>Reintentar guardar</button></div>;
+}
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAstraRoute(location.hash));
@@ -50,6 +60,8 @@ export default function App() {
     else if (tripTab === "coincidencias") ids = coincidenceIds;
     return ids.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
   }, [tripTab, todosIds, fernandoIds, lorenaIds, coincidenceIds]);
+
+  const hasPlannerContent = todosIds.length > 0 || readAuthoredPlanIds(localStorage).size > 0;
 
   const plannerPlaces = useMemo(() => {
     const plannerIds = new Set([...todosIds, ...readAuthoredPlanIds(localStorage)]);
@@ -97,20 +109,16 @@ export default function App() {
   return <AppShell destination={destination} savedCount={todosIds.length}>
     <div id="astra-content">
       {(route.surface === "explore" || route.surface === "place") && <Discovery places={places} hubs={getHubs()} state={route.surface === "explore" ? route : lastExplore} savedIds={savedIds} onToggle={safeToggle} onState={navigateExplore} onOpen={openPlace} onRegions={openRegions} />}
+      {route.surface === "explore" && syncState === "error" && <PersistenceNotice error={saveError} onRetry={retrySave} />}
       {route.surface === "regions" && <section className="astra-regions"><a className="astra-back" href={exploreHref(lastExplore)}>← Volver a Explorar</a><Suspense fallback={<div role="status">Cargando regiones…</div>}><LazyNationalExplorer activeRegion={region} selectedCode={prefectureCode} onSelectRegion={setRegion} onSelectPrefecture={(code) => { setPrefectureCode(code); if (code) setRegion(getPrefectureByCode(code)?.region ?? region); }} onEnterHub={(hub) => navigateExplore({...EMPTY_EXPLORE_STATE,hub})} /></Suspense></section>}
       {route.surface === "trip" && <section className="astra-trip">
         <p className="astra-eyebrow">MIS GUARDADOS</p>
         <h1>Nuestro viaje</h1>
-        <p className="astra-trip__note">Guardados en este dispositivo. Marcar interés no altera el itinerario; quitarlo tampoco elimina actividades.</p>
+        <p className="astra-trip__note">Aquí reunimos lo que nos interesa. Guardar un lugar no lo añade todavía al itinerario.</p>
+        <p className="astra-trip__storage">{syncState === "error" ? "Los cambios de esta sesión aún no se guardaron en el dispositivo." : "Guardados en este dispositivo."}</p>
 
         {syncState === "error" && (
-          <div role="alert" aria-live="assertive" className="astra-trip__error-banner" style={{ background: "#fef2f2", color: "#991b1b", border: "1px solid #f87171", padding: "12px 16px", borderRadius: "12px", margin: "16px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-            <div>
-              <strong>Atención: No se pudieron guardar los cambios en este dispositivo.</strong>
-              <p style={{ margin: "4px 0 0", fontSize: "14px" }}>Tus preferencias se conservan en memoria. {saveError && `(${saveError})`}</p>
-            </div>
-            <button type="button" style={{ minHeight: "36px", padding: "0 12px", fontSize: "13px" }} onClick={retrySave}>Reintentar guardar</button>
-          </div>
+          <PersistenceNotice error={saveError} onRetry={retrySave} />
         )}
 
         <div className="astra-trip__tabs">
@@ -126,9 +134,12 @@ export default function App() {
               const isFernando = fernandoIds.includes(p.id);
               const isLorena = lorenaIds.includes(p.id);
               const isLegacySaved = savedIds.includes(p.id);
+              const thumbnail = resolvePlaceImages(p.id, p.images)[0];
+              const duration = resolveDuration(p.duration);
               return (
                 <li key={p.id}>
-                  <a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a>
+                  {thumbnail && <img className="astra-trip__thumbnail" src={thumbnail.url} alt="" loading="lazy" />}
+                  <div className="astra-trip__place"><a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a><span>{p.hub} · {duration ? formatRange(duration) : p.duration.raw}</span></div>
                   <div className="astra-trip__item-actions">
                     <button
                       type="button"
@@ -149,7 +160,7 @@ export default function App() {
                         type="button"
                         onClick={() => safeRemove(p.id)}
                       >
-                        Quitar guardado heredado
+                        Quitar de guardados generales
                       </button>
                     )}
                   </div>
@@ -158,20 +169,17 @@ export default function App() {
             })}
           </ul>
         ) : (
-          <div className="astra-empty">
-            <h2>No hay lugares en esta vista</h2>
-            <p>Explora Japón y marca “Me gustaría ir”.</p>
-            <a href="#/explorar">Ir a Explorar</a>
-          </div>
+          <div className="astra-empty">{tripTab === "coincidencias" ? <><h2>Todavía no han marcado el mismo lugar</h2><p>Sus elecciones individuales siguen guardadas.</p></> : <><h2>Empiecen por un lugar que les emocione</h2><a href="#/explorar">Explorar lugares</a></>}</div>
         )}
 
+        {savedIds.length > 0 && <p className="astra-trip__help">Los intereses de Fernando y Lorena se mantienen al quitar un lugar de guardados generales.</p>}
         <div className="astra-trip__actions">
           <button onClick={() => setAnalysisOpen(true)}>Comparar selección</button>
-          <button onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
+          <button className={hasPlannerContent ? "astra-trip__planner-action astra-trip__planner-action--primary" : "astra-trip__planner-action"} onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
         </div>
       </section>}
     </div>
-    {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}><PlaceDetail place={place} isSaved={isSaved(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
+    {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}>{syncState === "error" && <PersistenceNotice error={saveError} onRetry={retrySave} />}<PlaceDetail place={place} isSaved={isSaved(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
     {plannedRemoval && <RouteDialog role="alertdialog" labelledBy="planned-title" onClose={() => setPlannedRemoval(null)} returnFocus={removalOpener} overlayClassName="astra-confirm" panelClassName="astra-confirm__panel"><h2 id="planned-title">Este lugar forma parte de tu ruta</h2><p>Para proteger el plan guardado, quítalo primero desde Planificar. No se cambió tu guardado ni tu ruta.</p><button onClick={() => setPlannedRemoval(null)}>Mantener guardado</button><button onClick={() => { setPlannedRemoval(null); setPlannerOpen(true); }}>Ir a Planificar</button></RouteDialog>}
     {analysisOpen && <SelectionAnalysis savedPlaces={savedPlaces} onSelectPlace={(id) => { setAnalysisOpen(false); openPlace(id); }} onClose={() => setAnalysisOpen(false)} />}
     {plannerOpen && <Suspense fallback={<div className="astra-lazy-modal" role="status">Cargando Planificar…</div>}><LazyPlanner savedPlaces={plannerPlaces} onClose={() => setPlannerOpen(false)} /></Suspense>}

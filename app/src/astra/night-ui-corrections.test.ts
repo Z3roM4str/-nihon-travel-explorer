@@ -1,20 +1,29 @@
 // @vitest-environment jsdom
 import { describe, expect, it, beforeEach, vi, afterEach } from "vitest";
 import React from "react";
-import { render, fireEvent, act, renderHook, cleanup } from "@testing-library/react";
+import { render, fireEvent, act, renderHook, cleanup, waitFor } from "@testing-library/react";
 import { useSavedPlaces, readMemberInterests } from "../useSavedPlaces";
 import { PlaceCard } from "./PlaceCard";
 import App from "../App";
 import { getPlaceById } from "../data/store";
 
 describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", () => {
+  let scrollToDescriptor: PropertyDescriptor | undefined;
+
   beforeEach(() => {
     cleanup();
     localStorage.clear();
     location.hash = "#/explorar";
+    scrollToDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollTo");
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+      configurable: true,
+      value: vi.fn(),
+    });
   });
 
   afterEach(() => {
+    if (scrollToDescriptor) Object.defineProperty(HTMLElement.prototype, "scrollTo", scrollToDescriptor);
+    else delete (HTMLElement.prototype as { scrollTo?: unknown }).scrollTo;
     vi.restoreAllMocks();
   });
 
@@ -73,27 +82,27 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       expect(result.current.saveError).toBeNull();
     });
 
-    it("renders accessible alert notice in App when syncState === 'error'", () => {
-      localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"]));
-      location.hash = "#/viaje";
-
-      const { getAllByRole, findByRole } = render(React.createElement(App));
-
-      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-        throw new Error("Storage quota exceeded");
-      });
-
-      // Trigger a new toggle that fails save
-      const fernandoBtn = getAllByRole("button", { name: "☆ Lorena" })[0];
-      act(() => {
-        fireEvent.click(fernandoBtn);
-      });
-
-      return findByRole("alert").then((alert) => {
-        expect(alert).not.toBeNull();
-        expect(alert.textContent).toContain("Atención: No se pudieron guardar los cambios en este dispositivo");
-        spy.mockRestore();
-      });
+    it.each(["explore", "detail", "trip"] as const)("shows one reachable notice and recovers after saving from %s", async surface => {
+      location.hash = surface === "trip" ? "#/viaje" : "#/explorar?q=Shibuya%20Crossing";
+      if (surface === "trip") localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"]));
+      const view = render(React.createElement(App));
+      if (surface === "detail") {
+        fireEvent.click(view.getByRole("link", { name: "Shibuya Crossing" }));
+        await view.findByRole("dialog", { name: "Detalles de Shibuya Crossing" });
+      }
+      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("Storage quota exceeded"); });
+      const action = surface === "trip" ? view.getByRole("button", { name: "☆ Lorena" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : "Me gustaría ir" });
+      fireEvent.click(action);
+      const alert = await view.findByRole("alert");
+      expect(alert.textContent).toContain("No se pudieron guardar los cambios en este dispositivo");
+      expect(alert.textContent).toContain("Tus cambios siguen disponibles en esta sesión");
+      expect(view.getAllByRole("alert")).toHaveLength(1);
+      if (surface === "detail") expect(alert.closest('[role="dialog"]')).not.toBeNull();
+      if (surface === "trip") expect(view.queryByText(/^Guardados en este dispositivo/)).toBeNull();
+      expect(action.getAttribute("aria-pressed")).toBe("true");
+      spy.mockRestore();
+      fireEvent.click(view.getByRole("button", { name: "Reintentar guardar" }));
+      await waitFor(() => expect(view.queryByRole("alert")).toBeNull());
     });
   });
 
@@ -138,31 +147,28 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
   });
 
   describe("4. Reactividad del Planificador", () => {
-    it("updates planner places dynamically when reopening planner after localStorage itinerary edits", () => {
+    it("reloads persisted itinerary places and activities when the planner is reopened", async () => {
       location.hash = "#/viaje";
-      const { unmount, getByRole, getByText } = render(React.createElement(App));
-
-      // Add an authored plan draft to localStorage
-      const draft = {
-        version: 7,
-        routeIds: ["JP-002"],
-        days: null,
-        startDate: "2027-02-19",
-        endDate: "2027-02-20",
-        visitStartTimes: {},
-        accommodations: [],
-        accommodationLegs: [],
-        interHubSegments: []
-      };
+      localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"]));
+      const view = render(React.createElement(App));
+      const draft = { version: 7, routeIds: ["JP-001", "JP-002"], days: null, startDate: "2027-02-19", endDate: "2027-02-20", visitStartTimes: { "JP-001": "09:30" }, accommodations: [], accommodationLegs: [], interHubSegments: [] };
       localStorage.setItem("nihon.manualPlanningDraft", JSON.stringify(draft));
-
-      // Open planner
-      const planBtn = getByRole("button", { name: "Planificar con mis guardados" });
-      fireEvent.click(planBtn);
-
-      // Verify planner modal opens
-      expect(getByText("Cargando Planificar…")).not.toBeNull();
-      unmount();
+      const planButton = view.getByRole("button", { name: "Planificar con mis guardados" });
+      fireEvent.click(planButton);
+      let planner = await view.findByRole("dialog", { name: "Construir recorrido" });
+      expect(planner.textContent).toContain("Shibuya Crossing");
+      expect(planner.textContent).toContain("SHIBUYA SKY");
+      expect(JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "{}").visitStartTimes).toEqual({ "JP-001": "09:30" });
+      fireEvent.click(view.getByRole("button", { name: "Cerrar el constructor de recorrido" }));
+      await waitFor(() => expect(view.queryByRole("dialog", { name: "Construir recorrido" })).toBeNull());
+      const edited = { ...JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "{}"), routeIds: ["JP-001", "JP-003"] };
+      localStorage.setItem("nihon.manualPlanningDraft", JSON.stringify(edited));
+      fireEvent.click(planButton);
+      planner = await view.findByRole("dialog", { name: "Construir recorrido" });
+      expect(planner.textContent).toContain("Shibuya Crossing");
+      expect(planner.textContent).toContain("Meiji Jingu");
+      expect(planner.textContent).not.toContain("SHIBUYA SKY");
+      expect(JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "{}").visitStartTimes).toEqual({ "JP-001": "09:30" });
     });
   });
 
