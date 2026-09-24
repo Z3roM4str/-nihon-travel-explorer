@@ -1,20 +1,31 @@
-# Handoff reanudable — B21 + B6.1 + B6.2
+# Handoff reanudable — B21 + B6.1 + B6.2 + B6.3
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
+
+## Estado actual B6.3
+
+- **B21 cerrado; B6.1 cerrado; B6.2 integrado y cerrado** mediante PR #143, con ocho excepciones Grado A preservadas.
+- **B6.3 implementado y certificado, pendiente de integración** en `codex/block-22-b6-3-grade-b-photography`, desde la base canónica `80f638ae68e88ad62d8c706d75c3aa107b27f4f2`. SHA de cierre: el HEAD publicado de esta rama (`git rev-parse codex/block-22-b6-3-grade-b-photography`); el informe es `docs/BLOCK_22_B6_3_REPORT.md`.
+- Gate inicial derivado: Grado B **25 total / 17 con foto / 8 sin foto**. Se adquirieron seis identidades (JP-107, JP-140, JP-150, JP-166, JP-199, JP-209); JP-041 y JP-171 son excepciones documentadas. Cobertura final **23/25 Grado B + 2 excepciones**; **200 imágenes / 194 lugares**.
+- Grado A permanece **139/147 + 8 excepciones** (JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202). Grado S permanece **32/32**.
+- Validator PASS; Python 40/40, rendiciones 28/28, Block 22 8/8, B6.2 11/11, B6.3 8/8; derivados 200 PASS; build PASS; lint exit 0 con warning heredada `PlaceMap.tsx:14`; Vitest 100 archivos, 3328/3328; navegador B6.3 216/216 móvil/escritorio.
+- No se integró B6.3, no se tocó `main`, no se cambió UI ni se inició trabajo Astra. Después de integrar B6.3, el siguiente paso será una segunda imagen `experience` para los 32 lugares Grado S; **no iniciado**.
 
 | Campo | Estado |
 |---|---|
 | B21 | **CERRADO** |
 | B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
 | B6.2 | **INTEGRADO Y CERRADO CON 8 EXCEPCIONES DOCUMENTADAS** — 27/35 objetivos adquiridos; 8 excepciones conservan PhotoPlaceholder e imageBrief. Integrado vía PR #143. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
+| B6.3 | **IMPLEMENTADO Y CERTIFICADO, PENDIENTE DE INTEGRACIÓN** — 6/8 objetivos adquiridos; JP-041 y JP-171 conservan PhotoPlaceholder. Informe: `docs/BLOCK_22_B6_3_REPORT.md` |
+| Rama B6.3 | `codex/block-22-b6-3-grade-b-photography` @ HEAD publicado de la rama |
 | Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` @ `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` (conservada) |
 | SHA de cierre B6.2-R | `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` |
 | Cobertura Grado A | **139/147 con fotografía + 8 excepciones documentadas**: JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202 |
-| Registro | **194 imágenes / 188 lugares**; Grado S **32/32** |
+| Registro | **200 imágenes / 194 lugares**; Grado B **23/25 + 2 excepciones**; Grado S **32/32** |
 | Grado S | **32/32** |
-| Rama canónica | `codex/block-21-b5-explore-home-map` @ `abe9941bcda926f0d3ee44f1ae86bcab48873855` — PR #143 merged |
+| Rama canónica | `codex/block-21-b5-explore-home-map` @ `80f638ae68e88ad62d8c706d75c3aa107b27f4f2` — PR #143 merged y handoff B6.2 |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente paso | **B6.3 — 8 lugares Grado B sin fotografía. B6.3 NO iniciado.** |
+| Siguiente paso | **Integrar B6.3 tras revisión; luego segunda imagen `experience` para los 32 Grado S.** |
 
 ## Integración B6.2 en la rama canónica
 
@@ -61,4 +72,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-B6.2 está integrado y cerrado en la rama canónica mediante PR #143, con ocho excepciones documentadas. El tree integrado coincide exactamente con el HEAD B6.2 certificado. B6.3 no se inició.
+B6.2 está integrado y cerrado en la rama canónica mediante PR #143, con ocho excepciones documentadas. B6.3 queda implementado y certificado en su rama propia, pendiente de integración, con seis fotos nuevas y dos excepciones honestas.
