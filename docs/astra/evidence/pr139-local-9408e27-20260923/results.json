@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "auditedSha": "9408e27ec279e6ec80bd27632e656d4f6c265384",
+  "generatedAt": "2026-09-24T00:01:05.732Z",
+  "baseURL": "http://127.0.0.1:58130/",
+  "results": [
+    {
+      "id": "01-viewports",
+      "name": "responsive shell and discovery geometry",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "error": ""
+    },
+    {
+      "id": "02-plan-safety",
+      "name": "blocked unsave preserves serialized V7",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "error": ""
+    },
+    {
+      "id": "03-history",
+      "name": "detail, nearby and exploration restoration",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "error": ""
+    },
+    {
+      "id": "04-filters-map",
+      "name": "filter durability, OR algebra and map parity",
+      "status": "PASS",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "error": ""
+    },
+    {
+      "id": "05-modal-focus",
+      "name": "detail and lightbox focus stack",
+      "status": "PASS",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "error": ""
+    },
+    {
+      "id": "06-image-retry",
+      "name": "image failure and independent retry target",
+      "status": "PASS",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "error": ""
+    },
+    {
+      "id": "07-lazy-network",
+      "name": "initial list avoids map/planner/provider requests",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "error": ""
+    },
+    {
+      "id": "08-a11y-reflow",
+      "name": "320px reflow, filter modal and single live output",
+      "status": "PASS",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "error": ""
+    },
+    {
+      "id": "09-persistence-recovery",
+      "name": "save failure and retry on explore, detail and trip",
+      "status": "PASS",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "error": ""
+    }
+  ]
+}

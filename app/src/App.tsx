@@ -5,6 +5,8 @@ import { EMPTY_EXPLORE_STATE, exploreHref, parseAstraRoute, type ExploreState } 
 import { canRemoveSavedPlace, readAuthoredPlanIds } from "./astra/plan-safety";
 import { RouteDialog } from "./astra/RouteDialog";
 import { getAllPlaces, getHubs, getNearby, getPlaceById } from "./data/store";
+import { resolvePlaceImages } from "./data/place-images";
+import { resolveDuration, formatRange } from "./lib/duration";
 import { PlaceDetail } from "./components/PlaceDetail";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { useSavedPlaces } from "./useSavedPlaces";
@@ -59,6 +61,8 @@ export default function App() {
     return ids.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
   }, [tripTab, todosIds, fernandoIds, lorenaIds, coincidenceIds]);
 
+  const hasPlannerContent = todosIds.length > 0 || readAuthoredPlanIds(localStorage).size > 0;
+
   const plannerPlaces = useMemo(() => {
     const plannerIds = new Set([...todosIds, ...readAuthoredPlanIds(localStorage)]);
     return [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
@@ -110,7 +114,8 @@ export default function App() {
       {route.surface === "trip" && <section className="astra-trip">
         <p className="astra-eyebrow">MIS GUARDADOS</p>
         <h1>Nuestro viaje</h1>
-        <p className="astra-trip__note">{syncState === "error" ? "Los cambios de esta sesión aún no se guardaron en el dispositivo." : "Guardados en este dispositivo."} Marcar interés no altera el itinerario; quitarlo tampoco elimina actividades.</p>
+        <p className="astra-trip__note">Aquí reunimos lo que nos interesa. Guardar un lugar no lo añade todavía al itinerario.</p>
+        <p className="astra-trip__storage">{syncState === "error" ? "Los cambios de esta sesión aún no se guardaron en el dispositivo." : "Guardados en este dispositivo."}</p>
 
         {syncState === "error" && (
           <PersistenceNotice error={saveError} onRetry={retrySave} />
@@ -129,9 +134,12 @@ export default function App() {
               const isFernando = fernandoIds.includes(p.id);
               const isLorena = lorenaIds.includes(p.id);
               const isLegacySaved = savedIds.includes(p.id);
+              const thumbnail = resolvePlaceImages(p.id, p.images)[0];
+              const duration = resolveDuration(p.duration);
               return (
                 <li key={p.id}>
-                  <a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a>
+                  {thumbnail && <img className="astra-trip__thumbnail" src={thumbnail.url} alt="" loading="lazy" />}
+                  <div className="astra-trip__place"><a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a><span>{p.hub} · {duration ? formatRange(duration) : p.duration.raw}</span></div>
                   <div className="astra-trip__item-actions">
                     <button
                       type="button"
@@ -152,7 +160,7 @@ export default function App() {
                         type="button"
                         onClick={() => safeRemove(p.id)}
                       >
-                        Quitar guardado heredado
+                        Quitar de guardados generales
                       </button>
                     )}
                   </div>
@@ -161,16 +169,13 @@ export default function App() {
             })}
           </ul>
         ) : (
-          <div className="astra-empty">
-            <h2>No hay lugares en esta vista</h2>
-            <p>Explora Japón y marca “Me gustaría ir”.</p>
-            <a href="#/explorar">Ir a Explorar</a>
-          </div>
+          <div className="astra-empty">{tripTab === "coincidencias" ? <><h2>Todavía no han marcado el mismo lugar</h2><p>Sus elecciones individuales siguen guardadas.</p></> : <><h2>Empiecen por un lugar que les emocione</h2><a href="#/explorar">Explorar lugares</a></>}</div>
         )}
 
+        {savedIds.length > 0 && <p className="astra-trip__help">Los intereses de Fernando y Lorena se mantienen al quitar un lugar de guardados generales.</p>}
         <div className="astra-trip__actions">
           <button onClick={() => setAnalysisOpen(true)}>Comparar selección</button>
-          <button onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
+          <button className={hasPlannerContent ? "astra-trip__planner-action astra-trip__planner-action--primary" : "astra-trip__planner-action"} onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
         </div>
       </section>}
     </div>
