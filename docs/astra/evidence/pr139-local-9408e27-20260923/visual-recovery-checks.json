@@ -1,0 +1,17 @@
+{
+  "auditedSha": "9408e27ec279e6ec80bd27632e656d4f6c265384",
+  "checks": [
+    {
+      "surface": "explore",
+      "alertCleared": true
+    },
+    {
+      "surface": "detail",
+      "alertCleared": true
+    },
+    {
+      "surface": "trip",
+      "alertCleared": true
+    }
+  ]
+}
