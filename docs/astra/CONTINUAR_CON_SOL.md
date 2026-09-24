@@ -77,3 +77,12 @@ Siguiente acción concreta: revisar ASTRA_REVISION_CIERRE.zip, comenzando por su
 - No se hizo merge, despliegue manual, cambio a main ni modificación de Claude/B21. El repositorio activó automáticamente una vista previa de Vercel al abrir el PR; su check completó correctamente.
 
 **Siguiente acción concreta:** revisar el diff y los checks del PR #144; mantener merge y despliegue de producción pendientes de autorización separada.
+
+## Verificación remota de #144 — 2026-09-24
+
+- Causa de la ausencia inicial de checks: el filtro `pull_request.branches` de `.github/workflows/astra-sol-0-2-browser-audit.yml` no incluía la rama destino de #139. El workflow solo ejecutaba build y auditoría de navegador. El commit `3e3211980ad51e3fb8d07c462149a19081e3c9da` añadió exclusivamente el destino Astra y pasos de lint, suite Astra y suite completa, sin tocar workflows Claude/B21 ni pruebas.
+- Ejecución GitHub Actions: https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/36056984733. Checkout exacto verificado de `3e3211980ad51e3fb8d07c462149a19081e3c9da`. Lint PASS; Astra 6/6 archivos y 28/28 pruebas; suite completa 72/72 archivos y 2478/2478 pruebas; build PASS; navegador 9/9 recorridos PASS. Artifact de capturas, trazas y resultados cargado por el workflow.
+- El resultado LF de la suite Linux corresponde a ese SHA; el diagnóstico CRLF del checkout Windows permanece documentado y no se modificaron las pruebas. Vercel y Vercel Preview Comments también quedaron en SUCCESS. GitHub informó `MERGEABLE` para #144.
+- El producto auditado sigue siendo `c40281322930e4995fb6ccc48da686cabfbc7a64`. Los commits posteriores cambian continuidad y el workflow Astra; ninguna implementación del producto. Tras el commit de esta sección, comprobar el nuevo HEAD remoto y la nueva ejecución Actions antes de considerar completo el cierre.
+
+**Siguiente acción concreta:** revisar la ejecución del HEAD final y, si pasa, solicitar autorización separada para fusionar #144 en la rama fuente Astra de #139. No hacer merge ni despliegue de producción en esta sesión.
