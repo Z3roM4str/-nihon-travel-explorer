@@ -1,0 +1,5 @@
+expected_sha=95377a20ab06868ac0e5e631a92109a15f08686c
+actual_sha=95377a20ab06868ac0e5e631a92109a15f08686c
+clean_checkout_before_runner=true
+runner=npm run audit:astra:browser
+runner_exit=0
