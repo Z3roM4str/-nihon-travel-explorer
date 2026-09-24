@@ -159,9 +159,14 @@ class B64PhotographyTests(unittest.TestCase):
             self.assertEqual(record.get("alt"), entry["alt"], place_id)
             self.assertEqual(urllib.parse.unquote(record.get("sourceUrl", "")), entry["sourcePage"], place_id)
             self.assertTrue(validator.valid_lqip(record.get("lqip", "")), place_id)
-            for field in ("assetPath", "source", "sourceUrl", "credit", "license", "licenseUrl", "acquisitionUrl", "acquisitionDate", "originalWidth", "originalHeight", "processing"):
+            for field in ("assetPath", "source", "sourceUrl", "credit", "license", "acquisitionUrl", "acquisitionDate", "originalWidth", "originalHeight", "processing"):
                 self.assertTrue(record.get(field), f"{place_id}: {field}")
             self.assertIn(record["license"], validator.SUPPORTED_LICENSES, place_id)
+            if record["license"] == "Public Domain":
+                self.assertIn(record.get("licenseBasis"), {"PD-self", "PD-USGov"}, place_id)
+                self.assertNotIn("licenseUrl", record, place_id)
+            else:
+                self.assertTrue(record.get("licenseUrl"), f"{place_id}: licenseUrl")
             original = ASSETS / record["assetPath"]
             self.assertTrue(original.is_file(), place_id)
             with Image.open(original) as image:
@@ -174,6 +179,15 @@ class B64PhotographyTests(unittest.TestCase):
                 with Image.open(rendition) as image:
                     image.load()
                     self.assertEqual(image.width, min(rendition_width, width), place_id)
+
+    def test_rejected_prepared_candidates_are_not_in_registry(self):
+        for number in self.processed_batches:
+            for rejected in self.plan_batches[number].get("rejectedPreparedRecords", []):
+                self.assertFalse(any(
+                    row.get("placeId") == rejected["placeId"]
+                    and row.get("originalTitle") == rejected["title"]
+                    for row in self.images
+                ), rejected["title"])
 
     def test_registry_sync_duplicates_and_identity_ordering(self):
         self.assertEqual(self.metadata["imageCount"], len(self.images))

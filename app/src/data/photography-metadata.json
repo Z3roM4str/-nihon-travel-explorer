@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 208,
+  "imageCount": 214,
   "images": [
     {
       "placeId": "JP-001",
@@ -347,6 +347,24 @@
       "lqip": "data:image/webp;base64,UklGRu4BAABXRUJQVlA4IOIBAABQDgCdASoUAA8AAAAAJYwCdMoMYPYEaa/quIA/SL+n+3/kAHlEfsB8DH7D+jpdgXLN2A3Xr1GyQTy38SdEB/VfxV/IDMH/x78d/xgrYH+q9Fj+A/Gb1X/HH+q9wL+KfyP+sflh/b///yqv6ZnjzlwOJuJ3VB4ygf5NyAAA4n/9Uz8dWyD/gY0Y7ZF8osDxPVjOFftzeqvzkfHnF07DJmU2/LxPn9/hS8+ZK4Pox8q1XikGnZbIkwKxeoclPYCcSqeYtcVqE0asa2ZfXTUM9XNOGQVDJKrsPeyONn8ZvZh6JC5T7K/QJahX2H85fDmg1+v6RkGQsvh/aVVxdT/jlj20TXh773qv6YyjD9f/ZZ+5qrrJY1YVTHlQioA7Fe5s/JQ1XV8uY1ht3qu4PzeP7iVWR1V7M3b81SKv//lO/FG02oLekkhFULZvbB316sLLaSA1unaTT5G75ZrzDP3/rmK6dx+Nzh5FquP/kErlsDBYEv+R97/WcVCowqM+f/hGYmLfSWjPtMr+/PbrTZ1yyzL07Jj6ZVrJZaQRq/+uG26vcaW2XkWtsHdboP+vW8dofErVQ0eTw4RTrKCLbtnbykIGB2ajfRFAVgLoRhvaCc6bmdSWwSlX0trWN6DPXcoYdLoAAA=="
     },
     {
+      "placeId": "JP-145",
+      "assetPath": "images/places/JP-145/nachi-pilgrimage-route.webp",
+      "alt": "Un sendero de peregrinación sube por la ladera boscosa de Nachi hacia el santuario.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANachi_Falls_Pilgrimage_route_%2851928795062%29.jpg",
+      "credit": "Raita Futo from Tokyo, Japan",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Nachi_Falls_Pilgrimage_route_%2851928795062%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Nachi Falls Pilgrimage route (51928795062).jpg",
+      "originalWidth": 3710,
+      "originalHeight": 5565,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRoYBAABXRUJQVlA4IHoBAABwBwCdASoUAB4APjEWiUMiISEUBVQgAwSgCdMuOCvzW6GGYNVENm6MPP9z76gAUjTZ3+sqywWjDEXKLwhiTU9G5D6kQAD+/zITAnWK4ehbet7Tz/ibl3mKQ/7kKjQkyQl4AuORVmir+38S5ruv6wGJrTeI1583+vbxp1n4h461/i7MrBz8FWpbH4b/zahGlS8j7NoaT28nr6Kt6CjVxx1+6j9CEnnUP2edhn06ds9pZpuoV1g1b1QgpyXaCWgHL/zt5uiEL9UvaJrfkVyI715Nefl2u4BBEWety5o/y9nKpmhgbz0Fs/5XLD0X94ifCAZqT8lM7Hq6VbYXAM0t7YJ7ulbS2F0FRAab4m3btbyhXPe93yUW9Rr5BIlk5uPGyRTPGPoT1sIzLUR9tdhR6N1gJVlysA02+OpxKP7eMELCkBYzfLFP0kSMAvB3kgW/lsUsjARKMRuS+aCjXyrrap3cVt7eljJkSqT/QmmyqCUMbhWNM9BW4KPd0AA="
+    },
+    {
       "placeId": "JP-152",
       "assetPath": "images/places/JP-152/naoshima-ferry-terminal.webp",
       "alt": "Terminal de ferris de Naoshima, una estructura moderna de techo plano y columnas delgadas junto al muelle.",
@@ -401,6 +419,24 @@
       "lqip": "data:image/webp;base64,UklGRvIBAABXRUJQVlA4IOYBAACQDACdASoUAA8AAAAAJYwCdMoR3N6TTAVgB+x3v/6YBzx/6zfBN9s3swXID6M+wG6fHl/w/8QP2A0Wf1AZZD+7/iB+FeuUai/+5ehF/AeR35P/wHuAfxb+Sf2T8pONJ/U00isRGelWQUTXQ6oEAP7/jI6+/wh4Ux3++z9Wo4TKNYIqf/+JGRgLjnN7UOMN/00bM3CXW0k89ZAspoCjkDqagh3ZkSjV/X1oXP2jsLn/MOF9GZRx6ObtYxpfi3OP4jwceF7eM/Zl/jkJb+cgs6e6u09sso8c768ps0fQG/nv7tcWmcTXpWfQaId//a7i/Ffam3vD/XXM+jjr3osZPwzayLv8iDsI14+9rFEF/1C9DLRK7Wipv5vd/3u1BKcVqf8knoh9929VSZ8d2wG7dVLNX3SZT1YhTD68B0Ds8b8d+sn7/YhP8//ij1qysEJ/Lh9Ux9WT0NSrEt+4jo4//GOVP7C8vIz91eEcemRaB/7L/mML9knWAb7M0/fCICkVOO69+brP5OjLpuHrEbvvTpl3HLZiLxsBndSkJjbK7YaUi/Xshx5rGwm/WK9Dx3PVoehoTvvquwqGv9HdeO+PvqZbba35WG597u3dCfRz80se99tu7iIMqUbVfOF12D79B6chtLiAAAA="
     },
     {
+      "placeId": "JP-157",
+      "assetPath": "images/places/JP-157/shuri-guided-tour.webp",
+      "alt": "Una estudiante local explica la historia de Shuri Castle a un visitante durante un recorrido guiado.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ALocal_students_give_service_members_guided_tour_of_Shuri_Castle_121027-M-GX379-089.jpg",
+      "credit": "Lance Cpl. Anne Henry",
+      "license": "Public Domain",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/3/37/Local_students_give_service_members_guided_tour_of_Shuri_Castle_121027-M-GX379-089.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Local students give service members guided tour of Shuri Castle 121027-M-GX379-089.jpg",
+      "originalWidth": 4080,
+      "originalHeight": 2720,
+      "processing": "resized-and-webp-reencoded",
+      "licenseBasis": "PD-USGov",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRnYBAABXRUJQVlA4IGoBAAAQCQCdASoUAA0APhkIg0EhBgEABABhKAJ0yhHAvwIwB9gP0A8yv9M/fV5zPgAPKM/Wv4L/KMeKncoxwH9j7wHdhTEn+TGlgtWty5MXslg6oUAA/v6Tb1FQwvhBEf0RqW/v/zVptrfgx72Is32A828tz/4QjTzygLxxYU9vHcvH/sTT9HyN736/GuT/TF7Gq69/85TSS26KWyUTyn9ijPGRb7uRFUQGqLr/LwPiKuOKxPzg83Ubnx8FfDR78H2nI7pT61rsq+ARKH6q/hnAXSN/xL9jtfJpf+8533Q854gn/jsv/3Aon/FwNfrpW8gvyVtaiCsi/SrN3IUy2DhXhz92jI8cuKFGsH9KKEQVVWSfWxffTCRCddnsA8ccdbx0Tphfc9xfhLksDluRWFIMZX4yV6U/pnDJme6v4Pi0N/V8rwfeHIelxPu6klIGf9cvlg7xmZ6U6PcW38K3GjI7dkdNfLP09O//iQAAAA=="
+    },
+    {
       "placeId": "JP-162",
       "assetPath": "images/places/JP-162/sefa-utaki-yuinchi.webp",
       "alt": "Formación rocosa cubierta de helechos sobre una gruta natural en el sitio sagrado de Sefa Utaki.",
@@ -417,6 +453,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAAAQDQCdASoUAA8AAAAAJYwCdMoRiu3DlZ+bn+k8wBugP1P9cDnAOAA8qT2KP239FK5AfSBzKuSn+H/khogP4f+PGWBfDv7J+On5AVpT/Veed/GeTX45/z3uAfx3+W/4X8vuNV/WZDyDameu4aUUOaAN0AD+wEHb5//lTfML3kbKxRN9bXgpqgnOWiIkONQ+WuhR2MlmiGBRkpZp4nPGo37xvWavRcEK5Tb23YPd2QXP4KPRqEXnrffJ790l5J93xJpwVsM7M9t7kUEcn/ETjRXHDxHaSNXR/FSv3jQ1aZJAtsJfXWdap/2fiI9Tt7YpykqmhJd/8tgwV8ox9lb3ZnL4ZN6NPRs1En6cFi1uXCoiC6gkSBYT/uzmM/+B2XcMH4yQP+TdhSdEHFLe+OxyqCSyvG6+ebYs93m55mpH2WKkg2puq5L8ly65hIqMI//u/WJYXqOTzsCIcMHb+1/w1+OV9EOTN6EFP+9fuA34v9Jhgs/HnGlGzhSB2sPEg3VQEHvPf3+RnGKr31uJDrYzuU+tviryS+bTV5aQoTGFhS66LYd9H9XIRWeqZn++ReanlIGFv/tFHAnwYhjrvKHMOYlo1yyIcqtVH9IoyIdHhFGQAAAA"
+    },
+    {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-ujoguchi-stairs.webp",
+      "alt": "Escaleras de piedra serpentean entre la vegetación cerca de Ujoguchi en Sefa Utaki.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AStairs_near_Ujoguchi_of_Sefa-Utaki.JPG",
+      "credit": "そらみみ (Soramimi)",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Stairs_near_Ujoguchi_of_Sefa-Utaki.JPG",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Stairs near Ujoguchi of Sefa-Utaki.JPG",
+      "originalWidth": 3264,
+      "originalHeight": 2448,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRtIBAABXRUJQVlA4IMYBAABQDACdASoUAA8AAAAAJYwCdMoR3N6TTAXYC7APQA8sf2NqdA7AbtP6jZIJ6j+HeiA/oH475CJ+On5Aa5vqQPsA9zT+q+wD2ifGf91/jHwAfx/+Z/3P8iP305Sv9TTuGztqO1ccODykzjZ7KAD+//+V5dSIxdZvBXtimfv6hFT+srmtHdJLpt2uO1n6qf57/tMC1vkge7b59dT4X7IV3MsdghMYE1k2MLp2I8OFN3z/UT5ahSJyXTxKlPj0ZJn+jzURtqlvDEG7u9iHx01y58N4oN9xuoB3zwS0D5ciRnnQ8mcLU1ErxioGoOyDQV85iODUUpksRGeXBX7ZO9fKt4gBZv+C+h0OKmte7PMqUyzbZaVmgsTNeXW1veGjojRbcODLmKrq3KLoYqn+hQwhuLP13LwPlcHnT9gZwOSWb653tnI8lMr5L/H/H/PX/hr/m7O12P+khK2N37tcxF/txO/D2GgknqdPMQlu3pxpo+HOy/zzEqr8jjxFm1Vdia237//gO0JNyj62VSO+7MC8OJW66/8JK7CwpGYz6rH6H8prn3AQr4f6H1P/bxc+j/9ZOp4Ie4JEeXV9m0w5jV9snSjBU1edsAAA"
     },
     {
       "placeId": "JP-196",
@@ -472,6 +526,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAACQCwCdASoUAA8AAAAAJbACdMoRwN6B+Kv6AfwDkAjAJEA/ADqAPNV/oHtZ6YBvIH6u+kVRgPxGyVO6Bjk/uAqlf+Z8oDyp/MnsB/xD+V/5/8vP6l3pf1V9DM7LtRIi7nSxFtUT0AD+//7MgP//1vpyPywnG0RjG/29U/9MWrG2y0pCTt00rXvFoYLVb4wBHYf/zbXzx3+NUDr4dESyUT4hqV7E+cheoQ5RGMPVBHvwg6ucNXX0f/nHZMO1RLw5cJDcv4H/NlYwdzXP2+U3DKRIDu7LYoLwvdg0kl4vAE1Zr/n/88x9uf3Fb+JjdrDt//IXVna5fFN7w96/3ZnaqMTQz9MRxgGBSKSYZK9X3/CQtvjg2rCCqkfmd//uv5/hmqGBzqJAUv9/a/nNvs6YDK1Kgpxvv+3kEn9zuf/QvkttDr//vtWu56Nn8dWMdV3xApj/kP2Av63L3+/dD6TvdV/8Rn/+nDPaInQ/15BykS19v32FNIcHZ9EfC+OvabS6QffWl6rqDORN8vCCf/e8TnqeCxmCHim7QSMgiUanmJ9j7KiD9XiSMDqLHB4Pgn35a/YAAA=="
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-visitors-watch-diver.webp",
+      "alt": "Visitantes observan a un buzo mientras limpia el gran tanque Kuroshio, con tiburones ballena y mantas al fondo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AUSMC-081220-M-0902C-004.jpg",
+      "credit": "Sgt. Josh Cox",
+      "license": "Public Domain",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9b/USMC-081220-M-0902C-004.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:USMC-081220-M-0902C-004.jpg",
+      "originalWidth": 2000,
+      "originalHeight": 1333,
+      "processing": "resized-and-webp-reencoded",
+      "licenseBasis": "PD-USGov",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAAAwCwCdASoUAA0AAAAAJbACdMoR4T4B+Kv6AVYGKZ4iBwAHlSexb5TtHA/FX9VctU9EmQD7IPNi/bvwA5R38gNdL/QPxy/oHSv+YP8z7C/8k/qn5d8ZmiNkIyU1mNi9aD4rAAD+//yv9FiQ/Oa7bLl4U1xERfIf9wLrpIbRGKI7i3GFsF49gH/3d38WD9ts/gUhwKh33aiN6rM/4X8OrFw3bFX/NLkicmq94UVf/3ngsCB5tQ1+8LjYVlXVNMQrAo/+izrGeYQterqEPdjpTZE5dhQlv/tTWGqoCn0KIFfjWmLNhAoMd2uZp7LFHMn1k3k2cPbc//zXeVe/gUb/6ddSOd+oWPuUK6aeq//+XC8MnI7+yFpGEVp79oMA/S4+/HRTV2/+ct+/RP4c46X/+JbMG5oHA1mC5fTEeOdcaYou+T4/9T2Vb9Ruf/zD96V2d/7zcHAOY65r8mVxWkvgTCQ+tqFBang6hTF/O5HV6zAEOy9P/4FyoK32VXut3oWIx7U9Uvs1o+A6XCAREZHwqmsXt1sOJgAAAAA="
     },
     {
       "placeId": "JP-154",
@@ -708,6 +780,24 @@
       "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAABQCgCdASoUAA0AAAAAJZQCdMoR3JoM4Ear/gFxR6YBvGtOgWYH9a/GPRAf1X8Tckn/KPyj8gL9V4nTHg80Xyr+gHuNfxr/Dfl9xrv63HFdhnu8D4Ka1EKg8wwAAP7//2NHc3mOjztd5dkL2owDR+hOyVITCH/7jOslvPFEqRfsFVHZlN/X1L/2B+bLK7TxBt38T7H66Y6M6kwKKX7DZLtIJoMc2d8nK5yO63vyhgIv63Pz9Wzc+T9XxVxoLTlqWbKDf6LKTe+1SvF84eqTL/5vQqWk7y50HIK0LMSp91/5KY8nesnyRVBvZQQV2qAv/ehFl5Wc6dhYhdEFrG+P+xV3EbkwjFwN/+2p70f6nzySASouHBAV8bL/IP/P/XJ9P+f996zrP8Z/0rJXw3n6yqP9A/v+pm/fGPE5+wc4+mN0+7Fuv0CI//vstPvzA2dR7leYUFlB6Nf/N6/nq0sKBVNL4jgq4k5VAJdpHoz/sTR2MMo0NRRISarJt+z++yY27DETn5YKRftsEX4W+oOzMAAA"
     },
     {
+      "placeId": "JP-144",
+      "assetPath": "images/places/JP-144/okunoin-night-path.webp",
+      "alt": "Una senda atraviesa de noche el cementerio de Okunoin entre árboles y lápidas.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3APathway_through_graveyard_at_Okunoin_at_Koyasan_at_night_-_Japan_20170412102921_%2834098937875%29.jpg",
+      "credit": "Yiannis Theologos Michellis",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Pathway_through_graveyard_at_Okunoin_at_Koyasan_at_night_-_Japan_20170412102921_%2834098937875%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Pathway through graveyard at Okunoin at Koyasan at night - Japan 20170412102921 (34098937875).jpg",
+      "originalWidth": 5148,
+      "originalHeight": 3432,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRhABAABXRUJQVlA4IAQBAABQBQCdASoUAA0AAAAAJZwCdMoRwIsAqQI2a7wC4VfRF/u/5QcYB+oB3UMzzHmXN+ezkoAA/v//wuDOtnkDfiJNt+kSWbDnt1q2AUs6tnoIctjk3Ou0W3/9OQu3J1DXb0WneazZf/kKj///fca3//ImzEFOaIjGQN0wVk3LXCKJR8D4d1JRf66JnGYUVHeG7vYYP//sR3/Qyrtaw//TbnGXfRofcf7aVv4TDEyW23Or8i95wUdFZrrTSFJvEcqcbmfB0Sp7gvrrIUgi7PRjc6CtJH21tfADgOH36E8U/XfZGN/7ZtYmb1xaT6PLo79V7RARkJWudHCqJg1Fiohbht7B210QAA=="
+    },
+    {
       "placeId": "JP-184",
       "assetPath": "images/places/JP-184/zamami-coast.webp",
       "alt": "Costa rocosa de la isla de Zamami con agua turquesa y otras islas del archipiélago Kerama al fondo.",
@@ -724,6 +814,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRmYBAABXRUJQVlA4IFoBAABwBwCdASoUAAsAAAAAJQBOmUI4C5TclJ55X9QPZu/QD2JbkBvoGSWzFHyzZgD7gJ8B4080X/DfkAapHnq6DAlROyyToAD+adT+2YvQH2M2utguQuzJjR/C/JnOmNG4xwd/ekbORlP63UTT/Vhr//gTqg4MrnnUqX1LMO5rPuDIA32wcMenH/I/f+RFP1fdn/0xZz9tZPOO8nOr/9w5/D/T0nL69j1O+z/3EfVc1f/9dNBT16P2ebASH7lPno5Jj/17yN4rSbXKziY16P0TcY0jwa3//E3wP45iE8+eo5/3/HjxOZWl1UpvPDWoOn/+5Lf8/xJbWd/59e6ObOtaz9qZNUX33osRy9cOcTwY6WHhboA/vQeOtMP3/Jv7nn//Jt/+3jrpKI9BqzkY07STfOyZrFV91gXa/3bP2IYgGwwfO1zz6te1qC+CFVxfatibKRFFpr0eJKsVVuAA"
+    },
+    {
+      "placeId": "JP-184",
+      "assetPath": "images/places/JP-184/zamami-furuzamami-beach-visitors.webp",
+      "alt": "Visitantes caminan y descansan en la arena junto al agua clara de Furuzamami Beach, en Zamami.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AJAP_Zamami_Furuzamami_Beach.jpg",
+      "credit": "Grueslayer",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/JAP_Zamami_Furuzamami_Beach.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:JAP Zamami Furuzamami Beach.jpg",
+      "originalWidth": 3264,
+      "originalHeight": 1840,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRgwBAABXRUJQVlA4IAABAAAwBACdASoUAAsAAAAAJQBOmUI4G8AcYDn1W2AYwCOi8ZEt9zorwZxnH/AA/v2ZfFP/lAf/vje+QfnA0s+lXCgqwH/p//sRt3hjtk4Ng0B8qha1zFitSmi3VCWhKk0Q30z/3lYa0vG//33fazir43c1QPzxQUGZ73623EHoVYsabfqndObHF9uKx2/Dgu0MJMjHhr3hupDuMkl2rJoc+NAea0fyZR3om5ygo//31ef/iYR+9ftjf+B8f7a/n/iUHv9jHTATuiL/0b3U7in/PGpHoQ/+TCDzUZlDgZ1gfXLrE62b+r2uGSXDTUvGRryiOSvNLIzjgWYhD7GzvLHC9aAA"
     },
     {
       "placeId": "JP-188",

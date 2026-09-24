@@ -91,13 +91,21 @@ def normalise_licence(raw, categories=None):
         if lowered.startswith(allowed.lower()):
             return allowed
     if lowered == "public domain":
-        category_names = {item.strip() for item in strip_html(categories).split("|")}
-        if "PD-self" in category_names:
-            return "Public Domain"
-        raise SystemExit(
-            "Commons reports Public domain but does not expose the explicit PD-self category"
-        )
+        public_domain_basis(categories)
+        return "Public Domain"
     raise SystemExit(f"licence {text!r} is outside the pipeline's allowlist")
+
+
+def public_domain_basis(categories=None):
+    """Return an explicit Commons public-domain basis supported by the registry contract."""
+    category_names = {item.strip() for item in strip_html(categories).split("|")}
+    if "PD-self" in category_names:
+        return "PD-self"
+    if category_names & {"PD US Military", "PD US Marines"}:
+        return "PD-USGov"
+    raise SystemExit(
+        "Commons reports Public domain but does not expose an explicitly supported basis"
+    )
 
 
 def strip_query(url):
@@ -130,6 +138,7 @@ def build(entry, acquisition_date):
 
     categories = meta.get("Categories", {}).get("value", "")
     licence = normalise_licence(meta.get("LicenseShortName", {}).get("value"), categories)
+    basis = public_domain_basis(categories) if licence == "Public Domain" else None
     credit = strip_html(meta.get("Artist", {}).get("value"))
     if licence != "CC0" and not credit:
         raise SystemExit(f"{entry['placeId']}: {licence} requires a credit and Commons reports none")
@@ -153,9 +162,9 @@ def build(entry, acquisition_date):
     if licence in LICENCE_URLS:
         record["licenseUrl"] = LICENCE_URLS[licence]
     elif licence == "Public Domain":
-        # Commons's PD-self dedication has no canonical license URL. Preserve the exact
-        # evidence label and the Commons file page instead of inventing a destination.
-        record["licenseBasis"] = "PD-self"
+        # Public-domain works have no canonical license URL. Keep an explicit Commons
+        # category basis without inventing a license destination.
+        record["licenseBasis"] = basis
     return record
 
 

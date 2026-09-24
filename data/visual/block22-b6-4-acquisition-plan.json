@@ -319,6 +319,150 @@
           ]
         }
       ]
+    },
+    {
+      "batch": 3,
+      "entries": [
+        {
+          "placeId": "JP-144",
+          "slug": "okunoin-night-path",
+          "title": "File:Pathway through graveyard at Okunoin at Koyasan at night - Japan 20170412102921 (34098937875).jpg",
+          "role": "experience",
+          "alt": "Una senda atraviesa de noche el cementerio de Okunoin entre árboles y lápidas.",
+          "whyExperience": "La senda nocturna comunica cómo se recorre Okunoin y añade atmósfera; la identity actual muestra estatuas Jizō y memoriales en otra composición.",
+          "identityComparison": "La identity centra las estatuas y memoriales durante el día. Esta imagen toma una senda nocturna amplia entre tumbas y árboles, haciendo legible el recorrido y la atmósfera del cementerio sin repetir el sujeto principal.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Pathway_through_graveyard_at_Okunoin_at_Koyasan_at_night_-_Japan_20170412102921_(34098937875).jpg",
+          "originalPage": "https://www.flickr.com/photos/zoonyzoozoodazoo/34098937875/"
+        },
+        {
+          "placeId": "JP-145",
+          "slug": "nachi-pilgrimage-route",
+          "title": "File:Nachi Falls Pilgrimage route (51928795062).jpg",
+          "role": "experience",
+          "alt": "Un sendero de peregrinación sube por la ladera boscosa de Nachi hacia el santuario.",
+          "whyExperience": "Hace visible el trayecto de peregrinación dentro del paisaje de Nachi, una dimensión que la identity de pagoda y cascada no muestra.",
+          "identityComparison": "La identity contrapone la pagoda de Seiganto-ji con Nachi Falls. El candidato muestra el sendero de peregrinación en otra parte del sitio; aporta recorrido entre el bosque y el conjunto sagrado, no otra vista de la cascada.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Nachi_Falls_Pilgrimage_route_(51928795062).jpg",
+          "originalPage": "https://www.flickr.com/photos/raita/51928795062/"
+        },
+        {
+          "placeId": "JP-157",
+          "slug": "shuri-guided-tour",
+          "title": "File:Local students give service members guided tour of Shuri Castle 121027-M-GX379-089.jpg",
+          "role": "experience",
+          "alt": "Una estudiante local explica la historia de Shuri Castle a un visitante durante un recorrido guiado.",
+          "whyExperience": "Documenta una interacción real de visita guiada en el recinto; la arquitectura y sus participantes permiten leer escala y actividad.",
+          "identityComparison": "La identity es el portal Shureimon sin actividad de visita. Esta escena muestra a una guía local explicando el sitio a un visitante, con el entorno del recorrido alrededor; aporta interacción y uso del recinto.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Local_students_give_service_members_guided_tour_of_Shuri_Castle_121027-M-GX379-089.jpg",
+          "originalPage": "https://www.dvidshub.net/news/97104/local-students-give-service-members-guided-tour-shuri-castle",
+          "rejectedCandidates": [
+            {
+              "title": "Students, Marines compete in amazing race challenge 130602-M-GX379-751.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Students,_Marines_compete_in_amazing_race_challenge_130602-M-GX379-751.jpg",
+              "reason": "Muestra un checkpoint de un reto competitivo dirigido a un grupo de estudiantes y Marines junto a un muro de piedra; al compararlo con la identity, las personas y la actividad del evento dominan y el sitio no se reconoce visualmente."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-162",
+          "slug": "sefa-utaki-ujoguchi-stairs",
+          "title": "File:Stairs near Ujoguchi of Sefa-Utaki.JPG",
+          "role": "experience",
+          "alt": "Escaleras de piedra serpentean entre la vegetación cerca de Ujoguchi en Sefa Utaki.",
+          "whyExperience": "El tramo de escaleras muestra cómo se recorre el sitio sagrado y añade textura espacial distinta al mirador Yuinchi de la identity.",
+          "identityComparison": "La identity mira desde Yuinchi hacia el paisaje. Esta fotografía se concentra en un tramo de escaleras dentro del bosque, por lo que aporta recorrido y atmósfera en vez de repetir una vista panorámica.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Stairs_near_Ujoguchi_of_Sefa-Utaki.JPG",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Stairs_near_Ujoguchi_of_Sefa-Utaki.JPG"
+        },
+        {
+          "placeId": "JP-173",
+          "slug": "churaumi-visitors-watch-diver",
+          "title": "File:USMC-081220-M-0902C-004.jpg",
+          "role": "experience",
+          "alt": "Visitantes observan a un buzo mientras limpia el gran tanque Kuroshio, con tiburones ballena y mantas al fondo.",
+          "whyExperience": "Muestra al público mirando una actividad real del acuario y aporta escala humana frente al gran tanque.",
+          "identityComparison": "La identity actual presenta el tanque principal y sus animales desde el frente. Este encuadre añade la relación visitante-tanque y la presencia de un buzo trabajando, con las personas como escala y no como retrato.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:USMC-081220-M-0902C-004.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:USMC-081220-M-0902C-004.jpg"
+        },
+        {
+          "placeId": "JP-184",
+          "slug": "zamami-furuzamami-beach-visitors",
+          "title": "File:JAP Zamami Furuzamami Beach.jpg",
+          "role": "experience",
+          "alt": "Visitantes caminan y descansan en la arena junto al agua clara de Furuzamami Beach, en Zamami.",
+          "whyExperience": "Muestra la playa en uso y la relación de los visitantes con la costa; la identity presenta una vista rocosa del océano sin actividad.",
+          "identityComparison": "La identity mira desde una costa rocosa hacia el mar vacío. Esta toma muestra la playa de arena, visitantes y actividad de estancia, aportando escala y cómo se disfruta la isla sin repetir el paisaje costero.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:JAP_Zamami_Furuzamami_Beach.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:JAP_Zamami_Furuzamami_Beach.jpg"
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-152",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "La identity vigente ya muestra una persona caminando ante la terminal de ferry. La búsqueda razonable en Commons, Flickr y Openverse no halló una imagen compatible de actividad que aportara información nueva: los candidatos disponibles son puerto o barco sin interacción, estacionamiento de bicicletas sin visitantes, o imágenes con ubicación no verificable. Otra escena de terminal o arquitectura sería redundante.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Openverse",
+            "Naoshima Tourism"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "From the ferry to Naoshima (7046722809).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:From_the_ferry_to_Naoshima_(7046722809).jpg",
+              "reason": "El registro de origen y sus coordenadas corresponden a Megijima, no a Naoshima; ubicación no verificable."
+            },
+            {
+              "title": "Naoshima honmura port bike parking inside.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Naoshima_honmura_port_bike_parking_inside.jpg",
+              "reason": "Estacionamiento de bicicletas vacío, sin personas ni uso visible; imagen de un objeto/espacio de servicio que no representa la visita."
+            },
+            {
+              "title": "Miyanoura port02s3872.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Miyanoura_port02s3872.jpg",
+              "reason": "El barco atracado domina el encuadre; no muestra llegada, embarque o relación de visitantes con el lugar y repite el contexto portuario ya visible en la identity."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-179",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "Se buscaron recorridos y actividades en Commons, Flickr y fuentes de turismo local. Las imágenes reutilizables identificadas son bosque vacío parecido a la identity, un letrero del parque o material de un parque temático ajeno; las fotografías adecuadas de senderismo en fuentes oficiales no declaran una licencia compatible. No se fuerza una escena forestal genérica como experience.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Openverse",
+            "Yanbaru National Park official site",
+            "Okinawa tourism"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "Yanbaru National Park.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Yanbaru_National_Park.jpg",
+              "reason": "Señal del parque, sin experiencia ni recorrido."
+            },
+            {
+              "title": "Yambaru forest in Ryukyu Mura",
+              "url": "https://commons.wikimedia.org/wiki/Category:Yanbaru_National_Park",
+              "reason": "La foto identificada es del parque temático Ryukyu Mura, no del parque nacional."
+            },
+            {
+              "title": "Yanbaru forest hiking gallery",
+              "url": "https://www.okinawastory.jp/feature/yanbaru",
+              "reason": "Material oficial de promoción sin una licencia reutilizable compatible explícita."
+            }
+          ]
+        }
+      ],
+      "rejectedPreparedRecords": [
+        {
+          "placeId": "JP-184",
+          "title": "File:Sea kayaking Zamami Okinawa.jpg",
+          "reason": "CC BY 2.0 y ubicación correctas, pero el original es 1280 × 854 y Commons no sirvió la miniatura 1024px que exige el pipeline; se rechazó para no descargar el original como sustituto ni alterar el contrato de adquisición."
+        }
+      ]
     }
   ]
 }

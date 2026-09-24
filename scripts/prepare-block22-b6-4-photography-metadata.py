@@ -78,6 +78,33 @@ def main():
         raise SystemExit("each unresolved row needs a reason and rejected candidate evidence")
 
     images = metadata["images"]
+    for rejected in plan_batch.get("rejectedPreparedRecords", []):
+        matches = [
+            row for row in images
+            if row.get("placeId") == rejected["placeId"]
+            and row.get("originalTitle") == rejected["title"]
+        ]
+        if len(matches) > 1:
+            raise SystemExit(f"rejected candidate appears more than once: {rejected['title']}")
+        if matches:
+            if matches[0].get("role") != "experience":
+                raise SystemExit(f"refusing to remove non-experience record: {rejected['title']}")
+            images.remove(matches[0])
+
+    accepted_titles_by_place = {row["placeId"]: row["title"] for row in entries}
+    rejected_titles_by_place = {
+        row["placeId"]: row["title"] for row in plan_batch.get("rejectedPreparedRecords", [])
+    }
+    for row in images:
+        if row.get("placeId") not in expected_places or row.get("role") != "experience":
+            continue
+        expected_title = accepted_titles_by_place.get(row["placeId"])
+        rejected_title = rejected_titles_by_place.get(row["placeId"])
+        if row.get("originalTitle") not in {expected_title, rejected_title}:
+            raise SystemExit(
+                f"unplanned experience record for {row['placeId']}: {row.get('originalTitle')}"
+            )
+
     plan_entries = {
         item["placeId"]: item
         for row in plan["batches"] if row["batch"] <= args.batch
@@ -103,27 +130,26 @@ def main():
     accepted = {row["placeId"]: row for row in entries}
     already = set(current_by_place)
     batch_existing = already & expected_places
-    if batch_existing and batch_existing != set(accepted):
-        raise SystemExit("partial batch records already exist; inspect the working tree before retrying")
-
-    if batch_existing:
-        records = [current_by_place[row["placeId"]] for row in entries]
-        if any(row.get("role") != "experience" for row in records):
-            raise SystemExit("existing batch record has a non-experience role")
-        print(f"Using {len(records)} already-prepared experience record(s) for batch {args.batch}")
-    else:
-        preparer = import_preparer()
-        records = []
-        for entry in entries:
-            record = preparer.build(entry, plan["acquisitionDate"])
-            record["role"] = "experience"
-            records.append(record)
-            print(f"prepared {entry['placeId']} — {record['license']} — {record['originalWidth']}x{record['originalHeight']}", file=sys.stderr)
-            time.sleep(1.0)
-        titles = {row["originalTitle"] for row in images}
-        if any(row["originalTitle"] in titles for row in records):
-            raise SystemExit("a selected Commons originalTitle already exists in the registry")
-        images.extend(records)
+    preparer = import_preparer()
+    records = []
+    newly_prepared = []
+    for entry in entries:
+        existing = current_by_place.get(entry["placeId"])
+        if existing:
+            if existing.get("originalTitle") != entry["title"] or existing.get("role") != "experience":
+                raise SystemExit(f"existing batch record does not match plan: {entry['placeId']}")
+            records.append(existing)
+            continue
+        record = preparer.build(entry, plan["acquisitionDate"])
+        record["role"] = "experience"
+        records.append(record)
+        newly_prepared.append(record)
+        print(f"prepared {entry['placeId']} — {record['license']} — {record['originalWidth']}x{record['originalHeight']}", file=sys.stderr)
+        time.sleep(1.0)
+    titles = {row["originalTitle"] for row in images}
+    if any(row["originalTitle"] in titles for row in newly_prepared):
+        raise SystemExit("a selected Commons originalTitle already exists in the registry")
+    images.extend(newly_prepared)
 
     # Keep each gallery in the established identity → experience → detail/context → seasonal
     # order. Records are still validated as a stable batch sequence by place ID, rather than by

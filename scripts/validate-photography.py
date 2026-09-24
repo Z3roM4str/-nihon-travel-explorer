@@ -262,8 +262,10 @@ def validate_metadata(metadata, place_ids, asset_root):
 
         if license_ in SUPPORTED_LICENSES:
             if license_ == "Public Domain":
-                if record.get("licenseBasis") != "PD-self":
-                    errors.append(f"{label}: Public Domain requires the verified licenseBasis 'PD-self'")
+                if record.get("licenseBasis") not in {"PD-self", "PD-USGov"}:
+                    errors.append(
+                        f"{label}: Public Domain requires the verified licenseBasis 'PD-self' or 'PD-USGov'"
+                    )
                 if record.get("source") != "Wikimedia Commons" or urlparse(
                     record.get("sourceUrl") or ""
                 ).netloc != "commons.wikimedia.org":

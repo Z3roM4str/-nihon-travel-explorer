@@ -217,11 +217,13 @@ class MetadataValidationTests(unittest.TestCase):
             with self.subTest(license=license_):
                 self.assertIsNotNone(validator.expected_license_path(license_))
 
-    def test_public_domain_requires_pd_self_and_commons_provenance_without_license_url(self):
-        record = valid_record(license="Public Domain", licenseBasis="PD-self")
-        record.pop("licenseUrl")
-        errs = self.errors([record], Path("/nonexistent"))
-        self.assertFalse(any("Public Domain" in e for e in errs), errs)
+    def test_public_domain_requires_verified_basis_and_commons_provenance_without_license_url(self):
+        for basis in ("PD-self", "PD-USGov"):
+            with self.subTest(basis=basis):
+                record = valid_record(license="Public Domain", licenseBasis=basis)
+                record.pop("licenseUrl")
+                errs = self.errors([record], Path("/nonexistent"))
+                self.assertFalse(any("Public Domain" in e for e in errs), errs)
 
         self.assert_invalid(
             [valid_record(license="Public Domain", licenseBasis="PD-self", licenseUrl="https://example.org/license")],
@@ -229,18 +231,27 @@ class MetadataValidationTests(unittest.TestCase):
         )
         self.assert_invalid(
             [valid_record(license="Public Domain", licenseBasis="pd-self")],
-            "requires the verified licenseBasis 'PD-self'",
+            "requires the verified licenseBasis 'PD-self' or 'PD-USGov'",
         )
         self.assert_invalid(
             [valid_record(license="Public Domain", licenseBasis="PD-self", sourceUrl="https://example.org/photo")],
             "must point to its Wikimedia Commons file page",
         )
 
-    def test_public_domain_normalizer_accepts_only_an_explicit_pd_self_marker(self):
+    def test_public_domain_normalizer_accepts_only_explicit_supported_basis(self):
         self.assertEqual(
             preparer.normalise_licence("Public domain", "Self-published work|PD-self|Shopping arcades in Naha"),
             "Public Domain",
         )
+        self.assertEqual(
+            preparer.normalise_licence("Public domain", "PD US Military|United States Marine Corps"),
+            "Public Domain",
+        )
+        self.assertEqual(
+            preparer.public_domain_basis("PD US Marines|United States Marine Corps"),
+            "PD-USGov",
+        )
+        self.assertEqual(preparer.public_domain_basis("PD US Military"), "PD-USGov")
         for categories in ("", "PD-old", "Public domain|Photography"):
             with self.subTest(categories=categories):
                 with self.assertRaises(SystemExit):
