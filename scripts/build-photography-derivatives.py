@@ -62,6 +62,18 @@ DERIVATIVE_WIDTHS = (400, 800)
 DEFAULT_DERIVATIVE_WIDTH = 800
 DERIVATIVE_QUALITY = 72
 DERIVATIVE_METHOD = 6
+# B6.2: the list card loads the 800w rendition of every photographed place in a hub, so the
+# 3.5 MB city contract is a sum of 800w files. Growing coverage made Tokio exceed it
+# (3,886,132 B after B6.2 batch 1) because a few high-detail frames (foliage, water, dense
+# streets) encode far above the typical ~50 KB at quality 72. Instead of lowering quality for
+# everyone, an 800w rendition that exceeds its byte target steps quality down in fixed
+# increments until it fits or reaches the floor — the same deterministic rule the acquisition
+# pipeline applies to originals (PHOTOGRAPHY_TARGET_BYTES) and this script applies to LQIP.
+# Renditions already under the target stay byte-identical at quality 72. 400w is not in the
+# list payload and is unchanged.
+DERIVATIVE_TARGET_BYTES = {800: 70_000}
+DERIVATIVE_MIN_QUALITY = 48
+DERIVATIVE_QUALITY_STEP = 4
 LQIP_WIDTH = 20
 LQIP_MAX_DATA_URL_BYTES = 700
 LQIP_MIN_QUALITY = 20
@@ -96,9 +108,15 @@ def encode_derivative(original_bytes: bytes, width: int = DEFAULT_DERIVATIVE_WID
             im = im.resize((target_width, target_height), Image.LANCZOS)
         flat = Image.new(im.mode, im.size)
         flat.paste(im)  # drops EXIF/ICC; keeps only pixel data
-        buf = BytesIO()
-        flat.save(buf, format="WEBP", quality=DERIVATIVE_QUALITY, method=DERIVATIVE_METHOD)
-        return buf.getvalue()
+        target = DERIVATIVE_TARGET_BYTES.get(width)
+        quality = DERIVATIVE_QUALITY
+        while True:
+            buf = BytesIO()
+            flat.save(buf, format="WEBP", quality=quality, method=DERIVATIVE_METHOD)
+            encoded = buf.getvalue()
+            if target is None or len(encoded) <= target or quality <= DERIVATIVE_MIN_QUALITY:
+                return encoded
+            quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
 
 
 def encode_lqip(original_bytes: bytes) -> str:

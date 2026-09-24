@@ -20,6 +20,7 @@ which runs separately and only when photographs are (re)sourced.
 """
 import base64
 import binascii
+import hashlib
 import json
 import re
 import sys
@@ -384,6 +385,32 @@ def validate_metadata(metadata, place_ids, asset_root):
     return errors, images_by_place
 
 
+def validate_unique_asset_bytes(metadata, asset_root):
+    """B6.2: no two registered files (originals or renditions) may share their bytes.
+
+    The title/URL check above catches the same Commons source declared twice; this catches
+    the same photograph committed under two names or reused for two places, which a renamed
+    or re-downloaded copy would otherwise slip past. Pure hashlib, still Pillow-free.
+    """
+    errors = []
+    seen = {}
+    for record in metadata.get("images", []) if isinstance(metadata, dict) else []:
+        asset_path = record.get("assetPath") if isinstance(record, dict) else None
+        if not isinstance(asset_path, str) or not asset_path.endswith(".webp"):
+            continue
+        paths = [asset_path] + [derivative_path_for(asset_path, width) for width in DERIVATIVE_WIDTHS]
+        for rel in paths:
+            file = asset_root / rel
+            if not file.is_file():
+                continue
+            digest = hashlib.sha256(file.read_bytes()).hexdigest()
+            if digest in seen:
+                errors.append(f"{rel}: byte-identical to {seen[digest]} (duplicate photograph)")
+            else:
+                seen[digest] = rel
+    return errors
+
+
 def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_path=DEFAULT_APP_METADATA_PATH):
     data_dir = Path(data_dir)
     errors = []
@@ -405,6 +432,8 @@ def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_
     for place_id in pilot_place_ids:
         if place_id and not images_by_place.get(place_id):
             errors.append(f"pilot place {place_id!r} has no photograph in photography-metadata.json")
+
+    errors.extend(validate_unique_asset_bytes(metadata, asset_root))
 
     places_by_id = {place.get("id"): place for place in places if isinstance(place, dict)}
     for hub in sorted({place.get("hub") for place in places_by_id.values()}):

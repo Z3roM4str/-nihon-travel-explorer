@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "phase": "Block 22 — B6.2 grade-A identity photography",
+  "acquisitionDate": "2026-09-24",
+  "entries": [
+    {
+      "batch": 1,
+      "placeId": "JP-023",
+      "slug": "yanaka-ginza-shopping-street-gate",
+      "title": "File:Yanaka Ginza (53149155977).jpg",
+      "alt": "Arco de entrada con el rótulo 谷中銀座 sobre la calle comercial de Yanaka Ginza, flanqueada por casas bajas y postes eléctricos.",
+      "role": "identity",
+      "whyIdentity": "El arco con el nombre de la calle comercial la identifica sin ambigüedad y muestra la escala residencial baja que define el barrio."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-024",
+      "slug": "nezu-shrine-romon-gate",
+      "title": "File:Nezu-jinja Romon 4.jpg",
+      "alt": "Puerta Rōmon lacada en rojo del santuario Nezu, con su placa central, entre árboles altos.",
+      "role": "identity",
+      "whyIdentity": "La descripción de Commons sitúa la puerta principal del santuario Nezu (Bunkyō); la Rōmon con placa es su imagen de acceso característica."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-027",
+      "slug": "kanda-myojin-main-hall-courtyard",
+      "title": "File:Kanda-Myojin grand hall.jpg",
+      "alt": "Pabellón principal de Kanda Myōjin, con tejado verde y aleros rojos y dorados, al fondo de un patio empedrado con oficinas detrás.",
+      "role": "identity",
+      "whyIdentity": "El haiden frontal del santuario ante los edificios de oficinas de Akihabara es la vista que lo identifica; la fuente lo describe como el patio del santuario."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-029",
+      "slug": "imperial-palace-east-gardens-honmaru-lawn",
+      "title": "File:Tokyo Imperial Palace East Gardens Park.jpg",
+      "alt": "Césped del Honmaru en los Jardines Este del Palacio Imperial, con pinos y visitantes, y los rascacielos de Ōtemachi al fondo.",
+      "role": "identity",
+      "whyIdentity": "La explanada del Honmaru, antiguo recinto central del castillo de Edo, recortada contra el skyline de Marunouchi, es la vista propia de los Jardines Este."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-031",
+      "slug": "hama-rikyu-pond-bridge-shiodome",
+      "title": "File:Tokio Hamarikyu-Garten-20091017-RM-141110.jpg",
+      "alt": "Estanque de marea de Hama-rikyū cruzado por un puente de madera, con pinos podados y las torres de Shiodome detrás.",
+      "role": "identity",
+      "whyIdentity": "El estanque de agua de mar, el puente y el contraste con las torres de Shiodome identifican Hama-rikyū frente a cualquier otro jardín de Tokio."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-035",
+      "slug": "national-art-center-tokyo-glass-facade",
+      "title": "File:2018 National Art Center, Tokyo 2.jpg",
+      "alt": "Fachada ondulada de vidrio verde del Centro Nacional de Arte de Tokio, con el cono de la entrada y su marquesina circular.",
+      "role": "identity",
+      "whyIdentity": "La fachada ondulada de Kishō Kurokawa con el cono de acceso es la arquitectura que el propio lugar ofrece como contenido."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-036",
+      "slug": "21-21-design-sight-folded-roof",
+      "title": "File:21 21 DESIGN SIGHT 201306.jpg",
+      "alt": "Edificio de 21_21 DESIGN SIGHT de Tadao Ando, con su cubierta de acero plegada descendiendo hacia el césped y una hilera de árboles detrás.",
+      "role": "identity",
+      "whyIdentity": "La cubierta plegada de una sola lámina y el muro de hormigón visto de Ando son inconfundibles; el césped y los árboles de Tokyo Midtown la sitúan."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-045",
+      "slug": "inokashira-pond-benzaiten-hall",
+      "title": "File:Inokashira park pond 2024.jpg",
+      "alt": "Estanque de Inokashira en verano, con el pabellón rojo de Benzaiten entre los árboles y una pasarela de madera sobre el agua.",
+      "role": "identity",
+      "whyIdentity": "El pabellón de Benzaiten a orillas del estanque es el hito del parque Inokashira junto a Kichijōji; la fuente fecha la toma en julio de 2024."
+    },
+    {
+      "batch": 1,
+      "placeId": "JP-048",
+      "slug": "shimokitazawa-shopping-street-banners",
+      "title": "File:Shimokitazawa Street 2015.jpg",
+      "alt": "Calle comercial de Shimokitazawa llena de gente, con banderolas rojas con el nombre del barrio, fachadas de ladrillo y carteles de tiendas.",
+      "role": "identity",
+      "whyIdentity": "Las banderolas con 下北沢 y la calle estrecha y densa de tiendas identifican el barrio y transmiten su atractivo: explorar a pie."
+    }
+  ],
+  "rejected": [
+    {"placeId": "JP-023", "title": "File:Yanaka Ginza, Yanaka (53417016334).jpg", "reason": "Muestra el mismo arco, pero lleva una marca de agua superpuesta del autor; se prefiere una toma limpia equivalente."},
+    {"placeId": "JP-023", "title": "File:Yanaka cemetery 2.jpg", "reason": "Tumba individual en primer plano: no funciona como portada del conjunto calle + cementerio."},
+    {"placeId": "JP-024", "title": "File:Nezu jinja - Torii 1.jpg", "reason": "Un torii aislado no distingue Nezu de otros santuarios; la Rōmon con placa sí."},
+    {"placeId": "JP-027", "title": "File:Kanda-Myojin 501.jpg", "reason": "Es un goshuin (sello caligráfico), no el lugar."},
+    {"placeId": "JP-027", "title": "File:Kanda-myōjin haiden.jpg", "reason": "Válida pero con un letrero y un visitante en primer plano; la toma frontal elegida es más limpia."},
+    {"placeId": "JP-029", "title": "File:Imperial Palace East Garden @ Tokyo (11165664295).jpg", "reason": "Césped seco invernal sin elemento que sitúe el lugar; poco representativa."},
+    {"placeId": "JP-029", "title": "File:Chiyoda Tokyo August Tokyo Imperial Palace 2014 43.JPG", "reason": "Descrita sólo como Palacio Imperial, sin garantía de que sea el recinto de los Jardines Este."},
+    {"placeId": "JP-031", "title": "File:Hama-Rikyu Gardens (11324122253).jpg", "reason": "Hojas en el suelo: detalle sin identidad."},
+    {"placeId": "JP-031", "title": "File:Hamarikyu Garden as seen from Shiodome.jpg", "reason": "Vista aérea: contexto, no identidad; ilegible como portada a 4:3."},
+    {"placeId": "JP-035", "title": "File:National Art Center @ Tokyo (11495394516).jpg", "reason": "Detalle abstracto de la fachada: no identifica el edificio a tamaño tarjeta."},
+    {"placeId": "JP-036", "title": "File:21 21 DESIGN SIGHT模型.jpg", "reason": "Maqueta del edificio, no el lugar."},
+    {"placeId": "JP-045", "title": "File:Inokashira Park Zoo PC053119.jpg", "reason": "Capibara del zoo: no representa el parque ni el barrio."},
+    {"placeId": "JP-045", "title": "File:Inokashira Park Cherry blossoms.jpg", "reason": "Iluminación nocturna estacional: rol seasonal, no identity."},
+    {"placeId": "JP-048", "title": "File:Cake-shaped clocks for sale in Shimokitazawa.jpg", "reason": "Detalle de un escaparate sin contexto del barrio."},
+    {"placeId": "JP-048", "title": "File:Walk in Shimokitazawa.jpg", "reason": "Edificio de la estación de Odakyū: identifica la estación, no el barrio de callejuelas."},
+    {"placeId": "JP-050", "title": "File:ProfSekkokuLab 20260205.jpg", "reason": "Interior de una sala-laboratorio con tres Poké Balls: no muestra el bosque ni las figuras que definen PokéPark KANTO y no es inequívoco como portada."},
+    {"placeId": "JP-050", "title": "File:PokéPark Kanto logo.png", "reason": "Logotipo, no fotografía del lugar."}
+  ],
+  "unresolved": [
+    {"placeId": "JP-050", "reason": "Commons (Category:PokéPark Kanto y búsquedas en inglés/japonés) sólo contiene el logotipo y una sala interior no representativa. Ninguna fotografía con licencia verificable muestra el recorrido forestal ni las figuras de Pokémon."}
+  ]
+}
