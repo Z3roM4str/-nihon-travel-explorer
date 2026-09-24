@@ -83,28 +83,244 @@
       "alt": "Calle comercial de Shimokitazawa llena de gente, con banderolas rojas con el nombre del barrio, fachadas de ladrillo y carteles de tiendas.",
       "role": "identity",
       "whyIdentity": "Las banderolas con 下北沢 y la calle estrecha y densa de tiendas identifican el barrio y transmiten su atractivo: explorar a pie."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-069",
+      "slug": "bishamondo-main-hall-yamashina",
+      "title": "File:240316 Bishamondo Yamashina Kyoto Japan01s3.jpg",
+      "alt": "Fachada del hondō de Bishamon-dō en Yamashina, con puerta de acceso bermellón, linternas de piedra y el bosque de la ladera detrás.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica Bishamondō en Yamashina; el pabellón principal frontal con la colina boscosa funciona como portada del templo."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-074",
+      "slug": "gio-ji-moss-garden-thatched-hall",
+      "title": "File:Giō-ji - Kyoto - DSC06265.JPG",
+      "alt": "Jardín de musgo de Giō-ji bajo arces verdes, con el pequeño pabellón de techo de paja al fondo.",
+      "role": "identity",
+      "whyIdentity": "Commons lo clasifica en Category:Moss Garden, Giō-ji; el musgo ondulado bajo los arces y la ermita de paja son la imagen propia del templo."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-075",
+      "slug": "otagi-nenbutsu-ji-rakan-autumn",
+      "title": "File:Otagi nenbutsuji08s3200.jpg",
+      "alt": "Filas de estatuas rakan de piedra cubiertas de musgo en la ladera de Otagi Nenbutsu-ji, con arces otoñales y un pabellón al fondo.",
+      "role": "identity",
+      "whyIdentity": "Las 1.200 rakan de rostros distintos son el contenido del lugar; la fuente lo identifica como Otagi Nenbutsu-ji en Sagano."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-076",
+      "slug": "adashino-nenbutsu-ji-stone-statues",
+      "title": "File:Adashino-nenbutsuji (化野念仏寺), Sagano, Kyoto, Japan.jpg",
+      "alt": "Campo de miles de pequeñas estatuas y estupas de piedra de Adashino Nenbutsu-ji, con una pagoda de piedra y árboles al fondo.",
+      "role": "identity",
+      "whyIdentity": "El mar de estatuas funerarias en torno a la pagoda es el paisaje de memoria que define el templo; la fuente lo nombra explícitamente."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-082",
+      "slug": "daitoku-ji-koto-in-approach-path",
+      "title": "File:Koto in zen chemin.jpg",
+      "alt": "Sendero enlosado entre setos de bambú y arbustos que conduce al porche de acceso de Kōtō-in, subtemplo de Daitoku-ji.",
+      "role": "identity",
+      "whyIdentity": "Commons lo clasifica en Category:Koutouin, Daitokuji; el sendero de acceso de Kōtō-in es la imagen más reconocible de los subtemplos visitables."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-083",
+      "slug": "genko-an-round-and-square-windows",
+      "title": "File:Genkō-an, Round and Square Windows 01.jpg",
+      "alt": "Sala de tatami de Genkō-an con la ventana redonda de la iluminación y la ventana cuadrada de la duda abiertas al jardín verde.",
+      "role": "identity",
+      "whyIdentity": "Commons lo clasifica en Category:Satori-no-mado and Mayoi-no-mado, Genko-an: las dos ventanas son exactamente la experiencia que justifica la visita."
+    },
+    {
+      "batch": 2,
+      "placeId": "JP-088",
+      "slug": "jingo-ji-precinct-autumn-maples",
+      "title": "File:Jingoji Kyoto Kyoto15s3s4500.jpg",
+      "alt": "Recinto de montaña de Jingo-ji visto desde lo alto, con tejados del templo, una amplia explanada de grava y arces rojos y amarillos.",
+      "role": "identity",
+      "whyIdentity": "La fuente identifica Jingo-ji (Ukyō-ku); el recinto elevado entre bosque transmite el aislamiento que el lugar ofrece tras la subida."
     }
   ],
   "rejected": [
-    {"placeId": "JP-023", "title": "File:Yanaka Ginza, Yanaka (53417016334).jpg", "reason": "Muestra el mismo arco, pero lleva una marca de agua superpuesta del autor; se prefiere una toma limpia equivalente."},
-    {"placeId": "JP-023", "title": "File:Yanaka cemetery 2.jpg", "reason": "Tumba individual en primer plano: no funciona como portada del conjunto calle + cementerio."},
-    {"placeId": "JP-024", "title": "File:Nezu jinja - Torii 1.jpg", "reason": "Un torii aislado no distingue Nezu de otros santuarios; la Rōmon con placa sí."},
-    {"placeId": "JP-027", "title": "File:Kanda-Myojin 501.jpg", "reason": "Es un goshuin (sello caligráfico), no el lugar."},
-    {"placeId": "JP-027", "title": "File:Kanda-myōjin haiden.jpg", "reason": "Válida pero con un letrero y un visitante en primer plano; la toma frontal elegida es más limpia."},
-    {"placeId": "JP-029", "title": "File:Imperial Palace East Garden @ Tokyo (11165664295).jpg", "reason": "Césped seco invernal sin elemento que sitúe el lugar; poco representativa."},
-    {"placeId": "JP-029", "title": "File:Chiyoda Tokyo August Tokyo Imperial Palace 2014 43.JPG", "reason": "Descrita sólo como Palacio Imperial, sin garantía de que sea el recinto de los Jardines Este."},
-    {"placeId": "JP-031", "title": "File:Hama-Rikyu Gardens (11324122253).jpg", "reason": "Hojas en el suelo: detalle sin identidad."},
-    {"placeId": "JP-031", "title": "File:Hamarikyu Garden as seen from Shiodome.jpg", "reason": "Vista aérea: contexto, no identidad; ilegible como portada a 4:3."},
-    {"placeId": "JP-035", "title": "File:National Art Center @ Tokyo (11495394516).jpg", "reason": "Detalle abstracto de la fachada: no identifica el edificio a tamaño tarjeta."},
-    {"placeId": "JP-036", "title": "File:21 21 DESIGN SIGHT模型.jpg", "reason": "Maqueta del edificio, no el lugar."},
-    {"placeId": "JP-045", "title": "File:Inokashira Park Zoo PC053119.jpg", "reason": "Capibara del zoo: no representa el parque ni el barrio."},
-    {"placeId": "JP-045", "title": "File:Inokashira Park Cherry blossoms.jpg", "reason": "Iluminación nocturna estacional: rol seasonal, no identity."},
-    {"placeId": "JP-048", "title": "File:Cake-shaped clocks for sale in Shimokitazawa.jpg", "reason": "Detalle de un escaparate sin contexto del barrio."},
-    {"placeId": "JP-048", "title": "File:Walk in Shimokitazawa.jpg", "reason": "Edificio de la estación de Odakyū: identifica la estación, no el barrio de callejuelas."},
-    {"placeId": "JP-050", "title": "File:ProfSekkokuLab 20260205.jpg", "reason": "Interior de una sala-laboratorio con tres Poké Balls: no muestra el bosque ni las figuras que definen PokéPark KANTO y no es inequívoco como portada."},
-    {"placeId": "JP-050", "title": "File:PokéPark Kanto logo.png", "reason": "Logotipo, no fotografía del lugar."}
+    {
+      "placeId": "JP-023",
+      "title": "File:Yanaka Ginza, Yanaka (53417016334).jpg",
+      "reason": "Muestra el mismo arco, pero lleva una marca de agua superpuesta del autor; se prefiere una toma limpia equivalente."
+    },
+    {
+      "placeId": "JP-023",
+      "title": "File:Yanaka cemetery 2.jpg",
+      "reason": "Tumba individual en primer plano: no funciona como portada del conjunto calle + cementerio."
+    },
+    {
+      "placeId": "JP-024",
+      "title": "File:Nezu jinja - Torii 1.jpg",
+      "reason": "Un torii aislado no distingue Nezu de otros santuarios; la Rōmon con placa sí."
+    },
+    {
+      "placeId": "JP-027",
+      "title": "File:Kanda-Myojin 501.jpg",
+      "reason": "Es un goshuin (sello caligráfico), no el lugar."
+    },
+    {
+      "placeId": "JP-027",
+      "title": "File:Kanda-myōjin haiden.jpg",
+      "reason": "Válida pero con un letrero y un visitante en primer plano; la toma frontal elegida es más limpia."
+    },
+    {
+      "placeId": "JP-029",
+      "title": "File:Imperial Palace East Garden @ Tokyo (11165664295).jpg",
+      "reason": "Césped seco invernal sin elemento que sitúe el lugar; poco representativa."
+    },
+    {
+      "placeId": "JP-029",
+      "title": "File:Chiyoda Tokyo August Tokyo Imperial Palace 2014 43.JPG",
+      "reason": "Descrita sólo como Palacio Imperial, sin garantía de que sea el recinto de los Jardines Este."
+    },
+    {
+      "placeId": "JP-031",
+      "title": "File:Hama-Rikyu Gardens (11324122253).jpg",
+      "reason": "Hojas en el suelo: detalle sin identidad."
+    },
+    {
+      "placeId": "JP-031",
+      "title": "File:Hamarikyu Garden as seen from Shiodome.jpg",
+      "reason": "Vista aérea: contexto, no identidad; ilegible como portada a 4:3."
+    },
+    {
+      "placeId": "JP-035",
+      "title": "File:National Art Center @ Tokyo (11495394516).jpg",
+      "reason": "Detalle abstracto de la fachada: no identifica el edificio a tamaño tarjeta."
+    },
+    {
+      "placeId": "JP-036",
+      "title": "File:21 21 DESIGN SIGHT模型.jpg",
+      "reason": "Maqueta del edificio, no el lugar."
+    },
+    {
+      "placeId": "JP-045",
+      "title": "File:Inokashira Park Zoo PC053119.jpg",
+      "reason": "Capibara del zoo: no representa el parque ni el barrio."
+    },
+    {
+      "placeId": "JP-045",
+      "title": "File:Inokashira Park Cherry blossoms.jpg",
+      "reason": "Iluminación nocturna estacional: rol seasonal, no identity."
+    },
+    {
+      "placeId": "JP-048",
+      "title": "File:Cake-shaped clocks for sale in Shimokitazawa.jpg",
+      "reason": "Detalle de un escaparate sin contexto del barrio."
+    },
+    {
+      "placeId": "JP-048",
+      "title": "File:Walk in Shimokitazawa.jpg",
+      "reason": "Edificio de la estación de Odakyū: identifica la estación, no el barrio de callejuelas."
+    },
+    {
+      "placeId": "JP-050",
+      "title": "File:ProfSekkokuLab 20260205.jpg",
+      "reason": "Interior de una sala-laboratorio con tres Poké Balls: no muestra el bosque ni las figuras que definen PokéPark KANTO y no es inequívoco como portada."
+    },
+    {
+      "placeId": "JP-050",
+      "title": "File:PokéPark Kanto logo.png",
+      "reason": "Logotipo, no fotografía del lugar."
+    },
+    {
+      "placeId": "JP-069",
+      "title": "File:Bishamondō 01.jpg",
+      "reason": "Licencia CC BY 2.1 JP fuera de la lista permitida del pipeline."
+    },
+    {
+      "placeId": "JP-069",
+      "title": "File:Bishamondō stairs.JPG",
+      "reason": "Escalinata en el bosque sin el templo reconocible."
+    },
+    {
+      "placeId": "JP-074",
+      "title": "File:Giō-ji Buddhist Temple - Entrance.jpg",
+      "reason": "Portillo de entrada poco legible a tamaño tarjeta."
+    },
+    {
+      "placeId": "JP-075",
+      "title": "File:Laughing pilgrim statue of Otagi-nenbutsuji.jpg",
+      "reason": "Primer plano de una sola estatua: detail, no identity."
+    },
+    {
+      "placeId": "JP-076",
+      "title": "File:Kyoto Adashino Nenbutsu-ji Bamboo Forest 1.jpg",
+      "reason": "Bosque de bambú vertical: se confunde con Arashiyama y no muestra las estatuas."
+    },
+    {
+      "placeId": "JP-082",
+      "title": "File:Daitoku-ji in Koka 01.jpg",
+      "reason": "Es otro Daitoku-ji, en Kōka (Shiga): lugar diferente."
+    },
+    {
+      "placeId": "JP-082",
+      "title": "File:Daitoku-ji Temple , 大徳寺 勅使門 - panoramio.jpg",
+      "reason": "Puerta del recinto principal, no un subtemplo; resolución baja (1196 px)."
+    },
+    {
+      "placeId": "JP-082",
+      "title": "File:Daisen-in Daitokuji (Kita-Ku Kyoto) SubTemple hdsr S5 02.jpg",
+      "reason": "Cartel indicador del subtemplo, no el lugar."
+    },
+    {
+      "placeId": "JP-083",
+      "title": "File:Genkō-an, Main Hall 01.jpg",
+      "reason": "Pabellón genérico que no muestra las ventanas que definen la visita."
+    },
+    {
+      "placeId": "JP-083",
+      "title": "File:Genkoan-Windows.jpg",
+      "reason": "Mismo sujeto a 1500 px y con la ventana redonda descentrada; se prefiere la toma de 3264 px."
+    },
+    {
+      "placeId": "JP-088",
+      "title": "File:Jingo-ji (7066697911).jpg",
+      "reason": "Niña en un puesto de kawarake: persona identificable y sin el lugar."
+    },
+    {
+      "placeId": "JP-088",
+      "title": "File:Jingo-ji (6920612150).jpg",
+      "reason": "Bosque de cedros sin el templo."
+    },
+    {
+      "placeId": "JP-095",
+      "title": "File:TOKIO INKARAMI in Tadasu Forest Shimogamo Shrine 01.jpg",
+      "reason": "Instalación de luz en Shimogamo, no teamLab Biovortex."
+    },
+    {
+      "placeId": "JP-120",
+      "title": "File:Nemophila field at Nagai Botanical Garden.jpg",
+      "reason": "Jardín botánico de Nagai de día: no muestra la obra nocturna de teamLab que define el lugar."
+    }
   ],
   "unresolved": [
-    {"placeId": "JP-050", "reason": "Commons (Category:PokéPark Kanto y búsquedas en inglés/japonés) sólo contiene el logotipo y una sala interior no representativa. Ninguna fotografía con licencia verificable muestra el recorrido forestal ni las figuras de Pokémon."}
+    {
+      "placeId": "JP-050",
+      "reason": "Commons (Category:PokéPark Kanto y búsquedas en inglés/japonés) sólo contiene el logotipo y una sala interior no representativa. Ninguna fotografía con licencia verificable muestra el recorrido forestal ni las figuras de Pokémon."
+    },
+    {
+      "placeId": "JP-079",
+      "reason": "Sin archivos en Commons para el Parque de Bambú de Rakusai (búsquedas 'Rakusai Bamboo Park', 'Rakusai chikurin', '洛西竹林公園' y categorías Rakusai). Un bambú genérico de otro sitio no es aceptable."
+    },
+    {
+      "placeId": "JP-095",
+      "reason": "teamLab Biovortex Kyoto (abierto en 2025) no tiene fotografías en Commons ni en Category:TeamLab; las obras de teamLab de otras sedes no sirven."
+    },
+    {
+      "placeId": "JP-120",
+      "reason": "Commons sólo tiene fotografías diurnas del Jardín Botánico de Nagai; ninguna muestra teamLab Botanical Garden Osaka."
+    }
   ]
 }
