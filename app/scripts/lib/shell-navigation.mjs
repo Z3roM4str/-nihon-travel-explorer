@@ -40,22 +40,19 @@ export async function dismissOnboarding(page, url) {
 }
 
 /**
- * Entra a una ciudad desde la portada nacional.
+ * Entra a una ciudad desde la portada de B21.
  *
- * B18 (`05 §2`) sustituyó el camino «prefectura → Explorar desde X» por los atajos de ciudad de
- * la sección «Empezar a explorar». El recorrido geográfico region → prefectura → hub sigue
- * existiendo debajo (`05 §3`) y lo comprueba `b17-regression-check`; aquí interesa llegar a la
- * lista, no recorrer el mapa, así que se usa el atajo.
+ * Los cuatro hubs principales están en «Empezar a explorar»; Sapporo, Nagoya y Fukuoka
+ * están en «Más destinos» (`05 §2`). El recorrido geográfico sigue en el mapa nacional.
  *
- * Se busca por rol y nombre DENTRO de esa sección: a secas, `^Tokio` empata con el atajo y con
- * la prefectura del navegador de regiones, y Playwright —con razón— se niega a elegir por ti.
+ * Se busca por rol y nombre dentro de esas dos secciones para evitar que el nombre de un hub
+ * empate con una prefectura del navegador de regiones.
  */
 export async function enterHub(page, hub) {
-  await page
-    .getByRole("region", { name: "Empezar a explorar" })
-    .getByRole("button", { name: new RegExp(`^${escapeRegExp(hub)}\\b`) })
-    .first()
-    .click();
+  const name = new RegExp(`^${escapeRegExp(hub)}\\b`);
+  const mainCity = page.getByRole("region", { name: "Empezar a explorar" }).getByRole("button", { name });
+  const moreCity = page.getByRole("region", { name: "Más destinos" }).getByRole("button", { name });
+  await mainCity.or(moreCity).first().click();
   await page.waitForSelector(".place-card", { timeout: 15000 });
   await page.waitForTimeout(400);
 }

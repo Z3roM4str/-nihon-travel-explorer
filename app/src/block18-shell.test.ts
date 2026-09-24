@@ -23,7 +23,7 @@ import { describe, expect, it } from "vitest";
  */
 
 async function read(path: string): Promise<string> {
-  return readFile(new URL(`./${path}`, import.meta.url), "utf8");
+  return (await readFile(new URL(`./${path}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 
 /** Raíz del repositorio git, dos niveles por encima de este fichero (`app/src/…`). */
@@ -305,7 +305,7 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
     // el back label de Viaje — la firma del origen (y la regla de que sólo "explorar" navega)
     // no cambia.
     expect(source).toMatch(
-      /const selectPlace = useCallback\(\s*\(id: string, origin: Destination = "explorar", originLabel: string \| null = null\) => \{/
+      /const selectPlace = useCallback\(\s*\(\s*id: string,\s*origin: Destination = "explorar",\s*originLabel: string \| null = null,\s*exploreReturnSurface: "global-search" \| null = null\s*\) => \{/
     );
     expect(source).toMatch(/if \(origin === "explorar"\) \{[\s\S]*?setDestination\("explorar"\);/);
   });
@@ -364,7 +364,7 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
 
   it("cerrar la ficha limpia también ficheOrigin, no sólo el historial", async () => {
     const source = await read("App.tsx");
-    expect(source).toMatch(/const closeDetail = useCallback\(\(\) => \{\s*setHistory\(\[\]\);\s*setFicheOrigin\(null\);/);
+    expect(source).toMatch(/const closeDetail = useCallback\(\(returnToGlobalSearch = true\) => \{\s*setHistory\(\[\]\);\s*setFicheOrigin\(null\);/);
   });
 });
 
@@ -780,7 +780,7 @@ describe("Bloque 18 — corrección final: puente con el historial del navegador
   it("goBack/closeDetail mueven el historial real del navegador, no sólo el estado de React", async () => {
     const source = await read("App.tsx");
     expect(source).toMatch(/const goBack = useCallback\(\(\) => \{[\s\S]{0,600}window\.history\.back\(\);/);
-    expect(source).toMatch(/const closeDetail = useCallback\(\(\) => \{[\s\S]{0,400}window\.history\.go\(-navDepthRef\.current\);/);
+    expect(source).toMatch(/const closeDetail = useCallback\(\(returnToGlobalSearch = true\) => \{[\s\S]{0,500}window\.history\.go\(-navDepthRef\.current\);/);
   });
 
   it("no cambia la URL pública: pushState/replaceState nunca reciben un segundo argumento de URL con contenido", async () => {

@@ -17,7 +17,7 @@ import { describe, expect, it } from "vitest";
  */
 
 async function readSource(): Promise<string> {
-  return readFile(new URL("./PlaceCard.tsx", import.meta.url), "utf8");
+  return (await readFile(new URL("./PlaceCard.tsx", import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 
 describe("PlaceCard — what a scanning reader can answer", () => {

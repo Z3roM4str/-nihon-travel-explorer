@@ -23,6 +23,9 @@ type Props = {
   title?: string;
   placeholder?: string;
   emptyDescription?: string;
+  closeOnSelect?: boolean;
+  initialBodyScrollTop?: number;
+  onBodyScroll?: (scrollTop: number) => void;
 };
 
 /**
@@ -45,6 +48,9 @@ export function SearchSheet({
   title,
   placeholder,
   emptyDescription,
+  closeOnSelect = true,
+  initialBodyScrollTop,
+  onBodyScroll,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -52,7 +58,7 @@ export function SearchSheet({
   // resto de sus usos); una búsqueda necesita el campo de texto listo para escribir de
   // inmediato, así que este efecto —que corre después, tras el primer pintado— se lo quita.
   useEffect(() => {
-    const frame = requestAnimationFrame(() => inputRef.current?.focus());
+    const frame = requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
     return () => cancelAnimationFrame(frame);
   }, []);
 
@@ -66,7 +72,12 @@ export function SearchSheet({
     `Nada con “${trimmed}” en ${hubName}. Prueba en otra ciudad o quita los filtros.`;
 
   return (
-    <Sheet title={sheetTitle} onClose={onClose}>
+    <Sheet
+      title={sheetTitle}
+      onClose={onClose}
+      initialBodyScrollTop={initialBodyScrollTop}
+      onBodyScroll={onBodyScroll}
+    >
       <div className="search-sheet">
         <div className="search-sheet__field">
           <div className="search-field">
@@ -111,7 +122,7 @@ export function SearchSheet({
                     saved={savedSet.has(place.id)}
                     onSelect={(id) => {
                       onSelect(id);
-                      onClose();
+                      if (closeOnSelect) onClose();
                     }}
                     onToggleSaved={onToggleSaved}
                     otherPersonMarker={otherPersonMarkerFor ? otherPersonMarkerFor(place.id) : null}

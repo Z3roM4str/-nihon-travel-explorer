@@ -1,4 +1,5 @@
 import { readFile, readdir } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -16,7 +17,7 @@ import { describe, expect, it } from "vitest";
 const SRC = new URL("./", import.meta.url);
 
 async function read(relative: string): Promise<string> {
-  return readFile(new URL(relative, SRC), "utf8");
+  return (await readFile(new URL(relative, SRC), "utf8")).replace(/\r\n/g, "\n");
 }
 
 /** Every `.ts`/`.tsx` file under `dir`, excluding tests and (by default) `data/`. */
@@ -25,7 +26,7 @@ async function sourceFiles(dir: URL, acc: string[] = [], skipDirs: readonly stri
     if (skipDirs.includes(entry.name)) continue;
     const child = new URL(entry.name + (entry.isDirectory() ? "/" : ""), dir);
     if (entry.isDirectory()) await sourceFiles(child, acc, skipDirs);
-    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) acc.push(child.pathname);
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) acc.push(fileURLToPath(child));
   }
   return acc;
 }

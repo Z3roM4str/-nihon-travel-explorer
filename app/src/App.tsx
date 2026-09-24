@@ -243,6 +243,25 @@ export default function App() {
   const [citySheetOpen, setCitySheetOpen] = useState(false);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [globalQuery, setGlobalQuery] = useState("");
+  const [globalSearchRestoreScrollTop, setGlobalSearchRestoreScrollTop] = useState(0);
+  /** La búsqueda global conserva su propio scroll aunque la Sheet se desmonte durante una ficha. */
+  const globalSearchScrollTopRef = useRef(0);
+  /** Contexto explícito de la pila de fichas; no se infiere del hub activo. */
+  const exploreDetailReturnRef = useRef<"global-search" | null>(null);
+
+  const closeGlobalSearch = useCallback(() => {
+    setGlobalSearchOpen(false);
+    exploreDetailReturnRef.current = null;
+    globalSearchScrollTopRef.current = 0;
+    setGlobalSearchRestoreScrollTop(0);
+  }, []);
+
+  const restoreGlobalSearchAfterDetail = useCallback(() => {
+    if (exploreDetailReturnRef.current !== "global-search") return;
+    exploreDetailReturnRef.current = null;
+    setGlobalSearchRestoreScrollTop(globalSearchScrollTopRef.current);
+    setGlobalSearchOpen(true);
+  }, []);
 
   const globalSearchPlaces = useMemo(() => {
     if (!globalQuery.trim()) return [];
@@ -557,7 +576,7 @@ export default function App() {
   /** Misma restauración de hub que `goBack` ya hacía, factorizada para que el handler de
    * `popstate` (un back real de navegador/gesto, no un clic en la app) pueda reproducirla. */
   const restoreViewForTrail = useCallback((trail: string[]) => {
-    if (ficheOriginRef.current !== "explorar") return;
+    if (ficheOriginRef.current !== "explorar" || exploreDetailReturnRef.current === "global-search") return;
     const nextId = trail[trail.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
     if (nextPlace && nextPlace.hub !== activeHubRef.current) {
@@ -589,6 +608,7 @@ export default function App() {
         setHistory([]);
         setFicheOrigin(null);
         setFicheOriginLabel(null);
+        restoreGlobalSearchAfterDetail();
         return;
       }
       const next = historyRef.current.slice(0, targetDepth);
@@ -597,7 +617,7 @@ export default function App() {
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [restoreViewForTrail]);
+  }, [restoreGlobalSearchAfterDetail, restoreViewForTrail]);
 
   /**
    * Single source of truth for "go look at this place": starts a fresh trail and closes the
@@ -626,11 +646,17 @@ export default function App() {
    * solo no basta para el back label); Explorar/Quiero ir siguen sin necesitarlo.
    */
   const selectPlace = useCallback(
-    (id: string, origin: Destination = "explorar", originLabel: string | null = null) => {
+    (
+      id: string,
+      origin: Destination = "explorar",
+      originLabel: string | null = null,
+      exploreReturnSurface: "global-search" | null = null
+    ) => {
       const place = getPlaceById(id);
       if (!place) return;
+      exploreDetailReturnRef.current = exploreReturnSurface;
       if (origin === "explorar") {
-        if (place.hub !== activeHub) {
+        if (exploreReturnSurface !== "global-search" && place.hub !== activeHub) {
           setView({ mode: "hub", hub: place.hub });
           setFilters(EMPTY_FILTERS);
         }
@@ -666,7 +692,7 @@ export default function App() {
       const place = getPlaceById(id);
       if (!place) return;
       if (historyRef.current[historyRef.current.length - 1] === id) return;
-      if (ficheOrigin === "explorar" && place.hub !== activeHub) {
+      if (ficheOrigin === "explorar" && exploreDetailReturnRef.current !== "global-search" && place.hub !== activeHub) {
         setView({ mode: "hub", hub: place.hub });
       }
       const next = [...historyRef.current, id];
@@ -684,16 +710,17 @@ export default function App() {
     const next = historyRef.current.slice(0, -1);
     const nextId = next[next.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
-    if (ficheOrigin === "explorar" && nextPlace && nextPlace.hub !== activeHub) {
+    if (ficheOrigin === "explorar" && exploreDetailReturnRef.current !== "global-search" && nextPlace && nextPlace.hub !== activeHub) {
       setView({ mode: "hub", hub: nextPlace.hub });
     }
     setHistory(next);
+    if (next.length === 0) restoreGlobalSearchAfterDetail();
     if (navDepthRef.current > 0) {
       ignorePopRef.current += 1;
       window.history.back();
       navDepthRef.current -= 1;
     }
-  }, [activeHub, ficheOrigin]);
+  }, [activeHub, ficheOrigin, restoreGlobalSearchAfterDetail]);
 
   /** The analysis is a lens over the saved places, not a second navigation: opening a place
    * from it goes through the same selectPlace every other surface uses, tagged as belonging to
@@ -710,16 +737,18 @@ export default function App() {
    * past the last level. Pops however many entries this stack pushed in one go (`history.go`
    * fires a single `popstate` at its destination, not one per entry, corrección final punto 4),
    * so the browser's own stack never grows out of sync with `history.length`. */
-  const closeDetail = useCallback(() => {
+  const closeDetail = useCallback((returnToGlobalSearch = true) => {
     setHistory([]);
     setFicheOrigin(null);
     setFicheOriginLabel(null);
+    if (returnToGlobalSearch) restoreGlobalSearchAfterDetail();
+    else exploreDetailReturnRef.current = null;
     if (navDepthRef.current > 0) {
       ignorePopRef.current += 1;
       window.history.go(-navDepthRef.current);
       navDepthRef.current = 0;
     }
-  }, []);
+  }, [restoreGlobalSearchAfterDetail]);
 
   /**
    * «Ver en el mapa» (punto 3, corregido en la segunda ronda): la única acción, desde una ficha
@@ -781,7 +810,7 @@ export default function App() {
    * su sección «Fuentes y licencias» también.
    */
   const openSources = useCallback(() => {
-    closeDetail();
+    closeDetail(false);
     setDestination("nosotros");
   }, [closeDetail]);
 
@@ -1215,7 +1244,15 @@ export default function App() {
                 results={globalSearchPlaces}
                 savedIds={activeInterestedIds}
                 selectedId={explorarSelectedId}
-                onSelect={(id) => selectPlace(id, "explorar")}
+                onSelect={(id) => {
+                  selectPlace(id, "explorar", null, "global-search");
+                  setGlobalSearchOpen(false);
+                }}
+                closeOnSelect={false}
+                initialBodyScrollTop={globalSearchRestoreScrollTop}
+                onBodyScroll={(scrollTop) => {
+                  globalSearchScrollTopRef.current = scrollTop;
+                }}
                 onToggleSaved={toggleSavedWithFeedback}
                 otherPersonMarkerFor={otherPersonMarkerFor}
                 emptyDescription={
@@ -1223,7 +1260,7 @@ export default function App() {
                     ? `Nada con “${globalQuery.trim()}” en Japón. Prueba con otro nombre.`
                     : undefined
                 }
-                onClose={() => setGlobalSearchOpen(false)}
+                onClose={closeGlobalSearch}
               />
             )}
 

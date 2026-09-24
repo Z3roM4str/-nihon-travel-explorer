@@ -319,6 +319,8 @@ async function main() {
   await page.click(".app__title--expand");
   await page.waitForTimeout(200);
   await page.click(".city-sheet__japan");
+  // B21 devuelve primero a la portada; el mapa nacional se abre desde su tarjeta.
+  await page.locator(".explorer-home__map-card").click();
   await page.waitForTimeout(500);
   await page.click(".national__attribution-button");
   await page.waitForTimeout(300);
