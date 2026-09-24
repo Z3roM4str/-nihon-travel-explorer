@@ -6,15 +6,25 @@
 |---|---|
 | B21 | **CERRADO** |
 | B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
-| B6.2 | **APTO PARA INTEGRACIÓN CON EXCEPCIONES DOCUMENTADAS** — B6.2-R adquirió 27/35; quedan 8 excepciones con PhotoPlaceholder e imageBrief. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
-| Rama B6.2 | `codex/block-22-b6-2-grade-a-photography`; B6.2-R parte del HEAD remoto `019ed2f47bb39653f41cbfdb506ff42d858b32fa` |
-| SHA de cierre B6.2-R | Se verifica como HEAD de la rama tras el commit y push indicados en el resultado de cierre |
+| B6.2 | **INTEGRADO Y CERRADO CON 8 EXCEPCIONES DOCUMENTADAS** — 27/35 objetivos adquiridos; 8 excepciones conservan PhotoPlaceholder e imageBrief. Integrado vía PR #143. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
+| Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` @ `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` (conservada) |
+| SHA de cierre B6.2-R | `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` |
 | Cobertura Grado A | **139/147 con fotografía + 8 excepciones documentadas**: JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202 |
 | Registro | **194 imágenes / 188 lugares**; Grado S **32/32** |
 | Grado S | **32/32** |
-| Rama canónica | `codex/block-21-b5-explore-home-map` @ `88b9592` — **sin merge de B6.2** |
+| Rama canónica | `codex/block-21-b5-explore-home-map` @ `abe9941bcda926f0d3ee44f1ae86bcab48873855` — PR #143 merged |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente paso | B6.2 está listo para integración con las 8 excepciones documentadas. **No se ha hecho merge. B6.3 NO iniciado.** |
+| Siguiente paso | **B6.3 — 8 lugares Grado B sin fotografía. B6.3 NO iniciado.** |
+
+## Integración B6.2 en la rama canónica
+
+- PR #143: **merged** el 2026-09-24 hacia `codex/block-21-b5-explore-home-map`.
+- Head certificado B6.2: `f8115b67b0fe1aa8986e418cd34f2fb4fed96639`.
+- Merge commit: `abe9941bcda926f0d3ee44f1ae86bcab48873855`.
+- El tree del merge commit es `f1e25a68735d2f8a12867e749e8acdf945e7b2d4`, idéntico al tree del head certificado B6.2; el merge no introdujo cambios de contenido adicionales.
+- Estado integrado: **139/147 Grado A con fotografía + 8 excepciones documentadas; 194 imágenes / 188 lugares; Grado S 32/32**.
+- `main` permanece intacto en `8eb725eeb836ca121180f8dd8b0dc49c65efae25`.
+- B6.3 no se inició durante esta integración.
 
 ## B6.2 — verificación de cierre (2026-09-24, Linux)
 
@@ -51,4 +61,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-B6.2-R cerrado y apto para integración con ocho excepciones documentadas. El resultado final comunica el HEAD verificado tras el push a esta misma rama. No se hizo merge ni se inició B6.3.
+B6.2 está integrado y cerrado en la rama canónica mediante PR #143, con ocho excepciones documentadas. El tree integrado coincide exactamente con el HEAD B6.2 certificado. B6.3 no se inició.
