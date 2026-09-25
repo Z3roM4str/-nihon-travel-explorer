@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 241,
+  "imageCount": 244,
   "images": [
     {
       "placeId": "JP-001",
@@ -2598,6 +2598,24 @@
       "lqip": "data:image/webp;base64,UklGRqoBAABXRUJQVlA4IJ4BAAAwCgCdASoUAA0AAAAAJQBOmUI4DdK6UA56T2Lftm9qp4gnnP43fkBpJflVyxj8gNRd/EnXLf3T7QPeD/gPtm8273Bf4t/Jf67+VPGV/oAeime/jFYC3tsG3qAA/v6qZ115dxZsfyZcREf2v63H/9UzTMNKFzpjabddftVWfYv3cm7+yF/GgC+Xy3LNOHLn8d6fpuquON8ItP+yoTDZU+BsG8wHrTP+3WytTIt9fHopY5Xvx9oBjJEe/ypE6Ax9lxff//1J/PWb2KN7rkVjTsZTh03C/zPQo1u7j8vvMlKZCgn1ekayrV/Gn4MTxBi+35Ef/o+ZQYED//7MC/EPYOo7Ljd0vpTgW7MOGnO3pe6LP+YdmP+eml/8wHe0CXQf+e3iYi+//+kBzqW/G4/+fh6K/+GMJy0CDP8Lnpv/BJYKT+qBUrbu1WZB1Zbkv5/40BCVaheRsPIY6E4g/La//xUoqHqMduEWQXT/h+BLPTEi/iSt+XBa7rEDQzxpvWXF/4MiDNZDDNUO1ILcKzpXQR49CR4vE5T4D619SY9YAAA="
     },
     {
+      "placeId": "JP-047",
+      "assetPath": "images/places/JP-047/edo-tokyo-open-air-historic-houses.webp",
+      "alt": "Dos casas tradicionales de madera con tejados de teja expuestas en el Museo Arquitectónico al Aire Libre de Edo-Tokio.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AEdo-Tokyo_Open_Air_Architectural_Museum_-_Edotokyo704.jpg",
+      "credit": "lumoplank",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/2/28/Edo-Tokyo_Open_Air_Architectural_Museum_-_Edotokyo704.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Edo-Tokyo Open Air Architectural Museum - Edotokyo704.jpg",
+      "originalWidth": 5092,
+      "originalHeight": 3395,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRqYBAABXRUJQVlA4IJoBAAAwDACdASoUAA0AAAAAJZACdMoRwNsAqQOoB/M8I5/t3tgaYBz4Hsd+TlcgPwA/W6zO/sn4jfsBot/xd/UnLAfyX8qtRm1Ff+A89T+A73L3B/4p/H/75+Sn9Z5CD9bj0+oJZzBSKF46RIxwAP7/xX/xcqW4d4b6K3Kmi87eGFuC154sdzrSAawWYVjCRZuq7Lr6tsFPqPKNAgVdY8UBQnXuuDXomW05PCD3p44/m0V3EHUr3+5ayzB2EKA0wOJov4ugDdtGHLStO/E9VnNtafxX1/Qh8RggqeQO/r2KyVkxvLbB8DlGYb7noFncvZ0QSzN2r/4JTzH6Ky54oml34wnyl7/mzvdi5gTNKnPlPfAE5F8bCJeZ87onWZPWP0prsrgPeSloko/mt/+DIMxU3pvM7/VF++AkVD/tiGBizIULt6iKD2Zur1DKNUvVeRl2ppN1DGuy05OYROdA7VyYdna9outeY7tYGB1ZPgOza1bPKYAd/8Mp17HtXwP3g4Ywg7Pz3d3aFf/IpMVkVchxQwPD3TohVgcP1AAAAA=="
+    },
+    {
       "placeId": "JP-084",
       "assetPath": "images/places/JP-084/shisen-do.webp",
       "alt": "Jardín de setos podados y arena visto desde la sala de tatami del Shisen-dō, Kioto.",
@@ -3246,6 +3264,24 @@
       "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAADwCwCdASoUAA0AAAAAJQBOmUGMHsCNAcoB+N3AA/WP9Zvf/51XrM/QA8q79QPhE/ZX0kqUDqofLNpFvx0yQH8l/IDUFPyV13n+x4o73Bf4d/Fv7j+Xf934is98lfo372n//RpBHDZ5wAD+//+Fv3lcuT/B25kZ69z/MzTV/JTKueAPf5N1kfPr2q36t9Kcf/Mu/+E0ZywHjBSmfiz8b7l4N+sE78Uhe1T8gs/gpkVxVRULKVJc1iwk/90aC4FCSK5Ja7dMeL//yy7gk69YPzKwJyGZ/vJb+9avjx+Th7A+K//6Wp/JJJ3Gxz1B4dMzcTld0nT55KTCZ9R7AxJsam7BtELj67T3JMm/Ky3b+HW0ZHt19vStI2HeGg/4u1tZKnSqkVaqyJBfDfcWYr7X/96R7yk9Hvsnb/4Oz/kqxTXNl/+6ozfMeZfNBNaDt8QfuINjhrIG4NlP/Rqv4Ml05/2Xe/sbYpCQ7DzBMiOHf/jpOlx6f3Q6cDWjiRQvzlxNuCPnLZ+RJlNI/LPn/AJWon+fiOz0R3/WPmfX5LvJtl7hxppWNHC9kP8TfvAxw/ng+ABrQOH553OZCCFOAAA="
     },
     {
+      "placeId": "JP-030",
+      "assetPath": "images/places/JP-030/tokyo-station-marunouchi-dome-interior.webp",
+      "alt": "Interior restaurado de la cúpula sur de la estación de Tokio, con su techo octogonal y ornamentación histórica.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_sta_DOME.jpg",
+      "credit": "Kei365",
+      "license": "CC BY-SA 3.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Tokyo_sta_DOME.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Tokyo sta DOME.jpg",
+      "originalWidth": 2000,
+      "originalHeight": 3192,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRqIBAABXRUJQVlA4IJYBAABwCACdASoUACAAPlEgjUQjoiEYBAA4BQSyAE6ZQjgb2vhCXg4C22a5/8uwjSlQCVBDOPH8i/NzWemHQxMt6KctJqd5uFOrkvHZ3PEQAP733W2RcPD1KdFPYPQx8XO9BGJ1l48LUHvqFTm/3pojwy5X6TwVF908zjTglq28QJ85ltqevHgOYRcg7vL3nqfEpanEZw8wWFwYv4ukx052sV8kUPxwSjHfqrbwIsC4sYLPjnC8fNpMmBfcI9Q4iMq3H9RkUH2Qbfll9vD2BqoBZWDy0agQpvWEdhtg6ohcjoXh56SQJ6Qe4mggLVidQaG/x9kU32Ouvsa37rBtfMblZV4umszaoWvGoJMRMg6P2ZRkFMcezOmVKBIa38SZnWSWoFs7T82jHiltlN2vrfCOxrJfaHak3bxM2ZcEdC1M1jLzqZt5r8FsQTzxq1sQ0uH64f+xH4YN4IshhD4v8/3dmY0+0zWmQXzzHs/tpCsiJ1++v/XZL0eSq5S6YcAA2ms0wfvq5F4FcyYxlFV7NCi4JQfNENhhqrgA"
+    },
+    {
       "placeId": "JP-034",
       "assetPath": "images/places/JP-034/mori-art-museum.webp",
       "alt": "Entrada del Mori Art Museum en Roppongi Hills, con su letrero iluminado sobre la escalera mecánica y paredes de listones de madera.",
@@ -3262,6 +3298,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAAAQCQCdASoUAA0AAAAAJZACdMoRwN6B+FfCA+AGCzboBwAHSe/tP6QFylrjv7JmO5pm0zn7ZvZV8rnyT/iPxu+DD/Ymxq6fcP+VbrQY6QoQwgAA/v/7d/Yc21NuwQ/ybd9JximPExMV0Xyp0u1t8PxP/y89XSPqwP9ZTb5ZI/ntKMS05NvsHfr3Vn+B2ZUtLa4Xm/9mYHsL8uC/FOq2r3+qL1cWPjh35A+Rz6sf4kgKJaYmvc//1G0NpNlM5LWWST51zihN9/HQBJvJ9/eO/z/ggf/3wr/XS+5IHj2tViDSkxb4f/WZexcz9thb39pX52kcf/nyn/4mtUWnJMXt+B/oE//70z/xb//OnW3ruCx08b9/bfPjZ9/JEZ3NX5W2FYd4wN5u0b//o/9eB+N/ceZ102yGP/hr8eeH8jsiD13icP9cvZ/yJzVDaSp7r3DLPsCZsHIGzOMjVGIxnkrtWbzBI8HlEnmpA/Hn4f+raLQw7Umbp9y11/Xi5SG44NpQkzFgAA=="
+    },
+    {
+      "placeId": "JP-034",
+      "assetPath": "images/places/JP-034/mori-city-view-observers-at-dusk.webp",
+      "alt": "Visitantes observan el paisaje urbano de Tokio al anochecer desde la plataforma Tokyo City View de Roppongi Hills Mori Tower.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATokyo_City_View_P5144278.jpg",
+      "credit": "Kestrel",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Tokyo_City_View_P5144278.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Tokyo City View P5144278.jpg",
+      "originalWidth": 2560,
+      "originalHeight": 1920,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRoYBAABXRUJQVlA4IHoBAAAwCQCdASoUAA8AAAAAJYgCdMoR3L8CMAqgDxANCAvgD9gPSc/W74If1z/Yz2pHjNeZ5jeaVdRR/dPSC/nfLXqAfqD/ruAANO276bh3BwgWVaTgAP7//5WqH9DrFeqZ87/yjn+Apz+d1HyVeAPvzLPI9ClYTC//FPpcjoH6rfhLQQBSiNnemUH+DJ3sFtyUx/2/2X/3DCdW8fVmFrgdMRrm8+NglW2IYiBgEEtqb7MefCmoZLHTxce11P5+yxD+EB+ksfBAn7Pz6PVkPTwuaM5Jvny3tn6vHrxEWhFf7QZSkfoHd4Af/9xD/tf/jpLnGnl6wNXgQ//oTgor5HuKJDXWLf3rIa9uYULj/YcuD//Tn/xc/hhys5rshCcG7/vtR8NfqfzoL/N6vzHMEM7Kx/Ny415/9Of7Oi6v/VM7b+IS/9phvryrwvluDyxjyhhrN/nFHmeXNue14NhkdH5JclaLf7KXKe+BHJxITqBX7XnUHmWExP1xDXzgAAA="
     },
     {
       "placeId": "JP-080",
