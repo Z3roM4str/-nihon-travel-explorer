@@ -44,7 +44,9 @@ def valid_record(**updates):
 
 class MetadataValidationTests(unittest.TestCase):
     def errors(self, records, asset_root):
-        errors, _ = validator.validate_metadata({"images": records}, PLACE_IDS, asset_root)
+        errors, _ = validator.validate_metadata(
+            {"imageCount": len(records), "images": records}, PLACE_IDS, asset_root
+        )
         return errors
 
     def assert_invalid(self, records, phrase, asset_root=None):
@@ -62,6 +64,37 @@ class MetadataValidationTests(unittest.TestCase):
             asset.write_bytes(b"fake-webp-bytes")
             errs = self.errors([valid_record()], root)
             self.assertEqual(errs, [])
+
+    def test_declared_image_count_must_match_array(self):
+        errors, _ = validator.validate_metadata(
+            {"imageCount": 2, "images": [valid_record()]}, PLACE_IDS, Path("/nonexistent")
+        )
+        self.assertTrue(any("imageCount does not match" in error for error in errors), errors)
+
+    def test_identical_asset_bytes_are_rejected(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "images/places/JP-001/first.webp"
+            second = root / "images/places/JP-002/second.webp"
+            first.parent.mkdir(parents=True)
+            second.parent.mkdir(parents=True)
+            first.write_bytes(b"same-photograph")
+            second.write_bytes(b"same-photograph")
+            records = [
+                valid_record(assetPath="images/places/JP-001/first.webp"),
+                valid_record(
+                    placeId="JP-002",
+                    assetPath="images/places/JP-002/second.webp",
+                    originalTitle="File:Second.jpg",
+                    acquisitionUrl="https://upload.wikimedia.org/wikipedia/commons/second.jpg",
+                ),
+            ]
+            errors, _ = validator.validate_metadata(
+                {"imageCount": len(records), "images": records}, PLACE_IDS, root
+            )
+            self.assertTrue(any("identical bytes" in error for error in errors), errors)
 
     def test_unknown_place_id(self):
         self.assert_invalid([valid_record(placeId="JP-999")], "unknown placeId")

@@ -19,6 +19,7 @@ against Commons is the acquisition script's job (scripts/acquire-photography.py)
 which runs separately and only when photographs are (re)sourced.
 """
 import json
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -145,11 +146,18 @@ def validate_metadata(metadata, place_ids, asset_root):
     if not isinstance(images, list):
         return ["photography-metadata.json 'images' must be an array"], {}
 
+    if metadata.get("imageCount") != len(images):
+        errors.append(
+            "photography-metadata.json imageCount does not match the images array: "
+            f"declared {metadata.get('imageCount')!r}, found {len(images)}"
+        )
+
     seen_asset_paths = set()
     # (originalTitle or acquisitionUrl) -> set of placeIds it has been declared for.
     # The same photograph must never silently stand in for two different places.
     source_to_places = {}
     images_by_place = {}
+    content_hash_to_paths = {}
 
     for index, record in enumerate(images):
         label = f"images[{index}]"
@@ -178,8 +186,12 @@ def validate_metadata(metadata, place_ids, asset_root):
             if asset_path in seen_asset_paths:
                 errors.append(f"{label}: duplicate assetPath {asset_path!r}")
             seen_asset_paths.add(asset_path)
-            if not (asset_root / asset_path).is_file():
+            asset_file = asset_root / asset_path
+            if not asset_file.is_file():
                 errors.append(f"{label}: referenced asset is missing on disk: {asset_path}")
+            else:
+                digest = hashlib.sha256(asset_file.read_bytes()).hexdigest()
+                content_hash_to_paths.setdefault(digest, []).append(asset_path)
 
         source = record.get("source")
         if not isinstance(source, str) or not source.strip():
@@ -273,6 +285,13 @@ def validate_metadata(metadata, place_ids, asset_root):
             errors.append(
                 f"source {source_key!r} is declared for more than one place: {sorted(places_using_it)} "
                 "(the same photograph may never silently represent unrelated places)"
+            )
+
+    for digest, paths in content_hash_to_paths.items():
+        if len(paths) > 1:
+            errors.append(
+                f"asset files contain identical bytes (sha256 {digest}): {sorted(paths)} "
+                "(duplicate files do not count as distinct photographs)"
             )
 
     return errors, images_by_place
