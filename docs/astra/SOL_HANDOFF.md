@@ -103,3 +103,38 @@ Desde ese commit, con checkout limpio y `ASTRA_EXPECTED_SHA=95377a20ab06868ac0e5
 Lint y build terminaron con código 0; las 24 pruebas específicas de Astra pasaron. La suite completa de Vitest terminó con tres fallos preexistentes de comparación literal de código fuente que espera LF y recibe CRLF en este checkout Windows (dos de OrderedSequenceBuilder, uno de feb-mar-status). No se modificaron ni debilitaron esas pruebas. El detalle está en `docs/astra/evidence/pr139-corrected-95377a2-20260923/CORRECTED_AUDIT_REVIEW.md`.
 
 No hubo push, merge ni otro PR. La API pública de GitHub confirmó el SHA original como HEAD del PR #139 antes de estos commits locales. Git CLI sigue bloqueado por TLS de Schannel/Norton y `gh` informa de un token inválido; son problemas separados. Para publicar, verificar otra vez el HEAD remoto, resolver el acceso mediante mecanismos autorizados, trasladar los commits locales y ejecutar los controles de CI de la rama del PR. El bundle local verificado acompaña este handoff fuera del checkout.
+
+---
+
+## SOL-3 — DETAIL AND GALLERY (2026-09-25)
+
+### Identidad de checkout
+
+- Base exacta usada: `b2ae3877111e2b207ca7e7f452bd9e4f30ec12f1`; tree verificado: `753202881846603ed83a44b211bf5e8431ff9a15`.
+- Rama: `codex/astra-sol-3-detail-gallery`.
+- Commit final: el commit `astra(sol-3): implement detail and accessible gallery` que contiene este handoff; el SHA se comunica junto al handoff porque un commit no puede incluir de forma autorreferencial su propio SHA.
+- El checkout inicial estaba limpio y coincidía exactamente con el HEAD Astra solicitado. El contenedor no incluía un remoto; se configuró `origin`, pero tanto `git fetch origin` como la descarga de Chromium fueron bloqueados por el proxy con HTTP 403. No se inspeccionó, incorporó ni mezcló ninguna rama Claude, ni se modificó `main`.
+
+### Archivos y comportamiento implementado
+
+- `app/src/components/PlaceDetail.tsx`: ficha progresiva con señal Feb–Mar visible, campos prácticos completos en disclosures ordenados, fuentes y actualización, enlaces oficiales descriptivos, navegación nearby y nota de confianza preservadas, y acción de interés persistente fuera del área desplazable.
+- `app/src/components/PlaceGallery.tsx`: estados honestos para cero, una o varias imágenes; controles sólo para múltiples imágenes; imagen inicial eager y posteriores lazy; error de tamaño estable y retry sobre la misma URL; swipe con umbral de 40 px y discriminación de eje; teclado; fullscreen `contain`; atribución completa tanto en ficha como en fullscreen; Escape de capa superior y restauración del foco al opener.
+- `app/src/astra/Disclosure.tsx`, `app/src/astra/astra.css` y `app/src/App.css`: primitive nativo accesible, detalle móvil de altura completa, diálogo desktop 52/48 de dos columnas, galería izquierda sticky, columna derecha desplazable, footer CTA persistente, targets de 48 px, safe area y reduced motion sin animación.
+- `app/src/components/PlaceGallery.sol3.test.tsx` usa tres URLs distintas marcadas explícitamente como **test-only**; no se añadieron imágenes ni se duplicó ninguna imagen real. `app/src/astra/RouteDialog.sol3.test.tsx` cubre foco inicial, trap, inert, Escape y restauración exacta.
+- No cambiaron dataset, IDs, metadata/bytes fotográficos, parsers de dominio, V7, backend, autenticación ni funcionalidad SOL-4+.
+
+### Verificación
+
+- `npm test -- --run`: PASS, 74 archivos / 2484 pruebas. Incluye 0/1/3 imágenes, atribución larga, fallo/retry, gestos vertical/horizontal, teclado/fullscreen/foco, modal/inert/restore, y las regresiones existentes de nearby/Back-Forward, persistencia, planes V7 y guardados.
+- `npm run lint`: PASS con tres warnings preexistentes fuera del diff (`App.tsx`, `useSavedPlaces.ts`, `Discovery.tsx`); no se introdujo un warning nuevo.
+- `npm run build`: PASS. Permanece el advisory preexistente de chunk inicial superior a 500 kB.
+- PASS: validadores pasivos de dataset (214 lugares, 403 relaciones, 13 warnings secundarios preexistentes), fotografía, geografía, logística y mecanismos de reserva.
+- PASS: `git diff --check`.
+
+### Auditoría visual y riesgos
+
+**PARTIAL real:** no existe ejecutable Chromium/Chrome/Firefox en el contenedor. `npx playwright install chromium` intentó cinco veces Chrome for Testing 151.0.7922.34 y recibió HTTP 403 en cada intento. Por ello no se fabrican capturas ni se declara PASS visual para 320, 375×812, 390×844, 430×932, 768×1024, 1024×768 o 1440×900. La semántica y geometría están cubiertas por código, tests DOM, lint y build, pero necesitan inspección renderizada independiente, incluido zoom 200%, teclado real, créditos largos, CTA, fullscreen y retry.
+
+### Siguiente objetivo exacto
+
+Astra debe auditar SOL-3 de forma independiente en un runner con navegador real, ejecutar los siete viewports requeridos y el golden journey de galería (0/1/3 imágenes, fallo/retry, swipe, fullscreen, Escape por capas y restauración de foco). Corregir únicamente hallazgos SOL-3 P0/P1. No iniciar SOL-4, no fusionar a `main` y no desplegar producción.
