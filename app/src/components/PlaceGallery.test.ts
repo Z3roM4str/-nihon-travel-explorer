@@ -77,3 +77,34 @@ describe("Defecto D2: la galería ya no renderiza atribución en el flujo (04 §
     expect(source).toContain("{showCredits && (");
   });
 });
+
+describe("PlaceGallery — recovery after an image load error", () => {
+  it("shows retry only in the failed slide and retries that same image URL", async () => {
+    const source = await readFile(galleryPath, "utf8");
+    expect(source).toContain("const isBroken = failed[image.url];");
+    expect(source).toContain('className="gallery__retry"');
+    expect(source).toContain('aria-label={`Reintentar imagen ${slide + 1} de ${total}`}');
+    expect(source).toContain("[image.url]: (state[image.url] ?? 0) + 1");
+    expect(source).toContain("delete next[image.url];");
+    expect(source).toContain('key={`${image.url}-${attempts[image.url] ?? 0}`}');
+    expect(source).toContain("src={image.url}");
+  });
+
+  it("keeps carousel focus and preserves navigation, lightbox, and credits wiring", async () => {
+    const source = await readFile(galleryPath, "utf8");
+    expect(source).toContain("trackRef.current?.focus({ preventScroll: true });");
+    expect(source).toContain('onKeyDown={handleKeyDown}');
+    expect(source).toContain('event.key === "Escape"');
+    expect(source).toContain("openerRef.current?.focus()");
+    expect(source).toContain("setCreditsOpen(true)");
+    expect(source).toContain("images={images}");
+    expect(source).toContain('onError={() => setFailed((state) => ({ ...state, [image.url]: true }))}');
+  });
+
+  it("gives retry a real 44px target styled with the existing design tokens", async () => {
+    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    expect(css).toMatch(/\.gallery__retry\s*\{[^}]*min-width:\s*var\(--tap-min\)/s);
+    expect(css).toMatch(/\.gallery__retry\s*\{[^}]*min-height:\s*var\(--tap-min\)/s);
+    expect(css).toMatch(/\.gallery__retry\s*\{[^}]*border-radius:\s*var\(--radius-md\)/s);
+  });
+});

@@ -1752,6 +1752,26 @@ button.app__title.app__title--expand {
   line-height: var(--type-body-s-line);
 }
 
+.gallery__retry {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  margin-top: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.gallery__retry:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 /* `04 §6`: «Flechas sólo en `md`+». En teléfono el gesto es el dedo sobre la pista. */
 .gallery__nav {
   display: none;
