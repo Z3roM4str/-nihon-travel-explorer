@@ -107,6 +107,8 @@ export function PlaceCard({
   priority = false,
 }: Props) {
   const [mediaState, setMediaState] = useState<MediaState>("loading");
+  const [photoAttempt, setPhotoAttempt] = useState(0);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
   const images = resolvePlaceImages(place.id, place.images);
   const image = images[0];
   /** Falls back to the original whenever no derivative exists for this URL shape. */
@@ -118,6 +120,31 @@ export function PlaceCard({
   const reason = reasonText(place);
   const zone = place.neighborhood || place.municipality;
   const chip2 = variant === "normal" ? secondChip(place) : null;
+
+  const retryPhoto = () => {
+    // The retry control temporarily disappears while the new request is in flight. Move focus
+    // to the card's existing open control before that happens; the focused action remains useful
+    // and the retry itself can never activate it because the two buttons are siblings.
+    openButtonRef.current?.focus({ preventScroll: true });
+    setMediaState("loading");
+    setPhotoAttempt((attempt) => attempt + 1);
+  };
+
+  const photoRetry = image && mediaState === "error" ? (
+    <button
+      type="button"
+      className="place-card__photo-retry tap-target-min"
+      aria-label={`Reintentar fotografía de ${place.name}`}
+      title="Reintentar fotografía"
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        retryPhoto();
+      }}
+    >
+      Reintentar
+    </button>
+  ) : null;
 
   // `04 §5.2`: el nombre nace en `--type-title-m` (20/26); si a esa medida el texto no cabe en
   // 2 líneas, baja a `--type-title-s` (17/24) — nunca se trunca con puntos suspensivos en mitad
@@ -149,11 +176,13 @@ export function PlaceCard({
 
   const openButton = (
     <button
+      ref={openButtonRef}
       type="button"
       className="place-card__open"
       data-stretch-target=".place-card"
       onClick={() => onSelect(place.id)}
       aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}
+      title={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}
     />
   );
 
@@ -170,6 +199,7 @@ export function PlaceCard({
           {image && mediaState !== "error" ? (
             <img
               className="place-card__image"
+              key={`${cardSrc}-${photoAttempt}`}
               src={cardSrc}
               width={CARD_IMAGE_WIDTH}
               height={CARD_IMAGE_WIDTH}
@@ -186,6 +216,7 @@ export function PlaceCard({
               <Icon name={categoryPresentation(place.category).icon} size={20} />
             </span>
           )}
+          {photoRetry}
         </div>
         <div className="place-card__body">
           <h3 className="place-card__heading">{nameSlot}</h3>
@@ -231,6 +262,7 @@ export function PlaceCard({
                 the bytes arrive and the card cannot shift under the text. */}
             <img
               className="place-card__image"
+              key={`${cardSrc}-${photoAttempt}`}
               src={cardSrc}
               width={CARD_IMAGE_WIDTH}
               height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}
@@ -252,6 +284,7 @@ export function PlaceCard({
         ) : (
           <PhotoPlaceholder place={place} variant={mediaState === "error" ? "error" : "missing"} />
         )}
+        {photoRetry}
 
         {/* `04 §5`: el nombre y la línea de categoría·zona van sobre la fotografía, con
             `--scrim-bottom` obligatorio. Sin fotografía, `PhotoPlaceholder` ya muestra el

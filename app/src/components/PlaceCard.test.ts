@@ -194,6 +194,34 @@ describe("PlaceCard — photography rules", () => {
     expect(source).toContain("place-card__skeleton");
   });
 
+  it("offers a retry only after an image error and retries the same card rendition", async () => {
+    const source = await readSource();
+    expect(source).toContain('image && mediaState === "error" ? (');
+    expect(source).toContain('className="place-card__photo-retry tap-target-min"');
+    expect(source).toContain('src={cardSrc}');
+    expect(source.match(/key=\{`\$\{cardSrc\}-\$\{photoAttempt\}`\}/g) ?? []).toHaveLength(2);
+    expect(source).toContain('setMediaState("loading");');
+    expect(source).toContain('setPhotoAttempt((attempt) => attempt + 1);');
+  });
+
+  it("keeps retry separate from opening the detail and restores keyboard focus", async () => {
+    const source = await readSource();
+    expect(source).toContain("event.stopPropagation();");
+    expect(source).toContain("event.preventDefault();");
+    expect(source).toContain("openButtonRef.current?.focus({ preventScroll: true });");
+    expect(source).toContain('aria-label={`Reintentar fotografía de ${place.name}`}');
+    expect(source).toContain("place-card__photo-retry tap-target-min");
+  });
+
+  it("styles the failed-photo action above the stretched open target at 44px", async () => {
+    const css = await readFile(new URL("../styles/discovery.css", import.meta.url), "utf8");
+    const retryRule = css.slice(css.indexOf(".place-card__photo-retry {"), css.indexOf(".place-card__photo-retry:focus-visible"));
+    expect(retryRule).toContain("z-index: 2;");
+    expect(retryRule).toContain("min-width: var(--tap-min);");
+    expect(retryRule).toContain("min-height: var(--tap-min);");
+    expect(retryRule).toContain("background: var(--surface);");
+  });
+
   it("shows PhotoPlaceholder — never a stand-in photograph — both when missing and on load error", async () => {
     const source = await readSource();
     expect(source).toMatch(

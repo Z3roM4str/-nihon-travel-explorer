@@ -64,6 +64,7 @@ function GalleryFallback({
 export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: Props) {
   const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState<Record<string, true>>({});
+  const [attempts, setAttempts] = useState<Record<string, number>>({});
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -180,8 +181,30 @@ export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: P
               <div className="gallery__slide" key={image.url}>
                 {isBroken ? (
                   <div className="gallery__error">
-                    <p>No se pudo cargar la imagen.</p>
+                    <p role="status">No se pudo cargar la imagen.</p>
                     {imageBrief && <p className="gallery__fallback-brief">{imageBrief}</p>}
+                    <button
+                      type="button"
+                      className="gallery__retry"
+                      aria-label={`Reintentar imagen ${slide + 1} de ${total}`}
+                      title="Reintentar imagen"
+                      onClick={() => {
+                        setAttempts((state) => ({
+                          ...state,
+                          [image.url]: (state[image.url] ?? 0) + 1,
+                        }));
+                        setFailed((state) => {
+                          const next = { ...state };
+                          delete next[image.url];
+                          return next;
+                        });
+                        // The error controls disappear while the same slide is requested again.
+                        // Keep keyboard focus in the carousel and leave its index/scroll untouched.
+                        trackRef.current?.focus({ preventScroll: true });
+                      }}
+                    >
+                      Reintentar
+                    </button>
                   </div>
                 ) : (
                   <button
@@ -198,6 +221,7 @@ export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: P
                         instead of the 1600px original — the lightbox below always loads the
                         original, which is where full resolution actually matters. */}
                     <img
+                      key={`${image.url}-${attempts[image.url] ?? 0}`}
                       src={image.url}
                       srcSet={srcSet}
                       sizes="(min-width: 840px) 480px, 100vw"
