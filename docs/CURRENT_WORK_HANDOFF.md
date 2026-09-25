@@ -1,15 +1,26 @@
-# Handoff reanudable — B21 + B6.1 + B6.2 + B6.3
+# Handoff reanudable — B21 + B6.1 + B6.2 + B6.3 + B6.4
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
-## Estado actual B6.3
+## Estado actual — B6.4 pendiente de integración
+
+- B21 cerrado; B6.1 cerrado; B6.2 integrado y cerrado; B6.3 integrado y cerrado.
+- **B6.4 implementado y certificado; pendiente de integración** en `codex/block-22-b6-4-grade-s-experience-photography`.
+- Base canónica B6.4: `ad456be50e6b855bc79204bc50d26b154eb29441`. SHA de código, pruebas y browser audit certificado: `abf818029d42a004c7846353c9dead82c228e1cd` (commit publicado); el informe completo está en `docs/BLOCK_22_B6_4_REPORT.md`.
+- Gate inicial: **32/32 S con identity; 2/32 ya tenían experience; 30 objetivos reales**. Resultado: 15 nuevas experience y 15 unresolved documentados; cobertura final **17/32 S con experience**. Las 32 identities iniciales siguen intactas.
+- Registro: **215 imágenes / 194 lugares**. Grado A permanece **139/147 + 8 excepciones**; Grado B permanece **23/25 + 2 excepciones**.
+- Validator PASS; fotografía 40/40; rendition 28/28; Block 22 8/8; B6.2 11/11; B6.3 8/8; B6.4 9/9; derivados 215 PASS; build PASS; lint exit 0 con warning heredada `PlaceMap.tsx:14`; Vitest 100 archivos, 3328/3328; browser audit **462/462**, 0 fallos.
+- Listas: máximo completo Tokio **3.421.914 B**, bajo 3.500.000 B; ningún hub muestreado solicita experience. `place-images.ts` permanece byte a byte intacto. No se tocó `main`, no hubo rediseño, Astra ni merge.
+- **Siguiente bloque, sólo después de integrar B6.4:** tercera foto complementaria para Grado S (detail, context o seasonal según el lugar). No iniciado.
+
+## Snapshot histórico al cierre de B6.3
 
 - **B21 cerrado; B6.1 cerrado; B6.2 integrado y cerrado** mediante PR #143, con ocho excepciones Grado A preservadas.
 - **B6.3 integrado y cerrado con 2 excepciones documentadas** mediante PR #145. Rama fuente `codex/block-22-b6-3-grade-b-photography` @ `8d1752f945ff4b7594a490a6df4ab23324f597a5`; merge commit `eafcd61964bda9c462a27df5779d404aa23c4e9e`. Informe: `docs/BLOCK_22_B6_3_REPORT.md`.
 - Gate inicial derivado: Grado B **25 total / 17 con foto / 8 sin foto**. Se adquirieron seis identidades (JP-107, JP-140, JP-150, JP-166, JP-199, JP-209); JP-041 y JP-171 son excepciones documentadas. Cobertura final **23/25 Grado B + 2 excepciones**; **200 imágenes / 194 lugares**.
 - Grado A permanece **139/147 + 8 excepciones** (JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202). Grado S permanece **32/32**.
 - Validator PASS; Python 40/40, rendiciones 28/28, Block 22 8/8, B6.2 11/11, B6.3 8/8; derivados 200 PASS; build PASS; lint exit 0 con warning heredada `PlaceMap.tsx:14`; Vitest 100 archivos, 3328/3328; navegador B6.3 216/216 móvil/escritorio.
-- B6.3 quedó integrado en la rama canónica. No se tocó `main`, no se cambió UI ni se inició trabajo Astra. El siguiente paso es una segunda imagen `experience` para los 32 lugares Grado S; **no iniciado**.
+- Al corte de B6.3, B6.4 aún no se había iniciado. El estado vigente está en la sección superior.
 
 | Campo | Estado |
 |---|---|
@@ -25,7 +36,7 @@
 | Grado S | **32/32** |
 | Rama canónica | `codex/block-21-b5-explore-home-map` @ `eafcd61964bda9c462a27df5779d404aa23c4e9e` — PR #145 merged |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente paso | **Segunda imagen `experience` para los 32 lugares Grado S. NO iniciado.** |
+| Siguiente paso en ese snapshot | **Segunda imagen `experience` para los 32 lugares Grado S; entonces no iniciada.** |
 
 ## Integración B6.3 en la rama canónica
 
@@ -82,4 +93,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-B6.2 y B6.3 están integrados y cerrados en la rama canónica. B6.3 se integró mediante PR #145 con seis fotos nuevas y dos excepciones documentadas. El siguiente trabajo permitido es la segunda imagen `experience` para los 32 lugares Grado S; no iniciado.
+B6.2 y B6.3 están integrados y cerrados en la rama canónica. B6.4 está implementado y certificado en su rama, pendiente de integración, con 15 adquisiciones `experience` y 15 excepciones razonadas; véase `docs/BLOCK_22_B6_4_REPORT.md`. No se abrió PR ni se hizo merge. El próximo bloque permitido después de integrar B6.4 es la tercera fotografía complementaria para Grado S; no iniciado.
