@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 200,
+  "imageCount": 215,
   "images": [
     {
       "placeId": "JP-001",
@@ -112,6 +112,24 @@
       "lqip": "data:image/webp;base64,UklGRroBAABXRUJQVlA4IK4BAADwCwCdASoUAA8AAAAAJZwCdMoR3JoM4EaAt9vnQOAA6Sz7ZvaMuQH0Z9gN1E9GMma9E/EbPZ/iB+R2Wufkdqh/8w/E/XW/4D7Zvfvzi/DXsAfxb+V/4b8ueNNNpODvWnYVy9y0rAGRAAD+/+/d1tjlRHLxTCP2kXE6UR8DgVot0aE+yKlO+//6Lf7alyhhJOz/67ItA2FWvEqVz5D8U4air3J3T+Rv4R4X/n/xhhCfY4P2eKyzUr2uv8UxVniPfcibENvRp4NbjqPFnP3wzXa/6fH9N/wXCu+eua0+TVD9JM4u5gqMzbHX4feW5XmAtr/tiRhPqjaT/dyxtmyl+tl/f6f115//XQehhDoEW0PBip3OH/4KrACIgHehVFOBL3h/E2eqbghHeLZd4Twee6Hl1S2WX12IkyvVWp/b3NlOuv88MvaxdXKUH/UZCzPT0/9j/nou0ORElZaX072Af3biUM5ja8k6u4jNl0H7FXWQxlWtg3ynW+OZyPZIEO47NOUlWU1C+oLqloP4Mq8f2j5x/BhhnUUBc5God/jRulVvTDmNc+3Q/a+Xr71jQAAA"
     },
     {
+      "placeId": "JP-025",
+      "assetPath": "images/places/JP-025/akihabara-pedestrian-crossing.webp",
+      "alt": "Peatones cruzan una calle de Akihabara entre los edificios de tiendas y electrónica del barrio.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AAkhibara_Crossing_%2814663984721%29.jpg",
+      "credit": "Julien G.",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Akhibara_Crossing_%2814663984721%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Akhibara Crossing (14663984721).jpg",
+      "originalWidth": 4928,
+      "originalHeight": 3264,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAAAQDACdASoUAA0AAAAAJZwCdMoRwIsCrqxYBzunsbfsl+wHtKXKX6AOmP9OclP8t/En8mdQB/M/xA/XLLAfyX8QPxy13T8gNeJ/jPPC/jvIF8N/6X1JP8F+WnGjHlSRw8Lyo4FcPEU/wCAA/v//pbYO+RTUam6FGbb1f7QAF+Umq+ZNb8tu3Xuts39/2C9ruajZLJYh505mUzg/MW9JuxBtddH+b39qoVC+TkcvG+2/uAUyESn+5dlDqixNXStregwWszaCCQyT/BKWbyGZ5Qn/2J6Uc6+3khVZILLTn72DhCdsResAY9k3AQJ/VfQxjvRAHRLQyHMCxPm1YpLXd9ZXvMxDVtIIc//bVAP/1P3/lye2rB5TPUP/8XLHtlSJeimWNfArwl+LiwGLP7KOX6uf7oBlXWg3PY3+1Ip7t5Pd1f6UvSZHz09xWTV/vX/4hN8m389/jjAxdnd9KgJNsQ+axdYfzSZmstko2///KrCowwD5rIBzMrRWnbtjOY4pVNFHD+r3Qmb83+F4mC1Tm+oL3dtDIncAAAA="
+    },
+    {
       "placeId": "JP-089",
       "assetPath": "images/places/JP-089/nijo-castle-ninomaru-palace.webp",
       "alt": "Fachada de madera del Palacio Ninomaru del Castillo Nijo, con su tejado curvo y pinos podados alrededor.",
@@ -146,6 +164,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRpABAABXRUJQVlA4IIQBAADwCgCdASoUAAwAAAAAJagCdMoR3N6TvARgFWA/wFDM6WF7EHlAXIDkm/UDJBNMGeT/Hb9bv7dlpuic49b+3eR35m/1XuAfxP+U/2/8sf6hyHP6kndZpVluvVoVy+fzyGgA/v//nQJgSKO5M75qv4/Xj7yz8F3IoTtIqlkl1dDHtWxF1z/iBA8lTiozRWGN1Nsf9aod/Z4B4VCLQo4fYQWNfZw/XH7lZ9gxjTlvOYl2E6caRxwJ6KOG7LAv3zP4ACx4pB6ENkk7/9bmfq0BfSsPHBkX0hzNd+9gB7XV7t/p4ndesSv+JrPmX1a7rsU4ee+yKC6Jrli45385u8/CMmYU0Nzl4hsxSWRf+Hgfly5Wv5//60zK9Ybbv0/f/nbePvQkI8v5IqIv/1rsa3zr9+x8e49S/Qf9yiXExPDeI+zIXXn3nNEyvkKfCP83cvmnE6tWQteZ8aCl+MNpNlCiT/WiHw0t+9WghQQF0DhY+S8VN8K7M1y6iRbNbwROiWUz38JSEAAA"
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-otowa-fountain-visitors.webp",
+      "alt": "Visitantes esperan su turno en la fuente Otowa de Kiyomizu-dera, bajo los tejados y árboles del recinto.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AJapan_Kyoto_KiyoMizuDera_crowds_queueing_fountain_DSC00685.jpg",
+      "credit": "David Monniaux",
+      "license": "CC BY-SA 3.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Japan_Kyoto_KiyoMizuDera_crowds_queueing_fountain_DSC00685.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Japan Kyoto KiyoMizuDera crowds queueing fountain DSC00685.jpg",
+      "originalWidth": 2592,
+      "originalHeight": 1728,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAAAQDACdASoUAA0AAAAAJZACdMoRwN6B+KtSBuANEB+i2SAc977GvlFUoJ6B+HOSi+ifi5nlPxryC/7APMC/ALiJ/jPtm9kDwIP8B7gv8V/kP9k/Iz99fpA6hr9jjxlNWNIfA3Pb1w3bjCAA/v/+f6G/4LnS3RUo6E2u09zzQQLGoKXzqA97eW3Z0ucbZa/Uqn+n//2jSuyn6rr/JkDaLeyPL3vhUB/SkP6/MJyvvDvdhkScg4HZk34etArRn+1Rl+H/97OtvUfvLbQxAa25QH/yTFnwPqpyRo972KX//RRpep6a4Xao9aJVHKnmestSLaSfAl03ekEetL6/xHoueyyhQIg/E4fxDdZ7e2kMiO6XvDuQvivwGhvCYq0XWDqmLYr/8a1ftbjmmvKZ/qP/i0w40Xn02uGZyxy2tR34uXp/2Y+wCqN+e0Dm7/+GlWNhBNqnfGKH3Y+zp6b6L39Rt7i/Ik/b3nJntsJ/57s+kKJkXwMcEtYstCP6SUpXb+H/NwsUkPu1CWq6dH25kXXAD+XGqxzAfDAw3rYf/z2iC/HtGP9qTgKB9qTWQjeb2IkRO16u3AAA"
     },
     {
       "placeId": "JP-057",
@@ -257,6 +293,24 @@
       "lqip": "data:image/webp;base64,UklGRtoBAABXRUJQVlA4IM4BAADwDQCdASoUAA0AAAAAJQBOmUI4G9A/FWpA0AD0M/4BzoH6ze+3zwHWAc8V7Gvk8XYFyAdgN2z9TcmL9azFf4zfsB/gMwB/Vfxg8gKNr/G7Xgf5XyVfAo/o3uC/wr+Mf0b8i/7T/6OVE/UY+q7CJqsGzhtBmhEsPAAA/v//nu2QLBjP3/yYuauwSwNLdAvBzVrufE3uxuxqzXVAiVd7ztkJdmghOQWFesCZl7vyMNKoIyl4Me2P/1XOYfaV0eFQ59YO4BBuB7srsf/6PvUhLy4Mk8nt+j135El/sTXa9OmaytUW//meg561R7XyJuZlvir6BdnqA4FLLZ1RTL0N7t1jdMrb5z+lKqjmVRAUG6WdUSvxZdMVE3sszAHVib6/Slmt3shUmuuID9d0cmPLUZa22ML9ZU7ShyEH6z0gEyDeTb6Sd9P6rrnvvkn0I3pO2pRL1RH3Rz4zKaueB7SJthitJmxiV9Ztbz1Ga6VBmtP3Am6M0iQGVDb0sSn3QvqvXSImEySABUu0l8JPQ81y7tnv5/vrb5i1ot/mlHn5wLrG6mmXyJSO0I9YkFoNdRTkeVbd36+b+0d3u6KnQaoHPWUJrcGhHqC7Z3Cm4aAAAAA="
     },
     {
+      "placeId": "JP-129",
+      "assetPath": "images/places/JP-129/todaiji-visitors-and-deer.webp",
+      "alt": "Visitantes caminan por la entrada exterior de Tōdai-ji mientras varios ciervos se acercan por el sendero.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATodaiji_con_visitantes_y_ciervos%2C_Nara.jpg",
+      "credit": "PerasNevadas",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Todaiji_con_visitantes_y_ciervos%2C_Nara.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Todaiji con visitantes y ciervos, Nara.jpg",
+      "originalWidth": 1920,
+      "originalHeight": 1080,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRsIBAABXRUJQVlA4ILYBAADQCgCdASoUAAsAAAAAJQBOmUIxX+Gd0HOBcgFyO3wB+lfWb+TFbAHIV4CBpFPwW/KPLQPyO1F38Sdcn/T/tV5o73AP4Z/Iv6X+R/77+AD0QP0AO3tpCrPD4ZojzSwagAD+//3rvn0KFvUBnYCz2Z//y3yG1LcnXtQvOwedDrAtb32/qiwDo5rewHs256xMkE7f/66X+iRZn+QrRyShvU3hEatWmHfV/aLB8gIGrMrnv2gdKqhT7OBfEv/MU/viorv+nKmH//EIGc9bfgU//295m7fzPH6jogc27zwhymxN/+yyvhTI/bp0n//hAcHwu1PeUF2tp1shk3qElvDbpR8ErX+3Xcf7u0JX/joluSpk4LjGgL08PHSp/8/XPf/e3Bl4MyKK+YjO9moyGWwYpdykvy/WZef72HX8/6Ltubf6rqXd74Qgvv+Hx2Mr3OX/Bip8S9DE0fwH5Eipv1NP5WTpX83fZzO3ZT5l/pzEmmk+/ib4RmchzPNrahQOO3j2XpF+1cbtLRxbrxaK2+bZ/qdcI+XCiSVIVowcWINhg3KYX3T0qtDQVN8NJ9Pnw6WHOfj5uMvuAAA="
+    },
+    {
       "placeId": "JP-109",
       "assetPath": "images/places/JP-109/shinsekai-tsutenkaku.webp",
       "alt": "Calle de Shinsekai de noche iluminada por carteles de neón, con la torre Tsutenkaku al fondo.",
@@ -291,6 +345,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRu4BAABXRUJQVlA4IOIBAABQDgCdASoUAA8AAAAAJYwCdMoMYPYEaa/quIA/SL+n+3/kAHlEfsB8DH7D+jpdgXLN2A3Xr1GyQTy38SdEB/VfxV/IDMH/x78d/xgrYH+q9Fj+A/Gb1X/HH+q9wL+KfyP+sflh/b///yqv6ZnjzlwOJuJ3VB4ygf5NyAAA4n/9Uz8dWyD/gY0Y7ZF8osDxPVjOFftzeqvzkfHnF07DJmU2/LxPn9/hS8+ZK4Pox8q1XikGnZbIkwKxeoclPYCcSqeYtcVqE0asa2ZfXTUM9XNOGQVDJKrsPeyONn8ZvZh6JC5T7K/QJahX2H85fDmg1+v6RkGQsvh/aVVxdT/jlj20TXh773qv6YyjD9f/ZZ+5qrrJY1YVTHlQioA7Fe5s/JQ1XV8uY1ht3qu4PzeP7iVWR1V7M3b81SKv//lO/FG02oLekkhFULZvbB316sLLaSA1unaTT5G75ZrzDP3/rmK6dx+Nzh5FquP/kErlsDBYEv+R97/WcVCowqM+f/hGYmLfSWjPtMr+/PbrTZ1yyzL07Jj6ZVrJZaQRq/+uG26vcaW2XkWtsHdboP+vW8dofErVQ0eTw4RTrKCLbtnbykIGB2ajfRFAVgLoRhvaCc6bmdSWwSlX0trWN6DPXcoYdLoAAA=="
+    },
+    {
+      "placeId": "JP-145",
+      "assetPath": "images/places/JP-145/nachi-pilgrimage-route.webp",
+      "alt": "Un sendero de peregrinación sube por la ladera boscosa de Nachi hacia el santuario.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ANachi_Falls_Pilgrimage_route_%2851928795062%29.jpg",
+      "credit": "Raita Futo from Tokyo, Japan",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Nachi_Falls_Pilgrimage_route_%2851928795062%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Nachi Falls Pilgrimage route (51928795062).jpg",
+      "originalWidth": 3710,
+      "originalHeight": 5565,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRoYBAABXRUJQVlA4IHoBAABwBwCdASoUAB4APjEWiUMiISEUBVQgAwSgCdMuOCvzW6GGYNVENm6MPP9z76gAUjTZ3+sqywWjDEXKLwhiTU9G5D6kQAD+/zITAnWK4ehbet7Tz/ibl3mKQ/7kKjQkyQl4AuORVmir+38S5ruv6wGJrTeI1583+vbxp1n4h461/i7MrBz8FWpbH4b/zahGlS8j7NoaT28nr6Kt6CjVxx1+6j9CEnnUP2edhn06ds9pZpuoV1g1b1QgpyXaCWgHL/zt5uiEL9UvaJrfkVyI715Nefl2u4BBEWety5o/y9nKpmhgbz0Fs/5XLD0X94ifCAZqT8lM7Hq6VbYXAM0t7YJ7ulbS2F0FRAab4m3btbyhXPe93yUW9Rr5BIlk5uPGyRTPGPoT1sIzLUR9tdhR6N1gJVlysA02+OpxKP7eMELCkBYzfLFP0kSMAvB3kgW/lsUsjARKMRuS+aCjXyrrap3cVt7eljJkSqT/QmmyqCUMbhWNM9BW4KPd0AA="
     },
     {
       "placeId": "JP-152",
@@ -347,6 +419,24 @@
       "lqip": "data:image/webp;base64,UklGRvIBAABXRUJQVlA4IOYBAACQDACdASoUAA8AAAAAJYwCdMoR3N6TTAVgB+x3v/6YBzx/6zfBN9s3swXID6M+wG6fHl/w/8QP2A0Wf1AZZD+7/iB+FeuUai/+5ehF/AeR35P/wHuAfxb+Sf2T8pONJ/U00isRGelWQUTXQ6oEAP7/jI6+/wh4Ux3++z9Wo4TKNYIqf/+JGRgLjnN7UOMN/00bM3CXW0k89ZAspoCjkDqagh3ZkSjV/X1oXP2jsLn/MOF9GZRx6ObtYxpfi3OP4jwceF7eM/Zl/jkJb+cgs6e6u09sso8c768ps0fQG/nv7tcWmcTXpWfQaId//a7i/Ffam3vD/XXM+jjr3osZPwzayLv8iDsI14+9rFEF/1C9DLRK7Wipv5vd/3u1BKcVqf8knoh9929VSZ8d2wG7dVLNX3SZT1YhTD68B0Ds8b8d+sn7/YhP8//ij1qysEJ/Lh9Ux9WT0NSrEt+4jo4//GOVP7C8vIz91eEcemRaB/7L/mML9knWAb7M0/fCICkVOO69+brP5OjLpuHrEbvvTpl3HLZiLxsBndSkJjbK7YaUi/Xshx5rGwm/WK9Dx3PVoehoTvvquwqGv9HdeO+PvqZbba35WG597u3dCfRz80se99tu7iIMqUbVfOF12D79B6chtLiAAAA="
     },
     {
+      "placeId": "JP-157",
+      "assetPath": "images/places/JP-157/shuri-guided-tour.webp",
+      "alt": "Una estudiante local explica la historia de Shuri Castle a un visitante durante un recorrido guiado.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ALocal_students_give_service_members_guided_tour_of_Shuri_Castle_121027-M-GX379-089.jpg",
+      "credit": "Lance Cpl. Anne Henry",
+      "license": "Public Domain",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/3/37/Local_students_give_service_members_guided_tour_of_Shuri_Castle_121027-M-GX379-089.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Local students give service members guided tour of Shuri Castle 121027-M-GX379-089.jpg",
+      "originalWidth": 4080,
+      "originalHeight": 2720,
+      "processing": "resized-and-webp-reencoded",
+      "licenseBasis": "PD-USGov",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRnYBAABXRUJQVlA4IGoBAAAQCQCdASoUAA0APhkIg0EhBgEABABhKAJ0yhHAvwIwB9gP0A8yv9M/fV5zPgAPKM/Wv4L/KMeKncoxwH9j7wHdhTEn+TGlgtWty5MXslg6oUAA/v6Tb1FQwvhBEf0RqW/v/zVptrfgx72Is32A828tz/4QjTzygLxxYU9vHcvH/sTT9HyN736/GuT/TF7Gq69/85TSS26KWyUTyn9ijPGRb7uRFUQGqLr/LwPiKuOKxPzg83Ubnx8FfDR78H2nI7pT61rsq+ARKH6q/hnAXSN/xL9jtfJpf+8533Q854gn/jsv/3Aon/FwNfrpW8gvyVtaiCsi/SrN3IUy2DhXhz92jI8cuKFGsH9KKEQVVWSfWxffTCRCddnsA8ccdbx0Tphfc9xfhLksDluRWFIMZX4yV6U/pnDJme6v4Pi0N/V8rwfeHIelxPu6klIGf9cvlg7xmZ6U6PcW38K3GjI7dkdNfLP09O//iQAAAA=="
+    },
+    {
       "placeId": "JP-162",
       "assetPath": "images/places/JP-162/sefa-utaki-yuinchi.webp",
       "alt": "Formación rocosa cubierta de helechos sobre una gruta natural en el sitio sagrado de Sefa Utaki.",
@@ -365,6 +455,24 @@
       "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAAAQDQCdASoUAA8AAAAAJYwCdMoRiu3DlZ+bn+k8wBugP1P9cDnAOAA8qT2KP239FK5AfSBzKuSn+H/khogP4f+PGWBfDv7J+On5AVpT/Veed/GeTX45/z3uAfx3+W/4X8vuNV/WZDyDameu4aUUOaAN0AD+wEHb5//lTfML3kbKxRN9bXgpqgnOWiIkONQ+WuhR2MlmiGBRkpZp4nPGo37xvWavRcEK5Tb23YPd2QXP4KPRqEXnrffJ790l5J93xJpwVsM7M9t7kUEcn/ETjRXHDxHaSNXR/FSv3jQ1aZJAtsJfXWdap/2fiI9Tt7YpykqmhJd/8tgwV8ox9lb3ZnL4ZN6NPRs1En6cFi1uXCoiC6gkSBYT/uzmM/+B2XcMH4yQP+TdhSdEHFLe+OxyqCSyvG6+ebYs93m55mpH2WKkg2puq5L8ly65hIqMI//u/WJYXqOTzsCIcMHb+1/w1+OV9EOTN6EFP+9fuA34v9Jhgs/HnGlGzhSB2sPEg3VQEHvPf3+RnGKr31uJDrYzuU+tviryS+bTV5aQoTGFhS66LYd9H9XIRWeqZn++ReanlIGFv/tFHAnwYhjrvKHMOYlo1yyIcqtVH9IoyIdHhFGQAAAA"
     },
     {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-ujoguchi-stairs.webp",
+      "alt": "Escaleras de piedra serpentean entre la vegetación cerca de Ujoguchi en Sefa Utaki.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AStairs_near_Ujoguchi_of_Sefa-Utaki.JPG",
+      "credit": "そらみみ (Soramimi)",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Stairs_near_Ujoguchi_of_Sefa-Utaki.JPG",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Stairs near Ujoguchi of Sefa-Utaki.JPG",
+      "originalWidth": 3264,
+      "originalHeight": 2448,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRtIBAABXRUJQVlA4IMYBAABQDACdASoUAA8AAAAAJYwCdMoR3N6TTAXYC7APQA8sf2NqdA7AbtP6jZIJ6j+HeiA/oH475CJ+On5Aa5vqQPsA9zT+q+wD2ifGf91/jHwAfx/+Z/3P8iP305Sv9TTuGztqO1ccODykzjZ7KAD+//+V5dSIxdZvBXtimfv6hFT+srmtHdJLpt2uO1n6qf57/tMC1vkge7b59dT4X7IV3MsdghMYE1k2MLp2I8OFN3z/UT5ahSJyXTxKlPj0ZJn+jzURtqlvDEG7u9iHx01y58N4oN9xuoB3zwS0D5ciRnnQ8mcLU1ErxioGoOyDQV85iODUUpksRGeXBX7ZO9fKt4gBZv+C+h0OKmte7PMqUyzbZaVmgsTNeXW1veGjojRbcODLmKrq3KLoYqn+hQwhuLP13LwPlcHnT9gZwOSWb653tnI8lMr5L/H/H/PX/hr/m7O12P+khK2N37tcxF/txO/D2GgknqdPMQlu3pxpo+HOy/zzEqr8jjxFm1Vdia237//gO0JNyj62VSO+7MC8OJW66/8JK7CwpGYz6rH6H8prn3AQr4f6H1P/bxc+j/9ZOp4Ie4JEeXV9m0w5jV9snSjBU1edsAAA"
+    },
+    {
       "placeId": "JP-196",
       "assetPath": "images/places/JP-196/taketomi-island-house.webp",
       "alt": "Casa tradicional de tejado rojo y muro de piedra coralina en una calle de la isla de Taketomi.",
@@ -381,6 +489,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAACwCwCdASoUAA8AAAAAJYgCdMoRwN6B+KvCBGASIBtl/6Qe+3pgHPXew5+z/7R+05Sgm0D9gMsE9k/EbPj/jtkk/7t+JNU3/0f2AdJT5Y/3HuB/xz+Z/3j8py9XlcCazRrw7lUJXgAA/v//kWE8G2Ijvw6bOv9k8whS/+YwVqIBkoK93YnOA6nqf/ef8Bf+DX4RIRZcG7c//36em0P5EZx+Gb+fjOzpgj+UH/FS1Ll+f9w+8U2bg61eb8KTVxRk94sojYI4AMfHtR2//MRB8reh4f4fIvYH+nu6P+klPF40GNHh7/7ec2KKOHeGxsky5Jqaclwqgwl/b/Xee9g5OPDq1p6kPjvCtT4/29DO7//85NPefAaePbWWp6irWX38cu13EffbHvH//5k74cY2KkEwZX9LnI2JQMb7/yZOjL9ICEi8+2f4QCb6h18TT6Sk9vf+od24PY5l//Db5UJcw8Q34sdAsfl7T8/VxcPn/pDBamPf9+V4B8L1PUYjLO1o/VWyzpZmCBzRrF84Vv/5TsqH/xS9PLFYN15Fb4JSSKIROw6lh4+rtVG0/6hQey1uL5YpNXn138z2QRN/F7VMK/70TzDP8Xno9jmjabv/kPDj2AAA"
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-water-buffalo-cart-ride.webp",
+      "alt": "Un visitante recorre Taketomi en un carro tirado por un búfalo de agua, entre la vegetación del pueblo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E6%B0%B4%E7%89%9B%E8%BB%8A.jpg",
+      "credit": "Tzuhsun Hsu",
+      "license": "CC BY-SA 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a4/%E6%B0%B4%E7%89%9B%E8%BB%8A.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:水牛車.jpg",
+      "originalWidth": 3264,
+      "originalHeight": 2176,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAADQCgCdASoUAA0AAAAAJZQCdMoRwIsyrVxYB6AHlQ+xN+yVWAcSBlyviH4q/kBpAPw7yQH9E/HTRZuIA9DH9m+wD2gPAA9gf+M/xn+xflV/Zfkz6gA4HpDZwrLKXF90qAD+//9+SS/2OH6zI7tXJY+afMJtS1TfOAkf+Gn1/wpDf9//9Tee7aixc7D5mprhFcDD/+DShuFQRABIQKqfLar3Xk58bCWqM5cSqjOxSTn/O6PpB/tSx9Nfg1+jLkebWCKxt8nhDKyZhmL//2wtr/+nr5y3s62MMsXYeUWTl6atD/euteWh9Fb7H6Dk0y2DecjV341X5owV9JG1v89QTQSATD4TNPSnzdyu/5Av87o/vTMDHeLCfw4bdMapXQBv//zGFNV7ou90nrt/AvMt/XGlffArgBAxFHutfqb3f//hIeH1k+mnzXD2g5tyDFFfHDdRsdIyZtQph/BPajEoggfXg1x6/EIa2ZofXdUjoLNldXf+c+UFD2/536aCKsQAqThVwaW0LFtPsNlDR4auJNuMA2FJMV4OtHSVc1IOSmoINuXpXnn/2/4/7tHw+vyG4AAAAA=="
     },
     {
       "placeId": "JP-179",
@@ -418,6 +544,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAACQCwCdASoUAA8AAAAAJbACdMoRwN6B+Kv6AfwDkAjAJEA/ADqAPNV/oHtZ6YBvIH6u+kVRgPxGyVO6Bjk/uAqlf+Z8oDyp/MnsB/xD+V/5/8vP6l3pf1V9DM7LtRIi7nSxFtUT0AD+//7MgP//1vpyPywnG0RjG/29U/9MWrG2y0pCTt00rXvFoYLVb4wBHYf/zbXzx3+NUDr4dESyUT4hqV7E+cheoQ5RGMPVBHvwg6ucNXX0f/nHZMO1RLw5cJDcv4H/NlYwdzXP2+U3DKRIDu7LYoLwvdg0kl4vAE1Zr/n/88x9uf3Fb+JjdrDt//IXVna5fFN7w96/3ZnaqMTQz9MRxgGBSKSYZK9X3/CQtvjg2rCCqkfmd//uv5/hmqGBzqJAUv9/a/nNvs6YDK1Kgpxvv+3kEn9zuf/QvkttDr//vtWu56Nn8dWMdV3xApj/kP2Av63L3+/dD6TvdV/8Rn/+nDPaInQ/15BykS19v32FNIcHZ9EfC+OvabS6QffWl6rqDORN8vCCf/e8TnqeCxmCHim7QSMgiUanmJ9j7KiD9XiSMDqLHB4Pgn35a/YAAA=="
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-visitors-watch-diver.webp",
+      "alt": "Visitantes observan a un buzo mientras limpia el gran tanque Kuroshio, con tiburones ballena y mantas al fondo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AUSMC-081220-M-0902C-004.jpg",
+      "credit": "Sgt. Josh Cox",
+      "license": "Public Domain",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9b/USMC-081220-M-0902C-004.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:USMC-081220-M-0902C-004.jpg",
+      "originalWidth": 2000,
+      "originalHeight": 1333,
+      "processing": "resized-and-webp-reencoded",
+      "licenseBasis": "PD-USGov",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAAAwCwCdASoUAA0AAAAAJbACdMoR4T4B+Kv6AVYGKZ4iBwAHlSexb5TtHA/FX9VctU9EmQD7IPNi/bvwA5R38gNdL/QPxy/oHSv+YP8z7C/8k/qn5d8ZmiNkIyU1mNi9aD4rAAD+//yv9FiQ/Oa7bLl4U1xERfIf9wLrpIbRGKI7i3GFsF49gH/3d38WD9ts/gUhwKh33aiN6rM/4X8OrFw3bFX/NLkicmq94UVf/3ngsCB5tQ1+8LjYVlXVNMQrAo/+izrGeYQterqEPdjpTZE5dhQlv/tTWGqoCn0KIFfjWmLNhAoMd2uZp7LFHMn1k3k2cPbc//zXeVe/gUb/6ddSOd+oWPuUK6aeq//+XC8MnI7+yFpGEVp79oMA/S4+/HRTV2/+ct+/RP4c46X/+JbMG5oHA1mC5fTEeOdcaYou+T4/9T2Vb9Ruf/zD96V2d/7zcHAOY65r8mVxWkvgTCQ+tqFBang6hTF/O5HV6zAEOy9P/4FyoK32VXut3oWIx7U9Uvs1o+A6XCAREZHwqmsXt1sOJgAAAAA="
     },
     {
       "placeId": "JP-154",
@@ -474,6 +618,24 @@
       "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAABQCwCdASoUAA0AAAAAJbACdMoRwN4B+AH7Af0CsA+QL6N9qtyjbpnwAH6zdaH+0Xox3IDkwvVXJi/Lcx3bgX5nxO2od/yH4S9D74Y9Rn+Yf4T8h/3/5R1BnY5dwPJyuzwIxtAA/v/2VnL4waB8yIPu39+uX9H4l72Pwb+w13jjfSWfQGYTw/zPoQl7JNhz20/P75/Sq+rW3E61LzIJ5+4fzfhOSM8j3J6ESCcH+5zi3H/aIa/DNJPOgtcTv2hL3A0Eh834Zqb5jaBbsRitF+Dpf1ESYVjB/p0SbiY+hUgm//048mt7dADI327/rtov6cxszf3me/SIQNI4x9B1//8a9uRZC3+xQbRydTokLxpmb9ROgNa///CQr6QLy8WhpxWK+5R/iv74G2Tujz5F37aWSW2rk7/++f9NKoiF5lWz//1pOECpfGR6BLuf++ZWVxm9IUNBiY7auOP00WmFAe/0NOI/UYdRh7Kz2DI/fT5Ai/1i4jaWrMtWZdfaCTdfW7Hw6D9rOugBhPn2HeiP8K5o1xgkjiM/z2cyRUMfJx99Ht//VO5RwHqlcxnEB8RcGk5x4OLPCKeH8Q81sQEAAA=="
     },
     {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/fushimi-inari-shrine-visitors.webp",
+      "alt": "Visitantes recorren la escalinata frente a uno de los edificios bermellones del santuario Fushimi Inari.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AVisitors_at_Fushimi_Inari_temple_in_Kyoto_%2853612593452%29.jpg",
+      "credit": "Sergiy Galyonkin from Raleigh, USA",
+      "license": "CC BY-SA 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/2/28/Visitors_at_Fushimi_Inari_temple_in_Kyoto_%2853612593452%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Visitors at Fushimi Inari temple in Kyoto (53612593452).jpg",
+      "originalWidth": 8682,
+      "originalHeight": 5692,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAABwDACdASoUAA0AAAAAJYgCdMoR3N6TTAVwD9Jf8B/K/f/0wDnnvYV/ZT0arkB+AH6S9gN2z9TckE82/HfPb/iNkgP6r+IHiAb7NrMHGof3T3Bv4h/FP51+Tv965Br9VTLT0/nSEV6kRJx3mYAA/v/+3m9Ivpi1OzbuZzMx/LFcakb4eMba/lxlNwt/CL9QLad+89Ezil4UJCSaM8uLCkng16IoM3zjkQzm9vjgaPzsuRn4MlqGGm2w/snI/wLm7+lMwU9Q87paVfOf2JD/hwA7UoehraL+n4iMSBHrdDaoE10rGwsZ0KmmDJZDQQZdQJjk0Pkhnst392ctN/fRZFj1j7s32+Hf8pV5fKh9kAArfi2n/47A/jf6lHJ+2sOFFv0bV+5uCFj/E93yR7XzMu8jGAv//zuX+O8CxMH1v/1//Ibbw/OriG1maHw/VH+//xJrEf9uz/hWyf45bsXpSbd3r8953c/wkWonif/tWDV3iLgMPfjzQWn+dZnz70wyuEy8Wub+W2gax/3P4Cqkks1ntbYA9cD7jIPIrZJ9v7NdKw0vlDnW11R8hT1mf5p9/y431f/5Ufvk7+uMV4qm81/St21hPA+Evw+ulQ3YTF+uyO/gAAA="
+    },
+    {
       "placeId": "JP-096",
       "assetPath": "images/places/JP-096/sanjusangendo-main-hall.webp",
       "alt": "Fachada lateral del salón principal de madera de Sanjūsangen-dō en Kioto, con su largo tejado de tejas y pinos recortados delante.",
@@ -490,6 +652,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRn4BAABXRUJQVlA4IHIBAADwBwCdASoUAA0AAAAAJYwCdMoRwIsB9gLsA3j/yo3er/DP8gM1AywH9V/EDUVfyAyu+cX/jn9y/M7jIDrT5eQBJjvgPecJ/wQA/v//vYTwBr72OreM87Uqf53pnYzAbiS3n5tPSNc3/0rvIsb7lSqU+f//zxL28v9XdP6MTfzt7WdpPbIz7vROB2uMA4+zIZcnP//+egDjsAfIXFmaP/gL4O1PVOZdWfWUKO8q+ffbax43Fl0J/0NP/9gWFuP73lUGZ0rl3p4HSXZWqKI/nf/3T5/4tPNarYHyv2R0xoXGfHgHn2YS//BpxP/Z5Pkmr27BXfmHHX9dUYz/f5HDFZPz/5pc9u/6l9FzQYN1/8N9d7/fWT7/T/j9kOnVCH6snDEUMNmtVBRLZDcSRqyHr9fdoAHoAD1gm5khQf6UeGyES0s44+Pgf++8w/knCrXhDBu2VwPFUa1089/obbnWl+gkxA1Oilg7yzFvNOE/xPd7RAAA"
+    },
+    {
+      "placeId": "JP-096",
+      "assetPath": "images/places/JP-096/sanjusangendo-couple-observes-gate.webp",
+      "alt": "Una pareja observa la entrada de Sanjūsangen-dō desde el patio; la larga estructura del templo ocupa el fondo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AA_couple_looking_at_the_gates_%2852370163970%29.jpg",
+      "credit": "Sergiy Galyonkin from Raleigh, USA",
+      "license": "CC BY-SA 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/A_couple_looking_at_the_gates_%2852370163970%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:A couple looking at the gates (52370163970).jpg",
+      "originalWidth": 9239,
+      "originalHeight": 6328,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAADQDACdASoUAA4AAAAAJQBOmUGMGOV/hnvDv+A/oHvt87N1gHPhey7+y36zey9cpfwA6gbRBkw3lf4zZ6L8KPyMzD39V/E3UdtNy9ILOB8sf6/3Bf0o/sn5U/2v///Td0AB3PVJCdrdzHkblWI/ggAA/v//Yx/6Q5Io8hI06FeBMaFXWxOULPmhPyTGRasbQDt7n+XBaOEieyGil1LiU9+l1XV2RlmZCP6CfHS23tRH6Gsg+rJtjWqX8T9LaVKM4swvqy24oRhzNUpB//YUWzSVO0xQMDEu21/NKlQ5uLl4v5ErbZEwYASsSD9T3Q/9FHuP0aaT1kJvGL/BaVw80vnL5XskgizREf//3NnQpncbtg3U2UopiXoQIPKuHT/+DOZIXywX/zGcW0gEC4+eeUXTEf+1g/DiWbwNwHpy1/i8n03FmmE4hP/7tp/4aDprMN5/SA+OoSWL8akX/5cJ0aT9eyeeNMiJca/9CLcHH4lBnu1Ph9a+cxkXwv8yoc7zCZFakfSdfzmo6908Ck1V6PjjVmkz/VLj141aXkK65Btt2vWKNPLGQtig0Vgj57X+SC+Gg+9uu8iNqeVm33w4vc2upDxklzrt8v1g/bhNz+p9AAAA"
     },
     {
       "placeId": "JP-135",
@@ -510,6 +690,24 @@
       "lqip": "data:image/webp;base64,UklGRnoBAABXRUJQVlA4IG4BAAAwCQCdASoUAAsAAAAAJZACdMoR3IsCrZ4YD9KMkA56X2S5MlyQT0TMLfiNkF/45ai7psHLi+D/7B7gf8R/lP92/Hr98+VA/YA+7C3ZdoYxmC4oAP7//zOZmc4X9Y+PrfkR4n+GOoQxr4IP/oSi8DvNgOXbxXtxUCERf/7s3vMu9NeMXobb8+djL+fnfROvo4jFuZDwEPdN9B6PwozyUJ/BC0Zt+j+DSwvRzofm9nF7BxDF/6QUP+yuC+HwHEP+xsnfmjghDKhC5CWG/7/O9xD84YtxlCzaklZCCpTUoyOI3oI7Wpq1QGmnFwEmKdGz7uu/ybe0fH/P9tc8xzP/wKoSXtD/4KkHUx9X/iMPtXTn3p//aC3dlhdjy/8dSwmxFAIr+w2IPtFPdwbiUi3/3IrYAOz94a/XJL22/asL4xp1GHJcS+hD7y3da2n1IuoExizzM/q0K994V8r3sobOaIrl9hHIUBiGVqhsnqgAAAA="
     },
     {
+      "placeId": "JP-135",
+      "assetPath": "images/places/JP-135/himeji-castle-visitor-approach.webp",
+      "alt": "Una multitud camina por la plaza arbolada hacia el castillo de Himeji, visible al fondo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AThrongs_of_people_walking_towards_Himeji_Castle%2C_Himeji%2C_2016.jpg",
+      "credit": "DimiTalen",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Throngs_of_people_walking_towards_Himeji_Castle%2C_Himeji%2C_2016.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Throngs of people walking towards Himeji Castle, Himeji, 2016.jpg",
+      "originalWidth": 6016,
+      "originalHeight": 4000,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACwDACdASoUAA0AAAAAJQBOmUGMHsCaZ/YB7wP4BhC36Ab6BwAH6geiz/qvcj/Xb0mKUE8W/BjJBPVfwr/E3SNfgBkHPeBflf4Z8pzqRP67+N3K5ewX/F/6z+Q/72cqr+lZxfy9KUJ3Uaw825HmgAD+/kZ/8sr//YcP00skFFrHDp//BnTP9nhp/zZ/uI5ACEmt/7Ru3MTSv6BVqFBqv9c1/T+kA+WTg3B5+qdcc1ZrOpDDZnreIUeL+3kPMg9veuRobtZ+VPFe/lc94n/9slJyn/3kzZ8mBa9uxTog0RdqyleyaZ0c1BNdXfWnvoZ17zRenq+f2b2TGKIiQF7fJGv1+z7Zen1X1DYvOP7Qx94HD+LVuFr3jjfvjZZrx7QsV+//od1/5cnhme/DPAWabux/+yqP8m3yB8i6a6Dx4E2x52e8hmX+tGTwIUhdkx5h/8qub+83ka5GJVJ//8YKqg10vchMsbRrXoGcXEkL8UP/tXc3zjDE2dy3oRa6z9Jvbd/zIXWgDpVU86t30weu6y7/mjLj8xpGrTLk6CLN1oO/Rscv3WGiyxcCWPBFW0c8Ni3Q/UhTeZ5AZwAA"
+    },
+    {
       "placeId": "JP-142",
       "assetPath": "images/places/JP-142/otani-river-canal.webp",
       "alt": "Canal del río Otani en Kinosaki Onsen bajo la nieve, con sauces nevados, puentes de piedra y hosterías tradicionales en ambas orillas.",
@@ -526,6 +724,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRpoBAABXRUJQVlA4II4BAACwCQCdASoUAA0AAAAAJZwCdMoMYNcBhYGmAbx3LL/wAx2/4X55j8Tf1uylXuAPwA5V38btdR/RvyA/oHOZ+oj/Hf7X+TnGjfpAdo1Toephhg8Yv700oAD+//82saC5RI4EfUoyj7teUmUpRRPqEf3Ad6TB+fEkW23u49ULCP/11lRvvb3JtfHL//mJSVO90o2Y8GIu7A07M/xnESxuG47hPdTiDdq/hR6WhYf9nfTx+irseuCDPn/9DbJA/lpjx/L/9/2fVxCUwUg1aHh2s/654yqrSvX+UB/arM2yVbRSRLqijjogvdVEqH/+9qy6fRyuILGE7/ze9ZmuiGMfvn/X//2DhIn7+kwrkpCfXmBxR3LJlGwJyimtNU9UFIK5gtcPJdWW4xYLjMdV3vjXBbe+QxczD92QiVDxGMNsAfq3PL78fFfr3KXfb5+rj6t1awpFDtGYz/EfIGKJfealBnxxBvzYpC2nXX8tf+m1he6/jdwv8in4siGAt/ySpV6Kq/Hflf4RR+gjgYejjKF4AA=="
+    },
+    {
+      "placeId": "JP-142",
+      "assetPath": "images/places/JP-142/kinosaki-yukata-street-walk.webp",
+      "alt": "Visitantes con yukata pasean por una calle de Kinosaki Onsen entre tiendas y casas de baño.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKinosaki_Aruki.jpg",
+      "credit": "Mypom9",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Kinosaki_Aruki.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kinosaki Aruki.jpg",
+      "originalWidth": 4256,
+      "originalHeight": 2832,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAAAwDACdASoUAA0AAAAAJQBOmUI7kWBVgMEg3QDgAPK69kTyZrlLwquTj+W/i5npfxA/Y7LI/zf8RtUA/nf5Aa7z+n/kd7OP6r4GH8o/KP6Bf4r/Gf6x+Vn9w5Cv9ADzakTeZgLp8Do5zDyAAP70qyX5X9PFfhPZRTOWPH/g6tICvmpKoC8KS/BsBJWfWv//zuTmdgC73+VTE+J3Nlp/8Upx5P+Z9WygK+Dc/M7z/9amf/zYEUyckgO18HPLg0e3kyWUQlqd49/i3/8NTapHqPRDBb/tsidv6wJZ+g5OG5RT5wO+vQat0QZ7wBXx9iWU7U/qi6XWz/5ZFltnRuzr1fts50CMEuGYBjp/YTm74pqzmW6MECDblcmqq5139dZ4hDf/C9jvGSW//FxaxAcan/7k6iL5ktJ/Wwp3lNPd6/edxuX15N9XUNn09MBtPEK4jB84D6scYwgExO+EZAGz68Nfo9OF12dv+ENSi+T7MR0vyF5jRkppJ9YFsEXGfMHKdAVkEMnjpAiHEt0R5j2x09LUzM8h8Bw7URZNT8kqqLSyWa++MZYughzn70Zc82wgzSOTkQKoUxM20QPAAAA="
     },
     {
       "placeId": "JP-143",
@@ -546,6 +762,24 @@
       "lqip": "data:image/webp;base64,UklGRs4BAABXRUJQVlA4IMIBAAAwDgCdASoUAA8AAAAAJQBOmUI4EWBVq/5ntgH9A5yv9Zveq0wDeOP2d9HC5AfhL+wHYDdg/TP9gMuL9L/ID8gNQB/Lfw3/XT/R5gD+oflH+IGwAfzv8gNdL/leMd9gD+I/xb+pflB+//KjfsAgX/j7PsKRdUO85KzpgAD+//t3vKUqMraM89PUzBbOrx7nIo5BZv4xH/RjiU6LV39Rfoxb3xCGMqy3AdSvWwCxeMm/zr6wWNITT0Eqo68c4La6i1fxV063M4+a7f2Xz+lgEJwp2cA0+2h4ztMGLt2XVgZ75xsXOSTtXtMyNw6wxWkuXaZSqu1rfWxtycV4Q6w6hOWUwsc83C3ivLGsWD5jwA+T1hcdC20Dwht/9syj+Kuluaj3/zU1Nse66Nz6C4eX/0AaF/k7yd/Ga4sNJDOw/Vqvpy3r4N/2/Rc/ycAv8iWRx7wECbtuIfgW/GWEpde+hca4ZVqpKZPuW1sX6j939R5s/2It4qaZEKOZcgRF/8CkYbYGxD5nKYwhO7BGQtGPP/jdgz/VMB/J86EV+9Sh/XSUf8X8I2s/ibhUufsZyUOU/GLLyR+34BLwMwEOErWtfTQAAAA="
     },
     {
+      "placeId": "JP-143",
+      "assetPath": "images/places/JP-143/koyasan-shukubo-room-guest-experience.webp",
+      "alt": "Un huésped descansa en una habitación de tatami del alojamiento monástico Shōjōshin-in, junto al tokonoma y las puertas corredizas.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATemple_lodging_at_Shojoshin-in_on_Koyasan_%283810898436%29.jpg",
+      "credit": "Andrea Schaffer from Sydney, Australia",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Temple_lodging_at_Shojoshin-in_on_Koyasan_%283810898436%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Temple lodging at Shojoshin-in on Koyasan (3810898436).jpg",
+      "originalWidth": 3953,
+      "originalHeight": 2634,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRsQBAABXRUJQVlA4ILgBAABQCwCdASoUAA0AAAAAJbACdMoRwN4B+IH4q1gG2Z6Ax+wGWAc8v7Cv7XfsB7S1Gvx0f5L+Kv4AaTf8Xfwly0D8jvICjQLq48gf4j3Bv4b/Jv7t+R/Cqn3wsCvNrlL0pNS1peAA/v//ERxfDCeRUssXmfyojrXeUXu5IxAam260uNj//5QF6LYn2P/5B6tMhe9MfJvzw/KXcjqwpr04FBQR//1v5Hz6zkmyfP7bN5egCvWf9faBjZp1+DX5h/WDWUiHQRGKM53Gf/En+kN8yjo/nBw2Hlgf/KeyjAFC8LgAv/8xfH/BMfN+4bOkcpDMMHxHLb6a08vYgpdOK2tJ/+e0pqfOvWWz/9PNdGY4k/smWnLxsfx1//t1596g8/QvhZizots16b8//mA4zfvZedRu77jIG6l4ENPFU/CB8H/5NVkRxvNyARHiHvJ2Dgpl2aZD3qo+Yairo9hgCHPofRRJ5nuWUAe9fTO707S/rS95p8m7X4gg8cVU+HNPiv+0+aViKs26aS5EbHEO+fiILtEE9ZoEPOdbfna0Ib9Cn5t5s2vYf+PyKiLOvgN7rUO0Qleza84u3IAAAA=="
+    },
+    {
       "placeId": "JP-144",
       "assetPath": "images/places/JP-144/okunoin-memorial-mound.webp",
       "alt": "Túmulo de estelas y estatuas de jizō con baberos rojos en el cementerio de Okunoin, en Koyasan, rodeado de cedros.",
@@ -564,6 +798,24 @@
       "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAABQCgCdASoUAA0AAAAAJZQCdMoR3JoM4Ear/gFxR6YBvGtOgWYH9a/GPRAf1X8Tckn/KPyj8gL9V4nTHg80Xyr+gHuNfxr/Dfl9xrv63HFdhnu8D4Ka1EKg8wwAAP7//2NHc3mOjztd5dkL2owDR+hOyVITCH/7jOslvPFEqRfsFVHZlN/X1L/2B+bLK7TxBt38T7H66Y6M6kwKKX7DZLtIJoMc2d8nK5yO63vyhgIv63Pz9Wzc+T9XxVxoLTlqWbKDf6LKTe+1SvF84eqTL/5vQqWk7y50HIK0LMSp91/5KY8nesnyRVBvZQQV2qAv/ehFl5Wc6dhYhdEFrG+P+xV3EbkwjFwN/+2p70f6nzySASouHBAV8bL/IP/P/XJ9P+f996zrP8Z/0rJXw3n6yqP9A/v+pm/fGPE5+wc4+mN0+7Fuv0CI//vstPvzA2dR7leYUFlB6Nf/N6/nq0sKBVNL4jgq4k5VAJdpHoz/sTR2MMo0NRRISarJt+z++yY27DETn5YKRftsEX4W+oOzMAAA"
     },
     {
+      "placeId": "JP-144",
+      "assetPath": "images/places/JP-144/okunoin-night-path.webp",
+      "alt": "Una senda atraviesa de noche el cementerio de Okunoin entre árboles y lápidas.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3APathway_through_graveyard_at_Okunoin_at_Koyasan_at_night_-_Japan_20170412102921_%2834098937875%29.jpg",
+      "credit": "Yiannis Theologos Michellis",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Pathway_through_graveyard_at_Okunoin_at_Koyasan_at_night_-_Japan_20170412102921_%2834098937875%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Pathway through graveyard at Okunoin at Koyasan at night - Japan 20170412102921 (34098937875).jpg",
+      "originalWidth": 5148,
+      "originalHeight": 3432,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRhABAABXRUJQVlA4IAQBAABQBQCdASoUAA0AAAAAJZwCdMoRwIsAqQI2a7wC4VfRF/u/5QcYB+oB3UMzzHmXN+ezkoAA/v//wuDOtnkDfiJNt+kSWbDnt1q2AUs6tnoIctjk3Ou0W3/9OQu3J1DXb0WneazZf/kKj///fca3//ImzEFOaIjGQN0wVk3LXCKJR8D4d1JRf66JnGYUVHeG7vYYP//sR3/Qyrtaw//TbnGXfRofcf7aVv4TDEyW23Or8i95wUdFZrrTSFJvEcqcbmfB0Sp7gvrrIUgi7PRjc6CtJH21tfADgOH36E8U/XfZGN/7ZtYmb1xaT6PLo79V7RARkJWudHCqJg1Fiohbht7B210QAA=="
+    },
+    {
       "placeId": "JP-184",
       "assetPath": "images/places/JP-184/zamami-coast.webp",
       "alt": "Costa rocosa de la isla de Zamami con agua turquesa y otras islas del archipiélago Kerama al fondo.",
@@ -580,6 +832,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRmYBAABXRUJQVlA4IFoBAABwBwCdASoUAAsAAAAAJQBOmUI4C5TclJ55X9QPZu/QD2JbkBvoGSWzFHyzZgD7gJ8B4080X/DfkAapHnq6DAlROyyToAD+adT+2YvQH2M2utguQuzJjR/C/JnOmNG4xwd/ekbORlP63UTT/Vhr//gTqg4MrnnUqX1LMO5rPuDIA32wcMenH/I/f+RFP1fdn/0xZz9tZPOO8nOr/9w5/D/T0nL69j1O+z/3EfVc1f/9dNBT16P2ebASH7lPno5Jj/17yN4rSbXKziY16P0TcY0jwa3//E3wP45iE8+eo5/3/HjxOZWl1UpvPDWoOn/+5Lf8/xJbWd/59e6ObOtaz9qZNUX33osRy9cOcTwY6WHhboA/vQeOtMP3/Jv7nn//Jt/+3jrpKI9BqzkY07STfOyZrFV91gXa/3bP2IYgGwwfO1zz6te1qC+CFVxfatibKRFFpr0eJKsVVuAA"
+    },
+    {
+      "placeId": "JP-184",
+      "assetPath": "images/places/JP-184/zamami-furuzamami-beach-visitors.webp",
+      "alt": "Visitantes caminan y descansan en la arena junto al agua clara de Furuzamami Beach, en Zamami.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AJAP_Zamami_Furuzamami_Beach.jpg",
+      "credit": "Grueslayer",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/JAP_Zamami_Furuzamami_Beach.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:JAP Zamami Furuzamami Beach.jpg",
+      "originalWidth": 3264,
+      "originalHeight": 1840,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRgwBAABXRUJQVlA4IAABAAAwBACdASoUAAsAAAAAJQBOmUI4G8AcYDn1W2AYwCOi8ZEt9zorwZxnH/AA/v2ZfFP/lAf/vje+QfnA0s+lXCgqwH/p//sRt3hjtk4Ng0B8qha1zFitSmi3VCWhKk0Q30z/3lYa0vG//33fazir43c1QPzxQUGZ73623EHoVYsabfqndObHF9uKx2/Dgu0MJMjHhr3hupDuMkl2rJoc+NAea0fyZR3om5ygo//31ef/iYR+9ftjf+B8f7a/n/iUHv9jHTATuiL/0b3U7in/PGpHoQ/+TCDzUZlDgZ1gfXLrE62b+r2uGSXDTUvGRryiOSvNLIzjgWYhD7GzvLHC9aAA"
     },
     {
       "placeId": "JP-188",

@@ -64,7 +64,10 @@ class B63PhotographyTests(unittest.TestCase):
             self.assertTrue(row['candidatesRejected'])
 
     def test_acquired_count_and_unchanged_base(self):
-        new = self.images[self.baseline['imageCount']:]
+        # Later photography blocks append to the shared registry too. Isolate
+        # this block's additions by its pinned plan instead of treating every
+        # post-baseline image as a B6.3 acquisition.
+        new = [image for image in self.images if image['placeId'] in self.entries]
         self.assertEqual(len(new), len(self.entries))
         self.assertEqual({r['placeId'] for r in new}, set(self.entries))
         for pid in self.unresolved:

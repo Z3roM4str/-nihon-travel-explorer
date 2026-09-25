@@ -15,6 +15,11 @@ const pilot = JSON.parse(readFileSync(pilotManifestPath, "utf-8")) as {
   places: { placeId: string; hub: string }[];
 };
 const pilotPlaceIds = pilot.places.map((p) => p.placeId);
+const b64PlanPath = path.resolve(here, "../../../data/visual/block22-b6-4-acquisition-plan.json");
+const b64Plan = JSON.parse(readFileSync(b64PlanPath, "utf-8")) as {
+  batches: { entries: { placeId: string }[] }[];
+};
+const b64AcquiredPlaceIds = b64Plan.batches.flatMap((batch) => batch.entries).map((entry) => entry.placeId);
 
 describe("photography pilot manifest (Phase 4A)", () => {
   it("contains exactly 24 places", () => {
@@ -92,10 +97,12 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly 7 WebP-only records and 193 resized+WebP records from the committed metadata", () => {
+  it("preserves the seven WebP-only records and accounts for the B6.4 prepared assets", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(193);
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(
+      193 + b64AcquiredPlaceIds.length,
+    );
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -245,21 +252,27 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
    * replaced rather than deleted.
    *
    * It held for five acquisition phases because no phase ever added a second photograph — not
-   * because one was forbidden. Block 2 adds a second facet to six grade S places whose single
-   * image showed an exterior or an aerial and not the experience. What still needs protecting
-   * is that a gallery is a *decision*, never a side effect: every extra image must be an
-   * intended one, on a place that was chosen for it.
+   * because one was forbidden. Block 2 added a second facet to six grade S places; B6.4 adds
+   * experience photographs only to the Grade-S targets in its acquisition plan. What still
+   * needs protecting is that a gallery is a *decision*, never a side effect.
    */
-  it("gives a second photograph only to the places Block 2 deliberately chose", () => {
+  it("gives a second photograph only to the places selected by Block 2 and B6.4", () => {
     const galleries = Object.entries(placeImages)
       .filter(([, images]) => images.length > 1)
       .map(([placeId]) => placeId)
       .sort();
-    expect(galleries).toEqual(["JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205"]);
+    const deliberatelySelected = new Set([
+      "JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205",
+      ...b64AcquiredPlaceIds,
+    ]);
+    expect(galleries).toEqual([...deliberatelySelected].sort());
   });
 
-  it("keeps every other place at exactly one photograph", () => {
-    const depth = new Set(["JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205"]);
+  it("keeps every place outside those selections at exactly one photograph", () => {
+    const depth = new Set([
+      "JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205",
+      ...b64AcquiredPlaceIds,
+    ]);
     for (const [placeId, images] of Object.entries(placeImages)) {
       if (depth.has(placeId)) continue;
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });

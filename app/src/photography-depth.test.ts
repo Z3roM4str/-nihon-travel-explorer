@@ -38,10 +38,10 @@ describe("galleries exist only where the criterion was met", () => {
   });
 
   it("leaves the great majority of the catalogue at a single photograph", () => {
-    // Depth is not a supply to be scaled; if this ratio ever inverts, the criterion stopped
-    // being applied.
+    // B6.4 intentionally adds experience to more Grade-S places, while depth remains a
+    // selective treatment: at least 85% of covered places still have a single photograph.
     const covered = Object.keys(placeImages).length;
-    expect(galleries.length).toBeLessThan(covered * 0.1);
+    expect(covered - galleries.length).toBeGreaterThan(covered * 0.85);
   });
 });
 
