@@ -87,3 +87,28 @@ La evidencia existente en `docs/astra/evidence/pr135-audit/results.json`, `summa
   - Aviso de fallo de guardado visible en contenedor rojo con bordes definidos.
   - Botón "Reintentar guardar" interactivo, sin desbordamientos (0px overflow) y con objetivo táctil accesible (>= 44px de altura).
   - En la ficha modal, el aviso de recuperación está autocontenido dentro de la ventana modal activa y limpia su anuncio accesible tras reintentar.
+
+---
+
+## 6. Intento de auditoría pendiente del PR #139 (2026-09-23 UTC)
+
+### Identidad y alcance comprobados
+- El checkout local disponible comenzó en `9408e27ec279e6ec80bd27632e656d4f6c265384`, sin diferencias respecto de ese objeto. Ese es el **SHA de código que se intentó auditar**.
+- No había remoto configurado y el proxy devolvió HTTP 403 tanto al consultar GitHub como al descargar Chromium. Por ello no fue posible confirmar desde este entorno el HEAD remoto de los PR #139/#140 ni leer la corrección documental del #140. Sus conclusiones históricas no se consideran integradas.
+- Se produjo un build nuevo y correcto desde el checkout indicado. No se reutilizó `dist` como evidencia de navegador.
+
+### Bloqueo del navegador y resultado real
+- No había Chrome/Chromium, Firefox ni WebKit instalados o almacenados en caché. Playwright requirió Chromium `1234` (Chrome for Testing `151.0.7922.34`).
+- `npx playwright install chromium` intentó la URL oficial de Playwright y recibió HTTP 403 en cada fallback interno. No se cambió Playwright, el lockfile ni el runner, y no se repitió indefinidamente la descarga.
+- El runner se invocó con `ASTRA_EXPECTED_SHA=9408e27ec279e6ec80bd27632e656d4f6c265384` y una ruta nueva y absoluta. La comprobación de SHA pasó; el lanzamiento se detuvo inmediatamente porque faltaba `chromium_headless_shell-1234`.
+- En consecuencia, los nueve recorridos están **NO EJECUTADOS**, no PASS ni FAIL de producto. No se generaron `results.json`, `summary.md`, capturas o trazas nuevas y no fue posible hacer revisión visual.
+
+Los registros del build y del intento están en `docs/astra/evidence/pr139-audit-2026-09-23/`. La evidencia previa de `docs/astra/evidence/pr135-audit/` permanece histórica y no se atribuye a este SHA.
+
+### Separación entre código y documentación
+- **SHA auditado/intento:** `9408e27ec279e6ec80bd27632e656d4f6c265384`.
+- **Resultados automáticos:** auditoría no iniciada por ejecutable ausente; 0/9 recorridos ejecutados.
+- **Revisión visual:** no realizada; no existen capturas nuevas que inspeccionar.
+- **Commit posterior:** el commit que contiene esta sección y los registros se identifica en el historial Git. Desde el SHA intentado hasta ese commit solo cambian documentación y evidencia textual; no cambia producto, dependencias, configuración ni runner.
+
+La auditoría real continúa pendiente hasta disponer de un Chromium compatible. Debe repetirse desde un checkout limpio del HEAD remoto vigente del PR #139 y, si ese SHA difiere, usar su SHA completo real en `ASTRA_EXPECTED_SHA`.
