@@ -101,6 +101,11 @@ def public_domain_basis(categories=None):
     category_names = {item.strip() for item in strip_html(categories).split("|")}
     if "PD-self" in category_names:
         return "PD-self"
+    # Public-domain basis used by Commons for works whose copyright term expired under
+    # Japanese law. Keep this explicit (and limited to the exact Commons category) rather
+    # than treating generic PD-old labels as sufficient evidence.
+    if "PD-Japan" in category_names:
+        return "PD-Japan"
     if category_names & {"PD US Military", "PD US Marines"}:
         return "PD-USGov"
     raise SystemExit(

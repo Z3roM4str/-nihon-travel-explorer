@@ -262,17 +262,17 @@ def validate_metadata(metadata, place_ids, asset_root):
 
         if license_ in SUPPORTED_LICENSES:
             if license_ == "Public Domain":
-                if record.get("licenseBasis") not in {"PD-self", "PD-USGov"}:
+                if record.get("licenseBasis") not in {"PD-self", "PD-USGov", "PD-Japan"}:
                     errors.append(
-                        f"{label}: Public Domain requires the verified licenseBasis 'PD-self' or 'PD-USGov'"
+                        f"{label}: Public Domain requires a verified licenseBasis 'PD-self', 'PD-USGov', or 'PD-Japan'"
                     )
                 if record.get("source") != "Wikimedia Commons" or urlparse(
                     record.get("sourceUrl") or ""
                 ).netloc != "commons.wikimedia.org":
-                    errors.append(f"{label}: PD-self provenance must point to its Wikimedia Commons file page")
+                    errors.append(f"{label}: Public Domain provenance must point to its Wikimedia Commons file page")
                 original_title = record.get("originalTitle")
                 if not isinstance(original_title, str) or not original_title.strip():
-                    errors.append(f"{label}: PD-self provenance requires originalTitle")
+                    errors.append(f"{label}: Public Domain provenance requires originalTitle")
                 if record.get("licenseUrl"):
                     errors.append(f"{label}: Public Domain must not carry an invented licenseUrl")
             else:

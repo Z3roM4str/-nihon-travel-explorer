@@ -218,7 +218,7 @@ class MetadataValidationTests(unittest.TestCase):
                 self.assertIsNotNone(validator.expected_license_path(license_))
 
     def test_public_domain_requires_verified_basis_and_commons_provenance_without_license_url(self):
-        for basis in ("PD-self", "PD-USGov"):
+        for basis in ("PD-self", "PD-USGov", "PD-Japan"):
             with self.subTest(basis=basis):
                 record = valid_record(license="Public Domain", licenseBasis=basis)
                 record.pop("licenseUrl")
@@ -231,7 +231,7 @@ class MetadataValidationTests(unittest.TestCase):
         )
         self.assert_invalid(
             [valid_record(license="Public Domain", licenseBasis="pd-self")],
-            "requires the verified licenseBasis 'PD-self' or 'PD-USGov'",
+            "requires a verified licenseBasis 'PD-self', 'PD-USGov', or 'PD-Japan'",
         )
         self.assert_invalid(
             [valid_record(license="Public Domain", licenseBasis="PD-self", sourceUrl="https://example.org/photo")],
@@ -252,6 +252,7 @@ class MetadataValidationTests(unittest.TestCase):
             "PD-USGov",
         )
         self.assertEqual(preparer.public_domain_basis("PD US Military"), "PD-USGov")
+        self.assertEqual(preparer.public_domain_basis("PD-Japan|PD-old-100-expired"), "PD-Japan")
         for categories in ("", "PD-old", "Public domain|Photography"):
             with self.subTest(categories=categories):
                 with self.assertRaises(SystemExit):

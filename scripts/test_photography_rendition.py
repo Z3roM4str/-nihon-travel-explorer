@@ -57,6 +57,17 @@ class FakeHTTPError(Exception):
 
 
 class RenditionWidthTests(unittest.TestCase):
+    def test_exact_title_selection_acquires_only_one_complement_without_identity(self):
+        rows = [
+            {"placeId": "JP-001", "originalTitle": "File:identity.jpg", "role": "identity"},
+            {"placeId": "JP-001", "originalTitle": "File:experience.jpg", "role": "experience"},
+            {"placeId": "JP-002", "originalTitle": "File:other.jpg", "role": "identity"},
+        ]
+        self.assertEqual(acquire.select_records(rows, original_title="File:experience.jpg"), [rows[1]])
+        self.assertEqual(acquire.select_records(rows, place_id="JP-001"), rows[:2])
+        with self.assertRaises(ValueError):
+            acquire.select_records(rows, place_id="JP-001", original_title="File:experience.jpg")
+
     def test_large_file_asks_for_the_max_dimension(self):
         for width in (1601, 2000, 4032, 6000):
             self.assertEqual(acquire.choose_render_width(width), MAX, width)

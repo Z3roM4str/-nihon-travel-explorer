@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 233,
+  "imageCount": 241,
   "images": [
     {
       "placeId": "JP-001",
@@ -19,6 +19,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRroBAABXRUJQVlA4IK4BAABQCwCdASoUAA8AAAAAJZwCdMoLUDqgT6B1gG8Z/s5+t3tHXID8AP1mswP5L+KuYgZBX+QGqAf0n8gNdn/gOW58h/3j3AP4X/Jf73+Un9I///Kifq6arGFomikBsKY9HLU1LgAA/u+vrdnxWh8QZ/netp7Nr4WswrsZ2veL5X/+jytdpu1DPX9Ztvbpn66+EP2gRsGv3f5hDTaFgeEnToX/uJclCv857HqhlLGje2e/wAUMz6z+hjXDWU4RjRk+iGtj7/mlKyBU/k3ON1P9jsDjfJ2UvnlXs4FLHondDSbOkgXXcs3TpJdls/m9FvE2mymLv/+Xckvf/+e8yl8sf0CHIT0lR7G9P64yWqhbwIcb4vyZLY7YXD9P9UjSPeC8FG/HLK4HI1P+mW/vn6l6v9bIX326k8JR7c7opE8a96gv6k6iQ6Z9G08/FTYZbKapD+F/ah4X7++BeG/+B64BUMMvtsF/7anzEZ+3/6N1xzoSKC6+V204+A///iaShLh5w9+RSd/MmBXyKCD3QpQPT/eFdx4bDCf+J9qD5wk8NPsxnUWZs0nucyrit/wAAAAA"
+    },
+    {
+      "placeId": "JP-001",
+      "assetPath": "images/places/JP-001/shibuya-crossing-top-down.webp",
+      "alt": "Vista elevada y cenital de Shibuya Scramble Crossing con peatones cruzando sus varios brazos y edificios urbanos alrededor.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AScramble_from_above%2C_SHIBUYA_SKY_%2849367160502%29.jpg",
+      "credit": "Sei F from Tokyo, Japan",
+      "license": "CC BY-SA 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Scramble_from_above%2C_SHIBUYA_SKY_%2849367160502%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Scramble from above, SHIBUYA SKY (49367160502).jpg",
+      "originalWidth": 6000,
+      "originalHeight": 4000,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRrgBAABXRUJQVlA4IKwBAAAwCwCdASoUAA0AAAAAJZwCdMoMYPYDeAc+BpgHPKexT+19cA/CXBAO1U9E/EbPX44D+gd7F+3fiBzAH9r1AH+A/ID1gO8l9hf+Kf1r8m/315Rr9cjLQRG6FbiD1FFkYMJ6AAD+//6xC///QR/8Ho757N/nDLkdmO77qgG1HRHpIg/Wznf7Kg/n+Em7eDqJj1UrvpHzYbOHgx3fN4V3zFLA5/O4yOrv7KeZ0ff8n8Ufld/k/n/8skJh4TqoaL7JxzJuVtSR0M0Omf8dQUh6z2kEhzrHAAd9b//EhCzBAuqBQDcfGhVvdyjx2tT50YtBfUJw0KCHfWW4FkOp/zNroab/4uVvfs/AK13An+GR7cXjgPDJPvWQIpyuzDjwvd/9lg5LuOf5FGcqIhBAlAMf/Tdx6Ckh/Y1NrZbG/E6bNbDZibPtOqT9SmQ9vNOXp/S25Tmbij8A96qtvEM7Y/6LCuigHDOE+Qf/3rnQpR4mO3/KAub/PHfpwx9ufqLNPvMuf/YK9loX0tzB8wr8GdzbBoirN1xGFaOos5SgyAMdZNGWeLxbRUuOvWV4AAAAAA=="
     },
     {
       "placeId": "JP-002",
@@ -40,6 +58,24 @@
       "lqip": "data:image/webp;base64,UklGRqwBAABXRUJQVlA4IKABAAAQCgCdASoUAA8AAAAAJYwCdMoMYOEBb4+mAbxXMAdkr7hkleSP/sH4zfkBsAH+A1gD+bf1XygPLj67e4B/EP43/dP6X+0f9u///KAfpudm9dzM/1Bx4XYAAAD+//78eLJQ3g/VqdxcdJkmxwMYxPOhdHP9GIgC35DxYCHYMRfkI6kt/1Fv/EzLPOeHUzuZP9MP/4fNM+qvPhJtS+SlHb4/YObehdn+HIJPjH8f8k//neDD88txarBCPr//JN/3/rygBfrA6XXxr/j6P+jNx2tiFZPQ76b9/WZG6+/j+xaDdPdCY5Dv7ku5SvaPyTx/nayQap/QWTAYWW/fPsWltVq//sOuv3a88JdCik1zWumfi60r8Y4FoEifWF+277yhn9Vsf4wrSTOj//zObd956HH/+hzkvW1Y0mRbsc5CsZSsdX/ztSPW8iHCn/8nQghK93zqZq6x21GcEjyMaMZS+5ebv4BW8ccauX2riP7XdQ/yGP7pek+BBlJV1yPP69RRMCDuUVHruez8tbjcOZ+A0CijufIhJQV5XHEDUSmHZc/gAA=="
     },
     {
+      "placeId": "JP-002",
+      "assetPath": "images/places/JP-002/shibuya-sky-rooftop-experience.webp",
+      "alt": "Visitantes recorren la azotea abierta de SHIBUYA SKY mientras miran la ciudad desde la plataforma panorámica.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AShibuya_Sky_Observation_Deck_%2853415730632%29.jpg",
+      "credit": "Stephen Kelly from San Francisco, CA, USA",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Shibuya_Sky_Observation_Deck_%2853415730632%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Shibuya Sky Observation Deck (53415730632).jpg",
+      "originalWidth": 4032,
+      "originalHeight": 3024,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRqYBAABXRUJQVlA4IJoBAACwCgCdASoUAA8AAAAAJYwCdMoMYPYEGA5QD9VfQA/s18AbyH5VVyl5LP1N/UnLldMGe3/HTIgPxu1Bj8gNcB5pmDd7gH8T/kf9y/Kn+u///wAGb9kQM8TRn5JsUdWAAP7gLziFXcHja86AnlqdeTiaQPvu6RO72FN7twBcVhDKTZ4fAckCkurw83A3avvyBHVg0sLv/it4L2q8pHIP/lj9P3m1C7zX01/Y7Okftm7kMHuLFNovKtvd9PzVNoy84sd/OqE+yYubYs6ZcCUzJiW7+Q//o65ha2hMht2BH8unH2i4yJC0v/H2ya6QimOPK3v/bfngo3e2LPKjESuj+Domj5tgfC/q0+I/mBpmN/PTJ/9Pd/+DX/OX0Ehf7/3B+JTuzpT2lYs/7firJZ0fvXj8kPvU7qj//TBvzayz2XVn/7r9nTVQG9Rb8f/rAfz0tf5qyjXN1kpB4ocVCM2KEn8dmovHrSfQ1feWj/lSmn5zqAn+Gs6+Kp95W/elEGKYkVIl3SSesj4XGmEl8GKVrOJWe83NNYtiexcAAA=="
+    },
+    {
       "placeId": "JP-003",
       "assetPath": "images/places/JP-003/meiji-jingu-torii.webp",
       "alt": "Gran torii de madera al inicio del camino boscoso de acceso al santuario Meiji Jingu.",
@@ -58,6 +94,24 @@
       "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAAAwCwCdASoUAA8AAAAAJZQCdMoRwIsCrV4Ll+s2WAbxjWJeSz9GskE82/FXPc/i5+DuWq/jNqN2o3/rv43e5p/HeRr44/0nuAfxz+Uf5X8u+4B5JJ4zV4Vr3sMSj2/DWb/eAAD+/8X72E8OoAW/m3cmEyxiAQB/tsG6ProZr/+hxTfFpoBTZGeA69y9xD6Q5GsQq9mp+9f5w9Bncbcy7qBAyRmRg9UvVK/WLurz2EgQ9ys/W1VHm0gziyqOWU94+WuZ+1AlapLUkPAX9Xy3t6gvketChjzQ6+iTig9/8hEv/aNcyV+TqWfpGmoQ3ygyYLcPM8iQCkH3fcpJ71UDsLujbQCgrfBmglM+Cd9H6SX5HTLH/P1tL4T3Q6lKymPfqkJafmb/hE698vBO9v5gvPWJhUyZIkX3d6zNq/mKWW4sdKf/b/pjWP9/9dDZ+lx3e792pG30c/y27U03/W4vk7DajHz44E6H3cCxDHOTNdl9BF4J9DA4iZsQWLu3cCV6sumnBiczt/qFhtldYxFZ0SjYnZ5/11WDNVNpG7sqRoxIfiauE/49KM1DY6/4v30OYCGvsO4ubw277BMAAAA="
     },
     {
+      "placeId": "JP-003",
+      "assetPath": "images/places/JP-003/meiji-jingu-prayer-experience.webp",
+      "alt": "Una persona realiza una oración ante el recinto de Meiji Jingū, con la cuerda sagrada y la arquitectura del santuario a la vista.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3APraying_At_Meiji_Jing%C5%AB_%28108788307%29.jpeg",
+      "credit": "Dimitri Ségard",
+      "license": "CC BY 3.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Praying_At_Meiji_Jing%C5%AB_%28108788307%29.jpeg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Praying At Meiji Jingū (108788307).jpeg",
+      "originalWidth": 2048,
+      "originalHeight": 1151,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAAAwCgCdASoUAAsAAAAAJZQCdMoR3Is1hASwB6AHSit9Z8T/Cj8o9JR+On6q5YD+S/irqF+o7/zPn04kv+A9wD+L/xn+rfk3/U//ryp/6cncWRaSMHT/2urtYAAA/v//PMcqunVT2F+m86c8+oEiVv/+VTKJg+kvT7QLZ/5tKOkREf2w+C/9KGupz5A2odYC26XAMVyXYJv0X6J7/vf35f3lDKi/Ioefn0cm6goCf/sms9mffInzcWP/xHX9/F4OEYDncAM/tnurFn/Oz6ieN/xC77NY5+XrlXC2Ub//WXUn/htH//zOqNb4ubs9Eom4+NWNlgk2WeAeZIAx19onS4Aj/CWrVC/mzJTr+Kw/uP+f9IBbg+lMyJ1/W77H08n/ep34F2nrMVX+3byUj9jAfRK0sHn3VVJu8T14/H/Bv7EEd5nN/8bbO+1P/x8wHL2cT/+ZhU8J0kgdJFywTkHva0+j9czS+4N0S6OYkZNCJI+wLuXxbHoENRYRODPcTFTOwAAAAA=="
+    },
+    {
       "placeId": "JP-010",
       "assetPath": "images/places/JP-010/shinjuku-gyoen-footbridge.webp",
       "alt": "Puente de madera cruzando un estanque con una linterna de piedra, rodeado de árboles verdes en el jardín Shinjuku Gyoen.",
@@ -74,6 +128,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRq4BAABXRUJQVlA4IKIBAABQCwCdASoUAA0AAAAAJZgCdMoRwN6B+Fb7K/wA3jP/AZQBzzPsSftF+wHs5Uaj8L/2OywTzz8O88t8s2Wjd4D7b/YBzEv+V9g7+Lf2z8p/7R//+Uz/UA8t3vvVrurczWewPQAA/eoznRvw5vrtekDy9ZA31hNxfR6cu9rhWazRplelm69CP/5OfF8ZvUy9kAlKHwuraMa1phy0NAPBR5A0DBXSu+8x7t+F1UlvZ8NU3kRltny+/MH7J0TMlNzXJMOTq2/P47tV/9xWeqJ3P7/UczuYI/87ctuID6Ck/e7XKeZgTYS13IKuUyMpeB8Qd8Qdd277JXL/K4zsvvnrhP/9tvu236W5HmVvmPJaS+rDVPeSkywDWURFKXrkl/f/+0w5L//ysbOsZyEnXd//O2qfDPvDev+/6fJfj/p7HbU9/XzKOCdi4qrPQf9efP8hXD55UJuWv/VFPi3MaGxE+pqxGQdmv1sm+J0LxdP/9HPjVk8mhsBXrMASvVG2SCrysv7YxE79opLv/kz9jkz1kv9AX8yQn/PwYn2vfp+5+1ryAAAA"
+    },
+    {
+      "placeId": "JP-010",
+      "assetPath": "images/places/JP-010/shinjuku-gyoen-plum-blossoms.webp",
+      "alt": "Flores de ciruelo abiertas entre ramas oscuras en Shinjuku Gyoen, una escena de floración de marzo dentro del jardín.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3APlum_tree_in_bloom_%40_Shinjuku_Gyoen_National_Garden_%2813188396645%29.jpg",
+      "credit": "Guilhem Vellut from Annecy, France",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/9/90/Plum_tree_in_bloom_%40_Shinjuku_Gyoen_National_Garden_%2813188396645%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Plum tree in bloom @ Shinjuku Gyoen National Garden (13188396645).jpg",
+      "originalWidth": 2976,
+      "originalHeight": 3968,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "seasonal",
+      "lqip": "data:image/webp;base64,UklGRuQBAABXRUJQVlA4INgBAABQCgCdASoUABsAPlEejkSjoaEYDAQAOAUEoAnTMy7SiLfqr07F3e+vRL0cfDMGf13HQf1W2BTJ/Gn9C/rB8AH6e/6IKWcNn6/c5RFIJ6raiVZpFfcWd/jwTgCgAP76wnIsDaKmf5h9Jsvl/kcPGEF9m+6fzwQfVEnkbf2DG9NtGm+GRRQgRSk6u45hFtA+uCl81PgcEs3UStvVY+4lX6YisD1kGf3Cx/eclQPj7QY2/0BTuGEiYuiIxzNfuz8RwnpQYGlpLb8Na0MhWtVJzEH82DwmTlVbrNtTNj5gnphVRufpFu6wohBSGunFwqD/dVX/1SSoKNVMiv39X/UP+HMmZFyi8Gk5RkvA5k9n9z7hL7P6XqmnnDP7/5+IJNa1dkwtPhe+w4/sfqPGzMcmuFglraWeaRwR9+mAjoRG+SWIZO/MwE3pX+zKLVDdP3Jop+Xuc8wJZjmbYZWiiZdOtE3+XqluoKgH4P+De06TXxAf9XVDNrbWg/n2svmblfzifSOdXevyb6coJDtYLNVut3FQ0j+H7mAKb8UACORV60DFioBk5sKRQ8+TinV/2v8taRi/TNDI3U//MZ87/8yfWCnmo+UJ9WhD9E5JyMkD3DUOqphxMrDIAAAA"
     },
     {
       "placeId": "JP-021",
@@ -1752,6 +1824,24 @@
       "lqip": "data:image/webp;base64,UklGRqABAABXRUJQVlA4IJQBAAAwCACdASoUAB4APlEgjEQjoiEYBAA4BQS1AE6ZQjzL/eYBQgNtRz7umgcpmQVH7JiucuOapTdqt0Kv3ZR0GTBnuOeNpXxNriEGgAD+9BcgF5Gk0P/Y4HGap+EuXrx6YK7vU1UhSfliAlnTbi9n++fmb+qQFw+j/pX9ce3+y0kKPPFnIH/AHz13Qj1jCz1PQ5z7dxWy3g5+EPxobaTEJFv6bHK8Nkmv6z6ex+tgLPOs/1YqSenWJoj2N4kO6x9w3SuftzYqfkXKgYZWj9p+kxnP9lUL26rbbBdnK/4acH74aAof2tcuFX9mYYJ7USy6eNuKVYSs9CmEoPTgxRkw7O5pLZ+2D7yk/z4DrKbHoe7xLRyx/XYKS7m7vEJrFrUSknH4AmqusXGCYoG3dKHcMOLepAoJ1f0M1tN9PY8Fe99AdYf4TsxI0QeZbfFyS75Ttb08du3vwuNgCC/v9ffX2yYHTC2Gzm3Jv4578C/wkxm4n60LcY04d1lsqr7gnpNqut3dU8nh7IcsItEqocp14QGmVAAAAA=="
     },
     {
+      "placeId": "JP-016",
+      "assetPath": "images/places/JP-016/sensoji-incense-ritual-visitors.webp",
+      "alt": "Multitud de visitantes se reúne alrededor del humo del quemador de incienso de Sensō-ji bajo los aleros del templo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AViews_in_April_2019_around_the_Buddhist_temple_Sens%C5%8D-ji_in_Asakusa%2C_Tokyo%2C_Japan_18.jpg",
+      "credit": "Levi Clancy",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/Views_in_April_2019_around_the_Buddhist_temple_Sens%C5%8D-ji_in_Asakusa%2C_Tokyo%2C_Japan_18.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Views in April 2019 around the Buddhist temple Sensō-ji in Asakusa, Tokyo, Japan 18.jpg",
+      "originalWidth": 6240,
+      "originalHeight": 4160,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRpIBAABXRUJQVlA4IIYBAABwCgCdASoUAA0AAAAAJZQCdH8IIBLAG8gViX6ZrMD+ifhv+UeoA/qv4m5CN+IHk4/lf4zcrN+Feu8/p/nW4jH9m9wn+M/w/+5flP/a+IAPKWMXFxEMGora4ZpBAAD++4M0PytEXO1K2vDBQ0Lp06j5obfA7a/ve0+McYoA18f7D/yGOk7fWeaVnleiTKP0mf8StSvjcuC9pHduWSQF69s8J7nHEbJxIH/X89ZZhYhCv+cU/cID5+C//wfcp1nbbHDjn29l+cZ8f+cNwd0ka8P9YAxYHqKZq59sy8W6SGe+wC+M+DM6QLDWlNPbsnGXs9HX9wRIFPAa35eksvFR4mvlG+u9oeK8uuCvAuP60GL6ONZf8BeIOli1/9IN/WhVz/+4XvX5nysmP7c6bOzllszs4f0T8nQErnOfsozNVA1JWNOGV7os3ISUXwyqHKnbfKAeBRqD/SfHt4x+dnsgXMwm/8uRz1XcelHZ7qNJoD2Jq+a+oIfWadksu9eDafZ8srYO9vJK4AA="
+    },
+    {
       "placeId": "JP-127",
       "assetPath": "images/places/JP-127/sakai-cutlery-heritage.webp",
       "alt": "Vitrinas con cuchillos y herramientas tradicionales en el museo de cuchillería de Sakai.",
@@ -2074,6 +2164,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRsoBAABXRUJQVlA4IL4BAAAwDACdASoUAA0AAAAAJZQCdMoJFm0gH6b/6P+k8GB1AG8m+TTRqPwv/XLLBPVfyA/IDSJ/hR+0f9dzAH9c/Dn8bvUCkAP7X+AGyAf1XhcvYR/jX9X/Hf+udqB7AH6SnTLfAs+3Qz1O1hQoAP7//7kOi0b7C2N9MgF57qUUwLp4r21UICMzv//moLSMfArT2hwN1a7R8/hmF7gPto7Ybx6wYbbkP1I9P/92+c/biv/W8xFiX/a8gZAPAJ4hnXWL66/SVrFstBkJWz40NjVZvAWv/1uKb9x/kyStRAPnVB0NN///ydW0KzwIdVjge5BdcVFkV/OiPBuUuIkfTkiDeTPonKfGjWOw1mFX0hfrPzdhsN99wf1UUhIx+ppMAJFP8tb/tA+9pm6hUMlim5qcrCkNC3A3HctU5hQo5Q34C4/wzhun6//pl9V3lf75UUzlNHV6f/xoAFdv9Q1mF+glzFLdX2z64OMMa+iGKzy5Hh+odkwlRktjy6D/9kwD5M2d6Y/thBoJFgkRaJq/f7GDpZo/VJIryvz76OUt0CYd06tX9gvUagY211HzLez/9yQQOEhbUtY/yhTyyCkEhZAAAA=="
+    },
+    {
+      "placeId": "JP-013",
+      "assetPath": "images/places/JP-013/golden-gai-narrow-lane.webp",
+      "alt": "Pasaje estrecho de Golden Gai al anochecer, con pequeñas barras, letreros iluminados y fachadas muy próximas.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AGolden_Gai_%281%29.jpg",
+      "credit": "Gzzz",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/5/55/Golden_Gai_%281%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Golden Gai (1).jpg",
+      "originalWidth": 3712,
+      "originalHeight": 5568,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAAAQCQCdASoUAB4APm0ylUekIqIhKAgAgA2JZACdMzLgvaLbG/wGig58m7vPZrZ2bOgeePnt+iwrwzs/g3vaPv6O413jWBSBhtGehZOLBbeWBYAA/vioRWdBjnsd8+T67As87z8dHuVhxKZS7sFk4jxMRLYzpMQ+p10PxQZuq3+zjZBqP8b/l0fej03Wkw+xOdk7rPe/PmLu6r0yGb4WnTgS3wgOpAZrjfr0EHdvquuiUsIwk48TKky9O/fvt4AtrjsEPCEFfwr7CLNTU2KRp/I/5AtKnLLSqoH/YOP7/Q/JeXOQ/BEn6IE/oMvrtj2BFwWrf1Z4JkbknKZilWAGx3uFWMaX9XJZC2PHAM2PQzy6NNcmcvqcEufrrlxOPZuBp3fxqJp573UC27av7hLfpIQWasOQpG5eHWeiq/dZp5D72NfzlCs70mMIm/NyQpMVBIHyEguX0SjQMVM9Il6M9S8VSindfjkCgTAJyhvozhDxn7iDpjOS3inhb2+QFi02UWzghxNF7dp3vM+XLVGSUmhN6HPowFR2sbf3I/375KpX5Ubf2i3g355ZfOyw3WBc5h7WAAAA"
     },
     {
       "placeId": "JP-073",
@@ -2778,6 +2886,24 @@
       "lqip": "data:image/webp;base64,UklGRswBAABXRUJQVlA4IMABAACQCwCdASoUAA8AAAAAJZQCdMoR3IsCrgYYDHM945lneOB/R/x2/G7Stfi7kj/5h+J/45bAd/ZPxG1oD0Fv47y4/GP9p9wD+M/xX+3/kN+//0zdSB+qp3UOdE9SdQFpOgG3MpaXwAD+//+NYh+7X2Mw/FV77NQ0Ir3jYkRCd69xLP/Zvx1/HuhpzSfHK7hje/I0+OxeCFFDNmfqPqRh//o6L/+ceRWMA/TpORoSVgtmZ0jT0ngflnCn+k0Ge7O3Mq6N9xxi8q+FZfy2LZmk333tRt2I/6l7TUUsclI42FiAPzM/joT5Ioa+ZJGMsq41yKtwNEsAUQ3ZIJvg/5otnuaKSCMBNd6+n+9eEMBmdtUBL5/AsrI+gpCAVvfUqEx8YQBvubA1dgoyH0qD7ZJW7+3v9A4rk77ssodznEtar5oNT5/k49XQGovf1+/fRlFsBY4/un/P9dfv8+IoZUynsdW/1Luv/gzFhVLTe83PRYqUacX9+U4eW2+bfjV6uPDOkQMdeGHoo9drrtHO7l9wLi6EiQAUxVtNcc+peEAIzcgz3J0tx91qHlL5mkFy9LF/iXmzFtexNH1SWc1LSIj7fwAA"
     },
     {
+      "placeId": "JP-007",
+      "assetPath": "images/places/JP-007/ota-museum-ukiyo-e-sumo-stable.webp",
+      "alt": "Estampa ukiyo-e de 1869 con varios luchadores de sumo y la escena interior de un establo de entrenamiento, perteneciente a la colección del Ōta Memorial Museum of Art.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AUtagawa_kuniteru_II_hidenoyama_stable.png",
+      "credit": "Utagawa Kuniteru II",
+      "license": "Public Domain",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/Utagawa_kuniteru_II_hidenoyama_stable.png",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Utagawa kuniteru II hidenoyama stable.png",
+      "originalWidth": 1563,
+      "originalHeight": 761,
+      "processing": "resized-and-webp-reencoded",
+      "licenseBasis": "PD-Japan",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRrQBAABXRUJQVlA4IKgBAADwCwCdASoUAAoAAAAAJQBOmUI4G8g3gLsA0yvgAP0A6xr9Zv2O9jugJf2Ay1TyL8T89R+On4q5ar+QGoX/g7rgP41+OX9A6V/qr7gH8K/i39u/Jf+jf/TlAP2APKO1/+T2zQNh4nJqtAD++bvR+ypgmIwn9T+I7Dyd9ptK9//XxaUacbzAQBufLGyXg/NIKPr4cbuiddagCJ9KWV1hQL99x/9MVsovvYa//+eKKZ8H9cgJAHgWjVpnnBVL7hTa0KXK3GegVU+jkKQ9jy8YDvJ8ww3oL6hqdnh/m65qf/7YMlV+QrPtyR/kPTnGv+qdQHaJxtf787w+3snZajTZ0EH6upS/zjAXHGEdFJVD73/9aZ9+FTT3RE/f/d/6BBr625hFv//zPWi9/9bP/nMdWnH4W91sCzech2P/iK8/iieWurreHw1P+hnhOQ3ZTRedO+FifP5Uh/k4v/9U5E5fZ2JGfIl+CJ2kJi3v1YOobnLGfUxOP/Drt2CLxC5904/S/5DAPcM6HjQfjf8nFS+5+75H0j/4c8pilAUzTwIU+51qf2b+jjdFwAAA"
+    },
+    {
       "placeId": "JP-063",
       "assetPath": "images/places/JP-063/philosophers-path.webp",
       "alt": "Sendero del Camino del Filósofo junto al canal arbolado, en Higashiyama, Kioto.",
@@ -3046,6 +3172,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRrQBAABXRUJQVlA4IKgBAAAwCACdASoUAB4APlEijESjoiEYDAQAOAUEsQBOmUI660GcgOAW8rpoBHghmPkP+jPYGC4TqOuuWuEjMwQVUs2d0X9y6ZYEyJUrgAD++DbXbGsA/KFXgcrbHbyK9LG5uuebC/m6lRXsZGbzIGNAiO80HF04JgmJ4GY3VCIj6EPeKqKJr9LojPGV/+/N9NOT5ScEmEE9/jOA2ZEMKIqbnn7QVIqq/4zCMv/eIC70msroBzf5CF52jSyaAS6+571hO4Jq2/Gndmx8IzFvevCOhxnKIHrjz78/ipM+N2hur9RURp09ZjQ1g5K+le1+FB7D9TcEu+sM6Vmf5FhJrfOi5Mk7tPNAq5s7ocz/vw606ACM/Qm0aW8RpeoJzxets455kZ9dq3LLjQasMvYUC421KieByUrx1LO8nJbJSiwwGxBbnBkXI474zToLnDYrzflBvnRCQAW7y9rGAkENeelqfOdn0BAKhTia0Tann/0LSBeYb4aUM+m6HSsfjRv0875rONbFimTfTAW/dAJcqO5zjFH+6hUscFCsjnHx/YqZgmZfiBzA9VpqRAAA"
+    },
+    {
+      "placeId": "JP-017",
+      "assetPath": "images/places/JP-017/asakusa-center-rooftop-view.webp",
+      "alt": "Panorama de los tejados de Asakusa y la pagoda de Sensō-ji visto desde el mirador del centro turístico diseñado por Kengo Kuma.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AViewpoint_%40_Asakusa_Culture_Tourist_Information_Center_%2814231130695%29.jpg",
+      "credit": "Guilhem Vellut from Annecy, France",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Viewpoint_%40_Asakusa_Culture_Tourist_Information_Center_%2814231130695%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Viewpoint @ Asakusa Culture Tourist Information Center (14231130695).jpg",
+      "originalWidth": 2976,
+      "originalHeight": 3968,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRq4BAABXRUJQVlA4IKIBAABwCACdASoUABsAPjEWiUMiISEUBVQgAwSygE6Zcdv8LO2PY4V747MyU4C7wc8zzD7AH6p/6gntBaPM15LaUtJpqYDcnZcZxdsa8qIAAP7/gxw37mjeEnXHizow+SiDwjAeMC2f/Iy55kK3qMKgCevrvgfR/q5WHV1FSEL2+L09T1+CiP/NLRNJusjvzZ5UsY0mmzqqoEiYlU5gXGbiW6nTG5zpzT+P/qtnb+UCIHMLUhvB8Yyj4Ci6uxoP9QNpsiUSvsiEBUZLAv2MyIbEYbuakOen/BHY5/fOYzKpJzEHJTs/ciTosxiwZ/fQ3HXEL+BwdS+VEZ9BUisXWv0uGYiUZj/pfr5xyKc06Jd//LeyYq8fSlOrHRQh/NZbbZ5n2/6JLs8wnNew370z2V5bPz8lMUMn+kkVshnrM2KkHzr0+xsdQ+JH3od19hn+Wafegwxzwc/4CS8fhgQBpJGP5JjFsfgqWAejefAlVEl8hnDEWvwW/1ZQdi2pJPtbfuhDu8PvNsS25U5U8v7qf+v5EY7ZbKdkfN6jbcH1orNUNiPhQAAA"
     },
     {
       "placeId": "JP-019",
