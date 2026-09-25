@@ -14,6 +14,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "data/visual/block22-b6-5-baseline.json"
 PLAN = ROOT / "data/visual/block22-b6-5-acquisition-plan.json"
+B66_PLAN = ROOT / "data/visual/block22-b6-6-acquisition-plan.json"
 PLACES = ROOT / "data/places.json"
 METADATA = ROOT / "data/visual/photography-metadata.json"
 APP_METADATA = ROOT / "app/src/data/photography-metadata.json"
@@ -219,8 +220,15 @@ def build_tests(through_batch):
                         self.assertEqual(image.width, min(derivative_width, width), record["placeId"])
 
         def test_global_counts_and_a_b_coverage_are_preserved(self):
-            self.assertEqual(len(images), 215 + len(expected_entries))
-            self.assertEqual(len({row["placeId"] for row in images}), 194)
+            later_plan = load(B66_PLAN)
+            later_titles = {entry["title"] for entry in later_plan["entries"]}
+            all_current_titles = {entry["title"] for batch in plan["batches"] for entry in batch.get("entries", [])}
+            pre_b66_records = [row for row in images if row.get("originalTitle") not in later_titles]
+            b65_acquired_count = sum(len(batch.get("entries", [])) for batch in plan["batches"])
+            self.assertEqual(len(images), baseline["imageCount"] + b65_acquired_count + len(later_plan["entries"]))
+            base_place_ids = {row["placeId"] for row in pre_b66_records if row.get("originalTitle") not in all_current_titles}
+            self.assertEqual(len(base_place_ids), baseline["coveredPlaceCount"])
+            self.assertEqual(len({row["placeId"] for row in images}), len(base_place_ids | {entry["placeId"] for entry in later_plan["entries"]}))
             grade = {item["id"]: item["grade"] for item in places}
             by_grade = {value: {pid for pid, current in grade.items() if current == value} for value in ("S", "A", "B")}
             covered = {row["placeId"] for row in images}

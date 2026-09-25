@@ -1,19 +1,19 @@
-# Handoff reanudable — B21 + B6.1 + B6.2 + B6.3 + B6.4 + B6.5
+# Handoff reanudable — B21 + B6.1–B6.6
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
-## Estado actual — B6.5 integrado
+## Estado actual — B6.6 pendiente de integración
 
 **Última actualización:** 2026-09-24. La autoridad normativa sigue siendo `docs/design/06_ESTRATEGIA_FOTOGRAFICA.md`.
 
-- B21 cerrado; B6.1, B6.2, B6.3, B6.4 y B6.5 integrados y cerrados. B6.5 se integró mediante PR #147.
-- Base canónica de B6.5: `3ebe7aee70d8046448f10749984d5829b7a4f2cc`. SHA final certificado de la rama B6.5: `4ad32973744263043def217b4a65934a9be925ce`; merge commit `241d0a88fed2f07b17854a04e7b2395fb5cb2950`.
-- Gate derivado: 32/32 S con identity; 17/32 S con experience; 28 objetivos reales B6.5. Resultado: 10 adquiridos y 18 unresolved. Coverage complementaria detail/context/seasonal: 4/32 → 14/32.
-- Registro: **225 imágenes / 194 lugares con fotografía**. Identity S permanece **32/32**; experience S permanece **17/32 + 15 excepciones** (sin resolverlas como experience). Grado A permanece **139/147 + 8 excepciones**; Grado B **23/25 + 2 excepciones**.
-- Validator, tests de fotografía/rendition/Block22/B6.2/B6.3/B6.4/B6.5 y derivados `--check` PASS. Frontend: build PASS; lint exit 0 con el warning heredado `PlaceMap.tsx:14`; Vitest 100 archivos, 3328/3328. Browser audit B6.5: 416/416, 0 fallos en móvil y escritorio.
-- Presupuesto completo identity 800w: Tokio 3.421.914 B; Kioto 3.408.406 B; Osaka 3.170.658 B; Okinawa 2.866.922 B; Sapporo 166.986 B; Nagoya 69.552 B; Fukuoka 69.284 B. Las complementarias no se cargan en listas. `app/src/data/place-images.ts` conserva SHA-256 `0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb`.
-- `main` sigue intacto en `8eb725eeb836ca121180f8dd8b0dc49c65efae25`; sin Astra ni rediseño.
-- **Siguiente bloque:** identity para los lugares Grado C/D que siguen sin fotografía. No iniciado.
+- B21 cerrado; B6.1–B6.5 integrados y cerrados; B6.5 se integró mediante PR #147. B6.6 está implementado y certificado, pendiente de integración.
+- **Rama B6.6:** `codex/block-22-b6-6-grade-cd-identity-photography`. **SHA base:** `f74281a75cefe5f45469e1db84e5d4350110dba5`. El SHA final certificado de la rama se registra en el cierre de esta tarea.
+- Gate C/D derivado desde los datos: C **6 total, 0/6 → 5/6**; D **4 total, 0/4 → 3/4**. Targets reales: 10; adquiridas 8 identities; unresolved 2 (JP-104, JP-178, copyright del sujeto).
+- Registro B6.6: **233 imágenes / 202 lugares con fotografía**. C 5/6 y D 3/4. S permanece identity **32/32**, experience **17/32**, complementary **14/32**; A **139/147 + 8 excepciones**; B **23/25 + 2 excepciones**.
+- Gates B6.2–B6.6, validator, pruebas de fotografía/rendition/Block22 y derivados `--check` PASS. Build PASS; lint exit 0 con el warning heredado `PlaceMap.tsx:14`; Vitest 100 archivos, 3329/3329; browser audit B6.6 PASS 316/316 en móvil y escritorio.
+- Presupuesto identity 800w: Tokio 3.499.770 B; Kioto 3.499.450 B; Osaka 3.356.478 B; Okinawa 2.903.352 B; Sapporo 166.986 B; Nagoya 69.552 B; Fukuoka 69.284 B. Todas las listas quedan bajo 3.500.000 B. `app/src/data/place-images.ts` conserva SHA-256 `0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb`.
+- `main` sigue intacto en `8eb725eeb836ca121180f8dd8b0dc49c65efae25`; Astra no se usó y no hubo rediseño de UI.
+- **Siguiente bloque permitido sólo después de integrar B6.6:** segunda imagen para lugares Grado A de “Popular / turístico” y “Hidden Gem real”. No iniciado.
 
 ## Snapshot de cierre B6.4 — base de B6.5
 
@@ -43,15 +43,16 @@
 | B6.3 | **INTEGRADO Y CERRADO CON 2 EXCEPCIONES DOCUMENTADAS** — 6/8 objetivos adquiridos; JP-041 y JP-171 conservan PhotoPlaceholder. Integrado vía PR #145. Informe: `docs/BLOCK_22_B6_3_REPORT.md` |
 | B6.4 | **INTEGRADO Y CERRADO CON 15 EXCEPCIONES DOCUMENTADAS** — 15 nuevas `experience`; cobertura S experience 17/32. Integrado vía PR #146. Informe: `docs/BLOCK_22_B6_4_REPORT.md` |
 | B6.5 | **INTEGRADO Y CERRADO CON 18 EXCEPCIONES DOCUMENTADAS** — 10 nuevas complementarias (`detail/context/seasonal`); cobertura complementaria S 14/32. Integrado vía PR #147. Informe: `docs/BLOCK_22_B6_5_REPORT.md` |
+| B6.6 | **IMPLEMENTADO Y CERTIFICADO; PENDIENTE DE INTEGRACIÓN** — 8 identities nuevas para C/D; JP-104 y JP-178 unresolved. Rama `codex/block-22-b6-6-grade-cd-identity-photography`; base `f74281a75cefe5f45469e1db84e5d4350110dba5`. Informe: `docs/BLOCK_22_B6_6_REPORT.md` |
 | Rama B6.3 | `codex/block-22-b6-3-grade-b-photography` @ `8d1752f945ff4b7594a490a6df4ab23324f597a5` (conservada) |
 | Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` @ `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` (conservada) |
 | SHA de cierre B6.2-R | `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` |
 | Cobertura Grado A | **139/147 con fotografía + 8 excepciones documentadas**: JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202 |
-| Registro | **225 imágenes / 194 lugares**; Grado S identity **32/32**; Grado S experience **17/32**; cobertura complementaria S **14/32**; Grado B **23/25 + 2 excepciones** |
+| Registro | **233 imágenes / 202 lugares**; C **5/6**, D **3/4**; Grado S identity **32/32**; Grado S experience **17/32**; cobertura complementaria S **14/32**; Grado A **139/147 + 8 excepciones**; Grado B **23/25 + 2 excepciones** |
 | Grado S | **32/32** |
 | Rama canónica | `codex/block-21-b5-explore-home-map` @ `241d0a88fed2f07b17854a04e7b2395fb5cb2950` — PR #147 merged |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente paso | **Identity para los lugares Grado C/D que siguen sin fotografía. NO iniciado.** |
+| Siguiente paso | **Después de integrar B6.6: segunda imagen para lugares Grado A de “Popular / turístico” y “Hidden Gem real”. NO iniciado.** |
 
 ## Integración B6.5 en la rama canónica
 
