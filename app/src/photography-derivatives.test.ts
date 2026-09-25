@@ -74,7 +74,7 @@ describe("every registered photograph ships its card derivative", () => {
         missing.push(record.assetPath);
       }
       expect(record.lqip, record.placeId).toMatch(/^data:image\/webp;base64,/);
-      expect(["identity", "context", "detail", "experience"], record.placeId).toContain(record.role);
+      expect(["identity", "context", "detail", "experience", "seasonal"], record.placeId).toContain(record.role);
     }
     expect(missing).toEqual([]);
   });

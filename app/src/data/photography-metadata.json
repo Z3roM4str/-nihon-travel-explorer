@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 215,
+  "imageCount": 225,
   "images": [
     {
       "placeId": "JP-001",
@@ -182,6 +182,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAAAQDACdASoUAA0AAAAAJZACdMoRwN6B+KtSBuANEB+i2SAc977GvlFUoJ6B+HOSi+ifi5nlPxryC/7APMC/ALiJ/jPtm9kDwIP8B7gv8V/kP9k/Iz99fpA6hr9jjxlNWNIfA3Pb1w3bjCAA/v/+f6G/4LnS3RUo6E2u09zzQQLGoKXzqA97eW3Z0ucbZa/Uqn+n//2jSuyn6rr/JkDaLeyPL3vhUB/SkP6/MJyvvDvdhkScg4HZk34etArRn+1Rl+H/97OtvUfvLbQxAa25QH/yTFnwPqpyRo972KX//RRpep6a4Xao9aJVHKnmestSLaSfAl03ekEetL6/xHoueyyhQIg/E4fxDdZ7e2kMiO6XvDuQvivwGhvCYq0XWDqmLYr/8a1ftbjmmvKZ/qP/i0w40Xn02uGZyxy2tR34uXp/2Y+wCqN+e0Dm7/+GlWNhBNqnfGKH3Y+zp6b6L39Rt7i/Ik/b3nJntsJ/57s+kKJkXwMcEtYstCP6SUpXb+H/NwsUkPu1CWq6dH25kXXAD+XGqxzAfDAw3rYf/z2iC/HtGP9qTgKB9qTWQjeb2IkRO16u3AAA"
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-sakura-light-up.webp",
+      "alt": "Kiyomizu-dera illuminated at night with cherry blossoms in bloom",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKiyomizu-dera_sakura_light-up_%2851472868886%29.jpg",
+      "credit": "Raita Futo from Tokyo, Japan",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Kiyomizu-dera_sakura_light-up_%2851472868886%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kiyomizu-dera sakura light-up (51472868886).jpg",
+      "originalWidth": 5898,
+      "originalHeight": 3932,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "seasonal",
+      "lqip": "data:image/webp;base64,UklGRrYBAABXRUJQVlA4IKoBAAAQCwCdASoUAA0AAAAAJbACdMoRwN5L+AH5AU4DYAP6Btmf6q74B1gHoAfqr6XXsIftH6Jf/0ugHOCoP/qGZA/DnIVdFJ1Ff9m4k31I/6x+Un9fN2R/jHztpKTK4W1odxwAAP7//0WvkiLKUnE93gaHOHrMtLSmLCdzDQYu7/VtqFwvIZyAUD62W4Tv+0ByITE/K8i66l6GJ+/+j67mP8nLSEs+cCdLX1CP/d8bn/iC3prpj+0V7v/sDzXjLOf88cyY3/Q+eDpbWh3Vxu7iIYM9f98fR+s/KeV/1m0cRWSt/91+ov5nuGvz0v//xUSf40ngn/+gHgfAv+/24Hm6Wt3R8biVDjSH/+t2Tjr6s1G8ckyZhdP9AOh5wPVDcxV5smZ8WD8D7wksrND/9oRIQPmceyvnac9rufy5z/ugShh4yUGyYCkaQj7B9RhnSyY46g4Bttv2y1uf8VfRT15cW3vzAyBPs9HmcJN2Pq0f4Tx9mLhd01zQdY3qW+oDZQ2pVyr+UZpqNhzqva5MvxS3azB+UkUaF9gi6W5QJDamqbvA823/vW/Yxj8gAAA="
     },
     {
       "placeId": "JP-057",
@@ -473,6 +491,24 @@
       "lqip": "data:image/webp;base64,UklGRtIBAABXRUJQVlA4IMYBAABQDACdASoUAA8AAAAAJYwCdMoR3N6TTAXYC7APQA8sf2NqdA7AbtP6jZIJ6j+HeiA/oH475CJ+On5Aa5vqQPsA9zT+q+wD2ifGf91/jHwAfx/+Z/3P8iP305Sv9TTuGztqO1ccODykzjZ7KAD+//+V5dSIxdZvBXtimfv6hFT+srmtHdJLpt2uO1n6qf57/tMC1vkge7b59dT4X7IV3MsdghMYE1k2MLp2I8OFN3z/UT5ahSJyXTxKlPj0ZJn+jzURtqlvDEG7u9iHx01y58N4oN9xuoB3zwS0D5ciRnnQ8mcLU1ErxioGoOyDQV85iODUUpksRGeXBX7ZO9fKt4gBZv+C+h0OKmte7PMqUyzbZaVmgsTNeXW1veGjojRbcODLmKrq3KLoYqn+hQwhuLP13LwPlcHnT9gZwOSWb653tnI8lMr5L/H/H/PX/hr/m7O12P+khK2N37tcxF/txO/D2GgknqdPMQlu3pxpo+HOy/zzEqr8jjxFm1Vdia237//gO0JNyj62VSO+7MC8OJW66/8JK7CwpGYz6rH6H8prn3AQr4f6H1P/bxc+j/9ZOp4Ie4JEeXV9m0w5jV9snSjBU1edsAAA"
     },
     {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-kudaka-island-view.webp",
+      "alt": "Kudaka Island seen from the Ujoguchi entrance of Sefa-Utaki",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKudakajima_Island_from_Ujoguchi_of_Sefa-Utaki.JPG",
+      "credit": "そらみみ (Soramimi)",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/4/43/Kudakajima_Island_from_Ujoguchi_of_Sefa-Utaki.JPG",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kudakajima Island from Ujoguchi of Sefa-Utaki.JPG",
+      "originalWidth": 3264,
+      "originalHeight": 2448,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAADQCACdASoUAA8AAAAAJYwCdMoRwN5BvARgFWA/sGEjWNV+wHwl1gD6ZumP9HckE9JzEuM7R9PoB/pN/qPyn40D9VTWveeSOMEwSAC1wtQAAP7/pw/NP/W3/EEV8n/+bZs70hXrhwfEySYUWRZK7KestA9/5dgotZ9/2E8RtUmPwZXfv/8Js2qM/3trBSpRT74aVI+l42PcdV+MTyeJBQKEFdFrgynnfxbbRrr6dC//T1MGX8at/0/X/9/t81lsupIfe3dp4OO9NwitYUQaz/JxNz/yu5/+0FG21pqq/7z/dedhidnCW/7XOu48qIvLJmriEdi+IcLuP4a04gsnsPkytRkn/8duP7Sv+n8s4ZgeSjRAJuxX1/zKNGuE4IfPy0+a7HCjH/5jLTyQcO9u9/HqdioCNG3X3XzYXH9Ram8GEXtraJjIlLlqxFVGACrcLHdFpnBDTQOqbUL3plQg5u7AGYNexacOzLygfKzRny5xKJAfsm1KJXRru9RxMAbOqeUAAA=="
+    },
+    {
       "placeId": "JP-196",
       "assetPath": "images/places/JP-196/taketomi-island-house.webp",
       "alt": "Casa tradicional de tejado rojo y muro de piedra coralina en una calle de la isla de Taketomi.",
@@ -507,6 +543,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAADQCgCdASoUAA0AAAAAJZQCdMoRwIsyrVxYB6AHlQ+xN+yVWAcSBlyviH4q/kBpAPw7yQH9E/HTRZuIA9DH9m+wD2gPAA9gf+M/xn+xflV/Zfkz6gA4HpDZwrLKXF90qAD+//9+SS/2OH6zI7tXJY+afMJtS1TfOAkf+Gn1/wpDf9//9Tee7aixc7D5mprhFcDD/+DShuFQRABIQKqfLar3Xk58bCWqM5cSqjOxSTn/O6PpB/tSx9Nfg1+jLkebWCKxt8nhDKyZhmL//2wtr/+nr5y3s62MMsXYeUWTl6atD/euteWh9Fb7H6Dk0y2DecjV341X5owV9JG1v89QTQSATD4TNPSnzdyu/5Av87o/vTMDHeLCfw4bdMapXQBv//zGFNV7ou90nrt/AvMt/XGlffArgBAxFHutfqb3f//hIeH1k+mnzXD2g5tyDFFfHDdRsdIyZtQph/BPajEoggfXg1x6/EIa2ZofXdUjoLNldXf+c+UFD2/536aCKsQAqThVwaW0LFtPsNlDR4auJNuMA2FJMV4OtHSVc1IOSmoINuXpXnn/2/4/7tHw+vyG4AAAAA=="
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-village-stone-wall.webp",
+      "alt": "Traditional stone wall on Taketomi Island",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AStone_wall_Taketomi_Island.jpg",
+      "credit": "KQuhen",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/5/54/Stone_wall_Taketomi_Island.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Stone wall Taketomi Island.jpg",
+      "originalWidth": 4608,
+      "originalHeight": 3456,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAADwCQCdASoUAA8APhkIg0EhBgEABABhLKATplBjBrgOUr5gDJAOeu9lJvp/uH4q59CbD/8hpwHoe/xXlK+LP757gv8a/mP+T/pO+kjtToq9lNeHd5pBarQAAP7//jOQCt99NJQ7hcd8DNLlvyuWBISgvh32C9G/wRSf9L/zgFTf/nc+FjTRPj+gr83vwzlvygVfp+/Vb3L1Y1SnIx9d7RyEn4m/MxT3F6Lzn4w1bMGuICXb/DItal7c2co698si5/OV3OGL9BP/HcacEZaf8mjQKnfEUkBBX4JHw8fR6Foe0sIcuFl3eqZ4xCn5Ob6eeEeVj2xaeCMfpfMf4S6R9ZJrfnHDIHai+96Q+8+fixQjnW8hut0dELfVsdUD9lt3pJOHSqSei0L20cdPT9z6UVP/57lC3/xvIYjpw4lapP+H13h4Xa9qk7+KBTsUoufdtOe65k9PYVj4sXr6P9/numb/FGY8bJwwTpfGu68TuVVvkiW/c8+9CjXs3lC3+PH/P8s6zXtioc8f/l/q3ZVX//Kil6jNDY/YAAA="
     },
     {
       "placeId": "JP-179",
@@ -562,6 +616,24 @@
       "licenseBasis": "PD-USGov",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAAAwCwCdASoUAA0AAAAAJbACdMoR4T4B+Kv6AVYGKZ4iBwAHlSexb5TtHA/FX9VctU9EmQD7IPNi/bvwA5R38gNdL/QPxy/oHSv+YP8z7C/8k/qn5d8ZmiNkIyU1mNi9aD4rAAD+//yv9FiQ/Oa7bLl4U1xERfIf9wLrpIbRGKI7i3GFsF49gH/3d38WD9ts/gUhwKh33aiN6rM/4X8OrFw3bFX/NLkicmq94UVf/3ngsCB5tQ1+8LjYVlXVNMQrAo/+izrGeYQterqEPdjpTZE5dhQlv/tTWGqoCn0KIFfjWmLNhAoMd2uZp7LFHMn1k3k2cPbc//zXeVe/gUb/6ddSOd+oWPuUK6aeq//+XC8MnI7+yFpGEVp79oMA/S4+/HRTV2/+ct+/RP4c46X/+JbMG5oHA1mC5fTEeOdcaYou+T4/9T2Vb9Ruf/zD96V2d/7zcHAOY65r8mVxWkvgTCQ+tqFBang6hTF/O5HV6zAEOy9P/4FyoK32VXut3oWIx7U9Uvs1o+A6XCAREZHwqmsXt1sOJgAAAAA="
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-aquarium-coral-exhibit.webp",
+      "alt": "Coral display at Okinawa Churaumi Aquarium",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACorals_in_Okinawa_Churaumi_Aquarium_4.jpg",
+      "credit": "そらみみ",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/Corals_in_Okinawa_Churaumi_Aquarium_4.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Corals in Okinawa Churaumi Aquarium 4.jpg",
+      "originalWidth": 2448,
+      "originalHeight": 3264,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRuwBAABXRUJQVlA4IOABAACwCQCdASoUABsAPjEUiEKiISEYBAAgAwSgCdMuLHnmS5Ab2wWb9ZvfVslVu7po7oRGpV8/3Ok9D/7L3Bf1U/0oy7q55ob5cb8FSZfilODnovmqbhytQAD+/4tvPWPz11ETsi2F8SUZEhkxo1AAv/ycKJOLZECb/W4S3zJL973kxhtAAwCvMG6mrM/NsHItbtjv8WE52DvlxRk9it7810uOvGlen7UgFMM28FtfzH88R3WP026nsTfnLaMggDVH92R/yHNu6f4jvZKkO15gT7zp6Tk+0x7v6s3kUdX3ViGykxq1TBMWosH+M8lSGTzfd1cLkpunPokq7novnZiE125J0791dECQ3mWX+4DtU1p4v8dDzl5nSltNyp+bp9C9A9OHoLCkzYRr+wlaatxE2Q52uv+/i9E/7T4kb5mGR7FSDA5GblD/12TaGLJPHjdR5rDW5nslpN5vwkSZyQ3v+NrXEk0/8CoX1BFX7CLWMgiaTdpFIyWIKZYsQCulqO0VMdwIwYPOmjrXY4Ll5AX+AVbZu3aMrLB15Ee/TRbE6nOS2hLoZD9RH/X4F4PB46mGYQqrJRARVvoJUUvVHCdL/v3vP/H30Tw49zjSPBV/4Mf1KmYnwxZGt+h8rBlXhIaAAAA="
     },
     {
       "placeId": "JP-154",
@@ -636,6 +708,24 @@
       "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAABwDACdASoUAA0AAAAAJYgCdMoR3N6TTAVwD9Jf8B/K/f/0wDnnvYV/ZT0arkB+AH6S9gN2z9TckE82/HfPb/iNkgP6r+IHiAb7NrMHGof3T3Bv4h/FP51+Tv965Br9VTLT0/nSEV6kRJx3mYAA/v/+3m9Ivpi1OzbuZzMx/LFcakb4eMba/lxlNwt/CL9QLad+89Ezil4UJCSaM8uLCkng16IoM3zjkQzm9vjgaPzsuRn4MlqGGm2w/snI/wLm7+lMwU9Q87paVfOf2JD/hwA7UoehraL+n4iMSBHrdDaoE10rGwsZ0KmmDJZDQQZdQJjk0Pkhnst392ctN/fRZFj1j7s32+Hf8pV5fKh9kAArfi2n/47A/jf6lHJ+2sOFFv0bV+5uCFj/E93yR7XzMu8jGAv//zuX+O8CxMH1v/1//Ibbw/OriG1maHw/VH+//xJrEf9uz/hWyf45bsXpSbd3r8953c/wkWonif/tWDV3iLgMPfjzQWn+dZnz70wyuEy8Wub+W2gax/3P4Cqkks1ntbYA9cD7jIPIrZJ9v7NdKw0vlDnW11R8hT1mf5p9/y431f/5Ufvk7+uMV4qm81/St21hPA+Evw+ulQ3YTF+uyO/gAAA="
     },
     {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/fushimi-inari-kyoto-from-mount-inari.webp",
+      "alt": "Kyoto seen from the Yotsutsuji viewpoint on Mount Inari",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AView_of_Kyoto_from_Mount_Inari.jpg",
+      "credit": "Christophe95",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c0/View_of_Kyoto_from_Mount_Inari.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:View of Kyoto from Mount Inari.jpg",
+      "originalWidth": 4032,
+      "originalHeight": 3024,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRpQBAABXRUJQVlA4IIgBAACQCQCdASoUAA8AAAAAJZQCdMoRwN5BTAdQD/HYgD9Vf1A99u7r/ZYrEvJNm1dgA80v415I/+wZzNljmap1y9wD+O/z7/AfmSaIvOXoCF5Fp6FloQ0AAP7yk/8/1sas+L/8Sey5USKoMuOb+fkjyzfdXVwGMD49vdHnxBG2mxqAoim4NwtdZgT3Rp/PE+O+yROX/zwf7svV/8VM6rX8/pkrX6NNZnP5LocMckm9xX/Ta8ydOPXDjfX6f90B0Bmhad/juXNDjS9xQBikNg6G7MvdcUg/n+XBnT/K2COSfrH24xHCCBt/qxFQUDGb3Lc9/faX8piTzct4MxZrD3Cr7/F//Uh2Kg6Heg7oAKS/zn7V/1W8fjgbxO/tde5Wf3RUNQDgqO+/rLsL6KxmVT3EXmGz/tQkCcjCFaKJHakt9/ux1expR09JUKYu86TanuQlxF+Azi0OOj+5lAgMmOfuDEUGhV1c9jab4ad4jDlAzBOJEG95o2fxXs2sMD88ren9YL5pG29/CAAAAA=="
+    },
+    {
       "placeId": "JP-096",
       "assetPath": "images/places/JP-096/sanjusangendo-main-hall.webp",
       "alt": "Fachada lateral del salón principal de madera de Sanjūsangen-dō en Kioto, con su largo tejado de tejas y pinos recortados delante.",
@@ -670,6 +760,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAADQDACdASoUAA4AAAAAJQBOmUGMGOV/hnvDv+A/oHvt87N1gHPhey7+y36zey9cpfwA6gbRBkw3lf4zZ6L8KPyMzD39V/E3UdtNy9ILOB8sf6/3Bf0o/sn5U/2v///Td0AB3PVJCdrdzHkblWI/ggAA/v//Yx/6Q5Io8hI06FeBMaFXWxOULPmhPyTGRasbQDt7n+XBaOEieyGil1LiU9+l1XV2RlmZCP6CfHS23tRH6Gsg+rJtjWqX8T9LaVKM4swvqy24oRhzNUpB//YUWzSVO0xQMDEu21/NKlQ5uLl4v5ErbZEwYASsSD9T3Q/9FHuP0aaT1kJvGL/BaVw80vnL5XskgizREf//3NnQpncbtg3U2UopiXoQIPKuHT/+DOZIXywX/zGcW0gEC4+eeUXTEf+1g/DiWbwNwHpy1/i8n03FmmE4hP/7tp/4aDprMN5/SA+OoSWL8akX/5cJ0aT9eyeeNMiJca/9CLcHH4lBnu1Ph9a+cxkXwv8yoc7zCZFakfSdfzmo6908Ck1V6PjjVmkz/VLj141aXkK65Btt2vWKNPLGQtig0Vgj57X+SC+Gg+9uu8iNqeVm33w4vc2upDxklzrt8v1g/bhNz+p9AAAA"
+    },
+    {
+      "placeId": "JP-096",
+      "assetPath": "images/places/JP-096/sanjusangendo-golden-statues-interior.webp",
+      "alt": "Rows of gilded Buddhist statues inside the main hall of Sanjūsangen-dō",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKyoto_Sanjusangen-do_Haupthalle_Inen_Buddhastatuen_1.jpg",
+      "credit": "Zairon",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Kyoto_Sanjusangen-do_Haupthalle_Inen_Buddhastatuen_1.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kyoto Sanjusangen-do Haupthalle Inen Buddhastatuen 1.jpg",
+      "originalWidth": 4378,
+      "originalHeight": 3069,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAADwBwCdASoUAA4APhkIg0EhBgEABABhLEATplCOBvQKYCuAeeBZJRQK/7N9qvwn5wPmz/de4H+pP+1Gz2H11p5lo34U425beSAA/v/+abOYLmu/b7PX3g/5P1JH/PjDDBf/r/wpFhBSJTAj31DPzH4EJpVft9fxXLdE3yPRmLbThNLqAQUky9SaWqxH/s67oz8U1e8Lxmwt/aL/WtQNtvp//7pXV34/7p0twe8L94Rat9cU/99h/+P9rhP/9e/f5V+Wf15/PH4hvifGYuqIL78GTVBKa4T86Zr8g+BqgO5RC5Iv99+LylmfvyBVBlml6H/+Gynmhgz79JQNaXfsZY3/+glvzKV4f5R198rkQmErwRf831458mlvVcqGfFwXGgevqDfxL4CZ8m73LehZwn2I+2P+RG/HWk4YX+5bv7u2u6z0chP/mzoykh7dyeHZ/vx2n+/L3yo+5f/4spf+Df+b8MpxPdgf/NeKWxS/pEdrVlyWO/DD0fpt8LxhRf/UnBUAAA=="
     },
     {
       "placeId": "JP-135",
@@ -708,6 +816,24 @@
       "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACwDACdASoUAA0AAAAAJQBOmUGMHsCaZ/YB7wP4BhC36Ab6BwAH6geiz/qvcj/Xb0mKUE8W/BjJBPVfwr/E3SNfgBkHPeBflf4Z8pzqRP67+N3K5ewX/F/6z+Q/72cqr+lZxfy9KUJ3Uaw825HmgAD+/kZ/8sr//YcP00skFFrHDp//BnTP9nhp/zZ/uI5ACEmt/7Ru3MTSv6BVqFBqv9c1/T+kA+WTg3B5+qdcc1ZrOpDDZnreIUeL+3kPMg9veuRobtZ+VPFe/lc94n/9slJyn/3kzZ8mBa9uxTog0RdqyleyaZ0c1BNdXfWnvoZ17zRenq+f2b2TGKIiQF7fJGv1+z7Zen1X1DYvOP7Qx94HD+LVuFr3jjfvjZZrx7QsV+//od1/5cnhme/DPAWabux/+yqP8m3yB8i6a6Dx4E2x52e8hmX+tGTwIUhdkx5h/8qub+83ka5GJVJ//8YKqg10vchMsbRrXoGcXEkL8UP/tXc3zjDE2dy3oRa6z9Jvbd/zIXWgDpVU86t30weu6y7/mjLj8xpGrTLk6CLN1oO/Rscv3WGiyxcCWPBFW0c8Ni3Q/UhTeZ5AZwAA"
     },
     {
+      "placeId": "JP-135",
+      "assetPath": "images/places/JP-135/himeji-castle-interior-corridor.webp",
+      "alt": "Visitors walking through the timber interior corridor of Himeji Castle",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHimeji_Castle_Interior.jpg",
+      "credit": "ScribblingGeek",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Himeji_Castle_Interior.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Himeji Castle Interior.jpg",
+      "originalWidth": 5191,
+      "originalHeight": 3461,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAABwCwCdASoUAA0AAAAAJYwCdMoRwIsCrS4JBukvAAeUB7FnkZXID8AOfC9Of1uywTyD8N/yM0if4x5BR+Rmoq6ij+u+cfmn9gPxA+gX+Kfxj+x/lN/X+IzNVH48ErTzVXeKSP4AAP7//1NO5ysh5viNeCk6LC0rZwr9bfVuPO1bBEpZk+BEcwf3AJtu51cqALu16Lzb1Wt5WftLffPoJnGn4F9QZz8At//u9Wa+FjYLmizo/5ojwnJ6hl9w4kM/f+vaavAvsJr7+Rfx1lWdZ+zOQyD9/3NnnQFwYg2pYcip4QpxSd6gvHuHy4Va+q9sYpgfv5ypb4YIcbyGCWNkUzGDdCFgZHRpoQwct3zjw41f/UaakmumYhDfxSj666658gD/+ieX/MJpJAeD4z/364dVxrz9R26fHub/5l4fxQTTX/VFkn0vuGAGy4ZNv/8322+p+PWNNYTe9/9miD2qjG/M9Wub9L1ZzXmt9nP+a7vfckOvdyhpoVXTDMGcM24F9hV63JbTQ2M9fEJ6tDLj4Tsz11oVjI1uRVzMOLb/Dn2is6CgDM/iBrKSsAauPMBhQmW3nWJ8PajTYKq2QAA="
+    },
+    {
       "placeId": "JP-142",
       "assetPath": "images/places/JP-142/otani-river-canal.webp",
       "alt": "Canal del río Otani en Kinosaki Onsen bajo la nieve, con sauces nevados, puentes de piedra y hosterías tradicionales en ambas orillas.",
@@ -744,6 +870,24 @@
       "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAAAwDACdASoUAA0AAAAAJQBOmUI7kWBVgMEg3QDgAPK69kTyZrlLwquTj+W/i5npfxA/Y7LI/zf8RtUA/nf5Aa7z+n/kd7OP6r4GH8o/KP6Bf4r/Gf6x+Vn9w5Cv9ADzakTeZgLp8Do5zDyAAP70qyX5X9PFfhPZRTOWPH/g6tICvmpKoC8KS/BsBJWfWv//zuTmdgC73+VTE+J3Nlp/8Upx5P+Z9WygK+Dc/M7z/9amf/zYEUyckgO18HPLg0e3kyWUQlqd49/i3/8NTapHqPRDBb/tsidv6wJZ+g5OG5RT5wO+vQat0QZ7wBXx9iWU7U/qi6XWz/5ZFltnRuzr1fts50CMEuGYBjp/YTm74pqzmW6MECDblcmqq5139dZ4hDf/C9jvGSW//FxaxAcan/7k6iL5ktJ/Wwp3lNPd6/edxuX15N9XUNn09MBtPEK4jB84D6scYwgExO+EZAGz68Nfo9OF12dv+ENSi+T7MR0vyF5jRkppJ9YFsEXGfMHKdAVkEMnjpAiHEt0R5j2x09LUzM8h8Bw7URZNT8kqqLSyWa++MZYughzn70Zc82wgzSOTkQKoUxM20QPAAAA="
     },
     {
+      "placeId": "JP-142",
+      "assetPath": "images/places/JP-142/kinosaki-onsen-gosho-no-yu.webp",
+      "alt": "Gosho-no-yu public bathhouse in Kinosaki Onsen",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKinosaki-Onsen_Gosho-no-yu.jpg",
+      "credit": "MaedaAkihiko",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Kinosaki-Onsen_Gosho-no-yu.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kinosaki-Onsen Gosho-no-yu.jpg",
+      "originalWidth": 5471,
+      "originalHeight": 3647,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRrIBAABXRUJQVlA4IKYBAADwCwCdASoUAA0AAAAAJZQCdMoRwHvdzQDzIPWq0wDnoP1V+C39nfRytADpwjwL61+O2eU/Bb9L/8ZmAP53+Gf7Aa4Bpq+Il/wHuC/xH+Pf1X8jf7L///oz6kD9VTtjDcuT8m894jhcAAD+/3PR660K3ecL//nHgxIaM/7fMQrY3zI2FcdIS1/KvjPgk0tk9pPtjKabtt+PmfDtzjtTKqtBV36jnZD8bfLngXXD6ac5cmZw57j23bWv8/8tSbzUPfgnkUmnXDfpcD90YtusMlOVTuwIwCtJMAuEbKrDag1l7vFnTw/d3dZxM83gxLl4j/39TChQIysBYSR/pne9l/FyzF3EOOoGd6fS32FF/9q1fbxxCEk/qcX3331/87gSFcsY4+EPJ3PtHyTuSVkex/IyZ7jkvvFc9i3hhn7hZL6GRi6eWBazMPZ/NEOg0U21848Q3Go/6PP4Q2WUYZt9L73Tb//8ES+cb51//0Wircy1YuvYT/9Z8rlXAR1+f0JeUcwXlK373hRPOik3n93UfTF0OXWbL55zvxPhCkX4nwhpFtKwRmAAAA=="
+    },
+    {
       "placeId": "JP-143",
       "assetPath": "images/places/JP-143/koyasan-temple-lodging.webp",
       "alt": "Pabellón de madera del templo Ren'ge-in en Koyasan, uno de los templos con alojamiento, con linterna de piedra y patio de grava.",
@@ -778,6 +922,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRsQBAABXRUJQVlA4ILgBAABQCwCdASoUAA0AAAAAJbACdMoRwN4B+IH4q1gG2Z6Ax+wGWAc8v7Cv7XfsB7S1Gvx0f5L+Kv4AaTf8Xfwly0D8jvICjQLq48gf4j3Bv4b/Jv7t+R/Cqn3wsCvNrlL0pNS1peAA/v//ERxfDCeRUssXmfyojrXeUXu5IxAam260uNj//5QF6LYn2P/5B6tMhe9MfJvzw/KXcjqwpr04FBQR//1v5Hz6zkmyfP7bN5egCvWf9faBjZp1+DX5h/WDWUiHQRGKM53Gf/En+kN8yjo/nBw2Hlgf/KeyjAFC8LgAv/8xfH/BMfN+4bOkcpDMMHxHLb6a08vYgpdOK2tJ/+e0pqfOvWWz/9PNdGY4k/smWnLxsfx1//t1596g8/QvhZizots16b8//mA4zfvZedRu77jIG6l4ENPFU/CB8H/5NVkRxvNyARHiHvJ2Dgpl2aZD3qo+Yairo9hgCHPofRRJ5nuWUAe9fTO707S/rS95p8m7X4gg8cVU+HNPiv+0+aViKs26aS5EbHEO+fiILtEE9ZoEPOdbfna0Ib9Cn5t5s2vYf+PyKiLOvgN7rUO0Qleza84u3IAAAA=="
+    },
+    {
+      "placeId": "JP-143",
+      "assetPath": "images/places/JP-143/koyasan-shukubo-temple-breakfast.webp",
+      "alt": "Vegetarian temple breakfast served at a Buddhist lodging in Koyasan",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABreakfast_at_a_buddhist_temple_by_Flowizm_in_Koyasan.jpg",
+      "credit": "Flowizm from Koyasan, Wakayama",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Breakfast_at_a_buddhist_temple_by_Flowizm_in_Koyasan.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Breakfast at a buddhist temple by Flowizm in Koyasan.jpg",
+      "originalWidth": 2816,
+      "originalHeight": 2112,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACQCwCdASoUAA8APhkIg0EhBgEABABhLGATplBjBZIP1VvQD0AOkg/bj9gPaqoCDJVPVfxm/IDSRfifkKuiu6cB6Jn6B5LPk3/Je4H/EP5v/gPy9/sfImjwX6kHsmlVDuyNwPSogAD+/6oZeF92H+JfVp+CON7a/+v1HUnsvgW4M1Pm2BRwOdH38Tn0fEHssSQuR1Nv8Dv//9utrx7lYmpq+sxfiZCPOxuQ9plFeem01v8zhy4ccjV5zIg+zVsLJxOf8Qen9f+nTfDddMUf+VH17jXa7O7uH6/okFbvZBpVb3GfGE4YfCVGh0QXIyEiv0mhRE3dsYV//w0lSTvg+SWuQWtT5wb2f1xE7/VT4Vf/7nYN7Kvf/2cu4w78r+9n4R/HPl5TfIVjYRxmQ/o0pj+yd/fHUcVStonY//n+UxSZ6gHaVexadf73yX0mHni7Jf6q87rqvGcTGkkuwh2QE4pWebd8Jr5Eu1sd83NwpCLfJM/sIm7vwCDZMrQtefeV8J0wzJs/vS68MS2OY5lniNgvWdAYx3n/+4f9ysj7v7BuGE0O+9E4a4FuwhXyUQbZY2v+xB7up/YAAAAA"
     },
     {
       "placeId": "JP-144",
@@ -904,6 +1066,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAACQCgCdASoUAA0AAAAAJYwCdMoRwN4AniDeSf2A9IC5AfhLYn/yD8gM8p+KuST/p/4q+QFG6fhXrxP8Z+M3RN+M/8b7g38a/m/9c/LD+t8hz+pJ2jQaP7uV42LV/sAA/v/RhpjfbLJ+ot3jBZN/NjsWKDiWcdIpxmZgFi3K0RGD//BdhfkU2fLbu6rTDcB6pPn07MeB6mPvfeCkp4Ghb+GLWAkLb8btBcfeR1TaGFO1hvbQj7Lp+CI5f8Tv1mgOV/9W56RV9gH85H3FyUcvP96QEs/3ta++pX4EGYk65TlIcLTWjuOI74Is//BXf6AOoA6LL17cMBXP8OPh7brJ8TEB7iEGIL7QOGvOB00f/607WA/9eJZqM1Lb6QGwt/iAWcv611GBnun9DmZ8dOh1SWoj/8MWUp4tSP9RudkPe3QYTpVZOC381F//9oC9R7oMaxWTdJjYCjRYt/kJhruWyyLpXB/NY71dj/6hDgukDZneigZabA7fPw54Xt5Bliqf5r35aG8yMlwjTBpSYK0gk7AA"
+    },
+    {
+      "placeId": "JP-197",
+      "assetPath": "images/places/JP-197/iriomote-pinai-saara-falls.webp",
+      "alt": "Pinai-saara waterfall in Iriomote Island's subtropical forest",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AIriomote_pinaisara_fall.jpg",
+      "credit": "Paipateroma",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Iriomote_pinaisara_fall.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Iriomote pinaisara fall.jpg",
+      "originalWidth": 1600,
+      "originalHeight": 1200,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRkwBAABXRUJQVlA4IEABAABQBQCdASoUAA8AAAAAJZQCdMoMYPYDeAeJn6813IKQp9M2U1/jd+IEqyX+HtqO1yNZM6gA/v//shXllTr2ffv8oTKEv9t4GHWr/rYyMreO0r6Ant6W0CtVZq71GydmB6//Stdfp47/gzy1/wa/gWHxW/zBVklNscnQ99rCi/GeV0v80CIAiflYneJM8IFNGfI/2J7+hx6+6Iyb8KoO3U5IyHIdjT7bxrKSFIOP/EHHIlrhtg3fL/IL+tNsByU4b0MPhjeP4NnW6vllj//zkn/DXIOX//8Qf13t9AazHincrEK3Tou8T4S3vHrP/zXx+8+cclYOL/mv9Q8Jdh/425wkH3zmzuXRqd7CHvuZFTdN3eLEUL7bfifzeiWlQkkQPi+1F9ScC4tSj3RaVySmw0rBqOf0iJQ8zVCK6kDuWVAAAA=="
     },
     {
       "placeId": "JP-205",

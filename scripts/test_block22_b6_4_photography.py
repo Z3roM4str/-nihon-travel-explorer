@@ -13,6 +13,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "data/visual/block22-b6-4-baseline.json"
 PLAN = ROOT / "data/visual/block22-b6-4-acquisition-plan.json"
+B65_PLAN = ROOT / "data/visual/block22-b6-5-acquisition-plan.json"
 PLACES = ROOT / "data/places.json"
 METADATA = ROOT / "data/visual/photography-metadata.json"
 APP_METADATA = ROOT / "app/src/data/photography-metadata.json"
@@ -65,7 +66,20 @@ class B64PhotographyTests(unittest.TestCase):
         }
         cls.new_images = [row for row in cls.images if row.get("originalTitle") in cls.expected_acquisition_titles]
         cls.new_titles = {row["originalTitle"] for row in cls.new_images}
-        cls.base_images = [row for row in cls.images if row.get("originalTitle") not in cls.new_titles]
+        # B6.5 adds complementary records after this B6.4 baseline. Ignore those later additions
+        # when reconstructing the B6.4-era photo rows, so this regression remains reusable.
+        later_b65_titles = set()
+        if B65_PLAN.is_file():
+            b65_plan = load(B65_PLAN)
+            later_b65_titles = {
+                entry["title"]
+                for batch in b65_plan.get("batches", [])
+                for entry in batch.get("entries", [])
+            }
+        cls.base_images = [
+            row for row in cls.images
+            if row.get("originalTitle") not in cls.new_titles | later_b65_titles
+        ]
         cls.expected_unresolved = {
             pid for pid, (state, _) in cls.decisions.items() if state == "unresolved"
         }
