@@ -2,16 +2,16 @@
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
-## Estado actual — B6.4 pendiente de integración
+## Estado actual — B6.4 integrado
 
 - B21 cerrado; B6.1 cerrado; B6.2 integrado y cerrado; B6.3 integrado y cerrado.
-- **B6.4 implementado y certificado; pendiente de integración** en `codex/block-22-b6-4-grade-s-experience-photography`.
-- Base canónica B6.4: `ad456be50e6b855bc79204bc50d26b154eb29441`. SHA de código, pruebas y browser audit certificado: `abf818029d42a004c7846353c9dead82c228e1cd` (commit publicado); el informe completo está en `docs/BLOCK_22_B6_4_REPORT.md`.
+- **B6.4 integrado y cerrado con 15 excepciones documentadas** mediante PR #146. Rama fuente `codex/block-22-b6-4-grade-s-experience-photography` @ `f22ce0c33534b5ac457a9826c4eb165e97b40b0c`; merge commit `53d4d26dc22d3e214481af823e280a3ad479c11a`.
+- Base canónica B6.4: `ad456be50e6b855bc79204bc50d26b154eb29441`. SHA final certificado de la rama B6.4: `f22ce0c33534b5ac457a9826c4eb165e97b40b0c`; el informe completo está en `docs/BLOCK_22_B6_4_REPORT.md`.
 - Gate inicial: **32/32 S con identity; 2/32 ya tenían experience; 30 objetivos reales**. Resultado: 15 nuevas experience y 15 unresolved documentados; cobertura final **17/32 S con experience**. Las 32 identities iniciales siguen intactas.
 - Registro: **215 imágenes / 194 lugares**. Grado A permanece **139/147 + 8 excepciones**; Grado B permanece **23/25 + 2 excepciones**.
 - Validator PASS; fotografía 40/40; rendition 28/28; Block 22 8/8; B6.2 11/11; B6.3 8/8; B6.4 9/9; derivados 215 PASS; build PASS; lint exit 0 con warning heredada `PlaceMap.tsx:14`; Vitest 100 archivos, 3328/3328; browser audit **462/462**, 0 fallos.
 - Listas: máximo completo Tokio **3.421.914 B**, bajo 3.500.000 B; ningún hub muestreado solicita experience. `place-images.ts` permanece byte a byte intacto. No se tocó `main`, no hubo rediseño, Astra ni merge.
-- **Siguiente bloque, sólo después de integrar B6.4:** tercera foto complementaria para Grado S (detail, context o seasonal según el lugar). No iniciado.
+- **Siguiente bloque:** tercera foto complementaria para Grado S (`detail`, `context` o `seasonal` según el lugar). No iniciado.
 
 ## Snapshot histórico al cierre de B6.3
 
@@ -28,15 +28,26 @@
 | B6.1 | **INTEGRADO Y CERRADO** (vía PR #141) |
 | B6.2 | **INTEGRADO Y CERRADO CON 8 EXCEPCIONES DOCUMENTADAS** — 27/35 objetivos adquiridos; 8 excepciones conservan PhotoPlaceholder e imageBrief. Integrado vía PR #143. Informe: `docs/BLOCK_22_B6_2_REPORT.md` |
 | B6.3 | **INTEGRADO Y CERRADO CON 2 EXCEPCIONES DOCUMENTADAS** — 6/8 objetivos adquiridos; JP-041 y JP-171 conservan PhotoPlaceholder. Integrado vía PR #145. Informe: `docs/BLOCK_22_B6_3_REPORT.md` |
+| B6.4 | **INTEGRADO Y CERRADO CON 15 EXCEPCIONES DOCUMENTADAS** — 15 nuevas `experience`; cobertura S experience 17/32. Integrado vía PR #146. Informe: `docs/BLOCK_22_B6_4_REPORT.md` |
 | Rama B6.3 | `codex/block-22-b6-3-grade-b-photography` @ `8d1752f945ff4b7594a490a6df4ab23324f597a5` (conservada) |
 | Rama B6.2 | `codex/block-22-b6-2-grade-a-photography` @ `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` (conservada) |
 | SHA de cierre B6.2-R | `f8115b67b0fe1aa8986e418cd34f2fb4fed96639` |
 | Cobertura Grado A | **139/147 con fotografía + 8 excepciones documentadas**: JP-050, JP-079, JP-095, JP-120, JP-121, JP-168, JP-195, JP-202 |
-| Registro | **200 imágenes / 194 lugares**; Grado B **23/25 + 2 excepciones**; Grado S **32/32** |
+| Registro | **215 imágenes / 194 lugares**; Grado S identity **32/32**; Grado S experience **17/32**; Grado B **23/25 + 2 excepciones** |
 | Grado S | **32/32** |
-| Rama canónica | `codex/block-21-b5-explore-home-map` @ `eafcd61964bda9c462a27df5779d404aa23c4e9e` — PR #145 merged |
+| Rama canónica | `codex/block-21-b5-explore-home-map` @ `53d4d26dc22d3e214481af823e280a3ad479c11a` — PR #146 merged |
 | `main` | intacto (`8eb725e`), sin PR abierto hacia `main` |
-| Siguiente paso en ese snapshot | **Segunda imagen `experience` para los 32 lugares Grado S; entonces no iniciada.** |
+| Siguiente paso | **Tercera imagen complementaria para Grado S (`detail`, `context` o `seasonal`). NO iniciado.** |
+
+## Integración B6.4 en la rama canónica
+
+- PR #146: **merged** el 2026-09-24 hacia `codex/block-21-b5-explore-home-map`.
+- Head certificado B6.4: `f22ce0c33534b5ac457a9826c4eb165e97b40b0c`.
+- Merge commit: `53d4d26dc22d3e214481af823e280a3ad479c11a`.
+- El tree del merge commit coincide con el tree del head certificado B6.4; no hubo cambios de contenido adicionales durante el merge.
+- Estado integrado: **S identity 32/32; S experience 17/32 + 15 excepciones documentadas; 215 imágenes / 194 lugares; A 139/147 + 8 excepciones; B 23/25 + 2 excepciones**.
+- `main` permanece intacto en `8eb725eeb836ca121180f8dd8b0dc49c65efae25`.
+- El siguiente bloque permitido es la tercera fotografía complementaria para Grado S (`detail`, `context` o `seasonal`); no iniciado.
 
 ## Integración B6.3 en la rama canónica
 
@@ -93,4 +104,4 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 
 ## Estado de entrega
 
-B6.2 y B6.3 están integrados y cerrados en la rama canónica. B6.4 está implementado y certificado en su rama, pendiente de integración, con 15 adquisiciones `experience` y 15 excepciones razonadas; véase `docs/BLOCK_22_B6_4_REPORT.md`. No se abrió PR ni se hizo merge. El próximo bloque permitido después de integrar B6.4 es la tercera fotografía complementaria para Grado S; no iniciado.
+B6.2, B6.3 y B6.4 están integrados y cerrados en la rama canónica. B6.4 se integró mediante PR #146 con 15 nuevas `experience` y 15 excepciones documentadas; véase `docs/BLOCK_22_B6_4_REPORT.md`. El próximo bloque permitido es la tercera fotografía complementaria para Grado S; no iniciado.
