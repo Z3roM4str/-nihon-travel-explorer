@@ -51,14 +51,20 @@ describe("PlaceGallery SOL-3", () => {
   });
 
   it("opens accessible fullscreen, exposes full credits, closes topmost, and restores its opener", async () => {
-    const view = render(<PlaceGallery images={testImages} imageBrief="" placeName="Lugar" />);
+    const view = render(<div role="dialog" aria-modal="true" aria-label="Ficha"><PlaceGallery images={testImages} imageBrief="" placeName="Lugar" /></div>);
     const opener = view.getByRole("button", { name: "Ver Lugar a pantalla completa" });
     fireEvent.click(opener);
     const lightbox = within(document.body).getByRole("dialog", { name: "Lugar" });
+    const detail = view.getByRole("dialog", { name: "Ficha" });
+    expect(detail.hasAttribute("inert")).toBe(true);
+    expect(document.activeElement).toBe(within(lightbox).getByRole("button", { name: "Cerrar pantalla completa" }));
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(lightbox.contains(document.activeElement)).toBe(true);
     expect(within(lightbox).getByText(/Una atribución de prueba deliberadamente larga/)).toBeTruthy();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(within(document.body).queryByRole("dialog", { name: "Lugar" })).toBeNull();
     await Promise.resolve();
+    expect(detail.hasAttribute("inert")).toBe(false);
     expect(document.activeElement).toBe(opener);
   });
 });

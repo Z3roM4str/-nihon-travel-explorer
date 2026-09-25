@@ -49,6 +49,9 @@ export function PlaceGallery({ images, placeName }: Props) {
     if (!lightboxOpen) return;
     const element = lightboxRef.current;
     const opener = zoomButtonRef.current;
+    const parentDialog = opener?.closest<HTMLElement>('[role="dialog"][aria-modal="true"]') ?? null;
+    const parentWasInert = parentDialog?.hasAttribute("inert") ?? false;
+    parentDialog?.setAttribute("inert", "");
     (element?.querySelector(FOCUSABLE) as HTMLElement | null)?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") { event.preventDefault(); event.stopImmediatePropagation(); closeLightbox(); return; }
@@ -62,7 +65,11 @@ export function PlaceGallery({ images, placeName }: Props) {
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     };
     document.addEventListener("keydown", onKey, true);
-    return () => { document.removeEventListener("keydown", onKey, true); queueMicrotask(() => opener?.focus()); };
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      if (!parentWasInert) parentDialog?.removeAttribute("inert");
+      queueMicrotask(() => opener?.focus());
+    };
   }, [closeLightbox, goTo, index, lightboxOpen]);
 
   if (!total) return <GalleryFallback placeName={placeName} />;

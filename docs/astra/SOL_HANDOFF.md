@@ -138,3 +138,29 @@ No hubo push, merge ni otro PR. La API pública de GitHub confirmó el SHA origi
 ### Siguiente objetivo exacto
 
 Astra debe auditar SOL-3 de forma independiente en un runner con navegador real, ejecutar los siete viewports requeridos y el golden journey de galería (0/1/3 imágenes, fallo/retry, swipe, fullscreen, Escape por capas y restauración de foco). Corregir únicamente hallazgos SOL-3 P0/P1. No iniciar SOL-4, no fusionar a `main` y no desplegar producción.
+
+---
+
+## Corrección PR #149 — persistence gate y modal stack (2026-09-25)
+
+### Identidad remota autorizada
+
+- Base remota Astra: `b2ae3877111e2b207ca7e7f452bd9e4f30ec12f1`.
+- HEAD remoto anterior real del PR #149: `5b7987493beb75bf10fcf27c33262d53876c0f07`.
+- Rama del mismo PR: `codex/implementar-sol-3-detalle-y-galeria`.
+- El SHA local histórico `bc6b665cd6512dad97a0f04fbac3cd60daca638a` **no es ni fue el HEAD publicado de PR #149**. La referencia anterior se conserva sólo como explicación histórica y no debe utilizarse como identidad remota.
+
+### Diagnóstico y correcciones
+
+- Journey 09 fallaba únicamente por un gate obsoleto: buscaba el antiguo nombre visible `Guardado en Quiero ir`, mientras DA-06 permite y SOL-3 presenta el estado seleccionado como `Quiero ir ✓`. No existía evidencia de un defecto de persistencia en ese fallo. El journey ahora exige exactamente `button.save-button[aria-pressed="true"]`, confirma el estado seleccionado antes de pulsar y conserva todas las comprobaciones de alert único, retry visible y >=44 px, recuperación durable y supervivencia byte-exacta del plan V7.
+- Al abrir fullscreen, la ficha modal padre se marca `inert`. Al cerrar fullscreen se retira primero ese aislamiento y después se restaura el foco exactamente al botón de apertura. El lightbox sigue atrapando Tab/Shift+Tab y consume el primer Escape; el segundo Escape pertenece a `RouteDialog`, cierra la ficha y restaura el opener de la tarjeta.
+- Journey 05 abre ahora el fullscreen real, comprueba foco inicial, ficha inferior inert, veinte ciclos de Tab, Escape por capas y ambas restauraciones de foco.
+- Journey 01 abre fichas en los siete viewports, genera evidencia de detalle con una imagen y estado sin imagen, y en 375×812 y 390×844 comprueba el CTA antes y después de llevar el scroll interno al final: footer y botón visibles, botón >=48 px, dentro del viewport y sin overflow horizontal.
+- El workflow, artifact, job y summary se denominan ahora `Astra SOL-0–SOL-3 browser audit`; no se alteró su arquitectura.
+
+### Ejecución local y publicación
+
+- PASS local: sintaxis del runner, cinco validadores pasivos y `git diff --check`.
+- LIMITACIÓN local: el primer `npm test` detectó que la imagen del contenedor no tenía `jsdom`. `npm ci` intentó reparar dependencias pero el proxy respondió 403 para paquetes npm y dejó `node_modules` incompleto; por ello esta ejecución local no puede presentar nuevos resultados de Vitest/lint/build ni instalar Chromium. Los resultados verdes del HEAD remoto anterior no se reinterpretan como resultados de esta corrección.
+- La auditoría corregida debe ejecutarse en GitHub Actions sobre el HEAD publicado y producir 9/9 sólo si todas las nuevas aserciones pasan. Los siete viewports declarados son 320×800, 375×812, 390×844, 430×932, 768×1024, 1024×768 y 1440×900.
+- No se modificaron datos, fotografía canónica, parsers, V7, `experiment/astra-redesign`, `main` ni trabajo Claude. No se inició SOL-4.
