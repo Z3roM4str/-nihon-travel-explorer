@@ -89,3 +89,17 @@ Verification: all 70 Vitest files (2464 tests), lint, production build, five pas
 ### Evidence-run availability audit (2026-09-19)
 
 A follow-up environment audit found no installed browser or compatible cache. The checkout has no Git remote, `gh` is unauthenticated, no `GH_TOKEN` exists, and anonymous GitHub API access is blocked by the proxy. Consequently this session cannot verify whether the candidate product commit `0a80f44a6bad44f9c83bb25bf45192c34b7874a1` is the remote PR #122 head, publish it, trigger Actions, download an artifact, or attach externally accessible screenshots. The exact inspected workflow, trigger, artifact name, limitations and minimum external action are recorded in `docs/astra/evidence/corrections-0a80f44/README.md`. No visual PASS is claimed.
+
+---
+
+## PR #139: auditoría local y corrección visual (2026-09-23)
+
+La auditoría original se ejecutó sobre `9408e27ec279e6ec80bd27632e656d4f6c265384`: los nueve recorridos automáticos pasaron, pero la captura a 320 px mostró el texto seleccionado recortado en los dos controles rápidos de Explorar. La evidencia original, incluidas capturas y trazas, quedó preservada en `docs/astra/evidence/pr139-local-9408e27-20260923/` mediante el commit exclusivo de documentación `b0e1ad4a40b8c5730790e59e65535bb074147451`.
+
+La causa era de cascada CSS: una regla para hasta 360 px pedía una columna, pero otra regla posterior para hasta 767 px volvía a imponer dos. El commit `95377a20ab06868ac0e5e631a92109a15f08686c` retira la declaración redundante y apila los controles hasta 480 px después de la regla de 767 px. Los anchos mayores conservan el diseño previo. No se cambiaron datos, dependencias, lockfile, runner ni pruebas.
+
+Desde ese commit, con checkout limpio y `ASTRA_EXPECTED_SHA=95377a20ab06868ac0e5e631a92109a15f08686c`, el runner produjo nueve PASS nuevos en `docs/astra/evidence/pr139-corrected-95377a2-20260923/`. La revisión visual de las capturas nuevas y la comprobación complementaria de los dos selectores en 320, 375, 390, 430, 768, 1024 y 1440 px confirman texto completo, cero desbordamiento horizontal y controles operativos. Se inspeccionaron también las capturas nuevas de fallo de guardado en Explorar, ficha y Nuestro viaje. Esto resuelve el defecto visual concreto; la automatización por sí sola no certifica todos los aspectos editoriales ni de accesibilidad.
+
+Lint y build terminaron con código 0; las 24 pruebas específicas de Astra pasaron. La suite completa de Vitest terminó con tres fallos preexistentes de comparación literal de código fuente que espera LF y recibe CRLF en este checkout Windows (dos de OrderedSequenceBuilder, uno de feb-mar-status). No se modificaron ni debilitaron esas pruebas. El detalle está en `docs/astra/evidence/pr139-corrected-95377a2-20260923/CORRECTED_AUDIT_REVIEW.md`.
+
+No hubo push, merge ni otro PR. La API pública de GitHub confirmó el SHA original como HEAD del PR #139 antes de estos commits locales. Git CLI sigue bloqueado por TLS de Schannel/Norton y `gh` informa de un token inválido; son problemas separados. Para publicar, verificar otra vez el HEAD remoto, resolver el acceso mediante mecanismos autorizados, trasladar los commits locales y ejecutar los controles de CI de la rama del PR. El bundle local verificado acompaña este handoff fuera del checkout.
