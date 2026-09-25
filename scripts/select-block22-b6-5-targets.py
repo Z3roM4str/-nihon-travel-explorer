@@ -3,7 +3,6 @@
 import argparse
 import hashlib
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -74,7 +73,9 @@ def snapshot(places, images):
     s_rows = [row for row in rows if row["identity"]]
     return {
         "version": 1,
-        "baseSha": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+        # Keep this snapshot anchored to the required canonical base even after B6.5 commits
+        # have advanced HEAD. The current registry is reduced by the plan before comparison.
+        "baseSha": BASE_SHA,
         "imageCount": len(images),
         "coveredPlaceCount": len(covered),
         "gradeSTotal": len(rows),

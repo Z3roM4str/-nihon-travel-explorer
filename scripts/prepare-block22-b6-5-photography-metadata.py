@@ -86,6 +86,19 @@ def main():
             raise SystemExit(f"{row['placeId']} needs multiple searches and rejected candidates")
 
     images = metadata["images"]
+    for rejected in plan_batch.get("rejectedPreparedRecords", []):
+        matches = [
+            row for row in images
+            if row.get("placeId") == rejected["placeId"]
+            and row.get("originalTitle") == rejected["title"]
+        ]
+        if len(matches) > 1:
+            raise SystemExit(f"rejected B6.5 candidate appears more than once: {rejected['title']}")
+        if matches:
+            if matches[0].get("role") not in ROLES:
+                raise SystemExit(f"refusing to remove a non-complementary record: {rejected['title']}")
+            images.remove(matches[0])
+
     accepted_titles = {entry["title"] for batch in plan["batches"] for entry in batch.get("entries", [])}
     prior_batch_titles = {entry["title"] for batch in plan["batches"] if batch["batch"] < args.batch for entry in batch.get("entries", [])}
     current_batch_titles = {entry["title"] for entry in entries}

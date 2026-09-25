@@ -242,21 +242,6 @@
           ]
         },
         {
-          "placeId": "JP-179",
-          "slug": "yanbaru-okinawa-rail",
-          "title": "File:Okinawa Rail 388492704.jpg",
-          "role": "detail",
-          "alt": "Okinawa rail, an endemic bird recorded in Kunigami in the Yanbaru forest",
-          "whyRole": "El rascón de Okinawa es fauna endémica que explica el valor ecológico de Yambaru; es un sujeto biológico concreto y distinto del dosel forestal de la identity.",
-          "identityComparison": "La identity presenta bosque subtropical panorámico vacío. La candidata muestra el ave endémica y la página original ubica la observación en Kunigami, Okinawa (26.691118, 128.360687), dentro del área de Yambaru.",
-          "sourcePage": "https://commons.wikimedia.org/wiki/File:Okinawa_Rail_388492704.jpg",
-          "originalPage": "https://commons.wikimedia.org/wiki/File:Okinawa_Rail_388492704.jpg",
-          "candidatesRejected": [
-            {"title": "Subtropical Forest of Yanbaru National Park Okinawa 2018.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Subtropical_Forest_of_Yanbaru_National_Park_Okinawa_2018.jpg", "reason": "Identity actual: otra vista vacía del bosque."},
-            {"title": "Yambaru forest in Ryukyu Mura, Onna, Okinawa.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Yambaru_forest_in_Ryukyu_Mura,_Onna,_Okinawa.jpg", "reason": "La fuente ubica la escena en el parque temático Ryukyu Mura, no en el parque nacional."}
-          ]
-        },
-        {
           "placeId": "JP-196",
           "slug": "taketomi-village-stone-wall",
           "title": "File:Stone wall Taketomi Island.jpg",
@@ -272,7 +257,20 @@
           ]
         }
       ],
+      "rejectedPreparedRecords": [
+        {"placeId": "JP-179", "title": "File:Okinawa Rail 388492704.jpg", "reason": "Commons devolvió el original de 1800×1200 al solicitar la rendición reducida de 1600px. El pipeline rechaza sustituirlo por el original y no se cambia ese control."}
+      ],
       "unresolved": [
+        {
+          "placeId": "JP-179",
+          "category": "UNRESOLVED — RESOLUTION",
+          "reason": "El original tiene 1800×1200, pero Commons devolvió el original al pedir 1600px en vez de una miniatura reducida. Para respetar el contrato que evita descargar el original como sustituto, esta candidata no se adquiere ni se altera el pipeline.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/File:Okinawa_Rail_388492704.jpg", "https://www.inaturalist.org/photos/388492704", "https://commons.wikimedia.org/wiki/File:Subtropical_Forest_of_Yanbaru_National_Park_Okinawa_2018.jpg"],
+          "candidatesRejected": [
+            {"title": "Okinawa Rail 388492704.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Okinawa_Rail_388492704.jpg", "reason": "La fuente y ubicación son adecuadas y CC BY 4.0, pero el endpoint de Commons no entregó el thumbnail reducido solicitado; se rechazó sin usar el original."},
+            {"title": "Yambaru forest in Ryukyu Mura, Onna, Okinawa.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Yambaru_forest_in_Ryukyu_Mura,_Onna,_Okinawa.jpg", "reason": "El propio registro ubica la escena en el parque temático Ryukyu Mura, no en Yambaru National Park."}
+          ]
+        },
         {
           "placeId": "JP-157",
           "category": "UNRESOLVED — LOCATION UNVERIFIABLE",

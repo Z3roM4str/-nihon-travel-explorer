@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 221,
+  "imageCount": 224,
   "images": [
     {
       "placeId": "JP-001",
@@ -491,6 +491,24 @@
       "lqip": "data:image/webp;base64,UklGRtIBAABXRUJQVlA4IMYBAABQDACdASoUAA8AAAAAJYwCdMoR3N6TTAXYC7APQA8sf2NqdA7AbtP6jZIJ6j+HeiA/oH475CJ+On5Aa5vqQPsA9zT+q+wD2ifGf91/jHwAfx/+Z/3P8iP305Sv9TTuGztqO1ccODykzjZ7KAD+//+V5dSIxdZvBXtimfv6hFT+srmtHdJLpt2uO1n6qf57/tMC1vkge7b59dT4X7IV3MsdghMYE1k2MLp2I8OFN3z/UT5ahSJyXTxKlPj0ZJn+jzURtqlvDEG7u9iHx01y58N4oN9xuoB3zwS0D5ciRnnQ8mcLU1ErxioGoOyDQV85iODUUpksRGeXBX7ZO9fKt4gBZv+C+h0OKmte7PMqUyzbZaVmgsTNeXW1veGjojRbcODLmKrq3KLoYqn+hQwhuLP13LwPlcHnT9gZwOSWb653tnI8lMr5L/H/H/PX/hr/m7O12P+khK2N37tcxF/txO/D2GgknqdPMQlu3pxpo+HOy/zzEqr8jjxFm1Vdia237//gO0JNyj62VSO+7MC8OJW66/8JK7CwpGYz6rH6H8prn3AQr4f6H1P/bxc+j/9ZOp4Ie4JEeXV9m0w5jV9snSjBU1edsAAA"
     },
     {
+      "placeId": "JP-162",
+      "assetPath": "images/places/JP-162/sefa-utaki-kudaka-island-view.webp",
+      "alt": "Kudaka Island seen from the Ujoguchi entrance of Sefa-Utaki",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKudakajima_Island_from_Ujoguchi_of_Sefa-Utaki.JPG",
+      "credit": "そらみみ (Soramimi)",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/4/43/Kudakajima_Island_from_Ujoguchi_of_Sefa-Utaki.JPG",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kudakajima Island from Ujoguchi of Sefa-Utaki.JPG",
+      "originalWidth": 3264,
+      "originalHeight": 2448,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAADQCACdASoUAA8AAAAAJYwCdMoRwN5BvARgFWA/sGEjWNV+wHwl1gD6ZumP9HckE9JzEuM7R9PoB/pN/qPyn40D9VTWveeSOMEwSAC1wtQAAP7/pw/NP/W3/EEV8n/+bZs70hXrhwfEySYUWRZK7KestA9/5dgotZ9/2E8RtUmPwZXfv/8Js2qM/3trBSpRT74aVI+l42PcdV+MTyeJBQKEFdFrgynnfxbbRrr6dC//T1MGX8at/0/X/9/t81lsupIfe3dp4OO9NwitYUQaz/JxNz/yu5/+0FG21pqq/7z/dedhidnCW/7XOu48qIvLJmriEdi+IcLuP4a04gsnsPkytRkn/8duP7Sv+n8s4ZgeSjRAJuxX1/zKNGuE4IfPy0+a7HCjH/5jLTyQcO9u9/HqdioCNG3X3XzYXH9Ram8GEXtraJjIlLlqxFVGACrcLHdFpnBDTQOqbUL3plQg5u7AGYNexacOzLygfKzRny5xKJAfsm1KJXRru9RxMAbOqeUAAA=="
+    },
+    {
       "placeId": "JP-196",
       "assetPath": "images/places/JP-196/taketomi-island-house.webp",
       "alt": "Casa tradicional de tejado rojo y muro de piedra coralina en una calle de la isla de Taketomi.",
@@ -525,6 +543,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAADQCgCdASoUAA0AAAAAJZQCdMoRwIsyrVxYB6AHlQ+xN+yVWAcSBlyviH4q/kBpAPw7yQH9E/HTRZuIA9DH9m+wD2gPAA9gf+M/xn+xflV/Zfkz6gA4HpDZwrLKXF90qAD+//9+SS/2OH6zI7tXJY+afMJtS1TfOAkf+Gn1/wpDf9//9Tee7aixc7D5mprhFcDD/+DShuFQRABIQKqfLar3Xk58bCWqM5cSqjOxSTn/O6PpB/tSx9Nfg1+jLkebWCKxt8nhDKyZhmL//2wtr/+nr5y3s62MMsXYeUWTl6atD/euteWh9Fb7H6Dk0y2DecjV341X5owV9JG1v89QTQSATD4TNPSnzdyu/5Av87o/vTMDHeLCfw4bdMapXQBv//zGFNV7ou90nrt/AvMt/XGlffArgBAxFHutfqb3f//hIeH1k+mnzXD2g5tyDFFfHDdRsdIyZtQph/BPajEoggfXg1x6/EIa2ZofXdUjoLNldXf+c+UFD2/536aCKsQAqThVwaW0LFtPsNlDR4auJNuMA2FJMV4OtHSVc1IOSmoINuXpXnn/2/4/7tHw+vyG4AAAAA=="
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-village-stone-wall.webp",
+      "alt": "Traditional stone wall on Taketomi Island",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AStone_wall_Taketomi_Island.jpg",
+      "credit": "KQuhen",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/5/54/Stone_wall_Taketomi_Island.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Stone wall Taketomi Island.jpg",
+      "originalWidth": 4608,
+      "originalHeight": 3456,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAADwCQCdASoUAA8APhkIg0EhBgEABABhLKATplBjBrgOUr5gDJAOeu9lJvp/uH4q59CbD/8hpwHoe/xXlK+LP757gv8a/mP+T/pO+kjtToq9lNeHd5pBarQAAP7//jOQCt99NJQ7hcd8DNLlvyuWBISgvh32C9G/wRSf9L/zgFTf/nc+FjTRPj+gr83vwzlvygVfp+/Vb3L1Y1SnIx9d7RyEn4m/MxT3F6Lzn4w1bMGuICXb/DItal7c2co698si5/OV3OGL9BP/HcacEZaf8mjQKnfEUkBBX4JHw8fR6Foe0sIcuFl3eqZ4xCn5Ob6eeEeVj2xaeCMfpfMf4S6R9ZJrfnHDIHai+96Q+8+fixQjnW8hut0dELfVsdUD9lt3pJOHSqSei0L20cdPT9z6UVP/57lC3/xvIYjpw4lapP+H13h4Xa9qk7+KBTsUoufdtOe65k9PYVj4sXr6P9/numb/FGY8bJwwTpfGu68TuVVvkiW/c8+9CjXs3lC3+PH/P8s6zXtioc8f/l/q3ZVX//Kil6jNDY/YAAA="
     },
     {
       "placeId": "JP-179",
@@ -580,6 +616,24 @@
       "licenseBasis": "PD-USGov",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRqQBAABXRUJQVlA4IJgBAAAwCwCdASoUAA0AAAAAJbACdMoR4T4B+Kv6AVYGKZ4iBwAHlSexb5TtHA/FX9VctU9EmQD7IPNi/bvwA5R38gNdL/QPxy/oHSv+YP8z7C/8k/qn5d8ZmiNkIyU1mNi9aD4rAAD+//yv9FiQ/Oa7bLl4U1xERfIf9wLrpIbRGKI7i3GFsF49gH/3d38WD9ts/gUhwKh33aiN6rM/4X8OrFw3bFX/NLkicmq94UVf/3ngsCB5tQ1+8LjYVlXVNMQrAo/+izrGeYQterqEPdjpTZE5dhQlv/tTWGqoCn0KIFfjWmLNhAoMd2uZp7LFHMn1k3k2cPbc//zXeVe/gUb/6ddSOd+oWPuUK6aeq//+XC8MnI7+yFpGEVp79oMA/S4+/HRTV2/+ct+/RP4c46X/+JbMG5oHA1mC5fTEeOdcaYou+T4/9T2Vb9Ruf/zD96V2d/7zcHAOY65r8mVxWkvgTCQ+tqFBang6hTF/O5HV6zAEOy9P/4FyoK32VXut3oWIx7U9Uvs1o+A6XCAREZHwqmsXt1sOJgAAAAA="
+    },
+    {
+      "placeId": "JP-173",
+      "assetPath": "images/places/JP-173/churaumi-aquarium-coral-exhibit.webp",
+      "alt": "Coral display at Okinawa Churaumi Aquarium",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACorals_in_Okinawa_Churaumi_Aquarium_4.jpg",
+      "credit": "そらみみ",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/Corals_in_Okinawa_Churaumi_Aquarium_4.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Corals in Okinawa Churaumi Aquarium 4.jpg",
+      "originalWidth": 2448,
+      "originalHeight": 3264,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRuwBAABXRUJQVlA4IOABAACwCQCdASoUABsAPjEUiEKiISEYBAAgAwSgCdMuLHnmS5Ab2wWb9ZvfVslVu7po7oRGpV8/3Ok9D/7L3Bf1U/0oy7q55ob5cb8FSZfilODnovmqbhytQAD+/4tvPWPz11ETsi2F8SUZEhkxo1AAv/ycKJOLZECb/W4S3zJL973kxhtAAwCvMG6mrM/NsHItbtjv8WE52DvlxRk9it7810uOvGlen7UgFMM28FtfzH88R3WP026nsTfnLaMggDVH92R/yHNu6f4jvZKkO15gT7zp6Tk+0x7v6s3kUdX3ViGykxq1TBMWosH+M8lSGTzfd1cLkpunPokq7novnZiE125J0791dECQ3mWX+4DtU1p4v8dDzl5nSltNyp+bp9C9A9OHoLCkzYRr+wlaatxE2Q52uv+/i9E/7T4kb5mGR7FSDA5GblD/12TaGLJPHjdR5rDW5nslpN5vwkSZyQ3v+NrXEk0/8CoX1BFX7CLWMgiaTdpFIyWIKZYsQCulqO0VMdwIwYPOmjrXY4Ll5AX+AVbZu3aMrLB15Ee/TRbE6nOS2hLoZD9RH/X4F4PB46mGYQqrJRARVvoJUUvVHCdL/v3vP/H30Tw49zjSPBV/4Mf1KmYnwxZGt+h8rBlXhIaAAAA="
     },
     {
       "placeId": "JP-154",
