@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
+import { createRequestEpochs, isSettledImageSafe, settleImages } from "./block22-b6-5-sync.mjs";
 
 /** B6.5 audit of third-photo galleries, cards, attribution, fallbacks and list budgets. */
 const VIEWPORTS = {
@@ -85,7 +86,11 @@ function makeInstrument(page, origin) {
   const pending = [];
   const externalPhotos = [];
   const failedImages = [];
+  // Responses are charged to the epoch of the request that produced them, not to whenever they land:
+  // a previous screen's image answered after `reset()` belongs to that screen, never to the next.
+  const epochs = createRequestEpochs();
   page.on("request", (request) => {
+    epochs.stamp(request);
     if (request.resourceType() !== "image") return;
     const url = request.url();
     if (url.startsWith(origin) || url.startsWith("data:")) return;
@@ -95,6 +100,7 @@ function makeInstrument(page, origin) {
   page.on("response", (response) => {
     const url = new URL(response.url());
     if (!url.pathname.includes("/images/places/") || !url.pathname.endsWith(".webp")) return;
+    if (!epochs.isCurrent(response.request())) return;
     const task = (async () => {
       let bytes = 0;
       try {
@@ -121,6 +127,7 @@ function makeInstrument(page, origin) {
       await Promise.allSettled(pending.slice());
     },
     reset() {
+      epochs.reset();
       requests.length = 0;
       externalPhotos.length = 0;
       failedImages.length = 0;
@@ -361,8 +368,11 @@ async function auditFallback(browser, url, viewportName, sample) {
   await card.locator(".place-card__open").click();
   await page.waitForSelector(".place-detail .gallery__error", { timeout: 10000 });
   check(`${id} ficha muestra el estado de error ya existente`, /No se pudo cargar la imagen/.test(await page.locator(".gallery__error").first().innerText()));
-  const safe = await page.locator(".place-detail img").evaluateAll((imgs) => imgs.every((img) => img.complete && img.naturalWidth > 0 || img.closest(".gallery__slide")?.querySelector(".gallery__error")));
-  check(`${id} fallback no deja elemento img roto`, safe);
+  // Sibling photos are lazy and are only requested once the error slide is on screen, so at this instant
+  // they can still be in flight. Judge each image once it has fired load or error, not mid-download.
+  const settled = await page.locator(".place-detail img").evaluateAll(settleImages, 10000);
+  const unsafe = settled.filter((record) => !isSettledImageSafe(record));
+  check(`${id} fallback no deja elemento img roto`, unsafe.length === 0, unsafe.map((record) => `${record.outcome} ${record.naturalWidth}px ${record.src}`).join(", "));
   check(`${id} fallback sin fetch fotográfico externo`, network.externalPhotos.length === 0);
   await context.close();
 }
