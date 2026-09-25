@@ -74,6 +74,7 @@ DERIVATIVE_METHOD = 6
 DERIVATIVE_TARGET_BYTES = {800: 70_000}
 DERIVATIVE_MIN_QUALITY = 48
 DERIVATIVE_QUALITY_STEP = 4
+IDENTITY_HUB_BUDGET_BYTES = 3_500_000
 LQIP_WIDTH = 20
 LQIP_MAX_DATA_URL_BYTES = 700
 LQIP_MIN_QUALITY = 20
@@ -94,9 +95,12 @@ def derivative_path_for(asset_path: str, width: int = DEFAULT_DERIVATIVE_WIDTH) 
     return asset_path[: -len(".webp")] + f"-{width}w.webp"
 
 
-def encode_derivative(original_bytes: bytes, width: int = DEFAULT_DERIVATIVE_WIDTH) -> bytes:
+def encode_derivative_at_quality(original_bytes: bytes, width: int, quality: int) -> bytes:
+    """Encode one rendition at an explicit contract-bounded WebP quality."""
     if width not in DERIVATIVE_WIDTHS:
         raise ValueError(f"unsupported derivative width: {width!r}")
+    if not DERIVATIVE_MIN_QUALITY <= quality <= DERIVATIVE_QUALITY:
+        raise ValueError(f"quality outside deterministic range: {quality!r}")
     with Image.open(BytesIO(original_bytes)) as im:
         im.load()
         if im.mode not in ("RGB", "RGBA"):
@@ -108,15 +112,82 @@ def encode_derivative(original_bytes: bytes, width: int = DEFAULT_DERIVATIVE_WID
             im = im.resize((target_width, target_height), Image.LANCZOS)
         flat = Image.new(im.mode, im.size)
         flat.paste(im)  # drops EXIF/ICC; keeps only pixel data
-        target = DERIVATIVE_TARGET_BYTES.get(width)
-        quality = DERIVATIVE_QUALITY
-        while True:
-            buf = BytesIO()
-            flat.save(buf, format="WEBP", quality=quality, method=DERIVATIVE_METHOD)
-            encoded = buf.getvalue()
-            if target is None or len(encoded) <= target or quality <= DERIVATIVE_MIN_QUALITY:
-                return encoded
-            quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+        buf = BytesIO()
+        flat.save(buf, format="WEBP", quality=quality, method=DERIVATIVE_METHOD)
+        return buf.getvalue()
+
+
+def choose_derivative_encoding(original_bytes: bytes, width: int = DEFAULT_DERIVATIVE_WIDTH):
+    """Preserve the B6.2 per-file target and return its selected quality plus bytes."""
+    target = DERIVATIVE_TARGET_BYTES.get(width)
+    quality = DERIVATIVE_QUALITY
+    while True:
+        encoded = encode_derivative_at_quality(original_bytes, width, quality)
+        if target is None or len(encoded) <= target or quality <= DERIVATIVE_MIN_QUALITY:
+            return quality, encoded
+        quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+
+
+def encode_derivative(original_bytes: bytes, width: int = DEFAULT_DERIVATIVE_WIDTH) -> bytes:
+    return choose_derivative_encoding(original_bytes, width)[1]
+
+
+def rebalance_identity_800(records, originals, hub_by_place, budget=IDENTITY_HUB_BUDGET_BYTES):
+    """Fit identity card renditions under the per-hub cap without crossing quality 48.
+
+    First apply the existing deterministic per-file rule. If that leaves a hub over budget,
+    lower the highest-saving next quality step across that hub, with place id and asset path as
+    stable tie-breaks. Source images, 400px renditions, and non-identity roles are untouched.
+    """
+    planned, qualities, grouped = {}, {}, {}
+    for record in records:
+        if record.get("role") != "identity":
+            continue
+        place_id, asset_path = record["placeId"], record["assetPath"]
+        hub = hub_by_place.get(place_id)
+        if not hub:
+            raise ValueError(f"identity place has no hub: {place_id}")
+        quality, encoded = choose_derivative_encoding(originals[asset_path], 800)
+        planned[asset_path] = encoded
+        qualities[asset_path] = quality
+        grouped.setdefault(hub, []).append(record)
+
+    totals = {}
+    for hub, members in sorted(grouped.items()):
+        next_encoded = {}
+        for record in members:
+            asset_path = record["assetPath"]
+            quality = qualities[asset_path]
+            if quality > DERIVATIVE_MIN_QUALITY:
+                next_quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+                next_encoded[asset_path] = encode_derivative_at_quality(originals[asset_path], 800, next_quality)
+        total = sum(len(planned[row["assetPath"]]) for row in members)
+        while total > budget:
+            options = []
+            for record in members:
+                asset_path = record["assetPath"]
+                lowered = next_encoded.get(asset_path)
+                if lowered is None:
+                    continue
+                saved = len(planned[asset_path]) - len(lowered)
+                if saved > 0:
+                    next_quality = max(DERIVATIVE_MIN_QUALITY, qualities[asset_path] - DERIVATIVE_QUALITY_STEP)
+                    options.append((-saved, record["placeId"], asset_path, next_quality, lowered))
+            if not options:
+                raise ValueError(
+                    f"identity hub {hub} remains {total} B over the {budget} B cap at quality floor {DERIVATIVE_MIN_QUALITY}"
+                )
+            _, _, asset_path, quality, encoded = min(options)
+            total -= len(planned[asset_path]) - len(encoded)
+            planned[asset_path] = encoded
+            qualities[asset_path] = quality
+            if quality > DERIVATIVE_MIN_QUALITY:
+                next_quality = max(DERIVATIVE_MIN_QUALITY, quality - DERIVATIVE_QUALITY_STEP)
+                next_encoded[asset_path] = encode_derivative_at_quality(originals[asset_path], 800, next_quality)
+            else:
+                next_encoded.pop(asset_path, None)
+        totals[hub] = total
+    return planned, qualities, totals
 
 
 def encode_lqip(original_bytes: bytes) -> str:
@@ -163,11 +234,29 @@ def main() -> int:
     args = parser.parse_args()
 
     metadata = json.loads(METADATA_PATH.read_text(encoding="utf-8"))
-    records = metadata["images"]
+    all_records = metadata["images"]
+    records = all_records
     if args.only:
         records = [r for r in records if r["placeId"] == args.only]
         if not records:
             sys.exit(f"No metadata record for placeId {args.only!r}.")
+
+    places = json.loads((REPO_ROOT / "data" / "places.json").read_text(encoding="utf-8"))
+    hub_by_place = {place["id"]: place.get("hub") for place in places}
+    identity_originals = {}
+    for record in all_records:
+        if record.get("role") != "identity":
+            continue
+        original = ASSET_ROOT / record["assetPath"]
+        if not original.is_file():
+            sys.exit(f"{record['placeId']}: original missing on disk: {record['assetPath']}")
+        identity_originals[record["assetPath"]] = original.read_bytes()
+    try:
+        identity_800, identity_qualities, identity_hub_totals = rebalance_identity_800(
+            all_records, identity_originals, hub_by_place
+        )
+    except ValueError as exc:
+        sys.exit(f"identity 800w budget rebalance failed: {exc}")
 
     problems = []
     original_bytes_total = 0
@@ -181,12 +270,12 @@ def main() -> int:
             problems.append(f"{record['placeId']}: original missing on disk: {record['assetPath']}")
             continue
 
-        source = original.read_bytes()
+        source = identity_originals[record["assetPath"]] if record.get("role") == "identity" else original.read_bytes()
         original_bytes_total += len(source)
         for width in DERIVATIVE_WIDTHS:
             derivative_rel = derivative_path_for(record["assetPath"], width)
             derivative = ASSET_ROOT / derivative_rel
-            encoded = encode_derivative(source, width)
+            encoded = identity_800[record["assetPath"]] if width == 800 and record.get("role") == "identity" else encode_derivative(source, width)
             derivative_bytes_total[width] += len(encoded)
 
             if args.check:
@@ -237,6 +326,10 @@ def main() -> int:
         total = derivative_bytes_total[width]
         share = (total / original_bytes_total * 100) if original_bytes_total else 0
         print(f"     {width}px {total / 1048576:.2f} MiB ({share:.1f}% of originals)")
+    for hub, total in sorted(identity_hub_totals.items()):
+        adjusted = sum(identity_qualities[row["assetPath"]] < DERIVATIVE_QUALITY for row in all_records
+                       if row.get("role") == "identity" and hub_by_place.get(row["placeId"]) == hub)
+        print(f"     identity 800w {hub}: {total:,} B / {IDENTITY_HUB_BUDGET_BYTES:,} B cap ({adjusted} image(s) quality-adjusted)")
     return 0
 
 

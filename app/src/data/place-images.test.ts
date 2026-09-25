@@ -25,6 +25,16 @@ const b65Plan = JSON.parse(readFileSync(b65PlanPath, "utf-8")) as {
   batches: { entries: { placeId: string }[] }[];
 };
 const b65AcquiredPlaceIds = b65Plan.batches.flatMap((batch) => batch.entries).map((entry) => entry.placeId);
+const b66PlanPath = path.resolve(here, "../../../data/visual/block22-b6-6-acquisition-plan.json");
+const b66Plan = JSON.parse(readFileSync(b66PlanPath, "utf-8")) as {
+  entries: { placeId: string; slug: string }[];
+  unresolved: { placeId: string }[];
+};
+const b66BaselinePath = path.resolve(here, "../../../data/visual/block22-b6-6-baseline.json");
+const b66Baseline = JSON.parse(readFileSync(b66BaselinePath, "utf-8")) as {
+  gradeRows: { placeId: string; needsIdentity: boolean }[];
+};
+const b66AcquiredPlaceIds = b66Plan.entries.map((entry) => entry.placeId);
 
 describe("photography pilot manifest (Phase 4A)", () => {
   it("contains exactly 24 places", () => {
@@ -102,12 +112,12 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("preserves the seven WebP-only records and accounts for the prepared B6.4/B6.5 assets", () => {
+  it("preserves the seven WebP-only records and accounts for prepared B6.4/B6.5/B6.6 assets", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(
-      193 + b64AcquiredPlaceIds.length + b65AcquiredPlaceIds.length,
-    );
+    const registeredResizedRecords = (photographyMetadata as { images: Array<{ processing: string }> }).images
+      .filter((record) => record.processing === "resized-and-webp-reencoded").length;
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(registeredResizedRecords);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
@@ -252,6 +262,17 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     // JP-140 is acquired by B6.3; Phase 4L's historical tranche stays unchanged.
   });
 
+  it("carries each acquired B6.6 C/D target as its single identity and keeps unresolved targets empty", () => {
+    for (const entry of b66Plan.entries) {
+      expect(placeImages[entry.placeId], entry.placeId).toHaveLength(1);
+      expect(placeImages[entry.placeId]?.[0]?.url, entry.placeId).toContain(entry.slug);
+    }
+    for (const item of b66Plan.unresolved) {
+      expect(placeImages[item.placeId], item.placeId).toBeUndefined();
+    }
+    expect(b66AcquiredPlaceIds.every((placeId) => b66Baseline.gradeRows.some((row) => row.placeId === placeId && row.needsIdentity))).toBe(true);
+  });
+
   /**
    * Phase 4A's "exactly one image per place" invariant, retired deliberately by Block 2 and
    * replaced rather than deleted.
@@ -294,8 +315,9 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 194 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(194);
+  it("covers every place represented by the synchronized photography registry", () => {
+    const registryPlaceIds = new Set((photographyMetadata as { images: Array<{ placeId: string }> }).images.map((record) => record.placeId));
+    expect(Object.keys(placeImages).sort()).toEqual([...registryPlaceIds].sort());
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {

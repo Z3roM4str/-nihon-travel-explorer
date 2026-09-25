@@ -260,5 +260,48 @@ class Block22DerivativeContractTests(unittest.TestCase):
         self.assertLessEqual(len(lqip.encode("ascii")), derivatives.LQIP_MAX_DATA_URL_BYTES)
 
 
+class IdentityHubBudgetTests(unittest.TestCase):
+    @staticmethod
+    def _source_bytes():
+        from io import BytesIO
+        from PIL import Image
+
+        image = Image.new("RGB", (800, 600))
+        image.putdata([(x * 255 // 799, y * 255 // 599, ((x // 20) * 17 + (y // 20) * 31) % 256)
+                       for y in range(600) for x in range(800)])
+        stream = BytesIO()
+        image.save(stream, format="WEBP", quality=92, method=6)
+        return stream.getvalue()
+
+    def test_identity_800_renditions_are_deterministically_rebalanced_to_the_hub_cap(self):
+        source = self._source_bytes()
+        record = {"placeId": "JP-004", "assetPath": "images/places/JP-004/example.webp", "role": "identity"}
+        initial_quality, initial = derivatives.choose_derivative_encoding(source, 800)
+        self.assertGreater(initial_quality, derivatives.DERIVATIVE_MIN_QUALITY)
+        next_quality = max(derivatives.DERIVATIVE_MIN_QUALITY, initial_quality - derivatives.DERIVATIVE_QUALITY_STEP)
+        expected = derivatives.encode_derivative_at_quality(source, 800, next_quality)
+        self.assertLess(len(expected), len(initial))
+        budget = len(expected)
+        first = derivatives.rebalance_identity_800([record], {record["assetPath"]: source}, {"JP-004": "Tokio"}, budget)
+        second = derivatives.rebalance_identity_800([record], {record["assetPath"]: source}, {"JP-004": "Tokio"}, budget)
+        self.assertEqual(first, second)
+        renditions, qualities, totals = first
+        self.assertEqual(renditions[record["assetPath"]], expected)
+        self.assertEqual(qualities[record["assetPath"]], next_quality)
+        self.assertEqual(totals, {"Tokio": budget})
+        self.assertGreaterEqual(qualities[record["assetPath"]], derivatives.DERIVATIVE_MIN_QUALITY)
+
+    def test_budget_rebalancing_ignores_non_identity_and_fails_at_quality_floor(self):
+        source = self._source_bytes()
+        identity = {"placeId": "JP-004", "assetPath": "images/places/JP-004/example.webp", "role": "identity"}
+        detail = {"placeId": "JP-004", "assetPath": "images/places/JP-004/detail.webp", "role": "detail"}
+        initial_quality, initial = derivatives.choose_derivative_encoding(source, 800)
+        floor = derivatives.encode_derivative_at_quality(source, 800, derivatives.DERIVATIVE_MIN_QUALITY)
+        self.assertLessEqual(derivatives.DERIVATIVE_MIN_QUALITY, initial_quality)
+        self.assertEqual(derivatives.rebalance_identity_800([detail], {detail["assetPath"]: source}, {"JP-004": "Tokio"}, 0), ({}, {}, {}))
+        with self.assertRaisesRegex(ValueError, "quality floor"):
+            derivatives.rebalance_identity_800([identity], {identity["assetPath"]: source}, {"JP-004": "Tokio"}, len(floor) - 1)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

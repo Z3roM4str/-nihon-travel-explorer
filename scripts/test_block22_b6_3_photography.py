@@ -11,6 +11,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / 'data/visual/block22-b6-3-baseline.json'
 PLAN = ROOT / 'data/visual/block22-b6-3-acquisition-plan.json'
+LATER_PLANS = [ROOT / f'data/visual/block22-b6-{number}-acquisition-plan.json' for number in (4, 5, 6)]
 PLACES = ROOT / 'data/places.json'
 METADATA = ROOT / 'data/visual/photography-metadata.json'
 APP_METADATA = ROOT / 'app/src/data/photography-metadata.json'
@@ -73,7 +74,15 @@ class B63PhotographyTests(unittest.TestCase):
         for pid in self.unresolved:
             self.assertNotIn(pid, self.by_place)
         self.assertEqual(self.metadata['imageCount'], len(self.images))
-        self.assertEqual(len(self.by_place), self.baseline['coveredPlaceCount'] + len(new))
+        base_covered = {row['placeId'] for row in self.images[:self.baseline['imageCount']]}
+        later_ids = set()
+        for path in LATER_PLANS:
+            plan = load(path)
+            entries = plan.get('entries', [])
+            entries += [entry for batch in plan.get('batches', []) for entry in batch.get('entries', [])]
+            later_ids.update(entry['placeId'] for entry in entries)
+        expected_new_places = (set(self.entries) | later_ids) - base_covered
+        self.assertEqual(len(self.by_place), self.baseline['coveredPlaceCount'] + len(expected_new_places))
 
     def test_new_identity_metadata_lqip_and_assets(self):
         for pid, entry in self.entries.items():
