@@ -161,7 +161,11 @@ async function openHub(page, url, hub, network) {
   await page.waitForTimeout(350);
   await network.settle();
   network.reset();
-  await hubButton.click();
+  // Activate the hub in the same task as the reset. `locator.click()` first scrolls the button into
+  // view, and that scroll makes the start screen request more lazy photos after the reset; an in-page
+  // click neither scrolls nor waits, and React unmounts the start screen synchronously on it, so every
+  // photo requested from here on is requested by the hub being audited.
+  await hubButton.evaluate((button) => button.click());
   await page.waitForSelector(".place-card", { timeout: 15000 });
   await page.waitForTimeout(500);
 }
