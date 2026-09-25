@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 224,
+  "imageCount": 225,
   "images": [
     {
       "placeId": "JP-001",
@@ -1066,6 +1066,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRpwBAABXRUJQVlA4IJABAACQCgCdASoUAA0AAAAAJYwCdMoRwN4AniDeSf2A9IC5AfhLYn/yD8gM8p+KuST/p/4q+QFG6fhXrxP8Z+M3RN+M/8b7g38a/m/9c/LD+t8hz+pJ2jQaP7uV42LV/sAA/v/RhpjfbLJ+ot3jBZN/NjsWKDiWcdIpxmZgFi3K0RGD//BdhfkU2fLbu6rTDcB6pPn07MeB6mPvfeCkp4Ghb+GLWAkLb8btBcfeR1TaGFO1hvbQj7Lp+CI5f8Tv1mgOV/9W56RV9gH85H3FyUcvP96QEs/3ta++pX4EGYk65TlIcLTWjuOI74Is//BXf6AOoA6LL17cMBXP8OPh7brJ8TEB7iEGIL7QOGvOB00f/607WA/9eJZqM1Lb6QGwt/iAWcv611GBnun9DmZ8dOh1SWoj/8MWUp4tSP9RudkPe3QYTpVZOC381F//9oC9R7oMaxWTdJjYCjRYt/kJhruWyyLpXB/NY71dj/6hDgukDZneigZabA7fPw54Xt5Bliqf5r35aG8yMlwjTBpSYK0gk7AA"
+    },
+    {
+      "placeId": "JP-197",
+      "assetPath": "images/places/JP-197/iriomote-pinai-saara-falls.webp",
+      "alt": "Pinai-saara waterfall in Iriomote Island's subtropical forest",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AIriomote_pinaisara_fall.jpg",
+      "credit": "Paipateroma",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Iriomote_pinaisara_fall.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Iriomote pinaisara fall.jpg",
+      "originalWidth": 1600,
+      "originalHeight": 1200,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRkwBAABXRUJQVlA4IEABAABQBQCdASoUAA8AAAAAJZQCdMoMYPYDeAeJn6813IKQp9M2U1/jd+IEqyX+HtqO1yNZM6gA/v//shXllTr2ffv8oTKEv9t4GHWr/rYyMreO0r6Ant6W0CtVZq71GydmB6//Stdfp47/gzy1/wa/gWHxW/zBVklNscnQ99rCi/GeV0v80CIAiflYneJM8IFNGfI/2J7+hx6+6Iyb8KoO3U5IyHIdjT7bxrKSFIOP/EHHIlrhtg3fL/IL+tNsByU4b0MPhjeP4NnW6vllj//zkn/DXIOX//8Qf13t9AazHincrEK3Tou8T4S3vHrP/zXx+8+cclYOL/mv9Q8Jdh/425wkH3zmzuXRqd7CHvuZFTdN3eLEUL7bfifzeiWlQkkQPi+1F9ScC4tSj3RaVySmw0rBqOf0iJQ8zVCK6kDuWVAAAA=="
     },
     {
       "placeId": "JP-205",
