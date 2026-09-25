@@ -75,3 +75,31 @@ The correction session was requested against original implementation `fc09e33f90
 ### New-audit objective and remaining risks
 
 Astra must re-audit the corrected source and reproduce all required viewports and journeys on a browser-equipped runner, especially byte-equivalent V7 survival after blocked unsave, Back/Forward/nearby history, advanced-filter/map parity, modal/lightbox focus stacking, image retry, and initial-network lazy chunk behavior. Visual items remain PARTIAL until then. The build's initial chunk advisory is recorded. Do not begin SOL-3 before Astra disposes these corrections.
+
+---
+
+## Independent-audit F01–F09 correction checkpoint (2026-09-19)
+
+Starting point was the exact required audit commit `8350d3ea3b2a7b42dbcc55fe1d2df26815d7795a` on the supplied `work` checkout; it is a descendant of the requested implementation history. No later product correction was present.
+
+The bounded correction commit addresses only F01–F09: complete card attribution directly below photography; exact DA-07 recommendation vocabulary/icons/treatments; region entry and per-hub counts inside the hub selector; reusable alertdialog trapping/restoration; preservation of the original live discovery opener through nearby chains; per-history-entry region origin surviving reload; one accessible result status in the active filter layer; relative card typography without description clipping; and removal of the completed image's loading overlay. Canonical data, photography bytes, V7 structures, legacy detail, and SOL-3+ remain untouched.
+
+Verification: all 70 Vitest files (2464 tests), lint, production build, five passive validators, and `git diff --check` pass. The build retains its pre-existing >500 kB initial-chunk advisory. The browser workflow's live-region assertion was corrected to measure the active non-inert layer instead of counting hidden DOM. Browser evidence could not be regenerated in this container: no browser executable is installed, and five Playwright CDN attempts returned HTTP 403. Therefore rendered approval remains **PARTIAL** and no screenshot is fabricated. Astra should execute `ASTRA_EXPECTED_SHA=<final-sha> ASTRA_AUDIT_OUTPUT=<evidence-dir> npm run audit:astra:browser` from `app/` on the browser-equipped PR runner, inspect the produced screenshots/traces, and specifically recheck F01–F09. SOL-3 is not started.
+
+### Evidence-run availability audit (2026-09-19)
+
+A follow-up environment audit found no installed browser or compatible cache. The checkout has no Git remote, `gh` is unauthenticated, no `GH_TOKEN` exists, and anonymous GitHub API access is blocked by the proxy. Consequently this session cannot verify whether the candidate product commit `0a80f44a6bad44f9c83bb25bf45192c34b7874a1` is the remote PR #122 head, publish it, trigger Actions, download an artifact, or attach externally accessible screenshots. The exact inspected workflow, trigger, artifact name, limitations and minimum external action are recorded in `docs/astra/evidence/corrections-0a80f44/README.md`. No visual PASS is claimed.
+
+---
+
+## PR #139: auditoría local y corrección visual (2026-09-23)
+
+La auditoría original se ejecutó sobre `9408e27ec279e6ec80bd27632e656d4f6c265384`: los nueve recorridos automáticos pasaron, pero la captura a 320 px mostró el texto seleccionado recortado en los dos controles rápidos de Explorar. La evidencia original, incluidas capturas y trazas, quedó preservada en `docs/astra/evidence/pr139-local-9408e27-20260923/` mediante el commit exclusivo de documentación `b0e1ad4a40b8c5730790e59e65535bb074147451`.
+
+La causa era de cascada CSS: una regla para hasta 360 px pedía una columna, pero otra regla posterior para hasta 767 px volvía a imponer dos. El commit `95377a20ab06868ac0e5e631a92109a15f08686c` retira la declaración redundante y apila los controles hasta 480 px después de la regla de 767 px. Los anchos mayores conservan el diseño previo. No se cambiaron datos, dependencias, lockfile, runner ni pruebas.
+
+Desde ese commit, con checkout limpio y `ASTRA_EXPECTED_SHA=95377a20ab06868ac0e5e631a92109a15f08686c`, el runner produjo nueve PASS nuevos en `docs/astra/evidence/pr139-corrected-95377a2-20260923/`. La revisión visual de las capturas nuevas y la comprobación complementaria de los dos selectores en 320, 375, 390, 430, 768, 1024 y 1440 px confirman texto completo, cero desbordamiento horizontal y controles operativos. Se inspeccionaron también las capturas nuevas de fallo de guardado en Explorar, ficha y Nuestro viaje. Esto resuelve el defecto visual concreto; la automatización por sí sola no certifica todos los aspectos editoriales ni de accesibilidad.
+
+Lint y build terminaron con código 0; las 24 pruebas específicas de Astra pasaron. La suite completa de Vitest terminó con tres fallos preexistentes de comparación literal de código fuente que espera LF y recibe CRLF en este checkout Windows (dos de OrderedSequenceBuilder, uno de feb-mar-status). No se modificaron ni debilitaron esas pruebas. El detalle está en `docs/astra/evidence/pr139-corrected-95377a2-20260923/CORRECTED_AUDIT_REVIEW.md`.
+
+No hubo push, merge ni otro PR. La API pública de GitHub confirmó el SHA original como HEAD del PR #139 antes de estos commits locales. Git CLI sigue bloqueado por TLS de Schannel/Norton y `gh` informa de un token inválido; son problemas separados. Para publicar, verificar otra vez el HEAD remoto, resolver el acceso mediante mecanismos autorizados, trasladar los commits locales y ejecutar los controles de CI de la rama del PR. El bundle local verificado acompaña este handoff fuera del checkout.

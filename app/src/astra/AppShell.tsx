@@ -11,7 +11,7 @@ export function AppShell({ destination, savedCount, children }: Props) {
         <a href="#/explorar" aria-current={destination === "explore" ? "page" : undefined}>Explorar</a>
         <a href="#/viaje" aria-current={destination === "trip" ? "page" : undefined}>Nuestro viaje {savedCount > 0 && <span className="astra-count">{savedCount}</span>}</a>
       </nav>
-      <span className="astra-profile" aria-label="Perfil local">Mis gustos ▾</span>
+      <span className="astra-profile">Viaje de Fernando y Lorena</span>
     </header>
     <main id="astra-main" tabIndex={-1}>{children}</main>
   </div>;
