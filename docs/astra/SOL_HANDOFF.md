@@ -164,3 +164,15 @@ Astra debe auditar SOL-3 de forma independiente en un runner con navegador real,
 - LIMITACIÓN local: el primer `npm test` detectó que la imagen del contenedor no tenía `jsdom`. `npm ci` intentó reparar dependencias pero el proxy respondió 403 para paquetes npm y dejó `node_modules` incompleto; por ello esta ejecución local no puede presentar nuevos resultados de Vitest/lint/build ni instalar Chromium. Los resultados verdes del HEAD remoto anterior no se reinterpretan como resultados de esta corrección.
 - La auditoría corregida debe ejecutarse en GitHub Actions sobre el HEAD publicado y producir 9/9 sólo si todas las nuevas aserciones pasan. Los siete viewports declarados son 320×800, 375×812, 390×844, 430×932, 768×1024, 1024×768 y 1440×900.
 - No se modificaron datos, fotografía canónica, parsers, V7, `experiment/astra-redesign`, `main` ni trabajo Claude. No se inició SOL-4.
+
+---
+
+## Corrección final pendiente PR #149 — CTA y tabbables (2026-09-25)
+
+- HEAD remoto inicial confirmado por el propietario del PR: `515af3a2f9e1844fc23f89354dcf1977468a2b78`; base Astra inalterada: `b2ae3877111e2b207ca7e7f452bd9e4f30ec12f1`.
+- Causa de `01-viewports`: en móvil `.place-detail__scroll { height: 100% }` ocupaba toda la altura disponible dentro del layout y desplazaba el footer fuera del viewport. La columna ahora es un contenedor flex vertical y el scroll usa solamente el espacio restante mediante `flex: 1 1 auto`, `min-height: 0` y `height: auto`. El grid desktop 52/48 permanece intacto.
+- Causa de `05-modal-focus`: el focus trap enumeraba links, botones y `tabindex`, pero omitía el `summary` nativamente tabbable. Con créditos cerrados, el navegador podía enfocar el summary y el siguiente Tab escapaba porque el trap no lo reconocía como último control. La enumeración incluye ahora `summary`, controles de formulario y tabindex; filtra disabled/tabindex=-1, ancestros hidden/inert/aria-hidden, estilos no visibles y links dentro de `details` cerrado. Al abrir créditos, los links de fuente/licencia se incorporan a la secuencia.
+- El test SOL-3 verifica summary cerrado como límite, links de créditos al abrirlo, wrap adelante/atrás, detail padre inert, Escape superior y restauración del opener.
+- Validadores pasivos y `git diff --check`: PASS. Lint: código 0 con los tres warnings preexistentes. La suite alcanzó 70 archivos / 2465 pruebas no-jsdom PASS, pero cuatro archivos jsdom no pudieron arrancar porque la imagen suministrada carece de `jsdom`; `npm install --offline` confirmó que faltan tarballs y el proxy impide recuperarlos. Build quedó bloqueado sólo por los tipos de `@testing-library/react` ausentes tras esa instalación incompleta.
+- No hay Chromium instalado localmente y el remoto no es accesible desde este contenedor (`CONNECT tunnel failed, response 403`). Por ello no se declara un 9/9 nuevo ni un HEAD remoto publicado sin evidencia. El workflow del PR debe ejecutar los nueve journeys y los viewports 320×800, 375×812, 390×844, 430×932, 768×1024, 1024×768 y 1440×900 después de publicar el commit correctivo.
+- No se tocaron `main`, ramas Claude, dataset, IDs, fotografía, parsers ni V7. SOL-4 no se inició.

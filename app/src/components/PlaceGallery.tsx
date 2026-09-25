@@ -6,7 +6,23 @@ import { describePhotographyProcessing } from "../lib/photography-attribution";
 type Props = { images: PlaceImage[]; imageBrief: string; placeName: string };
 type LoadState = "loading" | "loaded" | "error";
 const SWIPE_THRESHOLD_PX = 40;
-const FOCUSABLE = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const FOCUSABLE = 'a[href],button,input,select,textarea,summary,[tabindex]';
+
+function isTabbable(element: HTMLElement): boolean {
+  if (element.matches(':disabled,[tabindex="-1"]') || element.tabIndex < 0) return false;
+  if (element.closest('[hidden],[inert],[aria-hidden="true"]')) return false;
+  for (let current: HTMLElement | null = element; current; current = current.parentElement) {
+    const style = getComputedStyle(current);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+  }
+  const closedDetails = element.closest("details:not([open])");
+  if (closedDetails && element !== closedDetails.querySelector(":scope > summary")) return false;
+  return true;
+}
+
+function tabbableElements(root: HTMLElement): HTMLElement[] {
+  return [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(isTabbable);
+}
 
 export function PhotographyAttribution({ image }: { image: PlaceImage }) {
   const processing = describePhotographyProcessing(image.processing);
@@ -52,13 +68,13 @@ export function PlaceGallery({ images, placeName }: Props) {
     const parentDialog = opener?.closest<HTMLElement>('[role="dialog"][aria-modal="true"]') ?? null;
     const parentWasInert = parentDialog?.hasAttribute("inert") ?? false;
     parentDialog?.setAttribute("inert", "");
-    (element?.querySelector(FOCUSABLE) as HTMLElement | null)?.focus();
+    if (element) tabbableElements(element)[0]?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") { event.preventDefault(); event.stopImmediatePropagation(); closeLightbox(); return; }
       if (event.key === "ArrowRight") { event.preventDefault(); goTo(index + 1); return; }
       if (event.key === "ArrowLeft") { event.preventDefault(); goTo(index - 1); return; }
       if (event.key !== "Tab" || !element) return;
-      const controls = [...element.querySelectorAll<HTMLElement>(FOCUSABLE)];
+      const controls = tabbableElements(element);
       if (!controls.length) { event.preventDefault(); return; }
       const first = controls[0], last = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
