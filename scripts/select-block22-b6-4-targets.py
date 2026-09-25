@@ -64,7 +64,17 @@ def main():
 
     if args.check:
         baseline = json.loads(BASELINE.read_text(encoding="utf-8"))
-        initial_images = images[: baseline["imageCount"]]
+        # B6.4 experiences are inserted next to identities to preserve gallery ordering, so
+        # slicing the first imageCount entries would accidentally include new records and drop
+        # later base records. Reconstruct the original registry by excluding every planned
+        # B6.4 acquisition title, regardless of which batch has been processed.
+        plan = json.loads((ROOT / "data/visual/block22-b6-4-acquisition-plan.json").read_text(encoding="utf-8"))
+        b64_titles = {
+            entry["title"]
+            for batch in plan.get("batches", [])
+            for entry in batch.get("entries", [])
+        }
+        initial_images = [image for image in images if image.get("originalTitle") not in b64_titles]
         initial_rows = derive(places, initial_images)
         if baseline["gradeSRows"] != initial_rows:
             raise SystemExit("STOP: current Grade-S rows differ from the pinned initial gate")

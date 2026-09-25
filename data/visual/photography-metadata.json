@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 214,
+  "imageCount": 215,
   "images": [
     {
       "placeId": "JP-001",
@@ -489,6 +489,24 @@
       "processing": "resized-and-webp-reencoded",
       "role": "identity",
       "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAACwCwCdASoUAA8AAAAAJYgCdMoRwN6B+KvCBGASIBtl/6Qe+3pgHPXew5+z/7R+05Sgm0D9gMsE9k/EbPj/jtkk/7t+JNU3/0f2AdJT5Y/3HuB/xz+Z/3j8py9XlcCazRrw7lUJXgAA/v//kWE8G2Ijvw6bOv9k8whS/+YwVqIBkoK93YnOA6nqf/ef8Bf+DX4RIRZcG7c//36em0P5EZx+Gb+fjOzpgj+UH/FS1Ll+f9w+8U2bg61eb8KTVxRk94sojYI4AMfHtR2//MRB8reh4f4fIvYH+nu6P+klPF40GNHh7/7ec2KKOHeGxsky5Jqaclwqgwl/b/Xee9g5OPDq1p6kPjvCtT4/29DO7//85NPefAaePbWWp6irWX38cu13EffbHvH//5k74cY2KkEwZX9LnI2JQMb7/yZOjL9ICEi8+2f4QCb6h18TT6Sk9vf+od24PY5l//Db5UJcw8Q34sdAsfl7T8/VxcPn/pDBamPf9+V4B8L1PUYjLO1o/VWyzpZmCBzRrF84Vv/5TsqH/xS9PLFYN15Fb4JSSKIROw6lh4+rtVG0/6hQey1uL5YpNXn138z2QRN/F7VMK/70TzDP8Xno9jmjabv/kPDj2AAA"
+    },
+    {
+      "placeId": "JP-196",
+      "assetPath": "images/places/JP-196/taketomi-water-buffalo-cart-ride.webp",
+      "alt": "Un visitante recorre Taketomi en un carro tirado por un búfalo de agua, entre la vegetación del pueblo.",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3A%E6%B0%B4%E7%89%9B%E8%BB%8A.jpg",
+      "credit": "Tzuhsun Hsu",
+      "license": "CC BY-SA 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a4/%E6%B0%B4%E7%89%9B%E8%BB%8A.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:水牛車.jpg",
+      "originalWidth": 3264,
+      "originalHeight": 2176,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "role": "experience",
+      "lqip": "data:image/webp;base64,UklGRr4BAABXRUJQVlA4ILIBAADQCgCdASoUAA0AAAAAJZQCdMoRwIsyrVxYB6AHlQ+xN+yVWAcSBlyviH4q/kBpAPw7yQH9E/HTRZuIA9DH9m+wD2gPAA9gf+M/xn+xflV/Zfkz6gA4HpDZwrLKXF90qAD+//9+SS/2OH6zI7tXJY+afMJtS1TfOAkf+Gn1/wpDf9//9Tee7aixc7D5mprhFcDD/+DShuFQRABIQKqfLar3Xk58bCWqM5cSqjOxSTn/O6PpB/tSx9Nfg1+jLkebWCKxt8nhDKyZhmL//2wtr/+nr5y3s62MMsXYeUWTl6atD/euteWh9Fb7H6Dk0y2DecjV341X5owV9JG1v89QTQSATD4TNPSnzdyu/5Av87o/vTMDHeLCfw4bdMapXQBv//zGFNV7ou90nrt/AvMt/XGlffArgBAxFHutfqb3f//hIeH1k+mnzXD2g5tyDFFfHDdRsdIyZtQph/BPajEoggfXg1x6/EIa2ZofXdUjoLNldXf+c+UFD2/536aCKsQAqThVwaW0LFtPsNlDR4auJNuMA2FJMV4OtHSVc1IOSmoINuXpXnn/2/4/7tHw+vyG4AAAAA=="
     },
     {
       "placeId": "JP-179",

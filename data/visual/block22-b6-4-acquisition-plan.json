@@ -463,6 +463,190 @@
           "reason": "CC BY 2.0 y ubicación correctas, pero el original es 1280 × 854 y Commons no sirvió la miniatura 1024px que exige el pipeline; se rechazó para no descargar el original como sustituto ni alterar el contrato de adquisición."
         }
       ]
+    },
+    {
+      "batch": 4,
+      "entries": [
+        {
+          "placeId": "JP-196",
+          "slug": "taketomi-water-buffalo-cart-ride",
+          "title": "File:水牛車.jpg",
+          "role": "experience",
+          "alt": "Un visitante recorre Taketomi en un carro tirado por un búfalo de agua, entre la vegetación del pueblo.",
+          "whyExperience": "Documenta una forma real de recorrer el pueblo y añade transporte, actividad y escala humana.",
+          "identityComparison": "La identity muestra una vivienda tradicional de Taketomi sin recorrido. Esta fotografía sitúa el carro de búfalo y a sus pasajeros en movimiento por la aldea, con una composición centrada en la experiencia de visita.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:水牛車.jpg",
+          "originalPage": "https://www.flickr.com/photos/alberth2/4975951555/"
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-188",
+          "category": "UNRESOLVED — RESOLUTION",
+          "reason": "Se buscaron imágenes en Commons, Flickr y Openverse. La candidata de windsurfing (1920 × 1080, CC BY-SA 4.0, ubicación exacta) sí muestra una actividad distinta, pero la adquisición sólo puede realizarse con el pipeline requerido: Commons devuelve el original sin miniatura al pedir 1600 px (thumbnail_unscaled), y el pipeline lo rechaza para no descargar directamente el original. La miniatura 1280 px existe, pero este pipeline no ofrece una solicitud de tamaño alternativo para un mismo archivo; no se modifica el registro ni se evita su control.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Openverse"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "KIMG0450windsurfing in maehama.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:KIMG0450windsurfing_in_maehama.jpg",
+              "reason": "La comparación visual confirma un windsurfista en movimiento que aportaría una experiencia distinta; el original es 1920 × 1080, pero el pipeline solicita 1600px y Commons devuelve la URL original sin miniatura. Se rechaza para no descargar el original fuera del contrato ni modificar el pipeline para forzar este caso."
+            },
+            {
+              "title": "Yonaha Beach (51924567580).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Yonaha_Beach_(51924567580).jpg",
+              "reason": "CC BY 2.0 y ubicación exacta, pero la imagen muestra la misma costa y pasarela vacías que la identity; no aporta uso de la playa."
+            },
+            {
+              "title": "Miyako maipama 1.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Miyako_maipama_1.jpg",
+              "reason": "CC BY-SA 4.0, pero es otra vista estática de arena y mar sin actividad o recorrido; resulta redundante con la identity."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-192",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "La comparación visual de la candidata CC BY disponible muestra agua, isletas y una sola embarcación sin pasajeros perceptibles; su composición sigue leyendo como paisaje de la bahía y no como visita. Otra fotografía licenciada de barcos de fondo de cristal aparece identificada con copyright reservado en Flickr; el material oficial de JNTO no publica licencia compatible. No se fuerza una segunda panorámica como experience.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Japan National Tourism Organization"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "Kabira Bay (52117120293).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Kabira_Bay_(52117120293).jpg",
+              "reason": "CC BY 2.0 y coordenadas exactas, pero el candidato muestra una bahía casi vacía con un único barco distante; al compararlo con la identity de Kabira con barcos, no añade pasajeros, actividad ni otro modo de recorrer el sitio."
+            },
+            {
+              "title": "Glass bottom boats in tropical lagoon in Kabira bay, Yaeyama Islands, Ishigaki, Japan",
+              "url": "https://www.flickr.com/photos/mytripsmypics/53198347426",
+              "reason": "La escena sería más representativa, pero la página original identifica copyright de Eric Lafforgue y no declara una licencia permitida."
+            },
+            {
+              "title": "Kabira Bay Glass Bottom Boats",
+              "url": "https://www.japan.travel/en/spot/375/",
+              "reason": "La fuente oficial muestra la actividad de paseo en barco, pero no declara una licencia compatible para reutilizar las fotografías."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-197",
+          "category": "UNRESOLVED — NO REPRESENTATIVE EXPERIENCE",
+          "reason": "La búsqueda en Commons, Flickr, Openverse y la guía oficial de Okinawa halló manglares y fotografías de kayak, pero las imágenes con personas proceden de páginas sin licencia compatible o muestran otra isla; las imágenes CC verificables del Nakama River son paisajes vacíos. La candidata CC BY comparada desde arriba vuelve a mostrar el manglar sin visitantes ni recorrido, por lo que no complementa la identity con una experiencia.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Openverse",
+            "Visit Okinawa official guide",
+            "UNESCO World Heritage Centre"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "Iriomote mangroves (52117082031).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Iriomote_mangroves_(52117082031).jpg",
+              "reason": "CC BY 2.0 y ubicación exacta, pero muestra una franja de manglar y lodo desde arriba sin personas o recorrido; frente a la identity de Nakama River sólo añade otra vista vacía de la misma vegetación."
+            },
+            {
+              "title": "Iriomote mangrove 2007-04-04.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Iriomote_mangrove_2007-04-04.jpg",
+              "reason": "CC BY-SA disponible y ubicación en Nakama River, pero representa sólo árboles de manglar y agua; no muestra visita, actividad o escala humana."
+            },
+            {
+              "title": "Kayaking iriomote mangrove river",
+              "url": "https://www.tripadvisor.com/LocationPhotoDirectLink-g424929-d7240816-i351322294-Iriomote_Osanpo_Kibun-Iriomote_jima_Taketomi_cho_Yaeyama_gun_Okinawa_Pre.html",
+              "reason": "La imagen muestra la experiencia adecuada, pero la página no declara una licencia abierta compatible para reutilización."
+            },
+            {
+              "title": "Mangrove forest (Nakama River, Iriomote Is.)",
+              "url": "https://whc.unesco.org/en/documents/165860",
+              "reason": "El archivo indica copyright © MOEJ y NoDerivatives, incompatible con la licencia permitida y el pipeline de reencodificación."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-203",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "La búsqueda en Wikimedia Commons, Flickr y el sitio oficial del resort encontró escenas con visitantes que incluyen de forma sustancial el castillo, decoraciones o elementos de Disney. La licencia CC o CC0 del fotógrafo no despeja los derechos de esos sujetos contemporáneos. El material oficial no declara una licencia de reutilización compatible, y otras entradas licenciadas son fachadas estáticas redundantes con la identity. Se mantiene unresolved sin asumir una excepción legal.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Tokyo Disney Resort official photography FAQ",
+            "Tokyo Disney Resort official park terms"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "Tokyo Disneyland Opening Year.jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Tokyo_Disneyland_Opening_Year.jpg",
+              "reason": "CC0 y visitantes verificables, pero la familia aparece ante el castillo icónico de Disney; los derechos del sujeto contemporáneo no quedan resueltos por la licencia del fotógrafo."
+            },
+            {
+              "title": "Tokyo Disneyland Entrance (9409986068).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Tokyo_Disneyland_Entrance_(9409986068).jpg",
+              "reason": "CC BY 2.0, pero representa la entrada y señalización del parque casi igual que la identity y no muestra una experiencia distinta."
+            },
+            {
+              "title": "Tokyo Disneyland Electrical Parade Dreamlights",
+              "url": "https://www.tokyodisneyresort.jp/en/tdl/show/detail/913/",
+              "reason": "La página oficial describe el desfile y ofrece fotografías promocionales sin una licencia compatible de reutilización; personajes y decorados protegidos son centrales."
+            }
+          ]
+        },
+        {
+          "placeId": "JP-204",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "La búsqueda en Wikimedia Commons, Flickr y el sitio oficial del resort no encontró una escena de actividad legalmente clara que no dependa de decorados temáticos contemporáneos. Las fotos CC identificadas muestran el volcán Mount Prometheus, el puerto escenográfico o góndolas del parque: el fotógrafo puede licenciar su toma, pero no resuelve automáticamente los derechos de esas obras. No se convierte una segunda vista arquitectónica en experience.",
+          "searchSources": [
+            "Wikimedia Commons",
+            "Flickr",
+            "Tokyo Disney Resort official photography FAQ",
+            "Tokyo Disney Resort official park terms"
+          ],
+          "candidatesRejected": [
+            {
+              "title": "Tokyo Disney Sea (52853628038).jpg",
+              "url": "https://commons.wikimedia.org/wiki/File:Tokyo_Disney_Sea_(52853628038).jpg",
+              "reason": "CC BY 2.0, pero el puerto y la arquitectura temática dominan la imagen y repiten la dimensión visual de Mount Prometheus ya presente en la identity; posible derecho de las obras de parque no resuelto."
+            },
+            {
+              "title": "Mediterranean Harbor: Venetian Gondolas",
+              "url": "https://www.flickr.com/photos/jdhilger/6978548593",
+              "reason": "La escena de recorrido muestra góndolas en un puerto escenográfico, pero la página original no confirma una licencia reutilizable compatible; el decorado del parque también sigue siendo sujeto central."
+            },
+            {
+              "title": "Can I take photos or videos at the Parks?",
+              "url": "https://faq-en.tokyodisneyresort.jp/answer/680ba03d01fdf7431bafb1dd/",
+              "reason": "La guía oficial no otorga una licencia de reutilización para imágenes promocionales o instalaciones protegidas; sólo confirma límites de fotografía comercial/publicación."
+            }
+          ]
+        }
+      ],
+      "rejectedPreparedRecords": [
+        {
+          "placeId": "JP-188",
+          "title": "File:KIMG0450windsurfing in maehama.jpg",
+          "reason": "La imagen tiene CC BY-SA 4.0 y aporta actividad, pero el pipeline solicitó 1600px y Commons devolvió el original (thumbnail_unscaled); no se elude el control de descarga directa ni se altera el pipeline."
+        },
+        {
+          "placeId": "JP-188",
+          "title": "File:Yonaha Beach (51924567580).jpg",
+          "reason": "CC BY 2.0, pero la comparación visual muestra la misma costa y pasarela sin actividad humana legible; composición redundante con la identity, así que se reemplazó por la candidata de windsurfing."
+        },
+        {
+          "placeId": "JP-192",
+          "title": "File:Kabira Bay (52117120293).jpg",
+          "reason": "CC BY 2.0, pero la comparación visual muestra agua vacía y un barco muy pequeño; repite la lectura escénica de la identity sin experiencia de visita."
+        },
+        {
+          "placeId": "JP-197",
+          "title": "File:Iriomote mangroves (52117082031).jpg",
+          "reason": "CC BY 2.0, pero la toma elevada presenta sólo manglares y lodo sin actividad ni visitantes; otra vista de paisaje, no experience."
+        }
+      ]
     }
   ]
 }
