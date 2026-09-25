@@ -5,6 +5,8 @@ on:
     branches:
       - experiment/astra-redesign
       - codex/continuar-proyecto-z3rom4str-desde-astra-redesign
+      - codex/implementar-f01f09-siguiendo-auditoria-astra-ca5545
+      - 'codex/completa-pr-#135-de-astra-16422227132192129267'
     types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
@@ -53,6 +55,18 @@ jobs:
       - name: Install locked dependencies
         working-directory: app
         run: npm ci
+
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+
+      - name: Run Astra tests
+        working-directory: app
+        run: npx vitest run src/astra --reporter=dot
+
+      - name: Run full test suite
+        working-directory: app
+        run: npm test -- --reporter=dot
 
       - name: Install Playwright Chromium
         working-directory: app

@@ -2290,6 +2290,11 @@ a {
   flex-shrink: 0;
 }
 
+.sequence-item__controls .icon-button--small {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
 .sequence-item__controls .icon-button:disabled {
   opacity: 0.35;
   cursor: not-allowed;

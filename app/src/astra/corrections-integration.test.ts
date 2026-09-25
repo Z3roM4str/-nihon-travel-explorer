@@ -8,7 +8,7 @@ describe("Astra SOL-0–2 correction wiring", () => {
     const app = await source("../App.tsx");
     expect(app).toContain("canRemoveSavedPlace(id, localStorage)");
     expect(app.match(/canRemoveSavedPlace\(id, localStorage\)/g)).toHaveLength(2);
-    expect(app).toContain("new Set([...savedIds, ...readAuthoredPlanIds(localStorage)])");
+    expect(app).toContain("new Set([...todosIds, ...readAuthoredPlanIds(localStorage)])");
     expect(app).toContain("savedPlaces={plannerPlaces}");
   });
   it("uses lazy boundaries for map, national geography and planner", async () => {
