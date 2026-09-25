@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 218,
+  "imageCount": 221,
   "images": [
     {
       "placeId": "JP-001",
@@ -762,6 +762,24 @@
       "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACwDACdASoUAA0AAAAAJQBOmUGMHsCaZ/YB7wP4BhC36Ab6BwAH6geiz/qvcj/Xb0mKUE8W/BjJBPVfwr/E3SNfgBkHPeBflf4Z8pzqRP67+N3K5ewX/F/6z+Q/72cqr+lZxfy9KUJ3Uaw825HmgAD+/kZ/8sr//YcP00skFFrHDp//BnTP9nhp/zZ/uI5ACEmt/7Ru3MTSv6BVqFBqv9c1/T+kA+WTg3B5+qdcc1ZrOpDDZnreIUeL+3kPMg9veuRobtZ+VPFe/lc94n/9slJyn/3kzZ8mBa9uxTog0RdqyleyaZ0c1BNdXfWnvoZ17zRenq+f2b2TGKIiQF7fJGv1+z7Zen1X1DYvOP7Qx94HD+LVuFr3jjfvjZZrx7QsV+//od1/5cnhme/DPAWabux/+yqP8m3yB8i6a6Dx4E2x52e8hmX+tGTwIUhdkx5h/8qub+83ka5GJVJ//8YKqg10vchMsbRrXoGcXEkL8UP/tXc3zjDE2dy3oRa6z9Jvbd/zIXWgDpVU86t30weu6y7/mjLj8xpGrTLk6CLN1oO/Rscv3WGiyxcCWPBFW0c8Ni3Q/UhTeZ5AZwAA"
     },
     {
+      "placeId": "JP-135",
+      "assetPath": "images/places/JP-135/himeji-castle-interior-corridor.webp",
+      "alt": "Visitors walking through the timber interior corridor of Himeji Castle",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHimeji_Castle_Interior.jpg",
+      "credit": "ScribblingGeek",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Himeji_Castle_Interior.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Himeji Castle Interior.jpg",
+      "originalWidth": 5191,
+      "originalHeight": 3461,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAABwCwCdASoUAA0AAAAAJYwCdMoRwIsCrS4JBukvAAeUB7FnkZXID8AOfC9Of1uywTyD8N/yM0if4x5BR+Rmoq6ij+u+cfmn9gPxA+gX+Kfxj+x/lN/X+IzNVH48ErTzVXeKSP4AAP7//1NO5ysh5viNeCk6LC0rZwr9bfVuPO1bBEpZk+BEcwf3AJtu51cqALu16Lzb1Wt5WftLffPoJnGn4F9QZz8At//u9Wa+FjYLmizo/5ojwnJ6hl9w4kM/f+vaavAvsJr7+Rfx1lWdZ+zOQyD9/3NnnQFwYg2pYcip4QpxSd6gvHuHy4Va+q9sYpgfv5ypb4YIcbyGCWNkUzGDdCFgZHRpoQwct3zjw41f/UaakmumYhDfxSj666658gD/+ieX/MJpJAeD4z/364dVxrz9R26fHub/5l4fxQTTX/VFkn0vuGAGy4ZNv/8322+p+PWNNYTe9/9miD2qjG/M9Wub9L1ZzXmt9nP+a7vfckOvdyhpoVXTDMGcM24F9hV63JbTQ2M9fEJ6tDLj4Tsz11oVjI1uRVzMOLb/Dn2is6CgDM/iBrKSsAauPMBhQmW3nWJ8PajTYKq2QAA="
+    },
+    {
       "placeId": "JP-142",
       "assetPath": "images/places/JP-142/otani-river-canal.webp",
       "alt": "Canal del río Otani en Kinosaki Onsen bajo la nieve, con sauces nevados, puentes de piedra y hosterías tradicionales en ambas orillas.",
@@ -798,6 +816,24 @@
       "lqip": "data:image/webp;base64,UklGRsgBAABXRUJQVlA4ILwBAAAwDACdASoUAA0AAAAAJQBOmUI7kWBVgMEg3QDgAPK69kTyZrlLwquTj+W/i5npfxA/Y7LI/zf8RtUA/nf5Aa7z+n/kd7OP6r4GH8o/KP6Bf4r/Gf6x+Vn9w5Cv9ADzakTeZgLp8Do5zDyAAP70qyX5X9PFfhPZRTOWPH/g6tICvmpKoC8KS/BsBJWfWv//zuTmdgC73+VTE+J3Nlp/8Upx5P+Z9WygK+Dc/M7z/9amf/zYEUyckgO18HPLg0e3kyWUQlqd49/i3/8NTapHqPRDBb/tsidv6wJZ+g5OG5RT5wO+vQat0QZ7wBXx9iWU7U/qi6XWz/5ZFltnRuzr1fts50CMEuGYBjp/YTm74pqzmW6MECDblcmqq5139dZ4hDf/C9jvGSW//FxaxAcan/7k6iL5ktJ/Wwp3lNPd6/edxuX15N9XUNn09MBtPEK4jB84D6scYwgExO+EZAGz68Nfo9OF12dv+ENSi+T7MR0vyF5jRkppJ9YFsEXGfMHKdAVkEMnjpAiHEt0R5j2x09LUzM8h8Bw7URZNT8kqqLSyWa++MZYughzn70Zc82wgzSOTkQKoUxM20QPAAAA="
     },
     {
+      "placeId": "JP-142",
+      "assetPath": "images/places/JP-142/kinosaki-onsen-gosho-no-yu.webp",
+      "alt": "Gosho-no-yu public bathhouse in Kinosaki Onsen",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKinosaki-Onsen_Gosho-no-yu.jpg",
+      "credit": "MaedaAkihiko",
+      "license": "CC0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Kinosaki-Onsen_Gosho-no-yu.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kinosaki-Onsen Gosho-no-yu.jpg",
+      "originalWidth": 5471,
+      "originalHeight": 3647,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRrIBAABXRUJQVlA4IKYBAADwCwCdASoUAA0AAAAAJZQCdMoRwHvdzQDzIPWq0wDnoP1V+C39nfRytADpwjwL61+O2eU/Bb9L/8ZmAP53+Gf7Aa4Bpq+Il/wHuC/xH+Pf1X8jf7L///oz6kD9VTtjDcuT8m894jhcAAD+/3PR660K3ecL//nHgxIaM/7fMQrY3zI2FcdIS1/KvjPgk0tk9pPtjKabtt+PmfDtzjtTKqtBV36jnZD8bfLngXXD6ac5cmZw57j23bWv8/8tSbzUPfgnkUmnXDfpcD90YtusMlOVTuwIwCtJMAuEbKrDag1l7vFnTw/d3dZxM83gxLl4j/39TChQIysBYSR/pne9l/FyzF3EOOoGd6fS32FF/9q1fbxxCEk/qcX3331/87gSFcsY4+EPJ3PtHyTuSVkex/IyZ7jkvvFc9i3hhn7hZL6GRi6eWBazMPZ/NEOg0U21848Q3Go/6PP4Q2WUYZt9L73Tb//8ES+cb51//0Wircy1YuvYT/9Z8rlXAR1+f0JeUcwXlK373hRPOik3n93UfTF0OXWbL55zvxPhCkX4nwhpFtKwRmAAAA=="
+    },
+    {
       "placeId": "JP-143",
       "assetPath": "images/places/JP-143/koyasan-temple-lodging.webp",
       "alt": "Pabellón de madera del templo Ren'ge-in en Koyasan, uno de los templos con alojamiento, con linterna de piedra y patio de grava.",
@@ -832,6 +868,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRsQBAABXRUJQVlA4ILgBAABQCwCdASoUAA0AAAAAJbACdMoRwN4B+IH4q1gG2Z6Ax+wGWAc8v7Cv7XfsB7S1Gvx0f5L+Kv4AaTf8Xfwly0D8jvICjQLq48gf4j3Bv4b/Jv7t+R/Cqn3wsCvNrlL0pNS1peAA/v//ERxfDCeRUssXmfyojrXeUXu5IxAam260uNj//5QF6LYn2P/5B6tMhe9MfJvzw/KXcjqwpr04FBQR//1v5Hz6zkmyfP7bN5egCvWf9faBjZp1+DX5h/WDWUiHQRGKM53Gf/En+kN8yjo/nBw2Hlgf/KeyjAFC8LgAv/8xfH/BMfN+4bOkcpDMMHxHLb6a08vYgpdOK2tJ/+e0pqfOvWWz/9PNdGY4k/smWnLxsfx1//t1596g8/QvhZizots16b8//mA4zfvZedRu77jIG6l4ENPFU/CB8H/5NVkRxvNyARHiHvJ2Dgpl2aZD3qo+Yairo9hgCHPofRRJ5nuWUAe9fTO707S/rS95p8m7X4gg8cVU+HNPiv+0+aViKs26aS5EbHEO+fiILtEE9ZoEPOdbfna0Ib9Cn5t5s2vYf+PyKiLOvgN7rUO0Qleza84u3IAAAA=="
+    },
+    {
+      "placeId": "JP-143",
+      "assetPath": "images/places/JP-143/koyasan-shukubo-temple-breakfast.webp",
+      "alt": "Vegetarian temple breakfast served at a Buddhist lodging in Koyasan",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABreakfast_at_a_buddhist_temple_by_Flowizm_in_Koyasan.jpg",
+      "credit": "Flowizm from Koyasan, Wakayama",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Breakfast_at_a_buddhist_temple_by_Flowizm_in_Koyasan.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Breakfast at a buddhist temple by Flowizm in Koyasan.jpg",
+      "originalWidth": 2816,
+      "originalHeight": 2112,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRsYBAABXRUJQVlA4ILoBAACQCwCdASoUAA8APhkIg0EhBgEABABhLGATplBjBZIP1VvQD0AOkg/bj9gPaqoCDJVPVfxm/IDSRfifkKuiu6cB6Jn6B5LPk3/Je4H/EP5v/gPy9/sfImjwX6kHsmlVDuyNwPSogAD+/6oZeF92H+JfVp+CON7a/+v1HUnsvgW4M1Pm2BRwOdH38Tn0fEHssSQuR1Nv8Dv//9utrx7lYmpq+sxfiZCPOxuQ9plFeem01v8zhy4ccjV5zIg+zVsLJxOf8Qen9f+nTfDddMUf+VH17jXa7O7uH6/okFbvZBpVb3GfGE4YfCVGh0QXIyEiv0mhRE3dsYV//w0lSTvg+SWuQWtT5wb2f1xE7/VT4Vf/7nYN7Kvf/2cu4w78r+9n4R/HPl5TfIVjYRxmQ/o0pj+yd/fHUcVStonY//n+UxSZ6gHaVexadf73yX0mHni7Jf6q87rqvGcTGkkuwh2QE4pWebd8Jr5Eu1sd83NwpCLfJM/sIm7vwCDZMrQtefeV8J0wzJs/vS68MS2OY5lniNgvWdAYx3n/+4f9ysj7v7BuGE0O+9E4a4FuwhXyUQbZY2v+xB7up/YAAAAA"
     },
     {
       "placeId": "JP-144",
