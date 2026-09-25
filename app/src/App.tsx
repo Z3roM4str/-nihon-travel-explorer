@@ -1,456 +1,187 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
-import type { NavigationRegion } from "./data/geography";
-import { getNationalSummary, getPrefectureByCode } from "./data/geography";
-import { FilterPanel } from "./components/FilterPanel";
-import { HubSelector } from "./components/HubSelector";
-import { NationalExplorer } from "./components/NationalExplorer";
-import { SelectionAnalysis } from "./components/SelectionAnalysis";
-import { OrderedSequenceBuilder } from "./components/OrderedSequenceBuilder";
-import { PlaceList } from "./components/PlaceList";
-import { PlaceMap } from "./components/PlaceMap";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { AppShell } from "./astra/AppShell";
+import { Discovery } from "./astra/Discovery";
+import { EMPTY_EXPLORE_STATE, exploreHref, parseAstraRoute, type ExploreState } from "./astra/navigation";
+import { canRemoveSavedPlace, readAuthoredPlanIds } from "./astra/plan-safety";
+import { RouteDialog } from "./astra/RouteDialog";
+import { getAllPlaces, getHubs, getNearby, getPlaceById } from "./data/store";
+import { resolvePlaceImages } from "./data/place-images";
+import { resolveDuration, formatRange } from "./lib/duration";
 import { PlaceDetail } from "./components/PlaceDetail";
-import { SelectionPanel } from "./components/SelectionPanel";
+import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { useSavedPlaces } from "./useSavedPlaces";
-import { matchesQuery } from "./lib/place";
-import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
-import { matchesReservationFilter } from "./lib/reservation";
-import type { Filters, Place } from "./types";
+import type { NavigationRegion } from "./data/geography";
+import { getPrefectureByCode } from "./data/geography";
 import "./App.css";
+import "./astra/astra.css";
 
-const HUBS = getHubs();
-const NATIONAL_SUMMARY = getNationalSummary();
+const LazyNationalExplorer = lazy(() => import("./components/NationalExplorer").then(module => ({ default: module.NationalExplorer })));
+const LazyPlanner = lazy(() => import("./components/OrderedSequenceBuilder").then(module => ({ default: module.OrderedSequenceBuilder })));
 
-/**
- * The single piece of state that decides what the application is showing.
- *
- * A discriminated union rather than a handful of booleans: "national" carries the region and
- * prefecture currently being browsed, "hub" carries the active hub, and no contradictory
- * combination of the two can exist. The app opens on the national view — the first contact
- * is the whole country, not a city.
- */
-type ViewState =
-  | { mode: "national"; region: NavigationRegion | null; prefectureCode: string | null }
-  | { mode: "hub"; hub: string };
-
-const INITIAL_VIEW: ViewState = { mode: "national", region: null, prefectureCode: null };
-
-const EMPTY_FILTERS: Filters = {
-  query: "",
-  categories: [],
-  grades: [],
-  hiddenGemStatuses: [],
-  tourismLevels: [],
-  reservation: "all",
-  planningBlocks: [],
-};
-
-const EMPTY_PLACES: Place[] = [];
-
-/** Width of the desktop detail panel; used to keep the focused marker out from under it. */
-const DETAIL_PANEL_WIDTH = 420;
-const DESKTOP_QUERY = "(min-width: 861px)";
-
-function matchesFilters(place: Place, filters: Filters): boolean {
-  if (filters.categories.length > 0 && !filters.categories.includes(place.category)) return false;
-  if (filters.grades.length > 0 && !filters.grades.includes(place.grade)) return false;
-  if (
-    filters.hiddenGemStatuses.length > 0 &&
-    (!place.hiddenGemStatus || !filters.hiddenGemStatuses.includes(place.hiddenGemStatus))
-  )
-    return false;
-  if (filters.tourismLevels.length > 0 && !filters.tourismLevels.includes(place.tourismLevel)) return false;
-  if (!matchesAnyPlanningBlock(place.duration, filters.planningBlocks)) return false;
-  if (!matchesReservationFilter(place, filters.reservation)) return false;
-  return matchesQuery(place, filters.query);
-}
-
-function countActiveFilters(filters: Filters): number {
-  return (
-    (filters.query.trim() ? 1 : 0) +
-    filters.categories.length +
-    filters.grades.length +
-    filters.hiddenGemStatuses.length +
-    filters.tourismLevels.length +
-    filters.planningBlocks.length +
-    (filters.reservation === "all" ? 0 : 1)
-  );
-}
-
-function useIsDesktop(): boolean {
-  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(DESKTOP_QUERY).matches);
-  useEffect(() => {
-    const media = window.matchMedia(DESKTOP_QUERY);
-    const update = () => setIsDesktop(media.matches);
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-  return isDesktop;
+function PersistenceNotice({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+  return <div role="alert" className="astra-persistence-notice"><div>
+    <strong>No se pudieron guardar los cambios en este dispositivo.</strong>
+    <p>Tus cambios siguen disponibles en esta sesión. Intenta guardarlos de nuevo.</p>
+    {error && <p className="astra-persistence-notice__detail">Detalle: {error}</p>}
+  </div><button type="button" onClick={onRetry}>Reintentar guardar</button></div>;
 }
 
 export default function App() {
-  const [view, setView] = useState<ViewState>(INITIAL_VIEW);
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  /** Trail of visited places (any hub), so "nearby" jumps and cross-hub opens can be
-   * stepped back through. */
-  const [history, setHistory] = useState<string[]>([]);
-  const [explorerOpen, setExplorerOpen] = useState(false);
-  const [selectionOpen, setSelectionOpen] = useState(false);
+  const [route, setRoute] = useState(() => parseAstraRoute(location.hash));
+  const [region, setRegion] = useState<NavigationRegion | null>(null);
+  const [prefectureCode, setPrefectureCode] = useState<string | null>(null);
   const [analysisOpen, setAnalysisOpen] = useState(false);
-  const [sequenceBuilderOpen, setSequenceBuilderOpen] = useState(false);
-  const { savedIds, isSaved, toggleSaved, removeSaved } = useSavedPlaces();
-  const isDesktop = useIsDesktop();
+  const [plannerOpen, setPlannerOpen] = useState(false);
+  const [plannedRemoval, setPlannedRemoval] = useState<string | null>(null);
+  const [removalOpener, setRemovalOpener] = useState<HTMLElement | null>(null);
+  const [opener, setOpener] = useState<HTMLElement | null>(null);
+  const [lastExplore, setLastExplore] = useState<ExploreState>(() => {
+    if (route.surface === "explore") return route;
+    const saved = history.state?.astraExploreOrigin;
+    const parsed = typeof saved === "string" ? parseAstraRoute(saved) : null;
+    return parsed?.surface === "explore" ? parsed : EMPTY_EXPLORE_STATE;
+  });
+  const { savedIds, isSaved, toggleSaved, removeSaved, getInterestsForMember, getCoincidences, toggleMemberInterest, syncState, saveError, retrySave } = useSavedPlaces();
+  const [tripTab, setTripTab] = useState<"todos" | "fernando" | "lorena" | "coincidencias">("todos");
+  const places = useMemo(() => getAllPlaces(), []);
 
-  /** Exactly one of these is non-null; the union above makes the other state unreachable. */
-  const activeHub = view.mode === "hub" ? view.hub : null;
-  const nationalView = view.mode === "national" ? view : null;
-  const hubPlaces = useMemo(
-    () => (activeHub ? getPlacesByHub(activeHub) : EMPTY_PLACES),
-    [activeHub]
-  );
+  const fernandoIds = useMemo(() => getInterestsForMember("fernando"), [getInterestsForMember]);
+  const lorenaIds = useMemo(() => getInterestsForMember("lorena"), [getInterestsForMember]);
+  const coincidenceIds = useMemo(() => getCoincidences(), [getCoincidences]);
+  const todosIds = useMemo(() => Array.from(new Set([...savedIds, ...fernandoIds, ...lorenaIds])), [savedIds, fernandoIds, lorenaIds]);
 
-  const categories = useMemo(
-    () => [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) => a.localeCompare(b, "es")),
-    [hubPlaces]
-  );
-  /** Editorial order, not alphabetical — and every grade the catalogue actually uses. Omitting
-   * one would silently hide its places whenever the user ticks all the grades on offer, with no
-   * way to filter to them: `matchesFilters` treats a non-empty `grades` list as exhaustive. */
-  const grades = useMemo(
-    () => ["S", "A", "B", "C", "D"].filter((g) => hubPlaces.some((p) => p.grade === g)),
-    [hubPlaces]
-  );
-  const hiddenGemStatuses = useMemo(
-    () => [...new Set(hubPlaces.map((p) => p.hiddenGemStatus).filter(Boolean))] as string[],
-    [hubPlaces]
-  );
-  const tourismLevels = useMemo(
-    () => ["Extremo", "Alto", "Medio", "Bajo"].filter((level) => hubPlaces.some((p) => p.tourismLevel === level)),
-    [hubPlaces]
-  );
-  /** Blocks that would return results in the active hub, in taxonomy order. */
-  const planningBlocks = useMemo(
-    () => availablePlanningBlocks(hubPlaces.map((p) => p.duration)),
-    [hubPlaces]
-  );
+  const savedPlaces = useMemo(() => todosIds.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p)), [todosIds]);
 
-  const selectedId = history.length > 0 ? history[history.length - 1] : null;
-  const selectedPlace = selectedId ? getPlaceById(selectedId) ?? null : null;
-  const previousId = history.length > 1 ? history[history.length - 2] : null;
-  const previousPlace = previousId ? getPlaceById(previousId) ?? null : null;
+  const activeTripPlaces = useMemo(() => {
+    let ids: string[] = [];
+    if (tripTab === "todos") ids = todosIds;
+    else if (tripTab === "fernando") ids = fernandoIds;
+    else if (tripTab === "lorena") ids = lorenaIds;
+    else if (tripTab === "coincidencias") ids = coincidenceIds;
+    return ids.map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  }, [tripTab, todosIds, fernandoIds, lorenaIds, coincidenceIds]);
 
-  const filteredPlaces = useMemo(
-    () => hubPlaces.filter((place) => matchesFilters(place, filters)),
-    [hubPlaces, filters]
-  );
+  const hasPlannerContent = todosIds.length > 0 || readAuthoredPlanIds(localStorage).size > 0;
 
-  const activeFilterCount = countActiveFilters(filters);
-
-  /** Resolved against the global dataset, so a saved place survives navigation to any hub. */
-  const savedPlaces = useMemo(
-    () => savedIds.map((id) => getPlaceById(id)).filter((place): place is Place => Boolean(place)),
-    [savedIds]
-  );
-
-  /**
-   * Single source of truth for "go look at this place": moves into the Hub Explorer on the
-   * hub the place belongs to — from another hub or straight from the national map — starts a
-   * fresh trail, and closes the mobile filter drawer. Used by the place list, the map and the
-   * saved-places panel, any of which can point at a place outside the current view.
-   */
-  const selectPlace = useCallback(
-    (id: string) => {
-      const place = getPlaceById(id);
-      if (!place) return;
-      if (place.hub !== activeHub) {
-        setView({ mode: "hub", hub: place.hub });
-        setFilters(EMPTY_FILTERS);
-      }
-      setHistory([id]);
-      setExplorerOpen(false);
-    },
-    [activeHub]
-  );
-
-  /** A nearby jump extends the trail so the user can return to where they came from. Filters
-   * are left as-is: the destination marker always renders regardless of filter match (see
-   * PlaceMap's visiblePlaces), so there is nothing to reconcile. */
-  const pushPlace = useCallback(
-    (id: string) => {
-      const place = getPlaceById(id);
-      if (!place) return;
-      if (place.hub !== activeHub) setView({ mode: "hub", hub: place.hub });
-      setHistory((trail) => (trail[trail.length - 1] === id ? trail : [...trail, id]));
-    },
-    [activeHub]
-  );
-
-  /** Steps back through the trail, restoring whichever hub the previous place belongs to. */
-  const goBack = useCallback(() => {
-    const next = history.slice(0, -1);
-    const nextId = next[next.length - 1];
-    const nextPlace = nextId ? getPlaceById(nextId) : undefined;
-    if (nextPlace && nextPlace.hub !== activeHub) setView({ mode: "hub", hub: nextPlace.hub });
-    setHistory(next);
-  }, [history, activeHub]);
-
-  /** The analysis is a lens over the saved places, not a second navigation: opening a place
-   * from it goes through the same selectPlace every other surface uses. */
-  const closeAnalysis = useCallback(() => setAnalysisOpen(false), []);
-  const openFromAnalysis = useCallback(
-    (id: string) => {
-      selectPlace(id);
-      setAnalysisOpen(false);
-    },
-    [selectPlace]
-  );
-
-  const closeDetail = useCallback(() => setHistory([]), []);
-  const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
-
-  /** Manually switching hubs resets filters and closes any open detail from the previous
-   * hub — the policy is deliberately different from pushPlace/goBack, which preserve both. */
-  const switchHub = useCallback(
-    (hub: string) => {
-      if (hub === activeHub) return;
-      setView({ mode: "hub", hub });
-      setFilters(EMPTY_FILTERS);
-      setHistory((trail) => {
-        const openId = trail[trail.length - 1];
-        const openPlace = openId ? getPlaceById(openId) : undefined;
-        return openPlace && openPlace.hub !== hub ? [] : trail;
-      });
-    },
-    [activeHub]
-  );
-
-  /**
-   * National Explorer → Hub Explorer. Reuses the same primitives as a manual hub switch:
-   * fresh filters, no leftover detail from a previous visit, and PlaceMap fits the hub's
-   * bounds exactly as it does in the flat hub navigation.
-   */
-  const enterHub = useCallback((hub: string) => {
-    setView({ mode: "hub", hub });
-    setFilters(EMPTY_FILTERS);
-    setHistory([]);
-    setExplorerOpen(false);
-  }, []);
-
-  /** Hub Explorer → National Explorer. Saved places are untouched; the trail is dropped so
-   * no detail drawer is left floating over the national map. */
-  const returnToJapan = useCallback(() => {
-    setView(INITIAL_VIEW);
-    setFilters(EMPTY_FILTERS);
-    setHistory([]);
-    setExplorerOpen(false);
-  }, []);
-
-  const selectRegion = useCallback((region: NavigationRegion | null) => {
-    setView((current) =>
-      current.mode === "national" ? { mode: "national", region, prefectureCode: null } : current
-    );
-  }, []);
-
-  /**
-   * Selecting a prefecture also moves the view into that prefecture's own region, so the
-   * map viewport, the region list and the panel always describe the same place — picking a
-   * polygon from a neighbouring region on the map cannot leave the two disagreeing.
-   * Clearing the selection keeps the region the user is browsing.
-   */
-  const selectPrefecture = useCallback((code: string | null) => {
-    setView((current) => {
-      if (current.mode !== "national") return current;
-      if (!code) return { ...current, prefectureCode: null };
-      const prefecture = getPrefectureByCode(code);
-      if (!prefecture) return current;
-      return { mode: "national", region: prefecture.region, prefectureCode: code };
-    });
-  }, []);
+  const plannerPlaces = useMemo(() => {
+    const plannerIds = new Set([...todosIds, ...readAuthoredPlanIds(localStorage)]);
+    return [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  }, [todosIds, plannerOpen]);
 
   useEffect(() => {
-    if (!explorerOpen) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setExplorerOpen(false);
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [explorerOpen]);
+    const update = () => { const next=parseAstraRoute(location.hash); if (next.surface === "explore") setLastExplore(next); setRoute(next); };
+    addEventListener("hashchange", update); addEventListener("popstate", update);
+    if (!location.hash) location.replace("#/explorar");
+    return () => { removeEventListener("hashchange", update); removeEventListener("popstate", update); };
+  }, []);
 
-  const explorer = (
-    <>
-      <FilterPanel
-        filters={filters}
-        onChange={setFilters}
-        categories={categories}
-        grades={grades}
-        planningBlocks={planningBlocks}
-        hiddenGemStatuses={hiddenGemStatuses}
-        tourismLevels={tourismLevels}
-        resultCount={filteredPlaces.length}
-        totalCount={hubPlaces.length}
-        activeFilterCount={activeFilterCount}
-        onReset={resetFilters}
-      />
-      <PlaceList
-        places={filteredPlaces}
-        totalCount={hubPlaces.length}
-        selectedId={selectedId}
-        savedIds={savedIds}
-        onSelect={selectPlace}
-        onClearFilters={resetFilters}
-        hasActiveFilters={activeFilterCount > 0}
-      />
-    </>
-  );
+  const navigateExplore = useCallback((state: ExploreState, replace=false) => {
+    setLastExplore(state); const href=exploreHref(state);
+    if (replace) history.replaceState(history.state, "", href); else location.hash=href;
+    setRoute(parseAstraRoute(href));
+  }, []);
+  const openPlace = useCallback((id: string) => {
+    if (route.surface !== "place") setOpener(document.activeElement as HTMLElement);
+    const place=getPlaceById(id); if (!place) return;
+    history.pushState({ astraOrigin:true, explore:lastExplore }, "", `#/lugar/${id}?hub=${encodeURIComponent(place.hub)}`);
+    setRoute(parseAstraRoute(location.hash));
+  }, [lastExplore, route.surface]);
+  const openRegions = useCallback(() => {
+    const origin = exploreHref(lastExplore);
+    history.pushState({ astraExploreOrigin:origin }, "", "#/regiones");
+    setRoute(parseAstraRoute(location.hash));
+  }, [lastExplore]);
+  const closeDetail = useCallback(() => {
+    if (history.state?.astraOrigin) history.back();
+    else { const href=exploreHref(lastExplore); history.replaceState(null,"",href); setRoute(parseAstraRoute(href)); }
+  }, [lastExplore]);
+  const safeToggle = useCallback((id: string) => {
+    if (isSaved(id) && !canRemoveSavedPlace(id, localStorage)) { setRemovalOpener(document.activeElement as HTMLElement); setPlannedRemoval(id); return; }
+    toggleSaved(id);
+  }, [isSaved, toggleSaved]);
+  const safeRemove = useCallback((id: string) => {
+    if (!canRemoveSavedPlace(id, localStorage)) { setRemovalOpener(document.activeElement as HTMLElement); setPlannedRemoval(id); return; }
+    removeSaved(id);
+  }, [removeSaved]);
 
-  return (
-    <div className="app">
-      <header className="app__header">
-        <div className="app__brand">
-          {activeHub ? (
-            <>
-              <h1>
-                Nihon{" "}
-                <span className="app__brand-sub">
-                  <span className="app__brand-long">Explorador de </span>
-                  {activeHub}
-                </span>
-              </h1>
-              <p className="app__subtitle">{hubPlaces.length} lugares verificados</p>
-            </>
-          ) : (
-            <>
-              <h1>
-                Nihon{" "}
-                <span className="app__brand-sub">
-                  <span className="app__brand-long">— </span>Explorador de Japón
-                </span>
-              </h1>
-              <p className="app__subtitle">
-                {NATIONAL_SUMMARY.prefectureCount} prefecturas ·{" "}
-                {NATIONAL_SUMMARY.coveredPrefectureCount} con lugares verificados ·{" "}
-                {NATIONAL_SUMMARY.placeCount} lugares en {NATIONAL_SUMMARY.coveredRegionCount} de{" "}
-                {NATIONAL_SUMMARY.regionCount} regiones
-              </p>
-            </>
-          )}
-        </div>
-        {activeHub && (
-          <button
-            type="button"
-            className="button button--primary app__explorer-toggle"
-            onClick={() => setExplorerOpen((open) => !open)}
-            aria-expanded={explorerOpen}
-          >
-            <span aria-hidden="true">🔍</span> Buscar y filtrar
-            {activeFilterCount > 0 && <span className="app__filter-badge">{activeFilterCount}</span>}
-          </button>
+  const place = route.surface === "place" ? getPlaceById(route.placeId) : undefined;
+  const destination = route.surface === "trip" ? "trip" : "explore";
+  return <AppShell destination={destination} savedCount={todosIds.length}>
+    <div id="astra-content">
+      {(route.surface === "explore" || route.surface === "place") && <Discovery places={places} hubs={getHubs()} state={route.surface === "explore" ? route : lastExplore} savedIds={savedIds} onToggle={safeToggle} onState={navigateExplore} onOpen={openPlace} onRegions={openRegions} />}
+      {route.surface === "explore" && syncState === "error" && <PersistenceNotice error={saveError} onRetry={retrySave} />}
+      {route.surface === "regions" && <section className="astra-regions"><a className="astra-back" href={exploreHref(lastExplore)}>← Volver a Explorar</a><Suspense fallback={<div role="status">Cargando regiones…</div>}><LazyNationalExplorer activeRegion={region} selectedCode={prefectureCode} onSelectRegion={setRegion} onSelectPrefecture={(code) => { setPrefectureCode(code); if (code) setRegion(getPrefectureByCode(code)?.region ?? region); }} onEnterHub={(hub) => navigateExplore({...EMPTY_EXPLORE_STATE,hub})} /></Suspense></section>}
+      {route.surface === "trip" && <section className="astra-trip">
+        <p className="astra-eyebrow">MIS GUARDADOS</p>
+        <h1>Nuestro viaje</h1>
+        <p className="astra-trip__note">Aquí reunimos lo que nos interesa. Guardar un lugar no lo añade todavía al itinerario.</p>
+        <p className="astra-trip__storage">{syncState === "error" ? "Los cambios de esta sesión aún no se guardaron en el dispositivo." : "Guardados en este dispositivo."}</p>
+
+        {syncState === "error" && (
+          <PersistenceNotice error={saveError} onRetry={retrySave} />
         )}
-      </header>
 
-      {activeHub && (
-        <>
-          <div className="hub-bar">
-            <button type="button" className="hub-bar__home" onClick={returnToJapan}>
-              <span aria-hidden="true">←</span> Japón
-            </button>
-            <HubSelector hubs={HUBS} activeHub={activeHub} onSelect={switchHub} />
-          </div>
-
-          <div className="app__body" id="app-hub-panel" role="tabpanel" aria-label={`Lugares de ${activeHub}`}>
-            <aside
-              className={`app__sidebar ${explorerOpen ? "app__sidebar--open" : ""}`}
-              aria-label="Explorar lugares"
-            >
-              <div className="app__sidebar-mobile-bar">
-                <strong>Buscar y filtrar</strong>
-                <button
-                  type="button"
-                  className="icon-button"
-                  onClick={() => setExplorerOpen(false)}
-                  aria-label="Cerrar búsqueda y filtros"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </div>
-              {explorer}
-            </aside>
-
-            <main className="app__map-area">
-              <PlaceMap
-                places={filteredPlaces}
-                hubPlaces={hubPlaces}
-                activeHub={activeHub}
-                selectedPlace={selectedPlace}
-                savedIds={savedIds}
-                onSelect={selectPlace}
-                panelOffset={isDesktop && selectedPlace ? DETAIL_PANEL_WIDTH : 0}
-              />
-              {filteredPlaces.length === 0 && (
-                <div className="map-empty" role="status">
-                  <p>Ningún lugar coincide con los filtros actuales.</p>
-                  <button type="button" className="button button--secondary" onClick={resetFilters}>
-                    Limpiar búsqueda y filtros
-                  </button>
-                </div>
-              )}
-            </main>
-
-            {selectedPlace && (
-              <div className="app__detail">
-                <PlaceDetail
-                  place={selectedPlace}
-                  isSaved={isSaved(selectedPlace.id)}
-                  onToggleSaved={toggleSaved}
-                  onClose={closeDetail}
-                  nearby={getNearby(selectedPlace.id)}
-                  onSelectNearby={pushPlace}
-                  getPlace={getPlaceById}
-                  previousPlace={previousPlace}
-                  onBack={goBack}
-                />
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {nationalView && (
-        <div className="app__body app__body--national">
-          <NationalExplorer
-            activeRegion={nationalView.region}
-            selectedCode={nationalView.prefectureCode}
-            onSelectRegion={selectRegion}
-            onSelectPrefecture={selectPrefecture}
-            onEnterHub={enterHub}
-          />
+        <div className="astra-trip__tabs">
+          <button type="button" aria-pressed={tripTab === "todos"} onClick={() => setTripTab("todos")}>Todos ({todosIds.length})</button>
+          <button type="button" aria-pressed={tripTab === "fernando"} onClick={() => setTripTab("fernando")}>Fernando ({fernandoIds.length})</button>
+          <button type="button" aria-pressed={tripTab === "lorena"} onClick={() => setTripTab("lorena")}>Lorena ({lorenaIds.length})</button>
+          <button type="button" aria-pressed={tripTab === "coincidencias"} onClick={() => setTripTab("coincidencias")}>Coincidencias ({coincidenceIds.length})</button>
         </div>
-      )}
 
-      <SelectionPanel
-        savedPlaces={savedPlaces}
-        onRemove={removeSaved}
-        onSelect={selectPlace}
-        open={selectionOpen}
-        onToggle={() => setSelectionOpen((open) => !open)}
-        onAnalyze={() => setAnalysisOpen(true)}
-        onBuildSequence={() => setSequenceBuilderOpen(true)}
-      />
+        {activeTripPlaces.length ? (
+          <ul>
+            {activeTripPlaces.map(p => {
+              const isFernando = fernandoIds.includes(p.id);
+              const isLorena = lorenaIds.includes(p.id);
+              const isLegacySaved = savedIds.includes(p.id);
+              const thumbnail = resolvePlaceImages(p.id, p.images)[0];
+              const duration = resolveDuration(p.duration);
+              return (
+                <li key={p.id}>
+                  {thumbnail && <img className="astra-trip__thumbnail" src={thumbnail.url} alt="" loading="lazy" />}
+                  <div className="astra-trip__place"><a href={`#/lugar/${p.id}?hub=${encodeURIComponent(p.hub)}`} onClick={event => { event.preventDefault(); openPlace(p.id); }}>{p.name}</a><span>{p.hub} · {duration ? formatRange(duration) : p.duration.raw}</span></div>
+                  <div className="astra-trip__item-actions">
+                    <button
+                      type="button"
+                      aria-pressed={isFernando}
+                      onClick={() => toggleMemberInterest("fernando", p.id)}
+                    >
+                      {isFernando ? "★ Fernando" : "☆ Fernando"}
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={isLorena}
+                      onClick={() => toggleMemberInterest("lorena", p.id)}
+                    >
+                      {isLorena ? "★ Lorena" : "☆ Lorena"}
+                    </button>
+                    {isLegacySaved && (
+                      <button
+                        type="button"
+                        onClick={() => safeRemove(p.id)}
+                      >
+                        Quitar de guardados generales
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="astra-empty">{tripTab === "coincidencias" ? <><h2>Todavía no han marcado el mismo lugar</h2><p>Sus elecciones individuales siguen guardadas.</p></> : <><h2>Empiecen por un lugar que les emocione</h2><a href="#/explorar">Explorar lugares</a></>}</div>
+        )}
 
-      {analysisOpen && (
-        <SelectionAnalysis
-          savedPlaces={savedPlaces}
-          onSelectPlace={openFromAnalysis}
-          onClose={closeAnalysis}
-        />
-      )}
-
-      {sequenceBuilderOpen && (
-        <OrderedSequenceBuilder
-          savedPlaces={savedPlaces}
-          onClose={() => setSequenceBuilderOpen(false)}
-        />
-      )}
+        {savedIds.length > 0 && <p className="astra-trip__help">Los intereses de Fernando y Lorena se mantienen al quitar un lugar de guardados generales.</p>}
+        <div className="astra-trip__actions">
+          <button onClick={() => setAnalysisOpen(true)}>Comparar selección</button>
+          <button className={hasPlannerContent ? "astra-trip__planner-action astra-trip__planner-action--primary" : "astra-trip__planner-action"} onClick={() => setPlannerOpen(true)}>Planificar con mis guardados</button>
+        </div>
+      </section>}
     </div>
-  );
+    {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}>{syncState === "error" && <PersistenceNotice error={saveError} onRetry={retrySave} />}<PlaceDetail place={place} isSaved={isSaved(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
+    {plannedRemoval && <RouteDialog role="alertdialog" labelledBy="planned-title" onClose={() => setPlannedRemoval(null)} returnFocus={removalOpener} overlayClassName="astra-confirm" panelClassName="astra-confirm__panel"><h2 id="planned-title">Este lugar forma parte de tu ruta</h2><p>Para proteger el plan guardado, quítalo primero desde Planificar. No se cambió tu guardado ni tu ruta.</p><button onClick={() => setPlannedRemoval(null)}>Mantener guardado</button><button onClick={() => { setPlannedRemoval(null); setPlannerOpen(true); }}>Ir a Planificar</button></RouteDialog>}
+    {analysisOpen && <SelectionAnalysis savedPlaces={savedPlaces} onSelectPlace={(id) => { setAnalysisOpen(false); openPlace(id); }} onClose={() => setAnalysisOpen(false)} />}
+    {plannerOpen && <Suspense fallback={<div className="astra-lazy-modal" role="status">Cargando Planificar…</div>}><LazyPlanner savedPlaces={plannerPlaces} onClose={() => setPlannerOpen(false)} /></Suspense>}
+  </AppShell>;
 }

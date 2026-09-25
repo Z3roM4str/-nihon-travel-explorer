@@ -12,24 +12,24 @@ import { describe, expect, it } from "vitest";
  */
 
 async function readSource(): Promise<string> {
-  return readFile(new URL("./App.tsx", import.meta.url), "utf8");
+  return readFile(new URL("./astra/Discovery.tsx", import.meta.url), "utf8");
 }
 
 /** Isolates `matchesFilters`' own function body, from its declaration up to the next top-level
  * function, so assertions are scoped to the actual filtering logic this phase changed. */
 function extractMatchesFiltersSource(fullSource: string): string {
-  const start = fullSource.indexOf("function matchesFilters(");
-  if (start === -1) throw new Error("Could not find matchesFilters in App.tsx");
-  const nextFunctionStart = fullSource.indexOf("\nfunction ", start + 1);
+  const start = fullSource.indexOf("function filterPlace(");
+  if (start === -1) throw new Error("Could not find filterPlace in Discovery.tsx");
+  const nextFunctionStart = fullSource.indexOf("\nexport function ", start + 1);
   if (nextFunctionStart === -1) throw new Error("Could not find the end boundary of matchesFilters");
   return fullSource.slice(start, nextFunctionStart);
 }
 
-describe("App.tsx — reservation filtering wiring (source-scanning integration check)", () => {
+describe("Astra Discovery — reservation filtering wiring (source-scanning integration check)", () => {
   it("imports matchesReservationFilter from lib/reservation", async () => {
     const source = await readSource();
     expect(source).toMatch(
-      /import\s*\{[^}]*\bmatchesReservationFilter\b[^}]*\}\s*from\s*["']\.\/lib\/reservation["']/
+      /import\s*\{[^}]*\bmatchesReservationFilter\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation["']/
     );
   });
 
@@ -57,11 +57,11 @@ describe("App.tsx — reservation filtering wiring (source-scanning integration 
  * filter the UI never offered. This test is data-driven rather than pinned to "D" so that any
  * future grade added to the catalogue fails here instead of silently disappearing from the UI.
  */
-describe("App.tsx — grade filter vocabulary covers the catalogue (RC-01 regression)", () => {
+describe("Astra Discovery — grade filter vocabulary covers the catalogue (RC-01 regression)", () => {
   async function readGradeVocabulary(): Promise<string[]> {
     const source = await readSource();
-    const match = source.match(/const grades = useMemo\(\s*\(\) =>\s*\[([^\]]*)\]/);
-    if (!match) throw new Error("Could not find the grade vocabulary literal in App.tsx");
+    const match = source.match(/const grades = useMemo\(\(\) => \[([^\]]*)\]/);
+    if (!match) throw new Error("Could not find the grade vocabulary literal in Discovery.tsx");
     return [...match[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
   }
 

@@ -1,0 +1,24 @@
+TRACK: ASTRA — SOL-0–SOL-2 correction evidence
+Starting checkout HEAD: 1ef890b2a765fd59c5494cea67fdb1c2f6ded0f9
+Requested original implementation: fc09e33f906963dd5ed51c2615dd4677060f5432 (absent)
+Previously audited recreated implementation: 523758b07aa054a0376a0be8a28020805c9cc41f (absent)
+The supplied starting commit has parent b986a60 and contains the same prompted implementation/audit scope. Clean starting tree; no later product work was present.
+
+Correction commits:
+2ee3dea astra(sol-2): guard authored plans from save removal
+8af7a69 astra(sol-1-2): correct navigation and discovery regressions
+
+PASS npm test -- --run: 70 files, 2463 tests.
+PASS npm run lint: no diagnostics.
+PASS npm run build: separate PlaceMap, NationalExplorer, OrderedSequenceBuilder and MapContainer chunks; initial JS 1,136.85 kB / 186.05 kB gzip; >500 kB advisory remains.
+PASS python scripts/validate-dataset.py: 214 places, 403 relations, 0 broken; 13 known secondary warnings.
+PASS python scripts/validate-photography.py.
+PASS python scripts/validate-geography.py: 47 prefectures, 9 regions, 214 places, 7 hubs.
+PASS python scripts/validate-logistics.py.
+PASS python scripts/validate-reservation-mechanisms.py.
+PASS git diff --check.
+
+BROWSER PARTIAL
+No browser executable is installed. `npx playwright install chromium` failed after five requests with HTTP 403 Forbidden for:
+https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip
+No screenshots or visual/network/keyboard PASS is claimed.

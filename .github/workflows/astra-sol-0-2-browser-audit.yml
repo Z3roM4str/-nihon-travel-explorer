@@ -1,0 +1,93 @@
+name: Astra SOL-0-2 browser audit
+
+on:
+  pull_request:
+    branches:
+      - experiment/astra-redesign
+      - codex/continuar-proyecto-z3rom4str-desde-astra-redesign
+      - codex/implementar-f01f09-siguiendo-auditoria-astra-ca5545
+      - 'codex/completa-pr-#135-de-astra-16422227132192129267'
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astra-sol-0-2-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  browser-audit:
+    name: Eight journeys and required viewports
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ASTRA_EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+      ASTRA_AUDIT_OUTPUT: ${{ github.workspace }}/artifacts/astra-sol-0-2
+    steps:
+      - name: Checkout exact PR implementation SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$ASTRA_EXPECTED_SHA"
+          printf 'Auditing %s\n' "$ASTRA_EXPECTED_SHA"
+
+      - name: Initialize audit artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$ASTRA_AUDIT_OUTPUT"
+          printf 'expected_sha=%s\nactual_sha=%s\n' "$ASTRA_EXPECTED_SHA" "$(git rev-parse HEAD)" > "$ASTRA_AUDIT_OUTPUT/checkout.txt"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Lint
+        working-directory: app
+        run: npm run lint
+
+      - name: Run Astra tests
+        working-directory: app
+        run: npx vitest run src/astra --reporter=dot
+
+      - name: Run full test suite
+        working-directory: app
+        run: npm test -- --reporter=dot
+
+      - name: Install Playwright Chromium
+        working-directory: app
+        run: npx playwright install --with-deps chromium
+
+      - name: Build production application
+        working-directory: app
+        run: npm run build
+
+      - name: Run eight Astra journeys
+        working-directory: app
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/astra-sol-0-2-browser-audit.mjs 2>&1 | tee "$ASTRA_AUDIT_OUTPUT/runner.log"
+
+      - name: Upload screenshots, traces and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: astra-sol-0-2-${{ github.event.pull_request.head.sha }}
+          path: artifacts/astra-sol-0-2
+          if-no-files-found: warn
+          retention-days: 14

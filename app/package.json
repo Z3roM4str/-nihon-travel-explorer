@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "audit:astra:browser": "node scripts/astra-sol-0-2-browser-audit.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },
@@ -17,11 +18,13 @@
     "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.3",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "jsdom": "^29.1.1",
     "oxlint": "^1.79.0",
     "playwright": "^1.62.1",
     "typescript": "~6.0.2",

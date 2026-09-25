@@ -1,0 +1,168 @@
+[
+  {
+    "id": "local-card",
+    "size": {
+      "width": 1440,
+      "height": 900
+    },
+    "data": {
+      "text": "Cargando fotografía…\nImprescindible\nTokyo National Museum\n\nTokio · Ueno\nMuseos\n\nEl museo más antiguo de Japón con colecciones nacionales y asiáticas.\n\n◷ 3 h–5 h\nReserva: Recomendable\nFeb–mar: revisar condiciones\n♡\nQuiero ir\nCrédito de la foto\n\nWikimedia Commons · Kestrel · CC BY-SA 4.0",
+      "children": [
+        "astra-card__frame",
+        "astra-card__body",
+        "astra-card__credit"
+      ],
+      "creditLinks": [
+        "https://commons.wikimedia.org/wiki/File:Tokyo_National_Museum_Main_Building_PB304920.jpg"
+      ],
+      "badge": {
+        "color": "rgb(36, 90, 71)",
+        "background": "rgb(230, 241, 233)"
+      },
+      "image": {
+        "loaded": "loaded",
+        "natural": 1600
+      },
+      "loading": {
+        "hidden": "true",
+        "display": "grid"
+      }
+    }
+  },
+  {
+    "id": "lightbox-stack",
+    "size": {
+      "width": 768,
+      "height": 1024
+    },
+    "data": {
+      "steps": [
+        {
+          "key": "Tab",
+          "lightbox": true,
+          "focus": "<button type=\"button\" class=\"lightbox__close\" aria-label=\"Cerrar imagen ampliada\">×</button>"
+        },
+        {
+          "key": "Shift+Tab",
+          "lightbox": true,
+          "focus": "<button type=\"button\" class=\"lightbox__close\" aria-label=\"Cerrar imagen ampliada\">×</button>"
+        },
+        {
+          "key": "Tab",
+          "lightbox": true,
+          "focus": "<button type=\"button\" class=\"lightbox__close\" aria-label=\"Cerrar imagen ampliada\">×</button>"
+        },
+        {
+          "key": "Shift+Tab",
+          "lightbox": true,
+          "focus": "<button type=\"button\" class=\"lightbox__close\" aria-label=\"Cerrar imagen ampliada\">×</button>"
+        }
+      ],
+      "first": {
+        "lightbox": 0,
+        "detail": 1,
+        "url": "#/lugar/JP-021?hub=Tokio",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka"
+        ],
+        "focus": "<button type=\"button\" class=\"gallery__zoom\" aria-label=\"Ampliar imagen 1 de 1\"><img alt=\"Escalinata de piedra del vestíbulo principal del Museo Nacional de Tokio, flanqueada por lámparas ornamentadas.\" loading=\"lazy\" decoding=\"async\" class=\"gallery__image\" data-state=\"loaded\" src=\"/images/places/JP-021/tokyo-national-museum-stairs.webp\"></button>"
+      },
+      "second": {
+        "url": "#/explorar",
+        "scroll": 0,
+        "cards": [
+          "#/lugar/JP-021?hub=Tokio",
+          "#/lugar/JP-054?hub=Kioto",
+          "#/lugar/JP-125?hub=Osaka",
+          "#/lugar/JP-157?hub=Okinawa",
+          "#/lugar/JP-205?hub=Sapporo",
+          "#/lugar/JP-025?hub=Tokio",
+          "#/lugar/JP-066?hub=Kioto",
+          "#/lugar/JP-126?hub=Osaka",
+          "#/lugar/JP-162?hub=Okinawa",
+          "#/lugar/JP-033?hub=Tokio",
+          "#/lugar/JP-077?hub=Kioto",
+          "#/lugar/JP-129?hub=Osaka"
+        ],
+        "focus": "<a href=\"#/lugar/JP-021?hub=Tokio\">Tokyo National Museum</a>"
+      }
+    }
+  },
+  {
+    "id": "announcements",
+    "size": {
+      "width": 390,
+      "height": 844
+    },
+    "data": {
+      "closed": {
+        "inputs": [
+          {
+            "at": 1081.6000000014901,
+            "value": "t"
+          },
+          {
+            "at": 1121.699999999255,
+            "value": "te"
+          },
+          {
+            "at": 1167.3999999985099,
+            "value": "tem"
+          }
+        ],
+        "events": [
+          {
+            "at": 1379.800000000745,
+            "text": "63 resultados",
+            "inert": false
+          }
+        ]
+      },
+      "open": {
+        "inputs": [
+          {
+            "at": 1667.699999999255,
+            "value": ""
+          },
+          {
+            "at": 1687.3999999985099,
+            "value": "t"
+          },
+          {
+            "at": 1740,
+            "value": "to"
+          },
+          {
+            "at": 1786.800000000745,
+            "value": "tok"
+          }
+        ],
+        "events": [
+          {
+            "at": 2001.3999999985099,
+            "text": "25 resultados",
+            "inert": true
+          }
+        ],
+        "status": [
+          {
+            "text": "25 resultados",
+            "inert": true
+          }
+        ]
+      }
+    }
+  }
+]
