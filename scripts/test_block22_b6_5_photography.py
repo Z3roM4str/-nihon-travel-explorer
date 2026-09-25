@@ -175,6 +175,7 @@ def build_tests(through_batch):
                     continue
                 roles = [record.get("role") for record in records]
                 self.assertLessEqual(len(records), 3, place_id)
+                self.assertEqual(len(roles), len(set(roles)), f"duplicate role: {place_id}")
                 self.assertEqual(roles, sorted(roles, key=role_order), place_id)
                 complementary = [role for role in roles if role in COMPLEMENTARY]
                 if place_id in expected_targets and decisions[place_id][0] == "acquired":

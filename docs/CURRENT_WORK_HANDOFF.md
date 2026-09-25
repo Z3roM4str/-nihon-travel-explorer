@@ -1,8 +1,21 @@
-# Handoff reanudable — B21 + B6.1 + B6.2 + B6.3 + B6.4
+# Handoff reanudable — B21 + B6.1 + B6.2 + B6.3 + B6.4 + B6.5
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
-## Estado actual — B6.4 integrado
+## Estado actual — B6.5 implementado y certificado; pendiente de integración
+
+**Última actualización:** 2026-09-24. La autoridad normativa sigue siendo `docs/design/06_ESTRATEGIA_FOTOGRAFICA.md`.
+
+- B21 cerrado; B6.1, B6.2, B6.3 y B6.4 integrados y cerrados. B6.5 está completo y certificado en la rama `codex/block-22-b6-5-grade-s-third-photography`; no integrado.
+- Base canónica: `3ebe7aee70d8046448f10749984d5829b7a4f2cc`. Último checkpoint de adquisición: `a9d7969e551102e2e5167db3167e746ff0e86c7a`. La certificación final está en `docs/BLOCK_22_B6_5_REPORT.md`; comprobar el SHA final entregado con el head de la rama remota después del commit de informe/handoff.
+- Gate derivado: 32/32 S con identity; 17/32 S con experience; 28 objetivos reales B6.5. Resultado: 10 adquiridos y 18 unresolved. Coverage complementaria detail/context/seasonal: 4/32 → 14/32.
+- Registro: **225 imágenes / 194 lugares con fotografía**. Identity S permanece **32/32**; experience S permanece **17/32 + 15 excepciones** (sin resolverlas como experience). Grado A permanece **139/147 + 8 excepciones**; Grado B **23/25 + 2 excepciones**.
+- Validator, tests de fotografía/rendition/Block22/B6.2/B6.3/B6.4/B6.5 y derivados `--check` PASS. Frontend: build PASS; lint exit 0 con el warning heredado `PlaceMap.tsx:14`; Vitest 100 archivos, 3328/3328. Browser audit B6.5: 416/416, 0 fallos en móvil y escritorio.
+- Presupuesto completo identity 800w: Tokio 3.421.914 B; Kioto 3.408.406 B; Osaka 3.170.658 B; Okinawa 2.866.922 B; Sapporo 166.986 B; Nagoya 69.552 B; Fukuoka 69.284 B. Las complementarias no se cargan en listas. `app/src/data/place-images.ts` conserva SHA-256 `0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb`.
+- `main` sigue intacto en `8eb725eeb836ca121180f8dd8b0dc49c65efae25`; sin Astra, rediseño, PR ni merge.
+- **Siguiente bloque únicamente después de integrar B6.5:** identity para los lugares Grado C/D que siguen sin fotografía. No iniciado.
+
+## Snapshot de cierre B6.4 — base de B6.5
 
 - B21 cerrado; B6.1 cerrado; B6.2 integrado y cerrado; B6.3 integrado y cerrado.
 - **B6.4 integrado y cerrado con 15 excepciones documentadas** mediante PR #146. Rama fuente `codex/block-22-b6-4-grade-s-experience-photography` @ `f22ce0c33534b5ac457a9826c4eb165e97b40b0c`; merge commit `53d4d26dc22d3e214481af823e280a3ad479c11a`.
