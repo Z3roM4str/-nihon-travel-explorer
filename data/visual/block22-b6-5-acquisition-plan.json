@@ -1,0 +1,371 @@
+{
+  "version": 1,
+  "acquisitionDate": "2026-09-24",
+  "batchSize": 8,
+  "baselineFile": "data/visual/block22-b6-5-baseline.json",
+  "batches": [
+    {
+      "batch": 1,
+      "entries": [
+        {
+          "placeId": "JP-054",
+          "slug": "kiyomizu-dera-sakura-light-up",
+          "title": "File:Kiyomizu-dera sakura light-up (51472868886).jpg",
+          "role": "seasonal",
+          "alt": "Kiyomizu-dera illuminated at night with cherry blossoms in bloom",
+          "whyRole": "La escena de noche y la floración de marzo aportan una dimensión primaveral distinta a la identity otoñal diurna y a la foto de visitantes en Otowa. La floración es visible detrás del salón y la estructura iluminada cambia materialmente la lectura del templo.",
+          "identityComparison": "Comparada con las dos imágenes actuales: no repite el escenario frontal otoñal ni la vista de visitantes en la fuente; introduce sakura visible y el recinto iluminado de noche.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera_sakura_light-up_(51472868886).jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera_sakura_light-up_(51472868886).jpg",
+          "candidatesRejected": [
+            {"title": "File:Kiyomizu-dera sakura light-up (51473113188).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera_sakura_light-up_(51473113188).jpg", "reason": "La comparación visual muestra principalmente calle y edificios oscuros; no deja leer la floración estacional."},
+            {"title": "Kiyomizu-dera, Kyoto, November 2016 -01.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera,_Kyoto,_November_2016_-01.jpg", "reason": "Es la identity actual: escenario diurno con follaje otoñal; repetirla o variar el encuadre no añadiría información."}
+          ]
+        },
+        {
+          "placeId": "JP-066",
+          "slug": "fushimi-inari-kyoto-from-mount-inari",
+          "title": "File:View of Kyoto from Mount Inari.jpg",
+          "role": "context",
+          "alt": "Kyoto seen from the Yotsutsuji viewpoint on Mount Inari",
+          "whyRole": "La vista desde Yotsutsuji sitúa el santuario en la ladera y muestra la ciudad que lo rodea, un contexto geográfico ausente en el túnel de torii y en la arquitectura del santuario con visitantes.",
+          "identityComparison": "Las fotos existentes son un corredor de torii y los edificios del santuario. La candidata cambia a una vista elevada de Kyoto desde un punto verificable del monte Inari; no es otra fachada ni otra experiencia de recorrido.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:View_of_Kyoto_from_Mount_Inari.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:View_of_Kyoto_from_Mount_Inari.jpg",
+          "candidatesRejected": [
+            {"title": "Fushimi Inari Taisha tunnel droit.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Fushimi_Inari_Taisha_tunnel_droit.jpg", "reason": "Mismo corredor de torii que la identity actual."},
+            {"title": "Fushimi Inari Taisha shrine visitors", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Fushimi_Inari-taisha", "reason": "Las vistas bajas del santuario repiten los edificios y la escala de visitantes ya cubierta por experience."}
+          ]
+        },
+        {
+          "placeId": "JP-096",
+          "slug": "sanjusangendo-golden-statues-interior",
+          "title": "File:Kyoto Sanjusangen-do Haupthalle Inen Buddhastatuen 1.jpg",
+          "role": "detail",
+          "alt": "Rows of gilded Buddhist statues inside the main hall of Sanjūsangen-dō",
+          "whyRole": "Las filas de estatuas Kannon son el elemento distintivo que explica por qué el salón de 120 metros es conocido; esa colección no aparece en la fachada identity ni en la escena exterior con visitantes.",
+          "identityComparison": "El candidato es una vista interior centrada en la colección histórica de estatuas; las imágenes existentes muestran el edificio exterior y su puerta con visitantes. No repite arquitectura exterior ni la escena de visita.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kyoto_Sanjusangen-do_Haupthalle_Inen_Buddhastatuen_1.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Kyoto_Sanjusangen-do_Haupthalle_Inen_Buddhastatuen_1.jpg",
+          "candidatesRejected": [
+            {"title": "Sanjusangendo-building-dec2013.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Sanjusangendo-building-dec2013.jpg", "reason": "Es la identity exterior vigente."},
+            {"title": "A couple looking at the gates (52370163970).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:A_couple_looking_at_the_gates_(52370163970).jpg", "reason": "Es la experience exterior con visitantes ya registrada; no añade detalle interior."}
+          ]
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-025",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Las opciones licenciadas localizadas son más calles, cruces y señalética de Akihabara. Identity y experience ya muestran las dos dimensiones visuales centrales del distrito; una tercera vista urbana seguiría contando lo mismo.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Akihabara", "https://www.flickr.com/search/?text=Akihabara%20street%20night", "https://commons.wikimedia.org/wiki/File:Akhibara_Crossing_(14663984721).jpg"],
+          "candidatesRejected": [
+            {"title": "Akihabara Main Street with Onari-kaidō Overpass at night", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Akihabara", "reason": "Otra calle nocturna del distrito, casi el mismo sujeto que identity y experience."},
+            {"title": "Akihabara Electric Town 06.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Akihabara_Electric_Town_06.jpg", "reason": "Identity actual: edificios y señalética del distrito."}
+          ]
+        },
+        {
+          "placeId": "JP-033",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Los candidatos de la sede Azabudai Hills que aportan otra dimensión interior están dominados por instalaciones contemporáneas de teamLab. La licencia del fotógrafo no despeja los derechos de esas obras; los exteriores licenciados repetirían el edificio sin explicar la visita.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/File:TeamLab_Borderless_Azabudai_Hills.jpg", "https://commons.wikimedia.org/wiki/Category:teamLab_Borderless", "https://www.teamlab.art/e/borderless-azabudai/"],
+          "candidatesRejected": [
+            {"title": "TeamLab Borderless Azabudai Hills.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:TeamLab_Borderless_Azabudai_Hills.jpg", "reason": "Instalación inmersiva contemporánea como sujeto central; derechos de la obra no aclarados."},
+            {"title": "TeamLab Borderless, Odaiba, Tokyo, Japan (49070113608).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:TeamLab_Borderless,_Odaiba,_Tokyo,_Japan_(49070113608).jpg", "reason": "Sede anterior de Odaiba y obra artística contemporánea; no representa la ubicación actual ni resuelve copyright."}
+          ]
+        },
+        {
+          "placeId": "JP-044",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Las imágenes interiores no se pueden fotografiar según las normas del museo y las tomas de visita abiertas encontradas dependen de personajes o diseños de Studio Ghibli. La licencia del fotógrafo no resuelve esos derechos; los exteriores disponibles repiten la identity.",
+          "searchSources": ["https://www.ghibli-museum.jp/en/", "https://commons.wikimedia.org/wiki/Category:Ghibli_Museum", "https://www.flickr.com/search/?text=Ghibli%20Museum%20Mitaka"],
+          "candidatesRejected": [
+            {"title": "Ghibli Museum Exterior Entrance Totoro Ticket Booth, Inokishira Park", "sourcePage": "https://www.flickr.com/photos/joshuamellin/53491817733/", "reason": "Totoro/taquilla con personaje ocupa la escena y conserva derechos contemporáneos no despejados."},
+            {"title": "Ghibli Museum 06.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Ghibli_Museum_06.jpg", "reason": "Exterior del edificio vacío, casi frontal y redundante con la identity."}
+          ]
+        },
+        {
+          "placeId": "JP-077",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Las imágenes licenciadas de casas de té y recorridos que localicé son diapositivas de archivo subexpuestas; la escena de habitación revisada no permite distinguir detalles útiles a tamaño de galería. Los jardines vacíos repiten el paisaje de la identity.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Katsura_Imperial_Villa", "https://dp.la/search?q=Katsura%20Imperial%20Villa", "https://www.flickr.com/search/?text=Katsura%20Imperial%20Villa"],
+          "candidatesRejected": [
+            {"title": "(Teahouse interior view in Katsura Imperial Villa, Japan) - DPLA", "sourcePage": "https://commons.wikimedia.org/wiki/File:(Teahouse_interior_view_in_Katsura_Imperial_Villa,_Japan)_-_DPLA_-_5b2151951efa5b557747380894b5a813.jpg", "reason": "CC BY 4.0 y lugar comprobable, pero la diapositiva de 1963 está muy subexpuesta y no hace legible el detalle interior."},
+            {"title": "Katsura Imperial Villa garden path (DPLA/Commons scan)", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Katsura_Imperial_Villa", "reason": "Archivo oscuro de jardín vacío, sin información distinta de la identity."}
+          ]
+        },
+        {
+          "placeId": "JP-097",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "La fachada legalmente licenciada es la identity vigente. Las imágenes interiores de consolas, juegos y personajes muestran obras contemporáneas de Nintendo; el crédito CC del fotógrafo no autoriza por sí solo esos sujetos.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/File:Nintendo_Museum_Entrance.jpg", "https://museum.nintendo.com/en/", "https://www.flickr.com/search/?text=Nintendo%20Museum%20Uji"],
+          "candidatesRejected": [
+            {"title": "Nintendo Museum Entrance.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Nintendo_Museum_Entrance.jpg", "reason": "Exterior vacío que repite la identity actual."},
+            {"title": "A visitor plays a game at the Nintendo Museum during a press preview in Uji", "sourcePage": "https://www.reutersconnect.com/item/a-visitor-plays-a-game-at-the-nintendo-museum-during-a-press-preview-in-uji/dGFnOnJldXRlcnMuY29tLDIwMjQ6bmV3c21sX1JDMkc3QUEzN0VHSQ", "reason": "Licencia comercial de Reuters y juego Nintendo como sujeto contemporáneo."}
+          ]
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "entries": [
+        {
+          "placeId": "JP-135",
+          "slug": "himeji-castle-interior-corridor",
+          "title": "File:Himeji Castle Interior.jpg",
+          "role": "detail",
+          "alt": "Visitors walking through the timber interior corridor of Himeji Castle",
+          "whyRole": "La estructura interior de madera, los niveles y el paso por el tenshu explican el recorrido y la construcción del castillo, dimensión que no aparece en la identity exterior ni en la aproximación con visitantes.",
+          "identityComparison": "Frente al keep exterior y el camino de llegada, esta foto entra en el corredor interior del Ro-no-watari-yagura; cambia el sujeto y la escala. No hay una obra contemporánea dominante en el encuadre.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Himeji_Castle_Interior.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Himeji_Castle_Interior.jpg",
+          "candidatesRejected": [
+            {"title": "20260429 Burg Himeji 01, Hyōgo, Japan anagoria.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:20260429_Burg_Himeji_01,_Hyōgo,_Japan_anagoria.jpg", "reason": "Otra vista exterior muy cercana a la identity."},
+            {"title": "Throngs of people walking towards Himeji Castle, Himeji, 2016.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Throngs_of_people_walking_towards_Himeji_Castle,_Himeji,_2016.jpg", "reason": "Escena de aproximación con visitantes que ya cubre experience."}
+          ]
+        },
+        {
+          "placeId": "JP-142",
+          "slug": "kinosaki-onsen-gosho-no-yu",
+          "title": "File:Kinosaki-Onsen Gosho-no-yu.jpg",
+          "role": "detail",
+          "alt": "Gosho-no-yu public bathhouse in Kinosaki Onsen",
+          "whyRole": "Identifica un baño público concreto del circuito de Kinosaki y muestra su arquitectura; la identity es el canal invernal y experience el paseo de yukata. Aclara qué significa recorrer una ciudad termal más allá de su canal.",
+          "identityComparison": "No repite el canal nevado ni la calle peatonal con personas en yukata: centra un establecimiento de baños termales distinto y verificable dentro de Kinosaki.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kinosaki-Onsen_Gosho-no-yu.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Kinosaki-Onsen_Gosho-no-yu.jpg",
+          "candidatesRejected": [
+            {"title": "Kinosaki Onsen Otani River 2026-02 ac (1).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Kinosaki_Onsen_Otani_River_2026-02_ac_(1).jpg", "reason": "Identity actual: canal y fachadas nevadas."},
+            {"title": "Kinosaki Aruki.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Kinosaki_Aruki.jpg", "reason": "Experience actual: calle comercial y paseo en yukata; el nuevo detalle debía explicar el baño termal."}
+          ]
+        },
+        {
+          "placeId": "JP-143",
+          "slug": "koyasan-shukubo-temple-breakfast",
+          "title": "File:Breakfast at a buddhist temple by Flowizm in Koyasan.jpg",
+          "role": "detail",
+          "alt": "Vegetarian temple breakfast served at a Buddhist lodging in Koyasan",
+          "whyRole": "La comida vegetariana del shukubō es una dimensión concreta de una estancia en un templo; no se ve en la fachada identity ni en la habitación con huésped de experience.",
+          "identityComparison": "La toma se centra en la bandeja de desayuno y el servicio de comida, no vuelve a mostrar fachada, jardín ni tatami/huésped de la experience. El archivo identifica el alojamiento Shōjōshin-in en Koyasan.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Breakfast_at_a_buddhist_temple_by_Flowizm_in_Koyasan.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Breakfast_at_a_buddhist_temple_by_Flowizm_in_Koyasan.jpg",
+          "candidatesRejected": [
+            {"title": "Temple lodging at Shojoshin-in on Koyasan (3810898436).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Temple_lodging_at_Shojoshin-in_on_Koyasan_(3810898436).jpg", "reason": "Experience actual: habitación y huésped dentro del alojamiento."},
+            {"title": "Ren'ge-in (Wakayama Koyasan) Temple hdsr S5 04.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Ren%27ge-in_(Wakayama_Koyasan)_Temple_hdsr_S5_04.jpg", "reason": "Identity actual: fachada y jardín del hospedaje."}
+          ]
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-125",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "La experiencia licenciada actual muestra Hogwarts; otras escenas de actividad dependen de decorados, marcas y obras contemporáneas de Universal. Las tomas de entrada licenciadas repetirían la identity y el fotógrafo no resuelve por sí solo los derechos de los sujetos del parque.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/File:Hogwarts_in_Universal_Studios_Japan.jpg", "https://www.usj.co.jp/web/en/us/park-guide/", "https://commons.wikimedia.org/wiki/Category:Universal_Studios_Japan"],
+          "candidatesRejected": [
+            {"title": "Hogwarts in Universal Studios Japan.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Hogwarts_in_Universal_Studios_Japan.jpg", "reason": "Experience actual: decorado contemporáneo de una franquicia cinematográfica."},
+            {"title": "UNIVERSAL STUDIOS JAPAN ENTRANCE.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:UNIVERSAL_STUDIOS_JAPAN_ENTRANCE.jpg", "reason": "Identity actual: entrada y branding, redundante con el activo actual."}
+          ]
+        },
+        {
+          "placeId": "JP-126",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Las vistas que podrían aportar un detalle/contexto muestran como sujeto central la escenografía y los elementos reconocibles de Super Mario/Nintendo. La licencia fotográfica no despeja los derechos de esas obras contemporáneas.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/File:Super_Nintendo_World_Entrance_5th_Anniversary_decoration_at_Universal_Studios_Japan.jpg", "https://www.usj.co.jp/web/en/us/areas/super-nintendo-world/", "https://commons.wikimedia.org/wiki/Category:Super_Nintendo_World"],
+          "candidatesRejected": [
+            {"title": "Super Nintendo World Entrance 5th Anniversary decoration at Universal Studios Japan.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World_Entrance_5th_Anniversary_decoration_at_Universal_Studios_Japan.jpg", "reason": "Identity actual: la decoración de Mario domina la foto y conserva derechos contemporáneos."},
+            {"title": "USJ Super Nintendo World overview.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:USJ_Super_Nintendo_World_overview.jpg", "reason": "Panorámica de la zona con obras y ambientación de Nintendo como sujeto principal."}
+          ]
+        },
+        {
+          "placeId": "JP-134",
+          "category": "UNRESOLVED — LICENSE",
+          "reason": "Un detalle de Tamamushi-no-zushi sería útil y distinto de la arquitectura exterior, pero las páginas originales localizadas son reproducciones de publicaciones de archivo bajo PD-Japan-oldphoto/PD-1996 o una imagen sin licencia compatible explícita. La preparación existente no admite esas bases y no se fuerza el caso.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Tamamushi_Shrine", "https://www.horyuji.or.jp/en/garan/kondo/", "https://commons.wikimedia.org/wiki/Category:Hōryū-ji"],
+          "candidatesRejected": [
+            {"title": "Tamamushi Shrine ColorPhoto.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tamamushi_Shrine_ColorPhoto.jpg", "reason": "La reproducción procede de una revista de 1933 y está etiquetada PD-Japan-oldphoto/PD-1996, fuera de las bases de Public Domain aceptadas por este proyecto."},
+            {"title": "Tamamushi Shrine (lower right).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tamamushi_Shrine_(lower_right).jpg", "reason": "La fuente es una reproducción fiel de una obra bidimensional; el estatuto de la foto no se resuelve con CC0 del texto estructurado y la página no ofrece una licencia de fotografía compatible clara."}
+          ]
+        },
+        {
+          "placeId": "JP-144",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Las opciones libres encontradas son otra toma de lápidas/Jizō del cementerio, una vista nocturna del camino que repite experience o un close-up de gorintō sin una fotografía candidata clara que separe visualmente una pieza concreta de los memoriales ya visibles en identity.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Okunoin_Cemetery", "https://www.flickr.com/search/?text=Okunoin%20Cemetery%20Koyasan%20gorinto", "https://www.koyasan.or.jp/en/"],
+          "candidatesRejected": [
+            {"title": "Gorintō at Okunoin's cemetery, Koyasan", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Okunoin_Cemetery", "reason": "El archivo localizado se centra en otra estela funeraria; en la comparación a tamaño de galería se lee como otro memorial dentro del mismo grupo de identity, sin un rasgo separable suficientemente legible."},
+            {"title": "Pathway through graveyard at Okunoin at Koyasan at night", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Okunoin_Cemetery", "reason": "Camino nocturno del cementerio, la misma dimensión ya cubierta por experience."}
+          ]
+        },
+        {
+          "placeId": "JP-145",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Las rutas de peregrinación y senderos licenciados revisados se parecen a la senda de bosque ya usada como experience, mientras que las demás fotos vuelven a presentar la cascada y pagoda de la identity. No encontré un tercer detalle/contexto que agregue información distinta.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Nachi_Falls", "https://www.flickr.com/search/?text=Nachi%20Falls%20pilgrimage%20route", "https://www.kumano-travel.com/en/"],
+          "candidatesRejected": [
+            {"title": "Nachi Falls Pilgrimage route (51928795062).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Nachi_Falls_Pilgrimage_route_(51928795062).jpg", "reason": "Sendero forestal que repite el recorrido boscoso ya visible en experience."},
+            {"title": "Kumano Kodo World heritage Nachi-no-taki view", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Nachi_Falls", "reason": "Repite el mismo par visual de cascada y pagoda de la identity."}
+          ]
+        }
+      ]
+    },
+    {
+      "batch": 3,
+      "entries": [
+        {
+          "placeId": "JP-162",
+          "slug": "sefa-utaki-kudaka-island-view",
+          "title": "File:Kudakajima Island from Ujoguchi of Sefa-Utaki.JPG",
+          "role": "context",
+          "alt": "Kudaka Island seen from the Ujoguchi entrance of Sefa-Utaki",
+          "whyRole": "La isla sagrada de Kudaka aparece en el horizonte desde Ujoguchi y aporta la relación entre el sitio de culto y su entorno marino. No es una panorámica genérica: el original identifica la vista y tiene coordenadas en Sefa-Utaki.",
+          "identityComparison": "La identity es una formación rocosa/cueva de Yuinchi y experience el tramo de escaleras; la candidata es un punto de vista exterior hacia Kudaka desde otra entrada, con sujeto y sentido geográfico distintos.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Kudakajima_Island_from_Ujoguchi_of_Sefa-Utaki.JPG",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Kudakajima_Island_from_Ujoguchi_of_Sefa-Utaki.JPG",
+          "candidatesRejected": [
+            {"title": "Okinawa Nanjo Sefa-utaki Gusuku site Yuinchi 04.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Okinawa_Nanjo_Sefa-utaki_Gusuku_site_Yuinchi_04.jpg", "reason": "Identity actual: roca de Yuinchi; no enseña la relación con Kudaka desde Ujoguchi."},
+            {"title": "Stairs near Ujoguchi of Sefa-Utaki.JPG", "sourcePage": "https://commons.wikimedia.org/wiki/File:Stairs_near_Ujoguchi_of_Sefa-Utaki.JPG", "reason": "Experience actual: escaleras y recorrido interior, dimensión que no se debe repetir como context."}
+          ]
+        },
+        {
+          "placeId": "JP-173",
+          "slug": "churaumi-aquarium-coral-exhibit",
+          "title": "File:Corals in Okinawa Churaumi Aquarium 4.jpg",
+          "role": "detail",
+          "alt": "Coral display at Okinawa Churaumi Aquarium",
+          "whyRole": "Muestra un tanque/exhibición de coral distinta del gran Kuroshio con tiburón ballena y de la escena del buzo; informa que la visita incluye vida arrecifal además del tanque icónico.",
+          "identityComparison": "Las dos fotos vigentes comparten el tanque principal y el trabajo del buzo en él. La candidata es un coral identificado dentro del acuario y cambia sujeto, escala y tanque.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Corals_in_Okinawa_Churaumi_Aquarium_4.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Corals_in_Okinawa_Churaumi_Aquarium_4.jpg",
+          "candidatesRejected": [
+            {"title": "Main tank of the Kuroshio Sea in Okinawa Churaumi Aquarium.JPG", "sourcePage": "https://commons.wikimedia.org/wiki/File:Main_tank_of_the_Kuroshio_Sea_in_Okinawa_Churaumi_Aquarium.JPG", "reason": "Identity actual: tanque principal con tiburón ballena."},
+            {"title": "USMC-081220-M-0902C-004.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:USMC-081220-M-0902C-004.jpg", "reason": "Experience actual: visitantes y buzo frente al mismo tanque principal."}
+          ]
+        },
+        {
+          "placeId": "JP-179",
+          "slug": "yanbaru-okinawa-rail",
+          "title": "File:Okinawa Rail 388492704.jpg",
+          "role": "detail",
+          "alt": "Okinawa rail, an endemic bird recorded in Kunigami in the Yanbaru forest",
+          "whyRole": "El rascón de Okinawa es fauna endémica que explica el valor ecológico de Yambaru; es un sujeto biológico concreto y distinto del dosel forestal de la identity.",
+          "identityComparison": "La identity presenta bosque subtropical panorámico vacío. La candidata muestra el ave endémica y la página original ubica la observación en Kunigami, Okinawa (26.691118, 128.360687), dentro del área de Yambaru.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Okinawa_Rail_388492704.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Okinawa_Rail_388492704.jpg",
+          "candidatesRejected": [
+            {"title": "Subtropical Forest of Yanbaru National Park Okinawa 2018.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Subtropical_Forest_of_Yanbaru_National_Park_Okinawa_2018.jpg", "reason": "Identity actual: otra vista vacía del bosque."},
+            {"title": "Yambaru forest in Ryukyu Mura, Onna, Okinawa.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Yambaru_forest_in_Ryukyu_Mura,_Onna,_Okinawa.jpg", "reason": "La fuente ubica la escena en el parque temático Ryukyu Mura, no en el parque nacional."}
+          ]
+        },
+        {
+          "placeId": "JP-196",
+          "slug": "taketomi-village-stone-wall",
+          "title": "File:Stone wall Taketomi Island.jpg",
+          "role": "detail",
+          "alt": "Traditional stone wall on Taketomi Island",
+          "whyRole": "El muro de piedra volcánica permite leer un elemento concreto de la construcción tradicional de Taketomi, distinto de la vivienda identity y del carro de búfalo de experience.",
+          "identityComparison": "La candidata centra el límite de piedra y vegetación con resolución amplia; las imágenes existentes centran una casa tradicional y el recorrido en carro. No vuelve a representar el carro ni otra vivienda completa.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Stone_wall_Taketomi_Island.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Stone_wall_Taketomi_Island.jpg",
+          "candidatesRejected": [
+            {"title": "Walk in Taketomi Island 17.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Walk_in_Taketomi_Island_17.jpg", "reason": "Identity actual: casa y calle de la aldea."},
+            {"title": "水牛車.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:%E6%B0%B4%E7%89%9B%E8%BB%8A.jpg", "reason": "Experience actual: carro de búfalo y visitantes, no detalle arquitectónico."}
+          ]
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-157",
+          "category": "UNRESOLVED — LOCATION UNVERIFIABLE",
+          "reason": "Las fotos con escenas del castillo principal anteriores al incendio de 2019 ya no representan el estado actual del recinto. La identity (Shureimon, foto 2023) y la experience vigente (visita guiada en el parque) son actuales; las vistas de reconstrucción/obras localizadas no aportan una tercera dimensión vigente verificable.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Shurijo_Castle", "https://oki-park.jp/shurijo/en/", "https://www.flickr.com/search/?text=Shurijo%20Castle%20Park%20garden"],
+          "candidatesRejected": [
+            {"title": "Shuri Castle - Light up.JPG", "sourcePage": "https://commons.wikimedia.org/wiki/File:Shuri_Castle_-_Light_up.JPG", "reason": "Vista nocturna del salón principal destruido en el incendio; no representa el recinto actual."},
+            {"title": "Ryutan and Shuri Castle 01.JPG", "sourcePage": "https://commons.wikimedia.org/wiki/Category:Ryutan", "reason": "El salón histórico aparece en una vista anterior al incendio y no se puede ofrecer como estado actual en la ventana de viaje."}
+          ]
+        },
+        {
+          "placeId": "JP-184",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Identity ya establece el paisaje costero y experience muestra uso de Furuzamami Beach. La opción que cambiaría materialmente el contexto de febrero–marzo sería una ballena jorobada en Zamami, pero no encontré fotografía con licencia compatible y ubicación original verificable; otras playas repiten mar, costa y visitantes.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Zamami_Island", "https://www.flickr.com/search/?text=Zamami%20humpback%20whale", "https://www.japan.travel/en/destinations/okinawa/okinawa/kerama-islands/"],
+          "candidatesRejected": [
+            {"title": "Sea kayaking Zamami Okinawa.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Sea_kayaking_Zamami_Okinawa.jpg", "reason": "Original de 1280×854 sin una miniatura reducida servida por Commons conforme al pipeline; además duplica la dimensión de visita/playa ya cubierta."},
+            {"title": "JAP Zamami Furuzamami Beach.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:JAP_Zamami_Furuzamami_Beach.jpg", "reason": "Experience actual: playa y visitantes, misma dimensión que ya cubre la galería."}
+          ]
+        },
+        {
+          "placeId": "JP-188",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "La identity actual ya contiene el agua turquesa, arena y pasarela de Yonaha Maehama. Los otros archivos licenciados de playa muestran la misma costa vacía; windsurfing sería otra experience y no se convierte en context/detail para forzar la tercera foto.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Yonaha_Maehama_Beach", "https://www.flickr.com/search/?text=Yonaha%20Maehama%20Beach", "https://www.japan.travel/en/spot/1776/"],
+          "candidatesRejected": [
+            {"title": "KIMG0450windsurfing in maehama.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:KIMG0450windsurfing_in_maehama.jpg", "reason": "Muestra windsurf; sería una segunda experience, prohibida en B6.5, no un detalle/contexto adicional."},
+            {"title": "Yonaha Beach (51924567580).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Yonaha_Beach_(51924567580).jpg", "reason": "Repite la pasarela y el mismo tramo de costa vacío de la identity."}
+          ]
+        },
+        {
+          "placeId": "JP-192",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Las fotos libres de Kabira Bay encontradas vuelven a mostrar el agua y pequeños barcos; la escena de glass-bottom boat añadiría otra activity/experience, y el material oficial no declara una licencia compatible. No hay otro detalle/contexto que la galería actual no comunique ya.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Kabira_Bay", "https://www.flickr.com/search/?text=Kabira%20Bay%20glass%20bottom%20boat", "https://www.japan.travel/en/spot/375/"],
+          "candidatesRejected": [
+            {"title": "Kabira Bay (52117120293).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Kabira_Bay_(52117120293).jpg", "reason": "Otra panorámica de la bahía con agua/isletas y embarcación distante, visualmente equivalente a identity."},
+            {"title": "Glass bottom boats in tropical lagoon in Kabira bay", "sourcePage": "https://www.flickr.com/photos/mytripsmypics/53198347426/", "reason": "La fuente declara copyright reservado y la escena corresponde a otra experience, no un rol B6.5."}
+          ]
+        }
+      ]
+    },
+    {
+      "batch": 4,
+      "entries": [
+        {
+          "placeId": "JP-197",
+          "slug": "iriomote-pinai-saara-falls",
+          "title": "File:Iriomote pinaisara fall.jpg",
+          "role": "context",
+          "alt": "Pinai-saara waterfall in Iriomote Island's subtropical forest",
+          "whyRole": "La cascada Pinai-saara amplía el contexto del paisaje de río/manglar a una formación fluvial concreta de Iriomote que ayuda a entender el componente de jungla de la excursión.",
+          "identityComparison": "La identity vigente mira el estuario y manglar del río Nakama desde una perspectiva elevada. La candidata es una cascada interior identificada por fuente y categoría exactas en Iriomote; no repite el estuario ni el manglar.",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Iriomote_pinaisara_fall.jpg",
+          "originalPage": "https://commons.wikimedia.org/wiki/File:Iriomote_pinaisara_fall.jpg",
+          "candidatesRejected": [
+            {"title": "Nakama River Iriomote Okinawa Japan05s3.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Nakama_River_Iriomote_Okinawa_Japan05s3.jpg", "reason": "Identity actual: paisaje del río y manglar."},
+            {"title": "Iriomote mangroves (52117082031).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Iriomote_mangroves_(52117082031).jpg", "reason": "Otra vista elevada y vacía del manglar, redundante con identity."}
+          ]
+        }
+      ],
+      "unresolved": [
+        {
+          "placeId": "JP-203",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Las escenas de actividad de Tokyo Disneyland se centran en decorados, castillo, personajes y espectáculos de Disney. La licencia abierta del fotógrafo no resuelve los derechos de las obras contemporáneas; las entradas estáticas repiten la identity.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Tokyo_Disneyland", "https://www.tokyodisneyresort.jp/en/tdl/", "https://www.flickr.com/search/?text=Tokyo%20Disneyland%20parade"],
+          "candidatesRejected": [
+            {"title": "Tokyo Disneyland Opening Year.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_Disneyland_Opening_Year.jpg", "reason": "Visitantes ante el castillo icónico de Disney; derechos del sujeto contemporáneo sin resolver."},
+            {"title": "Tokyo Disneyland Entrance (9409986068).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_Disneyland_Entrance_(9409986068).jpg", "reason": "Entrada estática y branding, redundante con la identity."}
+          ]
+        },
+        {
+          "placeId": "JP-204",
+          "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+          "reason": "Las opciones libres encontradas muestran el volcán temático, el puerto escenográfico y las góndolas del parque. Son instalaciones contemporáneas protegidas; la licencia del fotógrafo no aclara los derechos de esas obras, y los encuadres vuelven a cubrir la arquitectura de la identity.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Tokyo_DisneySea", "https://www.tokyodisneyresort.jp/en/tds/", "https://www.flickr.com/search/?text=Tokyo%20DisneySea%20harbor"],
+          "candidatesRejected": [
+            {"title": "Tokyo Disney Sea (52853628038).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_Disney_Sea_(52853628038).jpg", "reason": "Puerto y arquitectura temática dominan el cuadro; sujeto contemporáneo con derechos no resueltos."},
+            {"title": "Tokyo DisneySea-Volcania.jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Tokyo_DisneySea-Volcania.jpg", "reason": "Identity actual: volcán de fantasía del parque; no se usa otro ángulo como detail/context."}
+          ]
+        },
+        {
+          "placeId": "JP-205",
+          "category": "UNRESOLVED — NO COMPLEMENTARY IMAGE",
+          "reason": "Identity ya muestra el festival invernal desde el parque y experience una escultura iluminada con público. Las opciones adicionales vuelven a mostrar esculturas de nieve/escenas del festival; aunque ilustran invierno, no aportan una tercera dimensión separable y algunas son obras contemporáneas de autoría no aclarada.",
+          "searchSources": ["https://commons.wikimedia.org/wiki/Category:Sapporo_Snow_Festival", "https://www.snowfes.com/en/", "https://www.flickr.com/search/?text=Sapporo%20Snow%20Festival%20night"],
+          "candidatesRejected": [
+            {"title": "US Navy 060209-N-7526R-205 Illuminated trees and ice sculptures...", "sourcePage": "https://commons.wikimedia.org/wiki/File:US_Navy_060209-N-7526R-205_Illuminated_trees_and_ice_sculptures_line_the_streets_leading_up_to_Sapporo%27s_TV_Tower_during_the_Sapporo_Ice_Festival.jpg", "reason": "Noche y esculturas ya se ven en experience; vuelve a describir el mismo festival, y la escultura de concurso mantiene derechos del autor no identificados."},
+            {"title": "Sapporo Snow Festival 2025 (8846080).jpg", "sourcePage": "https://commons.wikimedia.org/wiki/File:Sapporo_Snow_Festival_2025_(8846080).jpg", "reason": "Otra escultura de nieve del mismo festival; no agrega estación, ubicación o elemento distinto de identity/experience."}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "imageCount": 215,
+  "imageCount": 218,
   "images": [
     {
       "placeId": "JP-001",
@@ -182,6 +182,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRsABAABXRUJQVlA4ILQBAAAQDACdASoUAA0AAAAAJZACdMoRwN6B+KtSBuANEB+i2SAc977GvlFUoJ6B+HOSi+ifi5nlPxryC/7APMC/ALiJ/jPtm9kDwIP8B7gv8V/kP9k/Iz99fpA6hr9jjxlNWNIfA3Pb1w3bjCAA/v/+f6G/4LnS3RUo6E2u09zzQQLGoKXzqA97eW3Z0ucbZa/Uqn+n//2jSuyn6rr/JkDaLeyPL3vhUB/SkP6/MJyvvDvdhkScg4HZk34etArRn+1Rl+H/97OtvUfvLbQxAa25QH/yTFnwPqpyRo972KX//RRpep6a4Xao9aJVHKnmestSLaSfAl03ekEetL6/xHoueyyhQIg/E4fxDdZ7e2kMiO6XvDuQvivwGhvCYq0XWDqmLYr/8a1ftbjmmvKZ/qP/i0w40Xn02uGZyxy2tR34uXp/2Y+wCqN+e0Dm7/+GlWNhBNqnfGKH3Y+zp6b6L39Rt7i/Ik/b3nJntsJ/57s+kKJkXwMcEtYstCP6SUpXb+H/NwsUkPu1CWq6dH25kXXAD+XGqxzAfDAw3rYf/z2iC/HtGP9qTgKB9qTWQjeb2IkRO16u3AAA"
+    },
+    {
+      "placeId": "JP-054",
+      "assetPath": "images/places/JP-054/kiyomizu-dera-sakura-light-up.webp",
+      "alt": "Kiyomizu-dera illuminated at night with cherry blossoms in bloom",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKiyomizu-dera_sakura_light-up_%2851472868886%29.jpg",
+      "credit": "Raita Futo from Tokyo, Japan",
+      "license": "CC BY 2.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Kiyomizu-dera_sakura_light-up_%2851472868886%29.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kiyomizu-dera sakura light-up (51472868886).jpg",
+      "originalWidth": 5898,
+      "originalHeight": 3932,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "role": "seasonal",
+      "lqip": "data:image/webp;base64,UklGRrYBAABXRUJQVlA4IKoBAAAQCwCdASoUAA0AAAAAJbACdMoRwN5L+AH5AU4DYAP6Btmf6q74B1gHoAfqr6XXsIftH6Jf/0ugHOCoP/qGZA/DnIVdFJ1Ff9m4k31I/6x+Un9fN2R/jHztpKTK4W1odxwAAP7//0WvkiLKUnE93gaHOHrMtLSmLCdzDQYu7/VtqFwvIZyAUD62W4Tv+0ByITE/K8i66l6GJ+/+j67mP8nLSEs+cCdLX1CP/d8bn/iC3prpj+0V7v/sDzXjLOf88cyY3/Q+eDpbWh3Vxu7iIYM9f98fR+s/KeV/1m0cRWSt/91+ov5nuGvz0v//xUSf40ngn/+gHgfAv+/24Hm6Wt3R8biVDjSH/+t2Tjr6s1G8ckyZhdP9AOh5wPVDcxV5smZ8WD8D7wksrND/9oRIQPmceyvnac9rufy5z/ugShh4yUGyYCkaQj7B9RhnSyY46g4Bttv2y1uf8VfRT15cW3vzAyBPs9HmcJN2Pq0f4Tx9mLhd01zQdY3qW+oDZQ2pVyr+UZpqNhzqva5MvxS3azB+UkUaF9gi6W5QJDamqbvA823/vW/Yxj8gAAA="
     },
     {
       "placeId": "JP-057",
@@ -636,6 +654,24 @@
       "lqip": "data:image/webp;base64,UklGRuABAABXRUJQVlA4INQBAABwDACdASoUAA0AAAAAJYgCdMoR3N6TTAVwD9Jf8B/K/f/0wDnnvYV/ZT0arkB+AH6S9gN2z9TckE82/HfPb/iNkgP6r+IHiAb7NrMHGof3T3Bv4h/FP51+Tv965Br9VTLT0/nSEV6kRJx3mYAA/v/+3m9Ivpi1OzbuZzMx/LFcakb4eMba/lxlNwt/CL9QLad+89Ezil4UJCSaM8uLCkng16IoM3zjkQzm9vjgaPzsuRn4MlqGGm2w/snI/wLm7+lMwU9Q87paVfOf2JD/hwA7UoehraL+n4iMSBHrdDaoE10rGwsZ0KmmDJZDQQZdQJjk0Pkhnst392ctN/fRZFj1j7s32+Hf8pV5fKh9kAArfi2n/47A/jf6lHJ+2sOFFv0bV+5uCFj/E93yR7XzMu8jGAv//zuX+O8CxMH1v/1//Ibbw/OriG1maHw/VH+//xJrEf9uz/hWyf45bsXpSbd3r8953c/wkWonif/tWDV3iLgMPfjzQWn+dZnz70wyuEy8Wub+W2gax/3P4Cqkks1ntbYA9cD7jIPIrZJ9v7NdKw0vlDnW11R8hT1mf5p9/y431f/5Ufvk7+uMV4qm81/St21hPA+Evw+ulQ3YTF+uyO/gAAA="
     },
     {
+      "placeId": "JP-066",
+      "assetPath": "images/places/JP-066/fushimi-inari-kyoto-from-mount-inari.webp",
+      "alt": "Kyoto seen from the Yotsutsuji viewpoint on Mount Inari",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AView_of_Kyoto_from_Mount_Inari.jpg",
+      "credit": "Christophe95",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c0/View_of_Kyoto_from_Mount_Inari.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:View of Kyoto from Mount Inari.jpg",
+      "originalWidth": 4032,
+      "originalHeight": 3024,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "context",
+      "lqip": "data:image/webp;base64,UklGRpQBAABXRUJQVlA4IIgBAACQCQCdASoUAA8AAAAAJZQCdMoRwN5BTAdQD/HYgD9Vf1A99u7r/ZYrEvJNm1dgA80v415I/+wZzNljmap1y9wD+O/z7/AfmSaIvOXoCF5Fp6FloQ0AAP7yk/8/1sas+L/8Sey5USKoMuOb+fkjyzfdXVwGMD49vdHnxBG2mxqAoim4NwtdZgT3Rp/PE+O+yROX/zwf7svV/8VM6rX8/pkrX6NNZnP5LocMckm9xX/Ta8ydOPXDjfX6f90B0Bmhad/juXNDjS9xQBikNg6G7MvdcUg/n+XBnT/K2COSfrH24xHCCBt/qxFQUDGb3Lc9/faX8piTzct4MxZrD3Cr7/F//Uh2Kg6Heg7oAKS/zn7V/1W8fjgbxO/tde5Wf3RUNQDgqO+/rLsL6KxmVT3EXmGz/tQkCcjCFaKJHakt9/ux1expR09JUKYu86TanuQlxF+Azi0OOj+5lAgMmOfuDEUGhV1c9jab4ad4jDlAzBOJEG95o2fxXs2sMD88ren9YL5pG29/CAAAAA=="
+    },
+    {
       "placeId": "JP-096",
       "assetPath": "images/places/JP-096/sanjusangendo-main-hall.webp",
       "alt": "Fachada lateral del salón principal de madera de Sanjūsangen-dō en Kioto, con su largo tejado de tejas y pinos recortados delante.",
@@ -670,6 +706,24 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "role": "experience",
       "lqip": "data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAADQDACdASoUAA4AAAAAJQBOmUGMGOV/hnvDv+A/oHvt87N1gHPhey7+y36zey9cpfwA6gbRBkw3lf4zZ6L8KPyMzD39V/E3UdtNy9ILOB8sf6/3Bf0o/sn5U/2v///Td0AB3PVJCdrdzHkblWI/ggAA/v//Yx/6Q5Io8hI06FeBMaFXWxOULPmhPyTGRasbQDt7n+XBaOEieyGil1LiU9+l1XV2RlmZCP6CfHS23tRH6Gsg+rJtjWqX8T9LaVKM4swvqy24oRhzNUpB//YUWzSVO0xQMDEu21/NKlQ5uLl4v5ErbZEwYASsSD9T3Q/9FHuP0aaT1kJvGL/BaVw80vnL5XskgizREf//3NnQpncbtg3U2UopiXoQIPKuHT/+DOZIXywX/zGcW0gEC4+eeUXTEf+1g/DiWbwNwHpy1/i8n03FmmE4hP/7tp/4aDprMN5/SA+OoSWL8akX/5cJ0aT9eyeeNMiJca/9CLcHH4lBnu1Ph9a+cxkXwv8yoc7zCZFakfSdfzmo6908Ck1V6PjjVmkz/VLj141aXkK65Btt2vWKNPLGQtig0Vgj57X+SC+Gg+9uu8iNqeVm33w4vc2upDxklzrt8v1g/bhNz+p9AAAA"
+    },
+    {
+      "placeId": "JP-096",
+      "assetPath": "images/places/JP-096/sanjusangendo-golden-statues-interior.webp",
+      "alt": "Rows of gilded Buddhist statues inside the main hall of Sanjūsangen-dō",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AKyoto_Sanjusangen-do_Haupthalle_Inen_Buddhastatuen_1.jpg",
+      "credit": "Zairon",
+      "license": "CC BY-SA 4.0",
+      "acquisitionUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Kyoto_Sanjusangen-do_Haupthalle_Inen_Buddhastatuen_1.jpg",
+      "acquisitionDate": "2026-09-24",
+      "originalTitle": "File:Kyoto Sanjusangen-do Haupthalle Inen Buddhastatuen 1.jpg",
+      "originalWidth": 4378,
+      "originalHeight": 3069,
+      "processing": "resized-and-webp-reencoded",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "role": "detail",
+      "lqip": "data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAADwBwCdASoUAA4APhkIg0EhBgEABABhLEATplCOBvQKYCuAeeBZJRQK/7N9qvwn5wPmz/de4H+pP+1Gz2H11p5lo34U425beSAA/v/+abOYLmu/b7PX3g/5P1JH/PjDDBf/r/wpFhBSJTAj31DPzH4EJpVft9fxXLdE3yPRmLbThNLqAQUky9SaWqxH/s67oz8U1e8Lxmwt/aL/WtQNtvp//7pXV34/7p0twe8L94Rat9cU/99h/+P9rhP/9e/f5V+Wf15/PH4hvifGYuqIL78GTVBKa4T86Zr8g+BqgO5RC5Iv99+LylmfvyBVBlml6H/+Gynmhgz79JQNaXfsZY3/+glvzKV4f5R198rkQmErwRf831458mlvVcqGfFwXGgevqDfxL4CZ8m73LehZwn2I+2P+RG/HWk4YX+5bv7u2u6z0chP/mzoykh7dyeHZ/vx2n+/L3yo+5f/4spf+Df+b8MpxPdgf/NeKWxS/pEdrVlyWO/DD0fpt8LxhRf/UnBUAAA=="
     },
     {
       "placeId": "JP-135",
