@@ -50,10 +50,9 @@ describe("Astra editorial completion behavior", () => {
     location.hash = "#/viaje";
     const view = render(React.createElement(App));
 
-    expect(view.getByRole("link", { name: "Explorar Japón" }).closest(".astra-empty")).not.toBeNull();
-    const planButton = view.getByRole("button", { name: "Planificar con mis guardados" });
-    expect(planButton.className).toContain("astra-trip__planner-action");
-    expect(planButton.className).not.toContain("astra-trip__planner-action--primary");
+    expect(view.getByRole("button", { name: "Explorar Japón" }).closest(".astra-empty")).not.toBeNull();
+    fireEvent.click(view.getByRole("button", { name: "Planificar" }));
+    expect(view.getByRole("button", { name: "Construir recorrido" })).not.toBeNull();
   });
 
   it("keeps an authored itinerary reachable and primary when all saved places were removed", async () => {
@@ -72,7 +71,8 @@ describe("Astra editorial completion behavior", () => {
     location.hash = "#/viaje";
     const view = render(React.createElement(App));
 
-    const planButton = view.getByRole("button", { name: "Planificar con mis guardados" });
+    fireEvent.click(view.getByRole("button", { name: "Planificar" }));
+    const planButton = view.getByRole("button", { name: "Continuar recorrido" });
     expect(planButton.className).toContain("astra-trip__planner-action--primary");
     fireEvent.click(planButton);
 

@@ -101,7 +101,7 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       }
       const original=Storage.prototype.setItem;
       const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(function(this:Storage,key:string,value:string) { if(key===REVIEW_STORAGE_KEY)throw new Error("Storage quota exceeded"); return original.call(this,key,value); });
-      const action = surface === "trip" ? within(view.getByRole("link",{name:"Shibuya Crossing"}).closest("li")!).getByRole("button", { name: "Ahora no" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : /Quiero ir a Shibuya Crossing como Fernando/ });
+      const action = surface === "trip" ? within(view.container.querySelector('[data-place-id="JP-001"]')!).getByRole("button", { name: "Ahora no" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : /Quiero ir a Shibuya Crossing como Fernando/ });
       fireEvent.click(action);
       const alert = await view.findByRole("alert");
       expect(alert.textContent).toContain("No se pudieron guardar los cambios en este dispositivo");
@@ -185,7 +185,8 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       const view = render(React.createElement(App));
       const draft = { version: 7, routeIds: ["JP-001", "JP-002"], days: null, startDate: "2027-02-19", endDate: "2027-02-20", visitStartTimes: { "JP-001": "09:30" }, accommodations: [], accommodationLegs: [], interHubSegments: [] };
       localStorage.setItem("nihon.manualPlanningDraft", JSON.stringify(draft));
-      const planButton = view.getByRole("button", { name: "Planificar con mis guardados" });
+      fireEvent.click(view.getByRole("button", { name: "Planificar" }));
+      const planButton = view.getByRole("button", { name: "Continuar recorrido" });
       fireEvent.click(planButton);
       let planner = await view.findByRole("dialog", { name: "Construir recorrido" });
       expect(planner.textContent).toContain("Shibuya Crossing");
