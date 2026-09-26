@@ -12,7 +12,7 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 
 | Estado | Hallazgos |
 |---|---|
-| FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-5a, P0-5b, P1-01 … P1-12 |
+| FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-5a, P0-5b, P1-01 … P1-12, P2-7 |
 | DDR | DDR-B24-1 (encuadre del mapa de ciudad), DDR-B24-2 (marcadores cercanos con ≤12 a la vista), DDR-B24-3 (volver desde una colección) |
 | DEFERRED-ACTIVE-BRANCH | P0-5c, AB-1, AB-2, AB-3, AB-4 |
 | DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9) |
@@ -172,6 +172,33 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | AB-2 | Chip «Hidden gem» en inglés (`PlaceCard.tsx:84`) | `PlaceCard.tsx` (B23) | `return { icon: "joya", label: "Hidden gem" }` → `label: "Joya escondida"` (`04 §5.7`) |
 | AB-3 | Split del import de `photography-metadata` para aligerar el bundle | cómo se importan los datos B6.7 | `import metadata from "./photography-metadata.json"` → carga diferida (`import()`) desde `place-images.ts` con registro síncrono de `identity` |
 | AB-4 | 8 fallos de Vitest de línea base (`place-images.test.ts` ×5, `photography-depth.test.ts` ×3) | tests de fotografía B6.7 | actualizar las expectativas «una sola fotografía» a los lugares con profundidad B6.7 |
+
+## Resolución (F3–F4)
+
+| Hallazgo | Estado final | Commit |
+|---|---|---|
+| P0-1 portada sin scroll | Corregido | `70789ef` (+ `960e0b7` test B18 citado) |
+| P0-2 iconos `.icon-button--small` | Corregido | `f0c1de1` |
+| P0-3 contador de ciudad (D-M1) | Corregido | `c6f9084` |
+| P0-4a/b agrupación + 44 px | Corregido | `253bf7b`, `f4ffb7b` |
+| P0-4c encuadre | DDR-B24-1 abierta | `b4d4e46` |
+| P0-4d solapes con ≤12 | DDR-B24-2 abierta | `b4d4e46` |
+| P0-5a filas | Corregido | `d54126d` |
+| P0-5b contador vivo | Corregido | `7c74a82`, `3b4fd71` |
+| P0-5c metadato | DEFERRED-ACTIVE-BRANCH (B23) | diff en P0-5c |
+| P1-01…04 FilterSheet | Corregido | `057edd1` |
+| P1-05 eyebrow onboarding | Corregido | `4c58e61` |
+| P1-06 «zona» → «ciudad» | Corregido | `fca07f3` |
+| P1-07 toasts D-M4 | Corregido | `c44dd80` |
+| P1-08 «Misma zona» | Corregido | `c27d383` |
+| P1-09 foco tras Escape | Corregido | `5ab0c0f` |
+| P1-10 héroe D-M3 | Corregido | `37075e0` |
+| P1-11 «Más destinos» | Corregido | `c84b3aa` |
+| P1-12 panel anidado | Corregido | `c84b3aa` |
+| P2-7 icono de expandir | Corregido | `6035179` |
+| DDR-B24-3 volver desde colección | DDR abierta | `b4d4e46` |
+
+Gate B24 tras F4: **763/763, 0 fallos** en los 8 viewports.
 
 ## Qué no puede verificarse aquí
 
