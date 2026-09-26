@@ -1172,7 +1172,7 @@ a {
 }
 
 .gallery__fallback-inner {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1212,10 +1212,25 @@ a {
   inset: 0;
   z-index: 100;
   background: rgba(20, 16, 12, 0.92);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
+  color: #fff;
+}
+
+.lightbox__bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; }
+.lightbox__bar > div { display: flex; flex-direction: column; gap: 2px; }
+.lightbox__close { width: 48px; height: 48px; border: 1px solid #fff; border-radius: 50%; background: #171a18; color: #fff; font-size: 28px; }
+.lightbox__stage { position: relative; display: grid; place-items: center; min-height: 0; overflow: hidden; }
+.lightbox__image { display: block; width: 100%; height: 100%; object-fit: contain; }
+.lightbox__attribution { max-height: 30vh; overflow: auto; padding-top: 8px; }
+.lightbox__attribution summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; }
+.lightbox__attribution .gallery__credit { color: #fff; text-align: left; }
+.lightbox__attribution a { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery__skeleton { animation: none; background: #e4ded5; }
+  .gallery__nav { transform: translateY(-50%); transition: none; }
 }
 
 .lightbox__image {

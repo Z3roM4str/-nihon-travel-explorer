@@ -9,6 +9,7 @@ import { describeReservationForUi, interpretPlaceReservation } from "../lib/rese
 import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/feb-mar-status";
 import { formatPrice, imageBriefText, isHiddenGem, splitCategory } from "../lib/place";
 import { recommendationLabel } from "../astra/recommendation";
+import { Disclosure } from "../astra/Disclosure";
 
 type Props = {
   place: Place;
@@ -85,14 +86,6 @@ export function PlaceDetail({
     scrollRef.current?.scrollTo({ top: 0 });
   }, [place.id]);
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
   const images = resolvePlaceImages(place.id, place.images);
   const brief = imageBriefText(place);
   const duration = resolveDuration(place.duration);
@@ -135,10 +128,13 @@ export function PlaceDetail({
         </button>
       </div>
 
-      <div className="place-detail__scroll" ref={scrollRef}>
-        <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
-
-        <div className="place-detail__body">
+      <div className="place-detail__layout">
+        <div className="place-detail__media">
+          <PlaceGallery key={place.id} images={images} imageBrief={brief} placeName={place.name} />
+        </div>
+        <div className="place-detail__column">
+        <div className="place-detail__scroll" ref={scrollRef}>
+          <div className="place-detail__body">
           <header className="place-detail__title-block">
             <p className="place-detail__eyebrow">
               <span aria-hidden="true">{category.icon}</span> {category.label}
@@ -158,7 +154,7 @@ export function PlaceDetail({
                   <span aria-hidden="true">💎</span> {place.hiddenGemStatus}
                 </span>
               )}
-              <span className="tag tag--muted">Turismo: {place.tourismLevel}</span>
+              {place.tourismLevel && <span className="tag tag--muted">Turismo: {place.tourismLevel}</span>}
               {reservation.tag && (
                 <span className={`tag ${reservation.tag.className}`}>{reservation.tag.label}</span>
               )}
@@ -169,15 +165,8 @@ export function PlaceDetail({
 
           {place.differentiator && (
             <section className="highlight">
-              <h3 className="highlight__title">Por qué vale la pena</h3>
+              <h3 className="highlight__title">Por qué puede gustarte</h3>
               <p>{place.differentiator}</p>
-            </section>
-          )}
-
-          {showExperience && (
-            <section className="place-detail__section">
-              <h3>Qué se hace o se ve</h3>
-              <p>{place.experience}</p>
             </section>
           )}
 
@@ -206,44 +195,35 @@ export function PlaceDetail({
             )}
           </section>
 
-          <button
-            type="button"
-            className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`}
-            onClick={() => onToggleSaved(place.id)}
-            aria-pressed={isSaved}
-          >
-            <span aria-hidden="true">{isSaved ? "✓" : "＋"}</span>
-            {isSaved ? "Guardado en Quiero ir" : "Quiero ir"}
-          </button>
-
-          <section className="place-detail__section">
-            <h3>Información práctica</h3>
+          <div className="place-detail__disclosures">
+          <Disclosure title="La experiencia">
+            {showExperience && <p>{place.experience}</p>}
+            <dl className="detail-rows">
+              <Row label="Mejor momento" value={place.bestTime} />
+              <Row label="Mejor época" value={place.bestSeason} />
+            </dl>
+          </Disclosure>
+          <Disclosure title="Antes de ir">
             <dl className="detail-rows">
               <Row label="Horario" value={place.schedule.hours} />
               <Row label="Cierres" value={place.schedule.closures} />
               <Row label="Reserva" value={reservation.practicalRow} />
-              <Row label="Cómo llegar" value={place.transport} />
-              <Row label="Accesibilidad" value={place.accessibility} />
+              <Row label="Antelación" value={place.reservation.leadTime} />
               <Row label="Aglomeración" value={place.crowdLevel} />
+              <Row label="Turismo" value={place.tourismLevel} />
+              <Row label="Precio" value={formatPrice(place)} />
             </dl>
-          </section>
-
-          <div className="link-row">
-            {place.officialUrl && (
-              <a className="button button--secondary" href={place.officialUrl} target="_blank" rel="noreferrer">
-                Sitio oficial <span aria-hidden="true">↗</span>
-              </a>
-            )}
-            {place.googleMapsUrl && (
-              <a className="button button--secondary" href={place.googleMapsUrl} target="_blank" rel="noreferrer">
-                Google Maps <span aria-hidden="true">↗</span>
-              </a>
-            )}
-          </div>
+          </Disclosure>
+          <Disclosure title="Para febrero–marzo de 2027" id="feb-mar-detail">
+            <p>{place.febMar2027.status}</p><p>{place.febMar2027.warning}</p>
+            {place.febMar2027.action && <p><strong>Qué hacer:</strong> {place.febMar2027.action}</p>}
+          </Disclosure>
+          <Disclosure title="Cómo llegar y accesibilidad">
+            <dl className="detail-rows"><Row label="Cómo llegar" value={place.transport} /><Row label="Accesibilidad" value={place.accessibility} /></dl>
+          </Disclosure>
 
           {nearbyPlaces.length > 0 && (
-            <section className="place-detail__section">
-              <h3>Cerca de aquí</h3>
+            <Disclosure title="Cerca y alternativas">
               <ul className="nearby-list">
                 {nearbyPlaces.map(({ relation, target, transfer }) => {
                   const display = transfer ? describeTransferForUi(transfer) : null;
@@ -269,10 +249,24 @@ export function PlaceDetail({
                 })}
               </ul>
               <p className="place-detail__footnote">{nearbyFootnote}</p>
-            </section>
+            </Disclosure>
           )}
-
+          <Disclosure title="Fuentes y actualización">
+            <div className="link-row">
+              {place.officialUrl && <a href={place.officialUrl} target="_blank" rel="noreferrer">Sitio oficial de {place.name} <span aria-hidden="true">↗</span></a>}
+              {place.googleMapsUrl && <a href={place.googleMapsUrl} target="_blank" rel="noreferrer">Ver {place.name} en Google Maps <span aria-hidden="true">↗</span></a>}
+            </div>
+            <dl className="detail-rows"><Row label="Nombre en japonés" value={place.japaneseName || ""} /><Row label="Región" value={place.region} /><Row label="Prefectura" value={place.prefecture} /><Row label="Actualización" value={place.updatedAt} /></dl>
+          </Disclosure>
+          </div>
           <p className="place-detail__updated">Datos actualizados el {place.updatedAt}</p>
+          </div>
+        </div>
+        <footer className="place-detail__footer">
+          <button type="button" className={`button button--primary save-button ${isSaved ? "save-button--saved" : ""}`} onClick={() => onToggleSaved(place.id)} aria-pressed={isSaved}>
+            <span aria-hidden="true">{isSaved ? "♥" : "♡"}</span>{isSaved ? "Quiero ir ✓" : "Quiero ir"}
+          </button>
+        </footer>
         </div>
       </div>
     </div>

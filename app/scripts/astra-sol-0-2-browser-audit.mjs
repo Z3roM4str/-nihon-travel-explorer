@@ -7,7 +7,7 @@ import { preview } from "vite";
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
-const outputRoot = process.env.ASTRA_AUDIT_OUTPUT ?? `${repoRoot}/docs/astra/evidence/pr135-audit`;
+const outputRoot = process.env.ASTRA_AUDIT_OUTPUT ?? `${repoRoot}/docs/astra/evidence/astra-browser-audit`;
 const expectedSha = process.env.ASTRA_EXPECTED_SHA;
 const actualSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
 assert.ok(expectedSha, "ASTRA_EXPECTED_SHA is required; pass the PR head SHA");
@@ -66,7 +66,36 @@ try {
       assert.ok(overflow <= 1, `${label}: horizontal overflow ${overflow}px`);
       assert.equal(await page.getByRole("navigation", { name: "Principal" }).getByRole("link").count(), 2, `${label}: two destinations`);
       await page.screenshot({ path: `${outputRoot}/screenshots/01-${label}.png`, fullPage: true });
+      await page.goto(`${baseURL}#/explorar?q=Shibuya%20Crossing`, { waitUntil: "networkidle" });
+      const detailOpener = page.getByRole("link", { name: "Shibuya Crossing", exact:true });
+      await detailOpener.click();
+      const detail = page.getByRole("dialog", { name:"Detalles de Shibuya Crossing" });
+      await detail.waitFor();
+      await page.screenshot({ path: `${outputRoot}/screenshots/01-${label}-detail-one-image.png`, fullPage:true });
+      if (width === 375 || width === 390) {
+        const footer = detail.locator(".place-detail__footer");
+        const save = footer.locator("button.save-button");
+        const assertPersistentCta = async stage => {
+          assert.equal(await footer.isVisible(), true, `${label} ${stage}: detail footer is not visible`);
+          assert.equal(await save.isVisible(), true, `${label} ${stage}: save CTA is not visible`);
+          const box = await save.boundingBox();
+          assert.ok(box && box.height >= 48, `${label} ${stage}: save CTA is shorter than 48px`);
+          assert.ok(box && box.x >= 0 && box.x + box.width <= width, `${label} ${stage}: save CTA overflows horizontally`);
+          assert.ok(box && box.y >= 0 && box.y + box.height <= height, `${label} ${stage}: save CTA is outside viewport`);
+          assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), `${label} ${stage}: page has horizontal overflow`);
+        };
+        await assertPersistentCta("initial");
+        await detail.locator(".place-detail__scroll").evaluate(element => { element.scrollTop = element.scrollHeight; });
+        await assertPersistentCta("after internal scroll");
+        await page.screenshot({ path:`${outputRoot}/screenshots/01-${label}-detail-sticky-cta.png`, fullPage:true });
+      }
+      await page.keyboard.press("Escape");
     }
+    await page.setViewportSize({ width:320, height:800 });
+    await page.goto(`${baseURL}#/explorar?q=Takeshita%20Street`, { waitUntil:"networkidle" });
+    await page.getByRole("link", { name:"Takeshita Street", exact:true }).click();
+    await page.getByRole("dialog", { name:"Detalles de Takeshita Street" }).waitFor();
+    await page.screenshot({ path:`${outputRoot}/screenshots/01-reflow-320-detail-zero-images.png`, fullPage:true });
   });
 
   await runJourney("02-plan-safety", "blocked unsave preserves serialized V7", { width: 390, height: 844 }, async page => {
@@ -120,10 +149,22 @@ try {
     await page.goto(`${baseURL}#/explorar`, { waitUntil: "networkidle" });
     const opener = page.locator(".astra-card h2 a").first();
     await opener.focus(); await opener.click();
-    const dialog = page.getByRole("dialog", { name: /Detalles de/ });
-    await dialog.waitFor();
+    const dialog = page.getByRole("dialog", { name: /Detalles de/ }); await dialog.waitFor();
     assert.equal(await page.locator("#astra-content").getAttribute("inert"), "");
     for (let i=0;i<20;i++) { await page.keyboard.press("Tab"); assert.equal(await page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]'))), true, "focus escaped detail"); }
+    const fullscreenOpener = dialog.getByRole("button", { name:/a pantalla completa/ });
+    await fullscreenOpener.click();
+    const lightbox = page.locator('.lightbox[role="dialog"][aria-modal="true"]');
+    await lightbox.waitFor();
+    assert.equal(await dialog.getAttribute("inert"), "", "detail behind fullscreen must be inert");
+    assert.equal(await lightbox.evaluate(element => element.contains(document.activeElement)), true, "initial fullscreen focus is outside top layer");
+    for (let i=0;i<20;i++) { await page.keyboard.press("Tab"); assert.equal(await lightbox.evaluate(element => element.contains(document.activeElement)), true, "focus escaped fullscreen"); }
+    await page.screenshot({ path:`${outputRoot}/screenshots/05-lightbox-tablet.png`, fullPage:true });
+    await page.keyboard.press("Escape");
+    await lightbox.waitFor({ state:"detached" });
+    assert.equal(await dialog.count(), 1, "first Escape closed detail together with fullscreen");
+    assert.equal(await dialog.getAttribute("inert"), null, "detail remained inert after fullscreen closed");
+    assert.equal(await fullscreenOpener.evaluate(element => document.activeElement === element), true, "fullscreen focus did not return to its opener");
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state:"detached" });
     assert.equal(await opener.evaluate(element => document.activeElement === element), true, "focus did not return to opener");
@@ -190,6 +231,8 @@ try {
   });
 
   await runJourney("09-persistence-recovery", "save failure and retry on explore, detail and trip", { width: 375, height: 812 }, async page => {
+    const draft = { version:7, routeIds:["JP-002"], days:null, startDate:"2027-02-19", endDate:"2027-02-20", visitStartTimes:{"JP-002":"09:00"}, accommodations:[], accommodationLegs:[], interHubSegments:[] };
+    const rawDraft = JSON.stringify(draft);
     await page.addInitScript(() => {
       const originalSetItem = Storage.prototype.setItem;
       let shouldFail = false;
@@ -201,6 +244,7 @@ try {
         return originalSetItem.call(this, key, value);
       };
     });
+    await page.addInitScript(raw => localStorage.setItem("nihon.manualPlanningDraft", raw), rawDraft);
     const setFailure = value => page.evaluate(next => window.__astraSetStorageFailure(next), value);
     const verifyNoticeAndRecover = async (scope, screenshot) => {
       const notice = scope.getByRole("alert");
@@ -226,9 +270,14 @@ try {
     const detail = page.getByRole("dialog", { name: "Detalles de Shibuya Crossing" });
     await detail.waitFor();
     await setFailure(true);
-    await detail.getByRole("button", { name: "Guardado en Quiero ir" }).click();
+    const selectedInterest = detail.locator('button.save-button[aria-pressed="true"]');
+    assert.equal(await selectedInterest.count(), 1, "detail must expose exactly one selected interest CTA");
+    assert.equal(await selectedInterest.getAttribute("aria-pressed"), "true", "detail mutation must start from selected durable state");
+    await selectedInterest.click();
     await verifyNoticeAndRecover(detail, "09-detail-mobile");
     assert.equal(await detail.getByRole("alert").count(), 0, "detail recovery alert must clear inside the modal");
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]")), [], "detail retry did not durably remove the selected save");
+    assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), rawDraft, "detail recovery changed the authored V7 trip");
     await detail.getByRole("button", { name: /Cerrar la ficha/ }).click();
 
     await page.evaluate(() => localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"])));
@@ -238,6 +287,7 @@ try {
     await page.getByRole("button", { name: "☆ Lorena" }).click();
     await verifyNoticeAndRecover(page, "09-trip-mobile");
     assert.equal(await page.getByText(/^Guardados en este dispositivo/).count(), 1, "success wording returns only after recovery");
+    assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), rawDraft, "trip recovery changed the authored V7 trip");
   });
 } finally {
   await browser.close();
@@ -247,7 +297,7 @@ try {
 const summary = { schemaVersion:1, auditedSha:actualSha, generatedAt:new Date().toISOString(), baseURL, results };
 await writeFile(`${outputRoot}/results.json`, `${JSON.stringify(summary, null, 2)}\n`);
 await writeFile(`${outputRoot}/summary.md`, [
-  "# Astra SOL-0–SOL-2 browser audit", "", `Audited SHA: \`${actualSha}\``, "",
+  "# Astra SOL-0–SOL-3 browser audit", "", `Audited SHA: \`${actualSha}\``, "",
   ...results.map(result => `- **${result.status}** ${result.id}: ${result.name}${result.error ? ` — ${result.error.split("\n")[0]}` : ""}`), "",
   "Automated evidence is not independent visual approval; Astra must inspect screenshots and traces.",
 ].join("\n"));

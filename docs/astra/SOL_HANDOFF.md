@@ -103,3 +103,76 @@ Desde ese commit, con checkout limpio y `ASTRA_EXPECTED_SHA=95377a20ab06868ac0e5
 Lint y build terminaron con código 0; las 24 pruebas específicas de Astra pasaron. La suite completa de Vitest terminó con tres fallos preexistentes de comparación literal de código fuente que espera LF y recibe CRLF en este checkout Windows (dos de OrderedSequenceBuilder, uno de feb-mar-status). No se modificaron ni debilitaron esas pruebas. El detalle está en `docs/astra/evidence/pr139-corrected-95377a2-20260923/CORRECTED_AUDIT_REVIEW.md`.
 
 No hubo push, merge ni otro PR. La API pública de GitHub confirmó el SHA original como HEAD del PR #139 antes de estos commits locales. Git CLI sigue bloqueado por TLS de Schannel/Norton y `gh` informa de un token inválido; son problemas separados. Para publicar, verificar otra vez el HEAD remoto, resolver el acceso mediante mecanismos autorizados, trasladar los commits locales y ejecutar los controles de CI de la rama del PR. El bundle local verificado acompaña este handoff fuera del checkout.
+
+---
+
+## SOL-3 — DETAIL AND GALLERY (2026-09-25)
+
+### Identidad de checkout
+
+- Base exacta usada: `b2ae3877111e2b207ca7e7f452bd9e4f30ec12f1`; tree verificado: `753202881846603ed83a44b211bf5e8431ff9a15`.
+- Rama: `codex/astra-sol-3-detail-gallery`.
+- Commit final: el commit `astra(sol-3): implement detail and accessible gallery` que contiene este handoff; el SHA se comunica junto al handoff porque un commit no puede incluir de forma autorreferencial su propio SHA.
+- El checkout inicial estaba limpio y coincidía exactamente con el HEAD Astra solicitado. El contenedor no incluía un remoto; se configuró `origin`, pero tanto `git fetch origin` como la descarga de Chromium fueron bloqueados por el proxy con HTTP 403. No se inspeccionó, incorporó ni mezcló ninguna rama Claude, ni se modificó `main`.
+
+### Archivos y comportamiento implementado
+
+- `app/src/components/PlaceDetail.tsx`: ficha progresiva con señal Feb–Mar visible, campos prácticos completos en disclosures ordenados, fuentes y actualización, enlaces oficiales descriptivos, navegación nearby y nota de confianza preservadas, y acción de interés persistente fuera del área desplazable.
+- `app/src/components/PlaceGallery.tsx`: estados honestos para cero, una o varias imágenes; controles sólo para múltiples imágenes; imagen inicial eager y posteriores lazy; error de tamaño estable y retry sobre la misma URL; swipe con umbral de 40 px y discriminación de eje; teclado; fullscreen `contain`; atribución completa tanto en ficha como en fullscreen; Escape de capa superior y restauración del foco al opener.
+- `app/src/astra/Disclosure.tsx`, `app/src/astra/astra.css` y `app/src/App.css`: primitive nativo accesible, detalle móvil de altura completa, diálogo desktop 52/48 de dos columnas, galería izquierda sticky, columna derecha desplazable, footer CTA persistente, targets de 48 px, safe area y reduced motion sin animación.
+- `app/src/components/PlaceGallery.sol3.test.tsx` usa tres URLs distintas marcadas explícitamente como **test-only**; no se añadieron imágenes ni se duplicó ninguna imagen real. `app/src/astra/RouteDialog.sol3.test.tsx` cubre foco inicial, trap, inert, Escape y restauración exacta.
+- No cambiaron dataset, IDs, metadata/bytes fotográficos, parsers de dominio, V7, backend, autenticación ni funcionalidad SOL-4+.
+
+### Verificación
+
+- `npm test -- --run`: PASS, 74 archivos / 2484 pruebas. Incluye 0/1/3 imágenes, atribución larga, fallo/retry, gestos vertical/horizontal, teclado/fullscreen/foco, modal/inert/restore, y las regresiones existentes de nearby/Back-Forward, persistencia, planes V7 y guardados.
+- `npm run lint`: PASS con tres warnings preexistentes fuera del diff (`App.tsx`, `useSavedPlaces.ts`, `Discovery.tsx`); no se introdujo un warning nuevo.
+- `npm run build`: PASS. Permanece el advisory preexistente de chunk inicial superior a 500 kB.
+- PASS: validadores pasivos de dataset (214 lugares, 403 relaciones, 13 warnings secundarios preexistentes), fotografía, geografía, logística y mecanismos de reserva.
+- PASS: `git diff --check`.
+
+### Auditoría visual y riesgos
+
+**PARTIAL real:** no existe ejecutable Chromium/Chrome/Firefox en el contenedor. `npx playwright install chromium` intentó cinco veces Chrome for Testing 151.0.7922.34 y recibió HTTP 403 en cada intento. Por ello no se fabrican capturas ni se declara PASS visual para 320, 375×812, 390×844, 430×932, 768×1024, 1024×768 o 1440×900. La semántica y geometría están cubiertas por código, tests DOM, lint y build, pero necesitan inspección renderizada independiente, incluido zoom 200%, teclado real, créditos largos, CTA, fullscreen y retry.
+
+### Siguiente objetivo exacto
+
+Astra debe auditar SOL-3 de forma independiente en un runner con navegador real, ejecutar los siete viewports requeridos y el golden journey de galería (0/1/3 imágenes, fallo/retry, swipe, fullscreen, Escape por capas y restauración de foco). Corregir únicamente hallazgos SOL-3 P0/P1. No iniciar SOL-4, no fusionar a `main` y no desplegar producción.
+
+---
+
+## Corrección PR #149 — persistence gate y modal stack (2026-09-25)
+
+### Identidad remota autorizada
+
+- Base remota Astra: `b2ae3877111e2b207ca7e7f452bd9e4f30ec12f1`.
+- HEAD remoto anterior real del PR #149: `5b7987493beb75bf10fcf27c33262d53876c0f07`.
+- Rama del mismo PR: `codex/implementar-sol-3-detalle-y-galeria`.
+- El SHA local histórico `bc6b665cd6512dad97a0f04fbac3cd60daca638a` **no es ni fue el HEAD publicado de PR #149**. La referencia anterior se conserva sólo como explicación histórica y no debe utilizarse como identidad remota.
+
+### Diagnóstico y correcciones
+
+- Journey 09 fallaba únicamente por un gate obsoleto: buscaba el antiguo nombre visible `Guardado en Quiero ir`, mientras DA-06 permite y SOL-3 presenta el estado seleccionado como `Quiero ir ✓`. No existía evidencia de un defecto de persistencia en ese fallo. El journey ahora exige exactamente `button.save-button[aria-pressed="true"]`, confirma el estado seleccionado antes de pulsar y conserva todas las comprobaciones de alert único, retry visible y >=44 px, recuperación durable y supervivencia byte-exacta del plan V7.
+- Al abrir fullscreen, la ficha modal padre se marca `inert`. Al cerrar fullscreen se retira primero ese aislamiento y después se restaura el foco exactamente al botón de apertura. El lightbox sigue atrapando Tab/Shift+Tab y consume el primer Escape; el segundo Escape pertenece a `RouteDialog`, cierra la ficha y restaura el opener de la tarjeta.
+- Journey 05 abre ahora el fullscreen real, comprueba foco inicial, ficha inferior inert, veinte ciclos de Tab, Escape por capas y ambas restauraciones de foco.
+- Journey 01 abre fichas en los siete viewports, genera evidencia de detalle con una imagen y estado sin imagen, y en 375×812 y 390×844 comprueba el CTA antes y después de llevar el scroll interno al final: footer y botón visibles, botón >=48 px, dentro del viewport y sin overflow horizontal.
+- El workflow, artifact, job y summary se denominan ahora `Astra SOL-0–SOL-3 browser audit`; no se alteró su arquitectura.
+
+### Ejecución local y publicación
+
+- PASS local: sintaxis del runner, cinco validadores pasivos y `git diff --check`.
+- LIMITACIÓN local: el primer `npm test` detectó que la imagen del contenedor no tenía `jsdom`. `npm ci` intentó reparar dependencias pero el proxy respondió 403 para paquetes npm y dejó `node_modules` incompleto; por ello esta ejecución local no puede presentar nuevos resultados de Vitest/lint/build ni instalar Chromium. Los resultados verdes del HEAD remoto anterior no se reinterpretan como resultados de esta corrección.
+- La auditoría corregida debe ejecutarse en GitHub Actions sobre el HEAD publicado y producir 9/9 sólo si todas las nuevas aserciones pasan. Los siete viewports declarados son 320×800, 375×812, 390×844, 430×932, 768×1024, 1024×768 y 1440×900.
+- No se modificaron datos, fotografía canónica, parsers, V7, `experiment/astra-redesign`, `main` ni trabajo Claude. No se inició SOL-4.
+
+---
+
+## Corrección final pendiente PR #149 — CTA y tabbables (2026-09-25)
+
+- HEAD remoto inicial confirmado por el propietario del PR: `515af3a2f9e1844fc23f89354dcf1977468a2b78`; base Astra inalterada: `b2ae3877111e2b207ca7e7f452bd9e4f30ec12f1`.
+- Causa de `01-viewports`: en móvil `.place-detail__scroll { height: 100% }` ocupaba toda la altura disponible dentro del layout y desplazaba el footer fuera del viewport. La columna ahora es un contenedor flex vertical y el scroll usa solamente el espacio restante mediante `flex: 1 1 auto`, `min-height: 0` y `height: auto`. El grid desktop 52/48 permanece intacto.
+- Causa de `05-modal-focus`: el focus trap enumeraba links, botones y `tabindex`, pero omitía el `summary` nativamente tabbable. Con créditos cerrados, el navegador podía enfocar el summary y el siguiente Tab escapaba porque el trap no lo reconocía como último control. La enumeración incluye ahora `summary`, controles de formulario y tabindex; filtra disabled/tabindex=-1, ancestros hidden/inert/aria-hidden, estilos no visibles y links dentro de `details` cerrado. Al abrir créditos, los links de fuente/licencia se incorporan a la secuencia.
+- El test SOL-3 verifica summary cerrado como límite, links de créditos al abrirlo, wrap adelante/atrás, detail padre inert, Escape superior y restauración del opener.
+- Validadores pasivos y `git diff --check`: PASS. Lint: código 0 con los tres warnings preexistentes. La suite alcanzó 70 archivos / 2465 pruebas no-jsdom PASS, pero cuatro archivos jsdom no pudieron arrancar porque la imagen suministrada carece de `jsdom`; `npm install --offline` confirmó que faltan tarballs y el proxy impide recuperarlos. Build quedó bloqueado sólo por los tipos de `@testing-library/react` ausentes tras esa instalación incompleta.
+- No hay Chromium instalado localmente y el remoto no es accesible desde este contenedor (`CONNECT tunnel failed, response 403`). Por ello no se declara un 9/9 nuevo ni un HEAD remoto publicado sin evidencia. El workflow del PR debe ejecutar los nueve journeys y los viewports 320×800, 375×812, 390×844, 430×932, 768×1024, 1024×768 y 1440×900 después de publicar el commit correctivo.
+- No se tocaron `main`, ramas Claude, dataset, IDs, fotografía, parsers ni V7. SOL-4 no se inició.
