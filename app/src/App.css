@@ -227,8 +227,16 @@ a {
 /* Técnica 2 (caja real): usada por `.icon-button--small` (fila de controles, ver arriba).
    La caja de 44px no lleva fondo/borde propios — eso es del `::before`, que dibuja el
    círculo de 36px que siempre fue el tamaño visual, centrado dentro de la caja real. */
+/*
+ * B24 (P0-2): el `::before` es `position:absolute` y el SVG es contenido en flujo, así que el
+ * círculo se pintaba ENCIMA del icono y lo tapaba entero (contraste medido 1,00:1 en Quiero ir,
+ * Viaje y cabeceras de día). `isolation: isolate` abre un contexto de apilamiento propio del
+ * botón y `z-index: -1` manda el círculo al fondo de ESE contexto: queda detrás del icono pero
+ * delante de todo lo que hay detrás del botón. La caja de 44 px no cambia.
+ */
 .icon-button--small {
   position: relative;
+  isolation: isolate;
   width: var(--tap-min);
   height: var(--tap-min);
   background: none;
@@ -237,6 +245,7 @@ a {
 
 .icon-button--small::before {
   content: "";
+  z-index: -1;
   position: absolute;
   top: 50%;
   left: 50%;
