@@ -232,7 +232,7 @@ try {
   });
 
   await runJourney("09-sol4-review", "two-person onboarding, legacy, persistence and retry", { width: 390, height: 844 }, async page => {
-    const rawLegacy='["JP-001"]';
+    const rawLegacy='["JP-021"]';
     const rawDraft=JSON.stringify({version:7,routeIds:["JP-001"],days:null,startDate:"2027-02-19",endDate:"2027-02-20",visitStartTimes:{},accommodations:[],accommodationLegs:[],interHubSegments:[]});
     await page.addInitScript(({rawLegacy,rawDraft})=>{localStorage.setItem("nihon.savedPlaceIds",rawLegacy);localStorage.setItem("nihon.manualPlanningDraft",rawDraft);}, {rawLegacy,rawDraft});
     await page.addInitScript(()=>{const original=Storage.prototype.setItem;window.__failReview=false;Storage.prototype.setItem=function(k,v){if(window.__failReview&&k==="nihon.astra.review.v1")throw new DOMException("Audit storage failure","QuotaExceededError");return original.call(this,k,v);};});
