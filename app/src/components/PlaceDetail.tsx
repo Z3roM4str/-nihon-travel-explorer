@@ -181,6 +181,22 @@ export function PlaceDetail({
   const backButtonRef = useRef<HTMLButtonElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // B24 (P1-09, Art. 11, mismo contrato que `Sheet` en `04 §8`): al cerrarse la ficha —Escape,
+  // chevron o back del navegador— el foco vuelve al control que la abrió, en vez de caer en
+  // `<body>`. Se captura UNA vez, al montar (antes de que el efecto de abajo mueva el foco al
+  // chevron): un salto a un lugar cercano cambia `place.id` pero no el disparador original. Si el
+  // disparador ya no existe (p. ej. la hoja de búsqueda que lo contenía se cerró), no se fuerza
+  // nada.
+  useEffect(() => {
+    const active = document.activeElement;
+    const opener = active instanceof HTMLElement && active !== document.body ? active : null;
+    return () => {
+      const current = document.activeElement;
+      if (current && current !== document.body && current.isConnected) return;
+      if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
+
   useEffect(() => {
     backButtonRef.current?.focus();
   }, [place.id]);
