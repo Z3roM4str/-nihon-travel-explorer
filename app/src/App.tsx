@@ -509,8 +509,9 @@ export default function App() {
       const wasWanted = isWantedByActive(id);
       toggleSaved(id);
       if (!place) return;
+      // DD-020 (D-M4): la acción conserva su nombre (`03 §10`) — el estado es «Quiero ir».
       announce(
-        wasWanted ? `Quitado de Quiero ir: ${place.name}` : `Guardado en Quiero ir: ${place.name}`,
+        wasWanted ? `${place.name} ya no está en Quiero ir` : `${place.name} está en Quiero ir`,
         wasWanted ? "removed" : "saved"
       );
     },
@@ -521,7 +522,7 @@ export default function App() {
     (id: string) => {
       const place = getPlaceById(id);
       removeSaved(id);
-      if (place) announce(`Quitado de Quiero ir: ${place.name}`, "removed");
+      if (place) announce(`${place.name} ya no está en Quiero ir`, "removed");
     },
     [announce, removeSaved]
   );
