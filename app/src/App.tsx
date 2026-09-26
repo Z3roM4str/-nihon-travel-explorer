@@ -247,7 +247,11 @@ export default function App() {
   /** La búsqueda global conserva su propio scroll aunque la Sheet se desmonte durante una ficha. */
   const globalSearchScrollTopRef = useRef(0);
   /** Contexto explícito de la pila de fichas; no se infiere del hub activo. */
-  const exploreDetailReturnRef = useRef<"global-search" | null>(null);
+  /** `"home-collection"` (DDR-B24-3, resuelta): abrir un lugar desde una colección de la
+   * portada se comporta como la búsqueda global (DDR-B21-05) — no cambia implícitamente el hub/
+   * `view` de Explorar y no requiere ninguna restauración al cerrar, porque `view` nunca se tocó
+   * y la portada sigue montada debajo de la ficha. */
+  const exploreDetailReturnRef = useRef<"global-search" | "home-collection" | null>(null);
 
   const closeGlobalSearch = useCallback(() => {
     setGlobalSearchOpen(false);
@@ -578,7 +582,7 @@ export default function App() {
   /** Misma restauración de hub que `goBack` ya hacía, factorizada para que el handler de
    * `popstate` (un back real de navegador/gesto, no un clic en la app) pueda reproducirla. */
   const restoreViewForTrail = useCallback((trail: string[]) => {
-    if (ficheOriginRef.current !== "explorar" || exploreDetailReturnRef.current === "global-search") return;
+    if (ficheOriginRef.current !== "explorar" || exploreDetailReturnRef.current) return;
     const nextId = trail[trail.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
     if (nextPlace && nextPlace.hub !== activeHubRef.current) {
@@ -652,13 +656,13 @@ export default function App() {
       id: string,
       origin: Destination = "explorar",
       originLabel: string | null = null,
-      exploreReturnSurface: "global-search" | null = null
+      exploreReturnSurface: "global-search" | "home-collection" | null = null
     ) => {
       const place = getPlaceById(id);
       if (!place) return;
       exploreDetailReturnRef.current = exploreReturnSurface;
       if (origin === "explorar") {
-        if (exploreReturnSurface !== "global-search" && place.hub !== activeHub) {
+        if (!exploreReturnSurface && place.hub !== activeHub) {
           setView({ mode: "hub", hub: place.hub });
           setFilters(EMPTY_FILTERS);
         }
@@ -694,7 +698,7 @@ export default function App() {
       const place = getPlaceById(id);
       if (!place) return;
       if (historyRef.current[historyRef.current.length - 1] === id) return;
-      if (ficheOrigin === "explorar" && exploreDetailReturnRef.current !== "global-search" && place.hub !== activeHub) {
+      if (ficheOrigin === "explorar" && !exploreDetailReturnRef.current && place.hub !== activeHub) {
         setView({ mode: "hub", hub: place.hub });
       }
       const next = [...historyRef.current, id];
@@ -712,7 +716,7 @@ export default function App() {
     const next = historyRef.current.slice(0, -1);
     const nextId = next[next.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
-    if (ficheOrigin === "explorar" && exploreDetailReturnRef.current !== "global-search" && nextPlace && nextPlace.hub !== activeHub) {
+    if (ficheOrigin === "explorar" && !exploreDetailReturnRef.current && nextPlace && nextPlace.hub !== activeHub) {
       setView({ mode: "hub", hub: nextPlace.hub });
     }
     setHistory(next);
@@ -1229,7 +1233,7 @@ export default function App() {
                       onOpenNationalMap={() =>
                         setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null })
                       }
-                      onSelectPlace={(id) => selectPlace(id, "explorar")}
+                      onSelectPlace={(id) => selectPlace(id, "explorar", null, "home-collection")}
                       onToggleSaved={toggleSavedWithFeedback}
                       savedIds={activeInterestedIds}
                       otherPersonMarkerFor={otherPersonMarkerFor}

@@ -303,9 +303,10 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
     const source = await read("App.tsx");
     // Corrección final (punto 7): `selectPlace` gana un tercer parámetro, `originLabel`, para
     // el back label de Viaje — la firma del origen (y la regla de que sólo "explorar" navega)
-    // no cambia.
+    // no cambia. DDR-B24-3 (resuelta): `exploreReturnSurface` gana un segundo valor,
+    // "home-collection", para las colecciones de la portada.
     expect(source).toMatch(
-      /const selectPlace = useCallback\(\s*\(\s*id: string,\s*origin: Destination = "explorar",\s*originLabel: string \| null = null,\s*exploreReturnSurface: "global-search" \| null = null\s*\) => \{/
+      /const selectPlace = useCallback\(\s*\(\s*id: string,\s*origin: Destination = "explorar",\s*originLabel: string \| null = null,\s*exploreReturnSurface: "global-search" \| "home-collection" \| null = null\s*\) => \{/
     );
     expect(source).toMatch(/if \(origin === "explorar"\) \{[\s\S]*?setDestination\("explorar"\);/);
   });

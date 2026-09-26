@@ -24,7 +24,10 @@ describe("B21 global search return contract", () => {
   it("tags only global results and leaves city search on its existing path", async () => {
     const source = await read("./App.tsx");
     expect(source).toContain('selectPlace(id, "explorar", null, "global-search")');
-    expect(source).toContain('exploreDetailReturnRef.current !== "global-search" && place.hub !== activeHub');
+    // DDR-B24-3 (resuelta): las colecciones de la portada comparten el mismo mecanismo de
+    // "no cambiar de hub implícitamente" que la búsqueda global — la comprobación se generalizó
+    // de "=== global-search" a "cualquier exploreReturnSurface no nulo".
+    expect(source).toContain("!exploreDetailReturnRef.current && place.hub !== activeHub");
     expect(source).toContain("closeOnSelect={false}");
     expect(source).toContain("onClose={closeGlobalSearch}");
     expect(source).toMatch(/\{searchOpen && \([\s\S]*?<SearchSheet[\s\S]*?onSelect=\{selectPlace\}[\s\S]*?onClose=\{\(\) => setSearchOpen\(false\)\}/);
