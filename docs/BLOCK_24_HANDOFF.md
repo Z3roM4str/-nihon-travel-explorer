@@ -4,7 +4,20 @@ Auditoría con input real y corrección de superficies construidas. Misión ínt
 `docs/BLOCK_24_MISSION.md`. Autoridad normativa: `docs/design/` (00–10). Auditoría por hallazgo:
 `docs/BLOCK_24_UX_AUDIT.md`.
 
-## Estado: B24 COMPLETO en rama, sin PR ni merge
+## Estado más reciente — integración 2026-09-26
+
+B24 final (`f95e81e`) es la base de la rama de integración `claude/integration-b24-b23-b65-b67`,
+que incorpora B6.7 test-closure, B6.5 timing fix y B23 photo retry (ver
+`docs/INTEGRATION_B24_B23_B65_B67_HANDOFF.md`). En esa rama:
+
+- **AB-4 RESUELTO** por B6.7 test-closure; **P0-5c, AB-1, AB-2 RESUELTOS** tras incorporar B23.
+- **AB-3 reclasificado** a DEFERRED-ROADMAP(B10), con P2-4 (bundle/performance): no se implementa
+  en una integración.
+- Ya no queda ningún DEFERRED-ACTIVE-BRANCH de B24. El roadmap sigue igual (P1-13 → B7;
+  P2-1/2/3/4/6 → B10; P2-5 → B9) y no se adelanta.
+- La rama `claude/block-24-ux-real-input-audit` no cambia: sigue en `f95e81e`.
+
+## Estado: B24 COMPLETO en rama, sin PR ni merge (histórico, F7)
 
 - Todos los P0 y P1 FIX-NOW corregidos, incluido P0-4e (F7, `DD-026`); gate B24 **100 % verde**
   en los 8 viewports (1347/1347 y 1351/1351 en dos corridas completas; rojo en la base con el
@@ -323,6 +336,10 @@ No queda ninguna decisión de diseño abierta en B24. F7 añade **`DD-026`** (fi
 interactivo del mapa es zona de exclusión para los objetivos tras todo movimiento programático.
 
 ## DEFERRED
+
+> **2026-09-26 (integración):** los ACTIVE-BRANCH de abajo quedaron cerrados en
+> `claude/integration-b24-b23-b65-b67` — P0-5c, AB-1, AB-2, AB-4 RESUELTOS; AB-3 pasa a
+> ROADMAP(B10) junto a P2-4. Se conserva la lista tal como quedó al cerrar B24.
 
 - **ACTIVE-BRANCH (B23):** P0-5c metadato «{categoría} · {barrio}, {ciudad}»; AB-1 corazón
   40×40; AB-2 chip «Hidden gem». **(B6.7):** AB-3 split del import de `photography-metadata`;

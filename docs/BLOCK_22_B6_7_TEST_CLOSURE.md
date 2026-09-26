@@ -234,3 +234,13 @@ product/dataset/component file was modified.
   `test_block22_b6_4_photography.py`'s `BATCH_LIMIT` `NameError`) are unrelated to B6.7 and are
   left as a documented, unfixed finding for whoever owns that history, per the mission's
   instruction not to force-fix or expand scope beyond the named failures.
+
+## Nota de integración (2026-09-26)
+
+Los tres commits de esta rama (`bd9defa`, `b3b6e7e`, `61fa5e9`) se incorporaron por
+`cherry-pick -x`, en ese orden y sin conflictos, a `claude/integration-b24-b23-b65-b67` (desde B24
+final `f95e81e`). Resultado allí: Vitest sin los 8 fallos B6.7, Phase 5A **50/50** en escritorio y
+móvil; con ello el AB-4 de B24 queda **RESUELTO**. La suite Python completa de `scripts/` da
+exactamente el mismo resultado documentado arriba (`19 failed, 590 passed, 9 errors, 150 subtests
+passed`, incluido el `NameError: BATCH_LIMIT` de B6.4): deuda histórica, fuera de alcance, no
+introducida por la integración. Detalle: `docs/INTEGRATION_B24_B23_B65_B67_HANDOFF.md`.

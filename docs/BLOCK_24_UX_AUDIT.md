@@ -14,8 +14,23 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 |---|---|
 | FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-4e (F7, → `DD-026`), P0-5a, P0-5b, P1-01 … P1-12, P2-7, R-F7 (crash de `flyTo` con el mapa oculto, F7) |
 | RESUELTO (era DDR) | DDR-B24-1 (encuadre del mapa de ciudad → `DD-023`), DDR-B24-2 (marcadores cercanos con ≤12 a la vista → `DD-024`), DDR-B24-3 (volver desde una colección → `DD-025`) |
-| DEFERRED-ACTIVE-BRANCH | P0-5c, AB-1, AB-2, AB-3, AB-4 |
-| DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9), P2-6 (B10) |
+| RESUELTO (integración 2026-09-26, `claude/integration-b24-b23-b65-b67`) | AB-4 (por B6.7 test-closure), P0-5c, AB-1, AB-2 (tras incorporar B23) |
+| DEFERRED-ACTIVE-BRANCH | — (ninguno; ver «Integración 2026-09-26») |
+| DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9), P2-6 (B10), AB-3 (B10, performance, asociado a P2-4; reclasificado 2026-09-26) |
+
+## Integración 2026-09-26 — cierre de los DEFERRED-ACTIVE-BRANCH
+
+Rama `claude/integration-b24-b23-b65-b67` (desde B24 final `f95e81e`), con B6.7 test-closure,
+B6.5 timing fix y B23 photo retry incorporados por `cherry-pick`. Detalle:
+`docs/INTEGRATION_B24_B23_B65_B67_HANDOFF.md`.
+
+| id | Estado anterior | Estado ahora | Cómo |
+|---|---|---|---|
+| AB-4 | DEFERRED-ACTIVE-BRANCH (B6.7) | **RESUELTO** | B6.7 test-closure (`bd9defa`, `b3b6e7e`, `61fa5e9`): Vitest sin los 8 fallos, Phase 5A 50/50 escritorio y móvil |
+| P0-5c | DEFERRED-ACTIVE-BRANCH (B23) | **RESUELTO** | `lib/place-line.ts`: «{categoría} · {barrio}, {ciudad}» (o «{categoría} · {ciudad}»); check duro en el gate B24 y en el de integración |
+| AB-1 | DEFERRED-ACTIVE-BRANCH (B23) | **RESUELTO** (verificado) | el corazón ya llevaba `tap-target-min` desde la base; el hallazgo midió el rect pintado (40×40). Hit-testing real: 44×44 en bordes y esquinas; el círculo sigue en 40 px |
+| AB-2 | DEFERRED-ACTIVE-BRANCH (B23) | **RESUELTO** | «Hidden gem» → «Joya escondida» (`04 §5` pt. 7); lógica y dato intactos |
+| AB-3 | DEFERRED-ACTIVE-BRANCH (B6.7) | **DEFERRED-ROADMAP(B10)** | optimización de bundle/carga, no reparación de integración, y alteraría el contrato síncrono de resolución fotográfica; va con P2-4 |
 
 ---
 
@@ -165,8 +180,10 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 - **Evidencia:** la fila compacta dice «Ciudad y barrios · Shibuya», sin ciudad: en una búsqueda
   de todo Japón no se distingue la ciudad.
 - **Norma:** D-M6, `03 §2.3` (un solo `·`).
-- **Estado:** **DEFERRED-ACTIVE-BRANCH (B23)** — la línea vive en `PlaceCard.tsx`, zona
-  protegida. Diff propuesto, **no aplicado**:
+- **Estado:** **RESUELTO (integración 2026-09-26)** tras incorporar B23 — `compactPlaceLine`
+  (`lib/place-line.ts`); sin barrio queda «{categoría} · {ciudad}». Estado previo (histórico):
+  DEFERRED-ACTIVE-BRANCH (B23) — la línea vivía en `PlaceCard.tsx`, zona protegida. Diff propuesto
+  entonces:
 
 ```diff
 --- a/app/src/components/PlaceCard.tsx
@@ -212,7 +229,7 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | P2-6 | FilterSheet | El contador dice «57 de 57 lugares»; `04 §13` escribe «57 lugares» | DEFERRED-ROADMAP(B10) — microcopy, fuera de los P1 de la misión |
 | P2-7 | Cabecera de ciudad | El título «Tokio» lleva el icono `abajo` (flecha); `04 §11` pide «un icono de expandir» y el set tiene `expandir` | FIX-NOW (trivial, dentro del alcance: icono del set, `03 §8`) |
 
-## DEFERRED-ACTIVE-BRANCH (zonas protegidas)
+## DEFERRED-ACTIVE-BRANCH (zonas protegidas) — histórico; estado actual en «Integración 2026-09-26»
 
 | id | Qué | Zona | Diff propuesto (no aplicado) |
 |---|---|---|---|
@@ -234,7 +251,7 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | P0-4d solapes con ≤12 | **RESUELTO** (DDR-B24-2 → `DD-024`) | `b4d4e46` (abierta), cerrada en F6 |
 | P0-5a filas | Corregido | `d54126d` |
 | P0-5b contador vivo | Corregido | `7c74a82`, `3b4fd71` |
-| P0-5c metadato | DEFERRED-ACTIVE-BRANCH (B23) | diff en P0-5c |
+| P0-5c metadato | **RESUELTO** en la integración (antes DEFERRED-ACTIVE-BRANCH B23) | `a6d798b` (rama de integración) |
 | P1-01…04 FilterSheet | Corregido | `057edd1` |
 | P1-05 eyebrow onboarding | Corregido | `4c58e61` |
 | P1-06 «zona» → «ciudad» | Corregido | `fca07f3` |

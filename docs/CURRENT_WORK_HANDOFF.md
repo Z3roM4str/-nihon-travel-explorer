@@ -1,25 +1,24 @@
-## Rama paralela: cierre de pruebas B6.7 (test-alignment, no producto)
-
-**Rama:** `claude/block-22-b6-7-test-closure`, creada desde
-`origin/codex/block-22-b6-7-grade-a-depth-photography` @ `4afbf50e9d1e3137f9148c6c471c1c40aac6a56f`
-(tip de B6.7: commits `8601a9d` y `4afbf50`, "feat(photography): add B6.7 depth batch 1/2"). Esta
-rama **no** es una integración de producto: es una misión de alineación de pruebas, en paralelo a
-este handoff, que corrige expectativas de test desactualizadas tras B6.7. No toca `main`, no
-mezcla B23/B24/"B6.5 timing fix", no usa Astra y no abre PR.
-
-- Vitest antes: 3321/3329 (8 fallos en `place-images.test.ts` y `photography-depth.test.ts`).
-  Después: 3329/3329.
-- Phase 5A gate antes: 47/50 (A06, A07, E01 fallando). Después: 50/50, en escritorio y móvil.
-- Detalle completo, causa raíz de cada fallo, y evidencia normativa: ver
-  `docs/BLOCK_22_B6_7_TEST_CLOSURE.md`.
-- Solo se tocaron archivos de test, el script de gate `app/scripts/phase5a-rc-browser-audit.mjs`,
-  y documentación. Ningún archivo de producto, componente, o dataset fue modificado.
-
----
-
 # Handoff reanudable — B21 + B6.1–B6.6
 
-## Estado actual — B24 auditoría con input real (rama, sin integrar)
+## Estado actual — integración B24 + B23 + B6.5-fix + B6.7 test-closure (rama, sin integrar en `main`)
+
+**Última actualización:** 2026-09-26. Misión: `docs/INTEGRATION_B24_B23_B65_B67.md`; handoff:
+`docs/INTEGRATION_B24_B23_B65_B67_HANDOFF.md`.
+
+- **Rama:** `claude/integration-b24-b23-b65-b67`, creada desde B24 final
+  `f95e81e96d497c253c1de86dac1319ba34dde785`. Incorpora por `cherry-pick -x`: B6.7 test-closure
+  (`bd9defa`, `b3b6e7e`, `61fa5e9`), B6.5 timing fix (`d1a5eef`, `af21671`) y B23 photo retry
+  (`52a7073`). **Sin PR ni merge; `main` intacto en `8eb725e`.**
+- Cerrados en la integración: **AB-4** (por B6.7 test-closure), **P0-5c**, **AB-1**, **AB-2**
+  (tras B23). **AB-3** reclasificado a DEFERRED-ROADMAP(B10) con P2-4.
+- Roadmap sin adelantar: P1-13 → B7; P2-1/2/3/4/6 → B10; P2-5 → B9. No empezar B25/B7/B8/B9/B10.
+- Gate permanente nuevo: `app/scripts/integration-b24-b23-check.mjs`.
+- Deuda histórica fuera de alcance, idéntica antes y después: suite Python de `scripts/`
+  `19 failed, 590 passed, 9 errors` (incl. `NameError: BATCH_LIMIT` de B6.4).
+- **Pendiente humano:** scroll táctil real y teclado de iOS en un iPhone (heredado de B24).
+- Resultados de regresión: ver el handoff de integración (§F).
+
+## B24 auditoría con input real — cerrado 2026-09-25 (base de la integración de arriba)
 
 **Última actualización:** 2026-09-25 (F7 — P0-4e corregido, cierre real de B24). Handoff completo:
 `docs/BLOCK_24_HANDOFF.md`; auditoría: `docs/BLOCK_24_UX_AUDIT.md`; misión:
@@ -51,6 +50,27 @@ mezcla B23/B24/"B6.5 timing fix", no usa Astra y no abre PR.
   1351/1351 en dos corridas completas de 8 viewports)**. Ningún P0 propio de B24 queda deferred.
 - **Pendiente humano:** scroll táctil real y teclado de iOS en un iPhone.
 - **Siguiente acción:** decisión de dirección sobre la integración de esta rama. No empezar B25.
+
+## Histórico — rama paralela: cierre de pruebas B6.7 (test-alignment, no producto)
+
+> Integrada el 2026-09-26 en `claude/integration-b24-b23-b65-b67` (ver arriba).
+
+**Rama:** `claude/block-22-b6-7-test-closure`, creada desde
+`origin/codex/block-22-b6-7-grade-a-depth-photography` @ `4afbf50e9d1e3137f9148c6c471c1c40aac6a56f`
+(tip de B6.7: commits `8601a9d` y `4afbf50`, "feat(photography): add B6.7 depth batch 1/2"). Esta
+rama **no** es una integración de producto: es una misión de alineación de pruebas, en paralelo a
+este handoff, que corrige expectativas de test desactualizadas tras B6.7. No toca `main`, no
+mezcla B23/B24/"B6.5 timing fix", no usa Astra y no abre PR.
+
+- Vitest antes: 3321/3329 (8 fallos en `place-images.test.ts` y `photography-depth.test.ts`).
+  Después: 3329/3329.
+- Phase 5A gate antes: 47/50 (A06, A07, E01 fallando). Después: 50/50, en escritorio y móvil.
+- Detalle completo, causa raíz de cada fallo, y evidencia normativa: ver
+  `docs/BLOCK_22_B6_7_TEST_CLOSURE.md`.
+- Solo se tocaron archivos de test, el script de gate `app/scripts/phase5a-rc-browser-audit.mjs`,
+  y documentación. Ningún archivo de producto, componente, o dataset fue modificado.
+
+---
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 
