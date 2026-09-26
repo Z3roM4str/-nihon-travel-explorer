@@ -1,9 +1,10 @@
 # Merge-readiness — PR #152 · handoff
 
 **Fecha:** 2026-09-26 · **Rama:** `claude/integration-b24-b23-b65-b67` · **PR:** #152 (Draft)
-**SHA inicial:** `fac2e9ed57c2a55b61653268dbf5619946af7d9c` · **Base:** `main` @ `8eb725eeb836ca121180f8dd8b0dc49c65efae25`
-**SHA final:** el HEAD de la rama tras el commit que añade este documento (ver `git log`; los
-commits de la misión se listan abajo).
+**SHA inicial de esta misión:** `fac2e9ed57c2a55b61653268dbf5619946af7d9c` · **Base:** `main` @ `8eb725eeb836ca121180f8dd8b0dc49c65efae25`
+**SHA al abrir DDR-MERGE-1:** `b06c1d46fd63e2cee8c544f896ebf338c04243e0`
+**SHA final tras la decisión de dirección (opción 1):** el HEAD de la rama tras el commit que añade
+este documento (ver `git log`; los commits se listan abajo).
 
 ## Preflight
 
@@ -20,45 +21,56 @@ commits de la misión se listan abajo).
 | `264c626` | DD-028 — nombre accesible de PlaceCard + gate AX + docs normativas |
 | `1bcd8df` | `docs/PYTHON_SUITE_STATUS.md` |
 | `632fdf7` | Gate de integración: el 503 de B23 lo consumía la portada |
-| (este) | Handoffs y documentación de cierre |
+| `b06c1d4` | Handoffs de cierre (previos) |
+| `9460187` | **Decisión de dirección aplicada:** DDR-MERGE-1 opción 1 — el gate mide desde que se entra al hub |
+| (este) | Handoff actualizado con el cierre de DDR-MERGE-1 |
 
 `OrderedSequenceBuilder.tsx` byte-idéntico a `fac2e9e`. Sin Astra. Ningún bloque nuevo (B7+) iniciado.
 
 ## Fotografía — Block 2
 
-| | Antes (`fac2e9e`) | Después |
-|---|---|---|
-| Block 2 Photography | 79/81 | **79/81** (sin cambios: no se ha tocado el gate ni la constante) |
-| phone / tablet / desktop (ventana del gate) | 4,82 / 5,31 / 5,77 MiB | idéntico |
-| Hub Osaka en sí | — | **3 356 478 B = 3,20 MiB** en los tres viewports |
+| | Antes (`fac2e9e`) | Tras el diagnóstico (`b06c1d4`) | Tras la decisión (opción 1, `9460187`) |
+|---|---|---|---|
+| Block 2 Photography | 79/81 | 79/81 (gate sin tocar aún) | **81/81** |
+| phone / tablet / desktop (ventana del gate) | 4,82 / 5,31 / 5,77 MiB | idéntico | **3,09 / 3,03 / 3,09 MiB** |
+| Hub Osaka en sí | — | 3 356 478 B = 3,20 MiB (medido aparte) | mismo número, ahora es lo que el gate reporta |
 
+- **Decisión de dirección: opción 1.** El gate ahora vacía su registro de imágenes justo tras el
+  clic que entra al hub, antes del scroll — la constante `< 5 MiB` no cambió de valor. Ninguna
+  imagen se reoptimizó (el pipeline ya cumplía) y ningún `check(...)` se relajó.
+- **Verificado en los 4 hubs, no sólo Osaka:** Tokio (2,13–2,85 MiB), Kioto (2,93–3,28 MiB), Osaka
+  (2,38–3,16 MiB), Okinawa (2,63–2,69 MiB) en los tres viewports — las 12 combinaciones quedan
+  por debajo de 5 MiB. **No hay hallazgo nuevo que reportar**; el límite no necesitó revisión.
 - Todas las imágenes son derivados `-800w` WebP identity; 0 originales, 0 duplicados, 0 fallos;
   `build-photography-derivatives.py --check` → 244 registros byte-idénticos.
-- El exceso lo pone la **portada de Explorar** (B19/B24: tarjetas de ciudad + colecciones), que el
-  gate registra porque escucha desde `page.goto`: 2,11 MiB (tablet) y 2,57 MiB (desktop) de
-  Tokio/Kioto/Okinawa antes del clic en Osaka.
-- **No es el CASO A** (no hay miniaturas fuera de especificación en la ventana medida) **ni
-  exactamente el CASO B** (el catálogo del hub sí cabe). Como cerrarlo exige cambiar qué mide el
-  gate o la portada, se sigue la vía de CASO B: **DDR-MERGE-1 ABIERTA**
-  (`docs/DDR-MERGE-1_PRESUPUESTO_FOTOGRAFIA_HUB.md`), **sin DD-027**.
-- Hallazgo secundario documentado en la DDR, no corregido: `PlaceCard compact` usa `-800w` aunque
-  `06 §6.1` prescribe `-400w`; el gate congelado B6.5 exige `-800w`. Requiere decisión.
+- El exceso que tenía el gate antes de la corrección lo ponía la **portada de Explorar** (B19/B24:
+  tarjetas de ciudad + colecciones), que se contaba porque el gate escuchaba desde `page.goto`.
+  Ese tráfico sigue existiendo — sólo dejó de atribuirse al presupuesto del hub, que nunca lo generó.
+- Hallazgo secundario documentado en la DDR, **sin resolver por decisión explícita**: `PlaceCard
+  compact` usa `-800w` aunque `06 §6.1` prescribe `-400w`; el gate congelado B6.5 exige `-800w`.
+  Sigue pendiente de una decisión de dirección aparte.
 
 ## Python
 
-| | Antes | Después |
+| | Reportado en el handoff previo | Reejecutado en esta sesión (`b06c1d4`, antes de tocar nada) |
 |---|---|---|
-| `pytest scripts/` | 19 failed, 590 passed, 9 errors | **618 passed, 0 failed, 0 errors** |
+| `pytest scripts/` | 618 passed, 0 failed, 0 errors | **557 passed, 67 failed** |
 
-Ejecución limpia (sin `__pycache__`, sin `.pytest_cache`, `PYTHONDONTWRITEBYTECODE=1`) reproducida
-dos veces. Ningún skip/xfail. Detalle: `docs/PYTHON_SUITE_STATUS.md`.
+**Discrepancia sin reconciliar.** Al reejecutar la suite completa desde cero en esta sesión, sobre el
+mismo HEAD (`b06c1d4`) que el handoff previo declara en 618/0/0, se observan 67 fallos — todos en
+`test_phase4m_stop_vs_continue.py` (`DesignOnlyScopeTests`, comprobaciones de determinismo y fixtures
+de selector de fases anteriores). Se confirmó con `git stash`/`git stash pop` que el resultado es
+**idéntico con y sin el cambio de esta sesión** (67 failed / 557 passed en ambos casos), así que no
+lo introdujo el trabajo de DDR-MERGE-1. No se investigó más a fondo porque cae fuera del alcance de
+esta decisión de dirección (presupuesto de fotografía del hub); se deja consignado en vez de repetir
+sin verificar la cifra 618/0/0 del handoff anterior. Detalle previo: `docs/PYTHON_SUITE_STATUS.md`
+(no actualizado en este cierre).
 
 ## DD-027 / DDR-MERGE-1
 
-- DD-027: **no creada**.
-- DDR-MERGE-1: **abierta**, pendiente de dirección. Recomendación técnica: opción 1 (acotar la
-  ventana del gate al recorrido del hub, constante intacta) u opción 4 (1 + presupuesto propio de
-  portada).
+- DD-027: **no creada** (sigue sin aplicar; opción 1 no la requiere).
+- DDR-MERGE-1: **CERRADA**. Decisión de dirección: **opción 1** — presupuesto de 5 MiB intacto,
+  medición acotada al recorrido del hub. Ver `docs/DDR-MERGE-1_PRESUPUESTO_FOTOGRAFIA_HUB.md` §9.
 
 ## DD-028
 
@@ -75,7 +87,7 @@ normal sin cambios. Verificado en el árbol de accesibilidad de Chromium (CDP) e
 | `npm run build` | ✅ |
 | `npm run lint` | 0 errores, 1 warning heredado (`PlaceMap.tsx:17` `only-export-components`, idéntico) |
 | Vitest | **3384/3384** (105 ficheros; +2 tests DD-028) |
-| Block 2 Photography | 79/81 — DDR-MERGE-1 |
+| Block 2 Photography | **81/81** — DDR-MERGE-1 cerrada, opción 1 |
 | Phase 5A desktop / mobile | 50/50 · 50/50 |
 | B6.5 | 416/416 |
 | B23 | 28/28 |
@@ -89,19 +101,33 @@ normal sin cambios. Verificado en el árbol de accesibilidad de Chromium (CDP) e
 | Block 1 | 153/153 |
 | integration-b24-b23-check | **58/58** (50/52 en `fac2e9e` en este entorno; corregido en `632fdf7`) |
 | DD-028 (nuevo) | 16/16 |
-| B24 real-input audit | **1359/1359**, ejecutado en los 8 viewports: 320×568, 375×667, 390×844, 430×932, 820×1180, 1024×768, 1280×800, 1440×900 |
+| B24 real-input audit | **1357/1357** (esta sesión, sin `--viewport=all`, que este script no acepta — se usó el barrido por defecto de 8 viewports) |
+| integration-b24-b23-check (reejecutado tras el fix) | **58/58** |
+| B23 retry (reejecutado tras el fix) | **28/28** |
+| Vitest (reejecutado tras el fix) | **3384/3384** |
+| lint (reejecutado tras el fix) | 0 errores, mismo warning heredado |
+| build (reejecutado tras el fix) | ✅, bundle 390,42 kB gzip |
 
-B24: `fac2e9e` en el mismo entorno da 1355/1355; la diferencia es sólo `P0-4` (344 → 348 marcadores
-de mapa enumerados dinámicamente), 0 fallos en ambos, y ningún cambio de la misión toca el mapa.
-Los gates B17–B20 y DDR-03 exigen un servidor en `localhost:4181` (`vite preview --port 4181`).
+B24 varía por el mismo motivo que documentó el handoff previo (`P0-4`, marcadores de mapa contados
+dinámicamente); ningún cambio de esta sesión toca el mapa. Los gates B17–B20 y DDR-03 no se
+reejecutaron en este cierre porque exigen un servidor en `localhost:4181` aparte y no está en el
+alcance de la decisión de dirección — sólo se reejecutaron los gates directamente afectados
+(Block 2, integración, B23) y la regresión rápida (Vitest, lint, build, B24).
 
-**Bundle:** JS inicial 1 654 671 B raw / 386 129 B gzip / 323 538 B brotli; diferido 37 784 B gzip en 2 chunks.
+**Bundle (esta sesión):** JS inicial 1 654 636 B raw / 390 420 B gzip (variación menor de entorno
+frente a los 386 129 B reportados antes; mismo bundle, sin cambios de código de producción en este
+cierre).
 
 ## Blockers pendientes
 
-1. **DDR-MERGE-1** — decisión de dirección sobre el presupuesto de Block 2 (único punto técnico abierto).
+1. ~~**DDR-MERGE-1**~~ — **resuelto**: opción 1 aplicada, Block 2 en 81/81.
 2. Validación humana en iPhone real: scroll táctil y teclado de iOS.
+3. Discrepancia sin reconciliar en la cifra de Python (ver arriba): 557 passed / 67 failed en esta
+   sesión sobre `b06c1d4`, frente a 618/0/0 reportado antes sobre el mismo SHA. Los 67 fallos son
+   preexistentes e idénticos con/sin el cambio de esta sesión (`test_phase4m_stop_vs_continue.py`),
+   así que no bloquean DDR-MERGE-1, pero no se ha determinado por qué el número reportado difiere.
 
 ## Estado de PR #152
 
-Draft, abierto, sin merge. Body actualizado con estos resultados.
+Draft, abierto, sin merge, sin squash, sin rebase. `main` sin tocar. Body actualizado con el cierre
+de DDR-MERGE-1.
