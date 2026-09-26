@@ -60,7 +60,7 @@ async function newPage(browser, viewport) {
 }
 
 async function enterTokio(page, url) {
-  await page.goto(url);
+  if (url) await page.goto(url);
   await page.locator(".explorer-home__city-card").first().click();
   await page.locator(".app__sidebar .place-card").first().waitFor();
 }
@@ -71,10 +71,16 @@ async function auditCards(browser, url, viewport) {
   const { context, page } = await newPage(browser, viewport);
   try {
     // 2. La primera fotografía de la lista falla una vez (503) y después se sirve normalmente.
+    // Merge-readiness 2026-09-26: la portada (colecciones B24) ya pide esta misma fotografía
+    // antes de entrar en Tokio. Con un 503 de un solo uso lo consumía la portada y la tarjeta
+    // del hub reutilizaba la imagen en memoria: nunca fallaba y «Reintentar» no aparecía
+    // (50/52, idéntico en fac2e9e). Ahora el fallo se mantiene mientras se está en la portada y
+    // se consume con la primera petición hecha ya dentro del hub — la de la tarjeta auditada.
     let failNext = null;
+    let inHub = false;
     await page.route("**/images/places/**", async (route) => {
       if (failNext && route.request().url().includes(failNext)) {
-        failNext = null;
+        if (inHub) failNext = null;
         await route.fulfill({ status: 503, body: "" });
         return;
       }
@@ -83,7 +89,9 @@ async function auditCards(browser, url, viewport) {
     const places = JSON.parse(readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8"));
     const firstTokio = places.find((place) => place.hub === "Tokio");
     failNext = `/images/places/${firstTokio.id}/`;
-    await enterTokio(page, url);
+    await page.goto(url, { waitUntil: "networkidle" });
+    inHub = true;
+    await enterTokio(page, null);
     const card = page.locator(".app__sidebar .place-card").first();
     const retry = card.locator(".place-card__photo-retry");
     const offered = await retry.waitFor({ timeout: 6000 }).then(() => true, () => false);
