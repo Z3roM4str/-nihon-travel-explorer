@@ -13,7 +13,7 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | Estado | Hallazgos |
 |---|---|
 | FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-5a, P0-5b, P1-01 … P1-12 |
-| DDR | DDR-B24-1 (encuadre del mapa de ciudad) |
+| DDR | DDR-B24-1 (encuadre del mapa de ciudad), DDR-B24-2 (marcadores cercanos con ≤12 a la vista), DDR-B24-3 (volver desde una colección) |
 | DEFERRED-ACTIVE-BRANCH | P0-5c, AB-1, AB-2, AB-3, AB-4 |
 | DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9) |
 
@@ -84,6 +84,20 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 - **Norma:** ninguna sección fija el encuadre inicial (`03 §9`, `05 §4` no lo prescriben).
 - **Estado:** **DDR** — no se decide; opciones en `docs/design/09` (DDR-B24-1).
 
+### P0-4d — Solapes con 12 o menos marcadores a la vista → **DDR-B24-2**
+- **Superficie:** Explorar › Ciudad › Mapa, tras acercar. **Viewport:** todos. **Severidad:** P0 (decisión).
+- **Evidencia:** abriendo grupos con clic real hasta deshacerlos, vuelven a solaparse cajas de
+  44 px de lugares vecinos: Tokio 1 par (Shibuya Crossing / SHIBUYA SKY), Kioto 2, Osaka 5,
+  Okinawa 7. `03 §9` sólo agrupa por encima de 12; Art. 11 no admite el solape.
+- **Estado:** **DDR** (DDR-B24-2 en `09`). El código aplica `03 §9` literalmente.
+
+### DDR-B24-3 — Volver desde una colección de la portada
+- **Superficie:** Explorar › Inicio › colecciones. **Viewport:** todos. **Severidad:** P1 (decisión).
+- **Evidencia:** abrir un lugar desde una colección cambia Explorar a su ciudad (B21); al cerrar
+  la ficha no se vuelve a la portada ni a su scroll. Se hizo alcanzable al arreglar P0-1.
+- **Norma:** `02 §D3` pt. 2.
+- **Estado:** **DDR** (DDR-B24-3 en `09`): cambia el modelo de vuelta atrás (`08`).
+
 ### P0-5a — Filas de la búsqueda global más anchas que la hoja
 - **Superficie:** Explorar › Buscar en todo Japón. **Viewport:** todos. **Severidad:** P0.
 - **Evidencia:** a 390×844 cada fila mide **417,75 px** en una hoja de 390 (termina en 434);
@@ -147,6 +161,7 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | P2-4 | Bundle | Chunk de entrada `index-*.js` **1.648,69 kB** (388,21 kB gzip); el mayor componente es `photography-metadata.json` importado estáticamente | DEFERRED-ROADMAP(B10) medición; el split del import es AB-3 |
 | P2-5 | Viaje › Planificar vacío | «El recorrido está vacío. Añade lugares guardados desde la lista de abajo.» sin lista debajo cuando no hay nada guardado | DEFERRED-ROADMAP(B9) — `OrderedSequenceBuilder.tsx` vedado |
 | P2-6 | FilterSheet | El contador dice «57 de 57 lugares»; `04 §13` escribe «57 lugares» | DEFERRED-ROADMAP(B10) — microcopy, fuera de los P1 de la misión |
+| P2-7 | Cabecera de ciudad | El título «Tokio» lleva el icono `abajo` (flecha); `04 §11` pide «un icono de expandir» y el set tiene `expandir` | FIX-NOW (trivial, dentro del alcance: icono del set, `03 §8`) |
 
 ## DEFERRED-ACTIVE-BRANCH (zonas protegidas)
 

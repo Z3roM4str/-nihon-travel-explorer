@@ -731,6 +731,90 @@ texto de la distinción es legible por un lector de pantalla.
 
 ---
 
+### DDR-B24-1 — Encuadre inicial del mapa de ciudad
+**Estado: ABIERTA** · Abierta 2026-09-26 (Bloque 24, P0-4) · **Afecta:** `03 §9`, `05 §4` · **Bloqueante:** no
+
+**La pregunta.** ¿Qué encuadra el mapa de una ciudad al abrirse? Hoy `FitHubBounds` ajusta el
+mapa a **todos** los lugares del hub, y los hubs contienen excursiones lejanas: Tokio incluye
+Takao (45 km), Mitake/Okutama (55 km) y el festival de Kawazu en Izu (123 km); Osaka llega a
+Okunoshima (233 km); Okinawa a Yonaguni (513 km). El núcleo urbano queda comprimido en una esquina.
+
+**Evidencia (medida en B24, dataset actual).**
+
+| Hub | Lugares | Caja de todos los lugares | A ≤10 km de la mediana |
+|---|---|---|---|
+| Tokio | 57 | 114 × 81 km | 48 |
+| Kioto | 49 | 26 × 16 km | 39 |
+| Osaka | 53 | 223 × 302 km | 23 |
+| Okinawa | 50 | 313 × 535 km | 11 |
+
+Con la agrupación de `03 §9` ya aplicada, Tokio abre a 390×844 con un grupo «50», uno «4» y tres
+puntos periféricos sueltos. Capturas (fuera del repositorio): `/tmp/b24/ddr1-{Tokio,Kioto,Osaka,
+Okinawa}-A-{390,1440}.png` (encuadre actual) y `…-B-…png` (tras abrir el grupo mayor, que equivale
+a encuadrar el núcleo).
+
+**Opciones.**
+- **(a) Conservar el encuadre de todos los lugares.** Honesto con el alcance del hub; el núcleo
+  llega con uno o dos toques en el grupo mayor. Coste: la primera vista es casi vacía en Tokio,
+  Osaka y Okinawa.
+- **(b) Encuadrar el núcleo, calculado.** Ajustar a los lugares dentro de un radio de la mediana
+  (p. ej. 10–15 km) o a un percentil; los lejanos quedan fuera de la primera vista y aparecen al
+  alejar. Sin datos nuevos. Coste: un lugar guardado puede quedar fuera de cuadro sin aviso.
+- **(c) Encuadre editorial por hub.** Un centro y un zoom fijados por ciudad en un mapa de
+  presentación (como los nombres japoneses de DDR-B21-06). Sin tocar el dataset. Coste: una
+  decisión editorial por hub.
+- **(d) Núcleo + indicador de «fuera del mapa».** (b) o (c) más una marca en el borde que dice
+  cuántos lugares quedan fuera. Coste: UI nueva, que `08` obliga a revisar.
+
+**Qué ha hecho B24.** Nada sobre el encuadre: `FitHubBounds` no cambia.
+
+---
+
+### DDR-B24-2 — Marcadores cercanos cuando hay 12 o menos a la vista
+**Estado: ABIERTA** · Abierta 2026-09-26 (Bloque 24, P0-4) · **Afecta:** `03 §9`, Art. 11 · **Bloqueante:** no
+
+**La tensión.** `03 §9` agrupa **sólo por encima de 12** marcadores visibles. Art. 11 exige 44×44
+por objetivo, y dos cajas de 44 px que se solapan son ambiguas (el criterio de
+`b17-tap-target-check`). Al acercarse hasta tener 12 o menos a la vista, lugares vecinos vuelven a
+ser marcadores sueltos cuyas cajas se solapan.
+
+**Evidencia (B24, clic real sobre el grupo mayor hasta deshacerlo).** Tokio: «Shibuya Crossing» /
+«SHIBUYA SKY» (1 par). Kioto: «Yasaka Kōshin-dō» / «Kōdai-ji» y «Kennin-ji» / «Gion Corner» (2).
+Osaka: Dotonbori / Glico / Hozenji Yokocho (5 pares a 390). Okinawa: Kokusai Street / Makishi /
+Tsuboya (7). Acercando un nivel más se separan.
+
+**Opciones.**
+- **(a) Agrupar también por debajo de 12, pero sólo los que se tocan.** Misma regla geométrica que
+  ya se usa por encima de 12; nunca hay solape. Coste: cambia el umbral literal de `03 §9`.
+- **(b) Sueltos, con impacto al más cercano.** Se reparte la zona solapada por la mediatriz: cero
+  ambigüedad, pero cada objetivo queda por debajo de 44 px en un eje (incumple Art. 11).
+- **(c) Aceptar el solape.** El orden de pintado decide; es la ambigüedad que Art. 11 prohíbe.
+
+**Qué ha hecho B24.** Aplica `03 §9` literalmente: agrupa por encima de 12 y, cuando agrupa, ningún
+par de cajas se toca (verificado en el gate B24). Por debajo de 12 no agrupa.
+
+---
+
+### DDR-B24-3 — Volver desde un lugar abierto en una colección de la portada
+**Estado: ABIERTA** · Abierta 2026-09-26 (Bloque 24, hallado al hacer la portada desplazable) · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Bloqueante:** no
+
+**La tensión.** `02 §D3` pt. 2: «la profundidad se apila dentro de una pestaña … volver devuelve
+exactamente al scroll anterior». Al abrir un lugar desde una colección de la portada, `selectPlace`
+cambia Explorar a la ciudad de ese lugar (comportamiento de B21, igual que desde el mapa nacional);
+al cerrar la ficha se vuelve a la lista de esa ciudad, no a la portada ni a su scroll. Con la
+portada sin scroll (P0-1) el caso casi no se alcanzaba; ahora sí.
+
+**Opciones.**
+- **(a) Tratar las colecciones como la búsqueda global (DDR-B21-05):** la ficha se apila sobre la
+  portada sin cambiar de ciudad; volver devuelve a la portada con su scroll.
+- **(b) Conservar el salto a la ciudad**, que da contexto del lugar, y documentarlo como excepción
+  a `02 §D3` pt. 2.
+
+**Qué ha hecho B24.** Nada: es un cambio del modelo de vuelta atrás, que `08` reserva a revisión de
+diseño. Cambiar de pestaña y volver sí conserva el scroll de la portada (verificado).
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -742,3 +826,6 @@ texto de la distinción es legible por un lector de pantalla.
 
 > **DDR-01, DDR-02, DDR-03, DDR-04, DDR-05 y DDR-06 están RESUELTAS.** No queda ninguna
 > decisión de diseño pendiente que bloquee B20.
+>
+> **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **ABIERTAS**. Ninguna bloquea el resto del
+> bloque; cada una deja escrito qué hace hoy el código.
