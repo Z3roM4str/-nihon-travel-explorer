@@ -265,3 +265,30 @@ Astra debe auditar SOL-3 de forma independiente en un runner con navegador real,
 - El workflow se identifica como SOL-0–SOL-5 y conserva los nueve journeys anteriores. La auditoría browser SOL-5 completa y las capturas siguen pendientes: tras `npm ci`, el entorno dejó `node_modules` incompleto y no hay una ejecución honesta contra bundle nuevo.
 - P0: ninguno identificado. P1: ejecutar auditoría browser SOL-5 independiente (incluidos 320/390/tablet/desktop, batch failure/Retry y plan intacto) en el HEAD remoto. P2: ampliar el runner con un journey SOL-5 dedicado en vez de incorporar sus gates al journey existente.
 - No cambiaron dataset, IDs, bytes/metadata fotográficos, parsers de dominio, schema V7 ni claves legacy. HEAD remoto final: pendiente de publicación desde un entorno con remoto autenticado.
+
+---
+
+## Corrección SOL-5 en PR #151 (2026-09-26)
+
+### Identidad y fallos iniciales
+
+- HEAD remoto correctivo inicial comunicado: `500b3d6885c2cdb0bd9a68a964e7728967a10418`; rama real del PR #151: `codex/implementar-sol-5-nuestro-viaje-y-puente-de-planificacion`; base Astra: `1a93c92baee4046aa72c247ba5a647a875d5f7b1`.
+- El entorno entregado contiene el tree recreado del PR, pero no el objeto remoto `500b3d6`; `git fetch origin` continúa bloqueado por `CONNECT tunnel failed, response 403`. No se usó `main`, no se inspeccionó ni mezcló Claude y no se abrió otro PR.
+- Los cuatro fallos de CI informados fueron: Todos vacío no renderizaba su empty state; el test de persistencia trip buscaba el antiguo `li`; la CTA authored se calculaba antes de una escritura V7 externa; y las acciones SOL-4 habían desaparecido de la card de Nuestro viaje.
+
+### Correcciones
+
+- Todos calcula ahora el número real de IDs agrupados y muestra “Su viaje empieza con un lugar” / “Explorar Japón” cuando es cero. Hay cobertura UI dedicada, además de empty Ambos, Descartados y filtro específico.
+- La card SOL-5 recupera `Restablecer mi respuesta` y `Quitar de pendientes`, delegando en las transiciones SOL-4 de `useReview`. Queue removal continúa restringido a no legacy, no authored, queue y ambos votos unreviewed.
+- `PlaceCard` delega el interés en el mismo `safeToggle` de App usado por Explorar/Detalle. Por ello retirar yes conserva Undo durable y un discarded con intención positiva pasa por la reconsideración atómica `candidate + own yes`, con Cancel sin escritura.
+- La entrada al planner incrementa una revisión explícita que fuerza la relectura de IDs V7 al abrir/reabrir. La etiqueta Construir/Continuar consulta V7 al render de Planificar; una escritura authored posterior al render padre ya no queda congelada.
+- Los modales de cola y batch capturan el elemento opener real y lo entregan a `RouteDialog`; focus trap, Escape de capa superior y restauración exacta quedan preservados.
+- Los fallos de persistencia de cola/batch se presentan dentro de la capa modal activa con Retry alcanzable. Batch conserva IDs, acción y snapshot previo mientras falla; no muestra Undo falso y, tras Retry durable, crea el Undo exacto sin tocar votos ni V7.
+- El test histórico trip usa ahora `[data-place-id="JP-001"]`, manteniendo todas las aserciones de estado durable, error, Retry y bytes legacy/V7.
+
+### Tests y browser
+
+- Se añadió `OurTrip.sol5.test.tsx` para Todos/otros empty states, snapshot estable sin voto por navegación, foco exacto, reconsideración y batch failure → Retry → Undo exacto.
+- El runner conserva completos 01–09 y añade `10-sol5-our-trip`, con buckets/filtros, deduplicación, queue, foco, batch/confirmación/fallo/Retry/Undo, reconsideración, bridge de planning, SelectionAnalysis, V7 intacto, entrada de alojamiento y capturas/reflow 320/390/tablet/desktop. Workflow, step, artifact y output se denominan SOL-0–SOL-5.
+- En este contenedor, la suite alcanzó 72 archivos / 2509 pruebas no-jsdom PASS; cinco archivos jsdom no pudieron arrancar porque falta el paquete instalado y `npm install --offline` confirma que falta `xmlchars` en caché. Lint termina con código 0 y sólo dos warnings preexistentes fuera del diff. Build llega únicamente a los imports de `@testing-library/react` ausentes en esta instalación incompleta. La sintaxis del runner y `git diff --check` pasan. Las pruebas jsdom, build y browser deben producir evidencia final en Actions sobre el SHA remoto publicado.
+- P0: ninguno observado en fuente/pruebas disponibles. P1: publicación y ejecución CI 01–10 sobre el SHA exacto. P2: ninguno conocido. HEAD remoto final: pendiente de push desde un entorno con acceso GitHub.

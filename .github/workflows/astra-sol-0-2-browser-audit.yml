@@ -5,6 +5,7 @@ on:
     branches:
       - experiment/astra-redesign
       - codex/astra-sol-5-our-trip-planning-bridge
+      - codex/implementar-sol-5-nuestro-viaje-y-puente-de-planificacion
       - codex/continuar-proyecto-z3rom4str-desde-astra-redesign
       - codex/implementar-f01f09-siguiendo-auditoria-astra-ca5545
       - 'codex/completa-pr-#135-de-astra-16422227132192129267'
@@ -24,7 +25,7 @@ jobs:
     timeout-minutes: 30
     env:
       ASTRA_EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
-      ASTRA_AUDIT_OUTPUT: ${{ github.workspace }}/artifacts/astra-sol-0-4
+      ASTRA_AUDIT_OUTPUT: ${{ github.workspace }}/artifacts/astra-sol-0-5
     steps:
       - name: Checkout exact PR implementation SHA
         uses: actions/checkout@v4
@@ -77,7 +78,7 @@ jobs:
         working-directory: app
         run: npm run build
 
-      - name: Run Astra SOL-0–SOL-4 journeys
+      - name: Run Astra SOL-0–SOL-5 journeys 01–10
         working-directory: app
         shell: bash
         run: |
@@ -88,7 +89,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: astra-sol-0-4-${{ github.event.pull_request.head.sha }}
-          path: artifacts/astra-sol-0-4
+          name: astra-sol-0-5-${{ github.event.pull_request.head.sha }}
+          path: artifacts/astra-sol-0-5
           if-no-files-found: warn
           retention-days: 14

@@ -292,11 +292,11 @@ try {
     await page.getByText("Interés retirado").waitFor();
     assert.equal(await takeshita.getAttribute("aria-pressed"),"false");
     await page.goto(`${baseURL}#/viaje`,{waitUntil:"networkidle"});
-    const takeshitaItem=page.locator("li").filter({hasText:"Takeshita Street"});
+    const takeshitaItem=page.locator('[data-place-id="JP-008"]');
     await takeshitaItem.getByRole("button",{name:"Quitar de pendientes"}).click();
     await takeshitaItem.waitFor({state:"detached"});
 
-    const shibuyaItem=page.locator("li").filter({hasText:"Shibuya Crossing"});
+    const shibuyaItem=page.locator('[data-place-id="JP-001"]');
     await shibuyaItem.getByRole("button",{name:"Descartar del viaje"}).click();
     await shibuyaItem.getByRole("button",{name:"Restablecer mi respuesta"}).click();
     await page.goto(`${baseURL}#/explorar?q=Shibuya%20Crossing`,{waitUntil:"networkidle"});
@@ -311,6 +311,49 @@ try {
     assert.equal(shibuya.disposition,"candidate");assert.equal(shibuya.votes.ella,"yes");assert.equal(shibuya.votes.fernando,"yes");
     assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.savedPlaceIds")),rawLegacy);
     assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.manualPlanningDraft")),rawDraft);
+  });
+
+  await runJourney("10-sol5-our-trip", "Our Trip deliberate review and planning bridge", { width:390, height:844 }, async page => {
+    const review={schema:"nihon.astra.review",version:1,activeReviewer:"fernando",places:{
+      "JP-001":{placeId:"JP-001",votes:{fernando:"yes",ella:"yes"},inReviewQueue:true,legacy:false},
+      "JP-002":{placeId:"JP-002",votes:{fernando:"yes",ella:"unreviewed"},inReviewQueue:true,legacy:false},
+      "JP-003":{placeId:"JP-003",votes:{fernando:"no",ella:"yes"},inReviewQueue:true,legacy:false},
+      "JP-004":{placeId:"JP-004",votes:{fernando:"no",ella:"no"},inReviewQueue:true,legacy:false},
+      "JP-005":{placeId:"JP-005",votes:{fernando:"unreviewed",ella:"unreviewed"},inReviewQueue:true,legacy:false,disposition:"discarded"},
+      "JP-006":{placeId:"JP-006",votes:{fernando:"unreviewed",ella:"unreviewed"},inReviewQueue:true,legacy:false}
+    }};
+    const rawLegacy='["JP-021"]';
+    await page.addInitScript(({review,rawLegacy})=>{localStorage.setItem("nihon.astra.review.v1",JSON.stringify(review));localStorage.setItem("nihon.savedPlaceIds",rawLegacy);const original=Storage.prototype.setItem;window.__failReview=false;Storage.prototype.setItem=function(k,v){if(window.__failReview&&k==="nihon.astra.review.v1")throw new DOMException("SOL-5 audit failure","QuotaExceededError");return original.call(this,k,v);};},{review,rawLegacy});
+    await page.goto(`${baseURL}#/viaje`,{waitUntil:"networkidle"});
+    assert.equal(await page.getByRole("button",{name:"Intereses"}).getAttribute("aria-pressed"),"true");
+    assert.equal((await page.locator(".astra-trip__counts div").nth(0).textContent())?.replace(/\s/g,""),"1Ambos");
+    assert.equal((await page.locator(".astra-trip__counts div").nth(1).textContent())?.replace(/\s/g,""),"3Porcomparar");
+    const grouped=await page.locator(".astra-trip__group [data-place-id]").evaluateAll(nodes=>nodes.map(node=>node.getAttribute("data-place-id")));
+    assert.equal(new Set(grouped).size,grouped.length,"grouped default duplicated an ID");
+    for(const name of ["Todos","Ambos","Fernando","Ella","Pendientes","Descartados"]){await page.getByRole("button",{name,exact:true}).click();}
+    await page.getByLabel("Más").selectOption({label:"Ninguno"});assert.equal(await page.locator('[data-place-id="JP-004"]').count(),1);
+    await page.getByLabel("Más").selectOption({label:"Gustos diferentes"});assert.equal(await page.locator('[data-place-id="JP-003"]').count(),1);
+    await page.getByRole("button",{name:"Todos",exact:true}).click();
+    await page.getByLabel("Persona activa").selectOption("ella");
+    const queueOpener=page.getByRole("button",{name:"Revisar pendientes"});await queueOpener.focus();await queueOpener.click();
+    const queue=page.getByRole("dialog",{name:"Revisar pendientes"});await queue.getByText("1 de 3").waitFor();
+    const beforeQueue=await page.evaluate(()=>localStorage.getItem("nihon.astra.review.v1"));await queue.getByRole("button",{name:"Siguiente"}).click();await queue.getByText("2 de 3").waitFor();await queue.getByRole("button",{name:"Anterior"}).click();assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.astra.review.v1")),beforeQueue,"queue navigation emitted a vote");await queue.getByRole("button",{name:"Quiero ir"}).click();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("nihon.astra.review.v1")).places["JP-002"].votes.ella),"yes","explicit queue response did not vote");
+    await page.keyboard.press("Escape");assert.equal(await queueOpener.evaluate(element=>document.activeElement===element),true,"queue focus was not restored");await page.getByLabel("Persona activa").selectOption("fernando");
+    await page.getByRole("button",{name:"Seleccionar"}).click();const check=page.getByRole("checkbox",{name:/Seleccionar Shibuya Crossing/});await check.check();assert.equal(await page.getByText("1 seleccionados").count(),1);
+    const preselect=page.getByRole("button",{name:"Preseleccionar"});await preselect.focus();await preselect.click();const batch=page.getByRole("dialog",{name:/Confirmar preselección/});assert.equal(await batch.getByText("1 lugares").count(),1);await batch.getByText("Revisar nombres").click();assert.equal(await batch.getByText("Shibuya Crossing").count(),1);
+    await page.evaluate(()=>{window.__failReview=true;});await batch.getByRole("button",{name:"Confirmar"}).click();assert.equal(await batch.getByRole("alert").count(),1);assert.equal(await page.getByText("Cambios guardados").count(),0,"failed batch exposed Undo");
+    await page.evaluate(()=>{window.__failReview=false;});await batch.getByRole("button",{name:"Reintentar guardar"}).click();await batch.waitFor({state:"detached"});await page.getByText("Cambios guardados").waitFor();await page.getByText("Cambios guardados").getByRole("button",{name:"Deshacer"}).click();
+    const votes=await page.evaluate(()=>JSON.parse(localStorage.getItem("nihon.astra.review.v1")).places["JP-001"].votes);assert.deepEqual(votes,{fernando:"yes",ella:"yes"},"batch modified votes");
+    await page.getByRole("button",{name:"Descartados",exact:true}).click();const discarded=page.locator('[data-place-id="JP-005"]');await discarded.getByRole("button",{name:/Quiero ir/}).click();const reconsider=page.getByRole("alertdialog",{name:"¿Volver a considerar este lugar?"});await reconsider.getByRole("button",{name:"Cancelar"}).click();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("nihon.astra.review.v1")).places["JP-005"].disposition),"discarded");
+    await page.getByRole("button",{name:"Planificar"}).click();assert.equal(await page.getByText("No incluye traslados").count(),1);assert.equal(await page.getByRole("button",{name:"Construir recorrido"}).count(),1);await page.getByRole("button",{name:"Ver distribución y tiempos"}).click();await page.getByRole("dialog").waitFor();await page.keyboard.press("Escape");
+    const draft={version:7,routeIds:["JP-001"],days:null,startDate:"2027-02-19",endDate:"2027-02-20",visitStartTimes:{"JP-001":"09:30"},accommodations:[],accommodationLegs:[],interHubSegments:[]};const rawDraft=JSON.stringify(draft);await page.evaluate(raw=>localStorage.setItem("nihon.manualPlanningDraft",raw),rawDraft);
+    await page.getByRole("button",{name:"Intereses"}).click();await page.getByRole("button",{name:"Planificar"}).click();assert.equal(await page.getByRole("button",{name:"Continuar recorrido"}).count(),1);assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.manualPlanningDraft")),rawDraft);
+    await page.getByRole("button",{name:"Dónde alojarnos"}).click();assert.equal(await page.getByText(/comparación de zonas llegará/).count(),1);
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.savedPlaceIds")),rawLegacy);
+    await page.evaluate(()=>{localStorage.setItem("nihon.astra.review.v1",JSON.stringify({schema:"nihon.astra.review",version:1,activeReviewer:"fernando",places:{}}));localStorage.removeItem("nihon.manualPlanningDraft");localStorage.removeItem("nihon.savedPlaceIds");});await page.reload({waitUntil:"networkidle"});assert.equal(await page.getByRole("button",{name:"Explorar Japón"}).count(),1,"Todos empty state missing");await page.getByRole("button",{name:"Descartados",exact:true}).click();assert.equal(await page.getByText("No han descartado lugares.").count(),1);
+    await page.evaluate(()=>localStorage.setItem("nihon.astra.review.v1",JSON.stringify({schema:"nihon.astra.review",version:1,activeReviewer:"fernando",places:{"JP-001":{placeId:"JP-001",votes:{fernando:"yes",ella:"unreviewed"},inReviewQueue:true,legacy:false}}})));await page.reload({waitUntil:"networkidle"});await page.getByRole("button",{name:"Ambos",exact:true}).click();assert.equal(await page.getByText("Todavía no hay coincidencias. Revisen lo que le gusta al otro.").count(),1);assert.equal(await page.getByRole("button",{name:"Ver pendientes"}).count(),1);await page.getByRole("button",{name:"Ella",exact:true}).click();assert.equal(await page.getByRole("button",{name:"Quitar filtros"}).count(),1);
+    await page.evaluate(value=>localStorage.setItem("nihon.astra.review.v1",JSON.stringify(value)),review);await page.reload({waitUntil:"networkidle"});
+    for(const [label,width,height] of [["320",320,800],["390",390,844],["tablet",768,1024],["desktop",1440,900]]){await page.setViewportSize({width,height});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),`${label}: Our Trip horizontal overflow`);await page.screenshot({path:`${outputRoot}/screenshots/10-sol5-${label}.png`,fullPage:true});}
   });
 } finally {
   await browser.close();

@@ -32,6 +32,7 @@ export default function App() {
   const [prefectureCode, setPrefectureCode] = useState<string | null>(null);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [plannerOpen, setPlannerOpen] = useState(false);
+  const [plannerRevision, setPlannerRevision] = useState(0);
   const [opener, setOpener] = useState<HTMLElement | null>(null);
   const [pendingInterest, setPendingInterest] = useState<string|null>(null);
   const [identityOpener, setIdentityOpener] = useState<HTMLElement|null>(null);
@@ -52,13 +53,11 @@ export default function App() {
   const reviewIds=useMemo(()=>Object.values(review.store.places).filter(p=>p.inReviewQueue||p.votes.fernando==="yes"||p.votes.ella==="yes"||p.disposition==="shortlisted").map(p=>p.placeId),[review.store]);
   const activeYesIds=useMemo(()=>review.store.activeReviewer?Object.values(review.store.places).filter(p=>p.votes[review.store.activeReviewer!]==="yes").map(p=>p.placeId):[],[review.store]);
   const statuses=useMemo(()=>Object.fromEntries(Object.values(review.store.places).map(p=>{const x=reviewPresentation(p.votes.fernando,p.votes.ella,p.inReviewQueue);return [p.placeId,{label:p.legacy&&p.votes.fernando==="unreviewed"&&p.votes.ella==="unreviewed"?"Guardado anterior · Sin asignar":x.label,together:x.hearts===2}]})),[review.store]);
-  const authoredPlanIds=readAuthoredPlanIds(localStorage);
-  const hasAuthoredPlan = authoredPlanIds.size > 0;
-
   const plannerPlaces = useMemo(() => {
+    void plannerRevision; // explicit cache-buster: localStorage can change without a React state update
     const plannerIds = new Set([...getPlannerEligibility(review.legacyIds,review.store), ...readAuthoredPlanIds(localStorage)]);
     return [...plannerIds].map(getPlaceById).filter((p): p is NonNullable<typeof p> => Boolean(p));
-  }, [review.legacyIds, review.store, plannerOpen]);
+  }, [review.legacyIds, review.store, plannerRevision]);
 
   useEffect(() => {
     const update = () => { const next=parseAstraRoute(location.hash); if (next.surface === "explore") setLastExplore(next); setRoute(next); };
@@ -98,6 +97,7 @@ export default function App() {
     }
   }, [review]);
   const retryReview=useCallback(()=>{const succeeded=review.retrySave();if(succeeded&&pendingRemovedVote){setRemovedVote(pendingRemovedVote);setPendingRemovedVote(null);}return succeeded;},[review,pendingRemovedVote]);
+  const openPlanner=useCallback(()=>{setPlannerRevision(value=>value+1);setPlannerOpen(true);},[]);
 
   const place = route.surface === "place" ? getPlaceById(route.placeId) : undefined;
   const destination = route.surface === "trip" ? "trip" : "explore";
@@ -107,7 +107,7 @@ export default function App() {
       {(route.surface === "explore" || route.surface === "place") && <Discovery places={places} hubs={getHubs()} state={route.surface === "explore" ? route : lastExplore} savedIds={activeYesIds} statuses={statuses} reviewerName={reviewerName} onToggle={safeToggle} onState={navigateExplore} onOpen={openPlace} onRegions={openRegions} />}
       {route.surface === "explore" && review.error && <PersistenceNotice error={review.error} onRetry={retryReview} />}
       {route.surface === "regions" && <section className="astra-regions"><a className="astra-back" href={exploreHref(lastExplore)}>← Volver a Explorar</a><Suspense fallback={<div role="status">Cargando regiones…</div>}><LazyNationalExplorer activeRegion={region} selectedCode={prefectureCode} onSelectRegion={setRegion} onSelectPrefecture={(code) => { setPrefectureCode(code); if (code) setRegion(getPrefectureByCode(code)?.region ?? region); }} onEnterHub={(hub) => navigateExplore({...EMPTY_EXPLORE_STATE,hub})} /></Suspense></section>}
-      {route.surface === "trip" && <><p className="astra-trip__storage">Dos perfiles en este dispositivo. {reviewerName?`Revisando como ${reviewerName}.`:"Elige quién revisa."}</p>{review.error&&<PersistenceNotice error={review.error} onRetry={retryReview}/>} {review.legacyIds.length>0&&!review.store.legacyClaim&&review.store.activeReviewer&&<button type="button" onClick={()=>{setClaimOpener(document.activeElement as HTMLElement);setClaimOpen(true);}}>Estos guardados son míos ({review.legacyIds.length})</button>}<OurTrip places={places} store={review.store} hasAuthoredPlan={hasAuthoredPlan} onCommit={review.commit} onOpen={openPlace} onExplore={()=>{location.hash="#/explorar"}} onAnalysis={()=>setAnalysisOpen(true)} onPlanner={()=>setPlannerOpen(true)}/></>}
+      {route.surface === "trip" && <><p className="astra-trip__storage">Dos perfiles en este dispositivo. {reviewerName?`Revisando como ${reviewerName}.`:"Elige quién revisa."}</p>{review.error&&<PersistenceNotice error={review.error} onRetry={retryReview}/>} {review.legacyIds.length>0&&!review.store.legacyClaim&&review.store.activeReviewer&&<button type="button" onClick={()=>{setClaimOpener(document.activeElement as HTMLElement);setClaimOpen(true);}}>Estos guardados son míos ({review.legacyIds.length})</button>}<OurTrip places={places} store={review.store} error={review.error} onCommit={review.commit} onRetry={retryReview} onToggleInterest={safeToggle} onResetResponse={(id)=>review.store.activeReviewer?review.vote(id,review.store.activeReviewer,"unreviewed"):false} onRemoveFromQueue={(id)=>review.removeFromQueue(id,readAuthoredPlanIds(localStorage).has(id))} isAuthored={(id)=>readAuthoredPlanIds(localStorage).has(id)} hasAuthoredPlan={()=>readAuthoredPlanIds(localStorage).size>0} onOpen={openPlace} onExplore={()=>{location.hash="#/explorar"}} onAnalysis={()=>setAnalysisOpen(true)} onPlanner={openPlanner}/></>}
     </div>
     {place && <RouteDialog label={`Detalles de ${place.name}`} onClose={closeDetail} returnFocus={opener}>{review.error && <PersistenceNotice error={review.error} onRetry={retryReview} />}<PlaceDetail place={place} isSaved={activeYesIds.includes(place.id)} onToggleSaved={safeToggle} onClose={closeDetail} nearby={getNearby(place.id)} onSelectNearby={openPlace} getPlace={getPlaceById} previousPlace={null} onBack={closeDetail} /></RouteDialog>}
     {pendingInterest&&<RouteDialog role="dialog" labelledBy="reviewer-title" onClose={()=>setPendingInterest(null)} returnFocus={identityOpener} overlayClassName="astra-confirm" panelClassName="astra-confirm__panel"><h2 id="reviewer-title">¿De quién son estos gustos?</h2><p>Dos perfiles en este dispositivo</p>{(["fernando","ella"] as Reviewer[]).map(r=><button key={r} onClick={()=>{if(review.commit({...review.store,activeReviewer:r,places:{...review.store.places,[pendingInterest]:{...(review.store.places[pendingInterest]??{placeId:pendingInterest,votes:{fernando:"unreviewed",ella:"unreviewed"},legacy:false}),votes:{...(review.store.places[pendingInterest]?.votes??{fernando:"unreviewed",ella:"unreviewed"}),[r]:"yes"},inReviewQueue:true}}}))setPendingInterest(null);}}>{r==="fernando"?"Fernando":"Ella"}</button>)}<button onClick={()=>setPendingInterest(null)}>Cancelar</button></RouteDialog>}

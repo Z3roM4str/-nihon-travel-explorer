@@ -101,7 +101,7 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       }
       const original=Storage.prototype.setItem;
       const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(function(this:Storage,key:string,value:string) { if(key===REVIEW_STORAGE_KEY)throw new Error("Storage quota exceeded"); return original.call(this,key,value); });
-      const action = surface === "trip" ? within(view.getByRole("link",{name:"Shibuya Crossing"}).closest("li")!).getByRole("button", { name: "Ahora no" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : /Quiero ir a Shibuya Crossing como Fernando/ });
+      const action = surface === "trip" ? within(view.container.querySelector('[data-place-id="JP-001"]')!).getByRole("button", { name: "Ahora no" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : /Quiero ir a Shibuya Crossing como Fernando/ });
       fireEvent.click(action);
       const alert = await view.findByRole("alert");
       expect(alert.textContent).toContain("No se pudieron guardar los cambios en este dispositivo");
