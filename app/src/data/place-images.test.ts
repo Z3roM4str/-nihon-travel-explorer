@@ -35,6 +35,15 @@ const b66Baseline = JSON.parse(readFileSync(b66BaselinePath, "utf-8")) as {
   gradeRows: { placeId: string; needsIdentity: boolean }[];
 };
 const b66AcquiredPlaceIds = b66Plan.entries.map((entry) => entry.placeId);
+// B6.7 ("depth batch 1/2", commits 8601a9d/4afbf50) is not an acquisition tranche like B6.4-B6.6:
+// it deliberately gives a *second* photograph to Grade-S places and to Grade-A places that are
+// Extremo/Alto tourism or a real Hidden Gem (the exact criterion scripts/select-block22-b6-7-targets.py
+// derives). Its plan lists placeId per entry, one entry per added second photograph.
+const b67PlanPath = path.resolve(here, "../../../data/visual/block22-b6-7-acquisition-plan.json");
+const b67Plan = JSON.parse(readFileSync(b67PlanPath, "utf-8")) as {
+  entries: { placeId: string }[];
+};
+const b67AcquiredPlaceIds = b67Plan.entries.map((entry) => entry.placeId);
 
 describe("photography pilot manifest (Phase 4A)", () => {
   it("contains exactly 24 places", () => {
@@ -174,6 +183,12 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-182", "JP-118", "JP-049", "JP-058", "JP-181", "JP-015",
     ];
     for (const placeId of acquired) {
+      // JP-016 later became a B6.7 depth target (a documented second photograph); the tranche
+      // invariant that still applies to it is "has an identity photo", not "has exactly one".
+      if (b67AcquiredPlaceIds.includes(placeId)) {
+        expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
     for (const deferred of ["JP-121", "JP-095", "JP-079", "JP-202"]) {
@@ -189,6 +204,11 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-081", "JP-198", "JP-105", "JP-039", "JP-212", "JP-011", "JP-047",
     ];
     for (const placeId of acquired) {
+      // JP-013 and JP-047 later became B6.7 depth targets; see note above.
+      if (b67AcquiredPlaceIds.includes(placeId)) {
+        expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
     // Phase 4J's four fail-closed decisions remain historical facts; Block 22 B6.2 later found
@@ -257,6 +277,11 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-186", "JP-052", "JP-017",
     ];
     for (const placeId of acquired) {
+      // JP-007 and JP-017 later became B6.7 depth targets; see the Phase 4H note above.
+      if (b67AcquiredPlaceIds.includes(placeId)) {
+        expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
     // JP-140 is acquired by B6.3; Phase 4L's historical tranche stays unchanged.
@@ -282,7 +307,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
    * experience/complementary photographs only to Grade-S targets in their acquisition plans. What still
    * needs protecting is that a gallery is a *decision*, never a side effect.
    */
-  it("gives additional photographs only to the places selected by Block 2, B6.4, and B6.5", () => {
+  it("gives additional photographs only to the places selected by Block 2, B6.4, B6.5, and B6.7", () => {
     const galleries = Object.entries(placeImages)
       .filter(([, images]) => images.length > 1)
       .map(([placeId]) => placeId)
@@ -291,6 +316,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205",
       ...b64AcquiredPlaceIds,
       ...b65AcquiredPlaceIds,
+      ...b67AcquiredPlaceIds,
     ]);
     expect(galleries).toEqual([...deliberatelySelected].sort());
   });
@@ -300,6 +326,7 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205",
       ...b64AcquiredPlaceIds,
       ...b65AcquiredPlaceIds,
+      ...b67AcquiredPlaceIds,
     ]);
     for (const [placeId, images] of Object.entries(placeImages)) {
       if (depth.has(placeId)) continue;
