@@ -443,7 +443,11 @@ try {
   await step("A06 place detail shows photograph and attribution", async () => {
     await gotoHub("Tokio", "Tokio");
     await openPlace("Shibuya Crossing");
-    const img = detail().locator(".gallery__image");
+    // B6.7 ("depth batch 1", commit 8601a9d) deliberately gave Shibuya Crossing (JP-001) a
+    // second gallery photograph (data/visual/block22-b6-7-acquisition-plan.json). The golden
+    // journey only needs to prove *a* photograph renders with attribution, so it now checks the
+    // first image rather than assuming a single-image gallery.
+    const img = detail().locator(".gallery__image").first();
     await img.waitFor();
     const src = await img.getAttribute("src");
     assert.ok(src.startsWith("/images/places/"), `expected local asset, got ${src}`);
@@ -465,7 +469,15 @@ try {
 
   await step("A07 no-photo place shows the documented fallback", async () => {
     await gotoHub("Tokio", "Tokio");
-    await openPlace("Takeshita Street"); // JP-004, grade C, uncovered
+    // Takeshita Street (JP-004, formerly grade C/uncovered) received an identity photograph in
+    // Block 22 B6.6 ("feat: add grade C/D identity photography", commit 801f399) — a change that
+    // predates this branch's base and is unrelated to B6.7. It is no longer a no-photo place, so
+    // this golden journey exercises "Unicorn Gundam at DiverCity" (JP-041, grade B) instead: a
+    // fail-closed decision documented since Phase 4J (see the "four fail-closed decisions" note
+    // in app/src/data/place-images.test.ts, "carries the Phase 4J tranche...") and still
+    // uncovered at this branch's base (app/src/data/photography-metadata.json has no JP-041
+    // record).
+    await openPlace("Unicorn Gundam at DiverCity"); // JP-041, grade B, uncovered since Phase 4J
     const body = await detail().textContent();
     assert.match(body, /Sin fotograf[íi]a disponible todav[íi]a/i);
     assert.equal(await detail().locator(".gallery__image").count(), 0,
@@ -818,9 +830,12 @@ try {
   await step("E01 historical photograph renders from a local asset", async () => {
     await gotoHub("Tokio", "Tokio");
     await openPlace("Golden Gai"); // JP-013, historical batch
-    const src = await detail().locator(".gallery__image").getAttribute("src");
+    // B6.7 ("depth batch 1", commit 8601a9d) gave Golden Gai a second gallery photograph, so this
+    // checks the first image rather than assuming exactly one.
+    const image = detail().locator(".gallery__image").first();
+    const src = await image.getAttribute("src");
     assert.ok(src.startsWith("/images/places/"), `not a local asset: ${src}`);
-    const ok = await detail().locator(".gallery__image").evaluate((n) => n.complete && n.naturalWidth > 0);
+    const ok = await image.evaluate((n) => n.complete && n.naturalWidth > 0);
     assert.ok(ok, "historical photograph did not decode");
     return src;
   });
