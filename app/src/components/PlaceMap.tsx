@@ -28,6 +28,18 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/**
+ * Si un movimiento programático puede animarse. Además de `prefers-reduced-motion` (`03 §6`), el
+ * mapa tiene que tener tamaño: con otro destino activo el contenedor mide 0×0 y `flyTo` de
+ * Leaflet divide por ese tamaño — calcula `LatLng(NaN, NaN)`, lanza, y la excepción desmonta la
+ * app entera (regresión de `5e76ef7` encontrada con `b18-viaje-lugar-check`). Sin tamaño, el
+ * encuadre se aplica sin animación y queda listo para cuando el mapa se vuelva a ver.
+ */
+function canAnimate(map: L.Map): boolean {
+  const size = map.getSize();
+  return !prefersReducedMotion() && size.x > 0 && size.y > 0;
+}
+
 function resolveInterestState(
   summary: PlaceInterestSummary | undefined,
   firstTravellerId: string | null
@@ -167,7 +179,7 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
     const target = map.unproject(point.add([panelOffset / 2, 0]), zoom);
 
     moveProgrammatically(map, () => {
-      if (prefersReducedMotion()) {
+      if (!canAnimate(map)) {
         map.setView(target, zoom, { animate: false });
       } else {
         map.flyTo(target, zoom, { duration: 0.6 });
@@ -205,7 +217,7 @@ function FitHubBounds({
     const point = map.project(view.center, view.zoom);
     const target = map.unproject(point.add([panelOffset / 2, 0]), view.zoom);
     moveProgrammatically(map, () => {
-      if (prefersReducedMotion()) {
+      if (!canAnimate(map)) {
         map.setView(target, view.zoom, { animate: false });
       } else {
         map.flyTo(target, view.zoom, { duration: 0.6 });
@@ -291,7 +303,7 @@ function MarkerLayer({
       const size = map.getSize();
       const shift = chromeClearingShift(targets, chromeRects(map), { left: 0, top: 0, right: size.x, bottom: size.y }, keep);
       // `panBy` mueve la vista: el contenido se desplaza en sentido contrario.
-      if (shift) map.panBy([-shift.dx, -shift.dy], { animate: !prefersReducedMotion(), duration: 0.2 });
+      if (shift) map.panBy([-shift.dx, -shift.dy], { animate: canAnimate(map), duration: 0.2 });
     });
     return () => {
       chromeGuards.delete(map);
@@ -328,7 +340,7 @@ function MarkerLayer({
       paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],
       paddingBottomRight: [rightPadding, BOUNDS_PADDING] as [number, number],
     };
-    const reduced = prefersReducedMotion();
+    const reduced = !canAnimate(map);
     if (map.getBoundsZoom(memberBounds) > zoom) {
       moveProgrammatically(map, () => {
         if (reduced) map.fitBounds(memberBounds, { ...options, animate: false });
