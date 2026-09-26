@@ -1,9 +1,10 @@
-name: Astra SOL-0-4 browser audit
+name: Astra SOL-0-5 browser audit
 
 on:
   pull_request:
     branches:
       - experiment/astra-redesign
+      - codex/astra-sol-5-our-trip-planning-bridge
       - codex/continuar-proyecto-z3rom4str-desde-astra-redesign
       - codex/implementar-f01f09-siguiendo-auditoria-astra-ca5545
       - 'codex/completa-pr-#135-de-astra-16422227132192129267'
@@ -13,12 +14,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: astra-sol-0-4-${{ github.event.pull_request.number }}
+  group: astra-sol-0-5-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   browser-audit:
-    name: Nine SOL-0–SOL-4 journeys and required viewports
+    name: SOL-0–SOL-5 journeys and required viewports
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:

@@ -185,7 +185,8 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       const view = render(React.createElement(App));
       const draft = { version: 7, routeIds: ["JP-001", "JP-002"], days: null, startDate: "2027-02-19", endDate: "2027-02-20", visitStartTimes: { "JP-001": "09:30" }, accommodations: [], accommodationLegs: [], interHubSegments: [] };
       localStorage.setItem("nihon.manualPlanningDraft", JSON.stringify(draft));
-      const planButton = view.getByRole("button", { name: "Planificar con mis guardados" });
+      fireEvent.click(view.getByRole("button", { name: "Planificar" }));
+      const planButton = view.getByRole("button", { name: "Continuar recorrido" });
       fireEvent.click(planButton);
       let planner = await view.findByRole("dialog", { name: "Construir recorrido" });
       expect(planner.textContent).toContain("Shibuya Crossing");

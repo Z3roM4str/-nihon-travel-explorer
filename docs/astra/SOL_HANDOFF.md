@@ -241,3 +241,27 @@ Astra debe auditar SOL-3 de forma independiente en un runner con navegador real,
 - Journey 09 mantiene los ocho journeys anteriores y amplía onboarding/cancel/foco, switch sin voto, ambos/reload, claim lossless/idempotente, bytes legacy/V7, fallo/retry, Undo durable, reset, queue removal y reconsideración cancel/confirm atómica.
 - Verificación local disponible: 38 pruebas puras/integración PASS; `src/astra` no-jsdom 49 PASS; lint directo PASS con tres warnings preexistentes; cinco validadores pasivos PASS; runner syntax y `git diff --check` PASS. La instalación local de npm sigue incompleta (`jsdom/index.js` y resolución de `@testing-library/react` ausentes), por lo que jsdom, full suite, build y browser real quedan para Actions y no se declaran PASS localmente.
 - HEAD remoto final: pendiente de push/Actions desde un entorno con acceso GitHub. No se tocó main, dataset, fotografía, parsers ni V7; no se inspeccionó ni mezcló Claude; SOL-5 no se inició.
+## SOL-5 — Nuestro viaje and deliberate planning bridge (2026-09-26)
+
+### Identidad
+
+- Base canónica exacta: `1a93c92baee4046aa72c247ba5a647a875d5f7b1`; rama: `codex/astra-sol-5-our-trip-planning-bridge`.
+- SOL-4 fue validado finalmente en remoto con 9/9 journeys sobre `c737d03da644056f9f3b2ec7b987b8a04ffc27bb` e integrado mediante el merge commit base `1a93c92baee4046aa72c247ba5a647a875d5f7b1`.
+- El contenedor no tenía remoto `origin` configurado, por lo que `git fetch origin` no pudo confirmar ni publicar referencias. No se inspeccionó ni mezcló trabajo Claude; `main` no fue usado ni modificado.
+
+### Arquitectura y semántica
+
+- `OurTrip.tsx` convierte Nuestro viaje en tres vistas secundarias: Intereses por defecto, Planificar y la entrada conservadora Dónde alojarnos. Reutiliza la `PlaceCard` canónica y mantiene visibles los dos votos mediante `reviewPresentation`.
+- `our-trip.ts` concentra derivaciones puras: Todos incluye yes, queue/legacy o shortlisted y excluye discarded; Ambos y Por comparar son conteos solapables; Fernando/Ella incluyen coincidencias; Ninguno conserva no/no; el agrupado Ambos → Por comparar → Otros intereses asigna cada ID una sola vez. Orden predeterminado: recomendación e ID; prioridad desconocida queda al final.
+- Revisar pendientes captura una cola ordenada estable al abrir, expone anterior/siguiente y `N de M`, y sólo escribe cuando la persona pulsa Quiero ir o Ahora no. Navegar y cerrar no emiten votos.
+- Seleccionar mantiene checkboxes efímeros. Preseleccionar/Descartar requieren confirmación con count y nombres revisables, cambian exclusivamente disposition mediante un único commit durable y muestran Undo sólo tras éxito. Undo restaura exactamente cada disposition anterior.
+- Planificar muestra exclusivamente la preselección como puente de decisión. `getPlannerEligibility` sigue entregando legacy ∪ shortlisted, y `plannerPlaces` añade IDs authored; ni filtros, reviewer, cards, búsqueda ni batch alimentan el planner. La CTA es Construir recorrido sin V7 y Continuar recorrido con V7. El constructor y todas sus capacidades existentes permanecen embebidos sin reescritura.
+- Empty states: Todos invita a Explorar Japón; Ambos sin coincidencias invita a Ver pendientes sin afirmar desacuerdo; filtros ofrecen Quitar filtros; Descartados usa lenguaje neutral.
+
+### Verificación y auditoría
+
+- Se añadieron pruebas puras SOL-5 para semántica de filtros/conteos/overlap, deduplicación, orden, queue estable y batch/Undo sin votos. Los tests UI históricos se adaptaron a las nuevas CTA sin retirar sus garantías de preservación V7.
+- CSS ofrece una, dos y tres columnas en móvil/tablet/desktop, filtros desplazables estrechos, targets táctiles y una señal de batch distinta.
+- El workflow se identifica como SOL-0–SOL-5 y conserva los nueve journeys anteriores. La auditoría browser SOL-5 completa y las capturas siguen pendientes: tras `npm ci`, el entorno dejó `node_modules` incompleto y no hay una ejecución honesta contra bundle nuevo.
+- P0: ninguno identificado. P1: ejecutar auditoría browser SOL-5 independiente (incluidos 320/390/tablet/desktop, batch failure/Retry y plan intacto) en el HEAD remoto. P2: ampliar el runner con un journey SOL-5 dedicado en vez de incorporar sus gates al journey existente.
+- No cambiaron dataset, IDs, bytes/metadata fotográficos, parsers de dominio, schema V7 ni claves legacy. HEAD remoto final: pendiente de publicación desde un entorno con remoto autenticado.

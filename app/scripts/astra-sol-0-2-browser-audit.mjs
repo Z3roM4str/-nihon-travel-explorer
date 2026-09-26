@@ -320,7 +320,7 @@ try {
 const summary = { schemaVersion:1, auditedSha:actualSha, generatedAt:new Date().toISOString(), baseURL, results };
 await writeFile(`${outputRoot}/results.json`, `${JSON.stringify(summary, null, 2)}\n`);
 await writeFile(`${outputRoot}/summary.md`, [
-  "# Astra SOL-0–SOL-4 browser audit", "", `Audited SHA: \`${actualSha}\``, "",
+  "# Astra SOL-0–SOL-5 browser audit", "", `Audited SHA: \`${actualSha}\``, "",
   ...results.map(result => `- **${result.status}** ${result.id}: ${result.name}${result.error ? ` — ${result.error.split("\n")[0]}` : ""}`), "",
   "Automated evidence is not independent visual approval; Astra must inspect screenshots and traces.",
 ].join("\n"));
