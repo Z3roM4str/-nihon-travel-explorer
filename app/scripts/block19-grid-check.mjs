@@ -137,9 +137,14 @@ async function main() {
    * COMPLETO — antes de abrir, con la ficha abierta y después de cerrar — porque lo que se está
    * comprobando es que la ficha no mueve el mapa, no sólo que el cierre no lo mueve.
    *
-   * `leaflet-map-pane`'s `transform` es la posición del lienzo (centro) y `.leaflet-tile-pane`
-   * lleva el nivel de zoom activo en el `data-` de sus capas; se leen los dos, más la caja real
-   * del contenedor y los marcadores.
+   * `leaflet-map-pane`'s `transform` es la posición del lienzo (centro). El zoom real se lee del
+   * propio `z` de las URLs de tesela pedidas (`/{z}/{x}/{y}.png`), no de la transformación CSS de
+   * la primera capa de teselas: sin red de teselas real en este contenedor (`net::
+   * ERR_CERT_AUTHORITY_INVALID`, entorno — ver `docs/BLOCK_24_HANDOFF.md`), Leaflet puede dejar
+   * una capa vieja sin podar con un `transform` de escala residual que no refleja el zoom real
+   * del mapa (comprobado: la posición del lienzo y el `z` de las teselas pedidas no cambian en
+   * todo el ciclo aunque esa capa vieja tarde en limpiarse). `z` sigue en el `src` aunque la
+   * imagen falle al cargar, así que es una señal fiable en este entorno sin red de teselas.
    */
   for (const width of [1200, 1600]) {
     const context = await browser.newContext({ viewport: { width, height: 900 } });
@@ -151,10 +156,12 @@ async function main() {
       page.evaluate(() => {
         const pane = document.querySelector(".leaflet-map-pane");
         const box = document.querySelector(".place-map").getBoundingClientRect();
-        const tileLayer = document.querySelector(".leaflet-tile-pane .leaflet-layer > div");
+        const tileZooms = [...document.querySelectorAll(".leaflet-tile-pane img")]
+          .map((img) => img.src.match(/\/(\d+)\/\d+\/\d+\.png/)?.[1])
+          .filter(Boolean);
         return {
           transform: getComputedStyle(pane).transform,
-          zoom: tileLayer ? getComputedStyle(tileLayer).transform : null,
+          zoom: tileZooms.length > 0 ? Math.max(...tileZooms.map(Number)) : null,
           width: Math.round(box.width),
           height: Math.round(box.height),
           // B24 (P0-4, `03 §9`): con la agrupación, «no perder marcadores» se mide en LUGARES
