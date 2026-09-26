@@ -625,6 +625,17 @@ button.app__title.app__title--expand {
   color: var(--ink-900);
 }
 
+/* B24 (DD-022): contador vivo de resultados, pegado al botón de cierre. */
+.sheet__count {
+  margin: 0 0 0 auto;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+
 .sheet__body {
   overflow-y: auto;
   overscroll-behavior: contain;

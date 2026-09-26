@@ -71,12 +71,17 @@ export function SearchSheet({
     emptyDescription ??
     `Nada con “${trimmed}” en ${hubName}. Prueba en otra ciudad o quita los filtros.`;
 
+  // DD-022 (D-M6): contador vivo en la cabecera mientras hay una consulta.
+  const count =
+    trimmed === "" ? undefined : `${results.length} ${results.length === 1 ? "lugar" : "lugares"}`;
+
   return (
     <Sheet
       title={sheetTitle}
       onClose={onClose}
       initialBodyScrollTop={initialBodyScrollTop}
       onBodyScroll={onBodyScroll}
+      count={count}
     >
       <div className="search-sheet">
         <div className="search-sheet__field">

@@ -8,6 +8,9 @@ type Props = {
   labelledBy?: string;
   initialBodyScrollTop?: number;
   onBodyScroll?: (scrollTop: number) => void;
+  /** B24 (DD-022): contador vivo junto al título, p. ej. «14 lugares». Sólo lo pasa quien tiene
+   * resultados que contar; sin él la cabecera no cambia. */
+  count?: string;
 };
 
 const FOCUSABLE =
@@ -21,7 +24,15 @@ const FOCUSABLE =
  * ciudad y por la hoja de filtros; ambos sustituyen construcciones ad hoc que hacían lo mismo
  * con menos disciplina de foco.
  */
-export function Sheet({ title, onClose, children, labelledBy, initialBodyScrollTop, onBodyScroll }: Props) {
+export function Sheet({
+  title,
+  onClose,
+  children,
+  labelledBy,
+  initialBodyScrollTop,
+  onBodyScroll,
+  count,
+}: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -86,6 +97,11 @@ export function Sheet({ title, onClose, children, labelledBy, initialBodyScrollT
           <h2 id={titleId} className="sheet__title">
             {title}
           </h2>
+          {count !== undefined && (
+            <p className="sheet__count" role="status">
+              {count}
+            </p>
+          )}
           <button
             ref={closeRef}
             type="button"
