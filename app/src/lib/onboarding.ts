@@ -25,7 +25,7 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
   {
     icon: "mapa",
     title: "Explora Japón",
-    body: "Elige una zona y ve pasando tarjetas. Cada una dice qué es el lugar, por qué vale la pena y cuánto tiempo pide.",
+    body: "Elige una ciudad y ve pasando tarjetas. Cada una dice qué es el lugar, por qué vale la pena y cuánto tiempo pide.",
   },
   {
     icon: "corazon",

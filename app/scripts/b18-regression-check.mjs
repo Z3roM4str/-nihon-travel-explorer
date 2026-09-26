@@ -52,14 +52,21 @@ async function main() {
   await page.waitForSelector(".place-card", { timeout: 15000 });
   check("explorar lugares (lista de Tokio)", (await page.locator(".place-card").count()) > 0);
 
-  // Búsqueda: ahora en la barra única, siempre visible (05 §4).
-  const searchInput = page.locator(".explorer-bar__search .search-field__input");
+  // Búsqueda: el control vive en la barra única, siempre visible (05 §4), pero desde Bloque 19
+  // (B3, `04 §12`) ya no filtra en el sitio — abre `SearchSheet` como hoja casi a pantalla
+  // completa con resultados en vivo (`PlaceCard compact`).
+  await page.click(".explorer-bar__search");
+  await page.waitForSelector(".search-sheet", { timeout: 5000 });
+  const searchInput = page.locator(".search-sheet .search-field__input");
   await searchInput.fill("Shibuya Crossing");
   await page.waitForTimeout(400);
-  const filteredCount = await page.locator(".place-card").count();
-  check("búsqueda por texto filtra la lista", filteredCount >= 1 && filteredCount < 10);
+  const filteredCount = await page.locator(".search-sheet .place-card--compact").count();
+  check("búsqueda por texto filtra los resultados de la hoja de búsqueda", filteredCount >= 1 && filteredCount < 10);
   await searchInput.fill("");
   await page.waitForTimeout(300);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(200);
+  check("Escape cierra la hoja de búsqueda", !(await page.locator(".search-sheet").isVisible().catch(() => false)));
 
   // Filtros: ahora una Sheet, no una barra propia.
   await page.click(".explorer-bar__filters");
@@ -94,7 +101,23 @@ async function main() {
   });
   await page.waitForTimeout(150);
   const scrollBefore = await page.evaluate(() => document.querySelector(".app__sidebar")?.scrollTop ?? 0);
-  await page.locator(".place-card__open").first().click();
+  // Bloque 19 (B3): las tarjetas nuevas (foto+overlay+cuerpo, `04 §5`) son más altas que las de
+  // B1 — a 260px de scroll, la PRIMERA tarjeta ya no cabe entera en el viewport de
+  // `.app__sidebar`, así que Playwright la desplaza de vuelta a la vista antes de poder pulsarla
+  // (`scrollIntoViewIfNeeded`, parte de su comprobación de "accionable" antes de cualquier
+  // click) — un artefacto de qué tarjeta se elige para la prueba, no del propio scroll real de
+  // un lector (que nunca pulsa algo que no ve). Se elige la primera tarjeta que sigue
+  // COMPLETAMENTE dentro del viewport visible tras el scroll, como haría una persona real.
+  const inViewCard = await page.evaluateHandle(() => {
+    const sidebar = document.querySelector(".app__sidebar");
+    const sRect = sidebar.getBoundingClientRect();
+    const cards = [...document.querySelectorAll(".place-card__open")];
+    return cards.find((c) => {
+      const r = c.getBoundingClientRect();
+      return r.top >= sRect.top && r.bottom <= sRect.bottom;
+    });
+  });
+  await inViewCard.asElement().click();
   await page.waitForSelector(".place-detail", { timeout: 15000 });
   await page.waitForTimeout(200);
   check("abrir ficha de lugar", await page.locator(".place-detail").isVisible());
@@ -137,7 +160,7 @@ async function main() {
     check("lightbox abre desde la galería (sin foto en este lugar, se omite)", true);
   }
 
-  await page.locator(".place-detail__bar .icon-button").click();
+  await page.locator(".place-detail__back").click();
   await page.waitForTimeout(300);
   check("cerrar ficha vuelve a la lista", await page.locator(".place-card").first().isVisible());
   const scrollAfter = await page.evaluate(() => document.querySelector(".app__sidebar")?.scrollTop ?? 0);
@@ -196,7 +219,7 @@ async function main() {
       return rect ? rect.width === 390 && rect.height === 844 : false;
     }))
   );
-  await page.locator(".place-detail__bar .icon-button").click();
+  await page.locator(".place-detail__back").click();
   await page.waitForTimeout(400);
   check(
     "cerrar la ficha abierta desde Quiero ir vuelve a Quiero ir, no a Explorar",
@@ -296,6 +319,8 @@ async function main() {
   await page.click(".app__title--expand");
   await page.waitForTimeout(200);
   await page.click(".city-sheet__japan");
+  // B21 devuelve primero a la portada; el mapa nacional se abre desde su tarjeta.
+  await page.locator(".explorer-home__map-card").click();
   await page.waitForTimeout(500);
   await page.click(".national__attribution-button");
   await page.waitForTimeout(300);

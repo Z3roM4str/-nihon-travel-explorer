@@ -32,6 +32,15 @@ Implementa la gramática de `03 §1.4`.
   `--type-caption`. Cuando `label` es falso, el texto va en `aria-label` y `title`.
 - **Prohibido**: colorear el marcador, usarlo como badge destacado, o acompañarlo de
   un párrafo que repita lo mismo.
+- **El marcador sustituye al descargo, y se queda con su información (DDR-06).** Cuando un
+  bloque cambia un párrafo de descargo por marcadores, eso es una **reubicación de
+  información, no una pérdida**: lo que el párrafo afirmaba tiene que seguir siendo
+  recuperable desde el marcador —en `detail`, y por tanto en `aria-label`/`title` cuando
+  `label` es falso—, por elemento y no en general. Retirar el párrafo **sin** trasladar su
+  semántica sí sería una pérdida, y está prohibido. El caso que fija la regla es «Cerca de
+  aquí» (`05 §5` pt. 12): cada traslado conserva en su marcador la distinción que la nota al
+  pie explicaba para la lista entera —ruta validada estática frente a estimación geográfica
+  frente a horario en vivo—, sin inventar procedencia ni subir de nivel de confianza.
 
 ## 3. `Chip`
 
@@ -67,7 +76,7 @@ seis chips con emoji.
 ┌─────────────────────────────┐
 │                         (♡) │  ← acción guardar, 40px, arriba-dcha
 │        FOTOGRAFÍA           │
-│         (4:3 base)          │
+│     (4:3 a una columna)     │
 │  ★ Imprescindible           │  ← sólo si grado S
 │  Shibuya Crossing           │  ← voice 20/26, blanco sobre scrim
 │  Ciudad · Shibuya           │  ← record 13, blanco 82%
@@ -80,10 +89,28 @@ seis chips con emoji.
 
 **Reglas**
 
-1. **Proporción**: 4:3 en `base`, 16:9 desde `sm` (donde la rejilla la ensancha).
-2. **Nombre sobre la fotografía**, con `--scrim-bottom` obligatorio y `text-shadow`
-   de respaldo. Clamp a 2 líneas. Si el nombre supera 2 líneas, se reduce a
-   `--type-title-s`, nunca se trunca con puntos suspensivos en mitad de una palabra.
+0. **Ancho mínimo (DD-016)**: la tarjeta **nunca** mide menos de **264 px** de ancho.
+   Es la restricción que manda sobre cualquier rejilla que la contenga: si a un ancho
+   dado no caben `n` tarjetas de 264 px, la rejilla baja a `n−1` columnas, sea cual sea
+   el viewport. El número de columnas se calcula sobre el **ancho efectivo del
+   contenedor** (`02 §D5`), nunca sobre el del viewport.
+1. **Proporción (DD-016)**: 4:3 cuando la rejilla le da **una** columna, 16:9 cuando le
+   da **dos o más**. Lo que manda es el número de columnas, no el breakpoint: en `md`,
+   abrir la ficha estrecha la lista a una columna y la tarjeta vuelve a 4:3 sin que el
+   viewport cambie.
+2. **Nombre sobre la fotografía**, con `--scrim-bottom` obligatorio. Clamp a 2 líneas.
+   Si el nombre supera 2 líneas, se reduce a `--type-title-s`, nunca se trunca con
+   puntos suspensivos en mitad de una palabra.
+
+   **Sin `text-shadow` (DD-016, `03 §5`).** La versión anterior de esta regla pedía un
+   `text-shadow` «de respaldo», que `03 §5` prohíbe expresamente («las superficies sobre
+   fotografía no usan sombra: usan `--scrim-*`») y que además enmascaraba el problema
+   real: a 16:9 la banda de texto ocupa ~50 % de la fotografía, y ahí `--scrim-bottom`
+   ya vale ~0.05. La banda —insignia, nombre y línea de categoría·zona— lleva **su
+   propio suelo de scrim**, con el mismo valor que `--scrim-bottom` declara en su parada
+   inferior, de modo que el scrim efectivo sea **≥0.60 bajo todo el texto** y el
+   contraste llegue a AA con la fotografía más clara del catálogo (`03 §5`, «Scrim bajo
+   texto»). Ningún token nuevo.
 3. **Insignia de nivel**: **sólo** grado S («Imprescindible»), glifo `★` + texto,
    blanco sobre scrim, sin fondo de color. Los grados A/B/C/D no muestran insignia en
    tarjeta (Art. 6).
@@ -99,12 +126,32 @@ seis chips con emoji.
    `aviso real` > `reserva obligatoria` > `joya escondida`. Todo lo demás vive en la
    ficha.
 8. **Sin fotografía**: ver `PhotoPlaceholder` (§9) — nunca un hueco gris.
-9. **Toda la tarjeta abre el lugar**; el corazón y el token de persona están por
-   encima en el orden de apilamiento. Se conserva el patrón actual de
-   `<article>` + botón estirado (es correcto y accesible).
+9. **Toda la tarjeta abre el lugar** (DDR-02): fotografía, nombre, razón, chips y
+   cualquier otra superficie no interactiva. El control principal pertenece
+   estructuralmente al nivel del `<article>`/`PlaceCard` y cubre exactamente la tarjeta;
+   **no nace dentro de `.place-card__media`**, cuyo `overflow: hidden` se conserva. El
+   nombre continúa visualmente sobre la fotografía. Corazón y token de persona quedan
+   por encima y conservan su comportamiento independiente, sin controles interactivos
+   anidados ni targets invisibles fuera de la tarjeta. El control principal es enfocable
+   y operable por teclado.
 10. **Variante `compact`**: fila horizontal, miniatura 72×72 `--radius-md`, nombre
     `--type-title-s`, una línea de metadato. Se usa en «Quiero ir», planner, «Cerca
     de aquí» y resultados de búsqueda.
+11. **Nombre accesible = identificación visible (DD-028, 2026-09-26).** El nombre
+    accesible del control que abre la ficha **nunca puede ser un subconjunto** de la
+    información visible que identifica la tarjeta. Nombra el lugar con la **misma** línea
+    de ubicación que la variante pinta y en el mismo orden lógico:
+    - `normal`: «{nombre}. {nivel}. {categoría} en {zona}.» — la banda pinta
+      «{categoría} · {zona}».
+    - `compact`: «{nombre}. {nivel}. {categoría} en {barrio}, {ciudad}.», o
+      «… en {ciudad}.» sin barrio — la fila pinta «{categoría} · {barrio}, {ciudad}»
+      (`compactPlaceLine`, P0-5c).
+
+    El nivel puede aparecer sólo en el nombre accesible (regla 3); lo que no puede es
+    faltar en él algo que la tarjeta muestra para identificar el lugar. Si en el futuro la
+    parte visible de `PlaceCard` gana información identificativa, su nombre accesible se
+    actualiza **en el mismo cambio**. Cobertura: `PlaceCard.test.ts` y
+    `app/scripts/dd028-placecard-accessible-name-check.mjs` (árbol de accesibilidad real).
 
 ## 6. `PhotoGallery`
 
@@ -248,3 +295,42 @@ El componente que materializa la metáfora del diagrama de línea.
 Se conserva el `SaveToast` actual. Ajustes: se ancla **sobre la barra de pestañas**,
 no sobre el borde inferior; duración 2.400 ms; una sola línea; puede llevar una acción
 («Deshacer»). Nunca dos toasts simultáneos.
+
+## 17. `PersistenceNotice` (DDR-03)
+
+El aviso de que Nihon **no ha conseguido guardar** en el dispositivo. No es un `Toast`:
+un `Toast` se va solo a los 2.400 ms, y este estado dura hasta que se resuelva.
+
+```
+┌──────────────────────────────────────────────┐
+│ No pudimos guardar los cambios en este       │
+│ dispositivo. Pueden perderse al cerrar la    │
+│ app.                          [ Reintentar ] │
+└──────────────────────────────────────────────┘
+```
+
+**Reglas**
+
+1. **Copy exacto**, sin variantes: «No pudimos guardar los cambios en este dispositivo.
+   Pueden perderse al cerrar la app.» Acción: «Reintentar».
+2. **Uno solo, en la raíz.** Se renderiza una única vez para toda la aplicación, desde una
+   **única fuente de verdad** del estado de persistencia. Nunca uno por destino, nunca dos
+   a la vez.
+3. **Sólo en error.** Mientras la persistencia funciona no se renderiza nada; y mientras hay
+   error, **ninguna superficie puede afirmar** que los cambios quedaron guardados.
+4. **Posición**: anclado sobre la barra de pestañas, el mismo idioma que §16, y **por encima
+   de la ficha** en el orden de apilamiento, para seguir visible con la ficha abierta
+   —incluido su modo a pantalla completa de `05 §5`—. No tapa la navegación ni los controles
+   de la ficha. Queda **por debajo de `Sheet` y de cualquier superficie modal enfocada**
+   (`04 §8`) y **reaparece al cerrarlas**: una hoja modal tiene su propio fondo de página y es
+   una tarea enfocada; la ficha no lo es.
+5. **Aparece con el primer fallo real**, incluido el de la escritura que la aplicación hace al
+   arrancar. No espera a que la persona toque nada: si ya no se puede guardar, decirlo pronto
+   evita trabajo que se perdería. Con la persistencia sana no se renderiza nunca, que es lo que
+   garantiza que no hay falsos positivos.
+6. **No es modal y no roba el foco.** Se anuncia a la tecnología asistiva al entrar en error
+   (`role="alert"`, que anuncia sin mover el foco). Alcanzable por teclado en el orden natural.
+7. **«Reintentar»** es un `Button` `quiet` con área táctil ≥44 px (`03 §7`). Ejecuta una
+   escritura real; **nunca descarta ni reinicia datos**. Éxito ⇒ estado normal y el aviso
+   desaparece. Fallo ⇒ estado y aviso permanecen.
+8. **Sólo tokens.** Ningún hex crudo, ningún estilo en línea, ninguna sombra fuera de `03 §5`.

@@ -32,6 +32,12 @@ PREPARE_SPEC = importlib.util.spec_from_file_location(
 prepare = importlib.util.module_from_spec(PREPARE_SPEC)
 PREPARE_SPEC.loader.exec_module(prepare)
 
+DERIVATIVE_SPEC = importlib.util.spec_from_file_location(
+    "build_photography_derivatives", SCRIPT_DIR / "build-photography-derivatives.py"
+)
+derivatives = importlib.util.module_from_spec(DERIVATIVE_SPEC)
+DERIVATIVE_SPEC.loader.exec_module(derivatives)
+
 MAX = acquire.PHOTOGRAPHY_MAX_DIMENSION
 
 
@@ -51,6 +57,17 @@ class FakeHTTPError(Exception):
 
 
 class RenditionWidthTests(unittest.TestCase):
+    def test_exact_title_selection_acquires_only_one_complement_without_identity(self):
+        rows = [
+            {"placeId": "JP-001", "originalTitle": "File:identity.jpg", "role": "identity"},
+            {"placeId": "JP-001", "originalTitle": "File:experience.jpg", "role": "experience"},
+            {"placeId": "JP-002", "originalTitle": "File:other.jpg", "role": "identity"},
+        ]
+        self.assertEqual(acquire.select_records(rows, original_title="File:experience.jpg"), [rows[1]])
+        self.assertEqual(acquire.select_records(rows, place_id="JP-001"), rows[:2])
+        with self.assertRaises(ValueError):
+            acquire.select_records(rows, place_id="JP-001", original_title="File:experience.jpg")
+
     def test_large_file_asks_for_the_max_dimension(self):
         for width in (1601, 2000, 4032, 6000):
             self.assertEqual(acquire.choose_render_width(width), MAX, width)
@@ -225,6 +242,76 @@ class RegistryConsistencyTests(unittest.TestCase):
         # These predate Block 3 A1 and depend on the host serving originals. New records must
         # never join them: `planned_processing_for` records small files as reduced renditions.
         self.assertEqual(len(legacy), 7, legacy)
+
+
+class Block22DerivativeContractTests(unittest.TestCase):
+    def test_both_derivative_names_are_derived_from_the_original(self):
+        asset = "images/places/JP-001/example.webp"
+        self.assertEqual(
+            derivatives.derivative_path_for(asset, 400),
+            "images/places/JP-001/example-400w.webp",
+        )
+        self.assertEqual(
+            derivatives.derivative_path_for(asset, 800),
+            "images/places/JP-001/example-800w.webp",
+        )
+
+    def test_unknown_derivative_width_fails_closed(self):
+        with self.assertRaises(ValueError):
+            derivatives.derivative_path_for("images/places/JP-001/example.webp", 600)
+
+    def test_lqip_is_generated_from_pixels_with_the_prescribed_shape(self):
+        from io import BytesIO
+        from PIL import Image
+
+        source = BytesIO()
+        Image.new("RGB", (160, 90), (64, 128, 192)).save(source, format="WEBP", quality=90)
+        lqip = derivatives.encode_lqip(source.getvalue())
+        self.assertTrue(lqip.startswith("data:image/webp;base64,"))
+        self.assertLessEqual(len(lqip.encode("ascii")), derivatives.LQIP_MAX_DATA_URL_BYTES)
+
+
+class IdentityHubBudgetTests(unittest.TestCase):
+    @staticmethod
+    def _source_bytes():
+        from io import BytesIO
+        from PIL import Image
+
+        image = Image.new("RGB", (800, 600))
+        image.putdata([(x * 255 // 799, y * 255 // 599, ((x // 20) * 17 + (y // 20) * 31) % 256)
+                       for y in range(600) for x in range(800)])
+        stream = BytesIO()
+        image.save(stream, format="WEBP", quality=92, method=6)
+        return stream.getvalue()
+
+    def test_identity_800_renditions_are_deterministically_rebalanced_to_the_hub_cap(self):
+        source = self._source_bytes()
+        record = {"placeId": "JP-004", "assetPath": "images/places/JP-004/example.webp", "role": "identity"}
+        initial_quality, initial = derivatives.choose_derivative_encoding(source, 800)
+        self.assertGreater(initial_quality, derivatives.DERIVATIVE_MIN_QUALITY)
+        next_quality = max(derivatives.DERIVATIVE_MIN_QUALITY, initial_quality - derivatives.DERIVATIVE_QUALITY_STEP)
+        expected = derivatives.encode_derivative_at_quality(source, 800, next_quality)
+        self.assertLess(len(expected), len(initial))
+        budget = len(expected)
+        first = derivatives.rebalance_identity_800([record], {record["assetPath"]: source}, {"JP-004": "Tokio"}, budget)
+        second = derivatives.rebalance_identity_800([record], {record["assetPath"]: source}, {"JP-004": "Tokio"}, budget)
+        self.assertEqual(first, second)
+        renditions, qualities, totals = first
+        self.assertEqual(renditions[record["assetPath"]], expected)
+        self.assertEqual(qualities[record["assetPath"]], next_quality)
+        self.assertEqual(totals, {"Tokio": budget})
+        self.assertGreaterEqual(qualities[record["assetPath"]], derivatives.DERIVATIVE_MIN_QUALITY)
+
+    def test_budget_rebalancing_ignores_non_identity_and_fails_at_quality_floor(self):
+        source = self._source_bytes()
+        identity = {"placeId": "JP-004", "assetPath": "images/places/JP-004/example.webp", "role": "identity"}
+        detail = {"placeId": "JP-004", "assetPath": "images/places/JP-004/detail.webp", "role": "detail"}
+        initial_quality, initial = derivatives.choose_derivative_encoding(source, 800)
+        floor = derivatives.encode_derivative_at_quality(source, 800, derivatives.DERIVATIVE_MIN_QUALITY)
+        self.assertLessEqual(derivatives.DERIVATIVE_MIN_QUALITY, initial_quality)
+        self.assertEqual(derivatives.rebalance_identity_800([detail], {detail["assetPath"]: source}, {"JP-004": "Tokio"}, 0), ({}, {}, {}))
+        with self.assertRaisesRegex(ValueError, "quality floor"):
+            derivatives.rebalance_identity_800([identity], {identity["assetPath"]: source}, {"JP-004": "Tokio"}, len(floor) - 1)
 
 
 if __name__ == "__main__":

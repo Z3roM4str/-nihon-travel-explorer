@@ -72,7 +72,7 @@ async function main() {
   await page.waitForSelector(".place-detail", { timeout: 15000 });
   await page.waitForTimeout(250);
   const placeA = (await page.locator(".place-detail h2").first().textContent())?.trim();
-  const nearbyInQuieroIr = page.locator(".nearby-item");
+  const nearbyInQuieroIr = page.locator(".nearby-carousel__item .place-card__open");
   if ((await nearbyInQuieroIr.count()) > 0) {
     await nearbyInQuieroIr.first().click();
     await page.waitForTimeout(250);
@@ -132,7 +132,7 @@ async function main() {
     await page.waitForSelector(".place-detail", { timeout: 15000 });
     await page.waitForTimeout(250);
     const viajePlaceA = (await page.locator(".place-detail h2").first().textContent())?.trim();
-    const nearbyInViaje = page.locator(".nearby-item");
+    const nearbyInViaje = page.locator(".nearby-carousel__item .place-card__open");
     if ((await nearbyInViaje.count()) > 0) {
       await nearbyInViaje.first().click();
       await page.waitForTimeout(250);

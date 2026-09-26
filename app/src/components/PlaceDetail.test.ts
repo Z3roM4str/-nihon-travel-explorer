@@ -40,12 +40,21 @@ describe("PlaceDetail.tsx — reservation domain wiring (source-scanning integra
     );
   });
 
-  it("renders the tag from the domain's own label/className, not a hardcoded 'Requiere reserva' literal", async () => {
+  it("no reintroduce una etiqueta literal de reserva: la fila del dominio es la única fuente", async () => {
+    // **Actualizada por el Bloque 20 (B4).** Hasta v1.1.0 la reserva se decía dos veces: una
+    // etiqueta en la cabecera y una fila en información práctica. `05 §5` pt. 10 la unifica en
+    // la fila (matriz de `docs/BLOCK_20_INVENTORY.md`, fila 23), y no se pierde nada: para las
+    // tres categorías que tenían etiqueta, `practicalRow` dice lo mismo con más detalle
+    // («Requiere reserva» → «Necesaria · 2–4 semanas»), y para las que no la tenían la fila ya
+    // era el único sitio donde aparecían.
+    //
+    // Lo que esta prueba protege sigue siendo lo mismo que en la Fase 3D-C: que el componente
+    // no reimplemente (ni revierta a) su propia lectura booleana de `reservation.required`.
     const source = await readSource();
-    expect(source).toContain("reservation.tag.label");
-    expect(source).toContain("reservation.tag.className");
-    // The old lossy pattern this phase replaces — a literal boolean-gated tag — must be gone.
     expect(source).not.toMatch(/place\.reservation\.required\s*&&\s*<span/);
+    expect(source).not.toContain("Requiere reserva");
+    expect(source).not.toContain("Reserva recomendable");
+    expect(source).not.toContain("Reserva opcional");
   });
 
   it("renders the practical-info 'Reserva' row from the domain's practicalRow, not a boolean ternary", async () => {

@@ -1,0 +1,809 @@
+{
+  "version": 1,
+  "baseSha": "3ebe7aee70d8046448f10749984d5829b7a4f2cc",
+  "imageCount": 215,
+  "coveredPlaceCount": 194,
+  "gradeSTotal": 32,
+  "gradeSCovered": 32,
+  "gradeSWithExperience": 17,
+  "gradeSWithComplementary": 4,
+  "gradeSNeedsB65": 28,
+  "gradeSRows": [
+    {
+      "placeId": "JP-021",
+      "name": "Tokyo National Museum",
+      "hub": "Tokio",
+      "photos": [
+        {
+          "originalTitle": "File:Tokyo National Museum Main Building PB304920.jpg",
+          "assetPath": "images/places/JP-021/tokyo-national-museum-stairs.webp",
+          "role": "identity",
+          "assetSha256": "39c4e4371cae6efe1ddfac03a2386f0295799b2ea948fcd4c1aff5b4e77961c8"
+        },
+        {
+          "originalTitle": "File:Tokyo National Museum, Honkan 2010.jpg",
+          "assetPath": "images/places/JP-021/tokyo-national-museum-honkan.webp",
+          "role": "context",
+          "assetSha256": "d28d2bb9265feab1d2e1594a7f15b68ca72903e462bedd2355197784e3b447ed"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": true,
+      "seasonal": false,
+      "needsB65": false
+    },
+    {
+      "placeId": "JP-025",
+      "name": "Akihabara Electric Town",
+      "hub": "Tokio",
+      "photos": [
+        {
+          "originalTitle": "File:Akihabara Electric Town 06.jpg",
+          "assetPath": "images/places/JP-025/akihabara-electric-town.webp",
+          "role": "identity",
+          "assetSha256": "ad8aeedde2f57242bcf0bf28ad12bde95f03d469c89970eb15d133a20d8c4282"
+        },
+        {
+          "originalTitle": "File:Akhibara Crossing (14663984721).jpg",
+          "assetPath": "images/places/JP-025/akihabara-pedestrian-crossing.webp",
+          "role": "experience",
+          "assetSha256": "7599ceff0c02ecce312f9d0d9e34d9ce81fd0c1f7d53be712ed11e03d1974b7b"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-033",
+      "name": "teamLab Borderless",
+      "hub": "Tokio",
+      "photos": [
+        {
+          "originalTitle": "File:TeamLab Borderless Azabudai Hills.jpg",
+          "assetPath": "images/places/JP-033/teamlab-borderless-azabudai-light-sculpture.webp",
+          "role": "identity",
+          "assetSha256": "097faea31f56c876ec956fd34e9a1c68f62a6e9cf5b715cd7c7c3f602bf2db2d"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-044",
+      "name": "Ghibli Museum, Mitaka",
+      "hub": "Tokio",
+      "photos": [
+        {
+          "originalTitle": "File:Ghibli Museum 06.jpg",
+          "assetPath": "images/places/JP-044/ghibli-museum-exterior.webp",
+          "role": "identity",
+          "assetSha256": "7709861db66b7ffbdafe5c3d57d7e8f7717916c7f203693bb9cb0831be3955e7"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-054",
+      "name": "Kiyomizu-dera",
+      "hub": "Kioto",
+      "photos": [
+        {
+          "originalTitle": "File:Kiyomizu-dera, Kyoto, November 2016 -01.jpg",
+          "assetPath": "images/places/JP-054/kiyomizu-dera-stage.webp",
+          "role": "identity",
+          "assetSha256": "3ec4fdfad7f848d48359db2ee1bde1cab385b3febef61acb2a09172e8bbbb27f"
+        },
+        {
+          "originalTitle": "File:Japan Kyoto KiyoMizuDera crowds queueing fountain DSC00685.jpg",
+          "assetPath": "images/places/JP-054/kiyomizu-dera-otowa-fountain-visitors.webp",
+          "role": "experience",
+          "assetSha256": "91b93aa1287b5f167237f334b35a323e2abebdadb5cbfd0ad604c8ab37f18d14"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-066",
+      "name": "Fushimi Inari Taisha",
+      "hub": "Kioto",
+      "photos": [
+        {
+          "originalTitle": "File:Fushimi Inari Taisha tunnel droit.jpg",
+          "assetPath": "images/places/JP-066/senbon-torii-path.webp",
+          "role": "identity",
+          "assetSha256": "5983b9988df04b4cb0804456872b5db3b18766fcb95571a94e505dc8d4801cf4"
+        },
+        {
+          "originalTitle": "File:Visitors at Fushimi Inari temple in Kyoto (53612593452).jpg",
+          "assetPath": "images/places/JP-066/fushimi-inari-shrine-visitors.webp",
+          "role": "experience",
+          "assetSha256": "11e4161091ab382f50419e53aef1fbdd093dca5617c8fb50777b50475a5346eb"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-077",
+      "name": "Katsura Imperial Villa",
+      "hub": "Kioto",
+      "photos": [
+        {
+          "originalTitle": "File:Katsura Imperial Villa 桂離宮 X (951035811).jpg",
+          "assetPath": "images/places/JP-077/katsura-imperial-villa-pond.webp",
+          "role": "identity",
+          "assetSha256": "14628d474819125527ac7203ac90bce6d696b3c2ea08b3a7958715e507565565"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-089",
+      "name": "Nijō Castle",
+      "hub": "Kioto",
+      "photos": [
+        {
+          "originalTitle": "File:Ninomaru Palace, November 2016.jpg",
+          "assetPath": "images/places/JP-089/nijo-castle-ninomaru-palace.webp",
+          "role": "identity",
+          "assetSha256": "c75ca2148f76e668d8d61c39adc57dc95c571b9a024af64bda170e4412206e84"
+        },
+        {
+          "originalTitle": "File:Nijojo-ninomaru-garden01s3s4592.jpg",
+          "assetPath": "images/places/JP-089/nijojo-ninomaru-garden.webp",
+          "role": "detail",
+          "assetSha256": "afffa99baae31f044ddb985cffa3d5c92aad30a9ee9da829bc37bc62c97d86ca"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": false,
+      "detail": true,
+      "context": false,
+      "seasonal": false,
+      "needsB65": false
+    },
+    {
+      "placeId": "JP-096",
+      "name": "Sanjūsangen-dō",
+      "hub": "Kioto",
+      "photos": [
+        {
+          "originalTitle": "File:Sanjusangendo-building-dec2013.jpg",
+          "assetPath": "images/places/JP-096/sanjusangendo-main-hall.webp",
+          "role": "identity",
+          "assetSha256": "df0a96f94647f7743180661595842ac0f2e8a3357c26f33478de781311c0901e"
+        },
+        {
+          "originalTitle": "File:A couple looking at the gates (52370163970).jpg",
+          "assetPath": "images/places/JP-096/sanjusangendo-couple-observes-gate.webp",
+          "role": "experience",
+          "assetSha256": "de11ed637c93e6584be17d73cd4ad94af557a3e61754de1757ef20ea8bf193ab"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-097",
+      "name": "Nintendo Museum",
+      "hub": "Kioto",
+      "photos": [
+        {
+          "originalTitle": "File:Nintendo Museum Entrance.jpg",
+          "assetPath": "images/places/JP-097/nintendo-museum-entrance.webp",
+          "role": "identity",
+          "assetSha256": "fb23b0e466dfa5c41edaa61942862ce2aef2a2c978adec09edd339b5b4a68dac"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-125",
+      "name": "Universal Studios Japan",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:UNIVERSAL STUDIOS JAPAN ENTRANCE.jpg",
+          "assetPath": "images/places/JP-125/universal-studios-japan-entrance.webp",
+          "role": "identity",
+          "assetSha256": "20f4b8aca77c6fa163512b898a257fd7b25bc2a47607073f7dda9778bf0f7c3e"
+        },
+        {
+          "originalTitle": "File:Hogwarts in Universal Studios Japan.jpg",
+          "assetPath": "images/places/JP-125/usj-wizarding-world-castle.webp",
+          "role": "experience",
+          "assetSha256": "09c3038da473347942b0034cfa32d7f0710c1479d4bfe91648ccdb01b553d81c"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-126",
+      "name": "SUPER NINTENDO WORLD",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:Super Nintendo World Entrance 5th Anniversary decoration at Universal Studios Japan.jpg",
+          "assetPath": "images/places/JP-126/super-nintendo-world-fifth-anniversary-entrance.webp",
+          "role": "identity",
+          "assetSha256": "893b70df7d4230e56bc8606670edfe4fa3a0ad9bfd73322e206f0ae6142f28d0"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-129",
+      "name": "Tōdai-ji",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:The Great Buddha Hall of Tōdai-ji, Nara, November 2016.jpg",
+          "assetPath": "images/places/JP-129/todaiji-great-buddha-hall.webp",
+          "role": "identity",
+          "assetSha256": "de21433d29c3cfa9b15f86442f0023c62d5ca63e3997f8811fc7170ceaac44bb"
+        },
+        {
+          "originalTitle": "File:Todaiji con visitantes y ciervos, Nara.jpg",
+          "assetPath": "images/places/JP-129/todaiji-visitors-and-deer.webp",
+          "role": "experience",
+          "assetSha256": "d0b1f7ddcba1a7efdd41eca933eaf8b26621e2faf58a69bb909887cb967efca2"
+        },
+        {
+          "originalTitle": "File:Daibutsu Grand bouddha - Tōdai-ji - Nara.jpg",
+          "assetPath": "images/places/JP-129/todaiji-daibutsu.webp",
+          "role": "detail",
+          "assetSha256": "7b7b93308f8f8a6472ddc58f1bfb41b3ac30a6213bd4d363b511125edf967370"
+        }
+      ],
+      "photoCount": 3,
+      "identity": true,
+      "experience": true,
+      "detail": true,
+      "context": false,
+      "seasonal": false,
+      "needsB65": false
+    },
+    {
+      "placeId": "JP-134",
+      "name": "Hōryū-ji",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:Horyu-ji Kondo and Five-story Pagoda 2022.jpg",
+          "assetPath": "images/places/JP-134/horyuji-kondo-pagoda.webp",
+          "role": "identity",
+          "assetSha256": "d0b6115d8bba112fd2ebf83734c8ef5f12b54f4c8de15031f2cadc1ffa207a84"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-135",
+      "name": "Himeji Castle",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:20260429 Burg Himeji 01, Hyōgo, Japan anagoria.jpg",
+          "assetPath": "images/places/JP-135/himeji-castle-keep.webp",
+          "role": "identity",
+          "assetSha256": "343f80a8503d298fbb4e492639b4ddbeea6da194353176dbe03edd841718d29b"
+        },
+        {
+          "originalTitle": "File:Throngs of people walking towards Himeji Castle, Himeji, 2016.jpg",
+          "assetPath": "images/places/JP-135/himeji-castle-visitor-approach.webp",
+          "role": "experience",
+          "assetSha256": "c01f0195dcbea1b8f6cc39977ccb3c9c3f583608a3630d17809137ea2cc57138"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-142",
+      "name": "Kinosaki Onsen",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:Kinosaki Onsen Otani River 2026-02 ac (1).jpg",
+          "assetPath": "images/places/JP-142/otani-river-canal.webp",
+          "role": "identity",
+          "assetSha256": "0f6726e8c501167a480c988d7656ef63530fd4e8f78651fb43dcc1e99901a4bc"
+        },
+        {
+          "originalTitle": "File:Kinosaki Aruki.jpg",
+          "assetPath": "images/places/JP-142/kinosaki-yukata-street-walk.webp",
+          "role": "experience",
+          "assetSha256": "bd1fdc77279442847eae54cac9bf61c909fbcd36f4b6ce16d22b84babcbf939a"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-143",
+      "name": "Koyasan temple stay",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:Ren'ge-in (Wakayama Koyasan) Temple hdsr S5 04.jpg",
+          "assetPath": "images/places/JP-143/koyasan-temple-lodging.webp",
+          "role": "identity",
+          "assetSha256": "14ef9b9dd47fca6ed19a3e24cbc3a632eaad20fe883c33cc74b804ec4467459f"
+        },
+        {
+          "originalTitle": "File:Temple lodging at Shojoshin-in on Koyasan (3810898436).jpg",
+          "assetPath": "images/places/JP-143/koyasan-shukubo-room-guest-experience.webp",
+          "role": "experience",
+          "assetSha256": "d68e73eeba19b092ed8f0f7629b7386b39797f1d2565e0df106f60d916985805"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-144",
+      "name": "Okunoin Cemetery",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:OKU - Jizo statues and memorials at Okunoin Cemetery, Koyasan, Japan, 2015.jpg",
+          "assetPath": "images/places/JP-144/okunoin-memorial-mound.webp",
+          "role": "identity",
+          "assetSha256": "f9c9b0d8ed3e49906445e28bdb9b5a4f673afa573d2de1331b2fa3ab88dbfe4e"
+        },
+        {
+          "originalTitle": "File:Pathway through graveyard at Okunoin at Koyasan at night - Japan 20170412102921 (34098937875).jpg",
+          "assetPath": "images/places/JP-144/okunoin-night-path.webp",
+          "role": "experience",
+          "assetSha256": "ac41f6ae2d54883b23fe3c4ba9f4876c1967eb5b6692487f80e27d47121f5324"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-145",
+      "name": "Kumano Nachi Taisha + Nachi Falls",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:Nachikatsuura Seiganto-ji Three-Storied Pagoda & Nachi Falls 01.jpg",
+          "assetPath": "images/places/JP-145/nachi-falls-pagoda.webp",
+          "role": "identity",
+          "assetSha256": "fe291791a0b16364b24a7db268f3f924f8e43e5d6ea058cfff33887f76575e55"
+        },
+        {
+          "originalTitle": "File:Nachi Falls Pilgrimage route (51928795062).jpg",
+          "assetPath": "images/places/JP-145/nachi-pilgrimage-route.webp",
+          "role": "experience",
+          "assetSha256": "d7e34db1a3c1a408870cbfdcf986091200ee5b4a80e8dd43880c66c3019f2abf"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-152",
+      "name": "Naoshima art island",
+      "hub": "Osaka",
+      "photos": [
+        {
+          "originalTitle": "File:Naoshima Ferry Terminal.jpg",
+          "assetPath": "images/places/JP-152/naoshima-ferry-terminal.webp",
+          "role": "identity",
+          "assetSha256": "de8ccb4d1a2df5599dea4acc204e7442ed6c660981076646759e2bfca8f60f6b"
+        },
+        {
+          "originalTitle": "File:150505 Benesse House Museum Naoshima Kagawa pref Japan01b3s5.jpg",
+          "assetPath": "images/places/JP-152/benesse-house-museum.webp",
+          "role": "context",
+          "assetSha256": "95f8ba56458afdf93a7c9cf1617d1250bfb0ac635571729f1d22d1a90b15316f"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": true,
+      "seasonal": false,
+      "needsB65": false
+    },
+    {
+      "placeId": "JP-157",
+      "name": "Shurijo Castle Park",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Shurei-mon 2023.jpg",
+          "assetPath": "images/places/JP-157/shurijo-castle-shureimon-gate.webp",
+          "role": "identity",
+          "assetSha256": "9e42f6bedf71b1e7f788279acf15eab1b57a8b8827857b213a1852b62d7cf0fe"
+        },
+        {
+          "originalTitle": "File:Local students give service members guided tour of Shuri Castle 121027-M-GX379-089.jpg",
+          "assetPath": "images/places/JP-157/shuri-guided-tour.webp",
+          "role": "experience",
+          "assetSha256": "cd0578d55520ca585e999803bb4d131dd1588c1521d502028907ba6b7f326026"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-162",
+      "name": "Sefa Utaki",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Okinawa Nanjo Sefa-utaki Gusuku site Yuinchi 04.jpg",
+          "assetPath": "images/places/JP-162/sefa-utaki-yuinchi.webp",
+          "role": "identity",
+          "assetSha256": "9dfe5d530ea783c1cba66a8973f827756556f2888bad94e03baea2a35f9aff04"
+        },
+        {
+          "originalTitle": "File:Stairs near Ujoguchi of Sefa-Utaki.JPG",
+          "assetPath": "images/places/JP-162/sefa-utaki-ujoguchi-stairs.webp",
+          "role": "experience",
+          "assetSha256": "e40e914ffff801084d855f2cca249341ad83acd0d0cde4ba7c149e73b9d283c7"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-173",
+      "name": "Okinawa Churaumi Aquarium",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Main tank of the Kuroshio Sea in Okinawa Churaumi Aquarium.JPG",
+          "assetPath": "images/places/JP-173/churaumi-aquarium-kuroshio-tank.webp",
+          "role": "identity",
+          "assetSha256": "9d5df787b02c2ac89306fecf5a5d5214664a4e85d37c2617d133356866a2d068"
+        },
+        {
+          "originalTitle": "File:USMC-081220-M-0902C-004.jpg",
+          "assetPath": "images/places/JP-173/churaumi-visitors-watch-diver.webp",
+          "role": "experience",
+          "assetSha256": "6bde66bd359a58827f9d43b1f3627dbe4264ee8e7a5eb9c4d60f9a7ed0cda47f"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-179",
+      "name": "Yambaru National Park",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Subtropical Forest of Yanbaru National Park Okinawa 2018.jpg",
+          "assetPath": "images/places/JP-179/yanbaru-forest.webp",
+          "role": "identity",
+          "assetSha256": "0894bd02a8a6299207dc989dd172462fb5d450c144446bef042d741383ebece1"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-184",
+      "name": "Zamami Island",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:View of the ocean from Zamami Island, Okinawa, Japan (1) - October 2015.jpg",
+          "assetPath": "images/places/JP-184/zamami-coast.webp",
+          "role": "identity",
+          "assetSha256": "3dab6d0d54e401bc7e6941c871b9f56c087a3ac7cfc9fbfef66fced2d635710e"
+        },
+        {
+          "originalTitle": "File:JAP Zamami Furuzamami Beach.jpg",
+          "assetPath": "images/places/JP-184/zamami-furuzamami-beach-visitors.webp",
+          "role": "experience",
+          "assetSha256": "766fb4e1354acfc467359cce017fab153d8637b2e4b78b0dc9e5ce3fd83f8dd9"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-188",
+      "name": "Yonaha Maehama Beach",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Yonahamaehama Miyakojima Okinawa Japan01bs3s4592.jpg",
+          "assetPath": "images/places/JP-188/yonaha-maehama-beach.webp",
+          "role": "identity",
+          "assetSha256": "ccb5cf264aefd1cc807545c4b9fc18d38e8eaab487e05ffa64a34bdf5154986a"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-192",
+      "name": "Kabira Bay",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Kabira Bay Ishigaki Island08s3s4592.jpg",
+          "assetPath": "images/places/JP-192/kabira-bay.webp",
+          "role": "identity",
+          "assetSha256": "54f4034e36622a58a695e32eb95023b205728a01b13f27ed6e62ca0e91276d7f"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-196",
+      "name": "Taketomi Island village",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Walk in Taketomi Island 17.jpg",
+          "assetPath": "images/places/JP-196/taketomi-island-house.webp",
+          "role": "identity",
+          "assetSha256": "150191447fa23f392a2188dca0e26b88d20cdd2e24b4e66a2c48e32a6fd3f0ed"
+        },
+        {
+          "originalTitle": "File:水牛車.jpg",
+          "assetPath": "images/places/JP-196/taketomi-water-buffalo-cart-ride.webp",
+          "role": "experience",
+          "assetSha256": "dc29cba9c430f5dccba45e84bbd9143d324b32200eb85efd797be865743b8a80"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-197",
+      "name": "Iriomote mangrove and jungle expedition",
+      "hub": "Okinawa",
+      "photos": [
+        {
+          "originalTitle": "File:Nakama River Iriomote Okinawa Japan05s3.jpg",
+          "assetPath": "images/places/JP-197/nakama-river-mangroves.webp",
+          "role": "identity",
+          "assetSha256": "5c7b84cef9447c2369be9a5c8bdd0ca4d3c176ca520c85ed644475e8693d695b"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-203",
+      "name": "Tokyo Disneyland",
+      "hub": "Tokio",
+      "photos": [
+        {
+          "originalTitle": "File:Tokyo Disneyland Main Entrance (June 2025).jpg",
+          "assetPath": "images/places/JP-203/tokyo-disneyland-main-entrance-2025.webp",
+          "role": "identity",
+          "assetSha256": "8086a0e880b680e57b4620dbf785cd8dea6a487fcd9e7e47f0e400f10cd73434"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-204",
+      "name": "Tokyo DisneySea",
+      "hub": "Tokio",
+      "photos": [
+        {
+          "originalTitle": "File:Tokyo DisneySea-Volcania.jpg",
+          "assetPath": "images/places/JP-204/tokyo-disneysea-mount-prometheus-fortress.webp",
+          "role": "identity",
+          "assetSha256": "e028f344000072bcdaaea49d879dbd613c106d48978c977c537c32426fbae775"
+        }
+      ],
+      "photoCount": 1,
+      "identity": true,
+      "experience": false,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    },
+    {
+      "placeId": "JP-205",
+      "name": "Sapporo Snow Festival",
+      "hub": "Sapporo",
+      "photos": [
+        {
+          "originalTitle": "File:Odori Park Sapporo Snow Festival 2007.JPG",
+          "assetPath": "images/places/JP-205/odori-park-snow-festival.webp",
+          "role": "identity",
+          "assetSha256": "1d87994e162b55c2d8a38101941bf56e5bd71646afb7b51495bf785a6e906129"
+        },
+        {
+          "originalTitle": "File:第65回さっぽろ雪まつり（SAPPORO SNOW FESTIVAL 65th） - panoramio.jpg",
+          "assetPath": "images/places/JP-205/sapporo-snow-sculpture.webp",
+          "role": "experience",
+          "assetSha256": "5a54916a3bb858bc4f1ef7105ef7bf22ffb33a244b89b3875ab48dcb8d9d61ae"
+        }
+      ],
+      "photoCount": 2,
+      "identity": true,
+      "experience": true,
+      "detail": false,
+      "context": false,
+      "seasonal": false,
+      "needsB65": true
+    }
+  ],
+  "gradeCoverage": {
+    "S": {
+      "total": 32,
+      "covered": 32,
+      "uncovered": []
+    },
+    "A": {
+      "total": 147,
+      "covered": 139,
+      "uncovered": [
+        "JP-050",
+        "JP-079",
+        "JP-095",
+        "JP-120",
+        "JP-121",
+        "JP-168",
+        "JP-195",
+        "JP-202"
+      ]
+    },
+    "B": {
+      "total": 25,
+      "covered": 23,
+      "uncovered": [
+        "JP-041",
+        "JP-171"
+      ]
+    }
+  },
+  "placeImagesTsSha256": "0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb"
+}

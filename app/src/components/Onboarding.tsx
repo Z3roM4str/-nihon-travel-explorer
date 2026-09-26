@@ -88,12 +88,14 @@ export function Onboarding({ onClose }: Props) {
           <Icon name={current.icon} size={24} />
         </div>
 
-        <p className="onboarding__step-count">
-          Paso {step + 1} de {total}
-        </p>
         <h2 className="onboarding__title" id="onboarding-title">
           {current.title}
         </h2>
+        {/* B24 (P1-05, `03 §2.3`): el contador de pasos baja bajo el título, en caja de frase —
+            encima del título era un eyebrow. */}
+        <p className="onboarding__step-count">
+          Paso {step + 1} de {total}
+        </p>
         <p className="onboarding__body">{current.body}</p>
 
         <div className="onboarding__dots" aria-hidden="true">

@@ -10,12 +10,16 @@ import registry from "./data/photography-metadata.json";
  * These tests hold that agreement, and hold the size claim that justifies the tier existing.
  */
 
-type Record = { placeId: string; assetPath: string };
+type Record = { placeId: string; assetPath: string; role: string; lqip: string };
 const records = (registry as { images: Record[] }).images;
 const assetRoot = new URL("../public/", import.meta.url);
 
 function derivativeOf(assetPath: string): string {
   return `${assetPath.slice(0, -".webp".length)}-${CARD_IMAGE_WIDTH}w.webp`;
+}
+
+function listDerivativeOf(assetPath: string): string {
+  return `${assetPath.slice(0, -".webp".length)}-400w.webp`;
 }
 
 describe("cardImageUrl mirrors the build script's naming rule", () => {
@@ -61,6 +65,20 @@ describe("every registered photograph ships its card derivative", () => {
     expect(records.filter((r) => r.assetPath.endsWith(`-${CARD_IMAGE_WIDTH}w.webp`))).toEqual([]);
   });
 
+  it("also ships the 400w list rendition and a generated inline WebP LQIP", async () => {
+    const missing: string[] = [];
+    for (const record of records) {
+      try {
+        await stat(new URL(listDerivativeOf(record.assetPath), assetRoot));
+      } catch {
+        missing.push(record.assetPath);
+      }
+      expect(record.lqip, record.placeId).toMatch(/^data:image\/webp;base64,/);
+      expect(["identity", "context", "detail", "experience", "seasonal"], record.placeId).toContain(record.role);
+    }
+    expect(missing).toEqual([]);
+  });
+
   it("keeps every derivative lighter than its original", async () => {
     const heavier: string[] = [];
     for (const record of records) {
@@ -92,9 +110,12 @@ describe("the surfaces that must use the derivative do", () => {
   });
 
   it("the place card declares its box so the image cannot shift the text under it", async () => {
+    // Bloque 19 (B3, `04 §5.1`): la proporción base pasa de 16:9 fija a 4:3 en `base` (16:9 sólo
+    // desde `sm`, donde la rejilla ensancha la tarjeta) — el `height` declarado en el <img>
+    // refleja la proporción de `base`, la misma que fija `.place-card__media` sin media query.
     const source = await src("components/PlaceCard.tsx");
     expect(source).toContain("width={CARD_IMAGE_WIDTH}");
-    expect(source).toContain("height={Math.round((CARD_IMAGE_WIDTH * 9) / 16)}");
+    expect(source).toContain("height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}");
     expect(source).toContain("sizes=");
   });
 
@@ -104,9 +125,14 @@ describe("the surfaces that must use the derivative do", () => {
   });
 
   it("the detail hero offers both renditions and lets the browser choose", async () => {
+    // Bloque 20 (B4, `04 §6`): la galería pasa de una sola imagen en estado a una pista con
+    // `scroll-snap` donde TODAS las diapositivas existen, así que el `srcSet` se calcula por
+    // diapositiva (`image`) en vez de una sola vez para la actual (`current`). El requisito
+    // —dos candidatas y que el navegador elija— es exactamente el mismo, y ahora se cumple
+    // para todas las imágenes del lugar, no sólo para la visible.
     const source = await src("components/PlaceGallery.tsx");
-    expect(source).toContain("srcSet={heroSrcSet}");
-    expect(source).toContain(`\${CARD_IMAGE_WIDTH}w, \${current.url} 1600w`);
+    expect(source).toContain("srcSet={srcSet}");
+    expect(source).toContain(`\${CARD_IMAGE_WIDTH}w, \${image.url} 1600w`);
   });
 
   it("the lightbox still loads the full-resolution original", async () => {

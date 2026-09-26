@@ -5,6 +5,12 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import {
+  dismissOnboarding,
+  enterHub as shellEnterHub,
+  openPlace as shellOpenPlace,
+} from "./lib/shell-navigation.mjs";
+
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4l-vite-"));
@@ -49,18 +55,32 @@ try {
   const record = (name, detail) =>
     results.push(`  ${name.padEnd(46)}: pass${detail ? ` (${detail})` : ""}`);
 
+  /*
+   * Navegación al shell vigente (B18/B19/B20). El camino «prefectura → Explorar desde X» y la
+   * lista `.place-list__item` que esta fase usaba dejaron de existir: `05 §2` puso los atajos de
+   * ciudad en la portada y `04 §12` llevó la búsqueda a su propia hoja. Lo que esta auditoría
+   * MIDE no cambia ni una coma; sólo cambia cómo se llega. Camino compartido por las seis
+   * auditorías de fotografía en `scripts/lib/shell-navigation.mjs`, para que la próxima vez que
+   * el shell se mueva haya un solo sitio que tocar.
+   */
+  let currentHub = null;
+
   async function enterHub(hub) {
-    const prefectureEntry = { Sapporo: "Hokkaido", Nagoya: "Aichi" }[hub] ?? hub;
-    await page.getByRole("button", { name: new RegExp(`^${prefectureEntry}`) }).first().click();
-    await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    currentHub = hub;
+    await shellEnterHub(page, hub);
   }
 
   async function openPlace(name) {
-    await page.locator(".place-list__item").filter({ hasText: name }).first().click();
+    await shellOpenPlace(page, name, currentHub);
   }
 
   async function assertAttribution({ label, credit, license, licenseHref, sourceHref, assetPath }) {
-    const creditNode = page.locator(".gallery__credit");
+    // Bloque 20 (B4, `04 §7`): la atribución sale del flujo de lectura —defecto D2— y vive en
+    // `CreditsSheet`, tras el botón `ⓘ` de la galería. El requisito de esta fase no cambia (los
+    // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
+    // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
+    await page.locator(".gallery__credits").click();
+    const creditNode = page.locator(".credits-sheet__list");
     await creditNode.waitFor();
     const image = page.locator(".gallery__image");
     assert.equal(await image.getAttribute("src"), assetPath, `${label}: local asset path`);
@@ -70,25 +90,26 @@ try {
     assert.equal(await licenseLink.getAttribute("href"), licenseHref, `${label}: license link`);
     const visibleText = await creditNode.innerText();
     if (credit) assert.ok(visibleText.includes(credit), `${label}: missing credit ${credit}`);
-    assert.match(visibleText, /Archivo de Commons: File:/);
+    assert.match(visibleText, /Archivo de Commons\s*File:/);
     assert.match(visibleText, /Archivo optimizado por Nihon:/);
     assert.doesNotMatch(visibleText, /T\u00edtulo de atribuci\u00f3n:/);
     const naturalOk = await image.evaluate((el) => el.complete && el.naturalWidth > 0);
     assert.equal(naturalOk, true, `${label}: local image must actually load`);
+    await page.keyboard.press("Escape");
     return visibleText;
   }
 
   async function assertFallback(hub, name, label) {
-    await page.goto(url);
+    await dismissOnboarding(page, url);
     await enterHub(hub);
     await openPlace(name);
     await page.getByText("Sin fotograf\u00eda disponible todav\u00eda").waitFor();
-    assert.equal(await page.locator(".gallery__credit").count(), 0, `${label}: no credit`);
+    assert.equal(await page.locator(".gallery__credits").count(), 0, `${label}: no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${label}: no image`);
   }
 
   // 1. Newly photographed A-grade place.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Kioto");
   await openPlace("Shisen-d\u014d");
   await assertAttribution({
@@ -102,7 +123,7 @@ try {
   record("1. new A-grade target renders", "JP-084 Shisen-do");
 
   // 2. Newly photographed B-grade place.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Tokio");
   await openPlace("Kabukicho");
   await assertAttribution({
@@ -117,7 +138,7 @@ try {
   record("2. new B-grade target renders", "JP-012 Kabukicho");
 
   // 3. Temporal-risk target: prior-edition imagery, never a 2027 claim.
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Tokio");
   await openPlace("Tokyo Marathon");
   const temporalText = await assertAttribution({
@@ -139,7 +160,7 @@ try {
   record("4. failed target keeps fallback", "JP-140");
 
   // 5. Historical photographed place still renders (Phase 4J regression).
-  await page.goto(url);
+  await dismissOnboarding(page, url);
   await enterHub("Tokio");
   await openPlace("Golden Gai");
   await assertAttribution({

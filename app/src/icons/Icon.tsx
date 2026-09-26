@@ -58,9 +58,44 @@ export type IconName =
   | "monorriel"
   | "imagen"
   | "confirmado"
-  | "punto";
+  | "punto"
+  /**
+   * Bloque 19 (B3, `03 §8`) — mapa `categoría → icono`. Un icono por cada una de las 26
+   * etiquetas de presentación (`lib/category-presentation.ts`), nunca el emoji del dataset.
+   */
+  | "categoria-templos"
+  | "categoria-nocturno"
+  | "categoria-miradores"
+  | "categoria-playa"
+  | "categoria-cielo-nocturno"
+  | "categoria-jardines"
+  | "categoria-naturaleza"
+  | "categoria-gastronomia"
+  | "categoria-eventos"
+  | "categoria-entretenimiento"
+  | "categoria-arte"
+  | "categoria-cultura-tradicional"
+  | "categoria-videojuegos"
+  | "categoria-ciudad"
+  | "categoria-arquitectura"
+  | "categoria-museos"
+  | "categoria-historia"
+  | "categoria-fauna"
+  | "categoria-anime"
+  | "categoria-fotografia"
+  | "categoria-experiencias-especiales"
+  | "categoria-compras"
+  | "categoria-tecnologia"
+  | "categoria-senderismo"
+  | "categoria-onsen"
+  | "categoria-extrano";
 
-export type IconSize = 16 | 20 | 24;
+/**
+ * `03 §8` fija 16/20/24 para el cromo/interfaz general. Bloque 19 (B3) añade 32 — el tamaño que
+ * `04 §9` (`PhotoPlaceholder`) y `04 §15` (`EmptyState`) fijan explícitamente para su icono de
+ * línea; no es un tamaño inventado, es el que esos dos componentes ya especifican por su cuenta.
+ */
+export type IconSize = 16 | 20 | 24 | 32;
 
 export interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
   name: IconName;
@@ -375,6 +410,239 @@ function paths(name: IconName) {
       );
     case "punto":
       return <circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none" />;
+
+    // ---------- Bloque 19 (B3) — categoría → icono (03 §8) ----------
+    case "categoria-templos":
+      return (
+        <>
+          <path d="M3 6.4c3-1.6 15-1.6 18 0" />
+          <line x1="4" y1="9.5" x2="20" y2="9.5" />
+          <line x1="7" y1="9.5" x2="7" y2="20" />
+          <line x1="17" y1="9.5" x2="17" y2="20" />
+        </>
+      );
+    case "categoria-nocturno":
+      return (
+        <>
+          <path d="M15.8 4.5a7.8 7.8 0 1 0 3.8 12A6.3 6.3 0 0 1 15.8 4.5Z" />
+          <path d="M19.2 4.3 19.8 5.7 21.2 6.3 19.8 6.9 19.2 8.3 18.6 6.9 17.2 6.3 18.6 5.7Z" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-miradores":
+      return (
+        <>
+          <circle cx="17.5" cy="6.5" r="1.6" />
+          <path d="M3.5 18.5 8.5 10l3 4 2.3-2.8 6.2 7.3Z" />
+        </>
+      );
+    case "categoria-playa":
+      return (
+        <>
+          <circle cx="17.5" cy="6.5" r="2.1" />
+          <path d="M3 13.5c1.6 1.6 3.4 1.6 5 0s3.4-1.6 5 0 3.4 1.6 5 0" />
+          <path d="M3 18c1.6 1.6 3.4 1.6 5 0s3.4-1.6 5 0 3.4 1.6 5 0" />
+        </>
+      );
+    case "categoria-cielo-nocturno":
+      return (
+        <>
+          <path d="M6 7.5 14 5.5 18 12 9 15Z" />
+          <circle cx="6" cy="7.5" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="14" cy="5.5" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="18" cy="12" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="9" cy="15" r="0.9" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-jardines":
+      return (
+        <>
+          <line x1="12" y1="21" x2="12" y2="14.5" />
+          <path d="M12 14.5c-3.3 0-5.8-2.3-5.8-5.3C6.2 5.9 8.7 3.8 12 3.8s5.8 2.1 5.8 5.4c0 3-2.5 5.3-5.8 5.3Z" />
+        </>
+      );
+    case "categoria-naturaleza":
+      return (
+        <>
+          <path d="M6 18c-1-6.2 3-11.5 12-12.5C18.5 14 13 18 6 18Z" />
+          <path d="M6 18c2-3.2 5-6.2 10-9" />
+        </>
+      );
+    case "categoria-gastronomia":
+      return (
+        <>
+          <path d="M4 14.5c0 4 3.6 6 8 6s8-2 8-6" />
+          <line x1="4" y1="14.5" x2="20" y2="14.5" />
+          <line x1="9" y1="10" x2="15.5" y2="3.5" />
+          <line x1="11" y1="10" x2="17.5" y2="3.5" />
+        </>
+      );
+    case "categoria-eventos":
+      return (
+        <>
+          <line x1="6" y1="3.5" x2="6" y2="20.5" />
+          <path d="M6 5c3-1.6 6 1.6 9 0v7c-3 1.6-6-1.6-9 0Z" />
+        </>
+      );
+    case "categoria-entretenimiento":
+      return (
+        <>
+          <circle cx="12" cy="12" r="7.5" />
+          <line x1="12" y1="4.5" x2="12" y2="19.5" />
+          <line x1="4.5" y1="12" x2="19.5" y2="12" />
+          <circle cx="12" cy="4.5" r="1" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="19.5" r="1" fill="currentColor" stroke="none" />
+          <circle cx="4.5" cy="12" r="1" fill="currentColor" stroke="none" />
+          <circle cx="19.5" cy="12" r="1" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-arte":
+      return (
+        <>
+          <path d="M12 4.5c-4.7 0-8.5 3.4-8.5 7.5 0 3.3 2.7 5 5.3 5 .9 0 1.5-.6 1.5-1.4 0-.4-.2-.7-.4-1-.2-.3-.4-.6-.4-1 0-.8.7-1.4 1.5-1.4h2.2c2.6 0 4.8-2 4.8-4.7 0-1.7-1.5-3-6-3" />
+          <circle cx="8" cy="10.2" r="0.8" fill="currentColor" stroke="none" />
+          <circle cx="10.5" cy="7.6" r="0.8" fill="currentColor" stroke="none" />
+          <circle cx="14" cy="8.2" r="0.8" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-cultura-tradicional":
+      return (
+        <>
+          <line x1="12" y1="20" x2="12" y2="11" />
+          <path d="M6 11a6 6 0 0 1 12 0" />
+          <line x1="8" y1="11" x2="12" y2="4" />
+          <line x1="16" y1="11" x2="12" y2="4" />
+        </>
+      );
+    case "categoria-videojuegos":
+      return (
+        <>
+          <rect x="3" y="8.5" width="18" height="9" rx="4" />
+          <line x1="7.5" y1="11" x2="7.5" y2="14" />
+          <line x1="6" y1="12.5" x2="9" y2="12.5" />
+          <circle cx="16" cy="11.5" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="18" cy="13.5" r="0.9" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-ciudad":
+      return (
+        <>
+          <rect x="3.5" y="10" width="5" height="10.5" />
+          <rect x="10" y="5.5" width="5" height="15" />
+          <rect x="16.5" y="12.5" width="4" height="8" />
+        </>
+      );
+    case "categoria-arquitectura":
+      return (
+        <>
+          <line x1="4" y1="20.5" x2="20" y2="20.5" />
+          <line x1="4" y1="5" x2="20" y2="5" />
+          <line x1="6" y1="7.5" x2="6" y2="20.5" />
+          <line x1="12" y1="7.5" x2="12" y2="20.5" />
+          <line x1="18" y1="7.5" x2="18" y2="20.5" />
+        </>
+      );
+    case "categoria-museos":
+      return (
+        <>
+          <path d="M3.5 9 12 4l8.5 5" />
+          <rect x="4.5" y="9" width="15" height="10.5" />
+          <line x1="4.5" y1="19.5" x2="19.5" y2="19.5" />
+          <line x1="8" y1="9" x2="8" y2="19.5" />
+          <line x1="16" y1="9" x2="16" y2="19.5" />
+        </>
+      );
+    case "categoria-historia":
+      return (
+        <>
+          <path d="M4 20h16" />
+          <path d="M6 20v-4h12v4" />
+          <path d="M3.5 16h17" />
+          <path d="M6.5 12.5h11" />
+          <path d="M5 16 12 9l7 7" />
+          <line x1="12" y1="9" x2="12" y2="5" />
+        </>
+      );
+    case "categoria-fauna":
+      return (
+        <>
+          <circle cx="12" cy="15" r="3.2" />
+          <circle cx="7" cy="9" r="1.4" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="6.5" r="1.4" fill="currentColor" stroke="none" />
+          <circle cx="17" cy="9" r="1.4" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-anime":
+      return (
+        <>
+          <path d="M4 5.5h16v10H10l-3.5 3.5V15.5H4Z" />
+          <path d="M9 10 9.9 8 11 10l-1.1.7Z" fill="currentColor" stroke="none" />
+          <path d="M14 10l.9-2 1.1 2-1 .7Z" fill="currentColor" stroke="none" />
+        </>
+      );
+    case "categoria-fotografia":
+      return (
+        <>
+          <rect x="3.5" y="7.5" width="17" height="12" rx="2" />
+          <path d="M8.5 7.5 10 5h4l1.5 2.5" />
+          <circle cx="12" cy="13.5" r="3.3" />
+        </>
+      );
+    case "categoria-experiencias-especiales":
+      return (
+        <>
+          <line x1="12" y1="3.5" x2="12" y2="8.5" />
+          <line x1="12" y1="15.5" x2="12" y2="20.5" />
+          <line x1="3.5" y1="12" x2="8.5" y2="12" />
+          <line x1="15.5" y1="12" x2="20.5" y2="12" />
+          <line x1="6" y1="6" x2="9.5" y2="9.5" />
+          <line x1="14.5" y1="14.5" x2="18" y2="18" />
+          <line x1="18" y1="6" x2="14.5" y2="9.5" />
+          <line x1="9.5" y1="14.5" x2="6" y2="18" />
+        </>
+      );
+    case "categoria-compras":
+      return (
+        <>
+          <path d="M6 8.5h12l-1 11.5H7Z" />
+          <path d="M9 8.5V6.8a3 3 0 0 1 6 0v1.7" />
+        </>
+      );
+    case "categoria-tecnologia":
+      return (
+        <>
+          <rect x="7" y="7" width="10" height="10" rx="1.5" />
+          <line x1="9.5" y1="3.5" x2="9.5" y2="7" />
+          <line x1="14.5" y1="3.5" x2="14.5" y2="7" />
+          <line x1="9.5" y1="17" x2="9.5" y2="20.5" />
+          <line x1="14.5" y1="17" x2="14.5" y2="20.5" />
+          <line x1="3.5" y1="9.5" x2="7" y2="9.5" />
+          <line x1="3.5" y1="14.5" x2="7" y2="14.5" />
+          <line x1="17" y1="9.5" x2="20.5" y2="9.5" />
+          <line x1="17" y1="14.5" x2="20.5" y2="14.5" />
+        </>
+      );
+    case "categoria-senderismo":
+      return (
+        <>
+          <path d="M5 20.5h13c1 0 1.5-.7 1.2-1.5-.4-1-1.5-1.3-2.7-1.8-1.4-.6-2-1.4-2-3V8.5L9 6v7.5c0 1.3-.5 2-1.6 2.6-1.4.8-2.4 2-2.4 4.4Z" />
+          <line x1="5" y1="17.5" x2="9" y2="17.5" />
+        </>
+      );
+    case "categoria-onsen":
+      return (
+        <>
+          <path d="M12 5c2.2 3.3 4.3 6.4 4.3 9.1a4.3 4.3 0 1 1-8.6 0C7.7 11.4 9.8 8.3 12 5Z" />
+          <path d="M8.5 3c.3.6.3 1.1 0 1.6M15.5 3c-.3.6-.3 1.1 0 1.6" />
+        </>
+      );
+    case "categoria-extrano":
+      return (
+        <>
+          <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+          <path d="M9.5 9.3a2.5 2.5 0 1 1 3.7 2.2c-.8.5-1.2 1-1.2 2" />
+          <circle cx="12" cy="16.8" r="0.9" fill="currentColor" stroke="none" />
+        </>
+      );
   }
 }
 

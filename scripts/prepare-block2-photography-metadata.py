@@ -82,7 +82,7 @@ def strip_html(value):
     return " ".join("".join(out).split())
 
 
-def normalise_licence(raw):
+def normalise_licence(raw, categories=None):
     text = strip_html(raw).strip()
     if text in LICENCE_URLS:
         return text
@@ -90,7 +90,27 @@ def normalise_licence(raw):
     for allowed in LICENCE_URLS:
         if lowered.startswith(allowed.lower()):
             return allowed
+    if lowered == "public domain":
+        public_domain_basis(categories)
+        return "Public Domain"
     raise SystemExit(f"licence {text!r} is outside the pipeline's allowlist")
+
+
+def public_domain_basis(categories=None):
+    """Return an explicit Commons public-domain basis supported by the registry contract."""
+    category_names = {item.strip() for item in strip_html(categories).split("|")}
+    if "PD-self" in category_names:
+        return "PD-self"
+    # Public-domain basis used by Commons for works whose copyright term expired under
+    # Japanese law. Keep this explicit (and limited to the exact Commons category) rather
+    # than treating generic PD-old labels as sufficient evidence.
+    if "PD-Japan" in category_names:
+        return "PD-Japan"
+    if category_names & {"PD US Military", "PD US Marines"}:
+        return "PD-USGov"
+    raise SystemExit(
+        "Commons reports Public domain but does not expose an explicitly supported basis"
+    )
 
 
 def strip_query(url):
@@ -121,7 +141,9 @@ def build(entry, acquisition_date):
     info = infos[0]
     meta = info.get("extmetadata", {})
 
-    licence = normalise_licence(meta.get("LicenseShortName", {}).get("value"))
+    categories = meta.get("Categories", {}).get("value", "")
+    licence = normalise_licence(meta.get("LicenseShortName", {}).get("value"), categories)
+    basis = public_domain_basis(categories) if licence == "Public Domain" else None
     credit = strip_html(meta.get("Artist", {}).get("value"))
     if licence != "CC0" and not credit:
         raise SystemExit(f"{entry['placeId']}: {licence} requires a credit and Commons reports none")
@@ -135,7 +157,6 @@ def build(entry, acquisition_date):
         "sourceUrl": f"https://commons.wikimedia.org/wiki/{urllib.parse.quote(entry['title'].replace(' ', '_'))}",
         "credit": credit,
         "license": licence,
-        "licenseUrl": LICENCE_URLS[licence],
         "acquisitionUrl": strip_query(info["url"]),
         "acquisitionDate": acquisition_date,
         "originalTitle": entry["title"],
@@ -143,6 +164,12 @@ def build(entry, acquisition_date):
         "originalHeight": height,
         "processing": planned_processing_for(width, height),
     }
+    if licence in LICENCE_URLS:
+        record["licenseUrl"] = LICENCE_URLS[licence]
+    elif licence == "Public Domain":
+        # Public-domain works have no canonical license URL. Keep an explicit Commons
+        # category basis without inventing a license destination.
+        record["licenseBasis"] = basis
     return record
 
 

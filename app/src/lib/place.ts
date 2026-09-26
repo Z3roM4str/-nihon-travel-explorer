@@ -62,7 +62,7 @@ export function formatPrice(place: Place): string {
  * repeated sentence are dropped and only the photographic guidance is kept. Nothing is added:
  * if the brief carries no extra guidance, the full text is shown instead.
  */
-export function imageBriefText(place: Place): string {
+export function imageBriefText(place: Pick<Place, "imageBrief" | "differentiator">): string {
   const brief = (place.imageBrief ?? "").trim().replace(/^imagen ideal:\s*/i, "");
   if (!brief) return "";
 

@@ -15,6 +15,13 @@ type Props = {
   both?: boolean;
   size?: Size;
   className?: string;
+  /**
+   * Bloque 19 (B3): sustituye el `aria-label`/`title` por defecto («Eres {nombre}»), pensado para
+   * el único uso que existía hasta ahora — la identidad de la persona activa en la cabecera. En
+   * `PlaceCard` (`04 §5.5`) el mismo componente marca a LA OTRA persona, donde «Eres» sería la
+   * frase equivocada; el llamador pasa el texto correcto en su lugar.
+   */
+  label?: string;
 };
 
 /**
@@ -24,7 +31,14 @@ type Props = {
  * vez y se representa aquí. Nunca sólo color — el círculo siempre lleva la inicial del nombre,
  * o el glifo de dos personas cuando representa a ambas.
  */
-export function PersonToken({ traveller, variant = "a", both = false, size = "sm", className = "" }: Props) {
+export function PersonToken({
+  traveller,
+  variant = "a",
+  both = false,
+  size = "sm",
+  className = "",
+  label: labelOverride,
+}: Props) {
   if (both) {
     return (
       <span
@@ -40,12 +54,13 @@ export function PersonToken({ traveller, variant = "a", both = false, size = "sm
   const label = traveller?.label?.trim();
   const initial = label ? label[0].toUpperCase() : variant === "b" ? "B" : "A";
   const colorClass = variant === "b" ? "person-token--b" : "person-token--a";
+  const accessibleText = labelOverride ?? (label ? `Eres ${label}` : "Persona activa");
 
   return (
     <span
       className={`person-token ${colorClass} person-token--${size} ${className}`.trim()}
-      aria-label={label ? `Eres ${label}` : "Persona activa"}
-      title={label ? `Eres ${label}` : "Persona activa"}
+      aria-label={accessibleText}
+      title={accessibleText}
     >
       {initial}
     </span>

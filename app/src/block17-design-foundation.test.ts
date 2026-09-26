@@ -1,4 +1,5 @@
 import { readFile, readdir } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -16,7 +17,7 @@ import { describe, expect, it } from "vitest";
 const SRC = new URL("./", import.meta.url);
 
 async function read(relative: string): Promise<string> {
-  return readFile(new URL(relative, SRC), "utf8");
+  return (await readFile(new URL(relative, SRC), "utf8")).replace(/\r\n/g, "\n");
 }
 
 /** Every `.ts`/`.tsx` file under `dir`, excluding tests and (by default) `data/`. */
@@ -25,7 +26,7 @@ async function sourceFiles(dir: URL, acc: string[] = [], skipDirs: readonly stri
     if (skipDirs.includes(entry.name)) continue;
     const child = new URL(entry.name + (entry.isDirectory() ? "/" : ""), dir);
     if (entry.isDirectory()) await sourceFiles(child, acc, skipDirs);
-    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) acc.push(child.pathname);
+    else if (/\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)) acc.push(fileURLToPath(child));
   }
   return acc;
 }
@@ -57,8 +58,14 @@ const EMOJI_PATTERN =
  *   the credits/info button glyph named explicitly in `04 §6`/`05 §3`/`05 §5`.
  * - `★` (U+2605, Misc Symbols): the "Imprescindible" badge glyph, `03 §1.4`/`04 §5.3`. It falls
  *   inside `EMOJI_PATTERN`'s range, so it is the one explicit allowance below.
+ * - `✎` (U+270E, Dingbats): Bloque 19 (B3) — one of the four evidence-grammar glyphs `03 §1.4`
+ *   fixes by shape, not colour (`◼ ◧ ◇ ✎`); `EvidenceMark` (`04 §2`) is its only renderer. The
+ *   other three (`◼◧◇`) already sit in the excluded Geometric Shapes block; this one alone falls
+ *   inside Dingbats, so it needs the same explicit allowance as `★` for the same reason: it is
+ *   normative typographic punctuation the frozen system names by codepoint, not a UI icon a
+ *   component invented.
  */
-const ALLOWED_GLYPHS = new Set(["★"]);
+const ALLOWED_GLYPHS = new Set(["★", "✎"]);
 
 describe("Bloque 17 (B1) — cero emoji en iconografía de interfaz (gate G4)", () => {
   it("no component or lib source renders a pictographic character as a UI icon", async () => {
@@ -85,8 +92,11 @@ describe("Bloque 17 (B1) — cero emoji en iconografía de interfaz (gate G4)", 
       "components/SelectionPanel.tsx",
     ]) {
       const code = await read(file);
+      // Lo prohibido es el GLIFO DEL DATASET: `splitCategory(...).icon`. El icono de línea
+      // propio (`categoryPresentation(...).icon`, B19 `03 §8`) es justamente su sustituto
+      // aprobado, y `PlaceCard` ya lo usa; B20 lo lleva también a la ficha (`05 §5` pt. 4).
       expect(code, file).not.toContain("category.icon");
-      expect(code, file).not.toContain("categoryIcon");
+      expect(code, file).not.toMatch(/splitCategory\([^)]*\)\.icon/);
     }
   });
 });
@@ -192,18 +202,25 @@ describe("Bloque 17 (B1) — letra de grado retirada de la ficha (Art. 00)", () 
     expect(source).not.toContain("tag__grade-letter");
   });
 
-  it("PlaceDetail no longer exposes the raw grade through `title` either (compliance fix)", async () => {
-    // 00 "Patrones explícitamente prohibidos": "Mostrar la letra de grado … Sólo en «Fuentes»
-    // plegado" — that section doesn't exist yet (B4), so the letter must not surface ANYWHERE
-    // in the UI meanwhile, `title`/`aria-label` included. A first B17 pass moved the letter
-    // from visible text into `title={... grado original: ${place.grade}}`, which still exposed
-    // it (an independent audit caught this). `place.grade` may still drive the CSS class
-    // (`tag--grade-${place.grade}`, a class name, never rendered as text or read aloud) and the
-    // internal `interestLevelForGrade`/`markerIcon` lookups — just never a `title`/`aria-label`.
+  it("PlaceDetail muestra la letra de grado SÓLO dentro de «Fuentes» (00, 08 prohibición 11)", async () => {
+    // **Actualizada por el Bloque 20 (B4).** La regla de `00` siempre fue «Sólo en «Fuentes»
+    // plegado»; lo que cambiaba era que esa sección no existía todavía, así que hasta B4 la
+    // letra no podía aparecer en ninguna parte. Ahora existe (`05 §5` pt. 14, DDR-04) y la
+    // letra vuelve, dentro de ella y en ningún otro sitio. Lo que la prueba vigila es eso:
+    // exactamente un `place.grade` renderizado, dentro del `<details>` de «Fuentes», y ni un
+    // `title`/`aria-label` que lo interpole en el resto de la ficha.
     const source = await read("components/PlaceDetail.tsx");
-    expect(source).not.toContain("grado original");
     expect(source).not.toMatch(/title=\{[^}]*place\.grade/);
-    expect(source).toContain("title={interest.description}");
+    expect(source).not.toMatch(/aria-label=\{[^}]*place\.grade/);
+
+    const sourcesStart = source.indexOf('<details className="place-sources">');
+    expect(sourcesStart).toBeGreaterThan(-1);
+    const sourcesEnd = source.indexOf("</details>", sourcesStart);
+    const inSources = source.slice(sourcesStart, sourcesEnd);
+    expect(inSources).toContain("{place.grade}");
+
+    const outsideSources = source.slice(0, sourcesStart) + source.slice(sourcesEnd);
+    expect(outsideSources).not.toContain("{place.grade}");
   });
 
   it("no title/aria-label anywhere in components/ or lib/ interpolates the raw grade", async () => {
@@ -250,14 +267,18 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     expect(block).toMatch(/height:\s*max\(100%,\s*var\(--tap-min\)\)/);
   });
 
-  it("ChipToggle (.filter-chip) carries the same hit-area technique on its own selector", async () => {
-    // `.filter-chip` is a <label>, used across 6+ call sites (category/block/reservation/
-    // level/grade/radio filters) — baked into its own rule instead of a className on every
-    // call site, so every instance and future one is covered without touching each usage.
+  it("ChipToggle carries the same hit-area technique via its own className", async () => {
+    // Bloque 19 (B3): `.filter-chip` (a checkbox-carrying <label>) was replaced by
+    // `ChipToggle` — a <button>, used across the six FilterSheet groups (`04 §3`/`§13`). It
+    // reuses `.tap-target-min` directly as a className (`ChipToggle.tsx`) instead of baking the
+    // technique into its own rule, which is an equally valid application of the same pattern —
+    // see `.tap-target-min`'s own module comment in App.css for why a `::after` pseudo-element
+    // is a real hit-area expansion in every current render engine.
+    const component = await read("components/ChipToggle.tsx");
+    expect(component).toContain('className={`chip-toggle tap-target-min');
     const css = await read("App.css");
-    const rule = css.slice(css.indexOf(".filter-chip {"), css.indexOf(".filter-chip {") + 700);
-    expect(rule).toContain("position: relative");
-    const afterRule = css.slice(css.indexOf(".filter-chip::after {"));
+    expect(css).toContain(".tap-target-min {");
+    const afterRule = css.slice(css.indexOf(".tap-target-min::after {"));
     const afterBlock = afterRule.slice(0, afterRule.indexOf("}"));
     expect(afterBlock).toContain("position: absolute");
     expect(afterBlock).toMatch(/width:\s*max\(100%,\s*var\(--tap-min\)\)/);
@@ -275,7 +296,9 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     // Nosotros, que no necesita el mecanismo de expansión de esta prueba.
     const targets: Array<[string, string]> = [
       ["components/TripBackup.tsx", 'className="trip-backup__close tap-target-min"'],
-      ["components/FilterPanel.tsx", 'className="search-field__clear tap-target-min"'],
+      // Bloque 19 (B3): el campo de búsqueda libre vivía dentro de `FilterPanel.tsx`; ahora es
+      // `SearchSheet.tsx` (`04 §12`) — el botón de borrar se mudó con él, mismo className.
+      ["components/SearchSheet.tsx", 'className="search-field__clear tap-target-min"'],
     ];
     for (const [file, needle] of targets) {
       const code = await read(file);

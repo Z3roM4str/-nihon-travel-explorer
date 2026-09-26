@@ -21,6 +21,7 @@ import {
   type TravellersDocumentV1,
 } from "./lib/travellers";
 import { divergenceEntries, type DivergenceEntry } from "./lib/interest-divergence";
+import { deviceStorage } from "./lib/device-storage";
 
 /**
  * Block 5 — the React integration over `lib/travellers.ts`.
@@ -38,10 +39,11 @@ import { divergenceEntries, type DivergenceEntry } from "./lib/interest-divergen
  * pure module owns every transition, this owns the effect that writes it back.
  */
 
-const browserStorage: Storage = {
-  getItem: (key) => localStorage.getItem(key),
-  setItem: (key, value) => localStorage.setItem(key, value),
-};
+/* DDR-03: el adaptador compartido de `lib/device-storage.ts`. Misma forma estructural que el
+   `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
+   registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
+   y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
+const browserStorage: Storage = deviceStorage;
 
 /**
  * Opaque traveller id, on the same terms as every other id this app mints: it encodes no slot, no

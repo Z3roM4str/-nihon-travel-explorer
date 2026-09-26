@@ -23,7 +23,7 @@ import { describe, expect, it } from "vitest";
  */
 
 async function read(path: string): Promise<string> {
-  return readFile(new URL(`./${path}`, import.meta.url), "utf8");
+  return (await readFile(new URL(`./${path}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 
 /** Raíz del repositorio git, dos niveles por encima de este fichero (`app/src/…`). */
@@ -47,7 +47,26 @@ function addedLines(relativePath: string): string[] | null {
   } catch {
     return null;
   }
-  return diff.split("\n").filter((line) => line.startsWith("+") && !line.startsWith("+++"));
+  const added = diff.split("\n").filter((line) => line.startsWith("+") && !line.startsWith("+++"));
+  /*
+   * Un `git diff` atribuye como «añadida» cualquier línea cuyo contexto se haya desplazado, no
+   * sólo las nuevas de verdad: insertar una sección en medio del fichero hace que líneas
+   * heredadas e intactas reaparezcan en el lado `+`. Eso convertía este gate en un detector de
+   * ruido —`.save-toast`'s `#ff9e9e`, de v1.1.0, saltó así al añadir `PersistenceNotice`— en vez
+   * de un detector de valores nuevos. Se descuenta lo que YA ESTABA en la versión base: un color
+   * que ya existía no es un color que este bloque introduzca.
+   */
+  let base: string;
+  try {
+    base = execFileSync("git", ["show", `${PRE_B18_SHA}:${relativePath}`], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+    });
+  } catch {
+    return added;
+  }
+  const baseLines = new Set(base.split("\n").map((line) => line.trim()));
+  return added.filter((line) => !baseLines.has(line.slice(1).trim()));
 }
 
 describe("Bloque 18 — cuatro destinos permanentes (DD-001, 02 §D2)", () => {
@@ -113,9 +132,17 @@ describe("Bloque 18 — cromo consolidado (05 §4, gate 11 §1)", () => {
   });
 
   it("la búsqueda vive en la barra única, no duplicada dentro de la hoja de filtros", async () => {
+    // Bloque 19 (B3, `04 §12`): la barra única ya no filtra un campo en el sitio — abre
+    // `SearchSheet` como hoja casi a pantalla completa. `showSearch={false}` (el mecanismo B18
+    // usaba para apagar un campo que `FilterPanel` sabía renderizar) desaparece porque
+    // `FilterPanel` ya no sabe renderizar ningún campo de búsqueda en absoluto: la garantía de
+    // "no duplicada" es ahora estructural, no un prop que hay que recordar poner en `false`.
     const tsx = await read("App.tsx");
     expect(tsx).toContain("explorer-bar__search");
-    expect(tsx).toMatch(/<FilterPanel[\s\S]*?showSearch=\{false\}/);
+    expect(tsx).toMatch(/<SearchSheet[\s\S]{0,600}\/>/);
+    const filterPanel = await read("components/FilterPanel.tsx");
+    expect(filterPanel).not.toContain("search-field");
+    expect(filterPanel).not.toContain('type="search"');
   });
 });
 
@@ -163,7 +190,12 @@ describe("Bloque 18 — ficha a pantalla completa en teléfono (Art. 8, gate 11 
     // Corrección final (punto 5): `--panel-width` (420px, compartido con `Sheet`) era el error
     // normativo — `02 §D5`/`05 §5` fijan la ficha en 480px, distinto de `Sheet` (`04 §8`). Cada
     // uno tiene ahora su propio token.
-    expect(mdBlock).toMatch(/width:\s*min\(var\(--place-detail-panel-width\),\s*100%\)/);
+    //
+    // Corrección de B19 (DD-016, `09 §DD-016`): el segundo término pasa de `100%` a `50%`. La
+    // ficha ES el raíl derecho desde `md`, y `02 §D5` acota el raíl a la mitad del ancho («el
+    // mapa nunca pasa de la mitad del ancho»); con `100%` la ficha podía comerse la región de
+    // lista entera en los anchos bajos de `md`. El token de 480px no cambia.
+    expect(mdBlock).toMatch(/width:\s*min\(var\(--place-detail-panel-width\),\s*50%\)/);
   });
 
   it("el z-index de la ficha supera al de TabBar/NavRail, para cubrirlos de verdad", async () => {
@@ -271,9 +303,10 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
     const source = await read("App.tsx");
     // Corrección final (punto 7): `selectPlace` gana un tercer parámetro, `originLabel`, para
     // el back label de Viaje — la firma del origen (y la regla de que sólo "explorar" navega)
-    // no cambia.
+    // no cambia. DDR-B24-3 (resuelta): `exploreReturnSurface` gana un segundo valor,
+    // "home-collection", para las colecciones de la portada.
     expect(source).toMatch(
-      /const selectPlace = useCallback\(\s*\(id: string, origin: Destination = "explorar", originLabel: string \| null = null\) => \{/
+      /const selectPlace = useCallback\(\s*\(\s*id: string,\s*origin: Destination = "explorar",\s*originLabel: string \| null = null,\s*exploreReturnSurface: "global-search" \| "home-collection" \| null = null\s*\) => \{/
     );
     expect(source).toMatch(/if \(origin === "explorar"\) \{[\s\S]*?setDestination\("explorar"\);/);
   });
@@ -332,7 +365,7 @@ describe("Bloque 18 — destinos como estado, no como historial (02 §D3, gate 1
 
   it("cerrar la ficha limpia también ficheOrigin, no sólo el historial", async () => {
     const source = await read("App.tsx");
-    expect(source).toMatch(/const closeDetail = useCallback\(\(\) => \{\s*setHistory\(\[\]\);\s*setFicheOrigin\(null\);/);
+    expect(source).toMatch(/const closeDetail = useCallback\(\(returnToGlobalSearch = true\) => \{\s*setHistory\(\[\]\);\s*setFicheOrigin\(null\);/);
   });
 });
 
@@ -363,9 +396,12 @@ describe("Bloque 18 — sin @media (max-width) nuevo (Art. 8, gate G4)", () => {
 
   it("toda regla nueva de shell usa min-width, nunca max-width", async () => {
     const css = await read("App.css");
+    // Bloque 19 (B3): la sección "Search + filters" de App.css quedó migrada por completo a
+    // `styles/discovery.css` (08 §"Cómo tratar el CSS actual") y su comentario de cabecera
+    // cambió en consecuencia — el límite de esta rebanada se actualiza con él.
     const shellSection = css.slice(
       css.indexOf("/* ---------- Shell (Bloque 18"),
-      css.indexOf("/* ---------- Search + filters ---------- */")
+      css.indexOf("/* ---------- Search + filters, PlaceCard, PlaceList")
     );
     expect(shellSection).not.toMatch(/@media\s*\(\s*max-width/);
     expect(shellSection).toMatch(/@media \(min-width: 840px\)/);
@@ -465,8 +501,10 @@ describe("Bloque 18 — ScreenHeader: el borde inferior sólo aparece al hacer s
   it("App.tsx deriva headerScrolled del scroll real de la superficie activa, no de una superficie fija", async () => {
     const source = await read("App.tsx");
     expect(source).toContain("const [headerScrolled, setHeaderScrolled] = useState(false);");
+    // B24 (P0-1, `05 §2` pt. 2 + `04 §11`): la portada de Explorar gana su propio contenedor de
+    // scroll (`.app__body--home`), y el borde de la cabecera lo escucha igual que a los demás.
     expect(source).toContain(
-      'const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .destination-panel--scroll";'
+      'const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll";'
     );
     expect(source).toMatch(
       /className=\{`app__header \$\{headerScrolled \? "app__header--scrolled" : ""\}`\}/
@@ -529,6 +567,14 @@ describe("Bloque 18 — Art. 10 sólo tokens, auditoría diff-scoped (03 §10, g
       // aplicar la misma cifra ya aceptada a la animación nueva de `Sheet` no es un valor de
       // duración distinto, es la misma convención.
       "0.001ms",
+      // Bloque 19 (B3): `.map-empty` es legado de v1.1.0, sin tocar por B18 ni por B19 — pero la
+      // gran eliminación de B19 en otro punto del fichero (la sección "Search + filters" migrada
+      // a `styles/discovery.css`) desplaza lo suficiente el resto del archivo como para que el
+      // diff línea a línea de `git diff` deje de alinear `.map-empty` con su versión anterior a
+      // B18 y la marque como "añadida" — un artefacto de la herramienta de diff, no un valor
+      // nuevo. Las dos cifras de esa regla, documentadas aquí igual que el resto de legado.
+      "50%",
+      "1.25rem",
     ];
     const offenders = lines.filter((line) => {
       const match = line.match(propertyPattern);
@@ -558,16 +604,25 @@ describe("Bloque 18 — corrección final: back label por origen y «Ver en el m
     expect(source).toContain("onViewOnMap,");
   });
 
-  it("el back label usa originLabel cuando no hay previousPlace, y sigue en blanco si no se pasa ninguno", async () => {
+  it("el back label usa previousPlace, luego originLabel, y si no hay ninguno cierra la ficha", async () => {
+    // **Actualizada por el Bloque 20 (B4).** El requisito de B18 —el chevron nombra la
+    // superficie real a la que vuelve, y `originLabel` decide cuál cuando no hay salto «cerca
+    // de aquí»— sigue vigente palabra por palabra. Lo que cambió es el cromo que lo contenía:
+    // `05 §5` retira el `×` flotante (defecto D4) y con él `.place-detail__bar`, así que la
+    // prioridad ya no se expresa como un ternario de JSX dentro de la barra sino como un único
+    // botón flotante cuyo destino se resuelve antes de renderizar. El tercer caso deja de ser
+    // un `<span />` de relleno: el mismo botón cierra la ficha, conservando el nombre accesible
+    // exacto de v1.1.0.
     const source = await read("components/PlaceDetail.tsx");
-    const barStart = source.indexOf('<div className="place-detail__bar">');
-    const barEnd = source.indexOf("</div>", source.indexOf('aria-label={`Cerrar la ficha'));
-    const bar = source.slice(barStart, barEnd);
-    expect(bar).toContain("previousPlace ? (");
-    expect(bar).toContain(") : originLabel ? (");
-    expect(bar).toContain("onClick={onClose}");
-    expect(bar).toContain("{originLabel}");
-    expect(bar).toContain(") : (\n          <span />");
+    expect(source).toContain("const backTarget = previousPlace");
+    expect(source).toContain("{ label: previousPlace.name, action: onBack }");
+    expect(source).toContain("{ label: originLabel, action: onClose }");
+    expect(source).toContain("{ label: null, action: onClose }");
+    expect(source).toContain("aria-label={backAccessibleName}");
+    expect(source).toContain("`Cerrar la ficha de ${place.name}`");
+    // D4: ni barra ni `×` flotante.
+    expect(source).not.toContain('className="place-detail__bar"');
+    expect(source).not.toMatch(/<Icon name="cerrar"/);
   });
 
   it("«Ver en el mapa» es texto real, nunca icon-only, y sólo se renderiza si onViewOnMap existe", async () => {
@@ -633,7 +688,13 @@ describe("Bloque 18 — corrección final #2: «Ver en el mapa» centra el mapa 
     expect(source).toContain('selectedPlace={explorarMapPlace}');
     // panelOffset (el hueco reservado para el panel de escritorio) sigue atado sólo a que haya
     // una ficha de verdad — un foco de mapa sin ficha no debe reservar hueco de panel.
-    expect(source).toContain('panelOffset={isDesktop && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}');
+    //
+    // Corrección de B19 (DD-016, `09 §DD-016`): la consulta pasa de `md` a `lg`
+    // (`hasMapRail`/`MAP_RAIL_QUERY`). Desde `md` la ficha y el mapa ya no se solapan — son
+    // superficies hermanas dentro del cuerpo —, y el mapa sólo vive permanentemente en el raíl
+    // desde `lg` (`02 §D5`), que es el único ancho donde la ficha llega a cubrirlo. La condición
+    // «sólo con una ficha de verdad abierta» es exactamente la misma.
+    expect(source).toContain('panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}');
   });
 
   it("viewOnMap NO llama a selectPlace — cierra history/ficheOrigin directamente, como closeDetail", async () => {
@@ -722,7 +783,7 @@ describe("Bloque 18 — corrección final: puente con el historial del navegador
   it("goBack/closeDetail mueven el historial real del navegador, no sólo el estado de React", async () => {
     const source = await read("App.tsx");
     expect(source).toMatch(/const goBack = useCallback\(\(\) => \{[\s\S]{0,600}window\.history\.back\(\);/);
-    expect(source).toMatch(/const closeDetail = useCallback\(\(\) => \{[\s\S]{0,400}window\.history\.go\(-navDepthRef\.current\);/);
+    expect(source).toMatch(/const closeDetail = useCallback\(\(returnToGlobalSearch = true\) => \{[\s\S]{0,500}window\.history\.go\(-navDepthRef\.current\);/);
   });
 
   it("no cambia la URL pública: pushState/replaceState nunca reciben un segundo argumento de URL con contenido", async () => {

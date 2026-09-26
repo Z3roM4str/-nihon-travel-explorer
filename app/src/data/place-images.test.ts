@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { PlaceImage } from "../types";
+import photographyMetadata from "./photography-metadata.json";
 import { placeImages, resolvePlaceImages } from "./place-images";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +15,35 @@ const pilot = JSON.parse(readFileSync(pilotManifestPath, "utf-8")) as {
   places: { placeId: string; hub: string }[];
 };
 const pilotPlaceIds = pilot.places.map((p) => p.placeId);
+const b64PlanPath = path.resolve(here, "../../../data/visual/block22-b6-4-acquisition-plan.json");
+const b64Plan = JSON.parse(readFileSync(b64PlanPath, "utf-8")) as {
+  batches: { entries: { placeId: string }[] }[];
+};
+const b64AcquiredPlaceIds = b64Plan.batches.flatMap((batch) => batch.entries).map((entry) => entry.placeId);
+const b65PlanPath = path.resolve(here, "../../../data/visual/block22-b6-5-acquisition-plan.json");
+const b65Plan = JSON.parse(readFileSync(b65PlanPath, "utf-8")) as {
+  batches: { entries: { placeId: string }[] }[];
+};
+const b65AcquiredPlaceIds = b65Plan.batches.flatMap((batch) => batch.entries).map((entry) => entry.placeId);
+const b66PlanPath = path.resolve(here, "../../../data/visual/block22-b6-6-acquisition-plan.json");
+const b66Plan = JSON.parse(readFileSync(b66PlanPath, "utf-8")) as {
+  entries: { placeId: string; slug: string }[];
+  unresolved: { placeId: string }[];
+};
+const b66BaselinePath = path.resolve(here, "../../../data/visual/block22-b6-6-baseline.json");
+const b66Baseline = JSON.parse(readFileSync(b66BaselinePath, "utf-8")) as {
+  gradeRows: { placeId: string; needsIdentity: boolean }[];
+};
+const b66AcquiredPlaceIds = b66Plan.entries.map((entry) => entry.placeId);
+// B6.7 ("depth batch 1/2", commits 8601a9d/4afbf50) is not an acquisition tranche like B6.4-B6.6:
+// it deliberately gives a *second* photograph to Grade-S places and to Grade-A places that are
+// Extremo/Alto tourism or a real Hidden Gem (the exact criterion scripts/select-block22-b6-7-targets.py
+// derives). Its plan lists placeId per entry, one entry per added second photograph.
+const b67PlanPath = path.resolve(here, "../../../data/visual/block22-b6-7-acquisition-plan.json");
+const b67Plan = JSON.parse(readFileSync(b67PlanPath, "utf-8")) as {
+  entries: { placeId: string }[];
+};
+const b67AcquiredPlaceIds = b67Plan.entries.map((entry) => entry.placeId);
 
 describe("photography pilot manifest (Phase 4A)", () => {
   it("contains exactly 24 places", () => {
@@ -65,7 +95,8 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
         expect(image.source, placeId).toBe("Wikimedia Commons");
         expect(image.sourceUrl, placeId).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
         expect(image.license, placeId).toBeTruthy();
-        expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
+        if (image.license === "Public Domain") expect(image.licenseUrl, placeId).toBeUndefined();
+        else expect(image.licenseUrl, placeId).toMatch(/^https:\/\/creativecommons\.org\//);
         expect(image.sourceFileTitle, placeId).toMatch(/^File:/);
         expect(
           ["webp-reencoded", "resized-and-webp-reencoded"],
@@ -90,18 +121,20 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     ]);
   });
 
-  it("derives exactly 7 WebP-only records and 156 resized+WebP records from the committed metadata", () => {
+  it("preserves the seven WebP-only records and accounts for prepared B6.4/B6.5/B6.6 assets", () => {
     const processing = Object.values(placeImages).flat().map((image) => image.processing);
     expect(processing.filter((value) => value === "webp-reencoded")).toHaveLength(7);
-    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(156);
+    const registeredResizedRecords = (photographyMetadata as { images: Array<{ processing: string }> }).images
+      .filter((record) => record.processing === "resized-and-webp-reencoded").length;
+    expect(processing.filter((value) => value === "resized-and-webp-reencoded")).toHaveLength(registeredResizedRecords);
     for (const placeId of ["JP-077", "JP-155", "JP-046", "JP-167", "JP-061", "JP-043", "JP-190"]) {
       expect(placeImages[placeId]?.[0]?.processing, placeId).toBe("webp-reencoded");
     }
   });
 
   it("carries the Phase 4D batch as the first photograph of each newly covered place", () => {
-    // Phase 4D acquired 12 of its 16 S-grade targets; the other four failed closed on
-    // subject-matter grounds and must still resolve to no photograph at all.
+    // Phase 4D acquired 12 of its 16 S-grade targets. Its four fail-closed decisions remain
+    // historical facts; Block 22 B6.1 later found and reviewed different source files for them.
     //
     // Asserted as "first", not "only": the registry is append-only, so a later block adding a
     // second facet (Block 2 did, to JP-205) must leave this batch's own photograph in place and
@@ -115,8 +148,15 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
     }
     expect(placeImages["JP-205"]?.[0]?.url).toContain("odori-park-snow-festival");
-    for (const deferred of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
-      expect(placeImages[deferred]).toBeUndefined();
+  });
+
+  it("carries the four Block 22 B6.1 identity photographs without rewriting Phase 4D", () => {
+    expect(placeImages["JP-033"]?.[0]?.url).toContain("teamlab-borderless-azabudai-light-sculpture");
+    expect(placeImages["JP-126"]?.[0]?.url).toContain("super-nintendo-world-fifth-anniversary-entrance");
+    expect(placeImages["JP-203"]?.[0]?.url).toContain("tokyo-disneyland-main-entrance-2025");
+    expect(placeImages["JP-204"]?.[0]?.url).toContain("tokyo-disneysea-mount-prometheus-fortress");
+    for (const placeId of ["JP-033", "JP-126", "JP-203", "JP-204"]) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
     }
   });
 
@@ -143,9 +183,15 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-182", "JP-118", "JP-049", "JP-058", "JP-181", "JP-015",
     ];
     for (const placeId of acquired) {
+      // JP-016 later became a B6.7 depth target (a documented second photograph); the tranche
+      // invariant that still applies to it is "has an identity photo", not "has exactly one".
+      if (b67AcquiredPlaceIds.includes(placeId)) {
+        expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    for (const deferred of ["JP-121", "JP-156", "JP-095", "JP-079", "JP-202"]) {
+    for (const deferred of ["JP-121", "JP-095", "JP-079", "JP-202"]) {
       expect(placeImages[deferred], deferred).toBeUndefined();
     }
   });
@@ -158,11 +204,68 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-081", "JP-198", "JP-105", "JP-039", "JP-212", "JP-011", "JP-047",
     ];
     for (const placeId of acquired) {
+      // JP-013 and JP-047 later became B6.7 depth targets; see note above.
+      if (b67AcquiredPlaceIds.includes(placeId)) {
+        expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    for (const deferred of ["JP-120", "JP-211", "JP-041", "JP-168"]) {
+    // Phase 4J's four fail-closed decisions remain historical facts; Block 22 B6.2 later found
+    // and reviewed a different source file for JP-211. The other three are still uncovered.
+    for (const deferred of ["JP-120", "JP-041", "JP-168"]) {
       expect(placeImages[deferred], deferred).toBeUndefined();
     }
+  });
+
+  it("carries the Block 22 B6.2 grade-A identity photographs and leaves its unresolved targets empty", () => {
+    const acquired: Array<[string, string]> = [
+      ["JP-023", "yanaka-ginza-shopping-street-gate"],
+      ["JP-024", "nezu-shrine-romon-gate"],
+      ["JP-027", "kanda-myojin-main-hall-courtyard"],
+      ["JP-029", "imperial-palace-east-gardens-honmaru-lawn"],
+      ["JP-031", "hama-rikyu-pond-bridge-shiodome"],
+      ["JP-035", "national-art-center-tokyo-glass-facade"],
+      ["JP-036", "21-21-design-sight-folded-roof"],
+      ["JP-045", "inokashira-pond-benzaiten-hall"],
+      ["JP-048", "shimokitazawa-shopping-street-banners"],
+      ["JP-069", "bishamondo-main-hall-yamashina"],
+      ["JP-074", "gio-ji-moss-garden-thatched-hall"],
+      ["JP-075", "otagi-nenbutsu-ji-rakan-autumn"],
+      ["JP-076", "adashino-nenbutsu-ji-stone-statues"],
+      ["JP-082", "daitoku-ji-koto-in-approach-path"],
+      ["JP-083", "genko-an-round-and-square-windows"],
+      ["JP-088", "jingo-ji-precinct-autumn-maples"],
+      ["JP-133", "naramachi-shiryokan-migawari-zaru"],
+      ["JP-136", "koko-en-pines-himeji-castle"],
+      ["JP-137", "engyo-ji-mitsunodo-halls"],
+      ["JP-147", "enryaku-ji-konponchudo-autumn"],
+      ["JP-170", "katsuren-castle-terraced-walls"],
+      ["JP-175", "nakijin-castle-serpentine-walls"],
+      ["JP-191", "yabiji-reef-aerial-view"],
+      ["JP-193", "yonehara-beach-sand-and-mountains"],
+      ["JP-201", "hatenohama-sandbar-aerial"],
+      ["JP-211", "animejapan-tokyo-big-sight-entrance"],
+      ["JP-156", "naha-sakaemachi-ichiba-covered-arcade"],
+    ];
+    for (const [placeId, slug] of acquired) {
+      expect(placeImages[placeId], placeId).toHaveLength(1);
+      expect(placeImages[placeId]?.[0]?.url, placeId).toContain(slug);
+    }
+    for (const unresolved of ["JP-050", "JP-079", "JP-095", "JP-120", "JP-121", "JP-168", "JP-195", "JP-202"]) {
+      expect(placeImages[unresolved], unresolved).toBeUndefined();
+    }
+    const sakaemachi = placeImages["JP-156"]?.[0];
+    expect(sakaemachi).toMatchObject({
+      source: "Wikimedia Commons",
+      credit: "Abasaa",
+      license: "Public Domain",
+    });
+    expect(sakaemachi?.licenseUrl).toBeUndefined();
+    const sourceRecord = (photographyMetadata as { images: Array<Record<string, unknown>> }).images.find(
+      (record) => record.placeId === "JP-156",
+    );
+    expect(sourceRecord).toMatchObject({ license: "Public Domain", licenseBasis: "PD-self" });
   });
 
   it("carries the Phase 4L tranche as 31 acquired targets and one explicit fallback", () => {
@@ -174,9 +277,25 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
       "JP-186", "JP-052", "JP-017",
     ];
     for (const placeId of acquired) {
+      // JP-007 and JP-017 later became B6.7 depth targets; see the Phase 4H note above.
+      if (b67AcquiredPlaceIds.includes(placeId)) {
+        expect(placeImages[placeId]?.length, placeId).toBeGreaterThanOrEqual(1);
+        continue;
+      }
       expect(placeImages[placeId], placeId).toHaveLength(1);
     }
-    expect(placeImages["JP-140"]).toBeUndefined();
+    // JP-140 is acquired by B6.3; Phase 4L's historical tranche stays unchanged.
+  });
+
+  it("carries each acquired B6.6 C/D target as its single identity and keeps unresolved targets empty", () => {
+    for (const entry of b66Plan.entries) {
+      expect(placeImages[entry.placeId], entry.placeId).toHaveLength(1);
+      expect(placeImages[entry.placeId]?.[0]?.url, entry.placeId).toContain(entry.slug);
+    }
+    for (const item of b66Plan.unresolved) {
+      expect(placeImages[item.placeId], item.placeId).toBeUndefined();
+    }
+    expect(b66AcquiredPlaceIds.every((placeId) => b66Baseline.gradeRows.some((row) => row.placeId === placeId && row.needsIdentity))).toBe(true);
   });
 
   /**
@@ -184,21 +303,31 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
    * replaced rather than deleted.
    *
    * It held for five acquisition phases because no phase ever added a second photograph — not
-   * because one was forbidden. Block 2 adds a second facet to six grade S places whose single
-   * image showed an exterior or an aerial and not the experience. What still needs protecting
-   * is that a gallery is a *decision*, never a side effect: every extra image must be an
-   * intended one, on a place that was chosen for it.
+   * because one was forbidden. Block 2 added a second facet to six grade S places; B6.4 adds
+   * experience/complementary photographs only to Grade-S targets in their acquisition plans. What still
+   * needs protecting is that a gallery is a *decision*, never a side effect.
    */
-  it("gives a second photograph only to the places Block 2 deliberately chose", () => {
+  it("gives additional photographs only to the places selected by Block 2, B6.4, B6.5, and B6.7", () => {
     const galleries = Object.entries(placeImages)
       .filter(([, images]) => images.length > 1)
       .map(([placeId]) => placeId)
       .sort();
-    expect(galleries).toEqual(["JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205"]);
+    const deliberatelySelected = new Set([
+      "JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205",
+      ...b64AcquiredPlaceIds,
+      ...b65AcquiredPlaceIds,
+      ...b67AcquiredPlaceIds,
+    ]);
+    expect(galleries).toEqual([...deliberatelySelected].sort());
   });
 
-  it("keeps every other place at exactly one photograph", () => {
-    const depth = new Set(["JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205"]);
+  it("keeps every place outside those selections at exactly one photograph", () => {
+    const depth = new Set([
+      "JP-021", "JP-089", "JP-125", "JP-129", "JP-152", "JP-205",
+      ...b64AcquiredPlaceIds,
+      ...b65AcquiredPlaceIds,
+      ...b67AcquiredPlaceIds,
+    ]);
     for (const [placeId, images] of Object.entries(placeImages)) {
       if (depth.has(placeId)) continue;
       expect({ placeId, count: images.length }).toEqual({ placeId, count: 1 });
@@ -213,15 +342,17 @@ describe("resolvePlaceImages — registry semantics (Phase 4A)", () => {
     }
   });
 
-  it("covers 157 places", () => {
-    expect(Object.keys(placeImages)).toHaveLength(157);
+  it("covers every place represented by the synchronized photography registry", () => {
+    const registryPlaceIds = new Set((photographyMetadata as { images: Array<{ placeId: string }> }).images.map((record) => record.placeId));
+    expect(Object.keys(placeImages).sort()).toEqual([...registryPlaceIds].sort());
   });
 
   it("keeps every registered asset local and every source link on Commons", () => {
     for (const image of Object.values(placeImages).flat()) {
       expect(image.url.startsWith("/images/places/")).toBe(true);
       expect(image.sourceUrl?.startsWith("https://commons.wikimedia.org/")).toBe(true);
-      expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
+      if (image.license === "Public Domain") expect(image.licenseUrl).toBeUndefined();
+      else expect(image.licenseUrl?.startsWith("https://creativecommons.org/")).toBe(true);
     }
   });
 

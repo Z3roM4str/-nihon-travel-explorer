@@ -18,6 +18,9 @@ no Wikimedia Commons API call, no image decode. Re-verifying an image's real lic
 against Commons is the acquisition script's job (scripts/acquire-photography.py),
 which runs separately and only when photographs are (re)sourced.
 """
+import base64
+import binascii
+import hashlib
 import json
 import re
 import sys
@@ -33,21 +36,28 @@ DEFAULT_ASSET_ROOT = REPO_ROOT / "app/public"
 APPROVED_ASSET_PREFIX = "images/places/"
 ASSET_PATH_PATTERN = re.compile(r"^images/places/(JP-\d{3})/[a-z0-9][a-z0-9-]*\.webp$")
 
-# Block 2: the card-sized rendition every registered photograph must also ship.
+# B6: the compact and card-sized renditions every registered photograph must also ship.
 # Mirrors `derivative_path_for()` in scripts/build-photography-derivatives.py and
 # `cardImageUrl()` in app/src/data/place-images.ts. This validator stays Pillow-free, so it
 # checks that each derivative exists, is non-empty and is smaller than its original — never
 # that its pixels are right. `build-photography-derivatives.py --check` does that.
-DERIVATIVE_WIDTH = 800
-DERIVATIVE_SUFFIX = f"-{DERIVATIVE_WIDTH}w"
+DERIVATIVE_WIDTHS = (400, 800)
+CITY_IMAGE_BUDGET_BYTES = 3_500_000
+SUPPORTED_ROLES = {"identity", "experience", "detail", "context", "seasonal"}
+LQIP_PREFIX = "data:image/webp;base64,"
+LQIP_MIN_BYTES = 350
+LQIP_MAX_BYTES = 750
 
 
-def derivative_path_for(asset_path):
+def derivative_path_for(asset_path, width=800):
     if not asset_path.endswith(".webp"):
         return None
-    return asset_path[: -len(".webp")] + DERIVATIVE_SUFFIX + ".webp"
+    if width not in DERIVATIVE_WIDTHS:
+        return None
+    return asset_path[: -len(".webp")] + f"-{width}w.webp"
 SUPPORTED_LICENSES = {
     "CC0",
+    "Public Domain",
     "CC BY 2.0",
     "CC BY 2.5",
     "CC BY 3.0",
@@ -107,6 +117,21 @@ def is_usable_alt(value):
     if lowered.startswith("imagen de ") or lowered.startswith("image of "):
         return False
     return True
+
+
+def valid_lqip(value):
+    if not isinstance(value, str) or not value.startswith(LQIP_PREFIX):
+        return False
+    encoded = value[len(LQIP_PREFIX):]
+    try:
+        decoded = base64.b64decode(encoded, validate=True)
+    except (binascii.Error, ValueError):
+        return False
+    return (
+        LQIP_MIN_BYTES <= len(value.encode("ascii")) <= LQIP_MAX_BYTES
+        and decoded.startswith(b"RIFF")
+        and decoded[8:12] == b"WEBP"
+    )
 
 
 def validate_pilot(pilot, place_ids):
@@ -187,10 +212,10 @@ def validate_metadata(metadata, place_ids, asset_root):
                 errors.append(f"{label}: assetPath place folder {path_place_id!r} does not match placeId {place_id!r}")
             if not asset_path.lower().endswith(".webp"):
                 errors.append(f"{label}: unsupported file format for {asset_path!r} (only .webp is accepted)")
-            if asset_path.endswith(DERIVATIVE_SUFFIX + ".webp"):
+            if any(asset_path.endswith(f"-{width}w.webp") for width in DERIVATIVE_WIDTHS):
                 errors.append(
-                    f"{label}: assetPath {asset_path!r} uses the reserved {DERIVATIVE_SUFFIX!r} "
-                    "derivative suffix; register the full-size original instead"
+                    f"{label}: assetPath {asset_path!r} uses a reserved derivative suffix "
+                    "(-400w/-800w); register the full-size original instead"
                 )
 
         if isinstance(asset_path, str):
@@ -201,23 +226,24 @@ def validate_metadata(metadata, place_ids, asset_root):
             if not original_file.is_file():
                 errors.append(f"{label}: referenced asset is missing on disk: {asset_path}")
             else:
-                derivative_rel = derivative_path_for(asset_path)
-                derivative_file = asset_root / derivative_rel
-                if not derivative_file.is_file():
-                    errors.append(
-                        f"{label}: card derivative is missing on disk: {derivative_rel} "
-                        "(run scripts/build-photography-derivatives.py)"
-                    )
-                else:
-                    seen_asset_paths.add(derivative_rel)
-                    derivative_size = derivative_file.stat().st_size
-                    if derivative_size == 0:
-                        errors.append(f"{label}: card derivative is empty: {derivative_rel}")
-                    elif derivative_size > original_file.stat().st_size:
+                for width in DERIVATIVE_WIDTHS:
+                    derivative_rel = derivative_path_for(asset_path, width)
+                    derivative_file = asset_root / derivative_rel
+                    if not derivative_file.is_file():
                         errors.append(
-                            f"{label}: card derivative {derivative_rel} is larger than its original; "
-                            "it is meant to be the lighter, card-sized rendition"
+                            f"{label}: {width}w derivative is missing on disk: {derivative_rel} "
+                            "(run scripts/build-photography-derivatives.py)"
                         )
+                    else:
+                        seen_asset_paths.add(derivative_rel)
+                        derivative_size = derivative_file.stat().st_size
+                        if derivative_size == 0:
+                            errors.append(f"{label}: {width}w derivative is empty: {derivative_rel}")
+                        elif derivative_size > original_file.stat().st_size:
+                            errors.append(
+                                f"{label}: {width}w derivative {derivative_rel} is larger than its original; "
+                                "it is meant to be a lighter rendition"
+                            )
 
         source = record.get("source")
         if not isinstance(source, str) or not source.strip():
@@ -235,31 +261,57 @@ def validate_metadata(metadata, place_ids, asset_root):
                 errors.append(f"{label}: license {license_!r} requires a non-empty credit")
 
         if license_ in SUPPORTED_LICENSES:
-            license_url = record.get("licenseUrl")
-            if not valid_url(license_url):
-                errors.append(
-                    f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license"
-                )
+            if license_ == "Public Domain":
+                if record.get("licenseBasis") not in {"PD-self", "PD-USGov", "PD-Japan"}:
+                    errors.append(
+                        f"{label}: Public Domain requires a verified licenseBasis 'PD-self', 'PD-USGov', or 'PD-Japan'"
+                    )
+                if record.get("source") != "Wikimedia Commons" or urlparse(
+                    record.get("sourceUrl") or ""
+                ).netloc != "commons.wikimedia.org":
+                    errors.append(f"{label}: Public Domain provenance must point to its Wikimedia Commons file page")
+                original_title = record.get("originalTitle")
+                if not isinstance(original_title, str) or not original_title.strip():
+                    errors.append(f"{label}: Public Domain provenance requires originalTitle")
+                if record.get("licenseUrl"):
+                    errors.append(f"{label}: Public Domain must not carry an invented licenseUrl")
             else:
-                # A well-formed URL is not enough: the visible attribution links this URL as the
-                # license, so a by-sa URL under a `CC BY` record would publish a legally wrong
-                # claim while passing every other check.
-                expected_path = expected_license_path(license_)
-                parsed = urlparse(license_url)
-                if expected_path is None:
+                license_url = record.get("licenseUrl")
+                if not valid_url(license_url):
                     errors.append(
-                        f"{label}: no canonical license URL is defined for license {license_!r}"
+                        f"{label}: licenseUrl must be a well-formed http(s) URL for every supported license"
                     )
-                elif parsed.netloc != "creativecommons.org" or not parsed.path.rstrip("/").startswith(
-                    expected_path
-                ):
-                    errors.append(
-                        f"{label}: licenseUrl {license_url!r} does not match declared license "
-                        f"{license_!r}; expected creativecommons.org{expected_path}"
-                    )
+                else:
+                    # A well-formed URL is not enough: the visible attribution links this URL as the
+                    # license, so a by-sa URL under a `CC BY` record would publish a legally wrong
+                    # claim while passing every other check.
+                    expected_path = expected_license_path(license_)
+                    parsed = urlparse(license_url)
+                    if expected_path is None:
+                        errors.append(
+                            f"{label}: no canonical license URL is defined for license {license_!r}"
+                        )
+                    elif parsed.netloc != "creativecommons.org" or not parsed.path.rstrip("/").startswith(
+                        expected_path
+                    ):
+                        errors.append(
+                            f"{label}: licenseUrl {license_url!r} does not match declared license "
+                            f"{license_!r}; expected creativecommons.org{expected_path}"
+                        )
+        elif record.get("licenseBasis"):
+            errors.append(f"{label}: licenseBasis is only valid for the Public Domain license")
 
         if not is_usable_alt(record.get("alt")):
             errors.append(f"{label}: alt text is missing, too short, or looks like a placeholder")
+
+        role = record.get("role")
+        if role not in SUPPORTED_ROLES:
+            errors.append(f"{label}: role must be one of {sorted(SUPPORTED_ROLES)!r}, got {role!r}")
+
+        if not valid_lqip(record.get("lqip")):
+            errors.append(
+                f"{label}: lqip must be a valid inline WebP data URL of approximately 400–700 bytes"
+            )
 
         if not valid_url(record.get("acquisitionUrl")):
             errors.append(f"{label}: acquisitionUrl must be a well-formed http(s) URL")
@@ -338,7 +390,43 @@ def validate_metadata(metadata, place_ids, asset_root):
                 "(the same photograph may never silently represent unrelated places)"
             )
 
+    for place_id, records in images_by_place.items():
+        roles = [record.get("role") for record in records]
+        if roles.count("identity") != 1:
+            errors.append(
+                f"place {place_id!r}: expected exactly one identity image, found {roles.count('identity')}"
+            )
+        duplicate_roles = sorted({role for role in roles if role and roles.count(role) > 1})
+        if duplicate_roles:
+            errors.append(f"place {place_id!r}: duplicate photography role(s) {duplicate_roles}")
+
     return errors, images_by_place
+
+
+def validate_unique_asset_bytes(metadata, asset_root):
+    """B6.2: no two registered files (originals or renditions) may share their bytes.
+
+    The title/URL check above catches the same Commons source declared twice; this catches
+    the same photograph committed under two names or reused for two places, which a renamed
+    or re-downloaded copy would otherwise slip past. Pure hashlib, still Pillow-free.
+    """
+    errors = []
+    seen = {}
+    for record in metadata.get("images", []) if isinstance(metadata, dict) else []:
+        asset_path = record.get("assetPath") if isinstance(record, dict) else None
+        if not isinstance(asset_path, str) or not asset_path.endswith(".webp"):
+            continue
+        paths = [asset_path] + [derivative_path_for(asset_path, width) for width in DERIVATIVE_WIDTHS]
+        for rel in paths:
+            file = asset_root / rel
+            if not file.is_file():
+                continue
+            digest = hashlib.sha256(file.read_bytes()).hexdigest()
+            if digest in seen:
+                errors.append(f"{rel}: byte-identical to {seen[digest]} (duplicate photograph)")
+            else:
+                seen[digest] = rel
+    return errors
 
 
 def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_path=DEFAULT_APP_METADATA_PATH):
@@ -362,6 +450,24 @@ def validate(data_dir=Path("data"), asset_root=DEFAULT_ASSET_ROOT, app_metadata_
     for place_id in pilot_place_ids:
         if place_id and not images_by_place.get(place_id):
             errors.append(f"pilot place {place_id!r} has no photograph in photography-metadata.json")
+
+    errors.extend(validate_unique_asset_bytes(metadata, asset_root))
+
+    places_by_id = {place.get("id"): place for place in places if isinstance(place, dict)}
+    for hub in sorted({place.get("hub") for place in places_by_id.values()}):
+        total = 0
+        for place_id, records in images_by_place.items():
+            place = places_by_id.get(place_id)
+            if not place or place.get("hub") != hub or not records:
+                continue
+            derivative = asset_root / derivative_path_for(records[0]["assetPath"], 800)
+            if derivative.is_file():
+                total += derivative.stat().st_size
+        if total > CITY_IMAGE_BUDGET_BYTES:
+            errors.append(
+                f"hub {hub!r}: first-image 800w list payload is {total} bytes, "
+                f"above the {CITY_IMAGE_BUDGET_BYTES}-byte contract"
+            )
 
     if app_metadata_path is not None:
         try:

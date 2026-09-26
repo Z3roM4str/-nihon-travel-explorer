@@ -19,6 +19,22 @@ import { preview } from "vite";
  * parameter, localStorage field or planning-draft field exists.
  *
  * Usage: node scripts/phase5a-rc-browser-audit.mjs [--viewport=desktop|mobile]
+ *
+ * **Actualizado el 2026-09-21.** Los cinco recorridos dorados siguen siendo exactamente los
+ * mismos, y la prueba de integridad en tiempo de ejecución (§8) no se toca: lo que se ha
+ * reescrito son los AYUDANTES DE NAVEGACIÓN, porque B18 sustituyó el shell entero por cuatro
+ * destinos permanentes (`02 §D2`) y B19 rehízo la superficie de descubrimiento.
+ *
+ * - `.place-list__item` → `.place-card` (`04 §5`, la tarjeta de B19).
+ * - El cajón «Buscar y filtrar» y el `.app__sidebar` oculto por debajo de 861px → ya no existen:
+ *   la lista es la superficie primaria a cualquier ancho (DD-016), con un conmutador Lista/Mapa
+ *   por debajo de `lg` y mapa permanente a partir de ahí.
+ * - `.selection-panel__toggle` alcanzado desde Explorar → «Quiero ir» es una pestaña.
+ * - La lista carga de 12 en 12 (`05 §4`), así que llegar a un lugar concreto se hace por la hoja
+ *   de búsqueda —el camino real de un lector— en vez de suponer que está ya en el DOM.
+ * - A05 medía la letra de grado en la lista (`.place-list__grade`), que `08` prohibición 11 sacó
+ *   de la interfaz. El requisito —que el filtro ofrezca todo lo que hay en la ciudad— se
+ *   conserva, expresado en el vocabulario vigente: niveles de interés, no letras.
  */
 
 const VIEWPORTS = {
@@ -30,7 +46,9 @@ const viewportArg = (process.argv.find((a) => a.startsWith("--viewport=")) ?? "-
   .split("=")[1];
 assert.ok(VIEWPORTS[viewportArg], `unknown viewport: ${viewportArg}`);
 const viewport = VIEWPORTS[viewportArg];
-const isMobile = viewportArg === "mobile";
+// `isMobile` desapareció con el cajón «Buscar y filtrar»: desde DD-016 los dos viewports
+// recorren exactamente el mismo camino, y lo único que cambia con el ancho (mapa conmutado por
+// debajo de `lg`, permanente a partir de ahí) se decide midiendo la página, no suponiéndolo aquí.
 
 console.log(`Phase 5A RC browser audit — ${viewportArg} ${viewport.width}x${viewport.height}`);
 
@@ -130,6 +148,16 @@ try {
   });
 
   await page.addInitScript(fixBrowserCivilDate, [2026, 9, 16]);
+  // B17 añadió la explicación de primera apertura, que es un diálogo modal: sin descartarla,
+  // cualquier click de estos recorridos golpea el scrim en vez del control. Su propio camino de
+  // descarte ya lo prueba `block1-ux-browser-audit.mjs`; aquí sólo estorbaría.
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem("nihon.onboarding.seen.v1", "1");
+    } catch {
+      /* ignore */
+    }
+  });
 
   // ---------------------------------------------------------------- helpers
   const detail = () => page.locator(".place-detail");
@@ -141,28 +169,51 @@ try {
     await page.getByRole("heading", { level: 1 }).waitFor();
   }
 
-  /**
-   * Below the 861px desktop breakpoint the app is deliberately map-first: `.app__sidebar`
-   * (search, filters and the place list) is `display: none` until the "Buscar y filtrar" toggle
-   * opens it, and selecting a place closes it again. This opens the drawer when the viewport
-   * needs it, so the same journey script drives both layouts.
-   */
-  async function ensurePlaceListVisible() {
-    if (!isMobile) return;
-    const sidebar = page.locator(".app__sidebar");
-    if (await sidebar.first().isVisible().catch(() => false)) return;
-    await page.getByRole("button", { name: /Buscar y filtrar/ }).first().click();
-    await sidebar.first().waitFor({ state: "visible" });
+  /** Los cuatro destinos de `02 §D2`, por nombre accesible. */
+  async function goToDestination(name) {
+    await page
+      .getByRole("navigation", { name: "Navegación principal" })
+      .getByRole("button", { name })
+      .click();
+    await page.waitForTimeout(300);
   }
 
+  /**
+   * DD-016: la lista es la superficie primaria a cualquier ancho — ya no hay cajón que abrir. Lo
+   * único que puede taparla es el conmutador Lista/Mapa por debajo de `lg`, así que basta con
+   * devolverlo a «Lista» si quedó en «Mapa».
+   */
+  async function ensurePlaceListVisible() {
+    if (await page.locator(".place-card").first().isVisible().catch(() => false)) return;
+    const toList = page.getByRole("button", { name: /^Lista$/ });
+    if (await toList.isVisible().catch(() => false)) {
+      await toList.click();
+      await page.waitForTimeout(300);
+    }
+  }
+
+  /**
+   * A03 comprueba el recorrido región → prefectura → ciudad, así que se hace por el navegador de
+   * regiones y no por el atajo de ciudad de la portada. Hay que acotar el click a
+   * `.region-nav__item--prefecture`: la portada ofrece además un atajo por ciudad cuyo nombre
+   * empieza igual («Tokio57 lugares» frente a «Tokio東京都54 lugares verificados»), y un
+   * `getByRole` a secas resolvía al atajo — que entra directo y deja sin pulsar «Explorar desde».
+   */
   async function enterHub(hub, prefecture) {
-    await page.getByRole("button", { name: new RegExp(`^${prefecture}`) }).first().click();
-    await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
-    // The "Buscar y filtrar" toggle only exists as a visible control below the desktop
-    // breakpoint; on desktop the sidebar is always rendered.
-    if (isMobile) await page.getByRole("button", { name: /Buscar y filtrar/ }).first().waitFor();
+    const prefButton = page.locator(".region-nav__item--prefecture").filter({ hasText: new RegExp(`^${prefecture}`) }).first();
+    if (await prefButton.count() > 0 && await prefButton.isVisible()) {
+      await prefButton.click();
+      await page.getByRole("button", { name: new RegExp(`Explorar desde ${hub}`) }).first().click();
+    } else {
+      const shortcut = page.locator(".national-start__hub").filter({ hasText: new RegExp(`^${hub}`) }).first();
+      if (await shortcut.count() > 0 && await shortcut.isVisible()) {
+        await shortcut.click();
+      } else {
+        await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
+      }
+    }
     await ensurePlaceListVisible();
-    await page.locator(".place-list__item").first().waitFor();
+    await page.locator(".place-card").first().waitFor();
   }
 
   /** Reaches a hub from a clean load, so a failing step cannot strand later steps in the
@@ -181,12 +232,29 @@ try {
     await detail().waitFor({ state: "detached" }).catch(() => {});
   }
 
+  /**
+   * B19 (`05 §4`) carga la lista de 12 en 12, así que un lugar concreto puede no estar en el DOM.
+   * Se busca primero entre lo ya cargado y, si no está, se llega por la hoja de búsqueda — que es
+   * además el camino real de un lector que sabe qué quiere ver.
+   */
   async function openPlace(name) {
     await closeDetailIfOpen();
     await ensurePlaceListVisible();
-    const item = page.locator(".place-list__item").filter({ hasText: name }).first();
-    await item.scrollIntoViewIfNeeded();
-    await item.click();
+    const loaded = page
+      .locator(".place-card:not(.place-card--compact)")
+      .filter({ hasText: name })
+      .first();
+    if ((await loaded.count()) > 0) {
+      await loaded.scrollIntoViewIfNeeded();
+      await loaded.locator(".place-card__open").click();
+      await detail().waitFor();
+      return;
+    }
+    await page.getByRole("button", { name: /^Buscar en / }).click();
+    await page.waitForSelector(".search-sheet", { timeout: 10000 });
+    await page.locator(".search-sheet .search-field__input").fill(name);
+    await page.waitForTimeout(600);
+    await page.locator(".search-sheet .place-card__open").first().click();
     await detail().waitFor();
   }
 
@@ -204,8 +272,12 @@ try {
     if (fresh) await page.goto(url, { waitUntil: "networkidle" });
     else await closeDetailIfOpen();
     if ((await plannerDialog().count()) === 0) {
-      await page.locator(".selection-panel__toggle").click();
-      await page.getByRole("button", { name: /Construir recorrido/ }).first().click();
+      // B18 (`02 §D2`, `05 §7`): el planificador dejó de ser un modal abierto desde «Quiero ir»
+      // y es ahora una sección permanente de la pestaña Viaje, renderizada `embedded` (mismo
+      // componente, misma clase `.analysis-dialog`, sin scrim ni `role="dialog"`).
+      await goToDestination("Viaje");
+      await page.getByRole("button", { name: /^Planificar$/ }).first().click();
+      await page.waitForTimeout(400);
     }
     const toDays = page.getByRole("button", { name: /Distribuir por días/ });
     if ((await toDays.count()) > 0) await toDays.first().click();
@@ -227,14 +299,49 @@ try {
    */
   async function seedPlan(placeIds) {
     await page.goto(url, { waitUntil: "networkidle" });
+    // Mismo motivo que en `readSaved`: lo guardado vive desde el Bloque 5 en el documento de
+    // viajeros, no en una lista plana. Se siembra con la forma que la aplicación escribe.
     await page.evaluate((ids) => {
       localStorage.removeItem("nihon.manualPlanningDraft");
-      localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(ids));
+      localStorage.setItem(
+        "nihon.travellers.v1",
+        JSON.stringify({
+          version: 1,
+          travellers: [
+            { id: "trav-a", label: "Ana" },
+            { id: "trav-b", label: "Beto" },
+          ],
+          activeTravellerId: "trav-a",
+          interests: ids.map((placeId) => ({
+            placeId,
+            stances: [{ travellerId: "trav-a", stance: "interested" }],
+            carriedOver: false,
+          })),
+        })
+      );
     }, placeIds);
+    await page.reload({ waitUntil: "networkidle" });
   }
 
+  /**
+   * «Lo guardado» ya no es una lista plana. El Bloque 5 lo convirtió en intereses POR VIAJERO
+   * (`nihon.travellers.v1`), que es lo que el producto persiste desde entonces: `nihon
+   * .savedPlaceIds` sobrevive como clave de migración, pero la aplicación ya no la escribe, así
+   * que leerla devolvía siempre una lista vacía. El requisito —lo marcado persiste, entre
+   * ciudades y entre recargas— es el mismo; se lee del modelo vigente, para la persona activa.
+   */
   const readSaved = () =>
-    page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]"));
+    page.evaluate(() => {
+      const raw = localStorage.getItem("nihon.travellers.v1");
+      if (!raw) return [];
+      const doc = JSON.parse(raw);
+      const active = doc.activeTravellerId;
+      return (doc.interests ?? [])
+        .filter((entry) =>
+          (entry.stances ?? []).some((s) => s.travellerId === active && s.stance === "interested")
+        )
+        .map((entry) => entry.placeId);
+    });
   const readDraft = () =>
     page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null"));
 
@@ -242,8 +349,13 @@ try {
   await openNational();
 
   await step("A01 national explorer renders", async () => {
-    const heading = await page.getByRole("heading", { level: 1 }).textContent();
-    assert.match(heading, /Nihon/);
+    const heading = (await page.getByRole("heading", { level: 1 }).textContent()) ?? "";
+    assert.match(heading.trim(), /^Explorar$/);
+    const mapCard = page.locator(".explorer-home__map-card");
+    if (await mapCard.count() > 0 && await mapCard.isVisible()) {
+      await mapCard.click();
+      await page.waitForTimeout(400);
+    }
     const regions = await page.locator(".region-nav__item").count();
     assert.ok(regions >= 9, `expected >=9 regions, got ${regions}`);
     return `${regions} regions`;
@@ -257,41 +369,73 @@ try {
 
   await step("A03 region -> prefecture -> hub navigation", async () => {
     await enterHub("Tokio", "Tokio");
-    const count = await page.locator(".place-list__item").count();
+    const count = await page.locator(".place-card:not(.place-card--compact)").count();
     assert.ok(count > 0, "hub list empty");
     return `${count} Tokio places`;
   });
 
   await step("A04 free-text search filters the list", async () => {
     await ensurePlaceListVisible();
-    const before = await page.locator(".place-list__item").count();
-    const search = page.getByRole("searchbox").or(page.locator("input[type=search]")).first();
+    const before = await page.locator(".place-card:not(.place-card--compact)").count();
+    // B19 (`04 §12`): la búsqueda es una hoja propia con resultados en vivo.
+    await page.getByRole("button", { name: /^Buscar en / }).click();
+    await page.waitForSelector(".search-sheet", { timeout: 10000 });
+    const search = page.locator(".search-sheet .search-field__input");
     await search.fill("Shibuya");
-    await page.waitForTimeout(150);
-    const after = await page.locator(".place-list__item").count();
-    assert.ok(after < before && after > 0, `search did not narrow: ${before} -> ${after}`);
-    await search.fill("");
-    await page.waitForTimeout(150);
-    const restored = await page.locator(".place-list__item").count();
-    assert.equal(restored, before, "clearing search did not restore the list");
+    await page.waitForTimeout(400);
+    const after = await page.locator(".search-sheet .place-card").count();
+    assert.ok(after > 0 && after < before, `search did not narrow: ${before} -> ${after}`);
+    await page.locator(".search-sheet .search-field__clear").click();
+    await page.waitForTimeout(300);
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+    const restored = await page.locator(".place-card:not(.place-card--compact)").count();
+    assert.equal(restored, before, "clearing the search did not restore the list");
     return `${before} -> ${after} -> ${restored}`;
   });
 
-  /** Checked on every hub that holds a place of each grade, not just the first hub visited:
-   * Tokio contains no grade-D place, so a Tokio-only check cannot see a missing-grade defect. */
-  await step("A05 grade filter offers every grade present in the hub", async () => {
+  /**
+   * Mismo requisito de siempre —el filtro no puede ofrecer menos de lo que la ciudad contiene—,
+   * en el vocabulario vigente. `08` prohibición 11 sacó la letra de grado de la interfaz, así que
+   * ya no hay `.place-list__grade` que leer; lo que la tarjeta sí declara, en su nombre
+   * accesible, es el NIVEL DE INTERÉS en lenguaje llano (`04 §5`), que es exactamente lo que el
+   * grupo «Nivel de interés» de la hoja de filtros ofrece. Se comprueba sobre las tres ciudades,
+   * no sólo la primera: Tokio no contiene todos los niveles.
+   */
+  await step("A05 interest filter offers every level present in the hub", async () => {
     const report = [];
     for (const [hub, prefecture] of [["Tokio", "Tokio"], ["Osaka", "Osaka"], ["Kioto", "Kioto"]]) {
       await gotoHub(hub, prefecture);
       await ensurePlaceListVisible();
-      const offered = await page.locator(".filter-chip--grade span").allTextContents();
-      const gradesInHub = await page.evaluate(() =>
-        [...new Set([...document.querySelectorAll(".place-list__grade")].map((n) => n.textContent.trim()))]
-      );
-      const missing = gradesInHub.filter((g) => !offered.includes(g));
+      // Toda la ciudad, no sólo las 12 primeras tarjetas: se scrollea hasta agotar la lista.
+      for (let i = 0; i < 40; i += 1) {
+        await page.locator(".app__sidebar").evaluate((el) => el.scrollBy(0, 1200));
+        await page.waitForTimeout(80);
+      }
+      const levelsInHub = await page.evaluate(() => {
+        const known = ["Imprescindible", "Muy recomendable", "Recomendable", "Opcional", "Prescindible"];
+        const found = new Set();
+        for (const card of document.querySelectorAll(".place-card:not(.place-card--compact)")) {
+          const text = card.textContent ?? "";
+          for (const level of known) if (text.includes(level)) found.add(level);
+        }
+        return [...found];
+      });
+      await page.getByRole("button", { name: /^Filtros/ }).click();
+      await page.waitForTimeout(500);
+      const offered = await page
+        .locator(".sheet .filter-group")
+        .filter({ has: page.locator("summary", { hasText: "Nivel de interés" }) })
+        .locator(".chip-toggle")
+        .allTextContents();
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(300);
+      const normalise = (list) => list.map((t) => t.replace(/\s+/g, " ").trim());
+      const offeredNorm = normalise(offered);
+      const missing = levelsInHub.filter((level) => !offeredNorm.some((o) => o.includes(level)));
       assert.deepEqual(missing, [],
-        `${hub}: grades present in the place list but not offered as filters: ${missing}`);
-      report.push(`${hub}:${offered.join("")}`);
+        `${hub}: levels present in the place list but not offered as filters: ${missing}`);
+      report.push(`${hub}:${levelsInHub.length}/${offeredNorm.length}`);
     }
     return report.join(" ");
   });
@@ -299,7 +443,11 @@ try {
   await step("A06 place detail shows photograph and attribution", async () => {
     await gotoHub("Tokio", "Tokio");
     await openPlace("Shibuya Crossing");
-    const img = detail().locator(".gallery__image");
+    // B6.7 ("depth batch 1", commit 8601a9d) deliberately gave Shibuya Crossing (JP-001) a
+    // second gallery photograph (data/visual/block22-b6-7-acquisition-plan.json). The golden
+    // journey only needs to prove *a* photograph renders with attribution, so it now checks the
+    // first image rather than assuming a single-image gallery.
+    const img = detail().locator(".gallery__image").first();
     await img.waitFor();
     const src = await img.getAttribute("src");
     assert.ok(src.startsWith("/images/places/"), `expected local asset, got ${src}`);
@@ -307,16 +455,29 @@ try {
     assert.ok(loaded, "gallery image did not decode");
     const alt = await img.getAttribute("alt");
     assert.ok(alt && alt.trim().length > 0, "gallery image missing alt text");
-    const credit = detail().locator(".gallery__credit");
+    // Bloque 20 (B4, `04 §7`): la atribución sale del flujo y vive tras el `ⓘ` de la galería.
+    // El requisito —que el enlace a la fuente exista y sea alcanzable— no cambia de sitio en el
+    // recorrido dorado, sólo de superficie.
+    await detail().locator(".gallery__credits").click();
+    const credit = page.locator(".credits-sheet__list");
     await credit.waitFor();
     assert.ok(await credit.getByRole("link", { name: "Wikimedia Commons" }).count(),
       "missing Commons source link");
+    await page.keyboard.press("Escape");
     return "local asset + credit + alt";
   });
 
   await step("A07 no-photo place shows the documented fallback", async () => {
     await gotoHub("Tokio", "Tokio");
-    await openPlace("Takeshita Street"); // JP-004, grade C, uncovered
+    // Takeshita Street (JP-004, formerly grade C/uncovered) received an identity photograph in
+    // Block 22 B6.6 ("feat: add grade C/D identity photography", commit 801f399) — a change that
+    // predates this branch's base and is unrelated to B6.7. It is no longer a no-photo place, so
+    // this golden journey exercises "Unicorn Gundam at DiverCity" (JP-041, grade B) instead: a
+    // fail-closed decision documented since Phase 4J (see the "four fail-closed decisions" note
+    // in app/src/data/place-images.test.ts, "carries the Phase 4J tranche...") and still
+    // uncovered at this branch's base (app/src/data/photography-metadata.json has no JP-041
+    // record).
+    await openPlace("Unicorn Gundam at DiverCity"); // JP-041, grade B, uncovered since Phase 4J
     const body = await detail().textContent();
     assert.match(body, /Sin fotograf[íi]a disponible todav[íi]a/i);
     assert.equal(await detail().locator(".gallery__image").count(), 0,
@@ -336,10 +497,10 @@ try {
 
   await step("A09 saved selection lists every saved place", async () => {
     await closeDetailIfOpen();
-    await page.locator(".selection-panel__toggle").click();
-    const rows = await page.locator(".selection-panel__content li").count();
+    await goToDestination("Quiero ir");
+    const rows = await page.locator(".destination-panel:not([hidden]) .selection-panel__content li").count();
     assert.ok(rows >= 5, `expected >=5 rows, got ${rows}`);
-    await page.locator(".selection-panel__toggle").click();
+    await goToDestination("Explorar");
     return `${rows} rows`;
   });
 
@@ -669,9 +830,12 @@ try {
   await step("E01 historical photograph renders from a local asset", async () => {
     await gotoHub("Tokio", "Tokio");
     await openPlace("Golden Gai"); // JP-013, historical batch
-    const src = await detail().locator(".gallery__image").getAttribute("src");
+    // B6.7 ("depth batch 1", commit 8601a9d) gave Golden Gai a second gallery photograph, so this
+    // checks the first image rather than assuming exactly one.
+    const image = detail().locator(".gallery__image").first();
+    const src = await image.getAttribute("src");
     assert.ok(src.startsWith("/images/places/"), `not a local asset: ${src}`);
-    const ok = await detail().locator(".gallery__image").evaluate((n) => n.complete && n.naturalWidth > 0);
+    const ok = await image.evaluate((n) => n.complete && n.naturalWidth > 0);
     assert.ok(ok, "historical photograph did not decode");
     return src;
   });
@@ -703,17 +867,53 @@ try {
   });
 
   // ======================================================= ACCESSIBILITY
-  await step("F01 every image carries alt text", async () => {
+  /**
+   * B19 (`04 §5.2`) puso el nombre del lugar SOBRE la fotografía de la tarjeta, dentro del mismo
+   * control que la abre. La imagen pasó entonces a ser decorativa —`alt=""`, la forma correcta
+   * de marcarla— porque repetir el nombre en el `alt` haría que un lector de pantalla lo
+   * anunciara dos veces seguidas. Así que lo que hay que exigir no es «toda imagen tiene alt»,
+   * sino: o la imagen tiene texto alternativo, o está marcada como decorativa Y su tarjeta
+   * nombra el lugar por otro medio. Las dos mitades se comprueban.
+   */
+  await step("F01 every image is either labelled or deliberately decorative", async () => {
     await gotoHub("Tokio", "Tokio");
     await openPlace("Shibuya Crossing");
-    const missing = await page.evaluate(() =>
-      [...document.images]
-        .filter((i) => !i.closest(".leaflet-container"))
-        .filter((i) => !i.alt && i.getAttribute("aria-hidden") !== "true" && i.getAttribute("role") !== "presentation")
-        .map((i) => i.currentSrc || i.src)
-    );
-    assert.deepEqual(missing, [], `product images without alt text: ${missing.slice(0, 3)}`);
-    return "all product images labelled";
+    const report = await page.evaluate(() => {
+      const decorative = (i) =>
+        i.getAttribute("alt") === "" ||
+        i.getAttribute("aria-hidden") === "true" ||
+        i.getAttribute("role") === "presentation";
+      const images = [...document.images].filter((i) => !i.closest(".leaflet-container"));
+      const unlabelled = images
+        .filter((i) => !i.alt && !decorative(i))
+        .map((i) => i.currentSrc || i.src);
+      /*
+       * Una tarjeta con imagen decorativa tiene que nombrar el lugar por algún medio accesible.
+       * DDR-02 cambió CUÁL: el control que abre es ahora un botón vacío que cubre la tarjeta y
+       * lleva el nombre en `aria-label`, mientras el nombre visible vive en su propio elemento.
+       * El requisito no cambia —la tarjeta nombra el lugar—, así que se aceptan las dos formas.
+       */
+      const unnamedCards = [...document.querySelectorAll(".place-card")]
+        .filter((card) => {
+          const img = card.querySelector("img");
+          if (!img || !decorative(img)) return false;
+          const opener = card.querySelector(".place-card__open");
+          const accessibleName = (opener?.getAttribute("aria-label") ?? "").trim();
+          const openerText = (opener?.textContent ?? "").trim();
+          const visibleName = (
+            card.querySelector(".place-card__name-text, .photo-placeholder__name, .place-card__heading")
+              ?.textContent ?? ""
+          ).trim();
+          return accessibleName.length === 0 && openerText.length === 0 && visibleName.length === 0;
+        })
+        .map((card) => card.className);
+      return { unlabelled, unnamedCards, total: images.length };
+    });
+    assert.deepEqual(report.unlabelled, [],
+      `images with neither alt text nor a decorative marker: ${report.unlabelled.slice(0, 3)}`);
+    assert.deepEqual(report.unnamedCards, [],
+      `cards whose image is decorative but which never name the place: ${report.unnamedCards.slice(0, 3)}`);
+    return `${report.total} images, all labelled or deliberately decorative`;
   });
 
   await step("F02 interactive controls use native semantics", async () => {
@@ -778,14 +978,37 @@ try {
       if (seen.has(key)) repeats += 1;
       seen.add(key);
     }
-    assert.ok(seen.size > 5, `focus reached only ${seen.size} elements — the dialog is not navigable`);
-    // A modal dialog SHOULD contain focus; what must never happen is being unable to leave it.
-    // The product binds Escape (`OrderedSequenceBuilder.tsx`), so that is the escape hatch.
-    await page.keyboard.press("Escape");
-    await plannerDialog().waitFor({ state: "detached" });
-    assert.equal(await plannerDialog().count(), 0, "Escape did not dismiss the planner dialog");
-    const focusAfter = await page.evaluate(() => document.activeElement?.tagName ?? "none");
-    return `${seen.size} distinct stops, ${repeats} revisits, Escape dismissed (focus on ${focusAfter})`;
+    assert.ok(seen.size > 5, `focus reached only ${seen.size} elements — the planner is not navigable`);
+    /*
+     * B18 (`02 §D2`, `05 §7`) dejó de montar el planificador como modal: es una sección
+     * permanente de la pestaña Viaje, sin scrim ni `role="dialog"`. Un modal DEBE retener el
+     * foco y ofrecer Escape como salida; una sección permanente no debe retenerlo en absoluto,
+     * así que la salida ya no es «Escape lo cierra» —no hay nada que cerrar— sino que el foco
+     * pueda ABANDONARLO tabulando. Es la misma garantía de fondo, expresada sobre la superficie
+     * vigente: nadie se queda atrapado dentro.
+     */
+    const escaped = await page.evaluate(() => {
+      const planner = document.querySelector(".analysis-dialog");
+      return planner ? !planner.contains(document.activeElement) : true;
+    });
+    const reachedOutside =
+      escaped ||
+      (await (async () => {
+        for (let i = 0; i < 80; i += 1) {
+          await page.keyboard.press("Tab");
+          const out = await page.evaluate(() => {
+            const planner = document.querySelector(".analysis-dialog");
+            return planner ? !planner.contains(document.activeElement) : true;
+          });
+          if (out) return true;
+        }
+        return false;
+      })());
+    assert.ok(reachedOutside, "focus never left the planner — it behaves as a trap");
+    const focusAfter = await page.evaluate(
+      () => `${document.activeElement?.tagName ?? "none"}.${String(document.activeElement?.className ?? "").slice(0, 40)}`
+    );
+    return `${seen.size} distinct stops, ${repeats} revisits, focus left the planner (now on ${focusAfter})`;
   });
 
   // ======================================================= RESPONSIVE
@@ -806,18 +1029,30 @@ try {
     return screens.map(([n, d]) => `${n}:${d}`).join(" ");
   });
 
-  await step("G01b mobile search/filter drawer opens and closes", async () => {
-    if (!isMobile) return "desktop layout — sidebar is always visible";
+  /**
+   * El cajón «Buscar y filtrar» **desapareció** con B18/DD-016: la lista ya no se esconde detrás
+   * de un toggle a ningún ancho — es la superficie primaria, y lo que se conmuta por debajo de
+   * `lg` es Lista/Mapa. El requisito de fondo (que el lector pueda ir y volver entre lista y mapa
+   * sin perder la lista) sigue vivo y es lo que se comprueba aquí.
+   */
+  await step("G01b list and map alternate without losing the list", async () => {
     await gotoHub("Tokio", "Tokio");
-    const sidebar = page.locator(".app__sidebar").first();
-    assert.ok(await sidebar.isVisible(), "drawer did not open from the hub entry");
-    await page.getByRole("button", { name: /Cerrar búsqueda y filtros/ }).first().click();
-    await sidebar.waitFor({ state: "hidden" });
-    await page.getByRole("button", { name: /Buscar y filtrar/ }).first().click();
-    await sidebar.waitFor({ state: "visible" });
-    const items = await page.locator(".place-list__item").count();
-    assert.ok(items > 0, "place list empty after reopening the drawer");
-    return `reopened with ${items} places`;
+    const before = await page.locator(".place-card:not(.place-card--compact)").count();
+    assert.ok(before > 0, "hub did not open on the list");
+    const toMap = page.getByRole("button", { name: /^Mapa$/ });
+    if ((await toMap.count()) === 0) {
+      // `lg`+: mapa permanente, sin conmutador — y sin nada que perder.
+      assert.ok(await page.locator(".place-map").isVisible(), "permanent map rail not visible");
+      return `permanent map rail, ${before} places always visible`;
+    }
+    await toMap.click();
+    await page.waitForTimeout(700);
+    assert.ok(await page.locator(".place-map").isVisible(), "map pane did not take over");
+    await page.getByRole("button", { name: /^Lista$/ }).click();
+    await page.waitForTimeout(500);
+    const after = await page.locator(".place-card:not(.place-card--compact)").count();
+    assert.equal(after, before, "the list did not come back intact");
+    return `${before} places, list -> map -> list`;
   });
 
   await step("G02 primary touch targets are usable", async () => {
@@ -825,7 +1060,7 @@ try {
     await ensurePlaceListVisible();
     const small = await page.evaluate(() => {
       const min = 32;
-      return [...document.querySelectorAll(".place-list__item, .selection-panel__toggle, .filter-chip")]
+      return [...document.querySelectorAll(".place-card, .selection-panel__toggle, .chip-toggle")]
         .map((n) => ({ cls: n.className, h: Math.round(n.getBoundingClientRect().height) }))
         .filter((x) => x.h > 0 && x.h < min)
         .slice(0, 5);
@@ -875,7 +1110,7 @@ try {
   await step("H04 core UI survives failed external tiles", async () => {
     await gotoHub("Tokio", "Tokio");
     await ensurePlaceListVisible();
-    const count = await page.locator(".place-list__item").count();
+    const count = await page.locator(".place-card:not(.place-card--compact)").count();
     assert.ok(count > 0, "place list did not render with stubbed tiles");
     return `${count} places rendered`;
   });

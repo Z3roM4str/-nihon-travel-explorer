@@ -24,6 +24,7 @@ import {
 } from "./lib/portable-backup";
 import { todayCivilDate } from "./lib/today";
 import { getAllPlaces } from "./data/store";
+import { deviceStorage } from "./lib/device-storage";
 
 /**
  * Block 13 — the impure edge of the portable backup: the clock, storage, and the file.
@@ -42,11 +43,11 @@ import { getAllPlaces } from "./data/store";
  * telemetry — a backup that could be posted anywhere would stop being a file under their control.
  */
 
-const browserStorage: RestoreStorage & DraftStorage = {
-  getItem: (key) => localStorage.getItem(key),
-  setItem: (key, value) => localStorage.setItem(key, value),
-  removeItem: (key) => localStorage.removeItem(key),
-};
+/* DDR-03: el adaptador compartido de `lib/device-storage.ts`. Misma forma estructural que el
+   `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
+   registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
+   y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
+const browserStorage: RestoreStorage & DraftStorage = deviceStorage;
 
 /** A traveller id is only minted when no document exists; an export of a blank browser is valid. */
 function randomTravellerId(): string {

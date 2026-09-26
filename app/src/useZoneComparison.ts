@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { deviceStorage } from "./lib/device-storage";
 
 /**
  * Which zones the reader has put side by side, per hub, kept in the browser only.
@@ -36,7 +37,10 @@ export function useZoneComparison(hub: string | null) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(selection));
+      // DDR-03: por el adaptador compartido, no por `localStorage` directo, para que un fallo
+      // aquí encienda el mismo aviso que cualquier otra escritura. El `catch` sigue siendo el
+      // que era: la comparación se conserva en memoria durante la sesión.
+      deviceStorage.setItem(STORAGE_KEY, JSON.stringify(selection));
     } catch {
       /* storage unavailable — the comparison stays in memory for this session */
     }

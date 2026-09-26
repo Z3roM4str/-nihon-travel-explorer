@@ -247,6 +247,21 @@ def download_bytes(url, retries=4, base_delay=8):
     raise last_error
 
 
+def select_records(records, place_id=None, original_title=None):
+    """Select exact acquisition rows without widening a one-photo request to the identity.
+
+    `--only` remains place-wide for compatibility. `original_title` is a narrower, exact
+    selector for adding or retrying one already-approved complementary photograph.
+    """
+    if place_id and original_title:
+        raise ValueError("choose either a place id or an exact original title, not both")
+    if original_title:
+        return [record for record in records if record.get("originalTitle") == original_title]
+    if place_id:
+        return [record for record in records if record.get("placeId") == place_id]
+    return list(records)
+
+
 def encode_webp(raw_bytes, max_dimension, target_bytes):
     with Image.open(BytesIO(raw_bytes)) as im:
         im.load()  # raises if it isn't actually a decodable image
@@ -370,15 +385,22 @@ def main():
     parser.add_argument("--metadata", default=str(DEFAULT_METADATA_PATH))
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
     parser.add_argument("--only", default=None, help="Acquire a single placeId, for spot-fixing one entry.")
+    parser.add_argument(
+        "--only-title",
+        default=None,
+        help="Acquire the one exact originalTitle; avoids re-acquiring an existing identity for a complementary photo.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Resolve and encode but do not write files.")
     args = parser.parse_args()
+    if args.only and args.only_title:
+        parser.error("--only and --only-title cannot be combined")
 
     metadata = json.loads(Path(args.metadata).read_text(encoding="utf-8"))
-    records = metadata["images"]
-    if args.only:
-        records = [r for r in records if r["placeId"] == args.only]
+    records = select_records(metadata["images"], args.only, args.only_title)
+    if args.only or args.only_title:
         if not records:
-            sys.exit(f"No metadata record for placeId {args.only!r}.")
+            selector = f"placeId {args.only!r}" if args.only else f"originalTitle {args.only_title!r}"
+            sys.exit(f"No metadata record for {selector}.")
 
     out_dir = Path(args.out_dir)
     failures = []

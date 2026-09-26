@@ -15,6 +15,34 @@ import { preview } from "vite";
  * failed image load, aspect ratio, and layout shift while images stream in.
  *
  * Usage: node scripts/block2-photography-browser-audit.mjs [--viewport=phone|tablet|desktop|all]
+ *
+ * **Actualizado el 2026-09-21.** Todo lo que este gate mide sigue siendo normativo —las
+ * renditions, el presupuesto de bytes, el CLS, el carrusel, el lightbox, la atribución, la
+ * miniatura de «Quiero ir»—; lo que cambió fue el camino y una de las expectativas:
+ *
+ * - `.view-bar__filters` + campo de búsqueda en la barra → B18 dejó una barra única (`05 §4`) y
+ *   B19 movió la búsqueda a `SearchSheet` (`04 §12`).
+ * - el scroll de la lista se pedía a `.place-list`, que no scrollea: quien scrollea es
+ *   `.app__sidebar`. Con `scrollBy` sobre el `<ul>` la carga progresiva no llegaba a dispararse.
+ * - `.place-card__placeholder` → `.photo-placeholder` (B19, `04 §9`).
+ * - `.selection-panel__toggle` desde Explorar → B18 llevó «Quiero ir» a su propia pestaña.
+ * - **la proporción esperada**: ya no es «3:2 en móvil, 16:9 en lo demás» sino la regla de
+ *   DD-016 — 4:3 con UNA columna, 16:9 con DOS O MÁS, decidida por el ancho real de la región
+ *   de lista y no por el viewport. El gate la deriva contando columnas, como el producto.
+ *
+ * **Actualizado de nuevo por el Bloque 20 (B4).** El carrusel, el lightbox y la atribución
+ * siguen siendo requisitos vigentes; lo que cambió es el contrato de la galería (`04 §6`/`§7`,
+ * `05 §5` pt. 1), así que el gate mide el contrato nuevo en vez del viejo:
+ *
+ * - `.gallery__frame` (una sola imagen en estado) → `.gallery__track`, una pista con
+ *   `scroll-snap` donde todas las diapositivas existen.
+ * - **las flechas son sólo de `md`+**: siguen en el DOM, pero en teléfono no se ven. El avance
+ *   se pide por teclado sobre la pista, que funciona en los tres viewports y es además lo que
+ *   comprueba la accesibilidad real del carrusel.
+ * - `.gallery__credit` (párrafo de atribución EN EL FLUJO) → botón `ⓘ` + `CreditsSheet`. El
+ *   requisito «la atribución existe y nombra la fuente» se conserva palabra por palabra, en su
+ *   nuevo sitio; y se añade el que antes no se podía comprobar: que entre la fotografía y el
+ *   nombre del lugar no queda ni un carácter de atribución (defecto D2).
  */
 
 const VIEWPORTS = {
@@ -83,9 +111,16 @@ async function auditViewport(browser, name, url) {
 
   // ---- The card list fetches the card rendition ----
   await page.getByRole("button", { name: new RegExp(`^${GALLERY_HUB}`) }).first().click();
+  // DDR-MERGE-1 (opción 1): el presupuesto es del HUB, no de la sesión completa. La portada de
+  // Explorar (tarjetas de ciudad/colecciones) ya disparó descargas de imagen antes de este click;
+  // se descartan aquí para medir sólo el tráfico que pertenece a partir de entrar al hub.
+  images.length = 0;
   await page.waitForTimeout(1400);
 
-  const scroller = ".app__sidebar .place-list";
+  // `.app__sidebar` es quien scrollea (`overflow-y: auto`); `.place-list` es el `<ul>` de dentro
+  // y `scrollBy` sobre él no hace nada — con el selector anterior la carga progresiva de B19
+  // (12 en 12, `05 §4`) no llegaba a dispararse nunca.
+  const scroller = ".app__sidebar";
   for (let i = 0; i < 45; i += 1) {
     await page.locator(scroller).evaluate((el) => el.scrollBy(0, 900));
     await page.waitForTimeout(110);
@@ -108,8 +143,19 @@ async function auditViewport(browser, name, url) {
   // ---- Aspect ratio and reserved box ----
   const media = await page.locator(".place-card__media").first().boundingBox();
   const ratio = media ? media.width / media.height : 0;
-  const expected = isMobileLayout && width < 620 ? 3 / 2 : 16 / 9;
-  check("card media holds its declared aspect ratio", Math.abs(ratio - expected) < 0.05, `${ratio.toFixed(3)} vs ${expected.toFixed(3)}`);
+  // DD-016 / `04 §5.1`: la proporción la decide EL NÚMERO DE COLUMNAS, no el viewport. Se cuenta
+  // igual que lo hace el producto — pistas declaradas por la rejilla — en vez de reimplementar
+  // aquí una regla de breakpoints que ya no existe.
+  const columns = await page
+    .locator(".place-list:not(.place-list--compact)")
+    .first()
+    .evaluate((el) => getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
+  const expected = columns === 1 ? 4 / 3 : 16 / 9;
+  check(
+    `card media holds the ratio its column count implies (${columns} col)`,
+    Math.abs(ratio - expected) < 0.05,
+    `${ratio.toFixed(3)} vs ${expected.toFixed(3)}`
+  );
   const declared = await page.locator(".place-card__image").first().evaluate((el) => ({
     w: el.getAttribute("width"),
     h: el.getAttribute("height"),
@@ -135,56 +181,82 @@ async function auditViewport(browser, name, url) {
   check("cumulative layout shift stays in the 'good' band", shift < 0.1, `CLS ${Number(shift).toFixed(4)}`);
 
   // ---- A place with no photograph ----
-  const placeholders = await page.locator(".place-card__placeholder").count();
+  // B19 (`04 §9`) renombró el marcador editorial a `.photo-placeholder`.
+  const placeholders = await page.locator(".photo-placeholder").count();
   check("uncovered places still render the editorial placeholder", placeholders > 0, `${placeholders}`);
 
   // ---- The carousel, on a place that now has two photographs ----
-  // On a phone the search field lives inside the filter sheet; on desktop it is pinned above
-  // the results. Open whichever is needed before typing.
-  if (isMobileLayout) {
-    await page.locator(".view-bar__filters").click();
-    await page.waitForTimeout(450);
-  }
-  await page.locator(".search-field__input").fill(GALLERY_PLACE);
-  await page.waitForTimeout(600);
-  if (isMobileLayout) {
-    await page.getByRole("button", { name: "Cerrar búsqueda y filtros" }).click();
-    await page.waitForTimeout(450);
-  }
-  await page.locator(".place-card__open").first().click();
+  // B19 (`04 §12`): la búsqueda es una hoja propia a cualquier ancho — mismo camino en teléfono,
+  // tableta y escritorio, que es además el que un lector usa para encontrar un lugar concreto.
+  await page.getByRole("button", { name: new RegExp(`^Buscar en ${GALLERY_HUB}`) }).click();
+  await page.waitForSelector(".search-sheet", { timeout: 10000 });
+  await page.locator(".search-sheet .search-field__input").fill(GALLERY_PLACE);
+  await page.waitForTimeout(700);
+  await page.locator(".search-sheet .place-card__open").first().click();
   await page.waitForTimeout(1200);
 
   check("the gallery reports more than one photograph", (await page.locator(".gallery__counter").count()) === 1);
   const counterBefore = await page.locator(".gallery__counter").innerText();
   check("the counter starts at the first image", counterBefore.trim().startsWith("1 /"), counterBefore);
   check("navigation arrows are present", (await page.locator(".gallery__nav").count()) === 2);
+  // `04 §6`: «Flechas sólo en `md`+». En teléfono el gesto es el dedo sobre la pista; dibujar
+  // flechas ahí sería cromo que compite con la fotografía.
+  const arrowVisible = await page.locator(".gallery__nav--next").isVisible();
+  check(
+    "arrows show only from md+ (04 §6)",
+    arrowVisible === width >= 840,
+    `${width}px → ${arrowVisible ? "visible" : "oculta"}`
+  );
   const dots = await page.locator(".gallery__dot").count();
-  check("one dot per photograph", dots >= 2, `${dots}`);
+  check("one dot per photograph, up to the cap of 5 (04 §6)", dots >= 2 && dots <= 5, `${dots}`);
 
   const firstSrc = await page.locator(".gallery__image").first().evaluate((el) => el.currentSrc);
-  await page.locator(".gallery__nav--next").click();
+  // El avance se pide por teclado sobre la pista: es el único camino disponible en los tres
+  // viewports (las flechas son de `md`+) y de paso prueba que el carrusel es operable sin ratón.
+  await page.locator(".gallery__track").focus();
+  await page.keyboard.press("ArrowRight");
   await page.waitForTimeout(900);
   const counterAfter = await page.locator(".gallery__counter").innerText();
-  const secondSrc = await page.locator(".gallery__image").first().evaluate((el) => el.currentSrc);
+  const secondSrc = await page
+    .locator(".gallery__slide")
+    .nth(1)
+    .locator(".gallery__image")
+    .evaluate((el) => el.currentSrc);
   check("advancing moves the counter", counterAfter.trim().startsWith("2 /"), counterAfter);
   check("advancing actually changes the photograph", firstSrc !== secondSrc);
 
-  // Attribution must follow the image, not stay on the first one.
-  const credit = await page.locator(".gallery__credit").innerText();
-  check("attribution is rendered for the second image too", credit.trim().length > 10);
+  // Defecto D2 (`05 §5`, criterio de aceptación): entre la fotografía y el nombre del lugar no
+  // puede quedar ni un carácter de atribución. Antes de B20 el párrafo `.gallery__credit` vivía
+  // exactamente ahí.
+  check(
+    "no attribution paragraph is left in the reading flow (D2)",
+    (await page.locator(".gallery__credit").count()) === 0
+  );
+
+  // Y la atribución sigue existiendo, íntegra, detrás del `ⓘ` (`04 §7`).
+  await page.locator(".gallery__credits").click();
+  await page.waitForSelector(".credits-sheet__list", { timeout: 10000 });
+  const credit = await page.locator(".credits-sheet__list").innerText();
+  check("attribution is rendered inside CreditsSheet", credit.trim().length > 10);
   check("attribution names the source", /Commons/i.test(credit));
+  check("attribution keeps its licence link", (await page.locator(".credits-sheet__field a").count()) > 0);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(500);
+  check("Escape closes the credits sheet", (await page.locator(".credits-sheet__list").count()) === 0);
 
   // Keyboard navigation back.
-  await page.locator(".gallery__frame").focus();
+  await page.locator(".gallery__track").focus();
   await page.keyboard.press("ArrowLeft");
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(900);
   check(
     "keyboard navigation returns to the first photograph",
     (await page.locator(".gallery__counter").innerText()).trim().startsWith("1 /")
   );
 
   // ---- Lightbox keeps full resolution ----
-  await page.locator(".gallery__zoom").click();
+  // La pista tiene ahora un botón de zoom por diapositiva; el lightbox se abre desde la que
+  // está visible, que tras la vuelta por teclado es la primera.
+  await page.locator(".gallery__zoom").first().click();
   await page.waitForTimeout(900);
   check("the lightbox opens", (await page.locator(".lightbox").count()) === 1);
   const lightboxSrc = await page.locator(".lightbox__image").evaluate((el) => el.currentSrc);
@@ -194,12 +266,23 @@ async function auditViewport(browser, name, url) {
   check("Escape closes the lightbox and keeps the detail open", (await page.locator(".lightbox").count()) === 0 && (await page.locator(".place-detail").count()) === 1);
 
   // ---- Saved list reuses the same rendition ----
-  await page.locator(".save-button").click();
+  await page.locator(".place-detail .save-button").click();
   await page.waitForTimeout(400);
   await page.keyboard.press("Escape");
-  await page.waitForTimeout(400);
-  await page.locator(".selection-panel__toggle").click();
   await page.waitForTimeout(600);
+  // B18 (`02 §D2`): «Quiero ir» es una pestaña, no un panel desplegable dentro de Explorar.
+  await page
+    .getByRole("navigation", { name: "Navegación principal" })
+    .getByRole("button", { name: "Quiero ir" })
+    .click();
+  await page.waitForTimeout(600);
+  // En su propia pestaña el panel nace abierto (B18); el plegado se conserva por si el lector
+  // lo quiere cerrar. Sólo se pulsa el toggle si hace falta — pulsarlo siempre lo cerraría.
+  const toggle = page.locator(".destination-panel:not([hidden]) .selection-panel__toggle");
+  if ((await toggle.getAttribute("aria-expanded").catch(() => null)) === "false") {
+    await toggle.click();
+    await page.waitForTimeout(600);
+  }
   const thumbSrc = await page.locator(".selection-list__thumb img").first().evaluate((el) => el.currentSrc);
   check("the saved-list thumbnail uses the card rendition", thumbSrc.includes("-800w"), thumbSrc.split("/").pop());
 
