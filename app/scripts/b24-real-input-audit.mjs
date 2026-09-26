@@ -150,14 +150,23 @@ async function scrollOwnerAudit(page, selector) {
   }, selector);
 }
 
-/** Fracción visible de un elemento dentro del viewport y no tapada por el cromo. */
+/**
+ * El elemento llega a verse: su centro cae dentro del viewport sin cromo encima (hit-test) y,
+ * si cabe en pantalla, está entero dentro. Una tarjeta de colección (~460 px) no cabe entera en
+ * 320×568 entre el buscador pegajoso y la TabBar: ahí basta con que su centro sea alcanzable.
+ */
 async function fullyReachable(page, selector) {
   return page.evaluate((sel) => {
     const element = document.querySelector(sel);
     if (!element) return false;
     const r = element.getBoundingClientRect();
-    if (r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) return false;
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    const fits = r.height <= innerHeight * 0.6;
+    if (r.left < 0 || r.right > innerWidth) return false;
+    if (fits && (r.top < 0 || r.bottom > innerHeight)) return false;
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    if (y < 0 || y > innerHeight) return false;
+    const hit = document.elementFromPoint(x, y);
     return Boolean(hit && (hit === element || element.contains(hit)));
   }, selector);
 }
@@ -209,13 +218,13 @@ async function auditHomeScroll(page, vp) {
   };
   const seen = new Set();
   const surface = { x: Math.min(vp.width - 24, Math.max(24, vp.width * 0.5)), y: vp.height * 0.55 };
-  for (let step = 0; step < 40 && seen.size < Object.keys(targets).length; step += 1) {
+  for (let step = 0; step < 80 && seen.size < Object.keys(targets).length; step += 1) {
     for (const [name, selector] of Object.entries(targets)) {
       if (!seen.has(name) && (await fullyReachable(page, selector))) seen.add(name);
     }
     await page.mouse.move(surface.x, surface.y);
-    await page.mouse.wheel(0, 240);
-    await page.waitForTimeout(60);
+    await page.mouse.wheel(0, 120);
+    await page.waitForTimeout(40);
     await frames(page);
   }
   for (const name of Object.keys(targets)) {
