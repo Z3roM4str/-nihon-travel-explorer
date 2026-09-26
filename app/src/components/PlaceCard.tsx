@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { Place } from "../types";
+import { compactPlaceLine } from "../lib/place-line";
 import { CARD_IMAGE_WIDTH, cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { interestLevelForPlace } from "../lib/interest-level";
@@ -81,7 +82,8 @@ function secondChip(place: Place): SecondChip {
     return { icon: "ticket", label: "Requiere reserva" };
   }
 
-  if (isHiddenGem(place)) return { icon: "joya", label: "Hidden gem" };
+  // `04 §5.7` (AB-2 de B24): sólo cambia la presentación; `isHiddenGem` y el dato no cambian.
+  if (isHiddenGem(place)) return { icon: "joya", label: "Joya escondida" };
 
   return null;
 }
@@ -223,7 +225,7 @@ export function PlaceCard({
           <p className="place-card__meta">
             {categoryLabel}
             <span aria-hidden="true"> · </span>
-            {zone}
+            {compactPlaceLine(place)}
           </p>
         </div>
         <button

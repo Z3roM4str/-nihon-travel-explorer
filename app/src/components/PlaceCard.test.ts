@@ -261,3 +261,43 @@ describe("PlaceCard — compact variant (`04 §5.10`)", () => {
     expect(source).toContain('variant = "normal",');
   });
 });
+
+describe("PlaceCard — deferred de B24 cerrados tras integrar B23 (2026-09-26)", () => {
+  it("P0-5c: la fila compacta dice «{barrio}, {ciudad}» detrás de un solo «·»", async () => {
+    const { compactPlaceLine } = await import("../lib/place-line");
+    expect(compactPlaceLine({ neighborhood: "Shibuya", hub: "Tokio" })).toBe("Shibuya, Tokio");
+    expect(compactPlaceLine({ neighborhood: "Gion", hub: "Kioto" })).toBe("Gion, Kioto");
+    expect(compactPlaceLine({ neighborhood: "", hub: "Osaka" })).toBe("Osaka");
+    expect(compactPlaceLine({ neighborhood: "   ", hub: "Okinawa" })).toBe("Okinawa");
+    expect(compactPlaceLine({ neighborhood: "Namba", hub: "Osaka" })).not.toContain("·");
+
+    const source = await readSource();
+    const compact = source.slice(source.indexOf('variant === "compact"'));
+    const meta = compact.slice(compact.indexOf('className="place-card__meta"'), compact.indexOf("</p>"));
+    expect(meta).toContain("{compactPlaceLine(place)}");
+    expect(meta.match(/ · /g)).toHaveLength(1);
+  });
+
+  it("AB-2: el chip de joya se presenta como «Joya escondida» (`04 §5.7`), con la misma lógica", async () => {
+    const source = await readSource();
+    expect(source).toContain('if (isHiddenGem(place)) return { icon: "joya", label: "Joya escondida" };');
+    expect(source).not.toContain("Hidden gem");
+  });
+
+  it("AB-1: el círculo visible del corazón sigue en 40 px y el área real llega a 44 con tap-target-min", async () => {
+    const css = await readFile(new URL("../styles/discovery.css", import.meta.url), "utf8");
+    const rule = css.slice(css.indexOf(".place-card__save {"), css.indexOf("}", css.indexOf(".place-card__save {")));
+    expect(rule).toContain("width: 40px;");
+    expect(rule).toContain("height: 40px;");
+    const source = await readSource();
+    expect(source).toContain('className={`place-card__save tap-target-min ${saved ? "place-card__save--on" : ""}`}');
+    expect(source).toMatch(/className=\{`place-card__save place-card__save--compact tap-target-min/);
+  });
+
+  it("B23: el retry de la fotografía convive con las acciones de la tarjeta", async () => {
+    const source = await readSource();
+    expect(source).toContain("photoAttempt");
+    expect(source).toContain('key={`${cardSrc}-${photoAttempt}`}');
+    expect(source).toContain('className="place-card__photo-retry tap-target-min"');
+  });
+});
