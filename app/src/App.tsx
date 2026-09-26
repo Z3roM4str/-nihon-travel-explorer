@@ -1128,7 +1128,6 @@ export default function App() {
                       totalCount={hubPlaces.length}
                       activeFilterCount={activeFilterCount}
                       onReset={resetFilters}
-                      defaultGroupsOpen
                       onApply={() => setFiltersOpen(false)}
                     />
                   </Sheet>

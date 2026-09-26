@@ -152,45 +152,8 @@ button.search-field:focus-visible {
   color: var(--ink-900);
 }
 
-.filter-panel__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--tap-min);
-  padding: 0 var(--space-2);
-  border: none;
-  background: none;
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  font-weight: 600;
-  color: var(--ink-700);
-  cursor: pointer;
-}
-
-.filter-panel__toggle-caret {
-  font-size: var(--type-caption-size);
-}
-
-.filter-panel__toggle-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--space-5);
-  height: var(--space-5);
-  padding: 0 var(--space-1);
-  border-radius: var(--radius-full);
-  background: var(--shu-600);
-  color: var(--surface);
-  font-size: var(--type-caption-size);
-  font-weight: 700;
-}
-
 .filter-panel__groups {
   padding-top: var(--space-2);
-}
-
-.filter-panel__groups[hidden] {
-  display: none;
 }
 
 .filter-group {
@@ -210,10 +173,9 @@ button.search-field:focus-visible {
   cursor: pointer;
   font-family: var(--font-record);
   font-size: var(--type-label-size);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: var(--type-label-tracking);
-  color: var(--ink-500);
+  font-weight: 600;
+  /* B24 (P1-03, `03 §2.3`): caja de frase — sin `uppercase` ni `letter-spacing`. */
+  color: var(--ink-700);
   list-style: none;
 }
 
@@ -221,14 +183,16 @@ button.search-field:focus-visible {
   display: none;
 }
 
-.filter-group__summary::before {
-  content: "▸";
-  font-size: var(--type-caption-size);
-  color: var(--ink-300);
+/* B24 (P1-04, DD-021): el indicador de plegado es el icono `siguiente` del set, a la derecha,
+   girado 90° cuando el grupo está abierto — sustituye al glifo `▸` del `::before`. */
+.filter-group__chevron {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+  color: var(--ink-500);
   transition: transform var(--dur-fast) var(--ease-standard);
 }
 
-.filter-group[open] > .filter-group__summary::before {
+.filter-group[open] > .filter-group__summary .filter-group__chevron {
   transform: rotate(90deg);
 }
 
@@ -262,15 +226,21 @@ button.search-field:focus-visible {
   padding: var(--tap-gap) 0 var(--space-4);
 }
 
+/*
+ * B24 (P1-02): pie fijo pegado al borde inferior REAL de la hoja. `.sheet__body` tiene
+ * `padding-bottom: --space-6` (`04 §8`), y el `sticky` se detenía en ese relleno: los resultados
+ * asomaban 24 px por debajo del pie. `bottom` negativo lo lleva al borde, y el margen negativo
+ * hace que el final del recorrido coincida con él. `03 §3`: lo anclado abajo suma el área segura.
+ */
 .filter-panel__foot {
   position: sticky;
-  bottom: 0;
+  bottom: calc(-1 * var(--space-6));
   z-index: 1;
   display: flex;
   gap: var(--space-3);
   background: var(--surface);
-  margin: 0 calc(-1 * var(--space-4));
-  padding: var(--space-3) var(--space-4) var(--space-2);
+  margin: 0 calc(-1 * var(--space-4)) calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
 }
 

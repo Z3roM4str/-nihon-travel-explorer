@@ -1,10 +1,10 @@
-import { useId, useState } from "react";
 import type { Filters } from "../types";
 import type { PlanningBlock } from "../lib/planning-block";
 import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
 import { interestLevelForGrade } from "../lib/interest-level";
 import { categoryPresentation } from "../lib/category-presentation";
 import { ChipToggle } from "./ChipToggle";
+import { Icon } from "../icons/Icon";
 
 /** Una etiqueta de presentación (`03 §8`, hasta 26) más las cadenas fuente que colapsa (1 ó 2 —
  * sólo los tres pares duplicados aportan 2). Ver `App.tsx`'s `categoryGroups`. */
@@ -23,12 +23,6 @@ type Props = {
   totalCount: number;
   activeFilterCount: number;
   onReset: () => void;
-  /**
-   * Whether the filter groups start expanded. False on desktop, where the panel shares the
-   * sidebar with the results and an always-open stack of six groups pushes the cards below the
-   * fold; true on phones, where the panel only exists because the reader just asked for it.
-   */
-  defaultGroupsOpen?: boolean;
   /** Bloque 19 (B3, `04 §13`): pulsar «Ver {n} lugares» cierra la hoja — mismo efecto que
    * cualquier otro cierre, expuesto aparte porque el pie de esta hoja es quien lo dispara. */
   onApply: () => void;
@@ -52,6 +46,8 @@ function FilterGroup({ label, count, defaultOpen = false, children }: GroupProps
       <summary className="filter-group__summary">
         <span>{label}</span>
         {count > 0 && <span className="filter-group__badge">{count}</span>}
+        {/* DD-021 (D-M5): icono del set en vez del glifo `▸` pintado con `::before`. */}
+        <Icon name="siguiente" size={16} className="filter-group__chevron" aria-hidden="true" />
       </summary>
       <div role="group" aria-label={label} className="filter-chip-list">
         {children}
@@ -82,19 +78,8 @@ export function FilterPanel({
   totalCount,
   activeFilterCount,
   onReset,
-  defaultGroupsOpen = false,
   onApply,
 }: Props) {
-  const groupsId = useId();
-  const [groupsOpen, setGroupsOpen] = useState(defaultGroupsOpen);
-  // Same render-phase sync `HubSelector` uses: crossing the desktop/mobile breakpoint changes
-  // what the default should be, without remounting the panel and without an effect.
-  const [syncedDefault, setSyncedDefault] = useState(defaultGroupsOpen);
-  if (defaultGroupsOpen !== syncedDefault) {
-    setSyncedDefault(defaultGroupsOpen);
-    setGroupsOpen(defaultGroupsOpen);
-  }
-
   return (
     <section className="filter-panel" aria-label="Filtros">
       <div className="filter-panel__head">
@@ -109,22 +94,11 @@ export function FilterPanel({
           )}
         </div>
 
-        <button
-          type="button"
-          className="filter-panel__toggle"
-          onClick={() => setGroupsOpen((open) => !open)}
-          aria-expanded={groupsOpen}
-          aria-controls={groupsId}
-        >
-          <span className="filter-panel__toggle-caret" aria-hidden="true">
-            {groupsOpen ? "▾" : "▸"}
-          </span>
-          Filtros
-          {activeFilterCount > 0 && <span className="filter-panel__toggle-count">{activeFilterCount}</span>}
-        </button>
       </div>
 
-      <div className="filter-panel__groups" id={groupsId} hidden={!groupsOpen}>
+      {/* B24 (P1-01): sin el desplegable «▾ Filtros» que escondía los grupos — `04 §13` no lo
+          tiene: la hoja ES los grupos, en su orden fijo, cada uno plegable por sí mismo. */}
+      <div className="filter-panel__groups">
         {/* 1. Nivel de interés — sigue siendo el filtro `grade` del dataset; sólo cambió la
             redacción hace bloques, aquí sólo cambia la presentación (chip, no casilla). */}
         <FilterGroup label="Nivel de interés" count={filters.grades.length} defaultOpen>
