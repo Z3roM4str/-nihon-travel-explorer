@@ -657,6 +657,16 @@ async function auditFilterSheet(page, vp) {
     return /[▾▸▴↓]/.test(text + pseudo);
   });
   check("P1-FILTER", !glyphs, "la hoja de filtros usa glifos de texto como icono (D-M5)");
+  // Activar un filtro con un toque real no puede hacer saltar la cabecera pegajosa (el segundo
+  // toque caería en el chip vecino).
+  const headBefore = (await rectOf(page.locator(".filter-panel__head"))).height;
+  const chip = page.locator(".filter-group[open] .chip-toggle[aria-pressed='false']").first();
+  if (await realClick(page, chip, "P1-FILTER", "primer chip sin marcar")) {
+    await frames(page);
+    const headAfter = (await rectOf(page.locator(".filter-panel__head"))).height;
+    check("P1-FILTER", Math.abs(headAfter - headBefore) <= 0.5,
+      `la cabecera de filtros salta al activar un filtro: ${headBefore} → ${headAfter} px`);
+  }
   // Desplazar la hoja hasta el final con rueda real y comprobar que nada asoma bajo el pie.
   const bodyBox = await rectOf(page.locator(".sheet__body"));
   for (let i = 0; i < 30; i += 1) {
