@@ -141,6 +141,31 @@ button.search-field:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+/*
+ * B24: sin el desplegable «▾ Filtros» (P1-01), la altura de la cabecera pegajosa la ponía sólo el
+ * texto, y al activar el primer filtro aparecía «Limpiar (n)» en otra línea: la cabecera crecía y
+ * todos los chips bajaban bajo el dedo (medido: el segundo toque caía en el chip vecino). Alto
+ * mínimo de un objetivo táctil y estado + «Limpiar» en una sola fila: la cabecera no salta.
+ */
+.filter-panel__head {
+  min-height: var(--tap-min);
+}
+
+.filter-panel__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-3);
+}
+
+/* «Limpiar (n)» ocupa la misma línea que el texto de estado (no la engorda) y recibe su área de
+   44 px con `.tap-target-min` (técnica 1: control aislado, App.css §Áreas táctiles). */
+.filter-panel__status .link-button {
+  padding: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
 .filter-panel__status p {
   margin: 0;
   font-family: var(--font-record);
@@ -232,6 +257,13 @@ button.search-field:focus-visible {
  * asomaban 24 px por debajo del pie. `bottom` negativo lo lleva al borde, y el margen negativo
  * hace que el final del recorrido coincida con él. `03 §3`: lo anclado abajo suma el área segura.
  */
+/* …y como el pie ya tapa el borde inferior de verdad, lo que se desplaza a la vista (foco de
+   teclado, `scrollIntoView`) tiene que quedarse por ENCIMA de él: el relleno de scroll reserva
+   su alto (botón de 44 px + su relleno). Sin esto, un chip enfocado abajo quedaba bajo el pie. */
+.sheet__body:has(.filter-panel__foot) {
+  scroll-padding-bottom: calc(var(--tap-min) + var(--space-8));
+}
+
 .filter-panel__foot {
   position: sticky;
   bottom: calc(-1 * var(--space-6));

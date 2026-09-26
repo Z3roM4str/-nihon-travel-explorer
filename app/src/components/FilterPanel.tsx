@@ -88,7 +88,7 @@ export function FilterPanel({
             <strong>{resultCount}</strong> de {totalCount} lugares
           </p>
           {activeFilterCount > 0 && (
-            <button type="button" className="link-button" onClick={onReset}>
+            <button type="button" className="link-button tap-target-min" onClick={onReset}>
               Limpiar ({activeFilterCount})
             </button>
           )}
