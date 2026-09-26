@@ -68,6 +68,7 @@ function updatePlace(store: ReviewStore, id: string, update: (place: ReviewPlace
 export const setActiveReviewer=(s:ReviewStore,r:Reviewer):ReviewStore=>({...s,activeReviewer:r});
 export const setVote=(s:ReviewStore,id:string,r:Reviewer,v:Vote):ReviewStore=>updatePlace(s,id,p=>({...p,votes:{...p.votes,[r]:v},inReviewQueue:true}));
 export const toggleYes=(s:ReviewStore,id:string,r:Reviewer):ReviewStore=>setVote(s,id,r,(s.places[id]?.votes[r] ?? "unreviewed")==="yes"?"unreviewed":"yes");
+export const reconsiderWithYes=(s:ReviewStore,id:string,r:Reviewer):ReviewStore=>updatePlace(s,id,p=>({...p,disposition:"candidate",inReviewQueue:true,votes:{...p.votes,[r]:"yes"}}));
 export const setDisposition=(s:ReviewStore,id:string,d:Disposition):ReviewStore=>updatePlace(s,id,p=>({...p,disposition:d,inReviewQueue:true}));
 export const setPriority=(s:ReviewStore,id:string,p:TripPriority):ReviewStore=>updatePlace(s,id,x=>({...x,priority:p,inReviewQueue:true}));
 export function canRemoveFromQueue(p:ReviewPlace, authored:boolean):boolean { return !p.legacy && !authored && p.votes.fernando === "unreviewed" && p.votes.ella === "unreviewed"; }

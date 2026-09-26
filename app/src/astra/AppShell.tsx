@@ -12,7 +12,7 @@ export function AppShell({ destination, savedCount, reviewer, onReviewer, childr
         <a href="#/explorar" aria-current={destination === "explore" ? "page" : undefined}>Explorar</a>
         <a href="#/viaje" aria-current={destination === "trip" ? "page" : undefined}>Nuestro viaje {savedCount > 0 && <span className="astra-count">{savedCount}</span>}</a>
       </nav>
-      <label className="astra-reviewer">Gustos de <select aria-label="Persona activa" value={reviewer ?? ""} onChange={e=>onReviewer(e.target.value as Reviewer)}><option value="" disabled>Mis gustos</option><option value="fernando">Fernando</option><option value="ella">Ella</option></select></label>
+      {reviewer ? <label className="astra-reviewer">Gustos de <select aria-label="Persona activa" value={reviewer} onChange={e=>onReviewer(e.target.value as Reviewer)}><option value="fernando">Fernando</option><option value="ella">Ella</option></select></label> : <span className="astra-reviewer" aria-label="Reviewer sin elegir">Mis gustos</span>}
     </header>
     <main id="astra-main" tabIndex={-1}>{children}</main>
   </div>;

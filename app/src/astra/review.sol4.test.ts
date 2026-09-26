@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canRemoveFromQueue, emptyReviewPlace, emptyReviewStore, getPlannerEligibility, parseReviewStore, removeFromQueue, reviewPresentation, setDisposition, setPriority, setVote, toggleYes, REVIEW_STORAGE_KEY } from "./review";
+import { canRemoveFromQueue, emptyReviewPlace, emptyReviewStore, getPlannerEligibility, parseReviewStore, reconsiderWithYes, removeFromQueue, reviewPresentation, setDisposition, setPriority, setVote, toggleYes, REVIEW_STORAGE_KEY } from "./review";
 import { bridgeLegacy, claimLegacy, LEGACY_PLAN_KEY, LEGACY_SAVED_KEY, readLegacySaved } from "./review-migration";
 import { persistReview } from "./useReview";
 
@@ -23,8 +23,12 @@ describe("independent review mutations",()=>{
  it("explicit no is distinct",()=>expect(setVote(emptyReviewStore(),"x","ella","no").places.x.votes.ella).toBe("no"));
  it("undo restores removed interest",()=>{const yes=setVote(emptyReviewStore(),"x","ella","yes");const removed=toggleYes(yes,"x","ella");expect(setVote(removed,"x","ella","yes")).toEqual(yes);});
  it("discard/restore retains votes",()=>{const yes=setVote(emptyReviewStore(),"x","fernando","yes");const discarded=setDisposition(yes,"x","discarded");expect(setDisposition(discarded,"x","candidate").places.x).toMatchObject({votes:yes.places.x.votes,disposition:"candidate"});});
+ it("reconsiders atomically with own yes and preserves partner",()=>{const discarded=setDisposition(setVote(emptyReviewStore(),"x","ella","no"),"x","discarded");expect(reconsiderWithYes(discarded,"x","fernando").places.x).toEqual({...discarded.places.x,disposition:"candidate",inReviewQueue:true,votes:{fernando:"yes",ella:"no"}});});
+ it("cancel reconsideration is the unchanged discarded store",()=>{const discarded=setDisposition(setVote(emptyReviewStore(),"x","ella","no"),"x","discarded");expect(discarded.places.x).toMatchObject({disposition:"discarded",votes:{fernando:"unreviewed",ella:"no"}});});
  it("priority is independent",()=>{const s=setPriority(setVote(emptyReviewStore(),"x","ella","no"),"x","Alta");expect(s.places.x).toMatchObject({priority:"Alta",votes:{ella:"no"}});});
  it("queue removal is gated",()=>{const plain={...emptyReviewPlace("x"),inReviewQueue:true};expect(canRemoveFromQueue(plain,false)).toBe(true);expect(canRemoveFromQueue({...plain,legacy:true},false)).toBe(false);expect(canRemoveFromQueue(plain,true)).toBe(false);expect(removeFromQueue({...emptyReviewStore(),places:{x:plain}},"x").places.x.inReviewQueue).toBe(false);});
+ it("blocks queue removal when either person voted",()=>{const voted=setVote(emptyReviewStore(),"x","fernando","no");expect(removeFromQueue(voted,"x")).toBe(voted);});
+ it("reset response preserves partner, queue and disposition",()=>{let s=setVote(emptyReviewStore(),"x","ella","no");s=setVote(s,"x","fernando","yes");s=setDisposition(s,"x","shortlisted");const reset=setVote(s,"x","fernando","unreviewed");expect(reset.places.x).toMatchObject({votes:{fernando:"unreviewed",ella:"no"},inReviewQueue:true,disposition:"shortlisted"});});
 });
 
 describe("legacy and planner bridges",()=>{

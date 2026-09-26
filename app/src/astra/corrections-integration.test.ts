@@ -10,6 +10,8 @@ describe("Astra SOL-0–2 correction wiring", () => {
     expect(app).toContain("...readAuthoredPlanIds(localStorage)");
     expect(app).not.toContain("usePlanningDraft(activeYesIds");
     expect(app).toContain("savedPlaces={plannerPlaces}");
+    expect(app).toContain("review.reconsider(reconsiderId,review.store.activeReviewer!)");
+    expect(app).not.toContain('review.disposition(id,"candidate");review.toggleInterest');
   });
   it("uses lazy boundaries for map, national geography and planner", async () => {
     const [app, discovery] = await Promise.all([source("../App.tsx"), source("./Discovery.tsx")]);
