@@ -6,7 +6,7 @@ import { EvidenceMark } from "./EvidenceMark";
 import { PersonToken } from "./PersonToken";
 import { resolvePlaceImages } from "../data/place-images";
 import { resolveDuration, formatRange } from "../lib/duration";
-import { getBestTransfer } from "../lib/transfer";
+import { getBestTransfer, transferRelationLabel } from "../lib/transfer";
 import {
   describeTransferForUi,
   transferEvidenceDetail,
@@ -481,7 +481,9 @@ export function PlaceDetail({
                         onToggleSaved={onToggleSaved}
                       />
                       <p className="nearby-carousel__transfer">
-                        <span className="nearby-carousel__relation">{relation["Relación"]}</span>
+                        <span className="nearby-carousel__relation">
+                          {transferRelationLabel(relation["Relación"])}
+                        </span>
                         <span className="nearby-carousel__figures">
                           {display?.distanceText ?? `${relation["Distancia km"]} km`}
                           <span aria-hidden="true"> · </span>
