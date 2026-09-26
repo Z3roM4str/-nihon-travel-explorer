@@ -292,7 +292,7 @@ try {
     await page.getByText("Interés retirado").waitFor();
     assert.equal(await takeshita.getAttribute("aria-pressed"),"false");
     await page.goto(`${baseURL}#/viaje`,{waitUntil:"networkidle"});
-    const takeshitaItem=page.locator('[data-place-id="JP-008"]');
+    const takeshitaItem=page.locator('[data-place-id="JP-004"]');
     await takeshitaItem.getByRole("button",{name:"Quitar de pendientes"}).click();
     await takeshitaItem.waitFor({state:"detached"});
 
@@ -323,7 +323,7 @@ try {
       "JP-006":{placeId:"JP-006",votes:{fernando:"unreviewed",ella:"unreviewed"},inReviewQueue:true,legacy:false}
     }};
     const rawLegacy='["JP-021"]';
-    await page.addInitScript(({review,rawLegacy})=>{localStorage.setItem("nihon.astra.review.v1",JSON.stringify(review));localStorage.setItem("nihon.savedPlaceIds",rawLegacy);const original=Storage.prototype.setItem;window.__failReview=false;Storage.prototype.setItem=function(k,v){if(window.__failReview&&k==="nihon.astra.review.v1")throw new DOMException("SOL-5 audit failure","QuotaExceededError");return original.call(this,k,v);};},{review,rawLegacy});
+    await page.addInitScript(({review,rawLegacy})=>{if(!sessionStorage.getItem("astra-sol5-fixture-seeded")){localStorage.setItem("nihon.astra.review.v1",JSON.stringify(review));localStorage.setItem("nihon.savedPlaceIds",rawLegacy);sessionStorage.setItem("astra-sol5-fixture-seeded","1");}const original=Storage.prototype.setItem;window.__failReview=false;Storage.prototype.setItem=function(k,v){if(window.__failReview&&k==="nihon.astra.review.v1")throw new DOMException("SOL-5 audit failure","QuotaExceededError");return original.call(this,k,v);};},{review,rawLegacy});
     await page.goto(`${baseURL}#/viaje`,{waitUntil:"networkidle"});
     assert.equal(await page.getByRole("button",{name:"Intereses"}).getAttribute("aria-pressed"),"true");
     assert.equal((await page.locator(".astra-trip__counts div").nth(0).textContent())?.replace(/\s/g,""),"1Ambos");
@@ -350,7 +350,7 @@ try {
     await page.getByRole("button",{name:"Intereses"}).click();await page.getByRole("button",{name:"Planificar"}).click();assert.equal(await page.getByRole("button",{name:"Continuar recorrido"}).count(),1);assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.manualPlanningDraft")),rawDraft);
     await page.getByRole("button",{name:"Dónde alojarnos"}).click();assert.equal(await page.getByText(/comparación de zonas llegará/).count(),1);
     assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.savedPlaceIds")),rawLegacy);
-    await page.evaluate(()=>{localStorage.setItem("nihon.astra.review.v1",JSON.stringify({schema:"nihon.astra.review",version:1,activeReviewer:"fernando",places:{}}));localStorage.removeItem("nihon.manualPlanningDraft");localStorage.removeItem("nihon.savedPlaceIds");});await page.reload({waitUntil:"networkidle"});assert.equal(await page.getByRole("button",{name:"Explorar Japón"}).count(),1,"Todos empty state missing");await page.getByRole("button",{name:"Descartados",exact:true}).click();assert.equal(await page.getByText("No han descartado lugares.").count(),1);
+    await page.evaluate(()=>{localStorage.setItem("nihon.astra.review.v1",JSON.stringify({schema:"nihon.astra.review",version:1,activeReviewer:"fernando",places:{}}));localStorage.removeItem("nihon.manualPlanningDraft");localStorage.removeItem("nihon.savedPlaceIds");});await page.reload({waitUntil:"networkidle"});assert.equal(await page.getByRole("heading",{name:"Su viaje empieza con un lugar"}).count(),1,"Todos empty heading missing");assert.equal(await page.getByRole("button",{name:"Explorar Japón"}).count(),1,"Todos empty state missing");await page.getByRole("button",{name:"Descartados",exact:true}).click();assert.equal(await page.getByText("No han descartado lugares.").count(),1);
     await page.evaluate(()=>localStorage.setItem("nihon.astra.review.v1",JSON.stringify({schema:"nihon.astra.review",version:1,activeReviewer:"fernando",places:{"JP-001":{placeId:"JP-001",votes:{fernando:"yes",ella:"unreviewed"},inReviewQueue:true,legacy:false}}})));await page.reload({waitUntil:"networkidle"});await page.getByRole("button",{name:"Ambos",exact:true}).click();assert.equal(await page.getByText("Todavía no hay coincidencias. Revisen lo que le gusta al otro.").count(),1);assert.equal(await page.getByRole("button",{name:"Ver pendientes"}).count(),1);await page.getByRole("button",{name:"Ella",exact:true}).click();assert.equal(await page.getByRole("button",{name:"Quitar filtros"}).count(),1);
     await page.evaluate(value=>localStorage.setItem("nihon.astra.review.v1",JSON.stringify(value)),review);await page.reload({waitUntil:"networkidle"});
     for(const [label,width,height] of [["320",320,800],["390",390,844],["tablet",768,1024],["desktop",1440,900]]){await page.setViewportSize({width,height});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1),`${label}: Our Trip horizontal overflow`);await page.screenshot({path:`${outputRoot}/screenshots/10-sol5-${label}.png`,fullPage:true});}
