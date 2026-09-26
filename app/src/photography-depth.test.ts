@@ -13,20 +13,26 @@ import placesJson from "./data/places.json";
  * becomes a way to smuggle in an image of somewhere else.
  */
 
-type Place = { id: string; grade: string; tourismLevel: string; name: string };
+type Place = { id: string; grade: string; tourismLevel: string; name: string; hiddenGemStatus?: string };
 const places = new Map((placesJson as Place[]).map((place) => [place.id, place]));
 
 const galleries = Object.entries(placeImages).filter(([, images]) => images.length > 1);
 
 describe("galleries exist only where the criterion was met", () => {
   it("adds depth only to places of the highest interest", () => {
-    // Criterion 1: grade S, or grade A with Extremo/Alto prominence.
+    // Criterion: grade S, or grade A with Extremo/Alto prominence, or grade A with a real Hidden
+    // Gem status. B6.7 ("depth batch 1/2", commits 8601a9d/4afbf50) is the normative source for
+    // the Hidden Gem branch: scripts/select-block22-b6-7-targets.py derives its target list as
+    // `qualified_ids = tourism_ids | hidden_gem_ids`, and JP-047 (grade A, tourismLevel "Bajo",
+    // hiddenGemStatus "Hidden Gem real") is one of its 11 authorized targets.
     for (const [placeId] of galleries) {
       const place = places.get(placeId);
       expect(place, placeId).toBeDefined();
       const qualifies =
         place!.grade === "S" ||
-        (place!.grade === "A" && ["Extremo", "Alto"].includes(place!.tourismLevel));
+        (place!.grade === "A" &&
+          (["Extremo", "Alto"].includes(place!.tourismLevel) ||
+            place!.hiddenGemStatus === "Hidden Gem real"));
       expect({ placeId, qualifies }).toEqual({ placeId, qualifies: true });
     }
   });
@@ -38,10 +44,14 @@ describe("galleries exist only where the criterion was met", () => {
   });
 
   it("leaves the great majority of the catalogue at a single photograph", () => {
-    // B6.4 intentionally adds experience to more Grade-S places, while depth remains a
-    // selective treatment: at least 85% of covered places still have a single photograph.
+    // B6.4 intentionally adds experience to more Grade-S places, and B6.7 ("depth batch 1/2",
+    // commits 8601a9d/4afbf50) adds 11 more Grade-A galleries (see
+    // data/visual/block22-b6-7-acquisition-plan.json), while depth remains a selective
+    // treatment. After B6.7 the catalogue sits at 32/202 galleries (~84.2% single-photograph);
+    // the bar is set at 80% so this still catches an unauthorized, catalogue-wide expansion
+    // without being retuned every time a documented, deliberate batch nudges the ratio.
     const covered = Object.keys(placeImages).length;
-    expect(covered - galleries.length).toBeGreaterThan(covered * 0.85);
+    expect(covered - galleries.length).toBeGreaterThan(covered * 0.8);
   });
 });
 
@@ -101,7 +111,10 @@ describe("the carousel is now reachable by real data", () => {
   });
 
   it("still resolves exactly one image for a single-photograph place", () => {
-    expect(resolvePlaceImages("JP-001")).toHaveLength(1);
+    // JP-001 (Shibuya Crossing) became a B6.7 depth target and now legitimately resolves two
+    // images; JP-002 (SHIBUYA SKY) is also a B6.7 target, so JP-005 stands in as a place that
+    // never received depth treatment.
+    expect(resolvePlaceImages("JP-005")).toHaveLength(1);
   });
 
   it("still resolves none for an uncovered place", () => {
