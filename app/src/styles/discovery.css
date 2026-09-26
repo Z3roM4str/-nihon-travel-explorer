@@ -1197,15 +1197,31 @@ button.search-field:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: var(--space-4);
   background: var(--scrim-bottom);
   color: var(--surface);
 }
 
+/*
+ * DD-018 (D-M1) — la banda de texto de la tarjeta de ciudad y su suelo de scrim.
+ *
+ * Mismo contrato y mismo mecanismo que `.place-card__band` (`03 §5` «Scrim bajo texto», DD-016):
+ * `--scrim-bottom` sólo llega a 0,60 en el 17 % inferior de la foto, y aquí la banda (nombre,
+ * nombre japonés, contador) ocupa bastante más — medido en B24: scrim efectivo mínimo 0,081 con
+ * la fotografía más clara. La banda lleva su propio suelo con el valor de la parada inferior de
+ * `--scrim-bottom` (0,78 sobre `--ink-900`) bajo todo el texto, de borde a borde, y una franja de
+ * `--space-8` por encima donde baja a 0 para no dejar un canto sobre la foto. Ningún token nuevo.
+ */
 .explorer-home__city-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: var(--space-8) var(--space-4) var(--space-4);
+  background: linear-gradient(
+    to top,
+    rgba(20, 22, 26, 0.78) 0%,
+    rgba(20, 22, 26, 0.78) calc(100% - var(--space-8)),
+    rgba(20, 22, 26, 0) 100%
+  );
 }
 
 .explorer-home__city-name {
@@ -1222,9 +1238,12 @@ button.search-field:focus-visible {
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* DD-018 (D-M1): `--type-num` (`03 §2.2`: hereda tamaño, record 500, `tabular-nums`). */
 .explorer-home__city-count {
   font-family: var(--font-record);
   font-size: var(--type-body-s-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: rgba(255, 255, 255, 0.82);
 }
 

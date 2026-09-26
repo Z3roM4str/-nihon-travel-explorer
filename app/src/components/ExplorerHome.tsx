@@ -159,9 +159,8 @@ export function ExplorerHome({
                         {jaName}
                       </span>
                     )}
-                    <span className="national-start__hub-count explorer-home__city-count">
-                      {count} lugares
-                    </span>
+                    {/* DD-018 (D-M1): sin píldora — cifra en `--type-num` sobre el scrim. */}
+                    <span className="explorer-home__city-count">{count} lugares</span>
                   </div>
                 </div>
               </button>
