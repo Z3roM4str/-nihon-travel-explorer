@@ -139,11 +139,14 @@ describe("DDR-05 — `Dato:` no entra en la ficha, y el planificador no se toca"
     }
   });
 
+  // B24: timeout propio de 30 s. `git diff` contra PRE_B20_SHA recorre un árbol con cientos de
+  // imágenes y bajo carga (suite completa en paralelo) supera los 5 s por defecto. La expectativa
+  // no cambia.
   it("B20 no modifica OrderedSequenceBuilder.tsx — su retirada sigue siendo de B9.5", () => {
     const files = changedFiles();
     if (files === null) return; // SHA base no disponible en este checkout.
     expect(files).not.toContain("app/src/components/OrderedSequenceBuilder.tsx");
-  });
+  }, 30_000);
 
   it("las cuatro apariciones siguen donde el roadmap las asigna, intactas", async () => {
     const planner = await read("components/OrderedSequenceBuilder.tsx");
