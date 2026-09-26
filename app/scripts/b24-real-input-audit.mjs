@@ -528,7 +528,12 @@ async function sampleIcons(page, scope, id) {
       const r = el.getBoundingClientRect();
       const s = svg?.getBoundingClientRect();
       const visible = r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth && el.offsetParent !== null;
-      return { visible, button: { w: r.width, h: r.height }, svg: s ? { x: s.left, y: s.top, width: s.width, height: s.height } : null };
+      return {
+        visible,
+        disabled: el.disabled,
+        button: { w: r.width, h: r.height },
+        svg: s ? { x: s.left, y: s.top, width: s.width, height: s.height } : null,
+      };
     });
     if (!box.visible || !box.svg) continue;
     sampled += 1;
@@ -542,7 +547,10 @@ async function sampleIcons(page, scope, id) {
       if (luminance(rgb) < luminance(darkest)) darkest = rgb;
     }
     const ratio = contrast(lightest, darkest);
-    check(id, ratio >= MIN_GRAPHIC_CONTRAST, `icono ${i + 1} de ${scope} invisible: contraste trazo/fondo ${ratio.toFixed(2)} < 3`);
+    // Un control deshabilitado está exento del 3:1 (WCAG 1.4.11, componentes inactivos), pero
+    // tiene que estar PINTADO: 1,00:1 es un icono tapado, no un icono atenuado.
+    const floor = box.disabled ? 1.5 : MIN_GRAPHIC_CONTRAST;
+    check(id, ratio >= floor, `icono ${i + 1}${box.disabled ? " (deshabilitado)" : ""} de ${scope} invisible: contraste trazo/fondo ${ratio.toFixed(2)} < ${floor}`);
   }
   return sampled;
 }
