@@ -1748,9 +1748,20 @@ button.app__title.app__title--expand {
  * `04 §6` también fija la proporción: 4:5 en teléfono —vertical, la fotografía es el
  * contenido— y 4:3 en `md`+ dentro del panel.
  */
+/*
+ * DD-019 (D-M3): por debajo de `md` el héroe sigue siendo 4:5, pero con tope de 60svh — a 820 px
+ * de ancho un 4:5 sin tope medía 1025 px y empujaba el nombre fuera de la primera pantalla. Con el
+ * tope, la foto se recorta (`object-fit: cover` en `.gallery__image`), nunca se deforma. `60vh`
+ * primero, como respaldo de los navegadores sin unidades `svh`. Desde `md` manda `04 §6` (4:3).
+ */
 .gallery__track {
   display: flex;
+  /* `width` explícito: con `width: auto`, el tope de alto se transferiría por la proporción a un
+     tope de ANCHO y la foto dejaría de ir a sangre (medido: 566 px en una ficha de 820). */
+  width: 100%;
   aspect-ratio: 4 / 5;
+  max-height: 60vh;
+  max-height: 60svh;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -1837,6 +1848,7 @@ button.app__title.app__title--expand {
 @media (min-width: 840px) {
   .gallery__track {
     aspect-ratio: 4 / 3;
+    max-height: none;
   }
 
   .gallery__nav {
