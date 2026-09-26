@@ -156,6 +156,10 @@ acotada por el tope del breakpoint. Topes: `base` 1 · `sm` 2 · `md` 2 · `lg` 
   al abrirla ni al cerrarla y conserva centro, zoom y marcador seleccionado.
 - `xl`: lo mismo con 3 columnas de lista.
 
+**Encuadre inicial del mapa (DDR-B24-1, resuelta por `DD-023`).** Al abrir una ciudad, el mapa
+encuadra su centro/zoom editorial o, en su defecto, el núcleo calculado sobre sus propios lugares
+— nunca todos los lugares del hub (`03 §9`).
+
 El ancho de viewport en el que `lg` llega a 2 columnas (~1090–1140 px según el cromo
 real) es una **consecuencia aritmética** de esa fórmula, no un breakpoint: no se escribe
 en el código ni en este documento.

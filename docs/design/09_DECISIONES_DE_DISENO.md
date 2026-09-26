@@ -365,7 +365,7 @@ el ciclo completo (antes de abrir → abierta → después de cerrar). **DDR-01 
 ---
 
 ### DD-018 — Contador de ciudad sin píldora, sobre el scrim (D-M1)
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `05 §2` pt. 3, `03 §5` · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `05 §2` pt. 3, `03 §5` · **Origen:** dirección, Bloque 24
 
 **Decisión.** En las tarjetas de ciudad de la portada, «57 lugares» va **sin píldora**, en
 `--type-num`, directamente sobre el scrim de la fotografía. El scrim cumple su contrato de `03 §5`:
@@ -383,7 +383,7 @@ tokens nuevos. Lo mide `app/scripts/b24-real-input-audit.mjs` sobre píxeles com
 ---
 
 ### DD-019 — Proporción del héroe de la ficha por debajo de `md` (D-M3)
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `04 §6`, `05 §5` pt. 1, `06 §5.2` · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `04 §6`, `05 §5` pt. 1, `06 §5.2` · **Origen:** dirección, Bloque 24
 
 **Decisión.** Por debajo de `md`, la galería de la ficha mantiene la proporción **4:5**, con **altura
 máxima 60svh** y `object-fit: cover`. Desde `md` sigue `04 §6`: 4:3 dentro del panel.
@@ -397,7 +397,7 @@ foto se recorta, no se deforma.
 ---
 
 ### DD-020 — Léxico: «Misma zona» y toasts de «Quiero ir» (D-M4)
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §10`, `04 §16`, `05 §5` pt. 12 · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `03 §10`, `04 §16`, `05 §5` pt. 12 · **Origen:** dirección, Bloque 24
 
 **Decisión.**
 - El valor del dataset «Mismo cluster» se presenta como **«Misma zona»**. Sólo en presentación: el
@@ -412,7 +412,7 @@ repositorio (Art. 7).
 ---
 
 ### DD-021 — Iconos del set propio en lugar de glifos de texto (D-M5)
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §8` · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `03 §8` · **Origen:** dirección, Bloque 24
 
 **Decisión.** Los glifos de texto que hacen de icono (`▾`, `▸`, `↓`) en cromo y hojas se sustituyen
 por el set de `app/src/icons`, fuera de las zonas vedadas.
@@ -423,7 +423,7 @@ por el set de `app/src/icons`, fuera de las zonas vedadas.
 ---
 
 ### DD-022 — Resultados de búsqueda (D-M6)
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `04 §5.10`, `04 §12` · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `04 §5.10`, `04 §12` · **Origen:** dirección, Bloque 24
 
 **Decisión.**
 - Las filas de resultados **nunca son más anchas que la hoja**.
@@ -732,7 +732,7 @@ texto de la distinción es legible por un lector de pantalla.
 ---
 
 ### DDR-B24-1 — Encuadre inicial del mapa de ciudad
-**Estado: ABIERTA** · Abierta 2026-09-26 (Bloque 24, P0-4) · **Afecta:** `03 §9`, `05 §4` · **Bloqueante:** no
+**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, P0-4) · Cerrada 2026-09-26 por **DD-023** · **Afecta:** `03 §9`, `05 §4` · **Bloqueante:** no
 
 **La pregunta.** ¿Qué encuadra el mapa de una ciudad al abrirse? Hoy `FitHubBounds` ajusta el
 mapa a **todos** los lugares del hub, y los hubs contienen excursiones lejanas: Tokio incluye
@@ -768,10 +768,15 @@ a encuadrar el núcleo).
 
 **Qué ha hecho B24.** Nada sobre el encuadre: `FitHubBounds` no cambia.
 
+**Cómo se ha cerrado.** Ver **DD-023**. En corto: opción (c) con fallback (b) — encuadre editorial
+por hub (`lib/hub-view.ts`), calculado sobre el núcleo real de cada hub cuando no hay uno
+declarado; los lugares periféricos no se retiran de nada, sólo dejan de decidir la primera vista;
+el lugar seleccionado explícitamente sigue ganando siempre.
+
 ---
 
 ### DDR-B24-2 — Marcadores cercanos cuando hay 12 o menos a la vista
-**Estado: ABIERTA** · Abierta 2026-09-26 (Bloque 24, P0-4) · **Afecta:** `03 §9`, Art. 11 · **Bloqueante:** no
+**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, P0-4) · Cerrada 2026-09-26 por **DD-024** · **Afecta:** `03 §9`, Art. 11 · **Bloqueante:** no
 
 **La tensión.** `03 §9` agrupa **sólo por encima de 12** marcadores visibles. Art. 11 exige 44×44
 por objetivo, y dos cajas de 44 px que se solapan son ambiguas (el criterio de
@@ -793,10 +798,15 @@ Tsuboya (7). Acercando un nivel más se separan.
 **Qué ha hecho B24.** Aplica `03 §9` literalmente: agrupa por encima de 12 y, cuando agrupa, ningún
 par de cajas se toca (verificado en el gate B24). Por debajo de 12 no agrupa.
 
+**Cómo se ha cerrado.** Ver **DD-024**. En corto: opción (a) — la regla geométrica de
+`groupScreenPoints` (funde parejas cuya caja de 44 px se tocaría) se aplica siempre, no sólo por
+encima de 12 marcadores visibles; eso cubre a la vez la regla de densidad de `03 §9` y la red de
+seguridad de Art. 11 con el mismo código, y vuelve a separar en cuanto el zoom aleja las cajas.
+
 ---
 
 ### DDR-B24-3 — Volver desde un lugar abierto en una colección de la portada
-**Estado: ABIERTA** · Abierta 2026-09-26 (Bloque 24, hallado al hacer la portada desplazable) · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Bloqueante:** no
+**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, hallado al hacer la portada desplazable) · Cerrada 2026-09-26 por **DD-025** · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Bloqueante:** no
 
 **La tensión.** `02 §D3` pt. 2: «la profundidad se apila dentro de una pestaña … volver devuelve
 exactamente al scroll anterior». Al abrir un lugar desde una colección de la portada, `selectPlace`
@@ -813,6 +823,130 @@ portada sin scroll (P0-1) el caso casi no se alcanzaba; ahora sí.
 **Qué ha hecho B24.** Nada: es un cambio del modelo de vuelta atrás, que `08` reserva a revisión de
 diseño. Cambiar de pestaña y volver sí conserva el scroll de la portada (verificado).
 
+**Cómo se ha cerrado.** Ver **DD-025**. En corto: opción (a) — las colecciones de la portada se
+comportan exactamente como la búsqueda global de DDR-B21-05.
+
+---
+
+### DD-023 — DDR-B24-1: encuadre editorial por hub con fallback calculado
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §9`, `05 §4` · **Origen:** dirección, Bloque 24
+
+**Decisión.** Se adopta la opción (c) de DDR-B24-1 con el fallback (b) para cualquier hub sin
+encuadre declarado. Contrato:
+
+1. Los hubs principales (Tokio, Kioto, Osaka, Okinawa) declaran un centro/zoom editorial.
+2. Esa configuración vive fuera del dataset de lugares, en `lib/hub-view.ts` — una estructura de
+   presentación tipada y centralizada (mismo patrón que el mapa de nombres japoneses de
+   DDR-B21-06). No se introducen coordenadas editoriales dentro de los registros `Place`.
+3. Si un hub no tiene configuración editorial, el encuadre inicial es el núcleo calculado sobre
+   la mediana de sus propios lugares (radio 10 km, o la mediana de todos si ninguno cae dentro de
+   ese radio) — nunca `fitBounds` de todos los lugares del hub.
+4. Los lugares periféricos no desaparecen: siguen en el dataset, en listas y en búsqueda, y
+   siguen disponibles en el mapa al desplazarlo o alejarlo — sólo dejan de decidir la primera
+   vista.
+5. Si el mapa se abre o se centra explícitamente desde un lugar concreto, ese lugar tiene
+   prioridad y queda visible/centrado aunque esté fuera del encuadre editorial inicial
+   (`FocusSelected` corre después de `FitHubBounds` y gana; mientras hay una ficha abierta,
+   `FitHubBounds` no vuelve a competir por la vista).
+6. No se añade ningún indicador nuevo de «lugares fuera del mapa» — la opción (d) queda
+   descartada por ahora; si se necesita en el futuro, es una decisión de diseño propia (nueva UI
+   que `08` obliga a revisar).
+
+**Centros editoriales (calculados en la auditoría B24 sobre el núcleo real de cada hub, mediana +
+radio 10 km):** Tokio `[35.6802, 139.7435]`, Kioto `[35.0079, 135.7574]`, Osaka `[34.6681,
+135.4923]`, Okinawa `[26.2099, 127.7044]`, zoom 12 en los cuatro (encuadra un núcleo de ~10–13 km
+de lado con el tamaño de mapa actual). Corresponden a 48/57, 39/49, 23/53 y 11/50 lugares del hub
+dentro de ese núcleo — la misma evidencia que registró DDR-B24-1.
+
+**Alternativas descartadas.** (a) Conservar el encuadre de todos los lugares: la primera vista
+queda casi vacía en Tokio, Osaka y Okinawa (evidencia de DDR-B24-1). (d) Núcleo + indicador de
+«fuera del mapa»: UI nueva fuera del alcance de este cierre; queda como posible trabajo futuro, no
+como parte de esta decisión.
+
+**Consecuencias.** `FitHubBounds` (`PlaceMap.tsx`) deja de llamar a `fitBounds`/`flyToBounds` con
+todos los lugares del hub; usa `resolveHubView` (`lib/hub-view.ts`) y sólo actúa cuando no hay
+ningún lugar seleccionado. Gate: `src/lib/hub-view.test.ts` (encuadre editorial para los cuatro
+hubs, núcleo calculado reproduce la evidencia de la auditoría, un hub sin configuración cae al
+fallback, el centro editorial no lo determinan los outliers). **DDR-B24-1 queda cerrada.**
+
+---
+
+### DD-024 — DDR-B24-2: red de seguridad geométrica de agrupación, siempre activa
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §9`, Art. 11 · **Origen:** dirección, Bloque 24
+
+**Decisión.** Se adopta la opción (a) de DDR-B24-2. Contrato:
+
+- El umbral `>12` de `03 §9` sigue siendo la regla general de agrupación por densidad.
+- Existe además una regla de seguridad geométrica independiente: si dos o más marcadores sueltos
+  producirían áreas táctiles de 44×44 px con solape ambiguo, se agrupan aunque haya ≤12
+  marcadores visibles.
+- Cuando el zoom es suficiente para que esas áreas ya no colisionen, vuelven a separarse.
+- Los tamaños visuales de `03 §9` no cambian; ningún objetivo baja de 44 px; no se acepta solape
+  ambiguo; sin dependencia nueva.
+
+**Cómo se implementa.** `groupScreenPoints` (`lib/map-grouping.ts`) ya fundía sólo las parejas de
+puntos cuyas cajas de 44 px se tocarían — es exactamente la regla de seguridad geométrica.
+`MarkerLayer` (`PlaceMap.tsx`) pasa a llamarla **siempre**, sin la condición previa
+`shouldGroupMarkers(visibleCount)`: por encima de 12 el resultado es el mismo que antes (la
+densidad produce solapes que se funden), y por debajo de 12 ahora también agrupa cualquier pareja
+que se tocaría. `shouldGroupMarkers`/`MAP_GROUP_THRESHOLD` se conservan como la constante y
+predicado que documentan el umbral literal de `03 §9`, aunque `MarkerLayer` ya no la usa como
+condición de entrada — la geometría por sí sola cubre ambas reglas a la vez.
+
+**Alternativas descartadas.** (b) Sueltos con impacto repartido por la mediatriz: incumple Art. 11
+(un objetivo queda por debajo de 44 px en un eje). (c) Aceptar el solape: es exactamente la
+ambigüedad que Art. 11 prohíbe.
+
+**Consecuencias.** `03 §9` se reescribe para dejar constancia de que el umbral de 12 ya no es la
+única condición de agrupación: la geometría de impacto de Art. 11 puede agrupar también por
+debajo. Cobertura permanente de los cuatro conflictos que registró la auditoría (Tokio: Shibuya
+Crossing/SHIBUYA SKY; Kioto: Yasaka Kōshin-dō/Kōdai-ji y Kennin-ji/Gion Corner; Osaka:
+Dotonbori/Glico/Hozenji Yokocho; Okinawa: Kokusai Street/Makishi/Tsuboya) en
+`src/lib/map-grouping.test.ts`, con una proyección Web Mercator idéntica a la de Leaflet para
+reproducir sus coordenadas reales a distintos niveles de zoom, y una prueba de que vuelven a
+separarse al acercar. **DDR-B24-2 queda cerrada.**
+
+---
+
+### DD-025 — DDR-B24-3: las colecciones de la portada se comportan como la búsqueda global
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Origen:** dirección, Bloque 24
+
+**Decisión.** Se adopta la opción (a) de DDR-B24-3. Al seleccionar un lugar desde una colección de
+la portada:
+
+- `PlaceDetail` se apila sobre la portada dentro de Explorar; no se cambia implícitamente la
+  ciudad activa.
+- La portada permanece montada (nunca se desmonta mientras la ficha está abierta).
+- Cerrar mediante UI, Escape o back del navegador vuelve exactamente a la portada, con el scroll
+  que tenía justo antes de abrirse la ficha.
+- Se conserva cualquier estado local de la portada (nunca se remonta).
+- No se introduce una segunda instancia de `PlaceDetail`.
+
+Coherente con `02 §D3`: la portada es una superficie más de Explorar, y abrir un lugar desde ella
+es la misma "profundidad apilada dentro de una pestaña" que abrirlo desde cualquier otro sitio de
+Explorar — la única corrección es que, igual que la búsqueda global, no debe tratarse como un
+salto implícito a la ciudad del lugar.
+
+**Cómo se implementa.** `selectPlace` ya distinguía un cuarto parámetro, `exploreReturnSurface`,
+con el valor `"global-search"` para eximir a la búsqueda global del salto de hub. Se generaliza a
+`"global-search" | "home-collection"`, y las tres comprobaciones que antes miraban
+específicamente `=== "global-search"` (el cambio de hub en `selectPlace`/`pushPlace`/`goBack`, y la
+restauración de vista en un back real del navegador) pasan a mirar "cualquier
+`exploreReturnSurface` no nulo". `ExplorerHome` etiqueta sus selecciones como `"home-collection"`;
+el resto del mecanismo —apilado sobre la portada, sin desmontarla, restauración exacta al
+cerrar— ya lo daba gratis la arquitectura existente (la portada es una superficie que se sigue
+montando mientras `activeHub` sea `null`, y `placeDetailOverlay` ya se renderiza como hermano
+suyo, no encima condicionalmente).
+
+**Alternativa descartada.** (b) Conservar el salto a la ciudad como excepción documentada a `02
+§D3` pt. 2: mantiene la inconsistencia entre dos superficies (búsqueda global y colecciones) que
+deberían comportarse igual por ser ambas entradas "sin ciudad" a un lugar.
+
+**Consecuencias.** Cobertura permanente en `src/block24-ddr3-home-collections.test.ts` (contrato
+de código) y `app/scripts/b24-ddr3-home-collections-check.mjs` (comportamiento en vivo: apertura
+desde colección, cierre normal, Escape, back del navegador, restauración de scroll, ausencia de
+cambio implícito de ciudad). **DDR-B24-3 queda cerrada.**
+
 ---
 
 ## Decisiones abiertas
@@ -827,5 +961,5 @@ diseño. Cambiar de pestaña y volver sí conserva el scroll de la portada (veri
 > **DDR-01, DDR-02, DDR-03, DDR-04, DDR-05 y DDR-06 están RESUELTAS.** No queda ninguna
 > decisión de diseño pendiente que bloquee B20.
 >
-> **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **ABIERTAS**. Ninguna bloquea el resto del
-> bloque; cada una deja escrito qué hace hoy el código.
+> **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025). No
+> queda ninguna decisión de diseño abierta en B24.

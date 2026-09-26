@@ -91,7 +91,8 @@ Uso: `npm run build && NIHON_CHROMIUM_PATH=<chromium> node scripts/b24-real-inpu
 | B — auditoría | `77a3345` | `docs/BLOCK_24_UX_AUDIT.md`: 19 FIX-NOW, 1 DDR, 5 DEFERRED-ACTIVE-BRANCH, 6 DEFERRED-ROADMAP |
 | C — P0 | `7794fd1` | P0-1…P0-5 FIX-NOW en verde en los 8 viewports (663/758; los 95 fallos restantes son P1 pendientes). DD-018…022 y DDR-B24-1/2/3 en `09` |
 | D — P1 | `f0b8b22` | P1-01…P1-12 y P2-7 corregidos; gate **763/763** en los 8 viewports |
-| E — regresión | (este commit) | 1 regresión propia encontrada y corregida (`d901e03`); 1 expectativa de gate B19 actualizada citando `03 §9` (`e1b4f7d`); gate B24 **795/795** |
+| E — regresión | `6b100e5` | 1 regresión propia encontrada y corregida (`d901e03`); 1 expectativa de gate B19 actualizada citando `03 §9` (`e1b4f7d`); gate B24 **795/795** |
+| F — cierre DDR-B24-1/2/3 | (este commit) | `DD-023/024/025` en `09`; encuadre editorial + agrupación siempre activa (`5e76ef7`); colecciones de la portada (`035514b`); gate B19 robusto (`6e6044a`); gate B24 **873/875** (2 hallazgos, ver abajo) |
 
 ## F5 — Regresión (HEAD `e1b4f7d` + docs)
 
@@ -127,6 +128,84 @@ de 44 px, «Limpiar» en la línea del estado con área de 44 px (`.tap-target-m
   el seleccionado sale de su grupo «encima de todos»); 57/57/57.
 - `block20-place-detail.test.ts` — sólo timeout propio de 30 s en un test (misión §1).
 
+## F6 — Cierre DDR-B24-1/2/3 (HEAD `6e6044a` + este commit de docs)
+
+**Preflight de esta sesión.** `git fetch --all`; HEAD inicial `6b100e5a76349275b89766239875a312d801f110`
+(idéntico al remoto, working tree limpio, rama correcta). Base B24 `4afbf50e9d1e3137f9148c6c471c1c40aac6a56f`
+sigue siendo la misma. B23 `52a7073799bdeeb180949ef379275201a94879fe` y B6.5-fix
+`af21671a99b63b451df11ac15c11775d94dc324e` verificados como no-ancestros de HEAD (`git merge-base
+--is-ancestor` niega ambos).
+
+**Resolución e implementación exacta.**
+
+- **DDR-B24-1 (→ `DD-023`).** Encuadre editorial por hub con fallback calculado. `lib/hub-view.ts`
+  (nuevo): `HUB_EDITORIAL_VIEW` con centro/zoom para Tokio/Kioto/Osaka/Okinawa (calculados sobre la
+  mediana + radio 10 km del propio dataset, reproduciendo la evidencia de la auditoría: 48/57,
+  39/49, 23/53, 11/50 lugares en el núcleo); `calculatedHubCore`/`resolveHubView` para cualquier
+  otro hub. `FitHubBounds` (`PlaceMap.tsx`) deja de llamar `fitBounds`/`flyToBounds` con todos los
+  lugares del hub; sólo actúa cuando `hasSelection` es falso (ninguna ficha abierta), para que
+  `FocusSelected` (que corre después, en un `useEffect`, no un `useLayoutEffect`) siga ganando
+  siempre que hay un lugar seleccionado explícitamente.
+- **DDR-B24-2 (→ `DD-024`).** `MarkerLayer` llama `groupScreenPoints` incondicionalmente (antes
+  gateado por `shouldGroupMarkers(visibleCount)`, que sólo agrupaba por encima de 12). Como
+  `groupScreenPoints` ya sólo fundía parejas cuyas cajas de 44 px se tocarían, aplicarla siempre
+  cubre la regla de densidad de `03 §9` y la red de seguridad geométrica de Art. 11 con el mismo
+  código, y las vuelve a separar en cuanto el zoom aleja las cajas.
+- **DDR-B24-3 (→ `DD-025`).** `exploreReturnSurface` gana `"home-collection"` junto a
+  `"global-search"`. Las tres comprobaciones que antes miraban específicamente
+  `=== "global-search"` (el salto de hub en `selectPlace`, en `pushPlace`/`goBack`, y la
+  restauración de vista de un back real de navegador en `restoreViewForTrail`) pasan a mirar
+  "cualquier valor no nulo". `ExplorerHome` etiqueta sus selecciones con `"home-collection"`. El
+  resto del contrato (apilado sobre la portada, portada nunca desmontada, restauración de scroll)
+  ya lo daba la arquitectura existente una vez quitado el salto de hub.
+
+**Pruebas y gates.**
+
+| Puerta | Resultado |
+|---|---|
+| `src/lib/hub-view.test.ts` (nuevo) | 6/6 — encuadre editorial de los 4 hubs, no lo determinan los outliers, núcleo calculado reproduce la evidencia de la auditoría, fallback para hub sin editorial, fallback sin lugares |
+| `src/lib/map-grouping.test.ts` (ampliado) | 13/13 — los 4 conflictos de la auditoría (Shibuya Crossing/SHIBUYA SKY, Kioto ×2, Osaka, Okinawa) con proyección Web Mercator real; se separan al alejar el zoom |
+| `src/block24-ddr3-home-collections.test.ts` (nuevo) | 4/4 — contrato de código de la generalización de `exploreReturnSurface` |
+| `src/block21-global-search.test.ts` (actualizado) | expectativa de código generalizada citando DDR-B24-3 |
+| `app/scripts/b24-ddr3-home-collections-check.mjs` (nuevo, Playwright) | 9/9 — apertura desde colección, sin cromo de ciudad, cierre por UI/Escape/back con restauración exacta de scroll |
+| vitest completo | 3347/3355 (8 fallos, los mismos de la base B6.7 — ver abajo) |
+| build | PASS — `index-*.js` 1.651,51 kB |
+| lint | 0 errores, 1 warning heredado (Fast Refresh, `PlaceMap.tsx:16`) |
+| `block19-grid-check.mjs` | 52/52 (tras la corrección del propio gate, ver «Regresiones» abajo) |
+| `b24-real-input-audit.mjs` (8 viewports) | **873/875, 2 fallos** (ver «Regresiones» abajo) |
+
+**Regresiones encontradas y corregidas.**
+
+1. **`block19-grid-check.mjs` — «el mapa conserva el zoom en todo el ciclo».** Dos causas reales:
+   (a) sin red de teselas en este contenedor, una capa de teselas vieja podía quedar sin podar con
+   una escala CSS residual ajena al zoom real — el gate ahora lee el zoom del propio `z` de las
+   URLs de tesela pedidas, señal estable pase lo que pase con la red; (b) `FitHubBounds` competía
+   de verdad con `FocusSelected` por la vista mientras la ficha estaba abierta (ambas reaccionaban
+   a `panelOffset`) — `FitHubBounds` ahora no actúa mientras hay una selección. Verificado también
+   contra la base sin estos cambios (52/52 limpio) para confirmar que la causa era de esta
+   implementación, no del entorno.
+2. **`block18-shell.test.ts`** — expectativa de la firma de `selectPlace` actualizada para incluir
+   `"home-collection"` (contrato de código, no de comportamiento).
+
+**Regresión encontrada, NO corregida — P0-4e (nueva entrada en `docs/BLOCK_24_UX_AUDIT.md`).** Al
+expandir el grupo mayor de Tokio a 375×667, «Daikanyama T-SITE» queda exactamente bajo
+`.interest-legend__summary`; `elementFromPoint` resuelve a la leyenda, no al marcador. No ocurre en
+la base `4afbf50` (0 fallos). Se intentaron dos ajustes de encuadre en `expand()` (`PlaceMap.tsx`)
+sin éxito verificable: la posición final del marcador depende de la geometría completa de los 57
+lugares de Tokio a ese zoom, no sólo de los miembros del grupo expandido — un ajuste fiable exige
+una zona muerta reservada en el propio contenedor del mapa o mover la leyenda de esquina, ambas
+decisiones de diseño/`08` fuera del alcance de este cierre. **DEFERRED-ROADMAP**, no bloquea el
+cierre de las tres DDR.
+
+**Segundo hallazgo del gate B24, no reproducible en aislamiento.** «P1-FILTER primer chip sin
+marcar: centro fuera del viewport» a 320×568 apareció en las corridas completas de 8 viewports pero
+**no en 3/3 corridas aisladas de ese único viewport** (108/108 limpio); no toca código de
+filtros. Se registra como flake de la corrida completa en este contenedor, no como regresión.
+
+**Corrección documental de fechas.** DD-018…022 y DDR-B24-1/2/3 quedaban registradas con fecha
+2026-09-26; la sesión de creación fue el 2026-09-25 — corregido en `docs/design/09` (las DDR pasan
+a «Abierta 2026-09-25 · Cerrada 2026-09-26»). No se tocó ninguna fecha de decisiones anteriores.
+
 ## Commits (base `4afbf50` → HEAD)
 
 `0032c00` misión · `da7ce9b` gate rojo · `22fd492` timeout B20 · `454d31a` checkpoint A ·
@@ -136,27 +215,33 @@ de 44 px, «Limpiar» en la línea del estado con área de 44 px (`.tap-target-m
 checkpoint C · `057edd1` P1-01…04 · `4c58e61` P1-05 · `fca07f3` P1-06 · `c44dd80` P1-07 ·
 `c27d383` P1-08 · `5ab0c0f` P1-09 · `462fbe1` gate · `37075e0` P1-10 · `776b5ba` gate · `c84b3aa`
 P1-11/12 · `6035179` P2-7 · `f0b8b22` checkpoint D · `3f7f3b9` gate · `d901e03` regresión
-FilterSheet · `e1b4f7d` gate B19 · (checkpoint E, este commit).
+FilterSheet · `e1b4f7d` gate B19 · `6b100e5` checkpoint E · `5e76ef7` DDR-B24-1/2 · `035514b`
+DDR-B24-3 · `6e6044a` gate B19 robusto · (checkpoint F, este commit de docs).
 
 ## Archivos tocados
 
 - Código: `app/src/App.tsx`, `app/src/App.css`, `app/src/styles/discovery.css`,
   `app/src/components/{ExplorerHome,FilterPanel,Onboarding,PlaceDetail,PlaceMap,SearchSheet,Sheet}.tsx`,
-  `app/src/lib/{map-grouping.ts (nuevo),onboarding.ts,transfer.ts}`.
-- Tests: `app/src/lib/map-grouping.test.ts` (nuevo), `app/src/lib/transfer.test.ts`,
-  `app/src/block18-shell.test.ts`, `app/src/block20-place-detail.test.ts` (sólo timeout).
-- Gates: `app/scripts/b24-real-input-audit.mjs` (nuevo), `app/scripts/block19-grid-check.mjs`.
-- Docs: `docs/BLOCK_24_{MISSION,HANDOFF,UX_AUDIT}.md`, `docs/design/09_DECISIONES_DE_DISENO.md`,
-  `docs/CURRENT_WORK_HANDOFF.md` (sección nueva arriba).
+  `app/src/lib/{map-grouping.ts,hub-view.ts (nuevo, F6),onboarding.ts,transfer.ts}`.
+- Tests: `app/src/lib/map-grouping.test.ts`, `app/src/lib/hub-view.test.ts` (nuevo, F6),
+  `app/src/lib/transfer.test.ts`, `app/src/block18-shell.test.ts`,
+  `app/src/block21-global-search.test.ts`, `app/src/block24-ddr3-home-collections.test.ts`
+  (nuevo, F6), `app/src/block20-place-detail.test.ts` (sólo timeout).
+- Gates: `app/scripts/b24-real-input-audit.mjs` (nuevo), `app/scripts/block19-grid-check.mjs`,
+  `app/scripts/b24-ddr3-home-collections-check.mjs` (nuevo, F6).
+- Docs: `docs/BLOCK_24_{MISSION,HANDOFF,UX_AUDIT}.md`, `docs/design/{02,03,05,
+  09_DECISIONES_DE_DISENO}.md`, `docs/CURRENT_WORK_HANDOFF.md` (sección nueva arriba).
 
-## DDR pendientes (en `docs/design/09`)
+## DDR (en `docs/design/09`) — todas RESUELTAS
 
-- **DDR-B24-1** — encuadre inicial del mapa de ciudad (todos los lugares vs núcleo calculado vs
-  editorial vs núcleo + indicador). `FitHubBounds` sin cambios.
-- **DDR-B24-2** — marcadores cercanos con ≤12 a la vista: `03 §9` no agrupa y las cajas de 44 px se
-  solapan (Tokio 1 par, Kioto 2, Osaka 5, Okinawa 7). Código: `03 §9` literal.
-- **DDR-B24-3** — volver desde un lugar abierto en una colección de la portada cae en la ciudad,
-  no en la portada (`02 §D3` pt. 2). Código: sin cambios.
+- **DDR-B24-1** — encuadre inicial del mapa de ciudad → **`DD-023`**: editorial por hub con
+  fallback calculado (`lib/hub-view.ts`).
+- **DDR-B24-2** — marcadores cercanos con ≤12 a la vista → **`DD-024`**: red de seguridad
+  geométrica siempre activa (`groupScreenPoints` sin gate de densidad).
+- **DDR-B24-3** — volver desde una colección de la portada → **`DD-025`**: se comporta como la
+  búsqueda global (`exploreReturnSurface="home-collection"`).
+
+No queda ninguna decisión de diseño abierta en B24.
 
 ## DEFERRED
 
@@ -166,7 +251,10 @@ FilterSheet · `e1b4f7d` gate B19 · (checkpoint E, este commit).
   `docs/BLOCK_24_UX_AUDIT.md`.
 - **ROADMAP:** P1-13 glifos de Quiero ir (B7); P2-1 salto de teclado en carruseles, P2-2 orden de
   colecciones, P2-3 foto de Tokio repetida, P2-4 bundle 1,65 MB, P2-6 «57 de 57 lugares» (B10);
-  P2-5 estado vacío de Viaje con instrucción falsa (B9).
+  P2-5 estado vacío de Viaje con instrucción falsa (B9); **P0-4e** (nuevo, F6) colisión de un
+  marcador con `InterestLegend` tras expandir un grupo en Tokio a 375×667 — ver `docs/
+  BLOCK_24_UX_AUDIT.md`, requiere una zona muerta reservada en el contenedor del mapa o mover la
+  leyenda de esquina (decisión de diseño/`08`).
 
 ## Validación humana pendiente
 
@@ -179,10 +267,12 @@ FilterSheet · `e1b4f7d` gate B19 · (checkpoint E, este commit).
 
 ## Siguiente acción exacta
 
-1. Dirección decide DDR-B24-1, DDR-B24-2 y DDR-B24-3 (opciones en `docs/design/09`).
+1. ~~Dirección decide DDR-B24-1, DDR-B24-2 y DDR-B24-3~~ — hecho en F6 (`DD-023/024/025`).
 2. Validación humana en iPhone real: scroll táctil de portada/hojas/mapa y teclado de iOS en la
    búsqueda.
 3. Cuando B23 se integre en la base canónica, aplicar los diffs DEFERRED-ACTIVE-BRANCH de
    `docs/BLOCK_24_UX_AUDIT.md` (P0-5c, AB-1, AB-2) sobre esa base y volver a pasar el gate B24.
-4. Revisar e integrar esta rama (PR hacia la rama canónica) sólo por decisión de dirección: B24 no
+4. P0-4e (colisión con `InterestLegend`, ver DEFERRED arriba): decisión de diseño sobre cómo
+   reservar la esquina del mapa o reubicar la leyenda.
+5. Revisar e integrar esta rama (PR hacia la rama canónica) sólo por decisión de dirección: B24 no
    abre PR ni hace merge. No empezar B25.

@@ -108,7 +108,12 @@ Nosotros
 1. **Las pestañas son destinos, no historial.** Cambiar de pestaña conserva el estado
    interno de cada una (ciudad activa, scroll, día abierto).
 2. **La profundidad se apila dentro de una pestaña.** Ciudad → Lugar apila; volver
-   devuelve exactamente al scroll anterior.
+   devuelve exactamente al scroll anterior. La portada de Explorar (colecciones
+   editoriales, DDR-B21-05/-06) es una superficie más de la pestaña: abrir un lugar
+   desde una colección se comporta como la búsqueda global — la ficha se apila sobre la
+   portada sin cambiar la ciudad activa, la portada sigue montada debajo, y cerrar (UI,
+   Escape o back) devuelve exactamente a la portada con su scroll (DDR-B24-3, resuelta
+   por `DD-025`).
 3. **Un modal sólo para lo que es verdaderamente modal**: lightbox, hojas de acción,
    confirmaciones destructivas, créditos. Nada que el usuario deba poder *recorrer*
    vive en un modal.

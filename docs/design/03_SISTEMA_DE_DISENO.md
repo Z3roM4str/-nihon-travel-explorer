@@ -320,7 +320,17 @@ Maps.
   | Seleccionado | nodo 20 px con halo, encima de todos |
 
 - **Agrupación**: por encima de 12 marcadores visibles, se agrupan en un círculo con
-  cifra (`--type-num`), estilo indicador de estación.
+  cifra (`--type-num`), estilo indicador de estación. Además, con 12 o menos también se
+  agrupan dos o más marcadores sueltos cuando sus cajas táctiles de 44×44 px se tocarían
+  (Art. 11: sin solape ambiguo); en cuanto el zoom las separa, vuelven a ser sueltos
+  (DDR-B24-2, resuelta por `DD-024`).
+- **Encuadre inicial**: al abrir un hub, el mapa encuadra su centro/zoom editorial
+  (`lib/hub-view.ts`) o, si no lo tiene declarado, el núcleo calculado sobre la mediana
+  de sus propios lugares — nunca todos los lugares del hub, que incluyen excursiones
+  lejanas. Ningún lugar desaparece del mapa ni del dataset por quedar fuera del encuadre
+  inicial; sigue disponible al desplazar/alejar el mapa y en listas/búsqueda. Si el mapa
+  se centra explícitamente en un lugar, ese lugar manda sobre el encuadre inicial
+  (DDR-B24-1, resuelta por `DD-023`).
 - **Leyenda**: una línea plegable, no un panel permanente. En teléfono sólo aparece
   sobre el mapa, nunca sobre la lista.
 

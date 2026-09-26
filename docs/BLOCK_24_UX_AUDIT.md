@@ -13,9 +13,9 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | Estado | Hallazgos |
 |---|---|
 | FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-5a, P0-5b, P1-01 … P1-12, P2-7 |
-| DDR | DDR-B24-1 (encuadre del mapa de ciudad), DDR-B24-2 (marcadores cercanos con ≤12 a la vista), DDR-B24-3 (volver desde una colección) |
+| RESUELTO (era DDR) | DDR-B24-1 (encuadre del mapa de ciudad → `DD-023`), DDR-B24-2 (marcadores cercanos con ≤12 a la vista → `DD-024`), DDR-B24-3 (volver desde una colección → `DD-025`) |
 | DEFERRED-ACTIVE-BRANCH | P0-5c, AB-1, AB-2, AB-3, AB-4 |
-| DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9) |
+| DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9), P0-4e (colisión de un marcador con `InterestLegend` tras resolver DDR-B24-1/2, ver más abajo) |
 
 ---
 
@@ -82,21 +82,57 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
   del mapa. Capturas: `/tmp/b24/city-map-390x844.png`, `/tmp/b24/city-map-1440x900.png` (y
   las de después de la agrupación, ver `DDR-B24-1` en `09`).
 - **Norma:** ninguna sección fija el encuadre inicial (`03 §9`, `05 §4` no lo prescriben).
-- **Estado:** **DDR** — no se decide; opciones en `docs/design/09` (DDR-B24-1).
+- **Estado:** **RESUELTO** (DDR-B24-1 cerrada por `DD-023` en `09`): encuadre editorial por hub
+  (`lib/hub-view.ts`) con fallback calculado sobre el núcleo real del hub; ningún lugar
+  desaparece del mapa ni del dataset; el lugar seleccionado explícitamente sigue ganando.
+  `FitHubBounds` ya no usa `fitBounds` de todos los lugares del hub. Gate:
+  `src/lib/hub-view.test.ts`.
 
 ### P0-4d — Solapes con 12 o menos marcadores a la vista → **DDR-B24-2**
 - **Superficie:** Explorar › Ciudad › Mapa, tras acercar. **Viewport:** todos. **Severidad:** P0 (decisión).
 - **Evidencia:** abriendo grupos con clic real hasta deshacerlos, vuelven a solaparse cajas de
   44 px de lugares vecinos: Tokio 1 par (Shibuya Crossing / SHIBUYA SKY), Kioto 2, Osaka 5,
   Okinawa 7. `03 §9` sólo agrupa por encima de 12; Art. 11 no admite el solape.
-- **Estado:** **DDR** (DDR-B24-2 en `09`). El código aplica `03 §9` literalmente.
+- **Estado:** **RESUELTO** (DDR-B24-2 cerrada por `DD-024` en `09`): `groupScreenPoints` (ya
+  agrupaba sólo parejas que se tocarían) se aplica siempre, no sólo por encima de 12 visibles —
+  cubre densidad y seguridad geométrica con el mismo código, y vuelve a separar al alejar el
+  solape con el zoom. Gate: los cuatro conflictos de la auditoría cubiertos permanentemente en
+  `src/lib/map-grouping.test.ts` con proyección Web Mercator real.
 
 ### DDR-B24-3 — Volver desde una colección de la portada
 - **Superficie:** Explorar › Inicio › colecciones. **Viewport:** todos. **Severidad:** P1 (decisión).
 - **Evidencia:** abrir un lugar desde una colección cambia Explorar a su ciudad (B21); al cerrar
   la ficha no se vuelve a la portada ni a su scroll. Se hizo alcanzable al arreglar P0-1.
 - **Norma:** `02 §D3` pt. 2.
-- **Estado:** **DDR** (DDR-B24-3 en `09`): cambia el modelo de vuelta atrás (`08`).
+- **Estado:** **RESUELTO** (DDR-B24-3 cerrada por `DD-025` en `09`): las colecciones de la
+  portada se comportan como la búsqueda global (DDR-B21-05) — `selectPlace` recibe
+  `exploreReturnSurface="home-collection"`, la ficha se apila sobre la portada sin cambiar de
+  ciudad, la portada sigue montada y cerrar (UI/Escape/back) devuelve exactamente a ella con su
+  scroll. Gate: `src/block24-ddr3-home-collections.test.ts` (contrato) y
+  `app/scripts/b24-ddr3-home-collections-check.mjs` (comportamiento en vivo).
+
+### P0-4e — Regresión propia: un marcador puede quedar bajo `InterestLegend` tras expandir un grupo
+- **Superficie:** Explorar › Ciudad › Mapa (Tokio), tras expandir un grupo. **Viewport:** 375×667
+  (reproducido sólo en ese viewport en la comprobación aislada; aparece de forma intermitente en
+  otros durante la corrida completa de 8 viewports). **Severidad:** P0.
+- **Evidencia:** al implementar DDR-B24-1/DDR-B24-2, el encuadre resultante de expandir el grupo
+  mayor de Tokio deja «Daikanyama T-SITE» exactamente bajo `.interest-legend__summary` (esquina
+  inferior izquierda del mapa); `elementFromPoint` en su centro resuelve a la leyenda, no al
+  marcador (Art. 11: ningún objetivo tapado). No ocurre en la base `4afbf50` (0 fallos en 8
+  viewports antes de esta implementación).
+- **Norma:** Art. 11.
+- **Estado:** **ENCONTRADO, NO CORREGIDO.** Se intentó desplazar el encuadre de `expand()`
+  (`PlaceMap.tsx`) para dejar libre la esquina de la leyenda (padding inferior mayor en la rama
+  `fitBounds`, corrección de proyección en la rama de zoom+2); ninguna de las dos desplazó lo
+  suficiente al marcador concreto porque su posición final depende de la geometría completa de
+  los 57 lugares de Tokio a ese zoom, no sólo de los miembros del grupo expandido — un ajuste
+  fiable exige o bien reservar en el propio contenedor del mapa una zona muerta del tamaño de la
+  leyenda (cambio de CSS/layout, revisar con `08`), o bien mover la leyenda a una esquina con
+  menos densidad de marcadores (decisión de diseño). **DEFERRED-ROADMAP** — no bloquea el cierre
+  de DDR-B24-1/2/3 (es una interacción entre esas resoluciones y una superficie de cromo
+  preexistente, no una contradicción normativa de las propias DDR). Gate `b24-real-input-audit.mjs`
+  lo sigue vigilando (P0-4 pasa de 795/795 a 794/795 en la corrida de 8 viewports por este único
+  hallazgo).
 
 ### P0-5a — Filas de la búsqueda global más anchas que la hoja
 - **Superficie:** Explorar › Buscar en todo Japón. **Viewport:** todos. **Severidad:** P0.
@@ -181,8 +217,8 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | P0-2 iconos `.icon-button--small` | Corregido | `f0c1de1` |
 | P0-3 contador de ciudad (D-M1) | Corregido | `c6f9084` |
 | P0-4a/b agrupación + 44 px | Corregido | `253bf7b`, `f4ffb7b` |
-| P0-4c encuadre | DDR-B24-1 abierta | `b4d4e46` |
-| P0-4d solapes con ≤12 | DDR-B24-2 abierta | `b4d4e46` |
+| P0-4c encuadre | **RESUELTO** (DDR-B24-1 → `DD-023`) | `b4d4e46` (abierta), cerrada en F6 |
+| P0-4d solapes con ≤12 | **RESUELTO** (DDR-B24-2 → `DD-024`) | `b4d4e46` (abierta), cerrada en F6 |
 | P0-5a filas | Corregido | `d54126d` |
 | P0-5b contador vivo | Corregido | `7c74a82`, `3b4fd71` |
 | P0-5c metadato | DEFERRED-ACTIVE-BRANCH (B23) | diff en P0-5c |
@@ -196,12 +232,50 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | P1-11 «Más destinos» | Corregido | `c84b3aa` |
 | P1-12 panel anidado | Corregido | `c84b3aa` |
 | P2-7 icono de expandir | Corregido | `6035179` |
-| DDR-B24-3 volver desde colección | DDR abierta | `b4d4e46` |
+| DDR-B24-3 volver desde colección | **RESUELTO** (→ `DD-025`) | `b4d4e46` (abierta), cerrada en F6 |
 
 | Regresión propia de P1-01 (cabecera de filtros salta 7 px) | Corregido en F5 | `d901e03` (+ gate `3f7f3b9`) |
 
 Gate B24 tras F4: **763/763**; tras F5 (con la comprobación de la cabecera): **795/795, 0 fallos**
 en los 8 viewports. El mismo script sobre la base `4afbf50`: 429/721, 292 fallos.
+
+## F6 — Cierre de DDR-B24-1/2/3 (dirección)
+
+Dirección resolvió las tres DDR (`DD-023`, `DD-024`, `DD-025` en `09`). Implementación:
+
+- **DDR-B24-1**: `lib/hub-view.ts` (nuevo) — encuadre editorial por hub (Tokio/Kioto/Osaka/
+  Okinawa), fallback calculado sobre la mediana + radio 10 km. `FitHubBounds` (`PlaceMap.tsx`) deja
+  de hacer `fitBounds` de todos los lugares del hub y sólo actúa cuando no hay ningún lugar
+  seleccionado (para no competir con `FocusSelected`, que sigue ganando siempre que hay selección).
+- **DDR-B24-2**: `MarkerLayer` (`PlaceMap.tsx`) aplica `groupScreenPoints` siempre, sin la condición
+  previa `shouldGroupMarkers(visibleCount)` — la propia función ya sólo fundía parejas que se
+  tocarían, así que cubre densidad (`03 §9`) y seguridad geométrica (Art. 11) con el mismo código.
+- **DDR-B24-3**: `exploreReturnSurface` gana el valor `"home-collection"` (además de
+  `"global-search"`); las comprobaciones que impedían el salto de hub pasan de mirar
+  `=== "global-search"` a "cualquier valor no nulo". `ExplorerHome` etiqueta sus selecciones con
+  ese valor.
+
+**Regresión propia encontrada al implementar DDR-B24-1/2 y corregida.** `block19-grid-check.mjs`
+(«el mapa conserva el zoom en todo el ciclo») dejó de pasar porque su lectura del zoom (la
+transformación CSS de la primera capa de teselas) es sensible a una capa vieja sin podar cuando la
+red de teselas no está disponible (entorno, `net::ERR_CERT_AUTHORITY_INVALID`) — el zoom real (leído
+del `z` de las URLs de tesela pedidas, estable pase lo que pase con la red) nunca cambió. Se
+corrigió el propio gate para leer esa señal fiable en vez de la CSS de una capa potencialmente sin
+podar; también se cerró una segunda causa real: `FitHubBounds` competía con `FocusSelected` por la
+vista mientras la ficha estaba abierta (ambas reaccionaban a `panelOffset`), así que ahora
+`FitHubBounds` no actúa mientras hay un lugar seleccionado.
+
+**Hallazgo nuevo, no corregido:** P0-4e (colisión de un marcador con `InterestLegend` tras expandir
+un grupo en Tokio a 375×667) — ver la entrada en P0. DEFERRED-ROADMAP; no bloquea el cierre de las
+tres DDR.
+
+Gate B24 tras F6: **873/875, 2 fallos** en la corrida completa de 8 viewports:
+- P0-4e (arriba) — reproducible en las tres corridas completas hechas en F6.
+- P1-FILTER «primer chip sin marcar: centro fuera del viewport» a 320×568 — **no reproducible en
+  aislamiento** (108/108, 0 fallos, 3/3 corridas sólo con `--viewport=320x568`); no toca ningún
+  código de `FilterPanel`/`FilterSheet` de esta sesión. Se registra como flake de la corrida
+  completa de 8 viewports en este contenedor (mismo tipo de limitación de entorno que los errores
+  de consola de teselas OSM), no como regresión — repetirlo aislado no lo reproduce.
 
 ## Qué no puede verificarse aquí
 
