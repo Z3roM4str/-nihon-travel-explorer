@@ -123,7 +123,9 @@ export function ExplorerHome({
       </div>
 
       {/* Section: Ciudades */}
-      <section className="national-start" aria-label="Empezar a explorar">
+      {/* B24 (P1-12, `05 §2`): la sección ya no es un panel dentro de la portada (fondo, borde y
+          relleno propios de `.national-start`, que `05 §2` no prescribe). El texto se conserva. */}
+      <section className="explorer-home__start" aria-label="Empezar a explorar">
         <p className="national-start__lead">
           Elige una ciudad para empezar, o explora Japón en el mapa.
         </p>
@@ -184,7 +186,7 @@ export function ExplorerHome({
                 onClick={() => onEnterHub(hub)}
               >
                 <span className="national-start__hub-name explorer-home__more-name">{hub}</span>
-                <span className="national-start__hub-count explorer-home__more-count">{label}</span>
+                <span className="explorer-home__more-count">{label}</span>
               </button>
             );
           })}

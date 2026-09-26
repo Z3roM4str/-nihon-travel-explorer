@@ -1096,7 +1096,9 @@ button.search-field:focus-visible {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--surface);
+  /* B24 (P1-12): el fondo sólo existe para tapar lo que pasa por debajo al desplazar — es el de
+     la página (`--paper`), no una caja blanca dentro de la portada. */
+  background: var(--paper);
   padding-top: var(--space-5);
   padding-bottom: var(--space-2);
 }
@@ -1221,20 +1223,24 @@ button.search-field:focus-visible {
   color: rgba(255, 255, 255, 0.82);
 }
 
-/* Más destinos */
+/*
+ * Más destinos (`05 §2` pt. 4, DDR-B21-02). B24 (P1-11): una fila de tres tarjetas IGUALES que
+ * cabe entera en pantalla, en vez de un carrusel de tarjetas de 200 px cuyo borde derecho cortaba
+ * la segunda a media palabra («1 lugar por ahor»). El contador va sin píldora y envuelve si hace
+ * falta: nunca se corta. Cuántas columnas = cuántos hubs; no hay número escrito aquí.
+ */
 .explorer-home__more-row {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: var(--space-3);
-  overflow-x: auto;
-  padding-bottom: var(--space-2);
-  scroll-snap-type: x mandatory;
 }
 
 .explorer-home__more-card {
-  flex: 0 0 200px;
-  scroll-snap-align: start;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-1);
   padding: var(--space-3);
   border: 1px solid var(--line);
@@ -1264,7 +1270,14 @@ button.search-field:focus-visible {
 .explorer-home__more-count {
   font-family: var(--font-record);
   font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-variant-numeric: tabular-nums;
   color: var(--ink-500);
+}
+
+/* B24 (P1-12): la entrada de la portada no es un panel — ni fondo, ni borde, ni relleno propio. */
+.explorer-home__start .national-start__lead {
+  margin: 0 0 var(--space-3);
 }
 
 /* Colecciones */
