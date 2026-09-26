@@ -171,7 +171,7 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | AB-1 | Corazón de `PlaceCard` 40×40 < `--tap-min` | `.place-card__save*` (B23) | `.place-card__save { width: 40px; height: 40px }` → mantener el círculo visible de 40 px y añadir `tap-target-min` al botón (técnica 1, control aislado): `className={\`place-card__save tap-target-min …\`}` en `PlaceCard.tsx` |
 | AB-2 | Chip «Hidden gem» en inglés (`PlaceCard.tsx:84`) | `PlaceCard.tsx` (B23) | `return { icon: "joya", label: "Hidden gem" }` → `label: "Joya escondida"` (`04 §5.7`) |
 | AB-3 | Split del import de `photography-metadata` para aligerar el bundle | cómo se importan los datos B6.7 | `import metadata from "./photography-metadata.json"` → carga diferida (`import()`) desde `place-images.ts` con registro síncrono de `identity` |
-| AB-4 | 8 fallos de Vitest de línea base (`place-images.test.ts` ×5, `photography-depth.test.ts` ×3) | tests de fotografía B6.7 | actualizar las expectativas «una sola fotografía» a los lugares con profundidad B6.7 |
+| AB-4 | 8 fallos de Vitest de línea base (`place-images.test.ts` ×5, `photography-depth.test.ts` ×3) y 3 de Phase 5A (A06, A07, E01), idénticos en la base | tests y gates de fotografía B6.7 | actualizar las expectativas «una sola fotografía» / `.gallery__image` única a los lugares con profundidad B6.7, y el texto de fallback de A07 |
 
 ## Resolución (F3–F4)
 
@@ -198,7 +198,10 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 | P2-7 icono de expandir | Corregido | `6035179` |
 | DDR-B24-3 volver desde colección | DDR abierta | `b4d4e46` |
 
-Gate B24 tras F4: **763/763, 0 fallos** en los 8 viewports.
+| Regresión propia de P1-01 (cabecera de filtros salta 7 px) | Corregido en F5 | `d901e03` (+ gate `3f7f3b9`) |
+
+Gate B24 tras F4: **763/763**; tras F5 (con la comprobación de la cabecera): **795/795, 0 fallos**
+en los 8 viewports. El mismo script sobre la base `4afbf50`: 429/721, 292 fallos.
 
 ## Qué no puede verificarse aquí
 
