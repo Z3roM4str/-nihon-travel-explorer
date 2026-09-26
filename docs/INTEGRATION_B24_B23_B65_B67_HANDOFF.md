@@ -10,6 +10,7 @@ Misión: `docs/INTEGRATION_B24_B23_B65_B67.md`. Fecha de la integración: 2026-0
 | B — B6.7 test-closure | hecho | `d54e7ca` (+ docs) |
 | C — B6.5-fix | hecho | `906c03a` · `e9ca02e` (+ docs) |
 | D — B23 photo retry | hecho | `b7c7e50` (+ docs) |
+| E — P0-5c + AB-1 + AB-2 | hecho | `a6d798b` · `e6bfbc6` (+ docs) |
 
 ## A — Preflight
 
@@ -80,3 +81,24 @@ Validación: `PlaceCard.test.ts` + `PlaceGallery.test.ts` **40/40**; build PASS 
 **28 passed, 0 failed** (móvil y escritorio: error HTTP → «Reintentar» 89×44 → misma URL
 recuperada; Quiero ir conservado; foco en abrir/pista; índice y navegación de la galería
 conservados); gate B24 sobre esta build **1347/1347**.
+
+## E — P0-5c, AB-1, AB-2 cerrados
+
+- **P0-5c → RESUELTO.** Fila compacta de `PlaceCard`: «{categoría} · {barrio}, {ciudad}», o
+  «{categoría} · {ciudad}» sin barrio; un solo `·`. `lib/place-line.ts` (`compactPlaceLine`), fuera
+  del componente para no añadir un warning de Fast Refresh. Aplica a toda fila compacta (búsqueda
+  global y «Cerca de aquí»). Dataset intacto (los 214 lugares tienen barrio; ninguno repite la
+  ciudad). El gate B24 lo convierte de nota DEFERRED en comprobación dura.
+- **AB-1 → RESUELTO (verificado, sin cambio de código).** El corazón ya llevaba `tap-target-min`
+  en las dos variantes desde la base (`80f638a`): el `::after` lleva el área real a 44×44 con el
+  círculo pintado en 40×40. El hallazgo de B24 midió `getBoundingClientRect` (40×40), que no ve el
+  pseudo-elemento. Hit-testing real en los 4 bordes y 4 esquinas a ±21,5 px: 8/8 resuelven al botón
+  a 390 y 1440. Cobertura nueva en `PlaceCard.test.ts` y en el gate de integración.
+- **AB-2 → RESUELTO.** «Hidden gem» → «Joya escondida» (`04 §5` pt. 7). Sólo la etiqueta;
+  `isHiddenGem` y `hiddenGemStatus` no cambian.
+- Tests: `PlaceCard.test.ts` 34/34 (+4).
+- **Gate de integración permanente** `app/scripts/integration-b24-b23-check.mjs`: **58/58**
+  (puntos 1–10 de la misión, en 390×844 y 1440×900, más Phase 5A 50/50 ×2 sobre la misma build).
+  Una primera corrida dio 52/53: el gate usaba la 4.ª tarjeta con índice fijo, que en la rejilla de
+  3 columnas de 1440 queda fuera de pantalla tras desplazar; ahora elige la primera tarjeta
+  realmente visible. Error del gate, no de la app.
