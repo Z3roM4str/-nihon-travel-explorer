@@ -43,6 +43,13 @@ EXPECTED_FAILED = {
 }
 
 
+BASELINE_SPEC = importlib.util.spec_from_file_location(
+    "photography_baseline", ROOT / "scripts" / "photography_baseline.py"
+)
+photography_baseline = importlib.util.module_from_spec(BASELINE_SPEC)
+BASELINE_SPEC.loader.exec_module(photography_baseline)
+
+
 def load_current_inputs():
     places_doc = json.loads((ROOT / "data" / "places.json").read_text(encoding="utf-8"))
     places = places_doc if isinstance(places_doc, list) else places_doc["places"]
@@ -60,6 +67,11 @@ def load_phase4i_base_inputs():
     batches may append records, but must not insert into or reorder this prefix.
     """
     places, current = load_current_inputs()
+    # Block 22 inserts its records next to their place (B6.5 gallery order) instead of
+    # appending them; set aside, the registry is append-only again. Same rule, same source of
+    # truth as every other historical replay (`photography_baseline.py`).
+    b22_titles = photography_baseline.b22_acquired_titles()
+    current = [record for record in current if record["originalTitle"] not in b22_titles]
     if len(current) < PHASE4I_BASE_IMAGE_COUNT:
         raise AssertionError(
             "photography registry shrank below the Phase 4I 85-record baseline"
