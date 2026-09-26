@@ -3,7 +3,8 @@ import { MapContainer, Marker, TileLayer, Tooltip, ZoomControl, useMap, useMapEv
 import L from "leaflet";
 import type { Place } from "../types";
 import type { PlaceInterestSummary, Traveller } from "../lib/travellers";
-import { MARKER_HIT_SIZE, groupScreenPoints, shouldGroupMarkers } from "../lib/map-grouping";
+import { MARKER_HIT_SIZE, groupScreenPoints } from "../lib/map-grouping";
+import { resolveHubView } from "../lib/hub-view";
 
 const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
 const JAPAN_FALLBACK_ZOOM = 5;
@@ -128,24 +129,38 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
   return null;
 }
 
-function FitHubBounds({ hub, places, panelOffset }: { hub: string; places: Place[]; panelOffset: number }) {
+/**
+ * B24 (DDR-B24-1) — encuadre inicial del mapa de ciudad: editorial por hub con fallback
+ * calculado sobre el núcleo (`lib/hub-view.ts`), nunca `fitBounds` de todos los lugares del hub.
+ * Los lugares periféricos no desaparecen del mapa ni del dataset: sólo dejan de decidir la
+ * primera vista. Si el mapa se centra explícitamente en un lugar, `FocusSelected` es quien manda
+ * mientras la ficha está abierta — este encuadre inicial no vuelve a competir por la vista hasta
+ * que se cierra (regla 6 de DDR-B24-1: el lugar seleccionado tiene prioridad).
+ */
+function FitHubBounds({
+  hub,
+  places,
+  panelOffset,
+  hasSelection,
+}: {
+  hub: string;
+  places: Place[];
+  panelOffset: number;
+  hasSelection: boolean;
+}) {
   const map = useMap();
 
   useLayoutEffect(() => {
-    if (places.length === 0) return;
-    const bounds = L.latLngBounds(places.map((place) => [place.coordinates.lat, place.coordinates.lng]));
-    const rightPadding = panelCoversMap(map, panelOffset) ? BOUNDS_PADDING : BOUNDS_PADDING + panelOffset;
-    const options = {
-      paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],
-      paddingBottomRight: [rightPadding, BOUNDS_PADDING] as [number, number],
-      maxZoom: SELECTION_ZOOM,
-    };
+    if (places.length === 0 || hasSelection) return;
+    const view = resolveHubView(hub, places.map((place) => place.coordinates));
+    const point = map.project(view.center, view.zoom);
+    const target = map.unproject(point.add([panelOffset / 2, 0]), view.zoom);
     if (prefersReducedMotion()) {
-      map.fitBounds(bounds, { ...options, animate: false });
+      map.setView(target, view.zoom, { animate: false });
     } else {
-      map.flyToBounds(bounds, options);
+      map.flyTo(target, view.zoom, { duration: 0.6 });
     }
-  }, [hub, places, panelOffset, map]);
+  }, [hub, places, panelOffset, hasSelection, map]);
 
   return null;
 }
@@ -191,21 +206,19 @@ function MarkerLayer({
   });
 
   const zoom = map.getZoom();
-  const bounds = map.getBounds();
   const selected = places.find((place) => place.id === selectedId) ?? null;
   const others = places.filter((place) => place.id !== selectedId);
-  const visibleCount = places.filter((place) =>
-    bounds.contains([place.coordinates.lat, place.coordinates.lng])
-  ).length;
 
-  const groups = shouldGroupMarkers(visibleCount)
-    ? groupScreenPoints(
-        others.map((place) => {
-          const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
-          return { id: place.id, x: point.x, y: point.y };
-        })
-      )
-    : others.map((place) => ({ ids: [place.id], x: 0, y: 0 }));
+  // DDR-B24-2 (resuelta): `groupScreenPoints` sólo funde parejas cuyas cajas de 44 px se
+  // tocarían, así que aplicarlo siempre cubre tanto la regla de densidad de `03 §9` (>12
+  // marcadores visibles) como la red de seguridad geométrica añadida para ≤12: cuando el zoom
+  // separa las cajas, `groupScreenPoints` las vuelve a dejar sueltas por sí solo.
+  const groups = groupScreenPoints(
+    others.map((place) => {
+      const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
+      return { id: place.id, x: point.x, y: point.y };
+    })
+  );
 
   const byId = new Map(places.map((place) => [place.id, place]));
 
@@ -326,7 +339,12 @@ export function PlaceMap({
         maxZoom={19}
       />
       <ZoomControl position="bottomright" />
-      <FitHubBounds hub={activeHub} places={hubPlaces} panelOffset={panelOffset} />
+      <FitHubBounds
+        hub={activeHub}
+        places={hubPlaces}
+        panelOffset={panelOffset}
+        hasSelection={Boolean(selectedPlace)}
+      />
       <FocusSelected place={selectedPlace} panelOffset={panelOffset} />
       <InvalidateOnResize />
       <MarkerLayer
