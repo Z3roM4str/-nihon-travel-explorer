@@ -627,7 +627,8 @@ button.app__title.app__title--expand {
 
 /* B24 (DD-022): contador vivo de resultados, pegado al botón de cierre. */
 .sheet__count {
-  margin: 0 0 0 auto;
+  margin: 0;
+  margin-inline-start: auto;
   font-family: var(--font-record);
   font-size: var(--type-body-s-size);
   font-weight: 500;
