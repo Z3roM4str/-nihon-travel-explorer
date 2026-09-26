@@ -431,9 +431,11 @@ async function settleMap(page) {
   let last = "";
   for (let i = 0; i < 30; i += 1) {
     await page.waitForTimeout(150);
+    // El panel del mapa se incluye: la corrección de cromo (P0-4e) desplaza la vista con
+    // `panBy`, que mueve el panel y no los iconos.
     const snapshot = await page.evaluate(() =>
-      [...document.querySelectorAll(".app__map-area .leaflet-marker-icon")]
-        .map((el) => el.style.transform)
+      [document.querySelector(".app__map-area .leaflet-map-pane"), ...document.querySelectorAll(".app__map-area .leaflet-marker-icon")]
+        .map((el) => el?.style.transform ?? "")
         .join("|")
     );
     const animating = await page.evaluate(() => Boolean(document.querySelector(".leaflet-zoom-anim")));
@@ -465,6 +467,54 @@ async function mapIcons(page) {
   });
 }
 
+/**
+ * P0-4e (Art. 11) — el cromo interactivo del mapa (`[data-map-chrome]`, p. ej. la leyenda, y los
+ * controles de Leaflet) es zona de exclusión tras cualquier movimiento programático. Para CADA
+ * marcador o grupo con el centro dentro del mapa: caja ≥44×44, ninguna intersección con el cromo
+ * y `elementFromPoint` en su centro resuelve al propio marcador. Devuelve cuántos lugares
+ * representan todos los iconos (visibles o no), para comprobar que no se pierde ninguno.
+ */
+async function auditMapChrome(page, moment, { requireTargets = true } = {}) {
+  const report = await page.evaluate(() => {
+    const areaEl = document.querySelector(".app__map-area");
+    const area = areaEl.getBoundingClientRect();
+    const chrome = [...areaEl.querySelectorAll("[data-map-chrome], .leaflet-control")]
+      .map((el) => ({ name: el.className.toString().split(" ")[0], r: el.getBoundingClientRect() }))
+      .filter(({ r }) => r.width > 0 && r.height > 0);
+    const all = [...areaEl.querySelectorAll(".leaflet-marker-icon")];
+    let represented = 0;
+    const issues = [];
+    let checked = 0;
+    for (const el of all) {
+      represented += Number(el.querySelector(".place-cluster__count")?.textContent ?? 1);
+      const r = el.getBoundingClientRect();
+      const x = r.left + r.width / 2;
+      const y = r.top + r.height / 2;
+      // Centro estrictamente dentro del mapa y de la ventana (un icono cortado por el borde
+      // tiene el centro en x = innerWidth, donde `elementFromPoint` no devuelve nada).
+      if (!(x > area.left && x < area.right && y > area.top && y < area.bottom && x < innerWidth && y < innerHeight)) continue;
+      const hit = document.elementFromPoint(x, y);
+      // Otra superficie encima del mapa (la ficha que se apoya sobre el raíl, DD-016/017) no es
+      // cromo del mapa: cubrirlo está permitido. El cromo vive dentro de `.app__map-area`.
+      if (hit && !areaEl.contains(hit)) continue;
+      checked += 1;
+      const label = el.getAttribute("title") ?? "?";
+      if (r.width < 43.5 || r.height < 43.5) issues.push(`«${label}» mide ${r.width}×${r.height}`);
+      for (const { name, r: c } of chrome) {
+        if (Math.min(r.right, c.right) - Math.max(r.left, c.left) > 0.5 && Math.min(r.bottom, c.bottom) - Math.max(r.top, c.top) > 0.5) {
+          issues.push(`«${label}» bajo ${name}`);
+        }
+      }
+      if (!(hit && (hit === el || el.contains(hit)))) issues.push(`elementFromPoint en «${label}» resuelve a «${hit?.className?.toString?.() ?? null}»`);
+    }
+    return { represented, issues, checked, chrome: chrome.length };
+  });
+  check("P0-4e", report.chrome > 0, `${moment}: no se encontró cromo del mapa que medir`);
+  if (requireTargets) check("P0-4e", report.checked > 0, `${moment}: ningún marcador visible que comprobar`);
+  check("P0-4e", report.issues.length === 0, `${moment}: ${report.issues.slice(0, 4).join("; ")}`);
+  return report.represented;
+}
+
 async function auditCityMap(page, vp) {
   if (!(await enterTokio(page))) return;
   if (vp.width < 1200) {
@@ -494,17 +544,41 @@ async function auditCityMap(page, vp) {
     check("P0-4", cluster.numeric.includes("tabular-nums"), "la cifra del grupo no usa --type-num");
   }
 
-  // Un grupo se abre con un clic real y reparte sus lugares.
-  if (clusters.length > 0) {
-    const target = page.locator(".app__map-area .leaflet-marker-icon.place-cluster").first();
-    const before = icons.length;
-    const beforeIndividuals = individuals.length;
-    if (await realClick(page, target, "P0-4", "grupo de marcadores")) {
-      await settleMap(page);
-      const after = await mapIcons(page);
-      check("P0-4", after.filter((i) => !i.cluster).length > beforeIndividuals || after.length !== before,
-        "pulsar un grupo no lo abre");
+  // P0-4e: tras el encuadre inicial ningún objetivo queda bajo el cromo; la leyenda sigue
+  // siendo interactiva (se abre y se cierra con clic real).
+  const total = await auditMapChrome(page, "encuadre inicial");
+  const legend = page.locator(".interest-legend__summary");
+  if (await realClick(page, legend, "P0-4e", "leyenda (abrir)")) {
+    check("P0-4e", await page.locator(".interest-legend").evaluate((el) => el.open), "la leyenda no se abre");
+    if (await realClick(page, legend, "P0-4e", "leyenda (cerrar)")) {
+      check("P0-4e", !(await page.locator(".interest-legend").evaluate((el) => el.open)), "la leyenda no se cierra");
     }
+  }
+
+  // Un grupo se abre con un clic real y reparte sus lugares; se abren hasta tres grupos seguidos
+  // y, tras cada uno, ningún objetivo queda bajo el cromo y no se pierde ningún lugar.
+  for (let round = 0; round < 3; round += 1) {
+    const current = await mapIcons(page);
+    if (!current.some((icon) => icon.cluster)) break;
+    const target = page.locator(".app__map-area .leaflet-marker-icon.place-cluster").first();
+    const inArea = await target.evaluate((el) => {
+      const a = document.querySelector(".app__map-area").getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      return cx > a.left && cx < a.right && cy > a.top && cy < a.bottom;
+    });
+    if (!inArea) break;
+    const before = current.length;
+    const beforeIndividuals = current.filter((i) => !i.cluster).length;
+    if (!(await realClick(page, target, "P0-4", "grupo de marcadores"))) break;
+    await settleMap(page);
+    const after = await mapIcons(page);
+    check("P0-4", after.filter((i) => !i.cluster).length > beforeIndividuals || after.length !== before,
+      "pulsar un grupo no lo abre");
+    const represented = await auditMapChrome(page, `tras abrir el grupo ${round + 1}`);
+    check("P0-4e", represented === total, `tras abrir el grupo ${round + 1}: los iconos representan ${represented} lugares, antes ${total}`);
+    if (round === 0) await page.screenshot({ path: `${SHOTS}/city-map-expanded-${vp.name}.png` });
   }
   // Un marcador suelto abre la ficha con un clic real.
   const single = page.locator(".app__map-area .leaflet-marker-icon.place-marker").first();
@@ -519,8 +593,20 @@ async function auditCityMap(page, vp) {
     if (inArea && (await realClick(page, single, "P0-4", "marcador suelto"))) {
       check("P0-4", await page.locator("#place-detail-title").waitFor({ timeout: 4000 }).then(() => true, () => false),
         "pulsar un marcador no abre la ficha");
+      // Centrar el lugar seleccionado también es un movimiento programático.
+      if (vp.width >= 1024) {
+        await settleMap(page);
+        // Desde `lg` la ficha puede cubrir el raíl entero (DD-016/017): puede no quedar ningún
+        // marcador a la vista, y eso no es un fallo.
+        await auditMapChrome(page, "tras seleccionar un lugar", { requireTargets: false });
+      }
     }
   }
+}
+
+/** P0-4e con `prefers-reduced-motion`: el mismo invariante por la rama sin animación. */
+async function auditCityMapReducedMotion(page, vp) {
+  await auditCityMap(page, vp);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -644,6 +730,10 @@ async function auditFilterSheet(page, vp) {
   if (!(await enterTokio(page))) return;
   if (!(await realClick(page, page.locator(".explorer-bar__filters"), "NAV", "Filtros"))) return;
   await page.locator(".filter-panel").waitFor();
+  // La hoja entra con una animación de 320 ms (`03 §6`): medir antes de que termine da posiciones
+  // intermedias (a 320×568 el primer chip empieza en y≈620, fuera de la pantalla, y acaba en
+  // y≈266). Era el «flake» de P1-FILTER: carrera del gate, no de la app. Se mide ya asentada.
+  await page.locator(".sheet").evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
   await frames(page);
   check("P1-FILTER", (await page.locator(".filter-panel__toggle").count()) === 0, "sobra el desplegable «▾ Filtros» (no está en 04 §13)");
   const upper = await page.locator(".filter-group__summary").evaluateAll((items) =>
@@ -746,6 +836,7 @@ try {
     await section(vp, "P0-5", auditGlobalSearch);
     await section(vp, "KBD", auditKeyboardHome);
     await section(vp, "P0-4", auditCityMap);
+    await section(vp, "P0-4e", auditCityMapReducedMotion, { reducedMotion: "reduce" });
     await section(vp, "P0-2", auditSavedAndIcons);
     await section(vp, "P1-DETAIL", auditDetail);
     await section(vp, "P1-FILTER", auditFilterSheet);
