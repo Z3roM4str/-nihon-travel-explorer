@@ -20,11 +20,11 @@ describe("SOL-5 Our Trip UI", () => {
   it("keeps empty states specific and non-destructive", () => {
     localStorage.setItem(REVIEW_STORAGE_KEY,JSON.stringify(store({"JP-001":record("JP-001","yes","no")})));
     const view=render(<App />);
-    fireEvent.click(view.getByRole("button",{name:"Ambos",exact:true}));
+    fireEvent.click(view.getByRole("button",{name:/^Ambos$/}));
     expect(view.getByText("Todavía no hay coincidencias. Revisen lo que le gusta al otro.")).not.toBeNull();
-    fireEvent.click(view.getByRole("button",{name:"Descartados",exact:true}));
+    fireEvent.click(view.getByRole("button",{name:/^Descartados$/}));
     expect(view.getByText("No han descartado lugares.")).not.toBeNull();
-    fireEvent.click(view.getByRole("button",{name:"Ella",exact:true}));
+    fireEvent.click(view.getByRole("button",{name:/^Ella$/}));
     expect(view.getByRole("button",{name:"Quitar filtros"})).not.toBeNull();
   });
 
@@ -38,7 +38,7 @@ describe("SOL-5 Our Trip UI", () => {
 
   it("routes discarded positive intent through SOL-4 reconsideration", () => {
     localStorage.setItem(REVIEW_STORAGE_KEY,JSON.stringify(store({"JP-001":record("JP-001","unreviewed","yes",{disposition:"discarded"})})));
-    const view=render(<App />);fireEvent.click(view.getByRole("button",{name:"Descartados",exact:true}));fireEvent.click(view.getByRole("button",{name:/Quiero ir a Shibuya Crossing/}));
+    const view=render(<App />);fireEvent.click(view.getByRole("button",{name:/^Descartados$/}));fireEvent.click(view.getByRole("button",{name:/Quiero ir a Shibuya Crossing/}));
     const modal=view.getByRole("alertdialog",{name:"¿Volver a considerar este lugar?"});fireEvent.click(within(modal).getByRole("button",{name:"Cancelar"}));expect(JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)!).places["JP-001"].disposition).toBe("discarded");
   });
 
