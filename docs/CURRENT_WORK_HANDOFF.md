@@ -1,5 +1,23 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## Estado actual — merge-readiness de PR #152 (2026-09-26)
+
+Handoff completo: `docs/MERGE_READINESS_HANDOFF.md`. Rama `claude/integration-b24-b23-b65-b67`,
+de `fac2e9e` a HEAD (ver handoff). PR #152 sigue **Draft**; sin merge, squash ni rebase; `main`
+intacto en `8eb725e`.
+
+- **Block 2 Photography 79/81 → DDR-MERGE-1 ABIERTA** (`docs/DDR-MERGE-1_PRESUPUESTO_FOTOGRAFIA_HUB.md`).
+  El hub Osaka cuesta 3,20 MiB y cumple el pipeline y `06 §6.3`; el exceso (5,31 / 5,77 MiB) lo
+  pone la portada de Explorar, que el gate cuenta desde `page.goto`. No hay DD-027; ni el gate ni
+  la constante se han tocado. **Único punto pendiente de decisión de dirección.**
+- **Python:** `19 failed / 9 errors` → **618 passed, 0/0** sin skip/xfail
+  (`docs/PYTHON_SUITE_STATUS.md`). Corrige la deuda que figuraba abajo como «fuera de alcance».
+- **DD-028 FIRME:** nombre accesible de PlaceCard = identificación visible (`09`, `04 §5` regla 11),
+  gate nuevo `dd028-placecard-accessible-name-check.mjs` (árbol AX).
+- `integration-b24-b23-check.mjs` daba 50/52 también en `fac2e9e` (503 consumido por la portada);
+  corregido → 58/58.
+- **Pendiente humano:** scroll táctil real y teclado de iOS en iPhone.
+
 ## Estado actual — integración B24 + B23 + B6.5-fix + B6.7 test-closure (rama, sin integrar en `main`)
 
 **Última actualización:** 2026-09-26. Misión: `docs/INTEGRATION_B24_B23_B65_B67.md`; handoff:

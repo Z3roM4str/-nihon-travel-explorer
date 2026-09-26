@@ -181,3 +181,13 @@ point where a backend becomes unavoidable — so it should open with that questi
 
 The alternative, if a backend decision is not wanted yet, is the **accommodation-zone
 comparison**, which is self-contained, needs no sync, and is explicitly listed as a later block.
+
+
+---
+
+## Nota de merge-readiness (2026-09-26)
+
+El check «a full hub scroll stays well under the pre-Block-2 cost» (`< 5 MiB`) falla en tablet y
+escritorio (5,31 / 5,77 MiB) en la rama de PR #152. Diagnóstico y opciones:
+`docs/DDR-MERGE-1_PRESUPUESTO_FOTOGRAFIA_HUB.md` (abierta). El recorrido del hub en sí cuesta 3,20 MiB;
+el exceso lo pone la portada de Explorar, cargada antes del clic en el hub.
