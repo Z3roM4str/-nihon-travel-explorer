@@ -1024,7 +1024,8 @@ export default function App() {
               >
                 <Icon name="atras" size={16} className="app__title-back" aria-hidden="true" />
                 <span className="app__title-text">{activeHub}</span>
-                <Icon name="abajo" size={16} aria-hidden="true" />
+                {/* B24 (P2-7, `04 §11`): «el título lleva un icono de expandir» — el del set. */}
+                <Icon name="expandir" size={16} aria-hidden="true" />
               </button>
             ) : (
               <h1 className="app__title">{destinationLabel(destination)}</h1>
