@@ -9,6 +9,7 @@ Misión: `docs/INTEGRATION_B24_B23_B65_B67.md`. Fecha de la integración: 2026-0
 | A — rama + preflight | hecho | `15ca0d1` |
 | B — B6.7 test-closure | hecho | `d54e7ca` (+ docs) |
 | C — B6.5-fix | hecho | `906c03a` · `e9ca02e` (+ docs) |
+| D — B23 photo retry | hecho | `b7c7e50` (+ docs) |
 
 ## A — Preflight
 
@@ -57,3 +58,25 @@ fichero completo). Commits: `906c03a` · `e9ca02e`.
   un `--import` fuera del repo que sólo inyecta `executablePath` del Chromium preinstalado. El
   script no se modifica.
 - Sin cambios de fotografía ni dataset.
+
+## D — B23 photo retry
+
+`git cherry-pick -x 52a7073` → `b7c7e50`, **sin conflictos textuales**. Revisión semántica de los
+hunks sobre B24 (no basta con que Git resuelva):
+
+- `App.css`: añade sólo `.gallery__retry` (+ `:focus-visible`) junto a los estilos de la galería;
+  ninguna regla de B24 cambia.
+- `styles/discovery.css`: añade sólo `.place-card__photo-retry*` antes de «Acción guardar»;
+  la rejilla, la búsqueda global y el resto de B24 quedan intactos.
+- `PlaceCard.tsx`: `photoAttempt`, `openButtonRef`, `retryPhoto`, botón
+  `.place-card__photo-retry tap-target-min`, `key={`${cardSrc}-${photoAttempt}`}` en las dos
+  variantes y `title` en el control de abrir. `PlaceGallery.tsx`: `attempts`, `.gallery__retry`,
+  `key` por intento, `role="status"` en el mensaje de error. Nada de B24 se pierde (B24 no había
+  tocado estos dos componentes).
+- No se recuperó ningún fichero completo del padre `f74281a`; no se usó `--ours/--theirs`.
+
+Validación: `PlaceCard.test.ts` + `PlaceGallery.test.ts` **40/40**; build PASS (`index-*.js`
+1.654,57 kB); lint 0 errores + 1 warning heredado; `block23-photo-retry-browser-audit.mjs`
+**28 passed, 0 failed** (móvil y escritorio: error HTTP → «Reintentar» 89×44 → misma URL
+recuperada; Quiero ir conservado; foco en abrir/pista; índice y navegación de la galería
+conservados); gate B24 sobre esta build **1347/1347**.
