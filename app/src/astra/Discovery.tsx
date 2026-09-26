@@ -20,7 +20,7 @@ export const INITIAL_EXPERIENCE_GROUPS: Record<string, string[]> = {
   "Comida y barrios": ["🏙️ Ciudad y barrios", "🍜 Gastronomía", "🍶 Gastronomía", "🛍️ Compras", "🌅 Miradores", "🌃 Nocturno"]
 };
 
-type Props = { places: Place[]; hubs: string[]; state: ExploreState; savedIds: string[]; onToggle: (id: string) => void; onState: (state: ExploreState, replace?: boolean) => void; onOpen: (id: string) => void; onRegions: () => void };
+type Props = { places: Place[]; hubs: string[]; state: ExploreState; savedIds: string[]; statuses?:Record<string,{label:string|null;together:boolean}>; reviewerName?:string; onToggle: (id: string) => void; onState: (state: ExploreState, replace?: boolean) => void; onOpen: (id: string) => void; onRegions: () => void };
 
 function filterPlace(place: Place, filters: Filters, hub: string | null) {
   return (!hub || place.hub === hub) && matchesQuery(place, filters.query) &&
@@ -31,7 +31,7 @@ function filterPlace(place: Place, filters: Filters, hub: string | null) {
     matchesAnyPlanningBlock(place.duration, filters.planningBlocks) && matchesReservationFilter(place, filters.reservation);
 }
 
-export function Discovery({ places, hubs, state, savedIds, onToggle, onState, onOpen, onRegions }: Props) {
+export function Discovery({ places, hubs, state, savedIds, statuses={}, reviewerName, onToggle, onState, onOpen, onRegions }: Props) {
   const hub = state.hub && hubs.includes(state.hub) ? state.hub : null;
   const filters: Filters = {
     query:state.query,
@@ -87,7 +87,7 @@ export function Discovery({ places, hubs, state, savedIds, onToggle, onState, on
     </section>
     {hasActiveFilters && <div className="astra-active-filters"><span>Vista filtrada{hub ? ` · ${hub}` : ""}{filters.query ? ` · “${filters.query}”` : ""}{activeCount ? ` · ${activeCount} filtros` : ""}</span><button type="button" onClick={clearFilters}>Limpiar filtros</button></div>}
     <div className="astra-results"><h2>{hub ? `Lugares en ${hub}` : "Lugares para descubrir"}</h2><span aria-hidden="true">{results.length} resultados</span><span className="visually-hidden" role="status" aria-live="polite">{announcement}</span><div className="astra-mode" aria-label="Modo de resultados"><button aria-pressed={state.mode === "lista"} onClick={() => onState({...state,mode:"lista"})}>Lista</button><button aria-pressed={state.mode === "mapa"} onClick={() => onState({...state,mode:"mapa"})}>Mapa</button></div></div>
-    {state.mode === "mapa" ? <div className="astra-map"><Suspense fallback={<div className="astra-map__loading" role="status">Cargando mapa…</div>}><LazyPlaceMap places={results} hubPlaces={scopePlaces} activeHub={hub ?? "Todo Japón"} selectedPlace={null} savedIds={savedIds} onSelect={onOpen} panelOffset={0} /></Suspense></div> : results.length ? <div className="astra-grid">{results.slice(0,shown).map(place => <PlaceCard key={place.id} place={place} saved={savedIds.includes(place.id)} onToggle={onToggle} onOpen={onOpen} />)}</div> : <div className="astra-empty"><h2>Ningún lugar coincide</h2><p>Prueba otro término o cambia los filtros.</p></div>}
+    {state.mode === "mapa" ? <div className="astra-map"><Suspense fallback={<div className="astra-map__loading" role="status">Cargando mapa…</div>}><LazyPlaceMap places={results} hubPlaces={scopePlaces} activeHub={hub ?? "Todo Japón"} selectedPlace={null} savedIds={savedIds} onSelect={onOpen} panelOffset={0} /></Suspense></div> : results.length ? <div className="astra-grid">{results.slice(0,shown).map(place => <PlaceCard key={place.id} place={place} saved={savedIds.includes(place.id)} status={statuses[place.id]?.label} together={statuses[place.id]?.together} reviewerName={reviewerName} onToggle={onToggle} onOpen={onOpen} />)}</div> : <div className="astra-empty"><h2>Ningún lugar coincide</h2><p>Prueba otro término o cambia los filtros.</p></div>}
     {state.mode === "lista" && shown < results.length && <button ref={moreRef} className="astra-more" onClick={() => { const start=shown+1,end=Math.min(shown+12,results.length); onState({...state,page:state.page+1},true); setAnnouncement(`Resultados ${start}–${end} añadidos`); requestAnimationFrame(() => moreRef.current?.focus()); }}>Ver 12 más</button>}
     {filtersOpen && <RouteDialog label="Filtros avanzados" onClose={closeFilters} returnFocus={getFilterButton} overlayClassName="astra-filter-overlay" panelClassName="astra-filter-sheet"><div className="astra-filter-sheet__bar"><strong>Filtros</strong><button aria-label="Cerrar filtros" onClick={closeFilters}>×</button></div><FilterPanel filters={filters} onChange={updateFilters} categories={categories} grades={grades} planningBlocks={availablePlanningBlocks(scopePlaces.map(p=>p.duration))} hiddenGemStatuses={hidden} tourismLevels={tourism} resultCount={results.length} totalCount={scopePlaces.length} activeFilterCount={activeCount} onReset={clearFilters} announceResults /><button className="astra-filter-done" onClick={closeFilters}>Ver {results.length} resultados</button></RouteDialog>}
   </>;

@@ -4,11 +4,11 @@ import { describe, expect, it } from "vitest";
 const source = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 describe("Astra SOL-0–2 correction wiring", () => {
-  it("guards both save-removal paths and preserves authored ids for planner eligibility", async () => {
+  it("keeps votes separate and preserves authored ids for planner eligibility", async () => {
     const app = await source("../App.tsx");
-    expect(app).toContain("canRemoveSavedPlace(id, localStorage)");
-    expect(app.match(/canRemoveSavedPlace\(id, localStorage\)/g)).toHaveLength(2);
-    expect(app).toContain("new Set([...todosIds, ...readAuthoredPlanIds(localStorage)])");
+    expect(app).toContain("getPlannerEligibility(review.legacyIds,review.store)");
+    expect(app).toContain("...readAuthoredPlanIds(localStorage)");
+    expect(app).not.toContain("usePlanningDraft(activeYesIds");
     expect(app).toContain("savedPlaces={plannerPlaces}");
   });
   it("uses lazy boundaries for map, national geography and planner", async () => {
