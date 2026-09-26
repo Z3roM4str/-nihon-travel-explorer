@@ -157,7 +157,15 @@ async function main() {
           zoom: tileLayer ? getComputedStyle(tileLayer).transform : null,
           width: Math.round(box.width),
           height: Math.round(box.height),
-          markers: document.querySelectorAll(".place-marker").length,
+          // B24 (P0-4, `03 §9`): con la agrupación, «no perder marcadores» se mide en LUGARES
+          // representados — sueltos más la cifra de cada grupo —, porque el lugar seleccionado
+          // sale de su grupo para quedar «encima de todos» y el número de iconos cambia.
+          markers:
+            document.querySelectorAll(".place-marker").length +
+            [...document.querySelectorAll(".place-cluster__count")].reduce(
+              (sum, el) => sum + Number(el.textContent),
+              0
+            ),
           selectedMarkers: document.querySelectorAll(".place-marker--selected").length,
           detailMounted: document.querySelectorAll(".app__detail").length,
         };
