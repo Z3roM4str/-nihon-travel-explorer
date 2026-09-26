@@ -234,7 +234,7 @@ async function auditHomeScroll(page, vp) {
 // ---------------------------------------------------------------------------------------------
 // P0-3 — contador de ciudad (D-M1): sin píldora, --type-num, scrim ≥0.60 en toda la banda.
 // ---------------------------------------------------------------------------------------------
-async function auditCityCount(page, vp) {
+async function auditCityCount(page) {
   await page.locator(".explorer-home__city-card").first().waitFor();
   const style = await page.locator(".explorer-home__city-count").first().evaluate((element) => {
     const s = getComputedStyle(element);

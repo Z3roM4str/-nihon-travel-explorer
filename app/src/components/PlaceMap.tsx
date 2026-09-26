@@ -1,8 +1,9 @@
-import { useEffect, useLayoutEffect, useMemo } from "react";
-import { MapContainer, Marker, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { MapContainer, Marker, TileLayer, Tooltip, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import type { Place } from "../types";
 import type { PlaceInterestSummary, Traveller } from "../lib/travellers";
+import { MARKER_HIT_SIZE, groupScreenPoints, shouldGroupMarkers } from "../lib/map-grouping";
 
 const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
 const JAPAN_FALLBACK_ZOOM = 5;
@@ -72,13 +73,32 @@ function markerIcon(interestState: InterestState, isSelected: boolean): L.DivIco
     opacity = 1;
   }
 
+  // B24 (P0-4b, Art. 11): la caja del icono —que es lo que recibe el toque— mide 44 px; el punto
+  // visible conserva su tamaño de `03 §9` (10/12/14/20 px), centrado dentro de ella.
   const icon = L.divIcon({
     className: `place-marker ${isSelected ? "place-marker--selected" : ""} place-marker--${interestState}`,
     html: `<i class="place-marker__dot" style="--marker-color:${color};--marker-size:${size}px;opacity:${opacity}"></i>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconSize: [MARKER_HIT_SIZE, MARKER_HIT_SIZE],
+    iconAnchor: [MARKER_HIT_SIZE / 2, MARKER_HIT_SIZE / 2],
   });
   iconCache.set(key, icon);
+  return icon;
+}
+
+const clusterIconCache = new Map<number, L.DivIcon>();
+
+/** `03 §9`: «un círculo con cifra (`--type-num`), estilo indicador de estación». Misma caja de
+ * impacto de 44 px que un marcador suelto. */
+function clusterIcon(count: number): L.DivIcon {
+  const cached = clusterIconCache.get(count);
+  if (cached) return cached;
+  const icon = L.divIcon({
+    className: "place-cluster",
+    html: `<span class="place-cluster__count">${count}</span>`,
+    iconSize: [MARKER_HIT_SIZE, MARKER_HIT_SIZE],
+    iconAnchor: [MARKER_HIT_SIZE / 2, MARKER_HIT_SIZE / 2],
+  });
+  clusterIconCache.set(count, icon);
   return icon;
 }
 
@@ -140,6 +160,122 @@ function InvalidateOnResize() {
   return null;
 }
 
+/**
+ * B24 (P0-4a) — los marcadores del mapa de ciudad, agrupados según `03 §9`.
+ *
+ * Por encima de 12 marcadores dentro del encuadre, los que se tocarían (cajas de 44 px a menos de
+ * `--tap-gap`) se funden en un grupo con cifra; los que no, siguen sueltos. Con 12 o menos, todos
+ * sueltos. Se recalcula al terminar cada zoom o desplazamiento. El lugar seleccionado nunca entra
+ * en un grupo: `03 §9` lo quiere «encima de todos». Pulsar un grupo acerca el mapa hasta sus
+ * lugares (sin animación con `prefers-reduced-motion`, `03 §6`).
+ */
+function MarkerLayer({
+  places,
+  selectedId,
+  panelOffset,
+  onSelect,
+  interestStateFor,
+}: {
+  places: Place[];
+  selectedId: string | null;
+  panelOffset: number;
+  onSelect: (id: string) => void;
+  interestStateFor: (id: string) => InterestState;
+}) {
+  const map = useMap();
+  const [, setViewVersion] = useState(0);
+  useMapEvents({
+    zoomend: () => setViewVersion((version) => version + 1),
+    moveend: () => setViewVersion((version) => version + 1),
+    resize: () => setViewVersion((version) => version + 1),
+  });
+
+  const zoom = map.getZoom();
+  const bounds = map.getBounds();
+  const selected = places.find((place) => place.id === selectedId) ?? null;
+  const others = places.filter((place) => place.id !== selectedId);
+  const visibleCount = places.filter((place) =>
+    bounds.contains([place.coordinates.lat, place.coordinates.lng])
+  ).length;
+
+  const groups = shouldGroupMarkers(visibleCount)
+    ? groupScreenPoints(
+        others.map((place) => {
+          const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
+          return { id: place.id, x: point.x, y: point.y };
+        })
+      )
+    : others.map((place) => ({ ids: [place.id], x: 0, y: 0 }));
+
+  const byId = new Map(places.map((place) => [place.id, place]));
+
+  function marker(place: Place, isSelected: boolean) {
+    return (
+      <Marker
+        key={place.id}
+        position={[place.coordinates.lat, place.coordinates.lng]}
+        icon={markerIcon(interestStateFor(place.id), isSelected)}
+        eventHandlers={{ click: () => onSelect(place.id) }}
+        keyboard
+        title={place.name}
+        alt={place.name}
+        zIndexOffset={isSelected ? 1000 : 0}
+      >
+        <Tooltip direction="top" offset={[0, -14]}>
+          {place.name}
+        </Tooltip>
+      </Marker>
+    );
+  }
+
+  function expand(members: Place[]) {
+    const memberBounds = L.latLngBounds(
+      members.map((place) => [place.coordinates.lat, place.coordinates.lng] as [number, number])
+    );
+    const rightPadding = panelCoversMap(map, panelOffset) ? BOUNDS_PADDING : BOUNDS_PADDING + panelOffset;
+    const options = {
+      paddingTopLeft: [BOUNDS_PADDING, BOUNDS_PADDING] as [number, number],
+      paddingBottomRight: [rightPadding, BOUNDS_PADDING] as [number, number],
+    };
+    const reduced = prefersReducedMotion();
+    if (map.getBoundsZoom(memberBounds) > zoom) {
+      if (reduced) map.fitBounds(memberBounds, { ...options, animate: false });
+      else map.flyToBounds(memberBounds, options);
+      return;
+    }
+    // Lugares casi en el mismo punto: encuadrarlos no acercaría nada; se acerca dos niveles.
+    const center = memberBounds.getCenter();
+    const nextZoom = Math.min(zoom + 2, map.getMaxZoom());
+    if (reduced) map.setView(center, nextZoom, { animate: false });
+    else map.flyTo(center, nextZoom, { duration: 0.4 });
+  }
+
+  return (
+    <>
+      {groups.map((group) => {
+        const members = group.ids
+          .map((id) => byId.get(id))
+          .filter((place): place is Place => Boolean(place));
+        if (members.length === 1) return marker(members[0], false);
+        const center = map.unproject([group.x, group.y], zoom);
+        const label = `${members.length} lugares`;
+        return (
+          <Marker
+            key={`grupo:${group.ids.join(",")}`}
+            position={center}
+            icon={clusterIcon(members.length)}
+            eventHandlers={{ click: () => expand(members) }}
+            keyboard
+            title={label}
+            alt={label}
+          />
+        );
+      })}
+      {selected && marker(selected, true)}
+    </>
+  );
+}
+
 type Props = {
   places: Place[];
   hubPlaces: Place[];
@@ -166,6 +302,12 @@ export function PlaceMap({
   const firstTravellerId = travellers[0]?.id ?? null;
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
+  const interestStateFor = (id: string): InterestState => {
+    if (interestSummaryFor) return resolveInterestState(interestSummaryFor(id), firstTravellerId);
+    // Fallback to savedSet if interestSummaryFor not provided
+    return savedSet.has(id) ? "both" : "none";
+  };
+
   const visiblePlaces = useMemo(() => {
     if (!selectedPlace || places.some((place) => place.id === selectedPlace.id)) return places;
     return [...places, selectedPlace];
@@ -187,34 +329,13 @@ export function PlaceMap({
       <FitHubBounds hub={activeHub} places={hubPlaces} panelOffset={panelOffset} />
       <FocusSelected place={selectedPlace} panelOffset={panelOffset} />
       <InvalidateOnResize />
-      {visiblePlaces.map((place) => {
-        const isSelected = place.id === selectedPlace?.id;
-        const summary = interestSummaryFor ? interestSummaryFor(place.id) : undefined;
-        // Fallback to savedSet if interestSummaryFor not provided
-        let interestState: InterestState = "none";
-        if (interestSummaryFor) {
-          interestState = resolveInterestState(summary, firstTravellerId);
-        } else if (savedSet.has(place.id)) {
-          interestState = "both";
-        }
-
-        return (
-          <Marker
-            key={place.id}
-            position={[place.coordinates.lat, place.coordinates.lng]}
-            icon={markerIcon(interestState, isSelected)}
-            eventHandlers={{ click: () => onSelect(place.id) }}
-            keyboard
-            title={place.name}
-            alt={place.name}
-            zIndexOffset={isSelected ? 1000 : 0}
-          >
-            <Tooltip direction="top" offset={[0, -14]}>
-              {place.name}
-            </Tooltip>
-          </Marker>
-        );
-      })}
+      <MarkerLayer
+        places={visiblePlaces}
+        selectedId={selectedPlace?.id ?? null}
+        panelOffset={panelOffset}
+        onSelect={onSelect}
+        interestStateFor={interestStateFor}
+      />
     </MapContainer>
   );
 }

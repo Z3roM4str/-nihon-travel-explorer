@@ -1056,9 +1056,51 @@ button.app__title.app__title--expand {
 
 /* ---------- Map markers ---------- */
 
+/* B24 (P0-4b, Art. 11): la caja del icono mide 44 px (`MARKER_HIT_SIZE`) y es lo que recibe el
+   toque; el punto visible sigue midiendo lo que fija `03 §9` y va centrado dentro. */
 .place-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
+}
+
+/* B24 (P0-4a) — grupo de marcadores, `03 §9`: «un círculo con cifra (`--type-num`), estilo
+   indicador de estación» — el número de estación japonés: blanco con anillo de tinta. Misma caja
+   de impacto de 44 px que un marcador suelto; el círculo visible mide `--space-8`. */
+.place-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.place-cluster__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-8);
+  height: var(--space-8);
+  padding: 0 var(--space-1);
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--ink-900);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--elev-1);
+}
+
+.place-cluster:focus-visible .place-cluster__count,
+.place-marker:focus-visible .place-marker__dot {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .place-marker__dot {
