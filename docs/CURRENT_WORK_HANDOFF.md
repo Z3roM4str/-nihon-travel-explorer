@@ -1,3 +1,22 @@
+## Rama paralela: cierre de pruebas B6.7 (test-alignment, no producto)
+
+**Rama:** `claude/block-22-b6-7-test-closure`, creada desde
+`origin/codex/block-22-b6-7-grade-a-depth-photography` @ `4afbf50e9d1e3137f9148c6c471c1c40aac6a56f`
+(tip de B6.7: commits `8601a9d` y `4afbf50`, "feat(photography): add B6.7 depth batch 1/2"). Esta
+rama **no** es una integración de producto: es una misión de alineación de pruebas, en paralelo a
+este handoff, que corrige expectativas de test desactualizadas tras B6.7. No toca `main`, no
+mezcla B23/B24/"B6.5 timing fix", no usa Astra y no abre PR.
+
+- Vitest antes: 3321/3329 (8 fallos en `place-images.test.ts` y `photography-depth.test.ts`).
+  Después: 3329/3329.
+- Phase 5A gate antes: 47/50 (A06, A07, E01 fallando). Después: 50/50, en escritorio y móvil.
+- Detalle completo, causa raíz de cada fallo, y evidencia normativa: ver
+  `docs/BLOCK_22_B6_7_TEST_CLOSURE.md`.
+- Solo se tocaron archivos de test, el script de gate `app/scripts/phase5a-rc-browser-audit.mjs`,
+  y documentación. Ningún archivo de producto, componente, o dataset fue modificado.
+
+---
+
 # Handoff reanudable — B21 + B6.1–B6.6
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
