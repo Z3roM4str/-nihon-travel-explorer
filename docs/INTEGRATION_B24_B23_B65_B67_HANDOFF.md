@@ -7,7 +7,8 @@ Misión: `docs/INTEGRATION_B24_B23_B65_B67.md`. Fecha de la integración: 2026-0
 | Checkpoint | Estado | SHA |
 |---|---|---|
 | A — rama + preflight | hecho | `15ca0d1` |
-| B — B6.7 test-closure | hecho | `d54e7ca` + este commit |
+| B — B6.7 test-closure | hecho | `d54e7ca` (+ docs) |
+| C — B6.5-fix | hecho | `906c03a` · `e9ca02e` (+ docs) |
 
 ## A — Preflight
 
@@ -42,3 +43,17 @@ histórico — sin borrar nada). Commits en la rama: `722b08c` · `b510407` · `
   `scripts/phase5a-rc-browser-audit.mjs` y docs. Ningún fichero de producto ni dataset.
 - Vitest: **3361/3361** (desaparecen los 8 fallos B6.7). Phase 5A: **50/50 escritorio · 50/50
   móvil**. → **AB-4 RESUELTO** por integración de B6.7 test-closure.
+
+## C — B6.5 timing fix
+
+`git cherry-pick -x` de `d1a5eef` y `af21671`, en ese orden, **sin conflictos**: ni B21, ni B6.7,
+ni B24 habían tocado `block22-b6-5-photography-browser-audit.mjs` desde `f74281a`, así que se
+aplicó sólo el patch propio de los dos commits sobre la versión actual (no se recuperó ningún
+fichero completo). Commits: `906c03a` · `e9ca02e`.
+
+- `scripts/block22-b6-5-sync.test.mjs` (Vitest): **11/11**.
+- `scripts/block22-b6-5-photography-browser-audit.mjs`: **416 passed, 0 failed**.
+- Nota de entorno: el gate llama `chromium.launch()` sin ruta; en este contenedor se ejecuta con
+  un `--import` fuera del repo que sólo inyecta `executablePath` del Chromium preinstalado. El
+  script no se modifica.
+- Sin cambios de fotografía ni dataset.
