@@ -41,7 +41,7 @@ const LEGEND_ITEMS: LegendItem[] = [
 
 export function InterestLegend() {
   return (
-    <details className="interest-legend">
+    <details className="interest-legend" data-map-chrome>
       <summary className="interest-legend__summary">
         <Icon name="info" size={16} /> ¿Qué significan los colores?
       </summary>

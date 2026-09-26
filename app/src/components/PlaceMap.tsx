@@ -5,6 +5,7 @@ import type { Place } from "../types";
 import type { PlaceInterestSummary, Traveller } from "../lib/travellers";
 import { MARKER_HIT_SIZE, groupScreenPoints } from "../lib/map-grouping";
 import { resolveHubView } from "../lib/hub-view";
+import { chromeClearingShift, type Point, type Rect } from "../lib/map-chrome";
 
 const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
 const JAPAN_FALLBACK_ZOOM = 5;
@@ -103,6 +104,52 @@ function clusterIcon(count: number): L.DivIcon {
   return icon;
 }
 
+/**
+ * B24 (P0-4e, Art. 11) — el cromo interactivo del mapa es zona de exclusión (`lib/map-chrome.ts`).
+ *
+ * Todo movimiento programático pasa por `moveProgrammatically`: al terminar ese movimiento, el
+ * mapa mide en vivo el cromo (elementos `[data-map-chrome]` junto al mapa y los controles de
+ * Leaflet) y, si alguna caja de impacto quedó debajo, se desplaza lo mínimo para liberarla. Los
+ * gestos de la persona no pasan por aquí y no se corrigen.
+ */
+type ChromeGuard = () => void;
+const chromeGuards = new WeakMap<L.Map, ChromeGuard>();
+
+function moveProgrammatically(map: L.Map, move: () => void) {
+  // Leaflet emite `moveend` al terminar `setView`/`fitBounds` (síncrono) y `flyTo`/`flyToBounds`
+  // (al acabar la animación). Se corrige en el fotograma siguiente, cuando `MarkerLayer` ya tiene
+  // registrada la guarda con los lugares actuales (también en el primer montaje).
+  map.once("moveend", () => requestAnimationFrame(() => chromeGuards.get(map)?.()));
+  move();
+}
+
+function chromeRects(map: L.Map): Rect[] {
+  const container = map.getContainer();
+  const origin = container.getBoundingClientRect();
+  const elements = [
+    ...(container.parentElement?.querySelectorAll("[data-map-chrome]") ?? []),
+    ...container.querySelectorAll(".leaflet-control"),
+  ];
+  return elements
+    .map((element) => element.getBoundingClientRect())
+    .filter((rect) => rect.width > 0 && rect.height > 0)
+    .map((rect) => ({
+      left: rect.left - origin.left,
+      top: rect.top - origin.top,
+      right: rect.right - origin.left,
+      bottom: rect.bottom - origin.top,
+    }));
+}
+
+function groupPlaces(map: L.Map, places: readonly Place[], zoom: number) {
+  return groupScreenPoints(
+    places.map((place) => {
+      const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
+      return { id: place.id, x: point.x, y: point.y };
+    })
+  );
+}
+
 function panelCoversMap(map: L.Map, panelOffset: number): boolean {
   return panelOffset > 0 && panelOffset >= map.getSize().x - 1;
 }
@@ -119,11 +166,13 @@ function FocusSelected({ place, panelOffset }: { place: Place | null; panelOffse
     const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
     const target = map.unproject(point.add([panelOffset / 2, 0]), zoom);
 
-    if (prefersReducedMotion()) {
-      map.setView(target, zoom, { animate: false });
-    } else {
-      map.flyTo(target, zoom, { duration: 0.6 });
-    }
+    moveProgrammatically(map, () => {
+      if (prefersReducedMotion()) {
+        map.setView(target, zoom, { animate: false });
+      } else {
+        map.flyTo(target, zoom, { duration: 0.6 });
+      }
+    });
   }, [place, placeId, panelOffset, map]);
 
   return null;
@@ -155,11 +204,13 @@ function FitHubBounds({
     const view = resolveHubView(hub, places.map((place) => place.coordinates));
     const point = map.project(view.center, view.zoom);
     const target = map.unproject(point.add([panelOffset / 2, 0]), view.zoom);
-    if (prefersReducedMotion()) {
-      map.setView(target, view.zoom, { animate: false });
-    } else {
-      map.flyTo(target, view.zoom, { duration: 0.6 });
-    }
+    moveProgrammatically(map, () => {
+      if (prefersReducedMotion()) {
+        map.setView(target, view.zoom, { animate: false });
+      } else {
+        map.flyTo(target, view.zoom, { duration: 0.6 });
+      }
+    });
   }, [hub, places, panelOffset, hasSelection, map]);
 
   return null;
@@ -168,7 +219,16 @@ function FitHubBounds({
 function InvalidateOnResize() {
   const map = useMap();
   useEffect(() => {
-    const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }));
+    let wasHidden = map.getSize().x === 0 || map.getSize().y === 0;
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false });
+      const size = map.getSize();
+      const hidden = size.x === 0 || size.y === 0;
+      // P0-4e: si el mapa estaba oculto (otro destino), lo primero que se ve al volver es un
+      // encuadre que nadie ha tocado todavía — cuenta como movimiento programático.
+      if (wasHidden && !hidden) requestAnimationFrame(() => chromeGuards.get(map)?.());
+      wasHidden = hidden;
+    });
     observer.observe(map.getContainer());
     return () => observer.disconnect();
   }, [map]);
@@ -213,12 +273,30 @@ function MarkerLayer({
   // tocarían, así que aplicarlo siempre cubre tanto la regla de densidad de `03 §9` (>12
   // marcadores visibles) como la red de seguridad geométrica añadida para ≤12: cuando el zoom
   // separa las cajas, `groupScreenPoints` las vuelve a dejar sueltas por sí solo.
-  const groups = groupScreenPoints(
-    others.map((place) => {
-      const point = map.project([place.coordinates.lat, place.coordinates.lng], zoom);
-      return { id: place.id, x: point.x, y: point.y };
-    })
-  );
+  const groups = groupPlaces(map, others, zoom);
+
+  // P0-4e: guarda de cromo con los lugares de este render (ver `moveProgrammatically`).
+  useLayoutEffect(() => {
+    chromeGuards.set(map, () => {
+      const currentZoom = map.getZoom();
+      const toContainer = (x: number, y: number): Point =>
+        map.latLngToContainerPoint(map.unproject([x, y], currentZoom));
+      const targets = groupPlaces(map, others, currentZoom).map((group) => toContainer(group.x, group.y));
+      const keep: Point[] = [];
+      if (selected) {
+        const point = map.latLngToContainerPoint([selected.coordinates.lat, selected.coordinates.lng]);
+        targets.push(point);
+        keep.push(point);
+      }
+      const size = map.getSize();
+      const shift = chromeClearingShift(targets, chromeRects(map), { left: 0, top: 0, right: size.x, bottom: size.y }, keep);
+      // `panBy` mueve la vista: el contenido se desplaza en sentido contrario.
+      if (shift) map.panBy([-shift.dx, -shift.dy], { animate: !prefersReducedMotion(), duration: 0.2 });
+    });
+    return () => {
+      chromeGuards.delete(map);
+    };
+  });
 
   const byId = new Map(places.map((place) => [place.id, place]));
 
@@ -252,15 +330,19 @@ function MarkerLayer({
     };
     const reduced = prefersReducedMotion();
     if (map.getBoundsZoom(memberBounds) > zoom) {
-      if (reduced) map.fitBounds(memberBounds, { ...options, animate: false });
-      else map.flyToBounds(memberBounds, options);
+      moveProgrammatically(map, () => {
+        if (reduced) map.fitBounds(memberBounds, { ...options, animate: false });
+        else map.flyToBounds(memberBounds, options);
+      });
       return;
     }
     // Lugares casi en el mismo punto: encuadrarlos no acercaría nada; se acerca dos niveles.
     const center = memberBounds.getCenter();
     const nextZoom = Math.min(zoom + 2, map.getMaxZoom());
-    if (reduced) map.setView(center, nextZoom, { animate: false });
-    else map.flyTo(center, nextZoom, { duration: 0.4 });
+    moveProgrammatically(map, () => {
+      if (reduced) map.setView(center, nextZoom, { animate: false });
+      else map.flyTo(center, nextZoom, { duration: 0.4 });
+    });
   }
 
   return (
