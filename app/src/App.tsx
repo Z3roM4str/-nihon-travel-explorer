@@ -476,7 +476,9 @@ export default function App() {
    */
   const [headerScrolled, setHeaderScrolled] = useState(false);
   useEffect(() => {
-    const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .destination-panel--scroll";
+    // B24 (P0-1): la portada de Explorar tiene ahora su propio contenedor de scroll.
+    const OWNER_SELECTOR =
+      ".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll";
     function sync() {
       const owner = document.querySelector<HTMLElement>(
         `.destination-panel:not([hidden]) ${OWNER_SELECTOR}`
@@ -1204,7 +1206,11 @@ export default function App() {
               </>
             ) : (
               nationalView && (
-                <div className="app__body app__body--national">
+                <div
+                  className={`app__body app__body--national${
+                    nationalView.mapOpen ? "" : " app__body--home"
+                  }`}
+                >
                   {nationalView.mapOpen ? (
                     <NationalExplorer
                       activeRegion={nationalView.region}

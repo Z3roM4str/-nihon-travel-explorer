@@ -1110,7 +1110,9 @@ button.search-field:focus-visible {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding: var(--space-4);
+  /* B24 (P0-1): sin relleno superior — el buscador pegajoso lo lleva dentro, así que queda en el
+     mismo sitio antes y después de desplazar la portada, en vez de subir 16 px al pegarse. */
+  padding: 0 var(--space-4) var(--space-4);
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
@@ -1121,7 +1123,7 @@ button.search-field:focus-visible {
   top: 0;
   z-index: 10;
   background: var(--surface);
-  padding-top: var(--space-1);
+  padding-top: var(--space-5);
   padding-bottom: var(--space-2);
 }
 

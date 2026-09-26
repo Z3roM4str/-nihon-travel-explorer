@@ -3429,6 +3429,25 @@ button.app__title.app__title--expand {
   min-height: 0;
 }
 
+/*
+ * Bloque 24 (P0-1): la portada de Explorar (`05 §2`) no tenía ningún ancestro con scroll —
+ * `.app__body` oculta su desbordamiento para que las superficies de Leaflet tengan caja real
+ * (ver arriba) — y medía ~3000 px dentro de ~730 px: Okinawa, «Más destinos», las colecciones y
+ * «Ver Japón en el mapa» eran inalcanzables con rueda o con el dedo. Mientras se ve la portada
+ * (y sólo entonces: con el mapa nacional abierto la clase no está), este mismo cuerpo es el
+ * contenedor de scroll. No toca la regla de montaje de Leaflet, que sólo vive en la vista de
+ * ciudad. El buscador sigue pegado arriba (`05 §2` pt. 2) porque su `sticky` resuelve contra
+ * este contenedor.
+ */
+.app__body--home {
+  /* `flex-start`, no `stretch`: la portada mide lo que su contenido, y así el `sticky` del
+     buscador tiene todo ese alto para seguir pegado (estirada, su caja acababa en el pliegue y el
+     buscador se iba con ella). */
+  align-items: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .national {
   flex: 1;
   display: flex;
