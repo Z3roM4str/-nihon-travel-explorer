@@ -365,8 +365,9 @@ async function auditGlobalSearch(page, vp) {
   const counter = geometry.head.match(/(\d+)\s+lugar(es)?/);
   check("P0-5", counter && Number(counter[1]) === geometry.count,
     `sin contador vivo «N lugares» en la cabecera (cabecera: «${geometry.head.trim()}», resultados ${geometry.count})`);
-  const metaOk = geometry.rows.every((row) => /^[^·]+ · [^·,]+, [^·,]+$/.test(row.meta));
-  if (!metaOk) note("P0-5 metadato «{categoría} · {barrio}, {ciudad}» — DEFERRED-ACTIVE-BRANCH (PlaceCard.tsx, B23)");
+  // P0-5c (resuelto en la integración con B23, 2026-09-26): «{categoría} · {barrio}, {ciudad}».
+  const badMeta = geometry.rows.find((row) => !/^[^·]+ · [^·,]+, [^·,]+$/.test(row.meta));
+  check("P0-5", !badMeta, `metadato de la búsqueda global sin «{categoría} · {barrio}, {ciudad}»: «${badMeta?.meta ?? ""}»`);
   await page.screenshot({ path: `${SHOTS}/search-${vp.name}.png` });
 
   // Trampa de foco y retorno: Tab no escapa de la hoja; Escape devuelve el foco al disparador.
