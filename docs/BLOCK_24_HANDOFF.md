@@ -76,7 +76,8 @@ Uso: `npm run build && NIHON_CHROMIUM_PATH=<chromium> node scripts/b24-real-inpu
 
 | Checkpoint | SHA | Contenido |
 |---|---|---|
-| A — preflight + gate rojo | (este commit) | misión, handoff base, gate B24 en rojo, timeout B20 |
+| A — preflight + gate rojo | `454d31a` | misión, handoff base, gate B24 en rojo, timeout B20 |
+| B — auditoría | (este commit) | `docs/BLOCK_24_UX_AUDIT.md`: 19 FIX-NOW, 1 DDR, 5 DEFERRED-ACTIVE-BRANCH, 6 DEFERRED-ROADMAP |
 
 ## Validación humana pendiente
 
