@@ -608,9 +608,11 @@ async function auditDetail(page, vp) {
     const hero = await page.locator(".place-detail .gallery__track, .place-detail .gallery__fallback-inner").first().evaluate((el) => {
       const r = el.getBoundingClientRect();
       const img = el.querySelector("img");
-      return { height: r.height, fit: img ? getComputedStyle(img).objectFit : "cover" };
+      const panel = el.closest(".app__detail")?.getBoundingClientRect();
+      return { height: r.height, width: r.width, panel: panel?.width ?? r.width, fit: img ? getComputedStyle(img).objectFit : "cover" };
     }).catch(() => null);
     if (hero) {
+      check("P1-HERO", hero.width >= hero.panel - 2, `héroe no va a sangre: ${Math.round(hero.width)} de ${Math.round(hero.panel)} px`);
       check("P1-HERO", hero.height <= vp.height * 0.6 + 1, `héroe de la ficha ${Math.round(hero.height)} px > 60svh (${Math.round(vp.height * 0.6)}) — D-M3`);
       check("P1-HERO", hero.fit === "cover", `héroe sin object-fit: cover (${hero.fit})`);
     }
