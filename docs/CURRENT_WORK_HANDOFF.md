@@ -16,7 +16,7 @@
 - Deuda histórica fuera de alcance, idéntica antes y después: suite Python de `scripts/`
   `19 failed, 590 passed, 9 errors` (incl. `NameError: BATCH_LIMIT` de B6.4).
 - **Pendiente humano:** scroll táctil real y teclado de iOS en un iPhone (heredado de B24).
-- Resultados de regresión: ver el handoff de integración (§F).
+- Regresión F: Vitest 3382/3382, Phase 5A 50/50 ×2, B6.5 416/416, B23 28/28, integración 58/58, B24 1355/1355 y 1363/1363; resto de gates en verde (detalle en el handoff de integración §F).
 
 ## B24 auditoría con input real — cerrado 2026-09-25 (base de la integración de arriba)
 

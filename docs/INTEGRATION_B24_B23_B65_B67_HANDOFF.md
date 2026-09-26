@@ -11,6 +11,8 @@ Misión: `docs/INTEGRATION_B24_B23_B65_B67.md`. Fecha de la integración: 2026-0
 | C — B6.5-fix | hecho | `906c03a` · `e9ca02e` (+ docs) |
 | D — B23 photo retry | hecho | `b7c7e50` (+ docs) |
 | E — P0-5c + AB-1 + AB-2 | hecho | `a6d798b` · `e6bfbc6` (+ docs) |
+| F — regresión completa | hecho | `36781ae` + este commit |
+| G — documentación final | hecho | este commit |
 
 ## A — Preflight
 
@@ -102,3 +104,40 @@ conservados); gate B24 sobre esta build **1347/1347**.
   Una primera corrida dio 52/53: el gate usaba la 4.ª tarjeta con índice fijo, que en la rejilla de
   3 columnas de 1440 queda fuera de pantalla tras desplazar; ahora elige la primera tarjeta
   realmente visible. Error del gate, no de la app.
+
+## F — Regresión completa (HEAD de integración, una sola build)
+
+| Puerta | Resultado |
+|---|---|
+| build | PASS — `index-*.js` 1.654,65 kB (390,42 kB gzip); B24 final: 1.653,74 kB |
+| lint | 0 errores, 1 warning heredado (Fast Refresh, `PlaceMap.tsx:17`) |
+| Vitest | **3382/3382** (105 ficheros) — 0 fallos; los 8 B6.7 desaparecen |
+| Block 2 Photography | 81/81 |
+| B6.5 sync (Vitest) · B6.5 gate | 11/11 · 416/416 |
+| B6.7 tests (`place-images`, `photography-depth`) | dentro de Vitest, verdes |
+| Phase 5A | **50/50 escritorio · 50/50 móvil** |
+| B23 photo retry | 28/28 |
+| B17 regression · responsive · tap-target | 18/18 · sin overflow · 16/16 |
+| B18 a11y · browser-back · chrome · regression · responsive · viaje-lugar | 23/23 · 15/15 · 6/6 · 40/40 · OK · 38/38 |
+| B19 discovery · grid · contrast | 30/30 · 52/52 · dentro de contrato |
+| B20 PlaceDetail | 73/73 |
+| B21 global search | móvil 33/33 · escritorio 33/33 |
+| DDR-03 persistencia | 43/43 |
+| Block 1 UX | 153/153 |
+| DDR-B24-3 collections | 9/9 |
+| **Integración** (`integration-b24-b23-check.mjs`) | **58/58** |
+| **B24 real input (8 viewports)** | **1355/1355 · 1363/1363**, 0 fallos (el total sube frente a B24 final porque P0-5c pasó de nota a comprobación y varía por los grupos que abre el gate) |
+| Suite Python `scripts/` | 19 failed, 590 passed, 9 errors — **idéntica** a la documentada por B6.7 test-closure (incl. `NameError: BATCH_LIMIT` de B6.4): deuda histórica fuera de alcance |
+
+Regresiones de producto descubiertas durante la integración: **ninguna**. Incidencias de gate/entorno:
+el gate de integración elegía una tarjeta por índice fijo (corregido antes de su commit); dos
+corridas de regresión solapadas chocaron por puertos (se repitió una sola corrida limpia); los
+gates B6.5/B23 necesitan la ruta de Chromium inyectada por `--import` fuera del repo.
+
+## G — Estado final
+
+- AB-4, P0-5c, AB-1, AB-2 **RESUELTOS**; AB-3 **DEFERRED-ROADMAP(B10)** con P2-4.
+- Roadmap intacto: P1-13 → B7; P2-1/2/3/4/6 → B10; P2-5 → B9.
+- Sin PR, sin merge, `main` en `8eb725e`. Fotografía y dataset idénticos a B24 final.
+- **Siguiente acción recomendada (no ejecutada):** revisión de dirección de esta rama y, si se
+  aprueba, PR hacia la rama canónica; validación humana en iPhone real (scroll táctil, teclado iOS).
