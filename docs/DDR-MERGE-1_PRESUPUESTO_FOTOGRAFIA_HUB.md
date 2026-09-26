@@ -1,10 +1,13 @@
 # DDR-MERGE-1 — Presupuesto de fotografía del hub
 
-**Estado:** ABIERTA — pendiente de decisión de dirección.
-**Fecha:** 2026-09-26 · **Rama:** `claude/integration-b24-b23-b65-b67` · **HEAD medido:** `fac2e9e`
+**Estado:** CERRADA — opción 1 aplicada por decisión de dirección.
+**Fecha de apertura:** 2026-09-26 · **Fecha de cierre:** 2026-09-26
+**Rama:** `claude/integration-b24-b23-b65-b67` · **HEAD al abrir:** `fac2e9e` · **HEAD al cerrar:** ver §9
 **Origen:** misión merge-readiness de PR #152, §2 (Block 2 Photography 79/81).
 
-No existe DD-027 sobre este problema. Esta DDR no cambia ninguna constante ni ningún gate.
+No existe DD-027 sobre este problema. La constante `< 5 MiB` no cambió. Ningún assert ni requisito
+fotográfico se relajó, y no se optimizó ninguna imagen — el pipeline ya cumplía (§4). La corrección
+fue exclusivamente de instrumentación: dónde empieza a contar el gate.
 
 ## 1. Presupuestos vigentes
 
@@ -366,3 +369,50 @@ python3 scripts/build-photography-derivatives.py --check                        
 
 Nota: en `main` (`8eb725e`) este gate no llega al hub (5 imágenes y `TimeoutError`), así que no hay
 línea base comparable en `main`.
+
+## 9. Decisión de dirección y cierre
+
+**Decisión:** opción 1. El presupuesto `< 5 MiB` se conserva sin cambio de valor; la medición
+empieza cuando se entra efectivamente al hub, no desde `page.goto("/")`. El tráfico de la portada de
+Explorar queda fuera del presupuesto del hub porque no le pertenece — no se esconde, se deja de
+atribuir a una superficie que no lo generó.
+
+**Implementación** (`app/scripts/block2-photography-browser-audit.mjs`): el registro de respuestas
+`.webp` (`images`) se vacía (`images.length = 0`) inmediatamente después del clic que entra al hub y
+antes del scroll de la lista, en vez de acumular desde el `page.goto` inicial. Es un cambio de
+instrumentación de una línea; ninguna constante, ningún `check(...)`, ningún umbral se tocó.
+
+**Osaka, tras el fix:** 3,09 MiB (phone) / 3,03 MiB (tablet) / 3,09 MiB (desktop) — coincide con el
+recorrido real del hub medido en §3 (3,20 MiB), la pequeña diferencia es variación normal del orden
+de llegada de imágenes bajo scroll asíncrono. **Block 2: 81/81** en los tres viewports.
+
+### Verificación de los 4 hubs (no sólo Osaka)
+
+Auditoría ad hoc (misma lógica: reset de tracking tras el clic al hub, scroll completo), Tokio,
+Kioto, Osaka y Okinawa, en los tres viewports del gate:
+
+| Hub | phone | tablet | desktop |
+|---|---|---|---|
+| Tokio | 2.848 MiB | 2.131 MiB | 2.257 MiB |
+| Kioto | 3.279 MiB | 3.248 MiB | 2.932 MiB |
+| Osaka | 3.162 MiB | 2.924 MiB | 2.380 MiB |
+| Okinawa | 2.629 MiB | 2.629 MiB | 2.694 MiB |
+
+Las 12 combinaciones quedan por debajo de 5 MiB — el máximo es Kioto/phone con 3,279 MiB, muy por
+debajo del límite. **No se encontró ningún hub que exceda `< 5 MiB` contando sólo tráfico del hub**,
+así que no hay hallazgo nuevo que reportar y la constante no necesitó revisión.
+
+### Regresión ejecutada tras el fix
+
+| Gate | Resultado |
+|---|---|
+| Block 2 (los 3 viewports) | 81/81 |
+| Gate de integración B24+B23+B6.5+B6.7 | 58/58 (incluye 2-RETRY: Reintentar existe, es clicable y recupera la foto) |
+| B23 retry (unit browser audit) | 28/28 — confirma que el 503 simulado dispara error real y el reintento reemite la misma URL |
+| Vitest | 3384/3384 |
+| lint | 0 errores (mismo warning heredado de `PlaceMap.tsx`) |
+| build | OK — bundle inicial 390,42 kB gzip |
+| pytest (`scripts/`) | 557/624 pasan; **67 fallos preexistentes e idénticos con y sin este cambio** (confirmado por `git stash`), concentrados en `test_phase4m_stop_vs_continue.py` y `test_phase4k_coverage_strategy.py` — comprobaciones de alcance de fases anteriores (`DesignOnlyScopeTests`, fixtures de selector) que ya fallaban en `b06c1d4` antes de tocar nada de esta DDR. Quedan fuera del alcance de DDR-MERGE-1; no se tocaron. |
+
+**Punto sin resolver, por decisión explícita:** la contradicción 400w/800w de `PlaceCard
+variant="compact"` (§4, hallazgo secundario) sigue abierta. No se resuelve en este cierre.

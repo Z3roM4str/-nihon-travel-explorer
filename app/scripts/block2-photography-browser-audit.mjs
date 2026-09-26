@@ -111,6 +111,10 @@ async function auditViewport(browser, name, url) {
 
   // ---- The card list fetches the card rendition ----
   await page.getByRole("button", { name: new RegExp(`^${GALLERY_HUB}`) }).first().click();
+  // DDR-MERGE-1 (opción 1): el presupuesto es del HUB, no de la sesión completa. La portada de
+  // Explorar (tarjetas de ciudad/colecciones) ya disparó descargas de imagen antes de este click;
+  // se descartan aquí para medir sólo el tráfico que pertenece a partir de entrar al hub.
+  images.length = 0;
   await page.waitForTimeout(1400);
 
   // `.app__sidebar` es quien scrollea (`overflow-y: auto`); `.place-list` es el `<ul>` de dentro
