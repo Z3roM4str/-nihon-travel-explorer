@@ -518,6 +518,9 @@ async function auditCityMap(page, vp) {
 // P0-2 — iconos de `.icon-button--small` visibles (muestreo de píxeles del SVG) + toast (D-M4).
 // ---------------------------------------------------------------------------------------------
 async function sampleIcons(page, scope, id) {
+  // El toast (`04 §16`, 2.400 ms) puede pasar por encima de una fila en pantallas bajas: se muestrea
+  // cuando ya se ha ido, para medir el icono y no el toast.
+  await page.locator(".save-toast").waitFor({ state: "detached", timeout: 6000 }).catch(() => {});
   const buttons = page.locator(`${scope} .icon-button--small`);
   const count = Math.min(await buttons.count(), 4);
   let sampled = 0;
@@ -527,7 +530,12 @@ async function sampleIcons(page, scope, id) {
       const svg = el.querySelector("svg");
       const r = el.getBoundingClientRect();
       const s = svg?.getBoundingClientRect();
-      const visible = r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth && el.offsetParent !== null;
+      // Visible = dentro del viewport y NO tapado por el cromo (TabBar, cabecera): el centro del
+      // SVG resuelve al propio botón. Una fila bajo la TabBar se alcanza desplazando; no se mide.
+      const hit = s ? document.elementFromPoint(s.left + s.width / 2, s.top + s.height / 2) : null;
+      const visible =
+        r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth &&
+        el.offsetParent !== null && Boolean(hit && (hit === el || el.contains(hit)));
       return {
         visible,
         disabled: el.disabled,
@@ -575,7 +583,14 @@ async function auditSavedAndIcons(page, vp) {
   const viaje = page.locator(".tab-bar__item:visible, .nav-rail__item:visible").filter({ hasText: "Viaje" }).first();
   if (await realClick(page, viaje, "NAV", "pestaña Viaje")) {
     await page.waitForTimeout(400);
-    const inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
+    let inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
+    for (let attempt = 0; inViaje === 0 && attempt < 4; attempt += 1) {
+      // Pantalla baja: la fila queda bajo la TabBar; se trae con rueda real y se vuelve a medir.
+      await page.mouse.move(vp.width / 2, vp.height / 2);
+      await page.mouse.wheel(0, 160);
+      await page.waitForTimeout(120);
+      inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
+    }
     if (inViaje === 0) note("P0-2 Viaje: sin día con controles visibles en el estado inicial — cubierto por la regla CSS común");
   }
 }
