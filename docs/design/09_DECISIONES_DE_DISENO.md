@@ -364,6 +364,78 @@ el ciclo completo (antes de abrir → abierta → después de cerrar). **DDR-01 
 
 ---
 
+### DD-018 — Contador de ciudad sin píldora, sobre el scrim (D-M1)
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `05 §2` pt. 3, `03 §5` · **Origen:** dirección, Bloque 24
+
+**Decisión.** En las tarjetas de ciudad de la portada, «57 lugares» va **sin píldora**, en
+`--type-num`, directamente sobre el scrim de la fotografía. El scrim cumple su contrato de `03 §5`:
+opacidad efectiva **≥0,60 en toda la banda de texto** (nombre, nombre japonés y contador), con
+contraste AA sobre la fotografía más clara posible.
+
+**Alternativas descartadas.** Conservar la píldora clara con texto blanco: ilegible (≈1,15:1).
+Oscurecer la píldora: añade una superficie que `05 §2` no prescribe y no arregla el nombre, que
+tampoco llegaba a AA con el scrim largo.
+
+**Consecuencias.** La banda de texto de la tarjeta de ciudad recibe su propio suelo de scrim con el
+valor de la parada inferior de `--scrim-bottom`, el mismo mecanismo que `PlaceCard` (DD-016). Sin
+tokens nuevos. Lo mide `app/scripts/b24-real-input-audit.mjs` sobre píxeles compuestos.
+
+---
+
+### DD-019 — Proporción del héroe de la ficha por debajo de `md` (D-M3)
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `04 §6`, `05 §5` pt. 1, `06 §5.2` · **Origen:** dirección, Bloque 24
+
+**Decisión.** Por debajo de `md`, la galería de la ficha mantiene la proporción **4:5**, con **altura
+máxima 60svh** y `object-fit: cover`. Desde `md` sigue `04 §6`: 4:3 dentro del panel.
+
+**Alternativas descartadas.** 4:5 sin tope: a 820 px de ancho la foto mide 1025 px y empuja el
+nombre fuera de la primera pantalla.
+
+**Consecuencias.** En teléfono estrecho nada cambia (4:5 cabe bajo el tope); en tablets verticales la
+foto se recorta, no se deforma.
+
+---
+
+### DD-020 — Léxico: «Misma zona» y toasts de «Quiero ir» (D-M4)
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §10`, `04 §16`, `05 §5` pt. 12 · **Origen:** dirección, Bloque 24
+
+**Decisión.**
+- El valor del dataset «Mismo cluster» se presenta como **«Misma zona»**. Sólo en presentación: el
+  dataset (`nearby.json`) y la normalización de `lib/transfer.ts` no cambian.
+- Toast al marcar: **«{lugar} está en Quiero ir»**. Toast al desmarcar: **«{lugar} ya no está en
+  Quiero ir»**.
+
+**Alternativas descartadas.** «Guardado en Quiero ir: {lugar}»: contradice `03 §10` («el botón
+"Quiero ir" produce el estado "Quiero ir", no "Guardado"»). «Mismo cluster»: vocabulario de
+repositorio (Art. 7).
+
+---
+
+### DD-021 — Iconos del set propio en lugar de glifos de texto (D-M5)
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §8` · **Origen:** dirección, Bloque 24
+
+**Decisión.** Los glifos de texto que hacen de icono (`▾`, `▸`, `↓`) en cromo y hojas se sustituyen
+por el set de `app/src/icons`, fuera de las zonas vedadas.
+
+**Consecuencias.** En B24 se aplica a `FilterSheet`. Los glifos de Quiero ir (`SelectionPanel`,
+`SelectionAnalysis`) quedan para B7, y los de `OrderedSequenceBuilder.tsx` (vedado) para B9.
+
+---
+
+### DD-022 — Resultados de búsqueda (D-M6)
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `04 §5.10`, `04 §12` · **Origen:** dirección, Bloque 24
+
+**Decisión.**
+- Las filas de resultados **nunca son más anchas que la hoja**.
+- Metadato: **«{categoría} · {barrio}, {ciudad}»**, con un solo `·` (`03 §2.3`).
+- **Contador vivo en la cabecera**: «14 lugares».
+
+**Consecuencias.** El ancho y el contador se aplican en B24. El metadato vive en `PlaceCard.tsx`, zona
+protegida por una rama activa (B23): queda como DEFERRED-ACTIVE-BRANCH con su diff en
+`docs/BLOCK_24_UX_AUDIT.md` (P0-5c).
+
+---
+
 ## DESIGN DECISION REQUIRED
 
 Contradicciones reales entre el sistema congelado y una decisión ya tomada. **No se
