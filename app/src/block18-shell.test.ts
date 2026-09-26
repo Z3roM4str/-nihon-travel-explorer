@@ -500,8 +500,10 @@ describe("Bloque 18 — ScreenHeader: el borde inferior sólo aparece al hacer s
   it("App.tsx deriva headerScrolled del scroll real de la superficie activa, no de una superficie fija", async () => {
     const source = await read("App.tsx");
     expect(source).toContain("const [headerScrolled, setHeaderScrolled] = useState(false);");
+    // B24 (P0-1, `05 §2` pt. 2 + `04 §11`): la portada de Explorar gana su propio contenedor de
+    // scroll (`.app__body--home`), y el borde de la cabecera lo escucha igual que a los demás.
     expect(source).toContain(
-      'const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .destination-panel--scroll";'
+      'const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll";'
     );
     expect(source).toMatch(
       /className=\{`app__header \$\{headerScrolled \? "app__header--scrolled" : ""\}`\}/
