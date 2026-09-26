@@ -3315,13 +3315,14 @@ button.app__title.app__title--expand {
   margin-bottom: 0.5rem;
 }
 
+/* B24 (P1-05, `03 §2.3`): caja de frase, bajo el título, sin `letter-spacing`. */
 .onboarding__step-count {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
 }
 
 .onboarding__title {
