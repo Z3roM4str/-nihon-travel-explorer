@@ -26,6 +26,12 @@ validator = importlib.util.module_from_spec(validator_spec)
 validator_spec.loader.exec_module(validator)
 
 
+# `None` = every planned batch. Only the CLI entry point narrows it (`--through-batch N`, to
+# certify the registry after an intermediate batch); under pytest the module is imported and
+# the `__main__` block never runs, so the default must exist at module level.
+BATCH_LIMIT = None
+
+
 def load(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
