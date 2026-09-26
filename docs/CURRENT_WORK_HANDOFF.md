@@ -2,7 +2,7 @@
 
 ## Estado actual — B24 auditoría con input real (rama, sin integrar)
 
-**Última actualización:** 2026-09-26 (F6 — cierre de DDR-B24-1/2/3). Handoff completo:
+**Última actualización:** 2026-09-25 (F7 — P0-4e corregido, cierre real de B24). Handoff completo:
 `docs/BLOCK_24_HANDOFF.md`; auditoría: `docs/BLOCK_24_UX_AUDIT.md`; misión:
 `docs/BLOCK_24_MISSION.md`.
 
@@ -10,7 +10,8 @@
   `origin/codex/block-22-b6-7-grade-a-depth-photography` @ `4afbf50e9d1e3137f9148c6c471c1c40aac6a56f`
   (descendiente de B21 `0390708`). **Sin PR ni merge.** B23 `52a7073` y B6.5-fix `af21671` no se
   incorporaron; ninguna zona protegida tocada. `main` intacto en `8eb725e`.
-- Checkpoints: A `454d31a` · B `77a3345` · C `7794fd1` · D `f0b8b22` · E `6b100e5` · F (este commit).
+- Checkpoints: A `454d31a` · B `77a3345` · C `7794fd1` · D `f0b8b22` · E `6b100e5` · F `9fba00f` ·
+  G (F7, cierre real — ver `docs/BLOCK_24_HANDOFF.md` §F7).
 - Corregido: P0-1 portada sin scroll, P0-2 iconos `.icon-button--small` tapados, P0-3 contador de
   ciudad (D-M1), P0-4 mapa de ciudad agrupado (`03 §9`) con áreas de 44 px, P0-5 filas de
   búsqueda y contador vivo (D-M6); P1 de FilterSheet, onboarding, toasts y «Misma zona» (D-M4),
@@ -19,15 +20,18 @@
   **DDR-B24-1/2/3 RESUELTAS en F6** (`DD-023` encuadre editorial por hub con fallback calculado,
   `DD-024` agrupación geométrica siempre activa, `DD-025` colecciones de la portada como búsqueda
   global). No queda ninguna DDR abierta en B24.
-- Puertas (F6): build PASS; lint 0 errores + 1 warning heredado (`PlaceMap.tsx:16`); Vitest
-  3347/3355 (los 8 fallos B6.7 de la base, 0 nuevos); gates B17–B21, DDR-03, Block 1/2 en verde;
-  Phase 5A 47/50 idéntico a la base; **gate B24 `app/scripts/b24-real-input-audit.mjs` 873/875**
-  (2 hallazgos: P0-4e colisión con `InterestLegend` tras expandir un grupo — nuevo, DEFERRED-
-  ROADMAP; y un flake de la corrida completa no reproducible en aislamiento — ver
-  `docs/BLOCK_24_HANDOFF.md` §F6).
+- **F7 (cierre real):** P0-4e corregido → `DD-026` (el cromo interactivo del mapa es zona de
+  exclusión tras todo movimiento programático; `lib/map-chrome.ts`). Regresión propia de F6
+  encontrada y corregida: `flyTo` con el mapa oculto (0×0) lanzaba `LatLng(NaN, NaN)` y
+  desmontaba la app (`b18-viaje-lugar-check`). El «flake» de P1-FILTER era una carrera del gate
+  (medía durante la animación de entrada de la hoja) — estabilizado sin cambiar la expectativa.
+  DD-023/024/025 y el cierre de DDR-B24-1/2/3 fechados 2026-09-25.
+- Puertas (F7): build PASS; lint 0 errores + 1 warning heredado (`PlaceMap.tsx:17`); Vitest
+  3353/3361 (los 8 fallos B6.7 de la base, 0 nuevos); B17, B18 (incl. viaje-lugar 38/38), B19
+  grid 52/52, B21 33/33 ×2, DDR-B24-3 9/9 en verde; **gate B24 100 % verde (1347/1347 y
+  1351/1351 en dos corridas completas de 8 viewports)**. Ningún P0 propio de B24 queda deferred.
 - **Pendiente humano:** scroll táctil real y teclado de iOS en un iPhone.
-- **Siguiente acción:** P0-4e (decisión de diseño sobre la esquina del mapa/la leyenda) y sobre la
-  integración de esta rama. No empezar B25.
+- **Siguiente acción:** decisión de dirección sobre la integración de esta rama. No empezar B25.
 
 **Última actualización:** 2026-09-24. La autoridad normativa es `docs/design/`. Astra es una línea separada y no forma parte de este trabajo.
 

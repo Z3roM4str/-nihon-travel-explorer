@@ -160,6 +160,11 @@ acotada por el tope del breakpoint. Topes: `base` 1 · `sm` 2 · `md` 2 · `lg` 
 encuadra su centro/zoom editorial o, en su defecto, el núcleo calculado sobre sus propios lugares
 — nunca todos los lugares del hub (`03 §9`).
 
+**Cromo del mapa (`DD-026`).** La leyenda de intereses (abajo a la izquierda) y los controles de
+Leaflet son zona de exclusión: tras cualquier movimiento programático del mapa, ningún marcador
+ni grupo queda debajo de ellos; el mapa se desplaza lo mínimo si hace falta. La leyenda no
+cambia de sitio.
+
 El ancho de viewport en el que `lg` llega a 2 columnas (~1090–1140 px según el cromo
 real) es una **consecuencia aritmética** de esa fórmula, no un breakpoint: no se escribe
 en el código ni en este documento.

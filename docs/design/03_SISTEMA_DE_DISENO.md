@@ -333,6 +333,12 @@ Maps.
   (DDR-B24-1, resuelta por `DD-023`).
 - **Leyenda**: una línea plegable, no un panel permanente. En teléfono sólo aparece
   sobre el mapa, nunca sobre la lista.
+- **Cromo del mapa como zona de exclusión**: la leyenda y los controles superpuestos al
+  mapa son espacio no válido para las cajas de impacto de 44×44 px. Tras cualquier
+  movimiento programático (encuadre inicial, abrir un grupo, centrar un lugar), ningún
+  marcador ni grupo queda debajo; si queda, el mapa se desplaza lo mínimo para liberarlo.
+  Los gestos de la persona no se corrigen. Todo control nuevo sobre el mapa se declara
+  como cromo (`data-map-chrome`) (`DD-026`).
 
 ## 10. Voz y microcopy
 

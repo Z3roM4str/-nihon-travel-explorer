@@ -12,10 +12,10 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
 
 | Estado | Hallazgos |
 |---|---|
-| FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-5a, P0-5b, P1-01 … P1-12, P2-7 |
+| FIX-NOW | P0-1, P0-2, P0-3, P0-4a, P0-4b, P0-4e (F7, → `DD-026`), P0-5a, P0-5b, P1-01 … P1-12, P2-7, R-F7 (crash de `flyTo` con el mapa oculto, F7) |
 | RESUELTO (era DDR) | DDR-B24-1 (encuadre del mapa de ciudad → `DD-023`), DDR-B24-2 (marcadores cercanos con ≤12 a la vista → `DD-024`), DDR-B24-3 (volver desde una colección → `DD-025`) |
 | DEFERRED-ACTIVE-BRANCH | P0-5c, AB-1, AB-2, AB-3, AB-4 |
-| DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9), P0-4e (colisión de un marcador con `InterestLegend` tras resolver DDR-B24-1/2, ver más abajo) |
+| DEFERRED-ROADMAP | P1-13 (B7), P2-1 … P2-4 (B10), P2-5 (B9), P2-6 (B10) |
 
 ---
 
@@ -121,18 +121,31 @@ Severidad: P0 (bloquea una tarea básica) · P1 (incumple norma, tarea posible) 
   marcador (Art. 11: ningún objetivo tapado). No ocurre en la base `4afbf50` (0 fallos en 8
   viewports antes de esta implementación).
 - **Norma:** Art. 11.
-- **Estado:** **ENCONTRADO, NO CORREGIDO.** Se intentó desplazar el encuadre de `expand()`
-  (`PlaceMap.tsx`) para dejar libre la esquina de la leyenda (padding inferior mayor en la rama
-  `fitBounds`, corrección de proyección en la rama de zoom+2); ninguna de las dos desplazó lo
-  suficiente al marcador concreto porque su posición final depende de la geometría completa de
-  los 57 lugares de Tokio a ese zoom, no sólo de los miembros del grupo expandido — un ajuste
-  fiable exige o bien reservar en el propio contenedor del mapa una zona muerta del tamaño de la
-  leyenda (cambio de CSS/layout, revisar con `08`), o bien mover la leyenda a una esquina con
-  menos densidad de marcadores (decisión de diseño). **DEFERRED-ROADMAP** — no bloquea el cierre
-  de DDR-B24-1/2/3 (es una interacción entre esas resoluciones y una superficie de cromo
-  preexistente, no una contradicción normativa de las propias DDR). Gate `b24-real-input-audit.mjs`
-  lo sigue vigilando (P0-4 pasa de 795/795 a 794/795 en la corrida de 8 viewports por este único
-  hallazgo).
+- **Causa técnica.** Ningún movimiento programático del mapa tenía en cuenta el cromo que se le
+  superpone: `InterestLegend` es hermana del contenedor de Leaflet dentro de `.app__map-area`
+  (`z-index: 10` sobre el panel de marcadores), y ni `FitHubBounds`, ni `expand()`, ni
+  `FocusSelected` sabían que ese rectángulo existe. Antes de B24 el encuadre `fitBounds` de todos
+  los lugares de Tokio dejaba por casualidad libre esa esquina; el encuadre editorial (`DD-023`) y
+  la agrupación siempre activa (`DD-024`) cambiaron la geometría y, al abrir el grupo mayor de
+  Tokio a 375×667, la caja de «Daikanyama T-SITE» caía entera bajo `.interest-legend__summary`.
+  Los dos intentos de F6 (más margen en `fitBounds` de `expand()`) no podían funcionar: la
+  posición final de un marcador depende de todos los lugares de la ciudad a ese zoom, no sólo de
+  los miembros del grupo abierto.
+- **Estado:** **RESUELTO (F7) → `DD-026`.** El cromo interactivo del mapa es zona de exclusión.
+  `lib/map-chrome.ts` calcula, en geometría pura, la traslación más corta que deja todas las cajas
+  de impacto de 44×44 fuera del cromo sin meter otra debajo, sin sacar de pantalla a las liberadas
+  ni al lugar seleccionado (traslación → la agrupación no cambia). `PlaceMap.tsx` hace pasar todo
+  movimiento programático por `moveProgrammatically`; al terminar, la guarda de `MarkerLayer`
+  mide en vivo el cromo (`[data-map-chrome]` —la leyenda lo declara— y `.leaflet-control`) y
+  desplaza el mapa si hace falta. También al volver a mostrarse un mapa que estaba oculto. Los
+  gestos de la persona no se corrigen. Sin offsets mágicos, sin lugar ni viewport concretos, sin
+  bajar de 44 px, sin `z-index`, sin ocultar lugares, sin mover la leyenda.
+- **Invariante (gate `P0-4e`, 8 viewports × con/sin `prefers-reduced-motion`).** Tras el encuadre
+  inicial, tras abrir hasta tres grupos seguidos y tras seleccionar un lugar: cada marcador o
+  grupo visible mide ≥44×44, no se cruza con ningún rectángulo de cromo y `elementFromPoint` en su
+  centro resuelve a él; la leyenda se abre y se cierra con clic real; los iconos siguen
+  representando el mismo número de lugares que antes de abrir grupos. Sin el arreglo, el gate
+  reproduce el fallo original a 375×667 («Daikanyama T-SITE» bajo `interest-legend`).
 
 ### P0-5a — Filas de la búsqueda global más anchas que la hoja
 - **Superficie:** Explorar › Buscar en todo Japón. **Viewport:** todos. **Severidad:** P0.
@@ -265,17 +278,29 @@ podar; también se cerró una segunda causa real: `FitHubBounds` competía con `
 vista mientras la ficha estaba abierta (ambas reaccionaban a `panelOffset`), así que ahora
 `FitHubBounds` no actúa mientras hay un lugar seleccionado.
 
-**Hallazgo nuevo, no corregido:** P0-4e (colisión de un marcador con `InterestLegend` tras expandir
-un grupo en Tokio a 375×667) — ver la entrada en P0. DEFERRED-ROADMAP; no bloquea el cierre de las
-tres DDR.
+Gate B24 al cerrar F6: 873/875 (P0-4e y el «flake» de P1-FILTER). Ambos resueltos en F7, abajo.
 
-Gate B24 tras F6: **873/875, 2 fallos** en la corrida completa de 8 viewports:
-- P0-4e (arriba) — reproducible en las tres corridas completas hechas en F6.
-- P1-FILTER «primer chip sin marcar: centro fuera del viewport» a 320×568 — **no reproducible en
-  aislamiento** (108/108, 0 fallos, 3/3 corridas sólo con `--viewport=320x568`); no toca ningún
-  código de `FilterPanel`/`FilterSheet` de esta sesión. Se registra como flake de la corrida
-  completa de 8 viewports en este contenedor (mismo tipo de limitación de entorno que los errores
-  de consola de teselas OSM), no como regresión — repetirlo aislado no lo reproduce.
+## F7 — P0-4e corregido y cierre real de B24
+
+- **P0-4e** — corregido (ver la entrada en P0; decisión normativa `DD-026`).
+- **R-F7 — regresión propia de F6 encontrada en la regresión final y corregida.** Desde
+  `5e76ef7`, `FitHubBounds` vuelve a encuadrar al cerrarse una ficha aunque el mapa esté oculto
+  (otro destino activo, contenedor 0×0). `flyTo` de Leaflet divide por el tamaño del contenedor,
+  calcula `LatLng(NaN, NaN)` y lanza; la excepción desmonta la app entera (pantalla en blanco).
+  Lo encontró `b18-viaje-lugar-check` (Viaje › Dónde dormir › lugar cercano tras «Ver en el
+  mapa»): pasa 38/38 en `6b100e5`, falla en `5e76ef7`, `035514b` y `9fba00f`; F6 no volvió a
+  pasar ese gate. Arreglo: los movimientos programáticos sólo se animan si el mapa tiene tamaño
+  (`canAnimate`); sin tamaño se aplica `setView` sin animación. 38/38.
+- **P1-FILTER «primer chip sin marcar: centro fuera del viewport» (320×568)** — investigado:
+  **carrera del gate**, no de la app ni regresión. La hoja entra con una animación de 320 ms; el
+  gate medía dos fotogramas después de abrirla. Muestreado cada 40 ms a 320×568, el centro del
+  primer chip pasa por y≈620 (fuera de una pantalla de 568) → 383 → … → 266 y se detiene al
+  terminar la animación. Bajo la carga de la corrida completa, la medida caía a veces en el primer
+  tramo. El gate ahora espera a que terminen las animaciones de la hoja (`getAnimations()`) antes
+  de medir; la expectativa funcional no cambia.
+- **Gate B24 tras F7: 1347/1347 y 1351/1351, 0 fallos**, en dos corridas completas de 8 viewports
+  seguidas (el total varía en unas pocas comprobaciones porque el gate abre «hasta tres» grupos y
+  sólo los que tienen el centro dentro del mapa; no hay ningún fallo en ninguna corrida).
 
 ## Qué no puede verificarse aquí
 

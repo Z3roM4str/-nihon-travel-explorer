@@ -732,7 +732,7 @@ texto de la distinción es legible por un lector de pantalla.
 ---
 
 ### DDR-B24-1 — Encuadre inicial del mapa de ciudad
-**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, P0-4) · Cerrada 2026-09-26 por **DD-023** · **Afecta:** `03 §9`, `05 §4` · **Bloqueante:** no
+**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, P0-4) · Cerrada 2026-09-25 por **DD-023** · **Afecta:** `03 §9`, `05 §4` · **Bloqueante:** no
 
 **La pregunta.** ¿Qué encuadra el mapa de una ciudad al abrirse? Hoy `FitHubBounds` ajusta el
 mapa a **todos** los lugares del hub, y los hubs contienen excursiones lejanas: Tokio incluye
@@ -776,7 +776,7 @@ el lugar seleccionado explícitamente sigue ganando siempre.
 ---
 
 ### DDR-B24-2 — Marcadores cercanos cuando hay 12 o menos a la vista
-**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, P0-4) · Cerrada 2026-09-26 por **DD-024** · **Afecta:** `03 §9`, Art. 11 · **Bloqueante:** no
+**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, P0-4) · Cerrada 2026-09-25 por **DD-024** · **Afecta:** `03 §9`, Art. 11 · **Bloqueante:** no
 
 **La tensión.** `03 §9` agrupa **sólo por encima de 12** marcadores visibles. Art. 11 exige 44×44
 por objetivo, y dos cajas de 44 px que se solapan son ambiguas (el criterio de
@@ -806,7 +806,7 @@ seguridad de Art. 11 con el mismo código, y vuelve a separar en cuanto el zoom 
 ---
 
 ### DDR-B24-3 — Volver desde un lugar abierto en una colección de la portada
-**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, hallado al hacer la portada desplazable) · Cerrada 2026-09-26 por **DD-025** · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Bloqueante:** no
+**Estado: RESUELTA** · Abierta 2026-09-25 (Bloque 24, hallado al hacer la portada desplazable) · Cerrada 2026-09-25 por **DD-025** · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Bloqueante:** no
 
 **La tensión.** `02 §D3` pt. 2: «la profundidad se apila dentro de una pestaña … volver devuelve
 exactamente al scroll anterior». Al abrir un lugar desde una colección de la portada, `selectPlace`
@@ -829,7 +829,7 @@ comportan exactamente como la búsqueda global de DDR-B21-05.
 ---
 
 ### DD-023 — DDR-B24-1: encuadre editorial por hub con fallback calculado
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §9`, `05 §4` · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `03 §9`, `05 §4` · **Origen:** dirección, Bloque 24
 
 **Decisión.** Se adopta la opción (c) de DDR-B24-1 con el fallback (b) para cualquier hub sin
 encuadre declarado. Contrato:
@@ -872,7 +872,7 @@ fallback, el centro editorial no lo determinan los outliers). **DDR-B24-1 queda 
 ---
 
 ### DD-024 — DDR-B24-2: red de seguridad geométrica de agrupación, siempre activa
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `03 §9`, Art. 11 · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `03 §9`, Art. 11 · **Origen:** dirección, Bloque 24
 
 **Decisión.** Se adopta la opción (a) de DDR-B24-2. Contrato:
 
@@ -909,7 +909,7 @@ separarse al acercar. **DDR-B24-2 queda cerrada.**
 ---
 
 ### DD-025 — DDR-B24-3: las colecciones de la portada se comportan como la búsqueda global
-**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Origen:** dirección, Bloque 24
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `02 §D3` pt. 2, `05 §2` · **Origen:** dirección, Bloque 24
 
 **Decisión.** Se adopta la opción (a) de DDR-B24-3. Al seleccionar un lugar desde una colección de
 la portada:
@@ -949,6 +949,53 @@ cambio implícito de ciudad). **DDR-B24-3 queda cerrada.**
 
 ---
 
+### DD-026 — El cromo interactivo del mapa es zona de exclusión para los objetivos
+**Estado:** Firme · **Fecha:** 2026-09-25 · **Afecta:** `03 §9`, `05 §4`, Art. 11 · **Origen:** dirección, Bloque 24 (P0-4e)
+
+**Decisión.** El rectángulo que ocupa cualquier control interactivo superpuesto al mapa (la
+leyenda de intereses, los controles de Leaflet de zoom y atribución, y cualquier control futuro)
+es espacio no válido para las cajas de impacto de 44×44 px de marcadores y grupos. Contrato:
+
+- Tras **todo movimiento programático** del mapa —encuadre inicial de un hub, abrir un grupo,
+  centrar un lugar seleccionado, volver a mostrar un mapa que estaba oculto— ninguna caja de
+  impacto queda debajo del cromo, total o parcialmente: `elementFromPoint` en su centro resuelve
+  al marcador.
+- Si el movimiento deja alguna debajo, el mapa se desplaza la **traslación más corta** que las
+  libera a todas sin meter otra debajo, sin sacar de la pantalla a las que libera y sin sacar al
+  lugar seleccionado. Trasladar no cambia la agrupación (es invariante a traslaciones).
+- Los gestos de la persona (arrastrar, rueda, pellizco) **no** se corrigen: el mapa no pelea con
+  quien lo maneja.
+- No se reduce ningún objetivo por debajo de 44 px, no se oculta ningún lugar, no se resuelve
+  subiendo el `z-index` de los marcadores (los dos controles deben seguir siendo usables) y la
+  leyenda conserva su sitio (esquina inferior izquierda): moverla de esquina sólo trasladaría la
+  colisión.
+- El cromo se mide en vivo, no se declara con números: la regla sigue valiendo si la leyenda
+  cambia de tamaño (abierta, otro idioma, otra tipografía) o si se añade un control.
+
+**Cómo se implementa.** `lib/map-chrome.ts` (geometría pura, sin Leaflet ni DOM):
+`chromeClearingShift(objetivos, cromo, encuadre, conservar)` devuelve la traslación mínima o
+`null`. En `PlaceMap.tsx`, todo movimiento programático pasa por `moveProgrammatically`; al
+terminar (`moveend`), la guarda de `MarkerLayer` proyecta los objetivos reales (los mismos grupos
+que pinta) y mide el cromo: los elementos marcados con `data-map-chrome` junto al mapa y los
+`.leaflet-control`. Un control nuevo superpuesto al mapa **debe** llevar `data-map-chrome`. Los
+movimientos programáticos sólo se animan si el mapa tiene tamaño (`canAnimate`): con otro
+destino activo el contenedor mide 0×0 y `flyTo` de Leaflet calcula `LatLng(NaN, NaN)`.
+
+**Alternativas descartadas.** Ajustar el encuadre de `expand()` con márgenes mayores (probado dos
+veces en F6: la posición final de un marcador depende de todos los lugares de la ciudad, no sólo
+del grupo abierto, y no establece ningún invariante). Mover la leyenda de esquina (traslada la
+colisión). Una franja muerta fija en el contenedor (cambia el diseño del mapa y deja de valer si
+la leyenda cambia de tamaño). Subir el `z-index` de los marcadores (tapa la leyenda).
+
+**Consecuencias.** `03 §9` y `05 §4` recogen el invariante. Cobertura permanente:
+`src/lib/map-chrome.test.ts` (unitario) y `b24-real-input-audit.mjs` hallazgo `P0-4e` en los 8
+viewports, con y sin `prefers-reduced-motion`: tras el encuadre inicial, tras abrir hasta tres
+grupos seguidos y tras seleccionar un lugar, cada marcador visible mide ≥44×44, no toca el cromo
+y `elementFromPoint` resuelve a él; la leyenda se abre y se cierra con clic real; los iconos
+siguen representando todos los lugares.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -961,5 +1008,6 @@ cambio implícito de ciudad). **DDR-B24-3 queda cerrada.**
 > **DDR-01, DDR-02, DDR-03, DDR-04, DDR-05 y DDR-06 están RESUELTAS.** No queda ninguna
 > decisión de diseño pendiente que bloquee B20.
 >
-> **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025). No
-> queda ninguna decisión de diseño abierta en B24.
+> **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025).
+> DD-026 (cromo del mapa como zona de exclusión, P0-4e) es firme. No queda ninguna decisión de
+> diseño abierta en B24.

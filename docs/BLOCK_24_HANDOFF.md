@@ -6,9 +6,11 @@ Auditoría con input real y corrección de superficies construidas. Misión ínt
 
 ## Estado: B24 COMPLETO en rama, sin PR ni merge
 
-- Todos los P0 y P1 FIX-NOW corregidos; gate B24 **795/795** en los 8 viewports (rojo en la base:
-  429/721, 292 fallos, con el mismo script).
-- 3 DDR abiertas (DDR-B24-1/2/3) y 5 DEFERRED-ACTIVE-BRANCH + 6 DEFERRED-ROADMAP documentados.
+- Todos los P0 y P1 FIX-NOW corregidos, incluido P0-4e (F7, `DD-026`); gate B24 **100 % verde**
+  en los 8 viewports (1347/1347 y 1351/1351 en dos corridas completas; rojo en la base con el
+  script de F5: 429/721, 292 fallos). Ningún P0 propio de B24 queda deferred.
+- DDR-B24-1/2/3 resueltas (`DD-023/024/025`); 5 DEFERRED-ACTIVE-BRANCH + 7 DEFERRED-ROADMAP
+  documentados.
 - Ninguna zona protegida tocada (verificado con `git diff --name-only 4afbf50..HEAD`): ni
   `PlaceCard.tsx`, `PlaceGallery.tsx` y sus tests, ni reglas `.place-card__save*`,
   `.place-card__photo-retry*`, `.gallery__retry`, ni datos/scripts/imágenes de fotografía, ni
@@ -92,7 +94,8 @@ Uso: `npm run build && NIHON_CHROMIUM_PATH=<chromium> node scripts/b24-real-inpu
 | C — P0 | `7794fd1` | P0-1…P0-5 FIX-NOW en verde en los 8 viewports (663/758; los 95 fallos restantes son P1 pendientes). DD-018…022 y DDR-B24-1/2/3 en `09` |
 | D — P1 | `f0b8b22` | P1-01…P1-12 y P2-7 corregidos; gate **763/763** en los 8 viewports |
 | E — regresión | `6b100e5` | 1 regresión propia encontrada y corregida (`d901e03`); 1 expectativa de gate B19 actualizada citando `03 §9` (`e1b4f7d`); gate B24 **795/795** |
-| F — cierre DDR-B24-1/2/3 | (este commit) | `DD-023/024/025` en `09`; encuadre editorial + agrupación siempre activa (`5e76ef7`); colecciones de la portada (`035514b`); gate B19 robusto (`6e6044a`); gate B24 **873/875** (2 hallazgos, ver abajo) |
+| F — cierre DDR-B24-1/2/3 | `9fba00f` | `DD-023/024/025` en `09`; encuadre editorial + agrupación siempre activa (`5e76ef7`); colecciones de la portada (`035514b`); gate B19 robusto (`6e6044a`); gate B24 **873/875** (2 hallazgos, ver abajo) |
+| G — cierre real (F7) | (este commit) | P0-4e corregido (`DD-026`, `lib/map-chrome.ts`); regresión R-F7 (`flyTo` con mapa oculto) corregida; gate P1-FILTER estabilizado; fechas; gate B24 **1347/1347 · 1351/1351** |
 
 ## F5 — Regresión (HEAD `e1b4f7d` + docs)
 
@@ -187,24 +190,97 @@ sigue siendo la misma. B23 `52a7073799bdeeb180949ef379275201a94879fe` y B6.5-fix
 2. **`block18-shell.test.ts`** — expectativa de la firma de `selectPlace` actualizada para incluir
    `"home-collection"` (contrato de código, no de comportamiento).
 
-**Regresión encontrada, NO corregida — P0-4e (nueva entrada en `docs/BLOCK_24_UX_AUDIT.md`).** Al
+**Regresión encontrada en F6 — P0-4e (CORREGIDA en F7, ver §F7).** Al
 expandir el grupo mayor de Tokio a 375×667, «Daikanyama T-SITE» queda exactamente bajo
 `.interest-legend__summary`; `elementFromPoint` resuelve a la leyenda, no al marcador. No ocurre en
 la base `4afbf50` (0 fallos). Se intentaron dos ajustes de encuadre en `expand()` (`PlaceMap.tsx`)
 sin éxito verificable: la posición final del marcador depende de la geometría completa de los 57
 lugares de Tokio a ese zoom, no sólo de los miembros del grupo expandido — un ajuste fiable exige
 una zona muerta reservada en el propio contenedor del mapa o mover la leyenda de esquina, ambas
-decisiones de diseño/`08` fuera del alcance de este cierre. **DEFERRED-ROADMAP**, no bloquea el
-cierre de las tres DDR.
+decisiones de diseño/`08` fuera del alcance de este cierre. F6 lo dejó como DEFERRED-ROADMAP;
+dirección lo rechazó (P0 introducido por B24) y se corrigió en F7.
 
-**Segundo hallazgo del gate B24, no reproducible en aislamiento.** «P1-FILTER primer chip sin
+**Segundo hallazgo del gate B24, no reproducible en aislamiento (en F7: carrera del gate, estabilizado — ver §F7).** «P1-FILTER primer chip sin
 marcar: centro fuera del viewport» a 320×568 apareció en las corridas completas de 8 viewports pero
 **no en 3/3 corridas aisladas de ese único viewport** (108/108 limpio); no toca código de
 filtros. Se registra como flake de la corrida completa en este contenedor, no como regresión.
 
-**Corrección documental de fechas.** DD-018…022 y DDR-B24-1/2/3 quedaban registradas con fecha
-2026-09-26; la sesión de creación fue el 2026-09-25 — corregido en `docs/design/09` (las DDR pasan
-a «Abierta 2026-09-25 · Cerrada 2026-09-26»). No se tocó ninguna fecha de decisiones anteriores.
+**Corrección documental de fechas.** DD-018…022 y DDR-B24-1/2/3 quedaban registradas con una
+fecha posterior a la de la sesión de creación (2026-09-25) — corregido en `docs/design/09`. En F7
+se completó: DD-023/024/025 y el cierre de DDR-B24-1/2/3 también son del 2026-09-25 (ver §F7).
+No se tocó ninguna fecha de decisiones anteriores.
+
+## F7 — P0-4e corregido y cierre real de B24
+
+**Preflight.** HEAD inicial `9fba00fef74d4c1dc87d234d18be135a970f413c` (el contenedor venía en
+`6b100e5`; `git fetch` + fast-forward al remoto, sin cambios locales). B23 `52a7073`, B6.5-fix
+`af21671` y `claude/block-22-b6-7-test-closure` @ `61fa5e9` no se incorporan.
+
+**P0-4e — causa técnica.** Ningún movimiento programático del mapa tenía en cuenta el cromo que se
+le superpone. `InterestLegend` es hermana del contenedor de Leaflet dentro de `.app__map-area`
+(`z-index: 10` sobre el panel de marcadores); `FitHubBounds`, `expand()` y `FocusSelected` no
+conocían ese rectángulo. El encuadre `fitBounds` de la base dejaba por casualidad libre la
+esquina; `DD-023`/`DD-024` cambiaron la geometría y, tras abrir el grupo mayor de Tokio a
+375×667, la caja de 44×44 de «Daikanyama T-SITE» caía bajo `.interest-legend__summary`.
+
+**P0-4e — solución (`DD-026`).** El cromo interactivo es zona de exclusión tras cualquier
+movimiento programático:
+
+- `app/src/lib/map-chrome.ts` (nuevo, geometría pura): `chromeClearingShift` devuelve la
+  traslación más corta que deja todas las cajas de 44×44 fuera del cromo, sin meter otra debajo,
+  sin sacar de pantalla a las liberadas ni al seleccionado. Una traslación no altera la
+  agrupación. `src/lib/map-chrome.test.ts` (nuevo, 6 tests).
+- `PlaceMap.tsx`: todo movimiento programático (encuadre inicial, abrir un grupo, centrar la
+  selección) pasa por `moveProgrammatically`; al terminar (`moveend`, siguiente fotograma), la
+  guarda de `MarkerLayer` proyecta los objetivos reales, mide en vivo el cromo
+  (`[data-map-chrome]` + `.leaflet-control`) y hace `panBy` si hace falta. También al volver a
+  mostrarse un mapa oculto. Los gestos de la persona no se corrigen.
+- `InterestLegend.tsx`: sólo declara `data-map-chrome`. Misma posición, tamaño y estilo.
+- Nada hardcodeado a un lugar, ciudad o viewport; sin bajar de 44 px; sin `z-index`; sin ocultar
+  lugares; la leyenda no se mueve.
+
+**R-F7 — regresión propia de F6 encontrada en la regresión final y corregida.** Desde `5e76ef7`,
+`FitHubBounds` vuelve a encuadrar al cerrarse la ficha aunque el mapa esté oculto (otro destino,
+contenedor 0×0); `flyTo` de Leaflet divide por ese tamaño, calcula `LatLng(NaN, NaN)` y lanza, y
+la excepción desmonta la app entera. `b18-viaje-lugar-check` lo encontró (timeout esperando
+`.place-detail`, pantalla en blanco): 38/38 en `6b100e5`, falla en `5e76ef7`, `035514b`,
+`9fba00f`. F6 no había vuelto a pasar ese gate. Arreglo: los movimientos programáticos sólo se
+animan si el mapa tiene tamaño (`canAnimate`). 38/38.
+
+**P1-FILTER «flake» — diagnóstico.** Carrera **del gate**: medía el primer chip dos fotogramas
+después de abrir la hoja, que entra con una animación de 320 ms. Muestreado cada 40 ms a
+320×568: centro del chip en y≈620 (fuera de pantalla) → 383 → 322 → … → 266, estable al acabar la
+animación. No es carrera de la app ni regresión. El gate espera ahora a `getAnimations()` de la
+hoja antes de medir; la expectativa no cambia.
+
+**Gate B24 ampliado — hallazgo `P0-4e`.** En los 8 viewports, con y sin
+`prefers-reduced-motion`: tras el encuadre inicial, tras abrir hasta tres grupos seguidos y tras
+seleccionar un lugar (≥1024), cada marcador/grupo con el centro dentro del mapa mide ≥44×44, no
+se cruza con ningún rectángulo de cromo y `elementFromPoint` en su centro resuelve a él; la
+leyenda se abre y se cierra con clic real; los iconos representan el mismo número de lugares
+antes y después de abrir grupos (no se pierde ninguno); abrir un grupo sigue repartiéndolo. Con el
+`PlaceMap.tsx` de `9fba00f` el gate reproduce el fallo original a 375×667 (162/165: «Daikanyama
+T-SITE» bajo `interest-legend`). Dos ajustes del dominio del gate, sin debilitarlo: un icono con
+el centro exactamente en el borde de la ventana (`x = innerWidth`, `elementFromPoint` → `null`) no
+cuenta como visible, y un marcador tapado por la ficha que se apoya sobre el raíl (`DD-016/017`,
+cubrir está permitido) no es cromo del mapa.
+
+**Puertas F7 (HEAD final).**
+
+| Puerta | Resultado |
+|---|---|
+| build | PASS — `index-*.js` 1.653,74 kB (390,17 kB gzip) |
+| lint | 0 errores, 1 warning heredado Fast Refresh (`PlaceMap.tsx:17`) |
+| vitest | 3353/3361 — los mismos 8 fallos B6.7 (`place-images` 5, `photography-depth` 3); +6 tests (`map-chrome`) |
+| `block19-grid-check.mjs` | 52/52 |
+| B17 regression / responsive / tap-target | 18/18 · sin overflow · 16/16 |
+| B18 a11y / browser-back / chrome / regression / responsive / viaje-lugar | 23/23 · 15/15 · 6/6 · 40/40 · OK · **38/38** (era rojo desde `5e76ef7`) |
+| B21 global search | móvil 33/33 · escritorio 33/33 |
+| DDR-B24-3 (`b24-ddr3-home-collections-check.mjs`) | 9/9 |
+| B19 discovery / contrast · B20 place detail · DDR-03 | 30/30 · dentro de contrato · 73/73 · 43/43 |
+| Block 1 UX · Block 2 Photography | 153/153 · 81/81 |
+| Phase 5A RC | escritorio 47/50 · móvil 47/50 — idéntico a la base (A06, A07, E01; DEFERRED-ACTIVE-BRANCH B6.7) |
+| **B24 real input audit (8 viewports)** | **1347/1347 · 1351/1351, 0 fallos** |
 
 ## Commits (base `4afbf50` → HEAD)
 
@@ -216,14 +292,16 @@ checkpoint C · `057edd1` P1-01…04 · `4c58e61` P1-05 · `fca07f3` P1-06 · `c
 `c27d383` P1-08 · `5ab0c0f` P1-09 · `462fbe1` gate · `37075e0` P1-10 · `776b5ba` gate · `c84b3aa`
 P1-11/12 · `6035179` P2-7 · `f0b8b22` checkpoint D · `3f7f3b9` gate · `d901e03` regresión
 FilterSheet · `e1b4f7d` gate B19 · `6b100e5` checkpoint E · `5e76ef7` DDR-B24-1/2 · `035514b`
-DDR-B24-3 · `6e6044a` gate B19 robusto · (checkpoint F, este commit de docs).
+DDR-B24-3 · `6e6044a` gate B19 robusto · `9fba00f` checkpoint F · (F7: ver `git log 9fba00f..HEAD`).
 
 ## Archivos tocados
 
 - Código: `app/src/App.tsx`, `app/src/App.css`, `app/src/styles/discovery.css`,
   `app/src/components/{ExplorerHome,FilterPanel,Onboarding,PlaceDetail,PlaceMap,SearchSheet,Sheet}.tsx`,
-  `app/src/lib/{map-grouping.ts,hub-view.ts (nuevo, F6),onboarding.ts,transfer.ts}`.
+  `app/src/lib/{map-grouping.ts,hub-view.ts (nuevo, F6),map-chrome.ts (nuevo, F7),onboarding.ts,transfer.ts}`,
+  `app/src/components/InterestLegend.tsx` (F7, sólo `data-map-chrome`).
 - Tests: `app/src/lib/map-grouping.test.ts`, `app/src/lib/hub-view.test.ts` (nuevo, F6),
+  `app/src/lib/map-chrome.test.ts` (nuevo, F7),
   `app/src/lib/transfer.test.ts`, `app/src/block18-shell.test.ts`,
   `app/src/block21-global-search.test.ts`, `app/src/block24-ddr3-home-collections.test.ts`
   (nuevo, F6), `app/src/block20-place-detail.test.ts` (sólo timeout).
@@ -241,7 +319,8 @@ DDR-B24-3 · `6e6044a` gate B19 robusto · (checkpoint F, este commit de docs).
 - **DDR-B24-3** — volver desde una colección de la portada → **`DD-025`**: se comporta como la
   búsqueda global (`exploreReturnSurface="home-collection"`).
 
-No queda ninguna decisión de diseño abierta en B24.
+No queda ninguna decisión de diseño abierta en B24. F7 añade **`DD-026`** (firme): el cromo
+interactivo del mapa es zona de exclusión para los objetivos tras todo movimiento programático.
 
 ## DEFERRED
 
@@ -251,10 +330,8 @@ No queda ninguna decisión de diseño abierta en B24.
   `docs/BLOCK_24_UX_AUDIT.md`.
 - **ROADMAP:** P1-13 glifos de Quiero ir (B7); P2-1 salto de teclado en carruseles, P2-2 orden de
   colecciones, P2-3 foto de Tokio repetida, P2-4 bundle 1,65 MB, P2-6 «57 de 57 lugares» (B10);
-  P2-5 estado vacío de Viaje con instrucción falsa (B9); **P0-4e** (nuevo, F6) colisión de un
-  marcador con `InterestLegend` tras expandir un grupo en Tokio a 375×667 — ver `docs/
-  BLOCK_24_UX_AUDIT.md`, requiere una zona muerta reservada en el contenedor del mapa o mover la
-  leyenda de esquina (decisión de diseño/`08`).
+  P2-5 estado vacío de Viaje con instrucción falsa (B9). Ningún P0 propio de B24 (P0-4e se
+  corrigió en F7).
 
 ## Validación humana pendiente
 
@@ -272,7 +349,6 @@ No queda ninguna decisión de diseño abierta en B24.
    búsqueda.
 3. Cuando B23 se integre en la base canónica, aplicar los diffs DEFERRED-ACTIVE-BRANCH de
    `docs/BLOCK_24_UX_AUDIT.md` (P0-5c, AB-1, AB-2) sobre esa base y volver a pasar el gate B24.
-4. P0-4e (colisión con `InterestLegend`, ver DEFERRED arriba): decisión de diseño sobre cómo
-   reservar la esquina del mapa o reubicar la leyenda.
+4. ~~P0-4e~~ — corregido en F7 (`DD-026`).
 5. Revisar e integrar esta rama (PR hacia la rama canónica) sólo por decisión de dirección: B24 no
    abre PR ni hace merge. No empezar B25.
