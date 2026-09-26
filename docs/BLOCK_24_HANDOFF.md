@@ -77,7 +77,8 @@ Uso: `npm run build && NIHON_CHROMIUM_PATH=<chromium> node scripts/b24-real-inpu
 | Checkpoint | SHA | Contenido |
 |---|---|---|
 | A — preflight + gate rojo | `454d31a` | misión, handoff base, gate B24 en rojo, timeout B20 |
-| B — auditoría | (este commit) | `docs/BLOCK_24_UX_AUDIT.md`: 19 FIX-NOW, 1 DDR, 5 DEFERRED-ACTIVE-BRANCH, 6 DEFERRED-ROADMAP |
+| B — auditoría | `77a3345` | `docs/BLOCK_24_UX_AUDIT.md`: 19 FIX-NOW, 1 DDR, 5 DEFERRED-ACTIVE-BRANCH, 6 DEFERRED-ROADMAP |
+| C — P0 | (este commit) | P0-1…P0-5 FIX-NOW en verde en los 8 viewports (663/758; los 95 fallos restantes son P1 pendientes). DD-018…022 y DDR-B24-1/2/3 en `09` |
 
 ## Validación humana pendiente
 
