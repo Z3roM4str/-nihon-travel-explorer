@@ -395,8 +395,12 @@ button.search-field:focus-visible {
   }
 }
 
+/* B24 (P0-5, DD-022): `minmax(0, 1fr)`, no `1fr`. `1fr` es `minmax(auto, 1fr)`: la columna no
+   podía bajar del min-content de la fila, y el nombre en `nowrap` lo fijaba en ~418 px — la fila
+   desbordaba la hoja y el corazón quedaba fuera de la pantalla. Así la fila mide la hoja y el
+   nombre se recorta con su elipsis. */
 .place-list--compact {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   padding: 0;
   gap: var(--space-2);
 }
