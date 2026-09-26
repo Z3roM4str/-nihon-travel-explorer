@@ -176,6 +176,12 @@ export function PlaceCard({
       place.name
     );
 
+  // DD-028: el nombre accesible nunca es un subconjunto de la identificación visible. Cada
+  // variante nombra el lugar con la MISMA línea de ubicación que pinta: la normal, «{zona}»;
+  // la compacta, «{barrio}, {ciudad}» (o «{ciudad}») de `compactPlaceLine`. Si la parte
+  // visible gana información identificativa, este texto cambia en el mismo cambio.
+  const visibleWhere = variant === "compact" ? compactPlaceLine(place) : zone;
+  const openLabel = `${place.name}. ${interest.label}. ${category.label} en ${visibleWhere}.`;
   const openButton = (
     <button
       ref={openButtonRef}
@@ -183,8 +189,8 @@ export function PlaceCard({
       className="place-card__open"
       data-stretch-target=".place-card"
       onClick={() => onSelect(place.id)}
-      aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}
-      title={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}
+      aria-label={openLabel}
+      title={openLabel}
     />
   );
 

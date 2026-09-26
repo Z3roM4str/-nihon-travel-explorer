@@ -996,6 +996,36 @@ siguen representando todos los lugares.
 
 ---
 
+### DD-028 — El nombre accesible de PlaceCard iguala su identificación visible
+**Estado:** Firme · **Fecha:** 2026-09-26 · **Afecta:** `04 §5` (regla 11), Art. 11 · **Origen:** dirección, merge-readiness de PR #152
+
+**Decisión.** El nombre accesible de `PlaceCard` debe igualar la información visible de
+identificación. Si el texto visible identifica «{nombre del lugar}» y «{barrio}, {ciudad}», el
+nombre accesible incluye la misma información en el mismo orden lógico —«{nombre}, {barrio},
+{ciudad}»—, o «{nombre}, {ciudad}» si no hay barrio, adaptado al patrón existente del control
+de apertura («{nombre}. {nivel}. {categoría} en {ubicación}.»).
+
+**Regla general.** El nombre accesible nunca puede ser un subconjunto de la información
+visible de identificación de una tarjeta. Si en el futuro se añade información identificativa
+al texto visible de `PlaceCard`, su nombre accesible se actualiza en el mismo cambio.
+
+**Problema que cierra.** Tras P0-5c (B24) la fila compacta —búsqueda de todo Japón, «Cerca de
+aquí»— pinta «{categoría} · {barrio}, {ciudad}», pero el control de apertura seguía diciendo
+«… en {barrio}.» (o «… en {municipio}.»): quien usa lector de pantalla no oía la ciudad que
+todos los demás ven, precisamente en las dos superficies que mezclan lugares de varias ciudades.
+
+**Cómo se implementa.** `PlaceCard.tsx` calcula `visibleWhere` con la misma función que pinta la
+línea visible (`compactPlaceLine` en `compact`, `zone` en `normal`) y un único `openLabel` que
+alimenta `aria-label` y `title` del único botón de apertura. La variante `normal` no cambia.
+
+**Consecuencias.** Cobertura: `src/components/PlaceCard.test.ts` (contrato de fuente y texto con y
+sin barrio), `src/block1-ux.test.ts` (patrón actualizado) y
+`app/scripts/dd028-placecard-accessible-name-check.mjs`, que lee el nombre del árbol de
+accesibilidad de Chromium (CDP) en búsqueda global, «Cerca de aquí» y lista de hub, en móvil y
+escritorio (16/16; con el código anterior, 4 fallos).
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |

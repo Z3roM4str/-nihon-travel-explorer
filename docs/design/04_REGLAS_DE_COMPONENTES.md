@@ -137,6 +137,21 @@ seis chips con emoji.
 10. **Variante `compact`**: fila horizontal, miniatura 72×72 `--radius-md`, nombre
     `--type-title-s`, una línea de metadato. Se usa en «Quiero ir», planner, «Cerca
     de aquí» y resultados de búsqueda.
+11. **Nombre accesible = identificación visible (DD-028, 2026-09-26).** El nombre
+    accesible del control que abre la ficha **nunca puede ser un subconjunto** de la
+    información visible que identifica la tarjeta. Nombra el lugar con la **misma** línea
+    de ubicación que la variante pinta y en el mismo orden lógico:
+    - `normal`: «{nombre}. {nivel}. {categoría} en {zona}.» — la banda pinta
+      «{categoría} · {zona}».
+    - `compact`: «{nombre}. {nivel}. {categoría} en {barrio}, {ciudad}.», o
+      «… en {ciudad}.» sin barrio — la fila pinta «{categoría} · {barrio}, {ciudad}»
+      (`compactPlaceLine`, P0-5c).
+
+    El nivel puede aparecer sólo en el nombre accesible (regla 3); lo que no puede es
+    faltar en él algo que la tarjeta muestra para identificar el lugar. Si en el futuro la
+    parte visible de `PlaceCard` gana información identificativa, su nombre accesible se
+    actualiza **en el mismo cambio**. Cobertura: `PlaceCard.test.ts` y
+    `app/scripts/dd028-placecard-accessible-name-check.mjs` (árbol de accesibilidad real).
 
 ## 6. `PhotoGallery`
 

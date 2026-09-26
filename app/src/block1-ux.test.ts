@@ -175,7 +175,7 @@ describe("accessibility promises", () => {
     expect(source).toContain('interest.level === "imprescindible"');
     expect(source).toContain("★</span> Imprescindible");
     expect(source).toContain(
-      'aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}'
+      'const openLabel = `${place.name}. ${interest.label}. ${category.label} en ${visibleWhere}.`;'
     );
   });
 

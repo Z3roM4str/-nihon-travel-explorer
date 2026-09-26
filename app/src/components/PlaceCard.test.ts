@@ -131,7 +131,33 @@ describe("PlaceCard — the two actions", () => {
     const normal = source.slice(source.indexOf("return (\n    <article\n      className={`place-card ${selected"));
     expect(normal.indexOf("{openButton}")).toBeLessThan(normal.indexOf('className={`place-card__media'));
     expect(source).toContain('<h3 className="place-card__heading">{nameSlot}</h3>');
-    expect(source).toContain('aria-label={`${place.name}. ${interest.label}. ${category.label} en ${zone}.`}');
+    expect(source).toContain('const openLabel = `${place.name}. ${interest.label}. ${category.label} en ${visibleWhere}.`;');
+  });
+
+  // DD-028 (2026-09-26): el nombre accesible nunca es un subconjunto de la identificación
+  // visible. La compacta pinta «{barrio}, {ciudad}» (P0-5c); su botón de apertura dice lo mismo.
+  it("DD-028: cada variante nombra el lugar con la misma línea de ubicación que pinta", async () => {
+    const source = await readSource();
+    expect(source).toContain('const visibleWhere = variant === "compact" ? compactPlaceLine(place) : zone;');
+    expect(source).toContain("aria-label={openLabel}");
+    expect(source).toContain("title={openLabel}");
+    // Un solo botón de apertura compartido por las dos variantes: ninguna puede divergir.
+    expect(source.match(/className="place-card__open"/g) ?? []).toHaveLength(1);
+    // La línea visible compacta y el nombre accesible salen de la misma función.
+    const compact = source.slice(source.indexOf('if (variant === "compact")'));
+    expect(compact.slice(0, compact.indexOf("</p>"))).toContain("{compactPlaceLine(place)}");
+    expect(source).not.toContain("en ${zone}.`");
+  });
+
+  it("DD-028: el texto de ubicación accesible compacto coincide con el visible, con y sin barrio", async () => {
+    const { compactPlaceLine } = await import("../lib/place-line");
+    const label = (p: { name: string; neighborhood: string; hub: string }) =>
+      `${p.name}. Imprescindible. Templo en ${compactPlaceLine(p)}.`;
+    const withBarrio = { name: "Kiyomizu-dera", neighborhood: "Higashiyama", hub: "Kioto" };
+    expect(label(withBarrio)).toBe("Kiyomizu-dera. Imprescindible. Templo en Higashiyama, Kioto.");
+    expect(label(withBarrio)).toContain(compactPlaceLine(withBarrio));
+    const sinBarrio = { name: "Kōya-san", neighborhood: "", hub: "Osaka" };
+    expect(label(sinBarrio)).toBe("Kōya-san. Imprescindible. Templo en Osaka.");
   });
 
   it("exposes the saved state to assistive technology, for both variants", async () => {
