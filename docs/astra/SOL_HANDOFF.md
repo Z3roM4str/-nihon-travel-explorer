@@ -176,3 +176,68 @@ Astra debe auditar SOL-3 de forma independiente en un runner con navegador real,
 - Validadores pasivos y `git diff --check`: PASS. Lint: código 0 con los tres warnings preexistentes. La suite alcanzó 70 archivos / 2465 pruebas no-jsdom PASS, pero cuatro archivos jsdom no pudieron arrancar porque la imagen suministrada carece de `jsdom`; `npm install --offline` confirmó que faltan tarballs y el proxy impide recuperarlos. Build quedó bloqueado sólo por los tipos de `@testing-library/react` ausentes tras esa instalación incompleta.
 - No hay Chromium instalado localmente y el remoto no es accesible desde este contenedor (`CONNECT tunnel failed, response 403`). Por ello no se declara un 9/9 nuevo ni un HEAD remoto publicado sin evidencia. El workflow del PR debe ejecutar los nueve journeys y los viewports 320×800, 375×812, 390×844, 430×932, 768×1024, 1024×768 y 1440×900 después de publicar el commit correctivo.
 - No se tocaron `main`, ramas Claude, dataset, IDs, fotografía, parsers ni V7. SOL-4 no se inició.
+
+---
+
+## SOL-4 — Votes, review queue and legacy bridge (2026-09-26)
+
+### Identidad
+
+- Base inicial exacta: `8b992df8cced8ab3199bec50db2b0515ca9f948b` (merge de SOL-3).
+- Rama: `codex/astra-sol-4-votes-review-legacy`.
+- El checkout inicial estaba limpio y la base local era exacta. Se intentó primero `git fetch origin`, pero el proxy devolvió `CONNECT tunnel failed, response 403`; por ello la comprobación remota y publicación requieren el runner externo. No se inspeccionó ni mezcló ninguna rama Claude; `main` local continúa apuntando al objeto requerido `8eb725eeb836ca121180f8dd8b0dc49c65efae25`.
+
+### Store y reglas
+
+- Nuevo store local versionado `nihon.astra.review.v1`, schema `nihon.astra.review`, versión 1. Personas estables `fernando` y `ella`; cada registro conserva votos independientes `unreviewed/yes/no`, pertenencia a review queue, marcador legacy, disposition opcional `candidate/shortlisted/discarded` y prioridad opcional. “Ambos”, textos, buckets y conteos son derivados.
+- El parser ignora registros parciales inválidos, pero bloquea escrituras sobre JSON malformado o una versión futura. Una escritura fallida conserva el último estado durable, muestra error y conserva exactamente el estado deseado para Retry.
+- El primer interés sin reviewer abre “¿De quién son estos gustos?”, muestra honestamente “Dos perfiles en este dispositivo” y sólo una confirmación persiste en una operación el reviewer y el yes pendiente. Cancelar no escribe. El selector visible permite cambios deliberados.
+- `yes` retirado vuelve a `unreviewed`, conserva queue y ofrece “Interés retirado · Deshacer”. `no` es explícito y sólo actúa sobre el reviewer activo. Discard conserva votos; restore vuelve a candidate; un yes sobre discarded exige reconsideración.
+
+### Legacy y planner
+
+- La lectura de `nihon.savedPlaceIds` crea únicamente una proyección en memoria como queue legacy “Guardado anterior · Sin asignar”; no escribe ni normaliza esa clave ni `nihon.manualPlanningDraft`.
+- “Estos guardados son míos (N)” exige reviewer y confirmación, asigna sólo a esa persona y guarda un único marker versionado con los IDs. Una segunda claim es un no-op; cancelar no cambia nada. Los nuevos yes se escriben sólo en review v1.
+- Elegibilidad del planner: `set(legacy saved IDs) ∪ set(disposition === shortlisted)`, más los IDs ya detectados en el plan authored para su protección al abrir el editor. Nunca se calcula desde reviewer, likes, filtros, cards o búsquedas. Ninguna mutación de review llama reconcile ni escribe el draft V7.
+
+### Archivos y pruebas
+
+- Modelo/adaptadores: `app/src/astra/review.ts`, `review-migration.ts`, `useReview.ts`.
+- Integración mínima: `App.tsx`, `AppShell.tsx`, `Discovery.tsx`, `PlaceCard.tsx`, `astra.css`.
+- Cobertura: `review.sol4.test.ts` (30 pruebas SOL-4) más actualización de la aserción de integración del puente planner. Incluye tabla completa, independencia, transiciones, undo, disposition/priority/queue, claims, parser, roundtrip, fallo/retry y unión de elegibilidad.
+- Auditoría: el runner y workflow se denominan SOL-0–SOL-4. El journey 09 cubre onboarding/cancel/yes pendiente, cambio deliberado, yes/yes, reload, legacy unassigned, confirmación/cancel/idempotencia, V7/legacy byte-stable y storage failure/retry. Los nueve journeys históricos siguen presentes.
+
+### Resultado y riesgos
+
+- PASS local: 34 pruebas focales, lint (sólo tres warnings preexistentes), cinco validadores pasivos, sintaxis del runner y `git diff --check`.
+- Suite amplia: 70 archivos / 2492 pruebas pasaron; un gate literal antiguo se actualizó al puente aditivo SOL-4 y pasa focalmente. Cuatro archivos jsdom no arrancaron porque esta imagen carece de los paquetes ya declarados `jsdom`/`@testing-library/react`; el proxy bloquea su recuperación. Build queda limitado por esos tipos ausentes, no por diagnósticos del código productivo.
+- Browser: no se declara PASS local. Playwright localiza un binario cacheado, pero el build previo requerido está bloqueado porque la instalación incompleta carece de `@testing-library/react` y el proxy impide repararla; no se ejecutó un audit contra un bundle nuevo. GitHub Actions debe ejecutar el workflow sobre el SHA remoto exacto y Astra debe inspeccionar evidencia.
+- P0: ninguno observado en pruebas fuente. P1: auditoría browser/render independiente pendiente por limitación ambiental. P2: warning preexistente de bundle y warnings lint preexistentes.
+- No cambiaron dataset, IDs, fotografía/metadata, parsers de dominio ni V7. SOL-5 no se inició.
+
+---
+
+## Corrección SOL-4 para PR #150 (2026-09-26)
+
+### Identidad y diagnóstico
+
+- HEAD remoto inicial comunicado y verificado por el propietario del PR: `0a04f8fc80f08651d37cdcc94d9808c2a48c1627`; base Astra: `8b992df8cced8ab3199bec50db2b0515ca9f948b`; rama real: `codex/implementar-sol-4-para-revision-y-votos`.
+- Este contenedor conserva el tree SOL-4 equivalente, pero `git fetch origin` continúa bloqueado por el proxy (`CONNECT tunnel failed, response 403`), de modo que el objeto remoto `0a04f8fc…` no pudo importarse localmente. La corrección se mantiene en la rama real indicada y debe publicarse sobre ese PR sin abrir otro.
+- Los cinco fallos Astra iniciales eran cuatro expectativas históricas pre-SOL-4 (`Explorar lugares`, dos referencias a `Me gustaría ir`, `☆ Lorena`) y un flujo de persistencia detail que omitía establecer reviewer. Esas pruebas se actualizaron sin skip ni reducción: ahora demuestran las mismas garantías con `Explorar Japón`, nombres accesibles `Quiero ir a … como …`, review store v1 durable y mutaciones DA-09.
+
+### Correcciones
+
+- Reconsideración atómica: `reconsiderWithYes` produce en una sola transición y un solo commit `candidate + own yes + queue`, conservando el voto del partner. Cancelar no ejecuta transición.
+- Undo durable: el toast `Interés retirado · Deshacer` sólo se crea cuando el commit de `yes -> unreviewed` devuelve éxito. Ante fallo permanece el `yes` durable, se muestra PersistenceNotice, no hay toast falso y Retry aplica la mutación pendiente antes de mostrarlo.
+- “Quitar de pendientes”: `useReview` expone la transición; la UI sólo la muestra para queue completamente unreviewed, no legacy y no protegida por `readAuthoredPlanIds`. No cambia votos, disposition, legacy ni V7.
+- “Restablecer mi respuesta”: lleva sólo el voto del reviewer activo a `unreviewed`; partner, queue, disposition y planner permanecen intactos.
+- Primer reviewer: antes del primer interés el header muestra `Mis gustos` sin selector mutable. El primer CTA abre el onboarding; Cancel no escribe, y elegir persona persiste reviewer + yes pendiente en un único commit. El selector deliberado aparece sólo después.
+- Foco: onboarding, claim legacy y reconsideración capturan el opener real y lo pasan a `RouteDialog`; el trap, Escape de capa superior y restauración exacta quedan cubiertos en jsdom/browser.
+
+### Pruebas y auditoría
+
+- `review.sol4.test.ts` añade reconsideración/Cancel, bloqueo de queue con voto y reset preservando partner/queue/disposition. La integración fuente exige el helper atómico y prohíbe la secuencia antigua.
+- `night-ui-corrections.test.ts` prueba las tres superficies con fallo exclusivo de `nihon.astra.review.v1`, último estado durable, alert único, Retry, bytes legacy/V7, ausencia de Undo falso, nombres accesibles, onboarding y restauración de foco, claim, reset y queue removal.
+- Journey 09 mantiene los ocho journeys anteriores y amplía onboarding/cancel/foco, switch sin voto, ambos/reload, claim lossless/idempotente, bytes legacy/V7, fallo/retry, Undo durable, reset, queue removal y reconsideración cancel/confirm atómica.
+- Verificación local disponible: 38 pruebas puras/integración PASS; `src/astra` no-jsdom 49 PASS; lint directo PASS con tres warnings preexistentes; cinco validadores pasivos PASS; runner syntax y `git diff --check` PASS. La instalación local de npm sigue incompleta (`jsdom/index.js` y resolución de `@testing-library/react` ausentes), por lo que jsdom, full suite, build y browser real quedan para Actions y no se declaran PASS localmente.
+- HEAD remoto final: pendiente de push/Actions desde un entorno con acceso GitHub. No se tocó main, dataset, fotografía, parsers ni V7; no se inspeccionó ni mezcló Claude; SOL-5 no se inició.

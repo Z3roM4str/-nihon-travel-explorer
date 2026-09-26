@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 import { describe, expect, it, beforeEach, vi, afterEach } from "vitest";
 import React from "react";
-import { render, fireEvent, act, renderHook, cleanup, waitFor } from "@testing-library/react";
+import { render, fireEvent, act, renderHook, cleanup, waitFor, within } from "@testing-library/react";
 import { useSavedPlaces, readMemberInterests } from "../useSavedPlaces";
 import { PlaceCard } from "./PlaceCard";
 import App from "../App";
 import { getPlaceById } from "../data/store";
+import { REVIEW_SCHEMA, REVIEW_STORAGE_KEY, REVIEW_VERSION } from "./review";
+
+const reviewStore = (places: Record<string, unknown> = {}) => JSON.stringify({ schema:REVIEW_SCHEMA, version:REVIEW_VERSION, activeReviewer:"fernando", places });
 
 describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", () => {
   let scrollToDescriptor: PropertyDescriptor | undefined;
@@ -82,27 +85,56 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       expect(result.current.saveError).toBeNull();
     });
 
-    it.each(["explore", "detail", "trip"] as const)("shows one reachable notice and recovers after saving from %s", async surface => {
+    it.each(["explore", "detail", "trip"] as const)("keeps durable SOL-4 state and recovers after saving from %s", async surface => {
+      const initialPlace = {placeId:"JP-001",votes:{fernando:"unreviewed",ella:"unreviewed"},inReviewQueue:surface==="trip",legacy:false};
+      const initialReview=reviewStore(surface==="trip"?{"JP-001":initialPlace}:{});
+      const legacyRaw='["JP-021"]';
+      const draftRaw='{"version":7,"routeIds":["JP-021"],"days":null,"startDate":null,"endDate":null,"visitStartTimes":{},"accommodations":[],"accommodationLegs":[],"interHubSegments":[]}';
+      localStorage.setItem(REVIEW_STORAGE_KEY,initialReview);
+      localStorage.setItem("nihon.savedPlaceIds",legacyRaw);
+      localStorage.setItem("nihon.manualPlanningDraft",draftRaw);
       location.hash = surface === "trip" ? "#/viaje" : "#/explorar?q=Shibuya%20Crossing";
-      if (surface === "trip") localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"]));
       const view = render(React.createElement(App));
       if (surface === "detail") {
         fireEvent.click(view.getByRole("link", { name: "Shibuya Crossing" }));
         await view.findByRole("dialog", { name: "Detalles de Shibuya Crossing" });
       }
-      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("Storage quota exceeded"); });
-      const action = surface === "trip" ? view.getByRole("button", { name: "☆ Lorena" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : "Me gustaría ir" });
+      const original=Storage.prototype.setItem;
+      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(function(this:Storage,key:string,value:string) { if(key===REVIEW_STORAGE_KEY)throw new Error("Storage quota exceeded"); return original.call(this,key,value); });
+      const action = surface === "trip" ? within(view.getByRole("link",{name:"Shibuya Crossing"}).closest("li")!).getByRole("button", { name: "Ahora no" }) : view.getByRole("button", { name: surface === "detail" ? "Quiero ir" : /Quiero ir a Shibuya Crossing como Fernando/ });
       fireEvent.click(action);
       const alert = await view.findByRole("alert");
       expect(alert.textContent).toContain("No se pudieron guardar los cambios en este dispositivo");
       expect(alert.textContent).toContain("Tus cambios siguen disponibles en esta sesión");
       expect(view.getAllByRole("alert")).toHaveLength(1);
       if (surface === "detail") expect(alert.closest('[role="dialog"]')).not.toBeNull();
-      if (surface === "trip") expect(view.queryByText(/^Guardados en este dispositivo/)).toBeNull();
-      expect(action.getAttribute("aria-pressed")).toBe("true");
+      expect(localStorage.getItem(REVIEW_STORAGE_KEY)).toBe(initialReview);
+      expect(localStorage.getItem("nihon.savedPlaceIds")).toBe(legacyRaw);
+      expect(localStorage.getItem("nihon.manualPlanningDraft")).toBe(draftRaw);
+      if(surface!=="trip")expect(action.getAttribute("aria-pressed")).toBe("false");
       spy.mockRestore();
       fireEvent.click(view.getByRole("button", { name: "Reintentar guardar" }));
       await waitFor(() => expect(view.queryByRole("alert")).toBeNull());
+      const durable=JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)??"{}");
+      expect(durable.places["JP-001"].votes.fernando).toBe(surface==="trip"?"no":"yes");
+      if(surface!=="trip")expect(action.getAttribute("aria-pressed")).toBe("true");
+      expect(localStorage.getItem("nihon.savedPlaceIds")).toBe(legacyRaw);
+      expect(localStorage.getItem("nihon.manualPlanningDraft")).toBe(draftRaw);
+    });
+
+    it("does not show a false removed-interest Undo until retry is durable", async()=>{
+      const place={placeId:"JP-001",votes:{fernando:"yes",ella:"unreviewed"},inReviewQueue:true,legacy:false};
+      localStorage.setItem(REVIEW_STORAGE_KEY,reviewStore({"JP-001":place}));
+      location.hash="#/explorar?q=Shibuya%20Crossing";
+      const view=render(React.createElement(App));
+      const spy=vi.spyOn(Storage.prototype,"setItem").mockImplementation(()=>{throw new Error("quota");});
+      fireEvent.click(view.getByRole("button",{name:/Quiero ir a Shibuya Crossing como Fernando/}));
+      await view.findByRole("alert");
+      expect(view.queryByText("Interés retirado")).toBeNull();
+      expect(JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)??"{}").places["JP-001"].votes.fernando).toBe("yes");
+      spy.mockRestore();fireEvent.click(view.getByRole("button",{name:"Reintentar guardar"}));
+      await view.findByText("Interés retirado");
+      expect(JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)??"{}").places["JP-001"].votes.fernando).toBe("unreviewed");
     });
   });
 
@@ -225,19 +257,61 @@ describe("Astra Night UI PR #135 Comprehensive Corrections & Component Tests", (
       if (!place) throw new Error("Place JP-001 not found");
 
       const { getByRole, unmount } = render(
-        React.createElement(PlaceCard, { place, saved: false, onToggle: vi.fn(), onOpen: vi.fn() })
+        React.createElement(PlaceCard, { place, saved: false, reviewerName:"Fernando", onToggle: vi.fn(), onOpen: vi.fn() })
       );
 
-      const wantBtn = getByRole("button", { name: "Me gustaría ir" });
+      const wantBtn = getByRole("button", { name: "Quiero ir a Shibuya Crossing como Fernando" });
       expect(wantBtn.getAttribute("aria-pressed")).toBe("false");
       unmount();
 
       // Rerender as saved
       const { getByRole: getByRoleSaved } = render(
-        React.createElement(PlaceCard, { place, saved: true, onToggle: vi.fn(), onOpen: vi.fn() })
+        React.createElement(PlaceCard, { place, saved: true, reviewerName:"Fernando", onToggle: vi.fn(), onOpen: vi.fn() })
       );
-      const savedBtn = getByRoleSaved("button", { name: "Me gustaría ir ✓" });
+      const savedBtn = getByRoleSaved("button", { name: "Quiero ir a Shibuya Crossing como Fernando" });
       expect(savedBtn.getAttribute("aria-pressed")).toBe("true");
+      expect(savedBtn.textContent).toContain("Quiero ir ✓");
+    });
+
+    it("requires first-interest onboarding and restores its exact opener", async()=>{
+      location.hash="#/explorar?q=Shibuya%20Crossing";
+      const view=render(React.createElement(App));
+      expect(view.queryByLabelText("Persona activa")).toBeNull();
+      const opener=view.getByRole("button",{name:/Quiero ir a Shibuya Crossing/});
+      opener.focus();fireEvent.click(opener);
+      const dialog=await view.findByRole("dialog",{name:"¿De quién son estos gustos?"});
+      expect(dialog.textContent).toContain("Dos perfiles en este dispositivo");
+      fireEvent.click(view.getByRole("button",{name:"Cancelar"}));
+      await waitFor(()=>expect(document.activeElement).toBe(opener));
+      expect(localStorage.getItem(REVIEW_STORAGE_KEY)).toBeNull();
+      fireEvent.click(opener);fireEvent.click(view.getByRole("button",{name:"Fernando"}));
+      await waitFor(()=>expect(view.getByLabelText("Persona activa")).not.toBeNull());
+      const stored=JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)??"{}");
+      expect(stored.activeReviewer).toBe("fernando");
+      expect(stored.places["JP-001"].votes).toEqual({fernando:"yes",ella:"unreviewed"});
+    });
+
+    it("restores claim focus and supports reset and eligible queue removal without touching V7", async()=>{
+      const draftRaw='{"version":7,"routeIds":[],"days":null}';
+      localStorage.setItem("nihon.savedPlaceIds",'["JP-021"]');
+      localStorage.setItem("nihon.manualPlanningDraft",draftRaw);
+      const queued={placeId:"JP-001",votes:{fernando:"no",ella:"yes"},inReviewQueue:true,legacy:false,disposition:"candidate"};
+      localStorage.setItem(REVIEW_STORAGE_KEY,reviewStore({"JP-001":queued}));location.hash="#/viaje";
+      const view=render(React.createElement(App));
+      const claim=view.getByRole("button",{name:/Estos guardados son míos/});claim.focus();fireEvent.click(claim);
+      fireEvent.click(view.getByRole("button",{name:"Cancelar"}));
+      await waitFor(()=>expect(document.activeElement).toBe(claim));
+      fireEvent.click(view.getByRole("button",{name:"Restablecer mi respuesta"}));
+      let stored=JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)??"{}");
+      expect(stored.places["JP-001"]).toMatchObject({votes:{fernando:"unreviewed",ella:"yes"},inReviewQueue:true,disposition:"candidate"});
+      fireEvent.click(view.getByLabelText("Persona activa"));
+      fireEvent.change(view.getByLabelText("Persona activa"),{target:{value:"ella"}});
+      fireEvent.click(view.getByRole("button",{name:"Restablecer mi respuesta"}));
+      fireEvent.change(view.getByLabelText("Persona activa"),{target:{value:"fernando"}});
+      fireEvent.click(view.getByRole("button",{name:"Quitar de pendientes"}));
+      stored=JSON.parse(localStorage.getItem(REVIEW_STORAGE_KEY)??"{}");
+      expect(stored.places["JP-001"].inReviewQueue).toBe(false);
+      expect(localStorage.getItem("nihon.manualPlanningDraft")).toBe(draftRaw);
     });
   });
 });

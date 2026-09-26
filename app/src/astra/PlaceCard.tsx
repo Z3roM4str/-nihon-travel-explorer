@@ -8,9 +8,9 @@ import { splitCategory } from "../lib/place";
 import { placeHref } from "./navigation";
 import { recommendationLabel, RECOMMENDATION_ICONS } from "./recommendation";
 
-type Props = { place: Place; saved: boolean; onToggle: (id: string) => void; onOpen: (id: string) => void };
+type Props = { place: Place; saved: boolean; status?: string|null; together?: boolean; reviewerName?:string; onToggle: (id: string) => void; onOpen: (id: string) => void };
 
-export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
+export function PlaceCard({ place, saved, status, together, reviewerName, onToggle, onOpen }: Props) {
   const [loadState, setLoadState] = useState<"loading"|"loaded"|"error">("loading");
   const [attempt, setAttempt] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -124,14 +124,15 @@ export function PlaceCard({ place, saved, onToggle, onOpen }: Props) {
       <p className="astra-card__description">{place.description}</p>
       <div className="astra-card__facts"><span>◷ {duration ? formatRange(duration) : place.duration.raw}</span>{reservation.category !== "not-required" && <span>Reserva: {reservation.raw}</span>}</div>
       {seasonal.tier !== "safe" && <p className="astra-card__season"><strong>Feb–mar: revisar condiciones.</strong> {place.febMar2027.warning || place.febMar2027.status}</p>}
+      {status && <p className={together?"astra-couple astra-couple--together":"astra-couple"}>{together&&<span aria-hidden="true">♥ ♥ </span>}{status}</p>}
       <button
         type="button"
         className="astra-want"
-        aria-pressed={saved}
+        aria-pressed={saved} aria-label={`Quiero ir a ${place.name}${reviewerName?` como ${reviewerName}`:""}`}
         onClick={() => onToggle(place.id)}
       >
         <span aria-hidden="true">{saved ? "♥" : "♡"}</span>
-        {saved ? "Me gustaría ir ✓" : "Me gustaría ir"}
+        {saved ? "Quiero ir ✓" : "Quiero ir"}
       </button>
     </div>
   </article>;

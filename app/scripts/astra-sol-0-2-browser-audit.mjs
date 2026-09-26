@@ -104,11 +104,12 @@ try {
     await page.addInitScript(({ raw }) => { localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-021"])); localStorage.setItem("nihon.manualPlanningDraft", raw); }, { raw });
     await page.goto(`${baseURL}#/explorar`, { waitUntil: "networkidle" });
     const card = page.locator(".astra-card").filter({ has: page.locator('a[href*="JP-021"]') }).first();
-    await card.getByRole("button", { name: /Me gustaría ir/ }).click();
-    await page.getByRole("alertdialog").waitFor();
+    await card.getByRole("button", { name: /Quiero ir/ }).click();
+    const identity = page.getByRole("dialog", { name:"¿De quién son estos gustos?" });
+    await identity.getByRole("button", { name:"Fernando" }).click();
+    await card.getByRole("button", { name:/Quiero ir/ }).click();
     assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), raw);
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]")), ["JP-021"]);
-    await page.getByRole("button", { name: "Mantener guardado" }).click();
   });
 
   await runJourney("03-history", "detail, nearby and exploration restoration", { width: 390, height: 844 }, async page => {
@@ -230,64 +231,86 @@ try {
     assert.equal(await filterButton.evaluate(element => document.activeElement === element), true, "filter opener focus not restored");
   });
 
-  await runJourney("09-persistence-recovery", "save failure and retry on explore, detail and trip", { width: 375, height: 812 }, async page => {
-    const draft = { version:7, routeIds:["JP-002"], days:null, startDate:"2027-02-19", endDate:"2027-02-20", visitStartTimes:{"JP-002":"09:00"}, accommodations:[], accommodationLegs:[], interHubSegments:[] };
-    const rawDraft = JSON.stringify(draft);
-    await page.addInitScript(() => {
-      const originalSetItem = Storage.prototype.setItem;
-      let shouldFail = false;
-      window.__astraSetStorageFailure = value => { shouldFail = value; };
-      Storage.prototype.setItem = function (key, value) {
-        if (shouldFail && (key === "nihon.savedPlaceIds" || key === "nihon.memberInterests.v1")) {
-          throw new DOMException("Audit storage failure", "QuotaExceededError");
-        }
-        return originalSetItem.call(this, key, value);
-      };
-    });
-    await page.addInitScript(raw => localStorage.setItem("nihon.manualPlanningDraft", raw), rawDraft);
-    const setFailure = value => page.evaluate(next => window.__astraSetStorageFailure(next), value);
-    const verifyNoticeAndRecover = async (scope, screenshot) => {
-      const notice = scope.getByRole("alert");
-      await notice.waitFor();
-      assert.equal(await page.getByRole("alert").count(), 1, "exactly one alert must be announced");
-      const retry = notice.getByRole("button", { name: "Reintentar guardar" });
-      await retry.scrollIntoViewIfNeeded();
-      assert.equal(await retry.isVisible(), true, "retry must be visible at the mobile viewport");
-      const box = await retry.boundingBox();
-      assert.ok(box && box.height >= 44 && box.x >= 0 && box.x + box.width <= 375, "retry must be a usable mobile target");
-      await page.screenshot({ path: `${outputRoot}/screenshots/${screenshot}.png`, fullPage: true });
-      await setFailure(false);
-      await retry.click();
-      await notice.waitFor({ state: "detached" });
-    };
+  await runJourney("09-sol4-review", "two-person onboarding, legacy, persistence and retry", { width: 390, height: 844 }, async page => {
+    const rawLegacy='["JP-021"]';
+    const rawDraft=JSON.stringify({version:7,routeIds:["JP-001"],days:null,startDate:"2027-02-19",endDate:"2027-02-20",visitStartTimes:{},accommodations:[],accommodationLegs:[],interHubSegments:[]});
+    await page.addInitScript(({rawLegacy,rawDraft})=>{localStorage.setItem("nihon.savedPlaceIds",rawLegacy);localStorage.setItem("nihon.manualPlanningDraft",rawDraft);}, {rawLegacy,rawDraft});
+    await page.addInitScript(()=>{const original=Storage.prototype.setItem;window.__failReview=false;Storage.prototype.setItem=function(k,v){if(window.__failReview&&k==="nihon.astra.review.v1")throw new DOMException("Audit storage failure","QuotaExceededError");return original.call(this,k,v);};});
+    await page.goto(`${baseURL}#/explorar?q=Shibuya%20Crossing`,{waitUntil:"networkidle"});
+    const want=page.getByRole("button",{name:/Quiero ir a Shibuya Crossing/});
+    assert.equal(await page.getByLabel("Persona activa").count(),0,"reviewer switch must not bypass first-interest onboarding");
+    await want.focus();
+    await want.click();
+    const identity=page.getByRole("dialog",{name:"¿De quién son estos gustos?"});
+    await identity.waitFor();
+    assert.equal(await identity.getByText("Dos perfiles en este dispositivo").count(),1);
+    await identity.getByRole("button",{name:"Cancelar"}).click();
+    assert.equal(await want.evaluate(element=>document.activeElement===element),true,"identity cancel must restore exact opener");
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.astra.review.v1")),null,"identity cancel must not write");
+    assert.equal(await want.getAttribute("aria-pressed"),"false");
+    await want.click();await identity.getByRole("button",{name:"Fernando"}).click();
+    assert.equal(await want.getAttribute("aria-pressed"),"true");
+    assert.equal(await page.getByLabel("Persona activa").inputValue(),"fernando");
+    await page.getByLabel("Persona activa").selectOption("ella");
+    assert.equal(await want.getAttribute("aria-pressed"),"false");
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("nihon.astra.review.v1")).places["JP-001"].votes.fernando),"yes","reviewer switch mutated Fernando");
+    await want.click();await page.getByText("Ambos quieren ir").waitFor();
+    await page.reload({waitUntil:"networkidle"});
+    assert.equal(await page.getByText("Ambos quieren ir").count(),1);
+    await page.goto(`${baseURL}#/viaje`,{waitUntil:"networkidle"});
+    await page.getByText("Guardado anterior · Sin asignar").waitFor();
+    const claimOpener=page.getByRole("button",{name:/Estos guardados son míos/});
+    await claimOpener.focus();await claimOpener.click();
+    const claim=page.getByRole("alertdialog",{name:"¿Asignar estos guardados?"});
+    await claim.getByRole("button",{name:"Cancelar"}).click();
+    assert.equal(await claimOpener.evaluate(element=>document.activeElement===element),true,"claim cancel must restore exact opener");
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.savedPlaceIds")),rawLegacy);
+    await page.getByRole("button",{name:/Estos guardados son míos/}).click();
+    await claim.getByRole("button",{name:"Confirmar"}).click();
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.savedPlaceIds")),rawLegacy);
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.manualPlanningDraft")),rawDraft);
+    const first=await page.evaluate(()=>localStorage.getItem("nihon.astra.review.v1"));
+    await page.reload({waitUntil:"networkidle"});
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.astra.review.v1")),first);
+    await page.goto(`${baseURL}#/explorar?q=Takeshita%20Street`,{waitUntil:"networkidle"});
+    await page.evaluate(()=>{window.__failReview=true;});
+    const takeshita=page.getByRole("button",{name:/Quiero ir a Takeshita Street/});
+    await takeshita.click();
+    const failure=page.getByRole("alert");await failure.waitFor();
+    assert.equal(await takeshita.getAttribute("aria-pressed"),"false","failed write exposed false success");
+    assert.equal(await page.getByText("Interés retirado").count(),0,"failed write exposed false Undo");
+    await page.evaluate(()=>{window.__failReview=false;});
+    await failure.getByRole("button",{name:"Reintentar guardar"}).click();
+    await failure.waitFor({state:"detached"});
+    assert.equal(await page.getByRole("button",{name:/Quiero ir a Takeshita Street/}).getAttribute("aria-pressed"),"true");
+    await page.evaluate(()=>{window.__failReview=true;});
+    await takeshita.click();await failure.waitFor();
+    assert.equal(await takeshita.getAttribute("aria-pressed"),"true","failed removal changed durable pressed state");
+    assert.equal(await page.getByText("Interés retirado").count(),0,"failed removal exposed false Undo");
+    await page.evaluate(()=>{window.__failReview=false;});
+    await failure.getByRole("button",{name:"Reintentar guardar"}).click();
+    await page.getByText("Interés retirado").waitFor();
+    assert.equal(await takeshita.getAttribute("aria-pressed"),"false");
+    await page.goto(`${baseURL}#/viaje`,{waitUntil:"networkidle"});
+    const takeshitaItem=page.locator("li").filter({hasText:"Takeshita Street"});
+    await takeshitaItem.getByRole("button",{name:"Quitar de pendientes"}).click();
+    await takeshitaItem.waitFor({state:"detached"});
 
-    await page.goto(`${baseURL}#/explorar?q=Shibuya%20Crossing`, { waitUntil: "networkidle" });
-    await setFailure(true);
-    await page.getByRole("button", { name: "Me gustaría ir", exact: true }).click();
-    await verifyNoticeAndRecover(page, "09-explore-mobile");
-
-    await page.getByRole("link", { name: "Shibuya Crossing", exact: true }).click();
-    const detail = page.getByRole("dialog", { name: "Detalles de Shibuya Crossing" });
-    await detail.waitFor();
-    await setFailure(true);
-    const selectedInterest = detail.locator('button.save-button[aria-pressed="true"]');
-    assert.equal(await selectedInterest.count(), 1, "detail must expose exactly one selected interest CTA");
-    assert.equal(await selectedInterest.getAttribute("aria-pressed"), "true", "detail mutation must start from selected durable state");
-    await selectedInterest.click();
-    await verifyNoticeAndRecover(detail, "09-detail-mobile");
-    assert.equal(await detail.getByRole("alert").count(), 0, "detail recovery alert must clear inside the modal");
-    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.savedPlaceIds") ?? "[]")), [], "detail retry did not durably remove the selected save");
-    assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), rawDraft, "detail recovery changed the authored V7 trip");
-    await detail.getByRole("button", { name: /Cerrar la ficha/ }).click();
-
-    await page.evaluate(() => localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(["JP-001"])));
-    await page.goto(`${baseURL}#/viaje`, { waitUntil: "networkidle" });
-    await page.reload({ waitUntil: "networkidle" });
-    await setFailure(true);
-    await page.getByRole("button", { name: "☆ Lorena" }).click();
-    await verifyNoticeAndRecover(page, "09-trip-mobile");
-    assert.equal(await page.getByText(/^Guardados en este dispositivo/).count(), 1, "success wording returns only after recovery");
-    assert.equal(await page.evaluate(() => localStorage.getItem("nihon.manualPlanningDraft")), rawDraft, "trip recovery changed the authored V7 trip");
+    const shibuyaItem=page.locator("li").filter({hasText:"Shibuya Crossing"});
+    await shibuyaItem.getByRole("button",{name:"Descartar del viaje"}).click();
+    await shibuyaItem.getByRole("button",{name:"Restablecer mi respuesta"}).click();
+    await page.goto(`${baseURL}#/explorar?q=Shibuya%20Crossing`,{waitUntil:"networkidle"});
+    await page.getByRole("button",{name:/Quiero ir a Shibuya Crossing/}).click();
+    const reconsider=page.getByRole("alertdialog",{name:"¿Volver a considerar este lugar?"});
+    await reconsider.getByRole("button",{name:"Cancelar"}).click();
+    let shibuya=await page.evaluate(()=>JSON.parse(localStorage.getItem("nihon.astra.review.v1")).places["JP-001"]);
+    assert.equal(shibuya.disposition,"discarded");assert.equal(shibuya.votes.ella,"unreviewed");
+    await page.getByRole("button",{name:/Quiero ir a Shibuya Crossing/}).click();
+    await reconsider.getByRole("button",{name:"Confirmar"}).click();
+    shibuya=await page.evaluate(()=>JSON.parse(localStorage.getItem("nihon.astra.review.v1")).places["JP-001"]);
+    assert.equal(shibuya.disposition,"candidate");assert.equal(shibuya.votes.ella,"yes");assert.equal(shibuya.votes.fernando,"yes");
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.savedPlaceIds")),rawLegacy);
+    assert.equal(await page.evaluate(()=>localStorage.getItem("nihon.manualPlanningDraft")),rawDraft);
   });
 } finally {
   await browser.close();
@@ -297,7 +320,7 @@ try {
 const summary = { schemaVersion:1, auditedSha:actualSha, generatedAt:new Date().toISOString(), baseURL, results };
 await writeFile(`${outputRoot}/results.json`, `${JSON.stringify(summary, null, 2)}\n`);
 await writeFile(`${outputRoot}/summary.md`, [
-  "# Astra SOL-0–SOL-3 browser audit", "", `Audited SHA: \`${actualSha}\``, "",
+  "# Astra SOL-0–SOL-4 browser audit", "", `Audited SHA: \`${actualSha}\``, "",
   ...results.map(result => `- **${result.status}** ${result.id}: ${result.name}${result.error ? ` — ${result.error.split("\n")[0]}` : ""}`), "",
   "Automated evidence is not independent visual approval; Astra must inspect screenshots and traces.",
 ].join("\n"));

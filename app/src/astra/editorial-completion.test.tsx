@@ -50,7 +50,7 @@ describe("Astra editorial completion behavior", () => {
     location.hash = "#/viaje";
     const view = render(React.createElement(App));
 
-    expect(view.getByRole("link", { name: "Explorar lugares" }).closest(".astra-empty")).not.toBeNull();
+    expect(view.getByRole("link", { name: "Explorar Japón" }).closest(".astra-empty")).not.toBeNull();
     const planButton = view.getByRole("button", { name: "Planificar con mis guardados" });
     expect(planButton.className).toContain("astra-trip__planner-action");
     expect(planButton.className).not.toContain("astra-trip__planner-action--primary");

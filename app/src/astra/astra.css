@@ -207,3 +207,11 @@
 @media (prefers-reduced-motion: reduce) {
   .astra-app *, .astra-detail-overlay *, .astra-filter-overlay * { transition: none; animation: none; scroll-behavior: auto; }
 }
+
+/* SOL-4 two-person review */
+.astra-reviewer { color: var(--astra-muted); font-size: 13px; font-weight: 600; }
+.astra-reviewer select { min-height: 44px; margin-left: 6px; border: 1px solid var(--astra-control-line); border-radius: 10px; background: white; color: var(--astra-ink); padding: 0 28px 0 10px; }
+.astra-couple { margin: 8px 0; color: var(--astra-muted); font-size: 14px; font-weight: 600; }
+.astra-couple--together { color: var(--astra-together); background: var(--astra-together-soft); border-radius: 10px; padding: 8px 10px; }
+.astra-toast { position: fixed; z-index: 1000; right: 24px; bottom: 24px; padding: 12px 16px; border-radius: 12px; background: #202621; color: white; box-shadow: 0 24px 80px rgba(0,0,0,.18); }
+.astra-toast button { margin-left: 12px; min-height: 44px; color: white; text-decoration: underline; }

@@ -1,4 +1,4 @@
-name: Astra SOL-0-3 browser audit
+name: Astra SOL-0-4 browser audit
 
 on:
   pull_request:
@@ -13,17 +13,17 @@ permissions:
   contents: read
 
 concurrency:
-  group: astra-sol-0-3-${{ github.event.pull_request.number }}
+  group: astra-sol-0-4-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   browser-audit:
-    name: Nine journeys and required viewports
+    name: Nine SOL-0–SOL-4 journeys and required viewports
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       ASTRA_EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
-      ASTRA_AUDIT_OUTPUT: ${{ github.workspace }}/artifacts/astra-sol-0-3
+      ASTRA_AUDIT_OUTPUT: ${{ github.workspace }}/artifacts/astra-sol-0-4
     steps:
       - name: Checkout exact PR implementation SHA
         uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
         working-directory: app
         run: npm run build
 
-      - name: Run nine Astra journeys
+      - name: Run Astra SOL-0–SOL-4 journeys
         working-directory: app
         shell: bash
         run: |
@@ -87,7 +87,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: astra-sol-0-3-${{ github.event.pull_request.head.sha }}
-          path: artifacts/astra-sol-0-3
+          name: astra-sol-0-4-${{ github.event.pull_request.head.sha }}
+          path: artifacts/astra-sol-0-4
           if-no-files-found: warn
           retention-days: 14
