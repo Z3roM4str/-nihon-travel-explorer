@@ -1,8 +1,10 @@
 # Política de despliegue
 
 **Vigente desde:** 2026-09-26  
-**Estado:** Vercel congelado hasta que se comparen las alternativas y se elija la implementación
-definitiva.
+**Estado documental:** Vercel congelado hasta que se comparen las alternativas y se elija la
+implementación definitiva. Esta regla limita las acciones de quienes trabajan en el repositorio,
+pero **no constituye todavía un freeze técnico**: la integración externa entre GitHub y Vercel
+sigue activa.
 
 ## Fuente de verdad y línea de trabajo
 
@@ -24,6 +26,44 @@ Hasta autorización expresa posterior:
 
 Las referencias históricas a pruebas o previews de Vercel en documentos de cierre anteriores son
 registro de hechos ya ocurridos; no constituyen autorización para repetirlos.
+
+### Freeze documental frente a freeze técnico
+
+El **freeze documental** anterior prohíbe iniciar o configurar despliegues, pero un archivo Markdown
+no puede detener automatizaciones ya conectadas al repositorio. El PR #153 lo demostró: al recibir
+su actualización, una integración externa creó un Preview y devolvió a GitHub un check de Vercel
+con resultado `success` para el HEAD `ded233b9f5b4715ebb29cb6cfb6e5f0411494a2a`.
+
+La causa es la **integración Git de un proyecto de Vercel conectado a este repositorio mediante la
+GitHub App de Vercel**. La aplicación recibe el evento de push/PR, aplica el auto-deploy configurado
+en el proyecto para ramas que no son la rama de producción, crea el Preview y publica su check en
+GitHub. No fue un comando ni un workflow ejecutado desde este repositorio.
+
+La auditoría del árbol del PR #153 no encontró `vercel.json`, directorio `.vercel`, workflows de
+GitHub Actions, hooks versionados ni scripts de `package.json` que invoquen Vercel. Por tanto, el
+repositorio **no contiene el activador** del Preview; el vínculo y su política de auto-deploy viven
+en la configuración externa del proyecto de Vercel y de su GitHub App.
+
+Para conseguir un **freeze técnico real**, una persona autorizada debe cambiar externamente la
+configuración Git del proyecto de Vercel: deshabilitar los despliegues automáticos de Preview para
+las ramas/PR de estas alternativas o hacer que esas ramas se ignoren. No debe desconectar el
+repositorio completo si se pretende conservar el mecanismo de producción. Esta intervención queda
+pendiente y no está autorizada por este documento.
+
+El alcance depende del ajuste elegido:
+
+- una regla que ignore solamente las ramas de trabajo detiene sus futuros Previews sin cambiar por
+  sí misma el dominio ni el deployment que ya sirve producción;
+- desconectar la integración Git completa también detiene los despliegues automáticos de la rama
+  de producción y exige un mecanismo autorizado alternativo para futuras publicaciones;
+- una regla de exclusión demasiado amplia puede omitir validaciones Preview legítimas o impedir
+  que una revisión necesaria se despliegue; una regla demasiado estrecha puede dejar otras ramas
+  generando Previews.
+
+Hasta que un responsable autorizado realice y verifique ese ajuste externo, cada push a una rama o
+PR conectado puede seguir generando un Preview aunque cumpla íntegramente este documento. No se
+deben eliminar deployments ni alterar Vercel, su GitHub App, dominios o producción como parte de
+esta actualización documental.
 
 ## Línea Astra
 
