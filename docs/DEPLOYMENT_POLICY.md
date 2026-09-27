@@ -44,11 +44,18 @@ GitHub Actions, hooks versionados ni scripts de `package.json` que invoquen Verc
 repositorio **no contiene el activador** del Preview; el vínculo y su política de auto-deploy viven
 en la configuración externa del proyecto de Vercel y de su GitHub App.
 
-Para conseguir un **freeze técnico real**, una persona autorizada debe cambiar externamente la
-configuración Git del proyecto de Vercel: deshabilitar los despliegues automáticos de Preview para
-las ramas/PR de estas alternativas o hacer que esas ramas se ignoren. No debe desconectar el
-repositorio completo si se pretende conservar el mecanismo de producción. Esta intervención queda
-pendiente y no está autorizada por este documento.
+Para conseguir un **freeze técnico real**, se debe cambiar externamente la configuración Git del
+proyecto de Vercel: deshabilitar los despliegues automáticos de Preview para las ramas/PR de estas
+alternativas o hacer que esas ramas se ignoren. No se debe desconectar el repositorio completo si
+se pretende conservar el mecanismo de producción.
+
+El 27 de septiembre de 2026 se autorizó expresamente esta intervención, pero el entorno de
+ejecución disponible no tenía una sesión de Vercel, un token de Vercel, credenciales de GitHub ni
+una integración externa que expusiera la configuración del proyecto. Por ello no fue posible leer
+de forma autenticada el estado real de Vercel, aplicar la mutación ni ejecutar una prueba de rama.
+El freeze técnico continúa **pendiente**; no debe interpretarse la autorización, ni este registro
+del intento, como evidencia de que ya esté activo. Durante el intento no se modificó Vercel ni se
+creó un deployment.
 
 El alcance depende del ajuste elegido:
 
@@ -60,10 +67,10 @@ El alcance depende del ajuste elegido:
   que una revisión necesaria se despliegue; una regla demasiado estrecha puede dejar otras ramas
   generando Previews.
 
-Hasta que un responsable autorizado realice y verifique ese ajuste externo, cada push a una rama o
-PR conectado puede seguir generando un Preview aunque cumpla íntegramente este documento. No se
-deben eliminar deployments ni alterar Vercel, su GitHub App, dominios o producción como parte de
-esta actualización documental.
+Hasta que un entorno autorizado realice y verifique ese ajuste externo, cada push a una rama o PR
+conectado puede seguir generando un Preview aunque cumpla íntegramente este documento. No se deben
+eliminar deployments ni alterar Vercel, su GitHub App, dominios o producción como sustituto de ese
+ajuste selectivo.
 
 ## Línea Astra
 
