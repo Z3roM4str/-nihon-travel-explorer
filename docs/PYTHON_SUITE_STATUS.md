@@ -84,3 +84,47 @@ Tests (todos en `setUpClass`): `scripts/test_block22_b6_4_photography.py::B64Pho
 
 Ningún caso. No se encontró regresión de producto (A), test obsoleto (B), fixture a retirar (D),
 fallo sólo de entorno (E) ni otro (F).
+
+## Discrepancia 557/67 vs. 618/0/0 — RECONCILIADA (categoría E, entorno)
+
+**Contexto.** `docs/MERGE_READINESS_HANDOFF.md` dejó constancia de un resultado sin reconciliar:
+reejecutar `pytest scripts/` sobre el mismo HEAD que este documento reporta en 618/0/0 daba, en
+otra sesión, 557 passed / 67 failed, todos en `test_phase4m_stop_vs_continue.py`. Investigado en
+rama aparte `claude/investigate-pytest-discrepancy` (sin tocar `claude/integration-b24-b23-b65-b67`
+ni `main`), a partir del HEAD `3628273` (cierre de DDR-MERGE-1, Block 2 en 81/81).
+
+**Causa raíz: clon Git superficial (shallow), no una regresión ni deuda de test.**
+`test_phase4m_stop_vs_continue.py` fija sus figuras de diseño leyendo commits históricos concretos
+mediante `git show <SHA>:<path>` (constante `PHASE_4M_BASE`, línea 23) y `git diff`/`git ls-tree`
+contra `PHASE_4M_DESIGN_HEAD` (línea 473, dentro de `DesignOnlyScopeTests`). Esas llamadas viven en
+`load_base_inputs()`, invocada desde el `setUpClass`/cuerpo de casi todas las clases del fichero.
+En un clon con historia truncada (`--depth 1`) esos commits no son alcanzables: `git show`/`git
+diff` fallan con `CalledProcessError` y el fallo se propaga a todo el fichero, no solo a
+`DesignOnlyScopeTests`.
+
+**Evidencia de reproducción (esta sesión, HEAD `3628273`):**
+
+| Clon | Comando | Resultado |
+|---|---|---|
+| `git clone --depth 1 --branch claude/integration-b24-b23-b65-b67 …` (shallow) | `python3 -m pytest scripts/ -q -p no:cacheprovider` | **67 failed, 557 passed, 126 subtests passed** — coincide exactamente con la cifra sin reconciliar |
+| Checkout normal, historia completa | `python3 -m pytest scripts/ -q -p no:cacheprovider` (con y sin limpiar cachés/bytecode) | **618 passed, 0 failed, 156 subtests passed** — reproducido dos veces |
+
+Los 67 fallos del clon shallow: ~41 en `ReproducedStateTests`, `OrderingCeilingTests`,
+`MixSimulationTests`, `StrategyComparisonTests`, `ProminenceTests`,
+`SelectorCannotDeliverTheProminenceCaseTests` y `PolicyFidelityTests::test_analysis_is_deterministic`
+(fixture compartido roto); 8 fallos + 3 subfallos en `DesignOnlyScopeTests` (mismo mecanismo, más
+`git diff`/`git ls-tree`). Ningún otro fichero de la suite resultó afectado en ninguno de los dos
+clones.
+
+**Clasificación:** categoría **E (entorno)**. No es regresión de producto (A), no hay test
+obsoleto (B), ninguna fixture necesita retirarse (D). Ningún assert, fixture, dataset, snapshot o
+UI se ha tocado para llegar a esta conclusión.
+
+**Requisito operativo para esta suite:** si el entorno de ejecución es un clon superficial
+(`git rev-parse --is-shallow-repository` → `true`), ejecutar `git fetch --unshallow` antes de
+correr `pytest scripts/`. Sin este paso, `test_phase4m_stop_vs_continue.py` fallará en bloque por
+motivos ajenos al código, no por una regresión.
+
+**Estado:** discrepancia **CERRADA**. No se ha modificado `test_phase4m_stop_vs_continue.py` ni
+ningún otro test; no se ha añadido `skip`/`xfail`; el requisito de `git fetch --unshallow` queda
+documentado como paso operativo, no como cambio de comportamiento.
