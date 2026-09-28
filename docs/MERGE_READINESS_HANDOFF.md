@@ -1,6 +1,21 @@
 # Merge-readiness — PR #152 · handoff
 
-**Fecha:** 2026-09-26 · **Rama:** `claude/integration-b24-b23-b65-b67` · **PR:** #152 (Draft)
+## ESTADO CANÓNICO ACTUAL (2026-09-28): PR #152 MERGED a `main`
+
+- Merge commit: `8867e41b158b4651e473b390657ad3ff161a63bf` (merge commit real, no squash/rebase).
+- Padres: `8eb725eeb836ca121180f8dd8b0dc49c65efae25` (main previo) y
+  `e5ddbfa6c1eea82661c6002d4ee9d6e96f17bd57` (head certificado de #152, idéntico al de la
+  auditoría de merge-readiness 2026-09-27 referenciada en el resto de este documento).
+- `main` nuevo: `8867e41b158b4651e473b390657ad3ff161a63bf`.
+- Certificación post-merge repetida desde el nuevo `main`: build/lint/Vitest/pytest y los gates
+  de mayor riesgo (integration-b24-b23-check, B23 retry, DD-028, Block 2 Photography) en verde,
+  mismos números que el head certificado. Detalle completo en `docs/CURRENT_WORK_HANDOFF.md`.
+- El resto de este documento (todo lo de abajo) es **registro histórico** de la misión de
+  merge-readiness previa al merge; se conserva sin reescribir.
+
+---
+
+**Fecha:** 2026-09-26 · **Rama:** `claude/integration-b24-b23-b65-b67` · **PR:** #152 (Draft en ese momento; MERGED desde 2026-09-28, ver arriba)
 **SHA inicial de esta misión:** `fac2e9ed57c2a55b61653268dbf5619946af7d9c` · **Base:** `main` @ `8eb725eeb836ca121180f8dd8b0dc49c65efae25`
 **SHA al abrir DDR-MERGE-1:** `b06c1d46fd63e2cee8c544f896ebf338c04243e0`
 **SHA final tras la decisión de dirección (opción 1):** el HEAD de la rama tras el commit que añade

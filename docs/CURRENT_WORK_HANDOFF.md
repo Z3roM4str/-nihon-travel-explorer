@@ -1,10 +1,37 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
-## Estado actual — merge-readiness de PR #152 (2026-09-26)
+## ESTADO CANÓNICO ACTUAL — PR #152 integrado a `main` (2026-09-28)
+
+**`main` ya no está en `8eb725e`.** PR #152 se certificó MERGE-READY (auditoría 2026-09-27,
+HEAD `e5ddbfa`) y se integró mediante **merge commit** (no squash, no rebase) el 2026-09-28.
+
+- **Merge commit:** `8867e41b158b4651e473b390657ad3ff161a63bf`.
+- **Padres del merge:** `8eb725eeb836ca121180f8dd8b0dc49c65efae25` (main previo) +
+  `e5ddbfa6c1eea82661c6002d4ee9d6e96f17bd57` (head certificado de #152). Ambos son ancestros de
+  `origin/main`; verificado con `git merge-base --is-ancestor`.
+- **SHA canónico nuevo de `main`:** `8867e41b158b4651e473b390657ad3ff161a63bf`. Todo trabajo
+  nuevo debe partir de aquí.
+- **PR #152:** `MERGED` (no cerrado manualmente; GitHub lo marcó merged).
+- **Certificación post-merge (ejecutada desde el nuevo `main`, no desde la rama):** build ✅;
+  lint 0 errores (1 warning heredado `PlaceMap.tsx:17`); Vitest 3384/3384; pytest `scripts/`
+  (historia completa) 618 passed/0 failed/0 errors — reproduce el estado reconciliado, no el
+  artefacto de clon superficial; `integration-b24-b23-check` 58/58; B23 retry 28/28; DD-028
+  16/16; Block 2 Photography 81/81. Sin regresiones atribuibles al merge (comportamiento
+  idéntico al head certificado, como se esperaba de un merge commit).
+- Astra, PR #153, PR #154 y cambios de Vercel/deployment: **no mezclados** en este merge.
+- Rama fuente `claude/integration-b24-b23-b65-b67` conservada (no borrada) a la espera de que
+  se complete cualquier certificación adicional.
+- Pendiente humano sin cambios: validación real en iPhone (scroll táctil, teclado iOS) — no
+  bloqueante, no ejecutable en este entorno.
+- La condición "no empezar B25" ya no depende de una integración pendiente: **la integración ya
+  ocurrió.** El siguiente bloque autorizado se decide contra roadmap (`docs/design/10_ROADMAP_DE_BLOQUES.md`)
+  y se reporta por separado; no se ha iniciado ningún trabajo de bloque nuevo en esta misión.
+
+## ESTADO HISTÓRICO — merge-readiness de PR #152 (2026-09-26, previo a la integración)
 
 Handoff completo: `docs/MERGE_READINESS_HANDOFF.md`. Rama `claude/integration-b24-b23-b65-b67`,
-de `fac2e9e` a HEAD (ver handoff). PR #152 sigue **Draft**; sin merge, squash ni rebase; `main`
-intacto en `8eb725e`.
+de `fac2e9e` a HEAD (ver handoff). En este punto histórico PR #152 seguía **Draft**; sin merge,
+squash ni rebase; `main` intacto en `8eb725e`. (Superado por la sección canónica de arriba.)
 
 - **Block 2 Photography 79/81 → DDR-MERGE-1 ABIERTA** (`docs/DDR-MERGE-1_PRESUPUESTO_FOTOGRAFIA_HUB.md`).
   El hub Osaka cuesta 3,20 MiB y cumple el pipeline y `06 §6.3`; el exceso (5,31 / 5,77 MiB) lo
