@@ -6567,7 +6567,7 @@ button.app__title.app__title--expand {
   min-width: 0;
 }
 
-.quiero-ir__analysis.analysis-dialog--embedded {
+.quiero-ir__analysis {
   padding: 0;
   border: 0;
   box-shadow: none;

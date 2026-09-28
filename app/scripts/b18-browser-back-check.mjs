@@ -53,7 +53,7 @@ async function main() {
   // ---------------- Quiero ir: abrir → goBack() cierra, sin salir de la pestaña ----------------
   await page.click(".tab-bar__item:has-text('Quiero ir')");
   await page.waitForTimeout(300);
-  await page.click(".selection-list__name");
+  await page.click(".quiero-ir [data-quiero-ir-place] .place-card__open");
   await page.waitForSelector(".place-detail", { timeout: 15000 });
   await page.waitForTimeout(250);
   check("Quiero ir: abrir un lugar muestra la ficha", await page.locator(".place-detail").isVisible());
@@ -65,10 +65,10 @@ async function main() {
     "Quiero ir: page.goBack() no cambia de pestaña",
     (await page.locator(".tab-bar__item--active .tab-bar__label").textContent()) === "Quiero ir"
   );
-  check("Quiero ir: tras goBack() se ve de nuevo la lista de selección", await page.locator(".selection-panel").isVisible());
+  check("Quiero ir: tras goBack() se ve de nuevo la lista de selección", await page.locator(".quiero-ir").isVisible());
 
   // Cadena de 2 lugares en Quiero ir: abrir A, saltar a un cercano B, goBack() dos veces.
-  await page.click(".selection-list__name");
+  await page.click(".quiero-ir [data-quiero-ir-place] .place-card__open");
   await page.waitForSelector(".place-detail", { timeout: 15000 });
   await page.waitForTimeout(250);
   const placeA = (await page.locator(".place-detail h2").first().textContent())?.trim();
@@ -91,7 +91,7 @@ async function main() {
     await page.waitForTimeout(350);
     check(
       "Quiero ir, cadena: segundo goBack() cierra del todo, vuelve a la superficie",
-      !(await page.locator(".place-detail").isVisible().catch(() => false)) && (await page.locator(".selection-panel").isVisible())
+      !(await page.locator(".place-detail").isVisible().catch(() => false)) && (await page.locator(".quiero-ir").isVisible())
     );
   } else {
     // Sin cadena disponible para este lugar en concreto: cerrar con un solo goBack() y seguir.

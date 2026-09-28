@@ -207,7 +207,7 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace }: Props) {
   const commitments = commitmentSentence(summary);
 
   return (
-    <div className="analysis-dialog analysis-dialog--embedded quiero-ir__analysis">
+    <div className="quiero-ir__analysis">
       <p className="analysis-header__sub">
         {hubs.length} ciudad{hubs.length === 1 ? "" : "es"} y {prefectures.length} prefectura
         {prefectures.length === 1 ? "" : "s"}

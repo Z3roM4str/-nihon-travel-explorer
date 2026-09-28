@@ -498,7 +498,9 @@ try {
   await step("A09 saved selection lists every saved place", async () => {
     await closeDetailIfOpen();
     await goToDestination("Quiero ir");
-    const rows = await page.locator(".destination-panel:not([hidden]) .selection-panel__content li").count();
+    // B25 (B7, `05 §6`): Quiero ir se organiza en secciones; cada lugar es una fila
+    // `[data-quiero-ir-place]` (coincidencias, «Sólo {persona}», etc.).
+    const rows = await page.locator(".destination-panel:not([hidden]) .quiero-ir [data-quiero-ir-place]").count();
     assert.ok(rows >= 5, `expected >=5 rows, got ${rows}`);
     await goToDestination("Explorar");
     return `${rows} rows`;
@@ -1060,7 +1062,7 @@ try {
     await ensurePlaceListVisible();
     const small = await page.evaluate(() => {
       const min = 32;
-      return [...document.querySelectorAll(".place-card, .selection-panel__toggle, .chip-toggle")]
+      return [...document.querySelectorAll(".place-card, .quiero-ir__section-toggle, .chip-toggle")]
         .map((n) => ({ cls: n.className, h: Math.round(n.getBoundingClientRect().height) }))
         .filter((x) => x.h > 0 && x.h < min)
         .slice(0, 5);
