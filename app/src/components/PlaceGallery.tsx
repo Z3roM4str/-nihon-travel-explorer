@@ -1,64 +1,40 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlaceImage } from "../types";
-import { describePhotographyProcessing } from "../lib/photography-attribution";
 import { CARD_IMAGE_WIDTH, cardImageUrl } from "../data/place-images";
+import { hasAnyAttribution } from "../lib/photography-attribution";
 import { Icon } from "../icons/Icon";
+import { CreditsSheet } from "./CreditsSheet";
+
+/**
+ * Bloque 20 (B4) — galería de la ficha (`04 §6`, `05 §5` pt. 1).
+ *
+ * Tres cambios de contrato respecto a v1.1.0:
+ *
+ * 1. **Deslizamiento nativo con `scroll-snap`, no un carrusel con índice en estado.** Todas las
+ *    imágenes existen en el DOM dentro de una pista que scrollea; el índice se *deriva* de la
+ *    posición de scroll en vez de gobernarla. Eso es lo que da el gesto del sistema —inercia,
+ *    rebote, accesibilidad del scroll— gratis, y lo que `04 §6` pide literalmente.
+ * 2. **A sangre y vertical**: 4:5 en teléfono, 4:3 en `md`+ dentro del panel. La fotografía es
+ *    el contenido, no una franja decorativa.
+ * 3. **Los créditos salen del flujo** (defecto D2): botón `ⓘ` de 32 px abajo-izquierda que abre
+ *    `CreditsSheet` (`04 §7`). Ni un carácter de atribución entre la fotografía y el nombre.
+ *
+ * Cantidades, no breakpoints, deciden los indicadores (`04 §6`): la píldora del contador y las
+ * flechas sólo con más de una imagen; los puntos sólo con **≤5**; las flechas, además, sólo en
+ * `md`+ (eso sí es CSS, porque en teléfono el gesto es el dedo).
+ */
 
 type Props = {
   images: PlaceImage[];
   /** Editorial description of the photograph this place should eventually have. */
   imageBrief: string;
   placeName: string;
+  /** `04 §7`: pie de `CreditsSheet` hacia Nosotros › Fuentes y licencias. */
+  onOpenSources?: () => void;
 };
 
-type LoadState = "loading" | "loaded" | "error";
-
-const SWIPE_THRESHOLD_PX = 40;
-
-function Attribution({ image }: { image: PlaceImage }) {
-  const processing = describePhotographyProcessing(image.processing);
-  const hasAttribution =
-    image.source ||
-    image.credit ||
-    image.license ||
-    image.sourceFileTitle ||
-    image.attributionTitle ||
-    processing;
-
-  if (!hasAttribution) return null;
-
-  return (
-    <p className="gallery__credit">
-      {image.source && (
-        <>
-          {image.sourceUrl ? (
-            <a href={image.sourceUrl} target="_blank" rel="noreferrer">
-              {image.source}
-            </a>
-          ) : (
-            image.source
-          )}
-        </>
-      )}
-      {image.credit && <span> · {image.credit}</span>}
-      {image.license && (
-        <span>
-          {" · "}
-          {image.licenseUrl ? (
-            <a href={image.licenseUrl} target="_blank" rel="noreferrer">
-              {image.license}
-            </a>
-          ) : (
-            image.license
-          )}
-        </span>
-      )}
-      {image.sourceFileTitle && <span> · Archivo de Commons: {image.sourceFileTitle}</span>}
-      {image.attributionTitle && <span> · Título de atribución: {image.attributionTitle}</span>}
-      {processing && <span> · {processing}</span>}
-    </p>
-  );
-}
+/** `04 §6`: «Puntos **sólo** cuando hay ≤5 imágenes». Por encima, la píldora basta. */
+const MAX_DOTS = 5;
 
 /** Shown until licensed photography exists for a place — never a stand-in photo of somewhere else. */
 function GalleryFallback({
@@ -85,26 +61,43 @@ function GalleryFallback({
   );
 }
 
-export function PlaceGallery({ images, imageBrief, placeName }: Props) {
+export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: Props) {
   const [index, setIndex] = useState(0);
-  const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [failed, setFailed] = useState<Record<string, true>>({});
+  const [attempts, setAttempts] = useState<Record<string, number>>({});
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const touchStartX = useRef<number | null>(null);
-  const zoomButtonRef = useRef<HTMLButtonElement>(null);
+  const [creditsOpen, setCreditsOpen] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const wasLightboxOpen = useRef(false);
   const total = images.length;
 
-  // The parent keys this component by place id, so index/loadState start fresh for each place
-  // and only ever change from the navigation handlers below.
+  /**
+   * El índice se lee de la pista, nunca al revés. `scrollLeft / ancho de la ranura` redondeado
+   * es la diapositiva que el `scroll-snap` ha dejado centrada; con `scroll-snap-type: x
+   * mandatory` el navegador garantiza que el reposo cae exactamente en un múltiplo.
+   */
+  const syncIndexFromScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const slotWidth = track.clientWidth;
+    if (slotWidth === 0) return;
+    const next = Math.round(track.scrollLeft / slotWidth);
+    setIndex((current) => {
+      const clamped = Math.max(0, Math.min(total - 1, next));
+      return clamped === current ? current : clamped;
+    });
+  }, [total]);
+
+  /** Navegación explícita (flechas, puntos, teclado): mueve el scroll, y el scroll mueve el índice. */
   const goTo = useCallback(
     (next: number) => {
-      if (total === 0) return;
-      const target = ((next % total) + total) % total;
-      if (target === index) return;
-      setIndex(target);
-      setLoadState("loading");
+      const track = trackRef.current;
+      if (!track || total === 0) return;
+      const target = Math.max(0, Math.min(total - 1, next));
+      track.scrollTo({ left: target * track.clientWidth, behavior: "smooth" });
     },
-    [total, index]
+    [total]
   );
 
   const handleKeyDown = useCallback(
@@ -147,9 +140,9 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   useEffect(() => {
     // Restore focus to the control that opened the lightbox once it closes — only on
     // the true->false transition, never on initial mount (which would steal focus
-    // from wherever it already sensibly is, e.g. the place-detail close button).
+    // from wherever it already sensibly is, e.g. the place-detail back button).
     if (wasLightboxOpen.current && !lightboxOpen) {
-      zoomButtonRef.current?.focus();
+      openerRef.current?.focus();
     }
     wasLightboxOpen.current = lightboxOpen;
   }, [lightboxOpen]);
@@ -159,71 +152,104 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
   }
 
   const current = images[index];
-  const currentCardUrl = cardImageUrl(current.url);
-  /** Omitted entirely when no derivative exists, so `src` alone decides. */
-  const heroSrcSet = currentCardUrl
-    ? `${currentCardUrl} ${CARD_IMAGE_WIDTH}w, ${current.url} 1600w`
-    : undefined;
+  const showCounter = total > 1;
+  const showDots = total > 1 && total <= MAX_DOTS;
+  const showArrows = total > 1;
+  const showCredits = hasAnyAttribution(images);
 
   return (
     <div className="gallery">
-      <div
-        className="gallery__frame"
-        onKeyDown={handleKeyDown}
-        onTouchStart={(event) => {
-          touchStartX.current = event.changedTouches[0].clientX;
-        }}
-        onTouchEnd={(event) => {
-          const start = touchStartX.current;
-          touchStartX.current = null;
-          if (start === null) return;
-          const delta = event.changedTouches[0].clientX - start;
-          if (Math.abs(delta) < SWIPE_THRESHOLD_PX) return;
-          goTo(delta < 0 ? index + 1 : index - 1);
-        }}
-        role="group"
-        aria-roledescription="carrusel"
-        aria-label={`Fotografías de ${placeName}`}
-        tabIndex={0}
-      >
-        {loadState === "loading" && <div className="gallery__skeleton" aria-hidden="true" />}
-        {loadState === "error" ? (
-          <div className="gallery__error">
-            <p>No se pudo cargar la imagen.</p>
-            {imageBrief && <p className="gallery__fallback-brief">{imageBrief}</p>}
-          </div>
-        ) : (
-          <button
-            type="button"
-            ref={zoomButtonRef}
-            className="gallery__zoom"
-            onClick={() => setLightboxOpen(true)}
-            aria-label={`Ampliar imagen ${index + 1} de ${total}`}
-          >
-            {/* Two candidates, one photograph. The hero fills 390 CSS px on a phone and
-                420 in the desktop panel, so a DPR 2 phone is served the 800px rendition
-                instead of the 1600px original — the lightbox below always loads the
-                original, which is where full resolution actually matters. */}
-            <img
-              src={current.url}
-              srcSet={heroSrcSet}
-              sizes="(min-width: 861px) 420px, 100vw"
-              alt={current.alt}
-              loading="lazy"
-              decoding="async"
-              className="gallery__image"
-              data-state={loadState}
-              onLoad={() => setLoadState("loaded")}
-              onError={() => setLoadState("error")}
-            />
-          </button>
+      <div className="gallery__viewport">
+        <div
+          className="gallery__track"
+          ref={trackRef}
+          onScroll={syncIndexFromScroll}
+          onKeyDown={handleKeyDown}
+          role="group"
+          aria-roledescription="carrusel"
+          aria-label={`Fotografías de ${placeName}`}
+          tabIndex={0}
+        >
+          {images.map((image, slide) => {
+            const isBroken = failed[image.url];
+            const derivative = cardImageUrl(image.url);
+            /** Omitted entirely when no derivative exists, so `src` alone decides. */
+            const srcSet = derivative
+              ? `${derivative} ${CARD_IMAGE_WIDTH}w, ${image.url} 1600w`
+              : undefined;
+            return (
+              <div className="gallery__slide" key={image.url}>
+                {isBroken ? (
+                  <div className="gallery__error">
+                    <p role="status">No se pudo cargar la imagen.</p>
+                    {imageBrief && <p className="gallery__fallback-brief">{imageBrief}</p>}
+                    <button
+                      type="button"
+                      className="gallery__retry"
+                      aria-label={`Reintentar imagen ${slide + 1} de ${total}`}
+                      title="Reintentar imagen"
+                      onClick={() => {
+                        setAttempts((state) => ({
+                          ...state,
+                          [image.url]: (state[image.url] ?? 0) + 1,
+                        }));
+                        setFailed((state) => {
+                          const next = { ...state };
+                          delete next[image.url];
+                          return next;
+                        });
+                        // The error controls disappear while the same slide is requested again.
+                        // Keep keyboard focus in the carousel and leave its index/scroll untouched.
+                        trackRef.current?.focus({ preventScroll: true });
+                      }}
+                    >
+                      Reintentar
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="gallery__zoom"
+                    onClick={(event) => {
+                      openerRef.current = event.currentTarget;
+                      setLightboxOpen(true);
+                    }}
+                    aria-label={`Ampliar imagen ${slide + 1} de ${total}`}
+                  >
+                    {/* Two candidates, one photograph. The hero fills 390 CSS px on a phone and
+                        480 in the desktop panel, so a DPR 2 phone is served the 800px rendition
+                        instead of the 1600px original — the lightbox below always loads the
+                        original, which is where full resolution actually matters. */}
+                    <img
+                      key={`${image.url}-${attempts[image.url] ?? 0}`}
+                      src={image.url}
+                      srcSet={srcSet}
+                      sizes="(min-width: 840px) 480px, 100vw"
+                      alt={image.alt}
+                      // `06 §6.3` / `04 §6`: la primera imagen de la ficha es la que decide el
+                      // LCP de la pantalla; el resto de la pista se carga cuando el dedo llega.
+                      {...(slide === 0
+                        ? { fetchPriority: "high" as const }
+                        : { loading: "lazy" as const })}
+                      decoding="async"
+                      className="gallery__image"
+                      onError={() => setFailed((state) => ({ ...state, [image.url]: true }))}
+                    />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {showCounter && (
+          <span className="gallery__counter" aria-hidden="true">
+            {index + 1} / {total}
+          </span>
         )}
 
-        {total > 1 && (
+        {showArrows && (
           <>
-            <span className="gallery__counter" aria-hidden="true">
-              {index + 1} / {total}
-            </span>
             <button
               type="button"
               className="gallery__nav gallery__nav--prev"
@@ -244,29 +270,49 @@ export function PlaceGallery({ images, imageBrief, placeName }: Props) {
             </button>
           </>
         )}
+
+        {showCredits && (
+          <button
+            type="button"
+            className="gallery__credits"
+            onClick={() => setCreditsOpen(true)}
+            aria-label={`Créditos de las fotografías de ${placeName}`}
+            title="Créditos de las fotografías"
+          >
+            <Icon name="info" size={16} />
+          </button>
+        )}
+
+        {showDots && (
+          <div className="gallery__dots" role="tablist" aria-label="Seleccionar imagen">
+            {images.map((image, dotIndex) => (
+              <button
+                key={image.url}
+                type="button"
+                role="tab"
+                aria-selected={dotIndex === index}
+                aria-label={`Imagen ${dotIndex + 1} de ${total}`}
+                title={`Imagen ${dotIndex + 1} de ${total}`}
+                className={`gallery__dot ${dotIndex === index ? "gallery__dot--active" : ""}`}
+                onClick={() => goTo(dotIndex)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {total > 1 && (
-        <div className="gallery__dots" role="tablist" aria-label="Seleccionar imagen">
-          {images.map((image, dotIndex) => (
-            <button
-              key={image.url}
-              type="button"
-              role="tab"
-              aria-selected={dotIndex === index}
-              aria-label={`Imagen ${dotIndex + 1} de ${total}`}
-              title={`Imagen ${dotIndex + 1} de ${total}`}
-              className={`gallery__dot ${dotIndex === index ? "gallery__dot--active" : ""}`}
-              onClick={() => goTo(dotIndex)}
-            />
-          ))}
-        </div>
-      )}
-
-      <Attribution image={current} />
       <p className="visually-hidden" role="status">
         Imagen {index + 1} de {total}
       </p>
+
+      {creditsOpen && (
+        <CreditsSheet
+          placeName={placeName}
+          images={images}
+          onClose={() => setCreditsOpen(false)}
+          onOpenSources={onOpenSources}
+        />
+      )}
 
       {lightboxOpen && (
         <div

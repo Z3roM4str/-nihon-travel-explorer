@@ -50,7 +50,7 @@ async function main() {
     await page.waitForSelector(".place-detail", { timeout: 15000 });
     await page.waitForTimeout(300);
     await page.screenshot({ path: `${OUT_DIR}/${viewport.name}-2-ficha-${LABEL}.png` });
-    await page.locator(".place-detail__bar .icon-button").click();
+    await page.locator(".place-detail__back").click();
     await page.waitForTimeout(300);
 
     // 3. Quiero ir

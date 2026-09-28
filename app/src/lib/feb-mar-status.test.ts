@@ -149,7 +149,7 @@ describe("interpretFebMarStatusText — adversarial priority order (load-bearing
 
 describe("cross-language parity source-check (no subprocess, text-only)", () => {
   async function readPythonFebMarStatusTier(): Promise<Record<string, string>> {
-    const source = await readFile(new URL("../../../scripts/temporal_data_lib.py", import.meta.url), "utf8");
+    const source = (await readFile(new URL("../../../scripts/temporal_data_lib.py", import.meta.url), "utf8")).replace(/\r\n/g, "\n");
     const blockMatch = /FEB_MAR_STATUS_TIER\s*=\s*\{([\s\S]*?)\n\}/.exec(source);
     if (!blockMatch) {
       throw new Error("Could not find a FEB_MAR_STATUS_TIER = { ... } block in scripts/temporal_data_lib.py");
@@ -194,7 +194,7 @@ describe("cross-language parity source-check (no subprocess, text-only)", () => 
    * even if no adversarial example happens to exercise the swapped pair.
    */
   async function readPythonFebMarPriorityOrder(): Promise<string[]> {
-    const source = await readFile(new URL("../../../scripts/temporal_data_lib.py", import.meta.url), "utf8");
+    const source = (await readFile(new URL("../../../scripts/temporal_data_lib.py", import.meta.url), "utf8")).replace(/\r\n/g, "\n");
     const fnMatch = /def classify_feb_mar_status\(raw\)[\s\S]*?\n\n\n/.exec(source);
     if (!fnMatch) throw new Error("Could not find classify_feb_mar_status() body in scripts/temporal_data_lib.py");
     const returns = [...fnMatch[0].matchAll(/return\s+"([a-z0-9-]+)"/g)].map((m) => m[1]);

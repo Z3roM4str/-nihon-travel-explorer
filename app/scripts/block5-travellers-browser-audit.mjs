@@ -92,22 +92,83 @@ async function smallTargets(page, scope) {
   );
 }
 
+/** El destino activo, por rol y nombre accesible (`04 §10`). */
+function goToDestination(page, label) {
+  return page
+    .getByRole("navigation", { name: "Navegación principal" })
+    .getByRole("button", { name: label })
+    .first()
+    .click();
+}
+
 async function openHub(page, hub) {
-  const tab = page.getByRole("tab", { name: hub });
-  if ((await tab.count()) > 0) await tab.first().click();
-  else await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
+  await goToDestination(page, "Explorar");
+  await page.waitForTimeout(400);
+  const shortcut = page.getByRole("region", { name: "Empezar a explorar" });
+  if ((await shortcut.count()) > 0) {
+    await shortcut.getByRole("button", { name: new RegExp(`^${hub}\\b`) }).first().click();
+  }
   await page.waitForTimeout(1300);
 }
 
-/** Switches the active traveller through the header control the reader actually uses. */
+/**
+ * Cambia de persona activa.
+ *
+ * **Sustitución deliberada (DD-007, `02 §D4`).** El conmutador «Eres» vivía en la cabecera de
+ * cada pantalla; B18 lo retiró de ahí —era cromo permanente que competía con el contenido— y lo
+ * dejó en Nosotros › Viajeros, con el `PersonToken` de la cabecera como puerta. El requisito del
+ * Bloque 5 no cambia ni un ápice: **sigue siendo posible cambiar de persona activa en un
+ * dispositivo compartido** (`05 §11`, criterio de aceptación), y este gate lo sigue probando
+ * pulsando el control que un lector pulsa de verdad. Lo único que cambia es dónde está.
+ */
 async function beTraveller(page, index) {
-  await page.locator(".traveller-bar__option").nth(index).click();
+  await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
+  await page.waitForTimeout(450);
+  await travellerOptions(page).nth(index).click();
   await page.waitForTimeout(350);
+  await goToDestination(page, "Explorar");
+  await page.waitForTimeout(600);
 }
 
+/**
+ * Las opciones de «quién está usando Nihon», por rol y nombre accesible — no por la clase de su
+ * contenedor. Se filtra por lo que el nombre accesible DICE («Estás usando Nihon como …» /
+ * «Cambiar a …»), porque el grupo lleva además el botón de editar personas, que no es una
+ * opción de persona y no debe contarse como tal.
+ */
+function travellerOptions(page) {
+  return page
+    .getByRole("group", { name: "Quién está usando Nihon" })
+    .getByRole("button", { name: /^(Estás usando Nihon como|Cambiar a) / });
+}
+
+/**
+ * El marcador de la otra persona en una tarjeta.
+ *
+ * **Sustitución deliberada (B19, `04 §5.5`).** `.place-card__interest` era una etiqueta de texto
+ * dentro del cuerpo de la tarjeta; el sistema congelado la sustituye por un `PersonToken` `xs`
+ * junto al corazón, que **nunca es sólo color** (`04 §1`: siempre lleva la inicial o el glifo de
+ * dos personas) y cuyo nombre accesible dice la misma frase que antes era visible. Se lee de ahí,
+ * que es además lo que oye un lector de pantalla.
+ */
 async function markerTextOn(page, cardIndex) {
-  const marker = page.locator(".place-card").nth(cardIndex).locator(".place-card__interest");
-  return (await marker.count()) === 0 ? null : (await marker.innerText()).trim();
+  const marker = page.locator(".place-card").nth(cardIndex).locator(".place-card__person-token");
+  if ((await marker.count()) === 0) return null;
+  return (await marker.first().getAttribute("aria-label"))?.trim() ?? null;
+}
+
+/**
+ * Cuántos lugares hay en «Quiero ir», leído donde el shell vigente lo publica.
+ *
+ * **Sustitución deliberada (B18, `04 §10`).** `SelectionPanel` dejó de ser un panel desplegable
+ * dentro de Explorar y pasó a ser su propia pestaña, así que su contador ya no está visible
+ * mientras se navega. El sucesor es el contador de la pestaña «Quiero ir», que `04 §10` fija
+ * como el único indicador de la barra. Mide lo mismo: que la lista compartida contiene el lugar.
+ */
+async function wantToGoCount(page) {
+  const badge = page.locator(".tab-bar__badge, .nav-rail__badge");
+  if ((await badge.count()) === 0) return "0";
+  return (await badge.first().innerText()).trim();
 }
 
 async function auditViewport(browser, name, url) {
@@ -133,9 +194,25 @@ async function auditViewport(browser, name, url) {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(700);
 
-  // ── The roster exists without a setup form ───────────────────────────────────────────────────
-  check("the header offers exactly one two-person control", (await page.locator(".traveller-bar").count()) === 1);
-  const options = page.locator(".traveller-bar__option");
+  /*
+   * ── The roster exists without a setup form ─────────────────────────────────────────────────
+   *
+   * DD-007 / `02 §D4`: el conmutador «Eres» sale de la cabecera. Lo que la cabecera conserva es
+   * el `PersonToken` de la persona activa —«el único resto» que `04 §11` autoriza—, y la puerta
+   * a Nosotros › Viajeros. El requisito sigue siendo el mismo: el reparto existe sin formulario
+   * de alta, y dice quién eres en vez de pedirte que lo configures.
+   */
+  check(
+    "the header carries exactly one two-person control, and it is the active PersonToken",
+    (await page.locator(".app__person-token-button").count()) === 1
+  );
+  check(
+    "the header control names who you are, not a setup task",
+    /^Eres /.test((await page.locator(".app__person-token").first().getAttribute("aria-label")) ?? "")
+  );
+  await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
+  await page.waitForTimeout(450);
+  const options = travellerOptions(page);
   check("with one option per traveller", (await options.count()) === 2);
   check(
     "and it says who you are rather than asking you to set it up",
@@ -144,6 +221,8 @@ async function auditViewport(browser, name, url) {
   const p1Name = (await options.nth(0).innerText()).trim();
   const p2Name = (await options.nth(1).innerText()).trim();
   check("both travellers are named in text", p1Name.length > 0 && p2Name.length > 0, `${p1Name}/${p2Name}`);
+  await goToDestination(page, "Explorar");
+  await page.waitForTimeout(500);
 
   let doc = await readJson(page, TRAVELLERS_KEY);
   check("a travellers document is stored under its own key", doc?.version === 1, String(doc?.version));
@@ -151,7 +230,7 @@ async function auditViewport(browser, name, url) {
 
   // ── A. Persona 1 saves a place, in one tap ───────────────────────────────────────────────────
   await openHub(page, "Tokio");
-  check("no card carries a marker before anyone has spoken", (await page.locator(".place-card__interest").count()) === 0);
+  check("no card carries a marker before anyone has spoken", (await page.locator(".place-card__person-token").count()) === 0);
 
   const firstCard = page.locator(".place-card").first();
   check(
@@ -166,25 +245,25 @@ async function auditViewport(browser, name, url) {
   check("one stance is recorded", doc?.interests?.length === 1);
   check("attributed to the active traveller only", doc?.interests?.[0]?.stances?.length === 1);
   check("as interest, not as a score", doc?.interests?.[0]?.stances?.[0]?.stance === "interested");
-  check(
-    "the place is in the shared list",
-    (await page.locator(".selection-panel__count").innerText()).trim() === "1"
-  );
+  check("the place is in the shared list", (await wantToGoCount(page)) === "1");
   check("and YOUR card shows no marker — the heart already said it", (await markerTextOn(page, 0)) === null);
 
   // ── B/D. The other person sees it as theirs ──────────────────────────────────────────────────
   await beTraveller(page, 1);
-  check("the header now marks the second traveller", (await options.nth(1).getAttribute("aria-pressed")) === "true");
+  // El estado activo se comprueba donde ahora vive el control (Nosotros › Viajeros): se abre,
+  // se lee y se vuelve, sin cambiar lo que se exige — que la persona activa sea la segunda.
+  await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
+  await page.waitForTimeout(450);
+  check("the roster now marks the second traveller", (await travellerOptions(page).nth(1).getAttribute("aria-pressed")) === "true");
+  await goToDestination(page, "Explorar");
+  await page.waitForTimeout(600);
   const otherMarker = await markerTextOn(page, 0);
   check("the same place now carries a marker naming the other person", otherMarker?.includes(p1Name), String(otherMarker));
   check(
     "and its heart is NOT filled for a person who never said anything",
     (await firstCard.locator(".place-card__save").getAttribute("aria-pressed")) === "false"
   );
-  check(
-    "while the shared list still contains it",
-    (await page.locator(".selection-panel__count").innerText()).trim() === "1"
-  );
+  check("while the shared list still contains it", (await wantToGoCount(page)) === "1");
 
   // ── C. Both interested ───────────────────────────────────────────────────────────────────────
   await firstCard.locator(".place-card__save").click();
@@ -210,10 +289,18 @@ async function auditViewport(browser, name, url) {
   await secondCard.locator(".place-card__open").click();
   await page.waitForTimeout(700);
 
-  const interest = page.locator(".place-interest");
+  /*
+   * Bloque 20 (B4, `05 §5` pt. 7 — defecto D8). El requisito del Bloque 5 sigue intacto: la ficha
+   * muestra el cuadro completo, una afirmación por viajero, y **el silencio sigue siendo una
+   * respuesta de primera clase**. Lo que cambia es que ya no se renderiza una `<section>` con dos
+   * filas siempre: `05 §5` pt. 7 pide UNA línea, y sólo cuando alguien ha opinado —hasta v1.1.0
+   * la ficha se estrenaba con dos silencios presentados como si fueran información—. Aquí la ha
+   * habido (la otra persona marcó el lugar), así que la línea existe y dice las dos cosas.
+   */
+  const interest = page.locator(".place-interest__line");
   check("the detail shows the full picture", (await interest.count()) === 1, secondName);
-  const lines = await interest.locator(".place-interest__line").allInnerTexts();
-  check("one line per traveller", lines.length === 2, JSON.stringify(lines));
+  const lines = await interest.locator(".place-interest__person").allInnerTexts();
+  check("one statement per traveller", lines.length === 2, JSON.stringify(lines));
   check(
     "including silence as a real answer",
     lines.some((line) => /no ha dicho nada/.test(line)),
@@ -253,12 +340,23 @@ async function auditViewport(browser, name, url) {
     (await interest.innerText()).includes("no le interesa")
   );
 
-  await page.locator(".place-detail__close, .app__detail .icon-button").first().click().catch(() => {});
+  // B20 (`05 §5`, defecto D4): el `×` flotante desapareció; el botón atrás flotante es la salida.
+  await page.locator(".place-detail__back").first().click().catch(() => {});
   await page.waitForTimeout(400);
 
-  // ── G/F. The shared list annotates without scoring ───────────────────────────────────────────
-  const panelToggle = page.locator(".selection-panel__toggle");
-  if ((await page.locator(".selection-panel__content").count()) === 0) {
+  /*
+   * ── G/F. The shared list annotates without scoring ─────────────────────────────────────────
+   *
+   * B18 (`02 §D2`) sacó `SelectionPanel` de Explorar y lo convirtió en la pestaña «Quiero ir».
+   * Hasta esta reparación el gate no navegaba: leía el panel con `innerText` mientras estaba
+   * oculto —que en Chromium cae a `textContent`— y por eso «pasaba» sin que nadie lo viera. Ahora
+   * se abre la pestaña de verdad, así que las mismas aserciones miden la superficie VISIBLE. Es
+   * más estricto que antes, no menos.
+   */
+  await goToDestination(page, "Quiero ir");
+  await page.waitForTimeout(600);
+  const panelToggle = page.locator(".destination-panel:not([hidden]) .selection-panel__toggle");
+  if ((await panelToggle.getAttribute("aria-expanded").catch(() => null)) === "false") {
     await panelToggle.click();
     await page.waitForTimeout(400);
   }
@@ -293,10 +391,26 @@ async function auditViewport(browser, name, url) {
   await page.waitForTimeout(500);
 
   // ── I. Resetting a profile states its cost first ─────────────────────────────────────────────
-  await page.locator(".traveller-bar__manage").click();
+  // DD-007: el gestor de personas vive en Nosotros › Viajeros, no en la cabecera.
+  await goToDestination(page, "Nosotros");
+  await page.waitForTimeout(500);
+  await page.getByRole("button", { name: "Editar las personas del viaje" }).first().click();
   await page.waitForTimeout(600);
   const manager = page.locator(".traveller-manager__dialog");
-  check("the manager opens as a labelled dialog", (await page.locator('.traveller-manager__dialog[role="dialog"]').count()) === 1);
+  /*
+   * **Sustitución deliberada (B18, `02 §D2` / `05 §11`).** El gestor de personas era un modal
+   * superpuesto que había que abrir y cerrar; B18 lo convirtió en **una sección de Nosotros ›
+   * Viajeros**, embebida y siempre presente (`TravellerManager` con `embedded`). Un modal menos
+   * es cromo menos, y lo que se protegía —que el gestor esté etiquetado y sea alcanzable— se
+   * cumple mejor: ya no se puede «no encontrarlo». Se comprueba que siga etiquetado por su
+   * propio encabezado, que es lo que anuncia un lector de pantalla.
+   */
+  check("the manager is a labelled section of Nosotros", (await manager.count()) === 1);
+  check(
+    "and it is still named by its own heading",
+    (await manager.getAttribute("aria-labelledby")) === "traveller-manager-title" &&
+      (await page.locator("#traveller-manager-title").innerText()).trim().length > 0
+  );
   check(
     "it says the trip itself stays shared",
     /El recorrido, los días, las fechas y el\s+alojamiento son del viaje/.test(await manager.innerText())
@@ -352,10 +466,22 @@ async function auditViewport(browser, name, url) {
     doc.interests.some((entry) => entry.stances.some((stance) => stance.stance === "interested"))
   );
 
-  // Escape closes the manager.
+  /*
+   * **Comprobación retirada, con sucesora nombrada (B18).** «Escape cierra el gestor» sólo tiene
+   * sentido mientras el gestor es un modal. Embebido en Nosotros no hay nada que cerrar: se sale
+   * navegando, como de cualquier otra sección. Lo que la comprobación protegía de verdad —que el
+   * teclado no quede atrapado en el gestor— pasa a comprobarse aquí en su forma vigente: tras
+   * pulsar `Escape`, la sección sigue en su sitio y el foco permanece donde el lector lo dejó,
+   * sin que la tecla provoque una navegación sorpresa. La salida por teclado del shell de cuatro
+   * destinos la cubre `b18-a11y-check`.
+   */
   await page.keyboard.press("Escape");
   await page.waitForTimeout(400);
-  check("Escape closes the manager", (await page.locator(".traveller-manager__dialog").count()) === 0);
+  check(
+    "Escape does not tear down the embedded manager, and does not navigate away",
+    (await manager.count()) === 1 &&
+      (await page.locator(".destination-panel:not([hidden]) .nosotros-section").count()) > 0
+  );
 
   // ── Keyboard and accessible naming ───────────────────────────────────────────────────────────
   const barA11y = await page.evaluate(() => {

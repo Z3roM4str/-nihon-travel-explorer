@@ -227,8 +227,16 @@ a {
 /* Técnica 2 (caja real): usada por `.icon-button--small` (fila de controles, ver arriba).
    La caja de 44px no lleva fondo/borde propios — eso es del `::before`, que dibuja el
    círculo de 36px que siempre fue el tamaño visual, centrado dentro de la caja real. */
+/*
+ * B24 (P0-2): el `::before` es `position:absolute` y el SVG es contenido en flujo, así que el
+ * círculo se pintaba ENCIMA del icono y lo tapaba entero (contraste medido 1,00:1 en Quiero ir,
+ * Viaje y cabeceras de día). `isolation: isolate` abre un contexto de apilamiento propio del
+ * botón y `z-index: -1` manda el círculo al fondo de ESE contexto: queda detrás del icono pero
+ * delante de todo lo que hay detrás del botón. La caja de 44 px no cambia.
+ */
 .icon-button--small {
   position: relative;
+  isolation: isolate;
   width: var(--tap-min);
   height: var(--tap-min);
   background: none;
@@ -237,6 +245,7 @@ a {
 
 .icon-button--small::before {
   content: "";
+  z-index: -1;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -616,6 +625,18 @@ button.app__title.app__title--expand {
   color: var(--ink-900);
 }
 
+/* B24 (DD-022): contador vivo de resultados, pegado al botón de cierre. */
+.sheet__count {
+  margin: 0;
+  margin-inline-start: auto;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+
 .sheet__body {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -860,6 +881,14 @@ button.app__title.app__title--expand {
   visibility: hidden;
 }
 
+/*
+ * La región de lista de Explorar. Corrección de B19 (DD-016): además de contener la lista, es
+ * su CONTENEDOR DE CONSULTA — `styles/discovery.css` decide el número de columnas leyendo
+ * `@container lista-explorar (…)`, es decir el ancho real de esta caja, no el del viewport. Es
+ * lo único que puede resolver el caso de `md`, donde abrir la ficha estrecha esta región de
+ * ~752px a ~376px sin que el viewport cambie ni un píxel. Los topes por breakpoint siguen
+ * viviendo en `@media` (`02 §D5`); aquí sólo se declara la caja que se mide.
+ */
 .app__sidebar {
   position: absolute;
   inset: 0;
@@ -870,6 +899,8 @@ button.app__title.app__title--expand {
   background: var(--surface);
   overflow-y: auto;
   overscroll-behavior: contain;
+  container-type: inline-size;
+  container-name: lista-explorar;
 }
 
 .app__map-area {
@@ -927,9 +958,32 @@ button.app__title.app__title--expand {
 }
 
 /*
- * Bloque 18 — desde `md` (840px, `02 §D5`): lista y mapa conviven, y la ficha vuelve a ser un
- * panel de 480px en vez de pantalla completa. Único breakpoint de todo el shell — Art. 8
- * prohíbe `max-width` nuevo, así que todo lo de esta sección es `min-width`.
+ * Corrección de B19 (DD-016, `02 §D5`, `05 §4`/`§5`) — el raíl derecho y la región de lista.
+ *
+ * B18 dejó la lista clavada en 372px fijos desde `md`, con el mapa ocupando todo lo demás. Eso
+ * hacía imposible lo que `05 §4` pide literalmente («`md`: 2 columnas + ficha como panel derecho
+ * de 480 px») y lo que la fórmula de cabida exige (`PlaceCard` nunca por debajo de 264px): en un
+ * panel de 372px sólo cabe una columna a cualquier ancho de pantalla. La corrección invierte la
+ * prioridad — **la lista es la superficie primaria y se queda con todo el ancho que el raíl no
+ * usa**, y el raíl mide exactamente una ficha:
+ *
+ *     raíl = min(var(--place-detail-panel-width), 50%)          ← «el mapa nunca pasa de la
+ *                                                                  mitad del ancho», `02 §D5`
+ *
+ * Quién ocupa el raíl:
+ *   - `md` (840–1199): sólo la ficha, y sólo mientras está abierta (`.app__body--detail`). El
+ *     mapa sigue siendo una superficie conmutada por `.explorer-bar__pane`, igual que en
+ *     teléfono — `02 §D5` y `05 §4` reservan el mapa persistente para `lg`, no para `md`. Por eso
+ *     abrir la ficha en `md` estrecha la lista y la baja de 2 columnas a 1 sin tocar el viewport:
+ *     es el caso que obliga a que la rejilla lea su propio contenedor y no los breakpoints.
+ *   - `lg`+ (1200+): el mapa ocupa el raíl de forma permanente (`02 §D5`) y la ficha se apoya
+ *     encima del mismo raíl, con la misma caja. El mapa nunca cambia de tamaño al abrir o cerrar
+ *     la ficha, así que conserva centro, zoom y marcador seleccionado.
+ *
+ * Las dos superficies de Explorar siguen siendo `position: absolute` a todos los anchos (nunca
+ * `display:none` para el mapa: Leaflet necesita una caja real o `panTo`/`fitBounds` calculan
+ * `NaN`). El único cambio con el ancho es dónde termina cada una — `right` —, no su mecanismo.
+ * Art. 8 prohíbe `max-width` nuevo: todo lo de esta sección es `min-width`.
  */
 @media (min-width: 840px) {
   .app__body {
@@ -937,23 +991,15 @@ button.app__title.app__title--expand {
     flex-direction: row;
   }
 
-  .app__body--pane-map .app__sidebar,
-  .app__body--pane-list .app__map-area {
-    display: flex;
-    visibility: visible;
-  }
-
   .app__sidebar {
-    position: static;
-    z-index: auto;
-    width: 372px;
-    flex-shrink: 0;
+    z-index: 10;
     border-right: 1px solid var(--line);
   }
 
-  .app__map-area {
-    position: relative;
-    flex: 1;
+  /* Sin ficha abierta la lista es TODO el cuerpo: es lo que hace que 840px dé 2 columnas. */
+  .app__body--detail .app__sidebar,
+  .app__body--detail .app__map-area {
+    right: min(var(--place-detail-panel-width), 50%);
   }
 
   .app__detail {
@@ -961,585 +1007,101 @@ button.app__title.app__title--expand {
     inset: 0 0 0 auto;
     /* Corrección final de B18 (punto 5): token propio (480px, `02 §D5`/`05 §5`), separado del
        de Sheet (420px, `04 §8`) — antes ambos compartían `--panel-width`, que era el error
-       normativo que describe la auditoría. Ver tokens.css §8. */
-    width: min(var(--place-detail-panel-width), 100%);
+       normativo que describe la auditoría. Ver tokens.css §8. Corrección de B19: el `100%` pasa
+       a `50%` — la ficha es el raíl, y `02 §D5` acota el raíl a la mitad del ancho. */
+    width: min(var(--place-detail-panel-width), 50%);
     z-index: 30;
     border-left: 1px solid var(--line);
     box-shadow: var(--elev-2);
   }
 }
 
-/* ---------- Search + filters ---------- */
+/*
+ * `lg` (1200px, `02 §D5`): «Explorar añade panel de mapa persistente a la derecha». A partir de
+ * aquí el raíl existe siempre, lo ocupe la ficha o no, y el conmutador Lista/Mapa deja de tener
+ * nada que conmutar — se retira en vez de quedarse como un control que no hace nada.
+ */
+@media (min-width: 1200px) {
+  .explorer-bar__pane {
+    display: none;
+  }
 
-.filter-panel {
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  max-height: 100%;
-}
+  .app__map-area,
+  .app__body--detail .app__map-area {
+    left: auto;
+    right: 0;
+    width: min(var(--place-detail-panel-width), 50%);
+  }
 
-.filter-panel__head {
-  padding: 0.9rem 1rem 0.5rem;
-  flex-shrink: 0;
-}
+  .app__sidebar,
+  .app__body--detail .app__sidebar {
+    right: min(var(--place-detail-panel-width), 50%);
+  }
 
-.filter-panel__groups {
-  padding: 0 1rem 0.5rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  min-height: 0;
-}
+  /* El conmutador ya no manda: con mapa permanente, las dos superficies se ven siempre. */
+  .app__body--pane-map .app__sidebar {
+    display: flex;
+  }
 
-.filter-panel__groups[hidden] {
-  display: none;
-}
-
-.filter-panel__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 2.25rem;
-  margin-bottom: 0.35rem;
-  padding: 0.3rem 0.6rem 0.3rem 0.4rem;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-
-.filter-panel__toggle:hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
-}
-
-.filter-panel__toggle-caret {
-  font-size: 0.7rem;
-}
-
-.filter-panel__toggle-count {
-  background: var(--color-accent);
-  color: #fff;
-  border-radius: 999px;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.68rem;
-  padding: 0 0.3rem;
-}
-
-.search-field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  padding: 0 0.6rem;
-}
-
-.search-field:focus-within {
-  border-color: var(--focus-ring-color);
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.search-field__icon {
-  display: inline-flex;
-  color: var(--ink-500);
-}
-
-.search-field__input {
-  flex: 1;
-  border: none;
-  background: none;
-  font: inherit;
-  padding: 0.65rem 0;
-  min-width: 0;
-  color: inherit;
-}
-
-.search-field__input:focus {
-  outline: none;
-}
-
-.search-field__input::-webkit-search-cancel-button {
-  display: none;
-}
-
-.search-field__clear {
-  border: none;
-  background: none;
-  font-size: 1.3rem;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--color-text-muted);
-  padding: 0.25rem 0.35rem;
-}
-
-.filter-panel__status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin: 0.6rem 0 0.4rem;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.filter-panel__status p {
-  margin: 0;
-}
-
-.filter-group {
-  border-top: 1px solid var(--color-border);
-  padding: 0.15rem 0;
-}
-
-.filter-panel__groups > .filter-group:first-child {
-  border-top: none;
-}
-
-.filter-group__summary {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0;
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-  list-style: none;
-}
-
-.filter-group__summary::-webkit-details-marker {
-  display: none;
-}
-
-.filter-group__summary::before {
-  content: "▸";
-  font-size: 0.7rem;
-  transition: transform 0.15s ease;
-}
-
-.filter-group[open] > .filter-group__summary::before {
-  transform: rotate(90deg);
-}
-
-.filter-group__badge {
-  background: var(--color-accent);
-  color: #fff;
-  border-radius: 999px;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.68rem;
-  padding: 0 0.3rem;
-}
-
-.filter-chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0 0 0.75rem;
-}
-
-/* Bloque 17 (B1): variante `ChipToggle` de `04 §3` — la hoja de filtros es la única superficie
-   donde un chip es interactivo, con `aria-pressed` (aquí, `:has(input:checked)`) y 40px de alto.
-   Corrección de cumplimiento (auditoría posterior al cierre del Bloque 17): 40px visual es
-   inferior al suelo de Art. 11, así que `.filter-chip` comparte la técnica `.tap-target-min`
-   (ver comentario junto a esa clase) directamente en su propio selector — cada instancia real
-   (categoría, bloque, reserva, nivel, grado, radio) hereda un área táctil real ≥44×44 sin que
-   el chip crezca visualmente. */
-.filter-chip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--space-10);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-xs);
-  padding: var(--space-1) var(--space-3);
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  line-height: var(--type-label-line);
-  letter-spacing: var(--type-label-tracking);
-  cursor: pointer;
-  background: var(--surface-sunken);
-  color: var(--ink-700);
-  user-select: none;
-}
-
-.filter-chip::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: max(100%, var(--tap-min));
-  height: max(100%, var(--tap-min));
-}
-
-.filter-chip:hover {
-  background: var(--line);
-}
-
-.filter-chip:has(input:checked) {
-  background: var(--shu-050);
-  border-color: var(--shu-600);
-  color: var(--shu-700);
-}
-
-.filter-chip:focus-within {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.filter-chip input {
-  margin: 0;
-  accent-color: var(--color-accent);
-}
-
-.filter-chip--grade span {
-  font-weight: 600;
-}
-
-/* ---------- Result list — photo-led place cards ---------- */
-
-.place-list {
-  list-style: none;
-  margin: 0;
-  padding: 0.75rem;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.place-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-}
-
-.place-card:hover {
-  box-shadow: var(--shadow-card-hover);
-  border-color: var(--color-border-strong);
-}
-
-.place-card:focus-within {
-  border-color: var(--focus-ring-color);
-}
-
-.place-card--selected {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px var(--color-accent-soft), var(--shadow-card-hover);
-}
-
-/* ---- Media ---- */
-
-.place-card__media {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background: var(--color-surface-alt);
-  overflow: hidden;
-}
-
-.place-card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.place-card__image[data-state="loaded"] {
-  opacity: 1;
-}
-
-.place-card__skeleton {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, #eceae5 30%, #f6f4f1 50%, #eceae5 70%);
-  background-size: 300% 100%;
-  animation: card-shimmer 1.4s linear infinite;
-}
-
-@keyframes card-shimmer {
-  to {
-    background-position: -150% 0;
+  .app__body--pane-list .app__map-area {
+    visibility: visible;
   }
 }
 
-/* Editorial placeholder. Never a stand-in photograph of somewhere else: the card says, quietly,
-   that this place has no licensed image yet, and shows its own category instead. */
-.place-card__placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    repeating-linear-gradient(
-      135deg,
-      rgba(183, 40, 46, 0.035) 0 10px,
-      rgba(183, 40, 46, 0) 10px 20px
-    ),
-    var(--color-surface-alt);
-}
-
-.place-card__placeholder-icon {
-  color: var(--ink-300);
-}
-
-.interest-badge {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1.35;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  max-width: calc(100% - 4rem);
-}
-
-.interest-badge__glyph {
-  font-size: 0.8em;
-}
-
-.interest-badge__label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ---- Save control ---- */
-
-.place-card__save {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
-  z-index: 2;
-  width: var(--tap-target);
-  height: var(--tap-target);
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
-  transition: transform 0.14s ease, background 0.14s ease, color 0.14s ease;
-}
-
-.place-card__save-icon {
-  display: inline-flex;
-}
-
-.place-card__save:hover {
-  background: #fff;
-  color: var(--color-accent);
-}
-
-.place-card__save--on {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #fff;
-}
-
-.place-card__save--on:hover {
-  background: var(--color-accent-dark);
-  color: #fff;
-}
-
-.place-card__save:active {
-  transform: scale(0.9);
-}
-
-/* The moment of feedback: the heart pops once as it fills. */
-.place-card__save--on .place-card__save-icon {
-  animation: heart-pop 0.28s ease-out;
-}
-
-@keyframes heart-pop {
-  0% {
-    transform: scale(0.6);
-  }
-  60% {
-    transform: scale(1.22);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* ---- Body ---- */
-
-.place-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.7rem 0.85rem 0.85rem;
-}
-
-.place-card__heading {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.3;
-}
-
-/* Stretched link: the whole card opens the place, while the save button above keeps its own
-   hit area. A nested <button> would be invalid HTML and break keyboard and AT behaviour. */
-.place-card__open {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  font-weight: 700;
-  color: var(--color-text);
-  text-align: left;
-  cursor: pointer;
-}
-
-.place-card__open::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.place-card__open:focus-visible {
-  outline: none;
-}
-
-.place-card__open:focus-visible::after {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: -3px;
-  border-radius: var(--radius-lg);
-}
-
-.place-card__where {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-}
-
-.place-card__zone {
-  font-weight: 600;
-}
-
-.place-card__reason {
-  margin: 0.1rem 0 0;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: var(--color-text);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.place-card__facts {
-  list-style: none;
-  margin: 0.35rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-
-.place-card__fact {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-alt);
-  color: var(--color-text-muted);
-  border-radius: 999px;
-  padding: 0.15rem 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.place-card__fact--gem {
-  background: #f3eefc;
-  border-color: #ded1f5;
-  color: #543a8c;
-}
-
-.place-card__fact--tourism-extremo {
-  background: var(--color-warn-soft);
-  border-color: #e7c894;
-  color: #7c4a0d;
-}
-
-.place-card__fact--reservation {
-  background: var(--color-accent-soft);
-  border-color: #eec7c5;
-  color: var(--color-accent-dark);
-}
-
-/* ---- Empty results ---- */
-
-.place-list__empty {
-  padding: 2rem 1.25rem;
-  text-align: center;
-}
-
-.place-list__empty-icon {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--ink-300);
-}
-
-.place-list__empty-title {
-  font-weight: 700;
-  margin: 0 0 0.35rem;
-}
-
-.place-list__empty-hint {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  margin: 0 0 0.9rem;
-  max-width: 24rem;
-  margin-inline: auto;
-}
+/* ---------- Search + filters, PlaceCard, PlaceList — migrados a styles/discovery.css ----------
+ * Bloque 19 (B3): estas superficies quedaron completamente migradas — sus reglas viven ahora
+ * en `styles/discovery.css` (08 §"Cómo tratar el CSS actual" autoriza extraer a fichero propio
+ * una superficie ya migrada por completo, en vez de seguir acumulando reglas aquí). No queda
+ * ningún selector `.filter-panel*`, `.search-field*`, `.filter-chip*`, `.chip-toggle*`,
+ * `.place-list*` ni `.place-card*` en este fichero. */
 
 /* ---------- Map markers ---------- */
 
+/* B24 (P0-4b, Art. 11): la caja del icono mide 44 px (`MARKER_HIT_SIZE`) y es lo que recibe el
+   toque; el punto visible sigue midiendo lo que fija `03 §9` y va centrado dentro. */
 .place-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
+}
+
+/* B24 (P0-4a) — grupo de marcadores, `03 §9`: «un círculo con cifra (`--type-num`), estilo
+   indicador de estación» — el número de estación japonés: blanco con anillo de tinta. Misma caja
+   de impacto de 44 px que un marcador suelto; el círculo visible mide `--space-8`. */
+.place-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.place-cluster__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-8);
+  height: var(--space-8);
+  padding: 0 var(--space-1);
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--ink-900);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--elev-1);
+}
+
+.place-cluster:focus-visible .place-cluster__count,
+.place-marker:focus-visible .place-marker__dot {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .place-marker__dot {
@@ -1582,47 +1144,51 @@ button.app__title.app__title--expand {
   border-left: 1px solid var(--color-border);
 }
 
-/* Floats over the gallery so the hero starts at the top of the panel, and stays put on scroll. */
-.place-detail__bar {
+/*
+ * Bloque 20 (B4, `05 §5` pt. 1) — D4: desaparece el `×` flotante y la barra que lo contenía.
+ * Queda un único botón atrás flotante arriba-izquierda, sobre `--scrim-top`, dentro del héroe
+ * fotográfico. Sin `text-shadow` (`03 §5`): la legibilidad la da el scrim y sólo el scrim.
+ */
+.place-detail__hero {
+  position: relative;
+}
+
+.place-detail__hero::before {
+  content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
+  inset: 0 0 auto 0;
+  height: var(--space-20);
+  background: var(--scrim-top);
   pointer-events: none;
-}
-
-.place-detail__bar > * {
-  pointer-events: auto;
-}
-
-.place-detail__bar .icon-button {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(2px);
+  z-index: 2;
 }
 
 .place-detail__back {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 3;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  box-shadow: var(--shadow-soft);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-accent-dark);
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--overlay-paper);
+  color: var(--ink-900);
+  box-shadow: var(--elev-1);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
   cursor: pointer;
-  padding: 0.5rem 0.85rem;
-  min-height: var(--tap-target);
-  max-width: 14rem;
+  max-width: 60%;
+}
+
+.place-detail__back-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1635,36 +1201,107 @@ button.app__title.app__title--expand {
   -webkit-overflow-scrolling: touch;
 }
 
+/* `05 §5` pt. 2: el cuerpo monta sobre la fotografía 20px con `--radius-xl` arriba — la señal
+   de que hay contenido debajo del héroe. */
 .place-detail__body {
-  padding: 1rem 1.15rem 2rem;
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--space-5) * -1);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--surface);
+  padding: var(--space-6) var(--screen-margin) var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-6);
 }
 
 .place-detail__title-block {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: var(--space-2);
 }
 
-.place-detail__eyebrow {
+/* pt. 5 — la única insignia que la ficha puede mostrar. Nunca «Grado A» (Art. 6). */
+.place-detail__badge {
   margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
+  font-weight: 600;
+  color: var(--ink-900);
 }
 
+/* pt. 3 — el nombre en `--type-display`, el mejor tamaño de la escala. */
 .place-detail__title-block h2 {
   margin: 0;
-  font-size: 1.45rem;
+  font-family: var(--font-voice);
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  letter-spacing: var(--type-display-tracking);
+  font-weight: 500;
+  color: var(--ink-900);
 }
 
 .place-detail__japanese {
   margin: 0;
-  color: var(--color-text-muted);
-  font-size: 1rem;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  color: var(--ink-500);
+}
+
+/* pt. 4 — una línea, debajo del nombre, con un solo `·`. Ya no es un eyebrow (`03 §2.3`). */
+.place-detail__where,
+.place-detail__gem {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-500);
+}
+
+.place-detail__gem {
+  color: var(--ink-700);
+}
+
+/* pt. 6 — primario a ancho completo y `quiet` a su lado. */
+.place-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--tap-gap);
+}
+
+.place-detail__actions .save-button {
+  flex: 1;
+}
+
+/* Art. 11 / `03 §7`: el rechazo explícito sigue siendo un objetivo táctil de pleno derecho.
+   `button--md` ya mide 44px; se declara aquí también para que la regla del control no dependa
+   de que nadie toque la clase genérica. */
+.place-detail__actions .place-interest__decline {
+  flex-shrink: 0;
+  min-height: var(--tap-target);
+}
+
+/* pt. 7 — la franja de los dos: una sola línea, y sólo si alguien ha opinado (D8). */
+.place-interest__line {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+}
+
+.place-interest__person {
+  white-space: nowrap;
+}
+
+.place-interest__person .person-token {
+  vertical-align: middle;
 }
 
 .tag-row {
@@ -1777,62 +1414,81 @@ button.app__title.app__title--expand {
   background: #d9eee2;
 }
 
-.place-detail__description {
-  margin: 0;
-  font-size: 1rem;
-}
-
+/* pt. 8 — «Por qué vale la pena»: `--type-quote`, `--font-voice`, sin comillas decorativas,
+   y un filete vertical `--shu-600` de 2px a la izquierda. Nada de fondo de color: el
+   tratamiento es tipográfico, que es lo que lo hace el mejor del producto (`05 §5` pt. 8). */
 .highlight {
-  background: var(--color-accent-soft);
-  border-left: 4px solid var(--color-accent);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 0.75rem 0.9rem;
+  border-left: 2px solid var(--shu-600);
+  padding-left: var(--space-4);
 }
 
 .highlight__title {
-  margin: 0 0 0.25rem;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-accent-dark);
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
+  font-weight: 500;
+  color: var(--ink-500);
 }
 
-.highlight p {
+.highlight__quote {
   margin: 0;
-  font-size: 0.92rem;
+  font-family: var(--font-voice);
+  font-size: var(--type-quote-size);
+  line-height: var(--type-quote-line);
+  font-weight: 400;
+  color: var(--ink-900);
+}
+
+/* `03 §2.3`: caja de frase siempre. Los títulos de sección de la ficha dejan de ir en
+   MAYÚSCULAS con `letter-spacing` (`05 §5` pt. 10 lo pide explícitamente). */
+.place-detail__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .place-detail__section h3 {
-  margin: 0 0 0.5rem;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .place-detail__section p {
   margin: 0;
-  font-size: 0.92rem;
+  font-family: var(--font-record);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--ink-700);
+  /* `03 §2.3`: longitud de línea ≤72 caracteres en texto corrido, en cualquier viewport. */
+  max-width: 62ch;
 }
 
+/* pt. 10 — rejilla de 2 columnas. */
 .quick-facts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .quick-fact {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
-  background: var(--color-surface-alt);
+  gap: var(--space-2);
+  background: var(--surface-sunken);
   border-radius: var(--radius-sm);
-  padding: 0.6rem 0.7rem;
+  padding: var(--space-3);
 }
 
 .quick-fact__icon {
-  font-size: 1rem;
-  line-height: 1.3;
+  color: var(--ink-500);
+  line-height: 1;
 }
 
 .quick-fact__body {
@@ -1842,88 +1498,98 @@ button.app__title.app__title--expand {
 }
 
 .quick-fact__label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-500);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .quick-fact__value {
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
 }
 
 .alert {
   border-radius: var(--radius-sm);
-  padding: 0.8rem 0.9rem;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid;
-  font-size: 0.88rem;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
 }
 
 .alert p {
-  margin: 0.3rem 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 .alert__title {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   margin: 0;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .alert__severity {
   margin-left: auto;
-  font-size: 0.68rem;
-  border-radius: 999px;
-  padding: 0.1rem 0.5rem;
-  background: rgba(255, 255, 255, 0.7);
-  text-transform: none;
-  letter-spacing: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-2);
+  /* Papel opaco sobre el fondo teñido del aviso. No es un control flotante sobre fotografía,
+     así que no usa --overlay-paper: ese token significa otra cosa (`04 §5.4`/`§6`). */
+  background: var(--surface);
+  font-weight: 500;
 }
 
 .alert__status {
-  font-weight: 700;
-}
-
-.alert__action {
-  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .alert--pending {
-  background: var(--color-warn-soft);
-  border-color: #eccf9c;
-  color: #6c4310;
+  background: var(--warn-050);
+  border-color: var(--warn-600);
+  color: var(--warn-600);
 }
 
 .alert--risk {
-  background: var(--color-risk-soft);
-  border-color: #eeb4ae;
-  color: #7d211a;
+  background: var(--risk-050);
+  border-color: var(--risk-600);
+  color: var(--risk-600);
 }
 
 .alert--confirmed {
-  background: var(--color-ok-soft);
-  border-color: #b3ddc5;
-  color: #145c39;
+  background: var(--ok-050);
+  border-color: var(--ok-600);
+  color: var(--ok-600);
 }
 
 .detail-rows {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--space-2);
 }
 
 .detail-row {
-  display: grid;
-  grid-template-columns: 8.5rem 1fr;
-  gap: 0.75rem;
-  font-size: 0.88rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
 }
 
 .detail-row:last-child {
@@ -1931,128 +1597,192 @@ button.app__title.app__title--expand {
   padding-bottom: 0;
 }
 
+/* Caja de frase, no MAYÚSCULAS (`05 §5` pt. 10). */
 .detail-row dt {
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .detail-row dd {
   margin: 0;
+  color: var(--ink-900);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* DD-011: la degradación del aviso de feb–mar 2027 cuando no hay problema real. Una línea
+   más dentro de «Horario», con marcador `◧` — nunca un recuadro de alerta. */
+.detail-row__note {
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }
 
 .link-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .link-row .button {
   flex: 1;
   min-width: 9rem;
-  font-size: 0.85rem;
 }
 
-.nearby-list {
+/* pt. 12 — «Cerca de aquí»: carrusel horizontal de `PlaceCard compact` con miniatura. Deja de
+   ser una lista de texto. Cada traslado lleva su `EvidenceMark`, y NO hay nota al pie: la
+   semántica que la nota explicaba vive en el `detail` de cada marcador (DDR-06). */
+.nearby-carousel {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 var(--space-2);
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
 }
 
-.nearby-item {
-  width: 100%;
+.nearby-carousel__item {
+  flex: 0 0 264px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-1) var(--space-2);
+  background: var(--surface);
+}
+
+.nearby-carousel__transfer {
+  margin: 0;
+  padding: 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-500);
+}
+
+.nearby-carousel__figures {
+  color: var(--ink-700);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * pt. 14 — «Fuentes», plegada por defecto. DDR-04: sólo grado original, fecha de actualización
+ * del registro y enlaces reales. Es el ÚNICO sitio del producto donde la letra de grado puede
+ * aparecer (`08` prohibición 11).
+ */
+.place-sources {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-4);
+}
+
+.place-sources__summary {
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+  color: var(--ink-700);
+  cursor: pointer;
+  min-height: var(--tap-min);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  text-align: left;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 0.7rem;
-  cursor: pointer;
-  font: inherit;
-  min-height: var(--tap-target);
 }
 
-.nearby-item:hover {
-  background: var(--color-surface-alt);
-  border-color: var(--color-border-strong);
-}
-
-.nearby-item__text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.nearby-item__name {
-  font-weight: 600;
-  font-size: 0.88rem;
-}
-
-.nearby-item__relation {
-  font-size: 0.74rem;
-  color: var(--color-text-muted);
-}
-
-.nearby-item__distance {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.nearby-item__mode {
-  font-size: 0.72rem;
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
-
-.nearby-item__quality {
-  font-size: 0.74rem;
-  color: var(--color-text-muted);
-}
-
-.nearby-item__quality--validated {
-  color: var(--color-ok);
-  font-weight: 600;
-}
-
-.nearby-item__quality--live {
-  color: var(--color-info);
-  font-weight: 600;
-}
-
-.place-detail__footnote,
-.place-detail__updated {
+.place-sources__list {
   margin: 0;
-  font-size: 0.74rem;
-  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
-.place-detail__footnote {
-  margin-top: 0.5rem;
+.place-sources__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }
 
-/* ---------- Gallery ---------- */
+.place-sources__row dt {
+  color: var(--ink-500);
+}
+
+.place-sources__row dd {
+  margin: 0;
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.place-sources__gloss {
+  display: block;
+  color: var(--ink-500);
+}
+
+/* ---------- Gallery (Bloque 20 — B4, `04 §6` / `05 §5` pt. 1) ---------- */
 
 .gallery {
-  background: var(--color-surface-alt);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--surface-sunken);
 }
 
-.gallery__frame {
+/* La caja que recorta la pista y ancla los tres indicadores del contrato: píldora del
+   contador (abajo-derecha), puntos (centrados abajo) y `ⓘ` de créditos (abajo-izquierda). */
+.gallery__viewport {
   position: relative;
-  aspect-ratio: 16 / 10;
-  background: #ded8cf;
-  overflow: hidden;
+}
+
+/*
+ * `04 §6`: «deslizamiento horizontal nativo con `scroll-snap`, no un carrusel con índice en
+ * estado». La pista es el elemento que scrollea; el componente sólo LEE su posición.
+ * `04 §6` también fija la proporción: 4:5 en teléfono —vertical, la fotografía es el
+ * contenido— y 4:3 en `md`+ dentro del panel.
+ */
+/*
+ * DD-019 (D-M3): por debajo de `md` el héroe sigue siendo 4:5, pero con tope de 60svh — a 820 px
+ * de ancho un 4:5 sin tope medía 1025 px y empujaba el nombre fuera de la primera pantalla. Con el
+ * tope, la foto se recorta (`object-fit: cover` en `.gallery__image`), nunca se deforma. `60vh`
+ * primero, como respaldo de los navegadores sin unidades `svh`. Desde `md` manda `04 §6` (4:3).
+ */
+.gallery__track {
+  display: flex;
+  /* `width` explícito: con `width: auto`, el tope de alto se transferiría por la proporción a un
+     tope de ANCHO y la foto dejaría de ir a sangre (medido: 566 px en una ficha de 820). */
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 60vh;
+  max-height: 60svh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gallery__track::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  /* `04 §6`: «Carga: LQIP de fondo → imagen. **Sin skeleton gris**». Mientras la imagen no
+     ha llegado se ve el papel hundido, no una animación que finge actividad. */
+  background: var(--surface-sunken);
 }
 
 .gallery__zoom {
@@ -2070,28 +1800,16 @@ button.app__title.app__title--expand {
   height: 100%;
   object-fit: cover;
   display: block;
-  opacity: 1;
 }
 
-.gallery__image[data-state="loading"] {
-  opacity: 0;
-}
-
-.gallery__skeleton {
+/* `03 §5`: la legibilidad sobre fotografía la da el scrim y sólo el scrim. Los tres
+   indicadores viven sobre esta banda; ninguno lleva `text-shadow`. */
+.gallery__viewport::after {
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, #e4ded5 30%, #efeae3 50%, #e4ded5 70%);
-  background-size: 200% 100%;
-  animation: gallery-shimmer 1.4s ease-in-out infinite;
-}
-
-@keyframes gallery-shimmer {
-  from {
-    background-position: 150% 0;
-  }
-  to {
-    background-position: -50% 0;
-  }
+  background: var(--scrim-bottom);
+  pointer-events: none;
 }
 
 .gallery__error {
@@ -2100,65 +1818,129 @@ button.app__title.app__title--expand {
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 1.5rem;
+  padding: var(--space-6);
   text-align: center;
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
+  color: var(--ink-500);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
 }
 
+.gallery__retry {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  margin-top: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-900);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.gallery__retry:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* `04 §6`: «Flechas sólo en `md`+». En teléfono el gesto es el dedo sobre la pista. */
 .gallery__nav {
+  display: none;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: var(--tap-target);
-  height: var(--tap-target);
-  display: inline-flex;
+  width: var(--tap-min);
+  height: var(--tap-min);
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--overlay-paper);
+  color: var(--ink-900);
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--elev-1);
+  z-index: 2;
+}
+
+@media (min-width: 840px) {
+  .gallery__track {
+    aspect-ratio: 4 / 3;
+    max-height: none;
+  }
+
+  .gallery__nav {
+    display: inline-flex;
+  }
 }
 
 .gallery__nav--prev {
-  left: 0.5rem;
+  left: var(--space-2);
 }
 
 .gallery__nav--next {
-  right: 0.5rem;
+  right: var(--space-2);
 }
 
-/* Photo counter — the same affordance a phone gallery uses, and the signal that more than one
-   photograph exists at all. */
+/*
+ * `04 §6`: «Indicador: píldora `1/3` abajo-derecha, `--type-num`, fondo --overlay-ink».
+ * `--type-num` no es un valor propio sino un tratamiento (`03 §2.2`: «hereda, `tabular-nums`,
+ * record 500»), así que se escribe con los tokens que ya existen en vez de inventar uno nuevo.
+ *
+ * El desplazamiento inferior deja libre el solape de 20px con que el cuerpo monta sobre la
+ * fotografía (`05 §5` pt. 2): los tres indicadores quedan por encima de ese borde, no debajo.
+ */
 .gallery__counter {
   position: absolute;
-  right: 0.5rem;
-  bottom: 0.5rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(20, 16, 12, 0.66);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  right: var(--space-3);
+  bottom: calc(var(--space-5) + var(--space-2));
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--overlay-ink);
+  color: var(--surface);
+  font-family: var(--font-record);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  z-index: 2;
 }
 
+/* `04 §7` / `05 §5` pt. 1: el botón que saca los créditos del flujo de lectura (defecto D2). */
+.gallery__credits {
+  position: absolute;
+  left: var(--space-3);
+  bottom: calc(var(--space-5) + var(--space-2));
+  width: var(--info-button-size);
+  height: var(--info-button-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--overlay-ink);
+  color: var(--surface);
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* `04 §6`: «Puntos sólo cuando hay ≤5 imágenes, centrados abajo». */
 .gallery__dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--space-5);
   display: flex;
   justify-content: center;
-  gap: 0.15rem;
-  padding: 0.2rem;
+  gap: var(--space-1);
+  z-index: 2;
 }
 
-/* Segunda corrección de cumplimiento: `.tap-target-min` (un pseudo-elemento invisible
-   absolutamente posicionado) habría dejado zonas de 44px vecinas solapándose, porque
-   `.gallery__dots` separa los puntos con sólo 2.4px de hueco real — muy por debajo de lo
-   que hacía falta para no invadir al vecino. En vez de eso, la propia caja del botón mide
-   `--tap-min` de verdad (participa en el layout, así que dos vecinos nunca se solapan);
-   el punto visible sigue siendo el `::before` de 8.8px, centrado dentro por flexbox, sin
-   necesidad de posicionamiento absoluto. */
+/* Segunda corrección de cumplimiento (B17): la propia caja del botón mide `--tap-min` de
+   verdad y participa en el layout, así que dos vecinos nunca se solapan; el punto visible
+   sigue siendo el `::before`, centrado dentro por flexbox. */
 .gallery__dot {
   width: var(--tap-min);
   height: var(--tap-min);
@@ -2171,26 +1953,84 @@ button.app__title.app__title--expand {
   justify-content: center;
 }
 
+/*
+ * El estado del punto se lee por FORMA, no por matiz (`03 §1.4`): contorno cuando no es el
+ * actual, relleno cuando lo es. Es lo que los puntos hacían antes de B20 —contorno + relleno de
+ * acento— y lo que evita estrenar un valor de color que ningún documento fija. Sobre el scrim
+ * de la galería, blanco es el único trazo que `03 §5` autoriza aquí.
+ */
 .gallery__dot::before {
   content: "";
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--surface);
+  background: transparent;
 }
 
 .gallery__dot--active::before {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--surface);
 }
 
-.gallery__credit {
+/* ---------- CreditsSheet (Bloque 20 — B4, `04 §7`) ---------- */
+
+.credits-sheet__list {
+  list-style: none;
   margin: 0;
-  padding: 0 0.75rem 0.5rem;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  text-align: right;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.credits-sheet__item + .credits-sheet__item {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-5);
+}
+
+.credits-sheet__image-label {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-record);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-500);
+}
+
+.credits-sheet__fields {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.credits-sheet__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.credits-sheet__field dt {
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--ink-500);
+}
+
+.credits-sheet__field dd {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.credits-sheet__foot {
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
 }
 
 .gallery--fallback {
@@ -3366,6 +3206,89 @@ button.app__title.app__title--expand {
   }
 }
 
+/* ---------- PersistenceNotice (04 §17, DDR-03) ---------- */
+/*
+ * Anclado SOBRE la barra de pestañas, no sobre el borde inferior: es el mismo idioma que `04 §16`
+ * fija para `Toast`, y por la misma razón — el borde inferior es de la navegación.
+ *
+ * `z-index: 210` es la única cifra pensada de esta regla. Tiene que quedar por encima de la ficha
+ * y del onboarding (200) para seguir visible con la ficha abierta a pantalla completa (`05 §5`),
+ * y por debajo de `Sheet` (300), que es una tarea modal con su propio fondo: el aviso reaparece
+ * en cuanto la hoja se cierra. Entre 200 y 300 no hay nada más, así que no se pisa con nadie.
+ *
+ * `pointer-events` NO se apaga (a diferencia de `.save-toast-region`): este aviso lleva una
+ * acción, «Reintentar», y tiene que poder pulsarse.
+ */
+.persistence-notice {
+  position: fixed;
+  z-index: 210;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: calc(var(--chrome-tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-3));
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--risk-600);
+  border-radius: var(--radius-lg);
+  background: var(--risk-050);
+  color: var(--risk-600);
+  box-shadow: var(--elev-2);
+}
+
+.persistence-notice__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.persistence-notice__text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+/* `04 §17.6`: la acción cumple los 44px de `03 §7` por caja real, no por expansión invisible —
+   está junto al texto, no junto a otro control, y conviene que su superficie pulsable coincida
+   con lo que se pinta. */
+.persistence-notice__retry {
+  flex-shrink: 0;
+  min-height: var(--tap-min);
+  border-color: var(--risk-600);
+  color: var(--risk-600);
+}
+
+.persistence-notice__retry:hover {
+  background: var(--surface);
+}
+
+/*
+ * Desde `md` la barra de pestañas desaparece (la sustituye `NavRail`, `02 §D5`), así que el aviso
+ * ya no tiene que esquivarla por abajo — pero sí por la izquierda: `NavRail` es navegación y
+ * `04 §17.4` prohíbe taparla.
+ */
+@media (min-width: 840px) {
+  .persistence-notice {
+    left: calc(var(--chrome-navrail-width) + var(--space-4));
+    right: var(--space-4);
+    bottom: var(--space-4);
+  }
+}
+
+/*
+ * En `lg`+ el contenido crece mucho a lo ancho y una banda de 1.400px de aviso se lee peor que
+ * una acotada. Se limita con `min()`, no con un `max-width` en un `@media (max-width: …)` que
+ * Art. 8 prohíbe, y se deja pegada al lado de la lista, que es donde ocurre la escritura.
+ */
+@media (min-width: 1200px) {
+  .persistence-notice {
+    right: auto;
+    width: min(36rem, calc(100vw - var(--chrome-navrail-width) - var(--space-8)));
+  }
+}
+
 /* ---------- Onboarding ---------- */
 
 .onboarding {
@@ -3424,13 +3347,14 @@ button.app__title.app__title--expand {
   margin-bottom: 0.5rem;
 }
 
+/* B24 (P1-05, `03 §2.3`): caja de frase, bajo el título, sin `letter-spacing`. */
 .onboarding__step-count {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
 }
 
 .onboarding__title {
@@ -3599,6 +3523,25 @@ button.app__title.app__title--expand {
   flex: 1;
   display: flex;
   min-height: 0;
+}
+
+/*
+ * Bloque 24 (P0-1): la portada de Explorar (`05 §2`) no tenía ningún ancestro con scroll —
+ * `.app__body` oculta su desbordamiento para que las superficies de Leaflet tengan caja real
+ * (ver arriba) — y medía ~3000 px dentro de ~730 px: Okinawa, «Más destinos», las colecciones y
+ * «Ver Japón en el mapa» eran inalcanzables con rueda o con el dedo. Mientras se ve la portada
+ * (y sólo entonces: con el mapa nacional abierto la clase no está), este mismo cuerpo es el
+ * contenedor de scroll. No toca la regla de montaje de Leaflet, que sólo vive en la vista de
+ * ciudad. El buscador sigue pegado arriba (`05 §2` pt. 2) porque su `sticky` resuelve contra
+ * este contenedor.
+ */
+.app__body--home {
+  /* `flex-start`, no `stretch`: la portada mide lo que su contenido, y así el `sticky` del
+     buscador tiene todo ese alto para seguir pegado (estirada, su caja acababa en el pliegue y el
+     buscador se iba con ella). */
+  align-items: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .national {

@@ -48,6 +48,16 @@ ACQUISITION_BATCH_MANIFESTS = (
     "block3-deferred-batch.json",          # Block 3 A1, Block 2's two deferred depth records
 )
 
+# Block 22 (B6.1–B6.7) acquired through per-phase acquisition *plans* rather than batch
+# manifests, and B6.5 made the registry place-grouped (gallery order identity → experience →
+# complementary, `docs/BLOCK_22_B6_5_REPORT.md`): a new record is inserted next to its place's
+# earlier records instead of appended at the end. Every one of these phases ran after every
+# historical baseline below, so their records are removed from all of them, identified by the
+# `originalTitle` each plan entry declares. The append-only invariant still holds for the
+# registry *without* them, which is what the positional derivation now reads.
+B22_PLAN_GLOB = "block22-b6-*-acquisition-plan.json"
+B22_ACQUISITION_PLANS = tuple(f"block22-b6-{n}-acquisition-plan.json" for n in range(1, 8))
+
 # Historical catalog sizes, and the batches selected strictly after each one.
 HISTORICAL_BASELINES = {
     "phase4e": {"size": 36, "post": ACQUISITION_BATCH_MANIFESTS},
@@ -74,6 +84,14 @@ def assert_batch_registry_is_complete():
     # A registered manifest need not match the discovery glob: Phase 4L executes the
     # fixture Phase 4K pinned, which is deliberately named outside it. Presence on disk
     # is what matters; the glob only finds manifests nobody has registered yet.
+    discovered_plans = {path.name for path in VISUAL_DIR.glob(B22_PLAN_GLOB)}
+    unregistered_plans = sorted(discovered_plans - set(B22_ACQUISITION_PLANS))
+    if unregistered_plans:
+        raise AssertionError(
+            f"unregistered Block 22 acquisition plan(s) {unregistered_plans}: add them to "
+            "B22_ACQUISITION_PLANS"
+        )
+    registered = registered | set(B22_ACQUISITION_PLANS)
     missing = sorted(
         name for name in registered if not (VISUAL_DIR / name).is_file()
     )
@@ -123,6 +141,20 @@ def batch_appended_asset_paths(manifest_names):
     return asset_paths, legacy_place_ids
 
 
+def b22_acquired_titles():
+    """`originalTitle` of every record a Block 22 acquisition plan added to the registry."""
+    titles = set()
+    for name in B22_ACQUISITION_PLANS:
+        doc = _load_manifest(name)
+        entries = list(doc.get("entries", []))
+        for batch in doc.get("batches", []):
+            entries.extend(batch.get("entries", []))
+        for entry in entries:
+            title = entry["title"]
+            titles.add(title if title.startswith("File:") else f"File:{title}")
+    return titles
+
+
 def load_current_inputs():
     places_doc = json.loads(PLACES_PATH.read_text(encoding="utf-8"))
     places = places_doc if isinstance(places_doc, list) else places_doc["places"]
@@ -140,13 +172,21 @@ def load_historical_baseline(name):
     assert_batch_registry_is_complete()
     places, current = load_current_inputs()
     post_asset_paths, post_place_ids = batch_appended_asset_paths(spec["post"])
+    b22_titles = b22_acquired_titles()
+    b22_found = {record["originalTitle"] for record in current} & b22_titles
+    if b22_found != b22_titles:
+        raise AssertionError(
+            f"Block 22 plan entries missing from the registry: {sorted(b22_titles - b22_found)}"
+        )
+    # Place-grouped since B6.5; append-only once Block 22's inserted records are set aside.
+    append_only = [record for record in current if record["originalTitle"] not in b22_titles]
 
     baseline = [
         record
-        for record in current
+        for record in append_only
         if record["assetPath"] not in post_asset_paths and record["placeId"] not in post_place_ids
     ]
-    prefix = current[:size]
+    prefix = append_only[:size]
 
     if len(baseline) != size:
         raise AssertionError(

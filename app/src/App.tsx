@@ -1,10 +1,11 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
+import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getNationalSummary, getPrefectureByCode } from "./data/geography";
 import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
+import { ExplorerHome } from "./components/ExplorerHome";
 import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
@@ -14,6 +15,7 @@ import { SelectionPanel } from "./components/SelectionPanel";
 import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
 import { SaveToast } from "./components/SaveToast";
+import { PersistenceNotice } from "./components/PersistenceNotice";
 import { Sheet } from "./components/Sheet";
 import { PersonToken } from "./components/PersonToken";
 import { TabBar, NavRail } from "./components/AppNav";
@@ -39,12 +41,16 @@ import { TripBackup } from "./components/TripBackup";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
-import { interestMarker } from "./lib/traveller-presentation";
+import { interestMarker, otherPersonMarker } from "./lib/traveller-presentation";
+import { getZonesForHub } from "./lib/accommodation-zone";
+import { categoryPresentation } from "./lib/category-presentation";
+import { SearchSheet } from "./components/SearchSheet";
 import { matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
 import "./App.css";
+import "./styles/discovery.css";
 
 /**
  * Block 12 — the planner and the zone comparison load on demand.
@@ -81,10 +87,10 @@ const NATIONAL_SUMMARY = getNationalSummary();
  * is the whole country, not a city.
  */
 type ViewState =
-  | { mode: "national"; region: NavigationRegion | null; prefectureCode: string | null }
+  | { mode: "national"; mapOpen?: boolean; region: NavigationRegion | null; prefectureCode: string | null }
   | { mode: "hub"; hub: string };
 
-const INITIAL_VIEW: ViewState = { mode: "national", region: null, prefectureCode: null };
+const INITIAL_VIEW: ViewState = { mode: "national", mapOpen: false, region: null, prefectureCode: null };
 
 /**
  * Which of the two hub surfaces a phone is showing. On desktop both are on screen at once and
@@ -116,10 +122,18 @@ const EMPTY_PLACES: Place[] = [];
  * `04 §8`). Antes compartía el token `--panel-width` con `Sheet`, que era el error normativo
  * que esta corrección arregla (ver `docs/BLOCK_18_HANDOFF.md`). */
 const DETAIL_PANEL_WIDTH = 480;
-/** Bloque 18: alineado con el token `md` de `02 §D5` (840px), no con el 861px heredado —
- * es exactamente donde `NavRail` sustituye a `TabBar` en CSS, así que el lado JS del layout
- * (offset del panel de ficha, apertura por defecto de los grupos de filtros) no puede discrepar. */
-const DESKTOP_QUERY = "(min-width: 840px)";
+/**
+ * `lg` (1200px, `02 §D5`): «Explorar añade panel de mapa persistente a la derecha». Mismo valor
+ * que el `@media (min-width: 1200px)` de `App.css`, por la misma razón por la que B18 alineó su
+ * propia consulta con el `md` del CSS: el lado JS del layout y el CSS no pueden discrepar sobre
+ * dónde está el breakpoint.
+ *
+ * Corrección de B19 (DD-016): el offset del panel de ficha colgaba de `md` (840px) porque la
+ * ficha se apoyaba sobre el mapa desde ahí. Ya no: desde `md` la ficha y el mapa son superficies
+ * hermanas dentro del cuerpo y no se solapan nunca; el mapa sólo pasa a vivir permanentemente en
+ * el raíl desde `lg`, que es el único ancho donde la ficha llega a cubrirlo.
+ */
+const MAP_RAIL_QUERY = "(min-width: 1200px)";
 
 function matchesFilters(place: Place, filters: Filters): boolean {
   if (filters.categories.length > 0 && !filters.categories.includes(place.category)) return false;
@@ -147,15 +161,15 @@ function countActiveFilters(filters: Filters): number {
   );
 }
 
-function useIsDesktop(): boolean {
-  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(DESKTOP_QUERY).matches);
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
-    const media = window.matchMedia(DESKTOP_QUERY);
-    const update = () => setIsDesktop(media.matches);
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, []);
-  return isDesktop;
+  }, [query]);
+  return matches;
 }
 
 /**
@@ -223,7 +237,40 @@ export default function App() {
    */
   const [ficheOriginLabel, setFicheOriginLabel] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  /** Bloque 19 (B3, `04 §12`): «Buscar en {ciudad}» abre esta hoja en vez de filtrar en el
+   * sitio — el propio campo de texto, y `filters.query` que sigue alimentando, viven dentro. */
+  const [searchOpen, setSearchOpen] = useState(false);
   const [citySheetOpen, setCitySheetOpen] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [globalQuery, setGlobalQuery] = useState("");
+  const [globalSearchRestoreScrollTop, setGlobalSearchRestoreScrollTop] = useState(0);
+  /** La búsqueda global conserva su propio scroll aunque la Sheet se desmonte durante una ficha. */
+  const globalSearchScrollTopRef = useRef(0);
+  /** Contexto explícito de la pila de fichas; no se infiere del hub activo. */
+  /** `"home-collection"` (DDR-B24-3, resuelta): abrir un lugar desde una colección de la
+   * portada se comporta como la búsqueda global (DDR-B21-05) — no cambia implícitamente el hub/
+   * `view` de Explorar y no requiere ninguna restauración al cerrar, porque `view` nunca se tocó
+   * y la portada sigue montada debajo de la ficha. */
+  const exploreDetailReturnRef = useRef<"global-search" | "home-collection" | null>(null);
+
+  const closeGlobalSearch = useCallback(() => {
+    setGlobalSearchOpen(false);
+    exploreDetailReturnRef.current = null;
+    globalSearchScrollTopRef.current = 0;
+    setGlobalSearchRestoreScrollTop(0);
+  }, []);
+
+  const restoreGlobalSearchAfterDetail = useCallback(() => {
+    if (exploreDetailReturnRef.current !== "global-search") return;
+    exploreDetailReturnRef.current = null;
+    setGlobalSearchRestoreScrollTop(globalSearchScrollTopRef.current);
+    setGlobalSearchOpen(true);
+  }, []);
+
+  const globalSearchPlaces = useMemo(() => {
+    if (!globalQuery.trim()) return [];
+    return getAllPlaces().filter((p) => matchesQuery(p, globalQuery));
+  }, [globalQuery]);
   /** Phones show one hub surface at a time; the cards come first. */
   const [mobilePane, setMobilePane] = useState<MobilePane>("list");
   /**
@@ -315,13 +362,22 @@ export default function App() {
     divergenceFor,
   } = useTravellers();
   const { feedback, announce } = useSaveFeedback();
-  const isDesktop = useIsDesktop();
+  const hasMapRail = useMediaQuery(MAP_RAIL_QUERY);
 
   /** Block 5: the card marker, resolved per place and deliberately null most of the time — see
    * `lib/traveller-presentation.ts` for why silence is the default. */
   const markerFor = useCallback(
     (placeId: string) =>
       interestMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
+    [interestSummary, travellers, activeTraveller]
+  );
+
+  /** Bloque 19 (B3, `04 §5.5`): el `PersonToken` junto al corazón de `PlaceCard` — distinto de
+   * `markerFor`, que sigue alimentando el chip de texto de Quiero ir. Mismo patrón: función, no
+   * un mapa precomputado. */
+  const otherPersonMarkerFor = useCallback(
+    (placeId: string) =>
+      otherPersonMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
     [interestSummary, travellers, activeTraveller]
   );
 
@@ -342,6 +398,23 @@ export default function App() {
     () => [...new Set(hubPlaces.map((p) => p.category))].sort((a, b) => a.localeCompare(b, "es")),
     [hubPlaces]
   );
+  /**
+   * Bloque 19 (B3, `03 §8`, OD-02): el filtro «Categoría» agrupa las hasta 29 cadenas fuente por
+   * su etiqueta de presentación ya colapsada (26 valores) — el dato que se guarda en
+   * `filters.categories` sigue siendo la(s) cadena(s) cruda(s) del dataset (cero cambio de
+   * lógica/valores/conteo de lugares); lo único que cambia es que un chip colapsado representa
+   * uno o dos valores fuente a la vez, y los activa/desactiva juntos.
+   */
+  const categoryGroups = useMemo(() => {
+    const byLabel = new Map<string, string[]>();
+    for (const raw of categories) {
+      const { label } = categoryPresentation(raw);
+      const values = byLabel.get(label);
+      if (values) values.push(raw);
+      else byLabel.set(label, [raw]);
+    }
+    return [...byLabel.entries()].map(([label, values]) => ({ label, values }));
+  }, [categories]);
   /** Editorial order, not alphabetical — and every grade the catalogue actually uses. Omitting
    * one would silently hide its places whenever the user ticks all the grades on offer, with no
    * way to filter to them: `matchesFilters` treats a non-empty `grades` list as exhaustive. */
@@ -407,7 +480,8 @@ export default function App() {
    */
   const [headerScrolled, setHeaderScrolled] = useState(false);
   useEffect(() => {
-    const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .destination-panel--scroll";
+    // B24 (P0-1): la portada de Explorar tiene ahora su propio contenedor de scroll.
+    const OWNER_SELECTOR = ".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll";
     function sync() {
       const owner = document.querySelector<HTMLElement>(
         `.destination-panel:not([hidden]) ${OWNER_SELECTOR}`
@@ -439,8 +513,9 @@ export default function App() {
       const wasWanted = isWantedByActive(id);
       toggleSaved(id);
       if (!place) return;
+      // DD-020 (D-M4): la acción conserva su nombre (`03 §10`) — el estado es «Quiero ir».
       announce(
-        wasWanted ? `Quitado de Quiero ir: ${place.name}` : `Guardado en Quiero ir: ${place.name}`,
+        wasWanted ? `${place.name} ya no está en Quiero ir` : `${place.name} está en Quiero ir`,
         wasWanted ? "removed" : "saved"
       );
     },
@@ -451,7 +526,7 @@ export default function App() {
     (id: string) => {
       const place = getPlaceById(id);
       removeSaved(id);
-      if (place) announce(`Quitado de Quiero ir: ${place.name}`, "removed");
+      if (place) announce(`${place.name} ya no está en Quiero ir`, "removed");
     },
     [announce, removeSaved]
   );
@@ -507,7 +582,7 @@ export default function App() {
   /** Misma restauración de hub que `goBack` ya hacía, factorizada para que el handler de
    * `popstate` (un back real de navegador/gesto, no un clic en la app) pueda reproducirla. */
   const restoreViewForTrail = useCallback((trail: string[]) => {
-    if (ficheOriginRef.current !== "explorar") return;
+    if (ficheOriginRef.current !== "explorar" || exploreDetailReturnRef.current) return;
     const nextId = trail[trail.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
     if (nextPlace && nextPlace.hub !== activeHubRef.current) {
@@ -539,6 +614,7 @@ export default function App() {
         setHistory([]);
         setFicheOrigin(null);
         setFicheOriginLabel(null);
+        restoreGlobalSearchAfterDetail();
         return;
       }
       const next = historyRef.current.slice(0, targetDepth);
@@ -547,7 +623,7 @@ export default function App() {
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [restoreViewForTrail]);
+  }, [restoreGlobalSearchAfterDetail, restoreViewForTrail]);
 
   /**
    * Single source of truth for "go look at this place": starts a fresh trail and closes the
@@ -576,11 +652,17 @@ export default function App() {
    * solo no basta para el back label); Explorar/Quiero ir siguen sin necesitarlo.
    */
   const selectPlace = useCallback(
-    (id: string, origin: Destination = "explorar", originLabel: string | null = null) => {
+    (
+      id: string,
+      origin: Destination = "explorar",
+      originLabel: string | null = null,
+      exploreReturnSurface: "global-search" | "home-collection" | null = null
+    ) => {
       const place = getPlaceById(id);
       if (!place) return;
+      exploreDetailReturnRef.current = exploreReturnSurface;
       if (origin === "explorar") {
-        if (place.hub !== activeHub) {
+        if (!exploreReturnSurface && place.hub !== activeHub) {
           setView({ mode: "hub", hub: place.hub });
           setFilters(EMPTY_FILTERS);
         }
@@ -616,7 +698,7 @@ export default function App() {
       const place = getPlaceById(id);
       if (!place) return;
       if (historyRef.current[historyRef.current.length - 1] === id) return;
-      if (ficheOrigin === "explorar" && place.hub !== activeHub) {
+      if (ficheOrigin === "explorar" && !exploreDetailReturnRef.current && place.hub !== activeHub) {
         setView({ mode: "hub", hub: place.hub });
       }
       const next = [...historyRef.current, id];
@@ -634,16 +716,17 @@ export default function App() {
     const next = historyRef.current.slice(0, -1);
     const nextId = next[next.length - 1];
     const nextPlace = nextId ? getPlaceById(nextId) : undefined;
-    if (ficheOrigin === "explorar" && nextPlace && nextPlace.hub !== activeHub) {
+    if (ficheOrigin === "explorar" && !exploreDetailReturnRef.current && nextPlace && nextPlace.hub !== activeHub) {
       setView({ mode: "hub", hub: nextPlace.hub });
     }
     setHistory(next);
+    if (next.length === 0) restoreGlobalSearchAfterDetail();
     if (navDepthRef.current > 0) {
       ignorePopRef.current += 1;
       window.history.back();
       navDepthRef.current -= 1;
     }
-  }, [activeHub, ficheOrigin]);
+  }, [activeHub, ficheOrigin, restoreGlobalSearchAfterDetail]);
 
   /** The analysis is a lens over the saved places, not a second navigation: opening a place
    * from it goes through the same selectPlace every other surface uses, tagged as belonging to
@@ -660,16 +743,18 @@ export default function App() {
    * past the last level. Pops however many entries this stack pushed in one go (`history.go`
    * fires a single `popstate` at its destination, not one per entry, corrección final punto 4),
    * so the browser's own stack never grows out of sync with `history.length`. */
-  const closeDetail = useCallback(() => {
+  const closeDetail = useCallback((returnToGlobalSearch = true) => {
     setHistory([]);
     setFicheOrigin(null);
     setFicheOriginLabel(null);
+    if (returnToGlobalSearch) restoreGlobalSearchAfterDetail();
+    else exploreDetailReturnRef.current = null;
     if (navDepthRef.current > 0) {
       ignorePopRef.current += 1;
       window.history.go(-navDepthRef.current);
       navDepthRef.current = 0;
     }
-  }, []);
+  }, [restoreGlobalSearchAfterDetail]);
 
   /**
    * «Ver en el mapa» (punto 3, corregido en la segunda ronda): la única acción, desde una ficha
@@ -720,6 +805,21 @@ export default function App() {
     }
     setMobilePane("map");
   }, [selectedPlace, activeHub]);
+  /**
+   * Bloque 20 (B4, `04 §7`) — el pie de `CreditsSheet`: «Fuentes y licencias» en Nosotros, que
+   * es donde vive el texto íntegro (licencia MLIT, licencias fotográficas, enlaces).
+   *
+   * Es una acción explícita y etiquetada de cambio de destino, así que sigue la misma
+   * disciplina que «Ver en el mapa» y cumple la invariante 4 de DD-015: **cierra la ficha de
+   * origen** antes de cambiar de pestaña, para no dejar una ficha fantasma montada en la
+   * pestaña que se abandona. No abre nada nuevo ni inventa una pantalla: Nosotros ya existe y
+   * su sección «Fuentes y licencias» también.
+   */
+  const openSources = useCallback(() => {
+    closeDetail(false);
+    setDestination("nosotros");
+  }, [closeDetail]);
+
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   /**
@@ -801,7 +901,7 @@ export default function App() {
 
   const selectRegion = useCallback((region: NavigationRegion | null) => {
     setView((current) =>
-      current.mode === "national" ? { mode: "national", region, prefectureCode: null } : current
+      current.mode === "national" ? { mode: "national", mapOpen: true, region, prefectureCode: null } : current
     );
   }, []);
 
@@ -814,10 +914,10 @@ export default function App() {
   const selectPrefecture = useCallback((code: string | null) => {
     setView((current) => {
       if (current.mode !== "national") return current;
-      if (!code) return { ...current, prefectureCode: null };
+      if (!code) return { ...current, mapOpen: true, prefectureCode: null };
       const prefecture = getPrefectureByCode(code);
       if (!prefecture) return current;
-      return { mode: "national", region: prefecture.region, prefectureCode: code };
+      return { mode: "national", mapOpen: true, region: prefecture.region, prefectureCode: code };
     });
   }, []);
 
@@ -841,18 +941,31 @@ export default function App() {
         ? activeHub
         : HUBS_WITH_ZONES[0] ?? null;
 
+  /** Bloque 19 (B3, `05 §4`): la entrada «Dónde dormir» de la lista de ciudad vive sólo en las
+   * ciudades con zonas modeladas — misma lista (`HUBS_WITH_ZONES`) que ya gobierna el acceso
+   * desde el selector de ciudad (B18), no una segunda fuente de verdad. */
+  const activeHubHasZones = Boolean(activeHub && HUBS_WITH_ZONES.includes(activeHub));
+  const activeHubZoneCount = useMemo(
+    () => (activeHub && activeHubHasZones ? getZonesForHub(activeHub).length : 0),
+    [activeHub, activeHubHasZones]
+  );
+
   const explorerList = (
     <PlaceList
       places={filteredPlaces}
       totalCount={hubPlaces.length}
       selectedId={explorarSelectedId}
       savedIds={activeInterestedIds}
-      interestMarkerFor={markerFor}
+      otherPersonMarkerFor={otherPersonMarkerFor}
       onSelect={selectPlace}
       onToggleSaved={toggleSavedWithFeedback}
       onClearFilters={resetFilters}
       hasActiveFilters={activeFilterCount > 0}
       query={filters.query}
+      hubName={activeHub ?? ""}
+      hasZones={activeHubHasZones}
+      zoneCount={activeHubZoneCount}
+      onOpenDondeDormir={() => activeHub && goToZones(activeHub)}
     />
   );
 
@@ -873,6 +986,7 @@ export default function App() {
       <PlaceDetail
         place={selectedPlace}
         isSaved={isWantedByActive(selectedPlace.id)}
+        isPlaceSaved={isWantedByActive}
         travellers={travellers}
         interestSummary={interestSummary(selectedPlace.id)}
         activeStance={activeStance(selectedPlace.id)}
@@ -886,6 +1000,7 @@ export default function App() {
         onBack={goBack}
         originLabel={ficheOrigin === "viaje" ? ficheOriginLabel : null}
         onViewOnMap={ficheOrigin === "viaje" ? viewOnMap : undefined}
+        onOpenSources={openSources}
       />
     </div>
   ) : null;
@@ -900,14 +1015,21 @@ export default function App() {
             {destination === "explorar" && activeHub ? (
               <button
                 type="button"
-                className="app__title app__title--expand"
+                /* `03 §7`/Art. 11: el título es el selector de ciudad (`05 §4`, «el selector de
+                   ciudad… es el menú del título»), así que es un control de navegación de pleno
+                   derecho. Su caja de texto mide 26px de alto; `.tap-target-min` le da los 44
+                   reales sin agrandar lo que se pinta. Es un control aislado en la cabecera —el
+                   token de persona vive al otro extremo—, así que la técnica 1 es la correcta
+                   (ver App.css §Áreas táctiles). Lo vigila `block1-ux-browser-audit.mjs`. */
+                className="app__title app__title--expand tap-target-min"
                 onClick={() => setCitySheetOpen(true)}
                 aria-haspopup="dialog"
                 aria-expanded={citySheetOpen}
               >
                 <Icon name="atras" size={16} className="app__title-back" aria-hidden="true" />
                 <span className="app__title-text">{activeHub}</span>
-                <Icon name="abajo" size={16} aria-hidden="true" />
+                {/* B24 (P2-7, `04 §11`): «el título lleva un icono de expandir» — el del set. */}
+                <Icon name="expandir" size={16} aria-hidden="true" />
               </button>
             ) : (
               <h1 className="app__title">{destinationLabel(destination)}</h1>
@@ -943,30 +1065,23 @@ export default function App() {
             {activeHub ? (
               <>
                 <div className="explorer-bar">
-                  <div className="search-field explorer-bar__search">
+                  {/* Bloque 19 (B3, `04 §12`): «Buscar en {ciudad}» ya no filtra en el sitio —
+                      abre la hoja de búsqueda casi a pantalla completa (`SearchSheet`). Mismo
+                      contenedor visual que antes (`search-field`), ahora un botón. */}
+                  <button
+                    type="button"
+                    className="search-field explorer-bar__search"
+                    onClick={() => setSearchOpen(true)}
+                    aria-haspopup="dialog"
+                    aria-expanded={searchOpen}
+                  >
                     <span className="search-field__icon" aria-hidden="true">
                       <Icon name="buscar" size={16} />
                     </span>
-                    <input
-                      type="search"
-                      className="search-field__input"
-                      placeholder={`Buscar en ${activeHub}`}
-                      value={filters.query}
-                      onChange={(event) => setFilters({ ...filters, query: event.target.value })}
-                      autoComplete="off"
-                    />
-                    {filters.query && (
-                      <button
-                        type="button"
-                        className="search-field__clear tap-target-min"
-                        onClick={() => setFilters({ ...filters, query: "" })}
-                        aria-label="Borrar búsqueda"
-                        title="Borrar búsqueda"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
+                    <span className="search-field__placeholder">
+                      {filters.query.trim() || `Buscar en ${activeHub}`}
+                    </span>
+                  </button>
                   <button
                     type="button"
                     className="explorer-bar__filters"
@@ -990,12 +1105,27 @@ export default function App() {
                   </button>
                 </div>
 
+                {searchOpen && (
+                  <SearchSheet
+                    hubName={activeHub}
+                    query={filters.query}
+                    onQueryChange={(query) => setFilters({ ...filters, query })}
+                    results={filteredPlaces}
+                    savedIds={activeInterestedIds}
+                    selectedId={explorarSelectedId}
+                    onSelect={selectPlace}
+                    onToggleSaved={toggleSavedWithFeedback}
+                    otherPersonMarkerFor={otherPersonMarkerFor}
+                    onClose={() => setSearchOpen(false)}
+                  />
+                )}
+
                 {filtersOpen && (
-                  <Sheet title="Búsqueda y filtros" onClose={() => setFiltersOpen(false)}>
+                  <Sheet title="Filtros" onClose={() => setFiltersOpen(false)}>
                     <FilterPanel
                       filters={filters}
                       onChange={setFilters}
-                      categories={categories}
+                      categoryGroups={categoryGroups}
                       grades={grades}
                       planningBlocks={planningBlocks}
                       hiddenGemStatuses={hiddenGemStatuses}
@@ -1004,8 +1134,7 @@ export default function App() {
                       totalCount={hubPlaces.length}
                       activeFilterCount={activeFilterCount}
                       onReset={resetFilters}
-                      defaultGroupsOpen
-                      showSearch={false}
+                      onApply={() => setFiltersOpen(false)}
                     />
                   </Sheet>
                 )}
@@ -1035,7 +1164,9 @@ export default function App() {
                 )}
 
                 <div
-                  className={`app__body app__body--pane-${mobilePane}`}
+                  className={`app__body app__body--pane-${mobilePane}${
+                    explorarSelectedPlace ? " app__body--detail" : ""
+                  }`}
                   id="app-hub-panel"
                   aria-label={`Lugares de ${activeHub}`}
                 >
@@ -1051,7 +1182,13 @@ export default function App() {
                       selectedPlace={explorarMapPlace}
                       savedIds={savedIds}
                       onSelect={selectPlace}
-                      panelOffset={isDesktop && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
+                      /* DD-016/DD-017: sólo desde `lg` la ficha se apoya sobre el raíl del
+                         mapa y llega a cubrirlo entero — cubrirlo está permitido, y `PlaceMap`
+                         conserva entonces centro, zoom y selección. En `md` son superficies
+                         hermanas: el mapa conserva su propio sitio y no hay nada que compensar. */
+                      panelOffset={hasMapRail && explorarSelectedPlace ? DETAIL_PANEL_WIDTH : 0}
+                      travellers={travellers}
+                      interestSummaryFor={interestSummary}
                     />
                     <InterestLegend />
                     {filteredPlaces.length === 0 && (
@@ -1069,23 +1206,75 @@ export default function App() {
                       </div>
                     )}
                   </main>
-
-                  {ficheOrigin === "explorar" && placeDetailOverlay}
                 </div>
               </>
             ) : (
               nationalView && (
-                <div className="app__body app__body--national">
-                  <NationalExplorer
-                    activeRegion={nationalView.region}
-                    selectedCode={nationalView.prefectureCode}
-                    onSelectRegion={selectRegion}
-                    onSelectPrefecture={selectPrefecture}
-                    onEnterHub={enterHub}
-                  />
+                <div
+                  className={`app__body app__body--national${
+                    nationalView.mapOpen ? "" : " app__body--home"
+                  }`}
+                >
+                  {nationalView.mapOpen ? (
+                    <NationalExplorer
+                      activeRegion={nationalView.region}
+                      selectedCode={nationalView.prefectureCode}
+                      onSelectRegion={selectRegion}
+                      onSelectPrefecture={selectPrefecture}
+                      onEnterHub={enterHub}
+                      onCloseMap={() =>
+                        setView({ mode: "national", mapOpen: false, region: null, prefectureCode: null })
+                      }
+                    />
+                  ) : (
+                    <ExplorerHome
+                      onEnterHub={enterHub}
+                      onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
+                      onOpenNationalMap={() =>
+                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null })
+                      }
+                      onSelectPlace={(id) => selectPlace(id, "explorar", null, "home-collection")}
+                      onToggleSaved={toggleSavedWithFeedback}
+                      savedIds={activeInterestedIds}
+                      otherPersonMarkerFor={otherPersonMarkerFor}
+                    />
+                  )}
+
                 </div>
               )
             )}
+
+            {globalSearchOpen && (
+              <SearchSheet
+                hubName="todo Japón"
+                title="Buscar en todo Japón"
+                placeholder="Buscar en todo Japón"
+                query={globalQuery}
+                onQueryChange={setGlobalQuery}
+                results={globalSearchPlaces}
+                savedIds={activeInterestedIds}
+                selectedId={explorarSelectedId}
+                onSelect={(id) => {
+                  selectPlace(id, "explorar", null, "global-search");
+                  setGlobalSearchOpen(false);
+                }}
+                closeOnSelect={false}
+                initialBodyScrollTop={globalSearchRestoreScrollTop}
+                onBodyScroll={(scrollTop) => {
+                  globalSearchScrollTopRef.current = scrollTop;
+                }}
+                onToggleSaved={toggleSavedWithFeedback}
+                otherPersonMarkerFor={otherPersonMarkerFor}
+                emptyDescription={
+                  globalQuery.trim()
+                    ? `Nada con “${globalQuery.trim()}” en Japón. Prueba con otro nombre.`
+                    : undefined
+                }
+                onClose={closeGlobalSearch}
+              />
+            )}
+
+            {ficheOrigin === "explorar" && placeDetailOverlay}
           </div>
 
           {/*
@@ -1253,6 +1442,14 @@ export default function App() {
       </div>
 
       <SaveToast feedback={feedback} />
+
+      {/* DDR-03 / `04 §17`: UNA sola vez, en la raíz, para toda la aplicación. Vive fuera de
+          `.app__main` —y por tanto fuera de los cuatro paneles de destino— a propósito: el estado
+          de persistencia es uno, no cuatro, y este aviso tiene que seguir visible con la ficha
+          abierta sin que exista un segundo aviso en ninguna parte. Él mismo decide si se
+          renderiza, leyendo la única fuente de verdad; aquí no hay condición que pueda
+          desincronizarse. */}
+      <PersistenceNotice />
 
       {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
     </div>

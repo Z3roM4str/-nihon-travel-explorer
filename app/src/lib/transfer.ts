@@ -83,6 +83,15 @@ const RELATION_BY_RAW: Record<string, TransferRelation> = {
   "Alternativas/complementos": "alternative",
 };
 
+/**
+ * DD-020 (D-M4): cómo se ENSEÑA una relación. «Mismo cluster» es vocabulario de repositorio
+ * (Art. 7) y se presenta como «Misma zona»; el resto se muestra tal cual. Sólo presentación: el
+ * dataset (`nearby.json`), `RELATION_BY_RAW` y `rawRelation` no cambian.
+ */
+export function transferRelationLabel(rawRelation: string): string {
+  return RELATION_BY_RAW[rawRelation] === "same-cluster" ? "Misma zona" : rawRelation;
+}
+
 /** Throws on any `Relación` value outside the current closed set. */
 export function normalizeTransferRelation(rawRelation: string): TransferRelation {
   const relation = RELATION_BY_RAW[rawRelation];

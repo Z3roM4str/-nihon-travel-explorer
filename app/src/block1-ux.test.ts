@@ -15,10 +15,26 @@ const src = (path: string) => readFile(new URL(`./${path}`, import.meta.url), "u
 
 describe("nothing the detail panel used to show was removed", () => {
   it("still renders every practical-information row", async () => {
+    // Bloque 20 (B4, `05 §5` pt. 10): la fila «Aglomeración» pasa a llamarse **«Afluencia»** —
+    // es el término que la especificación usa, y el cambio es de rótulo, no de dato
+    // (`place.crowdLevel` sigue siendo su valor). Y se añade «Turismo» (`place.tourismLevel`),
+    // que hasta v1.1.0 vivía como etiqueta suelta en la cabecera: baja al bloque práctico con
+    // su propia fila en vez de fundirse con «Afluencia», porque son dos campos distintos del
+    // dataset y fundirlos perdería uno de los dos.
     const source = await src("components/PlaceDetail.tsx");
-    for (const row of ["Horario", "Cierres", "Reserva", "Cómo llegar", "Accesibilidad", "Aglomeración"]) {
+    for (const row of [
+      "Horario",
+      "Cierres",
+      "Reserva",
+      "Cómo llegar",
+      "Accesibilidad",
+      "Afluencia",
+      "Turismo",
+    ]) {
       expect(source, row).toContain(`label="${row}"`);
     }
+    expect(source).toContain("place.crowdLevel");
+    expect(source).toContain("place.tourismLevel");
   });
 
   it("still renders the February–March 2027 seasonal block with its action", async () => {
@@ -48,25 +64,34 @@ describe("nothing the detail panel used to show was removed", () => {
     expect(source).toContain("interest.description");
   });
 
-  it("keeps photography attribution rendered with the image, not behind a disclosure", async () => {
-    const source = await src("components/PlaceGallery.tsx");
-    expect(source).toContain("gallery__credit");
-    // A licence obligation must not become something the reader has to go looking for.
-    expect(source).not.toMatch(/<details[\s\S]*gallery__credit/);
+  it("keeps photography attribution reachable from the image, now out of the reading flow", async () => {
+    // **Sustituida por el Bloque 20 (B4).** La versión anterior de esta prueba exigía que la
+    // atribución se pintara junto a la imagen, en el flujo. Eso es exactamente el defecto D2:
+    // `04 §6` («Créditos: **nunca en el flujo**»), `04 §7`, `08` prohibición 9 y el criterio de
+    // aceptación de `05 §5` («entre la fotografía y el nombre no hay ningún texto de
+    // atribución») dicen lo contrario. La obligación de licencia que la prueba protegía sigue
+    // protegida, y mejor: un botón `ⓘ` de 32px es más alcanzable que un párrafo de 11px en
+    // gris, y la hoja muestra los seis campos etiquetados por cada imagen, no sólo por la
+    // visible. Lo que se comprueba ahora es eso: que existe el camino y que no está en el flujo.
+    const gallery = await src("components/PlaceGallery.tsx");
+    const sheet = await src("components/CreditsSheet.tsx");
+    expect(gallery).toContain("gallery__credits");
+    expect(gallery).toContain("CreditsSheet");
+    // El camino es un control visible y etiquetado, nunca un `<details>` que haya que descubrir.
+    expect(gallery).not.toMatch(/<details/);
+    for (const field of ["image.source", "image.credit", "image.license"]) {
+      expect(sheet, field).toContain(field);
+    }
   });
 });
 
 describe("nothing the filter panel used to offer was removed", () => {
   it("still offers all six filter groups", async () => {
+    // Bloque 19 (B3, `04 §13`): «Nivel turístico» y «Hidden gem» pasan a llamarse «Afluencia» y
+    // «Joyas» — el vocabulario fijo que exige `FilterSheet`; el campo (`tourismLevels`/
+    // `hiddenGemStatuses`) y sus valores no cambian, ver el test siguiente.
     const source = await src("components/FilterPanel.tsx");
-    for (const label of [
-      "Categoría",
-      "Nivel de interés",
-      "Duración",
-      "Hidden gem",
-      "Nivel turístico",
-      "Reserva",
-    ]) {
+    for (const label of ["Categoría", "Nivel de interés", "Duración", "Joyas", "Afluencia", "Reserva"]) {
       expect(source, label).toContain(`label="${label}"`);
     }
   });
@@ -77,10 +102,16 @@ describe("nothing the filter panel used to offer was removed", () => {
     expect(source).toContain("toggleValue(filters.grades, grade)");
   });
 
-  it("keeps free-text search reachable from the panel", async () => {
-    const source = await src("components/FilterPanel.tsx");
+  it("keeps free-text search reachable, now from its own sheet", async () => {
+    // Bloque 19 (B3, `04 §12`): la búsqueda libre se muda de `FilterPanel` a `SearchSheet` —
+    // ya no es un campo dentro de la hoja de filtros, sino su propia hoja casi a pantalla
+    // completa, disparada desde la barra única (`explorer-bar__search` en `App.tsx`).
+    const source = await src("components/SearchSheet.tsx");
     expect(source).toContain('type="search"');
-    expect(source).toContain("filters.query");
+    expect(source).toContain("onQueryChange");
+    const app = await src("App.tsx");
+    expect(app).toContain("query={filters.query}");
+    expect(app).toContain('onQueryChange={(query) => setFilters({ ...filters, query })}');
   });
 });
 
@@ -117,21 +148,35 @@ describe("saved places keep their existing storage contract", () => {
 
 describe("accessibility promises", () => {
   it("keeps a 44px tap-target token and uses it for the card's save control", async () => {
-    // Bloque 17 (B1): `--tap-target` es ahora un alias de `--tap-min` (`styles/tokens.css`,
-    // 03 §7 "Áreas táctiles y foco"), no un literal propio — ver 08 "Cómo tratar el CSS actual".
+    // Bloque 17 (B1): `--tap-min` fija el suelo (`styles/tokens.css`, 03 §7). Bloque 19 (B3,
+    // `04 §5.4`): el corazón de `PlaceCard` mide 40px VISUALES — la cifra exacta que fija el
+    // documento — así que ya no puede ser una caja real de `--tap-target`; usa la técnica
+    // `.tap-target-min` (el mismo `::after` invisible que el resto del producto) para que el
+    // área táctil REAL siga midiendo ≥44×44 sin agrandar el círculo pintado.
     const tokens = await src("styles/tokens.css");
     expect(tokens).toContain("--tap-min: 44px");
-    const css = await src("App.css");
-    expect(css).toContain("--tap-target: var(--tap-min)");
-    const saveRule = css.slice(css.indexOf(".place-card__save {"));
-    expect(saveRule.slice(0, 400)).toContain("var(--tap-target)");
+    const card = await src("components/PlaceCard.tsx");
+    expect(card).toContain('className={`place-card__save tap-target-min ${saved');
+    // `.tap-target-min` se define una sola vez, en App.css — `discovery.css` reutiliza la
+    // técnica por className, nunca redeclara la regla (Art. 10, sin definiciones duplicadas).
+    const discoveryCss = await src("styles/discovery.css");
+    expect(discoveryCss).not.toContain(".tap-target-min {");
+    const appCss = await src("App.css");
+    expect(appCss).toContain(".tap-target-min::after {");
   });
 
-  it("gives every interest level a CSS rule that is not colour-only in the markup", async () => {
+  it("gives every interest level a non-colour-only signal, even without the card badge", async () => {
+    // Bloque 19 (B3, `04 §5.3`): sólo el grado S lleva insignia visible en tarjeta («★
+    // Imprescindible», texto real, nunca sólo color) — A/B/C/D no muestran ninguna. La
+    // información del nivel no desaparece para esos grados: sigue en el nombre accesible del
+    // botón que abre la ficha (`{interest.label}`), fuera de la vista pero en el árbol de
+    // accesibilidad, para cualquier grado.
     const source = await src("components/PlaceCard.tsx");
-    // The label text ships with the badge; the colour class is additional, never the carrier.
-    const badge = source.slice(source.indexOf("interest-badge"));
-    expect(badge).toContain("interest-badge__label");
+    expect(source).toContain('interest.level === "imprescindible"');
+    expect(source).toContain("★</span> Imprescindible");
+    expect(source).toContain(
+      'const openLabel = `${place.name}. ${interest.label}. ${category.label} en ${visibleWhere}.`;'
+    );
   });
 
   it("has a badge colour for every level in the ladder", async () => {
@@ -168,14 +213,17 @@ describe("accessibility promises", () => {
 
 describe("empty states are deliberate", () => {
   it("distinguishes a failed search from an over-filtered list", async () => {
+    // Bloque 19 (B3, `04 §15`, `05 §4`): migrado a `EmptyState`, con el texto exacto que fija el
+    // documento congelado — dos redacciones distintas, nunca la misma frase genérica.
     const source = await src("components/PlaceList.tsx");
-    expect(source).toContain("Nada coincide con");
-    expect(source).toContain("Ningún lugar coincide con los filtros");
+    expect(source).toContain('Nada con “${trimmed}” en ${hubName}');
+    expect(source).toContain("Ningún lugar coincide");
+    expect(source).toContain("siguen ahí, sólo están filtrados");
   });
 
   it("always offers the way out of an empty result", async () => {
     const source = await src("components/PlaceList.tsx");
-    expect(source).toContain("Limpiar búsqueda y filtros");
+    expect(source).toContain("Limpiar filtros");
   });
 
   it("explains both ways to save when nothing is saved yet", async () => {

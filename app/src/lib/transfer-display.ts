@@ -83,3 +83,54 @@ export function transferListFootnote(edges: readonly (TransferEdge | null)[]): s
   }
   return "Estos traslados siguen siendo estimaciones geográficas; no son tiempos de ruta validados ni horarios en vivo.";
 }
+
+/**
+ * Bloque 20 (B4) — DDR-06: **la reubicación de la nota al pie, no su pérdida.**
+ *
+ * Hasta v1.1.0, «Cerca de aquí» llevaba un párrafo (`transferListFootnote`) que explicaba en
+ * prosa de dónde salían los traslados de la lista. `04 §2` prohíbe que un bloque con marcador
+ * lleve además un párrafo que repita lo mismo, y `05 §5` pt. 12 pide un `EvidenceMark` por
+ * traslado. DDR-06 se resolvió por la opción (a): el marcador sustituye a la nota **y se queda
+ * con su información**.
+ *
+ * Estas dos funciones son ese traslado. Cada una de las cuatro afirmaciones que la nota hacía
+ * sobre la lista entera vive ahora en el `detail` del marcador del traslado concreto al que se
+ * refiere — que es además donde es exacta, porque la nota tenía que generalizar sobre una lista
+ * con traslados de distinta confianza:
+ *
+ * | La nota decía (sobre la lista) | El marcador dice (sobre ESE traslado) |
+ * |---|---|
+ * | «las rutas validadas usan distancia y tiempo de ruta calculados… son datos estáticos, no horarios en vivo» | `◼` + «Ruta (a pie) validada: distancia y tiempo de ruta calculados; datos estáticos, no un horario en vivo» |
+ * | «los demás traslados siguen siendo estimaciones geográficas; ninguno es un horario en vivo» | `◇` + «Estimación geográfica: no es un tiempo de ruta validado ni un horario en vivo» |
+ * | «los horarios en vivo se identifican explícitamente» | `◼` + «Horario en vivo: se identifica explícitamente como tal, no es una ruta estática ni una estimación geográfica» |
+ * | (un traslado ausente se presentaba como estimación) | `◇` + el mismo texto de estimación — el *fallback* **no asciende de confianza** |
+ *
+ * **Ninguna procedencia nueva y ningún ascenso de confianza.** El nivel sale del `confidence`
+ * que `getBestTransfer()` ya resolvió, y la primera mitad del texto es el `qualityLabel` que
+ * `describeTransferForUi()` ya producía. `◼` para `validated-static` es lo que `05 §5` pt. 12
+ * fija literalmente; `null` (sin traslado registrado) es `◇`, como siempre.
+ *
+ * `transferListFootnote` sigue existiendo y sigue probada: lo que cambia es que la ficha ya no
+ * la renderiza.
+ */
+export type TransferEvidenceLevel = "verificado" | "estimado";
+
+export function transferEvidenceLevel(edge: TransferEdge | null): TransferEvidenceLevel {
+  if (!edge) return "estimado";
+  return edge.confidence === "estimated" ? "estimado" : "verificado";
+}
+
+const ESTIMATED_DETAIL =
+  "Estimación geográfica: no es un tiempo de ruta validado ni un horario en vivo";
+
+export function transferEvidenceDetail(edge: TransferEdge | null): string {
+  if (!edge) return ESTIMATED_DETAIL;
+  switch (edge.confidence) {
+    case "estimated":
+      return ESTIMATED_DETAIL;
+    case "validated-static":
+      return `${describeTransferForUi(edge).qualityLabel}: distancia y tiempo de ruta calculados; datos estáticos, no un horario en vivo`;
+    case "schedule-aware":
+      return `${describeTransferForUi(edge).qualityLabel}: se identifica explícitamente como tal, no es una ruta estática ni una estimación geográfica`;
+  }
+}

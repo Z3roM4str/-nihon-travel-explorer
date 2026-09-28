@@ -14,6 +14,7 @@ import {
   normalizeTransferMode,
   normalizeTransferRelation,
   toTransferEdge,
+  transferRelationLabel,
 } from "./transfer";
 import type { TransferEdge, WalkingPilotResult } from "./transfer";
 
@@ -757,5 +758,22 @@ describe("buildValidatedWalkingIndex — duplicate directed-edge protection betw
 
   it("the real pilot and scale-up artifacts build without throwing (live regression: no directed-key collision of any status in this checkout)", () => {
     expect(() => getBestTransfer("JP-001", "JP-002")).not.toThrow();
+  });
+});
+
+// B24 (P1-08) — DD-020 (D-M4): «Mismo cluster» se presenta como «Misma zona», sólo en presentación.
+describe("transferRelationLabel", () => {
+  it("presenta «Mismo cluster» como «Misma zona»", () => {
+    expect(transferRelationLabel("Mismo cluster")).toBe("Misma zona");
+  });
+
+  it("deja el resto de relaciones tal cual", () => {
+    expect(transferRelationLabel("Cercano")).toBe("Cercano");
+    expect(transferRelationLabel("Alternativas/complementos")).toBe("Alternativas/complementos");
+  });
+
+  it("no toca el dataset ni la normalización", () => {
+    expect((nearbyData as NearbyRelation[]).some((row) => row["Relación"] === "Mismo cluster")).toBe(true);
+    expect(normalizeTransferRelation("Mismo cluster")).toBe("same-cluster");
   });
 });

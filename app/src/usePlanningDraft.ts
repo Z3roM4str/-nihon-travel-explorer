@@ -7,6 +7,7 @@ import type {
   InterHubMode,
   NewManualInterHubSegment,
 } from "./lib/inter-hub-segment";
+import { deviceStorage } from "./lib/device-storage";
 import {
   dayMatrixFromPlanningDays,
   loadReconciledDraft,
@@ -41,13 +42,11 @@ import {
   type ManualPlanningDraftV8,
 } from "./lib/planning-draft-v8";
 
-/** The real browser `localStorage`, wrapped to the minimal shape `planning-draft-v8.ts` depends
- * on — mirrors `useSavedPlaces.ts`'s own direct `localStorage` use. Tests exercise the pure
- * `planning-draft-v8.ts` functions directly with an in-memory `DraftStorage` instead. */
-const browserStorage: DraftStorage = {
-  getItem: (key) => localStorage.getItem(key),
-  setItem: (key, value) => localStorage.setItem(key, value),
-};
+/* DDR-03: el adaptador compartido de `lib/device-storage.ts`. Misma forma estructural que el
+   `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
+   registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
+   y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
+const browserStorage: DraftStorage = deviceStorage;
 
 /**
  * Phase 3D-Q: the local id minted for a newly created accommodation anchor. It is an OPAQUE

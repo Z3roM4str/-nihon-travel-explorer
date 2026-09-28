@@ -52,23 +52,23 @@ de licencia).
 **Contenido, en orden**
 
 1. **Cabecera** (56 px): «Explorar» + `PersonToken` activo.
-2. **Buscador** pegajoso: «Buscar en todo Japón».
+2. **Buscador** pegajoso: «Buscar en todo Japón». Implementa búsqueda real sobre todos los lugares (DDR-B21-05), orden conservado del dataset, sin resultados ante consulta vacía. Mensaje sin resultados: «Nada con “{consulta}” en Japón. Prueba con otro nombre.». Seleccionar resultado abre la misma `PlaceDetail` sobre Explorar sin cambiar de hub activo; volver en historial conserva consulta, resultados y scroll.
 3. **Ciudades** — tarjetas fotográficas a ancho completo, 16:9, apiladas:
    Tokio (57), Kioto (49), Osaka (53), Okinawa (50). Cada una: fotografía de un lugar
    grado S de esa ciudad, nombre en `--font-voice` `--type-title-l` y el nombre japonés
-   debajo, más «57 lugares» en `--type-num`.
-4. **Cobertura inicial** — fila horizontal de tarjetas `compact`: Sapporo (3),
-   Nagoya (1), Fukuoka (1), con la etiqueta honesta **«Cobertura inicial»**. Corrige
+   debajo (Tokio → 東京, Kioto → 京都, Osaka → 大阪, Okinawa → 沖縄 con `lang="ja"`, DDR-B21-06), más «57 lugares» en `--type-num`.
+4. **Más destinos** — fila horizontal de tarjetas `compact`: Sapporo (3),
+   Nagoya (1), Fukuoka (1), con el título exacto **«Más destinos»** (DDR-B21-02) y contador pluralizado («3 lugares por ahora» / «1 lugar por ahora»). Corrige
    el defecto D6: un hub con un lugar no puede presentarse como igual a Tokio.
 5. **Colecciones** — carruseles horizontales de `PlaceCard` (proporción 3:4, ancho
    264 px), derivados de campos que ya existen:
-   - «Imprescindibles» → grado S (32 lugares)
-   - «Joyas escondidas» → `hiddenGemStatus = Hidden Gem real` (35)
-   - «Menos saturado» → `Alternativa menos saturada` (14)
-   - «Para una tarde» → duración ≤ 2 h
-   Cada colección: título `--type-title-m` + una línea editorial. **Sin ordinales.**
+   - «Imprescindibles» (*Los lugares que más justifican el viaje.*) → grado S (32 lugares)
+   - «Joyas escondidas» (*Sitios especiales que suelen quedar fuera de lo más obvio.*) → `hiddenGemStatus = Hidden Gem real` (35)
+   - «Menos saturado» (*Alternativas para disfrutar con menos gente alrededor.*) → `Alternativa menos saturada` (14)
+   - «Para una tarde» (*Planes que caben bien en un par de horas.*) → duración ≤ 2 h
+   Cada colección: título `--type-title-m` + su línea editorial (DDR-B21-04). **Sin ordinales.**
 6. **Mapa de Japón** — tarjeta ancha con miniatura de la silueta, texto «Ver Japón en
-   el mapa» y «47 prefecturas, 6 con lugares verificados». Abre la pantalla 3.
+   el mapa» y «47 prefecturas · 15 con lugares en Nihon» dinámico (DDR-B21-03). Abre la pantalla 3.
 
 **Por qué las colecciones.** Es el cambio que más barato convierte «base de datos» en
 «producto editorial»: no requiere ningún dato nuevo, sólo consultas sobre campos que ya
@@ -83,7 +83,7 @@ es una tarjeta, no una lente).
       390×844.
 - [ ] Ningún aviso de licencia aparece en esta pantalla.
 - [ ] Las cuatro colecciones se derivan del dataset existente, sin campos nuevos.
-- [ ] Los hubs de 1–3 lugares aparecen separados y etiquetados como cobertura inicial.
+- [ ] Los hubs de 1–3 lugares aparecen separados en la sección «Más destinos» con pluralización.
 
 ---
 
@@ -141,15 +141,55 @@ actual del dataset. Carga progresiva de 12 en 12 al hacer scroll.
 - *Búsqueda sin resultados*: «Nada con "onsen" en Tokio. Prueba en otra ciudad o quita
   los filtros.»
 
-**Responsive.** `sm`: 2 columnas. `md`: 2 columnas + ficha como panel derecho de
-480 px. `lg`: lista (2 col) + mapa persistente a la derecha, **máximo 50 % del ancho**
-(hoy es 74 %). `xl`: 3 columnas de lista + mapa.
+**Responsive (DD-016).** La lista es la superficie primaria: se queda con todo el ancho
+que el **raíl derecho** no usa, y el raíl mide `min(480 px, 50 % del cuerpo)` (`02 §D5`).
+El número de columnas **no lo decide el viewport**: lo decide la cabida real del ancho
+efectivo de la región de lista —con `PlaceCard` nunca por debajo de 264 px (`04 §5`)—,
+acotada por el tope del breakpoint. Topes: `base` 1 · `sm` 2 · `md` 2 · `lg` 2 · `xl` 3.
+
+- `sm`: la lista ocupa la pantalla; 2 columnas.
+- `md`: la lista ocupa el cuerpo entero (2 columnas). Al abrir la ficha, ésta pasa a ser
+  el raíl y la región de lista se estrecha: **2 columnas → 1**, sin que el viewport
+  cambie. El mapa sigue siendo una superficie conmutada, como en teléfono.
+- `lg`: mapa persistente en el raíl, **máximo 50 % del ancho** (hoy es 74 %); lista a
+  2 columnas. La ficha se apoya sobre el mismo raíl, así que el mapa no cambia de tamaño
+  al abrirla ni al cerrarla y conserva centro, zoom y marcador seleccionado.
+- `xl`: lo mismo con 3 columnas de lista.
+
+**Encuadre inicial del mapa (DDR-B24-1, resuelta por `DD-023`).** Al abrir una ciudad, el mapa
+encuadra su centro/zoom editorial o, en su defecto, el núcleo calculado sobre sus propios lugares
+— nunca todos los lugares del hub (`03 §9`).
+
+**Cromo del mapa (`DD-026`).** La leyenda de intereses (abajo a la izquierda) y los controles de
+Leaflet son zona de exclusión: tras cualquier movimiento programático del mapa, ningún marcador
+ni grupo queda debajo de ellos; el mapa se desplaza lo mínimo si hace falta. La leyenda no
+cambia de sitio.
+
+El ancho de viewport en el que `lg` llega a 2 columnas (~1090–1140 px según el cromo
+real) es una **consecuencia aritmética** de esa fórmula, no un breakpoint: no se escribe
+en el código ni en este documento.
+
+**Comportamiento de referencia** (lo que mide `app/scripts/block19-grid-check.mjs`):
+
+| Viewport | Ficha | Columnas |
+|---|---|---|
+| 360 | cerrada | 1 |
+| 600 | cerrada | 2 |
+| 840 | cerrada | 2 |
+| 840 | **abierta** | **1** |
+| 1200 | cerrada | 2 |
+| 1600 | cerrada | 3 |
 
 **Criterios de aceptación**
 - [ ] En 390×844, el cromo permanente superior mide ≤112 px.
 - [ ] Existe una sola barra de controles, no tres.
 - [ ] Todos los filtros de v1.1.0 siguen disponibles y con el mismo vocabulario.
 - [ ] «Dónde dormir» sigue alcanzable desde la ciudad, ahora con etiqueta visible.
+- [ ] Los seis casos de la tabla de arriba dan exactamente 1/2/2/1/2/3 columnas.
+- [ ] Ninguna `PlaceCard` mide menos de 264 px de ancho a ningún ancho de pantalla.
+- [ ] El raíl derecho nunca pasa del 50 % del ancho del cuerpo.
+- [ ] En `lg`/`xl`, abrir y cerrar la ficha deja el mapa con el mismo centro, el mismo
+      zoom y el mismo marcador seleccionado.
 
 ---
 
@@ -193,13 +233,46 @@ desaparece (corrige D4).
 12. **Cerca de aquí** — carrusel horizontal de `PlaceCard compact` **con miniatura**
     (hoy es una lista de texto). Cada uno con distancia, modo y `EvidenceMark` según su
     confianza (`validated-static` → `◼`, geográfica → `◇`).
-13. **Enlaces**: sitio oficial, Google Maps.
-14. **Fuentes** — desplegable cerrado por defecto. Contiene: grado original, `provenance`,
-    `consultedAt`/freshness, `updatedAt`, versión del dataset, enlaces oficiales.
-    **Aquí vive todo lo que hoy se derrama por la ficha.**
 
-**Responsive.** `md`+: panel derecho de 480 px, galería 4:3, mismo orden. `lg`+: el
-panel no oculta el marcador seleccionado en el mapa (se conserva `panelOffset`).
+    **Sin nota al pie (DDR-06).** El marcador sustituye al descargo en prosa: esta sección
+    **no renderiza `transferListFootnote`** ni ningún párrafo que repita lo que el marcador ya
+    dice (`04 §2`). Es una **reubicación de información, no una pérdida**: la semántica que la
+    nota comunicaba pasa al `detail` accesible del `EvidenceMark` de **cada** traslado, que es
+    donde además es exacta. Cada traslado conserva explícitamente su distinción —ruta validada
+    (datos de ruta estáticos, **no** un horario en vivo), estimación geográfica (**no** una ruta
+    validada), horario en vivo cuando lo haya, y el *fallback* sin traslado registrado, que sigue
+    siendo estimación—. Se usa la gramática de evidencia existente (`03 §1.4`, `04 §2`): ninguna
+    procedencia nueva, ningún ascenso a «Verificado» fuera de lo que el contrato ya determina. El
+    texto puede vivir en `detail`, `aria-label` y/o `title`; no se repite como párrafo visible.
+13. **Enlaces**: sitio oficial, Google Maps.
+14. **Fuentes** — desplegable cerrado por defecto. Contiene **los metadatos de procedencia
+    disponibles en el modelo actual** (DDR-06 no aplica aquí; ver DDR-04): grado original,
+    `updatedAt`, el enlace oficial cuando exista, y cualquier otro enlace que el contrato ya
+    reconozca como fuente real. **Aquí vive todo lo que hoy se derrama por la ficha.**
+
+    **No se inventa lo que no hay (DDR-04).** `provenance`, `consultedAt`/freshness y la versión
+    del dataset **no existen por lugar** en el modelo `Place`, así que esta sección **no los crea
+    ni los deriva**, y no admite ninguna etiqueta equivalente inferida desde `updatedAt`.
+    `updatedAt` significa únicamente **cuándo se actualizó el registro**: no es fecha de consulta
+    de una fuente y no permite inferir frescura. Tampoco se muestran filas del tipo «Procedencia:
+    no disponible» ni placeholders para campos inexistentes. Esos campos **sólo podrán añadirse
+    aquí cuando exista evidencia real en datos**, que es trabajo de dataset, no de esta pantalla.
+
+**Responsive (DD-016, DD-017).** `md`+: panel derecho de 480 px, galería 4:3, mismo
+orden. La ficha **es** el raíl derecho (`02 §D5`): en `md` lo crea ella, y en `lg`+ lo
+comparte con el mapa, que ya vive ahí.
+
+`lg`/`xl` — **mapa y ficha son una sola región** (DD-017). Con la ficha cerrada el mapa
+funciona con normalidad. Al abrirla, **la ficha puede cubrir el mapa por completo**: no
+hay obligación de mantener visible el marcador seleccionado, y **no se fabrica una franja
+residual de mapa** para simular que sí. Lo que sí es obligatorio es que el mapa **no se
+entere**: conserva centro, zoom y selección mientras está tapado, y al cerrar la ficha
+reaparece exactamente en el mismo estado en que se quedó.
+
+`panelOffset` se conserva como mecanismo, con su alcance acotado: **sólo actúa en una
+geometría donde el mapa y el panel sean simultáneamente visibles**. Cuando el panel cubre
+el mapa entero, no desplaza nada — mover un mapa que nadie ve sólo consigue que el lector
+se lo encuentre en otro sitio al cerrar la ficha.
 
 **Criterios de aceptación**
 - [ ] En teléfono, la ficha ocupa el 100 % de la altura visible; ninguna barra de
@@ -210,6 +283,12 @@ panel no oculta el marcador seleccionado en el mapa (se conserva `panelOffset`).
       «pendiente».
 - [ ] Toda la información de `PlaceDetail` v1.1.0 sigue presente en alguna sección, y
       esta especificación dice en cuál.
+- [ ] «Fuentes» no muestra `provenance`, `consultedAt`, frescura por lugar ni versión del
+      dataset, y `updatedAt` no se presenta como fecha de consulta (DDR-04).
+- [ ] «Cerca de aquí» no renderiza nota al pie, y cada traslado conserva su distinción
+      semántica en el `EvidenceMark`, legible por un lector de pantalla (DDR-06).
+- [ ] La cadena `Dato:` no aparece en la ficha ni en ninguna superficie que B4 introduzca
+      (DDR-05; la retirada global sigue siendo de B9.5).
 - [ ] Vuelta atrás restaura la posición de scroll exacta de la lista.
 
 ---
@@ -444,6 +523,7 @@ Ninguna capacidad se pierde (Art. 12). Verificable en revisión:
 | Filtros (categoría, grado, joya, turismo, reserva, duración) | conservados | 4 |
 | Nivel de interés en lenguaje llano | conservado, menos visible en tarjeta | 4, 5 |
 | Galería y créditos | conservados, créditos reubicados | 5 |
+| Nota al pie de traslados en «Cerca de aquí» | **reubicada**, no perdida: su semántica pasa al `detail` del `EvidenceMark` de cada traslado (DDR-06) | 5 |
 | Fallback `imageBrief` | conservado, rediseñado | `04 §9` |
 | «Quiero ir» por persona | conservado | 6 |
 | Coincidencias y divergencias | **promovido** a vista principal | 6 |
@@ -452,6 +532,7 @@ Ninguna capacidad se pierde (Art. 12). Verificable en revisión:
 | Comparación de órdenes | conservado, local al día | 7 |
 | Alternativas verificadas | conservadas, como opción | 7 |
 | Traslados entre ciudades | conservados | 7 |
+| Persistencia local silenciosa al fallar | **corregido**: aviso único y reintento real (DDR-03) | raíz, `04 §17` |
 | Zonas de alojamiento y comparación | conservadas, sin ranking | 8 |
 | Reservas y calendario oficial | conservados, agrupados | 9 |
 | Composición del viaje | conservada | 10 |

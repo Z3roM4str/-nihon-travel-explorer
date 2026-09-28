@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "phase": "Block 22 — B6.3 grade-B identity photography",
+  "acquisitionDate": "2026-09-24",
+  "entries": [
+    {
+      "placeId": "JP-107",
+      "slug": "namba-yasaka-torii-name-stone",
+      "title": "File:Namba-yasaka-jinja Torii entrance.jpg",
+      "alt": "Torii de piedra de Namba Yasaka con placa verde y estela vertical que lleva el nombre del santuario junto al acceso.",
+      "role": "identity",
+      "whyIdentity": "El torii y la estela con 難波八阪神社 identifican el acceso real; evita convertir el moderno shishiden en sujeto principal sin resolver sus derechos."
+    },
+    {
+      "placeId": "JP-140",
+      "slug": "mount-rokko-night-view-kobe",
+      "title": "File:Night View from Mount Rokko 2008-02.JPG",
+      "alt": "Luces de Kobe y la llanura de Hanshin vistas de noche desde la ladera oscura del monte Rokko.",
+      "role": "identity",
+      "whyIdentity": "La fuente y las coordenadas sitúan la cámara en el mirador del monte Rokko; muestra la vista nocturna que define la visita."
+    },
+    {
+      "placeId": "JP-150",
+      "slug": "amanohashidate-kasamatsu-view",
+      "title": "File:View of Amano-Hashidate at Kasamatsu Park.JPG",
+      "alt": "La barra de pinos de Amanohashidate cruza la bahía de Miyazu vista desde el mirador de Kasamatsu.",
+      "role": "identity",
+      "whyIdentity": "La barra natural continua y sus dos brazos de agua son el perfil inequívoco de Amanohashidate."
+    },
+    {
+      "placeId": "JP-166",
+      "slug": "mihama-american-village-colorful-buildings",
+      "title": "File:Mihama Town Resort American Village 3.JPG",
+      "alt": "Edificios coloridos y torre rosa del complejo Mihama American Village en Chatan, bajo un cielo azul.",
+      "role": "identity",
+      "whyIdentity": "La torre rosa y la agrupación de fachadas multicolores corresponden al complejo identificado por la fuente de Commons."
+    },
+    {
+      "placeId": "JP-199",
+      "slug": "hateruma-nishihama-turquoise-water",
+      "title": "File:Hateruma nishihama 1.jpg",
+      "alt": "Franjas turquesas del mar y arena blanca de Nishihama, en la isla Hateruma, con otras islas bajas en el horizonte.",
+      "role": "identity",
+      "whyIdentity": "La fuente sitúa específicamente esta playa en Hateruma; su agua en bandas turquesas es el paisaje característico del destino."
+    },
+    {
+      "placeId": "JP-209",
+      "slug": "okunoshima-rabbit-ruins",
+      "title": "File:Rabbits of Okunoshima, March 2019.jpg",
+      "alt": "Un conejo de Okunoshima descansa delante de las ruinas de hormigón de la isla, entre tierra y ramas.",
+      "role": "identity",
+      "whyIdentity": "Combina el conejo que da nombre a Rabbit Island con las ruinas militares propias de Okunoshima; la fuente incluye coordenadas dentro de la isla."
+    }
+  ],
+  "unresolved": [
+    {
+      "placeId": "JP-041",
+      "category": "UNRESOLVED — COPYRIGHTED SUBJECT",
+      "reason": "La estatua contemporánea Unicorn Gundam es el sujeto principal necesario para identificar este lugar. La licencia de una foto del fotógrafo no acredita los derechos de la obra y su personaje.",
+      "candidatesRejected": [
+        {
+          "url": "https://commons.wikimedia.org/wiki/Category:Gundam_Odaiba",
+          "reason": "Las fotografías disponibles están centradas en la estatua contemporánea; la licencia fotográfica no resuelve los derechos subyacentes."
+        }
+      ]
+    },
+    {
+      "placeId": "JP-171",
+      "category": "UNRESOLVED — LICENSE",
+      "reason": "No se pudo verificar una imagen representativa de la cueva azul de Cape Maeda con licencia original compatible y resolución suficiente.",
+      "candidatesRejected": [
+        {
+          "url": "https://www.flickr.com/photos/jannem/14975932851",
+          "reason": "La página identifica Blue Cave en Cape Maeda, pero no se pudo verificar una licencia compatible en la fuente original."
+        },
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Ishigaki%27s_blue_cave_(51924566975).jpg",
+          "reason": "Es una cueva azul de Ishigaki, otro lugar."
+        },
+        {
+          "url": "https://commons.wikimedia.org/wiki/File:Cape_Maeda.jpg",
+          "reason": "Sólo 450×338 px y muestra el cabo exterior, no la cueva que identifica la actividad."
+        }
+      ]
+    }
+  ]
+}

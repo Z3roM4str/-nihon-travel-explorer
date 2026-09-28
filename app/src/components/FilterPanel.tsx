@@ -1,15 +1,19 @@
-import { useId, useState } from "react";
 import type { Filters } from "../types";
 import type { PlanningBlock } from "../lib/planning-block";
 import { planningBlockHint, planningBlockLabel } from "../lib/planning-block";
-import { splitCategory } from "../lib/place";
 import { interestLevelForGrade } from "../lib/interest-level";
+import { categoryPresentation } from "../lib/category-presentation";
+import { ChipToggle } from "./ChipToggle";
 import { Icon } from "../icons/Icon";
+
+/** Una etiqueta de presentación (`03 §8`, hasta 26) más las cadenas fuente que colapsa (1 ó 2 —
+ * sólo los tres pares duplicados aportan 2). Ver `App.tsx`'s `categoryGroups`. */
+type CategoryGroup = { label: string; values: string[] };
 
 type Props = {
   filters: Filters;
   onChange: (filters: Filters) => void;
-  categories: string[];
+  categoryGroups: CategoryGroup[];
   grades: string[];
   /** Blocks present in the current hub, in taxonomy order. */
   planningBlocks: PlanningBlock[];
@@ -19,18 +23,9 @@ type Props = {
   totalCount: number;
   activeFilterCount: number;
   onReset: () => void;
-  /**
-   * Whether the filter groups start expanded. False on desktop, where the panel shares the
-   * sidebar with the results and an always-open stack of six groups pushes the cards below the
-   * fold; true on phones, where the panel only exists because the reader just asked for it.
-   */
-  defaultGroupsOpen?: boolean;
-  /**
-   * Bloque 18, `05 §4`: la búsqueda vive ahora en la barra única de 48 px de Explorar › Ciudad,
-   * siempre visible, no dentro de esta hoja. `showSearch=false` evita el campo duplicado cuando
-   * este panel se abre sólo para los filtros; el resto del contrato no cambia.
-   */
-  showSearch?: boolean;
+  /** Bloque 19 (B3, `04 §13`): pulsar «Ver {n} lugares» cierra la hoja — mismo efecto que
+   * cualquier otro cierre, expuesto aparte porque el pie de esta hoja es quien lo dispara. */
+  onApply: () => void;
 };
 
 function toggleValue<T extends string>(list: T[], value: T): T[] {
@@ -51,6 +46,8 @@ function FilterGroup({ label, count, defaultOpen = false, children }: GroupProps
       <summary className="filter-group__summary">
         <span>{label}</span>
         {count > 0 && <span className="filter-group__badge">{count}</span>}
+        {/* DD-021 (D-M5): icono del set en vez del glifo `▸` pintado con `::before`. */}
+        <Icon name="siguiente" size={16} className="filter-group__chevron" aria-hidden="true" />
       </summary>
       <div role="group" aria-label={label} className="filter-chip-list">
         {children}
@@ -59,10 +56,20 @@ function FilterGroup({ label, count, defaultOpen = false, children }: GroupProps
   );
 }
 
+/**
+ * `FilterSheet` (`04 §13`).
+ *
+ * Bloque 19 (B3): deja de ser un formulario de casillas y pasa a ser una hoja de grupos
+ * plegables de `ChipToggle`, en el orden fijo que exige `04 §13` — Nivel de interés · Categoría ·
+ * Duración · Reserva · Afluencia · Joyas —, con cabecera pegajosa (contador de resultados en
+ * vivo) y pie fijo (`Limpiar` / `Ver {n} lugares`). La lógica de cada filtro no cambia: sigue
+ * siendo exactamente `App.tsx`'s `matchesFilters`, con el mismo vocabulario y los mismos
+ * valores — sólo cambia cómo se presentan.
+ */
 export function FilterPanel({
   filters,
   onChange,
-  categories,
+  categoryGroups,
   grades,
   planningBlocks,
   hiddenGemStatuses,
@@ -71,202 +78,163 @@ export function FilterPanel({
   totalCount,
   activeFilterCount,
   onReset,
-  defaultGroupsOpen = false,
-  showSearch = true,
+  onApply,
 }: Props) {
-  const searchId = useId();
-  const groupsId = useId();
-  const [groupsOpen, setGroupsOpen] = useState(defaultGroupsOpen);
-  // Same render-phase sync `HubSelector` uses: crossing the desktop/mobile breakpoint changes
-  // what the default should be, without remounting the panel and without an effect.
-  const [syncedDefault, setSyncedDefault] = useState(defaultGroupsOpen);
-  if (defaultGroupsOpen !== syncedDefault) {
-    setSyncedDefault(defaultGroupsOpen);
-    setGroupsOpen(defaultGroupsOpen);
-  }
-
   return (
-    <section className="filter-panel" aria-label="Búsqueda y filtros">
+    <section className="filter-panel" aria-label="Filtros">
       <div className="filter-panel__head">
-      {showSearch && (
-        <div className="filter-panel__search">
-          <label htmlFor={searchId} className="visually-hidden">
-            Buscar lugares por nombre, barrio o tipo
-          </label>
-          <div className="search-field">
-            <span className="search-field__icon" aria-hidden="true">
-              <Icon name="buscar" size={16} />
-            </span>
-            <input
-              id={searchId}
-              type="search"
-              className="search-field__input"
-              placeholder="Buscar por nombre, barrio o tipo…"
-              value={filters.query}
-              onChange={(event) => onChange({ ...filters, query: event.target.value })}
-              autoComplete="off"
-            />
-            {filters.query && (
-              <button
-                type="button"
-                className="search-field__clear tap-target-min"
-                onClick={() => onChange({ ...filters, query: "" })}
-                aria-label="Borrar búsqueda"
-                title="Borrar búsqueda"
-              >
-                ×
-              </button>
-            )}
-          </div>
+        <div className="filter-panel__status">
+          <p role="status">
+            <strong>{resultCount}</strong> de {totalCount} lugares
+          </p>
+          {activeFilterCount > 0 && (
+            <button type="button" className="link-button tap-target-min" onClick={onReset}>
+              Limpiar ({activeFilterCount})
+            </button>
+          )}
         </div>
-      )}
 
-      <div className="filter-panel__status">
-        <p role="status">
-          <strong>{resultCount}</strong> de {totalCount} lugares
-        </p>
-        {activeFilterCount > 0 && (
-          <button type="button" className="link-button" onClick={onReset}>
-            Limpiar ({activeFilterCount})
-          </button>
-        )}
       </div>
 
-      <button
-        type="button"
-        className="filter-panel__toggle"
-        onClick={() => setGroupsOpen((open) => !open)}
-        aria-expanded={groupsOpen}
-        aria-controls={groupsId}
-      >
-        <span className="filter-panel__toggle-caret" aria-hidden="true">
-          {groupsOpen ? "▾" : "▸"}
-        </span>
-        Filtros
-        {activeFilterCount > 0 && <span className="filter-panel__toggle-count">{activeFilterCount}</span>}
-      </button>
-      </div>
-
-      <div className="filter-panel__groups" id={groupsId} hidden={!groupsOpen}>
-      <FilterGroup label="Categoría" count={filters.categories.length}>
-        {categories.map((category) => {
-          const { label } = splitCategory(category);
-          return (
-            <label key={category} className="filter-chip">
-              <input
-                type="checkbox"
-                checked={filters.categories.includes(category)}
-                onChange={() =>
-                  onChange({ ...filters, categories: toggleValue(filters.categories, category) })
-                }
-              />
-              {/* Bloque 17 (B1): el emoji de categoría del dataset ya no se renderiza como
-                  icono de interfaz (03 §8). */}
-              <span>{label}</span>
-            </label>
-          );
-        })}
-      </FilterGroup>
-
-      {/* Still the dataset's `grade` filter — only the wording changed. A bare "S/A/B/C/D" row
-          asked the reader to know the catalogue's internal vocabulary before they could use it. */}
-      <FilterGroup label="Nivel de interés" count={filters.grades.length} defaultOpen>
-        {grades.map((grade) => {
-          const interest = interestLevelForGrade(grade);
-          return (
-            <label key={grade} className="filter-chip filter-chip--grade" title={interest.description}>
-              <input
-                type="checkbox"
-                checked={filters.grades.includes(grade)}
-                onChange={() => onChange({ ...filters, grades: toggleValue(filters.grades, grade) })}
-              />
-              <span>
+      {/* B24 (P1-01): sin el desplegable «▾ Filtros» que escondía los grupos — `04 §13` no lo
+          tiene: la hoja ES los grupos, en su orden fijo, cada uno plegable por sí mismo. */}
+      <div className="filter-panel__groups">
+        {/* 1. Nivel de interés — sigue siendo el filtro `grade` del dataset; sólo cambió la
+            redacción hace bloques, aquí sólo cambia la presentación (chip, no casilla). */}
+        <FilterGroup label="Nivel de interés" count={filters.grades.length} defaultOpen>
+          {grades.map((grade) => {
+            const interest = interestLevelForGrade(grade);
+            return (
+              <ChipToggle
+                key={grade}
+                pressed={filters.grades.includes(grade)}
+                onClick={() => onChange({ ...filters, grades: toggleValue(filters.grades, grade) })}
+              >
                 <span aria-hidden="true">{interest.glyph}</span> {interest.label}
-              </span>
-            </label>
-          );
-        })}
-      </FilterGroup>
+              </ChipToggle>
+            );
+          })}
+        </FilterGroup>
 
-      <FilterGroup label="Duración" count={filters.planningBlocks.length} defaultOpen>
-        {planningBlocks.map((block) => {
-          const hint = planningBlockHint(block);
-          return (
-            <label key={block} className="filter-chip">
-              <input
-                type="checkbox"
-                checked={filters.planningBlocks.includes(block)}
-                onChange={() =>
+        {/* 2. Categoría — un chip por etiqueta de presentación colapsada (03 §8); activa o
+            desactiva juntas las cadenas fuente que representa (1 salvo en los tres pares
+            duplicados, donde son 2), nunca una selección parcial. */}
+        <FilterGroup
+          label="Categoría"
+          count={categoryGroups.filter((group) => group.values.some((v) => filters.categories.includes(v))).length}
+        >
+          {categoryGroups.map((group) => {
+            const pressed = group.values.every((value) => filters.categories.includes(value));
+            const { icon } = categoryPresentation(group.values[0]);
+            return (
+              <ChipToggle
+                key={group.label}
+                icon={icon}
+                pressed={pressed}
+                onClick={() =>
+                  onChange({
+                    ...filters,
+                    categories: pressed
+                      ? filters.categories.filter((value) => !group.values.includes(value))
+                      : [...new Set([...filters.categories, ...group.values])],
+                  })
+                }
+              >
+                {group.label}
+              </ChipToggle>
+            );
+          })}
+        </FilterGroup>
+
+        {/* 3. Duración */}
+        <FilterGroup label="Duración" count={filters.planningBlocks.length} defaultOpen>
+          {planningBlocks.map((block) => {
+            const hint = planningBlockHint(block);
+            return (
+              <ChipToggle
+                key={block}
+                pressed={filters.planningBlocks.includes(block)}
+                onClick={() =>
                   onChange({
                     ...filters,
                     planningBlocks: toggleValue(filters.planningBlocks, block),
                   })
                 }
-              />
-              <span>
+              >
                 {planningBlockLabel(block)}
-                {hint && <span className="filter-chip__hint"> ({hint})</span>}
-              </span>
-            </label>
-          );
-        })}
-      </FilterGroup>
+                {hint && <span className="chip-toggle__hint"> ({hint})</span>}
+              </ChipToggle>
+            );
+          })}
+        </FilterGroup>
 
-      <FilterGroup label="Hidden gem" count={filters.hiddenGemStatuses.length}>
-        {hiddenGemStatuses.map((status) => (
-          <label key={status} className="filter-chip">
-            <input
-              type="checkbox"
-              checked={filters.hiddenGemStatuses.includes(status)}
-              onChange={() =>
+        {/* 4. Reserva — único grupo de selección única (radio); se conservan los seis valores
+            del filtro cerrado de `lib/reservation.ts`. */}
+        <FilterGroup label="Reserva" count={filters.reservation === "all" ? 0 : 1} defaultOpen>
+          {(
+            [
+              { value: "all", label: "Todas" },
+              { value: "required", label: "Requiere reserva" },
+              { value: "recommended", label: "Reserva recomendable" },
+              { value: "not-required", label: "No requiere reserva" },
+              { value: "optional", label: "Reserva opcional" },
+              { value: "role-specific", label: "Depende del rol" },
+            ] as const
+          ).map((option) => (
+            <ChipToggle
+              key={option.value}
+              pressed={filters.reservation === option.value}
+              onClick={() => onChange({ ...filters, reservation: option.value })}
+            >
+              {option.label}
+            </ChipToggle>
+          ))}
+        </FilterGroup>
+
+        {/* 5. Afluencia — antes «Nivel turístico»; mismo campo (`tourismLevel`), mismos cuatro
+            valores del dataset (Extremo/Alto/Medio/Bajo), sólo cambia el nombre del grupo para
+            adoptar el vocabulario fijo de `04 §13`. */}
+        <FilterGroup label="Afluencia" count={filters.tourismLevels.length}>
+          {tourismLevels.map((level) => (
+            <ChipToggle
+              key={level}
+              pressed={filters.tourismLevels.includes(level)}
+              onClick={() =>
+                onChange({ ...filters, tourismLevels: toggleValue(filters.tourismLevels, level) })
+              }
+            >
+              {level}
+            </ChipToggle>
+          ))}
+        </FilterGroup>
+
+        {/* 6. Joyas — antes «Hidden gem»; mismo campo (`hiddenGemStatus`), mismos valores del
+            dataset, sólo cambia el nombre del grupo. */}
+        <FilterGroup label="Joyas" count={filters.hiddenGemStatuses.length}>
+          {hiddenGemStatuses.map((status) => (
+            <ChipToggle
+              key={status}
+              pressed={filters.hiddenGemStatuses.includes(status)}
+              onClick={() =>
                 onChange({
                   ...filters,
                   hiddenGemStatuses: toggleValue(filters.hiddenGemStatuses, status),
                 })
               }
-            />
-            <span>{status}</span>
-          </label>
-        ))}
-      </FilterGroup>
+            >
+              {status}
+            </ChipToggle>
+          ))}
+        </FilterGroup>
+      </div>
 
-      <FilterGroup label="Nivel turístico" count={filters.tourismLevels.length}>
-        {tourismLevels.map((level) => (
-          <label key={level} className="filter-chip">
-            <input
-              type="checkbox"
-              checked={filters.tourismLevels.includes(level)}
-              onChange={() =>
-                onChange({ ...filters, tourismLevels: toggleValue(filters.tourismLevels, level) })
-              }
-            />
-            <span>{level}</span>
-          </label>
-        ))}
-      </FilterGroup>
-
-      <FilterGroup label="Reserva" count={filters.reservation === "all" ? 0 : 1} defaultOpen>
-        {(
-          [
-            { value: "all", label: "Todas" },
-            { value: "required", label: "Requiere reserva" },
-            { value: "recommended", label: "Reserva recomendable" },
-            { value: "not-required", label: "No requiere reserva" },
-            { value: "optional", label: "Reserva opcional" },
-            { value: "role-specific", label: "Depende del rol" },
-          ] as const
-        ).map((option) => (
-          <label key={option.value} className="filter-chip filter-chip--radio">
-            <input
-              type="radio"
-              name="reservation"
-              checked={filters.reservation === option.value}
-              onChange={() => onChange({ ...filters, reservation: option.value })}
-            />
-            <span>{option.label}</span>
-          </label>
-        ))}
-      </FilterGroup>
+      <div className="filter-panel__foot">
+        <button type="button" className="button button--quiet" onClick={onReset}>
+          Limpiar
+        </button>
+        <button type="button" className="button button--primary" onClick={onApply}>
+          Ver {resultCount} lugar{resultCount === 1 ? "" : "es"}
+        </button>
       </div>
     </section>
   );

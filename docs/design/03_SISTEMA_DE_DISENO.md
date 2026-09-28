@@ -211,6 +211,34 @@ Sólo tres niveles. Prohibida cualquier sombra fuera de esta lista.
 
 Las superficies sobre fotografía no usan sombra: usan `--scrim-*`.
 
+**Esto incluye `text-shadow` (DD-016).** Una sombra de texto sobre fotografía es
+exactamente la sombra que esta sección prohíbe, y además es un parche: tapa el síntoma
+—texto ilegible— sin arreglar la causa —scrim insuficiente—, y falla peor cuanto más
+clara es la fotografía, que es justo cuando hace falta. **Cero `text-shadow` en todo el
+producto.** Lo que sostiene el texto es el scrim, y sólo el scrim.
+
+### Scrim bajo texto (DD-016)
+
+Cuando hay texto sobre una fotografía, el scrim **efectivo** —la composición de todas
+las capas que el navegador pinta entre la fotografía y el texto— debe valer **≥0.60 bajo
+toda la banda de texto**: de borde a borde y desde el techo del elemento de texto más
+alto hasta el suelo del más bajo, no sólo bajo el título. Y con ese scrim puesto, el
+contraste debe cumplir AA (4.5:1) **usando la fotografía más clara disponible**, no una
+fotografía típica, y para cada color de texto de la banda (un blanco al 82 % no cumple
+donde cumple un blanco al 100 %).
+
+`--scrim-bottom` es un desvanecido largo pensado para la parte baja de una fotografía
+entera: su alfa sólo llega a 0.60 en el 17 % inferior del eje. Por sí solo no cumple lo
+anterior en cuanto la banda de texto ocupa una fracción apreciable de la fotografía (a
+16:9, ~50 %). La banda necesita entonces **su propio suelo de scrim**, apoyado en su
+propia altura y no en la de la fotografía, con una franja de desvanecido por encima para
+que no quede ningún canto horizontal sobre la foto. Ese suelo se construye con el **mismo
+valor que `--scrim-bottom` ya declara en su parada inferior**: no es un color nuevo ni un
+token nuevo, es el mismo scrim sin diluir justo donde hay texto.
+
+Las dos exigencias se miden, no se estiman: `app/scripts/block19-contrast-check.mjs` lee
+los píxeles que el navegador compone de verdad.
+
 ## 6. Motion
 
 ```css
@@ -292,9 +320,25 @@ Maps.
   | Seleccionado | nodo 20 px con halo, encima de todos |
 
 - **Agrupación**: por encima de 12 marcadores visibles, se agrupan en un círculo con
-  cifra (`--type-num`), estilo indicador de estación.
+  cifra (`--type-num`), estilo indicador de estación. Además, con 12 o menos también se
+  agrupan dos o más marcadores sueltos cuando sus cajas táctiles de 44×44 px se tocarían
+  (Art. 11: sin solape ambiguo); en cuanto el zoom las separa, vuelven a ser sueltos
+  (DDR-B24-2, resuelta por `DD-024`).
+- **Encuadre inicial**: al abrir un hub, el mapa encuadra su centro/zoom editorial
+  (`lib/hub-view.ts`) o, si no lo tiene declarado, el núcleo calculado sobre la mediana
+  de sus propios lugares — nunca todos los lugares del hub, que incluyen excursiones
+  lejanas. Ningún lugar desaparece del mapa ni del dataset por quedar fuera del encuadre
+  inicial; sigue disponible al desplazar/alejar el mapa y en listas/búsqueda. Si el mapa
+  se centra explícitamente en un lugar, ese lugar manda sobre el encuadre inicial
+  (DDR-B24-1, resuelta por `DD-023`).
 - **Leyenda**: una línea plegable, no un panel permanente. En teléfono sólo aparece
   sobre el mapa, nunca sobre la lista.
+- **Cromo del mapa como zona de exclusión**: la leyenda y los controles superpuestos al
+  mapa son espacio no válido para las cajas de impacto de 44×44 px. Tras cualquier
+  movimiento programático (encuadre inicial, abrir un grupo, centrar un lugar), ningún
+  marcador ni grupo queda debajo; si queda, el mapa se desplaza lo mínimo para liberarlo.
+  Los gestos de la persona no se corrigen. Todo control nuevo sobre el mapa se declara
+  como cromo (`data-map-chrome`) (`DD-026`).
 
 ## 10. Voz y microcopy
 

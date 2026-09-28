@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "baseSha": "e3fca24a362efcfa99bd141599972944c0fabb99",
+  "imageCount": 163,
+  "coveredPlaceCount": 157,
+  "gradeSTotal": 32,
+  "gradeSMissingCount": 4,
+  "gradeSMissing": [
+    {
+      "placeId": "JP-033",
+      "name": "teamLab Borderless",
+      "hub": "Tokio",
+      "grade": "S"
+    },
+    {
+      "placeId": "JP-126",
+      "name": "SUPER NINTENDO WORLD",
+      "hub": "Osaka",
+      "grade": "S"
+    },
+    {
+      "placeId": "JP-203",
+      "name": "Tokyo Disneyland",
+      "hub": "Tokio",
+      "grade": "S"
+    },
+    {
+      "placeId": "JP-204",
+      "name": "Tokyo DisneySea",
+      "hub": "Tokio",
+      "grade": "S"
+    }
+  ],
+  "listPayload800wBytes": {
+    "Tokio": 2969990,
+    "Osaka": 3061974
+  },
+  "placeImagesTsSha256": "0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb"
+}

@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
  * surface never renders. */
 
 async function source(): Promise<string> {
-  return readFile(new URL("./OrderedSequenceBuilder.tsx", import.meta.url), "utf8");
+  return (await readFile(new URL("./OrderedSequenceBuilder.tsx", import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 
 function withoutComments(value: string): string {

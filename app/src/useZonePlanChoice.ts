@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import type { AccommodationZone } from "./lib/accommodation-zone";
+import { deviceStorage } from "./lib/device-storage";
 import {
   findZoneChoiceForHub,
   isAccommodationAnchorInUse,
@@ -42,10 +43,11 @@ import {
  * zone", no hotel, and no write to any storage key other than the planning draft.
  */
 
-const browserStorage: DraftStorage = {
-  getItem: (key) => localStorage.getItem(key),
-  setItem: (key, value) => localStorage.setItem(key, value),
-};
+/* DDR-03: el adaptador compartido de `lib/device-storage.ts`. Misma forma estructural que el
+   `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
+   registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
+   y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
+const browserStorage: DraftStorage = deviceStorage;
 
 /** Everything the comparison panel needs to render the choice, and nothing it could mutate. */
 export type ZonePlanChoiceSnapshot = {

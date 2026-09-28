@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "baseSha": "80f638ae68e88ad62d8c706d75c3aa107b27f4f2",
+  "imageCount": 194,
+  "coveredPlaceCount": 188,
+  "gradeBTotal": 25,
+  "gradeBCovered": 17,
+  "gradeBMissingCount": 8,
+  "gradeBMissing": [
+    {
+      "placeId": "JP-041",
+      "name": "Unicorn Gundam at DiverCity",
+      "hub": "Tokio",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-107",
+      "name": "Namba Yasaka Shrine",
+      "hub": "Osaka",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-140",
+      "name": "Mount Rokko night view",
+      "hub": "Osaka",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-150",
+      "name": "Amanohashidate",
+      "hub": "Osaka",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-166",
+      "name": "Mihama American Village",
+      "hub": "Okinawa",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-171",
+      "name": "Blue Cave at Cape Maeda",
+      "hub": "Okinawa",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-199",
+      "name": "Hateruma Island",
+      "hub": "Okinawa",
+      "grade": "B"
+    },
+    {
+      "placeId": "JP-209",
+      "name": "Okunoshima (Rabbit Island)",
+      "hub": "Osaka",
+      "grade": "B"
+    }
+  ],
+  "placeImagesTsSha256": "0326a91c42b5f46027c1ce74eea93895eb5a8053a07a6f2025abe022009270fb"
+}

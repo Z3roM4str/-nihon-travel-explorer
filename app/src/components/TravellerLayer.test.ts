@@ -79,13 +79,21 @@ describe("the layer stays subtle", () => {
     // props for opening and highlighting a card, which is why this looks for elements, not words.)
     expect(card).toContain("onClick={() => onToggleSaved(place.id)}");
     expect(card).not.toMatch(/<select|type="radio"|travellerId|activeTraveller/);
-    expect(card.match(/onToggleSaved\(/g) ?? []).toHaveLength(1);
+    // Bloque 19 (B3, `04 §5.10`): `PlaceCard` ahora sirve dos variantes (`normal`/`compact`) del
+    // mismo componente, en vez de vivir duplicado — cada una tiene su propio botón de guardar,
+    // de ahí las dos llamadas en vez de una.
+    expect(card.match(/onToggleSaved\(/g) ?? []).toHaveLength(2);
   });
 
   it("renders the card marker only when one was resolved", async () => {
+    // Bloque 19 (B3, `04 §5.5`): el marcador de chip de texto (`interestMarker`) que este test
+    // comprobaba se sustituye, sólo en `PlaceCard`, por `otherPersonMarker` — un `PersonToken`
+    // junto al corazón en vez de un chip dentro del cuerpo. `SelectionPanel.tsx` sigue usando
+    // `interestMarker` sin cambios (ver el resto de este fichero). La garantía que este test
+    // protege — nada se pinta cuando no hay nada que decir — se traslada intacta al nuevo prop.
     const card = await readSource("PlaceCard.tsx");
-    expect(card).toContain("{interestMarker && (");
-    expect(card).toContain("interestMarker?: InterestMarker | null;");
+    expect(card).toContain("{otherPersonMarker &&");
+    expect(card).toContain("otherPersonMarker?: OtherPersonMarker | null;");
   });
 
   it("never stamps both names on a card", async () => {
@@ -150,9 +158,19 @@ describe("accessibility", () => {
   });
 
   it("never relies on colour alone — every marker renders its label as text", async () => {
+    // Bloque 19 (B3): en `PlaceCard`, el marcador de la otra persona es un `PersonToken`, no un
+    // chip de texto — su no-color-only lo lleva el propio `PersonToken` (la inicial dentro del
+    // círculo, más un `aria-label`/`title` explícito), nunca sólo `--person-a`/`--person-b`.
+    // `PlaceCard` pasa un texto propio («{nombre} quiere ir», voz coherente con
+    // `interestMarker`'s "{who} quiere ir") en vez del "Eres {nombre}" por defecto, que sólo
+    // tiene sentido para la identidad de la persona activa en la cabecera.
+    const token = await readSource("PersonToken.tsx");
+    expect(token).toContain("aria-label={accessibleText}");
+    expect(token).toContain("title={accessibleText}");
+    expect(token).toContain("{initial}");
     const card = await readSource("PlaceCard.tsx");
-    expect(card).toContain("{interestMarker.label}");
-    expect(card).toContain("{interestMarker.description}");
+    expect(card).toContain("label={`${otherPersonMarker.traveller.label} quiere ir`}");
+    // `SelectionPanel.tsx` sigue usando el chip de texto `interestMarker` sin cambios.
     const panel = await readSource("SelectionPanel.tsx");
     expect(panel).toContain("{marker.label}");
     expect(panel).toContain("{marker.description}");
