@@ -228,8 +228,10 @@ describe("empty states are deliberate", () => {
 
   it("explains both ways to save when nothing is saved yet", async () => {
     const source = await src("components/SelectionPanel.tsx");
-    expect(source).toContain("Todavía no hay nada guardado");
-    expect(source).toContain("Quiero ir");
+    // B25 (`05 §6`): el texto editorial del estado vacío y su única acción.
+    expect(source).toContain("Todavía no habéis marcado nada.");
+    expect(source).toContain("Pulsa el corazón en cualquier lugar que os llame");
+    expect(source).toContain("Explorar Tokio");
   });
 
   it("says how many places are still there when the map has nothing to show", async () => {

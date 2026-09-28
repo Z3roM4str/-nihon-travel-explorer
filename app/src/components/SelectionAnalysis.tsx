@@ -1,4 +1,6 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+import { Icon } from "../icons/Icon";
+import { EvidenceMark } from "./EvidenceMark";
 import type { Place } from "../types";
 import { formatRange } from "../lib/duration";
 import { planningBlockLabel } from "../lib/planning-block";
@@ -16,14 +18,6 @@ import {
 type Props = {
   savedPlaces: Place[];
   onSelectPlace: (id: string) => void;
-  onClose: () => void;
-  /**
-   * Bloque 18 — `02 §D2`: esta superficie deja de ser un modal global y pasa a ser contenido de
-   * «Quiero ir» (gate 11). `embedded` quita el scrim, el `role="dialog"` y la trampa de
-   * foco/Escape que sólo tienen sentido para una capa flotante; el contenido que sigue es el
-   * mismo, byte a byte.
-   */
-  embedded?: boolean;
 };
 
 /**
@@ -44,7 +38,7 @@ function GroupSummary({ summary }: { summary: SelectionSummary }) {
   return (
     <p className="analysis-summary">
       <span className="analysis-summary__count">
-        {summary.savedCount} guardado{summary.savedCount === 1 ? "" : "s"}
+        {summary.savedCount} lugar{summary.savedCount === 1 ? "" : "es"}
       </span>
       {summary.visitTime && (
         <span className="analysis-summary__time">{formatRange(summary.visitTime)} de visita</span>
@@ -79,12 +73,12 @@ function ClusterRow({
 
   return (
     <li className="analysis-cluster">
-      <h4 className="analysis-cluster__name">
+      <h5 className="analysis-cluster__name">
         {group.label}
         {showPrefecture && (
           <span className="analysis-cluster__prefecture"> · {prefecture}</span>
         )}
-      </h4>
+      </h5>
       <GroupSummary summary={group.summary} />
       <ul className="analysis-place-list">
         {group.places.map((place) => (
@@ -155,7 +149,7 @@ function HubSection({
 
   return (
     <section className="analysis-hub">
-      <h3 className="analysis-hub__heading">
+      <h4 className="analysis-hub__heading">
         <button
           type="button"
           id={buttonId}
@@ -166,13 +160,11 @@ function HubSection({
         >
           <span className="analysis-hub__name">{group.label}</span>
           <span className="analysis-hub__count">
-            {group.places.length} guardado{group.places.length === 1 ? "" : "s"}
+            {group.places.length} lugar{group.places.length === 1 ? "" : "es"}
           </span>
-          <span aria-hidden="true" className="analysis-hub__chevron">
-            {expanded ? "▾" : "▸"}
-          </span>
+          <Icon name={expanded ? "arriba" : "abajo"} size={16} className="analysis-hub__chevron" />
         </button>
-      </h3>
+      </h4>
 
       <div id={panelId} role="region" aria-labelledby={buttonId} hidden={!expanded}>
         <GroupSummary summary={group.summary} />
@@ -192,13 +184,16 @@ function HubSection({
   );
 }
 
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose, embedded = false }: Props) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-
+/**
+ * B25 — B7 «Quiero ir» (`10 §B7`: «`SelectionAnalysis` deja de ser un modal y se convierte en la
+ * organización de la pantalla»).
+ *
+ * Ya no hay cabecera propia, ni botón de cierre, ni `role="dialog"`, ni trampa de foco: esto es
+ * contenido de la sección plegable «Por ciudad y zona» de Quiero ir, y la pantalla ya da el
+ * titular, el contador y el resumen de tres datos. Lo que queda es exactamente el mismo cálculo
+ * —`lib/selection`, sin tocar— sobre los lugares que la lente de Quiero ir está mostrando.
+ */
+export function SelectionAnalysis({ savedPlaces, onSelectPlace }: Props) {
   const summary = useMemo(() => summarizeSelection(savedPlaces), [savedPlaces]);
   const hubs = useMemo(() => groupByHub(savedPlaces), [savedPlaces]);
   const prefectures = useMemo(() => groupByPrefecture(savedPlaces), [savedPlaces]);
@@ -209,180 +204,100 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace, onClose, embedde
     hubs.length > 0 ? [hubs[0].key] : []
   );
 
-  // Focus moves into the dialog on open and returns to whatever opened it on close — unless
-  // something else has deliberately taken focus meanwhile, which is what happens when a place
-  // is opened from here and the detail drawer focuses its own control.
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    closeRef.current?.focus();
-    return () => {
-      const active = document.activeElement;
-      if (active && active !== document.body) return;
-      if (opener && opener.isConnected) opener.focus();
-    };
-  }, []);
-
-  // Escape closes; Tab cycles inside the dialog so the map behind never takes focus. Embedded
-  // content (Bloque 18) is not a dialog — nothing here should intercept the page's own Escape
-  // or Tab behaviour.
-  useEffect(() => {
-    if (embedded) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const root = dialogRef.current;
-      if (!root) return;
-      const focusable = [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-        (element) => element.offsetParent !== null
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener("keydown", onKeyDown, true);
-    return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [onClose, embedded]);
-
   const commitments = commitmentSentence(summary);
-  const Outer = embedded ? Fragment : "div";
-  const outerProps = embedded ? {} : { className: "analysis-overlay" };
 
   return (
-    <Outer {...outerProps}>
-      {!embedded && (
-        <div
-          className="analysis-backdrop"
-          onClick={onClose}
-          role="presentation"
-          aria-hidden="true"
-        />
-      )}
-      <div
-        ref={dialogRef}
-        className={`analysis-dialog ${embedded ? "analysis-dialog--embedded" : ""}`.trim()}
-        role={embedded ? undefined : "dialog"}
-        aria-modal={embedded ? undefined : true}
-        aria-labelledby="analysis-title"
-      >
-        <header className="analysis-header">
-          <div>
-            <h2 id="analysis-title">Tu selección</h2>
-            <p className="analysis-header__sub">
-              {summary.savedCount} lugar{summary.savedCount === 1 ? "" : "es"} guardado
-              {summary.savedCount === 1 ? "" : "s"} en {hubs.length} hub
-              {hubs.length === 1 ? "" : "s"} y {prefectures.length} prefectura
-              {prefectures.length === 1 ? "" : "s"}
-            </p>
-          </div>
-          <button
-            ref={closeRef}
-            type="button"
-            className="icon-button"
-            onClick={onClose}
-            aria-label="Cerrar el análisis de la selección"
-            title="Cerrar el análisis de la selección"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        </header>
+    <div className="analysis-dialog analysis-dialog--embedded quiero-ir__analysis">
+      <p className="analysis-header__sub">
+        {hubs.length} ciudad{hubs.length === 1 ? "" : "es"} y {prefectures.length} prefectura
+        {prefectures.length === 1 ? "" : "s"}
+      </p>
 
-        <div className="analysis-body">
-          <div className="analysis-totals">
+      <div className="analysis-body">
+        <div className="analysis-totals">
+          <div className="analysis-total">
+            <span className="analysis-total__value">
+              {summary.visitTime ? formatRange(summary.visitTime) : "—"}
+            </span>
+            <span className="analysis-total__label">
+              tiempo de visita cuantificable ({summary.quantifiedCount} lugar
+              {summary.quantifiedCount === 1 ? "" : "es"})
+            </span>
+          </div>
+          {summary.commitmentCount > 0 && (
             <div className="analysis-total">
-              <span className="analysis-total__value">
-                {summary.visitTime ? formatRange(summary.visitTime) : "—"}
-              </span>
+              <span className="analysis-total__value">{summary.commitmentCount}</span>
               <span className="analysis-total__label">
-                tiempo de visita cuantificable ({summary.quantifiedCount} lugar
-                {summary.quantifiedCount === 1 ? "" : "es"})
+                con compromiso de jornada, no sumados a las horas
+                {commitments && <span className="analysis-total__detail"> — {commitments}</span>}
               </span>
             </div>
-            {summary.commitmentCount > 0 && (
-              <div className="analysis-total">
-                <span className="analysis-total__value">{summary.commitmentCount}</span>
-                <span className="analysis-total__label">
-                  con compromiso de jornada, no sumados a las horas
-                  {commitments && <span className="analysis-total__detail"> — {commitments}</span>}
-                </span>
-              </div>
-            )}
-            {summary.nonQuantified.length > 0 && (
-              <div className="analysis-total">
-                <span className="analysis-total__value">{summary.nonQuantified.length}</span>
-                <span className="analysis-total__label">sin estimación numérica en horas</span>
-              </div>
-            )}
-          </div>
+          )}
+          {summary.nonQuantified.length > 0 && (
+            <div className="analysis-total">
+              <span className="analysis-total__value">{summary.nonQuantified.length}</span>
+              <span className="analysis-total__label">sin estimación numérica en horas</span>
+            </div>
+          )}
+        </div>
 
-          <p className="analysis-disclaimer">
-            <span aria-hidden="true">ⓘ</span> Todos los totales cuentan solo el tiempo dentro de
-            cada lugar. <strong>No incluyen traslados.</strong>
-          </p>
+        <p className="analysis-disclaimer">
+          <EvidenceMark level="estimado" label={false} detail="estimación editorial" /> Todos los
+          totales cuentan sólo el tiempo dentro de cada lugar. <strong>No incluyen traslados.</strong>
+        </p>
 
-          {hubs.map((hub) => (
-            <HubSection
-              key={hub.key}
-              group={hub}
-              expanded={expandedHubs.includes(hub.key)}
-              onToggle={() =>
-                setExpandedHubs((open) =>
-                  open.includes(hub.key)
-                    ? open.filter((key) => key !== hub.key)
-                    : [...open, hub.key]
-                )
-              }
-              onSelectPlace={onSelectPlace}
-            />
-          ))}
+        {hubs.map((hub) => (
+          <HubSection
+            key={hub.key}
+            group={hub}
+            expanded={expandedHubs.includes(hub.key)}
+            onToggle={() =>
+              setExpandedHubs((open) =>
+                open.includes(hub.key)
+                  ? open.filter((key) => key !== hub.key)
+                  : [...open, hub.key]
+              )
+            }
+            onSelectPlace={onSelectPlace}
+          />
+        ))}
 
+        <section className="analysis-section">
+          <h4>Distribución por duración</h4>
+          <ul className="analysis-distribution">
+            {distribution.map(({ block, count }) => (
+              <li key={block}>
+                <span className="analysis-distribution__label">{planningBlockLabel(block)}</span>
+                <span className="analysis-distribution__count">{count}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {summary.nonQuantified.length > 0 && (
           <section className="analysis-section">
-            <h3>Distribución por duración</h3>
-            <ul className="analysis-distribution">
-              {distribution.map(({ block, count }) => (
-                <li key={block}>
-                  <span className="analysis-distribution__label">{planningBlockLabel(block)}</span>
-                  <span className="analysis-distribution__count">{count}</span>
+            <h4>Sin estimación numérica</h4>
+            <p className="analysis-section__note">
+              Su duración es un compromiso editorial de jornada, no un número de horas, así que
+              queda fuera de la suma.
+            </p>
+            <ul className="analysis-place-list">
+              {summary.nonQuantified.map((place) => (
+                <li key={place.id}>
+                  <button
+                    type="button"
+                    className="analysis-place"
+                    onClick={() => onSelectPlace(place.id)}
+                  >
+                    <span>{place.name}</span>
+                    <span className="analysis-place__duration">{place.duration.raw}</span>
+                  </button>
                 </li>
               ))}
             </ul>
           </section>
-
-          {summary.nonQuantified.length > 0 && (
-            <section className="analysis-section">
-              <h3>Sin estimación numérica</h3>
-              <p className="analysis-section__note">
-                Su duración es un compromiso editorial de jornada, no un número de horas, así que
-                queda fuera de la suma.
-              </p>
-              <ul className="analysis-place-list">
-                {summary.nonQuantified.map((place) => (
-                  <li key={place.id}>
-                    <button
-                      type="button"
-                      className="analysis-place"
-                      onClick={() => onSelectPlace(place.id)}
-                    >
-                      <span>{place.name}</span>
-                      <span className="analysis-place__duration">{place.duration.raw}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
+        )}
       </div>
-    </Outer>
+    </div>
   );
 }

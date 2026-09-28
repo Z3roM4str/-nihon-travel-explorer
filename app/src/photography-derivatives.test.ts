@@ -120,8 +120,11 @@ describe("the surfaces that must use the derivative do", () => {
   });
 
   it("the saved-places thumbnail reuses the same rendition rather than the 1600px original", async () => {
+    // B25: Quiero ir pinta `PlaceCard compact`, que sirve la misma derivada de tarjeta.
     const source = await src("components/SelectionPanel.tsx");
-    expect(source).toContain("cardImageUrl(thumbnail.url)");
+    expect(source).toContain('variant="compact"');
+    const card = await src("components/PlaceCard.tsx");
+    expect(card).toContain("cardImageUrl(image.url)");
   });
 
   it("the detail hero offers both renditions and lets the browser choose", async () => {

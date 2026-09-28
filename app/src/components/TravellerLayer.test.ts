@@ -170,10 +170,11 @@ describe("accessibility", () => {
     expect(token).toContain("{initial}");
     const card = await readSource("PlaceCard.tsx");
     expect(card).toContain("label={`${otherPersonMarker.traveller.label} quiere ir`}");
-    // `SelectionPanel.tsx` sigue usando el chip de texto `interestMarker` sin cambios.
+    // B25 (B7): Quiero ir ya no usa el chip de texto por fila — cada sección dice de quién es con
+    // su titular «Sólo {nombre}» y un `PersonToken` con la inicial y un nombre accesible propio.
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("{marker.label}");
-    expect(panel).toContain("{marker.description}");
+    expect(panel).toContain("title={`Sólo ${section.traveller.label}`}");
+    expect(panel).toContain("label={`${section.traveller.label} quiere ir`}");
   });
 
   /**
@@ -199,9 +200,15 @@ describe("accessibility", () => {
     expect(manager).toMatch(/Quitar a \$\{traveller\.label\} del viaje/);
   });
 
-  it("labels the list's remove control with whose interest it withdraws", async () => {
-    const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toMatch(/de Quiero ir de \$\{activeTravellerLabel\}/);
+  it("removes from Quiero ir only the active traveller's own interest (B25)", async () => {
+    // B25 (B7): quitar es el corazón de la persona activa (`PlaceCard compact`, «Quitar {lugar}
+    // de Quiero ir»), que en Quiero ir pasa por `removeSaved` — sólo la postura de quien usa el
+    // dispositivo — y confirma con «Deshacer».
+    const app = withoutComments(await readAppSource("App.tsx"));
+    expect(app).toMatch(/if \(isWantedByActive\(id\)\) removeSavedWithUndo\(id\)/);
+    expect(app).toMatch(/const snapshot = snapshotActiveInterest\(id\);\s*removeSaved\(id\);/);
+    const hook = withoutComments(await readAppSource("useTravellers.ts"));
+    expect(hook).toContain("withStance(current, id, current.activeTravellerId, null)");
   });
 
   it("announces a destructive confirmation", async () => {
