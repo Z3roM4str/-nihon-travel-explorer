@@ -1059,7 +1059,18 @@ export default function App() {
                 <Icon name="expandir" size={16} aria-hidden="true" />
               </button>
             ) : (
-              <h1 className="app__title">{destinationLabel(destination)}</h1>
+              <h1 className="app__title">
+                {destinationLabel(destination)}
+                {/* B25 (`05 §6` pt. 1): la cabecera de Quiero ir lleva su contador. Sólo aquí y
+                    sólo si es > 0, igual que la insignia de la pestaña (Art. 6). */}
+                {destination === "quiero-ir" && wantToGoCount > 0 && (
+                  <span className="app__title-count">
+                    <span className="visually-hidden">: </span>
+                    {wantToGoCount}
+                    <span className="visually-hidden"> {wantToGoCount === 1 ? "lugar" : "lugares"}</span>
+                  </span>
+                )}
+              </h1>
             )}
           </div>
           <div className="app__header-actions">

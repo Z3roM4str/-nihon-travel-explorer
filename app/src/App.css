@@ -6333,25 +6333,11 @@ button.app__title.app__title--expand {
   min-width: 0;
 }
 
-.quiero-ir__header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.quiero-ir__title {
-  margin: 0;
-  font-family: var(--font-voice);
-  font-size: var(--type-title-l-size);
-  line-height: var(--type-title-l-line);
-  letter-spacing: var(--type-title-l-tracking);
-  color: var(--ink-900);
-}
-
-.quiero-ir__count {
+/* `05 §6` pt. 1: el contador de la cabecera — sólo en Quiero ir, sólo si es > 0. */
+.app__title-count {
   margin-left: var(--space-2);
   font-family: var(--font-record);
-  font-size: var(--type-title-s-size);
+  font-size: var(--type-body-s-size);
   font-variant-numeric: tabular-nums;
   color: var(--ink-500);
 }
@@ -6518,10 +6504,16 @@ button.app__title.app__title--expand {
   color: var(--ink-500);
 }
 
+/* P1-13 (B24): el plegado usa el chevron de línea del set, no glifos de texto (D-M5). */
 .quiero-ir__chevron {
   margin-left: auto;
   flex-shrink: 0;
   color: var(--ink-500);
+  transform: rotate(90deg);
+}
+
+.quiero-ir__chevron--open {
+  transform: rotate(-90deg);
 }
 
 .quiero-ir__section-body[hidden] {
@@ -6582,6 +6574,14 @@ button.app__title.app__title--expand {
   background: transparent;
 }
 
+/* Dentro de Quiero ir la duración nunca compite con el resumen (`05 §6`: no es titular). */
+.quiero-ir__analysis .analysis-total__value {
+  font-family: var(--font-record);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--ink-900);
+}
+
 /* Acción anclada (`05 §6` pt. 7): pegada al pie de la zona que scrollea, sobre la barra de
    pestañas en móvil y sobre el área segura en escritorio; el fondo tapa la lista que pasa por
    debajo y el último elemento nunca queda oculto porque la acción ocupa su propio sitio. */
@@ -6618,4 +6618,8 @@ button.app__title.app__title--expand {
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.quiero-ir__analysis .analysis-body {
+  padding: 0;
 }

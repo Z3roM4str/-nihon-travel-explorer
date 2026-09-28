@@ -73,12 +73,12 @@ function ClusterRow({
 
   return (
     <li className="analysis-cluster">
-      <h5 className="analysis-cluster__name">
+      <h4 className="analysis-cluster__name">
         {group.label}
         {showPrefecture && (
           <span className="analysis-cluster__prefecture"> · {prefecture}</span>
         )}
-      </h5>
+      </h4>
       <GroupSummary summary={group.summary} />
       <ul className="analysis-place-list">
         {group.places.map((place) => (
@@ -149,7 +149,7 @@ function HubSection({
 
   return (
     <section className="analysis-hub">
-      <h4 className="analysis-hub__heading">
+      <h3 className="analysis-hub__heading">
         <button
           type="button"
           id={buttonId}
@@ -162,9 +162,9 @@ function HubSection({
           <span className="analysis-hub__count">
             {group.places.length} lugar{group.places.length === 1 ? "" : "es"}
           </span>
-          <Icon name={expanded ? "arriba" : "abajo"} size={16} className="analysis-hub__chevron" />
+          <Icon name="siguiente" size={16} className={`quiero-ir__chevron ${expanded ? "quiero-ir__chevron--open" : ""}`.trim()} />
         </button>
-      </h4>
+      </h3>
 
       <div id={panelId} role="region" aria-labelledby={buttonId} hidden={!expanded}>
         <GroupSummary summary={group.summary} />
@@ -263,7 +263,7 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace }: Props) {
         ))}
 
         <section className="analysis-section">
-          <h4>Distribución por duración</h4>
+          <h3>Distribución por duración</h3>
           <ul className="analysis-distribution">
             {distribution.map(({ block, count }) => (
               <li key={block}>
@@ -276,7 +276,7 @@ export function SelectionAnalysis({ savedPlaces, onSelectPlace }: Props) {
 
         {summary.nonQuantified.length > 0 && (
           <section className="analysis-section">
-            <h4>Sin estimación numérica</h4>
+            <h3>Sin estimación numérica</h3>
             <p className="analysis-section__note">
               Su duración es un compromiso editorial de jornada, no un número de horas, así que
               queda fuera de la suma.

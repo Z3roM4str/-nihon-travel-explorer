@@ -70,7 +70,7 @@ function FoldSection({ id, title, count, open, onToggle, token, tone = "neutral"
   const panelId = `${id}-panel`;
   return (
     <section className={`quiero-ir__section quiero-ir__section--${tone}`} aria-labelledby={`${id}-button`}>
-      <h3 className="quiero-ir__section-heading">
+      <h2 className="quiero-ir__section-heading">
         <button
           type="button"
           id={`${id}-button`}
@@ -82,9 +82,9 @@ function FoldSection({ id, title, count, open, onToggle, token, tone = "neutral"
           {token}
           <span className="quiero-ir__section-title">{title}</span>
           <span className="quiero-ir__section-count">({count})</span>
-          <Icon name={open ? "arriba" : "abajo"} size={16} className="quiero-ir__chevron" />
+          <Icon name="siguiente" size={16} className={`quiero-ir__chevron ${open ? "quiero-ir__chevron--open" : ""}`.trim()} />
         </button>
-      </h3>
+      </h2>
       <div id={panelId} className="quiero-ir__section-body" hidden={!open}>
         {children}
       </div>
@@ -217,9 +217,9 @@ export function SelectionPanel({
     if (groups.length <= 1) return rows(places);
     return groups.map((group) => (
       <div key={group.key} className="quiero-ir__city">
-        <h4 className="quiero-ir__city-name">
+        <h3 className="quiero-ir__city-name">
           {group.label} <span className="quiero-ir__city-count">({group.places.length})</span>
-        </h4>
+        </h3>
         {rows(group.places)}
       </div>
     ));
@@ -227,12 +227,7 @@ export function SelectionPanel({
 
   if (total === 0 && declinedPlaces.length === 0) {
     return (
-      <section className="quiero-ir quiero-ir--empty" aria-labelledby={`${uid}-title`}>
-        <header className="quiero-ir__header">
-          <h2 id={`${uid}-title`} className="quiero-ir__title">
-            Quiero ir <span className="quiero-ir__count">0</span>
-          </h2>
-        </header>
+      <section className="quiero-ir quiero-ir--empty" aria-label="Quiero ir">
         <EmptyState
           icon="corazon"
           title="Todavía no habéis marcado nada."
@@ -247,17 +242,7 @@ export function SelectionPanel({
   const showPending = twoPeople && activeLens === "both" && sections.agreed.length === 0 && yetToMark;
 
   return (
-    <section className="quiero-ir" aria-labelledby={`${uid}-title`}>
-      <header className="quiero-ir__header">
-        <h2 id={`${uid}-title`} className="quiero-ir__title">
-          Quiero ir{" "}
-          <span className="quiero-ir__count">
-            <span className="visually-hidden">: </span>
-            {total}
-            <span className="visually-hidden"> {total === 1 ? "lugar" : "lugares"}</span>
-          </span>
-        </h2>
-      </header>
+    <section className="quiero-ir" aria-label="Quiero ir">
 
       {twoPeople && (
         <div className="quiero-ir__segmented" role="radiogroup" aria-label="Qué lugares ver">
@@ -276,6 +261,7 @@ export function SelectionPanel({
                 className={`quiero-ir__segment ${checked ? "quiero-ir__segment--on" : ""}`.trim()}
                 onClick={() => setLens(option.value)}
                 onKeyDown={(event) => onSegmentKey(event, index)}
+                title={option.label}
               >
                 {option.label}
               </button>
@@ -329,11 +315,11 @@ export function SelectionPanel({
           </p>
         ) : (
           <section className="quiero-ir__section quiero-ir__section--agreed quiero-ir__agreed" aria-labelledby={`${uid}-agreed`}>
-            <h3 id={`${uid}-agreed`} className="quiero-ir__section-heading quiero-ir__section-heading--static">
+            <h2 id={`${uid}-agreed`} className="quiero-ir__section-heading quiero-ir__section-heading--static">
               <PersonToken traveller={null} both size="xs" />
               <span className="quiero-ir__section-title">Los dos queréis ir</span>
               <span className="quiero-ir__section-count">({sections.agreed.length})</span>
-            </h3>
+            </h2>
             {sections.agreed.length === 0 ? (
               <p className="quiero-ir__empty-line">{emptyFilterSentence("agreed")}</p>
             ) : (
