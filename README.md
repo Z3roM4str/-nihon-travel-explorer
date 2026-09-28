@@ -66,6 +66,7 @@ The dataset intentionally preserves uncertainty and operational warnings, includ
 
 ## Documentation
 
+- [Deployment policy and provider freeze](docs/DEPLOYMENT_POLICY.md)
 - [Product specification](docs/PRODUCT_SPEC.md)
 - [Data model](docs/DATA_MODEL.md)
 - [Geographic layer, source and licence](docs/GEOGRAPHY.md)
