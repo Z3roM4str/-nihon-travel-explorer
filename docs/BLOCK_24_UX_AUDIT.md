@@ -215,7 +215,7 @@ B6.5 timing fix y B23 photo retry incorporados por `cherry-pick`. Detalle:
 | P1-10 | Ficha › galería | 820×1180 (y < md en general) | Héroe 4:5 a 820 px de ancho = **1025 px** de alto (> 60 % de 1180) | D-M3, `04 §6` | FIX-NOW |
 | P1-11 | Inicio › Más destinos | 320–820 | Fila horizontal de tarjetas de 200 px: la segunda tarjeta la corta el borde de la pantalla a media palabra («1 lugar por ahor»); contador en píldora | `05 §2` pt. 4, DDR-B21-02 | FIX-NOW |
 | P1-12 | Inicio | todos | La sección «Ciudades» es un panel interior (`.national-start`: fondo `--surface`, borde inferior, relleno propio) dentro de la portada; `05 §2` no lo prescribe | `05 §2` | FIX-NOW (se retira el panel; el texto se conserva) |
-| P1-13 | Quiero ir (`SelectionPanel` ▾▴, `SelectionAnalysis` ▸) | todos | Glifos de texto como icono | D-M5 | DEFERRED-ROADMAP(B7) — la misión sólo admite P0 en Quiero ir |
+| P1-13 | Quiero ir (`SelectionPanel` ▾▴, `SelectionAnalysis` ▸) | todos | Glifos de texto como icono | D-M5 | **RESUELTO en B25 (B7)** — chevron de línea del set (`siguiente`, rotado) en todos los plegables; `docs/BLOCK_25_HANDOFF.md` |
 
 ## P2 — catálogo
 

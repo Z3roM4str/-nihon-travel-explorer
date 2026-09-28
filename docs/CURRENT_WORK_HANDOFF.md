@@ -1,5 +1,16 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## B25 — B7 «Quiero ir» (2026-09-28) — CERRADO en rama, PR draft
+
+- Rama `claude/b25-quiero-ir` desde `origin/main` @ `88a741d` (verificado). `main` intacto.
+- Pantalla según `05 §6`: segmentado (filtro de vista), resumen de tres datos, coincidencias
+  primero, «Sólo {persona}», Descartados, «Llevar al viaje»; `SelectionAnalysis` integrado como
+  «Por ciudad y zona»; quitar + Toast «Deshacer». P1-13 resuelto.
+- Puertas: build PASS, lint 0 errores, Vitest 3395/3395, gate nuevo
+  `app/scripts/b25-quiero-ir-check.mjs` 123/123, integración 58/58, Phase 5A 50/50 ×2, B23 28/28,
+  DD-028 16/16, B18 back 15/15, viaje-lugar 38/38. Detalle: `docs/BLOCK_25_HANDOFF.md`.
+- Siguiente: revisión humana del PR. No empezar B8/B9/B10/B26 sin decisión de dirección.
+
 ## ESTADO CANÓNICO ACTUAL — PR #152 integrado a `main` (2026-09-28)
 
 **`main` ya no está en `8eb725e`.** PR #152 se certificó MERGE-READY (auditoría 2026-09-27,
