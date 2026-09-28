@@ -540,6 +540,71 @@ export function withNewTraveller(
 }
 
 /**
+ * B25 (B7 «Quiero ir», `05 §6`) — what «Deshacer» needs to put back exactly one withdrawal.
+ *
+ * Taken immediately BEFORE a traveller withdraws their interest: the record as it was and where it
+ * sat in the list, so the place returns to its original position rather than to the end.
+ */
+export type InterestSnapshot = {
+  travellerId: string;
+  record: PlaceInterest;
+  index: number;
+};
+
+export function interestSnapshot(
+  document: TravellersDocumentV1,
+  placeId: string,
+  travellerId: string
+): InterestSnapshot | null {
+  const index = document.interests.findIndex((entry) => entry.placeId === placeId);
+  if (index === -1) return null;
+  return { travellerId, record: document.interests[index], index };
+}
+
+/**
+ * Restores ONE traveller's stance from a snapshot — the undo of a withdrawal.
+ *
+ * Only the snapshot traveller's own stance is restored. Every other traveller's CURRENT stance on
+ * that place is kept as it is now, so an undo can never overwrite something somebody else said in
+ * the meantime. The record goes back to its original index when it had left the list entirely.
+ */
+export function withRestoredInterest(
+  document: TravellersDocumentV1,
+  snapshot: InterestSnapshot
+): TravellersDocumentV1 {
+  const { travellerId, record, index } = snapshot;
+  if (!findTraveller(document, travellerId)) return document;
+  const own = record.stances.find((entry) => entry.travellerId === travellerId) ?? null;
+  if (!own) return document;
+  const currentIndex = document.interests.findIndex((entry) => entry.placeId === record.placeId);
+  const current = currentIndex === -1 ? null : document.interests[currentIndex];
+  const others = current
+    ? current.stances.filter((entry) => entry.travellerId !== travellerId)
+    : [];
+  // Keep the snapshot's stance order where possible, so the record reads back identically.
+  const stances: TravellerStance[] = [];
+  for (const entry of record.stances) {
+    if (entry.travellerId === travellerId) stances.push(entry);
+    else {
+      const still = others.find((other) => other.travellerId === entry.travellerId);
+      if (still) stances.push(still);
+    }
+  }
+  for (const other of others) {
+    if (!stances.some((entry) => entry.travellerId === other.travellerId)) stances.push(other);
+  }
+  const next: PlaceInterest = {
+    placeId: record.placeId,
+    stances,
+    carriedOver: current ? current.carriedOver : record.carriedOver,
+  };
+  const interests = [...document.interests];
+  if (currentIndex !== -1) interests[currentIndex] = next;
+  else interests.splice(Math.min(index, interests.length), 0, next);
+  return { ...document, interests: pruneEmptyInterests(interests) };
+}
+
+/**
  * Drops interests for places the catalogue no longer resolves.
  *
  * The parse-then-reconcile split the planning draft already uses: shape is validated at parse,
