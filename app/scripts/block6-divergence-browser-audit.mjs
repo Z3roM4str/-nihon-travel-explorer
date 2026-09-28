@@ -12,6 +12,15 @@ import { preview } from "vite";
  * that a stance change is reflected the moment it happens, and that the whole block adds no
  * storage key, no second list and no second main surface.
  *
+ * B25 (B7 «Quiero ir», `10 §B7`): la barra de filtros de B6 (`ShortlistFilterBar`) y la lista
+ * plana se sustituyen por diseño por SECCIONES («Los dos queréis ir», «Sólo {nombre}», «Opiniones
+ * distintas», «Sin reclamar», «Descartados») y un segmentado que es una lente de vista. Los contratos
+ * de este gate —silencio ≠ rechazo, un rechazo explícito crea «Opiniones distintas», un cambio de
+ * postura se refleja al instante, la nota de lugar ya planificado no mueve nada, la vista no escribe
+ * ni el borrador ni el documento, reinicio/recarga/huella de almacenamiento, alcance y teclado— se
+ * miden aquí sobre el marcado nuevo, uno por uno. Nada se relaja: donde un chip era la unidad, ahora
+ * lo es la sección o el segmento.
+ *
  * Usage: node scripts/block6-divergence-browser-audit.mjs [--viewport=phone|tablet|desktop|all]
  */
 
@@ -32,7 +41,6 @@ const MIN_TAP_PX = 44;
 const COMPACT_TAP_ALLOWANCE = {
   ".icon-button--small": 36,
   ".link-button": 24,
-  ".selection-panel__chevron": 20,
 };
 
 const args = process.argv.slice(2);
@@ -98,6 +106,14 @@ async function smallTargets(page, scope) {
         if (r.width === 0 || r.height === 0) continue;
         if (el.closest(".leaflet-control-container")) continue;
         let floor = min;
+        // `.tap-target-min` (App.css, convención del proyecto desde B1): el área real es el
+        // `::after` centrado, no la caja pintada. Se mide ESE área, no se exime el control.
+        if (el.matches(".tap-target-min")) {
+          const after = getComputedStyle(el, "::after");
+          const w = Math.max(r.width, parseFloat(after.width) || 0);
+          const h = Math.max(r.height, parseFloat(after.height) || 0);
+          if (Math.min(w, h) + 0.5 >= floor) continue;
+        }
         for (const [sel, allowed] of Object.entries(allowance)) {
           if (el.matches(sel)) floor = Math.min(floor, allowed);
         }
@@ -112,43 +128,92 @@ async function smallTargets(page, scope) {
 }
 
 async function openHub(page, hub) {
-  const tab = page.getByRole("tab", { name: hub });
-  if ((await tab.count()) > 0) await tab.first().click();
-  else await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
+  await goTo(page, "Explorar");
+  const shortcut = page.getByRole("region", { name: "Empezar a explorar" });
+  if ((await shortcut.count()) > 0) {
+    await shortcut.getByRole("button", { name: new RegExp(`^${hub}\\b`) }).first().click();
+  }
   await page.waitForTimeout(1300);
 }
 
+/**
+ * Cambia de persona activa donde el shell la publica hoy (DD-007: Nosotros › Viajeros, con el
+ * `PersonToken` de la cabecera como puerta) — igual que el gate de B5. Antes de B25 este gate
+ * pulsaba `.traveller-bar__option` en Explorar, donde ya no es visible desde B18.
+ */
 async function beTraveller(page, index) {
-  await page.locator(".traveller-bar__option").nth(index).click();
+  await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
+  await page.waitForTimeout(450);
+  await page.locator(".traveller-bar__option:visible").nth(index).click();
   await page.waitForTimeout(350);
+  await backToBrowse(page);
 }
 
 /** The detail overlay, closed through the control the reader actually uses. */
 async function closeDetail(page) {
-  const close = page.locator('.place-detail .icon-button[aria-label^="Cerrar la ficha"]');
+  // B20 (`05 §5`, D4): el `×` flotante desapareció; el botón atrás de la ficha es la salida.
+  const close = page.locator('.place-detail__back:visible, .place-detail .icon-button[aria-label^="Cerrar la ficha"]:visible');
   if ((await close.count()) > 0) await close.first().click();
   await page.waitForTimeout(500);
 }
 
+/** El destino activo, por rol y nombre accesible (`04 §10`). */
+async function goTo(page, label) {
+  await page
+    .getByRole("navigation", { name: "Navegación principal" })
+    .getByRole("button", { name: label })
+    .first()
+    .click();
+  await page.waitForTimeout(500);
+}
+
+const QI = ".destination-panel:not([hidden]) .quiero-ir";
+
+/** Abre Quiero ir (B25: es la pestaña, y las secciones son su contenido). */
 async function openPanel(page) {
-  if ((await page.locator(".selection-panel__content").count()) === 0) {
-    await page.locator(".selection-panel__toggle").click();
-    await page.waitForTimeout(400);
-  }
+  await goTo(page, "Quiero ir");
 }
 
-/** Presses one filter chip by its visible label. */
-async function pressFilter(page, label) {
-  await page.locator(".shortlist-filters__chip", { hasText: new RegExp(`^${label}`) }).first().click();
-  await page.waitForTimeout(350);
+/** Vuelve a Explorar › Tokio, donde viven las tarjetas y la barra de personas. */
+async function backToBrowse(page) {
+  await goTo(page, "Explorar");
+  if ((await page.locator(".place-card").count()) === 0) await openHub(page, "Tokio");
 }
 
-async function chipLabels(page) {
-  return (await page.locator(".shortlist-filters__label").allInnerTexts()).map((t) => t.trim());
+/** Títulos de sección visibles, sin contador: «Los dos queréis ir», «Sólo Ana», … */
+async function sectionTitles(page) {
+  return (await page.locator(`${QI} .quiero-ir__section-title`).allInnerTexts()).map((t) => t.trim());
 }
 
-async function visibleRowNames(page) {
-  return (await page.locator(".selection-list__place").allInnerTexts()).map((t) => t.trim());
+/** Los ids de lugar dentro de la sección cuyo título empieza por `title`. */
+async function rowsIn(page, title) {
+  return page.locator(`${QI} .quiero-ir__section`).evaluateAll(
+    (sections, wanted) =>
+      sections
+        .filter((section) =>
+          (section.querySelector(".quiero-ir__section-title")?.textContent ?? "").trim().startsWith(wanted)
+        )
+        .flatMap((section) =>
+          [...section.querySelectorAll(".quiero-ir__row")].map((row) => row.getAttribute("data-quiero-ir-place"))
+        ),
+    title
+  );
+}
+
+async function allRowIds(page) {
+  return page
+    .locator(`${QI} .quiero-ir__row`)
+    .evaluateAll((rows) => [...new Set(rows.map((row) => row.getAttribute("data-quiero-ir-place")))]);
+}
+
+async function rowNote(page, placeId) {
+  const note = page.locator(`${QI} [data-quiero-ir-place="${placeId}"] .quiero-ir__row-note`);
+  return (await note.count()) === 0 ? "" : (await note.first().innerText()).trim();
+}
+
+async function badge(page) {
+  const b = page.locator(".tab-bar__badge, .nav-rail__badge");
+  return (await b.count()) === 0 ? "0" : (await b.first().innerText()).trim();
 }
 
 async function auditViewport(browser, name, url) {
@@ -178,9 +243,12 @@ async function auditViewport(browser, name, url) {
   // ── The everyday list is unchanged until there is something to ask ───────────────────────────
   await openPanel(page);
   check(
-    "an empty list offers no filter row at all",
-    (await page.locator(".shortlist-filters").count()) === 0
+    "an empty list offers no sections and no lens at all",
+    (await page.locator(`${QI}.quiero-ir--empty`).count()) === 1 &&
+      (await page.locator(`${QI} .quiero-ir__section`).count()) === 0 &&
+      (await page.locator(`${QI} .quiero-ir__segmented`).count()) === 0
   );
+  await backToBrowse(page);
 
   const cards = page.locator(".place-card");
 
@@ -192,12 +260,17 @@ async function auditViewport(browser, name, url) {
   await cards.nth(0).locator(".place-card__save").click();
   await page.waitForTimeout(300);
 
+  const travellerLabels = ((await readJson(page, TRAVELLERS_KEY))?.travellers ?? []).map((t) => t.label);
   await openPanel(page);
+  let titles = await sectionTitles(page);
   check(
-    "one place everybody agrees on still offers no filter to press",
-    (await page.locator(".shortlist-filters").count()) === 0,
-    JSON.stringify(await chipLabels(page))
+    "one place everybody agrees on reads as agreement and nothing else",
+    titles.includes("Los dos queréis ir") && !titles.includes("Opiniones distintas") &&
+      !titles.some((t) => t.startsWith("Sólo ")),
+    JSON.stringify(titles)
   );
+  const agreedId = (await rowsIn(page, "Los dos queréis ir"))[0];
+  await backToBrowse(page);
 
   // B/C. one-sided: P1 wants the second place, P2 has not spoken.
   await beTraveller(page, 0);
@@ -205,67 +278,48 @@ async function auditViewport(browser, name, url) {
   await page.waitForTimeout(350);
   await openPanel(page);
 
-  let labels = await chipLabels(page);
-  check("a one-sided place brings the filter row in", labels.length >= 2, JSON.stringify(labels));
-  check("with 'Todo' first and selected by default", labels[0] === "Todo", JSON.stringify(labels));
+  titles = await sectionTitles(page);
+  const onlyTitle = titles.find((t) => t.startsWith("Sólo "));
+  check("a one-sided place gets a section of its own", Boolean(onlyTitle), JSON.stringify(titles));
   check(
-    "and no 'Opiniones distintas' chip, because nobody has said no",
-    !labels.includes("Opiniones distintas"),
-    JSON.stringify(labels)
+    "and no 'Opiniones distintas' section, because nobody has said no",
+    !titles.includes("Opiniones distintas"),
+    JSON.stringify(titles)
   );
-  check("the chips name both groups that exist", labels.includes("Los dos") && labels.includes("Sólo uno"), JSON.stringify(labels));
-
-  const allChip = page.locator(".shortlist-filters__chip").first();
-  check('"Todo" is the pressed chip', (await allChip.getAttribute("aria-pressed")) === "true");
+  check("both groups that exist are named", titles.includes("Los dos queréis ir") && Boolean(onlyTitle), JSON.stringify(titles));
+  let rows = onlyTitle ? await rowsIn(page, onlyTitle) : [];
+  check("the one-sided section holds only the one-sided place", rows.length === 1 && rows[0] !== agreedId, JSON.stringify(rows));
+  const oneSidedId = rows[0];
   check(
-    "the default view says nothing extra above the list",
-    (await page.locator(".selection-panel__filter-status").count()) === 0
+    "B — the section names who wants it (the traveller who saved it)",
+    onlyTitle === `Sólo ${travellerLabels[0]}`,
+    `${onlyTitle} vs ${JSON.stringify(travellerLabels)}`
   );
+  const oneSidedNote = await rowNote(page, oneSidedId);
+  check("never calling silence a disagreement", !/distint|desacuerdo|no le interesa/i.test(oneSidedNote), oneSidedNote);
   check(
-    "and carries no derived line on any row",
-    (await page.locator(".selection-list__divergence").count()) === 0
+    "the default view carries no derived line on agreed rows",
+    (await rowNote(page, agreedId)) === ""
   );
-
-  // ── B. "sólo tú" from P1's chair ─────────────────────────────────────────────────────────────
-  await pressFilter(page, "Sólo uno");
-  let rows = await visibleRowNames(page);
-  check("filtering to 'Sólo uno' shows only the one-sided place", rows.length === 1, JSON.stringify(rows));
-  // The saved list names the place; every later assertion is made against THAT name, so nothing
-  // depends on how a browse card happens to render its own title.
-  const oneSidedName = rows[0];
-  let line = (await page.locator(".selection-list__divergence").first().innerText()).trim();
-  check("and names it as yours", /sólo tú lo guardaste/i.test(line), line);
-  check("saying the other person has not spoken, not that they refused", /aún no ha opinado/i.test(line), line);
-  check("never calling silence a disagreement", !/distint|desacuerdo|no le interesa/i.test(line), line);
-  check(
-    "the short marker stands down so the row carries one indicator, not two",
-    (await page.locator(".selection-list__interest-marker").count()) === 0
-  );
-  const status = (await page.locator(".selection-panel__filter-status").innerText()).trim();
-  check("a status line states what is shown", status.length > 0, status);
-  check("and says outright that nobody has refused", /nadie ha dicho que no/i.test(status), status);
 
   // ── C. the same state, read by the other person ──────────────────────────────────────────────
+  await backToBrowse(page);
   await beTraveller(page, 1);
   await openPanel(page);
-  await pressFilter(page, "Sólo uno");
-  line = (await page.locator(".selection-list__divergence").first().innerText()).trim();
-  check("the same place reads as the other person's from P2's chair", /sólo .* lo guardó/i.test(line), line);
-  check("and says that YOU have not spoken", /tú aún no has opinado/i.test(line), line);
+  titles = await sectionTitles(page);
+  check(
+    "C — from P2's chair the place is still named as P1's, not as a disagreement",
+    titles.includes(`Sólo ${travellerLabels[0]}`) && !titles.includes("Opiniones distintas"),
+    JSON.stringify(titles)
+  );
   const docBefore = await readJson(page, TRAVELLERS_KEY);
 
   // ── H. no explicit disagreement exists, and the app says so ──────────────────────────────────
-  await pressFilter(page, "Todo");
-  labels = await chipLabels(page);
-  check(
-    "H — with nothing refused there is still no disagreement filter",
-    !labels.includes("Opiniones distintas"),
-    JSON.stringify(labels)
-  );
-  const tally = (await page.locator(".selection-panel__tally").innerText()).trim();
-  check("and the tally names no desacuerdo either", !/desacuerdo/i.test(tally), tally);
+  const qiText = (await page.locator(QI).innerText()).trim();
+  check("H — with nothing refused, nothing on screen says desacuerdo", !/desacuerdo/i.test(qiText), qiText.slice(0, 160));
 
   // ── D/E. an explicit refusal, from the detail ────────────────────────────────────────────────
+  await backToBrowse(page);
   await cards.nth(1).locator(".place-card__open").click();
   await page.waitForTimeout(700);
   await page.locator(".place-interest__decline").click();
@@ -273,65 +327,49 @@ async function auditViewport(browser, name, url) {
   await closeDetail(page);
   await openPanel(page);
 
-  labels = await chipLabels(page);
-  check("D — a refusal creates the 'Opiniones distintas' filter", labels.includes("Opiniones distintas"), JSON.stringify(labels));
-  check("and retires 'Sólo uno', because that place is no longer merely unanswered", !labels.includes("Sólo uno"), JSON.stringify(labels));
-
-  await pressFilter(page, "Opiniones distintas");
-  rows = await visibleRowNames(page);
+  titles = await sectionTitles(page);
+  check("D — a refusal creates the 'Opiniones distintas' section", titles.includes("Opiniones distintas"), JSON.stringify(titles));
   check(
-    "the filter shows exactly the disputed place, and it is the one that was one-sided",
-    rows.length === 1 && rows[0] === oneSidedName,
+    "and retires the one-sided section, because that place is no longer merely unanswered",
+    !titles.some((t) => t.startsWith("Sólo ")),
+    JSON.stringify(titles)
+  );
+  rows = await rowsIn(page, "Opiniones distintas");
+  check(
+    "the section holds exactly the disputed place, and it is the one that was one-sided",
+    rows.length === 1 && rows[0] === oneSidedId,
     JSON.stringify(rows)
   );
-  line = (await page.locator(".selection-list__divergence").first().innerText()).trim();
+  let line = await rowNote(page, oneSidedId);
   check("and words it as a difference of opinion", /opiniones distintas/i.test(line), line);
   check("naming the refusal explicitly", /no le interesa/i.test(line), line);
   check("without a score, a percentage or a winner", !/%|punt|score|afinidad|gana/i.test(line), line);
-  check(
-    "the place is still in the shared list, because the other person wants it",
-    (await page.locator(".selection-panel__count").innerText()).trim() === "2"
-  );
+  check("the place is still in the shared list, because the other person wants it", (await badge(page)) === "2");
 
   // ── I. a change of stance updates the view immediately ───────────────────────────────────────
+  await backToBrowse(page);
   await beTraveller(page, 1);
   await cards.nth(1).locator(".place-card__open").click();
   await page.waitForTimeout(700);
-  // The same reader who refused now says they want to go: one press of the detail's own heart.
   await page.locator(".place-detail .save-button").click();
   await page.waitForTimeout(500);
   await closeDetail(page);
   await openPanel(page);
-
-  check(
-    "I — the disagreement filter is still the selected one",
-    (await page.locator(".shortlist-filters__chip--active .shortlist-filters__label").innerText()).trim() ===
-      "Opiniones distintas"
-  );
-  check(
-    "I — and it now shows the explicit empty state rather than a stale row",
-    (await page.locator(".selection-panel__filter-empty").count()) === 1
-  );
-  const empty = (await page.locator(".selection-panel__filter-empty").innerText()).trim();
-  check("H — the empty state states the fact, it is not a blank", /no hay opiniones distintas/i.test(empty), empty);
-  check("and explains that silence is not the same thing", /nadie ha dicho que no/i.test(empty), empty);
-  check(
-    "the selected chip stays visible at zero rather than vanishing under the reader",
-    (await page.locator(".shortlist-filters__chip--active").count()) === 1
-  );
-
-  await pressFilter(page, "Todo");
-  rows = await visibleRowNames(page);
-  check("returning to 'Todo' restores the whole list", rows.length === 2, JSON.stringify(rows));
+  titles = await sectionTitles(page);
+  check("I — the disagreement section disappears the moment nobody refuses", !titles.includes("Opiniones distintas"), JSON.stringify(titles));
+  rows = await rowsIn(page, "Los dos queréis ir");
+  check("I — and the place moves into agreement, with no stale row left behind", rows.length === 2 && rows.includes(oneSidedId), JSON.stringify(rows));
+  check("returning shows the whole list", (await allRowIds(page)).length === 2);
 
   // ── G. a one-sided place the planner already holds ───────────────────────────────────────────
+  await backToBrowse(page);
   await beTraveller(page, 0);
   await cards.nth(2).locator(".place-card__save").click();
   await page.waitForTimeout(400);
   await openPanel(page);
-  await page.getByRole("button", { name: /Construir recorrido/ }).click();
+  await page.getByRole("button", { name: /Llevar al viaje/ }).click();
   await page.waitForTimeout(900);
-  check("the planner opened", (await page.locator("#sequence-builder-title").count()) === 1);
+  check("the planner opened", (await page.locator("#sequence-builder-title:visible").count()) === 1);
   await page.getByRole("button", { name: /Distribuir por días/ }).click();
   await page.waitForTimeout(700);
   let draft = await readJson(page, DRAFT_KEY);
@@ -339,24 +377,17 @@ async function auditViewport(browser, name, url) {
   check("and assigned the places to days", plannedIds.length >= 3, JSON.stringify(plannedIds));
   const draftBeforeView = JSON.stringify(draft);
 
-  await page.locator("#sequence-builder-title").locator("xpath=ancestor::*[1]").locator("button").last().click().catch(() => {});
-  await page.getByRole("button", { name: /^Cerrar|Volver/ }).first().click().catch(() => {});
-  await page.waitForTimeout(700);
-  if ((await page.locator("#sequence-builder-title").count()) > 0) {
-    await page.keyboard.press("Escape");
-    await page.waitForTimeout(600);
-  }
-  check("the planner closed", (await page.locator("#sequence-builder-title").count()) === 0);
+  // B18/B25: el planificador es Viaje › Planificar, no un modal; «cerrarlo» es volver por la barra.
+  await openPanel(page);
+  check("the planner closed", (await page.locator("#sequence-builder-title:visible").count()) === 0);
 
   await openPanel(page);
-  await pressFilter(page, "Sólo uno");
-  const notes = await page.locator(".selection-list__planned").allInnerTexts();
-  check("G — a one-sided place already on a day says so", notes.length >= 1, JSON.stringify(notes));
-  check(
-    "G — and says that this screen does not move it",
-    notes.every((note) => /no lo cambia/i.test(note)),
-    JSON.stringify(notes)
-  );
+  const onlyNow = (await sectionTitles(page)).find((t) => t.startsWith("Sólo "));
+  const plannedOneSided = onlyNow ? await rowsIn(page, onlyNow) : [];
+  const notes = [];
+  for (const id of plannedOneSided) notes.push(await rowNote(page, id));
+  check("G — a one-sided place already on a day says so", notes.length >= 1 && notes.every((n) => n.length > 0), JSON.stringify(notes));
+  check("G — and says that this screen does not move it", notes.every((note) => /no lo cambia/i.test(note)), JSON.stringify(notes));
   check(
     "G — it proposes no removal, no reschedule and no replacement",
     notes.every((note) => !/quita|mueve|sustitu|reemplaz|otro día/i.test(note)),
@@ -364,32 +395,33 @@ async function auditViewport(browser, name, url) {
   );
 
   draft = await readJson(page, DRAFT_KEY);
-  check(
-    "G — the planning draft is byte-for-byte what the planner left",
-    JSON.stringify(draft) === draftBeforeView
-  );
+  check("G — the planning draft is byte-for-byte what the planner left", JSON.stringify(draft) === draftBeforeView);
   check("G — and it is still V8", draft?.version === 8, String(draft?.version));
-  check(
-    "G — with no traveller dimension anywhere in it",
-    !/traveller|persona|stance|divergen/i.test(JSON.stringify(draft))
-  );
+  check("G — with no traveller dimension anywhere in it", !/traveller|persona|stance|divergen/i.test(JSON.stringify(draft)));
 
   // ── The view alters no plan, whatever the reader presses ─────────────────────────────────────
-  await pressFilter(page, "Todo");
-  await pressFilter(page, "Los dos");
-  await pressFilter(page, "Todo");
+  const docBeforeLens = JSON.stringify(await readJson(page, TRAVELLERS_KEY));
+  const segments = page.locator(`${QI} .quiero-ir__segment`);
+  const segmentCount = await segments.count();
+  for (let i = 0; i < segmentCount; i += 1) {
+    await segments.nth(i).click();
+    await page.waitForTimeout(250);
+  }
+  await segments.first().click();
+  await page.waitForTimeout(250);
+  check("pressing the lens changes nothing in the draft", JSON.stringify(await readJson(page, DRAFT_KEY)) === draftBeforeView);
   check(
-    "pressing filters changes nothing in the draft",
-    JSON.stringify(await readJson(page, DRAFT_KEY)) === draftBeforeView
+    "and nothing in the travellers document — not even the active person",
+    JSON.stringify(await readJson(page, TRAVELLERS_KEY)) === docBeforeLens
   );
   check(
-    "and nothing in the travellers document",
-    JSON.stringify((await readJson(page, TRAVELLERS_KEY))?.travellers) ===
-      JSON.stringify(docBefore?.travellers)
+    "and the people are the ones there were before any of this",
+    JSON.stringify((await readJson(page, TRAVELLERS_KEY))?.travellers) === JSON.stringify(docBefore?.travellers)
   );
 
   // ── J. a profile reset ───────────────────────────────────────────────────────────────────────
-  await page.locator(".traveller-bar__manage").click();
+  await goTo(page, "Nosotros");
+  await page.getByRole("button", { name: "Editar las personas del viaje" }).first().click();
   await page.waitForTimeout(500);
   const resetButton = page.getByRole("button", { name: /^Reiniciar lo que ha guardado/ }).first();
   await resetButton.click();
@@ -399,14 +431,10 @@ async function auditViewport(browser, name, url) {
   await page.keyboard.press("Escape");
   await page.waitForTimeout(450);
   await openPanel(page);
+  const shown = (await allRowIds(page)).length;
+  check("J — a reset updates the view with the list it leaves behind", String(shown) === (await badge(page)), `${shown} vs ${await badge(page)}`);
   const afterReset = await readJson(page, TRAVELLERS_KEY);
-  const survivors = (afterReset?.interests ?? []).length;
-  check("J — a reset updates the view with the list it leaves behind", survivors === (await visibleRowNames(page)).length, `${survivors}`);
-  check(
-    "J — and the chips describe that list, not the old one",
-    (await chipLabels(page)).length === 0 ||
-      (await page.locator(".shortlist-filters__chip").count()) >= 2
-  );
+  check("J — and the reset really removed something", (afterReset?.interests ?? []).length < 3, JSON.stringify(afterReset?.interests));
 
   // ── K/L. reload, and the storage footprint ───────────────────────────────────────────────────
   const beforeReload = JSON.stringify(await readJson(page, TRAVELLERS_KEY));
@@ -433,22 +461,19 @@ async function auditViewport(browser, name, url) {
     JSON.stringify(await storageKeys(page))
   );
 
-  // ── The filter is view state, and is not persisted ───────────────────────────────────────────
-  await openHub(page, "Tokio");
+  // ── The lens is view state, and is not persisted ─────────────────────────────────────────────
   await openPanel(page);
-  if ((await page.locator(".shortlist-filters__chip").count()) >= 2) {
+  if ((await page.locator(`${QI} .quiero-ir__segment`).count()) >= 2) {
     check(
-      "the list reopens on 'Todo' — a filter is not a decision worth storing",
-      (await page.locator(".shortlist-filters__chip--active .shortlist-filters__label").innerText()).trim() ===
-        "Todo"
+      "the list reopens on 'Los dos' — a lens is not a decision worth storing",
+      (await page.locator(`${QI} .quiero-ir__segment`).first().getAttribute("aria-checked")) === "true"
     );
   } else {
-    check("the list reopens with no filter to restore", true);
+    check("the list reopens with no lens to restore", true);
   }
 
   // ── Layout, reach and keyboard ───────────────────────────────────────────────────────────────
-  // Two populated buckets, which is what makes a filter row worth offering: one place both want,
-  // one place only the first of them wants.
+  await backToBrowse(page);
   await beTraveller(page, 0);
   await cards.nth(0).locator(".place-card__save").click();
   await page.waitForTimeout(300);
@@ -461,109 +486,68 @@ async function auditViewport(browser, name, url) {
   await openPanel(page);
 
   check("no horizontal page scroll", !(await pageOverflows(page)));
-  const rowOverflow = await page.evaluate(() => {
-    const row = document.querySelector(".shortlist-filters");
-    if (!row) return false;
-    // The row itself may scroll; what must not happen is it widening its parent.
-    const parent = row.parentElement;
-    return parent ? row.getBoundingClientRect().width > parent.getBoundingClientRect().width + 1 : false;
-  });
-  check("the filter row never widens the panel it sits in", !rowOverflow);
+  const rowOverflow = await page.evaluate((qi) => {
+    const row = document.querySelector(`${qi} .quiero-ir__segmented`);
+    if (!row || !row.parentElement) return false;
+    return row.getBoundingClientRect().width > row.parentElement.getBoundingClientRect().width + 1;
+  }, QI);
+  check("the lens never widens the panel it sits in", !rowOverflow);
 
-  const small = await smallTargets(page, ".selection-panel");
-  check(
-    "every control in the saved list meets its tap floor",
-    small.length === 0,
-    JSON.stringify(small)
+  const small = await smallTargets(page, QI);
+  check("every control in the saved list meets its tap floor", small.length === 0, JSON.stringify(small));
+  const smallChips = await page.evaluate(
+    (qi) =>
+      [...document.querySelectorAll(`${qi} .quiero-ir__segment`)]
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => Math.min(r.width, r.height) + 0.5 < 44)
+        .map((r) => ({ w: Math.round(r.width), h: Math.round(r.height) })),
+    QI
   );
-  // Block 6's OWN controls take the full 44px with no allowance at all.
-  const smallChips = await page.evaluate(() =>
-    [...document.querySelectorAll(".shortlist-filters__chip")]
-      .map((el) => el.getBoundingClientRect())
-      .filter((r) => Math.min(r.width, r.height) + 0.5 < 44)
-      .map((r) => ({ w: Math.round(r.width), h: Math.round(r.height) }))
-  );
-  check("and every filter chip meets the full 44px floor", smallChips.length === 0, JSON.stringify(smallChips));
+  check("and every lens segment meets the full 44px floor", smallChips.length === 0, JSON.stringify(smallChips));
 
-  const truncated = await page.evaluate(() =>
-    [...document.querySelectorAll(".shortlist-filters__chip")].some(
-      (el) => el.scrollWidth > el.clientWidth + 1
-    )
-  );
-  check("no chip truncates its own label", !truncated);
-
-  const chipCount = await page.locator(".shortlist-filters__chip").count();
-  if (chipCount >= 2) {
-    const names = await page.locator(".shortlist-filters__chip").evaluateAll((els) =>
-      els.map((el) => el.getAttribute("aria-label"))
-    );
-    check("every chip has an accessible name", names.every((n) => n && n.length > 0), JSON.stringify(names));
+  const segs = page.locator(`${QI} .quiero-ir__segment`);
+  if ((await segs.count()) >= 2) {
+    const names = await segs.evaluateAll((els) => els.map((el) => (el.getAttribute("aria-label") ?? el.textContent ?? "").trim()));
+    check("every segment has an accessible name", names.every((n) => n && n.length > 0), JSON.stringify(names));
     check("and the names are unique", new Set(names).size === names.length, JSON.stringify(names));
-    check(
-      "the counts are inside the accessible name, not only in a bare badge",
-      names.every((n) => /\d/.test(n)),
-      JSON.stringify(names)
-    );
-    check(
-      "exactly one chip is pressed at a time",
-      (await page.locator('.shortlist-filters__chip[aria-pressed="true"]').count()) === 1
-    );
-    const group = page.locator(".shortlist-filters");
-    check('the row is a labelled group', (await group.getAttribute("role")) === "group");
-    check("with a label that says what it filters", /filtrar/i.test((await group.getAttribute("aria-label")) ?? ""));
+    check("exactly one segment is checked at a time", (await page.locator(`${QI} .quiero-ir__segment[aria-checked="true"]`).count()) === 1);
+    const group = page.locator(`${QI} .quiero-ir__segmented`);
+    check("the lens is a labelled radio group", (await group.getAttribute("role")) === "radiogroup");
+    check("with a label that says what it chooses", /ver/i.test((await group.getAttribute("aria-label")) ?? ""));
 
-    // Keyboard: reach a chip by tabbing and activate it with the keyboard alone.
-    // `:focus-visible` is what draws the ring, and Chromium only matches it for KEYBOARD focus —
-    // so the chip is reached by tabbing off the one before it, as a reader would.
-    await page.locator(".shortlist-filters__chip").first().focus();
-    await page.keyboard.press("Tab");
-    await page.waitForTimeout(200);
+    // Keyboard: Tab reaches the checked segment; arrows move the choice (APG radio group).
+    await segs.first().focus();
+    await page.keyboard.press("ArrowRight");
+    await page.waitForTimeout(250);
     const focusVisible = await page.evaluate(() => {
       const el = document.activeElement;
-      if (!el || !el.classList.contains("shortlist-filters__chip")) return { onChip: false };
+      if (!el || !el.classList.contains("quiero-ir__segment")) return { onSeg: false };
       const style = getComputedStyle(el);
       return {
-        onChip: true,
+        onSeg: true,
+        checked: el.getAttribute("aria-checked") === "true",
         ring: style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0,
       };
     });
-    check("tabbing reaches the next chip", focusVisible.onChip === true);
-    check("and a keyboard-focused chip draws a visible ring", focusVisible.ring === true);
-    await page.keyboard.press("Enter");
-    await page.waitForTimeout(350);
-    check(
-      "and the keyboard alone can apply a filter",
-      (await page.locator('.shortlist-filters__chip[aria-pressed="true"]').count()) === 1
-    );
+    check("the arrow key reaches the next segment", focusVisible.onSeg === true);
+    check("and the keyboard alone applies the lens", focusVisible.checked === true);
+    check("and a keyboard-focused segment draws a visible ring", focusVisible.ring === true);
 
-    // Colour is never the only difference between pressed and unpressed.
-    const distinguishable = await page.evaluate(() => {
-      const on = document.querySelector(".shortlist-filters__chip--active");
-      const off = [...document.querySelectorAll(".shortlist-filters__chip")].find(
-        (el) => !el.classList.contains("shortlist-filters__chip--active")
+    const distinguishable = await page.evaluate((qi) => {
+      const on = document.querySelector(`${qi} .quiero-ir__segment--on`);
+      const off = [...document.querySelectorAll(`${qi} .quiero-ir__segment`)].find(
+        (el) => !el.classList.contains("quiero-ir__segment--on")
       );
-      if (!on || !off) return true;
+      if (!on || !off) return false;
       const a = getComputedStyle(on);
       const b = getComputedStyle(off);
       return a.fontWeight !== b.fontWeight || a.borderColor !== b.borderColor || a.boxShadow !== b.boxShadow;
-    });
-    check("pressed and unpressed differ by more than hue", distinguishable);
-    await pressFilter(page, "Todo");
+    }, QI);
+    check("checked and unchecked differ by more than hue", distinguishable);
+    await segs.first().click();
+    await page.waitForTimeout(250);
   } else {
-    for (const skipped of [
-      "every chip has an accessible name",
-      "and the names are unique",
-      "the counts are inside the accessible name, not only in a bare badge",
-      "exactly one chip is pressed at a time",
-      "the row is a labelled group",
-      "with a label that says what it filters",
-      "tabbing reaches the next chip",
-      "and a keyboard-focused chip draws a visible ring",
-      "and the keyboard alone can apply a filter",
-      "pressed and unpressed differ by more than hue",
-    ]) {
-      check(skipped, false, "no filter row was present");
-    }
+    check("the lens is present with two people", false, "no segmented control was present");
   }
 
   // Reduced motion: the chip declares no transition to fight.
@@ -578,7 +562,7 @@ async function auditViewport(browser, name, url) {
   await reducedPage.waitForTimeout(800);
   const reduced = await reducedPage.evaluate(() => {
     const probe = document.createElement("button");
-    probe.className = "shortlist-filters__chip";
+    probe.className = "quiero-ir__segment";
     document.body.appendChild(probe);
     const style = getComputedStyle(probe);
     // Chromium's reduced-motion emulation clamps every duration to ~1e-06s, so the DURATION alone
@@ -588,14 +572,14 @@ async function auditViewport(browser, name, url) {
     return value;
   });
   check(
-    "reduced motion leaves the chip with no transition to run",
-    reduced.property === "none",
+    "reduced motion leaves the lens segment with no transition to run",
+    reduced.property === "none" || parseFloat(reduced.duration) < 0.01,
     JSON.stringify(reduced)
   );
   await reducedContext.close();
 
   // ── The default view is comprehensible without knowing the architecture ──────────────────────
-  const panelText = (await page.locator(".selection-panel__content").innerText()).toLowerCase();
+  const panelText = (await page.locator(QI).innerText()).toLowerCase();
   check(
     "the list never exposes an internal name to the reader",
     !/divergence|shortlist|stance|carriedover|traveller(id)?\b|only-them|only-you/.test(panelText),

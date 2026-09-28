@@ -9,6 +9,8 @@
 - Puertas: build PASS, lint 0 errores, Vitest 3395/3395, gate nuevo
   `app/scripts/b25-quiero-ir-check.mjs` 123/123, integración 58/58, Phase 5A 50/50 ×2, B23 28/28,
   DD-028 16/16, B18 back 15/15, viaje-lugar 38/38. Detalle: `docs/BLOCK_25_HANDOFF.md`.
+- Certificado contra `main` @ `98260eb` (merge sin conflictos); gates B5 231/231 y B6 177/177
+  actualizados y verdes. PR #157 Ready for Review. Detalle: `docs/BLOCK_25_HANDOFF.md`.
 - Siguiente: revisión humana del PR. No empezar B8/B9/B10/B26 sin decisión de dirección.
 
 ## ESTADO CANÓNICO ACTUAL — PR #152 integrado a `main` (2026-09-28)

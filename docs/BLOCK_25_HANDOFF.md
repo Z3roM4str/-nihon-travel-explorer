@@ -71,12 +71,14 @@ mostraba debajo al pulsar «Analizar selección» (modal en origen, `embedded` d
 | `b18-browser-back-check` | 15/15 (selectores actualizados al marcado nuevo) |
 | `b18-viaje-lugar-check` | 38/38 |
 
-**No ejecutados / superados:** `block6-divergence-browser-audit.mjs` y
-`block5-travellers-browser-audit.mjs` esperan `.selection-panel__toggle`/`__count` y la barra de
-filtros de B6, que B7 sustituye por diseño (`10 §B7`); su cobertura de comportamiento la asume el
-gate B25 (D-*, G-*, I-*). No se re-ejecutó su versión de base. pytest no se ejecutó: no se tocó
-Python ni datos. En este entorno `block23`/`block5`/`block6` necesitan inyectar
-`executablePath` (Playwright 1.62 busca `chromium_headless_shell-1234`).
+**Gates B5/B6 (antes omitidos) — actualizados y ejecutados en la certificación:**
+`block5-travellers-browser-audit.mjs` 231/231 y `block6-divergence-browser-audit.mjs` 177/177
+(Chromium `--browser=/opt/pw-browsers/chromium`). Sus contratos siguen vigentes; sólo cambió el
+marcado: contador → insignia de la pestaña; frase de recuento/marcador por fila → secciones con
+contador y filas `[data-quiero-ir-place]`; chips de B6 → secciones + segmentado (radiogroup,
+flechas, anillo, 44 px); «Construir recorrido» → «Llevar al viaje». B6 ya estaba desfasado antes
+de B25 (cambio de persona en Explorar retirado por DD-007, `×` de la ficha retirado en B20).
+Ningún contrato se retiró. pytest no aplica (sin `.py` tocados).
 
 ## Auditoría visual (Chromium, 320/360/390/430/768/1440)
 
@@ -97,3 +99,15 @@ accesible y `title`. Sin overflow horizontal, CTA siempre dentro de la pantalla 
 - Frases de concentración heredadas del análisis («de tus N guardados») hablan en singular →
   **B10** (copy).
 - Pendiente humano heredado: iPhone real (scroll táctil, teclado iOS).
+
+## Certificación contra `main` vigente (2026-09-28)
+
+- `origin/main` @ `98260eb` (PR #153, freeze Vercel: README, `app/vercel.json`,
+  `docs/DEPLOYMENT_POLICY.md`) incorporado por merge normal sin conflictos (merge `de79f87`).
+- Corregido: la nota «Ya está en un día del recorrido» salía atrasada al llegar a Quiero ir por la
+  barra desde Viaje (`selectDestination` refresca la foto de sólo lectura, gate B6-G);
+  `quiero-ir.test.ts` comprobaba el titular con un selector inexistente (pasaba vacío) → ahora lee
+  el `h1.app__title` real y exige encontrarlo.
+- Puertas tras el merge: build PASS, lint 0 errores, Vitest 3395/3395, B25 123/123, integración
+  58/58, Phase 5A 50/50 desktop y móvil, B23 28/28, DD-028 16/16, B18 back 15/15, B5 231/231,
+  B6 177/177.

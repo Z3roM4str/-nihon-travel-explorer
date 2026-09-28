@@ -175,11 +175,25 @@ describe("B25 copy contract", () => {
       const literals = [...code.matchAll(/>([^<>{}]+)</g), ...code.matchAll(/"([^"]*)"|`([^`]*)`/g)]
         .map((match) => match[1] ?? match[2] ?? "")
         .join("\n");
+      // Guard against a vacuous pass: the extraction must really have found the screen's copy.
+      expect(literals.length, file).toBeGreaterThan(0);
       expect(literals, file).not.toMatch(/analiz/i);
       expect(literals, file).not.toMatch(/selecci[oó]n/i);
     }
-    const panel = strip(await readFile(new URL("../components/SelectionPanel.tsx", import.meta.url), "utf8"));
-    const heading = panel.slice(panel.indexOf('className="quiero-ir__title"'), panel.indexOf("</h2>"));
+    const panelCode = strip(await readFile(new URL("../components/SelectionPanel.tsx", import.meta.url), "utf8"));
+    expect(panelCode).toContain("Llevar al viaje");
+    // B25 moved the screen's title to the shell header (`app__title`, with the place count). The
+    // check reads THAT element and fails loudly if it cannot be found, instead of slicing nothing.
+    const app = strip(await readFile(new URL("../App.tsx", import.meta.url), "utf8"));
+    const start = app.indexOf('<h1 className="app__title">');
+    expect(start).toBeGreaterThan(-1);
+    const end = app.indexOf("</h1>", start);
+    expect(end).toBeGreaterThan(start);
+    const heading = app.slice(start, end);
+    expect(heading).toContain("destinationLabel(destination)");
+    expect(heading).toContain("wantToGoCount");
+    // …and SelectionPanel itself renders no heading of its own that could carry a duration.
+    expect(panelCode).not.toMatch(/<h1[\s>]/);
     expect(heading).not.toMatch(/formatRange|visitTime/);
   });
 });

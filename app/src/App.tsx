@@ -876,6 +876,14 @@ export default function App() {
     });
   }, []);
 
+  /** B25 (B7, `05 §6`): Quiero ir enseña «Ya está en un día del recorrido» leyendo la misma foto
+   * de sólo lectura. Llegar a la pestaña desde Viaje por la barra —sin cambiar antes de sección—
+   * dejaba esa foto atrasada; se refresca al entrar. Es una LECTURA: no escribe el borrador. */
+  const selectDestination = useCallback((next: Destination) => {
+    if (next === "quiero-ir") setPlannerRevision((revision) => revision + 1);
+    setDestination(next);
+  }, []);
+
   /** Manually switching hubs resets filters and closes any open detail from the previous
    * hub — the policy is deliberately different from pushPlace/goBack, which preserve both. */
   const switchHub = useCallback(
@@ -1034,7 +1042,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <NavRail active={destination} onSelect={setDestination} wantToGoCount={wantToGoCount} />
+      <NavRail active={destination} onSelect={selectDestination} wantToGoCount={wantToGoCount} />
 
       <div className="app__main">
         <header className={`app__header ${headerScrolled ? "app__header--scrolled" : ""}`}>
@@ -1467,7 +1475,7 @@ export default function App() {
           </div>
         </div>
 
-        <TabBar active={destination} onSelect={setDestination} wantToGoCount={wantToGoCount} />
+        <TabBar active={destination} onSelect={selectDestination} wantToGoCount={wantToGoCount} />
       </div>
 
       <SaveToast feedback={feedback} onHold={holdFeedback} onDismiss={dismissFeedback} />
