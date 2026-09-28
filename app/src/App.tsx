@@ -6,7 +6,6 @@ import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
 import { ExplorerHome } from "./components/ExplorerHome";
-import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
@@ -41,7 +40,7 @@ import { TripBackup } from "./components/TripBackup";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
-import { interestMarker, otherPersonMarker } from "./lib/traveller-presentation";
+import { otherPersonMarker } from "./lib/traveller-presentation";
 import { getZonesForHub } from "./lib/accommodation-zone";
 import { categoryPresentation } from "./lib/category-presentation";
 import { SearchSheet } from "./components/SearchSheet";
@@ -288,10 +287,6 @@ export default function App() {
   /** Bloque 18: ya no es un panel inferior colapsable de cromo global — es el contenido de la
    * pestaña, así que empieza abierto. El plegado interno de `SelectionPanel` se conserva por si
    * el lector quiere recogerlo, pero ya no es la forma de llegar a él (`02 §D2`). */
-  const [selectionOpen, setSelectionOpen] = useState(true);
-  /** Bloque 18: sustituye al modal global `analysisOpen` — «en qué coincidís» es ahora una
-   * sección que se despliega dentro de la propia pestaña (gate 11, DD-010). */
-  const [analysisVisible, setAnalysisVisible] = useState(false);
 
   // ---- Viaje ----
   const [viajeSection, setViajeSection] = useState<ViajeSection>("planificar");
@@ -350,9 +345,9 @@ export default function App() {
     toggleSaved,
     removeSaved,
     setStance,
+    stanceFor,
     activeStance,
     interestSummary,
-    tally,
     setActiveTraveller,
     renameTraveller,
     resetTraveller,
@@ -363,14 +358,6 @@ export default function App() {
   } = useTravellers();
   const { feedback, announce } = useSaveFeedback();
   const hasMapRail = useMediaQuery(MAP_RAIL_QUERY);
-
-  /** Block 5: the card marker, resolved per place and deliberately null most of the time — see
-   * `lib/traveller-presentation.ts` for why silence is the default. */
-  const markerFor = useCallback(
-    (placeId: string) =>
-      interestMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
-    [interestSummary, travellers, activeTraveller]
-  );
 
   /** Bloque 19 (B3, `04 §5.5`): el `PersonToken` junto al corazón de `PlaceCard` — distinto de
    * `markerFor`, que sigue alimentando el chip de texto de Quiero ir. Mismo patrón: función, no
@@ -731,13 +718,6 @@ export default function App() {
   /** The analysis is a lens over the saved places, not a second navigation: opening a place
    * from it goes through the same selectPlace every other surface uses, tagged as belonging to
    * Quiero ir since that is where `SelectionAnalysis` only ever renders (embedded there). */
-  const closeAnalysis = useCallback(() => setAnalysisVisible(false), []);
-  const openFromAnalysis = useCallback(
-    (id: string) => {
-      selectPlace(id, "quiero-ir");
-    },
-    [selectPlace]
-  );
 
   /** Closes the ficha entirely — chevron/`×` at the base of the stack, or a real browser back
    * past the last level. Pops however many entries this stack pushed in one go (`history.go`
@@ -1292,25 +1272,13 @@ export default function App() {
                 savedPlaces={savedPlaces}
                 onRemove={removeSavedWithFeedback}
                 onSelect={(id) => selectPlace(id, "quiero-ir")}
-                open={selectionOpen}
-                onToggle={() => setSelectionOpen((open) => !open)}
-                onAnalyze={() => setAnalysisVisible((open) => !open)}
                 onBuildSequence={goToPlanner}
-                tally={tally}
-                interestMarkerFor={markerFor}
+                onExplore={() => setDestination("explorar")}
                 activeTravellerLabel={activeTraveller?.label ?? null}
                 divergence={divergence}
                 travellers={travellers}
-                activeTravellerId={activeTraveller?.id ?? null}
+                stanceFor={stanceFor}
               />
-              {analysisVisible && (
-                <SelectionAnalysis
-                  savedPlaces={savedPlaces}
-                  onSelectPlace={openFromAnalysis}
-                  onClose={closeAnalysis}
-                  embedded
-                />
-              )}
             </div>
             {ficheOrigin === "quiero-ir" && placeDetailOverlay}
           </div>

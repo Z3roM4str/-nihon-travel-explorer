@@ -254,9 +254,10 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
     expect(source, file).toMatch(/embedded\s*\?\s*undefined\s*:\s*(?:"dialog"|true)/);
   });
 
-  it("App.tsx monta las cinco siempre con `embedded`, nunca como overlay global con scrim", async () => {
+  it("App.tsx monta las superficies vigentes con `embedded`; B25 integra la información de Quiero ir", async () => {
     const source = await read("App.tsx");
-    expect(source).toMatch(/<SelectionAnalysis[\s\S]{0,400}embedded/);
+    expect(source).not.toContain("<SelectionAnalysis");
+    expect(source).toContain("<SelectionPanel");
     expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,200}embedded/);
     // Corrección final de B18: `onSelectPlace` ahora envuelve `selectPlace` para etiquetar el
     // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para

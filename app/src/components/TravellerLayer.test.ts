@@ -170,10 +170,10 @@ describe("accessibility", () => {
     expect(token).toContain("{initial}");
     const card = await readSource("PlaceCard.tsx");
     expect(card).toContain("label={`${otherPersonMarker.traveller.label} quiere ir`}");
-    // `SelectionPanel.tsx` sigue usando el chip de texto `interestMarker` sin cambios.
+    // B25 presenta el acuerdo con texto explícito y conserva nombres en las secciones individuales.
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("{marker.label}");
-    expect(panel).toContain("{marker.description}");
+    expect(panel).toContain("Los dos queréis ir");
+    expect(panel).toContain("Sólo {traveller.label}");
   });
 
   /**

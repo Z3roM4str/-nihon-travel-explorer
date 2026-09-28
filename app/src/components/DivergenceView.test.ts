@@ -56,7 +56,7 @@ describe("the block adds no persistence", () => {
 
   it("keeps the filter in view state, not in storage", async () => {
     const panel = withoutComments(await readSource("SelectionPanel.tsx"));
-    expect(panel).toContain('useState<ShortlistFilterKind>("all")');
+    expect(panel).toContain('useState<Lens>("together")');
     expect(panel).not.toMatch(/localStorage|sessionStorage/);
   });
 
@@ -138,41 +138,38 @@ describe("the derived view is wired, once", () => {
   });
 });
 
-describe("the default view is unchanged", () => {
-  it("renders Block 5's list, markers and all, when no filter is active", async () => {
+describe("the B25 screen preserves the derived divergence", () => {
+  it("uses the shared places for the two-person lens", async () => {
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain('filter === "all"\n      ? savedPlaces');
-    // The derived line is filtered-only.
-    expect(panel).toContain("const entry = filtering ? groupOf.get(place.id) ?? null : null;");
+    expect(panel).toContain('lens === "together" ? savedPlaces');
   });
 
-  it("shows one indicator per row, never a marker and a line together", async () => {
+  it("derives agreement and differing-opinion sections from the existing groups", async () => {
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain(
-      "const marker = filtering || !interestMarkerFor ? null : interestMarkerFor(place.id);"
-    );
+    expect(panel).toContain('group === "agreed"');
+    expect(panel).toContain('group === "differing"');
   });
 
-  it("says nothing extra above the list until a filter is pressed", async () => {
+  it("keeps the person lens as view-only state", async () => {
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("{filtering && (");
-    expect(panel).toContain("filterStatusSentence(filter, visiblePlaces.length)");
+    expect(panel).toContain('setLens(traveller.id)');
+    expect(panel).not.toContain("setActiveTraveller");
   });
 
-  it("hides the whole row when it could not partition anything", async () => {
-    const bar = await readSource("ShortlistFilterBar.tsx");
-    expect(bar).toContain("if (!shouldOfferFilters(counts, active)) return null;");
+  it("keeps the existing divergence helpers intact", async () => {
+    const view = await readAppSource("lib/interest-divergence.ts");
+    expect(view).toContain("shouldOfferFilters");
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("{entries.length > 0 && (");
+    expect(panel).toContain("entryById");
   });
 
   it("adds no second main surface — the view lives inside the saved list", async () => {
     const app = await readAppSource("App.tsx");
     expect(app).not.toMatch(/DivergencePanel|DisagreementScreen|setDivergenceOpen/);
-    // ShortlistFilterBar is rendered by the panel, not by App.
+    // B25 organises the same derived entries in the main Quiero ir surface.
     expect(app).not.toContain("ShortlistFilterBar");
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("<ShortlistFilterBar");
+    expect(panel).toContain("Opiniones distintas");
   });
 });
 
@@ -260,9 +257,9 @@ describe("accessibility", () => {
     expect(row.slice(0, 400)).toContain("overflow-x: auto");
   });
 
-  it("announces the filter status and the empty state politely", async () => {
+  it("announces selected lenses and provides a useful empty state", async () => {
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain('className="selection-panel__filter-status" role="status"');
-    expect(panel).toContain("emptyFilterSentence(filter)");
+    expect(panel).toContain("aria-pressed={lens === traveller.id}");
+    expect(panel).toContain("todavía no ha marcado lugares");
   });
 });
