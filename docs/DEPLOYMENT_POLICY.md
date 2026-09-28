@@ -1,9 +1,9 @@
 # Política de despliegue
 
 **Vigente desde:** 2026-09-26  
-**Estado documental:** Vercel congelado hasta que se comparen las alternativas y se elija la
-implementación definitiva. El repositorio aplica además el freeze técnico descrito abajo para que
-solamente `main` pueda iniciar un deployment automático.
+**Estado documental:** freeze técnico autorizado, versionado y activo mediante
+`app/vercel.json`. Mientras se comparan las alternativas y se elige la implementación definitiva,
+solamente `main` puede iniciar un deployment automático.
 
 ## Fuente de verdad y línea de trabajo
 
@@ -18,13 +18,15 @@ solamente `main` pueda iniciar un deployment automático.
 
 Hasta autorización expresa posterior:
 
-- no desplegar previews ni producción en Vercel;
-- no modificar proyectos, deployments, dominios ni configuración de Vercel;
+- no iniciar deployments manuales de Preview ni de producción en Vercel;
+- no modificar proyectos, deployments, dominios, Production Branch ni ajustes remotos de Vercel;
 - no modificar la excepción de `main` ni ampliar las ramas habilitadas en `app/vercel.json`;
 - no añadir adaptadores, workarounds ni otras soluciones específicas de Vercel.
 
-La creación de `app/vercel.json` para este freeze es la única excepción autorizada a la
-prohibición anterior de añadir configuración de Vercel al repositorio.
+El freeze técnico mediante `app/vercel.json` sí fue autorizado. Su incorporación es la única
+excepción autorizada a la prohibición anterior de añadir configuración de Vercel al repositorio.
+La excepción `main: true` conserva el despliegue automático de producción; no autoriza un
+deployment manual ni cambia la Production Branch.
 
 Las referencias históricas a pruebas o previews de Vercel en documentos de cierre anteriores son
 registro de hechos ya ocurridos; no constituyen autorización para repetirlos.
@@ -53,9 +55,10 @@ rama, incluidos los que contienen `/`, mientras que la coincidencia específica 
 permite producción. Cuando varias reglas coinciden, basta una regla `true` para permitir el
 deployment; por eso `main` permanece habilitada y cualquier otra rama queda deshabilitada.
 
-Este mecanismo conserva la integración de GitHub y no cambia la Production Branch, deployments o
-dominios existentes. La regla se aplica a `codex/*`, `claude/*`, ramas Astra y cualquier otra rama
-de trabajo o experimental, sin necesidad de mantener una lista de prefijos.
+Este mecanismo conserva la integración de GitHub y no cambia la Production Branch, los
+deployments ni los dominios existentes. La regla se aplica a toda rama de trabajo, de pull request
+o experimental, sin necesidad de mantener una lista de prefijos. En consecuencia, esas ramas no
+generan deployments automáticos; únicamente `main` permanece habilitada para producción.
 
 ## Línea Astra
 
