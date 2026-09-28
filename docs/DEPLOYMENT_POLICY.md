@@ -1,6 +1,6 @@
 # Política de despliegue
 
-**Vigente desde:** 2026-09-26  
+**Vigente desde:** 2026-09-26
 **Estado documental:** freeze técnico autorizado, versionado y activo mediante
 `app/vercel.json`. Mientras se comparan las alternativas y se elige la implementación definitiva,
 solamente `main` puede iniciar un deployment automático.
