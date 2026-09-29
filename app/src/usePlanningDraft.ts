@@ -250,6 +250,32 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     });
   }, []);
 
+  /** B9.1: removes one place from the assigned plan without removing it from the saved-place
+   * document. The route and stable day entity are updated atomically, so persistence never sees
+   * an invalid partition; every other day field and the place's preference data stay untouched. */
+  const removePlaceFromDay = useCallback((placeId: string, dayId: string) => {
+    setDraft((current) => {
+      if (current.days === null || !current.routeIds.includes(placeId)) return current;
+      const source = current.days.find((day) => day.id === dayId);
+      if (!source?.placeIds.includes(placeId)) return current;
+      return {
+        ...current,
+        routeIds: current.routeIds.filter((id) => id !== placeId),
+        days: current.days.map((day) => {
+          if (day.id !== dayId) return day;
+          const placeIds = day.placeIds.filter((id) => id !== placeId);
+          return placeIds.length > 0
+            ? { ...day, placeIds }
+            : {
+                ...day,
+                placeIds,
+                accommodationBoundary: { start: { kind: "unselected" }, end: { kind: "unselected" } },
+              };
+        }),
+      };
+    });
+  }, []);
+
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
    * Only the new day starts unselected; no existing day's id, places or choices are touched. */
   const addEmptyDay = useCallback(() => {
@@ -452,6 +478,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
     addPlaceToDay,
+    removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
     moveDay,

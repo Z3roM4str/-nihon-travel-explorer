@@ -74,9 +74,7 @@ describe("trip-bounds wiring (source-scanning integration check)", () => {
     const source = await readSource();
     expect(source.match(/<div className="calendar-anchor">/g) ?? []).toHaveLength(1);
 
-    const anchorMatch = source.match(
-      /<div className="calendar-anchor">([\s\S]*?)<\/div>\s*<TripBoundsNotice/,
-    );
+    const anchorMatch = source.match(/<div className="calendar-anchor">([\s\S]*?)<\/div>/);
     expect(anchorMatch).not.toBeNull();
     const anchorBlock = anchorMatch?.[1] ?? "";
 
@@ -120,7 +118,7 @@ describe("trip-bounds wiring (source-scanning integration check)", () => {
     const cardHeader = source.slice(source.indexOf("<h3 id={`day-heading-${dayIndex}`}>"));
     // The warning sits next to — not instead of — the heading, the date and the controls.
     expect(cardHeader.indexOf("<TripBoundsDayWarning")).toBeLessThan(400);
-    expect(source).toContain("{dayDate && <p className=\"day-card__date\">{formatCivilDateDisplay(dayDate)}</p>}");
+    expect(cardHeader).toContain("dayDate ? ` · ${formatCivilDateDisplay(dayDate)}` : \"\"");
   });
 
   it("never hides, disables, reorders or deletes a day because of its assessment", async () => {

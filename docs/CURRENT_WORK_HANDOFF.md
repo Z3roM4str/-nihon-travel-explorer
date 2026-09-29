@@ -12,6 +12,17 @@
 - Gates históricos obsoletos (deuda B10): `block1-ux`, `block13`, `block14`, `b18-regression`, `b24-real-input` P0-2.
 - **Siguiente:** B27 = B9.1 «Días como estructura», rama `claude/b27-viaje-b9-1-dias` desde el HEAD remoto de `main`
   tras esta documentación. Plan en `docs/BLOCK_26_HANDOFF.md`. No mezclar Astra ni #154.
+## ESTADO ACTUAL — B27 / B9.1 en PR #161 (2026-09-29)
+
+- Rama obligatoria: `codex/continuar-desarrollo-del-bloque-b9.1`; base declarada del PR: `main`.
+- Funcionalidad B9.1 completada: día completo reordenable, TripStop bidireccional con Sin asignar,
+  acciones de día, alternativas accesibles, InterHub entre tarjetas y cabecera con fechas.
+- Vitest: **106 ficheros, 3395/3395 PASS**; los 17 fallos source-scanning iniciales quedaron alineados
+  con la nueva presentación sin retirar ni debilitar contratos.
+- **B9.1 aún no se declara cerrado**: el gate A–K está ampliado, pero Chromium no existe en el
+  contenedor; Playwright y apt fallaron por HTTP 403. Handoff detallado: `docs/BLOCK_27_HANDOFF.md`.
+- Deferred: B9.2 drag-and-drop; B9.3 rediseño final de «Probar otro orden»; B9.4 Dónde dormir; B9.5
+  Reservas/Resumen. B28 no iniciado.
 
 ## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)
 

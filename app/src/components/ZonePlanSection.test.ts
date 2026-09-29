@@ -222,13 +222,13 @@ describe("useZonePlanChoice.ts — one writer, one truth", () => {
 describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("makes the comparison and the planner mutually exclusive via a single section enum", async () => {
     const source = await readAppSource("App.tsx");
-    expect(source).toMatch(/type ViajeSection = "planificar" \| "dormir";/);
-    expect(source).toMatch(/const \[viajeSection, setViajeSection\] = useState<ViajeSection>\("planificar"\);/);
+    expect(source).toMatch(/type ViajeSection = "dias" \| "dormir";/);
+    expect(source).toMatch(/const \[viajeSection, setViajeSection\] = useState<ViajeSection>\("dias"\);/);
   });
 
   it("routes every entry point through the tracked section setter or the planner/zones navigators", async () => {
     const source = await readAppSource("App.tsx");
-    expect(source).toContain('setViajeSectionTracked("planificar")');
+    expect(source).toContain('setViajeSectionTracked("dias")');
     expect(source).toContain('setViajeSectionTracked("dormir")');
     expect(source).toContain("onBuildSequence={goToPlanner}");
     expect(source).toContain("onOpenPlanner={goToPlanner}");
@@ -247,7 +247,7 @@ describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("keeps the planner and the zone comparison mounted by viajeSection, independently of the active tab", async () => {
     const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /\{viajeVisited && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && viajeSection === "dias" && \(\s*<OrderedSequenceBuilder/
     );
     expect(source).toMatch(
       /\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/

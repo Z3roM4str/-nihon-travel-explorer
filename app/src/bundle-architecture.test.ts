@@ -137,7 +137,7 @@ describe("Block 12 — the deferred surfaces still mount only while open", () =>
     // `hidden`, never whether the surface exists.
     const app = await read("App.tsx");
     expect(app).toMatch(
-      /<Suspense fallback=\{null\}>\s*\{viajeVisited && viajeSection === "planificar" && \(/
+      /<Suspense fallback=\{null\}>\s*\{viajeVisited && viajeSection === "dias" && \(/
     );
     expect(app).toMatch(
       /<Suspense fallback=\{null\}>\s*\{viajeVisited && viajeSection === "dormir" && zonesHub && \(/

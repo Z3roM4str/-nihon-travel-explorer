@@ -430,6 +430,7 @@ function TripStop({
   dayPlaceLists,
   onOpen,
   onMove,
+  onUnassign,
 }: {
   place: Place;
   position: number;
@@ -438,6 +439,7 @@ function TripStop({
   dayPlaceLists: readonly Place[][];
   onOpen?: (id: string) => void;
   onMove: (targetDayIndex: number, targetPosition: number) => void;
+  onUnassign: () => void;
 }) {
   const [moveOpen, setMoveOpen] = useState(false);
   const [targetDay, setTargetDay] = useState(dayIndex);
@@ -491,6 +493,9 @@ function TripStop({
             </button>
           </div>
         )}
+        <button type="button" className="link-button trip-stop__unassign" onClick={onUnassign}>
+          Mover a Sin asignar
+        </button>
       </div>
     </article>
   );
@@ -504,6 +509,7 @@ function DayTimeline({
   dayPlaceLists,
   onOpen,
   onMove,
+  onUnassign,
 }: {
   places: Place[];
   legs: OrderedSequenceLeg[];
@@ -512,6 +518,7 @@ function DayTimeline({
   dayPlaceLists: readonly Place[][];
   onOpen?: (id: string) => void;
   onMove: (placeIndex: number, targetDayIndex: number, targetPosition: number) => void;
+  onUnassign: (placeIndex: number) => void;
 }) {
   return (
     <ol className="day-timeline" aria-label={`Paradas del Día ${dayIndex + 1}`}>
@@ -519,7 +526,8 @@ function DayTimeline({
         <li key={place.id} className="day-timeline__item">
           <TripStop place={place} position={index} dayIndex={dayIndex} dayEntities={dayEntities}
             dayPlaceLists={dayPlaceLists} onOpen={onOpen}
-            onMove={(targetDay, targetPosition) => onMove(index, targetDay, targetPosition)} />
+            onMove={(targetDay, targetPosition) => onMove(index, targetDay, targetPosition)}
+            onUnassign={() => onUnassign(index)} />
           {index < legs.length && <LegConnector leg={legs[index]} />}
         </li>
       ))}
@@ -2738,8 +2746,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
     addPlaceToDay,
+    removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
+    moveDay,
     setStartDate,
     setEndDate,
     setVisitStartTime,
@@ -2839,6 +2849,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     [dayIds, placeById]
   );
   const dayAssignment = useMemo(() => buildDayAssignment(routeIds, dayIds), [routeIds, dayIds]);
+  const interHubRowsByAfterDay = useMemo(() => {
+    const rows = new Map<number, ManualInterHubSegment>();
+    const resolvePlace = (placeId: string) => {
+      const place = placeById.get(placeId);
+      return place ? { hub: place.hub } : null;
+    };
+    for (const segment of interHubSegments) {
+      const assessment = assessInterHubSegment(segment, { routeIds, days, resolvePlace });
+      if (
+        assessment.kind === "active" &&
+        assessment.placement === "between-consecutive-days" &&
+        assessment.fromDayOrdinal !== null
+      ) rows.set(assessment.fromDayOrdinal, segment);
+    }
+    return rows;
+  }, [interHubSegments, routeIds, days, placeById]);
 
   // Phase 3F-J: one route-wide aggregation of the Phase 3F facts already derived for this plan.
   // Purely derived on every render from the current plan plus the one reference date captured at
@@ -3225,9 +3251,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     view === "compare"
       ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
       : view === "days"
-        ? `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en ${dayIds.length} día${
-            dayIds.length === 1 ? "" : "s"
-          }`
+        ? startDate
+          ? endDate
+            ? `${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)}`
+            : `Desde ${formatCivilDateDisplay(startDate)}`
+          : "Organiza el viaje día a día"
         : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`;
 
   const Outer = embedded ? Fragment : "div";
@@ -3547,8 +3575,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                   const sleepingLabel = sleepingChoice?.kind === "accommodation"
                     ? accommodations.find((anchor) => anchor.id === sleepingChoice.accommodationId)?.label ?? null
                     : null;
+                  const interHubRow = interHubRowsByAfterDay.get(dayIndex);
                   return (
-                    <section key={dayEntity?.id ?? dayIndex} className="day-card" data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
+                    <Fragment key={dayEntity?.id ?? dayIndex}>
+                    <section className="day-card" data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
                         <div>
                           <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}{dayDate ? ` · ${formatCivilDateDisplay(dayDate)}` : ""}{hubLabel ? ` · ${hubLabel}` : ""}</h3>
@@ -3569,6 +3599,39 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                         </div>
                       </div>
 
+                      <div className="day-card__actions" aria-label={`Acciones del Día ${dayIndex + 1}`}>
+                        <label>
+                          Mover día…
+                          <select
+                            aria-label={`Mover Día ${dayIndex + 1} a la posición`}
+                            value={dayIndex}
+                            disabled={!dayEntity || dayEntities.length < 2}
+                            onChange={(event) => {
+                              if (!dayEntity) return;
+                              const target = Number(event.target.value);
+                              const direction: -1 | 1 = target < dayIndex ? -1 : 1;
+                              for (let index = dayIndex; index !== target; index += direction) moveDay(dayEntity.id, direction);
+                            }}
+                          >
+                            {dayEntities.map((day, index) => <option key={day.id} value={index}>Posición {index + 1}</option>)}
+                          </select>
+                        </label>
+                        <label>
+                          Añadir lugar
+                          <select
+                            aria-label={`Añadir lugar al Día ${dayIndex + 1}`}
+                            value=""
+                            disabled={!dayEntity || removedPlaces.length === 0}
+                            onChange={(event) => {
+                              if (dayEntity && event.target.value) addPlaceToDay(event.target.value, dayEntity.id);
+                            }}
+                          >
+                            <option value="">{removedPlaces.length ? "Elegir de Sin asignar" : "No hay sitios sin asignar"}</option>
+                            {removedPlaces.map((place) => <option key={place.id} value={place.id}>{place.name}</option>)}
+                          </select>
+                        </label>
+                      </div>
+
                       {isEmpty ? (
                         <p className="sequence-empty">Sin lugares en este día.</p>
                       ) : (
@@ -3580,6 +3643,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             dayEntities={dayEntities}
                             dayPlaceLists={dayPlaceLists}
                             onOpen={onSelectPlace}
+                            onUnassign={(placeIndex) => {
+                              const placeId = dayIds[dayIndex]?.[placeIndex];
+                              if (dayEntity && placeId) removePlaceFromDay(placeId, dayEntity.id);
+                            }}
                             onMove={(placeIndex, targetDayIndex, targetPosition) => {
                               const target = dayEntities[targetDayIndex];
                               if (!dayEntity || !target) return;
@@ -3621,6 +3688,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}
+                          <details className="day-order-alternatives">
+                            <summary>Probar otro orden</summary>
                           {dayEntity &&
                             localSwapGeneration.kind === "available" &&
                             localRelocationGeneration.kind === "available" &&
@@ -3648,6 +3717,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                               onApplyPairBlockSwap={applyTwoPairBlockSwap}
                             />
                           )}
+                          </details>
                           {bucket && dayEntity && dayBoundary && (
                             <AccommodationCommuteSection
                               dayNumber={dayIndex + 1}
@@ -3671,6 +3741,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                         </>
                       )}
                     </section>
+                    {interHubRow && (
+                      <div className="inter-hub-row" role="note" aria-label={`Traslado entre Día ${dayIndex + 1} y Día ${dayIndex + 2}`}>
+                        <Icon name="tren" size={16} />
+                        <strong>{interHubRow.fromHub} → {interHubRow.toHub}</strong>
+                        <span>{INTER_HUB_MODE_LABELS[interHubRow.mode]} · {interHubRow.minutes} min</span>
+                      </div>
+                    )}
+                    </Fragment>
                   );
                 })}
               </div>
