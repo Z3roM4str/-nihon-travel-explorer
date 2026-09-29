@@ -35,9 +35,14 @@ for (const [width, height] of viewports) {
   check((await panel.locator(".selection-segmented button").count()) >= 2, "segmentado", viewport);
   check((await panel.locator(".selection-panel__metric").count()) === 3, "resumen de tres datos", viewport);
   check(await panel.getByRole("heading", { name: /Los dos queréis ir/ }).isVisible(), "coincidencias sin clic", viewport);
+  check((await panel.locator('.place-card--compact').count()) > 0, "secciones usan PlaceCard compact", viewport);
   check((await panel.getByText("Opiniones distintas", { exact: false }).count()) === 1, "divergencias presentes", viewport);
-  check(await panel.getByRole("button", { name: "Llevar al viaje" }).isVisible(), "CTA accesible", viewport);
-  check(!(await panel.innerText()).match(/analizar|selección/i), "léxico", viewport);
+  check((await panel.getByText("Descartados", { exact: false }).count()) === 1, "Descartados plegado presente", viewport);
+  check((await panel.locator('.selection-insights').count()) === 1, "análisis integrado", viewport);
+  const cta = panel.getByRole("button", { name: "Llevar al viaje" });
+  check(await cta.isVisible(), "CTA accesible", viewport);
+  check(await cta.evaluate((el) => el.classList.contains('button--primary') && el.classList.contains('button--lg')), "CTA primary lg", viewport);
+  check(!(await panel.innerText()).match(/Analizar selección/i), "sin acción de análisis", viewport);
 
   const geometry = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
@@ -51,7 +56,7 @@ for (const [width, height] of viewports) {
   const scroller = page.locator(".destination-panel:not([hidden]) .destination-panel--scroll");
   await scroller.evaluate((el) => el.scrollTo({ top: 80 }));
   const before = await scroller.evaluate((el) => el.scrollTop);
-  await panel.locator(".selection-list__name").first().click();
+  await panel.locator(".place-card__open").first().click();
   check(await page.locator(".place-detail").isVisible(), "abre PlaceDetail compartido", viewport);
   await page.locator(".place-detail__back").first().click();
   await page.waitForTimeout(150);

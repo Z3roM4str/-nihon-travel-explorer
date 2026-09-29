@@ -201,7 +201,8 @@ describe("accessibility", () => {
 
   it("labels the list's remove control with whose interest it withdraws", async () => {
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toMatch(/de Quiero ir de \$\{activeTravellerLabel\}/);
+    expect(panel).toContain("activeWantsIt ? onRemove : undefined");
+    expect(panel).toContain('stanceFor(place.id, activeTravellerId) === "interested"');
   });
 
   it("announces a destructive confirmation", async () => {

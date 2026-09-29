@@ -1269,15 +1269,17 @@ export default function App() {
           <div className="destination-panel" hidden={destination !== "quiero-ir"}>
             <div className="destination-panel--scroll">
               <SelectionPanel
+                allPlaces={getAllPlaces()}
                 savedPlaces={savedPlaces}
                 onRemove={removeSavedWithFeedback}
                 onSelect={(id) => selectPlace(id, "quiero-ir")}
                 onBuildSequence={goToPlanner}
                 onExplore={() => setDestination("explorar")}
-                activeTravellerLabel={activeTraveller?.label ?? null}
                 divergence={divergence}
                 travellers={travellers}
+                activeTravellerId={activeTraveller?.id ?? null}
                 stanceFor={stanceFor}
+                otherPersonMarkerFor={otherPersonMarkerFor}
               />
             </div>
             {ficheOrigin === "quiero-ir" && placeDetailOverlay}

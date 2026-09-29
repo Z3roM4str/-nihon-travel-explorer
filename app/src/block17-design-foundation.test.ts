@@ -312,11 +312,15 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     // expansion needs, so the invisible-expansion technique would make neighbouring 44×44 hit
     // zones overlap. These use a REAL 44×44 box instead (see the next test), so the className
     // must never regain `tap-target-min` — that would silently reintroduce the overlap bug.
-    for (const file of ["components/OrderedSequenceBuilder.tsx", "components/SelectionPanel.tsx"]) {
+    for (const file of ["components/OrderedSequenceBuilder.tsx"]) {
       const code = await read(file);
       expect(code, file).not.toContain("tap-target-min");
       expect((code.match(/icon-button--small/g) ?? []).length, file).toBeGreaterThan(0);
     }
+    // B25 replaced SelectionPanel's bespoke dense row with the shared compact PlaceCard. Its
+    // heart uses PlaceCard's own tap-target-min treatment and no icon-button--small remains.
+    const selection = await read("components/SelectionPanel.tsx");
+    expect(selection).not.toContain("icon-button--small");
     const gallery = await read("components/PlaceGallery.tsx");
     expect(gallery).not.toContain("gallery__dot tap-target-min");
     expect(gallery).toContain("gallery__dot");

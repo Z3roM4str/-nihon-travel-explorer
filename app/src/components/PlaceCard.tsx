@@ -20,7 +20,8 @@ type Props = {
   selected: boolean;
   saved: boolean;
   onSelect: (id: string) => void;
-  onToggleSaved: (id: string) => void;
+  /** Omit in read-only contexts where the active person does not own the displayed preference. */
+  onToggleSaved?: (id: string) => void;
   /**
    * Bloque 19 (B3, `04 §5.5`): el `PersonToken` junto al corazón. `null` (el caso más común, y el
    * único que puede darse cuando nadie más ha opinado) no renderiza nada — nunca un token que
@@ -234,7 +235,7 @@ export function PlaceCard({
             {compactPlaceLine(place)}
           </p>
         </div>
-        <button
+        {onToggleSaved && <button
           type="button"
           className={`place-card__save place-card__save--compact tap-target-min ${
             saved ? "place-card__save--on" : ""
@@ -247,7 +248,15 @@ export function PlaceCard({
           <span className="place-card__save-icon" aria-hidden="true">
             <Icon name={saved ? "corazon-relleno" : "corazon"} size={16} />
           </span>
-        </button>
+        </button>}
+        {otherPersonMarker &&
+          (otherPersonMarker.both ? (
+            <PersonToken traveller={null} both size="xs" className="place-card__person-token" />
+          ) : (
+            <PersonToken traveller={otherPersonMarker.traveller} variant={otherPersonMarker.variant}
+              size="xs" className="place-card__person-token"
+              label={`${otherPersonMarker.traveller.label} quiere ir`} />
+          ))}
       </article>
     );
   }
@@ -326,7 +335,7 @@ export function PlaceCard({
           </span>
         )}
 
-        <button
+        {onToggleSaved && <button
           type="button"
           className={`place-card__save tap-target-min ${saved ? "place-card__save--on" : ""}`}
           onClick={() => onToggleSaved(place.id)}
@@ -337,7 +346,7 @@ export function PlaceCard({
           <span className="place-card__save-icon" aria-hidden="true">
             <Icon name={saved ? "corazon-relleno" : "corazon"} size={20} />
           </span>
-        </button>
+        </button>}
 
         {otherPersonMarker &&
           (otherPersonMarker.both ? (

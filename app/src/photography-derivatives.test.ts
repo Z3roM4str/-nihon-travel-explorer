@@ -120,8 +120,10 @@ describe("the surfaces that must use the derivative do", () => {
   });
 
   it("the saved-places thumbnail reuses the same rendition rather than the 1600px original", async () => {
-    const source = await src("components/SelectionPanel.tsx");
-    expect(source).toContain("cardImageUrl(thumbnail.url)");
+    const panel = await src("components/SelectionPanel.tsx");
+    const card = await src("components/PlaceCard.tsx");
+    expect(panel).toContain('variant="compact"');
+    expect(card).toContain("cardImageUrl(image.url)");
   });
 
   it("the detail hero offers both renditions and lets the browser choose", async () => {

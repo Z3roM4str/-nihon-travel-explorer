@@ -2,7 +2,7 @@
 
 ## Estado B25 — 2026-09-28
 
-B25/B7 se implementó en `codex/block-25-b7-quiero-ir`, base exacta
+B25/B7 se implementó en `codex/implementar-bloque-25-b7-quiero-ir`, base exacta
 `98260eb67b508527cd6836fda2d3d3f33d909c1a`. La pantalla integra segmentado de personas, resumen
 de tres datos, coincidencias primero, divergencias derivadas, vacíos y CTA deliberada al Viaje.
 Detalle y límites: `docs/BLOCK_25_HANDOFF.md`. No se inició B8/B9/B10 ni Astra y no se modificó
