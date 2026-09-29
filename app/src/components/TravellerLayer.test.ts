@@ -66,10 +66,11 @@ describe("the shared trip stays shared", () => {
 });
 
 describe("the layer stays subtle", () => {
-  it("has exactly one permanent surface — the header bar", async () => {
+  it("has no permanent header surface — the «Eres» switcher is gone (DD-007, B26)", async () => {
     const app = await readAppSource("App.tsx");
-    expect(app).toContain("<TravellerBar");
-    expect(app.match(/<TravellerBar/g) ?? []).toHaveLength(1);
+    expect(app).not.toContain("TravellerBar");
+    const screen = await readSource("NosotrosScreen.tsx");
+    expect(screen.match(/<TravellerManager/g) ?? []).toHaveLength(1);
   });
 
   it("puts no person picker in front of the save action", async () => {
@@ -114,8 +115,8 @@ describe("the layer stays subtle", () => {
    */
   it("renders embedded in Nosotros instead of as a modal, with nothing opening it automatically", async () => {
     const app = await readAppSource("App.tsx");
-    expect(app).toContain("<TravellerManager");
-    expect(app).toMatch(/<TravellerManager[\s\S]*?\bembedded\b/);
+    expect(app).toContain("<NosotrosScreen");
+    expect(await readSource("NosotrosScreen.tsx")).toContain("<TravellerManager");
     expect(app).not.toContain("travellerManagerOpen");
     expect(app).not.toMatch(/useEffect\([^)]*setTravellerManagerOpen\(true\)/);
   });
@@ -123,7 +124,7 @@ describe("the layer stays subtle", () => {
 
 describe("no score, no ranking, no dating app", () => {
   it("emits no percentage, score or compatibility figure anywhere in the layer", async () => {
-    for (const name of ["TravellerBar.tsx", "TravellerManager.tsx", "PlaceCard.tsx", "PlaceDetail.tsx", "SelectionPanel.tsx"]) {
+    for (const name of ["TravellerManager.tsx", "PlaceCard.tsx", "PlaceDetail.tsx", "SelectionPanel.tsx"]) {
       const code = withoutComments(await readSource(name));
       expect(code, name).not.toMatch(/\bscore\b|\bcompatib|\bafinidad\b|\bmatch(es)?\s*%|\d\s*%/i);
     }
@@ -138,7 +139,7 @@ describe("no score, no ranking, no dating app", () => {
   });
 
   it("uses no gamified or judgemental vocabulary", async () => {
-    for (const name of ["TravellerBar.tsx", "TravellerManager.tsx", "PlaceDetail.tsx"]) {
+    for (const name of ["TravellerManager.tsx", "PlaceDetail.tsx"]) {
       const code = withoutComments(await readSource(name));
       expect(code, name).not.toMatch(
         /racha|nivel|puntos|insignia|logro|ganas|pierdes|mejor para|os conviene|recomendad/i
@@ -148,13 +149,12 @@ describe("no score, no ranking, no dating app", () => {
 });
 
 describe("accessibility", () => {
-  it("marks the active traveller with aria-pressed and a spelled-out name", async () => {
-    const bar = await readSource("TravellerBar.tsx");
-    expect(bar).toContain("aria-pressed={active}");
-    expect(bar).toMatch(/Estás usando Nihon como \$\{traveller\.label\}/);
-    expect(bar).toMatch(/Cambiar a \$\{traveller\.label\}/);
-    expect(bar).toContain('role="group"');
-    expect(bar).toContain('aria-label="Quién está usando Nihon"');
+  it("marks the active traveller in text, with an icon and a spelled-out switch button (B26)", async () => {
+    const manager = await readSource("TravellerManager.tsx");
+    expect(manager).toContain("Este dispositivo lo usa {traveller.label}");
+    expect(manager).toContain("Usar este dispositivo como {traveller.label}");
+    expect(manager).toContain("traveller-card--active");
+    expect(manager).toContain('role="status"');
   });
 
   it("never relies on colour alone — every marker renders its label as text", async () => {
@@ -178,20 +178,12 @@ describe("accessibility", () => {
   });
 
   /**
-   * Bloque 18, gate 11: `TravellerManager` ya no es siempre un diálogo — hoy se usa siempre
-   * `embedded`, en cuyo caso el rol y la trampa de foco se retiran (no es una capa flotante).
-   * El componente conserva la capacidad de comportarse como diálogo legítimo si algún día se
-   * usa sin `embedded`, y eso es justo lo que este test comprueba: el `role`/`aria-modal`
-   * condicional, no un modal permanente.
+   * B26: `TravellerManager` es contenido de Nosotros › Viajeros, nunca una capa flotante: sin
+   * `role="dialog"`, sin `aria-modal`, sin trampa de foco y sin cierre.
    */
-  it("gives the manager a dialog role, a label and a focus trap when not embedded", async () => {
-    const manager = await readSource("TravellerManager.tsx");
-    expect(manager).toContain('role={embedded ? undefined : "dialog"}');
-    expect(manager).toContain("aria-modal={embedded ? undefined : true}");
-    expect(manager).toContain('aria-labelledby="traveller-manager-title"');
-    expect(manager).toMatch(/if \(embedded\) return;/);
-    expect(manager).toMatch(/event\.key !== "Tab"/);
-    expect(manager).toMatch(/event\.key === "Escape"/);
+  it("is section content, not a dialog", async () => {
+    const manager = withoutComments(await readSource("TravellerManager.tsx"));
+    expect(manager).not.toMatch(/role=\{?["']?dialog|aria-modal|onClose|embedded/);
   });
 
   it("names every destructive control with the person it affects", async () => {
@@ -219,19 +211,19 @@ describe("accessibility", () => {
   it("keeps every new control at the 44px tap floor", async () => {
     const css = await readAppSource("App.css");
     for (const selector of [
-      ".traveller-bar__option",
-      ".traveller-bar__manage",
       ".traveller-manager__input",
+      ".traveller-card__use",
       ".place-interest__decline",
     ]) {
       const block = css.slice(css.indexOf(`${selector} {`), css.indexOf(`${selector} {`) + 400);
-      expect(block, selector).toContain("var(--tap-target)");
+      expect(block, selector).toMatch(/var\(--tap-(target|min)\)/);
     }
   });
 
-  it("honours reduced motion", async () => {
+  it("has no transitions of its own to disable under reduced motion", async () => {
     const css = await readAppSource("App.css");
-    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]{0,300}traveller-bar__option/);
+    const cards = css.slice(css.indexOf(".traveller-card {"), css.indexOf(".traveller-manager__confirm {"));
+    expect(cards).not.toMatch(/transition|animation/);
   });
 });
 

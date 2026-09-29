@@ -1,4 +1,5 @@
 import type { IconName } from "../icons/Icon";
+import type { Place, PlaceImage } from "../types";
 
 /**
  * Content and persistence for the first-run explainer, kept out of the component so the
@@ -34,10 +35,48 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
   },
   {
     icon: "explorar",
-    title: "Después comparamos",
+    title: "Después comparáis",
     body: "Con la lista de “Quiero ir” hecha, se comparan las elecciones, se depuran juntas y solo al final se arma el itinerario.",
   },
 ] as const;
+
+/**
+ * B26 (`05 §1`): la secuencia normativa es Hola · Explora Japón · Marca lo que te gustaría ver ·
+ * Después comparáis · ¿Quiénes sois?. Los tres pasos del medio son `ONBOARDING_STEPS`, con su
+ * texto conservado; el primero y el último los añade el componente.
+ */
+export const ONBOARDING_INTRO = {
+  title: "Nihon",
+  tagline: "El cuaderno de vuestro viaje a Japón",
+  cta: "Empezar",
+} as const;
+
+export const ONBOARDING_IDENTITY = {
+  title: "¿Quiénes sois?",
+  body: "Poned el nombre de cada persona. Podéis cambiarlo cuando queráis en Nosotros.",
+  whoHoldsLegend: "¿Quién tiene este teléfono?",
+  cta: "Entrar",
+} as const;
+
+/** Total de pasos visibles: Hola + los explicativos + ¿Quiénes sois?. */
+export const ONBOARDING_TOTAL_STEPS = ONBOARDING_STEPS.length + 2;
+
+/**
+ * Fotografía del paso «Hola»: la de un lugar de grado S del catálogo (`05 §1`: «nunca un color
+ * plano»). Determinista —el primer lugar S, en el orden del dataset, que tiene fotografía— para
+ * que la primera pantalla no cambie de una apertura a otra. `null` si el catálogo no trae ninguna.
+ */
+export function pickOnboardingHero(
+  places: readonly Place[],
+  imagesFor: (place: Place) => readonly PlaceImage[]
+): { place: Place; image: PlaceImage } | null {
+  for (const place of places) {
+    if (place.grade !== "S") continue;
+    const image = imagesFor(place).find((entry) => Boolean(entry.url) && Boolean(entry.alt));
+    if (image) return { place, image };
+  }
+  return null;
+}
 
 /** Returns false whenever storage is unavailable — a blocked profile sees the explainer once
  * per session rather than never, which is the harmless side of the trade. */

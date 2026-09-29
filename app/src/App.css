@@ -5730,94 +5730,6 @@ button.app__title.app__title--expand {
    when it has something to say, so a browse screen with no shared opinions looks exactly as it
    did before. Every state carries text; `tone` colours it but never carries it alone. */
 
-.traveller-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.traveller-bar__legend {
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.traveller-bar__options {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  min-width: 0;
-}
-
-.traveller-bar__option {
-  min-height: var(--tap-target);
-  padding: 0.3rem 0.6rem;
-  border: 1px solid transparent;
-  border-radius: calc(var(--radius-sm) - 2px);
-  background: none;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  min-width: 0;
-}
-
-/* The selected half is marked by weight, background AND border, not by hue alone. */
-.traveller-bar__option--active {
-  background: var(--color-surface);
-  border-color: var(--color-border-strong);
-  color: var(--color-text);
-  box-shadow: var(--shadow-soft);
-}
-
-/*
- * Bloque 18: `7.5ch` truncaba nombres normales («Persona 1») porque este control vivía en la
- * cabecera estrecha (`02 §D4`, DD-007). Su nuevo sitio, «Nosotros › Viajeros», tiene ancho de
- * sobra — capacidad conservada (Art. 12), sólo se ajusta el límite a su nuevo contexto.
- */
-.traveller-bar__name {
-  display: block;
-  max-width: 16ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.traveller-bar__manage {
-  min-height: var(--tap-target);
-  min-width: var(--tap-target);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  font: inherit;
-  font-size: 1rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-}
-
-@media (min-width: 861px) {
-  .traveller-bar__name {
-    max-width: 14ch;
-  }
-}
-
-/* The legend is the first thing to go when the header gets tight; the names never are. */
-@media (max-width: 420px) {
-  .traveller-bar__legend {
-    display: none;
-  }
-}
-
 /* ---------- The contextual marker ---------- */
 
 .place-card__interest,
@@ -5902,51 +5814,10 @@ button.app__title.app__title--expand {
 
 /* ---------- The manager ---------- */
 
-.traveller-manager {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(35, 28, 20, 0.45);
-}
 
-.traveller-manager__dialog {
-  width: min(560px, 100%);
-  max-height: min(88vh, 720px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-panel);
-  padding: 1rem;
-}
 
-/* Bloque 18 (`02 §D2`, gate 11): gestor de viajeros como contenido de «Nosotros › Viajeros»,
-   no como modal — sin la caja flotante ni el tope de altura de un diálogo centrado. */
-.traveller-manager__dialog--embedded {
-  width: 100%;
-  max-height: none;
-  overflow-y: visible;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-}
 
-.traveller-manager__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
 
-.traveller-manager__head h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
 
 .traveller-manager__sub,
 .traveller-manager__note,
@@ -5966,83 +5837,11 @@ button.app__title.app__title--expand {
   gap: 0.75rem;
 }
 
-.traveller-manager__item {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem;
-  background: var(--color-surface-alt);
-}
 
-.traveller-manager__field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-}
 
-.traveller-manager__input {
-  min-height: var(--tap-target);
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  font: inherit;
-  font-size: 0.95rem;
-  color: var(--color-text);
-  width: 100%;
-  box-sizing: border-box;
-}
 
-.traveller-manager__meta {
-  margin: 0.45rem 0 0;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
 
-.traveller-manager__badge {
-  display: inline-block;
-  padding: 0.1rem 0.4rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-ok-soft);
-  color: var(--color-ok);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
 
-.traveller-manager__actions {
-  margin-top: 0.55rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.traveller-manager__confirm {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-warn-soft);
-  border: 1px solid #f0dcb6;
-  width: 100%;
-}
-
-.traveller-manager__confirm-text {
-  flex: 1 1 100%;
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.traveller-manager__confirm .link-button {
-  min-height: var(--tap-target);
-  display: inline-flex;
-  align-items: center;
-}
 
 .traveller-manager__add {
   margin-top: 0.85rem;
@@ -6135,61 +5934,22 @@ button.app__title.app__title--expand {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .traveller-bar__option,
-  .traveller-manager__dialog,
   .shortlist-filters__chip {
     transition: none;
+  }
+
+  .onboarding {
+    animation: none;
   }
 }
 
 
 /* ---------- Block 13 — trip backup ---------- */
 
-.trip-backup {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(35, 28, 20, 0.45);
-}
 
-.trip-backup__dialog {
-  width: min(560px, 100%);
-  max-height: min(88vh, 720px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-panel);
-  padding: 1rem;
-}
 
-/* Bloque 18 (`02 §D2`, gate 11): copia del viaje como contenido de «Nosotros › Copia del
-   viaje», no como modal — mismo criterio que `.traveller-manager__dialog--embedded`. */
-.trip-backup__dialog--embedded {
-  width: 100%;
-  max-height: none;
-  overflow-y: visible;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0;
-}
 
-.trip-backup__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
 
-.trip-backup__head h2 {
-  margin: 0;
-  font-size: 1.1rem;
-}
 
 .trip-backup__sub {
   margin: 0.35rem 0 0;
@@ -6198,18 +5958,6 @@ button.app__title.app__title--expand {
   color: var(--color-text-muted);
 }
 
-.trip-backup__close {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
-  flex-shrink: 0;
-}
 
 .trip-backup__section {
   margin-top: 1.25rem;
@@ -6622,4 +6370,468 @@ button.app__title.app__title--expand {
 
 .quiero-ir__analysis .analysis-body {
   padding: 0;
+}
+
+/* ---------- B26 — Nosotros (05 §11) ---------- */
+/*
+ * Una columna de lectura (como Quiero ir): la pantalla es una lista de secciones, no un tablero.
+ * Sólo tokens; ningún `@media (max-width)`.
+ */
+.nosotros {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.nosotros-section__title:focus {
+  outline: none;
+}
+
+.nosotros-section__title:focus-visible {
+  outline: 2px solid var(--ink-900);
+  outline-offset: 2px;
+}
+
+.nosotros-section__text {
+  overflow-wrap: anywhere;
+}
+
+.nosotros-section__version {
+  font-family: var(--font-record);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}
+
+/* Viajeros: dos tarjetas de persona. Una columna en teléfono, dos desde `sm` (`02 §D5`). */
+.traveller-manager__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 600px) {
+  .traveller-manager__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.traveller-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+/* La persona activa se distingue por borde grueso, texto y marca — nunca sólo por color. */
+.traveller-card--active {
+  border-width: 2px;
+  padding: calc(var(--space-4) - 1px);
+  border-color: var(--ink-900);
+}
+
+.traveller-card__head {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.traveller-card__head .person-token {
+  margin-bottom: var(--space-1);
+}
+
+.traveller-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.traveller-card__field-label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.traveller-manager__input {
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--type-body-size);
+  color: var(--ink-900);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+}
+
+.traveller-card__marked {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+}
+
+.traveller-card__marked-count {
+  font-family: var(--font-record);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.traveller-card__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  min-height: var(--tap-min);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-weight: 600;
+  color: var(--ok-600);
+  overflow-wrap: anywhere;
+}
+
+.traveller-card__status:focus {
+  outline: none;
+}
+
+.traveller-card__status:focus-visible {
+  outline: 2px solid var(--ink-900);
+  outline-offset: 2px;
+}
+
+.traveller-card__use {
+  min-height: var(--tap-min);
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.traveller-card__meta {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-500);
+  overflow-wrap: anywhere;
+}
+
+.traveller-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.traveller-card__actions .button {
+  min-height: var(--tap-min);
+  height: auto;
+  white-space: normal;
+}
+
+.traveller-manager__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--warn-050);
+  border: 1px solid var(--warn-600);
+}
+
+.traveller-manager__confirm-text {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.traveller-manager__confirm .button {
+  min-height: var(--tap-min);
+}
+
+/* Copia del viaje: el contenedor ya no es un diálogo. */
+.trip-backup__actions .button,
+.trip-backup__export,
+.trip-backup__finish,
+.trip-backup__apply {
+  min-height: var(--tap-min);
+}
+
+.trip-backup__preview:focus,
+.trip-backup__problem:focus,
+.trip-backup__restored:focus {
+  outline: 2px solid var(--ink-900);
+  outline-offset: 2px;
+}
+
+.trip-backup__file {
+  min-height: var(--tap-min);
+}
+
+.trip-backup__file::file-selector-button {
+  min-height: var(--tap-min);
+  margin-right: var(--space-3);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-900);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Fuentes y licencias */
+.sources__heading {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.sources__heading:first-child {
+  margin-top: 0;
+}
+
+.sources__licenses,
+.sources__list {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sources__license {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+.sources__license-count {
+  font-family: var(--font-record);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+}
+
+.sources__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  overflow-wrap: anywhere;
+}
+
+.sources__meta {
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+/* Onboarding: «Hola» a sangre (fotografía real) y «¿Quiénes sois?» (05 §1) */
+.onboarding__dialog {
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.onboarding__dialog--hero {
+  padding-top: 0;
+  overflow-x: hidden;
+}
+
+.onboarding__hero {
+  position: relative;
+  margin: 0 -1.4rem var(--space-3);
+  min-height: 15rem;
+  background: var(--surface-ink);
+  color: var(--surface);
+  display: flex;
+  align-items: flex-end;
+  text-align: left;
+}
+
+.onboarding__hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.onboarding__hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-bottom);
+}
+
+.onboarding__hero-text {
+  position: relative;
+  padding: var(--space-4) 1.4rem;
+}
+
+.onboarding__display {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  letter-spacing: var(--type-display-tracking);
+  font-weight: 500;
+}
+
+.onboarding__tagline {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.onboarding__close--on-photo {
+  z-index: 1;
+  background: var(--overlay-paper);
+  color: var(--ink-900);
+}
+
+.onboarding__identity {
+  text-align: left;
+}
+
+.onboarding__people {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.onboarding__person {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.onboarding__person .person-token {
+  margin-bottom: var(--space-1);
+}
+
+.onboarding__name {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.onboarding__name-label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.onboarding__input {
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font: inherit;
+  color: var(--ink-900);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.onboarding__holder {
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.onboarding__holder-legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.onboarding__holder-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.onboarding__holder-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-primary);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.onboarding__holder-option--selected {
+  border-width: 2px;
+  padding: calc(var(--space-2) - 1px) calc(var(--space-3) - 1px);
+  border-color: var(--ink-900);
+}
+
+.onboarding__holder-radio {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.onboarding__holder-option:focus-within {
+  outline: 2px solid var(--ink-900);
+  outline-offset: 2px;
+}
+
+.onboarding__holder-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.onboarding__skip-row {
+  margin-top: var(--space-2);
+}
+
+.onboarding__skip-row .link-button {
+  min-height: var(--tap-min);
 }

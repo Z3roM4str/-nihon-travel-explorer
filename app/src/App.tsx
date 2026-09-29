@@ -1,7 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
-import { getNationalSummary, getPrefectureByCode } from "./data/geography";
+import { getPrefectureByCode } from "./data/geography";
 import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
@@ -18,7 +18,6 @@ import { PersistenceNotice } from "./components/PersistenceNotice";
 import { Sheet } from "./components/Sheet";
 import { PersonToken } from "./components/PersonToken";
 import { TabBar, NavRail } from "./components/AppNav";
-import { MlitAttribution } from "./components/MlitAttribution";
 import type { Destination } from "./lib/destination";
 import { destinationLabel } from "./lib/destination";
 import { hubsWithZones } from "./lib/accommodation-zone";
@@ -26,20 +25,8 @@ import { hasSeenOnboarding } from "./lib/onboarding";
 import { useSaveFeedback } from "./useSaveFeedback";
 import { useTravellers } from "./useTravellers";
 import { usePortableBackup } from "./usePortableBackup";
-/**
- * Block 13. Static, and measured rather than assumed.
- *
- * `TripBackup` is 7.4 kB raw / 2.4 kB gzipped — smaller than `SelectionAnalysis` (14 kB) and
- * `TravellerManager` (9 kB), both of which Block 12 examined and deliberately left in the entry
- * chunk because "a chunk each would buy a round trip and save nothing worth having". Splitting
- * this one would mean applying a threshold to every surface except the one this block happens to
- * be adding, which is how a rule becomes an exception. It stays in the entry; the whole feature
- * costs 1.5 kB gzipped on the critical path.
- */
-import { TripBackup } from "./components/TripBackup";
+import { NosotrosScreen } from "./components/NosotrosScreen";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
-import { TravellerBar } from "./components/TravellerBar";
-import { TravellerManager } from "./components/TravellerManager";
 import { otherPersonMarker } from "./lib/traveller-presentation";
 import { getZonesForHub } from "./lib/accommodation-zone";
 import { categoryPresentation } from "./lib/category-presentation";
@@ -75,7 +62,6 @@ const ZoneComparison = lazy(loadZoneComparison);
 const HUBS = getHubs();
 /** Hubs where Block 3 modelled accommodation zones; the others offer no comparison. */
 const HUBS_WITH_ZONES = hubsWithZones();
-const NATIONAL_SUMMARY = getNationalSummary();
 
 /**
  * The single piece of state that decides what Explorar is showing.
@@ -320,7 +306,6 @@ export default function App() {
   // ---- Nosotros ----
   /** Shown on the very first visit and reopenable from Nosotros; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
-  const travellerManagerSectionRef = useRef<HTMLDivElement>(null);
 
   const { importState, exportBackup, prepareImport, confirmImport, resetImport, finishRestore } =
     usePortableBackup();
@@ -353,6 +338,8 @@ export default function App() {
     removeTraveller,
     addTraveller,
     placesOnlyWantedBy,
+    placesMarkedBy,
+    saveIdentity,
     divergenceFor,
     stanceFor,
     declinedIds,
@@ -841,6 +828,21 @@ export default function App() {
     setDestination("nosotros");
   }, [closeDetail]);
 
+  /**
+   * DD-007, `02 §D4`: tocar el `PersonToken` de la cabecera lleva a «Nosotros › Viajeros». Viajeros
+   * es la primera sección, pero Nosotros conserva su scroll al cambiar de pestaña, así que el
+   * token también devuelve la vista y el foco a esa sección: si no, «lleva a Nosotros» podría
+   * aterrizar en «Fuentes y licencias».
+   */
+  const openViajeros = useCallback(() => {
+    setDestination("nosotros");
+    requestAnimationFrame(() => {
+      const heading = document.getElementById("nosotros-viajeros-title");
+      heading?.scrollIntoView({ block: "start" });
+      heading?.focus({ preventScroll: true });
+    });
+  }, []);
+
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   /**
@@ -1087,7 +1089,7 @@ export default function App() {
             <button
               type="button"
               className="app__person-token-button"
-              onClick={() => setDestination("nosotros")}
+              onClick={openViajeros}
               aria-label={
                 activeTraveller
                   ? `Eres ${activeTraveller.label}. Ir a Nosotros y Viajeros`
@@ -1413,65 +1415,24 @@ export default function App() {
 
           {/* ---------------- Nosotros ---------------- */}
           <div className="destination-panel destination-panel--scroll" hidden={destination !== "nosotros"}>
-            <section className="nosotros-section" aria-label="Viajeros" ref={travellerManagerSectionRef}>
-              <h2 className="nosotros-section__title">Viajeros</h2>
-              <TravellerBar
-                travellers={travellers}
-                activeTravellerId={activeTraveller?.id ?? null}
-                onSelect={setActiveTraveller}
-                onManage={() =>
-                  travellerManagerSectionRef.current?.scrollIntoView({ behavior: "smooth" })
-                }
-              />
-              <TravellerManager
-                travellers={travellers}
-                activeTravellerId={activeTraveller?.id ?? null}
-                placesOnlyWantedBy={placesOnlyWantedBy}
-                onRename={renameTraveller}
-                onReset={resetTraveller}
-                onRemove={removeTraveller}
-                onAdd={addTraveller}
-                onClose={() => {}}
-                embedded
-              />
-            </section>
-
-            <section className="nosotros-section" aria-label="Copia del viaje">
-              <h2 className="nosotros-section__title">Copia del viaje</h2>
-              <TripBackup
-                importState={importState}
-                onExport={exportBackup}
-                onChooseFile={prepareImport}
-                onConfirm={(preview) => confirmImport(preview.plan)}
-                onReset={resetImport}
-                onFinishRestore={finishRestore}
-                onClose={() => {}}
-                embedded
-              />
-            </section>
-
-            <section className="nosotros-section" aria-label="Cómo funciona Nihon">
-              <h2 className="nosotros-section__title">Cómo funciona Nihon</h2>
-              <p className="nosotros-section__text">
-                Vuelve a ver la explicación de qué es Nihon y cómo marcar lo que os gustaría ver.
-              </p>
-              <button
-                type="button"
-                className="button button--secondary"
-                onClick={() => setOnboardingOpen(true)}
-              >
-                Ver de nuevo
-              </button>
-            </section>
-
-            <section className="nosotros-section" aria-label="Fuentes y licencias">
-              <h2 className="nosotros-section__title">Fuentes y licencias</h2>
-              <MlitAttribution className="nosotros-section__text" />
-              <p className="nosotros-section__text">
-                {NATIONAL_SUMMARY.placeCount} lugares · {NATIONAL_SUMMARY.coveredPrefectureCount} de{" "}
-                {NATIONAL_SUMMARY.prefectureCount} prefecturas con lugares verificados.
-              </p>
-            </section>
+            <NosotrosScreen
+              travellers={travellers}
+              activeTravellerId={activeTraveller?.id ?? null}
+              placesOnlyWantedBy={placesOnlyWantedBy}
+              placesMarkedBy={placesMarkedBy}
+              onSelectTraveller={setActiveTraveller}
+              onRenameTraveller={renameTraveller}
+              onResetTraveller={resetTraveller}
+              onRemoveTraveller={removeTraveller}
+              onAddTraveller={addTraveller}
+              importState={importState}
+              onExport={exportBackup}
+              onChooseFile={prepareImport}
+              onConfirmImport={(preview) => confirmImport(preview.plan)}
+              onResetImport={resetImport}
+              onFinishRestore={finishRestore}
+              onOpenOnboarding={() => setOnboardingOpen(true)}
+            />
           </div>
         </div>
 
@@ -1488,7 +1449,14 @@ export default function App() {
           desincronizarse. */}
       <PersistenceNotice />
 
-      {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
+      {onboardingOpen && (
+        <Onboarding
+          travellers={travellers}
+          activeTravellerId={activeTraveller?.id ?? null}
+          onSaveIdentity={saveIdentity}
+          onClose={() => setOnboardingOpen(false)}
+        />
+      )}
     </div>
   );
 }
