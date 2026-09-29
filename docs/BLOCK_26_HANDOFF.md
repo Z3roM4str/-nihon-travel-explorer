@@ -85,11 +85,51 @@ presentación y la frase de confirmación («Esto sustituirá todo lo que hay en
   tras recarga, sin red, onboarding (primera ejecución, foto, secuencia, defaults, «Saltar»,
   reapertura, «Entrar»), fuentes/MLIT/versión, responsive 320–1440, teclado, reduced motion, consola.
 
+## Resultados de cierre (2026-09-29)
+
+- `git diff --check` limpio · build PASS · lint 0 errores (1 warning heredado `PlaceMap.tsx:17`) ·
+  Vitest 107 ficheros **3415/3415** (3395 + 20 de `b26-nosotros.test.ts`).
+- Gate B26 `b26-nosotros-check.mjs`: **308/308 Chromium** y **308/308 WebKit** (verde en 6 ejecuciones
+  finales, incl. 3 en paralelo). Una ejecución intermedia, concurrente con otros gates, dio 307/308
+  y no se pudo reproducir ni identificar (su log no se conservó); se reporta tal cual.
+- Regresión (certificado en el estado final): B25 123/123 · integración B24+B23 58/58 · Phase 5A
+  50/50 escritorio + 50/50 móvil · DD-028 16/16 · B18 back 15/15 · viaje-lugar 38/38 · chrome 6/6 ·
+  a11y 23/23 · responsive OK · B17 regresión 18/18 (+ responsive, tap 16/16) · B5 231/231 · B6 177/177
+  · B23 28/28 · ddr03 43/43 · B20 ficha 73/73 · grid 52/52 · contraste OK · DDR-B24-3 9/9.
+- Selectores actualizados **manteniendo el contrato**: `block5`, `block6` (tarjetas de persona en
+  lugar de `.traveller-bar__option` / «Editar las personas»), `b17-regression` (idem), `block1-ux`
+  (explicador «1 de 5»), `b24-real-input` (el texto «ciudad» está en el paso 2 tras «Hola»). Tests
+  Vitest de `block17`, `block18-shell`, `TravellerLayer`, `onboarding` ajustados igual.
+- **Fallos que ya existían en `main` @ `b5e7341` (verificados construyendo `main` en un worktree):**
+  `b18-regression-check` (`.selection-list__name`, retirado por B25), `b24-real-input-audit` 8×
+  «P0-2 … `.icon-button--small` en Quiero ir» (B25), y —sin cambiar— `block1-ux-browser-audit` tras
+  el explicador (`.selection-panel__count`, B25), `block13-…-audit` y `block14-…-audit` (UI previa a
+  B18). Ninguno es atribuible a B26; no se han tocado sus aserciones. Deuda para B10.
+- Entorno de ejecución: `NIHON_CHROMIUM_PATH=/opt/pw-browsers/chromium`; los gates que llaman a
+  `chromium.launch()` sin ruta necesitan `PLAYWRIGHT_BROWSERS_PATH` con un enlace al headless-shell
+  preinstalado (Playwright 1.62 espera el build 1234, el entorno trae el 1194). B18 back /
+  viaje-lugar usan `vite preview --port 4181`.
+
+## Auditoría visual (Chromium, capturas reales 320/360/390/430/768/1440)
+
+Revisadas: primera pantalla de Nosotros, dos tarjetas, nombre largo (80 caracteres, sin overflow:
+el campo elipsa, la marca «Este dispositivo lo usa …» envuelve), edición, persona activa,
+confirmación de importación, fuentes y licencias, «Hola», «¿Quiénes sois?» y reapertura.
+Corregido en la auditoría: botón «Sustituir con este respaldo» ilegible (ahora secundario con color de
+riesgo), icono de check comprimido en nombres largos, espacio de la nota bajo las tarjetas.
+Estados de un solo viajero, nombres cortos y los seis anchos están cubiertos por el gate.
+
 ## Safari / iOS
 
 - **Hecho (automático):** el mismo gate B26 ejecutado en **Playwright WebKit** (motor de Safari,
-  Linux) — export con descarga real, `input file`, confirmación, reemplazo, fallo de escritura.
-  Diferencias Chromium/WebKit observadas: ver informe final.
+  Linux, Playwright 1.62 / WebKit 26.5) — export con descarga real (`download` desde ancla añadida al
+  DOM), `input file`, confirmación, reemplazo, fallo de escritura: 308/308. **No se observó ninguna
+  diferencia de resultado entre Chromium y WebKit.** Diferencias de entorno conocidas: WebKit no
+  expone la ruta de escritorio del archivo descargado igual que Chromium (Playwright la resuelve),
+  y el motor de escritorio no reproduce el manejo de descargas de la hoja de Safari iOS. Para
+  ejecutarlo: `PLAYWRIGHT_BROWSERS_PATH=<dir> NIHON_BROWSER=webkit node scripts/b26-nosotros-check.mjs`
+  (el WebKit de Playwright necesitó `playwright install webkit` + `install-deps`; el entorno base no
+  lo trae).
 - **PENDIENTE HUMANO — iPhone Safari real.** No se ha hecho ninguna prueba física. Falta validar en un
   iPhone: (1) que «Exportar respaldo» entrega un `.json` que se puede guardar en Archivos/compartir
   (Safari iOS trata `download` con su propia hoja); (2) que el selector de archivos de iOS puede
