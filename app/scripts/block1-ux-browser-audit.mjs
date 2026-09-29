@@ -183,8 +183,10 @@ async function auditViewport(browser, name, url) {
   const dialog = page.locator(".onboarding__dialog");
   check("first visit shows the explainer", (await dialog.count()) === 1);
   check(
-    "the explainer says it is step 1 of 3",
-containsText(await page.locator(".onboarding__step-count").innerText(), "1 de 3")
+    // B26 (`05 §1`): el explicador pasó de tres tarjetas a cinco pasos (Hola · tres explicativos ·
+    // ¿Quiénes sois?). El requisito —que diga en qué paso está— es el mismo; el total, no.
+    "the explainer says it is step 1 of 5",
+    containsText(await page.locator(".onboarding__step-count").innerText(), "1 de 5")
   );
   check("the explainer offers an escape on step 1", (await page.getByRole("button", { name: "Saltar" }).count()) === 1);
 

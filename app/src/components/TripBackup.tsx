@@ -170,7 +170,7 @@ export function TripBackup({
                 </button>
                 <button
                   type="button"
-                  className="button trip-backup__apply"
+                  className="button button--secondary trip-backup__apply"
                   onClick={() => onConfirm(importState.preview)}
                 >
                   Sustituir con este respaldo

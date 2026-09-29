@@ -64,7 +64,7 @@ async function storageKeys(page) {
 async function noOverflow(page) {
   return page.evaluate(() => {
     const doc = document.documentElement;
-    const inner = [".traveller-manager__dialog", ".app__detail", ".selection-panel__content"]
+    const inner = [".traveller-manager", ".app__detail", ".selection-panel__content"]
       .map((selector) => document.querySelector(selector))
       .filter(Boolean)
       .some((element) => element.scrollWidth > element.clientWidth + 1);
@@ -124,22 +124,22 @@ async function openHub(page, hub) {
 async function beTraveller(page, index) {
   await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
   await page.waitForTimeout(450);
-  await travellerOptions(page).nth(index).click();
+  // B26: cada persona es una tarjeta; la activa lo dice en texto y la otra ofrece
+  // «Usar este dispositivo como …». Elegir a quien ya está activa no hace nada, igual que antes.
+  const use = page.locator(".traveller-card").nth(index).getByRole("button", { name: /^Usar este dispositivo como / });
+  if ((await use.count()) > 0) await use.click();
   await page.waitForTimeout(350);
   await goToDestination(page, "Explorar");
   await page.waitForTimeout(600);
 }
 
 /**
- * Las opciones de «quién está usando Nihon», por rol y nombre accesible — no por la clase de su
- * contenedor. Se filtra por lo que el nombre accesible DICE («Estás usando Nihon como …» /
- * «Cambiar a …»), porque el grupo lleva además el botón de editar personas, que no es una
- * opción de persona y no debe contarse como tal.
+ * Las tarjetas de persona de Nosotros › Viajeros (B26). Sustituyen al segmentado «Eres»: la
+ * persona activa se marca con la clase `traveller-card--active` Y con texto («Este dispositivo lo
+ * usa …»); la otra ofrece el botón «Usar este dispositivo como …».
  */
-function travellerOptions(page) {
-  return page
-    .getByRole("group", { name: "Quién está usando Nihon" })
-    .getByRole("button", { name: /^(Estás usando Nihon como|Cambiar a) / });
+function travellerCards(page) {
+  return page.locator(".traveller-card");
 }
 
 /**
@@ -212,14 +212,15 @@ async function auditViewport(browser, name, url) {
   );
   await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
   await page.waitForTimeout(450);
-  const options = travellerOptions(page);
-  check("with one option per traveller", (await options.count()) === 2);
+  const options = travellerCards(page);
+  check("with one card per traveller", (await options.count()) === 2);
   check(
     "and it says who you are rather than asking you to set it up",
-    (await options.first().getAttribute("aria-pressed")) === "true"
+    (await options.first().getAttribute("class"))?.includes("traveller-card--active") &&
+      /Este dispositivo lo usa/.test(await options.first().innerText())
   );
-  const p1Name = (await options.nth(0).innerText()).trim();
-  const p2Name = (await options.nth(1).innerText()).trim();
+  const p1Name = (await options.nth(0).locator("input[type=text]").inputValue()).trim();
+  const p2Name = (await options.nth(1).locator("input[type=text]").inputValue()).trim();
   check("both travellers are named in text", p1Name.length > 0 && p2Name.length > 0, `${p1Name}/${p2Name}`);
   await goToDestination(page, "Explorar");
   await page.waitForTimeout(500);
@@ -254,7 +255,7 @@ async function auditViewport(browser, name, url) {
   // se lee y se vuelve, sin cambiar lo que se exige — que la persona activa sea la segunda.
   await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
   await page.waitForTimeout(450);
-  check("the roster now marks the second traveller", (await travellerOptions(page).nth(1).getAttribute("aria-pressed")) === "true");
+  check("the roster now marks the second traveller", ((await travellerCards(page).nth(1).getAttribute("class")) ?? "").includes("traveller-card--active"));
   await goToDestination(page, "Explorar");
   await page.waitForTimeout(600);
   const otherMarker = await markerTextOn(page, 0);
@@ -408,9 +409,7 @@ async function auditViewport(browser, name, url) {
   // DD-007: el gestor de personas vive en Nosotros › Viajeros, no en la cabecera.
   await goToDestination(page, "Nosotros");
   await page.waitForTimeout(500);
-  await page.getByRole("button", { name: "Editar las personas del viaje" }).first().click();
-  await page.waitForTimeout(600);
-  const manager = page.locator(".traveller-manager__dialog");
+  const manager = page.locator(".traveller-manager");
   /*
    * **Sustitución deliberada (B18, `02 §D2` / `05 §11`).** El gestor de personas era un modal
    * superpuesto que había que abrir y cerrar; B18 lo convirtió en **una sección de Nosotros ›
@@ -422,8 +421,8 @@ async function auditViewport(browser, name, url) {
   check("the manager is a labelled section of Nosotros", (await manager.count()) === 1);
   check(
     "and it is still named by its own heading",
-    (await manager.getAttribute("aria-labelledby")) === "traveller-manager-title" &&
-      (await page.locator("#traveller-manager-title").innerText()).trim().length > 0
+    (await page.locator("#nosotros-viajeros").getAttribute("aria-labelledby")) === "nosotros-viajeros-title" &&
+      (await page.locator("#nosotros-viajeros-title").innerText()).trim() === "Viajeros"
   );
   check(
     "it says the trip itself stays shared",
@@ -435,7 +434,7 @@ async function auditViewport(browser, name, url) {
     /sólo porque lo quiere esta persona|Ningún lugar de la lista depende/.test(await manager.innerText())
   );
 
-  const smallInManager = await smallTargets(page, ".traveller-manager__dialog");
+  const smallInManager = await smallTargets(page, ".traveller-manager");
   check("every control in the manager meets the tap floor", smallInManager.length === 0, JSON.stringify(smallInManager));
   overflow = await noOverflow(page);
   check("the manager has no horizontal overflow", !overflow.page && !overflow.inner, JSON.stringify(overflow));
@@ -499,26 +498,26 @@ async function auditViewport(browser, name, url) {
 
   // ── Keyboard and accessible naming ───────────────────────────────────────────────────────────
   const barA11y = await page.evaluate(() => {
-    const group = document.querySelector(".traveller-bar");
-    if (!group) return null;
-    const buttons = [...group.querySelectorAll("button")];
+    const cards = [...document.querySelectorAll(".traveller-card")];
+    const buttons = cards.flatMap((card) => [...card.querySelectorAll("button")]);
     const focusTarget = buttons[0];
-    focusTarget.focus();
+    focusTarget?.focus();
     return {
-      role: group.getAttribute("role"),
-      labelled: group.getAttribute("aria-label") !== null,
+      cards: cards.length,
+      labelled: cards.every((card) => (card.getAttribute("aria-label") ?? "").trim().length > 0),
       allNamed: buttons.every((b) => (b.getAttribute("aria-label") ?? b.textContent ?? "").trim().length > 0),
-      pressedCount: buttons.filter((b) => b.getAttribute("aria-pressed") === "true").length,
+      activeCount: cards.filter((card) => card.classList.contains("traveller-card--active")).length,
+      activeInText: cards.filter((card) => /Este dispositivo lo usa/.test(card.textContent ?? "")).length,
       focusable: document.activeElement === focusTarget,
     };
   });
-  check("the traveller control is a labelled group", barA11y?.role === "group" && barA11y?.labelled === true);
+  check("each traveller is a labelled card", barA11y?.cards === 2 && barA11y?.labelled === true);
   check("every one of its buttons has an accessible name", barA11y?.allNamed === true);
-  check("exactly one traveller is marked pressed", barA11y?.pressedCount === 1, String(barA11y?.pressedCount));
-  check("and it is keyboard focusable", barA11y?.focusable === true);
+  check("exactly one traveller is marked active, in text and not only by style", barA11y?.activeCount === 1 && barA11y?.activeInText === 1, JSON.stringify(barA11y));
+  check("and its controls are keyboard focusable", barA11y?.focusable === true);
 
-  const smallGlobal = await smallTargets(page, ".traveller-bar");
-  check("the header control meets the tap floor", smallGlobal.length === 0, JSON.stringify(smallGlobal));
+  const smallGlobal = await smallTargets(page, ".traveller-manager");
+  check("the manager meets the tap floor", smallGlobal.length === 0, JSON.stringify(smallGlobal));
 
   // ── L. Reload ────────────────────────────────────────────────────────────────────────────────
   const before = await readJson(page, TRAVELLERS_KEY);

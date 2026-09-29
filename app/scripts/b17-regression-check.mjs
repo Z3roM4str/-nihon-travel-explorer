@@ -144,12 +144,14 @@ async function main() {
   check("cerrar ficha vuelve a la lista", await page.locator(".place-card").first().isVisible());
 
   await goTo("Nosotros");
-  const travellerOptions = page.locator(".destination-panel:not([hidden]) .traveller-bar__option");
-  const travellerCount = await travellerOptions.count();
+  // B26: las personas son tarjetas de Nosotros › Viajeros; la que no está activa ofrece
+  // «Usar este dispositivo como …» (el antiguo segmentado «Eres» ya no existe).
+  const travellerCards = page.locator(".destination-panel:not([hidden]) .traveller-card");
+  const travellerCount = await travellerCards.count();
   check("hay dos viajeros configurados", travellerCount === 2);
 
   if (travellerCount === 2) {
-    await travellerOptions.nth(1).click();
+    await travellerCards.nth(1).getByRole("button", { name: /^Usar este dispositivo como / }).click();
     await page.waitForTimeout(300);
     await goTo("Explorar");
     await reopenSavedPlace();
@@ -165,7 +167,7 @@ async function main() {
     );
     await closeDetail();
     await goTo("Nosotros");
-    await travellerOptions.nth(0).click();
+    await travellerCards.nth(0).getByRole("button", { name: /^Usar este dispositivo como / }).click();
     await page.waitForTimeout(300);
   }
 

@@ -6543,6 +6543,14 @@ button.app__title.app__title--expand {
   white-space: normal;
 }
 
+.traveller-manager__note {
+  margin-top: var(--space-4);
+}
+
+.traveller-card__status svg {
+  flex-shrink: 0;
+}
+
 .traveller-manager__confirm {
   display: flex;
   flex-wrap: wrap;
@@ -6822,6 +6830,10 @@ button.app__title.app__title--expand {
   outline-offset: 2px;
 }
 
+.onboarding__holder-option svg {
+  flex-shrink: 0;
+}
+
 .onboarding__holder-name {
   flex: 1 1 auto;
   min-width: 0;
@@ -6834,4 +6846,11 @@ button.app__title.app__title--expand {
 
 .onboarding__skip-row .link-button {
   min-height: var(--tap-min);
+}
+
+/* La acción que sustituye datos se lee como tal sin inventar un botón nuevo: el secundario del
+   sistema con el color de riesgo (`--risk-600`), texto además de color. */
+.trip-backup__apply {
+  color: var(--risk-600);
+  border-color: var(--risk-600);
 }
