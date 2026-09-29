@@ -6316,3 +6316,310 @@ button.app__title.app__title--expand {
 .trip-backup__finish {
   min-height: 2.75rem;
 }
+
+/* ---------- B25 — B7 «Quiero ir» (05 §6) ---------- */
+/*
+ * Una columna de lectura, nunca la anchura entera del cuerpo en escritorio (`02 §D5`): el
+ * NavRail ya ocupa su sitio y la pantalla es una lista, no un tablero. Sólo tokens; ningún
+ * `@media (max-width)`.
+ */
+.quiero-ir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* `05 §6` pt. 1: el contador de la cabecera — sólo en Quiero ir, sólo si es > 0. */
+.app__title-count {
+  margin-left: var(--space-2);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+}
+
+/* Segmentado: filtro de vista (`05 §6` pt. 2). La opción marcada se distingue por relleno,
+   borde y peso — nunca sólo por color. */
+.quiero-ir__segmented {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  min-width: 0;
+}
+
+.quiero-ir__segment {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-700);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiero-ir__segment--on {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--ink-900);
+  font-weight: 700;
+  box-shadow: var(--elev-1);
+}
+
+.quiero-ir__segment:focus-visible,
+.quiero-ir__section-toggle:focus-visible,
+.save-toast__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Resumen: tres datos del MISMO tamaño (`05 §6` pt. 3) — la duración no es titular. */
+.quiero-ir__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.quiero-ir__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+
+.quiero-ir__fact dd {
+  margin: 0;
+  color: var(--ink-700);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+.quiero-ir__fact-value {
+  font-family: var(--font-record);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}
+
+.quiero-ir__note,
+.quiero-ir__empty-line,
+.quiero-ir__row-note {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.quiero-ir__pending {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--shu-050);
+  color: var(--ink-700);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+/* Secciones: el borde lateral es el color de la persona, pero siempre acompañado del token
+   con la inicial (o el glifo de los dos) y del nombre en el titular. */
+.quiero-ir__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--line);
+  min-width: 0;
+}
+
+.quiero-ir__section--agreed {
+  border-left-color: var(--person-both);
+}
+
+.quiero-ir__section--a {
+  border-left-color: var(--person-a);
+}
+
+.quiero-ir__section--b {
+  border-left-color: var(--person-b);
+}
+
+.quiero-ir__section-heading {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  color: var(--ink-900);
+}
+
+.quiero-ir__section-heading--static {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+}
+
+.quiero-ir__section-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.quiero-ir__section-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.quiero-ir__section-count {
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+}
+
+/* P1-13 (B24): el plegado usa el chevron de línea del set, no glifos de texto (D-M5). */
+.quiero-ir__chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--ink-500);
+  transform: rotate(90deg);
+}
+
+.quiero-ir__chevron--open {
+  transform: rotate(-90deg);
+}
+
+.quiero-ir__section-body[hidden] {
+  display: none;
+}
+
+.quiero-ir__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quiero-ir__city {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quiero-ir__city-name {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
+  font-weight: 600;
+  color: var(--ink-700);
+}
+
+.quiero-ir__city-count {
+  font-weight: 400;
+  color: var(--ink-500);
+}
+
+.quiero-ir__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quiero-ir__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.quiero-ir__row .place-card--compact {
+  min-width: 0;
+}
+
+.quiero-ir__analysis {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Dentro de Quiero ir la duración nunca compite con el resumen (`05 §6`: no es titular). */
+.quiero-ir__analysis .analysis-total__value {
+  font-family: var(--font-record);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--ink-900);
+}
+
+/* Acción anclada (`05 §6` pt. 7): pegada al pie de la zona que scrollea, sobre la barra de
+   pestañas en móvil y sobre el área segura en escritorio; el fondo tapa la lista que pasa por
+   debajo y el último elemento nunca queda oculto porque la acción ocupa su propio sitio. */
+.quiero-ir__cta {
+  position: sticky;
+  bottom: calc(-1 * var(--space-4));
+  z-index: 2;
+  margin: 0 calc(-1 * var(--space-4)) calc(-1 * var(--space-4));
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+/* Toast con acción (`04 §16`): el único toast que recibe puntero. */
+.save-toast--action {
+  pointer-events: auto;
+}
+
+.save-toast__text {
+  min-width: 0;
+}
+
+.save-toast__action {
+  flex-shrink: 0;
+  min-height: var(--tap-min);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.quiero-ir__analysis .analysis-body {
+  padding: 0;
+}

@@ -55,8 +55,9 @@ describe("the block adds no persistence", () => {
   });
 
   it("keeps the filter in view state, not in storage", async () => {
+    // B25 (B7): el filtro es ahora el segmentado de Quiero ir — sigue siendo estado de vista.
     const panel = withoutComments(await readSource("SelectionPanel.tsx"));
-    expect(panel).toContain('useState<ShortlistFilterKind>("all")');
+    expect(panel).toContain('useState<QuieroIrLens>("both")');
     expect(panel).not.toMatch(/localStorage|sessionStorage/);
   });
 
@@ -138,41 +139,54 @@ describe("the derived view is wired, once", () => {
   });
 });
 
-describe("the default view is unchanged", () => {
-  it("renders Block 5's list, markers and all, when no filter is active", async () => {
-    const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain('filter === "all"\n      ? savedPlaces');
-    // The derived line is filtered-only.
-    expect(panel).toContain("const entry = filtering ? groupOf.get(place.id) ?? null : null;");
+/**
+ * B25 — B7 «Quiero ir» (`05 §6`, `10 §B7`). La barra de filtros de Bloque 6 deja de ser la forma
+ * de ver la divergencia: la pantalla se ORGANIZA por ella. Lo que se conserva, y estos tests
+ * fijan, es que la organización se lee de los mismos módulos puros de Bloques 5 y 6.
+ */
+describe("the screen is organised by the Block 5/6 groups, not by a new calculation", () => {
+  it("places each shortlisted place by its divergence group and its interest summary", async () => {
+    const organiser = withoutComments(await readAppSource("lib/quiero-ir.ts"));
+    expect(organiser).toContain('if (group === "agreed") agreed.push(place);');
+    expect(organiser).toContain('else if (group === "differing") differing.push(place);');
+    expect(organiser).toContain('else if (group === "unclaimed") unclaimed.push(place);');
+    expect(organiser).toContain("const summary = interestSummary(place.id);");
+    expect(organiser).not.toMatch(/\.sort\(|withStance|setItem/);
   });
 
-  it("shows one indicator per row, never a marker and a line together", async () => {
-    const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain(
-      "const marker = filtering || !interestMarkerFor ? null : interestMarkerFor(place.id);"
-    );
+  it("shows the agreement first, with no click, and the one-sided places after it", async () => {
+    const panel = withoutComments(await readSource("SelectionPanel.tsx"));
+    const agreed = panel.indexOf("Los dos queréis ir");
+    const only = panel.indexOf("title={`Sólo ${section.traveller.label}`}");
+    const declined = panel.indexOf('title="Descartados"');
+    expect(agreed).toBeGreaterThan(0);
+    expect(only).toBeGreaterThan(agreed);
+    expect(declined).toBeGreaterThan(only);
+    // The agreement heading is not a disclosure: nothing has to be pressed to see it.
+    const agreedBlock = panel.slice(panel.lastIndexOf("<section", agreed), agreed);
+    expect(agreedBlock).not.toContain("aria-expanded");
   });
 
-  it("says nothing extra above the list until a filter is pressed", async () => {
-    const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("{filtering && (");
-    expect(panel).toContain("filterStatusSentence(filter, visiblePlaces.length)");
+  it("keeps «opiniones distintas» and «sin reclamar» apart from «sólo una persona»", async () => {
+    const panel = withoutComments(await readSource("SelectionPanel.tsx"));
+    expect(panel).toContain('title={filterLabel("differing")}');
+    expect(panel).toContain('title={filterLabel("unclaimed")}');
+    expect(panel).toContain("divergenceLine(entry.group, travellers, activeTravellerId)");
+    expect(panel).toContain("plannedNote(entry)");
   });
 
-  it("hides the whole row when it could not partition anything", async () => {
-    const bar = await readSource("ShortlistFilterBar.tsx");
-    expect(bar).toContain("if (!shouldOfferFilters(counts, active)) return null;");
-    const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("{entries.length > 0 && (");
-  });
-
-  it("adds no second main surface — the view lives inside the saved list", async () => {
+  it("adds no second main surface — the view lives inside Quiero ir", async () => {
     const app = await readAppSource("App.tsx");
     expect(app).not.toMatch(/DivergencePanel|DisagreementScreen|setDivergenceOpen/);
-    // ShortlistFilterBar is rendered by the panel, not by App.
     expect(app).not.toContain("ShortlistFilterBar");
-    const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain("<ShortlistFilterBar");
+    expect(app).not.toMatch(/analysisVisible|onAnalyze/);
+  });
+
+  it("never changes who is using the device from the segmented control", async () => {
+    const panel = withoutComments(await readSource("SelectionPanel.tsx"));
+    expect(panel).not.toMatch(/setActiveTraveller|onSelectTraveller/);
+    expect(panel).toContain('role="radiogroup"');
+    expect(panel).toContain("aria-checked={checked}");
   });
 });
 
@@ -260,9 +274,9 @@ describe("accessibility", () => {
     expect(row.slice(0, 400)).toContain("overflow-x: auto");
   });
 
-  it("announces the filter status and the empty state politely", async () => {
+  it("states an empty agreement as a fact, not as an error", async () => {
     const panel = await readSource("SelectionPanel.tsx");
-    expect(panel).toContain('className="selection-panel__filter-status" role="status"');
-    expect(panel).toContain("emptyFilterSentence(filter)");
+    expect(panel).toContain('emptyFilterSentence("agreed")');
+    expect(panel).toContain("Cuando {yetToMark.label} marque sus sitios, aquí veréis en qué coincidís.");
   });
 });

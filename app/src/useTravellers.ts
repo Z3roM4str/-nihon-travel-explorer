@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   findInterest,
   findTraveller,
+  interestSnapshot,
   loadTravellersDocument,
   shortlistPlaceIds,
   stanceOf,
@@ -12,9 +13,11 @@ import {
   withStance,
   withToggledInterest,
   withTravellerLabel,
+  withRestoredInterest,
   withTravellerReset,
   withoutTraveller,
   writeTravellersDocument,
+  type InterestSnapshot,
   type InterestStance,
   type PlaceInterestSummary,
   type Storage,
@@ -199,6 +202,36 @@ export function useTravellers() {
     [document]
   );
 
+  /**
+   * B25 (B7 «Quiero ir», `05 §6`): «Descartados» — places everyone who spoke marked «no me
+   * interesa» and nobody wants. A READ of `summarizeInterest`; it is not in the shortlist and
+   * nothing here changes that.
+   */
+  const declinedIds = useMemo(
+    () =>
+      document.interests
+        .filter((interest) => summarizeInterest(document, interest.placeId).kind === "declined")
+        .map((interest) => interest.placeId),
+    [document]
+  );
+
+  /**
+   * B25: the snapshot «Deshacer» needs, taken before `removeSaved` runs. Reading only — the
+   * withdrawal itself is still `removeSaved`, unchanged.
+   */
+  const snapshotActiveInterest = useCallback(
+    (placeId: string): InterestSnapshot | null =>
+      document.activeTravellerId === null
+        ? null
+        : interestSnapshot(document, placeId, document.activeTravellerId),
+    [document]
+  );
+
+  /** B25: «Deshacer» — puts back exactly the stance the snapshot recorded, and nobody else's. */
+  const restoreInterest = useCallback((snapshot: InterestSnapshot) => {
+    setDocument((current) => withRestoredInterest(current, snapshot));
+  }, []);
+
   /** How many shortlisted places would leave the list if this traveller were reset or removed.
    * The UI states the number BEFORE acting, so a destructive step is never a surprise. */
   const placesOnlyWantedBy = useCallback(
@@ -231,5 +264,8 @@ export function useTravellers() {
     addTraveller,
     placesOnlyWantedBy,
     divergenceFor,
+    declinedIds,
+    snapshotActiveInterest,
+    restoreInterest,
   };
 }

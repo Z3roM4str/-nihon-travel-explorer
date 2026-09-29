@@ -6,7 +6,6 @@ import { FilterPanel } from "./components/FilterPanel";
 import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
 import { ExplorerHome } from "./components/ExplorerHome";
-import { SelectionAnalysis } from "./components/SelectionAnalysis";
 import { PlaceList } from "./components/PlaceList";
 import { PlaceMap } from "./components/PlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
@@ -41,7 +40,7 @@ import { TripBackup } from "./components/TripBackup";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
 import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
-import { interestMarker, otherPersonMarker } from "./lib/traveller-presentation";
+import { otherPersonMarker } from "./lib/traveller-presentation";
 import { getZonesForHub } from "./lib/accommodation-zone";
 import { categoryPresentation } from "./lib/category-presentation";
 import { SearchSheet } from "./components/SearchSheet";
@@ -285,13 +284,9 @@ export default function App() {
   const [mapFocusId, setMapFocusId] = useState<string | null>(null);
 
   // ---- Quiero ir ----
-  /** Bloque 18: ya no es un panel inferior colapsable de cromo global — es el contenido de la
-   * pestaña, así que empieza abierto. El plegado interno de `SelectionPanel` se conserva por si
-   * el lector quiere recogerlo, pero ya no es la forma de llegar a él (`02 §D2`). */
-  const [selectionOpen, setSelectionOpen] = useState(true);
-  /** Bloque 18: sustituye al modal global `analysisOpen` — «en qué coincidís» es ahora una
-   * sección que se despliega dentro de la propia pestaña (gate 11, DD-010). */
-  const [analysisVisible, setAnalysisVisible] = useState(false);
+  /** B25 (B7, `05 §6`): la pantalla ya no se pliega ni esconde nada detrás de un botón — el
+   * reparto por ciudad y zona que era `SelectionAnalysis` es ahora una sección de la propia
+   * pantalla, y su estado de plegado vive dentro de `SelectionPanel` (estado de vista). */
 
   // ---- Viaje ----
   const [viajeSection, setViajeSection] = useState<ViajeSection>("planificar");
@@ -352,7 +347,6 @@ export default function App() {
     setStance,
     activeStance,
     interestSummary,
-    tally,
     setActiveTraveller,
     renameTraveller,
     resetTraveller,
@@ -360,20 +354,16 @@ export default function App() {
     addTraveller,
     placesOnlyWantedBy,
     divergenceFor,
+    stanceFor,
+    declinedIds,
+    snapshotActiveInterest,
+    restoreInterest,
   } = useTravellers();
-  const { feedback, announce } = useSaveFeedback();
+  const { feedback, announce, dismiss: dismissFeedback, hold: holdFeedback } = useSaveFeedback();
   const hasMapRail = useMediaQuery(MAP_RAIL_QUERY);
 
-  /** Block 5: the card marker, resolved per place and deliberately null most of the time — see
-   * `lib/traveller-presentation.ts` for why silence is the default. */
-  const markerFor = useCallback(
-    (placeId: string) =>
-      interestMarker(interestSummary(placeId), travellers, activeTraveller?.id ?? null),
-    [interestSummary, travellers, activeTraveller]
-  );
-
   /** Bloque 19 (B3, `04 §5.5`): el `PersonToken` junto al corazón de `PlaceCard` — distinto de
-   * `markerFor`, que sigue alimentando el chip de texto de Quiero ir. Mismo patrón: función, no
+   * el antiguo chip de texto de Quiero ir (retirado en B25: las secciones dicen quién). Mismo patrón: función, no
    * un mapa precomputado. */
   const otherPersonMarkerFor = useCallback(
     (placeId: string) =>
@@ -522,13 +512,49 @@ export default function App() {
     [announce, isWantedByActive, toggleSaved]
   );
 
-  const removeSavedWithFeedback = useCallback(
+  /**
+   * B25 (B7, `05 §6`): quitar desde Quiero ir confirma con `Toast` + «Deshacer» (`04 §16`).
+   *
+   * La retirada sigue siendo `removeSaved` —sólo el interés de la persona activa, nunca el de la
+   * otra—; lo único nuevo es la foto previa que «Deshacer» usa para devolver exactamente esa
+   * postura a su sitio. Tras deshacer, el foco vuelve al corazón del lugar restaurado.
+   */
+  const removeSavedWithUndo = useCallback(
     (id: string) => {
       const place = getPlaceById(id);
+      const snapshot = snapshotActiveInterest(id);
       removeSaved(id);
-      if (place) announce(`${place.name} ya no está en Quiero ir`, "removed");
+      if (!place) return;
+      announce(
+        `${place.name} ya no está en Quiero ir`,
+        "removed",
+        snapshot
+          ? {
+              label: "Deshacer",
+              onAction: () => {
+                restoreInterest(snapshot);
+                announce(`${place.name} vuelve a estar en Quiero ir`, "saved");
+                window.requestAnimationFrame(() => {
+                  const heart = document.querySelector<HTMLElement>(
+                    `[data-quiero-ir-place="${CSS.escape(id)}"] .place-card__save`
+                  );
+                  heart?.focus();
+                });
+              },
+            }
+          : undefined
+      );
     },
-    [announce, removeSaved]
+    [announce, removeSaved, restoreInterest, snapshotActiveInterest]
+  );
+
+  /** B25: el corazón dentro de Quiero ir — quitar (con «Deshacer») si ya era tuyo, marcar si no. */
+  const quieroIrHeart = useCallback(
+    (id: string) => {
+      if (isWantedByActive(id)) removeSavedWithUndo(id);
+      else toggleSavedWithFeedback(id);
+    },
+    [isWantedByActive, removeSavedWithUndo, toggleSavedWithFeedback]
   );
 
   /**
@@ -543,6 +569,12 @@ export default function App() {
   const divergence = useMemo(
     () => divergenceFor(plannedPlaceIds),
     [divergenceFor, plannedPlaceIds]
+  );
+
+  /** B25: «Descartados», resueltos igual que los guardados. */
+  const declinedPlaces = useMemo(
+    () => declinedIds.map((id) => getPlaceById(id)).filter((place): place is Place => Boolean(place)),
+    [declinedIds]
   );
 
   /** Resolved against the global dataset, so a saved place survives navigation to any hub. */
@@ -728,17 +760,6 @@ export default function App() {
     }
   }, [activeHub, ficheOrigin, restoreGlobalSearchAfterDetail]);
 
-  /** The analysis is a lens over the saved places, not a second navigation: opening a place
-   * from it goes through the same selectPlace every other surface uses, tagged as belonging to
-   * Quiero ir since that is where `SelectionAnalysis` only ever renders (embedded there). */
-  const closeAnalysis = useCallback(() => setAnalysisVisible(false), []);
-  const openFromAnalysis = useCallback(
-    (id: string) => {
-      selectPlace(id, "quiero-ir");
-    },
-    [selectPlace]
-  );
-
   /** Closes the ficha entirely — chevron/`×` at the base of the stack, or a real browser back
    * past the last level. Pops however many entries this stack pushed in one go (`history.go`
    * fires a single `popstate` at its destination, not one per entry, corrección final punto 4),
@@ -855,6 +876,14 @@ export default function App() {
     });
   }, []);
 
+  /** B25 (B7, `05 §6`): Quiero ir enseña «Ya está en un día del recorrido» leyendo la misma foto
+   * de sólo lectura. Llegar a la pestaña desde Viaje por la barra —sin cambiar antes de sección—
+   * dejaba esa foto atrasada; se refresca al entrar. Es una LECTURA: no escribe el borrador. */
+  const selectDestination = useCallback((next: Destination) => {
+    if (next === "quiero-ir") setPlannerRevision((revision) => revision + 1);
+    setDestination(next);
+  }, []);
+
   /** Manually switching hubs resets filters and closes any open detail from the previous
    * hub — the policy is deliberately different from pushPlace/goBack, which preserve both. */
   const switchHub = useCallback(
@@ -886,6 +915,12 @@ export default function App() {
     setMobilePane("list");
     setMapFocusId(null);
   }, []);
+
+  /** B25 (`05 §6`, estado vacío): «Explorar Tokio» — cambio de destino explícito y etiquetado. */
+  const exploreFromQuieroIr = useCallback(() => {
+    setDestination("explorar");
+    enterHub("Tokio");
+  }, [enterHub]);
 
   /** Hub Explorer → National Explorer. Saved places are untouched; the trail is dropped so
    * no detail drawer is left floating over the national map. */
@@ -1007,7 +1042,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <NavRail active={destination} onSelect={setDestination} wantToGoCount={wantToGoCount} />
+      <NavRail active={destination} onSelect={selectDestination} wantToGoCount={wantToGoCount} />
 
       <div className="app__main">
         <header className={`app__header ${headerScrolled ? "app__header--scrolled" : ""}`}>
@@ -1032,7 +1067,18 @@ export default function App() {
                 <Icon name="expandir" size={16} aria-hidden="true" />
               </button>
             ) : (
-              <h1 className="app__title">{destinationLabel(destination)}</h1>
+              <h1 className="app__title">
+                {destinationLabel(destination)}
+                {/* B25 (`05 §6` pt. 1): la cabecera de Quiero ir lleva su contador. Sólo aquí y
+                    sólo si es > 0, igual que la insignia de la pestaña (Art. 6). */}
+                {destination === "quiero-ir" && wantToGoCount > 0 && (
+                  <span className="app__title-count">
+                    <span className="visually-hidden">: </span>
+                    {wantToGoCount}
+                    <span className="visually-hidden"> {wantToGoCount === 1 ? "lugar" : "lugares"}</span>
+                  </span>
+                )}
+              </h1>
             )}
           </div>
           <div className="app__header-actions">
@@ -1290,27 +1336,18 @@ export default function App() {
             <div className="destination-panel--scroll">
               <SelectionPanel
                 savedPlaces={savedPlaces}
-                onRemove={removeSavedWithFeedback}
+                declinedPlaces={declinedPlaces}
+                onToggleHeart={quieroIrHeart}
+                isWantedByActive={isWantedByActive}
                 onSelect={(id) => selectPlace(id, "quiero-ir")}
-                open={selectionOpen}
-                onToggle={() => setSelectionOpen((open) => !open)}
-                onAnalyze={() => setAnalysisVisible((open) => !open)}
                 onBuildSequence={goToPlanner}
-                tally={tally}
-                interestMarkerFor={markerFor}
-                activeTravellerLabel={activeTraveller?.label ?? null}
+                onExplore={exploreFromQuieroIr}
                 divergence={divergence}
                 travellers={travellers}
                 activeTravellerId={activeTraveller?.id ?? null}
+                interestSummary={interestSummary}
+                stanceFor={stanceFor}
               />
-              {analysisVisible && (
-                <SelectionAnalysis
-                  savedPlaces={savedPlaces}
-                  onSelectPlace={openFromAnalysis}
-                  onClose={closeAnalysis}
-                  embedded
-                />
-              )}
             </div>
             {ficheOrigin === "quiero-ir" && placeDetailOverlay}
           </div>
@@ -1438,10 +1475,10 @@ export default function App() {
           </div>
         </div>
 
-        <TabBar active={destination} onSelect={setDestination} wantToGoCount={wantToGoCount} />
+        <TabBar active={destination} onSelect={selectDestination} wantToGoCount={wantToGoCount} />
       </div>
 
-      <SaveToast feedback={feedback} />
+      <SaveToast feedback={feedback} onHold={holdFeedback} onDismiss={dismissFeedback} />
 
       {/* DDR-03 / `04 §17`: UNA sola vez, en la raíz, para toda la aplicación. Vive fuera de
           `.app__main` —y por tanto fuera de los cuatro paneles de destino— a propósito: el estado

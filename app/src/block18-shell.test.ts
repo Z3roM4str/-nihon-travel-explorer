@@ -240,7 +240,6 @@ describe("Bloque 18 — corrección final: Sheet (420px) y ficha de lugar (480px
 
 describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11 §11)", () => {
   const embeddedComponents: Array<[string, string]> = [
-    ["components/SelectionAnalysis.tsx", "analysis-dialog--embedded"],
     ["components/OrderedSequenceBuilder.tsx", "analysis-dialog--embedded"],
     ["components/ZoneComparison.tsx", "zone-panel--embedded"],
     ["components/TravellerManager.tsx", "traveller-manager__dialog--embedded"],
@@ -256,7 +255,13 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
 
   it("App.tsx monta las cinco siempre con `embedded`, nunca como overlay global con scrim", async () => {
     const source = await read("App.tsx");
-    expect(source).toMatch(/<SelectionAnalysis[\s\S]{0,400}embedded/);
+    // B25 (B7): `SelectionAnalysis` ya no es un modal en ningún modo — es contenido de una
+    // sección de Quiero ir, montado por `SelectionPanel`, sin rol de diálogo ni cierre.
+    expect(source).not.toContain("<SelectionAnalysis");
+    const analysis = (await read("components/SelectionAnalysis.tsx"))
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "");
+    expect(analysis).not.toMatch(/role=\{?["']?dialog|aria-modal|onClose/);
     expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,200}embedded/);
     // Corrección final de B18: `onSelectPlace` ahora envuelve `selectPlace` para etiquetar el
     // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para

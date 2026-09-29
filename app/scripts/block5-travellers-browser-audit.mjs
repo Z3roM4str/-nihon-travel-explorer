@@ -333,7 +333,7 @@ async function auditViewport(browser, name, url) {
   );
   check(
     "and the place stays in the shared list, because the other person still wants it",
-    (await page.locator(".selection-panel__count").innerText()).trim() === "2"
+    (await wantToGoCount(page)) === "2"
   );
   check(
     "the detail says so rather than resolving the disagreement",
@@ -355,26 +355,40 @@ async function auditViewport(browser, name, url) {
    */
   await goToDestination(page, "Quiero ir");
   await page.waitForTimeout(600);
-  const panelToggle = page.locator(".destination-panel:not([hidden]) .selection-panel__toggle");
-  if ((await panelToggle.getAttribute("aria-expanded").catch(() => null)) === "false") {
-    await panelToggle.click();
-    await page.waitForTimeout(400);
-  }
-  const tally = page.locator(".selection-panel__tally");
-  check("the saved list summarises in plain counts", (await tally.count()) === 1);
-  const tallyText = (await tally.innerText()).trim();
-  check("naming agreement and disagreement", /queréis los dos/.test(tallyText) && /desacuerdo/.test(tallyText), tallyText);
-  check("and never as a percentage or a score", !/%|punt|score|afinidad/i.test(tallyText), tallyText);
+  /*
+   * B25 (B7, `05 §6`): la frase de recuento de B5 y el marcador por fila se sustituyen por diseño
+   * por SECCIONES con nombre y contador («Los dos queréis ir (n)», «Opiniones distintas (n)»). El
+   * contrato es el mismo —la lista compartida dice cuántos coinciden y cuántos discrepan, en
+   * recuentos llanos, nunca como puntuación, y cada lugar dice a quién pertenece— y se mide ahora
+   * sobre la superficie visible nueva, lugar por lugar.
+   */
+  const quieroIr = page.locator(".destination-panel:not([hidden]) .quiero-ir");
+  const sectionHeads = (await quieroIr.locator(".quiero-ir__section-heading").allInnerTexts()).map((t) =>
+    t.replace(/\s+/g, " ").trim()
+  );
+  check("the saved list summarises in plain counts", sectionHeads.length > 0, JSON.stringify(sectionHeads));
   check(
-    "each saved row carries its own marker",
-    (await page.locator(".selection-list__interest-marker").count()) === 2
+    "naming agreement and disagreement",
+    sectionHeads.some((t) => /Los dos queréis ir \(1\)/.test(t)) &&
+      sectionHeads.some((t) => /Opiniones distintas \(1\)/.test(t)),
+    JSON.stringify(sectionHeads)
+  );
+  const tallyText = (await quieroIr.innerText()).trim();
+  check("and never as a percentage or a score", !/%|punt|score|afinidad/i.test(tallyText), tallyText.slice(0, 200));
+  const rowIds = await quieroIr
+    .locator(".quiero-ir__row")
+    .evaluateAll((rows) => rows.map((row) => row.getAttribute("data-quiero-ir-place")));
+  check(
+    "each saved place sits in exactly one section that says whose it is",
+    rowIds.length === 2 && new Set(rowIds).size === 2,
+    JSON.stringify(rowIds)
   );
 
   let overflow = await noOverflow(page);
   check("no horizontal overflow with the list open", !overflow.page && !overflow.inner, JSON.stringify(overflow));
 
   // ── The planner still receives one shared trip ───────────────────────────────────────────────
-  await page.getByRole("button", { name: /Construir recorrido/ }).click();
+  await page.getByRole("button", { name: /Llevar al viaje/ }).click();
   await page.waitForTimeout(900);
   const draft = await readJson(page, DRAFT_KEY);
   check("the planning draft is still V8 — not versioned per person", draft?.version === 8, String(draft?.version));
@@ -565,21 +579,21 @@ async function auditViewport(browser, name, url) {
   );
   check(
     "the carried-over places are still in the shared list",
-    (await page.locator(".selection-panel__count").innerText()).trim() === "2"
+    (await wantToGoCount(page)) === "2"
   );
   check(
     "the legacy key is left alone rather than deleted",
     (await readJson(page, LEGACY_KEY))?.length === 2
   );
 
-  await openHub(page, "Tokio");
-  if ((await page.locator(".selection-panel__content").count()) === 0) {
-    await page.locator(".selection-panel__toggle").click();
-    await page.waitForTimeout(400);
-  }
+  // B25: «Sin reclamar» es ahora una sección propia de Quiero ir, con su contador.
+  await goToDestination(page, "Quiero ir");
+  await page.waitForTimeout(600);
   check(
     "and the list says they are unclaimed rather than anybody's choice",
-    /sin reclamar/i.test(await page.locator(".selection-panel__tally").innerText())
+    /Sin reclamar\s*\(2\)/.test(
+      (await page.locator(".destination-panel:not([hidden]) .quiero-ir").innerText()).replace(/\s+/g, " ")
+    )
   );
 
   check("no page errors", pageErrors.length === 0, pageErrors.join(" | "));

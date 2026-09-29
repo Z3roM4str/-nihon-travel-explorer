@@ -312,7 +312,9 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     // expansion needs, so the invisible-expansion technique would make neighbouring 44×44 hit
     // zones overlap. These use a REAL 44×44 box instead (see the next test), so the className
     // must never regain `tap-target-min` — that would silently reintroduce the overlap bug.
-    for (const file of ["components/OrderedSequenceBuilder.tsx", "components/SelectionPanel.tsx"]) {
+    // B25: Quiero ir ya no tiene filas densas propias (usa `PlaceCard compact`, cuyo corazón
+    // lleva su propia área de 44 px), así que sólo queda el constructor de secuencias.
+    for (const file of ["components/OrderedSequenceBuilder.tsx"]) {
       const code = await read(file);
       expect(code, file).not.toContain("tap-target-min");
       expect((code.match(/icon-button--small/g) ?? []).length, file).toBeGreaterThan(0);
