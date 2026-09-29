@@ -1,5 +1,63 @@
 # Bloque 26 — B8 «Nosotros» · Handoff
 
+## Estado: B26 INTEGRADO en `main` (2026-09-29)
+
+- PR #159 **MERGED** 2026-09-29T21:59:39Z mediante **merge commit** (no squash, no rebase).
+- Merge commit `a53c1af33716d54f5717b4607bd7e123281fefa1`; padres `b5e734169e0940aaa21427d2c9c0f5dc03d9a236`
+  (main previo) + `bd24ccce49c5d49d95d939fb0aede6c8431c73d8` (head certificado). El árbol del merge es
+  idéntico al del head (0 diferencias).
+- Certificación post-merge desde `main`: `git diff --check` limpio; build PASS; lint 0 errores (1 warning
+  heredado); Vitest 107 ficheros 3415/3415; B26 314/314 Chromium y 314/314 WebKit; B25 123/123; integración
+  58/58; Phase 5A 50/50 escritorio + 50/50 móvil; DD-028 16/16; B18 15/15, 38/38, 6/6, 23/23, responsive;
+  B5 231/231; B6 177/177; B23 28/28; ddr03 43/43; ficha 73/73; grid 52/52; B17 18/18 + tap 16/16 +
+  responsive; contraste OK. Smoke Chromium 390×844 y 1440×900 (Nosotros completo, foco de «Ver de nuevo»,
+  sin overflow, TabBar/NavRail, sin errores ni HTTP propios): 28/28.
+- Gates históricos (deuda, sin cambio respecto al análisis main-vs-B26): `block14` 8 ✓ / 3 ✗ idéntico a `main`
+  (mapa en primera pintura, búsqueda libre, ficha: UI previa a B18/B19; el selector de personas ya está
+  portado); `block1-ux` 20 ✓ y muere en `.selection-panel__count` (B25) igual que en `main`; `block13`
+  falla antes de cualquier ✓ por UI previa a B18. No son fallos del merge. Además `b18-regression` y
+  `b24-real-input` P0-2 (B25). Deuda para B10.
+- **PENDIENTE HUMANO — iPhone Safari real** (sin cambios; no es PASS).
+- Siguiente: B27 = roadmap B9.1 «Días como estructura» (plan abajo).
+
+## Plan canónico B9 «Viaje» (por subbloques, `10 §B9`, `05 §7–§10`)
+
+B9.1 Días como estructura → B9.2 Reordenar (arrastrar + «Mover a…») → B9.3 Herramientas del día
+(«Probar otro orden») → B9.4 Dónde dormir → B9.5 Reservas y Resumen. Un bloque de producto por
+subbloque; B27 = B9.1 únicamente. Rama recomendada: `claude/b27-viaje-b9-1-dias`.
+
+**B9.1 — objetivo exacto.** Que Viaje › Días abra mostrando **días**, no una lista plana: `DayTimeline`
+con cabecera de día («Día 3 · mié 24 feb · Kioto», duración total, nº de paradas), `TripStop` con miniatura
+fotográfica conectadas por el raíl, pie de día («Dormís en …» / «Sin alojamiento elegido»), fila de traslado
+entre ciudades (`InterHubSegment`), cajón «Sin asignar» y «Añadir día»; **una sola línea de encuadre** («Vosotros
+decidís el orden. Nihon sólo describe lo que ese orden implica.», `EvidenceMark ✎`) en lugar de las cinco cajas
+de descargo; retirada del trío `↑ ↓ ×` por fila (D10) y de `Dato:` (DDR-05, sustituido por texto entre comillas
+con `◧ Registrado`). Sin arrastrar aún (B9.2): el «Mover a…» por teclado debe existir en B9.1 como mínimo para no
+dejar sin reordenación al retirar `↑ ↓`.
+
+**Dependencias.** B7 (Quiero ir) y B8 (Nosotros) integrados; `PersonToken`, `PlaceCard compact`/miniaturas de
+`place-images`, `EvidenceMark`, `Sheet`, tokens. Ninguna dependencia de datos nuevos.
+
+**Arquitectura existente que tocará.** `components/OrderedSequenceBuilder.tsx` (3606 líneas, `embedded` en
+Viaje), su suite `OrderedSequenceBuilder.*.test.ts`, `lib/day-assignment.ts`, `lib/planning-draft-v8.ts`
+(lectura), `lib/sequence-comparison.ts` (sin tocar), `App.tsx` (panel Viaje y sub-navegación), `App.css`. Nuevos
+componentes `DayTimeline`/`TripStop`.
+
+**Invariantes protegidas.** Cálculo intacto: traslados, identidad estable de día, anclaje de calendario, límites
+del viaje, mecanismos de reserva, fechas oficiales, composición del viaje, alternativas verificadas, comparación
+de órdenes (siguen alcanzables). El borrador V8 y `nihon.manualPlanningDraft` no cambian de esquema; Nihon no
+propone órdenes por su cuenta; DD-015 (ficha desde Viaje); DD-007; backup/restore.
+
+**Riesgos.** (1) Tamaño y densidad de pruebas de `OrderedSequenceBuilder` (~3.179 según `10`): muchas aserciones son
+de fuente y de markup; cada cambio justificado por documento y sección. (2) Perder capacidad al quitar `↑ ↓ ×`
+antes de B9.2 (mitigar con «Mover a…»). (3) Presupuesto de bytes de imagen por las miniaturas por parada
+(DDR-MERGE-1 abierta sobre el presupuesto de fotografía). (4) Gates B5/B6/B18/Phase 5A que recorren el planificador.
+(5) Foco y lectores de pantalla en la lista de días.
+
+**Gates que deberá conservar.** Vitest completo; gates de Viaje/planificador (Phase 5A, integración B24+B23,
+B18 viaje-lugar, block3/block4 de zonas y planificador, evidence-complete); B5, B6, B25, B26; DD-028; B23; ddr03;
+ficha; grid; contraste; y un gate nuevo B27 permanente.
+
 Misión: `docs/BLOCK_26_MISSION.md`. Contratos: `docs/design/05 §11`, `05 §1`, `10 §B8`, DD-007.
 
 | Campo | Valor |
