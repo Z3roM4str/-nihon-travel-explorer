@@ -108,6 +108,8 @@ describe("App wiring", () => {
   it("keeps a way back to it, so dismissing is not a one-way door", async () => {
     const source = await readFile(new URL("../App.tsx", import.meta.url), "utf8");
     expect(source).toContain("setOnboardingOpen(true)");
-    expect(source).toContain("Cómo funciona Nihon");
+    const screen = await readFile(new URL("../components/NosotrosScreen.tsx", import.meta.url), "utf8");
+    expect(screen).toContain("Cómo funciona Nihon");
+    expect(screen).toContain("onOpenOnboarding");
   });
 });

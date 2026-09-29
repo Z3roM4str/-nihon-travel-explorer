@@ -295,7 +295,6 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
     // funciona Nihon» es ahora un botón normal `button--secondary` (44px por `04 §4`) dentro de
     // Nosotros, que no necesita el mecanismo de expansión de esta prueba.
     const targets: Array<[string, string]> = [
-      ["components/TripBackup.tsx", 'className="trip-backup__close tap-target-min"'],
       // Bloque 19 (B3): el campo de búsqueda libre vivía dentro de `FilterPanel.tsx`; ahora es
       // `SearchSheet.tsx` (`04 §12`) — el botón de borrar se mudó con él, mismo className.
       ["components/SearchSheet.tsx", 'className="search-field__clear tap-target-min"'],

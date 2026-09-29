@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BackupProblem, RestoreSummary } from "../lib/portable-backup";
 import type { ImportPreview, ImportState } from "../usePortableBackup";
 
@@ -28,8 +28,6 @@ export function TripBackup({
   onConfirm,
   onReset,
   onFinishRestore,
-  onClose,
-  embedded = false,
 }: {
   importState: ImportState;
   onExport: () => string;
@@ -37,112 +35,50 @@ export function TripBackup({
   onConfirm: (preview: ImportPreview) => void;
   onReset: () => void;
   onFinishRestore: () => void;
-  onClose: () => void;
-  /** Bloque 18, `02 §D2` / gate 11: el respaldo deja de ser un modal global y pasa a ser
-   * contenido de «Nosotros › Copia del viaje». `embedded` quita el scrim y la trampa de
-   * foco/Escape propias de una capa flotante; la semántica de reemplazo se conserva íntegra. */
-  embedded?: boolean;
 }) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const problemRef = useRef<HTMLDivElement>(null);
+  const restoredRef = useRef<HTMLDivElement>(null);
+  const previousPhase = useRef<ImportState["phase"]>("idle");
   const [exported, setExported] = useState<string | null>(null);
 
+  /**
+   * B26 — foco. Al llegar a cada fase el foco va al bloque que hay que leer o decidir (la
+   * confirmación, el problema, el resumen); al volver a `idle` —cancelar, «Entendido»— regresa
+   * al selector de archivo, de donde salió. Nunca se queda en un botón que acaba de desaparecer.
+   */
   useEffect(() => {
-    closeRef.current?.focus();
-  }, []);
-
-  const close = useCallback(() => onClose(), [onClose]);
-
-  useEffect(() => {
-    if (embedded) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        // After a successful restore the app MUST reload before anything else is touched — see
-        // `usePortableBackup.finishRestore`. Escape therefore finishes rather than dismisses:
-        // there is no way out of this phase that leaves the stale in-memory trip in charge.
-        if (importState.phase === "restored") {
-          onFinishRestore();
-          return;
-        }
-        // Otherwise Escape steps back out of a pending step first, so it can never be the key that
-        // accidentally dismisses a decision the person was still reading.
-        if (importState.phase !== "idle") {
-          onReset();
-          return;
-        }
-        close();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        "button:not([disabled]), input:not([type='file'])"
-      );
-      if (!focusable || focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-    document.addEventListener("keydown", onKey, true);
-    return () => document.removeEventListener("keydown", onKey, true);
-  }, [close, onReset, onFinishRestore, importState.phase, embedded]);
-
-  const Outer = embedded ? Fragment : "div";
-  const outerProps = embedded
-    ? {}
-    : {
-        className: "trip-backup",
-        role: "presentation" as const,
-        onClick: (event: MouseEvent) => {
-          if (event.target !== event.currentTarget) return;
-          if (importState.phase === "restored") {
-            onFinishRestore();
-            return;
-          }
-          close();
-        },
-      };
+    const before = previousPhase.current;
+    previousPhase.current = importState.phase;
+    if (before === importState.phase) return;
+    if (importState.phase === "preview") previewRef.current?.focus();
+    else if (importState.phase === "rejected" || importState.phase === "failed")
+      problemRef.current?.focus();
+    else if (importState.phase === "restored") restoredRef.current?.focus();
+    else if (importState.phase === "idle") fileRef.current?.focus();
+  }, [importState.phase]);
 
   return (
-    <Outer {...outerProps}>
-      <div
-        className={`trip-backup__dialog ${embedded ? "trip-backup__dialog--embedded" : ""}`.trim()}
-        role={embedded ? undefined : "dialog"}
-        aria-modal={embedded ? undefined : true}
-        aria-labelledby="trip-backup-title"
-        ref={dialogRef}
-      >
-        <header className="trip-backup__head">
-          <div>
-            <h2 id="trip-backup-title">Respaldo del viaje</h2>
-            <p className="trip-backup__sub">
-              Nihon guarda vuestras decisiones sólo en este navegador. Un archivo de respaldo os
-              permite conservarlas o abrirlas en otro dispositivo.
-            </p>
-          </div>
-          {/* Bloque 18: embebido, esta sección no se cierra — es «Nosotros › Copia del viaje»
-              en sí misma. El botón dedicado de más abajo sigue terminando la restauración
-              cuando `importState.phase === "restored"`. */}
-          {!embedded && (
-            <button
-              type="button"
-              className="trip-backup__close tap-target-min"
-              onClick={() => (importState.phase === "restored" ? onFinishRestore() : close())}
-              ref={closeRef}
-              aria-label="Cerrar el respaldo del viaje"
-              title="Cerrar el respaldo del viaje"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-          )}
-        </header>
+    <div
+      className="trip-backup"
+      ref={rootRef}
+      onKeyDown={(event) => {
+        // Escape retrocede un paso pendiente, nunca lo confirma. Tras restaurar no hay retroceso:
+        // ver `usePortableBackup.finishRestore` (la app DEBE recargar antes de tocar nada más).
+        if (event.key !== "Escape") return;
+        if (importState.phase === "preview" || importState.phase === "rejected" || importState.phase === "failed") {
+          event.stopPropagation();
+          onReset();
+        }
+      }}
+    >
+      <div className="trip-backup__body">
+        <p className="trip-backup__sub">
+          Nihon guarda vuestras decisiones sólo en este navegador. Un archivo de respaldo os permite
+          conservarlas o abrirlas en otro dispositivo.
+        </p>
 
         <section className="trip-backup__section" aria-labelledby="trip-backup-export">
           <h3 id="trip-backup-export">Exportar respaldo</h3>
@@ -187,7 +123,7 @@ export function TripBackup({
           />
 
           {importState.phase === "rejected" && (
-            <div className="trip-backup__problem" role="alert">
+            <div className="trip-backup__problem" role="alert" tabIndex={-1} ref={problemRef}>
               <p>
                 No se ha podido leer <strong>{importState.fileName}</strong>.
               </p>
@@ -202,8 +138,14 @@ export function TripBackup({
           )}
 
           {importState.phase === "preview" && (
-            <div className="trip-backup__preview">
-              <p className="trip-backup__preview-head">
+            <div
+              className="trip-backup__preview"
+              role="group"
+              aria-labelledby="trip-backup-preview-head"
+              tabIndex={-1}
+              ref={previewRef}
+            >
+              <p className="trip-backup__preview-head" id="trip-backup-preview-head">
                 Esto es lo que contiene <strong>{importState.preview.fileName}</strong>:
               </p>
               <SummaryList summary={importState.preview.summary} />
@@ -216,7 +158,7 @@ export function TripBackup({
                 </p>
               )}
               <p className="trip-backup__confirm-line">
-                Esto sustituirá los datos de Nihon de este navegador.
+                Esto sustituirá todo lo que hay en este navegador.
               </p>
               <div className="trip-backup__actions">
                 <button
@@ -228,7 +170,7 @@ export function TripBackup({
                 </button>
                 <button
                   type="button"
-                  className="button trip-backup__apply"
+                  className="button button--secondary trip-backup__apply"
                   onClick={() => onConfirm(importState.preview)}
                 >
                   Sustituir con este respaldo
@@ -238,7 +180,7 @@ export function TripBackup({
           )}
 
           {importState.phase === "restored" && (
-            <div className="trip-backup__restored" role="status">
+            <div className="trip-backup__restored" role="status" tabIndex={-1} ref={restoredRef}>
               <p>Respaldo restaurado en este navegador.</p>
               <SummaryList summary={importState.summary} />
               <p className="trip-backup__note">
@@ -255,7 +197,7 @@ export function TripBackup({
           )}
 
           {importState.phase === "failed" && (
-            <div className="trip-backup__problem" role="alert">
+            <div className="trip-backup__problem" role="alert" tabIndex={-1} ref={problemRef}>
               <p>No se ha podido guardar el respaldo en este navegador.</p>
               <p>
                 {importState.rolledBack
@@ -269,7 +211,7 @@ export function TripBackup({
           )}
         </section>
       </div>
-    </Outer>
+    </div>
   );
 }
 

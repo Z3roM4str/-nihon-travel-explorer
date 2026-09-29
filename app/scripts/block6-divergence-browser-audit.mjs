@@ -144,7 +144,9 @@ async function openHub(page, hub) {
 async function beTraveller(page, index) {
   await page.getByRole("button", { name: /Ir a Nosotros y Viajeros/ }).first().click();
   await page.waitForTimeout(450);
-  await page.locator(".traveller-bar__option:visible").nth(index).click();
+  // B26: tarjetas de persona; elegir a quien ya está activa no hace nada, igual que antes.
+  const use = page.locator(".traveller-card").nth(index).getByRole("button", { name: /^Usar este dispositivo como / });
+  if ((await use.count()) > 0) await use.click();
   await page.waitForTimeout(350);
   await backToBrowse(page);
 }
@@ -421,8 +423,6 @@ async function auditViewport(browser, name, url) {
 
   // ── J. a profile reset ───────────────────────────────────────────────────────────────────────
   await goTo(page, "Nosotros");
-  await page.getByRole("button", { name: "Editar las personas del viaje" }).first().click();
-  await page.waitForTimeout(500);
   const resetButton = page.getByRole("button", { name: /^Reiniciar lo que ha guardado/ }).first();
   await resetButton.click();
   await page.waitForTimeout(350);

@@ -780,6 +780,10 @@ async function auditFilterSheet(page, vp) {
 // ---------------------------------------------------------------------------------------------
 async function auditOnboarding(page) {
   await page.locator(".onboarding__dialog").waitFor();
+  // B26 (`05 §1`): el paso 1 es ahora «Hola»; el texto de «Explora Japón» (que debe decir «ciudad»
+  // y no «zona») está en el paso 2, así que se avanza uno antes de leerlo. El contador y su
+  // posición se comprueban igualmente.
+  await page.getByRole("button", { name: "Empezar" }).click();
   const info = await page.evaluate(() => {
     const count = document.querySelector(".onboarding__step-count");
     const title = document.querySelector(".onboarding__title");

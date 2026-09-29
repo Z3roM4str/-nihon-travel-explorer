@@ -157,18 +157,24 @@ describe("Bloque 18 — retirada del conmutador «Eres» (DD-007, 02 §D4, gate 
     expect(header).toContain("PersonToken");
   });
 
-  it("TravellerBar sigue existiendo, ahora dentro de Nosotros › Viajeros", async () => {
-    const source = await read("App.tsx");
-    const nosotrosStart = source.indexOf('aria-label="Viajeros"');
-    const nosotrosEnd = source.indexOf("</section>", nosotrosStart);
-    expect(source.slice(nosotrosStart, nosotrosEnd)).toContain("<TravellerBar");
+  it("B26: el cambio de persona activa vive en Nosotros › Viajeros y TravellerBar («Eres») ya no existe", async () => {
+    const app = await read("App.tsx");
+    expect(app).not.toContain("TravellerBar");
+    const screen = await read("components/NosotrosScreen.tsx");
+    const start = screen.indexOf('id="nosotros-viajeros"');
+    const end = screen.indexOf("</Section>", start);
+    expect(screen.slice(start, end)).toContain("<TravellerManager");
+    expect(screen.slice(start, end)).toContain("onSelect={onSelectTraveller}");
+    await expect(read("components/TravellerBar.tsx")).rejects.toThrow();
   });
 
   it("el PersonToken de la cabecera es un control real que lleva a Nosotros (D4)", async () => {
     const source = await read("App.tsx");
-    expect(source).toMatch(
-      /className="app__person-token-button"[\s\S]{0,120}onClick=\{\(\) => setDestination\("nosotros"\)\}/
-    );
+    // B26: el token no sólo cambia de pestaña — `openViajeros` devuelve además la vista y el foco
+    // a «Nosotros › Viajeros», porque Nosotros conserva su scroll entre visitas.
+    expect(source).toMatch(/className="app__person-token-button"[\s\S]{0,120}onClick=\{openViajeros\}/);
+    expect(source).toMatch(/const openViajeros = useCallback\(\(\) => \{\s*setDestination\("nosotros"\);/);
+    expect(source).toContain("nosotros-viajeros-title");
   });
 
   it("PersonToken distingue a/b por orden de creación, no por color solo, y nunca apila dos tokens", async () => {
@@ -242,15 +248,20 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
   const embeddedComponents: Array<[string, string]> = [
     ["components/OrderedSequenceBuilder.tsx", "analysis-dialog--embedded"],
     ["components/ZoneComparison.tsx", "zone-panel--embedded"],
-    ["components/TravellerManager.tsx", "traveller-manager__dialog--embedded"],
-    ["components/TripBackup.tsx", "trip-backup__dialog--embedded"],
   ];
+  // B26: gestor de viajeros y copia del viaje ya no tienen modo modal: son contenido de Nosotros.
+  const notModalAnymore = ["components/TravellerManager.tsx", "components/TripBackup.tsx"];
 
   it.each(embeddedComponents)("%s acepta `embedded` y retira role=dialog/aria-modal cuando está activo", async (file) => {
     const source = await read(file);
     expect(source, file).toMatch(/embedded\??:\s*boolean/);
     expect(source, file).toMatch(/embedded\s*=\s*false/);
     expect(source, file).toMatch(/embedded\s*\?\s*undefined\s*:\s*(?:"dialog"|true)/);
+  });
+
+  it.each(notModalAnymore)("%s no tiene modo modal: sin role=dialog, aria-modal, scrim ni `embedded`", async (file) => {
+    const source = (await read(file)).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+    expect(source, file).not.toMatch(/role=\{?["']?dialog|aria-modal|embedded|onClose/);
   });
 
   it("App.tsx monta las cinco siempre con `embedded`, nunca como overlay global con scrim", async () => {
@@ -267,8 +278,7 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
     // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para
     // seguir alcanzando `embedded` tras esa prop más larga.
     expect(source).toMatch(/<ZoneComparison[\s\S]{0,400}embedded/);
-    expect(source).toMatch(/<TravellerManager[\s\S]{0,400}embedded/);
-    expect(source).toMatch(/<TripBackup[\s\S]{0,400}embedded/);
+    expect(source).toContain("<NosotrosScreen");
     // Las banderas booleanas de la era de overlays no deben sobrevivir como estado — pueden
     // seguir citadas en un comentario que explique el cambio (08 §"comentarios del código").
     for (const gone of [
@@ -381,8 +391,10 @@ describe("Bloque 18 — MLIT reubicado, no eliminado (05 §3, gate 11 §12)", ()
     expect(mlit).toMatch(/no es un\s+producto oficial de MLIT/);
     const national = await read("components/NationalExplorer.tsx");
     expect(national).toContain("<MlitAttribution");
-    const app = await read("App.tsx");
-    expect(app).toContain("<MlitAttribution");
+    // B26: la casa completa es `SourcesAndLicences`, dentro de Nosotros.
+    const sources = await read("components/SourcesAndLicences.tsx");
+    expect(sources).toContain("<MlitAttribution");
+    expect(await read("components/NosotrosScreen.tsx")).toContain("<SourcesAndLicences");
   });
 
   it("el aviso ya no es una franja permanente bajo el mapa: vive detrás de un botón ⓘ", async () => {

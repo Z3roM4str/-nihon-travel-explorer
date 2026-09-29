@@ -176,6 +176,25 @@ export function useTravellers() {
     setDocument((current) => withTravellerLabel(current, travellerId, label));
   }, []);
 
+  /**
+   * B26 (`05 §1`, paso «¿Quiénes sois?»): escribe nombres y persona activa en ESTE mismo
+   * documento, en una sola actualización. Sólo compone `withTravellerLabel` y
+   * `withActiveTraveller`: no crea personas, no toca posturas, ids ni preferencias, y una
+   * etiqueta en blanco se ignora igual que al renombrar desde Nosotros.
+   */
+  const saveIdentity = useCallback(
+    (labels: Readonly<Record<string, string>>, activeId: string | null) => {
+      setDocument((current) => {
+        let next = current;
+        for (const [id, label] of Object.entries(labels)) {
+          next = withTravellerLabel(next, id, label);
+        }
+        return activeId === null ? next : withActiveTraveller(next, activeId);
+      });
+    },
+    []
+  );
+
   const resetTraveller = useCallback((travellerId: string) => {
     setDocument((current) => withTravellerReset(current, travellerId));
   }, []);
@@ -243,6 +262,21 @@ export function useTravellers() {
     [document]
   );
 
+  /**
+   * B26 (`05 §11`): «marcados: N lugares» — los lugares que esta persona quiere visitar. Es una
+   * LECTURA del documento (postura «interested»); no cuenta «no me interesa» ni lugares sin
+   * opinión, y no es una puntuación.
+   */
+  const placesMarkedBy = useCallback(
+    (travellerId: string): number =>
+      document.interests.filter((interest) =>
+        interest.stances.some(
+          (entry) => entry.travellerId === travellerId && entry.stance === "interested"
+        )
+      ).length,
+    [document]
+  );
+
   return {
     travellers: document.travellers,
     activeTraveller,
@@ -263,6 +297,8 @@ export function useTravellers() {
     removeTraveller,
     addTraveller,
     placesOnlyWantedBy,
+    placesMarkedBy,
+    saveIdentity,
     divergenceFor,
     declinedIds,
     snapshotActiveInterest,

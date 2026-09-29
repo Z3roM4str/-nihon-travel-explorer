@@ -1,5 +1,21 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## B26 — B8 «Nosotros» (2026-09-29) — rama `claude/b26-nosotros`, PR Draft
+
+- Rama desde `origin/main` @ `b5e734169e0940aaa21427d2c9c0f5dc03d9a236` (verificado). `main` intacto.
+- Nosotros = pantalla de cinco secciones (Viajeros · Copia del viaje · Cómo funciona Nihon · Fuentes y
+  licencias · Acerca de). `TravellerBar` («Eres») eliminado; `TravellerManager` y `TripBackup` sin modo
+  modal; onboarding de cinco pasos con nombres y persona activa en el mismo almacén; MLIT íntegro,
+  licencias fotográficas, fuentes con fecha de consulta y versión desde `package.json`.
+- Puertas: build PASS · lint 0 errores · Vitest 3415/3415 · gate B26 308/308 Chromium y 308/308
+  WebKit · B25 123/123 · integración 58/58 · Phase 5A 50/50 ×2 · DD-028 16/16 · B18 15/15 y 38/38 ·
+  B5 231/231 · B6 177/177 · B23 28/28.
+- **PENDIENTE HUMANO — iPhone Safari real** (export/import, selector de archivos, teclado iOS). No se
+  ha hecho prueba física; WebKit de escritorio no la sustituye. Detalle: `docs/BLOCK_26_HANDOFF.md`.
+- Gates que ya fallaban en `main` (no B26): `b18-regression`, `b24-real-input` P0-2, `block1-ux` (tras
+  el explicador), `block13`/`block14` audits. Deuda para B10.
+- No se empezó B9. Sin Astra/Vercel/#154.
+
 ## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)
 
 - **PR #157 MERGED** el 2026-09-29T04:07:23Z mediante **merge commit** (no squash, no rebase).
