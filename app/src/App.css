@@ -6623,3 +6623,41 @@ button.app__title.app__title--expand {
 .quiero-ir__analysis .analysis-body {
   padding: 0;
 }
+
+/* B27 / B9.1 — the persisted day is Viaje's primary reading unit. */
+.viaje-nav { overflow-x: auto; padding-bottom: var(--space-1); }
+.viaje-nav__item { flex: 0 0 auto; }
+.days-framing { margin: 0; color: var(--ink-700); font-size: var(--type-body-s-size); }
+.days-tools { border: 1px solid var(--line); border-radius: var(--radius-m); padding: var(--space-3); }
+.days-tools > summary { min-height: var(--tap-min); display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.day-list { max-width: 48rem; margin-inline: auto; width: 100%; }
+.day-card { padding: clamp(.75rem, 3vw, 1.25rem); border-radius: var(--radius-l); }
+.day-card__header { align-items: flex-start; }
+.day-card__header h3 { font-size: var(--type-title-s-size); line-height: 1.35; }
+.day-card__summary { margin: .25rem 0 0; color: var(--ink-600); font-size: var(--type-body-s-size); }
+.day-timeline { list-style: none; margin: var(--space-4) 0; padding: 0 0 0 1rem; border-left: 2px solid var(--line-strong); }
+.day-timeline__item { position: relative; margin: 0 0 var(--space-2); }
+.day-timeline__item::before { content: ""; position: absolute; width: .65rem; height: .65rem; border-radius: 50%; background: var(--surface); border: 2px solid var(--ink-700); left: -1.39rem; top: 1.05rem; }
+.trip-stop { display: grid; grid-template-columns: 1.5rem 5rem minmax(0, 1fr); gap: .65rem; align-items: start; border: 1px solid var(--line); border-radius: var(--radius-m); padding: .55rem; background: var(--surface); }
+.trip-stop__position { display: grid; place-items: center; min-height: 2rem; font-weight: 700; }
+.trip-stop__media { width: 5rem; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius-s); background: var(--surface-sunken); }
+.trip-stop__media img { width: 100%; height: 100%; object-fit: cover; }
+.trip-stop__media .photo-placeholder { min-height: 100%; padding: .25rem; }
+.trip-stop__media .photo-placeholder__name, .trip-stop__media .photo-placeholder__brief, .trip-stop__media .photo-placeholder__pending { display: none; }
+.trip-stop__body { min-width: 0; }
+.trip-stop__open { display: flex; flex-direction: column; width: 100%; min-height: var(--tap-min); padding: .2rem; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.trip-stop__open strong { overflow-wrap: anywhere; }
+.trip-stop__open span { margin-top: .2rem; color: var(--ink-600); font-size: var(--type-body-s-size); }
+.trip-stop__move { min-height: var(--tap-min); margin-top: .25rem; }
+.trip-stop__move-panel { display: grid; gap: .5rem; margin-top: .5rem; padding: .65rem; background: var(--surface-sunken); border-radius: var(--radius-s); }
+.trip-stop__move-panel label { display: grid; gap: .2rem; font-size: var(--type-body-s-size); }
+.trip-stop__move-panel select, .unassigned-drawer select { min-height: var(--tap-min); max-width: 100%; }
+.day-timeline .sequence-leg { margin: .4rem 0 .4rem .5rem; }
+.day-card__footer { display: flex; align-items: center; gap: .4rem; min-height: var(--tap-min); margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--line); font-weight: 600; }
+.unassigned-drawer { position: sticky; bottom: calc(var(--tabbar-height, 0px) + .5rem); z-index: 4; max-width: 48rem; width: 100%; margin-inline: auto; padding: .25rem .75rem; border: 1px solid var(--line-strong); border-radius: var(--radius-m); background: var(--surface); box-shadow: var(--shadow-m); }
+.unassigned-drawer summary { display: flex; align-items: center; min-height: var(--tap-min); font-weight: 700; cursor: pointer; }
+.unassigned-drawer ul { list-style: none; padding: 0; }
+.unassigned-drawer li { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .5rem 0; border-top: 1px solid var(--line); }
+.unassigned-drawer label { display: grid; gap: .2rem; }
+@media (max-width: 430px) { .trip-stop { grid-template-columns: 1.25rem 4rem minmax(0, 1fr); gap: .45rem; } .trip-stop__media { width: 4rem; } .unassigned-drawer li { align-items: stretch; flex-direction: column; } }
+@media (prefers-reduced-motion: reduce) { .trip-stop, .unassigned-drawer { scroll-behavior: auto; } }

@@ -101,7 +101,7 @@ type MobilePane = "list" | "map";
 /** Bloque 18, `05 §7`: qué contenido de «Viaje» está a la vista. Sustituye a los dos booleanos
  * mutuamente excluyentes (`sequenceBuilderOpen`/`zonesOpen`) de la era de overlays — ahora son,
  * literalmente, mutuamente excluyentes por construcción. */
-type ViajeSection = "planificar" | "dormir";
+type ViajeSection = "dias" | "dormir";
 
 const EMPTY_FILTERS: Filters = {
   query: "",
@@ -289,7 +289,7 @@ export default function App() {
    * pantalla, y su estado de plegado vive dentro de `SelectionPanel` (estado de vista). */
 
   // ---- Viaje ----
-  const [viajeSection, setViajeSection] = useState<ViajeSection>("planificar");
+  const [viajeSection, setViajeSection] = useState<ViajeSection>("dias");
   /**
    * Bloque 18, corrección post-cierre: el handoff original afirmaba que los cuatro destinos
    * permanecen montados, pero `OrderedSequenceBuilder`/`ZoneComparison` sólo se renderizaban
@@ -854,7 +854,7 @@ export default function App() {
    */
   const goToPlanner = useCallback(() => {
     setDestination("viaje");
-    setViajeSection("planificar");
+    setViajeSection("dias");
   }, []);
 
   const goToZones = useCallback((hub: string) => {
@@ -869,7 +869,7 @@ export default function App() {
    * section switch instead of a modal close. */
   const setViajeSectionTracked = useCallback((section: ViajeSection) => {
     setViajeSection((current) => {
-      if (current === "planificar" && section !== "planificar") {
+      if (current === "dias" && section !== "dias") {
         setPlannerRevision((revision) => revision + 1);
       }
       return section;
@@ -1367,11 +1367,11 @@ export default function App() {
               <div className="viaje-nav" role="group" aria-label="Secciones de Viaje">
                 <button
                   type="button"
-                  className={`viaje-nav__item ${viajeSection === "planificar" ? "viaje-nav__item--active" : ""}`}
-                  aria-pressed={viajeSection === "planificar"}
-                  onClick={() => setViajeSectionTracked("planificar")}
+                  className={`viaje-nav__item ${viajeSection === "dias" ? "viaje-nav__item--active" : ""}`}
+                  aria-pressed={viajeSection === "dias"}
+                  onClick={() => setViajeSectionTracked("dias")}
                 >
-                  <Icon name="explorar" size={16} /> Planificar
+                  <Icon name="calendario" size={16} /> Días
                 </button>
                 <button
                   type="button"
@@ -1382,13 +1382,20 @@ export default function App() {
                 >
                   <Icon name="cama" size={16} /> Dónde dormir
                 </button>
+                <button type="button" className="viaje-nav__item" disabled aria-disabled="true" title="Disponible en B9.5">
+                  <Icon name="ticket" size={16} /> Reservas
+                </button>
+                <button type="button" className="viaje-nav__item" disabled aria-disabled="true" title="Disponible en B9.5">
+                  Resumen
+                </button>
               </div>
 
               <Suspense fallback={null}>
-                {viajeVisited && viajeSection === "planificar" && (
+                {viajeVisited && viajeSection === "dias" && (
                   <OrderedSequenceBuilder
                     savedPlaces={savedPlaces}
                     onClose={() => setViajeSectionTracked("dormir")}
+                    onSelectPlace={(id) => selectPlace(id, "viaje", "Días")}
                     embedded
                   />
                 )}
@@ -1399,7 +1406,7 @@ export default function App() {
                   <ZoneComparison
                     hub={zonesHub}
                     savedPlaces={savedPlaces}
-                    onClose={() => setViajeSectionTracked("planificar")}
+                    onClose={() => setViajeSectionTracked("dias")}
                     onSelectPlace={(id) => selectPlace(id, "viaje", "Dónde dormir")}
                     onOpenPlanner={goToPlanner}
                     embedded
