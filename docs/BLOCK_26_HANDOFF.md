@@ -142,3 +142,25 @@ Estados de un solo viajero, nombres cortos y los seis anchos están cubiertos po
 - `block13-portable-backup-browser-audit.mjs` obsoleto desde B18 (arriba).
 - El selector de archivo usa el control nativo del navegador (su texto sigue el idioma del sistema).
 - Sin DDR nueva.
+
+## Corrección de auditoría del PR #159 (2026-09-29)
+
+- Gate B26: eliminados los dos `|| true` (`O-REOPEN-FOCUS` y `L-COVER`), que dejaban esas comprobaciones
+  siempre en verde. `L-COVER` ahora elige la barra **visible** (antes tomaba la primera del DOM, el
+  NavRail oculto), exige que ningún elemento de «Acerca de» se solape con ella y sondea con
+  `elementFromPoint`; en móvil/tablet mide bloque 568/584 (320), 708/724, 772/788, 860/876, 952/968.
+  `K-TAB` exige visitar **exactamente** cada control una vez (59/59) en lugar de «≥ n−1»; `B-EXPORT`
+  exige el nombre `nihon-backup-AAAA-MM-DD.json`; `K-FOCUS-VISIBLE` exige caja visible dentro de pantalla.
+- Bug real que sacó la comprobación de foco: el explicador **no devolvía el foco** al cerrarse. Corregido
+  en `Onboarding.tsx` (vuelve a «Ver de nuevo» tras Escape, ×, «Saltar» y «Entrar»); 4 comprobaciones nuevas.
+- Gate B26: **314/314 Chromium** y **314/314 WebKit ×3** (tres ejecuciones consecutivas).
+- Comparación contra `main` @ `b5e7341` (construido en un worktree, mismo runner):
+  - `block1-ux`: idéntico salvo el texto «1 de 3» → «1 de 5»; ambos mueren en `.selection-panel__count` (B25).
+  - `block13-portable-backup`: ambos fallan **antes de cualquier ✓**; en `main` por `.traveller-bar__option`
+    (`.nth(1)` oculto), en la rama un paso después (UI previa a B18). Sin diferencia medible.
+  - `block14-release-readiness`: en `main` 8 ✓ / 3 ✗; la rama tenía 1 ✗ más («two travellers exist», que
+    en `main` pasaba sólo porque el segmentado seguía montado en el DOM). **Regresión de B26 real; corregida**
+    portando el selector a las tarjetas: ahora 8 ✓ / mismas 3 ✗ que `main` (ya obsoletas por B18/B19).
+- Regresión final tras estos cambios: Vitest 3415/3415; B25 123/123; integración 58/58; Phase 5A 50/50 ×2;
+  DD-028 16/16; B18 15/15, 38/38, 6/6, 23/23, responsive; B17 18/18 + tap 16/16; B5 231/231; B6 177/177;
+  B23 28/28; ddr03 43/43; ficha 73/73; grid 52/52; contraste OK.

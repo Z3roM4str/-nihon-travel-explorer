@@ -402,16 +402,27 @@ async function auditViewport(browser, name, url, tmp) {
   }
 
   // ── 3. Two travellers, genuinely divergent ──────────────────────────────────────────────────
-  const options = page.locator(".traveller-bar__option");
+  // B26: el segmentado «Eres» ya no existe; las personas son tarjetas de Nosotros › Viajeros y se
+  // cambia con «Usar este dispositivo como …» (elegir a quien ya está activa no hace nada).
+  const options = page.locator(".traveller-card");
   check("two travellers exist as separate identities", (await options.count()) === 2);
+  const asTraveller = async (index) => {
+    await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Nosotros" }).first().click();
+    await page.waitForTimeout(300);
+    const use = options.nth(index).getByRole("button", { name: /^Usar este dispositivo como / });
+    if ((await use.count()) > 0) await use.click();
+    await page.waitForTimeout(300);
+    await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Explorar" }).first().click();
+    await page.waitForTimeout(300);
+  };
 
-  await options.nth(0).click();
+  await asTraveller(0);
   await page.waitForTimeout(400);
   const aTokyo = await saveIn(page, "Tokio", 3);
-  await options.nth(1).click();
+  await asTraveller(1);
   await page.waitForTimeout(400);
   const bKyoto = await saveIn(page, "Kioto", 2);
-  await options.nth(0).click();
+  await asTraveller(0);
   await page.waitForTimeout(400);
   const aOsaka = await saveIn(page, "Osaka", 2);
 
@@ -437,7 +448,7 @@ async function auditViewport(browser, name, url, tmp) {
   // ── 4. INTEGRATION: switch traveller, THEN open the planner ─────────────────────────────────
   // An isolated planner audit never crosses this boundary. The planner must see the SHARED
   // shortlist, not whatever the active person happens to want.
-  await options.nth(1).click();
+  await asTraveller(1);
   await page.waitForTimeout(500);
   const plannerOpened = await openPlanner(page);
   check("the planner opens after switching traveller", plannerOpened);
@@ -572,7 +583,7 @@ async function auditViewport(browser, name, url, tmp) {
 
   // ── 9. THE RESTORE TRAP: change the trip, restore, reload, then INTERACT ────────────────────
   const restoredShortlist = shortlistOf(await read(page, TRAVELLERS_KEY));
-  await options.nth(0).click();
+  await asTraveller(0);
   await page.waitForTimeout(400);
   const extra = await saveIn(page, "Kioto", 3);
   const mutatedShortlist = shortlistOf(await read(page, TRAVELLERS_KEY));
