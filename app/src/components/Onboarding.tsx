@@ -43,6 +43,13 @@ type Props = {
 export function Onboarding({ travellers, activeTravellerId, onSaveIdentity, onClose }: Props) {
   const [step, setStep] = useState(0);
   const dialogRef = useRef<HTMLDivElement>(null);
+  /** Quién tenía el foco al abrirse (p. ej. «Ver de nuevo» en Nosotros): al cerrarse —por Escape, ×,
+   * fondo, «Saltar» o «Entrar»— el foco vuelve ahí en vez de perderse en `body`. */
+  const [opener] = useState<HTMLElement | null>(() =>
+    document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+      ? document.activeElement
+      : null
+  );
   const primaryRef = useRef<HTMLButtonElement>(null);
   const total = ONBOARDING_TOTAL_STEPS;
   const isFirst = step === 0;
@@ -59,6 +66,13 @@ export function Onboarding({ travellers, activeTravellerId, onSaveIdentity, onCl
   const hero = useMemo(
     () => pickOnboardingHero(getAllPlaces(), (place) => resolvePlaceImages(place.id, place.images)),
     []
+  );
+
+  useEffect(
+    () => () => {
+      if (opener?.isConnected) opener.focus();
+    },
+    [opener]
   );
 
   const close = useCallback(() => {

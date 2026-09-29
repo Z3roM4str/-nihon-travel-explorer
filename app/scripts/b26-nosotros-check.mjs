@@ -354,7 +354,7 @@ async function auditBackup(browser, viewport) {
     const path = await download.path();
     const file = JSON.parse(readFileSync(path, "utf8"));
     const live = await stored(page);
-    check("B-EXPORT", /^nihon-.*\.json$/i.test(download.suggestedFilename()) || download.suggestedFilename().endsWith(".json"), `${tag}: se descarga un .json (${download.suggestedFilename()})`);
+    check("B-EXPORT", /^nihon-backup-\d{4}-\d{2}-\d{2}\.json$/.test(download.suggestedFilename()), `${tag}: se descarga un .json (${download.suggestedFilename()})`);
     check("B-EXPORT-CONTENT", file.format === "nihon-portable-backup" && file.version === 1 && same(file.data.travellers, live), `${tag}: el archivo real contiene el documento de viajeros tal cual`);
     check("B-EXPORT-STATUS", /Archivo generado/.test(await backup.locator("[role=status]").first().innerText()), `${tag}: se anuncia el archivo generado`);
 
@@ -556,12 +556,14 @@ async function auditOnboarding(browser, viewport) {
       await page.keyboard.press("Escape");
       await dialog.waitFor({ state: "detached" });
       check("O-REOPEN-ESC", same(await stored(page), start), `${tag}: Escape al reabrir NO destruye nombres ni preferencias`);
-      check("O-REOPEN-FOCUS", (await activeElementInfo(page)).text.includes("Ver de nuevo") || true, `${tag}: (foco tras cerrar: ${(await activeElementInfo(page)).tag})`);
+      check("O-REOPEN-FOCUS", (await activeElementInfo(page)).text === "Ver de nuevo", `${tag}: tras cerrar con Escape el foco vuelve a «Ver de nuevo» (${JSON.stringify(await activeElementInfo(page))})`);
       dialog = await openToIdentity();
       await dialog.locator(".onboarding__skip-row").getByRole("button", { name: "Saltar" }).click();
+      check("O-REOPEN-SKIP-FOCUS", (await activeElementInfo(page)).text === "Ver de nuevo", `${tag}: tras «Saltar» el foco vuelve a «Ver de nuevo»`);
       check("O-REOPEN-SKIP", same(await stored(page), start), `${tag}: «Saltar» al reabrir no escribe nada (sin semántica destructiva)`);
       dialog = await openToIdentity();
       await dialog.getByRole("button", { name: "Cerrar la introducción" }).click();
+      check("O-REOPEN-X-FOCUS", (await activeElementInfo(page)).text === "Ver de nuevo", `${tag}: tras × el foco vuelve a «Ver de nuevo»`);
       check("O-REOPEN-X", same(await stored(page), start), `${tag}: × al reabrir no escribe nada`);
       dialog = await openToIdentity();
       await dialog.locator("input[type=text]").nth(0).fill("Marta Ruiz");
@@ -570,6 +572,7 @@ async function auditOnboarding(browser, viewport) {
       await dialog.waitFor({ state: "detached" });
       const end = await stored(page);
       check("O-REOPEN-ENTER", end.travellers[0].label === "Marta Ruiz" && end.travellers[0].id === "trv-a" && end.travellers[1].label === "Kenji" && end.activeTravellerId === "trv-a" && same(end.interests, start.interests), `${tag}: «Entrar» al reabrir renombra y cambia la activa conservando ids y preferencias`);
+      check("O-REOPEN-ENTER-FOCUS", (await activeElementInfo(page)).text === "Ver de nuevo", `${tag}: tras «Entrar» el foco vuelve a «Ver de nuevo»`);
       check("O-REOPEN-CARDS", (await cards(page).nth(0).locator("input[type=text]").inputValue()) === "Marta Ruiz", `${tag}: Nosotros refleja el cambio (mismo almacén)`);
       check("C-CLEAN", problems.length === 0, `${tag}: sin errores${problems.length ? ` — ${problems.join(" | ")}` : ""}`);
     } finally {
@@ -637,16 +640,28 @@ async function auditLayout(browser, viewport) {
       const panel = document.querySelector(".destination-panel:not([hidden])");
       panel.scrollTop = panel.scrollHeight;
       await new Promise((r) => setTimeout(r, 150));
-      const bar = document.querySelector(".tab-bar, .nav-rail");
+      // La barra VISIBLE: en el DOM conviven TabBar y NavRail y sólo una se pinta.
+      const bar = [...document.querySelectorAll(".tab-bar, .nav-rail")].find((el) => getComputedStyle(el).display !== "none" && el.getBoundingClientRect().width > 0);
+      if (!bar) return { atEnd: false, visible: false, rail: false, covered: [], probeInBar: false, lastBottom: 0, barTop: 0 };
       const barRect = bar.getBoundingClientRect();
-      const last = panel.querySelector(".nosotros section:last-child");
-      const lastRect = last.getBoundingClientRect();
-      const isRail = getComputedStyle(bar).flexDirection === "column" || barRect.height > barRect.width;
+      const barStyle = getComputedStyle(bar);
+      const visible = barStyle.display !== "none" && barRect.width > 0 && barRect.height > 0;
+      const isRail = bar.classList.contains("nav-rail");
       const atEnd = Math.abs(panel.scrollTop + panel.clientHeight - panel.scrollHeight) <= 2;
-      return { atEnd, clear: isRail ? lastRect.right <= barRect.left || lastRect.left >= barRect.right || true : lastRect.bottom <= barRect.top + 1, rail: isRail };
+      const intersects = (a, b) => a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.top < b.bottom - 0.5 && a.bottom > b.top + 0.5;
+      // Ningún elemento con caja del último bloque (Acerca de) se solapa con la barra…
+      const last = panel.querySelector(".nosotros .nosotros-section:last-child");
+      const covered = [...last.querySelectorAll("*"), last]
+        .filter((el) => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0 && intersects(el.getBoundingClientRect(), barRect))
+        .map((el) => el.className?.toString?.() || el.tagName);
+      // …y lo que hay en el punto más bajo del bloque es el propio bloque, no la barra.
+      const lastRect = last.getBoundingClientRect();
+      const probe = document.elementFromPoint(lastRect.left + Math.min(20, lastRect.width / 2), Math.max(0, Math.min(lastRect.bottom, window.innerHeight) - 4));
+      const probeInBar = !!probe && bar.contains(probe);
+      return { atEnd, visible, rail: isRail, covered, probeInBar, lastBottom: Math.round(lastRect.bottom), barTop: Math.round(barRect.top) };
     });
     check("L-SCROLL-END", cover.atEnd, `${tag}: se puede hacer scroll hasta el final`);
-    check("L-COVER", cover.clear, `${tag}: el último bloque (Acerca de) no queda tapado por ${cover.rail ? "NavRail" : "TabBar"}`);
+    check("L-COVER", cover.visible && cover.covered.length === 0 && !cover.probeInBar, `${tag}: el último bloque (Acerca de) no se solapa con ${cover.rail ? "NavRail" : "TabBar"} (bloque termina en ${cover.lastBottom}, barra empieza en ${cover.barTop}${cover.covered.length ? `; solapa: ${cover.covered.join(", ")}` : ""})`);
 
     // objetivos táctiles
     const small = await screen(page).evaluate((root) => {
@@ -739,13 +754,15 @@ async function auditKeyboard(browser, viewport) {
       const info = await page.evaluate(() => {
         const el = document.activeElement;
         const inNos = !!el?.closest(".nosotros");
-        return { inNos, tag: el?.tagName, label: el?.getAttribute("aria-label") || el?.textContent?.trim().slice(0, 40) || "" };
+        const all = [...document.querySelectorAll(".nosotros button, .nosotros input, .nosotros a[href]")];
+        return { inNos, key: all.indexOf(el), tag: el?.tagName, label: el?.getAttribute("aria-label") || el?.textContent?.trim().slice(0, 40) || "" };
       });
       if (info.inNos) seen.push(info);
       if (info.tag === "BODY") break;
     }
-    const expectedControls = await screen(page).locator("button:visible, input:visible, a[href]:visible").count();
-    check("K-TAB", seen.length >= expectedControls - 1, `${tag}: Tab alcanza los controles de Nosotros (${seen.length}/${expectedControls})`);
+    const expectedControls = await screen(page).locator("button:not([disabled]):visible, input:not([disabled]):visible, a[href]:visible").count();
+    const distinct = new Set(seen.map((s) => s.key)).size;
+    check("K-TAB", distinct === expectedControls && seen.length === distinct, `${tag}: Tab visita EXACTAMENTE cada control de Nosotros una vez (${distinct}/${expectedControls}, ${seen.length} pasos)`);
     check("K-TAB-ORDER", seen[0]?.tag === "INPUT" && /Usar este dispositivo|Reiniciar|Quitar/.test(seen.slice(1, 4).map((s) => s.label).join(" ")), `${tag}: el orden de tabulación empieza por Viajeros`);
 
     // Cambiar de persona con teclado
@@ -755,8 +772,9 @@ async function auditKeyboard(browser, viewport) {
     check("K-SWITCH", (await stored(page)).activeTravellerId === B.id, `${tag}: la persona activa se cambia con teclado (Enter)`);
     check("K-FOCUS-VISIBLE", (await page.evaluate(() => {
       const el = document.activeElement;
+      const r = el.getBoundingClientRect();
       const cs = getComputedStyle(el);
-      return el.classList.contains("traveller-card__status") && el.tabIndex === -1 && cs.display !== "none";
+      return el.classList.contains("traveller-card__status") && el.tabIndex === -1 && cs.display !== "none" && cs.visibility !== "hidden" && r.width > 0 && r.height > 0 && r.top >= 0 && r.bottom <= window.innerHeight;
     })), `${tag}: el foco queda en un elemento visible tras cambiar`);
 
     // Onboarding: el foco queda atrapado y Escape cierra
