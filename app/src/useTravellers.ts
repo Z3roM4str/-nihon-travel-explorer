@@ -243,6 +243,17 @@ export function useTravellers() {
     [document]
   );
 
+  /** Total real de lugares marcados por una persona, compartidos o no. */
+  const markedPlacesBy = useCallback(
+    (travellerId: string): number =>
+      document.interests.filter((interest) =>
+        interest.stances.some(
+          (entry) => entry.travellerId === travellerId && entry.stance === "interested"
+        )
+      ).length,
+    [document]
+  );
+
   return {
     travellers: document.travellers,
     activeTraveller,
@@ -263,6 +274,7 @@ export function useTravellers() {
     removeTraveller,
     addTraveller,
     placesOnlyWantedBy,
+    markedPlacesBy,
     divergenceFor,
     declinedIds,
     snapshotActiveInterest,

@@ -17,11 +17,14 @@ export type OnboardingStep = {
 };
 
 /**
- * Three cards, no more. The explainer states the product's whole loop — explore, mark what you
- * like, compare afterwards — and then gets out of the way. It is not a tour: it never points at
- * a moving control and never depends on the state of the app behind it.
+ * Los cuatro pasos editoriales previos a la configuración de identidad de `05 §1`.
  */
 export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
+  {
+    icon: "mapa",
+    title: "Nihon es vuestro viaje",
+    body: "Un lugar para descubrir Japón, guardar lo que os interesa y decidir juntos sin que la aplicación decida por vosotros.",
+  },
   {
     icon: "mapa",
     title: "Explora Japón",

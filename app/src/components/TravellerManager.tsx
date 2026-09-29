@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { MAX_TRAVELLERS, type Traveller } from "../lib/travellers";
+import { PersonToken } from "./PersonToken";
 
 /**
  * Block 5 — the one modal the two-person layer has.
@@ -17,6 +18,8 @@ export function TravellerManager({
   travellers,
   activeTravellerId,
   placesOnlyWantedBy,
+  markedPlacesBy,
+  onSelect,
   onRename,
   onReset,
   onRemove,
@@ -27,6 +30,8 @@ export function TravellerManager({
   travellers: readonly Traveller[];
   activeTravellerId: string | null;
   placesOnlyWantedBy: (travellerId: string) => number;
+  markedPlacesBy: (travellerId: string) => number;
+  onSelect: (travellerId: string) => void;
   onRename: (travellerId: string, label: string) => void;
   onReset: (travellerId: string) => void;
   onRemove: (travellerId: string) => void;
@@ -138,7 +143,9 @@ export function TravellerManager({
             const inputId = `traveller-label-${traveller.id}`;
 
             return (
-              <li key={traveller.id} className="traveller-manager__item">
+              <li key={traveller.id} className={`traveller-manager__item ${traveller.id === activeTravellerId ? "traveller-manager__item--active" : ""}`}>
+                <div className="traveller-manager__identity">
+                  <PersonToken traveller={traveller} variant={travellers[0]?.id === traveller.id ? "a" : "b"} size="md" label={`Perfil de ${traveller.label}`} />
                 <label className="traveller-manager__field" htmlFor={inputId}>
                   Nombre
                   <input
@@ -149,11 +156,13 @@ export function TravellerManager({
                     onChange={(event) => onRename(traveller.id, event.target.value)}
                   />
                 </label>
+                </div>
 
                 <p className="traveller-manager__meta">
                   {traveller.id === activeTravellerId && (
                     <span className="traveller-manager__badge">Estás usando este perfil</span>
                   )}{" "}
+                  <strong>Marcados: {markedPlacesBy(traveller.id)} lugares.</strong>{" "}
                   {exclusive === 0
                     ? "Ningún lugar de la lista depende sólo de esta persona."
                     : `${exclusive} lugar${exclusive === 1 ? "" : "es"} de la lista ${
@@ -162,6 +171,14 @@ export function TravellerManager({
                 </p>
 
                 <div className="traveller-manager__actions">
+                  <button
+                    type="button"
+                    className="button button--secondary"
+                    aria-pressed={traveller.id === activeTravellerId}
+                    onClick={() => onSelect(traveller.id)}
+                  >
+                    {traveller.id === activeTravellerId ? "Este teléfono" : "Usar en este teléfono"}
+                  </button>
                   {isConfirmingReset ? (
                     <span className="traveller-manager__confirm" role="alert">
                       <span className="traveller-manager__confirm-text">

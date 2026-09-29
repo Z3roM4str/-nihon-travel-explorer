@@ -157,11 +157,12 @@ describe("Bloque 18 — retirada del conmutador «Eres» (DD-007, 02 §D4, gate 
     expect(header).toContain("PersonToken");
   });
 
-  it("TravellerBar sigue existiendo, ahora dentro de Nosotros › Viajeros", async () => {
+  it("B26 integra el cambio de persona en las tarjetas de Nosotros › Viajeros", async () => {
     const source = await read("App.tsx");
     const nosotrosStart = source.indexOf('aria-label="Viajeros"');
     const nosotrosEnd = source.indexOf("</section>", nosotrosStart);
-    expect(source.slice(nosotrosStart, nosotrosEnd)).toContain("<TravellerBar");
+    expect(source.slice(nosotrosStart, nosotrosEnd)).toContain("<TravellerManager");
+    expect(source.slice(nosotrosStart, nosotrosEnd)).toContain("onSelect={setActiveTraveller}");
   });
 
   it("el PersonToken de la cabecera es un control real que lleva a Nosotros (D4)", async () => {
@@ -267,7 +268,7 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
     // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para
     // seguir alcanzando `embedded` tras esa prop más larga.
     expect(source).toMatch(/<ZoneComparison[\s\S]{0,400}embedded/);
-    expect(source).toMatch(/<TravellerManager[\s\S]{0,400}embedded/);
+    expect(source).toMatch(/<TravellerManager[\s\S]{0,700}embedded/);
     expect(source).toMatch(/<TripBackup[\s\S]{0,400}embedded/);
     // Las banderas booleanas de la era de overlays no deben sobrevivir como estado — pueden
     // seguir citadas en un comentario que explique el cambio (08 §"comentarios del código").

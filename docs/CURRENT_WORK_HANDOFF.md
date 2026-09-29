@@ -1,3 +1,7 @@
+# ESTADO CANÓNICO ACTUAL — B26 / B8 «Nosotros»
+
+B26 implementado en `codex/block-26-b8-nosotros`; véase `docs/BLOCK_26_HANDOFF.md`. Pendiente de revisión/merge.
+
 # Handoff reanudable — B21 + B6.1–B6.6
 
 ## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)

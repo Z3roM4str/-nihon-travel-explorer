@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ONBOARDING_STEPS, markOnboardingSeen } from "../lib/onboarding";
 import { Icon } from "../icons/Icon";
+import { PersonToken } from "./PersonToken";
+import type { Traveller } from "../lib/travellers";
 
 /**
  * Three-card first-run explainer.
@@ -13,13 +15,18 @@ import { Icon } from "../icons/Icon";
 
 type Props = {
   onClose: () => void;
+  travellers: readonly Traveller[];
+  activeTravellerId: string | null;
+  onCompleteIdentity: (names: readonly string[], activeTravellerId: string) => void;
 };
 
-export function Onboarding({ onClose }: Props) {
+export function Onboarding({ onClose, travellers, activeTravellerId, onCompleteIdentity }: Props) {
   const [step, setStep] = useState(0);
+  const [names, setNames] = useState(() => travellers.map((traveller) => traveller.label));
+  const [selectedId, setSelectedId] = useState(activeTravellerId ?? travellers[0]?.id ?? "");
   const dialogRef = useRef<HTMLDivElement>(null);
   const primaryRef = useRef<HTMLButtonElement>(null);
-  const total = ONBOARDING_STEPS.length;
+  const total = ONBOARDING_STEPS.length + 1;
   const isLast = step === total - 1;
 
   const close = useCallback(() => {
@@ -41,7 +48,7 @@ export function Onboarding({ onClose }: Props) {
       if (event.key !== "Tab") return;
       // Minimal focus trap: the dialog's own controls are the only things reachable while it
       // is open, so Tab cannot wander into the application behind the backdrop.
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>("button");
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>("button, input");
       if (!focusable || focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -58,6 +65,10 @@ export function Onboarding({ onClose }: Props) {
   }, [close]);
 
   const current = ONBOARDING_STEPS[step];
+  const finish = () => {
+    if (selectedId) onCompleteIdentity(names, selectedId);
+    close();
+  };
 
   return (
     <div
@@ -84,24 +95,33 @@ export function Onboarding({ onClose }: Props) {
           <Icon name="cerrar" size={20} />
         </button>
 
-        <div className="onboarding__art" aria-hidden="true">
-          <Icon name={current.icon} size={24} />
-        </div>
+        {step === 0 ? <img className="onboarding__photo" src={`${import.meta.env.BASE_URL}images/places/JP-001/sensoji-temple.webp`} alt="Templo Sensō-ji en Tokio" /> : current && <div className="onboarding__art" aria-hidden="true"><Icon name={current.icon} size={24} /></div>}
 
         <h2 className="onboarding__title" id="onboarding-title">
-          {current.title}
+          {isLast ? "¿Quiénes sois?" : current.title}
         </h2>
         {/* B24 (P1-05, `03 §2.3`): el contador de pasos baja bajo el título, en caja de frase —
             encima del título era un eyebrow. */}
         <p className="onboarding__step-count">
           Paso {step + 1} de {total}
         </p>
-        <p className="onboarding__body">{current.body}</p>
+        {isLast ? (
+          <div className="onboarding__identity">
+            {travellers.map((traveller, index) => (
+              <label key={traveller.id} className="onboarding__name">
+                <PersonToken traveller={{ ...traveller, label: names[index] ?? traveller.label }} variant={index === 0 ? "a" : "b"} size="md" label={`Persona ${index + 1}`} />
+                <span>Nombre de la persona {index + 1}</span>
+                <input value={names[index] ?? ""} onChange={(event) => setNames((currentNames) => currentNames.map((name, nameIndex) => nameIndex === index ? event.target.value : name))} />
+              </label>
+            ))}
+            <fieldset className="onboarding__phone"><legend>¿Quién tiene este teléfono?</legend>{travellers.map((traveller, index) => <label key={traveller.id}><input type="radio" name="onboarding-active" value={traveller.id} checked={selectedId === traveller.id} onChange={() => setSelectedId(traveller.id)} /> {names[index] || traveller.label}</label>)}</fieldset>
+          </div>
+        ) : <p className="onboarding__body">{current.body}</p>}
 
         <div className="onboarding__dots" aria-hidden="true">
-          {ONBOARDING_STEPS.map((entry, index) => (
+          {Array.from({ length: total }, (_, index) => (
             <span
-              key={entry.title}
+              key={index}
               className={`onboarding__dot ${index === step ? "onboarding__dot--active" : ""}`}
             />
           ))}
@@ -121,9 +141,9 @@ export function Onboarding({ onClose }: Props) {
             type="button"
             className="button button--primary"
             ref={primaryRef}
-            onClick={() => (isLast ? close() : setStep(step + 1))}
+            onClick={() => (isLast ? finish() : setStep(step + 1))}
           >
-            {isLast ? "Empezar a explorar" : "Siguiente"}
+            {isLast ? "Entrar" : "Siguiente"}
           </button>
         </div>
       </div>

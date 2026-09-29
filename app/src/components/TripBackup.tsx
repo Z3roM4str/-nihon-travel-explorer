@@ -216,7 +216,7 @@ export function TripBackup({
                 </p>
               )}
               <p className="trip-backup__confirm-line">
-                Esto sustituirá los datos de Nihon de este navegador.
+                Esto sustituirá todo lo que hay en este navegador.
               </p>
               <div className="trip-backup__actions">
                 <button

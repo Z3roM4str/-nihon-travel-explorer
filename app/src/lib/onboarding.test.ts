@@ -9,8 +9,8 @@ import { ONBOARDING_STEPS, ONBOARDING_STORAGE_KEY } from "./onboarding";
  */
 
 describe("onboarding content", () => {
-  it("stays at three steps — the brief was 2–3, never a tutorial", () => {
-    expect(ONBOARDING_STEPS.length).toBe(3);
+  it("covers the four narrative beats before the identity step", () => {
+    expect(ONBOARDING_STEPS.length).toBe(4);
   });
 
   it("gives every step an icon, a title and a body", () => {

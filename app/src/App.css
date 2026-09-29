@@ -653,6 +653,7 @@ button.app__title.app__title--expand {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .onboarding { animation: none; }
   .sheet {
     animation-duration: 0.001ms;
   }
@@ -6622,4 +6623,29 @@ button.app__title.app__title--expand {
 
 .quiero-ir__analysis .analysis-body {
   padding: 0;
+}
+
+/* B26 — Nosotros */
+.traveller-manager__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.traveller-manager__item { min-width: 0; }
+.traveller-manager__item--active { border-color: var(--ink-900); box-shadow: inset 0 0 0 1px var(--ink-900); }
+.traveller-manager__identity { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: var(--space-3); }
+.nosotros-section__subtitle { margin: var(--space-4) 0 var(--space-2); font: 600 var(--type-body-size)/var(--type-body-line) var(--font-record); }
+.photo-licenses__groups, .photo-licenses__items { margin: 0; padding: 0; list-style: none; }
+.photo-licenses__groups { display: grid; gap: var(--space-2); }
+.photo-licenses details { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.photo-licenses summary { min-height: var(--tap-target); padding: var(--space-2) var(--space-3); display: flex; align-items: center; cursor: pointer; }
+.photo-licenses__items { padding: 0 var(--space-3) var(--space-3); display: grid; gap: var(--space-2); font-size: var(--type-caption-size); line-height: 1.5; }
+.onboarding__photo { width: calc(100% + 2.8rem); height: 9rem; margin: -1.6rem -1.4rem var(--space-3); object-fit: cover; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.onboarding__identity { text-align: left; display: grid; gap: var(--space-3); }
+.onboarding__name { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-3); align-items: center; font-size: var(--type-caption-size); }
+.onboarding__name span { align-self: end; }
+.onboarding__name input { grid-column: 2; min-width: 0; min-height: var(--tap-target); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); padding: 0 var(--space-2); font: inherit; }
+.onboarding__phone { border: 0; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.onboarding__phone legend { font-weight: 700; margin-bottom: var(--space-2); }
+.onboarding__phone label { min-height: var(--tap-target); display: flex; align-items: center; gap: var(--space-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 var(--space-3); }
+@media (max-width: 639px) {
+  .traveller-manager__list { grid-template-columns: minmax(0, 1fr); }
+  .traveller-manager__actions > .button { flex: 1 1 100%; }
+  .onboarding__dialog { max-height: calc(100dvh - 2rem); overflow-y: auto; }
 }

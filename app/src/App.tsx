@@ -38,8 +38,9 @@ import { usePortableBackup } from "./usePortableBackup";
  */
 import { TripBackup } from "./components/TripBackup";
 import { usePlannedPlaceIds } from "./usePlannedPlaceIds";
-import { TravellerBar } from "./components/TravellerBar";
 import { TravellerManager } from "./components/TravellerManager";
+import { PhotographyLicenses } from "./components/PhotographyLicenses";
+import packageMetadata from "../package.json";
 import { otherPersonMarker } from "./lib/traveller-presentation";
 import { getZonesForHub } from "./lib/accommodation-zone";
 import { categoryPresentation } from "./lib/category-presentation";
@@ -353,6 +354,7 @@ export default function App() {
     removeTraveller,
     addTraveller,
     placesOnlyWantedBy,
+    markedPlacesBy,
     divergenceFor,
     stanceFor,
     declinedIds,
@@ -1415,18 +1417,12 @@ export default function App() {
           <div className="destination-panel destination-panel--scroll" hidden={destination !== "nosotros"}>
             <section className="nosotros-section" aria-label="Viajeros" ref={travellerManagerSectionRef}>
               <h2 className="nosotros-section__title">Viajeros</h2>
-              <TravellerBar
-                travellers={travellers}
-                activeTravellerId={activeTraveller?.id ?? null}
-                onSelect={setActiveTraveller}
-                onManage={() =>
-                  travellerManagerSectionRef.current?.scrollIntoView({ behavior: "smooth" })
-                }
-              />
               <TravellerManager
                 travellers={travellers}
                 activeTravellerId={activeTraveller?.id ?? null}
                 placesOnlyWantedBy={placesOnlyWantedBy}
+                markedPlacesBy={markedPlacesBy}
+                onSelect={setActiveTraveller}
                 onRename={renameTraveller}
                 onReset={resetTraveller}
                 onRemove={removeTraveller}
@@ -1466,11 +1462,21 @@ export default function App() {
 
             <section className="nosotros-section" aria-label="Fuentes y licencias">
               <h2 className="nosotros-section__title">Fuentes y licencias</h2>
-              <MlitAttribution className="nosotros-section__text" />
+              <h3 className="nosotros-section__subtitle">Dataset</h3>
               <p className="nosotros-section__text">
-                {NATIONAL_SUMMARY.placeCount} lugares · {NATIONAL_SUMMARY.coveredPrefectureCount} de{" "}
-                {NATIONAL_SUMMARY.prefectureCount} prefecturas con lugares verificados.
+                <strong>Nihon-Base-Maestra-v2.xlsx</strong> · {NATIONAL_SUMMARY.placeCount} lugares · {NATIONAL_SUMMARY.coveredPrefectureCount} de{" "}
+                {NATIONAL_SUMMARY.prefectureCount} prefecturas con lugares verificados. “v2” identifica el archivo editorial versionado; no existe una versión formal publicada del dataset.
               </p>
+              <h3 className="nosotros-section__subtitle">Geometría administrativa</h3>
+              <MlitAttribution className="nosotros-section__text" />
+              <h3 className="nosotros-section__subtitle">Fotografía</h3>
+              <PhotographyLicenses />
+            </section>
+
+            <section className="nosotros-section" aria-label="Acerca de">
+              <h2 className="nosotros-section__title">Acerca de</h2>
+              <p className="nosotros-section__text">Nihon · versión {packageMetadata.version}</p>
+              <p className="nosotros-section__text">Planificad juntos, con fuentes visibles y sin cuentas ni sincronización.</p>
             </section>
           </div>
         </div>
@@ -1488,7 +1494,20 @@ export default function App() {
           desincronizarse. */}
       <PersistenceNotice />
 
-      {onboardingOpen && <Onboarding onClose={() => setOnboardingOpen(false)} />}
+      {onboardingOpen && (
+        <Onboarding
+          travellers={travellers}
+          activeTravellerId={activeTraveller?.id ?? null}
+          onCompleteIdentity={(names, selectedId) => {
+            travellers.forEach((traveller, index) => {
+              const name = names[index]?.trim();
+              if (name && name !== traveller.label) renameTraveller(traveller.id, name);
+            });
+            if (selectedId !== activeTraveller?.id) setActiveTraveller(selectedId);
+          }}
+          onClose={() => setOnboardingOpen(false)}
+        />
+      )}
     </div>
   );
 }

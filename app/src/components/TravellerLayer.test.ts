@@ -66,10 +66,10 @@ describe("the shared trip stays shared", () => {
 });
 
 describe("the layer stays subtle", () => {
-  it("has exactly one permanent surface — the header bar", async () => {
+  it("B26 keeps a single identity selector in the traveller cards", async () => {
     const app = await readAppSource("App.tsx");
-    expect(app).toContain("<TravellerBar");
-    expect(app.match(/<TravellerBar/g) ?? []).toHaveLength(1);
+    expect(app).not.toContain("<TravellerBar");
+    expect(app).toContain("onSelect={setActiveTraveller}");
   });
 
   it("puts no person picker in front of the save action", async () => {
