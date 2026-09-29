@@ -2,7 +2,17 @@
 
 Misión: `docs/BLOCK_25_MISSION.md`. Contrato: `docs/design/05 §6`, `10 §B7`.
 
-## Estado: B25 CERRADO en rama (PR draft, sin merge)
+## Estado: B25 INTEGRADO en `main` (2026-09-29)
+
+- PR #157 MERGED 2026-09-29T04:07:23Z, merge commit `d90a9d53fbc61da8a6843d6dc44af1d8c3551945`
+  (padres `98260eb67b50` main previo + `c57d58aa632b` head B25).
+- Post-merge desde `main`: build PASS · lint 0 errores (1 warning heredado) · Vitest 3395/3395 ·
+  B25 123/123 · integración 58/58 · Phase 5A 50/50 ×2 · B23 28/28 · DD-028 16/16 · B18 back 15/15 ·
+  viaje-lugar 38/38 · B5 231/231 · B6 177/177.
+- Siguiente: roadmap B8 «Nosotros» (independiente desde B2) o B9 «Viaje» (desbloqueado por B7);
+  decide dirección. Rama sugerida `claude/b26-<tema>`. B10 va último.
+
+## Estado previo: B25 cerrado en rama (histórico)
 
 | Campo | Valor |
 |---|---|

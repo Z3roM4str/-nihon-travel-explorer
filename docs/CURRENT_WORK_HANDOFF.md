@@ -1,6 +1,18 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
-## B25 — B7 «Quiero ir» (2026-09-28) — CERRADO en rama, PR draft
+## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)
+
+- **PR #157 MERGED** el 2026-09-29T04:07:23Z mediante **merge commit** (no squash, no rebase).
+- **Merge commit:** `d90a9d53fbc61da8a6843d6dc44af1d8c3551945`.
+- **Padres:** `98260eb67b508527cd6836fda2d3d3f33d909c1a` (main previo) +
+  `c57d58aa632b4532136919350dd00d85949a4cf6` (head certificado de `claude/b25-quiero-ir`).
+- **Certificación post-merge desde el nuevo `main`:** `git diff --check` limpio; build PASS; lint
+  0 errores (1 warning heredado `PlaceMap.tsx:17`); Vitest 106 ficheros, 3395/3395; B25
+  `b25-quiero-ir-check` 123/123; integración B24+B23 58/58; Phase 5A 50/50 desktop y 50/50 móvil;
+  B23 photo retry 28/28; DD-028 16/16; B18 back 15/15; B18 viaje-lugar 38/38; B5 231/231; B6 177/177.
+- Siguiente bloque: requiere decisión de dirección (ver `docs/BLOCK_25_HANDOFF.md`). No mezclar Astra.
+
+## B25 — B7 «Quiero ir» (2026-09-28) — INTEGRADO en `main` (ver arriba)
 
 - Rama `claude/b25-quiero-ir` desde `origin/main` @ `88a741d` (verificado). `main` intacto.
 - Pantalla según `05 §6`: segmentado (filtro de vista), resumen de tres datos, coincidencias
@@ -11,7 +23,7 @@
   DD-028 16/16, B18 back 15/15, viaje-lugar 38/38. Detalle: `docs/BLOCK_25_HANDOFF.md`.
 - Certificado contra `main` @ `98260eb` (merge sin conflictos); gates B5 231/231 y B6 177/177
   actualizados y verdes. PR #157 Ready for Review. Detalle: `docs/BLOCK_25_HANDOFF.md`.
-- Siguiente: revisión humana del PR. No empezar B8/B9/B10/B26 sin decisión de dirección.
+- PR #157 merged 2026-09-29 (merge commit `d90a9d5`).
 
 ## ESTADO CANÓNICO ACTUAL — PR #152 integrado a `main` (2026-09-28)
 
