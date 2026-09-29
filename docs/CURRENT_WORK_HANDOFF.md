@@ -17,7 +17,7 @@
 - Rama obligatoria: `codex/continuar-desarrollo-del-bloque-b9.1`; base declarada del PR: `main`.
 - Funcionalidad B9.1 completada: día completo reordenable, TripStop bidireccional con Sin asignar,
   acciones de día, alternativas accesibles, InterHub entre tarjetas y cabecera con fechas.
-- Vitest: **106 ficheros, 3395/3395 PASS**; los 17 fallos source-scanning iniciales quedaron alineados
+- Vitest: **106 ficheros, 3406/3406 PASS**; los 17 fallos source-scanning iniciales quedaron alineados
   con la nueva presentación sin retirar ni debilitar contratos.
 - **B9.1 aún no se declara cerrado**: el gate A–K está ampliado, pero Chromium no existe en el
   contenedor; Playwright y apt fallaron por HTTP 403. Handoff detallado: `docs/BLOCK_27_HANDOFF.md`.
@@ -31,7 +31,7 @@
 - **Padres:** `98260eb67b508527cd6836fda2d3d3f33d909c1a` (main previo) +
   `c57d58aa632b4532136919350dd00d85949a4cf6` (head certificado de `claude/b25-quiero-ir`).
 - **Certificación post-merge desde el nuevo `main`:** `git diff --check` limpio; build PASS; lint
-  0 errores (1 warning heredado `PlaceMap.tsx:17`); Vitest 106 ficheros, 3395/3395; B25
+  0 errores (1 warning heredado `PlaceMap.tsx:17`); Vitest 106 ficheros, 3406/3406; B25
   `b25-quiero-ir-check` 123/123; integración B24+B23 58/58; Phase 5A 50/50 desktop y 50/50 móvil;
   B23 photo retry 28/28; DD-028 16/16; B18 back 15/15; B18 viaje-lugar 38/38; B5 231/231; B6 177/177.
 - Siguiente bloque: requiere decisión de dirección (ver `docs/BLOCK_25_HANDOFF.md`). No mezclar Astra.
@@ -42,7 +42,7 @@
 - Pantalla según `05 §6`: segmentado (filtro de vista), resumen de tres datos, coincidencias
   primero, «Sólo {persona}», Descartados, «Llevar al viaje»; `SelectionAnalysis` integrado como
   «Por ciudad y zona»; quitar + Toast «Deshacer». P1-13 resuelto.
-- Puertas: build PASS, lint 0 errores, Vitest 3395/3395, gate nuevo
+- Puertas: build PASS, lint 0 errores, Vitest 3406/3406, gate nuevo
   `app/scripts/b25-quiero-ir-check.mjs` 123/123, integración 58/58, Phase 5A 50/50 ×2, B23 28/28,
   DD-028 16/16, B18 back 15/15, viaje-lugar 38/38. Detalle: `docs/BLOCK_25_HANDOFF.md`.
 - Certificado contra `main` @ `98260eb` (merge sin conflictos); gates B5 231/231 y B6 177/177

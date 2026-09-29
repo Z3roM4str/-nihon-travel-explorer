@@ -24,6 +24,7 @@ import {
   withPlaceMovedBetweenDays,
   withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
+  withPlaceAddedToDay,
   withPlacesTransposedWithinDay,
   withFourPlacesReversedWithinDay,
   withTwoPairBlocksSwappedWithinDay,
@@ -35,6 +36,7 @@ import {
   withoutAccommodation,
   withoutEmptyDay,
   withoutInterHubSegment,
+  withoutPlaceFromDay,
   withoutZoneAccommodationChoice,
   writeDraft,
   isAccommodationAnchorInUse,
@@ -238,42 +240,14 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   /** B9.1: restores one saved-but-unassigned place directly into an explicitly chosen stable day.
    * This is one atomic edit so the persisted route/day partition is never observed invalid. */
   const addPlaceToDay = useCallback((placeId: string, dayId: string) => {
-    setDraft((current) => {
-      if (current.routeIds.includes(placeId) || current.days === null) return current;
-      const target = current.days.find((day) => day.id === dayId);
-      if (!target) return current;
-      return {
-        ...current,
-        routeIds: [...current.routeIds, placeId],
-        days: current.days.map((day) => day.id === dayId ? { ...day, placeIds: [...day.placeIds, placeId] } : day),
-      };
-    });
+    setDraft((current) => withPlaceAddedToDay(current, placeId, dayId));
   }, []);
 
-  /** B9.1: removes one place from the assigned plan without removing it from the saved-place
-   * document. The route and stable day entity are updated atomically, so persistence never sees
-   * an invalid partition; every other day field and the place's preference data stay untouched. */
+  /** B9.1: delegates the atomic unassignment policy to the pure V8 domain mutation. That mutation
+   * prunes the removed place's route-scoped time/legs/segments while keeping day identity and all
+   * trip-scoped decisions; this hook owns no parallel cleanup policy. */
   const removePlaceFromDay = useCallback((placeId: string, dayId: string) => {
-    setDraft((current) => {
-      if (current.days === null || !current.routeIds.includes(placeId)) return current;
-      const source = current.days.find((day) => day.id === dayId);
-      if (!source?.placeIds.includes(placeId)) return current;
-      return {
-        ...current,
-        routeIds: current.routeIds.filter((id) => id !== placeId),
-        days: current.days.map((day) => {
-          if (day.id !== dayId) return day;
-          const placeIds = day.placeIds.filter((id) => id !== placeId);
-          return placeIds.length > 0
-            ? { ...day, placeIds }
-            : {
-                ...day,
-                placeIds,
-                accommodationBoundary: { start: { kind: "unselected" }, end: { kind: "unselected" } },
-              };
-        }),
-      };
-    });
+    setDraft((current) => withoutPlaceFromDay(current, placeId, dayId));
   }, []);
 
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.

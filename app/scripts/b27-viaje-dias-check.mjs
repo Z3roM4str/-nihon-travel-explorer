@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
@@ -11,21 +11,46 @@ const ids = fixture.map((place) => place.id);
 const STORAGE_KEY = "nihon.manualPlanningDraft";
 const WISHLIST_KEY = "nihon.travellers.v1";
 const viewports = [[320,568],[375,667],[390,844],[430,932],[820,1180],[1024,768],[1280,800],[1440,900]];
+function executableFilesBelow(root) {
+  if (!existsSync(root)) return [];
+  const found = [];
+  const visit = (path) => {
+    let stat;
+    try { stat = statSync(path); } catch { return; }
+    if (stat.isFile() && (stat.mode & 0o111) !== 0) { found.push(path); return; }
+    if (!stat.isDirectory()) return;
+    for (const entry of readdirSync(path)) visit(`${path}/${entry}`);
+  };
+  visit(root);
+  return found;
+}
+function isExecutableFile(path) {
+  if (!path || !existsSync(path)) return false;
+  const stat = statSync(path);
+  return stat.isFile() && (stat.mode & 0o111) !== 0;
+}
 const browserCandidates = [
   process.env.NIHON_CHROMIUM_PATH,
+  "/opt/pw-browsers/chromium",
+  "/opt/pw-browsers/chromium/chrome",
   "/opt/pw-browsers/chromium/chrome-linux/chrome",
   "/opt/pw-browsers/chromium/chrome-linux64/chrome",
   "/usr/bin/chromium",
   "/usr/bin/chromium-browser",
   "/usr/bin/google-chrome",
+  chromium.executablePath(),
+  ...executableFilesBelow("/opt/pw-browsers"),
 ].filter(Boolean);
-const executablePath = browserCandidates.find((path) => existsSync(path));
+const executablePath = browserCandidates.find(isExecutableFile);
+if (!executablePath) {
+  throw new Error(`B27 gate BLOCKED: no executable Chromium found. Checked:\n${[...new Set(browserCandidates)].join("\n")}`);
+}
 const shots = process.env.NIHON_B27_SHOTS;
 if (shots) mkdirSync(shots, { recursive: true });
 const server = await preview({ root: new URL("..", import.meta.url).pathname, preview: { host: "127.0.0.1", port: 0 } });
 const address = server.httpServer.address();
 const url = `http://127.0.0.1:${address.port}`;
-const browser = await chromium.launch(executablePath ? { executablePath } : {});
+const browser = await chromium.launch({ executablePath });
 const failures = [];
 
 function fail(message) { failures.push(message); }
@@ -72,12 +97,23 @@ try {
   const originalWishlist = await page.evaluate((key) => localStorage.getItem(key), WISHLIST_KEY);
   const originalKeys = await page.evaluate(() => Object.keys(localStorage).sort());
 
-  // Dates and day creation.
-  await root.locator("#sequence-start-date").fill("2027-02-22");
-  await root.locator("#sequence-end-date").fill("2027-03-05");
-  await page.getByRole("heading", { name: "Viaje", exact: true }).locator("+").waitFor();
+  // Dates and day creation: the header must reflect the canonical civil inputs.
+  const formatCivil = (iso) => new Intl.DateTimeFormat("es", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC",
+  }).format(new Date(`${iso}T00:00:00Z`));
+  const startFixture = "2027-02-22";
+  const endFixture = "2027-03-05";
+  await root.getByText("Poner fecha de inicio", { exact: true }).waitFor();
+  await root.locator("#sequence-start-date").fill(startFixture);
+  await root.locator(".analysis-header__sub").getByText(`Desde ${formatCivil(startFixture)}`, { exact: true }).waitFor();
+  await root.locator("#sequence-end-date").fill(endFixture);
+  await root.locator(".analysis-header__sub").getByText(`${formatCivil(startFixture)} – ${formatCivil(endFixture)}`, { exact: true }).waitFor();
   await keyboardActivate(root.getByRole("button", { name: "Añadir día" }));
   if (await root.locator(".day-card[data-day-id]").count() !== 2) fail("B: add day failed");
+  await keyboardActivate(root.getByRole("button", { name: "Añadir día" }));
+  if (await root.locator(".day-card[data-day-id]").count() !== 3) fail("B: second add day failed");
+  await keyboardActivate(root.getByRole("button", { name: "Eliminar Día 3" }));
+  if (await root.locator(".day-card[data-day-id]").count() !== 2) fail("B: delete empty day failed");
   const beforeMove = await draft(page);
   const stableIds = beforeMove.days.map((day) => day.id);
 
@@ -107,10 +143,29 @@ try {
   persisted = await draft(page);
   if (persisted.days[1].id !== stableIds[0] || persisted.days[0].id !== stableIds[1]) fail("B/D: whole-day stable identity move failed");
 
-  // Move to Sin asignar and back; wishlist must never change.
-  const assignedStop = root.locator(".trip-stop").first();
-  const assignedName = await assignedStop.locator("strong").innerText();
+  // Move to Sin asignar and back. Seed real route-scoped records, reload them through the
+  // canonical parser, then prove the domain mutation prunes all three kinds and never the wishlist.
+  persisted = await draft(page);
+  const assignedId = persisted.days[0].placeIds[0];
+  const assignedPlace = fixture.find((place) => place.id === assignedId);
+  const otherId = persisted.routeIds.find((id) => id !== assignedId);
+  await page.evaluate(({ key, placeId, otherPlaceId }) => {
+    const value = JSON.parse(localStorage.getItem(key));
+    value.visitStartTimes[placeId] = "09:15";
+    value.accommodations.push({ id: "b27-anchor", label: "Alojamiento B27", location: { lat: 35.68, lng: 139.76 } });
+    value.accommodationLegs.push({ direction: "accommodation-to-place", accommodationId: "b27-anchor", placeId, minutes: 18, source: { kind: "user-entered" } });
+    value.interHubSegments.push({ id: "b27-pruned", fromPlaceId: placeId, toPlaceId: otherPlaceId, fromHub: "Kioto", toHub: "Tokio", mode: "other", minutes: 20, source: { kind: "user-entered" } });
+    localStorage.setItem(key, JSON.stringify(value));
+  }, { key: STORAGE_KEY, placeId: assignedId, otherPlaceId: otherId });
+  await page.reload();
+  await page.getByRole("heading", { name: "Viaje", exact: true }).waitFor();
+  const assignedStop = root.locator(".trip-stop", { hasText: assignedPlace.name });
+  const assignedName = assignedPlace.name;
   await keyboardActivate(assignedStop.getByRole("button", { name: "Mover a Sin asignar" }));
+  const pruned = await draft(page);
+  if (pruned.visitStartTimes[assignedId] !== undefined) fail("G: visitStartTime survived unassign");
+  if (pruned.accommodationLegs.some((leg) => leg.placeId === assignedId)) fail("G: accommodation leg survived unassign");
+  if (pruned.interHubSegments.some((segment) => segment.fromPlaceId === assignedId || segment.toPlaceId === assignedId)) fail("G: inter-hub segment survived unassign");
   const drawer = root.locator(".unassigned-drawer");
   if (await drawer.getAttribute("open") !== null) fail("G: drawer must start closed");
   if (!/1 sitio sin día/.test(await drawer.locator("summary").innerText())) fail("G: real counter did not increase");
@@ -119,6 +174,12 @@ try {
   if (await page.evaluate((key) => localStorage.getItem(key), WISHLIST_KEY) !== originalWishlist) fail("H: Quiero ir changed on unassign");
   await drawer.getByLabel("Añadir al día…").selectOption({ index: 1 });
   if (!/0 sitios sin día/.test(await drawer.locator("summary").innerText())) fail("G: counter did not decrease after restore");
+  const restored = await draft(page);
+  if (restored.visitStartTimes[assignedId] !== undefined ||
+      restored.accommodationLegs.some((leg) => leg.placeId === assignedId) ||
+      restored.interHubSegments.some((segment) => segment.fromPlaceId === assignedId || segment.toPlaceId === assignedId)) {
+    fail("G: re-adding resurrected pruned route-scoped data");
+  }
 
   // Inter-hub editor uses existing assessment data; the compact row must appear only when active.
   await keyboardActivate(root.locator(".days-tools > summary"));
@@ -130,6 +191,12 @@ try {
     await interHub.getByLabel("Duración manual del tramo principal").last().fill("135");
     await keyboardActivate(interHub.getByRole("button", { name: "Añadir tramo" }));
     if (await root.locator(".inter-hub-row").count() !== 1) fail("F: active between-days row absent");
+    const boundaryStop = root.locator(".day-card").first().locator(".trip-stop", { hasText: kyoto.name });
+    await keyboardActivate(boundaryStop.getByRole("button", { name: "Mover a…" }));
+    await boundaryStop.getByLabel("Día").selectOption("1");
+    await boundaryStop.getByLabel("Posición").selectOption("0");
+    await keyboardActivate(boundaryStop.getByRole("button", { name: "Mover parada" }));
+    if (await root.locator(".inter-hub-row").count() !== 0) fail("F: inactive/same-day segment shown between days");
   }
 
   // PlaceDetail opens inside Viaje; browser back returns to Días without losing state/scroll/drawer.
@@ -140,8 +207,13 @@ try {
   await page.locator(".app__detail").waitFor();
   await page.goBack();
   await page.locator(".app__detail").waitFor({ state: "hidden" });
-  if (!await page.getByRole("button", { name: "Días" }).getAttribute("aria-pressed")) fail("C: browser back changed Viaje section");
-  if (await root.evaluate((element) => element.scrollTop) < Math.min(1, scrollBefore)) fail("C: browser back lost scroll");
+  if (await page.getByRole("button", { name: "Días" }).getAttribute("aria-pressed") !== "true") fail("C: browser back changed Viaje section");
+  const scrollAfter = await root.evaluate((element) => element.scrollTop);
+  const scrollTolerance = 24;
+  if (Math.abs(scrollAfter - scrollBefore) > scrollTolerance) fail(`C: browser back changed scroll by ${Math.abs(scrollAfter - scrollBefore)}px`);
+  if (await drawer.getAttribute("open") === null) fail("C/G: browser back lost drawer state");
+  const afterBack = await draft(page);
+  if (afterBack.days.map((day) => day.id).join() !== restored.days.map((day) => day.id).join()) fail("B/C: browser back reinitialized days");
 
   const beforeReload = await draft(page);
   await page.reload();

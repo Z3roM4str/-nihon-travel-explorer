@@ -13,7 +13,7 @@ B9.1 se considera cerrado **sólo** con:
 2. `app/scripts/b27-viaje-dias-check.mjs` A–K ejecutado con Chromium real y verde, incluida revisión
    visual de 320, 390, 430, 820 y 1440 px.
 
-La implementación y Vitest están completos (3395/3395). En el entorno del 29-09-2026 el gate de
+La implementación y Vitest están completos (3406/3406). En el entorno del 29-09-2026 el gate de
 navegador queda **BLOCKED**, no certificado: no hay Chromium preinstalado y las dos vías de instalación
 fallan por HTTP 403 del proxy. Véase `docs/BLOCK_27_HANDOFF.md`.
 

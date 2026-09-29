@@ -2,10 +2,10 @@
 
 ## Estado de cierre
 
-**Implementación funcional completa; certificación Chromium bloqueada en este contenedor.** B9.1 sólo se
+**Regresión de dominio corregida; certificación Chromium bloqueada en este contenedor.** B9.1 sólo se
 puede declarar **cerrado** cuando coincidan las dos condiciones: suite completa 100 % verde y ejecución
 real verde de `app/scripts/b27-viaje-dias-check.mjs`. La primera está cumplida (106 ficheros,
-3395/3395); la segunda no se falsea ni se sustituye por un análisis estático.
+3406/3406, incluidos 11 casos puros nuevos de la mutación); la segunda no se falsea ni se sustituye por un análisis estático.
 
 Evidencia del bloqueo: no existe ejecutable en `/opt/pw-browsers/chromium` ni en las rutas habituales;
 `npx playwright install chromium` recibió HTTP 403 del proxy en cinco intentos y `apt-get install -y
@@ -20,8 +20,13 @@ no hay capturas ni auditoría visual manual certificable en este entorno.
   juntos ID, lugares, alojamiento y datos asociados. No reaparece el trío ↑ ↓ × ni drag-and-drop.
 - **TripStop:** miniatura de tarjeta/placeholder, posición, nombre, contexto y duración, ficha compartida,
   «Mover a…» con día/posición y «Mover a Sin asignar».
-- **Sin asignar:** la retirada actualiza ruta+día atómicamente sin tocar el documento de intereses;
-  el drawer refleja el contador de inmediato y permite restaurar el lugar a un día estable.
+- **Sin asignar:** `withoutPlaceFromDay` es una mutación pura de V8. Valida ruta+día, actualiza
+  atómicamente el set del recorrido y la entidad estable, y poda el `visitStartTime`, los tramos de
+  alojamiento y los segmentos inter-hub que referencian al lugar. Si el día queda vacío, sólo su
+  `accommodationBoundary` vuelve a `unselected`.
+- **Estado preservado:** IDs/orden/contenido de los demás días, fechas, anchors, elecciones de zona,
+  datos de otros lugares y Quiero ir permanecen intactos. `withPlaceAddedToDay` restaura únicamente
+  la pertenencia a ruta+día; lo podado no se reconstruye ni resucita.
 - **Acciones del día:** añadir desde el mismo conjunto derivado de Sin asignar, eliminar día vacío,
   mover el día y disclosure local «Probar otro orden». Las alternativas existentes siguen siendo
   opcionales, neutrales y sólo se aplican tras acción expresa.
@@ -30,9 +35,11 @@ no hay capturas ni auditoría visual manual certificable en este entorno.
   same-hub no se presentan como traslado activo. El editor completo sigue en Herramientas.
 - **Cabecera:** «Viaje» muestra rango civil derivado cuando hay dos límites, sólo inicio cuando es el
   único dato, y el control canónico «Poner fecha de inicio» cuando falta.
-- **Gate B27:** ampliado a comportamiento A–K, teclado, movimientos inter/intradía, ciclo bidireccional
-  Sin asignar, persistencia/reload, wishlist inmutable, back de navegador, storage keys, InterHub,
-  targets, overflow, consola y ocho viewports.
+- **Gate B27:** ampliado a comportamiento A–K, fechas reales, añadir/eliminar/mover días, teclado,
+  movimientos inter/intradía, ciclo bidireccional Sin asignar con poda verificada, persistencia/reload,
+  wishlist inmutable, back con `aria-pressed="true"`, tolerancia real de scroll y estado del drawer,
+  storage keys, InterHub activo/inactivo, targets, overflow, consola y ocho viewports. La búsqueda de
+  navegador sólo admite ficheros ejecutables e incluye todas las rutas `/opt/pw-browsers` conocidas.
 
 ## Suite y alineación de los 17 fallos iniciales
 

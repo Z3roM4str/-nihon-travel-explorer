@@ -67,6 +67,7 @@ import {
   type ManualAccommodationLeg,
 } from "./accommodation-commute";
 import type { InterHubMode, ManualInterHubSegment, NewManualInterHubSegment } from "./inter-hub-segment";
+import { validateDayPartition } from "./day-assignment";
 import {
   findZoneChoiceForHub,
   parseZoneAccommodationChoices,
@@ -391,6 +392,70 @@ export function withRoute(
   routeIds: readonly string[]
 ): ManualPlanningDraftV8 {
   return applyV7(draft, withRouteV7, routeIds);
+}
+
+/**
+ * Removes one assigned place from the route while preserving the identity-bearing day structure.
+ *
+ * This is deliberately not implemented through {@link withRoute}: a route composition change has
+ * historically invalidated `days`, whereas B9.1's explicit “Sin asignar” operation edits the route
+ * and its valid partition in one atomic decision. Route-scoped records are pruned on the same terms
+ * as the historical route mutation; trip-scoped bounds, anchors and zone choices survive.
+ */
+export function withoutPlaceFromDay(
+  draft: ManualPlanningDraftV8,
+  placeId: string,
+  dayId: string
+): ManualPlanningDraftV8 {
+  if (draft.days === null || !draft.routeIds.includes(placeId)) return draft;
+  const source = draft.days.find((day) => day.id === dayId);
+  if (!source || !source.placeIds.includes(placeId)) return draft;
+
+  const routeIds = draft.routeIds.filter((id) => id !== placeId);
+  const days = draft.days.map((day): PlanningDayV5 => {
+    if (day.id !== dayId) return day;
+    const placeIds = day.placeIds.filter((id) => id !== placeId);
+    return placeIds.length > 0
+      ? { ...day, placeIds }
+      : {
+          ...day,
+          placeIds,
+          accommodationBoundary: {
+            start: { kind: "unselected" },
+            end: { kind: "unselected" },
+          },
+        };
+  });
+  if (!validateDayPartition(routeIds, days.map((day) => day.placeIds)).valid) return draft;
+
+  const { [placeId]: _removedVisitStartTime, ...visitStartTimes } = draft.visitStartTimes;
+  return {
+    ...draft,
+    routeIds,
+    days,
+    visitStartTimes,
+    accommodationLegs: draft.accommodationLegs.filter((leg) => leg.placeId !== placeId),
+    interHubSegments: draft.interHubSegments.filter(
+      (segment) => segment.fromPlaceId !== placeId && segment.toPlaceId !== placeId
+    ),
+  };
+}
+
+/** Restores a saved-but-unassigned place to one stable day without recreating pruned route state. */
+export function withPlaceAddedToDay(
+  draft: ManualPlanningDraftV8,
+  placeId: string,
+  dayId: string
+): ManualPlanningDraftV8 {
+  if (draft.days === null || draft.routeIds.includes(placeId)) return draft;
+  const target = draft.days.find((day) => day.id === dayId);
+  if (!target) return draft;
+  const routeIds = [...draft.routeIds, placeId];
+  const days = draft.days.map((day) =>
+    day.id === dayId ? { ...day, placeIds: [...day.placeIds, placeId] } : day
+  );
+  if (!validateDayPartition(routeIds, days.map((day) => day.placeIds)).valid) return draft;
+  return { ...draft, routeIds, days };
 }
 
 /**
