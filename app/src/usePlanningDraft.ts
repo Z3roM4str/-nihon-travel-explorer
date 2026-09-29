@@ -235,6 +235,21 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withPlaceMovedBetweenDays(current, fromDayId, toDayId, placeIndex));
   }, []);
 
+  /** B9.1: restores one saved-but-unassigned place directly into an explicitly chosen stable day.
+   * This is one atomic edit so the persisted route/day partition is never observed invalid. */
+  const addPlaceToDay = useCallback((placeId: string, dayId: string) => {
+    setDraft((current) => {
+      if (current.routeIds.includes(placeId) || current.days === null) return current;
+      const target = current.days.find((day) => day.id === dayId);
+      if (!target) return current;
+      return {
+        ...current,
+        routeIds: [...current.routeIds, placeId],
+        days: current.days.map((day) => day.id === dayId ? { ...day, placeIds: [...day.placeIds, placeId] } : day),
+      };
+    });
+  }, []);
+
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
    * Only the new day starts unselected; no existing day's id, places or choices are touched. */
   const addEmptyDay = useCallback(() => {
@@ -436,6 +451,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     reverseFourPlacesWithinDay,
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
+    addPlaceToDay,
     addEmptyDay,
     removeEmptyDay,
     moveDay,

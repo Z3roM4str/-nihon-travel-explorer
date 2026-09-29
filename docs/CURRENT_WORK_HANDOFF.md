@@ -296,3 +296,7 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 ## Estado de entrega
 
 B6.2, B6.3, B6.4, B6.5 y B6.6 están integrados y cerrados en la rama canónica. B6.6 se integró mediante PR #148 con 8 nuevas identities C/D y 2 excepciones documentadas; véase `docs/BLOCK_22_B6_6_REPORT.md`. El próximo bloque permitido es la segunda imagen para lugares Grado A de “Popular / turístico” y “Hidden Gem real”; no iniciado.
+
+## Bloque 27 — B9.1 Viaje · Días
+
+B27 convierte Días en la entrada de Viaje sobre el draft manual existente. Véanse `docs/BLOCK_27_MISSION.md` y `docs/BLOCK_27_HANDOFF.md`. B9.2, B9.3, B9.4 y B9.5 siguen diferidos y no se consideran completados.

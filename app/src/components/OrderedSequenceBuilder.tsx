@@ -125,6 +125,9 @@ import {
 } from "../lib/zone-accommodation-choice";
 import { ZonePlanSection } from "./ZonePlanSection";
 import { usePlanningDraft } from "../usePlanningDraft";
+import { CARD_IMAGE_WIDTH, cardImageUrl, resolvePlaceImages } from "../data/place-images";
+import { PhotoPlaceholder } from "./PhotoPlaceholder";
+import { EvidenceMark } from "./EvidenceMark";
 
 type Props = {
   /** The wishlist, in its saved order — the source the route draft is initialized from and
@@ -136,6 +139,8 @@ type Props = {
    * contenido navegable bajo «Viaje». `embedded` quita el scrim, el `role="dialog"` y la
    * trampa de foco/Escape propios de una capa flotante; nada del cálculo cambia. */
   embedded?: boolean;
+  /** Opens the one shared PlaceDetail in the current Viaje navigation stack. */
+  onSelectPlace?: (id: string) => void;
 };
 
 /**
@@ -412,6 +417,112 @@ function ReorderableList({
           </li>
         );
       })}
+    </ol>
+  );
+}
+
+/** B9.1: a stop is a place-specific, keyboard-operable unit; the day, not a flat route, owns it. */
+function TripStop({
+  place,
+  position,
+  dayIndex,
+  dayEntities,
+  dayPlaceLists,
+  onOpen,
+  onMove,
+}: {
+  place: Place;
+  position: number;
+  dayIndex: number;
+  dayEntities: readonly { id: string }[];
+  dayPlaceLists: readonly Place[][];
+  onOpen?: (id: string) => void;
+  onMove: (targetDayIndex: number, targetPosition: number) => void;
+}) {
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [targetDay, setTargetDay] = useState(dayIndex);
+  const [targetPosition, setTargetPosition] = useState(position);
+  const image = resolvePlaceImages(place.id, place.images)[0];
+  const src = image ? cardImageUrl(image.url) ?? image.url : null;
+  const range = resolveDuration(place.duration);
+  const maxPosition = dayPlaceLists[targetDay]?.length ?? 0;
+
+  return (
+    <article className="trip-stop" aria-label={`Parada ${position + 1}: ${place.name}`}>
+      <span className="trip-stop__position" aria-hidden="true">{position + 1}</span>
+      <div className="trip-stop__media">
+        {src && image ? (
+          <img src={src} width={CARD_IMAGE_WIDTH} height={CARD_IMAGE_WIDTH} loading="lazy" alt={image.alt} />
+        ) : (
+          <PhotoPlaceholder place={place} />
+        )}
+      </div>
+      <div className="trip-stop__body">
+        <button type="button" className="trip-stop__open" onClick={() => onOpen?.(place.id)}>
+          <strong>{place.name}</strong>
+          <span>{place.neighborhood || place.municipality} · {range ? formatRange(range) : place.duration.raw}</span>
+        </button>
+        <button
+          type="button"
+          className="button button--secondary trip-stop__move"
+          aria-expanded={moveOpen}
+          onClick={() => setMoveOpen((open) => !open)}
+        >
+          Mover a…
+        </button>
+        {moveOpen && (
+          <div className="trip-stop__move-panel">
+            <label>
+              Día
+              <select value={targetDay} onChange={(event) => { setTargetDay(Number(event.target.value)); setTargetPosition(0); }}>
+                {dayEntities.map((day, index) => <option key={day.id} value={index}>Día {index + 1}</option>)}
+              </select>
+            </label>
+            <label>
+              Posición
+              <select value={Math.min(targetPosition, maxPosition)} onChange={(event) => setTargetPosition(Number(event.target.value))}>
+                {Array.from({ length: Math.max(1, maxPosition + (targetDay === dayIndex ? 0 : 1)) }, (_, index) => (
+                  <option key={index} value={index}>{index + 1}</option>
+                ))}
+              </select>
+            </label>
+            <button type="button" className="button button--primary" onClick={() => { onMove(targetDay, targetPosition); setMoveOpen(false); }}>
+              Mover parada
+            </button>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function DayTimeline({
+  places,
+  legs,
+  dayIndex,
+  dayEntities,
+  dayPlaceLists,
+  onOpen,
+  onMove,
+}: {
+  places: Place[];
+  legs: OrderedSequenceLeg[];
+  dayIndex: number;
+  dayEntities: readonly { id: string }[];
+  dayPlaceLists: readonly Place[][];
+  onOpen?: (id: string) => void;
+  onMove: (placeIndex: number, targetDayIndex: number, targetPosition: number) => void;
+}) {
+  return (
+    <ol className="day-timeline" aria-label={`Paradas del Día ${dayIndex + 1}`}>
+      {places.map((place, index) => (
+        <li key={place.id} className="day-timeline__item">
+          <TripStop place={place} position={index} dayIndex={dayIndex} dayEntities={dayEntities}
+            dayPlaceLists={dayPlaceLists} onOpen={onOpen}
+            onMove={(targetDay, targetPosition) => onMove(index, targetDay, targetPosition)} />
+          {index < legs.length && <LegConnector leg={legs[index]} />}
+        </li>
+      ))}
     </ol>
   );
 }
@@ -2597,7 +2708,7 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
   );
 }
 
-export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false }: Props) {
+export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false, onSelectPlace }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [reservationReferenceDate] = useState<string | null>(() => captureDeviceLocalCivilDate());
@@ -2626,9 +2737,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
     reverseFourPlacesWithinDay,
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
+    addPlaceToDay,
     addEmptyDay,
     removeEmptyDay,
-    moveDay,
     setStartDate,
     setEndDate,
     setVisitStartTime,
@@ -2680,11 +2791,17 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
   // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
-  const [view, setView] = useState<"builder" | "compare" | "days">("builder");
+  const [view, setView] = useState<"builder" | "compare" | "days">("days");
   // Phase 3C-B's candidates are intentionally NOT part of the persisted draft — see the module
   // doc above. They stay plain, ephemeral component state.
   const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
   const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
+
+  // B9.1 promotes the existing persisted day structure to the entry surface. The same explicit
+  // first split formerly performed by “Distribuir por días” is now made when no split exists.
+  useEffect(() => {
+    if (days === null) initializeDays([[...routeIds]]);
+  }, [days, initializeDays, routeIds]);
 
   const routePlaces = useMemo(
     () => routeIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
@@ -3056,9 +3173,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
     }
     setView("days");
   }
-  function closeDayAssignment() {
-    setView("builder");
-  }
 
   // Same focus-management/backdrop-trap pattern as SelectionAnalysis: focus moves into the
   // dialog on open and returns to whatever opened it on close; Escape closes the whole dialog
@@ -3106,7 +3220,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
   const resultText = view === "compare" ? comparisonResultText(comparison) : null;
 
   const headerTitle =
-    view === "compare" ? "Comparar órdenes" : view === "days" ? "Distribuir por días" : "Construir recorrido";
+    view === "compare" ? "Comparar órdenes" : view === "days" ? "Viaje" : "Construir recorrido";
   const headerSub =
     view === "compare"
       ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
@@ -3135,11 +3249,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
           <div>
             {view === "compare" && (
               <button type="button" className="link-button sequence-back" onClick={closeComparison}>
-                <Icon name="atras" size={16} /> Volver al recorrido
-              </button>
-            )}
-            {view === "days" && (
-              <button type="button" className="link-button sequence-back" onClick={closeDayAssignment}>
                 <Icon name="atras" size={16} /> Volver al recorrido
               </button>
             )}
@@ -3321,10 +3430,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
 
           {view === "days" && (
             <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Tú decides cuántos días hay y qué lugares van en
-                cada uno. <strong>Nihon no reparte, equilibra ni recomienda un reparto</strong>; solo
-                describe los traslados dentro de cada día.
+              <p className="days-framing">
+                <EvidenceMark level="nihon" label={false} /> Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.
               </p>
 
               {!dayAssignment.valid && (
@@ -3336,7 +3443,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
 
               <div className="calendar-anchor">
                 <label htmlFor="sequence-start-date" className="calendar-anchor__label">
-                  Fecha de inicio (Día 1)
+                  {startDate ? "Fecha de inicio (Día 1)" : "Poner fecha de inicio"}
                 </label>
                 <input
                   id="sequence-start-date"
@@ -3380,14 +3487,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
                 )}
               </div>
 
-              <TripBoundsNotice summary={tripBoundsSummary} />
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> La fecha es una decisión tuya. Nihon solo
-                desplaza el calendario a partir del Día 1; <strong>no elige ni sugiere qué fecha
-                conviene</strong>, y no comprueba horarios ni cierres.
-              </p>
-
-              <InterHubSegmentsSection
+              <details className="days-tools">
+                <summary>Herramientas y datos del viaje</summary>
+                <TripBoundsNotice summary={tripBoundsSummary} />
+                <InterHubSegmentsSection
                 routeIds={routeIds}
                 days={days}
                 placeById={placeById}
@@ -3414,7 +3517,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
                 onRemove={removeAccommodation}
               />
 
-              <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
+                <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
+              </details>
 
               <div className="day-list">
                 {dayPlaceLists.map((places, dayIndex) => {
@@ -3437,35 +3541,21 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
                   // the array position, and the date is still `startDate + dayIndex`.
                   const dayEntity = dayEntities[dayIndex] ?? null;
                   const dayBoundary = dayEntity?.accommodationBoundary ?? null;
+                  const hubs = [...new Set(places.map((place) => place.hub))];
+                  const hubLabel = hubs.length === 1 ? hubs[0] : hubs.length > 1 ? "Varias ciudades" : null;
+                  const sleepingChoice = dayBoundary?.end;
+                  const sleepingLabel = sleepingChoice?.kind === "accommodation"
+                    ? accommodations.find((anchor) => anchor.id === sleepingChoice.accommodationId)?.label ?? null
+                    : null;
                   return (
-                    <section key={dayEntity?.id ?? dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
+                    <section key={dayEntity?.id ?? dayIndex} className="day-card" data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
                         <div>
-                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
-                          {dayDate && <p className="day-card__date">{formatCivilDateDisplay(dayDate)}</p>}
+                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}{dayDate ? ` · ${formatCivilDateDisplay(dayDate)}` : ""}{hubLabel ? ` · ${hubLabel}` : ""}</h3>
+                          <p className="day-card__summary">{daySummary.visitTime ? formatRange(daySummary.visitTime) : "Duración sin cuantificar"} · {places.length} parada{places.length === 1 ? "" : "s"}</p>
                           <TripBoundsDayWarning assessment={boundsAssessment} />
                         </div>
                         <div className="day-card__header-actions">
-                          <button
-                            type="button"
-                            className="icon-button icon-button--small"
-                            onClick={() => dayEntity && moveDay(dayEntity.id, -1)}
-                            disabled={!dayEntity || dayIndex === 0}
-                            aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
-                            title={`Mover Día ${dayIndex + 1} hacia arriba`}
-                          >
-                            <Icon name="arriba" size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-button icon-button--small"
-                            onClick={() => dayEntity && moveDay(dayEntity.id, 1)}
-                            disabled={!dayEntity || dayIndex === dayIds.length - 1}
-                            aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
-                            title={`Mover Día ${dayIndex + 1} hacia abajo`}
-                          >
-                            <Icon name="abajo" size={16} />
-                          </button>
                           <button
                             type="button"
                             className="icon-button icon-button--small"
@@ -3483,30 +3573,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
                         <p className="sequence-empty">Sin lugares en este día.</p>
                       ) : (
                         <>
-                          <ReorderableList
+                          <DayTimeline
                             places={places}
                             legs={bucket?.sequence.legs ?? []}
-                            labelSuffix={` en Día ${dayIndex + 1}`}
-                            onMoveUp={(placeIndex) =>
-                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, -1)
-                            }
-                            onMoveDown={(placeIndex) =>
-                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, 1)
-                            }
-                            onMoveToPreviousGroup={(placeIndex) => {
-                              const target = dayEntities[dayIndex - 1];
-                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
+                            dayIndex={dayIndex}
+                            dayEntities={dayEntities}
+                            dayPlaceLists={dayPlaceLists}
+                            onOpen={onSelectPlace}
+                            onMove={(placeIndex, targetDayIndex, targetPosition) => {
+                              const target = dayEntities[targetDayIndex];
+                              if (!dayEntity || !target) return;
+                              if (target.id === dayEntity.id) relocatePlaceWithinDay(dayEntity.id, placeIndex, targetPosition);
+                              else {
+                                movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
+                                relocatePlaceWithinDay(target.id, dayPlaceLists[targetDayIndex]?.length ?? 0, targetPosition);
+                              }
                             }}
-                            onMoveToNextGroup={(placeIndex) => {
-                              const target = dayEntities[dayIndex + 1];
-                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
-                            }}
-                            previousGroupLabel="al día anterior"
-                            nextGroupLabel="al día siguiente"
-                            canMoveToPreviousGroup={dayIndex > 0}
-                            canMoveToNextGroup={dayIndex < dayIds.length - 1}
-                            showDuration
-                            compact
                           />
                           <WeekdayClosureNotice signal={weekdaySignal} />
                           <HoursClosureCompositionNotice
@@ -3583,6 +3665,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
                               }
                             />
                           )}
+                          <footer className="day-card__footer">
+                            <Icon name="cama" size={16} /> {sleepingLabel ? `Dormís en ${sleepingLabel}` : "Sin alojamiento elegido"}
+                          </footer>
                         </>
                       )}
                     </section>
@@ -3597,6 +3682,30 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
               >
                 <span aria-hidden="true">＋</span> Añadir día
               </button>
+
+              <details className="unassigned-drawer">
+                <summary>{removedPlaces.length} sitio{removedPlaces.length === 1 ? "" : "s"} sin día</summary>
+                {removedPlaces.length === 0 ? (
+                  <p>Todos los sitios del plan están asignados.</p>
+                ) : (
+                  <ul>
+                    {removedPlaces.map((place) => (
+                      <li key={place.id}>
+                        <span>{place.name}</span>
+                        <label>
+                          Añadir al día…
+                          <select defaultValue="" onChange={(event) => {
+                            if (event.target.value) addPlaceToDay(place.id, event.target.value);
+                          }}>
+                            <option value="" disabled>Elegir día</option>
+                            {dayEntities.map((day, index) => <option key={day.id} value={day.id}>Día {index + 1}</option>)}
+                          </select>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </details>
             </>
           )}
         </div>
