@@ -27,20 +27,22 @@ function withoutComments(value: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-C local swap wiring", () => {
-  it("73. renders inside the existing day card — no page, modal or wizard", async () => {
+  it("73. the day-local tool replaces the mounted apply disclosure", async () => {
     const fullSource = await source();
-    expect(fullSource).toContain("<LocalSwapAlternativesSection");
-    // Exactly one call site, inside the day-card branch of the day list.
-    expect(fullSource.match(/<LocalSwapAlternativesSection/g)).toHaveLength(1);
-    const block = withoutComments(sectionBlock(fullSource));
-    expect(block).not.toMatch(/role="dialog"|aria-modal|modal|wizard|<input|<select/i);
-    expect(block).toContain("Alternativas locales con evidencia completa");
+    expect(fullSource).toContain("<DayOrderToolPanel");
+    expect(fullSource).not.toContain("<LocalSwapAlternativesSection");
+    expect(fullSource).toContain("toolDayId={dayEntity.id}");
+    const panel = withoutComments(await readFile(new URL("./DayOrderToolPanel.tsx", import.meta.url), "utf8"));
+    expect(panel).toContain("Opciones comprobadas");
+    expect(panel).toContain("Comprobado con datos completos");
+    expect(panel).toContain("Probar esta opción");
+    expect(panel).toContain("Usar este orden");
   });
 
   it("73b. the section is only offered per day, from that day's own alternatives", async () => {
     const fullSource = await source();
     expect(fullSource).toContain("localSwapsByDayId.get(dayEntity.id) ?? []");
-    expect(fullSource).toContain('localSwapGeneration.kind === "available"');
+    expect(fullSource).toContain('localSwapGeneration.kind !== "available"');
   });
 
   it("74. names both exchanged places rather than positions", async () => {

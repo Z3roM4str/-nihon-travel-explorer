@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
@@ -6,7 +6,6 @@ import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSumm
 import {
   compareSequences,
   type ConfidenceCounts,
-  type SequenceCandidate,
   type SequenceComparison,
 } from "../lib/sequence-comparison";
 import {
@@ -129,6 +128,9 @@ import { usePlanningDraft } from "../usePlanningDraft";
 import { CARD_IMAGE_WIDTH, cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { PhotoPlaceholder } from "./PhotoPlaceholder";
 import { EvidenceMark } from "./EvidenceMark";
+import { DayOrderToolPanel, type DayOrderEvidenceAlternative, type DayOrderEvidenceOption } from "./DayOrderToolPanel";
+import { SequenceCandidateSummary as CandidateSummary } from "./SequenceCandidateSummary";
+import { hasSamePlaceOrder, isPlaceOrderPermutation } from "../lib/day-order-tool";
 
 type Props = {
   /** The wishlist, in its saved order — the source the route draft is initialized from and
@@ -142,6 +144,12 @@ type Props = {
   embedded?: boolean;
   /** Opens the one shared PlaceDetail in the current Viaje navigation stack. */
   onSelectPlace?: (id: string) => void;
+};
+
+type DayOrderSession = {
+  dayId: string;
+  /** Exact persisted order captured when this one-day tool opens. */
+  baselineDayPlaceIds: string[];
 };
 
 /**
@@ -434,6 +442,7 @@ function TripStop({
   onUnassign,
   onDragStart,
   dragging,
+  dragEnabled,
 }: {
   place: Place;
   position: number;
@@ -445,6 +454,7 @@ function TripStop({
   onUnassign: () => void;
   onDragStart: (event: ReactPointerEvent<HTMLButtonElement>, placeId: string, dayId: string) => void;
   dragging: boolean;
+  dragEnabled: boolean;
 }) {
   const [moveOpen, setMoveOpen] = useState(false);
   const [targetDay, setTargetDay] = useState(dayIndex);
@@ -466,7 +476,7 @@ function TripStop({
       </div>
       <div className="trip-stop__body">
         <button type="button" className="trip-stop__handle" data-drag-place-id={place.id}
-          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} onPointerDown={(event) => onDragStart(event, place.id, dayEntities[dayIndex].id)}>
+          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} disabled={!dragEnabled} onPointerDown={(event) => onDragStart(event, place.id, dayEntities[dayIndex].id)}>
           <Icon name="arrastrar" size={20} />
         </button>
         <button type="button" className="trip-stop__open" onClick={() => onOpen?.(place.id)}>
@@ -522,6 +532,7 @@ function DayTimeline({
   onDragStart,
   dragPlaceId,
   dropSlot,
+  dragEnabled,
 }: {
   places: Place[];
   legs: OrderedSequenceLeg[];
@@ -534,6 +545,7 @@ function DayTimeline({
   onDragStart: (event: ReactPointerEvent<HTMLButtonElement>, placeId: string, dayId: string) => void;
   dragPlaceId: string | null;
   dropSlot: number | null;
+  dragEnabled: boolean;
 }) {
   return (
     <ol className="day-timeline" aria-label={`Paradas del Día ${dayIndex + 1}`}>
@@ -543,6 +555,7 @@ function DayTimeline({
           <TripStop place={place} position={index} dayIndex={dayIndex} dayEntities={dayEntities}
             dayPlaceLists={dayPlaceLists} onOpen={onOpen}
             onDragStart={onDragStart} dragging={dragPlaceId === place.id}
+            dragEnabled={dragEnabled}
             onMove={(targetDay, targetPosition) => onMove(index, targetDay, targetPosition)}
             onUnassign={() => onUnassign(index)} />
           {index < legs.length && <LegConnector leg={legs[index]} />}
@@ -550,34 +563,6 @@ function DayTimeline({
         </li>
       ))}
     </ol>
-  );
-}
-
-function CandidateSummary({ candidate }: { candidate: SequenceCandidate }) {
-  const { summary } = candidate.sequence;
-  const { validatedStatic, estimated, scheduleAware } = candidate.confidenceCounts;
-  const parts: string[] = [];
-  if (validatedStatic > 0) parts.push(`${validatedStatic} validado${validatedStatic === 1 ? "" : "s"}`);
-  if (estimated > 0) parts.push(`${estimated} estimado${estimated === 1 ? "" : "s"}`);
-  if (scheduleAware > 0) parts.push(`${scheduleAware} en vivo`);
-  if (summary.unknownLegCount > 0) parts.push(`${summary.unknownLegCount} sin traslado`);
-
-  return (
-    <p className="comparison-candidate__stats">
-      Traslados: {summary.transferMinutes ? formatRange(summary.transferMinutes) : "—"}
-      <br />
-      {summary.legCount === 0
-        ? "Sin tramos en este recorrido"
-        : `${summary.knownLegCount}/${summary.legCount} tramo${summary.legCount === 1 ? "" : "s"} cubierto${
-            summary.legCount === 1 ? "" : "s"
-          }`}
-      {parts.length > 0 && (
-        <>
-          <br />
-          {parts.join(" · ")}
-        </>
-      )}
-    </p>
   );
 }
 
@@ -2256,7 +2241,11 @@ function confidenceMixText(counts: ConfidenceCounts): string {
  * about the recorded evidence, not a verdict that the current order is optimal, so the neutral
  * sentence below is the strongest thing that may be said (§13).
  */
-function LocalSwapAlternativesSection({
+/**
+ * Legacy evidence-presentation component retained for its domain regression contract.
+ * B9.3 no longer mounts it in the day timeline; the local tool uses its alternatives as options.
+ */
+export function LocalSwapAlternativesSection({
   dayNumber,
   alternatives,
   relocationAlternatives,
@@ -2769,6 +2758,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     addEmptyDay,
     removeEmptyDay,
     moveDay,
+    applyDayPlaceOrder,
     setStartDate,
     setEndDate,
     setVisitStartTime,
@@ -2825,6 +2815,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   // doc above. They stay plain, ephemeral component state.
   const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
   const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
+  const [dayOrderSession, setDayOrderSession] = useState<DayOrderSession | null>(null);
+  const dayOrderTriggerRefs = useRef(new Map<string, HTMLButtonElement>());
 
   // B9.1 promotes the existing persisted day structure to the entry surface. The same explicit
   // first split formerly performed by “Distribuir por días” is now made when no split exists.
@@ -2963,7 +2955,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   }
 
   function startDrag(event: ReactPointerEvent<HTMLButtonElement>, placeId: string, fromDayId: string | null) {
-    if (event.button !== 0 || !placeById.has(placeId) || dragRef.current) return;
+    if (dayOrderSession || event.button !== 0 || !placeById.has(placeId) || dragRef.current) return;
     if (fromDayId ? !planningDays?.some((day) => day.id === fromDayId && day.placeIds.includes(placeId)) : routeIds.includes(placeId)) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { pointerId: event.pointerId, placeId, fromDayId, x: event.clientX, y: event.clientY, active: false, days: planningDays };
@@ -3336,6 +3328,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     );
   }
 
+  // These pre-B9.3 handlers remain as source-level regression references for the established
+  // evidence contracts. The day timeline no longer mounts their Apply-button component.
+  void [applyLocalSwap, applyLocalRelocation, applyInteriorTransposition, applyFourPlaceReversal, applyTwoPairBlockSwap];
+
   function moveUp(index: number) {
     setRouteIds((ids) => moveItemUp(ids, index));
   }
@@ -3374,6 +3370,47 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     }
     setView("days");
   }
+
+  function openDayOrderTool(dayId: string, placeIds: readonly string[]) {
+    if (placeIds.length < 2) return;
+    setDayOrderSession({ dayId, baselineDayPlaceIds: [...placeIds] });
+  }
+
+  const closeDayOrderTool = useCallback(() => {
+    const dayId = dayOrderSession?.dayId;
+    setDayOrderSession(null);
+    if (dayId) dayOrderTriggerRefs.current.get(dayId)?.focus({ preventScroll: true });
+  }, [dayOrderSession]);
+
+  function applyDayOrderProposal(proposalIds: readonly string[]) {
+    if (!dayOrderSession) return;
+    const currentDay = planningDays?.find((day) => day.id === dayOrderSession.dayId);
+    if (
+      !currentDay ||
+      !hasSamePlaceOrder(currentDay.placeIds, dayOrderSession.baselineDayPlaceIds) ||
+      !isPlaceOrderPermutation(dayOrderSession.baselineDayPlaceIds, proposalIds) ||
+      hasSamePlaceOrder(dayOrderSession.baselineDayPlaceIds, proposalIds) ||
+      proposalIds.some((placeId) => !routeIds.includes(placeId))
+    ) return;
+
+    applyDayPlaceOrder(dayOrderSession.dayId, dayOrderSession.baselineDayPlaceIds, proposalIds);
+    closeDayOrderTool();
+  }
+
+  // The tool is an inline, non-modal panel. Capture Escape at window level so the legacy
+  // containing Viaje overlay never receives the same key and closes with it.
+  useEffect(() => {
+    if (!dayOrderSession) return;
+    const onLocalEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      closeDayOrderTool();
+    };
+    window.addEventListener("keydown", onLocalEscape, true);
+    return () => window.removeEventListener("keydown", onLocalEscape, true);
+  }, [dayOrderSession, closeDayOrderTool]);
 
   // Same focus-management/backdrop-trap pattern as SelectionAnalysis: focus moves into the
   // dialog on open and returns to whatever opened it on close; Escape closes the whole dialog
@@ -3759,6 +3796,49 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                     ? accommodations.find((anchor) => anchor.id === sleepingChoice.accommodationId)?.label ?? null
                     : null;
                   const interHubRow = interHubRowsByAfterDay.get(dayIndex);
+                  const dayOrderPanelId = `day-order-tool-${dayIndex}`;
+                  const dayOrderIsOpen = dayOrderSession?.dayId === dayEntity?.id;
+                  const dayOrderOptions: DayOrderEvidenceOption[] = [];
+                  const nameOfDayOption = (placeId: string) => placeById.get(placeId)?.name ?? "lugar";
+                  function appendDayOptions<T extends DayOrderEvidenceAlternative>(
+                    family: string,
+                    alternatives: readonly T[],
+                    describe: (alternative: T) => string
+                  ) {
+                    alternatives.forEach((alternative) => dayOrderOptions.push({
+                      id: `${family}:${JSON.stringify(alternative.candidateDayPlaceIds)}`,
+                      family,
+                      description: describe(alternative),
+                      alternative,
+                    }));
+                  }
+                  if (dayOrderIsOpen && dayEntity) {
+                    appendDayOptions(
+                      "Intercambios adyacentes",
+                      localSwapsByDayId.get(dayEntity.id) ?? [],
+                      (alternative) => `Intercambiar ${nameOfDayOption(alternative.leftPlaceId)} y ${nameOfDayOption(alternative.rightPlaceId)}`
+                    );
+                    appendDayOptions(
+                      "Reubicaciones de un lugar",
+                      localRelocationsByDayId.get(dayEntity.id) ?? [],
+                      (alternative) => `Mover ${nameOfDayOption(alternative.movedPlaceId)} a la posición ${alternative.toDayIndex + 1}`
+                    );
+                    appendDayOptions(
+                      "Intercambios no adyacentes",
+                      interiorTranspositionsByDayId.get(dayEntity.id) ?? [],
+                      (alternative) => `Intercambiar ${nameOfDayOption(alternative.leftPlaceId)} y ${nameOfDayOption(alternative.rightPlaceId)}`
+                    );
+                    appendDayOptions(
+                      "Reversiones de cuatro lugares",
+                      fourPlaceReversalsByDayId.get(dayEntity.id) ?? [],
+                      (alternative) => `Invertir ${alternative.originalWindowPlaceIds.map(nameOfDayOption).join(", ")}`
+                    );
+                    appendDayOptions(
+                      "Intercambios de bloques de dos lugares",
+                      twoPairBlockSwapsByDayId.get(dayEntity.id) ?? [],
+                      (alternative) => `Intercambiar el par ${alternative.firstPairPlaceIds.map(nameOfDayOption).join(" → ")} y el par ${alternative.secondPairPlaceIds.map(nameOfDayOption).join(" → ")}`
+                    );
+                  }
                   return (
                     <Fragment key={dayEntity?.id ?? dayIndex}>
                     <section className={`day-card${dropTarget?.dayId === dayEntity?.id ? " day-card--drop-target" : ""}`} data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
@@ -3783,6 +3863,29 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                       </div>
 
                       <div className="day-card__actions" aria-label={`Acciones del Día ${dayIndex + 1}`}>
+                        <button
+                          type="button"
+                          className="button button--secondary day-order-tool__trigger"
+                          ref={(element) => {
+                            if (!dayEntity) return;
+                            if (element) dayOrderTriggerRefs.current.set(dayEntity.id, element);
+                            else dayOrderTriggerRefs.current.delete(dayEntity.id);
+                          }}
+                          aria-label={`Probar otro orden del Día ${dayIndex + 1}`}
+                          aria-expanded={dayOrderSession?.dayId === dayEntity?.id}
+                          aria-controls={dayOrderIsOpen ? dayOrderPanelId : undefined}
+                          aria-describedby={places.length < 2 ? `${dayOrderPanelId}-unavailable` : undefined}
+                          title={places.length === 0 ? "Este día no tiene lugares." : places.length === 1 ? "Un solo lugar no tiene otro orden distinto." : `Probar otro orden del Día ${dayIndex + 1}`}
+                          disabled={!dayEntity || places.length < 2}
+                          onClick={() => dayEntity && openDayOrderTool(dayEntity.id, dayEntity.placeIds)}
+                        >
+                          Probar otro orden
+                        </button>
+                        {places.length < 2 && (
+                          <span className="visually-hidden" id={`${dayOrderPanelId}-unavailable`}>
+                            {places.length === 0 ? "No disponible: este día no tiene lugares." : "Con un lugar no hay otro orden distinto."}
+                          </span>
+                        )}
                         <label>
                           Mover día…
                           <select
@@ -3815,6 +3918,23 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                         </label>
                       </div>
 
+                      {dayOrderIsOpen && dayEntity && dayOrderSession && (
+                        <DayOrderToolPanel
+                          panelId={dayOrderPanelId}
+                          toolDayId={dayEntity.id}
+                          dayNumber={dayIndex + 1}
+                          dateLabel={dayDate ? formatCivilDateDisplay(dayDate) : null}
+                          hubLabel={hubLabel}
+                          baselineDayPlaceIds={dayOrderSession.baselineDayPlaceIds}
+                          currentDayPlaceIds={dayEntity.placeIds}
+                          routeIds={routeIds}
+                          placeById={placeById}
+                          options={dayOrderOptions}
+                          onClose={closeDayOrderTool}
+                          onApply={applyDayOrderProposal}
+                        />
+                      )}
+
                       {isEmpty ? (
                         <p className={`sequence-empty${dropTarget?.dayId === dayEntity?.id ? " day-timeline__drop-indicator" : ""}`}>Sin lugares en este día.</p>
                       ) : (
@@ -3829,6 +3949,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             onDragStart={startDrag}
                             dragPlaceId={dragPlaceId}
                             dropSlot={dropTarget?.dayId === dayEntity?.id ? dropTarget.position : null}
+                            dragEnabled={!dayOrderSession}
                             onUnassign={(placeIndex) => {
                               const placeId = dayIds[dayIndex]?.[placeIndex];
                               if (dayEntity && placeId) removePlaceFromDay(placeId, dayEntity.id);
@@ -3871,36 +3992,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}
-                          <details className="day-order-alternatives">
-                            <summary>Probar otro orden</summary>
-                          {dayEntity &&
-                            localSwapGeneration.kind === "available" &&
-                            localRelocationGeneration.kind === "available" &&
-                            interiorTranspositionGeneration.kind === "available" &&
-                            fourPlaceReversalGeneration.kind === "available" &&
-                            twoPairBlockSwapGeneration.kind === "available" && (
-                            <LocalSwapAlternativesSection
-                              dayNumber={dayIndex + 1}
-                              alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
-                              relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
-                              transpositionAlternatives={
-                                interiorTranspositionsByDayId.get(dayEntity.id) ?? []
-                              }
-                              reversalAlternatives={
-                                fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
-                              }
-                              pairBlockSwapAlternatives={
-                                twoPairBlockSwapsByDayId.get(dayEntity.id) ?? []
-                              }
-                              placeById={placeById}
-                              onApply={applyLocalSwap}
-                              onApplyRelocation={applyLocalRelocation}
-                              onApplyTransposition={applyInteriorTransposition}
-                              onApplyReversal={applyFourPlaceReversal}
-                              onApplyPairBlockSwap={applyTwoPairBlockSwap}
-                            />
-                          )}
-                          </details>
                           {bucket && dayEntity && dayBoundary && (
                             <AccommodationCommuteSection
                               dayNumber={dayIndex + 1}
@@ -3954,7 +4045,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                       <li key={place.id}>
                         <span>{place.name}</span>
                         <button type="button" className="trip-stop__handle" data-drag-place-id={place.id}
-                          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} onPointerDown={(event) => startDrag(event, place.id, null)}>
+                          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} disabled={Boolean(dayOrderSession)} onPointerDown={(event) => startDrag(event, place.id, null)}>
                           <Icon name="arrastrar" size={20} />
                         </button>
                         <label>

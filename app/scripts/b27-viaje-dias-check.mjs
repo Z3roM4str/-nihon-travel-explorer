@@ -247,12 +247,26 @@ try {
     if (await root.locator(".inter-hub-row").count() !== 0) fail("F: inactive/same-day segment shown between days");
   }
 
-  // The neutral alternative disclosure remains available locally and does not apply by opening.
-  const alternatives = root.locator(".day-order-alternatives").first();
-  if (await alternatives.count()) {
-    await keyboardActivate(alternatives.locator("summary"));
+  // B9.3 keeps Probar otro orden local to one day; opening/closing does not apply its proposal.
+  const orderTrigger = root.locator(".day-order-tool__trigger:not([disabled])").first();
+  if (!(await orderTrigger.count())) fail("B29: no day with two or more places exposes Probar otro orden");
+  else {
+    const dayId = await orderTrigger.evaluate((element) => element.closest(".day-card")?.getAttribute("data-day-id"));
+    const orderCard = root.locator(`.day-card[data-day-id="${dayId}"]`);
+    const beforeTool = await draft(page);
+    await keyboardActivate(orderTrigger);
+    const dayTool = orderCard.locator(".day-order-tool");
+    await dayTool.waitFor();
+    const currentNames = await dayTool.locator(".day-order-tool__order").nth(0).locator(".day-order-tool__place-name").allTextContents();
+    const proposalNames = await dayTool.locator(".day-order-tool__order").nth(1).locator(".day-order-tool__place-name").allTextContents();
+    if (currentNames.join("|") !== proposalNames.join("|")) fail("B29: proposal did not start as a copy of the day's current order");
+    if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: opening Probar otro orden changed the draft");
+    if (!await dayTool.locator("h3").evaluate((heading) => document.activeElement === heading)) fail("B29: focus did not enter the day tool");
     await capture(page, "viaje-390-probar-otro-orden");
-    await alternatives.locator("summary").press("Enter");
+    await page.keyboard.press("Escape");
+    if (await orderCard.locator(".day-order-tool").count()) fail("B29: Escape did not close the day tool");
+    if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: closing Probar otro orden changed the draft");
+    if (!await orderTrigger.evaluate((element) => document.activeElement === element)) fail("B29: Escape did not return focus to the exact day trigger");
   }
 
   // PlaceDetail opens inside Viaje; browser back returns to Días without losing state/scroll/drawer.

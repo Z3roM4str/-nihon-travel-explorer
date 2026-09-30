@@ -33,10 +33,11 @@ function transpositionGroup(fullSource: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-G UI (§35.105-123)", () => {
-  it("105. the one existing surface gains a distinct non-adjacent subgroup", async () => {
+  it("105. the day-local tool replaces the old mounted subgroup surface", async () => {
     const full = await source();
     const block = sectionBlock(full);
-    expect(full.match(/<LocalSwapAlternativesSection/g)).toHaveLength(1);
+    expect(full).not.toContain("<LocalSwapAlternativesSection");
+    expect(full).toContain("<DayOrderToolPanel");
     expect(block).toContain("Alternativas locales con evidencia completa");
     expect(block).toContain("Intercambios adyacentes");
     expect(block).toContain("Reubicaciones de un lugar");

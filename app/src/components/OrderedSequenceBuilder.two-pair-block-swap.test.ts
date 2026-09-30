@@ -31,10 +31,11 @@ function pairBlockGroup(fullSource: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-K UI (§33.123)", () => {
-  it("123a. the one existing surface gains a fifth subgroup, rendered only when applicable", async () => {
+  it("123a. the day-local tool replaces the old mounted subgroup surface", async () => {
     const full = await source();
     const block = sectionBlock(full);
-    expect(full.match(/<LocalSwapAlternativesSection/g)).toHaveLength(1);
+    expect(full).not.toContain("<LocalSwapAlternativesSection");
+    expect(full).toContain("<DayOrderToolPanel");
     expect(block).toContain("Alternativas locales con evidencia completa");
     for (const heading of [
       "Intercambios adyacentes",
