@@ -1410,6 +1410,7 @@ export default function App() {
                     section={viajeSection}
                     onSelectPlace={(id) => selectPlace(id, "viaje", "Días")}
                     onOpenZones={openZonesFromDays}
+                    onNavigateSection={setViajeSectionTracked}
                     embedded
                   />
                 )}
