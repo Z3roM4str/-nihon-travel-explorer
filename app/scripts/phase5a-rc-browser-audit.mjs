@@ -161,7 +161,7 @@ try {
 
   // ---------------------------------------------------------------- helpers
   const detail = () => page.locator(".place-detail");
-  /** The ordered-sequence builder renders inside the shared modal dialog. */
+  /** The ordered-sequence builder renders inside Viaje as an embedded section. */
   const plannerDialog = () => page.locator(".analysis-dialog");
 
   async function openNational() {
@@ -269,26 +269,22 @@ try {
   /** Opens the planner's day-assignment view from any state. Reloading first makes the step
    * independent of whether a previous journey left the modal open. */
   async function openPlanner({ fresh = true } = {}) {
-    if (fresh) await page.goto(url, { waitUntil: "networkidle" });
+    if (fresh) await page.goto(url, { waitUntil: "domcontentloaded" });
     else await closeDetailIfOpen();
-    if ((await plannerDialog().count()) === 0) {
-      // B18 (`02 §D2`, `05 §7`): el planificador dejó de ser un modal abierto desde «Quiero ir»
-      // y es ahora una sección permanente de la pestaña Viaje, renderizada `embedded` (mismo
-      // componente, misma clase `.analysis-dialog`, sin scrim ni `role="dialog"`).
-      await goToDestination("Viaje");
-      await page.getByRole("button", { name: /^Planificar$/ }).first().click();
-      await page.waitForTimeout(400);
-    }
-    const toDays = page.getByRole("button", { name: /Distribuir por días/ });
-    if ((await toDays.count()) > 0) await toDays.first().click();
-    await page.getByRole("heading", { name: "Día 1" }).waitFor();
+    // B27 (B9.1): Viaje opens directly on the day timeline. It no longer has a Planificar
+    // button, flat route view, or separate "Distribuir por días" step.
+    await goToDestination("Viaje");
+    await page.locator(".days-framing").waitFor();
+    await page.locator(".day-card[data-day-id]").first().waitFor();
   }
 
-  /** Back from the day-assignment view to the ordered-route draft (where removal lives). */
-  async function openRouteView() {
-    await openPlanner();
-    await page.getByRole("button", { name: /Volver al recorrido/ }).first().click();
-    await page.locator(".sequence-list").first().waitFor();
+  async function openDayTools() {
+    const tools = page.locator(".days-tools");
+    await tools.waitFor();
+    if (!(await tools.evaluate((element) => element.open))) {
+      await tools.locator("summary").click();
+    }
+    return tools;
   }
 
   /**
@@ -508,10 +504,20 @@ try {
 
   await step("A10 build ordered sequence and assign days", async () => {
     await openPlanner();
-    const days = await page.getByRole("heading", { name: /^Día \d+$/ }).count();
+    const dayCards = page.locator(".day-card[data-day-id]");
+    let days = await dayCards.count();
     assert.ok(days >= 1, "no days rendered");
+    if (days === 1) await page.getByRole("button", { name: "Añadir día" }).click();
+    const kyotoStop = page.locator(".trip-stop").filter({ hasText: "Nanzen-ji" }).first();
+    await kyotoStop.getByRole("button", { name: "Mover a…" }).click();
+    await kyotoStop.getByLabel("Día").selectOption({ label: "Día 2" });
+    await kyotoStop.getByLabel("Posición").selectOption("0");
+    await kyotoStop.getByRole("button", { name: "Mover parada" }).click();
+    days = await dayCards.count();
     const draft = await readDraft();
     assert.equal(draft.routeIds.length, 5, `draft should carry 5 places, got ${draft.routeIds.length}`);
+    assert.deepEqual(draft.days.flatMap((day) => day.placeIds).sort(), [...draft.routeIds].sort(),
+      "day assignments do not cover the complete route");
     return `${days} day(s), ${draft.routeIds.length} places`;
   });
 
@@ -568,8 +574,9 @@ try {
   /** Journey A step 12 and Issue #118 §11: the route spans Tokio then Kioto, so the boundary
    * between them is the one consecutive pair the manual inter-hub form should offer. */
   await step("A13b add a manual inter-hub segment across the hub boundary", async () => {
+    await openDayTools();
     const section = page.locator(".inter-hub-segments");
-    await section.first().waitFor();
+    await section.first().waitFor({ state: "visible" });
     const positionSelect = section.locator("select").first();
     const options = await positionSelect.locator("option").allTextContents();
     const pair = options.find((o) => !/Selecciona/.test(o));
@@ -594,8 +601,9 @@ try {
   });
 
   await step("A14 whole-trip composition renders and reconciles", async () => {
+    await openDayTools();
     const summary = page.locator(".whole-trip-composition");
-    await summary.first().waitFor();
+    await summary.first().waitFor({ state: "visible" });
     const text = await summary.first().textContent();
     assert.ok(text.trim().length > 0, "composition summary empty");
     return "composition present";
@@ -619,16 +627,16 @@ try {
   // ======================================================= JOURNEY B
   await step("B01 reorder a place within its day", async () => {
     await openPlanner();
-    const before = (await readDraft()).days.map((d) => d.placeIds.join("|")).join(" / ");
-    const down = page
-      .getByRole("button", { name: /Mover .+ hacia abajo en Día \d+/ })
-      .and(page.locator("button:not([disabled])"))
-      .first();
-    assert.ok(await down.count(), "no enabled in-day reorder control");
-    await down.click();
+    const firstDay = page.locator(".day-card[data-day-id]").first();
+    const before = await firstDay.locator(".trip-stop strong").allInnerTexts();
+    const stop = firstDay.locator(".trip-stop").first();
+    await stop.getByRole("button", { name: "Mover a…" }).click();
+    await stop.getByLabel("Posición").selectOption({ value: "1" });
+    await stop.getByRole("button", { name: "Mover parada" }).click();
     await page.waitForTimeout(200);
-    const after = (await readDraft()).days.map((d) => d.placeIds.join("|")).join(" / ");
-    assert.notEqual(after, before, "reorder did not change the draft");
+    const after = await firstDay.locator(".trip-stop strong").allInnerTexts();
+    assert.notEqual(after.join("|"), before.join("|"), "reorder did not change the draft");
+    assert.equal(after[1], before[0], "the selected place did not move to position 2");
     return "order changed";
   });
 
@@ -648,9 +656,11 @@ try {
     const withNewDay = (await readDraft()).days.map((d) => d.id);
     assert.deepEqual(withNewDay.slice(0, before.length), before,
       "adding a day regenerated the existing day IDs");
-    const mover = page.getByRole("button", { name: /Mover .* al día siguiente/ }).first();
-    assert.ok(await mover.count(), "no cross-day move control after adding a second day");
-    await mover.click();
+    const stop = page.locator(".day-card[data-day-id]").first().locator(".trip-stop").first();
+    await stop.getByRole("button", { name: "Mover a…" }).click();
+    await stop.getByLabel("Día").selectOption({ label: "Día 3" });
+    await stop.getByLabel("Posición").selectOption("0");
+    await stop.getByRole("button", { name: "Mover parada" }).click();
     await page.waitForTimeout(250);
     const after = (await readDraft()).days.map((d) => d.id);
     assert.deepEqual(after, withNewDay, "a cross-day move regenerated day IDs");
@@ -668,28 +678,35 @@ try {
   });
 
   /**
-   * `lib/planning-draft.ts::withRoute` documents the contract this asserts: a pure reorder keeps
-   * the day assignment, but ANY change to the set of places invalidates it (`days: null`) rather
-   * than inventing which day a new place belongs to or repairing a day missing a removed one.
-   * What matters for release is that nothing stale survives that reset.
+   * B27 removes the place atomically from both route and stable day membership, pruning route-scoped
+   * times, accommodation legs and inter-hub segments that reference the removed place.
    */
   await step("B05 removing a place leaves no stale dependent state", async () => {
-    await openRouteView();
+    await openPlanner();
     const before = await readDraft();
-    const removedName = await page
-      .getByRole("button", { name: /Quitar .+ del recorrido/ })
-      .first()
-      .getAttribute("aria-label");
-    const remove = page.getByRole("button", { name: /Quitar .+ del recorrido/ }).first();
-    assert.ok(await remove.count(), "no removal control in the route view");
+    const removedName = "Nanzen-ji";
+    const removedStop = page.locator(".trip-stop").filter({ hasText: removedName }).first();
+    assert.ok(await removedStop.count(), `${removedName} is missing from the day timeline`);
+    const removedId = before.routeIds.find((id) => id === "JP-060");
+    assert.ok(removedId, `${removedName} is missing from routeIds`);
+    const otherId = before.routeIds.find((id) => id !== removedId);
+    await page.evaluate(({ key, removedId, otherId }) => {
+      const draft = JSON.parse(localStorage.getItem(key));
+      draft.visitStartTimes[removedId] = "10:15";
+      draft.accommodations.push({ id: "phase5a-anchor", label: "Alojamiento de prueba", location: { lat: 35.68, lng: 139.76 } });
+      draft.accommodationLegs.push({ direction: "accommodation-to-place", accommodationId: "phase5a-anchor", placeId: removedId, minutes: 18, source: { kind: "user-entered" } });
+      draft.interHubSegments.push({ id: "phase5a-pruned-segment", fromPlaceId: otherId, toPlaceId: removedId, fromHub: "Tokio", toHub: "Kioto", mode: "other", minutes: 20, source: { kind: "user-entered" } });
+      localStorage.setItem(key, JSON.stringify(draft));
+    }, { key: "nihon.manualPlanningDraft", removedId, otherId });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await openPlanner({ fresh: false });
+    const remove = page.locator(".trip-stop").filter({ hasText: removedName }).getByRole("button", { name: "Mover a Sin asignar" });
     await remove.click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
     assert.equal(draft.routeIds.length, before.routeIds.length - 1, "route length did not shrink by one");
     const route = new Set(draft.routeIds);
-    const assigned = draft.days === null ? route : new Set(draft.days.flatMap((d) => d.placeIds));
-    assert.deepEqual([...assigned].filter((id) => !route.has(id)), [],
-      "a day still references a place no longer in the route");
+    assert.ok(!draft.days.flatMap((day) => day.placeIds).includes(removedId), "removed place remains assigned to a day");
     const orphanTimes = Object.keys(draft.visitStartTimes ?? {}).filter((id) => !route.has(id));
     assert.deepEqual(orphanTimes, [], `stale visit times after removal: ${orphanTimes}`);
     const orphanSegments = (draft.interHubSegments ?? []).filter(
@@ -698,7 +715,9 @@ try {
     assert.deepEqual(orphanSegments, [], "stale inter-hub segment after removal");
     const orphanLegs = (draft.accommodationLegs ?? []).filter((leg) => !route.has(leg.placeId));
     assert.deepEqual(orphanLegs, [], "stale accommodation leg after removal");
-    return `${removedName ?? "a place"} removed; days ${draft.days === null ? "invalidated per contract" : "retained"}, no stale refs`;
+    assert.ok(!draft.interHubSegments.some((segment) => segment.fromPlaceId === removedId || segment.toPlaceId === removedId),
+      "inter-hub segment retained a removed endpoint");
+    return `${removedName} moved to Sin asignar; route days retained, no stale refs`;
   });
 
   await step("B06 edits survive reload", async () => {

@@ -12,15 +12,19 @@
 - Gates históricos obsoletos (deuda B10): `block1-ux`, `block13`, `block14`, `b18-regression`, `b24-real-input` P0-2.
 - **Siguiente:** B27 = B9.1 «Días como estructura», rama `claude/b27-viaje-b9-1-dias` desde el HEAD remoto de `main`
   tras esta documentación. Plan en `docs/BLOCK_26_HANDOFF.md`. No mezclar Astra ni #154.
-## ESTADO ACTUAL — B27 / B9.1 en PR #161 (2026-09-29)
+## ESTADO ACTUAL — B27 / B9.1 en PR #162 (2026-09-29)
 
-- Rama obligatoria: `codex/continuar-desarrollo-del-bloque-b9.1`; base declarada del PR: `main`.
-- Funcionalidad B9.1 completada: día completo reordenable, TripStop bidireccional con Sin asignar,
-  acciones de día, alternativas accesibles, InterHub entre tarjetas y cabecera con fechas.
-- Vitest: **106 ficheros, 3406/3406 PASS**; los 17 fallos source-scanning iniciales quedaron alineados
-  con la nueva presentación sin retirar ni debilitar contratos.
-- **B9.1 aún no se declara cerrado**: el gate A–K está ampliado, pero Chromium no existe en el
-  contenedor; Playwright y apt fallaron por HTTP 403. Handoff detallado: `docs/BLOCK_27_HANDOFF.md`.
+- Rama: `codex/cerrar-b27/b9.1-en-pr-#161`; rebase sobre `origin/main`
+  `eab63a8af34c8e0474340eba4687766be979933b`, con B26/PR #159 preservado.
+- Conflictos de rebase: `app/src/App.css` se resolvió conservando reglas B26 y B27; en
+  `docs/CURRENT_WORK_HANDOFF.md` se preservó íntegra la sección canónica B26 y se actualizó este bloque B27.
+- Funcionalidad B9.1: días reordenables, TripStop bidireccional con Sin asignar y poda V8, acciones de día,
+  alternativas accesibles, InterHub entre tarjetas y cabecera con fechas.
+- Vitest: **107 archivos, 3426/3426 PASS**. Build PASS; lint 0 errores y 1 warning heredado de PlaceMap.
+- Gates: B26 314/314, B25 123/123, B5 231/231, B6 177/177, B18 15/15 + 38/38 + 6/6 + 25/25,
+  B23 28/28, Phase 5A 50/50 escritorio + 50/50 móvil, integración B24+B23 58/58, DD-028 16/16,
+  DDR03 43/43, DDR-B24-3 9/9 y B27 A–K en 8 viewports. Chromium local: Edge `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`.
+- Handoff B27 y capturas/auditoría: `docs/BLOCK_27_HANDOFF.md`. No se abrió otro PR; `main`, Astra y B9.2 no se modificaron.
 - Deferred: B9.2 drag-and-drop; B9.3 rediseño final de «Probar otro orden»; B9.4 Dónde dormir; B9.5
   Reservas/Resumen. B28 no iniciado.
 

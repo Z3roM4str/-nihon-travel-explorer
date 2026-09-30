@@ -4473,6 +4473,7 @@ button.app__title.app__title--expand {
 }
 
 .calendar-anchor__input {
+  min-height: var(--tap-min);
   font: inherit;
   padding: 0.35rem 0.5rem;
   border: 1px solid var(--color-border-strong);
@@ -5209,6 +5210,7 @@ button.app__title.app__title--expand {
 .accommodation-boundary__select,
 .accommodation-boundary__input {
   max-width: 100%;
+  min-height: var(--tap-min);
   padding: 0.35rem 0.45rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);

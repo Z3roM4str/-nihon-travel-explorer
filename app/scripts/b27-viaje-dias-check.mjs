@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { chromium } from "playwright";
+import { fileURLToPath } from "node:url";
 import { preview } from "vite";
 
 const places = JSON.parse(readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8"));
@@ -17,7 +18,7 @@ function executableFilesBelow(root) {
   const visit = (path) => {
     let stat;
     try { stat = statSync(path); } catch { return; }
-    if (stat.isFile() && (stat.mode & 0o111) !== 0) { found.push(path); return; }
+    if (isExecutableFile(path)) { found.push(path); return; }
     if (!stat.isDirectory()) return;
     for (const entry of readdirSync(path)) visit(`${path}/${entry}`);
   };
@@ -27,7 +28,11 @@ function executableFilesBelow(root) {
 function isExecutableFile(path) {
   if (!path || !existsSync(path)) return false;
   const stat = statSync(path);
-  return stat.isFile() && (stat.mode & 0o111) !== 0;
+  if (!stat.isFile()) return false;
+  // Windows records executable eligibility by file type, not Unix execute permission bits.
+  return process.platform === "win32"
+    ? path.toLowerCase().endsWith(".exe")
+    : (stat.mode & 0o111) !== 0;
 }
 const browserCandidates = [
   process.env.NIHON_CHROMIUM_PATH,
@@ -47,7 +52,7 @@ if (!executablePath) {
 }
 const shots = process.env.NIHON_B27_SHOTS;
 if (shots) mkdirSync(shots, { recursive: true });
-const server = await preview({ root: new URL("..", import.meta.url).pathname, preview: { host: "127.0.0.1", port: 0 } });
+const server = await preview({ root: fileURLToPath(new URL("..", import.meta.url)), preview: { host: "127.0.0.1", port: 0 } });
 const address = server.httpServer.address();
 const url = `http://127.0.0.1:${address.port}`;
 const browser = await chromium.launch({ executablePath });
@@ -55,7 +60,8 @@ const failures = [];
 
 function fail(message) { failures.push(message); }
 async function seed(context) {
-  await context.addInitScript(({ placeIds }) => {
+  await context.addInitScript(({ placeIds, storageKey }) => {
+    if (localStorage.getItem(storageKey) !== null) return;
     localStorage.setItem("nihon.onboarding.seen.v1", "1");
     localStorage.setItem("nihon.travellers.v1", JSON.stringify({
       version: 1,
@@ -67,13 +73,31 @@ async function seed(context) {
         carriedOver: false,
       })),
     }));
-  }, { placeIds: ids });
+    localStorage.setItem(storageKey, JSON.stringify({
+      version: 8,
+      routeIds: placeIds,
+      days: null,
+      startDate: null,
+      endDate: null,
+      visitStartTimes: {},
+      accommodations: [],
+      accommodationLegs: [],
+      interHubSegments: [],
+      zoneAccommodationChoices: [],
+    }));
+  }, { placeIds: ids, storageKey: STORAGE_KEY });
 }
 async function openDays(page) {
   await page.goto(url);
-  await page.getByRole("button", { name: /Viaje/ }).click();
+  return showDays(page);
+}
+async function showDays(page) {
+  await page.getByRole("button", { name: "Viaje", exact: true }).click();
   await page.getByRole("heading", { name: "Viaje", exact: true }).waitFor();
-  return page.locator('.destination-panel:not([hidden])');
+  const active = page.locator('.destination-panel:not([hidden])');
+  await active.locator(".days-framing").waitFor();
+  await active.locator(".day-card[data-day-id]").first().waitFor();
+  return active;
 }
 async function keyboardActivate(locator) {
   await locator.focus();
@@ -81,6 +105,9 @@ async function keyboardActivate(locator) {
 }
 async function draft(page) {
   return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE_KEY);
+}
+async function capture(page, name) {
+  if (shots) await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true });
 }
 
 try {
@@ -91,6 +118,7 @@ try {
   page.on("pageerror", (error) => fail(`console/pageerror: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") fail(`console: ${message.text()}`); });
   const root = await openDays(page);
+  const scrollRoot = root.locator(".destination-panel--scroll");
   if (await root.locator(".days-framing").count() !== 1) fail("A: framing line must be exactly one");
   if (await root.locator(".day-card").count() !== 1) fail("A: Días must be the initial unit");
   if (await root.locator(".sequence-item__controls").count()) fail("A: legacy arrow trio is visible");
@@ -120,6 +148,7 @@ try {
   // Real Mover a… flow: keyboard open, another day, explicit position, confirm.
   const kyotoStop = root.locator(".trip-stop", { hasText: kyoto.name });
   await keyboardActivate(kyotoStop.getByRole("button", { name: "Mover a…" }));
+  await capture(page, "viaje-390-mover-parada");
   await kyotoStop.getByLabel("Día").selectOption("1");
   await kyotoStop.getByLabel("Posición").selectOption("0");
   await keyboardActivate(kyotoStop.getByRole("button", { name: "Mover parada" }));
@@ -132,9 +161,12 @@ try {
   const movingStop = firstDay.locator(".trip-stop").first();
   const movingName = await movingStop.locator("strong").innerText();
   await keyboardActivate(movingStop.getByRole("button", { name: "Mover a…" }));
-  await movingStop.getByLabel("Posición").selectOption("1");
-  await keyboardActivate(movingStop.getByRole("button", { name: "Mover parada" }));
-  if ((await firstDay.locator(".trip-stop").nth(1).locator("strong").innerText()) !== movingName) fail("C/D: same-day move failed");
+  const sameDayPosition = movingStop.getByLabel("Posición");
+  await sameDayPosition.selectOption({ value: "1" });
+  const confirmMove = movingStop.getByRole("button", { name: "Mover parada" });
+  await keyboardActivate(confirmMove);
+  const sameDayAfter = await firstDay.locator(".trip-stop strong").allInnerTexts();
+  if (sameDayAfter[1] !== movingName) fail("C/D: same-day move failed");
 
   // Whole-day move through its explicit keyboard-labelled destination.
   const dayMove = firstDay.getByLabel("Mover Día 1 a la posición");
@@ -158,7 +190,7 @@ try {
     localStorage.setItem(key, JSON.stringify(value));
   }, { key: STORAGE_KEY, placeId: assignedId, otherPlaceId: otherId });
   await page.reload();
-  await page.getByRole("heading", { name: "Viaje", exact: true }).waitFor();
+  await showDays(page);
   const assignedStop = root.locator(".trip-stop", { hasText: assignedPlace.name });
   const assignedName = assignedPlace.name;
   await keyboardActivate(assignedStop.getByRole("button", { name: "Mover a Sin asignar" }));
@@ -171,6 +203,19 @@ try {
   if (!/1 sitio sin día/.test(await drawer.locator("summary").innerText())) fail("G: real counter did not increase");
   await keyboardActivate(drawer.locator("summary"));
   if (!await drawer.getByText(assignedName, { exact: true }).count()) fail("G: removed stop not immediately in drawer");
+  await scrollRoot.evaluate((element) => { element.scrollTop = 0; });
+  await capture(page, "viaje-390-sin-asignar-top");
+  await scrollRoot.evaluate((element) => { element.scrollTop = element.scrollHeight; });
+  const addToDay = drawer.getByLabel("Añadir al día…");
+  await addToDay.scrollIntoViewIfNeeded();
+  const addControlVisible = await addToDay.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    const panel = element.closest(".destination-panel--scroll").getBoundingClientRect();
+    const tabBar = document.querySelector(".tab-bar:not([hidden])")?.getBoundingClientRect();
+    return box.top >= panel.top && box.bottom <= panel.bottom && (!tabBar || box.bottom <= tabBar.top);
+  });
+  if (!addControlVisible) fail("G/I: drawer add-to-day control is obscured at the end of scroll");
+  await capture(page, "viaje-390-sin-asignar-bottom");
   if (await page.evaluate((key) => localStorage.getItem(key), WISHLIST_KEY) !== originalWishlist) fail("H: Quiero ir changed on unassign");
   await drawer.getByLabel("Añadir al día…").selectOption({ index: 1 });
   if (!/0 sitios sin día/.test(await drawer.locator("summary").innerText())) fail("G: counter did not decrease after restore");
@@ -191,33 +236,44 @@ try {
     await interHub.getByLabel("Duración manual del tramo principal").last().fill("135");
     await keyboardActivate(interHub.getByRole("button", { name: "Añadir tramo" }));
     if (await root.locator(".inter-hub-row").count() !== 1) fail("F: active between-days row absent");
+    await capture(page, "viaje-390-traslado-interurbano-activo");
     const boundaryStop = root.locator(".day-card").first().locator(".trip-stop", { hasText: kyoto.name });
     await keyboardActivate(boundaryStop.getByRole("button", { name: "Mover a…" }));
-    await boundaryStop.getByLabel("Día").selectOption("1");
+    await boundaryStop.locator(".trip-stop__move-panel").waitFor();
+    const boundaryDay = boundaryStop.getByLabel("Día");
+    await boundaryDay.selectOption({ label: "Día 2" });
     await boundaryStop.getByLabel("Posición").selectOption("0");
     await keyboardActivate(boundaryStop.getByRole("button", { name: "Mover parada" }));
     if (await root.locator(".inter-hub-row").count() !== 0) fail("F: inactive/same-day segment shown between days");
   }
 
+  // The neutral alternative disclosure remains available locally and does not apply by opening.
+  const alternatives = root.locator(".day-order-alternatives").first();
+  if (await alternatives.count()) {
+    await keyboardActivate(alternatives.locator("summary"));
+    await capture(page, "viaje-390-probar-otro-orden");
+    await alternatives.locator("summary").press("Enter");
+  }
+
   // PlaceDetail opens inside Viaje; browser back returns to Días without losing state/scroll/drawer.
-  await root.evaluate((element) => { element.scrollTop = 240; });
-  const scrollBefore = await root.evaluate((element) => element.scrollTop);
+  await scrollRoot.evaluate((element) => { element.scrollTop = 240; });
   const stopOpen = root.locator(".trip-stop__open").first();
   await keyboardActivate(stopOpen);
   await page.locator(".app__detail").waitFor();
+  const scrollBeforeBack = await scrollRoot.evaluate((element) => element.scrollTop);
   await page.goBack();
   await page.locator(".app__detail").waitFor({ state: "hidden" });
   if (await page.getByRole("button", { name: "Días" }).getAttribute("aria-pressed") !== "true") fail("C: browser back changed Viaje section");
-  const scrollAfter = await root.evaluate((element) => element.scrollTop);
+  const scrollAfter = await scrollRoot.evaluate((element) => element.scrollTop);
   const scrollTolerance = 24;
-  if (Math.abs(scrollAfter - scrollBefore) > scrollTolerance) fail(`C: browser back changed scroll by ${Math.abs(scrollAfter - scrollBefore)}px`);
+  if (Math.abs(scrollAfter - scrollBeforeBack) > scrollTolerance) fail(`C: browser back changed scroll by ${Math.abs(scrollAfter - scrollBeforeBack)}px`);
   if (await drawer.getAttribute("open") === null) fail("C/G: browser back lost drawer state");
   const afterBack = await draft(page);
   if (afterBack.days.map((day) => day.id).join() !== restored.days.map((day) => day.id).join()) fail("B/C: browser back reinitialized days");
 
   const beforeReload = await draft(page);
   await page.reload();
-  await page.getByRole("heading", { name: "Viaje", exact: true }).waitFor();
+  await showDays(page);
   const afterReload = await draft(page);
   if (JSON.stringify(afterReload) !== JSON.stringify(beforeReload)) fail("E/G: draft changed across reload");
   if (afterReload.days.map((day) => day.id).join() !== beforeReload.days.map((day) => day.id).join()) fail("B/E: day IDs changed across reload");
@@ -236,7 +292,7 @@ try {
     const active = await openDays(p);
     if (await active.evaluate((element) => element.scrollWidth > element.clientWidth + 1)) fail(`${width}x${height}: horizontal overflow`);
     if (await active.locator(".trip-stop img, .trip-stop .photo-placeholder").count() !== ids.length) fail(`${width}x${height}: incomplete thumbnails`);
-    const undersized = await active.locator("button:visible, select:visible, input:visible, summary:visible").evaluateAll((elements) => elements.filter((element) => { const box = element.getBoundingClientRect(); return box.width < 44 || box.height < 44; }).map((element) => `${element.tagName}:${element.textContent?.trim()}`));
+    const undersized = await active.locator("button:visible, select:visible, input:visible, summary:visible").evaluateAll((elements) => elements.filter((element) => { const box = element.getBoundingClientRect(); return box.width < 44 || box.height < 44; }).map((element) => { const box = element.getBoundingClientRect(); return `${element.tagName}:${element.getAttribute("aria-label") || element.textContent?.trim()}:${Math.round(box.width)}x${Math.round(box.height)}`; }));
     if (undersized.length) fail(`${width}x${height}: targets under 44px: ${undersized.slice(0, 3).join(", ")}`);
     if (shots) await p.screenshot({ path: `${shots}/viaje-${width}x${height}.png`, fullPage: true });
     await responsive.close();

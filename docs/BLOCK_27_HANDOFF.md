@@ -2,15 +2,42 @@
 
 ## Estado de cierre
 
-**Regresión de dominio corregida; certificación Chromium bloqueada en este contenedor.** B9.1 sólo se
-puede declarar **cerrado** cuando coincidan las dos condiciones: suite completa 100 % verde y ejecución
-real verde de `app/scripts/b27-viaje-dias-check.mjs`. La primera está cumplida (106 ficheros,
-3406/3406, incluidos 11 casos puros nuevos de la mutación); la segunda no se falsea ni se sustituye por un análisis estático.
+**B9.1 certificado en Windows** sobre la única rama autorizada, `codex/cerrar-b27/b9.1-en-pr-#161`, PR #162.
+La rama se rebasó sobre `origin/main` `eab63a8af34c8e0474340eba4687766be979933b`, que ya contiene B26/PR #159.
+El rebase tuvo cruces en `app/src/App.css` y `docs/CURRENT_WORK_HANDOFF.md`; se conservaron juntos los estilos de
+Nosotros/onboarding de B26 y la presentación de Días de B27, y se mantuvieron el handoff canónico de B26 y la sección
+B27. No se eligió `ours`/`theirs` automáticamente.
 
-Evidencia del bloqueo: no existe ejecutable en `/opt/pw-browsers/chromium` ni en las rutas habituales;
-`npx playwright install chromium` recibió HTTP 403 del proxy en cinco intentos y `apt-get install -y
-chromium` terminó `Unable to locate package chromium` tras los repositorios devolver HTTP 403. Por ello
-no hay capturas ni auditoría visual manual certificable en este entorno.
+## Certificación final
+
+- `git diff --check`: limpio.
+- `npm run build`: PASS. Vite advierte que el bundle principal minificado supera 500 kB; build termina correctamente.
+- `npm run lint`: 0 errores; 1 warning heredado en `src/components/PlaceMap.tsx:17:14` (`react/only-export-components`).
+- Vitest: **107 archivos, 3426/3426 PASS**, incluidas las 11 pruebas puras nuevas de la mutación V8.
+- B26 Nosotros: 314/314; B25 Quiero ir: 123/123; B5 viajeros: 231/231; B6 divergencia: 177/177.
+- B18: browser-back 15/15, Viaje-lugar 38/38, cromo 6/6 y accesibilidad 25/25.
+- B23 photo retry: 28/28; Phase 5A: 50/50 escritorio + 50/50 móvil; integración B24+B23: 58/58.
+- DD-028: 16/16; DDR03 persistencia: 43/43; DDR-B24-3 colecciones de portada: 9/9.
+- Gate B27: **PASS A–K, 8 viewports**, incluido browser back, asignación/poda V8, persistencia, teclado, drawer y consola.
+
+Chromium real de esta PC: Microsoft Edge `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+(motor Chromium 153.0.4234.48). Playwright Chromium empaquetado no pudo arrancar por configuración Side-by-Side de Windows;
+el ejecutable Edge local se usó para los gates de navegador.
+
+Capturas finales en `C:\Users\Fer\AppData\Local\Temp\nihon-b27-shots-20260929-final` (320×568, 375×667,
+390×844, 430×932, 820×1180, 1024×768, 1280×800 y 1440×900), más capturas de «Mover a…», Sin asignar arriba/abajo,
+InterHub activo y «Probar otro orden». Se inspeccionaron visualmente 320×568, 390×844, 430×932, 820×1180 y 1440×900:
+sin desbordamiento horizontal ni solapamientos; rail, tarjetas, miniaturas, transferencias, acciones, fechas y TabBar
+legibles; el panel de escritorio conserva un ancho cómodo. Los inputs de fecha y alojamiento recibieron altura mínima de
+44 px para cumplir el objetivo táctil. Los gates verifican el resto de controles y el contenido final del drawer.
+
+Teclado real: se recorrieron controles con Tab/Shift+Tab, foco visible, Enter/Space y select de «Mover a…»; PlaceDetail
+se abrió y se volvió a la superficie. `page.goBack()` de Playwright pasó en B18/B25/B27. En la sesión visual local,
+`Alt+Left` no fue emitido por el navegador integrado; su equivalente de historial `tab.back()` sí volvió a Viaje y el
+gate Playwright confirmó la semántica de browser back.
+
+La deuda de gates históricos `b18-regression-check`, `b24-real-input-audit`, `block1`, `block13` y `block14` sigue
+documentada en `docs/BLOCK_26_HANDOFF.md`; no se usó para debilitar ningún gate de esta certificación.
 
 ## Implementación
 
@@ -38,8 +65,8 @@ no hay capturas ni auditoría visual manual certificable en este entorno.
 - **Gate B27:** ampliado a comportamiento A–K, fechas reales, añadir/eliminar/mover días, teclado,
   movimientos inter/intradía, ciclo bidireccional Sin asignar con poda verificada, persistencia/reload,
   wishlist inmutable, back con `aria-pressed="true"`, tolerancia real de scroll y estado del drawer,
-  storage keys, InterHub activo/inactivo, targets, overflow, consola y ocho viewports. La búsqueda de
-  navegador sólo admite ficheros ejecutables e incluye todas las rutas `/opt/pw-browsers` conocidas.
+  storage keys, InterHub activo/inactivo, targets, overflow, consola y ocho viewports. La búsqueda acepta
+  `.exe` en Windows y respeta `NIHON_CHROMIUM_PATH`.
 
 ## Suite y alineación de los 17 fallos iniciales
 

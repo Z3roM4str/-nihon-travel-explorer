@@ -160,7 +160,7 @@ async function auditGalleryRetry(browser, baseUrl, viewport) {
 
 const server = await preview({ root: appRoot, preview: { port: PORT, strictPort: true } });
 const baseUrl = `http://localhost:${PORT}/`;
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.NIHON_CHROMIUM_PATH ? { executablePath: process.env.NIHON_CHROMIUM_PATH } : {});
 try {
   for (const viewport of VIEWPORTS) {
     await auditCardRetry(browser, baseUrl, viewport);
