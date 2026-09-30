@@ -6,7 +6,24 @@
 - Base canónica exigida: `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
 - PR único: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), abierto de esta rama a `main`; no merge ni despliegue.
 - Commit de implementación publicado: `64d4a73129b6f617941075669b289bf55b9f39ff`; `main` seguía en la base exacta `797c9980d6c9baf2deeb3bd635cd7d159e4743bf` al abrir el PR.
+- La certificación de comportamiento y gates de esta revisión corresponde al HEAD `485caf3f82b8ab9f766ae2cc7c5f388de1728173`, commit de pruebas que sólo amplía el gate B29. El cierre documental de este handoff va después y no cambia ese contenido ejecutable.
 - La rama se mantiene separada de `main`. B9.4, B9.5, B30 y B10 no se iniciaron.
+
+## Revisión cruzada de #166 y #167
+
+Revisé el diff, los gates, la UX, el estado, la persistencia, accesibilidad, documentación y alcance de ambas propuestas. #167 sigue siendo la única línea canónica. En el momento de la auditoría, #166 estaba abierto como Draft (`claude/b29-viaje-b9-3-herramientas-dia` @ `033768c4f03c429cf5d94c2afc1248802a060303`), sobre la rama/base experimental B28 `claude/b28-viaje-b9-2-reordenar` @ `dd5fee06e3c0b4bdaa7c03512466b0f967e02eb2`; no se fusionó ni se usó como base.
+
+| Área | Clasificación de #166 frente a #167 |
+|---|---|
+| Commit y stale protection | Inferior e incompatible con el contrato atómico: #166 calcula movimientos desde el estado que recibe al aplicar y recorre `movePlaceToPosition`; no valida una instantánea exacta al commit. #167 conserva un baseline inmutable, valida de nuevo el `dayId` y el orden exacto y falla cerrado mediante una mutación de dominio única. |
+| Edición | Inferior frente al contrato: #166 llama a la propuesta «Otro orden» y usa controles ↑/↓. #167 presenta «Propuesta» y un selector «Mover a…» con posición, accesible por teclado. |
+| Evidencia y comparación | Equivalente en ofrecer alternativas dentro del día y pedir confirmación explícita, pero #167 usa la comparación local actual/propuesta, etiqueta exacta, aviso común una vez y una acción «Probar esta opción» que sólo carga el estado efímero. |
+| Foco/modalidad y responsive | El diálogo modal con focus trap de #166 es un patrón accesible válido. El panel inline de #167 mantiene el patrón de Viaje, el orden DOM y retorno al disparador estable. No encontré una ventaja objetiva de #166 aquí; ambos difieren de patrón. |
+| B28/reduced motion/touch | No encontré mejora de producto en #166. #167 sigue superando B28 mouse/touch, B27, foco, Escape, live region y reduced motion. |
+| Pruebas | #166 aportaba flujos por familia que probaban cargar una opción y confirmar después. Incorporé esa cobertura como cinco fixtures reales en el gate B29, cada uno con cero escrituras al cargar y una al confirmar. Añadí también interacción sólo con teclado, aplicación tras mover ordinalmente un día estable y stale con el mismo set. No copié sus aserciones visuales antiguas sobre «ventaja» ni su superficie global: no corresponden al contrato local de B9.3. |
+| Helpers/documentación | No llevé `planDayOrderMoves`, el controlador de #166 ni su handoff/base a la rama Codex. Mantener helpers históricos útiles y diferir cleanup global concuerda con B10 y el alcance canónico. |
+
+No se modificó código de producto por la comparación. La única diferencia incorporada es cobertura de aceptación en el gate B29. Las auditorías heredadas Phase 3E E/G/I/K todavía consultan la antigua superficie global; el intento de E se detuvo antes de sus aserciones B29 porque `getByRole(button, {name: /Quiero ir/})` es ambiguo y coincide con 157 botones. Sus aserciones también esperan opciones en primer nivel. No cuentan como PASS ni fallo de producto; las cinco familias sí quedan verificadas en el gate B29, y sus contratos algorítmicos están dentro de Vitest.
 
 ## Arquitectura
 
@@ -38,24 +55,26 @@ La vista global histórica «Orden A / Orden B» permanece como código del buil
 
 Auditoría Chromium en 320×568, 375×667, 390×844, 430×932, 820×1180, 1024×768, 1280×800 y 1440×900. La lista se apila en móvil y usa dos columnas en anchos amplios; no se observó overflow horizontal ni CTA cubierto por TabBar. Botones y selectores cumplen el tamaño táctil mínimo del gate (44 px). En 320 px el texto del CTA deshabilitado puede ocupar dos líneas, manteniéndose visible y legible.
 
-Capturas completas y de panel guardadas fuera del repositorio, en `/tmp/nihon-b29-shots/`:
+Capturas completas y de panel de la auditoría final guardadas fuera del repositorio, en `/tmp/nihon-b29-review-shots/`:
 
 - `b29-{320x568,375x667,390x844,430x932,820x1180,1024x768,1280x800,1440x900}.png`
 - capturas de cabecera/acciones: `b29-{320x568,390x844,1440x900}-tool-{top,actions}.png`
 
-## Verificación
+## Verificación final de esta auditoría
 
 - `git diff --check`: PASS.
 - `npm run build`: PASS. Vite informa que el bundle principal supera 500 kB minificado; build correcto.
 - `npm run lint`: 0 errores; un warning heredado en `src/components/PlaceMap.tsx:17` (`react(only-export-components)`).
 - `npm test -- --run`: **112 archivos, 3457/3457 PASS**. Incluye `sequence-comparison`, `ordered-sequence`, cinco familias `evidence-complete-*`, planning draft V8, stable day identity y whole-trip composition.
-- `app/scripts/b29-day-order-tools-check.mjs`: **101/101 PASS**, Chromium disponible en `/usr/bin/chromium`; incluye storage writes, apply/reload, Cancel/Escape/foco, stale, contenido accesible y ocho viewports. También ejecuta B28.
+- `app/scripts/b29-day-order-tools-check.mjs`: **163/163 PASS**, Chromium `/usr/bin/chromium`; ocho viewports. Incluye edición sólo con teclado, stable day identity tras mover el día, stale con mismo set y cada una de las cinco familias evidence-complete. Al cargar opciones: 0 escrituras; al confirmar: 1. También ejecuta B28.
 - B28 drag: **64/64 PASS**, mouse y touch.
 - B27 Viaje Días: **A–K PASS**, ocho viewports (el gate ahora abre la herramienta y comprueba foco, baseline, no escritura y Escape).
 - B26 Nosotros: **314/314 PASS**.
 - B25 Quiero ir: **123/123 PASS**. El runner necesitó un wrapper de Chromium con `--ignore-certificate-errors` por certificados TLS de recursos externos en este entorno; el código de producto no se modificó por ello.
 - B18 browser-back: **15/15 PASS** contra preview local en puerto 4181.
-- Las capturas anteriores se revisaron visualmente después de la última corrida del gate.
+- Capturas de 320×568 y 1440×900 revisadas visualmente tras la ampliación; CTA visible sobre TabBar en móvil, sin overflow horizontal, contexto de día legible y opciones agrupadas plegables.
+- `git diff --check`: PASS; el diff de esta certificación toca el gate B29 y los handoffs, sin código de producto, schema, dataset, storage key, algoritmos o cálculos de transporte.
+- PR #167 continuó OPEN, no Draft y mergeable, contra `main` en la base exacta. #166 continúa separado y Draft. No se hizo merge ni despliegue.
 
 ## Archivos de B29
 

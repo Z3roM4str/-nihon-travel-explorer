@@ -5,8 +5,9 @@
 - Rama obligatoria: `codex/block-29-b9-3-day-tools`, basada exactamente en `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
 - B29 implementa la herramienta efímera por día: baseline persistido, propuesta editable por teclado, comparación local mediante `compareSequences`, alternativas evidence-complete como opciones, y aplicación explícita atómica con protección stale.
 - PR único abierto: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), hacia `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
-- Commit de implementación: `64d4a73129b6f617941075669b289bf55b9f39ff`. HEAD publicado y certificado inmediatamente antes de esta corrección documental: `1095be4dc00c618c6d9d7b591e6c2870b2776c52` (incluye el cierre documental previo; no es el SHA que tendrá la rama después de este commit).
-- En ese estado previo a la corrección, el PR estaba 2 commits ahead / 0 behind. Este cambio es un commit documental posterior; para el HEAD vigente tras él, consultar la rama y el PR. Estado, gates, capturas y diferidos: `docs/BLOCK_29_HANDOFF.md`.
+- Commit de implementación: `64d4a73129b6f617941075669b289bf55b9f39ff`. Commits documentales previos: `1095be4dc00c618c6d9d7b591e6c2870b2776c52` y `59372abc0a9837052380b17c435e4bf60d7c3751`. HEAD del PR al iniciar la revisión cruzada: `59372abc0a9837052380b17c435e4bf60d7c3751`.
+- HEAD certificado de comportamiento y gates: `485caf3f82b8ab9f766ae2cc7c5f388de1728173` (commit de pruebas que amplía el gate B29). Este handoff incorpora después el resultado de la auditoría en un commit documental; ese commit final no se autorefencia aquí. Estado remoto final y gates: `docs/BLOCK_29_HANDOFF.md` y PR #167.
+- La revisión cruzada confirmó #167 como línea canónica. No se integró código de producto de #166; se ampliaron los gates para cubrir todas las familias, teclado, identidad estable y estado stale. Vitest 3457/3457, B29 163/163, B28 64/64, B27 A–K, B26 314/314, B25 123/123 y B18 15/15 PASS. Detalle de resultados y diferencias: `docs/BLOCK_29_HANDOFF.md`.
 - No merge ni despliegue. B9.4/B9.5, B30 y B10 no iniciados. Astra y Vercel fuera de alcance.
 
 ## HISTÓRICO — B28 / B9.2 antes de integración
