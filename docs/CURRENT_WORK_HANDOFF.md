@@ -8,7 +8,7 @@
 - Sólo presentación: sin numerales de posición, espacio fotográfico por zona (`PhotoPlaceholder` con `icon`/`brief`),
   registros ◼ ◇ ✎, una única línea de encuadre, acción «Dormir aquí» / «Zona elegida» + «Quitar». Cero cambios en
   `lib/`, hooks, `App.tsx`, V8 o clave. Detalle, resultados y deuda: `docs/BLOCK_30_HANDOFF.md`.
-- Gate nuevo: `app/scripts/b30-donde-dormir-check.mjs` (48 comprobaciones). WebKit no medido. No se empieza B9.5.
+- Gate nuevo: `app/scripts/b30-donde-dormir-check.mjs` (48 comprobaciones). WebKit 26.5 = 48/48 y reduced-motion = 48/48: **B30 CLAUDE: CERTIFICADO**. Safari físico en iPhone no medido. No se empieza B9.5.
 
 ## B29 / B9.3 «Herramientas del día» — rama `claude/b29-viaje-b9-3-herramientas-dia` (PR en borrador, base B28 Claude)
 

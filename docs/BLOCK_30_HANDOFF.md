@@ -33,10 +33,15 @@
 - B30 Chromium 48/48; B27 48/48; B28 43/43; B29 36/36 (el “40” de la misión y del handoff de B29 no
   coincide con lo medido, idéntico en la base: 36/36).
 
+## Certificación WebKit / reduced-motion
+
+- WebKit 26.5: `B30 (webkit)` 48 OK, 0 FAIL. Sin fallos exclusivos de B30 (no hizo falta comparar contra la base).
+- `prefers-reduced-motion` (media query confirmada activa): 48/48.
+- **B30 CLAUDE: CERTIFICADO** (Chromium + WebKit 26.5 + reduced-motion). Safari físico en iPhone: no medido.
+
 ## Deuda / heredado (NO arreglado, reproducido en `52fbc6b`)
 
 - `block3-zones-browser-audit`, `block4-zone-planner-browser-audit`, `block7-zone-provenance-browser-audit`:
   fallan idénticos en la base (navegan con selectores previos a B18/B19: `hub-bar__zones`, botón de ciudad).
-- **WebKit no medido**: el binario `webkit-2336` no está instalado en el entorno y no se puede instalar aquí.
-  iPhone Safari real: NO medido.
+- iPhone Safari físico: NO medido (límite declarado, no bloqueo).
 - Retirada de `Dato:` y mover «Alojamientos y traslados entre ciudades»: B9.5.
