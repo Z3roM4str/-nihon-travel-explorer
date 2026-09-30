@@ -361,24 +361,31 @@ const M = { width: 390, height: 844 };
     await page.locator(".sheet").waitFor({ state: "detached" });
     eq(await page.evaluate(() => document.activeElement?.id), `stop-actions-${K[0]}`, "foco devuelto");
   });
-  await ck("M05", "Quitar del recorrido: confirma, va a Sin asignar, foco lógico", async () => {
+  await ck("M05", "Quitar del recorrido: va a Sin asignar, foco lógico (B28: sin rehacer el reparto)", async () => {
     await openActions(page, K[1]);
     await page.getByRole("button", { name: /Quitar del recorrido/ }).click();
-    ok(/rehace el reparto por días/.test(await page.locator(".sheet").innerText()), "aviso del reparto");
+    // B28 (B9.2): «Quitar» ya no rehace el reparto (withPlaceRemovedFromDay); el aviso B27 ya no aplica.
+    ok(/se quedan como están/.test(await page.locator(".sheet").innerText()), "aviso: los demás días no cambian");
+    ok(!/rehace el reparto/.test(await page.locator(".sheet").innerText()), "ya no se rehace el reparto");
     await page.locator(".sheet").getByRole("button", { name: "Quitar del recorrido" }).click();
     await page.waitForFunction(() => document.querySelector("button.unassigned__handle")?.textContent?.includes("5 sitios sin día"));
     const d = await stored(page);
     ok(!d.routeIds.includes(K[1]), "fuera de la ruta");
+    eq(d.days.map((x) => x.id), ["d1", "d2", "d3"], "B28: los ids de día siguen (sin rehacer el reparto)");
     eq(d.version, 8, "V8");
     eq(await page.evaluate(() => document.activeElement?.id), "unassigned-title", "foco en Sin asignar");
   });
-  await ck("U02", "añadir desde Sin asignar: sin confirmar si el reparto es trivial; foco en la parada", async () => {
-    // tras quitar, el reparto es un solo día sin alojamiento → añadir no descarta nada
+  await ck("U02", "«Añadir al día…» desde Sin asignar: hoja día+posición, sin confirmar, foco en la parada (B28)", async () => {
+    // B28 (B9.2): «Añadir al recorrido» (que rehacía el reparto) pasa a «Añadir al día…».
     await page.locator("button.unassigned__handle").click();
-    await page.getByRole("button", { name: `Añadir ${nameOf(K[1])} al recorrido` }).click();
-    await page.waitForFunction((id) => !!document.getElementById(`stop-actions-${id}`), K[1]);
+    await page.getByRole("button", { name: `Añadir ${nameOf(K[1])} al día…` }).click();
+    await page.locator(".sheet").waitFor();
+    await page.locator(".sheet").getByRole("button", { name: "Añadir aquí" }).click();
+    await page.waitForFunction((id) => !!document.getElementById(`stop-handle-${id}`), K[1]);
     ok(!(await page.locator(".unassigned__confirm").count()), "sin confirmación");
-    ok((await stored(page)).routeIds.includes(K[1]), "de vuelta en la ruta");
+    const d = await stored(page);
+    ok(d.routeIds.includes(K[1]), "de vuelta en la ruta");
+    eq(d.days.map((x) => x.id), ["d1", "d2", "d3"], "ids de día intactos");
   });
   await context.close();
 }
@@ -410,18 +417,18 @@ const M = { width: 390, height: 844 };
 {
   const { context, page } = await boot(M, { saved: richSaved(), plan: rich() });
   await openViaje(page);
-  await ck("U03", "añadir desde Sin asignar con varios días pide confirmación y rehace el reparto", async () => {
+  await ck("U03", "añadir desde Sin asignar con varios días NO rehace el reparto (B28 resuelve la deuda de B27)", async () => {
+    // B27 exigía confirmar y rehacer el reparto en un solo día; B28 mete el lugar en un día y posición.
     await page.locator("button.unassigned__handle").click();
-    await page.getByRole("button", { name: `Añadir ${nameOf(O[0])} al recorrido` }).click();
-    ok(/rehace el reparto por días/.test(await page.locator(".unassigned__confirm").innerText()), "aviso");
-    await page.getByRole("button", { name: "Cancelar" }).click();
-    eq((await stored(page)).days.length, 3, "cancelar no cambia nada");
-    await page.getByRole("button", { name: `Añadir ${nameOf(O[0])} al recorrido` }).click();
-    await page.getByRole("button", { name: "Añadir y rehacer el reparto" }).click();
-    await page.waitForFunction(() => document.querySelectorAll(".day-timeline").length === 1);
+    await page.getByRole("button", { name: `Añadir ${nameOf(O[0])} al día…` }).click();
+    await page.locator(".sheet").getByRole("button", { name: "Añadir aquí" }).click();
+    await page.waitForFunction((id) => !!document.getElementById(`stop-handle-${id}`), O[0]);
     const d = await stored(page);
     eq(d.version, 8, "V8");
+    eq(d.days.length, 3, "sigue habiendo 3 días");
+    eq(d.days.map((x) => x.id), ["d1", "d2", "d3"], "ids intactos");
     ok(d.routeIds.includes(O[0]), "en la ruta");
+    eq(d.days[0].accommodationBoundary.end, { kind: "accommodation", accommodationId: ACC.id }, "alojamiento del día 1 intacto");
   });
   await context.close();
 }

@@ -312,11 +312,12 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("addresses every day mutation by the day's stable id, not by its ordinal index", async () => {
     const source = await readSource();
-    // B27 (B9.1): the per-row ↑ ↓ ← → controls became «Mover a…»; it addresses both days by their
-    // stable ids and never by ordinal position.
-    expect(source).toMatch(/relocatePlaceWithinDay\(fromDay\.id, actionsFor\.placeIndex, toPositionIndex\)/);
-    expect(source).toMatch(/movePlaceBetweenDays\(fromDay\.id, toDay\.id, actionsFor\.placeIndex\)/);
-    expect(source).toMatch(/relocatePlaceWithinDay\(toDay\.id, appendedIndex, toPositionIndex\)/);
+    // B27 (B9.1): the per-row ↑ ↓ ← → controls became «Mover a…»; B28 (B9.2) routes «Mover a…», the
+    // pointer/touch handle and the keyboard mode through ONE commit that addresses both days by their
+    // stable ids (never by ordinal position) — a single pure mutation, no intermediate order.
+    expect(source).toMatch(/movePlaceToPosition\(fromDay\.id, toDay\.id, origin\.index, target\.index\)/);
+    expect(source).toMatch(/addPlaceToDay\(toDay\.id, placeId, target\.index\)/);
+    expect(source).toMatch(/removePlaceFromDay\(placeId\)/);
     expect(source).toMatch(/removeEmptyDay\(dayId\)/);
     expect(source).toMatch(/deleteDay\(dayEntity\.id, dayIndex\)/);
     expect(source).toMatch(/setDayAccommodationChoice\(dayEntity\.id, side, choice\)/);

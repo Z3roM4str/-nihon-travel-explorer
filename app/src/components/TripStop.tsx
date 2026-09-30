@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import type { Place } from "../types";
 import { resolvePlaceImages } from "../data/place-images";
 import { thumbImageUrl, THUMB_IMAGE_WIDTH } from "../data/place-thumbnails";
@@ -19,6 +19,18 @@ type Props = {
   onOpenActions: (placeId: string) => void;
   /** The connector to the NEXT stop, rendered inside the same list item so the rail stays one unit. */
   connector?: ReactNode;
+  /** B28 (B9.2): the reorder handle's listeners (pointer/touch + keyboard), from `useStopReorder`. */
+  handleProps?: {
+    onPointerDown: (event: PointerEvent<HTMLElement>) => void;
+    onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+    onBlur: () => void;
+  };
+  /** This stop is the one being carried (dims it, its ghost follows the pointer). */
+  dragging?: boolean;
+  /** Keyboard-grabbed: the handle reads as pressed. */
+  grabbed?: boolean;
+  /** Where the insertion bar is drawn while another stop is carried over this day. */
+  dropIndicator?: "before" | "after" | null;
 };
 
 /**
@@ -33,7 +45,18 @@ type Props = {
  * (`thumbImageUrl`), lazy-loaded; a place with no photograph, or whose photograph fails, shows the
  * same category-icon fallback `PlaceCard compact` uses — a missing photo never reads as an error.
  */
-export function TripStop({ place, position, total, onOpenPlace, onOpenActions, connector }: Props) {
+export function TripStop({
+  place,
+  position,
+  total,
+  onOpenPlace,
+  onOpenActions,
+  connector,
+  handleProps,
+  dragging,
+  grabbed,
+  dropIndicator,
+}: Props) {
   const [imageFailed, setImageFailed] = useState(false);
   const image = resolvePlaceImages(place.id, place.images)[0];
   const src = image ? thumbImageUrl(image.url) ?? image.url : undefined;
@@ -41,7 +64,12 @@ export function TripStop({ place, position, total, onOpenPlace, onOpenActions, c
   const durationText = range ? formatRange(range) : place.duration.raw;
 
   return (
-    <li className="trip-stop" data-place-id={place.id}>
+    <li
+      className={`trip-stop ${dragging ? "trip-stop--dragging" : ""} ${
+        dropIndicator ? `trip-stop--drop-${dropIndicator}` : ""
+      }`}
+      data-place-id={place.id}
+    >
       <div className="trip-stop__card">
         <span className="trip-stop__node" aria-hidden="true" />
         <button
@@ -82,6 +110,21 @@ export function TripStop({ place, position, total, onOpenPlace, onOpenActions, c
             </span>
           </span>
         </button>
+        <div className="trip-stop__tools">
+        {handleProps && (
+          <button
+            type="button"
+            id={`stop-handle-${place.id}`}
+            className="trip-stop__handle icon-button"
+            aria-label={`Reordenar ${place.name}, parada ${position} de ${total}`}
+            aria-describedby="reorder-instructions"
+            aria-pressed={grabbed ? true : undefined}
+            title="Arrastrar para reordenar"
+            {...handleProps}
+          >
+            <Icon name="arrastrar" size={24} />
+          </button>
+        )}
         <button
           type="button"
           id={`stop-actions-${place.id}`}
@@ -93,6 +136,7 @@ export function TripStop({ place, position, total, onOpenPlace, onOpenActions, c
         >
           <Icon name="opciones" size={20} />
         </button>
+        </div>
       </div>
       {connector}
     </li>

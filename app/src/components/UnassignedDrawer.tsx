@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { Place } from "../types";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { unassignedCountText } from "../lib/day-timeline-presentation";
@@ -8,13 +8,22 @@ type Props = {
   /** Saved places that are not in any day — `savedPlaces` minus the route, in saved order. */
   places: readonly Place[];
   onOpenPlace: (placeId: string) => void;
-  /**
-   * Adds one place to the route. In this planner a route-composition change discards the day split
-   * (V8 keeps `days` a partition of `routeIds`), so when `confirmBeforeAdd` is true the drawer asks
-   * first and says exactly what will happen.
-   */
-  onAddToRoute: (placeId: string) => void;
-  confirmBeforeAdd: boolean;
+  /** «Añadir al día…»: opens the day/position sheet; it never rebuilds the rest of the trip (B9.2). */
+  onAddToDay: (placeId: string) => void;
+  /** B28: reorder handle listeners for one place (pointer/touch + keyboard). */
+  handleProps?: (
+    placeId: string,
+    name: string
+  ) => {
+    onPointerDown: (event: PointerEvent<HTMLElement>) => void;
+    onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+    onBlur: () => void;
+  };
+  /** B28: a placed stop is being carried and would drop here («Quitar del día»). */
+  isDropTarget?: boolean;
+  /** B28: the unassigned place being carried, dimmed in the list. */
+  draggingId?: string | null;
+  grabbedId?: string | null;
 };
 
 const LG_QUERY = "(min-width: 1200px)";
@@ -44,10 +53,17 @@ function useIsLarge(): boolean {
  * content is a permanent column and the handle is a plain heading. No drag: every action is a
  * button (`Abrir` / `Añadir al recorrido`), and nothing here announces drag semantics (B9.2).
  */
-export function UnassignedDrawer({ places, onOpenPlace, onAddToRoute, confirmBeforeAdd }: Props) {
+export function UnassignedDrawer({
+  places,
+  onOpenPlace,
+  onAddToDay,
+  handleProps,
+  isDropTarget,
+  draggingId,
+  grabbedId,
+}: Props) {
   const large = useIsLarge();
   const [userOpen, setUserOpen] = useState(false);
-  const [confirmId, setConfirmId] = useState<string | null>(null);
   const asideRef = useRef<HTMLElement>(null);
   const open = large || userOpen;
 
@@ -57,18 +73,10 @@ export function UnassignedDrawer({ places, onOpenPlace, onAddToRoute, confirmBef
   }, [userOpen]);
   const title = unassignedCountText(places.length);
 
-  // A place that stops being unassigned (it was just added) can no longer be «pending confirmation».
-  const pending = confirmId && places.some((place) => place.id === confirmId) ? confirmId : null;
-
-  function requestAdd(placeId: string) {
-    if (confirmBeforeAdd) setConfirmId(placeId);
-    else onAddToRoute(placeId);
-  }
-
   return (
-    <aside ref={asideRef} className={`unassigned ${open ? "unassigned--open" : ""}`} aria-label="Sin asignar" data-unassigned>
+    <aside ref={asideRef} className={`unassigned ${open ? "unassigned--open" : ""} ${isDropTarget ? "unassigned--drop-target" : ""}`} aria-label="Sin asignar" data-unassigned>
       {large ? (
-        <h3 className="unassigned__handle unassigned__handle--static" id="unassigned-title">
+        <h3 className="unassigned__handle unassigned__handle--static" id="unassigned-title" tabIndex={-1}>
           {title}
         </h3>
       ) : (
@@ -94,14 +102,31 @@ export function UnassignedDrawer({ places, onOpenPlace, onAddToRoute, confirmBef
         ) : (
           <>
             <p className="unassigned__note">
-              Siguen en <strong>Quiero ir</strong>. Ábrelos para verlos o añádelos al recorrido.
+              Siguen en <strong>Quiero ir</strong>. Ábrelos para verlos, arrástralos a un día o usa «Añadir al día…».
             </p>
             <ul className="unassigned__list">
               {places.map((place) => {
                 const range = resolveDuration(place.duration);
-                const isPending = pending === place.id;
+                const handle = handleProps?.(place.id, place.name);
                 return (
-                  <li key={place.id} className="unassigned__item">
+                  <li
+                    key={place.id}
+                    className={`unassigned__item ${draggingId === place.id ? "unassigned__item--dragging" : ""}`}
+                  >
+                    {handle && (
+                      <button
+                        type="button"
+                        id={`unassigned-handle-${place.id}`}
+                        className="unassigned__handle-grip icon-button"
+                        aria-label={`Arrastrar ${place.name} a un día`}
+                        aria-describedby="reorder-instructions"
+                        aria-pressed={grabbedId === place.id ? true : undefined}
+                        title="Arrastrar a un día"
+                        {...handle}
+                      >
+                        <Icon name="arrastrar" size={20} />
+                      </button>
+                    )}
                     <button
                       type="button"
                       className="unassigned__open"
@@ -114,37 +139,15 @@ export function UnassignedDrawer({ places, onOpenPlace, onAddToRoute, confirmBef
                     </button>
                     <button
                       type="button"
+                      id={`unassigned-add-${place.id}`}
                       className="unassigned__add"
-                      onClick={() => requestAdd(place.id)}
-                      aria-label={`Añadir ${place.name} al recorrido`}
-                      title="Añadir al recorrido"
-                      aria-expanded={confirmBeforeAdd ? isPending : undefined}
+                      onClick={() => onAddToDay(place.id)}
+                      aria-label={`Añadir ${place.name} al día…`}
+                      aria-haspopup="dialog"
+                      title="Añadir al día…"
                     >
                       <span aria-hidden="true">＋</span>
                     </button>
-                    {isPending && (
-                      <div className="unassigned__confirm" role="group" aria-label={`Confirmar añadir ${place.name}`}>
-                        <p>
-                          Añadir un sitio al recorrido <strong>rehace el reparto por días</strong>: las
-                          paradas volverán a un solo día, con sus alojamientos por día sin elegir.
-                        </p>
-                        <div className="unassigned__confirm-actions">
-                          <button
-                            type="button"
-                            className="button button--primary"
-                            onClick={() => {
-                              setConfirmId(null);
-                              onAddToRoute(place.id);
-                            }}
-                          >
-                            Añadir y rehacer el reparto
-                          </button>
-                          <button type="button" className="button button--secondary" onClick={() => setConfirmId(null)}>
-                            Cancelar
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </li>
                 );
               })}
