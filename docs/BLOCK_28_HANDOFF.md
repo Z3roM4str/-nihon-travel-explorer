@@ -2,7 +2,15 @@
 
 ## Estado
 
-Trabajo en `codex/block-28-b9-2-reorder` desde `47a6f0e1549f273622a112820ace5279455cbd9e`. El PR único apunta a `main`; no se hace merge. SHA y URL se indican en el PR al publicarlo.
+**B28 / B9.2 INTEGRADO en `main`** mediante PR #164 y merge commit
+`2e5d3c32e4e773cea78de68c7c8c6a7b09a351f6`.
+
+- Main previo: `47a6f0e1549f273622a112820ace5279455cbd9e`.
+- HEAD B28 certificado: `d3b8a04831c3beed67f2e397d741f40e22b421e6`.
+- Padres del merge: exactamente esos dos SHAs.
+- Árbol del merge: `663d2e38354ab84116a98a03364834095b473c59`.
+- Árbol del HEAD certificado: `663d2e38354ab84116a98a03364834095b473c59`.
+- Resultado: **árbol idéntico**, por lo que la certificación B28 se transfiere al merge sin cambios de código.
 
 ## Arquitectura
 
@@ -26,4 +34,4 @@ La primera ejecución paralela de B26, Phase 5A e integración agotó timeouts d
 
 ## Diferidos
 
-B9.3 «Probar otro orden» final, B9.4 «Dónde dormir», B9.5 Reservas/Resumen y B29 continúan pendientes. No se modificaron Astra, Vercel, dataset, metadata fotográfica, cálculos de transporte ni algoritmos de alternativas. No se desplegó ni se modificó `main`.
+**Siguiente bloque canónico: B29 / B9.3 — Herramientas del día · «Probar otro orden».** Debe convertir la capacidad existente en una hoja local al día: orden actual + propuesta manipulable + comparación de traslados mediante `sequence-comparison.ts`, y ofrecer las alternativas `evidence-complete-*` como opciones «Comprobado con datos completos», nunca aplicadas solas. B9.4 y B9.5 siguen pendientes. No se modificaron Astra, Vercel, dataset, metadata fotográfica ni cálculos de transporte.
