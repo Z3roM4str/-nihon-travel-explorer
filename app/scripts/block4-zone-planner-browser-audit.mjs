@@ -170,7 +170,7 @@ async function auditViewport(browser, name, url) {
   check("comparison has no horizontal overflow", !overflow.page && !overflow.inner, JSON.stringify(overflow));
 
   // ── 3. Choose one ────────────────────────────────────────────────────────────────────────────
-  const chooseButtons = page.getByRole("button", { name: /^Usar .* en el plan$/ });
+  const chooseButtons = page.getByRole("button", { name: /^Dormir aquí en / });
   check("every zone offers an explicit choose action", (await chooseButtons.count()) >= 4);
   const firstZoneName = (await page.locator(".zone-card h3").first().innerText()).trim();
   await chooseButtons.first().click();
@@ -185,7 +185,7 @@ async function auditViewport(browser, name, url) {
   check("the chosen zone is marked as chosen", (await page.locator(".zone-choice-badge").count()) === 1);
   check(
     "the other zones now offer a change rather than a duplicate choice",
-    (await page.getByRole("button", { name: /^Cambiar la zona del plan a / }).count()) >= 3
+    (await page.getByRole("button", { name: /^Dormir aquí en / }).count()) >= 3
   );
 
   let draft = await readDraft(page);
@@ -365,7 +365,7 @@ async function auditViewport(browser, name, url) {
   );
 
   // ── 12/13. Change the zone, and check the reconciliation ─────────────────────────────────────
-  const changeTo = page.getByRole("button", { name: /^Cambiar la zona del plan a / }).first();
+  const changeTo = page.getByRole("button", { name: /^Dormir aquí en / }).first();
   const changeLabel = await changeTo.getAttribute("aria-label");
   await changeTo.click();
   await page.waitForTimeout(600);

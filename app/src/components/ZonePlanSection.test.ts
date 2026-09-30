@@ -119,8 +119,10 @@ describe("ZonePlanSection.tsx — what a chosen zone is allowed to say about the
 describe("ZoneComparison.tsx — the choice itself", () => {
   it("offers an explicit action whose wording is the reader's decision, not Nihon's verdict", async () => {
     const source = await readSource("ZoneComparison.tsx");
-    expect(source).toContain("Usar esta zona en el plan");
-    expect(source).toContain("Cambiar a esta zona");
+    // 05 §8 (B30, D2): «Dormir aquí» sustituye a «Usar esta zona en el plan» y a «Cambiar a esta zona».
+    expect(source).toContain("Dormir aquí");
+    expect(source).toContain("Zona elegida");
+    expect(source).not.toContain("Usar esta zona en el plan");
     const code = withoutComments(source);
     expect(code).not.toMatch(/mejor zona|te conviene|recomendad|la más recomendable|deberíais elegir/i);
   });
@@ -139,7 +141,7 @@ describe("ZoneComparison.tsx — the choice itself", () => {
 
   it("can always change or remove the choice", async () => {
     const source = await readSource("ZoneComparison.tsx");
-    expect(source).toContain("Quitar del plan");
+    expect(source).toMatch(/aria-label=\{isChosen \? `Quitar \$\{zone\.name\} del plan`/);
     expect(source).toContain("Quitar la zona elegida");
     expect(source).toMatch(/onClick=\{clearZone\}/);
   });
@@ -147,14 +149,14 @@ describe("ZoneComparison.tsx — the choice itself", () => {
   it("gives the two remove controls distinct accessible names", async () => {
     const source = await readSource("ZoneComparison.tsx");
     expect(source).toMatch(/aria-label=\{`Quitar la zona elegida para \$\{hub\}`\}/);
-    expect(source).toMatch(/aria-label=\{`Quitar \$\{zone\.name\} del plan`\}/);
+    expect(source).toMatch(/`Quitar \$\{zone\.name\} del plan`/);
   });
 
   it("names the zone in every accessible label, so the control is unambiguous out of context", async () => {
     const source = await readSource("ZoneComparison.tsx");
-    expect(source).toMatch(/aria-label=\{`Quitar \$\{zone\.name\} del plan`\}/);
-    expect(source).toMatch(/Cambiar la zona del plan a \$\{zone\.name\}/);
-    expect(source).toMatch(/Usar \$\{zone\.name\} en el plan/);
+    expect(source).toMatch(/`Quitar \$\{zone\.name\} del plan`/);
+    expect(source).toMatch(/`Dormir aquí en \$\{zone\.name\}`/);
+    expect(source).toMatch(/`Comparar \$\{zone\.name\}`/);
   });
 
   it("offers the empty state as an invitation, not as a nag", async () => {
