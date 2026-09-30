@@ -2609,7 +2609,7 @@ button.app__title.app__title--expand {
   text-align: center;
   color: var(--ink-500);
   background:
-    repeating-linear-gradient(135deg, var(--pattern-diagonal) 0 10px, rgba(0, 0, 0, 0) 10px 20px),
+    repeating-linear-gradient(135deg, var(--pattern-diagonal) 0 10px, transparent 10px 20px),
     var(--surface-sunken);
 }
 
@@ -2841,7 +2841,7 @@ button.app__title.app__title--expand {
 }
 
 .zone-column__photo {
-  margin: 0.65rem 0;
+  margin: var(--space-3) 0;
 }
 
 .zone-column__head {
