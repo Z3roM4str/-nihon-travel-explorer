@@ -1,5 +1,15 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## B30 / B9.4 «Dónde dormir» — rama `claude/b30-viaje-b9-4-donde-dormir` (PR en borrador, base B29 Claude)
+
+- **Línea Claude.** Nace de `52fbc6bd029e5fa9e34ce4aa1104a1914bfc0c7e` (HEAD de
+  `claude/b29-viaje-b9-3-herramientas-dia`), **no** de `main`. PR en borrador: base
+  `claude/b29-viaje-b9-3-herramientas-dia` ← head `claude/b30-viaje-b9-4-donde-dormir`. Sin merge.
+- Sólo presentación: sin numerales de posición, espacio fotográfico por zona (`PhotoPlaceholder` con `icon`/`brief`),
+  registros ◼ ◇ ✎, una única línea de encuadre, acción «Dormir aquí» / «Zona elegida» + «Quitar». Cero cambios en
+  `lib/`, hooks, `App.tsx`, V8 o clave. Detalle, resultados y deuda: `docs/BLOCK_30_HANDOFF.md`.
+- Gate nuevo: `app/scripts/b30-donde-dormir-check.mjs` (48 comprobaciones). WebKit 26.5 = 48/48 y reduced-motion = 48/48: **B30 CLAUDE: CERTIFICADO**. Safari físico en iPhone no medido. No se empieza B9.5.
+
 ## B29 / B9.3 «Herramientas del día» — rama `claude/b29-viaje-b9-3-herramientas-dia` (PR en borrador, base B28 Claude)
 
 - **Línea Claude.** Nace de `dd5fee06e3c0b4bdaa7c03512466b0f967e02eb2` (HEAD de `claude/b28-viaje-b9-2-reordenar`),

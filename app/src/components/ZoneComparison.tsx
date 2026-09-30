@@ -25,6 +25,8 @@ import {
 import { freshnessFor } from "../lib/source-freshness";
 import { todayCivilDate } from "../lib/today";
 import { Icon } from "../icons/Icon";
+import { EvidenceMark } from "./EvidenceMark";
+import { PhotoPlaceholder } from "./PhotoPlaceholder";
 import {
   NEUTRAL_AXIS_NOTE,
   axisDirectionHint,
@@ -56,7 +58,7 @@ type Props = {
 /**
  * Block 4 — choosing a zone, and what that choice is allowed to mean.
  *
- * Pressing "Usar esta zona en el plan" records ONE thing: that the reader decided to sleep in this
+ * Pressing "Dormir aquí" records ONE thing: that the reader decided to sleep in this
  * zone, for this hub. It seeds an accommodation anchor in the planner from the zone's own station
  * label and coordinate, because those are the exact two fields the anchor contract already needs
  * and the two the reader would otherwise have copied across by hand.
@@ -66,12 +68,22 @@ type Props = {
  * duration, exactly as it did before. The copy below says all of that out loud, because a button
  * that quietly did more than it claimed is precisely the failure this layer exists to avoid.
  *
- * The wording is also carefully NOT a verdict. It is "usar esta zona", never "la mejor zona" and
+ * The wording is also carefully NOT a verdict. It is "dormir aquí", never "la mejor zona" and
  * never "te conviene": the comparison ranks by proximity to the reader's own saved list and says so,
  * and choosing is the reader's act, not Nihon's recommendation.
  */
 
-/** The choose / chosen / change control shown on a zone, in both the list and the comparison. */
+/**
+ * The choose / chosen control shown on a zone, in both the list and the comparison.
+ *
+ * B30 (`05 §8`, D2): a zone that is not the chosen one always reads «Dormir aquí» — including when
+ * another zone is chosen, because pressing it replaces that choice exactly as before. The chosen
+ * zone shows the «Zona elegida» badge and «Quitar».
+ *
+ * There is ONE `<button>` in the same position whichever state it is in, so React keeps the same
+ * DOM node when the choice flips and keyboard focus stays where the reader pressed. The change is
+ * announced by the `role="status"` banner above the list.
+ */
 function ZoneChoiceAction({
   zone,
   chosenZoneId,
@@ -84,40 +96,27 @@ function ZoneChoiceAction({
   onClear: () => void;
 }) {
   const isChosen = chosenZoneId === zone.id;
-  const hasOtherChoice = chosenZoneId !== null && !isChosen;
-
-  if (isChosen) {
-    return (
-      <p className="zone-choice-action zone-choice-action--chosen">
-        <span className="zone-choice-badge">
-          <Icon name="confirmado" size={16} /> Zona elegida para el plan
-        </span>
-        <button
-          type="button"
-          className="button button--secondary zone-choice-action__button"
-          onClick={onClear}
-          aria-label={`Quitar ${zone.name} del plan`}
-        >
-          Quitar del plan
-        </button>
-      </p>
-    );
-  }
 
   return (
-    <p className="zone-choice-action">
+    <p className={`zone-choice-action ${isChosen ? "zone-choice-action--chosen" : ""}`.trim()}>
+      {isChosen && (
+        <span className="zone-choice-badge">
+          <Icon name="confirmado" size={16} /> Zona elegida
+        </span>
+      )}
       <button
         type="button"
         className="button button--secondary zone-choice-action__button"
-        onClick={() => onChoose(zone)}
-        aria-label={
-          hasOtherChoice
-            ? `Cambiar la zona del plan a ${zone.name}`
-            : `Usar ${zone.name} en el plan`
-        }
+        onClick={isChosen ? onClear : () => onChoose(zone)}
+        aria-label={isChosen ? `Quitar ${zone.name} del plan` : `Dormir aquí en ${zone.name}`}
       >
-        <Icon name="cama" size={16} />{" "}
-        {hasOtherChoice ? "Cambiar a esta zona" : "Usar esta zona en el plan"}
+        {isChosen ? (
+          "Quitar"
+        ) : (
+          <>
+            <Icon name="cama" size={16} /> Dormir aquí
+          </>
+        )}
       </button>
     </p>
   );
@@ -295,10 +294,15 @@ function InvalidateOnResize() {
   return null;
 }
 
-const zoneIcon = (index: number, selected: boolean) =>
+/** B30 (D3): neutral pin, no numeral — the zone's own name is its label. */
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+}
+
+const zoneIcon = (name: string, selected: boolean) =>
   L.divIcon({
     className: "zone-marker",
-    html: `<i class="zone-marker__pin ${selected ? "zone-marker__pin--on" : ""}">${index + 1}</i>`,
+    html: `<i class="zone-marker__pin ${selected ? "zone-marker__pin--on" : ""}"></i><span class="zone-marker__label">${escapeHtml(name)}</span>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
   });
@@ -376,37 +380,8 @@ export function ZoneComparison({
     ];
   }, [selectedZones, zones, hubSaved]);
 
-  return (
-    <div
-      className={`zone-panel ${embedded ? "zone-panel--embedded" : ""}`.trim()}
-      role={embedded ? undefined : "dialog"}
-      aria-modal={embedded ? undefined : true}
-      aria-labelledby="zone-panel-title"
-    >
-      <header className="zone-panel__bar">
-        <div>
-          <h2 id="zone-panel-title">
-            <Icon name="cama" size={20} /> Dónde dormir en {hub}
-          </h2>
-          <p className="zone-panel__sub">
-            {mode === "compare"
-              ? `Comparando ${selectedZones.length} zonas`
-              : `${zones.length} zonas con estrategias distintas. Ninguna es "la mejor": cada una cuesta algo.`}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={onClose}
-          ref={closeRef}
-          aria-label="Cerrar dónde dormir"
-          title="Cerrar dónde dormir"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </header>
-
-      <div className="zone-panel__scroll">
+  const banner = (
+    <>
         {/*
           The one place the panel states what the decision did and — just as importantly — what it
           did not do. It is a `status` region so the change is announced the moment it happens
@@ -459,17 +434,47 @@ export function ZoneComparison({
             </p>
           )}
         </div>
+    </>
+  );
+
+  return (
+    <div
+      className={`zone-panel ${embedded ? "zone-panel--embedded" : ""}`.trim()}
+      role={embedded ? undefined : "dialog"}
+      aria-modal={embedded ? undefined : true}
+      aria-labelledby="zone-panel-title"
+    >
+      <header className="zone-panel__bar">
+        <div>
+          <h2 id="zone-panel-title">
+            <Icon name="cama" size={20} /> Dónde dormir en {hub}
+          </h2>
+          {mode === "compare" && (
+            <p className="zone-panel__sub">{`Comparando ${selectedZones.length} zonas`}</p>
+          )}
+        </div>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={onClose}
+          ref={closeRef}
+          aria-label="Cerrar dónde dormir"
+          title="Cerrar dónde dormir"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </header>
+
+      <div className="zone-panel__scroll">
+        {mode === "compare" && banner}
 
         {mode === "browse" ? (
           <>
             {hubSaved.length > 0 ? (
-              <p className="zone-panel__note" role="status">
-                <Icon name="ubicacion" size={16} /> Ordenadas por cercanía a vuestros{" "}
-                <strong>
-                  {hubSaved.length} lugar{hubSaved.length === 1 ? "" : "es"} guardado
-                  {hubSaved.length === 1 ? "" : "s"}
-                </strong>{" "}
-                en {hub}. Es distancia en línea recta, no tiempo de trayecto.
+              <p className="zone-panel__note">
+                <EvidenceMark level="estimado" label={false} /> Ordenadas por cercanía a vuestros
+                sitios guardados ({hubSaved.length} en {hub}). Es distancia en línea recta, no
+                tiempo de trayecto.
               </p>
             ) : (
               <p className="zone-panel__note zone-panel__note--muted">
@@ -478,16 +483,25 @@ export function ZoneComparison({
               </p>
             )}
 
+            {banner}
+
             <ul className="zone-list">
-              {ranked.map(({ zone, fit }, index) => {
+              {ranked.map(({ zone, fit }) => {
                 const checked = selected.includes(zone.id);
                 return (
                   <li key={zone.id}>
                     <article className={`zone-card ${checked ? "zone-card--selected" : ""}`}>
+                      {/* B30 (`06 §5.5`, D1): no hay fotografía de zona todavía — el espacio lleva la
+                          línea editorial de la zona y nunca la foto de otro barrio. */}
+                      <div className="zone-card__photo">
+                        <PhotoPlaceholder
+                          place={{ name: zone.name, category: "", imageBrief: "", differentiator: "" }}
+                          icon="cama"
+                          brief={zone.summary}
+                        />
+                      </div>
+
                       <div className="zone-card__head">
-                        <span className="zone-card__index" aria-hidden="true">
-                          {index + 1}
-                        </span>
                         <div className="zone-card__title">
                           <h3>{zone.name}</h3>
                           <p lang="ja" className="zone-card__ja">
@@ -500,24 +514,26 @@ export function ZoneComparison({
                             checked={checked}
                             disabled={isFull && !checked}
                             onChange={() => toggle(zone.id)}
+                            aria-label={`Comparar ${zone.name}`}
                           />
                           <span>Comparar</span>
                         </label>
                       </div>
 
-                      <p className="zone-card__summary">{zone.summary}</p>
-
-                      <div className="zone-facts">
-                        <ShinkansenFact zone={zone} />
-                        <AirportFacts zone={zone} />
-                        <span className="zone-fact">
-                          <Icon name="tren" size={16} /> {zone.facts.railLines.length} líneas
-                        </span>
+                      <div className="zone-register zone-register--fact">
+                        <EvidenceMark level="verificado" />
+                        <div className="zone-facts">
+                          <ShinkansenFact zone={zone} />
+                          <AirportFacts zone={zone} />
+                          <span className="zone-fact">
+                            <Icon name="tren" size={16} /> {zone.facts.railLines.length} líneas
+                          </span>
+                        </div>
                       </div>
 
                       {fit.consideredCount > 0 && fit.medianKm !== null && (
-                        <p className="zone-card__fit">
-                          <Icon name="ubicacion" size={16} /> Mediana{" "}
+                        <p className="zone-card__fit zone-register zone-register--calc">
+                          <EvidenceMark level="estimado" detail="calculado" /> Mediana{" "}
                           <strong>{formatKm(fit.medianKm)}</strong> a vuestros guardados
                           {fit.byBand.doorstep > 0 && (
                             <> · {fit.byBand.doorstep} a pie</>
@@ -536,6 +552,10 @@ export function ZoneComparison({
                 );
               })}
             </ul>
+            <p className="zone-list__closing">
+              {zones.length} zonas con estrategias distintas. Ninguna es "la mejor": cada una cuesta
+              algo.
+            </p>
           </>
         ) : (
           <div className="zone-compare">
@@ -566,11 +586,11 @@ export function ZoneComparison({
                     <Tooltip direction="top">{place.name}</Tooltip>
                   </Marker>
                 ))}
-                {selectedZones.map((zone, index) => (
+                {selectedZones.map((zone) => (
                   <Marker
                     key={zone.id}
                     position={[zone.anchor.lat, zone.anchor.lng]}
-                    icon={zoneIcon(index, true)}
+                    icon={zoneIcon(zone.name, true)}
                     title={zone.name}
                   >
                     <Tooltip direction="top">{zone.anchor.label}</Tooltip>
@@ -584,39 +604,39 @@ export function ZoneComparison({
               unreadable on a phone and forces horizontal scrolling, which this panel never does.
             */}
             <div className="zone-compare__columns">
-              {selectedZones.map((zone, index) => {
+              {selectedZones.map((zone) => {
                 const fit = zoneSavedPlacesFit(zone, hubSaved);
                 return (
                   <section key={zone.id} className="zone-column" aria-label={`Zona ${zone.name}`}>
                     <header className="zone-column__head">
-                      <span className="zone-column__index" aria-hidden="true">
-                        {index + 1}
-                      </span>
                       <div>
                         <h3>{zone.name}</h3>
                         <p className="zone-column__anchor">{zone.anchor.label}</p>
                       </div>
                     </header>
 
-                    <p className="zone-column__summary">{zone.summary}</p>
-
-                    <h4 className="zone-column__heading">
-                      Datos <span className="zone-column__tag zone-column__tag--fact">verificables</span>
-                    </h4>
-                    <div className="zone-facts">
-                      <ShinkansenFact zone={zone} />
-                      <AirportFacts zone={zone} />
-                    </div>
-                    <p className="zone-column__lines">
-                      <strong>Líneas:</strong> {zone.facts.railLines.join(" · ")}
+                    <p className="zone-column__summary zone-register--voice">
+                      <EvidenceMark level="nihon" label={false} /> {zone.summary}
                     </p>
-                    <ZoneSources zone={zone} />
+
+                    <div className="zone-register zone-register--fact">
+                      <h4 className="zone-column__heading">
+                        Datos <EvidenceMark level="verificado" />
+                      </h4>
+                      <div className="zone-facts">
+                        <ShinkansenFact zone={zone} />
+                        <AirportFacts zone={zone} />
+                      </div>
+                      <p className="zone-column__lines">
+                        <strong>Líneas:</strong> {zone.facts.railLines.join(" · ")}
+                      </p>
+                      <ZoneSources zone={zone} />
+                    </div>
 
                     {fit.consideredCount > 0 && fit.medianKm !== null && (
-                      <>
+                      <div className="zone-register zone-register--calc">
                         <h4 className="zone-column__heading">
-                          Vuestros guardados{" "}
-                          <span className="zone-column__tag zone-column__tag--derived">calculado</span>
+                          Vuestros guardados <EvidenceMark level="estimado" detail="calculado" />
                         </h4>
                         <p className="zone-column__fit">
                           Mediana <strong>{formatKm(fit.medianKm)}</strong> en línea recta sobre{" "}
@@ -634,17 +654,19 @@ export function ZoneComparison({
                             </li>
                           ))}
                         </ul>
-                      </>
+                      </div>
                     )}
 
-                    <h4 className="zone-column__heading">
-                      A cambio <span className="zone-column__tag zone-column__tag--editorial">criterio</span>
-                    </h4>
-                    <ul className="zone-tradeoffs">
-                      {zone.tradeoffs.map((tradeoff) => (
-                        <li key={tradeoff}>{tradeoff}</li>
-                      ))}
-                    </ul>
+                    <div className="zone-register zone-register--voice">
+                      <h4 className="zone-column__heading">
+                        A cambio <EvidenceMark level="nihon" />
+                      </h4>
+                      <ul className="zone-tradeoffs">
+                        {zone.tradeoffs.map((tradeoff) => (
+                          <li key={tradeoff}>{tradeoff}</li>
+                        ))}
+                      </ul>
+                    </div>
 
                     <ZoneChoiceAction
                       zone={zone}
@@ -678,14 +700,9 @@ export function ZoneComparison({
                         )}
                       </p>
                       <ul className="zone-contrast__rows">
-                        {selectedZones.map((zone, index) => (
+                        {selectedZones.map((zone) => (
                           <li key={zone.id}>
-                            <span className="zone-contrast__zone">
-                              <span className="zone-column__index zone-column__index--inline" aria-hidden="true">
-                                {index + 1}
-                              </span>
-                              {zone.name}
-                            </span>
+                            <span className="zone-contrast__zone">{zone.name}</span>
                             <Ordinal
                               value={zone.editorial[axis.key as keyof ZoneEditorial]}
                               neutral={NEUTRAL_AXES.has(axis.key as keyof ZoneEditorial)}
@@ -722,14 +739,9 @@ export function ZoneComparison({
                       )}
                     </p>
                     <ul className="zone-contrast__rows">
-                      {selectedZones.map((zone, index) => (
+                      {selectedZones.map((zone) => (
                         <li key={zone.id}>
-                          <span className="zone-contrast__zone">
-                            <span className="zone-column__index zone-column__index--inline" aria-hidden="true">
-                              {index + 1}
-                            </span>
-                            {zone.name}
-                          </span>
+                          <span className="zone-contrast__zone">{zone.name}</span>
                           <Ordinal
                             value={zone.editorial[axis.key]}
                             neutral={NEUTRAL_AXES.has(axis.key)}
@@ -760,7 +772,12 @@ export function ZoneComparison({
             </span>
             <span className="zone-panel__foot-actions">
               {selectedZones.length > 0 && (
-                <button type="button" className="link-button" onClick={clear}>
+                <button
+                  type="button"
+                  className="link-button"
+                  onClick={clear}
+                  aria-label="Quitar las zonas marcadas para comparar"
+                >
                   Quitar
                 </button>
               )}
