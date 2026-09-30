@@ -51,12 +51,8 @@ Accesibilidad: diálogo con foco atrapado, listas nombradas por sus h3, región 
 - Audits 3E-e/g/i/k adaptados (cargar + «Usar este orden»): pasan.
 
 ## Regresión
-Pasan: b17 regresión/tap/responsive, b18 a11y/back/chrome/viaje-lugar/responsive, b24, b25, b26, b27, b28, b29,
-block5, block6, block19 contraste/grid, block20, block23, dd028, ddr03, integración B24+B23, phase3e-e/g/i/k,
-phase3f-f/h/j/s, phase5a.
-Fallan y ya fallaban en la base B28 `dd5fee0` (medido en un worktree de la base; misma salida ignorando rutas):
-block1, block3, block4, block13, block14. `b18-regression-check` falla también (deuda B10 documentada en B28;
-no se re-ejecutó en la base porque usa el puerto fijo 4181).
+Ver «Auditoría final (Claude Project)». Resumen: sin fallos exclusivos de B29; todos los fallos observados
+están reproducidos también en la base `dd5fee0`.
 Lint: 0 errores + el aviso heredado de `PlaceMap.tsx`.
 
 ## Visual
@@ -64,8 +60,29 @@ Capturas con `NIHON_B29_SHOTS` a 320/390/768/1440 (acción, hoja, propuesta reor
 antes/después de usar, cancelación). Corregido: flechas que bajaban de línea, jerarquía de la frase de
 comparación, barra del CTA a ancho completo.
 
+## Auditoría final (Claude Project)
+Veredicto: **IMPLEMENTACIÓN CERTIFICABLE**; sin fallos exclusivos de B29. Certificación frente a la base
+contractual `dd5fee06e3c0b4bdaa7c03512466b0f967e02eb2`; los fallos heredados son deuda previa, no regresiones B29.
+
+Pasan: `tsc -b` 0 errores; oxlint 0 errores (solo aviso heredado de `PlaceMap.tsx`); Vitest 3493/3493;
+B29 40/40 en Chromium 1194 y 36/36 en WebKit 26.5; B28 43/43; B27 48/48; resto de gates principales.
+
+Fallos heredados, reproducidos también en la base `dd5fee0`:
+- Phase 5A: fotografía intermitente (falla a veces en B29 y en la base).
+- Integración B24+B23: falla únicamente por Phase 5A.
+- B28 T02 con Chromium 1234: 42/43 en B29 y en la base; con Chromium 1194, 43/43 en ambas.
+- `b18-regression-check`, `b24-real-input-audit` P0-2, block1, block3, block4, block13, block14.
+
+Fallos exclusivos de B29: ninguno.
+WebKit 26.5 sí fue medido. Safari físico en iPhone NO fue medido.
+
+Nota de trazabilidad: este commit documental sustituye funcionalmente a los commits locales no transferibles
+`b8709f9` y `16fcc6b` (solo tocaban este archivo; no se pudieron publicar desde Claude Project por falta de
+credenciales y no existen en este repositorio).
+
 ## Deuda
-- WebKit no medido (no hay en el entorno); iPhone Safari real pendiente.
+- iPhone Safari real pendiente (WebKit 26.5 sí medido: B29 36/36).
+- Fallos heredados listados arriba: deuda previa a B29.
 - Sin arrastre dentro de la hoja (solo flechas): decisión de alcance.
 - La frase «suma al menos N min menos» describe la diferencia mínima entre rangos; revisar redacción en B10.
 - Entorno: enlace de `chromium_headless_shell-1234` al binario 1194 y `vite preview` en 4181 para los gates B17/B18.
