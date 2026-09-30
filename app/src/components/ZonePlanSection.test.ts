@@ -147,14 +147,15 @@ describe("ZoneComparison.tsx — the choice itself", () => {
   it("gives the two remove controls distinct accessible names", async () => {
     const source = await readSource("ZoneComparison.tsx");
     expect(source).toMatch(/aria-label=\{`Quitar la zona elegida para \$\{hub\}`\}/);
-    expect(source).toMatch(/aria-label=\{`Quitar \$\{zone\.name\} del plan`\}/);
+    expect(source).toContain("`Quitar ${zone.name} del plan`");
   });
 
   it("names the zone in every accessible label, so the control is unambiguous out of context", async () => {
     const source = await readSource("ZoneComparison.tsx");
-    expect(source).toMatch(/aria-label=\{`Quitar \$\{zone\.name\} del plan`\}/);
+    expect(source).toContain("`Quitar ${zone.name} del plan`");
     expect(source).toMatch(/Cambiar la zona del plan a \$\{zone\.name\}/);
-    expect(source).toMatch(/Usar \$\{zone\.name\} en el plan/);
+    expect(source).toMatch(/Dormir en \$\{zone\.name\}/);
+    expect(source).toContain('hasOtherChoice ? "Cambiar a esta zona" : "Dormir aquí"');
   });
 
   it("offers the empty state as an invitation, not as a nag", async () => {
