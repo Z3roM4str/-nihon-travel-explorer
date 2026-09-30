@@ -83,7 +83,26 @@ ciudades». Quedan como deuda léxica para una pasada de copy.
 
 ## Resultados medidos
 
-{{RESULTS}}
+Binario: Chromium 1194 (141.0.7390.37). Todo medido sobre la build de producción de la rama.
+
+| Comprobación | Resultado |
+|---|---|
+| `tsc -b` | 0 errores |
+| `oxlint` | 0 errores (sólo el aviso heredado de `PlaceMap.tsx`) |
+| Vitest | 3533/3533 (3508 de la base + 25 nuevos; 119 ficheros) |
+| Gate B31 (Chromium) | 26/26 |
+| Gate B31 (Chromium, `prefers-reduced-motion: reduce`) | 26/26 |
+| Gate B31 (WebKit) | **no medido** (WebKit no instalado) |
+| B27 | 48/48 |
+| B28 | 43/43 |
+| B29 | 36/36 (el «40» documentado es erróneo, idéntico en base) |
+| B30 (incluye chevron y DD-015 de Dónde dormir) | 48/48 |
+| `block20-place-detail-check` (sin cambios; requiere `vite preview` en :4181) | 73/73 |
+| `phase5a-rc-browser-audit` (actualizado) | 50/50 |
+| `phase3f-j`, `phase3f-f`, `phase3f-s` | OK (phase3f-j tras actualizar dos contratos de descargo) |
+
+Ningún fallo heredado apareció en lo ejecutado, así que no hizo falta compararlo con `1444e67` (la sonda de
+escrituras sí se midió en la base, ver desviación 1).
 
 ## Desviaciones y hallazgos que requieren decisión
 
@@ -114,3 +133,7 @@ Sin cambios respecto a la base: `block3/4/7` de zonas; carrera de decodificació
   se instala. `NIHON_BROWSER=webkit` está implementado y falla al lanzar (binario ausente). Pendiente de
   ejecutar donde exista WebKit.
 - **iPhone Safari físico: no medido.**
+
+## Veredicto
+
+**B31 CLAUDE: NO CERTIFICADO** — causa exacta: WebKit (`NIHON_BROWSER=webkit`), exigido por la misión, no se pudo ejecutar (binario ausente en este entorno). Todo lo medido (Chromium 1194 + reduced-motion) está en verde.

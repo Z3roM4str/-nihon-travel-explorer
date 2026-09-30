@@ -388,7 +388,13 @@ try {
       await prep.waitFor();
       const prepText = await prep.innerText();
       assert.match(prepText, /Reservas por preparar/);
-      assert.match(prepText, /No calcula fechas límite de reserva ni las compara con tu calendario/);
+      // B31 (DDR-B31-04): la frase se partió: «no calcula fechas límite» en la nota única y «no compara…
+      // con tu calendario» en el `detail` del marcador de la lista.
+      assert.match(await page.locator(".viaje-surface__note").innerText(), /no calcula fechas límite de reserva/);
+      assert.match(
+        await prep.locator(".evidence-mark--glyph-only").first().getAttribute("aria-label"),
+        /no compara esa anticipación con tu calendario/
+      );
       // Phase 3D-H's own per-day surface still renders, separately, with its own copy.
       await backToDays(page);
       const deadline = page.locator(".reservation-deadline");
