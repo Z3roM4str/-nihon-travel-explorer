@@ -4,7 +4,8 @@
 
 - Rama: `codex/block-29-b9-3-day-tools`.
 - Base canónica exigida: `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
-- Entrega prevista: un PR de esta rama a `main`; no merge ni despliegue.
+- PR único: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), abierto de esta rama a `main`; no merge ni despliegue.
+- Commit de implementación publicado: `64d4a73129b6f617941075669b289bf55b9f39ff`; `main` seguía en la base exacta `797c9980d6c9baf2deeb3bd635cd7d159e4743bf` al abrir el PR.
 - La rama se mantiene separada de `main`. B9.4, B9.5, B30 y B10 no se iniciaron.
 
 ## Arquitectura
