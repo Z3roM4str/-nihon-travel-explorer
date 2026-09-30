@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
 import { preview } from "vite";
 
 const places = JSON.parse(readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8"));
@@ -33,9 +33,10 @@ const server = await preview({
   preview: { host: "127.0.0.1", port: 0 },
 });
 const url = `http://127.0.0.1:${server.httpServer.address().port}`;
-const browserPath = process.env.NIHON_CHROMIUM_PATH ||
+const browserType = process.env.NIHON_BROWSER === "webkit" ? webkit : chromium;
+const browserPath = browserType === webkit ? webkit.executablePath() : process.env.NIHON_CHROMIUM_PATH ||
   (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : chromium.executablePath());
-const browser = await chromium.launch({ executablePath: browserPath });
+const browser = await browserType.launch({ executablePath: browserPath });
 let checks = 0;
 
 function check(condition, message) {
@@ -206,8 +207,8 @@ async function targetFailures(page) {
   });
 }
 
-async function runFullAudit(viewport, index) {
-  const { context, page, errors } = await contextFor(viewport);
+async function runFullAudit(viewport, index, options = {}) {
+  const { context, page, errors } = await contextFor(viewport, options);
   try {
     const { panel } = await openTravelZones(page, true);
     const cards = panel.locator(".zone-card");
@@ -243,6 +244,7 @@ async function runFullAudit(viewport, index) {
     const firstToggle = firstCard.locator("input[type=checkbox]");
     await firstToggle.focus();
     await firstToggle.press("Space");
+    check(await firstToggle.getAttribute("aria-label") === `Comparar ${zones.find((zone) => zone.id === renderedZoneIds[0]).name}` && await panel.getByRole("button", { name: "Quitar las zonas marcadas para comparar", exact: true }).count() === 1, `${viewport[0]}x${viewport[1]} comparison controls name their zone and distinguish clearing comparison from removing the chosen zone`);
     check(await firstToggle.isChecked(), `${viewport[0]}x${viewport[1]} zone selection works by keyboard`);
     let writes = await storageWrites(page);
     check(writes.length === 1 && writes[0].key === ZONE_COMPARISON_KEY, `${viewport[0]}x${viewport[1]} explicit comparison selection writes only its existing preference key`);
@@ -301,7 +303,10 @@ async function runFullAudit(viewport, index) {
     const choiceTargetFailures = await targetFailures(page);
     check(choiceTargetFailures.length === 0, `${viewport[0]}x${viewport[1]} choice action keeps its touch target (${JSON.stringify(choiceTargetFailures)})`);
 
-    await action.click();
+    await action.focus();
+    await action.press("Enter");
+    const remove = firstZone.getByRole("button", { name: /^Quitar .* del plan$/ });
+    check(await remove.evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} choosing by keyboard retains focus on this zone's remove action`);
     writes = await storageWrites(page);
     check(writes.length === beforeReopen + 1 && writes.at(-1).key === DRAFT_KEY, `${viewport[0]}x${viewport[1]} explicit zone choice is the only draft write`);
     const after = await draftSnapshot(page);
@@ -313,11 +318,66 @@ async function runFullAudit(viewport, index) {
     check(after.accommodationLegs.length === 1 && after.accommodationLegs[0].minutes === 25, `${viewport[0]}x${viewport[1]} zone choice preserves the manual accommodation leg`);
     check(after.interHubSegments.length === 1 && after.interHubSegments[0].id === "b30-existing-inter-hub-segment", `${viewport[0]}x${viewport[1]} zone choice preserves the inter-hub segment`);
     check(after.zoneAccommodationChoices.length === 1 && after.accommodations.length === 2 && after.accommodations[0].id === "b30-existing-accommodation", `${viewport[0]}x${viewport[1]} the user choice adds its zone anchor and preserves the existing accommodation`);
+    await remove.press("Enter");
+    check(await action.evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} removing by keyboard restores focus to this zone's sleep action`);
+    check((await draftSnapshot(page)).zoneAccommodationChoices.length === 0, `${viewport[0]}x${viewport[1]} removing clears the explicit choice`);
+    await action.press("Enter");
+    const otherZone = cards.nth(1);
+    const change = otherZone.getByRole("button", { name: /^Cambiar la zona del plan a / });
+    await change.focus();
+    await change.press("Enter");
+    const otherRemove = otherZone.getByRole("button", { name: /^Quitar .* del plan$/ });
+    check(await otherRemove.evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} changing zones retains focus on the newly chosen zone`);
+    check(await firstZone.getByRole("button", { name: /^Cambiar la zona del plan a / }).count() === 1 && await panel.locator(".zone-choice-badge").count() === 1, `${viewport[0]}x${viewport[1]} changing zones exposes one chosen state and an unambiguous previous-zone action`);
+    await otherRemove.press("Enter");
+    check(await otherZone.getByRole("button", { name: /^Dormir en / }).evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} removing the replacement retains focus in that zone`);
+    await action.focus();
+    await action.press("Enter");
     await page.reload({ waitUntil: "domcontentloaded" });
     const { panel: reloadedPanel } = await openTravelZones(page);
     check((await reloadedPanel.locator(".zone-choice-badge").innerText()).includes("Zona elegida para el plan"), `${viewport[0]}x${viewport[1]} explicit zone choice survives reload`);
     check((await storageWrites(page)).length === 0, `${viewport[0]}x${viewport[1]} reload and revisit do not write storage`);
     check(errors.length === 0, `${viewport[0]}x${viewport[1]} browser console is clean (${errors.join(" | ")})`);
+  } finally {
+    await context.close();
+  }
+}
+
+async function runComparisonNavigationAudit() {
+  const { context, page } = await contextFor([390, 844]);
+  try {
+    const { panel } = await openTravelZones(page);
+    const cards = panel.locator(".zone-card");
+    for (let index = 0; index < 4; index += 1) {
+      const toggle = cards.nth(index).locator("input[type=checkbox]");
+      await toggle.focus();
+      await toggle.press("Space");
+    }
+    check(await cards.nth(4).locator("input[type=checkbox]").isDisabled(), "comparison rejects a fifth zone");
+    await panel.getByRole("button", { name: "Comparar", exact: true }).click();
+    check(await panel.locator(".zone-column").count() === 4, "comparison renders the maximum four selected zones");
+    const selectedIds = await panel.locator(".zone-column").evaluateAll((elements) => elements.map((element) => element.getAttribute("aria-label")));
+    await panel.locator(".zone-nearest button").first().click();
+    const detail = page.locator(".place-detail");
+    await detail.waitFor();
+    await detail.getByRole("button", { name: /Dónde dormir/ }).first().click();
+    await detail.waitFor({ state: "detached" });
+    check(await panel.locator(".zone-compare").isVisible() && JSON.stringify(await panel.locator(".zone-column").evaluateAll((elements) => elements.map((element) => element.getAttribute("aria-label")))) === JSON.stringify(selectedIds), "PlaceDetail returns exactly to Where to Sleep comparison and its selected zones");
+    check((await storageWrites(page)).every((entry) => entry.key !== DRAFT_KEY) && JSON.stringify(await draftSnapshot(page)) === JSON.stringify(draftFor()), "maximum comparison and PlaceDetail round trip make zero draft writes");
+    const columns = panel.locator(".zone-column");
+    const firstAction = columns.first().locator(".zone-choice-action__button");
+    await firstAction.focus();
+    await firstAction.press("Enter");
+    check(await firstAction.evaluate((element) => document.activeElement === element) && /^Quitar /.test(await firstAction.getAttribute("aria-label")), "comparison choosing retains focus on the same zone's remove action");
+    await firstAction.press("Enter");
+    check(await firstAction.evaluate((element) => document.activeElement === element) && /^Dormir en /.test(await firstAction.getAttribute("aria-label")), "comparison removing retains focus on the same zone's sleep action");
+    await firstAction.press("Enter");
+    const secondAction = columns.nth(1).locator(".zone-choice-action__button");
+    await secondAction.focus();
+    await secondAction.press("Enter");
+    check(await secondAction.evaluate((element) => document.activeElement === element) && /^Quitar /.test(await secondAction.getAttribute("aria-label")), "comparison changing zones retains focus on the new zone's remove action");
+    await secondAction.press("Enter");
+    check(await secondAction.evaluate((element) => document.activeElement === element) && /^Dormir en /.test(await secondAction.getAttribute("aria-label")), "comparison removing the replacement retains focus on that zone's sleep action");
   } finally {
     await context.close();
   }
@@ -343,7 +403,7 @@ async function runReducedMotionAudit() {
   const { context, page } = await contextFor([390, 844], { reducedMotion: "reduce" });
   try {
     await openTravelZones(page);
-    check(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), "reduced-motion preference is active in Chromium");
+    check(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), `reduced-motion preference is active in ${browserType.name()}`);
     const motion = await page.locator(".zone-photo-fallback").first().evaluate((element) => {
       const style = getComputedStyle(element);
       return { animation: style.animationDuration, transition: style.transitionDuration };
@@ -359,6 +419,8 @@ async function runReducedMotionAudit() {
 
 try {
   for (let index = 0; index < VIEWPORTS.length; index += 1) await runFullAudit(VIEWPORTS[index], index);
+  await runComparisonNavigationAudit();
+  await runFullAudit([390, 844], VIEWPORTS.length, { reducedMotion: "reduce" });
   await runEmptyRouteAudit();
   await runReducedMotionAudit();
   console.log(`B30 Where to Sleep: ${checks}/${checks} PASS (${browserPath})`);

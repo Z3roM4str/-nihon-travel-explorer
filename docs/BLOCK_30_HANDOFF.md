@@ -1,5 +1,7 @@
 # B30 — B9.4 «Dónde dormir» · Handoff
 
+La auditoría cruzada final de PR #169 y las decisiones frente a #168 se registran en [BLOCK_30_FINAL_CROSS_AUDIT.md](BLOCK_30_FINAL_CROSS_AUDIT.md). Ese informe y los SHA remotos de la descripción de #169 sustituyen el estado de publicación pendiente de este handoff histórico.
+
 ## Estado de la rama
 
 - Base certificada al iniciar: `main` y `origin/main` en `a7b916be005f002e46c67442968379f72d3b480d`.

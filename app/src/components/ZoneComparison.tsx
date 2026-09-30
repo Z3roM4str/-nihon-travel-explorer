@@ -89,38 +89,34 @@ function ZoneChoiceAction({
   const isChosen = chosenZoneId === zone.id;
   const hasOtherChoice = chosenZoneId !== null && !isChosen;
 
-  if (isChosen) {
-    return (
-      <p className="zone-choice-action zone-choice-action--chosen">
+  // Keep the action in the same DOM position when its state changes: keyboard focus
+  // belongs to this zone's control, including when another zone becomes chosen.
+  return (
+    <p className={`zone-choice-action${isChosen ? " zone-choice-action--chosen" : ""}`}>
+      {isChosen && (
         <span className="zone-choice-badge">
           <Icon name="confirmado" size={16} /> Zona elegida para el plan
         </span>
-        <button
-          type="button"
-          className="button button--secondary zone-choice-action__button"
-          onClick={onClear}
-          aria-label={`Quitar ${zone.name} del plan`}
-        >
-          Quitar del plan
-        </button>
-      </p>
-    );
-  }
-
-  return (
-    <p className="zone-choice-action">
+      )}
       <button
+        key="zone-choice"
         type="button"
         className="button button--secondary zone-choice-action__button"
-        onClick={() => onChoose(zone)}
+        onClick={isChosen ? onClear : () => onChoose(zone)}
         aria-label={
-          hasOtherChoice
-            ? `Cambiar la zona del plan a ${zone.name}`
-            : `Dormir en ${zone.name}`
+          isChosen
+            ? `Quitar ${zone.name} del plan`
+            : hasOtherChoice
+              ? `Cambiar la zona del plan a ${zone.name}`
+              : `Dormir en ${zone.name}`
         }
       >
-        <Icon name="cama" size={16} />{" "}
-        {hasOtherChoice ? "Cambiar a esta zona" : "Dormir aquí"}
+        {isChosen ? "Quitar del plan" : (
+          <>
+            <Icon name="cama" size={16} />{" "}
+            {hasOtherChoice ? "Cambiar a esta zona" : "Dormir aquí"}
+          </>
+        )}
       </button>
     </p>
   );
@@ -509,6 +505,7 @@ export function ZoneComparison({
                         <label className={`zone-card__compare ${isFull && !checked ? "zone-card__compare--full" : ""}`}>
                           <input
                             type="checkbox"
+                            aria-label={`Comparar ${zone.name}`}
                             checked={checked}
                             disabled={isFull && !checked}
                             onChange={() => toggle(zone.id)}
@@ -796,7 +793,7 @@ export function ZoneComparison({
             </span>
             <span className="zone-panel__foot-actions">
               {selectedZones.length > 0 && (
-                <button type="button" className="link-button" onClick={clear}>
+                <button type="button" className="link-button" onClick={clear} aria-label="Quitar las zonas marcadas para comparar">
                   Quitar
                 </button>
               )}
