@@ -312,8 +312,7 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("addresses every day mutation by the day's stable id, not by its ordinal index", async () => {
     const source = await readSource();
-    expect(source).toMatch(/relocatePlaceWithinDay\(dayEntity\.id, placeIndex, targetPosition\)/);
-    expect(source).toMatch(/movePlaceBetweenDays\(dayEntity\.id, target\.id, placeIndex\)/);
+    expect(source).toMatch(/relocatePlace\(dayEntity\.id, target\.id, placeId, targetPosition\)/);
     expect(source).toMatch(/removeEmptyDay\(dayEntity\.id\)/);
     expect(source).toMatch(/setDayAccommodationChoice\(dayEntity\.id, side, choice\)/);
     expect(source).toMatch(/onClick=\{\(\) => addEmptyDay\(\)\}/);
@@ -408,10 +407,10 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
     expect(source).toMatch(/<Fragment key=\{dayEntity\?\.id \?\? dayIndex\}>/);
   });
 
-  it("introduces no drag-and-drop dependency and no confirmation dialog for the move controls", async () => {
+  it("keeps whole-day movement independent of stop drag and without a confirmation dialog", async () => {
     const source = await readSource();
     expect(source).not.toMatch(/draggable/i);
-    expect(source).not.toMatch(/onDragStart/);
+    expect(source).toMatch(/moveDay\(dayEntity\.id, direction\)/);
     expect(source).not.toMatch(/window\.confirm/);
   });
 

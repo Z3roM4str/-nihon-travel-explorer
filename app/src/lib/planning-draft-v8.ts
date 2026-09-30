@@ -458,6 +458,57 @@ export function withPlaceAddedToDay(
   return { ...draft, routeIds, days };
 }
 
+/** B9.2: one explicit move between stable day entities, preserving route-scoped work. */
+export function withPlaceRelocatedBetweenDays(
+  draft: ManualPlanningDraftV8,
+  fromDayId: string,
+  toDayId: string,
+  placeId: string,
+  targetPosition: number
+): ManualPlanningDraftV8 {
+  if (!draft.days || fromDayId === toDayId || !Number.isInteger(targetPosition)) return draft;
+  const source = draft.days.find((day) => day.id === fromDayId);
+  const target = draft.days.find((day) => day.id === toDayId);
+  if (!source || !target || !draft.routeIds.includes(placeId) ||
+      !source.placeIds.includes(placeId) || target.placeIds.includes(placeId) ||
+      targetPosition < 0 || targetPosition > target.placeIds.length) return draft;
+  const sourceIds = source.placeIds.filter((id) => id !== placeId);
+  const targetIds = [...target.placeIds];
+  targetIds.splice(targetPosition, 0, placeId);
+  const days = draft.days.map((day): PlanningDayV5 => {
+    if (day.id === fromDayId) return sourceIds.length
+      ? { ...day, placeIds: sourceIds }
+      : { ...day, placeIds: sourceIds, accommodationBoundary: {
+          start: { kind: "unselected" }, end: { kind: "unselected" },
+        } };
+    if (day.id === toDayId) return { ...day, placeIds: targetIds };
+    return day;
+  });
+  if (!validateDayPartition(draft.routeIds, days.map((day) => day.placeIds)).valid) return draft;
+  return { ...draft, days };
+}
+
+/** B9.2: place an unassigned saved place at the exact user-selected slot. */
+export function withPlaceInsertedIntoDay(
+  draft: ManualPlanningDraftV8,
+  placeId: string,
+  dayId: string,
+  targetPosition: number
+): ManualPlanningDraftV8 {
+  if (!draft.days || draft.routeIds.includes(placeId) || !Number.isInteger(targetPosition)) return draft;
+  const target = draft.days.find((day) => day.id === dayId);
+  if (!target || targetPosition < 0 || targetPosition > target.placeIds.length) return draft;
+  const routeIds = [...draft.routeIds, placeId];
+  const days = draft.days.map((day) => {
+    if (day.id !== dayId) return day;
+    const placeIds = [...day.placeIds];
+    placeIds.splice(targetPosition, 0, placeId);
+    return { ...day, placeIds };
+  });
+  if (!validateDayPartition(routeIds, days.map((day) => day.placeIds)).valid) return draft;
+  return { ...draft, routeIds, days };
+}
+
 /**
  * "Restablecer recorrido". Accommodation anchors are carried forward by the inherited contract, so
  * the zone decisions that seeded them are carried forward too — resetting the route is not a

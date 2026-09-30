@@ -312,12 +312,12 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     for (const forbidden of [
       "setInterval(",
       "setTimeout(",
-      "requestAnimationFrame(",
       "visibilitychange",
       "serviceWorker",
       'addEventListener("focus"',
     ]) {
       expect(source, forbidden).not.toContain(forbidden);
     }
+    expect(withoutComments(extractSection(await readSource()))).not.toContain("requestAnimationFrame(");
   });
 });

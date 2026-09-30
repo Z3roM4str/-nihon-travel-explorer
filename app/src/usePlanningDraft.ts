@@ -25,6 +25,8 @@ import {
   withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
   withPlaceAddedToDay,
+  withPlaceInsertedIntoDay,
+  withPlaceRelocatedBetweenDays,
   withPlacesTransposedWithinDay,
   withFourPlacesReversedWithinDay,
   withTwoPairBlocksSwappedWithinDay,
@@ -243,6 +245,22 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withPlaceAddedToDay(current, placeId, dayId));
   }, []);
 
+  /** B9.2: validates the source identity again against the current draft at commit time. */
+  const relocatePlace = useCallback((fromDayId: string, toDayId: string, placeId: string, position: number) => {
+    setDraft((current) => {
+      const source = current.days?.find((day) => day.id === fromDayId);
+      const sourceIndex = source?.placeIds.indexOf(placeId) ?? -1;
+      if (sourceIndex < 0) return current;
+      return fromDayId === toDayId
+        ? withPlaceRelocatedWithinDay(current, fromDayId, sourceIndex, position)
+        : withPlaceRelocatedBetweenDays(current, fromDayId, toDayId, placeId, position);
+    });
+  }, []);
+
+  const insertUnassignedPlace = useCallback((placeId: string, dayId: string, position: number) => {
+    setDraft((current) => withPlaceInsertedIntoDay(current, placeId, dayId, position));
+  }, []);
+
   /** B9.1: delegates the atomic unassignment policy to the pure V8 domain mutation. That mutation
    * prunes the removed place's route-scoped time/legs/segments while keeping day identity and all
    * trip-scoped decisions; this hook owns no parallel cleanup policy. */
@@ -452,6 +470,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
     addPlaceToDay,
+    relocatePlace,
+    insertUnassignedPlace,
     removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
