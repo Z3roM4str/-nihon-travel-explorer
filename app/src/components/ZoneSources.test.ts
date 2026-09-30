@@ -92,12 +92,13 @@ describe("Block 8 — the airport links say what kind of journey they are", () =
     expect(panel).not.toContain("key={link.airport}");
   });
 
-  it("emphasises directness, never a mode", async () => {
+  it("keeps registered transport facts visually neutral and never styles a mode", async () => {
     const panel = await readSource("ZoneComparison.tsx");
     const block = panel.slice(panel.indexOf("function AirportFacts"));
     const component = block.slice(0, block.indexOf("\n}"));
-    expect(component).toContain('link.directFromZone ? "zone-fact--strong" : ""');
-    // Nothing keys a style off the mode.
+    expect(component).toContain('className="zone-fact"');
+    expect(component).not.toContain("zone-fact--strong");
+    // Neither directness nor transport mode changes the visual weight of a registered fact.
     expect(component).not.toMatch(/mode === "bus" \?[^\n]*class|zone-fact--(bus|rail)/);
   });
 
@@ -166,11 +167,12 @@ describe("Block 9 — the editorial ratings say what they are", () => {
     expect(panel).not.toMatch(/visually-hidden">\{value\} de 5</);
   });
 
-  it("labels the full-ratings disclosure as criterio, like every other editorial heading", async () => {
+  it("marks the full-ratings disclosure as Nihon's editorial opinion", async () => {
     const panel = await readSource("ZoneComparison.tsx");
     const block = panel.slice(panel.indexOf('<details className="zone-axes">'));
     const details = block.slice(0, block.indexOf("</details>"));
-    expect(details).toContain('zone-column__tag--editorial">criterio</span>');
+    expect(details).toContain('<EvidenceMark level="nihon" label={false} />');
+    expect(details).toContain("{editorialDisclosure()}");
   });
 
   it("states what a rating is on the surface that shows all ten", async () => {

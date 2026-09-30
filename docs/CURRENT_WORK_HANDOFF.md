@@ -1,4 +1,17 @@
-# Handoff reanudable — B29 / B9.3 integrado; siguiente B9.4 pendiente
+# Handoff reanudable — B30 / B9.4 «Dónde dormir»
+
+## Estado vigente — B30 / B9.4 (2026-09-30)
+
+- B29 / B9.3 continúa **integrado y cerrado** mediante el PR canónico #167. Su implementación paralela #166 se cerró como supersedida, sin fusionar ni borrar su rama.
+- Base de B30: `main` @ `a7b916be005f002e46c67442968379f72d3b480d` (confirmada por API de GitHub antes de publicar; el fetch local falló al conectar con el proxy).
+- Rama local: `codex/block-30-b9-4-donde-dormir`. Commit de implementación local: `041a0e7cd3bd6d300c881304757eeaad39b27220`; HEAD documental previo a esta actualización: `88d3699a95eca2efc2d702cfa83599025f40d650`.
+- B30 rediseña `Viaje › Dónde dormir`: usa los `routeIds` V8 del hub activo, conserva orden de catálogo sin ranking, separa hechos/cálculos/opinión y ofrece fallback accesible porque no hay fotografías de zona licenciadas. Es read-only al abrir y comparar; una selección explícita de «Dormir aquí» conserva la mutación V8 existente.
+- Certificación local: build PASS; lint exit 0 (warning heredado de `PlaceMap.tsx:17`); Vitest 114 archivos/3465 PASS; B30 360/360; B29 163/163; B28 64/64; B27 A–K en 8 viewports; B26 314/314; invariantes dirigidas 342/342. Comparación B25 repetida en condiciones equivalentes: base y B30, ambos 122/123 por el mismo único `C-CLEAN` con `ERR_CERT_AUTHORITY_INVALID` externo; B30 no introduce esa regresión. Hubo una ejecución anterior B30 de 121/123, consistente con variación externa en viewport/cantidad. B18 back 15/15 funcional, con errores de certificado externos registrados. Detalle: `docs/BLOCK_30_HANDOFF.md`.
+- Capturas finales durante esta sesión: `/tmp/b30-final-shots/`; mapa base sin teselas por bloqueo del proveedor OSM en este runner.
+- **Publicación pendiente:** `git push` normal no pudo autenticarse. La autorización actual permite usar el conector de GitHub para publicar el árbol certificado y abrir el PR Draft. No hubo merge ni deployment.
+- B9.5, B10, Astra y Vercel no iniciados ni modificados. No hubo deployment ni merge.
+
+## Registro histórico — cierre de B29 / B9.3
 
 ## B29 / B9.3 «Herramientas del día · Probar otro orden» — CERRADO E INTEGRADO
 

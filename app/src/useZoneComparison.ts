@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { deviceStorage } from "./lib/device-storage";
 
 /**
@@ -34,8 +34,12 @@ function readStorage(): Selection {
 
 export function useZoneComparison(hub: string | null) {
   const [selection, setSelection] = useState<Selection>(() => readStorage());
+  const initialSelection = useRef(selection);
 
   useEffect(() => {
+    // Opening or revisiting the screen is a read, not a user edit. Skip the initial render so
+    // merely mounting the comparison never serializes its existing value back to storage.
+    if (selection === initialSelection.current) return;
     try {
       // DDR-03: por el adaptador compartido, no por `localStorage` directo, para que un fallo
       // aquí encienda el mismo aviso que cualquier otra escritura. El `catch` sigue siendo el
