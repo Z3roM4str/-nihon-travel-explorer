@@ -1,8 +1,17 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
-## ESTADO ACTUAL — B28 / B9.2 en la rama obligatoria
+## ESTADO CANÓNICO ACTUAL — B28 / B9.2 integrado a `main` (2026-09-29)
 
-`codex/block-28-b9-2-reorder` parte de `main` @ `47a6f0e1549f273622a112820ace5279455cbd9e`. Añade drag de TripStop por Pointer Events con alternativa completa «Mover a…», mutación inter-día atómica V8 y arrastre desde Sin asignar. Build PASS, lint 0 errores (un warning heredado), Vitest 3430/3430, B28 52/52, B27 A–K y gates históricos B26/B25/B18/B6/Phase 5A/integración/DD-028/DDR03 verdes. Véanse `docs/BLOCK_28_MISSION.md` y `docs/BLOCK_28_HANDOFF.md` para arquitectura, pruebas y límites. B9.3/B9.4/B9.5 siguen diferidos.
+- **PR #164 MERGED** mediante merge commit `2e5d3c32e4e773cea78de68c7c8c6a7b09a351f6`.
+- **Padres:** `47a6f0e1549f273622a112820ace5279455cbd9e` (main previo) + `d3b8a04831c3beed67f2e397d741f40e22b421e6` (HEAD B28 certificado).
+- **Árbol del merge = árbol del HEAD certificado:** `663d2e38354ab84116a98a03364834095b473c59`.
+- Certificación transferida sin cambios de código: **109 archivos, 3431/3431 Vitest PASS**; B28 **64/64**; B27 A–K; B18 browser-back 15/15; B25 123/123; B26 314/314; build PASS; lint 0 errores + warning heredado.
+- B28 integrado: Pointer Events sin dependencia, drag intra/interdía, Sin asignar → día, posición exacta, cancelación, auto-scroll normal/reduced-motion, live region con posición normalizada, ruta completa por teclado preservada.
+- **Siguiente canónico: B29 / B9.3 — Herramientas del día · «Probar otro orden».** Hoja local al día con orden actual, propuesta reordenable y comparación mediante `sequence-comparison.ts`; alternativas verificadas como opciones, nunca automáticas. B9.4/B9.5 siguen pendientes. No mezclar Astra ni Vercel.
+
+## HISTÓRICO — B28 / B9.2 antes de integración
+
+`codex/block-28-b9-2-reorder` parte de `main` @ `47a6f0e1549f273622a112820ace5279455cbd9e`. Añade drag de TripStop por Pointer Events con alternativa completa «Mover a…», mutación inter-día atómica V8 y arrastre desde Sin asignar. Build PASS, lint 0 errores (un warning heredado), Vitest 3430/3430, B28 52/52, B27 A–K y gates históricos B26/B25/B18/B6/Phase 5A/integración/DD-028/DDR03 verdes. Véanse `docs/BLOCK_28_MISSION.md` y `docs/BLOCK_28_HANDOFF.md` para arquitectura, pruebas y límites. B9.3/B9.4/B9.5 estaban diferidos en ese punto; B28 ya está integrado.
 
 ## ESTADO CANÓNICO ACTUAL — B26 (PR #159) integrado a `main` (2026-09-29)
 
@@ -15,7 +24,7 @@
 - **PENDIENTE HUMANO — iPhone Safari real** (export/import, selector de archivos, teclado iOS): no hecho.
 - Gates históricos obsoletos (deuda B10): `block1-ux`, `block13`, `block14`, `b18-regression`, `b24-real-input` P0-2.
 - **B27 / B9.1 ya integrado** en `main` mediante PR #162. Ver sección canónica B27 y `docs/BLOCK_27_HANDOFF.md`.
-- **Siguiente:** B28 / B9.2 «Reordenar» (drag-and-drop/puntero, conservando la ruta completa por teclado). No mezclar Astra ni #154.
+- **B28 / B9.2 ya integrado** mediante PR #164. Siguiente: B29 / B9.3 «Probar otro orden». No mezclar Astra ni #154.
 ## ESTADO CANÓNICO ACTUAL — B27 / B9.1 integrado a `main` (2026-09-29)
 
 - **PR #162 MERGED** mediante merge commit `fa64d868420880ba598e05e61dbe8d213d16430c`.
@@ -31,8 +40,7 @@
 - Chromium local de certificación: Edge `C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe`
   (Chromium 153.0.4234.48). Auditoría visual: 320×568, 390×844, 430×932, 820×1180 y 1440×900 sin overflow/solapamientos.
 - Deuda histórica de gates antiguos sigue documentada en B26; no se relajó para B27.
-- **Siguiente canónico: B28 / B9.2 — Reordenar.** Añadir drag-and-drop/puntero sin perder «Mover a…» ni la
-  reordenación completa por teclado. B9.3, B9.4 y B9.5 siguen pendientes. No mezclar Astra ni Vercel.
+- **B28 / B9.2 ya integrado.** Siguiente canónico: B29 / B9.3 «Probar otro orden». B9.4 y B9.5 siguen pendientes. No mezclar Astra ni Vercel.
 
 ## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)
 
