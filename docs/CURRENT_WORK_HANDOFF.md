@@ -1,13 +1,11 @@
-# Handoff reanudable — B21 + B6.1–B6.6
+# Handoff reanudable — trabajo actual B29 / B9.3
 
-## ESTADO CANÓNICO ACTUAL — B28 / B9.2 integrado a `main` (2026-09-29)
+## ESTADO CANÓNICO ACTUAL — B29 / B9.3 «Herramientas del día · Probar otro orden»
 
-- **PR #164 MERGED** mediante merge commit `2e5d3c32e4e773cea78de68c7c8c6a7b09a351f6`.
-- **Padres:** `47a6f0e1549f273622a112820ace5279455cbd9e` (main previo) + `d3b8a04831c3beed67f2e397d741f40e22b421e6` (HEAD B28 certificado).
-- **Árbol del merge = árbol del HEAD certificado:** `663d2e38354ab84116a98a03364834095b473c59`.
-- Certificación transferida sin cambios de código: **109 archivos, 3431/3431 Vitest PASS**; B28 **64/64**; B27 A–K; B18 browser-back 15/15; B25 123/123; B26 314/314; build PASS; lint 0 errores + warning heredado.
-- B28 integrado: Pointer Events sin dependencia, drag intra/interdía, Sin asignar → día, posición exacta, cancelación, auto-scroll normal/reduced-motion, live region con posición normalizada, ruta completa por teclado preservada.
-- **Siguiente canónico: B29 / B9.3 — Herramientas del día · «Probar otro orden».** Hoja local al día con orden actual, propuesta reordenable y comparación mediante `sequence-comparison.ts`; alternativas verificadas como opciones, nunca automáticas. B9.4/B9.5 siguen pendientes. No mezclar Astra ni Vercel.
+- Rama obligatoria: `codex/block-29-b9-3-day-tools`, basada exactamente en `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
+- B29 implementa la herramienta efímera por día: baseline persistido, propuesta editable por teclado, comparación local mediante `compareSequences`, alternativas evidence-complete como opciones, y aplicación explícita atómica con protección stale.
+- Estado final, commits, gates, capturas, PR único y diferidos: `docs/BLOCK_29_HANDOFF.md`.
+- No merge ni despliegue. B9.4/B9.5, B30 y B10 no iniciados. Astra y Vercel fuera de alcance.
 
 ## HISTÓRICO — B28 / B9.2 antes de integración
 

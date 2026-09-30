@@ -31,10 +31,11 @@ function reversalGroup(fullSource: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-I UI (§31.122-123)", () => {
-  it("122. the one existing surface gains a fourth subgroup, rendered only when applicable", async () => {
+  it("122. the day-local tool replaces the old mounted subgroup surface", async () => {
     const full = await source();
     const block = sectionBlock(full);
-    expect(full.match(/<LocalSwapAlternativesSection/g)).toHaveLength(1);
+    expect(full).not.toContain("<LocalSwapAlternativesSection");
+    expect(full).toContain("<DayOrderToolPanel");
     expect(block).toContain("Alternativas locales con evidencia completa");
     for (const heading of [
       "Intercambios adyacentes",

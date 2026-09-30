@@ -19,10 +19,11 @@ function sectionBlock(fullSource: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
-  it("85. one existing surface contains distinct swap and relocation subgroups", async () => {
+  it("85. the day-local tool replaces the mounted swap/relocation disclosure", async () => {
     const full = await source();
     const block = sectionBlock(full);
-    expect(full.match(/<LocalSwapAlternativesSection/g)).toHaveLength(1);
+    expect(full).not.toContain("<LocalSwapAlternativesSection");
+    expect(full).toContain("<DayOrderToolPanel");
     expect(block).toContain("Alternativas locales con evidencia completa");
     expect(block).toContain("Intercambios adyacentes");
     expect(block).toContain("Reubicaciones de un lugar");

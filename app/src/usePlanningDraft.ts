@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   AccommodationBoundaryChoice,
   ManualAccommodationLeg,
@@ -16,6 +15,7 @@ import {
   withAccommodationLeg,
   withDayAccommodationChoice,
   withDayMoved,
+  withDayPlaceOrderApplied,
   withInitialDays,
   withInterHubSegmentDetails,
   withNewAccommodation,
@@ -45,6 +45,7 @@ import {
   type DraftStorage,
   type ManualPlanningDraftV8,
 } from "./lib/planning-draft-v8";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 /* DDR-03: el adaptador compartido de `lib/device-storage.ts`. Misma forma estructural que el
    `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
@@ -292,6 +293,14 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withDayMoved(current, dayId, direction));
   }, []);
 
+  /** B9.3: commit a full day-local proposal with one functional draft update and a fresh stale check. */
+  const applyDayPlaceOrder = useCallback(
+    (dayId: string, expectedBaselineIds: readonly string[], proposalIds: readonly string[]) => {
+      setDraft((current) => withDayPlaceOrderApplied(current, dayId, expectedBaselineIds, proposalIds));
+    },
+    []
+  );
+
   /** Phase 3C-E: sets, changes, or clears the manual calendar anchor for "Día 1". Accepts a
    * plain `YYYY-MM-DD` string or `null`; an invalid string is rejected by `withStartDate`
    * (the draft stays unchanged), never coerced or guessed. Phase 3D-Q: changing it never touches
@@ -476,6 +485,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     addEmptyDay,
     removeEmptyDay,
     moveDay,
+    applyDayPlaceOrder,
     setStartDate,
     setEndDate,
     setVisitStartTime,

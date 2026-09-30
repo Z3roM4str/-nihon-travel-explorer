@@ -510,6 +510,48 @@ export function withPlaceInsertedIntoDay(
 }
 
 /**
+ * B9.3: atomically commits one ephemeral, day-local proposal.
+ *
+ * The live day must still equal the snapshot that opened the tool. The proposed ids must be a
+ * duplicate-free permutation of that snapshot, and every id must still belong to the route. Any
+ * stale or malformed input fails closed. Only the target entity's `placeIds` array is replaced;
+ * its stable identity, boundary object, every other day and every other V8 field are preserved.
+ */
+export function withDayPlaceOrderApplied(
+  draft: ManualPlanningDraftV8,
+  dayId: string,
+  expectedBaselineIds: readonly string[],
+  proposalIds: readonly string[]
+): ManualPlanningDraftV8 {
+  if (draft.days === null) return draft;
+  const matchingDays = draft.days.filter((day) => day.id === dayId);
+  if (matchingDays.length !== 1) return draft;
+  const dayIndex = draft.days.findIndex((day) => day.id === dayId);
+  const day = draft.days[dayIndex];
+  if (
+    expectedBaselineIds.length !== day.placeIds.length ||
+    !expectedBaselineIds.every((placeId, index) => day.placeIds[index] === placeId)
+  ) return draft;
+
+  const baselineSet = new Set(expectedBaselineIds);
+  const proposalSet = new Set(proposalIds);
+  const routeSet = new Set(draft.routeIds);
+  if (
+    baselineSet.size !== expectedBaselineIds.length ||
+    proposalIds.length !== expectedBaselineIds.length ||
+    proposalSet.size !== proposalIds.length ||
+    proposalIds.some((placeId) => !baselineSet.has(placeId) || !routeSet.has(placeId)) ||
+    expectedBaselineIds.some((placeId) => !routeSet.has(placeId))
+  ) return draft;
+
+  if (proposalIds.every((placeId, index) => expectedBaselineIds[index] === placeId)) return draft;
+
+  const days = [...draft.days];
+  days[dayIndex] = { ...day, placeIds: [...proposalIds] };
+  return { ...draft, days };
+}
+
+/**
  * "Restablecer recorrido". Accommodation anchors are carried forward by the inherited contract, so
  * the zone decisions that seeded them are carried forward too — resetting the route is not a
  * decision about where the trip sleeps. The choices are still pruned against the anchors that
