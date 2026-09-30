@@ -35,6 +35,7 @@ import {
   type EvidenceCompleteTwoPairBlockSwapAlternative,
 } from "../lib/evidence-complete-two-pair-block-swap";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
+import { resolveFinalPosition } from "../lib/sequence-drop-position";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { Icon } from "../icons/Icon";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -2867,10 +2868,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     [dayIds, placeById]
   );
   type DragPayload = { pointerId: number; placeId: string; fromDayId: string | null; x: number; y: number; active: boolean; days: typeof planningDays };
-  type DropTarget = { dayId: string; slot: number };
+  type DropTarget = { dayId: string; position: number };
+  type ScrollSchedule = { kind: "frame"; id: number };
   const dragRef = useRef<DragPayload | null>(null);
   const dropRef = useRef<DropTarget | null>(null);
-  const scrollFrameRef = useRef<number | null>(null);
+  const scrollScheduleRef = useRef<ScrollSchedule | null>(null);
+  const lastReducedScrollAtRef = useRef(0);
   const pointerRef = useRef({ x: 0, y: 0 });
   const [dragPlaceId, setDragPlaceId] = useState<string | null>(null);
   const [dragPointer, setDragPointer] = useState({ x: 0, y: 0 });
@@ -2878,8 +2881,20 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   const [dragAnnouncement, setDragAnnouncement] = useState("");
 
   function stopAutoScroll() {
-    if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
-    scrollFrameRef.current = null;
+    const schedule = scrollScheduleRef.current;
+    if (schedule?.kind === "frame") cancelAnimationFrame(schedule.id);
+    scrollScheduleRef.current = null;
+  }
+
+  function scheduleAutoScrollFrame() {
+    if (scrollScheduleRef.current !== null) return;
+    scrollScheduleRef.current = {
+      kind: "frame",
+      id: requestAnimationFrame((timestamp) => {
+        scrollScheduleRef.current = null;
+        scrollNearEdge(timestamp);
+      }),
+    };
   }
 
   function cancelDrag(announce = true) {
@@ -2902,16 +2917,25 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     }
     const stops = [...card.querySelectorAll<HTMLElement>(".day-timeline__item .trip-stop")];
     const slot = stops.findIndex((stop) => y < stop.getBoundingClientRect().top + stop.getBoundingClientRect().height / 2);
-    const target = { dayId, slot: slot < 0 ? stops.length : slot };
-    if (dropRef.current?.dayId !== target.dayId || dropRef.current.slot !== target.slot) {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const sourceIndex = drag.fromDayId
+      ? drag.days?.find((day) => day.id === drag.fromDayId)?.placeIds.indexOf(drag.placeId) ?? -1
+      : -1;
+    const target = {
+      dayId,
+      position: resolveFinalPosition(drag.fromDayId, dayId, sourceIndex, slot < 0 ? stops.length : slot),
+    };
+    if (dropRef.current?.dayId !== target.dayId || dropRef.current.position !== target.position) {
       dropRef.current = target;
       setDropTarget(target);
       const dayIndex = planningDays.findIndex((day) => day.id === dayId);
-      setDragAnnouncement(`Día ${dayIndex + 1}, posición ${target.slot + 1}.`);
+      setDragAnnouncement(`Día ${dayIndex + 1}, posición ${target.position + 1}.`);
     }
   }
 
-  function scrollNearEdge() {
+  function scrollNearEdge(timestamp?: number) {
+    if (timestamp === undefined) { scheduleAutoScrollFrame(); return; }
     if (!dragRef.current?.active) { stopAutoScroll(); return; }
     const body = dialogRef.current?.querySelector<HTMLElement>(".analysis-body");
     const panel = dialogRef.current?.closest<HTMLElement>(".destination-panel--scroll");
@@ -2919,15 +2943,22 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
       ? body : panel && panel.scrollHeight > panel.clientHeight + 1 ? panel : null;
     if (!scroller) { stopAutoScroll(); return; }
     const rect = scroller.getBoundingClientRect();
-    const { y } = pointerRef.current;
+    const { x, y } = pointerRef.current;
     const edge = 72;
-    const speed = y < rect.top + edge ? -12 : y > rect.bottom - edge ? 12 : 0;
-    if (speed && y >= rect.top - 24 && y <= rect.bottom + 24) {
+    const direction = y < rect.top + edge ? -1 : y > rect.bottom - edge ? 1 : 0;
+    if (direction && y >= rect.top - 24 && y <= rect.bottom + 24) {
+      const reducedMotion = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const step = reducedMotion ? 64 : 12;
       const before = scroller.scrollTop;
-      scroller.scrollTop += speed;
-      if (scroller.scrollTop === before) { stopAutoScroll(); return; }
-      hitTest(pointerRef.current.x, y);
-      scrollFrameRef.current = requestAnimationFrame(scrollNearEdge);
+      if (!reducedMotion || timestamp - lastReducedScrollAtRef.current >= 160) {
+        scroller.scrollTop += direction * step;
+        if (scroller.scrollTop === before) { stopAutoScroll(); return; }
+        if (reducedMotion) lastReducedScrollAtRef.current = timestamp;
+        hitTest(x, y);
+      }
+      const atEdge = direction < 0 ? scroller.scrollTop <= 0 : scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+      if (atEdge) { stopAutoScroll(); return; }
+      scheduleAutoScrollFrame();
     } else stopAutoScroll();
   }
 
@@ -2936,6 +2967,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     if (fromDayId ? !planningDays?.some((day) => day.id === fromDayId && day.placeIds.includes(placeId)) : routeIds.includes(placeId)) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { pointerId: event.pointerId, placeId, fromDayId, x: event.clientX, y: event.clientY, active: false, days: planningDays };
+    lastReducedScrollAtRef.current = Number.NEGATIVE_INFINITY;
     pointerRef.current = { x: event.clientX, y: event.clientY };
     setDragPointer({ x: event.clientX, y: event.clientY });
   }
@@ -2953,7 +2985,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     }
     event.preventDefault();
     hitTest(event.clientX, event.clientY);
-    if (scrollFrameRef.current === null) scrollNearEdge();
+    if (scrollScheduleRef.current === null) scrollNearEdge();
   }
 
   function finishDrag(event: ReactPointerEvent) {
@@ -2964,16 +2996,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
       ? planningDays?.some((day) => day.id === drag.fromDayId && day.placeIds.includes(drag.placeId))
       : !routeIds.includes(drag.placeId) && placeById.has(drag.placeId));
     const destination = planningDays?.find((day) => day.id === target?.dayId);
-    const valid = drag.active && validSource && target && destination && target.slot >= 0 && target.slot <= destination.placeIds.length;
+    const valid = drag.active && validSource && target && destination && target.position >= 0 && target.position <= destination.placeIds.length;
     cancelDrag(false);
     if (!valid || !target) { if (drag.active) setDragAnnouncement("Movimiento cancelado."); return; }
     if (drag.fromDayId) {
       const sourceIndex = planningDays?.find((day) => day.id === drag.fromDayId)?.placeIds.indexOf(drag.placeId) ?? -1;
       if (sourceIndex < 0) return;
-      const finalPosition = drag.fromDayId === target.dayId && target.slot > sourceIndex ? target.slot - 1 : target.slot;
-      relocatePlace(drag.fromDayId, target.dayId, drag.placeId, finalPosition);
-    } else insertUnassignedPlace(drag.placeId, target.dayId, target.slot);
-    setDragAnnouncement(`Parada movida al Día ${planningDays!.findIndex((day) => day.id === target.dayId) + 1}, posición ${target.slot + 1}.`);
+      relocatePlace(drag.fromDayId, target.dayId, drag.placeId, target.position);
+    } else insertUnassignedPlace(drag.placeId, target.dayId, target.position);
+    setDragAnnouncement(`Parada movida al Día ${planningDays!.findIndex((day) => day.id === target.dayId) + 1}, posición ${target.position + 1}.`);
     requestAnimationFrame(() => {
       const handle = [...document.querySelectorAll<HTMLButtonElement>("[data-drag-place-id]")]
         .find((element) => element.dataset.dragPlaceId === drag.placeId);
@@ -3797,7 +3828,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             onOpen={onSelectPlace}
                             onDragStart={startDrag}
                             dragPlaceId={dragPlaceId}
-                            dropSlot={dropTarget?.dayId === dayEntity?.id ? dropTarget.slot : null}
+                            dropSlot={dropTarget?.dayId === dayEntity?.id ? dropTarget.position : null}
                             onUnassign={(placeIndex) => {
                               const placeId = dayIds[dayIndex]?.[placeIndex];
                               if (dayEntity && placeId) removePlaceFromDay(placeId, dayEntity.id);

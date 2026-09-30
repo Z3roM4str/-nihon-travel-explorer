@@ -17,8 +17,8 @@ let checks = 0;
 function check(value, message) { checks++; if (!value) throw new Error(message); }
 async function plan(page) { return page.evaluate((storageKey) => JSON.parse(localStorage.getItem(storageKey)), key); }
 async function shot(page, name) { if (shots) await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true }); }
-async function setup(viewport = { width: 390, height: 844 }, hasTouch = false) {
-  const context = await browser.newContext({ viewport, hasTouch, isMobile: hasTouch });
+async function setup(viewport = { width: 390, height: 844 }, hasTouch = false, reducedMotion = "no-preference") {
+  const context = await browser.newContext({ viewport, hasTouch, isMobile: hasTouch, reducedMotion });
   await context.addInitScript(({ placeIds, storageKey, savedKey }) => {
     window.__b28DraftWrites = [];
     const originalSetItem = Storage.prototype.setItem;
@@ -68,6 +68,14 @@ async function mouseDrag(page, handle, destination, release = true, fraction = .
   if (release) await page.mouse.up();
   return end;
 }
+async function mouseDragTo(page, handle, destination) {
+  const start = await point(handle);
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  const end = typeof destination === "function" ? await destination() : destination;
+  await page.mouse.move(end.x, end.y, { steps: 12 });
+  return end;
+}
 async function touchDrag(page, handle, destination) {
   const start = await point(handle);
   const cdp = await page.context().newCDPSession(page);
@@ -90,6 +98,31 @@ try {
   check(await first.getByRole("button", { name: `Arrastrar ${places[0].name}` }).count() === 1, "A: drag handle missing");
   check(await first.locator(".trip-stop__handle").first().evaluate((el) => Math.min(el.getBoundingClientRect().width, el.getBoundingClientRect().height)) >= 44, "J: handle target <44px");
   await shot(page, "390-baseline");
+
+  const dragStatus = root.locator('.visually-hidden[role="status"][aria-live="polite"]');
+  await mouseDragTo(page, first.locator('[data-drag-place-id="' + ids[0] + '"]'), async () => {
+    await first.locator(".trip-stop").nth(3).scrollIntoViewIfNeeded();
+    return page.evaluate(() => {
+      const stops = [...document.querySelectorAll('.day-card[data-day-id="day-a"] .trip-stop')];
+      const c = stops[2].getBoundingClientRect();
+      const d = stops[3].getBoundingClientRect();
+      return { x: d.left + d.width / 2, y: (c.top + c.height / 2 + d.top + d.height / 2) / 2 };
+    });
+  });
+  const positionDuringDrag = (await dragStatus.textContent()).trim();
+  check(positionDuringDrag === "Día 1, posición 3.", "B: live region reports effective A-between-C/D position 3 during drag; found: " + positionDuringDrag);
+  await page.mouse.up();
+  check(JSON.stringify((await plan(page)).days[0].placeIds) === JSON.stringify([ids[1], ids[2], ids[0], ids[3]]), "B: A between C and D becomes B C A D");
+  check((await dragStatus.textContent()).trim() === "Parada movida al Día 1, posición 3.", "B: final announcement reports effective same-day position 3");
+
+  await mouseDragTo(page, first.locator('[data-drag-place-id="' + ids[3] + '"]'), () => point(first.locator(".trip-stop").first(), .25));
+  check((await dragStatus.textContent()).trim() === "Día 1, posición 1.", "B: D-to-start live region reports position 1 during drag");
+  await page.mouse.up();
+  check(JSON.stringify((await plan(page)).days[0].placeIds) === JSON.stringify([ids[3], ids[1], ids[2], ids[0]]), "B: D to start preserves the exact final order");
+  check((await dragStatus.textContent()).trim() === "Parada movida al Día 1, posición 1.", "B: final D-to-start announcement reports position 1");
+  await mouseDrag(page, first.locator('[data-drag-place-id="' + ids[3] + '"]'), first.locator(".trip-stop").last(), true, .8);
+  await mouseDrag(page, first.locator('[data-drag-place-id="' + ids[0] + '"]'), first.locator(".trip-stop").first());
+  check(JSON.stringify((await plan(page)).days[0].placeIds) === JSON.stringify(ids.slice(0, 4)), "B: live-region cases restore the original order for the remaining gate");
 
   await mouseDrag(page, first.locator(`[data-drag-place-id="${ids[0]}"]`), first.locator(".trip-stop").nth(2));
   check(JSON.stringify((await plan(page)).days[0].placeIds) === JSON.stringify([ids[1], ids[0], ids[2], ids[3]]), "B: same-day 0 to 1");
@@ -197,6 +230,58 @@ try {
   await auto.page.waitForTimeout(80);
   check(await scrollPanel.evaluate((element) => element.scrollTop) === afterScroll, "J: auto-scroll continued after cancellation");
   await auto.context.close();
+
+  const reduced = await setup({ width: 390, height: 844 }, false, "reduce");
+  const reducedHandle = card(reduced.root, "day-a").locator('[data-drag-place-id="' + ids[0] + '"]');
+  const reducedStart = await point(reducedHandle);
+  const reducedPanel = reduced.root.locator(".destination-panel--scroll");
+  const reducedBefore = await reducedPanel.evaluate((element) => element.scrollTop);
+  const reducedDraft = JSON.stringify(await plan(reduced.page));
+  check(await reduced.page.evaluate(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches), "J: reduced-motion browser context is active");
+  await reduced.page.evaluate(() => {
+    const element = document.querySelector(".destination-panel:not([hidden]) .destination-panel--scroll");
+    window.__b28ReducedSamples = [];
+    let owner = element;
+    let descriptor;
+    while (owner && !descriptor) {
+      descriptor = Object.getOwnPropertyDescriptor(owner, "scrollTop");
+      owner = Object.getPrototypeOf(owner);
+    }
+    Object.defineProperty(element, "scrollTop", {
+      configurable: true,
+      get() { return descriptor.get.call(element); },
+      set(value) {
+        const before = descriptor.get.call(element);
+        descriptor.set.call(element, value);
+        const after = descriptor.get.call(element);
+        if (after !== before) window.__b28ReducedSamples.push(after - before);
+      },
+    });
+  });
+  const reducedBox = await reducedPanel.boundingBox();
+  await reduced.page.mouse.move(reducedStart.x, reducedStart.y);
+  await reduced.page.mouse.down();
+  await reduced.page.mouse.move(reducedStart.x, reducedBox.y + reducedBox.height - 18, { steps: 8 });
+  await reduced.page.waitForFunction((start) => document.querySelector(".destination-panel:not([hidden]) .destination-panel--scroll").scrollTop >= start + 192, reducedBefore, { timeout: 2400 }).catch(async () => {
+    const diagnostic = await reduced.page.evaluate(() => {
+      const root = document.querySelector(".destination-panel:not([hidden])");
+      const body = root?.querySelector(".analysis-body");
+      const panel = root?.querySelector(".destination-panel--scroll");
+      return { reduced: matchMedia("(prefers-reduced-motion: reduce)").matches, body: body && { top: body.scrollTop, height: body.scrollHeight, client: body.clientHeight }, panel: panel && { top: panel.scrollTop, height: panel.scrollHeight, client: panel.clientHeight } };
+    });
+    throw new Error("J: reduced-motion scrolling timed out: " + JSON.stringify(diagnostic));
+  });
+  const reducedAfter = await reducedPanel.evaluate((element) => element.scrollTop);
+  const reducedSteps = await reduced.page.evaluate(() => window.__b28ReducedSamples);
+  check(reducedAfter - reducedBefore >= 192, "J: reduced-motion edge steps reveal content at least 192px beyond the initial viewport");
+  check(reducedSteps.length >= 3 && reducedSteps.every((step) => Math.abs(step) >= 60), "J: reduced-motion policy uses discrete 64px steps instead of frame-by-frame scrolling; observed " + JSON.stringify(reducedSteps));
+  await reduced.page.keyboard.press("Escape");
+  const stoppedAtEscape = await reducedPanel.evaluate((element) => element.scrollTop);
+  await reduced.page.mouse.up();
+  await reduced.page.waitForTimeout(220);
+  check(await reducedPanel.evaluate((element, top) => element.scrollTop === top, stoppedAtEscape), "J: Escape immediately cancels the pending reduced-motion step");
+  check(JSON.stringify(await plan(reduced.page)) === reducedDraft, "J: reduced-motion Escape leaves the draft intact");
+  await reduced.context.close();
 
   for (const [width, height] of viewports) {
     const sample = await setup({ width, height });
