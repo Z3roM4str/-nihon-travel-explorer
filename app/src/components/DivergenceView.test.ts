@@ -264,8 +264,8 @@ describe("accessibility", () => {
 
   it("honours reduced motion", async () => {
     const css = await readAppSource("App.css");
-    const query = css.slice(css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
-    expect(query).toContain(".shortlist-filters__chip");
+    const queries = [...css.matchAll(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/g)];
+    expect(queries.some((query) => query[1].includes(".shortlist-filters__chip"))).toBe(true);
   });
 
   it("keeps the row from forcing a horizontal page scroll on a phone", async () => {

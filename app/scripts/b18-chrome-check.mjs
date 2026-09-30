@@ -9,7 +9,7 @@ const BASE_URL = process.env.NIHON_BASE_URL ?? "http://localhost:4181";
  * 2. Cabecera sin overflow horizontal en 320/360/390/430.
  */
 async function main() {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
   const results = [];
   const check = (label, ok) => {
     results.push({ label, ok });

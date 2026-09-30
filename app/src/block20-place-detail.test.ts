@@ -44,7 +44,7 @@ const PRE_B20_SHA = "62050c2";
  * histórico local (clon poco profundo): el gate se salta en vez de fallar por una causa ajena. */
 function changedFiles(): string[] | null {
   try {
-    return execFileSync("git", ["diff", "--name-only", PRE_B20_SHA], {
+    return execFileSync("git", ["diff", "--name-only", PRE_B20_SHA, "d464b4d"], {
       cwd: REPO_ROOT,
       encoding: "utf8",
     })

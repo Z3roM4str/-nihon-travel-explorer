@@ -24,6 +24,7 @@ import {
   withPlaceMovedBetweenDays,
   withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
+  withPlaceAddedToDay,
   withPlacesTransposedWithinDay,
   withFourPlacesReversedWithinDay,
   withTwoPairBlocksSwappedWithinDay,
@@ -35,6 +36,7 @@ import {
   withoutAccommodation,
   withoutEmptyDay,
   withoutInterHubSegment,
+  withoutPlaceFromDay,
   withoutZoneAccommodationChoice,
   writeDraft,
   isAccommodationAnchorInUse,
@@ -233,6 +235,19 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * the old choice. */
   const movePlaceBetweenDays = useCallback((fromDayId: string, toDayId: string, placeIndex: number) => {
     setDraft((current) => withPlaceMovedBetweenDays(current, fromDayId, toDayId, placeIndex));
+  }, []);
+
+  /** B9.1: restores one saved-but-unassigned place directly into an explicitly chosen stable day.
+   * This is one atomic edit so the persisted route/day partition is never observed invalid. */
+  const addPlaceToDay = useCallback((placeId: string, dayId: string) => {
+    setDraft((current) => withPlaceAddedToDay(current, placeId, dayId));
+  }, []);
+
+  /** B9.1: delegates the atomic unassignment policy to the pure V8 domain mutation. That mutation
+   * prunes the removed place's route-scoped time/legs/segments while keeping day identity and all
+   * trip-scoped decisions; this hook owns no parallel cleanup policy. */
+  const removePlaceFromDay = useCallback((placeId: string, dayId: string) => {
+    setDraft((current) => withoutPlaceFromDay(current, placeId, dayId));
   }, []);
 
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
@@ -436,6 +451,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     reverseFourPlacesWithinDay,
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
+    addPlaceToDay,
+    removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
     moveDay,

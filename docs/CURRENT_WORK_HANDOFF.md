@@ -12,6 +12,21 @@
 - Gates históricos obsoletos (deuda B10): `block1-ux`, `block13`, `block14`, `b18-regression`, `b24-real-input` P0-2.
 - **Siguiente:** B27 = B9.1 «Días como estructura», rama `claude/b27-viaje-b9-1-dias` desde el HEAD remoto de `main`
   tras esta documentación. Plan en `docs/BLOCK_26_HANDOFF.md`. No mezclar Astra ni #154.
+## ESTADO ACTUAL — B27 / B9.1 en PR #162 (2026-09-29)
+
+- Rama: `codex/cerrar-b27/b9.1-en-pr-#161`; rebase sobre `origin/main`
+  `eab63a8af34c8e0474340eba4687766be979933b`, con B26/PR #159 preservado.
+- Conflictos de rebase: `app/src/App.css` se resolvió conservando reglas B26 y B27; en
+  `docs/CURRENT_WORK_HANDOFF.md` se preservó íntegra la sección canónica B26 y se actualizó este bloque B27.
+- Funcionalidad B9.1: días reordenables, TripStop bidireccional con Sin asignar y poda V8, acciones de día,
+  alternativas accesibles, InterHub entre tarjetas y cabecera con fechas.
+- Vitest: **107 archivos, 3426/3426 PASS**. Build PASS; lint 0 errores y 1 warning heredado de PlaceMap.
+- Gates: B26 314/314, B25 123/123, B5 231/231, B6 177/177, B18 15/15 + 38/38 + 6/6 + 25/25,
+  B23 28/28, Phase 5A 50/50 escritorio + 50/50 móvil, integración B24+B23 58/58, DD-028 16/16,
+  DDR03 43/43, DDR-B24-3 9/9 y B27 A–K en 8 viewports. Chromium local: Edge `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`.
+- Handoff B27 y capturas/auditoría: `docs/BLOCK_27_HANDOFF.md`. No se abrió otro PR; `main`, Astra y B9.2 no se modificaron.
+- Deferred: B9.2 drag-and-drop; B9.3 rediseño final de «Probar otro orden»; B9.4 Dónde dormir; B9.5
+  Reservas/Resumen. B28 no iniciado.
 
 ## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)
 
@@ -20,7 +35,7 @@
 - **Padres:** `98260eb67b508527cd6836fda2d3d3f33d909c1a` (main previo) +
   `c57d58aa632b4532136919350dd00d85949a4cf6` (head certificado de `claude/b25-quiero-ir`).
 - **Certificación post-merge desde el nuevo `main`:** `git diff --check` limpio; build PASS; lint
-  0 errores (1 warning heredado `PlaceMap.tsx:17`); Vitest 106 ficheros, 3395/3395; B25
+  0 errores (1 warning heredado `PlaceMap.tsx:17`); Vitest 106 ficheros, 3406/3406; B25
   `b25-quiero-ir-check` 123/123; integración B24+B23 58/58; Phase 5A 50/50 desktop y 50/50 móvil;
   B23 photo retry 28/28; DD-028 16/16; B18 back 15/15; B18 viaje-lugar 38/38; B5 231/231; B6 177/177.
 - Siguiente bloque: requiere decisión de dirección (ver `docs/BLOCK_25_HANDOFF.md`). No mezclar Astra.
@@ -31,7 +46,7 @@
 - Pantalla según `05 §6`: segmentado (filtro de vista), resumen de tres datos, coincidencias
   primero, «Sólo {persona}», Descartados, «Llevar al viaje»; `SelectionAnalysis` integrado como
   «Por ciudad y zona»; quitar + Toast «Deshacer». P1-13 resuelto.
-- Puertas: build PASS, lint 0 errores, Vitest 3395/3395, gate nuevo
+- Puertas: build PASS, lint 0 errores, Vitest 3406/3406, gate nuevo
   `app/scripts/b25-quiero-ir-check.mjs` 123/123, integración 58/58, Phase 5A 50/50 ×2, B23 28/28,
   DD-028 16/16, B18 back 15/15, viaje-lugar 38/38. Detalle: `docs/BLOCK_25_HANDOFF.md`.
 - Certificado contra `main` @ `98260eb` (merge sin conflictos); gates B5 231/231 y B6 177/177
@@ -296,3 +311,7 @@ La historia remota de #141 contiene un solo commit posterior a la base B21. El S
 ## Estado de entrega
 
 B6.2, B6.3, B6.4, B6.5 y B6.6 están integrados y cerrados en la rama canónica. B6.6 se integró mediante PR #148 con 8 nuevas identities C/D y 2 excepciones documentadas; véase `docs/BLOCK_22_B6_6_REPORT.md`. El próximo bloque permitido es la segunda imagen para lugares Grado A de “Popular / turístico” y “Hidden Gem real”; no iniciado.
+
+## Bloque 27 — B9.1 Viaje · Días
+
+B27 convierte Días en la entrada de Viaje sobre el draft manual existente. Véanse `docs/BLOCK_27_MISSION.md` y `docs/BLOCK_27_HANDOFF.md`. B9.2, B9.3, B9.4 y B9.5 siguen diferidos y no se consideran completados.

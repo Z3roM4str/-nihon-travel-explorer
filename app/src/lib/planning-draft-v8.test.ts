@@ -15,14 +15,19 @@ import {
   withDayAccommodationChoice,
   withDayMoved,
   dayAssignedPlaceIds,
+  withEndDate,
   withInitialDays,
   withNewAccommodation,
   withNewEmptyDay,
+  withNewInterHubSegment,
+  withPlaceAddedToDay,
   withPlaceMovedWithinDay,
   withRoute,
   withStartDate,
+  withVisitStartTime,
   withZoneAccommodationChoice,
   withoutAccommodation,
+  withoutPlaceFromDay,
   withoutZoneAccommodationChoice,
   writeDraft,
   type DraftStorage,
@@ -79,6 +84,106 @@ function plannedDraft(): ManualPlanningDraftV8 {
   const base = freshDraft(["tokyo-a", "tokyo-b", "kyoto-a"]);
   return withInitialDays(base, [["tokyo-a", "tokyo-b"], ["kyoto-a"]], ids("day-1", "day-2"));
 }
+
+function routeScopedDraft(): ManualPlanningDraftV8 {
+  let draft = withInitialDays(
+    freshDraft(["tokyo-a", "tokyo-b", "kyoto-a"]),
+    [["tokyo-b", "tokyo-a"], ["kyoto-a"]],
+    ids("day-1", "day-2")
+  );
+  draft = withStartDate(draft, "2027-02-22");
+  draft = withEndDate(draft, "2027-03-05");
+  draft = withZoneAccommodationChoice(draft, SHINJUKU, ids("acc-z1"));
+  draft = withVisitStartTime(draft, "tokyo-a", "09:30");
+  draft = withVisitStartTime(draft, "tokyo-b", "10:45");
+  draft = withAccommodationLeg(draft, "accommodation-to-place", "acc-z1", "tokyo-a", 25);
+  draft = withAccommodationLeg(draft, "place-to-accommodation", "acc-z1", "tokyo-a", 30);
+  draft = withAccommodationLeg(draft, "accommodation-to-place", "acc-z1", "tokyo-b", 15);
+  draft = withNewInterHubSegment(draft, {
+    fromPlaceId: "tokyo-a", toPlaceId: "kyoto-a", fromHub: "Tokio", toHub: "Kioto",
+    mode: "shinkansen", minutes: 135,
+  }, ids("segment-a"));
+  draft = withNewInterHubSegment(draft, {
+    fromPlaceId: "tokyo-b", toPlaceId: "kyoto-a", fromHub: "Tokio", toHub: "Kioto",
+    mode: "shinkansen", minutes: 140,
+  }, ids("segment-other"));
+  return draft;
+}
+
+describe("B9.1 — moving one place to Sin asignar", () => {
+  it("A removes it from a non-empty day while preserving both explicit orders", () => {
+    const before = routeScopedDraft();
+    const after = withoutPlaceFromDay(before, "tokyo-a", "day-1");
+    expect(after.routeIds).toEqual(["tokyo-b", "kyoto-a"]);
+    expect(after.days?.map((day) => day.placeIds)).toEqual([["tokyo-b"], ["kyoto-a"]]);
+    expect(after.days?.map((day) => day.id)).toEqual(["day-1", "day-2"]);
+  });
+
+  it("B resets the boundary when the removed place was the day's last one", () => {
+    let before = withZoneAccommodationChoice(plannedDraft(), SHINJUKU, ids("acc-z1"));
+    before = withDayAccommodationChoice(before, "day-2", "end", { kind: "accommodation", accommodationId: "acc-z1" });
+    const after = withoutPlaceFromDay(before, "kyoto-a", "day-2");
+    expect(after.days?.[1]).toMatchObject({ id: "day-2", placeIds: [], accommodationBoundary: boundary() });
+  });
+
+  it("C is a no-op for an unknown day id", () => {
+    const before = routeScopedDraft();
+    expect(withoutPlaceFromDay(before, "tokyo-a", "day-nope")).toBe(before);
+  });
+
+  it("D is a no-op for an unknown place id", () => {
+    const before = routeScopedDraft();
+    expect(withoutPlaceFromDay(before, "nope", "day-1")).toBe(before);
+  });
+
+  it("E is a no-op when the place is not in the addressed day", () => {
+    const before = routeScopedDraft();
+    expect(withoutPlaceFromDay(before, "kyoto-a", "day-1")).toBe(before);
+  });
+
+  it("F prunes only that place's visit start time", () => {
+    const after = withoutPlaceFromDay(routeScopedDraft(), "tokyo-a", "day-1");
+    expect(after.visitStartTimes).toEqual({ "tokyo-b": "10:45" });
+  });
+
+  it("G prunes accommodation legs in both directions for that place", () => {
+    const after = withoutPlaceFromDay(routeScopedDraft(), "tokyo-a", "day-1");
+    expect(after.accommodationLegs).toHaveLength(1);
+    expect(after.accommodationLegs[0].placeId).toBe("tokyo-b");
+  });
+
+  it("H prunes every inter-hub segment that references the place", () => {
+    const after = withoutPlaceFromDay(routeScopedDraft(), "tokyo-a", "day-1");
+    expect(after.interHubSegments.map((segment) => segment.id)).not.toContain("segment-a");
+  });
+
+  it("I preserves unrelated inter-hub segments", () => {
+    const after = withoutPlaceFromDay(routeScopedDraft(), "tokyo-a", "day-1");
+    expect(after.interHubSegments.map((segment) => segment.id)).toEqual(["segment-other"]);
+  });
+
+  it("J/K/L preserves anchors, zone choices and both civil bounds", () => {
+    const before = routeScopedDraft();
+    const after = withoutPlaceFromDay(before, "tokyo-a", "day-1");
+    expect(after.accommodations).toEqual(before.accommodations);
+    expect(after.zoneAccommodationChoices).toEqual(before.zoneAccommodationChoices);
+    expect({ startDate: after.startDate, endDate: after.endDate }).toEqual({
+      startDate: "2027-02-22", endDate: "2027-03-05",
+    });
+  });
+
+  it("M re-adding the place never resurrects route-scoped records", () => {
+    const removed = withoutPlaceFromDay(routeScopedDraft(), "tokyo-a", "day-1");
+    const restored = withPlaceAddedToDay(removed, "tokyo-a", "day-2");
+    expect(restored.routeIds).toEqual(["tokyo-b", "kyoto-a", "tokyo-a"]);
+    expect(restored.days?.[1].placeIds).toEqual(["kyoto-a", "tokyo-a"]);
+    expect(restored.visitStartTimes["tokyo-a"]).toBeUndefined();
+    expect(restored.accommodationLegs.some((leg) => leg.placeId === "tokyo-a")).toBe(false);
+    expect(restored.interHubSegments.some((segment) =>
+      segment.fromPlaceId === "tokyo-a" || segment.toPlaceId === "tokyo-a"
+    )).toBe(false);
+  });
+});
 
 describe("V8 is V7 plus exactly one field", () => {
   it("declares version 8", () => {

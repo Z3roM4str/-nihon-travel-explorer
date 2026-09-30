@@ -9,7 +9,7 @@ const BASE_URL = process.env.NIHON_BASE_URL ?? "http://localhost:4181";
  * primer elemento con foco tras cambiar de destino sea razonable (no `<body>`).
  */
 async function main() {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
   const results = [];
   const check = (label, ok) => {
     results.push({ label, ok });
