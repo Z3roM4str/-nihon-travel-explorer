@@ -4,10 +4,11 @@
 
 - Rama: `codex/block-29-b9-3-day-tools`.
 - Base canónica exigida: `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
-- PR único: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), abierto de esta rama a `main`; no merge ni despliegue.
-- Commit de implementación publicado: `64d4a73129b6f617941075669b289bf55b9f39ff`; `main` seguía en la base exacta `797c9980d6c9baf2deeb3bd635cd7d159e4743bf` al abrir el PR.
-- La certificación de comportamiento y gates de esta revisión corresponde al HEAD `485caf3f82b8ab9f766ae2cc7c5f388de1728173`, commit de pruebas que sólo amplía el gate B29. El cierre documental de este handoff va después y no cambia ese contenido ejecutable.
-- La rama se mantiene separada de `main`. B9.4, B9.5, B30 y B10 no se iniciaron.
+- PR canónico [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167): **MERGED** el `2026-09-30T15:16:19Z` mediante merge commit `d7144ef1fb02c9ec5ffc4b63dfb414512183496b`.
+- SHA de `main` antes de integrar: `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`. HEAD B29 publicado: `5a7b54d09adc55b802f27d8c0f3aa200ac808ce4`. HEAD de `main` en la integración: `d7144ef1fb02c9ec5ffc4b63dfb414512183496b`, con padres `797c9980d6c9baf2deeb3bd635cd7d159e4743bf` y `5a7b54d09adc55b802f27d8c0f3aa200ac808ce4`.
+- Commit de implementación: `64d4a73129b6f617941075669b289bf55b9f39ff`. La ampliación del gate fue `485caf3f82b8ab9f766ae2cc7c5f388de1728173`; el cierre documental previo a la integración fue `5a7b54d09adc55b802f27d8c0f3aa200ac808ce4`.
+- La batería post-merge se ejecutó sobre `main` en el merge commit `d7144ef1…`. Este handoff se actualiza luego mediante un commit documental de cierre; ese commit no cambia el código certificado. El HEAD posterior se consulta en la rama `main`.
+- B29 / B9.3 queda cerrado. B9.4 «Dónde dormir» es el siguiente bloque lógico y sigue pendiente; B9.5, B30 y B10 tampoco se iniciaron. Sin despliegue.
 
 ## Revisión cruzada de #166 y #167
 
@@ -60,7 +61,7 @@ Capturas completas y de panel de la auditoría final guardadas fuera del reposit
 - `b29-{320x568,375x667,390x844,430x932,820x1180,1024x768,1280x800,1440x900}.png`
 - capturas de cabecera/acciones: `b29-{320x568,390x844,1440x900}-tool-{top,actions}.png`
 
-## Verificación final de esta auditoría
+## Certificación pre-merge de la revisión cruzada
 
 - `git diff --check`: PASS.
 - `npm run build`: PASS. Vite informa que el bundle principal supera 500 kB minificado; build correcto.
@@ -74,7 +75,22 @@ Capturas completas y de panel de la auditoría final guardadas fuera del reposit
 - B18 browser-back: **15/15 PASS** contra preview local en puerto 4181.
 - Capturas de 320×568 y 1440×900 revisadas visualmente tras la ampliación; CTA visible sobre TabBar en móvil, sin overflow horizontal, contexto de día legible y opciones agrupadas plegables.
 - `git diff --check`: PASS; el diff de esta certificación toca el gate B29 y los handoffs, sin código de producto, schema, dataset, storage key, algoritmos o cálculos de transporte.
-- PR #167 continuó OPEN, no Draft y mergeable, contra `main` en la base exacta. #166 continúa separado y Draft. No se hizo merge ni despliegue.
+- Estado observado antes de integrar: #167 OPEN, Ready for Review y mergeable contra `main` en la base exacta. #166 seguía separado y Draft.
+
+## Batería post-merge
+
+Ejecutada sobre `main` @ `d7144ef1fb02c9ec5ffc4b63dfb414512183496b`, después de confirmar que #167 estaba merged:
+
+- `npm run build`: PASS; aviso de bundle principal de 1.668 MB minificado.
+- `npm run lint`: salida 0, cero errores; warning heredado de `src/components/PlaceMap.tsx:17` (`react(only-export-components)`).
+- `npm test -- --run`: **112 archivos, 3457/3457 PASS**.
+- B29 Day Tools: **163/163 PASS**, Chromium `/usr/bin/chromium`, ocho viewports y capturas en `/tmp/nihon-b29-post-merge-shots/`.
+- B28 drag: **64/64 PASS**, mouse y Chromium touch.
+- B27 Viaje Días: **A–K PASS**, ocho viewports.
+- B26 Nosotros: **314/314 PASS**.
+- B25 Quiero ir: **123/123 PASS**; Chromium utilizó el wrapper local `--ignore-certificate-errors` por TLS de recursos externos.
+- B18 browser-back: **15/15 PASS** contra el preview post-merge en el puerto 4191.
+- Los warnings de bundle y lint son los mismos ya observados antes del merge. No hubo fallo post-merge.
 
 ## Archivos de B29
 
@@ -86,4 +102,4 @@ Capturas completas y de panel de la auditoría final guardadas fuera del reposit
 
 ## Diferido
 
-B9.4 «Dónde dormir», B9.5 «Reservas/Resumen», B30 y B10 cleanup. No se tocaron Astra, Vercel, dataset, fotografía, cálculos de transporte, algoritmos evidence-complete ni semántica de reservas. No se desplegó ni se hizo merge.
+B9.4 «Dónde dormir», B9.5 «Reservas/Resumen», B30 y B10 cleanup. No se tocaron Astra, Vercel, dataset, fotografía, cálculos de transporte, algoritmos evidence-complete ni semántica de reservas. No se desplegó.

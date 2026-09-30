@@ -1,14 +1,14 @@
-# Handoff reanudable — trabajo actual B29 / B9.3
+# Handoff reanudable — B29 / B9.3 integrado; siguiente B9.4 pendiente
 
-## ESTADO CANÓNICO ACTUAL — B29 / B9.3 «Herramientas del día · Probar otro orden»
+## B29 / B9.3 «Herramientas del día · Probar otro orden» — CERRADO E INTEGRADO
 
-- Rama obligatoria: `codex/block-29-b9-3-day-tools`, basada exactamente en `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
+- PR canónico [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167): MERGED `2026-09-30T15:16:19Z` mediante merge commit `d7144ef1fb02c9ec5ffc4b63dfb414512183496b`.
+- `main` anterior: `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`. HEAD fuente B29: `5a7b54d09adc55b802f27d8c0f3aa200ac808ce4`. HEAD de `main` en el merge: `d7144ef1fb02c9ec5ffc4b63dfb414512183496b`; sus padres son la base anterior y el HEAD B29.
+- Commit de implementación: `64d4a73129b6f617941075669b289bf55b9f39ff`. La certificación de gates previa al merge fue `485caf3f82b8ab9f766ae2cc7c5f388de1728173`. La auditoría cruzada quedó documentada en `5a7b54d09adc55b802f27d8c0f3aa200ac808ce4`.
 - B29 implementa la herramienta efímera por día: baseline persistido, propuesta editable por teclado, comparación local mediante `compareSequences`, alternativas evidence-complete como opciones, y aplicación explícita atómica con protección stale.
-- PR único abierto: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), hacia `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
-- Commit de implementación: `64d4a73129b6f617941075669b289bf55b9f39ff`. Commits documentales previos: `1095be4dc00c618c6d9d7b591e6c2870b2776c52` y `59372abc0a9837052380b17c435e4bf60d7c3751`. HEAD del PR al iniciar la revisión cruzada: `59372abc0a9837052380b17c435e4bf60d7c3751`.
-- HEAD certificado de comportamiento y gates: `485caf3f82b8ab9f766ae2cc7c5f388de1728173` (commit de pruebas que amplía el gate B29). Este handoff incorpora después el resultado de la auditoría en un commit documental; ese commit final no se autorefencia aquí. Estado remoto final y gates: `docs/BLOCK_29_HANDOFF.md` y PR #167.
-- La revisión cruzada confirmó #167 como línea canónica. No se integró código de producto de #166; se ampliaron los gates para cubrir todas las familias, teclado, identidad estable y estado stale. Vitest 3457/3457, B29 163/163, B28 64/64, B27 A–K, B26 314/314, B25 123/123 y B18 15/15 PASS. Detalle de resultados y diferencias: `docs/BLOCK_29_HANDOFF.md`.
-- No merge ni despliegue. B9.4/B9.5, B30 y B10 no iniciados. Astra y Vercel fuera de alcance.
+- Post-merge en el merge commit: build PASS; lint salida 0 con un warning heredado; Vitest 112 archivos/3457 PASS; B29 163/163; B28 64/64; B27 A–K; B26 314/314; B25 123/123; B18 15/15. Informe completo y deuda de audits Phase 3E: `docs/BLOCK_29_HANDOFF.md`.
+- B29/B9.3 queda cerrado. Siguiente bloque lógico: B9.4 «Dónde dormir», pendiente y no iniciado. B9.5, B30 y B10 también siguen pendientes. Astra y Vercel permanecen fuera de alcance; no hubo despliegue.
+- Este cierre documental se registra en un commit posterior sobre `main` y no cambia el código probado en el merge commit; el HEAD final de `main` es el SHA de este commit documental.
 
 ## HISTÓRICO — B28 / B9.2 antes de integración
 
