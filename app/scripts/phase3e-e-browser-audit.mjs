@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView } from "./lib/shell-navigation.mjs";
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const routeIds = ["JP-010", "JP-012", "JP-011", "JP-013", "JP-014"];
@@ -62,9 +63,7 @@ try {
   }, { saved: routeIds, planningDraft: draft });
 
   await page.goto(url, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /Quiero ir/ }).click();
-  await page.getByRole("button", { name: /Construir recorrido/ }).click();
-  await page.getByRole("button", { name: /Distribuir por días/ }).click();
+  await enterDaysView(page);
 
   await page.getByRole("heading", { name: "Alternativas locales con evidencia completa" }).waitFor();
   await page.getByRole("heading", { name: "Reubicaciones de un lugar" }).waitFor();
@@ -79,7 +78,7 @@ try {
   await page.waitForTimeout(250);
   const applied = await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null"));
   assert.deepEqual(applied.days[0].placeIds, expectedOrder);
-  assert.equal(applied.version, 7);
+  assert.equal(applied.version, 8);
   const draftKeyCount = await page.evaluate(
     () => Object.keys(localStorage).filter((key) => key.startsWith("nihon.manualPlanningDraft")).length,
   );

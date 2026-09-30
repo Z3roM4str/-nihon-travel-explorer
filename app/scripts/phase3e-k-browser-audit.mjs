@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-K — executable browser acceptance for the normative UI/browser contracts 123-125.
@@ -93,9 +94,7 @@ try {
 
   /** The real navigation path from the landing page into the day builder. */
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(page);
     await page
       .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
       .first()
@@ -198,7 +197,7 @@ try {
   assert.notDeepEqual(applied.days[0].placeIds, relocatedOrder);
 
   // 14-16. still V7, one storage key, and no candidate metadata persisted.
-  assert.equal(applied.version, 7);
+  assert.equal(applied.version, 8);
   const draftKeyCount = await page.evaluate(
     () => Object.keys(localStorage).filter((key) => key.startsWith("nihon.manualPlanningDraft")).length
   );
@@ -262,7 +261,7 @@ try {
   await page.reload({ waitUntil: "networkidle" });
   const reloaded = await readDraft(page);
   assert.deepEqual(reloaded.days[0].placeIds, pairSwappedOrder);
-  assert.equal(reloaded.version, 7);
+  assert.equal(reloaded.version, 8);
 
   /**
    * 23. After reload/re-entry the 3E-E candidate is freshly regenerated from the persisted
@@ -291,7 +290,7 @@ try {
   await page.waitForTimeout(400);
   const finalDraft = await readDraft(page);
   assert.deepEqual(finalDraft.days[0].placeIds, relocatedOrder);
-  assert.equal(finalDraft.version, 7);
+  assert.equal(finalDraft.version, 8);
   const finalSurface = await page.locator(".local-swap").first().innerText();
   for (const forbidden of [/18 min/, /ahorro total/i, /1 h 32 min/]) {
     assert.doesNotMatch(finalSurface, forbidden);
@@ -313,7 +312,7 @@ try {
       await waitForOrder(regressionPage, expected);
       const stored = await readDraft(regressionPage);
       assert.deepEqual(stored.days[0].placeIds, expected);
-      assert.equal(stored.version, 7);
+      assert.equal(stored.version, 8);
       return stored.days[0].placeIds;
     } finally {
       await context.close();

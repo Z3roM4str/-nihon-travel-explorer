@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView, moveStop } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3F-H — executable browser acceptance for the official reservation reference-date relation.
@@ -112,9 +113,7 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(page);
     await page.getByRole("heading", { name: "Día 1" }).waitFor();
   }
 
@@ -189,7 +188,7 @@ try {
       assertNoForbiddenCopy(text, "Scenario A");
 
       // Scenario I — both reference-date surfaces are visible, independent and never combined.
-      const day = page.locator(".day-card").first();
+      const day = page.locator(".day-timeline").first();
       await day.locator(".reservation-deadline").waitFor();
       await day.locator(".official-reservation-date").waitFor();
       assert.equal(await day.locator(".reservation-deadline__reference-relation").count() > 0, true);
@@ -290,7 +289,7 @@ try {
 
       // Scenario J — moving the place changes the visit date, so Phase 3F-D recomputes the official
       // release date and Phase 3F-H must re-relate the SAME explicit reference date to it.
-      await page.getByRole("button", { name: "Mover Tokyo Disneyland al día siguiente" }).click();
+      await moveStop(page, "Tokyo Disneyland", 2);
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[0]?.placeIds?.includes("JP-203") === false &&
@@ -342,7 +341,7 @@ try {
       assert.equal(await page.locator(".official-reservation-date__reference-relation").count(), 0);
       const reloaded = await readDraft(page);
       assert.equal(reloaded.startDate, null);
-      assert.equal(reloaded.version, 7);
+      assert.equal(reloaded.version, 8);
       record("K. clear start date + reload", "no stale relation in UI or storage");
     } finally {
       await context.close();

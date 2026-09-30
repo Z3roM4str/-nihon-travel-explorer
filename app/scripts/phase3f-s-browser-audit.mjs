@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView, openReservas } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3F-S — executable browser acceptance for same-scope purchase-context composition.
@@ -112,9 +113,7 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(page);
     await page.getByRole("heading", { name: "Día 1" }).waitFor();
   }
 
@@ -224,6 +223,7 @@ try {
   {
     const { context, page } = await bootPlanner(plan(), "2026-12-05");
     try {
+      await openReservas(page);
       const calendar = page.locator(".official-reservation-calendar");
       await calendar.waitFor();
       assert.equal(await calendar.count(), 1, "route-wide section must render exactly once");

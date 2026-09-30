@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-G — executable browser acceptance for the normative UI/browser contracts 105-125.
@@ -72,9 +73,7 @@ try {
 
   // 1. the app boots.
   await page.goto(url, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /Quiero ir/ }).click();
-  await page.getByRole("button", { name: /Construir recorrido/ }).click();
-  await page.getByRole("button", { name: /Distribuir por días/ }).click();
+  await enterDaysView(page);
 
   // 2-3. the existing surface renders and gains the distinct non-adjacent subgroup.
   await page.getByRole("heading", { name: "Alternativas locales con evidencia completa" }).waitFor();
@@ -144,7 +143,7 @@ try {
   assert.deepEqual(applied.days[0].placeIds, expectedOrder);
 
   // 10-11. the draft is still V7 under the one existing storage key.
-  assert.equal(applied.version, 7);
+  assert.equal(applied.version, 8);
   const draftKeyCount = await page.evaluate(
     () => Object.keys(localStorage).filter((key) => key.startsWith("nihon.manualPlanningDraft")).length
   );
@@ -177,7 +176,7 @@ try {
     () => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
   );
   assert.deepEqual(reloaded.days[0].placeIds, expectedOrder);
-  assert.equal(reloaded.version, 7);
+  assert.equal(reloaded.version, 8);
 
   /**
    * 13. The reloaded surface derives its alternatives from the reloaded baseline.
@@ -186,9 +185,7 @@ try {
    * Nothing is re-seeded on the way: the init script above only writes a key that is absent, and
    * both keys already exist by now.
    */
-  await page.getByRole("button", { name: /Quiero ir/ }).click();
-  await page.getByRole("button", { name: /Construir recorrido/ }).click();
-  await page.getByRole("button", { name: /Distribuir por días/ }).click();
+  await enterDaysView(page);
   await page
     .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
     .first()
@@ -290,9 +287,7 @@ try {
       }
     }, { saved: regressionIds, planningDraft: regressionDraft });
     await regressionPage.goto(url, { waitUntil: "networkidle" });
-    await regressionPage.getByRole("button", { name: /Quiero ir/ }).click();
-    await regressionPage.getByRole("button", { name: /Construir recorrido/ }).click();
-    await regressionPage.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(regressionPage);
     await regressionPage
       .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
       .waitFor();
@@ -312,7 +307,7 @@ try {
         () => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
       );
       assert.deepEqual(stored.days[0].placeIds, expected);
-      assert.equal(stored.version, 7);
+      assert.equal(stored.version, 8);
       return stored.days[0].placeIds;
     } finally {
       await context.close();

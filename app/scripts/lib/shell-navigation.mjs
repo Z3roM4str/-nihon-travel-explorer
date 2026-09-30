@@ -141,3 +141,67 @@ export async function closeCredits(page) {
 export async function creditsButtonCount(page) {
   return page.getByRole("button", { name: /^Créditos de las fotografías/ }).count();
 }
+
+/**
+ * B27 (B9.1): entra a Viaje › Días. Sustituye al camino anterior a B18 que usaban los audits del
+ * planificador («Quiero ir» → «Construir recorrido» → «Distribuir por días»): Días es ahora la
+ * superficie con la que abre Viaje, así que ese paso ya no existe.
+ *
+ * `openTools` (por defecto `true`) despliega «Horarios, reservas y herramientas del Día N» de cada
+ * día, donde viven las mismas secciones por día que antes estaban siempre visibles; el contrato que
+ * miden esos audits es el de cada sección, no que estuviera plegada.
+ */
+export async function enterDaysView(page, { openTools = true, openDates = true } = {}) {
+  // El explicador de la primera apertura (`05 §1`) tapa la interfaz: estos audits arrancan de cero.
+  const skip = page.getByRole("button", { name: /Saltar|Entrar/ });
+  if (await skip.count()) await skip.first().click().catch(() => {});
+  await page.waitForTimeout(250);
+  await page
+    .locator(".tab-bar__item:has-text('Viaje'):visible, .nav-rail__item:has-text('Viaje'):visible")
+    .first()
+    .click();
+  await page.locator(".viaje-nav__item:has-text('Días')").click();
+  await page.locator(".day-timeline").first().waitFor();
+  if (openTools) await openAllDayTools(page);
+  // Los audits de calendario escriben las fechas: el panel «Poner/Cambiar fechas» queda abierto.
+  if (openDates) await openDatesPanel(page);
+}
+
+export async function openDatesPanel(page) {
+  if (await page.locator("#sequence-start-date").count()) return;
+  await page.locator(".dias__dates-toggle").click();
+  await page.locator("#sequence-start-date").waitFor();
+}
+
+/** Reservas re-aloja, sin rediseño, el calendario oficial de reservas (B9.5 lo rediseñará). */
+export async function openReservas(page) {
+  await page.locator(".viaje-nav__item:has-text('Reservas')").click();
+  await page.locator("h2#sequence-builder-title", { hasText: "Reservas" }).waitFor();
+}
+
+export async function backToDays(page, { openTools = true, openDates = true } = {}) {
+  await page.locator(".viaje-nav__item:has-text('Días')").click();
+  await page.locator(".day-timeline").first().waitFor();
+  if (openTools) await openAllDayTools(page);
+  if (openDates) await openDatesPanel(page);
+}
+
+/**
+ * «Mover a…» (puente B27): mueve la parada `placeName` al día `dayNumber` (1-based) y a la posición
+ * `position` (1-based; por omisión, al final). Sustituye a los antiguos ↑ ↓ ← → por fila.
+ */
+export async function moveStop(page, placeName, dayNumber, position = null) {
+  await page.getByRole("button", { name: new RegExp(`^Acciones de ${placeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")},`) }).click();
+  await page.locator(".sheet").waitFor();
+  await page.getByRole("button", { name: /Mover a…/ }).click();
+  await page.locator(".sheet select").first().selectOption(String(dayNumber - 1));
+  if (position !== null) await page.getByLabel("Posición en el día").selectOption(String(position - 1));
+  await page.getByRole("button", { name: "Mover aquí" }).click();
+  await page.locator(".sheet").waitFor({ state: "detached" });
+}
+
+export async function openAllDayTools(page) {
+  await page.evaluate(() => {
+    for (const details of document.querySelectorAll("details.day-tools")) details.open = true;
+  });
+}

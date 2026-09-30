@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView, moveStop } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3F-F — executable browser acceptance for the official reservation-date presentation gate.
@@ -52,9 +53,7 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(page);
     await page.getByRole("heading", { name: "Día 1" }).waitFor();
   }
 
@@ -92,7 +91,7 @@ try {
       makeDraft(["JP-044", "JP-019"], [["JP-044", "JP-019"]], "2027-02-20")
     );
     try {
-      const day = page.locator(".day-card").first();
+      const day = page.locator(".day-timeline").first();
       await day.locator(".official-reservation-date").waitFor();
       await day.locator(".reservation-deadline").waitFor();
 
@@ -156,7 +155,7 @@ try {
 
       // Move the real place from Día 1 to Día 2 through the existing UI. The visit date becomes
       // 2027-02-21, so the exact two-calendar-month release fact must recompute to 2026-12-21.
-      await page.getByRole("button", { name: "Mover Tokyo Disneyland al día siguiente" }).click();
+      await moveStop(page, "Tokyo Disneyland", 2);
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[0]?.placeIds?.includes("JP-203") === false &&
@@ -179,7 +178,7 @@ try {
       );
       const cleared = await readDraft(page);
       assert.equal(cleared.startDate, null);
-      assert.equal(cleared.version, 7);
+      assert.equal(cleared.version, 8);
 
       const persistedText = await page.evaluate(
         () => localStorage.getItem("nihon.manualPlanningDraft") ?? ""
@@ -200,7 +199,7 @@ try {
       assert.equal(await page.locator(".official-reservation-date").count(), 0);
       const reloaded = await readDraft(page);
       assert.equal(reloaded.startDate, null);
-      assert.equal(reloaded.version, 7);
+      assert.equal(reloaded.version, 8);
     } finally {
       await context.close();
     }

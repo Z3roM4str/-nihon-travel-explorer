@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { enterDaysView } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-I — executable browser acceptance for the normative UI/browser contracts 122-125.
@@ -86,9 +87,7 @@ try {
 
   /** The real navigation path from the landing page into the day builder. */
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(page);
     await page
       .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
       .first()
@@ -173,7 +172,7 @@ try {
   assert.deepEqual(applied.days[0].placeIds, expectedOrder);
 
   // 15-17. still V7, one storage key, and no candidate metadata persisted.
-  assert.equal(applied.version, 7);
+  assert.equal(applied.version, 8);
   const draftKeyCount = await page.evaluate(
     () => Object.keys(localStorage).filter((key) => key.startsWith("nihon.manualPlanningDraft")).length
   );
@@ -201,7 +200,7 @@ try {
   await page.reload({ waitUntil: "networkidle" });
   const reloaded = await readDraft(page);
   assert.deepEqual(reloaded.days[0].placeIds, expectedOrder);
-  assert.equal(reloaded.version, 7);
+  assert.equal(reloaded.version, 8);
 
   /**
    * 20-21. Navigate the real UI back into the planner and prove the alternatives are re-derived
@@ -265,7 +264,7 @@ try {
       }, expected);
       const stored = await readDraft(regressionPage);
       assert.deepEqual(stored.days[0].placeIds, expected);
-      assert.equal(stored.version, 7);
+      assert.equal(stored.version, 8);
       return stored.days[0].placeIds;
     } finally {
       await context.close();

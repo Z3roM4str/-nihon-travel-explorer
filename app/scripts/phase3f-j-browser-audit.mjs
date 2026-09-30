@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { backToDays, enterDaysView, moveStop, openReservas } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3F-J — executable browser acceptance for the route-wide official reservation calendar.
@@ -109,9 +110,7 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
+    await enterDaysView(page);
     await page.getByRole("heading", { name: "Día 1" }).waitFor();
   }
 
@@ -175,6 +174,7 @@ try {
   {
     const { context, page } = await bootPlanner(workedPlan(), "2027-01-20");
     try {
+      await openReservas(page);
       await calendar(page).waitFor();
       assert.equal(await calendar(page).count(), 1, "route-wide section must render exactly once");
       await page.getByRole("heading", { name: "Fechas oficiales de reserva del recorrido" }).waitFor();
@@ -230,6 +230,7 @@ try {
       "2027-01-20"
     );
     try {
+      await openReservas(page);
       await calendar(page).waitFor();
       assert.deepEqual(await anchorOrder(page), ["dom, 20 dic 2026", "dom, 20 dic 2026"]);
       let contexts = await contextOrder(page);
@@ -241,11 +242,13 @@ try {
       assert.doesNotMatch(sectionText, /2 reservas/);
 
       // K. intra-day reorder flips only the tie order, exactly as the contract says it should.
-      await page.getByRole("button", { name: "Mover Tokyo DisneySea hacia abajo en Día 1" }).click();
+      await backToDays(page);
+      await moveStop(page, "Tokyo DisneySea", 1, 2);
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[0]?.placeIds?.[0] === "JP-203";
       });
+      await openReservas(page);
       assert.deepEqual(await anchorOrder(page), ["dom, 20 dic 2026", "dom, 20 dic 2026"]);
       contexts = await contextOrder(page);
       assert.match(contexts[0], /Tokyo Disneyland · Día 1/);
@@ -264,6 +267,7 @@ try {
       "2027-01-09"
     );
     try {
+      await openReservas(page);
       await calendar(page).waitFor();
       const ghibli = rowFor(page, "Ghibli Museum, Mitaka");
       const ghibliText = await ghibli.innerText();
@@ -295,6 +299,7 @@ try {
   {
     const { context, page } = await bootPlanner(makeDraft([["JP-077", "JP-019"]], "2027-03-15"), "2027-03-12");
     try {
+      await openReservas(page);
       await calendar(page).waitFor();
       assert.equal(await rows(page).count(), 1, "Katsura must contribute exactly one row");
       const text = await rows(page).first().innerText();
@@ -321,6 +326,7 @@ try {
   {
     const { context, page } = await bootPlanner(makeDraft([["JP-212", "JP-019"]], "2027-03-20"), "2027-02-05");
     try {
+      await openReservas(page);
       await calendar(page).waitFor();
       assert.equal(await rows(page).count(), 1);
       const text = await rows(page).first().innerText();
@@ -338,10 +344,12 @@ try {
   {
     const { context, page } = await bootPlanner(makeDraft([["JP-212", "JP-019"]], "2027-03-29"), "2027-02-05");
     try {
-      const day = page.locator(".day-card").first();
+      const day = page.locator(".day-timeline").first();
       await day.locator(".official-reservation-date").waitFor();
       // No route-wide section at all: the only Phase 3F result in this plan has no applicable date.
+      await openReservas(page);
       assert.equal(await calendar(page).count(), 0);
+      await backToDays(page);
       // The existing per-day Phase 3F-F neutral presentation is untouched.
       const dayItem = day.locator(".official-reservation-date__item").filter({
         hasText: "Grand Sumo Tournament Osaka 2027",
@@ -362,32 +370,31 @@ try {
   {
     const { context, page } = await bootPlanner(makeDraft([["JP-044", "JP-019"]], "2027-02-20"), "2027-01-09");
     try {
+      // B27 (B9.1): the calendar and Phase 3D's route-wide list are re-hosted, unchanged, as two
+      // separate sections of Viaje › Reservas; the per-day deadline stays in the day.
+      await openReservas(page);
       await calendar(page).waitFor();
-      // The Phase 3F calendar lives in the days view and nowhere else.
-      assert.equal(await page.locator(".reservation-prep").count(), 0);
+      assert.equal(await calendar(page).count(), 1);
       assert.equal(
         await page.locator(".official-reservation-calendar .reservation-prep").count(),
         0
       );
-      // Phase 3D-H's own per-day surface still renders, separately, with its own copy.
-      const deadline = page.locator(".reservation-deadline");
-      await deadline.first().waitFor();
-      assert.match(await deadline.first().innerText(), /ventana de anticipación registrada/i);
-      assert.equal(
-        await page.locator(".official-reservation-calendar .reservation-deadline").count(),
-        0
-      );
-
-      // Back in the builder view, Phase 3D's route-wide list is unchanged and the calendar is absent.
-      await page.getByRole("button", { name: /Volver al recorrido/ }).first().click();
-      await page.getByRole("button", { name: /Distribuir por días/ }).waitFor();
       const prep = page.locator(".reservation-prep");
       await prep.waitFor();
       const prepText = await prep.innerText();
       assert.match(prepText, /Reservas por preparar/);
       assert.match(prepText, /No calcula fechas límite de reserva ni las compara con tu calendario/);
-      assert.equal(await calendar(page).count(), 0);
-      record("H. Phase 3D separation", "prep in builder, calendar in days");
+      // Phase 3D-H's own per-day surface still renders, separately, with its own copy.
+      await backToDays(page);
+      const deadline = page.locator(".reservation-deadline");
+      await deadline.first().waitFor();
+      assert.match(await deadline.first().innerText(), /ventana de anticipación registrada/i);
+      await openReservas(page);
+      assert.equal(
+        await page.locator(".official-reservation-calendar .reservation-deadline").count(),
+        0
+      );
+      record("H. Phase 3D separation", "prep and calendar are separate sections of Reservas");
     } finally {
       await context.close();
     }
@@ -400,22 +407,27 @@ try {
       "2027-01-09"
     );
     try {
+      await openReservas(page);
       await calendar(page).waitFor();
       assert.deepEqual(await anchorOrder(page), ["dom, 20 dic 2026"]);
       assert.match((await contextOrder(page))[0], /Tokyo Disneyland · Día 1 · visita .*20 feb 2027/);
 
       // I. move it to Día 2 → day number, visit date and derived official date all recompute.
-      await page.getByRole("button", { name: "Mover Tokyo Disneyland al día siguiente" }).click();
+      await backToDays(page);
+      await moveStop(page, "Tokyo Disneyland", 2);
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[1]?.placeIds?.includes("JP-203") === true;
       });
+      await openReservas(page);
       assert.deepEqual(await anchorOrder(page), ["lun, 21 dic 2026"]);
       assert.match((await contextOrder(page))[0], /Tokyo Disneyland · Día 2 · visita .*21 feb 2027/);
       record("I. move place between days", "Día, visit date and anchor recompute");
 
       // J. change the start date → every anchor recomputes.
+      await backToDays(page);
       await page.getByLabel("Fecha de inicio (Día 1)").fill("2027-03-14");
+      await openReservas(page);
       await page.waitForFunction(
         () =>
           document.querySelector(".official-reservation-calendar__anchor")?.textContent?.includes(
@@ -426,7 +438,9 @@ try {
       record("J. start-date change", "all anchors recompute");
 
       // L. clear the start date → the whole route-wide section disappears.
+      await backToDays(page);
       await page.getByLabel("Fecha de inicio (Día 1)").fill("");
+      await openReservas(page);
       await page.waitForFunction(
         () => document.querySelectorAll(".official-reservation-calendar").length === 0
       );
@@ -451,12 +465,13 @@ try {
       }
       await page.reload({ waitUntil: "networkidle" });
       await enterPlanner(page);
+      await openReservas(page);
       assert.equal(await calendar(page).count(), 0);
       const reloaded = await page.evaluate(() =>
         JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
       );
       assert.equal(reloaded.startDate, null);
-      assert.equal(reloaded.version, 7);
+      assert.equal(reloaded.version, 8);
       record("M. reload", "no stale aggregate, order or relation");
     } finally {
       await context.close();
