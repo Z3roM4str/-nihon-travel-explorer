@@ -90,6 +90,11 @@ La vía `withRoute` (invalidar el reparto) queda intacta para «Restablecer reco
 - `src/lib/stop-reorder.test.ts` (7): geometría pura y navegación por teclado.
 - `src/b28-reorder-wiring.test.ts` (8): una sola ruta de commit, sin estado paralelo, sin HTML5 drag,
   `touch-action` sólo en el asa, `aria-live`/instrucciones, Art. 10 (tokens) en el CSS nuevo.
+- `src/b28-invariants-scope.test.ts` (5): frente a la base `b351469`, `planning-draft-v8.ts` y `usePlanningDraft.ts`
+  sólo pueden diferir en las tres mutaciones / imports / wrappers / exports de B28 (se quitan esos fragmentos y
+  el resto debe ser idéntico byte a byte; editar dentro de ellos es libre) y en `lib/`, `data/` y el hook sólo
+  cambian esos dos ficheros y el módulo nuevo `stop-reorder.ts`. Verificado que una edición ajena en cualquiera
+  de los dos ficheros hace fallar el test.
 - Actualizados con comentario: `b27-model-invariants` (protege lib/hook salvo lo de B28; el icono
   `arrastrar` ya es legítimo), `OrderedSequenceBuilder.stable-day-identity` (el commit único por ids).
 - **Gate permanente** `app/scripts/b28-viaje-reordenar-check.mjs` (43): D puntero (12) · I invariantes (3) ·
@@ -105,7 +110,7 @@ La vía `withRoute` (invalidar el reparto) queda intacta para «Restablecer reco
 | Comprobación | Base `b351469` | Rama B28 |
 |---|---|---|
 | build / lint | PASS · 0 errores + 1 warning heredado (`PlaceMap.tsx:17`) | PASS · el mismo warning |
-| Vitest | 108 ficheros, 3430/3430 | 111 ficheros, **3462/3462** |
+| Vitest | 108 ficheros, 3430/3430 | 112 ficheros, **3467/3467** |
 | **B28** `b28-viaje-reordenar-check` | — | **43/43** |
 | B27 `b27-viaje-dias-check` | 48/48 | 48/48 (M05/U02/U03 actualizados por diseño) |
 | Phase 5A · integración B24+B23 · B25 | 50+50 · 58 · 123 | 50/50 · 58/58 · 123/123 |

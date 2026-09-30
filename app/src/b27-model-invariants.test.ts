@@ -77,7 +77,7 @@ describe("B27 — el esquema y la clave de planificación no cambian", () => {
     const protectedPaths = [
       // B28 (B9.2) adds three V8 mutations (`withPlaceMovedToPosition`, `withPlaceAddedToDay`,
       // `withPlaceRemovedFromDay`) + their hook wrappers + the pure `stop-reorder` module; they are
-      // covered by `b28-reorder-model.test.ts`. Nothing else in lib/ or the hook may change.
+      // covered by `b28-reorder-model.test.ts`, and `b28-invariants-scope.test.ts` proves byte-for-byte against the B27 base that NOTHING else in those two files (or in lib/) changed.
       /^app\/src\/lib\/(?!day-timeline-presentation|planning-draft-v8\.ts$|stop-reorder\.ts$)/,
       /^app\/src\/data\/(?!place-thumbnails\.ts$)/,
       /^data\//,
