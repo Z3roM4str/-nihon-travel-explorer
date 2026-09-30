@@ -117,23 +117,17 @@ describe("DDR-05 — `Dato:` no entra en la ficha, y el planificador no se toca"
     }
   });
 
-  // B24: timeout propio de 30 s. `git diff` contra PRE_B20_SHA recorre un árbol con cientos de
-  // imágenes y bajo carga (suite completa en paralelo) supera los 5 s por defecto. La expectativa
-  // no cambia.
-  // B27 (B9.1) reescribe la presentación de días en OrderedSequenceBuilder.tsx, así que «el árbol
-  // no cambió desde PRE_B20» ya no es verificable. Lo que B20 protegía —que la retirada de `Dato:`
-  // sigue siendo de B9.5— se comprueba directamente abajo: las cuatro apariciones siguen presentes.
-  it("B20 no retira `Dato:` de OrderedSequenceBuilder.tsx — su retirada sigue siendo de B9.5", async () => {
+  // B31 (B9.5, `10 §B9.5`, DDR-05): la retirada de `Dato:` que B20 dejaba a B9.5 ya ocurrió. El
+  // contrato cambia por diseño de «4 apariciones» a «0»; lo que B20 protege —que la ficha no
+  // contiene `Dato:`— sigue comprobándose arriba.
+  it("B31 retira `Dato:` de OrderedSequenceBuilder.tsx (10 §B9.5, DDR-05)", async () => {
     const planner = await read("components/OrderedSequenceBuilder.tsx");
-    expect(planner.split("Dato:").length - 1).toBe(4);
+    expect(planner.split("Dato:").length - 1).toBe(0);
   });
 
-  it("las cuatro apariciones siguen donde el roadmap las asigna, intactas", async () => {
+  it("y ninguna sustitución deja un «Dato: «…»» visible en el planificador", async () => {
     const planner = await read("components/OrderedSequenceBuilder.tsx");
-    const occurrences = planner.split("Dato:").length - 1;
-    // Si alguien las retira «de paso» en este bloque, este gate lo dice: no es un fallo de
-    // calidad, es un alcance que pertenece a B9.5 (`10 §B9.5`).
-    expect(occurrences).toBe(4);
+    expect(planner).not.toMatch(/Dato:\s*«/);
   });
 });
 

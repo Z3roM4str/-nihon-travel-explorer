@@ -100,9 +100,11 @@ describe("B30 — acción por zona (05 §8, D2)", () => {
 });
 
 describe("B30 — invariantes heredados", () => {
-  it("«Dato:» conserva sus 4 apariciones (B9.5 retira, no B30)", async () => {
+  // B31 (10 §B9.5, DDR-05): B9.5 retira las cuatro apariciones de «Dato:» (03 §10). Contrato que
+  // cambia por diseño: «=4» pasa a «=0».
+  it("«Dato:» ya no aparece (B9.5 lo retira — 10 §B9.5, DDR-05)", async () => {
     const code = await read("./components/OrderedSequenceBuilder.tsx");
-    expect(code.match(/Dato: «/g)?.length).toBe(4);
+    expect(code.match(/Dato: «/g)?.length ?? 0).toBe(0);
   });
 
   it("ZoneComparison no usa lenguaje de ranking ni recomendación", async () => {
