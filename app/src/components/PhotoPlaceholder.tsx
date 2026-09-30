@@ -1,7 +1,7 @@
 import type { Place } from "../types";
 import { imageBriefText } from "../lib/place";
 import { categoryPresentation } from "../lib/category-presentation";
-import { Icon } from "../icons/Icon";
+import { Icon, type IconName } from "../icons/Icon";
 import { EvidenceMark } from "./EvidenceMark";
 
 type Props = {
@@ -11,6 +11,12 @@ type Props = {
    * icono de imagen rota del navegador. Mismo componente en los dos casos (`04 §9`): un lugar
    * sin fotografía no puede parecer un error, y un error de carga no puede parecer un hueco. */
   variant?: "missing" | "error";
+  /** B30 (D1, `06 §5.5`): icono propio en lugar del de categoría — las zonas de alojamiento no
+   * tienen categoría de lugar. Sin él, se usa el icono de categoría como siempre. */
+  icon?: IconName;
+  /** B30 (D1): línea editorial propia en lugar del `imageBrief` del lugar. Si se pasa, también
+   * forma parte del nombre accesible (el bloque es `role="img"`, su texto interior no se lee). */
+  brief?: string;
 };
 
 /**
@@ -21,13 +27,15 @@ type Props = {
  * diagonal sutil, el icono de categoría, el nombre del lugar, y el `imageBrief` editorial que ya
  * existe en el dataset — nunca una fotografía de otro lugar ni un color plano genérico.
  */
-export function PhotoPlaceholder({ place, variant = "missing" }: Props) {
-  const { icon } = categoryPresentation(place.category);
-  const brief = imageBriefText(place);
+export function PhotoPlaceholder({ place, variant = "missing", icon: iconOverride, brief: briefOverride }: Props) {
+  const icon = iconOverride ?? categoryPresentation(place.category).icon;
+  const brief = briefOverride ?? imageBriefText(place);
   const pendingLabel = variant === "error" ? "No se pudo cargar la imagen" : "Fotografía pendiente";
 
   return (
-    <div className="photo-placeholder" role="img" aria-label={`${place.name}. ${pendingLabel}.`}>
+    <div className="photo-placeholder" role="img" aria-label={
+        briefOverride ? `${place.name}. ${briefOverride} ${pendingLabel}.` : `${place.name}. ${pendingLabel}.`
+      }>
       <span className="photo-placeholder__icon" aria-hidden="true">
         <Icon name={icon} size={32} />
       </span>
