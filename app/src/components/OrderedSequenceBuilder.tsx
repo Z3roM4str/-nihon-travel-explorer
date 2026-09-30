@@ -1,36 +1,26 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
-import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
+import { formatMinutes, formatRange } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
 import type { OrderedSequenceLeg, OrderedSequenceSummary } from "../lib/ordered-sequence";
+import type { ConfidenceCounts } from "../lib/sequence-comparison";
 import {
-  compareSequences,
-  type ConfidenceCounts,
-  type SequenceCandidate,
-  type SequenceComparison,
-} from "../lib/sequence-comparison";
-import {
-  applyEvidenceCompleteLocalSwap,
   generateEvidenceCompleteLocalSwaps,
   type EvidenceCompleteLocalSwapAlternative,
 } from "../lib/evidence-complete-local-swap";
 import {
-  applyEvidenceCompleteLocalRelocation,
   generateEvidenceCompleteLocalRelocations,
   type EvidenceCompleteLocalRelocationAlternative,
 } from "../lib/evidence-complete-local-relocation";
 import {
-  applyEvidenceCompleteInteriorTransposition,
   generateEvidenceCompleteInteriorTranspositions,
   type EvidenceCompleteInteriorTranspositionAlternative,
 } from "../lib/evidence-complete-interior-transposition";
 import {
-  applyEvidenceCompleteFourPlaceInteriorReversal,
   generateEvidenceCompleteFourPlaceInteriorReversals,
   type EvidenceCompleteFourPlaceInteriorReversalAlternative,
 } from "../lib/evidence-complete-four-place-interior-reversal";
 import {
-  applyEvidenceCompleteTwoPairBlockSwap,
   generateEvidenceCompleteTwoPairBlockSwaps,
   type EvidenceCompleteTwoPairBlockSwapAlternative,
 } from "../lib/evidence-complete-two-pair-block-swap";
@@ -42,6 +32,8 @@ import {
   transferModeIcon,
 } from "../lib/transfer-display";
 import { Icon } from "../icons/Icon";
+import { DayOrderSheet } from "./DayOrderSheet";
+import { planDayOrderMoves } from "./day-order";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
 import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
 import {
@@ -282,37 +274,6 @@ type Props = {
  * is allowed to use.
  */
 
-function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
-  if (!leg.transfer) {
-    /* Bloque 17 (B1): sin icono "?" — una ausencia conocida no es un error
-       (04 §14 "Sin traslado registrado: … nunca en rojo y nunca con ?"). */
-    return (
-      <p className="sequence-leg sequence-leg--unknown">Sin traslado registrado</p>
-    );
-  }
-  const display = describeTransferForUi(leg.transfer);
-  return (
-    <p className="sequence-leg">
-      <Icon name={transferModeIcon(leg.transfer.mode)} size={16} /> {display.timeText} ·{" "}
-      {display.qualityLabel}
-    </p>
-  );
-}
-
-function moveItemUp<T>(items: readonly T[], index: number): T[] {
-  if (index <= 0) return [...items];
-  const next = [...items];
-  [next[index - 1], next[index]] = [next[index], next[index - 1]];
-  return next;
-}
-
-function moveItemDown<T>(items: readonly T[], index: number): T[] {
-  if (index >= items.length - 1) return [...items];
-  const next = [...items];
-  [next[index], next[index + 1]] = [next[index + 1], next[index]];
-  return next;
-}
-
 // ---------------------------------------------------------------------------------------
 // Phase 3D-S removed this file's local day-bucket array helpers (`addEmptyDay`,
 // `removeEmptyDay`, `moveWithinDay`, `moveToAdjacentDay`). They rebuilt a whole `string[][]`
@@ -322,159 +283,6 @@ function moveItemDown<T>(items: readonly T[], index: number): T[] {
 // `addEmptyDay`, `removeEmptyDay`). The day's ordinal position is still what the UI renders and
 // what every temporal/logistics consumer receives; it is simply no longer what identifies it.
 // ---------------------------------------------------------------------------------------
-
-/**
- * One reorderable, place-specific list — the main route draft, each comparison candidate, and
- * each day bucket all render through this so the accessible reorder mechanics (move up/down,
- * disabled at the ends, place-specific `aria-label`s) exist in exactly one place. `labelSuffix`
- * disambiguates which list a screen-reader user is moving something within (e.g. " en orden A",
- * " en Día 2"); `onRemove` is only passed by the main route draft. `onMoveToPreviousGroup`/
- * `onMoveToNextGroup` are only passed by the day-assignment view, for moving a place into the
- * adjacent day — omitted entirely (not merely disabled) everywhere else, so the builder and
- * comparison views render exactly as they did before Phase 3C-C.
- */
-function ReorderableList({
-  places,
-  legs,
-  labelSuffix,
-  onMoveUp,
-  onMoveDown,
-  onRemove,
-  onMoveToPreviousGroup,
-  onMoveToNextGroup,
-  previousGroupLabel,
-  nextGroupLabel,
-  canMoveToPreviousGroup,
-  canMoveToNextGroup,
-  showDuration,
-  compact,
-}: {
-  places: Place[];
-  legs: OrderedSequenceLeg[];
-  labelSuffix: string;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  onRemove?: (id: string) => void;
-  onMoveToPreviousGroup?: (index: number) => void;
-  onMoveToNextGroup?: (index: number) => void;
-  previousGroupLabel?: string;
-  nextGroupLabel?: string;
-  canMoveToPreviousGroup?: boolean;
-  canMoveToNextGroup?: boolean;
-  showDuration?: boolean;
-  compact?: boolean;
-}) {
-  return (
-    <ol className={`sequence-list ${compact ? "sequence-list--compact" : ""}`}>
-      {places.map((place, index) => {
-        const range = resolveDuration(place.duration);
-        return (
-          <li key={place.id} className="sequence-item">
-            <div className="sequence-item__row">
-              <span className="sequence-item__index" aria-hidden="true">
-                {index + 1}
-              </span>
-              <span className="sequence-item__name">
-                {place.name}
-                {showDuration && (
-                  <span className="sequence-item__duration">
-                    {range ? formatRange(range) : place.duration.raw}
-                  </span>
-                )}
-              </span>
-              <div className="sequence-item__controls">
-                {onMoveToPreviousGroup && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onMoveToPreviousGroup(index)}
-                    disabled={!canMoveToPreviousGroup}
-                    aria-label={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
-                    title={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
-                  >
-                    <Icon name="atras" size={16} />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="icon-button icon-button--small"
-                  onClick={() => onMoveUp(index)}
-                  disabled={index === 0}
-                  aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
-                  title={`Mover ${place.name} hacia arriba${labelSuffix}`}
-                >
-                  <Icon name="arriba" size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button icon-button--small"
-                  onClick={() => onMoveDown(index)}
-                  disabled={index === places.length - 1}
-                  aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
-                  title={`Mover ${place.name} hacia abajo${labelSuffix}`}
-                >
-                  <Icon name="abajo" size={16} />
-                </button>
-                {onMoveToNextGroup && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onMoveToNextGroup(index)}
-                    disabled={!canMoveToNextGroup}
-                    aria-label={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
-                    title={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
-                  >
-                    <Icon name="siguiente" size={16} />
-                  </button>
-                )}
-                {onRemove && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onRemove(place.id)}
-                    aria-label={`Quitar ${place.name} del recorrido`}
-                    title={`Quitar ${place.name} del recorrido`}
-                  >
-                    <Icon name="cerrar" size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-            {index < legs.length && <LegConnector leg={legs[index]} />}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function CandidateSummary({ candidate }: { candidate: SequenceCandidate }) {
-  const { summary } = candidate.sequence;
-  const { validatedStatic, estimated, scheduleAware } = candidate.confidenceCounts;
-  const parts: string[] = [];
-  if (validatedStatic > 0) parts.push(`${validatedStatic} validado${validatedStatic === 1 ? "" : "s"}`);
-  if (estimated > 0) parts.push(`${estimated} estimado${estimated === 1 ? "" : "s"}`);
-  if (scheduleAware > 0) parts.push(`${scheduleAware} en vivo`);
-  if (summary.unknownLegCount > 0) parts.push(`${summary.unknownLegCount} sin traslado`);
-
-  return (
-    <p className="comparison-candidate__stats">
-      Traslados: {summary.transferMinutes ? formatRange(summary.transferMinutes) : "—"}
-      <br />
-      {summary.legCount === 0
-        ? "Sin tramos en este recorrido"
-        : `${summary.knownLegCount}/${summary.legCount} tramo${summary.legCount === 1 ? "" : "s"} cubierto${
-            summary.legCount === 1 ? "" : "s"
-          }`}
-      {parts.length > 0 && (
-        <>
-          <br />
-          {parts.join(" · ")}
-        </>
-      )}
-    </p>
-  );
-}
 
 /**
  * The same four factual quantities every ordered-sequence view has shown since Phase 3C-A —
@@ -1299,58 +1107,6 @@ const HOURS_CATEGORY_LABEL: Record<HoursCategory, string> = {
 function hoursSignalText(fact: RecordedHoursFact): string {
   if (fact.kind === "recorded-interval") return `Horario registrado: ${fact.intervalRaw}`;
   return HOURS_CATEGORY_LABEL[fact.category];
-}
-
-/**
- * The one place that turns a `SequenceComparisonOutcome` into Spanish prose. Every branch is
- * phrased as a statement about *these two orders*, never as a claim about the best possible
- * route — Phase 3C-B never evaluates more than the two candidates it was given.
- */
-function comparisonResultText(comparison: SequenceComparison): { headline: string; detail: string | null } {
-  let headline: string;
-  let detail: string | null;
-  switch (comparison.outcome) {
-    case "a-clearly-faster":
-      headline = "Entre estos dos órdenes, el orden A tiene menor tiempo de traslado.";
-      detail =
-        comparison.guaranteedAdvantageMinutes !== null
-          ? `Ventaja garantizada: al menos ${comparison.guaranteedAdvantageMinutes} min, incluso en el peor caso estimado.`
-          : null;
-      break;
-    case "b-clearly-faster":
-      headline = "Entre estos dos órdenes, el orden B tiene menor tiempo de traslado.";
-      detail =
-        comparison.guaranteedAdvantageMinutes !== null
-          ? `Ventaja garantizada: al menos ${comparison.guaranteedAdvantageMinutes} min, incluso en el peor caso estimado.`
-          : null;
-      break;
-    case "equivalent":
-      headline = "Los traslados conocidos de ambos órdenes son iguales.";
-      detail = null;
-      break;
-    case "overlapping":
-      headline = "No hay una diferencia clara con los datos disponibles.";
-      detail = "Los rangos de traslado de ambos órdenes se superponen.";
-      break;
-    case "incomplete": {
-      const aIncomplete = !comparison.candidateA.sequence.summary.complete;
-      const bIncomplete = !comparison.candidateB.sequence.summary.complete;
-      headline = "Comparación incompleta: faltan traslados registrados.";
-      if (aIncomplete && bIncomplete) {
-        detail = "Ambos órdenes contienen al menos un tramo sin traslado registrado.";
-      } else if (aIncomplete) {
-        detail = "El orden A contiene al menos un tramo sin traslado registrado.";
-      } else {
-        detail = "El orden B contiene al menos un tramo sin traslado registrado.";
-      }
-      break;
-    }
-    case "invalid":
-      headline = "Estos órdenes no se pueden comparar.";
-      detail = "No representan exactamente el mismo conjunto de lugares.";
-      break;
-  }
-  return { headline, detail };
 }
 
 /**
@@ -2282,11 +2038,8 @@ function LocalSwapAlternativesSection({
   reversalAlternatives,
   pairBlockSwapAlternatives,
   placeById,
-  onApply,
-  onApplyRelocation,
-  onApplyTransposition,
-  onApplyReversal,
-  onApplyPairBlockSwap,
+  proposalIds,
+  onLoad,
 }: {
   dayNumber: number;
   alternatives: EvidenceCompleteLocalSwapAlternative[];
@@ -2295,20 +2048,16 @@ function LocalSwapAlternativesSection({
   reversalAlternatives: EvidenceCompleteFourPlaceInteriorReversalAlternative[];
   pairBlockSwapAlternatives: EvidenceCompleteTwoPairBlockSwapAlternative[];
   placeById: Map<string, Place>;
-  onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
-  onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
-  onApplyTransposition: (
-    alternative: EvidenceCompleteInteriorTranspositionAlternative
-  ) => void;
-  onApplyReversal: (
-    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
-  ) => void;
-  onApplyPairBlockSwap: (
-    alternative: EvidenceCompleteTwoPairBlockSwapAlternative
-  ) => void;
+  /** The order currently loaded in the sheet's «Otro orden»; only used to mark the loaded option. */
+  proposalIds: readonly string[];
+  /** Copies the option's order into the sheet's proposal. Never writes the draft. */
+  onLoad: (candidateDayPlaceIds: readonly string[]) => void;
 }) {
   const headingId = `local-swap-heading-${dayNumber}`;
   const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
+  const isLoaded = (alternative: { candidateDayPlaceIds: readonly string[] }) =>
+    alternative.candidateDayPlaceIds.length === proposalIds.length &&
+    alternative.candidateDayPlaceIds.every((id, index) => id === proposalIds[index]);
   const hasAlternatives =
     alternatives.length > 0 ||
     relocationAlternatives.length > 0 ||
@@ -2340,6 +2089,7 @@ function LocalSwapAlternativesSection({
                       key={`${alternative.dayId}:${alternative.leftDayIndex}`}
                       className="local-swap__item"
                     >
+                      <p className="local-swap__badge">Comprobado con datos completos</p>
                       <p className="local-swap__pair">
                         Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
                         <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
@@ -2375,9 +2125,10 @@ function LocalSwapAlternativesSection({
                       <button
                         type="button"
                         className="button button--secondary local-swap__apply"
-                        onClick={() => onApply(alternative)}
+                        aria-pressed={isLoaded(alternative)}
+                        onClick={() => onLoad(alternative.candidateDayPlaceIds)}
                       >
-                        Aplicar este intercambio
+                        Probar este intercambio
                       </button>
                     </li>
                   );
@@ -2400,6 +2151,7 @@ function LocalSwapAlternativesSection({
                       key={`${alternative.dayId}:${alternative.fromDayIndex}:${alternative.toDayIndex}`}
                       className="local-swap__item local-relocation__item"
                     >
+                      <p className="local-swap__badge">Comprobado con datos completos</p>
                       <p className="local-swap__pair local-relocation__move">
                         Mover <strong>{nameOf(alternative.movedPlaceId)}</strong> antes de{" "}
                         <strong>{nameOf(destinationPlaceId)}</strong> dentro del bloque de{" "}
@@ -2433,9 +2185,10 @@ function LocalSwapAlternativesSection({
                       <button
                         type="button"
                         className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyRelocation(alternative)}
+                        aria-pressed={isLoaded(alternative)}
+                        onClick={() => onLoad(alternative.candidateDayPlaceIds)}
                       >
-                        Aplicar esta reubicación
+                        Probar esta reubicación
                       </button>
                     </li>
                   );
@@ -2455,6 +2208,7 @@ function LocalSwapAlternativesSection({
                       key={`${alternative.dayId}:${alternative.leftDayIndex}:${alternative.rightDayIndex}`}
                       className="local-swap__item local-transposition__item"
                     >
+                      <p className="local-swap__badge">Comprobado con datos completos</p>
                       <p className="local-swap__pair local-transposition__exchange">
                         Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
                         <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
@@ -2488,9 +2242,10 @@ function LocalSwapAlternativesSection({
                       <button
                         type="button"
                         className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyTransposition(alternative)}
+                        aria-pressed={isLoaded(alternative)}
+                        onClick={() => onLoad(alternative.candidateDayPlaceIds)}
                       >
-                        Aplicar este intercambio no adyacente
+                        Probar este intercambio no adyacente
                       </button>
                     </li>
                   );
@@ -2511,6 +2266,7 @@ function LocalSwapAlternativesSection({
                       key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
                       className="local-swap__item local-reversal__item"
                     >
+                      <p className="local-swap__badge">Comprobado con datos completos</p>
                       <p className="local-swap__pair local-reversal__window">
                         Revertir el orden de <strong>{nameOf(first)}</strong>,{" "}
                         <strong>{nameOf(second)}</strong>, <strong>{nameOf(third)}</strong> y{" "}
@@ -2544,9 +2300,10 @@ function LocalSwapAlternativesSection({
                       <button
                         type="button"
                         className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyReversal(alternative)}
+                        aria-pressed={isLoaded(alternative)}
+                        onClick={() => onLoad(alternative.candidateDayPlaceIds)}
                       >
-                        Aplicar esta reversión de cuatro lugares
+                        Probar esta reversión de cuatro lugares
                       </button>
                     </li>
                   );
@@ -2568,6 +2325,7 @@ function LocalSwapAlternativesSection({
                       key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
                       className="local-swap__item local-pair-block-swap__item"
                     >
+                      <p className="local-swap__badge">Comprobado con datos completos</p>
                       <p className="local-swap__pair local-pair-block-swap__blocks">
                         Intercambiar los bloques de dos lugares{" "}
                         <strong>{nameOf(firstPairStart)}</strong> →{" "}
@@ -2604,9 +2362,10 @@ function LocalSwapAlternativesSection({
                       <button
                         type="button"
                         className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyPairBlockSwap(alternative)}
+                        aria-pressed={isLoaded(alternative)}
+                        onClick={() => onLoad(alternative.candidateDayPlaceIds)}
                       >
-                        Aplicar este intercambio de bloques
+                        Probar este intercambio de bloques
                       </button>
                     </li>
                   );
@@ -2781,11 +2540,6 @@ export function OrderedSequenceBuilder({
     interHubSegments,
     zoneAccommodationChoices,
     initializeDays,
-    movePlaceWithinDay,
-    relocatePlaceWithinDay,
-    transposePlacesWithinDay,
-    reverseFourPlacesWithinDay,
-    swapTwoPairBlocksWithinDay,
     movePlaceToPosition,
     addPlaceToDay,
     removePlaceFromDay,
@@ -2841,14 +2595,6 @@ export function OrderedSequenceBuilder({
     [accommodations]
   );
 
-  // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
-  // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
-  const [view, setView] = useState<"compare" | "days">("days");
-  // Phase 3C-B's candidates are intentionally NOT part of the persisted draft — see the module
-  // doc above. They stay plain, ephemeral component state.
-  const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
-  const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
-
   const routePlaces = useMemo(
     () => routeIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
     [routeIds, placeById]
@@ -2863,19 +2609,6 @@ export function OrderedSequenceBuilder({
     [routePlaces]
   );
   const recordedHours = useMemo(() => buildRecordedHoursSummary(routePlaces), [routePlaces]);
-
-  const candidateAPlaces = useMemo(
-    () => candidateAIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
-    [candidateAIds, placeById]
-  );
-  const candidateBPlaces = useMemo(
-    () => candidateBIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
-    [candidateBIds, placeById]
-  );
-  const comparison = useMemo(
-    () => compareSequences(candidateAIds, candidateBIds),
-    [candidateAIds, candidateBIds]
-  );
 
   const dayPlaceLists = useMemo(
     () =>
@@ -3103,91 +2836,11 @@ export function OrderedSequenceBuilder({
     fourPlaceReversalsByDayId,
   ]);
 
-  /**
-   * The one explicit user action that may change a day's order from a generated candidate.
-   *
-   * The candidate is re-verified against the plan as it is *now* before anything moves — the draft
-   * may have changed since the alternative was derived — and the mutation itself is the ordinary
-   * `movePlaceWithinDay` every manual reorder already goes through, so the day id, its
-   * accommodation boundary, every other day, `routeIds`, the dates, the visit times, the
-   * accommodations, the manual legs and every stored inter-hub segment travel through untouched.
-   * A stale candidate is a silent no-op: the next render simply regenerates from the real plan.
-   */
-  function applyLocalSwap(alternative: EvidenceCompleteLocalSwapAlternative) {
-    applyEvidenceCompleteLocalSwap(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, placeIndex, direction) => movePlaceWithinDay(dayId, placeIndex, direction)
-    );
-  }
-
-  function applyLocalRelocation(alternative: EvidenceCompleteLocalRelocationAlternative) {
-    applyEvidenceCompleteLocalRelocation(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, fromIndex, toIndex) => relocatePlaceWithinDay(dayId, fromIndex, toIndex)
-    );
-  }
-
-  /**
-   * The one explicit user action behind a transposition. Re-verified against the plan as it is
-   * now, then applied as a single pure V7 mutation — never two moves and never a follow-up
-   * suggestion applied on the user's behalf.
-   */
-  function applyInteriorTransposition(
-    alternative: EvidenceCompleteInteriorTranspositionAlternative
-  ) {
-    applyEvidenceCompleteInteriorTransposition(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, leftIndex, rightIndex) => transposePlacesWithinDay(dayId, leftIndex, rightIndex)
-    );
-  }
-
-  /**
-   * The one explicit user action behind a four-place reversal. Re-verified against the plan as it
-   * is now, then applied as a single pure V7 mutation — never four moves and never a follow-up
-   * suggestion applied on the user's behalf.
-   */
-  function applyFourPlaceReversal(
-    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
-  ) {
-    applyEvidenceCompleteFourPlaceInteriorReversal(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, windowStartIndex) => reverseFourPlacesWithinDay(dayId, windowStartIndex)
-    );
-  }
-
-  /**
-   * The one explicit user action behind a two-pair block swap. Re-verified against the plan as it
-   * is now, then applied as a single pure V7 mutation — never two persisted relocations, and never
-   * a follow-up suggestion applied on the user's behalf. The applied order may newly admit a Phase
-   * 3E-E relocation; that candidate is regenerated from the new baseline and waits for its own
-   * explicit click.
-   */
-  function applyTwoPairBlockSwap(alternative: EvidenceCompleteTwoPairBlockSwapAlternative) {
-    applyEvidenceCompleteTwoPairBlockSwap(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, windowStartIndex) => swapTwoPairBlocksWithinDay(dayId, windowStartIndex)
-    );
-  }
-
   // ---------------------------------------------------------------------------------------
   // B27 (B9.1) — the day-first surface. Everything below is a projection of the state above plus
   // the existing identity-aware mutations; nothing new is stored and no mutation is invented.
   // ---------------------------------------------------------------------------------------
 
-  /** The order the reader sees, flattened. The comparison (B9.3) seeds from THIS order rather than
-   * from a `routeIds` order the reader can no longer edit. Adding/removing a place no longer rebuilds
-   * the split: B28 «Añadir al día…» / «Quitar del día» mutate one day (`withPlaceAddedToDay`). */
-  const dayFlatOrder = useMemo(() => dayIds.flat(), [dayIds]);
   const interHubRows = useMemo(
     () => buildInterHubBoundaryRows({ routeIds, days, placeById, segments: interHubSegments }),
     [routeIds, days, placeById, interHubSegments]
@@ -3319,6 +2972,38 @@ export function OrderedSequenceBuilder({
   });
   const dragTarget = reorder.drag?.target ?? null;
 
+  // B29 (B9.3): «Probar otro orden» is a tool LOCAL to one day, addressed by the day's stable id (never
+  // its ordinal). The proposal lives inside `DayOrderSheet` and is never persisted; this component
+  // only knows which day is open and, on «Usar este orden», writes that one day's order.
+  const [dayOrderFor, setDayOrderFor] = useState<string | null>(null);
+  const dayOrderIndex = dayOrderFor === null ? -1 : dayEntities.findIndex((day) => day.id === dayOrderFor);
+  const dayOrderEntity = dayOrderIndex === -1 ? null : dayEntities[dayOrderIndex];
+
+  function closeDayOrder() {
+    if (dayOrderFor !== null) setFocusTarget(`day-order-open-${dayOrderFor}`);
+    setDayOrderFor(null);
+  }
+
+  /**
+   * The ONE write of the tool. It replays the difference through the existing B28
+   * `movePlaceToPosition` (same-day, final coordinates) — each call is a functional `setDraft`, batched
+   * by React into a single draft and a single storage write, so no intermediate order is ever
+   * persisted. Nothing but the order of this day's own stops can change: ids, dates, boundaries,
+   * hours, legs, segments, zone choices and every other day travel through untouched.
+   */
+  function applyDayOrder(proposalIds: readonly string[]) {
+    const entity = dayOrderEntity;
+    if (!entity) return;
+    const moves = planDayOrderMoves(entity.placeIds, proposalIds);
+    for (const move of moves) movePlaceToPosition(entity.id, entity.id, move.from, move.to);
+    setAnnouncement(
+      moves.length > 0
+        ? `Nuevo orden del Día ${dayOrderIndex + 1} aplicado. Los demás días no cambian.`
+        : `El orden del Día ${dayOrderIndex + 1} no ha cambiado.`
+    );
+    closeDayOrder();
+  }
+
   function addDay() {
     const nextOrdinal = (days === null ? 0 : dayIds.length) + 1;
     if (days === null) initializeDays([[...routeIds]]);
@@ -3351,20 +3036,6 @@ export function OrderedSequenceBuilder({
       node.querySelector<HTMLElement>("summary")?.focus();
       node.scrollIntoView?.({ block: "nearest" });
     }
-  }
-
-  // Candidate A starts as a clone of the plan as the reader sees it, and Candidate B as a clone of
-  // Candidate A — both are then independently reorderable. Neither write-back to the draft: the plan
-  // is untouched while comparing, and closing the comparison discards both candidates. (B9.3 turns
-  // this into a per-day tool; B9.1 only keeps it reachable.)
-  function openComparison() {
-    const seed = days === null ? [...routeIds] : [...dayFlatOrder];
-    setCandidateAIds(seed);
-    setCandidateBIds([...seed]);
-    setView("compare");
-  }
-  function closeComparison() {
-    setView("days");
   }
 
   // Same focus-management/backdrop-trap pattern as SelectionAnalysis — only for the legacy floating
@@ -3409,16 +3080,7 @@ export function OrderedSequenceBuilder({
     return () => document.removeEventListener("keydown", onKeyDown, true);
   }, [onClose, embedded]);
 
-  const resultText = view === "compare" ? comparisonResultText(comparison) : null;
-
   const surfaceTitle = section === "reservas" ? "Reservas" : section === "resumen" ? "Resumen" : "Viaje";
-  const headerTitle = view === "compare" ? "Comparar órdenes" : surfaceTitle;
-  const headerSub =
-    view === "compare"
-      ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
-      : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en ${dayIds.length} día${
-          dayIds.length === 1 ? "" : "s"
-        }`;
 
   const Outer = embedded ? Fragment : "div";
   const outerProps = embedded ? {} : { className: "analysis-overlay" };
@@ -3442,29 +3104,26 @@ export function OrderedSequenceBuilder({
         aria-modal={embedded ? undefined : true}
         aria-labelledby="sequence-builder-title"
       >
-        {(!embedded || view === "compare") && (
+        {!embedded && (
           <header className="analysis-header">
             <div>
-              {view === "compare" && (
-                <button type="button" className="link-button sequence-back" onClick={closeComparison}>
-                  <Icon name="atras" size={16} /> Volver a los días
-                </button>
-              )}
-              <h2 id="sequence-builder-title">{headerTitle}</h2>
-              <p className="analysis-header__sub">{headerSub}</p>
+              <h2 id="sequence-builder-title">{surfaceTitle}</h2>
+              <p className="analysis-header__sub">
+                {`${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en ${dayIds.length} día${
+                  dayIds.length === 1 ? "" : "s"
+                }`}
+              </p>
             </div>
-            {!embedded && (
-              <button
-                ref={closeRef}
-                type="button"
-                className="icon-button"
-                onClick={onClose}
-                aria-label="Cerrar el constructor de recorrido"
-                title="Cerrar el constructor de recorrido"
-              >
-                <Icon name="cerrar" size={16} />
-              </button>
-            )}
+            <button
+              ref={closeRef}
+              type="button"
+              className="icon-button"
+              onClick={onClose}
+              aria-label="Cerrar el constructor de recorrido"
+              title="Cerrar el constructor de recorrido"
+            >
+              <Icon name="cerrar" size={16} />
+            </button>
           </header>
         )}
 
@@ -3477,56 +3136,7 @@ export function OrderedSequenceBuilder({
             Espacio o Intro la sueltan y Escape cancela. «Mover a…» permite elegir día y posición sin arrastrar.
           </p>
 
-          {view === "compare" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Compara exactamente estos dos órdenes de los
-                mismos lugares. <strong>No genera ni sugiere un orden</strong>; reordena el orden B
-                (y, si quieres, el orden A) con las flechas.
-              </p>
-
-              <div className="comparison-candidates">
-                <section className="comparison-candidate" aria-labelledby="candidate-a-heading">
-                  <h3 id="candidate-a-heading">Orden A</h3>
-                  <ReorderableList
-                    places={candidateAPlaces}
-                    legs={comparison.candidateA.sequence.legs}
-                    labelSuffix=" en orden A"
-                    onMoveUp={(index) => setCandidateAIds((ids) => moveItemUp(ids, index))}
-                    onMoveDown={(index) => setCandidateAIds((ids) => moveItemDown(ids, index))}
-                    compact
-                  />
-                  <CandidateSummary candidate={comparison.candidateA} />
-                </section>
-
-                <section className="comparison-candidate" aria-labelledby="candidate-b-heading">
-                  <h3 id="candidate-b-heading">Orden B</h3>
-                  <ReorderableList
-                    places={candidateBPlaces}
-                    legs={comparison.candidateB.sequence.legs}
-                    labelSuffix=" en orden B"
-                    onMoveUp={(index) => setCandidateBIds((ids) => moveItemUp(ids, index))}
-                    onMoveDown={(index) => setCandidateBIds((ids) => moveItemDown(ids, index))}
-                    compact
-                  />
-                  <CandidateSummary candidate={comparison.candidateB} />
-                </section>
-              </div>
-
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> El tiempo de visita no cambia entre A y B; solo
-                estamos comparando el orden y sus traslados.
-              </p>
-
-              <div className="comparison-result" role="status">
-                <h3>Resultado</h3>
-                <p className="comparison-result__headline">{resultText?.headline}</p>
-                {resultText?.detail && <p className="comparison-result__detail">{resultText.detail}</p>}
-              </div>
-            </>
-          )}
-
-          {view === "days" && section === "reservas" && (
+          {section === "reservas" && (
             <div className="viaje-surface" data-viaje-surface="reservas">
               {embedded && (
                 <header className="viaje-surface__header">
@@ -3539,7 +3149,7 @@ export function OrderedSequenceBuilder({
             </div>
           )}
 
-          {view === "days" && section === "resumen" && (
+          {section === "resumen" && (
             <div className="viaje-surface" data-viaje-surface="resumen">
               {embedded && (
                 <header className="viaje-surface__header">
@@ -3550,7 +3160,7 @@ export function OrderedSequenceBuilder({
             </div>
           )}
 
-          {view === "days" && section === "dias" && (
+          {section === "dias" && (
             <div className="dias" data-viaje-surface="dias">
               <header className="dias__header">
                 {embedded ? (
@@ -3772,6 +3382,20 @@ export function OrderedSequenceBuilder({
                                 />
                               );
                             })}
+                            tools={
+                              places.length >= 2 && dayEntity ? (
+                                <button
+                                  type="button"
+                                  id={`day-order-open-${dayEntity.id}`}
+                                  className="button button--secondary day-timeline__tool"
+                                  onClick={() => setDayOrderFor(dayEntity.id)}
+                                  aria-label={`Probar otro orden en el Día ${dayIndex + 1}`}
+                                  aria-haspopup="dialog"
+                                >
+                                  <Icon name="comparar" size={16} /> Probar otro orden
+                                </button>
+                              ) : null
+                            }
                             details={
                               isEmpty ? null : (
                                 <>
@@ -3807,33 +3431,6 @@ export function OrderedSequenceBuilder({
                                     />
                                     {bucket && (
                                       <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
-                                    )}
-                                    {dayEntity &&
-                                      localSwapGeneration.kind === "available" &&
-                                      localRelocationGeneration.kind === "available" &&
-                                      interiorTranspositionGeneration.kind === "available" &&
-                                      fourPlaceReversalGeneration.kind === "available" &&
-                                      twoPairBlockSwapGeneration.kind === "available" && (
-                                      <LocalSwapAlternativesSection
-                                        dayNumber={dayIndex + 1}
-                                        alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
-                                        relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
-                                        transpositionAlternatives={
-                                          interiorTranspositionsByDayId.get(dayEntity.id) ?? []
-                                        }
-                                        reversalAlternatives={
-                                          fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
-                                        }
-                                        pairBlockSwapAlternatives={
-                                          twoPairBlockSwapsByDayId.get(dayEntity.id) ?? []
-                                        }
-                                        placeById={placeById}
-                                        onApply={applyLocalSwap}
-                                        onApplyRelocation={applyLocalRelocation}
-                                        onApplyTransposition={applyInteriorTransposition}
-                                        onApplyReversal={applyFourPlaceReversal}
-                                        onApplyPairBlockSwap={applyTwoPairBlockSwap}
-                                      />
                                     )}
                                     {bucket && dayEntity && dayBoundary && (
                                       <AccommodationCommuteSection
@@ -3888,15 +3485,6 @@ export function OrderedSequenceBuilder({
                     >
                       <span aria-hidden="true">＋</span> Añadir día
                     </button>
-                    {routePlaces.length >= 2 && (
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openComparison}
-                      >
-                        <Icon name="comparar" size={16} /> Probar otro orden
-                      </button>
-                    )}
                   </div>
 
                   <details
@@ -3969,6 +3557,37 @@ export function OrderedSequenceBuilder({
             );
             setActionsFor(null);
           }}
+        />
+      )}
+
+      {dayOrderEntity && dayOrderEntity.placeIds.length >= 2 && (
+        <DayOrderSheet
+          key={dayOrderEntity.id}
+          headline={stopDayLabel(dayOrderIndex)}
+          dayNumber={dayOrderIndex + 1}
+          currentIds={dayOrderEntity.placeIds}
+          placeById={placeById}
+          renderAlternatives={(proposalIds, load) =>
+            localSwapGeneration.kind === "available" &&
+            localRelocationGeneration.kind === "available" &&
+            interiorTranspositionGeneration.kind === "available" &&
+            fourPlaceReversalGeneration.kind === "available" &&
+            twoPairBlockSwapGeneration.kind === "available" ? (
+              <LocalSwapAlternativesSection
+                dayNumber={dayOrderIndex + 1}
+                alternatives={localSwapsByDayId.get(dayOrderEntity.id) ?? []}
+                relocationAlternatives={localRelocationsByDayId.get(dayOrderEntity.id) ?? []}
+                transpositionAlternatives={interiorTranspositionsByDayId.get(dayOrderEntity.id) ?? []}
+                reversalAlternatives={fourPlaceReversalsByDayId.get(dayOrderEntity.id) ?? []}
+                pairBlockSwapAlternatives={twoPairBlockSwapsByDayId.get(dayOrderEntity.id) ?? []}
+                placeById={placeById}
+                proposalIds={proposalIds}
+                onLoad={load}
+              />
+            ) : null
+          }
+          onApply={applyDayOrder}
+          onClose={closeDayOrder}
         />
       )}
 

@@ -4320,42 +4320,12 @@ button.app__title.app__title--expand {
   }
 }
 
-/* ---------- Sequence comparison (Phase 3C-B) ---------- */
-
-.sequence-back {
-  display: inline-block;
-  margin-bottom: 0.2rem;
-}
+/* ---------- Sequence comparison (Phase 3C-B) — reused by the B29 day sheet ---------- */
 
 .sequence-secondary-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-}
-
-.sequence-compare-toggle {
-  flex: 1 1 auto;
-  min-width: 9rem;
-}
-
-.comparison-candidates {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.comparison-candidate {
-  flex: 1 1 14rem;
-  min-width: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem;
-}
-
-.comparison-candidate h3 {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
 }
 
 .sequence-list--compact .sequence-item {
@@ -5394,7 +5364,9 @@ button.app__title.app__title--expand {
 
 /* Phase 3E-C — generated evidence-complete local swap alternatives, inside the day card.
    Deliberately neutral: no success/positive colouring, no badge, no highlight that would read as
-   "Nihon recommends this". The section is a list of facts with a button, not a call to action. */
+   "Nihon recommends this". The section is a list of facts with a button, not a call to action.
+   B29: it now lives inside the day's «Probar otro orden» sheet; the one contractual label,
+   «Comprobado con datos completos», is plain text in the same ink as the facts (no colour, no icon). */
 .local-swap {
   margin-top: 0.75rem;
   padding-top: 0.6rem;
@@ -5495,6 +5467,12 @@ button.app__title.app__title--expand {
 
 .local-swap__apply {
   justify-self: start;
+  min-height: var(--tap-min);
+}
+
+.local-swap__badge {
+  font-weight: 600;
+  color: var(--ink-700);
 }
 
 /* ---------- Block 4 — choosing a zone, and what it does to the plan ----------
@@ -7612,4 +7590,101 @@ body.is-reordering {
   .unassigned__panel {
     max-height: calc(100vh - var(--space-20));
   }
+}
+
+/* --- B29 (B9.3) — «Probar otro orden»: herramienta local a un día --- */
+
+.day-timeline__tools {
+  display: flex;
+  padding-top: var(--space-1);
+}
+
+.day-timeline__tool {
+  min-height: var(--tap-min);
+  max-width: 100%;
+}
+
+.day-order {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.day-order__scope {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  color: var(--ink-500);
+  overflow-wrap: anywhere;
+}
+
+.day-order__intro,
+.day-order__hint {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  color: var(--ink-700);
+}
+
+.day-order__hint {
+  font-size: var(--type-label-size);
+  color: var(--ink-500);
+}
+
+.day-order__block {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.day-order__block h3,
+.day-order__comparison h3 {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+}
+
+/* The proposal is the thing being edited: a solid accent edge tells it apart from the read-only
+   current order without colouring either as «better». */
+.day-order__block--proposal {
+  border-color: var(--info-600);
+  border-left-width: 4px;
+}
+
+.day-order__block--current {
+  background: var(--surface-sunken);
+}
+
+.day-order__block .sequence-list--compact .sequence-item__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.day-order__actions {
+  position: sticky;
+  bottom: calc(var(--space-6) * -1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  margin-bottom: calc(var(--space-6) * -1);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.day-order__actions .button {
+  min-height: var(--tap-primary);
+}
+
+.day-order__actions .day-order__hint {
+  flex: 1 0 100%;
+}
+
+.day-order .local-swap {
+  margin-top: 0;
 }

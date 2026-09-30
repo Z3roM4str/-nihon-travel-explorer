@@ -75,26 +75,25 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
     ]) expect(block.toLowerCase()).not.toContain(forbidden.toLowerCase());
   });
 
-  it("93. Apply is an explicit button click", async () => {
+  it("93. loading a relocation is an explicit button click that only fills the sheet's proposal", async () => {
     const block = sectionBlock(await source());
-    expect(block).toContain("Aplicar esta reubicación");
-    expect(block).toContain("onClick={() => onApplyRelocation(alternative)}");
+    expect(block).toContain("Probar esta reubicación");
+    expect(block).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
+    expect(withoutComments(block)).not.toMatch(/movePlaceToPosition|setDraft|onApply/);
   });
 
-  it("94. Apply delegates one exact final-order relocation", async () => {
+  it("94. the one write is «Usar este orden»: an exact final order replayed as same-day B28 moves", async () => {
     const full = await source();
-    const apply = full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("// B27 (B9.1) — the day-first surface"));
-    expect(apply).toContain("applyEvidenceCompleteLocalRelocation(");
-    expect(apply).toContain("relocatePlaceWithinDay(dayId, fromIndex, toIndex)");
-    expect(apply.match(/relocatePlaceWithinDay\(/g)).toHaveLength(1);
+    const apply = withoutComments(full.slice(full.indexOf("function applyDayOrder"), full.indexOf("function addDay")));
+    expect(apply).toContain("planDayOrderMoves(entity.placeIds, proposalIds)");
+    expect(apply).toContain("movePlaceToPosition(entity.id, entity.id, move.from, move.to)");
+    expect(apply.match(/movePlaceToPosition\(/g)).toHaveLength(1);
   });
 
-  it("95. the adjacent-swap subgroup and Apply path remain functional", async () => {
-    const full = await source();
-    const block = sectionBlock(full);
-    expect(block).toContain("Aplicar este intercambio");
-    expect(block).toContain("onClick={() => onApply(alternative)}");
-    expect(full).toContain("applyEvidenceCompleteLocalSwap(");
+  it("95. the adjacent-swap subgroup keeps its load path", async () => {
+    const block = sectionBlock(await source());
+    expect(block).toContain("Probar este intercambio");
+    expect(block).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
   });
 
   it("96. the relocation section never mutates or reassesses inter-hub state", async () => {
@@ -102,9 +101,10 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
     expect(block).not.toMatch(/interHub|InterHub/);
   });
 
-  it("97. the relocation Apply path never mutates accommodation state", async () => {
+  it("97. the Apply path never mutates accommodation state", async () => {
     const full = await source();
-    const apply = withoutComments(full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("// B27 (B9.1) — the day-first surface")));
+    const apply = withoutComments(full.slice(full.indexOf("function applyDayOrder"), full.indexOf("function addDay")));
+    expect(apply.length).toBeGreaterThan(200);
     expect(apply).not.toMatch(/Accommodation|accommodation/);
   });
 
@@ -115,12 +115,14 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
     expect(sectionBlock(full)).not.toContain("TripBoundsDayWarning");
   });
 
-  it("99. affected manual times suppress generation and are rechecked at Apply", async () => {
+  it("99. affected manual times suppress generation; Apply is order-only and rewrites no time", async () => {
     const full = await source();
     const generation = full.slice(full.indexOf("const localRelocationGeneration"), full.indexOf("const localRelocationsByDayId"));
-    const apply = full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("// B27 (B9.1) — the day-first surface"));
+    const apply = withoutComments(full.slice(full.indexOf("function applyDayOrder"), full.indexOf("function addDay")));
     expect(generation).toContain("{ routeIds, days: planningDays, visitStartTimes }");
-    expect(apply).toContain("{ routeIds, days: planningDays, visitStartTimes }");
+    // The apply path can only reorder this day's own ids (permutation-guarded) and never touches a time.
+    expect(apply).toContain("planDayOrderMoves(");
+    expect(apply).not.toMatch(/setVisitStartTime|visitStartTimes/);
   });
 
   it("100. no automatic follow-up Apply exists", async () => {

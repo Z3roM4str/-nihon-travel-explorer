@@ -20,6 +20,8 @@ type Props = {
   isDropTarget?: boolean;
   /** B28: a carried stop would land in this day while it is empty. */
   emptyDropActive?: boolean;
+  /** B29: the day's own tool (`Probar otro orden`), between the stops and the details. */
+  tools?: ReactNode;
   /** Existing per-day signals and tools (weekday closure, reservations, alternatives …). */
   details?: ReactNode;
   /** «Dormís en …» + the day's own accommodation controls. */
@@ -43,6 +45,7 @@ export function DayTimeline({
   isEmpty,
   emptyText,
   stops,
+  tools,
   details,
   footer,
   isDropTarget,
@@ -74,6 +77,8 @@ export function DayTimeline({
           {stops}
         </ol>
       )}
+
+      {tools && <div className="day-timeline__tools">{tools}</div>}
 
       {details && <div className="day-timeline__details">{details}</div>}
       {footer && <footer className="day-timeline__footer">{footer}</footer>}

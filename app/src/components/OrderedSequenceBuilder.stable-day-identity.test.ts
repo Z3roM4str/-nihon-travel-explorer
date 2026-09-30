@@ -380,8 +380,9 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("introduces no new planning mode or visual surface", async () => {
     const source = await readSource();
-    const views = source.match(/useState<"compare" \| "days">/g) ?? [];
-    expect(views).toHaveLength(1);
+    // B29: the global compare/days view switch is gone — «Probar otro orden» is a per-day sheet.
+    expect(source.match(/useState<"compare" \| "days">/g) ?? []).toHaveLength(0);
+    expect(source.match(/<DayOrderSheet/g)).toHaveLength(1);
   });
 });
 

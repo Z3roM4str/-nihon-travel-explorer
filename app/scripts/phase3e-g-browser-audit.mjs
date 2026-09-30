@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
-import { enterDaysView } from "./lib/shell-navigation.mjs";
+import { enterDaysView, openDayOrder, useThisOrder } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-G — executable browser acceptance for the normative UI/browser contracts 105-125.
@@ -74,6 +74,7 @@ try {
   // 1. the app boots.
   await page.goto(url, { waitUntil: "networkidle" });
   await enterDaysView(page);
+  await openDayOrder(page);
 
   // 2-3. the existing surface renders and gains the distinct non-adjacent subgroup.
   await page.getByRole("heading", { name: "Alternativas locales con evidencia completa" }).waitFor();
@@ -128,7 +129,13 @@ try {
   );
   assert.deepEqual(beforeApply.days[0].placeIds, routeIds);
 
-  await page.getByRole("button", { name: "Aplicar este intercambio no adyacente" }).first().click();
+  await page.getByRole("button", { name: "Probar este intercambio no adyacente" }).first().click();
+  // B29: loading an option only fills «Otro orden»; the stored draft is still the baseline.
+  const afterLoad = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
+  );
+  assert.deepEqual(afterLoad.days[0].placeIds, routeIds);
+  await useThisOrder(page);
 
   // 9. Apply produces the exact expected order.
   await page.waitForFunction((expected) => {
@@ -159,6 +166,7 @@ try {
   }
 
   // 13. alternatives regenerate from the new baseline: the applied candidate is gone.
+  await openDayOrder(page);
   await page
     .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
     .first()
@@ -186,6 +194,7 @@ try {
    * both keys already exist by now.
    */
   await enterDaysView(page);
+  await openDayOrder(page);
   await page
     .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
     .first()
@@ -288,6 +297,7 @@ try {
     }, { saved: regressionIds, planningDraft: regressionDraft });
     await regressionPage.goto(url, { waitUntil: "networkidle" });
     await enterDaysView(regressionPage);
+    await openDayOrder(regressionPage);
     await regressionPage
       .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
       .waitFor();
@@ -299,6 +309,7 @@ try {
     try {
       await regressionPage.getByRole("heading", { name: buttonName.group }).waitFor();
       await regressionPage.getByRole("button", { name: buttonName.button }).first().click();
+      await useThisOrder(regressionPage);
       await regressionPage.waitForFunction((want) => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return JSON.stringify(stored?.days?.[0]?.placeIds) === JSON.stringify(want);
@@ -316,12 +327,12 @@ try {
 
   // 15. the Phase 3E-C adjacent-swap group still renders and still applies.
   const adjacentApplied = await applyAndRead(
-    { group: "Intercambios adyacentes", button: "Aplicar este intercambio" },
+    { group: "Intercambios adyacentes", button: "Probar este intercambio" },
     ["JP-006", "JP-035", "JP-034", "JP-036", "JP-033"]
   );
   // 16. the Phase 3E-E relocation group still renders and still applies.
   const relocationApplied = await applyAndRead(
-    { group: "Reubicaciones de un lugar", button: "Aplicar esta reubicación" },
+    { group: "Reubicaciones de un lugar", button: "Probar esta reubicación" },
     ["JP-006", "JP-035", "JP-036", "JP-034", "JP-033"]
   );
 

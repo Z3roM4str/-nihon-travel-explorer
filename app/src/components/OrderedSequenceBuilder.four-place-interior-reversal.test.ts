@@ -120,24 +120,20 @@ describe("OrderedSequenceBuilder — Phase 3E-I UI (§31.122-123)", () => {
     );
   });
 
-  it("123f. Apply is an explicit button routed through the stale-guarded wrapper", async () => {
+  it("123f. loading a reversal is an explicit button; the only write is «Usar este orden»", async () => {
     const group = reversalGroup(await source());
-    expect(group).toContain("Aplicar esta reversión de cuatro lugares");
-    expect(group).toContain("onClick={() => onApplyReversal(alternative)}");
-    expect(group).not.toMatch(/useEffect|setTimeout|autoApply/);
+    expect(group).toContain("Probar esta reversión de cuatro lugares");
+    expect(group).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
+    expect(group).not.toMatch(/useEffect|setTimeout|autoApply|movePlaceToPosition|setDraft/);
 
     const full = withoutComments(await source());
-    expect(full).toContain("applyEvidenceCompleteFourPlaceInteriorReversal(");
-    const handlerStart = full.indexOf("function applyFourPlaceReversal");
-    const declarationEnd = full.indexOf("{", full.indexOf(") {", handlerStart));
-    const body = full.slice(declarationEnd, full.indexOf("\n  }", handlerStart));
-    expect(body).toContain("reverseFourPlacesWithinDay(dayId, windowStartIndex)");
-    expect(body.match(/reverseFourPlacesWithinDay\(/g)).toHaveLength(1);
-    // No automatic follow-up Apply, and no other neighbourhood's mutation is reachable from here.
-    expect(body).not.toMatch(
-      /applyLocalSwap|applyLocalRelocation|applyInteriorTransposition|applyFourPlaceReversal\(/
-    );
-    expect(full).not.toMatch(/useEffect\([^)]*applyFourPlaceReversal/);
+    const handlerStart = full.indexOf("function applyDayOrder");
+    const body = full.slice(handlerStart, full.indexOf("function addDay"));
+    expect(body).toContain("planDayOrderMoves(entity.placeIds, proposalIds)");
+    expect(body.match(/movePlaceToPosition\(/g)).toHaveLength(1);
+    // No other neighbourhood's mutation is reachable, and no automatic follow-up runs.
+    expect(body).not.toMatch(/reverseFourPlacesWithinDay|transposePlacesWithinDay|relocatePlaceWithinDay/);
+    expect(full).not.toMatch(/useEffect\([^)]*applyDayOrder/);
   });
 
   it("123g. alternatives are derived on render and never persisted", async () => {
@@ -153,9 +149,7 @@ describe("OrderedSequenceBuilder — Phase 3E-I UI (§31.122-123)", () => {
 
   it("123h. the three earlier groups remain wired and unranked", async () => {
     const block = sectionBlock(await source());
-    expect(block).toContain("onClick={() => onApply(alternative)}");
-    expect(block).toContain("onClick={() => onApplyRelocation(alternative)}");
-    expect(block).toContain("onClick={() => onApplyTransposition(alternative)}");
+    expect(block.match(/onClick=\{\(\) => onLoad\(alternative\.candidateDayPlaceIds\)\}/g)).toHaveLength(5);
     // Group order is positional and fixed; nothing sorts or ranks between groups.
     const order = [
       "Intercambios adyacentes",

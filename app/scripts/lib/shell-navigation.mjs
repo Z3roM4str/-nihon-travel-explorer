@@ -205,3 +205,19 @@ export async function openAllDayTools(page) {
     for (const details of document.querySelectorAll("details.day-tools")) details.open = true;
   });
 }
+
+/**
+ * B29 (B9.3): abre «Probar otro orden» del día `dayNumber` (1-based), la hoja local a ese día. Las
+ * alternativas verificadas (`evidence-complete-*`) viven dentro de ella y sólo se CARGAN como
+ * «Otro orden»; nada se escribe hasta «Usar este orden».
+ */
+export async function openDayOrder(page, dayNumber = 1) {
+  await page.getByRole("button", { name: `Probar otro orden en el Día ${dayNumber}` }).click();
+  await page.locator("[data-day-order-sheet]").waitFor();
+}
+
+/** Aplica lo que haya en «Otro orden» con la única acción que escribe, y espera a que la hoja cierre. */
+export async function useThisOrder(page) {
+  await page.getByRole("button", { name: "Usar este orden" }).click();
+  await page.locator("[data-day-order-sheet]").waitFor({ state: "detached" });
+}

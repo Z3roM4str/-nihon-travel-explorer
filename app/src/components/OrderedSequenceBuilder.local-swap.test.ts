@@ -39,7 +39,7 @@ describe("OrderedSequenceBuilder — Phase 3E-C local swap wiring", () => {
 
   it("73b. the section is only offered per day, from that day's own alternatives", async () => {
     const fullSource = await source();
-    expect(fullSource).toContain("localSwapsByDayId.get(dayEntity.id) ?? []");
+    expect(fullSource).toContain("localSwapsByDayId.get(dayOrderEntity.id) ?? []");
     expect(fullSource).toContain('localSwapGeneration.kind === "available"');
   });
 
@@ -141,27 +141,23 @@ describe("OrderedSequenceBuilder — Phase 3E-C local swap wiring", () => {
     expect(withoutComments(grouping)).not.toContain(".sort(");
   });
 
-  it("81. application requires an explicit click on an explicit button", async () => {
+  it("81. an option is only ever LOADED by an explicit click; nothing here writes the draft", async () => {
     const block = withoutComments(sectionBlock(await source()));
-    expect(block).toContain("Aplicar este intercambio");
-    expect(block).toContain("onClick={() => onApply(alternative)}");
+    expect(block).toContain("Probar este intercambio");
+    expect(block).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
+    expect(block).not.toMatch(/movePlaceToPosition|setDraft|onApply/);
     // The section itself owns no effect, timer or auto-invocation.
     expect(block).not.toContain("useEffect");
     expect(block).not.toContain("setTimeout");
   });
 
-  it("82. applying goes through the stale guard and the ordinary single-day reorder", async () => {
+  it("82. applying is «Usar este orden»: one order-only path through the ordinary B28 same-day move", async () => {
     const fullSource = await source();
     const apply = withoutComments(
-      fullSource.slice(
-        fullSource.indexOf("function applyLocalSwap"),
-        fullSource.indexOf("// B27 (B9.1) — the day-first surface")
-      )
+      fullSource.slice(fullSource.indexOf("function applyDayOrder"), fullSource.indexOf("function addDay"))
     );
-    // One apply path only: the tested wrapper, which runs the stale guard itself and reaches the
-    // mutation callback solely when the candidate is still applicable.
-    expect(apply).toContain("applyEvidenceCompleteLocalSwap(");
-    expect(apply).toContain("movePlaceWithinDay(dayId, placeIndex, direction)");
+    expect(apply).toContain("planDayOrderMoves(entity.placeIds, proposalIds)");
+    expect(apply).toContain("movePlaceToPosition(entity.id, entity.id, move.from, move.to)");
     // No other draft mutation is reachable from the apply path.
     for (const forbidden of [
       "setRouteIds",
@@ -204,10 +200,9 @@ describe("OrderedSequenceBuilder — Phase 3E-C local swap wiring", () => {
     );
     expect(wiring).toContain("generateEvidenceCompleteLocalSwaps(");
     expect(wiring).toContain("{ routeIds, days: planningDays, visitStartTimes }");
-    // The stale guard re-reads the same field at apply time.
-    expect(fullSource).toContain(
-      "{ routeIds, days: planningDays, visitStartTimes },\n      { resolvePlace: (placeId) => placeById.get(placeId) ?? null }"
-    );
+    // At apply time the proposal is re-checked as a permutation of the day's CURRENT ids (a stale
+    // proposal plans no move at all — see `day-order.ts`).
+    expect(fullSource).toContain("planDayOrderMoves(entity.placeIds, proposalIds)");
   });
 
   it("87. alternatives are derived on every render, so an apply never chains a second one", async () => {

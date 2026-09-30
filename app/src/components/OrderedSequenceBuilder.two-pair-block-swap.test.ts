@@ -126,25 +126,21 @@ describe("OrderedSequenceBuilder — Phase 3E-K UI (§33.123)", () => {
     );
   });
 
-  it("123h. Apply is an explicit button routed through the stale-guarded wrapper", async () => {
+  it("123h. loading a block swap is an explicit button; the only write is «Usar este orden»", async () => {
     const group = pairBlockGroup(await source());
-    expect(group).toContain("Aplicar este intercambio de bloques");
-    expect(group).toContain("onClick={() => onApplyPairBlockSwap(alternative)}");
-    expect(group).not.toMatch(/useEffect|setTimeout|autoApply/);
+    expect(group).toContain("Probar este intercambio de bloques");
+    expect(group).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
+    expect(group).not.toMatch(/useEffect|setTimeout|autoApply|movePlaceToPosition|setDraft/);
 
     const full = withoutComments(await source());
-    expect(full).toContain("applyEvidenceCompleteTwoPairBlockSwap(");
-    const handlerStart = full.indexOf("function applyTwoPairBlockSwap");
-    const declarationEnd = full.indexOf("{", full.indexOf(") {", handlerStart));
-    const body = full.slice(declarationEnd, full.indexOf("\n  }", handlerStart));
-    expect(body).toContain("swapTwoPairBlocksWithinDay(dayId, windowStartIndex)");
-    expect(body.match(/swapTwoPairBlocksWithinDay\(/g)).toHaveLength(1);
-    // No automatic follow-up Apply — in particular, never the 3E-E relocation the applied order
-    // newly admits — and no other neighbourhood's mutation is reachable from here.
-    expect(body).not.toMatch(
-      /applyLocalSwap|applyLocalRelocation|applyInteriorTransposition|applyFourPlaceReversal|applyTwoPairBlockSwap\(/
-    );
-    expect(full).not.toMatch(/useEffect\([^)]*applyTwoPairBlockSwap/);
+    const handlerStart = full.indexOf("function applyDayOrder");
+    const body = full.slice(handlerStart, full.indexOf("function addDay"));
+    expect(body).toContain("planDayOrderMoves(entity.placeIds, proposalIds)");
+    expect(body.match(/movePlaceToPosition\(/g)).toHaveLength(1);
+    // No automatic follow-up — in particular never the 3E-E relocation the new order newly admits —
+    // and no other neighbourhood's mutation is reachable from here.
+    expect(body).not.toMatch(/swapTwoPairBlocksWithinDay|reverseFourPlacesWithinDay|relocatePlaceWithinDay/);
+    expect(full).not.toMatch(/useEffect\([^)]*applyDayOrder/);
   });
 
   it("123i. alternatives are derived on render and never persisted", async () => {
@@ -160,10 +156,7 @@ describe("OrderedSequenceBuilder — Phase 3E-K UI (§33.123)", () => {
 
   it("123j. the four earlier groups remain wired, ordered C → E → G → I → K and unranked", async () => {
     const block = sectionBlock(await source());
-    expect(block).toContain("onClick={() => onApply(alternative)}");
-    expect(block).toContain("onClick={() => onApplyRelocation(alternative)}");
-    expect(block).toContain("onClick={() => onApplyTransposition(alternative)}");
-    expect(block).toContain("onClick={() => onApplyReversal(alternative)}");
+    expect(block.match(/onClick=\{\(\) => onLoad\(alternative\.candidateDayPlaceIds\)\}/g)).toHaveLength(5);
     // Group order is positional and fixed; nothing sorts or ranks between groups, so a larger
     // pair-block gap can never displace or suppress an earlier group.
     const order = [

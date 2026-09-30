@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
-import { enterDaysView } from "./lib/shell-navigation.mjs";
+import { enterDaysView, openDayOrder, useThisOrder } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-I — executable browser acceptance for the normative UI/browser contracts 122-125.
@@ -88,6 +88,7 @@ try {
   /** The real navigation path from the landing page into the day builder. */
   async function enterPlanner(page) {
     await enterDaysView(page);
+    await openDayOrder(page);
     await page
       .getByRole("heading", { name: "Alternativas locales con evidencia completa" })
       .first()
@@ -159,7 +160,10 @@ try {
   assert.deepEqual(beforeApply.days[0].placeIds, routeIds);
 
   // 13. Apply is explicit.
-  await page.getByRole("button", { name: "Aplicar esta reversión de cuatro lugares" }).first().click();
+  await page.getByRole("button", { name: "Probar esta reversión de cuatro lugares" }).first().click();
+  // B29: loading an option only fills «Otro orden»; the stored draft is still the baseline.
+  assert.deepEqual((await readDraft(page)).days[0].placeIds, routeIds);
+  await useThisOrder(page);
 
   // 14. Apply produces the exact expected Okinawa order.
   await page.waitForFunction((expected) => {
@@ -258,6 +262,7 @@ try {
     try {
       await regressionPage.getByRole("heading", { name: groupHeading }).waitFor();
       await regressionPage.getByRole("button", { name: buttonName }).first().click();
+      await useThisOrder(regressionPage);
       await regressionPage.waitForFunction((want) => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return JSON.stringify(stored?.days?.[0]?.placeIds) === JSON.stringify(want);
@@ -279,7 +284,7 @@ try {
     seedRouteIds: swapFixture,
     seedDayId: "phase-3e-i-regression-c",
     groupHeading: "Intercambios adyacentes",
-    buttonName: "Aplicar este intercambio",
+    buttonName: "Probar este intercambio",
     expected: ["JP-006", "JP-035", "JP-034", "JP-036", "JP-033"],
   });
   // 23. Phase 3E-E relocation still applies.
@@ -287,7 +292,7 @@ try {
     seedRouteIds: swapFixture,
     seedDayId: "phase-3e-i-regression-e",
     groupHeading: "Reubicaciones de un lugar",
-    buttonName: "Aplicar esta reubicación",
+    buttonName: "Probar esta reubicación",
     expected: ["JP-006", "JP-035", "JP-036", "JP-034", "JP-033"],
   });
   // 24. Phase 3E-G non-adjacent transposition still applies.
@@ -295,7 +300,7 @@ try {
     seedRouteIds: transpositionFixture,
     seedDayId: "phase-3e-i-regression-g",
     groupHeading: "Intercambios no adyacentes",
-    buttonName: "Aplicar este intercambio no adyacente",
+    buttonName: "Probar este intercambio no adyacente",
     expected: ["JP-028", "JP-027", "JP-022", "JP-026", "JP-025"],
   });
 

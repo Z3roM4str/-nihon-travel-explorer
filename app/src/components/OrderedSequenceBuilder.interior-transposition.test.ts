@@ -111,35 +111,34 @@ describe("OrderedSequenceBuilder — Phase 3E-G UI (§35.105-123)", () => {
     );
   });
 
-  it("113. Apply is an explicit button, never automatic", async () => {
+  it("113. loading a transposition is an explicit button, never automatic, and never writes", async () => {
     const group = transpositionGroup(await source());
-    expect(group).toContain("Aplicar este intercambio no adyacente");
-    expect(group).toContain("onClick={() => onApplyTransposition(alternative)}");
-    expect(group).not.toMatch(/useEffect|setTimeout|autoApply/);
+    expect(group).toContain("Probar este intercambio no adyacente");
+    expect(group).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
+    expect(group).not.toMatch(/useEffect|setTimeout|autoApply|movePlaceToPosition|setDraft/);
   });
 
-  it("114. Apply routes through the stale-guarded domain wrapper and one V7 mutation", async () => {
+  it("114. the only write is «Usar este orden» — one order-only path, one write per move plan", async () => {
     const full = withoutComments(await source());
-    expect(full).toContain("applyEvidenceCompleteInteriorTransposition(");
-    const handlerStart = full.indexOf("function applyInteriorTransposition");
-    const handler = full.slice(handlerStart, full.indexOf("\n  }", handlerStart));
-    expect(handler).toContain("transposePlacesWithinDay(dayId, leftIndex, rightIndex)");
-    expect(handler.match(/transposePlacesWithinDay\(/g)).toHaveLength(1);
-    expect(handler).not.toMatch(/relocatePlaceWithinDay|movePlaceWithinDay/);
+    const handlerStart = full.indexOf("function applyDayOrder");
+    const handler = full.slice(handlerStart, full.indexOf("function addDay"));
+    expect(handler).toContain("planDayOrderMoves(entity.placeIds, proposalIds)");
+    expect(handler.match(/movePlaceToPosition\(/g)).toHaveLength(1);
+    expect(handler).not.toMatch(/transposePlacesWithinDay|relocatePlaceWithinDay|movePlaceWithinDay/);
   });
 
   it("115. the adjacent-swap group remains functional and untouched", async () => {
     const block = sectionBlock(await source());
     expect(block).toContain("Intercambios adyacentes");
-    expect(block).toContain("Aplicar este intercambio\n");
-    expect(block).toContain("onClick={() => onApply(alternative)}");
+    expect(block).toContain("Probar este intercambio\n");
+    expect(block).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
   });
 
   it("116. the relocation group remains functional and untouched", async () => {
     const block = sectionBlock(await source());
     expect(block).toContain("Reubicaciones de un lugar");
-    expect(block).toContain("Aplicar esta reubicación");
-    expect(block).toContain("onClick={() => onApplyRelocation(alternative)}");
+    expect(block).toContain("Probar esta reubicación");
+    expect(block).toContain("onClick={() => onLoad(alternative.candidateDayPlaceIds)}");
   });
 
   it("117-119. inter-hub, accommodation and bounds surfaces are not touched by this phase", async () => {
