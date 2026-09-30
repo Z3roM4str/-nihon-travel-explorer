@@ -273,13 +273,15 @@ const M = { width: 390, height: 844 };
     await page.locator("h2#sequence-builder-title", { hasText: "Reservas" }).waitFor();
     await page.locator('.viaje-nav__item:has-text("Resumen")').click();
     await page.locator("h2#sequence-builder-title", { hasText: "Resumen" }).waitFor();
-    ok(await page.getByText("Resumen del plan completo").first().isVisible(), "composición");
+    // B31 (B9.5, 05 §10): la composición se presenta como cuatro tarjetas de resumen.
+    ok(await page.locator(".trip-summary-card").first().isVisible(), "composición (tarjetas de Resumen, B31)");
     await page.locator('.viaje-nav__item:has-text("Días")').click();
     await page.waitForSelector(".day-timeline");
   });
-  await ck("K04", "«Dato:» sigue presente (retirada = B9.5): fuente y superficies", async () => {
+  // B31 (10 §B9.5, DDR-05): contrato cambiado por diseño — B9.5 retira «Dato:» (03 §10): de «=4» a «0».
+  await ck("K04", "«Dato:» retirado (B9.5, DDR-05): 0 apariciones en la fuente", async () => {
     const src = readFileSync(new URL("../src/components/OrderedSequenceBuilder.tsx", import.meta.url), "utf8");
-    eq(src.split("Dato:").length - 1, 4, "apariciones en fuente");
+    eq(src.split("Dato:").length - 1, 0, "apariciones en fuente");
   });
   await ck("P01", "borrador V8 con la clave de siempre y sin campos nuevos", async () => {
     const d = await stored(page);
@@ -401,9 +403,10 @@ const M = { width: 390, height: 844 };
   const plan = draft([{ id: "a", placeIds: [T[0]] }, { id: "b", placeIds: [K[0], "JP-050"] }], { startDate: "2027-02-22" });
   const { context, page } = await boot(M, { saved: plan.routeIds, plan });
   await openViaje(page);
-  await ck("K05", "fechas oficiales de reserva: calendario en Reservas y aviso por día conservado", async () => {
+  await ck("K05", "fechas oficiales de reserva: calendario en Reservas y aviso por día conservado; sin «Dato:»", async () => {
     await page.locator('.viaje-nav__item:has-text("Reservas")').click();
-    await page.getByText("Fechas oficiales de reserva del recorrido").first().waitFor();
+    // B31 (DDR-B31-02): la lista oficial es «Fechas oficiales», con su propio h3.
+    await page.getByRole("heading", { name: "Fechas oficiales", level: 3 }).waitFor();
     ok(/PokéPark/.test(await page.locator(".viaje-surface").innerText()), "PokéPark en el calendario");
     await page.locator('.viaje-nav__item:has-text("Días")').click();
     await page.waitForSelector(".day-timeline");
@@ -414,7 +417,9 @@ const M = { width: 390, height: 844 };
     await page.locator('.viaje-nav__item:has-text("Reservas")').click();
     await page.locator("h2#sequence-builder-title", { hasText: "Reservas" }).waitFor();
     const reservasText = (await page.locator(".destination-panel:not([hidden]) .viaje-surface").textContent()) ?? "";
-    ok(/Dato: «/.test(dayText + reservasText), "«Dato: «…»» sigue presente donde B9.5 aún lo conserva (Días o Reservas)");
+    // B31 (10 §B9.5, DDR-05): «Dato: «…»» → «…» + ◧ Registrado, en Días y en Reservas.
+    ok(!/Dato:/.test(dayText + reservasText), "«Dato:» ya no aparece (Días ni Reservas)");
+    ok(/«[^»]+»\s*◧ Registrado/.test(dayText + reservasText), "texto entre comillas + ◧ Registrado");
   });
   await context.close();
 }

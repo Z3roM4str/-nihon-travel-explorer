@@ -177,7 +177,8 @@ try {
       await openReservas(page);
       await calendar(page).waitFor();
       assert.equal(await calendar(page).count(), 1, "route-wide section must render exactly once");
-      await page.getByRole("heading", { name: "Fechas oficiales de reserva del recorrido" }).waitFor();
+      // B31 (DDR-B31-02): la lista oficial se llama «Fechas oficiales» (h3 propio).
+      await page.getByRole("heading", { name: "Fechas oficiales", level: 3 }).waitFor();
 
       assert.deepEqual(await anchorOrder(page), [
         "mar, 1 dic 2026",
@@ -213,9 +214,13 @@ try {
 
       const sectionText = await calendar(page).innerText();
       assertNoForbiddenCopy(sectionText, "Scenario A");
-      assert.match(sectionText, /no indica prioridad, urgencia ni en qué orden conviene reservar/);
-      assert.match(sectionText, /No indica disponibilidad ni el estado actual de la venta/);
-      assert.match(sectionText, /Nihon no combina ambas fuentes/);
+      // B31 (DDR-B31-04): el descargo ya no es un párrafo; su detalle vive en el `detail` del
+      // marcador de la lista (aria-label/title) y la nota única de la superficie.
+      const markDetail = await calendar(page).locator(".evidence-mark--glyph-only").first().getAttribute("aria-label");
+      const noteText = await page.locator(".viaje-surface__note").innerText();
+      assert.match(markDetail, /no indica prioridad, urgencia ni en qué orden conviene reservar/);
+      assert.match(noteText, /No indica disponibilidad ni el estado actual de la venta/);
+      assert.match(noteText, /Nihon no combina ambas fuentes/);
       record("A. chronological multi-place order", "plan 1,2,3,4 → dates 2,4,1,3");
       record("N. reference-date disclosure", "once at section level, ref 2027-01-20");
     } finally {
