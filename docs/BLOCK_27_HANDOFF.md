@@ -2,8 +2,17 @@
 
 ## Estado de cierre
 
-**B9.1 certificado en Windows** sobre la única rama autorizada, `codex/cerrar-b27/b9.1-en-pr-#161`, PR #162.
-La rama se rebasó sobre `origin/main` `eab63a8af34c8e0474340eba4687766be979933b`, que ya contiene B26/PR #159.
+**B27 / B9.1 INTEGRADO en `main`** mediante PR #162 y merge commit
+`fa64d868420880ba598e05e61dbe8d213d16430c`.
+
+- Main previo: `eab63a8af34c8e0474340eba4687766be979933b`.
+- HEAD B27 certificado: `30549a19df02b352aaf66985357827a568f71510`.
+- Padres del merge: exactamente esos dos SHAs.
+- Árbol del merge: `1f235da5b0746c636f278746d40e7bdc2134a01e`.
+- Árbol del HEAD certificado: `1f235da5b0746c636f278746d40e7bdc2134a01e`.
+- Resultado: **árbol idéntico**, por lo que la certificación de B27 se transfiere al merge sin cambios de código.
+
+La rama se había rebasado sobre `origin/main` `eab63a8af34c8e0474340eba4687766be979933b`, que ya contiene B26/PR #159.
 El rebase tuvo cruces en `app/src/App.css` y `docs/CURRENT_WORK_HANDOFF.md`; se conservaron juntos los estilos de
 Nosotros/onboarding de B26 y la presentación de Días de B27, y se mantuvieron el handoff canónico de B26 y la sección
 B27. No se eligió `ours`/`theirs` automáticamente.
@@ -86,4 +95,6 @@ invariante histórica; no se eliminó, relajó ni omitió ninguna.
 - **B9.4:** «Dónde dormir» queda pendiente.
 - **B9.5:** Reservas/Resumen quedan pendientes.
 
-No se tocó dataset, metadata fotográfica, Astra, Vercel ni esquema/storage key. No se inició B28.
+No se tocó dataset, metadata fotográfica, Astra, Vercel ni esquema/storage key.
+
+**Siguiente bloque canónico: B28 / B9.2 — Reordenar.** Debe añadir drag-and-drop/puntero sobre la estructura de días ya integrada sin eliminar ni degradar la ruta accesible por teclado («Mover a…» y movimiento de día completo). B9.3/B9.4/B9.5 siguen pendientes.
