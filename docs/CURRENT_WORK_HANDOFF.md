@@ -4,7 +4,9 @@
 
 - Rama obligatoria: `codex/block-29-b9-3-day-tools`, basada exactamente en `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
 - B29 implementa la herramienta efímera por día: baseline persistido, propuesta editable por teclado, comparación local mediante `compareSequences`, alternativas evidence-complete como opciones, y aplicación explícita atómica con protección stale.
-- PR único abierto: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), head `64d4a73129b6f617941075669b289bf55b9f39ff`, base `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`. Estado, commits, gates, capturas y diferidos: `docs/BLOCK_29_HANDOFF.md`.
+- PR único abierto: [#167](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/167), hacia `main` @ `797c9980d6c9baf2deeb3bd635cd7d159e4743bf`.
+- Commit de implementación: `64d4a73129b6f617941075669b289bf55b9f39ff`. HEAD publicado y certificado inmediatamente antes de esta corrección documental: `1095be4dc00c618c6d9d7b591e6c2870b2776c52` (incluye el cierre documental previo; no es el SHA que tendrá la rama después de este commit).
+- En ese estado previo a la corrección, el PR estaba 2 commits ahead / 0 behind. Este cambio es un commit documental posterior; para el HEAD vigente tras él, consultar la rama y el PR. Estado, gates, capturas y diferidos: `docs/BLOCK_29_HANDOFF.md`.
 - No merge ni despliegue. B9.4/B9.5, B30 y B10 no iniciados. Astra y Vercel fuera de alcance.
 
 ## HISTÓRICO — B28 / B9.2 antes de integración
