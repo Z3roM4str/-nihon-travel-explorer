@@ -17,10 +17,11 @@ function withoutComments(value: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
-  it("renders one read-only section in each relevant planner view, never a page, modal or wizard", async () => {
+  // B27 (B9.1): the flat «builder» view is gone; the one read-only section lives in Viaje › Resumen.
+  it("renders one read-only section in the planner, never a page, modal or wizard", async () => {
     const fullSource = await source();
     const block = withoutComments(compositionBlock(fullSource));
-    expect(fullSource.match(/<WholeTripCompositionSection/g)).toHaveLength(2);
+    expect(fullSource.match(/<WholeTripCompositionSection/g)).toHaveLength(1);
     expect(block).toContain("Resumen del plan completo");
     expect(block).not.toMatch(/<input|<select|onClick=|role="dialog"|modal|wizard/i);
   });

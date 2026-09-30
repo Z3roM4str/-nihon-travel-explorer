@@ -87,7 +87,7 @@ type MobilePane = "list" | "map";
 /** Bloque 18, `05 §7`: qué contenido de «Viaje» está a la vista. Sustituye a los dos booleanos
  * mutuamente excluyentes (`sequenceBuilderOpen`/`zonesOpen`) de la era de overlays — ahora son,
  * literalmente, mutuamente excluyentes por construcción. */
-type ViajeSection = "planificar" | "dormir";
+type ViajeSection = "dias" | "dormir" | "reservas" | "resumen";
 
 const EMPTY_FILTERS: Filters = {
   query: "",
@@ -275,7 +275,7 @@ export default function App() {
    * pantalla, y su estado de plegado vive dentro de `SelectionPanel` (estado de vista). */
 
   // ---- Viaje ----
-  const [viajeSection, setViajeSection] = useState<ViajeSection>("planificar");
+  const [viajeSection, setViajeSection] = useState<ViajeSection>("dias");
   /**
    * Bloque 18, corrección post-cierre: el handoff original afirmaba que los cuatro destinos
    * permanecen montados, pero `OrderedSequenceBuilder`/`ZoneComparison` sólo se renderizaban
@@ -856,7 +856,7 @@ export default function App() {
    */
   const goToPlanner = useCallback(() => {
     setDestination("viaje");
-    setViajeSection("planificar");
+    setViajeSection("dias");
   }, []);
 
   const goToZones = useCallback((hub: string) => {
@@ -871,12 +871,25 @@ export default function App() {
    * section switch instead of a modal close. */
   const setViajeSectionTracked = useCallback((section: ViajeSection) => {
     setViajeSection((current) => {
-      if (current === "planificar" && section !== "planificar") {
+      // B27: Días, Reservas y Resumen son tres superficies del mismo borrador; se refresca la foto
+      // de sólo lectura al SALIR de ellas hacia «Dónde dormir» (o al dejar Días, donde se edita).
+      if (current === "dias" && section !== "dias") {
         setPlannerRevision((revision) => revision + 1);
       }
       return section;
     });
   }, []);
+
+  /** B27 (B9.1): el pie de día «Dormís en …» enlaza a «Dónde dormir» — del hub del día cuando el día
+   * tiene uno solo con zonas; si no, a la sección tal cual. Sólo navega: no escribe nada. */
+  const openZonesFromDays = useCallback(
+    (hub: string | null) => {
+      if (hub && HUBS_WITH_ZONES.includes(hub)) setViajeZonesHub(hub);
+      setViajeSectionTracked("dormir");
+    },
+    [setViajeSectionTracked]
+  );
+
 
   /** B25 (B7, `05 §6`): Quiero ir enseña «Ya está en un día del recorrido» leyendo la misma foto
    * de sólo lectura. Llegar a la pestaña desde Viaje por la barra —sin cambiar antes de sección—
@@ -1367,30 +1380,36 @@ export default function App() {
           <div className="destination-panel" hidden={destination !== "viaje"}>
             <div className="destination-panel--scroll">
               <div className="viaje-nav" role="group" aria-label="Secciones de Viaje">
-                <button
-                  type="button"
-                  className={`viaje-nav__item ${viajeSection === "planificar" ? "viaje-nav__item--active" : ""}`}
-                  aria-pressed={viajeSection === "planificar"}
-                  onClick={() => setViajeSectionTracked("planificar")}
-                >
-                  <Icon name="explorar" size={16} /> Planificar
-                </button>
-                <button
-                  type="button"
-                  className={`viaje-nav__item ${viajeSection === "dormir" ? "viaje-nav__item--active" : ""}`}
-                  aria-pressed={viajeSection === "dormir"}
-                  onClick={() => setViajeSectionTracked("dormir")}
-                  disabled={HUBS_WITH_ZONES.length === 0}
-                >
-                  <Icon name="cama" size={16} /> Dónde dormir
-                </button>
+                {(
+                  [
+                    { id: "dias", label: "Días", icon: "calendario" },
+                    { id: "dormir", label: "Dónde dormir", icon: "cama" },
+                    { id: "reservas", label: "Reservas", icon: "ticket" },
+                    { id: "resumen", label: "Resumen", icon: "lista" },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`viaje-nav__item ${viajeSection === item.id ? "viaje-nav__item--active" : ""}`}
+                    aria-pressed={viajeSection === item.id}
+                    onClick={() => setViajeSectionTracked(item.id)}
+                    disabled={item.id === "dormir" && HUBS_WITH_ZONES.length === 0}
+                  >
+                    <Icon name={item.icon} size={16} /> {item.label}
+                  </button>
+                ))}
               </div>
 
               <Suspense fallback={null}>
-                {viajeVisited && viajeSection === "planificar" && (
+                {viajeVisited && (viajeSection === "dias" || viajeSection === "reservas" || viajeSection === "resumen") && (
                   <OrderedSequenceBuilder
+                    key={viajeSection}
                     savedPlaces={savedPlaces}
                     onClose={() => setViajeSectionTracked("dormir")}
+                    section={viajeSection}
+                    onSelectPlace={(id) => selectPlace(id, "viaje", "Días")}
+                    onOpenZones={openZonesFromDays}
                     embedded
                   />
                 )}
@@ -1401,7 +1420,7 @@ export default function App() {
                   <ZoneComparison
                     hub={zonesHub}
                     savedPlaces={savedPlaces}
-                    onClose={() => setViajeSectionTracked("planificar")}
+                    onClose={() => setViajeSectionTracked("dias")}
                     onSelectPlace={(id) => selectPlace(id, "viaje", "Dónde dormir")}
                     onOpenPlanner={goToPlanner}
                     embedded

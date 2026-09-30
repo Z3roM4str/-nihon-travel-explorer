@@ -75,7 +75,7 @@ describe("trip-bounds wiring (source-scanning integration check)", () => {
     expect(source.match(/<div className="calendar-anchor">/g) ?? []).toHaveLength(1);
 
     const anchorMatch = source.match(
-      /<div className="calendar-anchor">([\s\S]*?)<\/div>\s*<TripBoundsNotice/,
+      /<div className="calendar-anchor">([\s\S]*?)<\/div>\s*<p className="analysis-section__note">/,
     );
     expect(anchorMatch).not.toBeNull();
     const anchorBlock = anchorMatch?.[1] ?? "";
@@ -114,13 +114,17 @@ describe("trip-bounds wiring (source-scanning integration check)", () => {
     }
   });
 
-  it("renders the per-day warning inside the existing day card, alongside its heading and date", async () => {
+  it("renders the per-day warning inside the day's header, alongside its headline and controls", async () => {
     const source = await readSource();
     expect(source).toContain("<TripBoundsDayWarning assessment={boundsAssessment} />");
-    const cardHeader = source.slice(source.indexOf("<h3 id={`day-heading-${dayIndex}`}>"));
-    // The warning sits next to — not instead of — the heading, the date and the controls.
-    expect(cardHeader.indexOf("<TripBoundsDayWarning")).toBeLessThan(400);
-    expect(source).toContain("{dayDate && <p className=\"day-card__date\">{formatCivilDateDisplay(dayDate)}</p>}");
+    // B27 (B9.1): the warning is the `DayTimeline` header note — next to, not instead of, the
+    // headline (which now carries the derived date) and the move/delete controls.
+    const dayTimeline = source.slice(source.indexOf("<DayTimeline"));
+    expect(dayTimeline.indexOf("<TripBoundsDayWarning")).toBeLessThan(1200);
+    expect(dayTimeline.indexOf("formatCivilDateShort(dayDate)")).toBeGreaterThan(-1);
+    expect(dayTimeline.indexOf("formatCivilDateShort(dayDate)")).toBeLessThan(
+      dayTimeline.indexOf("<TripBoundsDayWarning")
+    );
   });
 
   it("never hides, disables, reorders or deletes a day because of its assessment", async () => {

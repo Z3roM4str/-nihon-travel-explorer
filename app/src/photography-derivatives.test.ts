@@ -1,6 +1,6 @@
 import { readFile, stat } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { CARD_IMAGE_WIDTH, cardImageUrl } from "./data/place-images";
+import { CARD_IMAGE_WIDTH, cardImageUrl, thumbImageUrl } from "./data/place-images";
 import registry from "./data/photography-metadata.json";
 
 /**
@@ -21,6 +21,16 @@ function derivativeOf(assetPath: string): string {
 function listDerivativeOf(assetPath: string): string {
   return `${assetPath.slice(0, -".webp".length)}-400w.webp`;
 }
+
+describe("thumbImageUrl (B27 TripStop) mirrors the 400w rendition rule", () => {
+  it("appends -400w before the extension and agrees with the test helper", () => {
+    expect(thumbImageUrl("images/places/JP-001/a-photo.webp")).toBe("images/places/JP-001/a-photo-400w.webp");
+    for (const record of records) expect(thumbImageUrl(record.assetPath)).toBe(listDerivativeOf(record.assetPath));
+  });
+  it("returns null for non-webp urls so a remote image keeps its own url", () => {
+    expect(thumbImageUrl("https://example.test/x.jpg")).toBeNull();
+  });
+});
 
 describe("cardImageUrl mirrors the build script's naming rule", () => {
   it("appends the width suffix before the extension", () => {

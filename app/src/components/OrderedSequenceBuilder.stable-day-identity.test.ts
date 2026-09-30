@@ -312,12 +312,16 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("addresses every day mutation by the day's stable id, not by its ordinal index", async () => {
     const source = await readSource();
-    expect(source).toMatch(/movePlaceWithinDay\(dayEntity\.id, placeIndex, -1\)/);
-    expect(source).toMatch(/movePlaceWithinDay\(dayEntity\.id, placeIndex, 1\)/);
-    expect(source).toMatch(/movePlaceBetweenDays\(dayEntity\.id, target\.id, placeIndex\)/);
-    expect(source).toMatch(/removeEmptyDay\(dayEntity\.id\)/);
+    // B27 (B9.1): the per-row ↑ ↓ ← → controls became «Mover a…»; it addresses both days by their
+    // stable ids and never by ordinal position.
+    expect(source).toMatch(/relocatePlaceWithinDay\(fromDay\.id, actionsFor\.placeIndex, toPositionIndex\)/);
+    expect(source).toMatch(/movePlaceBetweenDays\(fromDay\.id, toDay\.id, actionsFor\.placeIndex\)/);
+    expect(source).toMatch(/relocatePlaceWithinDay\(toDay\.id, appendedIndex, toPositionIndex\)/);
+    expect(source).toMatch(/removeEmptyDay\(dayId\)/);
+    expect(source).toMatch(/deleteDay\(dayEntity\.id, dayIndex\)/);
     expect(source).toMatch(/setDayAccommodationChoice\(dayEntity\.id, side, choice\)/);
-    expect(source).toMatch(/onClick=\{\(\) => addEmptyDay\(\)\}/);
+    expect(source).toMatch(/onClick=\{addDay\}/);
+    expect(source).toMatch(/else addEmptyDay\(\);/);
   });
 
   it("no longer rebuilds a whole day matrix in the component", async () => {
@@ -347,9 +351,11 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("keeps the day id invisible to the user — the heading stays the ordinal label", async () => {
     const source = await readSource();
-    expect(source).toMatch(/<h3 id=\{`day-heading-\$\{dayIndex\}`\}>Día \{dayIndex \+ 1\}<\/h3>/);
+    // B27 (B9.1): `DayTimeline` renders the `<h3>`; its text is still «Día N» from the array
+    // position (`dayHeadline(dayIndex + 1, …)`), never from the id.
+    expect(source).toMatch(/headingId=\{`day-heading-\$\{dayIndex\}`\}/);
+    expect(source).toMatch(/headline=\{dayHeadline\(\s*dayIndex \+ 1,/);
     expect(source).toMatch(/aria-label=\{`Eliminar Día \$\{dayIndex \+ 1\}`\}/);
-    expect(source).toMatch(/labelSuffix=\{` en Día \$\{dayIndex \+ 1\}`\}/);
     // The id is used as a React key and as a mutation address only — never rendered as text.
     expect(source).not.toMatch(/\{dayEntity\.id\}</);
     expect(source).not.toMatch(/>\{dayEntity\?\.id/);
@@ -373,7 +379,7 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("introduces no new planning mode or visual surface", async () => {
     const source = await readSource();
-    const views = source.match(/useState<"builder" \| "compare" \| "days">/g) ?? [];
+    const views = source.match(/useState<"compare" \| "days">/g) ?? [];
     expect(views).toHaveLength(1);
   });
 });
@@ -385,8 +391,10 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
   it("calls moveDay with the day's stable id, never its ordinal index", async () => {
     const source = await readSource();
-    expect(source).toMatch(/onClick=\{\(\) => dayEntity && moveDay\(dayEntity\.id, -1\)\}/);
-    expect(source).toMatch(/onClick=\{\(\) => dayEntity && moveDay\(dayEntity\.id, 1\)\}/);
+    // B27 (B9.1): the buttons call `shiftDay(dayEntity.id, …)`, whose body is `moveDay(dayId, …)`.
+    expect(source).toMatch(/onClick=\{\(\) => dayEntity && shiftDay\(dayEntity\.id, dayIndex, -1\)\}/);
+    expect(source).toMatch(/onClick=\{\(\) => dayEntity && shiftDay\(dayEntity\.id, dayIndex, 1\)\}/);
+    expect(source).toMatch(/moveDay\(dayId, direction\)/);
     // Never addressed by the ordinal index instead.
     expect(source).not.toMatch(/moveDay\(dayIndex/);
   });
@@ -408,7 +416,7 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
 
   it("keeps the stable day id as the day card's React key, unchanged by this phase", async () => {
     const source = await readSource();
-    expect(source).toMatch(/<section key=\{dayEntity\?\.id \?\? dayIndex\}/);
+    expect(source).toMatch(/<Fragment key=\{dayEntity\?\.id \?\? dayIndex\}>/);
   });
 
   it("introduces no drag-and-drop dependency and no confirmation dialog for the move controls", async () => {
@@ -422,11 +430,11 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
     const source = await readSource();
     // The move-up/move-down day controls sit in the header, structurally separate from the
     // per-place ReorderableList (which still calls movePlaceWithinDay/movePlaceBetweenDays).
-    const headerStart = source.indexOf('<div className="day-card__header">');
-    const headerEnd = source.indexOf("</div>", source.indexOf("day-card__header-actions", headerStart));
+    const headerStart = source.indexOf("headerActions={");
+    const headerEnd = source.indexOf("isEmpty={isEmpty}", headerStart);
     const header = source.slice(headerStart, headerEnd);
-    expect(header).toContain("moveDay(dayEntity.id, -1)");
-    expect(header).toContain("moveDay(dayEntity.id, 1)");
+    expect(header).toContain("shiftDay(dayEntity.id, dayIndex, -1)");
+    expect(header).toContain("shiftDay(dayEntity.id, dayIndex, 1)");
     expect(header).not.toContain("movePlaceWithinDay");
     expect(header).not.toContain("movePlaceBetweenDays");
   });

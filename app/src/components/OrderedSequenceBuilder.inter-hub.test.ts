@@ -17,9 +17,11 @@ function withoutComments(source: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
-  it("renders one subsection in both relevant planner views, never a page, modal or wizard", async () => {
+  // B27 (B9.1): the flat «builder» view is gone; the one subsection lives in Días («Alojamientos y
+  // traslados entre ciudades»), with a read-only row between days that links to it.
+  it("renders one subsection in the planner, never a page, modal or wizard", async () => {
     const source = await builderSource();
-    expect(source.match(/<InterHubSegmentsSection/g)).toHaveLength(2);
+    expect(source.match(/<InterHubSegmentsSection/g)).toHaveLength(1);
     expect(sectionSource(source)).toContain("Traslados entre ciudades");
     expect(sectionSource(source)).not.toMatch(/role="dialog"|modal|wizard/i);
   });

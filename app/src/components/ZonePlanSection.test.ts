@@ -222,18 +222,21 @@ describe("useZonePlanChoice.ts — one writer, one truth", () => {
 describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("makes the comparison and the planner mutually exclusive via a single section enum", async () => {
     const source = await readAppSource("App.tsx");
-    expect(source).toMatch(/type ViajeSection = "planificar" \| "dormir";/);
-    expect(source).toMatch(/const \[viajeSection, setViajeSection\] = useState<ViajeSection>\("planificar"\);/);
+    expect(source).toMatch(/type ViajeSection = "dias" \| "dormir" \| "reservas" \| "resumen";/);
+    expect(source).toMatch(/const \[viajeSection, setViajeSection\] = useState<ViajeSection>\("dias"\);/);
   });
 
   it("routes every entry point through the tracked section setter or the planner/zones navigators", async () => {
     const source = await readAppSource("App.tsx");
-    expect(source).toContain('setViajeSectionTracked("planificar")');
+    // B27: «Planificar» pasó a ser «Días»; la sub-navegación recorre las cuatro secciones con el
+    // mismo setter rastreado (`setViajeSectionTracked(item.id)`), y ZoneComparison vuelve a Días.
+    expect(source).toContain('setViajeSectionTracked("dias")');
+    expect(source).toContain("setViajeSectionTracked(item.id)");
     expect(source).toContain('setViajeSectionTracked("dormir")');
     expect(source).toContain("onBuildSequence={goToPlanner}");
     expect(source).toContain("onOpenPlanner={goToPlanner}");
     // The raw setter must not be reachable from a rendered control directly — only through the
-    // tracked wrapper, which is what bumps `plannerRevision` on the way out of "planificar".
+    // tracked wrapper, which is what bumps `plannerRevision` on the way out of "dias".
     expect(source).not.toMatch(/onClick=\{\(\) => setViajeSection\("dormir"\)\}/);
   });
 
@@ -247,7 +250,7 @@ describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("keeps the planner and the zone comparison mounted by viajeSection, independently of the active tab", async () => {
     const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /\{viajeVisited && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && \(viajeSection === "dias" \|\| viajeSection === "reservas" \|\| viajeSection === "resumen"\) && \(\s*<OrderedSequenceBuilder/
     );
     expect(source).toMatch(
       /\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/

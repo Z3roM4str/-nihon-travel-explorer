@@ -59,6 +59,7 @@ export type IconName =
   | "imagen"
   | "confirmado"
   | "punto"
+  | "opciones"
   /**
    * Bloque 19 (B3, `03 §8`) — mapa `categoría → icono`. Un icono por cada una de las 26
    * etiquetas de presentación (`lib/category-presentation.ts`), nunca el emoji del dataset.
@@ -410,6 +411,16 @@ function paths(name: IconName) {
       );
     case "punto":
       return <circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none" />;
+    // B27 (B9.1): tres puntos en horizontal — «más opciones» de una fila. Distinto de `mas` (añadir)
+    // y de `arrastrar` (asa de arrastre, que B9.1 no ofrece: no hay drag hasta B9.2).
+    case "opciones":
+      return (
+        <>
+          <circle cx="5.5" cy="12" r="1.6" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+          <circle cx="18.5" cy="12" r="1.6" fill="currentColor" stroke="none" />
+        </>
+      );
 
     // ---------- Bloque 19 (B3) — categoría → icono (03 §8) ----------
     case "categoria-templos":

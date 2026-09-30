@@ -273,7 +273,9 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/\/\/.*$/gm, "");
     expect(analysis).not.toMatch(/role=\{?["']?dialog|aria-modal|onClose/);
-    expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,200}embedded/);
+    // B27: el planificador recibe además `section`, `onSelectPlace` y `onOpenZones` — la ventana crece
+    // para seguir alcanzando `embedded` tras esas props.
+    expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,600}embedded/);
     // Corrección final de B18: `onSelectPlace` ahora envuelve `selectPlace` para etiquetar el
     // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para
     // seguir alcanzando `embedded` tras esa prop más larga.
@@ -442,9 +444,11 @@ describe("Bloque 18 — Viaje conserva su estado al cambiar de pestaña (02 §D3
 
   it("el planificador y la comparación de zonas se montan por viajeVisited, no por destination", async () => {
     const source = await read("App.tsx");
-    expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "planificar"/);
+    expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "dias"/);
     expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "dormir"/);
-    expect(source).toMatch(/\{viajeVisited && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/);
+    expect(source).toMatch(
+      /\{viajeVisited && \(viajeSection === "dias" \|\| viajeSection === "reservas" \|\| viajeSection === "resumen"\) && \(\s*<OrderedSequenceBuilder/
+    );
     expect(source).toMatch(/\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/);
   });
 

@@ -268,12 +268,12 @@ describe("Block 4's assumption is untouched", () => {
    */
   it("still keeps the comparison and the planner mutually exclusive", async () => {
     const app = await readAppSource("App.tsx");
-    expect(app).toMatch(/type ViajeSection = "planificar" \| "dormir";/);
+    expect(app).toMatch(/type ViajeSection = "dias" \| "dormir" \| "reservas" \| "resumen";/);
     // Post-close correction: gated by `viajeVisited`, not `destination`, so leaving the Viaje
     // tab no longer unmounts whichever of the two is active (`02 §D3`) — see
     // `block18-shell.test.ts`'s "Viaje conserva su estado" describe block for full coverage.
     expect(app).toMatch(
-      /\{viajeVisited && viajeSection === "planificar" && \(\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && \(viajeSection === "dias" \|\| viajeSection === "reservas" \|\| viajeSection === "resumen"\) && \(\s*<OrderedSequenceBuilder/
     );
     expect(app).toMatch(
       /\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/

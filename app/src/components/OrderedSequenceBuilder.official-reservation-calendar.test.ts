@@ -58,17 +58,18 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     expect((source.match(/captureDeviceLocalCivilDate\(/g) ?? []).length).toBe(1);
   });
 
-  it("renders exactly one route-wide instance, in the days view, between the accommodation manager and the day list", async () => {
+  it("renders exactly one route-wide instance, in the Reservas surface, never inside a day", async () => {
     const source = await readSource();
     const usages = source.match(/<OfficialReservationCalendarSection/g) ?? [];
     expect(usages).toHaveLength(1);
-    const accommodation = source.indexOf("<AccommodationManagerSection");
+    // B27 (B9.1): the calendar is re-hosted unchanged in Viaje › Reservas; it is not rendered
+    // inside the day list, so it can never be duplicated per day.
+    const reservas = source.indexOf('section === "reservas" && (');
     const calendar = source.indexOf("<OfficialReservationCalendarSection");
     const dayList = source.indexOf('<div className="day-list">');
-    expect(accommodation).toBeGreaterThan(-1);
-    expect(calendar).toBeGreaterThan(accommodation);
+    expect(reservas).toBeGreaterThan(-1);
+    expect(calendar).toBeGreaterThan(reservas);
     expect(dayList).toBeGreaterThan(calendar);
-    // It is not rendered inside a day card: the day list opens after it.
     expect(source.slice(calendar, dayList)).not.toContain("dayPlaceLists.map");
   });
 
@@ -259,26 +260,25 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     }
   });
 
-  it("keeps the Phase 3D route-wide surface in the builder view and the calendar in the days view", async () => {
+  it("keeps the Phase 3D route-wide list and the Phase 3F-J calendar as two sibling sections of Reservas", async () => {
     const source = await readSource();
-    // `{view === "days" && (` also guards a small back-link earlier in the dialog, so the view
-    // BLOCKS are located by their last occurrence, which is the branch that renders the view body.
-    const builderView = source.lastIndexOf('{view === "builder" && (');
-    const daysView = source.lastIndexOf('{view === "days" && (');
+    // B27 (B9.1): the old builder/days views are gone. Both surfaces are re-hosted unchanged in
+    // Viaje › Reservas (their redesign is B9.5). They stay two separate components — neither is
+    // rendered inside the other, and neither appears in the day list.
+    const reservas = source.indexOf('section === "reservas" && (');
+    const resumen = source.indexOf('section === "resumen" && (');
     const prep = source.indexOf("<ReservationPreparationSection");
     const calendar = source.indexOf("<OfficialReservationCalendarSection");
-    expect(builderView).toBeGreaterThan(-1);
-    expect(daysView).toBeGreaterThan(builderView);
-    // Phase 3D's route-wide list renders inside the builder body, before the days body begins.
-    expect(prep).toBeGreaterThan(builderView);
-    expect(prep).toBeLessThan(daysView);
-    // Phase 3F-J's calendar renders inside the days body only.
-    expect(calendar).toBeGreaterThan(daysView);
-    // The two surfaces never share a container: neither appears inside the other's subtree.
-    const daysBody = source.slice(daysView);
+    expect(reservas).toBeGreaterThan(-1);
+    expect(prep).toBeGreaterThan(reservas);
+    expect(calendar).toBeGreaterThan(reservas);
+    expect(prep).toBeLessThan(resumen);
+    expect(calendar).toBeLessThan(resumen);
+    const reservasBody = source.slice(reservas, resumen);
+    expect(reservasBody).not.toContain('<div className="day-list">');
+    const daysBody = source.slice(source.indexOf('section === "dias" && ('));
     expect(daysBody).not.toContain("<ReservationPreparationSection");
-    const builderBody = source.slice(builderView, daysView);
-    expect(builderBody).not.toContain("<OfficialReservationCalendarSection");
+    expect(daysBody).not.toContain("<OfficialReservationCalendarSection");
   });
 
   it("keeps the per-day Phase 3F-F/3F-H notice separate while carrying its own residence context", async () => {

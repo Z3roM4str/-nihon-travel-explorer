@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
-import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
+import type { OrderedSequenceLeg, OrderedSequenceSummary } from "../lib/ordered-sequence";
 import {
   compareSequences,
   type ConfidenceCounts,
@@ -35,7 +35,12 @@ import {
   type EvidenceCompleteTwoPairBlockSwapAlternative,
 } from "../lib/evidence-complete-two-pair-block-swap";
 import { buildDayAssignment, type DayAssignment } from "../lib/day-assignment";
-import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
+import {
+  describeTransferForUi,
+  transferEvidenceDetail,
+  transferEvidenceLevel,
+  transferModeIcon,
+} from "../lib/transfer-display";
 import { Icon } from "../icons/Icon";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
 import { buildDayWeekdaySignal, type DayWeekdaySignal } from "../lib/day-weekday-signal";
@@ -124,6 +129,19 @@ import {
   type ZoneAccommodationChoice,
 } from "../lib/zone-accommodation-choice";
 import { ZonePlanSection } from "./ZonePlanSection";
+import { DayTimeline } from "./DayTimeline";
+import { TripStop } from "./TripStop";
+import { UnassignedDrawer } from "./UnassignedDrawer";
+import { StopActionsSheet } from "./StopActionsSheet";
+import { EvidenceMark } from "./EvidenceMark";
+import {
+  dayCityLabel,
+  dayHeadline,
+  daySleepLine,
+  formatCivilDateShort,
+  formatTripRangeShort,
+  stopCountText,
+} from "../lib/day-timeline-presentation";
 import { usePlanningDraft } from "../usePlanningDraft";
 
 type Props = {
@@ -136,6 +154,17 @@ type Props = {
    * contenido navegable bajo «Viaje». `embedded` quita el scrim, el `role="dialog"` y la
    * trampa de foco/Escape propios de una capa flotante; nada del cálculo cambia. */
   embedded?: boolean;
+  /**
+   * B27 (B9.1): which Viaje sub-surface this instance renders. `dias` (the default and the tab's
+   * opening surface) is the day-first view; `reservas` and `resumen` re-host the EXISTING reservation
+   * and whole-trip sections unchanged (their redesign is B9.5). Only one instance is ever mounted.
+   */
+  section?: "dias" | "reservas" | "resumen";
+  /** DD-015 (`05 §8` «Apertura de ficha de lugar desde Viaje»): opens the shared `PlaceDetail`
+   * stacked inside Viaje, labelled «Días». Without it (legacy dialog use) stops are not openable. */
+  onSelectPlace?: (placeId: string) => void;
+  /** «Dormís en …» footer link → Viaje › Dónde dormir, for the day's single hub when it has one. */
+  onOpenZones?: (hub: string | null) => void;
 };
 
 /**
@@ -2089,6 +2118,129 @@ function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment
 
 /** The existing Phase 3C-B evidence vocabulary, reused verbatim so one order is never described
  * in a different language than another. Returns "" when there is nothing to disclose. */
+/**
+ * B27 (B9.1, `04 §14`) — the connector between two `TripStop`s.
+ *
+ * A registered transfer is shown with the SAME text and evidence the planner already computed
+ * (`describeTransferForUi`, `transferEvidenceLevel`); the absence of one is «Traslado sin datos» —
+ * `--ink-500`, never red, never `?`: a known absence, not an error. When the two stops are the exact
+ * pair of a stored manual inter-hub segment, that segment is the connector (registered by the reader,
+ * `◧`), because it IS the recorded transfer between those two places.
+ */
+function TripConnector({
+  leg,
+  interHub,
+}: {
+  leg: OrderedSequenceLeg | undefined;
+  interHub: ManualInterHubSegment | null;
+}) {
+  if (interHub) {
+    return (
+      <div className="trip-connector trip-connector--inter-hub">
+        <Icon name="tren" size={16} />
+        <span className="trip-connector__time">
+          {INTER_HUB_MODE_LABELS[interHub.mode]} · {interHub.minutes} min
+        </span>
+        <EvidenceMark level="registrado" detail="anotado por vosotros" label={false} />
+      </div>
+    );
+  }
+  if (!leg || !leg.transfer) {
+    return (
+      <div className="trip-connector trip-connector--none">
+        <span className="trip-connector__time">Traslado sin datos</span>
+      </div>
+    );
+  }
+  const display = describeTransferForUi(leg.transfer);
+  return (
+    <div className="trip-connector">
+      <Icon name={transferModeIcon(leg.transfer.mode)} size={16} />
+      <span className="trip-connector__time">{display.timeText}</span>
+      <span className="trip-connector__quality">{display.qualityLabel}</span>
+      <EvidenceMark
+        level={transferEvidenceLevel(leg.transfer)}
+        detail={transferEvidenceDetail(leg.transfer)}
+        label={false}
+      />
+    </div>
+  );
+}
+
+type InterHubBoundaryRow = {
+  fromHub: string;
+  toHub: string;
+  /** The reader's stored segment for exactly this day boundary, or `null` when none is recorded. */
+  segment: ManualInterHubSegment | null;
+};
+
+/**
+ * B27 — READS the existing inter-hub model to place «traslado entre ciudades» rows between days.
+ * `assessInterHubSegment` / `deriveEligibleInterHubPairs` are called exactly as
+ * `InterHubSegmentsSection` calls them; nothing is recomputed, stored or changed. Keyed by the
+ * ordinal of the day the boundary FOLLOWS.
+ */
+function buildInterHubBoundaryRows(input: {
+  routeIds: readonly string[];
+  days: readonly (readonly string[])[] | null;
+  placeById: ReadonlyMap<string, Place>;
+  segments: readonly ManualInterHubSegment[];
+}): { boundaries: Map<number, InterHubBoundaryRow>; sameDay: Map<string, ManualInterHubSegment> } {
+  const { routeIds, days, placeById, segments } = input;
+  const resolvePlace = (placeId: string) => {
+    const place = placeById.get(placeId);
+    return place ? { hub: place.hub } : null;
+  };
+  const boundaries = new Map<number, InterHubBoundaryRow>();
+  const sameDay = new Map<string, ManualInterHubSegment>();
+  for (const segment of segments) {
+    const assessment = assessInterHubSegment(segment, { routeIds, days, resolvePlace });
+    if (assessment.kind !== "active") continue;
+    if (assessment.placement === "same-day") sameDay.set(interHubPairKey(segment), segment);
+    if (assessment.placement === "between-consecutive-days" && assessment.fromDayOrdinal !== null) {
+      boundaries.set(assessment.fromDayOrdinal, { fromHub: segment.fromHub, toHub: segment.toHub, segment });
+    }
+  }
+  for (const pair of deriveEligibleInterHubPairs({ routeIds, days, resolvePlace })) {
+    if (pair.placement !== "between-consecutive-days" || pair.fromDayOrdinal === null) continue;
+    if (boundaries.has(pair.fromDayOrdinal)) continue;
+    boundaries.set(pair.fromDayOrdinal, { fromHub: pair.fromHub, toHub: pair.toHub, segment: null });
+  }
+  return { boundaries, sameDay };
+}
+
+/** B27 (`04 §14`: «Traslado entre ciudades … ocupa el ancho completo entre dos días»). */
+function InterHubBoundary({ row, onEdit }: { row: InterHubBoundaryRow; onEdit: () => void }) {
+  return (
+    <div
+      className="inter-hub-row"
+      role="group"
+      aria-label={`Traslado entre ciudades: ${row.fromHub} a ${row.toHub}`}
+      data-inter-hub-row
+    >
+      <Icon name="tren" size={20} />
+      <div className="inter-hub-row__text">
+        <span className="inter-hub-row__route">
+          {row.fromHub} → {row.toHub}
+        </span>
+        {row.segment ? (
+          <span className="inter-hub-row__detail">
+            {INTER_HUB_MODE_LABELS[row.segment.mode]} · {row.segment.minutes} min{" "}
+            <EvidenceMark level="registrado" detail="anotado por vosotros" label={false} />
+          </span>
+        ) : (
+          <span className="inter-hub-row__detail inter-hub-row__detail--none">
+            Traslado entre ciudades sin datos
+          </span>
+        )}
+      </div>
+      <button type="button" className="link-button inter-hub-row__action" onClick={onEdit}>
+        {row.segment ? "Editar traslado" : "Registrar traslado"}
+      </button>
+    </div>
+  );
+}
+
 function confidenceMixText(counts: ConfidenceCounts): string {
   const parts: string[] = [];
   if (counts.validatedStatic > 0) {
@@ -2597,7 +2749,14 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
   );
 }
 
-export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false }: Props) {
+export function OrderedSequenceBuilder({
+  savedPlaces,
+  onClose,
+  embedded = false,
+  section = "dias",
+  onSelectPlace,
+  onOpenZones,
+}: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [reservationReferenceDate] = useState<string | null>(() => captureDeviceLocalCivilDate());
@@ -2680,7 +2839,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
 
   // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
   // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
-  const [view, setView] = useState<"builder" | "compare" | "days">("builder");
+  const [view, setView] = useState<"compare" | "days">("days");
   // Phase 3C-B's candidates are intentionally NOT part of the persisted draft — see the module
   // doc above. They stay plain, ephemeral component state.
   const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
@@ -2695,8 +2854,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
     [savedPlaces, routeIds]
   );
 
-  const sequence = useMemo(() => buildOrderedSequence(routeIds), [routeIds]);
-  const visitSummary = useMemo(() => summarizeSelection(routePlaces), [routePlaces]);
   const reservationPreparation = useMemo(
     () => buildReservationPreparationSummary(routePlaces),
     [routePlaces]
@@ -3018,53 +3175,172 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
     );
   }
 
-  function moveUp(index: number) {
-    setRouteIds((ids) => moveItemUp(ids, index));
-  }
-  function moveDown(index: number) {
-    setRouteIds((ids) => moveItemDown(ids, index));
-  }
-  function removeFromRoute(id: string) {
-    setRouteIds((ids) => ids.filter((existing) => existing !== id));
-  }
-  function addToRoute(id: string) {
-    setRouteIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
+  // ---------------------------------------------------------------------------------------
+  // B27 (B9.1) — the day-first surface. Everything below is a projection of the state above plus
+  // the existing identity-aware mutations; nothing new is stored and no mutation is invented.
+  // ---------------------------------------------------------------------------------------
+
+  /** The order the reader sees, flattened. When a route change is unavoidable (add/remove a place
+   * — V8 keeps `days` a partition of `routeIds`, so the split is rebuilt), it starts from THIS order
+   * rather than from a stale `routeIds` order the reader can no longer edit. */
+  const dayFlatOrder = useMemo(() => dayIds.flat(), [dayIds]);
+  const hasChosenBoundary = dayEntities.some(
+    (day) =>
+      day.accommodationBoundary.start.kind !== "unselected" || day.accommodationBoundary.end.kind !== "unselected"
+  );
+  /** True when rebuilding the split would discard something the reader decided. */
+  const routeChangeDiscardsSplit = dayEntities.length > 1 || hasChosenBoundary;
+
+  const interHubRows = useMemo(
+    () => buildInterHubBoundaryRows({ routeIds, days, placeById, segments: interHubSegments }),
+    [routeIds, days, placeById, interHubSegments]
+  );
+
+  const [datesOpen, setDatesOpen] = useState(false);
+  const [logisticsOpen, setLogisticsOpen] = useState(false);
+  const logisticsRef = useRef<HTMLDetailsElement>(null);
+  const [actionsFor, setActionsFor] = useState<{ placeId: string; dayIndex: number; placeIndex: number } | null>(
+    null
+  );
+  const [announcement, setAnnouncement] = useState("");
+  // A ref, not state: the id to focus once the mutation that removed the old origin has rendered.
+  const focusTargetRef = useRef<string | null>(null);
+  const setFocusTarget = (id: string | null) => {
+    focusTargetRef.current = id;
+  };
+
+  // The tab opens on days, never on a flat route: the very first split is the route exactly as it
+  // stands (not a recommendation), created once through the existing `initializeDays`. It runs again
+  // only when a route change (or a saved-list reconcile) invalidated the split.
+  useEffect(() => {
+    if (section !== "dias") return;
+    if (days === null && routeIds.length > 0) initializeDays([[...routeIds]]);
+  }, [section, days, routeIds, initializeDays]);
+
+  // Focus moves to a stable, logical target after a mutation re-rendered its origin away.
+  useEffect(() => {
+    const id = focusTargetRef.current;
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    focusTargetRef.current = null;
+    target.focus();
+  });
+
+  function openStopActions(placeId: string, dayIndex: number, placeIndex: number) {
+    setActionsFor({ placeId, dayIndex, placeIndex });
   }
 
-  // Candidate A starts as a clone of the current route draft, and Candidate B as a clone of
-  // Candidate A — both are then independently reorderable. Neither write-back to `routeIds`:
-  // the main draft is untouched while comparing, and closing the comparison discards both
-  // candidates rather than committing either as "the" route.
+  function stopDayLabel(dayIndex: number): string {
+    const date = startDate ? addCivilDays(startDate, dayIndex) : null;
+    return dayHeadline(
+      dayIndex + 1,
+      date ? formatCivilDateShort(date) : null,
+      dayCityLabel(zoneDayLinks[dayIndex]?.hubs ?? [])
+    );
+  }
+
+  /** «Mover a…» — the two existing mutations, addressed by stable day ids. Within a day it is one
+   * `relocatePlaceWithinDay`; across days it is `movePlaceBetweenDays` (which appends) followed by a
+   * `relocatePlaceWithinDay` inside the target when the reader asked for another slot. Both updaters
+   * are functional, so they compose into the single draft the effect persists. */
+  function applyMove(toDayIndex: number, toPositionIndex: number) {
+    if (!actionsFor) return;
+    const fromDay = dayEntities[actionsFor.dayIndex];
+    const toDay = dayEntities[toDayIndex];
+    const place = placeById.get(actionsFor.placeId);
+    if (!fromDay || !toDay || !place) return;
+    if (fromDay.id === toDay.id) {
+      relocatePlaceWithinDay(fromDay.id, actionsFor.placeIndex, toPositionIndex);
+    } else {
+      const appendedIndex = toDay.placeIds.length;
+      movePlaceBetweenDays(fromDay.id, toDay.id, actionsFor.placeIndex);
+      if (toPositionIndex !== appendedIndex) relocatePlaceWithinDay(toDay.id, appendedIndex, toPositionIndex);
+    }
+    const targetCount = fromDay.id === toDay.id ? toDay.placeIds.length : toDay.placeIds.length + 1;
+    setAnnouncement(
+      `${place.name} movido al Día ${toDayIndex + 1}, posición ${toPositionIndex + 1} de ${targetCount}.`
+    );
+    setFocusTarget(`stop-actions-${place.id}`);
+    setActionsFor(null);
+  }
+
+  function applyRemoveFromRoute() {
+    if (!actionsFor) return;
+    const place = placeById.get(actionsFor.placeId);
+    setRouteIds(() => dayFlatOrder.filter((id) => id !== actionsFor.placeId));
+    setAnnouncement(
+      `${place?.name ?? "El lugar"} quitado del recorrido; ahora está en Sin asignar.${
+        routeChangeDiscardsSplit ? " El reparto por días se ha rehecho en un solo día." : ""
+      }`
+    );
+    setFocusTarget("unassigned-title");
+    setActionsFor(null);
+  }
+
+  function addUnassignedToRoute(placeId: string) {
+    const place = placeById.get(placeId);
+    setRouteIds(() => [...dayFlatOrder, placeId]);
+    setAnnouncement(
+      `${place?.name ?? "El lugar"} añadido al recorrido${
+        routeChangeDiscardsSplit ? "; el reparto por días se ha rehecho en un solo día" : ""
+      }.`
+    );
+    setFocusTarget(`stop-actions-${placeId}`);
+  }
+
+  function addDay() {
+    const nextOrdinal = (days === null ? 0 : dayIds.length) + 1;
+    if (days === null) initializeDays([[...routeIds]]);
+    else addEmptyDay();
+    setAnnouncement(`Día ${nextOrdinal} añadido, vacío.`);
+    setFocusTarget(`day-heading-${nextOrdinal - 1}`);
+  }
+
+  function deleteDay(dayId: string, dayIndex: number) {
+    removeEmptyDay(dayId);
+    setAnnouncement(`Día ${dayIndex + 1} eliminado.`);
+    setFocusTarget(`day-heading-${Math.max(0, dayIndex - 1)}`);
+  }
+
+  function shiftDay(dayId: string, dayIndex: number, direction: -1 | 1) {
+    moveDay(dayId, direction);
+    setAnnouncement(`Día movido a la posición ${dayIndex + direction + 1}.`);
+    const nextIndex = dayIndex + direction;
+    const canRepeat = nextIndex + direction >= 0 && nextIndex + direction < dayIds.length;
+    setFocusTarget(
+      `day-move-${canRepeat ? (direction === -1 ? "up" : "down") : direction === -1 ? "down" : "up"}-${dayId}`
+    );
+  }
+
+  function openLogistics() {
+    setLogisticsOpen(true);
+    const node = logisticsRef.current;
+    if (node) {
+      node.open = true;
+      node.querySelector<HTMLElement>("summary")?.focus();
+      node.scrollIntoView?.({ block: "nearest" });
+    }
+  }
+
+  // Candidate A starts as a clone of the plan as the reader sees it, and Candidate B as a clone of
+  // Candidate A — both are then independently reorderable. Neither write-back to the draft: the plan
+  // is untouched while comparing, and closing the comparison discards both candidates. (B9.3 turns
+  // this into a per-day tool; B9.1 only keeps it reachable.)
   function openComparison() {
-    setCandidateAIds([...routeIds]);
-    setCandidateBIds([...routeIds]);
+    const seed = days === null ? [...routeIds] : [...dayFlatOrder];
+    setCandidateAIds(seed);
+    setCandidateBIds([...seed]);
     setView("compare");
   }
   function closeComparison() {
-    setView("builder");
-  }
-
-  // A canonical day assignment already restored from storage (Phase 3C-D) is shown as-is — it
-  // is a prior user decision, not something to discard on reopen. Only when none exists yet
-  // (`days === null`: never split, or invalidated by a route composition change) does opening
-  // start from a single day holding the exact current route order — not a recommendation,
-  // simply the route as it stands before any day boundary exists. Either way this never writes
-  // back into the route itself.
-  function openDayAssignment() {
-    if (days === null) {
-      initializeDays([[...routeIds]]);
-    }
     setView("days");
   }
-  function closeDayAssignment() {
-    setView("builder");
-  }
 
-  // Same focus-management/backdrop-trap pattern as SelectionAnalysis: focus moves into the
-  // dialog on open and returns to whatever opened it on close; Escape closes the whole dialog
-  // (from any view — there is only one dialog to close); Tab cycles inside the dialog so the
-  // map behind never takes focus.
+  // Same focus-management/backdrop-trap pattern as SelectionAnalysis — only for the legacy floating
+  // dialog. The embedded Viaje surface is ordinary page content: it never steals focus on open.
   useEffect(() => {
+    if (embedded) return;
     const opener = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
     return () => {
@@ -3072,7 +3348,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
       if (active && active !== document.body) return;
       if (opener && opener.isConnected) opener.focus();
     };
-  }, []);
+  }, [embedded]);
 
   useEffect(() => {
     if (embedded) return;
@@ -3105,19 +3381,24 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
 
   const resultText = view === "compare" ? comparisonResultText(comparison) : null;
 
-  const headerTitle =
-    view === "compare" ? "Comparar órdenes" : view === "days" ? "Distribuir por días" : "Construir recorrido";
+  const surfaceTitle = section === "reservas" ? "Reservas" : section === "resumen" ? "Resumen" : "Viaje";
+  const headerTitle = view === "compare" ? "Comparar órdenes" : surfaceTitle;
   const headerSub =
     view === "compare"
       ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
-      : view === "days"
-        ? `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en ${dayIds.length} día${
-            dayIds.length === 1 ? "" : "s"
-          }`
-        : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`;
+      : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en ${dayIds.length} día${
+          dayIds.length === 1 ? "" : "s"
+        }`;
 
   const Outer = embedded ? Fragment : "div";
   const outerProps = embedded ? {} : { className: "analysis-overlay" };
+  const tripRange = formatTripRangeShort(startDate, endDate);
+  // The neutral range facts (`TripBoundsNotice`) are shown once: inside the dates panel while it is
+  // open, and otherwise right under the header as soon as an END date exists — the moment the range
+  // (and any mismatch or inversion, which are `role="status"` facts) actually has something to say.
+  // With only a start date the notice would merely restate what the header already shows.
+  const tripBoundsNotice = <TripBoundsNotice summary={tripBoundsSummary} />;
+  const awaitingFirstSplit = section === "dias" && days === null && routeIds.length > 0;
 
   return (
     <Outer {...outerProps}>
@@ -3131,144 +3412,36 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
         aria-modal={embedded ? undefined : true}
         aria-labelledby="sequence-builder-title"
       >
-        <header className="analysis-header">
-          <div>
-            {view === "compare" && (
-              <button type="button" className="link-button sequence-back" onClick={closeComparison}>
-                <Icon name="atras" size={16} /> Volver al recorrido
+        {(!embedded || view === "compare") && (
+          <header className="analysis-header">
+            <div>
+              {view === "compare" && (
+                <button type="button" className="link-button sequence-back" onClick={closeComparison}>
+                  <Icon name="atras" size={16} /> Volver a los días
+                </button>
+              )}
+              <h2 id="sequence-builder-title">{headerTitle}</h2>
+              <p className="analysis-header__sub">{headerSub}</p>
+            </div>
+            {!embedded && (
+              <button
+                ref={closeRef}
+                type="button"
+                className="icon-button"
+                onClick={onClose}
+                aria-label="Cerrar el constructor de recorrido"
+                title="Cerrar el constructor de recorrido"
+              >
+                <Icon name="cerrar" size={16} />
               </button>
             )}
-            {view === "days" && (
-              <button type="button" className="link-button sequence-back" onClick={closeDayAssignment}>
-                <Icon name="atras" size={16} /> Volver al recorrido
-              </button>
-            )}
-            <h2 id="sequence-builder-title">{headerTitle}</h2>
-            <p className="analysis-header__sub">{headerSub}</p>
-          </div>
-          <button
-            ref={closeRef}
-            type="button"
-            className="icon-button"
-            onClick={onClose}
-            aria-label="Cerrar el constructor de recorrido"
-            title="Cerrar el constructor de recorrido"
-          >
-            <Icon name="cerrar" size={16} />
-          </button>
-        </header>
+          </header>
+        )}
 
         <div className="analysis-body">
-          {view === "builder" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Tú eliges el orden con las flechas. Nihon describe
-                los traslados de ese orden exacto; <strong>no sugiere ni calcula el mejor orden</strong>.
-              </p>
-              <p className="analysis-disclaimer">
-                Este recorrido se guarda automáticamente en este navegador, junto con el reparto
-                por días si lo creas.
-              </p>
-
-              {routePlaces.length === 0 ? (
-                <p className="sequence-empty">
-                  El recorrido está vacío. Añade lugares guardados desde la lista de abajo.
-                </p>
-              ) : (
-                <>
-                  <ReorderableList
-                    places={routePlaces}
-                    legs={sequence.legs}
-                    labelSuffix=""
-                    onMoveUp={moveUp}
-                    onMoveDown={moveDown}
-                    onRemove={removeFromRoute}
-                  />
-
-                  <TransferAndVisitTotals visitSummary={visitSummary} sequenceSummary={sequence.summary} />
-
-                  <p className="analysis-disclaimer">
-                    <span aria-hidden="true">ⓘ</span> Los traslados conocidos usan la misma
-                    clasificación que la ficha de cada lugar: rutas validadas, estimaciones
-                    geográficas u horarios en vivo. <strong>No incluyen tiempo dentro de cada lugar.</strong>
-                  </p>
-
-                  <ReservationPreparationSection summary={reservationPreparation} />
-
-                  <HoursPlanningSection summary={recordedHours} />
-
-                  <InterHubSegmentsSection
-                    routeIds={routeIds}
-                    days={days}
-                    placeById={placeById}
-                    segments={interHubSegments}
-                    onAdd={addInterHubSegment}
-                    onUpdate={updateInterHubSegment}
-                    onRemove={removeInterHubSegment}
-                  />
-
-                  <ZonePlanSection
-                    variant="summary"
-                    choices={zoneAccommodationChoices}
-                    dayLinks={zoneDayLinks}
-                    hubLinks={zoneHubLinks}
-                    anchorLabelById={anchorLabelById}
-                    onClear={clearZoneAccommodation}
-                  />
-
-                  {routePlaces.length >= 2 && (
-                    <div className="sequence-secondary-actions">
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openComparison}
-                      >
-                        <Icon name="comparar" size={16} /> Comparar otro orden
-                      </button>
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openDayAssignment}
-                      >
-                        <Icon name="calendario" size={16} /> Distribuir por días
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              <WholeTripCompositionSection composition={wholeTripComposition} />
-
-              <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
-                Restablecer recorrido
-              </button>
-
-              {removedPlaces.length > 0 && (
-                <section className="analysis-section">
-                  <h3>Guardados fuera del recorrido</h3>
-                  <p className="analysis-section__note">
-                    Siguen en <strong>Quiero ir</strong>. Añádelos aquí si quieres incluirlos en
-                    este recorrido.
-                  </p>
-                  <ul className="analysis-place-list">
-                    {removedPlaces.map((place) => (
-                      <li key={place.id}>
-                        <button
-                          type="button"
-                          className="analysis-place"
-                          onClick={() => addToRoute(place.id)}
-                          aria-label={`Añadir ${place.name} al recorrido`}
-                        >
-                          <span>{place.name}</span>
-                          <span aria-hidden="true">＋</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-            </>
-          )}
+          <p className="visually-hidden" role="status" aria-live="polite" data-day-announcer>
+            {announcement}
+          </p>
 
           {view === "compare" && (
             <>
@@ -3319,288 +3492,426 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false 
             </>
           )}
 
-          {view === "days" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Tú decides cuántos días hay y qué lugares van en
-                cada uno. <strong>Nihon no reparte, equilibra ni recomienda un reparto</strong>; solo
-                describe los traslados dentro de cada día.
+          {view === "days" && section === "reservas" && (
+            <div className="viaje-surface" data-viaje-surface="reservas">
+              {embedded && (
+                <header className="viaje-surface__header">
+                  <h2 id="sequence-builder-title">Reservas</h2>
+                </header>
+              )}
+              <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
+              <ReservationPreparationSection summary={reservationPreparation} />
+              <HoursPlanningSection summary={recordedHours} />
+            </div>
+          )}
+
+          {view === "days" && section === "resumen" && (
+            <div className="viaje-surface" data-viaje-surface="resumen">
+              {embedded && (
+                <header className="viaje-surface__header">
+                  <h2 id="sequence-builder-title">Resumen</h2>
+                </header>
+              )}
+              <WholeTripCompositionSection composition={wholeTripComposition} />
+            </div>
+          )}
+
+          {view === "days" && section === "dias" && (
+            <div className="dias" data-viaje-surface="dias">
+              <header className="dias__header">
+                {embedded ? (
+                  <h2 id="sequence-builder-title" className="dias__title">
+                    Viaje
+                  </h2>
+                ) : (
+                  <p className="dias__title">Viaje</p>
+                )}
+                <div className="dias__dates">
+                  {tripRange && <p className="dias__range">{tripRange}</p>}
+                  <button
+                    type="button"
+                    className="link-button dias__dates-toggle"
+                    aria-expanded={datesOpen}
+                    aria-controls="dias-dates-panel"
+                    onClick={() => setDatesOpen((value) => !value)}
+                  >
+                    <Icon name="calendario" size={16} />{" "}
+                    {startDate || endDate ? "Cambiar fechas" : "Poner fecha de inicio"}
+                  </button>
+                </div>
+              </header>
+
+              <p className="dias__framing" data-framing-line>
+                <EvidenceMark level="nihon" label={false} />{" "}
+                <span>Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.</span>
               </p>
 
-              {!dayAssignment.valid && (
+              {datesOpen && (
+                <div id="dias-dates-panel" className="dias__dates-panel">
+                  <div className="calendar-anchor">
+                    <label htmlFor="sequence-start-date" className="calendar-anchor__label">
+                      Fecha de inicio (Día 1)
+                    </label>
+                    <input
+                      id="sequence-start-date"
+                      type="date"
+                      className="calendar-anchor__input"
+                      value={startDate ?? ""}
+                      onChange={(event) => setStartDate(event.target.value || null)}
+                    />
+                    {startDate && (
+                      <button
+                        type="button"
+                        className="link-button calendar-anchor__clear"
+                        onClick={() => setStartDate(null)}
+                      >
+                        Quitar fecha
+                      </button>
+                    )}
+
+                    {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
+                        control above. The two dates are two independent decisions: setting or
+                        clearing either one never touches the other, and never creates, deletes,
+                        reorders or repairs a day bucket. */}
+                    <label htmlFor="sequence-end-date" className="calendar-anchor__label">
+                      Fecha de fin (último día del viaje)
+                    </label>
+                    <input
+                      id="sequence-end-date"
+                      type="date"
+                      className="calendar-anchor__input"
+                      value={endDate ?? ""}
+                      onChange={(event) => setEndDate(event.target.value || null)}
+                    />
+                    {endDate && (
+                      <button
+                        type="button"
+                        className="link-button calendar-anchor__clear"
+                        onClick={() => setEndDate(null)}
+                      >
+                        Quitar fecha
+                      </button>
+                    )}
+                  </div>
+                  <p className="analysis-section__note">
+                    La fecha es una decisión vuestra. Nihon solo desplaza el calendario a partir del Día 1;{" "}
+                    <strong>no elige ni sugiere qué fecha conviene</strong>, y no comprueba horarios ni cierres.
+                  </p>
+                  {tripBoundsNotice}
+                </div>
+              )}
+
+              {!datesOpen && endDate !== null && tripBoundsNotice}
+
+              {!dayAssignment.valid && dayIds.length > 0 && (
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
                   <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
-                  recorrido. Vuelve al recorrido e inténtalo de nuevo.
+                  recorrido. Vuelve a los días e inténtalo de nuevo.
                 </p>
               )}
 
-              <div className="calendar-anchor">
-                <label htmlFor="sequence-start-date" className="calendar-anchor__label">
-                  Fecha de inicio (Día 1)
-                </label>
-                <input
-                  id="sequence-start-date"
-                  type="date"
-                  className="calendar-anchor__input"
-                  value={startDate ?? ""}
-                  onChange={(event) => setStartDate(event.target.value || null)}
-                />
-                {startDate && (
-                  <button
-                    type="button"
-                    className="link-button calendar-anchor__clear"
-                    onClick={() => setStartDate(null)}
-                  >
-                    Quitar fecha
-                  </button>
-                )}
+              <div className="dias__layout">
+                <div className="dias__main">
+                  {awaitingFirstSplit ? null : dayIds.length === 0 ? (
+                    <p className="sequence-empty dias__empty" data-empty-trip>
+                      Todavía no hay paradas. Añade sitios desde «Sin asignar», o guárdalos en Quiero ir.
+                    </p>
+                  ) : null}
 
-                {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
-                    control above and living in the same existing block. The two dates are two
-                    independent decisions: setting or clearing either one never touches the other,
-                    and never creates, deletes, reorders or repairs a day bucket. */}
-                <label htmlFor="sequence-end-date" className="calendar-anchor__label">
-                  Fecha de fin (último día del viaje)
-                </label>
-                <input
-                  id="sequence-end-date"
-                  type="date"
-                  className="calendar-anchor__input"
-                  value={endDate ?? ""}
-                  onChange={(event) => setEndDate(event.target.value || null)}
-                />
-                {endDate && (
-                  <button
-                    type="button"
-                    className="link-button calendar-anchor__clear"
-                    onClick={() => setEndDate(null)}
-                  >
-                    Quitar fecha
-                  </button>
-                )}
-              </div>
-
-              <TripBoundsNotice summary={tripBoundsSummary} />
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> La fecha es una decisión tuya. Nihon solo
-                desplaza el calendario a partir del Día 1; <strong>no elige ni sugiere qué fecha
-                conviene</strong>, y no comprueba horarios ni cierres.
-              </p>
-
-              <InterHubSegmentsSection
-                routeIds={routeIds}
-                days={days}
-                placeById={placeById}
-                segments={interHubSegments}
-                onAdd={addInterHubSegment}
-                onUpdate={updateInterHubSegment}
-                onRemove={removeInterHubSegment}
-              />
-
-              <WholeTripCompositionSection composition={wholeTripComposition} />
-
-              <ZonePlanSection
-                choices={zoneAccommodationChoices}
-                dayLinks={zoneDayLinks}
-                hubLinks={zoneHubLinks}
-                anchorLabelById={anchorLabelById}
-                onClear={clearZoneAccommodation}
-              />
-
-              <AccommodationManagerSection
-                accommodations={accommodations}
-                zoneChoices={zoneAccommodationChoices}
-                onAdd={addAccommodation}
-                onRemove={removeAccommodation}
-              />
-
-              <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
-
-              <div className="day-list">
-                {dayPlaceLists.map((places, dayIndex) => {
-                  const bucket = dayAssignment.days[dayIndex];
-                  const daySummary = summarizeSelection(places);
-                  const isEmpty = places.length === 0;
-                  const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
-                  const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
-                  // Phase 3D-W: a purely derived read from the two civil bounds and this bucket's
-                  // ORDINAL POSITION — the same ordinal `dayDate` above is already derived from. No
-                  // day id crosses this line (`assessTripBounds` cannot accept one), nothing is
-                  // written back to the draft, and no existing signal above or below is suppressed
-                  // or altered by the verdict; it only adds a warning to the card's presentation.
-                  const boundsAssessment = assessTripBounds({ startDate, endDate }, dayIndex);
-                  // Phase 3D-S: the day entity at this ordinal position. Its `id` is what every
-                  // mutation below is addressed by, and its `accommodationBoundary` is structurally
-                  // its own — it cannot be another day's choice shifted into place by a splice,
-                  // because there is no separate positional boundary vector left to shift. The id
-                  // is deliberately invisible to the user: the heading below is still "Día N" from
-                  // the array position, and the date is still `startDate + dayIndex`.
-                  const dayEntity = dayEntities[dayIndex] ?? null;
-                  const dayBoundary = dayEntity?.accommodationBoundary ?? null;
-                  return (
-                    <section key={dayEntity?.id ?? dayIndex} className="day-card" aria-labelledby={`day-heading-${dayIndex}`}>
-                      <div className="day-card__header">
-                        <div>
-                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}</h3>
-                          {dayDate && <p className="day-card__date">{formatCivilDateDisplay(dayDate)}</p>}
-                          <TripBoundsDayWarning assessment={boundsAssessment} />
-                        </div>
-                        <div className="day-card__header-actions">
-                          <button
-                            type="button"
-                            className="icon-button icon-button--small"
-                            onClick={() => dayEntity && moveDay(dayEntity.id, -1)}
-                            disabled={!dayEntity || dayIndex === 0}
-                            aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
-                            title={`Mover Día ${dayIndex + 1} hacia arriba`}
-                          >
-                            <Icon name="arriba" size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-button icon-button--small"
-                            onClick={() => dayEntity && moveDay(dayEntity.id, 1)}
-                            disabled={!dayEntity || dayIndex === dayIds.length - 1}
-                            aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
-                            title={`Mover Día ${dayIndex + 1} hacia abajo`}
-                          >
-                            <Icon name="abajo" size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-button icon-button--small"
-                            onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
-                            disabled={!isEmpty || dayIds.length <= 1}
-                            aria-label={`Eliminar Día ${dayIndex + 1}`}
-                            title={`Eliminar Día ${dayIndex + 1}`}
-                          >
-                            <Icon name="cerrar" size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {isEmpty ? (
-                        <p className="sequence-empty">Sin lugares en este día.</p>
-                      ) : (
-                        <>
-                          <ReorderableList
-                            places={places}
-                            legs={bucket?.sequence.legs ?? []}
-                            labelSuffix={` en Día ${dayIndex + 1}`}
-                            onMoveUp={(placeIndex) =>
-                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, -1)
+                  <div className="day-list">
+                    {dayPlaceLists.map((places, dayIndex) => {
+                      const bucket = dayAssignment.days[dayIndex];
+                      const daySummary = summarizeSelection(places);
+                      const isEmpty = places.length === 0;
+                      const dayDate = startDate ? addCivilDays(startDate, dayIndex) : null;
+                      const weekdaySignal = buildDayWeekdaySignal(places, dayDate);
+                      // Phase 3D-W: a purely derived read from the two civil bounds and this bucket's
+                      // ORDINAL POSITION — the same ordinal `dayDate` above is already derived from. No
+                      // day id crosses this line (`assessTripBounds` cannot accept one), nothing is
+                      // written back to the draft, and no existing signal is suppressed or altered by
+                      // the verdict; it only adds a warning to the day's presentation.
+                      const boundsAssessment = assessTripBounds({ startDate, endDate }, dayIndex);
+                      // Phase 3D-S: the day entity at this ordinal position. Its `id` is what every
+                      // mutation below is addressed by, and its `accommodationBoundary` is structurally
+                      // its own. The id is deliberately invisible to the user: the heading is still
+                      // "Día N" from the array position, and the date is still `startDate + dayIndex`.
+                      const dayEntity = dayEntities[dayIndex] ?? null;
+                      const dayBoundary = dayEntity?.accommodationBoundary ?? null;
+                      const dayLink = zoneDayLinks[dayIndex] ?? null;
+                      const sleep = daySleepLine(dayBoundary, dayLink, accommodations);
+                      const visitText = daySummary.visitTime ? `${formatRange(daySummary.visitTime)} de visitas` : null;
+                      const boundaryRow = interHubRows.boundaries.get(dayIndex - 1) ?? null;
+                      return (
+                        <Fragment key={dayEntity?.id ?? dayIndex}>
+                          {boundaryRow && (
+                            <InterHubBoundary row={boundaryRow} onEdit={openLogistics} />
+                          )}
+                          <DayTimeline
+                            headingId={`day-heading-${dayIndex}`}
+                            headline={dayHeadline(
+                              dayIndex + 1,
+                              dayDate ? formatCivilDateShort(dayDate) : null,
+                              dayCityLabel(dayLink?.hubs ?? [])
+                            )}
+                            meta={[visitText, stopCountText(places.length)].filter(Boolean).join(" · ")}
+                            headerNote={<TripBoundsDayWarning assessment={boundsAssessment} />}
+                            headerActions={
+                              <>
+                                <button
+                                  type="button"
+                                  id={dayEntity ? `day-move-up-${dayEntity.id}` : undefined}
+                                  className="icon-button icon-button--small"
+                                  onClick={() => dayEntity && shiftDay(dayEntity.id, dayIndex, -1)}
+                                  disabled={!dayEntity || dayIndex === 0}
+                                  aria-label={`Mover Día ${dayIndex + 1} hacia arriba`}
+                                  title={`Mover Día ${dayIndex + 1} hacia arriba`}
+                                >
+                                  <Icon name="arriba" size={16} />
+                                </button>
+                                <button
+                                  type="button"
+                                  id={dayEntity ? `day-move-down-${dayEntity.id}` : undefined}
+                                  className="icon-button icon-button--small"
+                                  onClick={() => dayEntity && shiftDay(dayEntity.id, dayIndex, 1)}
+                                  disabled={!dayEntity || dayIndex === dayIds.length - 1}
+                                  aria-label={`Mover Día ${dayIndex + 1} hacia abajo`}
+                                  title={`Mover Día ${dayIndex + 1} hacia abajo`}
+                                >
+                                  <Icon name="abajo" size={16} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="icon-button icon-button--small"
+                                  onClick={() => dayEntity && deleteDay(dayEntity.id, dayIndex)}
+                                  disabled={!isEmpty || dayIds.length <= 1}
+                                  aria-label={`Eliminar Día ${dayIndex + 1}`}
+                                  title={`Eliminar Día ${dayIndex + 1}`}
+                                >
+                                  <Icon name="cerrar" size={16} />
+                                </button>
+                              </>
                             }
-                            onMoveDown={(placeIndex) =>
-                              dayEntity && movePlaceWithinDay(dayEntity.id, placeIndex, 1)
+                            isEmpty={isEmpty}
+                            emptyText="Sin lugares en este día."
+                            stops={places.map((place, placeIndex) => {
+                              const next = places[placeIndex + 1];
+                              return (
+                                <TripStop
+                                  key={place.id}
+                                  place={place}
+                                  position={placeIndex + 1}
+                                  total={places.length}
+                                  onOpenPlace={(placeId) => onSelectPlace?.(placeId)}
+                                  onOpenActions={(placeId) => openStopActions(placeId, dayIndex, placeIndex)}
+                                  connector={
+                                    next ? (
+                                      <TripConnector
+                                        leg={bucket?.sequence.legs[placeIndex]}
+                                        interHub={
+                                          interHubRows.sameDay.get(
+                                            interHubPairKey({ fromPlaceId: place.id, toPlaceId: next.id })
+                                          ) ?? null
+                                        }
+                                      />
+                                    ) : null
+                                  }
+                                />
+                              );
+                            })}
+                            details={
+                              isEmpty ? null : (
+                                <>
+                                  <details className="day-tools">
+                                    <summary>Horarios, reservas y herramientas del Día {dayIndex + 1}</summary>
+                                    <WeekdayClosureNotice signal={weekdaySignal} />
+                                    <HoursClosureCompositionNotice
+                                      places={places}
+                                      dayAssignment={dayAssignment}
+                                      startDate={startDate}
+                                      dayNumber={dayIndex + 1}
+                                    />
+                                    <RecordedIntervalFitSection
+                                      places={places}
+                                      dayAssignment={dayAssignment}
+                                      startDate={startDate}
+                                      dayNumber={dayIndex + 1}
+                                      visitStartTimes={visitStartTimes}
+                                      onVisitStartTimeChange={setVisitStartTime}
+                                    />
+                                    <ReservationDeadlineNotice
+                                      places={places}
+                                      dayAssignment={dayAssignment}
+                                      startDate={startDate}
+                                      referenceDate={reservationReferenceDate}
+                                    />
+                                    <OfficialReservationDateNotice
+                                      places={places}
+                                      dayAssignment={dayAssignment}
+                                      startDate={startDate}
+                                      dayNumber={dayIndex + 1}
+                                      referenceDate={reservationReferenceDate}
+                                    />
+                                    {bucket && (
+                                      <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
+                                    )}
+                                    {dayEntity &&
+                                      localSwapGeneration.kind === "available" &&
+                                      localRelocationGeneration.kind === "available" &&
+                                      interiorTranspositionGeneration.kind === "available" &&
+                                      fourPlaceReversalGeneration.kind === "available" &&
+                                      twoPairBlockSwapGeneration.kind === "available" && (
+                                      <LocalSwapAlternativesSection
+                                        dayNumber={dayIndex + 1}
+                                        alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
+                                        relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
+                                        transpositionAlternatives={
+                                          interiorTranspositionsByDayId.get(dayEntity.id) ?? []
+                                        }
+                                        reversalAlternatives={
+                                          fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
+                                        }
+                                        pairBlockSwapAlternatives={
+                                          twoPairBlockSwapsByDayId.get(dayEntity.id) ?? []
+                                        }
+                                        placeById={placeById}
+                                        onApply={applyLocalSwap}
+                                        onApplyRelocation={applyLocalRelocation}
+                                        onApplyTransposition={applyInteriorTransposition}
+                                        onApplyReversal={applyFourPlaceReversal}
+                                        onApplyPairBlockSwap={applyTwoPairBlockSwap}
+                                      />
+                                    )}
+                                    {bucket && dayEntity && dayBoundary && (
+                                      <AccommodationCommuteSection
+                                        dayNumber={dayIndex + 1}
+                                        dayPlaceIds={dayIds[dayIndex] ?? []}
+                                        places={places}
+                                        intraDay={bucket.sequence.summary}
+                                        boundary={dayBoundary}
+                                        accommodations={accommodations}
+                                        accommodationLegs={accommodationLegs}
+                                        onChoiceChange={(side, choice) =>
+                                          setDayAccommodationChoice(dayEntity.id, side, choice)
+                                        }
+                                        onLegChange={(direction, accommodationId, placeId, minutes) =>
+                                          setAccommodationLeg(direction, accommodationId, placeId, minutes)
+                                        }
+                                      />
+                                    )}
+                                  </details>
+                                </>
+                              )
                             }
-                            onMoveToPreviousGroup={(placeIndex) => {
-                              const target = dayEntities[dayIndex - 1];
-                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
-                            }}
-                            onMoveToNextGroup={(placeIndex) => {
-                              const target = dayEntities[dayIndex + 1];
-                              if (dayEntity && target) movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
-                            }}
-                            previousGroupLabel="al día anterior"
-                            nextGroupLabel="al día siguiente"
-                            canMoveToPreviousGroup={dayIndex > 0}
-                            canMoveToNextGroup={dayIndex < dayIds.length - 1}
-                            showDuration
-                            compact
+                            footer={
+                              <>
+                                <p className="day-timeline__sleep" data-day-sleep={sleep.kind}>
+                                  <Icon name="cama" size={16} />{" "}
+                                  {sleep.kind === "chosen" ? `Dormís en ${sleep.zoneOrPlace}` : "Sin alojamiento elegido"}
+                                </p>
+                                {onOpenZones && (
+                                  <button
+                                    type="button"
+                                    className="link-button day-timeline__sleep-link"
+                                    onClick={() => onOpenZones(dayLink?.singleHub ?? null)}
+                                    aria-label={`Dónde dormir, desde el Día ${dayIndex + 1}`}
+                                  >
+                                    Dónde dormir
+                                  </button>
+                                )}
+                              </>
+                            }
                           />
-                          <WeekdayClosureNotice signal={weekdaySignal} />
-                          <HoursClosureCompositionNotice
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            dayNumber={dayIndex + 1}
-                          />
-                          <RecordedIntervalFitSection
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            dayNumber={dayIndex + 1}
-                            visitStartTimes={visitStartTimes}
-                            onVisitStartTimeChange={setVisitStartTime}
-                          />
-                          <ReservationDeadlineNotice
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            referenceDate={reservationReferenceDate}
-                          />
-                          <OfficialReservationDateNotice
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            dayNumber={dayIndex + 1}
-                            referenceDate={reservationReferenceDate}
-                          />
-                          {bucket && (
-                            <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
-                          )}
-                          {dayEntity &&
-                            localSwapGeneration.kind === "available" &&
-                            localRelocationGeneration.kind === "available" &&
-                            interiorTranspositionGeneration.kind === "available" &&
-                            fourPlaceReversalGeneration.kind === "available" &&
-                            twoPairBlockSwapGeneration.kind === "available" && (
-                            <LocalSwapAlternativesSection
-                              dayNumber={dayIndex + 1}
-                              alternatives={localSwapsByDayId.get(dayEntity.id) ?? []}
-                              relocationAlternatives={localRelocationsByDayId.get(dayEntity.id) ?? []}
-                              transpositionAlternatives={
-                                interiorTranspositionsByDayId.get(dayEntity.id) ?? []
-                              }
-                              reversalAlternatives={
-                                fourPlaceReversalsByDayId.get(dayEntity.id) ?? []
-                              }
-                              pairBlockSwapAlternatives={
-                                twoPairBlockSwapsByDayId.get(dayEntity.id) ?? []
-                              }
-                              placeById={placeById}
-                              onApply={applyLocalSwap}
-                              onApplyRelocation={applyLocalRelocation}
-                              onApplyTransposition={applyInteriorTransposition}
-                              onApplyReversal={applyFourPlaceReversal}
-                              onApplyPairBlockSwap={applyTwoPairBlockSwap}
-                            />
-                          )}
-                          {bucket && dayEntity && dayBoundary && (
-                            <AccommodationCommuteSection
-                              dayNumber={dayIndex + 1}
-                              dayPlaceIds={dayIds[dayIndex] ?? []}
-                              places={places}
-                              intraDay={bucket.sequence.summary}
-                              boundary={dayBoundary}
-                              accommodations={accommodations}
-                              accommodationLegs={accommodationLegs}
-                              onChoiceChange={(side, choice) =>
-                                setDayAccommodationChoice(dayEntity.id, side, choice)
-                              }
-                              onLegChange={(direction, accommodationId, placeId, minutes) =>
-                                setAccommodationLeg(direction, accommodationId, placeId, minutes)
-                              }
-                            />
-                          )}
-                        </>
-                      )}
-                    </section>
-                  );
-                })}
-              </div>
+                        </Fragment>
+                      );
+                    })}
+                  </div>
 
-              <button
-                type="button"
-                className="button button--secondary sequence-add-day"
-                onClick={() => addEmptyDay()}
-              >
-                <span aria-hidden="true">＋</span> Añadir día
-              </button>
-            </>
+                  <div className="dias__actions">
+                    <button
+                      type="button"
+                      className="button button--secondary sequence-add-day"
+                      onClick={addDay}
+                    >
+                      <span aria-hidden="true">＋</span> Añadir día
+                    </button>
+                    {routePlaces.length >= 2 && (
+                      <button
+                        type="button"
+                        className="button button--secondary sequence-compare-toggle"
+                        onClick={openComparison}
+                      >
+                        <Icon name="comparar" size={16} /> Probar otro orden
+                      </button>
+                    )}
+                  </div>
+
+                  <details
+                    ref={logisticsRef}
+                    className="dias__logistics"
+                    open={logisticsOpen}
+                    onToggle={(event) => setLogisticsOpen(event.currentTarget.open)}
+                  >
+                    <summary>Alojamientos y traslados entre ciudades</summary>
+                    <InterHubSegmentsSection
+                      routeIds={routeIds}
+                      days={days}
+                      placeById={placeById}
+                      segments={interHubSegments}
+                      onAdd={addInterHubSegment}
+                      onUpdate={updateInterHubSegment}
+                      onRemove={removeInterHubSegment}
+                    />
+                    <ZonePlanSection
+                      choices={zoneAccommodationChoices}
+                      dayLinks={zoneDayLinks}
+                      hubLinks={zoneHubLinks}
+                      anchorLabelById={anchorLabelById}
+                      onClear={clearZoneAccommodation}
+                    />
+                    <AccommodationManagerSection
+                      accommodations={accommodations}
+                      zoneChoices={zoneAccommodationChoices}
+                      onAdd={addAccommodation}
+                      onRemove={removeAccommodation}
+                    />
+                  </details>
+
+                  <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
+                    Restablecer recorrido
+                  </button>
+                </div>
+
+                <UnassignedDrawer
+                  places={removedPlaces}
+                  onOpenPlace={(placeId) => onSelectPlace?.(placeId)}
+                  onAddToRoute={addUnassignedToRoute}
+                  confirmBeforeAdd={routeChangeDiscardsSplit}
+                />
+              </div>
+            </div>
           )}
         </div>
       </div>
+
+      {actionsFor && placeById.get(actionsFor.placeId) && (
+        <StopActionsSheet
+          place={placeById.get(actionsFor.placeId) as Place}
+          dayIndex={actionsFor.dayIndex}
+          placeIndex={actionsFor.placeIndex}
+          days={dayIds.map((ids, index) => ({ label: stopDayLabel(index), placeCount: ids.length }))}
+          confirmRemoveNote={
+            routeChangeDiscardsSplit
+              ? "Quitar un sitio rehace el reparto por días: las demás paradas volverán a un solo día y los alojamientos por día quedarán sin elegir."
+              : "Las demás paradas se quedan como están."
+          }
+          onMove={applyMove}
+          onRemove={applyRemoveFromRoute}
+          onClose={() => {
+            setFocusTarget(`stop-actions-${actionsFor.placeId}`);
+            setActionsFor(null);
+          }}
+        />
+      )}
     </Outer>
   );
 }

@@ -1,6 +1,4 @@
-import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -34,26 +32,6 @@ async function read(path: string): Promise<string> {
  */
 function code(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
-}
-
-const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
-/** SHA de partida del Bloque 20: el cierre definitivo de B19. */
-const PRE_B20_SHA = "62050c2";
-
-/** Ficheros que B20 ha tocado respecto a su SHA de partida. `null` si el SHA no está en el
- * histórico local (clon poco profundo): el gate se salta en vez de fallar por una causa ajena. */
-function changedFiles(): string[] | null {
-  try {
-    return execFileSync("git", ["diff", "--name-only", PRE_B20_SHA], {
-      cwd: REPO_ROOT,
-      encoding: "utf8",
-    })
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-  } catch {
-    return null;
-  }
 }
 
 // ---------------------------------------------------------------------------------------
@@ -142,18 +120,20 @@ describe("DDR-05 — `Dato:` no entra en la ficha, y el planificador no se toca"
   // B24: timeout propio de 30 s. `git diff` contra PRE_B20_SHA recorre un árbol con cientos de
   // imágenes y bajo carga (suite completa en paralelo) supera los 5 s por defecto. La expectativa
   // no cambia.
-  it("B20 no modifica OrderedSequenceBuilder.tsx — su retirada sigue siendo de B9.5", () => {
-    const files = changedFiles();
-    if (files === null) return; // SHA base no disponible en este checkout.
-    expect(files).not.toContain("app/src/components/OrderedSequenceBuilder.tsx");
-  }, 30_000);
+  // B27 (B9.1) reescribe la presentación de días en OrderedSequenceBuilder.tsx, así que «el árbol
+  // no cambió desde PRE_B20» ya no es verificable. Lo que B20 protegía —que la retirada de `Dato:`
+  // sigue siendo de B9.5— se comprueba directamente abajo: las cuatro apariciones siguen presentes.
+  it("B20 no retira `Dato:` de OrderedSequenceBuilder.tsx — su retirada sigue siendo de B9.5", async () => {
+    const planner = await read("components/OrderedSequenceBuilder.tsx");
+    expect(planner.split("Dato:").length - 1).toBe(4);
+  });
 
   it("las cuatro apariciones siguen donde el roadmap las asigna, intactas", async () => {
     const planner = await read("components/OrderedSequenceBuilder.tsx");
     const occurrences = planner.split("Dato:").length - 1;
     // Si alguien las retira «de paso» en este bloque, este gate lo dice: no es un fallo de
     // calidad, es un alcance que pertenece a B9.5 (`10 §B9.5`).
-    expect(occurrences).toBeGreaterThan(0);
+    expect(occurrences).toBe(4);
   });
 });
 
