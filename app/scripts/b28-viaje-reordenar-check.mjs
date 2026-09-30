@@ -13,7 +13,7 @@ import { preview } from "vite";
  *   K teclado   coger/mover/soltar/cancelar con el asa; foco y anuncio `aria-live`.
  *   M Mover a…  la alternativa completa (día + posición, día vacío, Añadir al día…, cancelar, foco).
  *   I invariantes  persistencia tras recargar, ids de día estables, sin duplicados ni pérdidas,
- *               conectores, alojamiento / legs intactos, comparación A/B, PlaceDetail/back.
+ *               conectores, alojamiento / legs intactos, hoja «Probar otro orden» (B29), PlaceDetail/back.
  *   L layout    320/360/390/430/768/840/1200/1440: sin overflow, objetivos ≥44, asa sin solaparse,
  *               arrastre y cancelación también en 320.
  *   C consola   sin errores propios.
@@ -306,14 +306,15 @@ async function touchDrag(cdp, from, to, { release = true, steps = 14 } = {}) {
     eq(await stored(page), before, "borrador tras recargar");
     eq(await domOrder(page), before.days.map((d) => d.placeIds), "orden en pantalla tras recargar");
   });
-  await ck("I02", "comparación A/B intacta y vuelve a Días con el orden reordenado", async () => {
+  // B29 (B9.3): la comparación global A/B se retiró; la hoja local al día no toca el plan al abrir/cancelar.
+  await ck("I02", "«Probar otro orden» (hoja del día, B29) abre y cancela sin cambiar el orden reordenado", async () => {
     const before = await dayOrder(page);
-    await page.getByRole("button", { name: /Probar otro orden/ }).click();
-    ok(await page.getByRole("heading", { name: "Orden A" }).isVisible(), "Orden A");
-    ok(await page.getByRole("heading", { name: "Orden B" }).isVisible(), "Orden B");
-    await page.getByRole("button", { name: /Volver a los días/ }).click();
+    await page.getByRole("button", { name: /^Probar otro orden en el Día 1$/ }).click();
+    ok(await page.getByRole("heading", { name: "Orden actual", exact: true }).isVisible(), "Orden actual");
+    ok(await page.getByRole("heading", { name: "Otro orden", exact: true }).isVisible(), "Otro orden");
+    await page.getByRole("button", { name: "Cancelar" }).click();
     await page.waitForSelector(".day-timeline");
-    eq(await dayOrder(page), before, "el plan no cambió al comparar");
+    eq(await dayOrder(page), before, "el plan no cambió al probar");
   });
   await ck("I03", "PlaceDetail apilado y back intactos tras reordenar; el asa no abre la ficha", async () => {
     await handle(page, T[1]).click(); // un clic en el asa no hace nada

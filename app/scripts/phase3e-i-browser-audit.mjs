@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
-import { enterDaysView, openDayOrder, useThisOrder } from "./lib/shell-navigation.mjs";
+import { enterDaysView, openDayOrder, confirmDayOrder } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-I — executable browser acceptance for the normative UI/browser contracts 122-125.
@@ -163,7 +163,7 @@ try {
   await page.getByRole("button", { name: "Probar esta reversión de cuatro lugares" }).first().click();
   // B29: loading an option only fills «Otro orden»; the stored draft is still the baseline.
   assert.deepEqual((await readDraft(page)).days[0].placeIds, routeIds);
-  await useThisOrder(page);
+  await confirmDayOrder(page);
 
   // 14. Apply produces the exact expected Okinawa order.
   await page.waitForFunction((expected) => {
@@ -262,7 +262,7 @@ try {
     try {
       await regressionPage.getByRole("heading", { name: groupHeading }).waitFor();
       await regressionPage.getByRole("button", { name: buttonName }).first().click();
-      await useThisOrder(regressionPage);
+      await confirmDayOrder(regressionPage);
       await regressionPage.waitForFunction((want) => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return JSON.stringify(stored?.days?.[0]?.placeIds) === JSON.stringify(want);

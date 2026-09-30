@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
-import { enterDaysView, openDayOrder, useThisOrder } from "./lib/shell-navigation.mjs";
+import { enterDaysView, openDayOrder, confirmDayOrder } from "./lib/shell-navigation.mjs";
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const routeIds = ["JP-010", "JP-012", "JP-011", "JP-013", "JP-014"];
@@ -74,7 +74,7 @@ try {
   // B29: loading an option only fills «Otro orden»; the stored draft is still the baseline.
   const beforeUse = await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null"));
   assert.deepEqual(beforeUse.days[0].placeIds, routeIds);
-  await useThisOrder(page);
+  await confirmDayOrder(page);
 
   await page.waitForFunction((expected) => {
     const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");

@@ -247,20 +247,26 @@ const M = { width: 390, height: 844 };
     await page.keyboard.press("Space");
     eq(await handle.getAttribute("aria-expanded"), "false", "cerrado con Espacio");
   });
-  await ck("K01", "capacidades conservadas: comparación de órdenes alcanzable y vuelve a Días", async () => {
-    await page.getByRole("button", { name: /Probar otro orden/ }).click();
-    ok(await page.getByRole("heading", { name: "Orden A" }).isVisible(), "Orden A");
-    ok(await page.getByRole("heading", { name: "Orden B" }).isVisible(), "Orden B");
-    await page.getByRole("button", { name: /Volver a los días/ }).click();
+  // B29 (B9.3): «Probar otro orden» dejó de ser una vista global («Orden A / Orden B») y es una hoja
+  // local a un día; las alternativas verificadas viven en ella y ya no en «Horarios, reservas…».
+  await ck("K01", "capacidades conservadas: «Probar otro orden» local al día (B29) y vuelve a Días", async () => {
+    await page.getByRole("button", { name: /^Probar otro orden en el Día 1$/ }).click();
+    ok(await page.getByRole("heading", { name: "Orden actual", exact: true }).isVisible(), "Orden actual");
+    ok(await page.getByRole("heading", { name: "Otro orden", exact: true }).isVisible(), "Otro orden");
+    eq(await page.getByRole("heading", { name: "Orden A", exact: true }).count(), 0, "sin «Orden A» global");
+    await page.getByRole("button", { name: "Cancelar" }).click();
     ok(await page.locator(".day-timeline").first().isVisible(), "de vuelta en Días");
   });
-  await ck("K02", "alternativas verificadas: sección por día alcanzable en «Horarios, reservas y herramientas»", async () => {
+  await ck("K02", "alternativas verificadas: en la hoja del día (B29); totales y alojamiento siguen en las herramientas", async () => {
     const tools = page.locator("details.day-tools").first();
     await tools.locator("summary").click();
     ok(await tools.evaluate((d) => d.open), "abierto");
     ok((await tools.locator(".analysis-totals").count()) >= 1, "totales de visita/traslados del día");
-    ok((await tools.locator("[aria-labelledby^='local-swap-heading']").count()) >= 1, "sección de alternativas locales");
+    eq(await tools.locator("[aria-labelledby^='local-swap-heading']").count(), 0, "las alternativas ya no están en las herramientas");
     ok((await tools.locator(".accommodation-commute, [aria-label*='alojamiento' i], h4, h3").count()) >= 1, "alojamiento por día");
+    await page.getByRole("button", { name: /^Probar otro orden en el Día 1$/ }).click();
+    ok((await page.locator("[data-day-order-sheet] [aria-labelledby^='local-swap-heading']").count()) >= 1, "sección de alternativas locales en la hoja");
+    await page.getByRole("button", { name: "Cancelar" }).click();
   });
   await ck("K03", "Reservas y Resumen alcanzables (superficie propia, secciones existentes)", async () => {
     await page.locator('.viaje-nav__item:has-text("Reservas")').click();

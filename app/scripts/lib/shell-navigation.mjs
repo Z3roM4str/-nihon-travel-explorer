@@ -217,7 +217,7 @@ export async function openDayOrder(page, dayNumber = 1) {
 }
 
 /** Aplica lo que haya en «Otro orden» con la única acción que escribe, y espera a que la hoja cierre. */
-export async function useThisOrder(page) {
+export async function confirmDayOrder(page) {
   await page.getByRole("button", { name: "Usar este orden" }).click();
   await page.locator("[data-day-order-sheet]").waitFor({ state: "detached" });
 }

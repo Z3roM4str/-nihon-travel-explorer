@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
-import { enterDaysView, openDayOrder, useThisOrder } from "./lib/shell-navigation.mjs";
+import { enterDaysView, openDayOrder, confirmDayOrder } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-K — executable browser acceptance for the normative UI/browser contracts 123-125.
@@ -190,7 +190,7 @@ try {
     .click();
   // B29: loading an option only fills «Otro orden»; the stored draft is still the baseline.
   assert.deepEqual((await readDraft(page)).days[0].placeIds, routeIds);
-  await useThisOrder(page);
+  await confirmDayOrder(page);
 
   // 13. one click yields the exact 81-minute Okinawa order.
   await waitForOrder(page, pairSwappedOrder);
@@ -291,7 +291,7 @@ try {
    * never one atomic 92 → 74 step.
    */
   await page.getByRole("button", { name: "Probar esta reubicación" }).first().click();
-  await useThisOrder(page);
+  await confirmDayOrder(page);
   await waitForOrder(page, relocatedOrder);
   await page.waitForTimeout(400);
   const finalDraft = await readDraft(page);
@@ -316,7 +316,7 @@ try {
     try {
       await regressionPage.getByRole("heading", { name: groupHeading }).waitFor();
       await regressionPage.getByRole("button", { name: buttonName }).first().click();
-      await useThisOrder(regressionPage);
+      await confirmDayOrder(regressionPage);
       await waitForOrder(regressionPage, expected);
       const stored = await readDraft(regressionPage);
       assert.deepEqual(stored.days[0].placeIds, expected);

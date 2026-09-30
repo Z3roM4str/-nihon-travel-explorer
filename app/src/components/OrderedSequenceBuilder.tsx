@@ -188,15 +188,14 @@ type Props = {
  * exactly as before this phase.
  *
  * Phase 3C-B's comparison candidates ("orden A"/"orden B") are deliberately **not** part of that
- * persisted draft and never will be: `candidateAIds`/`candidateBIds` remain plain component
- * state, cloned fresh from the current route each time the comparison view opens and discarded
- * on close — see `openComparison`/`closeComparison` below.
+ * persisted draft and never will be. Since B29 (B9.3) the comparison is no longer a global view:
+ * «Probar otro orden» is a sheet LOCAL to one day (`DayOrderSheet`), whose proposal is plain
+ * component state cloned from the day's persisted order each time it opens and discarded on close.
+ * Only «Usar este orden» (`applyDayOrder`) writes, and only that one day's order.
  *
- * Phase 3C-B and Phase 3C-C each render as a **nested view inside this same dialog** rather than
- * a second modal — one focus trap, one Escape-closes-everything behaviour, no stacked dialogs.
- * Composition is fixed once either nested view opens: neither the comparison candidates nor the
- * day buckets can add or remove a place, only reorder or move between the fixed set — see
- * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
+ * Composition is fixed while the tool is open: neither the proposal nor the day buckets can add or
+ * remove a place, only reorder the fixed set — see `sequence-comparison.ts` and `day-assignment.ts`
+ * for the guarantees that rest on that.
  *
  * Phase 3D-B adds one narrow, read-only signal to each day card that already has a derived date:
  * whether that date's weekday matches a candidate recurring-weekday closure extracted from a

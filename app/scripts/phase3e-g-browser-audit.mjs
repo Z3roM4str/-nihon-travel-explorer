@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
-import { enterDaysView, openDayOrder, useThisOrder } from "./lib/shell-navigation.mjs";
+import { enterDaysView, openDayOrder, confirmDayOrder } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 3E-G — executable browser acceptance for the normative UI/browser contracts 105-125.
@@ -135,7 +135,7 @@ try {
     () => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
   );
   assert.deepEqual(afterLoad.days[0].placeIds, routeIds);
-  await useThisOrder(page);
+  await confirmDayOrder(page);
 
   // 9. Apply produces the exact expected order.
   await page.waitForFunction((expected) => {
@@ -309,7 +309,7 @@ try {
     try {
       await regressionPage.getByRole("heading", { name: buttonName.group }).waitFor();
       await regressionPage.getByRole("button", { name: buttonName.button }).first().click();
-      await useThisOrder(regressionPage);
+      await confirmDayOrder(regressionPage);
       await regressionPage.waitForFunction((want) => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return JSON.stringify(stored?.days?.[0]?.placeIds) === JSON.stringify(want);
