@@ -133,6 +133,9 @@ import { DayTimeline } from "./DayTimeline";
 import { TripStop } from "./TripStop";
 import { UnassignedDrawer } from "./UnassignedDrawer";
 import { StopActionsSheet } from "./StopActionsSheet";
+import { useStopReorder } from "./useStopReorder";
+import { StopDragGhost } from "./StopDragGhost";
+import { describeSlot, type StopOrigin, type StopSlot } from "../lib/stop-reorder";
 import { EvidenceMark } from "./EvidenceMark";
 import {
   dayCityLabel,
@@ -2777,14 +2780,15 @@ export function OrderedSequenceBuilder({
     accommodationLegs,
     interHubSegments,
     zoneAccommodationChoices,
-    setRoute: setRouteIds,
     initializeDays,
     movePlaceWithinDay,
     relocatePlaceWithinDay,
     transposePlacesWithinDay,
     reverseFourPlacesWithinDay,
     swapTwoPairBlocksWithinDay,
-    movePlaceBetweenDays,
+    movePlaceToPosition,
+    addPlaceToDay,
+    removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
     moveDay,
@@ -3180,17 +3184,10 @@ export function OrderedSequenceBuilder({
   // the existing identity-aware mutations; nothing new is stored and no mutation is invented.
   // ---------------------------------------------------------------------------------------
 
-  /** The order the reader sees, flattened. When a route change is unavoidable (add/remove a place
-   * — V8 keeps `days` a partition of `routeIds`, so the split is rebuilt), it starts from THIS order
-   * rather than from a stale `routeIds` order the reader can no longer edit. */
+  /** The order the reader sees, flattened. The comparison (B9.3) seeds from THIS order rather than
+   * from a `routeIds` order the reader can no longer edit. Adding/removing a place no longer rebuilds
+   * the split: B28 «Añadir al día…» / «Quitar del día» mutate one day (`withPlaceAddedToDay`). */
   const dayFlatOrder = useMemo(() => dayIds.flat(), [dayIds]);
-  const hasChosenBoundary = dayEntities.some(
-    (day) =>
-      day.accommodationBoundary.start.kind !== "unselected" || day.accommodationBoundary.end.kind !== "unselected"
-  );
-  /** True when rebuilding the split would discard something the reader decided. */
-  const routeChangeDiscardsSplit = dayEntities.length > 1 || hasChosenBoundary;
-
   const interHubRows = useMemo(
     () => buildInterHubBoundaryRows({ routeIds, days, placeById, segments: interHubSegments }),
     [routeIds, days, placeById, interHubSegments]
@@ -3199,9 +3196,12 @@ export function OrderedSequenceBuilder({
   const [datesOpen, setDatesOpen] = useState(false);
   const [logisticsOpen, setLogisticsOpen] = useState(false);
   const logisticsRef = useRef<HTMLDetailsElement>(null);
-  const [actionsFor, setActionsFor] = useState<{ placeId: string; dayIndex: number; placeIndex: number } | null>(
-    null
-  );
+  // `dayIndex/placeIndex === null` = a «Sin asignar» place («Añadir al día…»).
+  const [actionsFor, setActionsFor] = useState<{
+    placeId: string;
+    dayIndex: number | null;
+    placeIndex: number | null;
+  } | null>(null);
   const [announcement, setAnnouncement] = useState("");
   // A ref, not state: the id to focus once the mutation that removed the old origin has rendered.
   const focusTargetRef = useRef<string | null>(null);
@@ -3227,7 +3227,7 @@ export function OrderedSequenceBuilder({
     target.focus();
   });
 
-  function openStopActions(placeId: string, dayIndex: number, placeIndex: number) {
+  function openStopActions(placeId: string, dayIndex: number | null, placeIndex: number | null) {
     setActionsFor({ placeId, dayIndex, placeIndex });
   }
 
@@ -3240,54 +3240,84 @@ export function OrderedSequenceBuilder({
     );
   }
 
-  /** «Mover a…» — the two existing mutations, addressed by stable day ids. Within a day it is one
-   * `relocatePlaceWithinDay`; across days it is `movePlaceBetweenDays` (which appends) followed by a
-   * `relocatePlaceWithinDay` inside the target when the reader asked for another slot. Both updaters
-   * are functional, so they compose into the single draft the effect persists. */
+  /**
+   * The one place every reordering path ends: «Mover a…», «Añadir al día…», the pointer/touch handle
+   * and the keyboard-grab mode all call this with an ORIGIN and a TARGET slot (final coordinates,
+   * see `lib/stop-reorder.ts`) and it maps them onto the draft mutations — a single pure update per
+   * commit, addressed by stable day ids. Nothing here keeps a second copy of the order.
+   * Returns whether something was actually committed.
+   */
+  function commitStopMove(
+    placeId: string,
+    origin: StopOrigin,
+    target: StopSlot,
+    focusOn: "handle" | "actions"
+  ): boolean {
+    // Focus goes back to the control the reader used: the row's actions button after «Mover a…» (B27
+    // contract), the row's handle after a drag or a keyboard grab.
+    const rowFocus = `stop-${focusOn === "actions" ? "actions" : "handle"}-${placeId}`;
+    const place = placeById.get(placeId);
+    if (!place || days === null) return false;
+    const counts = dayIds.map((ids) => ids.length);
+    if (origin.kind === "day" && target.kind === "day") {
+      const fromDay = dayEntities[origin.dayIndex];
+      const toDay = dayEntities[target.dayIndex];
+      if (!fromDay || !toDay || fromDay.placeIds[origin.index] !== placeId) return false;
+      movePlaceToPosition(fromDay.id, toDay.id, origin.index, target.index);
+      setAnnouncement(`${place.name} movido al ${describeSlot(counts, origin, target)}.`);
+      setFocusTarget(rowFocus);
+      return true;
+    }
+    if (origin.kind === "day" && target.kind === "unassigned") {
+      removePlaceFromDay(placeId);
+      setAnnouncement(`${place.name} quitado del día; ahora está en Sin asignar. Los demás días no cambian.`);
+      setFocusTarget("unassigned-title");
+      return true;
+    }
+    if (origin.kind === "unassigned" && target.kind === "day") {
+      const toDay = dayEntities[target.dayIndex];
+      if (!toDay) return false;
+      addPlaceToDay(toDay.id, placeId, target.index);
+      setAnnouncement(
+        `${place.name} añadido al ${describeSlot(counts, origin, target)}. Los demás días no cambian.`
+      );
+      setFocusTarget(rowFocus);
+      return true;
+    }
+    return false;
+  }
+
+  /** «Mover a…» / «Añadir al día…» — the sheet's day + position feed the same commit as a drop. */
   function applyMove(toDayIndex: number, toPositionIndex: number) {
     if (!actionsFor) return;
-    const fromDay = dayEntities[actionsFor.dayIndex];
-    const toDay = dayEntities[toDayIndex];
-    const place = placeById.get(actionsFor.placeId);
-    if (!fromDay || !toDay || !place) return;
-    if (fromDay.id === toDay.id) {
-      relocatePlaceWithinDay(fromDay.id, actionsFor.placeIndex, toPositionIndex);
-    } else {
-      const appendedIndex = toDay.placeIds.length;
-      movePlaceBetweenDays(fromDay.id, toDay.id, actionsFor.placeIndex);
-      if (toPositionIndex !== appendedIndex) relocatePlaceWithinDay(toDay.id, appendedIndex, toPositionIndex);
-    }
-    const targetCount = fromDay.id === toDay.id ? toDay.placeIds.length : toDay.placeIds.length + 1;
-    setAnnouncement(
-      `${place.name} movido al Día ${toDayIndex + 1}, posición ${toPositionIndex + 1} de ${targetCount}.`
-    );
-    setFocusTarget(`stop-actions-${place.id}`);
+    const origin: StopOrigin =
+      actionsFor.dayIndex === null || actionsFor.placeIndex === null
+        ? { kind: "unassigned" }
+        : { kind: "day", dayIndex: actionsFor.dayIndex, index: actionsFor.placeIndex };
+    commitStopMove(actionsFor.placeId, origin, { kind: "day", dayIndex: toDayIndex, index: toPositionIndex }, "actions");
     setActionsFor(null);
   }
 
   function applyRemoveFromRoute() {
-    if (!actionsFor) return;
-    const place = placeById.get(actionsFor.placeId);
-    setRouteIds(() => dayFlatOrder.filter((id) => id !== actionsFor.placeId));
-    setAnnouncement(
-      `${place?.name ?? "El lugar"} quitado del recorrido; ahora está en Sin asignar.${
-        routeChangeDiscardsSplit ? " El reparto por días se ha rehecho en un solo día." : ""
-      }`
+    if (!actionsFor || actionsFor.dayIndex === null || actionsFor.placeIndex === null) return;
+    commitStopMove(
+      actionsFor.placeId,
+      { kind: "day", dayIndex: actionsFor.dayIndex, index: actionsFor.placeIndex },
+      { kind: "unassigned" },
+      "actions"
     );
-    setFocusTarget("unassigned-title");
     setActionsFor(null);
   }
 
-  function addUnassignedToRoute(placeId: string) {
-    const place = placeById.get(placeId);
-    setRouteIds(() => [...dayFlatOrder, placeId]);
-    setAnnouncement(
-      `${place?.name ?? "El lugar"} añadido al recorrido${
-        routeChangeDiscardsSplit ? "; el reparto por días se ha rehecho en un solo día" : ""
-      }.`
-    );
-    setFocusTarget(`stop-actions-${placeId}`);
-  }
+  const reorder = useStopReorder({
+    getCounts: () => dayIds.map((ids) => ids.length),
+    commit: (placeId, origin, target) => {
+      commitStopMove(placeId, origin, target, "handle");
+    },
+    announce: setAnnouncement,
+    dayLabel: (dayIndex) => `Día ${dayIndex + 1}`,
+  });
+  const dragTarget = reorder.drag?.target ?? null;
 
   function addDay() {
     const nextOrdinal = (days === null ? 0 : dayIds.length) + 1;
@@ -3441,6 +3471,10 @@ export function OrderedSequenceBuilder({
         <div className="analysis-body">
           <p className="visually-hidden" role="status" aria-live="polite" data-day-announcer>
             {announcement}
+          </p>
+          <p id="reorder-instructions" className="visually-hidden">
+            Para reordenar con el teclado: Espacio o Intro coge la parada, flechas arriba y abajo la mueven,
+            Espacio o Intro la sueltan y Escape cancela. «Mover a…» permite elegir día y posición sin arrastrar.
           </p>
 
           {view === "compare" && (
@@ -3647,6 +3681,8 @@ export function OrderedSequenceBuilder({
                             <InterHubBoundary row={boundaryRow} onEdit={openLogistics} />
                           )}
                           <DayTimeline
+                            isDropTarget={dragTarget?.kind === "day" && dragTarget.dayIndex === dayIndex}
+                            emptyDropActive={isEmpty && dragTarget?.kind === "day" && dragTarget.dayIndex === dayIndex}
                             headingId={`day-heading-${dayIndex}`}
                             headline={dayHeadline(
                               dayIndex + 1,
@@ -3695,12 +3731,30 @@ export function OrderedSequenceBuilder({
                             emptyText="Sin lugares en este día."
                             stops={places.map((place, placeIndex) => {
                               const next = places[placeIndex + 1];
+                              // Insertion bar: relative to the OTHER stops of this day (the carried one
+                              // is excluded, so the index is the final one the drop would commit).
+                              let dropIndicator: "before" | "after" | null = null;
+                              if (dragTarget?.kind === "day" && dragTarget.dayIndex === dayIndex) {
+                                const others = places.filter((other) => other.id !== reorder.drag?.placeId);
+                                if (others[dragTarget.index]?.id === place.id) dropIndicator = "before";
+                                else if (dragTarget.index >= others.length && others[others.length - 1]?.id === place.id) {
+                                  dropIndicator = "after";
+                                }
+                              }
                               return (
                                 <TripStop
                                   key={place.id}
                                   place={place}
                                   position={placeIndex + 1}
                                   total={places.length}
+                                  handleProps={reorder.handleProps(place.id, place.name, {
+                                    kind: "day",
+                                    dayIndex,
+                                    index: placeIndex,
+                                  })}
+                                  dragging={reorder.drag?.placeId === place.id}
+                                  grabbed={reorder.drag?.mode === "keyboard" && reorder.drag.placeId === place.id}
+                                  dropIndicator={dropIndicator}
                                   onOpenPlace={(placeId) => onSelectPlace?.(placeId)}
                                   onOpenActions={(placeId) => openStopActions(placeId, dayIndex, placeIndex)}
                                   connector={
@@ -3884,8 +3938,15 @@ export function OrderedSequenceBuilder({
                 <UnassignedDrawer
                   places={removedPlaces}
                   onOpenPlace={(placeId) => onSelectPlace?.(placeId)}
-                  onAddToRoute={addUnassignedToRoute}
-                  confirmBeforeAdd={routeChangeDiscardsSplit}
+                  onAddToDay={(placeId) => openStopActions(placeId, null, null)}
+                  handleProps={(placeId, name) => reorder.handleProps(placeId, name, { kind: "unassigned" })}
+                  isDropTarget={dragTarget?.kind === "unassigned" && reorder.drag?.origin.kind === "day"}
+                  draggingId={reorder.drag?.origin.kind === "unassigned" ? reorder.drag.placeId : null}
+                  grabbedId={
+                    reorder.drag?.mode === "keyboard" && reorder.drag.origin.kind === "unassigned"
+                      ? reorder.drag.placeId
+                      : null
+                  }
                 />
               </div>
             </div>
@@ -3899,17 +3960,33 @@ export function OrderedSequenceBuilder({
           dayIndex={actionsFor.dayIndex}
           placeIndex={actionsFor.placeIndex}
           days={dayIds.map((ids, index) => ({ label: stopDayLabel(index), placeCount: ids.length }))}
-          confirmRemoveNote={
-            routeChangeDiscardsSplit
-              ? "Quitar un sitio rehace el reparto por días: las demás paradas volverán a un solo día y los alojamientos por día quedarán sin elegir."
-              : "Las demás paradas se quedan como están."
-          }
+          confirmRemoveNote="Las demás paradas y los demás días se quedan como están."
           onMove={applyMove}
           onRemove={applyRemoveFromRoute}
           onClose={() => {
-            setFocusTarget(`stop-actions-${actionsFor.placeId}`);
+            setFocusTarget(
+              actionsFor.dayIndex === null ? `unassigned-add-${actionsFor.placeId}` : `stop-actions-${actionsFor.placeId}`
+            );
             setActionsFor(null);
           }}
+        />
+      )}
+
+      {reorder.drag?.mode === "pointer" && (
+        <StopDragGhost
+          name={reorder.drag.name}
+          x={reorder.drag.x}
+          y={reorder.drag.y}
+          where={
+            dragTarget
+              ? describeSlot(
+                  dayIds.map((ids) => ids.length),
+                  reorder.drag.origin,
+                  dragTarget,
+                  stopDayLabel
+                )
+              : "Suelta dentro de un día"
+          }
         />
       )}
     </Outer>

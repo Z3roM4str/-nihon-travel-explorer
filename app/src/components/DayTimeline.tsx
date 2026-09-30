@@ -16,6 +16,10 @@ type Props = {
   emptyText: string;
   /** `TripStop` list items, already interleaved with their connectors. */
   stops: ReactNode;
+  /** B28: a stop is being carried and would land in THIS day. */
+  isDropTarget?: boolean;
+  /** B28: a carried stop would land in this day while it is empty. */
+  emptyDropActive?: boolean;
   /** Existing per-day signals and tools (weekday closure, reservations, alternatives …). */
   details?: ReactNode;
   /** «Dormís en …» + the day's own accommodation controls. */
@@ -41,9 +45,15 @@ export function DayTimeline({
   stops,
   details,
   footer,
+  isDropTarget,
+  emptyDropActive,
 }: Props) {
   return (
-    <section className="day-timeline" aria-labelledby={headingId}>
+    <section
+      className={`day-timeline ${isDropTarget ? "day-timeline--drop-target" : ""}`}
+      aria-labelledby={headingId}
+      data-day-drop=""
+    >
       <header className="day-timeline__header">
         <div className="day-timeline__heading">
           <h3 id={headingId} className="day-timeline__title" tabIndex={-1}>
@@ -56,7 +66,9 @@ export function DayTimeline({
       </header>
 
       {isEmpty ? (
-        <p className="sequence-empty day-timeline__empty">{emptyText}</p>
+        <p className={`sequence-empty day-timeline__empty ${emptyDropActive ? "day-timeline__empty--drop" : ""}`}>
+          {emptyDropActive ? "Suelta aquí" : emptyText}
+        </p>
       ) : (
         <ol className="day-timeline__stops" aria-labelledby={headingId}>
           {stops}

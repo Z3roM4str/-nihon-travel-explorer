@@ -75,8 +75,10 @@ describe("B27 — el esquema y la clave de planificación no cambian", () => {
     const files = changedSinceBase();
     if (files === null) return; // SHA base no disponible (clon superficial)
     const protectedPaths = [
-      /^app\/src\/lib\/(?!day-timeline-presentation)/,
-      /^app\/src\/usePlanningDraft\.ts$/,
+      // B28 (B9.2) adds three V8 mutations (`withPlaceMovedToPosition`, `withPlaceAddedToDay`,
+      // `withPlaceRemovedFromDay`) + their hook wrappers + the pure `stop-reorder` module; they are
+      // covered by `b28-reorder-model.test.ts`, and `b28-invariants-scope.test.ts` proves byte-for-byte against the B27 base that NOTHING else in those two files (or in lib/) changed.
+      /^app\/src\/lib\/(?!day-timeline-presentation|planning-draft-v8\.ts$|stop-reorder\.ts$)/,
       /^app\/src\/data\/(?!place-thumbnails\.ts$)/,
       /^data\//,
     ];
@@ -165,8 +167,8 @@ describe("B27 — las reglas de presentación no inventan nada", () => {
   });
 });
 
-describe("B27 — el componente no introduce arrastre ni semántica de arrastre (B9.2)", () => {
-  it("ninguna de las fuentes nuevas usa draggable, aria-grabbed ni handlers de drag", async () => {
+describe("B27 — sin HTML5 drag ni semántica aria-grabbed (B9.2 arrastra con eventos de puntero)", () => {
+  it("ninguna de las fuentes usa draggable, aria-grabbed ni handlers onDrag/onDrop", async () => {
     for (const file of [
       "components/DayTimeline.tsx",
       "components/TripStop.tsx",
@@ -176,7 +178,8 @@ describe("B27 — el componente no introduce arrastre ni semántica de arrastre 
       const source = (await readFile(new URL(`./${file}`, import.meta.url), "utf8"))
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .replace(/\/\/.*$/gm, "");
-      expect(source, file).not.toMatch(/draggable|aria-grabbed|onDrag|onDrop|name="arrastrar"/);
+      // B28: el icono `arrastrar` del asa de reordenación ya es legítimo en TripStop/UnassignedDrawer.
+      expect(source, file).not.toMatch(/draggable|aria-grabbed|onDrag|onDrop/);
     }
   });
 

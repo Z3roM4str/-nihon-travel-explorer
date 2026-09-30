@@ -21,7 +21,10 @@ import {
   withNewAccommodation,
   withNewEmptyDay,
   withNewInterHubSegment,
+  withPlaceAddedToDay,
   withPlaceMovedBetweenDays,
+  withPlaceMovedToPosition,
+  withPlaceRemovedFromDay,
   withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
   withPlacesTransposedWithinDay,
@@ -235,6 +238,27 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     setDraft((current) => withPlaceMovedBetweenDays(current, fromDayId, toDayId, placeIndex));
   }, []);
 
+  /** B28: one place to one exact slot (any day, any position) as a single draft update. */
+  const movePlaceToPosition = useCallback(
+    (fromDayId: string, toDayId: string, fromIndex: number, toIndex: number) => {
+      setDraft((current) => withPlaceMovedToPosition(current, fromDayId, toDayId, fromIndex, toIndex));
+    },
+    []
+  );
+
+  /** B28: «Añadir al día…» — a «Sin asignar» place goes into one day slot without rebuilding the split. */
+  const addPlaceToDay = useCallback(
+    (dayId: string, placeId: string, toIndex: number) => {
+      setDraft((current) => withPlaceAddedToDay(current, dayId, placeId, toIndex, savedIds));
+    },
+    [savedIds]
+  );
+
+  /** B28: a day place goes back to «Sin asignar» without rebuilding the split. */
+  const removePlaceFromDay = useCallback((placeId: string) => {
+    setDraft((current) => withPlaceRemovedFromDay(current, placeId));
+  }, []);
+
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
    * Only the new day starts unselected; no existing day's id, places or choices are touched. */
   const addEmptyDay = useCallback(() => {
@@ -436,6 +460,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     reverseFourPlacesWithinDay,
     swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
+    movePlaceToPosition,
+    addPlaceToDay,
+    removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
     moveDay,

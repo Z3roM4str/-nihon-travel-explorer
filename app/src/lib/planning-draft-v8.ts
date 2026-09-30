@@ -61,6 +61,7 @@ import {
 } from "./planning-draft-v7";
 import { PLANNING_DRAFT_STORAGE_KEY, type DraftStorage } from "./planning-draft";
 import {
+  UNSELECTED_ACCOMMODATION_BOUNDARY,
   isValidAccommodationLocation,
   type AccommodationAnchor,
   type AccommodationBoundaryChoice,
@@ -556,6 +557,105 @@ export function withPlaceMovedBetweenDays(
   placeIndex: number
 ): ManualPlanningDraftV8 {
   return applyV7(draft, withPlaceMovedBetweenDaysV7, fromDayId, toDayId, placeIndex);
+}
+
+/**
+ * B28 (B9.2) — moves ONE place to an exact slot: any day, any position, in a single pure mutation.
+ *
+ * `toIndex` is a FINAL coordinate: inside the same day it is the index the place ends at (0…n-1);
+ * into another day it is the index it ends at inside the target (0…n, `n` = the end). One call
+ * produces the final draft, so no intermediate order can be persisted or observed after a reload.
+ *
+ * It is composed from the two identity-aware mutations that already existed (`withPlaceMovedBetweenDays`
+ * + `withPlaceRelocatedWithinDay`), so every guarantee they carry is inherited rather than
+ * re-implemented: day ids, boundaries (a source day left empty resets to `unselected`), manual legs,
+ * `routeIds`, dates and every other day are untouched. Rejected (draft unchanged, never partial) for
+ * unknown days, an out-of-range index, or a no-op.
+ */
+export function withPlaceMovedToPosition(
+  draft: ManualPlanningDraftV8,
+  fromDayId: string,
+  toDayId: string,
+  fromIndex: number,
+  toIndex: number
+): ManualPlanningDraftV8 {
+  if (draft.days === null || !Number.isInteger(toIndex) || toIndex < 0) return draft;
+  if (fromDayId === toDayId) return withPlaceRelocatedWithinDay(draft, fromDayId, fromIndex, toIndex);
+  const target = draft.days.find((day) => day.id === toDayId);
+  if (!target || toIndex > target.placeIds.length) return draft;
+  const appended = withPlaceMovedBetweenDays(draft, fromDayId, toDayId, fromIndex);
+  if (appended === draft) return draft;
+  const appendedIndex = target.placeIds.length;
+  return toIndex === appendedIndex
+    ? appended
+    : withPlaceRelocatedWithinDay(appended, toDayId, appendedIndex, toIndex);
+}
+
+/**
+ * B28 (B9.2) — «Añadir al día…»: puts a place that is in no day («Sin asignar») directly into one
+ * identified day at one position, WITHOUT rebuilding the split.
+ *
+ * `withRoute` invalidates `days` whenever route composition changes because a raw `string[]` cannot
+ * say where the place belongs. Here the caller says exactly where, so the route grows by the place
+ * (appended: route order is not day order — `days` is the canonical order) and that one day gains it;
+ * every other day, every day id, every boundary, dates, legs, anchors and zone choices are untouched.
+ * A day that was empty keeps its `unselected` boundary; a non-empty one keeps its choice (endpoint
+ * evidence is recomputed from the new first/last place on read).
+ *
+ * Rejected (draft unchanged) when there is no split, the day is unknown, the index is outside 0…n,
+ * the place is already in the route, or `placeId` is not one of the `savedIds` the caller passes.
+ */
+export function withPlaceAddedToDay(
+  draft: ManualPlanningDraftV8,
+  dayId: string,
+  placeId: string,
+  toIndex: number,
+  savedIds: readonly string[]
+): ManualPlanningDraftV8 {
+  if (draft.days === null || !savedIds.includes(placeId)) return draft;
+  if (draft.routeIds.includes(placeId) || draft.days.some((day) => day.placeIds.includes(placeId))) return draft;
+  const dayIndex = draft.days.findIndex((day) => day.id === dayId);
+  if (dayIndex === -1) return draft;
+  const day = draft.days[dayIndex];
+  if (!Number.isInteger(toIndex) || toIndex < 0 || toIndex > day.placeIds.length) return draft;
+  const placeIds = [...day.placeIds];
+  placeIds.splice(toIndex, 0, placeId);
+  const days = draft.days.map((entry, index) => (index === dayIndex ? { ...entry, placeIds } : entry));
+  return { ...draft, routeIds: [...draft.routeIds, placeId], days };
+}
+
+/**
+ * B28 (B9.2) — «Quitar del día»: takes ONE place out of its day and out of the route (it stays saved
+ * in Quiero ir and reappears in «Sin asignar»), WITHOUT rebuilding the split.
+ *
+ * The place's own decisions go with it exactly as `withRoute` prunes them (visit start time, manual
+ * accommodation legs, inter-hub segments that named it); nothing else changes. A day left empty
+ * keeps its id and resets both boundary sides to `unselected` (§8.3, same rule as a move out).
+ * Rejected (draft unchanged) when there is no split or the place is in no day.
+ */
+export function withPlaceRemovedFromDay(draft: ManualPlanningDraftV8, placeId: string): ManualPlanningDraftV8 {
+  if (draft.days === null) return draft;
+  if (!draft.days.some((day) => day.placeIds.includes(placeId))) return draft;
+  const pruned = withRoute(
+    draft,
+    draft.routeIds.filter((id) => id !== placeId)
+  );
+  const days = draft.days.map((day) => {
+    if (!day.placeIds.includes(placeId)) return day;
+    const placeIds = day.placeIds.filter((id) => id !== placeId);
+    return {
+      ...day,
+      placeIds,
+      accommodationBoundary:
+        placeIds.length === 0
+          ? {
+              start: { ...UNSELECTED_ACCOMMODATION_BOUNDARY.start },
+              end: { ...UNSELECTED_ACCOMMODATION_BOUNDARY.end },
+            }
+          : day.accommodationBoundary,
+    };
+  });
+  return { ...pruned, days };
 }
 
 export function withNewEmptyDay(

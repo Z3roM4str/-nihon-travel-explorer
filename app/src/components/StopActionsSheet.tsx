@@ -11,8 +11,9 @@ export type StopActionsDay = {
 type Props = {
   place: Place;
   /** Index (0-based) of the day the stop is in and of the stop inside it. */
-  dayIndex: number;
-  placeIndex: number;
+  /** `null` for a «Sin asignar» place («Añadir al día…»). */
+  dayIndex: number | null;
+  placeIndex: number | null;
   days: readonly StopActionsDay[];
   /** `false` when removing would be a no-op for the model. */
   confirmRemoveNote: string;
@@ -24,17 +25,15 @@ type Props = {
 type Step = "menu" | "move" | "remove";
 
 /**
- * B27 (B9.1) — the single home for what the per-row `↑ ↓ ×` trio used to do (defect D10).
+ * B27 (B9.1) → B28 (B9.2) — the keyboard/touch-complete alternative to dragging.
  *
- *  ↑ ↓ (within a day)   → «Mover a…» with an explicit day AND position;
- *  ← → (to the adjacent day, Día view only) → the same «Mover a…», pick another day;
- *  × («Quitar del recorrido», route composition) → «Quitar del recorrido», confirmed in words.
+ *  «Mover a…»           day AND position (same day or another), for a stop that is in a day;
+ *  «Quitar del recorrido» the stop goes to «Sin asignar» (no split rebuild since B9.2);
+ *  «Añadir al día…»     for a «Sin asignar» place (`dayIndex === null`): day AND position, straight
+ *                       into the form — no rebuild of the rest of the trip.
  *
- * INFRAESTRUCTURA MÍNIMA ADELANTADA POR CONSERVACIÓN DE CAPACIDAD: retiring `↑ ↓` in B9.1 would
- * otherwise leave no accessible way to change a stop's position or day before B9.2. B9.2 remains
- * responsible for the complete reordering system and drag-and-drop; this sheet has no drag, no
- * reorder animation and reuses the existing mutations verbatim (`relocatePlaceWithinDay`,
- * `movePlaceBetweenDays`).
+ * Dragging is a convenience over this sheet, never a replacement: everything the handle can do is
+ * reachable here with a select and a button.
  */
 export function StopActionsSheet({
   place,
@@ -46,22 +45,25 @@ export function StopActionsSheet({
   onRemove,
   onClose,
 }: Props) {
-  const [step, setStep] = useState<Step>("menu");
-  const [targetDay, setTargetDay] = useState(dayIndex);
-  const [targetPosition, setTargetPosition] = useState(placeIndex);
+  const adding = dayIndex === null || placeIndex === null;
+  const [step, setStep] = useState<Step>(adding ? "move" : "menu");
+  const [targetDay, setTargetDay] = useState(dayIndex ?? Math.max(0, days.length - 1));
+  const [targetPosition, setTargetPosition] = useState(
+    placeIndex ?? days[Math.max(0, days.length - 1)]?.placeCount ?? 0
+  );
 
   const target = days[targetDay];
-  const positions = targetDay === dayIndex ? days[dayIndex].placeCount : (target?.placeCount ?? 0) + 1;
-  const unchanged = targetDay === dayIndex && targetPosition === placeIndex;
+  const positions = targetDay === dayIndex ? days[targetDay].placeCount : (target?.placeCount ?? 0) + 1;
+  const unchanged = !adding && targetDay === dayIndex && targetPosition === placeIndex;
 
   function changeDay(next: number) {
     setTargetDay(next);
     // A different day starts at its end; the own day starts where the stop already is.
-    setTargetPosition(next === dayIndex ? placeIndex : days[next].placeCount);
+    setTargetPosition(next === dayIndex && placeIndex !== null ? placeIndex : days[next].placeCount);
   }
 
   return (
-    <Sheet title={place.name} onClose={onClose} labelledBy="stop-actions-title">
+    <Sheet title={adding ? `Añadir ${place.name} al día` : place.name} onClose={onClose} labelledBy="stop-actions-title">
       {step === "menu" && (
         <ul className="stop-actions__menu">
           <li>
@@ -119,10 +121,14 @@ export function StopActionsSheet({
           </p>
           <div className="stop-actions__buttons">
             <button type="submit" className="button button--primary" disabled={unchanged}>
-              Mover aquí
+              {adding ? "Añadir aquí" : "Mover aquí"}
             </button>
-            <button type="button" className="button button--secondary" onClick={() => setStep("menu")}>
-              Volver
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={() => (adding ? onClose() : setStep("menu"))}
+            >
+              {adding ? "Cancelar" : "Volver"}
             </button>
           </div>
         </form>
