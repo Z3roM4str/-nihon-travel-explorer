@@ -145,7 +145,6 @@ const openActions = async (page, placeId) => {
 };
 
 const M = { width: 390, height: 844 };
-const D = { width: 1440, height: 900 };
 
 // ─────────────────────────────── A / D / S / H / U / K / P — móvil, plan rico
 {
@@ -228,6 +227,10 @@ const D = { width: 1440, height: 900 };
     const row = page.locator("[data-inter-hub-row]");
     const txt = await row.innerText();
     ok(/Tokio → Kioto/.test(txt) && /sin datos/.test(txt), txt);
+    await row.scrollIntoViewIfNeeded();
+    await shot(page, "dos-ciudades");
+    await page.locator(".day-timeline").nth(2).scrollIntoViewIfNeeded();
+    await shot(page, "dia-vacio");
     await row.getByRole("button", { name: "Registrar traslado" }).click();
     ok(await page.locator("details.dias__logistics").evaluate((d) => d.open), "sección de traslados abierta");
     ok(await page.getByText("Traslados entre ciudades").first().isVisible(), "formulario existente");
@@ -394,7 +397,11 @@ const D = { width: 1440, height: 900 };
     const tools = page.locator("details.day-tools").nth(1);
     await tools.locator("summary").click();
     ok((await tools.locator(".official-reservation-date").count()) >= 1, "aviso de fecha oficial por día");
-    ok(/Dato:/.test(await page.locator(".destination-panel:not([hidden])").innerText()), "«Dato:» visible donde B9.5 aún lo conserva");
+    const dayText = (await page.locator(".destination-panel:not([hidden])").textContent()) ?? "";
+    await page.locator('.viaje-nav__item:has-text("Reservas")').click();
+    await page.locator("h2#sequence-builder-title", { hasText: "Reservas" }).waitFor();
+    const reservasText = (await page.locator(".destination-panel:not([hidden]) .viaje-surface").textContent()) ?? "";
+    ok(/Dato: «/.test(dayText + reservasText), "«Dato: «…»» sigue presente donde B9.5 aún lo conserva (Días o Reservas)");
   });
   await context.close();
 }
@@ -509,6 +516,7 @@ const D = { width: 1440, height: 900 };
     await page.waitForSelector(".place-detail__back");
     ok((await page.locator(".place-detail__back").innerText()).includes("Días"), await page.locator(".place-detail__back").innerText());
     eq(await page.locator(".place-detail").count(), 1, "instancia única");
+    await shot(page, "ficha-desde-tripstop");
     ok((await page.locator(".tab-bar__item[aria-current='page']").first().innerText()).includes("Viaje"), "sigue en Viaje");
     await page.locator(".place-detail__back").click();
     await page.waitForSelector(".day-timeline");

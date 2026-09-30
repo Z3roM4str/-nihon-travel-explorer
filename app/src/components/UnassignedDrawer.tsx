@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Place } from "../types";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { unassignedCountText } from "../lib/day-timeline-presentation";
@@ -48,7 +48,13 @@ export function UnassignedDrawer({ places, onOpenPlace, onAddToRoute, confirmBef
   const large = useIsLarge();
   const [userOpen, setUserOpen] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const asideRef = useRef<HTMLElement>(null);
   const open = large || userOpen;
+
+  // Opening the drawer must reveal what it opened: bring the expanded panel into view.
+  useEffect(() => {
+    if (userOpen) asideRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [userOpen]);
   const title = unassignedCountText(places.length);
 
   // A place that stops being unassigned (it was just added) can no longer be «pending confirmation».
@@ -60,7 +66,7 @@ export function UnassignedDrawer({ places, onOpenPlace, onAddToRoute, confirmBef
   }
 
   return (
-    <aside className={`unassigned ${open ? "unassigned--open" : ""}`} aria-label="Sin asignar" data-unassigned>
+    <aside ref={asideRef} className={`unassigned ${open ? "unassigned--open" : ""}`} aria-label="Sin asignar" data-unassigned>
       {large ? (
         <h3 className="unassigned__handle unassigned__handle--static" id="unassigned-title">
           {title}

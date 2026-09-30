@@ -513,7 +513,7 @@ try {
 
   await step("A10 build ordered sequence and assign days", async () => {
     await openPlanner();
-    const days = await page.getByRole("heading", { name: /^Día \d+$/ }).count();
+    const days = await page.getByRole("heading", { name: /^Día \d+/ }).count();
     assert.ok(days >= 1, "no days rendered");
     const draft = await readDraft();
     assert.equal(draft.routeIds.length, 5, `draft should carry 5 places, got ${draft.routeIds.length}`);
@@ -573,6 +573,11 @@ try {
   /** Journey A step 12 and Issue #118 §11: the route spans Tokio then Kioto, so the boundary
    * between them is the one consecutive pair the manual inter-hub form should offer. */
   await step("A13b add a manual inter-hub segment across the hub boundary", async () => {
+    // B27: el formulario existente vive en «Alojamientos y traslados entre ciudades» (Días).
+    await page.evaluate(() => {
+      const details = document.querySelector("details.dias__logistics");
+      if (details) details.open = true;
+    });
     const section = page.locator(".inter-hub-segments");
     await section.first().waitFor();
     const positionSelect = section.locator("select").first();
@@ -599,6 +604,8 @@ try {
   });
 
   await step("A14 whole-trip composition renders and reconciles", async () => {
+    // B27: la composición del viaje entero se re-aloja, sin rediseño, en Viaje › Resumen.
+    await page.locator(".viaje-nav__item:has-text('Resumen')").click();
     const summary = page.locator(".whole-trip-composition");
     await summary.first().waitFor();
     const text = await summary.first().textContent();

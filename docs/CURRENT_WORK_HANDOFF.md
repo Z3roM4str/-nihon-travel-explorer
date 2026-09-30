@@ -1,5 +1,16 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## B27 / B9.1 «Días como estructura» — rama `claude/b27-viaje-b9-1-dias` (PR en borrador, sin integrar)
+
+- Base `origin/main` @ `eab63a8`. Viaje abre en **Días** (`DayTimeline`, `TripStop` con miniatura `-400w`,
+  conectores, pies de día, filas `InterHubSegment`, «Sin asignar», «Añadir día»); sub-navegación
+  `Días · Dónde dormir · Reservas · Resumen`. Retirado el trío `↑ ↓ ×` por fila, con «Mover a…» mínimo
+  como puente de conservación (B9.2 sigue siendo dueño de drag y reordenación completa).
+- **`Dato:` NO se retira aquí (es de B9.5)**; el handoff de B26 lo asignaba por error a B9.1.
+- Modelo/planificación V8 sin cambios. Detalle, clasificación de gates y deuda: `docs/BLOCK_27_HANDOFF.md`.
+- Gate nuevo: `app/scripts/b27-viaje-dias-check.mjs`; audits `phase3e/3f`, `phase5a`, `block6` y `b17-tap`
+  portados a Viaje › Días (`scripts/lib/shell-navigation.mjs`: `enterDaysView`, `moveStop`, …).
+
 ## ESTADO CANÓNICO ACTUAL — B26 (PR #159) integrado a `main` (2026-09-29)
 
 - **PR #159 MERGED** 2026-09-29T21:59:39Z mediante **merge commit** (no squash, no rebase).
