@@ -46,12 +46,15 @@ function useIsLarge(): boolean {
 }
 
 /**
- * B27 (B9.1, `05 §7` item 4, `02 §D5`) — «Sin asignar»: the saved places that sit outside every day.
+ * B27 (B9.1, `05 §7` item 4, `02 §D5`) → B28 (B9.2) — «Sin asignar»: the saved places that sit outside
+ * every day.
  *
  * Phone/tablet: a persistent handle («7 sitios sin día») that expands into a panel — a real
  * `<button aria-expanded>`, so it is reachable and operable from the keyboard. `lg`+: the same
- * content is a permanent column and the handle is a plain heading. No drag: every action is a
- * button (`Abrir` / `Añadir al recorrido`), and nothing here announces drag semantics (B9.2).
+ * content is a permanent column and the handle is a plain heading. Since B28 each place can be
+ * carried to a day (its grip handle: pointer, touch or keyboard) or added with «Añadir al día…»
+ * (day + position sheet); and the whole aside is the drop target for a stop taken out of a day.
+ * Neither path rebuilds the split.
  */
 export function UnassignedDrawer({
   places,

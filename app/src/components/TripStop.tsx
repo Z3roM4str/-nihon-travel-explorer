@@ -36,10 +36,11 @@ type Props = {
 /**
  * B27 (B9.1, `04 §14`) — `TripStop`: one place inside a `DayTimeline`.
  *
- * Presentation only. The open control and the actions control are siblings, never nested: opening
- * the place goes through the same `selectPlace(id, "viaje", …)` every other Viaje surface uses
- * (DD-015), and the per-row `↑ ↓ ×` trio that used to live here is gone (`10 §B9.1`, defect D10) —
- * its capabilities are reached through the single «Acciones» control (see `StopActionsSheet`).
+ * Presentation only. The open control, the reorder handle and the actions control are siblings, never
+ * nested: opening the place goes through the same `selectPlace(id, "viaje", …)` every other Viaje
+ * surface uses (DD-015). The per-row `↑ ↓ ×` trio is gone (`10 §B9.1`, defect D10); since B28 (B9.2)
+ * its capability lives in the handle (drag with pointer/touch, or grab with the keyboard) and, as the
+ * complete alternative, in «Acciones» → «Mover a…» (see `StopActionsSheet`).
  *
  * The thumbnail is the existing `-400w` derivative of the place's existing photograph
  * (`thumbImageUrl`), lazy-loaded; a place with no photograph, or whose photograph fails, shows the

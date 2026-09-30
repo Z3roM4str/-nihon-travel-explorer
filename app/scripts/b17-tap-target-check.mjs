@@ -502,6 +502,14 @@ async function main() {
       results.push({ label: "Viaje › Días .trip-stop__actions reachable", ok: false });
       console.log("FAIL Viaje › Días .trip-stop__actions reachable: no TripStop with an actions control");
     }
+    // B28 (B9.2): el asa de reordenación es un objetivo táctil más y debe medir ≥44 efectivos.
+    const stopHandle = page.locator(".trip-stop__handle").first();
+    if (await stopHandle.count()) {
+      record("Viaje › Días .trip-stop__handle (first)", await effectiveHitBox(stopHandle));
+    } else {
+      results.push({ label: "Viaje › Días .trip-stop__handle reachable", ok: false });
+      console.log("FAIL Viaje › Días .trip-stop__handle reachable: no TripStop with a reorder handle");
+    }
   } else {
     results.push({ label: "Viaje › Días reachable", ok: false });
     console.log("FAIL Viaje › Días reachable: no DayTimeline");

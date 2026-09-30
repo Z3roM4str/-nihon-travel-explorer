@@ -126,6 +126,8 @@ Gate nuevo permanente: `app/scripts/b27-viaje-dias-check.mjs`. Resultados y regr
 ## Deuda / siguiente
 
 - B9.2: arrastrar y soltar + sistema completo de reordenación; «Añadir al día…» sin rehacer el reparto.
+  → **Resuelto en B28** (`docs/BLOCK_28_HANDOFF.md`, rama `claude/b28-viaje-b9-2-reordenar`): las limitaciones
+  «añadir/quitar rehace el reparto» de este documento ya no rigen allí.
 - B9.3: «Probar otro orden» local al día (hoy sigue siendo la comparación A/B de toda la ruta, alcanzable
   desde «Probar otro orden», sembrada con el orden que se ve en Días).
 - B9.4: Dónde dormir (`ZoneComparison` intacta; sus ordinales siguen).
