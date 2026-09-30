@@ -97,7 +97,7 @@ const pageErrors = [];
 const badResponses = [];
 const external = [];
 
-async function boot(viewport, { saved, plan, dates } = {}) {
+async function boot(viewport, { saved, plan } = {}) {
   const context = await browser.newContext({ viewport });
   context.setDefaultTimeout(8000);
   const page = await context.newPage();

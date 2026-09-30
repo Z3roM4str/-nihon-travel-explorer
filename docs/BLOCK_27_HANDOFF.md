@@ -133,3 +133,57 @@ Gate nuevo permanente: `app/scripts/b27-viaje-dias-check.mjs`. Resultados y regr
 - La sección «Alojamientos y traslados entre ciudades» (formularios existentes) vive al final de Días
   hasta que B9.4 decida su sitio definitivo.
 - Pendiente humano heredado: iPhone Safari real (sin cambios).
+
+## Cierre — resultados (medidos sobre la build final de la rama)
+
+Baseline (árbol `eab63a8`, worktree aparte) → rama:
+
+| Comprobación | Baseline | Rama |
+|---|---|---|
+| `git diff --check` | limpio | limpio |
+| build | PASS | PASS |
+| lint | 0 errores, 1 warning heredado (`PlaceMap.tsx:17`) | 0 errores, el mismo warning |
+| Vitest | 107 ficheros, 3415/3415 | 108 ficheros, **3430/3430** (+2 miniaturas, +13 invariantes de modelo) |
+| **B27 `b27-viaje-dias-check`** | — | **48/48** |
+| Phase 5A | 50/50 desktop + 50/50 móvil | 50/50 + 50/50 |
+| integración B24+B23 | 58/58 | 58/58 |
+| B25 Quiero ir | 123/123 | 123/123 |
+| B26 Nosotros (Chromium) | 314/314 | 314/314 (WebKit: no hay WebKit en este entorno → **no medido**) |
+| DD-028 | 16/16 | pasa (16) |
+| B18 back / viaje-lugar / chrome / a11y | 15 / 38 / 6 / 23 | 15/15 · 38/38 · 6/6 · 25/25 |
+| B17 regresión / tap | 18/18 · 16/16 | 18/18 · **25/25** (ahora mide de verdad Días: antes se saltaba el planificador en silencio) |
+| B5 · B6 | 231 · 177 | 231/231 · 177/177 |
+| B23 photo retry · DDR-03 · ficha · grid · contraste | 28 · 43 · 73 · 52 · PASS | 28/28 · 43/43 · 73/73 · 52/52 · PASS |
+| audits del planificador `phase3e-{e,g,i,k}` / `phase3f-{f,h,j,s}` | **8/8 fallaban** (navegación anterior a B18) | **8/8 pasan** (day assignment, identidad estable, calendario y fechas oficiales, alternativas evidence-complete, traslados) |
+
+Gates que fallan igual en el baseline y en la rama (clase D, deuda histórica documentada, sin cambios):
+`block1-ux`, `block3-zones`, `block4-zone-planner`, `block13`, `block14`, `b18-regression`
+(navegación anterior a B18/B19: «^Kioto», `.hub-bar__zones`, `.selection-list__name`…). El
+comportamiento que `block4-zone-planner` medía (zona → días) lo cubren `ZonePlanSection.test.ts`,
+`b27` y `phase5a`/`integración`.
+
+### Gate B27 — cobertura (`scripts/b27-viaje-dias-check.mjs`)
+
+A (apertura en Días, sin «Distribuir por días», una sola línea de encuadre exacta con ✎, cabecera,
+sin cajas de descargo) · D (titular, duración, nº de paradas, pies con/sin alojamiento, enlace a
+Dónde dormir) · S (miniatura 400w real 56×56 lazy, fallback sin foto, conectores, «Traslado sin datos»
+ni rojo ni `?`) · H (InterHub sin/con dato, mismo hub sin fila) · U (cajón, contador, teclado,
+confirmación al rehacer el reparto) · M (añadir/eliminar día conservando ids, «Mover a…» dentro y entre
+días, quitar del recorrido) · R (trío retirado, ninguna semántica de arrastre, acción accesible
+«parada N de M») · K (comparación de órdenes, alternativas verificadas, Reservas, Resumen, fechas
+oficiales, **`Dato:` presente**) · P (V8, mismos campos, refresco) · F (ficha dentro de Viaje, chevron
+«Días», scroll conservado, browser back, instancia única) · L (320/360/390/430/768/840/1200/1440: sin
+overflow, objetivos ≥44, «Añadir día» no tapado por la TabBar, columna «Sin asignar» en lg) · Y (foco y
+anuncio tras mutaciones, Enter/Escape) · E (0/1 días, día largo, muchos sin asignar, sin fechas) · C
+(sin errores de consola ni 4xx/5xx propios).
+
+### Auditoría visual (Chromium real)
+
+Capturas con `NIHON_B27_SHOTS`: 390×844, 768×1024, 1440×900 (Días arriba, día con paradas, dos ciudades,
+Sin asignar abierto, día vacío, ficha desde `TripStop`); layouts 320/360/430/840/1200 medidos por el gate.
+Hallazgos corregidos (todos atribuibles a B27): coma en «lun, 22 feb» (ahora «lun 22 feb», `05 §7`);
+icono `+` para «acciones de parada» (confundía con añadir → icono nuevo `opciones`); `TripBoundsNotice`
+de tres párrafos al abrir (sólo cuando hay fecha de fin o con el panel de fechas abierto); avisos de
+horario/cierre que dominaban cada día (pasan al `<details>` del día, que se abre con un toque);
+el cajón «Sin asignar» abierto no se veía (ahora se trae a la vista al abrirse). Pendiente (P2,
+no bloqueante): el trazo punteado del conector es tenue frente al raíl sólido; B10 (polish) decide.
