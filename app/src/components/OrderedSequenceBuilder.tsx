@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
@@ -431,6 +431,8 @@ function TripStop({
   onOpen,
   onMove,
   onUnassign,
+  onDragStart,
+  dragging,
 }: {
   place: Place;
   position: number;
@@ -440,6 +442,8 @@ function TripStop({
   onOpen?: (id: string) => void;
   onMove: (targetDayIndex: number, targetPosition: number) => void;
   onUnassign: () => void;
+  onDragStart: (event: ReactPointerEvent<HTMLButtonElement>, placeId: string, dayId: string) => void;
+  dragging: boolean;
 }) {
   const [moveOpen, setMoveOpen] = useState(false);
   const [targetDay, setTargetDay] = useState(dayIndex);
@@ -450,7 +454,7 @@ function TripStop({
   const maxPosition = dayPlaceLists[targetDay]?.length ?? 0;
 
   return (
-    <article className="trip-stop" aria-label={`Parada ${position + 1}: ${place.name}`}>
+    <article className={`trip-stop${dragging ? " trip-stop--dragging" : ""}`} aria-label={`Parada ${position + 1}: ${place.name}`}>
       <span className="trip-stop__position" aria-hidden="true">{position + 1}</span>
       <div className="trip-stop__media">
         {src && image ? (
@@ -460,6 +464,10 @@ function TripStop({
         )}
       </div>
       <div className="trip-stop__body">
+        <button type="button" className="trip-stop__handle" data-drag-place-id={place.id}
+          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} onPointerDown={(event) => onDragStart(event, place.id, dayEntities[dayIndex].id)}>
+          <Icon name="arrastrar" size={20} />
+        </button>
         <button type="button" className="trip-stop__open" onClick={() => onOpen?.(place.id)}>
           <strong>{place.name}</strong>
           <span>{place.neighborhood || place.municipality} · {range ? formatRange(range) : place.duration.raw}</span>
@@ -510,6 +518,9 @@ function DayTimeline({
   onOpen,
   onMove,
   onUnassign,
+  onDragStart,
+  dragPlaceId,
+  dropSlot,
 }: {
   places: Place[];
   legs: OrderedSequenceLeg[];
@@ -519,16 +530,22 @@ function DayTimeline({
   onOpen?: (id: string) => void;
   onMove: (placeIndex: number, targetDayIndex: number, targetPosition: number) => void;
   onUnassign: (placeIndex: number) => void;
+  onDragStart: (event: ReactPointerEvent<HTMLButtonElement>, placeId: string, dayId: string) => void;
+  dragPlaceId: string | null;
+  dropSlot: number | null;
 }) {
   return (
     <ol className="day-timeline" aria-label={`Paradas del Día ${dayIndex + 1}`}>
+      {dropSlot === 0 && <li className="day-timeline__drop-indicator" aria-label="Insertar antes de la primera parada" />}
       {places.map((place, index) => (
         <li key={place.id} className="day-timeline__item">
           <TripStop place={place} position={index} dayIndex={dayIndex} dayEntities={dayEntities}
             dayPlaceLists={dayPlaceLists} onOpen={onOpen}
+            onDragStart={onDragStart} dragging={dragPlaceId === place.id}
             onMove={(targetDay, targetPosition) => onMove(index, targetDay, targetPosition)}
             onUnassign={() => onUnassign(index)} />
           {index < legs.length && <LegConnector leg={legs[index]} />}
+          {dropSlot === index + 1 && <div className="day-timeline__drop-indicator" aria-label={`Insertar en posición ${index + 2}`} />}
         </li>
       ))}
     </ol>
@@ -2744,8 +2761,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     transposePlacesWithinDay,
     reverseFourPlacesWithinDay,
     swapTwoPairBlocksWithinDay,
-    movePlaceBetweenDays,
     addPlaceToDay,
+    relocatePlace,
+    insertUnassignedPlace,
     removePlaceFromDay,
     addEmptyDay,
     removeEmptyDay,
@@ -2848,6 +2866,132 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
       dayIds.map((ids) => ids.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place))),
     [dayIds, placeById]
   );
+  type DragPayload = { pointerId: number; placeId: string; fromDayId: string | null; x: number; y: number; active: boolean; days: typeof planningDays };
+  type DropTarget = { dayId: string; slot: number };
+  const dragRef = useRef<DragPayload | null>(null);
+  const dropRef = useRef<DropTarget | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const [dragPlaceId, setDragPlaceId] = useState<string | null>(null);
+  const [dragPointer, setDragPointer] = useState({ x: 0, y: 0 });
+  const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
+  const [dragAnnouncement, setDragAnnouncement] = useState("");
+
+  function stopAutoScroll() {
+    if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
+    scrollFrameRef.current = null;
+  }
+
+  function cancelDrag(announce = true) {
+    const hadActiveDrag = dragRef.current?.active;
+    dragRef.current = null;
+    dropRef.current = null;
+    stopAutoScroll();
+    setDragPlaceId(null);
+    setDropTarget(null);
+    if (announce && hadActiveDrag) setDragAnnouncement("Movimiento cancelado.");
+  }
+
+  function hitTest(x: number, y: number) {
+    const card = document.elementFromPoint(x, y)?.closest<HTMLElement>(".day-card[data-day-id]");
+    const dayId = card?.dataset.dayId;
+    if (!card || !dayId || !planningDays?.some((day) => day.id === dayId)) {
+      dropRef.current = null;
+      setDropTarget(null);
+      return;
+    }
+    const stops = [...card.querySelectorAll<HTMLElement>(".day-timeline__item .trip-stop")];
+    const slot = stops.findIndex((stop) => y < stop.getBoundingClientRect().top + stop.getBoundingClientRect().height / 2);
+    const target = { dayId, slot: slot < 0 ? stops.length : slot };
+    if (dropRef.current?.dayId !== target.dayId || dropRef.current.slot !== target.slot) {
+      dropRef.current = target;
+      setDropTarget(target);
+      const dayIndex = planningDays.findIndex((day) => day.id === dayId);
+      setDragAnnouncement(`Día ${dayIndex + 1}, posición ${target.slot + 1}.`);
+    }
+  }
+
+  function scrollNearEdge() {
+    if (!dragRef.current?.active) { stopAutoScroll(); return; }
+    const body = dialogRef.current?.querySelector<HTMLElement>(".analysis-body");
+    const panel = dialogRef.current?.closest<HTMLElement>(".destination-panel--scroll");
+    const scroller = body && body.scrollHeight > body.clientHeight + 1
+      ? body : panel && panel.scrollHeight > panel.clientHeight + 1 ? panel : null;
+    if (!scroller) { stopAutoScroll(); return; }
+    const rect = scroller.getBoundingClientRect();
+    const { y } = pointerRef.current;
+    const edge = 72;
+    const speed = y < rect.top + edge ? -12 : y > rect.bottom - edge ? 12 : 0;
+    if (speed && y >= rect.top - 24 && y <= rect.bottom + 24) {
+      const before = scroller.scrollTop;
+      scroller.scrollTop += speed;
+      if (scroller.scrollTop === before) { stopAutoScroll(); return; }
+      hitTest(pointerRef.current.x, y);
+      scrollFrameRef.current = requestAnimationFrame(scrollNearEdge);
+    } else stopAutoScroll();
+  }
+
+  function startDrag(event: ReactPointerEvent<HTMLButtonElement>, placeId: string, fromDayId: string | null) {
+    if (event.button !== 0 || !placeById.has(placeId) || dragRef.current) return;
+    if (fromDayId ? !planningDays?.some((day) => day.id === fromDayId && day.placeIds.includes(placeId)) : routeIds.includes(placeId)) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = { pointerId: event.pointerId, placeId, fromDayId, x: event.clientX, y: event.clientY, active: false, days: planningDays };
+    pointerRef.current = { x: event.clientX, y: event.clientY };
+    setDragPointer({ x: event.clientX, y: event.clientY });
+  }
+
+  function moveDrag(event: ReactPointerEvent) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    pointerRef.current = { x: event.clientX, y: event.clientY };
+    setDragPointer(pointerRef.current);
+    if (!drag.active && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
+    if (!drag.active) {
+      drag.active = true;
+      setDragPlaceId(drag.placeId);
+      setDragAnnouncement(`Moviendo ${placeById.get(drag.placeId)?.name ?? "parada"}.`);
+    }
+    event.preventDefault();
+    hitTest(event.clientX, event.clientY);
+    if (scrollFrameRef.current === null) scrollNearEdge();
+  }
+
+  function finishDrag(event: ReactPointerEvent) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const target = dropRef.current;
+    const validSource = drag.days === planningDays && (drag.fromDayId
+      ? planningDays?.some((day) => day.id === drag.fromDayId && day.placeIds.includes(drag.placeId))
+      : !routeIds.includes(drag.placeId) && placeById.has(drag.placeId));
+    const destination = planningDays?.find((day) => day.id === target?.dayId);
+    const valid = drag.active && validSource && target && destination && target.slot >= 0 && target.slot <= destination.placeIds.length;
+    cancelDrag(false);
+    if (!valid || !target) { if (drag.active) setDragAnnouncement("Movimiento cancelado."); return; }
+    if (drag.fromDayId) {
+      const sourceIndex = planningDays?.find((day) => day.id === drag.fromDayId)?.placeIds.indexOf(drag.placeId) ?? -1;
+      if (sourceIndex < 0) return;
+      const finalPosition = drag.fromDayId === target.dayId && target.slot > sourceIndex ? target.slot - 1 : target.slot;
+      relocatePlace(drag.fromDayId, target.dayId, drag.placeId, finalPosition);
+    } else insertUnassignedPlace(drag.placeId, target.dayId, target.slot);
+    setDragAnnouncement(`Parada movida al Día ${planningDays!.findIndex((day) => day.id === target.dayId) + 1}, posición ${target.slot + 1}.`);
+    requestAnimationFrame(() => {
+      const handle = [...document.querySelectorAll<HTMLButtonElement>("[data-drag-place-id]")]
+        .find((element) => element.dataset.dragPlaceId === drag.placeId);
+      handle?.focus({ preventScroll: true });
+    });
+  }
+
+  useEffect(() => {
+    if (dragRef.current && dragRef.current.days !== planningDays) cancelDrag();
+  }, [planningDays]);
+  useEffect(() => {
+    if (view !== "days" && dragRef.current) cancelDrag();
+  }, [view]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape" && dragRef.current) { event.preventDefault(); cancelDrag(); } };
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); stopAutoScroll(); };
+  }, []);
   const dayAssignment = useMemo(() => buildDayAssignment(routeIds, dayIds), [routeIds, dayIds]);
   const interHubRowsByAfterDay = useMemo(() => {
     const rows = new Map<number, ManualInterHubSegment>();
@@ -3272,7 +3416,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
         role={embedded ? undefined : "dialog"}
         aria-modal={embedded ? undefined : true}
         aria-labelledby="sequence-builder-title"
+        onPointerMove={moveDrag}
+        onPointerUp={finishDrag}
+        onPointerCancel={() => cancelDrag()}
+        onLostPointerCapture={() => { if (dragRef.current) cancelDrag(); }}
       >
+        {dragPlaceId && <div className="trip-stop__drag-preview" style={{ left: Math.max(8, Math.min(dragPointer.x + 12, window.innerWidth - 220)), top: Math.max(8, dragPointer.y - 56) }}>
+          Moviendo {placeById.get(dragPlaceId)?.name ?? "parada"}
+        </div>}
         <header className="analysis-header">
           <div>
             {view === "compare" && (
@@ -3549,6 +3700,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
               </details>
 
               <div className="day-list">
+                <span className="visually-hidden" role="status" aria-live="polite">{dragAnnouncement}</span>
                 {dayPlaceLists.map((places, dayIndex) => {
                   const bucket = dayAssignment.days[dayIndex];
                   const daySummary = summarizeSelection(places);
@@ -3578,7 +3730,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                   const interHubRow = interHubRowsByAfterDay.get(dayIndex);
                   return (
                     <Fragment key={dayEntity?.id ?? dayIndex}>
-                    <section className="day-card" data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
+                    <section className={`day-card${dropTarget?.dayId === dayEntity?.id ? " day-card--drop-target" : ""}`} data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
                       <div className="day-card__header">
                         <div>
                           <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}{dayDate ? ` · ${formatCivilDateDisplay(dayDate)}` : ""}{hubLabel ? ` · ${hubLabel}` : ""}</h3>
@@ -3633,7 +3785,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                       </div>
 
                       {isEmpty ? (
-                        <p className="sequence-empty">Sin lugares en este día.</p>
+                        <p className={`sequence-empty${dropTarget?.dayId === dayEntity?.id ? " day-timeline__drop-indicator" : ""}`}>Sin lugares en este día.</p>
                       ) : (
                         <>
                           <DayTimeline
@@ -3643,6 +3795,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             dayEntities={dayEntities}
                             dayPlaceLists={dayPlaceLists}
                             onOpen={onSelectPlace}
+                            onDragStart={startDrag}
+                            dragPlaceId={dragPlaceId}
+                            dropSlot={dropTarget?.dayId === dayEntity?.id ? dropTarget.slot : null}
                             onUnassign={(placeIndex) => {
                               const placeId = dayIds[dayIndex]?.[placeIndex];
                               if (dayEntity && placeId) removePlaceFromDay(placeId, dayEntity.id);
@@ -3650,11 +3805,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             onMove={(placeIndex, targetDayIndex, targetPosition) => {
                               const target = dayEntities[targetDayIndex];
                               if (!dayEntity || !target) return;
-                              if (target.id === dayEntity.id) relocatePlaceWithinDay(dayEntity.id, placeIndex, targetPosition);
-                              else {
-                                movePlaceBetweenDays(dayEntity.id, target.id, placeIndex);
-                                relocatePlaceWithinDay(target.id, dayPlaceLists[targetDayIndex]?.length ?? 0, targetPosition);
-                              }
+                              const placeId = dayIds[dayIndex]?.[placeIndex];
+                              if (placeId) relocatePlace(dayEntity.id, target.id, placeId, targetPosition);
                             }}
                           />
                           <WeekdayClosureNotice signal={weekdaySignal} />
@@ -3770,6 +3922,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                     {removedPlaces.map((place) => (
                       <li key={place.id}>
                         <span>{place.name}</span>
+                        <button type="button" className="trip-stop__handle" data-drag-place-id={place.id}
+                          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} onPointerDown={(event) => startDrag(event, place.id, null)}>
+                          <Icon name="arrastrar" size={20} />
+                        </button>
                         <label>
                           Añadir al día…
                           <select defaultValue="" onChange={(event) => {

@@ -1,5 +1,9 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## ESTADO ACTUAL — B28 / B9.2 en la rama obligatoria
+
+`codex/block-28-b9-2-reorder` parte de `main` @ `47a6f0e1549f273622a112820ace5279455cbd9e`. Añade drag de TripStop por Pointer Events con alternativa completa «Mover a…», mutación inter-día atómica V8 y arrastre desde Sin asignar. Build PASS, lint 0 errores (un warning heredado), Vitest 3430/3430, B28 52/52, B27 A–K y gates históricos B26/B25/B18/B6/Phase 5A/integración/DD-028/DDR03 verdes. Véanse `docs/BLOCK_28_MISSION.md` y `docs/BLOCK_28_HANDOFF.md` para arquitectura, pruebas y límites. B9.3/B9.4/B9.5 siguen diferidos.
+
 ## ESTADO CANÓNICO ACTUAL — B26 (PR #159) integrado a `main` (2026-09-29)
 
 - **PR #159 MERGED** 2026-09-29T21:59:39Z mediante **merge commit** (no squash, no rebase).

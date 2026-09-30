@@ -166,7 +166,6 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-H reference-date relation wiri
     for (const forbidden of [
       "setInterval(",
       "setTimeout(",
-      "requestAnimationFrame(",
       "visibilitychange",
       "addEventListener(\"focus\"",
       "serviceWorker",
@@ -174,6 +173,7 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-H reference-date relation wiri
     ]) {
       expect(source, forbidden).not.toContain(forbidden);
     }
+    expect(withoutComments(extractOfficialNotice(await readSource()))).not.toContain("requestAnimationFrame(");
   });
 
   it("persists no relation, reference date or derived status", async () => {
