@@ -10,23 +10,25 @@
   B5 231/231 · B6 177/177 · B23 28/28 · ddr03 43/43 · smoke Chromium 28/28. Detalle: `docs/BLOCK_26_HANDOFF.md`.
 - **PENDIENTE HUMANO — iPhone Safari real** (export/import, selector de archivos, teclado iOS): no hecho.
 - Gates históricos obsoletos (deuda B10): `block1-ux`, `block13`, `block14`, `b18-regression`, `b24-real-input` P0-2.
-- **Siguiente:** B27 = B9.1 «Días como estructura», rama `claude/b27-viaje-b9-1-dias` desde el HEAD remoto de `main`
-  tras esta documentación. Plan en `docs/BLOCK_26_HANDOFF.md`. No mezclar Astra ni #154.
-## ESTADO ACTUAL — B27 / B9.1 en PR #162 (2026-09-29)
+- **B27 / B9.1 ya integrado** en `main` mediante PR #162. Ver sección canónica B27 y `docs/BLOCK_27_HANDOFF.md`.
+- **Siguiente:** B28 / B9.2 «Reordenar» (drag-and-drop/puntero, conservando la ruta completa por teclado). No mezclar Astra ni #154.
+## ESTADO CANÓNICO ACTUAL — B27 / B9.1 integrado a `main` (2026-09-29)
 
-- Rama: `codex/cerrar-b27/b9.1-en-pr-#161`; rebase sobre `origin/main`
-  `eab63a8af34c8e0474340eba4687766be979933b`, con B26/PR #159 preservado.
-- Conflictos de rebase: `app/src/App.css` se resolvió conservando reglas B26 y B27; en
-  `docs/CURRENT_WORK_HANDOFF.md` se preservó íntegra la sección canónica B26 y se actualizó este bloque B27.
-- Funcionalidad B9.1: días reordenables, TripStop bidireccional con Sin asignar y poda V8, acciones de día,
-  alternativas accesibles, InterHub entre tarjetas y cabecera con fechas.
-- Vitest: **107 archivos, 3426/3426 PASS**. Build PASS; lint 0 errores y 1 warning heredado de PlaceMap.
-- Gates: B26 314/314, B25 123/123, B5 231/231, B6 177/177, B18 15/15 + 38/38 + 6/6 + 25/25,
+- **PR #162 MERGED** mediante merge commit `fa64d868420880ba598e05e61dbe8d213d16430c`.
+- **Padres:** `eab63a8af34c8e0474340eba4687766be979933b` (main previo) +
+  `30549a19df02b352aaf66985357827a568f71510` (HEAD B27 certificado).
+- **Árbol del merge = árbol del HEAD certificado:** `1f235da5b0746c636f278746d40e7bdc2134a01e`.
+- Funcionalidad B9.1 integrada: días reordenables, TripStop bidireccional con Sin asignar y poda V8, acciones de día,
+  alternativas accesibles, InterHub entre tarjetas, cabecera con fechas y PlaceDetail/back dentro de Viaje.
+- Certificación transferida sin cambios de código: **107 archivos, 3426/3426 Vitest PASS**; build PASS; lint 0 errores
+  + 1 warning heredado; B26 314/314, B25 123/123, B5 231/231, B6 177/177, B18 15/15 + 38/38 + 6/6 + 25/25,
   B23 28/28, Phase 5A 50/50 escritorio + 50/50 móvil, integración B24+B23 58/58, DD-028 16/16,
-  DDR03 43/43, DDR-B24-3 9/9 y B27 A–K en 8 viewports. Chromium local: Edge `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`.
-- Handoff B27 y capturas/auditoría: `docs/BLOCK_27_HANDOFF.md`. No se abrió otro PR; `main`, Astra y B9.2 no se modificaron.
-- Deferred: B9.2 drag-and-drop; B9.3 rediseño final de «Probar otro orden»; B9.4 Dónde dormir; B9.5
-  Reservas/Resumen. B28 no iniciado.
+  DDR03 43/43, DDR-B24-3 9/9 y B27 A–K en 8 viewports.
+- Chromium local de certificación: Edge `C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe`
+  (Chromium 153.0.4234.48). Auditoría visual: 320×568, 390×844, 430×932, 820×1180 y 1440×900 sin overflow/solapamientos.
+- Deuda histórica de gates antiguos sigue documentada en B26; no se relajó para B27.
+- **Siguiente canónico: B28 / B9.2 — Reordenar.** Añadir drag-and-drop/puntero sin perder «Mover a…» ni la
+  reordenación completa por teclado. B9.3, B9.4 y B9.5 siguen pendientes. No mezclar Astra ni Vercel.
 
 ## ESTADO CANÓNICO ACTUAL — B25 (PR #157) integrado a `main` (2026-09-29)
 
