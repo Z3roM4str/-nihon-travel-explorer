@@ -50,7 +50,7 @@ describe.skipIf(!baseAvailable)("B31 — lo que B30 protege sigue byte a byte ig
     const added = diff.split("\n").filter((line) => line.startsWith("+") && !line.startsWith("+++"));
     const removed = diff.split("\n").filter((line) => line.startsWith("-") && !line.startsWith("---"));
     expect(removed).toEqual([]);
-    expect(added.map((line) => line.trim())).toEqual(["+onNavigateSection={setViajeSectionTracked}"].map((l) => l));
+    expect(added.map((line) => line.slice(1).trim())).toEqual(["onNavigateSection={setViajeSectionTracked}"]);
   });
 
   it("no crea claves de almacenamiento: ningún fichero nuevo de B31 escribe en storage", () => {
