@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
+import { moveStop, openAllDayTools, openDatesPanel, openReservas } from "./lib/shell-navigation.mjs";
 
 /**
  * Phase 5A — Nihon v1 Release Candidate browser audit.
@@ -266,29 +267,33 @@ try {
     await button.click();
   }
 
-  /** Opens the planner's day-assignment view from any state. Reloading first makes the step
-   * independent of whether a previous journey left the modal open. */
+  /** Opens Viaje › Días from any state (B27: Días es la superficie con la que abre Viaje; ya no hay
+   * «Planificar → Distribuir por días»). Reloading first makes the step independent of whether a
+   * previous journey left something open. */
   async function openPlanner({ fresh = true } = {}) {
     if (fresh) await page.goto(url, { waitUntil: "networkidle" });
     else await closeDetailIfOpen();
-    if ((await plannerDialog().count()) === 0) {
-      // B18 (`02 §D2`, `05 §7`): el planificador dejó de ser un modal abierto desde «Quiero ir»
-      // y es ahora una sección permanente de la pestaña Viaje, renderizada `embedded` (mismo
-      // componente, misma clase `.analysis-dialog`, sin scrim ni `role="dialog"`).
-      await goToDestination("Viaje");
-      await page.getByRole("button", { name: /^Planificar$/ }).first().click();
-      await page.waitForTimeout(400);
-    }
-    const toDays = page.getByRole("button", { name: /Distribuir por días/ });
-    if ((await toDays.count()) > 0) await toDays.first().click();
+    await goToDestination("Viaje");
+    await page.locator(".viaje-nav__item:has-text('Días')").click();
+    await page.locator(".day-timeline").first().waitFor();
+    await openAllDayTools(page);
+    await openDatesPanel(page);
     await page.getByRole("heading", { name: "Día 1" }).waitFor();
   }
 
-  /** Back from the day-assignment view to the ordered-route draft (where removal lives). */
-  async function openRouteView() {
-    await openPlanner();
-    await page.getByRole("button", { name: /Volver al recorrido/ }).first().click();
-    await page.locator(".sequence-list").first().waitFor();
+  /** The text of every planner surface a claim can live on: Días (per-day tools open) and Reservas
+   * (B27 re-hosts the reservation sections there, unchanged). Ends on Días again. */
+  async function plannerText() {
+    await page.locator(".viaje-nav__item:has-text('Días')").click();
+    await openAllDayTools(page);
+    const days = (await plannerDialog().textContent()) ?? "";
+    await openReservas(page);
+    const reservas = (await plannerDialog().textContent()) ?? "";
+    await page.locator(".viaje-nav__item:has-text('Días')").click();
+    await page.locator(".day-timeline").first().waitFor();
+    await openAllDayTools(page);
+    await openDatesPanel(page);
+    return `${days}\n${reservas}`;
   }
 
   /**
@@ -520,8 +525,10 @@ try {
     await page.waitForTimeout(200);
     const draft = await readDraft();
     assert.equal(draft.startDate, TRIP_START, `startDate not persisted: ${draft.startDate}`);
-    const body = await plannerDialog().textContent();
-    assert.ok(/2027/.test(body), "anchored year not surfaced");
+    // B27: la fecha larga («sáb, 20 feb 2027») pasó al control de fecha y al rango de la cabecera; el
+    // titular del día usa la forma corta de `05 §7` («Día 1 · sáb 20 feb · Tokio»).
+    assert.equal(await page.locator("#sequence-start-date").inputValue(), TRIP_START, "date input");
+    assert.match((await page.locator(".dias__range").textContent()) ?? "", /20 feb/, "range header");
     return TRIP_START;
   });
 
@@ -532,24 +539,22 @@ try {
     const expected = (iso) => {
       const [y, m, d] = iso.split("-").map(Number);
       return new Intl.DateTimeFormat("es", {
-        weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC",
-      }).format(new Date(Date.UTC(y, m - 1, d)));
+        weekday: "short", day: "numeric", month: "short", timeZone: "UTC",
+      }).format(new Date(Date.UTC(y, m - 1, d))).replace(/[.,]/g, "");
     };
-    const saturday = await plannerDialog().textContent();
+    const day1 = async () => (await page.locator(".day-timeline__title").first().textContent()) ?? "";
+    const saturday = await day1();
     assert.ok(saturday.includes(expected(TRIP_START)),
-      `Day 1 did not render "${expected(TRIP_START)}" for anchor ${TRIP_START}`);
+      `Day 1 did not render "${expected(TRIP_START)}" for anchor ${TRIP_START}: ${saturday}`);
 
     const nextDay = "2027-02-21";
     await page.locator("#sequence-start-date").fill(nextDay);
     await page.waitForTimeout(250);
-    const sunday = await plannerDialog().textContent();
+    const sunday = await day1();
     assert.ok(sunday.includes(expected(nextDay)),
       `re-anchoring to ${nextDay} did not recompose the weekday to "${expected(nextDay)}"`);
     assert.ok(!sunday.includes(expected(TRIP_START)),
       "the previous anchor's Day 1 label survived a re-anchor");
-
-    await page.locator("#sequence-start-date").fill(TRIP_START);
-    await page.waitForTimeout(250);
     return `${expected(TRIP_START)} -> ${expected(nextDay)} -> ${expected(TRIP_START)}`;
   });
 
@@ -620,12 +625,10 @@ try {
   await step("B01 reorder a place within its day", async () => {
     await openPlanner();
     const before = (await readDraft()).days.map((d) => d.placeIds.join("|")).join(" / ");
-    const down = page
-      .getByRole("button", { name: /Mover .+ hacia abajo en Día \d+/ })
-      .and(page.locator("button:not([disabled])"))
-      .first();
-    assert.ok(await down.count(), "no enabled in-day reorder control");
-    await down.click();
+    // B27: el `↓` por fila pasó a «Mover a…» (día y posición explícitos).
+    const firstStop = page.locator(".day-timeline .trip-stop").first().locator(".trip-stop__name");
+    assert.ok(await firstStop.count(), "no stop to reorder");
+    await moveStop(page, (await firstStop.textContent()) ?? "", 1, 2);
     await page.waitForTimeout(200);
     const after = (await readDraft()).days.map((d) => d.placeIds.join("|")).join(" / ");
     assert.notEqual(after, before, "reorder did not change the draft");
@@ -648,9 +651,9 @@ try {
     const withNewDay = (await readDraft()).days.map((d) => d.id);
     assert.deepEqual(withNewDay.slice(0, before.length), before,
       "adding a day regenerated the existing day IDs");
-    const mover = page.getByRole("button", { name: /Mover .* al día siguiente/ }).first();
-    assert.ok(await mover.count(), "no cross-day move control after adding a second day");
-    await mover.click();
+    const firstName = (await page.locator(".day-timeline .trip-stop__name").first().textContent()) ?? "";
+    assert.ok(firstName, "no stop to move after adding a second day");
+    await moveStop(page, firstName, 2);
     await page.waitForTimeout(250);
     const after = (await readDraft()).days.map((d) => d.id);
     assert.deepEqual(after, withNewDay, "a cross-day move regenerated day IDs");
@@ -674,15 +677,15 @@ try {
    * What matters for release is that nothing stale survives that reset.
    */
   await step("B05 removing a place leaves no stale dependent state", async () => {
-    await openRouteView();
+    await openPlanner();
     const before = await readDraft();
-    const removedName = await page
-      .getByRole("button", { name: /Quitar .+ del recorrido/ })
-      .first()
-      .getAttribute("aria-label");
-    const remove = page.getByRole("button", { name: /Quitar .+ del recorrido/ }).first();
-    assert.ok(await remove.count(), "no removal control in the route view");
-    await remove.click();
+    // B27: el `×` por fila pasó a «Quitar del recorrido» en la hoja de acciones de la parada.
+    const actions = page.locator(".trip-stop__actions").first();
+    const removedName = await actions.getAttribute("aria-label");
+    assert.ok(removedName, "no removal control on a stop");
+    await actions.click();
+    await page.getByRole("button", { name: /Quitar del recorrido/ }).click();
+    await page.locator(".sheet").getByRole("button", { name: "Quitar del recorrido" }).click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
     assert.equal(draft.routeIds.length, before.routeIds.length - 1, "route length did not shrink by one");
@@ -720,7 +723,7 @@ try {
     await openPlanner();
     await page.locator("#sequence-start-date").fill(TRIP_START);
     await page.waitForTimeout(300);
-    const body = await plannerDialog().textContent();
+    const body = await plannerText();
     assert.match(body, /Reservas por preparar|Fechas de reserva/,
       "no reservation surface for a plan containing JP-044");
     return "reservation surface present";
@@ -737,14 +740,14 @@ try {
   });
 
   await step("C03 reservation dates derive from the anchored trip date", async () => {
-    const body = await plannerDialog().textContent();
+    const body = await plannerText();
     assert.ok(/2027/.test(body), "reservation surface does not reference the trip year");
     assert.ok(!/1970|Invalid Date|NaN/.test(body), "reservation surface leaked an invalid date");
     return "derived from 2027 anchor";
   });
 
   await step("C04 purchase/residence context is not invented", async () => {
-    const body = await plannerDialog().textContent();
+    const body = await plannerText();
     for (const forbidden of [/aplica para ti/i, /eres residente/i, /puedes comprar/i, /recomendamos/i]) {
       assert.ok(!forbidden.test(body), `reservation copy made a personal claim: ${forbidden}`);
     }
@@ -755,7 +758,7 @@ try {
    * that a place is open or closed on a given date. The product's own vocabulary is hedged
    * ("Posibles coincidencias…", "…; revisar"); this asserts no unhedged claim has crept in. */
   await step("C05 hours and closure signals do not overclaim open/closed status", async () => {
-    const body = await plannerDialog().textContent();
+    const body = await plannerText();
     const overclaims = [
       /\bestar[áa] abierto\b/i,
       /\bestar[áa] cerrado\b/i,

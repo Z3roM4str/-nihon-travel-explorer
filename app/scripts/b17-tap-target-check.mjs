@@ -476,39 +476,35 @@ async function main() {
     await selectionToggle.click();
     await page.waitForTimeout(300);
   }
-  const buildButton = page.locator("button:has-text('Construir recorrido')");
-  if (await buildButton.isVisible().catch(() => false)) {
-    await buildButton.click();
-    await page.waitForTimeout(400);
-    const small = page.locator(".icon-button--small").first();
+  // B27 (B9.1): Viaje abre en Días. El paso «Construir recorrido → Distribuir por días» que este
+  // bloque recorría ya no existe (y desde B18 la medición se saltaba en silencio). Ahora se mide de
+  // verdad lo que sigue siendo una fila densa de controles pequeños: las acciones de cabecera de día
+  // (subir, bajar, eliminar) y la acción única de cada `TripStop`.
+  await goTo("Viaje");
+  await page.locator(".viaje-nav__item:has-text('Días')").click();
+  await page.waitForTimeout(400);
+  if (await page.locator(".day-timeline").first().isVisible().catch(() => false)) {
+    const small = page.locator(".day-card__header-actions .icon-button--small").first();
     if (await small.count()) {
-      record("OrderedSequenceBuilder .icon-button--small (first)", await effectiveHitBox(small));
+      record("Viaje › Días .icon-button--small (first)", await effectiveHitBox(small));
     }
-
     await checkDenseRow(
       page,
-      ".sequence-item__controls",
+      ".day-card__header-actions",
       ".icon-button--small",
-      "OrderedSequenceBuilder .sequence-item__controls (dense row)",
+      "Viaje › Días .day-card__header-actions (dense row)",
       results
     );
-    // `.day-card__header-actions` only renders in the "Distribuir por días" view, a second
-    // view of the same route reached from the builder toolbar.
-    const daysButton = page.locator("button:has-text('Distribuir por días')");
-    if (await daysButton.isVisible().catch(() => false)) {
-      await daysButton.click();
-      await page.waitForTimeout(300);
-      await checkDenseRow(
-        page,
-        ".day-card__header-actions",
-        ".icon-button--small",
-        "OrderedSequenceBuilder .day-card__header-actions (dense row)",
-        results
-      );
+    const stopActions = page.locator(".trip-stop__actions").first();
+    if (await stopActions.count()) {
+      record("Viaje › Días .trip-stop__actions (first)", await effectiveHitBox(stopActions));
     } else {
-      results.push({ label: "OrderedSequenceBuilder .day-card__header-actions reachable", ok: false });
-      console.log("FAIL OrderedSequenceBuilder .day-card__header-actions reachable: 'Distribuir por días' button not found");
+      results.push({ label: "Viaje › Días .trip-stop__actions reachable", ok: false });
+      console.log("FAIL Viaje › Días .trip-stop__actions reachable: no TripStop with an actions control");
     }
+  } else {
+    results.push({ label: "Viaje › Días reachable", ok: false });
+    console.log("FAIL Viaje › Días reachable: no DayTimeline");
   }
 
   await browser.close();

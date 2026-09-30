@@ -59,7 +59,7 @@ Componentes nuevos (presentación pura, sin estado de planificación):
 | `components/UnassignedDrawer.tsx` | «N sitios sin día»: asa (`button aria-expanded`) o columna en `lg` |
 | `components/StopActionsSheet.tsx` | «Mover a…» + «Quitar del recorrido» (usa `Sheet`) |
 | `lib/day-timeline-presentation.ts` | titulares, ciudad, «Dormís en…», rango, contador |
-| `data/place-images.ts` | `thumbImageUrl` (`-400w`, ya generado y validado por el pipeline) |
+| `data/place-thumbnails.ts` | `thumbImageUrl` (`-400w`, ya generado y validado por el pipeline). Módulo propio: `data/place-images.ts` es un fichero de catálogo guardado (el gate de integración B24+B23 exige que sea idéntico a B24 final) y B27 no lo toca |
 
 Lógica y sub-secciones por día siguen **dentro** de `OrderedSequenceBuilder.tsx` (los ~190 tests de
 fuente por texto los recorren): sólo se extrajo presentación. Nada de cálculo se movió.

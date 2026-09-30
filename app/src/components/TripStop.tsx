@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { Place } from "../types";
-import { resolvePlaceImages, thumbImageUrl, THUMB_IMAGE_WIDTH } from "../data/place-images";
+import { resolvePlaceImages } from "../data/place-images";
+import { thumbImageUrl, THUMB_IMAGE_WIDTH } from "../data/place-thumbnails";
 import { categoryPresentation } from "../lib/category-presentation";
 import { formatRange, resolveDuration } from "../lib/duration";
 import { Icon } from "../icons/Icon";

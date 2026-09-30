@@ -77,7 +77,7 @@ describe("B27 — el esquema y la clave de planificación no cambian", () => {
     const protectedPaths = [
       /^app\/src\/lib\/(?!day-timeline-presentation)/,
       /^app\/src\/usePlanningDraft\.ts$/,
-      /^app\/src\/data\/(?!place-images\.ts$)/,
+      /^app\/src\/data\/(?!place-thumbnails\.ts$)/,
       /^data\//,
     ];
     const touched = files.filter(
@@ -86,11 +86,12 @@ describe("B27 — el esquema y la clave de planificación no cambian", () => {
     expect(touched).toEqual([]);
   });
 
-  it("del catálogo de imágenes sólo se añadió thumbImageUrl; cardImageUrl/resolvePlaceImages siguen igual", async () => {
-    const source = await readFile(new URL("./data/place-images.ts", import.meta.url), "utf8");
-    expect(source).toContain("export const CARD_IMAGE_WIDTH = 800;");
-    expect(source).toContain("export function cardImageUrl(url: string): string | null {");
-    expect(source).toContain("export function thumbImageUrl(url: string): string | null {");
+  it("el catálogo de imágenes no se toca: thumbImageUrl vive en su propio módulo", async () => {
+    const catalogue = await readFile(new URL("./data/place-images.ts", import.meta.url), "utf8");
+    expect(catalogue).not.toContain("thumbImageUrl");
+    expect(catalogue).toContain("export const CARD_IMAGE_WIDTH = 800;");
+    const thumbs = await readFile(new URL("./data/place-thumbnails.ts", import.meta.url), "utf8");
+    expect(thumbs).toContain("export function thumbImageUrl(url: string): string | null {");
   });
 });
 

@@ -372,7 +372,9 @@ async function auditViewport(browser, name, url) {
   await page.getByRole("button", { name: /Llevar al viaje/ }).click();
   await page.waitForTimeout(900);
   check("the planner opened", (await page.locator("#sequence-builder-title:visible").count()) === 1);
-  await page.getByRole("button", { name: /Distribuir por días/ }).click();
+  // B27 (B9.1): Viaje abre directamente en Días — ya no hay paso «Distribuir por días»; el primer
+  // reparto (un solo día con el recorrido tal cual) lo crea la propia apertura de Días.
+  await page.locator(".day-timeline").first().waitFor();
   await page.waitForTimeout(700);
   let draft = await readJson(page, DRAFT_KEY);
   const plannedIds = (draft?.days ?? []).flatMap((day) => day.placeIds);

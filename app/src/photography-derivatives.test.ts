@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { CARD_IMAGE_WIDTH, cardImageUrl, thumbImageUrl } from "./data/place-images";
+import { CARD_IMAGE_WIDTH, cardImageUrl } from "./data/place-images";
+import { thumbImageUrl } from "./data/place-thumbnails";
 import registry from "./data/photography-metadata.json";
 
 /**
