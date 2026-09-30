@@ -1,5 +1,17 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## B29 / B9.3 «Herramientas del día» — rama `claude/b29-viaje-b9-3-herramientas-dia` (PR en borrador, base B28 Claude)
+
+- **Línea Claude.** Nace de `dd5fee06e3c0b4bdaa7c03512466b0f967e02eb2` (HEAD de `claude/b28-viaje-b9-2-reordenar`),
+  **no** de `main`. PR en borrador: base `claude/b28-viaje-b9-2-reordenar` ← head
+  `claude/b29-viaje-b9-3-herramientas-dia`. Sin código Codex, sin Astra, sin `main` posterior, sin Vercel.
+- «Probar otro orden» pasa de vista global («Orden A / Orden B») a **hoja local a un día** (`DayOrderSheet`):
+  orden actual, «Otro orden» editable (copia del actual), comparación con `sequence-comparison.ts`, y las
+  alternativas `evidence-complete-*` del día como opciones «Comprobado con datos completos» que sólo se
+  cargan. **Sólo «Usar este orden» escribe** (replica `movePlaceToPosition` de B28). Cero cambios en `lib/`,
+  hook, esquema V8 o clave. Detalle, resultados y deuda: `docs/BLOCK_29_HANDOFF.md`.
+- Gate nuevo: `app/scripts/b29-day-tools-check.mjs` (40 comprobaciones). No se empieza B9.4.
+
 ## B28 / B9.2 «Reordenar» — rama `claude/b28-viaje-b9-2-reordenar` (PR apilado en borrador, base B27 Claude)
 
 - **Línea Claude.** Nace de `b351469` (HEAD de `claude/b27-viaje-b9-1-dias`, PR #163), **no** de `main`.

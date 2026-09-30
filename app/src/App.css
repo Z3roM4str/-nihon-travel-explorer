@@ -7659,9 +7659,20 @@ body.is-reordering {
   background: var(--surface-sunken);
 }
 
+.day-order__block .sequence-item__row {
+  flex-wrap: nowrap;
+}
+
 .day-order__block .sequence-list--compact .sequence-item__name {
+  flex: 1 1 0;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+/* The headline of the comparison is a sentence, not a title: same size as the body so the
+   section heading above it stays the top of the hierarchy. */
+.day-order__comparison .comparison-result__headline {
+  font-size: var(--type-body-s-size);
 }
 
 .day-order__actions {
@@ -7671,8 +7682,8 @@ body.is-reordering {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) 0;
-  margin-bottom: calc(var(--space-6) * -1);
+  padding: var(--space-3) var(--space-4);
+  margin: 0 calc(var(--space-4) * -1) calc(var(--space-6) * -1);
   background: var(--surface);
   border-top: 1px solid var(--line);
 }
