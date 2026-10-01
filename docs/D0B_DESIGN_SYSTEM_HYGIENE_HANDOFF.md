@@ -78,3 +78,23 @@ Migradas: 0. El gate fija 10 `@media … max-width` (deuda registrada) y prohíb
 
 - A 320px el panel de «Dónde dormir» desborda 1–2px; idéntico en la base. Registrado como excepción en el gate; no corregido.
 - oxlint: 1 warning heredado (`PlaceMap.tsx`, only-export-components).
+
+## Resultados
+
+- `tsc -b` limpio · `oxlint` 0 errores (1 warning heredado) · Vitest 3533/3533 (119 archivos).
+- Gate D0b (Chromium): 56/56, también con `prefers-reduced-motion: reduce` (D0b no añade animación).
+- Regresión en Chromium sobre la build de la rama: B27 48/48 · B28 43/43 · B29 36/36 · B30 48/48 · B31 26/26 (también en reduced-motion) ·
+  block20 73/73 · phase5a 50/50 · b17 responsive y tap-target 26/26 · b18 responsive, chrome 6/6, a11y 25/25 · block19 grid 52/52 y contraste.
+- Fallos exclusivos de D0b: ninguno. Heredado: el desborde de 1–2px a 320px en «Dónde dormir» (idéntico en la base).
+- Invariantes B27–B31: sin cambios en `lib/`, hooks, V8 o clave; los gates de escrituras de B27–B31 pasan.
+
+## Límites
+
+- **WebKit: no instalado en este entorno; no ejecutado.**
+- **iPhone Safari físico: NO medido.**
+- Auditoría visual: sólo medida por los gates (overflow, tap targets, contraste, tamaños computados) en los 8 anchos;
+  no se revisaron capturas una a una, así que un cambio visual sutil por la sustitución de tokens (valores idénticos) no está confirmado a ojo.
+
+## Pendientes de decisión (para el siguiente bloque)
+
+D0b-01 literales sin token · D0b-02 `viewport-fit=cover` + reglas laterales/superiores · D0b-03 EvidenceMark 11px (falta token) · deuda de media queries C.
