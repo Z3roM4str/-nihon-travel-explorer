@@ -1,15 +1,16 @@
 # Handoff reanudable — B30 / B9.4 «Dónde dormir»
 
-## Estado vigente — B30 / B9.4 (2026-09-30)
+## Estado vigente — B30 / B9.4 CERRADO E INTEGRADO EN MAIN (2026-09-30)
 
-- B29 / B9.3 continúa **integrado y cerrado** mediante el PR canónico #167. Su implementación paralela #166 se cerró como supersedida, sin fusionar ni borrar su rama.
-- Base de B30: `main` @ `a7b916be005f002e46c67442968379f72d3b480d` (confirmada por API de GitHub antes de publicar; el fetch local falló al conectar con el proxy).
-- Rama local: `codex/block-30-b9-4-donde-dormir`. Commit de implementación local: `041a0e7cd3bd6d300c881304757eeaad39b27220`; HEAD documental previo a esta actualización: `88d3699a95eca2efc2d702cfa83599025f40d650`.
-- B30 rediseña `Viaje › Dónde dormir`: usa los `routeIds` V8 del hub activo, conserva orden de catálogo sin ranking, separa hechos/cálculos/opinión y ofrece fallback accesible porque no hay fotografías de zona licenciadas. Es read-only al abrir y comparar; una selección explícita de «Dormir aquí» conserva la mutación V8 existente.
-- Certificación local: build PASS; lint exit 0 (warning heredado de `PlaceMap.tsx:17`); Vitest 114 archivos/3465 PASS; B30 360/360; B29 163/163; B28 64/64; B27 A–K en 8 viewports; B26 314/314; invariantes dirigidas 342/342. Comparación B25 repetida en condiciones equivalentes: base y B30, ambos 122/123 por el mismo único `C-CLEAN` con `ERR_CERT_AUTHORITY_INVALID` externo; B30 no introduce esa regresión. Hubo una ejecución anterior B30 de 121/123, consistente con variación externa en viewport/cantidad. B18 back 15/15 funcional, con errores de certificado externos registrados. Detalle: `docs/BLOCK_30_HANDOFF.md`.
-- Capturas finales durante esta sesión: `/tmp/b30-final-shots/`; mapa base sin teselas por bloqueo del proveedor OSM en este runner.
-- **Publicación pendiente:** `git push` normal no pudo autenticarse. La autorización actual permite usar el conector de GitHub para publicar el árbol certificado y abrir el PR Draft. No hubo merge ni deployment.
-- B9.5, B10, Astra y Vercel no iniciados ni modificados. No hubo deployment ni merge.
+- PR #169: implementación B30; #171: hotfix CSS de invariantes; #172: corrección de race del gate WebKit. Los tres están integrados.
+- Main certificado tras #172: `a21920bcef2478ba1e5c0367e118a997f20acc31`, merge commit con segundo padre `43ca260056912843c7246cb700bbf5e8644d3d40`; tree `78ba86c69c3f53af38e20067e565ff408199d9c9` idéntico al certificado previamente.
+- Build y lint PASS; Vitest 3465/3465; invariantes 231/231; B30 Chromium **2/2** y WebKit **2/2**, 475/475 cada ejecución, incluida reapertura 320x568 sin serialización y reduced motion.
+- B29 163/163 (B28 anidado 64/64); B27 A–K en 8 viewports; B26 314/314; B18 back 15/15; diff check PASS. B28 aislado: tres fallos conocidos de auto-scroll, luego 64/64 sin cambios; comparación pre-merge 64/64 y producto/gate B28 idénticos. No se observó regresión nueva determinista. Antecedentes B26 de foco no reaparecieron.
+- La race era del gate: medía antes de acabar los efectos de montaje/reconciliación de Días. #172 espera sus dos escrituras V8, conservando las aserciones. Nunca fue necesario modificar producto para corregir WebKit. Producto certificado en ambos motores.
+- Deuda: fotografías reales de zona; Safari físico/iPhone; recursos externos/OSM. B25 conserva el antecedente externo 122/123, no se declara verde.
+- #168 permanece abierto, Draft e intacto en `1444e67805c60cf9a33f4be5c1a3808b900e505b`.
+- **B31 / B9.5 NO fue iniciado.** Sin cambios en `claude/*`, Astra, Vercel/deploy, fotografías ni OSM/recursos externos.
+- Evidencia completa y datos de integración: [BLOCK_30_MAIN_CERTIFICATION.md](BLOCK_30_MAIN_CERTIFICATION.md). Este cierre sustituye estados históricos de publicación pendiente; el commit de cierre contiene sólo documentación.
 
 ## Registro histórico — cierre de B29 / B9.3
 

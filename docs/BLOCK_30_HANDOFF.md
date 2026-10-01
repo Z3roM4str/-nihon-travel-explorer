@@ -2,7 +2,13 @@
 
 La auditoría cruzada final de PR #169 y las decisiones frente a #168 se registran en [BLOCK_30_FINAL_CROSS_AUDIT.md](BLOCK_30_FINAL_CROSS_AUDIT.md). Ese informe y los SHA remotos de la descripción de #169 sustituyen el estado de publicación pendiente de este handoff histórico.
 
-## Estado de la rama
+## Cierre vigente
+
+**B30 / B9.4 CERRADO E INTEGRADO EN MAIN** mediante #169, #171 y #172. Main certificado: `a21920bcef2478ba1e5c0367e118a997f20acc31`; B30 Chromium 2/2 y WebKit 2/2, 475/475 por ejecución. Véase [certificación final de main](BLOCK_30_MAIN_CERTIFICATION.md) para SHA, race, pruebas, flakiness y deuda. B31 / B9.5 NO fue iniciado.
+
+Lo que sigue conserva la evidencia histórica de implementación; sus estados de publicación pendiente y cifras anteriores quedan sustituidos por el cierre vigente.
+
+## Estado histórico de la rama
 
 - Base certificada al iniciar: `main` y `origin/main` en `a7b916be005f002e46c67442968379f72d3b480d`.
 - Rama: `codex/block-30-b9-4-donde-dormir`.
