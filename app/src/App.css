@@ -1926,6 +1926,17 @@ button.app__title.app__title--expand {
   z-index: 2;
 }
 
+/* 03 §7: el botón ⓘ se pinta del tamaño de `--info-button-size`; el área real llega a `--tap-min`. */
+.gallery__credits::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, var(--tap-min));
+  height: max(100%, var(--tap-min));
+}
+
 /* `04 §6`: «Puntos sólo cuando hay ≤5 imágenes, centrados abajo». */
 .gallery__dots {
   position: absolute;
@@ -3180,7 +3191,7 @@ button.app__title.app__title--expand {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: 2.4rem;
+  min-height: var(--tap-min); /* 03 §7 */
   padding: 0.45rem 0.7rem;
   cursor: pointer;
   font-weight: 600;
@@ -4567,6 +4578,7 @@ button.app__title.app__title--expand {
 
 .calendar-anchor__clear {
   font-size: 0.8rem;
+  min-height: var(--tap-min); /* 03 §7 */
 }
 
 /* Phase 3D-W — trip bounds. Three deliberately equal-weight facts (the chosen range, the buckets
@@ -4749,6 +4761,7 @@ button.app__title.app__title--expand {
 
 .recorded-interval-fit__input {
   max-width: 100%;
+  min-height: var(--tap-min); /* 03 §7 */
   padding: 0.35rem 0.45rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
