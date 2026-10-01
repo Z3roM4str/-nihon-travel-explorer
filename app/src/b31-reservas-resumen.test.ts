@@ -256,6 +256,8 @@ describe("B31 — Resumen: cuatro tarjetas y destinos (DDR-B31-07)", () => {
       expect(code, file).not.toMatch(/tramo|posiciones de movimiento|modelad/i);
       expect(code, file).not.toMatch(FORBIDDEN_LEXICON);
     }
+    // Art. 7: «cobertura» (vocabulario de repositorio) fuera de las tarjetas nuevas.
+    expect(strip(await read("./components/TripSummaryCards.tsx"))).not.toMatch(/cobertura/i);
   });
 });
 

@@ -93,7 +93,7 @@ export function TripSummaryCards({ composition, onNavigate }: Props) {
           No cuantificados: {composition.visit.nonQuantifiedPlaceCount}; compromisos de escala día: {composition.visit.dayScaleCommitmentCount}; sin clasificación: {composition.visit.unclassifiedPlaceCount}.
         </p>
         {!composition.visit.completeNumericCoverage && (
-          <p className="trip-summary-card__incomplete">La cobertura numérica de visitas está incompleta.</p>
+          <p className="trip-summary-card__incomplete">Faltan duraciones numéricas: el tiempo de visita está incompleto.</p>
         )}
         {link("visitas")}
       </article>
@@ -123,7 +123,7 @@ export function TripSummaryCards({ composition, onNavigate }: Props) {
         <p>Traslados entre lugares contemplados en este resumen: {composition.movement.modeledAdjacencyCount}.</p>
         {missingMovementCount > 0 ? (
           <p className="trip-summary-card__incomplete">
-            Cobertura incompleta: faltan {composition.movement.localMissingCount} traslado(s) local(es) y {composition.movement.interHubMissingCount} traslado(s) entre ciudades.
+            Incompleto: faltan {composition.movement.localMissingCount} traslado(s) local(es) y {composition.movement.interHubMissingCount} traslado(s) entre ciudades.
           </p>
         ) : composition.movement.adjacencyCoverageComplete && composition.movement.modeledAdjacencyCount > 0 ? (
           <p>Todos los traslados entre lugares que este resumen contempla tienen tiempo registrado.</p>

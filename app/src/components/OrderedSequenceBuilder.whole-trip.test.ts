@@ -68,7 +68,7 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
     expect(block).toContain("Traslado registrado:");
     expect(block).toContain("locales faltantes:");
     expect(block).toContain("Entre ciudades activos:");
-    expect(block).toContain("Cobertura incompleta:");
+    expect(block).toContain("Incompleto: faltan");
     expect(block).toContain("composition.movement.modeledAdjacencyCount > 0");
     expect(block).toContain("Todos los traslados entre lugares que este resumen contempla tienen tiempo registrado.");
   });
