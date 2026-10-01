@@ -220,10 +220,9 @@ describe("Bloque 18 — corrección final: Sheet (420px) y ficha de lugar (480px
   });
 
   it("Sheet en md+ consume --sheet-panel-width, no --place-detail-panel-width", async () => {
-    const css = await read("App.css");
+    const css = await read("components/Sheet.css");
     const sheetMdBlock = css.slice(
-      css.indexOf("@media (min-width: 840px) {\n  .sheet-scrim"),
-      css.indexOf("/* ---------- Destinos: contenedor común")
+      css.indexOf("@media (min-width: 840px) {\n  .sheet-scrim")
     );
     expect(sheetMdBlock).toMatch(/\.sheet\s*{[^}]*width:\s*min\(var\(--sheet-panel-width\)/);
   });
