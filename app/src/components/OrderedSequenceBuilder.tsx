@@ -45,12 +45,6 @@ import {
   type TripBoundsAssessment,
   type TripBoundsSummary,
 } from "../lib/trip-bounds";
-import {
-  buildReservationPreparationSummary,
-  type ReservationPreparationSummary,
-} from "../lib/reservation-planning";
-import type { LeadTimeMagnitude } from "../lib/reservation-lead-time";
-import type { ReservationCategory } from "../lib/reservation";
 import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
 import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
 import {
@@ -86,7 +80,6 @@ import {
   type RouteWideOfficialReservationCalendar,
 } from "../lib/reservation-mechanism-calendar";
 import { OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE } from "../lib/reservation-mechanism-calendar-presentation";
-import { describeFebMarStatusForUi, interpretPlaceFebMarStatus, type FebMarStatusTone } from "../lib/feb-mar-status";
 import {
   buildDayRecordedIntervalFits,
   type RecordedIntervalDurationFit,
@@ -128,6 +121,9 @@ import { usePlanningDraft } from "../usePlanningDraft";
 import { CARD_IMAGE_WIDTH, cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { PhotoPlaceholder } from "./PhotoPlaceholder";
 import { EvidenceMark } from "./EvidenceMark";
+import { TripReservations } from "./TripReservations";
+import { TripTimeline } from "./TripTimeline";
+import { buildTripReservationRows } from "../lib/trip-reservation-presentation";
 import { DayOrderToolPanel, type DayOrderEvidenceAlternative, type DayOrderEvidenceOption } from "./DayOrderToolPanel";
 import { SequenceCandidateSummary as CandidateSummary } from "./SequenceCandidateSummary";
 import { hasSamePlaceOrder, isPlaceOrderPermutation } from "../lib/day-order-tool";
@@ -144,6 +140,8 @@ type Props = {
   embedded?: boolean;
   /** Opens the one shared PlaceDetail in the current Viaje navigation stack. */
   onSelectPlace?: (id: string) => void;
+  section?: "dias" | "reservas" | "resumen";
+  onSectionChange?: (section: "dias" | "dormir") => void;
 };
 
 type DayOrderSession = {
@@ -853,7 +851,7 @@ function RecordedIntervalFitSection({
               onChange={(event) => onVisitStartTimeChange(placeId, event.target.value || null)}
             />
             <p className="recorded-interval-fit__result">{recordedIntervalFitText(fit)}</p>
-            <p className="recorded-interval-fit__raw">Dato: «{hours.raw}»</p>
+            <p className="recorded-interval-fit__raw"><EvidenceMark level="registrado" /> «{hours.raw}»</p>
           </div>
         );
       })}
@@ -868,32 +866,9 @@ function RecordedIntervalFitSection({
   );
 }
 
-/**
- * Phase 3D-H's one UI surface. Rendered per day, next to `WeekdayClosureNotice`. Renders nothing
- * when no place in this day bucket has both a valid visit date (design §5's stricter contract,
- * via `deriveVisitDateForPlace`) and an eligible Class A signal (`derivePlaceReservationDateWindow`)
- * — a place with an inapplicable/non-computable lead time, or no visit date yet, is simply absent
- * from this list; the existing "Reservas por preparar" section above already shows its coarse
- * signal, and this component never repeats or replaces that.
- *
- * **Full non-`confirmed` Feb–Mar composition (design §6.2 Rule 2, §12.1 row 3 — corrective audit
- * finding MAJOR-1).** `describeFebMarStatusForUi`'s three-value `tone` is reused as-is — never a
- * second classifier, never category-specific wording — and every non-`confirmed` tone renders its
- * own status callout FIRST, above the derived range, so it always reads before it and is never
- * hidden, replaced, or visually outranked by it:
- *  - `tone === "pending"` (tier `unknown`) → the existing reconfirmation callout: the calendar/
- *    condition for the user's dates is not yet confirmed at all.
- *  - `tone === "attention"` (tiers `partial`/`opaque`) → a neutral caveat callout, using
- *    `describeFebMarStatusForUi(...).label` (e.g. "Requiere atención") rather than inventing
- *    category-specific copy, telling the reader the recorded Feb–Mar status carries a condition
- *    worth reviewing before treating the range as planning guidance.
- *  - `tone === "confirmed"` → no extra callout; the range renders normally.
- * The underlying range is still shown in full in every case — Feb–Mar confidence never suppresses
- * the domain computation (Rule 3), it only changes how the result is composed for the reader.
- *
- * Wording is deliberately conservative throughout — "ventana de anticipación registrada," never a
- * booking deadline or an availability claim; see this file's own forbidden-phrase test coverage.
- * The recorded raw text is always shown alongside, exactly like `ReservationPreparationSection`.
+/** B31 retains the existing editorial date derivation and reference relation. February–March
+ * confidence and recorded literals now live once per row in TripReservations, beside this
+ * window and the separate official mechanism surface. Neither evidence domain overrides the other.
  */
 function ReservationDeadlineNotice({
   places,
@@ -909,8 +884,6 @@ function ReservationDeadlineNotice({
   type DeadlineItem = {
     place: Place;
     window: Extract<ReservationDateWindow, { kind: "derived-window" }>;
-    febMarTone: FebMarStatusTone;
-    febMarLabel: string;
     relation: ReservationWindowReferenceRelation | null;
   };
 
@@ -919,13 +892,10 @@ function ReservationDeadlineNotice({
     const visitDate = deriveVisitDateForPlace(dayAssignment, startDate, place.id);
     const window = derivePlaceReservationDateWindow(place, visitDate);
     if (window.kind !== "derived-window") continue;
-    const febMarDisplay = describeFebMarStatusForUi(interpretPlaceFebMarStatus(place));
     const relation = referenceDate ? evaluateReservationWindowReference(window, referenceDate) : null;
     items.push({
       place,
       window,
-      febMarTone: febMarDisplay.tone,
-      febMarLabel: febMarDisplay.label,
       relation,
     });
   }
@@ -934,23 +904,11 @@ function ReservationDeadlineNotice({
 
   return (
     <section className="reservation-deadline" aria-label="Ventana de anticipación registrada">
-      {items.map(({ place, window, febMarTone, febMarLabel, relation }) => (
+      {items.map(({ place, window, relation }) => (
         <div key={place.id} className="reservation-deadline__item">
           <span className="reservation-deadline__name">{place.name}</span>
-          {febMarTone === "pending" && (
-            <p className="reservation-deadline__status-callout reservation-deadline__status-callout--pending">
-              <span aria-hidden="true">ⓘ</span> Calendario/condición para tus fechas todavía pendiente de
-              confirmar. Reconfirma en la fuente oficial al fijar fechas.
-            </p>
-          )}
-          {febMarTone === "attention" && (
-            <p className="reservation-deadline__status-callout reservation-deadline__status-callout--attention">
-              <Icon name="aviso" size={16} /> Estado Feb–Mar 2027: {febMarLabel}. El calendario/condición
-              registrado para este lugar tiene una salvedad que conviene revisar antes de tomar esta ventana
-              como referencia de planificación.
-            </p>
-          )}
           <span className="reservation-deadline__window">
+            <EvidenceMark level="estimado" />
             Ventana de anticipación registrada: {formatCivilDateDisplay(window.farAdvanceDate)} –{" "}
             {formatCivilDateDisplay(window.nearAdvanceDate)}
           </span>
@@ -964,19 +922,10 @@ function ReservationDeadlineNotice({
               </span>
             </>
           )}
-          <span className="reservation-deadline__raw">Dato: «{window.signal.raw}»</span>
+          <span className="reservation-deadline__raw"><EvidenceMark level="registrado" /> «{window.signal.raw}»</span>
         </div>
       ))}
-      <p className="reservation-deadline__disclaimer">
-        Esta ventana proyecta la anticipación registrada en el dato original sobre la fecha asignada a
-        cada lugar.{" "}
-        <strong>
-          No confirma disponibilidad ni indica cuándo puedes reservar; reservar antes o después de estas
-          fechas también puede ser posible.
-        </strong>{" "}
-        La fecha de referencia mostrada se captura del calendario local de tu dispositivo al abrir este plan;
-        no representa la fecha operativa en Japón y no se actualiza automáticamente mientras esta vista siga abierta.
-      </p>
+
     </section>
   );
 }
@@ -1052,7 +1001,7 @@ function OfficialReservationDateNotice({
           <article key={presentation.recordId} className="official-reservation-date__item">
             <span className="official-reservation-date__name">{place.name}</span>
             <span className="official-reservation-date__scope">{presentation.scopeLabel}</span>
-            <p className="official-reservation-date__fact-heading">{presentation.heading}</p>
+            <p className="official-reservation-date__fact-heading"><EvidenceMark level="estimado" /> {presentation.heading}</p>
             {presentation.detailLines.map((line, index) => (
               <p
                 key={`${presentation.recordId}:detail:${index}`}
@@ -1091,18 +1040,7 @@ function OfficialReservationDateNotice({
           </article>
         ))}
       </div>
-      <p className="official-reservation-date__disclaimer">
-        Estas fechas son hechos de calendario derivados del registro oficial para la fecha de visita
-        asignada. Cuando se muestra, la relación con la fecha de referencia compara únicamente fechas
-        de calendario: no considera la hora registrada ni la zona horaria de la fuente, y no indica el
-        estado actual de la venta. La fecha de referencia se toma del calendario local de tu
-        dispositivo al abrir este plan, no representa la fecha operativa en Japón y no se actualiza
-        automáticamente mientras esta vista siga abierta.{" "}
-        <strong>
-          Esta información oficial se muestra por separado de la anticipación editorial registrada;
-          Nihon no combina ambas fuentes.
-        </strong>
-      </p>
+
     </section>
   );
 }
@@ -1142,7 +1080,7 @@ function OfficialReservationCalendarSection({
       className="official-reservation-calendar"
       aria-labelledby="official-reservation-calendar-heading"
     >
-      <h3 id="official-reservation-calendar-heading">Fechas oficiales de reserva del recorrido</h3>
+      <h3 id="official-reservation-calendar-heading">Fechas oficiales de reserva del viaje</h3>
       {referenceDateText && (
         <p className="official-reservation-calendar__reference-date">
           {referenceDateText} · Esta misma fecha de referencia se usa en todas las relaciones de esta
@@ -1156,6 +1094,7 @@ function OfficialReservationCalendarSection({
             className="official-reservation-calendar__item"
           >
             <span className="official-reservation-calendar__anchor">
+              <EvidenceMark level="estimado" />
               {formatCivilDateDisplay(item.anchorDate)}
             </span>
             <span className="official-reservation-calendar__context">
@@ -1230,83 +1169,6 @@ function OfficialReservationCalendarSection({
  * short label (no lead-time suffix, since this section shows lead time in its own line) rather
  * than imported, because this section also needs the two categories that render no tag there
  * (`not-required`, `not-required-role-specific`) to still show a short factual label here. */
-const RESERVATION_PREP_LABEL: Record<ReservationCategory, string> = {
-  required: "Requiere reserva",
-  "recommended-not-required": "Reserva recomendable",
-  "optional-not-required": "Reserva opcional",
-  "not-required": "No requiere reserva",
-  "not-required-role-specific": "No para espectador",
-  missing: "Estado de reserva por verificar",
-  "unrecognized-value": "Estado de reserva por verificar",
-};
-
-/** Display-only Spanish labels for `LeadTimeMagnitude` — the domain type stays a stable,
- * locale-independent identifier (see `lib/reservation-lead-time.ts`); this is the one place that
- * turns it into user-facing text, exactly like `WEEKDAY_LABEL` does for `CivilWeekday` above. */
-const LEAD_TIME_MAGNITUDE_LABEL: Record<LeadTimeMagnitude, string> = {
-  days: "días",
-  weeks: "semanas",
-  months: "meses",
-  "days-to-weeks": "días o semanas",
-  "weeks-to-months": "semanas o meses",
-};
-
-/**
- * Phase 3D-D's one UI surface. Renders nothing when `summary.items` is empty — a route with no
- * applicable lead-time signal shows no section at all, exactly like `WeekdayClosureNotice` renders
- * nothing when unassessed.
- *
- * Wording is deliberately narrow and conservative throughout: "anticipación registrada" (a
- * recorded fact about the editorial text), never a booking deadline; "mecanismo específico;
- * revisar" (a call to look closer), never an interpretation of what the mechanism actually
- * requires. The original raw text is always shown alongside — it is the only detailed information
- * Nihon may safely surface for an opaque record, and the authoritative source even for a coarse
- * magnitude. Nothing here reads `startDate`, a derived day date, or the current date.
- */
-function ReservationPreparationSection({ summary }: { summary: ReservationPreparationSummary }) {
-  if (summary.items.length === 0) return null;
-
-  const parts: string[] = [];
-  if (summary.coarseMagnitudeCount > 0) {
-    // "anticipación" agrees with "registrada" and both stay singular regardless of N — only the
-    // count varies, never the adjective's grammatical number (a prior version wrongly appended an
-    // "s" onto the adjective whenever the count was greater than one).
-    parts.push(`${summary.coarseMagnitudeCount} con anticipación registrada`);
-  }
-  if (summary.specificMechanismCount > 0) {
-    parts.push(`${summary.specificMechanismCount} con mecanismo específico para revisar`);
-  }
-
-  return (
-    <section className="reservation-prep" aria-labelledby="reservation-prep-heading">
-      <h3 id="reservation-prep-heading">Reservas por preparar</h3>
-      <p className="reservation-prep__summary">{parts.join(" · ")}</p>
-      <ul className="reservation-prep__list">
-        {summary.items.map((item) => (
-          <li key={item.placeId} className="reservation-prep__item">
-            <span className="reservation-prep__name">{item.placeName}</span>
-            <span className="reservation-prep__reservation">{RESERVATION_PREP_LABEL[item.reservation.category]}</span>
-            {item.leadTime.kind === "coarse-magnitude" ? (
-              <span className="reservation-prep__leadtime">
-                Anticipación registrada: {LEAD_TIME_MAGNITUDE_LABEL[item.leadTime.magnitude]}
-              </span>
-            ) : (
-              <span className="reservation-prep__leadtime reservation-prep__leadtime--opaque">
-                Mecanismo específico; revisar
-              </span>
-            )}
-            <span className="reservation-prep__raw">Dato: «{item.leadTime.raw}»</span>
-          </li>
-        ))}
-      </ul>
-      <p className="reservation-prep__disclaimer">
-        Esta sección solo describe la anticipación registrada en el dato original de cada lugar.{" "}
-        <strong>No calcula fechas límite de reserva ni las compara con tu calendario.</strong>
-      </p>
-    </section>
-  );
-}
-
 /**
  * Phase 3D-E's one UI surface — "Horarios registrados". A route-wide, read-only section built from
  * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`). Renders nothing
@@ -1347,7 +1209,7 @@ function HoursPlanningSection({ summary }: { summary: RecordedHoursSummary }) {
           <li key={item.placeId} className={`hours-planning__item hours-planning__item--${item.hours.tier}`}>
             <span className="hours-planning__name">{item.placeName}</span>
             <span className="hours-planning__signal">{hoursSignalText(item.hours)}</span>
-            <span className="hours-planning__raw">Dato: «{item.hours.raw}»</span>
+            <span className="hours-planning__raw"><EvidenceMark level="registrado" /> «{item.hours.raw}»</span>
           </li>
         ))}
       </ul>
@@ -2597,9 +2459,9 @@ function wholeTripUnavailableText(reason: Extract<WholeTripComposition, { kind: 
     case "no-day-assignment":
       return "Crea un reparto por días para describir el plan completo sin borrar sus límites.";
     case "invalid-day-partition":
-      return "El reparto por días no coincide exactamente con el recorrido; no se muestran cálculos parciales.";
+      return "El reparto por días no coincide exactamente con el viaje; no se muestran cálculos parciales.";
     case "unresolved-route-place":
-      return "Un lugar del recorrido no se puede resolver; no se muestran cálculos parciales.";
+      return "Un lugar del viaje no se puede resolver; no se muestran cálculos parciales.";
   }
 }
 
@@ -2622,12 +2484,17 @@ function wholeTripBoundsText(bounds: WholeTripBoundsComposition): string {
 }
 
 /** Read-only Phase 3E-A projection. No value rendered here is written back to the V7 draft. */
-function WholeTripCompositionSection({ composition }: { composition: WholeTripComposition }) {
+function WholeTripCompositionSection({ composition, onSectionChange }: { composition: WholeTripComposition; onSectionChange?: Props["onSectionChange"] }) {
   if (composition.kind === "unavailable") {
     return (
       <section className="whole-trip-composition" aria-label="Resumen del plan completo">
-        <h3>Resumen del plan completo</h3>
+        <h3 className="visually-hidden">Resumen del plan completo</h3>
         <p className="whole-trip-composition__unavailable">{wholeTripUnavailableText(composition.reason)}</p>
+        {(["Visitas", "Traslados registrados", "Alojamiento", "Rango del viaje"] as const).map((title) => <div className="whole-trip-composition__group" key={title}>
+          <h4>{title}</h4><EvidenceMark level="estimado" />
+          <p>Sin datos para describir el plan completo.</p>
+          <button type="button" className="link-button" onClick={() => onSectionChange?.(title === "Alojamiento" ? "dormir" : "dias")}>{title === "Alojamiento" ? "Ver Dónde dormir" : "Ver Días"}</button>
+        </div>)}
       </section>
     );
   }
@@ -2642,13 +2509,12 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
 
   return (
     <section className="whole-trip-composition" aria-label="Resumen del plan completo">
-      <h3>Resumen del plan completo</h3>
-      <p className="whole-trip-composition__intro">
-        Describe únicamente los datos registrados para este reparto; no puntúa ni recomienda cambios.
-      </p>
+      <h3 className="visually-hidden">Resumen del plan completo</h3>
 
       <div className="whole-trip-composition__group">
         <h4>Visitas</h4>
+        <EvidenceMark level="estimado" />
+        <button type="button" className="link-button" onClick={() => onSectionChange?.("dias")}>Ver visitas en Días</button>
         <p>
           Tiempo de visita cuantificado: {composition.visit.quantifiedMinutes
             ? formatRange(composition.visit.quantifiedMinutes)
@@ -2659,12 +2525,14 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
           No cuantificados: {composition.visit.nonQuantifiedPlaceCount}; compromisos de escala día: {composition.visit.dayScaleCommitmentCount}; sin clasificación: {composition.visit.unclassifiedPlaceCount}.
         </p>
         {!composition.visit.completeNumericCoverage && (
-          <p className="whole-trip-composition__incomplete">La cobertura numérica de visitas está incompleta.</p>
+          <p className="whole-trip-composition__incomplete">Hay visitas sin duración numérica.</p>
         )}
       </div>
 
       <div className="whole-trip-composition__group">
         <h4>Traslados registrados</h4>
+        <EvidenceMark level="estimado" />
+        <button type="button" className="link-button" onClick={() => onSectionChange?.("dias")}>Ver traslados en Días</button>
         <p>
           Traslado registrado: {composition.registeredTransportMinutes
             ? formatRange(composition.registeredTransportMinutes)
@@ -2682,27 +2550,29 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
         <p>
           Entre ciudades activos: {composition.movement.interHubActiveCount}; faltantes: {composition.movement.interHubMissingCount}.
         </p>
-        <p>Posiciones de movimiento modeladas: {composition.movement.modeledAdjacencyCount}.</p>
+        <p>Conexiones entre lugares: {composition.movement.modeledAdjacencyCount}.</p>
         {missingMovementCount > 0 ? (
           <p className="whole-trip-composition__incomplete">
-            Cobertura incompleta: faltan {composition.movement.localMissingCount} tramo(s) local(es) y {composition.movement.interHubMissingCount} tramo(s) entre ciudades.
+            Sin traslado registrado: faltan {composition.movement.localMissingCount} traslado(s) local(es) y {composition.movement.interHubMissingCount} traslado(s) entre ciudades.
           </p>
         ) : composition.movement.adjacencyCoverageComplete && composition.movement.modeledAdjacencyCount > 0 ? (
-          <p>Todos los tramos entre lugares que este resumen modela tienen tiempo registrado.</p>
+          <p>Todas las conexiones entre lugares incluidas tienen tiempo registrado.</p>
         ) : (
-          <p>No hay posiciones de movimiento entre lugares modeladas en este reparto.</p>
+          <p>No hay conexiones entre lugares en estos días.</p>
         )}
       </div>
 
       <div className="whole-trip-composition__group">
         <h4>Alojamiento</h4>
+        <EvidenceMark level="estimado" />
+        <button type="button" className="link-button" onClick={() => onSectionChange?.("dormir")}>Ver Dónde dormir</button>
         <p>
           Minutos manuales registrados: {composition.accommodation.registeredMinutes === null
             ? "ninguno"
             : formatMinutes(composition.accommodation.registeredMinutes)}.
         </p>
         <p>
-          Tramos manuales: {composition.accommodation.manualLegCount}; faltantes: {composition.accommodation.manualLegMissingCount}; sin seleccionar: {composition.accommodation.boundaryUnselectedCount}.
+          Traslados manuales: {composition.accommodation.manualLegCount}; faltantes: {composition.accommodation.manualLegMissingCount}; sin seleccionar: {composition.accommodation.boundaryUnselectedCount}.
         </p>
         <p>
           Sin alojamiento explícito: {composition.accommodation.explicitNoAccommodationCount}; límites de días vacíos no aplicables: {composition.accommodation.emptyDayNotApplicableCount}.
@@ -2711,6 +2581,8 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
 
       <div className="whole-trip-composition__group">
         <h4>Rango del viaje</h4>
+        <EvidenceMark level="estimado" />
+        <button type="button" className="link-button" onClick={() => onSectionChange?.("dias")}>Ver fechas en Días</button>
         <p>{wholeTripBoundsText(composition.bounds)}</p>
         <p>Días creados: {composition.bounds.dayCount}.</p>
         {composition.bounds.daysAfterTripEnd !== null && composition.bounds.daysAfterTripEnd > 0 && (
@@ -2723,7 +2595,7 @@ function WholeTripCompositionSection({ composition }: { composition: WholeTripCo
   );
 }
 
-export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false, onSelectPlace }: Props) {
+export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false, onSelectPlace, section = "dias", onSectionChange }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [reservationReferenceDate] = useState<string | null>(() => captureDeviceLocalCivilDate());
@@ -2835,10 +2707,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
 
   const sequence = useMemo(() => buildOrderedSequence(routeIds), [routeIds]);
   const visitSummary = useMemo(() => summarizeSelection(routePlaces), [routePlaces]);
-  const reservationPreparation = useMemo(
-    () => buildReservationPreparationSummary(routePlaces),
-    [routePlaces]
-  );
   const recordedHours = useMemo(() => buildRecordedHoursSummary(routePlaces), [routePlaces]);
 
   const candidateAPlaces = useMemo(
@@ -3483,7 +3351,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
         className={`analysis-dialog ${embedded ? "analysis-dialog--embedded" : ""}`.trim()}
         role={embedded ? undefined : "dialog"}
         aria-modal={embedded ? undefined : true}
-        aria-labelledby="sequence-builder-title"
+        aria-labelledby={section === "reservas" ? "trip-reservations-title" : section === "resumen" ? "trip-summary-title" : "sequence-builder-title"}
         onPointerMove={moveDrag}
         onPointerUp={finishDrag}
         onPointerCancel={() => cancelDrag()}
@@ -3492,6 +3360,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
         {dragPlaceId && <div className="trip-stop__drag-preview" style={{ left: Math.max(8, Math.min(dragPointer.x + 12, window.innerWidth - 220)), top: Math.max(8, dragPointer.y - 56) }}>
           Moviendo {placeById.get(dragPlaceId)?.name ?? "parada"}
         </div>}
+        <div hidden={section !== "dias"}>
         <header className="analysis-header">
           <div>
             {view === "compare" && (
@@ -3549,7 +3418,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                     geográficas u horarios en vivo. <strong>No incluyen tiempo dentro de cada lugar.</strong>
                   </p>
 
-                  <ReservationPreparationSection summary={reservationPreparation} />
 
                   <HoursPlanningSection summary={recordedHours} />
 
@@ -3593,7 +3461,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 </>
               )}
 
-              <WholeTripCompositionSection composition={wholeTripComposition} />
+
 
               <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
                 Restablecer recorrido
@@ -3747,7 +3615,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 onRemove={removeInterHubSegment}
               />
 
-              <WholeTripCompositionSection composition={wholeTripComposition} />
+
 
               <ZonePlanSection
                 choices={zoneAccommodationChoices}
@@ -3764,7 +3632,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 onRemove={removeAccommodation}
               />
 
-                <OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />
+
               </details>
 
               <div className="day-list">
@@ -3976,19 +3844,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             visitStartTimes={visitStartTimes}
                             onVisitStartTimeChange={setVisitStartTime}
                           />
-                          <ReservationDeadlineNotice
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            referenceDate={reservationReferenceDate}
-                          />
-                          <OfficialReservationDateNotice
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            dayNumber={dayIndex + 1}
-                            referenceDate={reservationReferenceDate}
-                          />
                           {bucket && (
                             <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
                           )}
@@ -4065,7 +3920,25 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
             </>
           )}
         </div>
+        </div>
+        {section === "reservas" && <TripReservations
+          rows={buildTripReservationRows(routePlaces, dayAssignment, startDate)}
+          onSelectPlace={onSelectPlace}
+          calendar={<OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />}
+          renderDetails={(row) => <>
+            <ReservationDeadlineNotice places={[row.place]} dayAssignment={dayAssignment} startDate={startDate} referenceDate={reservationReferenceDate} />
+            <OfficialReservationDateNotice places={[row.place]} dayAssignment={dayAssignment} startDate={startDate} dayNumber={row.dayNumber} referenceDate={reservationReferenceDate} />
+          </>}
+        />}
+        {section === "resumen" && <section className="trip-summary" aria-label="Resumen">
+          <h2 id="trip-summary-title">Resumen</h2>
+          <p className="trip-reading-intro">Vuestro viaje, tal como lo habéis preparado.</p>
+          <WholeTripCompositionSection composition={wholeTripComposition} onSectionChange={onSectionChange} />
+          <TripTimeline days={dayEntities} placeById={placeById} startDate={startDate} onSelectPlace={onSelectPlace} />
+        </section>}
       </div>
     </Outer>
   );
 }
+
+export { WholeTripCompositionSection };

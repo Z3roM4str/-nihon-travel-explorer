@@ -37,6 +37,8 @@ import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
 import "./App.css";
 import "./styles/discovery.css";
+import "./styles/trip-overview.css";
+import { deviceStorage } from "./lib/device-storage";
 
 /**
  * Block 12 — the planner and the zone comparison load on demand.
@@ -87,7 +89,7 @@ type MobilePane = "list" | "map";
 /** Bloque 18, `05 §7`: qué contenido de «Viaje» está a la vista. Sustituye a los dos booleanos
  * mutuamente excluyentes (`sequenceBuilderOpen`/`zonesOpen`) de la era de overlays — ahora son,
  * literalmente, mutuamente excluyentes por construcción. */
-type ViajeSection = "dias" | "dormir";
+type ViajeSection = "dias" | "dormir" | "reservas" | "resumen";
 
 const EMPTY_FILTERS: Filters = {
   query: "",
@@ -276,13 +278,22 @@ export default function App() {
 
   // ---- Viaje ----
   const [viajeSection, setViajeSection] = useState<ViajeSection>("dias");
+  const viajeSectionButtons = useRef<Partial<Record<ViajeSection, HTMLButtonElement>>>({});
+  // Keep consultation surfaces mounted. Reload a reader only after an actual persisted edit
+  // made in the other surface; the comparison never competes with the hidden planner for focus.
+  const [zonesVisited, setZonesVisited] = useState(false);
+
+  const [plannerMountRevision, setPlannerMountRevision] = useState(0);
+  const [zonesMountRevision, setZonesMountRevision] = useState(0);
+  const draftAtSurfaceBoundary = useRef<string | null>(null);
+
   /**
    * Bloque 18, corrección post-cierre: el handoff original afirmaba que los cuatro destinos
    * permanecen montados, pero `OrderedSequenceBuilder`/`ZoneComparison` sólo se renderizaban
    * bajo `destination === "viaje" && ...`, así que cambiar de pestaña los desmontaba de verdad
    * (su estado local de React se perdía, no sólo se ocultaba). `viajeVisited` se fija la
    * primera vez que el lector entra en Viaje y no vuelve a `false`: a partir de ahí, el
-   * componente de la sección activa (`viajeSection`, sigue siendo uno solo — Bloque 4) queda
+   * contenido visitado de Viaje queda
    * montado aunque el destino activo cambie; sólo `hidden` en el panel exterior deja de
    * pintarlo. Antes de la primera visita, ninguno de los dos se monta — el chunk bajo demanda
    * del Bloque 12 sigue sin tocarse hasta que hace falta o hasta que `prefetchOnDemandSurfaces`
@@ -290,6 +301,7 @@ export default function App() {
    */
   const [viajeVisited, setViajeVisited] = useState(false);
   if (destination === "viaje" && !viajeVisited) setViajeVisited(true);
+  if (viajeVisited && viajeSection === "dormir" && !zonesVisited) setZonesVisited(true);
   /**
    * Block 6 — bumped when the planner closes, which is the moment its draft has settled.
    *
@@ -854,29 +866,31 @@ export default function App() {
    * `nihon.manualPlanningDraft`, así que sigue sin haber más de un escritor a la vez — ahora
    * porque sólo una sección puede estar activa, no porque cerrar una abra la otra.
    */
+  const setViajeSectionTracked = useCallback((section: ViajeSection) => {
+    if ((viajeSection === "dormir") !== (section === "dormir")) {
+      let raw: string | null = null;
+      try { raw = deviceStorage.getItem("nihon.manualPlanningDraft"); } catch { /* Shared persistence notice owns failures. */ }
+      if (draftAtSurfaceBoundary.current !== null && draftAtSurfaceBoundary.current !== raw) {
+        if (section === "dormir") setZonesMountRevision((value) => value + 1);
+        else setPlannerMountRevision((value) => value + 1);
+      }
+      draftAtSurfaceBoundary.current = raw;
+    }
+    if (viajeSection === "dias" && section !== "dias") setPlannerRevision((revision) => revision + 1);
+    setViajeSection(section);
+  }, [viajeSection]);
+
   const goToPlanner = useCallback(() => {
     setDestination("viaje");
-    setViajeSection("dias");
-  }, []);
+    setViajeSectionTracked("dias");
+  }, [setViajeSectionTracked]);
 
   const goToZones = useCallback((hub: string) => {
     setViajeZonesHub(hub);
     setDestination("viaje");
-    setViajeSection("dormir");
+    setViajeSectionTracked("dormir");
     setCitySheetOpen(false);
-  }, []);
-
-  /** Leaving «Planificar» is when its day assignment is final, so that is when Block 6's
-   * read-only snapshot of it is refreshed — same signal as the old `onClose`, triggered by the
-   * section switch instead of a modal close. */
-  const setViajeSectionTracked = useCallback((section: ViajeSection) => {
-    setViajeSection((current) => {
-      if (current === "dias" && section !== "dias") {
-        setPlannerRevision((revision) => revision + 1);
-      }
-      return section;
-    });
-  }, []);
+  }, [setViajeSectionTracked]);
 
   /** B25 (B7, `05 §6`): Quiero ir enseña «Ya está en un día del recorrido» leyendo la misma foto
    * de sólo lectura. Llegar a la pestaña desde Viaje por la barra —sin cambiar antes de sección—
@@ -1371,6 +1385,7 @@ export default function App() {
                   type="button"
                   className={`viaje-nav__item ${viajeSection === "dias" ? "viaje-nav__item--active" : ""}`}
                   aria-pressed={viajeSection === "dias"}
+                  ref={(button) => { viajeSectionButtons.current.dias = button ?? undefined; }}
                   onClick={() => setViajeSectionTracked("dias")}
                 >
                   <Icon name="calendario" size={16} /> Días
@@ -1379,33 +1394,44 @@ export default function App() {
                   type="button"
                   className={`viaje-nav__item ${viajeSection === "dormir" ? "viaje-nav__item--active" : ""}`}
                   aria-pressed={viajeSection === "dormir"}
+                  ref={(button) => { viajeSectionButtons.current.dormir = button ?? undefined; }}
                   onClick={() => setViajeSectionTracked("dormir")}
                   disabled={HUBS_WITH_ZONES.length === 0}
                 >
                   <Icon name="cama" size={16} /> Dónde dormir
                 </button>
-                <button type="button" className="viaje-nav__item" disabled aria-disabled="true" title="Disponible en B9.5">
+                <button type="button" className={`viaje-nav__item ${viajeSection === "reservas" ? "viaje-nav__item--active" : ""}`} aria-pressed={viajeSection === "reservas"} onClick={() => setViajeSectionTracked("reservas")}>
                   <Icon name="ticket" size={16} /> Reservas
                 </button>
-                <button type="button" className="viaje-nav__item" disabled aria-disabled="true" title="Disponible en B9.5">
+                <button type="button" className={`viaje-nav__item ${viajeSection === "resumen" ? "viaje-nav__item--active" : ""}`} aria-pressed={viajeSection === "resumen"} onClick={() => setViajeSectionTracked("resumen")}>
                   Resumen
                 </button>
               </div>
 
               <Suspense fallback={null}>
-                {viajeVisited && viajeSection === "dias" && (
+                {viajeVisited && (
+                  <div hidden={viajeSection === "dormir"}>
                   <OrderedSequenceBuilder
+                    key={plannerMountRevision}
                     savedPlaces={savedPlaces}
                     onClose={() => setViajeSectionTracked("dormir")}
-                    onSelectPlace={(id) => selectPlace(id, "viaje", "Días")}
+                    onSelectPlace={(id) => selectPlace(id, "viaje", viajeSection === "reservas" ? "Reservas" : viajeSection === "resumen" ? "Resumen" : "Días")}
+                    section={viajeSection === "dormir" ? "dias" : viajeSection}
+                    onSectionChange={(section) => {
+                      setViajeSectionTracked(section);
+                      viajeSectionButtons.current[section]?.focus();
+                    }}
                     embedded
                   />
+                  </div>
                 )}
               </Suspense>
 
               <Suspense fallback={null}>
-                {viajeVisited && viajeSection === "dormir" && zonesHub && (
+                {zonesVisited && zonesHub && (
+                  <div hidden={viajeSection !== "dormir"}>
                   <ZoneComparison
+                    key={zonesMountRevision}
                     hub={zonesHub}
                     savedPlaces={savedPlaces}
                     onClose={() => setViajeSectionTracked("dias")}
@@ -1413,6 +1439,7 @@ export default function App() {
                     onOpenPlanner={goToPlanner}
                     embedded
                   />
+                  </div>
                 )}
               </Suspense>
             </div>

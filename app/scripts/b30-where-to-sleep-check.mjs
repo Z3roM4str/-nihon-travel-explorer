@@ -147,7 +147,11 @@ async function contextFor(viewport, { emptyRoute = false, reducedMotion } = {}) 
 }
 
 async function waitForPlannerMountWrites(page) {
-  await page.locator(".analysis-dialog--embedded").waitFor();
+  const planner = page.locator(".analysis-dialog--embedded");
+  await planner.waitFor();
+  // B31 keeps this exact planner node mounted across read-only sub-tabs. Its already
+  // observed mount effects do not run again; waiting for two new writes would be incorrect.
+  if (await planner.evaluate((element) => window.__b30MountedPlanners?.has(element) ?? false)) return;
   // This unchanged V8 fixture is written once on mount and once after reconciliation.
   // Wait for both effects before observing the next surface; DOM visibility alone is too early.
   // The complete write log remains intact for the existing strict assertions below.
@@ -156,6 +160,10 @@ async function waitForPlannerMountWrites(page) {
       count + Number(entry.method === "set" && entry.key === draftKey), 0) === 2,
     DRAFT_KEY
   );
+  await planner.evaluate((element) => {
+    window.__b30MountedPlanners ??= new WeakSet();
+    window.__b30MountedPlanners.add(element);
+  });
 }
 
 async function openTravelZones(page, keyboard = false) {
@@ -301,7 +309,7 @@ async function runFullAudit(viewport, index, options = {}) {
     await waitForPlannerMountWrites(page);
     writes = await storageWrites(page);
     check(writes.length >= 2 && writes.slice(0, 2).every((entry) => entry.key === ZONE_COMPARISON_KEY) && writes.slice(2).every((entry) => entry.key === DRAFT_KEY), `${viewport[0]}x${viewport[1]} leaving writes no new comparison or other data (${JSON.stringify(writes)})`);
-    check(JSON.stringify(await draftSnapshot(page)) === JSON.stringify(draftFor()), `${viewport[0]}x${viewport[1]} planner remount serialization preserves the exact V8 model`);
+    check(JSON.stringify(await draftSnapshot(page)) === JSON.stringify(draftFor()), `${viewport[0]}x${viewport[1]} returning to the mounted planner preserves the exact V8 model`);
     const beforeReopen = (await storageWrites(page)).length;
     await page.locator(".viaje-nav__item").filter({ hasText: "Dónde dormir" }).click();
     await panel.waitFor();

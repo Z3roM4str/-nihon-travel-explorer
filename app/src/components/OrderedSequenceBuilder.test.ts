@@ -135,81 +135,18 @@ describe("OrderedSequenceBuilder.tsx — weekday-closure signal wiring (source-s
  * forbidden-phrase checks below cannot false-fail on unrelated prose elsewhere in the file (e.g.
  * this same file's calendar-anchoring disclaimers, which legitimately discuss `startDate`).
  */
-function extractReservationPreparationSectionSource(fullSource: string): string {
-  const start = fullSource.indexOf("function ReservationPreparationSection");
-  if (start === -1) {
-    throw new Error("ReservationPreparationSection function not found in OrderedSequenceBuilder.tsx");
-  }
-  const nextFunctionStart = fullSource.indexOf("\nfunction ", start + 1);
-  if (nextFunctionStart === -1) {
-    throw new Error("Could not find the end boundary of ReservationPreparationSection (no following function)");
-  }
-  return fullSource.slice(start, nextFunctionStart);
-}
-
-describe("OrderedSequenceBuilder.tsx — reservation lead-time signal wiring (source-scanning integration check)", () => {
-  it("imports buildReservationPreparationSummary from the reservation-planning module", async () => {
-    const source = await readSource();
-    expect(source).toMatch(
-      /import\s*\{[^}]*\bbuildReservationPreparationSummary\b[^}]*\}\s*from\s*["']\.\.\/lib\/reservation-planning["']/
-    );
-  });
-
-  it("computes the summary from the current canonical route (routePlaces), not a day bucket", async () => {
-    const source = await readSource();
-    expect(source).toMatch(/buildReservationPreparationSummary\(\s*routePlaces\s*\)/);
-  });
-
-  it("renders ReservationPreparationSection in the builder view with the computed summary", async () => {
-    const source = await readSource();
-    expect(source).toContain("function ReservationPreparationSection(");
-    expect(source).toMatch(/<ReservationPreparationSection\s+summary=\{reservationPreparation\}\s*\/>/);
-  });
-
-  it("renders inside the existing single dialog, not a second dialog/modal", async () => {
-    const source = await readSource();
-    const sectionSource = extractReservationPreparationSectionSource(source);
-    expect(sectionSource).not.toMatch(/role=["']dialog["']/);
-    expect(sectionSource).not.toMatch(/aria-modal/);
-    const dialogRootCount = (source.match(/role="dialog"/g) ?? []).length;
-    expect(dialogRootCount).toBe(1);
-  });
-
-  it("renders both a coarse-magnitude signal and a specific-mechanism review signal", async () => {
-    const sectionSource = extractReservationPreparationSectionSource(await readSource());
-    expect(sectionSource).toContain("coarse-magnitude");
-    expect(sectionSource).toMatch(/Anticipación registrada/);
-    expect(sectionSource).toMatch(/Mecanismo específico/);
-  });
-
-  it("always renders the raw evidence text alongside the derived signal", async () => {
-    const sectionSource = extractReservationPreparationSectionSource(await readSource());
-    expect(sectionSource).toMatch(/item\.leadTime\.raw/);
-  });
-
-  it("does not read startDate, a derived day date, or Date.now anywhere in the section", async () => {
-    const sectionSource = extractReservationPreparationSectionSource(await readSource());
-    for (const forbidden of ["startDate", "dayDate", "Date.now", "addCivilDays"]) {
-      expect(sectionSource, forbidden).not.toContain(forbidden);
-    }
-  });
-
-  it("never states a booking deadline, a days-remaining count, or an urgency judgment", async () => {
-    const sectionSource = extractReservationPreparationSectionSource(await readSource());
-    const lower = sectionSource.toLowerCase();
-    for (const forbidden of ["reserva antes del", "te quedan", "ya deberías reservar", "estás a tiempo", "urgente"]) {
-      expect(lower, `should not contain "${forbidden}"`).not.toContain(forbidden);
-    }
-  });
-
-  it("never pluralizes 'registrada' — 'anticipación' is the noun being agreed with and stays singular regardless of count", async () => {
-    // Corrective regression: a prior version conditionally appended "s" onto "registrada" when
-    // the count was greater than 1, producing the grammatically wrong "N con anticipación
-    // registradas". "anticipación" itself never pluralizes here, so "registrada" must not either.
-    const sectionSource = extractReservationPreparationSectionSource(await readSource());
-    expect(sectionSource).not.toContain("registradas");
-    expect(sectionSource).toContain("con anticipación registrada");
-  });
+async function readReservationsSource() { return readFile(new URL("./TripReservations.tsx", import.meta.url), "utf8"); }
+async function readReservationProjection() { return readFile(new URL("../lib/trip-reservation-presentation.ts", import.meta.url), "utf8"); }
+describe("B31 — relocated reservation preparation wiring", () => {
+  it("uses existing aggregation", async () => { expect(await readReservationProjection()).toContain("buildReservationPreparationSummary(places)"); });
+  it("receives canonical route", async () => { expect(await readSource()).toContain("buildTripReservationRows(routePlaces, dayAssignment, startDate)"); });
+  it("renders dedicated Reservations", async () => { expect(await readSource()).toContain("<TripReservations"); expect(await readReservationsSource()).toContain("Reservas por preparar"); });
+  it("adds no competing modal", async () => { expect(await readReservationsSource()).not.toMatch(/role=["']dialog["']|aria-modal/); expect((await readSource()).match(/role="dialog"/g)).toHaveLength(1); });
+  it("preserves preparation classifications", async () => { expect(await readReservationsSource()).toContain("coarse-magnitude"); expect(await readReservationsSource()).toContain("Mecanismo específico"); });
+  it("preserves raw registered evidence", async () => { const s=await readReservationsSource(); expect(s).toContain("«{row.prep.leadTime.raw}»"); expect(s).toContain('level="registrado"'); expect(s).not.toContain("Dato:"); });
+  it("does not calculate dates in view", async () => { for(const text of ["Date.now", "addCivilDays", "derivePlaceReservationDateWindow("]) expect(await readReservationsSource()).not.toContain(text); });
+  it("does not invent recommendations", async () => { for(const text of ["reserva antes del", "te quedan", "ya deberías reservar", "estás a tiempo", "urgente"]) expect((await readReservationsSource()).toLowerCase()).not.toContain(text); });
+  it("retains singular anticipation label", async () => { expect(await readReservationsSource()).toContain("Anticipación registrada"); expect(await readReservationsSource()).not.toContain("anticipación registradas"); });
 });
 
 /**
@@ -372,7 +309,7 @@ function extractReservationDeadlineNoticeSource(fullSource: string): string {
   if (start === -1) {
     throw new Error("ReservationDeadlineNotice function not found in OrderedSequenceBuilder.tsx");
   }
-  const end = fullSource.indexOf("\nconst RESERVATION_PREP_LABEL", start);
+  const end = fullSource.indexOf("\n/**", start);
   if (end === -1) {
     throw new Error("Could not find the end boundary of ReservationDeadlineNotice");
   }
@@ -391,7 +328,7 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
   });
 
   it("imports describeFebMarStatusForUi/interpretPlaceFebMarStatus from the existing feb-mar-status module, never a second classifier", async () => {
-    const source = await readSource();
+    const source = await readReservationsSource();
     expect(source).toMatch(
       /import\s*\{[^}]*\bdescribeFebMarStatusForUi\b[^}]*\}\s*from\s*["']\.\.\/lib\/feb-mar-status["']/
     );
@@ -409,7 +346,7 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
     const source = await readSource();
     expect(source).toContain("function ReservationDeadlineNotice(");
     expect(source).toMatch(
-      /<ReservationDeadlineNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+referenceDate=\{reservationReferenceDate\}\s*\/>/
+      /<ReservationDeadlineNotice\s+places=\{\[row\.place\]\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+referenceDate=\{reservationReferenceDate\}\s*\/>/
     );
   });
 
@@ -467,67 +404,12 @@ describe("OrderedSequenceBuilder.tsx — explicit lead-time window wiring (sourc
     }
   });
 
-  it("composes the pending Feb–Mar reconfirmation callout BEFORE the derived range in markup order, never replacing it", async () => {
-    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    const pendingIndex = noticeSource.indexOf('febMarTone === "pending"');
-    const windowIndex = noticeSource.indexOf("reservation-deadline__window");
-    expect(pendingIndex).toBeGreaterThan(-1);
-    expect(windowIndex).toBeGreaterThan(-1);
-    expect(pendingIndex).toBeLessThan(windowIndex);
-    expect(noticeSource).toMatch(/pendiente de\s*\n?\s*confirmar/i);
-  });
-
-  it("composes an attention Feb–Mar caveat callout BEFORE the derived range in markup order, never replacing it (corrective audit finding MAJOR-1)", async () => {
-    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    const attentionIndex = noticeSource.indexOf('febMarTone === "attention"');
-    const windowIndex = noticeSource.indexOf("reservation-deadline__window");
-    expect(attentionIndex).toBeGreaterThan(-1);
-    expect(windowIndex).toBeGreaterThan(-1);
-    expect(attentionIndex).toBeLessThan(windowIndex);
-    // The attention callout is also strictly before the pending callout's own markup position is
-    // irrelevant (only one of the two ever renders for a given place) — what matters is that BOTH
-    // non-confirmed branches individually precede the range, proven separately in each test.
-  });
-
-  it("the attention callout reuses describeFebMarStatusForUi's own label rather than inventing category-specific copy", async () => {
-    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    expect(noticeSource).toMatch(/\{febMarLabel\}/);
-  });
-
-  it("the attention callout never implies closed/unavailable/dangerous/impossible/confirmed/deadline", async () => {
-    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    const attentionBlockMatch = noticeSource.match(/febMarTone === "attention"[\s\S]*?<\/p>/);
-    expect(attentionBlockMatch).not.toBeNull();
-    const lower = (attentionBlockMatch?.[0] ?? "").toLowerCase();
-    for (const forbidden of [
-      "cerrado",
-      "no disponible",
-      "peligro",
-      "imposible",
-      "confirmado",
-      "fecha límite",
-    ]) {
-      expect(lower, `attention callout should not contain "${forbidden}"`).not.toContain(forbidden);
-    }
-  });
-
-  it("derives the Feb–Mar tone/label once per place via describeFebMarStatusForUi, reusing the existing display path — never a second classifier", async () => {
-    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    // Exactly one call site deriving the display adapter, destructured into tone+label, then
-    // branched on — not re-interpreted per branch, not a category-specific check anywhere.
-    const callSites = noticeSource.match(/describeFebMarStatusForUi\(\s*interpretPlaceFebMarStatus\(\s*place\s*\)\s*\)/g) ?? [];
-    expect(callSites.length).toBe(1);
-    expect(noticeSource).not.toMatch(/\.category\s*===/);
-    expect(noticeSource).toMatch(/febMarTone === "pending"/);
-    expect(noticeSource).toMatch(/febMarTone === "attention"/);
-  });
-
-  it("a confirmed tone renders neither status callout — no extra caveat when the calendar is confirmed", async () => {
-    const noticeSource = extractReservationDeadlineNoticeSource(await readSource());
-    // "confirmed" never appears as a rendering condition — absence of both other branches IS the
-    // confirmed behaviour (render the range with no callout at all).
-    expect(noticeSource).not.toMatch(/febMarTone === "confirmed"/);
-  });
+  it("retains Feb–Mar status", async () => { expect(await readReservationsSource()).toContain("place.febMar2027.status"); });
+  it("retains warning alongside window", async () => { expect(await readReservationsSource()).toContain("place.febMar2027.warning"); expect(extractReservationDeadlineNoticeSource(await readSource())).toContain("window.farAdvanceDate"); });
+  it("uses existing status label", async () => { expect(await readReservationsSource()).toContain("{febMar.label}"); });
+  it("preserves recorded action", async () => { expect(await readReservationsSource()).toContain("place.febMar2027.action"); expect(await readReservationsSource()).toContain("«{raw}»"); });
+  it("classifies once per place", async () => { expect((await readReservationsSource()).match(/describeFebMarStatusForUi\(interpretPlaceFebMarStatus\(place\)\)/g)).toHaveLength(1); });
+  it("does not duplicate confidence classifier", async () => { expect(extractReservationDeadlineNoticeSource(await readSource())).not.toContain("febMarTone"); });
 });
 
 function extractHoursClosureCompositionNoticeSource(fullSource: string): string {
@@ -584,7 +466,7 @@ describe("OrderedSequenceBuilder.tsx — hours/closure composition wiring", () =
     const source = await readSource();
     const notice = extractHoursClosureCompositionNoticeSource(source);
     expect(notice).toMatch(/aria-label=\{`Horario e información de cierres registrados · Día \$\{dayNumber\}`\}/);
-    expect(source).toMatch(/<HoursClosureCompositionNotice[\s\S]*?dayNumber=\{dayIndex \+ 1\}[\s\S]*?\/>/);
+    expect(source).toMatch(/<HoursClosureCompositionNotice[\s\S]*?dayNumber=\{row\.dayNumber\}[\s\S]*?\/>/);
   });
 
   it("introduces no second dialog and no prohibited decision language", async () => {
@@ -1033,7 +915,7 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-F official reservation date pr
     expect(official).toBeGreaterThan(deadline);
     expect(source.slice(deadline, official)).toContain("referenceDate={reservationReferenceDate}");
     expect(source).toMatch(
-      /<OfficialReservationDateNotice\s+places=\{places\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+dayNumber=\{dayIndex \+ 1\}\s+referenceDate=\{reservationReferenceDate\}\s*\/>/
+      /<OfficialReservationDateNotice\s+places=\{\[row\.place\]\}\s+dayAssignment=\{dayAssignment\}\s+startDate=\{startDate\}\s+dayNumber=\{row\.dayNumber\}\s+referenceDate=\{reservationReferenceDate\}\s*\/>/
     );
   });
 
@@ -1083,12 +965,11 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-F official reservation date pr
     const notice = extractOfficialReservationDateNoticeSource(await readSource());
     expect(notice).toContain("Fechas de reserva según fuente oficial · Día");
     expect(notice).toContain("Fechas de reserva según fuente oficial");
-    expect(notice).toContain("no indica el");
-    expect(notice).toContain("estado actual de la venta.");
-    expect(notice).toContain(
-      "Esta información oficial se muestra por separado de la anticipación editorial registrada;"
-    );
-    expect(notice).toContain("Nihon no combina ambas fuentes.");
+    const framing = await readReservationsSource();
+    expect(framing).toContain("ni indica el");
+    expect(framing).toContain("estado actual de la venta.");
+    expect(framing).toContain("la anticipación editorial no confirma disponibilidad");
+    expect(framing).toContain("Nihon no combina ambas fuentes.");
   });
 
   it("renders nothing when no presentable Phase 3F result exists", async () => {

@@ -223,7 +223,7 @@ describe("useZonePlanChoice.ts — one writer, one truth", () => {
 describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("makes the comparison and the planner mutually exclusive via a single section enum", async () => {
     const source = await readAppSource("App.tsx");
-    expect(source).toMatch(/type ViajeSection = "dias" \| "dormir";/);
+    expect(source).toMatch(/type ViajeSection = "dias" \| "dormir" \| "reservas" \| "resumen";/);
     expect(source).toMatch(/const \[viajeSection, setViajeSection\] = useState<ViajeSection>\("dias"\);/);
   });
 
@@ -248,10 +248,10 @@ describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("keeps the planner and the zone comparison mounted by viajeSection, independently of the active tab", async () => {
     const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /\{viajeVisited && viajeSection === "dias" && \(\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<OrderedSequenceBuilder/
     );
     expect(source).toMatch(
-      /\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/
+      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<ZoneComparison/
     );
   });
 });

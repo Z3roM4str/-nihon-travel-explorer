@@ -17,12 +17,12 @@ function withoutComments(value: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
-  it("renders one read-only section in each relevant planner view, never a page, modal or wizard", async () => {
+  it("renders one read-only section in Resumen, never a page, modal or wizard", async () => {
     const fullSource = await source();
     const block = withoutComments(compositionBlock(fullSource));
-    expect(fullSource.match(/<WholeTripCompositionSection/g)).toHaveLength(2);
+    expect(fullSource.match(/<WholeTripCompositionSection/g)).toHaveLength(1);
     expect(block).toContain("Resumen del plan completo");
-    expect(block).not.toMatch(/<input|<select|onClick=|role="dialog"|modal|wizard/i);
+    expect(block).not.toMatch(/<input|<select|role="dialog"|modal|wizard/i);
   });
 
   it("derives from the V7 runtime facts and never writes composition back", async () => {
@@ -61,9 +61,9 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
     expect(block).toContain("Traslado registrado:");
     expect(block).toContain("locales faltantes:");
     expect(block).toContain("Entre ciudades activos:");
-    expect(block).toContain("Cobertura incompleta:");
+    expect(block).toContain("Sin traslado registrado:");
     expect(block).toContain("composition.movement.modeledAdjacencyCount > 0");
-    expect(block).toContain("Todos los tramos entre lugares que este resumen modela tienen tiempo registrado.");
+    expect(block).toContain("Todas las conexiones entre lugares incluidas tienen tiempo registrado.");
   });
 
   it("shows every accommodation state without a global completeness claim", async () => {

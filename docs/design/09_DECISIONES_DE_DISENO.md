@@ -639,6 +639,12 @@ establece el roadmap, con la sustitución que `03 §10` fija (texto entre comill
 bloque no la introduce. Es una afirmación verificable hoy y barata de sostener; no duplica el
 trabajo de B9.5 ni lo adelanta.
 
+**Ejecución B31 / B9.5.** La rama `codex/block-31-b9-5-reservas-resumen` completa la
+retirada global autorizada: conserva los cuatro literales con `EvidenceMark` Registrado y
+comillas, y añade comprobación del AST de producción y de la interfaz en Chromium/WebKit.
+La implementación queda pendiente de revisión e integración; no se atribuye este trabajo a B20.
+Véanse [misión](../BLOCK_31_MISSION.md) y [handoff](../BLOCK_31_HANDOFF.md).
+
 **Alternativa descartada.** (b) Ampliar B4 al planificador: mete en este diff una pantalla que
 nadie ha revisado en este bloque, y se apropia de un alcance que el roadmap ya asignó.
 
