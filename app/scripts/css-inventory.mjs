@@ -71,12 +71,14 @@ for (const row of rows) {
   const owners = new Map();
   for (const c of row.classes) for (const f of usedByLoose(c)) owners.set(f, (owners.get(f) ?? 0) + 1);
   row.files = [...owners.keys()];
+  // Los módulos `lib/` y los hooks construyen nombres de clase pero no renderizan: el propietario es el único `.tsx` que las usa.
+  row.tsx = row.files.filter((f) => f.endsWith(".tsx"));
   const allPlain = row.selectors.every((s) => classesOf(s).length === 0);
   const unusedAll = row.classes.length > 0 && row.classes.every((c) => usedByLoose(c).length === 0);
   if (row.kind === "@font-face" || allPlain || /:root|^html|^body|^\*/.test(row.head)) row.cls = "A";
   else if (row.kind === "@keyframes") row.cls = row.files.length ? "E" : "D";
   else if (unusedAll) row.cls = "D";
-  else if (row.files.length === 1 && row.files[0] !== "App.tsx") row.cls = "C";
+  else if (row.tsx.length === 1 && row.tsx[0] !== "App.tsx") { row.cls = "C"; row.owner = row.tsx[0]; }
   else if (row.classes.some((c) => SHELL.test(c)) || row.files.includes("App.tsx")) row.cls = "B";
   else row.cls = "E";
 }
