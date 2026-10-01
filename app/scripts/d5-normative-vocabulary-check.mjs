@@ -366,11 +366,10 @@ await ck("K-01", "«reparto» se conserva; los valores y relaciones del copy sus
 await ck("DDR-01", "los cinco DDR cerrados: copy nuevo presente en pantalla y copy antiguo ausente", async () => {
   const texts = [...allText];
   const has = (re) => texts.some((t) => re.test(t));
-  // R1: el botón vive en la vista «builder» de OrderedSequenceBuilder, no alcanzable en main (view arranca en «days»;
-  // ver d5-normative-vocabulary.test.ts). Se fija en el código fuente, no en pantalla.
+  // R1: el botón «Restablecer lugares y días» vivía en la vista «builder» de OrderedSequenceBuilder, no alcanzable desde B27; esa vista
+  // se RETIRÓ en el endurecimiento post-B10 (D5-M1, docs/D5_M1_UNREACHABLE_VIEWS_RETIREMENT.md). Se fija que ni el botón ni el copy antiguo existen.
   const builderSrc = read("../src/components/OrderedSequenceBuilder.tsx");
-  ok(/onClick=\{resetRoute\}>\s*Restablecer lugares y días\s*</.test(builderSrc), "R1: falta «Restablecer lugares y días» en el código");
-  ok(!/Restablecer recorrido/.test(builderSrc) && !has(/Restablecer recorrido/), "R1: «Restablecer recorrido» sigue presente");
+  ok(!/Restablecer lugares y días|Restablecer recorrido/.test(builderSrc) && !has(/Restablecer (recorrido|lugares y días)/), "R1: el botón retirado (o su copy antiguo) reapareció");
   ok(has(/Ya está en un día del viaje\. Esto no lo cambia\./), "L3: falta «Ya está en un día del viaje»");
   ok(!has(/día del recorrido/), "L3: «día del recorrido» sigue visible");
   ok(has(/intervalo de fechas registrado para la solicitud\./), "L1: falta «intervalo de fechas registrado»");

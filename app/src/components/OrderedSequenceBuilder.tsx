@@ -2,12 +2,8 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type Point
 import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
-import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
-import {
-  compareSequences,
-  type ConfidenceCounts,
-  type SequenceComparison,
-} from "../lib/sequence-comparison";
+import type { OrderedSequenceLeg, OrderedSequenceSummary } from "../lib/ordered-sequence";
+import type { ConfidenceCounts } from "../lib/sequence-comparison";
 import {
   applyEvidenceCompleteLocalSwap,
   generateEvidenceCompleteLocalSwaps,
@@ -45,8 +41,6 @@ import {
   type TripBoundsAssessment,
   type TripBoundsSummary,
 } from "../lib/trip-bounds";
-import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
-import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
 import {
   buildPresentableDayHoursClosureCompositions,
 } from "../lib/hours-closure-composition";
@@ -125,7 +119,6 @@ import { TripReservations } from "./TripReservations";
 import { TripTimeline } from "./TripTimeline";
 import { buildTripReservationRows } from "../lib/trip-reservation-presentation";
 import { DayOrderToolPanel, type DayOrderEvidenceAlternative, type DayOrderEvidenceOption } from "./DayOrderToolPanel";
-import { SequenceCandidateSummary as CandidateSummary } from "./SequenceCandidateSummary";
 import { hasSamePlaceOrder, isPlaceOrderPermutation } from "../lib/day-order-tool";
 
 import "./OrderedSequenceBuilder.css";
@@ -177,16 +170,15 @@ type DayOrderSession = {
  * user's own ordering/grouping structure; every derived value here is still recomputed on read,
  * exactly as before this phase.
  *
- * Phase 3C-B's comparison candidates ("orden A"/"orden B") are deliberately **not** part of that
- * persisted draft and never will be: `candidateAIds`/`candidateBIds` remain plain component
- * state, cloned fresh from the current route each time the comparison view opens and discarded
- * on close — see `openComparison`/`closeComparison` below.
+ * The "builder" (single-route) and "compare" (the global A/B comparison, Phase 3C-B) views of earlier phases were
+ * unreachable since the days view became the entry surface (B27) and were retired as D5-M1 in the
+ * release-hardening pass: B29 replaced the global A/B comparison with the per-day «Probar otro orden»
+ * tool (`DayOrderToolPanel`, same `sequence-comparison.ts` rules, no A/B and no score). Their candidates were
+ * never persisted, so no stored state depended on them. `docs/D5_M1_UNREACHABLE_VIEWS_RETIREMENT.md` has the proof.
  *
- * Phase 3C-B and Phase 3C-C each render as a **nested view inside this same dialog** rather than
- * a second modal — one focus trap, one Escape-closes-everything behaviour, no stacked dialogs.
- * Composition is fixed once either nested view opens: neither the comparison candidates nor the
- * day buckets can add or remove a place, only reorder or move between the fixed set — see
- * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
+ * The days view lives **inside this same dialog** — one focus trap, one Escape-closes-everything behaviour,
+ * no stacked dialogs. Composition is fixed there: day buckets can only reorder or move between the fixed
+ * set — see `day-assignment.ts` for the guarantees that rest on that.
  *
  * Phase 3D-B adds one narrow, read-only signal to each day card that already has a derived date:
  * whether that date's weekday matches a candidate recurring-weekday closure extracted from a
@@ -199,7 +191,7 @@ type DayOrderSession = {
  *
  * Phase 3D-D adds one route-wide, read-only section — "Reservas por preparar" — built from
  * `../lib/reservation-planning.ts` over the current canonical route (`routePlaces`), deliberately
- * rendered in the "builder" view rather than inside a day card: the underlying signal
+ * rendered route-wide rather than inside a day card: the underlying signal
  * (`reservation.leadTime`'s coarse magnitude or "needs review" flag) is useful before the route is
  * even split into days, and never depends on `startDate` or any derived date. It composes two
  * independently-derived axes — `../lib/reservation.ts`'s `ReservationFact` and
@@ -234,17 +226,8 @@ type DayOrderSession = {
  * sibling of Phase 3D-H rather than a merged/intersected reservation window and never become a
  * current sale-state, availability, urgency, ranking or purchase instruction.
  *
- * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
- * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
- * "Reservas por preparar" for the same reason: the underlying signal (what kind of hours
- * information `place.schedule.hours` records) is useful before the route is split into days, and
- * never depends on `startDate` or any derived date. Unlike the reservation section, no place is
- * ever omitted — every place gets an entry, even an UNKNOWN/OPAQUE one, because "the hours are
- * variable" or "depends on an outside operator" is itself planning-relevant information. This
- * section never answers whether a place is open, never compares against a date or clock time, and
- * never composes with Phase 3D-B's closure signal or `febMar2027` — see `../lib/recorded-hours.ts`
- * for the exact product boundary and `HoursPlanningSection` below for the wording this is allowed
- * to use.
+ * Phase 3D-E's route-wide "Horarios registrados" section rendered in the retired route view and was removed with
+ * it (D5-M1), together with its now-unused aggregation `lib/hours-planning.ts`; `../lib/recorded-hours.ts` stays (it feeds the day views).
  *
  * **Phase 3D-Q — Manual Accommodation Commute Legs** adds the first surface in this planner that
  * reaches outside a day's own place sequence, and it does so only with decisions the user makes
@@ -281,19 +264,7 @@ function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
   );
 }
 
-function moveItemUp<T>(items: readonly T[], index: number): T[] {
-  if (index <= 0) return [...items];
-  const next = [...items];
-  [next[index - 1], next[index]] = [next[index], next[index - 1]];
-  return next;
-}
 
-function moveItemDown<T>(items: readonly T[], index: number): T[] {
-  if (index >= items.length - 1) return [...items];
-  const next = [...items];
-  [next[index], next[index + 1]] = [next[index + 1], next[index]];
-  return next;
-}
 
 // ---------------------------------------------------------------------------------------
 // Phase 3D-S removed this file's local day-bucket array helpers (`addEmptyDay`,
@@ -304,131 +275,6 @@ function moveItemDown<T>(items: readonly T[], index: number): T[] {
 // `addEmptyDay`, `removeEmptyDay`). The day's ordinal position is still what the UI renders and
 // what every temporal/logistics consumer receives; it is simply no longer what identifies it.
 // ---------------------------------------------------------------------------------------
-
-/**
- * One reorderable, place-specific list — the main route draft, each comparison candidate, and
- * each day bucket all render through this so the accessible reorder mechanics (move up/down,
- * disabled at the ends, place-specific `aria-label`s) exist in exactly one place. `labelSuffix`
- * disambiguates which list a screen-reader user is moving something within (e.g. " en orden A",
- * " en Día 2"); `onRemove` is only passed by the main route draft. `onMoveToPreviousGroup`/
- * `onMoveToNextGroup` are only passed by the day-assignment view, for moving a place into the
- * adjacent day — omitted entirely (not merely disabled) everywhere else, so the builder and
- * comparison views render exactly as they did before Phase 3C-C.
- */
-function ReorderableList({
-  places,
-  legs,
-  labelSuffix,
-  onMoveUp,
-  onMoveDown,
-  onRemove,
-  onMoveToPreviousGroup,
-  onMoveToNextGroup,
-  previousGroupLabel,
-  nextGroupLabel,
-  canMoveToPreviousGroup,
-  canMoveToNextGroup,
-  showDuration,
-  compact,
-}: {
-  places: Place[];
-  legs: OrderedSequenceLeg[];
-  labelSuffix: string;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  onRemove?: (id: string) => void;
-  onMoveToPreviousGroup?: (index: number) => void;
-  onMoveToNextGroup?: (index: number) => void;
-  previousGroupLabel?: string;
-  nextGroupLabel?: string;
-  canMoveToPreviousGroup?: boolean;
-  canMoveToNextGroup?: boolean;
-  showDuration?: boolean;
-  compact?: boolean;
-}) {
-  return (
-    <ol className={`sequence-list ${compact ? "sequence-list--compact" : ""}`}>
-      {places.map((place, index) => {
-        const range = resolveDuration(place.duration);
-        return (
-          <li key={place.id} className="sequence-item">
-            <div className="sequence-item__row">
-              <span className="sequence-item__index" aria-hidden="true">
-                {index + 1}
-              </span>
-              <span className="sequence-item__name">
-                {place.name}
-                {showDuration && (
-                  <span className="sequence-item__duration">
-                    {range ? formatRange(range) : place.duration.raw}
-                  </span>
-                )}
-              </span>
-              <div className="sequence-item__controls">
-                {onMoveToPreviousGroup && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onMoveToPreviousGroup(index)}
-                    disabled={!canMoveToPreviousGroup}
-                    aria-label={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
-                    title={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
-                  >
-                    <Icon name="atras" size={16} />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="icon-button icon-button--small"
-                  onClick={() => onMoveUp(index)}
-                  disabled={index === 0}
-                  aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
-                  title={`Mover ${place.name} hacia arriba${labelSuffix}`}
-                >
-                  <Icon name="arriba" size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button icon-button--small"
-                  onClick={() => onMoveDown(index)}
-                  disabled={index === places.length - 1}
-                  aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
-                  title={`Mover ${place.name} hacia abajo${labelSuffix}`}
-                >
-                  <Icon name="abajo" size={16} />
-                </button>
-                {onMoveToNextGroup && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onMoveToNextGroup(index)}
-                    disabled={!canMoveToNextGroup}
-                    aria-label={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
-                    title={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
-                  >
-                    <Icon name="siguiente" size={16} />
-                  </button>
-                )}
-                {onRemove && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onRemove(place.id)}
-                    aria-label={`Quitar ${place.name} del viaje`}
-                    title={`Quitar ${place.name} del viaje`}
-                  >
-                    <Icon name="cerrar" size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-            {index < legs.length && <LegConnector leg={legs[index]} />}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
 
 /** B9.1: a stop is a place-specific, keyboard-operable unit; the day, not a flat route, owns it. */
 function TripStop({
@@ -1164,147 +1010,6 @@ function OfficialReservationCalendarSection({
       </p>
     </section>
   );
-}
-
-/** Display-only Spanish labels for `ReservationCategory` — mirrors the tag vocabulary
- * `describeReservationForUi` already established in `lib/reservation.ts`, restated here as a
- * short label (no lead-time suffix, since this section shows lead time in its own line) rather
- * than imported, because this section also needs the two categories that render no tag there
- * (`not-required`, `not-required-role-specific`) to still show a short factual label here. */
-/**
- * Phase 3D-E's one UI surface — "Horarios registrados". A route-wide, read-only section built from
- * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`). Renders nothing
- * when `summary.items` is empty, exactly like `ReservationPreparationSection`.
- *
- * Unlike that section, every route place appears here exactly once — nothing is omitted by tier.
- * Wording is deliberately narrow throughout: "Horario registrado: 09:00–17:00" states a recorded
- * fact, never that the place is open at those hours on any date; every PARTIAL/OPAQUE/UNKNOWN
- * phrase ends in "revisar" (a call to double-check), never "closed," "incompatible," or "bad." The
- * original raw text is always shown alongside — the only detailed information Nihon may safely
- * surface once a caveat, external dependency, or genuine unknown is present. Nothing here reads the
- * chosen calendar anchor, any date derived from it, `place.schedule.closures`, `place.bestTime`, or
- * `place.febMar2027`.
- */
-function HoursPlanningSection({ summary }: { summary: RecordedHoursSummary }) {
-  if (summary.items.length === 0) return null;
-
-  const parts: string[] = [];
-  if (summary.safeCount > 0) parts.push(`${summary.safeCount} claro${summary.safeCount === 1 ? "" : "s"}`);
-  if (summary.conditionalCount > 0) parts.push(`${summary.conditionalCount} con condiciones`);
-  if (summary.externalDependencyCount > 0) {
-    // "con dependencia externa" is deliberately neutral over BOTH OPAQUE categories this count
-    // combines (weather-or-tide-dependent and third-party-operator-dependent) — "depende de un
-    // tercero" was semantically false for a weather/tide-dependent place (there is no third party
-    // involved), so this summary phrase must never name a specific dependency kind. The
-    // per-item labels below stay category-specific (`HOURS_CATEGORY_LABEL`) precisely because they
-    // describe one place's own category, not a combined count spanning both.
-    parts.push(`${summary.externalDependencyCount} con dependencia externa`);
-  }
-  if (summary.unknownCount > 0) parts.push(`${summary.unknownCount} por revisar`);
-
-  return (
-    <section className="hours-planning" aria-labelledby="hours-planning-heading">
-      <h3 id="hours-planning-heading">Horarios registrados</h3>
-      <p className="hours-planning__summary">{parts.join(" · ")}</p>
-      <ul className="hours-planning__list">
-        {summary.items.map((item) => (
-          <li key={item.placeId} className={`hours-planning__item hours-planning__item--${item.hours.tier}`}>
-            <span className="hours-planning__name">{item.placeName}</span>
-            <span className="hours-planning__signal">{hoursSignalText(item.hours)}</span>
-            <span className="hours-planning__raw"><EvidenceMark level="registrado" /> «{item.hours.raw}»</span>
-          </li>
-        ))}
-      </ul>
-      <p className="hours-planning__disclaimer">
-        Esta sección solo describe qué horario está registrado en el dato original de cada lugar.{" "}
-        <strong>
-          No determina si el lugar abre o cierra en tu fecha, no revisa festivos ni cierres, y no se compara con la
-          hora del día.
-        </strong>
-      </p>
-    </section>
-  );
-}
-
-/** Display-only Spanish labels for each `HoursCategory`'s recorded-hours signal — the domain type
- * stays a stable, locale-independent identifier (see `lib/recorded-hours.ts`); this is the one
- * place that turns it into user-facing text, exactly like `RESERVATION_PREP_LABEL` and
- * `LEAD_TIME_MAGNITUDE_LABEL` do above. Every phrase describes what the raw editorial text
- * records, never whether the place is open — no "abierto"/"cerrado" wording anywhere here.
- * `"fixed-interval-clean"` is handled specially by `hoursSignalText` below (it needs the actual
- * interval token, not a fixed phrase), so its entry here is unused but kept for exhaustiveness. */
-const HOURS_CATEGORY_LABEL: Record<HoursCategory, string> = {
-  missing: "Sin horario registrado; revisar",
-  "known-24h": "Acceso registrado: 24 h",
-  "known-24h-with-caveat": "Acceso 24 h registrado con condiciones; revisar",
-  "weather-or-tide-dependent": "Horario depende de clima o marea; revisar",
-  "third-party-operator-dependent": "Horario depende de un operador externo; revisar",
-  "seasonal-variable": "Horario estacional; revisar",
-  "solar-relative": "Horario relativo a la luz solar; revisar",
-  "daytime-qualitative": "Horario diurno registrado; revisar",
-  "partial-single-bound": "Horario parcialmente registrado; revisar",
-  "ambiguous-alternative-interval": "Horario con alternativas registradas; revisar",
-  "fixed-interval-with-caveat": "Horario registrado con condiciones; revisar",
-  "fixed-interval-clean": "Horario registrado",
-  "explicit-unknown-variable": "Horario variable; revisar dato original",
-  "qualitative-uncategorized": "Horario no estructurado; revisar",
-};
-
-function hoursSignalText(fact: RecordedHoursFact): string {
-  if (fact.kind === "recorded-interval") return `Horario registrado: ${fact.intervalRaw}`;
-  return HOURS_CATEGORY_LABEL[fact.category];
-}
-
-/**
- * The one place that turns a `SequenceComparisonOutcome` into Spanish prose. Every branch is
- * phrased as a statement about *these two orders*, never as a claim about the best possible
- * route — Phase 3C-B never evaluates more than the two candidates it was given.
- */
-function comparisonResultText(comparison: SequenceComparison): { headline: string; detail: string | null } {
-  let headline: string;
-  let detail: string | null;
-  switch (comparison.outcome) {
-    case "a-clearly-faster":
-      headline = "Entre estos dos órdenes, el orden A tiene menor tiempo de traslado.";
-      detail =
-        comparison.guaranteedAdvantageMinutes !== null
-          ? `Ventaja garantizada: al menos ${comparison.guaranteedAdvantageMinutes} min, incluso en el peor caso estimado.`
-          : null;
-      break;
-    case "b-clearly-faster":
-      headline = "Entre estos dos órdenes, el orden B tiene menor tiempo de traslado.";
-      detail =
-        comparison.guaranteedAdvantageMinutes !== null
-          ? `Ventaja garantizada: al menos ${comparison.guaranteedAdvantageMinutes} min, incluso en el peor caso estimado.`
-          : null;
-      break;
-    case "equivalent":
-      headline = "Los traslados conocidos de ambos órdenes son iguales.";
-      detail = null;
-      break;
-    case "overlapping":
-      headline = "No hay una diferencia clara con los datos disponibles.";
-      detail = "Los rangos de traslado de ambos órdenes se superponen.";
-      break;
-    case "incomplete": {
-      const aIncomplete = !comparison.candidateA.sequence.summary.complete;
-      const bIncomplete = !comparison.candidateB.sequence.summary.complete;
-      headline = "Comparación incompleta: faltan traslados registrados.";
-      if (aIncomplete && bIncomplete) {
-        detail = "Ambos órdenes contienen al menos un traslado sin registrar.";
-      } else if (aIncomplete) {
-        detail = "El orden A contiene al menos un traslado sin registrar.";
-      } else {
-        detail = "El orden B contiene al menos un traslado sin registrar.";
-      }
-      break;
-    }
-    case "invalid":
-      headline = "Estos órdenes no se pueden comparar.";
-      detail = "No representan exactamente el mismo conjunto de lugares.";
-      break;
-  }
-  return { headline, detail };
 }
 
 /**
@@ -2618,7 +2323,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     accommodationLegs,
     interHubSegments,
     zoneAccommodationChoices,
-    setRoute: setRouteIds,
     initializeDays,
     movePlaceWithinDay,
     relocatePlaceWithinDay,
@@ -2644,7 +2348,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     addInterHubSegment,
     updateInterHubSegment,
     removeInterHubSegment,
-    resetRoute,
   } = usePlanningDraft(savedIds);
   // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
   // given — `buildDayAssignment`, the calendar, weekday signals, reservation evaluation, hours
@@ -2682,13 +2385,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     [accommodations]
   );
 
-  // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
-  // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
-  const [view, setView] = useState<"builder" | "compare" | "days">("days");
-  // Phase 3C-B's candidates are intentionally NOT part of the persisted draft — see the module
-  // doc above. They stay plain, ephemeral component state.
-  const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
-  const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
   const [dayOrderSession, setDayOrderSession] = useState<DayOrderSession | null>(null);
   const dayOrderTriggerRefs = useRef(new Map<string, HTMLButtonElement>());
 
@@ -2705,23 +2401,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   const removedPlaces = useMemo(
     () => savedPlaces.filter((place) => !routeIds.includes(place.id)),
     [savedPlaces, routeIds]
-  );
-
-  const sequence = useMemo(() => buildOrderedSequence(routeIds), [routeIds]);
-  const visitSummary = useMemo(() => summarizeSelection(routePlaces), [routePlaces]);
-  const recordedHours = useMemo(() => buildRecordedHoursSummary(routePlaces), [routePlaces]);
-
-  const candidateAPlaces = useMemo(
-    () => candidateAIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
-    [candidateAIds, placeById]
-  );
-  const candidateBPlaces = useMemo(
-    () => candidateBIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
-    [candidateBIds, placeById]
-  );
-  const comparison = useMemo(
-    () => compareSequences(candidateAIds, candidateBIds),
-    [candidateAIds, candidateBIds]
   );
 
   const dayPlaceLists = useMemo(
@@ -2877,9 +2556,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   useEffect(() => {
     if (dragRef.current && dragRef.current.days !== planningDays) cancelDrag();
   }, [planningDays]);
-  useEffect(() => {
-    if (view !== "days" && dragRef.current) cancelDrag();
-  }, [view]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape" && dragRef.current) { event.preventDefault(); cancelDrag(); } };
     window.addEventListener("keydown", onKey);
@@ -3202,45 +2878,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   // evidence contracts. The day timeline no longer mounts their Apply-button component.
   void [applyLocalSwap, applyLocalRelocation, applyInteriorTransposition, applyFourPlaceReversal, applyTwoPairBlockSwap];
 
-  function moveUp(index: number) {
-    setRouteIds((ids) => moveItemUp(ids, index));
-  }
-  function moveDown(index: number) {
-    setRouteIds((ids) => moveItemDown(ids, index));
-  }
-  function removeFromRoute(id: string) {
-    setRouteIds((ids) => ids.filter((existing) => existing !== id));
-  }
-  function addToRoute(id: string) {
-    setRouteIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
-  }
-
-  // Candidate A starts as a clone of the current route draft, and Candidate B as a clone of
-  // Candidate A — both are then independently reorderable. Neither write-back to `routeIds`:
-  // the main draft is untouched while comparing, and closing the comparison discards both
-  // candidates rather than committing either as "the" route.
-  function openComparison() {
-    setCandidateAIds([...routeIds]);
-    setCandidateBIds([...routeIds]);
-    setView("compare");
-  }
-  function closeComparison() {
-    setView("builder");
-  }
-
-  // A canonical day assignment already restored from storage (Phase 3C-D) is shown as-is — it
-  // is a prior user decision, not something to discard on reopen. Only when none exists yet
-  // (`days === null`: never split, or invalidated by a route composition change) does opening
-  // start from a single day holding the exact current route order — not a recommendation,
-  // simply the route as it stands before any day boundary exists. Either way this never writes
-  // back into the route itself.
-  function openDayAssignment() {
-    if (days === null) {
-      initializeDays([[...routeIds]]);
-    }
-    setView("days");
-  }
-
   function openDayOrderTool(dayId: string, placeIds: readonly string[]) {
     if (placeIds.length < 2) return;
     setDayOrderSession({ dayId, baselineDayPlaceIds: [...placeIds] });
@@ -3325,20 +2962,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     return () => document.removeEventListener("keydown", onKeyDown, true);
   }, [onClose, embedded]);
 
-  const resultText = view === "compare" ? comparisonResultText(comparison) : null;
-
-  const headerTitle =
-    view === "compare" ? "Comparar órdenes" : view === "days" ? "Viaje" : "Construir recorrido";
-  const headerSub =
-    view === "compare"
-      ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
-      : view === "days"
-        ? startDate
-          ? endDate
-            ? `${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)}`
-            : `Desde ${formatCivilDateDisplay(startDate)}`
-          : "Organiza el viaje día a día"
-        : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`;
+  const headerTitle = "Viaje";
+  const headerSub = startDate
+    ? endDate
+      ? `${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)}`
+      : `Desde ${formatCivilDateDisplay(startDate)}`
+    : "Organiza el viaje día a día";
 
   const Outer = embedded ? Fragment : "div";
   const outerProps = embedded ? {} : { className: "analysis-overlay" };
@@ -3365,15 +2994,10 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
         <div hidden={section !== "dias"}>
         <header className="analysis-header">
           <div>
-            {view === "compare" && (
-              <button type="button" className="link-button sequence-back" onClick={closeComparison}>
-                <Icon name="atras" size={16} /> Volver al recorrido
-              </button>
-            )}
             <h2 id="sequence-builder-title">
               {headerTitle}
               {/* B10-A3: el `h1` de la pantalla ya dice «Viaje»; el nombre accesible de la sección es «Viaje · Días» (como «Reservas»/«Resumen»). Lo visible no cambia. */}
-              {view === "days" && <span className="visually-hidden"> · Días</span>}
+              <span className="visually-hidden"> · Días</span>
             </h2>
             <p className="analysis-header__sub">{headerSub}</p>
           </div>
@@ -3390,166 +3014,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
         </header>
 
         <div className="analysis-body">
-          {view === "builder" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Tú eliges el orden con las flechas. Nihon describe
-                los traslados de ese orden exacto; <strong>no sugiere ni calcula el mejor orden</strong>.
-              </p>
-              <p className="analysis-disclaimer">
-                Este recorrido se guarda automáticamente en este navegador, junto con el reparto
-                por días si lo creas.
-              </p>
-
-              {routePlaces.length === 0 ? (
-                <p className="sequence-empty">
-                  El recorrido está vacío. Añade lugares guardados desde la lista de abajo.
-                </p>
-              ) : (
-                <>
-                  <ReorderableList
-                    places={routePlaces}
-                    legs={sequence.legs}
-                    labelSuffix=""
-                    onMoveUp={moveUp}
-                    onMoveDown={moveDown}
-                    onRemove={removeFromRoute}
-                  />
-
-                  <TransferAndVisitTotals visitSummary={visitSummary} sequenceSummary={sequence.summary} />
-
-                  <p className="analysis-disclaimer">
-                    <span aria-hidden="true">ⓘ</span> Los traslados conocidos usan la misma
-                    clasificación que la ficha de cada lugar: rutas validadas, estimaciones
-                    geográficas u horarios en vivo. <strong>No incluyen tiempo dentro de cada lugar.</strong>
-                  </p>
-
-
-                  <HoursPlanningSection summary={recordedHours} />
-
-                  <InterHubSegmentsSection
-                    routeIds={routeIds}
-                    days={days}
-                    placeById={placeById}
-                    segments={interHubSegments}
-                    onAdd={addInterHubSegment}
-                    onUpdate={updateInterHubSegment}
-                    onRemove={removeInterHubSegment}
-                  />
-
-                  <ZonePlanSection
-                    variant="summary"
-                    choices={zoneAccommodationChoices}
-                    dayLinks={zoneDayLinks}
-                    hubLinks={zoneHubLinks}
-                    anchorLabelById={anchorLabelById}
-                    onClear={clearZoneAccommodation}
-                  />
-
-                  {routePlaces.length >= 2 && (
-                    <div className="sequence-secondary-actions">
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openComparison}
-                      >
-                        <Icon name="comparar" size={16} /> Comparar otro orden
-                      </button>
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openDayAssignment}
-                      >
-                        <Icon name="calendario" size={16} /> Distribuir por días
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-
-
-              <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
-                Restablecer lugares y días
-              </button>
-
-              {removedPlaces.length > 0 && (
-                <section className="analysis-section">
-                  <h3>Guardados fuera del recorrido</h3>
-                  <p className="analysis-section__note">
-                    Siguen en <strong>Quiero ir</strong>. Añádelos aquí si quieres incluirlos en
-                    este recorrido.
-                  </p>
-                  <ul className="analysis-place-list">
-                    {removedPlaces.map((place) => (
-                      <li key={place.id}>
-                        <button
-                          type="button"
-                          className="analysis-place"
-                          onClick={() => addToRoute(place.id)}
-                          aria-label={`Añadir ${place.name} al recorrido`}
-                        >
-                          <span>{place.name}</span>
-                          <span aria-hidden="true">＋</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-            </>
-          )}
-
-          {view === "compare" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Compara exactamente estos dos órdenes de los
-                mismos lugares. <strong>No genera ni sugiere un orden</strong>; reordena el orden B
-                (y, si quieres, el orden A) con las flechas.
-              </p>
-
-              <div className="comparison-candidates">
-                <section className="comparison-candidate" aria-labelledby="candidate-a-heading">
-                  <h3 id="candidate-a-heading">Orden A</h3>
-                  <ReorderableList
-                    places={candidateAPlaces}
-                    legs={comparison.candidateA.sequence.legs}
-                    labelSuffix=" en orden A"
-                    onMoveUp={(index) => setCandidateAIds((ids) => moveItemUp(ids, index))}
-                    onMoveDown={(index) => setCandidateAIds((ids) => moveItemDown(ids, index))}
-                    compact
-                  />
-                  <CandidateSummary candidate={comparison.candidateA} />
-                </section>
-
-                <section className="comparison-candidate" aria-labelledby="candidate-b-heading">
-                  <h3 id="candidate-b-heading">Orden B</h3>
-                  <ReorderableList
-                    places={candidateBPlaces}
-                    legs={comparison.candidateB.sequence.legs}
-                    labelSuffix=" en orden B"
-                    onMoveUp={(index) => setCandidateBIds((ids) => moveItemUp(ids, index))}
-                    onMoveDown={(index) => setCandidateBIds((ids) => moveItemDown(ids, index))}
-                    compact
-                  />
-                  <CandidateSummary candidate={comparison.candidateB} />
-                </section>
-              </div>
-
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> El tiempo de visita no cambia entre A y B; solo
-                estamos comparando el orden y sus traslados.
-              </p>
-
-              <div className="comparison-result" role="status">
-                <h3>Resultado</h3>
-                <p className="comparison-result__headline">{resultText?.headline}</p>
-                {resultText?.detail && <p className="comparison-result__detail">{resultText.detail}</p>}
-              </div>
-            </>
-          )}
-
-          {view === "days" && (
             <>
               <p className="days-framing">
                 <EvidenceMark level="nihon" label={false} /> Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.
@@ -3924,7 +3388,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 )}
               </details>
             </>
-          )}
         </div>
         </div>
         {section === "reservas" && <TripReservations

@@ -36,7 +36,7 @@ describe("B10-A1…A4 — estructura semántica (cerrados en el endurecimiento p
 
   it("A3: el h2 de la sección Días no repite el nombre accesible del h1 «Viaje»", () => {
     expect(strip(read("components/OrderedSequenceBuilder.tsx"))).toMatch(
-      /<h2 id="sequence-builder-title">\s*\{headerTitle\}\s*(?:\{\}\s*)?\{view === "days" && <span className="visually-hidden"> · Días<\/span>\}\s*<\/h2>/
+      /<h2 id="sequence-builder-title">\s*\{headerTitle\}\s*(?:\{\}\s*)?<span className="visually-hidden"> · Días<\/span>\s*<\/h2>/
     );
   });
 

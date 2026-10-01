@@ -53,56 +53,6 @@
   color: var(--color-text-muted);
 }
 
-.sequence-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.sequence-item {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 0.7rem;
-}
-
-.sequence-item__row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.sequence-item__index {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background: var(--color-surface-alt);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-}
-
-.sequence-item__name {
-  flex: 1 1 auto;
-  min-width: 8rem;
-  font-weight: 600;
-  font-size: 0.92rem;
-}
-
-.sequence-item__controls {
-  display: flex;
-  gap: 0.3rem;
-  flex-shrink: 0;
-}
-
 .sequence-leg {
   margin: 0.45rem 0 0 2rem;
   font-size: 0.82rem;
@@ -114,75 +64,9 @@
 }
 
 @media (max-width: 380px) {
-  .sequence-item__index {
-    display: none;
-  }
-
   .sequence-leg {
     margin-left: 0;
   }
-}
-
-.sequence-back {
-  display: inline-block;
-  margin-bottom: 0.2rem;
-}
-
-.sequence-secondary-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.sequence-compare-toggle {
-  flex: 1 1 auto;
-  min-width: 9rem;
-}
-
-.comparison-candidates {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.sequence-list--compact .sequence-item {
-  padding: 0.4rem 0.55rem;
-}
-
-.sequence-list--compact .sequence-item__name {
-  font-size: 0.85rem;
-  min-width: 5rem;
-}
-
-.comparison-result {
-  margin-top: 1rem;
-  padding: 0.85rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-}
-
-.comparison-result h3 {
-  margin: 0 0 0.4rem;
-  font-size: 0.9rem;
-}
-
-.comparison-result__headline {
-  margin: 0;
-  font-weight: 600;
-}
-
-.comparison-result__detail {
-  margin: 0.3rem 0 0;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.sequence-item__duration {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 400;
-  color: var(--color-text-muted);
 }
 
 .sequence-day-invalid {
@@ -223,11 +107,6 @@
 
 .sequence-add-day {
   width: 100%;
-}
-
-.sequence-reset {
-  align-self: flex-start;
-  margin-top: 0.3rem;
 }
 
 .calendar-anchor__label {
@@ -446,78 +325,6 @@
    and `.reservation-prep__leadtime--opaque` already use, plus the softer risk tone for OPAQUE),
    never a red/error treatment — an OPAQUE or UNKNOWN hours record is a "revisar" signal, not a
    fault. */
-
-.hours-planning {
-  margin-top: 1rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.hours-planning h3 {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.hours-planning__summary {
-  margin: 0;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-}
-
-.hours-planning__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.hours-planning__item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
-  font-size: 0.8rem;
-}
-
-.hours-planning__item--partial {
-  background: var(--color-warn-soft);
-}
-
-.hours-planning__item--opaque {
-  background: var(--color-risk-soft);
-}
-
-.hours-planning__name {
-  font-weight: 600;
-}
-
-.hours-planning__signal {
-  color: var(--color-text-muted);
-}
-
-.hours-planning__item--partial .hours-planning__signal,
-.hours-planning__item--opaque .hours-planning__signal {
-  color: var(--color-text);
-}
-
-.hours-planning__raw {
-  font-style: italic;
-  color: var(--color-text-muted);
-}
-
-.hours-planning__disclaimer {
-  margin: 0;
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-}
 
 .reservation-deadline__item {
   display: flex;
@@ -1325,11 +1132,6 @@
 }
 
 .day-card { padding: clamp(.75rem, 3vw, 1.25rem); border-radius: var(--radius-l); }
-
-.sequence-item__controls .icon-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
 
 .trip-stop__media .photo-placeholder { min-height: 100%; padding: .25rem; }
 
