@@ -11,6 +11,12 @@ import {
   openPlace as shellOpenPlace,
 } from "./lib/shell-navigation.mjs";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva TODAS las afirmaciones. Las galerías tienen hoy
+ * 2–3 fotografías (B6.5–B6.7) y el `locator` estricto sólo admitía una: la imagen y el registro de atribución que este gate fija son los de
+ * la fotografía de identidad, es decir, el PRIMERO (`.gallery__image` primero, `.credits-sheet__item` primero).
+ */
+
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4j-vite-"));
@@ -80,10 +86,11 @@ try {
     // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
     // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
     await page.locator(".gallery__credits").click();
-    const creditNode = page.locator(".credits-sheet__list");
-    await creditNode.waitFor();
+    const creditsList = page.locator(".credits-sheet__list");
+    await creditsList.waitFor();
+    const creditNode = creditsList.locator(".credits-sheet__item").first();
 
-    const image = page.locator(".gallery__image");
+    const image = page.locator(".gallery__image").first();
     assert.equal(await image.getAttribute("src"), assetPath, `${label}: local asset path`);
 
     const sourceLink = creditNode.getByRole("link", { name: "Wikimedia Commons" });
@@ -179,7 +186,7 @@ try {
     assetPath: "/images/places/JP-212/grand-sumo-tournament-osaka.webp",
   });
   assert.doesNotMatch(temporalText, /2027/);
-  const temporalAlt = await page.locator(".gallery__image").getAttribute("alt");
+  const temporalAlt = await page.locator(".gallery__image").first().getAttribute("alt");
   assert.doesNotMatch(temporalAlt ?? "", /2027/, "JP-212: alt must not claim the 2027 edition");
   record("E. temporal target stays factual", "JP-212 prior-edition image");
 

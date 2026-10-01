@@ -1,6 +1,7 @@
 import { Icon } from "../icons/Icon";
 import type { Traveller } from "../lib/travellers";
 
+import "./PersonToken.css";
 type Size = "xs" | "sm" | "md";
 
 type Props = {

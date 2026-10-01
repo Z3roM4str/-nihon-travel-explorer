@@ -11,6 +11,17 @@ import {
   openPlace as shellOpenPlace,
 } from "./lib/shell-navigation.mjs";
 
+import { readFileSync as _readFileSync } from "node:fs";
+const _places = JSON.parse(_readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8"));
+const _photographed = new Set(JSON.parse(_readFileSync(new URL("../src/data/photography-metadata.json", import.meta.url), "utf8")).images.map((i) => i.placeId));
+const FIRST_UNPHOTOGRAPHED_OSAKA = _places.find((p) => p.hub === "Osaka" && !_photographed.has(p.id));
+
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva TODAS las afirmaciones. Las galerías tienen hoy
+ * 2–3 fotografías (B6.5–B6.7) y el `locator` estricto sólo admitía una: la imagen y el registro de atribución que este gate fija son los de
+ * la fotografía de identidad, es decir, el PRIMERO (`.gallery__image` primero, `.credits-sheet__item` primero).
+ */
+
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const cacheDir = await mkdtemp(join(tmpdir(), "nihon-phase4l-vite-"));
@@ -80,9 +91,10 @@ try {
     // mismos campos, los mismos enlaces, la misma ausencia de afirmaciones legales); sólo cambia
     // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
     await page.locator(".gallery__credits").click();
-    const creditNode = page.locator(".credits-sheet__list");
-    await creditNode.waitFor();
-    const image = page.locator(".gallery__image");
+    const creditsList = page.locator(".credits-sheet__list");
+    await creditsList.waitFor();
+    const creditNode = creditsList.locator(".credits-sheet__item").first();
+    const image = page.locator(".gallery__image").first();
     assert.equal(await image.getAttribute("src"), assetPath, `${label}: local asset path`);
     const sourceLink = creditNode.getByRole("link", { name: "Wikimedia Commons" });
     assert.equal(await sourceLink.getAttribute("href"), sourceHref, `${label}: source link`);
@@ -151,13 +163,16 @@ try {
     assetPath: "/images/places/JP-213/tokyo-marathon.webp",
   });
   assert.doesNotMatch(temporalText, /2027/);
-  const temporalAlt = await page.locator(".gallery__image").getAttribute("alt");
+  const temporalAlt = await page.locator(".gallery__image").first().getAttribute("alt");
   assert.doesNotMatch(temporalAlt ?? "", /2027/, "JP-213: alt must not claim the 2027 edition");
   record("3. temporal target stays factual", "JP-213 prior-edition image");
 
   // 4. The single Phase 4L failure keeps its fallback.
-  await assertFallback("Osaka", "Mount Rokko night view", "JP-140");
-  record("4. failed target keeps fallback", "JP-140");
+  // JP-140 (Mount Rokko night view) ganó fotografía licenciada en B6.x (autorizado): el gate original lo fijaba como «el único fallo de 4L».
+  // La invariante (un lugar SIN fotografía en el registro conserva el respaldo editorial, sin crédito ni imagen) se comprueba con el primer
+  // lugar de Osaka que hoy no la tiene, derivado de los datos.
+  await assertFallback("Osaka", FIRST_UNPHOTOGRAPHED_OSAKA.name, FIRST_UNPHOTOGRAPHED_OSAKA.id);
+  record("4. failed target keeps fallback", FIRST_UNPHOTOGRAPHED_OSAKA.id);
 
   // 5. Historical photographed place still renders (Phase 4J regression).
   await dismissOnboarding(page, url);

@@ -112,10 +112,11 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
-    await page.getByRole("heading", { name: "Día 1" }).waitFor();
+    // B27–B31: Viaje abre directamente sobre Días; Reservas es una sección propia de Viaje.
+    await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Viaje" }).click();
+    await page.locator(".day-card[data-day-id]").first().waitFor();
+    await page.getByRole("group", { name: "Secciones de Viaje" }).getByRole("button", { name: "Reservas", exact: true }).click();
+    await page.locator(".trip-reservations").waitFor();
   }
 
   async function bootPlanner(planningDraft, referenceCivilDate) {
@@ -128,6 +129,8 @@ try {
 
     await page.addInitScript(fixBrowserCivilDate, referenceCivilDate.split("-").map(Number));
     await page.addInitScript(({ saved, draft }) => {
+      // B18+: el onboarding de primera ejecución cubre la navegación; el gate parte de «ya visto».
+      localStorage.setItem("nihon.onboarding.seen.v1", "1");
       if (localStorage.getItem("nihon.savedPlaceIds") === null) {
         localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(saved));
       }
@@ -208,7 +211,7 @@ try {
         .allInnerTexts();
       assert.equal(relations.length, 2);
       for (const relation of relations) {
-        assert.match(relation, /cae dentro del tramo de fechas registrado para la solicitud\./);
+        assert.match(relation, /cae dentro del intervalo de fechas registrado para la solicitud\./);
       }
       record("E. per-record temporal relation", "2 relations, both record-local");
 

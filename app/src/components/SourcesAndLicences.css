@@ -1,0 +1,44 @@
+/* Fuentes y licencias */
+
+.sources__heading {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.sources__heading:first-child {
+  margin-top: 0;
+}
+
+.sources__license {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+.sources__license-count {
+  font-family: var(--font-record);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-500);
+}
+
+.sources__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  overflow-wrap: anywhere;
+}
+
+.sources__meta {
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}

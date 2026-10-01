@@ -278,6 +278,15 @@ try {
     await page.locator(".day-card[data-day-id]").first().waitFor();
   }
 
+  /** B31 (B9.5): Viaje tiene cuatro secciones propias (Días · Dónde dormir · Reservas · Resumen). */
+  async function openViajeSection(name) {
+    const button = page
+      .getByRole("group", { name: "Secciones de Viaje" })
+      .getByRole("button", { name, exact: true });
+    await button.click();
+    assert.equal(await button.getAttribute("aria-pressed"), "true", `${name} did not become the active section`);
+  }
+
   async function openDayTools() {
     const tools = page.locator(".days-tools");
     await tools.waitFor();
@@ -584,7 +593,7 @@ try {
     await positionSelect.selectOption({ label: pair });
     await section.locator("select").nth(1).selectOption({ label: "Shinkansen" });
     await section.locator("input[type=number]").first().fill("140");
-    await section.getByRole("button", { name: /Añadir tramo/ }).click();
+    await section.getByRole("button", { name: /Añadir traslado/ }).click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
     assert.equal(draft.interHubSegments.length, 1,
@@ -601,7 +610,8 @@ try {
   });
 
   await step("A14 whole-trip composition renders and reconciles", async () => {
-    await openDayTools();
+    // B31: la composición del viaje vive en la sección Resumen (ya no en las herramientas de Días).
+    await openViajeSection("Resumen");
     const summary = page.locator(".whole-trip-composition");
     await summary.first().waitFor({ state: "visible" });
     const text = await summary.first().textContent();
@@ -739,8 +749,10 @@ try {
     await openPlanner();
     await page.locator("#sequence-start-date").fill(TRIP_START);
     await page.waitForTimeout(300);
+    // B31: las reservas son una sección propia de Viaje; el resto de C-steps leen esa sección.
+    await openViajeSection("Reservas");
     const body = await plannerDialog().textContent();
-    assert.match(body, /Reservas por preparar|Fechas de reserva/,
+    assert.match(body, /Reservas|Fechas de reserva/,
       "no reservation surface for a plan containing JP-044");
     return "reservation surface present";
   });
@@ -810,12 +822,14 @@ try {
   /** Issue #118 §10: the manual visit-start control is only offered where a recorded interval
    * exists to compare against — every rendered input must sit beside its raw recorded datum. */
   await step("C06 visit-start fit is offered only beside a recorded interval", async () => {
+    await openViajeSection("Días");
     const items = page.locator(".recorded-interval-fit__item");
     const count = await items.count();
     if (count === 0) return "no eligible place in this plan";
     for (let i = 0; i < count; i += 1) {
       const text = await items.nth(i).textContent();
-      assert.match(text, /Dato: «.+»/,
+      // D5/B31 (DDR-05): el literal «Dato:» se retiró; el dato crudo va entre comillas con ◧ Registrado.
+      assert.match(text, /«.+»/,
         `a visit-start control rendered without its raw recorded interval: ${text.slice(0, 80)}`);
       assert.equal(await items.nth(i).locator("input[type=time]").count(), 1,
         "recorded-interval item without exactly one time input");

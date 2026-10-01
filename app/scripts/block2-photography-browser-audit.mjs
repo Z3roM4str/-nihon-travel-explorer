@@ -3,6 +3,11 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva TODAS las afirmaciones; sólo cambió la
+ * última entrada: la miniatura de la lista de guardados vivía en `.selection-list__thumb` (panel retirado en B18/B25); ahora la fila de
+ * Quiero ir es una `PlaceCard` compacta (`.quiero-ir__row`) y su imagen debe seguir siendo la rendición de tarjeta (-800w).
+ */
 /**
  * Block 2 — photographic layer browser audit, against the production build via `vite preview`.
  *
@@ -276,14 +281,9 @@ async function auditViewport(browser, name, url) {
     .getByRole("button", { name: "Quiero ir" })
     .click();
   await page.waitForTimeout(600);
-  // En su propia pestaña el panel nace abierto (B18); el plegado se conserva por si el lector
-  // lo quiere cerrar. Sólo se pulsa el toggle si hace falta — pulsarlo siempre lo cerraría.
-  const toggle = page.locator(".destination-panel:not([hidden]) .selection-panel__toggle");
-  if ((await toggle.getAttribute("aria-expanded").catch(() => null)) === "false") {
-    await toggle.click();
-    await page.waitForTimeout(600);
-  }
-  const thumbSrc = await page.locator(".selection-list__thumb img").first().evaluate((el) => el.currentSrc);
+  // Quiero ir (B25): las filas son `PlaceCard` compactas dentro de `.quiero-ir__row`; la imagen sigue siendo la de tarjeta.
+  await page.waitForSelector(".quiero-ir__row img", { timeout: 10000 });
+  const thumbSrc = await page.locator(".quiero-ir__row img").first().evaluate((el) => el.currentSrc);
   check("the saved-list thumbnail uses the card rendition", thumbSrc.includes("-800w"), thumbSrc.split("/").pop());
 
   // ---- Integrity ----

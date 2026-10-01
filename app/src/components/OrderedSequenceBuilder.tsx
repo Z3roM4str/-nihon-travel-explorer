@@ -2,34 +2,24 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type Point
 import type { Place } from "../types";
 import { formatMinutes, formatRange, resolveDuration } from "../lib/duration";
 import { summarizeSelection } from "../lib/selection";
-import { buildOrderedSequence, type OrderedSequenceLeg, type OrderedSequenceSummary } from "../lib/ordered-sequence";
+import type { OrderedSequenceLeg, OrderedSequenceSummary } from "../lib/ordered-sequence";
 import {
-  compareSequences,
-  type ConfidenceCounts,
-  type SequenceComparison,
-} from "../lib/sequence-comparison";
-import {
-  applyEvidenceCompleteLocalSwap,
   generateEvidenceCompleteLocalSwaps,
   type EvidenceCompleteLocalSwapAlternative,
 } from "../lib/evidence-complete-local-swap";
 import {
-  applyEvidenceCompleteLocalRelocation,
   generateEvidenceCompleteLocalRelocations,
   type EvidenceCompleteLocalRelocationAlternative,
 } from "../lib/evidence-complete-local-relocation";
 import {
-  applyEvidenceCompleteInteriorTransposition,
   generateEvidenceCompleteInteriorTranspositions,
   type EvidenceCompleteInteriorTranspositionAlternative,
 } from "../lib/evidence-complete-interior-transposition";
 import {
-  applyEvidenceCompleteFourPlaceInteriorReversal,
   generateEvidenceCompleteFourPlaceInteriorReversals,
   type EvidenceCompleteFourPlaceInteriorReversalAlternative,
 } from "../lib/evidence-complete-four-place-interior-reversal";
 import {
-  applyEvidenceCompleteTwoPairBlockSwap,
   generateEvidenceCompleteTwoPairBlockSwaps,
   type EvidenceCompleteTwoPairBlockSwapAlternative,
 } from "../lib/evidence-complete-two-pair-block-swap";
@@ -45,8 +35,6 @@ import {
   type TripBoundsAssessment,
   type TripBoundsSummary,
 } from "../lib/trip-bounds";
-import { buildRecordedHoursSummary, type RecordedHoursSummary } from "../lib/hours-planning";
-import type { HoursCategory, RecordedHoursFact } from "../lib/recorded-hours";
 import {
   buildPresentableDayHoursClosureCompositions,
 } from "../lib/hours-closure-composition";
@@ -125,9 +113,10 @@ import { TripReservations } from "./TripReservations";
 import { TripTimeline } from "./TripTimeline";
 import { buildTripReservationRows } from "../lib/trip-reservation-presentation";
 import { DayOrderToolPanel, type DayOrderEvidenceAlternative, type DayOrderEvidenceOption } from "./DayOrderToolPanel";
-import { SequenceCandidateSummary as CandidateSummary } from "./SequenceCandidateSummary";
 import { hasSamePlaceOrder, isPlaceOrderPermutation } from "../lib/day-order-tool";
 
+import "./OrderedSequenceBuilder.css";
+import "./AnalysisDialog.css";
 type Props = {
   /** The wishlist, in its saved order — the source the route draft is initialized from and
    * the set a place can be added back from. Never mutated: removing a place from the route
@@ -175,16 +164,15 @@ type DayOrderSession = {
  * user's own ordering/grouping structure; every derived value here is still recomputed on read,
  * exactly as before this phase.
  *
- * Phase 3C-B's comparison candidates ("orden A"/"orden B") are deliberately **not** part of that
- * persisted draft and never will be: `candidateAIds`/`candidateBIds` remain plain component
- * state, cloned fresh from the current route each time the comparison view opens and discarded
- * on close — see `openComparison`/`closeComparison` below.
+ * The "builder" (single-route) and "compare" (the global A/B comparison, Phase 3C-B) views of earlier phases were
+ * unreachable since the days view became the entry surface (B27) and were retired as D5-M1 in the
+ * release-hardening pass: B29 replaced the global A/B comparison with the per-day «Probar otro orden»
+ * tool (`DayOrderToolPanel`, same `sequence-comparison.ts` rules, no A/B and no score). Their candidates were
+ * never persisted, so no stored state depended on them. `docs/D5_M1_UNREACHABLE_VIEWS_RETIREMENT.md` has the proof.
  *
- * Phase 3C-B and Phase 3C-C each render as a **nested view inside this same dialog** rather than
- * a second modal — one focus trap, one Escape-closes-everything behaviour, no stacked dialogs.
- * Composition is fixed once either nested view opens: neither the comparison candidates nor the
- * day buckets can add or remove a place, only reorder or move between the fixed set — see
- * `sequence-comparison.ts` and `day-assignment.ts` for the guarantees that rest on that.
+ * The days view lives **inside this same dialog** — one focus trap, one Escape-closes-everything behaviour,
+ * no stacked dialogs. Composition is fixed there: day buckets can only reorder or move between the fixed
+ * set — see `day-assignment.ts` for the guarantees that rest on that.
  *
  * Phase 3D-B adds one narrow, read-only signal to each day card that already has a derived date:
  * whether that date's weekday matches a candidate recurring-weekday closure extracted from a
@@ -197,7 +185,7 @@ type DayOrderSession = {
  *
  * Phase 3D-D adds one route-wide, read-only section — "Reservas por preparar" — built from
  * `../lib/reservation-planning.ts` over the current canonical route (`routePlaces`), deliberately
- * rendered in the "builder" view rather than inside a day card: the underlying signal
+ * rendered route-wide rather than inside a day card: the underlying signal
  * (`reservation.leadTime`'s coarse magnitude or "needs review" flag) is useful before the route is
  * even split into days, and never depends on `startDate` or any derived date. It composes two
  * independently-derived axes — `../lib/reservation.ts`'s `ReservationFact` and
@@ -232,17 +220,8 @@ type DayOrderSession = {
  * sibling of Phase 3D-H rather than a merged/intersected reservation window and never become a
  * current sale-state, availability, urgency, ranking or purchase instruction.
  *
- * Phase 3D-E adds one more route-wide, read-only section — "Horarios registrados" — built from
- * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`), rendered next to
- * "Reservas por preparar" for the same reason: the underlying signal (what kind of hours
- * information `place.schedule.hours` records) is useful before the route is split into days, and
- * never depends on `startDate` or any derived date. Unlike the reservation section, no place is
- * ever omitted — every place gets an entry, even an UNKNOWN/OPAQUE one, because "the hours are
- * variable" or "depends on an outside operator" is itself planning-relevant information. This
- * section never answers whether a place is open, never compares against a date or clock time, and
- * never composes with Phase 3D-B's closure signal or `febMar2027` — see `../lib/recorded-hours.ts`
- * for the exact product boundary and `HoursPlanningSection` below for the wording this is allowed
- * to use.
+ * Phase 3D-E's route-wide "Horarios registrados" section rendered in the retired route view and was removed with
+ * it (D5-M1), together with its now-unused aggregation `lib/hours-planning.ts`; `../lib/recorded-hours.ts` stays (it feeds the day views).
  *
  * **Phase 3D-Q — Manual Accommodation Commute Legs** adds the first surface in this planner that
  * reaches outside a day's own place sequence, and it does so only with decisions the user makes
@@ -279,19 +258,7 @@ function LegConnector({ leg }: { leg: OrderedSequenceLeg }) {
   );
 }
 
-function moveItemUp<T>(items: readonly T[], index: number): T[] {
-  if (index <= 0) return [...items];
-  const next = [...items];
-  [next[index - 1], next[index]] = [next[index], next[index - 1]];
-  return next;
-}
 
-function moveItemDown<T>(items: readonly T[], index: number): T[] {
-  if (index >= items.length - 1) return [...items];
-  const next = [...items];
-  [next[index], next[index + 1]] = [next[index + 1], next[index]];
-  return next;
-}
 
 // ---------------------------------------------------------------------------------------
 // Phase 3D-S removed this file's local day-bucket array helpers (`addEmptyDay`,
@@ -302,131 +269,6 @@ function moveItemDown<T>(items: readonly T[], index: number): T[] {
 // `addEmptyDay`, `removeEmptyDay`). The day's ordinal position is still what the UI renders and
 // what every temporal/logistics consumer receives; it is simply no longer what identifies it.
 // ---------------------------------------------------------------------------------------
-
-/**
- * One reorderable, place-specific list — the main route draft, each comparison candidate, and
- * each day bucket all render through this so the accessible reorder mechanics (move up/down,
- * disabled at the ends, place-specific `aria-label`s) exist in exactly one place. `labelSuffix`
- * disambiguates which list a screen-reader user is moving something within (e.g. " en orden A",
- * " en Día 2"); `onRemove` is only passed by the main route draft. `onMoveToPreviousGroup`/
- * `onMoveToNextGroup` are only passed by the day-assignment view, for moving a place into the
- * adjacent day — omitted entirely (not merely disabled) everywhere else, so the builder and
- * comparison views render exactly as they did before Phase 3C-C.
- */
-function ReorderableList({
-  places,
-  legs,
-  labelSuffix,
-  onMoveUp,
-  onMoveDown,
-  onRemove,
-  onMoveToPreviousGroup,
-  onMoveToNextGroup,
-  previousGroupLabel,
-  nextGroupLabel,
-  canMoveToPreviousGroup,
-  canMoveToNextGroup,
-  showDuration,
-  compact,
-}: {
-  places: Place[];
-  legs: OrderedSequenceLeg[];
-  labelSuffix: string;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  onRemove?: (id: string) => void;
-  onMoveToPreviousGroup?: (index: number) => void;
-  onMoveToNextGroup?: (index: number) => void;
-  previousGroupLabel?: string;
-  nextGroupLabel?: string;
-  canMoveToPreviousGroup?: boolean;
-  canMoveToNextGroup?: boolean;
-  showDuration?: boolean;
-  compact?: boolean;
-}) {
-  return (
-    <ol className={`sequence-list ${compact ? "sequence-list--compact" : ""}`}>
-      {places.map((place, index) => {
-        const range = resolveDuration(place.duration);
-        return (
-          <li key={place.id} className="sequence-item">
-            <div className="sequence-item__row">
-              <span className="sequence-item__index" aria-hidden="true">
-                {index + 1}
-              </span>
-              <span className="sequence-item__name">
-                {place.name}
-                {showDuration && (
-                  <span className="sequence-item__duration">
-                    {range ? formatRange(range) : place.duration.raw}
-                  </span>
-                )}
-              </span>
-              <div className="sequence-item__controls">
-                {onMoveToPreviousGroup && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onMoveToPreviousGroup(index)}
-                    disabled={!canMoveToPreviousGroup}
-                    aria-label={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
-                    title={`Mover ${place.name} ${previousGroupLabel ?? "al grupo anterior"}`}
-                  >
-                    <Icon name="atras" size={16} />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="icon-button icon-button--small"
-                  onClick={() => onMoveUp(index)}
-                  disabled={index === 0}
-                  aria-label={`Mover ${place.name} hacia arriba${labelSuffix}`}
-                  title={`Mover ${place.name} hacia arriba${labelSuffix}`}
-                >
-                  <Icon name="arriba" size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button icon-button--small"
-                  onClick={() => onMoveDown(index)}
-                  disabled={index === places.length - 1}
-                  aria-label={`Mover ${place.name} hacia abajo${labelSuffix}`}
-                  title={`Mover ${place.name} hacia abajo${labelSuffix}`}
-                >
-                  <Icon name="abajo" size={16} />
-                </button>
-                {onMoveToNextGroup && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onMoveToNextGroup(index)}
-                    disabled={!canMoveToNextGroup}
-                    aria-label={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
-                    title={`Mover ${place.name} ${nextGroupLabel ?? "al grupo siguiente"}`}
-                  >
-                    <Icon name="siguiente" size={16} />
-                  </button>
-                )}
-                {onRemove && (
-                  <button
-                    type="button"
-                    className="icon-button icon-button--small"
-                    onClick={() => onRemove(place.id)}
-                    aria-label={`Quitar ${place.name} del recorrido`}
-                    title={`Quitar ${place.name} del recorrido`}
-                  >
-                    <Icon name="cerrar" size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-            {index < legs.length && <LegConnector leg={legs[index]} />}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
 
 /** B9.1: a stop is a place-specific, keyboard-operable unit; the day, not a flat route, owns it. */
 function TripStop({
@@ -595,8 +437,8 @@ function TransferAndVisitTotals({
         <div className="analysis-total">
           <span className="analysis-total__value">{transferMinutes ? formatRange(transferMinutes) : "—"}</span>
           <span className="analysis-total__label">
-            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/{legCount} tramo
-            {legCount === 1 ? "" : "s"} cubierto{legCount === 1 ? "" : "s"}
+            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/{legCount} traslado
+            {legCount === 1 ? "" : "s"} registrado{legCount === 1 ? "" : "s"}
           </span>
         </div>
       )}
@@ -604,7 +446,7 @@ function TransferAndVisitTotals({
         <div className="analysis-total">
           <span className="analysis-total__value">{unknownLegCount}</span>
           <span className="analysis-total__label">
-            tramo{unknownLegCount === 1 ? "" : "s"} sin traslado registrado
+            traslado{unknownLegCount === 1 ? "" : "s"} sin registrar
           </span>
         </div>
       )}
@@ -1164,147 +1006,6 @@ function OfficialReservationCalendarSection({
   );
 }
 
-/** Display-only Spanish labels for `ReservationCategory` — mirrors the tag vocabulary
- * `describeReservationForUi` already established in `lib/reservation.ts`, restated here as a
- * short label (no lead-time suffix, since this section shows lead time in its own line) rather
- * than imported, because this section also needs the two categories that render no tag there
- * (`not-required`, `not-required-role-specific`) to still show a short factual label here. */
-/**
- * Phase 3D-E's one UI surface — "Horarios registrados". A route-wide, read-only section built from
- * `../lib/hours-planning.ts` over the current canonical route (`routePlaces`). Renders nothing
- * when `summary.items` is empty, exactly like `ReservationPreparationSection`.
- *
- * Unlike that section, every route place appears here exactly once — nothing is omitted by tier.
- * Wording is deliberately narrow throughout: "Horario registrado: 09:00–17:00" states a recorded
- * fact, never that the place is open at those hours on any date; every PARTIAL/OPAQUE/UNKNOWN
- * phrase ends in "revisar" (a call to double-check), never "closed," "incompatible," or "bad." The
- * original raw text is always shown alongside — the only detailed information Nihon may safely
- * surface once a caveat, external dependency, or genuine unknown is present. Nothing here reads the
- * chosen calendar anchor, any date derived from it, `place.schedule.closures`, `place.bestTime`, or
- * `place.febMar2027`.
- */
-function HoursPlanningSection({ summary }: { summary: RecordedHoursSummary }) {
-  if (summary.items.length === 0) return null;
-
-  const parts: string[] = [];
-  if (summary.safeCount > 0) parts.push(`${summary.safeCount} claro${summary.safeCount === 1 ? "" : "s"}`);
-  if (summary.conditionalCount > 0) parts.push(`${summary.conditionalCount} con condiciones`);
-  if (summary.externalDependencyCount > 0) {
-    // "con dependencia externa" is deliberately neutral over BOTH OPAQUE categories this count
-    // combines (weather-or-tide-dependent and third-party-operator-dependent) — "depende de un
-    // tercero" was semantically false for a weather/tide-dependent place (there is no third party
-    // involved), so this summary phrase must never name a specific dependency kind. The
-    // per-item labels below stay category-specific (`HOURS_CATEGORY_LABEL`) precisely because they
-    // describe one place's own category, not a combined count spanning both.
-    parts.push(`${summary.externalDependencyCount} con dependencia externa`);
-  }
-  if (summary.unknownCount > 0) parts.push(`${summary.unknownCount} por revisar`);
-
-  return (
-    <section className="hours-planning" aria-labelledby="hours-planning-heading">
-      <h3 id="hours-planning-heading">Horarios registrados</h3>
-      <p className="hours-planning__summary">{parts.join(" · ")}</p>
-      <ul className="hours-planning__list">
-        {summary.items.map((item) => (
-          <li key={item.placeId} className={`hours-planning__item hours-planning__item--${item.hours.tier}`}>
-            <span className="hours-planning__name">{item.placeName}</span>
-            <span className="hours-planning__signal">{hoursSignalText(item.hours)}</span>
-            <span className="hours-planning__raw"><EvidenceMark level="registrado" /> «{item.hours.raw}»</span>
-          </li>
-        ))}
-      </ul>
-      <p className="hours-planning__disclaimer">
-        Esta sección solo describe qué horario está registrado en el dato original de cada lugar.{" "}
-        <strong>
-          No determina si el lugar abre o cierra en tu fecha, no revisa festivos ni cierres, y no se compara con la
-          hora del día.
-        </strong>
-      </p>
-    </section>
-  );
-}
-
-/** Display-only Spanish labels for each `HoursCategory`'s recorded-hours signal — the domain type
- * stays a stable, locale-independent identifier (see `lib/recorded-hours.ts`); this is the one
- * place that turns it into user-facing text, exactly like `RESERVATION_PREP_LABEL` and
- * `LEAD_TIME_MAGNITUDE_LABEL` do above. Every phrase describes what the raw editorial text
- * records, never whether the place is open — no "abierto"/"cerrado" wording anywhere here.
- * `"fixed-interval-clean"` is handled specially by `hoursSignalText` below (it needs the actual
- * interval token, not a fixed phrase), so its entry here is unused but kept for exhaustiveness. */
-const HOURS_CATEGORY_LABEL: Record<HoursCategory, string> = {
-  missing: "Sin horario registrado; revisar",
-  "known-24h": "Acceso registrado: 24 h",
-  "known-24h-with-caveat": "Acceso 24 h registrado con condiciones; revisar",
-  "weather-or-tide-dependent": "Horario depende de clima o marea; revisar",
-  "third-party-operator-dependent": "Horario depende de un operador externo; revisar",
-  "seasonal-variable": "Horario estacional; revisar",
-  "solar-relative": "Horario relativo a la luz solar; revisar",
-  "daytime-qualitative": "Horario diurno registrado; revisar",
-  "partial-single-bound": "Horario parcialmente registrado; revisar",
-  "ambiguous-alternative-interval": "Horario con alternativas registradas; revisar",
-  "fixed-interval-with-caveat": "Horario registrado con condiciones; revisar",
-  "fixed-interval-clean": "Horario registrado",
-  "explicit-unknown-variable": "Horario variable; revisar dato original",
-  "qualitative-uncategorized": "Horario no estructurado; revisar",
-};
-
-function hoursSignalText(fact: RecordedHoursFact): string {
-  if (fact.kind === "recorded-interval") return `Horario registrado: ${fact.intervalRaw}`;
-  return HOURS_CATEGORY_LABEL[fact.category];
-}
-
-/**
- * The one place that turns a `SequenceComparisonOutcome` into Spanish prose. Every branch is
- * phrased as a statement about *these two orders*, never as a claim about the best possible
- * route — Phase 3C-B never evaluates more than the two candidates it was given.
- */
-function comparisonResultText(comparison: SequenceComparison): { headline: string; detail: string | null } {
-  let headline: string;
-  let detail: string | null;
-  switch (comparison.outcome) {
-    case "a-clearly-faster":
-      headline = "Entre estos dos órdenes, el orden A tiene menor tiempo de traslado.";
-      detail =
-        comparison.guaranteedAdvantageMinutes !== null
-          ? `Ventaja garantizada: al menos ${comparison.guaranteedAdvantageMinutes} min, incluso en el peor caso estimado.`
-          : null;
-      break;
-    case "b-clearly-faster":
-      headline = "Entre estos dos órdenes, el orden B tiene menor tiempo de traslado.";
-      detail =
-        comparison.guaranteedAdvantageMinutes !== null
-          ? `Ventaja garantizada: al menos ${comparison.guaranteedAdvantageMinutes} min, incluso en el peor caso estimado.`
-          : null;
-      break;
-    case "equivalent":
-      headline = "Los traslados conocidos de ambos órdenes son iguales.";
-      detail = null;
-      break;
-    case "overlapping":
-      headline = "No hay una diferencia clara con los datos disponibles.";
-      detail = "Los rangos de traslado de ambos órdenes se superponen.";
-      break;
-    case "incomplete": {
-      const aIncomplete = !comparison.candidateA.sequence.summary.complete;
-      const bIncomplete = !comparison.candidateB.sequence.summary.complete;
-      headline = "Comparación incompleta: faltan traslados registrados.";
-      if (aIncomplete && bIncomplete) {
-        detail = "Ambos órdenes contienen al menos un tramo sin traslado registrado.";
-      } else if (aIncomplete) {
-        detail = "El orden A contiene al menos un tramo sin traslado registrado.";
-      } else {
-        detail = "El orden B contiene al menos un tramo sin traslado registrado.";
-      }
-      break;
-    }
-    case "invalid":
-      headline = "Estos órdenes no se pueden comparar.";
-      detail = "No representan exactamente el mismo conjunto de lugares.";
-      break;
-  }
-  return { headline, detail };
-}
-
 /**
  * Phase 3D-Q — Manual Accommodation Commute Legs: the anchor manager.
  *
@@ -1766,7 +1467,7 @@ function interHubPairKey(pair: Pick<ManualInterHubSegment, "fromPlaceId" | "toPl
 function interHubPlacementText(assessment: Extract<InterHubSegmentAssessment, { kind: "active" }>): string {
   switch (assessment.placement) {
     case "route-only":
-      return "en el recorrido actual";
+      return "en el viaje actual";
     case "same-day":
       return `dentro del Día ${(assessment.fromDayOrdinal ?? 0) + 1}`;
     case "between-consecutive-days":
@@ -1778,20 +1479,20 @@ function interHubInactiveText(reason: Extract<InterHubSegmentAssessment, { kind:
   switch (reason) {
     case "missing-from-place":
     case "missing-to-place":
-      return "Uno de los puntos ya no forma parte del recorrido actual.";
+      return "Uno de los puntos ya no forma parte del viaje actual.";
     case "from-hub-mismatch":
     case "to-hub-mismatch":
       return "El hub actual de uno de los puntos ya no coincide con el registrado.";
     case "same-current-hub":
       return "Los dos puntos pertenecen actualmente al mismo hub.";
     case "not-consecutive-in-route":
-      return "Estos lugares ya no son consecutivos en el recorrido actual.";
+      return "Estos lugares ya no son consecutivos en el viaje actual.";
     case "not-consecutive-in-day":
       return "Estos lugares ya no son consecutivos dentro del mismo día.";
     case "not-boundary-of-consecutive-days":
       return "Estos lugares ya no forman un límite entre dos días consecutivos.";
     case "invalid-day-partition":
-      return "El reparto por días no es estructuralmente válido; el tramo no se aplica.";
+      return "El reparto por días no es estructuralmente válido; el traslado no se aplica.";
   }
 }
 
@@ -1857,7 +1558,7 @@ function InterHubSegmentsSection({
     <section className="inter-hub-segments" aria-label="Traslados entre ciudades">
       <h3>Traslados entre ciudades</h3>
       <p className="inter-hub-segments__intro">
-        Tramo principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
+        Traslado principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
         Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos.
       </p>
 
@@ -1908,7 +1609,7 @@ function InterHubSegmentsSection({
                     </select>
                   </label>
                   <label>
-                    Duración manual del tramo principal
+                    Duración manual del traslado principal
                     <input
                       type="number"
                       min={1}
@@ -1953,7 +1654,7 @@ function InterHubSegmentsSection({
           </select>
         </label>
         <label>
-          Duración manual del tramo principal
+          Duración manual del traslado principal
           <input
             type="number"
             min={1}
@@ -2070,389 +1771,6 @@ function TripBoundsDayWarning({ assessment }: { assessment: TripBoundsAssessment
     </p>
   );
 }
-
-/** The existing Phase 3C-B evidence vocabulary, reused verbatim so one order is never described
- * in a different language than another. Returns "" when there is nothing to disclose. */
-function confidenceMixText(counts: ConfidenceCounts): string {
-  const parts: string[] = [];
-  if (counts.validatedStatic > 0) {
-    parts.push(`${counts.validatedStatic} validado${counts.validatedStatic === 1 ? "" : "s"}`);
-  }
-  if (counts.estimated > 0) parts.push(`${counts.estimated} estimado${counts.estimated === 1 ? "" : "s"}`);
-  if (counts.scheduleAware > 0) parts.push(`${counts.scheduleAware} en vivo`);
-  return parts.join(" · ");
-}
-
-/**
- * Phase 3E-C — the generated local alternatives for ONE day card.
- *
- * This is the first place in Nihon that shows the user an order they did not type. Everything
- * about how it is worded is load-bearing (`docs/EVIDENCE_COMPLETE_LOCAL_SWAP_DESIGN.md` §24):
- *
- *   - the claim is about **recorded local transfers inside one same-hub block**, never about the
- *     day, the trip, the schedule, the hotel, or the real world;
- *   - `guaranteedAdvantageMinutes` is presented as the *minimum gap between two recorded ranges*,
- *     never as "ahorras X minutos" — the inputs may be estimated, and the word "garantizada"
- *     alone would overstate that;
- *   - both orders' evidence quality is shown side by side, so a comparison resting on estimated
- *     edges is never silently dressed up as validated;
- *   - the alternatives are listed in positional order with no "mejor"/"recomendado"/rank marker,
- *     and nothing is applied until the user clicks.
- *
- * The empty state is deliberately absent rather than reassuring: "no proved swap" is a statement
- * about the recorded evidence, not a verdict that the current order is optimal, so the neutral
- * sentence below is the strongest thing that may be said (§13).
- */
-/**
- * Legacy evidence-presentation component retained for its domain regression contract.
- * B9.3 no longer mounts it in the day timeline; the local tool uses its alternatives as options.
- */
-export function LocalSwapAlternativesSection({
-  dayNumber,
-  alternatives,
-  relocationAlternatives,
-  transpositionAlternatives,
-  reversalAlternatives,
-  pairBlockSwapAlternatives,
-  placeById,
-  onApply,
-  onApplyRelocation,
-  onApplyTransposition,
-  onApplyReversal,
-  onApplyPairBlockSwap,
-}: {
-  dayNumber: number;
-  alternatives: EvidenceCompleteLocalSwapAlternative[];
-  relocationAlternatives: EvidenceCompleteLocalRelocationAlternative[];
-  transpositionAlternatives: EvidenceCompleteInteriorTranspositionAlternative[];
-  reversalAlternatives: EvidenceCompleteFourPlaceInteriorReversalAlternative[];
-  pairBlockSwapAlternatives: EvidenceCompleteTwoPairBlockSwapAlternative[];
-  placeById: Map<string, Place>;
-  onApply: (alternative: EvidenceCompleteLocalSwapAlternative) => void;
-  onApplyRelocation: (alternative: EvidenceCompleteLocalRelocationAlternative) => void;
-  onApplyTransposition: (
-    alternative: EvidenceCompleteInteriorTranspositionAlternative
-  ) => void;
-  onApplyReversal: (
-    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
-  ) => void;
-  onApplyPairBlockSwap: (
-    alternative: EvidenceCompleteTwoPairBlockSwapAlternative
-  ) => void;
-}) {
-  const headingId = `local-swap-heading-${dayNumber}`;
-  const nameOf = (placeId: string) => placeById.get(placeId)?.name ?? placeId;
-  const hasAlternatives =
-    alternatives.length > 0 ||
-    relocationAlternatives.length > 0 ||
-    transpositionAlternatives.length > 0 ||
-    reversalAlternatives.length > 0 ||
-    pairBlockSwapAlternatives.length > 0;
-
-  return (
-    <section className="local-swap" aria-labelledby={headingId}>
-      <h4 id={headingId} className="local-swap__heading">
-        Alternativas locales con evidencia completa
-      </h4>
-      {!hasAlternatives ? (
-        <p className="local-swap__empty">
-          No hay una alternativa local con mejora demostrable usando todos los traslados registrados
-          necesarios para esta comparación.
-        </p>
-      ) : (
-        <>
-          {alternatives.length > 0 && (
-            <div className="local-swap__group">
-              <h5>Intercambios adyacentes</h5>
-              <ul className="local-swap__list">
-                {alternatives.map((alternative) => {
-                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
-                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
-                  return (
-                    <li
-                      key={`${alternative.dayId}:${alternative.leftDayIndex}`}
-                      className="local-swap__item"
-                    >
-                      <p className="local-swap__pair">
-                        Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
-                        <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
-                        {alternative.hub}, entre {nameOf(alternative.blockStartPlaceId)} y{" "}
-                        {nameOf(alternative.blockEndPlaceId)}.
-                      </p>
-                      <dl className="local-swap__ranges">
-                        <div>
-                          <dt>Traslados registrados del bloque actual</dt>
-                          <dd>
-                            {formatRange(alternative.baselineTransferMinutes)}
-                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Traslados registrados de esta alternativa</dt>
-                          <dd>
-                            {formatRange(alternative.candidateTransferMinutes)}
-                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
-                          </dd>
-                        </div>
-                      </dl>
-                      <p className="local-swap__advantage">
-                        Ventaja mínima entre los rangos registrados:{" "}
-                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}. El rango registrado de
-                        esta alternativa queda al menos esa diferencia por debajo del rango registrado
-                        actual.
-                      </p>
-                      <p className="local-swap__disclaimer">
-                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
-                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
-                      </p>
-                      <button
-                        type="button"
-                        className="button button--secondary local-swap__apply"
-                        onClick={() => onApply(alternative)}
-                      >
-                        Aplicar este intercambio
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {relocationAlternatives.length > 0 && (
-            <div className="local-swap__group local-relocation">
-              <h5>Reubicaciones de un lugar</h5>
-              <ul className="local-swap__list">
-                {relocationAlternatives.map((alternative) => {
-                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
-                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
-                  const destinationPlaceId =
-                    alternative.candidateDayPlaceIds[alternative.toDayIndex + 1] ??
-                    alternative.blockEndPlaceId;
-                  return (
-                    <li
-                      key={`${alternative.dayId}:${alternative.fromDayIndex}:${alternative.toDayIndex}`}
-                      className="local-swap__item local-relocation__item"
-                    >
-                      <p className="local-swap__pair local-relocation__move">
-                        Mover <strong>{nameOf(alternative.movedPlaceId)}</strong> antes de{" "}
-                        <strong>{nameOf(destinationPlaceId)}</strong> dentro del bloque de{" "}
-                        {alternative.hub}.
-                      </p>
-                      <dl className="local-swap__ranges">
-                        <div>
-                          <dt>Traslados registrados del bloque actual</dt>
-                          <dd>
-                            {formatRange(alternative.baselineTransferMinutes)}
-                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Traslados registrados de esta reubicación</dt>
-                          <dd>
-                            {formatRange(alternative.candidateTransferMinutes)}
-                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
-                          </dd>
-                        </div>
-                      </dl>
-                      <p className="local-swap__advantage">
-                        Esta reubicación reduce el rango de traslado local registrado de este bloque
-                        según la evidencia disponible. Ventaja mínima entre los rangos registrados:{" "}
-                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
-                      </p>
-                      <p className="local-swap__disclaimer">
-                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
-                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
-                      </p>
-                      <button
-                        type="button"
-                        className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyRelocation(alternative)}
-                      >
-                        Aplicar esta reubicación
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {transpositionAlternatives.length > 0 && (
-            <div className="local-swap__group local-transposition">
-              <h5>Intercambios no adyacentes</h5>
-              <ul className="local-swap__list">
-                {transpositionAlternatives.map((alternative) => {
-                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
-                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
-                  return (
-                    <li
-                      key={`${alternative.dayId}:${alternative.leftDayIndex}:${alternative.rightDayIndex}`}
-                      className="local-swap__item local-transposition__item"
-                    >
-                      <p className="local-swap__pair local-transposition__exchange">
-                        Intercambiar <strong>{nameOf(alternative.leftPlaceId)}</strong> y{" "}
-                        <strong>{nameOf(alternative.rightPlaceId)}</strong> dentro del bloque de{" "}
-                        {alternative.hub}.
-                      </p>
-                      <dl className="local-swap__ranges">
-                        <div>
-                          <dt>Traslados registrados del bloque actual</dt>
-                          <dd>
-                            {formatRange(alternative.baselineTransferMinutes)}
-                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Traslados registrados de este intercambio</dt>
-                          <dd>
-                            {formatRange(alternative.candidateTransferMinutes)}
-                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
-                          </dd>
-                        </div>
-                      </dl>
-                      <p className="local-swap__advantage">
-                        Este intercambio no adyacente reduce de forma demostrable el rango de traslado
-                        local registrado de este bloque. Ventaja mínima entre los rangos registrados:{" "}
-                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
-                      </p>
-                      <p className="local-swap__disclaimer">
-                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
-                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
-                      </p>
-                      <button
-                        type="button"
-                        className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyTransposition(alternative)}
-                      >
-                        Aplicar este intercambio no adyacente
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {reversalAlternatives.length > 0 && (
-            <div className="local-swap__group local-reversal">
-              <h5>Reversiones de cuatro lugares</h5>
-              <ul className="local-swap__list">
-                {reversalAlternatives.map((alternative) => {
-                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
-                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
-                  const [first, second, third, fourth] = alternative.originalWindowPlaceIds;
-                  return (
-                    <li
-                      key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
-                      className="local-swap__item local-reversal__item"
-                    >
-                      <p className="local-swap__pair local-reversal__window">
-                        Revertir el orden de <strong>{nameOf(first)}</strong>,{" "}
-                        <strong>{nameOf(second)}</strong>, <strong>{nameOf(third)}</strong> y{" "}
-                        <strong>{nameOf(fourth)}</strong> dentro del bloque de {alternative.hub}.
-                      </p>
-                      <dl className="local-swap__ranges">
-                        <div>
-                          <dt>Traslados registrados del bloque actual</dt>
-                          <dd>
-                            {formatRange(alternative.baselineTransferMinutes)}
-                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Traslados registrados de esta reversión</dt>
-                          <dd>
-                            {formatRange(alternative.candidateTransferMinutes)}
-                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
-                          </dd>
-                        </div>
-                      </dl>
-                      <p className="local-swap__advantage">
-                        Esta reversión de cuatro lugares reduce de forma demostrable el rango de
-                        traslado local registrado de este bloque. Ventaja mínima entre los rangos
-                        registrados: {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
-                      </p>
-                      <p className="local-swap__disclaimer">
-                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
-                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
-                      </p>
-                      <button
-                        type="button"
-                        className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyReversal(alternative)}
-                      >
-                        Aplicar esta reversión de cuatro lugares
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-          {pairBlockSwapAlternatives.length > 0 && (
-            <div className="local-swap__group local-pair-block-swap">
-              <h5>Intercambios de bloques de dos lugares</h5>
-              <ul className="local-swap__list">
-                {pairBlockSwapAlternatives.map((alternative) => {
-                  const baselineMix = confidenceMixText(alternative.baselineConfidenceCounts);
-                  const candidateMix = confidenceMixText(alternative.candidateConfidenceCounts);
-                  const [firstPairStart, firstPairEnd] = alternative.firstPairPlaceIds;
-                  const [secondPairStart, secondPairEnd] = alternative.secondPairPlaceIds;
-                  return (
-                    <li
-                      key={`${alternative.dayId}:${alternative.windowStartDayIndex}`}
-                      className="local-swap__item local-pair-block-swap__item"
-                    >
-                      <p className="local-swap__pair local-pair-block-swap__blocks">
-                        Intercambiar los bloques de dos lugares{" "}
-                        <strong>{nameOf(firstPairStart)}</strong> →{" "}
-                        <strong>{nameOf(firstPairEnd)}</strong> y{" "}
-                        <strong>{nameOf(secondPairStart)}</strong> →{" "}
-                        <strong>{nameOf(secondPairEnd)}</strong> dentro del bloque de{" "}
-                        {alternative.hub}.
-                      </p>
-                      <dl className="local-swap__ranges">
-                        <div>
-                          <dt>Traslados registrados del bloque actual</dt>
-                          <dd>
-                            {formatRange(alternative.baselineTransferMinutes)}
-                            {baselineMix && <span className="local-swap__evidence"> · {baselineMix}</span>}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Traslados registrados de este intercambio de bloques</dt>
-                          <dd>
-                            {formatRange(alternative.candidateTransferMinutes)}
-                            {candidateMix && <span className="local-swap__evidence"> · {candidateMix}</span>}
-                          </dd>
-                        </div>
-                      </dl>
-                      <p className="local-swap__advantage">
-                        Este intercambio de bloques reduce de forma demostrable el rango de traslado
-                        local registrado de este bloque. Ventaja mínima entre los rangos registrados:{" "}
-                        {formatMinutes(alternative.guaranteedAdvantageMinutes)}.
-                      </p>
-                      <p className="local-swap__disclaimer">
-                        Esta comparación usa únicamente los traslados locales registrados de este bloque.
-                        No evalúa horarios, reservas, alojamiento, puerta a puerta ni el viaje completo.
-                      </p>
-                      <button
-                        type="button"
-                        className="button button--secondary local-swap__apply"
-                        onClick={() => onApplyPairBlockSwap(alternative)}
-                      >
-                        Aplicar este intercambio de bloques
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </>
-      )}
-    </section>
-  );
-}
-
 
 function wholeTripUnavailableText(reason: Extract<WholeTripComposition, { kind: "unavailable" }>["reason"]): string {
   switch (reason) {
@@ -2616,13 +1934,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     accommodationLegs,
     interHubSegments,
     zoneAccommodationChoices,
-    setRoute: setRouteIds,
     initializeDays,
-    movePlaceWithinDay,
-    relocatePlaceWithinDay,
-    transposePlacesWithinDay,
-    reverseFourPlacesWithinDay,
-    swapTwoPairBlocksWithinDay,
     addPlaceToDay,
     relocatePlace,
     insertUnassignedPlace,
@@ -2642,7 +1954,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     addInterHubSegment,
     updateInterHubSegment,
     removeInterHubSegment,
-    resetRoute,
   } = usePlanningDraft(savedIds);
   // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
   // given — `buildDayAssignment`, the calendar, weekday signals, reservation evaluation, hours
@@ -2680,13 +1991,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     [accommodations]
   );
 
-  // "builder" is the normal single-route view; "compare" is Phase 3C-B; "days" is Phase 3C-C.
-  // Only one is ever rendered — there is exactly one dialog, never a dialog over a dialog.
-  const [view, setView] = useState<"builder" | "compare" | "days">("days");
-  // Phase 3C-B's candidates are intentionally NOT part of the persisted draft — see the module
-  // doc above. They stay plain, ephemeral component state.
-  const [candidateAIds, setCandidateAIds] = useState<string[]>([]);
-  const [candidateBIds, setCandidateBIds] = useState<string[]>([]);
   const [dayOrderSession, setDayOrderSession] = useState<DayOrderSession | null>(null);
   const dayOrderTriggerRefs = useRef(new Map<string, HTMLButtonElement>());
 
@@ -2703,23 +2007,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   const removedPlaces = useMemo(
     () => savedPlaces.filter((place) => !routeIds.includes(place.id)),
     [savedPlaces, routeIds]
-  );
-
-  const sequence = useMemo(() => buildOrderedSequence(routeIds), [routeIds]);
-  const visitSummary = useMemo(() => summarizeSelection(routePlaces), [routePlaces]);
-  const recordedHours = useMemo(() => buildRecordedHoursSummary(routePlaces), [routePlaces]);
-
-  const candidateAPlaces = useMemo(
-    () => candidateAIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
-    [candidateAIds, placeById]
-  );
-  const candidateBPlaces = useMemo(
-    () => candidateBIds.map((id) => placeById.get(id)).filter((place): place is Place => Boolean(place)),
-    [candidateBIds, placeById]
-  );
-  const comparison = useMemo(
-    () => compareSequences(candidateAIds, candidateBIds),
-    [candidateAIds, candidateBIds]
   );
 
   const dayPlaceLists = useMemo(
@@ -2875,9 +2162,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
   useEffect(() => {
     if (dragRef.current && dragRef.current.days !== planningDays) cancelDrag();
   }, [planningDays]);
-  useEffect(() => {
-    if (view !== "days" && dragRef.current) cancelDrag();
-  }, [view]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape" && dragRef.current) { event.preventDefault(); cancelDrag(); } };
     window.addEventListener("keydown", onKey);
@@ -3120,125 +2404,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     fourPlaceReversalsByDayId,
   ]);
 
-  /**
-   * The one explicit user action that may change a day's order from a generated candidate.
-   *
-   * The candidate is re-verified against the plan as it is *now* before anything moves — the draft
-   * may have changed since the alternative was derived — and the mutation itself is the ordinary
-   * `movePlaceWithinDay` every manual reorder already goes through, so the day id, its
-   * accommodation boundary, every other day, `routeIds`, the dates, the visit times, the
-   * accommodations, the manual legs and every stored inter-hub segment travel through untouched.
-   * A stale candidate is a silent no-op: the next render simply regenerates from the real plan.
-   */
-  function applyLocalSwap(alternative: EvidenceCompleteLocalSwapAlternative) {
-    applyEvidenceCompleteLocalSwap(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, placeIndex, direction) => movePlaceWithinDay(dayId, placeIndex, direction)
-    );
-  }
-
-  function applyLocalRelocation(alternative: EvidenceCompleteLocalRelocationAlternative) {
-    applyEvidenceCompleteLocalRelocation(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, fromIndex, toIndex) => relocatePlaceWithinDay(dayId, fromIndex, toIndex)
-    );
-  }
-
-  /**
-   * The one explicit user action behind a transposition. Re-verified against the plan as it is
-   * now, then applied as a single pure V7 mutation — never two moves and never a follow-up
-   * suggestion applied on the user's behalf.
-   */
-  function applyInteriorTransposition(
-    alternative: EvidenceCompleteInteriorTranspositionAlternative
-  ) {
-    applyEvidenceCompleteInteriorTransposition(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, leftIndex, rightIndex) => transposePlacesWithinDay(dayId, leftIndex, rightIndex)
-    );
-  }
-
-  /**
-   * The one explicit user action behind a four-place reversal. Re-verified against the plan as it
-   * is now, then applied as a single pure V7 mutation — never four moves and never a follow-up
-   * suggestion applied on the user's behalf.
-   */
-  function applyFourPlaceReversal(
-    alternative: EvidenceCompleteFourPlaceInteriorReversalAlternative
-  ) {
-    applyEvidenceCompleteFourPlaceInteriorReversal(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, windowStartIndex) => reverseFourPlacesWithinDay(dayId, windowStartIndex)
-    );
-  }
-
-  /**
-   * The one explicit user action behind a two-pair block swap. Re-verified against the plan as it
-   * is now, then applied as a single pure V7 mutation — never two persisted relocations, and never
-   * a follow-up suggestion applied on the user's behalf. The applied order may newly admit a Phase
-   * 3E-E relocation; that candidate is regenerated from the new baseline and waits for its own
-   * explicit click.
-   */
-  function applyTwoPairBlockSwap(alternative: EvidenceCompleteTwoPairBlockSwapAlternative) {
-    applyEvidenceCompleteTwoPairBlockSwap(
-      alternative,
-      { routeIds, days: planningDays, visitStartTimes },
-      { resolvePlace: (placeId) => placeById.get(placeId) ?? null },
-      (dayId, windowStartIndex) => swapTwoPairBlocksWithinDay(dayId, windowStartIndex)
-    );
-  }
-
-  // These pre-B9.3 handlers remain as source-level regression references for the established
-  // evidence contracts. The day timeline no longer mounts their Apply-button component.
-  void [applyLocalSwap, applyLocalRelocation, applyInteriorTransposition, applyFourPlaceReversal, applyTwoPairBlockSwap];
-
-  function moveUp(index: number) {
-    setRouteIds((ids) => moveItemUp(ids, index));
-  }
-  function moveDown(index: number) {
-    setRouteIds((ids) => moveItemDown(ids, index));
-  }
-  function removeFromRoute(id: string) {
-    setRouteIds((ids) => ids.filter((existing) => existing !== id));
-  }
-  function addToRoute(id: string) {
-    setRouteIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
-  }
-
-  // Candidate A starts as a clone of the current route draft, and Candidate B as a clone of
-  // Candidate A — both are then independently reorderable. Neither write-back to `routeIds`:
-  // the main draft is untouched while comparing, and closing the comparison discards both
-  // candidates rather than committing either as "the" route.
-  function openComparison() {
-    setCandidateAIds([...routeIds]);
-    setCandidateBIds([...routeIds]);
-    setView("compare");
-  }
-  function closeComparison() {
-    setView("builder");
-  }
-
-  // A canonical day assignment already restored from storage (Phase 3C-D) is shown as-is — it
-  // is a prior user decision, not something to discard on reopen. Only when none exists yet
-  // (`days === null`: never split, or invalidated by a route composition change) does opening
-  // start from a single day holding the exact current route order — not a recommendation,
-  // simply the route as it stands before any day boundary exists. Either way this never writes
-  // back into the route itself.
-  function openDayAssignment() {
-    if (days === null) {
-      initializeDays([[...routeIds]]);
-    }
-    setView("days");
-  }
-
   function openDayOrderTool(dayId: string, placeIds: readonly string[]) {
     if (placeIds.length < 2) return;
     setDayOrderSession({ dayId, baselineDayPlaceIds: [...placeIds] });
@@ -3323,20 +2488,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     return () => document.removeEventListener("keydown", onKeyDown, true);
   }, [onClose, embedded]);
 
-  const resultText = view === "compare" ? comparisonResultText(comparison) : null;
-
-  const headerTitle =
-    view === "compare" ? "Comparar órdenes" : view === "days" ? "Viaje" : "Construir recorrido";
-  const headerSub =
-    view === "compare"
-      ? `Mismos ${candidateAPlaces.length} lugares, solo cambia el orden`
-      : view === "days"
-        ? startDate
-          ? endDate
-            ? `${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)}`
-            : `Desde ${formatCivilDateDisplay(startDate)}`
-          : "Organiza el viaje día a día"
-        : `${routePlaces.length} lugar${routePlaces.length === 1 ? "" : "es"} en el recorrido`;
+  const headerTitle = "Viaje";
+  const headerSub = startDate
+    ? endDate
+      ? `${formatCivilDateDisplay(startDate)} – ${formatCivilDateDisplay(endDate)}`
+      : `Desde ${formatCivilDateDisplay(startDate)}`
+    : "Organiza el viaje día a día";
 
   const Outer = embedded ? Fragment : "div";
   const outerProps = embedded ? {} : { className: "analysis-overlay" };
@@ -3363,12 +2520,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
         <div hidden={section !== "dias"}>
         <header className="analysis-header">
           <div>
-            {view === "compare" && (
-              <button type="button" className="link-button sequence-back" onClick={closeComparison}>
-                <Icon name="atras" size={16} /> Volver al recorrido
-              </button>
-            )}
-            <h2 id="sequence-builder-title">{headerTitle}</h2>
+            <h2 id="sequence-builder-title">
+              {headerTitle}
+              {/* B10-A3: el `h1` de la pantalla ya dice «Viaje»; el nombre accesible de la sección es «Viaje · Días» (como «Reservas»/«Resumen»). Lo visible no cambia. */}
+              <span className="visually-hidden"> · Días</span>
+            </h2>
             <p className="analysis-header__sub">{headerSub}</p>
           </div>
           <button
@@ -3376,174 +2532,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
             type="button"
             className="icon-button"
             onClick={onClose}
-            aria-label="Cerrar el constructor de recorrido"
-            title="Cerrar el constructor de recorrido"
+            aria-label={`Cerrar ${headerTitle}`}
+            title={`Cerrar ${headerTitle}`}
           >
             <Icon name="cerrar" size={16} />
           </button>
         </header>
 
         <div className="analysis-body">
-          {view === "builder" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Tú eliges el orden con las flechas. Nihon describe
-                los traslados de ese orden exacto; <strong>no sugiere ni calcula el mejor orden</strong>.
-              </p>
-              <p className="analysis-disclaimer">
-                Este recorrido se guarda automáticamente en este navegador, junto con el reparto
-                por días si lo creas.
-              </p>
-
-              {routePlaces.length === 0 ? (
-                <p className="sequence-empty">
-                  El recorrido está vacío. Añade lugares guardados desde la lista de abajo.
-                </p>
-              ) : (
-                <>
-                  <ReorderableList
-                    places={routePlaces}
-                    legs={sequence.legs}
-                    labelSuffix=""
-                    onMoveUp={moveUp}
-                    onMoveDown={moveDown}
-                    onRemove={removeFromRoute}
-                  />
-
-                  <TransferAndVisitTotals visitSummary={visitSummary} sequenceSummary={sequence.summary} />
-
-                  <p className="analysis-disclaimer">
-                    <span aria-hidden="true">ⓘ</span> Los traslados conocidos usan la misma
-                    clasificación que la ficha de cada lugar: rutas validadas, estimaciones
-                    geográficas u horarios en vivo. <strong>No incluyen tiempo dentro de cada lugar.</strong>
-                  </p>
-
-
-                  <HoursPlanningSection summary={recordedHours} />
-
-                  <InterHubSegmentsSection
-                    routeIds={routeIds}
-                    days={days}
-                    placeById={placeById}
-                    segments={interHubSegments}
-                    onAdd={addInterHubSegment}
-                    onUpdate={updateInterHubSegment}
-                    onRemove={removeInterHubSegment}
-                  />
-
-                  <ZonePlanSection
-                    variant="summary"
-                    choices={zoneAccommodationChoices}
-                    dayLinks={zoneDayLinks}
-                    hubLinks={zoneHubLinks}
-                    anchorLabelById={anchorLabelById}
-                    onClear={clearZoneAccommodation}
-                  />
-
-                  {routePlaces.length >= 2 && (
-                    <div className="sequence-secondary-actions">
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openComparison}
-                      >
-                        <Icon name="comparar" size={16} /> Comparar otro orden
-                      </button>
-                      <button
-                        type="button"
-                        className="button button--secondary sequence-compare-toggle"
-                        onClick={openDayAssignment}
-                      >
-                        <Icon name="calendario" size={16} /> Distribuir por días
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-
-
-              <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
-                Restablecer recorrido
-              </button>
-
-              {removedPlaces.length > 0 && (
-                <section className="analysis-section">
-                  <h3>Guardados fuera del recorrido</h3>
-                  <p className="analysis-section__note">
-                    Siguen en <strong>Quiero ir</strong>. Añádelos aquí si quieres incluirlos en
-                    este recorrido.
-                  </p>
-                  <ul className="analysis-place-list">
-                    {removedPlaces.map((place) => (
-                      <li key={place.id}>
-                        <button
-                          type="button"
-                          className="analysis-place"
-                          onClick={() => addToRoute(place.id)}
-                          aria-label={`Añadir ${place.name} al recorrido`}
-                        >
-                          <span>{place.name}</span>
-                          <span aria-hidden="true">＋</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-            </>
-          )}
-
-          {view === "compare" && (
-            <>
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> Compara exactamente estos dos órdenes de los
-                mismos lugares. <strong>No genera ni sugiere un orden</strong>; reordena el orden B
-                (y, si quieres, el orden A) con las flechas.
-              </p>
-
-              <div className="comparison-candidates">
-                <section className="comparison-candidate" aria-labelledby="candidate-a-heading">
-                  <h3 id="candidate-a-heading">Orden A</h3>
-                  <ReorderableList
-                    places={candidateAPlaces}
-                    legs={comparison.candidateA.sequence.legs}
-                    labelSuffix=" en orden A"
-                    onMoveUp={(index) => setCandidateAIds((ids) => moveItemUp(ids, index))}
-                    onMoveDown={(index) => setCandidateAIds((ids) => moveItemDown(ids, index))}
-                    compact
-                  />
-                  <CandidateSummary candidate={comparison.candidateA} />
-                </section>
-
-                <section className="comparison-candidate" aria-labelledby="candidate-b-heading">
-                  <h3 id="candidate-b-heading">Orden B</h3>
-                  <ReorderableList
-                    places={candidateBPlaces}
-                    legs={comparison.candidateB.sequence.legs}
-                    labelSuffix=" en orden B"
-                    onMoveUp={(index) => setCandidateBIds((ids) => moveItemUp(ids, index))}
-                    onMoveDown={(index) => setCandidateBIds((ids) => moveItemDown(ids, index))}
-                    compact
-                  />
-                  <CandidateSummary candidate={comparison.candidateB} />
-                </section>
-              </div>
-
-              <p className="analysis-disclaimer">
-                <span aria-hidden="true">ⓘ</span> El tiempo de visita no cambia entre A y B; solo
-                estamos comparando el orden y sus traslados.
-              </p>
-
-              <div className="comparison-result" role="status">
-                <h3>Resultado</h3>
-                <p className="comparison-result__headline">{resultText?.headline}</p>
-                {resultText?.detail && <p className="comparison-result__detail">{resultText.detail}</p>}
-              </div>
-            </>
-          )}
-
-          {view === "days" && (
             <>
               <p className="days-framing">
                 <EvidenceMark level="nihon" label={false} /> Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.
@@ -3552,7 +2548,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
               {!dayAssignment.valid && (
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
                   <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
-                  recorrido. Vuelve al recorrido e inténtalo de nuevo.
+                  viaje. Vuelve a los días e inténtalo de nuevo.
                 </p>
               )}
 
@@ -3918,7 +2914,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 )}
               </details>
             </>
-          )}
         </div>
         </div>
         {section === "reservas" && <TripReservations

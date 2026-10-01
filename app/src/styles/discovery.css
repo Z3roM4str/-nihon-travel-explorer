@@ -195,6 +195,7 @@ button.search-field:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: var(--tap-min); /* 03 §7 */
   padding: var(--space-2) 0;
   cursor: pointer;
   font-family: var(--font-record);
@@ -621,7 +622,7 @@ button.search-field:focus-visible {
   z-index: 2;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-full);
-  background: rgba(20, 22, 26, 0.55);
+  background: var(--overlay-ink);
   color: var(--surface);
   font-family: var(--font-record);
   font-size: var(--type-caption-size);
@@ -672,7 +673,7 @@ button.search-field:focus-visible {
   height: 40px;
   border-radius: var(--radius-full);
   border: none;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--overlay-paper);
   color: var(--ink-700);
   cursor: pointer;
   display: inline-flex;
@@ -701,7 +702,7 @@ button.search-field:focus-visible {
 }
 
 .place-card__save:active {
-  transform: scale(0.98);
+  transform: scale(0.98); /* `press`, 03 §6 */
 }
 
 /* El momento de retroalimentación: el corazón hace un pequeño pop al marcarse (`mark`, 03 §6). */
@@ -713,8 +714,8 @@ button.search-field:focus-visible {
   0% {
     transform: scale(1);
   }
-  60% {
-    transform: scale(1.18);
+  50% {
+    transform: scale(1.18); /* `mark`, 03 §6: 1 → 1.18 → 1 */
   }
   100% {
     transform: scale(1);

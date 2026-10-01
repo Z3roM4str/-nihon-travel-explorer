@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
+import { openZonesViaCity } from "./lib/modern-trip.mjs";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): las AFIRMACIONES del gate son las originales;
+ * sólo cambió la ENTRADA. Antes la comparación se abría con el botón `.hub-bar__zones` y el panel de guardados (retirados en B18/B25);
+ * ahora se abre por la entrada vigente de la lista de ciudad «Dónde dormir en {ciudad}» (`openZonesViaCity`, `lib/modern-trip.mjs`).
+ */
 /**
  * Block 10 — source freshness, browser audit against the PRODUCTION build.
  *
@@ -78,17 +84,7 @@ async function storageKeys(page) {
 }
 
 async function openComparisonFor(page, hub, zoneNames) {
-  await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-  await page.waitForTimeout(1300);
-  for (let i = 0; i < 2; i += 1) {
-    const save = page.locator(".place-card__save").nth(i);
-    if ((await save.getAttribute("aria-pressed")) !== "true") {
-      await save.click();
-      await page.waitForTimeout(220);
-    }
-  }
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(800);
+  await openZonesViaCity(page, hub);
   for (const name of zoneNames) {
     await page
       .locator(".zone-card")

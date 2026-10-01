@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { BackupProblem, RestoreSummary } from "../lib/portable-backup";
 import type { ImportPreview, ImportState } from "../usePortableBackup";
 
+import "./TripBackup.css";
 /**
  * Block 13 — keeping a trip, and moving it to another browser.
  *

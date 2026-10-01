@@ -23,6 +23,7 @@ import { EvidenceMark } from "./EvidenceMark";
 import { EmptyState } from "./EmptyState";
 import { SelectionAnalysis } from "./SelectionAnalysis";
 
+import "./SelectionPanel.css";
 /**
  * B25 — B7 «Quiero ir» (`05 §6`, `10 §B7`): la pantalla donde el acuerdo es la recompensa.
  *

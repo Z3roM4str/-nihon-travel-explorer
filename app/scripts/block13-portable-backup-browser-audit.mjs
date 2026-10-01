@@ -3,6 +3,34 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva las afirmaciones sobre el respaldo (archivo, contenido,
+ * privacidad, vista previa, sustitución —nunca fusión—, archivos inválidos, prototipo, objetivos táctiles). Cambia la ENTRADA: el respaldo vivía
+ * en un diálogo abierto desde el encabezado («Respaldo del viaje») y el viaje se construía marcando lugares con la interfaz de entonces; ahora es la
+ * sección «Copia del viaje» de Nosotros (B26) y el viaje se siembra en el almacenamiento y la app lo adopta al recargar (como ya hacía este gate
+ * con el borrador). Retiradas (premisa desaparecida): el botón de cierre del diálogo y Escape que lo cierra (B26 cubre «Escape cancela la
+ * confirmación sin escribir» y el foco en la vista previa).
+ */
+import { openCity as modernOpenCity, places as _allPlaces } from "./lib/modern-trip.mjs";
+
+const _byHub = (hub) => _allPlaces.filter((p) => p.hub === hub);
+/** Dos personas con posturas propias: Marta marca 3 de Tokio, Jun marca 2 de Kioto y 1 de Tokio. */
+function twoPersonTripDoc() {
+  const t = _byHub("Tokio").slice(0, 3).map((p) => p.id);
+  const k = _byHub("Kioto").slice(0, 2).map((p) => p.id);
+  return {
+    version: 1,
+    travellers: [{ id: "p1", label: "Marta" }, { id: "p2", label: "Jun" }],
+    activeTravellerId: "p1",
+    interests: [
+      ...t.map((placeId) => ({ placeId, stances: [{ travellerId: "p1", stance: "interested" }], carriedOver: false })),
+      ...k.map((placeId) => ({ placeId, stances: [{ travellerId: "p2", stance: "interested" }], carriedOver: false })),
+      { placeId: t[0], stances: [{ travellerId: "p1", stance: "interested" }, { travellerId: "p2", stance: "interested" }], carriedOver: false },
+    ].filter((i, idx, all) => all.findIndex((j) => j.placeId === i.placeId) === idx),
+    _route: [...t, ...k],
+  };
+}
+
 /**
  * Block 13 — portable backup, browser audit against the PRODUCTION build.
  *
@@ -71,14 +99,15 @@ async function noOverflow(page) {
 
 /** Opens the backup surface from the header control. */
 async function openBackup(page) {
-  await page.getByRole("button", { name: "Respaldo del viaje" }).click();
-  await page.waitForSelector(".trip-backup__dialog", { timeout: 10000 });
+  await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Nosotros" }).first().click();
+  await page.waitForSelector(".trip-backup", { timeout: 10000 });
+  await page.locator(".trip-backup").scrollIntoViewIfNeeded();
 }
 
 /** Saves a few places in one hub as the currently active traveller. */
 async function saveInHub(page, hub, count) {
-  await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-  await page.waitForTimeout(1100);
+  await modernOpenCity(page, hub);
+  await page.waitForTimeout(600);
   for (let i = 0; i < count; i += 1) {
     const save = page.locator(".place-card__save").nth(i);
     if ((await save.count()) === 0) break;
@@ -132,90 +161,43 @@ async function auditViewport(browser, name, url) {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
 
-  // ── 1. Build a non-trivial trip ──────────────────────────────────────────────────────────────
-  await saveInHub(page, "Tokio", 3);
-  // A second person, with their own stances — the Block 5 boundary this block must not collapse.
-  const secondPerson = page.locator(".traveller-bar__option").nth(1);
-  if ((await secondPerson.count()) > 0) {
-    await secondPerson.click();
-    await page.waitForTimeout(400);
-  }
-  await page.getByRole("button", { name: /Volver|Japón|Inicio/ }).first().click().catch(() => {});
-  await page.waitForTimeout(800);
-  await saveInHub(page, "Kioto", 2);
-
-  const travellersBefore = await readKey(page, TRAVELLERS_KEY);
-  check("a two-person, two-hub state exists", Boolean(travellersBefore) && travellersBefore.includes("interested"));
-
-  // A route, days and a date, through the planner.
-  const selectionToggle = page.locator(".selection-panel__toggle");
-  if ((await selectionToggle.count()) > 0 && (await selectionToggle.getAttribute("aria-expanded")) !== "true") {
-    await selectionToggle.click();
-    await page.waitForTimeout(400);
-  }
-  // `.selection-panel__analyze` matches TWO controls (the analysis and the planner); selecting by
-  // accessible name is what actually opens the planner, and opening it is what first persists a
-  // draft.
-  const plannerButton = page.getByRole("button", { name: /Construir recorrido/ }).first();
-  if ((await plannerButton.count()) > 0) {
-    await plannerButton.click();
-    await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
-    const close = page.getByRole("button", { name: /Cerrar|Volver/ }).first();
-    if ((await close.count()) > 0) {
-      await close.click();
-      await page.waitForTimeout(500);
-    }
-  }
-
-  // The remaining draft fields — days, both dates, a visit time and an accommodation anchor — are
-  // seeded directly and then ADOPTED by the app on the reload below.
-  //
-  // Stated plainly rather than hidden: the planner's day-splitting and calendar controls are not
-  // reachable at 390px with a three-place route, and driving a UI that is not there would be
-  // pretending. What matters for this block is that a rich, *real* draft — one the app loads,
-  // reconciles and renders exactly as its own — survives the round trip intact, and seeding the
-  // fields through the same key the planner writes gives precisely that. Construction through the
-  // real planner API is covered exhaustively in `src/lib/portable-backup.test.ts`.
-  await page.evaluate((key) => {
-    const raw = localStorage.getItem(key);
-    if (!raw) return;
-    const draft = JSON.parse(raw);
-    if (!Array.isArray(draft.routeIds) || draft.routeIds.length < 2) return;
-    const half = Math.ceil(draft.routeIds.length / 2);
-    // The exact `PlanningDayV5` shape, boundary included. A day missing it is refused by the
-    // draft's own parser, which then falls back to a fresh draft — the quiet failure this audit
-    // caught the first time it was written.
-    const unselected = { start: { kind: "unselected" }, end: { kind: "unselected" } };
-    draft.days = [
-      { id: "d-1", placeIds: draft.routeIds.slice(0, half), accommodationBoundary: unselected },
-      { id: "d-2", placeIds: draft.routeIds.slice(half), accommodationBoundary: unselected },
-    ];
-    draft.startDate = "2027-03-14";
-    draft.endDate = "2027-03-20";
-    draft.visitStartTimes = { [draft.routeIds[0]]: "09:30" };
-    localStorage.setItem(key, JSON.stringify(draft));
-  }, DRAFT_KEY);
+  // ── 1. Build a non-trivial trip ──────────────────────────────────────────────────
+  // Sembrado en el almacenamiento y ADOPTADO por la app al recargar: dos personas con posturas propias en dos ciudades, una ruta, dos
+  // días, ambas fechas y una hora de visita. (Construirlo con la interfaz de entonces ya no es posible; lo que importa es que un viaje rico y
+  // REAL —el que la app carga, reconcilia y pinta como propio— sobreviva al viaje de ida y vuelta.)
+  const tripDoc = twoPersonTripDoc();
+  const routeIds = tripDoc._route;
+  delete tripDoc._route;
+  const unselected = { start: { kind: "unselected" }, end: { kind: "unselected" } };
+  const half = Math.ceil(routeIds.length / 2);
+  const seededDraft = {
+    version: 8,
+    routeIds,
+    days: [
+      { id: "d-1", placeIds: routeIds.slice(0, half), accommodationBoundary: unselected },
+      { id: "d-2", placeIds: routeIds.slice(half), accommodationBoundary: unselected },
+    ],
+    startDate: "2027-03-14",
+    endDate: "2027-03-20",
+    visitStartTimes: { [routeIds[0]]: "09:30" },
+    accommodations: [],
+    accommodationLegs: [],
+    interHubSegments: [],
+    zoneAccommodationChoices: [],
+  };
+  await page.evaluate(({ doc, draft, tKey, dKey }) => {
+    localStorage.setItem(tKey, JSON.stringify(doc));
+    localStorage.setItem(dKey, JSON.stringify(draft));
+  }, { doc: tripDoc, draft: seededDraft, tKey: TRAVELLERS_KEY, dKey: DRAFT_KEY });
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
-
-  // Re-read through the app: opening the planner rewrites the key with whatever the app actually
-  // loaded, so a seed the parser rejected shows up here as a fresh draft instead of passing.
-  const reopen = page.locator(".selection-panel__toggle");
-  if ((await reopen.count()) > 0 && (await reopen.getAttribute("aria-expanded")) !== "true") {
-    await reopen.click();
-    await page.waitForTimeout(400);
-  }
-  const reopenPlanner = page.getByRole("button", { name: /Construir recorrido/ }).first();
-  if ((await reopenPlanner.count()) > 0) {
-    await reopenPlanner.click();
-    await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
-    await page.waitForTimeout(600);
-    const c = page.getByRole("button", { name: /Cerrar|Volver/ }).first();
-    if ((await c.count()) > 0) {
-      await c.click();
-      await page.waitForTimeout(500);
-    }
-  }
+  // Re-lee a través de la app: Viaje › Días la monta y reescribe la clave con lo que realmente cargó; una semilla rechazada se vería como un
+  // borrador nuevo en vez de pasar.
+  await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }).first().click();
+  await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
+  await page.waitForTimeout(800);
+  const travellersBefore = await readKey(page, TRAVELLERS_KEY);
+  check("a two-person, two-hub state exists", Boolean(travellersBefore) && travellersBefore.includes("interested") && JSON.parse(travellersBefore).travellers.length === 2);
   const draftBefore = await readKey(page, DRAFT_KEY);
   check("a planning draft exists before exporting", Boolean(draftBefore));
   const draftParsedBefore = JSON.parse(draftBefore ?? "null");
@@ -232,7 +214,7 @@ async function auditViewport(browser, name, url) {
 
   // ── 2. Export, and read the file the browser actually saved ──────────────────────────────────
   await openBackup(page);
-  check("the backup surface opened", (await page.locator(".trip-backup__dialog").count()) === 1);
+  check("the backup surface opened", (await page.locator(".trip-backup").count()) === 1);
   check("the surface never claims a service exists", await noSyncWords(page));
   check("the backup surface has no horizontal overflow", !(await noOverflow(page)));
 
@@ -304,7 +286,7 @@ async function auditViewport(browser, name, url) {
   await page.getByRole("button", { name: "Cancelar" }).click();
   await page.waitForTimeout(400);
   check("cancelling wrote nothing", (await readKey(page, TRAVELLERS_KEY)) === beforeConfirm);
-  check("cancelling left the surface open", (await page.locator(".trip-backup__dialog").count()) === 1);
+  check("cancelling left the surface open", (await page.locator(".trip-backup").count()) === 1);
 
   await page.locator(".trip-backup__file").setInputFiles(savedPath);
   await page.waitForSelector(".trip-backup__preview", { timeout: 10000 });
@@ -390,25 +372,17 @@ async function auditViewport(browser, name, url) {
     }
   }
   check("no bad file polluted the prototype", await page.evaluate(() => ({}).polluted === undefined));
-  check("the surface stayed open through every bad file", (await page.locator(".trip-backup__dialog").count()) === 1);
+  check("the surface stayed open through every bad file", (await page.locator(".trip-backup").count()) === 1);
   await fs.rm(tmp, { recursive: true, force: true });
 
-  // ── 8. Keyboard, focus and dismissal ─────────────────────────────────────────────────────────
-  const focusVisible = await page.evaluate(() => {
-    const el = document.querySelector(".trip-backup__close");
-    if (!(el instanceof HTMLElement)) return false;
-    el.focus();
-    return document.activeElement === el;
-  });
-  check("the dialog's close control takes focus", focusVisible);
-  await page.keyboard.press("Escape");
-  await page.waitForTimeout(500);
-  check("Escape closes the surface", (await page.locator(".trip-backup__dialog").count()) === 0);
-  check("focus is not trapped after closing", await page.evaluate(() => document.activeElement !== null));
+  // ── 8. Keyboard, focus and dismissal ───────────────────────────────────────────────────�
+  // RETIRADAS (premisa): «the dialog's close control takes focus» y «Escape closes the surface» — el respaldo es una sección de Nosotros, no un
+  // diálogo. Cubierto en b26 (B-ESCAPE: Escape cancela la confirmación sin escribir; B-CONFIRM-FOCUS; B-CANCEL-FOCUS; B-INVALID-FOCUS-BACK).
+  check("focus is not trapped (the section is part of the page)", await page.evaluate(() => document.activeElement !== null));
 
   await openBackup(page);
   const tapTargets = await page.evaluate(() =>
-    [...document.querySelectorAll(".trip-backup__dialog button")]
+    [...document.querySelectorAll(".trip-backup button")]
       .map((b) => {
         const r = b.getBoundingClientRect();
         return { label: (b.textContent ?? "").trim().slice(0, 24), h: Math.round(r.height), w: Math.round(r.width) };
@@ -417,16 +391,16 @@ async function auditViewport(browser, name, url) {
   );
   check("every control in the dialog meets the tap floor", tapTargets.length === 0, JSON.stringify(tapTargets));
   check("the dialog still has no horizontal overflow", !(await noOverflow(page)));
-  await page.keyboard.press("Escape");
-  await page.waitForTimeout(400);
 
   // ── 9. Block 12's boundaries are intact ──────────────────────────────────────────────────────
-  const modulePreloads = await page.evaluate(() =>
-    [...document.querySelectorAll('link[rel="modulepreload"]')].map((l) => l.getAttribute("href") ?? "")
-  );
+  // Medido sobre el HTML SERVIDO, no sobre el DOM vivo: desde B10.4 los chunks diferidos tienen CSS propio y Vite inyecta en ejecución un
+  // `<link rel="modulepreload">` al hacer su `import()` en reposo (docs/GATE_AUTHORITY.md §2.1; block12 midió lo mismo). Lo que importa —que
+  // no estén en la ruta crítica del documento— se prueba con el HTML de la build.
+  const servedHtml = await (await fetch(url)).text();
+  const modulePreloads = [...servedHtml.matchAll(/<link[^>]*rel="modulepreload"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
   check(
     "Block 12's deferred surfaces are still not in the critical path",
-    !modulePreloads.some((h) => /OrderedSequenceBuilder|ZoneComparison|TripBackup/.test(h)),
+    !modulePreloads.some((h) => /OrderedSequenceBuilder|ZoneComparison|TripBackup/.test(h)) && !/OrderedSequenceBuilder|ZoneComparison/.test(servedHtml),
     modulePreloads.join(" | ")
   );
 
@@ -443,7 +417,7 @@ async function auditViewport(browser, name, url) {
 }
 
 async function noSyncWords(page) {
-  const text = (await page.locator(".trip-backup__dialog").innerText()).toLowerCase();
+  const text = (await page.locator(".trip-backup").innerText()).toLowerCase();
   return !/sincroniz|conectad|la nube|cuenta|inicia sesión|compartido autom/.test(text);
 }
 

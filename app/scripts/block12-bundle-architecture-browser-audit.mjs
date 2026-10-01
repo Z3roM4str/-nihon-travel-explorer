@@ -112,20 +112,38 @@ async function auditViewport(browser, name, url) {
   check("cold load logged no console error", consoleErrors.length === 0, consoleErrors.join(" | "));
   check("no request to this origin failed", failedRequests.length === 0, failedRequests.join(" | "));
 
-  // The first screen is the national view. If splitting had moved the map off the critical path,
-  // this is what would have regressed — so it is asserted before anything is opened.
+  // B21+: la primera pantalla es la portada de Explorar (la mapa nacional se abre desde su tarjeta).
+  // Si la división hubiera movido la portada fuera de la ruta crítica, esto sería lo que regresase.
   check(
-    "the first screen still renders the national map without waiting for a second chunk",
-    (await page.locator(".leaflet-container").count()) >= 1
+    "the first screen still renders the Explorar home without waiting for a second chunk",
+    (await page.locator(".explorer-home").count()) >= 1
   );
 
-  const modulePreloads = await page.evaluate(() =>
-    [...document.querySelectorAll('link[rel="modulepreload"]')].map((l) => l.getAttribute("href") ?? "")
-  );
+  // «Ruta crítica» = lo que el documento pide ANTES de la primera pintura. Se mide en dos hechos:
+  //  (a) el HTML servido no declara `modulepreload` de las superficies diferidas;
+  //  (b) cuando se piden (prefetch en reposo), su petición empieza DESPUÉS de la primera pintura.
+  // (B10.4: los chunks diferidos llevan ahora su CSS, y Vite inyecta entonces un `<link rel=modulepreload>` en
+  // tiempo de ejecución al hacer el `import()` en reposo; mirar el DOM vivo ya no distingue ese prefetch tardío
+  // de una dependencia crítica.)
+  const servedHtml = await (await page.request.get(url)).text();
+  const staticPreloads = [...servedHtml.matchAll(/<link[^>]+rel=["']modulepreload["'][^>]*>/g)].map((m) => m[0]);
   check(
-    "no deferred surface is pulled into the document's critical path",
-    !modulePreloads.some((h) => /OrderedSequenceBuilder|ZoneComparison/.test(h)),
-    modulePreloads.join(" | ")
+    "no deferred surface is pulled into the document's critical path (served HTML)",
+    !staticPreloads.some((h) => /OrderedSequenceBuilder|ZoneComparison/.test(h)),
+    staticPreloads.join(" | ")
+  );
+  await page.waitForTimeout(1500);
+  const timing = await page.evaluate(() => ({
+    fcp: performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? -1,
+    deferred: performance
+      .getEntriesByType("resource")
+      .filter((e) => /\/(OrderedSequenceBuilder|ZoneComparison)-[^/]*\.js/.test(e.name))
+      .map((e) => ({ name: e.name.split("/").pop(), start: e.startTime })),
+  }));
+  check(
+    "the deferred chunks are requested only after first contentful paint",
+    timing.fcp > 0 && timing.deferred.every((e) => e.start > timing.fcp),
+    JSON.stringify(timing)
   );
 
   // ── 2. The boundary is real ──────────────────────────────────────────────────────────────────
@@ -157,58 +175,37 @@ async function auditViewport(browser, name, url) {
     }
   }
 
-  // The planner lives behind the saved-places panel: open that first, exactly as a person would.
-  const selectionToggle = page.locator(".selection-panel__toggle");
-  if ((await selectionToggle.count()) > 0 && (await selectionToggle.getAttribute("aria-expanded")) !== "true") {
-    await selectionToggle.click();
-    await page.waitForTimeout(500);
-  }
-  const plannerButton = page.locator(".selection-panel__analyze").first();
-  const hasPlannerButton = (await plannerButton.count()) > 0;
-  check("the planner can be reached from the saved-places panel", hasPlannerButton);
-  if (hasPlannerButton) {
-    await plannerButton.click();
-    // Deliberately generous: this is the wait a real person would experience if the prefetch had
-    // not already landed, and the point is that the surface arrives, not how fast.
-    await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
-    check("the deferred planner really opened", (await page.locator("#sequence-builder-title").count()) === 1);
-    check("opening the planner raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
-    check("opening the planner 404ed no chunk", jsRequests.every((r) => r.status === 200));
-    let o = await noOverflow(page);
-    check("the planner introduced no horizontal overflow", !o.page);
+  // B18+/B27: el planificador es el contenido de la pestaña Viaje (ya no hay panel de guardados con botón).
+  const nav = page.getByRole("navigation", { name: "Navegación principal" });
+  await nav.getByRole("button", { name: "Viaje" }).click();
+  // Deliberately generous: this is the wait a real person would experience if the prefetch had
+  // not already landed, and the point is that the surface arrives, not how fast.
+  await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
+  check("the deferred planner really opened", (await page.locator("#sequence-builder-title").count()) === 1);
+  check("opening the planner raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
+  check("opening the planner 404ed no chunk", jsRequests.every((r) => r.status === 200));
+  let o = await noOverflow(page);
+  check("the planner introduced no horizontal overflow", !o.page);
 
-    // Close and reopen: a lazy component that resolved once must not suspend again.
-    const close = page.getByRole("button", { name: /Cerrar|Volver/ }).first();
-    if ((await close.count()) > 0) {
-      await close.click();
-      await page.waitForTimeout(600);
-      check("the planner closed", (await page.locator("#sequence-builder-title").count()) === 0);
-      await plannerButton.click();
-      await page.waitForTimeout(700);
-      check(
-        "reopening the planner works, and does not re-suspend",
-        (await page.locator("#sequence-builder-title").count()) === 1
-      );
-      const reclose = page.getByRole("button", { name: /Cerrar|Volver/ }).first();
-      if ((await reclose.count()) > 0) {
-        await reclose.click();
-        await page.waitForTimeout(500);
-      }
-    }
-  }
+  // Salir y volver: un componente lazy ya resuelto no debe volver a suspenderse.
+  await nav.getByRole("button", { name: "Explorar" }).click();
+  await page.waitForTimeout(400);
+  await nav.getByRole("button", { name: "Viaje" }).click();
+  await page.waitForTimeout(400);
+  check(
+    "returning to the planner works, and does not re-suspend",
+    (await page.locator("#sequence-builder-title").count()) === 1
+  );
 
   // ── 4. The zone comparison, the second deferred surface ──────────────────────────────────────
-  const zonesButton = page.locator(".hub-bar__zones");
-  const hasZones = (await zonesButton.count()) > 0;
-  check("the zone comparison can be reached", hasZones);
-  if (hasZones) {
-    await zonesButton.click();
-    await page.waitForSelector(".zone-card", { timeout: 10000 }).catch(() => {});
-    check("the deferred zone comparison really opened", (await page.locator(".zone-card").count()) > 0);
-    check("opening the comparison raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
-    const o = await noOverflow(page);
-    check("the comparison introduced no horizontal overflow", !o.page);
-  }
+  // B30: la comparación de zonas es «Viaje › Dónde dormir».
+  await page.getByRole("group", { name: "Secciones de Viaje" }).getByRole("button", { name: "Dónde dormir", exact: true }).click();
+  await page.waitForSelector(".zone-card", { timeout: 10000 }).catch(() => {});
+  check("the zone comparison can be reached", (await page.locator(".zone-card").count()) > 0);
+  check("the deferred zone comparison really opened", (await page.locator(".zone-card").count()) > 0);
+  check("opening the comparison raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
+  o = await noOverflow(page);
+  check("the comparison introduced no horizontal overflow", !o.page);
 
   // ── 5. Nothing leaked ────────────────────────────────────────────────────────────────────────
   check("no JS request failed across the whole session", failedRequests.length === 0, failedRequests.join(" | "));

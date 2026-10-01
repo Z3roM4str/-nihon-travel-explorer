@@ -1,0 +1,85 @@
+.prefecture-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-panel);
+  padding: 0.9rem 1rem 1.5rem;
+}
+
+@media (min-width: 840px) {
+  .prefecture-panel {
+    border-bottom: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem 1.1rem;
+  }
+}
+
+.prefecture-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.prefecture-panel__header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.prefecture-panel__sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.prefecture-panel__count {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}
+
+.prefecture-panel__hubs {
+  margin-top: 1rem;
+}
+
+.prefecture-panel__hubs h3 {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.prefecture-panel__hint {
+  margin: 0.25rem 0 0.6rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.prefecture-panel__hub-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.prefecture-panel__hub {
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.prefecture-panel__hub-count {
+  font-weight: 400;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.prefecture-panel__empty {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}

@@ -17,9 +17,9 @@ function withoutComments(source: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
-  it("renders one subsection in both relevant planner views, never a page, modal or wizard", async () => {
+  it("renders one subsection in the planner (the days view; the retired route view no longer renders a second copy), never a page, modal or wizard", async () => {
     const source = await builderSource();
-    expect(source.match(/<InterHubSegmentsSection/g)).toHaveLength(2);
+    expect(source.match(/<InterHubSegmentsSection/g)).toHaveLength(1);
     expect(sectionSource(source)).toContain("Traslados entre ciudades");
     expect(sectionSource(source)).not.toMatch(/role="dialog"|modal|wizard/i);
   });
@@ -37,7 +37,7 @@ describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
     expect(section).toContain('useState<InterHubMode | "">("")');
     expect(section).toContain('useState("")');
     expect(section).toContain("Selecciona modo");
-    expect(section).toContain("Duración manual del tramo principal");
+    expect(section).toContain("Duración manual del traslado principal");
     expect(section).not.toMatch(/defaultMode|defaultMinutes|inferMode|inferMinutes/);
   });
 
@@ -57,7 +57,7 @@ describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
     expect(section).toContain("{segment.fromHub} → {segment.toHub}");
     expect(section).toContain("INTER_HUB_MODE_LABELS");
     expect(section).toContain("min registrados manualmente");
-    expect(section).toContain("Tramo principal entre estos dos puntos de tu plan;");
+    expect(section).toContain("Traslado principal entre estos dos puntos de tu plan;");
     expect(section).toContain("no es un tiempo puerta a puerta");
   });
 

@@ -43,6 +43,7 @@ import { placesForTripHub } from "../lib/zone-journey-context";
 import { EvidenceMark } from "./EvidenceMark";
 import { ZonePhotoFallback } from "./ZonePhotoFallback";
 
+import "./ZoneComparison.css";
 type Props = {
   hub: string;
   savedPlaces: Place[];

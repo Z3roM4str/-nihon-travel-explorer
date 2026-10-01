@@ -188,7 +188,7 @@ async function main() {
   await page.waitForTimeout(300);
   check(
     "«Quiero ir» muestra el lugar guardado como contenido de la pestaña, no un cajón",
-    await page.locator(".selection-panel__content").isVisible()
+    await page.locator(".quiero-ir [data-quiero-ir-place]").first().isVisible()
   );
 
   // Corrección post-cierre, hallazgo 1: abrir un lugar desde Quiero ir abre la misma ficha SIN
@@ -201,7 +201,7 @@ async function main() {
   const quieroIrScrollBefore = await page.evaluate(
     () => document.querySelector(".destination-panel--scroll")?.scrollTop ?? 0
   );
-  await page.click(".selection-list__name");
+  await page.click(".quiero-ir [data-quiero-ir-place] .place-card__open");
   await page.waitForTimeout(400);
   check("abrir un lugar desde Quiero ir abre la ficha", await page.locator(".place-detail").isVisible());
   const activeDestinationWhileFichaOpen = await page
@@ -223,7 +223,7 @@ async function main() {
   await page.waitForTimeout(400);
   check(
     "cerrar la ficha abierta desde Quiero ir vuelve a Quiero ir, no a Explorar",
-    await page.locator(".selection-panel").isVisible()
+    await page.locator(".quiero-ir").isVisible()
   );
   const quieroIrScrollAfter = await page.evaluate(
     () => document.querySelector(".destination-panel--scroll")?.scrollTop ?? 0
@@ -256,24 +256,25 @@ async function main() {
   // orden", se navega a otra pestaña y se vuelve, y se comprueba que sigue exactamente en ese
   // estado: si el componente se hubiera desmontado, `view` habría vuelto a su valor inicial
   // ("builder"/"Construir recorrido").
-  const compareToggle = page.locator(".sequence-compare-toggle:has-text('Comparar otro orden')");
-  check("hay al menos 2 lugares en el recorrido (necesario para comparar)", await compareToggle.isVisible());
-  await compareToggle.click();
+  // B10/B31: «Comparar otro orden» ya no es alcanzable (D5-M1). Se conserva la intención con otro
+  // estado local, no persistido, del planificador: el `<details>` de herramientas del día
+  // (`.days-tools`). Si el componente se desmontara al salir de Viaje, volvería a estar cerrado.
+  const dayTools = page.locator(".days-tools");
+  check("hay un día con herramientas (necesario para comprobar el estado local)", await dayTools.isVisible());
+  if (!(await dayTools.evaluate((element) => element.open))) await dayTools.locator("summary").click();
   await page.waitForTimeout(300);
   check(
-    "entrar en «Comparar otro orden» cambia el estado local del planificador",
-    (await page.locator("#sequence-builder-title").textContent()) === "Comparar órdenes"
+    "abrir las herramientas del día cambia el estado local del planificador",
+    await dayTools.evaluate((element) => element.open)
   );
   await page.click(".tab-bar__item:has-text('Nosotros')");
   await page.waitForTimeout(300);
   await page.click(".tab-bar__item:has-text('Viaje')");
   await page.waitForTimeout(300);
   check(
-    "el estado local del planificador (vista «Comparar órdenes») sobrevive a cambiar de pestaña y volver",
-    (await page.locator("#sequence-builder-title").textContent()) === "Comparar órdenes"
+    "el estado local del planificador (herramientas del día abiertas) sobrevive a cambiar de pestaña y volver",
+    await page.locator(".days-tools").evaluate((element) => element.open)
   );
-  await page.click(".link-button.sequence-back");
-  await page.waitForTimeout(300);
 
   await page.click(".viaje-nav__item:has-text('Dónde dormir')");
   await page.waitForTimeout(500);
@@ -288,29 +289,30 @@ async function main() {
   await page.waitForTimeout(300);
   check(
     "tocar el PersonToken lleva a Nosotros › Viajeros",
-    await page.locator(".nosotros-section:has-text('Viajeros')").isVisible()
+    await page.locator("#nosotros-viajeros").isVisible()
   );
-  const travellerOptions = page.locator(".traveller-bar__option");
+  // B26: «Viajeros» son tarjetas (`.traveller-card`); la activa lleva `--active`, la otra ofrece «.traveller-card__use».
+  const travellerOptions = page.locator(".traveller-card");
   check("hay dos viajeros configurados, alcanzables desde Nosotros", (await travellerOptions.count()) === 2);
   check(
     "el gestor de viajeros vive en Nosotros sin scrim ni role=dialog",
-    (await page.locator(".traveller-manager").count()) === 0 &&
-      (await page.locator(".traveller-manager__dialog--embedded").count()) === 1
+    (await page.locator("#nosotros-viajeros .traveller-manager").count()) === 1 &&
+      (await page.locator(".traveller-manager[role=dialog], .traveller-manager__dialog").count()) === 0
   );
   check(
     "el respaldo del viaje vive en Nosotros sin scrim ni role=dialog",
-    (await page.locator(".trip-backup").count()) === 0 &&
-      (await page.locator(".trip-backup__dialog--embedded").count()) === 1
+    (await page.locator("#nosotros-copia .trip-backup").count()) === 1 &&
+      (await page.locator(".trip-backup[role=dialog], .trip-backup__dialog").count()) === 0
   );
   check(
     "la atribución MLIT sigue íntegra, ahora en Nosotros › Fuentes y licencias",
-    (await page.locator(".nosotros-section:has-text('Fuentes y licencias') a[href*='mlit.go.jp']").count()) === 1
+    (await page.locator("#nosotros-fuentes a[href*='mlit.go.jp']").count()) === 1
   );
 
-  await travellerOptions.nth(1).click();
+  await travellerOptions.nth(1).locator(".traveller-card__use").click();
   await page.waitForTimeout(200);
-  check("cambiar de persona activa funciona desde Nosotros", await travellerOptions.nth(1).getAttribute("aria-pressed").then((v) => v === "true"));
-  await travellerOptions.nth(0).click();
+  check("cambiar de persona activa funciona desde Nosotros", await travellerOptions.nth(1).evaluate((el) => el.classList.contains("traveller-card--active")));
+  await travellerOptions.nth(0).locator(".traveller-card__use").click();
   await page.waitForTimeout(200);
 
   // MLIT sigue accesible desde el mapa nacional, vía ⓘ (gate 11 §12).

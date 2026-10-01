@@ -3,6 +3,16 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva las afirmaciones; el contador de «Quiero ir»
+ * ya no vive en `.selection-panel__count` (panel retirado en B18/B25) sino en la insignia de la pestaña (`.tab-bar__badge`/`.nav-rail__badge`,
+ * visible sólo si > 0, Art. 6): «0» = sin insignia.
+ */
+async function wantToGoCount(page) {
+  const badge = page.locator(".tab-bar__badge:visible, .nav-rail__badge:visible");
+  return (await badge.count()) ? (await badge.first().innerText()).trim() : "0";
+}
+
 /**
  * Block 1 — UX, hierarchy and usability browser audit.
  *
@@ -291,10 +301,10 @@ async function auditViewport(browser, name, url) {
   check("hub view has no horizontal overflow", !overflow.overflowing, JSON.stringify(overflow));
 
   // ---- Saving from a card ----
-  const savedBefore = (await page.locator(".selection-panel__count").innerText()).trim();
+  const savedBefore = (await wantToGoCount(page));
   await firstCard.locator(".place-card__save").click();
   await page.waitForTimeout(350);
-  const savedAfter = (await page.locator(".selection-panel__count").innerText()).trim();
+  const savedAfter = (await wantToGoCount(page));
   check("saving from a card updates the Quiero ir counter", savedBefore === "0" && savedAfter === "1", `${savedBefore} → ${savedAfter}`);
   check("saving is confirmed on screen", (await page.locator(".save-toast").count()) === 1);
   check(
@@ -314,7 +324,7 @@ async function auditViewport(browser, name, url) {
   await page.waitForTimeout(300);
   check(
     "unsaving from the same control reverses it",
-    (await page.locator(".selection-panel__count").innerText()).trim() === "0"
+    (await wantToGoCount(page)) === "0"
   );
   await firstCard.locator(".place-card__save").click();
   await page.waitForTimeout(2600);

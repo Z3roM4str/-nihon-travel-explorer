@@ -7,6 +7,7 @@ import type {
 } from "../lib/zone-plan-link";
 import type { ZoneAccommodationChoice } from "../lib/zone-accommodation-choice";
 
+import "./ZonePlanSection.css";
 /**
  * Block 4 — what a chosen accommodation zone actually does to the plan, stated without inventing
  * anything.
@@ -166,17 +167,11 @@ function ZoneHubLinkCard({
 }
 
 /**
- * The section itself, at one of two densities.
+ * The section itself: the day-assignment view's zone plan, beside the accommodation manager and the
+ * per-day boundaries it actually describes. (The one-line `summary` density belonged to the route
+ * view that D5-M1 retired — the route view was unreachable and has been removed.)
  *
- * `summary` is what the route view shows: one line per chosen zone, no per-day detail. It exists
- * because a reader who presses "Abrir el planificador" from the comparison lands on the ROUTE view,
- * and arriving to no acknowledgement at all of the decision they just made would make the link feel
- * like nothing happened. The per-day detail needs days to exist, so it belongs with them.
- *
- * `full` is the day-assignment view's section, beside the accommodation manager and the per-day
- * boundaries it actually describes.
- *
- * Both are rendered even with nothing chosen: the empty state is the honest answer to "I have not
+ * It is rendered even with nothing chosen: the empty state is the honest answer to "I have not
  * chosen a zone yet", and hiding the section would make the feature invisible to anyone who has not
  * already found the comparison screen.
  */
@@ -186,46 +181,13 @@ export function ZonePlanSection({
   hubLinks,
   anchorLabelById,
   onClear,
-  variant = "full",
 }: {
   choices: readonly ZoneAccommodationChoice[];
   dayLinks: readonly ZoneDayLink[];
   hubLinks: readonly ZoneHubLink[];
   anchorLabelById: ReadonlyMap<string, string>;
   onClear: (hub: string) => void;
-  variant?: "full" | "summary";
 }) {
-  if (variant === "summary") {
-    return (
-      <section className="zone-plan zone-plan--summary" aria-label="Zonas de alojamiento elegidas">
-        <h3>Zonas elegidas para dormir</h3>
-        {choices.length === 0 ? (
-          <p className="zone-plan__empty">
-            No habéis elegido ninguna zona todavía. Se eligen comparándolas en{" "}
-            <strong>«Dónde dormir»</strong>, en la barra de la ciudad.
-          </p>
-        ) : (
-          <>
-            <ul className="zone-plan__summary-list">
-              {hubLinks.map((link) => (
-                <li key={link.hub}>
-                  <strong>{link.hub}</strong>:{" "}
-                  {link.choice.zone ? link.choice.zone.name : "zona ya no disponible"}
-                  {link.choice.anchor && <> · alojamiento «{link.choice.anchor.label}»</>}
-                </li>
-              ))}
-            </ul>
-            <p className="zone-plan__caveat">
-              <span aria-hidden="true">ⓘ</span> No hay ningún hotel reservado y{" "}
-              <strong>ningún tiempo calculado</strong>. El detalle por días está en{" "}
-              <strong>«Distribuir por días»</strong>.
-            </p>
-          </>
-        )}
-      </section>
-    );
-  }
-
   const multiHubDays = dayLinks.filter((day) => day.hubs.length > 1);
 
   return (

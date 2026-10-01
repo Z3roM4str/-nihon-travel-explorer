@@ -5,6 +5,7 @@ import { describeFebMarStatusForUi, interpretPlaceFebMarStatus } from "../lib/fe
 import { reservationMechanismScopeLabel } from "../lib/reservation-mechanism-presentation";
 import { EvidenceMark } from "./EvidenceMark";
 
+import "./TripReservations.css";
 type Props = {
   rows: readonly TripReservationRow[];
   onSelectPlace?: (id: string) => void;

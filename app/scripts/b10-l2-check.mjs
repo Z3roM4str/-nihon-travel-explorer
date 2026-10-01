@@ -26,6 +26,8 @@ const url = server.resolvedUrls.local[0];
 const browser = await playwright[engine].launch(engine === "webkit" && process.env.NIHON_WEBKIT_PATH ? { executablePath: process.env.NIHON_WEBKIT_PATH } : {});
 const results = [];
 const noun = baseline ? "tramo" : "traslado";
+const principalLabel = baseline ? "Tramo principal entre estos dos puntos de tu plan;" : "Traslado principal entre estos dos puntos de tu plan;";
+const durationLabel = baseline ? "Duración manual del tramo principal" : "Duración manual del traslado principal";
 try {
   for (const [width, height] of [[320, 568], [390, 844], [1440, 900]]) {
     const context = await browser.newContext({ viewport: { width, height } });
@@ -65,7 +67,7 @@ try {
     const form = section.locator(".inter-hub-segments__form");
     const totals = await root.locator(".analysis-totals").allTextContents();
     const capture = async state => {
-      assert.equal(await section.getByText("Tramo principal entre estos dos puntos de tu plan;", { exact: false }).count(), 1);
+      assert.equal(await section.getByText(principalLabel, { exact: false }).count(), 1);
       assert.ok(await section.getByText("no es un tiempo puerta a puerta", { exact: true }).isVisible());
       const current = await stored();
       const { interHubSegments, ...unchanged } = current;
@@ -84,11 +86,11 @@ try {
     assert.ok(await section.getByText(`Todavía no has registrado ningún ${noun} entre ciudades.`, { exact: true }).isVisible());
     const add = form.getByRole("button", { name: `Añadir ${noun}`, exact: true });
     assert.ok(await add.isDisabled());
-    assert.equal(await form.getByLabel("Duración manual del tramo principal", { exact: true }).count(), 1);
+    assert.equal(await form.getByLabel(durationLabel, { exact: true }).count(), 1);
     await capture("empty");
     await form.getByLabel("Posición en el plan").selectOption(JSON.stringify(ids.slice(0, 2)));
     await form.getByLabel("Modo").selectOption("shinkansen");
-    const duration = form.getByLabel("Duración manual del tramo principal", { exact: true });
+    const duration = form.getByLabel(durationLabel, { exact: true });
     await duration.fill("0");
     assert.ok(await add.isDisabled());
     await duration.fill("135");
@@ -104,7 +106,7 @@ try {
     const remove = item.getByRole("button", { name: `Eliminar ${noun} ${names[0]} a ${names[1]}`, exact: true });
     assert.equal(await remove.getAttribute("title"), `Eliminar ${noun} ${names[0]} a ${names[1]}`);
     await capture("active");
-    const editDuration = item.getByLabel("Duración manual del tramo principal", { exact: true });
+    const editDuration = item.getByLabel(durationLabel, { exact: true });
     await editDuration.fill("150");
     await editDuration.press("Tab");
     await page.waitForFunction(k => JSON.parse(localStorage.getItem(k)).interHubSegments[0].minutes === 150, key);

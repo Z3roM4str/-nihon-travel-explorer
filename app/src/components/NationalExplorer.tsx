@@ -17,6 +17,7 @@ import { Sheet } from "./Sheet";
 import { MlitAttribution } from "./MlitAttribution";
 import { Icon } from "../icons/Icon";
 
+import "./NationalExplorer.css";
 /** Hub → place count, computed once */
 const HUB_SHORTCUTS = getHubs().map((hub) => ({ hub, placeCount: getPlacesByHub(hub).length }));
 
@@ -118,7 +119,7 @@ export function NationalExplorer({
   return (
     <div className="national">
       {/* Fullscreen Map Area */}
-      <main className="national__map-area">
+      <div className="national__map-area">
         {geometry.status === "ready" ? (
           <NationalMap
             geometry={geometry.geometry}
@@ -172,7 +173,7 @@ export function NationalExplorer({
             />
           </div>
         )}
-      </main>
+      </div>
 
       {/* Draggable Bottom Sheet in 3 heights (asa, 25%, 75%) */}
       <aside

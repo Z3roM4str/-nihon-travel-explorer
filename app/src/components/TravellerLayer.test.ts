@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "../test-css";
 /**
  * Block 5 — the wiring contract for the two-person layer.
  *
@@ -209,7 +210,7 @@ describe("accessibility", () => {
   });
 
   it("keeps every new control at the 44px tap floor", async () => {
-    const css = await readAppSource("App.css");
+    const css = await readProductCss();
     for (const selector of [
       ".traveller-manager__input",
       ".traveller-card__use",
@@ -221,7 +222,7 @@ describe("accessibility", () => {
   });
 
   it("has no transitions of its own to disable under reduced motion", async () => {
-    const css = await readAppSource("App.css");
+    const css = await readProductCss();
     const cards = css.slice(css.indexOf(".traveller-card {"), css.indexOf(".traveller-manager__confirm {"));
     expect(cards).not.toMatch(/transition|animation/);
   });

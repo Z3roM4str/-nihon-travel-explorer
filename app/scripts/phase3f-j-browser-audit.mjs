@@ -109,10 +109,11 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
-    await page.getByRole("heading", { name: "Día 1" }).waitFor();
+    // B27–B31: Viaje abre directamente sobre Días; Reservas es una sección propia de Viaje.
+    await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Viaje" }).click();
+    await page.locator(".day-card[data-day-id]").first().waitFor();
+    await page.getByRole("group", { name: "Secciones de Viaje" }).getByRole("button", { name: "Reservas", exact: true }).click();
+    await page.locator(".trip-reservations").waitFor();
   }
 
   async function bootPlanner(planningDraft, referenceCivilDate) {
@@ -125,6 +126,8 @@ try {
 
     await page.addInitScript(fixBrowserCivilDate, referenceCivilDate.split("-").map(Number));
     await page.addInitScript(({ saved, draft }) => {
+      // B18+: el onboarding de primera ejecución cubre la navegación; el gate parte de «ya visto».
+      localStorage.setItem("nihon.onboarding.seen.v1", "1");
       if (localStorage.getItem("nihon.savedPlaceIds") === null) {
         localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(saved));
       }
@@ -151,8 +154,29 @@ try {
   const rows = (page) => page.locator(".official-reservation-calendar__item");
   const rowFor = (page, placeName) => rows(page).filter({ hasText: placeName });
 
+  async function showSection(page, name) {
+    await page.getByRole("group", { name: "Secciones de Viaje" }).getByRole("button", { name, exact: true }).click();
+  }
+  /** B28: «Mover a…» (Día + Posición) sustituyó a los botones «hacia abajo» / «al día siguiente»; vive en Días. */
+  async function moveStop(page, placeName, dayValue, positionValue) {
+    await showSection(page, "Días");
+    const stop = page.locator(".trip-stop").filter({ hasText: placeName });
+    await stop.getByRole("button", { name: "Mover a…" }).click();
+    await stop.getByLabel("Día").selectOption(dayValue);
+    await stop.getByLabel("Posición").selectOption(positionValue);
+    await stop.getByRole("button", { name: "Mover parada" }).click();
+    await showSection(page, "Reservas");
+  }
+
+  // B4+: la fecha va precedida de su EvidenceMark (◇ Estimado); aquí se compara sólo la fecha.
   const anchorOrder = (page) =>
-    page.locator(".official-reservation-calendar__anchor").allInnerTexts();
+    page.locator(".official-reservation-calendar__anchor").evaluateAll((elements) =>
+      elements.map((element) => {
+        const clone = element.cloneNode(true);
+        clone.querySelectorAll(".evidence-mark").forEach((mark) => mark.remove());
+        return (clone.textContent ?? "").trim();
+      })
+    );
   const contextOrder = (page) =>
     page.locator(".official-reservation-calendar__context").allInnerTexts();
 
@@ -177,7 +201,7 @@ try {
     try {
       await calendar(page).waitFor();
       assert.equal(await calendar(page).count(), 1, "route-wide section must render exactly once");
-      await page.getByRole("heading", { name: "Fechas oficiales de reserva del recorrido" }).waitFor();
+      await page.getByRole("heading", { name: "Fechas oficiales de reserva del viaje" }).waitFor();
 
       assert.deepEqual(await anchorOrder(page), [
         "mar, 1 dic 2026",
@@ -206,7 +230,7 @@ try {
       // Relations use Phase 3F-H's exact vocabulary and appear on every eligible row.
       const relations = await page.locator(".official-reservation-calendar__relation").allInnerTexts();
       assert.equal(relations.length, 4);
-      assert.match(relations[0], /cae dentro del tramo de fechas registrado para la solicitud\./);
+      assert.match(relations[0], /cae dentro del intervalo de fechas registrado para la solicitud\./);
       assert.match(relations[1], /está después de la fecha oficial registrada\./);
       assert.match(relations[2], /está antes de la fecha oficial registrada\./);
       assert.match(relations[3], /está antes de la fecha oficial registrada\./);
@@ -241,7 +265,7 @@ try {
       assert.doesNotMatch(sectionText, /2 reservas/);
 
       // K. intra-day reorder flips only the tie order, exactly as the contract says it should.
-      await page.getByRole("button", { name: "Mover Tokyo DisneySea hacia abajo en Día 1" }).click();
+      await moveStop(page, "Tokyo Disneyland", "0", "0"); // mismo efecto que bajar DisneySea: sólo cambia el orden del empate
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[0]?.placeIds?.[0] === "JP-203";
@@ -304,12 +328,12 @@ try {
       assert.match(text, /vie, 12 mar 2027/);
       assert.match(text, /23:59/);
       assert.match(text, /zona horaria no registrada/i);
-      assert.match(text, /Situado en esta lista por la fecha de inicio registrada del tramo\./);
+      assert.match(text, /Situado en esta lista por la fecha de inicio registrada del intervalo\./);
       assert.match(text, /sorteo si las solicitudes superan el cupo/i);
       // No standalone close-date row anywhere in the section.
       assert.deepEqual(await anchorOrder(page), ["mar, 1 dic 2026"]);
       // The reference date IS the recorded close edge, and still says only "within the span".
-      assert.match(text, /cae dentro del tramo de fechas registrado para la solicitud\./);
+      assert.match(text, /cae dentro del intervalo de fechas registrado para la solicitud\./);
       assertNoForbiddenCopy(text, "Scenario E");
       record("E. Katsura single range row", "both edges, anchor disclosed");
     } finally {
@@ -338,7 +362,7 @@ try {
   {
     const { context, page } = await bootPlanner(makeDraft([["JP-212", "JP-019"]], "2027-03-29"), "2027-02-05");
     try {
-      const day = page.locator(".day-card").first();
+      const day = page.locator(".trip-reservations__item").filter({ hasText: "Grand Sumo Tournament Osaka 2027" }) /* B31: avisos en la fila de Reservas */;
       await day.locator(".official-reservation-date").waitFor();
       // No route-wide section at all: the only Phase 3F result in this plan has no applicable date.
       assert.equal(await calendar(page).count(), 0);
@@ -363,13 +387,15 @@ try {
     const { context, page } = await bootPlanner(makeDraft([["JP-044", "JP-019"]], "2027-02-20"), "2027-01-09");
     try {
       await calendar(page).waitFor();
-      // The Phase 3F calendar lives in the days view and nowhere else.
-      assert.equal(await page.locator(".reservation-prep").count(), 0);
+      // B31: el calendario de Fase 3F y la lista «Reservas por preparar» (Fase 3D) son secciones
+      // hermanas y distintas dentro de Reservas; ninguna contiene a la otra.
+      assert.equal(await page.locator(".trip-reservations #reservation-prep-heading").count(), 1);
+      assert.equal(await page.locator("#reservation-prep-heading").locator("xpath=ancestor::*[contains(@class,'official-reservation-calendar')]").count(), 0);
       assert.equal(
-        await page.locator(".official-reservation-calendar .reservation-prep").count(),
+        await page.locator(".official-reservation-calendar .trip-reservations__list").count(),
         0
       );
-      // Phase 3D-H's own per-day surface still renders, separately, with its own copy.
+      // Phase 3D-H's own surface still renders, separately, with its own copy.
       const deadline = page.locator(".reservation-deadline");
       await deadline.first().waitFor();
       assert.match(await deadline.first().innerText(), /ventana de anticipación registrada/i);
@@ -377,17 +403,9 @@ try {
         await page.locator(".official-reservation-calendar .reservation-deadline").count(),
         0
       );
-
-      // Back in the builder view, Phase 3D's route-wide list is unchanged and the calendar is absent.
-      await page.getByRole("button", { name: /Volver al recorrido/ }).first().click();
-      await page.getByRole("button", { name: /Distribuir por días/ }).waitFor();
-      const prep = page.locator(".reservation-prep");
-      await prep.waitFor();
-      const prepText = await prep.innerText();
+      const prepText = await page.locator("#reservation-prep-heading").locator("xpath=..").innerText();
       assert.match(prepText, /Reservas por preparar/);
-      assert.match(prepText, /No calcula fechas límite de reserva ni las compara con tu calendario/);
-      assert.equal(await calendar(page).count(), 0);
-      record("H. Phase 3D separation", "prep in builder, calendar in days");
+      record("H. Phase 3D separation", "prep list and calendar are sibling Reservas sections");
     } finally {
       await context.close();
     }
@@ -405,7 +423,7 @@ try {
       assert.match((await contextOrder(page))[0], /Tokyo Disneyland · Día 1 · visita .*20 feb 2027/);
 
       // I. move it to Día 2 → day number, visit date and derived official date all recompute.
-      await page.getByRole("button", { name: "Mover Tokyo Disneyland al día siguiente" }).click();
+      await moveStop(page, "Tokyo Disneyland", "1", "0");
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[1]?.placeIds?.includes("JP-203") === true;
@@ -415,7 +433,9 @@ try {
       record("I. move place between days", "Día, visit date and anchor recompute");
 
       // J. change the start date → every anchor recomputes.
+      await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
       await page.getByLabel("Fecha de inicio (Día 1)").fill("2027-03-14");
+      await showSection(page, "Reservas");
       await page.waitForFunction(
         () =>
           document.querySelector(".official-reservation-calendar__anchor")?.textContent?.includes(
@@ -426,7 +446,9 @@ try {
       record("J. start-date change", "all anchors recompute");
 
       // L. clear the start date → the whole route-wide section disappears.
+      await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
       await page.getByLabel("Fecha de inicio (Día 1)").fill("");
+      await showSection(page, "Reservas");
       await page.waitForFunction(
         () => document.querySelectorAll(".official-reservation-calendar").length === 0
       );
@@ -456,7 +478,7 @@ try {
         JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null")
       );
       assert.equal(reloaded.startDate, null);
-      assert.equal(reloaded.version, 7);
+      assert.equal(reloaded.version, 8); // v8 (B25+): el borrador v7 sembrado migra al cargar
       record("M. reload", "no stale aggregate, order or relation");
     } finally {
       await context.close();

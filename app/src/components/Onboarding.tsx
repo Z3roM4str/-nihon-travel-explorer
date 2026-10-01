@@ -13,6 +13,7 @@ import { cardImageUrl, resolvePlaceImages } from "../data/place-images";
 import { Icon } from "../icons/Icon";
 import { PersonToken } from "./PersonToken";
 
+import "./Onboarding.css";
 /**
  * `05 §1` — el explicador, en cinco pasos: Hola · Explora Japón · Marca lo que te gustaría ver ·
  * Después comparáis · ¿Quiénes sois?

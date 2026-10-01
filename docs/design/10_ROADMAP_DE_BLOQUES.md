@@ -1,3 +1,8 @@
+> Estado del encargo #177: **B10 INCOMPLETO / Draft**, reconciliado con `a8350d4`.
+> El cierre #179 y endurecimiento descritos abajo son antecedentes integrados en main;
+> no acreditan G6, editoriales ni pruebas físicas de esta combinación. La referencia
+> de G6 sigue siendo v1.1.0; no hay excepción autorizada. Véase el handoff vigente.
+
 # 10 — Roadmap de bloques
 
 Nueve bloques. Cada uno produce una mejora visible, se puede probar, no rompe
@@ -271,7 +276,7 @@ existente y las alternativas verificadas como opciones.
 **B9.4 — Dónde dormir.** Zonas sin ordinal, con fotografía, con hecho / cálculo /
 opinión separados visualmente. **Arregla D7.**
 
-**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). **B10 — Pulido: ejecución parcial publicada; pendiente de criterios y decisiones, no cerrado.**
+**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). B10 — Pulido: **CERRADO E INTEGRADO** (#179, merge `c512db15a1d253a1c6704ad0798f80dea142e173`; véase [certificación](../B10_POST_MERGE_CERTIFICATION.md)).
 
 **B9.5 — Reservas y Resumen.** Sub-pestañas propias; se elimina `Dato:`; línea de
 tiempo comprimida del viaje.
@@ -297,10 +302,6 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 
 ## B10 — Pulido
 
-**B10 ejecutado parcialmente, PR #177 Draft; INCOMPLETO.** L1/L2 conservados, L2b auditado, movimiento/targets y mapa corregidos, optimización fotográfica y Sheet verificadas. G6 histórico incumple; CSS global, decisiones editoriales/OD-01 y validación física pendientes. [Informe, evidencia y siguiente paso](../B10_AUTONOMOUS_REPORT.md).
-
-Estado de esta rama, no sustitución del cierre concurrente en main `5498756b`. #177 sigue Draft y requiere reconciliación; [detalle](../B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
-
 **Objetivo.** Cerrar.
 
 - Auditoría de movimiento: sólo los cinco movimientos nombrados; `prefers-reduced-motion`
@@ -310,7 +311,9 @@ Estado de esta rama, no sustitución del cierre concurrente en main `5498756b`. 
 - Erradicación final de `App.css`: cada superficie migrada tiene su CSS junto a su
   componente.
 - Revisión de microcopy contra `03 §10`: léxico prohibido a cero.
-- Decisión sobre modo oscuro (OD-01).
+- Decisión sobre modo oscuro (OD-01): **resuelta como POST-V1 / DIFERIDO** (no forma parte de la versión actual; véase `09`).
+
+**Estado: CERRADO E INTEGRADO** (#179). OD-01 queda **POST-V1 / DIFERIDO** (no es requisito de la versión actual); el endurecimiento de release cerró B10-P1, B10-A1…A4 y D5-M1 y documentó B10-M1…M6 y B10-C1; véase [CURRENT_WORK_HANDOFF](../CURRENT_WORK_HANDOFF.md). Este roadmap no define bloques posteriores.
 
 ---
 
@@ -332,5 +335,3 @@ Estado de esta rama, no sustitución del cierre concurrente en main `5498756b`. 
 **Si sólo se pudieran hacer tres:** B2, B4 y B1, en ese orden. Recuperan la pantalla,
 convierten la ficha en el corazón del producto y le dan identidad. Con esos tres Nihon
 ya no se parece a lo que es hoy.
-
-Actualización B10 L2: [matriz contextual](../B10_L2_COPY_SCOPE.md), [certificación acotada](../B10_L2_CERTIFICATION.md), [evidencia](../B10_L2_EVIDENCE.json). Cuatro cadenas canónicas; términos contextuales conservados, E01–E04 pendientes. Siguiente L2b documental/editorial. B10 incompleto; G5/G6 globales no cerrados.

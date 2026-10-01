@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "./test-css";
 /**
  * Bloque 18 — B2 "Shell de navegación" (`docs/design/10_ROADMAP_DE_BLOQUES.md`).
  *
@@ -99,7 +100,7 @@ describe("Bloque 18 — cuatro destinos permanentes (DD-001, 02 §D2)", () => {
   });
 
   it("TabBar y NavRail nunca coexisten: un único breakpoint (840px, `md`, 02 §D5) decide cuál se ve", async () => {
-    const css = await read("App.css");
+    const css = await readProductCss();
     expect(css).toContain(".nav-rail {\n  display: none;\n}");
     const mdBlock = css.slice(css.indexOf('@media (min-width: 840px) {\n  .tab-bar'));
     expect(mdBlock.slice(0, 200)).toMatch(/\.tab-bar\s*{\s*display:\s*none;/);
@@ -220,10 +221,9 @@ describe("Bloque 18 — corrección final: Sheet (420px) y ficha de lugar (480px
   });
 
   it("Sheet en md+ consume --sheet-panel-width, no --place-detail-panel-width", async () => {
+    // B10.4: las reglas de `Sheet` viven en `components/Sheet.css`.
     const css = await read("components/Sheet.css");
-    const sheetMdBlock = css.slice(
-      css.indexOf("@media (min-width: 840px) {\n  .sheet-scrim")
-    );
+    const sheetMdBlock = css.slice(css.indexOf("@media (min-width: 840px) {\n  .sheet-scrim"));
     expect(sheetMdBlock).toMatch(/\.sheet\s*{[^}]*width:\s*min\(var\(--sheet-panel-width\)/);
   });
 

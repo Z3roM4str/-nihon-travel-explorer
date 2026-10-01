@@ -3,6 +3,7 @@ import { MAX_TRAVELLERS, type Traveller } from "../lib/travellers";
 import { PersonToken } from "./PersonToken";
 import { Icon } from "../icons/Icon";
 
+import "./TravellerManager.css";
 /**
  * Block 5 → B26 — «Nosotros › Viajeros» (`05 §11`, DD-007).
  *
@@ -64,7 +65,7 @@ export function TravellerManager({
   return (
     <div className="traveller-manager" ref={rootRef}>
       <p className="traveller-manager__sub">
-        Sólo cambia de quién es cada «Quiero ir». El recorrido, los días, las fechas y el
+        Sólo cambia de quién es cada «Quiero ir». Los lugares planificados, los días, las fechas y el
         alojamiento son del viaje y los compartís los dos.
       </p>
 

@@ -246,7 +246,11 @@ async function auditMap(browser, url, viewport) {
 
 // ---- 10: ninguna fotografía ni lugar perdido --------------------------------------------------
 function auditAssets() {
-  const guarded = ["public/images", "src/data/places.json", "src/data/photography-metadata.json", "src/data/place-images.ts"];
+  // `place-images.ts` ya no se compara byte a byte (B10-P1): el código que lee el registro cambió para servir la
+  // proyección de runtime. Lo que este gate protege (ninguna fotografía ni lugar perdido) sigue fijado por los
+  // DATOS —imágenes, places.json y el registro canónico, idénticos a B24— y la equivalencia del registro que ve la UI
+  // la prueba `photography-runtime-projection.test.ts` (placeImages `toEqual` al construido desde el JSON completo).
+  const guarded = ["public/images", "src/data/places.json", "src/data/photography-metadata.json"];
   const diff = execFileSync("git", ["diff", "--name-status", B24_FINAL, "--", ...guarded], { cwd: APP, encoding: "utf8" }).trim();
   check("10-ASSETS", diff === "", `fotografía y dataset idénticos a B24 final ${B24_FINAL.slice(0, 7)}${diff ? `: ${diff.split("\n").slice(0, 3).join("; ")}` : ""}`);
   const places = JSON.parse(readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8"));

@@ -6,6 +6,13 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
 import {
+
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva TODAS las afirmaciones. SHIBUYA SKY tiene
+ * hoy dos fotografías (B6.5–B6.7 añadieron la de «experiencia»): la hoja de atribución lista un registro por foto, así que los campos
+ * de la fotografía de identidad que este gate fija (autor, archivo, título, licencia, procesado) se leen del PRIMER registro
+ * (`.credits-sheet__item`, el de esa fotografía); antes el `locator` estricto sólo admitía una.
+ */
   closeCredits,
   closePlace,
   creditsButtonCount,
@@ -100,16 +107,17 @@ try {
     );
   }
 
-  const sourceLink = credit.getByRole("link", { name: "Wikimedia Commons" });
+  const identityCredit = credit.locator(".credits-sheet__item").first();
+  const sourceLink = identityCredit.getByRole("link", { name: "Wikimedia Commons" });
   assert.match(await sourceLink.getAttribute("href"), /^https:\/\/commons\.wikimedia\.org\//);
 
-  const licenseLink = credit.getByRole("link", { name: "CC BY 2.0" });
+  const licenseLink = identityCredit.getByRole("link", { name: "CC BY 2.0" });
   assert.equal(
     await licenseLink.getAttribute("href"),
     "https://creativecommons.org/licenses/by/2.0"
   );
 
-  const creditText = await credit.innerText();
+  const creditText = await identityCredit.innerText();
   assert.match(creditText, /Stephen Kelly/);
   assert.match(
     creditText,

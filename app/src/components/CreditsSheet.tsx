@@ -2,6 +2,7 @@ import type { PlaceImage } from "../types";
 import { describePhotographyProcessing, hasAttribution } from "../lib/photography-attribution";
 import { Sheet } from "./Sheet";
 
+import "./CreditsSheet.css";
 /**
  * Bloque 20 (B4) — `CreditsSheet` (`04 §7`).
  *

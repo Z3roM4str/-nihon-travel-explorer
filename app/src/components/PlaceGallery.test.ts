@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "../test-css";
 /**
  * Presentación de la atribución fotográfica — requisito de la Fase 4C, **vigente**, con la
  * superficie actualizada por el Bloque 20 (B4).
@@ -102,7 +103,7 @@ describe("PlaceGallery — recovery after an image load error", () => {
   });
 
   it("gives retry a real 44px target styled with the existing design tokens", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     expect(css).toMatch(/\.gallery__retry\s*\{[^}]*min-width:\s*var\(--tap-min\)/s);
     expect(css).toMatch(/\.gallery__retry\s*\{[^}]*min-height:\s*var\(--tap-min\)/s);
     expect(css).toMatch(/\.gallery__retry\s*\{[^}]*border-radius:\s*var\(--radius-md\)/s);

@@ -2,6 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "./test-css";
 /**
  * Bloque 17 (B1 — Fundación visual) regression guard.
  *
@@ -324,7 +325,7 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
   });
 
   it("icon-button--small grows its REAL box to --tap-min and keeps the visual small via ::before", async () => {
-    const css = await read("App.css");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".icon-button--small {"), css.indexOf(".icon-button--small {") + 400);
     expect(rule).toMatch(/width:\s*var\(--tap-min\)/);
     expect(rule).toMatch(/height:\s*var\(--tap-min\)/);
@@ -338,7 +339,7 @@ describe("Bloque 17 (B1) — suelo táctil 44×44 (Art. 11, manda sobre 04 en co
   });
 
   it("gallery__dot grows its REAL box to --tap-min and keeps the visual dot small via ::before", async () => {
-    const css = await read("App.css");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".gallery__dot {"), css.indexOf(".gallery__dot {") + 400);
     expect(rule).toMatch(/width:\s*var\(--tap-min\)/);
     expect(rule).toMatch(/height:\s*var\(--tap-min\)/);

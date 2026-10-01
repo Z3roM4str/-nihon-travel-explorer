@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "../test-css";
 /**
  * Block 7 — the wiring contract for the zone source line.
  *
@@ -137,7 +138,7 @@ describe("Block 10 — freshness is shown only when it says something", () => {
   });
 
   it("styles the note as muted, never as an error", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".zone-source__recheck {"));
     const block = rule.slice(0, rule.indexOf("}"));
     expect(block).toContain("var(--color-text-muted)");
@@ -219,13 +220,13 @@ describe("Block 9 — the editorial ratings say what they are", () => {
   });
 
   it("keeps the disclosure summary at the tap-target floor", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".zone-axes > summary {"));
     expect(rule.slice(0, 320)).toContain("min-height: var(--tap-target)");
   });
 
   it("lets the disclosure wrap rather than widening the panel", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".zone-axes__disclosure {"));
     expect(rule.slice(0, 260)).toContain("overflow-wrap: anywhere");
   });
@@ -247,7 +248,7 @@ describe("Block 7 changed nothing else on the card", () => {
   });
 
   it("presents the tier as text, never as colour alone", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".zone-source__tier"));
     expect(rule.slice(0, 200)).toContain("color:");
     const panel = await readSource("ZoneComparison.tsx");
@@ -256,13 +257,13 @@ describe("Block 7 changed nothing else on the card", () => {
   });
 
   it("lets a long operator name wrap instead of widening the column", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".zone-column__provenance {"));
     expect(rule.slice(0, 300)).toContain("overflow-wrap: anywhere");
   });
 
   it("marks the link as a link, not by colour alone", async () => {
-    const css = await readFile(new URL("../App.css", import.meta.url), "utf8");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".zone-source__link"));
     expect(rule.slice(0, 200)).toContain("text-decoration: underline");
   });

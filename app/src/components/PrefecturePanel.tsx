@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Prefecture } from "../data/geography";
 import { getHubsForPrefecture, countPlacesInPrefecture } from "../data/geography";
 
+import "./PrefecturePanel.css";
 type Props = {
   prefecture: Prefecture;
   onEnterHub: (hub: string) => void;

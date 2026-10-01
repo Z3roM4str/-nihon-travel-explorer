@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "../test-css";
 /**
  * Block 6 — the wiring contract for the derived "dónde no coincidimos" view.
  *
@@ -249,13 +250,13 @@ describe("accessibility", () => {
   });
 
   it("keeps every new control at the 44px tap floor", async () => {
-    const css = await readAppSource("App.css");
+    const css = await readProductCss();
     const chip = css.slice(css.indexOf(".shortlist-filters__chip {"));
     expect(chip.slice(0, 400)).toContain("min-height: var(--tap-target)");
   });
 
   it("distinguishes a pressed chip by more than hue", async () => {
-    const css = await readAppSource("App.css");
+    const css = await readProductCss();
     const active = css.slice(css.indexOf(".shortlist-filters__chip--active {"));
     const block = active.slice(0, active.indexOf("}"));
     expect(block).toContain("border-color:");
@@ -263,13 +264,13 @@ describe("accessibility", () => {
   });
 
   it("honours reduced motion", async () => {
-    const css = await readAppSource("App.css");
+    const css = await readProductCss();
     const queries = [...css.matchAll(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/g)];
     expect(queries.some((query) => query[1].includes(".shortlist-filters__chip"))).toBe(true);
   });
 
   it("keeps the row from forcing a horizontal page scroll on a phone", async () => {
-    const css = await readAppSource("App.css");
+    const css = await readProductCss();
     const row = css.slice(css.indexOf(".shortlist-filters {"));
     expect(row.slice(0, 400)).toContain("overflow-x: auto");
   });

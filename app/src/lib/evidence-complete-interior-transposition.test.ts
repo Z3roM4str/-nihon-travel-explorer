@@ -748,19 +748,13 @@ describe("pure V7 mutation (§35.77-82)", () => {
     const after = withPlacesTransposedWithinDay(before, "d1", 1, 3);
     expect(after.days?.[1]).toBe(before.days?.[1]);
   });
-  it("82. the helper and hook use no async multi-click sequence", async () => {
+  it("82. the helper uses no async multi-click sequence (its only hook callers were retired with the Apply panel)", async () => {
     const domain = await readFile(new URL("./planning-draft-v7.ts", import.meta.url), "utf8");
-    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    // Both slices are bounded to their own declaration, so a later phase's neighbouring helper or
-    // callback is never counted here.
+    // The slice is bounded to its own declaration, so a later phase's neighbouring helper is never counted here.
     const mutationStart = domain.indexOf("export function withPlacesTransposedWithinDay");
     const mutation = domain.slice(mutationStart, domain.indexOf("\n}", mutationStart) + 2);
-    const callbackStart = hook.indexOf("const transposePlacesWithinDay");
-    const callback = hook.slice(callbackStart, hook.indexOf("\n  );", callbackStart) + 5);
     expect(mutation).not.toMatch(/async|setTimeout|withPlaceRelocatedWithinDay|withPlaceMovedWithinDay/);
     expect(mutation.match(/splice\(/g)).toBeNull();
-    expect(callback.match(/setDraft\(/g)).toHaveLength(1);
-    expect(callback).toContain("withPlacesTransposedWithinDay(current, dayId, leftIndex, rightIndex)");
   });
 });
 

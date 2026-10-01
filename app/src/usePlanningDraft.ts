@@ -22,14 +22,10 @@ import {
   withNewEmptyDay,
   withNewInterHubSegment,
   withPlaceMovedBetweenDays,
-  withPlaceMovedWithinDay,
   withPlaceRelocatedWithinDay,
   withPlaceAddedToDay,
   withPlaceInsertedIntoDay,
   withPlaceRelocatedBetweenDays,
-  withPlacesTransposedWithinDay,
-  withFourPlacesReversedWithinDay,
-  withTwoPairBlocksSwappedWithinDay,
   withEndDate,
   withRoute,
   withStartDate,
@@ -197,39 +193,6 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    */
   const initializeDays = useCallback((days: readonly (readonly string[])[]) => {
     setDraft((current) => withInitialDays(current, days, randomDayId));
-  }, []);
-
-  /** Phase 3D-S: reorders one place inside one identified day. The day id, its accommodation
-   * boundary and every stored manual leg survive; only the place order changes, and the boundary's
-   * endpoint evidence is recomputed from the new first/last place on read. */
-  const movePlaceWithinDay = useCallback((dayId: string, placeIndex: number, direction: -1 | 1) => {
-    setDraft((current) => withPlaceMovedWithinDay(current, dayId, placeIndex, direction));
-  }, []);
-
-  /** Phase 3E-E: commits one place directly to its final index in one identified day. */
-  const relocatePlaceWithinDay = useCallback(
-    (dayId: string, fromIndex: number, toIndex: number) => {
-      setDraft((current) => withPlaceRelocatedWithinDay(current, dayId, fromIndex, toIndex));
-    },
-    []
-  );
-
-  /** Phase 3E-G: one explicit non-adjacent interior transposition, as a single draft update. */
-  const transposePlacesWithinDay = useCallback(
-    (dayId: string, leftIndex: number, rightIndex: number) => {
-      setDraft((current) => withPlacesTransposedWithinDay(current, dayId, leftIndex, rightIndex));
-    },
-    []
-  );
-
-  /** Phase 3E-I: one explicit four-place interior reversal, as a single draft update. */
-  const reverseFourPlacesWithinDay = useCallback((dayId: string, windowStartIndex: number) => {
-    setDraft((current) => withFourPlacesReversedWithinDay(current, dayId, windowStartIndex));
-  }, []);
-
-  /** Phase 3E-K: one explicit two-pair block swap, as a single draft update. */
-  const swapTwoPairBlocksWithinDay = useCallback((dayId: string, windowStartIndex: number) => {
-    setDraft((current) => withTwoPairBlocksSwappedWithinDay(current, dayId, windowStartIndex));
   }, []);
 
   /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
@@ -472,11 +435,6 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     zoneAccommodationChoices: draft.zoneAccommodationChoices,
     setRoute,
     initializeDays,
-    movePlaceWithinDay,
-    relocatePlaceWithinDay,
-    transposePlacesWithinDay,
-    reverseFourPlacesWithinDay,
-    swapTwoPairBlocksWithinDay,
     movePlaceBetweenDays,
     addPlaceToDay,
     relocatePlace,

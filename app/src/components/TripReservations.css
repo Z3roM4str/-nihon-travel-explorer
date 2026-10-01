@@ -1,0 +1,17 @@
+/* Phase 3D-D — reservation lead-time preparation. Route-wide, deliberately neutral: it is a
+   recorded-fact summary, not an urgency system, so it reuses the same soft neutral surface as
+   other factual sections (`.analysis-section`) rather than any warning palette. */
+
+.reservation-prep {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservation-prep h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}

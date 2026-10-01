@@ -39,7 +39,7 @@ export function dayOrderComparisonResultText(
       return {
         kind: "result",
         headline: "Comparación incompleta: faltan traslados registrados.",
-        detail: "Con los tramos desconocidos no se declara un ganador.",
+        detail: "Con los traslados desconocidos no se declara un ganador.",
       };
     case "invalid":
       return {
