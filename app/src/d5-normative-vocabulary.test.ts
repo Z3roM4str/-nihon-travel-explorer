@@ -52,44 +52,47 @@ describe("D5 — copy visible sustituido: los términos prohibidos ya no están 
   });
 
   /**
-   * Vistas «builder» y «compare» de OrderedSequenceBuilder: `view` arranca en «days» y ningún control lo cambia a
-   * «builder» (`setView("builder")` sólo existe en `closeComparison`, alcanzable únicamente desde «compare», que a su
-   * vez sólo se abre desde «builder»). No se renderizan en main. Su copy no se inventa (DESIGN DECISION REQUIRED:
-   * «Construir recorrido», «Volver al recorrido», «Guardados fuera del recorrido», «Orden A/B»); este test fija la lista
-   * exacta para que cualquier otro término visible nuevo falle.
+   * D5-M1 (CERRADO en el endurecimiento post-B10): las vistas «builder» y «compare» de OrderedSequenceBuilder eran código
+   * muerto con copy prohibido («Construir recorrido», «Volver al recorrido», «Guardados fuera del recorrido», «Orden A/B»).
+   * Se demostró que no eran alcanzables, que ningún estado persistido ni contrato vigente dependía de ellas y que B29 las
+   * sustituyó por «Probar otro orden» (por día, sin A/B): se RETIRARON con su código, copy, CSS y pruebas
+   * (`docs/D5_M1_UNREACHABLE_VIEWS_RETIREMENT.md`). Este test fija que no vuelvan, ni ellas ni su copy.
    */
-  const UNREACHABLE_VIEW_STRINGS = [
+  const RETIRED_VIEW_STRINGS = [
     "Construir recorrido",
-    "lugares en el recorrido",
-    "en el recorrido",
     "Volver al recorrido",
-    "Este recorrido se guarda automáticamente en este navegador, junto con el reparto por días si lo creas.",
-    "El recorrido está vacío. Añade lugares guardados desde la lista de abajo.",
+    "Este recorrido se guarda automáticamente en este navegador",
+    "El recorrido está vacío. Añade lugares guardados",
     "Guardados fuera del recorrido",
-    "Siguen en Quiero ir. Añádelos aquí si quieres incluirlos en este recorrido.",
-    "Añadir ${place.name} al recorrido",
-    "Entre estos dos órdenes, el orden A tiene menor tiempo de traslado.",
-    "Entre estos dos órdenes, el orden B tiene menor tiempo de traslado.",
-    "El orden A contiene al menos un traslado sin registrar.",
-    "El orden B contiene al menos un traslado sin registrar.",
+    "Siguen en Quiero ir. Añádelos aquí",
+    "al recorrido",
+    "Comparar otro orden",
+    "Comparar órdenes",
     "Orden A",
     "Orden B",
     " en orden A",
     " en orden B",
+    "Restablecer lugares y días",
+    "Restablecer recorrido",
   ];
 
-  it("OrderedSequenceBuilder: ninguna cadena visible usa un término de Art. 7, salvo las de las vistas no alcanzables", () => {
+  it("OrderedSequenceBuilder: ninguna cadena visible usa un término de Art. 7 (ya no hay excepciones)", () => {
     const bad = visibleStrings("components/OrderedSequenceBuilder.tsx").filter((s) => FORBIDDEN.test(s));
-    const unexpected = bad.filter((s) => !UNREACHABLE_VIEW_STRINGS.some((u) => s.includes(u) || u.includes(s)));
-    expect(unexpected).toEqual([]);
+    expect(bad).toEqual([]);
   });
 
-  it("las vistas builder/compare siguen sin ser alcanzables (si esto falla, hay que resolver su copy)", () => {
+  it("las vistas builder/compare y su copy están retiradas (D5-M1)", () => {
     const builder = src("components/OrderedSequenceBuilder.tsx");
-    expect(builder).toContain('useState<"builder" | "compare" | "days">("days")');
-    expect(builder.match(/setView\("builder"\)/g)?.length).toBe(1);
-    expect(builder.match(/setView\("compare"\)/g)?.length).toBe(1);
-    expect(builder.match(/openComparison\b/g)?.length).toBe(3); // definición + control del builder + referencia en comentario
+    expect(builder).not.toMatch(/useState<"builder"/);
+    expect(builder).not.toMatch(/\bsetView\(/);
+    for (const name of ["openComparison", "closeComparison", "openDayAssignment", "comparisonResultText", "candidateAIds", "candidateBIds"]) {
+      expect(builder, name).not.toContain(name);
+    }
+    for (const text of RETIRED_VIEW_STRINGS) expect(builder, text).not.toContain(text);
+    // El A/B global no existe tampoco como control en ningún componente vivo.
+    for (const file of ["App.tsx", "components/DayOrderToolPanel.tsx", "components/TripReservations.tsx", "components/TripTimeline.tsx"]) {
+      for (const text of ["Comparar otro orden", "Comparar órdenes", "Orden A", "Orden B"]) expect(src(file), `${file}: ${text}`).not.toContain(text);
+    }
   });
 
   it("sustituciones exactas (antes → después)", () => {
@@ -171,9 +174,10 @@ describe("D5 — los cinco DDR cerrados (decisiones L1/L2/L3/R1/latente)", () =>
     expect(plannedNote(entry("agreed", true))).toBeNull();
     expect(plannedNote(entry("only-active", false))).toBeNull();
   });
-  it("R1: «Restablecer lugares y días»; resetRoute conserva su nombre interno", () => {
+  it("R1: el botón «Restablecer lugares y días» vivía en la vista retirada (D5-M1); el hook conserva resetRoute", () => {
     const builder = src("components/OrderedSequenceBuilder.tsx");
-    expect(builder).toMatch(/onClick=\{resetRoute\}>\s*Restablecer lugares y días\s*</);
+    expect(builder).not.toContain("Restablecer lugares y días");
+    expect(builder).not.toContain("resetRoute");
     expect(builder).not.toContain("Restablecer recorrido");
     expect(src("usePlanningDraft.ts")).toContain("const resetRoute = useCallback");
   });

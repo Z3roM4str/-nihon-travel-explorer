@@ -16,10 +16,10 @@ import { VISIT_START_TIME_PATTERN } from "./recorded-interval-fit";
  * anchor, from `civil-date.ts`), exactly as before; only ids and user-authored structure ever
  * reach storage.
  *
- * Phase 3C-B's comparison candidates (Orden A / Orden B) are deliberately **not** part of this
- * schema and never will be — see `OrderedSequenceBuilder.tsx`'s comparison view, which still
- * derives both candidates fresh from the current route every time it opens and discards them
- * on close, exactly as it did before this phase.
+ * Phase 3C-B's comparison candidates (Orden A / Orden B) were deliberately **not** part of this
+ * schema and never will be: the global A/B view was retired (D5-M1) and the per-day tool
+ * (`DayOrderToolPanel`) derives its proposal fresh from the day every time it opens and discards it
+ * on close.
  *
  * **Phase 3D-L adds one more user decision, and only a decision.** `visitStartTimes` stores the
  * `HH:mm` clock times the user typed by hand for individual places. Nothing derived from them ever

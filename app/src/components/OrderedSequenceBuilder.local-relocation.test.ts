@@ -84,7 +84,7 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
 
   it("94. Apply delegates one exact final-order relocation", async () => {
     const full = await source();
-    const apply = full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("function moveUp"));
+    const apply = full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("function openDayOrderTool"));
     expect(apply).toContain("applyEvidenceCompleteLocalRelocation(");
     expect(apply).toContain("relocatePlaceWithinDay(dayId, fromIndex, toIndex)");
     expect(apply.match(/relocatePlaceWithinDay\(/g)).toHaveLength(1);
@@ -105,7 +105,7 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
 
   it("97. the relocation Apply path never mutates accommodation state", async () => {
     const full = await source();
-    const apply = withoutComments(full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("function moveUp")));
+    const apply = withoutComments(full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("function openDayOrderTool")));
     expect(apply).not.toMatch(/Accommodation|accommodation/);
   });
 
@@ -119,7 +119,7 @@ describe("OrderedSequenceBuilder — Phase 3E-E UI (§34.85-103)", () => {
   it("99. affected manual times suppress generation and are rechecked at Apply", async () => {
     const full = await source();
     const generation = full.slice(full.indexOf("const localRelocationGeneration"), full.indexOf("const localRelocationsByDayId"));
-    const apply = full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("function moveUp"));
+    const apply = full.slice(full.indexOf("function applyLocalRelocation"), full.indexOf("function openDayOrderTool"));
     expect(generation).toContain("{ routeIds, days: planningDays, visitStartTimes }");
     expect(apply).toContain("{ routeIds, days: planningDays, visitStartTimes }");
   });

@@ -17,9 +17,9 @@ function withoutComments(source: string): string {
 }
 
 describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
-  it("renders one subsection in both relevant planner views, never a page, modal or wizard", async () => {
+  it("renders one subsection in the planner (the days view; the retired route view no longer renders a second copy), never a page, modal or wizard", async () => {
     const source = await builderSource();
-    expect(source.match(/<InterHubSegmentsSection/g)).toHaveLength(2);
+    expect(source.match(/<InterHubSegmentsSection/g)).toHaveLength(1);
     expect(sectionSource(source)).toContain("Traslados entre ciudades");
     expect(sectionSource(source)).not.toMatch(/role="dialog"|modal|wizard/i);
   });

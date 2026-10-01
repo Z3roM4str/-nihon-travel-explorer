@@ -157,7 +157,7 @@ describe("OrderedSequenceBuilder — Phase 3E-C local swap wiring", () => {
     const apply = withoutComments(
       fullSource.slice(
         fullSource.indexOf("function applyLocalSwap"),
-        fullSource.indexOf("function moveUp")
+        fullSource.indexOf("function openDayOrderTool")
       )
     );
     // One apply path only: the tested wrapper, which runs the stale guard itself and reaches the
