@@ -146,7 +146,7 @@ await ck("S08", "03 §6: catalogue across all CSS; unknown motion mutation is re
 // ───────────── Navegador
 const server = await preview({ root: APP, preview: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
 const url = server.resolvedUrls.local[0];
-const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
+const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : process.env.NIHON_WEBKIT_PATH;
 const browser = await (BROWSER === "webkit" ? webkit : chromium).launch({ headless: true, ...(exe ? { executablePath: exe } : {}) });
 console.log(`# navegador: ${BROWSER} ${browser.version()}`);
 

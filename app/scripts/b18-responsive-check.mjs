@@ -62,7 +62,7 @@ async function checkNav(page, label) {
 }
 
 async function main() {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
   let anyOverflow = false;
   let anyNavFailure = false;
 

@@ -25,7 +25,7 @@ import { preview } from "vite";
 
 const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
 const REDUCED = process.env.NIHON_REDUCED_MOTION === "1";
-const executablePath = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
+const executablePath = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : process.env.NIHON_WEBKIT_PATH;
 const APP = fileURLToPath(new URL("..", import.meta.url));
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const MOBILE = [320, 360, 390, 430];
