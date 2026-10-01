@@ -44,6 +44,15 @@ function dropLine(source: string, line: string): string {
 const V8 = "app/src/lib/planning-draft-v8.ts";
 const HOOK = "app/src/usePlanningDraft.ts";
 
+/** D5 (excepción de copy autorizada, `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`): sólo cadenas visibles; ni lógica ni datos. */
+const D5_COPY = new Set([
+  "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
+  "app/src/lib/reservation-mechanism-calendar-presentation.ts",
+  "app/src/lib/divergence-presentation.ts",
+  "app/src/lib/interest-level.ts",
+  "app/src/components/DayOrderSheet.tsx",
+]);
+
 describe.skipIf(!baseAvailable)("B28 — planning-draft-v8.ts sólo crece con las tres mutaciones", () => {
   it("quitando el import y las tres funciones, el fichero es idéntico al de la base B27", () => {
     let source = current(V8);
@@ -87,7 +96,7 @@ describe.skipIf(!baseAvailable)("B28 — el resto de lib/, datos y catálogo sig
   it("frente a la base B27 sólo cambian esos tres ficheros y el módulo nuevo stop-reorder (más tests)", () => {
     const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", "app/src/lib", "app/src/data", "app/src/usePlanningDraft.ts", "data") ?? "")
       .split("\n")
-      .filter((file) => file && !file.endsWith(".test.ts"))
+      .filter((file) => file && !file.endsWith(".test.ts") && !D5_COPY.has(file))
       .sort();
     expect(changed).toEqual([
       "app/src/lib/planning-draft-v8.ts",

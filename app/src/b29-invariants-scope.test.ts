@@ -25,11 +25,20 @@ function git(...args: string[]): string | null {
 }
 const baseAvailable = git("cat-file", "-e", `${BASE_SHA}^{commit}`) !== null;
 
+/** D5 (excepción de copy autorizada, `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`): sólo cadenas visibles; ni lógica ni datos. */
+const D5_COPY = new Set([
+  "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
+  "app/src/lib/reservation-mechanism-calendar-presentation.ts",
+  "app/src/lib/divergence-presentation.ts",
+  "app/src/lib/interest-level.ts",
+  "app/src/components/DayOrderSheet.tsx",
+]);
+
 describe.skipIf(!baseAvailable)("B29 — lo que B28 protege sigue byte a byte igual", () => {
   it("no cambia ningún fichero de lib/, data/, el hook ni el catálogo (salvo tests)", () => {
     const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", "app/src/lib", "app/src/data", "app/src/usePlanningDraft.ts", "data") ?? "")
       .split("\n")
-      .filter((file) => file && !file.endsWith(".test.ts"));
+      .filter((file) => file && !file.endsWith(".test.ts") && !D5_COPY.has(file));
     expect(changed).toEqual([]);
   });
 

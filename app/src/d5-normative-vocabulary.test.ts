@@ -175,6 +175,26 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a D0b (`4d21631`)", () =>
     expect(changed.filter((f) => !allowed.has(f) && !f.endsWith(".test.ts"))).toEqual([]);
     expect(changed.filter((f) => f.startsWith("data/") || f.startsWith("app/src/data/"))).toEqual([]);
   });
+  it("los 4 ficheros de lib/ tocados cambian sólo líneas de copy (misma cantidad de líneas, sólo los términos autorizados)", () => {
+    const files = [
+      "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
+      "app/src/lib/reservation-mechanism-calendar-presentation.ts",
+      "app/src/lib/divergence-presentation.ts",
+      "app/src/lib/interest-level.ts",
+    ];
+    const norm = (line: string) =>
+      line
+        .replace(/intervalo/g, "tramo")
+        .replace(/día del viaje/g, "día del recorrido")
+        .replace(/Nivel sin clasificar \(\$\{grade\}\)/g, "Grado ${grade}");
+    for (const file of files) {
+      const diff = git("diff", "--unified=0", BASE_SHA, "HEAD", "--", file) ?? "";
+      const added = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++")).map((l) => l.slice(1));
+      const removed = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---")).map((l) => l.slice(1));
+      expect(added.length, file).toBe(removed.length);
+      expect(added.map(norm), file).toEqual(removed);
+    }
+  });
   it("no toca hooks, App.tsx, CSS ni index.html", () => {
     const protectedFiles = [
       "app/src/useZonePlanChoice.ts",
