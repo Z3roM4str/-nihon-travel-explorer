@@ -8,6 +8,14 @@
  * retirar la línea de aquí. `--radius-sm` y `--radius-lg` ya no se redeclaran:
  * al no sombrear `tokens.css`, los consumidores existentes heredan
  * directamente `--radius-sm`/`--radius-lg` de `03 §4`.
+ *
+ * B10.4 (roadmap B10, 08 §"Cómo tratar el CSS actual"): el CSS de cada superficie vive junto a su componente
+ * (`src/components/*.css`, importado por el propio componente); `styles/discovery.css` y `styles/trip-overview.css`
+ * conservan las superficies migradas en B19/B31. Aquí sólo queda lo GLOBAL: alias heredados de `:root`, el sistema de
+ * botones y utilidades (`.button`, `.icon-button`, `.link-button`, `.tap-target-min`, `.visually-hidden`), el shell de
+ * `App.tsx` (cabecera, destinos, barra de búsqueda, mapa vacío), y los primitivos compartidos (`.tag`, `.alert`, `.badge`).
+ * Inventario y migración reproducibles: `scripts/css-inventory.mjs`, `scripts/css-migrate.mjs`,
+ * `scripts/css-equivalence-check.mjs` (estilo computado de cada elemento, BASE vs rama).
  */
 :root {
   --color-bg: var(--paper);
@@ -383,8 +391,6 @@ button.app__title.app__title--expand {
   font-weight: 600;
 }
 
-/* ---------- TabBar / NavRail (04 §10, 02 §D2/§D5) ---------- */
-
 /* ---------- Sheet (04 §8) ---------- */
 
 @keyframes sheet-rise {
@@ -731,8 +737,6 @@ button.app__title.app__title--expand {
  * ningún selector `.filter-panel*`, `.search-field*`, `.filter-chip*`, `.chip-toggle*`,
  * `.place-list*` ni `.place-card*` en este fichero. */
 
-/* ---------- Map markers ---------- */
-
 /* ---------- Detail panel ---------- */
 
 .place-detail {
@@ -880,10 +884,6 @@ button.app__title.app__title--expand {
   background: var(--surface-sunken);
 }
 
-/* ---------- CreditsSheet (Bloque 20 — B4, `04 §7`) ---------- */
-
-/* ---------- Mobile ---------- */
-
 /* ---------- Detail-panel interest tag ---------- */
 
 .tag__grade-letter {
@@ -979,8 +979,6 @@ button.app__title.app__title--expand {
   color: var(--shu-700);
 }
 
-/* ---------- Interest legend ---------- */
-
 /* ---------- Save toast ---------- */
 
 @keyframes toast-in {
@@ -993,8 +991,6 @@ button.app__title.app__title--expand {
     transform: translateY(0);
   }
 }
-
-/* ---------- PersistenceNotice (04 §17, DDR-03) ---------- */
 
 /* ---------- Onboarding ---------- */
 
@@ -1167,16 +1163,6 @@ button.app__title.app__title--expand {
   color: var(--color-text-muted);
 }
 
-/* ---------- Region hubs ---------- */
-
-/* ---------- Prefecture panel ---------- */
-
-/* ---------- Duration filter chips ---------- */
-
-/* ---------- Selection analysis ---------- */
-
-/* ---------- Ordered sequence builder (Phase 3C-A) ---------- */
-
 /* ---------- Sequence comparison (Phase 3C-B) ---------- */
 
 .comparison-candidate {
@@ -1249,12 +1235,6 @@ button.app__title.app__title--expand {
    The whole permanent footprint of this layer is one header row. Everything else appears only
    when it has something to say, so a browse screen with no shared opinions looks exactly as it
    did before. Every state carries text; `tone` colours it but never carries it alone. */
-
-/* ---------- The contextual marker ---------- */
-
-/* ---------- The manager ---------- */
-
-/* ---------- Block 6 — "dónde no coincidimos", inside the saved list ---------- */
 
 /* ---------- B25 — B7 «Quiero ir» (05 §6) ---------- */
 
