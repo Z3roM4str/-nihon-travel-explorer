@@ -32,3 +32,25 @@ Build/lint PASS (único warning PlaceMap); G1 116 archivos/3483 PASS tras correc
 Intentos conservados: red/preview sin permisos de socket (EPERM); npm/browser cache por defecto no escribible, corregidos a `/tmp`; selector del runner nuevo encontró navegación visible y oculta, corregido con `:visible`; contraste falló dos veces por binario fijo, luego PASS con selector de ejecutable. Son fallos de preparación/runner con causa observada, no se etiquetan como regresión de producto o deuda heredada. WebKit WPE usa bibliotecas oficiales Debian extraídas en `/tmp`, sin root/TLS/dependencias de producto. Safari/iPhone y lector físicos pendientes.
 
 [Evidencia y hashes](B10_AUTONOMOUS_EVIDENCE.json), logs/medidas/capturas en `evidence/b10/autonomous/l3`. G5 no se declara global desde esta muestra: quedan revisión completa de superficies, zoom/lector/dispositivo y contraste de superficies legacy. El cromo sigue en 104/160 px a 390 según L1. L1/L2 y fuentes/V8/cálculos permanecen intactos.
+
+## L5 — Referencia histórica y optimización medida
+
+Implementación publicada: `b2ecb87c91e35fc98f2e2c562b5863cd871f4734`. Referencia `v1.1.0^{}`: `d72e19921b4aa9c9f68d0d07f8b35f37f158a286`. Inicial: `30d1446c`; proyección sobre el L3 publicado. `git archive` recupera ambas referencias en `/tmp`, sin mover main ni crear otra rama de producto. Lockfiles y analizador idénticos; node_modules instalado con `npm ci --cache /tmp/nihon-npm-cache`, Node 24.19.0, Vite 8.2.2, plugin React 6.1.0, gzip nivel 9 y Brotli por defecto de node:zlib. Config histórica sólo difiere en la definición posterior `__APP_VERSION__`; cada referencia usa su configuración de producto, sin alterar datos ni minificador. El valor histórico reproduce exactamente el cierre B16.
+
+| Entrada / analizador idéntico | Raw B | Gzip B | Brotli B |
+|---|---:|---:|---:|
+| v1.1.0 reconstruido | 1.389.652 | 253.742 | 203.791 |
+| HEAD inicial reconstruido | 1.669.019 | 390.305 | 327.129 |
+| L5 proyección | 1.470.243 | 277.825 | 222.253 |
+| Diferencia L5 vs inicial | −198.776 | −112.480 | −104.876 |
+| Diferencia L5 vs histórico | +80.591 | +24.083 | +18.462 |
+
+La pequeña variación gzip/Brotli respecto a L2 archivado se conserva como medición nueva con ruta/hashes actuales; no se reutiliza su cifra para fingir igualdad. El reporte reconstruye dist: nunca mientras un gate lee esa salida. Los módulos JSON rendered crecen de 978.911 a 1.208.551 B en el inicial; photography-metadata pasa de 129.528 a 350.724 B. Tras proyección, JSON rendered baja a 1.000.961 B. Rendered no equivale a bytes comprimidos y las contribuciones no se suman como gzip independiente.
+
+Optimización mínima de build, sin dependencias ni lazy split: `photoRegistryProjection` conserva exactamente los campos consumidos por `buildRegistry`, y excluye del JS de producción dimensiones/fechas/URL de adquisición, role y LQIP no expuestos por PlaceImage. Los JSON fuente, adquisición y herramientas siguen completos e idénticos; no se elimina ninguna imagen, capacidad ni literal citado. Dev/tests siguen leyendo el JSON completo; la comprobación dedicada compila y ejecuta el registro con/sin proyección: igualdad exacta de 202 lugares/244 imágenes, embedded, ausente y API de tarjetas. Todos los créditos/licencias/procedencia/alt y procesamiento expuestos son idénticos. No hay nuevas peticiones ni asincronía; documentado dónde ampliar la proyección si cambia el contrato PlaceImage.
+
+Cold/warm en contextos limpios, 390/1440, mismo runner/servidor: home, hub Tokio y ficha. JS transfer observado en cold 436.244→323.606 B; warm 900 B por respuestas de revalidación en ambas builds. Incluye prefetch vigente; no es el presupuesto del chunk ni un SLA de latencia. Las listas sólo solicitan identity -800w, ficha conserva galería. G6 imágenes PASS: Tokio 3.499.770, Kioto 3.499.450, Osaka 3.356.478, Okinawa 2.903.352, Sapporo 166.986, Nagoya 69.552, Fukuoka 69.284 B.
+
+Build/lint y G1 116/3483 PASS; proyección compilada PASS; validator PASS; Python fotografía/rendiciones 71 PASS; B20 73/73; B6.6 fotografía browser 316/316, sin fetch fotográfico externo ni imágenes rotas. Intento inicial del runner nuevo corrigió el resultado array de Vite lib; intento B20/WebKit default expuso ejecutables/biblioteca ausentes, port de selector de runtime sin tocar assertions. Todos los logs están en `evidence/b10/autonomous/l5`.
+
+**G6 entrada INCUMPLE** aun después de mejorar: +24.083 B gzip vs v1.1.0. No reset ni excepción implícita. Recomendación: Producto debe decidir una excepción explícita por las capacidades/fotografías incorporadas después de v1.1.0, o autorizar una optimización de carga más amplia con resolución síncrona conservada. No se hace split amplio ni se retira información para alcanzar la cifra.

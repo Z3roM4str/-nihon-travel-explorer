@@ -1,0 +1,1 @@
+B10 projection PASS: 202 places / 244 images; exact registry, embedded, missing, card API preserved.

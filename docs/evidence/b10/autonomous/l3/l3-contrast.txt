@@ -1,0 +1,7 @@
+browserType.launch: Failed to launch chromium because executable doesn't exist at /opt/pw-browsers/chromium
+    at main (/workspace/nihon/app/scripts/block19-contrast-check.mjs:91:34)
+    at /workspace/nihon/app/scripts/block19-contrast-check.mjs:323:1
+    at async node:internal/modules/esm/loader:643:26 {
+  log: [],
+  name: 'Error'
+}

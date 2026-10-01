@@ -1,0 +1,9 @@
+file:///workspace/nihon/app/scripts/b10-photo-projection-check.mjs:11
+ const chunk=result.output.find(c=>c.type==='chunk');
+                           ^
+
+TypeError: Cannot read properties of undefined (reading 'find')
+    at registry (file:///workspace/nihon/app/scripts/b10-photo-projection-check.mjs:11:28)
+    at async file:///workspace/nihon/app/scripts/b10-photo-projection-check.mjs:14:16
+
+Node.js v24.19.0

@@ -1,0 +1,79 @@
+
+── teléfono 390 ──────────────────────────────
+OK   D3: la ficha ocupa el 100 % de la altura visible en teléfono (alto 844 vs 844, y=0)
+OK   D4: no queda ningún `×` flotante sobre la galería
+OK   D4: existe exactamente un botón atrás flotante
+OK   D4: el botón atrás tiene nombre accesible (Cerrar la ficha de Shibuya Crossing)
+OK   D4: el botón atrás cumple el suelo táctil de 44px (Art. 11) (44×44)
+OK   05 §5 pt.1: el botón atrás flota SOBRE la fotografía, no encima de ella en el flujo
+OK   05 §5 pt.2: el cuerpo solapa la fotografía (radio arriba, señal de contenido debajo) (solape 20px)
+OK   D2: entre la fotografía y el nombre no hay texto de atribución ("")
+OK   D2: el párrafo `.gallery__credit` ya no existe
+OK   04 §6: las flechas sólo se ven desde `md`+ (390px)
+OK   05 §5 pt.10: cada valor práctico lleva su EvidenceMark (12/11)
+OK   04 §2: el marcador sólo-glifo conserva su texto en `aria-label` (Registrado)
+OK   03 §2.3: ningún título del bloque práctico va en MAYÚSCULAS (0)
+OK   DDR-05: la cadena `Dato:` no aparece en la ficha
+OK   05 §5 pt.14: «Fuentes» existe
+OK   05 §5 pt.14: «Fuentes» nace plegada
+OK   08 prohibición 11: con «Fuentes» plegada no se ve ninguna letra de grado
+OK   DDR-04: «Fuentes» muestra el grado original
+OK   DDR-04: «Fuentes» muestra la fecha del REGISTRO, no una fecha de consulta ("Grado original\nA · Muy recomendable\nVale mucho la pena. La mayoría de los días d")
+OK   DDR-04: «Fuentes» no inventa «Procedencia»
+OK   DDR-04: «Fuentes» no inventa «Provenance»
+OK   DDR-04: «Fuentes» no inventa «Frescura»
+OK   DDR-04: «Fuentes» no inventa «Freshness»
+OK   DDR-04: «Fuentes» no inventa «Versión del dataset»
+OK   DDR-04: «Fuentes» no rellena huecos con «no disponible»
+OK   05 §5 pt.12: «Cerca de aquí» es un carrusel de tarjetas compactas, no una lista de texto
+OK   05 §5 pt.12: la lista de texto anterior ya no existe
+OK   DDR-06: la sección NO renderiza nota al pie
+OK   04 §2: no queda descargo en prosa junto al marcador
+OK   05 §5 pt.12: cada traslado lleva su EvidenceMark (3/3)
+OK   DDR-06: cada marcador conserva la distinción semántica de la nota al pie (3/3)
+OK   DDR-06: esa distinción es alcanzable por un lector de pantalla (texto visible o `title`) ("◼\nVerificado · Ruta a pie validada: distancia y tiempo de ruta calculados; datos estáticos, no un horario en vivo")
+OK   04 §6: con una sola imagen no hay contador
+OK   04 §6: con una sola imagen no hay puntos
+OK   04 §6: con una sola imagen no hay flechas
+OK   D8: con nadie que haya opinado, la franja de los dos no se renderiza
+OK   05 §5 pt.5: la única insignia posible es «★ Imprescindible» ()
+
+── escritorio 1440 ──────────────────────────────
+OK   D4: no queda ningún `×` flotante sobre la galería
+OK   D4: existe exactamente un botón atrás flotante
+OK   D4: el botón atrás tiene nombre accesible (Cerrar la ficha de Shibuya Crossing)
+OK   D4: el botón atrás cumple el suelo táctil de 44px (Art. 11) (44×44)
+OK   05 §5 pt.1: el botón atrás flota SOBRE la fotografía, no encima de ella en el flujo
+OK   05 §5 pt.2: el cuerpo solapa la fotografía (radio arriba, señal de contenido debajo) (solape 20px)
+OK   D2: entre la fotografía y el nombre no hay texto de atribución ("")
+OK   D2: el párrafo `.gallery__credit` ya no existe
+OK   04 §6: las flechas sólo se ven desde `md`+ (1440px)
+OK   05 §5 pt.10: cada valor práctico lleva su EvidenceMark (12/11)
+OK   04 §2: el marcador sólo-glifo conserva su texto en `aria-label` (Registrado)
+OK   03 §2.3: ningún título del bloque práctico va en MAYÚSCULAS (0)
+OK   DDR-05: la cadena `Dato:` no aparece en la ficha
+OK   05 §5 pt.14: «Fuentes» existe
+OK   05 §5 pt.14: «Fuentes» nace plegada
+OK   08 prohibición 11: con «Fuentes» plegada no se ve ninguna letra de grado
+OK   DDR-04: «Fuentes» muestra el grado original
+OK   DDR-04: «Fuentes» muestra la fecha del REGISTRO, no una fecha de consulta ("Grado original\nA · Muy recomendable\nVale mucho la pena. La mayoría de los días d")
+OK   DDR-04: «Fuentes» no inventa «Procedencia»
+OK   DDR-04: «Fuentes» no inventa «Provenance»
+OK   DDR-04: «Fuentes» no inventa «Frescura»
+OK   DDR-04: «Fuentes» no inventa «Freshness»
+OK   DDR-04: «Fuentes» no inventa «Versión del dataset»
+OK   DDR-04: «Fuentes» no rellena huecos con «no disponible»
+OK   05 §5 pt.12: «Cerca de aquí» es un carrusel de tarjetas compactas, no una lista de texto
+OK   05 §5 pt.12: la lista de texto anterior ya no existe
+OK   DDR-06: la sección NO renderiza nota al pie
+OK   04 §2: no queda descargo en prosa junto al marcador
+OK   05 §5 pt.12: cada traslado lleva su EvidenceMark (3/3)
+OK   DDR-06: cada marcador conserva la distinción semántica de la nota al pie (3/3)
+OK   DDR-06: esa distinción es alcanzable por un lector de pantalla (texto visible o `title`) ("◼\nVerificado · Ruta a pie validada: distancia y tiempo de ruta calculados; datos estáticos, no un horario en vivo")
+OK   04 §6: con una sola imagen no hay contador
+OK   04 §6: con una sola imagen no hay puntos
+OK   04 §6: con una sola imagen no hay flechas
+OK   D8: con nadie que haya opinado, la franja de los dos no se renderiza
+OK   05 §5 pt.5: la única insignia posible es «★ Imprescindible» ()
+
+73/73 comprobaciones OK.
