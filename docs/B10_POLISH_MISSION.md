@@ -101,7 +101,7 @@ Efecto lateral positivo de B10.4: el CSS inicial baja de 154,6 KB a ~111 KB raw 
 
 ## 4. Erradicación de `App.css` (B10.4)
 
-`App.css` pasa de **7 052 → 1 279 líneas** (−82 %), sin cambiar un solo valor computado. Método reproducible:
+`App.css` pasa de **7 052 → 1 287 líneas** (−82 %), sin cambiar un solo valor computado. Método reproducible:
 `scripts/css-inventory.mjs` (clasifica cada regla A token/base · B shell/global · C superficie · D muerta · E ambigua),
 `scripts/css-migrate.mjs` (mueve/borra reglas por clase; divide los `@media` mixtos; no mueve cabeceras de sección) y
 `scripts/css-equivalence-check.mjs` (estilo **computado + caja** de **cada elemento** en 125 estados × 5 anchos [320/390/430/840/1200] = 235 851 elementos,
