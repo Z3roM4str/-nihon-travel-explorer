@@ -16,3 +16,19 @@ No se encontró una equivalencia canónica adicional documentada para E01–E04.
 | A-01 colecciones | Tab largo confirma volumen, no inaccesibilidad por sí solo. A: conservar navegación vigente; B: diseñar saltos contextuales manteniendo todos los controles accesibles. | Conservar el patrón vigente en B10 técnico; revisar B sólo mediante decisión de navegación explícita. No usar tabindex negativo para acortar Tab. |
 
 L2b no necesita build ni capturas: sólo documentos, comprobación de contratos/cadenas y `git diff --check`. L1/L2 se conservan sin editar. Los lotes técnicos continúan.
+
+## L3 — Movimiento y accesibilidad
+
+Implementación publicada: `2285cfdfa42beb2ce0bdfee97d03903dff9e18fe`.
+
+Reproducción: mismo build base, diez estados por motor (320/390/839/840/1440, normal/reduce), interacción real y estilos computados. Antes: summary 42 px; onboarding primario 44 px; hover de ciudad 220 ms; mark 0,6→1,22→1; Sheet reduced mantiene keyframes transformados a 0,001 ms. El mapa nacional, cards, carga de imágenes, guardar, toast y onboarding completan el inventario alcanzable.
+
+Correcciones mínimas (`03 §6/§7`, Art. 11): summary usa `--tap-min` (44); botón primario usa `--tap-primary` (48). Se retiran transiciones de sombra/borde/color/altura y carga de imagen no incluidas en los cinco movimientos, y entradas toast/onboarding fuera del catálogo. Estados finales, hover, alturas del mapa y acciones permanecen. Mark pasa a 1→1,18→1; press a 0,98. Reduced motion desactiva animaciones/transiciones, skeleton y escalas de pulsación; no acelera transformaciones. Sheet-rise/press/mark son los movimientos existentes conservados; skeleton sigue como excepción en modo normal. No se añade push/cross-fade inexistente, ni se retiran controles de Tab o navegación de colecciones.
+
+Después: todos los seis summary ≥44 en diez estados; primario onboarding 48 y dentro de pantalla; Escape y apertura/cierre por teclado devuelven foco visible; cero overflow/pageerrors. Chromium y WebKit PASS (diez estados cada uno). Runner L1 intacto PASS 15 estados, filtros reales 0/1/57 y backup conservados. B18 a11y 25/25; contraste B19 sobre píxeles compuestos PASS. B26 Chromium 314/314 en el primer diff; sus medidas 44 del primario confirmaron la segunda corrección, cuya regresión completa se ejecuta sobre el código final.
+
+Build/lint PASS (único warning PlaceMap); G1 116 archivos/3483 PASS tras corrección primaria. `block1-ux.test.ts` exige ahora cancelación de animaciones/transiciones por §03.6, sin reducir el gate. Contrast runner recibió únicamente `NIHON_CHROMIUM_PATH` con el mismo default, por ausencia de `/opt/pw-browsers/chromium`; ninguna assertion cambia.
+
+Intentos conservados: red/preview sin permisos de socket (EPERM); npm/browser cache por defecto no escribible, corregidos a `/tmp`; selector del runner nuevo encontró navegación visible y oculta, corregido con `:visible`; contraste falló dos veces por binario fijo, luego PASS con selector de ejecutable. Son fallos de preparación/runner con causa observada, no se etiquetan como regresión de producto o deuda heredada. WebKit WPE usa bibliotecas oficiales Debian extraídas en `/tmp`, sin root/TLS/dependencias de producto. Safari/iPhone y lector físicos pendientes.
+
+[Evidencia y hashes](B10_AUTONOMOUS_EVIDENCE.json), logs/medidas/capturas en `evidence/b10/autonomous/l3`. G5 no se declara global desde esta muestra: quedan revisión completa de superficies, zoom/lector/dispositivo y contraste de superficies legacy. El cromo sigue en 104/160 px a 390 según L1. L1/L2 y fuentes/V8/cálculos permanecen intactos.
