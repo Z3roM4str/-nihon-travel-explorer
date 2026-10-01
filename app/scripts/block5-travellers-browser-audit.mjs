@@ -426,7 +426,7 @@ async function auditViewport(browser, name, url) {
   );
   check(
     "it says the trip itself stays shared",
-    /El recorrido, los días, las fechas y el\s+alojamiento son del viaje/.test(await manager.innerText())
+    /Los lugares planificados, los días, las fechas y el\s+alojamiento son del viaje/.test(await manager.innerText())
   );
   check("and that everything is local only", /No hay cuentas, ni servidor, ni sincronización/.test(await manager.innerText()));
   check(

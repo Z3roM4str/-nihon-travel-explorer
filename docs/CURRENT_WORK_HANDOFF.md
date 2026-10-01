@@ -1,5 +1,17 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## D0b + D5 integrados — rama `claude/d0b-design-system-hygiene` (PR #174, Ready for Review, sin merge)
+
+- D5 (PR #176) integrado en D0b por merge commit `b7253d0` (padres `4d21631…` y `c0fa562…`; tree = tree certificado de D5). Conjunto recertificado (tsc, oxlint, Vitest 3555, gates D0b/D5/B27–B31/block20/phase5a/block5/phase3f-h/j/s; WebKit 26.5 donde aplica); block4 heredado; 0 fallos exclusivos. No se mergea #174, no se toca `main`, no se empieza D2.
+
+## D5 — vocabulario normativo — rama `claude/d5-normative-vocabulary` (PR #176, **integrado** en `claude/d0b-design-system-hygiene`)
+
+- Línea Claude, base `4d2163165f791b2ba3b1db8c7cbb968e1c607314`. Sólo copy: «tramo»→«traslado», «recorrido»→«viaje»/«día», «constructor» fuera de aria/title (Art. 7 / `03 §10`). Cinco DDR cerrados: «intervalo de fechas registrado» (L1/L2, *tramo* temporal), «día del viaje» (L3), «Restablecer lugares y días» (R1), «Nivel sin clasificar (X)» (latente). **Excepción autorizada a `lib/`**: sólo copy en 4 ficheros (+ sus tests); `data/`, hooks, V8, storage y CSS intactos. Excepción normativa E1 («Grado original» en «Fuentes»). «reparto» y «compromisos de escala día» sin tocar. Gate `app/scripts/d5-normative-vocabulary-check.mjs` (26) + `app/src/d5-normative-vocabulary.test.ts`. **Certificado**: Chromium y WebKit 26.5 (normal y reduced-motion) 26/26; auditoría visual BASE vs D5 sin regresiones; fallo heredado: block4 (igual en la base); exclusivos: ninguno. Detalle: `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`. No se empieza D2.
+
+## D0b — higiene del sistema de diseño — rama `claude/d0b-design-system-hygiene` (PR #174, base `claude/design-phase-1-v2-1-docs`)
+
+- Línea Claude, base `2f2e5e1677c0cb0a8b84536247fdd86f097277dc`. Sólo CSS + gate + docs: 10 literales → tokens exactos, 4 reglas de input a `--type-body-size` (16px), 0 media queries migradas (deuda registrada), `viewport-fit=cover` NO aplicado (DDR D0b-02), EvidenceMark 11/12 sin cambiar (DDR). Gate: `app/scripts/d0b-design-system-hygiene-check.mjs` (56). **Certificado**: WebKit 26.5 (Playwright) 56/56 + reduced-motion, auditoría visual BASE vs D0b (80 pares) sin diferencias salvo inputs ≥16px, sin fallos exclusivos. Detalle y límites (iPhone físico no medido): `docs/D0B_DESIGN_SYSTEM_HYGIENE_HANDOFF.md`. D5 ya integrado.
+
 ## B31 / B9.5 «Reservas y Resumen» — rama `claude/b31-viaje-b9-5-reservas-resumen` (PR en borrador, base B30 Claude)
 
 - **Línea Claude.** Nace de `1444e67805c60cf9a33f4be5c1a3808b900e505b` (HEAD de

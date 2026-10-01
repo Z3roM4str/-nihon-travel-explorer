@@ -38,12 +38,12 @@ export function describeOfficialReservationReferenceRelationForUi(
     case "after-recorded-release-date":
       return "La fecha de referencia del dispositivo está después de la fecha oficial registrada.";
     case "before-recorded-application-date-span":
-      return "La fecha de referencia del dispositivo está antes del tramo de fechas registrado para la solicitud.";
+      return "La fecha de referencia del dispositivo está antes del intervalo de fechas registrado para la solicitud.";
     case "within-recorded-application-date-span":
       // Inclusive calendar edges — never "last day", "closes today" or "still open".
-      return "La fecha de referencia del dispositivo cae dentro del tramo de fechas registrado para la solicitud.";
+      return "La fecha de referencia del dispositivo cae dentro del intervalo de fechas registrado para la solicitud.";
     case "after-recorded-application-date-span":
-      return "La fecha de referencia del dispositivo está después del tramo de fechas registrado para la solicitud.";
+      return "La fecha de referencia del dispositivo está después del intervalo de fechas registrado para la solicitud.";
   }
 }
 

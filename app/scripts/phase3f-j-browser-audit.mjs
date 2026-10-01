@@ -207,7 +207,7 @@ try {
       // Relations use Phase 3F-H's exact vocabulary and appear on every eligible row.
       const relations = await page.locator(".official-reservation-calendar__relation").allInnerTexts();
       assert.equal(relations.length, 4);
-      assert.match(relations[0], /cae dentro del tramo de fechas registrado para la solicitud\./);
+      assert.match(relations[0], /cae dentro del intervalo de fechas registrado para la solicitud\./);
       assert.match(relations[1], /está después de la fecha oficial registrada\./);
       assert.match(relations[2], /está antes de la fecha oficial registrada\./);
       assert.match(relations[3], /está antes de la fecha oficial registrada\./);
@@ -314,12 +314,12 @@ try {
       assert.match(text, /vie, 12 mar 2027/);
       assert.match(text, /23:59/);
       assert.match(text, /zona horaria no registrada/i);
-      assert.match(text, /Situado en esta lista por la fecha de inicio registrada del tramo\./);
+      assert.match(text, /Situado en esta lista por la fecha de inicio registrada del intervalo\./);
       assert.match(text, /sorteo si las solicitudes superan el cupo/i);
       // No standalone close-date row anywhere in the section.
       assert.deepEqual(await anchorOrder(page), ["mar, 1 dic 2026"]);
       // The reference date IS the recorded close edge, and still says only "within the span".
-      assert.match(text, /cae dentro del tramo de fechas registrado para la solicitud\./);
+      assert.match(text, /cae dentro del intervalo de fechas registrado para la solicitud\./);
       assertNoForbiddenCopy(text, "Scenario E");
       record("E. Katsura single range row", "both edges, anchor disclosed");
     } finally {

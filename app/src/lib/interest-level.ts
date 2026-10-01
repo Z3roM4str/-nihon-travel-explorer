@@ -105,8 +105,8 @@ function unknownLevel(grade: string): InterestLevelDescriptor {
   return {
     level: "recomendable",
     grade,
-    label: `Grado ${grade}`,
-    shortLabel: `Grado ${grade}`,
+    label: `Nivel sin clasificar (${grade})`,
+    shortLabel: `Nivel sin clasificar (${grade})`,
     glyph: "●",
     rank: 3,
     description: "Nivel de interés sin traducción editorial todavía.",

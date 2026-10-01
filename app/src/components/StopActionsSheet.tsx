@@ -28,7 +28,7 @@ type Step = "menu" | "move" | "remove";
  * B27 (B9.1) → B28 (B9.2) — the keyboard/touch-complete alternative to dragging.
  *
  *  «Mover a…»           day AND position (same day or another), for a stop that is in a day;
- *  «Quitar del recorrido» the stop goes to «Sin asignar» (no split rebuild since B9.2);
+ *  «Quitar del día» the stop goes to «Sin asignar» (no split rebuild since B9.2);
  *  «Añadir al día…»     for a «Sin asignar» place (`dayIndex === null`): day AND position, straight
  *                       into the form — no rebuild of the rest of the trip.
  *
@@ -74,7 +74,7 @@ export function StopActionsSheet({
           </li>
           <li>
             <button type="button" className="stop-actions__item" onClick={() => setStep("remove")}>
-              Quitar del recorrido
+              Quitar del día
               <span className="stop-actions__hint">Sigue en Quiero ir y pasa a «Sin asignar».</span>
             </button>
           </li>
@@ -137,12 +137,12 @@ export function StopActionsSheet({
       {step === "remove" && (
         <div className="stop-actions__form">
           <p>
-            Vas a quitar <strong>{place.name}</strong> del recorrido. Sigue guardado en Quiero ir.
+            Vas a quitar <strong>{place.name}</strong> del día. Sigue guardado en Quiero ir.
           </p>
           <p className="stop-actions__hint">{confirmRemoveNote}</p>
           <div className="stop-actions__buttons">
             <button type="button" className="button button--primary" autoFocus onClick={onRemove}>
-              Quitar del recorrido
+              Quitar del día
             </button>
             <button type="button" className="button button--secondary" onClick={() => setStep("menu")}>
               Volver
