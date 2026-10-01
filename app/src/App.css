@@ -269,6 +269,10 @@ a {
 }
 
 .link-button {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
   background: none;
   border: none;
   color: var(--color-accent-dark);
@@ -3082,7 +3086,7 @@ button.app__title.app__title--expand {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: 2.4rem;
+  min-height: var(--tap-min);
   padding: 0.45rem 0.7rem;
   cursor: pointer;
   font-weight: 600;
@@ -3575,7 +3579,7 @@ button.app__title.app__title--expand {
 .national__attribution-button {
   position: absolute;
   right: var(--space-2);
-  bottom: var(--space-2);
+  top: var(--space-2);
   z-index: 10;
   width: var(--info-button-size);
   height: var(--info-button-size);
@@ -4636,6 +4640,7 @@ button.app__title.app__title--expand {
 }
 
 .recorded-interval-fit__input {
+  min-height: var(--tap-min);
   max-width: 100%;
   padding: 0.35rem 0.45rem;
   border-radius: var(--radius-sm);
@@ -6604,6 +6609,7 @@ button.app__title.app__title--expand {
 }
 
 .sources__license {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -6924,3 +6930,29 @@ button.app__title.app__title--expand {
 .unassigned-drawer label { display: grid; gap: .2rem; }
 @media (max-width: 430px) { .trip-stop { grid-template-columns: 1.25rem 4rem minmax(0, 1fr); gap: .45rem; } .trip-stop__media { width: 4rem; } .unassigned-drawer li { align-items: stretch; flex-direction: column; } .inter-hub-row { grid-template-columns: auto minmax(0, 1fr); } .inter-hub-row span { grid-column: 2; text-align: left; } }
 @media (prefers-reduced-motion: reduce) { .trip-stop, .unassigned-drawer { scroll-behavior: auto; } }
+
+/* B10 / Art. 11: source links keep their text, destinations and hierarchy,
+   while their own boxes meet the same floor as buttons (no overlapping pseudo targets). */
+.sources a,
+.mlit-attribution a,
+.credits-sheet__field a,
+.place-sources a,
+.zone-source__link,
+.leaflet-control-attribution a {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+}
+
+/* Provider, tiles and gestures are unchanged; only the existing zoom hit boxes grow. */
+.leaflet-control-zoom a {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  line-height: var(--tap-min);
+}
+
+.gallery__credits:focus-visible {
+  outline-color: var(--focus-ring-color-on-dark);
+}

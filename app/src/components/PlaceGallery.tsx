@@ -95,7 +95,8 @@ export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: P
       const track = trackRef.current;
       if (!track || total === 0) return;
       const target = Math.max(0, Math.min(total - 1, next));
-      track.scrollTo({ left: target * track.clientWidth, behavior: "smooth" });
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      track.scrollTo({ left: target * track.clientWidth, behavior });
     },
     [total]
   );
@@ -274,7 +275,7 @@ export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: P
         {showCredits && (
           <button
             type="button"
-            className="gallery__credits"
+            className="gallery__credits tap-target-min"
             onClick={() => setCreditsOpen(true)}
             aria-label={`Créditos de las fotografías de ${placeName}`}
             title="Créditos de las fotografías"
