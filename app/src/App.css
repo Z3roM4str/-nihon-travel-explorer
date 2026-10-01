@@ -979,37 +979,6 @@ button.app__title.app__title--expand {
   color: var(--shu-700);
 }
 
-.zone-column__index--inline {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 0.65rem;
-  margin-right: 0.35rem;
-}
-
-.zone-fact--strong {
-  background: var(--color-ok-soft);
-  border-color: #b9ddc8;
-  color: #14603b;
-}
-
-.zone-column__tag--fact {
-  background: var(--color-ok-soft);
-  border-color: #b9ddc8;
-  color: #14603b;
-}
-
-.zone-column__tag--derived {
-  background: #e9f0f7;
-  border-color: #c3d6e6;
-  color: #1f4d70;
-}
-
-.zone-column__tag--editorial {
-  background: var(--color-warn-soft);
-  border-color: #e7c894;
-  color: #7c4a0d;
-}
-
 /* ---------- Interest legend ---------- */
 
 /* ---------- Save toast ---------- */
@@ -1204,11 +1173,6 @@ button.app__title.app__title--expand {
 
 /* ---------- Duration filter chips ---------- */
 
-.filter-chip__hint {
-  color: var(--color-text-muted);
-  font-weight: 400;
-}
-
 /* ---------- Selection analysis ---------- */
 
 .analysis-header {
@@ -1362,18 +1326,6 @@ button.app__title.app__title--expand {
 
 /* ---------- Day assignment (Phase 3C-C) ---------- */
 
-.reservation-deadline__status-callout--pending {
-  background: var(--color-warn-soft);
-  border: 1px solid #eccf9c;
-  color: #6c4310;
-}
-
-.reservation-deadline__status-callout--attention {
-  background: var(--color-risk-soft);
-  border: 1px solid #eeb4ae;
-  color: #7d211a;
-}
-
 /* Phase 3E-A — read-only composition. Subgroups remain visually adjacent but do not collapse into
    a score or a visit-plus-transport figure. */
 .whole-trip-composition {
@@ -1430,35 +1382,6 @@ button.app__title.app__title--expand {
    did before. Every state carries text; `tone` colours it but never carries it alone. */
 
 /* ---------- The contextual marker ---------- */
-
-.place-card__interest,
-.selection-list__interest-marker {
-  font-weight: 600;
-}
-
-.place-card__interest--agreement,
-.selection-list__interest-marker--agreement {
-  color: var(--color-ok);
-}
-
-.place-card__interest--other,
-.selection-list__interest-marker--other {
-  color: var(--color-info);
-}
-
-.place-card__interest--declined,
-.selection-list__interest-marker--declined {
-  color: var(--color-text-muted);
-}
-
-.place-card__interest--unclaimed,
-.selection-list__interest-marker--unclaimed {
-  color: var(--color-warn);
-}
-
-.place-interest__line--silent {
-  color: var(--color-text-muted);
-}
 
 /* ---------- The manager ---------- */
 
