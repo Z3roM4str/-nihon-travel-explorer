@@ -4,6 +4,8 @@
 
 Defectos reproducidos y corregidos: summary 42 px, targets secundarios, reduced motion JS, cabecera de filtros variable y mapa con scroll residual/retorno perdido. La [matriz consolidada](B10_AUTONOMOUS_REPORT.md) distingue gates verdes, fallos históricos comparados, G6 incumplido y pruebas físicas pendientes. Los snapshots siguientes conservan su fecha y alcance original; B10 no está cerrado.
 
+Main avanzó externamente a `5498756b` (#178–#181). Esta certificación permanece sobre b854/a6ec57c8; **#177 requiere reconciliación comparativa antes de integrar**. [Inventario y recomendación](B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
+
 ## Actualización L2 — clasificación contextual; B10 incompleto
 
 [Alcance/matriz](B10_L2_COPY_SCOPE.md), [certificación](B10_L2_CERTIFICATION.md), [evidencia](B10_L2_EVIDENCE.json). Desde `20bdf2d16ccfefccae5626880c0246c385c87aa1`; implementación `ebcb6fc5fe8cedbad8edae1ec8939447cccaa08f`. L1 y evidencia intactos.

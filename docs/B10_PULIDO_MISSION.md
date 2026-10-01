@@ -8,6 +8,8 @@ La ejecución autónoma ha publicado L2b, movimiento/targets, optimización medi
 
 Base exacta: `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`; remoto verificado sin avance. Rama `codex/b10-pulido-mission`, creada desde esa base. B31 / B9.5 sigue cerrado (#175). [Auditoría](B10_PULIDO_AUDIT.md), [medidas/evidencia](B10_PULIDO_EVIDENCE.json). No se presupone un número de proyecto para B10.
 
+Main avanzó externamente a `5498756b` (#178–#181). Esta certificación permanece sobre b854/a6ec57c8; **#177 requiere reconciliación comparativa antes de integrar**. [Inventario y recomendación](B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
+
 ## Objetivo y límites
 
 Cerrar incumplimientos concretos de presentación y completar los seis trabajos expresamente definidos en `10_ROADMAP_DE_BLOQUES.md §B10`: movimiento, accesibilidad, rendimiento/imágenes, extracción final de App.css, microcopy y decisión OD-01. Conservar la navegación y capacidades de `05 §12`, los cálculos existentes, identidad de día, almacenamiento V8 y los contratos B27–B31. B10 no autoriza un rediseño general.

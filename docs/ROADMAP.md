@@ -4,6 +4,8 @@
 
 B10 ejecutado parcialmente en la misma rama/PR #177 Draft: L2b, movimiento/accesibilidad técnica, optimización fotográfica y extracción Sheet verificadas. [Estado completo y decisiones](B10_AUTONOMOUS_REPORT.md): G6 histórico incumple, App.css restante, OD-01/editorial y pruebas físicas pendientes; no declarar B10 cerrado.
 
+Main avanzó externamente a `5498756b` (#178–#181). Esta certificación permanece sobre b854/a6ec57c8; **#177 requiere reconciliación comparativa antes de integrar**. [Inventario y recomendación](B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
+
 ## Foundation — complete
 
 - [x] Confirm repository and source workbook.

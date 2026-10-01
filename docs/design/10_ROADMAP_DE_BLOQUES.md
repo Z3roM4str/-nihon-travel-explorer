@@ -299,6 +299,8 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 
 **B10 ejecutado parcialmente, PR #177 Draft; INCOMPLETO.** L1/L2 conservados, L2b auditado, movimiento/targets y mapa corregidos, optimización fotográfica y Sheet verificadas. G6 histórico incumple; CSS global, decisiones editoriales/OD-01 y validación física pendientes. [Informe, evidencia y siguiente paso](../B10_AUTONOMOUS_REPORT.md).
 
+Estado de esta rama, no sustitución del cierre concurrente en main `5498756b`. #177 sigue Draft y requiere reconciliación; [detalle](../B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
+
 **Objetivo.** Cerrar.
 
 - Auditoría de movimiento: sólo los cinco movimientos nombrados; `prefers-reduced-motion`

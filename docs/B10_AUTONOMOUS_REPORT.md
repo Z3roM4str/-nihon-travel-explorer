@@ -153,3 +153,15 @@ Además de E01–E04/OD-01/A-01 ya detallados: para el héroe repetido, conserva
 | `a6ec57c864c9ae9ca6d5a2aac7c6ffde452f90fe` | fix(b10): restore national map viewport and home keyboard return |
 
 El commit documental final añade esta certificación y evidencia, sin cambiar app. Cada publicación verifica el HEAD remoto/PR Draft y usa actualización no forzada. GitHub crea los commits con su propia metadata; los árboles publicados se comparan exactamente con los commits locales. No se sobrescribió ningún avance remoto concurrente.
+
+Commit documental adicional: `42886ee68d7c3b0e5c2c7856ab97db4ade701204`, consolidación y evidencia anteriores a esta observación remota.
+
+## Avance concurrente de main detectado al cierre
+
+La lectura directa `git ls-remote`/fetch identifica **main `5498756b82b79818ea80cea83ee1d6fb312776e9`**, frente al inicial `b854db384c952e827b86d1bb35cac7caa70b035a`: **35 commits, 111 archivos y 15 rutas compartidas con #177**. Integraciones externas #178 (D0b/D5, `2a10ad3`), #179 (B10 de claude, `c512db1`), #180 y #181 (certificaciones/cierre, `8414a71` y `5498756`). Sus autores/merges constan en el historial remoto; esta misión no los ejecutó ni escribió a main o claude/*.
+
+El avance incluye vocabulario D5, tokens D0b, movimiento/targets, extracción CSS extensa y su propio handoff que declara B10 cerrado con deuda. **No se adopta ese cierre como certificación de #177**: este encargo exige mantener abiertos los criterios obligatorios incumplidos. Rutas comunes incluyen App, NationalExplorer, PlaceGallery, Sheet, discovery CSS, runners, handoff y roadmap. Inventario completo de commits/rutas en `evidence/b10/autonomous/l6/main-concurrent-advance.json`.
+
+Código de #177 sigue exactamente en `a6ec57c8`, certificado sobre la base original; no se integró el código concurrente ni se afirma haberlo probado. El proveedor de metadata de PR siguió devolviendo base_sha b854 aunque git remoto ya mostraba 5498756; para esta comparación se usa la referencia Git leída directamente. Primer intento de leer origin/main falla porque el refspec local sólo sigue la rama B10; comparación resuelta con el SHA fetched, sin cambiar una rama local main.
+
+**Pendiente técnico nuevo: reconciliación con main actual**, con su propia revisión y regresión. No revertir extracciones ni decisiones concurrentes al aplicar #177. Recomendación/próximo paso inmediato: mantener Draft y comparar únicamente los aportes pendientes (proyección fotográfica, links/hit areas, filtro estable y mapa/retorno) con sus nuevos dueños CSS antes de decidir su incorporación; después resolver editorial/OD-01/G6 y validar físicamente. Sin merge/rebase/force-push durante este cierre. El HEAD de la rama B10 se comprueba directamente antes del checkpoint documental; el avance ajeno se conserva íntegro.

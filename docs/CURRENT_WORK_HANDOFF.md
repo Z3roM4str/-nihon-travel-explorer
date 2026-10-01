@@ -4,6 +4,8 @@
 
 Código final de esta ejecución: `a6ec57c864c9ae9ca6d5a2aac7c6ffde452f90fe`; publicación documental identificable por el commit del [informe consolidado](B10_AUTONOMOUS_REPORT.md). No hace falta trasladar logs entre conversaciones: evidencias comprimidas y hashes están en la misma rama y PR #177 Draft. Siguiente: decisiones editoriales/OD-01/G6 y validación física; CSS/T-01 enumerados. B10 INCOMPLETO.
 
+Main avanzó externamente a `5498756b` (#178–#181). Esta certificación permanece sobre b854/a6ec57c8; **#177 requiere reconciliación comparativa antes de integrar**. [Inventario y recomendación](B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
+
 ## Snapshot anterior — L2 acotado; PR #177 Draft
 
 - Rama `codex/b10-pulido-mission`, inicial `20bdf2d16ccfefccae5626880c0246c385c87aa1`; implementación `ebcb6fc5fe8cedbad8edae1ec8939447cccaa08f`. HEAD documental: `git log -1 --format=%H -- docs/B10_L2_CERTIFICATION.md`.
