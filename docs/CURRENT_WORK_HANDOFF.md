@@ -1,6 +1,17 @@
-# Handoff reanudable — B30 / B9.4 «Dónde dormir»
+# Handoff reanudable — B31 / B9.5 «Reservas y Resumen»
 
-## Estado vigente — B30 / B9.4 CERRADO E INTEGRADO EN MAIN (2026-09-30)
+## Estado vigente — B31 implementado y certificado, pendiente de revisión e integración
+
+- Rama nueva `codex/block-31-b9-5-reservas-resumen`, base canónica exacta `393ef2b2a1a2db0641d3785b7e7cf155c914fa5c`. Implementación `9761817f0d7acfcff418145c36e14615b2840760`; documentación en un commit independiente posterior. Main no se modifica en esta misión.
+- Viaje mantiene Días · Dónde dormir · Reservas · Resumen. Reservas reúne mecanismos/ventanas/fechas/calendario/Feb–Mar y ordena sólo la lectura por hito derivado. Resumen reutiliza whole-trip-composition con cuatro tarjetas y bandas por los días reales. DDR-05 queda ejecutada: cuatro literales conservados con ◧ Registrado y comillas; ausencia global de Dato renderizable comprobada.
+- Build/lint PASS (sólo warning heredado PlaceMap); Vitest 3479/3479; invariantes 231/231; B31 Chromium y WebKit 281/281 por motor; B30 475/475 por motor. B29 163/163, B28 anidado/aislado 64/64, B27 A–K en 8 viewports, B26 314/314 en repetición, B18 back 15/15, diff check PASS.
+- B26: primer intento abortado por timeout del diálogo onboarding a 430×932; repetición completa verde sin modificar Nosotros/Onboarding/gate B26. No reaparecieron I-RESET-CANCEL/K-FOCUS-VISIBLE. B28 no mostró auto-scroll intermitente. No se demostró regresión nueva determinista.
+- Consulta y cambio de sub-pestañas no escriben V8; selección/modo de comparación y retorno de ficha conservados. Un lector se refresca tras una edición persistida real en la otra superficie. El helper B30 reconoce la instancia ya observada, conserva todas sus aserciones y sigue sincronizando dos escrituras al montar una nueva.
+- B30 permanece CERRADO E INTEGRADO EN MAIN. B31 se entrega para revisión contra main; no se fusiona. Sin cambios de cálculos, datasets, fotografía, adquisición B6, storage V8, Astra ni Vercel/deploy. #168 continúa abierto Draft en `1444e67805c60cf9a33f4be5c1a3808b900e505b`; claude/* permanece separado.
+- Deuda: Safari físico/iPhone, lector de pantalla físico, fotografías reales de zona y recursos externos/OSM; B25 conserva el antecedente externo 122/123. Matriz, decisiones, archivos y evidencia: [BLOCK_31_MISSION.md](BLOCK_31_MISSION.md) y [BLOCK_31_HANDOFF.md](BLOCK_31_HANDOFF.md).
+
+
+## Histórico — cierre de main antes de B31 / B9.5 (2026-09-30)
 
 - PR #169: implementación B30; #171: hotfix CSS de invariantes; #172: corrección de race del gate WebKit. Los tres están integrados.
 - Main certificado tras #172: `a21920bcef2478ba1e5c0367e118a997f20acc31`, merge commit con segundo padre `43ca260056912843c7246cb700bbf5e8644d3d40`; tree `78ba86c69c3f53af38e20067e565ff408199d9c9` idéntico al certificado previamente.
