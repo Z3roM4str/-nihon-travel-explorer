@@ -910,12 +910,6 @@ button.app__title.app__title--expand {
   overflow: hidden;
 }
 
-.place-map {
-  width: 100%;
-  height: 100%;
-  background: var(--color-surface-alt);
-}
-
 /* Keep Leaflet panes under the app chrome. */
 .leaflet-pane,
 .leaflet-top,
@@ -1056,81 +1050,6 @@ button.app__title.app__title--expand {
  * `.place-list*` ni `.place-card*` en este fichero. */
 
 /* ---------- Map markers ---------- */
-
-/* B24 (P0-4b, Art. 11): la caja del icono mide 44 px (`MARKER_HIT_SIZE`) y es lo que recibe el
-   toque; el punto visible sigue midiendo lo que fija `03 §9` y va centrado dentro. */
-.place-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-}
-
-/* B24 (P0-4a) — grupo de marcadores, `03 §9`: «un círculo con cifra (`--type-num`), estilo
-   indicador de estación» — el número de estación japonés: blanco con anillo de tinta. Misma caja
-   de impacto de 44 px que un marcador suelto; el círculo visible mide `--space-8`. */
-.place-cluster {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.place-cluster__count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--space-8);
-  height: var(--space-8);
-  padding: 0 var(--space-1);
-  box-sizing: border-box;
-  border-radius: var(--radius-full);
-  border: 2px solid var(--ink-900);
-  background: var(--surface);
-  color: var(--ink-900);
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  box-shadow: var(--elev-1);
-}
-
-.place-cluster:focus-visible .place-cluster__count,
-.place-marker:focus-visible .place-marker__dot {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.place-marker__dot {
-  position: relative;
-  display: block;
-  width: var(--marker-size);
-  height: var(--marker-size);
-  border-radius: 50%;
-  background: var(--marker-color);
-  border: 2px solid var(--surface);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-}
-
-.place-marker--selected .place-marker__dot {
-  box-shadow:
-    0 0 0 5px rgba(183, 40, 46, 0.28),
-    0 1px 4px rgba(0, 0, 0, 0.45);
-}
-
-.place-marker__saved {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--color-ok);
-  border: 2px solid var(--surface);
-}
 
 /* ---------- Detail panel ---------- */
 
@@ -1364,15 +1283,6 @@ button.app__title.app__title--expand {
   line-height: 1.45;
 }
 
-.national-start__hubs {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
 .national-start__hub {
   display: inline-flex;
   align-items: center;
@@ -1393,20 +1303,6 @@ button.app__title.app__title--expand {
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
   color: var(--color-accent-dark);
-}
-
-.national-start__hub-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.6rem;
-  height: 1.6rem;
-  padding: 0 0.35rem;
-  border-radius: 999px;
-  background: var(--color-surface-alt);
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
 }
 
 /* ---------- Accommodation zones (Block 3) ---------- */
@@ -2170,85 +2066,6 @@ button.app__title.app__title--expand {
 
 /* ---------- Interest legend ---------- */
 
-.interest-legend {
-  position: absolute;
-  left: 0.75rem;
-  bottom: 0.75rem;
-  z-index: 10;
-  max-width: min(21rem, calc(100% - 1.5rem));
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
-  font-size: 0.8rem;
-}
-
-.interest-legend__summary {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: var(--tap-min); /* 03 §7 */
-  padding: 0.45rem 0.7rem;
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  list-style: none;
-}
-
-.interest-legend__summary::-webkit-details-marker {
-  display: none;
-}
-
-.interest-legend[open] .interest-legend__summary {
-  border-bottom: 1px solid var(--color-border);
-}
-
-.interest-legend__list {
-  list-style: none;
-  margin: 0;
-  padding: 0.5rem 0.7rem 0.7rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 40vh;
-  overflow-y: auto;
-}
-
-.interest-legend__item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-.interest-legend__swatch {
-  flex-shrink: 0;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  border: 1px solid transparent;
-}
-
-.interest-legend__text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.interest-legend__label {
-  font-weight: 700;
-}
-
-.interest-legend__description {
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  line-height: 1.35;
-}
-
 /* ---------- Save toast ---------- */
 
 .save-toast-region {
@@ -2506,13 +2323,6 @@ button.app__title.app__title--expand {
   margin: 0 0 0.85rem;
 }
 @media (max-width: 860px) {
-  /* On the phone the legend belongs to the map pane only; on the list pane the badges are
-     already spelled out on every card. */
-  .interest-legend {
-    left: 0.5rem;
-    bottom: 0.5rem;
-    font-size: 0.78rem;
-  }
 
   .place-list {
     padding: 0.6rem;
@@ -2616,18 +2426,6 @@ button.app__title.app__title--expand {
   background: var(--surface);
 }
 
-.national__map-area {
-  /* Mapa primero en teléfono, lista debajo — capacidad existente que se conserva (Art. 12). */
-  order: -1;
-  position: relative;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #eef2f5;
-  border-bottom: 1px solid var(--line);
-}
-
 .national-map {
   width: 100%;
   height: 44vh;
@@ -2640,87 +2438,15 @@ button.app__title.app__title--expand {
   font-weight: 600;
 }
 
-.national__map-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 44vh;
-  min-height: 240px;
-  padding: var(--space-8);
-  text-align: center;
-  color: var(--color-text-muted);
-}
-
-/*
- * Bloque 18, `05 §3`: el aviso MLIT deja de ser una franja permanente sobre el mapa (defecto
- * D5/D11) — ahora es un botón `ⓘ` de 32px en la esquina, que abre el texto íntegro en `Sheet`.
- */
-.national__attribution-button {
-  position: absolute;
-  right: var(--space-2);
-  bottom: var(--space-2);
-  z-index: 10;
-  width: var(--info-button-size);
-  height: var(--info-button-size);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-  border: none;
-  /* Sin alfa especificado para este botón sobre el mapa; sólido en vez de un valor de
-     transparencia inventado (03 §10). */
-  background: var(--surface);
-  box-shadow: var(--elev-1);
-  color: var(--ink-700);
-  font-size: var(--type-body-size);
-  cursor: pointer;
-}
-
-.national__attribution-button:hover {
-  background: var(--surface-sunken);
-}
-
-/* En teléfono el panel contextual de prefectura es una hoja inferior sobre todo el mapa
-   nacional; desde `md` vuelve a ser una tarjeta flotante en la esquina (ver el `min-width`
-   de abajo). Capacidad existente, sólo reescrita mobile-first. */
-.national__panel {
-  position: fixed;
-  top: auto;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  max-height: 72dvh;
-  overflow-y: auto;
-  z-index: 80;
-}
-
 @media (min-width: 840px) {
   .national {
     flex-direction: row;
-  }
-
-  .national__panel {
-    position: absolute;
-    top: 0.75rem;
-    left: auto;
-    bottom: auto;
-    right: 0.75rem;
-    width: min(360px, calc(100% - 1.5rem));
-    max-height: calc(100% - 3.5rem);
-    z-index: 40;
   }
 
   .national__sidebar {
     width: 340px;
     flex: 0 0 auto;
     border-right: 1px solid var(--line);
-  }
-
-  .national__map-area {
-    order: 0;
-    flex: 1;
-    border-bottom: none;
   }
 
   .national-map,
@@ -2738,97 +2464,6 @@ button.app__title.app__title--expand {
   gap: 1.25rem;
 }
 
-.region-nav__section h2 {
-  margin: 0;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-}
-
-.region-nav__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.region-nav__back {
-  font-size: 0.8rem;
-  min-height: 2rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.region-nav__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.region-nav__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  width: 100%;
-  min-height: var(--tap-target);
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.region-nav__item:hover {
-  background: var(--color-surface-alt);
-  border-color: var(--color-border-strong);
-}
-
-.region-nav__item--covered {
-  border-left: 4px solid var(--color-accent);
-}
-
-.region-nav__item--active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--surface);
-}
-
-.region-nav__item--active:hover {
-  background: var(--color-accent-dark);
-}
-
-.region-nav__name {
-  font-weight: 600;
-  font-size: 0.9rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.region-nav__ja {
-  font-weight: 400;
-  font-size: 0.72rem;
-  opacity: 0.75;
-}
-
-.region-nav__meta {
-  font-size: 0.75rem;
-  white-space: nowrap;
-  opacity: 0.9;
-}
-
-.region-nav__meta--empty {
-  font-style: italic;
-  opacity: 0.75;
-}
-
 .region-nav__empty {
   margin: 0;
   font-size: 0.82rem;
@@ -2837,123 +2472,7 @@ button.app__title.app__title--expand {
 
 /* ---------- Region hubs ---------- */
 
-.region-hubs h2 {
-  margin: 0 0 0.5rem;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-}
-
-.region-hubs__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.region-hubs__item {
-  width: 100%;
-  justify-content: space-between;
-  gap: 0.75rem;
-  text-align: left;
-}
-
-.region-hubs__count {
-  font-weight: 400;
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-
 /* ---------- Prefecture panel ---------- */
-
-.prefecture-panel {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-bottom: none;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  box-shadow: var(--shadow-panel);
-  padding: 0.9rem 1rem 1.5rem;
-}
-
-@media (min-width: 840px) {
-  .prefecture-panel {
-    border-bottom: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: 0.9rem 1rem 1.1rem;
-  }
-}
-
-.prefecture-panel__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.prefecture-panel__header h2 {
-  margin: 0;
-  font-size: 1.15rem;
-}
-
-.prefecture-panel__sub {
-  margin: 0.15rem 0 0;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.prefecture-panel__count {
-  margin: 0.75rem 0 0;
-  font-size: 0.9rem;
-}
-
-.prefecture-panel__hubs {
-  margin-top: 1rem;
-}
-
-.prefecture-panel__hubs h3 {
-  margin: 0;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-}
-
-.prefecture-panel__hint {
-  margin: 0.25rem 0 0.6rem;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-}
-
-.prefecture-panel__hub-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.prefecture-panel__hub {
-  width: 100%;
-  justify-content: space-between;
-  gap: 0.75rem;
-  text-align: left;
-}
-
-.prefecture-panel__hub-count {
-  font-weight: 400;
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-
-.prefecture-panel__empty {
-  margin: 0.75rem 0 0;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
 
 /* ---------- Duration filter chips ---------- */
 
@@ -3062,10 +2581,6 @@ button.app__title.app__title--expand {
   line-height: 1.35;
 }
 
-.analysis-total__detail {
-  color: var(--color-text);
-}
-
 .analysis-disclaimer {
   margin: 0;
   font-size: 0.78rem;
@@ -3075,104 +2590,12 @@ button.app__title.app__title--expand {
   padding: 0.5rem 0.65rem;
 }
 
-.analysis-hub {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.analysis-hub__heading {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.analysis-hub__toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  min-height: var(--tap-target);
-  padding: 0.6rem 0.85rem;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-
-.analysis-hub__toggle:hover {
-  background: var(--color-surface-alt);
-}
-
-.analysis-hub__name {
-  flex: 1;
-}
-
-.analysis-hub__count {
-  font-weight: 400;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.analysis-hub__chevron {
-  color: var(--color-text-muted);
-}
-
-.analysis-hub > div {
-  padding: 0 0.85rem 0.85rem;
-}
-
-.analysis-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.75rem;
-  margin: 0 0 0.6rem;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.analysis-summary__time {
-  color: var(--color-text);
-  font-weight: 600;
-}
-
-.analysis-summary__commitment {
-  color: var(--color-warn);
-  font-weight: 600;
-}
-
 .analysis-cluster-list,
 .analysis-place-list,
 .analysis-distribution {
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.analysis-cluster-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.analysis-cluster {
-  border-left: 3px solid var(--color-border-strong);
-  padding-left: 0.65rem;
-}
-
-.analysis-cluster__name {
-  margin: 0 0 0.2rem;
-  font-size: 0.9rem;
-}
-
-.analysis-cluster__prefecture {
-  font-weight: 400;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
 }
 
 .analysis-place-list {
@@ -3204,28 +2627,6 @@ button.app__title.app__title--expand {
   border-color: var(--color-border);
 }
 
-.analysis-place__duration {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.analysis-statements {
-  margin-top: 0.7rem;
-  padding: 0.55rem 0.7rem;
-  background: var(--color-surface-alt);
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-}
-
-.analysis-statements p {
-  margin: 0;
-}
-
-.analysis-statements p + p {
-  margin-top: 0.35rem;
-}
-
 .analysis-section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -3245,25 +2646,6 @@ button.app__title.app__title--expand {
   margin: -0.25rem 0 0.6rem;
   font-size: 0.78rem;
   color: var(--color-text-muted);
-}
-
-.analysis-distribution {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.analysis-distribution li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  font-size: 0.85rem;
-}
-
-.analysis-distribution__count {
-  font-weight: 700;
-  color: var(--color-accent-dark);
 }
 
 @media (max-width: 860px) {
@@ -4581,117 +3963,6 @@ button.app__title.app__title--expand {
   font-size: 1rem;
 }
 
-.zone-plan__empty {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--color-text-muted);
-}
-
-.zone-plan__card {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-  background: var(--color-surface-alt);
-}
-
-.zone-plan__card:last-of-type {
-  margin-bottom: 0;
-}
-
-.zone-plan__card-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.zone-plan__card-title {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.zone-plan__card-anchor {
-  margin: 0.15rem 0 0;
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-}
-
-.zone-plan__clear {
-  flex: 0 0 auto;
-}
-
-.zone-plan__caveat,
-.zone-plan__multi-hub,
-.zone-plan__empty-days,
-.zone-plan__derived-note {
-  margin: 0.6rem 0 0;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
-
-.zone-plan__counts {
-  margin: 0.6rem 0 0;
-  font-size: 0.82rem;
-  line-height: 1.55;
-}
-
-.zone-plan__days {
-  list-style: none;
-  margin: 0.5rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.zone-plan__day {
-  padding: 0.5rem 0.6rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-
-.zone-plan__day-head {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 0.6rem;
-  font-size: 0.85rem;
-}
-
-.zone-plan__day-sides {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.zone-plan__day-proximity {
-  margin: 0.3rem 0 0;
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-/* The same fact/derived/editorial vocabulary Block 3 introduced, so a reader who learned it on the
-   comparison screen reads it identically here. This section only ever shows the derived one. */
-.zone-plan__tag {
-  display: inline-block;
-  padding: 0.1rem 0.35rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.zone-plan__tag--derived {
-  background: #e7eef5;
-  color: var(--color-info);
-}
-
 .accommodation-manager__origin {
   color: var(--color-text-muted);
   font-weight: 400;
@@ -4702,17 +3973,6 @@ button.app__title.app__title--expand {
   .zone-choice-action__button {
     flex: 0 0 auto;
   }
-}
-
-.zone-plan__summary-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.85rem;
-  line-height: 1.5;
 }
 
 /* ---------- Block 5 — two local travellers ----------
@@ -4752,32 +4012,6 @@ button.app__title.app__title--expand {
 }
 
 /* ---------- The manager ---------- */
-
-.traveller-manager__sub,
-.traveller-manager__note,
-.traveller-manager__add-hint {
-  margin: 0.3rem 0 0;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
-
-.traveller-manager__list {
-  list-style: none;
-  margin: 0.85rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.traveller-manager__add {
-  margin-top: 0.85rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  align-items: flex-start;
-}
 
 /* ---------- Block 6 — "dónde no coincidimos", inside the saved list ---------- */
 
@@ -4896,13 +4130,6 @@ button.app__title.app__title--expand {
   min-width: 0;
 }
 
-.quiero-ir__analysis {
-  padding: 0;
-  border: 0;
-  box-shadow: none;
-  background: transparent;
-}
-
 /* Dentro de Quiero ir la duración nunca compite con el resumen (`05 §6`: no es titular). */
 .quiero-ir__analysis .analysis-total__value {
   font-family: var(--font-record);
@@ -4974,170 +4201,14 @@ button.app__title.app__title--expand {
   color: var(--ink-900);
 }
 
-/* Viajeros: dos tarjetas de persona. Una columna en teléfono, dos desde `sm` (`02 §D5`). */
-.traveller-manager__list {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-3);
-}
-
-@media (min-width: 600px) {
-  .traveller-manager__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.traveller-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-  padding: var(--space-4);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-}
-
-/* La persona activa se distingue por borde grueso, texto y marca — nunca sólo por color. */
-.traveller-card--active {
-  border-width: 2px;
-  padding: calc(var(--space-4) - 1px);
-  border-color: var(--ink-900);
-}
-
-.traveller-card__head {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
 .traveller-card__head .person-token {
   margin-bottom: var(--space-1);
-}
-
-.traveller-card__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.traveller-card__field-label {
-  font-size: var(--type-label-size);
-  line-height: var(--type-label-line);
-  font-weight: 600;
-  color: var(--ink-500);
-}
-
-.traveller-manager__input {
-  min-height: var(--tap-min);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font: inherit;
-  font-size: var(--type-body-size);
-  color: var(--ink-900);
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  text-overflow: ellipsis;
-}
-
-.traveller-card__marked {
-  margin: 0;
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-  color: var(--ink-700);
-}
-
-.traveller-card__marked-count {
-  font-family: var(--font-record);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  color: var(--ink-900);
-}
-
-.traveller-card__status {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-  min-height: var(--tap-min);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-  font-weight: 600;
-  color: var(--ok-600);
-  overflow-wrap: anywhere;
-}
-
-.traveller-card__status:focus {
-  outline: none;
-}
-
-.traveller-card__status:focus-visible {
-  outline: 2px solid var(--ink-900);
-  outline-offset: 2px;
-}
-
-.traveller-card__use {
-  min-height: var(--tap-min);
-  height: auto;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  text-align: center;
-}
-
-.traveller-card__meta {
-  margin: 0;
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
-  color: var(--ink-500);
-  overflow-wrap: anywhere;
-}
-
-.traveller-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: auto;
 }
 
 .traveller-card__actions .button {
   min-height: var(--tap-min);
   height: auto;
   white-space: normal;
-}
-
-.traveller-manager__note {
-  margin-top: var(--space-4);
-}
-
-.traveller-card__status svg {
-  flex-shrink: 0;
-}
-
-.traveller-manager__confirm {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--warn-050);
-  border: 1px solid var(--warn-600);
-}
-
-.traveller-manager__confirm-text {
-  flex: 1 1 100%;
-  margin: 0;
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-  color: var(--ink-900);
-  overflow-wrap: anywhere;
 }
 
 .traveller-manager__confirm .button {

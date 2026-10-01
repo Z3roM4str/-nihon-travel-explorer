@@ -2,6 +2,7 @@ import type { NavigationRegion, Prefecture, RegionSummary } from "../data/geogra
 import { countPlacesInPrefecture } from "../data/geography";
 import { Icon } from "../icons/Icon";
 
+import "./RegionNavigator.css";
 type Props = {
   regions: RegionSummary[];
   activeRegion: NavigationRegion | null;

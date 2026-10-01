@@ -1,0 +1,183 @@
+.traveller-manager__sub,
+.traveller-manager__note,
+.traveller-manager__add-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.traveller-manager__list {
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.traveller-manager__add {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+/* Viajeros: dos tarjetas de persona. Una columna en teléfono, dos desde `sm` (`02 §D5`). */
+
+.traveller-manager__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 600px) {
+  .traveller-manager__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.traveller-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+/* La persona activa se distingue por borde grueso, texto y marca — nunca sólo por color. */
+
+.traveller-card--active {
+  border-width: 2px;
+  padding: calc(var(--space-4) - 1px);
+  border-color: var(--ink-900);
+}
+
+.traveller-card__head {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.traveller-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.traveller-card__field-label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.traveller-manager__input {
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--type-body-size);
+  color: var(--ink-900);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+}
+
+.traveller-card__marked {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+}
+
+.traveller-card__marked-count {
+  font-family: var(--font-record);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.traveller-card__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  min-height: var(--tap-min);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-weight: 600;
+  color: var(--ok-600);
+  overflow-wrap: anywhere;
+}
+
+.traveller-card__status:focus {
+  outline: none;
+}
+
+.traveller-card__status:focus-visible {
+  outline: 2px solid var(--ink-900);
+  outline-offset: 2px;
+}
+
+.traveller-card__use {
+  min-height: var(--tap-min);
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.traveller-card__meta {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-500);
+  overflow-wrap: anywhere;
+}
+
+.traveller-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.traveller-manager__note {
+  margin-top: var(--space-4);
+}
+
+.traveller-card__status svg {
+  flex-shrink: 0;
+}
+
+.traveller-manager__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--warn-050);
+  border: 1px solid var(--warn-600);
+}
+
+.traveller-manager__confirm-text {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}

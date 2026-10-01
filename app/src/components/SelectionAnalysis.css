@@ -1,0 +1,143 @@
+.analysis-total__detail {
+  color: var(--color-text);
+}
+
+.analysis-hub {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.analysis-hub__heading {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.analysis-hub__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: var(--tap-target);
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.analysis-hub__toggle:hover {
+  background: var(--color-surface-alt);
+}
+
+.analysis-hub__name {
+  flex: 1;
+}
+
+.analysis-hub__count {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.analysis-hub__chevron {
+  color: var(--color-text-muted);
+}
+
+.analysis-hub > div {
+  padding: 0 0.85rem 0.85rem;
+}
+
+.analysis-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.analysis-summary__time {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.analysis-summary__commitment {
+  color: var(--color-warn);
+  font-weight: 600;
+}
+
+.analysis-cluster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.analysis-cluster {
+  border-left: 3px solid var(--color-border-strong);
+  padding-left: 0.65rem;
+}
+
+.analysis-cluster__name {
+  margin: 0 0 0.2rem;
+  font-size: 0.9rem;
+}
+
+.analysis-cluster__prefecture {
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.analysis-place__duration {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.analysis-statements {
+  margin-top: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+}
+
+.analysis-statements p {
+  margin: 0;
+}
+
+.analysis-statements p + p {
+  margin-top: 0.35rem;
+}
+
+.analysis-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.analysis-distribution li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.analysis-distribution__count {
+  font-weight: 700;
+  color: var(--color-accent-dark);
+}
+
+.quiero-ir__analysis {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}

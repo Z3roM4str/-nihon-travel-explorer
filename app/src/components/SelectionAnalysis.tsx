@@ -15,6 +15,7 @@ import {
   summarizeSelection,
 } from "../lib/selection";
 
+import "./SelectionAnalysis.css";
 type Props = {
   savedPlaces: Place[];
   onSelectPlace: (id: string) => void;

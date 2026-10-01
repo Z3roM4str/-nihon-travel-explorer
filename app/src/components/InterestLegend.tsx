@@ -1,5 +1,6 @@
 import { Icon } from "../icons/Icon";
 
+import "./InterestLegend.css";
 type LegendItem = {
   id: string;
   label: string;

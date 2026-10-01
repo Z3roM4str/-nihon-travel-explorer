@@ -7,6 +7,7 @@ import type {
 } from "../lib/zone-plan-link";
 import type { ZoneAccommodationChoice } from "../lib/zone-accommodation-choice";
 
+import "./ZonePlanSection.css";
 /**
  * Block 4 — what a chosen accommodation zone actually does to the plan, stated without inventing
  * anything.

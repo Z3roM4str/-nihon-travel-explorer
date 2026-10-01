@@ -3,6 +3,7 @@ import { MAX_TRAVELLERS, type Traveller } from "../lib/travellers";
 import { PersonToken } from "./PersonToken";
 import { Icon } from "../icons/Icon";
 
+import "./TravellerManager.css";
 /**
  * Block 5 → B26 — «Nosotros › Viajeros» (`05 §11`, DD-007).
  *
