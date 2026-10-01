@@ -112,10 +112,15 @@ try {
   const pageErrors = [];
 
   async function enterPlanner(page) {
-    await page.getByRole("button", { name: /Quiero ir/ }).click();
-    await page.getByRole("button", { name: /Construir recorrido/ }).click();
-    await page.getByRole("button", { name: /Distribuir por días/ }).click();
-    await page.getByRole("heading", { name: "Día 1" }).waitFor();
+    // B27–B31: Viaje abre directamente sobre Días; Reservas es una sección propia de Viaje.
+    await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Viaje" }).click();
+    await page.locator(".day-card[data-day-id]").first().waitFor();
+    await page.getByRole("group", { name: "Secciones de Viaje" }).getByRole("button", { name: "Reservas", exact: true }).click();
+    await page.locator(".trip-reservations").waitFor();
+  }
+
+  async function showSection(page, name) {
+    await page.getByRole("group", { name: "Secciones de Viaje" }).getByRole("button", { name, exact: true }).click();
   }
 
   /** `referenceCivilDate` is `YYYY-MM-DD` and is the ONLY source of the browser's calendar date. */
@@ -129,6 +134,8 @@ try {
 
     await page.addInitScript(fixBrowserCivilDate, referenceCivilDate.split("-").map(Number));
     await page.addInitScript(({ saved, draft }) => {
+      // B18+: el onboarding de primera ejecución cubre la navegación; el gate parte de «ya visto».
+      localStorage.setItem("nihon.onboarding.seen.v1", "1");
       if (localStorage.getItem("nihon.savedPlaceIds") === null) {
         localStorage.setItem("nihon.savedPlaceIds", JSON.stringify(saved));
       }
@@ -189,7 +196,7 @@ try {
       assertNoForbiddenCopy(text, "Scenario A");
 
       // Scenario I — both reference-date surfaces are visible, independent and never combined.
-      const day = page.locator(".day-card").first();
+      const day = page.locator(".trip-reservations__list") /* B31: ambos avisos viven en las filas de Reservas (el de ventana editorial, en la del lugar que la tiene) */;
       await day.locator(".reservation-deadline").waitFor();
       await day.locator(".official-reservation-date").waitFor();
       assert.equal(await day.locator(".reservation-deadline__reference-relation").count() > 0, true);
@@ -290,7 +297,14 @@ try {
 
       // Scenario J — moving the place changes the visit date, so Phase 3F-D recomputes the official
       // release date and Phase 3F-H must re-relate the SAME explicit reference date to it.
-      await page.getByRole("button", { name: "Mover Tokyo Disneyland al día siguiente" }).click();
+      // B28: «Mover a…» (Día + Posición) sustituyó a «Mover … al día siguiente»; se hace desde Días.
+      await showSection(page, "Días");
+      const stop = page.locator(".trip-stop").filter({ hasText: "Tokyo Disneyland" });
+      await stop.getByRole("button", { name: "Mover a…" }).click();
+      await stop.getByLabel("Día").selectOption("1");
+      await stop.getByLabel("Posición").selectOption("0");
+      await stop.getByRole("button", { name: "Mover parada" }).click();
+      await showSection(page, "Reservas");
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
         return stored?.days?.[0]?.placeIds?.includes("JP-203") === false &&
@@ -312,7 +326,9 @@ try {
 
       // Scenario K — clearing the trip start date removes every trip-specific official relation,
       // and a reload brings none back because nothing derived was ever persisted.
+      await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
       await page.getByLabel("Fecha de inicio (Día 1)").fill("");
+      await showSection(page, "Reservas");
       await page.waitForFunction(
         () => document.querySelectorAll(".official-reservation-date").length === 0
       );
@@ -342,7 +358,7 @@ try {
       assert.equal(await page.locator(".official-reservation-date__reference-relation").count(), 0);
       const reloaded = await readDraft(page);
       assert.equal(reloaded.startDate, null);
-      assert.equal(reloaded.version, 7);
+      assert.equal(reloaded.version, 8); // v8 (B25+): el borrador v7 sembrado migra al cargar
       record("K. clear start date + reload", "no stale relation in UI or storage");
     } finally {
       await context.close();

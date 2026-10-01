@@ -19,7 +19,7 @@
 | B10-C2 = D5-M1 vistas `builder`/`compare` inalcanzables | código muerto con copy prohibido; borrar o reescribir copy | Producto (retirar capacidad documentada) |
 | D0b-01, D0b-02, EvidenceMark 11/12, media queries | deuda heredada | Diseño |
 | Safari/iPhone y lector de pantalla físicos; fotos reales de zona; OSM/recursos externos | restricción física/externa | humano |
-| Gates obsoletos: phase3f-h/j/s, block4, b18-regression; phase5a (A14/C01/C06) + integración 56/58 | deuda de test (el producto cambió; identificados idénticos en main) | Ingeniería |
+| Gates obsoletos restantes (block1/2/3/4/7/8/9/10/13/14, phase3e-*, phase4c/d/j/l, b6-4, b24-real-input P0-2) | deuda de test, clasificada en [GATE_AUTHORITY.md](GATE_AUTHORITY.md); phase5a, integración, phase3f-f/h/j/s, b18-regression y block12 ya refrescados | Ingeniería (higiene) |
 | `App.css`: shell de `App.tsx` y primitivos `.tag/.alert/.badge/.person-token` | deuda técnica menor de B10.4 | Ingeniería |
 
 ## Anterior — D0b + D5 reconciliados sobre main (integrados, #178)

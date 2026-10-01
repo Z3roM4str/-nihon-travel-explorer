@@ -4,6 +4,12 @@ import { chromium } from "playwright";
 import { preview } from "vite";
 
 /**
+ * **OBSOLETO (clasificado en la misión post-B10; no se ejecuta como gate de autoridad).** Este
+ * script recorre el shell anterior a B18 (panel «Quiero ir» con «Construir recorrido», cajón de zonas
+ * en `.hub-bar__zones`, «Usar … en el plan»). Esas superficies ya no existen: la comparación de zonas
+ * es «Viaje › Dónde dormir» (B30, `b30-where-to-sleep-check.mjs`, 475 comprobaciones por motor), que
+ * cubre la elección de zona, su reflejo en Días y la persistencia. Se conserva sólo como registro histórico.
+ *
  * Block 4 — zone → planner browser audit, against the PRODUCTION build (`vite preview`), not the
  * dev server.
  *
