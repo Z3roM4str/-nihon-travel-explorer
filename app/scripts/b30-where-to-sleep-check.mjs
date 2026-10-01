@@ -146,9 +146,25 @@ async function contextFor(viewport, { emptyRoute = false, reducedMotion } = {}) 
   return { context, page, errors };
 }
 
+async function waitForPlannerMountWrites(page) {
+  await page.locator(".analysis-dialog--embedded").waitFor();
+  // This unchanged V8 fixture is written once on mount and once after reconciliation.
+  // Wait for both effects before observing the next surface; DOM visibility alone is too early.
+  // The complete write log remains intact for the existing strict assertions below.
+  await page.waitForFunction((draftKey) =>
+    window.__b30StorageWrites.reduce((count, entry) =>
+      count + Number(entry.method === "set" && entry.key === draftKey), 0) === 2,
+    DRAFT_KEY
+  );
+}
+
 async function openTravelZones(page, keyboard = false) {
   await page.getByRole("button", { name: "Viaje", exact: true }).click();
   const sectionButton = page.locator(".viaje-nav__item").filter({ hasText: "Dónde dormir" });
+  // A fresh/reloaded document opens Viaje in Días; finish that mount before resetting the log.
+  if (await sectionButton.getAttribute("aria-pressed") === "false") {
+    await waitForPlannerMountWrites(page);
+  }
   // The trip section may remember its own active subtab. Start observing immediately before
   // entering this local surface so any writes caused by opening it are visible to the gate.
   await page.evaluate(() => { window.__b30StorageWrites.length = 0; });
@@ -282,6 +298,7 @@ async function runFullAudit(viewport, index, options = {}) {
     check(await cards.count() === count, `${viewport[0]}x${viewport[1]} return from compare restores the list`);
     await panel.getByRole("button", { name: "Cerrar dónde dormir" }).click();
     await page.locator(".viaje-nav__item").filter({ hasText: "Días" }).waitFor();
+    await waitForPlannerMountWrites(page);
     writes = await storageWrites(page);
     check(writes.length >= 2 && writes.slice(0, 2).every((entry) => entry.key === ZONE_COMPARISON_KEY) && writes.slice(2).every((entry) => entry.key === DRAFT_KEY), `${viewport[0]}x${viewport[1]} leaving writes no new comparison or other data (${JSON.stringify(writes)})`);
     check(JSON.stringify(await draftSnapshot(page)) === JSON.stringify(draftFor()), `${viewport[0]}x${viewport[1]} planner remount serialization preserves the exact V8 model`);
