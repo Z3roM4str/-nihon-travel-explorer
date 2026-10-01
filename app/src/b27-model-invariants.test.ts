@@ -48,6 +48,15 @@ function seeded(): ManualPlanningDraftV8 {
   return { ...withDays, startDate: "2027-02-22" };
 }
 
+/** D5 (excepción de copy autorizada, `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`): sólo cadenas visibles; ni lógica ni datos. */
+const D5_COPY = new Set([
+  "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
+  "app/src/lib/reservation-mechanism-calendar-presentation.ts",
+  "app/src/lib/divergence-presentation.ts",
+  "app/src/lib/interest-level.ts",
+  "app/src/components/DayOrderSheet.tsx",
+]);
+
 describe("B27 — el esquema y la clave de planificación no cambian", () => {
   it("sigue siendo V8 bajo la misma clave", () => {
     expect(PLANNING_DRAFT_VERSION).toBe(8);
@@ -83,7 +92,7 @@ describe("B27 — el esquema y la clave de planificación no cambian", () => {
       /^data\//,
     ];
     const touched = files.filter(
-      (file) => protectedPaths.some((pattern) => pattern.test(file)) && !file.endsWith(".test.ts")
+      (file) => protectedPaths.some((pattern) => pattern.test(file)) && !file.endsWith(".test.ts") && !D5_COPY.has(file)
     );
     expect(touched).toEqual([]);
   });

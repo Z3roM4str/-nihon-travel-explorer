@@ -137,7 +137,7 @@ describe("the empty state is a statement, not a blank", () => {
 describe("the planner note informs and nothing else", () => {
   it("states where the place already is, and that this screen does not move it", () => {
     const note = plannedNote({ placeId: "x", group: "differing", planned: true });
-    expect(note).toBe("Ya está en un día del recorrido. Esto no lo cambia.");
+    expect(note).toBe("Ya está en un día del viaje. Esto no lo cambia.");
   });
 
   it("is silent for a place nobody has scheduled", () => {

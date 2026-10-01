@@ -20,11 +20,20 @@ function git(...args: string[]): string | null {
 }
 const baseAvailable = git("cat-file", "-e", `${BASE_SHA}^{commit}`) !== null;
 
+/** D5 (excepción de copy autorizada, `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`): sólo cadenas visibles; ni lógica ni datos. */
+const D5_COPY = new Set([
+  "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
+  "app/src/lib/reservation-mechanism-calendar-presentation.ts",
+  "app/src/lib/divergence-presentation.ts",
+  "app/src/lib/interest-level.ts",
+  "app/src/components/DayOrderSheet.tsx",
+]);
+
 describe.skipIf(!baseAvailable)("B31 — lo que B30 protege sigue byte a byte igual", () => {
   it("no cambia ningún fichero de lib/, data/, ni el catálogo (salvo tests)", () => {
     const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", "app/src/lib", "app/src/data", "data") ?? "")
       .split("\n")
-      .filter((file) => file && !file.endsWith(".test.ts"));
+      .filter((file) => file && !file.endsWith(".test.ts") && !D5_COPY.has(file));
     expect(changed).toEqual([]);
   });
 
@@ -41,7 +50,7 @@ describe.skipIf(!baseAvailable)("B31 — lo que B30 protege sigue byte a byte ig
       "app/src/components/ZoneComparison.tsx",
       "app/src/components/PlaceDetail.tsx",
     ];
-    const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", ...protectedFiles) ?? "").split("\n").filter(Boolean);
+    const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", ...protectedFiles) ?? "").split("\n").filter((file) => file && !D5_COPY.has(file));
     expect(changed).toEqual([]);
   });
 

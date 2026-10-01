@@ -13,9 +13,9 @@ export function wholeTripUnavailableText(
     case "no-day-assignment":
       return "Crea un reparto por días para describir el plan completo sin borrar sus límites.";
     case "invalid-day-partition":
-      return "El reparto por días no coincide exactamente con el recorrido; no se muestran cálculos parciales.";
+      return "El reparto por días no coincide exactamente con el viaje; no se muestran cálculos parciales.";
     case "unresolved-route-place":
-      return "Un lugar del recorrido no se puede resolver; no se muestran cálculos parciales.";
+      return "Un lugar del viaje no se puede resolver; no se muestran cálculos parciales.";
   }
 }
 

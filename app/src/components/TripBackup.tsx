@@ -222,7 +222,7 @@ function SummaryList({ summary }: { summary: RestoreSummary }) {
     { label: "Lugares en «Quiero ir»", value: String(summary.shortlistCount) },
     { label: "Preferencias personales", value: String(summary.statedPreferenceCount) },
   ];
-  if (summary.routeCount > 0) rows.push({ label: "Lugares en el recorrido", value: String(summary.routeCount) });
+  if (summary.routeCount > 0) rows.push({ label: "Lugares en el viaje", value: String(summary.routeCount) });
   if (summary.dayCount > 0) rows.push({ label: "Días planificados", value: String(summary.dayCount) });
   if (summary.startDate) {
     rows.push({

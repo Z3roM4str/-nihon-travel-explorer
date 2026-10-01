@@ -317,7 +317,7 @@ async function auditViewport(browser, name, url) {
 
   // The mode and the duration are BOTH the reader's: the button stays disabled until they supply
   // them, which is exactly the manual contract this block must not erode.
-  const interHubAdd = interHub.getByRole("button", { name: /Añadir tramo/ });
+  const interHubAdd = interHub.getByRole("button", { name: /Añadir traslado/ });
   check("the segment cannot be added before the reader supplies mode and minutes", await interHubAdd.isDisabled());
 
   await interHubSelects.first().selectOption({ index: 1 });

@@ -587,7 +587,7 @@ try {
     await positionSelect.selectOption({ label: pair });
     await section.locator("select").nth(1).selectOption({ label: "Shinkansen" });
     await section.locator("input[type=number]").first().fill("140");
-    await section.getByRole("button", { name: /Añadir tramo/ }).click();
+    await section.getByRole("button", { name: /Añadir traslado/ }).click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
     assert.equal(draft.interHubSegments.length, 1,
@@ -687,13 +687,13 @@ try {
   await step("B05 removing a place leaves no stale dependent state", async () => {
     await openPlanner();
     const before = await readDraft();
-    // B27: el `×` por fila pasó a «Quitar del recorrido» en la hoja de acciones de la parada.
+    // B27: el `×` por fila pasó a «Quitar del día» en la hoja de acciones de la parada.
     const actions = page.locator(".trip-stop__actions").first();
     const removedName = await actions.getAttribute("aria-label");
     assert.ok(removedName, "no removal control on a stop");
     await actions.click();
-    await page.getByRole("button", { name: /Quitar del recorrido/ }).click();
-    await page.locator(".sheet").getByRole("button", { name: "Quitar del recorrido" }).click();
+    await page.getByRole("button", { name: /Quitar del día/ }).click();
+    await page.locator(".sheet").getByRole("button", { name: "Quitar del día" }).click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
     assert.equal(draft.routeIds.length, before.routeIds.length - 1, "route length did not shrink by one");
