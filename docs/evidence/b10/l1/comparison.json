@@ -1,0 +1,81 @@
+{
+  "geometryTolerancePixels": 0.001,
+  "differences": [
+    {
+      "path": "/0/text",
+      "before": "57 de 57 lugares",
+      "after": "57 lugares"
+    },
+    {
+      "path": "/1/text",
+      "before": "1 de 57 lugares",
+      "after": "1 lugar"
+    },
+    {
+      "path": "/2/text",
+      "before": "0 de 57 lugares",
+      "after": "0 lugares"
+    },
+    {
+      "path": "/3/text",
+      "before": "57 de 57 lugares",
+      "after": "57 lugares"
+    },
+    {
+      "path": "/4/rows/3/0",
+      "before": "Lugares en el recorrido",
+      "after": "Lugares en el viaje"
+    },
+    {
+      "path": "/5/text",
+      "before": "57 de 57 lugares",
+      "after": "57 lugares"
+    },
+    {
+      "path": "/6/text",
+      "before": "1 de 57 lugares",
+      "after": "1 lugar"
+    },
+    {
+      "path": "/7/text",
+      "before": "0 de 57 lugares",
+      "after": "0 lugares"
+    },
+    {
+      "path": "/8/text",
+      "before": "57 de 57 lugares",
+      "after": "57 lugares"
+    },
+    {
+      "path": "/9/rows/3/0",
+      "before": "Lugares en el recorrido",
+      "after": "Lugares en el viaje"
+    },
+    {
+      "path": "/10/text",
+      "before": "57 de 57 lugares",
+      "after": "57 lugares"
+    },
+    {
+      "path": "/11/text",
+      "before": "1 de 57 lugares",
+      "after": "1 lugar"
+    },
+    {
+      "path": "/12/text",
+      "before": "0 de 57 lugares",
+      "after": "0 lugares"
+    },
+    {
+      "path": "/13/text",
+      "before": "57 de 57 lugares",
+      "after": "57 lugares"
+    },
+    {
+      "path": "/14/rows/3/0",
+      "before": "Lugares en el recorrido",
+      "after": "Lugares en el viaje"
+    }
+  ],
+  "allOtherRecordedValuesEqual": true
+}

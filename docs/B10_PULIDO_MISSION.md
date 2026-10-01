@@ -1,6 +1,6 @@
 # B10 — Pulido · Misión acotada
 
-**Estado: PREPARADA Y PUBLICADA PARA REVISIÓN DOCUMENTAL. Implementación de producto NO iniciada.**
+**Estado: L1 IMPLEMENTADO Y VERIFICADO EN SU ALCANCE. B10 INCOMPLETO; PR #177 Draft.** [Certificación acotada](B10_L1_CERTIFICATION.md), [evidencia L1](B10_L1_EVIDENCE.json). HEAD documental inicial `2bbc09d63be2abe03b17aea8796274251425d32f`; implementación `3ac50d11392dce7635232a18baf4530f38895d10`.
 
 Base exacta: `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`; remoto verificado sin avance. Rama `codex/b10-pulido-mission`, creada desde esa base. B31 / B9.5 sigue cerrado (#175). [Auditoría](B10_PULIDO_AUDIT.md), [medidas/evidencia](B10_PULIDO_EVIDENCE.json). No se presupone un número de proyecto para B10.
 
@@ -8,7 +8,7 @@ Base exacta: `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf
 
 Cerrar incumplimientos concretos de presentación y completar los seis trabajos expresamente definidos en `10_ROADMAP_DE_BLOQUES.md §B10`: movimiento, accesibilidad, rendimiento/imágenes, extracción final de App.css, microcopy y decisión OD-01. Conservar la navegación y capacidades de `05 §12`, los cálculos existentes, identidad de día, almacenamiento V8 y los contratos B27–B31. B10 no autoriza un rediseño general.
 
-Esta fase **sólo publica documentos, medidas y capturas**. No se editan componentes, CSS, tests, gates, dependencias, datasets ni assets de producto. Los lotes siguientes son una propuesta; su ejecución requiere la posterior instrucción de implementar. Una decisión pendiente sólo detiene el trabajo que depende de ella, no la documentación ni un lote independiente.
+La preparación inicial sólo publicó documentos, medidas y capturas. La instrucción posterior autorizó **L1 exclusivamente**: contador de FilterPanel y etiqueta de TripBackup, con cobertura proporcional y evidencia separada. Se implementaron ambas sustituciones documentadas; no se cambian CSS, gates existentes, dependencias, datasets ni assets de producto. Los lotes restantes siguen siendo propuestas y requieren autorización posterior. Una decisión pendiente sólo detiene el trabajo que depende de ella.
 
 Fuera de alcance: pantallas nuevas, destinos/controles permanentes nuevos, cambio de modelo o navegación, optimización/recomendación de itinerarios, sincronización/backend, nuevos providers, adquisición fotográfica, fotografía de zonas, cambios de teselas/OSM, Astra, ramas `claude/*`, #168 y Vercel/deploy. No se usa una rama alternativa como base ni se altera el freeze de despliegue.
 
@@ -16,7 +16,7 @@ Fuera de alcance: pantallas nuevas, destinos/controles permanentes nuevos, cambi
 
 | Lote / prioridad | Alcance concreto | Archivos previstos / condición |
 |---|---|---|
-| L1 / P1, primer lote listo para proponer | F-C01 y la etiqueta simple de F-C03: «N de M lugares» → «N lugares»; «Lugares en el recorrido» → «Lugares en el viaje». Pluralización «1 lugar». Ningún cálculo, acción, estructura o estilo cambia | `app/src/components/FilterPanel.tsx`, `TripBackup.tsx`; expectativas existentes de `FilterPanel.test.ts`/gates pertinentes sólo si dependen del texto y citando `04 §13` / `03 §10` |
+| L1 / P1, implementado y verificado en su alcance | F-C01 y la etiqueta simple de F-C03: «N de M lugares» → «N lugares»; «Lugares en el recorrido» → «Lugares en el viaje». Pluralización «1 lugar». Ningún cálculo, acción, estructura o estilo cambia | `app/src/components/FilterPanel.tsx`, `TripBackup.tsx`; cuatro pruebas renderizadas y runner browser. [Certificación L1](B10_L1_CERTIFICATION.md); no cierre global G5/G6 |
 | L2 / P1 | Completar inventario de copy **visible y accesible** F-C02/F-C03 y corregir F-M01. Separar frases literales de fuentes de textos de producto; conservar mensajes de información parcial | Secciones precisas de `OrderedSequenceBuilder.tsx` (`InterHubSegmentsSection`/resúmenes), `TravellerManager.tsx`, `discovery.css`. Frases no canónicas requieren revisión de copy; movimientos se ajustan al catálogo, sin añadir otros |
 | L3 / P1 condicionado | Auditoría accesible por pantalla y estados; A-01 sin reducir capacidad ni esconder controles; foco visible, nombres/announcements, tamaños efectivos, contraste y zoom | `ExplorerHome.tsx`, `PlaceCard.tsx` y componentes que la evidencia señale. Patrón de salto de colecciones aprobado antes de implementarlo. No se añaden dependencias visuales |
 | L4 / P2, por superficie | Extraer CSS, preservar precedencia y comentarios útiles, mapear a tokens y mobile-first. Inventario → extracción de **una superficie** → comparación antes/después → commit; repetir hasta retirar import/archivo App.css | `App.css`, import en `App.tsx`; CSS junto a `Sheet`, `PlaceDetail`/galería, `ZoneComparison`, `TravellerManager`/`TripBackup`, `OrderedSequenceBuilder`, shell y demás dueños. No crear todos estos archivos en un solo lote ni cambiar valores para simplificar. `tokens.css` sólo para equivalencias expresamente aprobadas |
@@ -25,7 +25,7 @@ Fuera de alcance: pantallas nuevas, destinos/controles permanentes nuevos, cambi
 
 Las decisiones editoriales de orden/héroe de colecciones permanecen fuera de los lotes ejecutables hasta una revisión explícita. Su aceptación futura puede usar fotografías existentes; no implica adquirir nuevas. El primer lote no depende de esas decisiones ni de OD-01.
 
-## Primer lote de implementación propuesto
+## Primer lote de implementación — L1 ejecutado
 
 **L1: dos componentes, sólo dos patrones de microcopy.** Cambiar el contador visible/anunciado de filtros manteniendo `resultCount`, `totalCount` y filtros intactos; cambiar sólo la etiqueta del resumen previo de backup. Verificar 0/1/57 resultados y un backup con lugares, sin confirmar importación salvo en fixture de prueba. Nada de extracción CSS, movimiento, colecciones, copy extenso ni carga de datos en ese lote.
 
@@ -37,6 +37,8 @@ Criterios L1:
 4. Diff limitado a esas presentaciones y, si procede, expectativas existentes justificadas. F-C02, la frase larga F-C03, A-01 y los demás lotes siguen explícitamente pendientes; L1 no se presenta como cierre de B10.
 
 Comprobaciones L1 proporcionales: build/lint y `git diff --check`; suite Vitest completa por G1 (base B31: 115 archivos/3479 tests, número que deberá actualizarse si cambia la suite), pruebas existentes de filtros/backup pertinentes; browser filtros 0/1/N y preview/cancel de backup a 320×568, 390×844 y 1440×900; B26 Chromium/WebKit para Nosotros/backup. No repetir todos los gates B27–B31 por texto de dos componentes si no hay cambios ni una incidencia que lo justifique. No añadir tests que sólo dupliquen literales sin comprobar comportamiento.
+
+Resultado L1: build/lint PASS; Vitest **116 archivos/3483 tests PASS**; B26 **314/314 por motor**; matriz antes/después de 15 estados por versión y cero overflow/pageerror en la muestra. 0/1/57/reset y etiquetas/números/fechas/cancelación/foco/V8 conservados. Cromo 390: 104/160 px. F-A02 nuevo antecedente medido: los summary de filtros miden 42 px también en base; pendiente L3, sin cambiar el lote. P-03 histórico sigue abierto y Brotli aumenta 181 B frente a base aunque raw/gzip disminuyen. No se declara G5/G6 global ni B10 completo; detalles e intentos en la certificación.
 
 ## Aceptación global de B10
 
@@ -54,6 +56,6 @@ Para cada lote: build/lint, Vitest completo por G1, diff check y G2–G7 aplicab
 
 CSS de shell/ficha/planner requiere gates vigentes de las superficies afectadas (B18/B19/B20, B25/B26, B27/B28/B29, B30/B31 ambos motores según el diff); cambios de carga fotográfica requieren suites de fotografía, arquitectura, presupuestos y galerías/retry. No ampliar/repetir la matriz una vez verde sin cambios, fallos o incertidumbre nueva. Un fallo de gate legacy se compara con la base del lote y sus selectores; una intermitencia se repite sin cambiar código, se conserva cada intento y, si reaparece, se compara contra baseline. No falsear verde ni relajar contratos.
 
-Preparación documental actual: build/medición y auditoría exploratoria realizados; no se repite toda la suite funcional de B31 sin cambios de código. Antes de publicar, comprobar diff sólo `docs/`, enlaces/evidencia, rama/base, main remoto y #168; push normal a la rama, sin merge, squash, rebase ni force-push. El PR documental es Draft: revisión de misión, no autorización tácita de producto.
+Publicación L1: implementación y cobertura en un commit; documentación/evidencia en otro. Antes de publicar, comprobar diff limitado al lote y docs, enlaces/hashes, rama/base, main remoto y #168; push normal a la misma rama, sin merge, squash, rebase ni force-push. PR #177 sigue Draft mientras B10 esté incompleto. Ningún otro lote queda autorizado por esta certificación.
 
 La implementación posterior volverá a verificar main remoto. Si avanzó, inventariar commits/diff y crear el lote desde la base vigente; no sobrescribir cambios ni arrastrar código desde otra línea. Conservar esta auditoría como snapshot de la base citada y recertificar sólo lo que el nuevo diff afecte.

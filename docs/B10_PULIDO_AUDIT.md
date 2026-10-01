@@ -1,5 +1,18 @@
 # B10 — Auditoría de preparación
 
+## Actualización L1 — producto implementado, B10 incompleto
+
+HEAD documental inicial `2bbc09d63be2abe03b17aea8796274251425d32f`; implementación `3ac50d11392dce7635232a18baf4530f38895d10`, misma rama y PR #177 Draft. Main/rama remotos coincidieron con las precondiciones, sin cambios que incorporar. [Certificación acotada](B10_L1_CERTIFICATION.md), [evidencia y hashes](B10_L1_EVIDENCE.json).
+
+- **F-C01 resuelto en L1**: status «0 lugares»/«1 lugar»/«57 lugares», filtros activos reales y botón Ver coincidentes. No cambia filtrado ni identidades.
+- **F-C03 parcialmente resuelto**: sólo «Lugares en el viaje» en SummaryList (preview/restaurado). Sustitución canónica documentada, sin decisión abierta. Conteos/fechas/avisos/acciones, V8 y backup conservados. La frase larga de Nosotros sigue pendiente de copy.
+- Build/lint PASS; Vitest 116/3483; B26 Chromium/WebKit 314/314 cada uno. Matriz antes/después: 15 estados por versión, tres viewports; conservación y teclado/foco comprobados. Se conservan intentos fallidos y causas, sin relajar gates existentes.
+- **F-A02 / P1, heredado y pendiente L3**: los seis encabezados `summary.filter-group__summary` tienen 42 px de alto en 320/390/1440, tanto en base como en L1. Recorrido de teclado y foco visible pasan; medidas efectivas registradas en before/after/results.json. Incumple suelo 44 px (Art. 11/G5); fuera de corrección autorizada de copy. No se afirma G5/AA global.
+- Cromo 390: 104/160 px; sin overflow/pageerrors en la muestra. Identity 800w sin cambios, bajo presupuesto. Entrada raw/gzip disminuye 14/13 B vs base con mismo analizador; Brotli +181 B. **P-03/G6 histórico continúa pendiente**, sin declarar B10 completo.
+- F-C02, resto F-C03, F-M01, A-01, CSS, movimiento, rendimiento y OD-01 permanecen pendientes. Siguiente lote recomendado L2; F-A02 se incorpora al inventario de L3, sin ampliar L1.
+
+## Snapshot de preparación — anterior a la implementación
+
 **Fase documental; producto sin cambios.** Base exacta `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`. Main remoto coincide con la base esperada; no hay commits nuevos que incorporar. Rama `codex/b10-pulido-mission`. No se asigna un número de bloque de proyecto no documentado.
 
 ## Fuentes y método

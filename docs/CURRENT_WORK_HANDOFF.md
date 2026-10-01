@@ -1,6 +1,17 @@
-# Handoff reanudable — B10 preparado; implementación pendiente
+# Handoff reanudable — B10 L1 implementado; B10 incompleto
 
-## Estado vigente — B10 / Pulido preparado documentalmente
+## Estado vigente — L1 verificado en su alcance; PR #177 Draft
+
+- Misma rama `codex/b10-pulido-mission`. HEAD inicial `2bbc09d63be2abe03b17aea8796274251425d32f`; main remoto `b854db384c952e827b86d1bb35cac7caa70b035a`, sin avances. Implementación `3ac50d11392dce7635232a18baf4530f38895d10`; evidencia en commit separado posterior, identificable con `git log -1 --format=%H -- docs/B10_L1_CERTIFICATION.md`.
+- **L1 implementado, B10 NO completo**: sólo contador FilterPanel «N lugares» (0/1/57, singular) y etiqueta TripBackup «Lugares en el viaje», conforme a §13/§10. Filtros, acciones, identidades, V8 y formato de backup intactos; etiqueta común a preview/restaurado. No depende de decisión de copy abierta.
+- [Certificación acotada](B10_L1_CERTIFICATION.md), [evidencia/hashes](B10_L1_EVIDENCE.json), [misión](B10_PULIDO_MISSION.md), [auditoría actualizada](B10_PULIDO_AUDIT.md). Build/lint PASS, Vitest **116/3483**, B26 **314/314 Chromium y WebKit**. Browser antes/después 15 estados por versión a 320/390/1440, sin overflow/pageerror; teclado, cancelación/foco y conservación comprobados. Cromo 390: 104/160 px.
+- Intentos conservados: B26 Chromium afectado por reconstrucción concurrente de dist, luego PASS estable; preparación GTK de WebKit falló por display, WPE PASS; ajustes de fixture y medición del runner documentados, sin cambiar gates existentes. No ejecutar bundle-report mientras otro gate use dist.
+- **G5/G6 globales pendientes**: F-A02 registra seis summary de filtros de 42 px también en base (L3). P-03 requiere comparación histórica equivalente; raw/gzip vs base disminuyen 14/13 B y Brotli +181 B. No se certifica AA global ni se resetea presupuesto.
+- Pendientes: F-C02, frase larga F-C03, F-M01, A-01/F-A02, CSS, movimiento completo, rendimiento, OD-01 y decisiones editoriales/teclado. Safari/iPhone y lector físico pendientes humanos; fotografía de zonas/OSM separados.
+- **Siguiente lote recomendado L2**: inventariar copy visible/accesible de herramientas del día y frase compartida de Nosotros; revisión de copy de parciales antes de implementar. Hover de ciudades según contrato en su alcance propio. F-A02 queda para L3. Ningún otro lote implementado por esta instrucción.
+- #168 OPEN/Draft intacto en `1444e67805c60cf9a33f4be5c1a3808b900e505b`. Sin cambios en `claude/*`, Astra, main, datos/fotografías ni freeze de Vercel. Publicación normal de implementación/evidencia sólo a esta rama; PR #177 Draft, sin merge ni deploy.
+
+## Histórico — B10 / Pulido preparado documentalmente
 
 - Base remota verificada: `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`; coincide con la base solicitada. Rama `codex/b10-pulido-mission` desde esa base; no se inventa número de proyecto.
 - **Producto NO iniciado ni modificado.** Sólo misión, auditoría, medidas y capturas. [Misión B10](B10_PULIDO_MISSION.md), [hallazgos](B10_PULIDO_AUDIT.md), [evidencia](B10_PULIDO_EVIDENCE.json).

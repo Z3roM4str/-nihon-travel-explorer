@@ -1,0 +1,19 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: effective target >=44: Nivel de interés
+    at auditKeyboard (file:///workspace/nihon/app/scripts/b10-l1-check.mjs:88:16)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:502:9)
+    at async checkCount (file:///workspace/nihon/app/scripts/b10-l1-check.mjs:105:24)
+    at async file:///workspace/nihon/app/scripts/b10-l1-check.mjs:119:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
