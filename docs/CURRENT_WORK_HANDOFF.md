@@ -1,8 +1,8 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
-## D5 — vocabulario normativo — rama `claude/d5-normative-vocabulary` (PR en borrador, base `claude/d0b-design-system-hygiene`)
+## D5 — vocabulario normativo — rama `claude/d5-normative-vocabulary` (PR #176, base `claude/d0b-design-system-hygiene`)
 
-- Línea Claude, base `4d2163165f791b2ba3b1db8c7cbb968e1c607314`. Sólo copy: «tramo»→«traslado», «recorrido»→«viaje»/«día», «constructor» fuera de aria/title (Art. 7 / `03 §10`); `lib/`, `data/`, hooks, V8 y CSS intactos. Excepción E1 («Grado original» en «Fuentes»). **DDR abiertos** (copy visible desde `lib/` protegido o sin equivalencia): L1/L2 («tramo» = intervalo de fechas), L3 («día del recorrido»), R1 («Restablecer recorrido»), `Grado ${grade}` latente. «reparto» y «compromisos de escala día» sin tocar. Gate: `app/scripts/d5-normative-vocabulary-check.mjs` (25 comprobaciones) + `app/src/d5-normative-vocabulary.test.ts`. Chromium y reduced-motion OK; **WebKit no ejecutable en este entorno** → no certificado. Detalle: `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`. No se empieza D2.
+- Línea Claude, base `4d2163165f791b2ba3b1db8c7cbb968e1c607314`. Sólo copy: «tramo»→«traslado», «recorrido»→«viaje»/«día», «constructor» fuera de aria/title (Art. 7 / `03 §10`). Cinco DDR cerrados: «intervalo de fechas registrado» (L1/L2, *tramo* temporal), «día del viaje» (L3), «Restablecer lugares y días» (R1), «Nivel sin clasificar (X)» (latente). **Excepción autorizada a `lib/`**: sólo copy en 4 ficheros (+ sus tests); `data/`, hooks, V8, storage y CSS intactos. Excepción normativa E1 («Grado original» en «Fuentes»). «reparto» y «compromisos de escala día» sin tocar. Gate `app/scripts/d5-normative-vocabulary-check.mjs` (26) + `app/src/d5-normative-vocabulary.test.ts`. **Certificado**: Chromium y WebKit 26.5 (normal y reduced-motion) 26/26; auditoría visual BASE vs D5 sin regresiones; fallo heredado: block4 (igual en la base); exclusivos: ninguno. Detalle: `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`. No se empieza D2.
 
 ## D0b — higiene del sistema de diseño — rama `claude/d0b-design-system-hygiene` (PR en borrador, base `claude/design-phase-1-v2-1-docs`)
 

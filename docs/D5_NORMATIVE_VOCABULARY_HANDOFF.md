@@ -1,7 +1,7 @@
 # D5 — Vocabulario normativo · handoff
 
 **Línea Claude.** Base `4d2163165f791b2ba3b1db8c7cbb968e1c607314` (verificada con `git fetch`: la rama remota `claude/d0b-design-system-hygiene`
-seguía exactamente ahí). Rama `claude/d5-normative-vocabulary`. Sólo presentación/copy.
+seguía exactamente ahí). Rama `claude/d5-normative-vocabulary`. Sólo presentación/copy. **Segunda ronda: los 5 DDR cerrados y certificación WebKit 26.5.**
 
 ## 1. Inventario (término | apariciones UI | internas | excepciones | DDR)
 
@@ -9,14 +9,14 @@ Clasificación sobre `app/src` (+ `data/`). «Internas» = identificadores, tipo
 
 | Término | Apariciones UI (A, cambiadas) | Internas (C) | Excepciones (B) | DDR (D) |
 |---|---|---|---|---|
-| tramo | `OrderedSequenceBuilder`: resumen k/n, «sin registrar», inter-hub (intro, vacío, aria+title «Eliminar…», «Duración manual…» ×2, «Añadir…», inactivo); `DayOrderSheet`: 5 cadenas | `knownLegCount`…, comentarios (p. ej. geometría en `PlaceCard`) | — | L1 (3 cadenas de `lib/reservation-mechanism-reference-date-presentation.ts`), L2 (`lib/…-calendar-presentation.ts`): *tramo* = intervalo de fechas |
-| recorrido | `OrderedSequenceBuilder` (4), `StopActionsSheet` (3), `TripBackup`, `viajeResumenModel` (2), `TravellerManager` | `routeIds`, `resetRoute`, comentarios | — | L3 (`lib/divergence-presentation.ts`), R1 «Restablecer recorrido» |
+| tramo | `OrderedSequenceBuilder`: resumen k/n, «sin registrar», inter-hub (intro, vacío, aria+title «Eliminar…», «Duración manual…» ×2, «Añadir…», inactivo); `DayOrderSheet`: 5 cadenas | `knownLegCount`…, comentarios (p. ej. geometría en `PlaceCard`) | — | L1 (3 cadenas) y L2 (1): *tramo* = intervalo de fechas → **resueltos** («intervalo de fechas registrado») |
+| recorrido | `OrderedSequenceBuilder` (4), `StopActionsSheet` (3), `TripBackup`, `viajeResumenModel` (2), `TravellerManager` | `routeIds`, `resetRoute`, comentarios | — | L3 y R1 → **resueltos** («día del viaje», «Restablecer lugares y días») |
 | constructor | 1 (aria-label + title del botón de cerrar) | comentarios, clases | — | — |
 | secuencia | 0 | `OrderedSequenceBuilder`, `sequence-comparison`, clases | — | — |
 | orden A / orden B | 0 (ya era «orden actual / otro orden») | `candidateA/B`, comentarios | — | — |
 | candidato | 0 | `candidateDayPlaceIds`, `candidateMix`, `SequenceCandidate` | — | — |
 | Dato: | 0 | — | — | — |
-| grado | 0 en chrome | `place.grade`, comentarios | E1: «Grado original» dentro de «Fuentes» plegado (`PlaceDetail`) | etiqueta «Grado X» de `lib/interest-level.ts` `unknownLevel` (latente: el catálogo sólo tiene S/A/B/C/D) |
+| grado | 0 en chrome | `place.grade`, comentarios | E1: «Grado original» dentro de «Fuentes» plegado (`PlaceDetail`) | etiqueta latente «Grado X» → **resuelta** («Nivel sin clasificar (X)») |
 | provenance / freshness | 0 | `provenanceText`, `freshnessFor`, clases CSS | — | — |
 | analizar selección | 0 | — | — | — |
 | cobertura | 0 | `source.Cobertura` (campo de `sources.json`) | — | — |
@@ -53,65 +53,72 @@ Tests y gates que fijaban el copy antiguo, actualizados: `OrderedSequenceBuilder
 | Cadena | Motivo | Clase |
 |---|---|---|
 | «Grado original» (`PlaceDetail`, «Fuentes» plegado) | `03`: la letra de grado sólo en «Fuentes» plegado | **E1** (excepción normativa) |
-| «La fecha de referencia del dispositivo … del tramo de fechas registrado para la solicitud» (3 cadenas) | Origen en `lib/` protegido (el texto sale de un `switch` sobre estados del dominio). Adaptarlo en presentación exige reinterpretar estados. Además *tramo* aquí es un **intervalo de fechas**, no un traslado: la equivalencia de `03 §10` sería **falsa** | **DDR L1 — copy visible originado en lib protegido**. Los gates `phase3f-h/j/s` siguen fijándolas |
-| «Situado en esta lista por la fecha de inicio registrada del tramo.» | Constante de `lib/…-calendar-presentation.ts`; mismo caso de intervalo de fechas | **DDR L2** |
-| «Ya está en un día del recorrido. Esto no lo cambia.» (Quiero ir) | `plannedNote` de `lib/divergence-presentation.ts`; sustitución probable «día del viaje» | **DDR L3** |
-| «Restablecer recorrido» | Acción real: el orden de lugares vuelve al de guardados y se vacía el reparto por días; se conservan fechas y alojamiento. «Restablecer el viaje» exagera el alcance; «Restablecer los días» lo reduce | **DDR R1** |
-| `Grado ${grade}` (`lib/interest-level.ts`, nivel desconocido) | Lib protegido; latente (S/A/B/C/D, todos conocidos) | **DDR** latente |
 | «reparto por días», «reparto actual» | `12 §11` | no prohibido |
 | «compromisos de escala día» | `12 §11`; no aparece en las superficies tocadas | no prohibido |
 | 6 descripciones de `places.json` («recorrido lineal», «secuencia de vistas», «primeros tramos»…) | Contenido editorial de fuente (Art. 4); `data/` protegido; español corriente, no vocabulario de producto | B (fuera de D5) |
 | «hub» (inter-hub) | No está en Art. 7 | no prohibido |
 
-## 4. DESIGN DECISION REQUIRED abiertos
+## 4. DESIGN DECISION REQUIRED — cerrados (0 abiertos)
 
-1. **L1** — «tramo de fechas registrado» (3 cadenas, `lib/reservation-mechanism-reference-date-presentation.ts`): decidir «periodo/intervalo de fechas».
-2. **L2** — «…registrada del tramo.» (`lib/reservation-mechanism-calendar-presentation.ts`): ídem.
-3. **L3** — «Ya está en un día del recorrido» (`lib/divergence-presentation.ts`): «del viaje».
-4. **R1** — «Restablecer recorrido»: decidir el nombre exacto de la acción.
-5. `Grado ${grade}` latente en `interest-level.ts`.
+Decisiones tomadas por el responsable del producto y aplicadas con el cambio mínimo; sin cambios de lógica, cálculo, datos, V8 ni storage.
 
-L1–L3 y el latente exigen tocar `lib/` (prohibido sin decisión explícita), con sus tests y los gates `phase3f-*`.
+| DDR | Antes | Después | Fichero |
+|---|---|---|---|
+| L1 | «…antes / cae dentro / después **del tramo de fechas registrado** para la solicitud.» (3) | «…del **intervalo de fechas registrado** para la solicitud.» (*tramo* = intervalo temporal, nunca «traslado») | `lib/reservation-mechanism-reference-date-presentation.ts` |
+| L2 | «Situado en esta lista por la fecha de inicio registrada del tramo.» | «…registrada del **intervalo**.» | `lib/reservation-mechanism-calendar-presentation.ts` |
+| L3 | «Ya está en un día del recorrido. Esto no lo cambia.» | «Ya está en un día del **viaje**. Esto no lo cambia.» | `lib/divergence-presentation.ts` |
+| R1 | «Restablecer recorrido» | «Restablecer lugares y días» (`resetRoute` conserva su nombre interno; la acción restaura los lugares guardados en su orden y elimina el reparto por días, conservando el anclaje temporal y el alojamiento) | `OrderedSequenceBuilder.tsx` |
+| latente | `Grado ${grade}` (label y shortLabel) | `Nivel sin clasificar (${grade})`; `grade`, `rank`, `level`, `glyph` y comportamiento intactos; la letra desconocida sigue visible | `lib/interest-level.ts` |
+
+**Excepción a la protección de `lib/` (autorizada, documentada):** sólo copy de presentación en esos 4 ficheros más los tests que fijaban las cadenas
+(`reservation-mechanism-reference-date-presentation.test.ts`, `…-calendar-presentation.test.ts`, `reservation-mechanism-calendar.test.ts`, `divergence-presentation.test.ts`).
+Un test D5 comprueba, línea a línea, que el diff de esos 4 ficheros contra la base consiste únicamente en esas sustituciones (mismas líneas, sólo los términos autorizados).
+Los tests de alcance históricos (`b27`…`b31`), que fijaban «lib/ y DayOrderSheet intactos» frente a bases antiguas, admiten ahora exactamente estos 5 ficheros
+(`D5_COPY`); nada más. Gates `phase3f-h/j/s` actualizados al copy nuevo y en verde.
+
+**Revisión de la sustitución de confianza media (`TravellerManager`):** «Sólo cambia de quién es cada «Quiero ir». Los lugares planificados, los días, las fechas y el alojamiento son del viaje y los compartís los dos.»
+La frase enumera lo que **no** cambia al cambiar de persona; «los lugares planificados» describe correctamente la lista de lugares del plan (la antigua «recorrido»). Se mantiene sin cambios.
+
+**E1** (excepción normativa «Grado original» en «Fuentes» plegado de PlaceDetail) sigue documentada y verificada por gate y test; no es un DDR.
 
 ## 5. Archivos modificados
 
 `app/src/components/{OrderedSequenceBuilder,DayOrderSheet,StopActionsSheet,TripBackup,TravellerManager}.tsx`, `viajeResumenModel.ts`,
-`OrderedSequenceBuilder.inter-hub.test.ts`; gates `app/scripts/{b27-viaje-dias-check,block4-zone-planner-browser-audit,block5-travellers-browser-audit,phase5a-rc-browser-audit}.mjs`;
+`OrderedSequenceBuilder.inter-hub.test.ts`; los 4 ficheros de `lib/` de la excepción (§4) y sus 4 tests; tests de alcance `b27`…`b31`/`d5` (`D5_COPY`);
+gates `app/scripts/{b27-viaje-dias-check,block4-zone-planner-browser-audit,block5-travellers-browser-audit,phase5a-rc-browser-audit,phase3f-h-browser-audit,phase3f-j-browser-audit,phase3f-s-browser-audit}.mjs`;
 nuevos `app/src/d5-normative-vocabulary.test.ts`, `app/scripts/d5-normative-vocabulary-check.mjs`; docs.
 
 ## 6. Archivos protegidos
 
-- `app/src/lib/`: **sin cambios** (`git diff 4d21631 HEAD -- app/src/lib` vacío; lo verifica el test D5).
+- `app/src/lib/`: **sólo** los 4 ficheros de copy de §4 (+ sus tests); el resto, sin cambios. El diff de esos 4 ficheros es únicamente copy (test D5).
 - `data/` y `app/src/data/`: **sin cambios**.
-- Hooks (`use*.ts`), `App.tsx`, CSS, `index.html`: **sin cambios**.
+- Hooks (`use*.ts`), `App.tsx` (se revirtió un comentario fuera de alcance), CSS, `index.html`: **sin cambios**.
 - Esquema V8 y claves de storage: **sin cambios**.
 
 ## 7. Resultados
 
-Entorno: Chromium 141 (Playwright). **WebKit no está instalado** (`/opt/pw-browsers/webkit-*` ausente; `playwright install` no permitido): **no se ejecutó**.
+Chromium 141 y **WebKit 26.5** (Playwright 1.62.1). WebKit no venía instalado: se descargó `webkit-2336` en un directorio de trabajo (`PLAYWRIGHT_BROWSERS_PATH`)
+y se instalaron las librerías del sistema con `playwright install-deps webkit`; sin cambios en el producto ni en CI. No se simuló WebKit con Chromium.
 
-| Comprobación | Resultado |
-|---|---|
-| `tsc -b` | 0 errores |
-| `oxlint` | 0 errores (1 aviso previo en `PlaceMap.tsx`) |
-| Vitest | 120 ficheros · 3549 tests OK |
-| Gate D5 Chromium | 25/25 |
-| Gate D5 reduced-motion (Chromium) | 25/25 |
-| Gate D5 WebKit | NO EJECUTADO |
-| D0b | 56/56 |
-| B27 / B28 / B29 / B30 / B31 | 48/48 · 43/43 · 36/36 · 48/48 · 26/26 |
-| block20 | 73/73 |
-| phase5a | 50/50 |
-| block5 (fija el copy cambiado) | 231/0 |
-| block4 | FALLA igual en la base (no encuentra el botón «Kioto» en la navegación de hubs): **HEREDADO** |
-| Gate D5 contra la base `4d21631` | FALLA (detecta «tramo» en inter-hub, etc.): el gate discrimina |
+| Comprobación | Chromium | WebKit 26.5 |
+|---|---|---|
+| `tsc -b` / `oxlint` | 0 errores / 0 errores (1 aviso previo en `PlaceMap.tsx`) | — |
+| Vitest | 120 ficheros · 3555 tests OK | — |
+| Gate D5 | 26/26 | 26/26 |
+| Gate D5 reduced-motion | 26/26 | 26/26 |
+| D0b | 56/56 | 56/56 |
+| B27 / B28 / B29 | 48/48 · 43/43 · 36/36 | (gates sólo Chromium por diseño) |
+| B30 / B31 | 48/48 · 26/26 | 48/48 · 26/26 |
+| block20 / phase5a / block5 | 73/73 · 50/50 · 231/0 | — |
+| phase3f-h / j / s (copy de `lib/` fijado) | exit 0 | — |
+| block4 | FALLA igual en la base (no encuentra «Kioto»): **HEREDADO** | — |
+| Gate D5 contra la base `4d21631` | FALLA (detecta «tramo»…): el gate discrimina | — |
 
-Auditoría visual (Chromium, 320/390/430/840/1200; Días, hoja «Quitar del día», «Probar otro orden», Nosotros, traslados entre ciudades): BASE vs D5,
-sin overflow horizontal, 0 elementos recortados y alturas de botón idénticas (44 px). Safari físico no medido.
+Auditoría visual BASE vs D5 (320/390/430/840/1200; Días, «Quitar del día», «Probar otro orden», Nosotros, Reservas, Resumen, Quiero ir; Chromium y WebKit):
+0 overflow horizontal, 0 recortes nuevos, alturas de botón idénticas (44 px). Safari físico en iPhone no medido.
 
-Fallos heredados: block4. Fallos exclusivos de D5: ninguno.
+Fallos heredados: block4. Fallos exclusivos de D5: **ninguno**.
 
 ## Veredicto
 
-**D5 CLAUDE: NO CERTIFICADO — WebKit no ejecutable en este entorno (navegador no instalado) y 5 DESIGN DECISION REQUIRED abiertos.**
-Todo lo demás verificado en Chromium. Sin D2. Sin merge.
+**D5 CLAUDE: CERTIFICADO**
