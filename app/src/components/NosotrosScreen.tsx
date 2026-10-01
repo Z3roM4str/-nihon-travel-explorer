@@ -6,6 +6,7 @@ import { TripBackup } from "./TripBackup";
 import { SourcesAndLicences } from "./SourcesAndLicences";
 import { APP_VERSION } from "../lib/app-version";
 
+import "./NosotrosScreen.css";
 /**
  * B26 (B8, `05 §11`) — «Nosotros»: la casa permanente de la identidad, el respaldo, la
  * explicación de Nihon, las fuentes y la versión.

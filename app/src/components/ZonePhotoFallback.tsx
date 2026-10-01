@@ -1,5 +1,6 @@
 import { Icon } from "../icons/Icon";
 
+import "./ZonePhotoFallback.css";
 /**
  * A zone is not a place, and the current licensed photo registry has no zone records.
  * Keep the media slot intentional until B6.7 supplies a photograph whose subject is this zone;

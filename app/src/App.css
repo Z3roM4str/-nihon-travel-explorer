@@ -426,38 +426,6 @@ button.app__title.app__title--expand {
   font-weight: 600;
 }
 
-.person-token--xs {
-  width: var(--person-token-xs);
-  height: var(--person-token-xs);
-  /* Sin tamaño de tipo propio para 18px en la escala; --type-caption-size (12px) es el token
-     compatible más próximo (03 §10, "usa un token existente compatible"). */
-  font-size: var(--type-caption-size);
-}
-
-.person-token--sm {
-  width: var(--person-token-sm);
-  height: var(--person-token-sm);
-  font-size: var(--type-caption-size);
-}
-
-.person-token--md {
-  width: var(--person-token-md);
-  height: var(--person-token-md);
-  font-size: var(--type-body-size);
-}
-
-.person-token--a {
-  background: var(--person-a);
-}
-
-.person-token--b {
-  background: var(--person-b);
-}
-
-.person-token--both {
-  background: var(--person-both);
-}
-
 /* ---------- TabBar / NavRail (04 §10, 02 §D2/§D5) ---------- */
 /*
  * Un solo breakpoint (`md`, 840px, `02 §D5`) decide cuál de los dos se ve. Los dos están
@@ -762,15 +730,6 @@ button.app__title.app__title--expand {
   border-bottom: none;
 }
 
-.nosotros-section__title {
-  margin: 0 0 var(--space-3);
-  font-family: var(--font-voice);
-  font-size: var(--type-title-m-size);
-  line-height: var(--type-title-m-line);
-  font-weight: 500;
-  color: var(--ink-900);
-}
-
 .nosotros-section__text {
   margin: 0 0 var(--space-3);
   color: var(--ink-700);
@@ -826,37 +785,6 @@ button.app__title.app__title--expand {
 }
 
 /* ---------- Hub selector (reutilizado dentro del selector de ciudad, `Sheet`) ---------- */
-
-.hub-selector__track {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.hub-selector__tab {
-  flex-shrink: 0;
-  white-space: nowrap;
-  min-height: var(--tap-min);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-full);
-  background: var(--surface);
-  color: var(--ink-900);
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  font-weight: 600;
-  padding: 0 var(--space-4);
-  cursor: pointer;
-}
-
-.hub-selector__tab:hover {
-  background: var(--surface-sunken);
-}
-
-.hub-selector__tab--active {
-  background: var(--shu-600);
-  border-color: var(--shu-600);
-  color: var(--surface);
-}
 
 /*
  * Bloque 18, `05 §4`: en teléfono, una superficie a la vez — la lista o el mapa, nunca los dos
@@ -1200,65 +1128,6 @@ button.app__title.app__title--expand {
 
 /* ---------- CreditsSheet (Bloque 20 — B4, `04 §7`) ---------- */
 
-.credits-sheet__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.credits-sheet__item + .credits-sheet__item {
-  border-top: 1px solid var(--line);
-  padding-top: var(--space-5);
-}
-
-.credits-sheet__image-label {
-  margin: 0 0 var(--space-2);
-  font-family: var(--font-record);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  font-size: var(--type-label-size);
-  line-height: var(--type-label-line);
-  color: var(--ink-500);
-}
-
-.credits-sheet__fields {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.credits-sheet__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.credits-sheet__field dt {
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  line-height: var(--type-label-line);
-  color: var(--ink-500);
-}
-
-.credits-sheet__field dd {
-  margin: 0;
-  font-family: var(--font-record);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-  color: var(--ink-900);
-  overflow-wrap: anywhere;
-}
-
-.credits-sheet__foot {
-  margin: var(--space-5) 0 0;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--line);
-}
-
 /* ---------- Mobile ---------- */
 
 /* ---------- Detail-panel interest tag ---------- */
@@ -1497,34 +1366,6 @@ button.app__title.app__title--expand {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-}
-
-.zone-photo-fallback {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
-  padding: var(--space-3);
-  overflow-wrap: anywhere;
-  text-align: center;
-  color: var(--ink-500);
-  background:
-    repeating-linear-gradient(135deg, var(--pattern-diagonal) 0 10px, transparent 10px 20px),
-    var(--surface-sunken);
-}
-
-.zone-photo-fallback__name {
-  font-family: var(--font-voice);
-  font-size: var(--type-title-s-size);
-  line-height: var(--type-title-s-line);
-  color: var(--ink-700);
-}
-
-.zone-photo-fallback__label {
-  font-size: var(--type-caption-size);
 }
 
 .zone-card__evidence {
@@ -2789,13 +2630,6 @@ button.app__title.app__title--expand {
   min-width: 5rem;
 }
 
-.comparison-candidate__stats {
-  margin: 0.6rem 0 0;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-}
-
 .comparison-result {
   margin-top: 1rem;
   padding: 0.85rem;
@@ -3119,23 +2953,6 @@ button.app__title.app__title--expand {
   color: var(--color-text-muted);
   font-size: 0.72rem;
   overflow-wrap: anywhere;
-}
-
-/* Phase 3D-D — reservation lead-time preparation. Route-wide, deliberately neutral: it is a
-   recorded-fact summary, not an urgency system, so it reuses the same soft neutral surface as
-   other factual sections (`.analysis-section`) rather than any warning palette. */
-.reservation-prep {
-  margin-top: 1rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.reservation-prep h3 {
-  margin: 0;
-  font-size: 0.95rem;
 }
 
 /* Phase 3D-E — recorded-hours signals. Route-wide, deliberately neutral by default: only the
@@ -4015,62 +3832,7 @@ button.app__title.app__title--expand {
 
 /* ---------- Block 6 — "dónde no coincidimos", inside the saved list ---------- */
 
-/* One scrollable row, so a narrow phone never grows a horizontal page scrollbar and never has to
-   wrap five chips into three lines above the list they filter. */
-.shortlist-filters {
-  display: flex;
-  gap: 0.35rem;
-  margin: 0.5rem 0 0;
-  padding-bottom: 0.2rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
-}
-
-.shortlist-filters__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex: 0 0 auto;
-  min-height: var(--tap-target);
-  padding: 0.3rem 0.65rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* Pressed is marked by weight, background AND border, never by hue alone — the same rule the
-   traveller bar follows, so the two segmented surfaces read identically in greyscale. */
-.shortlist-filters__chip--active {
-  background: var(--color-surface);
-  border-color: var(--color-border-strong);
-  color: var(--color-text);
-  box-shadow: var(--shadow-soft);
-}
-
-.shortlist-filters__count {
-  font-variant-numeric: tabular-nums;
-  font-size: 0.72rem;
-  padding: 0 0.3rem;
-  border-radius: 999px;
-  background: var(--color-border);
-  color: var(--color-text);
-}
-
-.shortlist-filters__chip--active .shortlist-filters__count {
-  background: var(--color-border-strong);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .shortlist-filters__chip {
-    transition: none;
-  }
 
   .onboarding {
     animation: none;
@@ -4182,23 +3944,8 @@ button.app__title.app__title--expand {
   min-width: 0;
 }
 
-.nosotros-section__title:focus {
-  outline: none;
-}
-
-.nosotros-section__title:focus-visible {
-  outline: 2px solid var(--ink-900);
-  outline-offset: 2px;
-}
-
 .nosotros-section__text {
   overflow-wrap: anywhere;
-}
-
-.nosotros-section__version {
-  font-family: var(--font-record);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-900);
 }
 
 .traveller-card__head .person-token {
@@ -4223,19 +3970,6 @@ button.app__title.app__title--expand {
   min-height: var(--tap-min);
 }
 
-/* Fuentes y licencias */
-.sources__heading {
-  margin: var(--space-4) 0 var(--space-2);
-  font-size: var(--type-title-s-size);
-  line-height: var(--type-title-s-line);
-  font-weight: 600;
-  color: var(--ink-900);
-}
-
-.sources__heading:first-child {
-  margin-top: 0;
-}
-
 .sources__licenses,
 .sources__list {
   list-style: none;
@@ -4244,36 +3978,6 @@ button.app__title.app__title--expand {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-}
-
-.sources__license {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-1) var(--space-3);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-}
-
-.sources__license-count {
-  font-family: var(--font-record);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-500);
-}
-
-.sources__item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-  overflow-wrap: anywhere;
-}
-
-.sources__meta {
-  color: var(--ink-500);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
 }
 
 /* Onboarding: «Hola» a sangre (fotografía real) y «¿Quiénes sois?» (05 §1) */
