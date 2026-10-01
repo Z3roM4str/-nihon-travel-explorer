@@ -105,7 +105,7 @@ export function divergenceLine(
 export function plannedNote(entry: DivergenceEntry): string | null {
   if (!entry.planned) return null;
   if (entry.group === "agreed") return null;
-  return "Ya está en un día del recorrido. Esto no lo cambia.";
+  return "Ya está en un día del viaje. Esto no lo cambia.";
 }
 
 /**

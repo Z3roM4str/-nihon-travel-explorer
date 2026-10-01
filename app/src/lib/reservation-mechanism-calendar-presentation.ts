@@ -47,4 +47,4 @@ export function formatOfficialReservationCalendarSpanForUi(
  * the row's place in the list says something about the window's end, which it does not.
  */
 export const OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE =
-  "Situado en esta lista por la fecha de inicio registrada del tramo.";
+  "Situado en esta lista por la fecha de inicio registrada del intervalo.";
