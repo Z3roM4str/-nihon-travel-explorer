@@ -1,6 +1,14 @@
 # B10 — Auditoría de preparación
 
-## Actualización L1 — producto implementado, B10 incompleto
+## Actualización L2 — clasificación contextual; B10 incompleto
+
+[Alcance/matriz](B10_L2_COPY_SCOPE.md), [certificación](B10_L2_CERTIFICATION.md), [evidencia](B10_L2_EVIDENCE.json). Desde `20bdf2d16ccfefccae5626880c0246c385c87aa1`; implementación `ebcb6fc5fe8cedbad8edae1ec8939447cccaa08f`. L1 y evidencia intactos.
+
+- F-C02: C01–C03 corregidos (cuatro cadenas de entidad/acciones); V01–V04 conservados por contexto documentado. No hay sustitución global de tramo/recorrido.
+- E01–E04 siguen abiertos: ratio/parciales, frase compartida F-C03, partición inválida y hubs. Siguiente lote L2b documental/editorial.
+- Build/lint, 116/3483 tests, browser Chromium/WebKit (60 estados) y última regresión B26/B27/B29/B28 PASS. Intentos fallidos y comparación base se preservan; no se atribuyen todos a deuda heredada. G5/G6 globales no cerrados; targets 42 px y resto de lotes fuera de alcance.
+
+## Histórico L1 — producto implementado, B10 incompleto
 
 HEAD documental inicial `2bbc09d63be2abe03b17aea8796274251425d32f`; implementación `3ac50d11392dce7635232a18baf4530f38895d10`, misma rama y PR #177 Draft. Main/rama remotos coincidieron con las precondiciones, sin cambios que incorporar. [Certificación acotada](B10_L1_CERTIFICATION.md), [evidencia y hashes](B10_L1_EVIDENCE.json).
 

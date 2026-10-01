@@ -297,7 +297,7 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 
 ## B10 — Pulido
 
-**L1 implementado y verificado en su alcance en `codex/b10-pulido-mission`, PR #177 Draft; B10 INCOMPLETO.** Base `main @ b854db384c952e827b86d1bb35cac7caa70b035a`. Sólo contador FilterPanel y etiqueta de backup; véanse [misión](../B10_PULIDO_MISSION.md), [auditoría actualizada](../B10_PULIDO_AUDIT.md), [certificación acotada](../B10_L1_CERTIFICATION.md) y [evidencia L1](../B10_L1_EVIDENCE.json). OD-01, copy restante y decisiones editoriales/teclado siguen pendientes; G5/G6 globales no cerrados. Fotografías de zonas y comprobaciones físicas/externas siguen separadas.
+**L1 conservado y L2 de copy contextual implementado y verificado en su alcance en `codex/b10-pulido-mission`, PR #177 Draft; B10 INCOMPLETO.** Base `main @ b854db384c952e827b86d1bb35cac7caa70b035a`. Sólo contador FilterPanel y etiqueta de backup; véanse [misión](../B10_PULIDO_MISSION.md), [auditoría actualizada](../B10_PULIDO_AUDIT.md), [certificación acotada](../B10_L1_CERTIFICATION.md) y [evidencia L1](../B10_L1_EVIDENCE.json). OD-01, copy restante y decisiones editoriales/teclado siguen pendientes; G5/G6 globales no cerrados. Fotografías de zonas y comprobaciones físicas/externas siguen separadas.
 
 **Objetivo.** Cerrar.
 
@@ -330,3 +330,5 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 **Si sólo se pudieran hacer tres:** B2, B4 y B1, en ese orden. Recuperan la pantalla,
 convierten la ficha en el corazón del producto y le dan identidad. Con esos tres Nihon
 ya no se parece a lo que es hoy.
+
+Actualización B10 L2: [matriz contextual](../B10_L2_COPY_SCOPE.md), [certificación acotada](../B10_L2_CERTIFICATION.md), [evidencia](../B10_L2_EVIDENCE.json). Cuatro cadenas canónicas; términos contextuales conservados, E01–E04 pendientes. Siguiente L2b documental/editorial. B10 incompleto; G5/G6 globales no cerrados.

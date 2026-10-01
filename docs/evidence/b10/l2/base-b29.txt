@@ -1,0 +1,2 @@
+B28 PASS 64/64 checks; pointer mouse + Chromium touch; 8 viewports
+B29 Day Tools gate: PASS (163 checks; Chromium /home/agent/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome; 8 viewports).

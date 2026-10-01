@@ -1,0 +1,9 @@
+file:///workspace/nihon/app/scripts/b28-reorder-dnd-check.mjs:17
+function check(value, message) { checks++; if (!value) throw new Error(message); }
+                                                             ^
+
+Error: J: auto-scroll continued after cancellation
+    at check (file:///workspace/nihon/app/scripts/b28-reorder-dnd-check.mjs:17:62)
+    at file:///workspace/nihon/app/scripts/b28-reorder-dnd-check.mjs:231:3
+
+Node.js v24.19.0

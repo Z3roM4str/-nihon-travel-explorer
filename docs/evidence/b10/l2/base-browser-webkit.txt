@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.selectOption: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.destination-panel:not([hidden])').locator('.inter-hub-segments').locator('.inter-hub-segments__form').getByLabel('Posición en el plan', { exact: true })[22m
+
+    at /workspace/nihon/app/scripts/b10-l2-check.mjs:86:67 {
+  log: [
+    "  - waiting for locator('.destination-panel:not([hidden])').locator('.inter-hub-segments').locator('.inter-hub-segments__form').getByLabel('Posición en el plan', { exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

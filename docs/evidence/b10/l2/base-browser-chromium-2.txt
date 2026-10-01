@@ -1,0 +1,1 @@
+B10 L2 chromium PASS: 15 states; canonical actions, principal/manual copy, V8, opaque IDs, partial totals and keyboard create/edit/delete preserved.

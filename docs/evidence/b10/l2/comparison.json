@@ -1,0 +1,485 @@
+{
+  "allOtherRecordedValuesEqual": true,
+  "differences": [
+    {
+      "path": "chromium/0/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/0/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/1/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/1/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/1/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/1/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/2/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/2/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/2/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/2/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/3/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/3/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/4/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/4/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/4/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/4/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/5/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/5/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/6/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/6/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/6/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/6/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/7/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/7/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/7/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/7/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/8/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/8/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/9/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/9/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/9/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/9/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/10/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/10/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/11/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/11/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/11/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/11/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/12/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/12/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/12/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/12/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/13/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Ghibli Museum, Mitaka → Kiyomizu-dera · Tokio → Kioto Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/13/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/14/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Selecciona dos puntos consecutivos de hubs distintos Kiyomizu-dera → Tokyo Disneyland · Kioto → Tokio Modo Selecciona modo Shinkansen Limited Express / tren expreso Vuelo doméstico Ferry Autobús interurbano Otro Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "chromium/14/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/14/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "chromium/14/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/0/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/0/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/1/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/1/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/1/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/1/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/2/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/2/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/2/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/2/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/3/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/3/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/4/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/4/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/4/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/4/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/5/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/5/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/6/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/6/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/6/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/6/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/7/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/7/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/7/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/7/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/8/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/8/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/9/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/9/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/9/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/9/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/10/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/10/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/11/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/11/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/11/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/11/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/12/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Tokio → Kioto Activo · dentro del Día 1 Modo Duración manual del tramo principal 150 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/12/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/12/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/12/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/13/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún tramo entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Todavía no has registrado ningún traslado entre ciudades. Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/13/labels/0/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/14/text",
+      "before": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir tramo",
+      "after": "Traslados entre ciudades Tramo principal entre estos dos puntos de tu plan; no es un tiempo puerta a puerta. Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos. Ghibli Museum, Mitaka → Kiyomizu-dera Osaka → Kioto Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado. Modo Duración manual del tramo principal 135 min registrados manualmente Posición en el plan Modo Duración manual del tramo principal ＋ Añadir traslado"
+    },
+    {
+      "path": "webkit/14/labels/0/ariaLabel",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/14/labels/0/title",
+      "before": "Eliminar tramo Ghibli Museum, Mitaka a Kiyomizu-dera",
+      "after": "Eliminar traslado Ghibli Museum, Mitaka a Kiyomizu-dera"
+    },
+    {
+      "path": "webkit/14/labels/1/text",
+      "before": "＋ Añadir tramo",
+      "after": "＋ Añadir traslado"
+    }
+  ]
+}

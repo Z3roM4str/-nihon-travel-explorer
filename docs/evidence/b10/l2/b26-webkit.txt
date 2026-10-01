@@ -1,0 +1,19 @@
+Motor: webkit (/tmp/b10-webkit)
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for locator('.tab-bar:visible, .nav-rail:visible').first().getByRole('button', { name: /Nosotros/ })[22m
+
+    at openNosotros (/workspace/nihon/app/scripts/b26-nosotros-check.mjs:132:61)
+    at async auditStructureAndIdentity (/workspace/nihon/app/scripts/b26-nosotros-check.mjs:151:5)
+    at async file:///workspace/nihon/app/scripts/b26-nosotros-check.mjs:826:5 {
+  log: [
+    "  - waiting for locator('.tab-bar:visible, .nav-rail:visible').first().getByRole('button', { name: /Nosotros/ })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

@@ -1,6 +1,15 @@
-# Handoff reanudable — B10 L1 implementado; B10 incompleto
+# Handoff reanudable — B10 L1 conservado y L2 implementado; B10 incompleto
 
-## Estado vigente — L1 verificado en su alcance; PR #177 Draft
+## Estado vigente — L2 acotado; PR #177 Draft
+
+- Rama `codex/b10-pulido-mission`, inicial `20bdf2d16ccfefccae5626880c0246c385c87aa1`; implementación `ebcb6fc5fe8cedbad8edae1ec8939447cccaa08f`. HEAD documental: `git log -1 --format=%H -- docs/B10_L2_CERTIFICATION.md`.
+- Sólo cuatro cadenas en OrderedSequenceBuilder: vacío, alta y aria-label/title de baja usan traslado. Principal/manual, ruta y pares desconocidos siguen intactos. [Matriz](B10_L2_COPY_SCOPE.md), [certificación](B10_L2_CERTIFICATION.md), [evidencia/hashes](B10_L2_EVIDENCE.json). L1 y evidencia preservados byte a byte (47 archivos/41 hashes).
+- Build/lint y Vitest 116/3483 PASS; 60 estados Chromium/WebKit antes/después a 320/390/1440. B26 final 314/314 por motor, B27 A–K, B29 163/B28 64 PASS. Intentos fallidos conservados; base reprodujo un fallo de foco B26 pero no auto-scroll B28. Intermitencia no completamente atribuida a deuda heredada. Sin modificación de assertions/gates salvo selector canónico B27.
+- Próximo **L2b documental/editorial**: E01 ratio/parciales, E02 frase compartida Nosotros, E03 partición inválida, E04 hubs. No inventar equivalencias. G5/G6, 42 px, OD-01, movimiento, CSS, héroe/orden, colecciones y rendimiento pendientes/fuera de lote.
+- Main `b854db384c952e827b86d1bb35cac7caa70b035a`, #168 y claude/* intactos. Protección de main 403 antecedente no consultada/eludida. Safari/iPhone y lector físicos no ejecutados. Sin Astra ni Vercel/deploy, sin merge. B10 INCOMPLETO.
+
+
+## Histórico — L1 verificado en su alcance; PR #177 Draft
 
 - Misma rama `codex/b10-pulido-mission`. HEAD inicial `2bbc09d63be2abe03b17aea8796274251425d32f`; main remoto `b854db384c952e827b86d1bb35cac7caa70b035a`, sin avances. Implementación `3ac50d11392dce7635232a18baf4530f38895d10`; evidencia en commit separado posterior, identificable con `git log -1 --format=%H -- docs/B10_L1_CERTIFICATION.md`.
 - **L1 implementado, B10 NO completo**: sólo contador FilterPanel «N lugares» (0/1/57, singular) y etiqueta TripBackup «Lugares en el viaje», conforme a §13/§10. Filtros, acciones, identidades, V8 y formato de backup intactos; etiqueta común a preview/restaurado. No depende de decisión de copy abierta.

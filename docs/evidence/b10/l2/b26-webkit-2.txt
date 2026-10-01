@@ -1,0 +1,317 @@
+Motor: webkit (/tmp/b10-webkit)
+OK   [N-H1] 390x844: cabecera «Nosotros»
+OK   [N-ORDER] 390x844: secciones en orden (Viajeros · Copia del viaje · Cómo funciona Nihon · Fuentes y licencias · Acerca de)
+OK   [N-HEADINGS] 390x844: jerarquía de headings sin saltos (22332233332)
+OK   [N-NOMODAL] 390x844: nada de Nosotros abierto dentro de un modal (0)
+OK   [N-LANDMARKS] 390x844: cada sección se nombra por su heading
+OK   [N-CARDS] 390x844: dos tarjetas de persona
+OK   [N-TOKEN-MD] 390x844: PersonToken md con inicial (M,K)
+OK   [N-NAMES] 390x844: nombres editables (Marta,Kenji)
+OK   [N-LABELS] 390x844: cada campo de nombre tiene su <label>
+OK   [N-MARKED] 390x844: «Marcados» = 2/3 (Marcados: 2 lugares,Marcados: 3 lugares)
+OK   [N-ACTIVE-TEXT] 390x844: la persona activa lo dice en texto («Este dispositivo lo usa Marta»), no sólo con color
+OK   [N-ACTIVE-ONE] 390x844: exactamente una tarjeta activa
+OK   [N-SWITCH-BTN] 390x844: la otra persona ofrece «Usar este dispositivo como…»
+OK   [N-NOERES] 390x844: la cabecera no muestra «Eres» («Nosotros M»)
+OK   [N-NOSEG] 390x844: sin conmutador de personas en la cabecera
+OK   [N-HEADTOKEN] 390x844: token de cabecera = persona activa
+OK   [I-ACTIVE] 390x844: persona activa guardada = Kenji
+OK   [I-PREFS] 390x844: cambiar de persona NO toca preferencias ni personas
+OK   [I-HEADER] 390x844: el token de cabecera cambia a Kenji
+OK   [I-LIVE] 390x844: región viva anuncia el cambio («Ahora Nihon se usa como Kenji.»)
+OK   [I-FOCUS] 390x844: el foco pasa al estado activo, no se pierde (traveller-card__status)
+OK   [I-ACTIVE-UI] 390x844: la marca de activa se mueve a la tarjeta de Kenji
+OK   [I-HEART] 390x844: el corazón nuevo es de Kenji y no toca a Marta
+OK   [I-RENAME] 390x844: renombrar conserva id y preferencias
+OK   [I-LONGNAME] 390x844: nombre largo sin desbordar (overflow 0px)
+OK   [I-TOKEN-LIVE] 390x844: el token toma la inicial del nombre nuevo (A)
+OK   [I-BLANK] 390x844: vaciar el campo no guarda un nombre en blanco
+OK   [I-BLUR] 390x844: al salir del campo vuelve el nombre guardado
+OK   [I-RESET-CONFIRM] 390x844: reiniciar pide confirmación explícita («Se borrará todo lo que ha dicho y 2 lugares saldrán de la li…»)
+OK   [I-RESET-NOTHING] 390x844: nada cambia hasta confirmar
+OK   [I-RESET-FOCUS-IN] 390x844: el foco entra en «Cancelar»
+OK   [I-RESET-CANCEL] 390x844: cancelar no cambia nada y el foco vuelve a «Reiniciar»
+OK   [I-RESET] 390x844: reiniciar borra sólo lo de Kenji y conserva a las dos personas
+OK   [I-REMOVE-CONFIRM] 390x844: quitar pide confirmación y dice que nada pasa a la otra persona
+OK   [I-REMOVE] 390x844: quitar deja una persona y la activa pasa a quien queda
+OK   [I-REMOVE-DISABLED] 390x844: no se puede quitar a la última persona
+OK   [I-ADD-VISIBLE] 390x844: se ofrece añadir a la segunda persona
+OK   [I-ADD] 390x844: añadir crea una persona nueva sin heredar nada
+OK   [I-MAX] 390x844: MAX_TRAVELLERS respetado (no hay tercer alta)
+OK   [C-CLEAN] 390x844: sin errores
+OK   [N-TOKEN-NAV] 390x844: el token de cabecera lleva a Nosotros › Viajeros (foco true, a la vista true)
+OK   [C-CLEAN] 390x844: sin errores
+OK   [B-EXPORT] 390x844: se descarga un .json (nihon-backup-2026-10-01.json)
+OK   [B-EXPORT-CONTENT] 390x844: el archivo real contiene el documento de viajeros tal cual
+OK   [B-EXPORT-STATUS] 390x844: se anuncia el archivo generado
+OK   [B-ROUNDTRIP-PREVIEW] 390x844: elegir el archivo NO escribe nada antes de confirmar
+OK   [B-CONFIRM-TEXT] 390x844: aparece «Esto sustituirá todo lo que hay en este navegador.»
+OK   [B-CONFIRM-NOWRITE] 390x844: con la confirmación abierta el almacenamiento sigue intacto
+OK   [B-PREVIEW-SUMMARY] 390x844: el resumen dice qué contiene el archivo (personas)
+OK   [B-CONFIRM-FOCUS] 390x844: el foco pasa a la confirmación
+OK   [B-CONFIRM-GROUP] 390x844: la confirmación es un grupo con nombre
+OK   [B-CANCEL] 390x844: cancelar no cambia nada
+OK   [B-CANCEL-FOCUS] 390x844: tras cancelar el foco vuelve al selector de archivo (INPUT/file)
+OK   [B-ESCAPE] 390x844: Escape cancela la confirmación sin escribir
+OK   [B-INVALID] 390x844: texto que no es JSON → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 390x844: texto que no es JSON → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 390x844: texto que no es JSON → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 390x844: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 390x844: JSON de otro formato → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 390x844: JSON de otro formato → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 390x844: JSON de otro formato → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 390x844: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 390x844: archivo vacío → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 390x844: archivo vacío → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 390x844: archivo vacío → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 390x844: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 390x844: respaldo con personas dañadas → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 390x844: respaldo con personas dañadas → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 390x844: respaldo con personas dañadas → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 390x844: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 390x844: respaldo de una versión futura → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 390x844: respaldo de una versión futura → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 390x844: respaldo de una versión futura → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 390x844: «Entendido» devuelve el foco al selector
+OK   [B-FAIL] 390x844: un fallo de escritura lo dice y no promete lo que no pasó («»)
+OK   [B-FAIL-STATE] 390x844: tras el fallo el estado es el anterior y no se anuncia «restaurado»
+OK   [B-REPLACE] 390x844: confirmar REEMPLAZA (sin lugares ni personas anteriores)
+OK   [B-RESTORED-FOCUS] 390x844: el foco pasa al resumen de restauración
+OK   [B-PERSIST] 390x844: tras recargar el viaje restaurado persiste (no lo pisa el estado antiguo)
+OK   [B-NONET] 390x844: exportar/importar sin ninguna petición externa
+OK   [C-CLEAN] 390x844: sin errores
+OK   [O-FIRST-AUTO] 390x844: la primera ejecución abre el explicador
+OK   [O-HERO] 390x844: «Hola» dice «Nihon» y «El cuaderno de vuestro viaje a Japón»
+OK   [O-PHOTO] 390x844: fotografía real del catálogo (800px, alt «Escalinata de piedra del vestíbulo princ…»)
+OK   [O-CTA] 390x844: botón «Empezar»
+OK   [O-SEQUENCE] 390x844: secuencia normativa (Explora Japón › Marca lo que te gustaría ver › Después comparáis › ¿Quiénes sois?)
+OK   [O-DEFAULTS] 390x844: nombres por defecto Persona 1 / Persona 2
+OK   [O-WHO] 390x844: «¿Quién tiene este teléfono?» con dos opciones, la primera marcada
+OK   [O-FOCUS-NAME] 390x844: el foco entra en el primer nombre
+OK   [O-TOKEN-LIVE] 390x844: PersonToken en vivo con el nombre escrito (L)
+OK   [O-ENTER-NOWRITE] 390x844: nada se guarda hasta pulsar «Entrar»
+OK   [O-ENTER] 390x844: «Entrar» escribe nombres y persona activa en el mismo almacén de viajeros
+OK   [O-SEEN] 390x844: queda marcado como visto
+OK   [O-HEADER-TOKEN] 390x844: el token de cabecera ya es Bruno
+OK   [C-CLEAN] 390x844: sin errores
+OK   [O-SKIP-FIRST] 390x844: «Saltar» en la primera ejecución = nombres por defecto y persona A activa, visto
+OK   [O-CLOSE-SEEN] 390x844: Escape cierra y marca visto
+OK   [O-CLOSE-SEEN] 390x844: × cierra y marca visto
+OK   [O-REOPEN-NAMES] 390x844: al reabrir, los nombres existentes ya están (Marta,Kenji)
+OK   [O-REOPEN-ACTIVE] 390x844: al reabrir, la persona activa actual está seleccionada
+OK   [O-REOPEN-ESC] 390x844: Escape al reabrir NO destruye nombres ni preferencias
+OK   [O-REOPEN-FOCUS] 390x844: tras cerrar con Escape el foco vuelve a «Ver de nuevo» ({"tag":"BUTTON","cls":"button button--secondary","text":"Ver de nuevo","id":"","type":"button"})
+OK   [O-REOPEN-SKIP-FOCUS] 390x844: tras «Saltar» el foco vuelve a «Ver de nuevo»
+OK   [O-REOPEN-SKIP] 390x844: «Saltar» al reabrir no escribe nada (sin semántica destructiva)
+OK   [O-REOPEN-X-FOCUS] 390x844: tras × el foco vuelve a «Ver de nuevo»
+OK   [O-REOPEN-X] 390x844: × al reabrir no escribe nada
+OK   [O-REOPEN-ENTER] 390x844: «Entrar» al reabrir renombra y cambia la activa conservando ids y preferencias
+OK   [O-REOPEN-ENTER-FOCUS] 390x844: tras «Entrar» el foco vuelve a «Ver de nuevo»
+OK   [O-REOPEN-CARDS] 390x844: Nosotros refleja el cambio (mismo almacén)
+OK   [C-CLEAN] 390x844: sin errores
+OK   [F-MLIT] 390x844: atribución MLIT completa
+OK   [F-MLIT-LINK] 390x844: enlace MLIT (https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html)
+OK   [F-LICENSES] 390x844: licencias fotográficas con enlaces (10)
+OK   [F-PHOTOS] 390x844: resumen de fotografía y su procedencia
+OK   [F-SOURCES] 390x844: fuentes de datos con fecha de consulta (39)
+OK   [F-NOUPDATED] 390x844: no presenta updatedAt como consulta
+OK   [F-DATA] 390x844: cuenta de lugares y prefecturas
+OK   [F-LINKS-SAFE] 390x844: los enlaces externos llevan rel=noopener
+OK   [F-VERSION] 390x844: versión visible = package.json (1.1.0)
+OK   [C-CLEAN] 390x844: sin errores
+OK   [K-NAMES] 390x844: todos los controles tienen nombre accesible
+OK   [K-TAB] 390x844: Tab visita EXACTAMENTE cada control de Nosotros una vez (59/59, 59 pasos)
+OK   [K-TAB-ORDER] 390x844: el orden de tabulación empieza por Viajeros
+OK   [K-SWITCH] 390x844: la persona activa se cambia con teclado (Enter)
+OK   [K-FOCUS-VISIBLE] 390x844: el foco queda en un elemento visible tras cambiar
+OK   [K-TRAP] 390x844: el foco no escapa del explicador
+OK   [K-DIALOG-NAME] 390x844: el explicador es un diálogo con nombre
+OK   [K-ESC] 390x844: Escape cierra el explicador
+OK   [C-CLEAN] 390x844: sin errores
+OK   [N-H1] 1440x900: cabecera «Nosotros»
+OK   [N-ORDER] 1440x900: secciones en orden (Viajeros · Copia del viaje · Cómo funciona Nihon · Fuentes y licencias · Acerca de)
+OK   [N-HEADINGS] 1440x900: jerarquía de headings sin saltos (22332233332)
+OK   [N-NOMODAL] 1440x900: nada de Nosotros abierto dentro de un modal (0)
+OK   [N-LANDMARKS] 1440x900: cada sección se nombra por su heading
+OK   [N-CARDS] 1440x900: dos tarjetas de persona
+OK   [N-TOKEN-MD] 1440x900: PersonToken md con inicial (M,K)
+OK   [N-NAMES] 1440x900: nombres editables (Marta,Kenji)
+OK   [N-LABELS] 1440x900: cada campo de nombre tiene su <label>
+OK   [N-MARKED] 1440x900: «Marcados» = 2/3 (Marcados: 2 lugares,Marcados: 3 lugares)
+OK   [N-ACTIVE-TEXT] 1440x900: la persona activa lo dice en texto («Este dispositivo lo usa Marta»), no sólo con color
+OK   [N-ACTIVE-ONE] 1440x900: exactamente una tarjeta activa
+OK   [N-SWITCH-BTN] 1440x900: la otra persona ofrece «Usar este dispositivo como…»
+OK   [N-NOERES] 1440x900: la cabecera no muestra «Eres» («Nosotros M»)
+OK   [N-NOSEG] 1440x900: sin conmutador de personas en la cabecera
+OK   [N-HEADTOKEN] 1440x900: token de cabecera = persona activa
+OK   [I-ACTIVE] 1440x900: persona activa guardada = Kenji
+OK   [I-PREFS] 1440x900: cambiar de persona NO toca preferencias ni personas
+OK   [I-HEADER] 1440x900: el token de cabecera cambia a Kenji
+OK   [I-LIVE] 1440x900: región viva anuncia el cambio («Ahora Nihon se usa como Kenji.»)
+OK   [I-FOCUS] 1440x900: el foco pasa al estado activo, no se pierde (traveller-card__status)
+OK   [I-ACTIVE-UI] 1440x900: la marca de activa se mueve a la tarjeta de Kenji
+OK   [I-HEART] 1440x900: el corazón nuevo es de Kenji y no toca a Marta
+OK   [I-RENAME] 1440x900: renombrar conserva id y preferencias
+OK   [I-LONGNAME] 1440x900: nombre largo sin desbordar (overflow 0px)
+OK   [I-TOKEN-LIVE] 1440x900: el token toma la inicial del nombre nuevo (A)
+OK   [I-BLANK] 1440x900: vaciar el campo no guarda un nombre en blanco
+OK   [I-BLUR] 1440x900: al salir del campo vuelve el nombre guardado
+OK   [I-RESET-CONFIRM] 1440x900: reiniciar pide confirmación explícita («Se borrará todo lo que ha dicho y 2 lugares saldrán de la li…»)
+OK   [I-RESET-NOTHING] 1440x900: nada cambia hasta confirmar
+OK   [I-RESET-FOCUS-IN] 1440x900: el foco entra en «Cancelar»
+OK   [I-RESET-CANCEL] 1440x900: cancelar no cambia nada y el foco vuelve a «Reiniciar»
+OK   [I-RESET] 1440x900: reiniciar borra sólo lo de Kenji y conserva a las dos personas
+OK   [I-REMOVE-CONFIRM] 1440x900: quitar pide confirmación y dice que nada pasa a la otra persona
+OK   [I-REMOVE] 1440x900: quitar deja una persona y la activa pasa a quien queda
+OK   [I-REMOVE-DISABLED] 1440x900: no se puede quitar a la última persona
+OK   [I-ADD-VISIBLE] 1440x900: se ofrece añadir a la segunda persona
+OK   [I-ADD] 1440x900: añadir crea una persona nueva sin heredar nada
+OK   [I-MAX] 1440x900: MAX_TRAVELLERS respetado (no hay tercer alta)
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [N-TOKEN-NAV] 1440x900: el token de cabecera lleva a Nosotros › Viajeros (foco true, a la vista true)
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [B-EXPORT] 1440x900: se descarga un .json (nihon-backup-2026-10-01.json)
+OK   [B-EXPORT-CONTENT] 1440x900: el archivo real contiene el documento de viajeros tal cual
+OK   [B-EXPORT-STATUS] 1440x900: se anuncia el archivo generado
+OK   [B-ROUNDTRIP-PREVIEW] 1440x900: elegir el archivo NO escribe nada antes de confirmar
+OK   [B-CONFIRM-TEXT] 1440x900: aparece «Esto sustituirá todo lo que hay en este navegador.»
+OK   [B-CONFIRM-NOWRITE] 1440x900: con la confirmación abierta el almacenamiento sigue intacto
+OK   [B-PREVIEW-SUMMARY] 1440x900: el resumen dice qué contiene el archivo (personas)
+OK   [B-CONFIRM-FOCUS] 1440x900: el foco pasa a la confirmación
+OK   [B-CONFIRM-GROUP] 1440x900: la confirmación es un grupo con nombre
+OK   [B-CANCEL] 1440x900: cancelar no cambia nada
+OK   [B-CANCEL-FOCUS] 1440x900: tras cancelar el foco vuelve al selector de archivo (INPUT/file)
+OK   [B-ESCAPE] 1440x900: Escape cancela la confirmación sin escribir
+OK   [B-INVALID] 1440x900: texto que no es JSON → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 1440x900: texto que no es JSON → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 1440x900: texto que no es JSON → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 1440x900: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 1440x900: JSON de otro formato → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 1440x900: JSON de otro formato → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 1440x900: JSON de otro formato → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 1440x900: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 1440x900: archivo vacío → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 1440x900: archivo vacío → no ofrece sustituir
+FAIL [B-INVALID-FOCUS] 1440x900: archivo vacío → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 1440x900: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 1440x900: respaldo con personas dañadas → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 1440x900: respaldo con personas dañadas → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 1440x900: respaldo con personas dañadas → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 1440x900: «Entendido» devuelve el foco al selector
+OK   [B-INVALID] 1440x900: respaldo de una versión futura → rechazado sin cambiar nada («»)
+OK   [B-INVALID-NOCONFIRM] 1440x900: respaldo de una versión futura → no ofrece sustituir
+OK   [B-INVALID-FOCUS] 1440x900: respaldo de una versión futura → el foco va al mensaje
+OK   [B-INVALID-FOCUS-BACK] 1440x900: «Entendido» devuelve el foco al selector
+OK   [B-FAIL] 1440x900: un fallo de escritura lo dice y no promete lo que no pasó («»)
+OK   [B-FAIL-STATE] 1440x900: tras el fallo el estado es el anterior y no se anuncia «restaurado»
+OK   [B-REPLACE] 1440x900: confirmar REEMPLAZA (sin lugares ni personas anteriores)
+OK   [B-RESTORED-FOCUS] 1440x900: el foco pasa al resumen de restauración
+OK   [B-PERSIST] 1440x900: tras recargar el viaje restaurado persiste (no lo pisa el estado antiguo)
+OK   [B-NONET] 1440x900: exportar/importar sin ninguna petición externa
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [O-FIRST-AUTO] 1440x900: la primera ejecución abre el explicador
+OK   [O-HERO] 1440x900: «Hola» dice «Nihon» y «El cuaderno de vuestro viaje a Japón»
+OK   [O-PHOTO] 1440x900: fotografía real del catálogo (800px, alt «Escalinata de piedra del vestíbulo princ…»)
+OK   [O-CTA] 1440x900: botón «Empezar»
+OK   [O-SEQUENCE] 1440x900: secuencia normativa (Explora Japón › Marca lo que te gustaría ver › Después comparáis › ¿Quiénes sois?)
+OK   [O-DEFAULTS] 1440x900: nombres por defecto Persona 1 / Persona 2
+OK   [O-WHO] 1440x900: «¿Quién tiene este teléfono?» con dos opciones, la primera marcada
+OK   [O-FOCUS-NAME] 1440x900: el foco entra en el primer nombre
+OK   [O-TOKEN-LIVE] 1440x900: PersonToken en vivo con el nombre escrito (L)
+OK   [O-ENTER-NOWRITE] 1440x900: nada se guarda hasta pulsar «Entrar»
+OK   [O-ENTER] 1440x900: «Entrar» escribe nombres y persona activa en el mismo almacén de viajeros
+OK   [O-SEEN] 1440x900: queda marcado como visto
+OK   [O-HEADER-TOKEN] 1440x900: el token de cabecera ya es Bruno
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [O-SKIP-FIRST] 1440x900: «Saltar» en la primera ejecución = nombres por defecto y persona A activa, visto
+OK   [O-CLOSE-SEEN] 1440x900: Escape cierra y marca visto
+OK   [O-CLOSE-SEEN] 1440x900: × cierra y marca visto
+OK   [O-REOPEN-NAMES] 1440x900: al reabrir, los nombres existentes ya están (Marta,Kenji)
+OK   [O-REOPEN-ACTIVE] 1440x900: al reabrir, la persona activa actual está seleccionada
+OK   [O-REOPEN-ESC] 1440x900: Escape al reabrir NO destruye nombres ni preferencias
+OK   [O-REOPEN-FOCUS] 1440x900: tras cerrar con Escape el foco vuelve a «Ver de nuevo» ({"tag":"BUTTON","cls":"button button--secondary","text":"Ver de nuevo","id":"","type":"button"})
+OK   [O-REOPEN-SKIP-FOCUS] 1440x900: tras «Saltar» el foco vuelve a «Ver de nuevo»
+OK   [O-REOPEN-SKIP] 1440x900: «Saltar» al reabrir no escribe nada (sin semántica destructiva)
+OK   [O-REOPEN-X-FOCUS] 1440x900: tras × el foco vuelve a «Ver de nuevo»
+OK   [O-REOPEN-X] 1440x900: × al reabrir no escribe nada
+OK   [O-REOPEN-ENTER] 1440x900: «Entrar» al reabrir renombra y cambia la activa conservando ids y preferencias
+OK   [O-REOPEN-ENTER-FOCUS] 1440x900: tras «Entrar» el foco vuelve a «Ver de nuevo»
+OK   [O-REOPEN-CARDS] 1440x900: Nosotros refleja el cambio (mismo almacén)
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [F-MLIT] 1440x900: atribución MLIT completa
+OK   [F-MLIT-LINK] 1440x900: enlace MLIT (https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html)
+OK   [F-LICENSES] 1440x900: licencias fotográficas con enlaces (10)
+OK   [F-PHOTOS] 1440x900: resumen de fotografía y su procedencia
+OK   [F-SOURCES] 1440x900: fuentes de datos con fecha de consulta (39)
+OK   [F-NOUPDATED] 1440x900: no presenta updatedAt como consulta
+OK   [F-DATA] 1440x900: cuenta de lugares y prefecturas
+OK   [F-LINKS-SAFE] 1440x900: los enlaces externos llevan rel=noopener
+OK   [F-VERSION] 1440x900: versión visible = package.json (1.1.0)
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [K-NAMES] 1440x900: todos los controles tienen nombre accesible
+OK   [K-TAB] 1440x900: Tab visita EXACTAMENTE cada control de Nosotros una vez (59/59, 59 pasos)
+OK   [K-TAB-ORDER] 1440x900: el orden de tabulación empieza por Viajeros
+OK   [K-SWITCH] 1440x900: la persona activa se cambia con teclado (Enter)
+FAIL [K-FOCUS-VISIBLE] 1440x900: el foco queda en un elemento visible tras cambiar
+OK   [K-TRAP] 1440x900: el foco no escapa del explicador
+OK   [K-DIALOG-NAME] 1440x900: el explicador es un diálogo con nombre
+OK   [K-ESC] 1440x900: Escape cierra el explicador
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [A-REDUCED] 390x844: con reduced-motion el explicador no anima (none)
+OK   [L-OVERFLOW] 320x640: sin overflow horizontal (doc 0, panel 0)
+OK   [L-CONTAINED] 320x640: ningún elemento se sale de la columna
+OK   [L-SCROLL-END] 320x640: se puede hacer scroll hasta el final
+OK   [L-COVER] 320x640: el último bloque (Acerca de) no se solapa con TabBar (bloque termina en 568, barra empieza en 584)
+OK   [L-TAP] 320x640: objetivos táctiles ≥44px
+OK   [L-SHELL] 320x640: TabBar visible y el otro no
+OK   [C-CLEAN] 320x640: sin errores
+OK   [L-ONB] 320x640: onboarding hero sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-ONB] 320x640: onboarding identity sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-OVERFLOW] 360x780: sin overflow horizontal (doc 0, panel 0)
+OK   [L-CONTAINED] 360x780: ningún elemento se sale de la columna
+OK   [L-SCROLL-END] 360x780: se puede hacer scroll hasta el final
+OK   [L-COVER] 360x780: el último bloque (Acerca de) no se solapa con TabBar (bloque termina en 708, barra empieza en 724)
+OK   [L-TAP] 360x780: objetivos táctiles ≥44px
+OK   [L-SHELL] 360x780: TabBar visible y el otro no
+OK   [C-CLEAN] 360x780: sin errores
+OK   [L-ONB] 360x780: onboarding hero sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-ONB] 360x780: onboarding identity sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-OVERFLOW] 390x844: sin overflow horizontal (doc 0, panel 0)
+OK   [L-CONTAINED] 390x844: ningún elemento se sale de la columna
+OK   [L-SCROLL-END] 390x844: se puede hacer scroll hasta el final
+OK   [L-COVER] 390x844: el último bloque (Acerca de) no se solapa con TabBar (bloque termina en 772, barra empieza en 788)
+OK   [L-TAP] 390x844: objetivos táctiles ≥44px
+OK   [L-SHELL] 390x844: TabBar visible y el otro no
+OK   [C-CLEAN] 390x844: sin errores
+OK   [L-ONB] 390x844: onboarding hero sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-ONB] 390x844: onboarding identity sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-OVERFLOW] 430x932: sin overflow horizontal (doc 0, panel 0)
+OK   [L-CONTAINED] 430x932: ningún elemento se sale de la columna
+OK   [L-SCROLL-END] 430x932: se puede hacer scroll hasta el final
+OK   [L-COVER] 430x932: el último bloque (Acerca de) no se solapa con TabBar (bloque termina en 860, barra empieza en 876)
+OK   [L-TAP] 430x932: objetivos táctiles ≥44px
+OK   [L-SHELL] 430x932: TabBar visible y el otro no
+OK   [C-CLEAN] 430x932: sin errores
+OK   [L-ONB] 430x932: onboarding hero sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-ONB] 430x932: onboarding identity sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-OVERFLOW] 768x1024: sin overflow horizontal (doc 0, panel 0)
+OK   [L-CONTAINED] 768x1024: ningún elemento se sale de la columna
+OK   [L-SCROLL-END] 768x1024: se puede hacer scroll hasta el final
+OK   [L-COVER] 768x1024: el último bloque (Acerca de) no se solapa con TabBar (bloque termina en 952, barra empieza en 968)
+OK   [L-TAP] 768x1024: objetivos táctiles ≥44px
+OK   [L-SHELL] 768x1024: TabBar visible y el otro no
+OK   [C-CLEAN] 768x1024: sin errores
+OK   [L-ONB] 768x1024: onboarding hero sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-ONB] 768x1024: onboarding identity sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-OVERFLOW] 1440x900: sin overflow horizontal (doc 0, panel 0)
+OK   [L-CONTAINED] 1440x900: ningún elemento se sale de la columna
+OK   [L-SCROLL-END] 1440x900: se puede hacer scroll hasta el final
+OK   [L-COVER] 1440x900: el último bloque (Acerca de) no se solapa con NavRail (bloque termina en 884, barra empieza en 0)
+OK   [L-TAP] 1440x900: objetivos táctiles ≥44px
+OK   [L-SHELL] 1440x900: NavRail visible y el otro no
+OK   [L-COLUMN] 1440x900: columna de lectura acotada (640 px)
+OK   [C-CLEAN] 1440x900: sin errores
+OK   [L-ONB] 1440x900: onboarding hero sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+OK   [L-ONB] 1440x900: onboarding identity sin overflow, dentro de pantalla, CTA visible y ≥44px ({"overflowX":0,"dialogOverflowX":0,"inside":true,"primaryVisible":true,"primaryHeight":44})
+
+B26 Nosotros (webkit): 312/314
