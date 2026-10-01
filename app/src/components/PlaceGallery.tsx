@@ -4,6 +4,7 @@ import { CARD_IMAGE_WIDTH, cardImageUrl } from "../data/place-images";
 import { hasAnyAttribution } from "../lib/photography-attribution";
 import { Icon } from "../icons/Icon";
 import { CreditsSheet } from "./CreditsSheet";
+import "./PlaceGallery.css";
 
 /**
  * Bloque 20 (B4) — galería de la ficha (`04 §6`, `05 §5` pt. 1).

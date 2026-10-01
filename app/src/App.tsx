@@ -1,3 +1,9 @@
+/* B10.4: las hojas globales van PRIMERO; el CSS que viaja con cada componente se importa desde el componente y, al evaluarse
+   después, queda siempre DESPUÉS de las globales (lo migrado sólo puede ganar a una global de igual especificidad, nunca al
+   revés; la equivalencia de estilo computado se comprueba con scripts/css-equivalence-check.mjs). */
+import "./App.css";
+import "./styles/discovery.css";
+import "./styles/trip-overview.css";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
@@ -35,9 +41,6 @@ import { matchesQuery } from "./lib/place";
 import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning-block";
 import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
-import "./App.css";
-import "./styles/discovery.css";
-import "./styles/trip-overview.css";
 import { deviceStorage } from "./lib/device-storage";
 
 /**

@@ -8,6 +8,7 @@ import postcss from "postcss";
  *
  *   node scripts/css-migrate.mjs --classes '^(zone-card|zone-column)' --to src/components/ZoneComparison.css [--from src/App.css] [--dry]
  *   node scripts/css-migrate.mjs --classes '^(selection-panel|selection-list)' --delete [--dry]
+ *   node scripts/css-migrate.mjs --classes-file clases.txt --to src/components/X.css   (nombres exactos, uno por línea)
  *
  * Una regla se mueve sólo si TODAS las clases de TODOS sus selectores casan con `--classes`, y tiene al menos una clase
  * (nunca mueve `:root`, elementos sueltos ni reglas mixtas). Los `@media`/`@container`/`@supports` se mueven si todas sus reglas
@@ -22,7 +23,10 @@ const from = path.join(ROOT, arg("--from") ?? "src/App.css");
 const to = arg("--to") ? path.join(ROOT, arg("--to")) : null;
 const del = args.includes("--delete");
 const dry = args.includes("--dry");
-const re = new RegExp(arg("--classes") ?? "$^");
+const classesFile = arg("--classes-file");
+const re = classesFile
+  ? new RegExp(`^(${readFileSync(path.resolve(classesFile), "utf8").split("\n").map((c) => c.trim()).filter(Boolean).map((c) => c.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")).join("|")})$`)
+  : new RegExp(arg("--classes") ?? "$^");
 const keyframes = new Set((arg("--keyframes") ?? "").split(",").filter(Boolean));
 if (!to && !del) throw new Error("falta --to o --delete");
 
