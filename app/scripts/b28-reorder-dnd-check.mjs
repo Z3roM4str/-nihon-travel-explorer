@@ -227,8 +227,13 @@ try {
   const afterScroll = await scrollPanel.evaluate((element) => element.scrollTop);
   check(afterScroll > beforeScroll, "J: edge auto-scroll did not advance");
   await auto.page.keyboard.press("Escape"); await auto.page.mouse.up();
-  await auto.page.waitForTimeout(80);
-  check(await scrollPanel.evaluate((element) => element.scrollTop) === afterScroll, "J: auto-scroll continued after cancellation");
+  // Invariante real: tras cancelar, el scroll queda quieto. La versión anterior comparaba con `afterScroll`, leído MIENTRAS el
+  // auto-scroll seguía vivo: cualquier fotograma entre esa lectura y la cancelación (ms de ida y vuelta al navegador) la rompía
+  // (intermitente también en main). Ahora se deja asentar un instante y se comprueba que no se mueve más.
+  await auto.page.waitForTimeout(60);
+  const settledScroll = await scrollPanel.evaluate((element) => element.scrollTop);
+  await auto.page.waitForTimeout(160);
+  check(await scrollPanel.evaluate((element) => element.scrollTop) === settledScroll, "J: auto-scroll continued after cancellation");
   await auto.context.close();
 
   const reduced = await setup({ width: 390, height: 844 }, false, "reduce");
