@@ -129,6 +129,7 @@ import { SequenceCandidateSummary as CandidateSummary } from "./SequenceCandidat
 import { hasSamePlaceOrder, isPlaceOrderPermutation } from "../lib/day-order-tool";
 
 import "./OrderedSequenceBuilder.css";
+import "./AnalysisDialog.css";
 type Props = {
   /** The wishlist, in its saved order — the source the route draft is initialized from and
    * the set a place can be added back from. Never mutated: removing a place from the route

@@ -16,6 +16,7 @@ import {
 } from "../lib/selection";
 
 import "./SelectionAnalysis.css";
+import "./AnalysisDialog.css";
 type Props = {
   savedPlaces: Place[];
   onSelectPlace: (id: string) => void;
