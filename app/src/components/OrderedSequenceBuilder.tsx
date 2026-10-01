@@ -1862,7 +1862,7 @@ function InterHubSegmentsSection({
       </p>
 
       {segments.length === 0 ? (
-        <p className="inter-hub-segments__empty">Todavía no has registrado ningún tramo entre ciudades.</p>
+        <p className="inter-hub-segments__empty">Todavía no has registrado ningún traslado entre ciudades.</p>
       ) : (
         <ul className="inter-hub-segments__list">
           {segments.map((segment) => {
@@ -1880,8 +1880,8 @@ function InterHubSegmentsSection({
                     type="button"
                     className="icon-button icon-button--small"
                     onClick={() => onRemove(segment.id)}
-                    aria-label={`Eliminar tramo ${fromName} a ${toName}`}
-                    title={`Eliminar tramo ${fromName} a ${toName}`}
+                    aria-label={`Eliminar traslado ${fromName} a ${toName}`}
+                    title={`Eliminar traslado ${fromName} a ${toName}`}
                   >
                     <Icon name="cerrar" size={16} />
                   </button>
@@ -1964,7 +1964,7 @@ function InterHubSegmentsSection({
           />
         </label>
         <button type="button" className="button button--secondary" disabled={!canAdd} onClick={add}>
-          <span aria-hidden="true">＋</span> Añadir tramo
+          <span aria-hidden="true">＋</span> Añadir traslado
         </button>
       </div>
       {availablePairs.length === 0 && (

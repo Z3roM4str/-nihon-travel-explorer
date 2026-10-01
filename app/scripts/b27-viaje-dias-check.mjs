@@ -234,7 +234,8 @@ try {
     await pair.selectOption({ index: 1 });
     await interHub.getByLabel("Modo").last().selectOption("shinkansen");
     await interHub.getByLabel("Duración manual del tramo principal").last().fill("135");
-    await keyboardActivate(interHub.getByRole("button", { name: "Añadir tramo" }));
+    // B10 L2: canonical action label (03 §10 / 05 §7); preserve every behavioural assertion.
+    await keyboardActivate(interHub.getByRole("button", { name: "Añadir traslado" }));
     if (await root.locator(".inter-hub-row").count() !== 1) fail("F: active between-days row absent");
     await capture(page, "viaje-390-traslado-interurbano-activo");
     const boundaryStop = root.locator(".day-card").first().locator(".trip-stop", { hasText: kyoto.name });
