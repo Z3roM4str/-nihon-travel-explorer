@@ -271,7 +271,7 @@ existente y las alternativas verificadas como opciones.
 **B9.4 — Dónde dormir.** Zonas sin ordinal, con fotografía, con hecho / cálculo /
 opinión separados visualmente. **Arregla D7.**
 
-**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). **Siguiente pendiente: B10 — Pulido; no iniciado.**
+**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). B10 — Pulido: **CERRADO E INTEGRADO** (#179, merge `c512db15a1d253a1c6704ad0798f80dea142e173`; véase [certificación](../B10_POST_MERGE_CERTIFICATION.md)).
 
 **B9.5 — Reservas y Resumen.** Sub-pestañas propias; se elimina `Dato:`; línea de
 tiempo comprimida del viaje.
@@ -307,6 +307,8 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
   componente.
 - Revisión de microcopy contra `03 §10`: léxico prohibido a cero.
 - Decisión sobre modo oscuro (OD-01).
+
+**Estado: CERRADO E INTEGRADO** (#179). OD-01 y las DDR B10-M/A/P/C quedan abiertas para Producto; véase [CURRENT_WORK_HANDOFF](../CURRENT_WORK_HANDOFF.md). Este roadmap no define bloques posteriores.
 
 ---
 

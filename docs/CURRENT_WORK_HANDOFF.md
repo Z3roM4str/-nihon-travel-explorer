@@ -1,11 +1,26 @@
-# Handoff reanudable — B10 «Pulido» entregado sin merge (PR abierto); D0b + D5 integrados
+# Handoff reanudable — B10 «Pulido» CERRADO E INTEGRADO; roadmap de bloques completo
 
-## Estado vigente — B10 «Pulido» (rama `claude/b10-pulido`, SIN MERGE)
+## Estado vigente — B10 CERRADO E INTEGRADO EN MAIN
 
-- Base: main POST-MERGE certificado `2a10ad3f11cd91a7d739e85307f04da9411bf5d1` (merge de #178 = D0b + D5; ver [D0B_D5_POST_MERGE_CERTIFICATION.md](D0B_D5_POST_MERGE_CERTIFICATION.md), publicado en la rama `claude/d0b-d5-post-merge-cert`).
-- Contenido, certificación Chromium/WebKit y deuda: [B10_POLISH_HANDOFF.md](B10_POLISH_HANDOFF.md) y [B10_POLISH_MISSION.md](B10_POLISH_MISSION.md). Fallos exclusivos de B10: 0.
-- **OD-01 (modo oscuro) sigue pendiente de Producto.** No iniciado ni decidido.
-- B10 NO se fusiona en esta misión: queda para revisión.
+- PR [#179](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/179) MERGED mediante merge commit `c512db15a1d253a1c6704ad0798f80dea142e173` (padres `2a10ad3f…` y `538d2ebf…`; tree idéntico al certificado `c781f598…`). Certificación post-merge: [B10_POST_MERGE_CERTIFICATION.md](B10_POST_MERGE_CERTIFICATION.md). Fallos exclusivos: 0.
+- Certificación D0b+D5 del merge `2a10ad3`: [D0B_D5_POST_MERGE_CERTIFICATION.md](D0B_D5_POST_MERGE_CERTIFICATION.md) (integrada por #180).
+- **`design/10_ROADMAP_DE_BLOQUES.md` no define ningún bloque posterior a B10** (B1–B10 completos; B6 con tandas B6.1–B6.7 cerradas aparte). No existe «B11»: no se inventa. El trabajo restante es deuda/DDR (abajo), no un bloque oficial.
+- Contenido, matrices y deuda de B10: [B10_POLISH_HANDOFF.md](B10_POLISH_HANDOFF.md) y [B10_POLISH_MISSION.md](B10_POLISH_MISSION.md).
+
+### Deuda vigente (clasificada)
+| Ítem | Naturaleza | Quién resuelve |
+|---|---|---|
+| OD-01 modo oscuro | decisión de Producto | Producto |
+| B10-M1…M6 movimientos sin nombre (toast, onboarding, chevron, foco, fundido de imagen, altura de hoja) | decisión de diseño (`03 §6` sólo nombra cinco) | Producto/Diseño |
+| B10-A1…A3 landmark `main`, `h1`, «Viaje» duplicado | cambio de arquitectura de información | Producto/Diseño |
+| B10-A4 controles de Leaflet < 44 px | restricción de librería | Diseño |
+| B10-P1 chunk de entrada +53,8 % gzip (datos/LQIP) | decisión de diseño (cargar registro por ciudad o cómo medir G6) | Producto/Ingeniería |
+| B10-C1 prosa «guardar/guardado» | decisión de voz | Producto |
+| B10-C2 = D5-M1 vistas `builder`/`compare` inalcanzables | código muerto con copy prohibido; borrar o reescribir copy | Producto (retirar capacidad documentada) |
+| D0b-01, D0b-02, EvidenceMark 11/12, media queries | deuda heredada | Diseño |
+| Safari/iPhone y lector de pantalla físicos; fotos reales de zona; OSM/recursos externos | restricción física/externa | humano |
+| Gates obsoletos: phase3f-h/j/s, block4, b18-regression; phase5a (A14/C01/C06) + integración 56/58 | deuda de test (el producto cambió; identificados idénticos en main) | Ingeniería |
+| `App.css`: shell de `App.tsx` y primitivos `.tag/.alert/.badge/.person-token` | deuda técnica menor de B10.4 | Ingeniería |
 
 ## Anterior — D0b + D5 reconciliados sobre main (integrados, #178)
 
