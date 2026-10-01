@@ -306,6 +306,16 @@ a {
   display: flex;
 }
 
+/* B10-A2: el selector de ciudad es el título de la pantalla; el `h1` que lo envuelve no pinta nada propio. */
+.app__heading {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .app__title {
   margin: 0;
   font-family: var(--font-voice);

@@ -1067,24 +1067,26 @@ export default function App() {
         <header className={`app__header ${headerScrolled ? "app__header--scrolled" : ""}`}>
           <div className="app__brand">
             {destination === "explorar" && activeHub ? (
-              <button
-                type="button"
-                /* `03 §7`/Art. 11: el título es el selector de ciudad (`05 §4`, «el selector de
-                   ciudad… es el menú del título»), así que es un control de navegación de pleno
-                   derecho. Su caja de texto mide 26px de alto; `.tap-target-min` le da los 44
-                   reales sin agrandar lo que se pinta. Es un control aislado en la cabecera —el
-                   token de persona vive al otro extremo—, así que la técnica 1 es la correcta
-                   (ver App.css §Áreas táctiles). Lo vigila `block1-ux-browser-audit.mjs`. */
-                className="app__title app__title--expand tap-target-min"
-                onClick={() => setCitySheetOpen(true)}
-                aria-haspopup="dialog"
-                aria-expanded={citySheetOpen}
-              >
-                <Icon name="atras" size={16} className="app__title-back" aria-hidden="true" />
-                <span className="app__title-text">{activeHub}</span>
-                {/* B24 (P2-7, `04 §11`): «el título lleva un icono de expandir» — el del set. */}
-                <Icon name="expandir" size={16} aria-hidden="true" />
-              </button>
+              <h1 className="app__heading">
+                <button
+                  type="button"
+                  /* `03 §7`/Art. 11: el título es el selector de ciudad (`05 §4`, «el selector de
+                     ciudad… es el menú del título»), así que es un control de navegación de pleno
+                     derecho. Su caja de texto mide 26px de alto; `.tap-target-min` le da los 44
+                     reales sin agrandar lo que se pinta. Es un control aislado en la cabecera —el
+                     token de persona vive al otro extremo—, así que la técnica 1 es la correcta
+                     (ver App.css §Áreas táctiles). Lo vigila `block1-ux-browser-audit.mjs`. */
+                  className="app__title app__title--expand tap-target-min"
+                  onClick={() => setCitySheetOpen(true)}
+                  aria-haspopup="dialog"
+                  aria-expanded={citySheetOpen}
+                >
+                  <Icon name="atras" size={16} className="app__title-back" aria-hidden="true" />
+                  <span className="app__title-text">{activeHub}</span>
+                  {/* B24 (P2-7, `04 §11`): «el título lleva un icono de expandir» — el del set. */}
+                  <Icon name="expandir" size={16} aria-hidden="true" />
+                </button>
+              </h1>
             ) : (
               <h1 className="app__title">
                 {destinationLabel(destination)}
@@ -1124,7 +1126,8 @@ export default function App() {
           </div>
         </header>
 
-        <div className="app__content">
+        {/* B10-A1: el único landmark `main` del shell; cabecera y barras quedan fuera. */}
+        <main className="app__content">
           {/* ---------------- Explorar ---------------- */}
           <div className="destination-panel" hidden={destination !== "explorar"}>
             {activeHub ? (
@@ -1236,10 +1239,12 @@ export default function App() {
                   aria-label={`Lugares de ${activeHub}`}
                 >
                   <aside className="app__sidebar" aria-label="Explorar lugares">
+                    {/* B10-A2: con `h1` (el título de la cabecera) las tarjetas (`h3`) ya no saltan un nivel. */}
+                    <h2 className="visually-hidden">Lugares de {activeHub}</h2>
                     {explorerList}
                   </aside>
 
-                  <main className="app__map-area">
+                  <div className="app__map-area">
                     <PlaceMap
                       places={filteredPlaces}
                       hubPlaces={hubPlaces}
@@ -1270,7 +1275,7 @@ export default function App() {
                         </button>
                       </div>
                     )}
-                  </main>
+                  </div>
                 </div>
               </>
             ) : (
@@ -1471,7 +1476,7 @@ export default function App() {
               onOpenOnboarding={() => setOnboardingOpen(true)}
             />
           </div>
-        </div>
+        </main>
 
         <TabBar active={destination} onSelect={selectDestination} wantToGoCount={wantToGoCount} />
       </div>

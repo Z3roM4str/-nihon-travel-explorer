@@ -309,7 +309,7 @@ try {
   await cancelTool.panel.getByLabel(`Mover ${byId.get(ids[1]).name} a la posición en la propuesta del Día 1`).selectOption("6");
   await cancelCase.page.keyboard.press("Escape");
   check(await cancelCase.root.locator(".day-order-tool").count() === 0, "G: Escape closes only the inline tool");
-  check(await cancelCase.root.getByRole("heading", { name: "Viaje", exact: true }).count() === 1, "G: Escape leaves the Viaje surface open");
+  check(await cancelCase.root.getByRole("heading", { name: "Viaje · Días", exact: true }).count() === 1, "G: Escape leaves the Viaje surface open");
   check(JSON.stringify((await readDraft(cancelCase.page)).days[0].placeIds) === JSON.stringify(dayPlaceIds) && await writeCount(cancelCase.page) === 0, "G: Escape discards proposal without mutation");
   check(await cancelTool.trigger.evaluate((element) => document.activeElement === element), "J: Escape restores focus to the same day trigger");
   await cancelCase.context.close();

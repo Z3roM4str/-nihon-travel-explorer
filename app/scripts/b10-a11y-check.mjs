@@ -12,8 +12,8 @@ import { preview } from "vite";
  *     fijada y justificada (trinquete: una excepción nueva falla);
  *   · foco visible en el recorrido por Tab de cada pantalla;
  *   · modalidad de `Sheet` y de la ficha: `role=dialog`, `aria-modal`, nombre, foco dentro, Escape cierra y el foco vuelve;
- *   · estructura (landmarks, encabezados): se mide y se compara con los HALLAZGOS REGISTRADOS (B10-A1…A3), que no tienen
- *     solución prescrita en los documentos y quedan como DESIGN DECISION REQUIRED; cualquier hallazgo nuevo falla.
+ *   · estructura: un único `main`, un único `h1` (primero), sin saltos de nivel y sin `h2` que repita el `h1` (B10-A1…A3, cerrados);
+ *     zoom de Leaflet con área táctil de 44 px (B10-A4, cerrado).
  *
  * No afirma equivalencia con VoiceOver/TalkBack: es una medición programática de DOM/estilos computados en Chromium y WebKit.
  * Uso: `npm run build && node scripts/b10-a11y-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
@@ -24,10 +24,11 @@ const APP = fileURLToPath(new URL("..", import.meta.url));
 
 /**
  * Controles <44 px que NO se corrigen, con motivo. Clave: `selector` (clase CSS de la parte pintada).
- *  leaflet-*: controles de la librería de mapas (zoom 30×30, atribución): atribución legal y chrome de Leaflet; el mapa es
- *    alternativo a la lista (todo lugar sigue en lista/búsqueda) → B10-A4.
+ *  `A.` sin clase: enlaces de atribución del mapa (Leaflet / OSM), texto legal en línea (exento como enlace en línea de un párrafo).
+ * Los botones de zoom de Leaflet YA NO son excepción (B10-A4 cerrado): `PlaceMap.css` amplía su área táctil a 44×44 hacia fuera,
+ * sin solaparse, y este gate lo mide (el `::after` absoluto cuenta como área de impacto).
  */
-const TARGET_EXCEPTIONS = [/^A\.leaflet-/, /^A\.$/ /* enlaces de atribución del mapa (Leaflet / OSM) */];
+const TARGET_EXCEPTIONS = [/^A\.$/ /* enlaces de atribución del mapa (Leaflet / OSM) */];
 
 let pass = 0;
 const failures = [];
@@ -131,9 +132,13 @@ const probe = (page) =>
       })
       .map((e) => `${e.tagName}.${e.className.toString().trim().split(/\s+/)[0] ?? ""}`);
     const landmarks = [...document.querySelectorAll("main,[role=main],nav,[role=navigation],aside,[role=complementary]")].filter(vis).map((e) => e.getAttribute("role") || e.tagName.toLowerCase());
-    const levels = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6,[role=heading]")].filter(vis).map((e) => Number(e.tagName[1] ?? e.getAttribute("aria-level")));
+    const headings = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6,[role=heading]")].filter(vis);
+    const levels = headings.map((e) => Number(e.tagName[1] ?? e.getAttribute("aria-level")));
+    const clean = (e) => (e.innerText || e.textContent || "").replace(/\s+/g, " ").replace(/[·:]\s*$/, "").trim();
+    const h1Text = headings.filter((e) => e.tagName === "H1").map(clean);
+    const dupHeading = headings.filter((e) => e.tagName === "H2" && h1Text.includes(clean(e))).map(clean);
     const imgsNoAlt = [...document.querySelectorAll("img:not([alt])")].filter(vis).length;
-    return { noName, dup, broken, hiddenFocus, small, landmarks, levels, imgsNoAlt, lang: document.documentElement.lang, title: document.title };
+    return { noName, dup, broken, hiddenFocus, small, landmarks, levels, dupHeading, imgsNoAlt, lang: document.documentElement.lang, title: document.title };
   });
 
 /** Pantallas: cada una deja la página en ese estado. */
@@ -153,14 +158,11 @@ const SCREENS = [
   ["viaje-resumen", async (p) => { await p.locator('.viaje-nav__item:has-text("Resumen")').click(); }],
 ];
 
-/** HALLAZGOS REGISTRADOS de estructura (sin solución prescrita en los documentos → DESIGN DECISION REQUIRED). */
-const KNOWN_STRUCTURE = {
-  // B10-A1: sólo la vista de mapa expone `main`; el resto de destinos no tiene landmark `main`.
-  // B10-A2: la lista de ciudad, la ficha y el mapa no tienen `h1` (la ficha salta de h3 a h2).
-  // B10-A3: Viaje repite «Viaje» como h1 y h2.
-  noH1: new Set(["explorar-ciudad", "ciudad-filtros", "ciudad-mapa", "ficha"]),
-};
-
+/**
+ * Estructura (B10-A1…A3, CERRADOS en el endurecimiento post-B10; antes eran hallazgos registrados):
+ *  A1 exactamente un landmark `main` visible en cada pantalla; A2 exactamente un `h1` y el primer encabezado es el `h1`;
+ *  ningún encabezado salta un nivel hacia abajo; A3 ningún `h2` repite el texto accesible del `h1`.
+ */
 const seen = {};
 for (const [width, height] of [[390, 844], [1200, 900]]) {
   const { context, page } = await boot(width, height);
@@ -182,14 +184,54 @@ for (const [width, height] of [[390, 844], [1200, 900]]) {
       const bad = r.small.filter((s) => !TARGET_EXCEPTIONS.some((re) => re.test(s)));
       ok(bad.length === 0, `controles < 44 px: ${[...new Set(bad)].slice(0, 6).join(" | ")}`);
     });
-    await ck(`S-${width}-${name}`, `${width}px · ${name}: estructura = hallazgos registrados (sin h1 / sin nav nuevos)`, async () => {
+    await ck(`S-${width}-${name}`, `${width}px · ${name}: un main, un h1, orden de encabezados, nav`, async () => {
       const r = seen[`${width}/${name}`] ?? (await probe(page));
-      const levels = r.levels;
-      if (levels.length && !KNOWN_STRUCTURE.noH1.has(name)) ok(levels.includes(1), `sin h1 (hallazgo nuevo): ${levels.slice(0, 8)}`);
-      ok(r.landmarks.includes("nav"), "sin landmark nav");
+      const { levels, landmarks } = r;
+      ok(landmarks.filter((l) => l === "main" || l === "main[role]").length === 1, `landmarks main visibles: ${landmarks.filter((l) => l === "main").length} (${landmarks.join(",")})`);
+      ok(landmarks.includes("nav"), "sin landmark nav");
+      if (levels.length) {
+        ok(levels.filter((l) => l === 1).length === 1, `h1 visibles: ${levels.filter((l) => l === 1).length} (${levels.slice(0, 8)})`);
+        ok(levels[0] === 1, `el primer encabezado no es h1: ${levels.slice(0, 8)}`);
+        const jump = levels.findIndex((l, i) => i > 0 && l - levels[i - 1] > 1);
+        ok(jump < 0, `salto de nivel hacia abajo en la posición ${jump}: ${levels.slice(Math.max(0, jump - 2), jump + 2)}`);
+      }
+      ok(r.dupHeading.length === 0, `h2 con el mismo nombre accesible que el h1: ${r.dupHeading.join(" | ")}`);
     });
     if (leave) await leave(page);
   }
+  await context.close();
+}
+
+// ───────────── B10-A4: el toque en el área ampliada del zoom llega al botón correcto (sin solaparse)
+for (const [width, height] of [[390, 844], [1200, 900]]) {
+  const { context, page } = await boot(width, height);
+  await ck(`Z-${width}`, `${width}px · zoom de Leaflet: 44×44 de impacto real, sin solape entre «+» y «−»`, async () => {
+    await SCREENS.find((s) => s[0] === "explorar-ciudad")[1](page);
+    const b = page.getByRole("button", { name: /^Mapa$/ });
+    if (await b.count()) await b.first().click();
+    await page.locator(".leaflet-control-zoom-in").waitFor({ state: "visible" });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      const inn = document.querySelector(".leaflet-control-zoom-in");
+      const out = document.querySelector(".leaflet-control-zoom-out");
+      const a = inn.getBoundingClientRect();
+      const c = out.getBoundingClientRect();
+      const hit = (x, y) => document.elementFromPoint(x, y);
+      const cx = a.left + a.width / 2;
+      const pts = {
+        inTop: hit(cx, a.top - 13) === inn, // 13 px por encima del «+»
+        inLeft: hit(a.left - 6, a.top + a.height / 2) === inn,
+        inBottom: hit(cx, a.bottom - 1) === inn,
+        outTop: hit(cx, c.top + 1) === out,
+        outBottom: hit(cx, c.bottom + 13) === out,
+        outRight: hit(c.right + 6, c.top + c.height / 2) === out,
+        gap: Math.round(c.top - a.bottom),
+      };
+      return pts;
+    });
+    ok(r.inTop && r.inLeft && r.inBottom, `«+»: ${JSON.stringify(r)}`);
+    ok(r.outTop && r.outBottom && r.outRight, `«−»: ${JSON.stringify(r)}`);
+  });
   await context.close();
 }
 
