@@ -88,12 +88,35 @@ Migradas: 0. El gate fija 10 `@media … max-width` (deuda registrada) y prohíb
 - Fallos exclusivos de D0b: ninguno. Heredado: el desborde de 1–2px a 320px en «Dónde dormir» (idéntico en la base).
 - Invariantes B27–B31: sin cambios en `lib/`, hooks, V8 o clave; los gates de escrituras de B27–B31 pasan.
 
+## Certificación independiente (auditoría final sobre `b63a8df`)
+
+**WebKit** (Playwright 26.5, `webkit-2336`, Linux; NO es Safari físico): gate D0b 56/56 · con `prefers-reduced-motion: reduce` 56/56 · B30 48/48 · B31 26/26 (también reduced-motion).
+Chromium 141: gate D0b 56/56 y 56/56 en reduced-motion · B31 26/26 y 26/26 reduced-motion.
+B27 (48), B28 (43) y B29 (36) no tienen modo WebKit en su script (sólo Chromium; verdes). block20 73/73 y phase5a 50/50 (Chromium; sus scripts sólo lanzan Chromium).
+`tsc -b` limpio · oxlint 0 errores (1 warning heredado) · Vitest 3533/3533.
+
+**Auditoría visual BASE `2f2e5e1` vs D0b `b63a8df`** (screenshots reales, mismo estado/scroll/escala/fuentes, `reducedMotion`, 8 superficies × 5 anchos 320/390/430/840/1200, en Chromium y WebKit = 80 pares; comparación píxel a píxel + inspección ocular):
+
+| superficie | anchos | diferencia base→D0b | esperada | veredicto |
+|---|---|---|---|---|
+| Explorar | 320–1200 | 0 px | — | SIN DIFERENCIA |
+| Quiero ir | 320–1200 | 0 px | — | SIN DIFERENCIA |
+| Viaje › Días | 320–1200 | sólo en los controles de texto/select (rangos de filas de formularios) | sí | ESPERADA — input ≥16px |
+| Viaje › Dónde dormir | 320–1200 | 0 px (overflow 1–2px a 320 heredado, presente igual en la base) | — | SIN DIFERENCIA / DEUDA HEREDADA |
+| Viaje › Reservas | 320–1200 | 0 px | — | SIN DIFERENCIA |
+| Viaje › Resumen | 320–1200 | 0 px | — | SIN DIFERENCIA |
+| Nosotros | 320–1200 | 0 px | — | SIN DIFERENCIA |
+| PlaceDetail | 320–1200 | 0 px | — | SIN DIFERENCIA |
+
+- Inputs ≥16px: medidos en ambos builds, 13,6/13,12px → 16px; anchura y altura de cada control idénticas (la altura la fija `min-height`), sin recorte horizontal (`scrollWidth ≤ clientWidth`), sin overflow de página, sin pisar botones, utilizables a 320px. Único efecto visible: el texto del `select` «Posición en el plan» (Traslados entre ciudades) se trunca con elipsis antes a 320px («…puntos cons…» vs «…consecutiv…» en la base; la base ya truncaba). Es consecuencia esperada del 16px y no es desborde.
+- 10 literales → tokens: diff de `src/` = exactamente las 14 líneas previstas; valores resueltos idénticos (`--surface #ffffff`, `--overlay-paper rgba(255,255,255,.92)`, `--overlay-ink rgba(20,22,26,.55)`); 0 px de diferencia en las superficies capturadas → sin diferencia perceptible. (Marcadores de mapa, toast y píldoras no aparecen en todas las capturas; la equivalencia se sostiene por valor idéntico.)
+- Safe-area, media queries y EvidenceMark: sin cambios (`index.html` intacto; 0 media queries tocadas; EvidenceMark 0 px de diferencia).
+- Fallos exclusivos de D0b: ninguno. Heredado: overflow 1–2px a 320 en «Dónde dormir»; warning oxlint de `PlaceMap.tsx`.
+- D0b-01, D0b-02 y EvidenceMark 11/12 siguen abiertos y NO bloquean la certificación.
+
 ## Límites
 
-- **WebKit: no instalado en este entorno; no ejecutado.**
-- **iPhone Safari físico: NO medido.**
-- Auditoría visual: sólo medida por los gates (overflow, tap targets, contraste, tamaños computados) en los 8 anchos;
-  no se revisaron capturas una a una, así que un cambio visual sutil por la sustitución de tokens (valores idénticos) no está confirmado a ojo.
+- **iPhone Safari físico: NO medido.** WebKit Playwright en Linux no equivale a Safari físico; no bloquea porque `viewport-fit=cover` no se aplicó.
 
 ## Pendientes de decisión (para el siguiente bloque)
 

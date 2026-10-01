@@ -2,7 +2,7 @@
 
 ## D0b — higiene del sistema de diseño — rama `claude/d0b-design-system-hygiene` (PR en borrador, base `claude/design-phase-1-v2-1-docs`)
 
-- Línea Claude, base `2f2e5e1677c0cb0a8b84536247fdd86f097277dc`. Sólo CSS + gate + docs: 10 literales → tokens exactos, 4 reglas de input a `--type-body-size` (16px), 0 media queries migradas (deuda registrada), `viewport-fit=cover` NO aplicado (DDR D0b-02), EvidenceMark 11/12 sin cambiar (DDR). Gate: `app/scripts/d0b-design-system-hygiene-check.mjs` (56). Detalle y límites (WebKit y iPhone físico no medidos): `docs/D0B_DESIGN_SYSTEM_HYGIENE_HANDOFF.md`. No se empieza D5.
+- Línea Claude, base `2f2e5e1677c0cb0a8b84536247fdd86f097277dc`. Sólo CSS + gate + docs: 10 literales → tokens exactos, 4 reglas de input a `--type-body-size` (16px), 0 media queries migradas (deuda registrada), `viewport-fit=cover` NO aplicado (DDR D0b-02), EvidenceMark 11/12 sin cambiar (DDR). Gate: `app/scripts/d0b-design-system-hygiene-check.mjs` (56). **Certificado**: WebKit 26.5 (Playwright) 56/56 + reduced-motion, auditoría visual BASE vs D0b (80 pares) sin diferencias salvo inputs ≥16px, sin fallos exclusivos. Detalle y límites (iPhone físico no medido): `docs/D0B_DESIGN_SYSTEM_HYGIENE_HANDOFF.md`. No se empieza D5.
 
 ## B31 / B9.5 «Reservas y Resumen» — rama `claude/b31-viaje-b9-5-reservas-resumen` (PR en borrador, base B30 Claude)
 
