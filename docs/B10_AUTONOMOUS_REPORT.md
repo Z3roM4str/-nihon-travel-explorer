@@ -1,0 +1,18 @@
+# B10 — Ejecución autónoma desde L2
+
+B10 INCOMPLETO. Rama `codex/b10-pulido-mission`, PR #177 Draft. Inicio: `30d1446c20d28660b25f604c4786a0605079383b`; main remoto `b854db384c952e827b86d1bb35cac7caa70b035a`. Ambos refs coincidentes al recuperar el checkout. No existe AGENTS.md en árbol, checkout ni ascendentes. Leídos misión, auditoría, handoff, certificaciones L1/L2 y normas de diseño. La instrucción autónoma sustituye las limitaciones históricas L1/L2, conservando sus artefactos.
+
+## L2b — Revisión editorial
+
+No se encontró una equivalencia canónica adicional documentada para E01–E04. No se cambia producto ni se cierra una decisión por inferencia. Los textos siguientes son propuestas para Producto, no literales aprobados. `08` exige revisión para texto visible nuevo; esta dependencia no detiene lotes técnicos independientes.
+
+| Decisión | Contexto / alternativas | Recomendación concreta |
+|---|---|---|
+| E01 ratio/parciales | `TransferAndVisitTotals` recibe cantidades, rango y completitud; no extremos. A: «traslados conocidos · N de M conexiones con tiempo registrado» y conservar contador separado de ausencias. B: «tiempo de traslados conocido · faltan N conexiones», conservando N/M en otra línea. Ninguna implica que el traslado principal manual sea puerta a puerta o sume a los totales locales. | A: conserva ratio y distinción de cantidad/tiempo sin ampliar el modelo. Revisar singular/plural, 0/1/N, completo y parcial antes de aprobar. No inventar X/Y a partir de cantidades. |
+| E02 Nosotros compartido | A: «Sólo cambia de quién es cada “Quiero ir”. El plan del viaje, los días, las fechas y el alojamiento son compartidos por los dos.» B: «Cada persona tiene su “Quiero ir”. El plan, los días, las fechas y el alojamiento son del viaje y los compartís los dos.» Mantener preferencia personal separada del plan común; no implica sincronización remota. | A: conserva la explicación del cambio de persona y enumera los cuatro ámbitos compartidos. No sustituir sólo recorrido por viaje para dar la decisión por resuelta. |
+| E03 partición inválida | Razón `invalid-day-partition`; registro conservado e inactivo, sin recuperación automática. A: «El reparto por días no es válido; este traslado no se aplica.» B: «Este traslado queda inactivo porque el reparto por días no es válido.» | B: explica estado y causa sin prometer reparación ni retirar registro. Probar fixture inválida, neutralidad y minutos excluidos cuando se apruebe. |
+| E04 hubs | Hub es clasificación del catálogo e incluye regiones; ciudad no es equivalencia global. A: «destinos» en toda la presentación de esta sección, conservando nombres concretos; B: «ciudades o regiones» con ejemplos del catálogo. Incluye introducción, selección, ausencia y razones `hub-mismatch`/`same-current-hub`. | B: precisa la clasificación sin añadir un concepto ambiguo de destino de navegación. Aprobar las frases completas como conjunto y probar Okinawa además de Tokio/Kioto. |
+| OD-01 | Implementar modo oscuro requiere tema, estados y contraste definidos; diferirlo requiere decisión expresa de Producto. | Diferir expresamente hasta especificación y auditoría de contraste. Permanece abierto; no se crea toggle/tema. |
+| A-01 colecciones | Tab largo confirma volumen, no inaccesibilidad por sí solo. A: conservar navegación vigente; B: diseñar saltos contextuales manteniendo todos los controles accesibles. | Conservar el patrón vigente en B10 técnico; revisar B sólo mediante decisión de navegación explícita. No usar tabindex negativo para acortar Tab. |
+
+L2b no necesita build ni capturas: sólo documentos, comprobación de contratos/cadenas y `git diff --check`. L1/L2 se conservan sin editar. Los lotes técnicos continúan.

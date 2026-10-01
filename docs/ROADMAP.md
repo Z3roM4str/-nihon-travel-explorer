@@ -1,5 +1,9 @@
 # Nihon Roadmap
 
+## B10 — continuación autónoma
+
+La instrucción autónoma autoriza L2b, movimiento/accesibilidad, G5/G6, comparación histórica y extracción CSS por superficie verificable. Sustituye las limitaciones anteriores L1/L2; conserva sus implementaciones y evidencias. [Informe consolidado](B10_AUTONOMOUS_REPORT.md): E01–E04 y OD-01 permanecen abiertos con alternativas y recomendación; continuar tareas técnicas independientes. PR #177 Draft, sin merge/deploy.
+
 ## Foundation — complete
 
 - [x] Confirm repository and source workbook.

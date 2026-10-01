@@ -1,5 +1,9 @@
 # B10 — Pulido · Misión acotada
 
+## Autorización vigente — ejecución autónoma
+
+La instrucción autónoma autoriza L2b, movimiento/accesibilidad, G5/G6, comparación histórica y extracción CSS por superficie verificable. Sustituye las limitaciones anteriores L1/L2; conserva sus implementaciones y evidencias. [Informe consolidado](B10_AUTONOMOUS_REPORT.md): E01–E04 y OD-01 permanecen abiertos con alternativas y recomendación; continuar tareas técnicas independientes. PR #177 Draft, sin merge/deploy.
+
 **Estado: L1 CONSERVADO; L2 IMPLEMENTADO Y VERIFICADO EN SU ALCANCE. B10 INCOMPLETO; PR #177 Draft.** [Certificación acotada](B10_L1_CERTIFICATION.md), [evidencia L1](B10_L1_EVIDENCE.json). HEAD documental inicial `2bbc09d63be2abe03b17aea8796274251425d32f`; implementación `3ac50d11392dce7635232a18baf4530f38895d10`.
 
 Base exacta: `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`; remoto verificado sin avance. Rama `codex/b10-pulido-mission`, creada desde esa base. B31 / B9.5 sigue cerrado (#175). [Auditoría](B10_PULIDO_AUDIT.md), [medidas/evidencia](B10_PULIDO_EVIDENCE.json). No se presupone un número de proyecto para B10.

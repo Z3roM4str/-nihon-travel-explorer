@@ -1,5 +1,9 @@
 # Handoff reanudable — B10 L1 conservado y L2 implementado; B10 incompleto
 
+## Estado vigente — ejecución autónoma
+
+La instrucción autónoma autoriza L2b, movimiento/accesibilidad, G5/G6, comparación histórica y extracción CSS por superficie verificable. Sustituye las limitaciones anteriores L1/L2; conserva sus implementaciones y evidencias. [Informe consolidado](B10_AUTONOMOUS_REPORT.md): E01–E04 y OD-01 permanecen abiertos con alternativas y recomendación; continuar tareas técnicas independientes. PR #177 Draft, sin merge/deploy.
+
 ## Estado vigente — L2 acotado; PR #177 Draft
 
 - Rama `codex/b10-pulido-mission`, inicial `20bdf2d16ccfefccae5626880c0246c385c87aa1`; implementación `ebcb6fc5fe8cedbad8edae1ec8939447cccaa08f`. HEAD documental: `git log -1 --format=%H -- docs/B10_L2_CERTIFICATION.md`.

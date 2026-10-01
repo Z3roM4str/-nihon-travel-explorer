@@ -1,5 +1,9 @@
 # B10 — Auditoría de preparación
 
+## Checkpoint autónomo
+
+La instrucción autónoma autoriza L2b, movimiento/accesibilidad, G5/G6, comparación histórica y extracción CSS por superficie verificable. Sustituye las limitaciones anteriores L1/L2; conserva sus implementaciones y evidencias. [Informe consolidado](B10_AUTONOMOUS_REPORT.md): E01–E04 y OD-01 permanecen abiertos con alternativas y recomendación; continuar tareas técnicas independientes. PR #177 Draft, sin merge/deploy.
+
 ## Actualización L2 — clasificación contextual; B10 incompleto
 
 [Alcance/matriz](B10_L2_COPY_SCOPE.md), [certificación](B10_L2_CERTIFICATION.md), [evidencia](B10_L2_EVIDENCE.json). Desde `20bdf2d16ccfefccae5626880c0246c385c87aa1`; implementación `ebcb6fc5fe8cedbad8edae1ec8939447cccaa08f`. L1 y evidencia intactos.
