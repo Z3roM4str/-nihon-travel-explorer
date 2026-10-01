@@ -19,3 +19,9 @@ Los botones de Leaflet van apilados con paso de 30 px: agrandarlos a 44 px **pin
 
 ## Honestidad sobre lo no medido
 No hay lector de pantalla físico ni Safari/iPhone en este entorno: la mejora de navegación por landmarks/encabezados se midió en el árbol DOM/estilos computados (Chromium), no con VoiceOver/TalkBack. WebKit no está instalado en esta sesión.
+
+## Certificación de la rama (Chromium 141; clon de trabajo, build de producción)
+tsc/build PASS · oxlint 0 errores (1 aviso heredado `PlaceMap.tsx:18`) · Vitest 118 archivos / 3 510 · **b10-a11y 89/89** · motion 16/16 · microcopy 52/52 · performance 13/13 · D0b 56/56 · D5 30/30 ·
+block12 · B17 ×2 · B18 ×5 · block19 ×2 · block20 · b24-ddr3 · B25 123 · B26 · B27 · **B28** (pasó en la tanda; intermitente conocido de temporización) · **B29 163/163** · B30 475/475 · B31 281/281 · ddr03 · DD-028 · block5 · block6 · b21 33/33 · phase5a · block23 · b18-regression 40/40.
+**Cambios de gates por esta misión (no por debilitar)**: `b29` busca el `h2` por su nuevo nombre accesible «Viaje · Días» (A3); `b10-a11y` se reforzó (arriba); el test de alcance D5 mide `b854db3..2a10ad3` (se rompía con cualquier cambio posterior de `lib/`/`data/`, ya en main tras #183).
+Sin WebKit en esta sesión (no repetido); sin lector de pantalla ni Safari físicos.
