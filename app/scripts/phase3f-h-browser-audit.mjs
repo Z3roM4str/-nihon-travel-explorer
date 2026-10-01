@@ -362,7 +362,7 @@ try {
       assert.match(text, /Inicio: .*1 dic 2026.*05:00/s);
       assert.match(
         text,
-        /La fecha de referencia del dispositivo cae dentro del tramo de fechas registrado para la solicitud\./
+        /La fecha de referencia del dispositivo cae dentro del intervalo de fechas registrado para la solicitud\./
       );
       assert.match(text, /Fecha de referencia \(tu dispositivo\):.*1 dic 2026/);
       assertNoForbiddenCopy(text, "Scenario E");
@@ -385,10 +385,10 @@ try {
       assert.match(text, /Fin registrado de la ventana: .*12 mar 2027.*23:59/s);
       assert.match(
         text,
-        /La fecha de referencia del dispositivo cae dentro del tramo de fechas registrado para la solicitud\./
+        /La fecha de referencia del dispositivo cae dentro del intervalo de fechas registrado para la solicitud\./
       );
       assert.match(text, /Fecha de referencia \(tu dispositivo\):.*12 mar 2027/);
-      assert.doesNotMatch(text, /después del tramo/);
+      assert.doesNotMatch(text, /después del intervalo/);
       assertNoForbiddenCopy(text, "Scenario F");
       record("F. Katsura close edge", "ref 2027-03-12, no closing claim");
     } finally {

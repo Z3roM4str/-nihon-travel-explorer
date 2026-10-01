@@ -584,7 +584,7 @@ try {
     await positionSelect.selectOption({ label: pair });
     await section.locator("select").nth(1).selectOption({ label: "Shinkansen" });
     await section.locator("input[type=number]").first().fill("140");
-    await section.getByRole("button", { name: /Añadir tramo/ }).click();
+    await section.getByRole("button", { name: /Añadir traslado/ }).click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
     assert.equal(draft.interHubSegments.length, 1,

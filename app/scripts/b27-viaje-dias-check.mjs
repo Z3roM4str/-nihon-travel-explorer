@@ -233,8 +233,8 @@ try {
   if (await pair.locator("option").count() > 1) {
     await pair.selectOption({ index: 1 });
     await interHub.getByLabel("Modo").last().selectOption("shinkansen");
-    await interHub.getByLabel("Duración manual del tramo principal").last().fill("135");
-    await keyboardActivate(interHub.getByRole("button", { name: "Añadir tramo" }));
+    await interHub.getByLabel("Duración manual del traslado principal").last().fill("135");
+    await keyboardActivate(interHub.getByRole("button", { name: "Añadir traslado" }));
     if (await root.locator(".inter-hub-row").count() !== 1) fail("F: active between-days row absent");
     await capture(page, "viaje-390-traslado-interurbano-activo");
     const boundaryStop = root.locator(".day-card").first().locator(".trip-stop", { hasText: kyoto.name });

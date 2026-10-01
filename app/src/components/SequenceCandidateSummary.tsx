@@ -22,8 +22,8 @@ export function SequenceCandidateSummary({
       {dayLocal ? "Rango total conocido de traslados" : "Traslados"}: {summary.transferMinutes ? formatRange(summary.transferMinutes) : "Sin traslados registrados"}
       <br />
       {summary.legCount === 0
-        ? "Sin tramos en este recorrido"
-        : `${summary.knownLegCount}/${summary.legCount} tramo${summary.legCount === 1 ? "" : "s"} cubierto${summary.legCount === 1 ? "" : "s"}`}
+        ? (dayLocal ? "Sin traslados en este día" : "Sin traslados en este viaje")
+        : `${summary.knownLegCount}/${summary.legCount} traslado${summary.legCount === 1 ? "" : "s"} registrado${summary.legCount === 1 ? "" : "s"}`}
       {parts.length > 0 && (
         <>
           <br />

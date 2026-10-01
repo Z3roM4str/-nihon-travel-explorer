@@ -82,17 +82,17 @@ describe("Phase 3F-H relation copy", () => {
     expect(
       describeOfficialReservationReferenceRelationForUi(assessed("before-recorded-application-date-span"))
     ).toBe(
-      "La fecha de referencia del dispositivo está antes del tramo de fechas registrado para la solicitud."
+      "La fecha de referencia del dispositivo está antes del intervalo de fechas registrado para la solicitud."
     );
     expect(
       describeOfficialReservationReferenceRelationForUi(assessed("within-recorded-application-date-span"))
     ).toBe(
-      "La fecha de referencia del dispositivo cae dentro del tramo de fechas registrado para la solicitud."
+      "La fecha de referencia del dispositivo cae dentro del intervalo de fechas registrado para la solicitud."
     );
     expect(
       describeOfficialReservationReferenceRelationForUi(assessed("after-recorded-application-date-span"))
     ).toBe(
-      "La fecha de referencia del dispositivo está después del tramo de fechas registrado para la solicitud."
+      "La fecha de referencia del dispositivo está después del intervalo de fechas registrado para la solicitud."
     );
   });
 
@@ -176,7 +176,7 @@ describe("Phase 3F-H composition — real fixtures", () => {
   it("annotates Katsura's inclusive close edge as a date span, not a closing day", () => {
     const { presentation, relation } = compose(katsura, "2027-03-15", "2027-03-12");
     const composed = buildOfficialReservationReferenceRelationPresentation(presentation, relation);
-    expect(composed?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(composed?.relationText).toContain("cae dentro del intervalo de fechas registrado");
     expect(composed?.referenceDateText).toContain("12 mar 2027");
     expect(presentation.detailLines[1]).toContain("23:59");
   });

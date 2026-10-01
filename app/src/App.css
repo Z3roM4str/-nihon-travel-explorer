@@ -1111,7 +1111,7 @@ button.app__title.app__title--expand {
   height: var(--marker-size);
   border-radius: 50%;
   background: var(--marker-color);
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
@@ -1129,7 +1129,7 @@ button.app__title.app__title--expand {
   height: 9px;
   border-radius: 50%;
   background: var(--color-ok);
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
 }
 
 /* ---------- Detail panel ---------- */
@@ -2138,7 +2138,7 @@ button.app__title.app__title--expand {
 
 .selection-panel__count {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--surface);
   border-radius: 999px;
   min-width: 1.4rem;
   height: 1.4rem;
@@ -2667,7 +2667,7 @@ button.app__title.app__title--expand {
   height: 1.6rem;
   border-radius: 50%;
   background: var(--color-text);
-  color: #fff;
+  color: var(--surface);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2805,11 +2805,11 @@ button.app__title.app__title--expand {
   height: 26px;
   border-radius: 50%;
   background: var(--color-text);
-  color: #fff;
+  color: var(--surface);
   font-size: 0.75rem;
   font-weight: 700;
   font-style: normal;
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
@@ -2823,7 +2823,7 @@ button.app__title.app__title--expand {
   height: 10px;
   border-radius: 50%;
   background: var(--color-info);
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
@@ -3263,7 +3263,7 @@ button.app__title.app__title--expand {
   padding: 0.6rem 1rem;
   border-radius: 999px;
   background: #241f1a;
-  color: #fff;
+  color: var(--surface);
   font-size: 0.85rem;
   font-weight: 600;
   box-shadow: var(--shadow-panel);
@@ -3827,7 +3827,7 @@ button.app__title.app__title--expand {
 .region-nav__item--active {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #fff;
+  color: var(--surface);
 }
 
 .region-nav__item--active:hover {
@@ -4755,7 +4755,7 @@ button.app__title.app__title--expand {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-size: 0.85rem;
+  font-size: var(--type-body-size);
 }
 
 .recorded-interval-fit__result {
@@ -5258,7 +5258,7 @@ button.app__title.app__title--expand {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-size: 0.85rem;
+  font-size: var(--type-body-size);
 }
 
 .accommodation-boundary {
@@ -5300,7 +5300,7 @@ button.app__title.app__title--expand {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-size: 0.85rem;
+  font-size: var(--type-body-size);
 }
 
 .accommodation-boundary__endpoint,
@@ -5423,7 +5423,7 @@ button.app__title.app__title--expand {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-size: 0.82rem;
+  font-size: var(--type-body-size);
 }
 
 /* Phase 3E-A — read-only composition. Subgroups remain visually adjacent but do not collapse into
@@ -6973,11 +6973,11 @@ button.app__title.app__title--expand {
 .trip-stop__move { min-height: var(--tap-min); margin-top: .25rem; }
 .trip-stop__move-panel { display: grid; gap: .5rem; margin-top: .5rem; padding: .65rem; background: var(--surface-sunken); border-radius: var(--radius-s); }
 .trip-stop__move-panel label { display: grid; gap: .2rem; font-size: var(--type-body-s-size); }
-.trip-stop__move-panel select, .unassigned-drawer select { min-height: var(--tap-min); max-width: 100%; }
+.trip-stop__move-panel select, .unassigned-drawer select { min-height: var(--tap-min); max-width: 100%; font-size: var(--type-body-size); }
 .trip-stop__unassign { min-height: var(--tap-min); margin-top: .15rem; }
 .day-card__actions { display: flex; flex-wrap: wrap; gap: .65rem; margin: .75rem 0; padding-block: .65rem; border-block: 1px solid var(--line); }
 .day-card__actions label { display: grid; flex: 1 1 12rem; gap: .2rem; color: var(--ink-600); font-size: var(--type-body-s-size); }
-.day-card__actions select { min-height: var(--tap-min); min-width: 0; max-width: 100%; }
+.day-card__actions select { min-height: var(--tap-min); min-width: 0; max-width: 100%; font-size: var(--type-body-size); }
 .day-order-alternatives { margin-top: var(--space-3); }
 .day-order-alternatives > summary { display: flex; align-items: center; min-height: var(--tap-min); font-weight: 700; cursor: pointer; }
 .day-order-tool__trigger { min-height: var(--tap-min); flex: 0 0 auto; }
@@ -6997,7 +6997,7 @@ button.app__title.app__title--expand {
 .day-order-tool__position { flex: 0 0 auto; color: var(--ink-600); font-size: var(--type-body-s-size); }
 .day-order-tool__place-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
 .day-order-tool__move { display: grid; flex: 0 1 8.25rem; min-width: 6.5rem; gap: .1rem; color: var(--ink-600); font-size: var(--type-body-s-size); }
-.day-order-tool__move select { width: 100%; min-width: 0; min-height: var(--tap-min); }
+.day-order-tool__move select { width: 100%; min-width: 0; min-height: var(--tap-min); font-size: var(--type-body-size); }
 .day-order-tool__leg { display: flex; align-items: center; gap: .3rem; margin: .35rem 0 0; padding: .35rem .5rem; border-inline-start: 2px solid var(--line-strong); color: var(--ink-700); font-size: var(--type-body-s-size); line-height: 1.4; overflow-wrap: anywhere; }
 .day-order-tool__leg--unknown { color: var(--ink-600); }
 .day-order-tool .comparison-candidate__stats { overflow-wrap: anywhere; }

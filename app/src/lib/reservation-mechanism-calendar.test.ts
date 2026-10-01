@@ -164,8 +164,8 @@ describe("Phase 3F-S — same-scope records compose without merging", () => {
     // are composed per record, never shared, reused or collapsed into one.
     expect(overseas.relation).not.toBeNull();
     expect(domestic.relation).not.toBeNull();
-    expect(overseas.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
-    expect(domestic.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(overseas.relation?.relationText).toContain("cae dentro del intervalo de fechas registrado");
+    expect(domestic.relation?.relationText).toContain("cae dentro del intervalo de fechas registrado");
     expect(overseas.relation).not.toBe(domestic.relation);
   });
 
@@ -286,7 +286,7 @@ describe("Phase 3F-J — application-window items", () => {
       },
     });
     expect(item.presentation.allocationText).toBe("Asignación registrada: sorteo.");
-    expect(item.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(item.relation?.relationText).toContain("cae dentro del intervalo de fechas registrado");
     expect(item.presentation.sourceUrl).toBe("https://museum-tickets.nintendo.com/en");
   });
 
@@ -317,7 +317,7 @@ describe("Phase 3F-J — application-window items", () => {
     );
     expect(item.presentation.provenanceText).toContain("outside-Japan");
     expect(item.presentation.sourceUrl).toBe("https://ticket-en.pokepark-kanto.co.jp/?viewLang=en");
-    expect(item.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(item.relation?.relationText).toContain("cae dentro del intervalo de fechas registrado");
   });
 
   it("renders both recorded edges in one span, with times and the unknown timezone", () => {
@@ -660,9 +660,9 @@ describe("Phase 3F-J — Phase 3F-H relation reuse", () => {
 
   it("keeps a Katsura edge date inside the recorded date span", () => {
     const openEdge = build([[KATSURA]], "2027-03-15", "2026-12-01").chronological[0];
-    expect(openEdge.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(openEdge.relation?.relationText).toContain("cae dentro del intervalo de fechas registrado");
     const closeEdge = build([[KATSURA]], "2027-03-15", "2027-03-12").chronological[0];
-    expect(closeEdge.relation?.relationText).toContain("cae dentro del tramo de fechas registrado");
+    expect(closeEdge.relation?.relationText).toContain("cae dentro del intervalo de fechas registrado");
   });
 
   it("renders null rather than a placeholder for an invalid reference date", () => {

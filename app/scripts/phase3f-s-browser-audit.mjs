@@ -208,7 +208,7 @@ try {
         .allInnerTexts();
       assert.equal(relations.length, 2);
       for (const relation of relations) {
-        assert.match(relation, /cae dentro del tramo de fechas registrado para la solicitud\./);
+        assert.match(relation, /cae dentro del intervalo de fechas registrado para la solicitud\./);
       }
       record("E. per-record temporal relation", "2 relations, both record-local");
 
