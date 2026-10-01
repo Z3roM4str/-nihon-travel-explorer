@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
 import { preview } from "vite";
@@ -11,9 +11,11 @@ import { preview } from "vite";
  * Prohibido: entradas escalonadas al scroll, transiciones de hover en todas las tarjetas, parallax, cualquier movimiento no
  * disparado por la persona salvo el skeleton de carga. Con `prefers-reduced-motion: reduce` todo ≤ 100 ms.
  *
- * Es un **gate de inventario con trinquete**: cada `@keyframes`, `transition` y `animation` del CSS está clasificado
- * abajo. Lo no clasificado falla. Lo clasificado «DDR» no es un movimiento nombrado y queda registrado como decisión de
- * diseño pendiente (docs/B10_POLISH_MISSION.md §Movimiento): no se retira ni se inventa su sustituto.
+ * Es un **gate de inventario con trinquete**: cada `@keyframes`, `transition` y `animation` de TODO el CSS de producto
+ * (todos los `.css` bajo `src/`, no sólo los cuatro archivos de antes de B10.4) está clasificado abajo. Lo no clasificado falla.
+ * Los seis restantes (antes «DDR B10-M1…M6») no son movimientos nombrados de `03 §6`: son **transiciones funcionales de estado**
+ * (aviso, telón, pliegue, foco, revelado de imagen, redimensión de hoja). Tienen nombre y especificación formales en
+ * `docs/B10_MOTION_SPEC.md`; este gate fija sus valores exactos (S08) y que con `prefers-reduced-motion` duran ≤ 100 ms.
  *
  * Uso: `npm run build && node scripts/b10-motion-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
  */
@@ -31,12 +33,12 @@ const NAMED = {
 /** Skeleton de carga: único movimiento no disparado por la persona permitido. */
 const SKELETON = ["card-shimmer"];
 /** No son movimiento nombrado: DDR de B10 (se conservan, fijados). */
-const DDR_KEYFRAMES = { "toast-in": "B10-M1", "onboarding-fade": "B10-M2" };
+const DDR_KEYFRAMES = { "toast-in": "B10-M1 · notice-enter", "onboarding-fade": "B10-M2 · scrim-fade" };
 const DDR_TRANSITIONS = {
-  ".filter-group__chevron": "B10-M3 (giro del chevron de plegado, transform)",
-  ".place-card": "B10-M4 (foco: box-shadow/border-color)",
-  ".place-card__image": "B10-M5 (fundido de carga de la imagen, opacity)",
-  ".national__sheet": "B10-M6 (altura de la hoja del mapa nacional)",
+  ".filter-group__chevron": "B10-M3 · disclosure-turn (giro del chevron de plegado, transform)",
+  ".place-card": "B10-M4 · focus-affordance (foco: box-shadow/border-color)",
+  ".place-card__image": "B10-M5 · image-reveal (fundido de carga de la imagen, opacity)",
+  ".national__sheet": "B10-M6 · sheet-resize (altura de la hoja del mapa nacional)",
 };
 
 let pass = 0;
@@ -56,7 +58,16 @@ const ok = (c, m) => {
 };
 
 // ───────────── Estático: inventario de CSS
-const files = ["../src/App.css", "../src/styles/discovery.css", "../src/styles/trip-overview.css", "../src/styles/tokens.css"];
+/** Todo el CSS de producto, recursivo bajo `src/` (B10.4 movió reglas de App.css a hojas junto a sus componentes). */
+function cssFiles(dir = new URL("../src/", import.meta.url), acc = []) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const child = new URL(e.name + (e.isDirectory() ? "/" : ""), dir);
+    if (e.isDirectory()) cssFiles(child, acc);
+    else if (e.name.endsWith(".css")) acc.push(child.href.replace(new URL("../", import.meta.url).href, "../"));
+  }
+  return acc;
+}
+const files = cssFiles();
 const rules = [];
 const keyframes = [];
 for (const f of files) {
@@ -127,6 +138,38 @@ await ck("S07", "JS: todo movimiento programático respeta reduced-motion (mapa,
   }
   const all = ["App.tsx", "components/OrderedSequenceBuilder.tsx", "components/PlaceDetail.tsx", "components/SearchSheet.tsx"].map((f) => read(`../src/${f}`)).join("\n");
   ok(!/behavior:\s*"smooth"/.test(all), "scroll smooth no guardado en superficies de Viaje/App/ficha");
+});
+
+await ck("S08", "transiciones funcionales (B10-M1…M6): nombre, valores y disparador exactos de docs/B10_MOTION_SPEC.md", async () => {
+  const css = files.map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, "")).join("\n");
+  const rule = (selector) => {
+    const i = css.indexOf(`\n${selector} {`);
+    ok(i >= 0, `falta la regla ${selector}`);
+    return css.slice(i, css.indexOf("}", i));
+  };
+  const frames = (name) => {
+    const i = css.indexOf(`@keyframes ${name}`);
+    ok(i >= 0, `falta @keyframes ${name}`);
+    return css.slice(i, css.indexOf("\n}\n", i)).replace(/\s+/g, " ");
+  };
+  // notice-enter (B10-M1): opacidad 0→1 y subida de 8 px, 0,2 s ease-out, sólo al aparecer el aviso
+  ok(/from \{ opacity: 0; transform: translateY\(8px\); \} to \{ opacity: 1; transform: translateY\(0\); \}/.test(frames("toast-in")), "notice-enter: fotogramas ≠ spec");
+  ok(/animation:\s*toast-in 0\.2s ease-out;/.test(css), "notice-enter: duración/curva ≠ 0,2 s ease-out");
+  // scrim-fade (B10-M2): opacidad 0→1, 0,18 s ease-out, sólo en el telón del onboarding; sin animación con reduced-motion
+  ok(/from \{ opacity: 0; \} to \{ opacity: 1; \}/.test(frames("onboarding-fade")), "scrim-fade: fotogramas ≠ spec");
+  ok(/animation:\s*onboarding-fade 0\.18s ease-out;/.test(css), "scrim-fade: duración/curva ≠ 0,18 s ease-out");
+  ok(/prefers-reduced-motion: reduce\) \{[^}]*animation: none;/.test(read("../src/components/Onboarding.css").replace(/\/\*[\s\S]*?\*\//g, "")), "scrim-fade: sin `animation: none` en reduced-motion");
+  // disclosure-turn (B10-M3): giro del chevron al plegar/desplegar, --dur-fast
+  ok(/transition:\s*transform var\(--dur-fast\) var\(--ease-standard\);/.test(rule(".filter-group__chevron")), "disclosure-turn ≠ transform --dur-fast");
+  // focus-affordance (B10-M4): sombra y borde de la tarjeta, --dur-base, SIN :hover (03 §6)
+  const card = rule(".place-card").replace(/\s+/g, " ");
+  ok(/transition: box-shadow var\(--dur-base\) var\(--ease-standard\), border-color var\(--dur-base\) var\(--ease-standard\);/.test(card), "focus-affordance ≠ box-shadow/border-color --dur-base");
+  ok(!/\.place-card:hover/.test(css), "la tarjeta tiene un estado :hover (prohibido, 03 §6)");
+  // image-reveal (B10-M5): opacidad 0→1 de la imagen al cargar, --dur-base
+  const img = rule(".place-card__image").replace(/\s+/g, " ");
+  ok(/opacity: 0;/.test(img) && /transition: opacity var\(--dur-base\) var\(--ease-standard\);/.test(img), "image-reveal ≠ opacity 0→1 --dur-base");
+  // sheet-resize (B10-M6): altura de la hoja del mapa nacional, --dur-base
+  ok(/transition:\s*height var\(--dur-base\) var\(--ease-standard\);/.test(rule(".national__sheet")), "sheet-resize ≠ height --dur-base");
 });
 
 // ───────────── Navegador

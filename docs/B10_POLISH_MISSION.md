@@ -6,7 +6,7 @@ fusiona en esta misión.** El número de bloque no se asigna por inferencia: el 
 
 Objetivos canónicos (`10_ROADMAP_DE_BLOQUES.md`): (1) auditoría de movimiento, (2) accesibilidad completa por pantalla,
 (3) presupuesto de rendimiento y de bytes de imagen por ciudad, (4) erradicación de `App.css`, (5) microcopy contra `03 §10`,
-(6) **OD-01 — modo oscuro: pendiente de Producto, NO resuelto, NO implementado** (`09`: «Quién puede cerrarla: Producto»).
+(6) **OD-01 — modo oscuro: NO implementado** (en B10 pendiente de Producto; **resuelto después como POST-V1 / DIFERIDO**, ver `design/09`) (`09`: «Quién puede cerrarla: Producto»).
 
 Reglas respetadas: sin datasets (`data/`, `app/src/data/` intactos), sin fotografías nuevas, sin Astra, sin Vercel, sin lógica
 matemática/logística/reservas/ranking/persistencia, sin debilitar gates, sin force-push/squash/rebase.
@@ -144,7 +144,7 @@ en «Fuentes» plegado; contenido editorial de `data/`, no se toca).
 
 ## 6. OD-01
 
-`OD-01 — ¿Se añade modo oscuro en esta evolución?` — **Producto**. Sin decisión; no se implementa, no se resuelve. No bloquea B10.
+`OD-01 — ¿Se añade modo oscuro en esta evolución?` — **Producto**. En B10: sin decisión, no se implementa. **Resolución posterior (endurecimiento de release): POST-V1 / DIFERIDO** — no forma parte de la versión actual (ver `design/09`). No bloquea nada.
 
 ## 7. Deuda abierta tras B10
 

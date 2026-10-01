@@ -12,7 +12,7 @@
 | B10.3 rendimiento | gate `b10-performance-check` + evidencia por ciudad | 4 ciudades ≤ 3,5 MB (Tokio y Kioto **en el tope**); 0 originales/duplicados/fallos; B10-P1: entrada +53,8 % gzip frente a v1.1.0 (datos, no código) |
 | B10.4 `App.css` | 12 lotes + 3 herramientas (`css-inventory`, `css-migrate`, `css-equivalence-check`) | 7 052 → 1 287 líneas; 30 hojas junto a sus componentes; **0 diferencias de estilo computado/caja** en 125 estados × 5 anchos (Chromium: 235 851 elementos; WebKit 26.5: 235 791 elementos) |
 | B10.5 microcopy | corazón «Quiero ir: {lugar}» · gate `b10-microcopy-check` | léxico prohibido visible = 0; B10-C1 (guardar/guardado) y B10-C2 (= D5-M1) como DDR |
-| OD-01 | — | **pendiente de Producto**; no decidido, no implementado |
+| OD-01 | — | no implementado; **resuelto después como POST-V1 / DIFERIDO** (ver `design/09`) |
 
 ## Certificación (rama vs main certificado `2a10ad3`)
 
@@ -51,7 +51,7 @@ contenido de debajo baja 10 px), la leyenda de interés/«Fuentes» a 44 px (Exp
 
 ## Pendiente / deuda
 
-* **OD-01 (Producto)**: modo oscuro, sin decidir.
+* **OD-01 (Producto)**: modo oscuro — **POST-V1 / DIFERIDO** (no es requisito de la versión actual).
 * **DESIGN DECISION REQUIRED nuevas**: B10-M1…M6 (movimientos no nombrados: toast, onboarding, chevron de plegado, foco de tarjeta, fundido de imagen, altura de hoja nacional; y B10-M7 si Producto quiere `push`/`cross-fade`),
   B10-A1…A3 (landmark `main`, `h1` ausentes, «Viaje» duplicado), B10-A4 (controles de Leaflet < 44 px), B10-P1 (chunk de entrada: datos/LQIP; cómo medir G6), B10-C1 («guardar/guardado»), B10-C2 = D5-M1 (vistas muertas).
 * Heredadas: D0b-01, D0b-02, EvidenceMark 11/12, deuda de media queries; Tokio y Kioto sin margen de bytes de imagen (B6).

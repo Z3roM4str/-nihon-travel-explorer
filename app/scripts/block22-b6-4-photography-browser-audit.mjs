@@ -5,6 +5,14 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva TODAS las afirmaciones. Las muestras JP-054, JP-129,
+ * JP-173 y JP-196 ganaron una TERCERA fotografía en B6.7 (profundidad), con lo que el bucle «las restantes diapositivas son alcanzables» corre
+ * por primera vez sobre la diapositiva 3 y su espera fija de 200 ms no alcanzaba el fin del desplazamiento suave (la diapositiva SÍ es
+ * alcanzable: el contador llega a «3 / 3» a ~250 ms). La invariante real es «tras pulsar siguiente el contador llega a la diapositiva N»:
+ * se espera a esa condición (hasta 3 s) en vez de a un reloj.
+ */
+
 /**
  * B6.4: browser audit for Grade-S experience galleries and list-image budgets.
  * Runs against the production build through Vite preview and the existing B20 gallery.
@@ -310,7 +318,7 @@ async function auditDetail(browser, url, viewportName, sample) {
   for (let index = 2; index < ordered.length; index += 1) {
     if (isPhone) await keyboardNavigate("ArrowRight");
     else await page.locator(".gallery__nav--next").click();
-    await page.waitForTimeout(200);
+    await page.waitForFunction((expected) => document.querySelector(".gallery__counter")?.textContent?.trim() === expected, `${index + 1} / ${ordered.length}`, { timeout: 3000 }).catch(() => {});
     check(`${id} remaining gallery slide ${index + 1} is reachable`, (await page.locator(".gallery__counter").innerText()).trim() === `${index + 1} / ${ordered.length}`);
     const rest = page.locator(".gallery__slide").nth(index).locator(".gallery__image");
     const state = await rest.evaluate((img) => ({ naturalWidth: img.naturalWidth, alt: img.alt }));

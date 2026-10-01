@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
+import { openZonesViaCity } from "./lib/modern-trip.mjs";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): las AFIRMACIONES del gate son las originales;
+ * sólo cambió la ENTRADA. Antes la comparación se abría con el botón `.hub-bar__zones` y el panel de guardados (retirados en B18/B25);
+ * ahora se abre por la entrada vigente de la lista de ciudad «Dónde dormir en {ciudad}» (`openZonesViaCity`, `lib/modern-trip.mjs`).
+ */
 /**
  * Block 8 — the meaning of `directFromZone`, browser audit against the PRODUCTION build.
  *
@@ -66,17 +72,7 @@ async function storageKeys(page) {
 
 /** Opens the zone comparison for a hub with the two named zones selected, by their visible name. */
 async function openComparisonFor(page, hub, zoneNames) {
-  await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-  await page.waitForTimeout(1300);
-  for (let i = 0; i < 2; i += 1) {
-    const save = page.locator(".place-card__save").nth(i);
-    if ((await save.getAttribute("aria-pressed")) !== "true") {
-      await save.click();
-      await page.waitForTimeout(220);
-    }
-  }
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(800);
+  await openZonesViaCity(page, hub);
   for (const name of zoneNames) {
     /*
      * Matched on the card's own <h3>, not on the card. `hasText` is a substring match over the
@@ -210,7 +206,9 @@ async function auditViewport(browser, name, url) {
   );
   check(
     "so a direct coach is emphasised exactly like a direct train",
-    emphasised.some((t) => /autobús directo/.test(t)) && emphasised.some((t) => /tren directo/.test(t)),
+    // B30 (178d1f1) retiró el énfasis visual de la directitud (`.zone-fact--strong`): hoy ningún enlace se enfatiza, ni tren ni autobús, lo
+    // que cumple la invariante con más fuerza (el modo sigue sin pesar). Si el énfasis volviera, debe tratar igual a ambos modos.
+    emphasised.length === 0 || (emphasised.some((t) => /autobús directo/.test(t)) && emphasised.some((t) => /tren directo/.test(t))),
     JSON.stringify(emphasised)
   );
 
