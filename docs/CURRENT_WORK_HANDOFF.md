@@ -1,6 +1,17 @@
-# Handoff reanudable — B31 / B9.5 «Reservas y Resumen»
+# Handoff reanudable — B31 / B9.5 cerrado; B10 pendiente
 
-## Estado vigente — B31 implementado y certificado, pendiente de revisión e integración
+## Estado vigente — B31 / B9.5 CERRADO E INTEGRADO EN MAIN
+
+- PR [#175](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/175) MERGED `2026-10-01T03:51:31Z` mediante merge commit `cde9b14bc9e456270576c8dafe0243ddb8c650db`.
+- Main pre-merge / primer padre: `393ef2b2a1a2db0641d3785b7e7cf155c914fa5c`. Segundo padre / HEAD certificado: `c00a35da6ab26d4ccf3389fad6f265f1c06a6868`, rama `codex/block-31-b9-5-reservas-resumen`. Tree del merge = certificado: `4e0ad7437ce48e0ca40de1bdf6848445d35b080f`.
+- Preflight remoto exacto: OPEN, Ready for Review, MERGEABLE/CLEAN. GitHub no configura checks requeridos y publica cero checks/statuses para ese HEAD. Certificación local corresponde al código publicado; entre implementación `9761817f0d7acfcff418145c36e14615b2840760` y HEAD sólo cambian documentos.
+- Post-merge en el merge exacto: build/lint PASS (warning PlaceMap y aviso de bundle heredados), Vitest 115 archivos/3479 PASS, invariantes 231 PASS, B31 Chromium/WebKit 281/281 y B30 475/475 por motor, B29 163/163, B28 anidado/aislado 64/64, B27 A–K en ocho viewports, B26 314/314, B18 15/15, diff check PASS. Todo a la primera; no reaparecieron los antecedentes B26/B28 ni se observaron nuevas regresiones.
+- Reservas/Resumen, DDR-05, conservación y navegación quedan cerrados. Informe y hashes de evidencia: [BLOCK_31_MAIN_CERTIFICATION.md](BLOCK_31_MAIN_CERTIFICATION.md) y [BLOCK_31_POST_MERGE_EVIDENCE.json](BLOCK_31_POST_MERGE_EVIDENCE.json).
+- Main final es el commit documental posterior que contiene este cierre; SHA recuperable con `git log -1 --format=%H -- docs/BLOCK_31_MAIN_CERTIFICATION.md`. Sólo documentación sobre el merge certificado; push normal, sin sobrescribir cambios remotos. Checkout de integración: `b31-close`; se preservan los artefactos anteriores.
+- #168 sigue OPEN/Draft en `1444e67805c60cf9a33f4be5c1a3808b900e505b`; no se toca. Sin cambios en `claude/*`, Astra, datasets, fotografía, adquisición B6 ni Vercel/deploy.
+- Pendientes: Safari/iPhone y lector de pantalla físicos, fotografías reales de zonas, recursos externos/OSM; B25 conserva antecedente externo 122/123. **Siguiente bloque según roadmap: B10 — Pulido**, incluido OD-01. No iniciado ni numerado por inferencia.
+
+## Histórico — B31 certificado antes de su integración
 
 - Rama nueva `codex/block-31-b9-5-reservas-resumen`, base canónica exacta `393ef2b2a1a2db0641d3785b7e7cf155c914fa5c`. Implementación `9761817f0d7acfcff418145c36e14615b2840760`; documentación en un commit independiente posterior. Main no se modifica en esta misión.
 - Viaje mantiene Días · Dónde dormir · Reservas · Resumen. Reservas reúne mecanismos/ventanas/fechas/calendario/Feb–Mar y ordena sólo la lectura por hito derivado. Resumen reutiliza whole-trip-composition con cuatro tarjetas y bandas por los días reales. DDR-05 queda ejecutada: cuatro literales conservados con ◧ Registrado y comillas; ausencia global de Dato renderizable comprobada.

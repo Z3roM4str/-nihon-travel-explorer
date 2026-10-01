@@ -271,7 +271,7 @@ existente y las alternativas verificadas como opciones.
 **B9.4 — Dónde dormir.** Zonas sin ordinal, con fotografía, con hecho / cálculo /
 opinión separados visualmente. **Arregla D7.**
 
-**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 implementado en su rama Codex; pendiente de revisión e integración.** Véase [handoff B31](../BLOCK_31_HANDOFF.md).
+**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). **Siguiente pendiente: B10 — Pulido; no iniciado.**
 
 **B9.5 — Reservas y Resumen.** Sub-pestañas propias; se elimina `Dato:`; línea de
 tiempo comprimida del viaje.

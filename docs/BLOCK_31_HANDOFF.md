@@ -2,7 +2,13 @@
 
 ## Estado y base
 
-Implementación en la rama nueva `codex/block-31-b9-5-reservas-resumen`, nacida exactamente de `393ef2b2a1a2db0641d3785b7e7cf155c914fa5c`. Implementado y certificado para revisión contra main; no integrado. Commit de implementación: `9761817f0d7acfcff418145c36e14615b2840760`. B30 permanece cerrado. La matriz firmada antes de código está en [BLOCK_31_MISSION.md](BLOCK_31_MISSION.md).
+**B31 / B9.5 CERRADO E INTEGRADO EN MAIN** mediante [PR #175](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/175), `merged_at=2026-10-01T03:51:31Z`. Merge commit `cde9b14bc9e456270576c8dafe0243ddb8c650db`, padres `393ef2b2a1a2db0641d3785b7e7cf155c914fa5c` (main previo) y `c00a35da6ab26d4ccf3389fad6f265f1c06a6868` (HEAD publicado). Tree `4e0ad7437ce48e0ca40de1bdf6848445d35b080f`, idéntico al certificado. Sin squash, rebase ni force-push.
+
+Implementación en `codex/block-31-b9-5-reservas-resumen`, nacida exactamente del main previo, commit `9761817f0d7acfcff418145c36e14615b2840760`. Entre implementación y HEAD sólo cambió documentación. B30 permanece cerrado. La matriz firmada antes de código está en [BLOCK_31_MISSION.md](BLOCK_31_MISSION.md).
+
+La matriz post-merge completa pasó a la primera sobre el merge exacto: build/lint, Vitest 3479/3479, invariantes 231/231, B31 281/281 y B30 475/475 por motor Chromium/WebKit, B29 163/163, B28 anidado y aislado 64/64, B27 A–K en ocho viewports, B26 314/314, B18 15/15 y diff check. Sin fallos funcionales ni nuevas regresiones observadas; los antecedentes B26/B28 no reaparecieron. GitHub no configura checks obligatorios y no tiene checks publicados en el HEAD. Detalles, evidencia y límites: [certificación de main](BLOCK_31_MAIN_CERTIFICATION.md).
+
+El cierre documental se publica después del merge sobre main mediante push normal. Main final corresponde al commit que contiene esta actualización; su identidad se obtiene con `git log -1 --format=%H -- docs/BLOCK_31_MAIN_CERTIFICATION.md`. Sólo cambia documentación y conserva exactamente el código probado. **Siguiente bloque pendiente: B10 — Pulido**, según el roadmap vigente; no iniciado.
 
 ## Capacidades trasladadas y conservadas
 
@@ -94,4 +100,4 @@ Fuera de certificación: Safari físico/iPhone y lector de pantalla físico. Sig
 
 ## Decisiones
 
-No se encontró contradicción real entre documentos canónicos que requiriese una nueva DDR. Se completa DDR-05 dentro del bloque autorizado. Se mantienen separados mecanismo oficial y anticipación editorial, aunque compartan la nueva sección. No se inicia otro bloque ni se fusiona este PR.
+No se encontró contradicción real entre documentos canónicos que requiriese una nueva DDR. Se completa DDR-05 dentro del bloque autorizado. Se mantienen separados mecanismo oficial y anticipación editorial, aunque compartan la nueva sección. La entrega original no autorizaba el merge; la autorización posterior explícita integra y cierra #175. No se inicia otro bloque.

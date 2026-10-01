@@ -642,7 +642,9 @@ trabajo de B9.5 ni lo adelanta.
 **Ejecución B31 / B9.5.** La rama `codex/block-31-b9-5-reservas-resumen` completa la
 retirada global autorizada: conserva los cuatro literales con `EvidenceMark` Registrado y
 comillas, y añade comprobación del AST de producción y de la interfaz en Chromium/WebKit.
-La implementación queda pendiente de revisión e integración; no se atribuye este trabajo a B20.
+La implementación está cerrada e integrada en main mediante PR #175, merge
+`cde9b14bc9e456270576c8dafe0243ddb8c650db`; no se atribuye este trabajo a B20.
+Certificación post-merge: [informe](../BLOCK_31_MAIN_CERTIFICATION.md).
 Véanse [misión](../BLOCK_31_MISSION.md) y [handoff](../BLOCK_31_HANDOFF.md).
 
 **Alternativa descartada.** (b) Ampliar B4 al planificador: mete en este diff una pantalla que
