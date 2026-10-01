@@ -35,13 +35,13 @@ Estado inicial `days`; los únicos caminos para salir de `days` nacen en `builde
 | CSS | 32 reglas huérfanas (`.sequence-item*`, `.sequence-list*`, `.comparison-*`, `.sequence-back/-compare-toggle/-secondary-actions/-reset`, `.hours-planning*`, `.zone-plan__summary-list`); `@media (max-width:380px)` y el resto de consultas se conservan |
 | `lib/hours-planning.ts` (+ test) | 86 + 194 líneas, sin consumidor |
 | Copy | «Construir recorrido», «Volver al recorrido», «Comparar órdenes», «Orden A/B», «Guardados fuera del recorrido», «Restablecer lugares y días», frases asociadas (la lista pinned del test D5 desaparece: ya no hay excepciones) |
-| Pruebas | el bloque «recorded-hours signal wiring» (15 pruebas de una sección retirada) y su extractor; `hours-planning.test.ts` (19). Se **reescribieron** (no se borraron): D5 «sin alcanzables» → «retiradas y sin copy», R1, inter-hub (2→1 copia), stable-day-identity (sin union de vistas), local-swap/relocation (marcador de fin de función estable) |
+| Pruebas | el bloque «recorded-hours signal wiring» (13 pruebas de una sección retirada) y su extractor; `hours-planning.test.ts` (19). Se **reescribieron** (no se borraron): D5 «sin alcanzables» → «retiradas y sin copy», R1, inter-hub (2→1 copia), stable-day-identity (sin union de vistas), local-swap/relocation (marcador de fin de función estable) |
 
 ## Qué NO cambió (medido)
 Comparación visual main-vs-rama de **todas** las superficies vivas (320/390/430/840/1200 × 11): ver `docs/RELEASE_HARDENING_CERTIFICATION.md`.
 
 ## Certificación de la rama (Chromium 141; build de producción de la rama)
 **Visual main-vs-rama**: 55 pares (320/390/430/840/1200 × 11 superficies vivas) **idénticos píxel a píxel**; las dos vistas retiradas no se podían ver, y ninguna superficie viva cambió.
-tsc/build PASS · oxlint 0 errores · Vitest 117 archivos / **3 479** (antes 3 510 de la rama a11y: −31 = −19 de `hours-planning` y −15 del bloque «recorded-hours signal wiring» de una sección retirada, +3 pruebas nuevas de retirada) ·
+tsc/build PASS · oxlint 0 errores · Vitest 117 archivos / **3 479** (antes 3 510 en main: −31 = −19 de `lib/hours-planning.test.ts` y −12 netos en `OrderedSequenceBuilder.test.ts`: −13 del bloque «recorded-hours signal wiring» de la sección retirada, +1 de retirada) ·
 b10 a11y 89/89 · motion 16/16 · microcopy 52/52 (**sin excepciones**: se retira `UNREACHABLE`) · performance 13/13 · D0b 56/56 · **D5 30/30** (R1 reescrito) · block12 · B17 ×2 · B18 ×5 · block19 ×2 · block20 · b24-ddr3 · B25 · B26 · B27 · B28 · **B29 163/163** · B30 475/475 · B31 281/281 · ddr03 · DD-028 · block5 · block6 · b21 · phase5a · block23 · b18-regression · integración B24+B23 58/58 · b6-5 416/416.
 Cambios de gates (sólo para seguir midiendo lo mismo tras retirar las vistas): `d5-normative-vocabulary-check` R1 («el botón retirado no reapareció») y `b10-microcopy-check` sin la lista `UNREACHABLE`; y `b28` (J) mide que el auto-scroll queda quieto tras cancelar en vez de un baseline leído en vivo (la carrera hacía fallar a B28/B29 también en main).
