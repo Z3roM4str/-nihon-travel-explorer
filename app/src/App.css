@@ -271,8 +271,6 @@ a {
 .link-button {
   display: inline-flex;
   align-items: center;
-  min-width: var(--tap-min);
-  min-height: var(--tap-min);
   background: none;
   border: none;
   color: var(--color-accent-dark);
@@ -281,6 +279,12 @@ a {
   font-size: 0.82rem;
   padding: 0.25rem;
   text-decoration: underline;
+}
+
+/* Isolated controls with tap-target-min already own an effective 44px pseudo area. */
+.link-button:not(.tap-target-min) {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
 }
 
 /* ---------- Shell (Bloque 18 — 02 §D2/§D5, 04 §10/§11) ---------- */
