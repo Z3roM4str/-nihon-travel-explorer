@@ -13,7 +13,7 @@ const OTHER_PERSON_PLACE_ID = "JP-001";
  * área táctil real, y comportamiento en vivo de `SearchSheet`/`FilterSheet`/carga progresiva.
  */
 async function main() {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
   const results = [];
   const check = (label, ok, extra) => {
     results.push({ label, ok });

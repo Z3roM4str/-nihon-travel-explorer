@@ -48,5 +48,5 @@ try{
   }
   await context.close();
  }
- writeFileSync(`${out}/results.json`,JSON.stringify(results,null,2));console.log(`B10 Sheet ${beforePath?'PASS: computed styles, geometry and screenshots identical':'BEFORE recorded'} — ${results.length} states across 840 breakpoint; keyboard return and overflow.`);
+ writeFileSync(`${out}/results.json`,JSON.stringify(results,null,2));console.log(`B10 Sheet ${beforePath?'PASS: computed styles, geometry and Sheet pixels identical':'BEFORE recorded'} — ${results.length} states across 840 breakpoint; keyboard return and overflow.`);
 }finally{await browser.close();await new Promise(resolve=>server.httpServer.close(resolve));}

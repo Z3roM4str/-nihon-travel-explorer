@@ -34,7 +34,7 @@ const server = await preview({
 });
 const url = `http://127.0.0.1:${server.httpServer.address().port}`;
 const browserType = process.env.NIHON_BROWSER === "webkit" ? webkit : chromium;
-const browserPath = browserType === webkit ? webkit.executablePath() : process.env.NIHON_CHROMIUM_PATH ||
+const browserPath = browserType === webkit ? (process.env.NIHON_WEBKIT_PATH || webkit.executablePath()) : process.env.NIHON_CHROMIUM_PATH ||
   (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : chromium.executablePath());
 const browser = await browserType.launch({ executablePath: browserPath });
 let checks = 0;
