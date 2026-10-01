@@ -14,11 +14,12 @@ import { preview } from "vite";
  *   · dimensiones: ninguna imagen se descarga a más de 2,5× su caja pintada (× DPR);
  *   · JS/CSS iniciales: gzip del chunk de entrada y del CSS (trinquete, ver B10-P1 abajo).
  *
- * B10-P1 (hallazgo registrado, no corregido aquí): el chunk de entrada creció respecto a la medición de v1.1.0
- * (BLOCK_14: 253 742 B gzip). El crecimiento es de DATOS, no de código: `photography-metadata.json` (142 KB gzip, de ellos
- * ~148 KB de LQIP base64 sin comprimir, campo exigido por `06 §6.2`) y la ampliación de `places.json`. Reducirlo exige cargar el
- * registro fotográfico por ciudad (refactor funcional de la ruta de montaje; BLOCK_12 lo descartó con otro dato) o decidir cómo
- * se mide G6: DESIGN DECISION REQUIRED. El gate fija el techo actual para que no crezca sin decisión.
+ * B10-P1 (CERRADO en el endurecimiento post-B10): el chunk de entrada había crecido a 390 329 B gzip frente a los 253 742 B de v1.1.0.
+ * Causa medida: `photography-metadata.json` entraba entero (143 KB raw… 148 KB de LQIP base64 que el runtime nunca lee, más URLs de adquisición,
+ * fechas y dimensiones originales). `vite.config.ts` sirve ahora `photography-metadata.json?runtime`, una proyección con sólo los campos que
+ * lee `buildRegistry` (`src/data/photography-runtime-projection.ts`; el JSON canónico no cambia y un test prueba que `placeImages` es idéntico).
+ * Entrada: 277 912 B gzip (+9,5 % vs v1.1.0; el resto es código y `places.json` de B25–B31). Este gate protege la invariante, no sólo el número:
+ * J01 techo ratcheteado, J01b ningún LQIP inline ni URL de adquisición en el entry (los chunks diferidos siguen protegidos por J03 y block12).
  *
  * Uso: `npm run build && node scripts/b10-performance-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
  */
@@ -26,7 +27,7 @@ import { preview } from "vite";
 const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
 const APP = fileURLToPath(new URL("..", import.meta.url));
 const HUB_BUDGET_BYTES = 3_500_000; // 06 §6.3
-const ENTRY_GZIP_CEILING = 392_000; // medido 390 329 B (+0,4 %); B10-P1
+const ENTRY_GZIP_CEILING = 285_000; // medido 277 912 B (+9,5 % vs v1.1.0); B10-P1 cerrado
 const CSS_GZIP_CEILING = 28_500; // medido 27 453 B
 const ENTRY_GZIP_V110 = 253_742; // BLOCK_14_HANDOFF: referencia v1.1.0
 
@@ -64,6 +65,11 @@ await ck("J01", `chunk de entrada ${entryJs}: gzip ≤ ${ENTRY_GZIP_CEILING} (v1
   evidence.cssGzip = gz(css);
   console.log(`# entrada gzip=${size} (${(((size / ENTRY_GZIP_V110) - 1) * 100).toFixed(1)} % vs v1.1.0) css gzip=${gz(css)}`);
   ok(size <= ENTRY_GZIP_CEILING, `entrada ${size} B gzip > techo ${ENTRY_GZIP_CEILING}`);
+});
+await ck("J01b", "el entry no incluye carga útil fotográfica que el runtime no lee (LQIP inline, URLs de adquisición)", async () => {
+  const code = readFileSync(new URL(`../dist/assets/${entryJs}`, import.meta.url), "utf8");
+  ok(!code.includes("data:image/webp;base64,"), "hay LQIP base64 en el entry");
+  ok(!code.includes("upload.wikimedia.org/wikipedia/commons"), "hay URLs de adquisición en el entry");
 });
 await ck("J02", "CSS inicial gzip ≤ techo", async () => ok(gz(css) <= CSS_GZIP_CEILING, `css ${gz(css)} B gzip`));
 await ck("J03", "los chunks diferidos (planificador, comparación de zonas) no son modulepreload del documento", async () => {
