@@ -297,6 +297,8 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 
 ## B10 — Pulido
 
+**Preparación documental publicada en `codex/b10-pulido-mission`, base `main @ b854db384c952e827b86d1bb35cac7caa70b035a`. Implementación de producto NO iniciada.** Véanse [misión acotada](../B10_PULIDO_MISSION.md), [auditoría de preparación](../B10_PULIDO_AUDIT.md) y [evidencia](../B10_PULIDO_EVIDENCE.json). OD-01 y decisiones editoriales/teclado siguen pendientes; fotografías de zonas y comprobaciones físicas/externas quedan identificadas por separado.
+
 **Objetivo.** Cerrar.
 
 - Auditoría de movimiento: sólo los cinco movimientos nombrados; `prefers-reduced-motion`

@@ -1,6 +1,19 @@
-# Handoff reanudable — B31 / B9.5 cerrado; B10 pendiente
+# Handoff reanudable — B10 preparado; implementación pendiente
 
-## Estado vigente — B31 / B9.5 CERRADO E INTEGRADO EN MAIN
+## Estado vigente — B10 / Pulido preparado documentalmente
+
+- Base remota verificada: `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`; coincide con la base solicitada. Rama `codex/b10-pulido-mission` desde esa base; no se inventa número de proyecto.
+- **Producto NO iniciado ni modificado.** Sólo misión, auditoría, medidas y capturas. [Misión B10](B10_PULIDO_MISSION.md), [hallazgos](B10_PULIDO_AUDIT.md), [evidencia](B10_PULIDO_EVIDENCE.json).
+- Reproducidos: contador «57 de 57 lugares», tramo/recorrido en superficies reales, hover animado de ciudad, 64/70/28/150 Tab en colecciones. CSS pendiente de extracción: ≈7.000 líneas, 48 hex literales fuera de comentarios y 8 queries max-width. No se atribuyen a una regresión de B31.
+- Base construye; auditoría exploratoria Chromium a 320/390/escritorio/reduced motion, 53 capturas, sin overflow ni pageerrors observados. Entrada 1.669.033 B raw / 390.317 B gzip nivel 9; identity de siete hubs bajo 3,5 MB. No equivale a certificación global AA ni repite las pruebas físicas.
+- Primer lote propuesto **L1**: sólo contador de FilterPanel y etiqueta de preview en TripBackup, conservando resultados y flujo. Implementación requiere instrucción posterior. CSS, carga, colecciones y copy no mecánico separados.
+- Pendientes de decisión: OD-01, orden/héroe editorial de colecciones, patrón de acceso entre colecciones, frases no canónicas y colores sin token equivalente. Ninguna resuelta por inferencia.
+- Safari/iPhone y lector de pantalla físicos siguen pendientes humanos. Fotografías de zonas, OSM/recursos externos y antecedente B25 122/123 separados; no se incorporan automáticamente a B10.
+- #168 OPEN/Draft en `1444e67805c60cf9a33f4be5c1a3808b900e505b`, intacto; `claude/*`, Astra y Vercel/deploy fuera de alcance. Main no se modifica; publicación normal sólo de la rama documental.
+
+## Histórico vigente de producto — B31 / B9.5 cerrado
+
+### B31 / B9.5 CERRADO E INTEGRADO EN MAIN
 
 - PR [#175](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/175) MERGED `2026-10-01T03:51:31Z` mediante merge commit `cde9b14bc9e456270576c8dafe0243ddb8c650db`.
 - Main pre-merge / primer padre: `393ef2b2a1a2db0641d3785b7e7cf155c914fa5c`. Segundo padre / HEAD certificado: `c00a35da6ab26d4ccf3389fad6f265f1c06a6868`, rama `codex/block-31-b9-5-reservas-resumen`. Tree del merge = certificado: `4e0ad7437ce48e0ca40de1bdf6848445d35b080f`.

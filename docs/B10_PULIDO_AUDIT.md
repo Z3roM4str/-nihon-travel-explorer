@@ -1,0 +1,63 @@
+# B10 — Auditoría de preparación
+
+**Fase documental; producto sin cambios.** Base exacta `main @ b854db384c952e827b86d1bb35cac7caa70b035a`, tree `81c7cc4ccf80c3188a50281876ef0ed8f427657f`. Main remoto coincide con la base esperada; no hay commits nuevos que incorporar. Rama `codex/b10-pulido-mission`. No se asigna un número de bloque de proyecto no documentado.
+
+## Fuentes y método
+
+Se buscaron `AGENTS.md` en el árbol versionado, checkout y directorios ascendentes: no existe uno aplicable. Se leyeron `CURRENT_WORK_HANDOFF.md`, cierre y handoff B31, Constitución, sistema §6/§7/§10, componentes §13, pantallas, guardrails, decisiones abiertas, roadmap B10, auditoría B24, deuda B26 y política de despliegue. B31 continúa cerrado; esta auditoría no cambia su certificación.
+
+Build local PASS. `node scripts/bundle-report.mjs --json` vuelve a medir el mismo asset de entrada. Auditoría exploratoria con Playwright instalado y Chromium headless shell 1234: 320×568, 390×844, 1440×900 y 390×844 con reduced motion. Se inspeccionan portada, búsqueda global, ficha, ciudad/lista, filtros, Días/herramientas, Reservas, Resumen, Dónde dormir, Quiero ir, Nosotros y preview de backup; primera pantalla de onboarding a 390×844. 53 capturas, cero overflow horizontal y cero `pageerror` en la muestra. No es una auditoría completa AA ni certificación de B10.
+
+El navegador usa un contexto nuevo con lugares reales JP-044, JP-203 y un lugar de Kioto; dos días, fechas y una persona de prueba en el V8 existente. El backup se exporta a un archivo local de esa fixture y se presenta mediante `setInputFiles`; se cancela sin confirmar restauración. Eso **no comprueba el selector de archivos físico ni Safari/iPhone**. No se usan datos del navegador personal. Se espera el montaje lazy de Dónde dormir y dos frames antes de medir.
+
+Evidencia publicada: [resumen y medidas](B10_PULIDO_EVIDENCE.json) y seis capturas en `docs/evidence/b10/`. Logs, runner y datos completos locales: `app/logs/b10-preparation/`; sus hashes están en el resumen. El intento de `agent-browser` falló por certificado TLS de npm; se usó Playwright disponible, sin cambiar TLS, dependencias ni producto. Las peticiones abortadas de OSM (34/83/105 en los contextos normales; 0 en reduced motion) coinciden con navegación/cierre del contexto; ninguna petición local falló. No demuestran caída de OSM ni son una regresión de producto.
+
+## Defectos reproducibles de conformidad
+
+Son incumplimientos de normas existentes, no fallos nuevos atribuibles a B31. No se reproduce un bloqueo funcional P0 en la muestra; tampoco se declara que no pueda existir fuera de ella.
+
+| ID / prioridad | Reproducción y evidencia | Norma / límite |
+|---|---|---|
+| F-C01 / P1 | Inicio → Tokio → Filtros, sin filtros: «57 de 57 lugares» en 320/390/escritorio/reduced motion. `FilterPanel.tsx:88`; [captura](evidence/b10/390-filters.png). Sigue vigente P2-6 de B24 | `04 §13`: «57 lugares». Cambiar sólo presentación; preservar conteo, filtros y anuncio vivo |
+| F-C02 / P1 | Viaje → Días → Herramientas y datos: «Tramo principal…», «ningún tramo entre ciudades», «Duración manual del tramo principal», «Añadir tramo», «0/1 tramo cubierto». `OrderedSequenceBuilder.tsx:598,607,1865,1911,1956,1967`; [captura](evidence/b10/390-day-tools.png), textos completos en el resumen | Art. 7 y `03 §10`: traslado, viaje; la redacción de ausencia tiene que preservar parciales, ámbitos y minutos. No cambiar cálculo ni literales de fuentes |
+| F-C03 / P1 | Nosotros: «El recorrido, los días…» (`TravellerManager.tsx:67`). Importar la fixture sin aplicar: «Lugares en el recorrido» (`TripBackup.tsx:225`). [Nosotros](evidence/b10/390-us.png), [preview](evidence/b10/390-backup-preview.png) | Art. 7 / `03 §10`. Etiqueta de backup admite sustitución canónica «Lugares en el viaje»; la frase completa de propiedad compartida necesita revisión de copy, sin cambiar su significado |
+| F-M01 / P1 | Portada escritorio: hover de tarjeta de ciudad cambia elevación 1→2 con transición de sombra/borde de 220 ms. Medida before/after en JSON; `discovery.css:1209`, también `:hover`. [portada](evidence/b10/1440-home.png) | `03 §6`: cinco movimientos, prohíbe hover animado general de tarjetas. La auditoría de movimiento debe mapear cada transición al contrato, sin introducir otra animación |
+
+La búsqueda AST es un inventario de candidatos, **no un conteo de defectos visibles**: contiene imports, clases CSS y ramas legacy no recorridas. No se persigue grep cero en comentarios, fuentes, dataset o identificadores internos. `Dato:` sigue resuelto por B31; no se reabre DDR-05.
+
+## Pulido previsto y antecedentes vigentes
+
+| ID / prioridad | Hallazgo actualizado | Trabajo acotado pendiente |
+|---|---|---|
+| A-01 / P1 condicionado | Colecciones: 32/35/14/75 tarjetas; 64/70/28/150 controles. Tab real desde la primera tarjeta hasta salir confirma exactamente 64/70/28/150 pasos. `ExplorerHome.tsx:197–220`; P2-1 B24 sigue vigente | Resolver acceso entre colecciones conservando apertura y Quiero ir de cada tarjeta. Falta patrón aprobado de salto; no quitar tarjetas ni acciones para reducir el número |
+| S-01 / P2 | `App.css` sigue importado por App; alrededor de 7.000 líneas. Scanner sin comentarios: 48 hex literales y 8 queries con `max-width`. Discovery y trip-overview ya tienen CSS separado | Extraer por superficie junto a componentes, mantener orden/cascada y migrar reglas a tokens/min-width. No reescribir de golpe (`08`, «Cómo tratar el CSS actual») |
+| M-02 / P2 | Keyframes actuales: `sheet-rise`, `toast-in`, `onboarding-fade`, `card-shimmer`, `place-card-save-mark`; transición de altura de leyenda en `discovery.css:1073`, además de sombras/colores | Mapear intención y disparador; el skeleton es excepción de carga permitida. Un nombre distinto no basta para declarar defecto. Revisar toast/onboarding/leyenda con `03 §6`, sin inventar movimientos |
+| M-03 / verificación pendiente | Override global reduced motion (`App.css:3583`): 0,001 ms en las duraciones computadas muestreadas; [captura](evidence/b10/390-reduce-home.png). B31 ya certifica sus superficies | Completar estados de entrada, salida, press, mark y mapas; no convertir esta muestra en certificación global |
+| P-01 / P2 | Entrada `index-OVb2DdYf.js`: 1.669.033 B raw; 390.317 B gzip **nivel 9**; 327.016 B Brotli. `photography-metadata.json` aporta 350.724 B rendered según el analizador, import estático `place-images.ts:2`. P2-4/AB-3 B24 sigue vigente | Medir cold/warm y carga por superficie; una propuesta de split debe conservar resolución síncrona identity, galería, créditos, fallback/retry y ausencia de nuevos requests remotos. No equiparar rendered con bytes comprimidos ni elegir una arquitectura en esta fase |
+| P-02 / medida sana | Identity 800w: Tokio 3.499.770 B, Kioto 3.499.450 B, Osaka 3.356.478 B, Okinawa 2.903.352 B, Sapporo 166.986 B, Nagoya 69.552 B, Fukuoka 69.284 B. Todos ≤3.500.000 B | Mantener presupuesto; sólo 230/550 B de margen Tokio/Kioto. No implica adquirir/recomprimir fotos en esta misión |
+| P-03 / antecedente a comparar | Cierre v1.1.0 (`BLOCK_16_V1_1_RELEASE_CLOSURE.md:95`): 1.389.652 B raw / 253.742 B gzip / 203.791 B Brotli. Frente al registro actual: +279.381 B raw / +136.575 B gzip | No declarar G6 satisfecha frente a v1.1.0 sólo porque el build pasa. Comparar con igual runner/método y atribuir crecimiento a cambios posteriores antes de elegir optimización o proponer excepción; no retirar capacidades ni resetear baseline silenciosamente |
+| T-01 / P2 | B26 documenta gates legacy `block1-ux`, `block13`, `block14`, `b18-regression`, `b24-real-input` P0-2 con selectors/expectativas anteriores al shell/B25 | Reproducir cada fallo sobre la base del lote antes de portarlo. Esta fase no los ejecuta ni declara corregidos; no relajar assertions de comportamiento para conseguir verde |
+
+El gzip del build Vite es 394.700 B aproximados y el analizador usa nivel 9 (390.317 B): son métodos distintos sobre el mismo asset, no una mejora de producto. Los avisos de bundle y Fast Refresh PlaceMap son antecedentes; no se atribuyen a esta fase documental.
+
+## Decisiones pendientes, sin resolver por el agente
+
+| Decisión | Evidencia / autoridad | Dependencia |
+|---|---|---|
+| OD-01: modo oscuro | `09`, «Decisiones abiertas»; B10 lo menciona expresamente | Producto decide implementar o diferir. Ningún theme/toggle nuevo mientras siga abierto; no bloquea el primer lote |
+| Orden editorial de colecciones | P2-2 B24: siguen empezando JP-021/JP-007/JP-004/JP-001, todos Tokio; el código filtra conservando orden del dataset | Revisión editorial antes de cambiar orden. No ranking, reparto automático ni modificación del dataset |
+| Héroe Tokio repetido | P2-3 B24 confirmado: ciudad Tokio y primer Imprescindible usan `JP-021/tokyo-national-museum-stairs-800w.webp` | Decisión editorial con material ya licenciado; no adquisición automática |
+| Acceso de teclado entre colecciones | A-01 confirmado; guardrails requieren revisar cambios de navegación/controles | Definir salto contextual/por encabezados u otro patrón; conservar todos los controles. No se elige patrón nuevo en esta misión |
+| Copy no mecánico y colores sin token equivalente | F-C02/F-C03; Art. 4, `03 §10`, guardrails | Revisar frases completas, estados parciales y equivalencias antes de reemplazar; no inventar textos, colores ni suprimir datos |
+
+OD-02/OD-03/OD-04 siguen en su documento original; esta preparación no los resuelve ni convierte cambios de workbook, adquisición fotográfica o tercera persona en B10.
+
+## Deuda externa y comprobaciones físicas
+
+- Safari/iPhone real: selector de archivos, export/import, teclado iOS, gestos/inercia y retorno. **Pendiente humano**, no PASS por Chromium o WebKit.
+- Lector de pantalla físico: anuncios, nombres, orden y foco de cada flujo. **Pendiente humano**, no PASS por inspección DOM.
+- Fotografías reales de zonas: fallback accesible vigente; cobertura/licencias pertenecen a una decisión de adquisición separada. Excluidas automáticamente de B10.
+- Recursos externos y teselas OSM: no se cambian proveedor, TLS ni configuración; B25 conserva antecedente externo 122/123. Fuera del cierre funcional local.
+- Flakiness B26 onboarding/foco y B28 auto-scroll: antecedentes documentados; B31 post-merge pasó a la primera. No se han vuelto a ejecutar esos gates completos aquí ni se abre una investigación sin fallo nuevo reproducido.
+
+Esta auditoría precisa una misión; no certifica B10 completo ni modifica las decisiones pendientes.
