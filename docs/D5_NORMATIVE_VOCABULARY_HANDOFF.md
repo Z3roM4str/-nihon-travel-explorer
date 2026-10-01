@@ -122,3 +122,7 @@ Fallos heredados: block4. Fallos exclusivos de D5: **ninguno**.
 ## Veredicto
 
 **D5 CLAUDE: CERTIFICADO**
+
+## Integración
+
+PR #176 integrado en `claude/d0b-design-system-hygiene` (PR #174) mediante merge commit `b7253d0` (padres `4d21631…` y `c0fa562…`; tree `b398407…` = tree certificado de D5). Recertificado el conjunto D0b + D5; ver `docs/D0B_DESIGN_SYSTEM_HYGIENE_HANDOFF.md`.

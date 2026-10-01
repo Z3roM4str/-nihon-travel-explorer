@@ -121,3 +121,12 @@ B27 (48), B28 (43) y B29 (36) no tienen modo WebKit en su script (sólo Chromium
 ## Pendientes de decisión (para el siguiente bloque)
 
 D0b-01 literales sin token · D0b-02 `viewport-fit=cover` + reglas laterales/superiores · D0b-03 EvidenceMark 11px (falta token) · deuda de media queries C.
+
+## Integración de D5 (D0b + D5)
+
+- PR #176 (D5, `claude/d5-normative-vocabulary`, HEAD certificado `c0fa5624727ab22e3c671facdde953b49328a22e`) integrado en esta rama mediante **merge commit normal** (sin squash/rebase/force-push): `b7253d0`.
+  Primer padre `4d2163165f791b2ba3b1db8c7cbb968e1c607314` (D0b certificado), segundo padre `c0fa562…`. Tree del merge `b398407ded00f8f8a3cb60042ccc0d9f1fba6e10` = tree certificado de D5 (D0b es ancestro de D5, el árbol resultante es exactamente el de D5).
+- Esta rama (PR #174) contiene ahora **D0b + D5 certificados**. Sin cambios adicionales a lo certificado en cada uno (`data/`, hooks, V8, storage, CSS y `App.tsx` intactos respecto a D0b; el único cambio de `lib/` es el copy autorizado de D5).
+- Recertificación sobre el merge: `tsc -b` 0 errores; oxlint 0 errores (1 aviso previo en `PlaceMap.tsx`); Vitest 120 ficheros · 3555 tests OK; gates D0b 56/56 y D5 26/26 en Chromium y **WebKit 26.5** (normal y reduced-motion); B30 48/48 y B31 26/26 en WebKit (normal y reduced-motion); B27 48/48, B28 43/43, B29 36/36, B30, B31, block20 73/73, phase5a 50/50, block5 231/0, phase3f-h/j/s sin fallos en Chromium. **block4**: falla igual en `4d21631` y en `2f2e5e1` (timeout esperando «Kioto») → heredado. Fallos exclusivos del merge / de D0b+D5: **ninguno**. Ningún gate debilitado.
+- Auditoría visual: no se repiten capturas; el árbol es idéntico al de D5, ya auditado (BASE vs D5 y BASE vs D0b, 320–1200, Chromium y WebKit), y los gates D0b/D5/B27–B31 cubren las superficies afectadas. Safari físico en iPhone no medido.
+- Los 5 DDR de D5 siguen cerrados (intervalo de fechas, día del viaje, «Restablecer lugares y días», «Nivel sin clasificar (X)»); E1 («Grado original» en «Fuentes») sigue como excepción documentada.
