@@ -22,7 +22,7 @@ B10 (motion, a11y, microcopy, performance) · D0b · D5 · B25 · B26 · B27 · 
 Medido en ambos builds (3 repeticiones): FCP ≈ 300–360 ms; los chunks se piden a ≈ 420–470 ms (idéntico); `dist/index.html` tiene 0 `modulepreload`; el entry no importa estáticamente los chunks. La invariante real (fuera de la ruta crítica, pedidos tras la primera pintura) se mantiene; el gate ahora la mide directamente (HTML servido + `start > FCP`) y pasa en ambos builds.
 
 ## 3. Obsoletos o superseded (fallan por UI/estructura anterior; no son defectos de producto)
-| Gate | Fallo observado | Sustituido por |
+| Gate | Fallo observado | Cobertura vigente equivalente (criterio de ingeniería, no verificada ítem a ítem) |
 |---|---|---|
 | block4-zone-planner | `.hub-bar__zones`, panel de guardados | B30 (475/475) |
 | block3-zones, block7-zone-provenance, block8-airport-link, block9-editorial-governance, block10-source-freshness | esperan `.hub-bar__zones` (cajón de zonas pre-B18) | B30 + B31 (Dónde dormir / Reservas) |
