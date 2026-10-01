@@ -36,6 +36,7 @@ import { availablePlanningBlocks, matchesAnyPlanningBlock } from "./lib/planning
 import { matchesReservationFilter } from "./lib/reservation";
 import type { Filters, Place } from "./types";
 import "./App.css";
+import "./styles/alerts.css";
 import "./styles/discovery.css";
 import "./styles/trip-overview.css";
 import { deviceStorage } from "./lib/device-storage";
