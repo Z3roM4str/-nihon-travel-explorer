@@ -136,6 +136,23 @@ for (const width of WIDTHS) {
     await page.keyboard.press("Escape");
     await page.locator(".sheet").first().waitFor({ state: "detached" });
   });
+  await tryStep("nacional", async () => {
+    await page.locator(".explorer-home__map-card").first().click();
+    await page.waitForTimeout(800);
+    await take("nacional");
+    const region = page.locator(".region-nav__item").nth(1);
+    if (await region.count()) {
+      await region.click();
+      await take("nacional-region");
+    }
+    const pref = page.locator(".region-hubs button, .prefecture-panel button, .national__sheet button").first();
+    if (await pref.count()) {
+      await pref.click();
+      await take("nacional-panel");
+    }
+    await nav(page, "Explorar").click();
+    await page.waitForTimeout(400);
+  });
   await page.getByRole("region", { name: "Empezar a explorar" }).getByRole("button", { name: /^Tokio\b/ }).first().click();
   await page.waitForSelector(".place-card", { timeout: 15000 });
   await take("ciudad");

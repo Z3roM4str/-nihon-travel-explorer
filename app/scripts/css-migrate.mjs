@@ -41,7 +41,9 @@ let pendingComments = [];
 const toRemove = [];
 root.each((node) => {
   if (node.type === "comment") {
-    pendingComments.push(node);
+    // Los encabezados de sección (`/* ---------- … */`) NO viajan: describen el orden de App.css y algunos tests los usan de ancla.
+    if (/^\/\*\s*-{5,}/.test(node.toString())) pendingComments = [];
+    else pendingComments.push(node);
     return;
   }
   let take = false;
