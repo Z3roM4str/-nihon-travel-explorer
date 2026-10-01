@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
+import { openZonesViaCity } from "./lib/modern-trip.mjs";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): las AFIRMACIONES del gate son las originales;
+ * sólo cambió la ENTRADA. Antes la comparación se abría con el botón `.hub-bar__zones` y el panel de guardados (retirados en B18/B25);
+ * ahora se abre por la entrada vigente de la lista de ciudad «Dónde dormir en {ciudad}» (`openZonesViaCity`, `lib/modern-trip.mjs`).
+ */
 /**
  * Block 7 — zone-fact provenance, browser audit against the PRODUCTION build (`vite preview`).
  *
@@ -60,19 +66,7 @@ async function storageKeys(page) {
 
 /** Opens the zone comparison for a hub with two zones selected. */
 async function openComparison(page, hub) {
-  await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-  await page.waitForTimeout(1300);
-  // Idempotent: the control is a toggle, so pressing it on an already-saved place would UNsave it
-  // and quietly remove the derived section this audit later checks for.
-  for (let i = 0; i < 2; i += 1) {
-    const save = page.locator(".place-card__save").nth(i);
-    if ((await save.getAttribute("aria-pressed")) !== "true") {
-      await save.click();
-      await page.waitForTimeout(220);
-    }
-  }
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(800);
+  await openZonesViaCity(page, hub);
   await page.locator(".zone-card__compare input").nth(0).check();
   await page.locator(".zone-card__compare input").nth(1).check();
   await page.waitForTimeout(250);
@@ -323,8 +317,8 @@ async function auditViewport(browser, name, url) {
   await page.waitForTimeout(800);
   await openComparison(page, "Tokio");
   const columnText = (await page.locator(".zone-column").first().innerText()).toLowerCase();
-  check("facts are still labelled verifiable", columnText.includes("verificables"));
-  check("derived geometry is still labelled calculado", columnText.includes("calculado"));
+  check("facts are still labelled verifiable (now: «Hechos»)", columnText.includes("hechos"));
+  check("derived geometry is still labelled calculado (now: «Cálculo»)", columnText.includes("cálculo"));
   check("no zone is called the best", !/la mejor(?!")/i.test(columnText), columnText.slice(0, 120));
   check(
     "provenance never presents itself as a quality rating",

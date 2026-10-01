@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
+import { openZonesViaCity, openCity, switchReader, reopenZonesAndCompare, closeZonesTab } from "./lib/modern-trip.mjs";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): las AFIRMACIONES son las originales; cambió la
+ * ENTRADA. Antes: `.hub-bar__zones`, panel de guardados, corazón de la tarjeta de la lista y barra de viajeros del encabezado
+ * (retirados en B18/B25/B26). Ahora: «Dónde dormir en {ciudad}» de la lista de ciudad, «Cerrar dónde dormir», el corazón «Quiero ir»
+ * de la tarjeta y el cambio de lector en Nosotros › Viajeros (`lib/modern-trip.mjs`).
+ */
 /**
  * Block 9 — governance of zone editorial ratings, browser audit against the PRODUCTION build.
  *
@@ -78,17 +85,7 @@ async function storageKeys(page) {
 }
 
 async function openComparisonFor(page, hub, zoneNames) {
-  await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-  await page.waitForTimeout(1300);
-  for (let i = 0; i < 2; i += 1) {
-    const save = page.locator(".place-card__save").nth(i);
-    if ((await save.getAttribute("aria-pressed")) !== "true") {
-      await save.click();
-      await page.waitForTimeout(220);
-    }
-  }
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(800);
+  await openZonesViaCity(page, hub, undefined, { travellers: 2 });
   for (const name of zoneNames) {
     const card = page
       .locator(".zone-card")
@@ -109,29 +106,12 @@ async function openComparisonFor(page, hub, zoneNames) {
  * involving both surfaces has to close one first.
  */
 async function closeZonePanel(page) {
-  for (let i = 0; i < 3 && (await page.locator(".zone-panel").count()) > 0; i += 1) {
-    await page.keyboard.press("Escape");
-    await page.waitForTimeout(450);
-  }
+  await closeZonesTab(page);
 }
 
 /** Reopens the comparison for two named zones WITHOUT touching anybody's saved places. */
 async function reopenComparison(page, zoneNames) {
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(900);
-  for (const name of zoneNames) {
-    await page
-      .locator(".zone-card")
-      .filter({ has: page.locator("h3", { hasText: new RegExp(`^${name}$`) }) })
-      .first()
-      .locator(".zone-card__compare input")
-      .check();
-    await page.waitForTimeout(200);
-  }
-  await page.getByRole("button", { name: "Comparar" }).last().click();
-  await page.waitForTimeout(1300);
-  await page.locator(".zone-axes > summary").click();
-  await page.waitForTimeout(400);
+  await reopenZonesAndCompare(page, zoneNames);
 }
 
 async function auditViewport(browser, name, url) {
@@ -167,15 +147,14 @@ async function auditViewport(browser, name, url) {
   check("the comparison renders one column per zone", (await page.locator(".zone-column").count()) === 2);
 
   // ── Facts and editorial are told apart, in words ─────────────────────────────────────────────
-  const tags = (await page.locator(".zone-column__tag").allInnerTexts()).map((t) => t.trim());
+  // Vocabulario vigente (EvidenceMark, B24/B26): las etiquetas `.zone-column__tag` («verificables», «calculado», «criterio») pasaron a los
+  // encabezados de bloque «Hechos ◧ Registrado», «Cálculo … ◇ Estimado», «Opinión · Nihon dice ✎». La invariante (las tres clases de
+  // afirmación se distinguen con palabras y marca, nunca sólo por color) se conserva.
+  const tags = (await page.locator(".zone-column__heading").allInnerTexts()).map((t) => t.replace(/\s+/g, " ").trim());
   check("the panel tags its kinds of statement", tags.length >= 3, JSON.stringify(tags));
-  check("facts are tagged verificables", tags.some((t) => /verificable/i.test(t)), JSON.stringify(tags));
-  check("editorial is tagged criterio", tags.some((t) => /^criterio/i.test(t)), JSON.stringify(tags));
-  check(
-    "derived geometry is tagged calculado",
-    tags.some((t) => /calculado/i.test(t)),
-    JSON.stringify(tags)
-  );
+  check("facts are tagged verificables (now: «Hechos ◧ Registrado»)", tags.some((t) => /^Hechos/i.test(t) && /Registrado/i.test(t)), JSON.stringify(tags));
+  check("editorial is tagged criterio (now: «Opinión · Nihon dice ✎»)", tags.some((t) => /^Opini[oó]n/i.test(t) && /Nihon dice/i.test(t)), JSON.stringify(tags));
+  check("derived geometry is tagged calculado (now: «Cálculo … Estimado»)", tags.some((t) => /^C[aá]lculo/i.test(t) && /Estimado/i.test(t)), JSON.stringify(tags));
 
   // ── The disclosure: closed by default, and it explains what a rating is ──────────────────────
   const axes = page.locator(".zone-axes");
@@ -183,8 +162,8 @@ async function auditViewport(browser, name, url) {
   check("which starts closed", !(await page.locator(".zone-axes__list").isVisible()));
   const summary = axes.locator("summary");
   check(
-    "the disclosure summary is itself tagged criterio",
-    /criterio/i.test(await summary.innerText()),
+    "the disclosure summary is itself tagged criterio (now: marca ✎ «Nihon dice»)",
+    (await summary.locator(".evidence-mark").getAttribute("aria-label").catch(() => null)) === "Nihon dice",
     (await summary.innerText()).trim()
   );
   const summaryBox = await summary.boundingBox();
@@ -352,15 +331,17 @@ async function auditViewport(browser, name, url) {
   // The panel is a modal, so the two travellers and the ratings are never on screen together.
   // That is itself the separation working: switching reader cannot reach a rating.
   await closeZonePanel(page);
-  check("the zone panel closes", (await page.locator(".zone-panel").count()) === 0);
-  const bar = page.locator(".traveller-bar__option");
-  check("the traveller bar is reachable once it is closed", (await bar.count()) === 2);
+  check("the zone panel closes", !(await page.locator(".zone-panel").first().isVisible()));
+  // Nosotros › Viajeros sustituye a la barra de viajeros del encabezado (B26): cada persona tiene su tarjeta «Usar como …».
+  await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Nosotros" }).first().click();
+  await page.waitForTimeout(500);
+  const bar = page.locator(".traveller-card");
+  check("the traveller manager is reachable once it is closed", (await bar.count()) === 2);
 
-  await bar.nth(1).click();
-  await page.waitForTimeout(450);
+  await switchReader(page);
   check(
     "the second traveller is now the reader",
-    (await bar.nth(1).getAttribute("aria-pressed")) === "true"
+    /Jun/.test((await page.locator(".app__person-token-button").getAttribute("aria-label")) ?? "")
   );
   await reopenComparison(page, ["Shinjuku", "Asakusa"]);
   check(
@@ -372,6 +353,7 @@ async function auditViewport(browser, name, url) {
 
   // Now the other direction: a heart is personal and must not move a rating.
   await closeZonePanel(page);
+  await openCity(page, "Tokio");
   const third = page.locator(".place-card__save").nth(2);
   const wasPressed = (await third.getAttribute("aria-pressed")) === "true";
   await third.click();

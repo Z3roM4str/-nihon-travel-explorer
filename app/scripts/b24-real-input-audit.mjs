@@ -3,6 +3,13 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+/*
+ * AJUSTE en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md), sólo en P0-2/Quiero ir: las filas de Quiero ir (B25) son
+ * `PlaceCard` compactas y ya no llevan `.icon-button--small`; el control táctil de cada fila es el corazón `.place-card__save`, cuya caja
+ * pintada es de 40 px y cuya ÁREA de impacto de 44 px la da un `::after` (misma técnica que `.tap-target-min`, medida igual que en
+ * `b10-a11y-check`). La afirmación se conserva: el icono del control de la fila se ve (3:1) y su área real es ≥ 44.
+ */
+
 /**
  * Bloque 24 — gate permanente de INPUT REAL (`docs/BLOCK_24_MISSION.md` §5).
  *
@@ -613,11 +620,11 @@ async function auditCityMapReducedMotion(page, vp) {
 // ---------------------------------------------------------------------------------------------
 // P0-2 — iconos de `.icon-button--small` visibles (muestreo de píxeles del SVG) + toast (D-M4).
 // ---------------------------------------------------------------------------------------------
-async function sampleIcons(page, scope, id) {
+async function sampleIcons(page, scope, id, selector = ".icon-button--small") {
   // El toast (`04 §16`, 2.400 ms) puede pasar por encima de una fila en pantallas bajas: se muestrea
   // cuando ya se ha ido, para medir el icono y no el toast.
   await page.locator(".save-toast").waitFor({ state: "detached", timeout: 6000 }).catch(() => {});
-  const buttons = page.locator(`${scope} .icon-button--small`);
+  const buttons = page.locator(`${scope} ${selector}`);
   const count = Math.min(await buttons.count(), 4);
   let sampled = 0;
   for (let i = 0; i < count; i += 1) {
@@ -632,10 +639,12 @@ async function sampleIcons(page, scope, id) {
       const visible =
         r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth &&
         el.offsetParent !== null && Boolean(hit && (hit === el || el.contains(hit)));
+      const after = getComputedStyle(el, "::after");
+      const grows = after.content !== "none" && after.position === "absolute";
       return {
         visible,
         disabled: el.disabled,
-        button: { w: r.width, h: r.height },
+        button: grows ? { w: Math.max(r.width, parseFloat(after.width) || 0), h: Math.max(r.height, parseFloat(after.height) || 0) } : { w: r.width, h: r.height },
         svg: s ? { x: s.left, y: s.top, width: s.width, height: s.height } : null,
       };
     });
@@ -669,11 +678,11 @@ async function auditSavedAndIcons(page, vp) {
 
   const nav = page.locator(".tab-bar__item:visible, .nav-rail__item:visible").filter({ hasText: "Quiero ir" }).first();
   if (!(await realClick(page, nav, "NAV", "pestaña Quiero ir"))) return;
-  await page.locator('.destination-panel:not([hidden]) .icon-button--small').first().waitFor({ timeout: 4000 }).catch(() => {});
+  await page.locator('.destination-panel:not([hidden]) .quiero-ir__row .place-card__save').first().waitFor({ timeout: 4000 }).catch(() => {});
   await frames(page);
   await page.screenshot({ path: `${SHOTS}/quiero-ir-${vp.name}.png` });
-  const sampled = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
-  check("P0-2", sampled > 0, "Quiero ir: ningún .icon-button--small visible para muestrear");
+  const sampled = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2", ".quiero-ir__row .place-card__save");
+  check("P0-2", sampled > 0, "Quiero ir: ningún control de fila visible para muestrear");
 
   // Viaje › Planificar: los controles de fila y de día usan el mismo botón.
   const viaje = page.locator(".tab-bar__item:visible, .nav-rail__item:visible").filter({ hasText: "Viaje" }).first();

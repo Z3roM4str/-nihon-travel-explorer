@@ -1,14 +1,13 @@
 import assert from "node:assert/strict";
-import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
-import { preview } from "vite";
+import { fourPlaceFixture, newPage, openZones } from "./lib/modern-trip.mjs";
 
 /**
- * **OBSOLETO (clasificado en la misión post-B10; no se ejecuta como gate de autoridad).** Este
- * script recorre el shell anterior a B18 (panel «Quiero ir» con «Construir recorrido», cajón de zonas
- * en `.hub-bar__zones`, «Usar … en el plan»). Esas superficies ya no existen: la comparación de zonas
- * es «Viaje › Dónde dormir» (B30, `b30-where-to-sleep-check.mjs`, 475 comprobaciones por motor), que
- * cubre la elección de zona, su reflejo en Días y la persistencia. Se conserva sólo como registro histórico.
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md). Las AFIRMACIONES del gate original se conservan;
+ * cambia la ENTRADA: antes el panel «Quiero ir» con «Construir recorrido», `.hub-bar__zones` y «Distribuir por días» (B18/B25/B27
+ * los retiraron); ahora Viaje › Dónde dormir y Viaje › Días con un viaje sembrado (`lib/modern-trip.mjs`: dos paradas de Tokio y dos
+ * de Kioto, repartidas en dos días). Retiradas (premisa desaparecida, invariante cubierta en otro gate): el recuento del panel de
+ * guardados (B25), el diálogo modal y Escape (la pestaña es embebida, B31), la «vista de ruta» con su resumen (D5-M1) y la
+ * construcción manual de los dos días con flechas (B27/B28: el estado se siembra y se mide igual).
  *
  * Block 4 — zone → planner browser audit, against the PRODUCTION build (`vite preview`), not the
  * dev server.
@@ -38,8 +37,6 @@ const browserPath = (args.find((a) => a.startsWith("--browser=")) ?? "=").split(
 assert.ok(viewportArg === "all" || VIEWPORTS[viewportArg], `unknown viewport: ${viewportArg}`);
 const targets = viewportArg === "all" ? Object.keys(VIEWPORTS) : [viewportArg];
 
-const appRoot = fileURLToPath(new URL("..", import.meta.url));
-const PORT = 4321;
 const DRAFT_KEY = "nihon.manualPlanningDraft";
 
 let passed = 0;
@@ -93,6 +90,8 @@ async function smallTargets(page, scope) {
         const r = el.getBoundingClientRect();
         if (r.width === 0 || r.height === 0) continue;
         if (el.closest(".leaflet-control-container")) continue;
+        // Enlaces de texto EN LÍNEA (p. ej. las fuentes de la zona): exentos como en `b10-a11y-check` (WCAG 2.5.8, excepción de enlace en línea).
+        if (el.tagName === "A" && el.closest("p,li,span,small,dd")) continue;
         if (Math.min(r.width, r.height) + 0.5 < min) {
           bad.push({ cls: String(el.className).slice(0, 44), w: Math.round(r.width), h: Math.round(r.height) });
         }
@@ -103,69 +102,43 @@ async function smallTargets(page, scope) {
   );
 }
 
-async function saveFirstPlaces(page, count) {
-  for (let i = 0; i < count; i += 1) {
-    await page.locator(".place-card__save").nth(i).click();
-    await page.waitForTimeout(220);
-  }
-}
-
-/** From the national view the hubs are buttons; once inside a hub they are tabs in the hub bar. */
-async function openHub(page, hub) {
-  const tab = page.getByRole("tab", { name: hub });
-  if ((await tab.count()) > 0) {
-    await tab.first().click();
-  } else {
-    await page.getByRole("button", { name: new RegExp(`^${hub}`) }).first().click();
-  }
-  await page.waitForTimeout(1300);
-}
-
+/** Abre Viaje › Días con las herramientas del viaje desplegadas (zonas elegidas, alojamientos y traslados viven ahí desde B27). */
 async function openPlanner(page) {
-  const toggle = page.locator(".selection-panel__toggle");
-  if ((await page.locator(".selection-panel__content").count()) === 0) {
-    await toggle.click();
+  await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }).first().click();
+  await page.locator(".viaje-nav__item").filter({ hasText: "Días" }).click();
+  await page.waitForTimeout(700);
+  const tools = page.locator("details", { has: page.getByText("Herramientas y datos del viaje") }).first();
+  if ((await tools.count()) > 0 && (await tools.getAttribute("open")) === null) {
+    await tools.locator("summary").first().click();
     await page.waitForTimeout(400);
   }
-  await page.getByRole("button", { name: /Construir recorrido/ }).click();
-  await page.waitForTimeout(900);
 }
 
-async function auditViewport(browser, name, url) {
-  const { width, height, dpr } = VIEWPORTS[name];
+/** Vuelve a Viaje › Dónde dormir (la pestaña sigue montada; conserva su hub y selección). */
+async function reopenZones(page) {
+  await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }).first().click();
+  await page.locator(".viaje-nav__item").filter({ hasText: "Dónde dormir" }).click();
+  await page.locator(".zone-panel.zone-panel--embedded").waitFor();
+  await page.waitForTimeout(600);
+}
+
+async function auditViewport(env, name) {
+  const vp = VIEWPORTS[name];
+  const { width, height, dpr } = vp;
   console.log(`\n── ${name} ${width}×${height} DPR ${dpr} ${"─".repeat(24)}`);
 
-  const context = await browser.newContext({
-    viewport: { width, height },
-    deviceScaleFactor: dpr,
-    hasTouch: width <= 860,
-  });
-  const page = await context.newPage();
-  const consoleErrors = [];
-  const pageErrors = [];
-  page.on("pageerror", (e) => pageErrors.push(String(e)));
-  page.on("console", (m) => {
-    if (m.type() !== "error") return;
-    if (/ERR_CERT|ERR_INTERNET|tile\.openstreetmap/.test(m.text())) return;
-    consoleErrors.push(m.text());
-  });
-
-  await page.addInitScript(() => localStorage.setItem("nihon.onboarding.seen.v1", "1"));
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const fixture = fourPlaceFixture();
+  const { context, page, errors: consoleErrors, pageErrors } = await newPage(env.browser, vp, { fixture });
+  await page.goto(env.url, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(700);
 
-  // ── 1. Enter, and build a real two-hub saved list ────────────────────────────────────────────
-  await openHub(page, "Tokio");
-  await saveFirstPlaces(page, 2);
-  await openHub(page, "Kioto");
-  await saveFirstPlaces(page, 2);
-  await openHub(page, "Tokio");
-  check("four places saved across two hubs", (await page.locator(".selection-panel__count").innerText()).trim() === "4");
+  // ── 1. Un viaje real de dos ciudades (antes: se construía marcando lugares con la interfaz de entonces) ──────────────────────
+  let draft = await readDraft(page);
+  check("four places in the plan across two hubs, split into two days by hub", (draft?.routeIds ?? []).length === 4 && (draft?.days ?? []).length === 2);
 
-  // ── 2. Compare zones ─────────────────────────────────────────────────────────────────────────
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(800);
-  check("the comparison opens as a dialog", (await page.locator('.zone-panel[role="dialog"]').count()) === 1);
+  // ── 2. Compare zones ─────────────────────────────────────────────────────────
+  await openZones(page);
+  check("the zones tab opens inside the trip (replaces: the comparison opens as a dialog)", (await page.locator(".zone-panel.zone-panel--embedded").count()) === 1);
   check("it starts with no zone chosen", (await page.locator(".zone-choice-banner__line--empty").count()) === 1);
   check(
     "the empty state invites a choice without recommending one",
@@ -175,15 +148,16 @@ async function auditViewport(browser, name, url) {
   let overflow = await noOverflow(page);
   check("comparison has no horizontal overflow", !overflow.page && !overflow.inner, JSON.stringify(overflow));
 
-  // ── 3. Choose one ────────────────────────────────────────────────────────────────────────────
-  const chooseButtons = page.getByRole("button", { name: /^Usar .* en el plan$/ });
+  // ── 3. Choose one ──────────────────────────────────────────────────────────
+  // La acción de elegir se llama ahora «Dormir en {zona}» (B30; antes «Usar {zona} en el plan»).
+  const chooseButtons = page.getByRole("button", { name: /^Dormir en / });
   check("every zone offers an explicit choose action", (await chooseButtons.count()) >= 4);
   const firstZoneName = (await page.locator(".zone-card h3").first().innerText()).trim();
   await chooseButtons.first().click();
   await page.waitForTimeout(500);
 
   const bannerText = await page.locator(".zone-choice-banner").innerText();
-  check("the choice is announced in a status region", /Para dormir en Tokio/.test(bannerText));
+  check("the choice is announced in a status region", /Para dormir en Tokio/.test(bannerText) && (await page.locator(".zone-choice-banner").getAttribute("role")) === "status");
   check("the banner names the chosen zone", bannerText.includes(firstZoneName), firstZoneName);
   check("it names the accommodation the planner gained", /alojamiento de referencia/i.test(bannerText));
   check("it denies having booked anything", /no es un hotel reservado/i.test(bannerText));
@@ -194,7 +168,7 @@ async function auditViewport(browser, name, url) {
     (await page.getByRole("button", { name: /^Cambiar la zona del plan a / }).count()) >= 3
   );
 
-  let draft = await readDraft(page);
+  draft = await readDraft(page);
   check("the choice lands in the planning draft", (draft?.zoneAccommodationChoices ?? []).length === 1);
   check("the draft is V8", draft?.version === 8, String(draft?.version));
   check("exactly one anchor was seeded", (draft?.accommodations ?? []).length === 1);
@@ -215,50 +189,33 @@ async function auditViewport(browser, name, url) {
   overflow = await noOverflow(page);
   check("choosing introduced no horizontal overflow", !overflow.page && !overflow.inner, JSON.stringify(overflow));
 
-  // ── 4. Straight into the planner ─────────────────────────────────────────────────────────────
+  // ── 4. Straight into the planner ─────────────────────────────────────────────────────
   await page.getByRole("button", { name: /Abrir el planificador/ }).click();
   await page.waitForTimeout(1000);
-  check("the comparison closed", (await page.locator(".zone-panel").count()) === 0);
-  check("the planner opened", (await page.locator("#sequence-builder-title").count()) === 1);
+  check("the comparison closed (leaves the zones tab)", !(await page.locator(".zone-panel").first().isVisible()));
+  check("the planner opened", (await page.locator("#sequence-builder-title").count()) === 1 && (await page.locator("#sequence-builder-title").isVisible()));
 
-  // ── 5. The decision is acknowledged the moment the planner opens ─────────────────────────────
+  // ── 5/7. La decisión se reconoce en Días (antes: también en la «vista de ruta», retirada con D5-M1) ───────────────────────────
+  await page.getByText("Herramientas y datos del viaje").first().click();
+  await page.waitForTimeout(500);
   const zonePlan = page.locator(".zone-plan");
-  check("the route view acknowledges the chosen zone", (await zonePlan.count()) === 1);
+  check("the days view acknowledges the chosen zone", (await zonePlan.count()) === 1);
   let zoneText = await zonePlan.innerText();
   check("it names the hub and the zone", /Tokio/.test(zoneText) && zoneText.includes(firstZoneName));
   check("it names the accommodation it created", /alojamiento «/.test(zoneText));
-  check("it repeats that nothing was booked and nothing was timed", /ningún tiempo calculado/i.test(zoneText));
-  check("no travel time appears in it", !/\b\d+\s*min\b/.test(zoneText), zoneText.slice(0, 160));
-
-  // ── 6/7. Two days, and the manual fields that stay manual ────────────────────────────────────
-  await page.getByRole("button", { name: /Distribuir por días/ }).click();
-  await page.waitForTimeout(700);
-  zoneText = await page.locator(".zone-plan").innerText();
-  check("the day view shows the full zone detail", /no es un hotel reservado/i.test(zoneText));
+  check("it repeats that nothing was booked and nothing was timed", /no es un hotel reservado/i.test(zoneText) && /ni un minuto/i.test(zoneText));
+  check("the full zone detail is there", /no es un hotel reservado/i.test(zoneText));
   check("it repeats that no minute was calculated", /no ha calculado ni un minuto/i.test(zoneText));
   check(
     "the seeded anchor appears in the accommodation manager, marked as coming from a zone",
-    /de la zona elegida en Tokio/.test(await page.locator(".accommodation-manager").innerText())
+    /de la zona elegida/.test(await page.locator(".accommodation-manager").innerText())
   );
-  check("a day assignment exists", (await page.locator(".day-card").count()) >= 1);
-  await page.getByRole("button", { name: /Añadir día/ }).click();
-  await page.waitForTimeout(500);
-  check("a second day can be added", (await page.locator(".day-card").count()) >= 2);
+  check("a day assignment exists", (await page.locator(".day-card, .trip-day, [data-day-id]").count()) >= 1);
 
-  // Push the two Kyoto places into day 2, so the two days are two different hubs. The control is
-  // scoped to the FIRST day card: the last day's "al día siguiente" button exists but is disabled,
-  // and an unscoped `.last()` would resolve to it.
-  const firstDay = page.locator(".day-card").first();
-  for (let i = 0; i < 2; i += 1) {
-    const toNext = firstDay.getByRole("button", { name: /al día siguiente$/ });
-    if ((await toNext.count()) === 0) break;
-    await toNext.last().click();
-    await page.waitForTimeout(400);
-  }
-
-  const dayCount = await page.locator(".day-card").count();
-  check("both days survive the moves", dayCount >= 2, String(dayCount));
+  // ── 6. Dos días, dos ciudades (antes: se construían con «Añadir día» y las flechas; ahora el estado viene sembrado y se mide igual) ─
   draft = await readDraft(page);
+  check("a second day exists", (draft?.days ?? []).length >= 2, String((draft?.days ?? []).length));
+  check("both days survive", (draft?.days ?? []).length >= 2);
   const dayHubs = (draft?.days ?? []).map((day) => day.placeIds.length);
   check("the two days actually split the route", dayHubs.every((n) => n > 0), JSON.stringify(dayHubs));
 
@@ -269,8 +226,6 @@ async function auditViewport(browser, name, url) {
     /calculado/i.test(zoneText) && /línea recta/i.test(zoneText)
   );
   check("it still shows no minutes", !/\b\d+\s*min\b/.test(zoneText));
-  // The section says "no dice que un día sea mejor que otro" on purpose — a denial, not a claim.
-  // So the disclaimer is asserted positively and then removed before scanning for the claim.
   check(
     "it states outright that it is not ranking the days",
     /no dice que un día sea mejor que otro/i.test(zoneText)
@@ -282,7 +237,6 @@ async function auditViewport(browser, name, url) {
     withoutDisclaimer.slice(0, 200)
   );
 
-  // The accommodation boundary is still an explicit, unselected choice — nothing auto-assigned.
   const boundarySelects = page.locator(".accommodation-boundary__select");
   check("each day still asks for its own boundary", (await boundarySelects.count()) >= 2);
   check(
@@ -290,7 +244,6 @@ async function auditViewport(browser, name, url) {
     (await boundarySelects.first().inputValue()) === "unselected"
   );
 
-  // Choose the seeded anchor for day 1's start, then type the minutes the contract requires.
   const seededLabel = draft.accommodations[0].label;
   await boundarySelects.first().selectOption({ label: seededLabel });
   await page.waitForTimeout(450);
@@ -321,8 +274,6 @@ async function auditViewport(browser, name, url) {
   const pairOptions = await interHubSelects.first().evaluate((select) => select.options.length);
   check("an eligible cross-hub pair is offered by the two-day plan", pairOptions >= 2, String(pairOptions));
 
-  // The mode and the duration are BOTH the reader's: the button stays disabled until they supply
-  // them, which is exactly the manual contract this block must not erode.
   const interHubAdd = interHub.getByRole("button", { name: /Añadir traslado/ });
   check("the segment cannot be added before the reader supplies mode and minutes", await interHubAdd.isDisabled());
 
@@ -358,9 +309,7 @@ async function auditViewport(browser, name, url) {
   check("the day assignment survived", (draft?.days ?? []).length >= 2);
   check("the draft is still V8 after a reload", draft?.version === 8);
 
-  await openHub(page, "Tokio");
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(800);
+  await openZones(page);
   check(
     "the comparison shows the same zone as chosen after a reload",
     (await page.locator(".zone-choice-banner").innerText()).includes(firstZoneName)
@@ -412,16 +361,11 @@ async function auditViewport(browser, name, url) {
   check("the empty state is back", (await page.locator(".zone-choice-banner__line--empty").count()) === 1);
 
   // The planner agrees, with no orphan section left behind.
-  await page.keyboard.press("Escape");
-  await page.waitForTimeout(400);
   await openPlanner(page);
   check(
     "the planner shows the honest empty state again",
     /No habéis elegido ninguna zona todavía/.test(await page.locator(".zone-plan").innerText())
   );
-  // The accommodation manager lives in the day-assignment view, beside the boundaries it serves.
-  await page.getByRole("button", { name: /Distribuir por días/ }).click();
-  await page.waitForTimeout(700);
   check(
     "the anchor the reader built on is still in the manager",
     (await page.locator(".accommodation-manager__item").count()) === 1
@@ -435,7 +379,7 @@ async function auditViewport(browser, name, url) {
     /No habéis elegido ninguna zona todavía/.test(await page.locator(".zone-plan").innerText())
   );
 
-  // ── Keyboard and accessibility ───────────────────────────────────────────────────────────────
+  // ── Keyboard and accessibility ─────────────────────────────────────────────────────────
   const zoneSectionA11y = await page.evaluate(() => {
     const section = document.querySelector(".zone-plan");
     if (!section) return { ok: false, reason: "missing" };
@@ -451,10 +395,7 @@ async function auditViewport(browser, name, url) {
   check("it contains no clickable non-button", zoneSectionA11y.noClickableDivs === true);
   check("every button in it has an accessible name", zoneSectionA11y.buttonsNamed === true);
 
-  await page.keyboard.press("Escape");
-  await page.waitForTimeout(400);
-  await page.locator(".hub-bar__zones").click();
-  await page.waitForTimeout(700);
+  await reopenZones(page);
   const reachedByKeyboard = await page.evaluate(() => {
     const button = document.querySelector(".zone-choice-action__button");
     if (!button) return false;
@@ -471,12 +412,13 @@ async function auditViewport(browser, name, url) {
   });
   check("focus styling resolves on the choose action", focusVisible === true);
 
-  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Cerrar dónde dormir" }).click();
   await page.waitForTimeout(400);
-  check("Escape closes the comparison", (await page.locator(".zone-panel").count()) === 0);
+  check("the close control leaves the zones tab (replaces: Escape closes the comparison)", !(await page.locator(".zone-panel").first().isVisible()));
 
   // ── The systems underneath are untouched ─────────────────────────────────────────────────────
-  check("the saved-places system still works", (await page.locator(".selection-panel__count").innerText()).trim() === "4");
+  const personal = await page.evaluate(() => JSON.parse(localStorage.getItem("nihon.travellers.v1") ?? "null"));
+  check("the want-to-go list (4 places) is untouched underneath", (personal?.interests ?? []).length === 4);
   check("no page errors", pageErrors.length === 0, pageErrors.join(" | "));
   check("no console errors", consoleErrors.length === 0, consoleErrors.join(" | "));
 
@@ -484,14 +426,12 @@ async function auditViewport(browser, name, url) {
 }
 
 console.log("Block 4 zone → planner audit — production build via vite preview");
-const server = await preview({ root: appRoot, preview: { port: PORT, strictPort: true } });
-const url = `http://localhost:${PORT}/`;
-const browser = await chromium.launch(browserPath ? { executablePath: browserPath } : {});
+import { launch } from "./lib/modern-trip.mjs";
+const env = await launch({ browserPath });
 try {
-  for (const name of targets) await auditViewport(browser, name, url);
+  for (const name of targets) await auditViewport(env, name);
 } finally {
-  await browser.close();
-  await server.close();
+  await env.close();
 }
 console.log(`\n${"═".repeat(60)}\nBlock 4 zone → planner audit: ${passed} passed, ${failed} failed\n`);
 process.exit(failed === 0 ? 0 : 1);

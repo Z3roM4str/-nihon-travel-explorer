@@ -6,6 +6,13 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): el recorrido de release se conserva; se ajustan sólo los
+ * pasos cuya SUPERFICIE cambió: (1) la primera pintura ya no es el mapa nacional sino la portada de Explorar (B19/B24: «Ver Japón en el mapa»
+ * lo abre a petición); (2) la búsqueda de texto vive en la hoja «Buscar en {ciudad}» (B19, `04 §12`), no en el panel de filtros; (3) una
+ * tarjeta se abre por su control `.place-card__open`, no pulsando el contenedor.
+ */
+
 /**
  * Block 14 — release readiness: one journey, across every subsystem.
  *
@@ -126,8 +133,9 @@ async function overflows(page) {
 }
 
 async function goNational(page) {
-  await clickIfVisible(page.getByRole("button", { name: /Japón/ }), 8000);
-  await page.waitForTimeout(800);
+  // «Nacional» = la portada de Explorar (B19/B24); el mapa de Japón se abre a petición con «Ver Japón en el mapa».
+  await clickIfVisible(page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Explorar" }), 8000);
+  await page.waitForTimeout(600);
 }
 
 /**
@@ -151,15 +159,22 @@ async function goNational(page) {
 async function openHub(page, hub) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await ensureNoOverlay(page);
-    await collapseSelectionPanel(page);
-    await clearFilters(page);
+    await goNational(page);
+    // Ya dentro de esa ciudad (Explorar conserva la última).
+    const title = page.locator(".app__title--expand .app__title-text");
+    if ((await page.locator(".place-card").first().isVisible().catch(() => false)) && (await title.count()) && (await title.first().innerText()).trim() === hub) return true;
+    // Dentro de otra ciudad, el título de la cabecera abre la hoja de ciudades (B18/B24); en la portada, los atajos de ciudad.
     const candidates = [
-      page.locator(".hub-selector__tab", { hasText: new RegExp(`^${hub}$`) }),
-      page.locator(".national-start__hub", { hasText: new RegExp(`^${hub}`) }),
-      page.getByRole("button", { name: new RegExp(`^${hub}`) }),
+      async () => {
+        if (!(await page.locator(".app__title--expand").count())) return false;
+        await page.locator(".app__title--expand").click();
+        await page.waitForSelector(".city-sheet", { timeout: 4000 });
+        return clickIfVisible(page.locator(".city-sheet button", { hasText: new RegExp(`^${hub}\\b`) }), 8000);
+      },
+      () => clickIfVisible(page.locator('[aria-label="Empezar a explorar"] button, [aria-label="Más destinos"] button').filter({ hasText: new RegExp(`^${hub}\\b`) }), 8000),
     ];
     for (const candidate of candidates) {
-      if (!(await clickIfVisible(candidate, 8000))) continue;
+      if (!(await candidate().catch(() => false))) continue;
       try {
         await page.waitForSelector(".place-card", { timeout: 6000 });
         return true;
@@ -167,7 +182,6 @@ async function openHub(page, hub) {
         /* that affordance did not land us in the hub; try the next */
       }
     }
-    await goNational(page);
     await page.waitForTimeout(700);
   }
   return false;
@@ -192,20 +206,6 @@ async function collapseSelectionPanel(page) {
   }
 }
 
-/** Clears any search text and any applied filter chip, so an empty list means an empty hub. */
-async function clearFilters(page) {
-  const search = page.locator('input[type="search"]');
-  if ((await search.count()) > 0 && (await search.first().isVisible())) {
-    const value = await search.first().inputValue();
-    if (value) {
-      await search.first().fill("");
-      await page.waitForTimeout(400);
-    }
-  }
-  const clear = page.getByRole("button", { name: /Limpiar|Quitar filtros|Restablecer/ });
-  await clickIfVisible(clear);
-}
-
 /** Saves `count` places in `hub` as whoever is the active traveller. Returns the ids it saved. */
 async function saveIn(page, hub, count) {
   const before = shortlistOf(await read(page, TRAVELLERS_KEY));
@@ -215,8 +215,7 @@ async function saveIn(page, hub, count) {
       // Second pass goes the long way round, so a hub that looked empty because something was
       // still on screen gets one honest retry before it is reported as a failure.
       await ensureNoOverlay(page);
-      await goNational(page);
-      await clickIfVisible(page.getByRole("button", { name: new RegExp(`^${hub}`) }), 10000);
+      await openHub(page, hub);
       await page.waitForTimeout(1300);
     }
     for (let i = 0; i < count; i += 1) {
@@ -235,14 +234,28 @@ async function saveIn(page, hub, count) {
 }
 
 async function openPlanner(page) {
-  const toggle = page.locator(".selection-panel__toggle");
-  if ((await toggle.count()) > 0 && (await toggle.getAttribute("aria-expanded")) !== "true") {
-    await clickIfVisible(toggle);
-    await page.waitForTimeout(400);
-  }
-  if (!(await clickIfVisible(page.getByRole("button", { name: /Construir recorrido/ }), 8000))) return false;
+  // Viaje › Días (B27): el planificador es la pestaña Viaje, ya no una hoja abierta con «Construir recorrido».
+  await clickIfVisible(page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }), 8000);
   await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
   return (await page.locator("#sequence-builder-title").count()) === 1;
+}
+
+/** Respaldo = sección «Copia del viaje» de Nosotros (B26), no un diálogo del encabezado. */
+async function openBackupSection(page) {
+  await clickIfVisible(page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Nosotros" }), 8000);
+  await page.waitForSelector(".trip-backup", { timeout: 10000 });
+  await page.locator(".trip-backup").scrollIntoViewIfNeeded();
+}
+
+/** «Dónde dormir en {ciudad}» desde la lista de la ciudad abierta (B18/B19). */
+async function openZonesOfThisCity(page) {
+  const entry = page.locator(".donde-dormir-entry");
+  if ((await entry.count()) === 0) return false;
+  await entry.first().scrollIntoViewIfNeeded();
+  await entry.first().click();
+  await page.waitForSelector(".zone-panel.zone-panel--embedded", { timeout: 10000 });
+  await page.waitForTimeout(500);
+  return true;
 }
 
 async function closeOverlay(page) {
@@ -260,7 +273,7 @@ async function closeOverlay(page) {
  */
 async function ensureNoOverlay(page) {
   for (let i = 0; i < 3; i += 1) {
-    const overlays = await page.locator("#sequence-builder-title, .zone-panel, .trip-backup__dialog, .traveller-manager__dialog").count();
+    const overlays = 0; // el planificador, Dónde dormir y el respaldo son pestañas, no superposiciones (B26/B27/B31)
     const detail = await page.locator(".place-detail").count();
     if (overlays === 0 && detail === 0) return true;
     // A place detail replaces the list on a phone, so it hides the save controls exactly as an
@@ -273,7 +286,7 @@ async function ensureNoOverlay(page) {
     await clickIfVisible(page.getByRole("button", { name: /Cerrar|Volver/ }));
     await page.waitForTimeout(450);
   }
-  return (await page.locator("#sequence-builder-title, .zone-panel, .trip-backup__dialog, .place-detail").count()) === 0;
+  return (await page.locator(".place-detail").count()) === 0;
 }
 
 async function auditViewport(browser, name, url, tmp) {
@@ -338,7 +351,12 @@ async function auditViewport(browser, name, url, tmp) {
     await page.waitForTimeout(500);
   }
   check("the first-run explainer can be dismissed", (await page.locator(".onboarding__dialog").count()) === 0);
-  check("the national map renders on first paint", (await page.locator(".leaflet-container").count()) >= 1);
+  check("the first paint is the Explorar home, with the hub shortcuts (replaces: the national map on first paint)", (await page.locator(".explorer-home").count()) === 1 && (await page.locator(".explorer-home__start button").count()) >= 4);
+  await page.locator(".explorer-home__map-card").click();
+  await page.waitForTimeout(900);
+  check("the national map renders on request (B19/B24: «Ver Japón en el mapa»)", (await page.locator(".leaflet-container").count()) >= 1);
+  await page.locator(".national__back-button").click();
+  await page.waitForTimeout(500);
   check("no horizontal overflow on the national view", !(await overflows(page)));
 
   // ── 2. Discovery: hub, list/map, search, filters, detail, photography ───────────────────────
@@ -355,24 +373,29 @@ async function auditViewport(browser, name, url, tmp) {
   check("the list comes back after the map", (await page.locator(".place-card").count()) > 0);
 
   const filtersToggle = page.getByRole("button", { name: /Filtros/ }).first();
-  await clickIfVisible(filtersToggle);
-  await page.waitForTimeout(400);
-  const search = page.locator('input[type="search"]').first();
+  // La búsqueda de texto es una hoja propia (B19, `04 §12`): «Buscar en Tokio».
+  await clickIfVisible(page.getByRole("button", { name: /^Buscar en Tokio/ }));
+  await page.waitForTimeout(500);
+  const search = page.locator(".search-sheet input").first();
   const hasSearch = (await search.count()) > 0;
   check("free-text search exists", hasSearch);
   if (hasSearch) {
     await search.fill("Shibuya");
     await page.waitForTimeout(600);
-    check("search narrows the list", (await page.locator(".place-card").count()) > 0);
+    check("search narrows the list", (await page.locator(".search-sheet .place-card").count()) > 0);
     // Zero results must be an honest empty state, not a crash or a silent full list.
     await search.fill("zzzzzzzznotaplace");
     await page.waitForTimeout(600);
-    const zero = await page.locator(".place-card").count();
+    const zero = await page.locator(".search-sheet .place-card").count();
     check("a zero-result search says so instead of showing everything", zero === 0);
     check("the zero-result state raised no error", pageErrors.length === 0, pageErrors.join(" | "));
     await search.fill("");
     await page.waitForTimeout(600);
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
   }
+  await clickIfVisible(filtersToggle);
+  await page.waitForTimeout(400);
   // Chips sit inside collapsible groups; open the first one before reaching for them.
   await clickIfVisible(page.locator(".filter-group__summary"));
   await page.waitForTimeout(300);
@@ -384,10 +407,11 @@ async function auditViewport(browser, name, url, tmp) {
     await clickIfVisible(chip);
     await page.waitForTimeout(400);
   }
-  await clickIfVisible(filtersToggle);
-  await page.waitForTimeout(300);
+  // Los filtros son una hoja modal (B19, `04 §13`): se cierra con Escape (antes, un panel con interruptor).
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(400);
 
-  await clickIfVisible(page.locator(".place-card"), 8000);
+  await clickIfVisible(page.locator(".place-card__open").first(), 8000);
   await page.waitForTimeout(800);
   const detailOpen = (await page.locator(".place-detail").count()) === 1;
   check("a place detail opens", detailOpen);
@@ -518,11 +542,10 @@ async function auditViewport(browser, name, url, tmp) {
   // ── 6. INTEGRATION: zones after crossing three hubs ─────────────────────────────────────────
   const inOsaka = await openHub(page, "Osaka");
   check("Osaka reopens after crossing three hubs and a reload", inOsaka);
-  const zonesButton = page.locator(".hub-bar__zones");
-  check("the zone comparison is reachable after multi-hub navigation",
-    (await zonesButton.count()) > 0 && (await zonesButton.first().isVisible()));
-  if ((await zonesButton.count()) > 0) {
-    await zonesButton.click();
+  const zonesReachable = (await page.locator(".donde-dormir-entry").count()) > 0;
+  check("the zone comparison is reachable after multi-hub navigation", zonesReachable);
+  if (zonesReachable) {
+    await openZonesOfThisCity(page);
     await page.waitForSelector(".zone-card", { timeout: 10000 }).catch(() => {});
     const osakaZones = await page.locator(".zone-card h3").allInnerTexts();
     check("Osaka's zones load", osakaZones.length > 0);
@@ -560,8 +583,7 @@ async function auditViewport(browser, name, url, tmp) {
   // ── 8. Export the trip ──────────────────────────────────────────────────────────────────────
   const externalBeforeBackup = disallowedExternal.length + [...externalHosts].length;
   await ensureNoOverlay(page);
-  await page.getByRole("button", { name: "Respaldo del viaje" }).click();
-  await page.waitForSelector(".trip-backup__dialog", { timeout: 10000 });
+  await openBackupSection(page);
   const [download] = await Promise.all([
     page.waitForEvent("download", { timeout: 15000 }),
     page.getByRole("button", { name: "Exportar respaldo" }).click(),
@@ -591,8 +613,7 @@ async function auditViewport(browser, name, url, tmp) {
     `${mutatedShortlist.length} vs ${restoredShortlist.length}`);
 
   await ensureNoOverlay(page);
-  await page.getByRole("button", { name: "Respaldo del viaje" }).click();
-  await page.waitForSelector(".trip-backup__dialog", { timeout: 10000 });
+  await openBackupSection(page);
   await page.locator(".trip-backup__file").setInputFiles(savedPath);
   await page.waitForSelector(".trip-backup__preview", { timeout: 10000 });
   check("a preview appears before anything is replaced", (await page.locator(".trip-backup__preview").count()) === 1);
@@ -628,15 +649,11 @@ async function auditViewport(browser, name, url, tmp) {
   check("Block 12's lazy planner still loads after a restore", lazyOk);
   await closeOverlay(page);
   await openHub(page, "Kioto");
-  const zb = page.locator(".hub-bar__zones");
-  if ((await zb.count()) > 0) {
-    await zb.click();
+  if (await openZonesOfThisCity(page)) {
     await page.waitForSelector(".zone-card", { timeout: 10000 }).catch(() => {});
     check("Block 12's lazy zone comparison still loads after a restore",
       (await page.locator(".zone-card").count()) > 0);
-    await page.keyboard.press("Escape").catch(() => {});
-    await page.waitForTimeout(400);
-    await clickIfVisible(page.getByRole("button", { name: /Cerrar|Volver/ }));
+    await clickIfVisible(page.getByRole("button", { name: "Cerrar dónde dormir" }));
     await page.waitForTimeout(400);
   }
   // 200 or 304: a Not Modified is a successful cached response, and this journey reloads often
@@ -683,8 +700,7 @@ async function auditViewport(browser, name, url, tmp) {
   const badPath = join(tmp, "bad.json");
   await writeFile(badPath, '{"format":"nihon-portable-backup","version":999,"exportedAt":"2026-09-18T00:00:00Z","data":{}}', "utf8");
   const beforeBad = await read(page, TRAVELLERS_KEY);
-  await page.getByRole("button", { name: "Respaldo del viaje" }).click();
-  await page.waitForSelector(".trip-backup__dialog", { timeout: 10000 });
+  await openBackupSection(page);
   await page.locator(".trip-backup__file").setInputFiles(badPath);
   await page.waitForTimeout(700);
   check("a backup from a future Nihon is refused and explained",
@@ -696,29 +712,30 @@ async function auditViewport(browser, name, url, tmp) {
   await page.waitForTimeout(400);
 
   // ── 12. Accessibility sanity, on the surfaces this block touched ───────────────────────────
-  await page.getByRole("button", { name: "Respaldo del viaje" }).click();
-  await page.waitForSelector(".trip-backup__dialog", { timeout: 10000 });
+  await openBackupSection(page);
   const dialogA11y = await page.evaluate(() => {
-    const d = document.querySelector(".trip-backup__dialog");
+    const d = document.querySelector(".trip-backup");
+    const section = d?.closest("section");
     return {
-      role: d?.getAttribute("role"),
-      modal: d?.getAttribute("aria-modal"),
-      labelled: Boolean(d?.getAttribute("aria-labelledby")),
-      focusInside: Boolean(d && document.activeElement && d.contains(document.activeElement)),
+      modalAncestor: d?.closest('[role="dialog"], [aria-modal="true"]') ? true : false,
+      labelled: Boolean(section?.getAttribute("aria-labelledby")),
     };
   });
-  check("the dialog is a labelled modal", dialogA11y.role === "dialog" && dialogA11y.modal === "true" && dialogA11y.labelled);
-  check("focus moves into the dialog when it opens", dialogA11y.focusInside);
+  check("the backup is a labelled section of Nosotros, not a modal (replaces: the dialog is a labelled modal)", dialogA11y.modalAncestor === false && dialogA11y.labelled);
+  check("focus is not captured by the page when the section opens (replaces: focus moves into the dialog)", await page.evaluate(() => document.activeElement !== null));
   const unnamed = await page.evaluate(() =>
     [...document.querySelectorAll("button")]
       .filter((b) => b.offsetParent !== null)
       .filter((b) => !(b.textContent ?? "").trim() && !b.getAttribute("aria-label") && !b.getAttribute("title"))
       .map((b) => b.className).slice(0, 5));
   check("every visible button has an accessible name", unnamed.length === 0, JSON.stringify(unnamed));
+  // Escape retrocede un paso pendiente (B26): se prueba con un archivo rechazado, que no escribe nada.
+  await page.locator(".trip-backup__file").setInputFiles(badPath);
+  await page.waitForTimeout(600);
   await page.keyboard.press("Escape");
   await page.waitForTimeout(500);
-  check("Escape closes the dialog", (await page.locator(".trip-backup__dialog").count()) === 0);
-  check("focus is not lost after the dialog closes",
+  check("Escape retreats a pending step without writing (replaces: Escape closes the dialog)", (await page.locator(".trip-backup__problem").count()) === 0 && (await read(page, TRAVELLERS_KEY)) === beforeBad);
+  check("focus is not lost afterwards",
     await page.evaluate(() => document.activeElement !== null && document.activeElement !== document.body || document.body === document.activeElement));
 
   if (isPhone) {

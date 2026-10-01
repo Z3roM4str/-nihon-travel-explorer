@@ -6,6 +6,14 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
 import {
+
+/*
+ * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md): conserva las afirmaciones de atribución. Tres ajustes
+ * de ENTRADA/DATOS, no de criterio: (1) las galerías tienen hoy 2–3 fotografías (B6.5–B6.7) y el `locator` estricto sólo admitía una:
+ * se mide la imagen y el registro de atribución de la fotografía de identidad (el primero); (2) «Takeshita Street» y «Nezu Shrine» ya
+ * ganaron fotografía licenciada en B6.1 (lo decía el propio comentario del gate), así que la afirmación «un lugar sin fotografía conserva
+ * el respaldo editorial y no muestra crédito» se comprueba con un lugar que hoy NO la tiene («PokéPark KANTO», el mismo que fija phase4c).
+ */
   closeCredits,
   closePlace as shellClosePlace,
   creditsButtonCount,
@@ -100,18 +108,19 @@ try {
     // dónde se lee. La hoja se cierra al terminar para no dejarla sobre el resto del recorrido.
     const credit_ = await openCredits(page);
 
-    const image = page.locator(".gallery__image");
+    const image = page.locator(".gallery__image").first();
     const src = await image.getAttribute("src");
     assert.ok(src.startsWith("/images/places/"), `${label}: image must be local, got ${src}`);
 
-    const sourceLink = credit_.getByRole("link", { name: "Wikimedia Commons" });
+    const identityCredit = credit_.locator(".credits-sheet__item").first();
+    const sourceLink = identityCredit.getByRole("link", { name: "Wikimedia Commons" });
     assert.equal(await sourceLink.getAttribute("href"), sourceHref, `${label}: source link`);
 
-    const licenseLink = credit_.getByRole("link", { name: license });
+    const licenseLink = identityCredit.getByRole("link", { name: license });
     assert.equal(await licenseLink.getAttribute("href"), licenseHref, `${label}: license link`);
     assert.notEqual(sourceHref, licenseHref, `${label}: source and license links must differ`);
 
-    const text = await credit_.innerText();
+    const text = await identityCredit.innerText();
     assert.match(text, new RegExp(credit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${label}: credit`);
     assert.match(text, /Archivo de Commons\s*File:/, `${label}: Commons provenance`);
     assert.match(text, /Archivo optimizado por Nihon:/, `${label}: processing disclosure`);
@@ -160,14 +169,14 @@ try {
 
   // ── D. uncovered places still keep the no-photo fallback after B6.1 ──
   // The original two targets gained licensed photographs in B6.1.
-  for (const deferred of ["Takeshita Street", "Nezu Shrine"]) {
+  for (const deferred of ["PokéPark KANTO"]) {
     await openPlace(deferred);
     await page.getByText("Sin fotografía disponible todavía").waitFor();
     assert.equal(await creditsButtonCount(page), 0, `${deferred} must show no credit`);
     assert.equal(await page.locator(".gallery__image").count(), 0, `${deferred} must show no image`);
     await closePlace();
   }
-  record("D. uncovered targets keep fallback", "Takeshita Street, Nezu Shrine");
+  record("D. uncovered targets keep fallback", "PokéPark KANTO");
 
   // ── E. nothing about photography is fetched at runtime ──
   const photographyHosts = /wikimedia\.org|wikipedia\.org|creativecommons\.org/i;
