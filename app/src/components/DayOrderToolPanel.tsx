@@ -12,6 +12,7 @@ import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display
 import { SequenceCandidateSummary as CandidateSummary } from "./SequenceCandidateSummary";
 import { Icon } from "../icons/Icon";
 
+import "./DayOrderToolPanel.css";
 export type DayOrderEvidenceAlternative = {
   dayId: string;
   baselineDayPlaceIds: readonly string[];

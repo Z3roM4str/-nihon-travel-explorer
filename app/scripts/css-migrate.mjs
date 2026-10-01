@@ -48,13 +48,38 @@ root.each((node) => {
   if (node.type === "rule") take = ruleOk(node.selector);
   else if (node.type === "atrule" && keyframes.has(node.params.trim()) && node.name.endsWith("keyframes")) take = true;
   else if (node.type === "atrule" && ["media", "container", "supports"].includes(node.name)) {
-    let all = true;
-    let any = false;
-    node.walkRules((r) => {
-      any = true;
-      if (!ruleOk(r.selector)) all = false;
+    // Bloque mixto: se mueve sólo el subconjunto de reglas del componente, dentro de un clon del at-rule (mismos parámetros),
+    // conservando el orden relativo. Si el bloque queda vacío en el origen, se elimina.
+    const inner = [];
+    node.each((child) => {
+      if (child.type === "rule" && ruleOk(child.selector)) inner.push(child);
     });
-    take = any && all;
+    const all = node.nodes.filter((n) => n.type !== "comment").length;
+    if (inner.length === all && all > 0) take = true;
+    else if (inner.length > 0) {
+      const clone = node.clone({ nodes: [] });
+      for (const r of inner) {
+        // comentarios inmediatamente anteriores dentro del bloque
+        let prev = r.prev();
+        const lead = [];
+        while (prev && prev.type === "comment") {
+          lead.unshift(prev);
+          prev = prev.prev();
+        }
+        for (const c of lead) clone.append(c.clone());
+        clone.append(r.clone());
+        inner.__remove ??= [];
+        inner.__remove.push(...lead, r);
+      }
+      moved.push(...pendingComments.map((c) => c.toString()), clone.toString());
+      for (const n of inner.__remove) toRemove.push(n);
+      // si tras quitar sólo quedan comentarios, borra el bloque entero
+      const remaining = node.nodes.filter((n) => n.type !== "comment" && !inner.includes(n));
+      if (remaining.length === 0) toRemove.push(node);
+      for (const c of pendingComments) toRemove.push(c);
+      pendingComments = [];
+      return;
+    }
   }
   if (take) {
     for (const c of pendingComments) toRemove.push(c);

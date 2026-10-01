@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { readProductCss } from "./test-css";
 /**
  * Bloque 20 (B4) — el guardián del contrato del bloque, en el nivel de fuente.
  *
@@ -325,7 +326,7 @@ describe("B20 — `--overlay-*` sólo centraliza valores que 04 ya prescribe (Ar
   });
 
   it("el punto inactivo de la galería se distingue por forma, no por un matiz inventado (03 §1.4)", async () => {
-    const css = await read("App.css");
+    const css = await readProductCss();
     const rule = css.slice(css.indexOf(".gallery__dot::before {"));
     const body = rule.slice(0, rule.indexOf("}"));
     expect(body).toContain("border: 1px solid var(--surface)");

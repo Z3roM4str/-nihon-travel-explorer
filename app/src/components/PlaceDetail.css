@@ -1,0 +1,543 @@
+/*
+ * Bloque 20 (B4, `05 §5` pt. 1) — D4: desaparece el `×` flotante y la barra que lo contenía.
+ * Queda un único botón atrás flotante arriba-izquierda, sobre `--scrim-top`, dentro del héroe
+ * fotográfico. Sin `text-shadow` (`03 §5`): la legibilidad la da el scrim y sólo el scrim.
+ */
+
+.place-detail__hero {
+  position: relative;
+}
+
+.place-detail__hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: var(--space-20);
+  background: var(--scrim-top);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.place-detail__back {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--overlay-paper);
+  color: var(--ink-900);
+  box-shadow: var(--elev-1);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+  cursor: pointer;
+  max-width: 60%;
+}
+
+.place-detail__back-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-detail__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* `05 §5` pt. 2: el cuerpo monta sobre la fotografía 20px con `--radius-xl` arriba — la señal
+   de que hay contenido debajo del héroe. */
+
+.place-detail__body {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--space-5) * -1);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--surface);
+  padding: var(--space-6) var(--screen-margin) var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.place-detail__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* pt. 5 — la única insignia que la ficha puede mostrar. Nunca «Grado A» (Art. 6). */
+
+.place-detail__badge {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+/* pt. 3 — el nombre en `--type-display`, el mejor tamaño de la escala. */
+
+.place-detail__title-block h2 {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  letter-spacing: var(--type-display-tracking);
+  font-weight: 500;
+  color: var(--ink-900);
+}
+
+.place-detail__japanese {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  color: var(--ink-500);
+}
+
+/* pt. 4 — una línea, debajo del nombre, con un solo `·`. Ya no es un eyebrow (`03 §2.3`). */
+
+.place-detail__where,
+.place-detail__gem {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-500);
+}
+
+.place-detail__gem {
+  color: var(--ink-700);
+}
+
+/* pt. 6 — primario a ancho completo y `quiet` a su lado. */
+
+.place-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--tap-gap);
+}
+
+.place-detail__actions .save-button {
+  flex: 1;
+}
+
+/* Art. 11 / `03 §7`: el rechazo explícito sigue siendo un objetivo táctil de pleno derecho.
+   `button--md` ya mide 44px; se declara aquí también para que la regla del control no dependa
+   de que nadie toque la clase genérica. */
+
+.place-detail__actions .place-interest__decline {
+  flex-shrink: 0;
+  min-height: var(--tap-target);
+}
+
+/* pt. 7 — la franja de los dos: una sola línea, y sólo si alguien ha opinado (D8). */
+
+.place-interest__line {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+}
+
+.place-interest__person {
+  white-space: nowrap;
+}
+
+.save-button {
+  width: 100%;
+}
+
+.save-button--saved {
+  background: var(--color-ok-soft);
+  border-color: var(--color-ok);
+  color: #145c39;
+}
+
+.save-button--saved:hover {
+  background: #d9eee2;
+}
+
+/* pt. 8 — «Por qué vale la pena»: `--type-quote`, `--font-voice`, sin comillas decorativas,
+   y un filete vertical `--shu-600` de 2px a la izquierda. Nada de fondo de color: el
+   tratamiento es tipográfico, que es lo que lo hace el mejor del producto (`05 §5` pt. 8). */
+
+.highlight {
+  border-left: 2px solid var(--shu-600);
+  padding-left: var(--space-4);
+}
+
+.highlight__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  letter-spacing: var(--type-label-tracking);
+  font-weight: 500;
+  color: var(--ink-500);
+}
+
+.highlight__quote {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-quote-size);
+  line-height: var(--type-quote-line);
+  font-weight: 400;
+  color: var(--ink-900);
+}
+
+/* `03 §2.3`: caja de frase siempre. Los títulos de sección de la ficha dejan de ir en
+   MAYÚSCULAS con `letter-spacing` (`05 §5` pt. 10 lo pide explícitamente). */
+
+.place-detail__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.place-detail__section h3 {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.place-detail__section p {
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--ink-700);
+  /* `03 §2.3`: longitud de línea ≤72 caracteres en texto corrido, en cualquier viewport. */
+  max-width: 62ch;
+}
+
+/* pt. 10 — rejilla de 2 columnas. */
+
+.quick-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.quick-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.quick-fact__icon {
+  color: var(--ink-500);
+  line-height: 1;
+}
+
+.quick-fact__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.quick-fact__label {
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-500);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.quick-fact__value {
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
+}
+
+.alert__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.alert__severity {
+  margin-left: auto;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-2);
+  /* Papel opaco sobre el fondo teñido del aviso. No es un control flotante sobre fotografía,
+     así que no usa --overlay-paper: ese token significa otra cosa (`04 §5.4`/`§6`). */
+  background: var(--surface);
+  font-weight: 500;
+}
+
+.alert__status {
+  font-weight: 600;
+}
+
+.detail-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Caja de frase, no MAYÚSCULAS (`05 §5` pt. 10). */
+
+.detail-row dt {
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.detail-row dd {
+  margin: 0;
+  color: var(--ink-900);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* DD-011: la degradación del aviso de feb–mar 2027 cuando no hay problema real. Una línea
+   más dentro de «Horario», con marcador `◧` — nunca un recuadro de alerta. */
+
+.detail-row__note {
+  color: var(--ink-500);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* pt. 12 — «Cerca de aquí»: carrusel horizontal de `PlaceCard compact` con miniatura. Deja de
+   ser una lista de texto. Cada traslado lleva su `EvidenceMark`, y NO hay nota al pie: la
+   semántica que la nota explicaba vive en el `detail` de cada marcador (DDR-06). */
+
+.nearby-carousel {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+
+.nearby-carousel__item {
+  flex: 0 0 264px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-1) var(--space-2);
+  background: var(--surface);
+}
+
+.nearby-carousel__transfer {
+  margin: 0;
+  padding: 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-500);
+}
+
+.nearby-carousel__figures {
+  color: var(--ink-700);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * pt. 14 — «Fuentes», plegada por defecto. DDR-04: sólo grado original, fecha de actualización
+ * del registro y enlaces reales. Es el ÚNICO sitio del producto donde la letra de grado puede
+ * aparecer (`08` prohibición 11).
+ */
+
+.place-sources {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-4);
+}
+
+.place-sources__summary {
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+  color: var(--ink-700);
+  cursor: pointer;
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+}
+
+.place-sources__list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.place-sources__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.place-sources__row dt {
+  color: var(--ink-500);
+}
+
+.place-sources__row dd {
+  margin: 0;
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.place-sources__gloss {
+  display: block;
+  color: var(--ink-500);
+}
+
+.save-button__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/*
+ * Bloque 18 — todo lo que vivía aquí sobre cabecera, `hub-bar`/`view-bar`, `app__body`/
+ * `app__sidebar`/`app__detail` y la hoja de filtros ha sido migrado a mobile-first (arriba,
+ * junto a cada regla base) o retirado por completo. Lo que sigue es deuda pre-existente de
+ * superficies que este bloque NO toca (`PlaceDetail`, `PlaceCard`, `PlaceList`,
+ * `SelectionPanel`'s own internal hint) — se conserva como `max-width`, sin migrar, hasta que
+ * el bloque que sí las toque la convierta (`08`: "no antes"). Una sola línea sale de aquí sin
+ * más porque dejó de tener sentido, no porque se migrara: `.selection-panel__content`'s
+ * `max-height: 50vh` pertenecía al cajón inferior colapsable que esta pestaña ya no es
+ * (`02 §D2` — ver la regla base, ahora sin tope de altura).
+ */
+
+@media (max-width: 860px) {
+
+  .quick-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .quick-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- The full picture, in the place detail ---------- */
+
+.place-interest {
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+}
+
+.place-interest__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.place-interest__line {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.place-interest__glyph {
+  display: inline-block;
+  width: 1.1em;
+}
+
+.place-interest__line--interested .place-interest__glyph {
+  color: var(--color-accent);
+}
+
+.place-interest__line--not-interested .place-interest__glyph {
+  color: var(--color-text-muted);
+}
+
+.place-interest__decline {
+  margin-top: 0.45rem;
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
