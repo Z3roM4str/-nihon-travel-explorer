@@ -39,7 +39,7 @@ describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
     expect(section).toContain('useState<InterHubMode | "">("")');
     expect(section).toContain('useState("")');
     expect(section).toContain("Selecciona modo");
-    expect(section).toContain("Duración manual del tramo principal");
+    expect(section).toContain("Duración manual del traslado principal");
     expect(section).not.toMatch(/defaultMode|defaultMinutes|inferMode|inferMinutes/);
   });
 
@@ -59,7 +59,7 @@ describe("OrderedSequenceBuilder — Phase 3D-Y UI wiring", () => {
     expect(section).toContain("{segment.fromHub} → {segment.toHub}");
     expect(section).toContain("INTER_HUB_MODE_LABELS");
     expect(section).toContain("min registrados manualmente");
-    expect(section).toContain("Tramo principal entre estos dos puntos de tu plan;");
+    expect(section).toContain("Traslado principal entre estos dos puntos de tu plan;");
     expect(section).toContain("no es un tiempo puerta a puerta");
   });
 

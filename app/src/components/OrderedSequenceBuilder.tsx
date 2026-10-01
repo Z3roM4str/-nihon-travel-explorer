@@ -317,8 +317,8 @@ function TransferAndVisitTotals({
         <div className="analysis-total">
           <span className="analysis-total__value">{transferMinutes ? formatRange(transferMinutes) : "—"}</span>
           <span className="analysis-total__label">
-            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/{legCount} tramo
-            {legCount === 1 ? "" : "s"} cubierto{legCount === 1 ? "" : "s"}
+            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/{legCount} traslado
+            {legCount === 1 ? "" : "s"} registrado{legCount === 1 ? "" : "s"}
           </span>
         </div>
       )}
@@ -326,7 +326,7 @@ function TransferAndVisitTotals({
         <div className="analysis-total">
           <span className="analysis-total__value">{unknownLegCount}</span>
           <span className="analysis-total__label">
-            tramo{unknownLegCount === 1 ? "" : "s"} sin traslado registrado
+            traslado{unknownLegCount === 1 ? "" : "s"} sin registrar
           </span>
         </div>
       )}
@@ -1582,7 +1582,7 @@ function interHubPairKey(pair: Pick<ManualInterHubSegment, "fromPlaceId" | "toPl
 function interHubPlacementText(assessment: Extract<InterHubSegmentAssessment, { kind: "active" }>): string {
   switch (assessment.placement) {
     case "route-only":
-      return "en el recorrido actual";
+      return "en el viaje actual";
     case "same-day":
       return `dentro del Día ${(assessment.fromDayOrdinal ?? 0) + 1}`;
     case "between-consecutive-days":
@@ -1594,20 +1594,20 @@ function interHubInactiveText(reason: Extract<InterHubSegmentAssessment, { kind:
   switch (reason) {
     case "missing-from-place":
     case "missing-to-place":
-      return "Uno de los puntos ya no forma parte del recorrido actual.";
+      return "Uno de los puntos ya no forma parte del viaje actual.";
     case "from-hub-mismatch":
     case "to-hub-mismatch":
       return "El hub actual de uno de los puntos ya no coincide con el registrado.";
     case "same-current-hub":
       return "Los dos puntos pertenecen actualmente al mismo hub.";
     case "not-consecutive-in-route":
-      return "Estos lugares ya no son consecutivos en el recorrido actual.";
+      return "Estos lugares ya no son consecutivos en el viaje actual.";
     case "not-consecutive-in-day":
       return "Estos lugares ya no son consecutivos dentro del mismo día.";
     case "not-boundary-of-consecutive-days":
       return "Estos lugares ya no forman un límite entre dos días consecutivos.";
     case "invalid-day-partition":
-      return "El reparto por días no es estructuralmente válido; el tramo no se aplica.";
+      return "El reparto por días no es estructuralmente válido; el traslado no se aplica.";
   }
 }
 
@@ -1673,12 +1673,12 @@ function InterHubSegmentsSection({
     <section className="inter-hub-segments" aria-label="Traslados entre ciudades">
       <h3>Traslados entre ciudades</h3>
       <p className="inter-hub-segments__intro">
-        Tramo principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
+        Traslado principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
         Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos.
       </p>
 
       {segments.length === 0 ? (
-        <p className="inter-hub-segments__empty">Todavía no has registrado ningún tramo entre ciudades.</p>
+        <p className="inter-hub-segments__empty">Todavía no has registrado ningún traslado entre ciudades.</p>
       ) : (
         <ul className="inter-hub-segments__list">
           {segments.map((segment) => {
@@ -1696,8 +1696,8 @@ function InterHubSegmentsSection({
                     type="button"
                     className="icon-button icon-button--small"
                     onClick={() => onRemove(segment.id)}
-                    aria-label={`Eliminar tramo ${fromName} a ${toName}`}
-                    title={`Eliminar tramo ${fromName} a ${toName}`}
+                    aria-label={`Eliminar traslado ${fromName} a ${toName}`}
+                    title={`Eliminar traslado ${fromName} a ${toName}`}
                   >
                     <Icon name="cerrar" size={16} />
                   </button>
@@ -1724,7 +1724,7 @@ function InterHubSegmentsSection({
                     </select>
                   </label>
                   <label>
-                    Duración manual del tramo principal
+                    Duración manual del traslado principal
                     <input
                       type="number"
                       min={1}
@@ -1769,7 +1769,7 @@ function InterHubSegmentsSection({
           </select>
         </label>
         <label>
-          Duración manual del tramo principal
+          Duración manual del traslado principal
           <input
             type="number"
             min={1}
@@ -1780,7 +1780,7 @@ function InterHubSegmentsSection({
           />
         </label>
         <button type="button" className="button button--secondary" disabled={!canAdd} onClick={add}>
-          <span aria-hidden="true">＋</span> Añadir tramo
+          <span aria-hidden="true">＋</span> Añadir traslado
         </button>
       </div>
       {availablePairs.length === 0 && (
@@ -3012,8 +3012,8 @@ export function OrderedSequenceBuilder({
               type="button"
               className="icon-button"
               onClick={onClose}
-              aria-label="Cerrar el constructor de recorrido"
-              title="Cerrar el constructor de recorrido"
+              aria-label={`Cerrar ${surfaceTitle}`}
+              title={`Cerrar ${surfaceTitle}`}
             >
               <Icon name="cerrar" size={16} />
             </button>
@@ -3154,7 +3154,7 @@ export function OrderedSequenceBuilder({
               {!dayAssignment.valid && dayIds.length > 0 && (
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
                   <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
-                  recorrido. Vuelve a los días e inténtalo de nuevo.
+                  viaje. Vuelve a los días e inténtalo de nuevo.
                 </p>
               )}
 

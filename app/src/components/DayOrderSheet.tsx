@@ -57,8 +57,8 @@ function OrderSummary({ candidate }: { candidate: SequenceCandidate }) {
       Traslados: {summary.transferMinutes ? formatRange(summary.transferMinutes) : "—"}
       <br />
       {summary.legCount === 0
-        ? "Sin tramos en este día"
-        : `${summary.knownLegCount}/${summary.legCount} tramo${summary.legCount === 1 ? "" : "s"} cubierto${
+        ? "Sin traslados en este día"
+        : `${summary.knownLegCount}/${summary.legCount} traslado${summary.legCount === 1 ? "" : "s"} registrado${
             summary.legCount === 1 ? "" : "s"
           }`}
       {parts.length > 0 && (
@@ -103,10 +103,10 @@ function comparisonText(comparison: SequenceComparison): { headline: string; det
         headline: "Comparación incompleta: faltan traslados registrados.",
         detail:
           aIncomplete && bIncomplete
-            ? "Ambos órdenes contienen al menos un tramo sin traslado registrado."
+            ? "Ambos órdenes contienen al menos un traslado sin registrar."
             : aIncomplete
-              ? "El orden actual contiene al menos un tramo sin traslado registrado."
-              : "El otro orden contiene al menos un tramo sin traslado registrado.",
+              ? "El orden actual contiene al menos un traslado sin registrar."
+              : "El otro orden contiene al menos un traslado sin registrar.",
       };
     }
     case "invalid":

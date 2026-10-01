@@ -369,13 +369,13 @@ const M = { width: 390, height: 844 };
     await page.locator(".sheet").waitFor({ state: "detached" });
     eq(await page.evaluate(() => document.activeElement?.id), `stop-actions-${K[0]}`, "foco devuelto");
   });
-  await ck("M05", "Quitar del recorrido: va a Sin asignar, foco lógico (B28: sin rehacer el reparto)", async () => {
+  await ck("M05", "Quitar del día: va a Sin asignar, foco lógico (B28: sin rehacer el reparto)", async () => {
     await openActions(page, K[1]);
-    await page.getByRole("button", { name: /Quitar del recorrido/ }).click();
+    await page.getByRole("button", { name: /Quitar del día/ }).click();
     // B28 (B9.2): «Quitar» ya no rehace el reparto (withPlaceRemovedFromDay); el aviso B27 ya no aplica.
     ok(/se quedan como están/.test(await page.locator(".sheet").innerText()), "aviso: los demás días no cambian");
     ok(!/rehace el reparto/.test(await page.locator(".sheet").innerText()), "ya no se rehace el reparto");
-    await page.locator(".sheet").getByRole("button", { name: "Quitar del recorrido" }).click();
+    await page.locator(".sheet").getByRole("button", { name: "Quitar del día" }).click();
     await page.waitForFunction(() => document.querySelector("button.unassigned__handle")?.textContent?.includes("5 sitios sin día"));
     const d = await stored(page);
     ok(!d.routeIds.includes(K[1]), "fuera de la ruta");
