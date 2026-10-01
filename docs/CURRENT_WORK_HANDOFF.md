@@ -1,5 +1,9 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## D5 — vocabulario normativo — rama `claude/d5-normative-vocabulary` (PR en borrador, base `claude/d0b-design-system-hygiene`)
+
+- Línea Claude, base `4d2163165f791b2ba3b1db8c7cbb968e1c607314`. Sólo copy: «tramo»→«traslado», «recorrido»→«viaje»/«día», «constructor» fuera de aria/title (Art. 7 / `03 §10`); `lib/`, `data/`, hooks, V8 y CSS intactos. Excepción E1 («Grado original» en «Fuentes»). **DDR abiertos** (copy visible desde `lib/` protegido o sin equivalencia): L1/L2 («tramo» = intervalo de fechas), L3 («día del recorrido»), R1 («Restablecer recorrido»), `Grado ${grade}` latente. «reparto» y «compromisos de escala día» sin tocar. Gate: `app/scripts/d5-normative-vocabulary-check.mjs` (25 comprobaciones) + `app/src/d5-normative-vocabulary.test.ts`. Chromium y reduced-motion OK; **WebKit no ejecutable en este entorno** → no certificado. Detalle: `docs/D5_NORMATIVE_VOCABULARY_HANDOFF.md`. No se empieza D2.
+
 ## D0b — higiene del sistema de diseño — rama `claude/d0b-design-system-hygiene` (PR en borrador, base `claude/design-phase-1-v2-1-docs`)
 
 - Línea Claude, base `2f2e5e1677c0cb0a8b84536247fdd86f097277dc`. Sólo CSS + gate + docs: 10 literales → tokens exactos, 4 reglas de input a `--type-body-size` (16px), 0 media queries migradas (deuda registrada), `viewport-fit=cover` NO aplicado (DDR D0b-02), EvidenceMark 11/12 sin cambiar (DDR). Gate: `app/scripts/d0b-design-system-hygiene-check.mjs` (56). **Certificado**: WebKit 26.5 (Playwright) 56/56 + reduced-motion, auditoría visual BASE vs D0b (80 pares) sin diferencias salvo inputs ≥16px, sin fallos exclusivos. Detalle y límites (iPhone físico no medido): `docs/D0B_DESIGN_SYSTEM_HYGIENE_HANDOFF.md`. No se empieza D5.
