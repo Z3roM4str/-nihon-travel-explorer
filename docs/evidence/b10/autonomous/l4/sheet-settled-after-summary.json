@@ -1,0 +1,218 @@
+[
+  {
+    "width": 320,
+    "state": "filters",
+    "pngSha256": "a58217ff785d657d1d6ff7203334114bc5e9bdf7710c7811c9e2c3c9fa08a8b9",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "233b3b3ba1d591245cff6de8b34117ac9581214577a50dec02e436fdaf7e66e4"
+  },
+  {
+    "width": 320,
+    "state": "city",
+    "pngSha256": "46d02687d2120270fcbf6db9041d2946bf232054548184c12aa3acdadb3d4607",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "2c1b719ca7c3d67825ea81f5ca6410343df51be90539892c016adaeb2300d2ce"
+  },
+  {
+    "width": 320,
+    "state": "search",
+    "pngSha256": "90345ca724eed6c1a55b36a6d423719d2b3eb689175605b5285c5c206cced17f",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "bf1f7b95f4942fe6991016dc0dcff213e462bab96dcda2e487aecad30222ed9a"
+  },
+  {
+    "width": 390,
+    "state": "filters",
+    "pngSha256": "ae6048498a44508de0702d5fd8b43c14526492917bf1d0d4e6c61c9b2e739f07",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "8b728616a1cf117a905c121c99b7a79e762ef442188e5862ade4e3bb651c8e5d"
+  },
+  {
+    "width": 390,
+    "state": "city",
+    "pngSha256": "2f173dd4d70afc32805f55edcae7fdf4382b180bc3f7691fd2a1b5785ba1509c",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "69927fb5a6a58008aebaeb7743d7f9324bcc402f0a7d02cbaeab8b3cf1d2a9c5"
+  },
+  {
+    "width": 390,
+    "state": "search",
+    "pngSha256": "6af9b15259f88cad5c2759db9970ce55283f28f5702bf726b0e42e0fe3ca917c",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "b25196ec0cf0724653dce6b613abbcf5f5798e9627bd9a821fca26d42d8dd485"
+  },
+  {
+    "width": 600,
+    "state": "filters",
+    "pngSha256": "a424ebea9df978b2d9c2a51a4be247171875213e3595ed46672e69ffe13d1058",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "33289e13caf2e418cb0d396d6a3aebe2c87ff0a202370a78424ba25afaf7e399"
+  },
+  {
+    "width": 600,
+    "state": "city",
+    "pngSha256": "fa7c85bda8989c4173ecdd6610d00e74276a48fd04bfbcc628211c91684ded04",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 10,
+      "maxOutside": 1
+    },
+    "computedSha256": "586266adc46dfc11723de3b2f9cd1c475e96547c864c3a2a7f8e56a7927e2af4"
+  },
+  {
+    "width": 600,
+    "state": "search",
+    "pngSha256": "488499903668e61e1eb9e30bfcc765ae09bbd3f4b01f4397a06d9e908815ad4a",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 18,
+      "maxOutside": 1
+    },
+    "computedSha256": "58426f68f78efbad7d88284e1326a90d1654f4439a9a577c53ea4e70b77e38a2"
+  },
+  {
+    "width": 839,
+    "state": "filters",
+    "pngSha256": "5f937ec51045ea9b27828ca82a40ad191c86920a17c74f63d97f434f08e93fb2",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 0,
+      "maxOutside": 0
+    },
+    "computedSha256": "e96066d28d8f62148b0eba402dd5beba8b7fffa7ce07be7027519dae700a09ab"
+  },
+  {
+    "width": 839,
+    "state": "city",
+    "pngSha256": "c52c0aa1bd4daea85824c766e48d9d2515e1cfabd03eb5bc9d9f49d94fcbb6df",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 34,
+      "maxOutside": 1
+    },
+    "computedSha256": "06f184dc32787b99a2a88cec3c830fda3037d4eae678916319ff9da9b1b6002e"
+  },
+  {
+    "width": 839,
+    "state": "search",
+    "pngSha256": "e5aed81259dba703f9b2c48dcab61364f63c3d689b44d6304e42f68aad588b93",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 34,
+      "maxOutside": 1
+    },
+    "computedSha256": "babf35438e0d5e82ff9895b2c2c56f905b86cad0a302b214577c2a4a8fc46199"
+  },
+  {
+    "width": 840,
+    "state": "filters",
+    "pngSha256": "9736c338d34960f0dfe4b8d4606d64c4ee7b46e56f20a3bbd851d6b436edbc1c",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 20,
+      "maxOutside": 1
+    },
+    "computedSha256": "b353d0ee8ac064ac7772d843afc347eb4c7726de6232042f097ea51f61ca7b84"
+  },
+  {
+    "width": 840,
+    "state": "city",
+    "pngSha256": "ddd1dccbd9b317a220883f884c696c29a51a8a58d22555f04a4ef752a37cfe86",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 20,
+      "maxOutside": 1
+    },
+    "computedSha256": "a4f3f0564ed97888545c396c0e96d770aae79207a09b8f71cc4f2511d125f027"
+  },
+  {
+    "width": 840,
+    "state": "search",
+    "pngSha256": "225d59bdd87d3433e64b510f61c7c2460c09a1d2a359a31a1f008de48ae68ddb",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 20,
+      "maxOutside": 1
+    },
+    "computedSha256": "b2e20587f84bfd1e14d1d86ff60a9a4cf27bb7db194705cb49ae9f6d10e1876a"
+  },
+  {
+    "width": 1440,
+    "state": "filters",
+    "pngSha256": "e94aed72a599336330335cfcf438b22757c7a4953776c5d72e9ae2e47eb111d5",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 15768,
+      "maxOutside": 134
+    },
+    "computedSha256": "56fbff61ebb37434191dc694f0dff8ffbc497cd926725942431a9f7183628c6b"
+  },
+  {
+    "width": 1440,
+    "state": "city",
+    "pngSha256": "e04b0b32e02f85798d494f2d2d2b3efc9b2c3534e48a69d0e5af369c4f848126",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 37,
+      "maxOutside": 1
+    },
+    "computedSha256": "3b7c38bbb6829bc94e5f6d23e9fdcc3c26a580be8f282058aa6c477b008a9794"
+  },
+  {
+    "width": 1440,
+    "state": "search",
+    "pngSha256": "9df6dbfe1e58f94e1828aef037b23b6c696e6770660bc4332b1acf5589af2659",
+    "overflow": 0,
+    "pixelComparison": {
+      "inside": 0,
+      "outside": 37,
+      "maxOutside": 1
+    },
+    "computedSha256": "afbb011536bdda346483c3d3c77a9aaca768aa7b735fbf4430bdd5041bbf1f62"
+  }
+]
