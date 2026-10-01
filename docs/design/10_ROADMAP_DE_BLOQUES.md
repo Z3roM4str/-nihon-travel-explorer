@@ -271,7 +271,7 @@ existente y las alternativas verificadas como opciones.
 **B9.4 — Dónde dormir.** Zonas sin ordinal, con fotografía, con hecho / cálculo /
 opinión separados visualmente. **Arregla D7.**
 
-**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). **Siguiente pendiente: B10 — Pulido; no iniciado.**
+**Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). **B10 — Pulido: ejecución parcial publicada; pendiente de criterios y decisiones, no cerrado.**
 
 **B9.5 — Reservas y Resumen.** Sub-pestañas propias; se elimina `Dato:`; línea de
 tiempo comprimida del viaje.
@@ -297,7 +297,7 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 
 ## B10 — Pulido
 
-**L1 conservado y L2 de copy contextual implementado y verificado en su alcance en `codex/b10-pulido-mission`, PR #177 Draft; B10 INCOMPLETO.** Base `main @ b854db384c952e827b86d1bb35cac7caa70b035a`. Sólo contador FilterPanel y etiqueta de backup; véanse [misión](../B10_PULIDO_MISSION.md), [auditoría actualizada](../B10_PULIDO_AUDIT.md), [certificación acotada](../B10_L1_CERTIFICATION.md) y [evidencia L1](../B10_L1_EVIDENCE.json). OD-01, copy restante y decisiones editoriales/teclado siguen pendientes; G5/G6 globales no cerrados. Fotografías de zonas y comprobaciones físicas/externas siguen separadas.
+**B10 ejecutado parcialmente, PR #177 Draft; INCOMPLETO.** L1/L2 conservados, L2b auditado, movimiento/targets y mapa corregidos, optimización fotográfica y Sheet verificadas. G6 histórico incumple; CSS global, decisiones editoriales/OD-01 y validación física pendientes. [Informe, evidencia y siguiente paso](../B10_AUTONOMOUS_REPORT.md).
 
 **Objetivo.** Cerrar.
 

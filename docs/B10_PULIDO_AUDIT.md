@@ -2,7 +2,7 @@
 
 ## Checkpoint autónomo
 
-La instrucción autónoma autoriza L2b, movimiento/accesibilidad, G5/G6, comparación histórica y extracción CSS por superficie verificable. Sustituye las limitaciones anteriores L1/L2; conserva sus implementaciones y evidencias. [Informe consolidado](B10_AUTONOMOUS_REPORT.md): E01–E04 y OD-01 permanecen abiertos con alternativas y recomendación; continuar tareas técnicas independientes. PR #177 Draft, sin merge/deploy.
+Defectos reproducidos y corregidos: summary 42 px, targets secundarios, reduced motion JS, cabecera de filtros variable y mapa con scroll residual/retorno perdido. La [matriz consolidada](B10_AUTONOMOUS_REPORT.md) distingue gates verdes, fallos históricos comparados, G6 incumplido y pruebas físicas pendientes. Los snapshots siguientes conservan su fecha y alcance original; B10 no está cerrado.
 
 ## Actualización L2 — clasificación contextual; B10 incompleto
 

@@ -2,7 +2,7 @@
 
 ## B10 — continuación autónoma
 
-La instrucción autónoma autoriza L2b, movimiento/accesibilidad, G5/G6, comparación histórica y extracción CSS por superficie verificable. Sustituye las limitaciones anteriores L1/L2; conserva sus implementaciones y evidencias. [Informe consolidado](B10_AUTONOMOUS_REPORT.md): E01–E04 y OD-01 permanecen abiertos con alternativas y recomendación; continuar tareas técnicas independientes. PR #177 Draft, sin merge/deploy.
+B10 ejecutado parcialmente en la misma rama/PR #177 Draft: L2b, movimiento/accesibilidad técnica, optimización fotográfica y extracción Sheet verificadas. [Estado completo y decisiones](B10_AUTONOMOUS_REPORT.md): G6 histórico incumple, App.css restante, OD-01/editorial y pruebas físicas pendientes; no declarar B10 cerrado.
 
 ## Foundation — complete
 
