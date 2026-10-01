@@ -210,8 +210,8 @@ async function auditStructureAndIdentity(browser, viewport) {
     await nav(page).getByRole("button", { name: /Explorar/ }).click();
     await page.getByRole("region", { name: "Empezar a explorar" }).getByRole("button", { name: /^Tokio/ }).click();
     await page.waitForSelector(".place-card", { timeout: 15000 });
-    const heart = page.getByRole("button", { name: /^Guardar .* en Quiero ir$/ }).first();
-    const heartCount = await page.getByRole("button", { name: /^Guardar .* en Quiero ir$/ }).count();
+    const heart = page.getByRole("button", { name: /^Quiero ir: / }).first();
+    const heartCount = await page.getByRole("button", { name: /^Quiero ir: / }).count();
     if (heartCount > 0) {
       const priorIds = new Set(interestsOf(after).filter((i) => i.stances.some((s) => s.stance === "interested" && s.travellerId === B.id)).map((i) => i.placeId));
       await heart.click();

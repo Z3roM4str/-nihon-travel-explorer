@@ -168,7 +168,9 @@ describe("PlaceCard — the two actions", () => {
   it("labels the save control with what it will do and to which place", async () => {
     const source = await readSource();
     expect(source).toContain("Quitar ${place.name} de Quiero ir");
-    expect(source).toContain("Guardar ${place.name} en Quiero ir");
+    // 03 §10: «Guardar en Quiero ir» → «Quiero ir» (la acción conserva su nombre).
+    expect(source).toContain("Quiero ir: ${place.name}");
+    expect(source).not.toContain("Guardar ${place.name} en Quiero ir");
   });
 
   it("uses a filled/hollow heart icon, so the state is not carried by colour alone", async () => {
