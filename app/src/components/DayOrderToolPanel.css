@@ -62,3 +62,21 @@
   .day-order-tool__orders { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .day-order-tool__actions { justify-content: flex-end; }
 }
+
+.day-order-tool { min-width: 0; margin-block: 1rem; padding: clamp(.75rem, 2.5vw, 1.1rem); border: 1px solid var(--line-strong); border-radius: var(--radius-m); background: var(--surface-sunken); scroll-margin-bottom: calc(var(--chrome-tabbar-height) + var(--space-4)); }
+
+.day-order-tool__header .icon-button { flex: 0 0 auto; min-width: var(--tap-min); min-height: var(--tap-min); }
+
+.day-order-tool .comparison-candidate__stats { overflow-wrap: anywhere; }
+
+.day-order-tool__option .button, .day-order-tool__actions .button { min-height: var(--tap-min); }
+
+.day-order-tool__actions .button { flex: 1 1 0; min-width: 0; }
+
+.day-order-tool__actions .button--primary { min-width: min(13rem, 55%); }
+
+@media (min-width: 700px) {
+  .day-order-tool__actions .button { flex: 0 1 auto; }
+}
+
+.day-order-tool :focus-visible { scroll-margin-bottom: calc(var(--chrome-tabbar-height) + var(--space-4)); }

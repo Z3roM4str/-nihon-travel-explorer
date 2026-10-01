@@ -9,6 +9,7 @@ import postcss from "postcss";
  *   node scripts/css-migrate.mjs --classes '^(zone-card|zone-column)' --to src/components/ZoneComparison.css [--from src/App.css] [--dry]
  *   node scripts/css-migrate.mjs --classes '^(selection-panel|selection-list)' --delete [--dry]
  *   node scripts/css-migrate.mjs --classes-file clases.txt --to src/components/X.css   (nombres exactos, uno por línea)
+ *   … --also 'button|link-button'   (permite esas clases globales en selectores descendientes de clases del componente)
  *
  * Una regla se mueve sólo si TODAS las clases de TODOS sus selectores casan con `--classes`, y tiene al menos una clase
  * (nunca mueve `:root`, elementos sueltos ni reglas mixtas). Los `@media`/`@container`/`@supports` se mueven si todas sus reglas
@@ -31,9 +32,14 @@ const keyframes = new Set((arg("--keyframes") ?? "").split(",").filter(Boolean))
 if (!to && !del) throw new Error("falta --to o --delete");
 
 const classesOf = (sel) => [...new Set([...sel.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)].map((m) => m[1]))];
+// `--also <regex>`: clases globales (p. ej. `button|link-button|icon-button|person-token|photo-placeholder`) que PUEDEN acompañar a una
+// clase del componente en un selector descendiente (`.trip-backup__actions .button`); la regla sigue siendo del componente.
+const also = arg("--also") ? new RegExp(`^(${arg("--also")})$`) : null;
 const ruleOk = (selector) => {
   const cs = classesOf(selector);
-  return cs.length > 0 && cs.every((c) => re.test(c));
+  if (cs.length === 0) return false;
+  if (!also) return cs.every((c) => re.test(c));
+  return cs.some((c) => re.test(c)) && cs.every((c) => re.test(c) || also.test(c));
 };
 const root = postcss.parse(readFileSync(from, "utf8"), { from });
 const moved = [];

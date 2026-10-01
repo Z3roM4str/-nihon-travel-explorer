@@ -139,3 +139,17 @@
   color: var(--risk-600);
   border-color: var(--risk-600);
 }
+
+.trip-backup__actions .button {
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+}
+
+/* Copia del viaje: el contenedor ya no es un diálogo. */
+
+.trip-backup__actions .button,
+.trip-backup__export,
+.trip-backup__finish,
+.trip-backup__apply {
+  min-height: var(--tap-min);
+}

@@ -266,3 +266,34 @@
 .onboarding__skip-row {
   margin-top: var(--space-2);
 }
+
+.onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(30, 24, 18, 0.55);
+  animation: onboarding-fade 0.18s ease-out;
+}
+
+.onboarding__actions .button--primary {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .onboarding {
+    animation: none;
+  }
+}
+
+.onboarding__person .person-token {
+  margin-bottom: var(--space-1);
+}
+
+.onboarding__skip-row .link-button {
+  min-height: var(--tap-min);
+}

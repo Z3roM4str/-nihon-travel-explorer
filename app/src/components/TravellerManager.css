@@ -181,3 +181,17 @@
   color: var(--ink-900);
   overflow-wrap: anywhere;
 }
+
+.traveller-card__head .person-token {
+  margin-bottom: var(--space-1);
+}
+
+.traveller-card__actions .button {
+  min-height: var(--tap-min);
+  height: auto;
+  white-space: normal;
+}
+
+.traveller-manager__confirm .button {
+  min-height: var(--tap-min);
+}

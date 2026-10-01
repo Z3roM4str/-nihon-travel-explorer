@@ -979,17 +979,6 @@ button.app__title.app__title--expand {
   color: var(--shu-700);
 }
 
-.zone-panel__foot .link-button {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--tap-min);
-}
-
-.zone-panel__foot .button--primary[disabled] {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .zone-column__index--inline {
   width: 1.25rem;
   height: 1.25rem;
@@ -1040,18 +1029,6 @@ button.app__title.app__title--expand {
 
 /* ---------- Onboarding ---------- */
 
-.onboarding {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(30, 24, 18, 0.55);
-  animation: onboarding-fade 0.18s ease-out;
-}
-
 @keyframes onboarding-fade {
   from {
     opacity: 0;
@@ -1059,10 +1036,6 @@ button.app__title.app__title--expand {
   to {
     opacity: 1;
   }
-}
-
-.onboarding__actions .button--primary {
-  flex: 1;
 }
 
 /* ---------- Map empty state ---------- */
@@ -1371,11 +1344,6 @@ button.app__title.app__title--expand {
 
 /* ---------- Ordered sequence builder (Phase 3C-A) ---------- */
 
-.sequence-item__controls .icon-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
 /* ---------- Sequence comparison (Phase 3C-B) ---------- */
 
 .comparison-candidate {
@@ -1441,13 +1409,6 @@ button.app__title.app__title--expand {
    language, and neither hides anything essential behind hover: every control is a real button with
    a visible label, and the chosen state is announced as text, not only as colour. */
 
-/* The clear control is a link in appearance only; it still has to be thumb-sized. */
-.zone-choice-banner__actions .link-button {
-  min-height: var(--tap-target);
-  display: inline-flex;
-  align-items: center;
-}
-
 /* ---------- Block 4 — the planner's zone section ---------- */
 
 .zone-plan {
@@ -1503,33 +1464,7 @@ button.app__title.app__title--expand {
 
 /* ---------- Block 6 — "dónde no coincidimos", inside the saved list ---------- */
 
-@media (prefers-reduced-motion: reduce) {
-
-  .onboarding {
-    animation: none;
-  }
-}
-
-.trip-backup__actions .button {
-  flex: 1 1 auto;
-  min-height: 2.75rem;
-}
-
 /* ---------- B25 — B7 «Quiero ir» (05 §6) ---------- */
-/*
- * Una columna de lectura, nunca la anchura entera del cuerpo en escritorio (`02 §D5`): el
- * NavRail ya ocupa su sitio y la pantalla es una lista, no un tablero. Sólo tokens; ningún
- * `@media (max-width)`.
- */
-.quiero-ir {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  width: 100%;
-  max-width: 40rem;
-  margin-inline: auto;
-  min-width: 0;
-}
 
 /* `05 §6` pt. 1: el contador de la cabecera — sólo en Quiero ir, sólo si es > 0. */
 .app__title-count {
@@ -1545,34 +1480,6 @@ button.app__title.app__title--expand {
 .save-toast__action:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
-}
-
-/* P1-13 (B24): el plegado usa el chevron de línea del set, no glifos de texto (D-M5). */
-.quiero-ir__chevron {
-  margin-left: auto;
-  flex-shrink: 0;
-  color: var(--ink-500);
-  transform: rotate(90deg);
-}
-
-.quiero-ir__chevron--open {
-  transform: rotate(-90deg);
-}
-
-.quiero-ir__row .place-card--compact {
-  min-width: 0;
-}
-
-/* Dentro de Quiero ir la duración nunca compite con el resumen (`05 §6`: no es titular). */
-.quiero-ir__analysis .analysis-total__value {
-  font-family: var(--font-record);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-  color: var(--ink-900);
-}
-
-.quiero-ir__analysis .analysis-body {
-  padding: 0;
 }
 
 /* ---------- B26 — Nosotros (05 §11) ---------- */
@@ -1594,28 +1501,6 @@ button.app__title.app__title--expand {
   overflow-wrap: anywhere;
 }
 
-.traveller-card__head .person-token {
-  margin-bottom: var(--space-1);
-}
-
-.traveller-card__actions .button {
-  min-height: var(--tap-min);
-  height: auto;
-  white-space: normal;
-}
-
-.traveller-manager__confirm .button {
-  min-height: var(--tap-min);
-}
-
-/* Copia del viaje: el contenedor ya no es un diálogo. */
-.trip-backup__actions .button,
-.trip-backup__export,
-.trip-backup__finish,
-.trip-backup__apply {
-  min-height: var(--tap-min);
-}
-
 .sources__licenses,
 .sources__list {
   list-style: none;
@@ -1625,27 +1510,7 @@ button.app__title.app__title--expand {
   flex-direction: column;
   gap: var(--space-2);
 }
-
-.onboarding__person .person-token {
-  margin-bottom: var(--space-1);
-}
-
-.onboarding__skip-row .link-button {
-  min-height: var(--tap-min);
-}
 /* B27 / B9.1 — the persisted day is Viaje's primary reading unit. */
 .viaje-nav { overflow-x: auto; padding-bottom: var(--space-1); }
 .viaje-nav__item { flex: 0 0 auto; }
-.trip-stop__media .photo-placeholder { min-height: 100%; padding: .25rem; }
-.trip-stop__media .photo-placeholder__name, .trip-stop__media .photo-placeholder__brief, .trip-stop__media .photo-placeholder__pending { display: none; }
-.day-order-tool { min-width: 0; margin-block: 1rem; padding: clamp(.75rem, 2.5vw, 1.1rem); border: 1px solid var(--line-strong); border-radius: var(--radius-m); background: var(--surface-sunken); scroll-margin-bottom: calc(var(--chrome-tabbar-height) + var(--space-4)); }
-.day-order-tool__header .icon-button { flex: 0 0 auto; min-width: var(--tap-min); min-height: var(--tap-min); }
-.day-order-tool .comparison-candidate__stats { overflow-wrap: anywhere; }
-.day-order-tool__option .button, .day-order-tool__actions .button { min-height: var(--tap-min); }
-.day-order-tool__actions .button { flex: 1 1 0; min-width: 0; }
-.day-order-tool__actions .button--primary { min-width: min(13rem, 55%); }
-@media (min-width: 700px) {
-  .day-order-tool__actions .button { flex: 0 1 auto; }
-}
-.day-order-tool :focus-visible { scroll-margin-bottom: calc(var(--chrome-tabbar-height) + var(--space-4)); }
 @media (max-width: 839px) { .analysis-dialog--embedded .analysis-body { padding-bottom: calc(var(--chrome-tabbar-height) + 2.5rem); } }

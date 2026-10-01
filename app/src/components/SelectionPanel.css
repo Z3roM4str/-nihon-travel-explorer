@@ -216,3 +216,49 @@
   background: var(--paper);
   border-top: 1px solid var(--line);
 }
+
+/*
+ * Una columna de lectura, nunca la anchura entera del cuerpo en escritorio (`02 §D5`): el
+ * NavRail ya ocupa su sitio y la pantalla es una lista, no un tablero. Sólo tokens; ningún
+ * `@media (max-width)`.
+ */
+
+.quiero-ir {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* P1-13 (B24): el plegado usa el chevron de línea del set, no glifos de texto (D-M5). */
+
+.quiero-ir__chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--ink-500);
+  transform: rotate(90deg);
+}
+
+.quiero-ir__chevron--open {
+  transform: rotate(-90deg);
+}
+
+.quiero-ir__row .place-card--compact {
+  min-width: 0;
+}
+
+/* Dentro de Quiero ir la duración nunca compite con el resumen (`05 §6`: no es titular). */
+
+.quiero-ir__analysis .analysis-total__value {
+  font-family: var(--font-record);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--ink-900);
+}
+
+.quiero-ir__analysis .analysis-body {
+  padding: 0;
+}

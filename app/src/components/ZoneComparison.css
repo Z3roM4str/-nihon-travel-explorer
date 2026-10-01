@@ -712,3 +712,22 @@
     flex: 0 0 auto;
   }
 }
+
+.zone-panel__foot .link-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+.zone-panel__foot .button--primary[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* The clear control is a link in appearance only; it still has to be thumb-sized. */
+
+.zone-choice-banner__actions .link-button {
+  min-height: var(--tap-target);
+  display: inline-flex;
+  align-items: center;
+}
