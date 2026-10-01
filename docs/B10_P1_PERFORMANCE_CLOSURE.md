@@ -52,3 +52,10 @@ Las imágenes, sus bytes y su orden de petición no cambian (mismos 26 requests)
   y `buildRegistry` produce el mismo resultado con todos los campos no proyectados puestos a `undefined` (si alguien empieza a leer `lqip`, el test obliga a ampliar la proyección).
 * Gate `b10-performance-check` (13/13): J01 techo ratcheteado a 285 000 B (antes 392 000), **J01b** (ni LQIP ni URLs de adquisición en el entry: la invariante real), J03/J04 y los 8 presupuestos por hub.
 * Vitest 117 archivos / 3 505 pruebas.
+
+## Certificación de la rama (Chromium 141)
+tsc/build PASS · oxlint 0 errores (1 aviso heredado `PlaceMap.tsx:18`) · Vitest 117/3 505 · B10 perf 13/13 · a11y 87/87 · motion 16/16 · microcopy 52/52 · D0b 56/56 · D5 30/30 ·
+block12 78/78 · block20 · b6-5 416/416 · block23 28/28 · B25 123/123 · B26 · B27 · B29 163 · B30 475/475 · B31 281/281 · B18 ×5 · B17 ×2 · block19 ×2 · ddr03 · DD-028 · block5 · phase5a · b24-ddr3 ·
+integración B24+B23 58/58 (el guard `10-ASSETS` ya no compara `place-images.ts` byte a byte —cambió a propósito—; sigue fijando imágenes, `places.json` y el registro canónico idénticos a B24, y la equivalencia del registro la prueba el test).
+**B28**: pasa 64/64 (5 de 8 ejecuciones en este entorno; la comprobación J «auto-scroll continued after cancellation» es temporización y falla igual en main: 1 de 2).
+Heredado: block2-photography (obsoleto, `.selection-list__thumb`). Visual main vs rama (390/1200 × home/Tokio/ficha): home y ficha byte-idénticas; la lista de Tokio difiere por ruido de carga de imágenes (main contra main difiere igual).
