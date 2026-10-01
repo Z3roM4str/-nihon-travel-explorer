@@ -7,20 +7,19 @@
 - **`design/10_ROADMAP_DE_BLOQUES.md` no define ningún bloque posterior a B10** (B1–B10 completos; B6 con tandas B6.1–B6.7 cerradas aparte). No existe «B11»: no se inventa. El trabajo restante es deuda/DDR (abajo), no un bloque oficial.
 - Contenido, matrices y deuda de B10: [B10_POLISH_HANDOFF.md](B10_POLISH_HANDOFF.md) y [B10_POLISH_MISSION.md](B10_POLISH_MISSION.md).
 
+### Endurecimiento post-B10 (cerrado, PRs #183–#187)
+Sin bloques nuevos ni cambios de dataset/fotos. Cerrado: B10-P1 (entrada con proyección runtime de metadatos, ver `B10_P1_*`), B10-A1…A4 (landmark `main`, `h1`, «Viaje · Días», zoom de Leaflet ≥ 44 px por `::after`; cero diferencia de píxeles), D5-M1/B10-C2 (vistas `builder`/`compare` retiradas con prueba de inalcanzabilidad, `D5_M1_UNREACHABLE_VIEWS_RETIREMENT.md`), gates obsoletos reescritos/archivados (`GATE_RETIREMENT_AUDIT.md`, `GATE_AUTHORITY.md`) y panel heredado de intercambios (`LEGACY_SWAP_RETIREMENT.md`). OD-01 sigue POST-V1 / DIFERIDO. B10-M1…M6 y B10-C1 documentados (`B10_MOTION_SPEC.md`, `B10_C1_SAVE_VOCABULARY.md`), sin rediseño.
+
 ### Deuda vigente (clasificada)
 | Ítem | Naturaleza | Quién resuelve |
 |---|---|---|
-| OD-01 modo oscuro | **POST-V1 / DIFERIDO** (no es requisito de la versión actual; no se implementa) | — (se retoma sólo con alcance propio posterior a v1) |
-| B10-M1…M6 movimientos sin nombre (toast, onboarding, chevron, foco, fundido de imagen, altura de hoja) | decisión de diseño (`03 §6` sólo nombra cinco) | Producto/Diseño |
-| B10-A1…A3 landmark `main`, `h1`, «Viaje» duplicado | cambio de arquitectura de información | Producto/Diseño |
-| B10-A4 controles de Leaflet < 44 px | restricción de librería | Diseño |
-| B10-P1 chunk de entrada +53,8 % gzip (datos/LQIP) | decisión de diseño (cargar registro por ciudad o cómo medir G6) | Producto/Ingeniería |
-| B10-C1 prosa «guardar/guardado» | decisión de voz | Producto |
-| B10-C2 = D5-M1 vistas `builder`/`compare` inalcanzables | código muerto con copy prohibido; borrar o reescribir copy | Producto (retirar capacidad documentada) |
+| OD-01 modo oscuro | **POST-V1 / DIFERIDO** | — |
+| B10-M1…M6, B10-C1 | documentados; cualquier cambio es decisión de Producto/Diseño | Producto/Diseño |
 | D0b-01, D0b-02, EvidenceMark 11/12, media queries | deuda heredada | Diseño |
-| Safari/iPhone y lector de pantalla físicos; fotos reales de zona; OSM/recursos externos | restricción física/externa | humano |
-| Gates obsoletos restantes (block1/2/3/4/7/8/9/10/13/14, phase3e-*, phase4c/d/j/l, b6-4, b24-real-input P0-2) | deuda de test, clasificada en [GATE_AUTHORITY.md](GATE_AUTHORITY.md); phase5a, integración, phase3f-f/h/j/s, b18-regression y block12 ya refrescados | Ingeniería (higiene) |
-| `App.css`: shell de `App.tsx` y primitivos `.tag/.alert/.badge/.person-token` | deuda técnica menor de B10.4 | Ingeniería |
+| Modos modales no `embedded` de `ZoneComparison`/`OrderedSequenceBuilder`; APIs L3/L4 de `planning-draft` sin consumidor de UI | código sin consumidor; retirar exige reescribir tests de dominio | Ingeniería |
+| B30 retiró `zone-fact--strong` sin decisión documentada | decisión de diseño | Producto/Diseño |
+| `App.css`: primitivos `.tag/.alert/.badge/.person-token` | deuda técnica menor | Ingeniería |
+| Safari/iPhone, WebKit y lector de pantalla reales; fotos reales de zona; OSM/recursos externos | restricción física/externa | humano |
 
 ## Anterior — D0b + D5 reconciliados sobre main (integrados, #178)
 
