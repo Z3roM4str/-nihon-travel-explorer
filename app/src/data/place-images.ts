@@ -1,5 +1,5 @@
 import type { PlaceImage } from "../types";
-import photographyMetadata from "./photography-metadata.json";
+import photographyMetadata from "./photography-metadata.json?runtime";
 
 /**
  * Photography registry, keyed by place id.
@@ -18,7 +18,7 @@ import photographyMetadata from "./photography-metadata.json";
  * Rules: never point at an unlicensed source, never reuse a photograph of a different
  * place, and always carry `credit`/`license` when the source demands attribution.
  */
-type PhotographyRecord = {
+export type PhotographyRecord = {
   placeId: string;
   assetPath: string;
   alt: string;
@@ -32,7 +32,8 @@ type PhotographyRecord = {
   processing: "webp-reencoded" | "resized-and-webp-reencoded";
 };
 
-function buildRegistry(records: PhotographyRecord[]): Record<string, PlaceImage[]> {
+/** Exported so tests can build the registry from the full canonical file and compare. */
+export function buildRegistry(records: PhotographyRecord[]): Record<string, PlaceImage[]> {
   const registry: Record<string, PlaceImage[]> = {};
   for (const record of records) {
     const image: PlaceImage = {
@@ -55,7 +56,7 @@ function buildRegistry(records: PhotographyRecord[]): Record<string, PlaceImage[
 }
 
 export const placeImages: Record<string, PlaceImage[]> = buildRegistry(
-  (photographyMetadata as { images: PhotographyRecord[] }).images
+  (photographyMetadata as unknown as { images: PhotographyRecord[] }).images
 );
 
 /** Images available for a place: those exported with the record, plus the registry. */
