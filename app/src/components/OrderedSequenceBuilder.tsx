@@ -3370,7 +3370,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 <Icon name="atras" size={16} /> Volver al recorrido
               </button>
             )}
-            <h2 id="sequence-builder-title">{headerTitle}</h2>
+            <h2 id="sequence-builder-title">
+              {headerTitle}
+              {/* B10-A3: el `h1` de la pantalla ya dice «Viaje»; el nombre accesible de la sección es «Viaje · Días» (como «Reservas»/«Resumen»). Lo visible no cambia. */}
+              {view === "days" && <span className="visually-hidden"> · Días</span>}
+            </h2>
             <p className="analysis-header__sub">{headerSub}</p>
           </div>
           <button

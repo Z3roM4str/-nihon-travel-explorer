@@ -13,6 +13,12 @@ import { OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE } from "./lib/reservatio
  */
 
 const BASE_SHA = "b854db384c952e827b86d1bb35cac7caa70b035a"; // main tras B31 (base de la reconciliación D0b + D5)
+/**
+ * Fin del alcance de D5: el merge de #178 (D0b + D5 sobre main tras B31). El test de alcance mide ESE diff, no `HEAD`: comparar con `HEAD`
+ * lo rompe con cada cambio legítimo posterior de `lib/` o `data/` (B10, hardening) sin que D5 haya cambiado. Lo posterior lo protegen
+ * sus propias pruebas (p. ej. `photography-runtime-projection.test.ts`).
+ */
+const D5_END_SHA = "2a10ad3f11cd91a7d739e85307f04da9411bf5d1";
 const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const src = (file: string) => readFileSync(new URL(`./${file}`, import.meta.url), "utf8");
 
@@ -193,9 +199,9 @@ function git(...args: string[]): string | null {
     return null;
   }
 }
-const baseAvailable = git("cat-file", "-e", `${BASE_SHA}^{commit}`) !== null;
+const baseAvailable = git("cat-file", "-e", `${BASE_SHA}^{commit}`) !== null && git("cat-file", "-e", `${D5_END_SHA}^{commit}`) !== null;
 
-describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3`)", () => {
+describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3`..`2a10ad3`)", () => {
   it("data/ intacto; lib/ sólo tiene la excepción de copy documentada (D5 DDR: 5 ficheros + sus tests)", () => {
     const allowed = new Set([
       "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
@@ -204,7 +210,7 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3
       "app/src/lib/interest-level.ts",
       "app/src/lib/day-order-tool.ts",
     ]);
-    const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", "app/src/lib", "app/src/data", "data") ?? "").split("\n").filter(Boolean);
+    const changed = (git("diff", "--name-only", BASE_SHA, D5_END_SHA, "--", "app/src/lib", "app/src/data", "data") ?? "").split("\n").filter(Boolean);
     expect(changed.filter((f) => !allowed.has(f) && !f.endsWith(".test.ts"))).toEqual([]);
     expect(changed.filter((f) => f.startsWith("data/") || f.startsWith("app/src/data/"))).toEqual([]);
   });
@@ -223,7 +229,7 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3
         .replace(/día del viaje/g, "día del recorrido")
         .replace(/Nivel sin clasificar \(\$\{grade\}\)/g, "Grado ${grade}");
     for (const file of files) {
-      const diff = git("diff", "--unified=0", BASE_SHA, "HEAD", "--", file) ?? "";
+      const diff = git("diff", "--unified=0", BASE_SHA, D5_END_SHA, "--", file) ?? "";
       const added = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++")).map((l) => l.slice(1));
       const removed = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---")).map((l) => l.slice(1));
       expect(added.length, file).toBe(removed.length);
@@ -233,7 +239,7 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3
   it("no toca hooks ni index.html; App.tsx sólo cambia líneas de importación de CSS/comentario (B10.4)", () => {
     const strip = (t: string | null) =>
       (t ?? "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^import "\.\/(App|styles\/[\w-]+)\.css";\n/gm, "").trim();
-    expect(strip(git("show", `HEAD:app/src/App.tsx`))).toBe(strip(git("show", `${BASE_SHA}:app/src/App.tsx`)));
+    expect(strip(git("show", `${D5_END_SHA}:app/src/App.tsx`))).toBe(strip(git("show", `${BASE_SHA}:app/src/App.tsx`)));
     const protectedFiles = [
       "app/src/useZonePlanChoice.ts",
       "app/src/useZoneComparison.ts",
@@ -243,6 +249,6 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3
       "app/src/usePortableBackup.ts",
       "app/index.html",
     ];
-    expect((git("diff", "--name-only", BASE_SHA, "HEAD", "--", ...protectedFiles) ?? "").split("\n").filter(Boolean)).toEqual([]);
+    expect((git("diff", "--name-only", BASE_SHA, D5_END_SHA, "--", ...protectedFiles) ?? "").split("\n").filter(Boolean)).toEqual([]);
   });
 });

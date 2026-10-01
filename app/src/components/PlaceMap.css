@@ -80,3 +80,37 @@
   background: var(--color-ok);
   border: 2px solid var(--surface);
 }
+
+/* B10-A4 (Art. 11): los botones de zoom de Leaflet miden 30×30 y van apilados (paso de 30 px), así
+   que no se pueden agrandar sin cambiar el cromo del mapa. Se amplía sólo el área que recibe el
+   toque, hacia fuera y sin solaparse: «+» crece hacia arriba (44 de alto; su caja de relleno mide 29
+   porque lleva el filete inferior de 1 px, de ahí los 15), «−» hacia abajo (44 de alto) y ambos 7 px
+   a cada lado (44 de ancho). Lo pintado no cambia ni un píxel. */
+.leaflet-bar a.leaflet-control-zoom-in,
+.leaflet-bar a.leaflet-control-zoom-out {
+  position: relative;
+}
+
+.leaflet-bar a.leaflet-control-zoom-in::after,
+.leaflet-bar a.leaflet-control-zoom-out::after {
+  content: "";
+  position: absolute;
+  left: -7px;
+  right: -7px;
+}
+
+.leaflet-bar a.leaflet-control-zoom-in::after {
+  top: -15px;
+  bottom: 0;
+}
+
+.leaflet-bar a.leaflet-control-zoom-out::after {
+  top: 0;
+  bottom: -14px;
+}
+
+/* Debajo del «−» queda la atribución a 12 px: el área ampliada (14 px) la pisa 2 px. El zoom pasa
+   por encima de esa franja de 2 px (que es relleno del contenedor, no texto) para que los 44 px sean reales. */
+.leaflet-bar.leaflet-control-zoom {
+  z-index: 801;
+}
