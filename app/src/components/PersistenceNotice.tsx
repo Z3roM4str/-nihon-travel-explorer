@@ -6,6 +6,7 @@ import {
   subscribePersistence,
 } from "../lib/device-storage";
 
+import "./PersistenceNotice.css";
 /**
  * DDR-03 / `04 §17` — el aviso de que Nihon no ha conseguido guardar en el dispositivo.
  *

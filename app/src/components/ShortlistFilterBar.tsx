@@ -6,6 +6,7 @@ import {
 } from "../lib/interest-divergence";
 import { divergenceHeading, filterAccessibleName, filterLabel } from "../lib/divergence-presentation";
 
+import "./ShortlistFilterBar.css";
 /**
  * Block 6 — "dónde no coincidimos", as one row of filters inside the list it filters.
  *

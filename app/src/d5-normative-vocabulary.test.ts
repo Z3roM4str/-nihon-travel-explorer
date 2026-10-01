@@ -230,7 +230,10 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3
       expect(added.map(norm), file).toEqual(removed);
     }
   });
-  it("no toca hooks, App.tsx ni index.html (el CSS sólo cambia por D0b: gate D0b)", () => {
+  it("no toca hooks ni index.html; App.tsx sólo cambia líneas de importación de CSS/comentario (B10.4)", () => {
+    const strip = (t: string | null) =>
+      (t ?? "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^import "\.\/(App|styles\/[\w-]+)\.css";\n/gm, "").trim();
+    expect(strip(git("show", `HEAD:app/src/App.tsx`))).toBe(strip(git("show", `${BASE_SHA}:app/src/App.tsx`)));
     const protectedFiles = [
       "app/src/useZonePlanChoice.ts",
       "app/src/useZoneComparison.ts",
@@ -238,7 +241,6 @@ describe.skipIf(!baseAvailable)("D5 — alcance frente a main tras B31 (`b854db3
       "app/src/usePlannedPlaceIds.ts",
       "app/src/useTravellers.ts",
       "app/src/usePortableBackup.ts",
-      "app/src/App.tsx",
       "app/index.html",
     ];
     expect((git("diff", "--name-only", BASE_SHA, "HEAD", "--", ...protectedFiles) ?? "").split("\n").filter(Boolean)).toEqual([]);

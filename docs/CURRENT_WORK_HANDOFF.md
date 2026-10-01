@@ -1,6 +1,13 @@
-# Handoff reanudable — D0b + D5 reconciliados sobre main (en curso); B10 pendiente
+# Handoff reanudable — B10 «Pulido» entregado sin merge (PR abierto); D0b + D5 integrados
 
-## Estado vigente — reconciliación D0b + D5 sobre current main
+## Estado vigente — B10 «Pulido» (rama `claude/b10-pulido`, SIN MERGE)
+
+- Base: main POST-MERGE certificado `2a10ad3f11cd91a7d739e85307f04da9411bf5d1` (merge de #178 = D0b + D5; ver [D0B_D5_POST_MERGE_CERTIFICATION.md](D0B_D5_POST_MERGE_CERTIFICATION.md), publicado en la rama `claude/d0b-d5-post-merge-cert`).
+- Contenido, certificación Chromium/WebKit y deuda: [B10_POLISH_HANDOFF.md](B10_POLISH_HANDOFF.md) y [B10_POLISH_MISSION.md](B10_POLISH_MISSION.md). Fallos exclusivos de B10: 0.
+- **OD-01 (modo oscuro) sigue pendiente de Producto.** No iniciado ni decidido.
+- B10 NO se fusiona en esta misión: queda para revisión.
+
+## Anterior — D0b + D5 reconciliados sobre main (integrados, #178)
 
 - Base exacta `b854db384c952e827b86d1bb35cac7caa70b035a`. Rama `claude/integration-d0b-d5-current-main`. La rama histórica `claude/d0b-design-system-hygiene` (PR #174 OPEN) es fuente de intención: **no se fusiona** la cadena Claude (#174 → #173 → #170 → #168 → #166/#165 → #163).
 - Matriz A/B/C/D, adaptaciones, certificación Chromium/WebKit y auditoría visual: [D0B_D5_MAIN_RECONCILIATION_HANDOFF.md](D0B_D5_MAIN_RECONCILIATION_HANDOFF.md).

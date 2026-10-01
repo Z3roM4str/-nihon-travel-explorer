@@ -17,6 +17,7 @@ import { Sheet } from "./Sheet";
 import { MlitAttribution } from "./MlitAttribution";
 import { Icon } from "../icons/Icon";
 
+import "./NationalExplorer.css";
 /** Hub → place count, computed once */
 const HUB_SHORTCUTS = getHubs().map((hub) => ({ hub, placeCount: getPlacesByHub(hub).length }));
 

@@ -1,6 +1,7 @@
 import { formatRange } from "../lib/duration";
 import type { SequenceCandidate } from "../lib/sequence-comparison";
 
+import "./SequenceCandidateSummary.css";
 /** Shared read-only transfer coverage and evidence mix for an ordered sequence. */
 export function SequenceCandidateSummary({
   candidate,

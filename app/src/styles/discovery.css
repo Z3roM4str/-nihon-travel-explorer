@@ -194,6 +194,7 @@ button.search-field:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: var(--tap-min); /* 03 §7 */
   padding: var(--space-2) 0;
   cursor: pointer;
   font-family: var(--font-record);
@@ -686,7 +687,8 @@ button.search-field:focus-visible {
   box-shadow: var(--elev-1);
   transition:
     background var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard);
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
 }
 
 .place-card__save-icon {
@@ -708,7 +710,7 @@ button.search-field:focus-visible {
 }
 
 .place-card__save:active {
-  transform: scale(0.92);
+  transform: scale(0.98); /* `press`, 03 §6 */
 }
 
 /* El momento de retroalimentación: el corazón hace un pequeño pop al marcarse (`mark`, 03 §6). */
@@ -718,10 +720,10 @@ button.search-field:focus-visible {
 
 @keyframes place-card-save-mark {
   0% {
-    transform: scale(0.6);
+    transform: scale(1);
   }
-  60% {
-    transform: scale(1.22);
+  50% {
+    transform: scale(1.18); /* `mark`, 03 §6: 1 → 1.18 → 1 */
   }
   100% {
     transform: scale(1);
@@ -1206,7 +1208,6 @@ button.search-field:focus-visible {
   padding: 0;
   text-align: left;
   box-shadow: var(--elev-1);
-  transition: box-shadow var(--dur-base) var(--ease-standard), border-color var(--dur-base) var(--ease-standard);
 }
 
 .explorer-home__city-card:hover {
@@ -1313,7 +1314,6 @@ button.search-field:focus-visible {
   background: var(--surface);
   cursor: pointer;
   text-align: left;
-  transition: background var(--dur-fast) var(--ease-standard);
 }
 
 .explorer-home__more-card:hover {
@@ -1399,7 +1399,6 @@ button.search-field:focus-visible {
   background: var(--surface);
   cursor: pointer;
   text-align: left;
-  transition: background var(--dur-fast) var(--ease-standard);
 }
 
 .explorer-home__map-card:hover {

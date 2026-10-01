@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
+import "./HubSelector.css";
 type Props = {
   hubs: string[];
   activeHub: string;

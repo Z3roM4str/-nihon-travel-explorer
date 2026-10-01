@@ -21,6 +21,7 @@ import { stanceLines, travellerVariant } from "../lib/traveller-presentation";
 import type { InterestStance, PlaceInterestSummary, Traveller } from "../lib/travellers";
 import { Icon, type IconName } from "../icons/Icon";
 
+import "./PlaceDetail.css";
 /**
  * Bloque 20 (B4) — la ficha de lugar, reordenada según `05 §5`.
  *

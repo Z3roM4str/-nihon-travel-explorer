@@ -7,6 +7,7 @@ import { MARKER_HIT_SIZE, groupScreenPoints } from "../lib/map-grouping";
 import { resolveHubView } from "../lib/hub-view";
 import { chromeClearingShift, type Point, type Rect } from "../lib/map-chrome";
 
+import "./PlaceMap.css";
 const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
 const JAPAN_FALLBACK_ZOOM = 5;
 const SELECTION_ZOOM = 14;

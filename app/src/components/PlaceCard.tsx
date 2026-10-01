@@ -241,7 +241,7 @@ export function PlaceCard({
           }`}
           onClick={() => onToggleSaved(place.id)}
           aria-pressed={saved}
-          aria-label={saved ? `Quitar ${place.name} de Quiero ir` : `Guardar ${place.name} en Quiero ir`}
+          aria-label={saved ? `Quitar ${place.name} de Quiero ir` : `Quiero ir: ${place.name}`}
           title={saved ? "Quitar de Quiero ir" : "Quiero ir"}
         >
           <span className="place-card__save-icon" aria-hidden="true">
@@ -331,7 +331,7 @@ export function PlaceCard({
           className={`place-card__save tap-target-min ${saved ? "place-card__save--on" : ""}`}
           onClick={() => onToggleSaved(place.id)}
           aria-pressed={saved}
-          aria-label={saved ? `Quitar ${place.name} de Quiero ir` : `Guardar ${place.name} en Quiero ir`}
+          aria-label={saved ? `Quitar ${place.name} de Quiero ir` : `Quiero ir: ${place.name}`}
           title={saved ? "Quitar de Quiero ir" : "Quiero ir"}
         >
           <span className="place-card__save-icon" aria-hidden="true">

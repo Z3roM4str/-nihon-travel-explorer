@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { SaveFeedback } from "../useSaveFeedback";
 import { Icon } from "../icons/Icon";
 
+import "./SaveToast.css";
 type Props = {
   feedback: SaveFeedback | null;
   /** B25: pauses an action toast's timer while it has the pointer or the focus. */

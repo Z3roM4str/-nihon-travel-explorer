@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { Icon } from "../icons/Icon";
 
+import "./Sheet.css";
 type Props = {
   title: string;
   onClose: () => void;

@@ -7,6 +7,7 @@ import { summarizePhotography } from "../lib/sources-summary";
 import { APP_VERSION } from "../lib/app-version";
 import sourcesData from "../../../data/sources.json";
 
+import "./SourcesAndLicences.css";
 /**
  * B26 (`05 §11` «Fuentes y licencias») — la casa definitiva de la atribución del producto.
  *
