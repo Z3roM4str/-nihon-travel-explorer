@@ -202,7 +202,7 @@ export function NationalExplorer({
           <div className="national__sheet-controls">
             <button
               type="button"
-              className={`chip-toggle ${sheetHeight === "25%" ? "chip-toggle--pressed" : ""}`}
+              className={`chip-toggle tap-target-min ${sheetHeight === "25%" ? "chip-toggle--pressed" : ""}`}
               onClick={() => setSheetHeight("25%")}
               aria-pressed={sheetHeight === "25%"}
               aria-label="Ajustar panel a 25%"
@@ -212,7 +212,7 @@ export function NationalExplorer({
             </button>
             <button
               type="button"
-              className={`chip-toggle ${sheetHeight === "75%" ? "chip-toggle--pressed" : ""}`}
+              className={`chip-toggle tap-target-min ${sheetHeight === "75%" ? "chip-toggle--pressed" : ""}`}
               onClick={() => setSheetHeight("75%")}
               aria-pressed={sheetHeight === "75%"}
               aria-label="Ajustar panel a 75%"
@@ -222,7 +222,7 @@ export function NationalExplorer({
             </button>
             <button
               type="button"
-              className={`chip-toggle ${sheetHeight === "asa" ? "chip-toggle--pressed" : ""}`}
+              className={`chip-toggle tap-target-min ${sheetHeight === "asa" ? "chip-toggle--pressed" : ""}`}
               onClick={() => setSheetHeight("asa")}
               aria-pressed={sheetHeight === "asa"}
               aria-label="Colapsar panel al asa"

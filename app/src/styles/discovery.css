@@ -291,7 +291,7 @@ button.search-field:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  min-height: var(--tap-min);
+  min-height: var(--space-10);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-xs);
   padding: var(--space-1) var(--space-3);
@@ -1078,6 +1078,7 @@ button.search-field:focus-visible {
 
 .national__sheet--75 {
   height: 75vh;
+  max-height: calc(100% - var(--tap-primary) - var(--space-6));
 }
 
 .national__sheet-handle-row {

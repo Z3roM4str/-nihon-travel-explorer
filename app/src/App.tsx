@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getPrefectureByCode } from "./data/geography";
@@ -233,6 +233,8 @@ export default function App() {
   const [globalSearchRestoreScrollTop, setGlobalSearchRestoreScrollTop] = useState(0);
   /** La búsqueda global conserva su propio scroll aunque la Sheet se desmonte durante una ficha. */
   const globalSearchScrollTopRef = useRef(0);
+  const nationalBodyRef = useRef<HTMLDivElement>(null);
+  const nationalReturnRef = useRef<{ scrollTop: number } | null>(null);
   /** Contexto explícito de la pila de fichas; no se infiere del hub activo. */
   /** `"home-collection"` (DDR-B24-3, resuelta): abrir un lugar desde una colección de la
    * portada se comporta como la búsqueda global (DDR-B21-05) — no cambia implícitamente el hub/
@@ -378,6 +380,23 @@ export default function App() {
   /** Exactly one of these is non-null; the union above makes the other state unreachable. */
   const activeHub = view.mode === "hub" ? view.hub : null;
   const nationalView = view.mode === "national" ? view : null;
+  const nationalMapOpen = nationalView?.mapOpen;
+  // The home and map share an owner: retain home scroll, but enter the map at its origin.
+  useLayoutEffect(() => {
+    if (nationalMapOpen === undefined) {
+      nationalReturnRef.current = null;
+      return;
+    }
+    const owner = nationalBodyRef.current;
+    if (!owner) return;
+    if (nationalMapOpen) {
+      owner.scrollTop = 0;
+    } else if (nationalReturnRef.current) {
+      owner.scrollTop = nationalReturnRef.current.scrollTop;
+      nationalReturnRef.current = null;
+      owner.querySelector<HTMLButtonElement>(".explorer-home__map-card")?.focus({ preventScroll: true });
+    }
+  }, [nationalMapOpen]);
   const hubPlaces = useMemo(
     () => (activeHub ? getPlacesByHub(activeHub) : EMPTY_PLACES),
     [activeHub]
@@ -1273,6 +1292,7 @@ export default function App() {
             ) : (
               nationalView && (
                 <div
+                  ref={nationalBodyRef}
                   className={`app__body app__body--national${
                     nationalView.mapOpen ? "" : " app__body--home"
                   }`}
@@ -1292,9 +1312,10 @@ export default function App() {
                     <ExplorerHome
                       onEnterHub={enterHub}
                       onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
-                      onOpenNationalMap={() =>
-                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null })
-                      }
+                      onOpenNationalMap={() => {
+                        nationalReturnRef.current = { scrollTop: nationalBodyRef.current?.scrollTop ?? 0 };
+                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null });
+                      }}
                       onSelectPlace={(id) => selectPlace(id, "explorar", null, "home-collection")}
                       onToggleSaved={toggleSavedWithFeedback}
                       savedIds={activeInterestedIds}

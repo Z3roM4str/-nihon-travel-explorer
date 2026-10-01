@@ -33,7 +33,7 @@ try{
    rows.push({width,state,...measurements,unnamed});assert.equal(measurements.overflow,0,`${state}: reflow`);assert.deepEqual(measurements.imagesWithoutAlt,[]);
   };
   await audit('home');
-  await page.locator('.explorer-home__map-card').click();await audit('national-map');
+  await page.locator('.explorer-home__map-card').click();await page.locator('.national__attribution-button').waitFor();await audit('national-map');
   await page.locator('.national__attribution-button').click();await audit('national-attribution');await page.keyboard.press('Escape');
   await page.goto(server.resolvedUrls.local[0]);await page.locator('.national-start__hub').filter({hasText:'Tokio'}).click();await page.locator('.place-card').first().waitFor();await audit('hub');
   if(await page.locator('.explorer-bar__pane').isVisible()){await page.locator('.explorer-bar__pane').click();await audit('hub-map');await page.locator('.explorer-bar__pane').click();}
