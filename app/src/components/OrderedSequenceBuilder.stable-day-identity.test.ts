@@ -371,8 +371,10 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("introduces no new planning mode or visual surface", async () => {
     const source = await readSource();
-    const views = source.match(/useState<"builder" \| "compare" \| "days">/g) ?? [];
-    expect(views).toHaveLength(1);
+    // The three-view union (builder | compare | days) was retired with the unreachable views (D5-M1): the days
+    // view is the only planning surface, so there is no `view` state left to add a mode to.
+    expect(source).not.toMatch(/useState<"builder"/);
+    expect(source).not.toMatch(/\bsetView\(/);
   });
 });
 

@@ -76,7 +76,7 @@ export type SequenceComparison = {
    * candidates' independent ranges (`[loser.min - winner.max, loser.max - winner.min]`). Its
    * lower bound always equals `guaranteedAdvantageMinutes`. Computed whenever a winner is
    * declared, but this module does not itself decide whether a caller should display it — see
-   * `OrderedSequenceBuilder`'s comparison view, which currently shows only the guaranteed figure
+   * `DayOrderToolPanel`'s comparison, which currently shows only the guaranteed figure
    * to keep the result readable at a glance.
    */
   possibleAdvantageRange: MinuteRange | null;

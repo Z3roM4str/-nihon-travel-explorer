@@ -24,7 +24,7 @@ import { walkSurfaces } from "./lib/surface-walk.mjs";
  * DDR registradas (no se cambian; el gate fija el recuento exacto, de modo que una más falla):
  *   B10-C1  prosa «guardar/guardado» para marcar un lugar (6 cadenas): la regla de copy exige que la acción conserve su nombre
  *           «Quiero ir», pero el documento sólo da el ejemplo «marcado» para un estado vacío; elegir el verbo es decisión de voz.
- *   B10-C2  vistas «builder»/«compare» de OrderedSequenceBuilder (código no alcanzable; D5-M1): léxico prohibido dentro de ellas.
+ *   B10-C2 = D5-M1  CERRADO: las vistas «builder»/«compare» de OrderedSequenceBuilder (código no alcanzable) se retiraron con su copy; ya no hay excepción.
  *
  * Uso: `npm run build && node scripts/b10-microcopy-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
  */
@@ -104,15 +104,7 @@ function literals(file) {
     .map((s) => s.replace(/\$\{[^}]*\}/g, "X").replace(/\s+/g, " ").trim())
     .filter((s) => s && !/^[a-z][a-z0-9_-]*$/.test(s));
 }
-// Vistas no alcanzables de OrderedSequenceBuilder (DDR B10-C2 = D5-M1); lista exacta y comprobación de no alcanzabilidad en el test D5.
-const UNREACHABLE = [
-  "Construir recorrido", "en el recorrido", "Volver al recorrido", "Este recorrido se guarda automáticamente", "El recorrido está vacío",
-  "Guardados fuera del recorrido", "Siguen en Quiero ir. Añádelos aquí si quieres incluirlos en este recorrido.", "Añadir X al recorrido",
-  "el orden A", "el orden B", "El orden A", "El orden B", "Orden A", "Orden B", " en orden A", " en orden B", "Quitar X del viaje",
-  "reordena el orden B", "(y, si quieres, el orden A)", "mismos lugares. No genera ni sugiere un orden", "Mismos X lugares",
-];
-
-await ck("S01", "estática: léxico prohibido en cadenas de componentes y presentación (salvo vistas no alcanzables DDR B10-C2)", async () => {
+await ck("S01", "estática: léxico prohibido en cadenas de componentes y presentación (sin excepciones: las vistas no alcanzables se retiraron, D5-M1)", async () => {
   const targets = [
     ...files(path.join(SRC, "components"), (e) => e.endsWith(".tsx")),
     ...files(path.join(SRC, "lib"), (e) => /(presentation|copy|text)/.test(e) && e.endsWith(".ts")),
@@ -123,7 +115,6 @@ await ck("S01", "estática: léxico prohibido en cadenas de componentes y presen
     for (const s of literals(f)) {
       if (!LEXICON.test(s)) continue;
       if (/Grado original/.test(s) && !LEXICON.test(s.replace(/Grado original/, ""))) continue; // E1
-      if (UNREACHABLE.some((u) => s.includes(u) || u.includes(s))) continue;
       if (isData(s)) continue;
       bad.push(`${path.basename(f)}: «${s.slice(0, 90)}»`);
     }
