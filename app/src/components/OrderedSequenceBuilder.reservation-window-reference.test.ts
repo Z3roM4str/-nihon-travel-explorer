@@ -10,7 +10,7 @@ async function readSource(): Promise<string> {
 function extractReservationDeadlineNoticeSource(fullSource: string): string {
   const start = fullSource.indexOf("function ReservationDeadlineNotice");
   if (start === -1) throw new Error("ReservationDeadlineNotice not found");
-  const end = fullSource.indexOf("const RESERVATION_PREP_LABEL", start);
+  const end = fullSource.indexOf("\n/**", start + 1);
   if (end === -1) throw new Error("ReservationDeadlineNotice end boundary not found");
   return fullSource.slice(start, end);
 }
@@ -53,9 +53,9 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-O reference-date relation wiri
     const notice = extractReservationDeadlineNoticeSource(await readSource());
     expect(notice).toContain("formatDeviceReferenceDateForUi(referenceDate)");
     expect(notice).toContain("describeReservationWindowReferenceForUi(relation)");
-    expect(notice).toContain("Dato: «{window.signal.raw}»");
-    expect(notice).toContain("no representa la fecha operativa en Japón");
-    expect(notice).toContain("no se actualiza automáticamente");
+    expect(notice).toContain("«{window.signal.raw}»");
+    expect(await readFile(new URL("./TripReservations.tsx", import.meta.url), "utf8")).toContain("fecha operativa de Japón");
+    expect(await readFile(new URL("./TripReservations.tsx", import.meta.url), "utf8")).toContain("sin actualización automática");
   });
 
   it("does not introduce stronger booking-state or urgency copy", async () => {

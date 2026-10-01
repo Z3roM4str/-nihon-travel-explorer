@@ -58,23 +58,16 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     expect((source.match(/captureDeviceLocalCivilDate\(/g) ?? []).length).toBe(1);
   });
 
-  it("renders exactly one route-wide instance, in the days view, between the accommodation manager and the day list", async () => {
+  it("renders exactly one official calendar inside the dedicated Reservas surface", async () => {
     const source = await readSource();
-    const usages = source.match(/<OfficialReservationCalendarSection/g) ?? [];
-    expect(usages).toHaveLength(1);
-    const accommodation = source.indexOf("<AccommodationManagerSection");
-    const calendar = source.indexOf("<OfficialReservationCalendarSection");
-    const dayList = source.indexOf('<div className="day-list">');
-    expect(accommodation).toBeGreaterThan(-1);
-    expect(calendar).toBeGreaterThan(accommodation);
-    expect(dayList).toBeGreaterThan(calendar);
-    // It is not rendered inside a day card: the day list opens after it.
-    expect(source.slice(calendar, dayList)).not.toContain("dayPlaceLists.map");
+    expect(source.match(/<OfficialReservationCalendarSection/g)).toHaveLength(1);
+    expect(source).toMatch(/section === "reservas" && <TripReservations/);
+    expect(source).toContain("calendar={<OfficialReservationCalendarSection calendar={routeWideReservationCalendar} />}");
   });
 
   it("uses the approved heading and no rejected alternative", async () => {
     const section = extractSection(await readSource());
-    expect(section).toContain("Fechas oficiales de reserva del recorrido");
+    expect(section).toContain("Fechas oficiales de reserva del viaje");
     expect(section).not.toContain("Calendario oficial de reservas");
   });
 
@@ -259,26 +252,14 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     }
   });
 
-  it("keeps the Phase 3D route-wide surface in the builder view and the calendar in the days view", async () => {
+  it("groups the relocated editorial preparation and separate official calendar in Reservas", async () => {
     const source = await readSource();
-    // `{view === "days" && (` also guards a small back-link earlier in the dialog, so the view
-    // BLOCKS are located by their last occurrence, which is the branch that renders the view body.
-    const builderView = source.lastIndexOf('{view === "builder" && (');
-    const daysView = source.lastIndexOf('{view === "days" && (');
-    const prep = source.indexOf("<ReservationPreparationSection");
+    const reservationView = source.indexOf('section === "reservas" && <TripReservations');
     const calendar = source.indexOf("<OfficialReservationCalendarSection");
-    expect(builderView).toBeGreaterThan(-1);
-    expect(daysView).toBeGreaterThan(builderView);
-    // Phase 3D's route-wide list renders inside the builder body, before the days body begins.
-    expect(prep).toBeGreaterThan(builderView);
-    expect(prep).toBeLessThan(daysView);
-    // Phase 3F-J's calendar renders inside the days body only.
-    expect(calendar).toBeGreaterThan(daysView);
-    // The two surfaces never share a container: neither appears inside the other's subtree.
-    const daysBody = source.slice(daysView);
-    expect(daysBody).not.toContain("<ReservationPreparationSection");
-    const builderBody = source.slice(builderView, daysView);
-    expect(builderBody).not.toContain("<OfficialReservationCalendarSection");
+    expect(reservationView).toBeGreaterThan(-1);
+    expect(calendar).toBeGreaterThan(reservationView);
+    expect(source).not.toContain("<ReservationPreparationSection");
+    expect(source).toContain("buildTripReservationRows(routePlaces, dayAssignment, startDate)");
   });
 
   it("keeps the per-day Phase 3F-F/3F-H notice separate while carrying its own residence context", async () => {

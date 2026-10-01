@@ -1,0 +1,25 @@
+/* B31 uses the frozen system tokens. Horizontal scrolling belongs only to the timeline. */
+.trip-reservations, .trip-summary { padding: var(--space-4); min-width: 0; overflow-wrap: anywhere; }
+.trip-reading-intro { font-family: var(--font-voice); font-size: var(--type-quote-size); line-height: var(--type-quote-line); }
+.trip-reading-note { color: var(--ink-700); font-size: var(--type-body-s-size); line-height: var(--type-body-s-line); }
+.trip-reservations__list { list-style: none; padding: 0; display: grid; gap: var(--space-4); }
+.trip-reservations__item, .trip-summary .whole-trip-composition__group { padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); min-width: 0; }
+.trip-reservations h4, .trip-timeline h4 { margin: 0; }
+.trip-reservations p, .trip-summary p { margin-block: var(--space-2); }
+.trip-reservations .link-button, .trip-reservations a, .trip-summary .link-button, .trip-summary summary, .trip-reservations summary { min-height: var(--space-12); min-width: var(--space-12); padding: var(--space-2); display: inline-flex; align-items: center; white-space: normal; text-align: start; }
+.trip-reservations details { margin-block: var(--space-3); }
+.trip-summary summary, .trip-reservations summary { cursor: pointer; }
+.trip-reservations__date { background: var(--surface-sunken); padding: var(--space-2); }
+.trip-summary .whole-trip-composition { display: grid; gap: var(--space-4); }
+.trip-summary .whole-trip-composition__group { margin: 0; }
+.trip-timeline { min-width: 0; margin-block: var(--space-6); }
+.trip-timeline__scroll { max-width: 100%; overflow-x: auto; padding: var(--space-2); }
+.trip-timeline__bands { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(calc(var(--space-20) * 2), 1fr); list-style: none; margin: 0; padding: 0; gap: var(--space-2); }
+.trip-timeline__day { min-width: 0; padding: var(--space-3); border-block-start: var(--space-1) solid var(--ink-700); background: var(--surface-sunken); }
+.trip-timeline__cities { font-weight: 600; }
+.trip-timeline__day ul { list-style: none; padding: 0; }
+.trip-summary :focus-visible, .trip-reservations :focus-visible { outline: 2px solid var(--ink-900); outline-offset: var(--space-1); }
+@media (min-width: 840px) {
+  .trip-summary .whole-trip-composition { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trip-summary .whole-trip-composition > h3, .trip-summary .whole-trip-composition__intro { grid-column: 1 / -1; }
+}

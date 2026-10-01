@@ -149,16 +149,9 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-H reference-date relation wiri
     }
   });
 
-  it("discloses the device source and the non-refreshing basis of the comparison", async () => {
-    const notice = extractOfficialNotice(await readSource());
-    expect(notice).toContain("compara únicamente fechas");
-    expect(notice).toContain("no considera la hora registrada ni la zona horaria de la fuente");
-    expect(notice).toContain("no indica el");
-    expect(notice).toContain("estado actual de la venta.");
-    expect(notice).toContain("calendario local de tu");
-    expect(notice).toContain("no representa la fecha operativa en Japón");
-    expect(notice).toContain("no se actualiza");
-    expect(notice).toContain("Nihon no combina ambas fuentes.");
+  it("discloses the device source once in the relocated Reservas framing note", async () => {
+    const note = await readFile(new URL("./TripReservations.tsx", import.meta.url), "utf8");
+    for (const text of ["compara únicamente fechas", "no considera la hora registrada ni la zona horaria de la fuente", "estado actual de la venta", "calendario local del dispositivo", "fecha operativa de Japón", "sin actualización automática", "Nihon no combina ambas fuentes."]) expect(note).toContain(text);
   });
 
   it("adds no timer, listener, worker or background refresh for the reference date", async () => {

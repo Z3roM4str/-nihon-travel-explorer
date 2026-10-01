@@ -273,7 +273,7 @@ describe("Bloque 18 — cinco superficies dejan de ser modales globales (gate 11
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/\/\/.*$/gm, "");
     expect(analysis).not.toMatch(/role=\{?["']?dialog|aria-modal|onClose/);
-    expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,400}embedded/);
+    expect(source).toMatch(/<OrderedSequenceBuilder[\s\S]{0,1000}\s+embedded/);
     // Corrección final de B18: `onSelectPlace` ahora envuelve `selectPlace` para etiquetar el
     // origen (`"viaje"`/"Dónde dormir") en vez de pasarla en crudo — la ventana crece para
     // seguir alcanzando `embedded` tras esa prop más larga.
@@ -444,8 +444,8 @@ describe("Bloque 18 — Viaje conserva su estado al cambiar de pestaña (02 §D3
     const source = await read("App.tsx");
     expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "dias"/);
     expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "dormir"/);
-    expect(source).toMatch(/\{viajeVisited && viajeSection === "dias" && \(\s*<OrderedSequenceBuilder/);
-    expect(source).toMatch(/\{viajeVisited && viajeSection === "dormir" && zonesHub && \(\s*<ZoneComparison/);
+    expect(source).toMatch(/\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<OrderedSequenceBuilder/);
+    expect(source).toMatch(/\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<ZoneComparison/);
   });
 
   /**

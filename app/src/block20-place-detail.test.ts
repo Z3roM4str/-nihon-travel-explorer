@@ -148,12 +148,14 @@ describe("DDR-05 — `Dato:` no entra en la ficha, y el planificador no se toca"
     expect(files).not.toContain("app/src/components/OrderedSequenceBuilder.tsx");
   }, 30_000);
 
-  it("las cuatro apariciones siguen donde el roadmap las asigna, intactas", async () => {
+  it("B31 retira las cuatro apariciones preservando evidencia", async () => {
     const planner = await read("components/OrderedSequenceBuilder.tsx");
     const occurrences = planner.split("Dato:").length - 1;
-    // Si alguien las retira «de paso» en este bloque, este gate lo dice: no es un fallo de
-    // calidad, es un alcance que pertenece a B9.5 (`10 §B9.5`).
-    expect(occurrences).toBeGreaterThan(0);
+    // B31 / B9.5 es el bloque autorizado para completar DDR-05; conserva los literales.
+    expect(occurrences).toBe(0);
+    expect(planner).toContain('level="registrado"');
+    expect(planner).toContain("«{hours.raw}»");
+    expect(planner).toContain("«{window.signal.raw}»");
   });
 });
 
