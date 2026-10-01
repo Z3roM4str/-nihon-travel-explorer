@@ -1,6 +1,7 @@
 import { Icon, type IconName } from "../icons/Icon";
 import type { Destination } from "../lib/destination";
 
+import "./AppNav.css";
 type NavItem = {
   id: Destination;
   label: string;

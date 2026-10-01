@@ -76,8 +76,8 @@ for (const row of rows) {
   if (row.kind === "@font-face" || allPlain || /:root|^html|^body|^\*/.test(row.head)) row.cls = "A";
   else if (row.kind === "@keyframes") row.cls = row.files.length ? "E" : "D";
   else if (unusedAll) row.cls = "D";
-  else if (row.classes.some((c) => SHELL.test(c))) row.cls = "B";
-  else if (row.files.length === 1) row.cls = "C";
+  else if (row.files.length === 1 && row.files[0] !== "App.tsx") row.cls = "C";
+  else if (row.classes.some((c) => SHELL.test(c)) || row.files.includes("App.tsx")) row.cls = "B";
   else row.cls = "E";
 }
 
