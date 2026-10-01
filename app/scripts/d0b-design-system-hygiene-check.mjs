@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
 import { preview } from "vite";
@@ -72,7 +72,14 @@ const ruleBlock = (css, selector) => {
 };
 
 // ─────────────────────────────── estáticos (CSS / HTML)
-const appCss = read("../src/App.css");
+// B10.4: el CSS de las superficies migradas vive junto a su componente (`src/components/*.css`); «App.css» a efectos de este gate
+// es el CSS de la app salvo `styles/`: App.css + el de los componentes (los invariantes de D0b no dependen de dónde esté la regla).
+const componentCss = readdirSync(new URL("../src/components/", import.meta.url))
+  .filter((f) => f.endsWith(".css"))
+  .sort()
+  .map((f) => read(`../src/components/${f}`))
+  .join("\n");
+const appCss = read("../src/App.css") + "\n" + componentCss;
 const discoveryCss = read("../src/styles/discovery.css") + read("../src/styles/trip-overview.css");
 const html = read("../index.html");
 
@@ -109,9 +116,15 @@ await ck("D01", "literales migrados ausentes; sin hex nuevos (#fff ya no existe,
   const hex = (appCss + discoveryCss).split("\n").filter((l) => /#[0-9a-fA-F]{3,8}\b/.test(l) && !/^\s*(\/\*|\*)/.test(l)).length;
   ok(hex <= 39, `hex literales en declaraciones: ${hex} > 39 (línea base documentada tras D0b sobre main; 37 en la línea Claude, +2 de B30/B31)`);
 });
-await ck("E01", "media queries: sin max-width nuevo (Art. 8); inventario legacy fijado", async () => {
-  const maxW = (appCss.match(/@media[^{]*max-width/g) ?? []).length + (discoveryCss.match(/@media[^{]*max-width/g) ?? []).length;
-  ok(maxW === 11, `@media con max-width: ${maxW} ≠ 11 (deuda legacy documentada en el handoff D0b; 10 en la línea Claude, +1 de B28–B31)`);
+await ck("E01", "media queries: sin max-width nuevo (Art. 8); sólo las 5 consultas legacy conocidas", async () => {
+  // Se miran `@media` REALES (sin comentarios) en todo el CSS de la app. B10.4 dividió 3 bloques mixtos en clones de la misma consulta
+  // dentro del CSS de cada componente (860 px: 2 → 5), sin consulta nueva: el conjunto de consultas distintas es el legacy y el total real ≤ 11.
+  const all = [appCss, discoveryCss].join("\n").replace(/\/\*[\s\S]*?\*\//g, "");
+  const params = [...all.matchAll(/@media\s*([^{]*max-width[^{]*)\{/g)].map((m) => m[1].replace(/\s+/g, " ").trim());
+  const legacy = new Set(["(max-width: 860px)", "(min-width: 620px) and (max-width: 860px)", "(max-width: 380px)", "(max-width: 839px)", "(max-width: 430px)"]);
+  const unknown = [...new Set(params.filter((p) => !legacy.has(p)))];
+  ok(unknown.length === 0, `consultas max-width nuevas: ${unknown.join(" | ")}`);
+  ok(params.length <= 11, `@media con max-width: ${params.length} > 11 (8 originales + 3 clones de bloques mixtos de B10.4)`);
 });
 
 // ─────────────────────────────── navegador
