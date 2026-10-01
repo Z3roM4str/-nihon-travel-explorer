@@ -7,7 +7,7 @@ const before=process.env.NIHON_B10_BEFORE==='1';
 const out=process.env.NIHON_B10_OUT??'logs/b10-motion'; mkdirSync(out,{recursive:true});
 const engine=process.env.NIHON_BROWSER==='webkit'?webkit:chromium;
 const server=await preview({build:{outDir:process.env.NIHON_B10_DIST??'dist'},preview:{host:'127.0.0.1',port:0,open:false}});
-const browser=await engine.launch({executablePath:process.env.NIHON_WEBKIT_PATH});
+const browser=await engine.launch({executablePath:engine===webkit?process.env.NIHON_WEBKIT_PATH:process.env.NIHON_CHROMIUM_PATH});
 const results=[];
 try{
  for(const reducedMotion of ['no-preference','reduce'])for(const width of [320,390,839,840,1440]){
