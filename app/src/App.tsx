@@ -891,7 +891,7 @@ export default function App() {
   );
 
 
-  /** B25 (B7, `05 §6`): Quiero ir enseña «Ya está en un día del recorrido» leyendo la misma foto
+  /** B25 (B7, `05 §6`): Quiero ir enseña «Ya está en un día del viaje» leyendo la misma foto
    * de sólo lectura. Llegar a la pestaña desde Viaje por la barra —sin cambiar antes de sección—
    * dejaba esa foto atrasada; se refresca al entrar. Es una LECTURA: no escribe el borrador. */
   const selectDestination = useCallback((next: Destination) => {

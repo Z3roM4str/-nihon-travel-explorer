@@ -15,12 +15,11 @@ import { preview } from "vite";
  * Excepción normativa (la única):
  *   E1  «Grado original» dentro de «Fuentes» plegado de PlaceDetail (`03` «Mostrar la letra de grado …
  *       Sólo en “Fuentes” plegado»; `PlaceDetail.tsx`, DDR-04).
- * Deuda registrada, NO sustituida (DESIGN DECISION REQUIRED: copy visible originado en `lib/` protegido o
- * sin equivalencia inequívoca). El gate la nombra y la cuenta; cualquier otra aparición falla:
- *   L1  «tramo de fechas registrado»        (lib/reservation-mechanism-reference-date-presentation.ts)
- *   L2  «… registrada del tramo.»           (lib/reservation-mechanism-calendar-presentation.ts)
- *   L3  «Ya está en un día del recorrido»   (lib/divergence-presentation.ts)
- *   R1  «Restablecer recorrido»             (reinicia orden y reparto, no el viaje: sin sustitución inequívoca)
+ * Los cinco DESIGN DECISION REQUIRED están cerrados (excepción de copy en `lib/` autorizada y documentada):
+ *   L1  «intervalo de fechas registrado» (no «traslado»)         · L2  «…registrada del intervalo.»
+ *   L3  «Ya está en un día del viaje»                            · R1  «Restablecer lugares y días»
+ *   latente  «Nivel sin clasificar (X)» en lugar de «Grado X»
+ * Ya no hay deuda tolerada: cualquier término prohibido visible fuera de E1 falla.
  *
  * Uso: `npm run build && NIHON_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome node scripts/d5-normative-vocabulary-check.mjs`
  *      `NIHON_BROWSER=webkit` ejecuta el mismo gate en WebKit (si está instalado; `NIHON_WEBKIT_PATH` opcional);
@@ -138,13 +137,6 @@ async function snapshot(page) {
   });
 }
 
-const DEBT = [
-  ["L1", /tramo de fechas registrado/i],
-  ["L2", /registrada del tramo\./i],
-  ["L3", /día del recorrido/i],
-  ["R1", /^Restablecer recorrido$/i],
-];
-const debtSeen = { L1: 0, L2: 0, L3: 0, R1: 0 };
 const exceptionSeen = { E1: 0 };
 const scanned = {};
 
@@ -166,8 +158,10 @@ for (const file of ["../src/data/places.json", "../../data/sources.json"]) {
 const dataSeen = { count: 0 };
 const isDataContent = (text) => text.length > 24 && DATA_STRINGS.some((d) => d.includes(text));
 
+const allText = new Set();
 function audit(label, lines) {
   scanned[label] = lines.length;
+  for (const line of lines) allText.add(line.text);
   const bad = [];
   for (const line of lines) {
     if (!FORBIDDEN.test(line.text)) continue;
@@ -177,11 +171,6 @@ function audit(label, lines) {
     }
     if (line.kind === "text" && isDataContent(line.text)) {
       dataSeen.count += 1;
-      continue;
-    }
-    const debt = DEBT.find(([, re]) => re.test(line.text));
-    if (debt && !FORBIDDEN.test(line.text.replace(debt[1], ""))) {
-      debtSeen[debt[0]] += 1;
       continue;
     }
     bad.push(`${line.kind}: «${line.text.slice(0, 140)}»`);
@@ -310,12 +299,26 @@ await ck("K-01", "«reparto» se conserva; los valores y relaciones del copy sus
   ok(/\$\{summary\.knownLegCount\}\/\$\{summary\.legCount\} traslado/.test(order), "conteo k/n de «Probar otro orden» perdido");
   ok(/viajeResumenModel/.test("viajeResumenModel") && /reparto por días no coincide exactamente con el viaje/.test(read("../src/components/viajeResumenModel.ts")), "reparto/Resumen alterado");
 });
+await ck("DDR-01", "los cinco DDR cerrados: copy nuevo presente en pantalla y copy antiguo ausente", async () => {
+  const texts = [...allText];
+  const has = (re) => texts.some((t) => re.test(t));
+  ok(has(/^Restablecer lugares y días$/), "R1: falta «Restablecer lugares y días»");
+  ok(!has(/Restablecer recorrido/), "R1: «Restablecer recorrido» sigue visible");
+  ok(has(/Ya está en un día del viaje\. Esto no lo cambia\./), "L3: falta «Ya está en un día del viaje»");
+  ok(!has(/día del recorrido/), "L3: «día del recorrido» sigue visible");
+  ok(has(/intervalo de fechas registrado para la solicitud\./), "L1: falta «intervalo de fechas registrado»");
+  ok(!has(/tramo de fechas|traslado de fechas/), "L1: «tramo/traslado de fechas» visible");
+  ok(has(/Situado en esta lista por la fecha de inicio registrada del intervalo\./), "L2: falta la nota «…del intervalo.»");
+  ok(!has(/inicio registrada del tramo/), "L2: «del tramo» visible");
+  const lib = read("../src/lib/interest-level.ts");
+  ok(/Nivel sin clasificar \(\$\{grade\}\)/.test(lib) && !/`Grado \$\{grade\}`/.test(lib), "latente: fallback sin «Grado»");
+});
 await ck("C-01", "sin errores de consola ni de página propios", async () => {
   const own = consoleErrors.filter((t) => !/Failed to load resource|net::ERR|status of 204/i.test(t));
   ok(own.length === 0 && pageErrors.length === 0, `consola: ${own.slice(0, 3).join(" | ")} · página: ${pageErrors.slice(0, 2).join(" | ")}`);
 });
 
-console.log(`# deuda registrada vista (apariciones): ${JSON.stringify(debtSeen)} · excepciones: ${JSON.stringify(exceptionSeen)} · contenido editorial de data/ (no se toca): ${dataSeen.count}`);
+console.log(`# excepciones: ${JSON.stringify(exceptionSeen)} · contenido editorial de data/ (no se toca): ${dataSeen.count}`);
 console.log(`# superficies auditadas: ${Object.keys(scanned).length} · cadenas leídas: ${Object.values(scanned).reduce((a, b) => a + b, 0)}`);
 await browser.close();
 await server.close();

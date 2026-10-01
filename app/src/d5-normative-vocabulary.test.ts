@@ -2,6 +2,9 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { interestLevelForGrade } from "./lib/interest-level";
+import { plannedNote } from "./lib/divergence-presentation";
+import { OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE } from "./lib/reservation-mechanism-calendar-presentation";
 
 /**
  * D5 — vocabulario normativo (`docs/D5_NORMATIVE_VOCABULARY_MISSION.md`, `00 Art. 7`, `03 §10`).
@@ -42,12 +45,8 @@ describe("D5 — copy visible sustituido: los términos prohibidos ya no están 
     expect(bad).toEqual([]);
   });
 
-  it("OrderedSequenceBuilder: sólo queda la deuda registrada (R1 «Restablecer recorrido»)", () => {
-    const bad = visibleStrings("components/OrderedSequenceBuilder.tsx").filter(
-      (s) => FORBIDDEN.test(s) && !/^Restablecer recorrido$/.test(s)
-    );
-    expect(bad).toEqual([]);
-    expect(src("components/OrderedSequenceBuilder.tsx")).toContain("Restablecer recorrido");
+  it("OrderedSequenceBuilder: ninguna cadena visible usa un término de Art. 7", () => {
+    expect(visibleStrings("components/OrderedSequenceBuilder.tsx").filter((s) => FORBIDDEN.test(s))).toEqual([]);
   });
 
   it("sustituciones exactas (antes → después)", () => {
@@ -113,11 +112,45 @@ describe("D5 — excepciones y términos que NO se tocan", () => {
     expect(src("components/viajeResumenModel.ts")).toContain("El reparto por días no coincide exactamente con el viaje");
     expect(src("components/OrderedSequenceBuilder.tsx")).toMatch(/El reparto actual no coincide exactamente con el\s+viaje\./);
   });
-  it("DDR: la cadena con origen en lib/ sigue viniendo de lib/ (no se duplica en presentación)", () => {
+});
+
+describe("D5 — los cinco DDR cerrados (decisiones L1/L2/L3/R1/latente)", () => {
+  it("L1: «intervalo de fechas registrado» (nunca «traslado») en las tres relaciones", () => {
+    const lib = src("lib/reservation-mechanism-reference-date-presentation.ts");
+    expect(lib).toContain("está antes del intervalo de fechas registrado para la solicitud.");
+    expect(lib).toContain("cae dentro del intervalo de fechas registrado para la solicitud.");
+    expect(lib).toContain("está después del intervalo de fechas registrado para la solicitud.");
+    expect(visibleStrings("lib/reservation-mechanism-reference-date-presentation.ts").filter((s) => FORBIDDEN.test(s))).toEqual([]);
+    expect(lib).not.toMatch(/traslado de fechas/);
+  });
+  it("L2: la nota de ancla del calendario dice «intervalo»", () => {
+    expect(OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE).toBe("Situado en esta lista por la fecha de inicio registrada del intervalo.");
+    expect(FORBIDDEN.test(OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE)).toBe(false);
+  });
+  it("L3: «Ya está en un día del viaje», y la lógica no cambia (null para acordados / no planificados)", () => {
+    const entry = (group: string, planned: boolean) => ({ group, planned }) as unknown as Parameters<typeof plannedNote>[0];
+    expect(plannedNote(entry("only-active", true))).toBe("Ya está en un día del viaje. Esto no lo cambia.");
+    expect(plannedNote(entry("agreed", true))).toBeNull();
+    expect(plannedNote(entry("only-active", false))).toBeNull();
+  });
+  it("R1: «Restablecer lugares y días»; resetRoute conserva su nombre interno", () => {
     const builder = src("components/OrderedSequenceBuilder.tsx");
-    expect(builder).toContain("OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE");
-    expect(builder).not.toContain("tramo de fechas");
-    expect(src("lib/divergence-presentation.ts")).toContain("Ya está en un día del recorrido. Esto no lo cambia.");
+    expect(builder).toMatch(/onClick=\{resetRoute\}>\s*Restablecer lugares y días\s*</);
+    expect(builder).not.toContain("Restablecer recorrido");
+    expect(src("usePlanningDraft.ts")).toContain("const resetRoute = useCallback");
+  });
+  it("latente: grado desconocido → «Nivel sin clasificar (X)», conservando letra, rank, level y glyph", () => {
+    const d = interestLevelForGrade("Z");
+    expect(d.label).toBe("Nivel sin clasificar (Z)");
+    expect(d.shortLabel).toBe("Nivel sin clasificar (Z)");
+    expect(d.grade).toBe("Z");
+    expect(d.rank).toBe(3);
+    expect(d.level).toBe("recomendable");
+    expect(d.glyph).toBe("●");
+    expect(FORBIDDEN.test(d.label)).toBe(false);
+  });
+  it("TravellerManager: la frase describe lo que NO cambia al cambiar de persona (lugares, días, fechas, alojamiento)", () => {
+    expect(src("components/TravellerManager.tsx")).toMatch(/Sólo cambia de quién es cada «Quiero ir»\. Los lugares planificados, los días, las fechas y el\s+alojamiento son del viaje/);
   });
 });
 
@@ -131,9 +164,16 @@ function git(...args: string[]): string | null {
 const baseAvailable = git("cat-file", "-e", `${BASE_SHA}^{commit}`) !== null;
 
 describe.skipIf(!baseAvailable)("D5 — alcance frente a D0b (`4d21631`)", () => {
-  it("no cambia ningún fichero de lib/ ni de data/ (ni siquiera tests)", () => {
+  it("data/ intacto; lib/ sólo tiene la excepción de copy documentada (D5 DDR: 4 ficheros + sus tests)", () => {
+    const allowed = new Set([
+      "app/src/lib/reservation-mechanism-reference-date-presentation.ts",
+      "app/src/lib/reservation-mechanism-calendar-presentation.ts",
+      "app/src/lib/divergence-presentation.ts",
+      "app/src/lib/interest-level.ts",
+    ]);
     const changed = (git("diff", "--name-only", BASE_SHA, "HEAD", "--", "app/src/lib", "app/src/data", "data") ?? "").split("\n").filter(Boolean);
-    expect(changed).toEqual([]);
+    expect(changed.filter((f) => !allowed.has(f) && !f.endsWith(".test.ts"))).toEqual([]);
+    expect(changed.filter((f) => f.startsWith("data/") || f.startsWith("app/src/data/"))).toEqual([]);
   });
   it("no toca hooks, App.tsx, CSS ni index.html", () => {
     const protectedFiles = [

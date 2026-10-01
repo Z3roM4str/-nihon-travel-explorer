@@ -66,7 +66,7 @@ describe("Phase 3F-J span rendering", () => {
 describe("Phase 3F-J anchor note", () => {
   it("states why the row sits where it does, without a deadline claim", () => {
     expect(OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE).toBe(
-      "Situado en esta lista por la fecha de inicio registrada del tramo."
+      "Situado en esta lista por la fecha de inicio registrada del intervalo."
     );
     const lower = OFFICIAL_RESERVATION_CALENDAR_SPAN_ANCHOR_NOTE.toLowerCase();
     for (const forbidden of [

@@ -3423,7 +3423,7 @@ export function OrderedSequenceBuilder({
                   </details>
 
                   <button type="button" className="link-button sequence-reset" onClick={resetRoute}>
-                    Restablecer recorrido
+                    Restablecer lugares y días
                   </button>
                 </div>
 
