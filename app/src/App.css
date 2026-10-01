@@ -7763,3 +7763,181 @@ body.is-reordering {
 .day-order .local-swap {
   margin-top: 0;
 }
+
+/* ---------- B31 (B9.5) — Viaje › Reservas y Resumen (05 §9–10) ----------
+   Sólo tokens existentes (Art. 10). Sin tokens de color por ciudad (DDR-B31-05): la ciudad se dice
+   con texto y la banda usa superficies neutras. Las columnas de las tarjetas las decide el ancho del
+   contenedor (DD-016), no el viewport: sin reglas de viewport nuevas. */
+
+.viaje-surface__note {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+  overflow-wrap: anywhere;
+}
+
+.reservas__heading,
+.trip-summary-card__header,
+.trip-timeline__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+}
+
+.reservas__heading h3,
+.trip-summary-card__header h3,
+.trip-timeline__header h3 {
+  margin: 0;
+}
+
+/* Las dos listas de Reservas son superficies distintas (DDR-B31-02): oficial sobre `--surface`,
+   editorial registrada sobre `--surface-sunken`; además del marcador ◼/◧ y del encabezado propio. */
+.official-reservation-calendar,
+.reservation-prep,
+.hours-planning {
+  margin-top: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.official-reservation-calendar {
+  background: var(--surface);
+  border-color: var(--line-strong);
+}
+
+.reservation-prep,
+.hours-planning {
+  background: var(--surface-sunken);
+}
+
+.official-reservation-calendar__provenance {
+  margin: 0;
+}
+
+.trip-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(264px, 100%), 1fr));
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.trip-summary--unavailable {
+  display: block;
+}
+
+.trip-summary__unavailable {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+}
+
+.trip-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.trip-summary-card__header h3 {
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  color: var(--ink-900);
+}
+
+.trip-summary-card p {
+  margin: 0;
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+  color: var(--ink-700);
+  overflow-wrap: anywhere;
+}
+
+.trip-summary-card__incomplete {
+  padding-left: var(--space-2);
+  border-left: 2px solid var(--line-strong);
+}
+
+/* Navegación, no acción: <button> con aspecto de enlace, sin flecha final (03 §10). */
+.trip-summary-card__link {
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  margin-top: auto;
+  padding: var(--space-2) 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: var(--type-body-s-size);
+  color: var(--ink-900);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trip-summary-card__link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Banda comprimida: un segmento de ancho igual por día, neutra, no interactiva, sin animación. */
+.trip-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.trip-timeline__band {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 2px;
+  min-width: 0;
+}
+
+.trip-timeline__segment {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-1);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-900);
+  overflow: hidden;
+}
+
+.trip-timeline__ordinal {
+  font-weight: 600;
+}
+
+.trip-timeline__ordinal-word {
+  display: none;
+}
+
+.trip-timeline__city {
+  color: var(--ink-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@container (min-width: 520px) {
+  .trip-timeline__ordinal-word {
+    display: inline;
+  }
+}

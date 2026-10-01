@@ -606,7 +606,8 @@ try {
   await step("A14 whole-trip composition renders and reconciles", async () => {
     // B27: la composición del viaje entero se re-aloja, sin rediseño, en Viaje › Resumen.
     await page.locator(".viaje-nav__item:has-text('Resumen')").click();
-    const summary = page.locator(".whole-trip-composition");
+    // B31 (B9.5): la composición se presenta como cuatro tarjetas (`.trip-summary`).
+    const summary = page.locator(".trip-summary");
     await summary.first().waitFor();
     const text = await summary.first().textContent();
     assert.ok(text.trim().length > 0, "composition summary empty");
@@ -806,8 +807,10 @@ try {
     if (count === 0) return "no eligible place in this plan";
     for (let i = 0; i < count; i += 1) {
       const text = await items.nth(i).textContent();
-      assert.match(text, /Dato: «.+»/,
+      // B31 (10 §B9.5, DDR-05, 03 §10): «Dato: «…»» → «…» + marcador ◧ Registrado.
+      assert.match(text, /«.+»\s*◧ Registrado/,
         `a visit-start control rendered without its raw recorded interval: ${text.slice(0, 80)}`);
+      assert.doesNotMatch(text, /Dato:/, "«Dato:» was retired by B9.5");
       assert.equal(await items.nth(i).locator("input[type=time]").count(), 1,
         "recorded-interval item without exactly one time input");
     }

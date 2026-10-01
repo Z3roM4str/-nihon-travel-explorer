@@ -27,14 +27,13 @@ function withoutComments(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 }
 
-/** The section's own disclaimer is mandated by the design gate to NEGATE priority/urgency, so it is
- * excluded from the claim-vocabulary scan and asserted separately (see its own test below). */
+/** B31 (DDR-B31-04): the section no longer renders a prose disclaimer — its sentences live in the
+ * `detail` of its EvidenceMark (asserted separately below), outside the section body scanned here. */
 function sectionWithoutDisclaimer(section: string): string {
-  const start = section.indexOf('className="official-reservation-calendar__disclaimer"');
-  if (start === -1) throw new Error("disclaimer not found");
-  const end = section.indexOf("</p>", start);
-  if (end === -1) throw new Error("disclaimer end not found");
-  return section.slice(0, start) + section.slice(end);
+  if (section.includes("official-reservation-calendar__disclaimer")) {
+    throw new Error("B31 removed the per-block disclaimer (DDR-B31-04)");
+  }
+  return section;
 }
 
 describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring", () => {
@@ -75,7 +74,8 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
 
   it("uses the approved heading and no rejected alternative", async () => {
     const section = extractSection(await readSource());
-    expect(section).toContain("Fechas oficiales de reserva del recorrido");
+    // B31 (DDR-B31-02, 05 §9): the list is «Fechas oficiales», its own h3, apart from the editorial one.
+    expect(section).toContain(">Fechas oficiales</h3>");
     expect(section).not.toContain("Calendario oficial de reservas");
   });
 
@@ -176,7 +176,8 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     const section = extractSection(await readSource());
     const classNames = [...section.matchAll(/className="([^"]+)"/g)].map((match) => match[1]);
     for (const name of classNames) {
-      expect(name.startsWith("official-reservation-calendar")).toBe(true);
+      // B31: `reservas__heading` is the shared heading row (h3 + its EvidenceMark) of the three lists.
+      expect(name.startsWith("official-reservation-calendar") || name === "reservas__heading").toBe(true);
     }
     for (const forbidden of ["--urgent", "--warning", "--danger", "--success", "--late", "--soon", "--past"]) {
       expect(section, forbidden).not.toContain(forbidden);
@@ -186,19 +187,20 @@ describe("OrderedSequenceBuilder.tsx — Phase 3F-J route-wide calendar wiring",
     expect(section).not.toMatch(/className=\{[^}]*anchorDate/);
   });
 
-  it("carries the mandated disclaimer, including the order-is-not-priority negation", async () => {
-    const section = extractSection(await readSource());
-    expect(section).toContain("provienen del registro oficial de cada lugar");
-    expect(section).toContain("calculadas sobre la fecha de");
-    expect(section).toContain("visita planificada");
-    expect(section).toContain("El orden cronológico solo ordena fechas de calendario: no indica prioridad");
-    expect(section).toContain("ni en");
-    expect(section).toContain("conviene reservar");
-    expect(section).toContain("No indica disponibilidad ni el estado actual de la venta");
-    expect(section).toContain("compara únicamente fechas de calendario");
-    expect(section).toContain("no considera la hora");
-    expect(section).toContain("registrada ni la zona horaria de la fuente");
-    expect(section).toContain("Nihon no combina ambas fuentes");
+  it("keeps every disclaimer sentence, now in the list's EvidenceMark detail and the one note", async () => {
+    // B31 (DDR-B31-04): «nota única por sección»; the detail that used to live in the disclaimer
+    // travels with the mark. Nothing is dropped — see the «descargo → destino» table in the handoff.
+    const source = await readSource();
+    expect(source).toContain("OFFICIAL_CALENDAR_MARK_DETAIL");
+    expect(source).toContain("provienen del registro oficial de cada lugar");
+    expect(source).toContain("calculadas sobre la fecha de visita planificada");
+    expect(source).toContain("El orden cronológico solo ordena fechas de calendario: no indica prioridad");
+    expect(source).toContain("ni en qué orden conviene reservar");
+    expect(source).toContain("No indica disponibilidad ni el estado actual de la venta");
+    expect(source).toContain("compara únicamente fechas de calendario");
+    expect(source).toContain("no considera la hora registrada ni la zona horaria de la fuente");
+    expect(source).toContain("Nihon no combina ambas fuentes");
+    expect(extractSection(source)).toContain("OFFICIAL_CALENDAR_MARK_DETAIL");
   });
 
   it("uses no priority, urgency, availability or booking-state vocabulary outside the disclaimer", async () => {

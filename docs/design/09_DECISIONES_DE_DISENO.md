@@ -680,6 +680,77 @@ nadie ha revisado en este bloque, y se apropia de un alcance que el roadmap ya a
 
 ---
 
+### DDR-B31-01…07 — Resoluciones del Bloque 31 (Viaje › Reservas y Resumen, B9.5)
+**Estado: RESUELTAS** · Fecha: 2026-09-30 · **Afecta:** `05 §9`/`§10`, `10 §B9.5`, `03 §10`, `04 §2`, `09` (DDR-05, DD-015, DD-016)
+
+Cerradas por el Product Owner antes de implementar. Prefijo propio; no se inventa numeración `DD-0xx`.
+
+1. **DDR-B31-01: Orden de Reservas.**
+   - Información oficial con fecha: orden cronológico ascendente; empate por el orden existente
+     (`planOrdinal`, luego `recordSourceIndex`). Ya lo implementa `lib/reservation-mechanism-calendar.ts`; no se modifica.
+   - Información editorial/registrada de antelación: lista separada, orden estable y neutral (el de
+     `buildReservationPreparationSummary`: orden de ruta). Sin ordenar por urgencia, prioridad,
+     importancia ni recomendación; la vista no reordena. No se inventan ni derivan fechas límite.
+   - Prohibido «urgente», «primero reserva esto», «prioridad», «más importante» o equivalentes (Art. 4 y 5).
+   - **Enmienda a `05 §9`:** «lista ordenada por **urgencia real** (fecha límite derivada), no por orden de
+     ruta» → el orden de este DDR.
+   - *Alternativa descartada:* ordenar por «urgencia real». Exige derivar fechas límite que la fuente no
+     registra y convierte un orden de calendario en una recomendación de qué reservar primero.
+
+2. **DDR-B31-02: Separación entre fuentes (opción A).**
+   Reservas son **dos listas visualmente separadas**: (1) «Fechas oficiales» (calendario oficial) y
+   (2) «Reservas por preparar» (información editorial/registrada de antelación). No se fusionan en una fila.
+   Cada registro conserva su `EvidenceMark` (oficial ◼ Verificado; editorial ◧ Registrado). Cada lista lleva
+   su h3; la separación se ve sin leer el texto (marcador + encabezado + superficie), no sólo por color.
+   - *Alternativa descartada:* una sola lista fusionada por lugar. Contradice «Nihon no combina ambas fuentes».
+
+3. **DDR-B31-03: Horarios y calendario feb–mar 2027.**
+   `HoursPlanningSection` permanece en Reservas como subsección, después de las dos listas. «Calendario de la
+   ventana febrero–marzo 2027» (`05 §9`) es el calendario oficial ya existente: no hay segundo calendario,
+   ni contenido nuevo, ni se mueve Horarios a Resumen.
+
+4. **DDR-B31-04: Nota única por sección (opción B).**
+   Reservas y Resumen llevan **una sola nota visible** de encuadre, compuesta sólo con información y
+   advertencias ya existentes (los descargos `official-reservation-calendar__disclaimer`,
+   `reservation-prep__disclaimer`, `hours-planning__disclaimer`; en Resumen `whole-trip-composition__intro` y
+   los avisos «incompleto»). El detalle específico de cada descargo se conserva en el `detail` del
+   `EvidenceMark` correspondiente (`04 §2`, DDR-06), recuperable por lector de pantalla
+   (`aria-label`/`title` si `label` es falso). En Resumen se conserva que la superficie describe el viaje y no
+   puntúa ni recomienda. Sin banners adicionales; ninguna información necesaria para interpretar una fuente o
+   un cálculo se elimina. Alcance: sólo Reservas y Resumen; los descargos de las tarjetas de día no se tocan.
+   - **Enmienda a `05 §9`:** «una sola nota al pie por sección» → este DDR. Trazabilidad «descargo → destino»
+     en `docs/BLOCK_31_HANDOFF.md`.
+   - *Alternativa descartada:* nota al pie por sección que repita el descargo completo: duplica lo que el
+     marcador ya dice (`04 §2`, DDR-06).
+
+5. **DDR-B31-05: Línea de tiempo comprimida (opción A).**
+   Sin tokens de color por ciudad; sólo tokens neutros existentes (Art. 10). Segmentos de ancho igual por día,
+   no interactiva, no escribe estado. Cada día se identifica también por texto (nunca sólo color); un día con
+   varias ciudades lleva etiqueta compuesta; día vacío: «Día N · sin lugares». Móvil: banda horizontal
+   comprimida sin scroll horizontal (320–430 px). Alternativa textual obligatoria «Día N · ciudad» (lista
+   visualmente oculta). `prefers-reduced-motion` no cambia contenido ni funcionalidad (la banda no anima).
+   Marcador ◇ (derivada por la aplicación, Art. 4).
+   - **Enmienda a `05 §10`:** «una banda por día con el **color de la ciudad**» → texto + superficie neutra.
+   - *Alternativa descartada:* un token de color por ciudad. Introduciría paleta nueva (Art. 10) y haría que
+     la ciudad dependiera del color (`03 §1.4`).
+
+6. **DDR-B31-06: «Alojamientos y traslados entre ciudades» no se mueve.**
+   Permanece al final de Días (`<details class="dias__logistics">`). No se divide alojamiento/traslados. La
+   atribución del handoff de B30 a B9.5 no tiene respaldo normativo.
+   - **Constancia en `10 §B9.5`.**
+
+7. **DDR-B31-07: Enlaces de navegación.**
+   Cuatro tarjetas de Resumen enlazan entre sub-pestañas **sin nueva pila de historial**: Visitas → Días ·
+   Traslados registrados → Días · Alojamiento → Dónde dormir · Rango del viaje → Días. Los nombres de lugar de
+   Reservas **no** son enlaces a ficha (B31 no introduce flujo DD-015 desde Reservas). Son `<button>` con
+   aspecto de enlace (navegación, no acción), sin flecha final (`03 §10`), nombre accesible explícito
+   («Ver Visitas en Días»), objetivo táctil ≥ 44×44, sin escritura en storage. «Foco lógico» (lectura
+   mínima): tras navegar, el foco va al h2 de la superficie de destino (`tabIndex -1`).
+   - *Alternativa descartada:* hacer enlaces los nombres de lugar de Reservas: abriría el flujo DD-015 desde
+     una superficie nueva, fuera del alcance de B9.5.
+
+---
+
 ### DDR-06 — «Cerca de aquí»: nota al pie y `EvidenceMark` a la vez
 **Estado: RESUELTA** · Abierta 2026-09-21 · Cerrada 2026-09-21 · **Afecta:** `04 §2`, `05 §5` pt. 12, `05 §12`
 
@@ -1037,6 +1108,9 @@ escritorio (16/16; con el código anterior, 4 fallos).
 
 > **DDR-01, DDR-02, DDR-03, DDR-04, DDR-05 y DDR-06 están RESUELTAS.** No queda ninguna
 > decisión de diseño pendiente que bloquee B20.
+>
+> **Bloque 31:** DDR-B31-01…07 están **RESUELTAS** (ver arriba). No queda ninguna decisión de diseño
+> abierta en B31.
 >
 > **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025).
 > DD-026 (cromo del mapa como zona de exclusión, P0-4e) es firme. No queda ninguna decisión de

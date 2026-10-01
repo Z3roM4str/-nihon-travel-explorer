@@ -5,11 +5,14 @@ async function source(): Promise<string> {
   return readFile(new URL("./OrderedSequenceBuilder.tsx", import.meta.url), "utf8");
 }
 
-function compositionBlock(fullSource: string): string {
-  const start = fullSource.indexOf("function wholeTripUnavailableText");
-  const end = fullSource.indexOf("\nexport function OrderedSequenceBuilder", start);
-  if (start === -1 || end === -1) throw new Error("Whole-trip presentation boundary missing");
-  return fullSource.slice(start, end);
+/** B31 (B9.5): the presentation of the whole-trip composition moved out of the builder into the pure
+ * Resumen components; this block is their source (cards + unavailable text/note/targets model). */
+async function compositionSource(): Promise<string> {
+  const [cards, model] = await Promise.all([
+    readFile(new URL("./TripSummaryCards.tsx", import.meta.url), "utf8"),
+    readFile(new URL("./viajeResumenModel.ts", import.meta.url), "utf8"),
+  ]);
+  return `${model}\n${cards}`;
 }
 
 function withoutComments(value: string): string {
@@ -20,10 +23,13 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
   // B27 (B9.1): the flat «builder» view is gone; the one read-only section lives in Viaje › Resumen.
   it("renders one read-only section in the planner, never a page, modal or wizard", async () => {
     const fullSource = await source();
-    const block = withoutComments(compositionBlock(fullSource));
-    expect(fullSource.match(/<WholeTripCompositionSection/g)).toHaveLength(1);
-    expect(block).toContain("Resumen del plan completo");
-    expect(block).not.toMatch(/<input|<select|onClick=|role="dialog"|modal|wizard/i);
+    const block = withoutComments(await compositionSource());
+    expect(fullSource.match(/<TripSummaryCards/g)).toHaveLength(1);
+    expect(block).toContain("Resumen del viaje");
+    // B31 (DDR-B31-07): the only handler is the navigation button of each card (no input, no write).
+    expect(block).not.toMatch(/<input|<select|role="dialog"|modal|wizard/i);
+    expect((block.match(/onClick=/g) ?? []).length).toBe(1);
+    expect(block).toContain("onNavigate(target)");
   });
 
   it("derives from the V7 runtime facts and never writes composition back", async () => {
@@ -38,7 +44,7 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
   });
 
   it("shows neutral unavailable states without partial arithmetic", async () => {
-    const block = compositionBlock(await source());
+    const block = await compositionSource();
     expect(block).toContain('composition.kind === "unavailable"');
     expect(block).toContain("no se muestran cálculos parciales");
     const unavailableStart = block.indexOf('if (composition.kind === "unavailable")');
@@ -49,7 +55,7 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
   });
 
   it("keeps quantified and non-quantified visits visibly separate", async () => {
-    const block = compositionBlock(await source());
+    const block = await compositionSource();
     expect(block).toContain("Tiempo de visita cuantificado");
     expect(block).toContain("lugares con duración numérica");
     expect(block).toContain("No cuantificados:");
@@ -58,17 +64,17 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
   });
 
   it("shows partial movement counts and qualifies positive coverage with a nonzero slot gate", async () => {
-    const block = compositionBlock(await source());
+    const block = await compositionSource();
     expect(block).toContain("Traslado registrado:");
     expect(block).toContain("locales faltantes:");
     expect(block).toContain("Entre ciudades activos:");
-    expect(block).toContain("Cobertura incompleta:");
+    expect(block).toContain("Incompleto: faltan");
     expect(block).toContain("composition.movement.modeledAdjacencyCount > 0");
-    expect(block).toContain("Todos los tramos entre lugares que este resumen modela tienen tiempo registrado.");
+    expect(block).toContain("Todos los traslados entre lugares que este resumen contempla tienen tiempo registrado.");
   });
 
   it("shows every accommodation state without a global completeness claim", async () => {
-    const block = compositionBlock(await source());
+    const block = await compositionSource();
     expect(block).toContain("Minutos manuales registrados:");
     expect(block).toContain("manualLegMissingCount");
     expect(block).toContain("boundaryUnselectedCount");
@@ -78,14 +84,14 @@ describe("OrderedSequenceBuilder — Phase 3E-A whole-trip wiring", () => {
   });
 
   it("keeps after-end days in composition while exposing the bounds mismatch", async () => {
-    const block = compositionBlock(await source());
+    const block = await compositionSource();
     expect(block).toContain("composition.bounds.daysAfterTripEnd");
     expect(block).toContain("Días posteriores a la fecha de fin:");
     expect(block).toContain("Siguen incluidos en las visitas y traslados registrados de este resumen.");
   });
 
   it("contains no score, optimisation, real-total or grand-total claim", async () => {
-    const block = withoutComments(compositionBlock(await source()));
+    const block = withoutComments(await compositionSource());
     expect(block).not.toMatch(/totalTripMinutes|tripScore|itineraryScore|qualityScore|optimisationScore/);
     expect(block).not.toMatch(/tiempo real|tiempo óptimo|duración total del viaje|ruta óptima|mejor opción/i);
     expect(block).not.toMatch(/tiempo total de visitas|tiempo total de traslado/i);

@@ -460,11 +460,16 @@ oficiales derivadas del viaje, calendario de la ventana febrero–marzo 2027 y l
 sección «Reservas por preparar».
 
 - Lista ordenada por **urgencia real** (fecha límite derivada), no por orden de ruta.
+  > **Enmendado por DDR-B31-01/02 (`09`).** Dos listas separadas: «Fechas oficiales» en orden
+  > cronológico ascendente (empate por el orden existente) y «Reservas por preparar» en orden de
+  > ruta, sin urgencia ni prioridad derivadas.
 - Cada fila: lugar, qué hay que reservar, ventana de antelación con `EvidenceMark`, y
   enlace oficial.
 - Los textos literales del dataset se muestran entre comillas con marcador `◧`, **nunca
   con el prefijo `Dato:`**.
 - Una sola nota al pie por sección, no un descargo por bloque.
+  > **Enmendado por DDR-B31-04 (`09`).** Una sola nota de encuadre bajo el encabezado; el detalle de
+  > cada descargo vive en el `detail` de su `EvidenceMark`.
 
 **Criterios de aceptación**
 - [ ] La cadena `Dato:` no aparece en ninguna parte de la interfaz.
@@ -481,6 +486,10 @@ resumen**, cada una con su marcador de evidencia, y un enlace a la sección deta
 Se añade una lectura que hoy no existe y es barata: **el viaje en una línea de tiempo
 horizontal comprimida**, una banda por día con el color de la ciudad, para ver de un
 vistazo el reparto entre ciudades.
+
+> **Enmendado por DDR-B31-05 (`09`).** «Color de la ciudad» se resuelve con **texto + superficie
+> neutra**: sin tokens de color por ciudad; cada día se nombra («Día N · ciudad») y la banda tiene
+> alternativa textual. Los enlaces a la sección detallada son DDR-B31-07.
 
 ---
 

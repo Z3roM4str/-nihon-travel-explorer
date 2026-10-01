@@ -17,7 +17,7 @@ async function source(): Promise<string> {
 
 function sectionBlock(fullSource: string): string {
   const start = fullSource.indexOf("function LocalSwapAlternativesSection");
-  const end = fullSource.indexOf("function wholeTripUnavailableText", start);
+  const end = fullSource.indexOf("export function OrderedSequenceBuilder(", start);
   if (start === -1 || end === -1) throw new Error("Local-swap presentation boundary missing");
   return fullSource.slice(start, end);
 }

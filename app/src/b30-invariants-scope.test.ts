@@ -29,13 +29,16 @@ describe.skipIf(!baseAvailable)("B30 — lo que B29 protege sigue byte a byte ig
     expect(changed).toEqual([]);
   });
 
-  it("no toca App.tsx, los hooks de zona/borrador ni los componentes de Días", () => {
+  it("no toca los hooks de zona/borrador ni los componentes de Días (salvo la excepción B31 de arriba)", () => {
+    // B31 (B9.5, `docs/BLOCK_31_MISSION.md` §4 H1/H4 y §6): ÚNICA excepción explícita a este contrato.
+    // `OrderedSequenceBuilder.tsx` (retirada de «Dato:» y superficies Reservas/Resumen) y `App.tsx`
+    // (sólo el cableado `onNavigateSection`, H4) cambian por mandato de B31. Nada más se relaja; los
+    // límites propios de B31 (lib/, data/, hooks, DayTimeline, DayOrderSheet, ZoneComparison,
+    // PlaceDetail) los vigila `b31-invariants-scope.test.ts` frente a 1444e67.
     const protectedFiles = [
-      "app/src/App.tsx",
       "app/src/useZonePlanChoice.ts",
       "app/src/useZoneComparison.ts",
       "app/src/usePlanningDraft.ts",
-      "app/src/components/OrderedSequenceBuilder.tsx",
       "app/src/components/DayTimeline.tsx",
       "app/src/components/DayOrderSheet.tsx",
     ];

@@ -51,7 +51,7 @@ describe("B29 — «Probar otro orden» sustituye a la comparación global", () 
       expect(builder).toContain(`${group}.get(dayOrderEntity.id) ?? []`);
     }
     expect(builder.match(/<LocalSwapAlternativesSection/g)).toHaveLength(1);
-    const section = builder.slice(builder.indexOf("function LocalSwapAlternativesSection"), builder.indexOf("function wholeTripUnavailableText"));
+    const section = builder.slice(builder.indexOf("function LocalSwapAlternativesSection"), builder.indexOf("export function OrderedSequenceBuilder("));
     expect(section).not.toMatch(/\.sort\(|\.slice\(|\.reverse\(|\[0\]/);
     // cinco familias, todas etiquetadas
     expect(section.match(/Comprobado con datos completos/g)).toHaveLength(5);
@@ -116,7 +116,7 @@ describe("B29 — comparación y redacción neutrales (Art. 5)", () => {
 
   it("la redacción de las alternativas de dominio no cambia hacia una recomendación", async () => {
     const builder = strip(await read("./components/OrderedSequenceBuilder.tsx"));
-    const section = builder.slice(builder.indexOf("function LocalSwapAlternativesSection"), builder.indexOf("function wholeTripUnavailableText"));
+    const section = builder.slice(builder.indexOf("function LocalSwapAlternativesSection"), builder.indexOf("export function OrderedSequenceBuilder("));
     const copy = section.replace(/className="[^"]*"/g, "");
     expect(copy).not.toMatch(NEVER);
   });

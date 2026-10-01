@@ -1,5 +1,23 @@
 # Handoff reanudable — B21 + B6.1–B6.6
 
+## B31 / B9.5 «Reservas y Resumen» — rama `claude/b31-viaje-b9-5-reservas-resumen` (PR en borrador, base B30 Claude)
+
+- **Línea Claude.** Nace de `1444e67805c60cf9a33f4be5c1a3808b900e505b` (HEAD de
+  `claude/b30-viaje-b9-4-donde-dormir`), **no** de `main`. PR en borrador: base
+  `claude/b30-viaje-b9-4-donde-dormir` ← head `claude/b31-viaje-b9-5-reservas-resumen`. Sin merge. La rama
+  de arranque de la sesión (`…-e8ytdk`, línea main/Codex) no se usó ni se tocó.
+- «Dato:» retirado (0 en `app/src`; «…» + ◧ Registrado). Reservas = dos listas separadas («Fechas oficiales» ◼,
+  «Reservas por preparar» ◧) + «Horarios registrados», una sola nota, orden de `lib` sin reordenar. Resumen =
+  nota única, línea de tiempo comprimida (texto + superficie neutra, alternativa «Día N · ciudad») y cuatro
+  tarjetas con ◇ y navegación entre sub-pestañas (foco en el h2 de destino, sin historial). DDR-B31-01…07 en
+  `docs/design/09`. Sólo presentación: `lib/`, `data/`, V8 y clave intactos; `App.tsx` = 1 línea.
+- Gate nuevo: `app/scripts/b31-reservas-resumen-check.mjs` (26 comprobaciones). Detalle, tabla «descargo →
+  destino», resultados, auditoría independiente (WebKit 26.5 26/26 y reduced-motion 26/26 en Chromium y WebKit; `setItem` B30 = B31:
+  mismas claves, número y valores, 0 escrituras adicionales atribuibles a B31, reescritura del borrador al montar
+  heredada de `usePlanningDraft`; phase3f-j 14/14; fallo exclusivo de WebKit corregido en `viajeSurfaceFocus.ts`;
+  «cobertura» retirada de Resumen; fallos heredados: ninguno) y límite (iPhone Safari físico no medido):
+  `docs/BLOCK_31_HANDOFF.md`. **B31 CLAUDE: CERTIFICADO.** No se empieza B10.
+
 ## B30 / B9.4 «Dónde dormir» — rama `claude/b30-viaje-b9-4-donde-dormir` (PR en borrador, base B29 Claude)
 
 - **Línea Claude.** Nace de `52fbc6bd029e5fa9e34ce4aa1104a1914bfc0c7e` (HEAD de

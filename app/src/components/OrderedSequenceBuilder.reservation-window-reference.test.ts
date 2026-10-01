@@ -53,7 +53,9 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-O reference-date relation wiri
     const notice = extractReservationDeadlineNoticeSource(await readSource());
     expect(notice).toContain("formatDeviceReferenceDateForUi(referenceDate)");
     expect(notice).toContain("describeReservationWindowReferenceForUi(relation)");
-    expect(notice).toContain("Dato: «{window.signal.raw}»");
+    // B31 (10 §B9.5, DDR-05, 03 §10): «Dato: «…»» → «…» + marcador ◧ Registrado.
+    expect(notice).toContain("«{window.signal.raw}» <EvidenceMark level=\"registrado\" />");
+    expect(notice).not.toContain("Dato:");
     expect(notice).toContain("no representa la fecha operativa en Japón");
     expect(notice).toContain("no se actualiza automáticamente");
   });

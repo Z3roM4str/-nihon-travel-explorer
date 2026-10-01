@@ -280,6 +280,10 @@ tiempo comprimida del viaje.
 > planificador**. La sustitución es la que `03 §10` ya fija: texto entre comillas con marcador
 > `◧ Registrado`.
 
+> **DDR-B31-06 (resuelta).** «Alojamientos y traslados entre ciudades» **no se mueve**: permanece al
+> final de Días. La atribución a B9.5 que recogía el handoff de B30 no tiene respaldo normativo. El orden,
+> la separación de fuentes, la nota única, la banda y los enlaces de B9.5 son DDR-B31-01…07 (`09`).
+
 **Qué NO cambia.** Absolutamente nada del cálculo: traslados, identidad estable de día,
 anclaje de calendario, límites del viaje, mecanismos de reserva, fechas oficiales,
 composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un orden.
