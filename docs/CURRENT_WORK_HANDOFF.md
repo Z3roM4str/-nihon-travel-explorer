@@ -18,6 +18,7 @@ Sin bloques nuevos ni cambios de dataset/fotos. Cerrado: B10-P1 (entrada con pro
 | D0b-01, D0b-02, EvidenceMark 11/12, media queries | deuda heredada | Diseño |
 | Modos modales no `embedded` de `ZoneComparison`/`OrderedSequenceBuilder`; APIs L3/L4 de `planning-draft` sin consumidor de UI | código sin consumidor; retirar exige reescribir tests de dominio | Ingeniería |
 | B30 retiró `zone-fact--strong` sin decisión documentada | decisión de diseño | Producto/Diseño |
+| B21 «restaurar scroll de la búsqueda global» (`b21-global-search-browser-audit`): fallo intermitente `scroll changed: 360 -> 0` (≈1/12 ejecuciones), **reproducido idéntico en `8aa7d1d`, anterior al endurecimiento**; esperar la condición hasta 2 s no lo evita, así que puede ser un defecto real y raro de restauración (`Sheet` fija `scrollTop` en `useLayoutEffect`) | heredado; sin causa raíz aún | Ingeniería |
 | `App.css`: primitivos `.tag/.alert/.badge/.person-token` | deuda técnica menor | Ingeniería |
 | Safari/iPhone, WebKit y lector de pantalla reales; fotos reales de zona; OSM/recursos externos | restricción física/externa | humano |
 
