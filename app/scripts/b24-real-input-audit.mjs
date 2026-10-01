@@ -687,16 +687,28 @@ async function auditSavedAndIcons(page, vp) {
   // Viaje › Planificar: los controles de fila y de día usan el mismo botón.
   const viaje = page.locator(".tab-bar__item:visible, .nav-rail__item:visible").filter({ hasText: "Viaje" }).first();
   if (await realClick(page, viaje, "NAV", "pestaña Viaje")) {
-    await page.waitForTimeout(400);
+    // Wait for the real planner fixture, rather than sampling an unmounted lazy surface.
+    await page.locator('.destination-panel:not([hidden]) .day-card__header-actions .icon-button--small').first().waitFor();
+    if (process.env.NIHON_B24_MUTANT === "hidden-day-icons") {
+      await page.addStyleTag({ content: ".day-card__header-actions svg { visibility: hidden !important; }" });
+    }
     let inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
     for (let attempt = 0; inViaje === 0 && attempt < 4; attempt += 1) {
       // Pantalla baja: la fila queda bajo la TabBar; se trae con rueda real y se vuelve a medir.
-      await page.mouse.move(vp.width / 2, vp.height / 2);
+      // The viewport centre can hit a date input, which consumes the wheel without
+      // scrolling the journey. Use the padding of the actual scroll ancestor.
+      const origin = await page.locator('.destination-panel:not([hidden]) .day-card').first().evaluate((card) => {
+        let el = card.parentElement;
+        while (el && !(/(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight)) el = el.parentElement;
+        const r = (el ?? document.documentElement).getBoundingClientRect();
+        return { x: Math.max(1, Math.min(innerWidth - 1, r.left + 8)), y: Math.max(1, Math.min(innerHeight - 1, r.top + 8)) };
+      });
+      await page.mouse.move(origin.x, origin.y);
       await page.mouse.wheel(0, 160);
       await page.waitForTimeout(120);
       inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
     }
-    if (inViaje === 0) note("P0-2 Viaje: sin día con controles visibles en el estado inicial — cubierto por la regla CSS común");
+    check("P0-2", inViaje > 0, "Viaje: ningún icono de día alcanzado para muestrear; no certificar desde CSS común");
   }
 }
 
