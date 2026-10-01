@@ -625,7 +625,7 @@ button.search-field:focus-visible {
   z-index: 2;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-full);
-  background: rgba(20, 22, 26, 0.55);
+  background: var(--overlay-ink);
   color: var(--surface);
   font-family: var(--font-record);
   font-size: var(--type-caption-size);
@@ -676,7 +676,7 @@ button.search-field:focus-visible {
   height: 40px;
   border-radius: var(--radius-full);
   border: none;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--overlay-paper);
   color: var(--ink-700);
   cursor: pointer;
   display: inline-flex;
