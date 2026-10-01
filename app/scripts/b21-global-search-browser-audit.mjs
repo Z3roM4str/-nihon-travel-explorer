@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
 import { preview } from "vite";
 
 // B21 / DDR-B21-05: exercise the production bundle and the browser history stack.
@@ -9,6 +9,10 @@ const server = await preview({
   preview: { host: "127.0.0.1", port: 0 },
   logLevel: "error",
 });
+
+// `NIHON_BROWSER=webkit` ejecuta el mismo gate en WebKit (`NIHON_WEBKIT_PATH` opcional), igual que b10-a11y/motion, d0b y d5.
+const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
+const executablePath = BROWSER === "webkit" ? process.env.NIHON_WEBKIT_PATH : process.env.NIHON_CHROMIUM_PATH;
 
 let browser;
 let passed = 0;
@@ -27,10 +31,45 @@ async function frame(page) {
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
 
+/**
+ * Espera la condición real —no un tiempo—: que terminen las animaciones finitas (`sheet-rise` de entrada de la Sheet, fundidos
+ * de imagen). Mientras corren, el elemento a pulsar se mueve fracciones de píxel; Playwright exige un bounding box idéntico en
+ * dos fotogramas y, si no lo obtiene, REINTENTA el click con `scrollIntoView({ block: "end" })`, lo que deja `scrollTop = 0`
+ * en el `.sheet__body` bajo prueba (B21: causa raíz del «scroll changed: 360 -> 0» intermitente; ver docs/B21_ROOT_CAUSE.md).
+ * Las animaciones infinitas (`card-shimmer` de los marcadores de imagen) no mueven nada y se excluyen.
+ */
+async function settled(page) {
+  await page.evaluate(async () => {
+    const finite = () => document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity);
+    while (finite().length > 0) await Promise.all(finite().map((a) => a.finished.catch(() => undefined)));
+  });
+  await frame(page);
+}
+
 async function openSearch(page, query) {
   await page.locator(".explorer-home__search-button").click();
   await page.locator(".search-sheet__field input").fill(query);
   await page.locator(".search-sheet .place-card__open").first().waitFor();
+  await settled(page);
+}
+
+/** Registra el scroll del cuerpo de la Sheet en el instante de la selección (fase de captura, antes del manejador de React). */
+async function recordScrollAtSelection(page) {
+  await page.evaluate(() => {
+    window.__scrollAtSelection = null;
+    document.addEventListener(
+      "click",
+      () => { window.__scrollAtSelection = document.querySelector(".sheet__body:has(.search-sheet)")?.scrollTop ?? null; },
+      { capture: true, once: true },
+    );
+  });
+}
+
+/** La línea base es el scroll que tenía la lista cuando se eligió el resultado; si el driver lo alterase antes, el fallo lo dice. */
+async function assertScrollAtSelection(page, expected, label) {
+  const atSelection = await page.evaluate(() => window.__scrollAtSelection);
+  check(atSelection !== null && Math.abs(atSelection - expected) <= 4,
+    `${label}: the scroll changed before the result was selected (${expected} -> ${atSelection}); that is the driver, not the restore`);
 }
 
 async function scrolledSearch(page) {
@@ -50,8 +89,10 @@ async function scrolledSearch(page) {
     });
   });
   check(visibleIndex >= 0, "no fully visible result at the scrolled position");
+  await recordScrollAtSelection(page);
   await result(page).nth(visibleIndex).click();
   await detailTitle(page).waitFor();
+  await assertScrollAtSelection(page, scrollTop, "selection");
   check(await page.locator(".search-sheet").count() === 0, "search Sheet should close temporarily");
   return { count, scrollTop };
 }
@@ -78,9 +119,9 @@ async function newPage(context, url) {
 try {
   const url = server.resolvedUrls?.local[0];
   assert.ok(url, "vite preview did not expose a local URL");
-  browser = await chromium.launch({
+  browser = await (BROWSER === "webkit" ? webkit : chromium).launch({
     headless: true,
-    ...(process.env.NIHON_CHROMIUM_PATH ? { executablePath: process.env.NIHON_CHROMIUM_PATH } : {}),
+    ...(executablePath ? { executablePath } : {}),
   });
   const context = await browser.newContext({ viewport: viewports[viewportName] });
   await context.addInitScript(() => localStorage.setItem("nihon.onboarding.seen.v1", "1"));
@@ -128,8 +169,10 @@ try {
     });
   });
   check(nearbyStartIndex >= 0, "no visible nearby-chain starting result");
+  await recordScrollAtSelection(page);
   await result(page).nth(nearbyStartIndex).click();
   const titleA = await detailTitle(page).innerText();
+  await assertScrollAtSelection(page, nearbyScrollTop, "nearby selection");
   check(titleA.length > 0, "A was not opened");
   await page.locator(".nearby-carousel__item .place-card__open").first().click();
   const titleB = await detailTitle(page).innerText();
