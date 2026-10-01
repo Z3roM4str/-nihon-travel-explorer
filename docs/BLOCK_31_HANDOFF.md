@@ -89,17 +89,20 @@ Binario: Chromium 1194 (141.0.7390.37). Todo medido sobre la build de producció
 |---|---|
 | `tsc -b` | 0 errores |
 | `oxlint` | 0 errores (sólo el aviso heredado de `PlaceMap.tsx`) |
-| Vitest | 3533/3533 (3508 de la base + 25 nuevos; 119 ficheros) |
+| Vitest | 3533/3533 (3508 de la base + 25 nuevos; 119 ficheros), re-medido sobre el HEAD final |
 | Gate B31 (Chromium) | 26/26 |
 | Gate B31 (Chromium, `prefers-reduced-motion: reduce`) | 26/26 |
-| Gate B31 (WebKit) | **no medido** (WebKit no instalado) |
+| Gate B31 (WebKit 26.5) | 26/26 (3 ejecuciones consecutivas idénticas) |
+| Gate B31 (WebKit 26.5, `prefers-reduced-motion: reduce`) | 26/26 (3 ejecuciones) |
+| Gate B30 (WebKit 26.5) | 48/48 |
 | B27 | 48/48 |
 | B28 | 43/43 |
 | B29 | 36/36 (el «40» documentado es erróneo, idéntico en base) |
 | B30 (incluye chevron y DD-015 de Dónde dormir) | 48/48 |
 | `block20-place-detail-check` (sin cambios; requiere `vite preview` en :4181) | 73/73 |
 | `phase5a-rc-browser-audit` (actualizado) | 50/50 |
-| `phase3f-j`, `phase3f-f`, `phase3f-s` | OK (phase3f-j tras actualizar dos contratos de descargo) |
+| `phase3f-j` (HEAD final, medido en la auditoría independiente) | 14/14 `pass`, 0 errores de consola, 0 de página (primera ejecución previa falló y se corrigió su contrato; sobre el HEAD final pasa; no hizo falta compararlo con `1444e67`) |
+| `phase3f-f`, `phase3f-s` | OK (sesión de implementación) |
 
 Ningún fallo heredado apareció en lo ejecutado, así que no hizo falta compararlo con `1444e67` (la sonda de
 escrituras sí se midió en la base, ver desviación 1).
@@ -109,10 +112,10 @@ escrituras sí se midió en la base, ver desviación 1).
 1. **«Contador de `setItem` = 0» (misión §8 y §12) no es literalmente medible, ni en la base.** En `1444e67`
    cada montaje de una sub-pestaña del planificador (Días/Reservas/Resumen) vuelve a persistir el borrador
    **idéntico** (2 × `setItem` de `nihon.manualPlanningDraft`; `usePlanningDraft`, desde B27). Medido igual en
-   base y en B31 (sonda de 6 escrituras al abrir Viaje y 2 por cambio de sub-pestaña). B31 no toca el hook
+   base y en B31 (2 por cambio de sub-pestaña; tabla B30/B31 en «Auditoría independiente»). B31 no toca el hook
    (fuera de alcance). El gate comprueba la intención de «cero escrituras nuevas»: (E01) ninguna clave nueva y
    el valor del borrador no cambia; (E02) 0 escrituras en reposo sobre Reservas y Resumen, incluso recorriendo la
-   banda con el puntero. **Si Producto quiere el 0 literal, es trabajo del hook (B27), no de B31.**
+   banda con el puntero. Decisión de Producto: el criterio se interpreta como «0 escrituras adicionales frente a B30» (cumplido). El 0 literal sería trabajo del hook (B27), no de B31.
 2. **Negación conservada.** «…no indica prioridad, urgencia ni en qué orden conviene reservar» permanece en el
    `detail` del ◼ (no visible). DDR-B31-04 prohíbe eliminar advertencias; DDR-B31-01 prohíbe el léxico de
    urgencia como lenguaje de la superficie. Se resolvió con la frase exenta sólo en su constante de detalle.
@@ -127,13 +130,79 @@ Sin cambios respecto a la base: `block3/4/7` de zonas; carrera de decodificació
 141.0.7390.37). Los audits que no admiten `executablePath` se lanzaron con un preload local
 (`playwright.chromium.launch` → 1194) fuera del repositorio.
 
+## Auditoría independiente final (certificación)
+
+Medida sobre una copia limpia de `c93d645` + 2 commits de corrección; base medida en una copia limpia de `1444e67`.
+
+### WebKit y reduced-motion
+
+WebKit **26.5** (Playwright 1.62.1, `webkit-2336`; instalado fuera del repositorio con
+`playwright install webkit` + librerías del sistema). Gate sin modificar:
+
+- Primera ejecución sobre `c93d645`: **25 OK / 1 FAIL** (Chromium 26/26) — **fallo exclusivo B31**: `D-alojamiento`,
+  el foco no permanecía en el h2 de «Dónde dormir». Causa: `ZoneComparison` (protegido) enfoca su botón de cierre
+  en un `useEffect` de montaje; en WebKit ese efecto se ejecuta después de que `viajeSurfaceFocus` enfocase el h2.
+  Corrección sólo en el módulo de B31 (`viajeSurfaceFocus.ts`): el foco se da una tarea después del montaje y una
+  guarda de 1 s lo restituye si el propio montaje lo mueve a un control del mismo panel; se retira con la primera
+  tecla/puntero. Sin tocar `ZoneComparison`. Tras la corrección: 26/26 en 3 ejecuciones consecutivas.
+- Gate B31 final: Chromium 1194 **26/26**; Chromium + reduced-motion **26/26**; WebKit 26.5 **26/26**;
+  WebKit + reduced-motion **26/26** (`NIHON_REDUCED_MOTION=1`, `reducedMotion: "reduce"`): mismo contenido,
+  navegación, foco, banda, tarjetas y Reservas.
+
+### `setItem`: B30 (`1444e67`) vs B31
+
+Sonda independiente (plan de 4 días con fechas, móvil 390 px; `Storage.prototype.setItem` envuelto desde
+`addInitScript`; espera 800 ms por acción; Chromium 1194 y WebKit 26.5, resultado idéntico en ambos).
+
+| Acción | B30 | B31 | Claves / valor | Conclusión |
+|---|---|---|---|---|
+| Carga de la app (antes de abrir Viaje) | 4 | 4 | `savedPlaceIds`, `manualPlanningDraft`, `seeded` (sonda), `travellers.v1` | Idéntico |
+| Abrir Viaje | 2 | 2 | 2 × `nihon.manualPlanningDraft`, mismo valor (hash y longitud idénticos al sembrado, 708 B) | HEREDADO |
+| Días → Reservas | 2 | 2 | 2 × `manualPlanningDraft`, valor idéntico antes/después | HEREDADO |
+| Reservas → Resumen | 2 | 2 | ″ | HEREDADO |
+| Resumen → Días | 2 | 2 | ″ | HEREDADO |
+| Reposo 1,5 s en Días | 0 | 0 | — | Idéntico |
+
+`nihon.travellers.v1` (457 B) cambia de hash en cada carga también en B30 (identificador aleatorio por carga):
+no es una diferencia B31. El borrador final es idéntico byte a byte al sembrado en ambas ramas.
+
+- **`setItem` literal ≠ 0**: en B30 y en B31, cada montaje de una sub-pestaña del planificador reescribe el mismo
+  borrador (2 ×) por `usePlanningDraft` (B27). Comportamiento **heredado de montaje**; no se toca el hook.
+- **Escrituras adicionales atribuibles a B31 = 0**: mismas claves, mismo número, valores idénticos. Criterio B31
+  (decisión de Producto): «0 escrituras adicionales frente a B30» → **cumplido**.
+
+### Vocabulario (sólo superficies B31: Reservas, Resumen, navegación entre tarjetas)
+
+Contraste con `00` Art. 7, `03 §10` y la misión; escaneo del texto renderizado (visible + `aria-label`/`title` +
+`visually-hidden`) de Reservas y Resumen, y del código de los ficheros nuevos.
+
+- Resumen renderizado: **0** palabras prohibidas. Nada de «tramo», «recorrido», «constructor», «Dato:»,
+  «posiciones de movimiento modeladas», flecha final; «reparto» y «compromisos de escala día» no bloquean (D0a).
+- **Corregido (exclusivo B31):** «cobertura» (Art. 7) en dos avisos «incompleto» de las tarjetas de Resumen
+  («La cobertura numérica de visitas está incompleta» → «Faltan duraciones numéricas: el tiempo de visita está
+  incompleto»; «Cobertura incompleta: faltan N traslado(s)…» → «Incompleto: faltan N traslado(s)…»). Mismo
+  significado y mismos números; test actualizado y regla añadida a `b31-reservas-resumen.test.ts`.
+- **No tocado, deuda D5 (no la introduce B31):** (a) «tramo» ×2 en Reservas, procedente de `lib/`
+  (`reservation-mechanism-reference-date-presentation.ts`, `…calendar-presentation.ts`: «tramo de fechas»,
+  «fecha de inicio registrada del tramo»), alcance protegido; (b) «recorrido» en `wholeTripUnavailableText`
+  (estado «unavailable» de Resumen), texto movido tal cual porque la misión ordena conservar «el texto existente».
+  La pasada global de copy queda para D5.
+
+### Gates de la auditoría (HEAD final)
+
+tsc -b 0 errores · oxlint 0 errores (aviso heredado de `PlaceMap.tsx`) · Vitest 3533/3533 · B31 Chromium 26/26 ·
+B31 Chromium RM 26/26 · B31 WebKit 26/26 · B31 WebKit RM 26/26 · B27 48/48 · B28 43/43 · B29 36/36 · B30 48/48
+(WebKit 48/48) · block20-place-detail-check 73/73 · phase5a 50/50 · phase3f-j 14/14. Los audits que no admiten
+`executablePath` (phase3f-j) se lanzaron con un preload local fuera del repositorio (Chromium 1194).
+
+- **Fallos heredados medidos en esta auditoría:** ninguno. **Fallos exclusivos B31:** el de WebKit descrito arriba
+  (corregido); ninguno restante.
+
 ## Límites declarados
 
-- **WebKit no medido**: este entorno no trae WebKit instalado (`/opt/pw-browsers` sólo tiene Chromium 1194) y no
-  se instala. `NIHON_BROWSER=webkit` está implementado y falla al lanzar (binario ausente). Pendiente de
-  ejecutar donde exista WebKit.
-- **iPhone Safari físico: no medido.**
+- **iPhone Safari físico: no medido** (WebKit 26.5 de Playwright en Linux ≠ Safari en dispositivo).
 
 ## Veredicto
 
-**B31 CLAUDE: NO CERTIFICADO** — causa exacta: WebKit (`NIHON_BROWSER=webkit`), exigido por la misión, no se pudo ejecutar (binario ausente en este entorno). Todo lo medido (Chromium 1194 + reduced-motion) está en verde.
+**B31 CLAUDE: CERTIFICADO** (Chromium 1194 + WebKit 26.5, con y sin reduced-motion; 0 escrituras adicionales
+atribuibles a B31; iPhone Safari físico no medido).

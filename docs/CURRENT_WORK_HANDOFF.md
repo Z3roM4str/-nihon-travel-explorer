@@ -12,8 +12,11 @@
   tarjetas con ◇ y navegación entre sub-pestañas (foco en el h2 de destino, sin historial). DDR-B31-01…07 en
   `docs/design/09`. Sólo presentación: `lib/`, `data/`, V8 y clave intactos; `App.tsx` = 1 línea.
 - Gate nuevo: `app/scripts/b31-reservas-resumen-check.mjs` (26 comprobaciones). Detalle, tabla «descargo →
-  destino», resultados, desviaciones (contador `setItem` literal no medible ni en la base) y límites (WebKit y
-  Safari físico no medidos): `docs/BLOCK_31_HANDOFF.md`. No se empieza B10.
+  destino», resultados, auditoría independiente (WebKit 26.5 26/26 y reduced-motion 26/26 en Chromium y WebKit; `setItem` B30 = B31:
+  mismas claves, número y valores, 0 escrituras adicionales atribuibles a B31, reescritura del borrador al montar
+  heredada de `usePlanningDraft`; phase3f-j 14/14; fallo exclusivo de WebKit corregido en `viajeSurfaceFocus.ts`;
+  «cobertura» retirada de Resumen; fallos heredados: ninguno) y límite (iPhone Safari físico no medido):
+  `docs/BLOCK_31_HANDOFF.md`. **B31 CLAUDE: CERTIFICADO.** No se empieza B10.
 
 ## B30 / B9.4 «Dónde dormir» — rama `claude/b30-viaje-b9-4-donde-dormir` (PR en borrador, base B29 Claude)
 
