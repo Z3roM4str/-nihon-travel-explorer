@@ -22,6 +22,8 @@ Si una decisión necesaria no está definida, se detienen y devuelven
 | 08 | [Guardrails de ingeniería](08_GUARDRAILS_DE_INGENIERIA.md) | Qué decide ingeniería y qué requiere revisión de diseño. |
 | 09 | [Decisiones de diseño](09_DECISIONES_DE_DISENO.md) | Registro append-only. Aquí se añaden decisiones nuevas. |
 | 10 | [Roadmap de bloques](10_ROADMAP_DE_BLOQUES.md) | Implementación incremental, dependencias, criterios de cierre. |
+| 11 | [Sistema de diseño v2.1](11_DESIGN_SYSTEM_v2.1.md) | Fase 1 congelada: tokens, tipografía, fotografía, safe area, deudas. Complementa `03`/`04`/`06`. |
+| 12 | [Reglas de UX v2.1](12_UX_RULES_v2.1.md) | Fase 1 congelada: reglas de navegación/DD-015, backlog D0b–D7, pendientes. |
 
 ## Regla de oro
 
