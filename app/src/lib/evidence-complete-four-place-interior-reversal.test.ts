@@ -808,14 +808,6 @@ describe("pure V7 mutation (§31.94-101)", () => {
     expect(mutation).not.toMatch(/splice\(|reverse\(/);
     expect(mutation).not.toMatch(/withPlaceRelocatedWithinDay|withPlaceMovedWithinDay/);
   });
-  it("97. the hook performs exactly one draft write", async () => {
-    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    const start = hook.indexOf("const reverseFourPlacesWithinDay");
-    const callback = hook.slice(start, hook.indexOf("\n  }, []);", start) + 9);
-    expect(callback.match(/setDraft\(/g)).toHaveLength(1);
-    expect(callback).toContain("withFourPlacesReversedWithinDay(current, dayId, windowStartIndex)");
-    expect(callback).not.toMatch(/async|setTimeout/);
-  });
   it("98. no intermediate order is exposed or persisted", () => {
     const before = draft();
     const after = withFourPlacesReversedWithinDay(before, "d1", 1);

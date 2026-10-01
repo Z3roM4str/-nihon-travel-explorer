@@ -1,3 +1,6 @@
+// ARCHIVADO (release hardening): este gate verificaba el panel «Alternativas locales con evidencia
+// completa» y su cadena «Aplicar…», retirados por inalcanzables (ver docs/LEGACY_SWAP_RETIREMENT.md).
+// Ya no se ejecuta ni es vinculante; la cobertura vigente es evidence-options-check.mjs y b29.
 import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";

@@ -443,7 +443,6 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     for (const exposed of [
       "initializeDays,",
-      "movePlaceWithinDay,",
       "movePlaceBetweenDays,",
       "addEmptyDay,",
       "removeEmptyDay,",
@@ -454,6 +453,11 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     }
     expect(hook).not.toMatch(/\bsetDays\b/);
     expect(hook).not.toMatch(/\bwithDays\b/);
+    // The pre-B9.3 per-candidate mutations (adjacent, relocation, transposition, reversal, block swap) had no caller once the Apply panel was
+    // retired (release hardening); the day tool commits through its own single functional update.
+    for (const retired of ["movePlaceWithinDay", "relocatePlaceWithinDay", "transposePlacesWithinDay", "reverseFourPlacesWithinDay", "swapTwoPairBlocksWithinDay"]) {
+      expect(hook, retired).not.toContain(retired);
+    }
   });
 
   it("Phase 3D-U: moveDay delegates to withDayMoved through the same canonical setDraft, with no parallel day-order state", async () => {
