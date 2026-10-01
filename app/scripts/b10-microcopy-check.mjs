@@ -21,9 +21,11 @@ import { walkSurfaces } from "./lib/surface-walk.mjs";
  * EXCEPCIONES normativas (justificadas, fijadas):
  *   E1  «Grado original» dentro de «Fuentes» plegado de la ficha (03: la letra de grado sólo en «Fuentes»).
  *   D   contenido editorial de `data/` (Art. 4: nada de la fuente se reescribe).
- * DDR registradas (no se cambian; el gate fija el recuento exacto, de modo que una más falla):
- *   B10-C1  prosa «guardar/guardado» para marcar un lugar (6 cadenas): la regla de copy exige que la acción conserve su nombre
- *           «Quiero ir», pero el documento sólo da el ejemplo «marcado» para un estado vacío; elegir el verbo es decisión de voz.
+ * VOZ ACEPTADA (no se cambia; el gate fija el recuento exacto, de modo que una más falla):
+ *   B10-C1  prosa «guardar/guardado» al hablar de lugares marcados (6 cadenas). CERRADO SIN CAMBIO (docs/B10_C1_SAVE_VOCABULARY.md):
+ *           no existe regla canónica que prescriba «marcar» como único verbo — el propio texto normativo usa «guardad de más, que luego
+ *           se recorta» (05 §6, vacío de Quiero ir, literal) y «lo que habéis guardado» (05 §8). La regla de 03 §10 prohíbe el NOMBRE de
+ *           botón/estado «Guardado» y «Guardar en Quiero ir», y eso el gate lo sigue impidiendo (0 ocurrencias).
  *   B10-C2  vistas «builder»/«compare» de OrderedSequenceBuilder (código no alcanzable; D5-M1): léxico prohibido dentro de ellas.
  *
  * Uso: `npm run build && node scripts/b10-microcopy-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
@@ -42,7 +44,7 @@ const EMOJI = /\p{Emoji_Presentation}/u;
 const ACCEPT = /^(Aceptar|Submit|OK)$/;
 const SAVED_PROSE = /\bguard(?:ar|ad[oa]s?|ó|ad)\b/i;
 
-// DDR B10-C1: cadenas con «guardar/guardado/guardó/guardad» para el acto de marcar «Quiero ir».
+// B10-C1 (voz aceptada): prosa «guardar/guardado/guardó/guardad» al hablar de lugares marcados «Quiero ir».
 const DDR_C1_SOURCES = [
   ["components/SelectionPanel.tsx", "guardad de más"],
   ["components/InterestLegend.tsx", "habéis guardado este lugar"],
@@ -140,7 +142,7 @@ await ck("S02", "estática: «Guardar … en Quiero ir», «→» final y exclam
   }
   ok(bad.length === 0, bad.slice(0, 5).join(" | "));
 });
-await ck("S03", "DDR B10-C1: las cadenas «guardar/guardado» registradas siguen siendo exactamente las seis conocidas", async () => {
+await ck("S03", "B10-C1 (voz aceptada): las cadenas «guardar/guardado» siguen siendo exactamente las seis conocidas", async () => {
   for (const [file, text] of DDR_C1_SOURCES) ok(read(`../src/${file}`).includes(text), `ya no existe la cadena registrada en ${file}: «${text}» (¿se resolvió B10-C1? actualiza el gate)`);
   const found = [];
   for (const f of [...files(path.join(SRC, "components"), (e) => e.endsWith(".tsx")), ...files(path.join(SRC, "lib"), (e) => /presentation/.test(e) && e.endsWith(".ts"))]) {

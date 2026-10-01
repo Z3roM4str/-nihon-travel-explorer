@@ -306,9 +306,9 @@ composición del viaje, alternativas verificadas. Y Nihon sigue sin proponer un 
 - Erradicación final de `App.css`: cada superficie migrada tiene su CSS junto a su
   componente.
 - Revisión de microcopy contra `03 §10`: léxico prohibido a cero.
-- Decisión sobre modo oscuro (OD-01).
+- Decisión sobre modo oscuro (OD-01): **resuelta como POST-V1 / DIFERIDO** (no forma parte de la versión actual; véase `09`).
 
-**Estado: CERRADO E INTEGRADO** (#179). OD-01 y las DDR B10-M/A/P/C quedan abiertas para Producto; véase [CURRENT_WORK_HANDOFF](../CURRENT_WORK_HANDOFF.md). Este roadmap no define bloques posteriores.
+**Estado: CERRADO E INTEGRADO** (#179). OD-01 queda **POST-V1 / DIFERIDO** (no es requisito de la versión actual); el endurecimiento de release cerró B10-P1, B10-A1…A4 y D5-M1 y documentó B10-M1…M6 y B10-C1; véase [CURRENT_WORK_HANDOFF](../CURRENT_WORK_HANDOFF.md). Este roadmap no define bloques posteriores.
 
 ---
 

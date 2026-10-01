@@ -73,7 +73,7 @@ peso.
 - **El nivel de interés ya no tiene color propio.** Se retiran
   `--color-interest-1…5`. El único nivel que se muestra en tarjeta es
   «Imprescindible», y usa tinta sobre papel con su glifo `★`, no un color.
-- **Modo oscuro**: fuera de alcance para esta evolución, pero todos los tokens son
+- **Modo oscuro**: fuera de alcance para esta evolución (OD-01: **POST-V1 / DIFERIDO**), pero todos los tokens son
   semánticos por rol precisamente para poder añadirlo después sin tocar componentes.
   Está **prohibido** escribir un hex literal alegando que «sólo hay modo claro».
 - Verificación obligatoria: un test automatizado comprueba 4.5:1 en texto y 3:1 en

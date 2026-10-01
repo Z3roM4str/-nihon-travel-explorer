@@ -10,7 +10,7 @@
 ### Deuda vigente (clasificada)
 | Ítem | Naturaleza | Quién resuelve |
 |---|---|---|
-| OD-01 modo oscuro | decisión de Producto | Producto |
+| OD-01 modo oscuro | **POST-V1 / DIFERIDO** (no es requisito de la versión actual; no se implementa) | — (se retoma sólo con alcance propio posterior a v1) |
 | B10-M1…M6 movimientos sin nombre (toast, onboarding, chevron, foco, fundido de imagen, altura de hoja) | decisión de diseño (`03 §6` sólo nombra cinco) | Producto/Diseño |
 | B10-A1…A3 landmark `main`, `h1`, «Viaje» duplicado | cambio de arquitectura de información | Producto/Diseño |
 | B10-A4 controles de Leaflet < 44 px | restricción de librería | Diseño |
@@ -27,7 +27,7 @@
 - Base exacta `b854db384c952e827b86d1bb35cac7caa70b035a`. Rama `claude/integration-d0b-d5-current-main`. La rama histórica `claude/d0b-design-system-hygiene` (PR #174 OPEN) es fuente de intención: **no se fusiona** la cadena Claude (#174 → #173 → #170 → #168 → #166/#165 → #163).
 - Matriz A/B/C/D, adaptaciones, certificación Chromium/WebKit y auditoría visual: [D0B_D5_MAIN_RECONCILIATION_HANDOFF.md](D0B_D5_MAIN_RECONCILIATION_HANDOFF.md).
 - Fallos exclusivos de la reconciliación: 0. Heredados en main inicial (idénticos antes/después): phase5a (A14/C01/C06), integración B24+B23 56/58, phase3f-h/j/s (gates obsoletos), block4.
-- Abiertas (no se cierran): D0b-01, D0b-02, EvidenceMark 11/12, D5-M1 (vistas «builder»/«compare» no alcanzables con copy prohibido). OD-01 sigue pendiente de Producto.
+- Abiertas (no se cierran): D0b-01, D0b-02, EvidenceMark 11/12, D5-M1 (vistas «builder»/«compare» no alcanzables con copy prohibido). OD-01 es POST-V1 / DIFERIDO: no bloquea el cierre de la versión actual.
 
 ## Anterior — B31 / B9.5 cerrado; B10 pendiente
 
@@ -40,7 +40,7 @@
 - Reservas/Resumen, DDR-05, conservación y navegación quedan cerrados. Informe y hashes de evidencia: [BLOCK_31_MAIN_CERTIFICATION.md](BLOCK_31_MAIN_CERTIFICATION.md) y [BLOCK_31_POST_MERGE_EVIDENCE.json](BLOCK_31_POST_MERGE_EVIDENCE.json).
 - Main final es el commit documental posterior que contiene este cierre; SHA recuperable con `git log -1 --format=%H -- docs/BLOCK_31_MAIN_CERTIFICATION.md`. Sólo documentación sobre el merge certificado; push normal, sin sobrescribir cambios remotos. Checkout de integración: `b31-close`; se preservan los artefactos anteriores.
 - #168 sigue OPEN/Draft en `1444e67805c60cf9a33f4be5c1a3808b900e505b`; no se toca. Sin cambios en `claude/*`, Astra, datasets, fotografía, adquisición B6 ni Vercel/deploy.
-- Pendientes: Safari/iPhone y lector de pantalla físicos, fotografías reales de zonas, recursos externos/OSM; B25 conserva antecedente externo 122/123. **Siguiente bloque según roadmap: B10 — Pulido**, incluido OD-01. No iniciado ni numerado por inferencia.
+- Pendientes: Safari/iPhone y lector de pantalla físicos, fotografías reales de zonas, recursos externos/OSM; B25 conserva antecedente externo 122/123. **Siguiente bloque según roadmap: B10 — Pulido** (OD-01 quedó POST-V1 / DIFERIDO). No iniciado ni numerado por inferencia.
 
 ## Histórico — B31 certificado antes de su integración
 

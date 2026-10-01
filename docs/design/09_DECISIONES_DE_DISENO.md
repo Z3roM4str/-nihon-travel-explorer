@@ -1038,7 +1038,7 @@ escritorio (16/16; con el código anterior, 4 fallos).
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
 |---|---|---|---|
-| **OD-01** | ¿Se añade modo oscuro en esta evolución? | Producto | Nada; los tokens ya lo permiten |
+| **OD-01** | ¿Se añade modo oscuro en esta evolución? | Producto | **POST-V1 / DIFERIDO** — decidido por Producto en el endurecimiento de release: el modo oscuro **no forma parte de la versión actual**, no se implementa y no bloquea nada. Los tokens ya lo permiten; se retoma sólo con un alcance propio posterior a v1 |
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |

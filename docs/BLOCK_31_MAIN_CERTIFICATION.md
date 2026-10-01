@@ -54,6 +54,6 @@ Siguen pendientes Safari/iPhone físico, lector de pantalla físico, fotografía
 
 #168 se conserva OPEN, Draft, HEAD `1444e67805c60cf9a33f4be5c1a3808b900e505b`. No se modifican ramas `claude/*`, ni se usa Astra, Vercel o comandos de deploy. La política existente mantiene el automatismo externo para main; este trabajo no lo invoca ni modifica.
 
-El siguiente bloque pendiente documentado es **B10 — Pulido**, según `docs/design/10_ROADMAP_DE_BLOQUES.md`, incluyendo auditorías de movimiento, accesibilidad, rendimiento, CSS y microcopy, y decisión OD-01. No iniciado; no se inventa un número de proyecto para él.
+El siguiente bloque pendiente documentado es **B10 — Pulido**, según `docs/design/10_ROADMAP_DE_BLOQUES.md`, incluyendo auditorías de movimiento, accesibilidad, rendimiento, CSS y microcopy, y decisión OD-01 (resuelta después como POST-V1 / DIFERIDO, ver `design/09`). No iniciado; no se inventa un número de proyecto para él.
 
 El cierre se publica en un commit exclusivamente documental posterior al merge, mediante push normal desde el main remoto verificado. Su SHA se obtiene del commit que contiene este informe (`git log -1 --format=%H -- docs/BLOCK_31_MAIN_CERTIFICATION.md`); no se inserta un SHA autorreferente. El tree final añade sólo documentación al tree integrado y se distingue del tree certificado de código. El checkout de integración es `b31-close`; los checkouts y artefactos locales preexistentes se preservan.
