@@ -114,6 +114,7 @@ a {
 }
 
 .button--primary {
+  min-height: var(--tap-primary);
   background: var(--shu-600);
   border-color: var(--shu-600);
   color: var(--surface);
@@ -654,7 +655,7 @@ button.app__title.app__title--expand {
 
 @media (prefers-reduced-motion: reduce) {
   .sheet {
-    animation-duration: 0.001ms;
+    animation: none;
   }
 }
 
@@ -3267,7 +3268,6 @@ button.app__title.app__title--expand {
   font-size: 0.85rem;
   font-weight: 600;
   box-shadow: var(--shadow-panel);
-  animation: toast-in 0.2s ease-out;
 }
 
 .save-toast__icon {
@@ -3278,16 +3278,6 @@ button.app__title.app__title--expand {
   color: #ff9e9e;
 }
 
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* ---------- PersistenceNotice (04 §17, DDR-03) ---------- */
 /*
@@ -3383,17 +3373,8 @@ button.app__title.app__title--expand {
   justify-content: center;
   padding: 1rem;
   background: rgba(30, 24, 18, 0.55);
-  animation: onboarding-fade 0.18s ease-out;
 }
 
-@keyframes onboarding-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
 .onboarding__dialog {
   position: relative;
@@ -3584,10 +3565,16 @@ button.app__title.app__title--expand {
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
+    animation: none !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
+  }
+
+  .button:active,
+  .icon-button:active,
+  .place-card__save:active {
+    transform: none;
   }
 }
 

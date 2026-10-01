@@ -197,7 +197,9 @@ describe("accessibility promises", () => {
   it("keeps the reduced-motion escape hatch covering the new animations", async () => {
     const css = await src("App.css");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
-    expect(css).toContain("animation-duration: 0.001ms !important");
+    // B10 / 03 §6: reduced motion cancels keyframes, rather than accelerating transforms.
+    expect(css).toContain("animation: none !important");
+    expect(css).toContain("transition: none !important");
   });
 
   /**
