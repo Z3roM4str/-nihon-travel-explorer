@@ -886,14 +886,11 @@ describe("continuation without automatic chaining (§33.81-90)", () => {
       expect(alternative.guaranteedAdvantageMinutes).not.toBe(combinedDelta);
       expect(alternative.candidateDayPlaceIds).not.toEqual(OKINAWA_AFTER_RELOCATION);
     }
-    const component = await readFile(
-      new URL("../components/OrderedSequenceBuilder.tsx", import.meta.url),
-      "utf8"
-    );
-    // Every rendered figure comes from one candidate's own comparison; nothing is summed.
-    const start = component.indexOf("Intercambios de bloques de dos lugares");
-    const group = component.slice(start, component.indexOf("</div>", start));
-    expect(group).not.toMatch(/\+|reduce\(|totalAdvantage|18 min/);
+    // The surface is the day tool (the old panel was retired): every rendered figure comes from one candidate's own comparison; nothing is summed.
+    for (const file of ["../components/DayOrderToolPanel.tsx", "./day-order-tool.ts"]) {
+      const source = await readFile(new URL(file, import.meta.url), "utf8");
+      expect(source, file).not.toMatch(/totalAdvantage|combinedAdvantage|18 min/);
+    }
   });
 });
 
@@ -1093,14 +1090,6 @@ describe("pure V7 mutation (§33.112-116)", () => {
     expect(mutation).not.toMatch(/withPlaceRelocatedWithinDay|withPlaceMovedWithinDay/);
     expect(mutation).not.toMatch(/withPlacesTransposedWithinDay|withFourPlacesReversedWithinDay/);
 
-    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    const start = hook.indexOf("const swapTwoPairBlocksWithinDay");
-    const callback = hook.slice(start, hook.indexOf("\n  }, []);", start) + 9);
-    expect(callback.match(/setDraft\(/g)).toHaveLength(1);
-    expect(callback).toContain(
-      "withTwoPairBlocksSwappedWithinDay(current, dayId, windowStartIndex)"
-    );
-    expect(callback).not.toMatch(/async|setTimeout/);
   });
   it("114. the draft stays V7 under the same storage key", () => {
     expect(withTwoPairBlocksSwappedWithinDay(draft(), "d1", 1).version).toBe(7);

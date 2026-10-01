@@ -52,7 +52,7 @@ Medían el panel «Alternativas locales con evidencia completa» con botón «Ap
 | aplicar escribe el orden esperado en el día estable, una vez, conservando `routeIds`; sobrevive a recarga | mismo gate y b29 (E-1…E-5) |
 | tras aplicar, nada más demostrable → estado vacío neutro; intercambio de bloques → la reubicación sigue ofreciéndose (K, 1 h 21 → 1 h 14) | mismo gate («No hay opciones comprobadas con datos completos para este día.»; cadena de K) |
 | versión del borrador 7 | ahora V8 (el gate lo comprueba) |
-Los cuatro scripts originales se archivan en el PR que retira el componente heredado `LocalSwapAlternativesSection` (que los 3E medían y que ya no está montado).
+Los cuatro scripts originales están archivados en `app/scripts/archive/` (ver `LEGACY_SWAP_RETIREMENT.md`) tras retirar el componente heredado `LocalSwapAlternativesSection` (que los 3E medían y que ya no está montado).
 
 ## Qué quedó sin cobertura equivalente (huecos)
 Ninguno detectado que no esté cerrado arriba. Lo **no medible** aquí sigue siéndolo (WebKit, Safari/iPhone, lector de pantalla reales).

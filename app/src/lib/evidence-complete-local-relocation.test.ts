@@ -481,16 +481,10 @@ describe("pure V7 mutation (§34.60-64)", () => {
     expect(after.startDate).toBe(before.startDate);
     expect(after.endDate).toBe(before.endDate);
   });
-  it("64. the helper and hook use no async multi-click sequence", async () => {
+  it("64. the helper uses no async multi-click sequence (its only hook callers were retired with the Apply panel)", async () => {
     const domain = await readFile(new URL("./planning-draft-v7.ts", import.meta.url), "utf8");
-    const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
     const mutation = domain.slice(domain.indexOf("export function withPlaceRelocatedWithinDay"), domain.indexOf("export function withPlaceMovedBetweenDays"));
-    // Bounded to this callback alone, so a later phase's neighbouring callback is not counted.
-    const callbackStart = hook.indexOf("const relocatePlaceWithinDay");
-    const callback = hook.slice(callbackStart, hook.indexOf("\n  );", callbackStart) + 5);
     expect(mutation).not.toMatch(/async|setTimeout|withPlaceMovedWithinDay/);
-    expect(callback.match(/setDraft\(/g)).toHaveLength(1);
-    expect(callback).toContain("withPlaceRelocatedWithinDay(current, dayId, fromIndex, toIndex)");
   });
 });
 
