@@ -1,0 +1,456 @@
+{
+  "path": "docs/evidence/b10/continuation-20261002/css-shell.tar.gz",
+  "bytes": 36423351,
+  "sha256": "1e3894b52e613a970d0f76c55b41a3cee4b7b8f20b0126ec2c3b5b18cd0a08a1",
+  "blob": "87c0a33a4ed8cd7e6708c2ff6e2b0812e6dd4d5d",
+  "entries": [
+    {
+      "path": "a01-chromium/1440.png",
+      "bytes": 495350,
+      "sha256": "57d561ba0d12344a3ba37120b63a25e2dff7f4c96884cc4c6fe80d1e0914c52f"
+    },
+    {
+      "path": "a01-chromium/390.png",
+      "bytes": 137849,
+      "sha256": "b08fa11c4e96187b0e1171333069322d0bfe9e38fea1d05699dacdc7d659be57"
+    },
+    {
+      "path": "a01-chromium/results.json",
+      "bytes": 80920,
+      "sha256": "7d4fedd0c3456ea36e32336f4702f7d754d1a378360348124027e1418c32fca1"
+    },
+    {
+      "path": "a01-chromium-2.log",
+      "bytes": 696,
+      "sha256": "7849748cbefd61dfcce96a824d92a4df763b97db955e3a030a2397d131414c54"
+    },
+    {
+      "path": "a01-chromium.log",
+      "bytes": 774,
+      "sha256": "ba7ae70826772ff0e158254c093e700a76e0988e63720c8f179dcb39b13f8506"
+    },
+    {
+      "path": "a01-webkit/1440.png",
+      "bytes": 562402,
+      "sha256": "cdcd95022d5fc7845efdef5845b5aafffa2636c24744616eb1d4be962fd1d362"
+    },
+    {
+      "path": "a01-webkit/390.png",
+      "bytes": 154574,
+      "sha256": "c706a9f7327b9d36b0000a9f7658d6a414bc3ec13ee8abcab764f7edb4906afc"
+    },
+    {
+      "path": "a01-webkit/results.json",
+      "bytes": 80920,
+      "sha256": "7d4fedd0c3456ea36e32336f4702f7d754d1a378360348124027e1418c32fca1"
+    },
+    {
+      "path": "a01-webkit.log",
+      "bytes": 696,
+      "sha256": "7849748cbefd61dfcce96a824d92a4df763b97db955e3a030a2397d131414c54"
+    },
+    {
+      "path": "css/before-complete-webkit.json",
+      "bytes": 33724021,
+      "sha256": "c235e5b994b34f07a33eeffc3da477dee91b61cde4fba2f3b443a94fea270464"
+    },
+    {
+      "path": "css/before-rest-webkit.json",
+      "bytes": 34054528,
+      "sha256": "e602a0a3084632732498b3216a0b836d428c5d7187da3578c1be4fc223024f33"
+    },
+    {
+      "path": "css/before-rest.json",
+      "bytes": 79339251,
+      "sha256": "aed3e655b3e80af6a7921f632c052a07040a3fe83b846eeb1ff7ca65134b95dd"
+    },
+    {
+      "path": "css/before-settled-webkit.json",
+      "bytes": 34216876,
+      "sha256": "ee703414c6f738decec5d5b66bfc24c36fb83e6cb02f0fd0976ba4c3ec119b42"
+    },
+    {
+      "path": "css/before-seven-settled.json",
+      "bytes": 79340300,
+      "sha256": "a108956b8fb44610b8cff4dad20083efe3aa2ac2dd6d6e25e5835540fd4f53e0"
+    },
+    {
+      "path": "css/shell-build.log",
+      "bytes": 1136,
+      "sha256": "c1530be1d468ee0b8aacbf904e2e26150602ad8fa3d4473bff063f5aa3309102"
+    },
+    {
+      "path": "css/shell-compare.txt",
+      "bytes": 668,
+      "sha256": "f5d6b853114a72c90d998b7b25e4b7e66aa18ec4c57574bd2619b544262bbbcf"
+    },
+    {
+      "path": "css/shell-complete-webkit-compare.txt",
+      "bytes": 82,
+      "sha256": "14f110222726b00c64b236487245895cdb306b79ffc8012caecfb86ed334fc12"
+    },
+    {
+      "path": "css/shell-complete-webkit.json",
+      "bytes": 33716328,
+      "sha256": "8af64d4fe4c45c9318e8bab34a5f678cddb0118e46b8f77ff806c405dde5752a"
+    },
+    {
+      "path": "css/shell-d0b-chromium-2.log",
+      "bytes": 4359,
+      "sha256": "df9f103cf944e8acfa0b47e72ef530127759b72b38f30fc0ba808f7a70b34ddd"
+    },
+    {
+      "path": "css/shell-d0b-chromium.log",
+      "bytes": 4521,
+      "sha256": "484f32b3a51ba3201591b6ed8db2b5457879a578ae4051e4e9f4c27dd52e0d41"
+    },
+    {
+      "path": "css/shell-motion-chromium.log",
+      "bytes": 1466,
+      "sha256": "a5f952c1cbb27388abc1c0236ee3f5911fea0ee24d48bf44e08a8a8006721854"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-ciudad-filtros.png",
+      "bytes": 509714,
+      "sha256": "e95f6833922b000fec8547b09d3420071399b498f1567017a431364d441b7ee4"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-ciudad-mapa.png",
+      "bytes": 861476,
+      "sha256": "9d0810517ac6a1300f454b92b27835964acde0adee33b8f0825716018020a585"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-ciudad.png",
+      "bytes": 847137,
+      "sha256": "fd823ff7561aa86c768ef562276ed2ffee9b52cd0d39bc7a8736e2f6bbdc2b47"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-explorar.png",
+      "bytes": 1151066,
+      "sha256": "85674505a9da94ae65d3a7b3b47a615c459974ceae63fa3675905544c653905f"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-nosotros.png",
+      "bytes": 89022,
+      "sha256": "f026abe7cd2e62fec1050d0d44f29e2c804850ab9a7cc947c96cba393e1ac462"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-quiero-ir-persona.png",
+      "bytes": 89022,
+      "sha256": "f026abe7cd2e62fec1050d0d44f29e2c804850ab9a7cc947c96cba393e1ac462"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/1440-viaje-dias.png",
+      "bytes": 99128,
+      "sha256": "5e60f562011b8b83e5765640593176f6a00d10a8c434c9ce9cd78481a65bf0c9"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/320-ciudad-filtros.png",
+      "bytes": 40993,
+      "sha256": "2f5f87e9c3f1ec95295cb8f68a9c40eaf3fa3849af9801265f97d2c4cea0fda5"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/320-ciudad.png",
+      "bytes": 221012,
+      "sha256": "a18c20698dd663c966d31b46a25e579f4bdd84770fe83c28331caa552a9bfdd4"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/320-explorar-busqueda.png",
+      "bytes": 147667,
+      "sha256": "a9a861bcffd9d41c9472ddffacf61b20c343d4259ea9c88c45a919fba3ffccf4"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/390-explorar-busqueda.png",
+      "bytes": 181231,
+      "sha256": "cca4b7d1e13bc8205d98cdaba40a1a643e2c3e7b0a4db3988b92b91e92b4f4dc"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/390-ficha-creditos.png",
+      "bytes": 76436,
+      "sha256": "a3b3e882d52446b5ac0b186d4e866c2a7019d499f11900d36fdc0b909be00ec8"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/390-ficha-lightbox.png",
+      "bytes": 229200,
+      "sha256": "2711b6b1fc4038da05f3672f184e00bda2e54c327d907ff9db8dd9823ee0e0fc"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/390-nosotros.png",
+      "bytes": 54497,
+      "sha256": "9690a46d7eb40d310c510427ebe8c150379bd8cf763b281b85f425b2b0bbdfdf"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/840-ciudad-filtros.png",
+      "bytes": 410674,
+      "sha256": "322a05343e9cca49c73e3eec22ff94be085f4e823a2aeb6bbb152f474a0ae236"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/840-ciudad.png",
+      "bytes": 746946,
+      "sha256": "7bdf1fb5877108dd17aed0eb12153eb8b0b60025edd96fd4b1a024b225b9e160"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/840-explorar-busqueda.png",
+      "bytes": 505775,
+      "sha256": "5bb39e07651c9ffcf8693436993b6f15891d7f2b1031038023e1031a1e68cb78"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/840-explorar.png",
+      "bytes": 606360,
+      "sha256": "8aae2a31c67e9ff6f4e647be4226972f9a61bc797b144bb3c1d84c9ef6085751"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/840-nacional-region.png",
+      "bytes": 79082,
+      "sha256": "bd66e1ad0db76577af4a13a0d5ebaaded1e8c2e47122477ff1a910e1360d28b5"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/860-ciudad-filtros.png",
+      "bytes": 385760,
+      "sha256": "3cfe6ee954de1cce02a627243b18ea6a05d48da9edf191d28b2d8e4e6d23afa9"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/860-ciudad.png",
+      "bytes": 681786,
+      "sha256": "d4a91cf2af4ad40dabb6ef51d74684d5f5eaae27a98d6b205089490349bb3da6"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/860-explorar-busqueda.png",
+      "bytes": 341810,
+      "sha256": "314f750e7af8d449931af811ff68843a6653fa3c1ef16d76ee9812adc661d474"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/860-explorar.png",
+      "bytes": 438894,
+      "sha256": "83e2d05bbbeb6eb8e4f35fca1d1cb06b083c6df52e5d23e382567201a80d7d1e"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/861-ciudad-filtros.png",
+      "bytes": 386943,
+      "sha256": "d0713885ca0c9f60286237eae0013b05b1943a4c7b3c69c4112400ced5e57438"
+    },
+    {
+      "path": "css/shell-pixel-evidence/before-shots/861-ciudad.png",
+      "bytes": 682316,
+      "sha256": "f709ed33dd6d6870df35fb62e90af91557371a670113290ad3252e93ff92d12d"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-ciudad-filtros.png",
+      "bytes": 509718,
+      "sha256": "41af6cbdc88d2d25de32585ae82a24b347a2814a9920db984f56167356c3cc22"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-ciudad-mapa.png",
+      "bytes": 861508,
+      "sha256": "3e5be116b9de3838a216dec231bc371518dbcebcf8caf021d07c99fff155641f"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-ciudad.png",
+      "bytes": 847171,
+      "sha256": "aad8fadfdf8e9e94e04dc8c48e614fac6d32ac9359564b2b42636c8121bb565b"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-explorar.png",
+      "bytes": 1151059,
+      "sha256": "e17a06239ec78e88c7f78ae9e4e9be394f5c3c95285b2d0cd9e619fca79fa960"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-nosotros.png",
+      "bytes": 89023,
+      "sha256": "d96d301335ad0ed3d5091ae4bf7ea4429192a9cc80b6d241232e847d596811b9"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-quiero-ir-persona.png",
+      "bytes": 89023,
+      "sha256": "d96d301335ad0ed3d5091ae4bf7ea4429192a9cc80b6d241232e847d596811b9"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/1440-viaje-dias.png",
+      "bytes": 99128,
+      "sha256": "5e60f562011b8b83e5765640593176f6a00d10a8c434c9ce9cd78481a65bf0c9"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/320-ciudad-filtros.png",
+      "bytes": 40993,
+      "sha256": "2f5f87e9c3f1ec95295cb8f68a9c40eaf3fa3849af9801265f97d2c4cea0fda5"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/320-ciudad.png",
+      "bytes": 221012,
+      "sha256": "bacb1a0b1947cc7a98a8903c28b26eb59db9263a2fc8aaaf56a54a55a5712536"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/320-explorar-busqueda.png",
+      "bytes": 147661,
+      "sha256": "b6c1e12dba0e245d0b8e3662834c85327c2fdeea629355f3c068ed03fe4bc2c4"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/390-explorar-busqueda.png",
+      "bytes": 181223,
+      "sha256": "10064f415df064b638ca9d2d1d92e799ec46f9226b68a5898e1d22540d40b9ca"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/390-ficha-creditos.png",
+      "bytes": 76436,
+      "sha256": "a3b3e882d52446b5ac0b186d4e866c2a7019d499f11900d36fdc0b909be00ec8"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/390-ficha-lightbox.png",
+      "bytes": 229200,
+      "sha256": "2711b6b1fc4038da05f3672f184e00bda2e54c327d907ff9db8dd9823ee0e0fc"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/390-nosotros.png",
+      "bytes": 54497,
+      "sha256": "9690a46d7eb40d310c510427ebe8c150379bd8cf763b281b85f425b2b0bbdfdf"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/840-ciudad-filtros.png",
+      "bytes": 410670,
+      "sha256": "9efc8ef2cc9a8d1b03aabaf7463725147f5c93999411d91f3648deb8a4f5fb5f"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/840-ciudad.png",
+      "bytes": 746912,
+      "sha256": "62184e37db983f4614de379f0d39c5b14aab1f1ed2c3b897ea13534885141add"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/840-explorar-busqueda.png",
+      "bytes": 505940,
+      "sha256": "2b6b4d95075e15803bfe0ef7eca570b70847a31839138e74981eb721f8c638d3"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/840-explorar.png",
+      "bytes": 606576,
+      "sha256": "12edaf183dd0a7d709b386af64d3c3a20918eeae0f214c6402ad4acc96cd647f"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/840-nacional-region.png",
+      "bytes": 79072,
+      "sha256": "7d02e19483c055f2da74eec4cf8a507537068fcf2475c191b51b21396ad8b31b"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/860-ciudad-filtros.png",
+      "bytes": 385752,
+      "sha256": "4eaf88f35f49934e5955d7a40b481e93d895e2ec45a2834018075b6e322582d5"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/860-ciudad.png",
+      "bytes": 681775,
+      "sha256": "a057b28078e82f84e4c2286f441de3d426b7ace06e07b0516265678fc9789aab"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/860-explorar-busqueda.png",
+      "bytes": 341815,
+      "sha256": "4e053a8e7f11b5abf0bba7d3bc474dafd6ba4b78434a92c8c968139db7328c5d"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/860-explorar.png",
+      "bytes": 438913,
+      "sha256": "ede299cf4a461a2bddc01e112318579c80ad1cfd9e8313483a0e536a546dd474"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/861-ciudad-filtros.png",
+      "bytes": 386944,
+      "sha256": "96ab89cde28bcc871c159cf9d22a421f1c251ccaa6709e874707499fbba8e506"
+    },
+    {
+      "path": "css/shell-pixel-evidence/shell-shots/861-ciudad.png",
+      "bytes": 682325,
+      "sha256": "5b311d1622b66d793c710ca9b712c645e966373bfb332dd946135e9d892c6377"
+    },
+    {
+      "path": "css/shell-pixels.json",
+      "bytes": 35870,
+      "sha256": "7e4e462ee43e77e20c737f8a659bca624c0ba9ef7132719accbca236f6ed34f4"
+    },
+    {
+      "path": "css/shell-rest-compare.txt",
+      "bytes": 30,
+      "sha256": "8e3c82ed908f25cbfafee46b51715da2d1d99ae3c2228b6a17ca4a7d97121125"
+    },
+    {
+      "path": "css/shell-rest-webkit-compare.txt",
+      "bytes": 82,
+      "sha256": "c387491abb070c8541c2126597b60a0be7f1a65256df91a31659ef021e764c22"
+    },
+    {
+      "path": "css/shell-rest-webkit.json",
+      "bytes": 34048757,
+      "sha256": "78ac3b56fea3a9996d11ea85cf7d13c73a518160f0482713045f92086158eeb7"
+    },
+    {
+      "path": "css/shell-rest.json",
+      "bytes": 79339251,
+      "sha256": "aed3e655b3e80af6a7921f632c052a07040a3fe83b846eeb1ff7ca65134b95dd"
+    },
+    {
+      "path": "css/shell-vitest.json",
+      "bytes": 1212594,
+      "sha256": "15a7c819bd67d12e83d900c2521cf70a0a8209c676a02fb2286401ea8f63c086"
+    },
+    {
+      "path": "css/shell-vitest.log",
+      "bytes": 168,
+      "sha256": "2f1038731df2e88d83ccdc59ff8833cb5ffbf7ac707d2d014668da9c4339bcb5"
+    },
+    {
+      "path": "css/shell-webkit-compare.txt",
+      "bytes": 238,
+      "sha256": "2497833fbde810bf5b1c1ae55d7df048278416fd979111b39adc807cbced35fc"
+    },
+    {
+      "path": "css/shell-webkit.json",
+      "bytes": 34216880,
+      "sha256": "6eb202e7d18e3c163cdffd6d7784a66ecc31029e9929df7b62824d26657ed941"
+    },
+    {
+      "path": "css/shell.json",
+      "bytes": 79340156,
+      "sha256": "b61b71d3245a138d7dec506a985def149270c38e60ef6c7d2256ae405a9245cf"
+    },
+    {
+      "path": "g6/photo-pool-only-build.log",
+      "bytes": 1136,
+      "sha256": "288dd84b2dae877f94745e845596f5524c2bd769d621edb9913b60e4abcfdddb"
+    },
+    {
+      "path": "g6/photo-pool-only-written.json",
+      "bytes": 178,
+      "sha256": "83b7d96cae0ceb84e7b81a2d070c05d7b4f028313cd387ba22c723780691f75e"
+    }
+  ],
+  "storage": "concatenate parts in listed order, then validate archive SHA256 before extracting",
+  "parts": [
+    {
+      "path": "docs/evidence/b10/continuation-20261002/css-shell.tar.gz.part000",
+      "bytes": 8388608,
+      "sha256": "129fee73f415904148d6c210dbccfe4614d3da54f93f17ada5966b56042205f5",
+      "blob": "94af1224892d0cfdf5671a82b313a046ccb4239d"
+    },
+    {
+      "path": "docs/evidence/b10/continuation-20261002/css-shell.tar.gz.part001",
+      "bytes": 8388608,
+      "sha256": "096f8790d64366e99bd9c8e55893b8182d2ca42e35a2343fbe4aba3dbae68709",
+      "blob": "f1ae632e862f67c107d17ccb635fc493a4b8781c"
+    },
+    {
+      "path": "docs/evidence/b10/continuation-20261002/css-shell.tar.gz.part002",
+      "bytes": 8388608,
+      "sha256": "bb555e1c0a7adb6c1c57b79746695ab10790502becd63c4bcefe257d5026ffb2",
+      "blob": "fee417dd4022756c9d3703cd2d1a9b495c556890"
+    },
+    {
+      "path": "docs/evidence/b10/continuation-20261002/css-shell.tar.gz.part003",
+      "bytes": 8388608,
+      "sha256": "1aaf91c3e29f6ec56b4079c50b6862b846ca885bdad2d596037025a8d3181d8f",
+      "blob": "e24f321dab344b446758989c1eac732aec22a021"
+    },
+    {
+      "path": "docs/evidence/b10/continuation-20261002/css-shell.tar.gz.part004",
+      "bytes": 2868919,
+      "sha256": "0790836c8a48f105109b9e4b77f4de07708a5cb4348ec91b2a6de8611d6f06bd",
+      "blob": "4906d310c5062cd99c32a3a4049f44b8c327f031"
+    }
+  ]
+}
