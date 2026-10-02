@@ -1,3 +1,4 @@
+import { readGlobalCss } from "./lib/product-css.mjs";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
@@ -77,7 +78,7 @@ for (const f of files) {
     }
   }
 }
-const appCss = read("../src/App.css");
+const appCss = readGlobalCss();
 
 await ck("S01", "@keyframes: sólo sheet-rise, mark, skeleton y los DDR registrados", async () => {
   const allowed = new Set(["sheet-rise", "place-card-save-mark", ...SKELETON, ...Object.keys(DDR_KEYFRAMES)]);

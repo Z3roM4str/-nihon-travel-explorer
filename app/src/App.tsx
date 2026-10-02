@@ -3,6 +3,7 @@
    revés; la equivalencia de estilo computado se comprueba con scripts/css-equivalence-check.mjs). */
 import "./styles/foundation.css";
 import "./styles/buttons.css";
+import "./styles/shell.css";
 import "./App.css";
 import "./styles/alerts.css";
 import "./styles/discovery.css";

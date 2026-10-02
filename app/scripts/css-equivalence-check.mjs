@@ -93,6 +93,22 @@ const snapshot = (page) =>
     return out;
   }, PROPS);
 
+async function settleCssFixture(page) {
+  await page.evaluate(async () => {
+        const photos = [...document.querySelectorAll("img")].filter(i => !i.classList.contains("leaflet-tile"));
+        for (const photo of photos) photo.loading = "eager";
+        await Promise.allSettled(photos.map(photo => photo.decode()));
+        await document.fonts.ready;
+        // Explicit resting scroll state for both CSS references. Real wheel,
+        // sticky-header and return behavior remain covered by separate gates.
+        for (const owner of document.querySelectorAll(".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll")) {
+          owner.scrollTop = 0;
+          owner.dispatchEvent(new Event("scroll"));
+        }
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
+}
+
 async function boot(width, { seed = true, onboarding = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height: heightFor(width) }, reducedMotion: "reduce" });
   context.setDefaultTimeout(8000);
@@ -114,6 +130,7 @@ async function boot(width, { seed = true, onboarding = false } = {}) {
   }, { plan: PLAN, seedIn: seed, onb: onboarding });
   await page.goto(url, { waitUntil: "networkidle" });
   await page.addStyleTag({ content: "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}" });
+  if (process.env.NIHON_PARITY_SETTLED === "1") await settleCssFixture(page);
   return { context, page };
 }
 
@@ -124,19 +141,14 @@ for (const width of WIDTHS) {
     if (process.env.NIHON_PARITY_SETTLED === "1") {
       // This is a deliberate CSS fixture state in both references, not a lazy-load
       // or network-availability certification (those have their own gates).
-      await page.evaluate(async () => {
-        const photos = [...document.querySelectorAll("img")].filter(i => !i.classList.contains("leaflet-tile"));
-        for (const photo of photos) photo.loading = "eager";
-        await Promise.allSettled(photos.map(photo => photo.decode()));
-        const selectors = ".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll";
-        const owner = [...document.querySelectorAll(`.destination-panel:not([hidden]) ${selectors}`)]
-          .find(el => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0);
-        owner?.dispatchEvent(new Event("scroll"));
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      });
+      await settleCssFixture(page);
     }
     await page.waitForTimeout(450);
     result[`${width}/${name}`] = await snapshot(page);
+    if (process.env.NIHON_SHOTS) {
+      mkdirSync(process.env.NIHON_SHOTS, { recursive: true });
+      await page.screenshot({ path: path.join(process.env.NIHON_SHOTS, `${width}-${name}.png`), animations: "disabled" });
+    }
   };
   const tryStep = async (name, fn) => {
     try { await fn(); } catch (e) { console.log(`# ${width}/${name}: paso omitido (${e.message.split("\n")[0].slice(0, 80)})`); }
@@ -241,6 +253,7 @@ for (const width of WIDTHS) {
   await fresh.page.evaluate(() => localStorage.setItem("nihon.onboarding.seen.v1", "1"));
   await fresh.page.reload({ waitUntil: "networkidle" });
   await fresh.page.addStyleTag({ content: "*,*::before,*::after{animation:none!important;transition:none!important}" });
+  if (process.env.NIHON_PARITY_SETTLED === "1") await settleCssFixture(fresh.page);
   for (const [n, slug] of [["Quiero ir", "vacio-quiero-ir"], ["Viaje", "vacio-viaje"], ["Nosotros", "vacio-nosotros"]]) {
     await nav(fresh.page, n).click();
     await fresh.page.waitForTimeout(450);
