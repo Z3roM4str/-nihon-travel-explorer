@@ -1049,3 +1049,15 @@ escritorio (16/16; con el código anterior, 4 fallos).
 > **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025).
 > DD-026 (cromo del mapa como zona de exclusión, P0-4e) es firme. No queda ninguna decisión de
 > diseño abierta en B24.
+
+## B10 #177 — aprobación explícita E01–E04 y A-01 (2026-10-02)
+
+Autoridad: prompt del usuario para continuar desde `c868bd3e5bbb7df15ae44928476aa425f330ba12`. Propuestas completas verificadas en `B10_EDITORIAL_PROPOSALS.md`, blob `82423b2632e2d58547a32c6edf5b7770cf819d32`.
+
+- E01: propuesta A; conexiones con tiempo registrado, N de M en parciales y singular/plural; no añadir resumen a rama omitida.
+- E02: «Sólo cambia de quién es cada «Quiero ir». El plan del viaje, los días, las fechas y el alojamiento son compartidos por los dos.»
+- E03: «Este traslado queda inactivo porque el reparto por días no es válido.»
+- E04: conjunto B de cinco literales «ciudades o regiones» exclusivamente en alta, selector, ausencia de pareja nueva, mismatch y same-current.
+- A-01: enlaces «Saltar a la siguiente colección» y desde la última «Saltar al mapa de Japón»; encabezados identificables, foco visible, scroll, semántica nativa; las 312 acciones conservan Tab normal.
+
+Implementadas y verificadas en `d9268bdce7862bc509b5f07fecbc65f57ecdb88a`. [Informe de la ejecución y evidencia](../B10_AUTHORIZED_CONTINUATION_REPORT.md). Esta aprobación no extiende sustituciones a otros contextos, no cierra B10 ni cambia OD-01 POST-V1/DIFERIDO. El mismo prompt permite investigar límites Leaflet G6 con carga/error/reintento verificables y feedback accesible; sin presupuesto, métrica o dependencia nuevos.
