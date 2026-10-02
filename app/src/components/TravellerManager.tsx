@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { MAX_TRAVELLERS, type Traveller } from "../lib/travellers";
 import { PersonToken } from "./PersonToken";
 import { Icon } from "../icons/Icon";
