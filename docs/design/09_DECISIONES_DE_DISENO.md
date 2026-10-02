@@ -1061,3 +1061,24 @@ Autoridad: prompt del usuario para continuar desde `c868bd3e5bbb7df15ae44928476a
 - A-01: enlaces «Saltar a la siguiente colección» y desde la última «Saltar al mapa de Japón»; encabezados identificables, foco visible, scroll, semántica nativa; las 312 acciones conservan Tab normal.
 
 Implementadas y verificadas en `d9268bdce7862bc509b5f07fecbc65f57ecdb88a`. [Informe de la ejecución y evidencia](../B10_AUTHORIZED_CONTINUATION_REPORT.md). Esta aprobación no extiende sustituciones a otros contextos, no cierra B10 ni cambia OD-01 POST-V1/DIFERIDO. El mismo prompt permite investigar límites Leaflet G6 con carga/error/reintento verificables y feedback accesible; sin presupuesto, métrica o dependencia nuevos.
+
+
+## B10 #177 — resultado de la ampliación acotada (2026-10-02)
+
+El mismo prompt autoriza los límites Leaflet y equivalencias canónicas exactas. Se implementan sin presupuesto/ratchet/métrica/dependencias nuevos: mapas diferidos sólo al interactuar; recuperación real de import fallido con feedback accesible y montaje inicial visible. Código de producto estable `e1f36aafeb81c6723fb998edff0b4aff6bd11898`. Entry 157049 B gzip ≤253742; JS síncrono total223694. El guard de fotos conserva FAIL Chromium (lazy lejano/exceso puntual Osaka3862290), con diagnóstico/propuesta de otro lote en el informe; no es una excepción aprobada. B12 conserva todos los recursos y estados HTTP: 304 exige fuente ejecutada idéntica al 200 frío, 404 real sigue detectado.
+
+CSS: 43 sustituciones cuya equivalencia ya estaba documentada; no autoriza colores/roles nuevos. [Ubicaciones, valores actuales, alternativas y efectos restantes](../B10_CSS_PENDING_DECISIONS.md) quedan **SIN DECISIÓN / SIN APLICAR**. Atribución histórica PNG y G4 no cerrados. F01–F12 NO EJECUTADO; OSM-TLS Chromium FAIL externo separado del comportamiento funcional. OD-01 POST-V1/DIFERIDO sigue vigente. [Resultado/evidencia](../B10_AUTHORIZED_CONTINUATION_REPORT.md); no cierra B10 ni autoriza merge/deploy.
+
+
+### B10-T01 — Contención nacional
+
+**Estado:** Firme · **Fecha:** 2026-10-02 · **Afecta:** navegación/scroll del mapa y continuación #177.
+
+**Decisión.** La investigación de navegación/scroll autorizada detecta rango oculto reproducible por labels absolutos: 1696/1516 px. Se corrige sólo contención con position:relative; guard por coordenadas y reversión negativa, sin adoptar el nuevo diseño de main ni alterar equivalencias de color. Candidata `26407373059e0f20e6e64e975f7a38eb7da5805f`; F01–F12 siguen NO EJECUTADO. G4/paridad estricta y guard fotográfico G6 permanecen abiertos; OD-01 POST-V1/DIFERIDO.
+
+**Alternativa descartada.** Adoptar el key de App y rediseño de tarjeta de main: B10 ya conserva scroll/foco de regreso; sólo el rango de labels es reproducible aquí. **Consecuencias.** Guard por coordenadas con mutante, evidencia visual determinista y física pendiente; no cambia color/tokens ni alcance editorial.
+
+
+### Continuación B10: contención nacional
+
+La investigación de navegación/scroll autorizada detecta rango oculto reproducible por labels absolutos: 1696/1516 px. Se corrige sólo contención con position:relative; guard por coordenadas y reversión negativa, sin adoptar el nuevo diseño de main ni alterar equivalencias de color. Candidata `26407373059e0f20e6e64e975f7a38eb7da5805f`; F01–F12 siguen NO EJECUTADO. G4/paridad estricta y guard fotográfico G6 permanecen abiertos; OD-01 POST-V1/DIFERIDO.
