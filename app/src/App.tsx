@@ -1281,6 +1281,11 @@ export default function App() {
             ) : (
               nationalView && (
                 <div
+                  // P-04: portada y mapa nacional no comparten nodo. La portada desplaza este cuerpo
+                  // (`.app__body--home`) y el mapa lo deja en `overflow: hidden`; reutilizado, el mapa
+                  // heredaba el `scrollTop` de la portada y quedaba fuera de pantalla — botón de
+                  // volver incluido — sin que el dedo pudiera desplazarlo de vuelta.
+                  key={nationalView.mapOpen ? "national-map" : "national-home"}
                   className={`app__body app__body--national${
                     nationalView.mapOpen ? "" : " app__body--home"
                   }`}

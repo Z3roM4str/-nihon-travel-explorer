@@ -1132,6 +1132,9 @@ button.search-field:focus-visible {
 
 .national__sheet-content {
   flex: 1;
+  /* P-04: bloque contenedor de sus `.visually-hidden` (absolutos). Sin él escapaban de este
+     scroll y alargaban el desbordamiento oculto de `.app__body` hasta ~2250px. */
+  position: relative;
   overflow-y: auto;
   padding: var(--space-4);
   display: flex;
