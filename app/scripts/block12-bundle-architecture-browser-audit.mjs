@@ -95,7 +95,7 @@ async function auditViewport(browser, name, url) {
   });
   page.on("response", (r) => {
     const u = r.url();
-    if (u.startsWith(url) && /\.js(\?|$)/.test(u) && r.request().resourceType() !== "fetch") {
+    if (u.startsWith(url) && /\.js(\?|$)/.test(u)) {
       const row = { url: u.replace(url, ""), status: r.status(), bodyBytes: 0, bodySha256: null };
       jsRequests.push(row);
       const readBody = (async () => {
