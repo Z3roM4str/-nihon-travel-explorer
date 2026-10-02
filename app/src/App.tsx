@@ -4,6 +4,7 @@
 import "./styles/foundation.css";
 import "./styles/buttons.css";
 import "./styles/shell.css";
+import "./components/PlaceDetailFrame.css";
 import "./App.css";
 import "./styles/secondary-screens.css";
 import "./styles/alerts.css";

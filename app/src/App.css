@@ -7,20 +7,6 @@
 
 /* ---------- Detail panel ---------- */
 
-.place-detail {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-panel);
-  border-left: 1px solid var(--color-border);
-}
-
-.place-interest__person .person-token {
-  vertical-align: middle;
-}
-
 /* Bloque 17 (B1): anatomía de `Chip` (`04 §3`) — icono opcional + texto `--type-label`,
    `--radius-xs`, fondo `--surface-sunken` por defecto. Los matices de color de cada variante
    (`--gem`, `--alert`, `--reservation-*`) no tenían token equivalente en `03 §1` y se dejan
@@ -35,13 +21,13 @@
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
   font-weight: 500;
-  background: var(--color-surface-alt);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  background: var(--surface-sunken);
+  color: var(--ink-900);
+  border: 1px solid var(--line);
 }
 
 .tag--muted {
-  color: var(--color-text-muted);
+  color: var(--ink-500);
 }
 
 .tag--gem {
@@ -51,24 +37,24 @@
 }
 
 .tag--alert {
-  background: var(--color-warn-soft);
+  background: var(--warn-050);
   border-color: #eccf9c;
-  color: var(--color-warn);
+  color: var(--warn-600);
 }
 
 /* Phase 3D-C — reservation semantics. Distinct, softer tones from `.tag--alert` (required):
    "recommended" and "optional" are real nuances from `reservation.raw`, not the same claim as
    "required", and must not read with the same visual urgency. */
 .tag--reservation-recommended {
-  background: var(--color-ok-soft);
+  background: var(--ok-050);
   border-color: #b3ddc5;
-  color: var(--color-ok);
+  color: var(--ok-600);
 }
 
 .tag--reservation-optional {
   background: #eaf2f8;
   border-color: #c7dcec;
-  color: var(--color-info);
+  color: var(--info-600);
 }
 
 /*
@@ -136,15 +122,15 @@
 /* ---------- National entry shortcuts ---------- */
 
 .national-start {
-  padding: 0.85rem 1rem 0.75rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  padding: 0.85rem var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
 
 .national-start__lead {
   margin: 0 0 0.6rem;
   font-size: 0.86rem;
-  color: var(--color-text-muted);
+  color: var(--ink-500);
   line-height: 1.45;
 }
 
@@ -152,22 +138,22 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: var(--tap-target);
-  padding: 0.35rem 0.5rem 0.35rem 0.85rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
+  min-height: var(--tap-min);
+  padding: 0.35rem var(--space-2) 0.35rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
   font: inherit;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--ink-900);
   cursor: pointer;
 }
 
 .national-start__hub:hover {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-  color: var(--color-accent-dark);
+  background: var(--shu-050);
+  border-color: var(--shu-600);
+  color: var(--shu-700);
 }
 
 /* ---------- Accommodation zones (Block 3) ---------- */
@@ -235,7 +221,7 @@
 }
 
 .map-empty__hint {
-  color: var(--color-text-muted);
+  color: var(--ink-500);
   font-size: 0.85rem;
   margin: 0 0 0.85rem;
 }
@@ -274,7 +260,7 @@
   }
 
   .app__filters--open {
-    padding-bottom: 1rem;
+    padding-bottom: var(--space-4);
   }
 }
 
@@ -379,13 +365,13 @@
 .region-nav {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-5);
 }
 
 .region-nav__empty {
   margin: 0;
   font-size: 0.82rem;
-  color: var(--color-text-muted);
+  color: var(--ink-500);
 }
 
 /* ---------- Sequence comparison (Phase 3C-B) ---------- */
@@ -393,14 +379,14 @@
 .comparison-candidate {
   flex: 1 1 14rem;
   min-width: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  padding: 0.75rem;
+  padding: var(--space-3);
 }
 
 .comparison-candidate h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
   font-size: 0.95rem;
 }
 
@@ -409,11 +395,11 @@
 /* Phase 3E-A — read-only composition. Subgroups remain visually adjacent but do not collapse into
    a score or a visit-plus-transport figure. */
 .whole-trip-composition {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   padding: 0.85rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
+  background: var(--surface-sunken);
   display: grid;
   gap: 0.65rem;
 }
@@ -431,7 +417,7 @@
   margin: 0;
   font-size: 0.78rem;
   line-height: 1.45;
-  color: var(--color-text-muted);
+  color: var(--ink-500);
   overflow-wrap: anywhere;
 }
 
@@ -444,14 +430,14 @@
 /* ---------- Block 4 — the planner's zone section ---------- */
 
 .zone-plan {
-  margin: 1rem 0 0;
+  margin: var(--space-4) 0 0;
   padding: 0.9rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
 
 .zone-plan > h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
   font-size: 1rem;
 }

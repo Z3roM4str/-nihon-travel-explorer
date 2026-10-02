@@ -87,7 +87,7 @@ const snapshot = (page) =>
       if (!vis(el)) { out.push({ sig: `${el.tagName}.${String(el.className?.baseVal ?? el.className).trim()}|hidden`, v: "" }); continue; }
       const cs = getComputedStyle(el);
       const r = el.getBoundingClientRect();
-      const box = [r.x, r.y, r.width, r.height].map((n) => Math.round(n * 2) / 2).join(",");
+      const box = [r.x, r.y, r.width, r.height].join(",");
       out.push({ sig: `${el.tagName}.${String(el.className?.baseVal ?? el.className).trim()}|`, v: `${box};${props.map((p) => cs.getPropertyValue(p)).join(";")}` });
     }
     return out;

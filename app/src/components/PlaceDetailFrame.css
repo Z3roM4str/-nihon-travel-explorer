@@ -1,0 +1,14 @@
+/* Fully canonical detail frame; imported immediately before residual App.css. */
+.place-detail {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  box-shadow: var(--elev-2);
+  border-left: 1px solid var(--line);
+}
+
+.place-interest__person .person-token {
+  vertical-align: middle;
+}
