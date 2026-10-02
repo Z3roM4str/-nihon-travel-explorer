@@ -7,6 +7,9 @@
 - **`design/10_ROADMAP_DE_BLOQUES.md` no define ningún bloque posterior a B10** (B1–B10 completos; B6 con tandas B6.1–B6.7 cerradas aparte). No existe «B11»: no se inventa. El trabajo restante es deuda/DDR (abajo), no un bloque oficial.
 - Contenido, matrices y deuda de B10: [B10_POLISH_HANDOFF.md](B10_POLISH_HANDOFF.md) y [B10_POLISH_MISSION.md](B10_POLISH_MISSION.md).
 
+### Certificación final de release (PR #189 + este informe)
+`main` certificado: merge commit `e124591b19f9f241a38091598faf2c1d27b554e4` (tree `896c2b50…`; padres `a8350d4` + `ed8c589`). Informe único: [RELEASE_CERTIFICATION.md](RELEASE_CERTIFICATION.md) (reconciliación Vitest 3501→3421, B21, 64 gates en Chromium, WebKit 26.5, lint completo, cifras B10-P1). Veredicto: **RELEASE CANDIDATE CERTIFICADO** (alcance automatizable); Safari/iPhone y lector de pantalla físicos siguen pendientes.
+
 ### Endurecimiento post-B10 (cerrado, PRs #183–#187)
 Sin bloques nuevos ni cambios de dataset/fotos. Cerrado: B10-P1 (entrada con proyección runtime de metadatos, ver `B10_P1_*`), B10-A1…A4 (landmark `main`, `h1`, «Viaje · Días», zoom de Leaflet ≥ 44 px por `::after`; cero diferencia de píxeles), D5-M1/B10-C2 (vistas `builder`/`compare` retiradas con prueba de inalcanzabilidad, `D5_M1_UNREACHABLE_VIEWS_RETIREMENT.md`), gates obsoletos reescritos/archivados (`GATE_RETIREMENT_AUDIT.md`, `GATE_AUTHORITY.md`) y panel heredado de intercambios (`LEGACY_SWAP_RETIREMENT.md`). OD-01 sigue POST-V1 / DIFERIDO. B10-M1…M6 y B10-C1 documentados (`B10_MOTION_SPEC.md`, `B10_C1_SAVE_VOCABULARY.md`), sin rediseño.
 
@@ -18,7 +21,7 @@ Sin bloques nuevos ni cambios de dataset/fotos. Cerrado: B10-P1 (entrada con pro
 | D0b-01, D0b-02, EvidenceMark 11/12, media queries | deuda heredada | Diseño |
 | Modos modales no `embedded` de `ZoneComparison`/`OrderedSequenceBuilder`; APIs L3/L4 de `planning-draft` sin consumidor de UI | código sin consumidor; retirar exige reescribir tests de dominio | Ingeniería |
 | B30 retiró `zone-fact--strong` sin decisión documentada | decisión de diseño | Producto/Diseño |
-| B21 «restaurar scroll de la búsqueda global» (`b21-global-search-browser-audit`): fallo intermitente `scroll changed: 360 -> 0` (≈1/12 ejecuciones), **reproducido idéntico en `8aa7d1d`, anterior al endurecimiento**; esperar la condición hasta 2 s no lo evita, así que puede ser un defecto real y raro de restauración (`Sheet` fija `scrollTop` en `useLayoutEffect`) | heredado; sin causa raíz aún | Ingeniería |
+| ~~B21 «restaurar scroll de la búsqueda global»~~ | **CERRADO**: carrera del gate (animación `sheet-rise` + reintento de Playwright), no defecto de producto; gate corregido (`B21_ROOT_CAUSE.md`) | — |
 | `App.css`: primitivos `.tag/.alert/.badge/.person-token` | deuda técnica menor | Ingeniería |
 | Safari/iPhone, WebKit y lector de pantalla reales; fotos reales de zona; OSM/recursos externos | restricción física/externa | humano |
 

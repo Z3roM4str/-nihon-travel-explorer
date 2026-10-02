@@ -31,4 +31,4 @@ Resultado: **ningún gate se retiró por ser viejo**; 16 se **reescribieron** (m
 | phase3e-e / g / i / k | **superseded** por `evidence-options-check` (89/89) + B29; se archivan con `LocalSwapAlternativesSection` | mismas fixtures y cifras en la interfaz vigente |
 
 ## 4. No medibles aquí
-WebKit (no instalado en esta sesión; B10 lo certificó con WebKit 26.5), Safari/iPhone físico, lector de pantalla físico.
+Safari/iPhone físico y lector de pantalla físico. WebKit de Playwright (26.5) **sí** es instalable en el entorno (`npx playwright install webkit` + `install-deps webkit`) y se ejecutó sobre los gates que lo admiten (`NIHON_BROWSER=webkit`; incluye B21): ver `RELEASE_CERTIFICATION.md` §7. B25 y B27–B29 sólo están escritos para Chromium.
