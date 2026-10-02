@@ -1391,21 +1391,27 @@ button.search-field:focus-visible {
 }
 
 /* Mapa de Japón Card */
+.explorer-home__map-card-section {
+  margin: 0 0 var(--space-6) 0;
+}
+
 .explorer-home__map-card {
   width: 100%;
+  min-height: 72px;
   display: flex;
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--surface-ink);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: var(--surface-ink);
+  color: var(--paper);
   cursor: pointer;
   text-align: left;
 }
 
 .explorer-home__map-card:hover {
-  background: var(--surface-sunken);
+  background: var(--ink-900);
 }
 
 .explorer-home__map-card:focus-visible {
@@ -1417,16 +1423,18 @@ button.search-field:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-full);
-  background: var(--surface-sunken);
-  color: var(--ink-700);
+  background: rgba(245, 246, 244, 0.12);
+  color: var(--paper);
   flex-shrink: 0;
 }
 
 .explorer-home__map-card-text {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
   gap: var(--space-1);
 }
@@ -1435,11 +1443,18 @@ button.search-field:focus-visible {
   font-family: var(--font-voice);
   font-size: var(--type-title-m-size);
   line-height: var(--type-title-m-line);
-  color: var(--ink-900);
+  color: var(--paper);
 }
 
 .explorer-home__map-card-subtitle {
   font-family: var(--font-record);
   font-size: var(--type-body-s-size);
-  color: var(--ink-500);
+  color: var(--ink-300);
+}
+
+.explorer-home__map-card-chevron {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ink-300);
 }

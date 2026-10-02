@@ -129,6 +129,23 @@ export function ExplorerHome({
         <p className="national-start__lead">
           Elige una ciudad para empezar, o explora Japón en el mapa.
         </p>
+        {/* Acceso al mapa nacional: antes de Ciudades, para que mapa y ciudad se lean como las dos entradas. */}
+        <section className="explorer-home__map-card-section" aria-label="Mapa de Japón">
+          <button type="button" className="explorer-home__map-card" onClick={onOpenNationalMap}>
+            <div className="explorer-home__map-card-icon" aria-hidden="true">
+              <Icon name="mapa" size={32} />
+            </div>
+            <div className="explorer-home__map-card-text">
+              <span className="explorer-home__map-card-title">Explora Japón en el mapa</span>
+              <span className="explorer-home__map-card-subtitle">
+                {`47 prefecturas · ${coveredPrefecturesCount} con lugares en Nihon`}
+              </span>
+            </div>
+            <span className="explorer-home__map-card-chevron" aria-hidden="true">
+              ›
+            </span>
+          </button>
+        </section>
         <h2 className="explorer-home__section-title">Ciudades</h2>
         <div className="explorer-home__cities">
           {MAIN_HUBS.map((hub) => {
@@ -219,21 +236,6 @@ export function ExplorerHome({
             </div>
           </div>
         ))}
-      </section>
-
-      {/* Section: Mapa de Japón Card */}
-      <section className="explorer-home__map-card-section" aria-label="Mapa de Japón">
-        <button type="button" className="explorer-home__map-card" onClick={onOpenNationalMap}>
-          <div className="explorer-home__map-card-icon" aria-hidden="true">
-            <Icon name="mapa" size={24} />
-          </div>
-          <div className="explorer-home__map-card-text">
-            <span className="explorer-home__map-card-title">Ver Japón en el mapa</span>
-            <span className="explorer-home__map-card-subtitle">
-              {`47 prefecturas · ${coveredPrefecturesCount} con lugares en Nihon`}
-            </span>
-          </div>
-        </button>
       </section>
     </div>
   );
