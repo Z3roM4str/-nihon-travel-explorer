@@ -1,0 +1,338 @@
+{
+  "path": "docs/evidence/b10/continuation-20261002/css-foundation.tar.gz",
+  "bytes": 12102010,
+  "sha256": "3902cb934375151bcd0e661564dd36470baf68d33586c0bcfdaf85e5eaf55075",
+  "blob": "a4f78367b549e8a100c1e516500471252df087e5",
+  "entries": [
+    {
+      "path": "css/before-repeat.json",
+      "bytes": 22938182,
+      "sha256": "0fb117b6b3fbe2a851721fe485fdbd91719f07344825e26cf9469003a61ce8ae"
+    },
+    {
+      "path": "css/before-webkit.json",
+      "bytes": 34787844,
+      "sha256": "5da3e51a975b3b02d340ce60f8a1e25d412b35577a93c680dece7c73a2c13f21"
+    },
+    {
+      "path": "css/before.json",
+      "bytes": 92407241,
+      "sha256": "7a7e5f7510419336de3fa912ca08075081308e44e16f1463960fdc13e0132d71"
+    },
+    {
+      "path": "css/foundation-build.log",
+      "bytes": 1136,
+      "sha256": "562fc47f13820215f7bbe7e94f9ea2c2cadd116c89089d5f19356451161d778f"
+    },
+    {
+      "path": "css/foundation-compare.log",
+      "bytes": 668,
+      "sha256": "6876d6a5bc55d5a2dc492d20d343c4f610bf588d9f9c2f4c780a818839b9315a"
+    },
+    {
+      "path": "css/foundation-repeat-compare.log",
+      "bytes": 29,
+      "sha256": "2fa84686698b216ab2f0c08a8075872bb7ad605331cbd8c3e1130d7fa72656cc"
+    },
+    {
+      "path": "css/foundation-repeat.json",
+      "bytes": 22938182,
+      "sha256": "0fb117b6b3fbe2a851721fe485fdbd91719f07344825e26cf9469003a61ce8ae"
+    },
+    {
+      "path": "css/foundation-vitest.json",
+      "bytes": 1212496,
+      "sha256": "a1131e8465681f868cd2067330ec8a32d2bec44d299ec3f7993ad1165a13a39d"
+    },
+    {
+      "path": "css/foundation-vitest.log",
+      "bytes": 178,
+      "sha256": "e203bc31ebb3893126b3a733c35497720147435d687db079ae3ccf428280087d"
+    },
+    {
+      "path": "css/foundation-webkit-compare.log",
+      "bytes": 29,
+      "sha256": "6b10acc837744b8f4190c0646f360f4554f545d63b798786daaea6fcd6502ab4"
+    },
+    {
+      "path": "css/foundation-webkit.json",
+      "bytes": 34787844,
+      "sha256": "5da3e51a975b3b02d340ce60f8a1e25d412b35577a93c680dece7c73a2c13f21"
+    },
+    {
+      "path": "css/foundation.json",
+      "bytes": 92407385,
+      "sha256": "ff0c828296f03852f484066c918c4d889b2d58731ac7aecb90416d6566a426b4"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-no-preference-active.png",
+      "bytes": 29861,
+      "sha256": "bafcd52bbe9b62e535c6005346bf4ac2a86553870e61e17a7cdece7e4657d7ef"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-no-preference-base.png",
+      "bytes": 28801,
+      "sha256": "2b9cd8978d44f06df9360a79dbbbbc8bea8b208cdcfbc061325bd894cb8ff303"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-no-preference-focus.png",
+      "bytes": 29314,
+      "sha256": "60e35d5ff260a2abf60c45ea472b05f5b0c6ab2671570aefeb04b4608fd9f656"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-no-preference-hover.png",
+      "bytes": 28855,
+      "sha256": "404427ddfcfff8910714921c62bf4abde997e7fb1f3a83ac8f2340f98b05f55d"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-reduce-active.png",
+      "bytes": 29356,
+      "sha256": "f23b32f413d94511a2e140fe5e4c5fd5c3afc915c3cdf6564744299ae61a8e80"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-reduce-base.png",
+      "bytes": 28801,
+      "sha256": "2b9cd8978d44f06df9360a79dbbbbc8bea8b208cdcfbc061325bd894cb8ff303"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-reduce-focus.png",
+      "bytes": 29314,
+      "sha256": "60e35d5ff260a2abf60c45ea472b05f5b0c6ab2671570aefeb04b4608fd9f656"
+    },
+    {
+      "path": "css/primitives-before-stable/1440-reduce-hover.png",
+      "bytes": 28855,
+      "sha256": "404427ddfcfff8910714921c62bf4abde997e7fb1f3a83ac8f2340f98b05f55d"
+    },
+    {
+      "path": "css/primitives-before-stable/320-no-preference-active.png",
+      "bytes": 25047,
+      "sha256": "ba82989724465a63e24ddbe589ad929bb932a0bc78b920311dea80dee1f2d07e"
+    },
+    {
+      "path": "css/primitives-before-stable/320-no-preference-base.png",
+      "bytes": 24078,
+      "sha256": "bd4488bda7d41020f8d39f046e89f2722f04bc5e87fefbfd4b5f091213853582"
+    },
+    {
+      "path": "css/primitives-before-stable/320-no-preference-focus.png",
+      "bytes": 24679,
+      "sha256": "7379c4477779a88b550478449719849c117429e15c22bc1d7de24c0ef4b814c7"
+    },
+    {
+      "path": "css/primitives-before-stable/320-no-preference-hover.png",
+      "bytes": 24138,
+      "sha256": "d016d50d137da45d0c0784a373ed6ad1479ca6ed7467494691a0ab3ada0a83ed"
+    },
+    {
+      "path": "css/primitives-before-stable/320-reduce-active.png",
+      "bytes": 24736,
+      "sha256": "5125dc439a63b77e2d7fb385f767ba20127a2784dbc784e9f3b02ae13524db05"
+    },
+    {
+      "path": "css/primitives-before-stable/320-reduce-base.png",
+      "bytes": 24078,
+      "sha256": "bd4488bda7d41020f8d39f046e89f2722f04bc5e87fefbfd4b5f091213853582"
+    },
+    {
+      "path": "css/primitives-before-stable/320-reduce-focus.png",
+      "bytes": 24679,
+      "sha256": "7379c4477779a88b550478449719849c117429e15c22bc1d7de24c0ef4b814c7"
+    },
+    {
+      "path": "css/primitives-before-stable/320-reduce-hover.png",
+      "bytes": 24138,
+      "sha256": "d016d50d137da45d0c0784a373ed6ad1479ca6ed7467494691a0ab3ada0a83ed"
+    },
+    {
+      "path": "css/primitives-before-stable/390-no-preference-active.png",
+      "bytes": 25602,
+      "sha256": "9c13b503506825fbe249c17a2fed1bf8cc43d4b0061c6fc75a83a080eee7a215"
+    },
+    {
+      "path": "css/primitives-before-stable/390-no-preference-base.png",
+      "bytes": 24628,
+      "sha256": "5fb3ba88131e9c8b2334c58b7de217dc5763d54b397a2e7a6568ca7104777045"
+    },
+    {
+      "path": "css/primitives-before-stable/390-no-preference-focus.png",
+      "bytes": 25248,
+      "sha256": "b11e6924f828e40b11442b8e9836fee98cba70b4d2022651ccab9fd43bf86772"
+    },
+    {
+      "path": "css/primitives-before-stable/390-no-preference-hover.png",
+      "bytes": 24689,
+      "sha256": "e5a1948d8b87f261ed06a63a9b20292c34fbaed7e34198872466fa180b03bf65"
+    },
+    {
+      "path": "css/primitives-before-stable/390-reduce-active.png",
+      "bytes": 25295,
+      "sha256": "0a13671509d73a444f223cff83c615feaec1f4c8013adf2a987e2a55f91b079e"
+    },
+    {
+      "path": "css/primitives-before-stable/390-reduce-base.png",
+      "bytes": 24628,
+      "sha256": "5fb3ba88131e9c8b2334c58b7de217dc5763d54b397a2e7a6568ca7104777045"
+    },
+    {
+      "path": "css/primitives-before-stable/390-reduce-focus.png",
+      "bytes": 25248,
+      "sha256": "b11e6924f828e40b11442b8e9836fee98cba70b4d2022651ccab9fd43bf86772"
+    },
+    {
+      "path": "css/primitives-before-stable/390-reduce-hover.png",
+      "bytes": 24689,
+      "sha256": "e5a1948d8b87f261ed06a63a9b20292c34fbaed7e34198872466fa180b03bf65"
+    },
+    {
+      "path": "css/primitives-before-stable/results.json",
+      "bytes": 22552227,
+      "sha256": "b26b50d07b24b4b75c9886a97cb0d524e5a6cbeda78f9492da929d6ffb759e5c"
+    },
+    {
+      "path": "css/primitives-before-stable.log",
+      "bytes": 73,
+      "sha256": "ffa8d9a6adea47cac81db2c137f6629850ce4d88354acae9a0866ce105146d0f"
+    },
+    {
+      "path": "css/primitives-buttons/1440-no-preference-active.png",
+      "bytes": 29861,
+      "sha256": "bafcd52bbe9b62e535c6005346bf4ac2a86553870e61e17a7cdece7e4657d7ef"
+    },
+    {
+      "path": "css/primitives-buttons/1440-no-preference-base.png",
+      "bytes": 28801,
+      "sha256": "2b9cd8978d44f06df9360a79dbbbbc8bea8b208cdcfbc061325bd894cb8ff303"
+    },
+    {
+      "path": "css/primitives-buttons/1440-no-preference-focus.png",
+      "bytes": 29314,
+      "sha256": "60e35d5ff260a2abf60c45ea472b05f5b0c6ab2671570aefeb04b4608fd9f656"
+    },
+    {
+      "path": "css/primitives-buttons/1440-no-preference-hover.png",
+      "bytes": 28855,
+      "sha256": "404427ddfcfff8910714921c62bf4abde997e7fb1f3a83ac8f2340f98b05f55d"
+    },
+    {
+      "path": "css/primitives-buttons/1440-reduce-active.png",
+      "bytes": 29356,
+      "sha256": "f23b32f413d94511a2e140fe5e4c5fd5c3afc915c3cdf6564744299ae61a8e80"
+    },
+    {
+      "path": "css/primitives-buttons/1440-reduce-base.png",
+      "bytes": 28801,
+      "sha256": "2b9cd8978d44f06df9360a79dbbbbc8bea8b208cdcfbc061325bd894cb8ff303"
+    },
+    {
+      "path": "css/primitives-buttons/1440-reduce-focus.png",
+      "bytes": 29314,
+      "sha256": "60e35d5ff260a2abf60c45ea472b05f5b0c6ab2671570aefeb04b4608fd9f656"
+    },
+    {
+      "path": "css/primitives-buttons/1440-reduce-hover.png",
+      "bytes": 28855,
+      "sha256": "404427ddfcfff8910714921c62bf4abde997e7fb1f3a83ac8f2340f98b05f55d"
+    },
+    {
+      "path": "css/primitives-buttons/320-no-preference-active.png",
+      "bytes": 25047,
+      "sha256": "ba82989724465a63e24ddbe589ad929bb932a0bc78b920311dea80dee1f2d07e"
+    },
+    {
+      "path": "css/primitives-buttons/320-no-preference-base.png",
+      "bytes": 24078,
+      "sha256": "bd4488bda7d41020f8d39f046e89f2722f04bc5e87fefbfd4b5f091213853582"
+    },
+    {
+      "path": "css/primitives-buttons/320-no-preference-focus.png",
+      "bytes": 24679,
+      "sha256": "7379c4477779a88b550478449719849c117429e15c22bc1d7de24c0ef4b814c7"
+    },
+    {
+      "path": "css/primitives-buttons/320-no-preference-hover.png",
+      "bytes": 24138,
+      "sha256": "d016d50d137da45d0c0784a373ed6ad1479ca6ed7467494691a0ab3ada0a83ed"
+    },
+    {
+      "path": "css/primitives-buttons/320-reduce-active.png",
+      "bytes": 24736,
+      "sha256": "5125dc439a63b77e2d7fb385f767ba20127a2784dbc784e9f3b02ae13524db05"
+    },
+    {
+      "path": "css/primitives-buttons/320-reduce-base.png",
+      "bytes": 24078,
+      "sha256": "bd4488bda7d41020f8d39f046e89f2722f04bc5e87fefbfd4b5f091213853582"
+    },
+    {
+      "path": "css/primitives-buttons/320-reduce-focus.png",
+      "bytes": 24679,
+      "sha256": "7379c4477779a88b550478449719849c117429e15c22bc1d7de24c0ef4b814c7"
+    },
+    {
+      "path": "css/primitives-buttons/320-reduce-hover.png",
+      "bytes": 24138,
+      "sha256": "d016d50d137da45d0c0784a373ed6ad1479ca6ed7467494691a0ab3ada0a83ed"
+    },
+    {
+      "path": "css/primitives-buttons/390-no-preference-active.png",
+      "bytes": 25602,
+      "sha256": "9c13b503506825fbe249c17a2fed1bf8cc43d4b0061c6fc75a83a080eee7a215"
+    },
+    {
+      "path": "css/primitives-buttons/390-no-preference-base.png",
+      "bytes": 24628,
+      "sha256": "5fb3ba88131e9c8b2334c58b7de217dc5763d54b397a2e7a6568ca7104777045"
+    },
+    {
+      "path": "css/primitives-buttons/390-no-preference-focus.png",
+      "bytes": 25248,
+      "sha256": "b11e6924f828e40b11442b8e9836fee98cba70b4d2022651ccab9fd43bf86772"
+    },
+    {
+      "path": "css/primitives-buttons/390-no-preference-hover.png",
+      "bytes": 24689,
+      "sha256": "e5a1948d8b87f261ed06a63a9b20292c34fbaed7e34198872466fa180b03bf65"
+    },
+    {
+      "path": "css/primitives-buttons/390-reduce-active.png",
+      "bytes": 25295,
+      "sha256": "0a13671509d73a444f223cff83c615feaec1f4c8013adf2a987e2a55f91b079e"
+    },
+    {
+      "path": "css/primitives-buttons/390-reduce-base.png",
+      "bytes": 24628,
+      "sha256": "5fb3ba88131e9c8b2334c58b7de217dc5763d54b397a2e7a6568ca7104777045"
+    },
+    {
+      "path": "css/primitives-buttons/390-reduce-focus.png",
+      "bytes": 25248,
+      "sha256": "b11e6924f828e40b11442b8e9836fee98cba70b4d2022651ccab9fd43bf86772"
+    },
+    {
+      "path": "css/primitives-buttons/390-reduce-hover.png",
+      "bytes": 24689,
+      "sha256": "e5a1948d8b87f261ed06a63a9b20292c34fbaed7e34198872466fa180b03bf65"
+    },
+    {
+      "path": "css/primitives-buttons/results.json",
+      "bytes": 22552227,
+      "sha256": "b26b50d07b24b4b75c9886a97cb0d524e5a6cbeda78f9492da929d6ffb759e5c"
+    },
+    {
+      "path": "css/primitives-buttons.log",
+      "bytes": 73,
+      "sha256": "ffa8d9a6adea47cac81db2c137f6629850ce4d88354acae9a0866ce105146d0f"
+    },
+    {
+      "path": "css/primitives-foundation-pixels.json",
+      "bytes": 2347,
+      "sha256": "3276cccab8fffb38e4cf1c7d824d6c05e4d45d9570dca0848d80ecdaeae3c73f"
+    },
+    {
+      "path": "css/primitives-foundation.log",
+      "bytes": 40504,
+      "sha256": "7f9c5dcf8f439fb361c611a62e39d42ec1448626c29467aa357e38902155439a"
+    }
+  ]
+}

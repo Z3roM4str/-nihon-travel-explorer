@@ -38,3 +38,13 @@ HTTPS push sin credenciales; publicación Git-data con `force:false`, comparaci�
 [Evidencia G6 reversible](evidence/b10/continuation-20261002/g6.tar.gz) · [SHA256/Git blobs y miembros](evidence/b10/continuation-20261002/g6.json).
 
 Continúa la extracción de CSS por superficies y la investigación A-01. E01–E04 siguen sin aprobación verificable; OD-01 POST-V1/DIFERIDO. Safari/iPhone, lector y dispositivo físicos siguen no ejecutados; protocolo preparado no equivale a QA físico. OSM/TLS y fotografías/licencias de zonas son pendientes externos separados. Ready for Review sigue bloqueado; este checkpoint no es el cierre de B10.
+
+## CSS lote 1 — alias/reset/foco global
+
+Extraídas 88 líneas a `styles/foundation.css`, importada justo antes del App.css restante. Orden/especificidad/tokens sin cambios. Implementación remota `e72304cc2e8bbbd4b5cd0575a0a115ee84b15d3f`, tree `78729affccdcb73cc351d9334463f00da24818e3`. Typecheck/build y G1 **119/3429 PASS**; el test de alias conserva todas sus assertions y apunta al nuevo dueño.
+
+CSS compilado inicial/final de este lote byte a byte idéntico: SHA256 `4141b3abc0339ad473bd40205fb861cd7a8075cc23b979da3a28f1fb06d0bccf`, 107.588 B raw/21.040 gzip. Chromium: captura de 200 estados en 320/390/839/840/860/861/1200/1440. Primera comparación: 194 iguales, seis con cabecera en distinto estado de scroll (borde visible); repetición focalizada de ambas builds en 860/861: **50/50 iguales**, sin normalizar ni quitar el borde. WebKit: **75/75 iguales**, 320/390/1440. Incluye búsqueda/filtros, ficha/Créditos/lightbox, mapas, Días/Mover/otro orden, Nosotros, Reservas/Resumen y vacíos.
+
+Fixture visual de primitivas: 24 estados normal/reduced × base/hover/focus/active × 320/390/1440. El primer intento PNG registró 11 píxeles distintos en el borde del botón enfocado 1440 (estilos/cajas iguales), conservado. Captura posterior aplica dos frames y la opción nativa `animations:disabled` a **ambas** referencias para comparar presentación final, sin tolerancia: **24/24 estilos/pseudos/cajas/PNG exactos**. El movimiento se comprueba además con sus guards propios; no se certifica una animación a partir de una captura terminada. El CSS generado es idéntico, también durante la extracción posterior de botones.
+
+[Archivo del lote y todos sus intentos](evidence/b10/continuation-20261002/css-foundation.tar.gz) · [Manifiesto](evidence/b10/continuation-20261002/css-foundation.json). Continúan botones, shell y superficies globales restantes; la extracción de App.css no está terminada.
