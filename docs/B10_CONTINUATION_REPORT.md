@@ -2,6 +2,12 @@
 
 **INCOMPLETO; #177 Draft.** Esta evidencia nueva parte de `23e112f288600d115633963e2edf50676bdd4469`. No certifica ni modifica los manifiestos históricos. Sólo se publica en `codex/b10-pulido-mission`; sin merge, deploy, rebase, force-push, escrituras a main/#168/claude/* o cambios al RC congelado.
 
+## Estado consolidado de esta continuación
+
+Inicio **23e112f288600d115633963e2edf50676bdd4469**, código final **0518646c0c429ad405371bc40789e8059f880e78**. Publicación documental final identificada por HEAD de #177; checkpoints completos abajo. G6 **273259 → 271025 gzip**, −2234, **FAIL +17283**; CSS cuatro lotes y archivo compilado idéntico, App.css **1259→457**. A-01 reproducido/condicionado; propuestas E01–E04 completas sin aplicar; matriz física toda NO EJECUTADO; OD-01 POST-V1/DIFERIDO.
+
+Regresión nueva completa **119/3429**, invariantes/replacements/API y superficies verificadas; 51 ejecuciones principales (42 positivas PASS, seis negativos detectados, tres FAIL G6×2/B25). Integridad histórica y git hash-object **2131/2131**. Los seis archivos lógicos de evidencia nueva, sus partes/miembros y fingerprint de app se describen en [B10_CONTINUATION_EVIDENCE.json](B10_CONTINUATION_EVIDENCE.json). [Core final](evidence/b10/continuation-20261002/final-core.json) contiene comandos/logs/intententos/censos y comparación B24, sin reetiquetar históricos. Los criterios exactos que impiden Ready for Review están al final.
+
 ## Precondiciones y nuevo hallazgo
 
 Rama inicial remota exacta `23e112f`; main remoto `80464643528a458de05149b01a8b5c2e5b94a77f`; respaldo remoto intacto `40838062062c8820ea9f7b028675d8add0c96c32`. Se examinó `e124591..8046464`: sólo CURRENT_WORK_HANDOFF, GATE_AUTHORITY y RELEASE_CERTIFICATION; la certificación corresponde a main, no a #177. No se incorpora. No hay AGENTS.md en raíz, padres accesibles ni rutas del repositorio (`git ls-files`/rg y GET raíz 404).
@@ -87,11 +93,11 @@ El primer envío del archivo shell fue rechazado por límite MCP de 16 MiB. Se p
 
 ## CSS lote 4 — Quiero ir/Nosotros/Viaje y fuentes compartidas
 
-Extraídas **62 líneas** (incluidos separadores) a `styles/secondary-screens.css`: contador Quiero ir, foco contextual, columna Nosotros/lista de licencias, navegación Viaje y targets de fuentes/atribución. Mantienen posición inmediatamente tras App.css y antes de alerts/discovery/trip-overview. El primer candidato movía los targets por delante del resto del lote: aunque 75/75 estados por motor coincidían, se descartó por alterar el orden compilado. Se incluyeron en el mismo dueño/global y se recuperó **CSS compilado idéntico al inicial**, SHA256 `4141b3abc0339ad473bd40205fb861cd7a8075cc23b979da3a28f1fb06d0bccf`, 107.588 raw/21.040 gzip. Implementación `0518646c0c429ad405371bc40789e8059f880e78`, tree `4ac6063fa499fe59d3ffefd589d9f7c991384659`.
+Extraídas **61 líneas** y retirado un separador vacío final a `styles/secondary-screens.css`: contador Quiero ir, foco contextual, columna Nosotros/lista de licencias, navegación Viaje y targets de fuentes/atribución. Mantienen posición inmediatamente tras App.css y antes de alerts/discovery/trip-overview. El primer candidato movía los targets por delante del resto del lote: aunque 75/75 estados por motor coincidían, se descartó por alterar el orden compilado. Se incluyeron en el mismo dueño/global y se recuperó **CSS compilado idéntico al inicial**, SHA256 `4141b3abc0339ad473bd40205fb861cd7a8075cc23b979da3a28f1fb06d0bccf`, 107.588 raw/21.040 gzip. Implementación `0518646c0c429ad405371bc40789e8059f880e78`, tree `4ac6063fa499fe59d3ffefd589d9f7c991384659`.
 
 G1 del lote **119/3429** y build PASS; movimiento **17/17** y D0b **56/56 por motor**. Chromium final: **75/75 estilos/cajas iguales**, 320/390/1440. WebKit final: **74/75**, cuatro valores de ancho flex/SVG de Dónde dormir 320 difieren **0,015625 px**. Repetición de ambos lados conserva la diferencia pero intercambia las dos variantes. Comparaciones **baseline consigo misma y final consigo mismo**: ambas reproducen esos mismos cuatro valores; no hay cambio de declaraciones/cascada ni se normalizan/redondean propiedades para forzar PASS. Las superficies modificadas de este lote coinciden; la limitación de paridad estricta de toda la recorrida se conserva. Las capturas previas fallidas por skeleton/onboarding/Viaje frío motivaron esperar montaje real del panel y fuentes/imágenes en ambas referencias; no cambia el gate de rendimiento.
 
-App.css: **1259 → 457 líneas**, 802 retiradas de acumulación global en cuatro lotes. Ocho hex de declaraciones, dos referencias en comentarios, dos queries max-width globales y overrides legacy de componentes continúan; no se declaran G4 ni la migración completa cerradas. No hay hex/media consultas/tema/textos nuevos. Paridad demostrada: CSS generado exacto final, matrices anteriores y checks de superficies; PNG global estrictamente exacto sólo en 127/147 pares del lote shell y 24/24 primitivas por motor, con todos los fallos conservados.
+App.css: **1259 → 457 líneas**, 801 trasladadas por superficie y un separador vacío retirado en cuatro lotes. Ocho hex de declaraciones, dos referencias en comentarios, dos queries max-width globales y overrides legacy de componentes continúan; no se declaran G4 ni la migración completa cerradas. No hay hex/media consultas/tema/textos nuevos. Paridad demostrada: CSS generado exacto final, matrices anteriores y checks de superficies; PNG global estrictamente exacto sólo en 127/147 pares del lote shell y 24/24 primitivas por motor, con todos los fallos conservados.
 
 ## Diferencia de suites: inventario, autoridad y regresión
 
@@ -100,3 +106,60 @@ Censo ejecutado (mismo lock/runtime) B31 **115/3479**, backup **116/3483**, main
 La retirada es de main y está documentada en D5_M1_UNREACHABLE_VIEWS_RETIREMENT, LEGACY_SWAP_RETIREMENT y GATE_RETIREMENT_AUDIT; no se acepta sólo por el total. Las funciones puras de dominio se conservan. La assertion −1 verificaba una única escritura del hook reverseFourPlacesWithinDay que main retiró junto al callback inalcanzable. Se conserva diff/nombres de cada assertion y se ejecutan los reemplazos **evidence-options 89/89**, B29 y los nueve archivos de invariantes **231 tests** sobre el nuevo código. En esta continuación **ninguna suite/assertion eliminada**; lectores CSS apuntan a dueños/imports reales y conservan todos los esperados. El JSON Vitest `numTotalTestSuites` cuenta también describes; archivos reales = longitud de `testResults` (119), no 719.
 
 [Evidencia lote 4, incluso candidato descartado y autocontroles WebKit](evidence/b10/continuation-20261002/css-secondary.json).
+
+Se investigó además la certificación **116/3501** de `c512db15a1d253a1c6704ad0798f80dea142e173` (#179, sólo lectura, sin escribir claude/*): rerun exacto **116/3501 PASS**. Lock/package idénticos al actual. B31→c512 añade las 22 assertions D5; c512→main retira las mismas 89 y añade 10 (5 structure, 1 DayOrderToolPanel, 4 photography), **3501−89+10=3422**; inicio añade siete, **3422+7=3429**, diferencia neta **−72** frente a aquella certificación. El nombre del test de alias cambió al dueño foundation (mismas assertions, delta cero); el censo nuevo distingue esa sustitución nominal de eliminación. No se oculta la cifra previa 3501.
+
+Tag **v1.1.0 d72e199** reconstruido nuevamente en worktree separado: mismo lock y SHA256 del analizador (`b4e555b4…`), mismo Node/compresión. Analizador **253742 B gzip**, archivo escrito **253725 B**, raw 1389624, Brotli 203729; SHA256 `e157fcb004aac0fabc9acdcc79da421da1226ad1401a15d01627688d3fa3e48b`. Reproduce la diferencia de etapa histórica, conserva ceiling 253742. Entrada nueva escrita raw 1377221 / gzip **271025** / Brotli 217843; SHA256 `256f0d3a54fe36ff6b8db98b5dfd540d464b1ab7049cb1b1455d9629abbd99de`. Comparación entre archivos escritos: +17300 frente al tag; exceso del gate +17283. La mejora no se traslada a chunks/ruta crítica: ningún boundary cambia; CSS idéntico, presupuesto de imágenes identity de siete hubs conservado y performance final 12/13 por motor sólo falla J01/G6.
+
+Comprobación adicional independiente previamente no ejecutada: **git hash-object --stdin**, sin `-w`, sobre los **2131 contenidos** históricos ya verificados por hashlib: **2131/2131 iguales**, sin eludir permisos ni límites. Se conserva JSON individual. SHA256 históricos y todos sus manifests siguen byte a byte; nuevo app fingerprint sólo corresponde a `0518646c`, no recertifica artefactos anteriores.
+
+## Externos reales y pendientes físicos
+
+B25 final **121/123 FAIL**, dos C-CLEAN por `ERR_CERT_AUTHORITY_INVALID`. Comparación nueva sobre el SHA inicial con el mismo Chromium/instalación/browser y dist inicial: **122/123 FAIL**, misma clase TLS, distinta incidencia de ventanas; no se igualan artificialmente los totales ni se atribuye un éxito/fallo completo a herencia. Diagnóstico real sin interceptar red: **107 peticiones externas, cero respuestas**, 70 errores TLS en `a/b/c.tile.openstreetmap.org`, 37 abortadas durante navegación; probe HTTPS directo además falla `ENETUNREACH` IPv6. Eso describe este entorno, no demuestra caída de OSM ni aprueba B25. TLS por defecto intacto; sin mocks/ignoreHTTPSErrors/certificate flags. Se conservan URLs/errores y ambos gates íntegros.
+
+[Matriz física F01–F12](B10_PHYSICAL_QA_MATRIX.md) lista pasos/configuración/resultado esperado para el código `0518646c`: **todas NO EJECUTADO**, sin aprobación de QA físico. Chromium/WebKit Linux, DOM y `setInputFiles` no certifican Safari/iPhone, VoiceOver/TalkBack, selector, gestos, zoom o comportamiento del dispositivo real. OSM/TLS y adquisición/verificación real de fotografías/licencias de zonas son **dos pendientes externos separados**; preparar matriz no los cierra. OD-01 sigue POST-V1/DIFERIDO, sin control nuevo.
+
+Los [literales E01–E04 completos y contextos 0/1/N/parciales](B10_EDITORIAL_PROPOSALS.md) quedan preparados para decisión verificable; ninguno aplicado. Comentarios/reviews #177 vacíos al revisar no son aprobación. Recomendaciones del informe anterior conservan ese carácter.
+
+CSS restante requiere resolver valores no tokenizados por dueño (tags, fondo nacional, tipografía/espaciado legacy) con equivalencias aprobadas; una aproximación que cambia el aspecto contradice la paridad exigida. Responsive App conserva dos consultas max-width; convertirlas exige definir la equivalencia de bordes/intervalos y cascada de overrides de discovery, incluida anchura fraccionaria: sustituir max860 por min861 introduce un intervalo distinto, no es una conversión exacta autorizada. No se hace limpieza de queries/colores por grep ni se extrae una superficie sin migrar como si G4 estuviera cerrado.
+
+## Checkpoints publicados de esta continuación
+
+| Commit remoto | Lote |
+|---|---|
+| `3590845c73678f2b59321c813c0e2cee7be0c358` | fix(b10): remove unused hook import blocking the reconciled build |
+| `774d989a99d83b7e6778a58f6ecd0c8639ba3893` | perf(b10): share photo literals and project private snapping detail |
+| `672bb790802d6c047ad8a3d1d1659bcce4450696` | docs(b10): preserve continuation baseline and bounded G6 evidence |
+| `e72304cc2e8bbbd4b5cd0575a0a115ee84b15d3f` | refactor(b10): extract token aliases and reset with CSS parity |
+| `f78c3a34447305a392f89b32d4d00a00e4da7f50` | docs(b10): certify the foundation extraction and preserve parity attempts |
+| `d69dd2d5867ebd21b6ca5ce20abb89c984c18e73` | test(b10): measure rendered home and compare matched CSS states |
+| `11caf4bcd4ce1c1375db52891891771786c52dc0` | refactor(b10): extract shared buttons with states and cascade parity |
+| `e0e3c60d61578331ee392306085af86d9cbd3c61` | docs(b10): certify button parity and keep measurement failures |
+| `c8ad41056f6426abfc5f5a0794dcbe78920e3641` | refactor(b10): extract shell without changing cascade or motion guards |
+| `ea2b2310cd869c8a5d2d008609ac5437beb8550b` | docs(b10): record shell parity A-01 reproduction and physical protocol |
+| `0518646c0c429ad405371bc40789e8059f880e78` | refactor(b10): extract shared screens and source targets in original order |
+| `8ecb4698a6b75ffcce6525c98370273965cfcd79` | docs(b10): certify shared surfaces and explain retained test coverage |
+
+## Regresión final completa sobre `0518646c`
+
+Orquestador principal terminado: **51 ejecuciones**, **42 PASS positivos**, **6 negativos detectados**, **3 FAIL reales conservados**: performance Chromium/WebKit (J01/G6) y B25 (TLS). Además 17 ejecuciones de superficies ampliadas PASS, y block12 **78/78 PASS**. En el extra, los archivos etiquetados block20-chromium/block20-webkit ejecutan **ambos Chromium** porque ese runner sólo soporta Chromium; no se presenta su duplicación como cobertura WebKit. Gallery/motion/L2/visual WebKit se ejecutan con los runners que sí soportan ese motor. Primer nombre erróneo block12 queda MODULE_NOT_FOUND, separado de la ejecución corregida; no es un FAIL de producto ni se oculta.
+
+- Build/typecheck, lint y G1 **119/3429 PASS**; invariantes nueve archivos **231**, evidence-options **89**. API fotografías **202 lugares/244 imágenes**, walking **46225 pares/325 enlaces** y controles negativos del lote G6 preservados.
+- Movimiento, a11y, galería, mapa nacional, L1/L2 y D0b PASS según cada log/motor. B26 **314/314**, B30 **475/475**, B31 **281/281** por motor; B27 ocho viewports, B29 **163**, B28 **64**, B18 back **15** y regression **40**.
+- T-01 block1 **153**, block13 **150**, block14 **229**; Phase5A **50/50 por viewport**. B19 discovery/grid/contraste, B20 detalle, B6.6 fotografía, B23 retry, B18 responsive/chrome/a11y/Viaje-lugar y B21 móvil/desktop de ambos motores PASS.
+- Foco: **20 repeticiones por motor**, devolución inmediata y storage igual; mutante bloqueado falla en la primera iteración (BODY/null frente a reset-trv-b). Scroll embedded: rueda real mueve dueño visible sin escribir; mutante CSS contained mantiene 0→0 y falla en ambos motores. Imagen lejana eager falla adicionalmente I-móvil-Tokio (una descarga nueva), además del G6 que ya fallaba. Icono oculto de Días falla P0-2 por contraste1.00<1.5. No se usan sus exit1 sin revisar la causa.
+
+**Contador B24 investigado también**: histórico 1341, primera ejecución final Chromium sistema **1333/1333**, SHA del gate idéntico `abf039fb5f342c65b715c4ced218a52ff5b3fa2086bf21544bd9e53d50ac0f1e`. Delta de ocho únicamente P0-4 (354→346), ningún otro ID pierde checks. Esa categoría emite una assertion numérica por cluster visible; número dinámico no equivale a suites retiradas. Comparación inicial con mismo Chromium sistema **1341/1341**; código final con Chromium Playwright de certificación anterior **1341/1341**. Se conserva la primera muestra1333; no se atribuye la causa sólo al motor a partir de estas muestras. Las tres aperturas de clusters y todos los invariantes fijos/IDs restantes siguen cubiertos; el mutante de icono oculto también sigue detectado. No se retiró assertion ni gate para restaurar el total; inventarios/grupos y código hash publicados. Diferencias de Vitest se explican separadamente por la autoridad de main, no por este contador dinámico.
+
+## Criterios exactos que impiden Ready for Review
+
+1. **G6/J01** obligatorio: 271025>253742 (+17283). El trabajo adicional requiere ampliar alcance de carga con el prototipo/guards enumerados, conservando el presupuesto; no se propone aprobar un ceiling nuevo.
+2. **CSS/G4 y migración L4** incompletos: 457 líneas residuales, ocho colores en declaraciones sin equivalencia aprobada, valores legacy y dos consultas max-width globales/overrides por dueño. Paridad estricta de todos los PNG y de Dónde dormir WebKit no se certifica como exacta; datos y límites publicados, sin cambiar diseño para resolverlos por aproximación.
+3. **A-01**: recorrido confirmado, patrón de salto y textos requieren decisión de Producto; 312 acciones preservadas, sin implementación no autorizada.
+4. **E01–E04**: aprobación/resolución editorial verificable y posterior implementación/validación del conjunto aprobado pendientes. Propuestas literales completas listas, no aprobación implícita.
+5. **QA físico requerido**: F01–F11 Safari/iPhone/lector/gestos/zoom/selector real no ejecutados ni firmados; preparar F01–F12 no constituye aprobación.
+6. **B25 C-CLEAN / OSM-TLS** no PASS: verificación real en entorno/red con confianza TLS válida pendiente; F12 no ejecutado físicamente. No se presenta la interceptación usada por otras fixtures como prueba de disponibilidad.
+
+Fotografías/licencias de zonas siguen como pendiente externo de adquisición/verificación **separado**, excluido de ejecución automática: no se inventa su aprobación ni un requisito nuevo de alcance B10. OD-01 POST-V1/DIFERIDO se conserva y no constituye un bloqueo nuevo.
+
+Se agotaron los lotes pequeños ejecutables dentro de estas restricciones: las siguientes acciones dependen de ampliar alcance G6, equivalencias/patrón/literales de Producto o ejecución física/externa. Esta continuación aporta trabajo nuevo y regresión propia; **B10 continúa INCOMPLETO** y #177 permanece Draft. RC congelado intacto; sin integrar ni desplegar.

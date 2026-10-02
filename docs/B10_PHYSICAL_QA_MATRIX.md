@@ -1,6 +1,6 @@
 # B10 — protocolo físico preparado, no ejecutado
 
-**Estado de cada fila: NO EJECUTADO.** Preparar esta matriz no constituye aprobación de QA físico. Referencia operativa: código final de #177 indicado en B10_CONTINUATION_REPORT; adjuntar SHA exacto antes de ejecutar. No usar un despliegue del RC congelado para certificar el código nuevo; preparar una build local del SHA autorizado, sin desplegar esta PR.
+**Estado de cada fila: NO EJECUTADO.** Preparar esta matriz no constituye aprobación de QA físico. Código de producto preparado: `0518646c0c429ad405371bc40789e8059f880e78`, app tree indicado en B10_CONTINUATION_EVIDENCE. Confirmar SHA/tree y build antes de ejecutar; la documentación posterior no sustituye la build. No usar un despliegue del RC congelado para certificar el código nuevo; preparar una build local del SHA autorizado, sin desplegar esta PR.
 
 Fuentes revisadas: `design/08` G2/G3/G5/G6/G7; B10_PULIDO_MISSION, B10_RECONCILIATION_REPORT; BLOCK_26_HANDOFF (export/import, selector iOS); BLOCK_31_MISSION/HANDOFF (conservación y lector); B24 real-input (scroll/touch/teclado iOS). No se encontró un protocolo físico independiente más reciente: esta matriz concreta esos requisitos y las superficies de esta continuación.
 
