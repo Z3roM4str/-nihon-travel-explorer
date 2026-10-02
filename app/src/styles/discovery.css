@@ -1432,3 +1432,9 @@ button.search-field:focus-visible {
   font-size: var(--type-body-s-size);
   color: var(--ink-500);
 }
+
+/* A-01: contextual heading targets clear the existing sticky search field. */
+.explorer-home__collection-title,
+#japan-map-heading {
+  scroll-margin-top: calc(var(--tap-primary) + var(--space-8));
+}

@@ -195,11 +195,26 @@ export function ExplorerHome({
 
       {/* Section: Colecciones editoriales */}
       <section className="explorer-home__collections" aria-label="Colecciones editoriales">
-        {collections.map((col) => (
+        {collections.map((col, index) => (
           <div key={col.id} className="explorer-home__collection">
             <div className="explorer-home__collection-header">
-              <h3 className="explorer-home__collection-title">{col.title}</h3>
+              <h3 id={`collection-${col.id}`} tabIndex={-1} className="explorer-home__collection-title">{col.title}</h3>
               <p className="explorer-home__collection-subtitle">{col.subtitle}</p>
+              <a
+                className="link-button"
+                href={index + 1 < collections.length ? `#collection-${collections[index + 1].id}` : "#japan-map-heading"}
+                onClick={(event) => {
+                  const target = document.getElementById(event.currentTarget.hash.slice(1));
+                  if (!target) return;
+                  // Keep the native link destination without adding a history entry to the
+                  // place-detail back stack. Only headings leave the normal Tab sequence.
+                  event.preventDefault();
+                  target.focus({ preventScroll: true });
+                  target.scrollIntoView({ block: "start", behavior: "instant" });
+                }}
+              >
+                {index + 1 < collections.length ? "Saltar a la siguiente colección" : "Saltar al mapa de Japón"}
+              </a>
             </div>
             <div className="explorer-home__collection-carousel">
               {col.places.map((place: Place) => (
@@ -223,6 +238,7 @@ export function ExplorerHome({
 
       {/* Section: Mapa de Japón Card */}
       <section className="explorer-home__map-card-section" aria-label="Mapa de Japón">
+        <h2 id="japan-map-heading" tabIndex={-1} className="explorer-home__section-title">Mapa de Japón</h2>
         <button type="button" className="explorer-home__map-card" onClick={onOpenNationalMap}>
           <div className="explorer-home__map-card-icon" aria-hidden="true">
             <Icon name="mapa" size={24} />

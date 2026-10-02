@@ -67,8 +67,8 @@ export function TravellerManager({
   return (
     <div className="traveller-manager" ref={rootRef}>
       <p className="traveller-manager__sub">
-        Sólo cambia de quién es cada «Quiero ir». Los lugares planificados, los días, las fechas y el
-        alojamiento son del viaje y los compartís los dos.
+        Sólo cambia de quién es cada «Quiero ir». El plan del viaje, los días, las fechas y el
+        alojamiento son compartidos por los dos.
       </p>
 
       <p className="visually-hidden" role="status">

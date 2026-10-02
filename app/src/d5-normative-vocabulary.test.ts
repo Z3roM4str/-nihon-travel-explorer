@@ -101,7 +101,7 @@ describe("D5 — copy visible sustituido: los términos prohibidos ya no están 
       "en el viaje actual",
       "ya no forma parte del viaje actual.",
       "ya no son consecutivos en el viaje actual.",
-      "el traslado no se aplica.",
+      "Este traslado queda inactivo porque el reparto por días no es válido.",
       "Traslado principal entre estos dos puntos",
       "ningún traslado entre ciudades",
       "Eliminar traslado ${fromName} a ${toName}",
@@ -111,16 +111,18 @@ describe("D5 — copy visible sustituido: los términos prohibidos ya no están 
       expect(builder, text).toContain(text);
     }
     expect(src("components/TripBackup.tsx")).toContain("Lugares en el viaje");
-    expect(src("components/TravellerManager.tsx")).toContain("Los lugares planificados, los días, las fechas y el");
+    expect(src("components/TravellerManager.tsx")).toContain("El plan del viaje, los días, las fechas y el");
     expect(src("components/SequenceCandidateSummary.tsx")).toContain("Sin traslados en este día");
     expect(src("lib/day-order-tool.ts")).toContain("Con los traslados desconocidos no se declara un ganador.");
   });
 });
 
 describe("D5 — los valores y relaciones del copy no cambian", () => {
-  it("los conteos k/n y de traslados sin registrar siguen interpolados", () => {
+  // E01/E02/E03: approval in B10_AUTHORIZED_CONTINUATION_REPORT; preserve the ratio in partials.
+  it("los conteos N/M parciales y de conexiones sin tiempo siguen interpolados", () => {
     const builder = src("components/OrderedSequenceBuilder.tsx");
-    expect(builder).toContain("{knownLegCount}/{legCount} traslado");
+    expect(builder).toContain('{complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}');
+    expect(builder).toContain('{complete ? "" : ` de ${legCount}`}');
     expect(builder).toContain("{unknownLegCount}");
     expect(builder).toContain('{complete ? "traslados totales" : "traslados conocidos"}');
     expect(src("components/SequenceCandidateSummary.tsx")).toContain("${summary.knownLegCount}/${summary.legCount} traslado");
@@ -149,7 +151,7 @@ describe("D5 — excepciones y términos que NO se tocan", () => {
     expect(sources.slice(0, sources.indexOf("</details>"))).toContain("<dt>Grado original</dt>");
   });
   it("«reparto» (12 §11) se conserva", () => {
-    expect(src("components/OrderedSequenceBuilder.tsx")).toContain("El reparto por días no es estructuralmente válido; el traslado no se aplica.");
+    expect(src("components/OrderedSequenceBuilder.tsx")).toContain("Este traslado queda inactivo porque el reparto por días no es válido.");
     expect(src("components/OrderedSequenceBuilder.tsx")).toContain("El reparto por días no coincide exactamente con el viaje");
     expect(src("components/OrderedSequenceBuilder.tsx")).toMatch(/El reparto actual no coincide exactamente con el\s+viaje\./);
   });
@@ -192,7 +194,7 @@ describe("D5 — los cinco DDR cerrados (decisiones L1/L2/L3/R1/latente)", () =>
     expect(FORBIDDEN.test(d.label)).toBe(false);
   });
   it("TravellerManager: la frase describe lo que NO cambia al cambiar de persona (lugares, días, fechas, alojamiento)", () => {
-    expect(src("components/TravellerManager.tsx")).toMatch(/Sólo cambia de quién es cada «Quiero ir»\. Los lugares planificados, los días, las fechas y el\s+alojamiento son del viaje/);
+    expect(src("components/TravellerManager.tsx")).toMatch(/Sólo cambia de quién es cada «Quiero ir»\. El plan del viaje, los días, las fechas y el\s+alojamiento son compartidos por los dos\./);
   });
 });
 

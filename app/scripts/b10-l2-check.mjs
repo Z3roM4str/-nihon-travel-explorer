@@ -131,7 +131,7 @@ try {
     await root.locator(".day-card").first().waitFor();
     await tools.focus();
     await tools.press("Enter");
-    await section.getByText("Inactivo · El hub actual de uno de los puntos ya no coincide con el registrado.", { exact: true }).waitFor();
+    await section.getByText("Inactivo · La ciudad o región actual de uno de los puntos ya no coincide con la registrada.", { exact: true }).waitFor();
     assert.deepEqual((await stored()).interHubSegments, [inactive]);
     await capture("inactive");
     await context.close();
