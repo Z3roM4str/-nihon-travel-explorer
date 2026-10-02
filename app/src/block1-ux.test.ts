@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
+import { readGlobalCss } from "./test-css";
 import { INTEREST_LEVELS } from "./lib/interest-level";
 
 /**
@@ -11,7 +12,7 @@ import { INTEREST_LEVELS } from "./lib/interest-level";
  * makes: tap targets, non-colour signals, and a live region for the one repeated action.
  */
 
-const src = (path: string) => readFile(new URL(`./${path}`, import.meta.url), "utf8");
+const src = (path: string) => path === "App.css" ? readGlobalCss() : readFile(new URL(`./${path}`, import.meta.url), "utf8");
 
 describe("nothing the detail panel used to show was removed", () => {
   it("still renders every practical-information row", async () => {

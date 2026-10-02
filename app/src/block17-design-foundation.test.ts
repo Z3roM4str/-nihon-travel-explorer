@@ -2,7 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { readProductCss } from "./test-css";
+import { readGlobalCss, readProductCss } from "./test-css";
 /**
  * Bloque 17 (B1 — Fundación visual) regression guard.
  *
@@ -18,6 +18,7 @@ import { readProductCss } from "./test-css";
 const SRC = new URL("./", import.meta.url);
 
 async function read(relative: string): Promise<string> {
+  if (relative === "App.css") return readGlobalCss();
   return (await readFile(new URL(relative, SRC), "utf8")).replace(/\r\n/g, "\n");
 }
 
