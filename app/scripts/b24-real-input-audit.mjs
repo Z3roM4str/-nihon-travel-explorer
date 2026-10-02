@@ -212,7 +212,8 @@ async function newPage(browser, viewport, options = {}) {
 async function auditHomeScroll(page, vp) {
   await page.locator(".explorer-home").waitFor();
   await frames(page);
-  const audit = await scrollOwnerAudit(page, ".explorer-home__map-card");
+  // La tarjeta del mapa va antes de Ciudades: el último elemento de la portada es la última colección.
+  const audit = await scrollOwnerAudit(page, ".explorer-home__collection:last-child .explorer-home__collection-item:last-child");
   check("P0-1", audit.found && audit.owner, `portada: no hay ancestro con overflow-y auto/scroll (${JSON.stringify(audit)})`);
   check("P0-1", audit.contained, `portada: el contenido no cabe en el recorrido del scroll (${JSON.stringify(audit)})`);
 
@@ -221,7 +222,7 @@ async function auditHomeScroll(page, vp) {
     Okinawa: ".explorer-home__city-card:nth-child(4)",
     "Más destinos": ".explorer-home__more-card",
     colecciones: ".explorer-home__collection-item",
-    "Ver Japón en el mapa": ".explorer-home__map-card",
+    "Explora Japón en el mapa": ".explorer-home__map-card",
   };
   const seen = new Set();
   const surface = { x: Math.min(vp.width - 24, Math.max(24, vp.width * 0.5)), y: vp.height * 0.55 };
@@ -241,9 +242,16 @@ async function auditHomeScroll(page, vp) {
   check("P0-1", Math.abs(searchAfter - searchTop) <= 1, `buscador no queda fijo arriba (05 §2 pt.2): ${searchTop} → ${searchAfter}`);
   await page.screenshot({ path: `${SHOTS}/home-bottom-${vp.name}.png` });
 
-  if (await realClick(page, page.locator(".explorer-home__map-card"), "P0-1", "Ver Japón en el mapa")) {
+  // La tarjeta del mapa está arriba (antes de Ciudades): se vuelve a ella con rueda real.
+  for (let step = 0; step < 80 && !(await fullyReachable(page, ".explorer-home__map-card")); step += 1) {
+    await page.mouse.move(surface.x, surface.y);
+    await page.mouse.wheel(0, -120);
+    await page.waitForTimeout(40);
+    await frames(page);
+  }
+  if (await realClick(page, page.locator(".explorer-home__map-card"), "P0-1", "Explora Japón en el mapa")) {
     check("P0-1", await page.locator(".national").waitFor({ timeout: 4000 }).then(() => true, () => false),
-      "«Ver Japón en el mapa» no abre el mapa nacional");
+      "«Explora Japón en el mapa» no abre el mapa nacional");
   }
 }
 
@@ -262,6 +270,7 @@ async function auditCityCount(page) {
 
   // Peor caso: fotografía blanca pura y texto oculto; se leen los píxeles compuestos.
   const card = page.locator(".explorer-home__city-card").first();
+  await card.scrollIntoViewIfNeeded();
   const colors = await card.evaluate(async (element, white) => {
     const img = element.querySelector("img");
     img.src = white;

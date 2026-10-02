@@ -5,8 +5,10 @@ import { APP_ROOT } from "./lib/modern-trip.mjs";
 /**
  * P-04 (release blocker, Safari/iPhone) — el mapa nacional tiene que quedar EN PANTALLA y con salida.
  *
- * El defecto: «Ver Japón en el mapa» vive al final de la portada, así que en teléfono se llega a él
- * desplazando `.app__body--home`. Ese mismo nodo pasaba a ser el cuerpo del mapa (`overflow: hidden`)
+ * El defecto: «Ver Japón en el mapa» vivía al final de la portada, así que en teléfono se llegaba a él
+ * desplazando `.app__body--home`. (Desde entonces la tarjeta, ahora «Explora Japón en el mapa», va
+ * antes de Ciudades; el gate sigue desplazando la portada hasta el final y vuelve a la tarjeta.)
+ * Ese mismo nodo pasaba a ser el cuerpo del mapa (`overflow: hidden`)
  * y conservaba el `scrollTop`; unos `.visually-hidden` absolutos que escapaban del scroll de la hoja
  * le daban ~2250px de rango oculto, de modo que el desplazamiento no se recortaba a 0. Resultado: mapa,
  * hoja y «‹ Volver a la portada» montados ~1700px por encima de la pantalla, sin gesto posible para
@@ -96,13 +98,28 @@ async function bodyState(page) {
 
 async function scrollHomeToMapCard(page) {
   await page.locator(".explorer-home__map-card").waitFor({ state: "attached" });
-  // `.app__body--home` es `overflow-y: auto`: el desplazamiento de una persona hasta el final.
+  // `.app__body--home` es `overflow-y: auto`: el desplazamiento de una persona hasta el final…
   await page.evaluate(() => {
     const home = document.querySelector(".app__body--home");
     home.scrollTop = home.scrollHeight;
   });
   await page.waitForTimeout(200);
-  return page.evaluate(() => document.querySelector(".app__body--home").scrollTop);
+  const deepest = await page.evaluate(() => document.querySelector(".app__body--home").scrollTop);
+  // …y de vuelta a la tarjeta del mapa, que va antes de Ciudades.
+  await fingerReveal(page, ".explorer-home__map-card");
+  return deepest;
+}
+
+/** La tarjeta del mapa se ve entera en la primera pantalla, sin desplazar la portada. */
+async function mapCardInFirstScreen(page) {
+  await page.locator(".explorer-home__map-card").waitFor();
+  return page.evaluate(() => {
+    const r = document.querySelector(".explorer-home__map-card").getBoundingClientRect();
+    const home = document.querySelector(".app__body--home");
+    const cards = document.querySelectorAll(".explorer-home__map-card").length;
+    const cities = document.querySelector(".explorer-home__cities").getBoundingClientRect();
+    return { ok: cards === 1 && r.bottom <= cities.top && home.scrollTop === 0 && r.top >= 0 && r.bottom <= innerHeight, cards, top: Math.round(r.top), bottom: Math.round(r.bottom) };
+  });
 }
 
 async function newPage(browser, kind, { failGeometry = false } = {}) {
@@ -119,10 +136,12 @@ async function journey(browser, url, kind) {
   console.log(`\n── ${ENGINE.name()} · ${kind} · carga correcta ──`);
   const { context, page, errors } = await newPage(browser, kind);
   await page.goto(url);
+  const first = await mapCardInFirstScreen(page);
+  check("una sola «Explora Japón en el mapa», en la primera pantalla y antes de Ciudades", first.ok, JSON.stringify(first));
   const scrolled = await scrollHomeToMapCard(page);
-  if (kind === "phone") check("la portada se desplaza para llegar a «Ver Japón en el mapa» (condición del fallo)", scrolled > 500, `scrollTop=${scrolled}`);
+  if (kind === "phone") check("la portada se ha desplazado hasta el final antes de volver a la tarjeta", scrolled > 500, `scrollTop=${scrolled}`);
 
-  await fingerTap(page, kind, ".explorer-home__map-card", "«Ver Japón en el mapa»");
+  await fingerTap(page, kind, ".explorer-home__map-card", "«Explora Japón en el mapa»");
   await page.locator(".national").waitFor();
   await page.waitForFunction(() => document.querySelectorAll(".national-map .leaflet-interactive").length === 47, null, { timeout: 15000 }).catch(() => {});
   const state = await bodyState(page);
@@ -141,7 +160,7 @@ async function journey(browser, url, kind) {
 
   // Regiones → prefectura → Tokio, desde el mapa abierto con la portada otra vez desplazada.
   await scrollHomeToMapCard(page);
-  await fingerTap(page, kind, ".explorer-home__map-card", "«Ver Japón en el mapa» (segunda vez, geometría en caché)");
+  await fingerTap(page, kind, ".explorer-home__map-card", "«Explora Japón en el mapa» (segunda vez, geometría en caché)");
   await page.locator(".national").waitFor();
   check("segunda apertura: tampoco hereda desplazamiento", (await bodyState(page)).scrollTop === 0);
   await page.evaluate(() => {
@@ -178,7 +197,7 @@ async function geometryFailure(browser, url, kind) {
   const { context, page, errors } = await newPage(browser, kind, { failGeometry: true });
   await page.goto(url);
   await scrollHomeToMapCard(page);
-  await fingerTap(page, kind, ".explorer-home__map-card", "«Ver Japón en el mapa» (geometría caída)");
+  await fingerTap(page, kind, ".explorer-home__map-card", "«Explora Japón en el mapa» (geometría caída)");
   await page.locator(".national__map-fallback").filter({ hasText: "No se pudo cargar" }).waitFor({ timeout: 8000 }).catch(() => {});
   const fallback = await reachable(page, ".national__map-fallback");
   check("el aviso de error del mapa se ve en pantalla", fallback.ok && /No se pudo cargar/.test(await page.locator(".national__map-fallback").innerText()), fallback.why);
