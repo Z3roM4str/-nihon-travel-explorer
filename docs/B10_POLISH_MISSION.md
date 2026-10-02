@@ -1,3 +1,13 @@
+# Estado operativo B10 — reconciliación de #177, 2026-10-02
+
+**INCOMPLETO; PR Draft, sin fusionar.** Main incorporado `e124591b19f9f241a38091598faf2c1d27b554e4` mediante dos merges normales; código final `5c69a6e72060805992b85a96543835820ac56652`. Respaldo `codex/b10-backup-pre-reconcile-20261001` → `40838062062c8820ea9f7b028675d8add0c96c32`. [Informe nuevo](B10_RECONCILIATION_REPORT.md) y [manifiesto](B10_RECONCILIATION_EVIDENCE.json) contienen matriz, comandos, intentos y handoff.
+
+G6 FAIL: entrada escrita 273.259 B gzip frente a ceiling 253.742 (+19.517); presupuesto sin excepción. T-01 final y regresión afectada constan en el informe; foco B26 y scroll embedded corregidos con mutantes negativos. E01–E04 pendientes de aprobación; OD-01 ya diferida expresamente por Producto según `09` integrado de main, sin tema nuevo. CSS restante y pruebas físicas/OSM siguen pendientes. Los certificados/manifiestos anteriores mantienen su SHA histórico y no certifican esta combinación. Main posterior #190 (`8046464`) inspeccionado, sólo documentos de certificación de e124591, no incorporado.
+
+El texto que sigue conserva el estado histórico y sus autorizaciones por lote. Cualquier PASS/cierre/ratchet o recomendación anterior se interpreta en su alcance y fecha; no autoriza ampliar G6 ni aprobar literales editoriales. La instrucción actual autoriza reconciliación y tareas técnicas acotadas, sin dependencias, deploy ni refactor amplio.
+
+---
+
 # B10 — Pulido · misión, matrices y decisiones
 
 Rama `claude/b10-pulido`, creada desde el main POST-MERGE certificado `2a10ad3f11cd91a7d739e85307f04da9411bf5d1`
