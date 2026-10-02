@@ -1122,8 +1122,11 @@ button.search-field:focus-visible {
   gap: var(--space-2);
 }
 
+/* P-04 / B10: contain absolute accessible labels inside the sheet's scroll,
+   preserving the national-body scroll reset and home restoration in App. */
 .national__sheet-content {
   flex: 1;
+  position: relative;
   overflow-y: auto;
   padding: var(--space-4);
   display: flex;
