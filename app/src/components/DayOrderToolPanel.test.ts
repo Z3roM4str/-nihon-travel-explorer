@@ -69,4 +69,19 @@ describe("B9.3 — local ephemeral day-order tool", () => {
     expect(apply).toContain("setDraft((current) => withDayPlaceOrderApplied(current, dayId, expectedBaselineIds, proposalIds))");
     expect(apply.match(/setDraft\(/g)).toHaveLength(1);
   });
+
+  /**
+   * Cobertura moderna de la invariante «ninguna afirmación de optimización» que protegían las pruebas 80/92/112/123g del panel
+   * heredado retirado (D5-M1 / LEGACY_SWAP_RETIREMENT). Aquí se fija sobre la herramienta VIVA; el gate `evidence-options-check`
+   * la mide además sobre el texto renderizado.
+   */
+  it("makes no optimisation claim and never sorts, slices or ranks the alternatives it was given", async () => {
+    const OPTIMISATION = /\bmejor(es)?\b|recomend|óptim|optim|ahorr|garantizad|ranking|puntuaci|score/i;
+    for (const file of ["./DayOrderToolPanel.tsx", "../lib/day-order-tool.ts", "./SequenceCandidateSummary.tsx"]) {
+      const code = (await source(file)).replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+      const strings = [...code.matchAll(/"([^"\n]*)"|`([^`]*)`/g)].map((m) => m[1] ?? m[2]);
+      expect(strings.filter((s) => OPTIMISATION.test(s)), file).toEqual([]);
+      expect(code, file).not.toMatch(/\.sort\(|\.slice\(|\.toSorted\(/);
+    }
+  });
 });
