@@ -1,4 +1,20 @@
+# Estado operativo B10 — reconciliación de #177, 2026-10-02
+
+**INCOMPLETO; PR Draft, sin fusionar.** Main incorporado `e124591b19f9f241a38091598faf2c1d27b554e4` mediante dos merges normales; código final `5c69a6e72060805992b85a96543835820ac56652`. Respaldo `codex/b10-backup-pre-reconcile-20261001` → `40838062062c8820ea9f7b028675d8add0c96c32`. [Informe nuevo](B10_RECONCILIATION_REPORT.md) y [manifiesto](B10_RECONCILIATION_EVIDENCE.json) contienen matriz, comandos, intentos y handoff.
+
+G6 FAIL: entrada escrita 273.259 B gzip frente a ceiling 253.742 (+19.517); presupuesto sin excepción. T-01 final y regresión afectada constan en el informe; foco B26 y scroll embedded corregidos con mutantes negativos. E01–E04 pendientes de aprobación; OD-01 ya diferida expresamente por Producto según `09` integrado de main, sin tema nuevo. CSS restante y pruebas físicas/OSM siguen pendientes. Los certificados/manifiestos anteriores mantienen su SHA histórico y no certifican esta combinación. Main posterior #190 (`8046464`) inspeccionado, sólo documentos de certificación de e124591, no incorporado.
+
+El texto que sigue conserva el estado histórico y sus autorizaciones por lote. Cualquier PASS/cierre/ratchet o recomendación anterior se interpreta en su alcance y fecha; no autoriza ampliar G6 ni aprobar literales editoriales. La instrucción actual autoriza reconciliación y tareas técnicas acotadas, sin dependencias, deploy ni refactor amplio.
+
+---
+
 # Nihon Roadmap
+
+## B10 — continuación autónoma
+
+B10 ejecutado parcialmente en la misma rama/PR #177 Draft: L2b, movimiento/accesibilidad técnica, optimización fotográfica y extracción Sheet verificadas. [Estado completo y decisiones](B10_AUTONOMOUS_REPORT.md): G6 histórico incumple, App.css restante, OD-01/editorial y pruebas físicas pendientes; no declarar B10 cerrado.
+
+Main avanzó externamente a `5498756b` (#178–#181). Esta certificación permanece sobre b854/a6ec57c8; **#177 requiere reconciliación comparativa antes de integrar**. [Inventario y recomendación](B10_AUTONOMOUS_REPORT.md#avance-concurrente-de-main-detectado-al-cierre).
 
 ## Foundation — complete
 

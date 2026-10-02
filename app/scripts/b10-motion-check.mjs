@@ -1,7 +1,9 @@
+import { readGlobalCss } from "./lib/product-css.mjs";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
 import { preview } from "vite";
+import { motionContractErrors } from "./lib/motion-contract.mjs";
 
 /**
  * Gate B10.1 — auditoría de movimiento (`03 §6`, roadmap B10: «sólo los cinco movimientos nombrados;
@@ -13,9 +15,9 @@ import { preview } from "vite";
  *
  * Es un **gate de inventario con trinquete**: cada `@keyframes`, `transition` y `animation` de TODO el CSS de producto
  * (todos los `.css` bajo `src/`, no sólo los cuatro archivos de antes de B10.4) está clasificado abajo. Lo no clasificado falla.
- * Los seis restantes (antes «DDR B10-M1…M6») no son movimientos nombrados de `03 §6`: son **transiciones funcionales de estado**
- * (aviso, telón, pliegue, foco, revelado de imagen, redimensión de hoja). Tienen nombre y especificación formales en
- * `docs/B10_MOTION_SPEC.md`; este gate fija sus valores exactos (S08) y que con `prefers-reduced-motion` duran ≤ 100 ms.
+ * Reconciliation: docs/design/03 §6 and 08 precedence retain only the named catalog.
+ * Main's descriptive B10_MOTION_SPEC does not grant review approval; S08 now checks the
+ * normative invariant, plus a mutation that reintroduces a forbidden transition.
  *
  * Uso: `npm run build && node scripts/b10-motion-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
  */
@@ -32,14 +34,9 @@ const NAMED = {
 };
 /** Skeleton de carga: único movimiento no disparado por la persona permitido. */
 const SKELETON = ["card-shimmer"];
-/** No son movimiento nombrado: DDR de B10 (se conservan, fijados). */
-const DDR_KEYFRAMES = { "toast-in": "B10-M1 · notice-enter", "onboarding-fade": "B10-M2 · scrim-fade" };
-const DDR_TRANSITIONS = {
-  ".filter-group__chevron": "B10-M3 · disclosure-turn (giro del chevron de plegado, transform)",
-  ".place-card": "B10-M4 · focus-affordance (foco: box-shadow/border-color)",
-  ".place-card__image": "B10-M5 · image-reveal (fundido de carga de la imagen, opacity)",
-  ".national__sheet": "B10-M6 · sheet-resize (altura de la hoja del mapa nacional)",
-};
+// Reconciled against 03 §6: state changes outside the named catalog are instantaneous.
+const DDR_KEYFRAMES = {};
+const DDR_TRANSITIONS = {};
 
 let pass = 0;
 const failures = [];
@@ -81,7 +78,7 @@ for (const f of files) {
     }
   }
 }
-const appCss = read("../src/App.css");
+const appCss = readGlobalCss();
 
 await ck("S01", "@keyframes: sólo sheet-rise, mark, skeleton y los DDR registrados", async () => {
   const allowed = new Set(["sheet-rise", "place-card-save-mark", ...SKELETON, ...Object.keys(DDR_KEYFRAMES)]);
@@ -126,7 +123,7 @@ await ck("S05", "valores de press y mark según 03 §6", async () => {
 await ck("S06", "regla global prefers-reduced-motion: animaciones y transiciones ≤ 100 ms, scroll-behavior auto", async () => {
   const m = /@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{([^}]*)\}/.exec(appCss);
   ok(m, "falta la regla global");
-  ok(/animation-duration:\s*0\.001ms !important/.test(m[1]) && /transition-duration:\s*0\.001ms !important/.test(m[1]) && /scroll-behavior:\s*auto !important/.test(m[1]), "regla global incompleta");
+  ok(/animation:\s*none !important/.test(m[1]) && /transition:\s*none !important/.test(m[1]) && /scroll-behavior:\s*auto !important/.test(m[1]), "regla global incompleta");
 });
 await ck("S07", "JS: todo movimiento programático respeta reduced-motion (mapa, galería)", async () => {
   const gal = read("../src/components/PlaceGallery.tsx");
@@ -140,42 +137,17 @@ await ck("S07", "JS: todo movimiento programático respeta reduced-motion (mapa,
   ok(!/behavior:\s*"smooth"/.test(all), "scroll smooth no guardado en superficies de Viaje/App/ficha");
 });
 
-await ck("S08", "transiciones funcionales (B10-M1…M6): nombre, valores y disparador exactos de docs/B10_MOTION_SPEC.md", async () => {
-  const css = files.map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, "")).join("\n");
-  const rule = (selector) => {
-    const i = css.indexOf(`\n${selector} {`);
-    ok(i >= 0, `falta la regla ${selector}`);
-    return css.slice(i, css.indexOf("}", i));
-  };
-  const frames = (name) => {
-    const i = css.indexOf(`@keyframes ${name}`);
-    ok(i >= 0, `falta @keyframes ${name}`);
-    return css.slice(i, css.indexOf("\n}\n", i)).replace(/\s+/g, " ");
-  };
-  // notice-enter (B10-M1): opacidad 0→1 y subida de 8 px, 0,2 s ease-out, sólo al aparecer el aviso
-  ok(/from \{ opacity: 0; transform: translateY\(8px\); \} to \{ opacity: 1; transform: translateY\(0\); \}/.test(frames("toast-in")), "notice-enter: fotogramas ≠ spec");
-  ok(/animation:\s*toast-in 0\.2s ease-out;/.test(css), "notice-enter: duración/curva ≠ 0,2 s ease-out");
-  // scrim-fade (B10-M2): opacidad 0→1, 0,18 s ease-out, sólo en el telón del onboarding; sin animación con reduced-motion
-  ok(/from \{ opacity: 0; \} to \{ opacity: 1; \}/.test(frames("onboarding-fade")), "scrim-fade: fotogramas ≠ spec");
-  ok(/animation:\s*onboarding-fade 0\.18s ease-out;/.test(css), "scrim-fade: duración/curva ≠ 0,18 s ease-out");
-  ok(/prefers-reduced-motion: reduce\) \{[^}]*animation: none;/.test(read("../src/components/Onboarding.css").replace(/\/\*[\s\S]*?\*\//g, "")), "scrim-fade: sin `animation: none` en reduced-motion");
-  // disclosure-turn (B10-M3): giro del chevron al plegar/desplegar, --dur-fast
-  ok(/transition:\s*transform var\(--dur-fast\) var\(--ease-standard\);/.test(rule(".filter-group__chevron")), "disclosure-turn ≠ transform --dur-fast");
-  // focus-affordance (B10-M4): sombra y borde de la tarjeta, --dur-base, SIN :hover (03 §6)
-  const card = rule(".place-card").replace(/\s+/g, " ");
-  ok(/transition: box-shadow var\(--dur-base\) var\(--ease-standard\), border-color var\(--dur-base\) var\(--ease-standard\);/.test(card), "focus-affordance ≠ box-shadow/border-color --dur-base");
-  ok(!/\.place-card:hover/.test(css), "la tarjeta tiene un estado :hover (prohibido, 03 §6)");
-  // image-reveal (B10-M5): opacidad 0→1 de la imagen al cargar, --dur-base
-  const img = rule(".place-card__image").replace(/\s+/g, " ");
-  ok(/opacity: 0;/.test(img) && /transition: opacity var\(--dur-base\) var\(--ease-standard\);/.test(img), "image-reveal ≠ opacity 0→1 --dur-base");
-  // sheet-resize (B10-M6): altura de la hoja del mapa nacional, --dur-base
-  ok(/transition:\s*height var\(--dur-base\) var\(--ease-standard\);/.test(rule(".national__sheet")), "sheet-resize ≠ height --dur-base");
+await ck("S08", "03 §6: catalogue across all CSS; unknown motion mutation is rejected", async () => {
+  const css = files.map(f => read(f)).join("\n");
+  const errors = motionContractErrors(css);
+  ok(errors.length === 0, errors.join("; "));
+  ok(motionContractErrors(css + "\n.place-card { transition: opacity 1s; }").length > 0, "mutation escaped the inventory");
 });
 
 // ───────────── Navegador
 const server = await preview({ root: APP, preview: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
 const url = server.resolvedUrls.local[0];
-const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
+const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : process.env.NIHON_WEBKIT_PATH;
 const browser = await (BROWSER === "webkit" ? webkit : chromium).launch({ headless: true, ...(exe ? { executablePath: exe } : {}) });
 console.log(`# navegador: ${BROWSER} ${browser.version()}`);
 
@@ -214,9 +186,9 @@ for (const reduced of [false, true]) {
     await page.locator(".sheet").first().waitFor();
     const anims = (await live(page)).filter((a) => a.name === "sheet-rise");
     const cs = await page.locator(".sheet").first().evaluate((el) => ({ name: getComputedStyle(el).animationName, dur: parseFloat(getComputedStyle(el).animationDuration) * 1000 }));
-    ok(cs.name === "sheet-rise", `animationName ${cs.name}`);
-    if (reduced) ok(cs.dur <= 100 && anims.every((a) => a.dur <= 100), `reduced: ${cs.dur} ms`);
+    if (reduced) ok(cs.name === "none" && anims.length === 0, `reduced: ${cs.name}, ${anims.length} animated transforms`);
     else {
+      ok(cs.name === "sheet-rise", `animationName ${cs.name}`);
       ok(anims.length >= 1, "sin animación sheet-rise viva");
       for (const a of anims) ok(Math.abs(a.dur - 320) < 1, `duración ${a.dur} ms`);
     }
@@ -230,15 +202,15 @@ for (const reduced of [false, true]) {
     const all = await live(page);
     const mark = all.filter((a) => a.name === "place-card-save-mark");
     const cs = await page.locator(".place-card__save--on .place-card__save-icon").first().evaluate((el) => ({ name: getComputedStyle(el).animationName, dur: parseFloat(getComputedStyle(el).animationDuration) * 1000 }));
-    ok(cs.name === "place-card-save-mark", `animationName ${cs.name}`);
-    if (reduced) ok(cs.dur <= 100 && mark.every((a) => a.dur <= 100), `reduced: ${cs.dur} ms`);
+    if (reduced) ok(cs.name === "none" && mark.length === 0, `reduced: ${cs.name}, ${mark.length} animated transforms`);
     else {
+      ok(cs.name === "place-card-save-mark", `animationName ${cs.name}`);
       ok(mark.length >= 1, "sin animación mark viva");
       for (const a of mark) ok(Math.abs(a.dur - 220) < 1, `mark ${a.dur} ms`);
     }
     for (const a of all) {
       if (a.name === "place-card-save-mark") continue;
-      ok(["toast-in", "card-shimmer"].includes(a.name) || /transform|opacity|background|color|box-shadow|border/.test(a.name), `animación inesperada: ${a.name}`);
+      ok(["card-shimmer", "transform"].includes(a.name), `animación inesperada: ${a.name}`);
       if (reduced) ok(a.dur <= 100, `${a.name} dura ${a.dur} ms con reduced-motion`);
     }
   });
@@ -270,12 +242,11 @@ for (const reduced of [false, true]) {
   await context.close();
 }
 
-await ck("B-onboarding", "onboarding: fundido clasificado (B10-M2); con reduced-motion sin animación", async () => {
+await ck("B-onboarding", "onboarding: state change is instantaneous in normal and reduced motion", async () => {
   for (const reduced of [false, true]) {
     const { context, page } = await boot(reduced, { onboarding: true });
     const cs = await page.locator(".onboarding").first().evaluate((el) => ({ name: getComputedStyle(el).animationName, dur: parseFloat(getComputedStyle(el).animationDuration) * 1000 }));
-    if (reduced) ok(cs.name === "none" || cs.dur <= 100, `onboarding con reduced-motion: ${cs.name} ${cs.dur} ms`);
-    else ok(cs.name === "onboarding-fade", `onboarding sin fundido (¿cambió el inventario?): ${cs.name}`);
+    ok(cs.name === "none", `onboarding: ${cs.name}`);
     await context.close();
   }
 });

@@ -1,0 +1,43 @@
+Derivados de tarjeta (-800w.webp) encontrados: 244
+
+Las 10 imágenes más claras (banda inferior):
+  208.6  /images/places/JP-185/furuzamami-beach-800w.webp
+  191.0  /images/places/JP-193/yonehara-beach-sand-and-mountains-800w.webp
+  189.6  /images/places/JP-084/shisen-do-800w.webp
+  180.5  /images/places/JP-152/benesse-house-museum-800w.webp
+  176.8  /images/places/JP-143/koyasan-shukubo-room-guest-experience-800w.webp
+  170.9  /images/places/JP-196/taketomi-water-buffalo-cart-ride-800w.webp
+  168.1  /images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp
+  167.7  /images/places/JP-081/ryoan-ji-800w.webp
+  166.3  /images/places/JP-019/tokyo-skytree-800w.webp
+  163.5  /images/places/JP-187/aharen-beach-tokashiki-800w.webp
+
+=== 390 · 1 columna · 4:3 — franja de texto: 56.0px de los 273.0px de fotografía (21%), insignia ausente ===
+OK   scrim efectivo ≥0.6 bajo toda la banda (mín=0.899 máx=0.944 sobre 56 filas)
+Contraste sobre las 10 fotografías más claras (mínimo 4.5:1):
+  OK   nombre 14.41:1 · categoría·zona 10.17:1  /images/places/JP-185/furuzamami-beach-800w.webp
+  OK   nombre 14.98:1 · categoría·zona 10.52:1  /images/places/JP-193/yonehara-beach-sand-and-mountains-800w.webp
+  OK   nombre 14.14:1 · categoría·zona 10.01:1  /images/places/JP-084/shisen-do-800w.webp
+  OK   nombre 15.09:1 · categoría·zona 10.59:1  /images/places/JP-152/benesse-house-museum-800w.webp
+  OK   nombre 14.83:1 · categoría·zona 10.43:1  /images/places/JP-143/koyasan-shukubo-room-guest-experience-800w.webp
+  OK   nombre 15.07:1 · categoría·zona 10.57:1  /images/places/JP-196/taketomi-water-buffalo-cart-ride-800w.webp
+  OK   nombre 15.65:1 · categoría·zona 10.92:1  /images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp
+  OK   nombre 15.70:1 · categoría·zona 10.95:1  /images/places/JP-081/ryoan-ji-800w.webp
+  OK   nombre 15.48:1 · categoría·zona 10.82:1  /images/places/JP-019/tokyo-skytree-800w.webp
+  OK   nombre 15.29:1 · categoría·zona 10.70:1  /images/places/JP-187/aharen-beach-tokashiki-800w.webp
+
+=== 1200 · 2 columnas · 16:9 — franja de texto: 82.0px de los 166.2px de fotografía (49%), insignia ausente ===
+OK   scrim efectivo ≥0.6 bajo toda la banda (mín=0.817 máx=0.935 sobre 83 filas)
+Contraste sobre las 10 fotografías más claras (mínimo 4.5:1):
+  OK   nombre 12.78:1 · categoría·zona 9.15:1  /images/places/JP-185/furuzamami-beach-800w.webp
+  OK   nombre 14.17:1 · categoría·zona 10.02:1  /images/places/JP-193/yonehara-beach-sand-and-mountains-800w.webp
+  OK   nombre 14.75:1 · categoría·zona 10.38:1  /images/places/JP-084/shisen-do-800w.webp
+  OK   nombre 15.21:1 · categoría·zona 10.66:1  /images/places/JP-152/benesse-house-museum-800w.webp
+  OK   nombre 15.21:1 · categoría·zona 10.66:1  /images/places/JP-143/koyasan-shukubo-room-guest-experience-800w.webp
+  OK   nombre 14.86:1 · categoría·zona 10.45:1  /images/places/JP-196/taketomi-water-buffalo-cart-ride-800w.webp
+  OK   nombre 14.18:1 · categoría·zona 10.03:1  /images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp
+  OK   nombre 13.22:1 · categoría·zona 9.43:1  /images/places/JP-081/ryoan-ji-800w.webp
+  OK   nombre 14.30:1 · categoría·zona 10.09:1  /images/places/JP-019/tokyo-skytree-800w.webp
+  OK   nombre 13.75:1 · categoría·zona 9.76:1  /images/places/JP-187/aharen-beach-tokashiki-800w.webp
+
+Todas las mediciones dentro de contrato.

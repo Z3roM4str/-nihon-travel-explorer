@@ -7,7 +7,7 @@ import { MARKER_HIT_SIZE, groupScreenPoints } from "../lib/map-grouping";
 import { resolveHubView } from "../lib/hub-view";
 import { chromeClearingShift, type Point, type Rect } from "../lib/map-chrome";
 
-import "./PlaceMap.css";
+// CSS stays synchronous in DeferredPlaceMap to preserve the cascade and loading box.
 const JAPAN_FALLBACK_CENTER: [number, number] = [36.5, 138];
 const JAPAN_FALLBACK_ZOOM = 5;
 const SELECTION_ZOOM = 14;
@@ -139,8 +139,9 @@ function moveProgrammatically(map: L.Map, move: () => void) {
 function chromeRects(map: L.Map): Rect[] {
   const container = map.getContainer();
   const origin = container.getBoundingClientRect();
+  const owner = container.closest(".app__map-area") ?? container.parentElement;
   const elements = [
-    ...(container.parentElement?.querySelectorAll("[data-map-chrome]") ?? []),
+    ...(owner?.querySelectorAll("[data-map-chrome]") ?? []),
     ...container.querySelectorAll(".leaflet-control"),
   ];
   return elements

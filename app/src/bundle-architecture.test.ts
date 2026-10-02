@@ -43,11 +43,10 @@ const DEFERRED = ["OrderedSequenceBuilder", "ZoneComparison"] as const;
 /**
  * The surfaces that must STAY in the entry chunk.
  *
- * `NationalExplorer` is what Nihon renders first — `INITIAL_VIEW.mode` is `"national"` — and it
- * owns the map. Deferring either would trade a real first paint for a smaller number, which is the
- * trade this block exists to refuse.
+ * `NationalExplorer` keeps the home and the interactive national shell synchronous.
+ * B10 authorizes deferring only its Leaflet leaves after explicit map interaction.
  */
-const CRITICAL = ["NationalExplorer", "PlaceMap", "PlaceList", "PlaceDetail"] as const;
+const CRITICAL = ["NationalExplorer", "PlaceList", "PlaceDetail"] as const;
 
 describe("Block 12 — the split exists, and where it was argued to be", () => {
   it("App.tsx reaches both deferred surfaces only through a dynamic import", async () => {
@@ -90,23 +89,33 @@ describe("Block 12 — the critical path was left alone, on purpose", () => {
     }
   });
 
-  it("the map stays on the critical path, because the first screen is the national view", async () => {
+  // B10 authorized continuation from c868bd3: home is synchronous; map modules wait for interaction.
+  it("the synchronous national shell delegates the two Leaflet leaves to interaction boundaries", async () => {
     const app = await read("App.tsx");
     expect(app).toMatch(/INITIAL_VIEW\s*:\s*ViewState\s*=\s*\{\s*mode:\s*"national"/);
-    // NationalExplorer owns NationalMap, which owns Leaflet. Static all the way down.
+    expect(app).toMatch(/mapOpen: false/);
     const explorer = withoutComments(await read("components/NationalExplorer.tsx"));
-    expect(explorer).toMatch(/import\s*\{\s*NationalMap\s*\}\s*from/);
+    expect(explorer).not.toMatch(/import\s*\{\s*NationalMap\s*\}\s*from/);
+    expect(explorer).toContain('useMapModule()');
+    const loader = withoutComments(await read("components/map-loader.ts"));
+    expect(loader).toContain('import("./map-runtime")');
+    const runtime = withoutComments(await read("components/map-runtime.ts"));
+    expect(runtime).toContain('export { NationalMap } from "./NationalMap"');
+    expect(runtime).toContain('export { PlaceMap } from "./PlaceMap"');
+    expect(app).not.toMatch(/import\s*\{\s*PlaceMap\s*\}\s*from/);
     const map = withoutComments(await read("components/NationalMap.tsx"));
     expect(map).toMatch(/from\s*"react-leaflet"/);
     expect(map).not.toMatch(/import\(/);
+
   });
 });
 
 describe("Block 12 — the split does not move the wait onto the user", () => {
-  it("both chunks are prefetched once the browser is idle after first paint", async () => {
+  it("both non-map surfaces warm after paint without reaching Leaflet", async () => {
     const app = withoutComments(await read("App.tsx"));
     expect(app).toMatch(/function prefetchOnDemandSurfaces/);
     expect(app).toMatch(/requestIdleCallback/);
+    expect(withoutComments(await read("components/ZoneComparison.tsx"))).not.toMatch(/from "react-leaflet"|from "leaflet"/);
     // A browser without requestIdleCallback must still warm them.
     expect(app).toMatch(/setTimeout\(warm/);
     expect(app).toMatch(/useEffect\(\(\) => prefetchOnDemandSurfaces\(\), \[\]\)/);
@@ -142,5 +151,17 @@ describe("Block 12 — the deferred surfaces still mount only while open", () =>
     expect(app).toMatch(
       /<Suspense fallback=\{null\}>\s*\{zonesVisited && zonesHub && \(/
     );
+  });
+});
+
+
+describe("B10 G6 — no static map import bypasses the boundary", () => {
+  it("only map leaves and the already deferred zone surface import Leaflet", async () => {
+    const allowed = new Set(["PlaceMap.tsx", "NationalMap.tsx", "ZoneMap.tsx"]);
+    for (const file of await sourceFiles()) {
+      const code = withoutComments(await readFile(file, "utf8"));
+      if (/from\s*["'](?:leaflet|react-leaflet)["']/.test(code)) expect(allowed.has(file.split("/").pop()!), file).toBe(true);
+      if (!allowed.has(file.split("/").pop()!)) expect(code).not.toMatch(/import\s*\{[^}]*\b(?:PlaceMap|NationalMap)\b[^}]*\}\s*from/);
+    }
   });
 });

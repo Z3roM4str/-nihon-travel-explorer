@@ -276,7 +276,6 @@
   justify-content: center;
   padding: 1rem;
   background: rgba(30, 24, 18, 0.55);
-  animation: onboarding-fade 0.18s ease-out;
 }
 
 .onboarding__actions .button--primary {

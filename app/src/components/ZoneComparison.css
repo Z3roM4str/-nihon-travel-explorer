@@ -405,6 +405,8 @@
 .zone-source__link {
   /* The whole column is clickable; an underlined link is what says this one goes elsewhere. */
   text-decoration: underline;
+  display: inline-flex; align-items: center; flex-wrap: wrap;
+  min-width: var(--tap-min); min-height: var(--tap-min);
 }
 
 /* The tier is a word, never a colour or an icon on its own. */

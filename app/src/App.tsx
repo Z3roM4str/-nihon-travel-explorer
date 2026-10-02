@@ -1,10 +1,16 @@
 /* B10.4: las hojas globales van PRIMERO; el CSS que viaja con cada componente se importa desde el componente y, al evaluarse
    después, queda siempre DESPUÉS de las globales (lo migrado sólo puede ganar a una global de igual especificidad, nunca al
    revés; la equivalencia de estilo computado se comprueba con scripts/css-equivalence-check.mjs). */
+import "./styles/foundation.css";
+import "./styles/buttons.css";
+import "./styles/shell.css";
+import "./components/PlaceDetailFrame.css";
 import "./App.css";
+import "./styles/secondary-screens.css";
+import "./styles/alerts.css";
 import "./styles/discovery.css";
 import "./styles/trip-overview.css";
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { getAllPlaces, getHubs, getNearby, getPlaceById, getPlacesByHub } from "./data/store";
 import type { NavigationRegion } from "./data/geography";
 import { getPrefectureByCode } from "./data/geography";
@@ -13,7 +19,7 @@ import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
 import { ExplorerHome } from "./components/ExplorerHome";
 import { PlaceList } from "./components/PlaceList";
-import { PlaceMap } from "./components/PlaceMap";
+import { DeferredPlaceMap } from "./components/DeferredPlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
 import { Icon } from "./icons/Icon";
 import { SelectionPanel } from "./components/SelectionPanel";
@@ -54,7 +60,7 @@ import { deviceStorage } from "./lib/device-storage";
  * Bloque 18: los dos dejan de ser overlays (`02 §D2`, gate 11) y pasan a ser el contenido de las
  * dos secciones de «Viaje», pero la razón de la carga diferida no cambia — siguen sin estar en la
  * ruta crítica de la primera pintura, y `prefetchOnDemandSurfaces` sigue calentando ambos chunks
- * en cuanto el navegador está ocioso, así que el primer cambio a «Viaje» ya los encuentra en caché.
+ * tras la primera pintura; la portada no precarga Leaflet.
  */
 const loadOrderedSequenceBuilder = () =>
   import("./components/OrderedSequenceBuilder").then((m) => ({ default: m.OrderedSequenceBuilder }));
@@ -163,12 +169,12 @@ function useMediaQuery(query: string): boolean {
 }
 
 /**
- * Block 12 — warm the two on-demand chunks once the browser is idle after first paint.
+ * Block 12 — warm the two non-map surfaces after first paint.
  *
  * Without this, splitting would simply move the wait from load to click, which is a worse trade:
  * a slower first paint is shared by everyone, but a stalled overlay lands on the one person who
- * asked for it. Idle time after paint is free, and by the time any click is possible the chunks
- * are in the HTTP cache.
+ * asked for it. The zone map has its own interaction boundary; warming the list/comparison controls
+ * never fetches Leaflet. Both existing prefetches remain cancellable and best-effort.
  *
  * Deliberately best-effort. `requestIdleCallback` is missing on some browsers (Safari shipped it
  * late), so it falls back to a timeout; a rejected import is swallowed, because a failed prefetch
@@ -236,6 +242,8 @@ export default function App() {
   const [globalSearchRestoreScrollTop, setGlobalSearchRestoreScrollTop] = useState(0);
   /** La búsqueda global conserva su propio scroll aunque la Sheet se desmonte durante una ficha. */
   const globalSearchScrollTopRef = useRef(0);
+  const nationalBodyRef = useRef<HTMLDivElement>(null);
+  const nationalReturnRef = useRef<{ scrollTop: number } | null>(null);
   /** Contexto explícito de la pila de fichas; no se infiere del hub activo. */
   /** `"home-collection"` (DDR-B24-3, resuelta): abrir un lugar desde una colección de la
    * portada se comporta como la búsqueda global (DDR-B21-05) — no cambia implícitamente el hub/
@@ -327,6 +335,7 @@ export default function App() {
 
   // Block 12. Runs once, after mount, and never blocks anything.
   useEffect(() => prefetchOnDemandSurfaces(), []);
+
   /**
    * Block 5 — `savedIds` is now DERIVED: a place is in the shared shortlist when at least one
    * traveller wants it. Everything downstream (the planner, the map, the saved list) keeps
@@ -381,6 +390,23 @@ export default function App() {
   /** Exactly one of these is non-null; the union above makes the other state unreachable. */
   const activeHub = view.mode === "hub" ? view.hub : null;
   const nationalView = view.mode === "national" ? view : null;
+  const nationalMapOpen = nationalView?.mapOpen;
+  // The home and map share an owner: retain home scroll, but enter the map at its origin.
+  useLayoutEffect(() => {
+    if (nationalMapOpen === undefined) {
+      nationalReturnRef.current = null;
+      return;
+    }
+    const owner = nationalBodyRef.current;
+    if (!owner) return;
+    if (nationalMapOpen) {
+      owner.scrollTop = 0;
+    } else if (nationalReturnRef.current) {
+      owner.scrollTop = nationalReturnRef.current.scrollTop;
+      nationalReturnRef.current = null;
+      owner.querySelector<HTMLButtonElement>(".explorer-home__map-card")?.focus({ preventScroll: true });
+    }
+  }, [nationalMapOpen]);
   const hubPlaces = useMemo(
     () => (activeHub ? getPlacesByHub(activeHub) : EMPTY_PLACES),
     [activeHub]
@@ -1245,7 +1271,8 @@ export default function App() {
                   </aside>
 
                   <div className="app__map-area">
-                    <PlaceMap
+                    <DeferredPlaceMap
+                      active={hasMapRail || mobilePane === "map"}
                       places={filteredPlaces}
                       hubPlaces={hubPlaces}
                       activeHub={activeHub}
@@ -1281,6 +1308,7 @@ export default function App() {
             ) : (
               nationalView && (
                 <div
+                  ref={nationalBodyRef}
                   className={`app__body app__body--national${
                     nationalView.mapOpen ? "" : " app__body--home"
                   }`}
@@ -1300,9 +1328,10 @@ export default function App() {
                     <ExplorerHome
                       onEnterHub={enterHub}
                       onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
-                      onOpenNationalMap={() =>
-                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null })
-                      }
+                      onOpenNationalMap={() => {
+                        nationalReturnRef.current = { scrollTop: nationalBodyRef.current?.scrollTop ?? 0 };
+                        setView({ mode: "national", mapOpen: true, region: null, prefectureCode: null });
+                      }}
                       onSelectPlace={(id) => selectPlace(id, "explorar", null, "home-collection")}
                       onToggleSaved={toggleSavedWithFeedback}
                       savedIds={activeInterestedIds}

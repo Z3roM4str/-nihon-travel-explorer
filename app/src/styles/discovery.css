@@ -191,6 +191,7 @@ button.search-field:focus-visible {
 }
 
 .filter-group__summary {
+  min-height: var(--tap-min);
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -215,7 +216,6 @@ button.search-field:focus-visible {
   margin-inline-start: auto;
   flex-shrink: 0;
   color: var(--ink-500);
-  transition: transform var(--dur-fast) var(--ease-standard);
 }
 
 .filter-group[open] > .filter-group__summary .filter-group__chevron {
@@ -424,9 +424,6 @@ button.search-field:focus-visible {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--elev-1);
-  transition:
-    box-shadow var(--dur-base) var(--ease-standard),
-    border-color var(--dur-base) var(--ease-standard);
 }
 
 .place-card:focus-within {
@@ -468,7 +465,6 @@ button.search-field:focus-visible {
   object-fit: cover;
   display: block;
   opacity: 0;
-  transition: opacity var(--dur-base) var(--ease-standard);
 }
 
 .place-card__image[data-state="loaded"] {
@@ -685,10 +681,6 @@ button.search-field:focus-visible {
   justify-content: center;
   padding: 0;
   box-shadow: var(--elev-1);
-  transition:
-    background var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard),
-    transform var(--dur-fast) var(--ease-standard);
 }
 
 .place-card__save-icon {
@@ -1072,7 +1064,6 @@ button.search-field:focus-visible {
   box-shadow: var(--elev-2);
   display: flex;
   flex-direction: column;
-  transition: height var(--dur-base) var(--ease-standard);
   max-width: 1440px;
   margin: 0 auto;
 }
@@ -1088,6 +1079,7 @@ button.search-field:focus-visible {
 
 .national__sheet--75 {
   height: 75vh;
+  max-height: calc(100% - var(--tap-primary) - var(--space-6));
 }
 
 .national__sheet-handle-row {
@@ -1439,4 +1431,10 @@ button.search-field:focus-visible {
   font-family: var(--font-record);
   font-size: var(--type-body-s-size);
   color: var(--ink-500);
+}
+
+/* A-01: contextual heading targets clear the existing sticky search field. */
+.explorer-home__collection-title,
+#japan-map-heading {
+  scroll-margin-top: calc(var(--tap-primary) + var(--space-8));
 }

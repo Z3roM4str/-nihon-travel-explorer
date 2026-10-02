@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: all currently disclosed controls reachable in the focus cycle
+
+26 !== 51
+
+    at auditKeyboard (file:///workspace/nihon/app/scripts/b10-l1-check.mjs:94:14)
+    at async checkCount (file:///workspace/nihon/app/scripts/b10-l1-check.mjs:107:24)
+    at async file:///workspace/nihon/app/scripts/b10-l1-check.mjs:121:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 26,
+  expected: 51,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

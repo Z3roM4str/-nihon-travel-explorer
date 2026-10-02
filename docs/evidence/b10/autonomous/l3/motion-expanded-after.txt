@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Error: strict mode violation: locator('.tab-bar__item, .nav-rail__item').filter({ hasText: 'Nosotros' }) resolved to 2 elements:
+    1) <button type="button" class="nav-rail__item ">…</button> aka locator('button').nth(3)
+    2) <button type="button" class="tab-bar__item ">…</button> aka getByRole('button', { name: 'Nosotros', exact: true })
+
+Call log:
+[2m  - waiting for locator('.tab-bar__item, .nav-rail__item').filter({ hasText: 'Nosotros' })[22m
+
+    at /workspace/nihon/app/scripts/b10-motion-check.mjs:45:86 {
+  log: [
+    "  - waiting for locator('.tab-bar__item, .nav-rail__item').filter({ hasText: 'Nosotros' })"
+  ]
+}
+
+Node.js v24.19.0

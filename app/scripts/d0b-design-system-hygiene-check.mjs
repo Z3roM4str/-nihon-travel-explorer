@@ -1,3 +1,4 @@
+import { readGlobalCss } from "./lib/product-css.mjs";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
@@ -25,7 +26,7 @@ import { preview } from "vite";
 
 const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
 const REDUCED = process.env.NIHON_REDUCED_MOTION === "1";
-const executablePath = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
+const executablePath = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : process.env.NIHON_WEBKIT_PATH;
 const APP = fileURLToPath(new URL("..", import.meta.url));
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const MOBILE = [320, 360, 390, 430];
@@ -73,14 +74,15 @@ const ruleBlock = (css, selector) => {
 
 // ─────────────────────────────── estáticos (CSS / HTML)
 // B10.4: el CSS de las superficies migradas vive junto a su componente (`src/components/*.css`); «App.css» a efectos de este gate
-// es el CSS de la app salvo `styles/`: App.css + el de los componentes (los invariantes de D0b no dependen de dónde esté la regla).
+// comprende los imports globales reales en orden y componentes, sin duplicar discovery/trip-overview.
 const componentCss = readdirSync(new URL("../src/components/", import.meta.url))
   .filter((f) => f.endsWith(".css"))
   .sort()
   .map((f) => read(`../src/components/${f}`))
   .join("\n");
-const appCss = read("../src/App.css") + "\n" + componentCss;
-const discoveryCss = read("../src/styles/discovery.css") + read("../src/styles/trip-overview.css");
+const appCss = readGlobalCss() + "\n" + componentCss;
+// Both are already in the actual global imports: count every declaration once.
+const discoveryCss = "";
 const html = read("../index.html");
 
 await ck("A01", "las reglas de input/select de Viaje usan --type-body-size (sin font-size literal)", async () => {

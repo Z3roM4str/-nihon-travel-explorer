@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
-import { readProductCss } from "./test-css";
+import { readGlobalCss, readProductCss } from "./test-css";
 /**
  * Bloque 18 — B2 "Shell de navegación" (`docs/design/10_ROADMAP_DE_BLOQUES.md`).
  *
@@ -24,6 +24,7 @@ import { readProductCss } from "./test-css";
  */
 
 async function read(path: string): Promise<string> {
+  if (path === "App.css") return readGlobalCss();
   return (await readFile(new URL(`./${path}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 }
 

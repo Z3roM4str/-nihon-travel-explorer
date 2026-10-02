@@ -13,7 +13,7 @@ const DRAFT_KEY = "nihon.manualPlanningDraft";
 const engine = process.env.NIHON_BROWSER === "webkit" ? webkit : chromium;
 const server = await preview({ root: fileURLToPath(new URL("..", import.meta.url)), preview: { host: "127.0.0.1", port: 0 } });
 const url = `http://127.0.0.1:${server.httpServer.address().port}`;
-const browser = await engine.launch({ executablePath: engine === chromium ? process.env.NIHON_CHROMIUM_PATH || chromium.executablePath() : webkit.executablePath() });
+const browser = await engine.launch({ executablePath: engine === chromium ? process.env.NIHON_CHROMIUM_PATH || chromium.executablePath() : (process.env.NIHON_WEBKIT_PATH || webkit.executablePath()) });
 let checks = 0;
 function check(value, message) { checks++; assert.ok(value, `B31 ${message}`); }
 const shots = process.env.NIHON_B31_SHOTS;

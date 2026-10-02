@@ -1,745 +1,3 @@
-/*
- * Bloque 17 (B1 — Fundación visual): las variables heredadas de este :root ya
- * no llevan hex propio. Son alias del sistema nuevo (`styles/tokens.css`,
- * importado antes que este fichero) para que todas las superficies existentes
- * hereden la identidad sin reescribir cada selector de golpe (08 §"Cómo
- * tratar el CSS actual"). Un bloque posterior que migre una superficie puede
- * sustituir el alias por el token directo y, cuando ya no quede ningún uso,
- * retirar la línea de aquí. `--radius-sm` y `--radius-lg` ya no se redeclaran:
- * al no sombrear `tokens.css`, los consumidores existentes heredan
- * directamente `--radius-sm`/`--radius-lg` de `03 §4`.
- *
- * B10.4 (roadmap B10, 08 §"Cómo tratar el CSS actual"): el CSS de cada superficie vive junto a su componente
- * (`src/components/*.css`, importado por el propio componente); `styles/discovery.css` y `styles/trip-overview.css`
- * conservan las superficies migradas en B19/B31. Aquí sólo queda lo GLOBAL: alias heredados de `:root`, el sistema de
- * botones y utilidades (`.button`, `.icon-button`, `.link-button`, `.tap-target-min`, `.visually-hidden`), el shell de
- * `App.tsx` (cabecera, destinos, barra de búsqueda, mapa vacío), y los primitivos compartidos (`.tag`, `.alert`, `.badge`).
- * Inventario y migración reproducibles: `scripts/css-inventory.mjs`, `scripts/css-migrate.mjs`,
- * `scripts/css-equivalence-check.mjs` (estilo computado de cada elemento, BASE vs rama).
- */
-:root {
-  --color-bg: var(--paper);
-  --color-surface: var(--surface);
-  --color-surface-alt: var(--surface-sunken);
-  --color-border: var(--line);
-  --color-border-strong: var(--line-strong);
-  --color-text: var(--ink-900);
-  --color-text-muted: var(--ink-500);
-  --color-accent: var(--shu-600);
-  --color-accent-dark: var(--shu-700);
-  --color-accent-soft: var(--shu-050);
-  --color-info: var(--info-600);
-  --color-ok: var(--ok-600);
-  --color-ok-soft: var(--ok-050);
-  --color-warn: var(--warn-600);
-  --color-warn-soft: var(--warn-050);
-  --color-risk: var(--risk-600);
-  --color-risk-soft: var(--risk-050);
-  --radius: var(--radius-md);
-  --shadow-panel: var(--elev-2);
-  --shadow-soft: var(--elev-1);
-  --font-sans: var(--font-record);
-  --tap-target: var(--tap-min);
-  /* Bloque 17 (B1): --color-interest-1…5 quedan retirados (03 §1.3, DD-004 — el nivel de
-     interés ya no tiene color propio). Las clases badge--grade-N y tag--grade-N, y el
-     marcador del mapa (PlaceMap.tsx), usan tinta directamente; nada más los consumía. */
-  --shadow-card: var(--elev-1);
-  --shadow-card-hover: var(--elev-1);
-  color-scheme: light;
-}
-
-body {
-  font-family: var(--font-record);
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-size: var(--type-body-size);
-  line-height: var(--type-body-line);
-}
-
-h1,
-h2,
-h3 {
-  font-family: var(--font-voice);
-  line-height: 1.25;
-}
-
-a {
-  color: var(--color-accent-dark);
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Anillo de foco (03 §7). Reemplaza el azul de 3px, que chocaba con el
-   bermellón de marca. */
-:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-/* ---------- Buttons (Bloque 17 — B1, 04 §4) ---------- */
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: var(--tap-min);
-  padding: 0 var(--space-4);
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform var(--dur-fast) var(--ease-standard);
-}
-
-.button:active {
-  transform: scale(0.98);
-}
-
-.button:disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-/* Acción primaria de pantalla, ancho completo (05 §5 pt.6). */
-.button--lg {
-  min-height: var(--tap-primary);
-  width: 100%;
-  font-size: var(--type-body-size);
-}
-
-.button--primary {
-  background: var(--shu-600);
-  border-color: var(--shu-600);
-  color: var(--surface);
-}
-
-.button--primary:hover {
-  background: var(--shu-700);
-  border-color: var(--shu-700);
-}
-
-.button--secondary {
-  background: var(--surface);
-  border-color: var(--line-strong);
-  color: var(--ink-900);
-}
-
-.button--secondary:hover {
-  background: var(--surface-sunken);
-}
-
-.button--quiet {
-  background: none;
-  border-color: transparent;
-  color: var(--ink-700);
-}
-
-.button--quiet:hover {
-  background: var(--surface-sunken);
-}
-
-.button--danger {
-  background: none;
-  border-color: transparent;
-  color: var(--risk-600);
-}
-
-.button--danger:hover {
-  background: var(--risk-050);
-}
-
-.icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--tap-target);
-  height: var(--tap-target);
-  border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  cursor: pointer;
-  color: var(--color-text);
-  flex-shrink: 0;
-  transition: transform var(--dur-fast) var(--ease-standard);
-}
-
-.icon-button:active {
-  transform: scale(0.98);
-}
-
-.icon-button:hover {
-  background: var(--color-surface-alt);
-}
-
-/*
- * Corrección de cumplimiento normativo (auditoría posterior al cierre del Bloque 17).
- * Art. 11 exige 44×44 px de área táctil mínima, sin excepción por tamaño visual, y 08
- * "Orden de precedencia" pone la Constitución por delante de cualquier documento
- * específico (incluido `04`) cuando entran en conflicto.
- *
- * Dos técnicas, según si el control tiene un vecino del mismo tamaño al lado:
- *
- * 1. `.tap-target-min` — para un control AISLADO (`.app__help`, `.trip-backup__close`,
- *    `.search-field__clear`; también la base de `.filter-chip`, más abajo, cuyo ancho
- *    real siempre supera 44px y cuyo hueco vertical entre filas deja margen de sobra —
- *    ver el cálculo en el commit de esta corrección). Añade un pseudo-elemento
- *    invisible, centrado, del tamaño del control o `--tap-min` (lo que sea mayor). Un
- *    `::after` generado por CSS es, a efectos de "click forwarding", parte del propio
- *    elemento en todos los motores de render actuales, así que agranda el área
- *    clicable real sin agrandar lo que se pinta.
- *
- * 2. Caja real de 44×44 — para un control que vive en una fila o rejilla apretada junto
- *    a otros del mismo tipo (`.icon-button--small` en `.sequence-item__controls` y en
- *    `.day-card__header-actions`; `.gallery__dot` en `.gallery__dots`). Aquí la técnica
- *    1 es la equivocada: si el hueco real entre dos controles es menor que la suma de
- *    sus dos expansiones invisibles, esas zonas se solapan, y un click cerca del borde
- *    puede resolver al vecino equivocado o depender del orden de pintado — una
- *    ambigüedad que Art. 11 no permite. La caja del propio botón pasa a medir `--tap-min`
- *    de verdad (participa en el layout, así que dos cajas vecinas nunca se solapan: es
- *    geometría, no un truco de pintado); el elemento visual pequeño (el círculo, el
- *    punto) se dibuja aparte, centrado dentro, y es lo único que se mantiene compacto.
- *
- * Comprobado en `scripts/b17-tap-target-check.mjs`: cada target mide ≥44×44 de verdad,
- * y para los grupos de la técnica 2 además: un punto cercano al límite entre dos
- * vecinos resuelve siempre al más próximo (nunca a los dos), y una rejilla de
- * `elementFromPoint` sobre cada caja no encuentra solape con ninguna caja vecina.
- */
-.tap-target-min {
-  position: relative;
-}
-
-.tap-target-min::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: max(100%, var(--tap-min));
-  height: max(100%, var(--tap-min));
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: var(--color-accent-dark);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.82rem;
-  padding: 0.25rem;
-  text-decoration: underline;
-}
-
-/* ---------- Shell (Bloque 18 — 02 §D2/§D5, 04 §10/§11) ---------- */
-/*
- * Mobile-first literal (Art. 8): sólo `min-width` de aquí en adelante en esta sección. `.app`
- * es una fila siempre — `NavRail` ocupa 0px por `display:none` bajo `md` y `TabBar` hace lo
- * mismo desde `md`, así que no hace falta alternar `flex-direction` con un media query aparte.
- */
-.app {
-  display: flex;
-  flex-direction: row;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.app__main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* Entre la cabecera y `TabBar`: el único hijo que crece, y el único que puede scrollear.
-   Sin esto, `flex: 1` en `.destination-panel` no tiene contenedor flex del que heredarlo. */
-.app__content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/*
- * Cabecera: 56px fijos (04 §11, 05 §4). Contenido máximo: título (con selector de ciudad
- * cuando aplica) + PersonToken — ninguna otra acción permanente.
- *
- * `04 §11`: "sobre papel es --surface con borde inferior --line que sólo aparece al hacer
- * scroll" — el borde vive en `.app__header--scrolled`, no en la regla base; `App.tsx` añade esa
- * clase cuando la superficie con scroll de la pestaña activa tiene `scrollTop > 0`.
- */
-.app__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  height: var(--chrome-header-height);
-  flex-shrink: 0;
-  padding: 0 var(--space-4);
-  background: var(--surface);
-  border-bottom: 1px solid transparent;
-}
-
-.app__header--scrolled {
-  border-bottom-color: var(--line);
-}
-
-.app__brand {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-}
-
-/* B10-A2: el selector de ciudad es el título de la pantalla; el `h1` que lo envuelve no pinta nada propio. */
-.app__heading {
-  margin: 0;
-  padding: 0;
-  font: inherit;
-  display: flex;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.app__title {
-  margin: 0;
-  font-family: var(--font-voice);
-  font-size: var(--type-title-m-size);
-  line-height: var(--type-title-m-line);
-  font-weight: 500;
-  color: var(--ink-900);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-button.app__title.app__title--expand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: inherit;
-  min-width: 0;
-}
-
-.app__title-back {
-  flex-shrink: 0;
-  color: var(--ink-500);
-}
-
-.app__title-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.app__header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-shrink: 0;
-}
-
-/* DD-007, `02 §D4`: único resto del antiguo conmutador «Eres» — 44px de área táctil real
-   alrededor del token de 24px, sin fondo ni borde propios (el círculo del token ya es todo
-   lo que se pinta). */
-.app__person-token-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--tap-min);
-  height: var(--tap-min);
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.app__filter-badge {
-  background: var(--shu-600);
-  color: var(--surface);
-  border-radius: var(--radius-full);
-  font-family: var(--font-record);
-  font-size: var(--type-caption-size);
-  min-width: 1.3rem;
-  height: 1.3rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-1);
-}
-
-/* ---------- PersonToken (04 §1, DD-007) ---------- */
-
-.person-token {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border-radius: var(--radius-full);
-  color: var(--surface);
-  font-family: var(--font-record);
-  font-weight: 600;
-}
-
-/* ---------- Sheet (04 §8) ---------- */
-
-@keyframes sheet-rise {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-/* ---------- Destinos: contenedor común (02 §D2/§D3) ---------- */
-/*
- * Los cuatro paneles están siempre montados; `hidden` (no `display:none` de una clase) los
- * saca del árbol de accesibilidad y detiene su pintado sin desmontarlos, así que el scroll, los
- * filtros, el lugar abierto y el estado de cada pestaña sobreviven al cambiar de destino
- * (gate 6/7). Especificidad de atributo, no de `!important`: gana sobre cualquier `display`
- * de las clases de abajo sin necesidad de forzarlo.
- */
-.destination-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  /* Corrección post-cierre: posiciona la ficha (`.app__detail`) cuando `ficheOrigin` es este
-     destino — necesario para Quiero ir y (corrección final) Viaje, que no tenían un ancestro
-     `position:relative` propio (sólo `.app__body`, dentro de Explorar, lo tenía). */
-  position: relative;
-  overflow: hidden;
-}
-
-.destination-panel[hidden] {
-  display: none;
-}
-
-/*
- * Corrección post-cierre: en Quiero ir, este es ahora un `div` interior distinto de
- * `.destination-panel` (antes eran el mismo elemento) — para que la ficha, hermana suya dentro
- * del `.destination-panel` exterior, no scrollee con la lista. Corrección final: Viaje adopta
- * la misma separación (abre lugares desde «Dónde dormir», así que también necesita un exterior
- * sin scroll donde anclar su ficha). Sigue siendo el mismo elemento que `.destination-panel` en
- * Nosotros, la única pestaña sin ficha que anclar; `flex`/`min-height` son redundantes pero
- * inofensivos ahí (el padre ya los fija).
- */
-.destination-panel--scroll {
-  flex: 1;
-  min-height: 0;
-  gap: var(--space-6);
-  padding: var(--space-4);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* ---------- Viaje: sub-navegación (05 §7/§8) ---------- */
-
-.viaje-nav {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.viaje-nav__item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--tap-min);
-  padding: 0 var(--space-4);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-full);
-  background: var(--surface);
-  color: var(--ink-700);
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.viaje-nav__item--active {
-  background: var(--ink-900);
-  border-color: var(--ink-900);
-  color: var(--surface);
-}
-
-.viaje-nav__item:disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-/* ---------- Nosotros (05 §11) ---------- */
-
-.nosotros-section {
-  padding-bottom: var(--space-6);
-  border-bottom: 1px solid var(--line);
-}
-
-.nosotros-section:last-child {
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.nosotros-section__text {
-  margin: 0 0 var(--space-3);
-  color: var(--ink-700);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-}
-
-/* ---------- Barra única de búsqueda/filtros/vista (05 §4) ---------- */
-/*
- * 48px, pegajosa bajo la cabecera. Sustituye a las antiguas `.hub-bar` + `.view-bar`
- * (330px de cromo combinado) por una sola fila: objetivo de cromo superior 56+48=104px
- * (gate G3 / 08). El campo de búsqueda vive aquí directamente, no dentro de la hoja de
- * filtros — `FilterPanel` se renderiza con `showSearch={false}` cuando se abre en `Sheet`.
- */
-.explorer-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: var(--chrome-bar-height);
-  flex-shrink: 0;
-  padding: 0 var(--space-4);
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-}
-
-.explorer-bar__search {
-  flex: 1;
-  min-width: 0;
-}
-
-.explorer-bar__filters,
-.explorer-bar__pane {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  height: var(--tap-min);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-full);
-  background: var(--surface);
-  font-family: var(--font-record);
-  font-size: var(--type-label-size);
-  font-weight: 600;
-  color: var(--ink-900);
-  cursor: pointer;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.explorer-bar__filters:hover,
-.explorer-bar__pane:hover {
-  background: var(--surface-sunken);
-}
-
-/* ---------- Hub selector (reutilizado dentro del selector de ciudad, `Sheet`) ---------- */
-
-/*
- * Bloque 18, `05 §4`: en teléfono, una superficie a la vez — la lista o el mapa, nunca los dos
- * a medias — conmutada por `.explorer-bar__pane`. Las dos siguen montadas y del mismo tamaño
- * real (una encima de la otra, `position:absolute`): Leaflet necesita su contenedor con
- * dimensiones reales incluso mientras no se ve, o `panTo`/`fitBounds` calculan `NaN` sobre una
- * caja 0×0 y el mapa lanza — `visibility`, nunca `display:none`, es lo que la oculta. Desde
- * `md` (`02 §D5`) las dos superficies conviven en una fila normal, como en v1.1.0.
- */
-.app__body {
-  flex: 1;
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.app__body--pane-map .app__sidebar {
-  display: none;
-}
-
-.app__body--pane-list .app__map-area {
-  visibility: hidden;
-}
-
-/*
- * La región de lista de Explorar. Corrección de B19 (DD-016): además de contener la lista, es
- * su CONTENEDOR DE CONSULTA — `styles/discovery.css` decide el número de columnas leyendo
- * `@container lista-explorar (…)`, es decir el ancho real de esta caja, no el del viewport. Es
- * lo único que puede resolver el caso de `md`, donde abrir la ficha estrecha esta región de
- * ~752px a ~376px sin que el viewport cambie ni un píxel. Los topes por breakpoint siguen
- * viviendo en `@media` (`02 §D5`); aquí sólo se declara la caja que se mide.
- */
-.app__sidebar {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: var(--surface);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  container-type: inline-size;
-  container-name: lista-explorar;
-}
-
-.app__map-area {
-  position: absolute;
-  inset: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* Keep Leaflet panes under the app chrome. */
-.leaflet-pane,
-.leaflet-top,
-.leaflet-bottom {
-  z-index: 5;
-}
-
-/*
- * La ficha de lugar (Art. 8, `05 §5`): en teléfono ocupa el 100% de la altura visible, por
- * encima de la cabecera, la barra única y `TabBar` — nada del shell queda visible detrás.
- * Desde `md` vuelve a ser el panel derecho de 480px (`02 §D5`, `05 §5`) — corrección final de
- * B18: antes escrito como 420px compartiendo token con `Sheet` (`04 §8`), error normativo ya
- * corregido (tokens.css §8). B18 sólo cambia el contenedor/navegación de la ficha, no esta
- * medida — `05 §5` reserva su rediseño a B4.
- */
-.app__detail {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: var(--surface);
-}
-
-.map-empty {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-panel);
-  padding: 1.25rem;
-  text-align: center;
-  max-width: 22rem;
-}
-
-.map-empty p {
-  margin: 0 0 0.75rem;
-}
-
-/*
- * Corrección de B19 (DD-016, `02 §D5`, `05 §4`/`§5`) — el raíl derecho y la región de lista.
- *
- * B18 dejó la lista clavada en 372px fijos desde `md`, con el mapa ocupando todo lo demás. Eso
- * hacía imposible lo que `05 §4` pide literalmente («`md`: 2 columnas + ficha como panel derecho
- * de 480 px») y lo que la fórmula de cabida exige (`PlaceCard` nunca por debajo de 264px): en un
- * panel de 372px sólo cabe una columna a cualquier ancho de pantalla. La corrección invierte la
- * prioridad — **la lista es la superficie primaria y se queda con todo el ancho que el raíl no
- * usa**, y el raíl mide exactamente una ficha:
- *
- *     raíl = min(var(--place-detail-panel-width), 50%)          ← «el mapa nunca pasa de la
- *                                                                  mitad del ancho», `02 §D5`
- *
- * Quién ocupa el raíl:
- *   - `md` (840–1199): sólo la ficha, y sólo mientras está abierta (`.app__body--detail`). El
- *     mapa sigue siendo una superficie conmutada por `.explorer-bar__pane`, igual que en
- *     teléfono — `02 §D5` y `05 §4` reservan el mapa persistente para `lg`, no para `md`. Por eso
- *     abrir la ficha en `md` estrecha la lista y la baja de 2 columnas a 1 sin tocar el viewport:
- *     es el caso que obliga a que la rejilla lea su propio contenedor y no los breakpoints.
- *   - `lg`+ (1200+): el mapa ocupa el raíl de forma permanente (`02 §D5`) y la ficha se apoya
- *     encima del mismo raíl, con la misma caja. El mapa nunca cambia de tamaño al abrir o cerrar
- *     la ficha, así que conserva centro, zoom y marcador seleccionado.
- *
- * Las dos superficies de Explorar siguen siendo `position: absolute` a todos los anchos (nunca
- * `display:none` para el mapa: Leaflet necesita una caja real o `panTo`/`fitBounds` calculan
- * `NaN`). El único cambio con el ancho es dónde termina cada una — `right` —, no su mecanismo.
- * Art. 8 prohíbe `max-width` nuevo: todo lo de esta sección es `min-width`.
- */
-@media (min-width: 840px) {
-  .app__body {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .app__sidebar {
-    z-index: 10;
-    border-right: 1px solid var(--line);
-  }
-
-  /* Sin ficha abierta la lista es TODO el cuerpo: es lo que hace que 840px dé 2 columnas. */
-  .app__body--detail .app__sidebar,
-  .app__body--detail .app__map-area {
-    right: min(var(--place-detail-panel-width), 50%);
-  }
-
-  .app__detail {
-    position: absolute;
-    inset: 0 0 0 auto;
-    /* Corrección final de B18 (punto 5): token propio (480px, `02 §D5`/`05 §5`), separado del
-       de Sheet (420px, `04 §8`) — antes ambos compartían `--panel-width`, que era el error
-       normativo que describe la auditoría. Ver tokens.css §8. Corrección de B19: el `100%` pasa
-       a `50%` — la ficha es el raíl, y `02 §D5` acota el raíl a la mitad del ancho. */
-    width: min(var(--place-detail-panel-width), 50%);
-    z-index: 30;
-    border-left: 1px solid var(--line);
-    box-shadow: var(--elev-2);
-  }
-}
-
-/*
- * `lg` (1200px, `02 §D5`): «Explorar añade panel de mapa persistente a la derecha». A partir de
- * aquí el raíl existe siempre, lo ocupe la ficha o no, y el conmutador Lista/Mapa deja de tener
- * nada que conmutar — se retira en vez de quedarse como un control que no hace nada.
- */
-@media (min-width: 1200px) {
-  .explorer-bar__pane {
-    display: none;
-  }
-
-  .app__map-area,
-  .app__body--detail .app__map-area {
-    left: auto;
-    right: 0;
-    width: min(var(--place-detail-panel-width), 50%);
-  }
-
-  .app__sidebar,
-  .app__body--detail .app__sidebar {
-    right: min(var(--place-detail-panel-width), 50%);
-  }
-
-  /* El conmutador ya no manda: con mapa permanente, las dos superficies se ven siempre. */
-  .app__body--pane-map .app__sidebar {
-    display: flex;
-  }
-
-  .app__body--pane-list .app__map-area {
-    visibility: visible;
-  }
-}
-
 /* ---------- Search + filters, PlaceCard, PlaceList — migrados a styles/discovery.css ----------
  * Bloque 19 (B3): estas superficies quedaron completamente migradas — sus reglas viven ahora
  * en `styles/discovery.css` (08 §"Cómo tratar el CSS actual" autoriza extraer a fichero propio
@@ -748,20 +6,6 @@ button.app__title.app__title--expand {
  * `.place-list*` ni `.place-card*` en este fichero. */
 
 /* ---------- Detail panel ---------- */
-
-.place-detail {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-panel);
-  border-left: 1px solid var(--color-border);
-}
-
-.place-interest__person .person-token {
-  vertical-align: middle;
-}
 
 /* Bloque 17 (B1): anatomía de `Chip` (`04 §3`) — icono opcional + texto `--type-label`,
    `--radius-xs`, fondo `--surface-sunken` por defecto. Los matices de color de cada variante
@@ -777,13 +21,13 @@ button.app__title.app__title--expand {
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
   font-weight: 500;
-  background: var(--color-surface-alt);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  background: var(--surface-sunken);
+  color: var(--ink-900);
+  border: 1px solid var(--line);
 }
 
 .tag--muted {
-  color: var(--color-text-muted);
+  color: var(--ink-500);
 }
 
 .tag--gem {
@@ -793,24 +37,24 @@ button.app__title.app__title--expand {
 }
 
 .tag--alert {
-  background: var(--color-warn-soft);
+  background: var(--warn-050);
   border-color: #eccf9c;
-  color: var(--color-warn);
+  color: var(--warn-600);
 }
 
 /* Phase 3D-C — reservation semantics. Distinct, softer tones from `.tag--alert` (required):
    "recommended" and "optional" are real nuances from `reservation.raw`, not the same claim as
    "required", and must not read with the same visual urgency. */
 .tag--reservation-recommended {
-  background: var(--color-ok-soft);
+  background: var(--ok-050);
   border-color: #b3ddc5;
-  color: var(--color-ok);
+  color: var(--ok-600);
 }
 
 .tag--reservation-optional {
   background: #eaf2f8;
   border-color: #c7dcec;
-  color: var(--color-info);
+  color: var(--info-600);
 }
 
 /*
@@ -852,36 +96,10 @@ button.app__title.app__title--expand {
   color: var(--ink-700);
 }
 
-.alert {
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid;
-  font-family: var(--font-record);
-  font-size: var(--type-body-s-size);
-  line-height: var(--type-body-s-line);
-}
 
-.alert p {
-  margin: var(--space-2) 0 0;
-}
 
-.alert--pending {
-  background: var(--warn-050);
-  border-color: var(--warn-600);
-  color: var(--warn-600);
-}
 
-.alert--risk {
-  background: var(--risk-050);
-  border-color: var(--risk-600);
-  color: var(--risk-600);
-}
 
-.alert--confirmed {
-  background: var(--ok-050);
-  border-color: var(--ok-600);
-  color: var(--ok-600);
-}
 
 .link-row .button {
   flex: 1;
@@ -904,15 +122,15 @@ button.app__title.app__title--expand {
 /* ---------- National entry shortcuts ---------- */
 
 .national-start {
-  padding: 0.85rem 1rem 0.75rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  padding: 0.85rem var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
 
 .national-start__lead {
   margin: 0 0 0.6rem;
   font-size: 0.86rem;
-  color: var(--color-text-muted);
+  color: var(--ink-500);
   line-height: 1.45;
 }
 
@@ -920,22 +138,22 @@ button.app__title.app__title--expand {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: var(--tap-target);
-  padding: 0.35rem 0.5rem 0.35rem 0.85rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-surface);
+  min-height: var(--tap-min);
+  padding: 0.35rem var(--space-2) 0.35rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
   font: inherit;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--ink-900);
   cursor: pointer;
 }
 
 .national-start__hub:hover {
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-  color: var(--color-accent-dark);
+  background: var(--shu-050);
+  border-color: var(--shu-600);
+  color: var(--shu-700);
 }
 
 /* ---------- Accommodation zones (Block 3) ---------- */
@@ -991,27 +209,9 @@ button.app__title.app__title--expand {
 
 /* ---------- Save toast ---------- */
 
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* ---------- Onboarding ---------- */
 
-@keyframes onboarding-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
 /* ---------- Map empty state ---------- */
 
@@ -1021,7 +221,7 @@ button.app__title.app__title--expand {
 }
 
 .map-empty__hint {
-  color: var(--color-text-muted);
+  color: var(--ink-500);
   font-size: 0.85rem;
   margin: 0 0 0.85rem;
 }
@@ -1060,7 +260,7 @@ button.app__title.app__title--expand {
   }
 
   .app__filters--open {
-    padding-bottom: 1rem;
+    padding-bottom: var(--space-4);
   }
 }
 
@@ -1068,11 +268,12 @@ button.app__title.app__title--expand {
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
+    animation: none !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
+  .button:active, .icon-button:active, .place-card__save:active { transform: none; }
 }
 
 /* ---------- Hub bar (return to Japan + hub tabs) ---------- */
@@ -1164,13 +365,13 @@ button.app__title.app__title--expand {
 .region-nav {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-5);
 }
 
 .region-nav__empty {
   margin: 0;
   font-size: 0.82rem;
-  color: var(--color-text-muted);
+  color: var(--ink-500);
 }
 
 /* ---------- Sequence comparison (Phase 3C-B) ---------- */
@@ -1178,14 +379,14 @@ button.app__title.app__title--expand {
 .comparison-candidate {
   flex: 1 1 14rem;
   min-width: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  padding: 0.75rem;
+  padding: var(--space-3);
 }
 
 .comparison-candidate h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
   font-size: 0.95rem;
 }
 
@@ -1194,11 +395,11 @@ button.app__title.app__title--expand {
 /* Phase 3E-A — read-only composition. Subgroups remain visually adjacent but do not collapse into
    a score or a visit-plus-transport figure. */
 .whole-trip-composition {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   padding: 0.85rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
+  background: var(--surface-sunken);
   display: grid;
   gap: 0.65rem;
 }
@@ -1216,7 +417,7 @@ button.app__title.app__title--expand {
   margin: 0;
   font-size: 0.78rem;
   line-height: 1.45;
-  color: var(--color-text-muted);
+  color: var(--ink-500);
   overflow-wrap: anywhere;
 }
 
@@ -1229,69 +430,14 @@ button.app__title.app__title--expand {
 /* ---------- Block 4 — the planner's zone section ---------- */
 
 .zone-plan {
-  margin: 1rem 0 0;
+  margin: var(--space-4) 0 0;
   padding: 0.9rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
 }
 
 .zone-plan > h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
   font-size: 1rem;
 }
-
-/* ---------- Block 5 — two local travellers ----------
-   The whole permanent footprint of this layer is one header row. Everything else appears only
-   when it has something to say, so a browse screen with no shared opinions looks exactly as it
-   did before. Every state carries text; `tone` colours it but never carries it alone. */
-
-/* ---------- B25 — B7 «Quiero ir» (05 §6) ---------- */
-
-/* `05 §6` pt. 1: el contador de la cabecera — sólo en Quiero ir, sólo si es > 0. */
-.app__title-count {
-  margin-left: var(--space-2);
-  font-family: var(--font-record);
-  font-size: var(--type-body-s-size);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-500);
-}
-
-.quiero-ir__segment:focus-visible,
-.quiero-ir__section-toggle:focus-visible,
-.save-toast__action:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-/* ---------- B26 — Nosotros (05 §11) ---------- */
-/*
- * Una columna de lectura (como Quiero ir): la pantalla es una lista de secciones, no un tablero.
- * Sólo tokens; ningún `@media (max-width)`.
- */
-.nosotros {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  width: 100%;
-  max-width: 40rem;
-  margin-inline: auto;
-  min-width: 0;
-}
-
-.nosotros-section__text {
-  overflow-wrap: anywhere;
-}
-
-.sources__licenses,
-.sources__list {
-  list-style: none;
-  margin: 0 0 var(--space-3);
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-/* B27 / B9.1 — the persisted day is Viaje's primary reading unit. */
-.viaje-nav { overflow-x: auto; padding-bottom: var(--space-1); }
-.viaje-nav__item { flex: 0 0 auto; }

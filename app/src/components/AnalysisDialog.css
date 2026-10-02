@@ -130,3 +130,9 @@
 }
 
 @media (max-width: 839px) { .analysis-dialog--embedded .analysis-body { padding-bottom: calc(var(--chrome-tabbar-height) + 2.5rem); } }
+
+/* Embedded journeys belong to the destination scroll owner (B18, 05 §7).
+   A non-scrolling inner overflow container must not trap wheel/touch chaining. */
+.analysis-dialog--embedded .analysis-body {
+  overscroll-behavior-y: auto;
+}

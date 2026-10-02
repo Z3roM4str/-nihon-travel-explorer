@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: pixel-identical screenshot: 839/city
++ actual - expected
+
++ '42a8795668b815d45cc8dc683c434456ce595adc4d170c3d80c6b716684b81cb'
+- 'a756e140a7bc5ab5c6f1876becf441b680dbb605fc33fc0cd23e5dcec82d2025'
+
+    at file:///workspace/nihon/app/scripts/b10-sheet-extraction-check.mjs:30:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '42a8795668b815d45cc8dc683c434456ce595adc4d170c3d80c6b716684b81cb',
+  expected: 'a756e140a7bc5ab5c6f1876becf441b680dbb605fc33fc0cd23e5dcec82d2025',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

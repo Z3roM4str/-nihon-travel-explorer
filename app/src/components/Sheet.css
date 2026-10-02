@@ -73,7 +73,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sheet {
-    animation-duration: 0.001ms;
+    animation: none;
   }
 }
 
@@ -87,5 +87,14 @@
     width: min(var(--sheet-panel-width), 92vw);
     max-height: 88vh;
     border-radius: var(--radius-xl);
+  }
+}
+
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }

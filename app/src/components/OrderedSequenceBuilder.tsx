@@ -437,8 +437,8 @@ function TransferAndVisitTotals({
         <div className="analysis-total">
           <span className="analysis-total__value">{transferMinutes ? formatRange(transferMinutes) : "—"}</span>
           <span className="analysis-total__label">
-            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}/{legCount} traslado
-            {legCount === 1 ? "" : "s"} registrado{legCount === 1 ? "" : "s"}
+            {complete ? "traslados totales" : "traslados conocidos"} · {knownLegCount}
+            {complete ? "" : ` de ${legCount}`} conexi{legCount === 1 ? "ón" : "ones"} con tiempo registrado
           </span>
         </div>
       )}
@@ -446,7 +446,7 @@ function TransferAndVisitTotals({
         <div className="analysis-total">
           <span className="analysis-total__value">{unknownLegCount}</span>
           <span className="analysis-total__label">
-            traslado{unknownLegCount === 1 ? "" : "s"} sin registrar
+            conexi{unknownLegCount === 1 ? "ón" : "ones"} sin tiempo registrado
           </span>
         </div>
       )}
@@ -1482,9 +1482,9 @@ function interHubInactiveText(reason: Extract<InterHubSegmentAssessment, { kind:
       return "Uno de los puntos ya no forma parte del viaje actual.";
     case "from-hub-mismatch":
     case "to-hub-mismatch":
-      return "El hub actual de uno de los puntos ya no coincide con el registrado.";
+      return "La ciudad o región actual de uno de los puntos ya no coincide con la registrada.";
     case "same-current-hub":
-      return "Los dos puntos pertenecen actualmente al mismo hub.";
+      return "Los dos puntos pertenecen actualmente a la misma ciudad o región.";
     case "not-consecutive-in-route":
       return "Estos lugares ya no son consecutivos en el viaje actual.";
     case "not-consecutive-in-day":
@@ -1492,7 +1492,7 @@ function interHubInactiveText(reason: Extract<InterHubSegmentAssessment, { kind:
     case "not-boundary-of-consecutive-days":
       return "Estos lugares ya no forman un límite entre dos días consecutivos.";
     case "invalid-day-partition":
-      return "El reparto por días no es estructuralmente válido; el traslado no se aplica.";
+      return "Este traslado queda inactivo porque el reparto por días no es válido.";
   }
 }
 
@@ -1559,7 +1559,7 @@ function InterHubSegmentsSection({
       <h3>Traslados entre ciudades</h3>
       <p className="inter-hub-segments__intro">
         Traslado principal entre estos dos puntos de tu plan; <strong>no es un tiempo puerta a puerta</strong>.
-        Los hubs vienen de los lugares elegidos; tú seleccionas el modo y escribes los minutos.
+        Las ciudades o regiones corresponden a los lugares elegidos; tú seleccionas el modo y escribes los minutos.
       </p>
 
       {segments.length === 0 ? (
@@ -1635,7 +1635,7 @@ function InterHubSegmentsSection({
         <label>
           Posición en el plan
           <select value={selectedPairKey} onChange={(event) => setSelectedPairKey(event.target.value)}>
-            <option value="">Selecciona dos puntos consecutivos de hubs distintos</option>
+            <option value="">Selecciona dos puntos consecutivos de ciudades o regiones distintas</option>
             {availablePairs.map((pair) => (
               <option key={interHubPairKey(pair)} value={interHubPairKey(pair)}>{pairLabel(pair)}</option>
             ))}
@@ -1670,7 +1670,7 @@ function InterHubSegmentsSection({
       </div>
       {availablePairs.length === 0 && (
         <p className="inter-hub-segments__hint">
-          No hay una pareja consecutiva nueva entre hubs distintos en el reparto actual.
+          No hay una pareja consecutiva nueva entre ciudades o regiones distintas en el reparto actual.
         </p>
       )}
     </section>

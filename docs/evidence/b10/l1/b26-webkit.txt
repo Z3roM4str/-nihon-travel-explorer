@@ -1,0 +1,44 @@
+Motor: webkit (/tmp/b10-webkit)
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Target page, context or browser has been closed
+Browser logs:
+
+╔════════════════════════════════════════════════════════════════════════════════════════════════╗
+║ Looks like you launched a headed browser without having a XServer running.                     ║
+║ Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright. ║
+║                                                                                                ║
+║ <3 Playwright Team                                                                             ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════╝
+Call log:
+[2m  - <launching> /tmp/b10-webkit --inspector-pipe --headless --no-startup-window[22m
+[2m  - <launched> pid=4365[22m
+[2m  - [pid=4365][err][22m
+[2m  - [pid=4365][err] (process:4365): Gtk-WARNING **: 05:22:13.919: Failed to open display[22m
+[2m  - [pid=4365] <gracefully close start>[22m
+[2m  - [pid=4365] <kill>[22m
+[2m  - [pid=4365] <will force kill>[22m
+[2m  - [pid=4365] <process did exit: exitCode=1, signal=null>[22m
+[2m  - [pid=4365] starting temporary directories cleanup[22m
+[2m  - [pid=4365] finished temporary directories cleanup[22m
+[2m  - [pid=4365] <gracefully close end>[22m
+
+    at /workspace/nihon/app/scripts/b26-nosotros-check.mjs:815:42 {
+  log: [
+    '  - <launching> /tmp/b10-webkit --inspector-pipe --headless --no-startup-window',
+    '  - <launched> pid=4365',
+    '  - [pid=4365][err]',
+    '  - [pid=4365][err] (process:4365): Gtk-WARNING **: 05:22:13.919: Failed to open display',
+    '  - [pid=4365] <gracefully close start>',
+    '  - [pid=4365] <kill>',
+    '  - [pid=4365] <will force kill>',
+    '  - [pid=4365] <process did exit: exitCode=1, signal=null>',
+    '  - [pid=4365] starting temporary directories cleanup',
+    '  - [pid=4365] finished temporary directories cleanup',
+    '  - [pid=4365] <gracefully close end>'
+  ]
+}
+
+Node.js v24.19.0

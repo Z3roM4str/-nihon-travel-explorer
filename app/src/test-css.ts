@@ -19,9 +19,18 @@ function cssFiles(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-/** `App.css` seguido del CSS de componentes (el orden de importación real: globales primero). */
+/** Global sheets in the actual App import order; all legacy invariants survive extraction. */
+export async function readGlobalCss(): Promise<string> {
+  const app = readFileSync(path.join(SRC, "App.tsx"), "utf8");
+  const globals = [...app.matchAll(/^import "\.\/(.*\.css)";/gm)].map(m => path.join(SRC, m[1]));
+  if (!globals.length) throw new Error("No global CSS imports found; refusing a vacuous scan");
+  return globals.map(f => readFileSync(f, "utf8")).join("\n");
+}
+
+/** Globales seguidos del CSS de componentes, sin duplicar los ficheros extraídos. */
 export async function readProductCss(): Promise<string> {
-  const app = path.join(SRC, "App.css");
-  const rest = cssFiles(SRC).filter((f) => f !== app).sort();
-  return [app, ...rest].map((f) => readFileSync(f, "utf8")).join("\n");
+  const app = readFileSync(path.join(SRC, "App.tsx"), "utf8");
+  const globals = new Set([...app.matchAll(/^import "\.\/(.*\.css)";/gm)].map(m => path.join(SRC, m[1])));
+  const rest = cssFiles(SRC).filter(f => !globals.has(f)).sort();
+  return [await readGlobalCss(), ...rest.map(f => readFileSync(f, "utf8"))].join("\n");
 }

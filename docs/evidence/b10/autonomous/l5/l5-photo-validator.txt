@@ -1,0 +1,1 @@
+OK: photography pilot manifest and metadata are valid; all pilot places have a photograph

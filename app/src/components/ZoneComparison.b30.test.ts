@@ -9,7 +9,7 @@ async function readSource(path: string): Promise<string> {
 
 describe("B30 — Dónde dormir presents alternatives without an ordinal ranking", () => {
   it("has no zone position badges in the list, comparison columns, contrast rows or map pins", async () => {
-    const source = (await readSource("./ZoneComparison.tsx"))
+    const source = ((await readSource("./ZoneComparison.tsx")) + (await readSource("./ZoneMap.tsx")))
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/\/\/.*$/gm, "");
     expect(source).not.toMatch(/zone-card__index|zone-column__index|index\s*\+\s*1/);

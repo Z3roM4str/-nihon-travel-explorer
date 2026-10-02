@@ -1,0 +1,3746 @@
+{
+  "baseline": false,
+  "results": [
+    {
+      "width": 320,
+      "state": "unfiltered",
+      "count": 57,
+      "active": 0,
+      "text": "57 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42.00001525878906,
+          "target44": false
+        },
+        {
+          "id": "2",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "3",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "Categoría",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "7",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "16",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "23",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "24",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Ver 57 lugares",
+          "visibleFocus": true,
+          "width": 197,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Shibuya Crossing",
+        "SHIBUYA SKY",
+        "Meiji Jingu",
+        "Takeshita Street",
+        "Cat Street",
+        "Nezu Museum",
+        "Ota Memorial Museum of Art",
+        "Shibuya PARCO + Nintendo TOKYO",
+        "Daikanyama T-SITE",
+        "Shinjuku Gyoen National Garden",
+        "Tokyo Metropolitan Government Observatory",
+        "Kabukicho"
+      ]
+    },
+    {
+      "width": 320,
+      "state": "one",
+      "count": 1,
+      "active": 1,
+      "text": "1 lugar",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Limpiar (1)",
+          "visibleFocus": true,
+          "width": 65,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "2",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "3",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "7",
+          "text": "Categoría1",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Templos y santuarios",
+          "visibleFocus": true,
+          "width": 173.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Nocturno",
+          "visibleFocus": true,
+          "width": 102.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Miradores",
+          "visibleFocus": true,
+          "width": 107.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Jardines y paisajes",
+          "visibleFocus": true,
+          "width": 161.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Naturaleza",
+          "visibleFocus": true,
+          "width": 111.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Gastronomía",
+          "visibleFocus": true,
+          "width": 123.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Eventos",
+          "visibleFocus": true,
+          "width": 94.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Entretenimiento",
+          "visibleFocus": true,
+          "width": 143.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "16",
+          "text": "Arte",
+          "visibleFocus": true,
+          "width": 72.265625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Videojuegos",
+          "visibleFocus": true,
+          "width": 121.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Ciudad y barrios",
+          "visibleFocus": true,
+          "width": 143.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "Museos",
+          "visibleFocus": true,
+          "width": 93.390625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Anime/manga",
+          "visibleFocus": true,
+          "width": 127.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Fotografía",
+          "visibleFocus": true,
+          "width": 108.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Tecnología",
+          "visibleFocus": true,
+          "width": 110.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "23",
+          "text": "Senderismo/aventura",
+          "visibleFocus": true,
+          "width": 177.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "24",
+          "text": "Extraño/peculiar/único",
+          "visibleFocus": true,
+          "width": 183.4375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Compras",
+          "visibleFocus": true,
+          "width": 100.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "26",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "27",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "28",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "29",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "30",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "31",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "32",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "33",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "34",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "35",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "36",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "37",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "38",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "39",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "40",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "41",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "42",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "43",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "44",
+          "text": "Ver 1 lugar",
+          "visibleFocus": true,
+          "width": 197,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Zōjō-ji + Tokyo Tower view"
+      ]
+    },
+    {
+      "width": 320,
+      "state": "zero",
+      "count": 0,
+      "active": 2,
+      "text": "0 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Limpiar (2)",
+          "visibleFocus": true,
+          "width": 65,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "2",
+          "text": "Nivel de interés1",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "3",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "7",
+          "text": "Categoría1",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Templos y santuarios",
+          "visibleFocus": true,
+          "width": 173.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Nocturno",
+          "visibleFocus": true,
+          "width": 102.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Miradores",
+          "visibleFocus": true,
+          "width": 107.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Jardines y paisajes",
+          "visibleFocus": true,
+          "width": 161.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Naturaleza",
+          "visibleFocus": true,
+          "width": 111.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Gastronomía",
+          "visibleFocus": true,
+          "width": 123.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Eventos",
+          "visibleFocus": true,
+          "width": 94.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Entretenimiento",
+          "visibleFocus": true,
+          "width": 143.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "16",
+          "text": "Arte",
+          "visibleFocus": true,
+          "width": 72.265625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Videojuegos",
+          "visibleFocus": true,
+          "width": 121.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Ciudad y barrios",
+          "visibleFocus": true,
+          "width": 143.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "Museos",
+          "visibleFocus": true,
+          "width": 93.390625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Anime/manga",
+          "visibleFocus": true,
+          "width": 127.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Fotografía",
+          "visibleFocus": true,
+          "width": 108.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Tecnología",
+          "visibleFocus": true,
+          "width": 110.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "23",
+          "text": "Senderismo/aventura",
+          "visibleFocus": true,
+          "width": 177.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "24",
+          "text": "Extraño/peculiar/único",
+          "visibleFocus": true,
+          "width": 183.4375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Compras",
+          "visibleFocus": true,
+          "width": 100.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "26",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "27",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "28",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "29",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "30",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "31",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "32",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "33",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "34",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "35",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "36",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "37",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "38",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "39",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "40",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "41",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "42",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "43",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "44",
+          "text": "Ver 0 lugares",
+          "visibleFocus": true,
+          "width": 197,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": []
+    },
+    {
+      "width": 320,
+      "state": "reset",
+      "count": 57,
+      "active": 0,
+      "text": "57 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "2",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "3",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "Categoría",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "7",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "16",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "23",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 288,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "24",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Ver 57 lugares",
+          "visibleFocus": true,
+          "width": 197,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Shibuya Crossing",
+        "SHIBUYA SKY",
+        "Meiji Jingu",
+        "Takeshita Street",
+        "Cat Street",
+        "Nezu Museum",
+        "Ota Memorial Museum of Art",
+        "Shibuya PARCO + Nintendo TOKYO",
+        "Daikanyama T-SITE",
+        "Shinjuku Gyoen National Garden",
+        "Tokyo Metropolitan Government Observatory",
+        "Kabukicho"
+      ]
+    },
+    {
+      "width": 320,
+      "state": "backup",
+      "rows": [
+        [
+          "Personas",
+          "Persona 1 y Persona 2"
+        ],
+        [
+          "Lugares en «Quiero ir»",
+          "2"
+        ],
+        [
+          "Preferencias personales",
+          "2"
+        ],
+        [
+          "Lugares en el viaje",
+          "2"
+        ],
+        [
+          "Días planificados",
+          "2"
+        ],
+        [
+          "Fechas",
+          "2027-02-22 — 2027-02-23"
+        ]
+      ],
+      "version": 8,
+      "chrome": {
+        "top": 104,
+        "total": 160
+      },
+      "overflow": 0,
+      "errors": [],
+      "storageUnchanged": true,
+      "cancelFocus": "file"
+    },
+    {
+      "width": 390,
+      "state": "unfiltered",
+      "count": 57,
+      "active": 0,
+      "text": "57 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "2",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "3",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "Categoría",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "7",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "16",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "23",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "24",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Ver 57 lugares",
+          "visibleFocus": true,
+          "width": 267,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Shibuya Crossing",
+        "SHIBUYA SKY",
+        "Meiji Jingu",
+        "Takeshita Street",
+        "Cat Street",
+        "Nezu Museum",
+        "Ota Memorial Museum of Art",
+        "Shibuya PARCO + Nintendo TOKYO",
+        "Daikanyama T-SITE",
+        "Shinjuku Gyoen National Garden",
+        "Tokyo Metropolitan Government Observatory",
+        "Kabukicho"
+      ]
+    },
+    {
+      "width": 390,
+      "state": "one",
+      "count": 1,
+      "active": 1,
+      "text": "1 lugar",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Limpiar (1)",
+          "visibleFocus": true,
+          "width": 65,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "2",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "3",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "7",
+          "text": "Categoría1",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Templos y santuarios",
+          "visibleFocus": true,
+          "width": 173.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Nocturno",
+          "visibleFocus": true,
+          "width": 102.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Miradores",
+          "visibleFocus": true,
+          "width": 107.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Jardines y paisajes",
+          "visibleFocus": true,
+          "width": 161.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Naturaleza",
+          "visibleFocus": true,
+          "width": 111.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Gastronomía",
+          "visibleFocus": true,
+          "width": 123.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Eventos",
+          "visibleFocus": true,
+          "width": 94.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Entretenimiento",
+          "visibleFocus": true,
+          "width": 143.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "16",
+          "text": "Arte",
+          "visibleFocus": true,
+          "width": 72.265625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Videojuegos",
+          "visibleFocus": true,
+          "width": 121.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Ciudad y barrios",
+          "visibleFocus": true,
+          "width": 143.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "Museos",
+          "visibleFocus": true,
+          "width": 93.390625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Anime/manga",
+          "visibleFocus": true,
+          "width": 127.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Fotografía",
+          "visibleFocus": true,
+          "width": 108.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Tecnología",
+          "visibleFocus": true,
+          "width": 110.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "23",
+          "text": "Senderismo/aventura",
+          "visibleFocus": true,
+          "width": 177.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "24",
+          "text": "Extraño/peculiar/único",
+          "visibleFocus": true,
+          "width": 183.4375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Compras",
+          "visibleFocus": true,
+          "width": 100.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "26",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "27",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "28",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "29",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "30",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "31",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "32",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "33",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "34",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "35",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "36",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "37",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "38",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "39",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "40",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "41",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "42",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "43",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "44",
+          "text": "Ver 1 lugar",
+          "visibleFocus": true,
+          "width": 267,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Zōjō-ji + Tokyo Tower view"
+      ]
+    },
+    {
+      "width": 390,
+      "state": "zero",
+      "count": 0,
+      "active": 2,
+      "text": "0 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Limpiar (2)",
+          "visibleFocus": true,
+          "width": 65,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "2",
+          "text": "Nivel de interés1",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "3",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "7",
+          "text": "Categoría1",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Templos y santuarios",
+          "visibleFocus": true,
+          "width": 173.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Nocturno",
+          "visibleFocus": true,
+          "width": 102.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Miradores",
+          "visibleFocus": true,
+          "width": 107.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Jardines y paisajes",
+          "visibleFocus": true,
+          "width": 161.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Naturaleza",
+          "visibleFocus": true,
+          "width": 111.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Gastronomía",
+          "visibleFocus": true,
+          "width": 123.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Eventos",
+          "visibleFocus": true,
+          "width": 94.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Entretenimiento",
+          "visibleFocus": true,
+          "width": 143.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "16",
+          "text": "Arte",
+          "visibleFocus": true,
+          "width": 72.265625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Videojuegos",
+          "visibleFocus": true,
+          "width": 121.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Ciudad y barrios",
+          "visibleFocus": true,
+          "width": 143.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "Museos",
+          "visibleFocus": true,
+          "width": 93.390625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Anime/manga",
+          "visibleFocus": true,
+          "width": 127.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Fotografía",
+          "visibleFocus": true,
+          "width": 108.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Tecnología",
+          "visibleFocus": true,
+          "width": 110.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "23",
+          "text": "Senderismo/aventura",
+          "visibleFocus": true,
+          "width": 177.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "24",
+          "text": "Extraño/peculiar/único",
+          "visibleFocus": true,
+          "width": 183.4375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Compras",
+          "visibleFocus": true,
+          "width": 100.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "26",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "27",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "28",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "29",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "30",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "31",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "32",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "33",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "34",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "35",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "36",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "37",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "38",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "39",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "40",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "41",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "42",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "43",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "44",
+          "text": "Ver 0 lugares",
+          "visibleFocus": true,
+          "width": 267,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": []
+    },
+    {
+      "width": 390,
+      "state": "reset",
+      "count": 57,
+      "active": 0,
+      "text": "57 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "2",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "3",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "Categoría",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "7",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "16",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "23",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 358,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "24",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Ver 57 lugares",
+          "visibleFocus": true,
+          "width": 267,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Shibuya Crossing",
+        "SHIBUYA SKY",
+        "Meiji Jingu",
+        "Takeshita Street",
+        "Cat Street",
+        "Nezu Museum",
+        "Ota Memorial Museum of Art",
+        "Shibuya PARCO + Nintendo TOKYO",
+        "Daikanyama T-SITE",
+        "Shinjuku Gyoen National Garden",
+        "Tokyo Metropolitan Government Observatory",
+        "Kabukicho"
+      ]
+    },
+    {
+      "width": 390,
+      "state": "backup",
+      "rows": [
+        [
+          "Personas",
+          "Persona 1 y Persona 2"
+        ],
+        [
+          "Lugares en «Quiero ir»",
+          "2"
+        ],
+        [
+          "Preferencias personales",
+          "2"
+        ],
+        [
+          "Lugares en el viaje",
+          "2"
+        ],
+        [
+          "Días planificados",
+          "2"
+        ],
+        [
+          "Fechas",
+          "2027-02-22 — 2027-02-23"
+        ]
+      ],
+      "version": 8,
+      "chrome": {
+        "top": 104,
+        "total": 160
+      },
+      "overflow": 0,
+      "errors": [],
+      "storageUnchanged": true,
+      "cancelFocus": "file"
+    },
+    {
+      "width": 1440,
+      "state": "unfiltered",
+      "count": 57,
+      "active": 0,
+      "text": "57 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "2",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "3",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "Categoría",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "7",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "16",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "23",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "24",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Ver 57 lugares",
+          "visibleFocus": true,
+          "width": 297,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Shibuya Crossing",
+        "SHIBUYA SKY",
+        "Meiji Jingu",
+        "Takeshita Street",
+        "Cat Street",
+        "Nezu Museum",
+        "Ota Memorial Museum of Art",
+        "Shibuya PARCO + Nintendo TOKYO",
+        "Daikanyama T-SITE",
+        "Shinjuku Gyoen National Garden",
+        "Tokyo Metropolitan Government Observatory",
+        "Kabukicho"
+      ]
+    },
+    {
+      "width": 1440,
+      "state": "one",
+      "count": 1,
+      "active": 1,
+      "text": "1 lugar",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Limpiar (1)",
+          "visibleFocus": true,
+          "width": 65,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "2",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "3",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "7",
+          "text": "Categoría1",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Templos y santuarios",
+          "visibleFocus": true,
+          "width": 173.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Nocturno",
+          "visibleFocus": true,
+          "width": 102.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Miradores",
+          "visibleFocus": true,
+          "width": 107.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Jardines y paisajes",
+          "visibleFocus": true,
+          "width": 161.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Naturaleza",
+          "visibleFocus": true,
+          "width": 111.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Gastronomía",
+          "visibleFocus": true,
+          "width": 123.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Eventos",
+          "visibleFocus": true,
+          "width": 94.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Entretenimiento",
+          "visibleFocus": true,
+          "width": 143.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "16",
+          "text": "Arte",
+          "visibleFocus": true,
+          "width": 72.265625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Videojuegos",
+          "visibleFocus": true,
+          "width": 121.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Ciudad y barrios",
+          "visibleFocus": true,
+          "width": 143.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "Museos",
+          "visibleFocus": true,
+          "width": 93.390625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Anime/manga",
+          "visibleFocus": true,
+          "width": 127.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Fotografía",
+          "visibleFocus": true,
+          "width": 108.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Tecnología",
+          "visibleFocus": true,
+          "width": 110.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "23",
+          "text": "Senderismo/aventura",
+          "visibleFocus": true,
+          "width": 177.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "24",
+          "text": "Extraño/peculiar/único",
+          "visibleFocus": true,
+          "width": 183.4375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Compras",
+          "visibleFocus": true,
+          "width": 100.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "26",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "27",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "28",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "29",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "30",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "31",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "32",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "33",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "34",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "35",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "36",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "37",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "38",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "39",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "40",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "41",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "42",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "43",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "44",
+          "text": "Ver 1 lugar",
+          "visibleFocus": true,
+          "width": 297,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Zōjō-ji + Tokyo Tower view"
+      ]
+    },
+    {
+      "width": 1440,
+      "state": "zero",
+      "count": 0,
+      "active": 2,
+      "text": "0 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Limpiar (2)",
+          "visibleFocus": true,
+          "width": 65,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "2",
+          "text": "Nivel de interés1",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "3",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "7",
+          "text": "Categoría1",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Templos y santuarios",
+          "visibleFocus": true,
+          "width": 173.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Nocturno",
+          "visibleFocus": true,
+          "width": 102.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Miradores",
+          "visibleFocus": true,
+          "width": 107.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Jardines y paisajes",
+          "visibleFocus": true,
+          "width": 161.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Naturaleza",
+          "visibleFocus": true,
+          "width": 111.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Gastronomía",
+          "visibleFocus": true,
+          "width": 123.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Eventos",
+          "visibleFocus": true,
+          "width": 94.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Entretenimiento",
+          "visibleFocus": true,
+          "width": 143.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "16",
+          "text": "Arte",
+          "visibleFocus": true,
+          "width": 72.265625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Videojuegos",
+          "visibleFocus": true,
+          "width": 121.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Ciudad y barrios",
+          "visibleFocus": true,
+          "width": 143.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "Museos",
+          "visibleFocus": true,
+          "width": 93.390625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Anime/manga",
+          "visibleFocus": true,
+          "width": 127.71875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Fotografía",
+          "visibleFocus": true,
+          "width": 108.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Tecnología",
+          "visibleFocus": true,
+          "width": 110.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "23",
+          "text": "Senderismo/aventura",
+          "visibleFocus": true,
+          "width": 177.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "24",
+          "text": "Extraño/peculiar/único",
+          "visibleFocus": true,
+          "width": 183.4375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Compras",
+          "visibleFocus": true,
+          "width": 100.46875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "26",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "27",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "28",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "29",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "30",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "31",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "32",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "33",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "34",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "35",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "36",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "37",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "38",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "39",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "40",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "41",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "42",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "43",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "44",
+          "text": "Ver 0 lugares",
+          "visibleFocus": true,
+          "width": 297,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": []
+    },
+    {
+      "width": 1440,
+      "state": "reset",
+      "count": 57,
+      "active": 0,
+      "text": "57 lugares",
+      "overflow": 0,
+      "controls": [
+        {
+          "id": "0",
+          "text": "",
+          "visibleFocus": true,
+          "width": 44,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "1",
+          "text": "Nivel de interés",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "2",
+          "text": "★ Imprescindible",
+          "visibleFocus": true,
+          "width": 133.078125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "3",
+          "text": "◆ Muy recomendable",
+          "visibleFocus": true,
+          "width": 154.203125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "4",
+          "text": "● Recomendable",
+          "visibleFocus": true,
+          "width": 128.78125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "5",
+          "text": "○ Opcional",
+          "visibleFocus": true,
+          "width": 90.53125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "6",
+          "text": "Categoría",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "7",
+          "text": "Duración",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "8",
+          "text": "Visita breve (hasta 1 h)",
+          "visibleFocus": true,
+          "width": 163.59375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "9",
+          "text": "Bloque corto (1–2 h)",
+          "visibleFocus": true,
+          "width": 151.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "10",
+          "text": "Bloque medio (2–4 h)",
+          "visibleFocus": true,
+          "width": 156.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "11",
+          "text": "Bloque largo (más de 4 h)",
+          "visibleFocus": true,
+          "width": 178.65625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "12",
+          "text": "Media jornada",
+          "visibleFocus": true,
+          "width": 110.859375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "13",
+          "text": "Media a jornada completa",
+          "visibleFocus": true,
+          "width": 181.5625,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "14",
+          "text": "Jornada completa",
+          "visibleFocus": true,
+          "width": 136.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "15",
+          "text": "Reserva",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "16",
+          "text": "Todas",
+          "visibleFocus": true,
+          "width": 62.328125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "17",
+          "text": "Requiere reserva",
+          "visibleFocus": true,
+          "width": 131.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "18",
+          "text": "Reserva recomendable",
+          "visibleFocus": true,
+          "width": 167.3125,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "19",
+          "text": "No requiere reserva",
+          "visibleFocus": true,
+          "width": 148.25,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "20",
+          "text": "Reserva opcional",
+          "visibleFocus": true,
+          "width": 130.046875,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "21",
+          "text": "Depende del rol",
+          "visibleFocus": true,
+          "width": 123.984375,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "22",
+          "text": "Afluencia",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "23",
+          "text": "Joyas",
+          "visibleFocus": true,
+          "width": 388,
+          "height": 42,
+          "target44": false
+        },
+        {
+          "id": "24",
+          "text": "Limpiar",
+          "visibleFocus": true,
+          "width": 79,
+          "height": 44,
+          "target44": true
+        },
+        {
+          "id": "25",
+          "text": "Ver 57 lugares",
+          "visibleFocus": true,
+          "width": 297,
+          "height": 44,
+          "target44": true
+        }
+      ],
+      "visiblePlaceNames": [
+        "Shibuya Crossing",
+        "SHIBUYA SKY",
+        "Meiji Jingu",
+        "Takeshita Street",
+        "Cat Street",
+        "Nezu Museum",
+        "Ota Memorial Museum of Art",
+        "Shibuya PARCO + Nintendo TOKYO",
+        "Daikanyama T-SITE",
+        "Shinjuku Gyoen National Garden",
+        "Tokyo Metropolitan Government Observatory",
+        "Kabukicho"
+      ]
+    },
+    {
+      "width": 1440,
+      "state": "backup",
+      "rows": [
+        [
+          "Personas",
+          "Persona 1 y Persona 2"
+        ],
+        [
+          "Lugares en «Quiero ir»",
+          "2"
+        ],
+        [
+          "Preferencias personales",
+          "2"
+        ],
+        [
+          "Lugares en el viaje",
+          "2"
+        ],
+        [
+          "Días planificados",
+          "2"
+        ],
+        [
+          "Fechas",
+          "2027-02-22 — 2027-02-23"
+        ]
+      ],
+      "version": 8,
+      "chrome": {
+        "top": 104,
+        "total": 104
+      },
+      "overflow": 0,
+      "errors": [],
+      "storageUnchanged": true,
+      "cancelFocus": "file"
+    }
+  ]
+}

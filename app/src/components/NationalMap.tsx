@@ -89,11 +89,25 @@ function FitViewport({
       if (regionBounds.isValid()) target = regionBounds;
     }
 
-    if (prefersReducedMotion()) {
-      map.fitBounds(target, { padding: BOUNDS_PADDING, animate: false });
-    } else {
-      map.flyToBounds(target, { padding: BOUNDS_PADDING, duration: 0.7 });
-    }
+    // A deferred map may arrive while its destination is hidden. Leaflet cannot
+    // animate through a zero-sized viewport; wait for the first real layout.
+    const fitWhenVisible = () => {
+      map.invalidateSize({ animate: false });
+      const size = map.getSize();
+      if (size.x === 0 || size.y === 0) return false;
+      if (prefersReducedMotion()) {
+        map.fitBounds(target, { padding: BOUNDS_PADDING, animate: false });
+      } else {
+        map.flyToBounds(target, { padding: BOUNDS_PADDING, duration: 0.7 });
+      }
+      return true;
+    };
+    if (fitWhenVisible()) return;
+    const observer = new ResizeObserver(() => {
+      if (fitWhenVisible()) observer.disconnect();
+    });
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
   }, [activeRegion, boundsByCode, map]);
 
   return null;

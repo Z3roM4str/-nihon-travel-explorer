@@ -1,0 +1,1574 @@
+[
+  {
+    "width": 390,
+    "temperature": "cold",
+    "home": {
+      "time": 1001.4000000001397,
+      "resources": [
+        {
+          "path": "/assets/index-BBpfiw-M.js",
+          "transfer": 280298,
+          "encoded": 279998,
+          "decoded": 1470215,
+          "duration": 62.199999999953434
+        },
+        {
+          "path": "/assets/index-DRw1BDrL.css",
+          "transfer": 28306,
+          "encoded": 28006,
+          "decoded": 153526,
+          "duration": 26.5
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin.woff2",
+          "transfer": 12972,
+          "encoded": 12672,
+          "decoded": 12672,
+          "duration": 109.30000000004657
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-600-latin.woff2",
+          "transfer": 19356,
+          "encoded": 19056,
+          "decoded": 19056,
+          "duration": 109.4000000001397
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-400-latin.woff2",
+          "transfer": 17424,
+          "encoded": 17124,
+          "decoded": 17124,
+          "duration": 108.19999999995343
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-latin.woff2",
+          "transfer": 13164,
+          "encoded": 12864,
+          "decoded": 12864,
+          "duration": 108.4000000001397
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-500-latin.woff2",
+          "transfer": 19216,
+          "encoded": 18916,
+          "decoded": 18916,
+          "duration": 115
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-japanese.woff2",
+          "transfer": 1040580,
+          "encoded": 1040280,
+          "decoded": 1040280,
+          "duration": 121
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-400-latin.woff2",
+          "transfer": 13168,
+          "encoded": 12868,
+          "decoded": 12868,
+          "duration": 113.9000000001397
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin-ext.woff2",
+          "transfer": 2364,
+          "encoded": 2064,
+          "decoded": 2064,
+          "duration": 113.30000000004657
+        },
+        {
+          "path": "/images/places/JP-021/tokyo-national-museum-stairs-800w.webp",
+          "transfer": 43376,
+          "encoded": 43076,
+          "decoded": 43076,
+          "duration": 6.899999999906868
+        },
+        {
+          "path": "/images/places/JP-054/kiyomizu-dera-stage-800w.webp",
+          "transfer": 61258,
+          "encoded": 60958,
+          "decoded": 60958,
+          "duration": 7.100000000093132
+        },
+        {
+          "path": "/images/places/JP-125/universal-studios-japan-entrance-800w.webp",
+          "transfer": 41438,
+          "encoded": 41138,
+          "decoded": 41138,
+          "duration": 9.5
+        },
+        {
+          "path": "/images/places/JP-157/shurijo-castle-shureimon-gate-800w.webp",
+          "transfer": 78466,
+          "encoded": 78166,
+          "decoded": 78166,
+          "duration": 12.5
+        },
+        {
+          "path": "/images/places/JP-025/akihabara-electric-town-800w.webp",
+          "transfer": 61378,
+          "encoded": 61078,
+          "decoded": 61078,
+          "duration": 11.199999999953434
+        },
+        {
+          "path": "/images/places/JP-033/teamlab-borderless-azabudai-light-sculpture-800w.webp",
+          "transfer": 69572,
+          "encoded": 69272,
+          "decoded": 69272,
+          "duration": 30.299999999813735
+        },
+        {
+          "path": "/images/places/JP-066/senbon-torii-path-800w.webp",
+          "transfer": 33122,
+          "encoded": 32822,
+          "decoded": 32822,
+          "duration": 30.0999999998603
+        },
+        {
+          "path": "/images/places/JP-044/ghibli-museum-exterior-800w.webp",
+          "transfer": 65830,
+          "encoded": 65530,
+          "decoded": 65530,
+          "duration": 30.299999999813735
+        },
+        {
+          "path": "/images/places/JP-077/katsura-imperial-villa-pond-800w.webp",
+          "transfer": 42116,
+          "encoded": 41816,
+          "decoded": 41816,
+          "duration": 30.399999999906868
+        },
+        {
+          "path": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp",
+          "transfer": 67620,
+          "encoded": 67320,
+          "decoded": 67320,
+          "duration": 30.5
+        },
+        {
+          "path": "/images/places/JP-017/asakusa-culture-tourist-information-center-800w.webp",
+          "transfer": 77312,
+          "encoded": 77012,
+          "decoded": 77012,
+          "duration": 31.0999999998603
+        },
+        {
+          "path": "/images/places/JP-020/sumida-hokusai-museum-800w.webp",
+          "transfer": 62678,
+          "encoded": 62378,
+          "decoded": 62378,
+          "duration": 37
+        },
+        {
+          "path": "/images/places/JP-028/jimbocho-book-town-800w.webp",
+          "transfer": 68570,
+          "encoded": 68270,
+          "decoded": 68270,
+          "duration": 37.300000000046566
+        },
+        {
+          "path": "/images/places/JP-036/21-21-design-sight-folded-roof-800w.webp",
+          "transfer": 62768,
+          "encoded": 62468,
+          "decoded": 62468,
+          "duration": 37.5
+        },
+        {
+          "path": "/images/places/JP-047/edo-tokyo-open-air-architectural-museum-800w.webp",
+          "transfer": 95314,
+          "encoded": 95014,
+          "decoded": 95014,
+          "duration": 38.0999999998603
+        },
+        {
+          "path": "/images/places/JP-061/murinan-garden-800w.webp",
+          "transfer": 79694,
+          "encoded": 79394,
+          "decoded": 79394,
+          "duration": 38.300000000046566
+        },
+        {
+          "path": "/images/places/JP-004/takeshita-street-west-view-800w.webp",
+          "transfer": 98126,
+          "encoded": 97826,
+          "decoded": 97826,
+          "duration": 38.39999999990687
+        },
+        {
+          "path": "/images/places/JP-005/cat-street-harajuku-800w.webp",
+          "transfer": 52024,
+          "encoded": 51724,
+          "decoded": 51724,
+          "duration": 44.699999999953434
+        },
+        {
+          "path": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp",
+          "transfer": 63226,
+          "encoded": 62926,
+          "decoded": 62926,
+          "duration": 44.800000000046566
+        },
+        {
+          "path": "/images/places/JP-024/nezu-shrine-romon-gate-800w.webp",
+          "transfer": 61520,
+          "encoded": 61220,
+          "decoded": 61220,
+          "duration": 44.9000000001397
+        },
+        {
+          "path": "/images/places/JP-037/zojoji-tokyo-tower-800w.webp",
+          "transfer": 54024,
+          "encoded": 53724,
+          "decoded": 53724,
+          "duration": 45.10000000009313
+        },
+        {
+          "path": "/images/places/JP-046/nakano-broadway-800w.webp",
+          "transfer": 67480,
+          "encoded": 67180,
+          "decoded": 67180,
+          "duration": 45.10000000009313
+        },
+        {
+          "path": "/images/places/JP-049/animate-ikebukuro-800w.webp",
+          "transfer": 67776,
+          "encoded": 67476,
+          "decoded": 67476,
+          "duration": 45.199999999953434
+        },
+        {
+          "path": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp",
+          "transfer": 54950,
+          "encoded": 54650,
+          "decoded": 54650,
+          "duration": 49.800000000046566
+        },
+        {
+          "path": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp",
+          "transfer": 80554,
+          "encoded": 80254,
+          "decoded": 80254,
+          "duration": 50.199999999953434
+        },
+        {
+          "path": "/images/places/JP-003/meiji-jingu-torii-800w.webp",
+          "transfer": 64110,
+          "encoded": 63810,
+          "decoded": 63810,
+          "duration": 49.89999999990687
+        },
+        {
+          "path": "/images/places/JP-009/daikanyama-t-site-800w.webp",
+          "transfer": 68106,
+          "encoded": 67806,
+          "decoded": 67806,
+          "duration": 49.89999999990687
+        },
+        {
+          "path": "/assets/OrderedSequenceBuilder-Ci7Kb3bJ.js",
+          "transfer": 36824,
+          "encoded": 36524,
+          "decoded": 141448,
+          "duration": 6.900000000139698
+        },
+        {
+          "path": "/assets/ZoneComparison-c0ihwf1w.js",
+          "transfer": 6484,
+          "encoded": 6184,
+          "decoded": 20353,
+          "duration": 3.199999999953434
+        }
+      ]
+    },
+    "listTime": 1217.3000000000466,
+    "listRequests": [
+      "/images/places/JP-006/nezu-museum-800w.webp",
+      "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp",
+      "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+    ],
+    "cards": [
+      {
+        "id": null,
+        "image": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-003/meiji-jingu-torii-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-004/takeshita-street-west-view-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-005/cat-street-harajuku-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-006/nezu-museum-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-009/daikanyama-t-site-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-012/kabukicho-800w.webp"
+      }
+    ],
+    "detail": {
+      "photos": [
+        "/images/places/JP-001/shibuya-crossing-top-down-800w.webp"
+      ],
+      "slides": 2
+    }
+  },
+  {
+    "width": 390,
+    "temperature": "warm",
+    "home": {
+      "time": 701.2000000001863,
+      "resources": [
+        {
+          "path": "/assets/index-BBpfiw-M.js",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 3.7999999998137355
+        },
+        {
+          "path": "/assets/index-DRw1BDrL.css",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 2.699999999953434
+        },
+        {
+          "path": "/images/places/JP-021/tokyo-national-museum-stairs-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 3.0999999998603016
+        },
+        {
+          "path": "/images/places/JP-054/kiyomizu-dera-stage-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4.699999999953434
+        },
+        {
+          "path": "/images/places/JP-125/universal-studios-japan-entrance-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4.900000000139698
+        },
+        {
+          "path": "/images/places/JP-157/shurijo-castle-shureimon-gate-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 5.100000000093132
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4.800000000046566
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-600-latin.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 5.2000000001862645
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-400-latin.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 5.800000000046566
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-latin.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 6.399999999906868
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-japanese.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 6.899999999906868
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-500-latin.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 7.199999999953434
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-400-latin.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 6.900000000139698
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin-ext.woff2",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 6.5
+        },
+        {
+          "path": "/images/places/JP-025/akihabara-electric-town-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 2.199999999953434
+        },
+        {
+          "path": "/images/places/JP-033/teamlab-borderless-azabudai-light-sculpture-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 3.800000000046566
+        },
+        {
+          "path": "/images/places/JP-044/ghibli-museum-exterior-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 5.599999999860302
+        },
+        {
+          "path": "/images/places/JP-066/senbon-torii-path-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 8
+        },
+        {
+          "path": "/images/places/JP-077/katsura-imperial-villa-pond-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.5
+        },
+        {
+          "path": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.300000000046566
+        },
+        {
+          "path": "/images/places/JP-017/asakusa-culture-tourist-information-center-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.399999999906868
+        },
+        {
+          "path": "/images/places/JP-020/sumida-hokusai-museum-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.5
+        },
+        {
+          "path": "/images/places/JP-028/jimbocho-book-town-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.600000000093132
+        },
+        {
+          "path": "/images/places/JP-036/21-21-design-sight-folded-roof-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.699999999953434
+        },
+        {
+          "path": "/images/places/JP-047/edo-tokyo-open-air-architectural-museum-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 16.9000000001397
+        },
+        {
+          "path": "/images/places/JP-061/murinan-garden-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 17.199999999953434
+        },
+        {
+          "path": "/images/places/JP-004/takeshita-street-west-view-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 17.100000000093132
+        },
+        {
+          "path": "/images/places/JP-005/cat-street-harajuku-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 18
+        },
+        {
+          "path": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 18.300000000046566
+        },
+        {
+          "path": "/images/places/JP-024/nezu-shrine-romon-gate-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 18.600000000093132
+        },
+        {
+          "path": "/images/places/JP-037/zojoji-tokyo-tower-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.199999999953434
+        },
+        {
+          "path": "/images/places/JP-046/nakano-broadway-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.700000000186265
+        },
+        {
+          "path": "/images/places/JP-049/animate-ikebukuro-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.300000000046566
+        },
+        {
+          "path": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.199999999953434
+        },
+        {
+          "path": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.4000000001397
+        },
+        {
+          "path": "/images/places/JP-003/meiji-jingu-torii-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.699999999953434
+        },
+        {
+          "path": "/images/places/JP-009/daikanyama-t-site-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 25.0999999998603
+        },
+        {
+          "path": "/assets/OrderedSequenceBuilder-Ci7Kb3bJ.js",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 2.8999999999068677
+        },
+        {
+          "path": "/assets/ZoneComparison-c0ihwf1w.js",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 3.199999999953434
+        }
+      ]
+    },
+    "listTime": 833,
+    "listRequests": [
+      "/images/places/JP-006/nezu-museum-800w.webp",
+      "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp",
+      "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+    ],
+    "cards": [
+      {
+        "id": null,
+        "image": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-003/meiji-jingu-torii-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-004/takeshita-street-west-view-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-005/cat-street-harajuku-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-006/nezu-museum-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-009/daikanyama-t-site-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-012/kabukicho-800w.webp"
+      }
+    ],
+    "detail": {
+      "photos": [
+        "/images/places/JP-001/shibuya-crossing-top-down-800w.webp"
+      ],
+      "slides": 2
+    }
+  },
+  {
+    "width": 1440,
+    "temperature": "cold",
+    "home": {
+      "time": 939.7999999998137,
+      "resources": [
+        {
+          "path": "/assets/index-BBpfiw-M.js",
+          "transfer": 280298,
+          "encoded": 279998,
+          "decoded": 1470215,
+          "duration": 57.0999999998603
+        },
+        {
+          "path": "/assets/index-DRw1BDrL.css",
+          "transfer": 28306,
+          "encoded": 28006,
+          "decoded": 153526,
+          "duration": 25
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-500-latin.woff2",
+          "transfer": 19216,
+          "encoded": 18916,
+          "decoded": 18916,
+          "duration": 63.5
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin.woff2",
+          "transfer": 12972,
+          "encoded": 12672,
+          "decoded": 12672,
+          "duration": 63.89999999990687
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-600-latin.woff2",
+          "transfer": 19356,
+          "encoded": 19056,
+          "decoded": 19056,
+          "duration": 71.5
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-400-latin.woff2",
+          "transfer": 17424,
+          "encoded": 17124,
+          "decoded": 17124,
+          "duration": 71.80000000004657
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-latin.woff2",
+          "transfer": 13164,
+          "encoded": 12864,
+          "decoded": 12864,
+          "duration": 73.69999999995343
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-japanese.woff2",
+          "transfer": 1040580,
+          "encoded": 1040280,
+          "decoded": 1040280,
+          "duration": 77.20000000018626
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-400-latin.woff2",
+          "transfer": 13168,
+          "encoded": 12868,
+          "decoded": 12868,
+          "duration": 72.0999999998603
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin-ext.woff2",
+          "transfer": 2364,
+          "encoded": 2064,
+          "decoded": 2064,
+          "duration": 69.29999999981374
+        },
+        {
+          "path": "/images/places/JP-021/tokyo-national-museum-stairs-800w.webp",
+          "transfer": 43376,
+          "encoded": 43076,
+          "decoded": 43076,
+          "duration": 11.399999999906868
+        },
+        {
+          "path": "/images/places/JP-054/kiyomizu-dera-stage-800w.webp",
+          "transfer": 61258,
+          "encoded": 60958,
+          "decoded": 60958,
+          "duration": 12.400000000139698
+        },
+        {
+          "path": "/images/places/JP-125/universal-studios-japan-entrance-800w.webp",
+          "transfer": 41438,
+          "encoded": 41138,
+          "decoded": 41138,
+          "duration": 12.800000000046566
+        },
+        {
+          "path": "/images/places/JP-157/shurijo-castle-shureimon-gate-800w.webp",
+          "transfer": 78466,
+          "encoded": 78166,
+          "decoded": 78166,
+          "duration": 13.400000000139698
+        },
+        {
+          "path": "/images/places/JP-025/akihabara-electric-town-800w.webp",
+          "transfer": 61378,
+          "encoded": 61078,
+          "decoded": 61078,
+          "duration": 19.399999999906868
+        },
+        {
+          "path": "/images/places/JP-033/teamlab-borderless-azabudai-light-sculpture-800w.webp",
+          "transfer": 69572,
+          "encoded": 69272,
+          "decoded": 69272,
+          "duration": 19.5
+        },
+        {
+          "path": "/images/places/JP-044/ghibli-museum-exterior-800w.webp",
+          "transfer": 65830,
+          "encoded": 65530,
+          "decoded": 65530,
+          "duration": 19.700000000186265
+        },
+        {
+          "path": "/images/places/JP-066/senbon-torii-path-800w.webp",
+          "transfer": 33122,
+          "encoded": 32822,
+          "decoded": 32822,
+          "duration": 19.700000000186265
+        },
+        {
+          "path": "/images/places/JP-077/katsura-imperial-villa-pond-800w.webp",
+          "transfer": 42116,
+          "encoded": 41816,
+          "decoded": 41816,
+          "duration": 19.800000000046566
+        },
+        {
+          "path": "/images/places/JP-089/nijo-castle-ninomaru-palace-800w.webp",
+          "transfer": 39998,
+          "encoded": 39698,
+          "decoded": 39698,
+          "duration": 20
+        },
+        {
+          "path": "/images/places/JP-096/sanjusangendo-main-hall-800w.webp",
+          "transfer": 30410,
+          "encoded": 30110,
+          "decoded": 30110,
+          "duration": 28.600000000093132
+        },
+        {
+          "path": "/images/places/JP-097/nintendo-museum-entrance-800w.webp",
+          "transfer": 46220,
+          "encoded": 45920,
+          "decoded": 45920,
+          "duration": 30.5
+        },
+        {
+          "path": "/images/places/JP-020/sumida-hokusai-museum-800w.webp",
+          "transfer": 62678,
+          "encoded": 62378,
+          "decoded": 62378,
+          "duration": 28.199999999953434
+        },
+        {
+          "path": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp",
+          "transfer": 67620,
+          "encoded": 67320,
+          "decoded": 67320,
+          "duration": 30.600000000093132
+        },
+        {
+          "path": "/images/places/JP-017/asakusa-culture-tourist-information-center-800w.webp",
+          "transfer": 77312,
+          "encoded": 77012,
+          "decoded": 77012,
+          "duration": 31.300000000046566
+        },
+        {
+          "path": "/images/places/JP-028/jimbocho-book-town-800w.webp",
+          "transfer": 68570,
+          "encoded": 68270,
+          "decoded": 68270,
+          "duration": 32
+        },
+        {
+          "path": "/images/places/JP-036/21-21-design-sight-folded-roof-800w.webp",
+          "transfer": 62768,
+          "encoded": 62468,
+          "decoded": 62468,
+          "duration": 39.0999999998603
+        },
+        {
+          "path": "/images/places/JP-047/edo-tokyo-open-air-architectural-museum-800w.webp",
+          "transfer": 95314,
+          "encoded": 95014,
+          "decoded": 95014,
+          "duration": 40.0999999998603
+        },
+        {
+          "path": "/images/places/JP-061/murinan-garden-800w.webp",
+          "transfer": 79694,
+          "encoded": 79394,
+          "decoded": 79394,
+          "duration": 40.299999999813735
+        },
+        {
+          "path": "/images/places/JP-064/honen-in-800w.webp",
+          "transfer": 85294,
+          "encoded": 84994,
+          "decoded": 84994,
+          "duration": 41
+        },
+        {
+          "path": "/images/places/JP-069/bishamondo-main-hall-yamashina-800w.webp",
+          "transfer": 71454,
+          "encoded": 71154,
+          "decoded": 71154,
+          "duration": 41.5
+        },
+        {
+          "path": "/images/places/JP-070/yamashina-canal-800w.webp",
+          "transfer": 89898,
+          "encoded": 89598,
+          "decoded": 89598,
+          "duration": 41.60000000009313
+        },
+        {
+          "path": "/images/places/JP-074/gio-ji-moss-garden-thatched-hall-800w.webp",
+          "transfer": 80088,
+          "encoded": 79788,
+          "decoded": 79788,
+          "duration": 49.4000000001397
+        },
+        {
+          "path": "/images/places/JP-004/takeshita-street-west-view-800w.webp",
+          "transfer": 98126,
+          "encoded": 97826,
+          "decoded": 97826,
+          "duration": 49.699999999953434
+        },
+        {
+          "path": "/images/places/JP-005/cat-street-harajuku-800w.webp",
+          "transfer": 52024,
+          "encoded": 51724,
+          "decoded": 51724,
+          "duration": 50.0999999998603
+        },
+        {
+          "path": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp",
+          "transfer": 63226,
+          "encoded": 62926,
+          "decoded": 62926,
+          "duration": 50.199999999953434
+        },
+        {
+          "path": "/images/places/JP-024/nezu-shrine-romon-gate-800w.webp",
+          "transfer": 61520,
+          "encoded": 61220,
+          "decoded": 61220,
+          "duration": 50.39999999990687
+        },
+        {
+          "path": "/images/places/JP-037/zojoji-tokyo-tower-800w.webp",
+          "transfer": 54024,
+          "encoded": 53724,
+          "decoded": 53724,
+          "duration": 50.5
+        },
+        {
+          "path": "/images/places/JP-046/nakano-broadway-800w.webp",
+          "transfer": 67480,
+          "encoded": 67180,
+          "decoded": 67180,
+          "duration": 79
+        },
+        {
+          "path": "/images/places/JP-049/animate-ikebukuro-800w.webp",
+          "transfer": 67776,
+          "encoded": 67476,
+          "decoded": 67476,
+          "duration": 79.60000000009313
+        },
+        {
+          "path": "/images/places/JP-073/okochi-sanso-garden-800w.webp",
+          "transfer": 85174,
+          "encoded": 84874,
+          "decoded": 84874,
+          "duration": 81.10000000009313
+        },
+        {
+          "path": "/images/places/JP-076/adashino-nenbutsu-ji-stone-statues-800w.webp",
+          "transfer": 143766,
+          "encoded": 143466,
+          "decoded": 143466,
+          "duration": 81.5
+        },
+        {
+          "path": "/images/places/JP-102/demachi-masugata-arcade-800w.webp",
+          "transfer": 48020,
+          "encoded": 47720,
+          "decoded": 47720,
+          "duration": 80
+        },
+        {
+          "path": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp",
+          "transfer": 54950,
+          "encoded": 54650,
+          "decoded": 54650,
+          "duration": 80.19999999995343
+        },
+        {
+          "path": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp",
+          "transfer": 80554,
+          "encoded": 80254,
+          "decoded": 80254,
+          "duration": 91.89999999990687
+        },
+        {
+          "path": "/images/places/JP-003/meiji-jingu-torii-800w.webp",
+          "transfer": 64110,
+          "encoded": 63810,
+          "decoded": 63810,
+          "duration": 86.80000000004657
+        },
+        {
+          "path": "/images/places/JP-009/daikanyama-t-site-800w.webp",
+          "transfer": 68106,
+          "encoded": 67806,
+          "decoded": 67806,
+          "duration": 91.5
+        },
+        {
+          "path": "/images/places/JP-012/kabukicho-800w.webp",
+          "transfer": 68028,
+          "encoded": 67728,
+          "decoded": 67728,
+          "duration": 91.69999999995343
+        },
+        {
+          "path": "/images/places/JP-014/omoide-yokocho-800w.webp",
+          "transfer": 70208,
+          "encoded": 69908,
+          "decoded": 69908,
+          "duration": 92.4000000001397
+        },
+        {
+          "path": "/images/places/JP-016/sensoji-800w.webp",
+          "transfer": 149272,
+          "encoded": 148972,
+          "decoded": 148972,
+          "duration": 93.39999999990687
+        },
+        {
+          "path": "/assets/OrderedSequenceBuilder-Ci7Kb3bJ.js",
+          "transfer": 36824,
+          "encoded": 36524,
+          "decoded": 141448,
+          "duration": 9.899999999906868
+        },
+        {
+          "path": "/assets/ZoneComparison-c0ihwf1w.js",
+          "transfer": 6484,
+          "encoded": 6184,
+          "decoded": 20353,
+          "duration": 9.199999999953434
+        }
+      ]
+    },
+    "listTime": 1101,
+    "listRequests": [
+      "/images/places/JP-006/nezu-museum-800w.webp",
+      "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp",
+      "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+    ],
+    "cards": [
+      {
+        "id": null,
+        "image": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-003/meiji-jingu-torii-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-004/takeshita-street-west-view-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-005/cat-street-harajuku-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-006/nezu-museum-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-009/daikanyama-t-site-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-012/kabukicho-800w.webp"
+      }
+    ],
+    "detail": {
+      "photos": [
+        "/images/places/JP-001/shibuya-crossing-top-down-800w.webp"
+      ],
+      "slides": 2
+    }
+  },
+  {
+    "width": 1440,
+    "temperature": "warm",
+    "home": {
+      "time": 760.6999999999534,
+      "resources": [
+        {
+          "path": "/assets/index-BBpfiw-M.js",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4.699999999953434
+        },
+        {
+          "path": "/assets/index-DRw1BDrL.css",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 3.300000000046566
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-400-latin.woff2",
+          "transfer": 0,
+          "encoded": 12868,
+          "decoded": 12868,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-400-japanese.woff2",
+          "transfer": 0,
+          "encoded": 1009624,
+          "decoded": 1009624,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin.woff2",
+          "transfer": 0,
+          "encoded": 12672,
+          "decoded": 12672,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-500-latin-ext.woff2",
+          "transfer": 0,
+          "encoded": 2064,
+          "decoded": 2064,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-latin.woff2",
+          "transfer": 0,
+          "encoded": 12864,
+          "decoded": 12864,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/zen-kaku-gothic-new-700-japanese.woff2",
+          "transfer": 0,
+          "encoded": 1040280,
+          "decoded": 1040280,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-400-latin.woff2",
+          "transfer": 0,
+          "encoded": 17124,
+          "decoded": 17124,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-400-latin-ext.woff2",
+          "transfer": 0,
+          "encoded": 12368,
+          "decoded": 12368,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-500-latin.woff2",
+          "transfer": 0,
+          "encoded": 18916,
+          "decoded": 18916,
+          "duration": 0
+        },
+        {
+          "path": "/fonts/ibm-plex-sans-600-latin.woff2",
+          "transfer": 0,
+          "encoded": 19056,
+          "decoded": 19056,
+          "duration": 0
+        },
+        {
+          "path": "/images/places/JP-021/tokyo-national-museum-stairs-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 2.199999999953434
+        },
+        {
+          "path": "/images/places/JP-054/kiyomizu-dera-stage-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 3.7999999998137355
+        },
+        {
+          "path": "/images/places/JP-125/universal-studios-japan-entrance-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4
+        },
+        {
+          "path": "/images/places/JP-157/shurijo-castle-shureimon-gate-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4.199999999953434
+        },
+        {
+          "path": "/images/places/JP-025/akihabara-electric-town-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 2.300000000046566
+        },
+        {
+          "path": "/images/places/JP-033/teamlab-borderless-azabudai-light-sculpture-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 4.099999999860302
+        },
+        {
+          "path": "/images/places/JP-044/ghibli-museum-exterior-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 5.099999999860302
+        },
+        {
+          "path": "/images/places/JP-066/senbon-torii-path-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 6.100000000093132
+        },
+        {
+          "path": "/images/places/JP-077/katsura-imperial-villa-pond-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 7.099999999860302
+        },
+        {
+          "path": "/images/places/JP-089/nijo-castle-ninomaru-palace-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 8.300000000046566
+        },
+        {
+          "path": "/images/places/JP-096/sanjusangendo-main-hall-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 9.399999999906868
+        },
+        {
+          "path": "/images/places/JP-097/nintendo-museum-entrance-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 10.900000000139698
+        },
+        {
+          "path": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 10.599999999860302
+        },
+        {
+          "path": "/images/places/JP-017/asakusa-culture-tourist-information-center-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 11.200000000186265
+        },
+        {
+          "path": "/images/places/JP-020/sumida-hokusai-museum-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 13.800000000046566
+        },
+        {
+          "path": "/images/places/JP-028/jimbocho-book-town-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 14.100000000093132
+        },
+        {
+          "path": "/images/places/JP-036/21-21-design-sight-folded-roof-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 14.300000000046566
+        },
+        {
+          "path": "/images/places/JP-047/edo-tokyo-open-air-architectural-museum-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 14.400000000139698
+        },
+        {
+          "path": "/images/places/JP-061/murinan-garden-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 14.699999999953434
+        },
+        {
+          "path": "/images/places/JP-064/honen-in-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 14.699999999953434
+        },
+        {
+          "path": "/images/places/JP-069/bishamondo-main-hall-yamashina-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 20.699999999953434
+        },
+        {
+          "path": "/images/places/JP-070/yamashina-canal-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.300000000046566
+        },
+        {
+          "path": "/images/places/JP-074/gio-ji-moss-garden-thatched-hall-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.5
+        },
+        {
+          "path": "/images/places/JP-004/takeshita-street-west-view-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 20.899999999906868
+        },
+        {
+          "path": "/images/places/JP-005/cat-street-harajuku-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.300000000046566
+        },
+        {
+          "path": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.399999999906868
+        },
+        {
+          "path": "/images/places/JP-024/nezu-shrine-romon-gate-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.899999999906868
+        },
+        {
+          "path": "/images/places/JP-037/zojoji-tokyo-tower-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 21.899999999906868
+        },
+        {
+          "path": "/images/places/JP-046/nakano-broadway-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 22.199999999953434
+        },
+        {
+          "path": "/images/places/JP-049/animate-ikebukuro-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 22.199999999953434
+        },
+        {
+          "path": "/images/places/JP-073/okochi-sanso-garden-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 22.300000000046566
+        },
+        {
+          "path": "/images/places/JP-076/adashino-nenbutsu-ji-stone-statues-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 22.4000000001397
+        },
+        {
+          "path": "/images/places/JP-102/demachi-masugata-arcade-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.100000000093132
+        },
+        {
+          "path": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.0999999998603
+        },
+        {
+          "path": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.399999999906868
+        },
+        {
+          "path": "/images/places/JP-003/meiji-jingu-torii-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.5
+        },
+        {
+          "path": "/images/places/JP-009/daikanyama-t-site-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.5999999998603
+        },
+        {
+          "path": "/images/places/JP-012/kabukicho-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 23.600000000093132
+        },
+        {
+          "path": "/images/places/JP-014/omoide-yokocho-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 24.299999999813735
+        },
+        {
+          "path": "/images/places/JP-016/sensoji-800w.webp",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 24.4000000001397
+        },
+        {
+          "path": "/assets/OrderedSequenceBuilder-Ci7Kb3bJ.js",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 1.5
+        },
+        {
+          "path": "/assets/ZoneComparison-c0ihwf1w.js",
+          "transfer": 300,
+          "encoded": 0,
+          "decoded": 0,
+          "duration": 1.6999999999534339
+        }
+      ]
+    },
+    "listTime": 933.5999999998603,
+    "listRequests": [
+      "/images/places/JP-006/nezu-museum-800w.webp",
+      "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp",
+      "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+    ],
+    "cards": [
+      {
+        "id": null,
+        "image": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-002/shibuya-sky-observation-deck-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-003/meiji-jingu-torii-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-004/takeshita-street-west-view-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-005/cat-street-harajuku-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-006/nezu-museum-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-008/nintendo-tokyo-shibuya-parco-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-009/daikanyama-t-site-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-010/shinjuku-gyoen-footbridge-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-011/tokyo-metropolitan-government-observatory-800w.webp"
+      },
+      {
+        "id": null,
+        "image": "/images/places/JP-012/kabukicho-800w.webp"
+      }
+    ],
+    "detail": {
+      "photos": [
+        "/images/places/JP-001/shibuya-crossing-top-down-800w.webp"
+      ],
+      "slides": 2
+    }
+  }
+]

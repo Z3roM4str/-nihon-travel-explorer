@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: visible keyboard focus: 
+    at auditKeyboard (file:///workspace/nihon/app/scripts/b10-l1-check.mjs:84:16)
+    at async checkCount (file:///workspace/nihon/app/scripts/b10-l1-check.mjs:102:24)
+    at async file:///workspace/nihon/app/scripts/b10-l1-check.mjs:116:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

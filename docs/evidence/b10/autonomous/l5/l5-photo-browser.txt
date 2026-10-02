@@ -1,0 +1,355 @@
+B6.6 browser audit · targets=10 · acquired=8 · unresolved=2
+Muestras identity: JP-004/Tokio, JP-032/Tokio, JP-056/Kioto, JP-071/Kioto, JP-091/Kioto, JP-106/Osaka, JP-110/Osaka, JP-177/Okinawa
+  ✓ Fukuoka lista solicita sólo identity -800w
+  ✓ Fukuoka lista no hace fetch fotográfico externo
+  ✓ Fukuoka lista no tiene imágenes rotas
+  ✓ Fukuoka identity ≤ 3,500,000 B — 69,284 B
+  ✓ Fukuoka bytes observados ≤ suma identity — 69,284 / 69,284 B
+  ✓ Kioto lista solicita sólo identity -800w
+  ✓ Kioto lista no hace fetch fotográfico externo
+  ✓ Kioto lista no tiene imágenes rotas
+  ✓ Kioto identity ≤ 3,500,000 B — 3,499,450 B
+  ✓ Kioto bytes observados ≤ suma identity — 3,284,460 / 3,499,450 B
+  ✓ Nagoya lista solicita sólo identity -800w
+  ✓ Nagoya lista no hace fetch fotográfico externo
+  ✓ Nagoya lista no tiene imágenes rotas
+  ✓ Nagoya identity ≤ 3,500,000 B — 69,552 B
+  ✓ Nagoya bytes observados ≤ suma identity — 69,552 / 69,552 B
+  ✓ Okinawa lista solicita sólo identity -800w
+  ✓ Okinawa lista no hace fetch fotográfico externo
+  ✓ Okinawa lista no tiene imágenes rotas
+  ✓ Okinawa identity ≤ 3,500,000 B — 2,903,352 B
+  ✓ Okinawa bytes observados ≤ suma identity — 2,825,186 / 2,903,352 B
+  ✓ Osaka lista solicita sólo identity -800w
+  ✓ Osaka lista no hace fetch fotográfico externo
+  ✓ Osaka lista no tiene imágenes rotas
+  ✓ Osaka identity ≤ 3,500,000 B — 3,356,478 B
+  ✓ Osaka bytes observados ≤ suma identity — 3,315,340 / 3,356,478 B
+  ✓ Sapporo lista solicita sólo identity -800w
+  ✓ Sapporo lista no hace fetch fotográfico externo
+  ✓ Sapporo lista no tiene imágenes rotas
+  ✓ Sapporo identity ≤ 3,500,000 B — 166,986 B
+  ✓ Sapporo bytes observados ≤ suma identity — 166,986 / 166,986 B
+  ✓ Tokio lista solicita sólo identity -800w
+  ✓ Tokio lista no hace fetch fotográfico externo
+  ✓ Tokio lista no tiene imágenes rotas
+  ✓ Tokio identity ≤ 3,500,000 B — 3,499,770 B
+  ✓ Tokio bytes observados ≤ suma identity — 2,099,756 / 3,499,770 B
+  ✓ JP-004 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-004/takeshita-street-west-view-800w.webp
+  ✓ JP-004 PlaceCard no carga una complementaria ni contador
+  ✓ JP-004 identity de PlaceCard es decorativa
+  ✓ JP-004 lista no solicita original/400w/complementarias
+  ✓ JP-004 lista no hace fetch fotográfico externo
+  ✓ JP-004 lista sin imágenes rotas
+  ✓ JP-004 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-004/takeshita-street-west-view-800w.webp
+  ✓ JP-004 una foto no muestra contador, puntos ni flechas
+  ✓ JP-004 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-004 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría DXR Licencia CC BY-SA 4.0 Archivo de Commons File:Takeshita Street, Tokyo, West view 20190418 1.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-004 cerrar CreditsSheet restaura foco
+  ✓ JP-004 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-004 ficha no desborda la pantalla — 390/390
+  ✓ JP-004 ficha no hace fetch fotográfico externo
+  ✓ JP-004 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-032 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-032/tsukiji-outer-market-street-800w.webp
+  ✓ JP-032 PlaceCard no carga una complementaria ni contador
+  ✓ JP-032 identity de PlaceCard es decorativa
+  ✓ JP-032 lista no solicita original/400w/complementarias — /images/places/JP-032/tsukiji-outer-market-street-800w.webp
+  ✓ JP-032 lista no hace fetch fotográfico externo
+  ✓ JP-032 lista sin imágenes rotas
+  ✓ JP-032 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-032/tsukiji-outer-market-street-800w.webp
+  ✓ JP-032 una foto no muestra contador, puntos ni flechas
+  ✓ JP-032 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-032 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Christophe95 Licencia CC BY-SA 4.0 Archivo de Commons File:Tsukiji Outer Market.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-032 cerrar CreditsSheet restaura foco
+  ✓ JP-032 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-032 ficha no desborda la pantalla — 390/390
+  ✓ JP-032 ficha no hace fetch fotográfico externo
+  ✓ JP-032 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-056 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-056/yasaka-koshindo-yumemizaka-800w.webp
+  ✓ JP-056 PlaceCard no carga una complementaria ni contador
+  ✓ JP-056 identity de PlaceCard es decorativa
+  ✓ JP-056 lista no solicita original/400w/complementarias
+  ✓ JP-056 lista no hace fetch fotográfico externo
+  ✓ JP-056 lista sin imágenes rotas
+  ✓ JP-056 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-056/yasaka-koshindo-yumemizaka-800w.webp
+  ✓ JP-056 una foto no muestra contador, puntos ni flechas
+  ✓ JP-056 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-056 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría そらみみ Licencia CC BY-SA 3.0 Archivo de Commons File:Yasaka Koshin-do on Yumemizaka of Kyoto.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-056 cerrar CreditsSheet restaura foco
+  ✓ JP-056 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-056 ficha no desborda la pantalla — 390/390
+  ✓ JP-056 ficha no hace fetch fotográfico externo
+  ✓ JP-056 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-071 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-071/arashiyama-bamboo-grove-path-800w.webp
+  ✓ JP-071 PlaceCard no carga una complementaria ni contador
+  ✓ JP-071 identity de PlaceCard es decorativa
+  ✓ JP-071 lista no solicita original/400w/complementarias — /images/places/JP-071/arashiyama-bamboo-grove-path-800w.webp
+  ✓ JP-071 lista no hace fetch fotográfico externo
+  ✓ JP-071 lista sin imágenes rotas
+  ✓ JP-071 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-071/arashiyama-bamboo-grove-path-800w.webp
+  ✓ JP-071 una foto no muestra contador, puntos ni flechas
+  ✓ JP-071 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-071 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Naokijp Licencia CC BY-SA 4.0 Archivo de Commons File:2021 Sagano Bamboo forest in Arashiyama, Kyoto, Japan.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-071 cerrar CreditsSheet restaura foco
+  ✓ JP-071 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-071 ficha no desborda la pantalla — 390/390
+  ✓ JP-071 ficha no hace fetch fotográfico externo
+  ✓ JP-071 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-091 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-091/nishiki-market-arcade-800w.webp
+  ✓ JP-091 PlaceCard no carga una complementaria ni contador
+  ✓ JP-091 identity de PlaceCard es decorativa
+  ✓ JP-091 lista no solicita original/400w/complementarias — /images/places/JP-091/nishiki-market-arcade-800w.webp
+  ✓ JP-091 lista no hace fetch fotográfico externo
+  ✓ JP-091 lista sin imágenes rotas
+  ✓ JP-091 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-091/nishiki-market-arcade-800w.webp
+  ✓ JP-091 una foto no muestra contador, puntos ni flechas
+  ✓ JP-091 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-091 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Pitan Licencia CC BY-SA 3.0 Archivo de Commons File:Nishiki ichiba kyoto.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-091 cerrar CreditsSheet restaura foco
+  ✓ JP-091 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-091 ficha no desborda la pantalla — 390/390
+  ✓ JP-091 ficha no hace fetch fotográfico externo
+  ✓ JP-091 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-106 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-106/kuromon-market-arcade-2024-800w.webp
+  ✓ JP-106 PlaceCard no carga una complementaria ni contador
+  ✓ JP-106 identity de PlaceCard es decorativa
+  ✓ JP-106 lista no solicita original/400w/complementarias
+  ✓ JP-106 lista no hace fetch fotográfico externo
+  ✓ JP-106 lista sin imágenes rotas
+  ✓ JP-106 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-106/kuromon-market-arcade-2024-800w.webp
+  ✓ JP-106 una foto no muestra contador, puntos ni flechas
+  ✓ JP-106 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-106 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría ほっきー Licencia CC0 Archivo de Commons File:黒門市場 2024(2).jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-106 cerrar CreditsSheet restaura foco
+  ✓ JP-106 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-106 ficha no desborda la pantalla — 390/390
+  ✓ JP-106 ficha no hace fetch fotográfico externo
+  ✓ JP-106 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-110 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-110/tsutenkaku-from-shinsekai-street-800w.webp
+  ✓ JP-110 PlaceCard no carga una complementaria ni contador
+  ✓ JP-110 identity de PlaceCard es decorativa
+  ✓ JP-110 lista no solicita original/400w/complementarias
+  ✓ JP-110 lista no hace fetch fotográfico externo
+  ✓ JP-110 lista sin imágenes rotas
+  ✓ JP-110 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-110/tsutenkaku-from-shinsekai-street-800w.webp
+  ✓ JP-110 una foto no muestra contador, puntos ni flechas
+  ✓ JP-110 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-110 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Sakai Yayoi Licencia CC0 Archivo de Commons File:Tsutenkaku 108m.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-110 cerrar CreditsSheet restaura foco
+  ✓ JP-110 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-110 ficha no desborda la pantalla — 390/390
+  ✓ JP-110 ficha no hace fetch fotográfico externo
+  ✓ JP-110 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-177 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-177/heart-rocks-kouri-island-800w.webp
+  ✓ JP-177 PlaceCard no carga una complementaria ni contador
+  ✓ JP-177 identity de PlaceCard es decorativa
+  ✓ JP-177 lista no solicita original/400w/complementarias — /images/places/JP-177/heart-rocks-kouri-island-800w.webp
+  ✓ JP-177 lista no hace fetch fotográfico externo
+  ✓ JP-177 lista sin imágenes rotas
+  ✓ JP-177 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-177/heart-rocks-kouri-island-800w.webp
+  ✓ JP-177 una foto no muestra contador, puntos ni flechas
+  ✓ JP-177 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-177 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Kugel~commonswiki Licencia CC BY-SA 4.0 Archivo de Commons File:Heart-shaped rocks at Kouri Island 202006.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-177 cerrar CreditsSheet restaura foco
+  ✓ JP-177 ficha conserva proporción responsive — 0.800 / 0.800
+  ✓ JP-177 ficha no desborda la pantalla — 390/390
+  ✓ JP-177 ficha no hace fetch fotográfico externo
+  ✓ JP-177 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-004 tarjeta vuelve al placeholder si falla identity
+  ✓ JP-004 ficha muestra el fallback existente
+  ✓ JP-004 fallback no produce fetch fotográfico externo
+  ✓ Fukuoka lista solicita sólo identity -800w
+  ✓ Fukuoka lista no hace fetch fotográfico externo
+  ✓ Fukuoka lista no tiene imágenes rotas
+  ✓ Fukuoka identity ≤ 3,500,000 B — 69,284 B
+  ✓ Fukuoka bytes observados ≤ suma identity — 69,284 / 69,284 B
+  ✓ Kioto lista solicita sólo identity -800w
+  ✓ Kioto lista no hace fetch fotográfico externo
+  ✓ Kioto lista no tiene imágenes rotas
+  ✓ Kioto identity ≤ 3,500,000 B — 3,499,450 B
+  ✓ Kioto bytes observados ≤ suma identity — 2,567,138 / 3,499,450 B
+  ✓ Nagoya lista solicita sólo identity -800w
+  ✓ Nagoya lista no hace fetch fotográfico externo
+  ✓ Nagoya lista no tiene imágenes rotas
+  ✓ Nagoya identity ≤ 3,500,000 B — 69,552 B
+  ✓ Nagoya bytes observados ≤ suma identity — 69,552 / 69,552 B
+  ✓ Okinawa lista solicita sólo identity -800w
+  ✓ Okinawa lista no hace fetch fotográfico externo
+  ✓ Okinawa lista no tiene imágenes rotas
+  ✓ Okinawa identity ≤ 3,500,000 B — 2,903,352 B
+  ✓ Okinawa bytes observados ≤ suma identity — 2,825,186 / 2,903,352 B
+  ✓ Osaka lista solicita sólo identity -800w
+  ✓ Osaka lista no hace fetch fotográfico externo
+  ✓ Osaka lista no tiene imágenes rotas
+  ✓ Osaka identity ≤ 3,500,000 B — 3,356,478 B
+  ✓ Osaka bytes observados ≤ suma identity — 3,315,340 / 3,356,478 B
+  ✓ Sapporo lista solicita sólo identity -800w
+  ✓ Sapporo lista no hace fetch fotográfico externo
+  ✓ Sapporo lista no tiene imágenes rotas
+  ✓ Sapporo identity ≤ 3,500,000 B — 166,986 B
+  ✓ Sapporo bytes observados ≤ suma identity — 166,986 / 166,986 B
+  ✓ Tokio lista solicita sólo identity -800w
+  ✓ Tokio lista no hace fetch fotográfico externo
+  ✓ Tokio lista no tiene imágenes rotas
+  ✓ Tokio identity ≤ 3,500,000 B — 3,499,770 B
+  ✓ Tokio bytes observados ≤ suma identity — 1,813,148 / 3,499,770 B
+  ✓ JP-004 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-004/takeshita-street-west-view-800w.webp
+  ✓ JP-004 PlaceCard no carga una complementaria ni contador
+  ✓ JP-004 identity de PlaceCard es decorativa
+  ✓ JP-004 lista no solicita original/400w/complementarias
+  ✓ JP-004 lista no hace fetch fotográfico externo
+  ✓ JP-004 lista sin imágenes rotas
+  ✓ JP-004 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-004/takeshita-street-west-view-800w.webp
+  ✓ JP-004 una foto no muestra contador, puntos ni flechas
+  ✓ JP-004 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-004 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría DXR Licencia CC BY-SA 4.0 Archivo de Commons File:Takeshita Street, Tokyo, West view 20190418 1.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-004 cerrar CreditsSheet restaura foco
+  ✓ JP-004 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-004 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-004 ficha no hace fetch fotográfico externo
+  ✓ JP-004 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-032 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-032/tsukiji-outer-market-street-800w.webp
+  ✓ JP-032 PlaceCard no carga una complementaria ni contador
+  ✓ JP-032 identity de PlaceCard es decorativa
+  ✓ JP-032 lista no solicita original/400w/complementarias — /images/places/JP-032/tsukiji-outer-market-street-800w.webp
+  ✓ JP-032 lista no hace fetch fotográfico externo
+  ✓ JP-032 lista sin imágenes rotas
+  ✓ JP-032 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-032/tsukiji-outer-market-street-800w.webp
+  ✓ JP-032 una foto no muestra contador, puntos ni flechas
+  ✓ JP-032 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-032 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Christophe95 Licencia CC BY-SA 4.0 Archivo de Commons File:Tsukiji Outer Market.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-032 cerrar CreditsSheet restaura foco
+  ✓ JP-032 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-032 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-032 ficha no hace fetch fotográfico externo
+  ✓ JP-032 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-056 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-056/yasaka-koshindo-yumemizaka-800w.webp
+  ✓ JP-056 PlaceCard no carga una complementaria ni contador
+  ✓ JP-056 identity de PlaceCard es decorativa
+  ✓ JP-056 lista no solicita original/400w/complementarias
+  ✓ JP-056 lista no hace fetch fotográfico externo
+  ✓ JP-056 lista sin imágenes rotas
+  ✓ JP-056 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-056/yasaka-koshindo-yumemizaka-800w.webp
+  ✓ JP-056 una foto no muestra contador, puntos ni flechas
+  ✓ JP-056 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-056 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría そらみみ Licencia CC BY-SA 3.0 Archivo de Commons File:Yasaka Koshin-do on Yumemizaka of Kyoto.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-056 cerrar CreditsSheet restaura foco
+  ✓ JP-056 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-056 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-056 ficha no hace fetch fotográfico externo
+  ✓ JP-056 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-071 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-071/arashiyama-bamboo-grove-path-800w.webp
+  ✓ JP-071 PlaceCard no carga una complementaria ni contador
+  ✓ JP-071 identity de PlaceCard es decorativa
+  ✓ JP-071 lista no solicita original/400w/complementarias — /images/places/JP-071/arashiyama-bamboo-grove-path-800w.webp
+  ✓ JP-071 lista no hace fetch fotográfico externo
+  ✓ JP-071 lista sin imágenes rotas
+  ✓ JP-071 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-071/arashiyama-bamboo-grove-path-800w.webp
+  ✓ JP-071 una foto no muestra contador, puntos ni flechas
+  ✓ JP-071 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-071 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Naokijp Licencia CC BY-SA 4.0 Archivo de Commons File:2021 Sagano Bamboo forest in Arashiyama, Kyoto, Japan.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-071 cerrar CreditsSheet restaura foco
+  ✓ JP-071 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-071 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-071 ficha no hace fetch fotográfico externo
+  ✓ JP-071 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-091 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-091/nishiki-market-arcade-800w.webp
+  ✓ JP-091 PlaceCard no carga una complementaria ni contador
+  ✓ JP-091 identity de PlaceCard es decorativa
+  ✓ JP-091 lista no solicita original/400w/complementarias — /images/places/JP-091/nishiki-market-arcade-800w.webp
+  ✓ JP-091 lista no hace fetch fotográfico externo
+  ✓ JP-091 lista sin imágenes rotas
+  ✓ JP-091 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-091/nishiki-market-arcade-800w.webp
+  ✓ JP-091 una foto no muestra contador, puntos ni flechas
+  ✓ JP-091 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-091 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Pitan Licencia CC BY-SA 3.0 Archivo de Commons File:Nishiki ichiba kyoto.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-091 cerrar CreditsSheet restaura foco
+  ✓ JP-091 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-091 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-091 ficha no hace fetch fotográfico externo
+  ✓ JP-091 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-106 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-106/kuromon-market-arcade-2024-800w.webp
+  ✓ JP-106 PlaceCard no carga una complementaria ni contador
+  ✓ JP-106 identity de PlaceCard es decorativa
+  ✓ JP-106 lista no solicita original/400w/complementarias
+  ✓ JP-106 lista no hace fetch fotográfico externo
+  ✓ JP-106 lista sin imágenes rotas
+  ✓ JP-106 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-106/kuromon-market-arcade-2024-800w.webp
+  ✓ JP-106 una foto no muestra contador, puntos ni flechas
+  ✓ JP-106 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-106 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría ほっきー Licencia CC0 Archivo de Commons File:黒門市場 2024(2).jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-106 cerrar CreditsSheet restaura foco
+  ✓ JP-106 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-106 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-106 ficha no hace fetch fotográfico externo
+  ✓ JP-106 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-110 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-110/tsutenkaku-from-shinsekai-street-800w.webp
+  ✓ JP-110 PlaceCard no carga una complementaria ni contador
+  ✓ JP-110 identity de PlaceCard es decorativa
+  ✓ JP-110 lista no solicita original/400w/complementarias
+  ✓ JP-110 lista no hace fetch fotográfico externo
+  ✓ JP-110 lista sin imágenes rotas
+  ✓ JP-110 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-110/tsutenkaku-from-shinsekai-street-800w.webp
+  ✓ JP-110 una foto no muestra contador, puntos ni flechas
+  ✓ JP-110 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-110 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Sakai Yayoi Licencia CC0 Archivo de Commons File:Tsutenkaku 108m.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-110 cerrar CreditsSheet restaura foco
+  ✓ JP-110 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-110 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-110 ficha no hace fetch fotográfico externo
+  ✓ JP-110 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-177 PlaceCard muestra identity y elimina placeholder — http://localhost:4326/images/places/JP-177/heart-rocks-kouri-island-800w.webp
+  ✓ JP-177 PlaceCard no carga una complementaria ni contador
+  ✓ JP-177 identity de PlaceCard es decorativa
+  ✓ JP-177 lista no solicita original/400w/complementarias — /images/places/JP-177/heart-rocks-kouri-island-800w.webp
+  ✓ JP-177 lista no hace fetch fotográfico externo
+  ✓ JP-177 lista sin imágenes rotas
+  ✓ JP-177 PlaceDetail abre primero la identity — http://localhost:4326/images/places/JP-177/heart-rocks-kouri-island-800w.webp
+  ✓ JP-177 una foto no muestra contador, puntos ni flechas
+  ✓ JP-177 mantiene el scroll-snap existente — x mandatory/center
+  ✓ JP-177 CreditsSheet atribuye título, licencia, autor y fuente — Fuente Wikimedia Commons Autoría Kugel~commonswiki Licencia CC BY-SA 4.0 Archivo de Commons File:Heart-shaped rocks at Kouri Island 202006.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP.
+  ✓ JP-177 cerrar CreditsSheet restaura foco
+  ✓ JP-177 ficha conserva proporción responsive — 1.333 / 1.333
+  ✓ JP-177 ficha no desborda la pantalla — 1440/1440
+  ✓ JP-177 ficha no hace fetch fotográfico externo
+  ✓ JP-177 ficha no tiene imágenes fotográficas fallidas
+  ✓ JP-004 tarjeta vuelve al placeholder si falla identity
+  ✓ JP-004 ficha muestra el fallback existente
+  ✓ JP-004 fallback no produce fetch fotográfico externo
+
+Presupuesto por hub:
+  Fukuoka    phone    lista=69,284 B · identidad=69,284 B · 1 URLs
+  Kioto      phone    lista=3,284,460 B · identidad=3,499,450 B · 43 URLs
+  Nagoya     phone    lista=69,552 B · identidad=69,552 B · 1 URLs
+  Okinawa    phone    lista=2,825,186 B · identidad=2,903,352 B · 44 URLs
+  Osaka      phone    lista=3,315,340 B · identidad=3,356,478 B · 49 URLs
+  Sapporo    phone    lista=166,986 B · identidad=166,986 B · 3 URLs
+  Tokio      phone    lista=2,099,756 B · identidad=3,499,770 B · 34 URLs
+  Fukuoka    desktop  lista=69,284 B · identidad=69,284 B · 1 URLs
+  Kioto      desktop  lista=2,567,138 B · identidad=3,499,450 B · 33 URLs
+  Nagoya     desktop  lista=69,552 B · identidad=69,552 B · 1 URLs
+  Okinawa    desktop  lista=2,825,186 B · identidad=2,903,352 B · 44 URLs
+  Osaka      desktop  lista=3,315,340 B · identidad=3,356,478 B · 49 URLs
+  Sapporo    desktop  lista=166,986 B · identidad=166,986 B · 3 URLs
+  Tokio      desktop  lista=1,813,148 B · identidad=3,499,770 B · 31 URLs
+Coste de identity de fichas (la galería de una foto carga una imagen):
+  JP-004 Tokio      phone    97,826 B
+  JP-032 Tokio      phone    69,896 B
+  JP-056 Kioto      phone    79,970 B
+  JP-071 Kioto      phone    131,026 B
+  JP-091 Kioto      phone    81,794 B
+  JP-106 Osaka      phone    112,064 B
+  JP-110 Osaka      phone    73,756 B
+  JP-177 Okinawa    phone    36,430 B
+  JP-004 Tokio      desktop  97,826 B
+  JP-032 Tokio      desktop  69,896 B
+  JP-056 Kioto      desktop  79,970 B
+  JP-071 Kioto      desktop  131,026 B
+  JP-091 Kioto      desktop  81,794 B
+  JP-106 Osaka      desktop  112,064 B
+  JP-110 Osaka      desktop  73,756 B
+  JP-177 Okinawa    desktop  36,430 B
+
+════════════════════════════════════════════════════════════════
+B6.6 browser audit: 316 passed, 0 failed
+

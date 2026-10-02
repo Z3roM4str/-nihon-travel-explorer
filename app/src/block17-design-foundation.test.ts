@@ -2,7 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { readProductCss } from "./test-css";
+import { readGlobalCss, readProductCss } from "./test-css";
 /**
  * Bloque 17 (B1 — Fundación visual) regression guard.
  *
@@ -18,6 +18,7 @@ import { readProductCss } from "./test-css";
 const SRC = new URL("./", import.meta.url);
 
 async function read(relative: string): Promise<string> {
+  if (relative === "App.css") return readGlobalCss();
   return (await readFile(new URL(relative, SRC), "utf8")).replace(/\r\n/g, "\n");
 }
 
@@ -138,8 +139,9 @@ describe("Bloque 17 (B1) — tokens.css es la fuente del sistema visual (gate G2
     }
   });
 
-  it("App.css no longer defines its own hex for the legacy colour/shadow variables it aliases", async () => {
-    const css = await read("App.css");
+  it("foundation.css defines token aliases without its own hex", async () => {
+    // B10 surface extraction (08): same declarations and assertions, new owner.
+    const css = await read("styles/foundation.css");
     const rootBlock = css.slice(css.indexOf(":root {"), css.indexOf(":root {") + 1600);
     for (const legacyVar of ["--color-bg", "--color-accent", "--color-text", "--shadow-panel"]) {
       const line = rootBlock.split("\n").find((entry) => entry.trim().startsWith(`${legacyVar}:`));

@@ -1,0 +1,32 @@
+/* B10 L4: shared, tokenized alert primitives; values and specificity preserved. */
+
+.alert {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid;
+  font-family: var(--font-record);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+.alert p {
+  margin: var(--space-2) 0 0;
+}
+
+.alert--pending {
+  background: var(--warn-050);
+  border-color: var(--warn-600);
+  color: var(--warn-600);
+}
+
+.alert--risk {
+  background: var(--risk-050);
+  border-color: var(--risk-600);
+  color: var(--risk-600);
+}
+
+.alert--confirmed {
+  background: var(--ok-050);
+  border-color: var(--ok-600);
+  color: var(--ok-600);
+}

@@ -278,7 +278,7 @@ export function PlaceGallery({ images, imageBrief, placeName, onOpenSources }: P
         {showCredits && (
           <button
             type="button"
-            className="gallery__credits"
+            className="gallery__credits tap-target-min"
             onClick={() => setCreditsOpen(true)}
             aria-label={`Créditos de las fotografías de ${placeName}`}
             title="Créditos de las fotografías"

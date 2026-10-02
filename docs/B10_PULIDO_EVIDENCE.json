@@ -1,0 +1,497 @@
+{
+  "base": "b854db384c952e827b86d1bb35cac7caa70b035a",
+  "baseTree": "81c7cc4ccf80c3188a50281876ef0ed8f427657f",
+  "branch": "codex/b10-pulido-mission",
+  "phase": "documentary preparation; product unchanged",
+  "browser": "Chromium headless shell 1234; Node v22.21.0; Playwright installed in repository runner",
+  "matrix": [
+    "320x568",
+    "390x844",
+    "1440x900",
+    "390x844 reduced motion"
+  ],
+  "snapshots": 53,
+  "snapshotOverflowPixels": [
+    {
+      "label": "320-home",
+      "overflow": 0
+    },
+    {
+      "label": "320-global-search",
+      "overflow": 0
+    },
+    {
+      "label": "320-detail",
+      "overflow": 0
+    },
+    {
+      "label": "320-hub",
+      "overflow": 0
+    },
+    {
+      "label": "320-filters",
+      "overflow": 0
+    },
+    {
+      "label": "320-days",
+      "overflow": 0
+    },
+    {
+      "label": "320-day-tools",
+      "overflow": 0
+    },
+    {
+      "label": "320-reservas",
+      "overflow": 0
+    },
+    {
+      "label": "320-resumen",
+      "overflow": 0
+    },
+    {
+      "label": "320-sleep",
+      "overflow": 0
+    },
+    {
+      "label": "320-shortlist",
+      "overflow": 0
+    },
+    {
+      "label": "320-us",
+      "overflow": 0
+    },
+    {
+      "label": "320-backup-preview",
+      "overflow": 0
+    },
+    {
+      "label": "390-home",
+      "overflow": 0
+    },
+    {
+      "label": "390-global-search",
+      "overflow": 0
+    },
+    {
+      "label": "390-detail",
+      "overflow": 0
+    },
+    {
+      "label": "390-hub",
+      "overflow": 0
+    },
+    {
+      "label": "390-filters",
+      "overflow": 0
+    },
+    {
+      "label": "390-days",
+      "overflow": 0
+    },
+    {
+      "label": "390-day-tools",
+      "overflow": 0
+    },
+    {
+      "label": "390-reservas",
+      "overflow": 0
+    },
+    {
+      "label": "390-resumen",
+      "overflow": 0
+    },
+    {
+      "label": "390-sleep",
+      "overflow": 0
+    },
+    {
+      "label": "390-shortlist",
+      "overflow": 0
+    },
+    {
+      "label": "390-us",
+      "overflow": 0
+    },
+    {
+      "label": "390-backup-preview",
+      "overflow": 0
+    },
+    {
+      "label": "1440-home",
+      "overflow": 0
+    },
+    {
+      "label": "1440-global-search",
+      "overflow": 0
+    },
+    {
+      "label": "1440-detail",
+      "overflow": 0
+    },
+    {
+      "label": "1440-hub",
+      "overflow": 0
+    },
+    {
+      "label": "1440-filters",
+      "overflow": 0
+    },
+    {
+      "label": "1440-days",
+      "overflow": 0
+    },
+    {
+      "label": "1440-day-tools",
+      "overflow": 0
+    },
+    {
+      "label": "1440-reservas",
+      "overflow": 0
+    },
+    {
+      "label": "1440-resumen",
+      "overflow": 0
+    },
+    {
+      "label": "1440-sleep",
+      "overflow": 0
+    },
+    {
+      "label": "1440-shortlist",
+      "overflow": 0
+    },
+    {
+      "label": "1440-us",
+      "overflow": 0
+    },
+    {
+      "label": "1440-backup-preview",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-home",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-global-search",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-detail",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-hub",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-filters",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-days",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-day-tools",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-reservas",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-resumen",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-sleep",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-shortlist",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-us",
+      "overflow": 0
+    },
+    {
+      "label": "390-reduce-backup-preview",
+      "overflow": 0
+    },
+    {
+      "label": "390-onboarding",
+      "overflow": 0
+    }
+  ],
+  "pageErrors": [
+    {
+      "label": "320-errors",
+      "pageErrors": [],
+      "externalAbortedRequests": 34,
+      "localFailedRequests": 0
+    },
+    {
+      "label": "390-errors",
+      "pageErrors": [],
+      "externalAbortedRequests": 83,
+      "localFailedRequests": 0
+    },
+    {
+      "label": "1440-errors",
+      "pageErrors": [],
+      "externalAbortedRequests": 105,
+      "localFailedRequests": 0
+    },
+    {
+      "label": "390-reduce-errors",
+      "pageErrors": [],
+      "externalAbortedRequests": 0,
+      "localFailedRequests": 0
+    }
+  ],
+  "filterText": "57 de 57 lugares",
+  "toolsText": [
+    "Tramo principal entre estos dos puntos de tu plan",
+    "Todavía no has registrado ningún tramo entre ciudades.",
+    "Duración manual del tramo principal",
+    "Añadir tramo",
+    "traslados conocidos · 0/1 tramo cubierto"
+  ],
+  "travellerText": "Sólo cambia de quién es cada «Quiero ir». El recorrido, los días, las fechas y el alojamiento son del viaje y los compartís los dos.",
+  "backupText": "Lugares en el recorrido",
+  "collections": [
+    {
+      "title": "Imprescindibles",
+      "cards": 32,
+      "focusable": 64,
+      "tabsToExit": 64,
+      "firstPlaceId": "JP-021",
+      "firstPlaceName": "Tokyo National Museum",
+      "firstHub": "Tokio",
+      "firstImage": "/images/places/JP-021/tokyo-national-museum-stairs-800w.webp"
+    },
+    {
+      "title": "Joyas escondidas",
+      "cards": 35,
+      "focusable": 70,
+      "tabsToExit": 70,
+      "firstPlaceId": "JP-007",
+      "firstPlaceName": "Ota Memorial Museum of Art",
+      "firstHub": "Tokio",
+      "firstImage": "/images/places/JP-007/ota-memorial-museum-of-art-800w.webp"
+    },
+    {
+      "title": "Menos saturado",
+      "cards": 14,
+      "focusable": 28,
+      "tabsToExit": 28,
+      "firstPlaceId": "JP-004",
+      "firstPlaceName": "Takeshita Street",
+      "firstHub": "Tokio",
+      "firstImage": "/images/places/JP-004/takeshita-street-west-view-800w.webp"
+    },
+    {
+      "title": "Para una tarde",
+      "cards": 75,
+      "focusable": 150,
+      "tabsToExit": 150,
+      "firstPlaceId": "JP-001",
+      "firstPlaceName": "Shibuya Crossing",
+      "firstHub": "Tokio",
+      "firstImage": "/images/places/JP-001/shibuya-scramble-crossing-800w.webp"
+    }
+  ],
+  "tokyoHero": "/images/places/JP-021/tokyo-national-museum-stairs-800w.webp",
+  "cityHover": {
+    "before": {
+      "shadow": "rgba(20, 22, 26, 0.05) 0px 1px 2px 0px, rgba(20, 22, 26, 0.12) 0px 8px 20px -10px",
+      "transition": "box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)"
+    },
+    "after": {
+      "shadow": "rgba(20, 22, 26, 0.06) 0px -2px 8px 0px, rgba(20, 22, 26, 0.26) 0px 24px 56px -16px",
+      "transition": "box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)"
+    }
+  },
+  "css": [
+    {
+      "file": "src/App.css",
+      "lines": 7039,
+      "hexLiterals": 48,
+      "maxWidthMedia": [
+        "@media (min-width: 620px) and (max-width: 860px) ",
+        "@media (max-width: 860px) ",
+        "@media (min-width: 620px) and (max-width: 860px) ",
+        "@media (max-width: 380px) ",
+        "@media (max-width: 860px) ",
+        "@media (max-width: 380px) ",
+        "@media (max-width: 839px) ",
+        "@media (max-width: 430px) "
+      ],
+      "keyframes": [
+        "sheet-rise",
+        "toast-in",
+        "onboarding-fade"
+      ]
+    },
+    {
+      "file": "src/index.css",
+      "lines": 19,
+      "hexLiterals": 0,
+      "maxWidthMedia": [],
+      "keyframes": []
+    },
+    {
+      "file": "src/styles/discovery.css",
+      "lines": 1444,
+      "hexLiterals": 0,
+      "maxWidthMedia": [],
+      "keyframes": [
+        "card-shimmer",
+        "place-card-save-mark"
+      ]
+    },
+    {
+      "file": "src/styles/fonts.css",
+      "lines": 164,
+      "hexLiterals": 0,
+      "maxWidthMedia": [],
+      "keyframes": []
+    },
+    {
+      "file": "src/styles/tokens.css",
+      "lines": 216,
+      "hexLiterals": 23,
+      "maxWidthMedia": [],
+      "keyframes": []
+    },
+    {
+      "file": "src/styles/trip-overview.css",
+      "lines": 26,
+      "hexLiterals": 0,
+      "maxWidthMedia": [],
+      "keyframes": []
+    }
+  ],
+  "identity800BytesByHub": {
+    "Tokio": 3499770,
+    "Kioto": 3499450,
+    "Osaka": 3356478,
+    "Okinawa": 2903352,
+    "Sapporo": 166986,
+    "Nagoya": 69552,
+    "Fukuoka": 69284
+  },
+  "entryBundle": {
+    "asset": "assets/index-OVb2DdYf.js",
+    "rawBytes": 1669033,
+    "gzipLevel9Bytes": 390317,
+    "brotliBytes": 327016,
+    "top": [
+      {
+        "id": "node_modules/react-dom/cjs/react-dom-client.production.js",
+        "rendered": 453163
+      },
+      {
+        "id": "src/data/places.json",
+        "rendered": 407066
+      },
+      {
+        "id": "src/data/photography-metadata.json",
+        "rendered": 350724
+      },
+      {
+        "id": "src/data/logistics/walking-scale-results.json",
+        "rendered": 276560
+      },
+      {
+        "id": "node_modules/leaflet/dist/leaflet-src.js",
+        "rendered": 242222
+      },
+      {
+        "id": "src/data/nearby.json",
+        "rendered": 105154
+      },
+      {
+        "id": "src/App.tsx",
+        "rendered": 41184
+      },
+      {
+        "id": "src/icons/Icon.tsx",
+        "rendered": 34383
+      },
+      {
+        "id": "src/data/accommodation/zones.json",
+        "rendered": 33301
+      },
+      {
+        "id": "src/data/logistics/walking-pilot-results.json",
+        "rendered": 22438
+      },
+      {
+        "id": "src/components/PlaceDetail.tsx",
+        "rendered": 19097
+      },
+      {
+        "id": "src/lib/planning-draft-v5.ts",
+        "rendered": 15932
+      }
+    ]
+  },
+  "reducedMotionSample": {
+    "class": "",
+    "animation": "1e-06s",
+    "transition": "1e-06s"
+  },
+  "limitations": [
+    "exploratory audit, not complete accessibility certification",
+    "native file chooser not exercised: automatic fixture input and preview only; restore not confirmed",
+    "physical iPhone Safari and physical screen reader not tested",
+    "onboarding first screen only",
+    "external OSM service not certified",
+    "raw AST matches include imports, class names and dormant branches; not all are visible defects"
+  ],
+  "localEvidenceDirectory": "b10-pulido-mission/app/logs/b10-preparation",
+  "rawEvidenceHashes": [
+    {
+      "file": "build.log",
+      "sha256": "ce6731a5c6cef9efd13a730a3dc04e4d988a7c8e86b5cc30b504360a723ecf95",
+      "bytes": 990
+    },
+    {
+      "file": "bundle.json",
+      "sha256": "fe08a21bbcddd196cdf97c642e4a420e01287c6b8168b2e0c66c28459ee8cf2e",
+      "bytes": 4525
+    },
+    {
+      "file": "static.json",
+      "sha256": "b63f9290eb4b20c616092f7089b2f7b7156d6e63352ead9b3cc7f6aa977b2ad8",
+      "bytes": 13144
+    },
+    {
+      "file": "browser.json",
+      "sha256": "8f9e016b445d2114c77fbe80a32842b5f3e58e829119bfe8b21322a6df8fd6dc",
+      "bytes": 2127480
+    },
+    {
+      "file": "audit.mjs",
+      "sha256": "de0f0d24a2fbf9f1c5524fce9da91733978b8582696812025ad2fa573fe064b4",
+      "bytes": 10747
+    },
+    {
+      "file": "audit.log",
+      "sha256": "5503956415e1fdec3fc36c3527e8bb1860e4621b43ad0732729b8736ff4bdbc7",
+      "bytes": 6359
+    }
+  ],
+  "historicalV110Entry": {
+    "source": "docs/BLOCK_16_V1_1_RELEASE_CLOSURE.md:95",
+    "rawBytes": 1389652,
+    "gzipBytes": 253742,
+    "brotliBytes": 203791,
+    "rawDifferenceFromRecord": 279381,
+    "gzipDifferenceFromRecord": 136575,
+    "status": "historical antecedent; same-runner comparison required; not a new regression attributed to preparation"
+  }
+}

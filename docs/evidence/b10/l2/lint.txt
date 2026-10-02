@@ -1,0 +1,7 @@
+
+> app@1.1.0 lint
+> oxlint
+
+src/components/PlaceMap.tsx:17:14: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+scripts/b10-l2-check.mjs:72:33: warning eslint(no-unused-vars): Variable 'ignored' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+scripts/b10-l2-check.mjs:82:48: warning eslint(no-unused-vars): Parameter 'id' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.

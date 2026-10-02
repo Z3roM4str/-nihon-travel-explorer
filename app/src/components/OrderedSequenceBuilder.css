@@ -287,6 +287,7 @@
 }
 
 .recorded-interval-fit__input {
+  min-height: var(--tap-min);
   max-width: 100%;
   min-height: var(--tap-min); /* 03 §7 */
   padding: 0.35rem 0.45rem;

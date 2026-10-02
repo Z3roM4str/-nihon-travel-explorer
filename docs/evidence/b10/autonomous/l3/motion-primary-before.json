@@ -1,0 +1,1657 @@
+[
+  {
+    "width": 320,
+    "reducedMotion": "no-preference",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 288,
+      "height": 162
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 288,
+      "height": 162
+    },
+    "more": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 88,
+      "height": 117
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 288,
+      "height": 126
+    },
+    "national": {
+      "transition": "height",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 320,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 296,
+      "height": 324.5
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "0.14s, 0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "toast-in",
+      "animationDuration": "0.2s",
+      "transform": "matrix(1, 0, 0, 1, 0, 6.92106)",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "onboarding-fade",
+      "animationDuration": "0.18s",
+      "transform": "none",
+      "width": 320,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 188.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": [
+        {
+          "transform": "scale(0.6)",
+          "offset": 0
+        },
+        {
+          "transform": "scale(1.22)",
+          "offset": 0.6
+        },
+        {
+          "transform": "scale(1)",
+          "offset": 1
+        }
+      ]
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 294,
+      "height": 220.5
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "sheet-rise",
+      "animationDuration": "0.32s",
+      "transform": "matrix(1, 0, 0, 1, 0, 742.719)",
+      "width": 320,
+      "height": 742.71875
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 288,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "reducedMotion": "no-preference",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 358,
+      "height": 201.375
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 358,
+      "height": 201.375
+    },
+    "more": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 111.328125,
+      "height": 96
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 358,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 390,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 366,
+      "height": 377
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "0.14s, 0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "toast-in",
+      "animationDuration": "0.2s",
+      "transform": "matrix(1, 0, 0, 1, 0, 4.97632)",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "onboarding-fade",
+      "animationDuration": "0.18s",
+      "transform": "none",
+      "width": 390,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 258.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": [
+        {
+          "transform": "scale(0.6)",
+          "offset": 0
+        },
+        {
+          "transform": "scale(1.22)",
+          "offset": 0.6
+        },
+        {
+          "transform": "scale(1)",
+          "offset": 1
+        }
+      ]
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 364,
+      "height": 273
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "sheet-rise",
+      "animationDuration": "0.32s",
+      "transform": "matrix(1, 0, 0, 1, 0, 251.262)",
+      "width": 390,
+      "height": 742.71875
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 358,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 839,
+    "reducedMotion": "no-preference",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 397.5,
+      "height": 223.59375
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 397.5,
+      "height": 223.59375
+    },
+    "more": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 261,
+      "height": 75
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 807,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 839,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 401.5,
+      "height": 328.71875
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "0.14s, 0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "toast-in",
+      "animationDuration": "0.2s",
+      "transform": "matrix(1, 0, 0, 1, 0, 1.25187)",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "onboarding-fade",
+      "animationDuration": "0.18s",
+      "transform": "none",
+      "width": 839,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 300.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": [
+        {
+          "transform": "scale(0.6)",
+          "offset": 0
+        },
+        {
+          "transform": "scale(1.22)",
+          "offset": 0.6
+        },
+        {
+          "transform": "scale(1)",
+          "offset": 1
+        }
+      ]
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 399.5,
+      "height": 224.71875
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "sheet-rise",
+      "animationDuration": "0.32s",
+      "transform": "matrix(1, 0, 0, 1, 0, 520.187)",
+      "width": 839,
+      "height": 734
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 807,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 840,
+    "reducedMotion": "no-preference",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 354,
+      "height": 199.125
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 354,
+      "height": 199.125
+    },
+    "more": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 232,
+      "height": 75
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 720,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 752,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 357.5,
+      "height": 303.96875
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "0.14s, 0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "toast-in",
+      "animationDuration": "0.2s",
+      "transform": "matrix(1, 0, 0, 1, 0, 5.9152)",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "onboarding-fade",
+      "animationDuration": "0.18s",
+      "transform": "none",
+      "width": 840,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 300.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": [
+        {
+          "transform": "scale(0.6)",
+          "offset": 0
+        },
+        {
+          "transform": "scale(1.22)",
+          "offset": 0.6
+        },
+        {
+          "transform": "scale(1)",
+          "offset": 1
+        }
+      ]
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 355.5,
+      "height": 199.96875
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "sheet-rise",
+      "animationDuration": "0.32s",
+      "transform": "matrix(1, 0, 0, 1, 0, 364.16)",
+      "width": 420,
+      "height": 742.71875
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 388,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "reducedMotion": "no-preference",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 654,
+      "height": 367.875
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 654,
+      "height": 367.875
+    },
+    "more": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 432,
+      "height": 75
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 1320,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 1352,
+      "height": 225
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "0.22s, 0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 417.5,
+      "height": 337.71875
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "0.14s, 0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "toast-in",
+      "animationDuration": "0.2s",
+      "transform": "matrix(1, 0, 0, 1, 0, 4.0911)",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "onboarding-fade",
+      "animationDuration": "0.18s",
+      "transform": "none",
+      "width": 1440,
+      "height": 900
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 300.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": [
+        {
+          "transform": "scale(0.6)",
+          "offset": 0
+        },
+        {
+          "transform": "scale(1.22)",
+          "offset": 0.6
+        },
+        {
+          "transform": "scale(1)",
+          "offset": 1
+        }
+      ]
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "0.22s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "none",
+      "width": 415.5,
+      "height": 233.71875
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "0s",
+      "animation": "sheet-rise",
+      "animationDuration": "0.32s",
+      "transform": "matrix(1, 0, 0, 1, 0, 792)",
+      "width": 420,
+      "height": 792
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 388,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "0.14s",
+      "animation": "none",
+      "animationDuration": "0s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 320,
+    "reducedMotion": "reduce",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 288,
+      "height": 162
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 288,
+      "height": 162
+    },
+    "more": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 88,
+      "height": 117
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 288,
+      "height": 126
+    },
+    "national": {
+      "transition": "height",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 320,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 296,
+      "height": 324.5
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "toast-in",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 320,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 188.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": []
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 294,
+      "height": 220.5
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "sheet-rise",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 320,
+      "height": 742.71875
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 288,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 288,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "reducedMotion": "reduce",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 358,
+      "height": 201.375
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 358,
+      "height": 201.375
+    },
+    "more": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 111.328125,
+      "height": 96
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 358,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 390,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 366,
+      "height": 377
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "toast-in",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 390,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 258.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": []
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 364,
+      "height": 273
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "sheet-rise",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 390,
+      "height": 742.71875
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 358,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 358,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 839,
+    "reducedMotion": "reduce",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 397.5,
+      "height": 223.59375
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 397.5,
+      "height": 223.59375
+    },
+    "more": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 261,
+      "height": 75
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 807,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 839,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 401.5,
+      "height": 328.71875
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "toast-in",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 839,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 300.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": []
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 399.5,
+      "height": 224.71875
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "sheet-rise",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 839,
+      "height": 734
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 807,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 807,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 840,
+    "reducedMotion": "reduce",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 354,
+      "height": 199.125
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 354,
+      "height": 199.125
+    },
+    "more": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 232,
+      "height": 75
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 720,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 752,
+      "height": 211
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 357.5,
+      "height": 303.96875
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "toast-in",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 840,
+      "height": 844
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 300.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": []
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 355.5,
+      "height": 199.96875
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "sheet-rise",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 420,
+      "height": 742.71875
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 388,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "reducedMotion": "reduce",
+    "home": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 654,
+      "height": 367.875
+    },
+    "hover": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 654,
+      "height": 367.875
+    },
+    "more": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 432,
+      "height": 75
+    },
+    "mapCard": {
+      "transition": "background",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 1320,
+      "height": 82
+    },
+    "national": {
+      "transition": "height",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 1352,
+      "height": 225
+    },
+    "placeCard": {
+      "transition": "box-shadow, border-color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 417.5,
+      "height": 337.71875
+    },
+    "saveControl": {
+      "transition": "background, color",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 40,
+      "height": 40
+    },
+    "toast": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "toast-in",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 279,
+      "height": 45.1875
+    },
+    "onboarding": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 1440,
+      "height": 900
+    },
+    "primary": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 300.21875,
+      "height": 44
+    },
+    "mark": {
+      "style": "place-card-save-mark",
+      "frames": []
+    },
+    "media": {
+      "transition": "opacity",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 415.5,
+      "height": 233.71875
+    },
+    "sheet": {
+      "transition": "all",
+      "duration": "1e-06s",
+      "animation": "sheet-rise",
+      "animationDuration": "1e-06s",
+      "transform": "none",
+      "width": 420,
+      "height": 792
+    },
+    "summaries": [
+      {
+        "name": "Nivel de interés",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Categoría",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Duración",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Reserva",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Afluencia",
+        "width": 388,
+        "height": 42
+      },
+      {
+        "name": "Joyas",
+        "width": 388,
+        "height": 42
+      }
+    ],
+    "chevron": {
+      "transition": "transform",
+      "duration": "1e-06s",
+      "animation": "none",
+      "animationDuration": "1e-06s",
+      "transform": "matrix(0, 1, -1, 0, 0, 0)",
+      "width": 16,
+      "height": 16
+    },
+    "overflow": 0,
+    "errors": []
+  }
+]

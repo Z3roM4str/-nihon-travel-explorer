@@ -1,0 +1,400 @@
+{
+  "lot": "B10 L1 only; B10 incomplete",
+  "initialHead": "2bbc09d63be2abe03b17aea8796274251425d32f",
+  "main": "b854db384c952e827b86d1bb35cac7caa70b035a",
+  "implementation": "3ac50d11392dce7635232a18baf4530f38895d10",
+  "branch": "codex/b10-pulido-mission",
+  "pullRequest": 177,
+  "runner": "Debian 13; Node v24.19.0; Playwright 1.62.1; Chromium 1234; WebKit 2336 (WPE, official Debian libs extracted in /tmp)",
+  "checks": {
+    "build": 0,
+    "lint": 0,
+    "vitestFiles": 116,
+    "vitestTests": 3483,
+    "browserBeforeStates": 15,
+    "browserAfterStates": 15,
+    "B26Chromium": {
+      "exitCode": 0,
+      "passed": 314,
+      "total": 314,
+      "attempt": 2
+    },
+    "B26WebKit": {
+      "exitCode": 0,
+      "passed": 314,
+      "total": 314,
+      "attempt": 2
+    }
+  },
+  "comparison": "evidence/b10/l1/comparison.json",
+  "imageBudget": {
+    "Tokio": 3499770,
+    "Kioto": 3499450,
+    "Osaka": 3356478,
+    "Okinawa": 2903352,
+    "Sapporo": 166986,
+    "Nagoya": 69552,
+    "Fukuoka": 69284
+  },
+  "entryBundle": {
+    "before": {
+      "fileName": "assets/index-OVb2DdYf.js",
+      "isEntry": true,
+      "raw": 1669033,
+      "gzip": 390317,
+      "brotli": 327016,
+      "moduleCount": 129,
+      "buckets": {
+        "React runtime": 485484,
+        "data (JSON)": 1208551,
+        "Leaflet + react-leaflet": 256265,
+        "src (other)": 96344,
+        "src/components": 183460,
+        "src/lib": 146568
+      },
+      "top": [
+        {
+          "id": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "rendered": 453153
+        },
+        {
+          "id": "src/data/places.json",
+          "rendered": 407066
+        },
+        {
+          "id": "src/data/photography-metadata.json",
+          "rendered": 350724
+        },
+        {
+          "id": "src/data/logistics/walking-scale-results.json",
+          "rendered": 276560
+        },
+        {
+          "id": "node_modules/leaflet/dist/leaflet-src.js",
+          "rendered": 242212
+        },
+        {
+          "id": "src/data/nearby.json",
+          "rendered": 105154
+        },
+        {
+          "id": "src/App.tsx",
+          "rendered": 41184
+        },
+        {
+          "id": "src/icons/Icon.tsx",
+          "rendered": 34383
+        },
+        {
+          "id": "src/data/accommodation/zones.json",
+          "rendered": 33301
+        },
+        {
+          "id": "src/data/logistics/walking-pilot-results.json",
+          "rendered": 22438
+        },
+        {
+          "id": "src/components/PlaceDetail.tsx",
+          "rendered": 19097
+        },
+        {
+          "id": "src/lib/planning-draft-v5.ts",
+          "rendered": 15932
+        }
+      ]
+    },
+    "after": {
+      "fileName": "assets/index-Gda7V2In.js",
+      "isEntry": true,
+      "raw": 1669019,
+      "gzip": 390304,
+      "brotli": 327197,
+      "moduleCount": 129,
+      "buckets": {
+        "React runtime": 485484,
+        "data (JSON)": 1208551,
+        "Leaflet + react-leaflet": 256265,
+        "src (other)": 96344,
+        "src/components": 183446,
+        "src/lib": 146568
+      },
+      "top": [
+        {
+          "id": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "rendered": 453153
+        },
+        {
+          "id": "src/data/places.json",
+          "rendered": 407066
+        },
+        {
+          "id": "src/data/photography-metadata.json",
+          "rendered": 350724
+        },
+        {
+          "id": "src/data/logistics/walking-scale-results.json",
+          "rendered": 276560
+        },
+        {
+          "id": "node_modules/leaflet/dist/leaflet-src.js",
+          "rendered": 242212
+        },
+        {
+          "id": "src/data/nearby.json",
+          "rendered": 105154
+        },
+        {
+          "id": "src/App.tsx",
+          "rendered": 41184
+        },
+        {
+          "id": "src/icons/Icon.tsx",
+          "rendered": 34383
+        },
+        {
+          "id": "src/data/accommodation/zones.json",
+          "rendered": 33301
+        },
+        {
+          "id": "src/data/logistics/walking-pilot-results.json",
+          "rendered": 22438
+        },
+        {
+          "id": "src/components/PlaceDetail.tsx",
+          "rendered": 19097
+        },
+        {
+          "id": "src/lib/planning-draft-v5.ts",
+          "rendered": 15932
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "G5 global not certified: unchanged summary targets 42px on base and lot; physical Safari/iPhone and screen reader pending",
+    "G6 historical v1.1.0 comparison pending; raw/gzip improved vs lot base, Brotli +181 B",
+    "Native file chooser not tested; setInputFiles and actual downloaded files used",
+    "B26 Chromium attempt 1 collided with bundle-report rebuilding dist: temporary 404 and timeout; repeated with stable dist, no gate or product change",
+    "B26 WebKit attempt 1 used GTK wrapper and lacked display; corrected to headless WPE without product change",
+    "Browser runner development attempts preserved: incoherent initial fixture corrected; keyboard modality and closed details visibility corrected; target-size debt recorded without widening lot"
+  ],
+  "artifacts": [
+    {
+      "path": "evidence/b10/l1/after/1440-backup.png",
+      "bytes": 62127,
+      "sha256": "15f634873e090dcabae1a5050829ce6a155e68f43e918b2efc11dcc08eec6119"
+    },
+    {
+      "path": "evidence/b10/l1/after/1440-unfiltered.png",
+      "bytes": 967057,
+      "sha256": "d83bd3752df567c8260455689a5d42cff805a7118c00499c2e2e29c2b2a4d521"
+    },
+    {
+      "path": "evidence/b10/l1/after/320-backup.png",
+      "bytes": 26063,
+      "sha256": "5d777e6336d9ce820da607022dd35979e404a1cf4c3b54b0fc12228f8ee40aaf"
+    },
+    {
+      "path": "evidence/b10/l1/after/320-zero.png",
+      "bytes": 22327,
+      "sha256": "bb268a89660d14c714c2e2d7d8397f6ff8f52bb5ba524e53c9079b5635000b2c"
+    },
+    {
+      "path": "evidence/b10/l1/after/390-backup.png",
+      "bytes": 48097,
+      "sha256": "d367a6fc0961976d21c5d75ba234c5588caa9719ce7528720e53738b740e3c5b"
+    },
+    {
+      "path": "evidence/b10/l1/after/390-one.png",
+      "bytes": 42374,
+      "sha256": "af704a7caca30da52a9812eb6f704b1af82215f6b2a5fce4abd7fe9cc5c01212"
+    },
+    {
+      "path": "evidence/b10/l1/after/390-unfiltered.png",
+      "bytes": 42244,
+      "sha256": "181e011c660eb7daa7c5ce42779092dcd88694a5636c4118e72f1cabe96a1964"
+    },
+    {
+      "path": "evidence/b10/l1/after/390-zero.png",
+      "bytes": 44296,
+      "sha256": "8c1150b5b45bf1a3dca60002aaa10ec556e71b223b9c62276a2af2cf3e5221d1"
+    },
+    {
+      "path": "evidence/b10/l1/after/results.json",
+      "bytes": 88029,
+      "sha256": "ce0fa2d09719d634010c363f5bcddeb2ccc93da072bd48f2ff59ead7cac3db76"
+    },
+    {
+      "path": "evidence/b10/l1/b26-chromium-2.txt",
+      "bytes": 25244,
+      "sha256": "7c984bd87880e0c592a7f908bffc85e401f901324d3080f013cf65d566af4044"
+    },
+    {
+      "path": "evidence/b10/l1/b26-chromium.txt",
+      "bytes": 10647,
+      "sha256": "30c86aee499bf4d3a235c6bb0b0982261f59c21f3eb1ba72f05a3e5bf34e5e07"
+    },
+    {
+      "path": "evidence/b10/l1/b26-webkit-2.txt",
+      "bytes": 25258,
+      "sha256": "01295ff81287b4997b680d4daf2153b6841acf252de64110d52f6054b906abe6"
+    },
+    {
+      "path": "evidence/b10/l1/b26-webkit.txt",
+      "bytes": 2502,
+      "sha256": "80bff3e447fe73f4bfb55db0bfba96143693ea1d67210266dce27465f701230f"
+    },
+    {
+      "path": "evidence/b10/l1/base-browser-2.txt",
+      "bytes": 105,
+      "sha256": "07a07a8f2c68dbd6ae3f5fb34bc0470bea0955db09aefc384e78c285b401ac30"
+    },
+    {
+      "path": "evidence/b10/l1/base-browser-3.txt",
+      "bytes": 513,
+      "sha256": "43900e9723cae243728ac47c865b5eff38e55fb1643d36d77d0e98f987b3b3dc"
+    },
+    {
+      "path": "evidence/b10/l1/base-browser-4.txt",
+      "bytes": 651,
+      "sha256": "2f8c0549d7c1de7b0a90950bda3d746786cb4ca4b19f3db1b4ab8cdc1737f446"
+    },
+    {
+      "path": "evidence/b10/l1/base-browser-5.txt",
+      "bytes": 566,
+      "sha256": "cb9def51d3a0f13073a25fe0aa0c8fbe73df1a4dd65501872c790e720cd61fc9"
+    },
+    {
+      "path": "evidence/b10/l1/base-browser-6.txt",
+      "bytes": 105,
+      "sha256": "07a07a8f2c68dbd6ae3f5fb34bc0470bea0955db09aefc384e78c285b401ac30"
+    },
+    {
+      "path": "evidence/b10/l1/base-browser.txt",
+      "bytes": 2198,
+      "sha256": "76ef393622e17791be3905eb4339f056f41d60f4aaedaaf384c44dcf13ec6a9d"
+    },
+    {
+      "path": "evidence/b10/l1/base-build.txt",
+      "bytes": 969,
+      "sha256": "e9a8dd1faa4e1734dfd919c8a71d39738ef1082a06770004d5e6631b4ad11855"
+    },
+    {
+      "path": "evidence/b10/l1/base-bundle.json",
+      "bytes": 4525,
+      "sha256": "15603f4057bf8e52f624bde789d5a45a03427d26f8e8fc15455b1959365f6116"
+    },
+    {
+      "path": "evidence/b10/l1/before/1440-backup.png",
+      "bytes": 62369,
+      "sha256": "2286b5f7c0ec3ad1963a868ab0909a526f8cf9836356bdb5b3d20d86e8aa50ad"
+    },
+    {
+      "path": "evidence/b10/l1/before/1440-unfiltered.png",
+      "bytes": 975346,
+      "sha256": "00608f1bd0f70d8fd9fae3a2cd2952247b5c20fd1e34923d6c3a8491c88fd8ea"
+    },
+    {
+      "path": "evidence/b10/l1/before/320-backup.png",
+      "bytes": 26020,
+      "sha256": "9edb79e5ee29d126345a8290b019ab414e93102b9881c373def500057f4e3c1b"
+    },
+    {
+      "path": "evidence/b10/l1/before/320-zero.png",
+      "bytes": 22758,
+      "sha256": "c54bcd2e5c76cdbfc0138b4421935978b097f2b944d6842e87841f7c2c0ee44b"
+    },
+    {
+      "path": "evidence/b10/l1/before/390-backup.png",
+      "bytes": 48323,
+      "sha256": "cadb8dc9239bb7f992392c6f1571caa8438fb2d2c7975f543357cb16846211db"
+    },
+    {
+      "path": "evidence/b10/l1/before/390-one.png",
+      "bytes": 43323,
+      "sha256": "a309a8636f053ae0284f1ad47fefaca90d52f80efee059c71981cf3d8151cb2b"
+    },
+    {
+      "path": "evidence/b10/l1/before/390-unfiltered.png",
+      "bytes": 43286,
+      "sha256": "8b6eb07167b1d0b3c6c1fce12d423e744c6860e5467646c5f0fa4e41b9c793b3"
+    },
+    {
+      "path": "evidence/b10/l1/before/390-zero.png",
+      "bytes": 44722,
+      "sha256": "a12e349de2624d7898236352f54a5c20ebeaf914dfb605c53b27cca96009312e"
+    },
+    {
+      "path": "evidence/b10/l1/before/results.json",
+      "bytes": 88103,
+      "sha256": "e54c811c8941a31ff8773eedc0b6555c704b7dff9e477c12fce9ffa07a8da191"
+    },
+    {
+      "path": "evidence/b10/l1/browser-2.txt",
+      "bytes": 513,
+      "sha256": "43900e9723cae243728ac47c865b5eff38e55fb1643d36d77d0e98f987b3b3dc"
+    },
+    {
+      "path": "evidence/b10/l1/browser-3.txt",
+      "bytes": 529,
+      "sha256": "fb0095ae3212732a3f950b7a3e70aa9e65eef0da56eb11850f2a986f54624fa3"
+    },
+    {
+      "path": "evidence/b10/l1/browser-4.txt",
+      "bytes": 566,
+      "sha256": "cb9def51d3a0f13073a25fe0aa0c8fbe73df1a4dd65501872c790e720cd61fc9"
+    },
+    {
+      "path": "evidence/b10/l1/browser-5.txt",
+      "bytes": 105,
+      "sha256": "07a07a8f2c68dbd6ae3f5fb34bc0470bea0955db09aefc384e78c285b401ac30"
+    },
+    {
+      "path": "evidence/b10/l1/browser.txt",
+      "bytes": 105,
+      "sha256": "07a07a8f2c68dbd6ae3f5fb34bc0470bea0955db09aefc384e78c285b401ac30"
+    },
+    {
+      "path": "evidence/b10/l1/build.txt",
+      "bytes": 969,
+      "sha256": "441d570fb3768d3e03eb1b4b82ac632a4fbc407a4c0854973d56a15bbc8c372c"
+    },
+    {
+      "path": "evidence/b10/l1/bundle.json",
+      "bytes": 4525,
+      "sha256": "95e2fd3d5ad966cf90a3c9264444e398a860a7707059500e72d86c8840027e53"
+    },
+    {
+      "path": "evidence/b10/l1/comparison.json",
+      "bytes": 1678,
+      "sha256": "7a6c9b3f55495d9bbbeb1434ccf850966ab2dca14bd392410200ead788ec550f"
+    },
+    {
+      "path": "evidence/b10/l1/image-budget.json",
+      "bytes": 145,
+      "sha256": "8f8c4c353e962cc3035456eb34e1b4bf3516fbf7ecd672b8f026e444de390904"
+    },
+    {
+      "path": "evidence/b10/l1/lint.txt",
+      "bytes": 230,
+      "sha256": "df26b7b0b067256aa67da5a4c626ad23cb2562871b0fd68d47c4ff45201b91b4"
+    },
+    {
+      "path": "evidence/b10/l1/vitest.txt",
+      "bytes": 7772,
+      "sha256": "e7a66f40954ed5a5dc1a302e4893489e467fa23ca323285c27c44dbdc2724c56"
+    }
+  ],
+  "implementationRunnerSha256": "93a1c216ceef83a4f6dac5326c81008a41da24b000e563af4214c48e9bb98a4b",
+  "documentationChecks": {
+    "artifactHashesVerified": 41,
+    "localLinksVerified": 35,
+    "diffCheck": "PASS",
+    "protectedRefs": {
+      "main": "b854db384c952e827b86d1bb35cac7caa70b035a",
+      "pr168Head": "1444e67805c60cf9a33f4be5c1a3808b900e505b",
+      "pr168State": "OPEN/Draft"
+    },
+    "deploymentFreezeUnchanged": true
+  }
+}

@@ -1,3 +1,9 @@
+# Autoridad de movimiento tras reconciliación #177
+
+Este documento conserva el inventario histórico de main. Las seis excepciones funcionales inventariadas abajo no constituyen aprobación de diseño: rigen `03 §6` y la precedencia de `08`. La combinación limita movimiento a los cinco casos normativos y reduced-motion instantáneo. [Informe y comprobaciones nuevas](B10_RECONCILIATION_REPORT.md).
+
+---
+
 # B10-M1…M6 — Especificación formal de las transiciones funcionales
 
 **Estado: CERRADO como documentación (sin rediseño).** El problema nunca fue un defecto observable: eran seis movimientos **sin nombre ni especificación** en `03 §6`, que sólo nombra cinco movimientos *expresivos*. Se comprobó que ninguno incumple reduced-motion ni la prohibición de hover, se **nombra su semántica** y se **fijan sus valores** en el gate. No se cambia ninguna animación.

@@ -327,3 +327,5 @@
   color: var(--ink-900);
   cursor: pointer;
 }
+
+.gallery__credits:focus-visible { outline-color: var(--focus-ring-color-on-dark); }

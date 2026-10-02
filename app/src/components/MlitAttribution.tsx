@@ -8,7 +8,7 @@
  */
 export function MlitAttribution({ className = "national__attribution" }: { className?: string }) {
   return (
-    <p className={className}>
+    <p className={`mlit-attribution ${className}`}>
       Geometría derivada del{" "}
       <a
         href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html"

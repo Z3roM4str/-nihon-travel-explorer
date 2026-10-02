@@ -1,0 +1,489 @@
+/* ---------- Shell (Bloque 18 — 02 §D2/§D5, 04 §10/§11) ---------- */
+/*
+ * Mobile-first literal (Art. 8): sólo `min-width` de aquí en adelante en esta sección. `.app`
+ * es una fila siempre — `NavRail` ocupa 0px por `display:none` bajo `md` y `TabBar` hace lo
+ * mismo desde `md`, así que no hace falta alternar `flex-direction` con un media query aparte.
+ */
+.app {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Entre la cabecera y `TabBar`: el único hijo que crece, y el único que puede scrollear.
+   Sin esto, `flex: 1` en `.destination-panel` no tiene contenedor flex del que heredarlo. */
+.app__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/*
+ * Cabecera: 56px fijos (04 §11, 05 §4). Contenido máximo: título (con selector de ciudad
+ * cuando aplica) + PersonToken — ninguna otra acción permanente.
+ *
+ * `04 §11`: "sobre papel es --surface con borde inferior --line que sólo aparece al hacer
+ * scroll" — el borde vive en `.app__header--scrolled`, no en la regla base; `App.tsx` añade esa
+ * clase cuando la superficie con scroll de la pestaña activa tiene `scrollTop > 0`.
+ */
+.app__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--chrome-header-height);
+  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid transparent;
+}
+
+.app__header--scrolled {
+  border-bottom-color: var(--line);
+}
+
+.app__brand {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+}
+
+/* B10-A2: el selector de ciudad es el título de la pantalla; el `h1` que lo envuelve no pinta nada propio. */
+.app__heading {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.app__title {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-m-size);
+  line-height: var(--type-title-m-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+button.app__title.app__title--expand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  min-width: 0;
+}
+
+.app__title-back {
+  flex-shrink: 0;
+  color: var(--ink-500);
+}
+
+.app__title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* DD-007, `02 §D4`: único resto del antiguo conmutador «Eres» — 44px de área táctil real
+   alrededor del token de 24px, sin fondo ni borde propios (el círculo del token ya es todo
+   lo que se pinta). */
+.app__person-token-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app__filter-badge {
+  background: var(--shu-600);
+  color: var(--surface);
+  border-radius: var(--radius-full);
+  font-family: var(--font-record);
+  font-size: var(--type-caption-size);
+  min-width: 1.3rem;
+  height: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-1);
+}
+
+/* ---------- PersonToken (04 §1, DD-007) ---------- */
+
+.person-token {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  color: var(--surface);
+  font-family: var(--font-record);
+  font-weight: 600;
+}
+
+/* ---------- Sheet (04 §8) ---------- */
+
+
+/* ---------- Destinos: contenedor común (02 §D2/§D3) ---------- */
+/*
+ * Los cuatro paneles están siempre montados; `hidden` (no `display:none` de una clase) los
+ * saca del árbol de accesibilidad y detiene su pintado sin desmontarlos, así que el scroll, los
+ * filtros, el lugar abierto y el estado de cada pestaña sobreviven al cambiar de destino
+ * (gate 6/7). Especificidad de atributo, no de `!important`: gana sobre cualquier `display`
+ * de las clases de abajo sin necesidad de forzarlo.
+ */
+.destination-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Corrección post-cierre: posiciona la ficha (`.app__detail`) cuando `ficheOrigin` es este
+     destino — necesario para Quiero ir y (corrección final) Viaje, que no tenían un ancestro
+     `position:relative` propio (sólo `.app__body`, dentro de Explorar, lo tenía). */
+  position: relative;
+  overflow: hidden;
+}
+
+.destination-panel[hidden] {
+  display: none;
+}
+
+/*
+ * Corrección post-cierre: en Quiero ir, este es ahora un `div` interior distinto de
+ * `.destination-panel` (antes eran el mismo elemento) — para que la ficha, hermana suya dentro
+ * del `.destination-panel` exterior, no scrollee con la lista. Corrección final: Viaje adopta
+ * la misma separación (abre lugares desde «Dónde dormir», así que también necesita un exterior
+ * sin scroll donde anclar su ficha). Sigue siendo el mismo elemento que `.destination-panel` en
+ * Nosotros, la única pestaña sin ficha que anclar; `flex`/`min-height` son redundantes pero
+ * inofensivos ahí (el padre ya los fija).
+ */
+.destination-panel--scroll {
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-6);
+  padding: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ---------- Viaje: sub-navegación (05 §7/§8) ---------- */
+
+.viaje-nav {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.viaje-nav__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink-700);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.viaje-nav__item--active {
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+  color: var(--surface);
+}
+
+.viaje-nav__item:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ---------- Nosotros (05 §11) ---------- */
+
+.nosotros-section {
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.nosotros-section:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.nosotros-section__text {
+  margin: 0 0 var(--space-3);
+  color: var(--ink-700);
+  font-size: var(--type-body-s-size);
+  line-height: var(--type-body-s-line);
+}
+
+/* ---------- Barra única de búsqueda/filtros/vista (05 §4) ---------- */
+/*
+ * 48px, pegajosa bajo la cabecera. Sustituye a las antiguas `.hub-bar` + `.view-bar`
+ * (330px de cromo combinado) por una sola fila: objetivo de cromo superior 56+48=104px
+ * (gate G3 / 08). El campo de búsqueda vive aquí directamente, no dentro de la hoja de
+ * filtros — `FilterPanel` se renderiza con `showSearch={false}` cuando se abre en `Sheet`.
+ */
+.explorer-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--chrome-bar-height);
+  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.explorer-bar__search {
+  flex: 1;
+  min-width: 0;
+}
+
+.explorer-bar__filters,
+.explorer-bar__pane {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  font-family: var(--font-record);
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  color: var(--ink-900);
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.explorer-bar__filters:hover,
+.explorer-bar__pane:hover {
+  background: var(--surface-sunken);
+}
+
+/* ---------- Hub selector (reutilizado dentro del selector de ciudad, `Sheet`) ---------- */
+
+/*
+ * Bloque 18, `05 §4`: en teléfono, una superficie a la vez — la lista o el mapa, nunca los dos
+ * a medias — conmutada por `.explorer-bar__pane`. Las dos siguen montadas y del mismo tamaño
+ * real (una encima de la otra, `position:absolute`): Leaflet necesita su contenedor con
+ * dimensiones reales incluso mientras no se ve, o `panTo`/`fitBounds` calculan `NaN` sobre una
+ * caja 0×0 y el mapa lanza — `visibility`, nunca `display:none`, es lo que la oculta. Desde
+ * `md` (`02 §D5`) las dos superficies conviven en una fila normal, como en v1.1.0.
+ */
+.app__body {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app__body--pane-map .app__sidebar {
+  display: none;
+}
+
+.app__body--pane-list .app__map-area {
+  visibility: hidden;
+}
+
+/*
+ * La región de lista de Explorar. Corrección de B19 (DD-016): además de contener la lista, es
+ * su CONTENEDOR DE CONSULTA — `styles/discovery.css` decide el número de columnas leyendo
+ * `@container lista-explorar (…)`, es decir el ancho real de esta caja, no el del viewport. Es
+ * lo único que puede resolver el caso de `md`, donde abrir la ficha estrecha esta región de
+ * ~752px a ~376px sin que el viewport cambie ni un píxel. Los topes por breakpoint siguen
+ * viviendo en `@media` (`02 §D5`); aquí sólo se declara la caja que se mide.
+ */
+.app__sidebar {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  container-type: inline-size;
+  container-name: lista-explorar;
+}
+
+.app__map-area {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Keep Leaflet panes under the app chrome. */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 5;
+}
+
+/*
+ * La ficha de lugar (Art. 8, `05 §5`): en teléfono ocupa el 100% de la altura visible, por
+ * encima de la cabecera, la barra única y `TabBar` — nada del shell queda visible detrás.
+ * Desde `md` vuelve a ser el panel derecho de 480px (`02 §D5`, `05 §5`) — corrección final de
+ * B18: antes escrito como 420px compartiendo token con `Sheet` (`04 §8`), error normativo ya
+ * corregido (tokens.css §8). B18 sólo cambia el contenedor/navegación de la ficha, no esta
+ * medida — `05 §5` reserva su rediseño a B4.
+ */
+.app__detail {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--surface);
+}
+
+.map-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  padding: 1.25rem;
+  text-align: center;
+  max-width: 22rem;
+}
+
+.map-empty p {
+  margin: 0 0 0.75rem;
+}
+
+/*
+ * Corrección de B19 (DD-016, `02 §D5`, `05 §4`/`§5`) — el raíl derecho y la región de lista.
+ *
+ * B18 dejó la lista clavada en 372px fijos desde `md`, con el mapa ocupando todo lo demás. Eso
+ * hacía imposible lo que `05 §4` pide literalmente («`md`: 2 columnas + ficha como panel derecho
+ * de 480 px») y lo que la fórmula de cabida exige (`PlaceCard` nunca por debajo de 264px): en un
+ * panel de 372px sólo cabe una columna a cualquier ancho de pantalla. La corrección invierte la
+ * prioridad — **la lista es la superficie primaria y se queda con todo el ancho que el raíl no
+ * usa**, y el raíl mide exactamente una ficha:
+ *
+ *     raíl = min(var(--place-detail-panel-width), 50%)          ← «el mapa nunca pasa de la
+ *                                                                  mitad del ancho», `02 §D5`
+ *
+ * Quién ocupa el raíl:
+ *   - `md` (840–1199): sólo la ficha, y sólo mientras está abierta (`.app__body--detail`). El
+ *     mapa sigue siendo una superficie conmutada por `.explorer-bar__pane`, igual que en
+ *     teléfono — `02 §D5` y `05 §4` reservan el mapa persistente para `lg`, no para `md`. Por eso
+ *     abrir la ficha en `md` estrecha la lista y la baja de 2 columnas a 1 sin tocar el viewport:
+ *     es el caso que obliga a que la rejilla lea su propio contenedor y no los breakpoints.
+ *   - `lg`+ (1200+): el mapa ocupa el raíl de forma permanente (`02 §D5`) y la ficha se apoya
+ *     encima del mismo raíl, con la misma caja. El mapa nunca cambia de tamaño al abrir o cerrar
+ *     la ficha, así que conserva centro, zoom y marcador seleccionado.
+ *
+ * Las dos superficies de Explorar siguen siendo `position: absolute` a todos los anchos (nunca
+ * `display:none` para el mapa: Leaflet necesita una caja real o `panTo`/`fitBounds` calculan
+ * `NaN`). El único cambio con el ancho es dónde termina cada una — `right` —, no su mecanismo.
+ * Art. 8 prohíbe `max-width` nuevo: todo lo de esta sección es `min-width`.
+ */
+@media (min-width: 840px) {
+  .app__body {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .app__sidebar {
+    z-index: 10;
+    border-right: 1px solid var(--line);
+  }
+
+  /* Sin ficha abierta la lista es TODO el cuerpo: es lo que hace que 840px dé 2 columnas. */
+  .app__body--detail .app__sidebar,
+  .app__body--detail .app__map-area {
+    right: min(var(--place-detail-panel-width), 50%);
+  }
+
+  .app__detail {
+    position: absolute;
+    inset: 0 0 0 auto;
+    /* Corrección final de B18 (punto 5): token propio (480px, `02 §D5`/`05 §5`), separado del
+       de Sheet (420px, `04 §8`) — antes ambos compartían `--panel-width`, que era el error
+       normativo que describe la auditoría. Ver tokens.css §8. Corrección de B19: el `100%` pasa
+       a `50%` — la ficha es el raíl, y `02 §D5` acota el raíl a la mitad del ancho. */
+    width: min(var(--place-detail-panel-width), 50%);
+    z-index: 30;
+    border-left: 1px solid var(--line);
+    box-shadow: var(--elev-2);
+  }
+}
+
+/*
+ * `lg` (1200px, `02 §D5`): «Explorar añade panel de mapa persistente a la derecha». A partir de
+ * aquí el raíl existe siempre, lo ocupe la ficha o no, y el conmutador Lista/Mapa deja de tener
+ * nada que conmutar — se retira en vez de quedarse como un control que no hace nada.
+ */
+@media (min-width: 1200px) {
+  .explorer-bar__pane {
+    display: none;
+  }
+
+  .app__map-area,
+  .app__body--detail .app__map-area {
+    left: auto;
+    right: 0;
+    width: min(var(--place-detail-panel-width), 50%);
+  }
+
+  .app__sidebar,
+  .app__body--detail .app__sidebar {
+    right: min(var(--place-detail-panel-width), 50%);
+  }
+
+  /* El conmutador ya no manda: con mapa permanente, las dos superficies se ven siempre. */
+  .app__body--pane-map .app__sidebar {
+    display: flex;
+  }
+
+  .app__body--pane-list .app__map-area {
+    visibility: visible;
+  }
+}
+

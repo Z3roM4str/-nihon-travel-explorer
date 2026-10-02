@@ -293,7 +293,7 @@ async function auditViewport(browser, viewport) {
 }
 
 async function main() {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
   try {
     for (const viewport of VIEWPORTS) await auditViewport(browser, viewport);
   } finally {

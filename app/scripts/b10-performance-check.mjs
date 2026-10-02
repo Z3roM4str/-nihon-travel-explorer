@@ -14,11 +14,12 @@ import { preview } from "vite";
  *   · dimensiones: ninguna imagen se descarga a más de 2,5× su caja pintada (× DPR);
  *   · JS/CSS iniciales: gzip del chunk de entrada y del CSS (trinquete, ver B10-P1 abajo).
  *
- * B10-P1 (CERRADO en el endurecimiento post-B10): el chunk de entrada había crecido a 390 329 B gzip frente a los 253 742 B de v1.1.0.
+ * B10-P1 (registro histórico de main; no cierre G6 de #177): el chunk de entrada había crecido a 390 329 B gzip frente a los 253 742 B de v1.1.0.
  * Causa medida: `photography-metadata.json` entraba entero (143 KB raw… 148 KB de LQIP base64 que el runtime nunca lee, más URLs de adquisición,
  * fechas y dimensiones originales). `vite.config.ts` sirve ahora `photography-metadata.json?runtime`, una proyección con sólo los campos que
  * lee `buildRegistry` (`src/data/photography-runtime-projection.ts`; el JSON canónico no cambia y un test prueba que `placeImages` es idéntico).
- * Entrada: 277 912 B gzip (+9,5 % vs v1.1.0; el resto es código y `places.json` de B25–B31). Este gate protege la invariante, no sólo el número:
+ * #177 retains 08 G6 literally: ceiling 253 742 B; the historical 285 000 B ratchet is not a G6 exception.
+ * Projection protection is retained separately:
  * J01 techo ratcheteado, J01b ningún LQIP inline ni URL de adquisición en el entry (los chunks diferidos siguen protegidos por J03 y block12).
  *
  * Uso: `npm run build && node scripts/b10-performance-check.mjs` (`NIHON_BROWSER=webkit`, `NIHON_CHROMIUM_PATH` opcionales).
@@ -27,7 +28,7 @@ import { preview } from "vite";
 const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
 const APP = fileURLToPath(new URL("..", import.meta.url));
 const HUB_BUDGET_BYTES = 3_500_000; // 06 §6.3
-const ENTRY_GZIP_CEILING = 285_000; // medido 277 912 B (+9,5 % vs v1.1.0); B10-P1 cerrado
+const ENTRY_GZIP_CEILING = 253_742; // 08 G6: v1.1.0; no exception or baseline reset authorized in #177
 const CSS_GZIP_CEILING = 28_500; // medido 27 453 B
 const ENTRY_GZIP_V110 = 253_742; // BLOCK_14_HANDOFF: referencia v1.1.0
 
@@ -94,7 +95,7 @@ await ck("J04", "ningún derivado fotográfico supera 200 KB ni existe un origin
 // ───────────── Navegador: bytes de imagen por ciudad
 const server = await preview({ root: APP, preview: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
 const url = server.resolvedUrls.local[0];
-const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
+const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : process.env.NIHON_WEBKIT_PATH;
 const browser = await (BROWSER === "webkit" ? webkit : chromium).launch({ headless: true, ...(exe ? { executablePath: exe } : {}) });
 console.log(`# navegador: ${BROWSER} ${browser.version()}`);
 
@@ -103,15 +104,20 @@ async function measureHub(hub, viewport, dpr) {
   context.setDefaultTimeout(10000);
   const page = await context.newPage();
   const responses = [];
-  page.on("response", async (res) => {
+  const pendingBodies = new Set();
+  page.on("response", (res) => {
     const u = res.url();
     if (!/\.(webp|jpg|jpeg|png|avif)(\?|$)/i.test(u) || !u.startsWith(url)) return;
-    try {
-      const body = await res.body();
-      responses.push({ url: u, bytes: body.length, status: res.status() });
-    } catch {
-      responses.push({ url: u, bytes: 0, status: res.status() });
-    }
+    const body = (async () => {
+      try {
+        const buffer = await res.body();
+        responses.push({ url: u, bytes: buffer.length, status: res.status() });
+      } catch {
+        responses.push({ url: u, bytes: 0, status: res.status() });
+      }
+    })();
+    pendingBodies.add(body);
+    void body.finally(() => pendingBodies.delete(body));
   });
   await page.route("**/*", (route) => {
     const u = route.request().url();
@@ -119,20 +125,42 @@ async function measureHub(hub, viewport, dpr) {
   });
   await page.addInitScript(() => { try { localStorage.setItem("nihon.onboarding.seen.v1", "1"); } catch { /* */ } });
   await page.goto(url, { waitUntil: "networkidle" });
+  // Network idle can precede React's first paint on a busy host. Do not cut the
+  // home window until its real eager images exist and their response bodies settle.
+  await page.locator(".explorer-home__city-image").first().waitFor();
+  await page.waitForFunction(() => {
+    const images = [...document.querySelectorAll(".explorer-home__city-image")];
+    return images.length > 0 && images.every(i => i.complete && i.naturalWidth > 0);
+  });
   await page.waitForTimeout(500);
+  await Promise.all([...pendingBodies]);
+  const homeUrls = new Set(responses.map(r => r.url));
   const homeBytes = responses.reduce((a, r) => a + r.bytes, 0);
   const homeCount = responses.length;
+  ok(homeCount > 0, "home image window was not measured");
   responses.length = 0;
   const btn = page.locator(`[aria-label="Empezar a explorar"] button, [aria-label="Más destinos"] button`).filter({ hasText: new RegExp(`^${hub}\\b`) }).first();
   await btn.click();
   await page.waitForSelector(".place-card", { timeout: 15000 });
   await page.waitForTimeout(700);
-  // carga diferida: imágenes de tarjetas lejos de la pantalla ya descargadas
+  await Promise.all([...pendingBodies]);
+  // Negative coverage: force a real, uncached distant card image to load eagerly.
+  if (process.env.NIHON_B10_PERF_MUTANT === "eager-far-card" && hub === "Tokio" && viewport.width === 390) {
+    const before = [...homeUrls];
+    await page.evaluate(async (cached) => {
+      const image = [...document.querySelectorAll('.place-card img')].find(i => i.getBoundingClientRect().top > innerHeight * 3 && !cached.includes(i.currentSrc || i.src));
+      if (!image) throw new Error("negative fixture requires an uncached distant card image");
+      image.loading = "eager";
+      await image.decode();
+    }, before);
+  }
+  // Reused images already downloaded on the home page cannot be deferred again.
+  // Keep their raw count and every byte measurement; only new far downloads violate lazy loading.
   const lazy = await page.evaluate(() => {
     const vh = window.innerHeight;
     const imgs = [...document.querySelectorAll(".place-card img")];
     const far = imgs.filter((i) => i.getBoundingClientRect().top > vh * 3 && i.complete && i.naturalWidth > 0);
-    return { total: imgs.length, farLoaded: far.length };
+    return { total: imgs.length, farLoaded: far.length, farUrls: far.map(i=>i.currentSrc) };
   });
   // recorrer toda la ciudad
   for (let i = 0; i < 90; i += 1) {
@@ -161,7 +189,7 @@ async function measureHub(hub, viewport, dpr) {
     dupes: urls.filter((u, i) => urls.indexOf(u) !== i),
     originals: urls.filter((u) => !/-(400|800)w\.webp/.test(u)),
     failed: responses.filter((r) => r.status >= 400),
-    lazy,
+    lazy: { ...lazy, newFarLoaded: lazy.farUrls.filter(u=>!homeUrls.has(u)).length, reusedFarLoaded: lazy.farUrls.filter(u=>homeUrls.has(u)).length },
     oversize: dims.filter((d) => d.natural > d.shown * 2.5 && d.natural > 450),
     homeBytes,
     homeCount,
@@ -170,16 +198,17 @@ async function measureHub(hub, viewport, dpr) {
 
 for (const [label, viewport, dpr] of [["móvil 390×844@2", { width: 390, height: 844 }, 2], ["escritorio 1440×900@1", { width: 1440, height: 900 }, 1]]) {
   for (const hub of HUBS) {
+    if (process.env.NIHON_B10_PERF_MUTANT === "eager-far-card" && (hub !== "Tokio" || viewport.width !== 390)) continue;
     await ck(`I-${label.split(" ")[0]}-${hub}`, `${label} · ${hub}: imágenes ≤ 3,5 MB, sin originales/duplicados/fallos, diferidas y sin sobredimensión`, async () => {
       const r = await measureHub(hub, viewport, dpr);
       console.log(`# ${label} · ${hub}: ${r.count} img · ${r.bytes} B (portada previa: ${r.homeCount} img · ${(r.homeBytes / 1e6).toFixed(2)} MB) · ${r.lazy.farLoaded}/${r.lazy.total} lejanas ya cargadas · sobredimensionadas ${r.oversize.length}`);
-      evidence.hubs.push({ viewport: label, hub, images: r.count, bytes: r.bytes, budget: HUB_BUDGET_BYTES, homeImages: r.homeCount, homeBytes: r.homeBytes, farLoadedAtOpen: r.lazy.farLoaded, cards: r.lazy.total, oversize: r.oversize.length, duplicates: r.dupes.length, originals: r.originals.length, failed: r.failed.length });
+      evidence.hubs.push({ viewport: label, hub, images: r.count, bytes: r.bytes, budget: HUB_BUDGET_BYTES, homeImages: r.homeCount, homeBytes: r.homeBytes, farLoadedAtOpen: r.lazy.farLoaded, newFarLoadedAtOpen: r.lazy.newFarLoaded, reusedFarLoadedAtOpen: r.lazy.reusedFarLoaded, cards: r.lazy.total, oversize: r.oversize.length, duplicates: r.dupes.length, originals: r.originals.length, failed: r.failed.length });
       ok(r.count > 0, "ninguna imagen medida: el gate no midió nada");
       ok(r.bytes <= HUB_BUDGET_BYTES, `${r.bytes} B > ${HUB_BUDGET_BYTES} B`);
       ok(r.originals.length === 0, `originales descargados: ${r.originals.slice(0, 2)}`);
       ok(r.dupes.length === 0, `duplicados: ${[...new Set(r.dupes)].slice(0, 2)}`);
       ok(r.failed.length === 0, `fallos: ${r.failed.slice(0, 2).map((f) => f.url)}`);
-      ok(r.lazy.farLoaded === 0, `${r.lazy.farLoaded} imágenes a más de 3 pantallas ya descargadas al abrir la ciudad (carga no diferida)`);
+      ok(r.lazy.newFarLoaded === 0, `${r.lazy.newFarLoaded} imágenes nuevas a más de 3 pantallas descargadas al abrir la ciudad (carga no diferida)`);
       ok(r.oversize.length === 0, `sobredimensionadas: ${r.oversize.slice(0, 2).map((d) => `${d.natural}px→${Math.round(d.shown)}px`)}`);
     });
   }
@@ -187,6 +216,7 @@ for (const [label, viewport, dpr] of [["móvil 390×844@2", { width: 390, height
 
 await browser.close();
 await server.close();
+evidence.failures = failures;
 if (process.env.NIHON_B10_PERF_JSON) writeFileSync(process.env.NIHON_B10_PERF_JSON, JSON.stringify(evidence, null, 2) + "\n");
 console.log(`\n${pass} OK · ${failures.length} FAIL`);
 if (failures.length) {

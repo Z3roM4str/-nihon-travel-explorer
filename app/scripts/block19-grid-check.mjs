@@ -32,7 +32,7 @@ const CASES = [
 ];
 
 async function main() {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
   const results = [];
   const check = (label, ok, extra) => {
     results.push({ label, ok });

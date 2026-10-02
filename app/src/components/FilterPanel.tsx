@@ -75,7 +75,6 @@ export function FilterPanel({
   hiddenGemStatuses,
   tourismLevels,
   resultCount,
-  totalCount,
   activeFilterCount,
   onReset,
   onApply,
@@ -85,7 +84,7 @@ export function FilterPanel({
       <div className="filter-panel__head">
         <div className="filter-panel__status">
           <p role="status">
-            <strong>{resultCount}</strong> de {totalCount} lugares
+            <strong>{resultCount}</strong> lugar{resultCount === 1 ? "" : "es"}
           </p>
           {activeFilterCount > 0 && (
             <button type="button" className="link-button tap-target-min" onClick={onReset}>

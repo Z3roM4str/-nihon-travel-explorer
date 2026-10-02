@@ -1,0 +1,177 @@
+{
+  "chunks": [
+    {
+      "fileName": "assets/index-D_0awBU8.js",
+      "isEntry": true,
+      "raw": 1389652,
+      "gzip": 253742,
+      "brotli": 203791,
+      "moduleCount": 105,
+      "buckets": {
+        "React runtime": 485774,
+        "data (JSON)": 978911,
+        "Leaflet + react-leaflet": 256789,
+        "src (other)": 42702,
+        "src/lib": 133471,
+        "src/components": 125914
+      },
+      "top": [
+        {
+          "id": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "rendered": 453182
+        },
+        {
+          "id": "src/data/places.json",
+          "rendered": 407066
+        },
+        {
+          "id": "src/data/logistics/walking-scale-results.json",
+          "rendered": 276560
+        },
+        {
+          "id": "node_modules/leaflet/dist/leaflet-src.js",
+          "rendered": 242241
+        },
+        {
+          "id": "src/data/photography-metadata.json",
+          "rendered": 129528
+        },
+        {
+          "id": "src/data/nearby.json",
+          "rendered": 105154
+        },
+        {
+          "id": "src/data/accommodation/zones.json",
+          "rendered": 33301
+        },
+        {
+          "id": "src/App.tsx",
+          "rendered": 23325
+        },
+        {
+          "id": "src/data/logistics/walking-pilot-results.json",
+          "rendered": 22438
+        },
+        {
+          "id": "src/lib/planning-draft-v5.ts",
+          "rendered": 15932
+        },
+        {
+          "id": "src/components/PlaceDetail.tsx",
+          "rendered": 15697
+        },
+        {
+          "id": "node_modules/react/cjs/react.production.js",
+          "rendered": 15207
+        }
+      ]
+    },
+    {
+      "fileName": "assets/OrderedSequenceBuilder-OCaPJ06m.js",
+      "isEntry": false,
+      "raw": 136824,
+      "gzip": 31822,
+      "brotli": 27316,
+      "moduleCount": 27,
+      "buckets": {
+        "src/components": 139231,
+        "data (JSON)": 9541,
+        "src/lib": 90706,
+        "src (other)": 7066
+      },
+      "top": [
+        {
+          "id": "src/components/OrderedSequenceBuilder.tsx",
+          "rendered": 128873
+        },
+        {
+          "id": "src/components/ZonePlanSection.tsx",
+          "rendered": 10358
+        },
+        {
+          "id": "src/data/reservation-mechanisms.json",
+          "rendered": 9541
+        },
+        {
+          "id": "src/lib/reservation-mechanism-evidence.ts",
+          "rendered": 8280
+        },
+        {
+          "id": "src/lib/evidence-complete-two-pair-block-swap.ts",
+          "rendered": 8222
+        },
+        {
+          "id": "src/lib/whole-trip-composition.ts",
+          "rendered": 7913
+        },
+        {
+          "id": "src/lib/evidence-complete-interior-transposition.ts",
+          "rendered": 7815
+        },
+        {
+          "id": "src/lib/evidence-complete-four-place-interior-reversal.ts",
+          "rendered": 7805
+        },
+        {
+          "id": "src/lib/evidence-complete-local-relocation.ts",
+          "rendered": 7627
+        },
+        {
+          "id": "src/usePlanningDraft.ts",
+          "rendered": 7066
+        },
+        {
+          "id": "src/lib/reservation-mechanism-date-derivation.ts",
+          "rendered": 6527
+        },
+        {
+          "id": "src/lib/evidence-complete-local-swap.ts",
+          "rendered": 6232
+        }
+      ]
+    },
+    {
+      "fileName": "assets/ZoneComparison-DMIQ8q1i.js",
+      "isEntry": false,
+      "raw": 19295,
+      "gzip": 5838,
+      "brotli": 5206,
+      "moduleCount": 7,
+      "buckets": {
+        "src/components": 30244,
+        "src (other)": 3300,
+        "src/lib": 4146
+      },
+      "top": [
+        {
+          "id": "src/components/ZoneComparison.tsx",
+          "rendered": 30244
+        },
+        {
+          "id": "src/useZonePlanChoice.ts",
+          "rendered": 1871
+        },
+        {
+          "id": "src/lib/source-freshness.ts",
+          "rendered": 1625
+        },
+        {
+          "id": "src/useZoneComparison.ts",
+          "rendered": 1429
+        },
+        {
+          "id": "src/lib/zone-provenance-presentation.ts",
+          "rendered": 1383
+        },
+        {
+          "id": "src/lib/zone-airport-presentation.ts",
+          "rendered": 585
+        },
+        {
+          "id": "src/lib/zone-editorial-presentation.ts",
+          "rendered": 553
+        }
+      ]
+    }
+  ]
+}

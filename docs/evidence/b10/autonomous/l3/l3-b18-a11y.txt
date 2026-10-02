@@ -1,0 +1,27 @@
+OK   .tab-bar__item[0] ≥44×44px (real: 97.5×55)
+OK   .tab-bar__item[1] ≥44×44px (real: 97.5×55)
+OK   .tab-bar__item[2] ≥44×44px (real: 97.5×55)
+OK   .tab-bar__item[3] ≥44×44px (real: 97.5×55)
+OK   .app__person-token-button[0] ≥44×44px (real: 44×44)
+OK   .explorer-bar__filters ≥44×44px (real: 84.546875×44)
+OK   .explorer-bar__pane ≥44×44px (real: 78.96875×44)
+OK   .city-sheet__japan ≥44×44px (real: 130.71875×44)
+OK   .city-sheet__zones ≥44×44px (real: 358×44)
+OK   .hub-selector__tab ≥44×44px (real: 66.21875×44)
+OK   .sheet .icon-button ≥44×44px (real: 44×44)
+OK   .viaje-nav__item[0] ≥44×44px (real: 80.296875×44)
+OK   .viaje-nav__item[1] ≥44×44px (real: 136.5×44)
+OK   .viaje-nav__item[2] ≥44×44px (real: 109.109375×44)
+OK   .viaje-nav__item[3] ≥44×44px (real: 90.265625×44)
+OK   exactamente un ítem de TabBar lleva aria-current=page
+OK   aria-current=page coincide con el destino activo (Viaje)
+OK   el icono activo tiene una geometría/relleno distinta del inactivo (no sólo color)
+OK   prefers-reduced-motion reduce la animación de Sheet a ≤0.001ms
+OK   el panel de Nosotros visible expone controles reales en el orden de foco
+OK   un control dentro de un panel oculto no puede recibir el foco (hidden real, no sólo visual)
+OK   sin scroll, la cabecera no lleva la clase --scrolled
+OK   al hacer scroll, la cabecera gana la clase --scrolled
+OK   el color del borde inferior cambia entre sin-scroll y con-scroll (transparente → --line)
+OK   volver a scrollTop 0 retira la clase --scrolled de nuevo
+
+25/25 checks passed.
