@@ -138,8 +138,9 @@ describe("Bloque 17 (B1) — tokens.css es la fuente del sistema visual (gate G2
     }
   });
 
-  it("App.css no longer defines its own hex for the legacy colour/shadow variables it aliases", async () => {
-    const css = await read("App.css");
+  it("foundation.css defines token aliases without its own hex", async () => {
+    // B10 surface extraction (08): same declarations and assertions, new owner.
+    const css = await read("styles/foundation.css");
     const rootBlock = css.slice(css.indexOf(":root {"), css.indexOf(":root {") + 1600);
     for (const legacyVar of ["--color-bg", "--color-accent", "--color-text", "--shadow-panel"]) {
       const line = rootBlock.split("\n").find((entry) => entry.trim().startsWith(`${legacyVar}:`));

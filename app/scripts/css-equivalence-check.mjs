@@ -74,7 +74,7 @@ const PROPS = [
 
 const server = await preview({ root: ROOT, preview: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
 const url = server.resolvedUrls.local[0];
-const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
+const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : process.env.NIHON_WEBKIT_PATH;
 const browser = await (BROWSER === "webkit" ? webkit : chromium).launch({ headless: true, ...(exe ? { executablePath: exe } : {}) });
 const nav = (page, name) => page.locator(`.tab-bar__item:has-text('${name}'):visible, .nav-rail__item:has-text('${name}'):visible`).first();
 
