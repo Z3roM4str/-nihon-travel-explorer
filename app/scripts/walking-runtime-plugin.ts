@@ -18,9 +18,16 @@ export function walkingRuntimeProjection(): Plugin {
     transform(code, id) {
       if (!/\/src\/data\/logistics\/walking-(pilot|scale)-results\.json$/.test(id.replace(/\\/g, '/'))) return
       const results = JSON.parse(code) as Record<string, unknown>[]
-      return JSON.stringify(results.map(record => Object.fromEntries(
-        fields.filter(field => field in record).map(field => [field, record[field]]),
-      )))
+      return JSON.stringify(results.map(record => {
+        const projected = Object.fromEntries(
+          fields.filter(field => field in record).map(field => [field, record[field]]),
+        )
+        // Only assessment is consumed by isSnapClean(). Detailed snap distances remain
+        // in the canonical offline audit; retaining assessment preserves every promotion.
+        const snapping = record.endpointSnapping as Record<string, unknown> | undefined
+        if (snapping) projected.endpointSnapping = { assessment: snapping.assessment }
+        return projected
+      }))
     },
   }
 }
