@@ -58,7 +58,6 @@ export function useJapanGeometry(): GeometryState & { retry: () => void } {
   );
 
   useEffect(() => {
-    if (cached) return;
     let active = true;
     loadGeometry()
       .then((geometry) => {

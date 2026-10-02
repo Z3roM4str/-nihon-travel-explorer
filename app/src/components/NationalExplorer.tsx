@@ -10,7 +10,7 @@ import {
 } from "../data/geography";
 import { getHubs, getPlacesByHub } from "../data/store";
 import { useJapanGeometry } from "../data/useJapanGeometry";
-import { useMapModule } from "./map-loader";
+import { useMapModule, useMapMount } from "./map-loader";
 import { PrefecturePanel } from "./PrefecturePanel";
 import { RegionNavigator } from "./RegionNavigator";
 import { Sheet } from "./Sheet";
@@ -44,12 +44,13 @@ export function NationalExplorer({
   const mapModule = useMapModule();
   const mapRoot = useRef<HTMLDivElement>(null);
   const returnMapFocus = useRef(false);
+  const mounted = useMapMount(mapModule.status === "ready" && geometry.status === "ready", mapRoot);
   useLayoutEffect(() => {
-    if (mapModule.status === "ready" && geometry.status === "ready" && returnMapFocus.current) {
+    if (mapModule.status === "ready" && geometry.status === "ready" && mounted && returnMapFocus.current) {
       mapRoot.current?.querySelector<HTMLElement>(".leaflet-container")?.focus({ preventScroll: true });
       returnMapFocus.current = false;
     }
-  }, [mapModule.status, geometry.status]);
+  }, [mapModule.status, geometry.status, mounted]);
   const [attributionOpen, setAttributionOpen] = useState(false);
   const [sheetHeight, setSheetHeight] = useState<SheetHeight>("25%");
 
@@ -129,7 +130,7 @@ export function NationalExplorer({
     <div className="national">
       {/* Fullscreen Map Area */}
       <div className="national__map-area" ref={mapRoot} tabIndex={-1}>
-        {geometry.status === "ready" && mapModule.status === "ready" ? (
+        {geometry.status === "ready" && mapModule.status === "ready" && mounted ? (
           <mapModule.module.NationalMap
             geometry={geometry.geometry}
             activeRegion={activeRegion}

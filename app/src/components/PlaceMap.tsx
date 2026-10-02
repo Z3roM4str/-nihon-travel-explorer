@@ -139,8 +139,9 @@ function moveProgrammatically(map: L.Map, move: () => void) {
 function chromeRects(map: L.Map): Rect[] {
   const container = map.getContainer();
   const origin = container.getBoundingClientRect();
+  const owner = container.closest(".app__map-area") ?? container.parentElement;
   const elements = [
-    ...(container.parentElement?.querySelectorAll("[data-map-chrome]") ?? []),
+    ...(owner?.querySelectorAll("[data-map-chrome]") ?? []),
     ...container.querySelectorAll(".leaflet-control"),
   ];
   return elements

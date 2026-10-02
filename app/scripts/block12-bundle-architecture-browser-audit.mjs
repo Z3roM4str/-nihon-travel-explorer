@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
@@ -13,7 +14,7 @@ import { preview } from "vite";
  * app still work when the code arrives later, or over a second request that can fail?**
  *
  * So it proves, at each viewport: the cold load is clean; every JavaScript request the browser
- * makes returns 200, including the two deferred chunks; both deferred surfaces really open and
+ * makes returns 200 or executes verified cached content, including the two deferred chunks; both deferred surfaces really open and
  * really render their content; closing and reopening them works, because a `React.lazy` that
  * resolved once must not be re-fetched or re-suspended; and nothing about splitting leaked into
  * the console.
@@ -75,6 +76,13 @@ async function auditViewport(browser, name, url) {
   const pageErrors = [];
   /** Every JS request the browser actually made, with its status. The heart of this audit. */
   const jsRequests = [];
+  const cacheProbes = [];
+  const parsedScripts = new Map();
+  const debuggerSession = await context.newCDPSession(page);
+  debuggerSession.on("Debugger.scriptParsed", script => parsedScripts.set(script.url, script.scriptId));
+  await debuggerSession.send("Debugger.enable");
+  const pendingBodies = new Set();
+  const validJs = (request) => request.status === 200 || (request.status === 304 && request.bodyBytes > 0 && jsRequests.some(previous => previous.url === request.url && previous.status === 200 && previous.bodySha256 === request.bodySha256));
   const failedRequests = [];
 
   page.on("pageerror", (e) => pageErrors.push(String(e)));
@@ -87,8 +95,18 @@ async function auditViewport(browser, name, url) {
   });
   page.on("response", (r) => {
     const u = r.url();
-    if (u.startsWith(url) && /\.js(\?|$)/.test(u)) {
-      jsRequests.push({ url: u.replace(url, ""), status: r.status() });
+    if (u.startsWith(url) && /\.js(\?|$)/.test(u) && r.request().resourceType() !== "fetch") {
+      const row = { url: u.replace(url, ""), status: r.status(), bodyBytes: 0, bodySha256: null };
+      jsRequests.push(row);
+      const readBody = (async () => {
+        if (row.status !== 304) {
+          const body = await r.body();
+          row.bodyBytes = body.length;
+          row.bodySha256 = createHash("sha256").update(body).digest("hex");
+        }
+      })().catch(() => {});
+      pendingBodies.add(readBody);
+      void readBody.finally(() => pendingBodies.delete(readBody));
     }
   });
   page.on("requestfailed", (r) => {
@@ -157,8 +175,8 @@ async function auditViewport(browser, name, url) {
     [...distinctJs].join(" | ")
   );
   check(
-    "every JS request returned 200 — no chunk 404s",
-    jsRequests.every((r) => r.status === 200),
+    "every JS request returned 200 or verified cached content — no chunk 404s",
+    jsRequests.every(validJs),
     jsRequests.filter((r) => r.status !== 200).map((r) => `${r.url}:${r.status}`).join(" | ")
   );
 
@@ -183,7 +201,7 @@ async function auditViewport(browser, name, url) {
   await page.waitForSelector("#sequence-builder-title", { timeout: 10000 }).catch(() => {});
   check("the deferred planner really opened", (await page.locator("#sequence-builder-title").count()) === 1);
   check("opening the planner raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
-  check("opening the planner 404ed no chunk", jsRequests.every((r) => r.status === 200));
+  check("opening the planner 404ed no chunk", jsRequests.every(validJs));
   let o = await noOverflow(page);
   check("the planner introduced no horizontal overflow", !o.page);
 
@@ -209,16 +227,36 @@ async function auditViewport(browser, name, url) {
 
   // ── 5. Nothing leaked ────────────────────────────────────────────────────────────────────────
   check("no JS request failed across the whole session", failedRequests.length === 0, failedRequests.join(" | "));
-  check("every JS request across the session returned 200", jsRequests.every((r) => r.status === 200));
+  check("every JS request across the session returned 200 or verified cached content", jsRequests.every(validJs));
   check("the session logged no console error", consoleErrors.length === 0, consoleErrors.join(" | "));
   check("the session raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
 
   // A reload with a warm cache must behave identically — the split must not depend on a cold cache.
+  await Promise.all([...pendingBodies]);
+  if (process.env.NIHON_B12_MUTANT === "warm-404") {
+    await page.route("**/assets/index-*.js", route => route.fulfill({ status: 404, contentType: "application/javascript", body: "B12 expected warm failure" }));
+  }
+  parsedScripts.clear();
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForTimeout(900);
+  await Promise.all([...pendingBodies]);
+  // A 304 has no HTTP entity. Verify the exact module source the browser
+  // actually loaded, without a fetch that could repair a failed chunk.
+  for (const row of jsRequests.filter(request => request.status === 304)) {
+    const scriptId = parsedScripts.get(new URL(row.url, url).href);
+    if (!scriptId) continue;
+    const { scriptSource } = await debuggerSession.send("Debugger.getScriptSource", { scriptId });
+    row.bodyBytes = Buffer.byteLength(scriptSource);
+    row.bodySha256 = createHash("sha256").update(scriptSource).digest("hex");
+    cacheProbes.push({ url: row.url, scriptId, bytes: row.bodyBytes, sha256: row.bodySha256 });
+  }
+  console.log("  warm JS network (raw status, body fingerprint):", JSON.stringify(jsRequests));
+  console.log("  executed cached module fingerprints:", JSON.stringify(cacheProbes));
   check("a repeat load still mounts", (await page.locator("#root > *").count()) > 0);
   check("a repeat load raised no page error", pageErrors.length === 0, pageErrors.join(" | "));
-  check("a repeat load 404ed no chunk", jsRequests.every((r) => r.status === 200));
+  check("a repeat load failed no own request", failedRequests.length === 0, failedRequests.join(" | "));
+  check("a repeat load logged no console error", consoleErrors.length === 0, consoleErrors.join(" | "));
+  check("a repeat load 404ed no chunk", jsRequests.every(validJs));
 
   await context.close();
 }

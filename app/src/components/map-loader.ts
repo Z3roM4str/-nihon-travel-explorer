@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+import type { RefObject } from "react";
 
 type MapModule = typeof import("./map-runtime");
 type State = { status: "loading" } | { status: "error" } | { status: "ready"; module: MapModule };
@@ -45,4 +46,27 @@ export function useMapModule(enabled = true) {
     return () => { active = false; };
   }, [enabled, attempt]);
   return { ...state, retry: () => { setState({ status: "loading" }); setAttempt(value => value + 1); } };
+}
+
+/** A download may finish after leaving its surface. Mount Leaflet once it has a
+ * real viewport, then retain that instance through subsequent hidden states. */
+export function useMapMount(ready: boolean, root: RefObject<HTMLDivElement | null>) {
+  const [mounted, setMounted] = useState(false);
+  useLayoutEffect(() => {
+    if (!ready || mounted) return;
+    const element = root.current;
+    if (!element) return;
+    const mountWhenVisible = () => {
+      if (element.clientWidth === 0 || element.clientHeight === 0) return false;
+      setMounted(true);
+      return true;
+    };
+    if (mountWhenVisible()) return;
+    const observer = new ResizeObserver(() => {
+      if (mountWhenVisible()) observer.disconnect();
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ready, mounted, root]);
+  return mounted;
 }
