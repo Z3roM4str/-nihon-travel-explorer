@@ -51,7 +51,8 @@ function loadGeometry(): Promise<PrefectureGeometry> {
 }
 
 /** Loads the national prefecture polygons asynchronously so they never sit in the JS bundle. */
-export function useJapanGeometry(): GeometryState {
+export function useJapanGeometry(): GeometryState & { retry: () => void } {
+  const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<GeometryState>(() =>
     cached ? { status: "ready", geometry: cached } : { status: "loading" }
   );
@@ -69,7 +70,7 @@ export function useJapanGeometry(): GeometryState {
     return () => {
       active = false;
     };
-  }, []);
+  }, [attempt]);
 
-  return state;
+  return { ...state, retry: () => { setState({ status: "loading" }); setAttempt(value => value + 1); } };
 }

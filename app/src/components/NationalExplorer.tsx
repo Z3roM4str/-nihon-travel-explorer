@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useCallback } from "react";
+import { useMemo, useState, useRef, useCallback, useLayoutEffect } from "react";
 import type { NavigationRegion } from "../data/geography";
 import {
   countPlacesInPrefecture,
@@ -10,7 +10,7 @@ import {
 } from "../data/geography";
 import { getHubs, getPlacesByHub } from "../data/store";
 import { useJapanGeometry } from "../data/useJapanGeometry";
-import { NationalMap } from "./NationalMap";
+import { useMapModule } from "./map-loader";
 import { PrefecturePanel } from "./PrefecturePanel";
 import { RegionNavigator } from "./RegionNavigator";
 import { Sheet } from "./Sheet";
@@ -41,6 +41,15 @@ export function NationalExplorer({
   onCloseMap,
 }: Props) {
   const geometry = useJapanGeometry();
+  const mapModule = useMapModule();
+  const mapRoot = useRef<HTMLDivElement>(null);
+  const returnMapFocus = useRef(false);
+  useLayoutEffect(() => {
+    if (mapModule.status === "ready" && geometry.status === "ready" && returnMapFocus.current) {
+      mapRoot.current?.querySelector<HTMLElement>(".leaflet-container")?.focus({ preventScroll: true });
+      returnMapFocus.current = false;
+    }
+  }, [mapModule.status, geometry.status]);
   const [attributionOpen, setAttributionOpen] = useState(false);
   const [sheetHeight, setSheetHeight] = useState<SheetHeight>("25%");
 
@@ -119,19 +128,27 @@ export function NationalExplorer({
   return (
     <div className="national">
       {/* Fullscreen Map Area */}
-      <div className="national__map-area">
-        {geometry.status === "ready" ? (
-          <NationalMap
+      <div className="national__map-area" ref={mapRoot} tabIndex={-1}>
+        {geometry.status === "ready" && mapModule.status === "ready" ? (
+          <mapModule.module.NationalMap
             geometry={geometry.geometry}
             activeRegion={activeRegion}
             selectedCode={selectedCode}
             onSelectPrefecture={onSelectPrefecture}
           />
         ) : (
-          <div className="national__map-fallback" role="status">
-            {geometry.status === "loading"
+          <div className="national__map-fallback" role="status" aria-live="polite">
+            {geometry.status !== "error" && mapModule.status !== "error"
               ? "Cargando el mapa de Japón…"
               : "No se pudo cargar el mapa de Japón. Puedes seguir explorando con la lista de regiones y prefecturas."}
+            {(mapModule.status === "error" || geometry.status === "error") && (
+              <button type="button" className="button button--secondary" onClick={() => {
+                returnMapFocus.current = true;
+                mapRoot.current?.focus({ preventScroll: true });
+                if (mapModule.status === "error") mapModule.retry();
+                if (geometry.status === "error") geometry.retry();
+              }}>Reintentar</button>
+            )}
           </div>
         )}
 

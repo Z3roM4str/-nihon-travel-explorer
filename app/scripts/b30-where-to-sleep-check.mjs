@@ -285,6 +285,8 @@ async function runFullAudit(viewport, index, options = {}) {
     await compareButton.press("Enter");
     const columns = panel.locator(".zone-column");
     await columns.first().waitFor();
+    await panel.locator(".zone-map").waitFor();
+    check(await panel.locator(".zone-marker__pin--on").count() === 2, `${viewport[0]}x${viewport[1]} both selected map pins really mount`);
     check(await columns.count() === 2, `${viewport[0]}x${viewport[1]} comparison shows exactly the selected zones`);
     check(await panel.locator(".zone-column__index").count() === 0, `${viewport[0]}x${viewport[1]} comparison columns have no ordinal labels`);
     check((await panel.locator(".zone-marker__pin").allTextContents()).every((text) => !/\d/.test(text)), `${viewport[0]}x${viewport[1]} map pins do not imply a ranking`);

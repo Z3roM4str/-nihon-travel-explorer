@@ -55,6 +55,7 @@ function photographyModule(data: unknown): string {
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: { manifest: "map-manifest.json" },
   plugins: [photographyRuntimeProjection(), react(), walkingRuntimeProjection()],
   define: {
     __APP_VERSION__: JSON.stringify(version),

@@ -18,7 +18,7 @@ import { HubSelector } from "./components/HubSelector";
 import { NationalExplorer } from "./components/NationalExplorer";
 import { ExplorerHome } from "./components/ExplorerHome";
 import { PlaceList } from "./components/PlaceList";
-import { PlaceMap } from "./components/PlaceMap";
+import { DeferredPlaceMap } from "./components/DeferredPlaceMap";
 import { PlaceDetail } from "./components/PlaceDetail";
 import { Icon } from "./icons/Icon";
 import { SelectionPanel } from "./components/SelectionPanel";
@@ -59,7 +59,7 @@ import { deviceStorage } from "./lib/device-storage";
  * Bloque 18: los dos dejan de ser overlays (`02 §D2`, gate 11) y pasan a ser el contenido de las
  * dos secciones de «Viaje», pero la razón de la carga diferida no cambia — siguen sin estar en la
  * ruta crítica de la primera pintura, y `prefetchOnDemandSurfaces` sigue calentando ambos chunks
- * en cuanto el navegador está ocioso, así que el primer cambio a «Viaje» ya los encuentra en caché.
+ * tras la primera pintura; la portada no precarga Leaflet.
  */
 const loadOrderedSequenceBuilder = () =>
   import("./components/OrderedSequenceBuilder").then((m) => ({ default: m.OrderedSequenceBuilder }));
@@ -168,12 +168,12 @@ function useMediaQuery(query: string): boolean {
 }
 
 /**
- * Block 12 — warm the two on-demand chunks once the browser is idle after first paint.
+ * Block 12 — warm the two non-map surfaces after first paint.
  *
  * Without this, splitting would simply move the wait from load to click, which is a worse trade:
  * a slower first paint is shared by everyone, but a stalled overlay lands on the one person who
- * asked for it. Idle time after paint is free, and by the time any click is possible the chunks
- * are in the HTTP cache.
+ * asked for it. The zone map has its own interaction boundary; warming the list/comparison controls
+ * never fetches Leaflet. Both existing prefetches remain cancellable and best-effort.
  *
  * Deliberately best-effort. `requestIdleCallback` is missing on some browsers (Safari shipped it
  * late), so it falls back to a timeout; a rejected import is swallowed, because a failed prefetch
@@ -334,6 +334,7 @@ export default function App() {
 
   // Block 12. Runs once, after mount, and never blocks anything.
   useEffect(() => prefetchOnDemandSurfaces(), []);
+
   /**
    * Block 5 — `savedIds` is now DERIVED: a place is in the shared shortlist when at least one
    * traveller wants it. Everything downstream (the planner, the map, the saved list) keeps
@@ -1269,7 +1270,8 @@ export default function App() {
                   </aside>
 
                   <div className="app__map-area">
-                    <PlaceMap
+                    <DeferredPlaceMap
+                      active={hasMapRail || mobilePane === "map"}
                       places={filteredPlaces}
                       hubPlaces={hubPlaces}
                       activeHub={activeHub}
