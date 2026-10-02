@@ -121,6 +121,20 @@ const result = {};
 for (const width of WIDTHS) {
   const { context, page } = await boot(width);
   const take = async (name) => {
+    if (process.env.NIHON_PARITY_SETTLED === "1") {
+      // This is a deliberate CSS fixture state in both references, not a lazy-load
+      // or network-availability certification (those have their own gates).
+      await page.evaluate(async () => {
+        const photos = [...document.querySelectorAll("img")].filter(i => !i.classList.contains("leaflet-tile"));
+        for (const photo of photos) photo.loading = "eager";
+        await Promise.allSettled(photos.map(photo => photo.decode()));
+        const selectors = ".app__sidebar, .national__sidebar, .app__body--home, .destination-panel--scroll";
+        const owner = [...document.querySelectorAll(`.destination-panel:not([hidden]) ${selectors}`)]
+          .find(el => el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0);
+        owner?.dispatchEvent(new Event("scroll"));
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
+    }
     await page.waitForTimeout(450);
     result[`${width}/${name}`] = await snapshot(page);
   };

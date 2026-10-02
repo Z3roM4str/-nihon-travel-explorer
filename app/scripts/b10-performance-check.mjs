@@ -104,15 +104,20 @@ async function measureHub(hub, viewport, dpr) {
   context.setDefaultTimeout(10000);
   const page = await context.newPage();
   const responses = [];
-  page.on("response", async (res) => {
+  const pendingBodies = new Set();
+  page.on("response", (res) => {
     const u = res.url();
     if (!/\.(webp|jpg|jpeg|png|avif)(\?|$)/i.test(u) || !u.startsWith(url)) return;
-    try {
-      const body = await res.body();
-      responses.push({ url: u, bytes: body.length, status: res.status() });
-    } catch {
-      responses.push({ url: u, bytes: 0, status: res.status() });
-    }
+    const body = (async () => {
+      try {
+        const buffer = await res.body();
+        responses.push({ url: u, bytes: buffer.length, status: res.status() });
+      } catch {
+        responses.push({ url: u, bytes: 0, status: res.status() });
+      }
+    })();
+    pendingBodies.add(body);
+    void body.finally(() => pendingBodies.delete(body));
   });
   await page.route("**/*", (route) => {
     const u = route.request().url();
@@ -120,15 +125,25 @@ async function measureHub(hub, viewport, dpr) {
   });
   await page.addInitScript(() => { try { localStorage.setItem("nihon.onboarding.seen.v1", "1"); } catch { /* */ } });
   await page.goto(url, { waitUntil: "networkidle" });
+  // Network idle can precede React's first paint on a busy host. Do not cut the
+  // home window until its real eager images exist and their response bodies settle.
+  await page.locator(".explorer-home__city-image").first().waitFor();
+  await page.waitForFunction(() => {
+    const images = [...document.querySelectorAll(".explorer-home__city-image")];
+    return images.length > 0 && images.every(i => i.complete && i.naturalWidth > 0);
+  });
   await page.waitForTimeout(500);
+  await Promise.all([...pendingBodies]);
   const homeUrls = new Set(responses.map(r => r.url));
   const homeBytes = responses.reduce((a, r) => a + r.bytes, 0);
   const homeCount = responses.length;
+  ok(homeCount > 0, "home image window was not measured");
   responses.length = 0;
   const btn = page.locator(`[aria-label="Empezar a explorar"] button, [aria-label="Más destinos"] button`).filter({ hasText: new RegExp(`^${hub}\\b`) }).first();
   await btn.click();
   await page.waitForSelector(".place-card", { timeout: 15000 });
   await page.waitForTimeout(700);
+  await Promise.all([...pendingBodies]);
   // Negative coverage: force a real, uncached distant card image to load eagerly.
   if (process.env.NIHON_B10_PERF_MUTANT === "eager-far-card" && hub === "Tokio" && viewport.width === 390) {
     const before = [...homeUrls];
