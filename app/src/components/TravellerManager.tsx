@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { MAX_TRAVELLERS, type Traveller } from "../lib/travellers";
 import { PersonToken } from "./PersonToken";
 import { Icon } from "../icons/Icon";
@@ -51,13 +51,15 @@ export function TravellerManager({
     focusTargetRef.current = key;
   };
 
-  // Sin dependencias a propósito: corre tras cada renderización y consume el destino pendiente,
-  // de modo que el foco se coloca cuando el elemento nuevo ya existe en el DOM.
-  useEffect(() => {
+  // Tras cada commit, devuelve el foco antes de pintar. Un commit intermedio puede
+  // no contener aún el destino: sólo consume la solicitud cuando éste existe.
+  useLayoutEffect(() => {
     const key = focusTargetRef.current;
     if (!key) return;
+    const target = rootRef.current?.querySelector<HTMLElement>(`[data-focus-key="${key}"]`);
+    if (!target?.isConnected) return;
     focusTargetRef.current = null;
-    rootRef.current?.querySelector<HTMLElement>(`[data-focus-key="${key}"]`)?.focus();
+    target.focus();
   });
 
   const activeTraveller = travellers.find((entry) => entry.id === activeTravellerId) ?? null;
@@ -124,9 +126,9 @@ export function TravellerManager({
                   type="button"
                   className="button button--secondary traveller-card__use"
                   onClick={() => {
+                    setFocusTarget(`active-${traveller.id}`);
                     onSelect(traveller.id);
                     setAnnouncement(`Ahora Nihon se usa como ${traveller.label}.`);
-                    setFocusTarget(`active-${traveller.id}`);
                   }}
                 >
                   Usar este dispositivo como {traveller.label}
@@ -159,9 +161,9 @@ export function TravellerManager({
                       type="button"
                       className="button button--secondary"
                       onClick={() => {
+                        setFocusTarget(`reset-${traveller.id}`);
                         onReset(traveller.id);
                         setConfirming(null);
-                        setFocusTarget(`reset-${traveller.id}`);
                       }}
                     >
                       Sí, reiniciar
@@ -171,8 +173,8 @@ export function TravellerManager({
                       className="button button--quiet"
                       data-focus-key={`cancel-${traveller.id}`}
                       onClick={() => {
-                        setConfirming(null);
                         setFocusTarget(`reset-${traveller.id}`);
+                        setConfirming(null);
                       }}
                     >
                       Cancelar
@@ -184,8 +186,8 @@ export function TravellerManager({
                     className="button button--secondary"
                     data-focus-key={`reset-${traveller.id}`}
                     onClick={() => {
-                      setConfirming({ id: traveller.id, action: "reset" });
                       setFocusTarget(`cancel-${traveller.id}`);
+                      setConfirming({ id: traveller.id, action: "reset" });
                     }}
                     aria-label={`Reiniciar lo que ha guardado ${traveller.label}`}
                   >
@@ -210,11 +212,11 @@ export function TravellerManager({
                       type="button"
                       className="button button--secondary"
                       onClick={() => {
-                        onRemove(traveller.id);
-                        setConfirming(null);
                         // La tarjeta desaparece: el foco pasa al nombre de la persona que queda.
                         const remaining = travellers.find((entry) => entry.id !== traveller.id);
                         setFocusTarget(remaining ? `name-${remaining.id}` : null);
+                        onRemove(traveller.id);
+                        setConfirming(null);
                       }}
                     >
                       Sí, quitar
@@ -224,8 +226,8 @@ export function TravellerManager({
                       className="button button--quiet"
                       data-focus-key={`cancel-${traveller.id}`}
                       onClick={() => {
-                        setConfirming(null);
                         setFocusTarget(`remove-${traveller.id}`);
+                        setConfirming(null);
                       }}
                     >
                       Cancelar
@@ -237,8 +239,8 @@ export function TravellerManager({
                     className="button button--secondary"
                     data-focus-key={`remove-${traveller.id}`}
                     onClick={() => {
-                      setConfirming({ id: traveller.id, action: "remove" });
                       setFocusTarget(`cancel-${traveller.id}`);
+                      setConfirming({ id: traveller.id, action: "remove" });
                     }}
                     disabled={travellers.length <= 1}
                     aria-label={`Quitar a ${traveller.label} del viaje`}
