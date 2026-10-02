@@ -230,6 +230,7 @@ for (const width of WIDTHS) {
   await take("nosotros");
   await nav(page, "Viaje").click();
   await page.waitForSelector(".viaje-nav", { state: "visible" });
+  await page.waitForSelector(".analysis-dialog--embedded", { state: "visible" });
   await page.evaluate(() => document.querySelectorAll("details:not([open])").forEach((d) => d.setAttribute("open", "")));
   await take("viaje-dias");
   await tryStep("mover", async () => {
@@ -256,6 +257,8 @@ for (const width of WIDTHS) {
   if (process.env.NIHON_PARITY_SETTLED === "1") await settleCssFixture(fresh.page);
   for (const [n, slug] of [["Quiero ir", "vacio-quiero-ir"], ["Viaje", "vacio-viaje"], ["Nosotros", "vacio-nosotros"]]) {
     await nav(fresh.page, n).click();
+    if (n === "Viaje") await fresh.page.waitForSelector(".analysis-dialog--embedded", { state: "visible" });
+    if (process.env.NIHON_PARITY_SETTLED === "1") await settleCssFixture(fresh.page);
     await fresh.page.waitForTimeout(450);
     result[`${width}/${slug}`] = await snapshot(fresh.page);
   }
