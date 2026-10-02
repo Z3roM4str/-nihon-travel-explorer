@@ -134,6 +134,5 @@
 /* Embedded journeys belong to the destination scroll owner (B18, 05 §7).
    A non-scrolling inner overflow container must not trap wheel/touch chaining. */
 .analysis-dialog--embedded .analysis-body {
-  overflow: visible;
-  overscroll-behavior: auto;
+  overscroll-behavior-y: auto;
 }
