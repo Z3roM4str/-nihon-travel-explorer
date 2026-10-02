@@ -689,21 +689,17 @@ async function auditSavedAndIcons(page, vp) {
   if (await realClick(page, viaje, "NAV", "pestaña Viaje")) {
     // Wait for the real planner fixture, rather than sampling an unmounted lazy surface.
     await page.locator('.destination-panel:not([hidden]) .day-card__header-actions .icon-button--small').first().waitFor();
+    if (process.env.NIHON_B24_MUTANT === "blocked-embedded-scroll") {
+      await page.addStyleTag({ content: ".analysis-dialog--embedded .analysis-body { overflow-y: auto !important; overscroll-behavior: contain !important; }" });
+    }
     if (process.env.NIHON_B24_MUTANT === "hidden-day-icons") {
       await page.addStyleTag({ content: ".day-card__header-actions svg { visibility: hidden !important; }" });
     }
     let inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
     for (let attempt = 0; inViaje === 0 && attempt < 4; attempt += 1) {
       // Pantalla baja: la fila queda bajo la TabBar; se trae con rueda real y se vuelve a medir.
-      // The viewport centre can hit a date input, which consumes the wheel without
-      // scrolling the journey. Use the padding of the actual scroll ancestor.
-      const origin = await page.locator('.destination-panel:not([hidden]) .day-card').first().evaluate((card) => {
-        let el = card.parentElement;
-        while (el && !(/(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight)) el = el.parentElement;
-        const r = (el ?? document.documentElement).getBoundingClientRect();
-        return { x: Math.max(1, Math.min(innerWidth - 1, r.left + 8)), y: Math.max(1, Math.min(innerHeight - 1, r.top + 8)) };
-      });
-      await page.mouse.move(origin.x, origin.y);
+      // Exercise the content itself: an inner overflow container must not trap the wheel.
+      await page.mouse.move(vp.width / 2, vp.height / 2);
       await page.mouse.wheel(0, 160);
       await page.waitForTimeout(120);
       inViaje = await sampleIcons(page, ".destination-panel:not([hidden])", "P0-2");
