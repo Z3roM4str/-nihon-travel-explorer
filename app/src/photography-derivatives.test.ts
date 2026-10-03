@@ -106,7 +106,7 @@ describe("the surfaces that must use the derivative do", () => {
   it("the place card requests the card rendition, not the detail hero", async () => {
     const source = await src("components/PlaceCard.tsx");
     expect(source).toContain("cardImageUrl(image.url)");
-    expect(source).toContain("src={cardSrc}");
+    expect(source).toContain("src={photoActive ? cardSrc : undefined}");
   });
 
   it("the place card declares its box so the image cannot shift the text under it", async () => {

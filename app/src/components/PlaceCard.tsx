@@ -12,6 +12,7 @@ import type { OtherPersonMarker } from "../lib/traveller-presentation";
 import { Icon } from "../icons/Icon";
 import { PersonToken } from "./PersonToken";
 import { PhotoPlaceholder } from "./PhotoPlaceholder";
+import { useDeferredImageActivation } from "../useDeferredImageActivation";
 
 type Variant = "normal" | "compact";
 
@@ -113,6 +114,12 @@ export function PlaceCard({
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const images = resolvePlaceImages(place.id, place.images);
   const image = images[0];
+  // B10 (#177): una tarjeta no prioritaria sólo asigna `src` cuando su fotografía está a ≤ 2
+  // viewports; la caja (aspect-ratio / 72×72), el skeleton, el fallback y el reintento no cambian.
+  // Sin fotografía no hay nada que diferir ni que observar.
+  const { ref: mediaRef, active: photoActive } = useDeferredImageActivation<HTMLDivElement>(
+    priority || !image
+  );
   /** Falls back to the original whenever no derivative exists for this URL shape. */
   const cardSrc = image ? cardImageUrl(image.url) ?? image.url : undefined;
   const hasPhoto = Boolean(image) && mediaState !== "error";
@@ -203,12 +210,12 @@ export function PlaceCard({
         aria-current={selected ? "true" : undefined}
       >
         {openButton}
-        <div className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
+        <div ref={mediaRef} className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
           {image && mediaState !== "error" ? (
             <img
               className="place-card__image"
               key={`${cardSrc}-${photoAttempt}`}
-              src={cardSrc}
+              src={photoActive ? cardSrc : undefined}
               width={CARD_IMAGE_WIDTH}
               height={CARD_IMAGE_WIDTH}
               sizes="72px"
@@ -260,7 +267,7 @@ export function PlaceCard({
       aria-current={selected ? "true" : undefined}
     >
       {openButton}
-      <div className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
+      <div ref={mediaRef} className={`place-card__media ${hasPhoto ? "" : "place-card__media--empty"}`}>
         {image && mediaState !== "error" ? (
           <>
             {mediaState === "loading" && <span className="place-card__skeleton" aria-hidden="true" />}
@@ -271,7 +278,7 @@ export function PlaceCard({
             <img
               className="place-card__image"
               key={`${cardSrc}-${photoAttempt}`}
-              src={cardSrc}
+              src={photoActive ? cardSrc : undefined}
               width={CARD_IMAGE_WIDTH}
               height={Math.round((CARD_IMAGE_WIDTH * 3) / 4)}
               // Corrección de B19 (DD-016): la geometría real de la ranura en cada tramo, ahora
