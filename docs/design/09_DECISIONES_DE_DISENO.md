@@ -1049,3 +1049,25 @@ escritorio (16/16; con el código anterior, 4 fallos).
 > **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025).
 > DD-026 (cromo del mapa como zona de exclusión, P0-4e) es firme. No queda ninguna decisión de
 > diseño abierta en B24.
+## B10 #177 — autorización del lote de activación diferida de imágenes (2026-10-03)
+
+Autoridad: prompt del usuario «B10 CLAUDE — activación diferida de imágenes», sobre la línea exacta `f9949325aea83d45907b7310fa635faf7633716b` (tree `320f45cbe229995bc405e5d79805861ce950fa07`, app tree `e0e87b8e82c172662573ce827c7ab7d6c3540605`; último código de producto probado `26407373059e0f20e6e64e975f7a38eb7da5805f`), rama `claude/b10-deferred-images`. La propuesta se leyó en [B10_AUTHORIZED_CONTINUATION_REPORT.md](../B10_AUTHORIZED_CONTINUATION_REPORT.md) («G6 — atribución nueva de la ventana fallida»); este registro la convierte en autorización normativa, con el mismo patrón que E01–E04.
+
+**Alcance autorizado, exclusivamente:**
+
+- Activación diferida de `src`/`srcset` de las imágenes de tarjetas **no prioritarias** mediante `IntersectionObserver`.
+- Margen de anticipación **máximo de 2 viewports**.
+- Una imagen no prioritaria fuera del rango de activación no inicia su respuesta hasta cumplir el criterio autorizado.
+
+**Se conserva sin cambios:** `loading="lazy"`; la primera tarjeta prioritaria y la política de prioridad actual (`priority` / `fetchPriority`); dimensiones declaradas (`width`/`height`/`sizes`); fallback («No se pudo cargar la imagen»); reintento y su foco; créditos y atribución; acceso por teclado y nombres accesibles; navegación; calidad visual.
+
+**Límites:**
+
+- No se activan superficies abandonadas: un observador de una superficie desmontada no puede iniciar respuestas nuevas y queda desconectado.
+- **Ninguna respuesta se excluye de la contabilidad.** Cuando una respuesta ocurre, entra íntegra en el presupuesto; no se resuelve G6 ocultando respuestas del contador, ampliando home-cut ni cambiando la ventana de medida.
+- El presupuesto por ciudad sigue siendo exactamente **3 500 000 bytes**; no se toca `3500000` ni `253742`, ni la referencia/ratchet, ni el criterio de distancia del guard.
+- No se cambian el dataset, las fotografías (incluidas JP-004, JP-005, JP-011, JP-024, JP-037, JP-046, JP-049 y JP-073), dependencias, ni superficies abandonadas.
+
+**Condición de certificación:** Portada → ciudad inmediata (sin esperar a las imágenes de la portada); Tokio, Kioto, Osaka y Okinawa en Chromium y WebKit; Osaka escritorio ≤ 3 500 000 B bajo la contabilización existente (antecedente: 3 862 290 B); registro de activación/finalización de las ocho imágenes citadas; fallback, reintento, créditos y controles negativos. Si un gate exige ampliar el alcance, se detiene y se informa antes de tocar nada ajeno al lote.
+
+Esta autorización no cierra B10, no autoriza merge, deploy, incorporar main ni P-06, y no cambia OD-01 POST-V1/DIFERIDO ni F01–F12 NO EJECUTADO.
