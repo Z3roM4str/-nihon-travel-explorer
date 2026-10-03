@@ -226,7 +226,7 @@ describe("PlaceCard — photography rules", () => {
     const source = await readSource();
     expect(source).toContain('image && mediaState === "error" ? (');
     expect(source).toContain('className="place-card__photo-retry tap-target-min"');
-    expect(source).toContain('src={cardSrc}');
+    expect(source).toContain('src={photoActive ? cardSrc : undefined}');
     expect(source.match(/key=\{`\$\{cardSrc\}-\$\{photoAttempt\}`\}/g) ?? []).toHaveLength(2);
     expect(source).toContain('setMediaState("loading");');
     expect(source).toContain('setPhotoAttempt((attempt) => attempt + 1);');
