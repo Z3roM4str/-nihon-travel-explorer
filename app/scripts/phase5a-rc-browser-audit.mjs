@@ -572,6 +572,9 @@ try {
     const input = page.locator("input[id^='visit-start-time-']").first();
     if ((await input.count()) === 0) return "no eligible recorded-interval place in this plan";
     const id = await input.getAttribute("id");
+    // P-06: la hora de inicio manual vive en «Detalles del día», plegado por defecto.
+    const details = input.locator("xpath=ancestor::details[contains(@class,'day-card__details')]");
+    if (await details.count() && await details.getAttribute("open") === null) await details.locator("summary").first().click();
     await input.fill("10:00");
     await page.waitForTimeout(200);
     const draft = await readDraft();
@@ -710,7 +713,9 @@ try {
     }, { key: "nihon.manualPlanningDraft", removedId, otherId });
     await page.reload({ waitUntil: "domcontentloaded" });
     await openPlanner({ fresh: false });
-    const remove = page.locator(".trip-stop").filter({ hasText: removedName }).getByRole("button", { name: "Mover a Sin asignar" });
+    const reloadedStop = page.locator(".trip-stop").filter({ hasText: removedName });
+    await reloadedStop.getByRole("button", { name: "Mover a…" }).click(); // P-06: acciones de parada tras «⋯».
+    const remove = reloadedStop.getByRole("button", { name: "Mover a Sin asignar" });
     await remove.click();
     await page.waitForTimeout(300);
     const draft = await readDraft();

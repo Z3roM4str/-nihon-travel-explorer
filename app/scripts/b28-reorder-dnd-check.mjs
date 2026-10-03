@@ -155,7 +155,7 @@ try {
   current = await plan(page);
   check(JSON.stringify(current.days[1].placeIds) === JSON.stringify([ids[1], ids[4], ids[6], ids[5]]), "E: unassigned exact middle position");
   check(await drawer.locator(`[data-drag-place-id="${ids[6]}"]`).count() === 0, "E: drawer item remained");
-  check(await drawer.locator("summary").textContent() === "0 sitios sin día", "E: drawer count wrong");
+  check(await drawer.locator("summary").textContent() === "Sin asignar · 0 sitios", "E: drawer count wrong");
   check(await page.evaluate((k) => localStorage.getItem(k), wishlistKey) === wishlist, "E: wishlist changed");
   check(JSON.stringify(current.visitStartTimes) === JSON.stringify(beforeUnassigned.visitStartTimes) &&
     JSON.stringify(current.accommodationLegs) === JSON.stringify(beforeUnassigned.accommodationLegs) &&

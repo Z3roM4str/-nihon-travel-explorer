@@ -84,7 +84,8 @@ describe("trip-bounds wiring (source-scanning integration check)", () => {
     expect(anchorBlock).toContain('value={startDate ?? ""}');
 
     expect(anchorBlock).toContain('<label htmlFor="sequence-end-date" className="calendar-anchor__label">');
-    expect(anchorBlock).toContain("Fecha de fin (último día del viaje)");
+    // P-06: la etiqueta visible se acorta a «Fecha de fin»; el nombre accesible conserva la aclaración completa.
+    expect(anchorBlock).toContain('Fecha de fin<span className="visually-hidden"> (último día del viaje)</span>');
     expect(anchorBlock).toContain('id="sequence-end-date"');
     expect(anchorBlock).toContain('type="date"');
     expect(anchorBlock).toContain('value={endDate ?? ""}');
