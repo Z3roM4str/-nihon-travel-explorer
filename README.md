@@ -4,6 +4,19 @@ Interactive Japan travel discovery and time-planning application built from a ve
 
 Nihon turns a structured Japan travel research base into a visual explorer: browse places on a map, open photo-ready place profiles, compare nearby options, save favorites, and estimate how much real-world time selected experiences require.
 
+## Operational entry point
+
+The selected product is the Nihon / Claude line. Start with the
+[current handoff](docs/CURRENT_WORK_HANDOFF.md) for the verified base, integrated changes,
+remaining validation and next actions. `docs/design/` remains the design authority.
+The duplicate Work/Astra/Codex continuation was cancelled by the user on 2026-10-03;
+its historical branches and reports are not an active backlog for this line.
+
+The full automated [release certification](docs/RELEASE_CERTIFICATION.md) applies to
+its recorded tree, not automatically to later changes. The national-map fixes and
+[Días progressive disclosure](docs/P06_DAYS_PROGRESSIVE_DISCLOSURE.md) are integrated;
+current hardware and WebKit follow-up are listed in the handoff.
+
 ## Current status
 
 **Nihon v1.1.0** — release candidate. The previously published release is
@@ -13,8 +26,9 @@ all backward compatible. See [the v1.1.0 release notes](docs/RELEASE_V1.1.0.md).
 
 Discovery and manual trip planning are both implemented; photography closed for v1 at Phase 4M.
 
-- The application opens on a map of the whole of Japan, drawn from official MLIT
-  administrative geometry, and browses down through region → prefecture → hub → place.
+- The application opens on the Explore home, with search and a prominent national-map
+  entry before Cities. The map uses official MLIT administrative geometry and browses
+  down through region → prefecture → hub → place.
 - All **214** verified places across **7** hubs are reachable, with filters, free-text search,
   place details, nearby jumps, saved places, and activity-time estimates.
 - **157** of the 214 places carry a licensed photograph with full attribution, **163** images in
@@ -51,7 +65,7 @@ Discovery and manual trip planning are both implemented; photography closed for 
 
 ## Experience
 
-`Japan → region → prefecture → hub → photo-led place cards (or map markers) → visual detail panel → save places → time estimate`
+`Explore home → city or Japan map → photo-led place cards (or map markers) → visual detail panel → Quiero ir → manual trip planning`
 
 The national view shows all 47 prefectures and makes clear which of them Nihon actually
 covers today; prefectures without verified places stay on the map without pretending to
