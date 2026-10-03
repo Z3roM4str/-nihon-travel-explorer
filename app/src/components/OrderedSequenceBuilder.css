@@ -1011,7 +1011,7 @@
 
 .unassigned-drawer label { display: grid; gap: .2rem; }
 
-@media (max-width: 430px) { .trip-stop { grid-template-columns: 1.25rem 4rem minmax(0, 1fr); gap: .45rem; } .trip-stop__media { width: 4rem; } .unassigned-drawer li { align-items: stretch; flex-direction: column; } .inter-hub-row { grid-template-columns: auto minmax(0, 1fr); } .inter-hub-row span { grid-column: 2; text-align: left; } }
+@media (max-width: 430px) { .day-timeline .trip-stop { grid-template-columns: 1rem 3.25rem minmax(0, 1fr) auto; gap: .45rem; } .day-timeline .trip-stop__media { width: 3.25rem; } .trip-stop .trip-stop__controls { flex-direction: column; gap: 0; } .unassigned-drawer li { align-items: stretch; flex-direction: column; } .inter-hub-row { grid-template-columns: auto minmax(0, 1fr); } .inter-hub-row span { grid-column: 2; text-align: left; } }
 
 @media (prefers-reduced-motion: reduce) { .trip-stop, .unassigned-drawer { scroll-behavior: auto; } }
 
@@ -1219,9 +1219,7 @@
 
 .unassigned-drawer--empty { position: static; box-shadow: none; }
 
-@media (max-width: 430px) { .trip-stop { grid-template-columns: 1rem 3.25rem minmax(0, 1fr) auto; gap: .45rem; } .trip-stop__media { width: 3.25rem; } .trip-stop__controls { flex-direction: column; gap: 0; } }
-
 /* P-06: en escritorio, fechas, ayuda, frase normativa y herramientas comparten la columna de los días. */
 .calendar-anchor, .days-hint, .days-framing, .days-tools { box-sizing: border-box; width: 100%; max-width: 48rem; margin-inline: auto; }
 
-.calendar-anchor { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 15rem)); justify-content: start; }
+.calendar-anchor { grid-template-columns: repeat(2, minmax(0, 15rem)); justify-content: start; }
