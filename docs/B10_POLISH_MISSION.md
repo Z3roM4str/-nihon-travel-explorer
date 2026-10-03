@@ -1,3 +1,11 @@
+# Estado operativo B10 — activación diferida de imágenes, 2026-10-03
+
+**INCOMPLETO; #177 Draft, sin merge/deploy.** Lote autorizado en design/09 y ejecutado sobre `f9949325aea83d45907b7310fa635faf7633716b` en `claude/b10-deferred-images`: las fotografías de tarjetas no prioritarias no inician su respuesta hasta estar a ≤ 2 viewports (`IntersectionObserver`, margen 200 %, observadores compartidos y desconectados al activar/desmontar); prioridad, `loading=lazy`, dimensiones, fallback, reintento, créditos y teclado intactos. Código probado `965acc8c9660fe8515ccbadc7f0cf97028a79079`. [Informe](B10_DEFERRED_IMAGES_REPORT.md), [evidencia](B10_DEFERRED_IMAGES_EVIDENCE.json).
+
+G6 fotográfico: guard existente **13/13 Chromium y 13/13 WebKit** (+3 repeticiones por motor); Osaka escritorio **3 356 478 / 3 315 340 B** (antes 3 862 290 B registrado) ≤ 3 500 000 B; el valor 3 862 290 no se reprodujo en el entorno nuevo, sí su clase de fallo con la distancia nativa de carga diferida ampliada (base falla, lote 13/13). Entrada 157 586 B ≤ 253 742. **Sin ventana total ≤ 3,5 MB en navegación inmediata con respuestas de portada en vuelo** (las respuestas tardías se cuentan íntegras; Tokio y Kioto están en el tope sin la portada): decisión de Producto pendiente. Regresión 85 trabajos: 68/68 positivos PASS, 16/17 controles negativos detectados; `negative-scroll-chromium` no detecta su mutante en Chromium 141 (igual sobre la base; la certificación anterior usó 151). F01–F12 NO EJECUTADO; OSM-TLS externo; G4/CSS y OD-01 sin cambios.
+
+---
+
 # Estado operativo B10 — autorización ejecutada desde c868bd3 (2026-10-02)
 
 **INCOMPLETO; #177 Draft, sin merge.** Candidata de producto probada `26407373059e0f20e6e64e975f7a38eb7da5805f`, tree `beb0917c912b32a61c53802760d39aa3c6ebca2d`; inicio `c868bd3e5bbb7df15ae44928476aa425f330ba12`. [Informe por lote](B10_AUTHORIZED_CONTINUATION_REPORT.md), [manifiesto nuevo](B10_AUTHORIZED_CONTINUATION_EVIDENCE.json), [34 decisiones CSS pendientes](B10_CSS_PENDING_DECISIONS.md), [matriz física](B10_PHYSICAL_QA_MATRIX.md). Los snapshots inferiores/manifiestos históricos conservan sus propios SHAs y alcances.
