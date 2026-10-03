@@ -2,8 +2,12 @@
 
 **Vigente desde:** 2026-09-26
 **Estado documental:** freeze técnico autorizado, versionado y activo mediante
-`app/vercel.json`. Mientras se comparan las alternativas y se elige la implementación definitiva,
-solamente `main` puede iniciar un deployment automático.
+`app/vercel.json`. Solamente `main` puede iniciar un deployment automático.
+
+**Decisión de producto — 2026-10-03:** el usuario eligió la versión de Claude para continuar y
+canceló la continuación duplicada Work/Astra/Codex. Ya no hay una comparación activa entre
+alternativas. Esta elección no levanta el freeze, no fusiona ramas y no autoriza deployments
+manuales. Estado operativo: [CURRENT_WORK_HANDOFF.md](CURRENT_WORK_HANDOFF.md).
 
 ## Fuente de verdad y línea de trabajo
 
