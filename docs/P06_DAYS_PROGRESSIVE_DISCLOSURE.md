@@ -78,8 +78,28 @@ que ahora está plegado; nuevo texto del cajón). Ninguna aserción se relajó; 
 las acciones de parada y «Detalles del día» empiezan plegadas.
 
 - `b27-viaje-dias-check.mjs`, `b28-reorder-dnd-check.mjs`, `b29-day-order-tools-check.mjs`,
-  `phase5a-rc-browser-audit.mjs`.
+  `phase5a-rc-browser-audit.mjs` (A13 abre «Detalles del día» antes de escribir la hora manual).
 - Test de fuente `OrderedSequenceBuilder.trip-bounds.test.ts`: la etiqueta visible es «Fecha de fin» y la
   aclaración «(último día del viaje)» sigue en el nombre accesible.
 
-Resultados y limitaciones (WebKit no instalable en este entorno) en el informe del PR.
+Resultados en la build final (Chromium 141, `/opt/pw-browsers/chromium`):
+
+| Comprobación | Resultado |
+|---|---|
+| `tsc -b` · build | PASS |
+| oxlint | 0 errores (warning heredado `PlaceMap.tsx:18`) |
+| Vitest | 118 archivos · 3424/3424 |
+| B27 Viaje · Días | PASS (A–K, 8 viewports) |
+| B28 reordenación/arrastre | 64/64 (ratón + táctil, 8 viewports) |
+| B29 Probar otro orden | 163/163 (8 viewports) |
+| B30 Dónde dormir | 475/475 |
+| B31 Reservas / Resumen | 281/281 |
+| D0b higiene del sistema de diseño | 56/56 |
+| B10 a11y · microcopy · motion | 89/89 · 52/52 · 17/17 |
+| D5 vocabulario normativo · evidence-options | PASS · PASS |
+| P-04 alcance del mapa nacional (shell intacto) | 55/55 |
+| Phase 5A RC | 50/50 |
+
+**WebKit no se ejecutó**: no está instalado en este entorno (`/opt/pw-browsers` sólo trae Chromium) y la
+política del entorno impide `playwright install`. B30/B31/B10/D0b/D5/P-04 admiten `NIHON_BROWSER=webkit`
+y deben repetirse en un entorno con WebKit; B27–B29 sólo están escritos para Chromium.

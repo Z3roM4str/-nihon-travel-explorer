@@ -572,6 +572,9 @@ try {
     const input = page.locator("input[id^='visit-start-time-']").first();
     if ((await input.count()) === 0) return "no eligible recorded-interval place in this plan";
     const id = await input.getAttribute("id");
+    // P-06: la hora de inicio manual vive en «Detalles del día», plegado por defecto.
+    const details = input.locator("xpath=ancestor::details[contains(@class,'day-card__details')]");
+    if (await details.count() && await details.getAttribute("open") === null) await details.locator("summary").first().click();
     await input.fill("10:00");
     await page.waitForTimeout(200);
     const draft = await readDraft();
