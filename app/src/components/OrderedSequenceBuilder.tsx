@@ -315,47 +315,54 @@ function TripStop({
         )}
       </div>
       <div className="trip-stop__body">
-        <button type="button" className="trip-stop__handle" data-drag-place-id={place.id}
-          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} disabled={!dragEnabled} onPointerDown={(event) => onDragStart(event, place.id, dayEntities[dayIndex].id)}>
-          <Icon name="arrastrar" size={20} />
-        </button>
         <button type="button" className="trip-stop__open" onClick={() => onOpen?.(place.id)}>
           <strong>{place.name}</strong>
           <span>{place.neighborhood || place.municipality} · {range ? formatRange(range) : place.duration.raw}</span>
         </button>
+      </div>
+      {/* P-06: la parada sólo enseña lo esencial. Arrastrar sigue a la vista; las acciones de
+          mover (otro día, otra posición, Sin asignar) viven detrás de un único «⋯» accesible,
+          que es la alternativa completa al arrastre. */}
+      <div className="trip-stop__controls">
+        <button type="button" className="trip-stop__handle" data-drag-place-id={place.id}
+          aria-label={`Arrastrar ${place.name}`} title={`Arrastrar ${place.name}`} disabled={!dragEnabled} onPointerDown={(event) => onDragStart(event, place.id, dayEntities[dayIndex].id)}>
+          <Icon name="arrastrar" size={20} />
+        </button>
         <button
           type="button"
-          className="button button--secondary trip-stop__move"
+          className="trip-stop__move"
+          aria-label="Mover a…"
+          title={`Mover ${place.name} a otro día, posición o Sin asignar`}
           aria-expanded={moveOpen}
           onClick={() => setMoveOpen((open) => !open)}
         >
-          Mover a…
-        </button>
-        {moveOpen && (
-          <div className="trip-stop__move-panel">
-            <label>
-              Día
-              <select value={targetDay} onChange={(event) => { setTargetDay(Number(event.target.value)); setTargetPosition(0); }}>
-                {dayEntities.map((day, index) => <option key={day.id} value={index}>Día {index + 1}</option>)}
-              </select>
-            </label>
-            <label>
-              Posición
-              <select value={Math.min(targetPosition, maxPosition)} onChange={(event) => setTargetPosition(Number(event.target.value))}>
-                {Array.from({ length: Math.max(1, maxPosition + (targetDay === dayIndex ? 0 : 1)) }, (_, index) => (
-                  <option key={index} value={index}>{index + 1}</option>
-                ))}
-              </select>
-            </label>
-            <button type="button" className="button button--primary" onClick={() => { onMove(targetDay, targetPosition); setMoveOpen(false); }}>
-              Mover parada
-            </button>
-          </div>
-        )}
-        <button type="button" className="link-button trip-stop__unassign" onClick={onUnassign}>
-          Mover a Sin asignar
+          <span aria-hidden="true">⋯</span>
         </button>
       </div>
+      {moveOpen && (
+        <div className="trip-stop__move-panel">
+          <label>
+            Día
+            <select value={targetDay} onChange={(event) => { setTargetDay(Number(event.target.value)); setTargetPosition(0); }}>
+              {dayEntities.map((day, index) => <option key={day.id} value={index}>Día {index + 1}</option>)}
+            </select>
+          </label>
+          <label>
+            Posición
+            <select value={Math.min(targetPosition, maxPosition)} onChange={(event) => setTargetPosition(Number(event.target.value))}>
+              {Array.from({ length: Math.max(1, maxPosition + (targetDay === dayIndex ? 0 : 1)) }, (_, index) => (
+                <option key={index} value={index}>{index + 1}</option>
+              ))}
+            </select>
+          </label>
+          <button type="button" className="button button--primary" onClick={() => { onMove(targetDay, targetPosition); setMoveOpen(false); }}>
+            Mover parada
+          </button>
+          <button type="button" className="link-button trip-stop__unassign" onClick={onUnassign}>
+            Mover a Sin asignar
+          </button>
+        </div>
+      )}
     </article>
   );
 }
@@ -398,11 +405,30 @@ function DayTimeline({
             dragEnabled={dragEnabled}
             onMove={(targetDay, targetPosition) => onMove(index, targetDay, targetPosition)}
             onUnassign={() => onUnassign(index)} />
-          {index < legs.length && <LegConnector leg={legs[index]} />}
+          {index < legs.length && legs[index].transfer && <LegConnector leg={legs[index]} />}
           {dropSlot === index + 1 && <div className="day-timeline__drop-indicator" aria-label={`Insertar en posición ${index + 2}`} />}
         </li>
       ))}
     </ol>
+  );
+}
+
+/** P-06: every leg of the day, known or not, in «Detalles del día». The timeline above only keeps
+ * the known transfers inline; the absences («Sin traslado registrado») live here, never dropped. */
+function DayLegsList({ legs, placeById }: { legs: readonly OrderedSequenceLeg[]; placeById: ReadonlyMap<string, Place> }) {
+  if (legs.length === 0) return null;
+  return (
+    <section className="day-card__legs" aria-label="Traslados del día">
+      <h4>Traslados</h4>
+      <ol>
+        {legs.map((leg) => (
+          <li key={`${leg.fromId}>${leg.toId}`}>
+            <span>{placeById.get(leg.fromId)?.name ?? "Lugar"} → {placeById.get(leg.toId)?.name ?? "lugar"}</span>
+            <LegConnector leg={leg} />
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
@@ -2541,10 +2567,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
 
         <div className="analysis-body">
             <>
-              <p className="days-framing">
-                <EvidenceMark level="nihon" label={false} /> Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.
-              </p>
-
               {!dayAssignment.valid && (
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
                   <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
@@ -2553,6 +2575,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
               )}
 
               <div className="calendar-anchor">
+                <span className="calendar-anchor__field">
                 <label htmlFor="sequence-start-date" className="calendar-anchor__label">
                   {startDate ? "Fecha de inicio (Día 1)" : "Poner fecha de inicio"}
                 </label>
@@ -2572,13 +2595,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                     Quitar fecha
                   </button>
                 )}
+                </span>
 
                 {/* Phase 3D-W: the trip's upper civil bound, structurally identical to the Día 1
                     control above and living in the same existing block. The two dates are two
                     independent decisions: setting or clearing either one never touches the other,
                     and never creates, deletes, reorders or repairs a day bucket. */}
+                <span className="calendar-anchor__field">
                 <label htmlFor="sequence-end-date" className="calendar-anchor__label">
-                  Fecha de fin (último día del viaje)
+                  Fecha de fin<span className="visually-hidden"> (último día del viaje)</span>
                 </label>
                 <input
                   id="sequence-end-date"
@@ -2596,40 +2621,13 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                     Quitar fecha
                   </button>
                 )}
+                </span>
               </div>
 
-              <details className="days-tools">
-                <summary>Herramientas y datos del viaje</summary>
-                <TripBoundsNotice summary={tripBoundsSummary} />
-                <InterHubSegmentsSection
-                routeIds={routeIds}
-                days={days}
-                placeById={placeById}
-                segments={interHubSegments}
-                onAdd={addInterHubSegment}
-                onUpdate={updateInterHubSegment}
-                onRemove={removeInterHubSegment}
-              />
-
-
-
-              <ZonePlanSection
-                choices={zoneAccommodationChoices}
-                dayLinks={zoneDayLinks}
-                hubLinks={zoneHubLinks}
-                anchorLabelById={anchorLabelById}
-                onClear={clearZoneAccommodation}
-              />
-
-              <AccommodationManagerSection
-                accommodations={accommodations}
-                zoneChoices={zoneAccommodationChoices}
-                onAdd={addAccommodation}
-                onRemove={removeAccommodation}
-              />
-
-
-              </details>
+              {/* P-06: una sola frase de ayuda; nada de tutorial. */}
+              <p className="days-hint">
+                Organiza tus lugares por día: arrástralos con <Icon name="arrastrar" size={16} /> o usa ⋯ para moverlos.
+              </p>
 
               <div className="day-list">
                 <span className="visually-hidden" role="status" aria-live="polite">{dragAnnouncement}</span>
@@ -2659,6 +2657,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                   const sleepingLabel = sleepingChoice?.kind === "accommodation"
                     ? accommodations.find((anchor) => anchor.id === sleepingChoice.accommodationId)?.label ?? null
                     : null;
+                  // P-06: resumen corto bajo «Día N · fecha»: ciudad, número de lugares y tiempo de visita.
+                  const daySummaryText = `${hubLabel ? `${hubLabel} · ` : ""}${places.length} lugar${places.length === 1 ? "" : "es"}${isEmpty ? "" : ` · ${daySummary.visitTime ? formatRange(daySummary.visitTime) : "duración sin cuantificar"}`}`;
                   const interHubRow = interHubRowsByAfterDay.get(dayIndex);
                   const dayOrderPanelId = `day-order-tool-${dayIndex}`;
                   const dayOrderIsOpen = dayOrderSession?.dayId === dayEntity?.id;
@@ -2706,80 +2706,28 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                   return (
                     <Fragment key={dayEntity?.id ?? dayIndex}>
                     <section className={`day-card${dropTarget?.dayId === dayEntity?.id ? " day-card--drop-target" : ""}`} data-day-id={dayEntity?.id} aria-labelledby={`day-heading-${dayIndex}`}>
+                      {/* P-06: la tarjeta contesta «¿qué hacemos este día?»: Día N · fecha, un resumen corto, los
+                          lugares y dónde se duerme. Todo lo denso (traslados, señales de horarios/cierres,
+                          alojamiento por tramo, mover el día) queda plegado en «Detalles del día». */}
                       <div className="day-card__header">
                         <div>
-                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}{dayDate ? ` · ${formatCivilDateDisplay(dayDate)}` : ""}{hubLabel ? ` · ${hubLabel}` : ""}</h3>
-                          <p className="day-card__summary">{daySummary.visitTime ? formatRange(daySummary.visitTime) : "Duración sin cuantificar"} · {places.length} parada{places.length === 1 ? "" : "s"}</p>
+                          <h3 id={`day-heading-${dayIndex}`}>Día {dayIndex + 1}{dayDate ? ` · ${formatCivilDateDisplay(dayDate)}` : ""}</h3>
+                          <p className="day-card__summary">{daySummaryText}</p>
                           <TripBoundsDayWarning assessment={boundsAssessment} />
                         </div>
-                        <div className="day-card__header-actions">
-                          <button
-                            type="button"
-                            className="icon-button icon-button--small"
-                            onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
-                            disabled={!isEmpty || dayIds.length <= 1}
-                            aria-label={`Eliminar Día ${dayIndex + 1}`}
-                            title={`Eliminar Día ${dayIndex + 1}`}
-                          >
-                            <Icon name="cerrar" size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="day-card__actions" aria-label={`Acciones del Día ${dayIndex + 1}`}>
-                        <button
-                          type="button"
-                          className="button button--secondary day-order-tool__trigger"
-                          ref={(element) => {
-                            if (!dayEntity) return;
-                            if (element) dayOrderTriggerRefs.current.set(dayEntity.id, element);
-                            else dayOrderTriggerRefs.current.delete(dayEntity.id);
-                          }}
-                          aria-label={`Probar otro orden del Día ${dayIndex + 1}`}
-                          aria-expanded={dayOrderSession?.dayId === dayEntity?.id}
-                          aria-controls={dayOrderIsOpen ? dayOrderPanelId : undefined}
-                          aria-describedby={places.length < 2 ? `${dayOrderPanelId}-unavailable` : undefined}
-                          title={places.length === 0 ? "Este día no tiene lugares." : places.length === 1 ? "Un solo lugar no tiene otro orden distinto." : `Probar otro orden del Día ${dayIndex + 1}`}
-                          disabled={!dayEntity || places.length < 2}
-                          onClick={() => dayEntity && openDayOrderTool(dayEntity.id, dayEntity.placeIds)}
-                        >
-                          Probar otro orden
-                        </button>
-                        {places.length < 2 && (
-                          <span className="visually-hidden" id={`${dayOrderPanelId}-unavailable`}>
-                            {places.length === 0 ? "No disponible: este día no tiene lugares." : "Con un lugar no hay otro orden distinto."}
-                          </span>
+                        {isEmpty && dayIds.length > 1 && (
+                          <div className="day-card__header-actions">
+                            <button
+                              type="button"
+                              className="icon-button icon-button--small"
+                              onClick={() => dayEntity && removeEmptyDay(dayEntity.id)}
+                              aria-label={`Eliminar Día ${dayIndex + 1}`}
+                              title={`Eliminar Día ${dayIndex + 1}`}
+                            >
+                              <Icon name="cerrar" size={16} />
+                            </button>
+                          </div>
                         )}
-                        <label>
-                          Mover día…
-                          <select
-                            aria-label={`Mover Día ${dayIndex + 1} a la posición`}
-                            value={dayIndex}
-                            disabled={!dayEntity || dayEntities.length < 2}
-                            onChange={(event) => {
-                              if (!dayEntity) return;
-                              const target = Number(event.target.value);
-                              const direction: -1 | 1 = target < dayIndex ? -1 : 1;
-                              for (let index = dayIndex; index !== target; index += direction) moveDay(dayEntity.id, direction);
-                            }}
-                          >
-                            {dayEntities.map((day, index) => <option key={day.id} value={index}>Posición {index + 1}</option>)}
-                          </select>
-                        </label>
-                        <label>
-                          Añadir lugar
-                          <select
-                            aria-label={`Añadir lugar al Día ${dayIndex + 1}`}
-                            value=""
-                            disabled={!dayEntity || removedPlaces.length === 0}
-                            onChange={(event) => {
-                              if (dayEntity && event.target.value) addPlaceToDay(event.target.value, dayEntity.id);
-                            }}
-                          >
-                            <option value="">{removedPlaces.length ? "Elegir de Sin asignar" : "No hay sitios sin asignar"}</option>
-                            {removedPlaces.map((place) => <option key={place.id} value={place.id}>{place.name}</option>)}
-                          </select>
-                        </label>
                       </div>
 
                       {dayOrderIsOpen && dayEntity && dayOrderSession && (
@@ -2800,7 +2748,9 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                       )}
 
                       {isEmpty ? (
-                        <p className={`sequence-empty${dropTarget?.dayId === dayEntity?.id ? " day-timeline__drop-indicator" : ""}`}>Sin lugares en este día.</p>
+                        <p className={`sequence-empty${dropTarget?.dayId === dayEntity?.id ? " day-timeline__drop-indicator" : ""}`}>
+                          Sin lugares en este día.{removedPlaces.length > 0 ? " Arrastra uno desde Sin asignar o añádelo en Detalles del día." : ""}
+                        </p>
                       ) : (
                         <>
                           <DayTimeline
@@ -2825,46 +2775,120 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                               if (placeId) relocatePlace(dayEntity.id, target.id, placeId, targetPosition);
                             }}
                           />
-                          <WeekdayClosureNotice signal={weekdaySignal} />
-                          <HoursClosureCompositionNotice
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            dayNumber={dayIndex + 1}
-                          />
-                          <RecordedIntervalFitSection
-                            places={places}
-                            dayAssignment={dayAssignment}
-                            startDate={startDate}
-                            dayNumber={dayIndex + 1}
-                            visitStartTimes={visitStartTimes}
-                            onVisitStartTimeChange={setVisitStartTime}
-                          />
-                          {bucket && (
-                            <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
-                          )}
-                          {bucket && dayEntity && dayBoundary && (
-                            <AccommodationCommuteSection
-                              dayNumber={dayIndex + 1}
-                              dayPlaceIds={dayIds[dayIndex] ?? []}
-                              places={places}
-                              intraDay={bucket.sequence.summary}
-                              boundary={dayBoundary}
-                              accommodations={accommodations}
-                              accommodationLegs={accommodationLegs}
-                              onChoiceChange={(side, choice) =>
-                                setDayAccommodationChoice(dayEntity.id, side, choice)
-                              }
-                              onLegChange={(direction, accommodationId, placeId, minutes) =>
-                                setAccommodationLeg(direction, accommodationId, placeId, minutes)
-                              }
-                            />
+                          {weekdaySignal.assessed && weekdaySignal.matchCount > 0 && (
+                            <p className="day-card__signal">
+                              <Icon name="aviso" size={16} /> {weekdaySignal.matchCount} posible{weekdaySignal.matchCount === 1 ? "" : "s"} coincidencia{weekdaySignal.matchCount === 1 ? "" : "s"} con cierre semanal · ver Detalles del día
+                            </p>
                           )}
                           <footer className="day-card__footer">
-                            <Icon name="cama" size={16} /> {sleepingLabel ? `Dormís en ${sleepingLabel}` : "Sin alojamiento elegido"}
+                            <Icon name="cama" size={16} /> <span>{sleepingLabel ? `Dormís en ${sleepingLabel}` : "Sin alojamiento elegido"}</span>
+                            <button type="button" className="link-button day-card__sleep-link" onClick={() => onSectionChange?.("dormir")}>
+                              Dónde dormir
+                            </button>
                           </footer>
                         </>
                       )}
+
+                      <div className="day-card__more">
+                        <button
+                          type="button"
+                          className="link-button day-order-tool__trigger"
+                          ref={(element) => {
+                            if (!dayEntity) return;
+                            if (element) dayOrderTriggerRefs.current.set(dayEntity.id, element);
+                            else dayOrderTriggerRefs.current.delete(dayEntity.id);
+                          }}
+                          aria-label={`Probar otro orden del Día ${dayIndex + 1}`}
+                          aria-expanded={dayOrderSession?.dayId === dayEntity?.id}
+                          aria-controls={dayOrderIsOpen ? dayOrderPanelId : undefined}
+                          aria-describedby={places.length < 2 ? `${dayOrderPanelId}-unavailable` : undefined}
+                          title={places.length === 0 ? "Este día no tiene lugares." : places.length === 1 ? "Un solo lugar no tiene otro orden distinto." : `Probar otro orden del Día ${dayIndex + 1}`}
+                          disabled={!dayEntity || places.length < 2}
+                          onClick={() => dayEntity && openDayOrderTool(dayEntity.id, dayEntity.placeIds)}
+                        >
+                          Probar otro orden
+                        </button>
+                        {places.length < 2 && (
+                          <span className="visually-hidden" id={`${dayOrderPanelId}-unavailable`}>
+                            {places.length === 0 ? "No disponible: este día no tiene lugares." : "Con un lugar no hay otro orden distinto."}
+                          </span>
+                        )}
+                        <details className="day-card__details">
+                          <summary>Detalles del día</summary>
+                          <div className="day-card__actions" aria-label={`Acciones del Día ${dayIndex + 1}`}>
+                            <label>
+                              Mover día…
+                              <select
+                                aria-label={`Mover Día ${dayIndex + 1} a la posición`}
+                                value={dayIndex}
+                                disabled={!dayEntity || dayEntities.length < 2}
+                                onChange={(event) => {
+                                  if (!dayEntity) return;
+                                  const target = Number(event.target.value);
+                                  const direction: -1 | 1 = target < dayIndex ? -1 : 1;
+                                  for (let index = dayIndex; index !== target; index += direction) moveDay(dayEntity.id, direction);
+                                }}
+                              >
+                                {dayEntities.map((day, index) => <option key={day.id} value={index}>Posición {index + 1}</option>)}
+                              </select>
+                            </label>
+                            <label>
+                              Añadir lugar
+                              <select
+                                aria-label={`Añadir lugar al Día ${dayIndex + 1}`}
+                                value=""
+                                disabled={!dayEntity || removedPlaces.length === 0}
+                                onChange={(event) => {
+                                  if (dayEntity && event.target.value) addPlaceToDay(event.target.value, dayEntity.id);
+                                }}
+                              >
+                                <option value="">{removedPlaces.length ? "Elegir de Sin asignar" : "No hay sitios sin asignar"}</option>
+                                {removedPlaces.map((place) => <option key={place.id} value={place.id}>{place.name}</option>)}
+                              </select>
+                            </label>
+                          </div>
+                          {!isEmpty && bucket && <DayLegsList legs={bucket.sequence.legs} placeById={placeById} />}
+                          {!isEmpty && (
+                            <>
+                              <WeekdayClosureNotice signal={weekdaySignal} />
+                              <HoursClosureCompositionNotice
+                                places={places}
+                                dayAssignment={dayAssignment}
+                                startDate={startDate}
+                                dayNumber={dayIndex + 1}
+                              />
+                              <RecordedIntervalFitSection
+                                places={places}
+                                dayAssignment={dayAssignment}
+                                startDate={startDate}
+                                dayNumber={dayIndex + 1}
+                                visitStartTimes={visitStartTimes}
+                                onVisitStartTimeChange={setVisitStartTime}
+                              />
+                              {bucket && (
+                                <TransferAndVisitTotals visitSummary={daySummary} sequenceSummary={bucket.sequence.summary} />
+                              )}
+                              {bucket && dayEntity && dayBoundary && (
+                                <AccommodationCommuteSection
+                                  dayNumber={dayIndex + 1}
+                                  dayPlaceIds={dayIds[dayIndex] ?? []}
+                                  places={places}
+                                  intraDay={bucket.sequence.summary}
+                                  boundary={dayBoundary}
+                                  accommodations={accommodations}
+                                  accommodationLegs={accommodationLegs}
+                                  onChoiceChange={(side, choice) =>
+                                    setDayAccommodationChoice(dayEntity.id, side, choice)
+                                  }
+                                  onLegChange={(direction, accommodationId, placeId, minutes) =>
+                                    setAccommodationLeg(direction, accommodationId, placeId, minutes)
+                                  }
+                                />
+                              )}
+                            </>
+                          )}
+                        </details>
+                      </div>
                     </section>
                     {interHubRow && (
                       <div className="inter-hub-row" role="note" aria-label={`Traslado entre Día ${dayIndex + 1} y Día ${dayIndex + 2}`}>
@@ -2886,8 +2910,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 <span aria-hidden="true">＋</span> Añadir día
               </button>
 
-              <details className="unassigned-drawer">
-                <summary>{removedPlaces.length} sitio{removedPlaces.length === 1 ? "" : "s"} sin día</summary>
+              <details className={`unassigned-drawer${removedPlaces.length === 0 ? " unassigned-drawer--empty" : ""}`}>
+                <summary>Sin asignar · {removedPlaces.length} sitio{removedPlaces.length === 1 ? "" : "s"}</summary>
                 {removedPlaces.length === 0 ? (
                   <p>Todos los sitios del plan están asignados.</p>
                 ) : (
@@ -2912,6 +2936,45 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                     ))}
                   </ul>
                 )}
+              </details>
+
+              {/* P-06: la frase normativa sigue presente, pero discreta, y las herramientas del viaje
+                  (límites de fechas, traslados entre ciudades, alojamientos) quedan plegadas al final. */}
+              <p className="days-framing">
+                <EvidenceMark level="nihon" label={false} /> Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.
+              </p>
+
+              <details className="days-tools">
+                <summary>Herramientas y datos del viaje</summary>
+                <TripBoundsNotice summary={tripBoundsSummary} />
+                <InterHubSegmentsSection
+                routeIds={routeIds}
+                days={days}
+                placeById={placeById}
+                segments={interHubSegments}
+                onAdd={addInterHubSegment}
+                onUpdate={updateInterHubSegment}
+                onRemove={removeInterHubSegment}
+              />
+
+
+
+              <ZonePlanSection
+                choices={zoneAccommodationChoices}
+                dayLinks={zoneDayLinks}
+                hubLinks={zoneHubLinks}
+                anchorLabelById={anchorLabelById}
+                onClear={clearZoneAccommodation}
+              />
+
+              <AccommodationManagerSection
+                accommodations={accommodations}
+                zoneChoices={zoneAccommodationChoices}
+                onAdd={addAccommodation}
+                onRemove={removeAccommodation}
+              />
+
+
               </details>
             </>
         </div>

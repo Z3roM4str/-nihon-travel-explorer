@@ -168,7 +168,9 @@ try {
   const sameDayAfter = await firstDay.locator(".trip-stop strong").allInnerTexts();
   if (sameDayAfter[1] !== movingName) fail("C/D: same-day move failed");
 
-  // Whole-day move through its explicit keyboard-labelled destination.
+  // Whole-day move through its explicit keyboard-labelled destination (P-06: inside «Detalles del día»).
+  if (await firstDay.locator(".day-card__details").getAttribute("open") !== null) fail("P-06: Detalles del día must start closed");
+  await keyboardActivate(firstDay.locator(".day-card__details > summary"));
   const dayMove = firstDay.getByLabel("Mover Día 1 a la posición");
   await dayMove.focus();
   await dayMove.selectOption("1");
@@ -193,6 +195,9 @@ try {
   await showDays(page);
   const assignedStop = root.locator(".trip-stop", { hasText: assignedPlace.name });
   const assignedName = assignedPlace.name;
+  // P-06: «Mover a Sin asignar» vive detrás del «⋯» (nombre accesible «Mover a…») de la parada.
+  if (await assignedStop.getByRole("button", { name: "Mover a Sin asignar" }).count()) fail("P-06: stop actions must be collapsed by default");
+  await keyboardActivate(assignedStop.getByRole("button", { name: "Mover a…" }));
   await keyboardActivate(assignedStop.getByRole("button", { name: "Mover a Sin asignar" }));
   const pruned = await draft(page);
   if (pruned.visitStartTimes[assignedId] !== undefined) fail("G: visitStartTime survived unassign");
@@ -200,7 +205,7 @@ try {
   if (pruned.interHubSegments.some((segment) => segment.fromPlaceId === assignedId || segment.toPlaceId === assignedId)) fail("G: inter-hub segment survived unassign");
   const drawer = root.locator(".unassigned-drawer");
   if (await drawer.getAttribute("open") !== null) fail("G: drawer must start closed");
-  if (!/1 sitio sin día/.test(await drawer.locator("summary").innerText())) fail("G: real counter did not increase");
+  if (!/^Sin asignar · 1 sitio$/.test(await drawer.locator("summary").innerText())) fail("G: real counter did not increase");
   await keyboardActivate(drawer.locator("summary"));
   if (!await drawer.getByText(assignedName, { exact: true }).count()) fail("G: removed stop not immediately in drawer");
   await scrollRoot.evaluate((element) => { element.scrollTop = 0; });
@@ -218,7 +223,7 @@ try {
   await capture(page, "viaje-390-sin-asignar-bottom");
   if (await page.evaluate((key) => localStorage.getItem(key), WISHLIST_KEY) !== originalWishlist) fail("H: Quiero ir changed on unassign");
   await drawer.getByLabel("Añadir al día…").selectOption({ index: 1 });
-  if (!/0 sitios sin día/.test(await drawer.locator("summary").innerText())) fail("G: counter did not decrease after restore");
+  if (!/^Sin asignar · 0 sitios$/.test(await drawer.locator("summary").innerText())) fail("G: counter did not decrease after restore");
   const restored = await draft(page);
   if (restored.visitStartTimes[assignedId] !== undefined ||
       restored.accommodationLegs.some((leg) => leg.placeId === assignedId) ||

@@ -710,7 +710,9 @@ try {
     }, { key: "nihon.manualPlanningDraft", removedId, otherId });
     await page.reload({ waitUntil: "domcontentloaded" });
     await openPlanner({ fresh: false });
-    const remove = page.locator(".trip-stop").filter({ hasText: removedName }).getByRole("button", { name: "Mover a Sin asignar" });
+    const reloadedStop = page.locator(".trip-stop").filter({ hasText: removedName });
+    await reloadedStop.getByRole("button", { name: "Mover a…" }).click(); // P-06: acciones de parada tras «⋯».
+    const remove = reloadedStop.getByRole("button", { name: "Mover a Sin asignar" });
     await remove.click();
     await page.waitForTimeout(300);
     const draft = await readDraft();

@@ -352,6 +352,7 @@ try {
   // Stable day identity end to end: move the day first, then open and apply against its new ordinal.
   const movedDayCase = await setup();
   const movedDayPlanBefore = await readDraft(movedDayCase.page);
+  await card(movedDayCase.root, "day-a").locator(".day-card__details > summary").click();
   await card(movedDayCase.root, "day-a").getByLabel("Mover Día 1 a la posición").selectOption("1");
   const afterDayMove = await readDraft(movedDayCase.page);
   check(JSON.stringify(afterDayMove.days.map((day) => day.id)) === JSON.stringify(["day-b", "day-a", "day-c"]), "F: fixture moves the target day while preserving its stable id");
@@ -382,6 +383,7 @@ try {
   const staleTool = await openTool(staleCase.page, staleCase.root);
   await staleTool.panel.getByLabel(`Mover ${byId.get(ids[0]).name} a la posición en la propuesta del Día 1`).selectOption("6");
   const underlyingMove = card(staleCase.root).locator(".trip-stop").first();
+  await underlyingMove.getByRole("button", { name: "Mover a…" }).click();
   const underlyingUnassign = underlyingMove.getByRole("button", { name: "Mover a Sin asignar" });
   await underlyingUnassign.focus();
   await underlyingUnassign.press("Enter");
