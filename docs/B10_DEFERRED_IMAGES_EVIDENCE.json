@@ -1,0 +1,4039 @@
+{
+ "authorizationPrompt": "B10 CLAUDE — activación diferida de imágenes",
+ "baseline": {
+  "head": "f9949325aea83d45907b7310fa635faf7633716b",
+  "tree": "320f45cbe229995bc405e5d79805861ce950fa07",
+  "appTree": "e0e87b8e82c172662573ce827c7ab7d6c3540605",
+  "provenProduct": "26407373059e0f20e6e64e975f7a38eb7da5805f",
+  "provenProductAppTree": "e0e87b8e82c172662573ce827c7ab7d6c3540605",
+  "remoteBranchVerifiedAtStart": "origin/codex/b10-pulido-mission == f9949325aea83d45907b7310fa635faf7633716b"
+ },
+ "branch": "claude/b10-deferred-images",
+ "commits": {
+  "authorization": "7b1bb0542430e18c3bb0c4ed17bc5197de8e4539",
+  "implementation": "f0c5f61e3d2a82f2c1328f32f0871039718ab506",
+  "gates": "965acc8c9660fe8515ccbadc7f0cf97028a79079"
+ },
+ "testedCode": {
+  "head": "965acc8c9660fe8515ccbadc7f0cf97028a79079",
+  "tree": "98f7c4e0df56382ee0a9abfba84f00cc4711bf94",
+  "appTree": "7192167902cd0a31ff232d2417818e90679e9e71",
+  "note": "código y scripts bajo prueba; los commits posteriores sólo añaden documentación"
+ },
+ "changedFilesVsBaseline": [
+  "app/scripts/b10-deferred-images-check.mjs",
+  "app/scripts/b10-performance-check.mjs",
+  "app/src/components/PlaceCard.test.ts",
+  "app/src/components/PlaceCard.tsx",
+  "app/src/photography-derivatives.test.ts",
+  "app/src/useDeferredImageActivation.test.ts",
+  "app/src/useDeferredImageActivation.ts",
+  "docs/design/09_DECISIONES_DE_DISENO.md"
+ ],
+ "environment": {
+  "node": "v22.22.0",
+  "playwright": "1.62.1",
+  "chromium": "141.0.7390.37 (executablePath /opt/pw-browsers/chromium-1194)",
+  "webkit": "26.5 (Playwright webkit-2336, descargado a un directorio de trabajo; dependencias del sistema instaladas con apt)",
+  "os": "Ubuntu 24.04.4 LTS",
+  "note": "La certificación anterior usó Chromium 151.0.7922.34 y Node 24.19.0; este contenedor no los ofrece."
+ },
+ "implementation": {
+  "file": "app/src/useDeferredImageActivation.ts",
+  "rootMargin": "200% 200% 200% 200%",
+  "maxViewports": 2,
+  "observerPolicy": "un IntersectionObserver por raíz, compartido, con cuenta de referencias; tramos tarjeta→contenedor con scroll→…→viewport; activación de una sola vez; desconexión al activar, al desmontar y al quedar sin suscriptores",
+  "priorityPolicy": "priority (primera tarjeta de la lista) activa de inmediato y conserva fetchpriority=high; el resto conserva loading=lazy",
+  "fallbackWithoutObserver": "activa de inmediato (comportamiento anterior)"
+ },
+ "budgets": {
+  "hubBudgetBytes": 3500000,
+  "entryCeilingGzip": 253742,
+  "touched": false
+ },
+ "G6": {
+  "existingGuard": {
+   "chromium": {
+    "browser": "chromium",
+    "entryGzip": 157586,
+    "cssGzip": 21099,
+    "failures": [],
+    "hubs": [
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Tokio",
+      "images": 55,
+      "bytes": 3499770,
+      "budget": 3500000,
+      "homeImages": 12,
+      "homeBytes": 737274,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Kioto",
+      "images": 47,
+      "bytes": 3499450,
+      "budget": 3500000,
+      "homeImages": 11,
+      "homeBytes": 694198,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Osaka",
+      "images": 50,
+      "bytes": 3356478,
+      "budget": 3500000,
+      "homeImages": 12,
+      "homeBytes": 737274,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Okinawa",
+      "images": 45,
+      "bytes": 2903352,
+      "budget": 3500000,
+      "homeImages": 12,
+      "homeBytes": 737274,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Tokio",
+      "images": 55,
+      "bytes": 3499770,
+      "budget": 3500000,
+      "homeImages": 20,
+      "homeBytes": 1234438,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Kioto",
+      "images": 47,
+      "bytes": 3499450,
+      "budget": 3500000,
+      "homeImages": 20,
+      "homeBytes": 1234438,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Osaka",
+      "images": 50,
+      "bytes": 3356478,
+      "budget": 3500000,
+      "homeImages": 20,
+      "homeBytes": 1234438,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Okinawa",
+      "images": 45,
+      "bytes": 2903352,
+      "budget": 3500000,
+      "homeImages": 20,
+      "homeBytes": 1234438,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     }
+    ]
+   },
+   "webkit": {
+    "browser": "webkit",
+    "entryGzip": 157586,
+    "cssGzip": 21099,
+    "failures": [],
+    "hubs": [
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Tokio",
+      "images": 52,
+      "bytes": 3326344,
+      "budget": 3500000,
+      "homeImages": 6,
+      "homeBytes": 353688,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Kioto",
+      "images": 46,
+      "bytes": 3438492,
+      "budget": 3500000,
+      "homeImages": 6,
+      "homeBytes": 353688,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Osaka",
+      "images": 49,
+      "bytes": 3315340,
+      "budget": 3500000,
+      "homeImages": 6,
+      "homeBytes": 353688,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "móvil 390×844@2",
+      "hub": "Okinawa",
+      "images": 47,
+      "bytes": 3031896,
+      "budget": 3500000,
+      "homeImages": 6,
+      "homeBytes": 353688,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Tokio",
+      "images": 45,
+      "bytes": 2828352,
+      "budget": 3500000,
+      "homeImages": 22,
+      "homeBytes": 1367186,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Kioto",
+      "images": 37,
+      "bytes": 2922986,
+      "budget": 3500000,
+      "homeImages": 22,
+      "homeBytes": 1367186,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Osaka",
+      "images": 49,
+      "bytes": 3315340,
+      "budget": 3500000,
+      "homeImages": 22,
+      "homeBytes": 1367186,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     },
+     {
+      "viewport": "escritorio 1440×900@1",
+      "hub": "Okinawa",
+      "images": 44,
+      "bytes": 2825186,
+      "budget": 3500000,
+      "homeImages": 22,
+      "homeBytes": 1367186,
+      "farLoadedAtOpen": 0,
+      "newFarLoadedAtOpen": 0,
+      "oversize": 0,
+      "duplicates": 0,
+      "originals": 0,
+      "failed": 0
+     }
+    ]
+   }
+  },
+  "repetitions": {
+   "chromium-1": [],
+   "chromium-2": [],
+   "chromium-3": [],
+   "webkit-1": [],
+   "webkit-2": [],
+   "webkit-3": []
+  },
+  "repetitionsOsakaDesktopBytes": {
+   "chromium": [
+    3356478
+   ],
+   "webkit": [
+    3315340
+   ]
+  },
+  "priorFailure": {
+   "osakaDesktopBytes": 3862290,
+   "limit": 3500000,
+   "attributedTo": "ocho respuestas de portada, 546950 B (JP-004, JP-005, JP-011, JP-024, JP-037, JP-046, JP-049, JP-073)",
+   "reproducedHere": false,
+   "reproducedClass": "sin la activación diferida, forzando la distancia nativa de carga diferida de Chromium (--force-effective-connection-type), la portada descarga 23→55 imágenes en móvil y el guard falla «imágenes nuevas a más de 3 pantallas»; con la activación diferida pasa 13/13"
+  },
+  "stress": {
+   "baseline-3G": {
+    "failures": [
+     "[I-móvil-Tokio] móvil 390×844@2 · Tokio",
+     "[I-móvil-Kioto] móvil 390×844@2 · Kioto",
+     "[I-móvil-Osaka] móvil 390×844@2 · Osaka",
+     "[I-móvil-Okinawa] móvil 390×844@2 · Okinawa"
+    ],
+    "homeBytesByHub": {
+     "móvil-Tokio": [
+      23,
+      1477816
+     ],
+     "móvil-Kioto": [
+      23,
+      1477816
+     ],
+     "móvil-Osaka": [
+      23,
+      1477816
+     ],
+     "móvil-Okinawa": [
+      23,
+      1477816
+     ],
+     "escritorio-Tokio": [
+      37,
+      2461758
+     ],
+     "escritorio-Kioto": [
+      37,
+      2461758
+     ],
+     "escritorio-Osaka": [
+      37,
+      2461758
+     ],
+     "escritorio-Okinawa": [
+      37,
+      2461758
+     ]
+    },
+    "newFarLoadedAtOpen": {
+     "móvil-Tokio": 1,
+     "móvil-Kioto": 2,
+     "móvil-Osaka": 2,
+     "móvil-Okinawa": 2,
+     "escritorio-Tokio": 0,
+     "escritorio-Kioto": 0,
+     "escritorio-Osaka": 0,
+     "escritorio-Okinawa": 0
+    }
+   },
+   "new-3G": {
+    "failures": [],
+    "homeBytesByHub": {
+     "móvil-Tokio": [
+      12,
+      737274
+     ],
+     "móvil-Kioto": [
+      12,
+      737274
+     ],
+     "móvil-Osaka": [
+      12,
+      737274
+     ],
+     "móvil-Okinawa": [
+      11,
+      694198
+     ],
+     "escritorio-Tokio": [
+      31,
+      2057602
+     ],
+     "escritorio-Kioto": [
+      33,
+      2161636
+     ],
+     "escritorio-Osaka": [
+      33,
+      2161636
+     ],
+     "escritorio-Okinawa": [
+      33,
+      2161636
+     ]
+    },
+    "newFarLoadedAtOpen": {
+     "móvil-Tokio": 0,
+     "móvil-Kioto": 0,
+     "móvil-Osaka": 0,
+     "móvil-Okinawa": 0,
+     "escritorio-Tokio": 0,
+     "escritorio-Kioto": 0,
+     "escritorio-Osaka": 0,
+     "escritorio-Okinawa": 0
+    }
+   },
+   "baseline-Slow-2G": {
+    "failures": [
+     "[I-móvil-Tokio] móvil 390×844@2 · Tokio",
+     "[I-móvil-Kioto] móvil 390×844@2 · Kioto",
+     "[I-móvil-Osaka] móvil 390×844@2 · Osaka",
+     "[I-móvil-Okinawa] móvil 390×844@2 · Okinawa"
+    ],
+    "homeBytesByHub": {
+     "móvil-Tokio": [
+      55,
+      3840422
+     ],
+     "móvil-Kioto": [
+      55,
+      3840422
+     ],
+     "móvil-Osaka": [
+      55,
+      3840422
+     ],
+     "móvil-Okinawa": [
+      55,
+      3840422
+     ],
+     "escritorio-Tokio": [
+      65,
+      4413476
+     ],
+     "escritorio-Kioto": [
+      65,
+      4413476
+     ],
+     "escritorio-Osaka": [
+      65,
+      4413476
+     ],
+     "escritorio-Okinawa": [
+      65,
+      4413476
+     ]
+    },
+    "newFarLoadedAtOpen": {
+     "móvil-Tokio": 2,
+     "móvil-Kioto": 3,
+     "móvil-Osaka": 5,
+     "móvil-Okinawa": 5,
+     "escritorio-Tokio": 0,
+     "escritorio-Kioto": 0,
+     "escritorio-Osaka": 0,
+     "escritorio-Okinawa": 0
+    }
+   },
+   "new-Slow-2G": {
+    "failures": [],
+    "homeBytesByHub": {
+     "móvil-Tokio": [
+      12,
+      737274
+     ],
+     "móvil-Kioto": [
+      12,
+      737274
+     ],
+     "móvil-Osaka": [
+      12,
+      737274
+     ],
+     "móvil-Okinawa": [
+      12,
+      737274
+     ],
+     "escritorio-Tokio": [
+      47,
+      3170318
+     ],
+     "escritorio-Kioto": [
+      47,
+      3170318
+     ],
+     "escritorio-Osaka": [
+      47,
+      3170318
+     ],
+     "escritorio-Okinawa": [
+      47,
+      3170318
+     ]
+    },
+    "newFarLoadedAtOpen": {
+     "móvil-Tokio": 0,
+     "móvil-Kioto": 0,
+     "móvil-Osaka": 0,
+     "móvil-Okinawa": 0,
+     "escritorio-Tokio": 0,
+     "escritorio-Kioto": 0,
+     "escritorio-Osaka": 0,
+     "escritorio-Okinawa": 0
+    }
+   }
+  }
+ },
+ "deferredGate": {
+  "chromium": {
+   "browser": "chromium",
+   "mutant": null,
+   "dist": "dist",
+   "imageDelayMs": 450,
+   "immediate": [
+    {
+     "viewport": "móvil",
+     "hub": "Tokio",
+     "responseDelayMs": 0,
+     "clickAtMs": 566,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 55,
+     "windowBytes": 3499770,
+     "cityStartedResponses": 55,
+     "cityStartedBytes": 3499770,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 17,
+     "totalRequests": 67,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 8,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Kioto",
+     "responseDelayMs": 0,
+     "clickAtMs": 530,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 47,
+     "windowBytes": 3499450,
+     "cityStartedResponses": 47,
+     "cityStartedBytes": 3499450,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 18,
+     "totalRequests": 59,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Osaka",
+     "responseDelayMs": 0,
+     "clickAtMs": 500,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 50,
+     "windowBytes": 3356478,
+     "cityStartedResponses": 50,
+     "cityStartedBytes": 3356478,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 5,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 16,
+     "totalRequests": 62,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Okinawa",
+     "responseDelayMs": 0,
+     "clickAtMs": 492,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 45,
+     "windowBytes": 2903352,
+     "cityStartedResponses": 45,
+     "cityStartedBytes": 2903352,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 17,
+     "totalRequests": 57,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Tokio",
+     "responseDelayMs": 0,
+     "clickAtMs": 598,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 55,
+     "windowBytes": 3499770,
+     "cityStartedResponses": 55,
+     "cityStartedBytes": 3499770,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 32,
+     "totalRequests": 75,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 10,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Kioto",
+     "responseDelayMs": 0,
+     "clickAtMs": 555,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 47,
+     "windowBytes": 3499450,
+     "cityStartedResponses": 47,
+     "cityStartedBytes": 3499450,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 32,
+     "totalRequests": 67,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 6,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Osaka",
+     "responseDelayMs": 0,
+     "clickAtMs": 585,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 50,
+     "windowBytes": 3356478,
+     "cityStartedResponses": 50,
+     "cityStartedBytes": 3356478,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 11,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 31,
+     "totalRequests": 70,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Okinawa",
+     "responseDelayMs": 0,
+     "clickAtMs": 557,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 45,
+     "windowBytes": 2903352,
+     "cityStartedResponses": 45,
+     "cityStartedBytes": 2903352,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 32,
+     "totalRequests": 65,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Tokio",
+     "responseDelayMs": 450,
+     "clickAtMs": 630,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 11,
+     "lateHomeResponses": 11,
+     "lateHomeBytes": 694198,
+     "windowResponses": 66,
+     "windowBytes": 4193968,
+     "cityStartedResponses": 55,
+     "cityStartedBytes": 3499770,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 16,
+     "totalRequests": 66,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 8,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Kioto",
+     "responseDelayMs": 450,
+     "clickAtMs": 606,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 11,
+     "lateHomeResponses": 11,
+     "lateHomeBytes": 694198,
+     "windowResponses": 57,
+     "windowBytes": 4132690,
+     "cityStartedResponses": 46,
+     "cityStartedBytes": 3438492,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 16,
+     "totalRequests": 57,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Osaka",
+     "responseDelayMs": 450,
+     "clickAtMs": 634,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 11,
+     "lateHomeResponses": 11,
+     "lateHomeBytes": 694198,
+     "windowResponses": 61,
+     "windowBytes": 4050676,
+     "cityStartedResponses": 50,
+     "cityStartedBytes": 3356478,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 5,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 15,
+     "totalRequests": 61,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Okinawa",
+     "responseDelayMs": 450,
+     "clickAtMs": 587,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 11,
+     "lateHomeResponses": 11,
+     "lateHomeBytes": 694198,
+     "windowResponses": 55,
+     "windowBytes": 3519384,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 2825186,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 15,
+     "totalRequests": 55,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Tokio",
+     "responseDelayMs": 450,
+     "clickAtMs": 645,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1130404,
+     "windowResponses": 72,
+     "windowBytes": 4562854,
+     "cityStartedResponses": 54,
+     "cityStartedBytes": 3432450,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 29,
+     "totalRequests": 72,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 9,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Kioto",
+     "responseDelayMs": 450,
+     "clickAtMs": 639,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1130404,
+     "windowResponses": 62,
+     "windowBytes": 4404508,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 3274104,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 27,
+     "totalRequests": 62,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 3,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Osaka",
+     "responseDelayMs": 450,
+     "clickAtMs": 618,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1130404,
+     "windowResponses": 68,
+     "windowBytes": 4486882,
+     "cityStartedResponses": 50,
+     "cityStartedBytes": 3356478,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 11,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 29,
+     "totalRequests": 68,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 1,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Okinawa",
+     "responseDelayMs": 450,
+     "clickAtMs": 664,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1130404,
+     "windowResponses": 62,
+     "windowBytes": 3955590,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 2825186,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 29,
+     "totalRequests": 62,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    }
+   ],
+   "eight": [
+    {
+     "viewport": "móvil",
+     "scrollStartMs": 1554,
+     "horizontalStartMs": 2519,
+     "beforeScroll": {
+      "JP-004": null,
+      "JP-005": null,
+      "JP-011": null,
+      "JP-024": null,
+      "JP-037": null,
+      "JP-046": null,
+      "JP-049": null,
+      "JP-073": null
+     },
+     "afterVerticalScroll": {
+      "JP-004": {
+       "start": 1687,
+       "end": 1696,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 1687,
+       "end": 1695,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 1687,
+       "end": 1695,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 1687,
+       "end": 1695,
+       "bytes": 61220
+      },
+      "JP-037": null,
+      "JP-046": null,
+      "JP-049": null,
+      "JP-073": null
+     },
+     "final": {
+      "JP-004": {
+       "start": 1687,
+       "end": 1696,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 1687,
+       "end": 1695,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 1687,
+       "end": 1695,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 1687,
+       "end": 1695,
+       "bytes": 61220
+      },
+      "JP-037": {
+       "start": 2567,
+       "end": 2571,
+       "bytes": 53724
+      },
+      "JP-046": {
+       "start": 2783,
+       "end": 2786,
+       "bytes": 67180
+      },
+      "JP-049": {
+       "start": 2999,
+       "end": 3002,
+       "bytes": 67476
+      },
+      "JP-073": {
+       "start": 3216,
+       "end": 3220,
+       "bytes": 84874
+      }
+     }
+    },
+    {
+     "viewport": "escritorio",
+     "scrollStartMs": 1664,
+     "horizontalStartMs": 2632,
+     "beforeScroll": {
+      "JP-004": null,
+      "JP-005": null,
+      "JP-011": null,
+      "JP-024": null,
+      "JP-037": null,
+      "JP-046": null,
+      "JP-049": null,
+      "JP-073": null
+     },
+     "afterVerticalScroll": {
+      "JP-004": {
+       "start": 1748,
+       "end": 1763,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 1748,
+       "end": 1761,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 1748,
+       "end": 1763,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 1749,
+       "end": 1763,
+       "bytes": 61220
+      },
+      "JP-037": {
+       "start": 1749,
+       "end": 1764,
+       "bytes": 53724
+      },
+      "JP-046": {
+       "start": 1749,
+       "end": 1764,
+       "bytes": 67180
+      },
+      "JP-049": {
+       "start": 1749,
+       "end": 1778,
+       "bytes": 67476
+      },
+      "JP-073": {
+       "start": 1749,
+       "end": 1778,
+       "bytes": 84874
+      }
+     },
+     "final": {
+      "JP-004": {
+       "start": 1748,
+       "end": 1763,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 1748,
+       "end": 1761,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 1748,
+       "end": 1763,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 1749,
+       "end": 1763,
+       "bytes": 61220
+      },
+      "JP-037": {
+       "start": 1749,
+       "end": 1764,
+       "bytes": 53724
+      },
+      "JP-046": {
+       "start": 1749,
+       "end": 1764,
+       "bytes": 67180
+      },
+      "JP-049": {
+       "start": 1749,
+       "end": 1778,
+       "bytes": 67476
+      },
+      "JP-073": {
+       "start": 1749,
+       "end": 1778,
+       "bytes": 84874
+      }
+     }
+    }
+   ],
+   "fallback": [
+    {
+     "viewport": "móvil",
+     "nearPath": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+     "farPath": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+     "attempts": [
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": false,
+       "status": 200
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": false,
+       "status": 200
+      }
+     ]
+    },
+    {
+     "viewport": "escritorio",
+     "nearPath": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+     "farPath": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+     "attempts": [
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": false,
+       "status": 200
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": false,
+       "status": 200
+      }
+     ]
+    }
+   ],
+   "credits": [
+    {
+     "text": "Fuente Wikimedia Commons Autoría Sakai Yayoi Licencia CC0 Archivo de Commons File:Osaka Dotonbori yoru.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP."
+    }
+   ],
+   "fallbackIndexes": {
+    "near": 2,
+    "far": 52,
+    "total": 53
+   },
+   "failures": []
+  },
+  "webkit": {
+   "browser": "webkit",
+   "mutant": null,
+   "dist": "dist",
+   "imageDelayMs": 450,
+   "immediate": [
+    {
+     "viewport": "móvil",
+     "hub": "Tokio",
+     "responseDelayMs": 0,
+     "clickAtMs": 1266,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 52,
+     "windowBytes": 3326344,
+     "cityStartedResponses": 52,
+     "cityStartedBytes": 3326344,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 10,
+     "totalRequests": 58,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Kioto",
+     "responseDelayMs": 0,
+     "clickAtMs": 1362,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 46,
+     "windowBytes": 3438492,
+     "cityStartedResponses": 46,
+     "cityStartedBytes": 3438492,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 9,
+     "totalRequests": 52,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Osaka",
+     "responseDelayMs": 0,
+     "clickAtMs": 1262,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 49,
+     "windowBytes": 3315340,
+     "cityStartedResponses": 49,
+     "cityStartedBytes": 3315340,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 5,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 9,
+     "totalRequests": 55,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Okinawa",
+     "responseDelayMs": 0,
+     "clickAtMs": 1258,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 44,
+     "windowBytes": 2825186,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 2825186,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 10,
+     "totalRequests": 50,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Tokio",
+     "responseDelayMs": 0,
+     "clickAtMs": 1460,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 45,
+     "windowBytes": 2828352,
+     "cityStartedResponses": 45,
+     "cityStartedBytes": 2828352,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 31,
+     "totalRequests": 67,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Kioto",
+     "responseDelayMs": 0,
+     "clickAtMs": 1310,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 37,
+     "windowBytes": 2922986,
+     "cityStartedResponses": 37,
+     "cityStartedBytes": 2922986,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 30,
+     "totalRequests": 59,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Osaka",
+     "responseDelayMs": 0,
+     "clickAtMs": 1487,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 49,
+     "windowBytes": 3315340,
+     "cityStartedResponses": 49,
+     "cityStartedBytes": 3315340,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 11,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 31,
+     "totalRequests": 71,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Okinawa",
+     "responseDelayMs": 0,
+     "clickAtMs": 1429,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 0,
+     "lateHomeResponses": 0,
+     "lateHomeBytes": 0,
+     "windowResponses": 44,
+     "windowBytes": 2825186,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 2825186,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 31,
+     "totalRequests": 66,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Tokio",
+     "responseDelayMs": 450,
+     "clickAtMs": 1282,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 2,
+     "lateHomeResponses": 2,
+     "lateHomeBytes": 130350,
+     "windowResponses": 54,
+     "windowBytes": 3456694,
+     "cityStartedResponses": 52,
+     "cityStartedBytes": 3326344,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 10,
+     "totalRequests": 58,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Kioto",
+     "responseDelayMs": 450,
+     "clickAtMs": 1265,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 2,
+     "lateHomeResponses": 2,
+     "lateHomeBytes": 130350,
+     "windowResponses": 48,
+     "windowBytes": 3568842,
+     "cityStartedResponses": 46,
+     "cityStartedBytes": 3438492,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 9,
+     "totalRequests": 52,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Osaka",
+     "responseDelayMs": 450,
+     "clickAtMs": 1237,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 2,
+     "lateHomeResponses": 2,
+     "lateHomeBytes": 130350,
+     "windowResponses": 51,
+     "windowBytes": 3445690,
+     "cityStartedResponses": 49,
+     "cityStartedBytes": 3315340,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 5,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 9,
+     "totalRequests": 55,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "móvil",
+     "hub": "Okinawa",
+     "responseDelayMs": 450,
+     "clickAtMs": 1270,
+     "homeImgsWithSrcAtClick": 8,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 2,
+     "lateHomeResponses": 2,
+     "lateHomeBytes": 130350,
+     "windowResponses": 46,
+     "windowBytes": 2955536,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 2825186,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 6,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 10,
+     "totalRequests": 50,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 6,
+      "targets": 148,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 2,
+      "targets": 7,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Tokio",
+     "responseDelayMs": 450,
+     "clickAtMs": 1210,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1143848,
+     "windowResponses": 63,
+     "windowBytes": 3972200,
+     "cityStartedResponses": 45,
+     "cityStartedBytes": 2828352,
+     "budget": 3500000,
+     "cityCards": 57,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 55,
+     "requestsAtOpen": 31,
+     "totalRequests": 67,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Kioto",
+     "responseDelayMs": 450,
+     "clickAtMs": 1183,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1143848,
+     "windowResponses": 55,
+     "windowBytes": 4066834,
+     "cityStartedResponses": 37,
+     "cityStartedBytes": 2922986,
+     "budget": 3500000,
+     "cityCards": 49,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 47,
+     "requestsAtOpen": 30,
+     "totalRequests": 59,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Osaka",
+     "responseDelayMs": 450,
+     "clickAtMs": 1176,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1143848,
+     "windowResponses": 67,
+     "windowBytes": 4459188,
+     "cityStartedResponses": 49,
+     "cityStartedBytes": 3315340,
+     "budget": 3500000,
+     "cityCards": 53,
+     "cityCardsWithSrcAtOpen": 11,
+     "cityCardsWithSrcAtEnd": 50,
+     "requestsAtOpen": 31,
+     "totalRequests": 71,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    },
+    {
+     "viewport": "escritorio",
+     "hub": "Okinawa",
+     "responseDelayMs": 450,
+     "clickAtMs": 1289,
+     "homeImgsWithSrcAtClick": 43,
+     "homeImgsTotal": 156,
+     "inFlightAtClick": 18,
+     "lateHomeResponses": 18,
+     "lateHomeBytes": 1143848,
+     "windowResponses": 62,
+     "windowBytes": 3969034,
+     "cityStartedResponses": 44,
+     "cityStartedBytes": 2825186,
+     "budget": 3500000,
+     "cityCards": 50,
+     "cityCardsWithSrcAtOpen": 12,
+     "cityCardsWithSrcAtEnd": 45,
+     "requestsAtOpen": 31,
+     "totalRequests": 66,
+     "farBelowViolations": 0,
+     "sawFarCards": true,
+     "homeObserversAtClick": {
+      "created": 6,
+      "live": 5,
+      "targets": 112,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersAfterNav": {
+      "created": 8,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "observersEnd": {
+      "created": 16,
+      "live": 0,
+      "targets": 0,
+      "orphans": 0,
+      "margins": [
+       "200% 200% 200% 200%"
+      ]
+     },
+     "misattributed": 0,
+     "cityDuplicates": 0,
+     "repeatedAcrossSurfaces": 0,
+     "failed": 0
+    }
+   ],
+   "eight": [
+    {
+     "viewport": "móvil",
+     "scrollStartMs": 2184,
+     "horizontalStartMs": 3171,
+     "beforeScroll": {
+      "JP-004": null,
+      "JP-005": null,
+      "JP-011": null,
+      "JP-024": null,
+      "JP-037": null,
+      "JP-046": null,
+      "JP-049": null,
+      "JP-073": null
+     },
+     "afterVerticalScroll": {
+      "JP-004": {
+       "start": 2428,
+       "end": 2438,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 2430,
+       "end": 2441,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 2430,
+       "end": 2441,
+       "bytes": 62926
+      },
+      "JP-024": null,
+      "JP-037": null,
+      "JP-046": null,
+      "JP-049": null,
+      "JP-073": null
+     },
+     "final": {
+      "JP-004": {
+       "start": 2428,
+       "end": 2438,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 2430,
+       "end": 2441,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 2430,
+       "end": 2441,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 3199,
+       "end": 3203,
+       "bytes": 61220
+      },
+      "JP-037": {
+       "start": 3426,
+       "end": 3429,
+       "bytes": 53724
+      },
+      "JP-046": {
+       "start": 3653,
+       "end": 3657,
+       "bytes": 67180
+      },
+      "JP-049": {
+       "start": 3881,
+       "end": 3884,
+       "bytes": 67476
+      },
+      "JP-073": {
+       "start": 4108,
+       "end": 4111,
+       "bytes": 84874
+      }
+     }
+    },
+    {
+     "viewport": "escritorio",
+     "scrollStartMs": 2590,
+     "horizontalStartMs": 3567,
+     "beforeScroll": {
+      "JP-004": null,
+      "JP-005": null,
+      "JP-011": null,
+      "JP-024": null,
+      "JP-037": null,
+      "JP-046": null,
+      "JP-049": null,
+      "JP-073": null
+     },
+     "afterVerticalScroll": {
+      "JP-004": {
+       "start": 2673,
+       "end": 2723,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 61220
+      },
+      "JP-037": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 53724
+      },
+      "JP-046": {
+       "start": 2676,
+       "end": 2723,
+       "bytes": 67180
+      },
+      "JP-049": {
+       "start": 2676,
+       "end": 2726,
+       "bytes": 67476
+      },
+      "JP-073": {
+       "start": 2677,
+       "end": 2727,
+       "bytes": 84874
+      }
+     },
+     "final": {
+      "JP-004": {
+       "start": 2673,
+       "end": 2723,
+       "bytes": 97826
+      },
+      "JP-005": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 51724
+      },
+      "JP-011": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 62926
+      },
+      "JP-024": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 61220
+      },
+      "JP-037": {
+       "start": 2674,
+       "end": 2722,
+       "bytes": 53724
+      },
+      "JP-046": {
+       "start": 2676,
+       "end": 2723,
+       "bytes": 67180
+      },
+      "JP-049": {
+       "start": 2676,
+       "end": 2726,
+       "bytes": 67476
+      },
+      "JP-073": {
+       "start": 2677,
+       "end": 2727,
+       "bytes": 84874
+      }
+     }
+    }
+   ],
+   "fallback": [
+    {
+     "viewport": "móvil",
+     "nearPath": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+     "farPath": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+     "attempts": [
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": false,
+       "status": 200
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": false,
+       "status": 200
+      }
+     ]
+    },
+    {
+     "viewport": "escritorio",
+     "nearPath": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+     "farPath": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+     "attempts": [
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": true,
+       "status": null
+      },
+      {
+       "url": "/images/places/JP-105/hozenji-yokocho-800w.webp",
+       "failed": false,
+       "status": 200
+      },
+      {
+       "url": "/images/places/JP-212/grand-sumo-tournament-osaka-800w.webp",
+       "failed": false,
+       "status": 200
+      }
+     ]
+    }
+   ],
+   "credits": [
+    {
+     "text": "Fuente Wikimedia Commons Autoría Sakai Yayoi Licencia CC0 Archivo de Commons File:Osaka Dotonbori yoru.jpg Reprocesado Archivo optimizado por Nihon: redimensionado y convertido a WebP."
+    }
+   ],
+   "fallbackIndexes": {
+    "near": 2,
+    "far": 52,
+    "total": 53
+   },
+   "failures": []
+  }
+ },
+ "regression": {
+  "jobs": 85,
+  "positive": 68,
+  "positivePass": 68,
+  "negative": 17,
+  "negativeDetected": 16,
+  "negativeMissed": [
+   "negative-scroll-chromium"
+  ],
+  "finalByJob": {
+   "a11y-chromium": {
+    "name": "a11y-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 32.2,
+    "ledger": "shardA"
+   },
+   "b10-l1": {
+    "name": "b10-l1",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 12.3,
+    "ledger": "shardA"
+   },
+   "b10-walking-projection": {
+    "name": "b10-walking-projection",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 0.9,
+    "ledger": "shardA"
+   },
+   "b18-browser-back-check": {
+    "name": "b18-browser-back-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.7,
+    "ledger": "rerun"
+   },
+   "b18-regression-check": {
+    "name": "b18-regression-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.8,
+    "ledger": "rerun"
+   },
+   "b18-viaje-lugar-check": {
+    "name": "b18-viaje-lugar-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 15.3,
+    "ledger": "rerun"
+   },
+   "b21-chromium-mobile": {
+    "name": "b21-chromium-mobile",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.2,
+    "ledger": "shardA"
+   },
+   "b21-webkit-mobile": {
+    "name": "b21-webkit-mobile",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.8,
+    "ledger": "shardA"
+   },
+   "b25-quiero-ir-check": {
+    "name": "b25-quiero-ir-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 22,
+    "ledger": "shardA"
+   },
+   "b26-nosotros-check-webkit": {
+    "name": "b26-nosotros-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 90.1,
+    "ledger": "shardA"
+   },
+   "b28-reorder-dnd-check": {
+    "name": "b28-reorder-dnd-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 23.1,
+    "ledger": "shardA"
+   },
+   "b30-where-to-sleep-check-chromium": {
+    "name": "b30-where-to-sleep-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 41.6,
+    "ledger": "shardA"
+   },
+   "b31-reservas-resumen-check-chromium": {
+    "name": "b31-reservas-resumen-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 16.6,
+    "ledger": "shardA"
+   },
+   "block1-ux-browser-audit": {
+    "name": "block1-ux-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 51.3,
+    "ledger": "shardA"
+   },
+   "block13-portable-backup-browser-audit": {
+    "name": "block13-portable-backup-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 55.4,
+    "ledger": "shardA"
+   },
+   "block19-contrast-check": {
+    "name": "block19-contrast-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 17.5,
+    "ledger": "shardA"
+   },
+   "block19-grid-check": {
+    "name": "block19-grid-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 47.4,
+    "ledger": "shardA"
+   },
+   "block22-b6-6-photography-browser-audit": {
+    "name": "block22-b6-6-photography-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 129.6,
+    "ledger": "shardA"
+   },
+   "collections-keyboard-chromium": {
+    "name": "collections-keyboard-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 40.8,
+    "ledger": "shardA"
+   },
+   "d0b-design-system-hygiene-check-chromium": {
+    "name": "d0b-design-system-hygiene-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 28.1,
+    "ledger": "shardA"
+   },
+   "editorial": {
+    "name": "editorial",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 2.3,
+    "ledger": "shardA"
+   },
+   "embedded-scroll-webkit": {
+    "name": "embedded-scroll-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 6.5,
+    "ledger": "shardA"
+   },
+   "gallery-motion-chromium": {
+    "name": "gallery-motion-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 2.8,
+    "ledger": "shardA"
+   },
+   "l2-chromium": {
+    "name": "l2-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.3,
+    "ledger": "shardA"
+   },
+   "map-boundary-chromium": {
+    "name": "map-boundary-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 90.3,
+    "ledger": "shardA"
+   },
+   "map-pending-chromium": {
+    "name": "map-pending-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 49.2,
+    "ledger": "shardA"
+   },
+   "microcopy-chromium": {
+    "name": "microcopy-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 38.6,
+    "ledger": "shardA"
+   },
+   "motion-chromium": {
+    "name": "motion-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 11.5,
+    "ledger": "shardA"
+   },
+   "national-map-chromium": {
+    "name": "national-map-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 5.2,
+    "ledger": "shardA"
+   },
+   "national-reachability-chromium": {
+    "name": "national-reachability-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.7,
+    "ledger": "shardA"
+   },
+   "negative-focus-chromium": {
+    "name": "negative-focus-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 1.8,
+    "ledger": "shardA"
+   },
+   "negative-hidden-icons": {
+    "name": "negative-hidden-icons",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 22.5,
+    "ledger": "shardA"
+   },
+   "negative-map-webkit": {
+    "name": "negative-map-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 4.1,
+    "ledger": "shardA"
+   },
+   "negative-national-reachability-webkit": {
+    "name": "negative-national-reachability-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 17,
+    "ledger": "shardA"
+   },
+   "negative-scroll-webkit": {
+    "name": "negative-scroll-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 13,
+    "ledger": "shardA"
+   },
+   "phase5a-desktop": {
+    "name": "phase5a-desktop",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 70.8,
+    "ledger": "shardA"
+   },
+   "traveller-focus-chromium": {
+    "name": "traveller-focus-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 15.2,
+    "ledger": "shardA"
+   },
+   "a11y-webkit": {
+    "name": "a11y-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 43.1,
+    "ledger": "shardB"
+   },
+   "b10-photo-projection": {
+    "name": "b10-photo-projection",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 0.6,
+    "ledger": "shardB"
+   },
+   "b18-a11y-check": {
+    "name": "b18-a11y-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 7.1,
+    "ledger": "rerun"
+   },
+   "b18-chrome-check": {
+    "name": "b18-chrome-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 10.9,
+    "ledger": "rerun"
+   },
+   "b18-responsive-check": {
+    "name": "b18-responsive-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 34.9,
+    "ledger": "rerun"
+   },
+   "b21-chromium-desktop": {
+    "name": "b21-chromium-desktop",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.7,
+    "ledger": "shardB"
+   },
+   "b21-webkit-desktop": {
+    "name": "b21-webkit-desktop",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 17.4,
+    "ledger": "shardB"
+   },
+   "b24-real-input-audit": {
+    "name": "b24-real-input-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 183,
+    "ledger": "shardB"
+   },
+   "b26-nosotros-check-chromium": {
+    "name": "b26-nosotros-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 43.9,
+    "ledger": "shardB"
+   },
+   "b27-viaje-dias-check": {
+    "name": "b27-viaje-dias-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 12.6,
+    "ledger": "shardB"
+   },
+   "b29-day-order-tools-check": {
+    "name": "b29-day-order-tools-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 50.3,
+    "ledger": "shardB"
+   },
+   "b30-where-to-sleep-check-webkit": {
+    "name": "b30-where-to-sleep-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 63.9,
+    "ledger": "shardB"
+   },
+   "b31-reservas-resumen-check-webkit": {
+    "name": "b31-reservas-resumen-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 22.6,
+    "ledger": "shardB"
+   },
+   "block12-bundle-architecture-browser-audit": {
+    "name": "block12-bundle-architecture-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 30.4,
+    "ledger": "shardB"
+   },
+   "block14-release-readiness-browser-audit": {
+    "name": "block14-release-readiness-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 151.8,
+    "ledger": "shardB"
+   },
+   "block19-discovery-browser-audit": {
+    "name": "block19-discovery-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 9.4,
+    "ledger": "shardB"
+   },
+   "block20-place-detail-check": {
+    "name": "block20-place-detail-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 16.7,
+    "ledger": "shardB"
+   },
+   "block23-photo-retry-browser-audit": {
+    "name": "block23-photo-retry-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 9.8,
+    "ledger": "shardB"
+   },
+   "collections-keyboard-webkit": {
+    "name": "collections-keyboard-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 189.1,
+    "ledger": "shardB"
+   },
+   "d0b-design-system-hygiene-check-webkit": {
+    "name": "d0b-design-system-hygiene-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 36.6,
+    "ledger": "shardB"
+   },
+   "embedded-scroll-chromium": {
+    "name": "embedded-scroll-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 5.2,
+    "ledger": "shardB"
+   },
+   "evidence-options": {
+    "name": "evidence-options",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 23.3,
+    "ledger": "shardB"
+   },
+   "gallery-motion-webkit": {
+    "name": "gallery-motion-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 6.2,
+    "ledger": "shardB"
+   },
+   "l2-webkit": {
+    "name": "l2-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.4,
+    "ledger": "shardB"
+   },
+   "map-boundary-webkit": {
+    "name": "map-boundary-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 129.1,
+    "ledger": "shardB"
+   },
+   "map-pending-webkit": {
+    "name": "map-pending-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 77.8,
+    "ledger": "shardB"
+   },
+   "microcopy-webkit": {
+    "name": "microcopy-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 42.9,
+    "ledger": "shardB"
+   },
+   "motion-webkit": {
+    "name": "motion-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.6,
+    "ledger": "shardB"
+   },
+   "national-map-webkit": {
+    "name": "national-map-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 9.5,
+    "ledger": "shardB"
+   },
+   "national-reachability-webkit": {
+    "name": "national-reachability-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.4,
+    "ledger": "shardB"
+   },
+   "negative-focus-webkit": {
+    "name": "negative-focus-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 2.4,
+    "ledger": "shardB"
+   },
+   "negative-map-chromium": {
+    "name": "negative-map-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 3.2,
+    "ledger": "shardB"
+   },
+   "negative-national-reachability-chromium": {
+    "name": "negative-national-reachability-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 7.6,
+    "ledger": "shardB"
+   },
+   "negative-scroll-chromium": {
+    "name": "negative-scroll-chromium",
+    "verdict": "NEGATIVE-MISSED",
+    "exit": 0,
+    "seconds": 5.1,
+    "ledger": "shardB"
+   },
+   "negative-warm-404": {
+    "name": "negative-warm-404",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 10.7,
+    "ledger": "shardB"
+   },
+   "phase5a-mobile": {
+    "name": "phase5a-mobile",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 65.2,
+    "ledger": "shardB"
+   },
+   "traveller-focus-webkit": {
+    "name": "traveller-focus-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 32.5,
+    "ledger": "shardB"
+   },
+   "negative-eager-photo": {
+    "name": "negative-eager-photo",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 8.1,
+    "ledger": "serial"
+   },
+   "performance-chromium": {
+    "name": "performance-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 47,
+    "ledger": "serial"
+   },
+   "performance-webkit": {
+    "name": "performance-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 53.5,
+    "ledger": "serial"
+   },
+   "deferred-images-chromium": {
+    "name": "deferred-images-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 108.2,
+    "ledger": "serial"
+   },
+   "negative-deferred-always-intersecting-chromium": {
+    "name": "negative-deferred-always-intersecting-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 9.9,
+    "ledger": "serial"
+   },
+   "negative-deferred-no-disconnect-chromium": {
+    "name": "negative-deferred-no-disconnect-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 9.8,
+    "ledger": "serial"
+   },
+   "negative-deferred-wide-margin-chromium": {
+    "name": "negative-deferred-wide-margin-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 9.8,
+    "ledger": "serial"
+   },
+   "deferred-images-webkit": {
+    "name": "deferred-images-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 129,
+    "ledger": "serial"
+   },
+   "negative-deferred-always-intersecting-webkit": {
+    "name": "negative-deferred-always-intersecting-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 11.9,
+    "ledger": "serial"
+   },
+   "negative-deferred-no-disconnect-webkit": {
+    "name": "negative-deferred-no-disconnect-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 11.8,
+    "ledger": "serial"
+   },
+   "negative-deferred-wide-margin-webkit": {
+    "name": "negative-deferred-wide-margin-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 12.2,
+    "ledger": "serial"
+   }
+  },
+  "allAttempts": [
+   {
+    "name": "a11y-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 32.2,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b10-l1",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 12.3,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b10-walking-projection",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 0.9,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b18-browser-back-check",
+    "verdict": "FAIL",
+    "exit": 1,
+    "seconds": 0.9,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b18-regression-check",
+    "verdict": "FAIL",
+    "exit": 1,
+    "seconds": 0.8,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b18-viaje-lugar-check",
+    "verdict": "FAIL",
+    "exit": 1,
+    "seconds": 0.9,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b21-chromium-mobile",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.2,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b21-webkit-mobile",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.8,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b25-quiero-ir-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 22,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b26-nosotros-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 90.1,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b28-reorder-dnd-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 23.1,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b30-where-to-sleep-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 41.6,
+    "ledger": "shardA"
+   },
+   {
+    "name": "b31-reservas-resumen-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 16.6,
+    "ledger": "shardA"
+   },
+   {
+    "name": "block1-ux-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 51.3,
+    "ledger": "shardA"
+   },
+   {
+    "name": "block13-portable-backup-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 55.4,
+    "ledger": "shardA"
+   },
+   {
+    "name": "block19-contrast-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 17.5,
+    "ledger": "shardA"
+   },
+   {
+    "name": "block19-grid-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 47.4,
+    "ledger": "shardA"
+   },
+   {
+    "name": "block22-b6-6-photography-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 129.6,
+    "ledger": "shardA"
+   },
+   {
+    "name": "collections-keyboard-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 40.8,
+    "ledger": "shardA"
+   },
+   {
+    "name": "d0b-design-system-hygiene-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 28.1,
+    "ledger": "shardA"
+   },
+   {
+    "name": "editorial",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 2.3,
+    "ledger": "shardA"
+   },
+   {
+    "name": "embedded-scroll-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 6.5,
+    "ledger": "shardA"
+   },
+   {
+    "name": "gallery-motion-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 2.8,
+    "ledger": "shardA"
+   },
+   {
+    "name": "l2-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.3,
+    "ledger": "shardA"
+   },
+   {
+    "name": "map-boundary-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 90.3,
+    "ledger": "shardA"
+   },
+   {
+    "name": "map-pending-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 49.2,
+    "ledger": "shardA"
+   },
+   {
+    "name": "microcopy-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 38.6,
+    "ledger": "shardA"
+   },
+   {
+    "name": "motion-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 11.5,
+    "ledger": "shardA"
+   },
+   {
+    "name": "national-map-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 5.2,
+    "ledger": "shardA"
+   },
+   {
+    "name": "national-reachability-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.7,
+    "ledger": "shardA"
+   },
+   {
+    "name": "negative-focus-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 1.8,
+    "ledger": "shardA"
+   },
+   {
+    "name": "negative-hidden-icons",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 22.5,
+    "ledger": "shardA"
+   },
+   {
+    "name": "negative-map-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 4.1,
+    "ledger": "shardA"
+   },
+   {
+    "name": "negative-national-reachability-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 17,
+    "ledger": "shardA"
+   },
+   {
+    "name": "negative-scroll-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 13,
+    "ledger": "shardA"
+   },
+   {
+    "name": "phase5a-desktop",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 70.8,
+    "ledger": "shardA"
+   },
+   {
+    "name": "traveller-focus-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 15.2,
+    "ledger": "shardA"
+   },
+   {
+    "name": "a11y-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 43.1,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b10-photo-projection",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 0.6,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b18-a11y-check",
+    "verdict": "FAIL",
+    "exit": 1,
+    "seconds": 0.8,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b18-chrome-check",
+    "verdict": "FAIL",
+    "exit": 1,
+    "seconds": 0.8,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b18-responsive-check",
+    "verdict": "FAIL",
+    "exit": 1,
+    "seconds": 0.9,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b21-chromium-desktop",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.7,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b21-webkit-desktop",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 17.4,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b24-real-input-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 183,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b26-nosotros-check-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 43.9,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b27-viaje-dias-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 12.6,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b29-day-order-tools-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 50.3,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b30-where-to-sleep-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 63.9,
+    "ledger": "shardB"
+   },
+   {
+    "name": "b31-reservas-resumen-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 22.6,
+    "ledger": "shardB"
+   },
+   {
+    "name": "block12-bundle-architecture-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 30.4,
+    "ledger": "shardB"
+   },
+   {
+    "name": "block14-release-readiness-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 151.8,
+    "ledger": "shardB"
+   },
+   {
+    "name": "block19-discovery-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 9.4,
+    "ledger": "shardB"
+   },
+   {
+    "name": "block20-place-detail-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 16.7,
+    "ledger": "shardB"
+   },
+   {
+    "name": "block23-photo-retry-browser-audit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 9.8,
+    "ledger": "shardB"
+   },
+   {
+    "name": "collections-keyboard-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 189.1,
+    "ledger": "shardB"
+   },
+   {
+    "name": "d0b-design-system-hygiene-check-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 36.6,
+    "ledger": "shardB"
+   },
+   {
+    "name": "embedded-scroll-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 5.2,
+    "ledger": "shardB"
+   },
+   {
+    "name": "evidence-options",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 23.3,
+    "ledger": "shardB"
+   },
+   {
+    "name": "gallery-motion-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 6.2,
+    "ledger": "shardB"
+   },
+   {
+    "name": "l2-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.4,
+    "ledger": "shardB"
+   },
+   {
+    "name": "map-boundary-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 129.1,
+    "ledger": "shardB"
+   },
+   {
+    "name": "map-pending-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 77.8,
+    "ledger": "shardB"
+   },
+   {
+    "name": "microcopy-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 42.9,
+    "ledger": "shardB"
+   },
+   {
+    "name": "motion-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.6,
+    "ledger": "shardB"
+   },
+   {
+    "name": "national-map-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 9.5,
+    "ledger": "shardB"
+   },
+   {
+    "name": "national-reachability-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.4,
+    "ledger": "shardB"
+   },
+   {
+    "name": "negative-focus-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 2.4,
+    "ledger": "shardB"
+   },
+   {
+    "name": "negative-map-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 3.2,
+    "ledger": "shardB"
+   },
+   {
+    "name": "negative-national-reachability-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 7.6,
+    "ledger": "shardB"
+   },
+   {
+    "name": "negative-scroll-chromium",
+    "verdict": "NEGATIVE-MISSED",
+    "exit": 0,
+    "seconds": 5.1,
+    "ledger": "shardB"
+   },
+   {
+    "name": "negative-warm-404",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 10.7,
+    "ledger": "shardB"
+   },
+   {
+    "name": "phase5a-mobile",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 65.2,
+    "ledger": "shardB"
+   },
+   {
+    "name": "traveller-focus-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 32.5,
+    "ledger": "shardB"
+   },
+   {
+    "name": "negative-eager-photo",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 8.1,
+    "ledger": "serial"
+   },
+   {
+    "name": "performance-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 47,
+    "ledger": "serial"
+   },
+   {
+    "name": "performance-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 53.5,
+    "ledger": "serial"
+   },
+   {
+    "name": "deferred-images-chromium",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 108.2,
+    "ledger": "serial"
+   },
+   {
+    "name": "negative-deferred-always-intersecting-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 9.9,
+    "ledger": "serial"
+   },
+   {
+    "name": "negative-deferred-no-disconnect-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 9.8,
+    "ledger": "serial"
+   },
+   {
+    "name": "negative-deferred-wide-margin-chromium",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 9.8,
+    "ledger": "serial"
+   },
+   {
+    "name": "deferred-images-webkit",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 129,
+    "ledger": "serial"
+   },
+   {
+    "name": "negative-deferred-always-intersecting-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 11.9,
+    "ledger": "serial"
+   },
+   {
+    "name": "negative-deferred-no-disconnect-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 11.8,
+    "ledger": "serial"
+   },
+   {
+    "name": "negative-deferred-wide-margin-webkit",
+    "verdict": "NEGATIVE-DETECTED",
+    "exit": 1,
+    "seconds": 12.2,
+    "ledger": "serial"
+   },
+   {
+    "name": "b18-a11y-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 7.1,
+    "ledger": "rerun"
+   },
+   {
+    "name": "b18-browser-back-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 8.7,
+    "ledger": "rerun"
+   },
+   {
+    "name": "b18-chrome-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 10.9,
+    "ledger": "rerun"
+   },
+   {
+    "name": "b18-regression-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 14.8,
+    "ledger": "rerun"
+   },
+   {
+    "name": "b18-responsive-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 34.9,
+    "ledger": "rerun"
+   },
+   {
+    "name": "b18-viaje-lugar-check",
+    "verdict": "PASS",
+    "exit": 0,
+    "seconds": 15.3,
+    "ledger": "rerun"
+   }
+  ],
+  "initialInfrastructureFailures": "seis trabajos b18-* fallaron en 0,8–0,9 s por ERR_CONNECTION_REFUSED a localhost:4181 (no había servidor de vista previa); se levantó `vite preview --port 4181` sobre el mismo dist y se repitieron: PASS. Ambos intentos se conservan.",
+  "negativeScrollChromium": "NEGATIVE-MISSED también sobre la base f994932 (misma salida PASS): el mutante `overscroll-behavior-y:contain` no cambia el encadenado de la rueda en Chromium 141; la certificación anterior usó Chromium 151. WebKit sí lo detecta. No es una regresión de este lote."
+ },
+ "unit": {
+  "tsc": "PASS",
+  "lint": "0 errores, 3 avisos preexistentes (el aviso de PlaceMap.tsx:17 y los de scripts/b24, scripts/b10-collections)",
+  "vitest": "120 archivos / 3442 tests PASS (base: 119 / 3430)",
+  "build": "PASS"
+ },
+ "notExecuted": [
+  "F01–F12 (QA física)",
+  "OSM-TLS Chromium (externo)"
+ ]
+}
