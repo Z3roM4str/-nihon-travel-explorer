@@ -341,44 +341,111 @@ que es como piensan las personas.
 
 **Sub-pestañas de Viaje**: `Días` · `Dónde dormir` · `Reservas` · `Resumen`.
 
-**Contenido de «Días»**
+**Arquitectura: Lista, hojas y vistas (DD-029).** Días tiene tres niveles y sólo tres:
 
-1. Cabecera «Viaje» + fechas si están fijadas («22 feb – 5 mar»). Si no: botón
-   «Poner fecha de inicio».
-2. **Una sola línea de encuadre**, permanente y discreta, en lugar de las cinco cajas
-   de descargo actuales: «Vosotros decidís el orden. Nihon sólo describe lo que ese
-   orden implica.» Con `EvidenceMark ✎`.
+- **N1 · Lista de Días** (esta pantalla).
+- **N2 · Sheet**: acciones cortas.
+- **N3 · FocusedView**: tareas complejas — **Orden del día**, **Horarios y traslados del día**
+  y **Traslados entre ciudades**.
+
+> **Principio.** En N1 / lista principal de Días, ninguna acción secundaria puede expandir
+> contenido inline y aumentar sustancialmente la altura de la tarjeta o de la página. Las
+> acciones cortas usan Sheet. Las tareas complejas usan FocusedView.
+
+«Herramientas y datos del viaje» y «Detalles del día» **ya no son expansiones inline**.
+Implementación por bloques P-06·A–D: [`P06_LISTA_HOJAS_Y_VISTAS.md`](../P06_LISTA_HOJAS_Y_VISTAS.md).
+Hasta que el último bloque se integre, el código conserva elementos transitorios (descritos allí) que
+**no** son contrato.
+
+### N1 · Lista de Días
+
+De arriba abajo, sin cabecera interna ni botón de cerrar (la pestaña ya dice «Viaje»):
+
+1. **Fila resumen de fechas**: un solo control. «Poner fechas del viaje», «Desde 22 feb»,
+   «22 feb – 5 mar» o «Hasta 5 mar». Abre la hoja «Fechas del viaje».
+2. **Aviso de sin asignar** (sólo si hay lugares sin asignar), una línea: «3 sitios sin asignar»
+   + «Ver», que lleva a la sección Sin asignar. Tono neutro, nunca rojo.
 3. **Lista de días** con `DayTimeline`:
-   - Cabecera de día: «Día 3 · mié 24 feb · Kioto», duración total de visitas, número
-     de paradas.
-   - Paradas como `TripStop`, conectadas por el raíl.
-   - Pie de día: «Dormís en Shinjuku» (enlaza a Dónde dormir) o «Sin alojamiento
-     elegido».
-   - Acciones por día: añadir lugar, probar otro orden, eliminar día.
-   - Entre días de ciudades distintas: fila de **traslado entre ciudades** (el
-     `InterHubSegment` actual).
-4. **Sin asignar** — cajón inferior persistente con asa: «7 sitios sin día». Se
-   expande y permite arrastrar o «Añadir al día…».
-5. «Añadir día» al final.
+   - **Cabecera**: «Día 3 · mié 24 feb» y, a la derecha, el tiempo de visita compacto («5–7 h»;
+     nada si no es cuantificable). Debajo, una línea: «Kioto · 3 lugares» (o «Varias ciudades ·
+     5 lugares», «Sin lugares»).
+   - **Paradas** como `TripStop`: **filas sin caja anidada** con número, miniatura fotográfica,
+     nombre y «barrio · duración», conectadas por el raíl. «⋯» abre las acciones de la parada;
+     el asa de arrastre sólo existe con puntero fino (DD-031).
+   - **Pie de alojamiento** (una fila que abre Dónde dormir; contrato DD-033):
+     - alojamiento real elegido → «Dormís en {alojamiento}»;
+     - sólo zona elegida → «Zona para dormir: Shinjuku»;
+     - nada elegido → «Elegir zona para dormir».
 
-**Reordenar.** Arrastrar dentro de un día. Alternativa obligatoria por teclado y para
-lectores de pantalla: menú «Mover a…» con destino explícito (día y posición). Se
-eliminan los tríos `↑ ↓ ×` por fila (defecto D10).
+     Nunca «Dormís en la zona X» si sólo existe una elección de zona. **Elegir zona sigue siendo
+     sólo contexto**: no crea ni reescribe alojamientos ni fronteras.
+   - **Entradas**: «Cambiar orden» (abre «Orden del día») y «Horarios y traslados» (abre esa vista).
+   - Entre días de ciudades distintas: fila de **traslado entre ciudades** (el `InterHubSegment`
+     actual), que abre «Traslados entre ciudades».
+4. **«＋ Añadir día»**.
+5. **Sin asignar**: sección visible al final, «Sin asignar · 7 sitios», con las filas de lo
+   guardado y no programado (asa con puntero fino y «Añadir a un día»). No hay cajón fijo y no se
+   pinta si no hay nada sin asignar.
 
-**Probar otro orden.** Sustituye a «Orden A / Orden B» como vista de primer nivel. Es
-una hoja **local a un día**: muestra el orden actual y una propuesta que el usuario
-reordena, con la comparación de traslados que ya calcula `sequence-comparison.ts`. Las
-alternativas verificadas (`evidence-complete-*`) se ofrecen aquí como opciones
-etiquetadas «Comprobado con datos completos», **nunca aplicadas solas**. Botón:
-«Usar este orden».
+**No hay frase de ayuda ni frase de encuadre permanente en N1.** «Vosotros decidís el orden.
+Nihon sólo describe lo que ese orden implica.» (con `EvidenceMark ✎`) vive en las vistas N3 donde el
+orden es relevante (DD-034).
+
+### N2 · Hojas (acciones cortas)
+
+Contrato en `04 §8.1`. Una decisión por hoja, ≤ 7 filas, ninguna abre otra encima.
+
+| Hoja | Disparador | Contenido |
+|---|---|---|
+| **Fechas del viaje** | Fila de fechas | Fecha de inicio (Día 1) y fecha de fin (último día del viaje), cada una con «Quitar fecha». Se aplica al instante |
+| **Acciones de parada** | «⋯» de la parada | «Mover a otro día…» (paso: elegir día) · «Mover a Sin asignar» |
+| **Acciones del día** | «⋯» de la cabecera del día | «Mover día antes» · «Mover día después» · «Añadir lugar…» (paso: elegir de Sin asignar) · «Eliminar día» (sólo día vacío, con más de un día) |
+| **Añadir a un día** | Fila de Sin asignar | Lista de días |
+
+**Mover a otro día no pregunta posición (DD-032):** el lugar se **añade al final** del día destino;
+la posición se cambia después en «Orden del día».
+
+### N3 · Vistas focalizadas
+
+Contrato en `04 §8b`. Apilan una entrada de History (DD-030): Back del navegador, gesto atrás de
+iOS, chevron y Escape cierran por el mismo camino y devuelven a la lista con el mismo scroll
+(±1 px) y el foco en el disparador.
+
+- **Orden del día** (desde «Cambiar orden»; antes «Probar otro orden»). Vista **local a un día**:
+  muestra el orden actual y una propuesta que el usuario reordena (también en táctil, donde no hay
+  arrastre), con la comparación de traslados que ya calcula `sequence-comparison.ts`. Las
+  alternativas verificadas (`evidence-complete-*`) se ofrecen como opciones etiquetadas
+  «Comprobado con datos completos», **nunca aplicadas solas**. Botón: «Usar este orden». Lleva la
+  frase «Vosotros decidís el orden…».
+- **Horarios y traslados del día** (antes «Detalles del día»). Lista completa de traslados
+  (incluidas las ausencias), señal de cierre semanal, horarios y cierres registrados, hora de
+  inicio manual frente al intervalo registrado, totales y alojamiento por tramo. Lleva la frase
+  «Vosotros decidís el orden…».
+- **Traslados entre ciudades**. Alta, edición y baja de los traslados entre ciudades.
+
+**Reordenar.**
+- *Ratón / puntero fino*: arrastrar dentro de un día o entre días; el asa existe sólo con
+  `(hover: hover) and (pointer: fine)`.
+- *Táctil, teclado y lectores de pantalla*: «⋯» → hojas para mover entre días o a Sin asignar, y
+  «Orden del día» para el orden dentro del día. Sin los tríos `↑ ↓ ×` por fila (defecto D10).
 
 **Criterios de aceptación**
 - [ ] La pantalla abre mostrando días, no una lista plana.
-- [ ] Ninguna caja de descargo aparece al abrir; hay exactamente una línea de encuadre.
-- [ ] Cada parada muestra una miniatura fotográfica.
-- [ ] Toda la capacidad de `OrderedSequenceBuilder` sigue alcanzable: comparación de
-      órdenes, alternativas verificadas, anclaje de calendario, identidad estable de
-      día, límites del viaje, traslados entre ciudades.
+- [ ] No hay cabecera interna ni botón «Cerrar Viaje»; ni frase de ayuda ni frase de encuadre en N1.
+- [ ] **Ningún control de N1 expande contenido inline**; no hay `<details>` dentro de las
+      tarjetas de día; «Posición» no aparece en N1.
+- [ ] A 390×844 con el fixture P-06 caben el encabezado de Día 1 y 3 paradas completas.
+- [ ] Cada parada muestra una miniatura fotográfica y ninguna parada lleva caja propia.
+- [ ] El pie de día usa sólo los tres textos de DD-033; jamás «Dormís en la zona X».
+- [ ] Sin asignar es una sección visible; el aviso superior aparece si y sólo si hay lugares sin asignar.
+- [ ] Los Sheets con ≤ 7 filas caben sin scroll a 375×667.
+- [ ] Back desde una N3 restaura el scroll de la lista (±1 px) y el foco en el disparador; Back,
+      gesto, chevron y Escape convergen.
+- [ ] En táctil no existe asa de arrastre en la lista; reordenar sigue siendo posible.
+- [ ] Mover un lugar a otro día lo añade al final y nunca pregunta posición.
+- [ ] Toda la capacidad de `OrderedSequenceBuilder` sigue alcanzable: comparación de órdenes,
+      alternativas verificadas, anclaje de calendario, identidad estable de día, límites del
+      viaje, traslados entre ciudades, alojamiento por tramo.
 - [ ] Reordenar es posible sólo con teclado.
 - [ ] Nihon sigue sin proponer un orden por su cuenta.
 
@@ -407,6 +474,9 @@ convertirlo en un ranking.
 - Comparar: máximo 4, se conserva. En teléfono la comparación es una tabla de filas
   apiladas por criterio, nunca scroll horizontal.
 - Acción por zona: «Dormir aquí» (hoy «Usar esta zona en el plan»).
+- **Cómo se refleja en Días (DD-033).** Elegir una zona es sólo contexto: Días lo lee como
+  «Zona para dormir: {zona}» y **nunca** como «Dormís en {zona}». «Dormís en {alojamiento}» exige
+  un alojamiento real elegido para ese día.
 
 **Criterios de aceptación**
 - [ ] Ninguna zona lleva número de orden.

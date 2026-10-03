@@ -194,6 +194,49 @@ Contenedor de todo lo que hoy es modal centrado.
 - En `md`+ una hoja puede renderizarse como panel lateral derecho de 420 px. Mismo
   componente, misma API.
 
+### 8.1 Hoja de acción corta (N2 de Viaje › Días, DD-029)
+
+La hoja es el contenedor de **toda acción corta** que parta de la lista de Días. Contrato
+adicional, no sustituye al anterior:
+
+- **Una decisión por hoja**: hasta **7 filas** (o 1–2 campos). Con ≤ 7 filas la hoja **cabe sin
+  scroll a 375×667**; con más, scroll interno (`overscroll-behavior: contain`).
+- Filas: botones de ancho completo, ≥ 48 px de alto, etiqueta en verbo («Mover a otro día…»),
+  sin descripciones largas, sin `<select>` anidado.
+- **Una hoja no abre otra encima.** Un segundo paso **sustituye el contenido de la misma hoja**
+  y pone en su cabecera un botón «atrás» (`atras`) a la izquierda del título.
+- Una acción de fila **ejecuta y cierra**; el foco vuelve al disparador, o —si éste ya no existe
+  (el lugar se movió, el día se eliminó)— al elemento que ocupa su lugar y, si no hay ninguno,
+  al título del día (`tabIndex=-1`).
+- **No apila entrada de `history`** (DD-030) y abrirla o cerrarla **no escribe** en el
+  almacenamiento.
+- Los resultados se anuncian por una región `aria-live="polite"` («Meiji Jingū movido al Día 2,
+  al final»).
+
+## 8b. `FocusedView` (vista focalizada, N3 de Viaje › Días, DD-029/DD-030)
+
+Contenedor de **toda tarea compleja** que parte de la lista de Días: comparar órdenes, ver y
+editar horarios y traslados, editar traslados entre ciudades. No es un modal.
+
+- **Qué cubre**: el contenido de la pestaña Viaje bajo su `h1` (incluida la barra de
+  sub-pestañas). La barra de pestañas/raíl de la app y el `h1` de la pantalla siguen visibles.
+  En `md`+ ocupa el ancho del contenido de Viaje; no es un panel lateral.
+- **Cabecera propia** pegajosa: chevron `atrás` (44×44) a la izquierda y título `h2`
+  (`--type-title-s`), con `tabIndex=-1`. El foco entra en el título al abrir.
+- **La lista de origen (N1) sigue montada y oculta** (`hidden`): conserva scroll, foco y estado
+  local. Al cerrar se restaura el scroll **±1 px** y el foco **en el disparador exacto**.
+- **Apila una entrada de `history`** con `state.nihonTripView = { kind, dayId? }`. Chevron,
+  Escape, Back del navegador y gesto atrás de iOS **convergen** en la misma navegación de cierre
+  (patrón de `ignorePopRef` de DD-015). Escape sólo cierra la N3 si no hay una hoja o diálogo
+  encima. Al recargar, la N3 **no** se restaura.
+- Puede contener cualquier componente de tarea y su propio scroll, pero **no abre otra N3** ni
+  hojas que se apilen sobre la entrada de historial. Una ficha de lugar abierta desde ella apila
+  sobre ella (DD-015) y se cierra primero.
+- Lleva la frase «Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.»
+  (con `EvidenceMark ✎`) cuando la tarea toca el orden (DD-034).
+- `Art. 8`: sólo `min-width`; `Art. 10`: sólo tokens; `Art. 11`: objetivos, foco y
+  `prefers-reduced-motion` (la transición de entrada se omite con reduce).
+
 ## 9. `PhotoPlaceholder`
 
 Sustituye al recuadro con emoji actual. Un lugar sin fotografía **no puede parecer un
@@ -273,16 +316,43 @@ El componente que materializa la metáfora del diagrama de línea.
 
 - **Raíl**: línea vertical 2 px `--line-strong` a 12 px del borde izquierdo. Los nodos
   son círculos de 10 px rellenos de `--ink-700`; el día en curso usa `--shu-600`.
-- **`TripStop`**: miniatura 56×56, nombre `--type-title-s`, duración `--type-num`,
-  `EvidenceMark` cuando procede. Arrastrable (`aria-grabbed`, y **alternativa por
-  teclado obligatoria**: menú «Mover a…»).
+- **`TripStop`**: **fila sin caja propia** (sin borde, fondo, sombra ni radio: la caja es la
+  del día y no se anida una tarjeta dentro de otra; las filas se separan por una línea
+  `--line`). Miniatura, nombre `--type-title-s`, `{barrio} · {duración}` `--type-num`,
+  `EvidenceMark` cuando procede.
+  - **Asa de arrastre**: sólo con `(hover: hover) and (pointer: fine)`; en táctil **no existe**
+    (DD-031).
+  - **«⋯»**: abre la hoja «Acciones de parada» (N2): «Mover a otro día…» y «Mover a Sin
+    asignar». Es la **alternativa por teclado y lectores de pantalla obligatoria**. Mover a otro
+    día **añade al final** y no pregunta posición (DD-032). Nombre accesible «Mover a…».
+  - El orden dentro del día se cambia en la N3 «Orden del día» (también por teclado y en
+    táctil).
 - **Conector**: línea punteada + texto del traslado + marcador de evidencia. Sin
   traslado registrado: texto `--ink-500` «Traslado sin datos», **nunca en rojo** y
   nunca con `?`. No es un error: es una ausencia conocida.
 - **Traslado entre ciudades**: variante de conector con icono de tren, fondo
   `--surface-sunken`, ocupa el ancho completo entre dos días.
-- Se elimina el trío de botones circulares `↑ ↓ ×` por fila. Reordenar es arrastrar;
-  el resto de acciones viven en una hoja al pulsar largo o en el icono de arrastre.
+- Se elimina el trío de botones circulares `↑ ↓ ×` por fila. Reordenar es arrastrar (puntero
+  fino) o la N3 «Orden del día»; el resto de acciones viven en la hoja que abre «⋯».
+
+### 14.1 Tarjeta de día (N1)
+
+- **Es la única caja de la lista.** Cabecera: `Día N · {fecha corta}` (un solo `·`) a la
+  izquierda y el tiempo de visita compacto a la derecha (no se pinta si no es cuantificable);
+  debajo, `{ciudad} · {N} lugares` (o `Sin lugares`).
+- **Pie de alojamiento**: una fila, con tres textos posibles y ningún otro (DD-033):
+  `Dormís en {alojamiento}` (alojamiento real elegido), `Zona para dormir: {zona}` (sólo hay
+  elección de zona) o `Elegir zona para dormir`. **Nunca** «Dormís en la zona X». Se activa para
+  abrir Dónde dormir. Es de lectura.
+- **Entradas a lo secundario** (enlaces de texto, ≥ 44 px): «Cambiar orden» y «Horarios y
+  traslados». Abren N3; **no expanden nada** (DD-029).
+- **Prohibido en N1**: `<details>`, paneles que se despliegan, `select` de «Posición», ayuda
+  permanente, frase normativa, cajones fijos y cualquier control cuyo efecto sea hacer la tarjeta
+  o la página sustancialmente más altas. Las acciones cortas van a una hoja y las tareas complejas
+  a una `FocusedView`.
+- **Sin asignar** no es un cajón: es una sección del flujo («Sin asignar · N sitios») al final de
+  la lista, que no se pinta si N = 0, con un aviso de una línea arriba de la lista cuando N > 0.
+  Cada fila ofrece el asa (puntero fino) y «Añadir a un día», que añade al final.
 
 ## 15. `EmptyState`
 

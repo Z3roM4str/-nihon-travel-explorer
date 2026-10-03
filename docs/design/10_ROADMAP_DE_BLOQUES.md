@@ -273,6 +273,8 @@ opinión separados visualmente. **Arregla D7.**
 
 **Estado B30 / B9.4: CERRADO E INTEGRADO EN MAIN** (#169, #171, #172). Producto certificado en Chromium y WebKit, dos pasadas de 475/475 por motor desde main. Fotografías reales de zona, Safari físico y recursos externos/OSM siguen como deuda; véase [certificación final](../BLOCK_30_MAIN_CERTIFICATION.md). **B31 / B9.5 CERRADO E INTEGRADO EN MAIN** (#175, merge `cde9b14bc9e456270576c8dafe0243ddb8c650db`), tree idéntico al certificado y matriz post-merge completa PASS. Véanse [handoff B31](../BLOCK_31_HANDOFF.md) y [certificación de main](../BLOCK_31_MAIN_CERTIFICATION.md). B10 — Pulido: **CERRADO E INTEGRADO** (#179, merge `c512db15a1d253a1c6704ad0798f80dea142e173`; véase [certificación](../B10_POST_MERGE_CERTIFICATION.md)).
 
+**P-06 (posterior a B10, no es un bloque del roadmap original):** la interacción de Viaje › Días se reorienta a «Lista, hojas y vistas» (DD-029…DD-035); `B9.1`–`B9.3` describen el origen histórico, y el contrato vigente de Días está en `05 §7`. Ejecución en cuatro bloques P-06·A–D: [P06_LISTA_HOJAS_Y_VISTAS.md](../P06_LISTA_HOJAS_Y_VISTAS.md).
+
 **B9.5 — Reservas y Resumen.** Sub-pestañas propias; se elimina `Dato:`; línea de
 tiempo comprimida del viaje.
 

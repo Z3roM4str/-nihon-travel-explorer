@@ -59,11 +59,15 @@ Quiero ir
 └── Lugar                      · misma ficha que en Explorar
 │
 Viaje
-├── Días                       · línea temporal del viaje (planner reencuadrado)
-│   ├── Día                    · lugares en orden + traslados + alojamiento
-│   │   ├── Mover a…           · sheet
-│   │   └── Probar otro orden  · comparación A/B, ahora local al día
-│   └── Sin asignar            · cajón inferior con lo guardado y no programado
+├── Días                       · N1 · lista de días (planner reencuadrado; DD-029)
+│   ├── Fechas                 · N2 · sheet (inicio y fin del viaje)
+│   ├── Día                    · lugares en orden + traslados + alojamiento resumido
+│   │   ├── Acciones de parada · N2 · sheet (mover a otro día · mover a Sin asignar)
+│   │   ├── Acciones del día   · N2 · sheet (mover día · añadir lugar · eliminar día vacío)
+│   │   ├── Orden del día      · N3 · vista focalizada · «Cambiar orden» (antes «Probar otro orden»)
+│   │   └── Horarios y traslados del día · N3 · vista focalizada (antes «Detalles del día»)
+│   ├── Sin asignar            · sección visible al final de la lista (ya no es un cajón fijo)
+│   └── Traslados entre ciudades · N3 · vista focalizada (antes «Herramientas y datos del viaje»)
 ├── Dónde dormir               · comparación de zonas (Bloque 3)
 ├── Reservas                   · mecanismos, fechas oficiales, calendario
 ├── Resumen                    · composición del viaje completo
@@ -92,9 +96,11 @@ Nosotros
 | «Quiero ir» (panel inferior) | Destino propio |
 | Análisis de selección | Quiero ir › Acuerdo (es la vista principal, no un botón) |
 | Constructor de recorrido | Viaje › Días |
-| Comparación de órdenes A/B | Viaje › Día › Probar otro orden |
+| Comparación de órdenes A/B | Viaje › Día › Cambiar orden (N3 «Orden del día») |
 | Reparto por días | Viaje › Días (es la estructura, no una sub-vista) |
-| Traslados entre ciudades | Viaje › Días, como fila entre días |
+| Traslados entre ciudades | Viaje › Días: fila entre días (N1) + N3 «Traslados entre ciudades» para editarlos |
+| Detalles del día (traslados, horarios y cierres, totales, alojamiento por tramo) | Viaje › Día › N3 «Horarios y traslados del día» |
+| Límites del viaje, plan de zona, gestor de alojamientos | **Pendiente de DDR-P06-2** (transitoriamente, el desplegable «Herramientas y datos del viaje»; sólo desaparece en P-06·D) |
 | Zonas de alojamiento | Viaje › Dónde dormir (+ acceso desde Explorar › Ciudad) |
 | Reservas / calendario oficial | Viaje › Reservas |
 | Composición del viaje | Viaje › Resumen |
@@ -131,6 +137,27 @@ Nosotros
    hacía Quiero ir. La única salida hacia otra pestaña es una acción explícita y con
    etiqueta visible («Ver en el mapa» desde una ficha de Viaje), nunca un efecto
    secundario de tocar el lugar.
+8. **Viaje › Días tiene tres niveles de interacción (DD-029).**
+   - **N1 · Lista de Días**: sólo resumen y entradas.
+   - **N2 · Sheet** (`04 §8`): acciones cortas.
+   - **N3 · FocusedView** (`04 §8b`): tareas complejas. Aprobadas tres: **Orden del día**,
+     **Horarios y traslados del día** y **Traslados entre ciudades**.
+
+   **Principio normativo.** *En N1 / lista principal de Días, ninguna acción secundaria puede
+   expandir contenido inline y aumentar sustancialmente la altura de la tarjeta o de la
+   página. Las acciones cortas usan Sheet. Las tareas complejas usan FocusedView.* «Herramientas
+   y datos del viaje» y «Detalles del día» no son expansiones inline: su contenido se
+   reubica (`Art. 12`).
+9. **Las vistas N3 viven en la pila de History (DD-030).** Abrir una N3 apila una entrada;
+   el Back del navegador, el gesto atrás de iOS, el chevron y Escape ejecutan **la misma
+   navegación de cierre** y devuelven a N1 con el mismo scroll (±1 px) y el foco en el
+   disparador. N1 sigue montado y oculto debajo (mismo patrón que DD-025 para la portada).
+   Una hoja N2 **no** apila entrada. Una ficha de lugar abierta desde una N3 se cierra antes
+   que ella (DD-015 sigue vigente: sin excepciones).
+10. **Mover entre días nunca pregunta posición (DD-032).** El lugar se añade al final del día
+    destino; la posición se cambia en «Orden del día».
+11. **El arrastre de la lista es sólo de puntero fino (DD-031).** Sin asa en táctil; el orden
+    táctil vive en «Orden del día».
 
 ## D4. Decisión estructural: se retira el conmutador «Eres»
 

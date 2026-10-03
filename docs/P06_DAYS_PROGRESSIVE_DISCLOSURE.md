@@ -1,5 +1,7 @@
 # P-06 — Viaje › Días con revelación progresiva
 
+> **Estado (2026-10-03): la interacción de este documento queda SUSTITUIDA** por [P06_LISTA_HOJAS_Y_VISTAS.md](P06_LISTA_HOJAS_Y_VISTAS.md) (DDR-P06-1, DD-029…DD-035). Se conservan aquí el inventario previo (§1), la corrección incidental (§4) y los resultados históricos de #193 (§5). La revelación progresiva *inline* descrita en §2–§3 (`⋯` desplegable, «Detalles del día», «Herramientas y datos del viaje» plegable, frase de ayuda y frase normativa al pie) **ya no es contrato**: es el estado transitorio de `main` hasta P-06·D.
+
 Hallazgo de QA físico: Viaje › Días se percibía como «demasiada información, demasiado texto, demasiados
 apartados; difícil de entender sin instrucciones». No era un fallo de lógica sino de jerarquía y carga
 cognitiva. Esta misión reorganiza **sólo la presentación**; no cambia el modelo planning-draft, la

@@ -1,6 +1,22 @@
-# Handoff reanudable — B10 «Pulido» CERRADO E INTEGRADO; roadmap de bloques completo
+# Handoff reanudable — P-06 reorientado a «Lista, hojas y vistas» (sólo documentación); B10 y roadmap de bloques completos
 
-## Estado vigente — B10 CERRADO E INTEGRADO EN MAIN
+## Estado vigente — P-06 «Lista, hojas y vistas»: arquitectura aprobada, **sólo documentación** (2026-10-03)
+
+- `main` autoritativo: `de4b190b033a4d8c169d75a609e3d7d50527e674` (merge de [#193](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/193): primer P-06, revelación progresiva inline). Esta misión **no modifica producto, gates ni despliegue** y **no crea PR**. Rama documental: `claude/hopeful-davinci-vdaivk` (sólo `docs/`).
+- **Producto aprobó** sustituir la interacción del primer P-06 por **N1 lista · N2 Sheets · N3 FocusedViews** (DDR-P06-1 → DD-029…DD-035 en [design/09](design/09_DECISIONES_DE_DISENO.md)). Principio normativo nuevo: *en N1 ninguna acción secundaria puede expandir contenido inline y aumentar sustancialmente la altura de la tarjeta o de la página; las acciones cortas usan Sheet y las tareas complejas FocusedView.*
+- Normativa actualizada: [design/02](design/02_ARQUITECTURA_Y_NAVEGACION.md) (D3 reglas 8–11, mapa de pantallas), [design/04](design/04_REGLAS_DE_COMPONENTES.md) (§8.1 hoja de acción, §8b `FocusedView`, §14 `TripStop` sin caja y §14.1 tarjeta de día), [design/05](design/05_ESPECIFICACIONES_DE_PANTALLA.md) (§7 reescrito, §8 contrato de copy).
+- **Plan de ejecución y especificación completa:** [P06_LISTA_HOJAS_Y_VISTAS.md](P06_LISTA_HOJAS_Y_VISTAS.md) (sucede a [P06_DAYS_PROGRESSIVE_DISCLOSURE.md](P06_DAYS_PROGRESSIVE_DISCLOSURE.md) en lo que a interacción se refiere). Cadena estricta **A → B → C → D**:
+  - **P-06·A** — limpieza de N1 (fila + Sheet de fechas, tarjeta compacta, paradas sin caja, pie de alojamiento con el copy aprobado, Sin asignar visible + aviso, fuera cabecera interna / «Cerrar Viaje» / ayuda permanente). **Totalmente especificado; es lo siguiente a implementar.**
+  - **P-06·B** — hojas N2 (acciones de parada y de día, Añadir a un día; mover = al final; fuera «Posición»).
+  - **P-06·C** — N3 «Orden del día» y «Horarios y traslados del día» + History + arrastre sólo con puntero fino + «Cambiar orden».
+  - **P-06·D** — N3 «Traslados entre ciudades», retirada de «Herramientas y datos del viaje» y cierre del programa.
+- **Decisión abierta (bloquea sólo a D):** DDR-P06-2 / `OD-05` — destino de los límites del viaje, el plan de zona y el gestor de alojamientos, que la arquitectura aprobada no asigna a ninguna de las tres N3. Recomendación (no vinculante): límites → Sheet de fechas; zona y alojamientos → Dónde dormir. **A, B y C no dependen de ella.**
+- **Gates:** B27/B28/B29 cambian de semántica (DD-035) y se adaptan **dentro del bloque que cambia la interacción que prueban**; ahora siguen intactos. Métricas M1–M7 del programa en el documento sucesor, con **WebKit obligatorio** para los gates nuevos de P-06. WebKit **no estaba instalado** en el entorno del primer P-06 (sólo Chromium): un bloque sin certificación WebKit se entrega como «implementado; certificación WebKit pendiente» y no libera el siguiente.
+- **Estado transitorio de `main`:** hasta P-06·D el código sigue con el panel `⋯` inline, `<details>` «Detalles del día», «Probar otro orden» + panel inline, cajón fijo «Sin asignar», «Herramientas y datos del viaje» desplegable, ayuda permanente y arrastre táctil. Nada de ello es contrato (véase el documento sucesor §5).
+- Fuera de alcance y sin cambios: dominio, almacenamiento V8, dataset, fotografía, Dónde dormir/Reservas/Resumen, Explorar, Quiero ir, Nosotros, Astra, Vercel/despliegue.
+- El primer P-06 (#193) no estaba registrado en este handoff; queda aquí: gates B27/B28/B29/Phase 5A ajustados sólo en su entrada, Vitest 3424/3424, Chromium sin WebKit (véase `P06_DAYS_PROGRESSIVE_DISCLOSURE.md §5`).
+
+## Anterior — B10 CERRADO E INTEGRADO EN MAIN
 
 - PR [#179](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/179) MERGED mediante merge commit `c512db15a1d253a1c6704ad0798f80dea142e173` (padres `2a10ad3f…` y `538d2ebf…`; tree idéntico al certificado `c781f598…`). Certificación post-merge: [B10_POST_MERGE_CERTIFICATION.md](B10_POST_MERGE_CERTIFICATION.md). Fallos exclusivos: 0.
 - Certificación D0b+D5 del merge `2a10ad3`: [D0B_D5_POST_MERGE_CERTIFICATION.md](D0B_D5_POST_MERGE_CERTIFICATION.md) (integrada por #180).

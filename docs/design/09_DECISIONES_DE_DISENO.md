@@ -1034,6 +1034,193 @@ escritorio (16/16; con el código anterior, 4 fallos).
 
 ---
 
+### DDR-P06-1 — Viaje › Días: ¿revelación progresiva inline o «Lista, hojas y vistas»?
+**Estado: RESUELTA** · Abierta 2026-10-03 · Cerrada 2026-10-03 por **DD-029…DD-035**
+
+**La tensión que se planteó.** El primer P-06 (#193) redujo la carga de Días plegando lo secundario
+**dentro de la tarjeta** (`⋯` desplegable por parada, `<details>` «Detalles del día», «Herramientas y
+datos del viaje» desplegable, cajón fijo «Sin asignar»). El QA físico en móvil siguió encontrando la
+pantalla pesada: cada plegable abierto empuja la página, el cajón fijo tapa contenido, seguía habiendo
+cuatro selectores de «Posición», una cabecera interna con un «Cerrar Viaje» que no cierra nada y dos
+frases de ayuda permanentes. Mejorar el plegado no resuelve que la **mecánica** sea expandir en la lista.
+
+**Opciones.**
+1. Mantener la revelación progresiva inline y afinar densidades.
+2. Tres niveles: **N1 lista** (sólo resumen y entradas), **N2 hojas** para acciones cortas, **N3 vistas
+   focalizadas** para tareas complejas, con N1 sin expansiones inline.
+
+**Resolución (Producto, 2026-10-03).** Opción 2, con los seis puntos aprobados y la precisión normativa
+siguiente: *en N1 ninguna acción secundaria puede expandir contenido inline y aumentar sustancialmente la
+altura de la tarjeta o de la página; las acciones cortas usan Sheet y las tareas complejas FocusedView*.
+Queda reflejado en DD-029 (arquitectura y principio), DD-030 (History), DD-031 (arrastre), DD-032
+(movimiento entre días), DD-033 (copy de zona/alojamiento), DD-034 (frase normativa) y DD-035 (gates).
+Plan de ejecución y especificación de bloques: [`../P06_LISTA_HOJAS_Y_VISTAS.md`](../P06_LISTA_HOJAS_Y_VISTAS.md).
+
+---
+
+### DDR-P06-2 — ¿Dónde viven los límites del viaje, el plan de zona y el gestor de alojamientos?
+**Estado: ABIERTA** (`OD-05`) · Abierta 2026-10-03 · **Bloquea sólo a P-06·D**; no bloquea A, B ni C
+
+**La tensión.** DD-029 aprueba tres vistas N3 (Orden del día, Horarios y traslados del día, Traslados entre
+ciudades) y dice que «Herramientas y datos del viaje» desaparece como expansión inline. Pero ese desplegable
+contiene **cuatro** cosas y sólo una (los traslados entre ciudades) tiene destino aprobado. Quedan sin él:
+
+| Contenido (componente) | Qué permite hoy |
+|---|---|
+| Límites del viaje (`TripBoundsNotice`) | Resumen de cómo las dos fechas acotan el viaje |
+| Plan de zona (`ZonePlanSection`) | Ver, por día y ciudad, qué zona se eligió y qué lados se planean desde ella; «Quitar la zona elegida» |
+| Gestor de alojamientos (`AccommodationManagerSection`) | Crear y borrar alojamientos con coordenadas propias; ver cuáles siembra una zona |
+
+`Art. 12` obliga a documentar dónde queda cada capacidad. No se improvisa.
+
+**Opciones.**
+1. **Límites → Sheet «Fechas del viaje»**; **plan de zona y alojamientos → Viaje › Dónde dormir** como una
+   sección «Tu alojamiento» al final de esa sub-pestaña.
+2. Todo en una cuarta N3 «Alojamiento y datos del viaje», abierta desde una fila al final de la lista.
+3. Ampliar la N3 «Traslados entre ciudades» a «Traslados y alojamientos».
+
+**Recomendación de diseño (no vinculante hasta cierre): opción 1.** Es donde la persona busca «dónde duermo»
+(Dónde dormir ya mezcla hechos, cálculos y la acción «Dormir aquí»), mantiene las tres vistas N3 aprobadas,
+no añade una cuarta y deja los límites junto a las fechas que los definen. Exige que `§8` admita una sección
+más en Dónde dormir (hoy cerrado por B30), por eso es decisión de Producto.
+
+**Mientras esté abierta:** A, B y C no tocan estos tres contenidos; siguen en el desplegable transitorio.
+P-06·D devuelve `DESIGN DECISION REQUIRED` si se intenta sin resolución.
+
+---
+
+### DD-029 — Viaje › Días se organiza en tres niveles: lista (N1), hojas (N2) y vistas focalizadas (N3)
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** `02 §D3`, `04 §8`, `§8b`, `§14`, `05 §7` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** Viaje › Días tiene tres niveles de interacción y sólo tres:
+- **N1 · Lista de Días.** Fechas, aviso de sin asignar, tarjetas de día, «＋ Añadir día», Sin asignar y las
+  filas de entrada a lo demás. Contesta «¿qué hacemos cada día?».
+- **N2 · Sheet.** Acciones cortas (≤ 1 decisión, ≤ 7 filas o 1–2 campos).
+- **N3 · FocusedView.** Tareas complejas. Aprobadas tres: **Orden del día**, **Horarios y traslados del
+  día** y **Traslados entre ciudades**.
+
+**Principio normativo.** *En N1 / lista principal de Días, ninguna acción secundaria puede expandir
+contenido inline y aumentar sustancialmente la altura de la tarjeta o de la página. Las acciones cortas usan
+Sheet. Las tareas complejas usan FocusedView.* «Herramientas y datos del viaje» y «Detalles del día»
+**desaparecen como expansiones inline**; su contenido se reubica (nada se pierde, `Art. 12`).
+
+**Alternativas descartadas.** Seguir plegando dentro de la tarjeta (DDR-P06-1, opción 1): reduce la altura
+inicial pero mantiene un salto de página en cada interacción. Un cuarto nivel o N3 anidadas: más
+profundidad que una persona con una mano en el móvil quiere recorrer.
+
+**Consecuencias.** `02 §D3` fija la regla de navegación; `04` define `Sheet` de acción corta y `FocusedView`;
+`05 §7` reescribe Días. El programa se ejecuta en cuatro bloques P-06·A–D.
+
+---
+
+### DD-030 — Las vistas N3 viven en la pila de History: Back, gesto, chevron y Escape convergen
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** `02 §D3`, `04 §8b` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** Cada N3 apila una entrada de `window.history` (`state.nihonTripView`). El Back del
+navegador, el gesto atrás de iOS, el chevron de la vista y Escape **ejecutan la misma navegación de cierre**
+y devuelven a N1 con el **mismo scroll (±1 px) y el foco en el disparador** exacto. N1 permanece montado y
+oculto mientras tanto. La N3 no se restaura al recargar. N2 **no** apila entrada.
+
+**Alternativas descartadas.** Estado local sin History (el gesto atrás de iOS sacaría de Viaje: justo el
+fallo que DD-015 ya corrigió para las fichas). Ruta con URL pública (`02`/`05` no la piden). Desmontar N1
+(perdería scroll y foco).
+
+**Consecuencias.** Extiende el puente de DD-015 sin sustituirlo: `nihonPlaceDepth` y `nihonTripView`
+coexisten; una ficha abierta sobre una N3 se cierra antes que ella. Se implementa en P-06·C.
+
+---
+
+### DD-031 — El arrastre de la lista es sólo de puntero fino; el orden táctil vive en «Orden del día»
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** `04 §14`, `05 §7` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** En la lista principal de Días el arrastre existe **sólo** con
+`(hover: hover) and (pointer: fine)`. En táctil **no hay asa de arrastre**. Reordenar en táctil se hace en
+la N3 «Orden del día»; mover entre días, en las hojas. El teclado y los lectores de pantalla usan esas mismas
+hojas y vistas.
+
+**Alternativas descartadas.** Mantener el arrastre táctil con `touch-action: none` en el asa (compite con el
+scroll vertical en una lista larga; en táctil hay una vía mejor, la N3). Un modo
+«editar» que muestre el asa (añade un estado más a N1).
+
+**Consecuencias.** La media feature no es un `max-width` (`Art. 8` intacto). El arrastre de ratón conserva
+todas sus garantías (posición exacta, cancelación, desde Sin asignar). P-06·C lo implementa tras P-06·B, para
+que el táctil no pierda capacidad en ningún momento.
+
+---
+
+### DD-032 — Mover un lugar a otro día no pregunta posición: lo añade al final; «Probar otro orden» pasa a «Cambiar orden»
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** `04 §14`, `05 §7` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** Mover un lugar a otro día —desde una hoja, desde Sin asignar o por teclado— **no pregunta
+posición**: se añade **al final del día destino**. La posición se modifica después en «Orden del día».
+«Probar otro orden» se sustituye por **«Cambiar orden»**, que abre esa N3. «Posición» deja de aparecer en N1.
+
+**Alternativas descartadas.** Preguntar la posición en la hoja (dos decisiones donde basta una; vuelve el
+selector de «Posición»). Insertar al principio (rompe la expectativa de que lo último añadido es lo último).
+
+**Consecuencias.** `relocatePlace`/`addPlaceToDay` no cambian: sólo cambia qué posición se les pasa. Se
+implementa en P-06·B (movimiento) y P-06·C (nombre «Cambiar orden» y N3).
+
+---
+
+### DD-033 — Contrato de copy de zona y alojamiento en el pie de día
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** `05 §7`, `§8` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** El pie de día es una sola fila con tres estados, por este orden de precedencia:
+
+| Estado | Texto exacto |
+|---|---|
+| Alojamiento **real** elegido en la frontera del día (no sembrado por una zona) | `Dormís en {alojamiento}` |
+| Sólo hay elección de zona | `Zona para dormir: {zona}` — p. ej. `Zona para dormir: Shinjuku` |
+| Nada elegido | `Elegir zona para dormir` |
+
+**Nunca** se muestra «Dormís en la zona X» cuando sólo existe una elección de zona. **Elegir zona sigue
+siendo sólo contexto**: no crea ni reescribe alojamientos ni fronteras. El pie es de **lectura** y no
+escribe en V8. Un anclaje sembrado por «Dormir aquí» cuenta como zona aunque la frontera lo elija.
+
+**Alternativas descartadas.** «Dormís en la zona Shinjuku» (afirma un alojamiento que no existe: `Art. 4`).
+«Sin alojamiento elegido» (omite que sí hay zona).
+
+**Consecuencias.** Pura función de lectura `summarizeDaySleeping` con prueba unitaria. Se implementa en
+P-06·A. La mutación `withZoneAccommodationChoice` (que siembra un anclaje ordinario) **no cambia**.
+
+---
+
+### DD-034 — «Vosotros decidís el orden…» sale de la lista principal y vive en las N3 donde es relevante
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** `05 §7`, `Art. 3`, `Art. 5` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** La frase «Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.» (con
+`EvidenceMark ✎`) **desaparece de N1** —y con ella la frase de ayuda «Organiza tus lugares por día…»— y pasa
+a las vistas N3 donde el orden es relevante: **Orden del día** y **Horarios y traslados del día**.
+
+**Alternativas descartadas.** Dejarla permanente en N1 (coste de pantalla en cada visita: justo lo que
+`00 Art. 3` limita). Retirarla sin más (la persona deja de ver la garantía de `Art. 5` en el momento en que
+ordena).
+
+**Consecuencias.** Mientras no existan las N3 (A y B), P-06·A la reubica en `DayOrderToolPanel` para que la
+garantía no desaparezca de la aplicación. P-06·C la lleva a las vistas definitivas. Ningún gate la
+cita hoy.
+
+---
+
+### DD-035 — B27 / B28 / B29 certifican la interacción nueva conservando las mismas garantías de dominio
+**Estado:** Firme · **Fecha:** 2026-10-03 · **Afecta:** gates, `08` · **Origen:** dirección, DDR-P06-1
+
+**Decisión.** Los gates B27, B28 y B29 **cambian su semántica** para certificar la interacción de
+«Lista, hojas y vistas», **sin perder ninguna garantía de dominio**. No obligan a conservar `<details>`
+inline, selectores de posición, arrastre táctil en la lista ni «Probar otro orden». Se añaden las métricas
+M1…M7 (`../P06_LISTA_HOJAS_Y_VISTAS.md §3`), entre ellas: **WebKit obligatorio** para todos los gates
+nuevos de P-06; a 390×844 con el fixture P-06 caben el encabezado de Día 1 y 3 paradas completas; los Sheets
+con ≤ 7 filas caben sin scroll a 375×667; el Back desde N3 restaura scroll ±1 px y foco.
+
+**Alternativas descartadas.** Retirar los gates (pierden la protección de dominio). Mantenerlos como están
+(obligarían a conservar la interacción que se sustituye). Relajar aserciones (`GATE_AUTHORITY.md`).
+
+**Consecuencias.** Cada gate se adapta en el bloque que cambia la interacción que prueba; una aserción de
+interacción retirada se **reemplaza** por la de la interacción nueva en el mismo commit.
+
+---
+
 ## Decisiones abiertas
 
 | # | Pregunta | Quién puede cerrarla | Bloquea |
@@ -1042,6 +1229,7 @@ escritorio (16/16; con el código anterior, 4 fallos).
 | **OD-02** | ¿Se colapsan las 29 categorías a 26 sólo en presentación, o también en el workbook? | Producto + datos | B3 puede avanzar con el mapa de presentación |
 | **OD-03** | ¿Hay presupuesto de adquisición fotográfica para las ~53 imágenes del agujero de cobertura? | Producto | B6 |
 | **OD-04** | ¿Se permite alguna vez una tercera persona en el viaje? | Producto | Nada hoy; afectaría a `03 §1.2` |
+| **OD-05** | ¿Dónde viven los límites del viaje, el plan de zona y el gestor de alojamientos cuando «Herramientas y datos del viaje» deje de ser un desplegable? (DDR-P06-2) | Producto | **Sólo P-06·D** |
 
 > **DDR-01, DDR-02, DDR-03, DDR-04, DDR-05 y DDR-06 están RESUELTAS.** No queda ninguna
 > decisión de diseño pendiente que bloquee B20.
@@ -1049,3 +1237,7 @@ escritorio (16/16; con el código anterior, 4 fallos).
 > **Bloque 24:** DDR-B24-1, DDR-B24-2 y DDR-B24-3 están **RESUELTAS** (DD-023, DD-024, DD-025).
 > DD-026 (cromo del mapa como zona de exclusión, P0-4e) es firme. No queda ninguna decisión de
 > diseño abierta en B24.
+>
+> **P-06 (2026-10-03):** DDR-P06-1 está **RESUELTA** (DD-029…DD-035). **DDR-P06-2 está ABIERTA**
+> (`OD-05`) y bloquea únicamente P-06·D; P-06·A, B y C no dependen de ella. (DD-027 sigue sin existir; su
+> número no se reutiliza.)
