@@ -124,6 +124,19 @@ async function measureHub(hub, viewport, dpr) {
     return u.startsWith(url) || u.startsWith("data:") || u.startsWith("blob:") ? route.continue() : route.fulfill({ status: 204, body: "" });
   });
   await page.addInitScript(() => { try { localStorage.setItem("nihon.onboarding.seen.v1", "1"); } catch { /* */ } });
+  if (process.env.NIHON_B10_PERF_MUTANT === "eager-far-card") {
+    // Activación diferida (B10 #177): una tarjeta lejana no tiene `src` hasta que su observador la activa, así que no hay nada que forzar.
+    // El defecto que este control reintroduce es «las tarjetas lejanas se cargan al abrir la ciudad»: se informa toda observación como
+    // visible (todas las tarjetas obtienen su src) y más abajo se fuerza loading=eager en una lejana no cacheada, como siempre.
+    await page.addInitScript(() => {
+      const Original = window.IntersectionObserver;
+      window.IntersectionObserver = class extends Original {
+        constructor(callback, options) {
+          super((entries, observer) => callback(entries.map((entry) => ({ isIntersecting: true, target: entry.target })), observer), options);
+        }
+      };
+    });
+  }
   await page.goto(url, { waitUntil: "networkidle" });
   // Network idle can precede React's first paint on a busy host. Do not cut the
   // home window until its real eager images exist and their response bodies settle.
