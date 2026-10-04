@@ -71,17 +71,17 @@ Tokio, Kioto, Osaka y Okinawa × Chromium 141.0.7390.37 y WebKit 26.5 × móvil 
 | `no-disconnect` ×2 | detectado: observadores huérfanos |
 | `wide-margin` (1000 %) ×2 | detectado: margen distinto de 200 % |
 | `negative-eager-photo` (guard existente, adaptado) | detectado: «imágenes nuevas a más de 3 pantallas» |
-| Los otros diez controles heredados | 9 detectados; **`negative-scroll-chromium` NO detectado** (ver abajo) |
+| Los otros diez controles heredados | 9 detectados bajo Chromium 141; `negative-scroll-chromium` **no detectado bajo Chromium 141** y **detectado bajo Chromium 151.0.7922.34** (ver «Recertificación») |
 
 Los tres controles nuevos se ejecutan acotados a los dos recorridos de Osaka (`NIHON_B10_DEFERRED_ONLY`).
 
 ## Gates y estado
 
-Build, `tsc -b`, lint (0 errores; avisos preexistentes), Vitest **120 archivos / 3 442 tests PASS** (base 119 / 3 430). Regresión: **85 trabajos = 68 positivos, 68 PASS; 17 negativos, 16 detectados, 1 no detectado**. Lista completa e intentos en la evidencia.
+Build, `tsc -b`, lint (0 errores; avisos preexistentes), Vitest **120 archivos / 3 442 tests PASS** (base 119 / 3 430). Regresión: **85 trabajos = 68 positivos, 68 PASS; 17 negativos, 16 detectados, 1 no detectado** (resultado bajo Chromium 141, conservado; el no detectado quedó cerrado bajo Chromium 151, ver «Recertificación»). Lista completa e intentos en la evidencia.
 
 Hechos que no quedan verdes y no se ocultan:
 
-1. **`negative-scroll-chromium` no detecta su mutante en este Chromium 141** (`overscroll-behavior-y:contain` no cambia el encadenado de la rueda). Ocurre **igual sobre la base `f994932` sin cambios**; la certificación anterior usó Chromium 151.0.7922.34, que este contenedor no ofrece. WebKit lo detecta. No es una regresión del lote, pero el control no queda demostrado en Chromium aquí.
+1. **[CERRADO por la recertificación con Chromium 151; se conserva el hecho original]** **`negative-scroll-chromium` no detecta su mutante en este Chromium 141** (`overscroll-behavior-y:contain` no cambia el encadenado de la rueda). Ocurre **igual sobre la base `f994932` sin cambios**; la certificación anterior usó Chromium 151.0.7922.34, que este contenedor no ofrece. WebKit lo detecta. No es una regresión del lote, pero el control no queda demostrado en Chromium aquí.
 2. Seis gates `b18-*` fallaron la primera vez en <1 s por `ERR_CONNECTION_REFUSED` (sin servidor en `localhost:4181`); con `vite preview` en ese puerto sobre el mismo `dist` pasan. Ambos intentos están en la evidencia.
 3. Entorno distinto al de la certificación anterior (Chromium 141 en lugar de 151; Node 22.22 en lugar de 24.19; WebKit descargado a un directorio de trabajo). Los registros TLS externos (`ERR_CERT_AUTHORITY_INVALID` hacia fuentes/OSM) no afectan a los resultados.
 4. F01–F12 **NO EJECUTADO** (hardware real); OSM-TLS Chromium sigue siendo un bloqueo externo independiente; G4/CSS y OD-01 POST-V1/DIFERIDO sin cambios.
@@ -91,3 +91,36 @@ Hechos que no quedan verdes y no se ocultan:
 - Una foto de un carrusel o de la lista se activa a ≤ 2 anchuras/alturas de su contenedor: no hay *pop-in* mientras el desplazamiento no supere esa distancia; un salto mayor (anclas «Saltar a…») muestra el skeleton unos ms, como antes.
 - Una pestaña oculta (`display:none`) ya no activa nada hasta mostrarse (la carga nativa tampoco lo hacía).
 - La impresión de una página con tarjetas aún no activadas no incluye esas fotos (igual que con `loading=lazy`).
+
+## Recertificación `negative-scroll-chromium` (Chromium 151.0.7922.34)
+
+Sin cambios de producto: el tree de `app/` es idéntico al de `2181a686c0a3c291e2bc34d8e418489f37114cc7` (`7192167902cd0a31ff232d2417818e90679e9e71`). Sólo cambia documentación/evidencia.
+
+**Historia completa (ninguna fila se borra):**
+
+| Navegador | Código | Control normal | Mutante `contained` | Conclusión |
+|---|---|---|---|---|
+| Chromium 141.0.7390.37 | rama Claude | PASS | **NO detectado** (PASS) | `negative-scroll-chromium` NEGATIVE-MISSED |
+| Chromium 141.0.7390.37 | base `f9949325` | PASS | **NO detectado** (PASS) | idéntico: no era regresión del lote |
+| Chromium 151.0.7922.34 | `2181a686` | PASS (exit 0, 320/390) | **detectado** (exit 1, `waitForFunction: Timeout 10000ms exceeded`, `after=0`) | control demostrado |
+| Chromium 151.0.7922.34 | base `f9949325` | PASS (exit 0) | **detectado** (exit 1, mismo timeout) | control demostrado |
+
+El único pendiente del lote queda **CERRADO**. Chromium 151.0.7922.34 es el motor de la certificación anterior; se obtuvo como Chrome for Testing 151.0.7922.34 (linux64) fuera del repositorio y se pasó al script con `NIHON_CHROMIUM_PATH`. Node v22.22.0, Playwright 1.62.1; build de producción con `npm ci && npm run build` en `app/` y `vite preview` del propio script.
+
+Comandos exactos (desde `app/`; `<chrome151>` = binario `chrome` de Chrome for Testing 151.0.7922.34):
+
+```
+NIHON_CHROMIUM_PATH=<chrome151> NIHON_B10_OUT=<salida> node scripts/b10-embedded-scroll-check.mjs
+NIHON_SCROLL_MUTANT=contained NIHON_CHROMIUM_PATH=<chrome151> NIHON_B10_OUT=<salida> node scripts/b10-embedded-scroll-check.mjs
+```
+
+Para `f9949325` se ejecutaron los mismos dos comandos en un worktree desechable de ese SHA, con su propio `npm run build`.
+
+**Estado final del lote:**
+
+* Positivos **68/68 PASS** (regresión completa, Chromium 141).
+* Negativos **17/17 detectados bajo el navegador de certificación correspondiente**: 16 en la regresión bajo Chromium 141 y `negative-scroll-chromium` bajo Chromium 151.0.7922.34 (el control no es detectable en 141 ni en la base; WebKit lo detecta).
+* G6 fotográfico del guard existente **13/13 en Chromium y 13/13 en WebKit**.
+* Activación diferida certificada (ver arriba).
+* #177 se actualizó antes mediante fast-forward no forzado a `2181a686`; ningún cambio de producto durante esta recertificación.
+* Siguen como antes: F01–F12 NO EJECUTADO, OSM-TLS Chromium externo, G4/CSS y OD-01 POST-V1/DIFERIDO; #177 Draft, sin merge/deploy.

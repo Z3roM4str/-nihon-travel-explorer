@@ -4024,7 +4024,8 @@
    }
   ],
   "initialInfrastructureFailures": "seis trabajos b18-* fallaron en 0,8–0,9 s por ERR_CONNECTION_REFUSED a localhost:4181 (no había servidor de vista previa); se levantó `vite preview --port 4181` sobre el mismo dist y se repitieron: PASS. Ambos intentos se conservan.",
-  "negativeScrollChromium": "NEGATIVE-MISSED también sobre la base f994932 (misma salida PASS): el mutante `overscroll-behavior-y:contain` no cambia el encadenado de la rueda en Chromium 141; la certificación anterior usó Chromium 151. WebKit sí lo detecta. No es una regresión de este lote."
+  "negativeScrollChromium": "NEGATIVE-MISSED también sobre la base f994932 (misma salida PASS): el mutante `overscroll-behavior-y:contain` no cambia el encadenado de la rueda en Chromium 141; la certificación anterior usó Chromium 151. WebKit sí lo detecta. No es una regresión de este lote. [Cerrado por la recertificación con Chromium 151.0.7922.34, ver recertification.]",
+  "recertificationNote": "negativeMissed y negativeDetected reflejan la regresión bajo Chromium 141 y se conservan; ver recertification."
  },
  "unit": {
   "tsc": "PASS",
@@ -4035,5 +4036,66 @@
  "notExecuted": [
   "F01–F12 (QA física)",
   "OSM-TLS Chromium (externo)"
- ]
+ ],
+ "recertification": {
+  "control": "negative-scroll-chromium",
+  "script": "app/scripts/b10-embedded-scroll-check.mjs",
+  "mutant": "NIHON_SCROLL_MUTANT=contained",
+  "productChanged": false,
+  "appTree": "7192167902cd0a31ff232d2417818e90679e9e71",
+  "claudeHead": "2181a686c0a3c291e2bc34d8e418489f37114cc7",
+  "baseHead": "f9949325aea83d45907b7310fa635faf7633716b",
+  "environment": {
+   "node": "v22.22.0",
+   "playwright": "1.62.1"
+  },
+  "commands": {
+   "normal": "NIHON_CHROMIUM_PATH=<chrome151> NIHON_B10_OUT=<out> node scripts/b10-embedded-scroll-check.mjs",
+   "mutant": "NIHON_SCROLL_MUTANT=contained NIHON_CHROMIUM_PATH=<chrome151> NIHON_B10_OUT=<out> node scripts/b10-embedded-scroll-check.mjs",
+   "note": "ejecutados desde app/ tras npm ci && npm run build; para f9949325 en un worktree desechable con su propio build; <chrome151> = Chrome for Testing 151.0.7922.34 linux64"
+  },
+  "runs": [
+   {
+    "browser": "Chromium 141.0.7390.37",
+    "code": "2181a686 (rama Claude)",
+    "normal": "PASS",
+    "mutant": "NOT-DETECTED"
+   },
+   {
+    "browser": "Chromium 141.0.7390.37",
+    "code": "f9949325 (base)",
+    "normal": "PASS",
+    "mutant": "NOT-DETECTED",
+    "note": "mismo comportamiento: no es regresión del lote"
+   },
+   {
+    "browser": "Chromium 151.0.7922.34",
+    "code": "2181a686",
+    "normal": "PASS",
+    "normalExit": 0,
+    "mutant": "DETECTED",
+    "mutantExit": 1,
+    "mutantFailure": "page.waitForFunction: Timeout 10000ms exceeded.",
+    "afterScrollTop": 0
+   },
+   {
+    "browser": "Chromium 151.0.7922.34",
+    "code": "f9949325",
+    "normal": "PASS",
+    "normalExit": 0,
+    "mutant": "DETECTED",
+    "mutantExit": 1,
+    "mutantFailure": "page.waitForFunction: Timeout 10000ms exceeded.",
+    "afterScrollTop": 0
+   }
+  ],
+  "verdict": "CLOSED",
+  "finalState": {
+   "positive": "68/68",
+   "negative": "17/17 bajo el navegador de certificación correspondiente (16 en la regresión Chromium 141 + negative-scroll-chromium en Chromium 151.0.7922.34)",
+   "G6": "13/13 Chromium y 13/13 WebKit",
+   "deferredActivation": "certificada",
+   "pr177": "fast-forward previo a 2181a686; Draft, sin merge/deploy"
+  }
+ }
 }
