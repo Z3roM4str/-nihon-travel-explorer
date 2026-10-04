@@ -404,9 +404,10 @@ for (const [label, viewport, dpr] of VIEWPORTS) {
         }));
       };
       const beforeScroll = await snapshot();
-      const section = page.locator(".explorer-home__collection").filter({ has: page.locator("#collection-menos-saturado") });
+      // La portada de main no tiene el ancla `#collection-menos-saturado` (era de la línea B10 antigua): se localiza por el título.
+      const section = page.locator(".explorer-home__collection").filter({ has: page.getByRole("heading", { name: "Menos saturado", exact: true }) });
       const scrollStart = (await clock()) - t0;
-      await section.locator("#collection-menos-saturado").scrollIntoViewIfNeeded();
+      await section.getByRole("heading", { name: "Menos saturado", exact: true }).scrollIntoViewIfNeeded();
       await page.waitForTimeout(900);
       await settle();
       const afterVertical = await snapshot();
