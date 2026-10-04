@@ -1,6 +1,8 @@
+> **Nota de lectura (#195).** Este documento describe la **certificación original del lote** sobre la línea histórica de #177 (base `f9949325…`, Chromium 141.0.7390.37 y WebKit 26.5), conservada tal como se registró. **#195 es la integración vigente contra `main`** (`de4b190b033a4d8c169d75a609e3d7d50527e674`); #177 queda como referencia histórica certificada y no se mergea. Para la integración sobre main moderno, la corrección de la ventana de G6 y las cifras finales (G6 14/14 en Chromium 151.0.7922.34 y en WebKit 26.5; Vitest 119 archivos / 3 436 tests) léase [B10_G6_WINDOW_RECERTIFICATION.md](B10_G6_WINDOW_RECERTIFICATION.md). Las cifras de más abajo pertenecen a la «certificación original» salvo que se indique «integración main moderno».
+
 # B10 — activación diferida de imágenes (#177, rama `claude/b10-deferred-images`)
 
-**INCOMPLETO a nivel B10; #177 Draft, sin merge/deploy.** Lote autorizado en [design/09](design/09_DECISIONES_DE_DISENO.md) («autorización del lote de activación diferida de imágenes»). Base exacta `f9949325aea83d45907b7310fa635faf7633716b` (tree `320f45c…`, app `e0e87b8…`; último código de producto probado `26407373059e0f20e6e64e975f7a38eb7da5805f`, app tree idéntico). Código bajo prueba `965acc8c9660fe8515ccbadc7f0cf97028a79079` (tree `98f7c4e0df56382ee0a9abfba84f00cc4711bf94`, app `7192167902cd0a31ff232d2417818e90679e9e71`). [Evidencia](B10_DEFERRED_IMAGES_EVIDENCE.json). No se incorpora main ni P-06; no se tocan datos, fotografías, `package*.json`, `3500000`, `253742`, referencia ni ratchet.
+**Estado histórico (línea original de #177): INCOMPLETO a nivel B10; #177 Draft, sin merge/deploy.** El estado vigente del lote es el de #195, según la nota anterior. Lote autorizado en [design/09](design/09_DECISIONES_DE_DISENO.md) («autorización del lote de activación diferida de imágenes»). Base exacta `f9949325aea83d45907b7310fa635faf7633716b` (tree `320f45c…`, app `e0e87b8…`; último código de producto probado `26407373059e0f20e6e64e975f7a38eb7da5805f`, app tree idéntico). Código bajo prueba `965acc8c9660fe8515ccbadc7f0cf97028a79079` (tree `98f7c4e0df56382ee0a9abfba84f00cc4711bf94`, app `7192167902cd0a31ff232d2417818e90679e9e71`). [Evidencia](B10_DEFERRED_IMAGES_EVIDENCE.json). No se incorpora main ni P-06; no se tocan datos, fotografías, `package*.json`, `3500000`, `253742`, referencia ni ratchet.
 
 ## Qué cambia
 
@@ -26,7 +28,7 @@
 
 ## G6 — presupuesto
 
-El guard existente (`b10-performance-check.mjs`, contabilidad sin cambios: ventana desde el clic en la ciudad, home-cut tras héroes + 500 ms + cuerpos pendientes, sin excluir respuestas) da **13/13 en Chromium y 13/13 en WebKit**, y de nuevo 13/13 en tres repeticiones adicionales por motor. **Osaka escritorio: 3 356 478 B (Chromium) / 3 315 340 B (WebKit)**, antes 3 862 290 B registrado; límite 3 500 000 B. Tokio y Kioto siguen en el tope (3 499 770 / 3 499 450 B en Chromium: 230 y 550 B de margen). Entrada **157 586 B** gzip ≤ 253 742 (+540 B del hook frente a 157 046).
+**Certificación original.** El guard existente (`b10-performance-check.mjs`; la política de presupuesto no cambió y la instrumentación de entonces abría la ventana justo antes de `locator.click()`: ventana desde el clic en la ciudad, home-cut tras héroes + 500 ms + cuerpos pendientes, sin excluir respuestas) da **13/13 en Chromium y 13/13 en WebKit**, y de nuevo 13/13 en tres repeticiones adicionales por motor. **Osaka escritorio: 3 356 478 B (Chromium) / 3 315 340 B (WebKit)**, antes 3 862 290 B registrado; límite 3 500 000 B. Tokio y Kioto siguen en el tope (3 499 770 / 3 499 450 B en Chromium: 230 y 550 B de margen). Entrada **157 586 B** gzip ≤ 253 742 (+540 B del hook frente a 157 046).
 
 **Lo que no se reprodujo y por qué importa.** El valor 3 862 290 B no apareció en este contenedor ni en la base sin tocar (13/13). Lo que sí se reproduce, con `--force-effective-connection-type` (distancia nativa de carga diferida de Chromium mayor), es la clase de fallo: la portada de la base descarga 23 → 55 imágenes en móvil (65 en escritorio) y el guard falla «imágenes nuevas a más de 3 pantallas» en los cuatro hubs móviles; con el lote, la misma ejecución da 13/13 y la portada se queda en 12 imágenes (móvil) / 47 (escritorio, Slow-2G) frente a 55 / 65. La atribución previa (ocho respuestas, 546 950 B, de «Menos saturado») queda resuelta *estructuralmente*: ninguna de las ocho se pide hasta entrar en rango. En condiciones normales de red el lote no reduce la portada (20 imágenes en escritorio frente a 18: el margen de 2 viewports activa algo más que la distancia nativa de 4G); su propiedad es el **tope**, independiente de la red y del motor.
 
@@ -77,7 +79,7 @@ Los tres controles nuevos se ejecutan acotados a los dos recorridos de Osaka (`N
 
 ## Gates y estado
 
-Build, `tsc -b`, lint (0 errores; avisos preexistentes), Vitest **120 archivos / 3 442 tests PASS** (base 119 / 3 430). Regresión: **85 trabajos = 68 positivos, 68 PASS; 17 negativos, 16 detectados, 1 no detectado** (resultado bajo Chromium 141, conservado; el no detectado quedó cerrado bajo Chromium 151, ver «Recertificación»). Lista completa e intentos en la evidencia.
+Certificación original: build, `tsc -b`, lint (0 errores; avisos preexistentes), Vitest **120 archivos / 3 442 tests PASS** (base 119 / 3 430). Integración main moderno (#195): Vitest **119 archivos / 3 436 tests PASS**. Regresión: **85 trabajos = 68 positivos, 68 PASS; 17 negativos, 16 detectados, 1 no detectado** (resultado bajo Chromium 141, conservado; el no detectado quedó cerrado bajo Chromium 151, ver «Recertificación»). Lista completa e intentos en la evidencia.
 
 Hechos que no quedan verdes y no se ocultan:
 
@@ -124,3 +126,11 @@ Para `f9949325` se ejecutaron los mismos dos comandos en un worktree desechable 
 * Activación diferida certificada (ver arriba).
 * #177 se actualizó antes mediante fast-forward no forzado a `2181a686`; ningún cambio de producto durante esta recertificación.
 * Siguen como antes: F01–F12 NO EJECUTADO, OSM-TLS Chromium externo, G4/CSS y OD-01 POST-V1/DIFERIDO; #177 Draft, sin merge/deploy.
+
+## Integración sobre main moderno (#195): corrección de la ventana de G6
+
+Para las cifras finales vigentes y la frontera real de medición véase [B10_G6_WINDOW_RECERTIFICATION.md](B10_G6_WINDOW_RECERTIFICATION.md) (evidencia: [B10_G6_WINDOW_EVIDENCE.json](B10_G6_WINDOW_EVIDENCE.json)).
+
+* La **política de presupuesto no cambió** (3 500 000 B por ciudad). Lo que **sí cambió es la instrumentación de la ventana**: ahora empieza en el evento `click` real y clasifica cada petición por su instante de inicio (pre-clic/portada frente a hub). El auto-scroll previo de `locator.click()` atribuía al hub fotos de la portada; el tráfico pre-clic se conserva y se reporta por separado.
+* Es una corrección de ventana, no una reducción de bytes: los bytes pre-clic siguen visibles en la evidencia.
+* Integración main moderno: G6 14/14 en Chromium 151.0.7922.34 y 14/14 en WebKit 26.5; deferred-images 21/21 en ambos motores; Vitest 119 archivos / 3 436 tests.
