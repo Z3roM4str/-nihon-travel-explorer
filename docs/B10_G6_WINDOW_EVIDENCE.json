@@ -1,0 +1,289 @@
+{
+ "purpose": "Recertificación comparativa G6 con la ventana corregida (frontera = evento click real)",
+ "contract": "requests iniciadas antes del click real = pre/portada; iniciadas desde el click = hub; una pre-click que termina tras el click NO se atribuye al hub",
+ "budgetBytes": 3500000,
+ "browsers": {
+  "chromium": "151.0.7922.34",
+  "webkit": "26.5"
+ },
+ "productChanged": false,
+ "runs": {
+  "A-chromium": {
+   "code": "main puro de4b190b033a4d8c169d75a609e3d7d50527e674",
+   "hubs": [
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Tokio",
+     "preClickImages": 11,
+     "preClickBytes": 694198,
+     "hubImages": 47,
+     "hubBytes": 2985834
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Kioto",
+     "preClickImages": 11,
+     "preClickBytes": 694198,
+     "hubImages": 46,
+     "hubBytes": 3438492
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Osaka",
+     "preClickImages": 15,
+     "preClickBytes": 967894,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Okinawa",
+     "preClickImages": 15,
+     "preClickBytes": 967894,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Tokio",
+     "preClickImages": 18,
+     "preClickBytes": 1130404,
+     "hubImages": 45,
+     "hubBytes": 2828352
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Kioto",
+     "preClickImages": 18,
+     "preClickBytes": 1130404,
+     "hubImages": 42,
+     "hubBytes": 3199466
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Osaka",
+     "preClickImages": 26,
+     "preClickBytes": 1677354,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Okinawa",
+     "preClickImages": 26,
+     "preClickBytes": 1677354,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    }
+   ]
+  },
+  "A-webkit": {
+   "code": "main puro de4b190b033a4d8c169d75a609e3d7d50527e674",
+   "hubs": [
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Tokio",
+     "preClickImages": 6,
+     "preClickBytes": 353688,
+     "hubImages": 52,
+     "hubBytes": 3326344
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Kioto",
+     "preClickImages": 6,
+     "preClickBytes": 353688,
+     "hubImages": 46,
+     "hubBytes": 3438492
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Osaka",
+     "preClickImages": 9,
+     "preClickBytes": 560398,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Okinawa",
+     "preClickImages": 9,
+     "preClickBytes": 560398,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Tokio",
+     "preClickImages": 12,
+     "preClickBytes": 609584,
+     "hubImages": 51,
+     "hubBytes": 3260814
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Kioto",
+     "preClickImages": 12,
+     "preClickBytes": 609584,
+     "hubImages": 41,
+     "hubBytes": 3248126
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Osaka",
+     "preClickImages": 22,
+     "preClickBytes": 1367186,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Okinawa",
+     "preClickImages": 22,
+     "preClickBytes": 1367186,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    }
+   ]
+  },
+  "B-chromium": {
+   "code": "main + lote (claude/b10-deferred-images-main-integration, gate corregido)",
+   "hubs": [
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Tokio",
+     "preClickImages": 11,
+     "preClickBytes": 694198,
+     "hubImages": 47,
+     "hubBytes": 2985834
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Kioto",
+     "preClickImages": 11,
+     "preClickBytes": 694198,
+     "hubImages": 46,
+     "hubBytes": 3438492
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Osaka",
+     "preClickImages": 15,
+     "preClickBytes": 967894,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Okinawa",
+     "preClickImages": 15,
+     "preClickBytes": 967894,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Tokio",
+     "preClickImages": 18,
+     "preClickBytes": 1130404,
+     "hubImages": 48,
+     "hubBytes": 3051364
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Kioto",
+     "preClickImages": 18,
+     "preClickBytes": 1130404,
+     "hubImages": 41,
+     "hubBytes": 3159768
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Osaka",
+     "preClickImages": 26,
+     "preClickBytes": 1677354,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Okinawa",
+     "preClickImages": 26,
+     "preClickBytes": 1677354,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    }
+   ]
+  },
+  "B-webkit": {
+   "code": "main + lote (claude/b10-deferred-images-main-integration, gate corregido)",
+   "hubs": [
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Tokio",
+     "preClickImages": 6,
+     "preClickBytes": 353688,
+     "hubImages": 52,
+     "hubBytes": 3326344
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Kioto",
+     "preClickImages": 6,
+     "preClickBytes": 353688,
+     "hubImages": 46,
+     "hubBytes": 3438492
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Osaka",
+     "preClickImages": 9,
+     "preClickBytes": 560398,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "móvil 390×844@2",
+     "hub": "Okinawa",
+     "preClickImages": 9,
+     "preClickBytes": 560398,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Tokio",
+     "preClickImages": 12,
+     "preClickBytes": 609584,
+     "hubImages": 51,
+     "hubBytes": 3260814
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Kioto",
+     "preClickImages": 12,
+     "preClickBytes": 609584,
+     "hubImages": 41,
+     "hubBytes": 3248126
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Osaka",
+     "preClickImages": 22,
+     "preClickBytes": 1367186,
+     "hubImages": 49,
+     "hubBytes": 3315340
+    },
+    {
+     "viewport": "escritorio 1440×900@1",
+     "hub": "Okinawa",
+     "preClickImages": 22,
+     "preClickBytes": 1367186,
+     "hubImages": 44,
+     "hubBytes": 2825186
+    }
+   ]
+  }
+ },
+ "legacyWindowMutant": "NIHON_B10_PERF_MUTANT=window-at-click-call reproduce el fallo anterior en WebKit (Osaka móvil 3522050, Osaka escritorio 4072942, Okinawa escritorio 3582788) y hace fallar K en ambos motores"
+}
