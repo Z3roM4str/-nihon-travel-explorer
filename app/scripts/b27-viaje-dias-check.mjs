@@ -175,7 +175,7 @@ try {
   await keyboardActivate(orderFirst);
   const sameDayTool = root.locator(".day-order-tool");
   await sameDayTool.waitFor();
-  await sameDayTool.locator(".day-order-tool__order").nth(1).getByLabel(new RegExp(`^Mover ${movingName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} a la posición`)).selectOption({ value: "2" });
+  await sameDayTool.locator(".day-order-tool__order").nth(1).getByRole("button", { name: `Bajar ${movingName} en la propuesta del Día 1`, exact: true }).click(); // P-06·C: Subir/Bajar, sin «Posición N»
   await keyboardActivate(sameDayTool.getByRole("button", { name: "Usar este orden" }));
   await sameDayTool.waitFor({ state: "detached" });
   const sameDayAfter = await firstDay.locator(".trip-stop strong").allInnerTexts();

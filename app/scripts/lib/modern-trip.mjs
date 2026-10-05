@@ -292,7 +292,12 @@ export async function moveStopToDay(page, placeName, dayValue, positionValue) {
   await card.getByRole("button", { name: `Cambiar orden del Día ${targetDay + 1}` }).click();
   const tool = page.locator(".day-order-tool");
   await tool.waitFor();
-  await tool.locator(".day-order-tool__order").nth(1).getByLabel(`Mover ${fullName} a la posición en la propuesta del Día ${targetDay + 1}`).selectOption(String(target + 1));
+  // P-06·C: Subir/Bajar (sin «Posición N»); el foco sigue al lugar, así que basta repetir el clic.
+  const diff = target - current;
+  const verb = diff > 0 ? "Bajar" : "Subir";
+  for (let i = 0; i < Math.abs(diff); i += 1) {
+    await tool.locator(".day-order-tool__order").nth(1).getByRole("button", { name: `${verb} ${fullName} en la propuesta del Día ${targetDay + 1}`, exact: true }).click();
+  }
   await tool.getByRole("button", { name: "Usar este orden", exact: true }).click();
   await tool.waitFor({ state: "detached" });
 }

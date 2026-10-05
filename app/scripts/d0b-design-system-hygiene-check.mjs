@@ -84,8 +84,8 @@ const discoveryCss = read("../src/styles/discovery.css") + read("../src/styles/t
 const html = read("../index.html");
 
 await ck("A01", "las reglas de input/select de Viaje usan --type-body-size (sin font-size literal)", async () => {
-  // Los cuatro certificados en D0b + el select de B29 (adaptación C: misma norma «todo control de Viaje ≥ 16 px»). P-06 v2 retiró de la lista los selects de la parada, del cajón y de «Detalles del día»; el recorrido dinámico de abajo mide los controles de cada hoja/vista.
-  for (const sel of [".recorded-interval-fit__input", ".accommodation-manager__input", ".accommodation-boundary__input", ".inter-hub-segments input", ".day-order-tool__move select"]) {
+  // Los cuatro certificados en D0b (adaptación C: misma norma «todo control de Viaje ≥ 16 px»). P-06 v2/C retiró de la lista los selects de la parada, del cajón, de «Detalles del día» y de la propuesta de orden (ahora Subir/Bajar); el recorrido dinámico de abajo mide los controles de cada hoja/vista.
+  for (const sel of [".recorded-interval-fit__input", ".accommodation-manager__input", ".accommodation-boundary__input", ".inter-hub-segments input"]) {
     const block = ruleBlock(appCss, sel);
     ok(/font-size:\s*var\(--type-body-size\)/.test(block), `${sel} sin var(--type-body-size)`);
     ok(!/font-size:\s*[\d.]+(rem|px)/.test(block), `${sel} con font-size literal`);

@@ -26,7 +26,7 @@ try {
     await root.locator(".day-card[data-day-id]").first().waitFor();
     await page.waitForTimeout(600);
     const scroll = root.locator(".destination-panel--scroll");
-    const v2 = (await root.locator(".day-card__details").count()) === 0;
+    const v2 = (await root.locator(".day-card__details").count()) === 0; // misma sonda contra la UI de P-06 v1 (main) y la v2
 
     const initial = await scroll.evaluate((el) => el.scrollHeight);
     const cardHeights = await root.locator(".day-card").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));

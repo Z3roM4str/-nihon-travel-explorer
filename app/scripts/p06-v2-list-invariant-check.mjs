@@ -27,7 +27,7 @@ try {
     const draft = () => page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft")));
     const metrics = () => scroll.evaluate((el) => ({ scrollHeight: el.scrollHeight, scrollTop: el.scrollTop }));
     const cardHeights = () => root.locator(".day-card").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
-    const geometry = () => page.evaluate(() => ({ href: location.href, historyLength: history.length }));
+    const geometry = () => page.evaluate(() => ({ href: location.href, own: Boolean(history.state && history.state.nihonDias) }));
 
     // ── 1 · estructura de N1 ────────────────────────────────────────────────────────────────────────────────────
     check(`${name}: puntero ${pointer} en este contexto`, await page.evaluate((p) => matchMedia(`(pointer: ${p})`).matches, pointer));
@@ -86,7 +86,7 @@ try {
       const after = await metrics();
       check(`«${label}»: cerrar conserva el contexto (scroll ${before.scrollTop}→${after.scrollTop}) y no cambia el borrador`, Math.abs(after.scrollTop - before.scrollTop) <= 2 && JSON.stringify(await draft()) === baseline.draft);
       check(`«${label}»: Escape devuelve el foco al disparador`, await t.evaluate((el) => document.activeElement === el));
-      check(`«${label}»: abrir/cerrar no navega ni toca el historial`, JSON.stringify(await geometry()) === JSON.stringify(baseline.geo));
+      check(`«${label}»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia`, JSON.stringify(await geometry()) === JSON.stringify(baseline.geo));
     }
     // El fondo también cierra una Sheet.
     await firstCard.getByRole("button", { name: "Acciones del Día 1" }).click();
@@ -135,6 +135,11 @@ try {
         d.accommodations.push({ id: "p06-zone", label: "Shinjuku", location: { lat: 35.69, lng: 139.7 } });
         d.zoneAccommodationChoices.push({ hub: "Tokio", zoneId: zone.id, accommodationId: "p06-zone" });
       }, "Zona para dormir: Shinjuku"],
+      ["sin alojamiento esa noche", (d) => {
+        d.accommodations.push({ id: "p06-zone2", label: "Shinjuku", location: { lat: 35.69, lng: 139.7 } });
+        d.zoneAccommodationChoices.push({ hub: "Tokio", zoneId: zone.id, accommodationId: "p06-zone2" });
+        d.days[0].accommodationBoundary = { start: { kind: "unselected" }, end: { kind: "no-accommodation" } };
+      }, "Sin alojamiento esa noche"],
       ["alojamiento concreto", (d) => {
         d.accommodations.push({ id: "p06-hotel", label: "Hotel Sakura", location: { lat: 35.68, lng: 139.76 } });
         d.days[0].accommodationBoundary = { start: { kind: "unselected" }, end: { kind: "accommodation", accommodationId: "p06-hotel" } };
@@ -150,6 +155,9 @@ try {
       const text = (await r.locator(".day-card").first().locator(".day-card__sleep").innerText()).replace(/\s+/g, " ").replace(/\s*›$/, "").trim();
       check(`alojamiento ${label}: «${expected}»`, text === expected, text);
       check(`alojamiento ${label}: nunca «Dormís en la zona»`, !/Dormís en la zona/.test(await r.innerText()));
+      if (label === "sin alojamiento esa noche") {
+        check("sin alojamiento: no se presenta como elección pendiente ni gana la zona de la ciudad", !/Elegir zona/.test(await r.locator(".day-card").first().innerText()) && !/Zona para dormir/.test(await r.locator(".day-card").first().locator(".day-card__sleep").innerText()));
+      }
       await sub.context.close();
     }
 
