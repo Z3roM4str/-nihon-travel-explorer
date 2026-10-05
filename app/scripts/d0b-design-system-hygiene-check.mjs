@@ -189,6 +189,11 @@ async function measureNow(page, width, tab, suffix = "") {
           ? [...overlay.querySelectorAll("*")].filter((el) => el.getBoundingClientRect().right > overlay.getBoundingClientRect().left + overlay.clientWidth + 1)
               .slice(0, 6).map((el) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}.${String(el.className).split(" ")[0]} right=${Math.round(el.getBoundingClientRect().right)} w=${Math.round(el.getBoundingClientRect().width)}`)
           : [],
+        sizes: overlay ? { scrollWidth: overlay.scrollWidth, clientWidth: overlay.clientWidth, offsetWidth: overlay.offsetWidth } : null,
+        inner: overlay && overlay.scrollWidth > overlay.clientWidth + 1
+          ? [...overlay.querySelectorAll("*")].filter((el) => el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0)
+              .slice(0, 6).map((el) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}.${String(el.className).split(" ")[0]} sw=${el.scrollWidth} cw=${el.clientWidth}`)
+          : [],
       };
     });
     // HEREDADO (idéntico en la base 2f2e5e1): el panel de «Dónde dormir» desborda 1-2 px a 320 px.
