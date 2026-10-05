@@ -95,9 +95,15 @@ async function showDays(page) {
   await page.getByRole("button", { name: "Viaje", exact: true }).click();
   await page.getByRole("heading", { name: "Viaje", exact: true }).waitFor();
   const active = page.locator('.destination-panel:not([hidden])');
-  await active.locator(".days-framing").waitFor();
   await active.locator(".day-card[data-day-id]").first().waitFor();
   return active;
+}
+// P-06 v2: abre la Sheet cuyo disparador se da y devuelve su locator; cierra con «Escape».
+async function openSheet(page, trigger, title) {
+  await keyboardActivate(trigger);
+  const sheet = page.locator(".sheet").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
+  await sheet.waitFor();
+  return sheet;
 }
 async function keyboardActivate(locator) {
   await locator.focus();
@@ -119,7 +125,9 @@ try {
   page.on("console", (message) => { if (message.type() === "error") fail(`console: ${message.text()}`); });
   const root = await openDays(page);
   const scrollRoot = root.locator(".destination-panel--scroll");
-  if (await root.locator(".days-framing").count() !== 1) fail("A: framing line must be exactly one");
+  // P-06 v2: la frase normativa vive en «Cambiar orden», no en la lista; la lista no tiene <details>.
+  if (await root.locator(".days-framing").count() !== 0) fail("A: framing line must not be in the list");
+  if (await root.locator("details").count() !== 0) fail("P-06 v2: la lista de Días no debe contener <details>");
   if (await root.locator(".day-card").count() !== 1) fail("A: Días must be the initial unit");
   if (await root.locator(".sequence-item__controls").count()) fail("A: legacy arrow trio is visible");
   const originalWishlist = await page.evaluate((key) => localStorage.getItem(key), WISHLIST_KEY);
@@ -131,49 +139,52 @@ try {
   }).format(new Date(`${iso}T00:00:00Z`));
   const startFixture = "2027-02-22";
   const endFixture = "2027-03-05";
-  await root.getByText("Poner fecha de inicio", { exact: true }).waitFor();
+  const datesSheet = await openSheet(page, root.getByRole("button", { name: "Poner fechas del viaje" }), "Fechas del viaje");
+  await datesSheet.getByText("Poner fecha de inicio", { exact: true }).waitFor();
   await root.locator("#sequence-start-date").fill(startFixture);
   await root.locator(".analysis-header__sub").getByText(`Desde ${formatCivil(startFixture)}`, { exact: true }).waitFor();
   await root.locator("#sequence-end-date").fill(endFixture);
   await root.locator(".analysis-header__sub").getByText(`${formatCivil(startFixture)} – ${formatCivil(endFixture)}`, { exact: true }).waitFor();
+  await keyboardActivate(datesSheet.getByRole("button", { name: "Listo" }));
+  await datesSheet.waitFor({ state: "detached" });
+  if (!await root.getByRole("button", { name: "Editar fechas" }).evaluate((element) => document.activeElement === element)) fail("P-06 v2: cerrar la hoja de fechas no devolvió el foco a «Editar fechas»");
   await keyboardActivate(root.getByRole("button", { name: "Añadir día" }));
   if (await root.locator(".day-card[data-day-id]").count() !== 2) fail("B: add day failed");
   await keyboardActivate(root.getByRole("button", { name: "Añadir día" }));
   if (await root.locator(".day-card[data-day-id]").count() !== 3) fail("B: second add day failed");
-  await keyboardActivate(root.getByRole("button", { name: "Eliminar Día 3" }));
+  const deleteSheet = await openSheet(page, root.getByRole("button", { name: "Acciones del Día 3" }), "Acciones del Día 3");
+  await keyboardActivate(deleteSheet.getByRole("button", { name: "Eliminar Día 3" }));
   if (await root.locator(".day-card[data-day-id]").count() !== 2) fail("B: delete empty day failed");
   const beforeMove = await draft(page);
   const stableIds = beforeMove.days.map((day) => day.id);
 
-  // Real Mover a… flow: keyboard open, another day, explicit position, confirm.
+  // Real stop-actions flow: keyboard open the Sheet, pick another day; the stop lands at its END.
   const kyotoStop = root.locator(".trip-stop", { hasText: kyoto.name });
-  await keyboardActivate(kyotoStop.getByRole("button", { name: "Mover a…" }));
+  const kyotoSheet = await openSheet(page, kyotoStop.getByRole("button", { name: `Acciones de ${kyoto.name}` }), kyoto.name);
   await capture(page, "viaje-390-mover-parada");
-  await kyotoStop.getByLabel("Día").selectOption("1");
-  await kyotoStop.getByLabel("Posición").selectOption("0");
-  await keyboardActivate(kyotoStop.getByRole("button", { name: "Mover parada" }));
+  if (await kyotoSheet.getByText(/Posici[oó]n/).count()) fail("P-06 v2: la hoja de la parada no debe pedir «Posición»");
+  await keyboardActivate(kyotoSheet.getByRole("button", { name: /^Mover al Día 2/ }));
   if (!await root.locator(".day-card").nth(1).getByText(kyoto.name, { exact: true }).count()) fail("C/D: inter-day move missing in DOM");
   let persisted = await draft(page);
-  if (persisted.days[1].placeIds[0] !== kyoto.id) fail("E: inter-day move not persisted");
+  if (persisted.days[1].placeIds.at(-1) !== kyoto.id) fail("E: inter-day move not persisted at the end of the destination day");
 
-  // Same-day explicit-position move.
+  // Same-day fine order now lives in «Cambiar orden» (N3), not in the stop actions.
   const firstDay = root.locator(".day-card").first();
-  const movingStop = firstDay.locator(".trip-stop").first();
-  const movingName = await movingStop.locator("strong").innerText();
-  await keyboardActivate(movingStop.getByRole("button", { name: "Mover a…" }));
-  const sameDayPosition = movingStop.getByLabel("Posición");
-  await sameDayPosition.selectOption({ value: "1" });
-  const confirmMove = movingStop.getByRole("button", { name: "Mover parada" });
-  await keyboardActivate(confirmMove);
+  const orderFirst = firstDay.getByRole("button", { name: "Cambiar orden del Día 1" });
+  const movingName = await firstDay.locator(".trip-stop").first().locator("strong").innerText();
+  await keyboardActivate(orderFirst);
+  const sameDayTool = root.locator(".day-order-tool");
+  await sameDayTool.waitFor();
+  await sameDayTool.locator(".day-order-tool__order").nth(1).getByLabel(new RegExp(`^Mover ${movingName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} a la posición`)).selectOption({ value: "2" });
+  await keyboardActivate(sameDayTool.getByRole("button", { name: "Usar este orden" }));
+  await sameDayTool.waitFor({ state: "detached" });
   const sameDayAfter = await firstDay.locator(".trip-stop strong").allInnerTexts();
   if (sameDayAfter[1] !== movingName) fail("C/D: same-day move failed");
 
-  // Whole-day move through its explicit keyboard-labelled destination (P-06: inside «Detalles del día»).
-  if (await firstDay.locator(".day-card__details").getAttribute("open") !== null) fail("P-06: Detalles del día must start closed");
-  await keyboardActivate(firstDay.locator(".day-card__details > summary"));
-  const dayMove = firstDay.getByLabel("Mover Día 1 a la posición");
-  await dayMove.focus();
-  await dayMove.selectOption("1");
+  // Whole-day move through its keyboard-operable Sheet (P-06 v2: «Mover después», no «Posición N»).
+  if (await root.locator("details").count() !== 0) fail("P-06 v2: la lista no debe contener <details>");
+  const daySheet = await openSheet(page, firstDay.getByRole("button", { name: "Acciones del Día 1" }), "Acciones del Día 1");
+  await keyboardActivate(daySheet.getByRole("button", { name: /^Mover después/ }));
   persisted = await draft(page);
   if (persisted.days[1].id !== stableIds[0] || persisted.days[0].id !== stableIds[1]) fail("B/D: whole-day stable identity move failed");
 
@@ -195,23 +206,23 @@ try {
   await showDays(page);
   const assignedStop = root.locator(".trip-stop", { hasText: assignedPlace.name });
   const assignedName = assignedPlace.name;
-  // P-06: «Mover a Sin asignar» vive detrás del «⋯» (nombre accesible «Mover a…») de la parada.
-  if (await assignedStop.getByRole("button", { name: "Mover a Sin asignar" }).count()) fail("P-06: stop actions must be collapsed by default");
-  await keyboardActivate(assignedStop.getByRole("button", { name: "Mover a…" }));
-  await keyboardActivate(assignedStop.getByRole("button", { name: "Mover a Sin asignar" }));
+  // P-06 v2: «Mover a Sin asignar» vive en la hoja de la parada, nunca inline.
+  if (await assignedStop.getByRole("button", { name: "Mover a Sin asignar" }).count()) fail("P-06: stop actions must not be inline");
+  const assignedSheet = await openSheet(page, assignedStop.getByRole("button", { name: `Acciones de ${assignedName}` }), assignedName);
+  await keyboardActivate(assignedSheet.getByRole("button", { name: "Mover a Sin asignar" }));
   const pruned = await draft(page);
   if (pruned.visitStartTimes[assignedId] !== undefined) fail("G: visitStartTime survived unassign");
   if (pruned.accommodationLegs.some((leg) => leg.placeId === assignedId)) fail("G: accommodation leg survived unassign");
   if (pruned.interHubSegments.some((segment) => segment.fromPlaceId === assignedId || segment.toPlaceId === assignedId)) fail("G: inter-hub segment survived unassign");
-  const drawer = root.locator(".unassigned-drawer");
-  if (await drawer.getAttribute("open") !== null) fail("G: drawer must start closed");
-  if (!/^Sin asignar · 1 sitio$/.test(await drawer.locator("summary").innerText())) fail("G: real counter did not increase");
-  await keyboardActivate(drawer.locator("summary"));
-  if (!await drawer.getByText(assignedName, { exact: true }).count()) fail("G: removed stop not immediately in drawer");
+  const drawer = root.locator(".unassigned");
+  if (!await drawer.isVisible()) fail("G: «Sin asignar» con lugares debe ser una sección visible, sin abrir nada");
+  if (await root.locator(".unassigned-drawer, details").count()) fail("G: «Sin asignar» no debe ser un <details>");
+  if (!/^Sin asignar · 1 sitio$/.test(await drawer.locator("h3").innerText())) fail("G: real counter did not increase");
+  if (!await drawer.getByText(assignedName, { exact: true }).count()) fail("G: removed stop not immediately in Sin asignar");
   await scrollRoot.evaluate((element) => { element.scrollTop = 0; });
   await capture(page, "viaje-390-sin-asignar-top");
   await scrollRoot.evaluate((element) => { element.scrollTop = element.scrollHeight; });
-  const addToDay = drawer.getByLabel("Añadir al día…");
+  const addToDay = drawer.getByRole("button", { name: `Añadir ${assignedName} a un día` });
   await addToDay.scrollIntoViewIfNeeded();
   const addControlVisible = await addToDay.evaluate((element) => {
     const box = element.getBoundingClientRect();
@@ -219,11 +230,12 @@ try {
     const tabBar = document.querySelector(".tab-bar:not([hidden])")?.getBoundingClientRect();
     return box.top >= panel.top && box.bottom <= panel.bottom && (!tabBar || box.bottom <= tabBar.top);
   });
-  if (!addControlVisible) fail("G/I: drawer add-to-day control is obscured at the end of scroll");
+  if (!addControlVisible) fail("G/I: «Añadir a un día» is obscured at the end of scroll");
   await capture(page, "viaje-390-sin-asignar-bottom");
   if (await page.evaluate((key) => localStorage.getItem(key), WISHLIST_KEY) !== originalWishlist) fail("H: Quiero ir changed on unassign");
-  await drawer.getByLabel("Añadir al día…").selectOption({ index: 1 });
-  if (!/^Sin asignar · 0 sitios$/.test(await drawer.locator("summary").innerText())) fail("G: counter did not decrease after restore");
+  const restoreSheet = await openSheet(page, addToDay, assignedName);
+  await keyboardActivate(restoreSheet.getByRole("button", { name: /^Día 1/ }));
+  if (await root.locator(".unassigned").count() !== 0) fail("G: «Sin asignar» vacío no debe ocupar espacio tras restaurar");
   const restored = await draft(page);
   if (restored.visitStartTimes[assignedId] !== undefined ||
       restored.accommodationLegs.some((leg) => leg.placeId === assignedId) ||
@@ -232,7 +244,7 @@ try {
   }
 
   // Inter-hub editor uses existing assessment data; the compact row must appear only when active.
-  await keyboardActivate(root.locator(".days-tools > summary"));
+  await keyboardActivate(root.getByRole("button", { name: "Herramientas del viaje" }));
   const interHub = root.locator(".inter-hub-segments");
   const pair = interHub.getByLabel("Posición en el plan");
   if (await pair.locator("option").count() > 1) {
@@ -242,35 +254,33 @@ try {
     await keyboardActivate(interHub.getByRole("button", { name: "Añadir traslado" }));
     if (await root.locator(".inter-hub-row").count() !== 1) fail("F: active between-days row absent");
     await capture(page, "viaje-390-traslado-interurbano-activo");
+    await keyboardActivate(page.getByRole("button", { name: "Volver a Días" }));
+    await page.locator(".focused-view").waitFor({ state: "detached" });
     const boundaryStop = root.locator(".day-card").first().locator(".trip-stop", { hasText: kyoto.name });
-    await keyboardActivate(boundaryStop.getByRole("button", { name: "Mover a…" }));
-    await boundaryStop.locator(".trip-stop__move-panel").waitFor();
-    const boundaryDay = boundaryStop.getByLabel("Día");
-    await boundaryDay.selectOption({ label: "Día 2" });
-    await boundaryStop.getByLabel("Posición").selectOption("0");
-    await keyboardActivate(boundaryStop.getByRole("button", { name: "Mover parada" }));
+    const boundarySheet = await openSheet(page, boundaryStop.getByRole("button", { name: `Acciones de ${kyoto.name}` }), kyoto.name);
+    await keyboardActivate(boundarySheet.getByRole("button", { name: /^Mover al Día 2/ }));
     if (await root.locator(".inter-hub-row").count() !== 0) fail("F: inactive/same-day segment shown between days");
   }
 
-  // B9.3 keeps Probar otro orden local to one day; opening/closing does not apply its proposal.
+  if (await root.locator(".focused-view").count()) { await page.keyboard.press("Escape"); await page.locator(".focused-view").waitFor({ state: "detached" }); }
+  // B9.3 keeps Cambiar orden local to one day; opening/closing does not apply its proposal.
   const orderTrigger = root.locator(".day-order-tool__trigger:not([disabled])").first();
-  if (!(await orderTrigger.count())) fail("B29: no day with two or more places exposes Probar otro orden");
+  if (!(await orderTrigger.count())) fail("B29: no day with two or more places exposes Cambiar orden");
   else {
-    const dayId = await orderTrigger.evaluate((element) => element.closest(".day-card")?.getAttribute("data-day-id"));
-    const orderCard = root.locator(`.day-card[data-day-id="${dayId}"]`);
     const beforeTool = await draft(page);
     await keyboardActivate(orderTrigger);
-    const dayTool = orderCard.locator(".day-order-tool");
+    const dayTool = root.locator(".day-order-tool");
     await dayTool.waitFor();
     const currentNames = await dayTool.locator(".day-order-tool__order").nth(0).locator(".day-order-tool__place-name").allTextContents();
     const proposalNames = await dayTool.locator(".day-order-tool__order").nth(1).locator(".day-order-tool__place-name").allTextContents();
     if (currentNames.join("|") !== proposalNames.join("|")) fail("B29: proposal did not start as a copy of the day's current order");
-    if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: opening Probar otro orden changed the draft");
+    if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: opening Cambiar orden changed the draft");
     if (!await dayTool.locator("h3").evaluate((heading) => document.activeElement === heading)) fail("B29: focus did not enter the day tool");
-    await capture(page, "viaje-390-probar-otro-orden");
+    await capture(page, "viaje-390-cambiar-orden");
+    if (await dayTool.locator("..").evaluate((element) => !element.closest(".focused-view"))) fail("P-06 v2: Cambiar orden debe abrirse en una vista enfocada, no inline");
     await page.keyboard.press("Escape");
-    if (await orderCard.locator(".day-order-tool").count()) fail("B29: Escape did not close the day tool");
-    if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: closing Probar otro orden changed the draft");
+    if (await root.locator(".day-order-tool").count()) fail("B29: Escape did not close the day tool");
+    if (JSON.stringify(await draft(page)) !== JSON.stringify(beforeTool)) fail("B29: closing Cambiar orden changed the draft");
     if (!await orderTrigger.evaluate((element) => document.activeElement === element)) fail("B29: Escape did not return focus to the exact day trigger");
   }
 
@@ -286,7 +296,6 @@ try {
   const scrollAfter = await scrollRoot.evaluate((element) => element.scrollTop);
   const scrollTolerance = 24;
   if (Math.abs(scrollAfter - scrollBeforeBack) > scrollTolerance) fail(`C: browser back changed scroll by ${Math.abs(scrollAfter - scrollBeforeBack)}px`);
-  if (await drawer.getAttribute("open") === null) fail("C/G: browser back lost drawer state");
   const afterBack = await draft(page);
   if (afterBack.days.map((day) => day.id).join() !== restored.days.map((day) => day.id).join()) fail("B/C: browser back reinitialized days");
 

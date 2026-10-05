@@ -130,9 +130,9 @@ async function writeCount(page) { return page.evaluate(() => window.__b29DraftWr
 async function resetWrites(page) { return page.evaluate(() => { window.__b29DraftWrites.length = 0; }); }
 async function openTool(page, root, dayId = "day-a") {
   const dayCard = card(root, dayId);
-  const trigger = dayCard.getByRole("button", { name: `Probar otro orden del Día ${dayId === "day-a" ? "1" : dayId === "day-b" ? "2" : "3"}` });
+  const trigger = dayCard.getByRole("button", { name: `Cambiar orden del Día ${dayId === "day-a" ? "1" : dayId === "day-b" ? "2" : "3"}` });
   await trigger.click();
-  const panel = dayCard.locator(".day-order-tool");
+  const panel = root.locator(".day-order-tool");
   await panel.waitFor();
   return { trigger, panel };
 }
@@ -159,13 +159,13 @@ try {
   const main = await setup();
   const { page, root, errors } = main;
   const original = await readDraft(page);
-  const trigger = card(root).getByRole("button", { name: "Probar otro orden del Día 1" });
+  const trigger = card(root).getByRole("button", { name: "Cambiar orden del Día 1" });
   const triggerCount = await trigger.count();
   const triggerDisabled = triggerCount === 1 ? await trigger.isDisabled() : null;
   check(triggerCount === 1 && !triggerDisabled, "A: local day trigger available");
   await resetWrites(page);
   const tool = await openTool(page, root);
-  check(await tool.panel.getByRole("heading", { name: "Probar otro orden · Día 1" }).count() === 1, "A: panel names its day");
+  check(await tool.panel.getByRole("heading", { name: "Cambiar orden · Día 1" }).count() === 1, "A: panel names its day");
   check(await tool.panel.getByRole("heading", { name: "Orden actual" }).count() === 1 && await tool.panel.getByRole("heading", { name: "Propuesta" }).count() === 1, "A: current/proposal terminology");
   check(await tool.panel.locator("h3").evaluate((heading) => document.activeElement === heading), "A: focus moves to panel heading");
   check((await orderNames(tool.panel.locator(".day-order-tool__order").nth(0))).join("|") === dayPlaceIds.map((id) => byId.get(id).name).join("|"), "B: exact day baseline order displayed");
@@ -173,7 +173,7 @@ try {
   check((await tool.panel.locator(".day-order-tool__comparison").innerText()).includes("Los traslados conocidos de ambos órdenes son iguales."), "D: initial equal order is described as equivalent");
   check(await writeCount(page) === 0 && JSON.stringify(await readDraft(page)) === JSON.stringify(original), "B: opening performs zero draft writes");
   const dayOther = root.locator(".day-card[data-day-id='day-b']");
-  check((await dayOther.getByRole("button", { name: "Probar otro orden del Día 2" }).count()) === 1, "A: another day exposes its own trigger");
+  check((await dayOther.getByRole("button", { name: "Cambiar orden del Día 2" }).count()) === 1, "A: another day exposes its own trigger");
   check(!(await root.getByText("Comparar otro orden", { exact: true }).count()), "22: global A/B compare is absent from primary Días UX");
   await capture(page, "b29-390-open");
 
@@ -201,14 +201,17 @@ try {
   check(await tool.panel.getByRole("button", { name: /Aplicar/ }).count() === 0, "E: alternatives have no immediate apply control");
   check(await tool.panel.getByRole("button", { name: "Cancelar", exact: true }).count() === 1, "G: cancel action is available");
 
-  // Tab follows the inline DOM order, without a modal focus trap.
+  // P-06 v2: el panel vive en una vista enfocada (N3); Tab sigue el orden del DOM desde su encabezado.
   await tool.panel.locator("h3").focus();
   await page.keyboard.press("Tab");
-  check(await tool.panel.getByRole("button", { name: "Cerrar Probar otro orden" }).evaluate((element) => document.activeElement === element), "J: Tab follows the panel's DOM order from its heading");
+  check(await tool.panel.getByRole("button", { name: "Cerrar Cambiar orden" }).evaluate((element) => document.activeElement === element), "J: Tab follows the panel's DOM order from its heading");
   await tool.panel.getByRole("button", { name: "Usar este orden", exact: true }).scrollIntoViewIfNeeded();
   const ctaVisible = await tool.panel.getByRole("button", { name: "Usar este orden", exact: true }).evaluate((element) => {
     const box = element.getBoundingClientRect();
-    const tab = document.querySelector(".tab-bar:not([hidden])")?.getBoundingClientRect();
+    // P-06 v2: la vista enfocada cubre el TabBar; sólo cuenta si el TabBar sigue accesible.
+    const tabEl = document.querySelector(".tab-bar:not([hidden])");
+    const tabRect = tabEl?.getBoundingClientRect();
+    const tab = tabRect && !document.elementFromPoint(tabRect.left + tabRect.width / 2, tabRect.top + tabRect.height / 2)?.closest(".focused-view") ? tabRect : undefined;
     return box.top >= 0 && box.bottom <= innerHeight && (!tab || box.bottom <= tab.top);
   });
   check(ctaVisible, "K: primary CTA is visible above mobile TabBar after scrolling to it");
@@ -272,10 +275,10 @@ try {
   for (const [index, fixture] of evidenceCases.entries()) {
     const dayId = `b29-evidence-${index + 1}`;
     const fixtureCase = await setupEvidenceFixture(fixture.baseline, dayId);
-    const fixtureTrigger = fixtureCase.dayCard.getByRole("button", { name: "Probar otro orden del Día 1" });
+    const fixtureTrigger = fixtureCase.dayCard.getByRole("button", { name: "Cambiar orden del Día 1" });
     await resetWrites(fixtureCase.page);
     await fixtureTrigger.click();
-    const fixturePanel = fixtureCase.dayCard.locator(".day-order-tool");
+    const fixturePanel = fixtureCase.root.locator(".day-order-tool");
     await fixturePanel.waitFor();
     const optionGroup = fixturePanel.locator(".day-order-tool__group").filter({ hasText: fixture.family });
     check(await optionGroup.count() === 1, `E-${index + 1}: ${fixture.family} is available in the day tool`);
@@ -308,7 +311,7 @@ try {
   check((await orderNames(cancelTool.panel.locator(".day-order-tool__order").nth(1))).join("|") === dayPlaceIds.map((id) => byId.get(id).name).join("|"), "B/G: reopening starts from persisted order");
   await cancelTool.panel.getByLabel(`Mover ${byId.get(ids[1]).name} a la posición en la propuesta del Día 1`).selectOption("6");
   await cancelCase.page.keyboard.press("Escape");
-  check(await cancelCase.root.locator(".day-order-tool").count() === 0, "G: Escape closes only the inline tool");
+  check(await cancelCase.root.locator(".day-order-tool").count() === 0, "G: Escape closes only the order view");
   check(await cancelCase.root.getByRole("heading", { name: "Viaje · Días", exact: true }).count() === 1, "G: Escape leaves the Viaje surface open");
   check(JSON.stringify((await readDraft(cancelCase.page)).days[0].placeIds) === JSON.stringify(dayPlaceIds) && await writeCount(cancelCase.page) === 0, "G: Escape discards proposal without mutation");
   check(await cancelTool.trigger.evaluate((element) => document.activeElement === element), "J: Escape restores focus to the same day trigger");
@@ -318,10 +321,10 @@ try {
   // the sole apply action, and Enter commits exactly one write.
   const keyboardCase = await setup();
   await resetWrites(keyboardCase.page);
-  const keyboardTrigger = card(keyboardCase.root).getByRole("button", { name: "Probar otro orden del Día 1" });
+  const keyboardTrigger = card(keyboardCase.root).getByRole("button", { name: "Cambiar orden del Día 1" });
   await keyboardTrigger.focus();
   await keyboardCase.page.keyboard.press("Enter");
-  const keyboardPanel = card(keyboardCase.root).locator(".day-order-tool");
+  const keyboardPanel = keyboardCase.root.locator(".day-order-tool");
   await keyboardPanel.waitFor();
   check(await keyboardPanel.locator("h3").evaluate((element) => document.activeElement === element), "J: Enter opens the tool and moves focus to its heading");
   await keyboardCase.page.keyboard.press("Tab"); // Close button
@@ -352,15 +355,15 @@ try {
   // Stable day identity end to end: move the day first, then open and apply against its new ordinal.
   const movedDayCase = await setup();
   const movedDayPlanBefore = await readDraft(movedDayCase.page);
-  await card(movedDayCase.root, "day-a").locator(".day-card__details > summary").click();
-  await card(movedDayCase.root, "day-a").getByLabel("Mover Día 1 a la posición").selectOption("1");
+  await card(movedDayCase.root, "day-a").getByRole("button", { name: "Acciones del Día 1" }).click();
+  await movedDayCase.root.locator(".sheet").getByRole("button", { name: /^Mover después/ }).click();
   const afterDayMove = await readDraft(movedDayCase.page);
   check(JSON.stringify(afterDayMove.days.map((day) => day.id)) === JSON.stringify(["day-b", "day-a", "day-c"]), "F: fixture moves the target day while preserving its stable id");
   await resetWrites(movedDayCase.page);
   const movedDayCard = card(movedDayCase.root, "day-a");
-  const movedDayTrigger = movedDayCard.getByRole("button", { name: "Probar otro orden del Día 2" });
+  const movedDayTrigger = movedDayCard.getByRole("button", { name: "Cambiar orden del Día 2" });
   await movedDayTrigger.click();
-  const movedDayPanel = movedDayCard.locator(".day-order-tool");
+  const movedDayPanel = movedDayCase.root.locator(".day-order-tool");
   await movedDayPanel.waitFor();
   check((await orderNames(movedDayPanel.locator(".day-order-tool__order").nth(0))).join("|") === dayPlaceIds.map((id) => byId.get(id).name).join("|"), "F: moved stable day opens with its own current order");
   check((await orderNames(movedDayPanel.locator(".day-order-tool__order").nth(1))).join("|") === dayPlaceIds.map((id) => byId.get(id).name).join("|"), "F: proposal starts from that moved day's exact order");
@@ -382,11 +385,10 @@ try {
   await resetWrites(staleCase.page);
   const staleTool = await openTool(staleCase.page, staleCase.root);
   await staleTool.panel.getByLabel(`Mover ${byId.get(ids[0]).name} a la posición en la propuesta del Día 1`).selectOption("6");
+  // P-06 v2: la vista enfocada es modal; el cambio «externo» se simula sobre los controles tapados (dispatchEvent no exige visibilidad).
   const underlyingMove = card(staleCase.root).locator(".trip-stop").first();
-  await underlyingMove.getByRole("button", { name: "Mover a…" }).click();
-  const underlyingUnassign = underlyingMove.getByRole("button", { name: "Mover a Sin asignar" });
-  await underlyingUnassign.focus();
-  await underlyingUnassign.press("Enter");
+  await underlyingMove.getByRole("button", { name: /^Acciones de / }).dispatchEvent("click");
+  await staleCase.root.locator(".sheet").getByRole("button", { name: "Mover a Sin asignar" }).click();
   await staleTool.panel.getByRole("alert").waitFor();
   check(await staleTool.panel.getByRole("button", { name: "Usar este orden", exact: true }).isDisabled(), "H: stale baseline disables apply");
   const stalePersisted = await readDraft(staleCase.page);
@@ -402,28 +404,26 @@ try {
   const staleOrderTool = await openTool(staleOrderCase.page, staleOrderCase.root);
   await staleOrderTool.panel.getByLabel(`Mover ${byId.get(ids[0]).name} a la posición en la propuesta del Día 1`).selectOption("6");
   const underlyingStop = card(staleOrderCase.root).locator(".trip-stop").first();
-  const underlyingMoveButton = underlyingStop.getByRole("button", { name: "Mover a…" });
-  await underlyingMoveButton.focus();
-  await underlyingMoveButton.press("Enter");
-  const underlyingMovePanel = underlyingStop.locator(".trip-stop__move-panel");
-  await underlyingMovePanel.getByLabel("Posición").selectOption("2");
-  const underlyingConfirmMove = underlyingMovePanel.getByRole("button", { name: "Mover parada" });
-  await underlyingConfirmMove.focus();
-  await underlyingConfirmMove.press("Enter");
+  // Mismo conjunto, otro orden: la parada sale al Día 2 y vuelve al final del Día 1 (siempre «al final»).
+  const underlyingName = await underlyingStop.locator("strong").innerText();
+  await underlyingStop.getByRole("button", { name: /^Acciones de / }).dispatchEvent("click");
+  await staleOrderCase.root.locator(".sheet").getByRole("button", { name: /^Mover al Día 2/ }).click();
+  await staleOrderCase.root.locator(".trip-stop", { hasText: underlyingName }).getByRole("button", { name: /^Acciones de / }).dispatchEvent("click");
+  await staleOrderCase.root.locator(".sheet").getByRole("button", { name: /^Mover al Día 1/ }).click();
   const staleSameSet = await readDraft(staleOrderCase.page);
   check(JSON.stringify(staleSameSet.days[0].placeIds) !== JSON.stringify(dayPlaceIds), "H: external same-day reorder changes the current order");
   check(JSON.stringify([...staleSameSet.days[0].placeIds].sort()) === JSON.stringify([...dayPlaceIds].sort()), "H: stale-order fixture preserves exactly the same set");
   await staleOrderTool.panel.getByRole("alert").waitFor();
   check(await staleOrderTool.panel.getByRole("button", { name: "Usar este orden", exact: true }).isDisabled(), "H: same-set stale baseline disables apply");
-  check(await writeCount(staleOrderCase.page) === 1, "H: same-set stale flow records only the external B28 move");
+  check(await writeCount(staleOrderCase.page) === 2, "H: same-set stale flow records only the two external moves");
   await staleOrderCase.page.waitForTimeout(100);
   check(JSON.stringify((await readDraft(staleOrderCase.page)).days[0].placeIds) === JSON.stringify(staleSameSet.days[0].placeIds), "H: stale proposal cannot overwrite the newer same-set order");
   await staleOrderCase.context.close();
 
   // I: zero/single-place days have no fictitious proposal.
   const small = await setup({ emptyPlan: true, days: [[], [ids[0]]] });
-  const emptyTrigger = card(small.root, "day-a").getByRole("button", { name: "Probar otro orden del Día 1" });
-  const singleTrigger = card(small.root, "day-b").getByRole("button", { name: "Probar otro orden del Día 2" });
+  const emptyTrigger = card(small.root, "day-a").getByRole("button", { name: "Cambiar orden del Día 1" });
+  const singleTrigger = card(small.root, "day-b").getByRole("button", { name: "Cambiar orden del Día 2" });
   check(await emptyTrigger.isDisabled() && await singleTrigger.isDisabled(), "I: empty/single day tool is unavailable");
   check(await small.root.locator(".day-order-tool").count() === 0, "I: no synthetic proposal is opened");
   await small.context.close();
@@ -446,7 +446,9 @@ try {
       const box = element.getBoundingClientRect();
       const tab = document.querySelector(".tab-bar");
       const tabBox = tab?.getBoundingClientRect();
-      const tabVisible = Boolean(tab && tab.getClientRects().length && getComputedStyle(tab).display !== "none");
+      const tabRect0 = tab?.getBoundingClientRect();
+      const tabCovered = Boolean(tabRect0 && document.elementFromPoint(tabRect0.left + tabRect0.width / 2, tabRect0.top + tabRect0.height / 2)?.closest(".focused-view"));
+      const tabVisible = Boolean(tab && tab.getClientRects().length && getComputedStyle(tab).display !== "none" && !tabCovered);
       const hit = document.elementFromPoint(box.left + box.width / 2, box.bottom - 2);
       return {
         safe: !tabVisible || Boolean(tabBox && box.bottom <= tabBox.top && !tab?.contains(hit)),
@@ -466,23 +468,21 @@ try {
 
   // B28 keyboard move remains live after close; the full mouse/touch drag regression runs below.
   const regression = await setup();
-  const regTool = await openTool(regression.page, regression.root);
+  await openTool(regression.page, regression.root);
   await regression.page.keyboard.press("Escape");
   const regressionCard = card(regression.root);
-  check(await regTool.trigger.getAttribute("aria-expanded") === "false", "L: Escape closed proposal before the B28 drag regression");
+  check(await regression.root.locator(".day-order-tool").count() === 0, "L: Escape closed proposal before the B28 drag regression");
   const storageKeysBeforeRegression = await regression.page.evaluate(() => Object.keys(localStorage).sort());
   const moveStop = regressionCard.locator(".trip-stop").first();
-  check(await regressionCard.getByRole("button", { name: "Mover a…" }).count() === ids.length, "L: B28 Mover a… remains available after tool closes");
+  check(await regressionCard.getByRole("button", { name: /^Acciones de / }).count() === ids.length, "L: stop actions remain available after the tool closes");
   const moveBefore = [...(await readDraft(regression.page)).days[0].placeIds];
-  const moveToggle = moveStop.getByRole("button", { name: "Mover a…" });
+  const moveToggle = moveStop.getByRole("button", { name: /^Acciones de / });
   await keyboardActivate(moveToggle);
-  const movePanel = moveStop.locator(".trip-stop__move-panel");
-  await movePanel.getByLabel("Posición").selectOption({ value: "1" });
-  await keyboardActivate(movePanel.getByRole("button", { name: "Mover parada" }));
+  await keyboardActivate(regression.root.locator(".sheet").getByRole("button", { name: /^Mover al Día 2/ }));
   await regression.page.waitForFunction(({ key, before }) => JSON.stringify(JSON.parse(localStorage.getItem(key)).days[0].placeIds) !== JSON.stringify(before), { key: storageKey, before: moveBefore }, { timeout: 5000 });
-  const afterKeyboardMove = [...(await readDraft(regression.page)).days[0].placeIds];
-  check(JSON.stringify(afterKeyboardMove) === JSON.stringify([moveBefore[1], moveBefore[0], ...moveBefore.slice(2)]), "L: B28 Mover a… still performs an accessible keyboard reorder");
-  check(await regTool.trigger.getAttribute("aria-expanded") === "false", "L: tool closed without leaving an overlay");
+  const afterKeyboardMove = await readDraft(regression.page);
+  check(JSON.stringify(afterKeyboardMove.days[0].placeIds) === JSON.stringify(moveBefore.slice(1)) && afterKeyboardMove.days[1].placeIds.at(-1) === moveBefore[0], "L: the stop Sheet still performs an accessible keyboard move (to the end of the day)");
+  check(await regression.root.locator(".day-order-tool, .focused-view").count() === 0, "L: tool closed without leaving an overlay");
   check(JSON.stringify(await regression.page.evaluate(() => Object.keys(localStorage).sort())) === JSON.stringify(storageKeysBeforeRegression), "L: B9.3 adds no storage key");
   check(regression.errors.length === 0, `L: regression browser console is clean (${regression.errors.join("; ")})`);
   await regression.context.close();
@@ -496,6 +496,6 @@ const b28Output = execFileSync(process.execPath, [fileURLToPath(new URL("./b28-r
   env: process.env,
   encoding: "utf8",
 });
-check(b28Output.includes("B28 PASS 64/64"), `L: B28 pointer/touch regression passed (${b28Output.trim()})`);
+check(b28Output.includes("B28 PASS 69/69"), `L: B28 pointer/touch regression passed (${b28Output.trim()})`);
 console.log(b28Output.trim());
 console.log(`B29 Day Tools gate: PASS (${checks} checks; Chromium ${browserPath}; 8 viewports${shots ? `; screenshots ${shots}` : ""}).`);

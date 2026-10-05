@@ -4,7 +4,7 @@ import { launch, newPage } from "./lib/modern-trip.mjs";
  * Gate «opciones comprobadas del día» — herencia moderna de `phase3e-e/g/i/k-browser-audit` (Fase 6 del endurecimiento post-B10).
  *
  * Los gates 3E se escribieron para el panel «Alternativas locales con evidencia completa» con botones «Aplicar» (retirado: B29 convirtió
- * esas alternativas en OPCIONES de la herramienta «Probar otro orden» de cada día, y el panel no montado se retiró en este endurecimiento).
+ * esas alternativas en OPCIONES de la herramienta «Cambiar orden» de cada día, y el panel no montado se retiró en este endurecimiento).
  * Lo que protegían —y que sigue siendo verdad en la interfaz vigente— se mide aquí con las MISMAS fixtures y las MISMAS cifras:
  *
  *   · cada familia (adyacente, reubicación, no adyacente, reversión de cuatro, intercambio de bloques) aparece como opción con su copy en lenguaje natural
@@ -115,7 +115,7 @@ try {
     await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }).first().click();
     await page.waitForTimeout(800);
     const openTool = async () => {
-      await page.getByRole("button", { name: "Probar otro orden del Día 1" }).click();
+      await page.getByRole("button", { name: "Cambiar orden del Día 1" }).click();
       await page.locator(".day-order-tool").waitFor();
       return page.locator(".day-order-tool");
     };

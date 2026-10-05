@@ -374,7 +374,6 @@ async function auditViewport(browser, name, url) {
   check("the planner opened", (await page.locator("#sequence-builder-title:visible").count()) === 1);
   // B27 (B9.1): Viaje opens directly on the day timeline; the former flat-route
   // view and its “Distribuir por días” button no longer exist.
-  await page.locator(".days-framing:visible").waitFor({ timeout: 15000 });
   await page.locator(".day-card[data-day-id]:visible").first().waitFor({ timeout: 15000 });
   let draft = await readJson(page, DRAFT_KEY);
   const plannedIds = (draft?.days ?? []).flatMap((day) => day.placeIds);

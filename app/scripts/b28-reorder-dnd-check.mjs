@@ -76,25 +76,13 @@ async function mouseDragTo(page, handle, destination) {
   await page.mouse.move(end.x, end.y, { steps: 12 });
   return end;
 }
-async function touchDrag(page, handle, destination) {
-  const start = await point(handle);
-  const cdp = await page.context().newCDPSession(page);
-  const pointAt = (x, y) => [{ x, y, radiusX: 1, radiusY: 1, force: 1, id: 1 }];
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: pointAt(start.x, start.y) });
-  const end = await point(destination, .25);
-  for (let i = 1; i <= 12; i++) {
-    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: pointAt(start.x + (end.x - start.x) * i / 12, start.y + (end.y - start.y) * i / 12) });
-  }
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-  await cdp.detach();
-}
-
 try {
   const { context, page, root, errors } = await setup();
   const originalKeys = await page.evaluate(() => Object.keys(localStorage).sort());
   const wishlist = await page.evaluate((k) => localStorage.getItem(k), wishlistKey);
   const first = card(root, "day-a");
-  check(await first.getByRole("button", { name: "Mover a…" }).count() === 4, "A: keyboard path missing");
+  check(await first.getByRole("button", { name: /^Acciones de / }).count() === 4, "A: keyboard path (stop actions Sheet) missing");
+  check(await first.locator(".trip-stop__handle").first().isVisible(), "A: fine pointer keeps the drag handle");
   check(await first.getByRole("button", { name: `Arrastrar ${places[0].name}` }).count() === 1, "A: drag handle missing");
   check(await first.locator(".trip-stop__handle").first().evaluate((el) => Math.min(el.getBoundingClientRect().width, el.getBoundingClientRect().height)) >= 44, "J: handle target <44px");
   await shot(page, "390-baseline");
@@ -148,14 +136,14 @@ try {
   check((await plan(page)).days[2].placeIds[0] === ids[2], "D: empty day drop");
   await shot(page, "390-empty-day");
 
-  const drawer = root.locator(".unassigned-drawer");
-  await drawer.locator("summary").click();
+  const drawer = root.locator(".unassigned");
+  check(await drawer.isVisible() && await root.locator("details").count() === 0, "E: «Sin asignar» con lugares es visible y no es un <details>");
   const beforeUnassigned = await plan(page);
   await mouseDrag(page, drawer.locator(`[data-drag-place-id="${ids[6]}"]`), card(root, "day-b").locator(".trip-stop").last());
   current = await plan(page);
   check(JSON.stringify(current.days[1].placeIds) === JSON.stringify([ids[1], ids[4], ids[6], ids[5]]), "E: unassigned exact middle position");
-  check(await drawer.locator(`[data-drag-place-id="${ids[6]}"]`).count() === 0, "E: drawer item remained");
-  check(await drawer.locator("summary").textContent() === "Sin asignar · 0 sitios", "E: drawer count wrong");
+  check(await root.locator(`.unassigned [data-drag-place-id="${ids[6]}"]`).count() === 0, "E: Sin asignar item remained");
+  check(await root.locator(".unassigned").count() === 0, "E: «Sin asignar» vacío no debe ocupar espacio");
   check(await page.evaluate((k) => localStorage.getItem(k), wishlistKey) === wishlist, "E: wishlist changed");
   check(JSON.stringify(current.visitStartTimes) === JSON.stringify(beforeUnassigned.visitStartTimes) &&
     JSON.stringify(current.accommodationLegs) === JSON.stringify(beforeUnassigned.accommodationLegs) &&
@@ -188,13 +176,16 @@ try {
   await afterReload.locator(".trip-stop__drag-preview").waitFor({ state: "detached" });
   check(true, "F: lost capture cleared drag UI");
 
+  // P-06 v2: la alternativa al arrastre es la hoja de la parada; mover entre días SIEMPRE añade al final.
   const moved = card(afterReload, "day-a").locator(".trip-stop").first();
-  await moved.getByRole("button", { name: "Mover a…" }).click();
-  await moved.getByLabel("Día").selectOption("1");
-  await moved.getByLabel("Posición").selectOption("0");
-  await moved.getByRole("button", { name: "Mover parada" }).click();
-  check((await plan(page)).days[1].placeIds[0] === ids[0], "G: keyboard move broken");
-  check(await card(afterReload, "day-a").getByLabel("Mover Día 1 a la posición").count() === 1, "G: whole-day control missing");
+  const movedName = await moved.locator("strong").innerText();
+  await moved.getByRole("button", { name: `Acciones de ${movedName}` }).click();
+  const movedSheet = afterReload.locator(".sheet");
+  check(await movedSheet.getByText(/Posici[oó]n/).count() === 0, "G: la hoja no pide «Posición N»");
+  await movedSheet.getByRole("button", { name: /^Mover al Día 2/ }).click();
+  const afterMove = (await plan(page)).days[1].placeIds;
+  check(afterMove[afterMove.length - 1] === ids[0], "G: keyboard/sheet move must append at the end of the destination day");
+  check(await card(afterReload, "day-a").getByRole("button", { name: "Acciones del Día 1" }).count() === 1, "G: whole-day actions entry missing");
   check(JSON.stringify(await page.evaluate(() => Object.keys(localStorage).sort())) === JSON.stringify(originalKeys), "K: new storage key");
   check(errors.length === 0, `K: console ${errors.join(" | ")}`);
   await context.close();
@@ -210,9 +201,15 @@ try {
   check(JSON.stringify(await plan(positions.page)) === sameSlot, "B: last to final slot was not a no-op");
   await positions.context.close();
 
+  // P-06 v2: en touch no hay asas de arrastre en N1 (ni en la lista ni en Sin asignar); el orden fino va por «Cambiar orden».
   const touch = await setup({ width: 390, height: 844 }, true);
-  await touchDrag(touch.page, card(touch.root, "day-a").locator(`[data-drag-place-id="${ids[0]}"]`), card(touch.root, "day-a").locator(".trip-stop").nth(2));
-  check((await plan(touch.page)).days[0].placeIds[1] === ids[0], "H: touch pointer drag failed");
+  check(await touch.page.evaluate(() => matchMedia("(pointer: coarse)").matches), "H: el contexto touch es de puntero grueso");
+  check(await touch.root.locator("[data-drag-place-id]").evaluateAll((els) => els.length > 0 && els.every((el) => el.getBoundingClientRect().width === 0 && el.getBoundingClientRect().height === 0)), "H: touch must not show any drag handle in N1");
+  const touchStop = card(touch.root, "day-a").locator(".trip-stop").first();
+  await touchStop.getByRole("button", { name: /^Acciones de / }).tap();
+  await touch.root.locator(".sheet").getByRole("button", { name: /^Mover al Día 2/ }).tap();
+  const touchDay2 = (await plan(touch.page)).days[1].placeIds;
+  check(touchDay2[touchDay2.length - 1] === ids[0], "H: touch move through the Sheet failed");
   await touch.context.close();
 
   const auto = await setup({ width: 390, height: 844 });
@@ -296,21 +293,21 @@ try {
     await sample.root.locator(".trip-stop").first().scrollIntoViewIfNeeded();
     await shot(sample.page, `${width}x${height}-stop`);
     if (width === 320) {
-      await sample.root.locator(".unassigned-drawer summary").click();
-      await sample.root.locator(".unassigned-drawer [data-drag-place-id]").first().scrollIntoViewIfNeeded();
-      check(await sample.root.locator(".unassigned-drawer [data-drag-place-id]").first().evaluate((element) => {
+      // Puntero fino a 320 px: el asa de «Sin asignar» sigue siendo alcanzable.
+      await sample.root.locator(".unassigned [data-drag-place-id]").first().scrollIntoViewIfNeeded();
+      check(await sample.root.locator(".unassigned [data-drag-place-id]").first().evaluate((element) => {
         const rect = element.getBoundingClientRect();
         const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
         return hit === element || element.contains(hit);
-      }), "I: 320px drawer handle is obscured");
+      }), "I: 320px Sin asignar handle is obscured");
       await shot(sample.page, "320x568-drawer");
-      const addSelect = sample.root.locator(".unassigned-drawer select").first();
+      const addSelect = sample.root.locator(".unassigned__add").first();
       await addSelect.scrollIntoViewIfNeeded();
       check(await addSelect.evaluate((element) => {
         const rect = element.getBoundingClientRect();
         const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
         return hit === element || element.contains(hit);
-      }), "I: 320px drawer keyboard alternative is obscured");
+      }), "I: 320px «Añadir a un día» is obscured");
       await shot(sample.page, "320x568-drawer-control");
     }
     await sample.context.close();

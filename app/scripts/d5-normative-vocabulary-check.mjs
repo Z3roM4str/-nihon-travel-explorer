@@ -187,22 +187,28 @@ for (const width of [320, 390, 840, 1200]) {
   for (const tab of ["Días", "Dónde dormir", "Reservas", "Resumen"]) {
     await page.locator(`.viaje-nav__item:has-text("${tab}")`).click();
     await page.waitForTimeout(300);
-    if (tab === "Días") await page.evaluate(() => document.querySelectorAll("details.day-tools").forEach((d) => (d.open = true)));
     await ck(`V-${width}-${tab}`, `${width}px · Viaje › ${tab}: sin términos prohibidos (texto + nombres accesibles)`, async () => {
       audit(`Viaje/${tab}@${width}`, await snapshot(page));
     });
     if (tab === "Días" && width === 390) {
-      await ck("V-move", "panel «Mover a…» de una parada y «Mover a Sin asignar»", async () => {
-        await page.getByRole("button", { name: "Mover a…" }).first().click();
-        await page.locator(".trip-stop__move-panel").first().waitFor();
-        audit("Días/mover-parada", await snapshot(page));
-      });
-      await ck("V-order", "panel «Probar otro orden» (orden actual / otra propuesta)", async () => {
-        await page.getByRole("button", { name: /^Probar otro orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
-        await page.locator(".day-order-tool").first().waitFor();
-        audit("Días/otro-orden", await snapshot(page));
-        await page.keyboard.press("Escape");
-      });
+      // P-06 v2: cada superficie secundaria de Días (hojas N2 y vistas enfocadas N3) se audita con su texto real abierto.
+      for (const [id, label, open, selector] of [
+        ["V-move", "hoja de acciones de una parada («Mover al Día N» y «Mover a Sin asignar»)", () => page.getByRole("button", { name: /^Acciones de / }).first().click(), ".sheet"],
+        ["V-dates", "hoja «Fechas del viaje»", () => page.getByRole("button", { name: /^(Editar fechas|Poner fechas del viaje)$/ }).click(), ".sheet"],
+        ["V-add", "hoja «Añadir lugar»", () => page.getByRole("button", { name: /Añadir lugar/ }).first().click(), ".sheet"],
+        ["V-day", "hoja «Acciones del Día N»", () => page.getByRole("button", { name: /^Acciones del Día \d+$/ }).first().click(), ".sheet"],
+        ["V-details", "vista «Detalles del Día N»", () => page.getByRole("button", { name: /^Detalles del Día \d+$/ }).first().click(), ".focused-view"],
+        ["V-tools", "vista «Herramientas del viaje»", () => page.getByRole("button", { name: "Herramientas del viaje" }).click(), ".focused-view"],
+        ["V-order", "vista «Cambiar orden» (orden actual / otra propuesta)", () => page.getByRole("button", { name: /^Cambiar orden del Día \d+$/ }).and(page.locator(":enabled")).first().click(), ".day-order-tool"],
+      ]) {
+        await ck(id, `${label}`, async () => {
+          await open();
+          await page.locator(selector).first().waitFor();
+          audit(`Días/${id}`, await snapshot(page));
+          await page.keyboard.press("Escape");
+          await page.locator(".sheet, .focused-view").first().waitFor({ state: "detached" });
+        });
+      }
     }
   }
   await context.close();
@@ -218,7 +224,8 @@ for (const width of [320, 390, 840, 1200]) {
     for (const tab of ["Días", "Dónde dormir", "Reservas", "Resumen"]) {
       await page.locator(`.viaje-nav__item:has-text("${tab}")`).click();
       await page.waitForTimeout(250);
-      await page.evaluate(() => document.querySelectorAll("details.day-tools").forEach((d) => (d.open = true)));
+      // P-06 v2: el formulario de traslados vive en «Herramientas del viaje» (vista enfocada de Días).
+      if (tab === "Días") await page.getByRole("button", { name: "Herramientas del viaje" }).click();
       const lines = await snapshot(page);
       if (lines.some((l) => /Añadir traslado/.test(l.text))) {
         found = true;
@@ -231,6 +238,7 @@ for (const width of [320, 390, 840, 1200]) {
         audit(`Traslados-formulario@${tab}`, await snapshot(page));
         break;
       }
+      if (await page.locator(".focused-view").count()) await page.keyboard.press("Escape");
     }
     ok(found, "«Añadir traslado» no apareció en ninguna sub-pestaña");
   });

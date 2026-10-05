@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { fourPlaceFixture, newPage, openZones } from "./lib/modern-trip.mjs";
+import { fourPlaceFixture, newPage, openZones, closeDaysOverlays } from "./lib/modern-trip.mjs";
 
 /**
  * REESCRITO en el endurecimiento post-B10 (Fase 6, docs/GATE_RETIREMENT_AUDIT.md). Las AFIRMACIONES del gate original se conservan;
@@ -107,15 +107,20 @@ async function openPlanner(page) {
   await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }).first().click();
   await page.locator(".viaje-nav__item").filter({ hasText: "Días" }).click();
   await page.waitForTimeout(700);
-  const tools = page.locator("details", { has: page.getByText("Herramientas y datos del viaje") }).first();
-  if ((await tools.count()) > 0 && (await tools.getAttribute("open")) === null) {
-    await tools.locator("summary").first().click();
-    await page.waitForTimeout(400);
-  }
+  // P-06 v2: «Herramientas del viaje» abre una vista enfocada (N3); se abre aquí y se cierra al salir de Días.
+  await openTripTools(page);
 }
 
+/** P-06 v2: abre «Herramientas del viaje» si no está ya abierta. */
+async function openTripTools(page) {
+  if (await page.locator(".focused-view").count()) return;
+  await page.getByRole("button", { name: "Herramientas del viaje" }).click();
+  await page.locator(".focused-view").waitFor();
+  await page.waitForTimeout(400);
+}
 /** Vuelve a Viaje › Dónde dormir (la pestaña sigue montada; conserva su hub y selección). */
 async function reopenZones(page) {
+  await closeDaysOverlays(page);
   await page.locator('nav[aria-label="Navegación principal"]:visible button').filter({ hasText: "Viaje" }).first().click();
   await page.locator(".viaje-nav__item").filter({ hasText: "Dónde dormir" }).click();
   await page.locator(".zone-panel.zone-panel--embedded").waitFor();
@@ -196,7 +201,7 @@ async function auditViewport(env, name) {
   check("the planner opened", (await page.locator("#sequence-builder-title").count()) === 1 && (await page.locator("#sequence-builder-title").isVisible()));
 
   // ── 5/7. La decisión se reconoce en Días (antes: también en la «vista de ruta», retirada con D5-M1) ───────────────────────────
-  await page.getByText("Herramientas y datos del viaje").first().click();
+  await openTripTools(page);
   await page.waitForTimeout(500);
   const zonePlan = page.locator(".zone-plan");
   check("the days view acknowledges the chosen zone", (await zonePlan.count()) === 1);
@@ -237,6 +242,10 @@ async function auditViewport(env, name) {
     withoutDisclaimer.slice(0, 200)
   );
 
+  // P-06 v2: los selectores de límite del día viven en «Detalles del Día 1» (vista enfocada), aparte de «Herramientas del viaje».
+  await closeDaysOverlays(page);
+  await page.getByRole("button", { name: "Detalles del Día 1", exact: true }).click();
+  await page.locator(".focused-view").waitFor();
   const boundarySelects = page.locator(".accommodation-boundary__select");
   check("each day still asks for its own boundary", (await boundarySelects.count()) >= 2);
   check(
@@ -247,8 +256,6 @@ async function auditViewport(env, name) {
   const seededLabel = draft.accommodations[0].label;
   await boundarySelects.first().selectOption({ label: seededLabel });
   await page.waitForTimeout(450);
-  zoneText = await page.locator(".zone-plan").innerText();
-  check("the zone section notices the day is now planned from the zone", /desde esta zona/.test(zoneText));
 
   const minutesInput = page.locator(".accommodation-boundary__input").first();
   check("the minutes field is still empty — nothing was estimated", (await minutesInput.inputValue()) === "");
@@ -266,6 +273,12 @@ async function auditViewport(env, name) {
   draft = await readDraft(page);
   check("the manual leg is persisted as user-entered", draft?.accommodationLegs?.[0]?.source?.kind === "user-entered");
   check("its value is exactly what was typed", draft?.accommodationLegs?.[0]?.minutes === 25);
+
+  // Vuelta a «Herramientas del viaje»: la sección de zona reconoce el día planificado desde la zona.
+  await closeDaysOverlays(page);
+  await openTripTools(page);
+  zoneText = await page.locator(".zone-plan").innerText();
+  check("the zone section notices the day is now planned from the zone", /desde esta zona/.test(zoneText));
 
   // ── 8/9. A second hub, and an inter-hub segment ──────────────────────────────────────────────
   const interHub = page.locator(".inter-hub-segments");

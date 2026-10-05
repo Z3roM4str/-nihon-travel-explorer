@@ -84,8 +84,8 @@ const discoveryCss = read("../src/styles/discovery.css") + read("../src/styles/t
 const html = read("../index.html");
 
 await ck("A01", "las reglas de input/select de Viaje usan --type-body-size (sin font-size literal)", async () => {
-  // Los cuatro certificados en D0b + tres selects añadidos por B27–B29 (adaptación C: misma norma «todo control de Viaje ≥ 16 px»).
-  for (const sel of [".recorded-interval-fit__input", ".accommodation-manager__input", ".accommodation-boundary__input", ".inter-hub-segments input", ".trip-stop__move-panel select, .unassigned-drawer select", ".day-card__actions select", ".day-order-tool__move select"]) {
+  // Los cuatro certificados en D0b + el select de B29 (adaptación C: misma norma «todo control de Viaje ≥ 16 px»). P-06 v2 retiró de la lista los selects de la parada, del cajón y de «Detalles del día»; el recorrido dinámico de abajo mide los controles de cada hoja/vista.
+  for (const sel of [".recorded-interval-fit__input", ".accommodation-manager__input", ".accommodation-boundary__input", ".inter-hub-segments input", ".day-order-tool__move select"]) {
     const block = ruleBlock(appCss, sel);
     ok(/font-size:\s*var\(--type-body-size\)/.test(block), `${sel} sin var(--type-body-size)`);
     ok(!/font-size:\s*[\d.]+(rem|px)/.test(block), `${sel} con font-size literal`);
@@ -170,6 +170,41 @@ const openAllDetails = (page) =>
   page.evaluate(() => document.querySelectorAll("details:not([open])").forEach((d) => d.setAttribute("open", "")));
 
 const measured = {};
+/** Overflow + tamaño de fuente de los controles de lo que haya abierto en ese momento (lista, hoja o vista enfocada). */
+async function measureNow(page, width, tab, suffix = "") {
+  const tag = suffix ? `${tab} · ${suffix}` : tab;
+  await ck(`B-${width}-${tab}${suffix ? `-${suffix}` : ""}`, `${width}px · ${tag}: sin scroll horizontal`, async () => {
+    const o = await page.evaluate(() => {
+      const doc = document.documentElement;
+      const panel = document.querySelector(".destination-panel:not([hidden]) .destination-panel--scroll");
+      const surface = document.querySelector(".destination-panel:not([hidden]) .viaje-surface");
+      const overlay = document.querySelector(".focused-view__body, .sheet__body");
+      return {
+        page: doc.scrollWidth > doc.clientWidth + 1,
+        panel: !!panel && panel.scrollWidth > panel.clientWidth + 1,
+        surface: !!surface && surface.scrollWidth > surface.clientWidth + 1,
+        overlay: !!overlay && overlay.scrollWidth > overlay.clientWidth + 1,
+      };
+    });
+    // HEREDADO (idéntico en la base 2f2e5e1): el panel de «Dónde dormir» desborda 1-2 px a 320 px.
+    // Fuera del alcance de D0b (ZoneComparison); se registra, no se arregla ni se oculta.
+    if (width === 320 && tab === "Dónde dormir" && !o.page && !o.surface) return console.log(`# HEREDADO [${width}/${tab}] overflow del panel ${JSON.stringify(o)} (igual en la base)`);
+    ok(!o.page && !o.panel && !o.surface && !o.overlay, `overflow ${JSON.stringify(o)}`);
+  });
+  if (MOBILE.includes(width)) {
+    await ck(`A-${width}-${tab}${suffix ? `-${suffix}` : ""}`, `${width}px · ${tag}: input/select/textarea ≥ 16 px computados`, async () => {
+      const sizes = await page.evaluate(() =>
+        [...document.querySelectorAll(".destination-panel:not([hidden]) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea)")].map((el) => ({
+          cls: el.className || el.tagName,
+          px: parseFloat(getComputedStyle(el).fontSize),
+        }))
+      );
+      measured[tab] = Math.max(measured[tab] ?? 0, sizes.length);
+      const small = sizes.filter((s) => s.px < 16);
+      ok(small.length === 0, `controles < 16px: ${JSON.stringify(small)}`);
+    });
+  }
+}
 for (const width of ALL) {
   const { context, page } = await boot(width);
   for (const tab of TABS) {
@@ -177,41 +212,29 @@ for (const width of ALL) {
     await page.waitForTimeout(250);
     await openAllDetails(page);
     if (tab === "Días") {
-      // Controles que sólo existen al abrirlos: panel «Mover a…» de una parada y herramienta «Probar otro orden».
-      await page.getByRole("button", { name: "Mover a…" }).first().click();
-      await page.getByRole("button", { name: /^Probar otro orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
-      await page.locator(".day-order-tool").first().waitFor();
+      // P-06 v2: lo que antes vivía en <details>/paneles inline abre ahora una hoja (N2) o una vista enfocada (N3);
+      // se mide cada superficie con su contenido real abierto, y después la lista.
+      await measureNow(page, width, tab, "lista");
+      for (const [suffix, open, outside] of [
+        ["fechas", () => page.getByRole("button", { name: "Editar fechas" }).click(), "sheet"],
+        ["parada", () => page.getByRole("button", { name: /^Acciones de / }).first().click(), "sheet"],
+        ["añadir-lugar", () => page.getByRole("button", { name: /Añadir lugar/ }).first().click(), "sheet"],
+        ["detalles", () => page.getByRole("button", { name: /^Detalles del Día \d+$/ }).first().click(), "focused-view"],
+        ["herramientas", () => page.getByRole("button", { name: "Herramientas del viaje" }).click(), "focused-view"],
+        ["orden", () => page.getByRole("button", { name: /^Cambiar orden del Día \d+$/ }).and(page.locator(":enabled")).first().click(), "focused-view"],
+      ]) {
+        await open();
+        await page.locator(suffix === "orden" ? ".day-order-tool" : `.${outside}`).first().waitFor();
+        await page.waitForTimeout(150);
+        await openAllDetails(page);
+        await measureNow(page, width, tab, suffix);
+        await page.keyboard.press("Escape");
+        await page.locator(".sheet, .focused-view").first().waitFor({ state: "detached" });
+      }
+      continue;
     }
     await page.waitForTimeout(100);
-    await ck(`B-${width}-${tab}`, `${width}px · ${tab}: sin scroll horizontal`, async () => {
-      const o = await page.evaluate(() => {
-        const doc = document.documentElement;
-        const panel = document.querySelector(".destination-panel:not([hidden]) .destination-panel--scroll");
-        const surface = document.querySelector(".destination-panel:not([hidden]) .viaje-surface");
-        return {
-          page: doc.scrollWidth > doc.clientWidth + 1,
-          panel: !!panel && panel.scrollWidth > panel.clientWidth + 1,
-          surface: !!surface && surface.scrollWidth > surface.clientWidth + 1,
-        };
-      });
-      // HEREDADO (idéntico en la base 2f2e5e1): el panel de «Dónde dormir» desborda 1-2 px a 320 px.
-      // Fuera del alcance de D0b (ZoneComparison); se registra, no se arregla ni se oculta.
-      if (width === 320 && tab === "Dónde dormir" && !o.page && !o.surface) return console.log(`# HEREDADO [${width}/${tab}] overflow del panel ${JSON.stringify(o)} (igual en la base)`);
-      ok(!o.page && !o.panel && !o.surface, `overflow ${JSON.stringify(o)}`);
-    });
-    if (MOBILE.includes(width)) {
-      await ck(`A-${width}-${tab}`, `${width}px · ${tab}: input/select/textarea ≥ 16 px computados`, async () => {
-        const sizes = await page.evaluate(() =>
-          [...document.querySelectorAll(".destination-panel:not([hidden]) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea)")].map((el) => ({
-            cls: el.className || el.tagName,
-            px: parseFloat(getComputedStyle(el).fontSize),
-          }))
-        );
-        measured[tab] = Math.max(measured[tab] ?? 0, sizes.length);
-        const small = sizes.filter((s) => s.px < 16);
-        ok(small.length === 0, `controles < 16px: ${JSON.stringify(small)}`);
-      });
-    }
+    await measureNow(page, width, tab);
   }
   await context.close();
 }

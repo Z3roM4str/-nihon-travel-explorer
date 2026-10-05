@@ -148,13 +148,20 @@ export async function walkSurfaces(browser, url, width, onState, { skipped = [] 
   await page.waitForSelector(".viaje-nav", { state: "visible" });
   await take("viaje-dias", { details: true });
   await step("mover", async () => {
-    await page.getByRole("button", { name: "Mover a…" }).first().click();
+    // P-06 v2: las acciones de la parada abren una Sheet (N2).
+    await page.getByRole("button", { name: /^Acciones de / }).first().click();
+    await page.locator(".sheet").first().waitFor();
     await take("viaje-dias-mover", { details: true });
+    await page.keyboard.press("Escape");
+    await page.locator(".sheet").first().waitFor({ state: "detached" });
   });
   await step("otro-orden", async () => {
-    await page.getByRole("button", { name: /^Probar otro orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
+    // P-06 v2: «Cambiar orden» abre una vista enfocada (N3).
+    await page.getByRole("button", { name: /^Cambiar orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
     await page.locator(".day-order-tool").first().waitFor();
     await take("viaje-dias-otro-orden", { details: true });
+    await page.keyboard.press("Escape");
+    await page.locator(".focused-view").first().waitFor({ state: "detached" });
   });
   for (const [tab, slug] of [["Dónde dormir", "dormir"], ["Reservas", "reservas"], ["Resumen", "resumen"]]) {
     await page.locator(`.viaje-nav__item:has-text("${tab}")`).click();

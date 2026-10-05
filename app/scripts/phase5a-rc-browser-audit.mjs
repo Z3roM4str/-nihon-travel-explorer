@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { moveStopToDay } from "./lib/modern-trip.mjs";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { preview } from "vite";
@@ -170,7 +171,28 @@ try {
   }
 
   /** Los cuatro destinos de `02 §D2`, por nombre accesible. */
+  /** P-06 v2: las Sheets (N2) y vistas enfocadas (N3) de Días son modales; se cierran antes de navegar. */
+  async function closeOverlays() {
+    for (let i = 0; i < 3 && (await page.locator(".sheet, .focused-view").count()); i += 1) {
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(120);
+    }
+  }
+  /** P-06 v2: los campos de fecha viven en la Sheet «Fechas del viaje». */
+  async function openDatesSheet() {
+    if (await page.locator("#sequence-start-date").count()) return;
+    await page.getByRole("button", { name: /^(Editar fechas|Poner fechas del viaje)$/ }).click();
+    await page.locator("#sequence-start-date").waitFor();
+  }
+  async function setStartDate(value) {
+    await openDatesSheet();
+    await page.locator("#sequence-start-date").fill(value);
+    await page.keyboard.press("Escape");
+    await page.locator(".sheet").waitFor({ state: "detached" });
+  }
+
   async function goToDestination(name) {
+    await closeOverlays();
     await page
       .getByRole("navigation", { name: "Navegación principal" })
       .getByRole("button", { name })
@@ -274,12 +296,12 @@ try {
     // B27 (B9.1): Viaje opens directly on the day timeline. It no longer has a Planificar
     // button, flat route view, or separate "Distribuir por días" step.
     await goToDestination("Viaje");
-    await page.locator(".days-framing").waitFor();
     await page.locator(".day-card[data-day-id]").first().waitFor();
   }
 
   /** B31 (B9.5): Viaje tiene cuatro secciones propias (Días · Dónde dormir · Reservas · Resumen). */
   async function openViajeSection(name) {
+    await closeOverlays();
     const button = page
       .getByRole("group", { name: "Secciones de Viaje" })
       .getByRole("button", { name, exact: true });
@@ -287,12 +309,11 @@ try {
     assert.equal(await button.getAttribute("aria-pressed"), "true", `${name} did not become the active section`);
   }
 
+  /** P-06 v2: «Herramientas del viaje» abre una vista enfocada (N3) con las mismas secciones de antes. */
   async function openDayTools() {
-    const tools = page.locator(".days-tools");
+    const tools = page.locator(".focused-view");
+    if (!(await tools.count())) await page.getByRole("button", { name: "Herramientas del viaje" }).click();
     await tools.waitFor();
-    if (!(await tools.evaluate((element) => element.open))) {
-      await tools.locator("summary").click();
-    }
     return tools;
   }
 
@@ -517,11 +538,7 @@ try {
     let days = await dayCards.count();
     assert.ok(days >= 1, "no days rendered");
     if (days === 1) await page.getByRole("button", { name: "Añadir día" }).click();
-    const kyotoStop = page.locator(".trip-stop").filter({ hasText: "Nanzen-ji" }).first();
-    await kyotoStop.getByRole("button", { name: "Mover a…" }).click();
-    await kyotoStop.getByLabel("Día").selectOption({ label: "Día 2" });
-    await kyotoStop.getByLabel("Posición").selectOption("0");
-    await kyotoStop.getByRole("button", { name: "Mover parada" }).click();
+    await moveStopToDay(page, "Nanzen-ji", "1", "0"); // P-06 v2: hoja de la parada + «Cambiar orden»
     days = await dayCards.count();
     const draft = await readDraft();
     assert.equal(draft.routeIds.length, 5, `draft should carry 5 places, got ${draft.routeIds.length}`);
@@ -531,7 +548,7 @@ try {
   });
 
   await step("A11 anchor Day 1 to a civil date", async () => {
-    await page.locator("#sequence-start-date").fill(TRIP_START);
+    await setStartDate(TRIP_START);
     await page.waitForTimeout(200);
     const draft = await readDraft();
     assert.equal(draft.startDate, TRIP_START, `startDate not persisted: ${draft.startDate}`);
@@ -555,7 +572,7 @@ try {
       `Day 1 did not render "${expected(TRIP_START)}" for anchor ${TRIP_START}`);
 
     const nextDay = "2027-02-21";
-    await page.locator("#sequence-start-date").fill(nextDay);
+    await setStartDate(nextDay);
     await page.waitForTimeout(250);
     const sunday = await plannerDialog().textContent();
     assert.ok(sunday.includes(expected(nextDay)),
@@ -563,20 +580,28 @@ try {
     assert.ok(!sunday.includes(expected(TRIP_START)),
       "the previous anchor's Day 1 label survived a re-anchor");
 
-    await page.locator("#sequence-start-date").fill(TRIP_START);
+    await setStartDate(TRIP_START);
     await page.waitForTimeout(250);
     return `${expected(TRIP_START)} -> ${expected(nextDay)} -> ${expected(TRIP_START)}`;
   });
 
   await step("A13 set a supported manual visit start time", async () => {
-    const input = page.locator("input[id^='visit-start-time-']").first();
-    if ((await input.count()) === 0) return "no eligible recorded-interval place in this plan";
-    const id = await input.getAttribute("id");
-    // P-06: la hora de inicio manual vive en «Detalles del día», plegado por defecto.
-    const details = input.locator("xpath=ancestor::details[contains(@class,'day-card__details')]");
-    if (await details.count() && await details.getAttribute("open") === null) await details.locator("summary").first().click();
-    await input.fill("10:00");
-    await page.waitForTimeout(200);
+    // P-06 v2: la hora de inicio manual vive en «Detalles del Día N» (vista enfocada); se busca en cada día.
+    await closeOverlays();
+    const dayCount = await page.locator(".day-card[data-day-id]").count();
+    let id = null;
+    for (let day = 1; day <= dayCount && !id; day += 1) {
+      const entry = page.getByRole("button", { name: `Detalles del Día ${day}` });
+      if (!(await entry.count())) continue;
+      await entry.click();
+      const input = page.locator(".focused-view input[id^='visit-start-time-']").first();
+      if ((await input.count()) === 0) { await closeOverlays(); continue; }
+      id = await input.getAttribute("id");
+      await input.fill("10:00");
+      await page.waitForTimeout(200);
+      await closeOverlays();
+    }
+    if (!id) return "no eligible recorded-interval place in this plan";
     const draft = await readDraft();
     const values = Object.values(draft.visitStartTimes ?? {});
     assert.ok(values.includes("10:00"), `visit start time not persisted: ${JSON.stringify(draft.visitStartTimes)}`);
@@ -642,10 +667,8 @@ try {
     await openPlanner();
     const firstDay = page.locator(".day-card[data-day-id]").first();
     const before = await firstDay.locator(".trip-stop strong").allInnerTexts();
-    const stop = firstDay.locator(".trip-stop").first();
-    await stop.getByRole("button", { name: "Mover a…" }).click();
-    await stop.getByLabel("Posición").selectOption({ value: "1" });
-    await stop.getByRole("button", { name: "Mover parada" }).click();
+    // P-06 v2: el orden fino dentro del día se cambia en «Cambiar orden» (vista enfocada).
+    await moveStopToDay(page, before[0], "0", "1");
     await page.waitForTimeout(200);
     const after = await firstDay.locator(".trip-stop strong").allInnerTexts();
     assert.notEqual(after.join("|"), before.join("|"), "reorder did not change the draft");
@@ -670,10 +693,7 @@ try {
     assert.deepEqual(withNewDay.slice(0, before.length), before,
       "adding a day regenerated the existing day IDs");
     const stop = page.locator(".day-card[data-day-id]").first().locator(".trip-stop").first();
-    await stop.getByRole("button", { name: "Mover a…" }).click();
-    await stop.getByLabel("Día").selectOption({ label: "Día 3" });
-    await stop.getByLabel("Posición").selectOption("0");
-    await stop.getByRole("button", { name: "Mover parada" }).click();
+    await moveStopToDay(page, (await stop.locator("strong").innerText()).trim(), "2", "0"); // P-06 v2: hoja + «Cambiar orden»
     await page.waitForTimeout(250);
     const after = (await readDraft()).days.map((d) => d.id);
     assert.deepEqual(after, withNewDay, "a cross-day move regenerated day IDs");
@@ -714,8 +734,8 @@ try {
     await page.reload({ waitUntil: "domcontentloaded" });
     await openPlanner({ fresh: false });
     const reloadedStop = page.locator(".trip-stop").filter({ hasText: removedName });
-    await reloadedStop.getByRole("button", { name: "Mover a…" }).click(); // P-06: acciones de parada tras «⋯».
-    const remove = reloadedStop.getByRole("button", { name: "Mover a Sin asignar" });
+    await reloadedStop.getByRole("button", { name: /^Acciones de / }).click(); // P-06 v2: hoja de la parada.
+    const remove = page.locator(".sheet").getByRole("button", { name: "Mover a Sin asignar" });
     await remove.click();
     await page.waitForTimeout(300);
     const draft = await readDraft();
@@ -752,7 +772,7 @@ try {
   await step("C01 reservation mechanism surfaces for a catalogue entry", async () => {
     await seedPlan(["JP-044", "JP-050", "JP-001"]);
     await openPlanner();
-    await page.locator("#sequence-start-date").fill(TRIP_START);
+    await setStartDate(TRIP_START);
     await page.waitForTimeout(300);
     // B31: las reservas son una sección propia de Viaje; el resto de C-steps leen esa sección.
     await openViajeSection("Reservas");
@@ -1112,6 +1132,7 @@ try {
   await step("G03 planner remains operable at this viewport", async () => {
     await seedPlan(["JP-001", "JP-002", "JP-003"]);
     await openPlanner();
+    await openDatesSheet();
     const startDate = page.locator("#sequence-start-date");
     await startDate.waitFor({ state: "visible" });
     const box = await startDate.boundingBox();
@@ -1122,6 +1143,7 @@ try {
       return top && !el.contains(top) && top !== el ? top.className : null;
     });
     assert.equal(covered, null, `a fixed element covers the trip anchor control: ${covered}`);
+    await closeOverlays();
     return `anchor ${Math.round(box.width)}x${Math.round(box.height)}`;
   });
 

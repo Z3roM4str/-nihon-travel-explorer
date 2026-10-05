@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { moveStopToDay, setTripStartDate } from "./lib/modern-trip.mjs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -160,11 +161,7 @@ try {
   /** B28: «Mover a…» (Día + Posición) sustituyó a los botones «hacia abajo» / «al día siguiente»; vive en Días. */
   async function moveStop(page, placeName, dayValue, positionValue) {
     await showSection(page, "Días");
-    const stop = page.locator(".trip-stop").filter({ hasText: placeName });
-    await stop.getByRole("button", { name: "Mover a…" }).click();
-    await stop.getByLabel("Día").selectOption(dayValue);
-    await stop.getByLabel("Posición").selectOption(positionValue);
-    await stop.getByRole("button", { name: "Mover parada" }).click();
+    await moveStopToDay(page, placeName, dayValue, positionValue); // P-06 v2: hoja de la parada + «Cambiar orden»
     await showSection(page, "Reservas");
   }
 
@@ -434,7 +431,7 @@ try {
 
       // J. change the start date → every anchor recomputes.
       await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
-      await page.getByLabel("Fecha de inicio (Día 1)").fill("2027-03-14");
+      await setTripStartDate(page, "2027-03-14"); // P-06 v2: hoja «Fechas del viaje»
       await showSection(page, "Reservas");
       await page.waitForFunction(
         () =>
@@ -447,7 +444,7 @@ try {
 
       // L. clear the start date → the whole route-wide section disappears.
       await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
-      await page.getByLabel("Fecha de inicio (Día 1)").fill("");
+      await setTripStartDate(page, ""); // P-06 v2: hoja «Fechas del viaje»
       await showSection(page, "Reservas");
       await page.waitForFunction(
         () => document.querySelectorAll(".official-reservation-calendar").length === 0

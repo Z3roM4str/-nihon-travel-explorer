@@ -207,13 +207,17 @@ for (const width of WIDTHS) {
   await page.evaluate(() => document.querySelectorAll("details:not([open])").forEach((d) => d.setAttribute("open", "")));
   await take("viaje-dias");
   await tryStep("mover", async () => {
-    await page.getByRole("button", { name: "Mover a…" }).first().click();
+    await page.getByRole("button", { name: /^Acciones de / }).first().click(); // P-06 v2: hoja de la parada
     await take("viaje-dias-mover");
+    await page.keyboard.press("Escape");
+    await page.locator(".sheet").waitFor({ state: "detached" });
   });
   await tryStep("otro-orden", async () => {
-    await page.getByRole("button", { name: /^Probar otro orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
+    await page.getByRole("button", { name: /^Cambiar orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
     await page.locator(".day-order-tool").first().waitFor();
     await take("viaje-dias-otro-orden");
+    await page.keyboard.press("Escape");
+    await page.locator(".focused-view").waitFor({ state: "detached" });
   });
   for (const [tab, slug] of [["Dónde dormir", "dormir"], ["Reservas", "reservas"], ["Resumen", "resumen"]]) {
     await page.locator(`.viaje-nav__item:has-text("${tab}")`).click();

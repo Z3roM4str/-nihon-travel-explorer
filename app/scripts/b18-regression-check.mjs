@@ -257,24 +257,27 @@ async function main() {
   // estado: si el componente se hubiera desmontado, `view` habría vuelto a su valor inicial
   // ("builder"/"Construir recorrido").
   // B10/B31: «Comparar otro orden» ya no es alcanzable (D5-M1). Se conserva la intención con otro
-  // estado local, no persistido, del planificador: el `<details>` de herramientas del día
-  // (`.days-tools`). Si el componente se desmontara al salir de Viaje, volvería a estar cerrado.
-  const dayTools = page.locator(".days-tools");
-  check("hay un día con herramientas (necesario para comprobar el estado local)", await dayTools.isVisible());
-  if (!(await dayTools.evaluate((element) => element.open))) await dayTools.locator("summary").click();
+  // estado local, no persistido, del planificador. P-06 v2: ahora es la vista enfocada «Herramientas del viaje»
+  // (antes el `<details>` `.days-tools`). Si el componente se desmontara al salir de Viaje, volvería a estar cerrada.
+  // La vista es modal y tapa el TabBar; el cambio de pestaña se dispara sobre el control tapado (como lo haría un atajo).
+  const toolsEntry = page.getByRole("button", { name: "Herramientas del viaje", exact: true });
+  check("hay un día con herramientas (necesario para comprobar el estado local)", await toolsEntry.isVisible());
+  await toolsEntry.click();
   await page.waitForTimeout(300);
   check(
-    "abrir las herramientas del día cambia el estado local del planificador",
-    await dayTools.evaluate((element) => element.open)
+    "abrir las herramientas del viaje cambia el estado local del planificador",
+    await page.locator(".focused-view").isVisible()
   );
-  await page.click(".tab-bar__item:has-text('Nosotros')");
+  await page.locator(".tab-bar__item:has-text('Nosotros')").dispatchEvent("click");
   await page.waitForTimeout(300);
-  await page.click(".tab-bar__item:has-text('Viaje')");
+  await page.locator(".tab-bar__item:has-text('Viaje')").dispatchEvent("click");
   await page.waitForTimeout(300);
   check(
-    "el estado local del planificador (herramientas del día abiertas) sobrevive a cambiar de pestaña y volver",
-    await page.locator(".days-tools").evaluate((element) => element.open)
+    "el estado local del planificador (herramientas del viaje abiertas) sobrevive a cambiar de pestaña y volver",
+    await page.locator(".focused-view").isVisible()
   );
+  await page.keyboard.press("Escape");
+  await page.locator(".focused-view").waitFor({ state: "detached" });
 
   await page.click(".viaje-nav__item:has-text('Dónde dormir')");
   await page.waitForTimeout(500);

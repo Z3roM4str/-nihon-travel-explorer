@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { moveStopToDay, setTripStartDate } from "./lib/modern-trip.mjs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -65,11 +66,7 @@ try {
   /** B28: «Mover a…» (Día + Posición) sustituyó a «Mover … al día siguiente»; vive en Días. */
   async function moveStop(page, placeName, dayValue, positionValue) {
     await showSection(page, "Días");
-    const stop = page.locator(".trip-stop").filter({ hasText: placeName });
-    await stop.getByRole("button", { name: "Mover a…" }).click();
-    await stop.getByLabel("Día").selectOption(dayValue);
-    await stop.getByLabel("Posición").selectOption(positionValue);
-    await stop.getByRole("button", { name: "Mover parada" }).click();
+    await moveStopToDay(page, placeName, dayValue, positionValue); // P-06 v2: hoja de la parada + «Cambiar orden»
     await showSection(page, "Reservas");
   }
 
@@ -192,7 +189,7 @@ try {
       // Clearing the real start-date input removes every trip-specific Phase 3F item; no stale
       // derived state survives because none is persisted.
       await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
-      await page.getByLabel("Fecha de inicio (Día 1)").fill("");
+      await setTripStartDate(page, ""); // P-06 v2: hoja «Fechas del viaje»
       await showSection(page, "Reservas");
       await page.waitForFunction(
         () => document.querySelectorAll(".official-reservation-date").length === 0
