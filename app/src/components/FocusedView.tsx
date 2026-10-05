@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "./FocusedView.css";
 
@@ -18,17 +18,18 @@ const FOCUSABLE =
  * P-06 v2 — N3, vista enfocada. Pantalla completa para una tarea compleja o de lectura larga que
  * no cabe en una Sheet (cambiar el orden de un día, logística del día, herramientas del viaje).
  *
- * ESTADO PROVISIONAL (P-06·A/B): ofrece el contrato de foco y teclado (foco al abrir, Escape y
- * «Volver» cierran, Tab atrapado, el foco vuelve al disparador) pero todavía NO usa History API.
- * P-06·C la sustituye por la vista definitiva con `pushState`/`popstate`; los llamadores sólo
- * dependen de `onClose`, de modo que ese cambio no les afecta.
+ * Contrato de foco y teclado: el foco entra al abrir (en el primer hijo que lo pida o en «Volver»),
+ * Tab queda atrapado, Escape y «Volver a Días» llaman a `onClose`, y el foco vuelve al disparador.
+ * El historial NO vive aquí: quien la monta (ver `useSurfaceHistory`) enlaza `onClose` con
+ * `history.back()` y «atrás»/«adelante» del navegador con abrir/cerrar, igual que con las Sheets.
  */
 export function FocusedView({ label, title, onClose, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
+  // Se captura al montar, ANTES de que un hijo (p. ej. el encabezado del panel de orden) tome el foco.
+  const [opener] = useState(() => document.activeElement as HTMLElement | null);
 
   useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
     // Un hijo (p. ej. el encabezado del panel de orden) puede haber tomado ya el foco.
     if (!rootRef.current?.contains(document.activeElement)) backRef.current?.focus({ preventScroll: true });
     return () => {
@@ -36,7 +37,7 @@ export function FocusedView({ label, title, onClose, children }: Props) {
       if (active && active !== document.body) return;
       if (opener && opener.isConnected) opener.focus({ preventScroll: true });
     };
-  }, []);
+  }, [opener]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

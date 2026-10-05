@@ -50,19 +50,30 @@ function SequenceList({
             <span className="day-order-tool__position" aria-hidden="true">{index + 1}</span>
             <span className="day-order-tool__place-name">{placeById.get(placeId)?.name ?? "Lugar no disponible"}</span>
             {editable && (
-              <label className="day-order-tool__move">
-                <span>Mover a…</span>
-                <select
-                  aria-label={`Mover ${placeById.get(placeId)?.name ?? "lugar"} a la posición en la propuesta del Día ${dayNumber}`}
-                  value={index + 1}
-                  disabled={disabled}
-                  onChange={(event) => onMove?.(index, Number(event.target.value) - 1)}
+              <span className="day-order-tool__move" role="group" aria-label={`Mover ${placeById.get(placeId)?.name ?? "lugar"} en la propuesta del Día ${dayNumber}`}>
+                <button
+                  type="button"
+                  className="day-order-tool__step"
+                  aria-label={`Subir ${placeById.get(placeId)?.name ?? "lugar"} en la propuesta del Día ${dayNumber}`}
+                  data-step="up"
+                  data-place-id={placeId}
+                  disabled={disabled || index === 0}
+                  onClick={() => onMove?.(index, index - 1)}
                 >
-                  {placeIds.map((_, position) => (
-                    <option key={position} value={position + 1}>Posición {position + 1}</option>
-                  ))}
-                </select>
-              </label>
+                  <span aria-hidden="true">↑</span> Subir
+                </button>
+                <button
+                  type="button"
+                  className="day-order-tool__step"
+                  aria-label={`Bajar ${placeById.get(placeId)?.name ?? "lugar"} en la propuesta del Día ${dayNumber}`}
+                  data-step="down"
+                  data-place-id={placeId}
+                  disabled={disabled || index === placeIds.length - 1}
+                  onClick={() => onMove?.(index, index + 1)}
+                >
+                  <span aria-hidden="true">↓</span> Bajar
+                </button>
+              </span>
             )}
           </div>
           {index < sequence.legs.length && (
@@ -116,6 +127,17 @@ export function DayOrderToolPanel({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [proposalIds, setProposalIds] = useState(() => [...baselineDayPlaceIds]);
   const [optionMessage, setOptionMessage] = useState("");
+  const panelRef = useRef<HTMLElement>(null);
+  // Tras Subir/Bajar la fila se remonta en otra posición: el foco sigue al mismo lugar y a la misma flecha
+  // (o a la opuesta si ya llegó a un extremo), para poder repetir con teclado o lector de pantalla.
+  const focusRequestRef = useRef<{ placeId: string; dir: "up" | "down" } | null>(null);
+  useEffect(() => {
+    const request = focusRequestRef.current;
+    if (!request) return;
+    focusRequestRef.current = null;
+    const find = (dir: string) => panelRef.current?.querySelector<HTMLButtonElement>(`[data-step="${dir}"][data-place-id="${request.placeId}"]:not(:disabled)`);
+    (find(request.dir) ?? find(request.dir === "up" ? "down" : "up"))?.focus();
+  }, [proposalIds]);
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -166,7 +188,7 @@ export function DayOrderToolPanel({
   }
 
   return (
-    <section id={panelId} className="day-order-tool" aria-labelledby={`${panelId}-heading`}>
+    <section ref={panelRef} id={panelId} className="day-order-tool" aria-labelledby={`${panelId}-heading`}>
       <header className="day-order-tool__header">
         <div>
           <h3 id={`${panelId}-heading`} ref={headingRef} tabIndex={-1}>
@@ -204,7 +226,10 @@ export function DayOrderToolPanel({
             editable
             dayNumber={dayNumber}
             disabled={dayIsStale}
-            onMove={(fromIndex, toIndex) => setProposalIds((ids) => movePlaceToPosition(ids, fromIndex, toIndex))}
+            onMove={(fromIndex, toIndex) => {
+              focusRequestRef.current = { placeId: proposalIds[fromIndex], dir: toIndex > fromIndex ? "down" : "up" };
+              setProposalIds((ids) => movePlaceToPosition(ids, fromIndex, toIndex));
+            }}
           />
           <CandidateSummary candidate={comparison.candidateB} dayLocal />
         </section>

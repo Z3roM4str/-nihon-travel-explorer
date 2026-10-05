@@ -27,6 +27,12 @@ describe("describeDaySleepLine", () => {
     expect(describeDaySleepLine({ endAccommodationId: null, lastPlaceHub: null, accommodations: [], zoneChoices: [] }).kind).toBe("none");
   });
 
+  it("keeps an explicit «no accommodation» decision, ahead of any zone, and never as a pending choice", () => {
+    const line = describeDaySleepLine({ endAccommodationId: null, endIsNoAccommodation: true, lastPlaceHub: "Tokio", accommodations, zoneChoices });
+    expect(line).toEqual({ kind: "no-accommodation", label: null, text: "Sin alojamiento esa noche" });
+    expect(line.text).not.toMatch(/Elegir/);
+  });
+
   it("falls back when the boundary points at an anchor that no longer exists", () => {
     expect(describeDaySleepLine({ endAccommodationId: "gone", lastPlaceHub: "Kioto", accommodations, zoneChoices }).kind).toBe("none");
   });

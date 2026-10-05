@@ -28,6 +28,7 @@ import { resolveFinalPosition } from "../lib/sequence-drop-position";
 import { describeTransferForUi, transferModeIcon } from "../lib/transfer-display";
 import { Icon } from "../icons/Icon";
 import { Sheet } from "./Sheet";
+import { useSurfaceHistory } from "../useSurfaceHistory";
 import { FocusedView } from "./FocusedView";
 import { describeDaySleepLine } from "../lib/day-sleep-line";
 import { addCivilDays, formatCivilDateDisplay, type CivilWeekday } from "../lib/civil-date";
@@ -377,7 +378,7 @@ function DayTimeline({
   );
 }
 
-/** P-06: every leg of the day, known or not, in «Detalles del día». The timeline above only keeps
+/** P-06 v2: every leg of the day, known or not, in «Detalles del día». The timeline above only keeps
  * the known transfers inline; the absences («Sin traslado registrado») live here, never dropped. */
 function DayLegsList({ legs, placeById }: { legs: readonly OrderedSequenceLeg[]; placeById: ReadonlyMap<string, Place> }) {
   if (legs.length === 0) return null;
@@ -1981,7 +1982,6 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     [accommodations]
   );
 
-  const [dayOrderSession, setDayOrderSession] = useState<DayOrderSession | null>(null);
   const dayOrderTriggerRefs = useRef(new Map<string, HTMLButtonElement>());
 
   // P-06 v2 — a lo sumo UNA superficie flotante abierta sobre la lista (N2 hoja · N3 vista
@@ -1993,9 +1993,26 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     | { kind: "day"; forDay: string }
     | { kind: "unassigned"; placeId: string }
     | { kind: "day-details"; forDay: string }
-    | { kind: "trip-tools" };
-  const [surface, setSurface] = useState<Surface | null>(null);
-  const closeSurface = useCallback(() => setSurface(null), []);
+    | { kind: "trip-tools" }
+    | { kind: "order"; forDay: string; baseline: string[] };
+  // P-06·C: la superficie abierta y el historial del navegador son una sola cosa (ver `useSurfaceHistory`).
+  const { surface, open: openSurface, close: closeSurface } = useSurfaceHistory<Surface>({
+    isValid: (candidate) => {
+      if (candidate.kind === "dates" || candidate.kind === "trip-tools") return true;
+      if (candidate.kind === "unassigned") return !routeIds.includes(candidate.placeId) && placeById.has(candidate.placeId);
+      const day = planningDays?.find((entry) => entry.id === candidate.forDay);
+      if (!day) return false;
+      if (candidate.kind === "stop") return day.placeIds.includes(candidate.placeId);
+      if (candidate.kind === "order") return hasSamePlaceOrder(day.placeIds, candidate.baseline);
+      if (candidate.kind === "day-details") return day.placeIds.length > 0;
+      return true;
+    },
+  });
+  /** La herramienta de orden de un día es una superficie más: su línea base viaja con ella. */
+  const dayOrderSession = useMemo<DayOrderSession | null>(
+    () => (surface?.kind === "order" ? { dayId: surface.forDay, baselineDayPlaceIds: surface.baseline } : null),
+    [surface]
+  );
   /** Tras una acción que mueve el elemento disparador, el foco sigue a lo que el usuario movió. */
   function focusAfterCommit(selector: string) {
     requestAnimationFrame(() => document.querySelector<HTMLElement>(selector)?.focus({ preventScroll: false }));
@@ -2413,14 +2430,14 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
 
   function openDayOrderTool(dayId: string, placeIds: readonly string[]) {
     if (placeIds.length < 2) return;
-    setDayOrderSession({ dayId, baselineDayPlaceIds: [...placeIds] });
+    openSurface({ kind: "order", forDay: dayId, baseline: [...placeIds] });
   }
 
   const closeDayOrderTool = useCallback(() => {
     const dayId = dayOrderSession?.dayId;
-    setDayOrderSession(null);
+    closeSurface();
     if (dayId) dayOrderTriggerRefs.current.get(dayId)?.focus({ preventScroll: true });
-  }, [dayOrderSession]);
+  }, [dayOrderSession, closeSurface]);
 
   function applyDayOrderProposal(proposalIds: readonly string[]) {
     if (!dayOrderSession) return;
@@ -2542,30 +2559,30 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     const target = dayEntities.find((day) => day.id === toDayId);
     if (!target) return;
     relocatePlace(fromDayId, toDayId, place.id, target.placeIds.length);
-    setSurface(null);
+    closeSurface();
     setDragAnnouncement(`${place.name} movido al final del Día ${toIndex + 1}.`);
     focusAfterCommit(`[data-stop-actions-id="${place.id}"]`);
   }
   function unassignStop(place: Place, fromDayId: string) {
     removePlaceFromDay(place.id, fromDayId);
-    setSurface(null);
+    closeSurface();
     setDragAnnouncement(`${place.name} movido a Sin asignar.`);
     focusAfterCommit(`[data-unassigned-action-id="${place.id}"]`);
   }
   function addUnassignedToDay(place: Place, dayId: string, dayIndex: number) {
     addPlaceToDay(place.id, dayId);
-    setSurface(null);
+    closeSurface();
     setDragAnnouncement(`${place.name} añadido al final del Día ${dayIndex + 1}.`);
     focusAfterCommit(`[data-stop-actions-id="${place.id}"]`);
   }
   function moveDayBy(dayId: string, direction: -1 | 1) {
     moveDay(dayId, direction);
-    setSurface(null);
+    closeSurface();
     focusAfterCommit(`[data-day-actions-id="${dayId}"]`);
   }
   function deleteEmptyDay(dayId: string) {
     removeEmptyDay(dayId);
-    setSurface(null);
+    closeSurface();
   }
 
   const headerTitle = "Viaje";
@@ -2630,7 +2647,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
 
               {/* P-06 v2: las fechas se editan en una Sheet; la lista sólo ofrece la entrada. */}
               <div className="days-dates">
-                <button type="button" className="link-button days-dates__edit" aria-haspopup="dialog" onClick={() => setSurface({ kind: "dates" })}>
+                <button type="button" className="link-button days-dates__edit" aria-haspopup="dialog" onClick={() => openSurface({ kind: "dates" })}>
                   <Icon name="calendario" size={16} /> {startDate || endDate ? "Editar fechas" : "Poner fechas del viaje"}
                 </button>
               </div>
@@ -2661,11 +2678,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                   const hubLabel = hubs.length === 1 ? hubs[0] : hubs.length > 1 ? "Varias ciudades" : null;
                   const sleepLine = describeDaySleepLine({
                     endAccommodationId: dayBoundary?.end.kind === "accommodation" ? dayBoundary.end.accommodationId : null,
+                    endIsNoAccommodation: dayBoundary?.end.kind === "no-accommodation",
                     lastPlaceHub: places.length > 0 ? places[places.length - 1].hub : null,
                     accommodations,
                     zoneChoices: zoneAccommodationChoices,
                   });
-                  // P-06: resumen corto bajo «Día N · fecha»: ciudad, número de lugares y tiempo de visita.
+                  // P-06 v2: resumen corto bajo «Día N · fecha»: ciudad, número de lugares y tiempo de visita.
                   const daySummaryText = `${hubLabel ? `${hubLabel} · ` : ""}${places.length} lugar${places.length === 1 ? "" : "es"}${isEmpty ? "" : ` · ${daySummary.visitTime ? formatRange(daySummary.visitTime) : "duración sin cuantificar"}`}`;
                   const interHubRow = interHubRowsByAfterDay.get(dayIndex);
                   const dayOrderPanelId = `day-order-tool-${dayIndex}`;
@@ -2733,7 +2751,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             aria-haspopup="dialog"
                             title={`Acciones del Día ${dayIndex + 1}`}
                             disabled={!dayEntity}
-                            onClick={() => dayEntity && setSurface({ kind: "day", forDay: dayEntity.id })}
+                            onClick={() => dayEntity && openSurface({ kind: "day", forDay: dayEntity.id })}
                           >
                             <span aria-hidden="true">⋯</span>
                           </button>
@@ -2756,7 +2774,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             dragPlaceId={dragPlaceId}
                             dropSlot={dropTarget?.dayId === dayEntity?.id ? dropTarget.position : null}
                             dragEnabled={!dayOrderSession}
-                            onActions={(placeId) => dayEntity && setSurface({ kind: "stop", placeId, forDay: dayEntity.id })}
+                            onActions={(placeId) => dayEntity && openSurface({ kind: "stop", placeId, forDay: dayEntity.id })}
                           />
                           {weekdaySignal.assessed && weekdaySignal.matchCount > 0 && (
                             <p className="day-card__signal">
@@ -2779,7 +2797,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                           type="button"
                           className="button button--secondary day-card__add"
                           aria-haspopup="dialog"
-                          onClick={() => dayEntity && setSurface({ kind: "add-place", forDay: dayEntity.id })}
+                          onClick={() => dayEntity && openSurface({ kind: "add-place", forDay: dayEntity.id })}
                         >
                           <span aria-hidden="true">＋</span> Añadir lugar
                         </button>
@@ -2811,7 +2829,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             className="link-button day-card__details-link"
                             aria-label={`Detalles del Día ${dayIndex + 1}`}
                             aria-haspopup="dialog"
-                            onClick={() => dayEntity && setSurface({ kind: "day-details", forDay: dayEntity.id })}
+                            onClick={() => dayEntity && openSurface({ kind: "day-details", forDay: dayEntity.id })}
                           >
                             Detalles del día
                           </button>
@@ -2819,7 +2837,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                       </div>
                     </section>
 
-                    {/* N3 (provisional hasta P-06·C): «Cambiar orden» — el panel conserva su contenido. */}
+                    {/* N3 — «Cambiar orden»: el panel conserva su contenido; la línea base viaja con la superficie. */}
                     {dayOrderIsOpen && dayEntity && dayOrderSession && (
                       <FocusedView label={`Cambiar orden del Día ${dayIndex + 1}`} onClose={closeDayOrderTool}>
                         <p className="days-framing">
@@ -2842,7 +2860,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                       </FocusedView>
                     )}
 
-                    {/* N3 (provisional hasta P-06·C): logística del día, el antiguo «Detalles del día». */}
+                    {/* N3 — logística del día («Detalles del día»). */}
                     {surface?.kind === "day-details" && dayEntity && surface.forDay === dayEntity.id && !isEmpty && (
                       <FocusedView label={`Detalles del Día ${dayIndex + 1}`} title={`Detalles del Día ${dayIndex + 1}`} onClose={closeSurface}>
                         {bucket && <DayLegsList legs={bucket.sequence.legs} placeById={placeById} />}
@@ -2922,7 +2940,7 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                             data-unassigned-action-id={place.id}
                             aria-label={`Añadir ${place.name} a un día`}
                             aria-haspopup="dialog"
-                            onClick={() => setSurface({ kind: "unassigned", placeId: place.id })}
+                            onClick={() => openSurface({ kind: "unassigned", placeId: place.id })}
                           >
                             Añadir a un día
                           </button>
@@ -2934,12 +2952,12 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
               )}
 
               <div className="days-footer">
-                <button type="button" className="link-button days-footer__tools" aria-haspopup="dialog" onClick={() => setSurface({ kind: "trip-tools" })}>
+                <button type="button" className="link-button days-footer__tools" aria-haspopup="dialog" onClick={() => openSurface({ kind: "trip-tools" })}>
                   Herramientas del viaje
                 </button>
               </div>
 
-              {/* N3 (provisional hasta P-06·C): lo que antes era «Herramientas y datos del viaje». */}
+              {/* N3 — herramientas del viaje (límites, traslados entre ciudades, zonas, alojamientos). */}
               {surface?.kind === "trip-tools" && (
                 <FocusedView label="Herramientas del viaje" title="Herramientas del viaje" onClose={closeSurface}>
                   <TripBoundsNotice summary={tripBoundsSummary} />

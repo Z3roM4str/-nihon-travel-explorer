@@ -99,12 +99,6 @@
   gap: 0.25rem;
 }
 
-.day-card__date {
-  margin: 0.1rem 0 0;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-}
-
 .sequence-add-day {
   width: 100%;
 }
@@ -1188,7 +1182,7 @@
 .day-card__legs .sequence-leg { margin: .1rem 0 0; }
 
 
-/* P-06: en escritorio, fechas, ayuda, frase normativa y herramientas comparten la columna de los días. */
+/* P-06 v2: en escritorio, el acceso a fechas, «Sin asignar», el pie y la frase de «Cambiar orden» comparten la columna de los días. */
 .days-dates, .unassigned, .days-footer, .days-framing { box-sizing: border-box; width: 100%; max-width: 48rem; margin-inline: auto; }
 
 .calendar-anchor { grid-template-columns: repeat(2, minmax(0, 15rem)); justify-content: start; }
@@ -1237,7 +1231,7 @@
 .sheet-done { width: 100%; margin-top: var(--space-4); min-height: var(--tap-min); }
 .sheet .calendar-anchor { grid-template-columns: 1fr; margin-bottom: 0; }
 
-/* N3 provisional — el panel de orden ya no es una tarjeta anidada. */
+/* N3 — el panel de orden ya no es una tarjeta anidada. */
 .focused-view .day-order-tool { margin-block: var(--space-3); }
 .focused-view .days-framing { margin: 0; }
 

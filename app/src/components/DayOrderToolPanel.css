@@ -18,15 +18,17 @@
 
 .day-order-tool__place:last-child { border-bottom: 0; }
 
-.day-order-tool__place-row { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.day-order-tool__place-row { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; min-width: 0; }
 
 .day-order-tool__position { flex: 0 0 auto; color: var(--ink-600); font-size: var(--type-body-s-size); }
 
-.day-order-tool__place-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.day-order-tool__place-name { flex: 1 1 8rem; min-width: 0; overflow-wrap: anywhere; }
 
-.day-order-tool__move { display: grid; flex: 0 1 8.25rem; min-width: 6.5rem; gap: .1rem; color: var(--ink-600); font-size: var(--type-body-s-size); }
+.day-order-tool__move { display: flex; flex: 0 0 auto; gap: .35rem; color: var(--ink-700); font-size: var(--type-body-s-size); }
 
-.day-order-tool__move select { width: 100%; min-width: 0; min-height: var(--tap-min); font-size: var(--type-body-size); }
+.day-order-tool__step { display: inline-flex; align-items: center; justify-content: center; gap: .25rem; min-width: var(--tap-min); min-height: var(--tap-min); padding: 0 .65rem; border: 1px solid var(--line-strong); border-radius: var(--radius-s); background: var(--surface); color: var(--ink-900); font: inherit; font-size: var(--type-body-s-size); font-weight: 600; cursor: pointer; }
+.day-order-tool__step:disabled { color: var(--ink-500, #8a8780); border-color: var(--line); cursor: default; }
+.day-order-tool__step:not(:disabled):hover { background: var(--surface-sunken); }
 
 .day-order-tool__leg { display: flex; align-items: center; gap: .3rem; margin: .35rem 0 0; padding: .35rem .5rem; border-inline-start: 2px solid var(--line-strong); color: var(--ink-700); font-size: var(--type-body-s-size); line-height: 1.4; overflow-wrap: anywhere; }
 
@@ -80,3 +82,7 @@
 }
 
 .day-order-tool :focus-visible { scroll-margin-bottom: calc(var(--chrome-tabbar-height) + var(--space-4)); }
+
+/* En la vista enfocada no hay TabBar debajo: la barra de acciones se pega al borde inferior real. */
+.focused-view .day-order-tool__actions { bottom: 0; }
+.focused-view .day-order-tool, .focused-view .day-order-tool :focus-visible { scroll-margin-bottom: 5rem; }

@@ -1,4 +1,4 @@
-/* P-06 v2 — N3 provisional: pantalla completa por encima del chrome de Viaje (ver FocusedView.tsx). */
+/* P-06 v2 — N3: pantalla completa por encima del chrome de Viaje (ver FocusedView.tsx). */
 .focused-view {
   position: fixed;
   inset: 0;
