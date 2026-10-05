@@ -1,5 +1,11 @@
 # P-06 — Viaje › Días con revelación progresiva
 
+> **SUPERADO como modelo de interacción por [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md).** La revelación progresiva con
+> `<details>` y paneles inline redujo la altura inicial pero mantuvo el problema (cada acción secundaria seguía desplegando
+> contenido dentro de la tarjeta). P-06 v2 lo sustituye por lista (N1) · hojas (N2) · vistas enfocadas (N3). El inventario y la
+> clasificación de bloques de abajo siguen siendo válidos como análisis; la sección «Qué pasa a revelación progresiva» ya no describe la UI vigente.
+
+
 Hallazgo de QA físico: Viaje › Días se percibía como «demasiada información, demasiado texto, demasiados
 apartados; difícil de entender sin instrucciones». No era un fallo de lógica sino de jerarquía y carga
 cognitiva. Esta misión reorganiza **sólo la presentación**; no cambia el modelo planning-draft, la

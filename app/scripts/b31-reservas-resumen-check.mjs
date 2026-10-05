@@ -148,7 +148,11 @@ async function audit(viewport, reducedMotion = false) {
     await summary.getByRole("button", { name: "Ver fechas en Días", exact: true }).click();
     await page.waitForFunction(() => document.activeElement?.textContent?.trim() === "Días");
     check(await nav.getByRole("button", { name: "Días", exact: true }).evaluate((element) => document.activeElement === element), `${tag}: summary detail link transfers focus to Días`);
+    // P-06 v2: el control de fechas existente vive en la Sheet «Fechas del viaje», a un toque de «Editar fechas».
+    await page.getByRole("button", { name: "Editar fechas", exact: true }).click();
     check(await page.locator("#sequence-start-date").inputValue() === "2027-02-22", `${tag}: summary date link reaches existing Días control`);
+    await page.keyboard.press("Escape");
+    await page.locator(".sheet").waitFor({ state: "detached" });
     check(await page.locator('.day-card[data-day-id="b31-tokyo"] .trip-stop').count() === 2, `${tag}: day content conserved`);
     await activate(page, "Resumen", true);
     await summary.getByRole("button", { name: "Ver Dónde dormir", exact: true }).click();
@@ -178,10 +182,17 @@ async function audit(viewport, reducedMotion = false) {
       await page.waitForFunction((expected) => localStorage.getItem("nihon.manualPlanningDraft") === expected, afterChoice);
       check(await page.locator(".whole-trip-composition__group").count() === 4, `${tag}: composition remains available after explicit zone choice`);
       await activate(page, "Días");
+      // P-06 v2: el lector de la zona elegida vive en «Herramientas del viaje» (vista enfocada de Días).
+      await page.getByRole("button", { name: "Herramientas del viaje", exact: true }).click();
       check(await page.locator(".zone-plan__card").count() === 1, `${tag}: explicit zone choice reaches existing planner reader`);
+      await page.keyboard.press("Escape");
+      await page.locator(".focused-view").waitFor({ state: "detached" });
       await activate(page, "Días");
+      await page.getByRole("button", { name: "Editar fechas", exact: true }).click();
       await page.locator("#sequence-start-date").fill("2027-02-23");
       await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).startDate === "2027-02-23", DRAFT_KEY);
+      await page.keyboard.press("Escape");
+      await page.locator(".sheet").waitFor({ state: "detached" });
       await activate(page, "Dónde dormir");
       const changed = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), DRAFT_KEY);
       check(changed.startDate === "2027-02-23" && changed.zoneAccommodationChoices.length === 1, `${tag}: refresh conserves edits from both existing writers`);

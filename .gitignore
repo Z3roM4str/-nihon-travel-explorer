@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 # Python bytecode (scripts/)
 __pycache__/
 *.py[cod]
+app/p06-certify-logs/

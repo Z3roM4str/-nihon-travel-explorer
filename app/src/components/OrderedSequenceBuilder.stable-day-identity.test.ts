@@ -312,8 +312,11 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 
   it("addresses every day mutation by the day's stable id, not by its ordinal index", async () => {
     const source = await readSource();
-    expect(source).toMatch(/relocatePlace\(dayEntity\.id, target\.id, placeId, targetPosition\)/);
-    expect(source).toMatch(/removeEmptyDay\(dayEntity\.id\)/);
+    // P-06 v2: la hoja de la parada mueve por id estable y SIEMPRE al final del día destino.
+    expect(source).toMatch(/relocatePlace\(fromDayId, toDayId, place\.id, target\.placeIds\.length\)/);
+    expect(source).toMatch(/removePlaceFromDay\(place\.id, fromDayId\)/);
+    expect(source).toMatch(/removeEmptyDay\(dayId\)/);
+    expect(source).toMatch(/deleteEmptyDay\(daySheet\.day\.id\)/);
     expect(source).toMatch(/setDayAccommodationChoice\(dayEntity\.id, side, choice\)/);
     expect(source).toMatch(/onClick=\{\(\) => addEmptyDay\(\)\}/);
   });
@@ -346,7 +349,8 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
   it("keeps the day id invisible to the user — the heading stays the ordinal label", async () => {
     const source = await readSource();
     expect(source).toMatch(/<h3 id=\{`day-heading-\$\{dayIndex\}`\}>Día \{dayIndex \+ 1\}/);
-    expect(source).toMatch(/aria-label=\{`Eliminar Día \$\{dayIndex \+ 1\}`\}/);
+    expect(source).toMatch(/aria-label=\{`Eliminar Día \$\{daySheet\.dayIndex \+ 1\}`\}/);
+    expect(source).toMatch(/aria-label=\{`Acciones del Día \$\{dayIndex \+ 1\}`\}/);
     expect(source).toMatch(/aria-label=\{`Paradas del Día \$\{dayIndex \+ 1\}`\}/);
     // The id is used as a React key and as a mutation address only — never rendered as text.
     expect(source).not.toMatch(/\{dayEntity\.id\}</);
@@ -385,20 +389,27 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-S identity-aware wiring", () =
 describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
   it("calls moveDay with the day's stable id for every step to the explicit destination", async () => {
     const source = await readSource();
-    expect(source).toContain("moveDay(dayEntity.id, direction)");
-    expect(source).toContain("const direction: -1 | 1 = target < dayIndex ? -1 : 1");
+    // P-06 v2: la hoja «Acciones del Día N» mueve el día de uno en uno («Mover antes/después»).
+    expect(source).toContain("moveDay(dayId, direction)");
+    expect(source).toContain("moveDayBy(daySheet.day.id, -1)");
+    expect(source).toContain("moveDayBy(daySheet.day.id, 1)");
     // Never addressed by the ordinal index instead.
     expect(source).not.toMatch(/moveDay\(dayIndex/);
   });
 
-  it("disables the destination control when there is no other day", async () => {
+  it("offers each direction only when there is a day to move past", async () => {
     const source = await readSource();
-    expect(source).toMatch(/disabled=\{!dayEntity \|\| dayEntities\.length < 2\}/);
+    expect(source).toMatch(/daySheet\.dayIndex > 0 && \(/);
+    expect(source).toMatch(/daySheet\.dayIndex < dayEntities\.length - 1 && \(/);
   });
 
   it("gives each move control an accessible name that identifies both the action and the day, without exposing the stable id", async () => {
     const source = await readSource();
-    expect(source).toMatch(/aria-label=\{`Mover Día \$\{dayIndex \+ 1\} a la posición`\}/);
+    expect(source).toMatch(/title=\{`Acciones del Día \$\{daySheet\.dayIndex \+ 1\}`\}|<Sheet title=\{`Acciones del Día \$\{daySheet\.dayIndex \+ 1\}`\}/);
+    expect(source).toContain("<span>Mover antes</span>");
+    expect(source).toContain("<span>Mover después</span>");
+    // Sin lenguaje de modelo de datos: nada de «Posición N» al mover un día.
+    expect(source).not.toMatch(/Mover Día[^`]*a la posición/);
     // The id is used only as the mutation address and the React key — never rendered as the
     // accessible name or as visible text.
     expect(source).not.toMatch(/aria-label=\{`Mover[^`]*\$\{dayEntity\.id/);
@@ -412,16 +423,17 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-U day-move UI wiring", () => {
   it("keeps whole-day movement independent of stop drag and without a confirmation dialog", async () => {
     const source = await readSource();
     expect(source).not.toMatch(/draggable/i);
-    expect(source).toMatch(/moveDay\(dayEntity\.id, direction\)/);
+    expect(source).toMatch(/moveDay\(dayId, direction\)/);
     expect(source).not.toMatch(/window\.confirm/);
   });
 
   it("does not reorder places into a moved day, only whole day entities via moveDay", async () => {
     const source = await readSource();
-    const actionsStart = source.indexOf('<div className="day-card__actions"');
-    const actionsEnd = source.indexOf("</div>", actionsStart);
+    const actionsStart = source.indexOf("function moveDayBy(");
+    const actionsEnd = source.indexOf("function deleteEmptyDay(", actionsStart);
     const actions = source.slice(actionsStart, actionsEnd);
-    expect(actions).toContain("moveDay(dayEntity.id, direction)");
+    expect(actionsStart).toBeGreaterThan(-1);
+    expect(actions).toContain("moveDay(dayId, direction)");
     expect(actions).not.toContain("movePlaceWithinDay");
     expect(actions).not.toContain("movePlaceBetweenDays");
   });

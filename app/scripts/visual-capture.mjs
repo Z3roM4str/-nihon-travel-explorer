@@ -98,11 +98,15 @@ for (const [width, height] of VIEWPORTS) {
   await nav(page, "Viaje").click();
   await page.waitForSelector(".viaje-nav", { state: "visible" });
   await take("viaje-dias");
-  await page.getByRole("button", { name: "Mover a…" }).first().click();
+  await page.getByRole("button", { name: /^Acciones de / }).first().click(); // P-06 v2: hoja de la parada
   await take("viaje-dias-mover");
-  await page.getByRole("button", { name: /^Probar otro orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
+  await page.keyboard.press("Escape");
+  await page.locator(".sheet").waitFor({ state: "detached" });
+  await page.getByRole("button", { name: /^Cambiar orden del Día \d+$/ }).and(page.locator(":enabled")).first().click();
   await page.locator(".day-order-tool").first().waitFor();
   await take("viaje-dias-otro-orden");
+  await page.keyboard.press("Escape");
+  await page.locator(".focused-view").waitFor({ state: "detached" });
   for (const [tab, slug] of [["Dónde dormir", "dormir"], ["Reservas", "reservas"], ["Resumen", "resumen"]]) {
     await page.locator(`.viaje-nav__item:has-text("${tab}")`).click();
     await take(`viaje-${slug}`);

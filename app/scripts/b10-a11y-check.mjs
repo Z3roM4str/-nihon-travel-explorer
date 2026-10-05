@@ -151,8 +151,9 @@ const SCREENS = [
   ["quiero-ir", async (p) => { await nav(p, "Quiero ir").click(); }],
   ["nosotros", async (p) => { await nav(p, "Nosotros").click(); }],
   ["viaje-dias", async (p) => { await nav(p, "Viaje").click(); await p.waitForSelector(".viaje-nav", { state: "visible" }); }],
-  ["viaje-dias-mover", async (p) => { await p.getByRole("button", { name: "Mover a…" }).first().click(); }],
-  ["viaje-dias-otro-orden", async (p) => { await p.getByRole("button", { name: /^Probar otro orden del Día \d+$/ }).and(p.locator(":enabled")).first().click(); await p.locator(".day-order-tool").first().waitFor(); }],
+  // P-06 v2: las acciones de la parada abren una Sheet (N2) y «Cambiar orden» una vista enfocada (N3); cada una se cierra al salir.
+  ["viaje-dias-mover", async (p) => { await p.getByRole("button", { name: /^Acciones de / }).first().click(); await p.locator(".sheet").first().waitFor(); }, async (p) => { await p.keyboard.press("Escape"); await p.locator(".sheet").first().waitFor({ state: "detached" }); }],
+  ["viaje-dias-otro-orden", async (p) => { await p.getByRole("button", { name: /^Cambiar orden del Día \d+$/ }).and(p.locator(":enabled")).first().click(); await p.locator(".day-order-tool").first().waitFor(); }, async (p) => { await p.keyboard.press("Escape"); await p.locator(".focused-view").first().waitFor({ state: "detached" }); }],
   ["viaje-dormir", async (p) => { await p.locator('.viaje-nav__item:has-text("Dónde dormir")').click(); }],
   ["viaje-reservas", async (p) => { await p.locator('.viaje-nav__item:has-text("Reservas")').click(); }],
   ["viaje-resumen", async (p) => { await p.locator('.viaje-nav__item:has-text("Resumen")').click(); }],

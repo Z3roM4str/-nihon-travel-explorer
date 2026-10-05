@@ -1,0 +1,65 @@
+# Certificación acotada de P-06 v2 (Viaje › Días): WebKit y Chromium sobre el SHA exacto de la rama.
+# Sólo lectura, sin secretos, sin despliegue. Se dispara con el PR (también Draft) y a mano.
+name: P-06 certificación
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/p06-certification.yml"
+      - "app/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p06-certification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certify:
+    name: ${{ matrix.browser }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [webkit, chromium]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout del SHA exacto del PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Instalar dependencias (lockfile)
+        run: npm ci
+      - name: Versión de Playwright fijada por el lockfile
+        run: |
+          echo "SHA certificado: $(git rev-parse HEAD)"
+          npx playwright --version
+          node -e "console.log('lockfile playwright', require('./package-lock.json').packages['node_modules/playwright'].version)"
+      - name: Instalar ${{ matrix.browser }} y sus dependencias del sistema (sólo en este runner)
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Build
+        run: npm run build
+      - name: Certificación P-06 en ${{ matrix.browser }}
+        run: scripts/p06-v2-certify.sh ${{ matrix.browser }}
+      - name: Resumen
+        if: always()
+        run: cat p06-certify-logs/${{ matrix.browser }}/summary.txt >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Logs y capturas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p06-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: app/p06-certify-logs/${{ matrix.browser }}
+          if-no-files-found: warn
+          retention-days: 30

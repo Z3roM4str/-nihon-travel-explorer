@@ -95,6 +95,7 @@ export async function newPage(browser, viewport, { fixture, seed = true, extraIn
 /** Abre Viaje › Dónde dormir y espera a que el panel (embebido) esté listo y con el foco en «Cerrar dónde dormir». */
 export async function openZones(page, url) {
   if (url) await page.goto(url, { waitUntil: "domcontentloaded" });
+  await closeDaysOverlays(page);
   await page.getByRole("button", { name: "Viaje", exact: true }).click();
   await page.locator(".viaje-nav__item").filter({ hasText: "Dónde dormir" }).click();
   const panel = page.locator(".zone-panel.zone-panel--embedded");
@@ -263,4 +264,57 @@ export function fourPlaceFixture() {
   const travellers = [{ id: "p1", label: "Marta" }];
   const interests = [...t, ...k].map((placeId) => ({ placeId, stances: [{ travellerId: "p1", stance: "interested" }], carriedOver: false }));
   return { draft, travellersDoc: { version: 1, travellers, activeTravellerId: "p1", interests }, routeIds: [...t, ...k] };
+}
+
+/**
+ * P-06 v2 — mover una parada por la interfaz vigente, con la API que usaban los gates históricos (`Día` + `Posición` base 0).
+ * «Mover al Día N» añade la parada AL FINAL del destino (hoja de la parada); si el gate pedía una posición concreta, el orden fino
+ * se corrige después en «Cambiar orden» (vista enfocada), exactamente como lo haría una persona.
+ * `dayValue`/`positionValue` aceptan el valor de `<option>` de la UI anterior (cadena o número, base 0).
+ */
+export async function moveStopToDay(page, placeName, dayValue, positionValue) {
+  const targetDay = Number(dayValue);
+  const stop = page.locator(".trip-stop").filter({ hasText: placeName }).first();
+  const fullName = (await stop.locator("strong").innerText()).trim();
+  const sourceDay = await stop.evaluate((el) => [...document.querySelectorAll(".day-card[data-day-id]")].indexOf(el.closest(".day-card")));
+  if (sourceDay !== targetDay) {
+    await stop.getByRole("button", { name: /^Acciones de / }).click();
+    const sheet = page.locator(".sheet");
+    await sheet.getByRole("button", { name: new RegExp(`^Mover al Día ${targetDay + 1}\\b`) }).click();
+    await sheet.waitFor({ state: "detached" });
+  }
+  if (positionValue === undefined || positionValue === null) return;
+  const target = Number(positionValue);
+  const card = page.locator(".day-card[data-day-id]").nth(targetDay);
+  const names = await card.locator(".trip-stop strong").allInnerTexts();
+  const current = names.findIndex((n) => n.trim() === fullName);
+  if (current === target) return;
+  await card.getByRole("button", { name: `Cambiar orden del Día ${targetDay + 1}` }).click();
+  const tool = page.locator(".day-order-tool");
+  await tool.waitFor();
+  // P-06·C: Subir/Bajar (sin «Posición N»); el foco sigue al lugar, así que basta repetir el clic.
+  const diff = target - current;
+  const verb = diff > 0 ? "Bajar" : "Subir";
+  for (let i = 0; i < Math.abs(diff); i += 1) {
+    await tool.locator(".day-order-tool__order").nth(1).getByRole("button", { name: `${verb} ${fullName} en la propuesta del Día ${targetDay + 1}`, exact: true }).click();
+  }
+  await tool.getByRole("button", { name: "Usar este orden", exact: true }).click();
+  await tool.waitFor({ state: "detached" });
+}
+
+/** P-06 v2: las hojas (N2) y vistas enfocadas (N3) de Días son modales; se cierran antes de navegar por Viaje. */
+export async function closeDaysOverlays(page) {
+  for (let i = 0; i < 3 && (await page.locator(".sheet, .focused-view").count()); i += 1) {
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(150);
+  }
+}
+
+/** P-06 v2: la fecha de inicio se edita en la Sheet «Fechas del viaje» (los mismos controles, dentro de la hoja). `""` la borra. */
+export async function setTripStartDate(page, value) {
+  await closeDaysOverlays(page);
+  await page.getByRole("button", { name: /^(Editar fechas|Poner fechas del viaje)$/ }).click();
+  await page.locator("#sequence-start-date").fill(value);
+  await page.keyboard.press("Escape");
+  await page.locator(".sheet").waitFor({ state: "detached" });
 }

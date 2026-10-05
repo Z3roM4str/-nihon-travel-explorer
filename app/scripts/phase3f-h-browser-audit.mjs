@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { moveStopToDay, setTripStartDate } from "./lib/modern-trip.mjs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -299,11 +300,7 @@ try {
       // release date and Phase 3F-H must re-relate the SAME explicit reference date to it.
       // B28: «Mover a…» (Día + Posición) sustituyó a «Mover … al día siguiente»; se hace desde Días.
       await showSection(page, "Días");
-      const stop = page.locator(".trip-stop").filter({ hasText: "Tokyo Disneyland" });
-      await stop.getByRole("button", { name: "Mover a…" }).click();
-      await stop.getByLabel("Día").selectOption("1");
-      await stop.getByLabel("Posición").selectOption("0");
-      await stop.getByRole("button", { name: "Mover parada" }).click();
+      await moveStopToDay(page, "Tokyo Disneyland", "1", "0"); // P-06 v2: hoja de la parada + «Cambiar orden»
       await showSection(page, "Reservas");
       await page.waitForFunction(() => {
         const stored = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft") ?? "null");
@@ -327,7 +324,7 @@ try {
       // Scenario K — clearing the trip start date removes every trip-specific official relation,
       // and a reload brings none back because nothing derived was ever persisted.
       await showSection(page, "Días"); // el campo de fecha de inicio vive en Días (B27)
-      await page.getByLabel("Fecha de inicio (Día 1)").fill("");
+      await setTripStartDate(page, ""); // P-06 v2: hoja «Fechas del viaje»
       await showSection(page, "Reservas");
       await page.waitForFunction(
         () => document.querySelectorAll(".official-reservation-date").length === 0

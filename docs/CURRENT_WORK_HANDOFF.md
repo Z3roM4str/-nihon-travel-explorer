@@ -1,6 +1,14 @@
-# Handoff reanudable — B10 «Pulido» CERRADO E INTEGRADO; roadmap de bloques completo
+# Handoff reanudable — P-06 v2 (Días: lista · hojas · vistas enfocadas) A+B+C+D completados; Chromium y WebKit automatizados verdes
 
-## Estado vigente — B10 CERRADO E INTEGRADO EN MAIN
+## Estado vigente — P-06 v2 (rama `claude/p06-v2-list-sheets`, PR Draft #196)
+
+- Base `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Arquitectura: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md); evidencia, revisión de gates, mediciones y riesgos: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md).
+- **COMPLETADO**: A (lista N1), B (Sheets), C (`FocusedView` definitiva + History API para las 8 superficies + Subir/Bajar en Cambiar orden + «Sin alojamiento esa noche»), D (limpieza de CSS/código de v1).
+- **CERTIFICADO** en WebKit 26.5 y Chromium (GitHub Actions, workflow `p06-certification.yml`) sobre el SHA `7bc0990f9167631ea4872fee7882984b9aac23d1` (3 intentos verdes, incl. `p06-v2-clip-check` 104/104 y B29 169), artefactos `p06-webkit-<sha>`/`p06-chromium-<sha>`; detalle en «Revisión final para integración». **ABIERTO**: Safari/iPhone físico y lector de pantalla (no probados). B26 K-FOCUS-VISIBLE reproduce también en `main`: seguimiento independiente en el issue #197 (hipótesis sin confirmar). «Sin alojamiento esa noche» permanece sólo en «Detalles del día» (decisión cerrada). PR listo para revisión; **sin merge ni deployment**.
+- Gates nuevos: `p06-v2-list-invariant-check`, `p06-v2-history-check`, `p06-v2-journeys-check` (admiten `NIHON_BROWSER=webkit`). Contratos de B27/B28/B29 cambiados: addenda en [BLOCK_27_HANDOFF.md](BLOCK_27_HANDOFF.md), [BLOCK_28_HANDOFF.md](BLOCK_28_HANDOFF.md), [BLOCK_29_HANDOFF.md](BLOCK_29_HANDOFF.md).
+- P-06 v1 queda como análisis ([P06_DAYS_PROGRESSIVE_DISCLOSURE.md](P06_DAYS_PROGRESSIVE_DISCLOSURE.md), marcado superado).
+
+## Anterior — B10 «Pulido» CERRADO E INTEGRADO EN MAIN
 
 - PR [#179](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/179) MERGED mediante merge commit `c512db15a1d253a1c6704ad0798f80dea142e173` (padres `2a10ad3f…` y `538d2ebf…`; tree idéntico al certificado `c781f598…`). Certificación post-merge: [B10_POST_MERGE_CERTIFICATION.md](B10_POST_MERGE_CERTIFICATION.md). Fallos exclusivos: 0.
 - Certificación D0b+D5 del merge `2a10ad3`: [D0B_D5_POST_MERGE_CERTIFICATION.md](D0B_D5_POST_MERGE_CERTIFICATION.md) (integrada por #180).

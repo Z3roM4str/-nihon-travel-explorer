@@ -1,4 +1,4 @@
-// P-06: capturas de la primera entrada a Viaje › Días (móvil 390×844 y escritorio 1440×900).
+// P-06 v2: capturas de la primera entrada a Viaje › Días (móvil 390×844 y escritorio 1440×900).
 // Uso: NIHON_P06_SHOTS=<dir> NIHON_P06_LABEL=<antes|despues> node scripts/p06-days-capture.mjs
 import { mkdirSync } from "node:fs";
 import { launch, newPage, tripFixture, byHub } from "./lib/modern-trip.mjs";
@@ -31,18 +31,23 @@ try {
       await page.waitForTimeout(150);
       await page.screenshot({ path: `${dir}/${label}-${name}-scroll${i}.png` });
     }
-    // Estados revelados a petición (sólo si la pantalla ya tiene revelación progresiva P-06).
-    if (await root.locator(".day-card__details").count()) {
-      const firstCard = root.locator(".day-card").first();
-      await firstCard.locator(".trip-stop").first().getByRole("button", { name: "Mover a…" }).click();
-      await firstCard.locator(".trip-stop__move-panel").scrollIntoViewIfNeeded();
-      await page.screenshot({ path: `${dir}/${label}-${name}-acciones-parada.png` });
-      await firstCard.locator(".trip-stop").first().getByRole("button", { name: "Mover a…" }).click();
-      await firstCard.locator(".day-card__details > summary").click();
-      await firstCard.locator(".day-card__details > summary").evaluate((el) => el.scrollIntoView({ block: "start" }));
-      await page.waitForTimeout(150);
-      await page.screenshot({ path: `${dir}/${label}-${name}-detalles-dia.png` });
-      await page.screenshot({ path: `${dir}/${label}-${name}-detalles-dia-full.png`, fullPage: true });
+    // P-06 v2: superficies a petición (hojas N2 y vistas enfocadas N3) sobre la lista.
+    const firstCard = root.locator(".day-card").first();
+    for (const [slug, open] of [
+      ["hoja-parada", () => firstCard.getByRole("button", { name: /^Acciones de / }).first().click()],
+      ["hoja-fechas", () => root.getByRole("button", { name: /^(Editar fechas|Poner fechas del viaje)$/ }).click()],
+      ["hoja-anadir-lugar", () => firstCard.getByRole("button", { name: /Añadir lugar/ }).click()],
+      ["hoja-dia", () => firstCard.getByRole("button", { name: /^Acciones del Día/ }).click()],
+      ["vista-cambiar-orden", () => firstCard.getByRole("button", { name: /^Cambiar orden del Día/ }).click()],
+      ["vista-detalles-dia", () => firstCard.getByRole("button", { name: /^Detalles del Día/ }).click()],
+      ["vista-herramientas", () => root.getByRole("button", { name: "Herramientas del viaje" }).click()],
+    ]) {
+      await open();
+      await page.locator(".sheet, .focused-view").first().waitFor();
+      await page.waitForTimeout(450);
+      await page.screenshot({ path: `${dir}/${label}-${name}-${slug}.png` });
+      await page.keyboard.press("Escape");
+      await page.locator(".sheet, .focused-view").first().waitFor({ state: "detached" });
     }
     await context.close();
   }

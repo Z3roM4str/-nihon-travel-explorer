@@ -103,3 +103,8 @@ Ejecutada sobre `main` @ `d7144ef1fb02c9ec5ffc4b63dfb414512183496b`, después de
 ## Diferido
 
 B9.4 «Dónde dormir», B9.5 «Reservas/Resumen», B30 y B10 cleanup. No se tocaron Astra, Vercel, dataset, fotografía, cálculos de transporte, algoritmos evidence-complete ni semántica de reservas. No se desplegó.
+
+## Addendum P-06 v2 (contrato modificado)
+
+«Probar otro orden» pasa a llamarse **«Cambiar orden»** (disparador `Cambiar orden del Día N`, encabezado `Cambiar orden · Día N`, cierre `Cerrar Cambiar orden`) y deja de ser un panel inline: se abre en una vista enfocada (N3),
+con la frase «Vosotros decidís el orden…» encima (P-06·C: vista definitiva con historial; la propuesta se reordena con **Subir/Bajar**, ya no hay «Posición N» ni selects). El contenido de `DayOrderToolPanel` (orden actual, propuesta, comparación, opciones comprobadas, «Usar este orden») no cambia; Los casos «obsoleto» del gate ya no usan `dispatchEvent`: se reescribieron como la secuencia real atrás → arrastre → adelante (ver P06_V2_CERTIFICATION.md).
