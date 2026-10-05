@@ -218,3 +218,26 @@ Chromium en el mismo runner y SHA: los mismos gates en verde más Phase 5A 50/50
 - Phase 3F, Block 4/6 y Phase 5A siguen siendo Chromium-only (fuera de la certificación P-06); Phase 5A corre en el job Chromium del workflow.
 - B26 `K-FOCUS-VISIBLE`: ver su sección (intermitente, reproduce en `main`, hipótesis sin traza); no se tocó.
 - Coste: dos jobs de ~9 min por ejecución en runners estándar; no se necesitó habilitar servicios ni permisos adicionales.
+
+## Revisión final para integración — SHA certificado `7bc0990f9167631ea4872fee7882984b9aac23d1`
+
+**Alcance del diff final** (`origin/main..HEAD`): 46+ archivos, sólo `app/src` (Días, `FocusedView`, `useSurfaceHistory`, `day-sleep-line`, panel de orden), `app/scripts` (gates/helpers), `docs/`, `.github/workflows/p06-certification.yml` y una línea de `.gitignore`. Sin dataset, sin Vercel/Astra, sin cambios de configuración global. El HEAD final sólo añade documentación respecto a `7bc0990` (código de producto sin cambios desde `c190864`; entre `c190864` y `7bc0990` sólo cambiaron scripts de gates).
+
+**Ejecución:** https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37353521922 (intentos 1, 2 y 3, todos verdes en WebKit 26.5 y Chromium). Artefactos: `p06-webkit-7bc0990f9167631ea4872fee7882984b9aac23d1` (id 11365750985) y `p06-chromium-7bc0990f9167631ea4872fee7882984b9aac23d1` (id 11365426977).
+
+### `overflow-x: hidden` en las vistas enfocadas: no recorta nada necesario
+Nuevo gate `p06-v2-clip-check` (3 vistas × 8 viewports: 320, 360, 375, 390, 430, 820, 1280, 1440): (1) ningún elemento visible queda fuera del cuerpo; (2) ningún texto de lectura queda recortado por overflow oculto (los `<select>`/`<input>` truncan por diseño); (3) con Tab, el anillo de foco (rect + `outline-width` + `outline-offset`) de **cada** control cabe en el cuerpo y todos muestran indicador. **104/104 en Chromium y en WebKit 26.5.** Autoprueba negativa (`P06_CLIP_NEGATIVE=1`, inyecta un anillo de 40 px): falla en 24 comprobaciones, de modo que el gate no es vacuo. Nota: el texto de la opción larga de «Posición en el plan» se ve truncado dentro del propio `<select>` (comportamiento nativo; las opciones se leen al abrirlo): no lo introduce `overflow-x`.
+
+### B29: la tolerancia sólo ignora escrituras idénticas
+El contador cuenta una escritura si `getItem(key) !== value`. Autoprueba nueva dentro de B29 (5 comprobaciones, **169 en total**): reescribir el mismo borrador no cuenta; reordenar el día cuenta; cambiar el conjunto del día cuenta; **cualquier** diferencia de contenido (incluido un espacio) cuenta; el borrador queda intacto tras la autoprueba. Las aserciones de «abrir / probar otra opción / cancelar / Escape no escriben» siguen exigiendo recuento 0 y las de «aplicar» exigen exactamente 1, así que un cambio real provocado por cancelar o probar otro orden **sigue haciendo fallar el gate**. Los casos «obsoleto» (atrás → arrastre → adelante) no cambian.
+
+### Decisión de producto cerrada
+«Sin alojamiento esa noche» se mantiene **sólo en «Detalles del día»** (Fin del día → «No aplica»); no se amplía su ubicación en esta entrega.
+
+### Seguimiento independiente: B26 `K-FOCUS-VISIBLE`
+Registrado como issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197) con la evidencia (main 1/8, rama 1/8, misma ejecución en frío, mismo check) y la hipótesis marcada como **no confirmada y sin traza**. Fuera de P-06.
+
+### Pendientes explícitos (no bloquean este cierre)
+- **Safari/iPhone físicos y gesto «atrás» real de iOS:** no probados.
+- **Lector de pantalla** (VoiceOver/TalkBack/NVDA): no probado.
+- Phase 3F, Block 4/6: Chromium-only, fuera de P-06.
