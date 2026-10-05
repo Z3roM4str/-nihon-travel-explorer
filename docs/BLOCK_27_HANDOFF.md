@@ -98,3 +98,11 @@ invariante histórica; no se eliminó, relajó ni omitió ninguna.
 No se tocó dataset, metadata fotográfica, Astra, Vercel ni esquema/storage key.
 
 **Siguiente bloque canónico: B28 / B9.2 — Reordenar.** Debe añadir drag-and-drop/puntero sobre la estructura de días ya integrada sin eliminar ni degradar la ruta accesible por teclado («Mover a…» y movimiento de día completo). B9.3/B9.4/B9.5 siguen pendientes.
+
+## Addendum P-06 v2 (contrato modificado)
+
+[P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md) rediseña Días sin tocar el modelo ni la persistencia. Lo que B27 certificaba y cambia:
+las fechas se editan en la Sheet «Fechas del viaje» (`#sequence-start-date`/`#sequence-end-date` siguen siendo los mismos controles, ahora dentro de la hoja); «Eliminar Día N» y «Mover día»
+viven en la Sheet «Acciones del Día N» («Mover antes/después», sin «Posición N»); las acciones de parada («Mover al Día N», «Mover a Sin asignar») viven en una Sheet y **mover entre días añade al final**;
+«Sin asignar» es una sección visible (no `<details>`); «Detalles del día» y «Herramientas del viaje» abren una vista enfocada provisional (N3). La invariante: ninguna acción secundaria de N1 expande inline.
+Gate: `b27-viaje-dias-check.mjs` actualizado en sus entradas; nuevo `p06-v2-list-invariant-check.mjs`.

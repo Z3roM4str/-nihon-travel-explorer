@@ -1,6 +1,14 @@
-# Handoff reanudable — B10 «Pulido» CERRADO E INTEGRADO; roadmap de bloques completo
+# Handoff reanudable — P-06 v2 (Días: lista · hojas · vistas enfocadas) A+B completados; C y D pendientes
 
-## Estado vigente — B10 CERRADO E INTEGRADO EN MAIN
+## Estado vigente — P-06 v2 · A + B (rama `claude/p06-v2-list-sheets`, PR Draft)
+
+- Base `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Arquitectura y entrega a P-06·C: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md); evidencia, mediciones y riesgos: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md).
+- **COMPLETADO**: P-06·A (lista N1 sin `<details>`, «+ Añadir lugar», «Cambiar orden», «Sin asignar» visible, alojamiento en 3 estados, sin asas en touch) y P-06·B (Sheets: fechas, acciones de parada, añadir lugar, acciones del día, añadir a un día; mover entre días **al final**).
+- **PENDIENTE**: P-06·C (FocusedViews reales con History API: Cambiar orden, Día · logística, Viaje · herramientas; hoy aloja un `FocusedView` provisional) y P-06·D (limpieza de CSS/código v1 y certificación final con WebKit y dispositivo).
+- Certificado en **Chromium**; **WebKit no se pudo ejecutar** en el entorno de la misión (sin binario; `playwright install` prohibido). No mergeado.
+- Contratos cambiados de B27/B28/B29: addenda al final de [BLOCK_27_HANDOFF.md](BLOCK_27_HANDOFF.md), [BLOCK_28_HANDOFF.md](BLOCK_28_HANDOFF.md), [BLOCK_29_HANDOFF.md](BLOCK_29_HANDOFF.md). P-06 v1 queda como análisis ([P06_DAYS_PROGRESSIVE_DISCLOSURE.md](P06_DAYS_PROGRESSIVE_DISCLOSURE.md), marcado superado).
+
+## Anterior — B10 «Pulido» CERRADO E INTEGRADO EN MAIN
 
 - PR [#179](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/179) MERGED mediante merge commit `c512db15a1d253a1c6704ad0798f80dea142e173` (padres `2a10ad3f…` y `538d2ebf…`; tree idéntico al certificado `c781f598…`). Certificación post-merge: [B10_POST_MERGE_CERTIFICATION.md](B10_POST_MERGE_CERTIFICATION.md). Fallos exclusivos: 0.
 - Certificación D0b+D5 del merge `2a10ad3`: [D0B_D5_POST_MERGE_CERTIFICATION.md](D0B_D5_POST_MERGE_CERTIFICATION.md) (integrada por #180).

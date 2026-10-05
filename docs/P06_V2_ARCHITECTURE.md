@@ -9,6 +9,21 @@ Base: `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Rama: `claude/p06-v2-
 Alcance: sólo presentación. No cambia el modelo planning-draft (V8), la persistencia, los algoritmos, la
 semántica de fechas, el dataset ni otras pestañas.
 
+## 0. Estado (fin de la misión P-06 v2 · A + B)
+
+| Fase | Estado |
+|---|---|
+| **P-06·A — Lista principal (N1)** | **COMPLETADO** |
+| **P-06·B — Hojas (N2)** | **COMPLETADO** |
+| **P-06·C — Vistas enfocadas (N3) con History API** | **PENDIENTE** — preparado: ver §6 |
+| **P-06·D — Limpieza y certificación final** | **PENDIENTE** |
+
+Evidencia: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md). Resumen: Vitest 3428/3428, tsc/lint/build limpios, B27 · B28 69/69 · B29 163 · B30 475 · B31 281 · B18 · B17 · B10 · D0b 128 · D5 35 ·
+Phase 5A 50/50 · Block 4 258 · Block 6 177 · Phase 3F-f/h/j/s y el gate nuevo `p06-v2-list-invariant-check` (184 comprobaciones) **en Chromium**. **WebKit no se pudo ejecutar** en este entorno (ver certificación).
+
+Qué es provisional: `FocusedView` (N3) cubre el contrato de foco/teclado pero **no usa History API todavía**, y aloja tres tareas que son de C: *Cambiar orden*, *Detalles del día* y *Herramientas del viaje*.
+
+
 ## 1. Arquitectura
 
 | Nivel | Qué es | Para qué |
@@ -109,3 +124,16 @@ Revisados en la auditoría; se actualizan **sólo en su entrada y en las asercio
 - `OrderedSequenceBuilder.tsx` (3002 líneas) concentra N1; `TripStop`/`DayTimeline` pintan paradas; `DayOrderToolPanel` el orden; B27/B28/B29 son los gates de Días/arrastre/orden; B18 cubre navegación y «atrás».
 - v1 dejó 3 `<details>` + 2 paneles inline por pantalla y 7+ controles simultáneos por tarjeta; el cajón «Sin asignar» era `<details>` cerrado.
 - Medidas «antes» (viaje de 2 días, 390×844): altura desplazable 1726 px; ver el informe de la fase 6 para antes/después completos.
+
+## 6. Entrega a P-06·C (siguiente agente)
+
+Punto de partida exacto (rama `claude/p06-v2-list-sheets`):
+
+- `app/src/components/FocusedView.tsx` — host N3 provisional. Su API (`label`, `title?`, `onClose`, `children`) debe conservarse: P-06·C sólo cambia **cómo** se abre/cierra (History API), no a quién aloja.
+- `OrderedSequenceBuilder.tsx` — `surface` (estado de la hoja/vista abierta: `dates | stop | add-place | day | unassigned | day-details | trip-tools`) y `dayOrderSession` (Cambiar orden). Las tres vistas N3 se pintan junto a la tarjeta/lista (`<FocusedView …>`).
+- Contrato de History a implementar: `pushState({ viaje: "dias", vista: <id> })` al abrir; `popstate` cierra y vuelve a la lista con el mismo scroll; recarga sobre una vista abierta vuelve a la lista (no reabre estado efímero); Escape y «Volver a Días» hacen `history.back()`; coordinar con B18 (`b18-browser-back-check`) y con la navegación de PlaceDetail (`app__detail`), que ya usa History.
+- **Cambiar orden**: sustituir `Posición N` de `DayOrderToolPanel` por un editor táctil (subir/bajar o mover a… sin «Posición»), mantener el panel de alternativas B29 y la frase «Vosotros decidís el orden…» (ya se pinta sobre el panel). En touch ésta es **la única vía de orden fino** (no hay asas).
+- **Día · logística** (hoy «Detalles del día»): `DayLegsList`, `WeekdayClosureNotice`, `HoursClosureCompositionNotice`, `RecordedIntervalFitSection`, `TransferAndVisitTotals`, `AccommodationCommuteSection`.
+- **Viaje · herramientas**: `TripBoundsNotice`, `InterHubSegmentsSection`, `ZonePlanSection`, `AccommodationManagerSection`.
+- Gates a tocar en C: `b27` (invariante/entradas), `b29` (casos «obsoleto» hoy simulados con `dispatchEvent` sobre controles tapados — con History pasan a ser inalcanzables o se redefinen), `b18-browser-back-check`, `p06-v2-list-invariant-check` (las ocho entradas ya están cubiertas; añadir back/recarga).
+- Deuda a cerrar en D: reglas CSS muertas de v1 (`.days-hint`, `.day-card__date`, etc.), `touchDrag` ya retirado de B28, `FocusedView` provisional → definitiva, certificación WebKit.
