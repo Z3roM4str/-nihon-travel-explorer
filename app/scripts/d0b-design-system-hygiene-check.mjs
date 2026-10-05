@@ -184,6 +184,11 @@ async function measureNow(page, width, tab, suffix = "") {
         panel: !!panel && panel.scrollWidth > panel.clientWidth + 1,
         surface: !!surface && surface.scrollWidth > surface.clientWidth + 1,
         overlay: !!overlay && overlay.scrollWidth > overlay.clientWidth + 1,
+        // Diagnóstico: quién sobresale del borde derecho de la vista/hoja (sólo si desborda).
+        culprits: overlay && overlay.scrollWidth > overlay.clientWidth + 1
+          ? [...overlay.querySelectorAll("*")].filter((el) => el.getBoundingClientRect().right > overlay.getBoundingClientRect().left + overlay.clientWidth + 1)
+              .slice(0, 6).map((el) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}.${String(el.className).split(" ")[0]} right=${Math.round(el.getBoundingClientRect().right)} w=${Math.round(el.getBoundingClientRect().width)}`)
+          : [],
       };
     });
     // HEREDADO (idéntico en la base 2f2e5e1): el panel de «Dónde dormir» desborda 1-2 px a 320 px.
