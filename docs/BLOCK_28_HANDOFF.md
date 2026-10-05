@@ -39,4 +39,4 @@ La primera ejecución paralela de B26, Phase 5A e integración agotó timeouts d
 ## Addendum P-06 v2 (contrato modificado)
 
 B28 certificaba asas de arrastre con ratón **y touch real por CDP**. Con P-06 v2 las asas sólo existen con puntero fino (`(hover: hover) and (pointer: fine)`): **en touch no hay asas en N1** y el orden fino pasa a «Cambiar orden» (N3, P-06·C).
-El gate (ahora 69 comprobaciones) conserva todo el arrastre con ratón, comprueba que touch no muestra ninguna asa y que la alternativa táctil/teclado (Sheet de la parada) mueve **al final** del día destino. Ya no hay «Posición N» en la alternativa al arrastre.
+El gate (ahora 69 comprobaciones) conserva todo el arrastre con ratón, comprueba que touch no muestra ninguna asa y que la alternativa táctil/teclado (Sheet de la parada; orden fino en Cambiar orden con Subir/Bajar) funciona. Ya no hay «Posición N» en la alternativa al arrastre.

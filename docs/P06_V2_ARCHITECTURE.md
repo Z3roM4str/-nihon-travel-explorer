@@ -9,20 +9,16 @@ Base: `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Rama: `claude/p06-v2-
 Alcance: sólo presentación. No cambia el modelo planning-draft (V8), la persistencia, los algoritmos, la
 semántica de fechas, el dataset ni otras pestañas.
 
-## 0. Estado (fin de la misión P-06 v2 · A + B)
+## 0. Estado (P-06 v2 completo en Chromium; WebKit pendiente de ejecución)
 
 | Fase | Estado |
 |---|---|
 | **P-06·A — Lista principal (N1)** | **COMPLETADO** |
 | **P-06·B — Hojas (N2)** | **COMPLETADO** |
-| **P-06·C — Vistas enfocadas (N3) con History API** | **PENDIENTE** — preparado: ver §6 |
-| **P-06·D — Limpieza y certificación final** | **PENDIENTE** |
+| **P-06·C — Vistas enfocadas (N3) + History API + orden fino en touch** | **COMPLETADO** (Chromium) |
+| **P-06·D — Limpieza** | **COMPLETADO**; la certificación final queda **abierta por WebKit** (bloqueo de entorno) y por dispositivo/lector de pantalla reales |
 
-Evidencia: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md). Resumen: Vitest 3428/3428, tsc/lint/build limpios, B27 · B28 69/69 · B29 163 · B30 475 · B31 281 · B18 · B17 · B10 · D0b 128 · D5 35 ·
-Phase 5A 50/50 · Block 4 258 · Block 6 177 · Phase 3F-f/h/j/s y el gate nuevo `p06-v2-list-invariant-check` (184 comprobaciones) **en Chromium**. **WebKit no se pudo ejecutar** en este entorno (ver certificación).
-
-Qué es provisional: `FocusedView` (N3) cubre el contrato de foco/teclado pero **no usa History API todavía**, y aloja tres tareas que son de C: *Cambiar orden*, *Detalles del día* y *Herramientas del viaje*.
-
+Evidencia, mediciones y límites: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md). Comandos reproducibles para WebKit: `app/scripts/p06-v2-certify.sh webkit`.
 
 ## 1. Arquitectura
 
@@ -78,7 +74,7 @@ Tokio · 3 lugares · 5–6 h
 - Fuera de N1: frase de ayuda «Organiza tus lugares por día…», frase normativa, `days-tools`, `unassigned-drawer`, `day-card__details`, el panel «⋯» inline de la parada, el panel inline de orden.
 - Fechas del viaje: una línea compacta (rango + «Editar fechas»); los campos viven en una Sheet (B).
 - Touch: `.trip-stop__handle` sólo con `(hover: hover) and (pointer: fine)`.
-- Capacidades que pertenecen a B o C **no se eliminan**: quedan como entradas compactas que abren una superficie flotante, nunca un bloque inline. Hasta que exista P-06·C, las tareas de C se alojan en un **host provisional de vista enfocada** (pantalla completa, `role="dialog"`, foco, Escape, retorno de foco; sin History API todavía): *Cambiar orden* (`DayOrderToolPanel` sin cambios internos), *Detalles del día* (traslados, señales, horas, totales, alojamiento por tramo) y *Herramientas del viaje* (límites, traslados entre ciudades, zonas, alojamientos).
+- Capacidades que pertenecen a B o C **no se eliminan**: quedan como entradas compactas que abren una superficie flotante, nunca un bloque inline. Las tareas de N3 (*Cambiar orden*, *Detalles del día*, *Herramientas del viaje*) se abren en `FocusedView` (ver P-06·C).
 
 ### P-06·B — Hojas (esta misión)
 
@@ -94,17 +90,22 @@ Contrato de Sheet: contexto visible (qué día/parada), título claro, **una** t
 
 No entran en Sheet: editor completo de orden, logística avanzada del día, traslados entre ciudades (→ P-06·C).
 
-### P-06·C — Vistas enfocadas (siguiente agente)
+### P-06·C — Vistas enfocadas, historial y orden fino (implementado)
 
-Sustituir el host provisional por FocusedViews reales con History API (`pushState` al abrir, `popstate` cierra; recarga y «atrás» del navegador no pierden el contexto; coordinar con B18 browser-back):
+- **Una sola superficie** (hoja o vista) abierta a la vez, y es el único estado de «qué está abierto»: `useSurfaceHistory` (`app/src/useSurfaceHistory.ts`) la enlaza con `history`.
+  Abrir empuja **una** entrada (`state.nihonDias`, conservando `nihonPlaceDepth` de la ficha); «atrás» la cierra sin salir de Días; «adelante» la reabre si sigue siendo válida
+  (si el objetivo ya no existe o la línea base de «Cambiar orden» cambió, se salta); cerrar por la UI (×, Escape, fondo, «Volver a Días», terminar la acción) deshace la entrada con `history.back()`,
+  así que abrir/cerrar N veces no hace crecer la pila; abrir justo después de cerrar se encola hasta que llega el `popstate` propio; recargar limpia la entrada y empieza en la lista.
+  Aplica a las **cuatro N2/N3 por igual** (las Sheets también: «back predecible»).
+- `FocusedView` es la definitiva (ya no hay «provisional»): foco entra al abrir, Tab atrapado, Escape/«Volver», y el foco vuelve al disparador (se captura antes de que un hijo lo tome).
+- **Cambiar orden** (`DayOrderToolPanel`): la propuesta se reordena con **Subir / Bajar** (≥ 44 px, nombre accesible por lugar, el foco sigue al lugar movido). Desaparece «Posición N» de la interacción; en touch es la vía del orden fino.
+  Las opciones «Comprobado con datos completos» conservan su texto («Mover X a la posición N» es la descripción de la alternativa generada, un dato de evidencia, no una interacción).
+- **Sin alojamiento esa noche**: la elección explícita `no-accommodation` del fin del día se conserva y se muestra como «Sin alojamiento esa noche» (decisión tomada, no pendiente; gana a la zona de la ciudad). Se fija en «Detalles del día» → «Fin del día» → «No aplica».
 
-1. **Cambiar orden** del día: editor de orden táctil (sin asas en N1), alternativas evidence-complete (B29), texto «Vosotros decidís el orden. Nihon sólo describe lo que ese orden implica.» y retirada del lenguaje «Posición N» de `DayOrderToolPanel`.
-2. **Día · logística**: contenido actual de «Detalles del día».
-3. **Viaje · herramientas**: traslados entre ciudades, límites de fechas, zonas, alojamientos.
+### P-06·D — Limpieza (implementada)
 
-### P-06·D — Limpieza y certificación final
-
-Retirar CSS y código muerto de P-06 v1, reconciliar los gates con la forma final, certificación completa Chromium + WebKit + dispositivo físico.
+Retirado tras comprobar referencias: reglas CSS de v1 (`.days-hint`, `.days-tools`, `.day-card__details*`, `.unassigned-drawer*`, `.trip-stop__move-panel*`, `.day-card__actions`, `.day-card__footer`, `.day-card__sleep-link`, `.day-card__date`),
+el select de posición de la propuesta (y su CSS), el modo «provisional» de `FocusedView`, `touchDrag` de B28 y el capture de v1. No se tocó CSS ajeno a P-06 (p. ej. `local-swap__*`, ya retirado de la UI antes: deuda previa).
 
 ## 4. Gates que congelaban la UI anterior
 
@@ -125,15 +126,8 @@ Revisados en la auditoría; se actualizan **sólo en su entrada y en las asercio
 - v1 dejó 3 `<details>` + 2 paneles inline por pantalla y 7+ controles simultáneos por tarjeta; el cajón «Sin asignar» era `<details>` cerrado.
 - Medidas «antes» (viaje de 2 días, 390×844): altura desplazable 1726 px; ver el informe de la fase 6 para antes/después completos.
 
-## 6. Entrega a P-06·C (siguiente agente)
+## 6. Pendiente tras P-06 v2
 
-Punto de partida exacto (rama `claude/p06-v2-list-sheets`):
-
-- `app/src/components/FocusedView.tsx` — host N3 provisional. Su API (`label`, `title?`, `onClose`, `children`) debe conservarse: P-06·C sólo cambia **cómo** se abre/cierra (History API), no a quién aloja.
-- `OrderedSequenceBuilder.tsx` — `surface` (estado de la hoja/vista abierta: `dates | stop | add-place | day | unassigned | day-details | trip-tools`) y `dayOrderSession` (Cambiar orden). Las tres vistas N3 se pintan junto a la tarjeta/lista (`<FocusedView …>`).
-- Contrato de History a implementar: `pushState({ viaje: "dias", vista: <id> })` al abrir; `popstate` cierra y vuelve a la lista con el mismo scroll; recarga sobre una vista abierta vuelve a la lista (no reabre estado efímero); Escape y «Volver a Días» hacen `history.back()`; coordinar con B18 (`b18-browser-back-check`) y con la navegación de PlaceDetail (`app__detail`), que ya usa History.
-- **Cambiar orden**: sustituir `Posición N` de `DayOrderToolPanel` por un editor táctil (subir/bajar o mover a… sin «Posición»), mantener el panel de alternativas B29 y la frase «Vosotros decidís el orden…» (ya se pinta sobre el panel). En touch ésta es **la única vía de orden fino** (no hay asas).
-- **Día · logística** (hoy «Detalles del día»): `DayLegsList`, `WeekdayClosureNotice`, `HoursClosureCompositionNotice`, `RecordedIntervalFitSection`, `TransferAndVisitTotals`, `AccommodationCommuteSection`.
-- **Viaje · herramientas**: `TripBoundsNotice`, `InterHubSegmentsSection`, `ZonePlanSection`, `AccommodationManagerSection`.
-- Gates a tocar en C: `b27` (invariante/entradas), `b29` (casos «obsoleto» hoy simulados con `dispatchEvent` sobre controles tapados — con History pasan a ser inalcanzables o se redefinen), `b18-browser-back-check`, `p06-v2-list-invariant-check` (las ocho entradas ya están cubiertas; añadir back/recarga).
-- Deuda a cerrar en D: reglas CSS muertas de v1 (`.days-hint`, `.day-card__date`, etc.), `touchDrag` ya retirado de B28, `FocusedView` provisional → definitiva, certificación WebKit.
+- **Certificación en WebKit** (bloqueada: sin binario en el entorno; `playwright install` prohibido). Ejecutar `app/scripts/p06-v2-certify.sh webkit` en un entorno con WebKit; B27–B29, Phase 3F, Block 4/6 y Phase 5A son Chromium-only desde antes.
+- Dispositivo físico (Safari/iPhone, gesto «atrás» real) y lector de pantalla.
+- Decisión de producto abierta: dónde se fija «sin alojamiento esa noche» (hoy sólo en «Detalles del día»; no hay atajo desde la línea de la tarjeta).

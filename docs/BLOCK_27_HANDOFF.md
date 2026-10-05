@@ -104,5 +104,5 @@ No se tocó dataset, metadata fotográfica, Astra, Vercel ni esquema/storage key
 [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md) rediseña Días sin tocar el modelo ni la persistencia. Lo que B27 certificaba y cambia:
 las fechas se editan en la Sheet «Fechas del viaje» (`#sequence-start-date`/`#sequence-end-date` siguen siendo los mismos controles, ahora dentro de la hoja); «Eliminar Día N» y «Mover día»
 viven en la Sheet «Acciones del Día N» («Mover antes/después», sin «Posición N»); las acciones de parada («Mover al Día N», «Mover a Sin asignar») viven en una Sheet y **mover entre días añade al final**;
-«Sin asignar» es una sección visible (no `<details>`); «Detalles del día» y «Herramientas del viaje» abren una vista enfocada provisional (N3). La invariante: ninguna acción secundaria de N1 expande inline.
+«Sin asignar» es una sección visible (no `<details>`); «Detalles del día» y «Herramientas del viaje» abren una vista enfocada (N3, con historial desde P-06·C). La invariante: ninguna acción secundaria de N1 expande inline.
 Gate: `b27-viaje-dias-check.mjs` actualizado en sus entradas; nuevo `p06-v2-list-invariant-check.mjs`.

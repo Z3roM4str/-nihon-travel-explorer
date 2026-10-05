@@ -1,4 +1,4 @@
-# P-06 v2 — Certificación de P-06·A + P-06·B
+# P-06 v2 — Certificación (P-06·A + B + C + D)
 
 Base `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Rama `claude/p06-v2-list-sheets`. Arquitectura: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md).
 
@@ -77,8 +77,73 @@ Capturas locales (fuera del repo): 390×844 y 1440×900, lista, hoja de parada y
 ## Riesgos residuales
 
 - **WebKit sin ejecutar** (arriba) y sin dispositivo físico.
-- `FocusedView` provisional **sin History API**: «atrás» del navegador con una vista abierta navega fuera de Días en lugar de cerrar la vista. Ocurre por diseño hasta P-06·C.
+- *(Resuelto en P-06·C: «atrás» cierra la superficie; ver la actualización al final.)*
 - Vistas N3 y Sheets son modales y cubren el TabBar; los casos «obsoleto» de B29 ya no son alcanzables por un usuario real (sólo por el gate).
 - Mover entre días cambia las fechas derivadas (la fecha del día es `inicio + ordinal`): «Mover antes/después» lo advierte con «Pasa a ser el Día N».
-- Un día cuyo alojamiento es `no-accommodation` se muestra como «Elegir zona para dormir» (los tres estados cerrados no incluyen «sin alojamiento»); decisión de producto pendiente.
+- *(Resuelto en P-06·C: «Sin alojamiento esa noche».)*
 - `FocusedView` y las Sheets de Días no se auditaron con lector de pantalla real.
+
+## Actualización P-06·C + P-06·D
+
+Alcance añadido: historial (`useSurfaceHistory`), `FocusedView` definitiva, Subir/Bajar en «Cambiar orden», «Sin alojamiento esa noche» y limpieza de v1 (ver [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md) §3). Esta sección **sustituye** a los resultados de A+B donde difieren.
+
+### Resultados — Chromium (rama, HEAD de la fase C+D)
+
+`tsc -b` · build · oxlint (sólo el warning heredado `PlaceMap.tsx:18`) limpios. Vitest **119 archivos · 3429/3429**.
+
+| Gate | Resultado |
+|---|---|
+| `p06-v2-list-invariant-check` | **190/190** (390×844 touch y 1440×900 ratón; añade el 4.º estado de alojamiento) |
+| `p06-v2-history-check` (nuevo) | **146/146** — atrás/adelante/aperturas repetidas de las 8 superficies, cierre por UI, apertura inmediata tras cierre, recarga, convivencia con la pila de la ficha |
+| `p06-v2-journeys-check` (nuevo) | **68/68** — recorridos completos en móvil (tap) y escritorio (ratón): fechas, añadir día/lugar, Sin asignar, mover paradas, reordenar días y paradas, detalles, alojamiento, herramientas, Reservas/Resumen, recarga |
+| B27 · B28 · B29 | PASS · **69/69** · **164/164** |
+| B30 · B31 | 475/475 · 281/281 |
+| B18 (a11y, back, chrome, regression, responsive, viaje-lugar) · B17 · Block 20 · DDR03 · B24 · B25 | PASS (25/25, PASS, 6/6, PASS, PASS, PASS · PASS ×3 · 73/73 · 43/43 · 9 · 123/123) |
+| B26 | 314/314 en la segunda ejecución; **313/314 en la batería (K-FOCUS-VISIBLE, 1440×900, Nosotros)** — intermitente y ajeno a Viaje (pasa con 314/314 al repetir; no toca ningún archivo de P-06) |
+| B10 a11y · microcopy · motion | 89/89 · 52/52 · 17/17 |
+| D0b | 128/128 |
+| D5 · evidence-options · P-04 · Phase 5A | 35/35 · 89/89 · 55/55 · 50/50 |
+| Block 4 · Block 6 · Phase 3F-f/h/j/s | 258/258 · 177/177 · PASS ×4 |
+
+Defecto propio corregido durante la fase: la barra «Cancelar / Usar este orden» quedaba a media pantalla dentro de la vista (offset del TabBar) → `bottom: 0` en la vista enfocada. `FocusedView` capturaba como «disparador» el encabezado del panel (un hijo toma el foco antes) → se captura al montar.
+
+### WebKit — BLOQUEADO (no aprobado, no sustituido por Chromium)
+
+Comprobado en esta fase: `/opt/pw-browsers` sólo contiene `chromium`, `chromium-1194`, `chromium_headless_shell-1194`, `ffmpeg-1011`; no hay `webkit-*`. `webkit.launch()` y los tres gates nuevos con `NIHON_BROWSER=webkit` fallan con
+`browserType.launch: Executable doesn't exist at /opt/pw-browsers/webkit-2336/pw_run.sh`. No se instaló ningún navegador (prohibido). **Estado WebKit: NO EJECUTADO.**
+
+Reproducible en un entorno con WebKit (Playwright 1.62.1, `webkit-2336`): `cd app && npm ci && npm run build && scripts/p06-v2-certify.sh webkit`. El script aborta con código 2 si WebKit no arranca y lista explícitamente qué gates son Chromium-only (B27–B29, Phase 5A/3F, Block 4/6): sin evidencia en WebKit por diseño previo.
+Lo que más importa verificar allí: `(hover: hover) and (pointer: fine)` para las asas, `input[type=date]` dentro de la Sheet, `history.back()`/`popstate` con las entradas propias, foco al cerrar, Tab atrapado.
+
+### Revisión de las adaptaciones de gates (¿alguna debilita la conducta exigida?)
+
+| Cambio | Veredicto |
+|---|---|
+| Entradas por Sheet/vista en lugar de `<details>`/«⋯» inline (B27, B31, D0b, D5, B10, Phase 5A/3F, Block 4/6, B18-regression…) | Misma aserción, otra entrada. No debilita. |
+| B27/B28: «Posición N» → «al final» + Subir/Bajar | Cambio de contrato exigido (decisión cerrada); se **añade** comprobar que no hay «Posición». |
+| B28 touch: ya no arrastra | El contrato nuevo es la ausencia de asas en touch; se prueba que ninguna es visible y que la vía alternativa (Sheet, Cambiar orden) mueve. El arrastre con ratón queda íntegro. |
+| D0b A01: se quitan 4 selectores de reglas `select` | Esos controles ya no existen; el recorrido dinámico mide **más** superficies (56→128 comprobaciones) con ≥ 16 px en cada input/select real. |
+| B18-regression: el estado local que sobrevive al cambiar de pestaña pasa de `<details>` a la vista «Herramientas del viaje» | La intención («el planificador no se desmonta») se conserva, pero el cambio de pestaña se dispara con `dispatchEvent` sobre un control tapado por la vista modal. **Es el único test que sigue usando ese atajo**; un usuario real no puede cambiar de pestaña con una vista abierta salvo por «atrás» (cubierto en `p06-v2-history-check`). |
+| B29 «obsoleto» (**reescrito en C**) | Ver abajo. |
+| p06-v2-measure/capture | Herramientas de medición, no gates. |
+
+### B29: qué demostraba la simulación y qué demuestra ahora
+
+Antes (A+B): con «Cambiar orden» abierto, el gate disparaba clics (`dispatchEvent`) sobre las acciones de parada **tapadas** por la vista modal para mover el día «por debajo», y comprobaba que el panel mostraba el aviso de obsoleto y deshabilitaba «Usar este orden».
+Eso demostraba la **guarda de código** (`dayIsStale` + `applyDayOrderProposal` fail-closed), pero **no un recorrido de usuario**: un usuario no puede alcanzar ese estado con la UI.
+Con C hay una sola superficie abierta a la vez, y abrir otra *reemplaza* la actual, así que el atajo ya ni siquiera reproduce el estado. Se sustituyó por la secuencia real que sí lleva a una línea base obsoleta, con ratón y sin atajos:
+abrir «Cambiar orden» → **«atrás»** (se cierra; su entrada queda en «adelante») → cambiar el día con **arrastre** real (cambia el conjunto, H1; o sólo el orden, H2) → **«adelante»**. Se exige que no se reabra, que no se aplique ni escriba nada y que el orden nuevo se conserve.
+Lo que **ya no** se prueba de forma directa es el aviso `role="alert"` del panel: la guarda sigue en el código como defensa en profundidad, pero ningún flujo de usuario la dispara.
+
+Las interacciones reales de usuario se verifican por separado en `p06-v2-journeys-check` (tap/clic/teclado/arrastre, sin `dispatchEvent`) y `p06-v2-history-check` (atrás/adelante reales).
+
+### Evidencia visual (capturas locales fuera del repo)
+
+390×844 y 1440×900: lista, hoja de parada, hoja de fechas, añadir lugar, acciones del día, vista Cambiar orden (Subir/Bajar, barra de acciones pegada abajo), Detalles del día y Herramientas del viaje. Generadas con `scripts/p06-days-capture.mjs`.
+
+### Riesgos residuales (vigentes)
+
+- **WebKit sin ejecutar**; sin dispositivo físico ni lector de pantalla.
+- «Sin alojamiento esa noche» sólo se fija en «Detalles del día» (sin atajo desde la tarjeta): decisión de producto abierta.
+- Una entrada de historial propia cuyo objetivo ya no existe se salta con un `history.back()` automático (visible como un parpadeo del historial, no de la UI); no se ha probado con el gesto físico de iOS.
+- B26 es intermitente en batería (ajeno a P-06).
