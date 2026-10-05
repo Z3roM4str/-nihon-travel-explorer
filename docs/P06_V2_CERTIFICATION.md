@@ -107,7 +107,7 @@ Alcance añadido: historial (`useSurfaceHistory`), `FocusedView` definitiva, Sub
 
 Defecto propio corregido durante la fase: la barra «Cancelar / Usar este orden» quedaba a media pantalla dentro de la vista (offset del TabBar) → `bottom: 0` en la vista enfocada. `FocusedView` capturaba como «disparador» el encabezado del panel (un hijo toma el foco antes) → se captura al montar.
 
-### WebKit — BLOQUEADO (no aprobado, no sustituido por Chromium)
+### WebKit — (histórico) bloqueado en el entorno de la sesión; resuelto con GitHub Actions, ver «Certificación WebKit automatizada»
 
 Comprobado en esta fase: `/opt/pw-browsers` sólo contiene `chromium`, `chromium-1194`, `chromium_headless_shell-1194`, `ffmpeg-1011`; no hay `webkit-*`. `webkit.launch()` y los tres gates nuevos con `NIHON_BROWSER=webkit` fallan con
 `browserType.launch: Executable doesn't exist at /opt/pw-browsers/webkit-2336/pw_run.sh`. No se instaló ningún navegador (prohibido). **Estado WebKit: NO EJECUTADO.**
@@ -182,3 +182,39 @@ Mismo check, mismo viewport, misma ejecución (la primera, en frío) en **ambos*
 ### Capturas
 
 Galería accesible (artefacto privado; compartir desde su menú): https://claude.ai/artifact/1akyRzn6CVZ2XULtVun5Yq — 8 estados × (390×844, 1440×900), Chromium, mismo commit.
+
+## Certificación WebKit automatizada (GitHub Actions) — SHA certificado `c190864340071ebde0bc78ecc7c39b893878d459`
+
+- **Workflow:** `.github/workflows/p06-certification.yml` («P-06 certificación»). Dispara con `pull_request` (también Draft; sólo si cambian `app/**` o el propio workflow) y `workflow_dispatch`. `permissions: contents: read`, sin secretos, sin despliegue, `timeout-minutes: 75`, `ubuntu-24.04` estándar, una matriz `webkit` + `chromium`. Hace checkout del **SHA exacto** de la cabeza del PR, `npm ci` con el lockfile, comprueba la versión de Playwright (**1.62.1**, la del lockfile), instala el navegador y sus dependencias **sólo en el runner** (`npx playwright install --with-deps <navegador>`), `npm run build` y `scripts/p06-v2-certify.sh <navegador>`. Sube logs y capturas como artefacto `p06-<navegador>-<sha>` (30 días).
+- **Ejecución:** https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37348728631 — tres intentos (1, 2 y 3) **verdes en WebKit y Chromium** sobre `c190864…`. Artefactos (intento 3): `p06-webkit-c190864340071ebde0bc78ecc7c39b893878d459` (id 11362348714) y `p06-chromium-c190864340071ebde0bc78ecc7c39b893878d459` (id 11363605004), con `summary.txt`, un log por gate y `shots/`. Capturas WebKit en la galería: https://claude.ai/artifact/1akyRzn6CVZ2XULtVun5Yq (privada).
+- **WebKit 26.5** (Playwright `webkit-2336`), Node 22.23.3:
+
+| Gate (WebKit) | Resultado |
+|---|---|
+| `p06-v2-list-invariant-check` | 190/190 |
+| `p06-v2-history-check` | 146/146 |
+| `p06-v2-journeys-check` | 68/68 |
+| B27 | PASS (A–K, 8 viewports) |
+| B28 (dentro de B29) | **69/69** — ratón, auto-scroll, movimiento reducido, 8 viewports, contexto touch |
+| B29 | **164/164** — teclado de Cambiar orden, geometría de los 8 viewports |
+| B30 · B31 | 475/475 · 281/281 |
+| B10 microcopy · motion | 52/52 · 17/17 |
+| D0b · D5 · P-04 | 128/128 · 35/35 · 55/55 |
+
+Chromium en el mismo runner y SHA: los mismos gates en verde más Phase 5A 50/50 (Chromium-only).
+
+### Qué se adaptó para cubrir WebKit (y por qué no debilita)
+
+1. **B27/B28/B29 aceptan `NIHON_BROWSER=webkit`** (antes llamaban a `chromium.launch` directo). Mismas aserciones; cambia sólo el lanzador. Se validaron en Chromium (local y CI) tras el cambio.
+2. **B29 mide tras asentar la animación** `sheet-rise` (un subpíxel mid-animación daba 43.99 px, intermitente en Chromium).
+3. **B29 cuenta sólo escrituras que cambian el borrador.** WebKit mostró (2 de 6 ejecuciones, `E-2`) una reescritura **idéntica** del mismo JSON por `usePlanningDraft` al terminar de cargar el documento de viajeros, que caía después del reinicio del contador. Una reescritura idéntica no es un cambio persistido; lo que el gate exige —abrir, cargar una opción o cancelar **no cambia** el borrador— se conserva (y los recuentos «una escritura al aplicar» siguen exactos). **Es el único cambio que reduce la estrictez literal («cero escrituras»)**; no se tocó el comportamiento de la app.
+4. **Defecto real encontrado por WebKit y corregido (regresión propia):** en «Herramientas del viaje» el texto interno de un `<select>` (la opción «Selecciona dos puntos consecutivos de hubs distintos») hacía que `scrollWidth` de la vista fuese 415 > 390 y la vista se pudiera desplazar en horizontal. Se corrigió con `overflow-x: hidden` en el cuerpo de `FocusedView` y D0b ahora distingue desbordamiento **visible** (elementos fuera del borde) o **desplazable** del puramente interno. Un primer intento (ancho 100 % del select) **no** surtió efecto y se revirtió.
+5. `scripts/p06-v2-certify.sh` ahora ejecuta B27 y B29 también en WebKit, deja un log por gate, `summary.txt` y capturas, y vuelca el final del log de los gates que fallan.
+
+### Qué sigue sin estar probado
+
+- **Safari/iPhone físicos y gesto «atrás» real de iOS:** no probados. WebKit de Playwright en Linux **no** es Safari (motor sí; chrome del navegador, teclado/IME, barras dinámicas y gestos no).
+- **Lector de pantalla** (VoiceOver/TalkBack/NVDA): no probado.
+- Phase 3F, Block 4/6 y Phase 5A siguen siendo Chromium-only (fuera de la certificación P-06); Phase 5A corre en el job Chromium del workflow.
+- B26 `K-FOCUS-VISIBLE`: ver su sección (intermitente, reproduce en `main`, hipótesis sin traza); no se tocó.
+- Coste: dos jobs de ~9 min por ejecución en runners estándar; no se necesitó habilitar servicios ni permisos adicionales.

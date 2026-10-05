@@ -9,16 +9,16 @@ Base: `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Rama: `claude/p06-v2-
 Alcance: sólo presentación. No cambia el modelo planning-draft (V8), la persistencia, los algoritmos, la
 semántica de fechas, el dataset ni otras pestañas.
 
-## 0. Estado (P-06 v2 completo en Chromium; WebKit pendiente de ejecución)
+## 0. Estado (P-06 v2 completo; certificado en Chromium y WebKit automatizados; Safari/iPhone físico y lector de pantalla pendientes)
 
 | Fase | Estado |
 |---|---|
 | **P-06·A — Lista principal (N1)** | **COMPLETADO** |
 | **P-06·B — Hojas (N2)** | **COMPLETADO** |
 | **P-06·C — Vistas enfocadas (N3) + History API + orden fino en touch** | **COMPLETADO** (Chromium) |
-| **P-06·D — Limpieza** | **COMPLETADO**; la certificación final queda **abierta por WebKit** (bloqueo de entorno) y por dispositivo/lector de pantalla reales |
+| **P-06·D — Limpieza** | **COMPLETADO**; certificado en WebKit 26.5 (Playwright, GitHub Actions) y Chromium sobre el SHA `c190864…`; quedan **Safari/iPhone físico y lector de pantalla** |
 
-Evidencia, mediciones y límites: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md). Comandos reproducibles para WebKit: `app/scripts/p06-v2-certify.sh webkit`.
+Evidencia, mediciones y límites: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md). Workflow: `.github/workflows/p06-certification.yml`; local: `app/scripts/p06-v2-certify.sh webkit|chromium`.
 
 ## 1. Arquitectura
 
@@ -128,6 +128,6 @@ Revisados en la auditoría; se actualizan **sólo en su entrada y en las asercio
 
 ## 6. Pendiente tras P-06 v2
 
-- **Certificación en WebKit** (bloqueada: sin binario en el entorno; `playwright install` prohibido). Ejecutar `app/scripts/p06-v2-certify.sh webkit` en un entorno con WebKit; B27–B29, Phase 3F, Block 4/6 y Phase 5A son Chromium-only desde antes.
-- Dispositivo físico (Safari/iPhone, gesto «atrás» real) y lector de pantalla.
-- Decisión de producto abierta: dónde se fija «sin alojamiento esa noche» (hoy sólo en «Detalles del día»; no hay atajo desde la línea de la tarjeta).
+- **Safari/iPhone físico** (gesto «atrás» real, teclado/IME, barras dinámicas) y **lector de pantalla**: no probados; WebKit automatizado de Playwright no los sustituye.
+- Decisión de producto abierta: dónde se fija «sin alojamiento esa noche» (hoy sólo en «Detalles del día»).
+- Gates Chromium-only fuera de P-06: Phase 3F, Block 4/6.
