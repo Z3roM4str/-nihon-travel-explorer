@@ -51,7 +51,11 @@ async function setup({ viewport = { width: 390, height: 844 }, days, emptyPlan =
     window.__b29DraftWrites = [];
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function(name, value) {
-      if (name === key) window.__b29DraftWrites.push(value);
+      // Cuenta escrituras que CAMBIAN el borrador. `usePlanningDraft` reescribe el mismo JSON cuando el documento de viajeros
+      // termina de cargar (re-reconciliación idéntica); según el motor y la carga eso cae antes o después del reinicio del
+      // contador (visto en WebKit). Una reescritura idéntica no es un cambio persistido, y lo que el gate exige es que
+      // abrir/cargar/cancelar NO cambie el borrador.
+      if (name === key && this.getItem(key) !== value) window.__b29DraftWrites.push(value);
       return originalSetItem.call(this, name, value);
     };
     if (localStorage.getItem(key) !== null) {
@@ -91,7 +95,11 @@ async function setupEvidenceFixture(fixtureIds, dayId) {
     window.__b29DraftWrites = [];
     const originalSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function(name, value) {
-      if (name === key) window.__b29DraftWrites.push(value);
+      // Cuenta escrituras que CAMBIAN el borrador. `usePlanningDraft` reescribe el mismo JSON cuando el documento de viajeros
+      // termina de cargar (re-reconciliación idéntica); según el motor y la carga eso cae antes o después del reinicio del
+      // contador (visto en WebKit). Una reescritura idéntica no es un cambio persistido, y lo que el gate exige es que
+      // abrir/cargar/cancelar NO cambie el borrador.
+      if (name === key && this.getItem(key) !== value) window.__b29DraftWrites.push(value);
       return originalSetItem.call(this, name, value);
     };
     localStorage.setItem("nihon.onboarding.seen.v1", "1");
