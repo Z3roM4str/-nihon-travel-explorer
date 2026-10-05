@@ -6,7 +6,7 @@
 - **Certificado sobre el SHA integrado** en **WebKit 26.5 y Chromium** (GitHub Actions, `p06-certification.yml`, run 37361031993): `RESULT fail=0` en ambos. Esto es WebKit de Playwright, **no Safari ni iPhone**.
 - **Pendientes explícitos de P-06:** (1) Safari/iPhone físicos y gesto «atrás» real de iOS; (2) lector de pantalla (VoiceOver/TalkBack/NVDA); (3) issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197): B26 `K-FOCUS-VISIBLE` intermitente, reproduce en `main` (hipótesis sin confirmar).
 - «Sin alojamiento esa noche» permanece **sólo** en «Detalles del día» (decisión cerrada).
-- **Vercel:** el merge a `main` disparó el despliegue automático de producción previsto por `app/vercel.json` (`main: true`; ver [DEPLOYMENT_POLICY.md](DEPLOYMENT_POLICY.md)). No se tocó Vercel; el freeze sigue vigente para todo lo demás.
+- **Vercel — publicación inesperada registrada:** el merge `592c0c4` creó el deployment `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (origen `git`, entorno **production**, estado READY, `githubCommitSha` = `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`, creado 2026-10-05 ≈19:06 UTC) y **llegó a producción**: los alias `nihon-travel-explorer.vercel.app`, `nihon-travel-explorer-z3ro2.vercel.app` y `nihon-travel-explorer-git-main-z3ro2.vercel.app` apuntan a él. Causa: `app/vercel.json` mantiene `main: true` (por diseño de [DEPLOYMENT_POLICY.md](DEPLOYMENT_POLICY.md)), de modo que todo merge a `main` publica en producción; ya había ocurrido con #190, #191, #193 y el commit `7878632`. Contención aplicada el 2026-10-05 (autorizada, mínima y reversible): Ignored Build Step del proyecto = `exit 0` (omite todo build nuevo). No hubo rollback, ni borrado de deployments, ni cambios de dominio o Production Branch; `app/vercel.json` no se modificó. Limitación: la API no devuelve ese campo en lectura, por lo que el efecto se confirma con el siguiente evento de push. Revertir = restaurar el campo a vacío en Settings › Git.
 
 ### Pendientes para terminar el proyecto (plan vigente de la línea Claude)
 
@@ -27,11 +27,11 @@ El roadmap de bloques está completo (B1–B10 cerrados; sin «B11»); P-06 cier
 | # | Pendiente | Por qué |
 |---|---|---|
 | B1 | **Safari/iPhone físicos** (gesto «atrás», teclado/IME, barras dinámicas, rendimiento) y **lector de pantalla** real sobre Días, hojas y vistas | Hardware/persona; WebKit de Playwright no los sustituye |
-| B2 | **Vercel:** revisar el despliegue de producción disparado por el merge; cualquier cambio de freeze, Production Branch, dominios o deployment manual | Requiere autorización expresa (`DEPLOYMENT_POLICY.md`) |
-| B3 | **Elección de la implementación definitiva entre las líneas Astra y Claude** (la política las mantiene independientes «mientras se comparan las alternativas») | Decisión de producto/proyecto; no se mezcla trabajo |
+| B2 | **Vercel:** decidir si se mantiene el Ignored Build Step provisional o se corrige la política (`main: true` publica en cada merge); revisar el deployment de producción `dpl_2eiLZ…` ya publicado; cualquier otro cambio de freeze, Production Branch, dominios o deployment manual | Requiere autorización expresa (`DEPLOYMENT_POLICY.md`) |
+| ~~B3~~ | ~~Elección Astra/Claude~~ **RESUELTO:** Claude es la implementación definitiva. Astra queda fuera; sus ramas no se mezclan ni se borran | Decisión confirmada 2026-10-05 |
 | B4 | Decisiones de Producto/Diseño abiertas: `zone-fact--strong` (B30), D0b-01/02, EvidenceMark 11/12, B10-M1…M6, B10-C1 (voz «guardar/guardado»), y si «sin alojamiento esa noche» debe tener un atajo desde la tarjeta | Son decisiones, no defectos |
 | B5 | OD-01 modo oscuro (POST-V1/DIFERIDO), fotografías reales de zona, OSM/recursos externos en red real | Fuera de la versión actual / dependen de terceros |
-| B6 | Revisar y fusionar el PR documental de este cierre (el PR #196 ya está integrado; el cierre va en un PR aparte) | Mantengo la regla: no fusiono sin tu autorización |
+| ~~B6~~ | ~~Fusionar el PR documental de cierre~~ **RESUELTO:** autorizado; se integra mediante merge commit si los checks requeridos pasan | Decisión confirmada 2026-10-05 |
 
 ## Anterior — B10 «Pulido» CERRADO E INTEGRADO EN MAIN
 

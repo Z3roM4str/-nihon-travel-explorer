@@ -258,5 +258,5 @@ Registrado como issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer
 | Phase 5A | (Chromium-only) | 50/50 |
 
   Artefactos: `p06-webkit-592c0c46435dd61d4b2ef84566c4fdb75f53c56d` (id 11366807519) y `p06-chromium-592c0c46435dd61d4b2ef84566c4fdb75f53c56d` (id 11367137172).
-- **Efecto lateral esperado, no iniciado por este trabajo:** `app/vercel.json` mantiene `main: true`, así que el push del merge a `main` disparó el **despliegue automático de producción** de la integración Git de Vercel (estado de commit `Vercel: success` en `592c0c4`). No se ejecutó ni se tocó nada en Vercel; ver «Pendientes» en el handoff.
+- **Despliegue de producción no previsto por este trabajo:** el push del merge a `main` activó la integración Git de Vercel (`app/vercel.json`: `main: true`). Evidencia: deployment `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5`, origen `git`, entorno production, READY, SHA `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`, alias de producción asignados. El estado de commit `Vercel: success` significa exactamente eso: build correcto y publicado en producción. Detalle de la contención en el handoff.
 - Siguen pendientes, sin cambios: issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197) (B26 `K-FOCUS-VISIBLE`, hipótesis sin confirmar), **Safari/iPhone físicos y lector de pantalla** (no probados).
