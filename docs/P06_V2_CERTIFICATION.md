@@ -241,3 +241,22 @@ Registrado como issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer
 - **Safari/iPhone físicos y gesto «atrás» real de iOS:** no probados.
 - **Lector de pantalla** (VoiceOver/TalkBack/NVDA): no probado.
 - Phase 3F, Block 4/6: Chromium-only, fuera de P-06.
+
+## Integración en `main` y certificación post-merge
+
+- PR #196 integrado con **merge commit** (sin squash, rebase ni force-push) el 2026-10-05: **`592c0c46435dd61d4b2ef84566c4fdb75f53c56d`**. Antes de fusionar: HEAD del PR `4bad18159b74480d8aac1488cb9d3fc5f3f7e544` (verificado con `expectedHeadSha`), base `main` = `de4b190b033a4d8c169d75a609e3d7d50527e674`, checks `webkit` y `chromium` en verde, estado de fusión limpio.
+- Padres del merge: `de4b190b033a4d8c169d75a609e3d7d50527e674` (primer padre, la base) y `4bad18159b74480d8aac1488cb9d3fc5f3f7e544`. **Árbol del merge `fdd05933e9c355c14ce003d78a65fea788c80885` = árbol del HEAD del PR** (`git diff` vacío); 47 archivos, +2721 −707, idéntico al diff del PR.
+- **Certificación sobre el SHA integrado** (`workflow_dispatch` sobre `main`): https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37361031993 — `592c0c4…`, **WebKit 26.5 y Chromium en verde**, `RESULT fail=0` en ambos:
+
+| Gate | WebKit 26.5 | Chromium |
+|---|---|---|
+| Lista/hojas · historial · recorridos · recorte | 190 · 146 · 68 · 104 | 190 · 146 · 68 · 104 |
+| B27 · B28 · B29 | PASS · 69/69 · 169 | PASS · 69/69 · 169 |
+| B30 · B31 | 475 · 281 | 475 · 281 |
+| B10 microcopy · motion | 52 · 17 | 52 · 17 |
+| D0b · D5 · P-04 | 128 · 35 · 55 | 128 · 35 · 55 |
+| Phase 5A | (Chromium-only) | 50/50 |
+
+  Artefactos: `p06-webkit-592c0c46435dd61d4b2ef84566c4fdb75f53c56d` (id 11366807519) y `p06-chromium-592c0c46435dd61d4b2ef84566c4fdb75f53c56d` (id 11367137172).
+- **Despliegue de producción no previsto por este trabajo:** el push del merge a `main` activó la integración Git de Vercel (`app/vercel.json`: `main: true`). Evidencia: deployment `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5`, origen `git`, entorno production, READY, SHA `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`, alias de producción asignados. El estado de commit `Vercel: success` significa exactamente eso: build correcto y publicado en producción. Detalle de la contención en el handoff.
+- Siguen pendientes, sin cambios: issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197) (B26 `K-FOCUS-VISIBLE`, hipótesis sin confirmar), **Safari/iPhone físicos y lector de pantalla** (no probados).

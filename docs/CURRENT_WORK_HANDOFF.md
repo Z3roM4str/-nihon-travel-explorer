@@ -1,12 +1,37 @@
-# Handoff reanudable — P-06 v2 (Días: lista · hojas · vistas enfocadas) A+B+C+D completados; Chromium y WebKit automatizados verdes
+# Handoff reanudable — P-06 v2 INTEGRADO en main; pendientes del proyecto clasificados
 
-## Estado vigente — P-06 v2 (rama `claude/p06-v2-list-sheets`, PR Draft #196)
+## Estado vigente — P-06 v2 CERRADO E INTEGRADO EN MAIN
 
-- Base `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Arquitectura: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md); evidencia, revisión de gates, mediciones y riesgos: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md).
-- **COMPLETADO**: A (lista N1), B (Sheets), C (`FocusedView` definitiva + History API para las 8 superficies + Subir/Bajar en Cambiar orden + «Sin alojamiento esa noche»), D (limpieza de CSS/código de v1).
-- **CERTIFICADO** en WebKit 26.5 y Chromium (GitHub Actions, workflow `p06-certification.yml`) sobre el SHA `7bc0990f9167631ea4872fee7882984b9aac23d1` (3 intentos verdes, incl. `p06-v2-clip-check` 104/104 y B29 169), artefactos `p06-webkit-<sha>`/`p06-chromium-<sha>`; detalle en «Revisión final para integración». **ABIERTO**: Safari/iPhone físico y lector de pantalla (no probados). B26 K-FOCUS-VISIBLE reproduce también en `main`: seguimiento independiente en el issue #197 (hipótesis sin confirmar). «Sin alojamiento esa noche» permanece sólo en «Detalles del día» (decisión cerrada). PR listo para revisión; **sin merge ni deployment**.
-- Gates nuevos: `p06-v2-list-invariant-check`, `p06-v2-history-check`, `p06-v2-journeys-check` (admiten `NIHON_BROWSER=webkit`). Contratos de B27/B28/B29 cambiados: addenda en [BLOCK_27_HANDOFF.md](BLOCK_27_HANDOFF.md), [BLOCK_28_HANDOFF.md](BLOCK_28_HANDOFF.md), [BLOCK_29_HANDOFF.md](BLOCK_29_HANDOFF.md).
-- P-06 v1 queda como análisis ([P06_DAYS_PROGRESSIVE_DISCLOSURE.md](P06_DAYS_PROGRESSIVE_DISCLOSURE.md), marcado superado).
+- PR [#196](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/196) MERGED mediante merge commit `592c0c46435dd61d4b2ef84566c4fdb75f53c56d` (padres `de4b190b…` y `4bad1815…`; árbol `fdd05933…` idéntico al del HEAD del PR). Detalle, tablas y artefactos: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md) («Integración en `main` y certificación post-merge»); arquitectura: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md).
+- **Certificado sobre el SHA integrado** en **WebKit 26.5 y Chromium** (GitHub Actions, `p06-certification.yml`, run 37361031993): `RESULT fail=0` en ambos. Esto es WebKit de Playwright, **no Safari ni iPhone**.
+- **Pendientes explícitos de P-06:** (1) Safari/iPhone físicos y gesto «atrás» real de iOS; (2) lector de pantalla (VoiceOver/TalkBack/NVDA); (3) issue [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197): B26 `K-FOCUS-VISIBLE` intermitente, reproduce en `main` (hipótesis sin confirmar).
+- «Sin alojamiento esa noche» permanece **sólo** en «Detalles del día» (decisión cerrada).
+- **Vercel — publicación inesperada registrada:** el merge `592c0c4` creó el deployment `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (origen `git`, entorno **production**, estado READY, `githubCommitSha` = `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`, creado 2026-10-05 ≈19:06 UTC) y **llegó a producción**: los alias `nihon-travel-explorer.vercel.app`, `nihon-travel-explorer-z3ro2.vercel.app` y `nihon-travel-explorer-git-main-z3ro2.vercel.app` apuntan a él. Causa: `app/vercel.json` mantiene `main: true` (por diseño de [DEPLOYMENT_POLICY.md](DEPLOYMENT_POLICY.md)), de modo que todo merge a `main` publica en producción; ya había ocurrido con #190, #191, #193 y el commit `7878632`. Contención aplicada el 2026-10-05 (autorizada, mínima y reversible): Ignored Build Step del proyecto = `exit 0` (omite todo build nuevo). No hubo rollback, ni borrado de deployments, ni cambios de dominio o Production Branch; `app/vercel.json` no se modificó. Limitación: la API no devuelve ese campo en lectura, por lo que el efecto se confirma con el siguiente evento de push. Revertir = restaurar el campo a vacío en Settings › Git.
+
+### Pendientes para terminar el proyecto (plan vigente de la línea Claude)
+
+El roadmap de bloques está completo (B1–B10 cerrados; sin «B11»); P-06 cierra el último hallazgo UX conocido de Días. Lo que queda es deuda, validación física y decisiones:
+
+**A. Puede resolverlo Claude (sin revisión directa tuya salvo el merge del PR resultante)**
+
+| # | Pendiente | Nota |
+|---|---|---|
+| A1 | Issue #197 (B26 `K-FOCUS-VISIBLE`): instrumentar, confirmar o descartar la carrera del gate y, si se confirma, esperar al foco en el gate | Sólo gate; sin cambio de producto sin confirmar |
+| A2 | Llevar a `NIHON_BROWSER` (WebKit) los gates que siguen Chromium-only: Phase 3F-f/h/j/s, Block 4/6, Phase 5A, B25, y añadirlos al workflow | Ampliar CI: lo haría tras tu visto bueno al alcance |
+| A3 | Deuda de ingeniería: `local-swap__*` y otras reglas CSS muertas, primitivos `.tag/.alert/.badge/.person-token` de `App.css`, deuda de media queries, APIs L3/L4 de `planning-draft` y modos modales no `embedded` sin consumidor | Retirar exige reescribir tests de dominio; acotar por PR |
+| A4 | Actualizar README/`RELEASE_*` y `RELEASE_CERTIFICATION.md` con P-06 y con la certificación WebKit automatizada de CI | Documental |
+| A5 | Ejecutar periódicamente `p06-certification` sobre `main` (p. ej. `push` a `main`) para detectar regresiones | Cambio de workflow |
+
+**B. Requiere tu revisión directa o decisión**
+
+| # | Pendiente | Por qué |
+|---|---|---|
+| B1 | **Safari/iPhone físicos** (gesto «atrás», teclado/IME, barras dinámicas, rendimiento) y **lector de pantalla** real sobre Días, hojas y vistas | Hardware/persona; WebKit de Playwright no los sustituye |
+| B2 | **Vercel:** decidir si se mantiene el Ignored Build Step provisional o se corrige la política (`main: true` publica en cada merge); revisar el deployment de producción `dpl_2eiLZ…` ya publicado; cualquier otro cambio de freeze, Production Branch, dominios o deployment manual | Requiere autorización expresa (`DEPLOYMENT_POLICY.md`) |
+| ~~B3~~ | ~~Elección Astra/Claude~~ **RESUELTO:** Claude es la implementación definitiva. Astra queda fuera; sus ramas no se mezclan ni se borran | Decisión confirmada 2026-10-05 |
+| B4 | Decisiones de Producto/Diseño abiertas: `zone-fact--strong` (B30), D0b-01/02, EvidenceMark 11/12, B10-M1…M6, B10-C1 (voz «guardar/guardado»), y si «sin alojamiento esa noche» debe tener un atajo desde la tarjeta | Son decisiones, no defectos |
+| B5 | OD-01 modo oscuro (POST-V1/DIFERIDO), fotografías reales de zona, OSM/recursos externos en red real | Fuera de la versión actual / dependen de terceros |
+| ~~B6~~ | ~~Fusionar el PR documental de cierre~~ **RESUELTO:** autorizado; se integra mediante merge commit si los checks requeridos pasan | Decisión confirmada 2026-10-05 |
 
 ## Anterior — B10 «Pulido» CERRADO E INTEGRADO EN MAIN
 
