@@ -1,0 +1,44 @@
+# TEMPORAL (#197): repeticiones dirigidas del gate B26 en WebKit y Chromium. Se retira antes de integrar.
+name: tmp B26 foco repeticiones
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/tmp-b26-focus-repeat.yml"
+permissions:
+  contents: read
+jobs:
+  repeat:
+    name: ${{ matrix.browser }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [webkit, chromium]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run build
+      - name: B26 x8
+        env:
+          NIHON_BROWSER: ${{ matrix.browser }}
+        run: |
+          echo "sha=$(git rev-parse HEAD) browser=${{ matrix.browser }}"
+          pass=0; fail=0
+          for i in $(seq 1 8); do
+            node scripts/b26-nosotros-check.mjs > b26-$i.log 2>&1 && pass=$((pass+1)) || { fail=$((fail+1)); grep -E "^FAIL|DIAG" b26-$i.log | head -20; }
+            echo "run $i: $(grep '^B26' b26-$i.log) :: $(grep -c 'OK   \[K-FOCUS-VISIBLE\]' b26-$i.log) K-FOCUS-VISIBLE ok"
+          done
+          echo "RESULT ${{ matrix.browser }} pass=$pass fail=$fail"
+          [ "$fail" = "0" ]
