@@ -1,5 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
+// P-06: NIHON_BROWSER=webkit lanza el WebKit de Playwright (misma lógica, otro motor); por defecto Chromium como siempre.
+const USE_WEBKIT = process.env.NIHON_BROWSER === "webkit";
 import { fileURLToPath } from "node:url";
 import { preview } from "vite";
 
@@ -46,8 +48,8 @@ const browserCandidates = [
   chromium.executablePath(),
   ...executableFilesBelow("/opt/pw-browsers"),
 ].filter(Boolean);
-const executablePath = browserCandidates.find(isExecutableFile);
-if (!executablePath) {
+const executablePath = USE_WEBKIT ? undefined : browserCandidates.find(isExecutableFile);
+if (!USE_WEBKIT && !executablePath) {
   throw new Error(`B27 gate BLOCKED: no executable Chromium found. Checked:\n${[...new Set(browserCandidates)].join("\n")}`);
 }
 const shots = process.env.NIHON_B27_SHOTS;
@@ -55,7 +57,7 @@ if (shots) mkdirSync(shots, { recursive: true });
 const server = await preview({ root: fileURLToPath(new URL("..", import.meta.url)), preview: { host: "127.0.0.1", port: 0 } });
 const address = server.httpServer.address();
 const url = `http://127.0.0.1:${address.port}`;
-const browser = await chromium.launch({ executablePath });
+const browser = USE_WEBKIT ? await webkit.launch() : await chromium.launch({ executablePath });
 const failures = [];
 
 function fail(message) { failures.push(message); }
@@ -330,4 +332,4 @@ try {
   await server.close();
 }
 if (failures.length) throw new Error(`B27 gate failed:\n${failures.join("\n")}`);
-console.log(`B27 Viaje · Días gate: PASS (A–K; ${viewports.length} viewports; Chromium ${executablePath ?? "Playwright-managed"}).`);
+console.log(`B27 Viaje · Días gate: PASS (A–K; ${viewports.length} viewports; ${USE_WEBKIT ? `WebKit ${browser.version()}` : `Chromium ${executablePath ?? "Playwright-managed"}`}).`);

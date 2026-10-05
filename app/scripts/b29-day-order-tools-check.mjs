@@ -1,7 +1,8 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
+const USE_WEBKIT = process.env.NIHON_BROWSER === "webkit"; // P-06: mismo gate en WebKit
 import { preview } from "vite";
 
 const places = JSON.parse(readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8"));
@@ -19,8 +20,9 @@ if (shots) mkdirSync(shots, { recursive: true });
 
 const server = await preview({ root: fileURLToPath(new URL("..", import.meta.url)), preview: { host: "127.0.0.1", port: 0 } });
 const url = `http://127.0.0.1:${server.httpServer.address().port}`;
-const browserPath = process.env.NIHON_CHROMIUM_PATH || chromium.executablePath();
-const browser = await chromium.launch({ executablePath: browserPath });
+const browserPath = USE_WEBKIT ? "webkit" : (process.env.NIHON_CHROMIUM_PATH || chromium.executablePath());
+const browser = USE_WEBKIT ? await webkit.launch() : await chromium.launch({ executablePath: browserPath });
+const BROWSER_VERSION = browser.version();
 let checks = 0;
 function check(value, message) {
   checks++;
@@ -454,6 +456,8 @@ try {
   for (const [width, height] of viewports) {
     const sample = await setup({ viewport: { width, height } });
     const opened = await openTool(sample.page, sample.root);
+    // La vista entra con `sheet-rise` (translateY): se mide ya asentada, o un subpíxel de la animación da 43.99 px (intermitente).
+    await sample.page.evaluate(() => Promise.all(document.getAnimations().map((animation) => animation.finished.catch(() => undefined))));
     check(await sample.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `K ${width}x${height}: no horizontal page overflow`);
     check(await opened.panel.evaluate((element) => element.scrollWidth <= element.clientWidth + 1), `K ${width}x${height}: panel has no horizontal overflow`);
     const undersized = await opened.panel.locator("button:visible, select:visible, summary:visible").evaluateAll((elements) => elements.filter((element) => {
@@ -520,4 +524,4 @@ const b28Output = execFileSync(process.execPath, [fileURLToPath(new URL("./b28-r
 });
 check(b28Output.includes("B28 PASS 69/69"), `L: B28 pointer/touch regression passed (${b28Output.trim()})`);
 console.log(b28Output.trim());
-console.log(`B29 Day Tools gate: PASS (${checks} checks; Chromium ${browserPath}; 8 viewports${shots ? `; screenshots ${shots}` : ""}).`);
+console.log(`B29 Day Tools gate: PASS (${checks} checks; ${USE_WEBKIT ? "WebKit" : "Chromium"} ${USE_WEBKIT ? BROWSER_VERSION : browserPath}; 8 viewports${shots ? `; screenshots ${shots}` : ""}).`);

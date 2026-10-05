@@ -1,6 +1,7 @@
 import { readFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, webkit } from "playwright";
+const USE_WEBKIT = process.env.NIHON_BROWSER === "webkit"; // P-06: mismo gate en WebKit
 import { preview } from "vite";
 
 const places = JSON.parse(readFileSync(new URL("../src/data/places.json", import.meta.url), "utf8")).slice(0, 7);
@@ -10,7 +11,7 @@ const wishlistKey = "nihon.travellers.v1";
 const viewports = [[320,568],[375,667],[390,844],[430,932],[820,1180],[1024,768],[1280,800],[1440,900]];
 const shots = process.env.NIHON_B28_SHOTS;
 if (shots) mkdirSync(shots, { recursive: true });
-const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH || chromium.executablePath() });
+const browser = USE_WEBKIT ? await webkit.launch() : await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH || chromium.executablePath() });
 const server = await preview({ root: fileURLToPath(new URL("..", import.meta.url)), preview: { host: "127.0.0.1", port: 0 } });
 const url = `http://127.0.0.1:${server.httpServer.address().port}`;
 let checks = 0;
@@ -312,7 +313,7 @@ try {
     }
     await sample.context.close();
   }
-  console.log(`B28 PASS ${checks}/${checks} checks; pointer mouse + Chromium touch; 8 viewports`);
+  console.log(`B28 PASS ${checks}/${checks} checks; pointer mouse + ${USE_WEBKIT ? "WebKit" : "Chromium"} touch; 8 viewports`);
 } finally {
   await browser.close();
   await new Promise((resolve) => server.httpServer.close(resolve));
