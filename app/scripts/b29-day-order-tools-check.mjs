@@ -177,6 +177,27 @@ try {
   const main = await setup();
   const { page, root, errors } = main;
   const original = await readDraft(page);
+  // Autoprueba del contador de escrituras: una reescritura IDÉNTICA no cuenta; CUALQUIER cambio del borrador (orden, conjunto,
+  // un solo carácter) sí. Así la tolerancia a la reescritura idéntica de `usePlanningDraft` no puede enmascarar un cambio real.
+  {
+    const raw = await page.evaluate((key) => localStorage.getItem(key), storageKey);
+    await resetWrites(page);
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [storageKey, raw]);
+    check(await writeCount(page) === 0, "S: reescribir el mismo borrador no cuenta como escritura");
+    const reordered = JSON.parse(raw);
+    reordered.days[0].placeIds = [...reordered.days[0].placeIds].reverse();
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [storageKey, JSON.stringify(reordered)]);
+    check(await writeCount(page) === 1, "S: reordenar el día del borrador sí cuenta");
+    const fewer = JSON.parse(raw);
+    fewer.days[0].placeIds = fewer.days[0].placeIds.slice(1);
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [storageKey, JSON.stringify(fewer)]);
+    check(await writeCount(page) === 2, "S: cambiar el conjunto del día sí cuenta");
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [storageKey, raw + " "]);
+    check(await writeCount(page) === 3, "S: cualquier diferencia de contenido cuenta");
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [storageKey, raw]);
+    await resetWrites(page);
+    check(JSON.stringify(await readDraft(page)) === JSON.stringify(original), "S: el borrador queda como estaba tras la autoprueba");
+  }
   const trigger = card(root).getByRole("button", { name: "Cambiar orden del Día 1" });
   const triggerCount = await trigger.count();
   const triggerDisabled = triggerCount === 1 ? await trigger.isDisabled() : null;

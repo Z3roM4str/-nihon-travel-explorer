@@ -27,7 +27,7 @@ run() { # run <gate>
   [ "$rc" = "0" ] || { echo "FAIL $g"; fail=1; }
 }
 # Gates P-06 v2 y los de Viaje que admiten NIHON_BROWSER.
-for g in p06-v2-list-invariant-check p06-v2-history-check p06-v2-journeys-check \
+for g in p06-v2-list-invariant-check p06-v2-history-check p06-v2-journeys-check p06-v2-clip-check \
          b27-viaje-dias-check b29-day-order-tools-check \
          b30-where-to-sleep-check b31-reservas-resumen-check b10-microcopy-check b10-motion-check \
          d0b-design-system-hygiene-check d5-normative-vocabulary-check p04-national-map-reachability-check; do
