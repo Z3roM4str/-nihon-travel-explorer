@@ -147,3 +147,38 @@ Las interacciones reales de usuario se verifican por separado en `p06-v2-journey
 - «Sin alojamiento esa noche» sólo se fija en «Detalles del día» (sin atajo desde la tarjeta): decisión de producto abierta.
 - Una entrada de historial propia cuyo objetivo ya no existe se salta con un `history.back()` automático (visible como un parpadeo del historial, no de la UI); no se ha probado con el gesto físico de iOS.
 - B26 es intermitente en batería (ajeno a P-06).
+
+## Cierre de la verificación (código exacto: `0bf2908b9d07e2c295723161e46db7e19913250e`)
+
+Base `origin/main` = `de4b190b033a4d8c169d75a609e3d7d50527e674` (sin cambios). HEAD remoto de la rama `claude/p06-v2-list-sheets` = `0bf2908b9d07e2c295723161e46db7e19913250e` (verificado con `git fetch` + `git rev-parse`). Los resultados de Chromium de arriba corresponden a este código (el único cambio posterior a `2f635e7` en `app/` es de gates/docs).
+
+### Búsqueda de un entorno con WebKit — resultado: no hay ninguno accesible
+
+- `list_environments` devuelve **un solo** entorno (`env_01C5f56sVeNM8yCzwpjqhFYX`, «Predeterminado», `anthropic_cloud`): es el mismo en el que corre esta sesión y ya se comprobó que no trae WebKit (`/opt/pw-browsers/webkit-2336/pw_run.sh` inexistente). No se creó otra sesión en él ni se repitió el intento.
+- El repositorio lista 36 workflows de Actions heredados (auditorías «exact-head» de fases anteriores y uno de Astra); ninguno ejecuta WebKit ni P-06, no existen en la rama, y añadir uno sería ampliar el repositorio sin autorización. No se usó.
+- **Se necesita ejecución externa** (abajo).
+
+### Handoff para certificar WebKit (ejecución externa)
+
+- Código: rama `claude/p06-v2-list-sheets` @ `0bf2908b9d07e2c295723161e46db7e19913250e`.
+- Dependencias: Node 22; Playwright **1.62.1** con `webkit-2336`; en Ubuntu 24.04: `npx playwright install --with-deps webkit` (en una máquina donde instalar navegadores esté permitido).
+- Comandos: `cd app && npm ci && npm run build && scripts/p06-v2-certify.sh webkit` (aborta con código 2 si WebKit no arranca; si pasa, ejecuta los 3 gates P-06 v2 + B30, B31, B10-microcopy/motion, D0b, D5, P-04 con `NIHON_BROWSER=webkit`). Capturas opcionales: `NIHON_BROWSER=webkit NIHON_P06_SHOTS=out NIHON_P06_LABEL=webkit node scripts/p06-days-capture.mjs`.
+- Cobertura que esos gates dan en WebKit: **historial** atrás/adelante, cierre por UI y reapertura repetida, entrada cuyo objetivo ya no existe (parada movida) y línea base de «Cambiar orden» obsoleta (`p06-v2-history-check`); **foco** (entra, vuelve al disparador, sigue al lugar movido), **Tab** atrapado y **Escape** en las 8 superficies (`p06-v2-list-invariant-check`); **fechas** y el recorrido completo con **tap** en contexto touch (`p06-v2-journeys-check`).
+- **Lo que NO cubre WebKit hoy** (scripts Chromium-only: B27, B28, B29, Phase 5A/3F, Block 4/6): arrastre con ratón por Pointer Events, auto-scroll y movimiento reducido (B28); y el teclado de «Cambiar orden» con Enter repetido, tamaño de objetivos y geometría del CTA por 8 viewports (B29). Esos tres necesitan portar `launch()` a `NIHON_BROWSER` (B27/B28/B29 llaman a `chromium.launch` directamente); no se hizo aquí porque no se puede validar sin WebKit y sería cambiar gates a ciegas.
+- Criterios pendientes para aprobar WebKit: 0 fallos en esos gates; asas sólo con `(hover: hover) and (pointer: fine)`; `input[type=date]` operable dentro de la Sheet; `popstate` sin entradas colgantes; foco visible tras cerrar; sin errores de consola.
+- Estado: **WebKit NO EJECUTADO. El PR sigue en Draft.**
+
+### K-FOCUS-VISIBLE de B26: comparación HEAD vs base
+
+Condiciones idénticas: dos árboles (base `de4b190…` y HEAD `0bf2908…`), cada uno con su build de producción, B26 ejecutado 8 veces por árbol, los dos bucles **a la vez** en la misma máquina, Chromium 141.
+
+| Árbol | Ejecuciones | Fallos | Detalle |
+|---|---|---|---|
+| base `main` | 8 | **1** (run 1) | `K-FOCUS-VISIBLE` 1440×900 |
+| HEAD `0bf2908` | 8 | **1** (run 1) | `K-FOCUS-VISIBLE` 1440×900 |
+
+Mismo check, mismo viewport, misma ejecución (la primera, en frío) en **ambos** árboles: **no es una regresión de P-06**; reproduce en `main`. Causa probable: `TravellerManager` mueve el foco en un efecto tras el cambio de persona y el gate lee `document.activeElement` de forma síncrona justo tras `Enter` (carrera del gate bajo carga). P-06 no toca `TravellerManager` ni Nosotros (`git diff origin/main..HEAD -- app/src` sin esos archivos). No se corrigió porque es ajeno al alcance; la causa es una hipótesis por lectura de código, no probada con una traza. Registrado como intermitente heredado, con esta evidencia.
+
+### Capturas
+
+Galería accesible (artefacto privado; compartir desde su menú): https://claude.ai/artifact/1akyRzn6CVZ2XULtVun5Yq — 8 estados × (390×844, 1440×900), Chromium, mismo commit.

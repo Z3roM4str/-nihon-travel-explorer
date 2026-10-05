@@ -4,7 +4,7 @@
 
 - Base `main` @ `de4b190b033a4d8c169d75a609e3d7d50527e674`. Arquitectura: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md); evidencia, revisión de gates, mediciones y riesgos: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md).
 - **COMPLETADO**: A (lista N1), B (Sheets), C (`FocusedView` definitiva + History API para las 8 superficies + Subir/Bajar en Cambiar orden + «Sin alojamiento esa noche»), D (limpieza de CSS/código de v1).
-- **ABIERTO**: certificación en **WebKit** (bloqueo de entorno: sin binario; `playwright install` prohibido) → `app/scripts/p06-v2-certify.sh webkit` en un entorno con WebKit; dispositivo físico y lector de pantalla. PR **Draft**, sin merge.
+- **ABIERTO**: certificación en **WebKit** (no hay entorno con WebKit accesible: único entorno `anthropic_cloud` sin binario; `playwright install` prohibido). Handoff exacto, SHA `0bf2908b9d07e2c295723161e46db7e19913250e` y comandos en la certificación («Cierre de la verificación»). B26 K-FOCUS-VISIBLE reproduce también en `main` (intermitente heredado) → `app/scripts/p06-v2-certify.sh webkit` en un entorno con WebKit; dispositivo físico y lector de pantalla. PR **Draft**, sin merge.
 - Gates nuevos: `p06-v2-list-invariant-check`, `p06-v2-history-check`, `p06-v2-journeys-check` (admiten `NIHON_BROWSER=webkit`). Contratos de B27/B28/B29 cambiados: addenda en [BLOCK_27_HANDOFF.md](BLOCK_27_HANDOFF.md), [BLOCK_28_HANDOFF.md](BLOCK_28_HANDOFF.md), [BLOCK_29_HANDOFF.md](BLOCK_29_HANDOFF.md).
 - P-06 v1 queda como análisis ([P06_DAYS_PROGRESSIVE_DISCLOSURE.md](P06_DAYS_PROGRESSIVE_DISCLOSURE.md), marcado superado).
 
