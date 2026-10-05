@@ -296,7 +296,9 @@ try {
     await optionGroup.getByRole("button", { name: "Probar esta opción" }).first().click();
     const loadedProposal = idsForNames(await orderNames(fixturePanel.locator(".day-order-tool__order").nth(1)));
     check(JSON.stringify(loadedProposal) === JSON.stringify(fixture.expected), `E-${index + 1}: ${fixture.family} loads its deterministic candidate`);
-    check(await writeCount(fixtureCase.page) === 0 && JSON.stringify((await readDraft(fixtureCase.page)).days[0].placeIds) === JSON.stringify(fixture.baseline), `E-${index + 1}: loading ${fixture.family} leaves the persisted day unchanged`);
+    const loadWrites = await writeCount(fixtureCase.page);
+    const loadDay = (await readDraft(fixtureCase.page)).days[0].placeIds;
+    check(loadWrites === 0 && JSON.stringify(loadDay) === JSON.stringify(fixture.baseline), `E-${index + 1}: loading ${fixture.family} leaves the persisted day unchanged (writes=${loadWrites}; day=${JSON.stringify(loadDay)} baseline=${JSON.stringify(fixture.baseline)})`);
     check(await fixturePanel.getByRole("button", { name: "Usar este orden", exact: true }).count() === 1, `E-${index + 1}: ${fixture.family} has the single explicit commit action`);
     await fixturePanel.getByRole("button", { name: "Usar este orden", exact: true }).click();
     await fixtureCase.page.waitForFunction(() => window.__b29DraftWrites.length === 1);

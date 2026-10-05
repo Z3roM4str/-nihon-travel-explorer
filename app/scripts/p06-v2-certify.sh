@@ -22,7 +22,7 @@ run() { # run <gate>
   echo "== $g ($browser)"
   node "scripts/$g.mjs" > "$logs/$g.log" 2>&1
   local rc=$?
-  tail -n 3 "$logs/$g.log"
+  if [ "$rc" = "0" ]; then tail -n 3 "$logs/$g.log"; else tail -n 40 "$logs/$g.log"; fi
   echo "$g rc=$rc :: $(grep -v '^\s*$' "$logs/$g.log" | tail -n 1 | cut -c1-200)" >> "$logs/summary.txt"
   [ "$rc" = "0" ] || { echo "FAIL $g"; fail=1; }
 }

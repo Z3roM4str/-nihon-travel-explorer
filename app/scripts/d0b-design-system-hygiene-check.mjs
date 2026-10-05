@@ -189,6 +189,7 @@ async function measureNow(page, width, tab, suffix = "") {
           ? [...overlay.querySelectorAll("*")].filter((el) => el.getBoundingClientRect().right > overlay.getBoundingClientRect().left + overlay.clientWidth + 1)
               .slice(0, 6).map((el) => `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}.${String(el.className).split(" ")[0]} right=${Math.round(el.getBoundingClientRect().right)} w=${Math.round(el.getBoundingClientRect().width)}`)
           : [],
+        overlayScrollable: !!overlay && overlay.scrollWidth > overlay.clientWidth + 1 && !["hidden", "clip"].includes(getComputedStyle(overlay).overflowX),
         sizes: overlay ? { scrollWidth: overlay.scrollWidth, clientWidth: overlay.clientWidth, offsetWidth: overlay.offsetWidth } : null,
         inner: overlay && overlay.scrollWidth > overlay.clientWidth + 1
           ? [...overlay.querySelectorAll("*")].filter((el) => el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0)
@@ -199,7 +200,10 @@ async function measureNow(page, width, tab, suffix = "") {
     // HEREDADO (idéntico en la base 2f2e5e1): el panel de «Dónde dormir» desborda 1-2 px a 320 px.
     // Fuera del alcance de D0b (ZoneComparison); se registra, no se arregla ni se oculta.
     if (width === 320 && tab === "Dónde dormir" && !o.page && !o.surface) return console.log(`# HEREDADO [${width}/${tab}] overflow del panel ${JSON.stringify(o)} (igual en la base)`);
-    ok(!o.page && !o.panel && !o.surface && !o.overlay, `overflow ${JSON.stringify(o)}`);
+    // Vista/hoja: cuenta si hay desbordamiento VISIBLE (algún elemento fuera del borde) o desplazable (scrollWidth con overflow-x que scrollea).
+    // WebKit suma al scrollWidth el texto interno de un <select> más ancho que su caja (ya recortada): no se ve ni se desplaza.
+    const overlayBad = o.overlay && (o.culprits.length > 0 || o.overlayScrollable);
+    ok(!o.page && !o.panel && !o.surface && !overlayBad, `overflow ${JSON.stringify(o)}`);
   });
   if (MOBILE.includes(width)) {
     await ck(`A-${width}-${tab}${suffix ? `-${suffix}` : ""}`, `${width}px · ${tag}: input/select/textarea ≥ 16 px computados`, async () => {

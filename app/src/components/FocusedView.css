@@ -48,6 +48,7 @@
   flex: 1 1 auto;
   overflow-y: auto;
   overscroll-behavior: contain;
+  overflow-x: hidden; /* sin desplazamiento horizontal: lo que sobre (p. ej. el texto interno de un <select> en WebKit) se recorta, nada se pierde a la vista */
   width: 100%;
   max-width: 48rem;
   margin-inline: auto;
