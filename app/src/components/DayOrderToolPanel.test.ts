@@ -15,7 +15,8 @@ describe("B9.3 — local ephemeral day-order tool", () => {
     const builder = await source("./OrderedSequenceBuilder.tsx");
     expect(builder).toContain("<DayOrderToolPanel");
     expect(builder).not.toContain("<LocalSwapAlternativesSection");
-    expect(panel).toContain("Probar otro orden");
+    expect(panel).toContain("Cambiar orden");
+    expect(panel).not.toContain("Probar otro orden");
     expect(panel).toContain("Día {dayNumber}");
     expect(panel).toContain("Orden actual");
     expect(panel).toContain("Propuesta");
@@ -58,7 +59,9 @@ describe("B9.3 — local ephemeral day-order tool", () => {
     expect(panel).toContain("day-order-tool__stale");
     expect(builder).toContain("dayOrderTriggerRefs.current.get");
     expect(builder).toContain("event.stopImmediatePropagation()");
-    expect(builder).toContain("aria-expanded={dayOrderSession?.dayId === dayEntity?.id}");
+    // P-06 v2: ya no es un panel inline (aria-expanded); es una vista enfocada que devuelve el foco al disparador.
+    expect(builder).toContain("<FocusedView label={`Cambiar orden del Día ${dayIndex + 1}`} onClose={closeDayOrderTool}>");
+    expect(builder).toContain("aria-label={`Cambiar orden del Día ${dayIndex + 1}`}");
   });
 
   it("commits through one functional V8 draft mutation", async () => {

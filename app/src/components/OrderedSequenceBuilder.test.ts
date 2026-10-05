@@ -633,7 +633,9 @@ describe("OrderedSequenceBuilder.tsx — Phase 3D-Q manual accommodation commute
   it("renders the per-day controls only for a day that actually has places", async () => {
     const source = await readSource();
     // Mounted inside the non-empty branch, and gated again on the day's own bucket and boundary.
-    expect(source).toMatch(/\{bucket && dayEntity && dayBoundary && \(\s*<AccommodationCommuteSection/);
+    // P-06 v2: dentro de la vista enfocada «Detalles del Día N», que sólo se abre para un día con lugares.
+    expect(source).toMatch(/surface\?\.kind === "day-details" && dayEntity && surface\.forDay === dayEntity\.id && !isEmpty/);
+    expect(source).toMatch(/\{bucket && dayBoundary && \(\s*<AccommodationCommuteSection/);
     // And the section itself refuses to render for an empty bucket even if it were mounted.
     const section = extractAccommodationSectionSource(source);
     expect(section).toContain("if (dayPlaceIds.length === 0) return null;");

@@ -1,0 +1,60 @@
+/* P-06 v2 — N3 provisional: pantalla completa por encima del chrome de Viaje (ver FocusedView.tsx). */
+.focused-view {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  animation: sheet-rise var(--dur-sheet) var(--ease-enter);
+}
+
+.focused-view__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.focused-view__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--ink-900);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.focused-view__back:hover { background: var(--surface-sunken); }
+
+.focused-view__title {
+  margin: 0;
+  font-family: var(--font-voice);
+  font-size: var(--type-title-s-size);
+  line-height: var(--type-title-s-line);
+  font-weight: 500;
+  color: var(--ink-900);
+}
+
+.focused-view__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: var(--space-3) var(--space-4) var(--space-6);
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focused-view { animation-duration: 0.001ms; }
+}

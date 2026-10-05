@@ -170,7 +170,7 @@ export function DayOrderToolPanel({
       <header className="day-order-tool__header">
         <div>
           <h3 id={`${panelId}-heading`} ref={headingRef} tabIndex={-1}>
-            Probar otro orden · Día {dayNumber}
+            Cambiar orden · Día {dayNumber}
           </h3>
           {(dateLabel || hubLabel) && (
             <p className="day-order-tool__context">
@@ -178,7 +178,7 @@ export function DayOrderToolPanel({
             </p>
           )}
         </div>
-        <button type="button" className="icon-button" onClick={onClose} aria-label="Cerrar Probar otro orden" title="Cerrar Probar otro orden">
+        <button type="button" className="icon-button" onClick={onClose} aria-label="Cerrar Cambiar orden" title="Cerrar Cambiar orden">
           <Icon name="cerrar" size={16} />
         </button>
       </header>
