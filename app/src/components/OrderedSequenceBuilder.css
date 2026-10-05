@@ -784,10 +784,6 @@
 
 .inter-hub-segments select,
 .inter-hub-segments input {
-  /* WebKit dimensiona un <select> por su opción más larga y desbordaba la etiqueta (≈ 399 px en una columna de 175): se encaja en ella. */
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
   max-width: 100%;
   padding: 0.35rem 0.45rem;
   border-radius: var(--radius-sm);
