@@ -34,7 +34,7 @@ const server = await preview({
 });
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const browser = await (BROWSER === "webkit" ? webkit : chromium).launch(
-  BROWSER === "webkit" ? {} : { executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" }
+  process.env.NIHON_CHROMIUM_PATH && BROWSER === "chromium" ? { executablePath: process.env.NIHON_CHROMIUM_PATH } : {}
 );
 
 const results = [];

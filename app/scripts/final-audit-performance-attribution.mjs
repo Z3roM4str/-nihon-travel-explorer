@@ -54,7 +54,7 @@ const HUBS = process.env.NIHON_HUBS
 
 const server = await preview({ root: APP, preview: { host: "127.0.0.1", port: 0 }, logLevel: "error" });
 const url = server.resolvedUrls.local[0];
-const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" : undefined;
+const exe = BROWSER === "chromium" ? process.env.NIHON_CHROMIUM_PATH : undefined;
 const browser = await (BROWSER === "webkit" ? webkit : chromium).launch({ headless: true, ...(exe ? { executablePath: exe } : {}) });
 console.log(`# navegador: ${BROWSER} ${browser.version()} · ${VIEWPORTS[viewportKey].label} · ${RUNS} ejecuciones por ciudad · CPU ×${CPU_THROTTLE} · retraso de imagen ${IMAGE_DELAY_MS} ms`);
 

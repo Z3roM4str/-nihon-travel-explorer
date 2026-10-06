@@ -14,7 +14,7 @@ import { chromium } from "playwright";
 
 const VIEWPORT_HEIGHT = 844;
 const IMAGE_HEIGHT = 800;
-const browser = await chromium.launch({ executablePath: process.env.NIHON_CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
+const browser = await chromium.launch(process.env.NIHON_CHROMIUM_PATH ? { executablePath: process.env.NIHON_CHROMIUM_PATH } : {});
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
 
 async function trial(label, throttle) {
