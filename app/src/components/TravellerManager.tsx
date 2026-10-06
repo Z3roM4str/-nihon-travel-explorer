@@ -45,20 +45,25 @@ export function TravellerManager({
   );
   /** Frase para la región `role="status"`: anuncia el cambio de persona activa. */
   const [announcement, setAnnouncement] = useState("");
-  /** Qué elemento recibe el foco tras la próxima renderización (el que lo tenía desaparece). */
-  const focusTargetRef = useRef<string | null>(null);
+  /**
+   * Qué elemento recibe el foco tras la próxima renderización (el que lo tenía desaparece).
+   *
+   * Es ESTADO, no una ref: la petición se confirma en el mismo commit que el cambio que crea el
+   * elemento destino (React agrupa ambas actualizaciones del mismo evento). Con una ref y un efecto
+   * sin dependencias, React vaciaba antes de ese commit un passive effect pendiente de un render
+   * anterior; esa función leía la ref ya fijada por el manejador, no encontraba aún el elemento,
+   * consumía el destino y el foco caía a <body> para siempre (issue #197). El objeto es nuevo en
+   * cada petición, así que pedir dos veces seguidas la misma clave vuelve a disparar el efecto.
+   */
+  const [focusRequest, setFocusRequest] = useState<{ key: string } | null>(null);
   const setFocusTarget = (key: string | null) => {
-    focusTargetRef.current = key;
+    setFocusRequest(key ? { key } : null);
   };
 
-  // Sin dependencias a propósito: corre tras cada renderización y consume el destino pendiente,
-  // de modo que el foco se coloca cuando el elemento nuevo ya existe en el DOM.
   useEffect(() => {
-    const key = focusTargetRef.current;
-    if (!key) return;
-    focusTargetRef.current = null;
-    rootRef.current?.querySelector<HTMLElement>(`[data-focus-key="${key}"]`)?.focus();
-  });
+    if (!focusRequest) return;
+    rootRef.current?.querySelector<HTMLElement>(`[data-focus-key="${focusRequest.key}"]`)?.focus();
+  }, [focusRequest]);
 
   const activeTraveller = travellers.find((entry) => entry.id === activeTravellerId) ?? null;
 

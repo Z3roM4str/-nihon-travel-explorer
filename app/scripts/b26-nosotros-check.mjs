@@ -768,14 +768,96 @@ async function auditKeyboard(browser, viewport) {
     // Cambiar de persona con teclado
     const useB = cards(page).nth(1).getByRole("button", { name: `Usar este dispositivo como ${B.label}` });
     await useB.focus();
+    await page.evaluate(() => {
+      window.__b26FocusTrace = [];
+      const log = (type) => (event) => {
+        const el = event.target;
+        window.__b26FocusTrace.push({ type, t: Math.round(performance.now() - window.__b26EnterAt), el: el?.tagName ? `${el.tagName}.${String(el.className).slice(0, 40)}` : String(el) });
+      };
+      window.__b26EnterAt = performance.now();
+      document.addEventListener("focusin", log("focusin"), true);
+      document.addEventListener("focusout", log("focusout"), true);
+      document.addEventListener("keydown", () => { window.__b26EnterAt = performance.now(); }, { capture: true, once: true });
+    });
     await page.keyboard.press("Enter");
     check("K-SWITCH", (await stored(page)).activeTravellerId === B.id, `${tag}: la persona activa se cambia con teclado (Enter)`);
-    check("K-FOCUS-VISIBLE", (await page.evaluate(() => {
+    const focusState = () => page.evaluate(() => {
       const el = document.activeElement;
       const r = el.getBoundingClientRect();
       const cs = getComputedStyle(el);
-      return el.classList.contains("traveller-card__status") && el.tabIndex === -1 && cs.display !== "none" && cs.visibility !== "hidden" && r.width > 0 && r.height > 0 && r.top >= 0 && r.bottom <= window.innerHeight;
-    })), `${tag}: el foco queda en un elemento visible tras cambiar`);
+      const conds = {
+        status: el.classList.contains("traveller-card__status"),
+        tabindex: el.tabIndex === -1,
+        displayed: cs.display !== "none",
+        visibility: cs.visibility !== "hidden",
+        sized: r.width > 0 && r.height > 0,
+        inViewport: r.top >= 0 && r.bottom <= window.innerHeight,
+      };
+      return {
+        ok: Object.values(conds).every(Boolean),
+        conds,
+        active: `${el.tagName}.${el.className}`.slice(0, 80),
+        rect: [r.top, r.bottom].map(Math.round),
+        innerHeight: window.innerHeight,
+        t: Math.round(performance.now() - (window.__b26EnterAt ?? 0)),
+      };
+    });
+    const first = await focusState();
+    // Diagnóstico de #197: si la primera lectura falla, se distingue una carrera (el foco llega después
+    // y se queda) de un defecto real (el foco nunca llega o llega a otro elemento). La aserción sigue
+    // siendo la misma; sólo se registra el historial de focos y las muestras posteriores.
+    let focusOk = first.ok;
+    if (!first.ok) {
+      const samples = [first];
+      const deadline = Date.now() + 3000;
+      while (Date.now() < deadline) {
+        await page.waitForTimeout(25);
+        const sample = await focusState();
+        samples.push(sample);
+        if (sample.ok) break;
+      }
+      const trace = await page.evaluate(() => window.__b26FocusTrace ?? []);
+      const late = samples[samples.length - 1].ok;
+      console.log(`DIAG K-FOCUS-VISIBLE ${tag}: primera lectura FALLA; ${late ? "CARRERA (el foco llegó tras " + samples[samples.length - 1].t + " ms)" : "DEFECTO (sin foco válido tras 3 s)"}`);
+      console.log(`DIAG primera=${JSON.stringify(first)}`);
+      console.log(`DIAG última=${JSON.stringify(samples[samples.length - 1])}`);
+      console.log(`DIAG focos=${JSON.stringify(trace)}`);
+      focusOk = false;
+    }
+    check("K-FOCUS-VISIBLE", focusOk, `${tag}: el foco queda en un elemento visible tras cambiar`);
+
+    // #197 — causa raíz: con la CPU cargada, React vaciaba un passive effect pendiente DESPUÉS de que el
+    // manejador fijara el destino de foco y ANTES del commit que crea el `<p>` de «Este dispositivo lo usa»;
+    // el efecto consumía el destino sin encontrarlo y el foco caía a <body> para siempre (no era una carrera
+    // del gate: la lectura a los 3 s seguía en <body>). Sin carga ocurría a veces; con ×8 casi siempre.
+    // Sólo Chromium (CDP) y en el viewport de escritorio: página nueva con la CPU estrangulada desde la carga.
+    if (ENGINE === "chromium" && tag.startsWith("1440")) {
+      const lost = [];
+      for (let run = 0; run < 2; run += 1) {
+        const slow = await newPage(browser, { width: 1440, height: 900 }, { seed: doc() });
+        const cdp = await slow.context.newCDPSession(slow.page);
+        await cdp.send("Emulation.setCPUThrottlingRate", { rate: 8 });
+        await openNosotros(slow.page);
+        await slow.page.locator(".app__person-token-button").focus();
+        for (let i = 0; i < 80; i += 1) {
+          await slow.page.keyboard.press("Tab");
+          if ((await slow.page.evaluate(() => document.activeElement?.tagName)) === "BODY") break;
+        }
+        const btn = cards(slow.page).nth(1).getByRole("button", { name: `Usar este dispositivo como ${B.label}` });
+        await btn.focus();
+        // Un usuario real pulsa Enter después de tabular, no en el mismo instante: el hueco deja pendiente
+        // el passive effect del render que provocó el foco (sin él, el fallo no aparece).
+        await slow.page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => resolve())));
+        await slow.page.keyboard.press("Enter");
+        const st = await slow.page.evaluate(() => {
+          const el = document.activeElement;
+          return { ok: el.classList.contains("traveller-card__status") && el.tabIndex === -1, active: `${el.tagName}.${el.className}`.slice(0, 60) };
+        });
+        if (!st.ok) lost.push(`#${run}: ${st.active}`);
+        await slow.context.close();
+      }
+      check("K-FOCUS-LOAD", lost.length === 0, `${tag}: con la CPU ×8 el foco llega al estado «Este dispositivo lo usa» (2 páginas nuevas; perdido: ${lost.join(", ") || "ninguno"})`);
+    }
 
     // Onboarding: el foco queda atrapado y Escape cierra
     await section(page, "Cómo funciona Nihon").getByRole("button", { name: "Ver de nuevo" }).click();
