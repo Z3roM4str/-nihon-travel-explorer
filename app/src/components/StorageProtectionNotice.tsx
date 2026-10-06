@@ -34,15 +34,15 @@ import "./StorageProtectionNotice.css";
  */
 
 const DOCUMENT_NAME: Record<string, string> = {
-  [TRAVELLERS_STORAGE_KEY]: "La lista de viajeros y de lugares guardados",
+  [TRAVELLERS_STORAGE_KEY]: "La lista de viajeros y de lugares de Quiero ir",
   [PLANNING_DRAFT_STORAGE_KEY]: "El itinerario",
 };
 
 function describe(entry: ProtectedDocument): string {
-  const name = DOCUMENT_NAME[entry.key] ?? "Un documento guardado";
+  const name = DOCUMENT_NAME[entry.key] ?? "Un documento de datos";
   return entry.status === "incompatible"
-    ? `${name} guardado en este navegador es de una versión más reciente de Nihon y esta no sabe leerlo.`
-    : `${name} guardado en este navegador no se reconoce: puede estar dañado.`;
+    ? `${name}, almacenado en este navegador, es de una versión más reciente de Nihon y esta no sabe leerlo.`
+    : `${name}, almacenado en este navegador, no se reconoce: puede estar dañado.`;
 }
 
 function downloadOriginals(): void {
@@ -97,8 +97,8 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
       setStep("idle");
       setProblem(
         outcome.reason === "copy-failed"
-          ? "No se ha podido guardar una copia aparte, así que no se ha cambiado nada: tus datos siguen conservados. Descarga la copia y vuelve a intentarlo cuando haya espacio."
-          : "Se guardó una copia aparte, pero no se han podido retirar los datos dañados: siguen conservados y no se ha cambiado nada más."
+          ? "No se ha podido crear una copia aparte, así que no se ha cambiado nada: tus datos siguen conservados. Descarga la copia y vuelve a intentarlo cuando haya espacio."
+          : "Se creó una copia aparte, pero no se han podido retirar los datos dañados: siguen conservados y no se ha cambiado nada más."
       );
       return;
     }
@@ -114,7 +114,7 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
         <span className="storage-protection__icon" aria-hidden="true">
           <Icon name="aviso" size={20} />
         </span>
-        <p className="storage-protection__text">Datos guardados protegidos: los cambios no se guardan.</p>
+        <p className="storage-protection__text">Datos almacenados protegidos: los cambios no se conservan.</p>
         <button
           type="button"
           className="button button--quiet storage-protection__action tap-target-min"
@@ -137,7 +137,7 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
         <span className="storage-protection__icon" aria-hidden="true">
           <Icon name="aviso" size={20} />
         </span>
-        Hay datos guardados que Nihon no puede leer
+        Hay datos almacenados que Nihon no puede leer
       </h2>
       {documents.map((entry) => (
         <p className="storage-protection__text" key={entry.key}>
@@ -146,7 +146,7 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
       ))}
       <p className="storage-protection__text">
         Los hemos dejado exactamente como estaban: no se ha borrado ni cambiado nada. Mientras tanto la
-        aplicación empieza en blanco y lo que hagas no se guardará.
+        aplicación empieza en blanco y lo que hagas no se conservará.
       </p>
       {problem && (
         <p className="storage-protection__problem" data-storage-protection-problem>
@@ -156,7 +156,7 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
       {step === "confirm" ? (
         <div className="storage-protection__actions">
           <p className="storage-protection__text">
-            Se guardará una copia aparte de todo lo que hay y después se empezará de cero.
+            Se creará una copia aparte de todo lo que hay y después se empezará de cero.
           </p>
           <button
             type="button"
@@ -187,7 +187,7 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
             className="button button--quiet storage-protection__action tap-target-min"
             onClick={() => setStep("confirm")}
           >
-            Empezar de nuevo (guarda una copia)
+            Empezar de nuevo (con copia aparte)
           </button>
           <button
             type="button"

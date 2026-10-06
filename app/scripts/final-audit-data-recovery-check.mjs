@@ -23,7 +23,7 @@ import { preview } from "vite";
  */
 
 const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
-const PORT = Number(process.env.NIHON_PORT ?? 4190);
+const PORT = Number(process.env.NIHON_PORT ?? 4290);
 const OUT = process.env.NIHON_EVIDENCE_OUT ?? null;
 const DK = "nihon.manualPlanningDraft";
 const TK = "nihon.travellers.v1";

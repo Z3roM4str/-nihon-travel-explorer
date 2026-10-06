@@ -51,7 +51,7 @@ export class LazySurfaceBoundary extends Component<Props, State> {
             {download
               ? "Suele deberse a una conexión inestable. "
               : "Ha ocurrido un error inesperado. "}
-            Tus lugares, fechas e itinerario están guardados en este dispositivo y no se han tocado.
+            Tus lugares, fechas e itinerario están a salvo en este dispositivo y no se han tocado.
             Recarga la página cuando tengas conexión; el resto de la aplicación sigue disponible.
           </p>
           <button
