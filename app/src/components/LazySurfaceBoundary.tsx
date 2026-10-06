@@ -52,7 +52,7 @@ export class LazySurfaceBoundary extends Component<Props, State> {
               ? "Suele deberse a una conexión inestable. "
               : "Ha ocurrido un error inesperado. "}
             Tus lugares, fechas e itinerario están a salvo en este dispositivo y no se han tocado.
-            Recarga la página cuando tengas conexión; el resto de la aplicación sigue disponible.
+            Recarga la página cuando tengas conexión; si sigue igual, cierra esta pestaña y vuelve a abrir Nihon. El resto de la aplicación sigue disponible.
           </p>
           <button
             type="button"

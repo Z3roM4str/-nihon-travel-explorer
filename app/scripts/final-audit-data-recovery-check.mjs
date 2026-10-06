@@ -594,6 +594,19 @@ async function h03Scenario(surface, width, mode, strict) {
     const alternatives = {};
     await page.reload(); await page.waitForSelector("#root *");
     alternatives.secondReload = await works(page);
+    // Más vías, sólo diagnóstico (¿qué haría falta para que la MISMA sesión recupere?):
+    await page.goto(`${base}/?retry=${Date.now()}`); await page.waitForSelector("#root *");
+    alternatives.newUrlNavigation = await works(page);
+    await page.waitForTimeout(6000);
+    await page.goto(base); await page.waitForSelector("#root *");
+    alternatives.afterWait6sThenNavigate = await works(page);
+    const chunkName = page.failedRequests.map((entry) => entry.split(" ")[0]).find((name) => name.endsWith(".js"));
+    if (chunkName) {
+      const probe = await page.evaluate((url) => fetch(url, { cache: "reload" }).then((r) => r.status).catch((e) => `fetch: ${e.message}`), `${base}/assets/${chunkName}`);
+      alternatives.chunkFetchCacheReload = probe;
+      await page.reload(); await page.waitForSelector("#root *");
+      alternatives.reloadAfterChunkFetch = await works(page);
+    }
     const fresh = await browser.newContext({ viewport: { width, height: 900 }, storageState: await context.storageState() });
     const freshPage = await fresh.newPage();
     await freshPage.goto(base); await freshPage.waitForSelector("#root *");
