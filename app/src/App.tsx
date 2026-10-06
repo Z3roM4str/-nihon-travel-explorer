@@ -327,8 +327,17 @@ export default function App() {
   /** Shown on the very first visit and reopenable from Nosotros; never blocks the app. */
   const [onboardingOpen, setOnboardingOpen] = useState(() => !hasSeenOnboarding());
 
-  const { importState, exportBackup, prepareImport, confirmImport, resetImport, finishRestore } =
-    usePortableBackup();
+  const {
+    importState,
+    protectedDocuments,
+    downloadOriginals,
+    retryPersistence: retryStorageWrites,
+    exportBackup,
+    prepareImport,
+    confirmImport,
+    resetImport,
+    finishRestore,
+  } = usePortableBackup();
 
   // Block 12. Runs once, after mount, and never blocks anything.
   useEffect(() => prefetchOnDemandSurfaces(), []);
@@ -1483,6 +1492,9 @@ export default function App() {
               onAddTraveller={addTraveller}
               importState={importState}
               onExport={exportBackup}
+              protectedDocuments={protectedDocuments}
+              onDownloadOriginals={downloadOriginals}
+              onRetryPersistence={retryStorageWrites}
               onChooseFile={prepareImport}
               onConfirmImport={(preview) => confirmImport(preview.plan)}
               onResetImport={resetImport}

@@ -475,14 +475,15 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
   it("Phase 3D-U: moveDay delegates to withDayMoved through the same canonical setDraft, with no parallel day-order state", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     expect(hook).toMatch(
-      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\(current\) => withDayMoved\(current, dayId, direction\)\);\s*\}, \[setDraft\]\);/
+      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\s*\(current\) => withDayMoved\(current, dayId, direction\),\s*guard\(\(doc\) => Boolean\(doc\.days\?\.some\(\(day\) => day\.id === dayId\)\), STALE_DAY_MESSAGE\)\s*\);\s*\}, \[setDraft, guard\]\);/
     );
     // No second day-order vector/state anywhere in the hook. Scanned against the hook's CODE:
     // the doc comments legitimately use words like "reordered" to describe what the mutations do
     // and do not do, and prose about the invariant is not a violation of it.
     const hookCode = hook.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
     expect(hookCode).not.toMatch(/dayOrder/i);
-    expect(hookCode).not.toMatch(/useState[^)]*[Oo]rder/);
+    // Sólo las LLAMADAS a `useState` (el import ya no está libre de él: el aviso de rechazo por identidad es su único uso).
+    expect(hookCode).not.toMatch(/useState\s*[<(][^)]*[Oo]rder/);
   });
 
   it("projects the ordinal matrix through the pure projection, not by hand", async () => {

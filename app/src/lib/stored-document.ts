@@ -254,3 +254,40 @@ export function refreshProtection(storage: StorageLike): void {
   setProtection(TRAVELLERS_STORAGE_KEY, readStoredTravellers(storage, () => "unused").status);
   setProtection(PLANNING_DRAFT_STORAGE_KEY, readStoredDraft(storage).status);
 }
+
+// ── Exclusión mutua entre pestañas y vaciado de lo pendiente ────────────────────────────────────
+
+/**
+ * Auditoría final (H02, ronda 2) — «releer antes de persistir» no basta: con dos pestañas escribiendo a la
+ * vez, la lectura de una puede ser anterior a la escritura de la otra (la caché de `localStorage` de cada
+ * renderer se actualiza de forma asíncrona). Medido sobre la build anterior: 80 «Añadir día» simultáneos
+ * (40 por pestaña) dejaban ~48 de 81 días. Por eso la lectura-modificación-escritura del documento se hace
+ * dentro de un **Web Lock** con el nombre del documento (`navigator.locks`, Chrome/Safari 15.4+/Firefox 96+):
+ * una pestaña a la vez. Sin Web Locks se cae al comportamiento anterior (síncrono, sin exclusión).
+ */
+export function runExclusive(name: string, task: () => void): void {
+  const locks = typeof navigator !== "undefined" ? (navigator as Navigator & { locks?: LockManager }).locks : undefined;
+  if (!locks || typeof locks.request !== "function") {
+    task();
+    return;
+  }
+  void locks.request(`nihon:${name}`, { mode: "exclusive" }, () => {
+    task();
+  }).catch(() => {
+    task();
+  });
+}
+
+const flushers = new Set<() => void>();
+
+/** Cada hook con escrituras pendientes se registra aquí para poder vaciarse de forma SÍNCRONA (exportar, cerrar). */
+export function registerFlusher(flush: () => void): () => void {
+  flushers.add(flush);
+  return () => {
+    flushers.delete(flush);
+  };
+}
+
+export function flushAllPendingWrites(): void {
+  for (const flush of [...flushers]) flush();
+}

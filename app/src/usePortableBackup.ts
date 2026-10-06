@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import {
   PLANNING_DRAFT_STORAGE_KEY,
   loadReconciledDraft,
@@ -24,8 +24,15 @@ import {
 } from "./lib/portable-backup";
 import { todayCivilDate } from "./lib/today";
 import { getAllPlaces } from "./data/store";
-import { deviceStorage } from "./lib/device-storage";
+import { deviceStorage, getPersistenceState, retryPersistence } from "./lib/device-storage";
+import { downloadTextFile } from "./lib/download-file";
 import {
+  collectOriginals,
+  flushAllPendingWrites,
+  getProtectionSnapshot,
+  serializeOriginals,
+  subscribeProtection,
+  type ProtectedDocument,
   copyOriginals,
   isProtectedStatus,
   notifyStorageReplaced,
@@ -68,6 +75,16 @@ export type ImportPreview = {
   fileName: string;
 };
 
+/**
+ * Resultado de «Exportar respaldo». Con datos PROTEGIDOS (inválidos o de una versión futura) el estado que la app
+ * sirve es el inicial, no el viaje conservado: exportarlo sería entregar un respaldo vacío como si fuese el viaje.
+ * Con una escritura fallida pendiente, el almacenamiento va por detrás de lo que se ve. En ambos casos NO se
+ * descarga el respaldo normal y se explica por qué; la copia de lo conservado se pide aparte.
+ */
+export type ExportOutcome =
+  | { ok: true; fileName: string }
+  | { ok: false; reason: "protected" | "unsaved" | "download-failed" };
+
 export type ImportState =
   | { phase: "idle" }
   | { phase: "preview"; preview: ImportPreview }
@@ -100,33 +117,34 @@ export function usePortableBackup() {
    * a dependency, and the object URL is revoked immediately afterwards so nothing is left holding
    * the blob. `exportedAt` is the one clock read in this feature.
    */
-  const exportBackup = useCallback((now: Date = new Date()): string => {
+  const exportBackup = useCallback((now: Date = new Date()): ExportOutcome => {
+    // Lo aplicado en memoria y aún sin escribir se vacía ANTES de leer el almacenamiento.
+    flushAllPendingWrites();
+    refreshProtection(browserStorage);
+    if (getProtectionSnapshot().length > 0) return { ok: false, reason: "protected" };
+    if (getPersistenceState() === "error") return { ok: false, reason: "unsaved" };
     const { travellers, draft } = readCanonicalState();
     const backup = buildPortableBackup(travellers, draft, now.toISOString());
     const text = serializePortableBackup(backup);
     const fileName = backupFileName(todayCivilDate(now));
-
-    const blob = new Blob([text], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.rel = "noopener";
-    // The anchor is attached before clicking on purpose: a detached anchor's synthetic click is
-    // ignored by some browsers, notably on iOS.
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    // Block 14. The revoke is DEFERRED rather than immediate, and that is the one line in this
-    // feature written for a browser this repository cannot run. Revoking synchronously right after
-    // `click()` is a pattern Chromium tolerates — it is what shipped in Block 13 and what 226
-    // passing checks exercise — but Safari has historically cancelled a download whose object URL
-    // disappears in the same task. Deferring to a macrotask is correct everywhere and removes a
-    // known-fragile dependency on one engine's timing before the iPhone test this repo still owes.
-    // Not a measured failure; a measured *risk*, recorded as such in the Block 14 findings.
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-    return fileName;
+    // Block 14: el revoke de la URL va diferido (ver `downloadTextFile`): Safari cancela la descarga si desaparece
+    // en la misma tarea que el clic. No es un fallo medido: es un riesgo medido, registrado como tal.
+    const delivered = downloadTextFile(fileName, text);
+    return delivered.ok ? { ok: true, fileName } : { ok: false, reason: "download-failed" };
   }, []);
+
+  /**
+   * «Descargar copia de lo conservado»: entrega las cadenas ORIGINALES de los documentos canónicos (también los
+   * protegidos), sin interpretarlas ni cambiar nada. Es la salida que sustituye al respaldo normal mientras haya
+   * datos protegidos. No escribe en el almacenamiento.
+   */
+  const downloadOriginals = useCallback((now: Date = new Date()): { ok: boolean } => {
+    flushAllPendingWrites();
+    const text = serializeOriginals(collectOriginals(browserStorage), now.toISOString());
+    return downloadTextFile(`nihon-datos-conservados-${todayCivilDate(now)}.json`, text);
+  }, []);
+
+  const protectedDocuments = useSyncExternalStore(subscribeProtection, getProtectionSnapshot, getProtectionSnapshot);
 
   /**
    * Parses and validates a chosen file, and produces a preview. **Writes nothing.**
@@ -205,6 +223,9 @@ export function usePortableBackup() {
 
   return {
     importState,
+    protectedDocuments,
+    retryPersistence,
+    downloadOriginals,
     exportBackup,
     prepareImport,
     confirmImport,
@@ -213,4 +234,5 @@ export function usePortableBackup() {
   };
 }
 
+export type { ProtectedDocument };
 export { PLANNING_DRAFT_STORAGE_KEY, TRAVELLERS_STORAGE_KEY };

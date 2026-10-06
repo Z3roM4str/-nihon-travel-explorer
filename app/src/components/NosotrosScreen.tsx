@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Traveller } from "../lib/travellers";
-import type { ImportPreview, ImportState } from "../usePortableBackup";
+import type { ExportOutcome, ImportPreview, ImportState, ProtectedDocument } from "../usePortableBackup";
 import { TravellerManager } from "./TravellerManager";
 import { TripBackup } from "./TripBackup";
 import { SourcesAndLicences } from "./SourcesAndLicences";
@@ -47,6 +47,9 @@ export function NosotrosScreen({
   onAddTraveller,
   importState,
   onExport,
+  protectedDocuments,
+  onDownloadOriginals,
+  onRetryPersistence,
   onChooseFile,
   onConfirmImport,
   onResetImport,
@@ -63,7 +66,10 @@ export function NosotrosScreen({
   onRemoveTraveller: (travellerId: string) => void;
   onAddTraveller: (label: string) => void;
   importState: ImportState;
-  onExport: () => string;
+  onExport: () => ExportOutcome;
+  protectedDocuments: readonly ProtectedDocument[];
+  onDownloadOriginals: () => { ok: boolean };
+  onRetryPersistence: () => unknown;
   onChooseFile: (file: File) => void;
   onConfirmImport: (preview: ImportPreview) => void;
   onResetImport: () => void;
@@ -90,6 +96,9 @@ export function NosotrosScreen({
         <TripBackup
           importState={importState}
           onExport={onExport}
+          protectedDocuments={protectedDocuments}
+          onDownloadOriginals={onDownloadOriginals}
+          onRetryPersistence={onRetryPersistence}
           onChooseFile={onChooseFile}
           onConfirm={onConfirmImport}
           onReset={onResetImport}

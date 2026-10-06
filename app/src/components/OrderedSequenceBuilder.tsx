@@ -1945,6 +1945,8 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     addInterHubSegment,
     updateInterHubSegment,
     removeInterHubSegment,
+    staleRejection,
+    dismissStaleRejection,
   } = usePlanningDraft(savedIds);
   // Phase 3D-S: `dayIds` stays the ordinal `string[][]` projection every domain module below is
   // given — `buildDayAssignment`, the calendar, weekday signals, reservation evaluation, hours
@@ -2019,6 +2021,11 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
    * se lo quitaba (`activeElement` = el «⋯» de la parada movida, y no el encabezado de la herramienta). Cada
    * superficie nueva incrementa esta época y el foco diferido de una acción anterior se descarta.
    */
+  // Ronda 2: un rechazo por estado obsoleto invalida lo que la superficie abierta (hoja, orden) tenía en la mano.
+  useEffect(() => {
+    if (staleRejection) closeSurface();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staleRejection]);
   const surfaceEpochRef = useRef(0);
   useEffect(() => {
     if (surface) surfaceEpochRef.current += 1;
@@ -2656,6 +2663,15 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
                 <p className="analysis-disclaimer sequence-day-invalid" role="alert">
                   <Icon name="aviso" size={16} /> El reparto actual no coincide exactamente con el
                   viaje. Vuelve a los días e inténtalo de nuevo.
+                </p>
+              )}
+
+              {staleRejection && (
+                <p className="analysis-disclaimer sequence-day-invalid stale-rejection" role="status" data-stale-rejection>
+                  <Icon name="aviso" size={16} /> {staleRejection.message}{" "}
+                  <button type="button" className="link-button" onClick={dismissStaleRejection}>
+                    Entendido
+                  </button>
                 </p>
               )}
 

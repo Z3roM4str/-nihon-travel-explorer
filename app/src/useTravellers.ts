@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   findInterest,
   findTraveller,
@@ -10,7 +10,6 @@ import {
   withActiveTraveller,
   withNewTraveller,
   withStance,
-  withToggledInterest,
   withTravellerLabel,
   withRestoredInterest,
   withTravellerReset,
@@ -127,11 +126,19 @@ export function useTravellers() {
    * once, in the header, not per card. With no active traveller the press is refused rather than
    * being recorded as nobody's opinion.
    */
+  // Ronda 2: lo que la persona VIO al pulsar. Un «alternar» sobre el estado vigente haría lo contrario de lo
+  // que pidió si otra pestaña cambió ese corazón entre medias (la vista aún mostraba «sin guardar», el estado
+  // vigente ya lo tenía guardado y el pulso lo quitaba). Se convierte en una intención explícita.
+  const viewedInterestedRef = useRef<readonly string[]>(activeInterestedIds);
+  useEffect(() => {
+    viewedInterestedRef.current = activeInterestedIds;
+  });
   const toggleSaved = useCallback((id: string) => {
+    const wantsInterested = !viewedInterestedRef.current.includes(id);
     setDocument((current) =>
       current.activeTravellerId === null
         ? current
-        : withToggledInterest(current, id, current.activeTravellerId)
+        : withStance(current, id, current.activeTravellerId, wantsInterested ? "interested" : null)
     );
   }, [setDocument]);
 

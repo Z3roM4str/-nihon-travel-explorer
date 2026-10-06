@@ -571,7 +571,7 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // Block 4 to V8 (same storage key throughout); the pure mutation this phase's contract depends
     // on is unchanged, only the module that re-exports it.
     expect(hook).toMatch(/import\s*\{[\s\S]*?\bwithVisitStartTime\b[\s\S]*?\}\s*from\s*["']\.\/lib\/planning-draft-v8["']/);
-    expect(hook).toMatch(/setDraft\(\(current\) => withVisitStartTime\(current, placeId, time\)\);/);
+    expect(hook).toMatch(/\(current\) => withVisitStartTime\(current, placeId, time\),\s*guard\(\(doc\) => doc\.routeIds\.includes\(placeId\), STALE_STOP_MESSAGE\)/);
     expect(hook).toMatch(/visitStartTimes: draft\.visitStartTimes,/);
     expect(hook).toMatch(/setVisitStartTime,/);
   });
@@ -583,7 +583,9 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // `useStoredDocument` (one call, no `useState` of its own in this hook).
     const stateCalls = withoutComments(hook).match(/useStoredDocument\s*[<(]/g) ?? [];
     expect(stateCalls).toHaveLength(1);
-    expect(withoutComments(hook)).not.toMatch(/useState\s*[<(]/);
+    // El único `useState` es el AVISO de rechazo por identidad (texto de interfaz); nunca una copia del borrador.
+    expect(withoutComments(hook).match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
+    expect(hook).toMatch(/useState<\{ key: number; message: string \} \| null>/);
     expect(hook).toMatch(/StoredDocumentAdapter<ManualPlanningDraftV8>/);
     // Every mutation goes through the pure module and is written back — synchronously, against the
     // current stored document — by `useStoredDocument`, not by a second effect in this hook.
@@ -748,7 +750,8 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
     // no separate day-id store, and — Block 4 — no side-car store for the chosen zone either.
     // (Auditoría final: ese único estado vive ahora en `useStoredDocument`.)
     expect(code.match(/useStoredDocument\s*[<(]/g) ?? []).toHaveLength(1);
-    expect(code).not.toMatch(/useState\s*[<(]/);
+    expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1); // sólo el aviso de rechazo, no una copia del borrador
+    expect(code).toMatch(/useState<\{ key: number; message: string \} \| null>/);
     expect(code).not.toContain("ManualPlanningDraftV3");
     expect(code).not.toContain("ManualPlanningDraftV4");
     expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft["']/);

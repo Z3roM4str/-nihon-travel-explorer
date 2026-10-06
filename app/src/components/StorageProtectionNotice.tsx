@@ -15,6 +15,7 @@ import {
 import { PLANNING_DRAFT_STORAGE_KEY } from "../lib/planning-draft-v8";
 import { TRAVELLERS_STORAGE_KEY } from "../lib/travellers";
 import { todayCivilDate } from "../lib/today";
+import { downloadTextFile } from "../lib/download-file";
 
 import "./StorageProtectionNotice.css";
 
@@ -45,18 +46,9 @@ function describe(entry: ProtectedDocument): string {
     : `${name}, almacenado en este navegador, no se reconoce: puede estar dañado.`;
 }
 
-function downloadOriginals(): void {
+function downloadOriginals(): boolean {
   const text = serializeOriginals(collectOriginals(deviceStorage), new Date().toISOString());
-  const blob = new Blob([text], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `nihon-datos-conservados-${todayCivilDate()}.json`;
-  anchor.rel = "noopener";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  return downloadTextFile(`nihon-datos-conservados-${todayCivilDate()}.json`, text).ok;
 }
 
 export function StorageProtectionNotice() {
@@ -178,7 +170,13 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
           <button
             type="button"
             className="button button--secondary storage-protection__action tap-target-min"
-            onClick={downloadOriginals}
+            onClick={() =>
+              setProblem(
+                downloadOriginals()
+                  ? null
+                  : "El navegador no ha podido entregar la copia. Tus datos siguen intactos; vuelve a intentarlo."
+              )
+            }
           >
             Descargar copia de lo conservado
           </button>

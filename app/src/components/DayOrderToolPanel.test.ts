@@ -69,7 +69,10 @@ describe("B9.3 — local ephemeral day-order tool", () => {
     const start = hook.indexOf("const applyDayPlaceOrder");
     const end = hook.indexOf("\n  );", start);
     const apply = hook.slice(start, end);
-    expect(apply).toContain("setDraft((current) => withDayPlaceOrderApplied(current, dayId, expectedBaselineIds, proposalIds))");
+    // Auditoría final (ronda 2): la mutación lleva una precondición de IDENTIDAD (el día existe y conserva el orden base) que
+    // se evalúa contra el documento vigente; el cambio en sí sigue siendo la misma mutación funcional pura.
+    expect(apply).toContain("(current) => withDayPlaceOrderApplied(current, dayId, expectedBaselineIds, proposalIds)");
+    expect(apply).toMatch(/guard\(/);
     expect(apply.match(/setDraft\(/g)).toHaveLength(1);
   });
 
