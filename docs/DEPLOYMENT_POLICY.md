@@ -1,9 +1,10 @@
 # Política de despliegue
 
 **Vigente desde:** 2026-09-26
-**Estado documental:** freeze técnico autorizado, versionado y activo mediante
-`app/vercel.json`. Mientras se comparan las alternativas y se elige la implementación definitiva,
-solamente `main` puede iniciar un deployment automático.
+**Estado documental:** freeze técnico autorizado, versionado en `app/vercel.json` y **reforzado el
+2026-10-05 con una protección remota temporal** (ver «Protección temporal vigente»). **No hay
+autorización para publicar automáticamente desde `main`**: que `app/vercel.json` conserve `main: true`
+describe qué ramas puede construir la integración Git, no concede permiso para publicar.
 
 ## Fuente de verdad y línea de trabajo
 
@@ -60,6 +61,40 @@ deployments ni los dominios existentes. La regla se aplica a toda rama de trabaj
 o experimental, sin necesidad de mantener una lista de prefijos. En consecuencia, esas ramas no
 generan deployments automáticos; únicamente `main` permanece habilitada para producción.
 
+## Protección temporal vigente (2026-10-05)
+
+**Qué ocurrió.** El merge de #196 a `main` (`592c0c4`) creó el deployment de producción
+`dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (origen `git`, entorno production, READY, alias de producción
+asignados), porque `main: true` hace que todo push a `main` publique. No lo inició ningún comando ni
+workflow del repositorio y no estaba autorizado como publicación.
+
+**Qué se hizo (autorizado, mínimo y reversible).** En el proyecto Vercel `nihon-travel-explorer` se fijó
+el **Ignored Build Step** a `exit 0`, que omite todo build nuevo. No se hizo rollback, no se borró ningún
+deployment, no se tocaron dominios ni la Production Branch, y `app/vercel.json` no se modificó.
+
+**Verificación (por comportamiento; la API no devuelve ese campo al leer el proyecto).**
+
+| Push a `main` | Deployment creado | Estado |
+|---|---|---|
+| `ebd6ae8` (#198) | `dpl_4crhCtFAk8R8e2MtYigHQETX5XKd` | CANCELED |
+| `32787a1` (#199) | `dpl_5s4GtvM5PshuyKXPijj58uQY8mea` | CANCELED |
+
+Producción sigue en `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (SHA `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`,
+READY) con sus tres alias; los deployments cancelados no tienen alias.
+
+**Reglas mientras esté vigente.**
+
+- Todo build que genere un push a `main` debe quedar CANCELED. Si alguno llega a READY o se asigna a un
+  alias de producción: detener las escrituras siguientes a `main`, reportar el incidente y **no** hacer
+  rollback ni borrar deployments sin autorización expresa.
+- No se retira ni se modifica el Ignored Build Step, ni se cambia cualquier otro ajuste de Vercel, sin
+  autorización expresa y previa.
+- Publicar una versión (automática o manual) requiere autorización expresa que nombre el SHA a publicar.
+- Para revertir la protección: dejar vacío el campo «Ignored Build Step» en Settings › Git del proyecto.
+  Hacerlo reactiva la publicación automática desde `main`, por lo que sólo procede con esa autorización.
+- Decisión pendiente del propietario: mantener esta protección o sustituirla por una política definitiva
+  (p. ej. `main: false` en `app/vercel.json`, que exige tocar la excepción de `main`).
+
 ## Línea Astra
 
 Si una misión pertenece a la línea Astra, puede dejarse preparada para una futura prueba en
@@ -73,6 +108,7 @@ Antes de cerrar un cambio:
 1. confirmar que la rama activa sigue siendo la rama autorizada y que no se ha cambiado su base;
 2. confirmar que no se ha hecho merge a `main`;
 3. confirmar que no se han incorporado cambios de la otra línea;
-4. confirmar que `app/vercel.json` mantiene exclusivamente `**: false` y `main: true`;
+4. confirmar que `app/vercel.json` mantiene exclusivamente `**: false` y `main: true` y que, tras cualquier
+   merge a `main`, el build generado queda CANCELED y producción no cambia de deployment;
 5. ejecutar las validaciones locales aplicables, hacer commit y preparar el pull request desde la
    misma rama de trabajo.
