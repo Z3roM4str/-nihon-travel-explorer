@@ -1,6 +1,6 @@
 import { Component, type ReactNode } from "react";
 import { Icon } from "../icons/Icon";
-import { LazyLoadError } from "../lib/lazy-surface";
+import { LazyLoadError, reloadRefreshingModules } from "../lib/lazy-surface";
 
 import "./LazySurfaceBoundary.css";
 
@@ -13,7 +13,8 @@ import "./LazySurfaceBoundary.css";
  * con la navegación inutilizable, aunque sus datos estuvieran a salvo.
  *
  * Esta frontera captura el error de ESA superficie, dejando vivo el resto de la aplicación, y
- * ofrece una única recuperación honesta: recargar la página.
+ * ofrece una única recuperación honesta: recargar la página (tras refrescar los módulos precargados, véase
+ * `reloadRefreshingModules`: en WebKit recargar sin refrescar no recupera).
  *
  * **Por qué recargar y no «Reintentar».** `React.lazy` memoriza la promesa rechazada, y el
  * navegador memoriza también la importación dinámica fallida de la misma URL: volver a pedirla sin
@@ -57,7 +58,7 @@ export class LazySurfaceBoundary extends Component<Props, State> {
           <button
             type="button"
             className="button button--secondary lazy-failure__reload tap-target-min"
-            onClick={() => window.location.reload()}
+            onClick={() => void reloadRefreshingModules()}
           >
             Recargar la página
           </button>

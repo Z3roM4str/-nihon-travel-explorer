@@ -22,3 +22,25 @@ export function guardedImport<T>(surface: string, load: () => Promise<T>): () =>
       throw new LazyLoadError(surface, error);
     });
 }
+
+/**
+ * Recarga la página tras REFRESCAR los módulos precargados.
+ *
+ * Medido en WebKit (CI, servidor local que falla de verdad): tras un fallo de descarga, recargar, recargar otra vez,
+ * navegar a otra URL o esperar NO recupera la sección en la misma sesión (el motor conserva la entrada fallida del módulo),
+ * pero `fetch(url, { cache: "reload" })` del módulo y DESPUÉS recargar sí. Vite añade un `<link rel="modulepreload">` por cada
+ * módulo antes de importarlo, así que esos enlaces nombran lo que hay que refrescar. Es inocuo en los demás motores y tiene
+ * un tope de tiempo: la recarga ocurre siempre, aunque la red siga caída.
+ */
+export async function reloadRefreshingModules(timeoutMs = 3000): Promise<void> {
+  try {
+    const urls = [...document.querySelectorAll<HTMLLinkElement>('link[rel="modulepreload"]')]
+      .map((link) => link.href)
+      .filter((href) => href.startsWith(window.location.origin));
+    const refresh = Promise.allSettled(urls.map((url) => fetch(url, { cache: "reload" })));
+    await Promise.race([refresh, new Promise((resolve) => setTimeout(resolve, timeoutMs))]);
+  } catch {
+    /* sin refresco no hay daño: se recarga igualmente */
+  }
+  window.location.reload();
+}
