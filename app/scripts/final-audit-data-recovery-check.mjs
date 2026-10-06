@@ -509,7 +509,10 @@ async function h03() {
       check("H03", `${surface.id} @${width}: los datos guardados no cambian`, (await raw(page, TK)) === before);
       blocked = false;
       if (visible) {
+        // La recarga es asíncrona (más en WebKit): se espera a que la página ANTERIOR desaparezca de verdad.
+        await page.evaluate(() => { window.__beforeReload = true; });
         await alert.first().getByRole("button", { name: /Recargar/ }).click();
+        await page.waitForFunction(() => window.__beforeReload === undefined);
         await page.waitForSelector("#root *");
         await surface.open(page);
         let recovered = true;
