@@ -35,7 +35,8 @@ Tokio y Kioto siguen a 230 B y 550 B del límite real.
 
 ## Limitaciones y riesgos
 
-- WebKit no existe en este entorno: sólo Chromium local; la validación en WebKit depende del CI del PR.
+- WebKit no existe en este entorno: sólo Chromium local; WebKit se valida en el CI del PR (`p06-certification.yml`).
+- **H03 en WebKit (limitación real, no resuelta):** con el módulo bloqueado por el inspector de Playwright, en WebKit 26.5 ni «Recargar la página», ni una segunda recarga, ni navegar a otra URL vuelven a pedir el chunk dentro de la misma sesión (red correcta: `fetch` 200, otro chunk importa bien); un contexto **nuevo** con el mismo almacenamiento sí lo carga y conserva los datos (CI run 37507141241). No se sabe si un fallo de red real en Safari se comporta igual: el bloqueo por inspector no es un fallo de red. El gate acepta WebKit sólo si la sesión limpia recupera y emite un `WARN`. **Pendiente de prueba en Safari/iPhone reales**; si se confirma, la recuperación para el usuario sería cerrar y reabrir la pestaña, y habría que decidir si basta o si se necesita otra salida.
 - Sin Safari/iPhone físico, VoiceOver, TalkBack ni NVDA.
 - En una pestaña obsoleta, las mutaciones **por índice** (p. ej. mover una parada por posición) se aplican sobre el estado vigente; el evento `storage` reduce esa ventana a casi nada, pero no la elimina. Las mutaciones por id (reubicar, añadir a día) revalidan.
 - `retryPersistence` (reintento tras fallo de cuota) reescribe la carga pendiente sin comprobar cambios externos.
