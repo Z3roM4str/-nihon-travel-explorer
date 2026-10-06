@@ -518,12 +518,30 @@ async function h03() {
         let recovered = true;
         try { await surface.ok(page).waitFor({ timeout: 8000 }); } catch { recovered = false; }
         // Diagnóstico sólo si falla: qué hay en pantalla y qué peticiones han fallado tras recargar.
-        const diagnostic = recovered ? undefined : await page.evaluate(() => ({
+        const diagnostic = recovered ? undefined : await page.evaluate(async () => {
+          const chunk = [...document.querySelectorAll("link[rel=modulepreload], script[src]")].map((n) => n.href || n.src);
+          const urls = performance.getEntriesByType("resource").map((r) => r.name).filter((n) => /OrderedSequenceBuilder|ZoneComparison/.test(n));
+          const probeUrl = urls[0] ?? null;
+          let fetched = null;
+          let imported = null;
+          if (probeUrl) {
+            fetched = await fetch(probeUrl, { cache: "no-store" }).then((r) => r.status).catch((e) => `fetch: ${e.message}`);
+            imported = await import(/* @vite-ignore */ probeUrl).then(() => "ok").catch((e) => `import: ${e.message}`);
+          }
+          return {
+            nav: performance.getEntriesByType("navigation")[0]?.type,
+            chunkEntries: urls.length,
+            probeUrl: probeUrl && probeUrl.split("/").pop(),
+            fetched,
+            imported,
+            preloadedLinks: chunk.length,
+          };
+        }).then(async (probe) => ({ ...probe, ...(await page.evaluate(() => ({
           alerts: document.querySelectorAll("[data-lazy-failure]").length,
           dayCards: document.querySelectorAll(".day-card").length,
           zone: document.querySelectorAll(".zone-panel__scroll").length,
-          body: document.body.innerText.replace(/\s+/g, " ").slice(0, 160),
-        })).then((d) => JSON.stringify({ ...d, errors: page.errors.slice(-2), failed: page.failedRequests.slice(-3) })).catch((e) => String(e));
+          body: document.body.innerText.replace(/\s+/g, " ").slice(0, 80),
+        }))) })).then((d) => JSON.stringify({ ...d, errors: page.errors.slice(-2), failed: page.failedRequests.slice(-3), failedCount: page.failedRequests.length })).catch((e) => String(e));
         check("H03", `${surface.id} @${width}: al restablecer la red, recargar recupera la sección`, recovered, diagnostic);
         check("H03", `${surface.id} @${width}: el interés guardado sobrevive a la recarga`, interestIds(await json(page, TK)).includes("JP-044"));
       } else {
