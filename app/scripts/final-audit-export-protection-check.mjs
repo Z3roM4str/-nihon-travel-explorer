@@ -78,13 +78,6 @@ const draftDoc = (ids, hotel = "Hotel conservado") => ({
   interHubSegments: [],
   zoneAccommodationChoices: [],
 });
-const backupFile = (travellers, draft) =>
-  JSON.stringify({
-    format: "nihon-portable-backup",
-    version: 1,
-    exportedAt: "2026-10-06T00:00:00.000Z",
-    data: { travellers, planningDraft: draft },
-  });
 
 // ── Utilidades ───────────────────────────────────────────────────────────────────────────────
 async function newContext(storage = {}, viewport = { width: 390, height: 844 }) {
@@ -115,36 +108,10 @@ async function openPage(context) {
   return page;
 }
 const raw = (page, key) => page.evaluate((k) => localStorage.getItem(k), key);
-const json = async (page, key) => {
-  const value = await raw(page, key);
-  try {
-    return value === null ? null : JSON.parse(value);
-  } catch {
-    return "<<no-json>>";
-  }
-};
 const nav = (page, name) =>
   page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name }).click();
-const interestIds = (doc) => (doc && doc.interests ? doc.interests.map((i) => i.placeId).sort() : []);
-const waitStore = (page, key, predicate, arg) =>
-  page.waitForFunction(
-    ({ k, src, a }) => {
-      const value = localStorage.getItem(k);
-      if (value === null) return false;
-      try {
-        return new Function("doc", "arg", `return (${src})(doc, arg)`)(JSON.parse(value), a);
-      } catch {
-        return false;
-      }
-    },
-    { k: key, src: predicate.toString(), a: arg }
-  );
 const saveHeart = (page, name) =>
   page.getByRole("button", { name: `Quiero ir: ${name}`, exact: true }).click();
-async function gotoViaje(page) {
-  await nav(page, "Viaje");
-  await page.locator(".day-card").first().waitFor();
-}
 
 
 /** El documento VÁLIDO se reescribe al arrancar con su linaje `_w` (lo ignoran los parsers); se compara sin él. */
@@ -253,7 +220,7 @@ async function e5() {
   check("E5", "con la escritura fallando no se ofrece exportar: lo último no está guardado", (await blocked.count()) === 1 && (await page.locator(".trip-backup").getByRole("button", { name: "Exportar respaldo", exact: true }).count()) === 0);
   check("E5", "no se descargó nada", page.downloads === 0);
   await page.evaluate(() => { window.__failWrites = false; });
-  await blocked.getByRole("button", { name: "Reintentar guardar" }).click();
+  await blocked.getByRole("button", { name: "Volver a intentarlo" }).click();
   await page.waitForTimeout(600);
   const [download] = await Promise.all([page.waitForEvent("download"), page.locator(".trip-backup").getByRole("button", { name: "Exportar respaldo", exact: true }).click()]);
   const file = JSON.parse(await readDownload(download));

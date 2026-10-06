@@ -279,8 +279,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
       (current) => withPlaceAddedToDay(current, placeId, dayId),
       guard(
         (doc) =>
+          // Una parada «sin asignar» NO está en la ruta (la mutación la añade): sigue sin asignar y el día existe.
           Boolean(doc.days?.some((day) => day.id === dayId)) &&
-          doc.routeIds.includes(placeId) &&
+          !doc.routeIds.includes(placeId) &&
           !doc.days?.some((day) => day.placeIds.includes(placeId)),
         STALE_STOP_MESSAGE
       )
@@ -309,8 +310,9 @@ export function usePlanningDraft(savedIds: readonly string[]) {
       (current) => withPlaceInsertedIntoDay(current, placeId, dayId, position),
       guard(
         (doc) =>
+          // Una parada «sin asignar» NO está en la ruta (la mutación la añade): sigue sin asignar y el día existe.
           Boolean(doc.days?.some((day) => day.id === dayId)) &&
-          doc.routeIds.includes(placeId) &&
+          !doc.routeIds.includes(placeId) &&
           !doc.days?.some((day) => day.placeIds.includes(placeId)),
         STALE_STOP_MESSAGE
       )

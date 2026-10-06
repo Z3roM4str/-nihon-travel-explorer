@@ -99,6 +99,18 @@ function readLineage(raw: string | null): string[] {
   }
 }
 
+/** ¿La cadena almacenada es ya la forma canónica del documento (salvo el linaje `_w`)? */
+function isCanonical(raw: string | null, status: string, canonical: string): boolean {
+  if (status !== "valid" || raw === null) return false;
+  try {
+    const { _w, ...rest } = JSON.parse(raw) as Record<string, unknown>;
+    void _w;
+    return JSON.stringify(rest) === canonical;
+  } catch {
+    return false;
+  }
+}
+
 let writeCounter = 0;
 function newWriteId(): string {
   writeCounter += 1;
@@ -137,15 +149,18 @@ export function useStoredDocument<T>(adapter: StoredDocumentAdapter<T>): [T, Sto
   // de `useState`; el `ref` la recibe como valor inicial, así que nunca se lee `ref.current` durante el render.
   const [initialCore] = useState<Core<T>>(() => {
     const read = adapter.read();
+    const doc = read.doc ?? adapter.initial();
     return {
-      doc: read.doc ?? adapter.initial(),
+      doc,
       raw: read.raw,
       status: read.status,
       pending: [],
       unconfirmed: [],
       lastWriteId: null,
       lastWriteAt: 0,
-      dirty: true,
+      // Sólo se escribe al arrancar lo que hay que crear o normalizar: un documento ya canónico no se reescribe
+      // (leer no debe cambiar el almacenamiento, ni siquiera añadiéndole su linaje).
+      dirty: !isCanonical(read.raw, read.status, adapter.serialize(doc)),
       scheduled: false,
     };
   });
@@ -298,7 +313,10 @@ export function useStoredDocument<T>(adapter: StoredDocumentAdapter<T>): [T, Sto
       const apply = (value: T): T =>
         typeof action === "function" ? (action as (current: T) => T)(value) : action;
       const next = apply(base);
-      if (!Object.is(next, base)) {
+      // Una operación que devuelve un objeto nuevo pero IGUAL (p. ej. una reconciliación sin cambios) no es una mutación:
+      // no se escribe, así que no se altera el almacenamiento ni su linaje.
+      const changed = !Object.is(next, base) && adapterRef.current.serialize(next) !== adapterRef.current.serialize(base);
+      if (changed) {
         core.doc = next;
         core.pending.push({ apply, guard });
         scheduleFlush();

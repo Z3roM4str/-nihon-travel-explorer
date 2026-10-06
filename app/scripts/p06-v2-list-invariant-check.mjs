@@ -24,7 +24,8 @@ try {
     const root = page.locator(".destination-panel:not([hidden])");
     await root.locator(".day-card[data-day-id]").first().waitFor();
     const scroll = root.locator(".destination-panel--scroll");
-    const draft = () => page.evaluate(() => JSON.parse(localStorage.getItem("nihon.manualPlanningDraft")));
+    // Las escrituras del documento son diferidas (Web Lock): se espera a que el almacenamiento se asiente antes de leerlo.
+    const draft = () => page.evaluate(async () => { await new Promise((resolve) => { let last = localStorage.getItem("nihon.manualPlanningDraft"), calm = 0; const tick = () => { const now = localStorage.getItem("nihon.manualPlanningDraft"); if (now !== last) { last = now; calm = 0; } else calm += 1; if (calm >= 3) resolve(); else setTimeout(tick, 40); }; setTimeout(tick, 40); }); const doc = JSON.parse(localStorage.getItem("nihon.manualPlanningDraft")); delete doc._w; return doc; });
     const metrics = () => scroll.evaluate((el) => ({ scrollHeight: el.scrollHeight, scrollTop: el.scrollTop }));
     const cardHeights = () => root.locator(".day-card").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
     const geometry = () => page.evaluate(() => ({ href: location.href, own: Boolean(history.state && history.state.nihonDias) }));

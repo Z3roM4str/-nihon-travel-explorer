@@ -60,7 +60,12 @@ async function setup(viewport, options = {}) {
   await page.getByRole("button", { name: "Viaje", exact: true }).click();
   await page.locator(".analysis-dialog--embedded").waitFor();
   // Synchronize with the existing Días mount/reconciliation before observing read-only tabs.
-  await page.waitForFunction(() => window.__b31Writes.length === 2);
+  // Auditoría final: sin número exacto de escrituras de arranque; se espera a que el montaje se asiente (~600 ms sin escrituras).
+  await page.evaluate(() => new Promise((resolve) => {
+    let last = -1, calm = 0;
+    const tick = () => { const n = window.__b31Writes.length; if (n === last) calm += 1; else { last = n; calm = 0; } if (calm >= 6) resolve(); else setTimeout(tick, 100); };
+    tick();
+  }));
   const baseline = await page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY);
   await page.evaluate(() => { window.__b31Writes.length = 0; });
   return { context, page, baseline, errors };

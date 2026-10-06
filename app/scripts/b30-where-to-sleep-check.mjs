@@ -152,14 +152,14 @@ async function waitForPlannerMountWrites(page) {
   // B31 keeps this exact planner node mounted across read-only sub-tabs. Its already
   // observed mount effects do not run again; waiting for two new writes would be incorrect.
   if (await planner.evaluate((element) => window.__b30MountedPlanners?.has(element) ?? false)) return;
-  // This unchanged V8 fixture is written once on mount and once after reconciliation.
-  // Wait for both effects before observing the next surface; DOM visibility alone is too early.
-  // The complete write log remains intact for the existing strict assertions below.
-  await page.waitForFunction((draftKey) =>
-    window.__b30StorageWrites.reduce((count, entry) =>
-      count + Number(entry.method === "set" && entry.key === draftKey), 0) === 2,
-    DRAFT_KEY
-  );
+  // Auditoría final: un documento ya canónico ya no se reescribe al montar (0 escrituras) y las escrituras que sí ocurren
+  // son diferidas (Web Lock). En vez de esperar un número exacto, se espera a que el montaje se asiente (sin escrituras
+  // nuevas durante ~600 ms) antes de observar la siguiente superficie. El registro completo se conserva intacto.
+  await page.evaluate(() => new Promise((resolve) => {
+    let last = -1, calm = 0;
+    const tick = () => { const n = window.__b30StorageWrites.length; if (n === last) calm += 1; else { last = n; calm = 0; } if (calm >= 6) resolve(); else setTimeout(tick, 100); };
+    tick();
+  }));
   await planner.evaluate((element) => {
     window.__b30MountedPlanners ??= new WeakSet();
     window.__b30MountedPlanners.add(element);

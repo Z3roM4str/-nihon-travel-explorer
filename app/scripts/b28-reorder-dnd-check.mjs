@@ -16,7 +16,8 @@ const server = await preview({ root: fileURLToPath(new URL("..", import.meta.url
 const url = `http://127.0.0.1:${server.httpServer.address().port}`;
 let checks = 0;
 function check(value, message) { checks++; if (!value) throw new Error(message); }
-async function plan(page) { return page.evaluate((storageKey) => JSON.parse(localStorage.getItem(storageKey)), key); }
+// Las escrituras del documento son diferidas (Web Lock): se espera a que el almacenamiento se asiente antes de leerlo.
+async function plan(page) { return page.evaluate(async (storageKey) => { await new Promise((resolve) => { let last = localStorage.getItem(storageKey), calm = 0; const tick = () => { const now = localStorage.getItem(storageKey); if (now !== last) { last = now; calm = 0; } else calm += 1; if (calm >= 3) resolve(); else setTimeout(tick, 40); }; setTimeout(tick, 40); }); const doc = JSON.parse(localStorage.getItem(storageKey)); delete doc._w; return doc; }, key); }
 async function shot(page, name) { if (shots) await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true }); }
 async function setup(viewport = { width: 390, height: 844 }, hasTouch = false, reducedMotion = "no-preference") {
   const context = await browser.newContext({ viewport, hasTouch, isMobile: hasTouch, reducedMotion });

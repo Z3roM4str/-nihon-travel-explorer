@@ -128,11 +128,11 @@ export function TripBackup({
           ) : exportBlocked === "unsaved" ? (
             <div className="trip-backup__problem" data-export-blocked="unsaved">
               <p>
-                <strong>No se puede exportar un respaldo ahora.</strong> Nihon no ha podido guardar lo último en este
+                <strong>No se puede exportar un respaldo ahora.</strong> Nihon no ha podido escribir lo último en este
                 dispositivo, así que el respaldo no lo incluiría y parecería completo sin serlo.
               </p>
               <button type="button" className="button button--secondary" onClick={() => onRetryPersistence()}>
-                Reintentar guardar
+                Volver a intentarlo
               </button>
             </div>
           ) : (
