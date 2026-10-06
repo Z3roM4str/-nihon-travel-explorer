@@ -31,7 +31,8 @@ for g in p06-v2-list-invariant-check p06-v2-history-check p06-v2-journeys-check 
          b27-viaje-dias-check b29-day-order-tools-check \
          b30-where-to-sleep-check b31-reservas-resumen-check b10-microcopy-check b10-motion-check \
          d0b-design-system-hygiene-check d5-normative-vocabulary-check p04-national-map-reachability-check \
-         final-audit-data-recovery-check final-audit-a11y-check; do
+         final-audit-data-recovery-check final-audit-a11y-check \
+         final-audit-stale-tabs-check final-audit-export-protection-check; do
   run "$g"
 done
 # B29 ejecuta B28 dentro (arrastre con ratón, auto-scroll, movimiento reducido, 8 viewports).

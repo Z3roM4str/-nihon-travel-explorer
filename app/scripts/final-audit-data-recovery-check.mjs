@@ -1,4 +1,5 @@
 import { mkdirSync, writeFileSync } from "node:fs";
+import { createServer, request as httpRequest } from "node:http";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
 import { preview } from "vite";
@@ -484,97 +485,139 @@ async function interactions() {
 }
 
 // ═══ H03 — fallo de descarga lazy ════════════════════════════════════════════════════════════
-async function h03() {
-  for (const surface of [
-    { id: "OrderedSequenceBuilder", pattern: "**/assets/OrderedSequenceBuilder-*.js", open: async (page) => nav(page, "Viaje"), ok: (page) => page.locator(".day-card, .ordered-sequence").first() },
-    { id: "ZoneComparison", pattern: "**/assets/ZoneComparison-*.js", open: async (page) => { await nav(page, "Viaje"); await page.getByRole("button", { name: /Dónde dormir/ }).click(); }, ok: (page) => page.locator(".zone-panel__scroll").first() },
-  ]) {
-    for (const width of [390, 1440]) {
-      const context = await newContext({}, { width, height: 900 });
-      let blocked = true;
-      await context.route(surface.pattern, (route) => (blocked ? route.abort("failed") : route.continue()));
-      const page = await openPage(context);
-      await saveHeart(page, GHIBLI);
-      await waitStore(page, TK, (doc) => doc.interests.length === 1);
-      const before = await raw(page, TK);
-      await surface.open(page);
-      await page.waitForTimeout(700);
-      const rootHtml = await page.evaluate(() => document.getElementById("root").innerHTML.length);
-      const alert = page.locator("[data-lazy-failure]");
-      const visible = (await alert.count()) > 0 && (await alert.first().isVisible());
-      check("H03", `${surface.id} @${width}: el fallo no deja la aplicación en blanco`, rootHtml > 500);
-      check("H03", `${surface.id} @${width}: aparece un mensaje de recuperación visible`, visible);
-      const navUsable = await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Explorar" }).isVisible();
-      check("H03", `${surface.id} @${width}: la navegación sigue utilizable`, navUsable);
-      check("H03", `${surface.id} @${width}: los datos guardados no cambian`, (await raw(page, TK)) === before);
-      blocked = false;
-      if (visible) {
-        // La recarga es asíncrona (más en WebKit): se espera a que la página ANTERIOR desaparezca de verdad.
-        await page.evaluate(() => { window.__beforeReload = true; });
-        await alert.first().getByRole("button", { name: /Recargar/ }).click();
-        await page.waitForFunction(() => window.__beforeReload === undefined);
-        await page.waitForSelector("#root *");
-        await surface.open(page);
-        let recovered = true;
-        try { await surface.ok(page).waitFor({ timeout: 8000 }); } catch { recovered = false; }
-        // Diagnóstico sólo si falla: qué hay en pantalla y qué peticiones han fallado tras recargar.
-        const diagnostic = recovered ? undefined : await page.evaluate(async () => {
-          const chunk = [...document.querySelectorAll("link[rel=modulepreload], script[src]")].map((n) => n.href || n.src);
-          const urls = performance.getEntriesByType("resource").map((r) => r.name).filter((n) => /OrderedSequenceBuilder|ZoneComparison/.test(n));
-          const probeUrl = urls[0] ?? null;
-          let fetched = null;
-          let imported = null;
-          if (probeUrl) {
-            fetched = await fetch(probeUrl, { cache: "no-store" }).then((r) => r.status).catch((e) => `fetch: ${e.message}`);
-            imported = await import(/* @vite-ignore */ probeUrl).then(() => "ok").catch((e) => `import: ${e.message}`);
-          }
-          return {
-            nav: performance.getEntriesByType("navigation")[0]?.type,
-            chunkEntries: urls.length,
-            probeUrl: probeUrl && probeUrl.split("/").pop(),
-            fetched,
-            imported,
-            preloadedLinks: chunk.length,
-          };
-        }).then(async (probe) => ({ ...probe, ...(await page.evaluate(() => ({
-          alerts: document.querySelectorAll("[data-lazy-failure]").length,
-          dayCards: document.querySelectorAll(".day-card").length,
-          zone: document.querySelectorAll(".zone-panel__scroll").length,
-          body: document.body.innerText.replace(/\s+/g, " ").slice(0, 80),
-        }))) })).then((d) => JSON.stringify({ ...d, errors: page.errors.slice(-2), failed: page.failedRequests.slice(-3), failedCount: page.failedRequests.length })).catch((e) => String(e));
-        // Sólo si falla: ¿qué otras vías recuperan en este motor? (investigación; no cambia el veredicto)
-        let alternatives;
-        if (!recovered) {
-          const works = async (target) => {
-            try { await surface.open(target); await surface.ok(target).waitFor({ timeout: 6000 }); return true; } catch { return false; }
-          };
-          alternatives = {};
-          await page.reload(); await page.waitForSelector("#root *");
-          alternatives.secondReload = await works(page);
-          await page.goto(`${BASE_URL}/?retry=${Date.now()}`); await page.waitForSelector("#root *");
-          alternatives.newUrlNavigation = await works(page);
-          const fresh = await browser.newContext({ viewport: { width, height: 900 }, storageState: await context.storageState() });
-          const freshPage = await fresh.newPage();
-          await freshPage.goto(BASE_URL); await freshPage.waitForSelector("#root *");
-          alternatives.freshContext = await works(freshPage);
-          await fresh.close();
-        }
-        // Investigación en WebKit (CI, run 37507141241): con el módulo bloqueado por el inspector de Playwright, ni
-        // recargar, ni recargar otra vez, ni navegar a otra URL lo vuelven a pedir EN LA MISMA sesión (la red está bien:
-        // fetch 200, import de otro chunk correcto), pero un contexto NUEVO con el mismo almacenamiento sí lo carga y
-        // conserva los datos. Es una limitación del motor/simulación (el bloqueo por inspector no es un fallo de red
-        // real) y NO se da por buena en silencio: se acepta sólo si la sesión limpia recupera, y queda como WARN.
-        const webkitSessionLimit = !recovered && BROWSER === "webkit" && alternatives && alternatives.freshContext === true && alternatives.secondReload === false;
-        if (webkitSessionLimit) {
-          console.log(`WARN [H03] ${surface.id} @${width}: en WebKit la recarga NO recupera dentro de la misma sesión con el bloqueo simulado; sí en una sesión nueva con los mismos datos. Pendiente de Safari real.`);
-        }
-        check("H03", `${surface.id} @${width}: al restablecer la red, se recupera la sección${webkitSessionLimit ? " (WebKit: sólo en sesión nueva — limitación documentada)" : " al recargar"}`, recovered || webkitSessionLimit, alternatives ? `${diagnostic} alternativas=${JSON.stringify(alternatives)}` : diagnostic);
-        check("H03", `${surface.id} @${width}: el interés guardado sobrevive a la recarga`, interestIds(await json(page, TK)).includes("JP-044"));
-      } else {
-        check("H03", `${surface.id} @${width}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
+/**
+ * Un servidor local que falla DE VERDAD: delante de `vite preview` hay un proxy que, mientras está «caído», no entrega los
+ * módulos diferidos (corta la conexión, o responde 503) y que después vuelve a responder con normalidad. El producto no se
+ * toca: sirve exactamente la build. Es el modelo fiel de «la red falló al pedir el módulo y luego volvió»; el bloqueo por
+ * inspector de Playwright (`route.abort`) es sólo un diagnóstico más, porque WebKit lo retiene entre recargas de la sesión.
+ */
+function startFlakyProxy(targetPort) {
+  const state = { failing: false, kind: "reset", pattern: /a^/, hits: 0, served: 0 };
+  const proxy = createServer((req, res) => {
+    if (state.failing && state.pattern.test(req.url ?? "")) {
+      state.hits += 1;
+      if (state.kind === "reset") req.socket.destroy();
+      else {
+        res.writeHead(503, { "content-type": "text/plain", "cache-control": "no-store" });
+        res.end("servicio no disponible");
       }
-      await context.close();
+      return;
     }
+    const upstream = httpRequest({ host: "127.0.0.1", port: targetPort, path: req.url, method: req.method, headers: req.headers }, (up) => {
+      state.served += 1;
+      res.writeHead(up.statusCode ?? 502, up.headers);
+      up.pipe(res);
+    });
+    upstream.on("error", () => { res.writeHead(502); res.end(); });
+    req.pipe(upstream);
+  });
+  return new Promise((resolve) => proxy.listen(0, "127.0.0.1", () => resolve({
+    url: `http://127.0.0.1:${proxy.address().port}`,
+    state,
+    close: () => new Promise((done) => { proxy.closeAllConnections?.(); proxy.close(() => done()); }),
+  })));
+}
+
+const H03_SURFACES = [
+  { id: "OrderedSequenceBuilder", pattern: "**/assets/OrderedSequenceBuilder-*.js", regex: /\/assets\/OrderedSequenceBuilder-[^/]*\.js/, open: async (page) => nav(page, "Viaje"), ok: (page) => page.locator(".day-card, .ordered-sequence").first() },
+  { id: "ZoneComparison", pattern: "**/assets/ZoneComparison-*.js", regex: /\/assets\/ZoneComparison-[^/]*\.js/, open: async (page) => { await nav(page, "Viaje"); await page.getByRole("button", { name: /Dónde dormir/ }).click(); }, ok: (page) => page.locator(".zone-panel__scroll").first() },
+];
+
+/** `strict`: un fallo hace fallar el gate. No estricto: queda como DIAG (con su resultado) y como cobertura parcial. */
+const diagnostics = [];
+function verdict(strict, id, label, ok, extra) {
+  if (strict) return check(id, label, ok, extra);
+  console.log(`${ok ? "DIAG-OK  " : "DIAG-FAIL"} [${id}] ${label}${extra !== undefined ? ` (${extra})` : ""}`);
+  diagnostics.push({ id, label, ok, extra: extra ?? null });
+}
+
+/** mode: `proxy-reset` | `proxy-503` (servidor que falla de verdad) | `inspector` (route.abort de Playwright). */
+async function h03Scenario(surface, width, mode, strict) {
+  const tag = `${surface.id} @${width} [${mode}]`;
+  const proxy = mode.startsWith("proxy") ? await startFlakyProxy(PORT) : null;
+  const base = proxy ? proxy.url : BASE_URL;
+  const context = await newContext({}, { width, height: 900 });
+  let blocked = true;
+  if (proxy) {
+    proxy.state.failing = true;
+    proxy.state.kind = mode === "proxy-503" ? "503" : "reset";
+    proxy.state.pattern = surface.regex;
+  } else {
+    await context.route(surface.pattern, (route) => (blocked ? route.abort("failed") : route.continue()));
+  }
+  const page = await context.newPage();
+  page.setDefaultTimeout(8000);
+  page.errors = [];
+  page.failedRequests = [];
+  page.on("pageerror", (error) => page.errors.push(error.message));
+  page.on("requestfailed", (request) => page.failedRequests.push(`${request.url().split("/").pop()} ${request.failure()?.errorText ?? ""}`));
+  await page.goto(base);
+  await page.waitForSelector("#root *");
+  await saveHeart(page, GHIBLI);
+  await waitStore(page, TK, (doc) => doc.interests.length === 1);
+  const before = await raw(page, TK);
+  await surface.open(page);
+  await page.waitForTimeout(700);
+  const rootHtml = await page.evaluate(() => document.getElementById("root").innerHTML.length);
+  const alert = page.locator("[data-lazy-failure]");
+  const visible = (await alert.count()) > 0 && (await alert.first().isVisible());
+  if (proxy) verdict(strict, "H03", `${tag}: el servidor realmente falló al servir el módulo`, proxy.state.hits > 0, `peticiones rechazadas=${proxy.state.hits}`);
+  verdict(strict, "H03", `${tag}: el fallo no deja la aplicación en blanco`, rootHtml > 500);
+  verdict(strict, "H03", `${tag}: aparece un mensaje de recuperación visible`, visible);
+  verdict(strict, "H03", `${tag}: la navegación sigue utilizable`, await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Explorar" }).isVisible());
+  verdict(strict, "H03", `${tag}: los datos guardados no cambian`, (await raw(page, TK)) === before);
+  if (!visible) {
+    verdict(strict, "H03", `${tag}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
+    await context.close();
+    if (proxy) await proxy.close();
+    return;
+  }
+  // El servidor vuelve a responder.
+  blocked = false;
+  if (proxy) proxy.state.failing = false;
+  // La recarga es asíncrona (más en WebKit): se espera a que la página ANTERIOR desaparezca de verdad.
+  await page.evaluate(() => { window.__beforeReload = true; });
+  await alert.first().getByRole("button", { name: /Recargar/ }).click();
+  await page.waitForFunction(() => window.__beforeReload === undefined);
+  await page.waitForSelector("#root *");
+  await surface.open(page);
+  let recovered = true;
+  try { await surface.ok(page).waitFor({ timeout: 8000 }); } catch { recovered = false; }
+  // Criterio ESTRICTO: la misma sesión, tras la salida que ofrece el aviso. Nada de «en otra sesión sí».
+  verdict(strict, "H03", `${tag}: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión`, recovered, proxy ? `sirvió ${proxy.state.served} peticiones tras el fallo` : undefined);
+  verdict(strict, "H03", `${tag}: el interés guardado sobrevive a la recarga`, interestIds(await json(page, TK)).includes("JP-044"));
+  if (!recovered) {
+    // Sólo diagnóstico (no cambia el veredicto): ¿qué otras vías recuperan? Una sesión nueva que recupera NO convierte el fallo en éxito.
+    const works = async (target) => {
+      try { await surface.open(target); await surface.ok(target).waitFor({ timeout: 6000 }); return true; } catch { return false; }
+    };
+    const alternatives = {};
+    await page.reload(); await page.waitForSelector("#root *");
+    alternatives.secondReload = await works(page);
+    const fresh = await browser.newContext({ viewport: { width, height: 900 }, storageState: await context.storageState() });
+    const freshPage = await fresh.newPage();
+    await freshPage.goto(base); await freshPage.waitForSelector("#root *");
+    alternatives.freshContext = await works(freshPage);
+    await fresh.close();
+    console.log(`DIAG [H03] ${tag}: no recupera en la misma sesión; alternativas=${JSON.stringify(alternatives)} errores=${JSON.stringify(page.errors.slice(-2))} fallos=${JSON.stringify(page.failedRequests.slice(-3))}`);
+    evidence[`h03-${surface.id}-${width}-${mode}`] = { alternatives };
+  }
+  await context.close();
+  if (proxy) await proxy.close();
+}
+
+async function h03() {
+  for (const surface of H03_SURFACES) {
+    for (const width of [390, 1440]) {
+      // El servidor local que falla de verdad es el criterio, en los dos motores.
+      await h03Scenario(surface, width, "proxy-reset", true);
+    }
+  }
+  await h03Scenario(H03_SURFACES[0], 390, "proxy-503", true);
+  // El bloqueo por inspector de Playwright: estricto en Chromium; en WebKit es sólo diagnóstico (el motor lo retiene entre
+  // recargas de la sesión: no es un fallo de red real), y si falla ahí se declara cobertura parcial, no se da por bueno.
+  for (const surface of H03_SURFACES) {
+    for (const width of [390, 1440]) await h03Scenario(surface, width, "inspector", BROWSER !== "webkit");
   }
 }
 
@@ -594,9 +637,10 @@ for (const [id, fn] of steps) if (!only || only.includes(id)) await guarded(id, 
 await browser.close();
 await server.close();
 const failed = results.filter((r) => !r.ok);
-console.log(`\n${results.length - failed.length}/${results.length} comprobaciones OK (${BROWSER})`);
+const diagFailed = diagnostics.filter((d) => !d.ok);
+console.log(`\n${results.length - failed.length}/${results.length} comprobaciones OK (${BROWSER})` + (diagFailed.length > 0 ? ` — COBERTURA PARCIAL: ${diagFailed.length} diagnóstico(s) no concluyente(s) (H03 por inspector en ${BROWSER}); la validación H03 descansa en el servidor local que falla de verdad` : ""));
 if (OUT) {
   mkdirSync(OUT, { recursive: true });
-  writeFileSync(`${OUT}/final-audit-data-recovery-${BROWSER}.json`, JSON.stringify({ browser: BROWSER, results, evidence }, null, 2));
+  writeFileSync(`${OUT}/final-audit-data-recovery-${BROWSER}.json`, JSON.stringify({ browser: BROWSER, results, diagnostics, evidence }, null, 2));
 }
 process.exit(failed.length === 0 ? 0 : 1);
