@@ -25,6 +25,14 @@ import {
 import { todayCivilDate } from "./lib/today";
 import { getAllPlaces } from "./data/store";
 import { deviceStorage } from "./lib/device-storage";
+import {
+  copyOriginals,
+  isProtectedStatus,
+  notifyStorageReplaced,
+  readStoredDraft,
+  readStoredTravellers,
+  refreshProtection,
+} from "./lib/stored-document";
 
 /**
  * Block 13 — the impure edge of the portable backup: the clock, storage, and the file.
@@ -151,27 +159,45 @@ export function usePortableBackup() {
 
   /** The only writer. Replaces; never merges. */
   const confirmImport = useCallback((plan: RestorePlan): void => {
+    // Auditoría final (H04): si lo que hay guardado es inválido o de una versión futura, es lo
+    // único que esa persona tiene de su viaje anterior. «Sustituir» es una decisión explícita, pero
+    // no debe borrarlo sin dejar copia: se guarda aparte ANTES de escribir, y si la copia falla no
+    // se toca nada.
+    const needsCopy =
+      isProtectedStatus(readStoredTravellers(browserStorage, () => "unused").status) ||
+      isProtectedStatus(readStoredDraft(browserStorage).status);
+    if (needsCopy && !copyOriginals(browserStorage, new Date().toISOString().replace(/[:.]/g, "-")).ok) {
+      setImportState({ phase: "failed", rolledBack: true });
+      return;
+    }
     const outcome = applyRestore(browserStorage, plan);
     if (!outcome.ok) {
       setImportState({ phase: "failed", rolledBack: outcome.rolledBack });
       return;
     }
+    // Auditoría final (H01): los hooks montados siguen teniendo en memoria el viaje ANTERIOR. Se les
+    // avisa ahora —no al pulsar «Continuar»— para que relean y rendericen lo restaurado, y cada
+    // mutación posterior parte además del documento vigente (`useStoredDocument`).
+    refreshProtection(browserStorage);
+    notifyStorageReplaced();
     setImportState({ phase: "restored", summary: summarizeRestore(plan) });
   }, []);
 
   const resetImport = useCallback(() => setImportState({ phase: "idle" }), []);
 
   /**
-   * Reloads the app after a successful restore. **Not cosmetic — it is required for correctness.**
+   * Reloads the app after a successful restore — a clean exit, no longer what protects the data.
    *
-   * `useTravellers` and `usePlanningDraft` hold their documents in React state and write them back
-   * whenever that state changes. A restore replaces the two storage keys underneath them, so until
-   * the app re-reads storage its in-memory copies are the *previous* trip — and the next heart
-   * pressed would write that stale copy straight over everything just imported, destroying it
-   * silently. Re-reading from storage is exactly what a load does, so the restore ends with one.
+   * **Historia (Block 13).** `useTravellers` and `usePlanningDraft` held their documents in React
+   * state and wrote them back whenever it changed, so a restore that replaced the two storage keys
+   * underneath them left the *previous* trip in memory and the next heart pressed wrote that stale
+   * copy over everything just imported. The reload was the only defence, which is why the
+   * confirmation screen's way out was this call.
    *
-   * This is why the confirmation screen's only way out is this call: leaving the person inside a
-   * restored-but-not-reloaded app would be leaving a trap open.
+   * **Auditoría final (H01).** That defence failed: navigating away WITHOUT pressing «Continuar»
+   * (the tab bar stays live) still reached the stale state. Now `confirmImport` tells the mounted
+   * hooks to re-read (`notifyStorageReplaced`) and every mutation starts from the current stored
+   * document (`useStoredDocument`), so nothing depends on this reload having happened.
    */
   const finishRestore = useCallback(() => {
     window.location.reload();

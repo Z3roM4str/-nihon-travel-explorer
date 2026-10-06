@@ -8,9 +8,9 @@ import {
   withZoneAccommodationChoice,
   withoutZoneAccommodationChoice,
   writeDraft,
-  type DraftStorage,
   type ManualPlanningDraftV8,
 } from "./lib/planning-draft-v8";
+import { isProtectedStatus, readStoredDraft, readStoredTravellers } from "./lib/stored-document";
 
 /**
  * Block 4 — the zone comparison panel's write access to the ONE planning draft.
@@ -47,7 +47,7 @@ import {
    `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
    registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
    y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
-const browserStorage: DraftStorage = deviceStorage;
+const browserStorage = deviceStorage;
 
 /** Everything the comparison panel needs to render the choice, and nothing it could mutate. */
 export type ZonePlanChoiceSnapshot = {
@@ -78,6 +78,18 @@ function snapshotFor(draft: ManualPlanningDraftV8, hub: string | null): ZonePlan
   };
 }
 
+/**
+ * Auditoría final (H04): con el borrador (o los viajeros, de los que depende) inválido o de una
+ * versión futura, `readDraft` sirve un borrador inicial que NO es lo que hay guardado; escribirlo
+ * destruiría el original. Mientras esté protegido, elegir o quitar una zona no escribe nada.
+ */
+function writeAllowed(): boolean {
+  return (
+    !isProtectedStatus(readStoredDraft(browserStorage).status) &&
+    !isProtectedStatus(readStoredTravellers(browserStorage, () => "unused").status)
+  );
+}
+
 function readDraft(savedIds: readonly string[]): ManualPlanningDraftV8 {
   return loadReconciledDraft(browserStorage, savedIds);
 }
@@ -97,6 +109,7 @@ export function useZonePlanChoice(hub: string | null, savedIds: readonly string[
    */
   const chooseZone = useCallback(
     (zone: AccommodationZone) => {
+      if (!writeAllowed()) return;
       const next = withZoneAccommodationChoice(
         readDraft(savedIds),
         {
@@ -116,7 +129,7 @@ export function useZonePlanChoice(hub: string | null, savedIds: readonly string[
   /** Forgets the decision for this hub. The seeded anchor survives when it carries user work —
    * `snapshot.anchorInUse` is what lets the panel say which of the two happened. */
   const clearZone = useCallback(() => {
-    if (!hub) return;
+    if (!hub || !writeAllowed()) return;
     const next = withoutZoneAccommodationChoice(readDraft(savedIds), hub);
     writeDraft(browserStorage, next);
     setSnapshot(snapshotFor(next, hub));

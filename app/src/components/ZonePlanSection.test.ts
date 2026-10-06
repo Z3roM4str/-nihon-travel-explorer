@@ -248,10 +248,10 @@ describe("App.tsx — exactly one writer of the draft at a time", () => {
   it("keeps the planner and the zone comparison mounted by viajeSection, independently of the active tab", async () => {
     const source = await readAppSource("App.tsx");
     expect(source).toMatch(
-      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<LazySurfaceBoundary surface="Viaje">\s*<OrderedSequenceBuilder/
     );
     expect(source).toMatch(
-      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<ZoneComparison/
+      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<LazySurfaceBoundary surface="Dónde dormir">\s*<ZoneComparison/
     );
   });
 });

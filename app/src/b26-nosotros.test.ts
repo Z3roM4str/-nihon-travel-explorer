@@ -107,7 +107,9 @@ describe("B26 — onboarding de cinco pasos (05 §1)", () => {
     const hook = code(await read("useTravellers.ts"));
     expect(hook).toContain("withTravellerLabel(next, id, label)");
     expect(hook).toContain("withActiveTraveller(next, activeId)");
-    expect(hook.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
+    // Un único dueño del documento: `useStoredDocument` (auditoría final), no un `useState` propio.
+    expect(hook.match(/useStoredDocument\s*[<(]/g) ?? []).toHaveLength(1);
+    expect(hook).not.toMatch(/useState\s*[<(]/);
   });
 
   it("Escape, ×, fondo y Saltar cierran y marcan visto sin escribir identidad; sólo «Entrar» la escribe", async () => {

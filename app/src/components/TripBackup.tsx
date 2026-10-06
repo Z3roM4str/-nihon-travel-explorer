@@ -67,7 +67,7 @@ export function TripBackup({
       ref={rootRef}
       onKeyDown={(event) => {
         // Escape retrocede un paso pendiente, nunca lo confirma. Tras restaurar no hay retroceso:
-        // ver `usePortableBackup.finishRestore` (la app DEBE recargar antes de tocar nada más).
+        // ver `usePortableBackup.finishRestore` (ya no es obligatoria: los hooks releen al restaurar).
         if (event.key !== "Escape") return;
         if (importState.phase === "preview" || importState.phase === "rejected" || importState.phase === "failed") {
           event.stopPropagation();

@@ -443,8 +443,8 @@ describe("Bloque 18 — Viaje conserva su estado al cambiar de pestaña (02 §D3
     const source = await read("App.tsx");
     expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "dias"/);
     expect(source).not.toMatch(/\{destination === "viaje" && viajeSection === "dormir"/);
-    expect(source).toMatch(/\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<OrderedSequenceBuilder/);
-    expect(source).toMatch(/\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<ZoneComparison/);
+    expect(source).toMatch(/\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<LazySurfaceBoundary surface="Viaje">\s*<OrderedSequenceBuilder/);
+    expect(source).toMatch(/\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<LazySurfaceBoundary surface="Dónde dormir">\s*<ZoneComparison/);
   });
 
   /**

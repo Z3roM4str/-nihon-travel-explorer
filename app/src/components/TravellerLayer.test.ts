@@ -31,7 +31,7 @@ describe("the shared trip stays shared", () => {
   it("does not version the planning draft — V8 is still the canonical draft", async () => {
     const hook = await readAppSource("usePlanningDraft.ts");
     expect(hook).toContain('from "./lib/planning-draft-v8"');
-    expect(hook).toContain("useState<ManualPlanningDraftV8>");
+    expect(hook).toContain("StoredDocumentAdapter<ManualPlanningDraftV8>");
     // No per-person dimension was added to the shared plan.
     expect(hook).not.toMatch(/travellerId|perTraveller|personId/i);
   });
@@ -59,7 +59,9 @@ describe("the shared trip stays shared", () => {
 
   it("has exactly one owner of the shortlist, and no second stored copy", async () => {
     const hook = await readAppSource("useTravellers.ts");
-    expect(hook.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
+    // Auditoría final: el documento vive en `useStoredDocument`, que sigue siendo UN solo dueño.
+    expect(hook.match(/useStoredDocument\s*[<(]/g) ?? []).toHaveLength(1);
+    expect(hook).not.toMatch(/useState\s*[<(]/);
     expect(hook).not.toContain("nihon.savedPlaceIds");
     // The superseded hook is gone rather than left as a second writer.
     await expect(readAppSource("useSavedPlaces.ts")).rejects.toThrow();
@@ -274,10 +276,10 @@ describe("Block 4's assumption is untouched", () => {
     // tab no longer unmounts whichever of the two is active (`02 §D3`) — see
     // `block18-shell.test.ts`'s "Viaje conserva su estado" describe block for full coverage.
     expect(app).toMatch(
-      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<OrderedSequenceBuilder/
+      /\{viajeVisited && \(\s*<div hidden=\{viajeSection === "dormir"\}>\s*<LazySurfaceBoundary surface="Viaje">\s*<OrderedSequenceBuilder/
     );
     expect(app).toMatch(
-      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<ZoneComparison/
+      /\{zonesVisited && zonesHub && \(\s*<div hidden=\{viajeSection !== "dormir"\}>\s*<LazySurfaceBoundary surface="Dónde dormir">\s*<ZoneComparison/
     );
   });
 

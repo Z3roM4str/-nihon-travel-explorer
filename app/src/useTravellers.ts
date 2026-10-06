@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   findInterest,
   findTraveller,
   interestSnapshot,
-  loadTravellersDocument,
   shortlistPlaceIds,
   stanceOf,
   summarizeInterest,
@@ -16,15 +15,17 @@ import {
   withRestoredInterest,
   withTravellerReset,
   withoutTraveller,
-  writeTravellersDocument,
+  TRAVELLERS_STORAGE_KEY,
+  freshTravellersDocument,
   type InterestSnapshot,
   type InterestStance,
   type PlaceInterestSummary,
-  type Storage,
   type TravellersDocumentV1,
 } from "./lib/travellers";
 import { divergenceEntries, type DivergenceEntry } from "./lib/interest-divergence";
 import { deviceStorage } from "./lib/device-storage";
+import { readStoredTravellers } from "./lib/stored-document";
+import { useStoredDocument, type StoredDocumentAdapter } from "./useStoredDocument";
 
 /**
  * Block 5 — the React integration over `lib/travellers.ts`.
@@ -46,7 +47,7 @@ import { deviceStorage } from "./lib/device-storage";
    `browserStorage` local que sustituye —así que nada de este módulo cambia—, con una diferencia:
    registra el resultado de cada escritura en la única fuente de verdad del estado de persistencia
    y vuelve a lanzar el error, de modo que el `try/catch` de abajo sigue atrapando lo mismo. */
-const browserStorage: Storage = deviceStorage;
+const browserStorage = deviceStorage;
 
 /**
  * Opaque traveller id, on the same terms as every other id this app mints: it encodes no slot, no
@@ -64,14 +65,23 @@ function randomTravellerId(): string {
   return `trv-${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function useTravellers() {
-  const [document, setDocument] = useState<TravellersDocumentV1>(() =>
-    loadTravellersDocument(browserStorage, randomTravellerId)
-  );
+/**
+ * Auditoría final (H01, H02, H04): el documento ya no vive en un `useState` con un efecto que lo
+ * escribe entero. `useStoredDocument` aplica cada mutación sobre el documento vigente del
+ * almacenamiento, adopta lo que otra pestaña o una restauración escriba, y no escribe encima de un
+ * original inválido o de una versión futura. `setDocument` conserva la forma del `setState`
+ * funcional que usan todas las mutaciones de abajo.
+ */
+const travellersAdapter: StoredDocumentAdapter<TravellersDocumentV1> = {
+  key: TRAVELLERS_STORAGE_KEY,
+  storage: browserStorage,
+  read: () => readStoredTravellers(browserStorage, randomTravellerId),
+  initial: () => freshTravellersDocument(randomTravellerId),
+  serialize: (doc) => JSON.stringify(doc),
+};
 
-  useEffect(() => {
-    writeTravellersDocument(browserStorage, document);
-  }, [document]);
+export function useTravellers() {
+  const [document, setDocument] = useStoredDocument(travellersAdapter);
 
   /** The shared shortlist the planner reconciles against. Derived on read — never a second copy. */
   const savedIds = useMemo(() => shortlistPlaceIds(document), [document]);
@@ -123,7 +133,7 @@ export function useTravellers() {
         ? current
         : withToggledInterest(current, id, current.activeTravellerId)
     );
-  }, []);
+  }, [setDocument]);
 
   /**
    * "Quitar de Quiero ir", from the saved list.
@@ -138,7 +148,7 @@ export function useTravellers() {
         ? current
         : withStance(current, id, current.activeTravellerId, null)
     );
-  }, []);
+  }, [setDocument]);
 
   /** Records one explicit stance for the active traveller. `null` returns them to no opinion. */
   const setStance = useCallback((placeId: string, stance: InterestStance | null) => {
@@ -147,7 +157,7 @@ export function useTravellers() {
         ? current
         : withStance(current, placeId, current.activeTravellerId, stance)
     );
-  }, []);
+  }, [setDocument]);
 
   const stanceFor = useCallback(
     (placeId: string, travellerId: string): InterestStance | null =>
@@ -170,11 +180,11 @@ export function useTravellers() {
 
   const setActiveTraveller = useCallback((travellerId: string) => {
     setDocument((current) => withActiveTraveller(current, travellerId));
-  }, []);
+  }, [setDocument]);
 
   const renameTraveller = useCallback((travellerId: string, label: string) => {
     setDocument((current) => withTravellerLabel(current, travellerId, label));
-  }, []);
+  }, [setDocument]);
 
   /**
    * B26 (`05 §1`, paso «¿Quiénes sois?»): escribe nombres y persona activa en ESTE mismo
@@ -192,20 +202,20 @@ export function useTravellers() {
         return activeId === null ? next : withActiveTraveller(next, activeId);
       });
     },
-    []
+    [setDocument]
   );
 
   const resetTraveller = useCallback((travellerId: string) => {
     setDocument((current) => withTravellerReset(current, travellerId));
-  }, []);
+  }, [setDocument]);
 
   const removeTraveller = useCallback((travellerId: string) => {
     setDocument((current) => withoutTraveller(current, travellerId));
-  }, []);
+  }, [setDocument]);
 
   const addTraveller = useCallback((label: string) => {
     setDocument((current) => withNewTraveller(current, label, randomTravellerId));
-  }, []);
+  }, [setDocument]);
 
   /**
    * Block 6 — the derived "dónde no coincidimos" view over the document this hook already owns.
@@ -249,7 +259,7 @@ export function useTravellers() {
   /** B25: «Deshacer» — puts back exactly the stance the snapshot recorded, and nobody else's. */
   const restoreInterest = useCallback((snapshot: InterestSnapshot) => {
     setDocument((current) => withRestoredInterest(current, snapshot));
-  }, []);
+  }, [setDocument]);
 
   /** How many shortlisted places would leave the list if this traveller were reset or removed.
    * The UI states the number BEFORE acting, so a destructive step is never a surprise. */

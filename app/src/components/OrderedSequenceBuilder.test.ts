@@ -578,13 +578,18 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
 
   it("keeps the draft as the single canonical source — no second copy of the times", async () => {
     const hook = await readFile(new URL("../usePlanningDraft.ts", import.meta.url), "utf8");
-    // Exactly one piece of state: the whole draft. Counts CALL SITES (`useState<` / `useState(`),
-    // not the bare word, which also appears in the import list and in prose.
-    const useStateCalls = withoutComments(hook).match(/useState\s*[<(]/g) ?? [];
-    expect(useStateCalls).toHaveLength(1);
-    expect(hook).toMatch(/useState<ManualPlanningDraftV8>/);
-    // Every mutation goes through the pure module and is written back by the existing effect.
-    expect(hook).toMatch(/writeDraft\(browserStorage, draft\);/);
+    // Exactly one piece of state: the whole draft. Counts CALL SITES, not the bare word, which also
+    // appears in the import list and in prose. Auditoría final: the state now lives in
+    // `useStoredDocument` (one call, no `useState` of its own in this hook).
+    const stateCalls = withoutComments(hook).match(/useStoredDocument\s*[<(]/g) ?? [];
+    expect(stateCalls).toHaveLength(1);
+    expect(withoutComments(hook)).not.toMatch(/useState\s*[<(]/);
+    expect(hook).toMatch(/StoredDocumentAdapter<ManualPlanningDraftV8>/);
+    // Every mutation goes through the pure module and is written back — synchronously, against the
+    // current stored document — by `useStoredDocument`, not by a second effect in this hook.
+    expect(hook).not.toMatch(/writeDraft\(browserStorage, draft\);/);
+    const stored = await readFile(new URL("../useStoredDocument.ts", import.meta.url), "utf8");
+    expect(stored).toMatch(/current\.storage\.setItem\(current\.key, serialized\)/);
   });
 });
 
@@ -741,7 +746,9 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
     const code = withoutComments(hook);
     // Still exactly one piece of state: the whole V8 draft. No parallel legacy state, no second key,
     // no separate day-id store, and — Block 4 — no side-car store for the chosen zone either.
-    expect(code.match(/useState\s*[<(]/g) ?? []).toHaveLength(1);
+    // (Auditoría final: ese único estado vive ahora en `useStoredDocument`.)
+    expect(code.match(/useStoredDocument\s*[<(]/g) ?? []).toHaveLength(1);
+    expect(code).not.toMatch(/useState\s*[<(]/);
     expect(code).not.toContain("ManualPlanningDraftV3");
     expect(code).not.toContain("ManualPlanningDraftV4");
     expect(code).not.toMatch(/from ["']\.\/lib\/planning-draft["']/);

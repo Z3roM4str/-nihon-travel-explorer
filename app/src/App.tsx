@@ -21,6 +21,9 @@ import { InterestLegend } from "./components/InterestLegend";
 import { Onboarding } from "./components/Onboarding";
 import { SaveToast } from "./components/SaveToast";
 import { PersistenceNotice } from "./components/PersistenceNotice";
+import { LazySurfaceBoundary } from "./components/LazySurfaceBoundary";
+import { guardedImport } from "./lib/lazy-surface";
+import { StorageProtectionNotice } from "./components/StorageProtectionNotice";
 import { Sheet } from "./components/Sheet";
 import { PersonToken } from "./components/PersonToken";
 import { TabBar, NavRail } from "./components/AppNav";
@@ -56,10 +59,12 @@ import { deviceStorage } from "./lib/device-storage";
  * ruta crítica de la primera pintura, y `prefetchOnDemandSurfaces` sigue calentando ambos chunks
  * en cuanto el navegador está ocioso, así que el primer cambio a «Viaje» ya los encuentra en caché.
  */
-const loadOrderedSequenceBuilder = () =>
-  import("./components/OrderedSequenceBuilder").then((m) => ({ default: m.OrderedSequenceBuilder }));
-const loadZoneComparison = () =>
-  import("./components/ZoneComparison").then((m) => ({ default: m.ZoneComparison }));
+const loadOrderedSequenceBuilder = guardedImport("Viaje", () =>
+  import("./components/OrderedSequenceBuilder").then((m) => ({ default: m.OrderedSequenceBuilder }))
+);
+const loadZoneComparison = guardedImport("Dónde dormir", () =>
+  import("./components/ZoneComparison").then((m) => ({ default: m.ZoneComparison }))
+);
 
 const OrderedSequenceBuilder = lazy(loadOrderedSequenceBuilder);
 const ZoneComparison = lazy(loadZoneComparison);
@@ -1424,6 +1429,7 @@ export default function App() {
               <Suspense fallback={null}>
                 {viajeVisited && (
                   <div hidden={viajeSection === "dormir"}>
+                  <LazySurfaceBoundary surface="Viaje">
                   <OrderedSequenceBuilder
                     key={plannerMountRevision}
                     savedPlaces={savedPlaces}
@@ -1436,6 +1442,7 @@ export default function App() {
                     }}
                     embedded
                   />
+                  </LazySurfaceBoundary>
                   </div>
                 )}
               </Suspense>
@@ -1443,6 +1450,7 @@ export default function App() {
               <Suspense fallback={null}>
                 {zonesVisited && zonesHub && (
                   <div hidden={viajeSection !== "dormir"}>
+                  <LazySurfaceBoundary surface="Dónde dormir">
                   <ZoneComparison
                     key={zonesMountRevision}
                     hub={zonesHub}
@@ -1452,6 +1460,7 @@ export default function App() {
                     onOpenPlanner={goToPlanner}
                     embedded
                   />
+                  </LazySurfaceBoundary>
                   </div>
                 )}
               </Suspense>
@@ -1495,6 +1504,8 @@ export default function App() {
           renderiza, leyendo la única fuente de verdad; aquí no hay condición que pueda
           desincronizarse. */}
       <PersistenceNotice />
+      {/* Auditoría final (H04): documentos guardados inválidos o de versión futura, conservados. */}
+      <StorageProtectionNotice />
 
       {onboardingOpen && (
         <Onboarding

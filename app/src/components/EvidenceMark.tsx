@@ -34,8 +34,16 @@ export function EvidenceMark({ level, detail, label = true }: Props) {
 
   if (!label) {
     return (
-      <span className="evidence-mark evidence-mark--glyph-only" aria-label={text} title={text}>
-        <span aria-hidden="true">{info.glyph}</span>
+      // Auditoría final (H06): un `<span>` genérico no admite `aria-label` (axe: `aria-prohibited-attr`),
+      // y con el glifo `aria-hidden` dentro tampoco quedaba texto del que calcular el nombre. `img` es
+      // el rol que admite nombre y trata sus hijos como presentacionales.
+      //
+      // El nombre sale de `title` y NO de `aria-label` a propósito: con los dos iguales, el árbol de
+      // accesibilidad de Chromium exponía el nombre y además una descripción idéntica («Registrado»
+      // dos veces), que es justo un anuncio duplicado. `title` solo da nombre accesible (último paso
+      // del cálculo de nombre, admitido por `role-img-alt`) y conserva el tooltip de quien usa ratón.
+      <span className="evidence-mark evidence-mark--glyph-only" role="img" title={text}>
+        {info.glyph}
       </span>
     );
   }
