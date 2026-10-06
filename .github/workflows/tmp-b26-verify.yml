@@ -1,11 +1,14 @@
 # TEMPORAL, rama desechable (no se integra): B26 dirigido sobre el SHA integrado exacto.
 name: tmp B26 verificación del SHA integrado
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/tmp-b26-verify.yml"
   workflow_dispatch:
     inputs:
       sha:
         description: "SHA exacto a certificar"
-        required: true
+        required: false
 permissions:
   contents: read
 jobs:
@@ -23,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.sha }}
+          ref: ${{ inputs.sha || '32787a1661665f53bba5dfcf73d630709a698ad2' }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
