@@ -1,0 +1,47 @@
+# TEMPORAL, rama desechable (no se integra): B26 dirigido sobre el SHA integrado exacto.
+name: tmp B26 verificación del SHA integrado
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "SHA exacto a certificar"
+        required: true
+permissions:
+  contents: read
+jobs:
+  b26:
+    name: ${{ matrix.browser }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [webkit, chromium]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run build
+      - name: B26 x5
+        env:
+          NIHON_BROWSER: ${{ matrix.browser }}
+        run: |
+          echo "sha=$(git rev-parse HEAD) browser=${{ matrix.browser }}"
+          pass=0; fail=0
+          for i in 1 2 3 4 5; do
+            node scripts/b26-nosotros-check.mjs > b26-$i.log 2>&1 && pass=$((pass+1)) || { fail=$((fail+1)); grep -E "^FAIL|DIAG" b26-$i.log | head -20; }
+            echo "run $i: $(grep '^B26' b26-$i.log) :: $(grep -E 'OK   \[K-FOCUS-(VISIBLE|LOAD)\]' b26-$i.log | wc -l) checks K-FOCUS ok"
+          done
+          echo "RESULT ${{ matrix.browser }} pass=$pass fail=$fail"
+          [ "$fail" = "0" ]
