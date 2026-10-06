@@ -79,8 +79,9 @@ deployment, no se tocaron dominios ni la Production Branch, y `app/vercel.json` 
 | `ebd6ae8` (#198) | `dpl_4crhCtFAk8R8e2MtYigHQETX5XKd` | CANCELED |
 | `32787a1` (#199) | `dpl_5s4GtvM5PshuyKXPijj58uQY8mea` | CANCELED |
 
-Producción sigue en `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (SHA `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`,
-READY) con sus tres alias; los deployments cancelados no tienen alias.
+Hasta la publicación autorizada de 2026-10-06 (ver la sección siguiente), producción siguió en
+`dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (SHA `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`, READY) con sus tres
+alias; los deployments cancelados no tienen alias.
 
 **Reglas mientras esté vigente.**
 
@@ -94,6 +95,28 @@ READY) con sus tres alias; los deployments cancelados no tienen alias.
   Hacerlo reactiva la publicación automática desde `main`, por lo que sólo procede con esa autorización.
 - Decisión pendiente del propietario: mantener esta protección o sustituirla por una política definitiva
   (p. ej. `main: false` en `app/vercel.json`, que exige tocar la excepción de `main`).
+
+## Publicación única autorizada (2026-10-06)
+
+El propietario autorizó **una sola** publicación en producción del SHA exacto
+`32787a1661665f53bba5dfcf73d630709a698ad2` (merge de #199). Esa autorización quedó **consumida**; cualquier
+otra publicación requiere una autorización nueva que nombre su SHA.
+
+**Procedimiento (sin retirar el freeze ni publicar el HEAD de `main`).**
+
+1. Se intentó redeployar el deployment existente de ese SHA (`dpl_5s4GtvM5PshuyKXPijj58uQY8mea`, cancelado por el
+   freeze): el Ignored Build Step `exit 0` también cancela redeploys (`dpl_57LpC99n3UsYKcdQSNbr7EXardjc`,
+   CANCELED; nada se publicó).
+2. Se acotó **temporalmente** el Ignored Build Step a ese SHA
+   (`test "$VERCEL_GIT_COMMIT_SHA" != "32787a1661665f53bba5dfcf73d630709a698ad2"`: omite todo SHA distinto) y se
+   repitió el redeploy sin `withLatestCommit`, de modo que conserva el `gitSource` en `32787a1`.
+3. En cuanto el build arrancó se restauró el Ignored Build Step a `exit 0`.
+
+**Resultado.** `dpl_Fu2dABdW5xohuo6cV9kMkyeh6whV`: SHA `32787a1661665f53bba5dfcf73d630709a698ad2`, entorno
+production, READY, origen `redeploy`; los tres alias de producción (incl. `nihon-travel-explorer.vercel.app`)
+apuntan a él. Los ficheros de código y datos que sirve la URL son byte-idénticos a un build limpio de ese SHA.
+El deployment anterior (`dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5`, `592c0c4`) queda sin alias y como candidato de
+rollback; no se tocó. El freeze (`exit 0`) sigue activo.
 
 ## Línea Astra
 
