@@ -2013,9 +2013,23 @@ export function OrderedSequenceBuilder({ savedPlaces, onClose, embedded = false,
     () => (surface?.kind === "order" ? { dayId: surface.forDay, baselineDayPlaceIds: surface.baseline } : null),
     [surface]
   );
+  /**
+   * Auditoría final (B27 en WebKit, CI): el foco diferido de `focusAfterCommit` se ejecuta en el siguiente
+   * fotograma; si entre medias la persona ya abrió otra superficie (p. ej. «Cambiar orden»), el foco diferido
+   * se lo quitaba (`activeElement` = el «⋯» de la parada movida, y no el encabezado de la herramienta). Cada
+   * superficie nueva incrementa esta época y el foco diferido de una acción anterior se descarta.
+   */
+  const surfaceEpochRef = useRef(0);
+  useEffect(() => {
+    if (surface) surfaceEpochRef.current += 1;
+  }, [surface]);
   /** Tras una acción que mueve el elemento disparador, el foco sigue a lo que el usuario movió. */
   function focusAfterCommit(selector: string) {
-    requestAnimationFrame(() => document.querySelector<HTMLElement>(selector)?.focus({ preventScroll: false }));
+    const epoch = surfaceEpochRef.current;
+    requestAnimationFrame(() => {
+      if (surfaceEpochRef.current !== epoch) return;
+      document.querySelector<HTMLElement>(selector)?.focus({ preventScroll: false });
+    });
   }
 
   // B9.1 promotes the existing persisted day structure to the entry surface. The same explicit
