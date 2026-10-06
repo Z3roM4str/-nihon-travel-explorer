@@ -23,7 +23,9 @@ function fixture({ empty = false, undated = false } = {}) {
   const boundary = { start: { kind: "unselected" }, end: { kind: "unselected" } };
   return {
     version: 8, routeIds: empty ? [] : [ghibli.id, disney.id, kyoto.id],
-    days: empty ? [] : [
+    // Auditoría final (H04): `days: []` no es un borrador que la app produzca (siempre conserva ≥1 día) y su
+    // parser lo rechaza; el borrador vacío real es `days: null`. Antes se sustituía en silencio; ahora se protege.
+    days: empty ? null : [
       { id: "b31-tokyo", placeIds: [ghibli.id, disney.id], accommodationBoundary: boundary },
       { id: "b31-empty", placeIds: [], accommodationBoundary: boundary },
       { id: "b31-kyoto", placeIds: [kyoto.id], accommodationBoundary: boundary },

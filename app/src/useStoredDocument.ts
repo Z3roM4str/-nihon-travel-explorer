@@ -115,6 +115,20 @@ export function useStoredDocument<T>(
     return true;
   }, []);
 
+  // Varias mutaciones del mismo turno (p. ej. la reconciliación y la inicialización de días al montar) se
+  // escriben UNA vez, con el documento final: igual que el efecto único que sustituye. Es una micro-tarea del
+  // mismo turno de JavaScript, así que ningún evento de otra pestaña puede colarse entre la mutación y la
+  // escritura, y cada mutación siguiente sigue partiendo del documento vigente.
+  const flushScheduled = useRef(false);
+  const schedulePersist = useCallback(() => {
+    if (flushScheduled.current) return;
+    flushScheduled.current = true;
+    queueMicrotask(() => {
+      flushScheduled.current = false;
+      persist(coreRef.current.doc);
+    });
+  }, [persist]);
+
   const update = useCallback(
     (action: SetStateAction<T>) => {
       sync();
@@ -122,11 +136,11 @@ export function useStoredDocument<T>(
       const next = typeof action === "function" ? (action as (current: T) => T)(base) : action;
       if (!Object.is(next, base)) {
         coreRef.current.doc = next;
-        persist(next);
+        schedulePersist();
       }
       setDoc(coreRef.current.doc);
     },
-    [persist, sync]
+    [schedulePersist, sync]
   );
 
   useEffect(() => {
