@@ -443,7 +443,7 @@ describe("usePlanningDraft.ts / planning-draft-v5.ts — Phase 3D-U delegates to
   it("moveDay never calls withDays and never rebuilds a day matrix by hand", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     const moveDayStart = hook.indexOf("const moveDay = useCallback");
-    const moveDayEnd = hook.indexOf("}, []);", moveDayStart) + "}, []);".length;
+    const moveDayEnd = hook.indexOf("}, [setDraft]);", moveDayStart) + "}, [setDraft]);".length;
     const moveDayBody = hook.slice(moveDayStart, moveDayEnd);
     expect(moveDayBody).toContain("withDayMoved(current, dayId, direction)");
     expect(moveDayBody).not.toContain("withDays(");
@@ -475,7 +475,7 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
   it("Phase 3D-U: moveDay delegates to withDayMoved through the same canonical setDraft, with no parallel day-order state", async () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     expect(hook).toMatch(
-      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\(current\) => withDayMoved\(current, dayId, direction\)\);\s*\}, \[\]\);/
+      /const moveDay = useCallback\(\(dayId: string, direction: -1 \| 1\) => \{\s*setDraft\(\(current\) => withDayMoved\(current, dayId, direction\)\);\s*\}, \[setDraft\]\);/
     );
     // No second day-order vector/state anywhere in the hook. Scanned against the hook's CODE:
     // the doc comments legitimately use words like "reordered" to describe what the mutations do

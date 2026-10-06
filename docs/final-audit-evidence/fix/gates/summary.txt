@@ -1,0 +1,21 @@
+Gates existentes sobre el código final (Chromium /opt/pw-browsers/chromium, Linux). Resultados finales:
+ddr03-persistence-check            43/43
+block13-portable-backup-browser-audit 150/150 (--browser=/opt/pw-browsers/chromium; sin esa ruta falla por el ejecutable por defecto, igual que en la auditoría)
+b26-nosotros-check                 315/315
+block5-travellers-browser-audit    231/231 (tras adaptar la sección K al contrato de H04; antes 219/12 fallos por esperar la sustitución silenciosa)
+b10-a11y-check                     89 OK
+b10-motion-check                   17 OK
+b21-global-search-browser-audit    36/36
+block23-photo-retry-browser-audit  28/28
+b27-viaje-dias-check               PASS
+b29-day-order-tools-check          169 checks PASS
+p06-v2-journeys-check              68/68
+p06-v2-history-check               146/146
+p06-v2-clip-check                  104/104
+b30-where-to-sleep-check           475/475 (tras agrupar escrituras por turno; la 1.ª pasada falló por el cambio de recuento de escrituras, corregido en el hook)
+b31-reservas-resumen-check         281/281 (tras corregir su fixture `days: []`, inválido; la 1.ª pasada falló)
+b10-performance-check              13/13 (corregido; ver performance-corrected*.log)
+Vitest                             120 archivos, 3443/3443
+final-audit-data-recovery-check    58/58 (base: 7/47)
+final-audit-a11y-check             49/49 (base: 33/49)
+Recorrido conectado (connected.mjs de la auditoría, adaptado sólo en rutas): 18 OK por viewport + 1 fallo conocido del predicado del script (aviso de fechas), 0 errores JS, 0 fallos de red.

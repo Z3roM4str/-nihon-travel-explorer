@@ -1,0 +1,137 @@
+{
+  "format": "nihon-portable-backup",
+  "version": 1,
+  "exportedAt": "2026-10-06T16:48:47.243Z",
+  "data": {
+    "travellers": {
+      "version": 1,
+      "travellers": [
+        {
+          "id": "trv-9bcd8b30-cdc2-4359-ab99-e0323001dd35",
+          "label": "Marta"
+        },
+        {
+          "id": "trv-7810ab89-1e9e-42b7-9581-e869b444a573",
+          "label": "Jun"
+        }
+      ],
+      "activeTravellerId": "trv-7810ab89-1e9e-42b7-9581-e869b444a573",
+      "interests": [
+        {
+          "placeId": "JP-021",
+          "stances": [
+            {
+              "travellerId": "trv-9bcd8b30-cdc2-4359-ab99-e0323001dd35",
+              "stance": "interested"
+            }
+          ],
+          "carriedOver": false
+        },
+        {
+          "placeId": "JP-044",
+          "stances": [
+            {
+              "travellerId": "trv-9bcd8b30-cdc2-4359-ab99-e0323001dd35",
+              "stance": "interested"
+            },
+            {
+              "travellerId": "trv-7810ab89-1e9e-42b7-9581-e869b444a573",
+              "stance": "interested"
+            }
+          ],
+          "carriedOver": false
+        },
+        {
+          "placeId": "JP-054",
+          "stances": [
+            {
+              "travellerId": "trv-9bcd8b30-cdc2-4359-ab99-e0323001dd35",
+              "stance": "interested"
+            }
+          ],
+          "carriedOver": false
+        },
+        {
+          "placeId": "JP-066",
+          "stances": [
+            {
+              "travellerId": "trv-9bcd8b30-cdc2-4359-ab99-e0323001dd35",
+              "stance": "interested"
+            }
+          ],
+          "carriedOver": false
+        }
+      ]
+    },
+    "planningDraft": {
+      "version": 8,
+      "routeIds": [
+        "JP-021",
+        "JP-044",
+        "JP-054",
+        "JP-066"
+      ],
+      "days": [
+        {
+          "id": "day-c35ce7f5-3d52-484f-b616-3cbfe3a339fa",
+          "placeIds": [
+            "JP-044",
+            "JP-021"
+          ],
+          "accommodationBoundary": {
+            "start": {
+              "kind": "unselected"
+            },
+            "end": {
+              "kind": "accommodation",
+              "accommodationId": "acc-23a230ee-cae9-4106-8489-56a505d53924"
+            }
+          }
+        },
+        {
+          "id": "day-364e743b-73f5-4db7-8cfe-4a27f0ec0057",
+          "placeIds": [
+            "JP-054",
+            "JP-066"
+          ],
+          "accommodationBoundary": {
+            "start": {
+              "kind": "unselected"
+            },
+            "end": {
+              "kind": "no-accommodation"
+            }
+          }
+        },
+        {
+          "id": "day-106f2f9b-3740-42fe-b83e-95b247b379b2",
+          "placeIds": [],
+          "accommodationBoundary": {
+            "start": {
+              "kind": "unselected"
+            },
+            "end": {
+              "kind": "unselected"
+            }
+          }
+        }
+      ],
+      "startDate": "2027-02-22",
+      "endDate": "2027-02-25",
+      "visitStartTimes": {},
+      "accommodations": [
+        {
+          "id": "acc-23a230ee-cae9-4106-8489-56a505d53924",
+          "label": "Hotel Sakura",
+          "location": {
+            "lat": 35.68,
+            "lng": 139.76
+          }
+        }
+      ],
+      "accommodationLegs": [],
+      "interHubSegments": [],
+      "zoneAccommodationChoices": []
+    }
+  }
+}

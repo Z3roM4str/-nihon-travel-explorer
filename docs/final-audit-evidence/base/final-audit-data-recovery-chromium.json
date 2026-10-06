@@ -1,0 +1,469 @@
+{
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "H01",
+      "label": "tras importar y navegar, los viajeros restaurados siguen en el almacenamiento",
+      "ok": false,
+      "extra": "Viaje anterior,Jun"
+    },
+    {
+      "id": "H01",
+      "label": "los intereses restaurados (JP-203) se conservan y el nuevo (JP-021) se añade",
+      "ok": false,
+      "extra": "JP-021,JP-044"
+    },
+    {
+      "id": "H01",
+      "label": "el itinerario restaurado (JP-203, Hotel del respaldo) no se sobrescribe",
+      "ok": false,
+      "extra": "[\"JP-044\"]"
+    },
+    {
+      "id": "H01",
+      "label": "volver a Viaje tampoco devuelve el itinerario anterior",
+      "ok": false,
+      "extra": "[\"JP-044\"]"
+    },
+    {
+      "id": "H01",
+      "label": "tras recargar sigue todo lo restaurado más el interés añadido",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H02",
+      "label": "fixture: ambas pestañas parten de los mismos IDs de viajeros",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H02",
+      "label": "tras guardar un lugar en A y otro en B, el documento conserva ambos",
+      "ok": false,
+      "extra": "JP-044"
+    },
+    {
+      "id": "H02",
+      "label": "A, recargada, muestra los dos lugares en Quiero ir",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H02",
+      "label": "itinerario: añadir un día en A y otro en B conserva ambos (3 días)",
+      "ok": false,
+      "extra": "días=2"
+    },
+    {
+      "id": "H02",
+      "label": "itinerario: la parada y el hotel del documento se conservan",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "borrador-invalido: el documento original no se modifica tras montar y recargar",
+      "ok": false,
+      "extra": "borrador cambiado"
+    },
+    {
+      "id": "H04",
+      "label": "borrador-invalido: la interfaz informa del problema con una salida explícita",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-invalidos: el documento original no se modifica tras montar y recargar",
+      "ok": false,
+      "extra": "viajeros cambiados"
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-invalidos: la interfaz informa del problema con una salida explícita",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "borrador-futuro: el documento original no se modifica tras montar y recargar",
+      "ok": false,
+      "extra": "borrador cambiado"
+    },
+    {
+      "id": "H04",
+      "label": "borrador-futuro: la interfaz informa del problema con una salida explícita",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "borrador-no-json: el documento original no se modifica tras montar y recargar",
+      "ok": false,
+      "extra": "borrador cambiado"
+    },
+    {
+      "id": "H04",
+      "label": "borrador-no-json: la interfaz informa del problema con una salida explícita",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-futuros: el documento original no se modifica tras montar y recargar",
+      "ok": false,
+      "extra": "viajeros cambiados"
+    },
+    {
+      "id": "H04",
+      "label": "viajeros-futuros: la interfaz informa del problema con una salida explícita",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "viajeros inválidos: el itinerario válido sigue íntegro tras usar la app",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H04",
+      "label": "V1 válida: se migra y conserva la parada, sin aviso de protección",
+      "ok": true,
+      "extra": "v8"
+    },
+    {
+      "id": "H04b",
+      "label": "H04b — excepción",
+      "ok": false,
+      "extra": "locator.waitFor: Timeout 8000ms exceeded. | Call log: | \u001b[2m  - waiting for locator('[data-storage-protection]').first() to be visible\u001b[22m | "
+    },
+    {
+      "id": "H04c",
+      "label": "H04c — excepción",
+      "ok": false,
+      "extra": "locator.waitFor: Timeout 8000ms exceeded. | Call log: | \u001b[2m  - waiting for locator('[data-storage-protection]').first() to be visible\u001b[22m | "
+    },
+    {
+      "id": "X1",
+      "label": "importar en A con B abierta: la mutación posterior de B conserva el respaldo",
+      "ok": false,
+      "extra": "JP-021,JP-044"
+    },
+    {
+      "id": "X1",
+      "label": "importar en A con B abierta: el itinerario restaurado sigue intacto",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "X",
+      "label": "X — excepción",
+      "ok": false,
+      "extra": "locator.waitFor: Timeout 8000ms exceeded. | Call log: | \u001b[2m  - waiting for locator('[data-storage-protection]').first() to be visible\u001b[22m | "
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390: el fallo no deja la aplicación en blanco",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390: aparece un mensaje de recuperación visible",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390: la navegación sigue utilizable",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390: recuperación tras restablecer la red",
+      "ok": false,
+      "extra": "sin aviso no hay recuperación"
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440: el fallo no deja la aplicación en blanco",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440: aparece un mensaje de recuperación visible",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440: la navegación sigue utilizable",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @1440: recuperación tras restablecer la red",
+      "ok": false,
+      "extra": "sin aviso no hay recuperación"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390: el fallo no deja la aplicación en blanco",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390: aparece un mensaje de recuperación visible",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390: la navegación sigue utilizable",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @390: recuperación tras restablecer la red",
+      "ok": false,
+      "extra": "sin aviso no hay recuperación"
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440: el fallo no deja la aplicación en blanco",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440: aparece un mensaje de recuperación visible",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440: la navegación sigue utilizable",
+      "ok": false,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440: los datos guardados no cambian",
+      "ok": true,
+      "extra": null
+    },
+    {
+      "id": "H03",
+      "label": "ZoneComparison @1440: recuperación tras restablecer la red",
+      "ok": false,
+      "extra": "sin aviso no hay recuperación"
+    }
+  ],
+  "evidence": {
+    "h01": {
+      "imported": {
+        "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Viajera del respaldo\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-203\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+        "draft": "{\"version\":8,\"routeIds\":[\"JP-203\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-203\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel del respaldo\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+      },
+      "after": {
+        "travellers": {
+          "version": 1,
+          "travellers": [
+            {
+              "id": "p1",
+              "label": "Viaje anterior"
+            },
+            {
+              "id": "p2",
+              "label": "Jun"
+            }
+          ],
+          "activeTravellerId": "p1",
+          "interests": [
+            {
+              "placeId": "JP-044",
+              "stances": [
+                {
+                  "travellerId": "p1",
+                  "stance": "interested"
+                }
+              ],
+              "carriedOver": false
+            },
+            {
+              "placeId": "JP-021",
+              "stances": [
+                {
+                  "travellerId": "p1",
+                  "stance": "interested"
+                }
+              ],
+              "carriedOver": false
+            }
+          ]
+        },
+        "draft": {
+          "version": 8,
+          "routeIds": [
+            "JP-044"
+          ],
+          "days": [
+            {
+              "id": "d1",
+              "placeIds": [
+                "JP-044"
+              ],
+              "accommodationBoundary": {
+                "start": {
+                  "kind": "unselected"
+                },
+                "end": {
+                  "kind": "unselected"
+                }
+              }
+            }
+          ],
+          "startDate": "2027-02-22",
+          "endDate": "2027-02-25",
+          "visitStartTimes": {},
+          "accommodations": [
+            {
+              "id": "a1",
+              "label": "Hotel conservado",
+              "location": {
+                "lat": 35.68,
+                "lng": 139.76
+              }
+            }
+          ],
+          "accommodationLegs": [],
+          "interHubSegments": [],
+          "zoneAccommodationChoices": []
+        }
+      }
+    },
+    "h02": {
+      "stored": {
+        "version": 1,
+        "travellers": [
+          {
+            "id": "trv-a39dc80a-5a55-48b0-8b08-18a94767f160",
+            "label": "Persona 1"
+          },
+          {
+            "id": "trv-c993d309-1b61-4d23-bfa0-680bff2f941d",
+            "label": "Persona 2"
+          }
+        ],
+        "activeTravellerId": "trv-a39dc80a-5a55-48b0-8b08-18a94767f160",
+        "interests": [
+          {
+            "placeId": "JP-044",
+            "stances": [
+              {
+                "travellerId": "trv-a39dc80a-5a55-48b0-8b08-18a94767f160",
+                "stance": "interested"
+              }
+            ],
+            "carriedOver": false
+          }
+        ]
+      },
+      "itinerary": {
+        "version": 8,
+        "routeIds": [
+          "JP-044"
+        ],
+        "days": [
+          {
+            "id": "d1",
+            "placeIds": [
+              "JP-044"
+            ],
+            "accommodationBoundary": {
+              "start": {
+                "kind": "unselected"
+              },
+              "end": {
+                "kind": "unselected"
+              }
+            }
+          },
+          {
+            "id": "day-c823367a-f93f-4656-92f2-3dce32aa8491",
+            "placeIds": [],
+            "accommodationBoundary": {
+              "start": {
+                "kind": "unselected"
+              },
+              "end": {
+                "kind": "unselected"
+              }
+            }
+          }
+        ],
+        "startDate": "2027-02-22",
+        "endDate": "2027-02-25",
+        "visitStartTimes": {},
+        "accommodations": [
+          {
+            "id": "a1",
+            "label": "Hotel conservado",
+            "location": {
+              "lat": 35.68,
+              "lng": 139.76
+            }
+          }
+        ],
+        "accommodationLegs": [],
+        "interHubSegments": [],
+        "zoneAccommodationChoices": []
+      }
+    },
+    "h04-borrador-invalido": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"day-fc678c90-30f9-4d8f-8a12-13937e00c997\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-viajeros-invalidos": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f92e8a03-57b3-46d3-8644-0a2f459eb734\",\"label\":\"Persona 1\"},{\"id\":\"trv-942ce9a3-1f4f-41c6-8130-c50fcaee9b12\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f92e8a03-57b3-46d3-8644-0a2f459eb734\",\"interests\":[]}",
+      "draft": "{\"version\":8,\"routeIds\":[],\"days\":[{\"id\":\"d1\",\"placeIds\":[],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel conservado\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-borrador-futuro": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"day-08cd712e-0e18-4351-bb89-7b783cfbc310\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-borrador-no-json": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"p1\",\"label\":\"Marta\"},{\"id\":\"p2\",\"label\":\"Jun\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}]}",
+      "draft": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"day-dd9f03b3-e8a0-4aea-875b-1d327765ff94\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    },
+    "h04-viajeros-futuros": {
+      "travellers": "{\"version\":1,\"travellers\":[{\"id\":\"trv-e47daa2a-2d96-447d-b847-c62efbbd57a3\",\"label\":\"Persona 1\"},{\"id\":\"trv-bb9636db-3513-4e5d-bd04-b0aa68829f97\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-e47daa2a-2d96-447d-b847-c62efbbd57a3\",\"interests\":[]}",
+      "draft": "{\"version\":8,\"routeIds\":[],\"days\":[{\"id\":\"d1\",\"placeIds\":[],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":\"2027-02-22\",\"endDate\":\"2027-02-25\",\"visitStartTimes\":{},\"accommodations\":[{\"id\":\"a1\",\"label\":\"Hotel conservado\",\"location\":{\"lat\":35.68,\"lng\":139.76}}],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+    }
+  }
+}
