@@ -542,7 +542,24 @@ async function h03() {
           zone: document.querySelectorAll(".zone-panel__scroll").length,
           body: document.body.innerText.replace(/\s+/g, " ").slice(0, 80),
         }))) })).then((d) => JSON.stringify({ ...d, errors: page.errors.slice(-2), failed: page.failedRequests.slice(-3), failedCount: page.failedRequests.length })).catch((e) => String(e));
-        check("H03", `${surface.id} @${width}: al restablecer la red, recargar recupera la sección`, recovered, diagnostic);
+        // Sólo si falla: ¿qué otras vías recuperan en este motor? (investigación; no cambia el veredicto)
+        let alternatives;
+        if (!recovered) {
+          const works = async (target) => {
+            try { await surface.open(target); await surface.ok(target).waitFor({ timeout: 6000 }); return true; } catch { return false; }
+          };
+          alternatives = {};
+          await page.reload(); await page.waitForSelector("#root *");
+          alternatives.secondReload = await works(page);
+          await page.goto(`${BASE_URL}/?retry=${Date.now()}`); await page.waitForSelector("#root *");
+          alternatives.newUrlNavigation = await works(page);
+          const fresh = await browser.newContext({ viewport: { width, height: 900 }, storageState: await context.storageState() });
+          const freshPage = await fresh.newPage();
+          await freshPage.goto(BASE_URL); await freshPage.waitForSelector("#root *");
+          alternatives.freshContext = await works(freshPage);
+          await fresh.close();
+        }
+        check("H03", `${surface.id} @${width}: al restablecer la red, recargar recupera la sección`, recovered, alternatives ? `${diagnostic} alternativas=${JSON.stringify(alternatives)}` : diagnostic);
         check("H03", `${surface.id} @${width}: el interés guardado sobrevive a la recarga`, interestIds(await json(page, TK)).includes("JP-044"));
       } else {
         check("H03", `${surface.id} @${width}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
