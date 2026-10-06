@@ -111,7 +111,9 @@ async function openPage(context) {
   const page = await context.newPage();
   page.setDefaultTimeout(8000);
   page.errors = [];
+  page.failedRequests = [];
   page.on("pageerror", (error) => page.errors.push(error.message));
+  page.on("requestfailed", (request) => page.failedRequests.push(`${request.url().split("/").pop()} ${request.failure()?.errorText ?? ""}`));
   await page.goto(BASE_URL);
   await page.waitForSelector("#root *");
   return page;
@@ -512,7 +514,14 @@ async function h03() {
         await surface.open(page);
         let recovered = true;
         try { await surface.ok(page).waitFor({ timeout: 8000 }); } catch { recovered = false; }
-        check("H03", `${surface.id} @${width}: al restablecer la red, recargar recupera la sección`, recovered);
+        // Diagnóstico sólo si falla: qué hay en pantalla y qué peticiones han fallado tras recargar.
+        const diagnostic = recovered ? undefined : await page.evaluate(() => ({
+          alerts: document.querySelectorAll("[data-lazy-failure]").length,
+          dayCards: document.querySelectorAll(".day-card").length,
+          zone: document.querySelectorAll(".zone-panel__scroll").length,
+          body: document.body.innerText.replace(/\s+/g, " ").slice(0, 160),
+        })).then((d) => JSON.stringify({ ...d, errors: page.errors.slice(-2), failed: page.failedRequests.slice(-3) })).catch((e) => String(e));
+        check("H03", `${surface.id} @${width}: al restablecer la red, recargar recupera la sección`, recovered, diagnostic);
         check("H03", `${surface.id} @${width}: el interés guardado sobrevive a la recarga`, interestIds(await json(page, TK)).includes("JP-044"));
       } else {
         check("H03", `${surface.id} @${width}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
