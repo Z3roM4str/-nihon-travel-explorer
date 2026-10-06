@@ -1,5 +1,25 @@
 # Handoff reanudable — P-06 v2 INTEGRADO en main; pendientes del proyecto clasificados
 
+## CIERRE FINAL PARA REVISIÓN (2026-10-06) — baseline de esta entrega
+
+- **SHA integrado en `main`:** `32787a1661665f53bba5dfcf73d630709a698ad2` (merge commit de [#199](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/199); cierra [#197](https://github.com/Z3roM4str/-nihon-travel-explorer/issues/197)). Línea definitiva: **Claude**; Astra queda fuera.
+- **Certificado sobre ese SHA** en WebKit (Playwright) y Chromium, GitHub Actions: `P-06 certificación` [run 37396856738](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37396856738) y B26 ×5 por motor [run 37396891972](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37396891972), todo en verde. Esto **no** certifica Safari/iPhone físicos ni lectores de pantalla.
+- **Freeze de Vercel (comprobado):** Ignored Build Step `exit 0` activo; los pushes `ebd6ae8` y `32787a1` generaron deployments **CANCELED**. Producción sigue en `dpl_2eiLZExrgQzUrVRUCVusgPCf9Cc5` (SHA `592c0c46435dd61d4b2ef84566c4fdb75f53c56d`). Detalle y reglas en [DEPLOYMENT_POLICY.md](DEPLOYMENT_POLICY.md). **No hay autorización para publicar automáticamente desde `main`.**
+- **Qué contiene la URL de producción (`592c0c4`) y qué no:** contiene P-06 v2 completo (#196). **No contiene** la corrección de foco de #199 (único cambio de producto posterior: `TravellerManager.tsx`; al cambiar de persona en Nosotros › Viajeros el foco puede quedar en `<body>`, defecto intermitente sin pérdida de datos). Lo demás posterior a `592c0c4` es documentación y el gate B26.
+- **Diseño actual = baseline.** Las propuestas visuales abiertas son **mejoras posteriores**, no requisitos incumplidos: ningún documento demuestra un requisito no cumplido ni un problema de accesibilidad en ellas (B10-A1…A4 ya se cerraron). **Ninguna está implementada:** `zone-fact--strong`, D0b-01/02 (incluye `viewport-fit=cover`), EvidenceMark 11/12, B10-M1…M6, B10-C1, D5-M1 y el atajo a «sin alojamiento esa noche». OD-01 modo oscuro: POST-V1 / diferido.
+
+### Recorrido breve para revisar desde el iPhone
+
+URL de producción existente: **https://nihon-travel-explorer.vercel.app** (contiene `592c0c4`; si Vercel pide iniciar sesión, es la protección del proyecto).
+
+1. **Portada → Viaje:** abre la app, entra en «Viaje» y en «Días»; comprueba la lista de días y que el scroll no corta contenido a los lados (notch/barra inferior).
+2. **Hojas y vista de un día:** abre un día («Detalles del día»), una hoja y «Cambiar orden» (Subir/Bajar). Con el gesto «atrás» de iOS debe cerrar hoja o vista antes de salir de Días (**pendiente de prueba física**).
+3. **Sin alojamiento esa noche:** sólo debe aparecer en «Detalles del día».
+4. **Nosotros › Viajeros:** pulsa «Usar este dispositivo como …». Aquí **aún no está** la corrección de foco; con VoiceOver activo, anota si el foco salta al inicio de la página.
+5. **Reflexión:** anota cualquier recorte, tap < 44 px o desbordamiento horizontal.
+
+Pruebas físicas pendientes (no son defectos confirmados): Safari/iPhone reales, gesto «atrás» de iOS, teclado/IME, barras dinámicas, VoiceOver/TalkBack/NVDA.
+
 ## Estado vigente — P-06 v2 CERRADO E INTEGRADO EN MAIN
 
 - PR [#196](https://github.com/Z3roM4str/-nihon-travel-explorer/pull/196) MERGED mediante merge commit `592c0c46435dd61d4b2ef84566c4fdb75f53c56d` (padres `de4b190b…` y `4bad1815…`; árbol `fdd05933…` idéntico al del HEAD del PR). Detalle, tablas y artefactos: [P06_V2_CERTIFICATION.md](P06_V2_CERTIFICATION.md) («Integración en `main` y certificación post-merge»); arquitectura: [P06_V2_ARCHITECTURE.md](P06_V2_ARCHITECTURE.md).
