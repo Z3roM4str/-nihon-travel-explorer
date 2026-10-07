@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 // Replay the actual historical/current gate, not a rewritten approximation. Only
 // add observation and a bounded repetition loop. Its assertions/timeouts stay intact.
 const root = fileURLToPath(new URL("../..", import.meta.url));
+const dirtyBeforeEvidence = execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim().length > 0;
 const ref = process.env.NIHON_GATE_REF ?? "5f3b3021a95ec39a11af5600954e96a0c3bdd790";
 if (!/^[a-f0-9]{40}$/.test(ref)) throw new Error("NIHON_GATE_REF must be an exact SHA");
 const out = resolve(process.env.NIHON_EVIDENCE_OUT ?? "/tmp/nihon-h03-investigation");
@@ -26,16 +27,26 @@ function replaceOnce(source, from, to) {
 // No extra Storage reads, writes, timers, RPC waits or session trace buffers.
 // Return values/errors of the existing calls are forwarded unchanged. console
 // messages are collected by Node and survive page reload/context destruction.
-function observeNative() {
+function observeNative({ buffered }) {
   const prefix = "__NIHON_H03_EXTERNAL__";
+  let leaving = false;
+  if (buffered) window.__h03OutsideBuffer = [];
   const emit = (event) => {
-    try { console.debug(prefix + JSON.stringify({ at: Date.now(), ...event })); } catch { /* observation cannot change an operation */ }
+    try {
+      const record = { at: Date.now(), ...event };
+      if (buffered && !leaving) window.__h03OutsideBuffer.push(record);
+      else console.debug(prefix + JSON.stringify(record));
+    } catch { /* observation cannot change an operation */ }
   };
-  for (const method of ["getItem", "setItem", "removeItem"]) {
+  if (buffered) window.addEventListener("pagehide", () => {
+    leaving = true;
+    console.debug(prefix + JSON.stringify({ kind: "buffer", events: window.__h03OutsideBuffer.splice(0) }));
+  });
+  for (const method of ["getItem", "setItem", "removeItem", "clear"]) {
     const native = Storage.prototype[method];
     Storage.prototype[method] = function (...args) {
       const key = args[0];
-      const watched = key === "nihon.travellers.v1" || key === "nihon.manualPlanningDraft" || String(key).startsWith("nihon.pending.v1.");
+      const watched = method === "clear" || key === "__seeded" || key === "__ctxSeeded" || key === "nihon.onboarding.seen.v1" || key === "nihon.travellers.v1" || key === "nihon.manualPlanningDraft" || String(key).startsWith("nihon.pending.v1.");
       try {
         const result = native.apply(this, args);
         if (watched) emit({ kind: "storage", method, key, value: method === "getItem" ? result : method === "setItem" ? String(args[1]) : null });
@@ -58,8 +69,9 @@ function observeNative() {
     const button = event.target instanceof Element ? event.target.closest("button") : null;
     emit({ kind: "input", type, label: button?.getAttribute("aria-label"), text: button?.textContent, ui: ui() });
   }, true);
+  if (buffered) window.__h03OutsideUI = ui;
   let previous;
-  new MutationObserver(() => {
+  if (!buffered) new MutationObserver(() => {
     const state = ui(), next = JSON.stringify(state);
     if (next !== previous) { previous = next; emit({ kind: "ui", state }); }
   }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-label", "aria-pressed"] });
@@ -71,23 +83,26 @@ import { createWriteStream } from "node:fs";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
 const traceStream = createWriteStream(process.env.NIHON_EXTERNAL_TRACE_FILE);
-let caseNumber = 0, traced = false;
+let caseNumber = 0, caseStart = 0, traced = false;
 const observedState = new Map();
 function observeHost(kind, details = {}) {
   traceStream.write(JSON.stringify({ case: caseNumber, traced, hostAt: Date.now(), kind, ...details }) + "\\n");
 }
 function attachObserver(context) {
   context.on("page", (page) => {
+    page.on("crash", () => observeHost("page-crash"));
     page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) observeHost("navigation", { url: frame.url() }); });
     page.on("console", (message) => {
       const text = message.text(), prefix = "__NIHON_H03_EXTERNAL__";
       if (!text.startsWith(prefix)) return;
-      const event = JSON.parse(text.slice(prefix.length));
+      const received = JSON.parse(text.slice(prefix.length));
+      for (const event of received.kind === 'buffer' ? received.events : [received]) {
       if (event.kind === "storage" && event.method !== "getItem") {
         if (event.method === "removeItem") observedState.delete(event.key);
         else observedState.set(event.key, event.value);
       }
       observeHost("page", { event });
+      }
     });
   });
 }
@@ -97,18 +112,29 @@ observeHost("environment", { node: process.version, cpuCount: availableParalleli
 `;
 let source = helper + original.slice(0, original.indexOf("const steps = ["));
 source = replaceOnce(source, "  results.push({ id, label, ok, extra: extra ?? null });", "  results.push({ id, label, ok, extra: extra ?? null });\n  observeHost('assertion', { id, label, ok, extra, observed: Object.fromEntries(observedState) });");
-source = replaceOnce(source, "const raw = (page, key) => page.evaluate((k) => localStorage.getItem(k), key);", "const raw = (page, key) => page.evaluate((k) => localStorage.getItem(k), key).then(value => { observeHost('gate-read', { key, value }); return value; });");
+source = replaceOnce(source, "const raw = (page, key) => page.evaluate((k) => localStorage.getItem(k), key);", `const raw = (page, key) => page.evaluate((k) => {
+  const value = localStorage.getItem(k);
+  return { value, events: window.__h03OutsideBuffer?.splice(0), ui: window.__h03OutsideUI?.() };
+}, key).then(({ value, events, ui }) => {
+  for (const event of events ?? []) {
+    if (event.kind === 'storage' && event.method !== 'getItem') {
+      if (event.method === 'removeItem') observedState.delete(event.key); else observedState.set(event.key, event.value);
+    }
+    observeHost('page', { event });
+  }
+  observeHost('gate-read', { key, value, ui }); return value;
+});`);
 source = replaceOnce(source, "  const context = await newContext({}, { width, height: 900 });", `  const context = await newContext({}, { width, height: 900 });
   observedState.clear();
   attachObserver(context);
-  if (traced) await context.addInitScript(${observeNative.toString()});`);
+  if (traced) await context.addInitScript(${observeNative.toString()}, { buffered: process.env.NIHON_H03_TRACE_MODE === 'buffered' });`);
 source = replaceOnce(source, "  const before = await raw(page, TK);", "  const before = await raw(page, TK);\n  observeHost('before-failure', { before });");
 source = replaceOnce(source, "  await page.evaluate(() => { window.__beforeReload = true; });", "  observeHost('before-reload', { observed: Object.fromEntries(observedState) });\n  await page.evaluate(() => { window.__beforeReload = true; });");
 source = replaceOnce(source, "    if (state.failing && state.pattern.test(req.url ?? \"\")) {", `    if (req.url === '/__h03_independent_storage_probe__') { res.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' }); res.end('<!doctype html><title>isolated backend probe</title>'); return; }
     if (state.failing && state.pattern.test(req.url ?? "")) {`);
 // Diagnostic probe is only performed AFTER all original strict assertions have
 // failed. It cannot turn their verdict green or refresh the first gate read.
-source = replaceOnce(source, "  await context.close();\n  if (proxy) await proxy.close();\n}\n\nasync function h03()", `  if (results.some(r => !r.ok)) {
+source = replaceOnce(source, "  await context.close();\n  if (proxy) await proxy.close();\n}\n\nasync function h03()", `  if (results.slice(caseStart).some(r => !r.ok)) {
     const probe = await context.newPage();
     await probe.goto(base + '/__h03_independent_storage_probe__');
     observeHost('independent-backend-after-verdict', { value: await raw(probe, TK) });
@@ -129,6 +155,7 @@ for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
   traced = caseNumber % 3 !== 1;
   observeHost('case-start', { mode: 'proxy-reset', surface: 'OrderedSequenceBuilder', width: 390 });
   const start = results.length;
+  caseStart = start;
   await guarded('H03', 'directed original scenario', () => h03Scenario(H03_SURFACES[0], 390, 'proxy-reset', true));
   observeHost('case-end', { results: results.slice(start) });
 }
@@ -154,8 +181,9 @@ writeFileSync(`${out}/provenance.json`, JSON.stringify({
   head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(),
   gateRef: ref, productSourceTree: headTree, originalHash: sha256(original), observedHash: sha256(source),
   repetitions, originalAssertionsAndWaitsPreserved: true, assertionSignatureHash: sha256(JSON.stringify(assertionSignature(original))), nativeTrace: false,
-  dirty: execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim().length > 0,
+  dirtyBeforeEvidence,
   instrumentation: "Existing native call values via console -> Node NDJSON, UI attribute observer; no additional Storage reads/writes. Observer overhead remains; every third case is a native control.",
+  traceMode: process.env.NIHON_H03_TRACE_MODE ?? "console",
   primer: process.env.NIHON_H03_PRIMER === "1", load: process.env.NIHON_H03_LOAD === "1",
 }, null, 2));
 const child = spawn(process.execPath, [generated], {

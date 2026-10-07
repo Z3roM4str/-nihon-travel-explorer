@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/h03-conservation-investigation.yml"
       - "app/scripts/h03-conservation-investigation.mjs"
+      - "app/scripts/h03-webkit-storage-engine-probe.mjs"
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +13,45 @@ concurrency:
   group: h03-conservation-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  engine:
+    name: WebKit sin producto load=${{ matrix.load }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        load: ["0", "1"]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - name: Contrafactual nativo, sin Nihon ni escrituras al recargar
+        env:
+          NIHON_H03_LOAD: ${{ matrix.load }}
+          NIHON_H03_ENGINE_REPETITIONS: "12"
+          NIHON_EVIDENCE_OUT: h03-engine
+          DEBUG: pw:browser
+        run: node scripts/h03-webkit-storage-engine-probe.mjs > h03-engine.log 2>&1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h03-engine-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            app/h03-engine/
+            app/h03-engine.log
+          retention-days: 30
+          if-no-files-found: error
   investigate:
     name: WebKit ${{ matrix.gate }} load=${{ matrix.load }}
     runs-on: ubuntu-24.04
@@ -45,6 +85,8 @@ jobs:
           NIHON_GATE_REF: ${{ matrix.gate }}
           NIHON_H03_LOAD: ${{ matrix.load }}
           NIHON_H03_REPETITIONS: "24"
+          NIHON_H03_TRACE_MODE: buffered
+          DEBUG: pw:browser
           NIHON_H03_PRIMER: "1"
           NIHON_EVIDENCE_OUT: h03-investigation
         run: node scripts/h03-conservation-investigation.mjs > h03-investigation.log 2>&1

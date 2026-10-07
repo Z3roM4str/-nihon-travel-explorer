@@ -49,6 +49,36 @@ NIHON_BROWSER=webkit NIHON_GATE_REF=acb38425fdd2902ff701358e92d04d935e33b6a1 NIH
 ```
 
 La procedencia incluye HEAD, SHA del gate, árbol del producto, hashes del original
-y observado, coste/controles y estado dirty. Los resultados de investigación y
-certificación se incorporarán al cerrar el diagnóstico. Hasta entonces sigue el
-bloqueo de H03: sin merge ni deployment.
+y observado, coste/controles y estado del checkout antes de crear la evidencia.
+El primer runner midió `dirty` después de crear sus archivos de salida y temporal;
+por eso ese campo es true incluso en los checkouts CI. No hubo modificaciones al
+producto: el árbol exacto se comprobó antes de ejecutar. El siguiente runner mide
+`dirtyBeforeEvidence` antes de crear archivos.
+
+## Reproducción capturada
+
+SHA `f4fcf77e9f6561ed0874bec642f41e1c4ca97044`, CI
+[37581466930](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37581466930),
+24 escenarios por combinación, 96 en total. Se repitió la pérdida del interés:
+acb/sin carga, caso 16 (control); 5f/sin carga, caso 19 (control); 5f/con carga,
+casos 3, 11 y 15 (observados). En 5f/con carga hubo además dos timeouts de recarga
+que no se consideran pérdidas de interés ni se convierten en éxito. acb/con carga
+pasó todos sus casos. Los fallos mantienen las aserciones originales.
+
+Las lecturas originales anteriores al reset y a la recarga contienen JP-044.
+Después: null en acb/caso 16; documento vacío con IDs nuevos en los otros cuatro.
+La página independiente del mismo origen lee también esos valores. En 5f tampoco
+se recuperan tras la lectura diagnóstica de un segundo. En los tres casos
+observados, la secuencia nativa muestra que las primeras lecturas tras recargar
+devuelven null; luego el Store escribe el documento inicial vacío. No se observa
+un removeItem del documento canónico. La copia pendiente ya se había eliminado
+tras confirmar la escritura, antes de recargar. El clic sí llegó a Ghibli y a la
+persona que tenía la postura persistida. Esto descarta seleccionar otro interés
+en estos casos; no identifica todavía el origen de la ausencia nativa.
+
+Se añade un contrafactual sin React ni código de Nihon: Storage nativo, reset
+real, refresh y reload, con perfiles efímeros/persistentes y con una página del
+mismo origen mantenida abierta. No cambia el gate original. Su resultado y los
+diagnósticos del proceso WebKit deben distinguir el tramo del motor antes de
+atribuir el defecto al producto o al test. Mientras no se cierre ese mecanismo,
+**sigue el bloqueo de H03: sin merge ni deployment**.
