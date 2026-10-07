@@ -75,7 +75,7 @@ await test('retry-clobbers-other-tab-and-export',async()=>{
  const exported=JSON.parse(Buffer.concat(chunks).toString()).data.travellers.interests.map(i=>i.placeId);
  await a.waitForTimeout(500);
  const final=await a.evaluate(k=>JSON.parse(localStorage.getItem(k)).interests.map(i=>i.placeId),TK);
- await ctx.close(); return {before,memoryBefore,after,exportOutcome:outcome,exported,final,retainedRemote:final.includes('JP-077')};
+ await ctx.close(); return {before,memoryBefore,after,exportOutcome:outcome,exported,final,retainedRemote:final.includes('JP-077'),exportContainsBoth:exported.includes('JP-077')&&exported.includes('JP-021')&&JSON.stringify([...exported].sort())===JSON.stringify([...final].sort())};
 });
 await test('retry-overwrites-protected-future',async()=>{
  const {ctx,a}=await setup();const b=await remote(ctx);await a.bringToFront();
@@ -160,7 +160,7 @@ await test('failed-restore-retry-applies-partial-import',async()=>{
  const before=await a.evaluate(({TK,DK})=>({t:JSON.parse(localStorage.getItem(TK)),d:JSON.parse(localStorage.getItem(DK))}),{TK,DK});
  await a.evaluate(async()=>{window.failReviewKey=null;await window.review.retryPersistence();});await a.waitForTimeout(100);
  const after=await a.evaluate(({TK,DK})=>({t:JSON.parse(localStorage.getItem(TK)),d:JSON.parse(localStorage.getItem(DK))}),{TK,DK});
- await ctx.close();return {importState,beforeLabel:before.t.travellers[0].label,beforeStart:before.d.startDate,afterLabel:after.t.travellers[0].label,afterStart:after.d.startDate,rollbackStayedIntact:after.d.startDate===before.d.startDate};
+ await ctx.close();return {importState,beforeLabel:before.t.travellers[0].label,beforeStart:before.d.startDate,afterLabel:after.t.travellers[0].label,afterStart:after.d.startDate,rollbackStayedIntact:JSON.stringify(after)===JSON.stringify(before)};
 });
 await test('stale-active-traveller-attribution',async()=>{
  const {ctx,a}=await setup();const b=await remote(ctx);await a.bringToFront();
@@ -197,7 +197,7 @@ for (const replacement of ['{invalid-json', JSON.stringify({...travellers,versio
  const actual=await a.evaluate(k=>localStorage.getItem(k),TK);
  const outcome=await a.evaluate(()=>window.review.backup.exportBackup());
  const copy=await a.evaluate(k=>sessionStorage.getItem('nihon.pending.v1.'+k),TK);
- await ctx.close();return {preserved:actual===replacement,correct:outcome.ok===false&&copy!==null,exportOutcome:outcome};
+ await ctx.close();return {preserved:actual===replacement,correct:outcome.ok===false&&copy!==null&&copy.includes('JP-021'),exportOutcome:outcome};
 });
 for (const lineage of ['full','missing','malformed']) await test('ambiguous-lineage-'+lineage+'-survives-reload',async()=>{
  const history=Array.from({length:95},(_,i)=>'history-'+i);
@@ -314,10 +314,34 @@ await test('restore-null-draft-does-not-resurrect-old-shortlist',async()=>{
  const actual=await a.evaluate(k=>JSON.parse(localStorage.getItem(k)),DK);
  await ctx.close();return {correct:actual.routeIds.includes('JP-021')&&!actual.routeIds.includes('JP-044'),actualRoute:actual.routeIds};
 });
+await test('second-failed-restore-keeps-first-preimage',async()=>{
+ const {ctx,a}=await setup();
+ await a.evaluate(async({t,d,key})=>{
+  const real=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===key&&window.breakRollback){window.failReviewWrites=true;throw new DOMException('quota','QuotaExceededError');}return real.call(this,k,v);};
+  window.breakRollback=true;await window.review.backup.confirmImport(window.review.makeRestorePlan(t,d));
+ },{t:{...travellers,travellers:[{id:'p1',label:'First imported'}]},d:{...draft,startDate:'2027-03-03'},key:DK});
+ const original=await a.evaluate(()=>sessionStorage.getItem('nihon.pending.v1.restore'));
+ await a.evaluate(async({t,d,key})=>{window.breakRollback=false;window.failReviewWrites=false;window.failReviewKey=key;await window.review.backup.confirmImport(window.review.makeRestorePlan(t,d));},{t:{...travellers,travellers:[{id:'p1',label:'Second imported'}]},d:{...draft,startDate:'2027-03-04'},key:DK});
+ const after=await a.evaluate(()=>sessionStorage.getItem('nihon.pending.v1.restore'));
+ await a.reload();await a.waitForFunction(()=>window.review);
+ const reloaded=await a.evaluate(()=>sessionStorage.getItem('nihon.pending.v1.restore'));
+ await ctx.close();return {correct:original!==null&&original===after&&after===reloaded&&original.includes('Synthetic A'),preimageKept:after!==null};
+});
+await test('preimage-copy-failure-does-not-leave-unstarted-restore-block',async()=>{
+ const {ctx,a}=await setup();
+ await a.evaluate(async({t,d})=>{
+  const real=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===sessionStorage&&k==='nihon.pending.v1.restore')throw new DOMException('quota','QuotaExceededError');return real.call(this,k,v);};
+  await window.review.backup.confirmImport(window.review.makeRestorePlan(t,d));
+  window.review.travellers.toggleSaved('JP-021');
+ },{t:{...travellers,travellers:[{id:'p1',label:'Imported'}]},d:{...draft,startDate:'2027-03-03'}});
+ await a.waitForTimeout(450);
+ const actual=await a.evaluate(({TK,DK})=>({t:JSON.parse(localStorage.getItem(TK)),d:JSON.parse(localStorage.getItem(DK))}),{TK,DK});
+ await ctx.close();return {correct:actual.t.travellers[0].label==='Synthetic A'&&actual.d.startDate===null&&actual.t.interests.some(i=>i.placeId==='JP-021'),interestAccepted:actual.t.interests.some(i=>i.placeId==='JP-021')};
+});
 await browser.close();await server.close();
 for(const r of results) {
  r.pass=!r.error;
- for(const key of ['preserved','retainedRemote','localDayPreserved','recovered','rollbackStayedIntact','correct','reloaded','queuePreserved','lockRespected']) if(key in r)r.pass&&=r[key];
+ for(const key of ['preserved','retainedRemote','localDayPreserved','recovered','rollbackStayedIntact','correct','reloaded','queuePreserved','lockRespected','exportContainsBoth','originalWriteStillIncluded','firstIdIncluded','secondIdAbsent','preimageKept','interestAccepted']) if(key in r)r.pass&&=r[key];
  if('expectedDays' in r)r.pass&&=r.actualDays===r.expectedDays;
  if('expectedDay' in r)r.pass&&=r.actualDays.length===1&&r.actualDays[0]===r.expectedDay;
 }

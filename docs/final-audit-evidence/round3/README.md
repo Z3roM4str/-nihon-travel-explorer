@@ -27,13 +27,14 @@ Los datos son sintéticos, los perfiles son `browser.newContext()` desechables, 
 ## Regresiones duraderas y diferencias documentadas
 
 `app/scripts/final-audit-persistence-regressions-check.mjs` conserva los 14 escenarios y sus
-aserciones de contenido. Añade otras 15 ventanas que los gates ordinarios no cubrían: reintento
+aserciones de contenido. Añade otras 17 ventanas que los gates ordinarios no cubrían: reintento
 encolado con eventos retenidos + inválido/futuro; historia desconocida llena/ausente/malformada
 que sigue conflictiva tras recarga y otra escritura externa; persona eliminada al pedir o ejecutar;
 quitar interés atribuido a la persona vista; rollback satisfactorio tras recarga; rollback incompleto
 con preimagen conservada; lock rechazado; parada cuyo día desapareció mientras esperaba;
 zonas y planificador compartiendo cola; error de lectura protegido; inicialización del borrador tras
-restaurar un respaldo cuyo itinerario es null (viajeros vigentes en lugar de la lista anterior de React).
+restaurar un respaldo cuyo itinerario es null (viajeros vigentes en lugar de la lista anterior de React); segunda restauración fallida conservando la primera preimagen; fallo de
+copia de sesión antes de importar sin dejar un bloqueo de una importación que no empezó.
 
 Diferencias respecto del script original:
 
@@ -70,13 +71,20 @@ scripts/p06-v2-certify.sh webkit
 
 El nuevo gate está incluido en ambas ramas de la matriz CI, junto con los gates de pestañas obsoletas,
 exportación protegida y H03 existentes. Cada artefacto lleva SHA y navegador, log por gate y JSON con
-los 29 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
+los 31 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
 Vitest antes de la certificación. Los resultados finales y enlaces se consignarán tras terminar CI.
 
 La variante con itinerario null se añadió al revisar todos los caminos de restauración: falló en
 la primera corrección (`86e8dfb`, con fixture añadido, `dirty=true`), dejando una ruta vacía al podar
 la lista anterior; tras crear el borrador con los viajeros vigentes conserva JP-021. Las salidas
 antes/después se conservan junto a la evidencia de esta ronda. No altera los 14 fixtures originales.
+
+Dos variantes adicionales de preimagen fallaron sobre `f548570` con sólo el fixture añadido:
+un segundo rollback satisfactorio borraba la copia de la primera restauración incompleta, y una
+denegación al guardar la copia impedía incluso un interés posterior aunque la importación nunca
+hubiese empezado. La copia inicial y la de cada intento ahora se mantienen aparte (dos claves
+acotadas, sin anidar historias); el rollback sólo cancela su intento, y un fallo previo a empezar
+no deja un bloqueo falso. Evidencia antes/después en `supplemental/preimage-*.log`.
 
 ## Límites
 

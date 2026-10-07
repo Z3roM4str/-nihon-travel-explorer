@@ -209,19 +209,30 @@ export function usePortableBackup() {
         try { originals = collectOriginals(browserStorage); } catch {
           setImportState({ phase: "failed", rolledBack: true }); return;
         }
-        // La preimagen se conserva antes de tocar ninguna clave, incluso si el rollback después falla.
-        if (!keepPendingCopy("restore", JSON.stringify(originals))) {
+        // Una segunda importación fallida no sustituye la preimagen de la primera restauración
+        // incompleta por su resultado parcial, ni la borra por haber deshecho sólo el segundo intento.
+        const previousRecovery = readPendingCopy("restore");
+        const copyKey = previousRecovery === null ? "restore" : "restore-attempt";
+        const previousCopy = readPendingCopy(copyKey);
+        const copied = (previousRecovery === null || keepPendingCopy("restore", previousRecovery)) &&
+          keepPendingCopy(copyKey, JSON.stringify(originals));
+        if (!copied) {
+          if (previousCopy === null) clearPendingCopy(copyKey);
+          else keepPendingCopy(copyKey, previousCopy);
           setImportState({ phase: "failed", rolledBack: true });
-          reportPersistenceProblem("restore", "No se pudo conservar una copia anterior a la restauración. No se han sustituido los datos.");
+          reportPersistenceProblem("restore", "No se pudo conservar una copia anterior a la restauración. No se han sustituido los datos.", previousRecovery !== null);
           return;
         }
         const outcome = applyRestore(browserStorage, plan);
         if (!outcome.ok) {
-          if (outcome.rolledBack) clearPendingCopy("restore");
+          if (outcome.rolledBack) {
+            clearPendingCopy(copyKey);
+            if (previousRecovery === null) clearPersistenceProblem("restore");
+          }
           setImportState({ phase: "failed", rolledBack: outcome.rolledBack });
           return;
         }
-        clearPendingCopy("restore");
+        clearPendingCopy("restore"); clearPendingCopy("restore-attempt");
         clearPersistenceProblem("restore");
         // Auditoría final (H01): los hooks montados siguen teniendo en memoria el viaje ANTERIOR. Se les
         // avisa ahora —no al pulsar «Continuar»— para que relean y rendericen lo restaurado, y cada
