@@ -62,7 +62,7 @@ jobs:
       - name: H03 estricto con evidencia nativa de conservación entre recargas
         run: |
           mkdir -p p06-certify-logs/${{ matrix.browser }}/h03-probe
-          NIHON_ONLY=H03 NIHON_BROWSER=${{ matrix.browser }} NIHON_EVIDENCE_OUT=p06-certify-logs/${{ matrix.browser }}/h03-probe node scripts/final-audit-data-recovery-check.mjs > p06-certify-logs/${{ matrix.browser }}/h03-probe/probe.log 2>&1
+          NIHON_H03_NATIVE_TRACE=1 NIHON_ONLY=H03 NIHON_BROWSER=${{ matrix.browser }} NIHON_EVIDENCE_OUT=p06-certify-logs/${{ matrix.browser }}/h03-probe node scripts/final-audit-data-recovery-check.mjs > p06-certify-logs/${{ matrix.browser }}/h03-probe/probe.log 2>&1
       - name: Evidencia inmediata H03
         if: always()
         uses: actions/upload-artifact@v4

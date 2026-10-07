@@ -24,6 +24,7 @@ import { preview } from "vite";
  */
 
 const BROWSER = process.env.NIHON_BROWSER === "webkit" ? "webkit" : "chromium";
+const NATIVE_TRACE = process.env.NIHON_H03_NATIVE_TRACE === "1";
 const PORT = Number(process.env.NIHON_PORT ?? 4290);
 const OUT = process.env.NIHON_EVIDENCE_OUT ?? null;
 const DK = "nihon.manualPlanningDraft";
@@ -537,9 +538,10 @@ async function h03Scenario(surface, width, mode, strict) {
   const proxy = mode.startsWith("proxy") ? await startFlakyProxy(PORT) : null;
   const base = proxy ? proxy.url : BASE_URL;
   const context = await newContext({}, { width, height: 900 });
-  // Diagnóstico de conservación: trazas nativas entre la página anterior y la recarga.
-  // No cambia los datos leídos, las escrituras, las esperas ni las aserciones estrictas.
-  await context.addInitScript(({ key }) => {
+  // Sólo la ejecución diagnóstica añade llamadas a sessionStorage para registrar la traza.
+  // La matriz ordinaria conserva las llamadas nativas originales: instrumentar puede alterar
+  // el tiempo de una carrera aunque devuelva exactamente los mismos valores.
+  if (NATIVE_TRACE) await context.addInitScript(({ key }) => {
     const get = Storage.prototype.getItem, set = Storage.prototype.setItem;
     const record = (kind, value) => {
       try {
@@ -600,22 +602,29 @@ async function h03Scenario(surface, width, mode, strict) {
   // Criterio ESTRICTO: la misma sesión, tras la salida que ofrece el aviso. Nada de «en otra sesión sí».
   verdict(strict, "H03", `${tag}: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión`, recovered, proxy ? `sirvió ${proxy.state.served} peticiones tras el fallo` : undefined);
   const afterReload = await raw(page, TK);
-  const survives = interestIds(await json(page, TK)).includes("JP-044");
+  let afterDocument = null;
+  try { afterDocument = afterReload === null ? null : JSON.parse(afterReload); } catch { /* fallo estricto */ }
+  // Una sola lectura, igual que el gate original. Otra lectura previa podría refrescar la caché.
+  const survives = interestIds(afterDocument).includes("JP-044");
+  verdict(strict, "H03", `${tag}: el interés guardado sobrevive a la recarga`, survives);
+  evidence.h03Snapshots ??= [];
+  evidence.h03Snapshots.push({ tag, before, after: afterReload, survives, nativeTrace: NATIVE_TRACE });
   if (!survives) {
     // Diagnóstico (no cambia el veredicto): ¿lectura obsoleta del motor o pérdida real? Se relee tras una espera y se
     // describen todas las claves `nihon.*` y la traza de escrituras de esta pestaña.
     await page.waitForTimeout(1000);
     const later = await raw(page, TK);
     const keys = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("nihon.")).map((k) => `${k}:${localStorage.getItem(k)?.length}`));
-    const info = { tag, firstRead: afterReload?.slice(0, 400) ?? null, readAfter1s: later?.slice(0, 400) ?? null, survivesAfter1s: interestIds(await json(page, TK)).includes("JP-044"), keys, before: before?.slice(0, 400) };
+    const pendingCopies = await page.evaluate(() => Object.fromEntries(Object.entries(sessionStorage).filter(([key]) => key.startsWith("nihon.pending.v1."))));
+    const info = { tag, firstRead: afterReload, readAfter1s: later, survivesAfter1s: interestIds(await json(page, TK)).includes("JP-044"), keys, before, pendingCopies };
     console.log(`DIAG [H03] ${tag}: el interés NO está tras la recarga ${JSON.stringify(info)}`);
     evidence[`h03-interest-loss-${tag}`] = info;
   }
-  verdict(strict, "H03", `${tag}: el interés guardado sobrevive a la recarga`, survives);
-  evidence.h03Native ??= [];
-  const conservation = { tag, before, after: await raw(page, TK) };
-  await page.waitForTimeout(250); // Sólo diagnóstico, DESPUÉS de todas las aserciones.
-  evidence.h03Native.push({ ...conservation, after250ms: await raw(page, TK), trace: await page.evaluate(() => JSON.parse(sessionStorage.getItem("__h03_native_trace") || "[]")) });
+  if (NATIVE_TRACE) {
+    evidence.h03Native ??= [];
+    await page.waitForTimeout(250); // Sólo diagnóstico, DESPUÉS de todas las aserciones.
+    evidence.h03Native.push({ tag, before, after: afterReload, after250ms: await raw(page, TK), trace: await page.evaluate(() => JSON.parse(sessionStorage.getItem("__h03_native_trace") || "[]")) });
+  }
   if (!recovered) {
     // Sólo diagnóstico (no cambia el veredicto): ¿qué otras vías recuperan? Una sesión nueva que recupera NO convierte el fallo en éxito.
     const works = async (target) => {

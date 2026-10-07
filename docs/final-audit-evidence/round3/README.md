@@ -186,6 +186,17 @@ Timeout con cambios pendientes bajo lock: 3126 ms Chromium / 3131 ms WebKit; mí
 El verde posterior no convierte la observación anterior en una pérdida descartada. Veredicto
 conservador: **requiere correcciones / aclarar H03 antes de integrar**. Freeze mantenido.
 
+La entrega separa además las dos modalidades H03: el paso previo CI activa
+`NIHON_H03_NATIVE_TRACE=1`; la matriz ordinaria no instala los wrappers de Storage. Las 35
+aserciones reset/503 permanecen iguales en ambas, y la primera lectura tras recarga es la única
+que determina el veredicto. Su cadena completa queda en `evidence.h03Snapshots` sin una lectura
+adicional antes de comprobar el interés. Sólo el modo con trazas espera 250 ms después de las
+aserciones para añadir `evidence.h03Native`. El fallo estricto seguiría siendo fallo aunque una
+lectura posterior recuperase el interés. No se presume que los wrappers carezcan de efecto
+temporal: sólo conservan valores/resultados. Localmente ambos modos aprueban 59/59 en Chromium;
+JSON y logs están en `supplemental/h03-modes-local/` (modificaciones sólo del gate; sin atribuir
+esta ejecución local previa al commit a su HEAD anterior). CI repite ambos sobre el SHA publicado.
+
 ## Límites
 
 WebKit local no disponible: la descarga de sus binarios no está autorizada por la red del entorno;

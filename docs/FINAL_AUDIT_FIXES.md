@@ -8,7 +8,7 @@ Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](fin
 ## Ronda 3 (2026-10-07): cierre de cinco hallazgos bloqueantes
 
 **Los cinco hallazgos están corregidos; la integración continúa sin certificarse.** Validación
-exacta de código y gates: `a8a97ba3ed311fb77288d6e7d5689b441be003a2`, CI
+exacta del producto y de los gates instrumentados: `a8a97ba3ed311fb77288d6e7d5689b441be003a2`, CI
 [37569278763](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37569278763), intento 1,
 Chromium y WebKit **success**. Ambos ejecutaron **33/33 regresiones**, **3455/3455 pruebas** sin
 omisiones, build y toda la matriz con `rc=0`. Evidencia descargada y ZIP verificados:
@@ -25,6 +25,16 @@ primera lectura como 250 ms después. El gate captura lecturas/escrituras nativa
 veredicto original; las esperas diagnósticas no convierten un fallo en éxito. Esas trazas no existen
 para el fallo anterior: **no permiten distinguir una lectura transitoria de pérdida real ni conocer
 su causa**. No se declara arreglado ni se certifica Safari físico.
+
+Para conservar también la ejecución ordinaria de H03, las trazas nativas son ahora opt-in
+(`NIHON_H03_NATIVE_TRACE=1`) sólo en el paso diagnóstico previo. La matriz completa mantiene las
+llamadas nativas originales y una única lectura para la aserción tras recarga: una lectura extra
+antes del veredicto podría refrescar una caché obsoleta. Guarda esa misma cadena para diagnóstico,
+sin releer primero. Local Chromium: **59/59** aserciones en cada modalidad, nueve escenarios con
+traza desactivada y nueve con traza activada. Se conserva el mínimo 2,9 s / máximo 5 s del timeout
+adicional y las 35 aserciones reset/503. Instrumentar puede cambiar tiempos aunque devuelva los
+mismos valores; las dos ejecuciones no se consideran equivalentes para descartar una carrera.
+El resultado CI del SHA final y los dos modos se registra en la descripción del PR y sus artefactos.
 
 **Veredicto de integración: requiere correcciones / diagnóstico concluyente de H03.** Los cinco
 hallazgos solicitados tienen evidencia falla→pasa; el fallo estricto restante impide retirar el
