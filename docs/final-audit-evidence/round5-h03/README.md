@@ -91,8 +91,11 @@ si ocurre en Safari físico (otra pila de red); la causa del reemplazo espontán
 
 - `app/scripts/lib/h03-reload.mjs` (nuevo): `pressOfferedReload`. Pulsa el botón, espera 8 s a que desaparezca el documento anterior
   (límite explícito, no se amplía) y, si se supera, clasifica con prueba objetiva: petición de documento emitida y **no recibida por
-  el servidor**, o proceso de red de WebKit reemplazado → informa (cobertura parcial) y **vuelve a pulsar; la segunda pulsación es
-  estricta**. Sin esa prueba el timeout sigue siendo un fallo estricto. Usa `noWaitAfter` porque el `click` esperaría hasta 30 s.
+  el servidor**, o proceso de red de WebKit reemplazado → informa (cobertura parcial) y vuelve a pulsar, como haría una persona.
+  Cada reintento exige su propia prueba, hay como máximo **3 pulsaciones** y la última es estricta. Sin prueba, el timeout sigue
+  siendo un fallo estricto. La 1.ª pulsación es un clic real (`noWaitAfter`: `click` esperaría hasta 30 s); las siguientes envían el
+  evento `click` del propio botón, porque con la navegación perdida aún pendiente `click()` de Playwright se bloquea hasta 8 s
+  («waiting for navigation to finish») sin llegar a pulsar (visto en CI, 962b94a).
 - `app/scripts/final-audit-data-recovery-check.mjs`: el proxy cuenta las peticiones de documento que le llegan; el gate registra los
   procesos de red de WebKit por escenario (Linux); si falta el aviso y el proceso de red se reemplazó durante la importación, la
   aserción «aparece un mensaje» queda como diagnóstico (cobertura parcial) en vez de fallo, y se anota en `evidence.h03EngineFaults`.
@@ -100,8 +103,8 @@ si ocurre en Safari físico (otra pila de red); la causa del reemplazo espontán
   salida ofrecida, interés conservado. Espera de 700 ms: sin cambios.
 - `app/scripts/h03-reload-classification-check.mjs` (nuevo, regresión determinista en Chromium y WebKit, sin código de Nihon):
   T1 recarga perdida → informe + 2.ª pulsación; T2 la recarga llega al servidor y no recibe respuesta → fallo estricto;
-  T3 el botón no recarga → fallo estricto; T4 recarga sana; T5 recarga perdida y 2.ª también → fallo estricto;
-  T6 proceso de red reemplazado + petición sin respuesta → informe + 2.ª pulsación. Añadido a `p06-v2-certify.sh`.
+  T3 el botón no recarga → fallo estricto; T4 recarga sana; T5 perdida en las 3 pulsaciones → fallo estricto;
+  T6 proceso de red reemplazado + petición sin respuesta → informe + 2.ª pulsación; T7 perdida dos veces y la tercera funciona. Añadido a `p06-v2-certify.sh`.
 - `app/scripts/h03-reload-stall-probe.mjs` (nuevo): la sonda de este informe.
 - **Producto: sin cambios.** No se altera `reloadRefreshingModules` ni `LazySurfaceBoundary` para compensar a libsoup: la mejora que
   mostraría la variante H sería una espera añadida a todos los usuarios para un defecto de una pila de red que Safari no usa.

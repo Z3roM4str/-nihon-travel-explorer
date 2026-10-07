@@ -11,7 +11,8 @@ import { pressOfferedReload } from "./lib/h03-reload.mjs";
  *   T2  la recarga llega al servidor y éste no responde (un fallo REAL de recuperación)              → fallo estricto, sin segunda oportunidad;
  *   T3  el botón no recarga (no se emite ninguna navegación)                                        → fallo estricto;
  *   T4  recarga sana                                                                                → 1 intento y sin informe;
- *   T5  recarga perdida Y la 2.ª pulsación tampoco recarga                                          → fallo estricto (la salida ofrecida debe funcionar);
+ *   T5  recarga perdida en las 3 pulsaciones permitidas                                            → fallo estricto (la salida ofrecida debe funcionar);
+ *   T7  perdida dos veces y la tercera recarga                                                       → cobertura parcial, 3 pulsaciones;
  *   T6  el proceso de red del motor se reemplazó y la petición llegó al servidor sin respuesta      → cobertura parcial + 2.ª pulsación estricta.
  *
  *   NIHON_BROWSER=webkit|chromium  NIHON_PROBE_TIMEOUT_MS=1500
@@ -72,7 +73,7 @@ async function scenario(id, label, { drop = 0, hold = 0, ignoreClick = false, re
   held.splice(0);
   state.holdDocuments = 0;
   if (error && process.env.DEBUG_H03) console.log("   error:", String(error.message).split("\n")[0]);
-  const got = error ? "lanza" : outcome.attempts === 1 ? "1 intento" : "2 intentos";
+  const got = error ? "lanza" : `${outcome.attempts} ${outcome.attempts === 1 ? "intento" : "intentos"}`;
   const wantedReports = expectReports ?? (expect === "2 intentos" ? 1 : 0);
   const ok = expect === got && reports.length === wantedReports;
   check(id, label, ok, `esperado=${expect}; obtenido=${got}; informes=${reports.length}; documentos recibidos por el servidor=${state.documents - before}`);
@@ -84,7 +85,8 @@ try {
   await scenario("T2", "la recarga llega al servidor y no recibe respuesta → fallo estricto", { hold: 1, expect: "lanza" });
   await scenario("T3", "el botón no emite ninguna navegación → fallo estricto", { ignoreClick: true, expect: "lanza" });
   await scenario("T4", "recarga sana → un intento y sin informe", { expect: "1 intento" });
-  await scenario("T5", "recarga perdida y la segunda también se pierde → fallo estricto", { drop: 2, keepDropping: true, expectReports: 1, expect: "lanza" });
+  await scenario("T5", "recarga perdida en las tres pulsaciones → fallo estricto en la última", { drop: 3, keepDropping: true, expectReports: 2, expect: "lanza" });
+  await scenario("T7", "recarga perdida dos veces y la tercera funciona → cobertura parcial y 3 pulsaciones", { drop: 2, keepDropping: true, expectReports: 2, expect: "3 intentos" });
   await scenario("T6", "proceso de red reemplazado + petición sin respuesta → cobertura parcial y 2.ª pulsación", { hold: 1, replaced: true, expect: "2 intentos" });
 } finally {
   await browser.close();

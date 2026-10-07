@@ -20,11 +20,11 @@ Detalle, cifras y reproducción: [`final-audit-evidence/round5-h03/README.md`](f
   aviso que no aparece: 14/14 casos con instrumentación coinciden con el reemplazo del `WPENetworkProcess` (0/820 con el proceso estable).
 - **Arnés (sin tocar el producto):** `pressOfferedReload` (`app/scripts/lib/h03-reload.mjs`) conserva el límite de 8 s y, si se supera,
   solo lo trata como fallo del motor con prueba objetiva (petición de documento emitida y no recibida por el servidor, o proceso de red
-  reemplazado): lo registra como **COBERTURA PARCIAL** y vuelve a pulsar; la segunda pulsación es estricta. Sin esa prueba, el timeout
+  reemplazado): lo registra como **COBERTURA PARCIAL** y vuelve a pulsar (cada reintento exige su prueba; máximo 3 pulsaciones, la última estricta). Sin esa prueba, el timeout
   sigue siendo un fallo estricto. Si falta el aviso con el proceso de red reemplazado durante la importación, esa aserción queda como
   diagnóstico parcial; el resto (no en blanco, navegación, datos, recuperación en la misma sesión, interés) sigue estricto.
 - Regresión determinista (`h03-reload-classification-check.mjs`, Chromium y WebKit, sin Nihon): recarga perdida → informe + 2.ª pulsación;
-  recarga que llega al servidor sin respuesta → fallo; botón que no recarga → fallo; recarga sana; perdida dos veces → fallo; proceso de
+  recarga que llega al servidor sin respuesta → fallo; botón que no recarga → fallo; recarga sana; perdida en las 3 pulsaciones → fallo; perdida dos veces y la tercera funciona → parcial; proceso de
   red reemplazado → informe + 2.ª pulsación.
 - La conservación en WebKit se prueba con perfil persistente; el diagnóstico del contexto efímero (pérdida con reemplazo del proceso de
   red) se conserva como limitación del entorno. No se certifica Safari físico.
