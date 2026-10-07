@@ -199,7 +199,12 @@ export function usePlanningDraft(savedIds: readonly string[]) {
           : savedIdsRef.current;
       return { ...stored, doc: reconcileDraft(stored.doc, ids) };
     },
-    initial: () => freshDraft(savedIdsRef.current),
+    initial: () => {
+      // Tras sustituir/eliminar el borrador, el render aún puede conservar la lista anterior.
+      // Un documento nuevo se crea con los viajeros vigentes, nunca con esa preimagen de React.
+      const travellers = readStoredTravellers(browserStorage, () => "unused");
+      return freshDraft(travellers.doc ? shortlistPlaceIds(travellers.doc) : []);
+    },
     serialize: (doc) => JSON.stringify(doc),
     parse: (raw) => { try { return parseStoredDraft(JSON.parse(raw)); } catch { return null; } },
     // El borrador se reconcilia con los viajeros: con los viajeros protegidos su lista de lugares es

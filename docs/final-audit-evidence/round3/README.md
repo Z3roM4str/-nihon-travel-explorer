@@ -27,12 +27,13 @@ Los datos son sintéticos, los perfiles son `browser.newContext()` desechables, 
 ## Regresiones duraderas y diferencias documentadas
 
 `app/scripts/final-audit-persistence-regressions-check.mjs` conserva los 14 escenarios y sus
-aserciones de contenido. Añade otras 14 ventanas que los gates ordinarios no cubrían: reintento
+aserciones de contenido. Añade otras 15 ventanas que los gates ordinarios no cubrían: reintento
 encolado con eventos retenidos + inválido/futuro; historia desconocida llena/ausente/malformada
 que sigue conflictiva tras recarga y otra escritura externa; persona eliminada al pedir o ejecutar;
 quitar interés atribuido a la persona vista; rollback satisfactorio tras recarga; rollback incompleto
 con preimagen conservada; lock rechazado; parada cuyo día desapareció mientras esperaba;
-zonas y planificador compartiendo cola; error de lectura protegido.
+zonas y planificador compartiendo cola; error de lectura protegido; inicialización del borrador tras
+restaurar un respaldo cuyo itinerario es null (viajeros vigentes en lugar de la lista anterior de React).
 
 Diferencias respecto del script original:
 
@@ -46,6 +47,9 @@ Diferencias respecto del script original:
 - H03 timeout conserva el mínimo de 2,9 s para el tope de 3 s y comprueba recarga y datos; el máximo
   es 7 s incluyendo arranque del fixture (el original usaba 5). **No modifica** el producto H03 ni
   las 35 aserciones estrictas reset/503 de `final-audit-data-recovery-check`.
+- B30 espera la escritura de la elección de zona (ahora diferida por el mismo diario). Sigue exigiendo
+  **exactamente una** escritura canónica; el registro conserva ambas APIs y se comprueba aparte que las
+  copias de sesión sólo usan la clave de recuperación del borrador. Conserva todas las aserciones de contenido, identidad y recarga.
 - Añade `dirty` a la evidencia: un resultado local con cambios sin commit nunca certifica su HEAD
   como si esos cambios pertenecieran a ese SHA.
 - Tests de fuente ajustados a ids capturados y al escritor compartido; el contrato unitario viejo que
@@ -66,8 +70,13 @@ scripts/p06-v2-certify.sh webkit
 
 El nuevo gate está incluido en ambas ramas de la matriz CI, junto con los gates de pestañas obsoletas,
 exportación protegida y H03 existentes. Cada artefacto lleva SHA y navegador, log por gate y JSON con
-los 28 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
+los 29 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
 Vitest antes de la certificación. Los resultados finales y enlaces se consignarán tras terminar CI.
+
+La variante con itinerario null se añadió al revisar todos los caminos de restauración: falló en
+la primera corrección (`86e8dfb`, con fixture añadido, `dirty=true`), dejando una ruta vacía al podar
+la lista anterior; tras crear el borrador con los viajeros vigentes conserva JP-021. Las salidas
+antes/después se conservan junto a la evidencia de esta ronda. No altera los 14 fixtures originales.
 
 ## Límites
 

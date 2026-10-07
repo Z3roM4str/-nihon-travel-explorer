@@ -21,7 +21,7 @@ limitaciones de persistencia de las rondas anteriores; H03 y sus aserciones estr
 | 4. Rollback | Importación fallida dejaba en la cola de `device-storage` un payload importado aunque el rollback hubiese restituido viajeros y borrador. | Scope de importación cancela **sus** pendientes al rollback, preserva las previas. Preimagen de ambos documentos conservada antes de escribir. Rollback incompleto bloquea reintentos automáticos y exportación, conserva preimagen entre recargas. Restauración satisfactoria cancela el diario anterior inmediatamente. | Reintentar mezclaba viajeros anteriores con fecha importada → preimagen intacta al reintentar y recargar; rollback incompleto se declara y conserva. |
 | 5. Persona vista | La intención guardar/quitar releía `activeTravellerId` de un estado posterior. | Captura **persona e intención vistas** al solicitar; guarda de existencia al pedir y reproducir. Si desapareció, rechaza con explicación. También quitar, postura explícita y deshacer respetan la identidad. | Vista p1, operación a p2 → operación a p1; desaparición mientras espera → sin atribuirla a p2 y aviso visible. |
 
-Validación dirigida de la primera implementación: **28/28 Chromium** y **3452/3452 Vitest**; build
+Validación dirigida tras añadir la restauración sin itinerario: **29/29 Chromium** y **3452/3452 Vitest**; build
 correcta y lint sin errores (aviso heredado de `PlaceMap`). Matriz completa de Chromium local y
 Chromium/WebKit CI en curso; no se declara todavía su certificación final.
 
@@ -29,7 +29,9 @@ Caminos adicionales revisados: arranque/migración, mutación, verificación pos
 exportación, importación/rollback, «Empezar de nuevo», desmontaje de superficies, `pagehide` y
 recarga H03. Cierre/recarga conserva copia de sesión sin saltarse el lock. «Empezar de nuevo» relee
 la protección tras esperar; una eliminación fallida no se convierte en un borrado futuro en cola.
-Las copias originales pueden incluir el trabajo pendiente, separado del respaldo portable.
+Las copias originales pueden incluir el trabajo pendiente, separado del respaldo portable. Restaurar
+un respaldo con itinerario null inicializa el borrador con los viajeros vigentes, evitando crear y
+podar una ruta desde la preimagen de React (regresión adicional reproducida falla → pasa).
 
 ## Tabla H01–H07
 

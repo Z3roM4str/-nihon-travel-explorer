@@ -108,11 +108,11 @@ async function contextFor(viewport, { emptyRoute = false, reducedMotion } = {}) 
     const originalSetItem = Storage.prototype.setItem;
     const originalRemoveItem = Storage.prototype.removeItem;
     Storage.prototype.setItem = function (key, value) {
-      if (key.startsWith("nihon.")) window.__b30StorageWrites.push({ method: "set", key });
+      if (key.startsWith("nihon.")) window.__b30StorageWrites.push({ method: "set", key, area: this === localStorage ? "local" : "session" });
       return originalSetItem.call(this, key, value);
     };
     Storage.prototype.removeItem = function (key) {
-      if (key.startsWith("nihon.")) window.__b30StorageWrites.push({ method: "remove", key });
+      if (key.startsWith("nihon.")) window.__b30StorageWrites.push({ method: "remove", key, area: this === localStorage ? "local" : "session" });
       return originalRemoveItem.call(this, key);
     };
 
@@ -192,7 +192,8 @@ async function openTravelZones(page, keyboard = false) {
 }
 
 async function storageWrites(page) {
-  return page.evaluate(() => [...window.__b30StorageWrites]);
+  // Se conserva el registro de ambas APIs; este gate cuenta los documentos/preferencias persistentes.
+  return page.evaluate(() => window.__b30StorageWrites.filter((entry) => entry.area === "local"));
 }
 
 async function draftSnapshot(page) {
@@ -332,8 +333,13 @@ async function runFullAudit(viewport, index, options = {}) {
     await action.press("Enter");
     const remove = firstZone.getByRole("button", { name: /^Quitar .* del plan$/ });
     check(await remove.evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} choosing by keyboard retains focus on this zone's remove action`);
+    // La zona usa ahora el mismo diario/lock que Días: el botón se actualiza antes de persistir.
+    // Esperar la escritura no cambia la aserción: sigue exigiendo EXACTAMENTE una y la misma clave.
+    await page.waitForFunction((expected) => window.__b30StorageWrites.filter((entry) => entry.area === "local").length >= expected, beforeReopen + 1);
     writes = await storageWrites(page);
-    check(writes.length === beforeReopen + 1 && writes.at(-1).key === DRAFT_KEY, `${viewport[0]}x${viewport[1]} explicit zone choice is the only draft write`);
+    check(writes.length === beforeReopen + 1 && writes.at(-1).key === DRAFT_KEY, `${viewport[0]}x${viewport[1]} explicit zone choice is the only draft write (${JSON.stringify(writes)})`);
+    const sessionWrites = await page.evaluate(() => window.__b30StorageWrites.filter((entry) => entry.area === "session"));
+    check(sessionWrites.length > 0 && sessionWrites.every((entry) => entry.key === "nihon.pending.v1." + "nihon.manualPlanningDraft"), `${viewport[0]}x${viewport[1]} session copies are confined to this draft journal, never canonical documents or preferences`);
     const after = await draftSnapshot(page);
     check(after.routeIds.join(",") === routeIds.join(","), `${viewport[0]}x${viewport[1]} zone choice preserves route ids`);
     check(after.days[0].id === "b30-day-stable" && after.days[0].placeIds.join(",") === tokyoTripIds.join(","), `${viewport[0]}x${viewport[1]} zone choice preserves the Tokyo day identity and contents`);
@@ -345,6 +351,7 @@ async function runFullAudit(viewport, index, options = {}) {
     check(after.zoneAccommodationChoices.length === 1 && after.accommodations.length === 2 && after.accommodations[0].id === "b30-existing-accommodation", `${viewport[0]}x${viewport[1]} the user choice adds its zone anchor and preserves the existing accommodation`);
     await remove.press("Enter");
     check(await action.evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} removing by keyboard restores focus to this zone's sleep action`);
+    await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key)).zoneAccommodationChoices.length === 0, DRAFT_KEY);
     check((await draftSnapshot(page)).zoneAccommodationChoices.length === 0, `${viewport[0]}x${viewport[1]} removing clears the explicit choice`);
     await action.press("Enter");
     const otherZone = cards.nth(1);
@@ -358,6 +365,8 @@ async function runFullAudit(viewport, index, options = {}) {
     check(await otherZone.getByRole("button", { name: /^Dormir en / }).evaluate((element) => document.activeElement === element), `${viewport[0]}x${viewport[1]} removing the replacement retains focus in that zone`);
     await action.focus();
     await action.press("Enter");
+    const chosenId = await firstZone.getAttribute("data-zone-id");
+    await page.waitForFunction(({key, id}) => JSON.parse(localStorage.getItem(key)).zoneAccommodationChoices.some((choice) => choice.zoneId === id), {key: DRAFT_KEY, id: chosenId});
     await page.reload({ waitUntil: "domcontentloaded" });
     const { panel: reloadedPanel } = await openTravelZones(page);
     check((await reloadedPanel.locator(".zone-choice-badge").innerText()).includes("Zona elegida para el plan"), `${viewport[0]}x${viewport[1]} explicit zone choice survives reload`);

@@ -306,6 +306,14 @@ await test('read-failure-is-protected-not-empty',async()=>{
  await a.reload();await a.waitForFunction(()=>window.review);const after=await a.evaluate(k=>localStorage.getItem(k),DK);
  await ctx.close();return {preserved:before===after,correct:protectedRead&&!outcome.ok,exportOutcome:outcome};
 });
+await test('restore-null-draft-does-not-resurrect-old-shortlist',async()=>{
+ const {ctx,a}=await setup();
+ const imported={...travellers,interests:[{placeId:'JP-021',stances:[{travellerId:'p2',stance:'interested'}],carriedOver:false}]};
+ await a.evaluate(async(t)=>{await window.review.backup.confirmImport(window.review.makeRestorePlan(t,null));},imported);
+ await a.waitForTimeout(500);
+ const actual=await a.evaluate(k=>JSON.parse(localStorage.getItem(k)),DK);
+ await ctx.close();return {correct:actual.routeIds.includes('JP-021')&&!actual.routeIds.includes('JP-044'),actualRoute:actual.routeIds};
+});
 await browser.close();await server.close();
 for(const r of results) {
  r.pass=!r.error;

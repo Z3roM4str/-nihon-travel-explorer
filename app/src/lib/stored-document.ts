@@ -19,14 +19,16 @@ import {
  * Los dos documentos canónicos (`nihon.travellers.v1` y `nihon.manualPlanningDraft`) se cargaban
  * con un parser que devolvía `null` tanto para «no hay nada» como para «hay algo que no entiendo»,
  * y el hook montaba entonces un valor inicial y lo escribía encima. Una incoherencia pequeña
- * destruía el original. Este módulo separa los cuatro casos que importan:
+ * destruía el original. Este módulo separa los cinco casos que importan:
  *
- *  - `absent`        no hay documento (primer uso, o almacenamiento ilegible): crear uno es correcto;
+ *  - `absent`        no hay documento (primer uso): crear uno es correcto;
  *  - `valid`         documento actual o migrable: se carga y se puede escribir encima;
  *  - `invalid`       hay texto, pero no es un documento que Nihon entienda (JSON roto, forma dañada);
  *  - `incompatible`  es un documento de una versión POSTERIOR a la que esta build sabe leer.
  *
- * Los dos últimos están **protegidos**: no se escribe sobre ellos mientras la persona no elija una
+ *  - `unreadable`    la API no permite leer; nunca se interpreta como primer uso.
+ *
+ * Los tres últimos están **protegidos**: no se escribe sobre ellos mientras la persona no elija una
  * salida explícita ({@link startFresh}), y esa salida primero guarda una copia aparte.
  */
 
@@ -36,7 +38,7 @@ export type StoredRead<T> = {
   status: StoredStatus;
   /** La cadena exacta del almacenamiento (`null` si no había nada). */
   raw: string | null;
-  /** El documento cargado; `null` si el estado es `invalid`/`incompatible` (o `absent` sin legado). */
+  /** El documento cargado; `null` si el estado es `invalid`/`incompatible`/`unreadable` (o `absent` sin legado). */
   doc: T | null;
 };
 
