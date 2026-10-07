@@ -6,6 +6,7 @@ on:
       - ".github/workflows/h03-conservation-investigation.yml"
       - "app/scripts/h03-conservation-investigation.mjs"
       - "app/scripts/h03-webkit-storage-engine-probe.mjs"
+      - "app/scripts/h03-webkit-network-restart-probe.mjs"
   workflow_dispatch:
 permissions:
   contents: read
@@ -43,6 +44,13 @@ jobs:
           NIHON_EVIDENCE_OUT: h03-engine
           DEBUG: pw:browser
         run: node scripts/h03-webkit-storage-engine-probe.mjs > h03-engine.log 2>&1
+      - name: Contrato causal de reinicio nativo en perfiles aislados
+        if: always()
+        env:
+          NIHON_H03_RESTART_REPETITIONS: "3"
+          NIHON_EVIDENCE_OUT: h03-restart
+          DEBUG: pw:browser
+        run: node scripts/h03-webkit-network-restart-probe.mjs > h03-restart.log 2>&1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -50,6 +58,8 @@ jobs:
           path: |
             app/h03-engine/
             app/h03-engine.log
+            app/h03-restart/
+            app/h03-restart.log
           retention-days: 30
           if-no-files-found: error
   investigate:
