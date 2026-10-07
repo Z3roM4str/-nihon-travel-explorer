@@ -158,7 +158,33 @@ del gate completo por motor con cero escrituras protegidas.
   el CI exacto. Los CI intermedios de `c5ba08e` y `6166c47`, y las trazas fallidas de `363e5b0`, están
   separados bajo `supplemental/` para no certificar el SHA anterior con datos posteriores.
 
-**Veredicto: sin bloqueantes encontrados en el producto probado. Freeze mantenido.**
+**Resultado histórico de `4117e72`: sin bloqueantes encontrados en aquella ejecución.**
+
+## Validación posterior exacta y bloqueo residual H03
+
+Código y gates probados: **`a8a97ba3ed311fb77288d6e7d5689b441be003a2`**. CI
+[37569278763](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37569278763), intento 1:
+Chromium y WebKit success. `ci-a8/` contiene salidas, JSON y resumen de cada gate, pruebas aisladas
+previas y procedencia con SHA y hashes de los ZIP verificados. Las **33/33 regresiones**, **3455/3455
+pruebas** sin omisiones y todos los gates pasan en ambos motores. Comparación de los 14 originales
+contra estos resultados: [`failure-to-pass-a8.json`](failure-to-pass-a8.json).
+
+El CI de cierre anterior `acb3842` había fallado la conservación del interés tras reset/recarga a
+390 px en WebKit; su artefacto se mantiene en `supplemental/webkit-acb3842-attempt1/`. Los cambios
+posteriores sólo instrumentan el gate y añaden la prueba H03 aislada al workflow: el producto H03 y
+el árbol `app/src/` no cambian. No hay una corrección que explique ese cambio de resultado.
+
+En `a8a97ba`, WebKit pasa H03 **35/35 estrictas + 24/24 diagnósticos** tanto aislado como en la matriz;
+Chromium pasa **59/59** aislado y **93/93** completo. Los nueve escenarios por ejecución conservan
+exactamente los mismos bytes antes, tras la recarga y 250 ms después; hay trazas nativas de los
+valores completos de `getItem` y `setItem`. Las aserciones estrictas y el criterio de misma sesión
+permanecen intactos. Las lecturas tardías son sólo diagnósticos: un fallo inicial seguiría fallando.
+Timeout con cambios pendientes bajo lock: 3126 ms Chromium / 3131 ms WebKit; mínimo 2,9 s y máximo
+5 s originales intactos. Ninguno de estos resultados identifica la causa del fallo anterior.
+
+**Cinco hallazgos corregidos; integración aún bloqueada por H03 sin diagnóstico concluyente.**
+El verde posterior no convierte la observación anterior en una pérdida descartada. Veredicto
+conservador: **requiere correcciones / aclarar H03 antes de integrar**. Freeze mantenido.
 
 ## Límites
 

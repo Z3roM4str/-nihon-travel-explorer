@@ -7,13 +7,28 @@ Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](fin
 
 ## Ronda 3 (2026-10-07): cierre de cinco hallazgos bloqueantes
 
-**Cierre aún no certificado:** el CI del HEAD `acb38425fdd2902ff701358e92d04d935e33b6a1`
-aprobó 33/33 regresiones y 3455/3455 pruebas en ambos motores, pero WebKit falló una aserción
-estricta H03: interés guardado tras recarga con reset a 390 px (34/35 estrictas; 24/24 diagnósticos).
-El producto certificado anterior `4117e72` pasó ese gate. Se conserva el fallo bajo
-`round3/supplemental/webkit-acb3842-attempt1/`; se investigan lecturas/escrituras nativas entre
-recargas antes de declarar el cierre. El gate añade evidencia diagnóstica después de sus aserciones,
-sin cambiar ninguna condición estricta ni su orden. Freeze vigente.
+**Los cinco hallazgos están corregidos; la integración continúa sin certificarse.** Validación
+exacta de código y gates: `a8a97ba3ed311fb77288d6e7d5689b441be003a2`, CI
+[37569278763](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37569278763), intento 1,
+Chromium y WebKit **success**. Ambos ejecutaron **33/33 regresiones**, **3455/3455 pruebas** sin
+omisiones, build y toda la matriz con `rc=0`. Evidencia descargada y ZIP verificados:
+[ci-a8/provenance.json](final-audit-evidence/round3/ci-a8/provenance.json),
+[failure-to-pass-a8.json](final-audit-evidence/round3/failure-to-pass-a8.json).
+
+El CI anterior de `acb38425fdd2902ff701358e92d04d935e33b6a1` falló **una aserción estricta H03**:
+interés guardado tras recarga con reset a 390 px (34/35 estrictas; 24/24 diagnósticos). Se conserva
+íntegro en `round3/supplemental/webkit-acb3842-attempt1/`. El árbol `app/src/` es idéntico entre
+`4117e72`, `acb3842` y `a8a97ba`; no se atribuye el verde posterior a una corrección de H03.
+Las pruebas aislada y completa posteriores de WebKit aprobaron **35/35 estrictas** y **24/24
+diagnósticos** cada una: las 18 recargas conservaron exactamente los bytes anteriores tanto en la
+primera lectura como 250 ms después. El gate captura lecturas/escrituras nativas y conserva el
+veredicto original; las esperas diagnósticas no convierten un fallo en éxito. Esas trazas no existen
+para el fallo anterior: **no permiten distinguir una lectura transitoria de pérdida real ni conocer
+su causa**. No se declara arreglado ni se certifica Safari físico.
+
+**Veredicto de integración: requiere correcciones / diagnóstico concluyente de H03.** Los cinco
+hallazgos solicitados tienen evidencia falla→pasa; el fallo estricto restante impide retirar el
+bloqueo. Freeze vigente; sin merge, deployment, cambios de Vercel ni datos existentes.
 
 
 La revisión independiente sobre **`d26d86ba183fe9c23a06a21720e6a7450a637345`** encontró cinco fallos.
@@ -57,7 +72,8 @@ por motor conservan ambos originales y registran **cero setItem** sobre ellos. N
 450 ms ni se retiraron aserciones. El primer fallo de inyección de lock en WebKit también se conserva:
 la inyección efectiva en el prototipo verifica identidad del método y seis rechazos, sin relajar el gate.
 
-**Veredicto sobre el producto probado: sin bloqueantes encontrados. Freeze vigente; sin merge ni deployment.**
+**Resultado histórico de `4117e72`: sin bloqueantes encontrados en aquella ejecución.** El veredicto
+de integración vigente es el indicado al inicio: la observación posterior de H03 se mantiene abierta.
 
 Caminos adicionales revisados: arranque/migración, mutación, verificación posterior, reintento,
 exportación, importación/rollback, «Empezar de nuevo», desmontaje de superficies, `pagehide` y
