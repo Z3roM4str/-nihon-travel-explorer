@@ -82,3 +82,18 @@ mismo origen mantenida abierta. No cambia el gate original. Su resultado y los
 diagnósticos del proceso WebKit deben distinguir el tramo del motor antes de
 atribuir el defecto al producto o al test. Mientras no se cierre ese mecanismo,
 **sigue el bloqueo de H03: sin merge ni deployment**.
+
+En `dbaa7c148fb6efcab78aa6647a3dd506059411b1`, CI `37582779905`, el modo
+buffered (memoria JS drenada por la llamada existente del gate y al pagehide,
+sin Storage adicional) no repitió la pérdida del interés en sus 96 casos.
+Hubo dos timeouts de recarga en los controles bajo carga. El contrafactual sin
+Nihon pasó 48/48 sin carga; con carga tuvo un timeout y 47/48 éxitos, **ninguna
+pérdida de Storage observada**. Por tanto no prueba la causa de los cinco casos
+anteriores. stderr del gate 5f/con carga muestra aserciones GLib/libsoup y
+`WebKit encountered an internal error. This is a WebKit bug` en el timeout.
+No se extrapola ese diagnóstico a una pérdida no capturada con stderr.
+
+La ejecución siguiente vuelve al modo console que capturó las pérdidas y añade
+stderr `pw:browser`, claves de siembra y llamadas clear. Mantiene las aserciones,
+tiempos originales y controles. Es una comparación de modos de observación, no
+una corrección del producto ni una ampliación de esperas para conseguir verde.

@@ -85,7 +85,7 @@ jobs:
           NIHON_GATE_REF: ${{ matrix.gate }}
           NIHON_H03_LOAD: ${{ matrix.load }}
           NIHON_H03_REPETITIONS: "24"
-          NIHON_H03_TRACE_MODE: buffered
+          NIHON_H03_TRACE_MODE: console
           DEBUG: pw:browser
           NIHON_H03_PRIMER: "1"
           NIHON_EVIDENCE_OUT: h03-investigation
