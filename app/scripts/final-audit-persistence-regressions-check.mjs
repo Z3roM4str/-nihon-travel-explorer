@@ -263,7 +263,7 @@ await test('incomplete-rollback-blocks-retry-reload-and-preserves-preimage',asyn
 });
 await test('lock-rejection-never-bypasses-exclusion',async()=>{
  const {ctx,a}=await setup();const before=await a.evaluate(k=>localStorage.getItem(k),DK);
- await a.evaluate(()=>{navigator.locks.request=()=>Promise.reject(new Error('synthetic rejected lock'));window.review.planning.addEmptyDay();});await a.waitForTimeout(350);
+ await a.evaluate(()=>{const rejected=()=>Promise.reject(new Error('synthetic rejected lock'));/* En WebKit asignar sobre la instancia `navigator.locks` no surte efecto: se parchea el prototipo (y la instancia, por si acaso). */LockManager.prototype.request=rejected;try{navigator.locks.request=rejected;}catch{/* sin efecto */}window.review.planning.addEmptyDay();});await a.waitForTimeout(350);
  await a.evaluate(()=>window.review.retryPersistence());
  const outcome=await a.evaluate(()=>window.review.backup.exportBackup());
  const after=await a.evaluate(k=>localStorage.getItem(k),DK);
