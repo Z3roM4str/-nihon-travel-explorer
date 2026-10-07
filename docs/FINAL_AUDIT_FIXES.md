@@ -29,6 +29,36 @@ Detalle, cifras y reproducción: [`final-audit-evidence/round5-h03/README.md`](f
 - La conservación en WebKit se prueba con perfil persistente; el diagnóstico del contexto efímero (pérdida con reemplazo del proceso de
   red) se conserva como limitación del entorno. No se certifica Safari físico.
 
+
+### Cierre de validación de Ronda 5 (separar certificación ordinaria de estrés)
+
+**Veredicto: H03 bajo estrés continúa sin certificar; integración bloqueada.** Una ejecución P-06 verde
+no invalida los casos estrictos rojos de la matriz cargada. Los siguientes resultados se atribuyen
+al SHA correspondiente, no a una supuesta corrección posterior del producto:
+
+- **Código `f09b283175ab41a88061103d7747a3a955d21bec`:** [P-06 37699345012](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37699345012)
+  **success** en Chromium y WebKit, sin COBERTURA PARCIAL. La suite completa da **3455/3455**;
+  recuperación/H03 **93/93 Chromium y 69/69 WebKit**; persistencia **33/33**;
+  pestañas obsoletas y exportación protegida **16/16 cada una**;
+  accesibilidad **49/49 Chromium y 47/47 WebKit**; regresión de clasificación **7/7 por motor**.
+- **Estrés de ese mismo código:** [H03 conservación dirigida 37699345002](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37699345002)
+  **failure**. En la matriz de 24 casos por nivel de carga: `load=0` registró **202 OK, 0 FAIL**
+  y dos diagnósticos de recarga perdida; `load=1` registró **196 OK, 3 FAIL** por casos en que
+  las tres pulsaciones de recarga se perdieron. El límite de 8 s y el fallo estricto de la tercera
+  pulsación se mantienen; no se convierte un fallo en verde por clasificarlo como motor.
+- **HEAD solo documental `7d04df1e76f5a2f88dcd5b0822ecc54b56477045`:**
+  [P-06 37700992924](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37700992924)
+  y [H03 conservación dirigida 37700992885](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37700992885)
+  finalizaron en **success**. Esta repetición verde no borra el fallo de estrés anterior.
+- **Contrafactual y alcance:** en contexto efímero sin código de Nihon, con `reset=true` y
+  `hold=true`, se perdió `localStorage` en **1/12** repeticiones; en WebKit se certifica
+  conservación con perfiles persistentes, no con ese contexto efímero. El defecto interno exacto
+  de libsoup y su posible ocurrencia en Safari físico **no están demostrados**.
+
+**Decisión pendiente:** aceptación explícita de la limitación del motor con alcance declarado
+(o contraste en un entorno WebKit alternativo/Safari físico antes de certificar ese alcance).
+Hasta resolverla: **sin merge, sin deployment, sin cambios de producto ni de Vercel/Astra; freeze vigente**.
+
 ## Ronda 4 (2026-10-07): causa del bloqueo residual H03
 
 **Requiere correcciones / diagnóstico del timeout de recarga.** La pérdida del
