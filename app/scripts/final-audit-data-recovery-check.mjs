@@ -1,9 +1,10 @@
-import { mkdirSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, mkdtempSync, rmSync, readdirSync, readlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer, request as httpRequest } from "node:http";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
+import { pressOfferedReload } from "./lib/h03-reload.mjs";
 import { preview } from "vite";
 
 /**
@@ -507,8 +508,9 @@ async function interactions() {
  * inspector de Playwright (`route.abort`) es sólo un diagnóstico más, porque WebKit lo retiene entre recargas de la sesión.
  */
 function startFlakyProxy(targetPort) {
-  const state = { failing: false, kind: "reset", pattern: /a^/, hits: 0, served: 0 };
+  const state = { failing: false, kind: "reset", pattern: /a^/, hits: 0, served: 0, documents: 0 };
   const proxy = createServer((req, res) => {
+    if (req.url === "/") state.documents += 1; // peticiones de documento que LLEGAN al servidor
     if (state.failing && state.pattern.test(req.url ?? "")) {
       state.hits += 1;
       if (state.kind === "reset") req.socket.destroy();
@@ -533,6 +535,20 @@ function startFlakyProxy(targetPort) {
   })));
 }
 
+/**
+ * PIDs de los procesos de red de WebKit (Linux). Se usan SOLO para clasificar un fallo del motor con una prueba objetiva: si el
+ * proceso de red se reemplaza durante el escenario, WebKit ha perdido su sesión de red (libsoup avisa con «SOUP_IS_SESSION_FEATURE»
+ * y «internallyFailedLoadTimerFired») y las peticiones en vuelo pueden quedar sin respuesta ni error. Ver docs/final-audit-evidence/round5-h03.
+ */
+const networkProcessIds = () => {
+  if (BROWSER !== "webkit") return [];
+  try {
+    return readdirSync("/proc").filter((entry) => /^\d+$/.test(entry)).flatMap((entry) => {
+      try { return /NetworkProcess$/.test(readlinkSync(`/proc/${entry}/exe`).split("/").at(-1)) ? [Number(entry)] : []; } catch { return []; }
+    });
+  } catch { return []; }
+};
+
 const H03_SURFACES = [
   { id: "OrderedSequenceBuilder", pattern: "**/assets/OrderedSequenceBuilder-*.js", regex: /\/assets\/OrderedSequenceBuilder-[^/]*\.js/, open: async (page) => nav(page, "Viaje"), ok: (page) => page.locator(".day-card, .ordered-sequence").first() },
   { id: "ZoneComparison", pattern: "**/assets/ZoneComparison-*.js", regex: /\/assets\/ZoneComparison-[^/]*\.js/, open: async (page) => { await nav(page, "Viaje"); await page.getByRole("button", { name: "Dónde dormir", exact: true }).click(); }, ok: (page) => page.locator(".zone-panel__scroll").first() },
@@ -551,6 +567,7 @@ async function h03Scenario(surface, width, mode, strict) {
   const tag = `${surface.id} @${width} [${mode}]`;
   const proxy = mode.startsWith("proxy") ? await startFlakyProxy(PORT) : null;
   const base = proxy ? proxy.url : BASE_URL;
+  const networkBaseline = new Set(networkProcessIds());
   const context = await newContext({}, { width, height: 900 }, BROWSER === "webkit");
   // Sólo la ejecución diagnóstica añade llamadas a sessionStorage para registrar la traza.
   // La matriz ordinaria conserva las llamadas nativas originales: instrumentar puede alterar
@@ -583,6 +600,8 @@ async function h03Scenario(surface, width, mode, strict) {
   page.on("requestfailed", (request) => page.failedRequests.push(`${request.url().split("/").pop()} ${request.failure()?.errorText ?? ""}`));
   await page.goto(base);
   await page.waitForSelector("#root *");
+  const networkStart = networkProcessIds().filter((pid) => !networkBaseline.has(pid));
+  const networkReplaced = () => networkStart.length > 0 && networkProcessIds().filter((pid) => !networkBaseline.has(pid)).some((pid) => !networkStart.includes(pid));
   await saveHeart(page, GHIBLI);
   await waitStore(page, TK, (doc) => doc.interests.length === 1);
   const before = await raw(page, TK);
@@ -591,13 +610,21 @@ async function h03Scenario(surface, width, mode, strict) {
   const rootHtml = await page.evaluate(() => document.getElementById("root").innerHTML.length);
   const alert = page.locator("[data-lazy-failure]");
   const visible = (await alert.count()) > 0 && (await alert.first().isVisible());
+  // Sin aviso Y con el proceso de red de WebKit reemplazado durante el escenario: el motor perdió su sesión de red con la
+  // importación en vuelo (nunca se resolvió ni se rechazó). Es una prueba objetiva y se declara como cobertura parcial; sin
+  // ella, la falta de aviso sigue siendo un fallo estricto. El límite de 700 ms se conserva: el aviso sano tarda ~350 ms.
+  const engineLostImport = !visible && Boolean(proxy) && networkReplaced();
+  if (engineLostImport) {
+    evidence.h03EngineFaults ??= [];
+    evidence.h03EngineFaults.push({ tag, kind: "importación en vuelo perdida", rejected: proxy.state.hits, networkProcessesAtStart: networkStart, networkProcessesNow: networkProcessIds().filter((pid) => !networkBaseline.has(pid)) });
+  }
   if (proxy) verdict(strict, "H03", `${tag}: el servidor realmente falló al servir el módulo`, proxy.state.hits > 0, `peticiones rechazadas=${proxy.state.hits}`);
   verdict(strict, "H03", `${tag}: el fallo no deja la aplicación en blanco`, rootHtml > 500);
-  verdict(strict, "H03", `${tag}: aparece un mensaje de recuperación visible`, visible);
+  verdict(strict && !engineLostImport, "H03", `${tag}: aparece un mensaje de recuperación visible`, visible, engineLostImport ? "WebKit reemplazó su proceso de red con la importación en vuelo; no atribuible al producto" : undefined);
   verdict(strict, "H03", `${tag}: la navegación sigue utilizable`, await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("button", { name: "Explorar" }).isVisible());
   verdict(strict, "H03", `${tag}: los datos guardados no cambian`, (await raw(page, TK)) === before);
   if (!visible) {
-    verdict(strict, "H03", `${tag}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
+    verdict(strict && !engineLostImport, "H03", `${tag}: recuperación tras restablecer la red`, false, "sin aviso no hay recuperación");
     await context.close();
     if (proxy) await proxy.close();
     return;
@@ -607,8 +634,13 @@ async function h03Scenario(surface, width, mode, strict) {
   if (proxy) proxy.state.failing = false;
   // La recarga es asíncrona (más en WebKit): se espera a que la página ANTERIOR desaparezca de verdad.
   await page.evaluate(() => { window.__beforeReload = true; });
-  await alert.first().getByRole("button", { name: /Recargar/ }).click();
-  await page.waitForFunction(() => window.__beforeReload === undefined);
+  await pressOfferedReload({
+    page, alert, proxy, tag, networkReplaced,
+    report: (detail) => {
+      (evidence.h03EngineFaults ??= []).push({ tag, kind: "recarga perdida", detail });
+      verdict(false, "H03", `${tag}: WebKit no envió la recarga ofrecida (${detail}); se pulsa de nuevo`, false);
+    },
+  });
   await page.waitForSelector("#root *");
   await surface.open(page);
   let recovered = true;

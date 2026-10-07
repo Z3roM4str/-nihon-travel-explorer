@@ -34,7 +34,7 @@ for g in p06-v2-list-invariant-check p06-v2-history-check p06-v2-journeys-check 
          d0b-design-system-hygiene-check d5-normative-vocabulary-check p04-national-map-reachability-check \
          final-audit-data-recovery-check final-audit-a11y-check \
          final-audit-stale-tabs-check final-audit-export-protection-check \
-         final-audit-persistence-regressions-check; do
+         final-audit-persistence-regressions-check h03-reload-classification-check; do
   run "$g"
 done
 # B29 ejecuta B28 dentro (arrastre con ratón, auto-scroll, movimiento reducido, 8 viewports).

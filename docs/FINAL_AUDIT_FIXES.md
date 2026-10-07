@@ -5,6 +5,30 @@
 **Alcance:** sólo fiabilidad; sin funcionalidades nuevas, sin cambios de datos (JP-126 queda como seguimiento), sin tocar Vercel,
 Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](final-audit-evidence/).
 
+## Ronda 5 (2026-10-07): causa del atasco de «Recargar la página» en WebKit
+
+**Causa localizada en el motor (WebKit/libsoup de Playwright), demostrada con y sin código de Nihon; el producto no cambia.**
+Detalle, cifras y reproducción: [`final-audit-evidence/round5-h03/README.md`](final-audit-evidence/round5-h03/README.md).
+
+- En los 60 atascos medidos (WebKit 26.5, perfil persistente nuevo por repetición, servidor caído por RESET) `beforeunload` se dispara
+  (`location.reload()` se ejecutó), el driver ve la petición de documento y **el servidor no la recibe nunca**; la página anterior
+  sigue viva. Un timeout de `waitForFunction` no significa «no hubo recarga»: hubo recarga solicitada y el motor la perdió.
+- Frecuencia: recarga simple 46/340 (13,5 %); producto actual 12/340 (3,5 %); producto con HTTP 503 (sin destruir sockets) 0/140;
+  contrafactual sin producto: 2/100 con RESET y 0/100 con 503; recarga simple tras una petición neutra 0/100; producto con 150 ms de
+  asentamiento 0/100 (A en esa ejecución 5/100).
+- «Sin aviso» (C): no es un aviso lento (clic→aviso en la página: máx. 368 ms; límite del gate 700 ms, correcto y conservado) sino un
+  aviso que no aparece: 14/14 casos con instrumentación coinciden con el reemplazo del `WPENetworkProcess` (0/820 con el proceso estable).
+- **Arnés (sin tocar el producto):** `pressOfferedReload` (`app/scripts/lib/h03-reload.mjs`) conserva el límite de 8 s y, si se supera,
+  solo lo trata como fallo del motor con prueba objetiva (petición de documento emitida y no recibida por el servidor, o proceso de red
+  reemplazado): lo registra como **COBERTURA PARCIAL** y vuelve a pulsar; la segunda pulsación es estricta. Sin esa prueba, el timeout
+  sigue siendo un fallo estricto. Si falta el aviso con el proceso de red reemplazado durante la importación, esa aserción queda como
+  diagnóstico parcial; el resto (no en blanco, navegación, datos, recuperación en la misma sesión, interés) sigue estricto.
+- Regresión determinista (`h03-reload-classification-check.mjs`, Chromium y WebKit, sin Nihon): recarga perdida → informe + 2.ª pulsación;
+  recarga que llega al servidor sin respuesta → fallo; botón que no recarga → fallo; recarga sana; perdida dos veces → fallo; proceso de
+  red reemplazado → informe + 2.ª pulsación.
+- La conservación en WebKit se prueba con perfil persistente; el diagnóstico del contexto efímero (pérdida con reemplazo del proceso de
+  red) se conserva como limitación del entorno. No se certifica Safari físico.
+
 ## Ronda 4 (2026-10-07): causa del bloqueo residual H03
 
 **Requiere correcciones / diagnóstico del timeout de recarga.** La pérdida del
