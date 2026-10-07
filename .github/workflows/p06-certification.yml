@@ -50,6 +50,11 @@ jobs:
           node -e "console.log('lockfile playwright', require('./package-lock.json').packages['node_modules/playwright'].version)"
       - name: Instalar ${{ matrix.browser }} y sus dependencias del sistema (sólo en este runner)
         run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Leer sólo las dos bases históricas de D5 para ejecutar sus contratos
+        run: |
+          git fetch --no-tags --depth=1 origin b854db384c952e827b86d1bb35cac7caa70b035a 2a10ad3f11cd91a7d739e85307f04da9411bf5d1
+          git cat-file -e b854db384c952e827b86d1bb35cac7caa70b035a^{commit}
+          git cat-file -e 2a10ad3f11cd91a7d739e85307f04da9411bf5d1^{commit}
       - name: Pruebas unitarias y de contrato
         run: npm test
       - name: Build

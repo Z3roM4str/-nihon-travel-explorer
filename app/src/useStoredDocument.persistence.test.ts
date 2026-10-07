@@ -11,7 +11,8 @@ let writes: string[];
 let adapter: StoredDocumentAdapter<Doc>;
 function read(): StoredRead<Doc> {
   try {
-    const doc = JSON.parse(raw) as Doc;
+    const decoded = JSON.parse(raw) as Doc;
+    const doc = { version: decoded.version, count: decoded.count };
     return doc.version > 1 ? { status: "incompatible", raw, doc: null } : { status: "valid", raw, doc };
   } catch { return { status: "invalid", raw, doc: null }; }
 }
@@ -53,6 +54,14 @@ describe("diario de persistencia: protecciones en cada frontera", () => {
     const store = new StoredDocumentStore(adapter);
     store.update((doc) => ({ ...doc, count: 1 })); await store.flush();
     expect(JSON.parse(raw).count).toBe(0); expect(writes).toEqual([]); expect(readPendingCopy(key)).not.toBeNull();
+  });
+  it("un acceso recuperado elimina el problema aunque no haya nada que escribir", async () => {
+    vi.stubGlobal("navigator", { locks: { request: vi.fn().mockRejectedValue(new Error("denied")) } });
+    const store = new StoredDocumentStore(adapter); await store.flush();
+    expect(getPersistenceProblems().some((p) => p.key === key)).toBe(true);
+    vi.stubGlobal("navigator", { locks: { request: (_: string, __: unknown, task: () => void) => Promise.resolve().then(task) } });
+    await store.flush();
+    expect(getPersistenceProblems().some((p) => p.key === key)).toBe(false); expect(writes).toEqual([]);
   });
   it("una tarea que lanza no se ejecuta de nuevo fuera del lock", async () => {
     const set = vi.fn(() => { throw new Error("quota"); }); adapter.storage.setItem = set;

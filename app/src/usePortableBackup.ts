@@ -137,6 +137,7 @@ export function usePortableBackup() {
         if (getPersistenceState() === "error") return { ok: false, reason: "unsaved" };
         const state = readCanonicalState();
         if (!state) { refreshProtection(browserStorage); return { ok: false, reason: "protected" }; }
+        clearPersistenceProblem("export");
         const { travellers, draft } = state;
         const backup = buildPortableBackup(travellers, draft, now.toISOString());
         const text = serializePortableBackup(backup);

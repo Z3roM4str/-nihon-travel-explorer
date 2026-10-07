@@ -27,14 +27,14 @@ Los datos son sintéticos, los perfiles son `browser.newContext()` desechables, 
 ## Regresiones duraderas y diferencias documentadas
 
 `app/scripts/final-audit-persistence-regressions-check.mjs` conserva los 14 escenarios y sus
-aserciones de contenido. Añade otras 17 ventanas que los gates ordinarios no cubrían: reintento
+aserciones de contenido. Añade otras 18 ventanas que los gates ordinarios no cubrían: reintento
 encolado con eventos retenidos + inválido/futuro; historia desconocida llena/ausente/malformada
 que sigue conflictiva tras recarga y otra escritura externa; persona eliminada al pedir o ejecutar;
 quitar interés atribuido a la persona vista; rollback satisfactorio tras recarga; rollback incompleto
 con preimagen conservada; lock rechazado; parada cuyo día desapareció mientras esperaba;
 zonas y planificador compartiendo cola; error de lectura protegido; inicialización del borrador tras
 restaurar un respaldo cuyo itinerario es null (viajeros vigentes en lugar de la lista anterior de React); segunda restauración fallida conservando la primera preimagen; fallo de
-copia de sesión antes de importar sin dejar un bloqueo de una importación que no empezó.
+copia de sesión antes de importar sin dejar un bloqueo de una importación que no empezó; recuperación del acceso sin escribir un documento que ya está al día.
 
 Diferencias respecto del script original:
 
@@ -71,7 +71,7 @@ scripts/p06-v2-certify.sh webkit
 
 El nuevo gate está incluido en ambas ramas de la matriz CI, junto con los gates de pestañas obsoletas,
 exportación protegida y H03 existentes. Cada artefacto lleva SHA y navegador, log por gate y JSON con
-los 31 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
+los 32 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
 Vitest antes de la certificación. Los resultados finales y enlaces se consignarán tras terminar CI.
 
 La variante con itinerario null se añadió al revisar todos los caminos de restauración: falló en
@@ -85,6 +85,24 @@ denegación al guardar la copia impedía incluso un interés posterior aunque la
 hubiese empezado. La copia inicial y la de cada intento ahora se mantienen aparte (dos claves
 acotadas, sin anidar historias); el rollback sólo cancela su intento, y un fallo previo a empezar
 no deja un bloqueo falso. Evidencia antes/después en `supplemental/preimage-*.log`.
+
+El primer CI de `c5ba08e` pasó todos los gates en Chromium. En WebKit pasó el resto de la matriz,
+H03 69/69 (35 reset/503 estrictas y 24 diagnósticos de inspector) y 30/31 regresiones. El fixture
+fallido de lock rechazado asignaba directamente `navigator.locks.request` sin verificar que se
+usara ese reemplazo: WebKit no registró rechazos y escribió usando su API nativa. La inyección
+ahora parchea el prototipo de `LockManager` (corrección de Claude `8952d18`), comprueba la identidad del método y el contador de llamadas,
+y vacía las tareas de arranque antes de instalarla. Se conservan todas las aserciones de protección,
+rechazo de exportación y explicación, sin aceptar una inyección ineficaz. La matriz se repite.
+
+CI omite tres pruebas históricas de D5 porque su checkout es shallow y carece de la base histórica
+`b854db3`; las tres pasan en el checkout local completo. No son pruebas de persistencia: todas las
+nuevas pruebas de contrato y navegador se ejecutan. En ese CI: 3449 pasan y 3 omitidas. El workflow corregido obtiene **sólo** esos dos SHA (ambos antecesores de la base declarada), con fetch de profundidad 1 y sin recuperar otras ramas ni cambiar HEAD, para ejecutar los tres contratos. Con la regresión de acceso recuperado: 3453 pruebas locales pasan.
+
+La recuperación tras un lock rechazado también se probó: cuando otro documento no tenía cambios,
+su aviso anterior seguía bloqueando la exportación aun después de recuperar el acceso. El nuevo
+caso falla sobre `c5ba08e` y pasa al retirar el problema tras una lectura segura bajo lock, **sin
+escribir** ese documento. La exportación exitosa retira también su aviso transitorio. Se incluyen
+una regresión de navegador y otra de contrato; evidencia en `supplemental/noop-*.log`.
 
 ## Límites
 

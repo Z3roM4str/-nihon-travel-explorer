@@ -262,13 +262,22 @@ await test('incomplete-rollback-blocks-retry-reload-and-preserves-preimage',asyn
  await ctx.close();return {correct:rolledBack===false&&preimage===pending&&preimage.includes('Synthetic A')&&JSON.stringify(before)===JSON.stringify(after)&&!outcome.ok,rolledBack,exportOutcome:outcome};
 });
 await test('lock-rejection-never-bypasses-exclusion',async()=>{
- const {ctx,a}=await setup();const before=await a.evaluate(k=>localStorage.getItem(k),DK);
- await a.evaluate(()=>{const rejected=()=>Promise.reject(new Error('synthetic rejected lock'));/* En WebKit asignar sobre la instancia `navigator.locks` no surte efecto: se parchea el prototipo (y la instancia, por si acaso). */LockManager.prototype.request=rejected;try{navigator.locks.request=rejected;}catch{/* sin efecto */}window.review.planning.addEmptyDay();});await a.waitForTimeout(350);
+ const {ctx,a}=await setup();
+ await a.evaluate(()=>window.review.flushAllPendingWrites());
+ const before=await a.evaluate(k=>localStorage.getItem(k),DK);
+ await a.evaluate(()=>{
+  window.rejectedReviewLockCalls=0;
+  const reject=()=>{window.rejectedReviewLockCalls++;return Promise.reject(new Error('synthetic rejected lock'));};
+  Object.getPrototypeOf(navigator.locks).request=reject;
+  if(navigator.locks.request!==reject)throw new Error('Rejected-lock injection was not installed');
+  window.review.planning.addEmptyDay();
+ });await a.waitForTimeout(350);
  await a.evaluate(()=>window.review.retryPersistence());
  const outcome=await a.evaluate(()=>window.review.backup.exportBackup());
  const after=await a.evaluate(k=>localStorage.getItem(k),DK);
  const messages=await a.evaluate(()=>window.review.getPersistenceProblems().map(p=>p.message));
- await ctx.close();return {preserved:before===after,correct:!outcome.ok&&messages.some(m=>m.includes('acceso')),exportOutcome:outcome,messages};
+ const rejectedCalls=await a.evaluate(()=>window.rejectedReviewLockCalls);
+ await ctx.close();return {preserved:before===after,correct:rejectedCalls>0&&!outcome.ok&&messages.some(m=>m.includes('acceso')),rejectedCalls,exportOutcome:outcome,messages};
 });
 await test('queued-stop-operation-rejects-removed-day',async()=>{
  const {ctx,a}=await setup();const b=await remote(ctx);await a.bringToFront();await hold(b,DK);
@@ -337,6 +346,23 @@ await test('preimage-copy-failure-does-not-leave-unstarted-restore-block',async(
  await a.waitForTimeout(450);
  const actual=await a.evaluate(({TK,DK})=>({t:JSON.parse(localStorage.getItem(TK)),d:JSON.parse(localStorage.getItem(DK))}),{TK,DK});
  await ctx.close();return {correct:actual.t.travellers[0].label==='Synthetic A'&&actual.d.startDate===null&&actual.t.interests.some(i=>i.placeId==='JP-021'),interestAccepted:actual.t.interests.some(i=>i.placeId==='JP-021')};
+});
+await test('recovered-lock-clears-safe-noop-problem-without-writing',async()=>{
+ const {ctx,a}=await setup();await a.evaluate(()=>window.review.flushAllPendingWrites());
+ const originalTraveller=await a.evaluate(k=>localStorage.getItem(k),TK);
+ await a.evaluate(()=>{
+  window.reviewLockPrototype=Object.getPrototypeOf(navigator.locks);
+  window.reviewLockDescriptor=Object.getOwnPropertyDescriptor(window.reviewLockPrototype,'request');
+  const reject=()=>Promise.reject(new Error('synthetic rejected lock'));
+  window.reviewLockPrototype.request=reject;
+  if(navigator.locks.request!==reject)throw new Error('Rejected-lock injection was not installed');
+  window.review.planning.addEmptyDay();
+ });await a.waitForTimeout(150);
+ const rejected=await a.evaluate(()=>window.review.backup.exportBackup());
+ await a.evaluate(async()=>{Object.defineProperty(window.reviewLockPrototype,'request',window.reviewLockDescriptor);await window.review.retryPersistence();});
+ const recovered=await a.evaluate(()=>window.review.backup.exportBackup());
+ const actual=await a.evaluate(({TK,DK})=>({traveller:localStorage.getItem(TK),days:JSON.parse(localStorage.getItem(DK)).days.length,problems:window.review.getPersistenceProblems()}),{TK,DK});
+ await ctx.close();return {correct:!rejected.ok&&recovered.ok&&actual.days===2&&actual.traveller===originalTraveller,rejected,recovered,remaining:actual.problems};
 });
 await browser.close();await server.close();
 for(const r of results) {

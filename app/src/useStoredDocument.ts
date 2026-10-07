@@ -211,11 +211,19 @@ export class StoredDocumentStore<T> {
       this.stash(); return;
     }
     if (adopted && this.pending.length === 0) this.dirty = false;
-    if (!this.dirty && this.pending.length === 0) return;
+    if (!this.dirty && this.pending.length === 0) {
+      // Se obtuvo el lock y la lectura es segura: también se recupera un fallo de acceso anterior
+      // cuando el documento ya está al día, sin forzar una escritura para quitar el aviso.
+      clearPersistenceProblem(this.adapter.key); this.stash(); return;
+    }
     // Segunda clasificación inmediatamente antes del setItem, también dentro del lock.
     this.sync();
     if (this.blocked() || this.conflict) { this.stash(); return; }
-    if (!this.dirty && this.pending.length === 0) return;
+    if (!this.dirty && this.pending.length === 0) {
+      // Se obtuvo el lock y la lectura es segura: también se recupera un fallo de acceso anterior
+      // cuando el documento ya está al día, sin forzar una escritura para quitar el aviso.
+      clearPersistenceProblem(this.adapter.key); this.stash(); return;
+    }
     const lineage = readLineage(this.raw) ?? [];
     const anchor = lineage.at(-1);
     const id = newWriteId();
