@@ -1,12 +1,12 @@
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import {
   PLANNING_DRAFT_STORAGE_KEY,
-  loadReconciledDraft,
+  reconcileDraft,
   type DraftStorage,
 } from "./lib/planning-draft-v8";
 import {
   TRAVELLERS_STORAGE_KEY,
-  loadTravellersDocument,
+  freshTravellersDocument,
   shortlistPlaceIds,
 } from "./lib/travellers";
 import {
@@ -24,7 +24,8 @@ import {
 } from "./lib/portable-backup";
 import { todayCivilDate } from "./lib/today";
 import { getAllPlaces } from "./data/store";
-import { deviceStorage, getPersistenceState, retryPersistence } from "./lib/device-storage";
+import { clearPersistenceProblem, deviceStorage, getPersistenceState, reportPersistenceProblem, retryPersistence } from "./lib/device-storage";
+import { clearPendingCopy, keepPendingCopy, readPendingCopy } from "./lib/persistence-recovery";
 import { downloadTextFile } from "./lib/download-file";
 import {
   collectOriginals,
@@ -39,6 +40,8 @@ import {
   readStoredDraft,
   readStoredTravellers,
   refreshProtection,
+  CANONICAL_KEYS,
+  runExclusiveDocuments,
 } from "./lib/stored-document";
 
 /**
@@ -101,13 +104,20 @@ export type ImportState =
  * planner performs on mount, so the file describes the trip the person actually sees.
  */
 function readCanonicalState() {
-  const travellers = loadTravellersDocument(browserStorage, randomTravellerId);
-  const savedIds = shortlistPlaceIds(travellers);
-  const draft = loadReconciledDraft(browserStorage, savedIds);
+  const travellerRead = readStoredTravellers(browserStorage, randomTravellerId);
+  const draftRead = readStoredDraft(browserStorage);
+  if (isProtectedStatus(travellerRead.status) || isProtectedStatus(draftRead.status)) return null;
+  const travellers = travellerRead.doc ?? freshTravellersDocument(randomTravellerId);
+  const draft = draftRead.doc ? reconcileDraft(draftRead.doc, shortlistPlaceIds(travellers)) : null;
   return { travellers, draft };
 }
 
 export function usePortableBackup() {
+  // Una restauración incompleta no desaparece al recargar: conserva la preimagen y bloquea otra escritura automática.
+  const [restoreRecovery] = useState(() => readPendingCopy("restore"));
+  useEffect(() => {
+    if (restoreRecovery) reportPersistenceProblem("restore", "Una restauración anterior quedó a medias. Se conservan las copias anteriores; vuelve a importar el respaldo cuando puedas guardar.");
+  }, [restoreRecovery]);
   const [importState, setImportState] = useState<ImportState>({ phase: "idle" });
 
   /**
@@ -117,20 +127,29 @@ export function usePortableBackup() {
    * a dependency, and the object URL is revoked immediately afterwards so nothing is left holding
    * the blob. `exportedAt` is the one clock read in this feature.
    */
-  const exportBackup = useCallback((now: Date = new Date()): ExportOutcome => {
+  const exportBackup = useCallback(async (now: Date = new Date()): Promise<ExportOutcome> => {
     // Lo aplicado en memoria y aún sin escribir se vacía ANTES de leer el almacenamiento.
-    flushAllPendingWrites();
-    refreshProtection(browserStorage);
-    if (getProtectionSnapshot().length > 0) return { ok: false, reason: "protected" };
-    if (getPersistenceState() === "error") return { ok: false, reason: "unsaved" };
-    const { travellers, draft } = readCanonicalState();
-    const backup = buildPortableBackup(travellers, draft, now.toISOString());
-    const text = serializePortableBackup(backup);
-    const fileName = backupFileName(todayCivilDate(now));
-    // Block 14: el revoke de la URL va diferido (ver `downloadTextFile`): Safari cancela la descarga si desaparece
-    // en la misma tarea que el clic. No es un fallo medido: es un riesgo medido, registrado como tal.
-    const delivered = downloadTextFile(fileName, text);
-    return delivered.ok ? { ok: true, fileName } : { ok: false, reason: "download-failed" };
+    try {
+      await flushAllPendingWrites();
+      return await runExclusiveDocuments(CANONICAL_KEYS, () => {
+        refreshProtection(browserStorage);
+        if (getProtectionSnapshot().length > 0) return { ok: false, reason: "protected" };
+        if (getPersistenceState() === "error") return { ok: false, reason: "unsaved" };
+        const state = readCanonicalState();
+        if (!state) { refreshProtection(browserStorage); return { ok: false, reason: "protected" }; }
+        const { travellers, draft } = state;
+        const backup = buildPortableBackup(travellers, draft, now.toISOString());
+        const text = serializePortableBackup(backup);
+        const fileName = backupFileName(todayCivilDate(now));
+        // Block 14: el revoke de la URL va diferido (ver `downloadTextFile`): Safari cancela la descarga si desaparece
+        // en la misma tarea que el clic. No es un fallo medido: es un riesgo medido, registrado como tal.
+        const delivered = downloadTextFile(fileName, text);
+        return delivered.ok ? { ok: true, fileName } : { ok: false, reason: "download-failed" };
+      });
+    } catch {
+      reportPersistenceProblem("export", "No se pudo obtener una lectura segura del viaje. No se ha entregado un respaldo como si estuviera completo.", false);
+      return { ok: false, reason: "unsaved" };
+    }
   }, []);
 
   /**
@@ -139,19 +158,15 @@ export function usePortableBackup() {
    * datos protegidos. No escribe en el almacenamiento.
    */
   const downloadOriginals = useCallback((now: Date = new Date()): { ok: boolean } => {
-    flushAllPendingWrites();
-    const text = serializeOriginals(collectOriginals(browserStorage), now.toISOString());
-    return downloadTextFile(`nihon-datos-conservados-${todayCivilDate(now)}.json`, text);
+    try {
+      const text = serializeOriginals(collectOriginals(browserStorage, true), now.toISOString());
+      return downloadTextFile(`nihon-datos-conservados-${todayCivilDate(now)}.json`, text);
+    } catch { return { ok: false }; }
   }, []);
 
   const protectedDocuments = useSyncExternalStore(subscribeProtection, getProtectionSnapshot, getProtectionSnapshot);
 
-  /**
-   * Parses and validates a chosen file, and produces a preview. **Writes nothing.**
-   *
-   * Every failure before this returns leaves storage untouched by construction: the only call that
-   * can write is `confirmImport`, and it needs a plan that only this function produces.
-   */
+  /** Parses and validates a chosen file and produces a preview. Writes nothing. */
   const prepareImport = useCallback(async (file: File): Promise<void> => {
     let text: string;
     try {
@@ -176,29 +191,49 @@ export function usePortableBackup() {
   }, []);
 
   /** The only writer. Replaces; never merges. */
-  const confirmImport = useCallback((plan: RestorePlan): void => {
-    // Auditoría final (H04): si lo que hay guardado es inválido o de una versión futura, es lo
-    // único que esa persona tiene de su viaje anterior. «Sustituir» es una decisión explícita, pero
-    // no debe borrarlo sin dejar copia: se guarda aparte ANTES de escribir, y si la copia falla no
-    // se toca nada.
-    const needsCopy =
-      isProtectedStatus(readStoredTravellers(browserStorage, () => "unused").status) ||
-      isProtectedStatus(readStoredDraft(browserStorage).status);
-    if (needsCopy && !copyOriginals(browserStorage, new Date().toISOString().replace(/[:.]/g, "-")).ok) {
+  const confirmImport = useCallback(async (plan: RestorePlan): Promise<void> => {
+    try {
+      await runExclusiveDocuments(CANONICAL_KEYS, () => {
+        // Auditoría final (H04): si lo que hay guardado es inválido o de una versión futura, es lo
+        // único que esa persona tiene de su viaje anterior. «Sustituir» es una decisión explícita, pero
+        // no debe borrarlo sin dejar copia: se guarda aparte ANTES de escribir, y si la copia falla no
+        // se toca nada.
+        const needsCopy =
+          isProtectedStatus(readStoredTravellers(browserStorage, () => "unused").status) ||
+          isProtectedStatus(readStoredDraft(browserStorage).status);
+        if (needsCopy && !copyOriginals(browserStorage, new Date().toISOString().replace(/[:.]/g, "-")).ok) {
+          setImportState({ phase: "failed", rolledBack: true });
+          return;
+        }
+        let originals: Record<string, string>;
+        try { originals = collectOriginals(browserStorage); } catch {
+          setImportState({ phase: "failed", rolledBack: true }); return;
+        }
+        // La preimagen se conserva antes de tocar ninguna clave, incluso si el rollback después falla.
+        if (!keepPendingCopy("restore", JSON.stringify(originals))) {
+          setImportState({ phase: "failed", rolledBack: true });
+          reportPersistenceProblem("restore", "No se pudo conservar una copia anterior a la restauración. No se han sustituido los datos.");
+          return;
+        }
+        const outcome = applyRestore(browserStorage, plan);
+        if (!outcome.ok) {
+          if (outcome.rolledBack) clearPendingCopy("restore");
+          setImportState({ phase: "failed", rolledBack: outcome.rolledBack });
+          return;
+        }
+        clearPendingCopy("restore");
+        clearPersistenceProblem("restore");
+        // Auditoría final (H01): los hooks montados siguen teniendo en memoria el viaje ANTERIOR. Se les
+        // avisa ahora —no al pulsar «Continuar»— para que relean y rendericen lo restaurado, y cada
+        // mutación posterior parte además del documento vigente (`useStoredDocument`).
+        refreshProtection(browserStorage);
+        notifyStorageReplaced();
+        setImportState({ phase: "restored", summary: summarizeRestore(plan) });
+      });
+    } catch {
       setImportState({ phase: "failed", rolledBack: true });
-      return;
+      reportPersistenceProblem("restore", "No se pudo obtener acceso para restaurar. No se ha cambiado el viaje.", false);
     }
-    const outcome = applyRestore(browserStorage, plan);
-    if (!outcome.ok) {
-      setImportState({ phase: "failed", rolledBack: outcome.rolledBack });
-      return;
-    }
-    // Auditoría final (H01): los hooks montados siguen teniendo en memoria el viaje ANTERIOR. Se les
-    // avisa ahora —no al pulsar «Continuar»— para que relean y rendericen lo restaurado, y cada
-    // mutación posterior parte además del documento vigente (`useStoredDocument`).
-    refreshProtection(browserStorage);
-    notifyStorageReplaced();
-    setImportState({ phase: "restored", summary: summarizeRestore(plan) });
   }, []);
 
   const resetImport = useCallback(() => setImportState({ phase: "idle" }), []);

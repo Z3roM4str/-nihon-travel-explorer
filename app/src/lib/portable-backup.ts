@@ -364,6 +364,7 @@ export type RestoreStorage = {
   getItem: (key: string) => string | null;
   setItem: (key: string, value: string) => void;
   removeItem: (key: string) => void;
+  beginPendingScope?: (keys: readonly string[]) => (outcome: "commit" | "rollback" | "incomplete") => void;
 };
 
 /**
@@ -401,7 +402,8 @@ export function applyRestore(storage: RestoreStorage, plan: RestorePlan): Restor
     try {
       previous.set(key, storage.getItem(key));
     } catch {
-      previous.set(key, null);
+      // No hay preimagen fiable con la que deshacer: no se empieza la sustitución.
+      return { ok: false, failedKey: key, rolledBack: true };
     }
   }
 
@@ -417,6 +419,7 @@ export function applyRestore(storage: RestoreStorage, plan: RestorePlan): Restor
   // is nothing to roll back — reporting a failed rollback there would describe a problem that does
   // not exist, and would usually be reporting the same storage refusing the same key twice.
   const written: string[] = [];
+  const finishScope = storage.beginPendingScope?.(RESTORED_STORAGE_KEYS);
   for (const write of writes) {
     try {
       if (write.value === null) storage.removeItem(write.key);
@@ -433,9 +436,12 @@ export function applyRestore(storage: RestoreStorage, plan: RestorePlan): Restor
       } catch {
         rolledBack = false;
       }
+      // La carga importada que falló no forma parte de los datos anteriores y no se reintenta aparte.
+      finishScope?.(rolledBack ? "rollback" : "incomplete");
       return { ok: false, failedKey: write.key, rolledBack };
     }
   }
 
+  finishScope?.("commit");
   return { ok: true };
 }

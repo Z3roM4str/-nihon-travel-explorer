@@ -6,12 +6,13 @@ import type {
   InterHubMode,
   NewManualInterHubSegment,
 } from "./lib/inter-hub-segment";
-import { deviceStorage } from "./lib/device-storage";
+import { deviceStorage, reportPersistenceProblem } from "./lib/device-storage";
 import {
   dayMatrixFromPlanningDays,
   freshDraft,
   PLANNING_DRAFT_STORAGE_KEY,
   reconcileDraft,
+  parseStoredDraft,
   resetRoute as resetRouteInDraft,
   withAccommodationLeg,
   withDayAccommodationChoice,
@@ -200,6 +201,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
     },
     initial: () => freshDraft(savedIdsRef.current),
     serialize: (doc) => JSON.stringify(doc),
+    parse: (raw) => { try { return parseStoredDraft(JSON.parse(raw)); } catch { return null; } },
     // El borrador se reconcilia con los viajeros: con los viajeros protegidos su lista de lugares es
     // desconocida, y escribir un borrador podado contra ella destruiría un itinerario válido.
     externallyBlocked: () =>
@@ -219,6 +221,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   const [staleRejection, setStaleRejection] = useState<{ key: number; message: string } | null>(null);
   const rejectionCounter = useRef(0);
   const reject = useCallback((message: string) => {
+    reportPersistenceProblem(PLANNING_DRAFT_STORAGE_KEY + ":operation", message, false);
     rejectionCounter.current += 1;
     setStaleRejection({ key: rejectionCounter.current, message });
   }, []);
@@ -253,7 +256,11 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * identity-aware mutations below instead.
    */
   const initializeDays = useCallback((days: readonly (readonly string[])[]) => {
-    setDraft((current) => withInitialDays(current, days, randomDayId));
+    const ids = days.map(() => randomDayId());
+    setDraft((current) => {
+      let index = 0;
+      return withInitialDays(current, days, () => ids[index++] ?? randomDayId());
+    });
   }, [setDraft]);
 
   /** Phase 3D-S: moves one place from one identified day to another. Both day ids survive, and each
@@ -332,7 +339,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   /** Phase 3D-S: appends one empty day with a fresh opaque id and both boundary sides `unselected`.
    * Only the new day starts unselected; no existing day's id, places or choices are touched. */
   const addEmptyDay = useCallback(() => {
-    setDraft((current) => withNewEmptyDay(current, randomDayId));
+    const id = randomDayId();
+    setDraft((current) => withNewEmptyDay(current, () => id));
   }, [setDraft]);
 
   /** Phase 3D-S: deletes one empty day entity and nothing else — anchors, manual legs, visit start
@@ -424,7 +432,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    * Nothing is looked up: no geocoding, no hotel search, no address parsing.
    */
   const addAccommodation = useCallback((label: string, location: { lat: number; lng: number }) => {
-    setDraft((current) => withNewAccommodation(current, label, location, randomAccommodationId));
+    const id = randomAccommodationId();
+    setDraft((current) => withNewAccommodation(current, label, location, () => id));
   }, [setDraft]);
 
   /**
@@ -482,7 +491,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
    */
   const chooseZoneAccommodation = useCallback(
     (input: { hub: string; zoneId: string; label: string; location: { lat: number; lng: number } }) => {
-      setDraft((current) => withZoneAccommodationChoice(current, input, randomAccommodationId));
+      const id = randomAccommodationId();
+      setDraft((current) => withZoneAccommodationChoice(current, input, () => id));
     },
     [setDraft]
   );
@@ -503,7 +513,8 @@ export function usePlanningDraft(savedIds: readonly string[]) {
   /** Creates one explicitly-timed segment from an eligible pair supplied by the planner UI. */
   const addInterHubSegment = useCallback(
     (input: NewManualInterHubSegment) => {
-      setDraft((current) => withNewInterHubSegment(current, input, randomInterHubSegmentId));
+      const id = randomInterHubSegmentId();
+      setDraft((current) => withNewInterHubSegment(current, input, () => id));
     },
     [setDraft]
   );

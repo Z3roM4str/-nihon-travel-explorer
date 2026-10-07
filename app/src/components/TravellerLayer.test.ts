@@ -203,7 +203,7 @@ describe("accessibility", () => {
     expect(app).toMatch(/if \(isWantedByActive\(id\)\) removeSavedWithUndo\(id\)/);
     expect(app).toMatch(/const snapshot = snapshotActiveInterest\(id\);\s*removeSaved\(id\);/);
     const hook = withoutComments(await readAppSource("useTravellers.ts"));
-    expect(hook).toContain("withStance(current, id, current.activeTravellerId, null)");
+    expect(hook).toContain("withStance(current, id, travellerId, null)");
   });
 
   it("announces a destructive confirmation", async () => {

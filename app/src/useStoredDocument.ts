@@ -1,374 +1,323 @@
-import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
+import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import {
-  isProtectedStatus,
-  registerFlusher,
-  runExclusive,
-  setProtection,
-  subscribeStorageReplaced,
-  type StorageLike,
-  type StoredRead,
+  isProtectedStatus, registerFlusher, runExclusive, setProtection, subscribeStorageReplaced,
+  type StorageLike, type StoredRead,
 } from "./lib/stored-document";
-
-/**
- * Auditoría final (H01, H02, H04) — el estado persistente de un documento canónico.
- *
- * Sustituye al par `useState` + «efecto que escribe el estado entero en cuanto cambia», que tenía
- * tres defectos de la misma raíz: el estado montado era la única verdad (H01: una restauración
- * escrita por debajo se sobrescribía en la siguiente mutación), la escritura reemplazaba el
- * documento completo con una copia posiblemente antigua (H02: otra pestaña perdía su trabajo), y
- * el valor inicial se escribía encima de lo que no se había sabido leer (H04).
- *
- * ## El contrato
- *
- * 1. **Cada mutación parte del documento vigente.** Antes de aplicar la operación se compara la
- *    cadena que hay en el almacenamiento con la última que este hook leyó o escribió. Si difiere,
- *    el documento se relee y la operación se aplica SOBRE ÉL: las dos pestañas componen sus
- *    cambios en lugar de pisarse.
- * 2. **Las operaciones se anotan en un diario hasta estar escritas.** La mutación se aplica ya en
- *    memoria (la interfaz responde al instante) y su función se guarda. La escritura ocurre dentro de
- *    un Web Lock del documento (`runExclusive`): se relee lo que haya, se REPRODUCE el diario sobre
- *    ello y se escribe. Así dos pestañas que escriben a la vez se serializan, y lo que una escribe
- *    nunca borra lo que la otra ya había escrito (medido: sin el lock, la lectura previa a la
- *    escritura podía ser anterior a la escritura de la otra pestaña y se perdían ~40 % de las
- *    operaciones en un estrés de 80 «Añadir día» simultáneos).
- *    Aun así, la caché de `localStorage` de cada pestaña se actualiza de forma asíncrona y la lectura
- *    dentro del lock puede ser anterior a la escritura de la otra (medido: 5 de 243 operaciones
- *    perdidas con sólo el lock). Por eso cada escritura lleva un **linaje**: la lista de los últimos
- *    identificadores de escritura (`_w`, un campo que los parsers ignoran). Una escritura SE DA POR
- *    PERDIDA si el documento que acaba quedando no contiene su identificador, y entonces se adopta ese
- *    documento y se REPRODUCEN las operaciones no confirmadas. Es una prueba de inclusión, no una
- *    suposición: una operación sólo se repite si se demuestra que no está.
- * 3. **Una operación con identidad se valida contra el estado vigente** (`guard`). Si la parada o el
- *    día ya no existen, o la operación entra en conflicto, NO se aplica y se avisa (`onReject`), tanto al
- *    pedirla como si deja de ser válida al reproducirla sobre lo que escribió otra pestaña.
- * 4. **Un documento inválido o de versión futura se protege.** El hook sirve un valor inicial EN
- *    MEMORIA para que la aplicación siga siendo utilizable, pero no escribe sobre el original hasta
- *    que la persona elija la salida explícita (`startFresh`).
- * 5. **Las escrituras externas se adoptan.** El evento `storage` (otras pestañas) y
- *    `notifyStorageReplaced` (restauración o recuperación en ESTA pestaña) hacen que el hook relea y
- *    renderice lo que hay, reproduciendo encima lo que aún estuviera sin escribir.
- * 6. **Al ocultarse o desmontarse, lo pendiente se escribe de forma síncrona** (`flushNow`), y
- *    «Exportar respaldo» lo vacía antes de leer el almacenamiento.
- *
- * Los fallos de `setItem` siguen siendo asunto de `device-storage`: se registra la carga pendiente
- * y el aviso global lo comunica. Este hook no oculta ni reintenta nada por su cuenta.
- */
+import {
+  cancelPendingWrites, clearPersistenceProblem, registerPersistenceRetry, reportPersistenceProblem,
+} from "./lib/device-storage";
+import { clearPendingCopy, keepPendingCopy, readPendingCopy } from "./lib/persistence-recovery";
 
 export type StoredDocumentAdapter<T> = {
   key: string;
   storage: StorageLike;
-  /** Lee el almacenamiento ahora, ya migrado y reconciliado. */
   read: () => StoredRead<T>;
-  /** El documento en memoria cuando no hay nada utilizable. */
   initial: () => T;
   serialize: (doc: T) => string;
-  /** Otra razón para no escribir: el borrador no se escribe mientras los viajeros estén protegidos. */
+  parse: (raw: string) => T | null;
   externallyBlocked?: () => boolean;
 };
-
-/** Precondición de identidad de una operación: se evalúa contra el documento VIGENTE, no contra la vista. */
-export type UpdateGuard<T> = {
-  check: (doc: T) => boolean;
-  onReject: () => void;
-};
-
+export type UpdateGuard<T> = { check: (doc: T) => boolean; onReject: () => void };
 export type StoredDocumentUpdate<T> = (action: SetStateAction<T>, guard?: UpdateGuard<T>) => void;
-
-/**
- * `writeIds`: TODAS las escrituras bajo las que esta operación ya se escribió (se repone con un id nuevo si una
- * pareció perderse). Basta que el linaje del documento adoptado contenga CUALQUIERA para saber que está incluida:
- * si no, un intento «perdido» que sí sobrevivió dentro de otra escritura se repondría de nuevo (duplicado).
- */
-type JournalEntry<T> = { apply: (doc: T) => T; guard?: UpdateGuard<T>; writeIds?: string[] };
-
-/** Cuántos identificadores de escritura conserva el linaje (`_w`). */
+type JournalEntry<T> = {
+  apply: (doc: T) => T;
+  guard?: UpdateGuard<T>;
+  writeIds: string[];
+  anchors: string[];
+};
+type Recovery = { raw: string | null; value: string; pending: boolean; conflict: boolean; writes: string[][] };
 const LINEAGE_LENGTH = 96;
-/** Cuánto se espera, tras escribir, antes de comprobar que la escritura sobrevivió. */
 const VERIFY_AFTER_MS = 250;
-/** Cuánto tiempo estable (sin cambios externos) hace falta para dar una escritura por confirmada. */
 const CONFIRM_AFTER_MS = 2500;
 
-function readLineage(raw: string | null): string[] {
-  if (!raw) return [];
+/** null significa que no hay historia fiable, no una demostración de ausencia. */
+function readLineage(raw: string | null): string[] | null {
   try {
-    const parsed: unknown = JSON.parse(raw);
-    const ids = (parsed as { _w?: unknown } | null)?._w;
-    return Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : [];
-  } catch {
-    return [];
-  }
+    const ids: unknown = raw === null ? undefined : JSON.parse(raw)._w;
+    return Array.isArray(ids) && ids.every((id) => typeof id === "string") && new Set(ids).size === ids.length
+      ? ids : null;
+  } catch { return null; }
 }
-
-/** ¿La cadena almacenada es ya la forma canónica del documento (salvo el linaje `_w`)? */
 function isCanonical(raw: string | null, status: string, canonical: string): boolean {
   if (status !== "valid" || raw === null) return false;
   try {
     const { _w, ...rest } = JSON.parse(raw) as Record<string, unknown>;
-    void _w;
-    return JSON.stringify(rest) === canonical;
-  } catch {
-    return false;
-  }
+    void _w; return JSON.stringify(rest) === canonical;
+  } catch { return false; }
 }
-
+function withLineage(json: string, lineage: readonly string[]): string {
+  return json.endsWith("}") ? json.slice(0, -1) + ',"_w":' + JSON.stringify(lineage) + "}" : json;
+}
 let writeCounter = 0;
 function newWriteId(): string {
   writeCounter += 1;
-  return `${Math.random().toString(36).slice(2, 8)}${writeCounter.toString(36)}`;
+  return Math.random().toString(36).slice(2, 10) + writeCounter.toString(36);
 }
 
-/** Añade el linaje al JSON de un objeto sin tocar el resto de su contenido. */
-function withLineage(json: string, lineage: readonly string[]): string {
-  return json.endsWith("}") ? `${json.slice(0, -1)},"_w":${JSON.stringify(lineage)}}` : json;
-}
+/**
+ * Único diario por clave y pestaña, compartido por las vistas montadas y desmontadas.
+ * Las operaciones conservan todos sus ids de escritura y los antecesores bajo los que se escribieron.
+ * Se descarta lo demostrado incluido; sólo se reproduce lo demostrado ausente. La duda bloquea la
+ * escritura y conserva el trabajo local, sin sustituir el original externo ni confirmar a ciegas.
+ */
+export class StoredDocumentStore<T> {
+  private adapter: StoredDocumentAdapter<T>;
+  private raw: string | null;
+  private status: StoredRead<T>["status"];
+  private doc: T;
+  private pending: JournalEntry<T>[] = [];
+  private unconfirmed: JournalEntry<T>[] = [];
+  private dirty: boolean;
+  private conflict = false;
+  private recoveredCopy: string | null = null;
+  private recoveredWrites: string[][] = [];
+  private lastWriteAt = 0;
+  private revision = 0;
+  private flushedRevision = 0;
+  private flight: Promise<void> | null = null;
+  private started = false;
+  private listeners = new Set<(doc: T) => void>();
 
-type Core<T> = {
-  doc: T;
-  /** La última cadena de almacenamiento que este hook leyó o escribió. */
-  raw: string | null;
-  status: StoredRead<T>["status"];
-  /** Operaciones aplicadas en memoria que todavía no están escritas. */
-  pending: JournalEntry<T>[];
-  /** Operaciones ya escritas cuya supervivencia aún no se ha comprobado (linaje). */
-  unconfirmed: JournalEntry<T>[];
-  /** Identificador de la última escritura de este hook. */
-  lastWriteId: string | null;
-  lastWriteAt: number;
-  /** Hay que escribir aunque no haya operaciones (arranque: normalizar o crear el documento). */
-  dirty: boolean;
-  scheduled: boolean;
-};
-
-export function useStoredDocument<T>(adapter: StoredDocumentAdapter<T>): [T, StoredDocumentUpdate<T>] {
-  const adapterRef = useRef(adapter);
-  useEffect(() => {
-    adapterRef.current = adapter;
-  });
-
-  // El estado mutable de este hook. La lectura inicial se hace UNA vez, en el inicializador perezoso
-  // de `useState`; el `ref` la recibe como valor inicial, así que nunca se lee `ref.current` durante el render.
-  const [initialCore] = useState<Core<T>>(() => {
+  constructor(adapter: StoredDocumentAdapter<T>) {
+    this.adapter = adapter;
     const read = adapter.read();
-    const doc = read.doc ?? adapter.initial();
-    return {
-      doc,
-      raw: read.raw,
-      status: read.status,
-      pending: [],
-      unconfirmed: [],
-      lastWriteId: null,
-      lastWriteAt: 0,
-      // Sólo se escribe al arrancar lo que hay que crear o normalizar: un documento ya canónico no se reescribe
-      // (leer no debe cambiar el almacenamiento, ni siquiera añadiéndole su linaje).
-      dirty: !isCanonical(read.raw, read.status, adapter.serialize(doc)),
-      scheduled: false,
+    this.raw = read.raw; this.status = read.status;
+    this.doc = read.doc ?? adapter.initial();
+    this.dirty = !isProtectedStatus(read.status) && !isCanonical(read.raw, read.status, adapter.serialize(this.doc));
+    const saved = readPendingCopy(adapter.key);
+    if (saved) {
+      try {
+        const recovery = JSON.parse(saved) as Recovery;
+        if (typeof recovery.value !== "string" || typeof recovery.pending !== "boolean" || typeof recovery.conflict !== "boolean" || !Array.isArray(recovery.writes) || !recovery.writes.every((ids) => Array.isArray(ids) && ids.every((id) => typeof id === "string"))) throw new Error("Invalid recovery");
+        const recovered = adapter.parse(recovery.value);
+        if (!recovered) throw new Error("Invalid pending document");
+        const lineage = readLineage(read.raw) ?? [];
+        const included = recovery.writes.length > 0 && recovery.writes.every((ids) => ids.length > 0 && ids.some((id) => lineage.includes(id)));
+        if (included && !isProtectedStatus(read.status)) clearPendingCopy(adapter.key);
+        else if (recovered) {
+          this.doc = recovered;
+          if (!recovery.conflict && recovery.pending && read.raw === recovery.raw && !isProtectedStatus(read.status)) {
+            this.pending = [{
+              apply: () => recovered, writeIds: [], anchors: [],
+              guard: { check: () => this.raw === recovery.raw, onReject: () => { this.recoveredCopy = saved; this.conflict = true; this.problem("El documento cambió durante la recarga. Se conserva la copia pendiente; no se ha escrito encima."); } },
+            }];
+            this.dirty = true;
+          } else {
+            this.conflict = true; this.recoveredCopy = saved; this.recoveredWrites = recovery.writes;
+            this.problem("Hay cambios pendientes de esta pestaña que no se pueden aplicar con seguridad. Se conservan su copia y el documento almacenado.");
+          }
+        }
+      } catch { this.conflict = true; this.recoveredCopy = saved; this.problem("No se puede leer la copia pendiente. Se ha conservado sin sustituir el documento almacenado."); }
+    }
+  }
+
+  getSnapshot = (): T => this.doc;
+  configure(adapter: StoredDocumentAdapter<T>): void { this.adapter = adapter; }
+  subscribe(listener: (doc: T) => void): () => void {
+    this.listeners.add(listener); listener(this.doc); return () => this.listeners.delete(listener);
+  }
+  private emit(): void { for (const listener of this.listeners) listener(this.doc); }
+  private problem(message: string): void {
+    if (this.started) reportPersistenceProblem(this.adapter.key, message);
+    else queueMicrotask(() => reportPersistenceProblem(this.adapter.key, message));
+  }
+  private blocked(): boolean {
+    return isProtectedStatus(this.status) || readPendingCopy("restore") !== null || (this.adapter.externallyBlocked?.() ?? false);
+  }
+  private stash(): void {
+    // Tras una recarga las funciones de intención no existen: nunca convertir esa copia en un
+    // diario vacío que parezca confirmado ni reescribir una copia que no sabemos interpretar.
+    if (this.recoveredCopy !== null) return;
+    if (!this.dirty && this.pending.length === 0 && this.unconfirmed.length === 0 && !this.conflict) {
+      clearPendingCopy(this.adapter.key); clearPersistenceProblem(this.adapter.key); return;
+    }
+    const copy: Recovery = {
+      raw: this.raw, value: this.adapter.serialize(this.doc), pending: this.pending.length > 0 || this.dirty,
+      conflict: this.conflict || this.blocked(), writes: [...this.unconfirmed, ...this.pending].map((entry) => entry.writeIds),
     };
-  });
-  const coreRef = useRef<Core<T>>(initialCore);
-  const [doc, setDoc] = useState<T>(initialCore.doc);
-  const verifyRef = useRef<() => void>(() => {});
-
-  const isBlocked = useCallback(
-    (): boolean =>
-      isProtectedStatus(coreRef.current.status) || (adapterRef.current.externallyBlocked?.() ?? false),
-    []
-  );
-
-  /** Reproduce el diario sobre `base`; descarta (y avisa de) lo que ya no es válido sobre ello. */
-  const replay = useCallback((base: T): T => {
-    const core = coreRef.current;
+    if (!keepPendingCopy(this.adapter.key, JSON.stringify(copy))) {
+      this.problem("No se pudo conservar la copia pendiente al recargar. Los cambios siguen en memoria y pueden perderse al cerrar la pestaña.");
+    }
+  }
+  private reject(entry: JournalEntry<T>): void {
+    entry.guard?.onReject();
+  }
+  private replay(base: T): T {
     let next = base;
-    const kept: JournalEntry<T>[] = [];
-    for (const entry of core.pending) {
-      if (entry.guard && !entry.guard.check(next)) {
-        entry.guard.onReject();
-        continue;
-      }
-      next = entry.apply(next);
-      kept.push(entry);
-    }
-    core.pending = kept;
+    this.pending = this.pending.filter((entry) => {
+      if (entry.guard && !entry.guard.check(next)) { this.reject(entry); return false; }
+      next = entry.apply(next); return true;
+    });
     return next;
-  }, []);
-
-  /**
-   * Si el almacenamiento cambió por debajo de este hook, lo relee y repone encima lo que falte. Lo ya
-   * escrito sólo se repone si el linaje del documento adoptado demuestra que NO lo contiene.
-   */
-  const sync = useCallback((): boolean => {
-    const current = adapterRef.current;
-    const core = coreRef.current;
-    let now: string | null;
-    try {
-      now = current.storage.getItem(current.key);
-    } catch {
-      return false;
-    }
-    if (now === core.raw) return false;
-    const read = current.read();
-    core.raw = read.raw;
-    core.status = read.status;
-    // `absent` (alguien retiró la clave) o protegido: se conserva lo que hay en memoria, que es lo que se vuelve a escribir.
-    if (read.doc) {
-      const lineage = readLineage(read.raw);
-      // Linaje lleno: no se puede probar nada; se da todo por incluido (no se repite a ciegas).
-      const ambiguous = lineage.length >= LINEAGE_LENGTH;
-      // Cada operación ya escrita se comprueba contra la escritura que la llevó: sólo se repone la que NO está.
-      const included = (entry: JournalEntry<T>) => Boolean(entry.writeIds?.some((id) => lineage.includes(id)));
-      const missing = ambiguous ? [] : core.unconfirmed.filter((entry) => !included(entry));
-      core.unconfirmed = [];
-      // Una operación ya repuesta (pendiente de reescribir) que resulta estar incluida por un intento anterior se descarta.
-      if (!ambiguous) core.pending = core.pending.filter((entry) => !included(entry));
-      if (missing.length > 0) {
-        core.pending = [...missing, ...core.pending];
-        core.dirty = true;
+  }
+  private inclusion(entry: JournalEntry<T>, lineage: string[] | null): "included" | "missing" | "unknown" {
+    if (entry.writeIds.length === 0) return "missing"; // nunca se llegó a escribir
+    if (lineage && entry.writeIds.some((id) => lineage.includes(id))) return "included";
+    // Con la historia completa se prueba ausencia. Con la ventana llena, un antecesor aún presente
+    // prueba que las escrituras posteriores a él no pudieron desaparecer por truncamiento.
+    if (lineage && (lineage.length < LINEAGE_LENGTH || entry.anchors.some((id) => lineage.includes(id)))) return "missing";
+    return "unknown";
+  }
+  sync(): boolean {
+    const read = this.adapter.read();
+    setProtection(this.adapter.key, read.status);
+    if (read.raw === this.raw && read.status === this.status) return false;
+    this.raw = read.raw; this.status = read.status;
+    if (this.blocked()) {
+      if (this.pending.length || this.unconfirmed.length || this.dirty) {
+        this.problem("No se ha aplicado el cambio: el documento vigente está protegido o no se puede leer. El original y la copia pendiente se conservan.");
+        this.stash();
       }
-      core.doc = replay(read.doc);
+      this.emit(); return true;
     }
-    setProtection(current.key, read.status);
-    return true;
-  }, [replay]);
+    const lineage = readLineage(read.raw);
+    if (this.recoveredCopy !== null) {
+      const included = this.recoveredWrites.length > 0 && this.recoveredWrites.every((ids) => ids.length > 0 && ids.some((id) => lineage?.includes(id)));
+      if (!included) {
+        this.problem("La copia pendiente de la recarga no se puede reconciliar con seguridad. Se conservan ambas copias sin sustituir el documento almacenado.");
+        this.emit(); return true;
+      }
+      this.recoveredCopy = null; this.recoveredWrites = []; this.conflict = false;
+    }
+    const missing: JournalEntry<T>[] = [];
+    const unknown: JournalEntry<T>[] = [];
+    for (const entry of this.unconfirmed) {
+      const state = this.inclusion(entry, lineage);
+      if (state === "missing") missing.push(entry);
+      else if (state === "unknown") unknown.push(entry);
+    }
+    // La prueba positiva se usa SIEMPRE, incluso con 96 ids y aunque el id sea de un intento anterior.
+    this.pending = this.pending.filter((entry) => this.inclusion(entry, lineage) !== "included");
+    const ambiguousPending = this.pending.some((entry) => this.inclusion(entry, lineage) === "unknown");
+    this.unconfirmed = unknown;
+    this.pending = [...missing, ...this.pending];
+    this.conflict = unknown.length > 0 || ambiguousPending;
+    if (this.conflict) {
+      this.problem("No se puede saber si un cambio ya está guardado porque falta parte del historial. Se han conservado ambas copias; no se ha repetido ni descartado el cambio.");
+      this.stash(); this.emit(); return true;
+    }
+    this.doc = this.replay(read.doc ?? this.adapter.initial());
+    this.dirty = this.pending.length > 0;
+    if (this.conflict) { this.stash(); this.emit(); return true; }
+    clearPersistenceProblem(this.adapter.key);
+    if (this.pending.length === 0) cancelPendingWrites([this.adapter.key]);
+    this.stash(); this.emit(); return true;
+  }
 
-  /** Escribe `core.doc` (ya con el diario aplicado). Un fallo queda registrado por `device-storage`. */
-  const writeNow = useCallback((): void => {
-    const core = coreRef.current;
-    if (!core.dirty && core.pending.length === 0) return;
-    if (isBlocked()) {
-      // Protegido: nada se escribe; los cambios viven sólo en memoria y no hay nada que reproducir después.
-      core.pending = [];
-      core.dirty = false;
-      return;
+  private writeNow(): void {
+    const adopted = this.sync(); // la clasificación ocurre dentro del lock
+    if (this.blocked() || this.conflict) {
+      if (this.pending.length || this.dirty) this.problem("No se ha escrito sobre los datos conservados. El cambio pendiente no se puede aplicar con seguridad.");
+      this.stash(); return;
     }
-    const adopted = sync();
-    // Arranque sobre un documento que otra pestaña acaba de crear o cambiar, sin operaciones nuestras que
-    // reponer: se adopta el suyo y no se escribe el nuestro encima.
-    if (adopted && core.pending.length === 0) {
-      core.dirty = false;
-      setDoc(core.doc);
-      return;
-    }
-    const current = adapterRef.current;
+    if (adopted && this.pending.length === 0) this.dirty = false;
+    if (!this.dirty && this.pending.length === 0) return;
+    // Segunda clasificación inmediatamente antes del setItem, también dentro del lock.
+    this.sync();
+    if (this.blocked() || this.conflict) { this.stash(); return; }
+    if (!this.dirty && this.pending.length === 0) return;
+    const lineage = readLineage(this.raw) ?? [];
+    const anchor = lineage.at(-1);
     const id = newWriteId();
-    const lineage = [...readLineage(core.raw), id].slice(-LINEAGE_LENGTH);
-    const serialized = withLineage(current.serialize(core.doc), lineage);
-    try {
-      current.storage.setItem(current.key, serialized);
-    } catch {
-      return;
+    const serialized = withLineage(this.adapter.serialize(this.doc), [...lineage, id].slice(-LINEAGE_LENGTH));
+    this.flushedRevision = this.revision;
+    try { this.adapter.storage.setItem(this.adapter.key, serialized); }
+    catch { this.stash(); return; }
+    for (const entry of this.pending) {
+      entry.writeIds.push(id);
+      if (anchor) entry.anchors.push(anchor);
     }
-    core.raw = serialized;
-    core.status = "valid";
-    core.lastWriteId = id;
-    core.lastWriteAt = Date.now();
-    core.unconfirmed = [...core.unconfirmed, ...core.pending.map((entry) => ({ ...entry, writeIds: [...(entry.writeIds ?? []), id] }))];
-    core.pending = [];
-    core.dirty = false;
-    setDoc(core.doc);
-    // Comprobar más tarde que la escritura sobrevivió (otra pestaña pudo escribir a la vez con una lectura anterior).
-    setTimeout(() => verifyRef.current(), VERIFY_AFTER_MS);
-  }, [isBlocked, sync]);
-
-  /** Escritura diferida: dentro del Web Lock del documento y agrupando lo del mismo turno. */
-  const scheduleFlush = useCallback((): void => {
-    const core = coreRef.current;
-    if (core.scheduled) return;
-    core.scheduled = true;
-    queueMicrotask(() => {
-      runExclusive(adapterRef.current.key, () => {
-        core.scheduled = false;
-        writeNow();
+    this.unconfirmed.push(...this.pending); this.pending = [];
+    this.raw = serialized; this.status = "valid"; this.dirty = false;
+    this.lastWriteAt = Date.now();
+    setProtection(this.adapter.key, "valid"); clearPersistenceProblem(this.adapter.key);
+    this.stash(); this.emit();
+    setTimeout(() => this.verify(), VERIFY_AFTER_MS);
+  }
+  flush = (): Promise<void> => {
+    if (this.flight) return this.flight;
+    this.flight = runExclusive(this.adapter.key, () => this.writeNow())
+      .catch(() => this.problem("No se pudo obtener acceso para guardar. Se conserva la copia pendiente; vuelve a intentarlo."))
+      .finally(() => {
+        this.flight = null;
+        if (this.pending.length && this.revision > this.flushedRevision && !this.blocked() && !this.conflict) {
+          this.flushedRevision = this.revision; // no reintento en bucle ante cuota
+          this.schedule();
+        }
       });
+    return this.flight;
+  };
+  private schedule(): void { queueMicrotask(() => { void this.flush(); }); }
+  private verify(): void {
+    if (this.unconfirmed.length === 0 || this.conflict) return;
+    if (this.sync()) { if (this.pending.length || this.dirty) this.schedule(); return; }
+    if (Date.now() - this.lastWriteAt >= CONFIRM_AFTER_MS) {
+      this.unconfirmed = []; this.stash();
+    } else setTimeout(() => this.verify(), VERIFY_AFTER_MS);
+  }
+  update: StoredDocumentUpdate<T> = (action, guard) => {
+    this.sync();
+    if (this.blocked() || this.conflict) {
+      this.problem("No se ha aplicado el cambio: los datos conservados no se pueden sustituir con seguridad.");
+      this.emit(); return;
+    }
+    if (guard && !guard.check(this.doc)) {
+      guard.onReject(); this.emit(); return;
+    }
+    const apply = (value: T): T => typeof action === "function" ? (action as (current: T) => T)(value) : action;
+    const next = apply(this.doc);
+    if (!Object.is(next, this.doc) && this.adapter.serialize(next) !== this.adapter.serialize(this.doc)) {
+      this.doc = next;
+      this.pending.push({ apply, guard, writeIds: [], anchors: [] });
+      this.revision += 1; this.stash(); this.schedule();
+    }
+    this.emit();
+  };
+
+  start(): void {
+    if (this.started) return;
+    this.started = true;
+    setProtection(this.adapter.key, this.status);
+    registerPersistenceRetry(this.adapter.key, this.flush);
+    registerFlusher(this.flush);
+    subscribeStorageReplaced(() => {
+      this.pending = []; this.unconfirmed = []; this.conflict = false; this.recoveredCopy = null; this.recoveredWrites = []; this.dirty = false;
+      cancelPendingWrites([this.adapter.key]); clearPersistenceProblem(this.adapter.key); clearPendingCopy(this.adapter.key);
+      const read = this.adapter.read();
+      this.raw = read.raw; this.status = read.status; this.doc = read.doc ?? this.adapter.initial();
+      this.dirty = !isProtectedStatus(read.status) && !isCanonical(read.raw, read.status, this.adapter.serialize(this.doc));
+      setProtection(this.adapter.key, read.status); this.emit(); this.schedule();
     });
-  }, [writeNow]);
-
-  /**
-   * Comprobación posterior a una escritura: si lo almacenado cambió, `sync` aplica la prueba de linaje y repone
-   * lo que no esté; si no cambió, la escritura sólo se da por confirmada tras un rato estable (una escritura
-   * ajena puede tardar en llegar a la caché de esta pestaña).
-   */
-  useEffect(() => {
-    verifyRef.current = () => {
-      const core = coreRef.current;
-      if (core.unconfirmed.length === 0) return;
-      if (sync()) {
-        setDoc(core.doc);
-        if (core.pending.length > 0 || core.dirty) scheduleFlush();
-        return;
+    window.addEventListener("storage", (event) => {
+      if (event.key === null || event.key === this.adapter.key) {
+        if (this.sync() && (this.dirty || this.pending.length)) this.schedule();
       }
-      if (Date.now() - core.lastWriteAt >= CONFIRM_AFTER_MS) core.unconfirmed = [];
-      else setTimeout(() => verifyRef.current(), VERIFY_AFTER_MS);
-    };
-  }, [scheduleFlush, sync]);
-
-  const update = useCallback<StoredDocumentUpdate<T>>(
-    (action, guard) => {
-      const core = coreRef.current;
-      sync();
-      const base = core.doc;
-      if (guard && !guard.check(base)) {
-        guard.onReject();
-        setDoc(core.doc);
-        return;
-      }
-      const apply = (value: T): T =>
-        typeof action === "function" ? (action as (current: T) => T)(value) : action;
-      const next = apply(base);
-      // Una operación que devuelve un objeto nuevo pero IGUAL (p. ej. una reconciliación sin cambios) no es una mutación:
-      // no se escribe, así que no se altera el almacenamiento ni su linaje.
-      const changed = !Object.is(next, base) && adapterRef.current.serialize(next) !== adapterRef.current.serialize(base);
-      if (changed) {
-        core.doc = next;
-        core.pending.push({ apply, guard });
-        scheduleFlush();
-      }
-      setDoc(core.doc);
-    },
-    [scheduleFlush, sync]
-  );
-
-  useEffect(() => {
-    const core = coreRef.current;
-    setProtection(adapterRef.current.key, core.status);
-    // El arranque normaliza lo migrado y crea el documento si no existía; un original protegido no se toca.
-    scheduleFlush();
-
-    const rehydrate = () => {
-      if (!sync()) return;
-      setDoc(core.doc);
-      if (core.status === "absent") core.dirty = true;
-      // Lo que se repuso encima (o la clave retirada) hay que escribirlo, y comprobar después que sobrevive.
-      if (core.dirty || core.pending.length > 0) scheduleFlush();
-    };
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === null || event.key === adapterRef.current.key) rehydrate();
-    };
-    // Al ocultarse o cerrarse la pestaña no hay tiempo para esperar un lock: lo pendiente se escribe ya.
-    const flushNow = () => {
-      core.scheduled = false;
-      writeNow();
-    };
-    const onHide = () => {
-      if (document.visibilityState === "hidden") flushNow();
-    };
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("pagehide", flushNow);
-    document.addEventListener("visibilitychange", onHide);
-    // Restauración o recuperación en ESTA pestaña: REEMPLAZA el documento; no se repone nada del diario.
-    const unsubscribe = subscribeStorageReplaced(() => {
-      core.pending = [];
-      core.unconfirmed = [];
-      rehydrate();
     });
-    const unregister = registerFlusher(flushNow);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("pagehide", flushNow);
-      document.removeEventListener("visibilitychange", onHide);
-      unsubscribe();
-      unregister();
-      flushNow();
-    };
-  }, [scheduleFlush, sync, writeNow]);
+    const preserve = () => { this.stash(); void this.flush(); };
+    window.addEventListener("pagehide", preserve);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") preserve(); });
+    this.schedule();
+  }
+}
 
+const stores = new WeakMap<StorageLike, Map<string, StoredDocumentStore<unknown>>>();
+function storeFor<T>(adapter: StoredDocumentAdapter<T>): StoredDocumentStore<T> {
+  let byKey = stores.get(adapter.storage);
+  if (!byKey) { byKey = new Map(); stores.set(adapter.storage, byKey); }
+  let store = byKey.get(adapter.key);
+  if (!store) {
+    store = new StoredDocumentStore(adapter) as unknown as StoredDocumentStore<unknown>;
+    byKey.set(adapter.key, store);
+  }
+  return store as unknown as StoredDocumentStore<T>;
+}
+
+/** React sólo observa el diario único; desmontar una superficie no pierde su intención ni su reintento. */
+export function useStoredDocument<T>(adapter: StoredDocumentAdapter<T>): [T, StoredDocumentUpdate<T>] {
+  const [store] = useState(() => storeFor(adapter));
+  const [doc, setDoc] = useState<T>(store.getSnapshot);
+  useEffect(() => { store.configure(adapter); });
+  useEffect(() => { store.start(); return store.subscribe(setDoc); }, [store]);
+  const update = useCallback<StoredDocumentUpdate<T>>((action, guard) => store.update(action, guard), [store]);
   return [doc, update];
 }

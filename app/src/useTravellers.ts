@@ -16,13 +16,14 @@ import {
   withoutTraveller,
   TRAVELLERS_STORAGE_KEY,
   freshTravellersDocument,
+  parseTravellersDocument,
   type InterestSnapshot,
   type InterestStance,
   type PlaceInterestSummary,
   type TravellersDocumentV1,
 } from "./lib/travellers";
 import { divergenceEntries, type DivergenceEntry } from "./lib/interest-divergence";
-import { deviceStorage } from "./lib/device-storage";
+import { deviceStorage, reportPersistenceProblem } from "./lib/device-storage";
 import { readStoredTravellers } from "./lib/stored-document";
 import { useStoredDocument, type StoredDocumentAdapter } from "./useStoredDocument";
 
@@ -77,6 +78,7 @@ const travellersAdapter: StoredDocumentAdapter<TravellersDocumentV1> = {
   read: () => readStoredTravellers(browserStorage, randomTravellerId),
   initial: () => freshTravellersDocument(randomTravellerId),
   serialize: (doc) => JSON.stringify(doc),
+  parse: (raw) => { try { return parseTravellersDocument(JSON.parse(raw)); } catch { return null; } },
 };
 
 export function useTravellers() {
@@ -130,16 +132,20 @@ export function useTravellers() {
   // que pidió si otra pestaña cambió ese corazón entre medias (la vista aún mostraba «sin guardar», el estado
   // vigente ya lo tenía guardado y el pulso lo quitaba). Se convierte en una intención explícita.
   const viewedInterestedRef = useRef<readonly string[]>(activeInterestedIds);
+  const viewedTravellerRef = useRef(document.activeTravellerId);
   useEffect(() => {
     viewedInterestedRef.current = activeInterestedIds;
+    viewedTravellerRef.current = document.activeTravellerId;
   });
   const toggleSaved = useCallback((id: string) => {
     const wantsInterested = !viewedInterestedRef.current.includes(id);
-    setDocument((current) =>
-      current.activeTravellerId === null
-        ? current
-        : withStance(current, id, current.activeTravellerId, wantsInterested ? "interested" : null)
-    );
+    const travellerId = viewedTravellerRef.current;
+    if (travellerId === null) return;
+    setDocument((current) => withStance(current, id, travellerId, wantsInterested ? "interested" : null), {
+      check: (current) => findTraveller(current, travellerId) !== null,
+      onReject: () => reportPersistenceProblem(TRAVELLERS_STORAGE_KEY + ":operation",
+        "No se ha guardado ni quitado el interés: esa persona ya no existe en el viaje. Hemos actualizado la vista.", false),
+    });
   }, [setDocument]);
 
   /**
@@ -150,20 +156,24 @@ export function useTravellers() {
    * shortlist and the list says why.
    */
   const removeSaved = useCallback((id: string) => {
-    setDocument((current) =>
-      current.activeTravellerId === null
-        ? current
-        : withStance(current, id, current.activeTravellerId, null)
-    );
+    const travellerId = viewedTravellerRef.current;
+    if (travellerId === null) return;
+    setDocument((current) => withStance(current, id, travellerId, null), {
+      check: (current) => findTraveller(current, travellerId) !== null,
+      onReject: () => reportPersistenceProblem(TRAVELLERS_STORAGE_KEY + ":operation",
+        "No se ha quitado el interés: esa persona ya no existe en el viaje. Hemos actualizado la vista.", false),
+    });
   }, [setDocument]);
 
   /** Records one explicit stance for the active traveller. `null` returns them to no opinion. */
   const setStance = useCallback((placeId: string, stance: InterestStance | null) => {
-    setDocument((current) =>
-      current.activeTravellerId === null
-        ? current
-        : withStance(current, placeId, current.activeTravellerId, stance)
-    );
+    const travellerId = viewedTravellerRef.current;
+    if (travellerId === null) return;
+    setDocument((current) => withStance(current, placeId, travellerId, stance), {
+      check: (current) => findTraveller(current, travellerId) !== null,
+      onReject: () => reportPersistenceProblem(TRAVELLERS_STORAGE_KEY + ":operation",
+        "No se ha aplicado la preferencia: esa persona ya no existe en el viaje. Hemos actualizado la vista.", false),
+    });
   }, [setDocument]);
 
   const stanceFor = useCallback(
@@ -221,7 +231,8 @@ export function useTravellers() {
   }, [setDocument]);
 
   const addTraveller = useCallback((label: string) => {
-    setDocument((current) => withNewTraveller(current, label, randomTravellerId));
+    const id = randomTravellerId();
+    setDocument((current) => withNewTraveller(current, label, () => id));
   }, [setDocument]);
 
   /**
@@ -265,7 +276,11 @@ export function useTravellers() {
 
   /** B25: «Deshacer» — puts back exactly the stance the snapshot recorded, and nobody else's. */
   const restoreInterest = useCallback((snapshot: InterestSnapshot) => {
-    setDocument((current) => withRestoredInterest(current, snapshot));
+    setDocument((current) => withRestoredInterest(current, snapshot), {
+      check: (current) => findTraveller(current, snapshot.travellerId) !== null,
+      onReject: () => reportPersistenceProblem(TRAVELLERS_STORAGE_KEY + ":operation",
+        "No se ha deshecho el cambio: esa persona ya no existe en el viaje. Hemos actualizado la vista.", false),
+    });
   }, [setDocument]);
 
   /** How many shortlisted places would leave the list if this traveller were reset or removed.

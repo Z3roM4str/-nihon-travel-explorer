@@ -30,7 +30,7 @@ import {
  * salida explícita ({@link startFresh}), y esa salida primero guarda una copia aparte.
  */
 
-export type StoredStatus = "absent" | "valid" | "invalid" | "incompatible";
+export type StoredStatus = "absent" | "valid" | "invalid" | "incompatible" | "unreadable";
 
 export type StoredRead<T> = {
   status: StoredStatus;
@@ -44,6 +44,8 @@ export type StorageLike = {
   getItem: (key: string) => string | null;
   setItem: (key: string, value: string) => void;
   removeItem: (key: string) => void;
+  pendingCopies?: () => Record<string, string>;
+  cancelPendingWrites?: (keys: readonly string[]) => void;
 };
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -90,11 +92,10 @@ export function readStoredTravellers(
   storage: StorageLike,
   idFactory: () => string
 ): StoredRead<TravellersDocumentV1> {
-  const read = classify(
-    safeGet(storage, TRAVELLERS_STORAGE_KEY),
-    TRAVELLERS_VERSION,
-    parseTravellersDocument
-  );
+  let read: StoredRead<TravellersDocumentV1>;
+  try {
+    read = classify(storage.getItem(TRAVELLERS_STORAGE_KEY), TRAVELLERS_VERSION, parseTravellersDocument);
+  } catch { return { status: "unreadable", raw: null, doc: null }; }
   if (read.status !== "absent") return read;
   const legacyRaw = safeGet(storage, LEGACY_SAVED_PLACES_KEY);
   if (!legacyRaw) return read;
@@ -108,22 +109,19 @@ export function readStoredTravellers(
 }
 
 export function readStoredDraft(storage: StorageLike): StoredRead<ManualPlanningDraftV8> {
-  return classify(
-    safeGet(storage, PLANNING_DRAFT_STORAGE_KEY),
-    PLANNING_DRAFT_VERSION,
-    parseStoredDraft
-  );
+  try { return classify(storage.getItem(PLANNING_DRAFT_STORAGE_KEY), PLANNING_DRAFT_VERSION, parseStoredDraft); }
+  catch { return { status: "unreadable", raw: null, doc: null }; }
 }
 
-export function isProtectedStatus(status: StoredStatus): status is "invalid" | "incompatible" {
-  return status === "invalid" || status === "incompatible";
+export function isProtectedStatus(status: StoredStatus): status is "invalid" | "incompatible" | "unreadable" {
+  return status === "invalid" || status === "incompatible" || status === "unreadable";
 }
 
 // ── Protección en curso (una sola fuente de verdad, como `device-storage`) ─────────────────────
 
 export type ProtectedDocument = {
   key: string;
-  status: "invalid" | "incompatible";
+  status: "invalid" | "incompatible" | "unreadable";
 };
 
 const protections = new Map<string, ProtectedDocument>();
@@ -184,13 +182,13 @@ export const CANONICAL_KEYS = [TRAVELLERS_STORAGE_KEY, PLANNING_DRAFT_STORAGE_KE
 export const RECOVERED_KEY_PREFIX = "nihon.recovered.";
 
 /** El contenido original, tal cual está, de cada documento canónico que exista. */
-export function collectOriginals(storage: StorageLike): Record<string, string> {
+export function collectOriginals(storage: StorageLike, includePending = false): Record<string, string> {
   const originals: Record<string, string> = {};
   for (const key of CANONICAL_KEYS) {
-    const value = safeGet(storage, key);
+    const value = storage.getItem(key);
     if (value !== null) originals[key] = value;
   }
-  return originals;
+  return includePending ? { ...originals, ...storage.pendingCopies?.() } : originals;
 }
 
 /** Texto del archivo que se entrega al descargar la copia: un JSON con las cadenas originales. */
@@ -207,7 +205,9 @@ export type CopyOutcome = { ok: true; copiedKeys: string[] } | { ok: false };
  */
 export function copyOriginals(storage: StorageLike, stamp: string): CopyOutcome {
   const copied: string[] = [];
-  for (const [key, value] of Object.entries(collectOriginals(storage))) {
+  let originals: Record<string, string>;
+  try { originals = collectOriginals(storage, true); } catch { return { ok: false }; }
+  for (const [key, value] of Object.entries(originals)) {
     const copyKey = `${RECOVERED_KEY_PREFIX}${stamp}.${key}`;
     try {
       storage.setItem(copyKey, value);
@@ -243,6 +243,8 @@ export function startFresh(
     try {
       storage.removeItem(key);
     } catch {
+      // Un borrado explícito fallido no se vuelve a ejecutar sobre un futuro estado externo.
+      storage.cancelPendingWrites?.([key]);
       return { ok: false, reason: "remove-failed" };
     }
   }
@@ -265,29 +267,18 @@ export function refreshProtection(storage: StorageLike): void {
  * dentro de un **Web Lock** con el nombre del documento (`navigator.locks`, Chrome/Safari 15.4+/Firefox 96+):
  * una pestaña a la vez. Sin Web Locks se cae al comportamiento anterior (síncrono, sin exclusión).
  */
-export function runExclusive(name: string, task: () => void): void {
-  const locks = typeof navigator !== "undefined" ? (navigator as Navigator & { locks?: LockManager }).locks : undefined;
-  if (!locks || typeof locks.request !== "function") {
-    task();
-    return;
-  }
-  void locks.request(`nihon:${name}`, { mode: "exclusive" }, () => {
-    task();
-  }).catch(() => {
-    task();
-  });
-}
+export { runExclusive, runExclusiveDocuments } from "./storage-lock";
 
-const flushers = new Set<() => void>();
+const flushers = new Set<() => Promise<void>>();
 
-/** Cada hook con escrituras pendientes se registra aquí para poder vaciarse de forma SÍNCRONA (exportar, cerrar). */
-export function registerFlusher(flush: () => void): () => void {
+/** Cada hook con escrituras pendientes se registra aquí para poder vaciarlas esperando el mismo bloqueo (exportar); al cerrar se conserva también una copia de sesión. */
+export function registerFlusher(flush: () => Promise<void>): () => void {
   flushers.add(flush);
   return () => {
     flushers.delete(flush);
   };
 }
 
-export function flushAllPendingWrites(): void {
-  for (const flush of [...flushers]) flush();
+export async function flushAllPendingWrites(): Promise<void> {
+  await Promise.all([...flushers].map((flush) => flush()));
 }

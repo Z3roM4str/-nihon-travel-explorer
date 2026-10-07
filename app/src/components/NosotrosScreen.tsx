@@ -66,7 +66,7 @@ export function NosotrosScreen({
   onRemoveTraveller: (travellerId: string) => void;
   onAddTraveller: (label: string) => void;
   importState: ImportState;
-  onExport: () => ExportOutcome;
+  onExport: () => Promise<ExportOutcome>;
   protectedDocuments: readonly ProtectedDocument[];
   onDownloadOriginals: () => { ok: boolean };
   onRetryPersistence: () => unknown;

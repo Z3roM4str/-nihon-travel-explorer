@@ -36,7 +36,7 @@ export function TripBackup({
 }: {
   importState: ImportState;
   protectedDocuments: readonly ProtectedDocument[];
-  onExport: () => ExportOutcome;
+  onExport: () => Promise<ExportOutcome>;
   onDownloadOriginals: () => { ok: boolean };
   onRetryPersistence: () => unknown;
   onChooseFile: (file: File) => void;
@@ -128,18 +128,23 @@ export function TripBackup({
           ) : exportBlocked === "unsaved" ? (
             <div className="trip-backup__problem" data-export-blocked="unsaved">
               <p>
-                <strong>No se puede exportar un respaldo ahora.</strong> Nihon no ha podido escribir lo último en este
-                dispositivo, así que el respaldo no lo incluiría y parecería completo sin serlo.
+                <strong>No se puede exportar un respaldo ahora.</strong> Hay cambios sin guardar o pendientes de
+                comprobar, así que el respaldo podría no incluirlos y parecería completo sin serlo. Las copias
+                pendientes y los datos almacenados se conservan por separado.
               </p>
               <button type="button" className="button button--secondary" onClick={() => onRetryPersistence()}>
                 Volver a intentarlo
               </button>
+              <button type="button" className="button button--secondary" onClick={() => setOriginalsResult(onDownloadOriginals().ok ? "ok" : "failed")}>
+                Descargar copia de lo conservado
+              </button>
+              {originalsResult === "failed" && <p role="alert">El navegador no ha podido entregar la copia. Tus datos siguen intactos.</p>}
             </div>
           ) : (
             <button
               type="button"
               className="button button--secondary trip-backup__export"
-              onClick={() => setExported(onExport())}
+              onClick={() => { void onExport().then(setExported); }}
             >
               Exportar respaldo
             </button>

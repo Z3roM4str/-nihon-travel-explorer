@@ -5,6 +5,32 @@
 **Alcance:** sólo fiabilidad; sin funcionalidades nuevas, sin cambios de datos (JP-126 queda como seguimiento), sin tocar Vercel,
 Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](final-audit-evidence/).
 
+## Ronda 3 (2026-10-07): cierre de cinco hallazgos bloqueantes
+
+La revisión independiente sobre **`d26d86ba183fe9c23a06a21720e6a7450a637345`** encontró cinco fallos.
+Se recuperaron y ejecutaron los scripts de Codex antes de editar: **6/14 pasan, 8/14 fallan**; el botón
+real de reintento también sobrescribe el futuro. Evidencia y diferencias de fixtures:
+[round3/README.md](final-audit-evidence/round3/README.md). Esta sección sustituye las garantías y
+limitaciones de persistencia de las rondas anteriores; H03 y sus aserciones estrictas permanecen intactos.
+
+| Hallazgo | Causa y mecanismo | Corrección | Falla → pasa |
+|---|---|---|---|
+| 1. Reintento viejo | `device-storage.ts` guardaba una cadena fallida y `retryPersistence` la escribía directamente, borrando cambios externos o futuros. | El reintento canónico delega al diario propietario, adquiere **el mismo lock**, relee/clasifica y reconcilia la intención; sin propietario rechaza y conserva originales. Preferencias: CAS bajo lock. Error al adquirir lock no habilita un camino sin bloqueo. | JP-077 perdido con exportación exitosa → JP-077 y JP-021 presentes en almacenamiento **y archivo leído**; futuro sustituido → bytes intactos. |
+| 2. Cola protegida | `useStoredDocument.ts` comprobaba la protección antes de `sync()`, pero podía esperar y descubrir un documento protegido después. | Recomprueba **después de sync, dentro del lock y justo antes de setItem**; lecturas fallidas son `unreadable`, nunca ausencia. Exportación e importación adquieren ambos locks en orden estable; exportación clasifica también la lectura que usa para el archivo. | Inválido/futuro sobrescrito tras liberar lock y retener eventos → ambos intactos; reintento en esa misma ventana también protegido. |
+| 3. Linaje 96 | La rama saturada daba por confirmada una operación ausente y dejaba repetir una pendiente incluida. | Inclusión positiva por **cualquier id de intento**, incluso lleno; sólo repone ausencia demostrable (historia completa o antecesor aún presente). Historia insuficiente: conflicto, ambas copias, sin descartar ni repetir. Ids de entidades capturados una vez, estables al reproducir. Un solo diario por clave/pestaña para todas las superficies, incluidas zonas. | Pérdida: 2 → 3 días. Duplicado: 3 → 2. Id anterior incluido sigue sin duplicarse; historia desconocida/ausente/malformada queda protegida también tras recarga. |
+| 4. Rollback | Importación fallida dejaba en la cola de `device-storage` un payload importado aunque el rollback hubiese restituido viajeros y borrador. | Scope de importación cancela **sus** pendientes al rollback, preserva las previas. Preimagen de ambos documentos conservada antes de escribir. Rollback incompleto bloquea reintentos automáticos y exportación, conserva preimagen entre recargas. Restauración satisfactoria cancela el diario anterior inmediatamente. | Reintentar mezclaba viajeros anteriores con fecha importada → preimagen intacta al reintentar y recargar; rollback incompleto se declara y conserva. |
+| 5. Persona vista | La intención guardar/quitar releía `activeTravellerId` de un estado posterior. | Captura **persona e intención vistas** al solicitar; guarda de existencia al pedir y reproducir. Si desapareció, rechaza con explicación. También quitar, postura explícita y deshacer respetan la identidad. | Vista p1, operación a p2 → operación a p1; desaparición mientras espera → sin atribuirla a p2 y aviso visible. |
+
+Validación dirigida de la primera implementación: **28/28 Chromium** y **3452/3452 Vitest**; build
+correcta y lint sin errores (aviso heredado de `PlaceMap`). Matriz completa de Chromium local y
+Chromium/WebKit CI en curso; no se declara todavía su certificación final.
+
+Caminos adicionales revisados: arranque/migración, mutación, verificación posterior, reintento,
+exportación, importación/rollback, «Empezar de nuevo», desmontaje de superficies, `pagehide` y
+recarga H03. Cierre/recarga conserva copia de sesión sin saltarse el lock. «Empezar de nuevo» relee
+la protección tras esperar; una eliminación fallida no se convierte en un borrado futuro en cola.
+Las copias originales pueden incluir el trabajo pendiente, separado del respaldo portable.
+
 ## Tabla H01–H07
 
 | # | Causa confirmada | Corrección | Validación (base → corregido) |
@@ -80,10 +106,11 @@ Qué modela cada escenario (`final-audit-data-recovery-check`, función `h03Scen
 
 - WebKit no existe en el entorno local: sólo Chromium local; WebKit se valida en el CI del PR (`p06-certification.yml`, WebKit 26.5 de Playwright). Sin Safari/iPhone físico, VoiceOver, TalkBack ni NVDA: H03 está probado en WebKit de Playwright con un servidor local que falla, **no** en Safari real.
 - **H03:** la recuperación depende de que Vite siga insertando `<link rel="modulepreload">` antes de las importaciones diferidas (de ahí sale la lista a refrescar). Si en algún navegador no hubiera enlace, «Recargar» equivale a recargar a secas y el aviso indica cerrar y reabrir la pestaña (una sesión nueva recupera). El gate ya no acepta «sólo en sesión nueva»: ese resultado es diagnóstico.
-- **Escrituras entre pestañas:** requiere Web Locks (Chrome/Edge, Safari ≥ 15.4, Firefox ≥ 96); sin ellos se cae al comportamiento síncrono sin exclusión (la prueba de linaje sigue detectando y reponiendo lo perdido). Si el linaje se llena (96 escrituras entre dos comprobaciones) no se puede probar nada y se da lo escrito por incluido en vez de repetirlo a ciegas: la ventana es de 250 ms tras escribir y el estrés (3 × 40 simultáneas) no la alcanzó, pero no está demostrado que sea imposible. La estrategia es de mejor esfuerzo local, **no** una garantía transaccional.
+- **Escrituras entre pestañas:** requiere Web Locks (Chrome/Edge, Safari ≥ 15.4, Firefox ≥ 96); sin ellos se cae al comportamiento síncrono sin exclusión (la prueba de linaje sigue detectando y reponiendo lo perdido). Desde ronda 3, un linaje lleno aún acredita inclusión positiva o ausencia si conserva un antecesor; sin prueba suficiente se comunica conflicto y se conservan ambas copias sin escribir ni adivinar. La estrategia es de mejor esfuerzo local, **no** una garantía transaccional.
 - Una operación que sólo es válida sobre una vista vieja se **rechaza** (con aviso) en vez de aplicarse por posición; las operaciones sin identidad natural (p. ej. «Añadir día») se componen entre pestañas.
-- `retryPersistence` (reintento tras fallo de cuota) reescribe la carga pendiente sin comprobar cambios externos.
-- «Exportar respaldo» no se ofrece con datos protegidos ni con escritura fallida; «Descargar copia de lo conservado» no valida que el contenido sea restaurable, sólo que es lo original.
+- `retryPersistence` reconcilia intenciones bajo el mismo lock; el historial insuficiente o la falta del propietario rechazan el reintento sin sustituir originales.
+- Las copias de sesión conservan trabajo al recargar la misma pestaña; no garantizan supervivencia al cierre definitivo ni si `sessionStorage` está denegado o lleno. La imposibilidad de conservar se comunica.
+- «Exportar respaldo» no se ofrece con datos protegidos, conflicto ni escritura fallida; «Descargar copia de lo conservado» no valida que el contenido sea restaurable, sólo que es lo original.
 - Quedan claves `nihon.recovered.*` en `localStorage` tras «Empezar de nuevo»; nada las lee ni las borra.
 - Gates Chromium-only (`phase5a`, `phase3f-*`, `block4/6`, …) no corren en WebKit; phase5a sí corre en el job chromium de CI. Los demás gates que tocan los documentos se ejecutaron localmente en Chromium tras los cambios (block4–14, block19, phase3f-f/h/j/s, ddr03, b10-a11y, evidence-options, css-equivalence); `ddr03` y `block19-*` necesitan un servidor en el puerto 4181.
 - Seguimiento sin cambio: JP-126 (barrio/coordenadas frente a JP-125) — no se toca el dataset sin fuente oficial.

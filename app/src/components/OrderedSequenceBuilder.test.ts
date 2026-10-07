@@ -591,7 +591,8 @@ describe("usePlanningDraft.ts — Phase 3D-L persisted-time wiring", () => {
     // current stored document — by `useStoredDocument`, not by a second effect in this hook.
     expect(hook).not.toMatch(/writeDraft\(browserStorage, draft\);/);
     const stored = await readFile(new URL("../useStoredDocument.ts", import.meta.url), "utf8");
-    expect(stored).toMatch(/current\.storage\.setItem\(current\.key, serialized\)/);
+    expect(stored).toContain("runExclusive(this.adapter.key, () => this.writeNow())");
+    expect(stored).toMatch(/this\.adapter\.storage\.setItem\(this\.adapter\.key, serialized\)/);
   });
 });
 
@@ -736,7 +737,7 @@ describe("usePlanningDraft.ts — Phase 3D-Q accommodation wiring", () => {
     expect(hook).toMatch(/planningDays: draft\.days,/);
     expect(hook).not.toContain("dayAccommodationBoundaries");
     expect(hook).toMatch(/accommodationLegs: draft\.accommodationLegs,/);
-    expect(hook).toMatch(/withNewAccommodation\(current, label, location, randomAccommodationId\)/);
+    expect(hook).toMatch(/withNewAccommodation\(current, label, location, \(\) => id\)/);
     expect(hook).toMatch(/withoutAccommodation\(current, accommodationId\)/);
     // Addressed by the day's stable id rather than by its ordinal position.
     expect(hook).toMatch(/withDayAccommodationChoice\(current, dayId, side, choice\)/);

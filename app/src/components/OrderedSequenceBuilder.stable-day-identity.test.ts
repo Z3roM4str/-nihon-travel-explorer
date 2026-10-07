@@ -495,8 +495,8 @@ describe("usePlanningDraft.ts — Phase 3D-S mutation surface", () => {
     const hook = await readFile(HOOK_PATH, "utf8");
     expect(hook).toMatch(/function randomDayId\(\): string \{/);
     expect(hook).toMatch(/crypto\.randomUUID\(\)/);
-    expect(hook).toMatch(/withNewEmptyDay\(current, randomDayId\)/);
-    expect(hook).toMatch(/withInitialDays\(current, days, randomDayId\)/);
+    expect(hook).toMatch(/withNewEmptyDay\(current, \(\) => id\)/);
+    expect(hook).toMatch(/withInitialDays\(current, days, \(\) => ids\[index\+\+\] \?\? randomDayId\(\)\)/);
     const body = hook.slice(hook.indexOf("function randomDayId"), hook.indexOf("function randomInterHubSegmentId"));
     // "Date.now" is pinned here too (corrective pass, Finding 1): a day id must never encode
     // creation time, on the `randomUUID` path OR on any fallback.

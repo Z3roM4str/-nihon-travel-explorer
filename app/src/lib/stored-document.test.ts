@@ -87,8 +87,8 @@ describe("readStoredTravellers", () => {
 
   it("un almacenamiento ilegible se lee como ausente", () => {
     const broken: StorageLike = { getItem: () => { throw new Error("blocked"); }, setItem: () => {}, removeItem: () => {} };
-    expect(readStoredTravellers(broken, ids).status).toBe("absent");
-    expect(readStoredDraft(broken).status).toBe("absent");
+    expect(readStoredTravellers(broken, ids).status).toBe("unreadable");
+    expect(readStoredDraft(broken).status).toBe("unreadable");
   });
 });
 

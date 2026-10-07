@@ -8,6 +8,8 @@ import {
   refreshProtection,
   serializeOriginals,
   startFresh,
+  CANONICAL_KEYS,
+  runExclusiveDocuments,
   subscribeProtection,
   subscribeStorageReplaced,
   type ProtectedDocument,
@@ -41,14 +43,17 @@ const DOCUMENT_NAME: Record<string, string> = {
 
 function describe(entry: ProtectedDocument): string {
   const name = DOCUMENT_NAME[entry.key] ?? "Un documento de datos";
+  if (entry.status === "unreadable") return `${name} no se puede leer en este dispositivo. No se ha sustituido por un documento vacío.`;
   return entry.status === "incompatible"
     ? `${name}, almacenado en este navegador, es de una versión más reciente de Nihon y esta no sabe leerlo.`
     : `${name}, almacenado en este navegador, no se reconoce: puede estar dañado.`;
 }
 
 function downloadOriginals(): boolean {
-  const text = serializeOriginals(collectOriginals(deviceStorage), new Date().toISOString());
-  return downloadTextFile(`nihon-datos-conservados-${todayCivilDate()}.json`, text).ok;
+  try {
+    const text = serializeOriginals(collectOriginals(deviceStorage, true), new Date().toISOString());
+    return downloadTextFile(`nihon-datos-conservados-${todayCivilDate()}.json`, text).ok;
+  } catch { return false; }
 }
 
 export function StorageProtectionNotice() {
@@ -78,26 +83,36 @@ function ProtectionPanel({ documents }: { documents: readonly ProtectedDocument[
   const [problem, setProblem] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
-  const restart = () => {
+  const restart = async () => {
     const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const outcome = startFresh(
-      deviceStorage,
-      documents.map((entry) => entry.key),
-      stamp
-    );
-    if (!outcome.ok) {
+    try {
+      const outcome = await runExclusiveDocuments(CANONICAL_KEYS, () => {
+        refreshProtection(deviceStorage);
+        const keys = documents.map((entry) => entry.key);
+        const current = getProtectionSnapshot();
+        if (!keys.every((key) => current.some((entry) => entry.key === key))) return null;
+        return startFresh(deviceStorage, keys, stamp);
+      });
+      if (outcome === null) {
+        setStep("idle"); setProblem("Los datos cambiaron mientras esperabas. Revisa el aviso antes de empezar de nuevo."); return;
+      }
+      if (!outcome.ok) {
+        setStep("idle");
+        setProblem(
+          outcome.reason === "copy-failed"
+            ? "No se ha podido crear una copia aparte, así que no se ha cambiado nada: tus datos siguen conservados. Descarga la copia y vuelve a intentarlo cuando haya espacio."
+            : "Se creó una copia aparte, pero no se han podido retirar los datos dañados: siguen conservados y no se ha cambiado nada más."
+        );
+        return;
+      }
+      setProblem(null);
       setStep("idle");
-      setProblem(
-        outcome.reason === "copy-failed"
-          ? "No se ha podido crear una copia aparte, así que no se ha cambiado nada: tus datos siguen conservados. Descarga la copia y vuelve a intentarlo cuando haya espacio."
-          : "Se creó una copia aparte, pero no se han podido retirar los datos dañados: siguen conservados y no se ha cambiado nada más."
-      );
-      return;
+      refreshProtection(deviceStorage);
+      notifyStorageReplaced();
+    } catch {
+      setStep("idle");
+      setProblem("No se pudo obtener acceso para empezar de nuevo. Tus datos siguen conservados.");
     }
-    setProblem(null);
-    setStep("idle");
-    refreshProtection(deviceStorage);
-    notifyStorageReplaced();
   };
 
   if (collapsed) {
