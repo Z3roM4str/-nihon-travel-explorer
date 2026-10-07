@@ -140,7 +140,10 @@ source = replaceOnce(source, "const raw = (page, key) => page.evaluate((k) => lo
   }
   observeHost('gate-read', { key, value, ui }); return value;
 });`);
-source = replaceOnce(source, "  const context = await newContext({}, { width, height: 900 });", `  const context = await newContext({}, { width, height: 900 });
+const contextCall = source.includes('  const context = await newContext({}, { width, height: 900 }, BROWSER === "webkit");')
+  ? '  const context = await newContext({}, { width, height: 900 }, BROWSER === "webkit");'
+  : '  const context = await newContext({}, { width, height: 900 });';
+source = replaceOnce(source, contextCall, `${contextCall}
   caseContexts.add(context); context.once('close', () => caseContexts.delete(context));
   observedState.clear();
   attachObserver(context);

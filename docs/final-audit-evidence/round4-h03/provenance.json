@@ -1,0 +1,158 @@
+{
+  "productSourceTree": "bf880b5a72ec9cf1c40c26725ab28688465e32bc",
+  "reviewedOriginalHead": "5f3b3021a95ec39a11af5600954e96a0c3bdd790",
+  "failingHistoricalHead": "acb38425fdd2902ff701358e92d04d935e33b6a1",
+  "runs": [
+    {
+      "run": 37581466930,
+      "sha": "f4fcf77e9f6561ed0874bec642f41e1c4ca97044",
+      "mode": "console",
+      "artifacts": [
+        {
+          "id": 11465126801,
+          "name": "h03-external-acb38425fdd2902ff701358e92d04d935e33b6a1-load1-f4fcf77e9f6561ed0874bec642f41e1c4ca97044",
+          "digest": "sha256:aa42cc9c3c6af1827b6fc3aba7785cf3e58fb54a97f21943959de75110d83cc6",
+          "size": 73289,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37581466930/artifacts/11465126801",
+          "downloadVerifiedSha256": "aa42cc9c3c6af1827b6fc3aba7785cf3e58fb54a97f21943959de75110d83cc6"
+        },
+        {
+          "id": 11464922738,
+          "name": "h03-external-acb38425fdd2902ff701358e92d04d935e33b6a1-load0-f4fcf77e9f6561ed0874bec642f41e1c4ca97044",
+          "digest": "sha256:4bc021ac05b0a3db3d93eca6bdc4eb561ad5a3b8d35a04573d486d19bbd89c44",
+          "size": 72357,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37581466930/artifacts/11464922738",
+          "downloadVerifiedSha256": "4bc021ac05b0a3db3d93eca6bdc4eb561ad5a3b8d35a04573d486d19bbd89c44"
+        },
+        {
+          "id": 11464708941,
+          "name": "h03-external-5f3b3021a95ec39a11af5600954e96a0c3bdd790-load1-f4fcf77e9f6561ed0874bec642f41e1c4ca97044",
+          "digest": "sha256:fa55706d2c70093b76121fd96ea66106cf6c9a9de53a0632272c50169e38f6ef",
+          "size": 82015,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37581466930/artifacts/11464708941",
+          "downloadVerifiedSha256": "fa55706d2c70093b76121fd96ea66106cf6c9a9de53a0632272c50169e38f6ef"
+        },
+        {
+          "id": 11464079363,
+          "name": "h03-external-5f3b3021a95ec39a11af5600954e96a0c3bdd790-load0-f4fcf77e9f6561ed0874bec642f41e1c4ca97044",
+          "digest": "sha256:8ca6b3e7d65493a643c68b3adcbee7c5f15eae6736e3726f5667cb86cfb21f06",
+          "size": 78452,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37581466930/artifacts/11464079363",
+          "downloadVerifiedSha256": "8ca6b3e7d65493a643c68b3adcbee7c5f15eae6736e3726f5667cb86cfb21f06"
+        }
+      ]
+    },
+    {
+      "run": 37582779905,
+      "sha": "dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+      "mode": "buffered",
+      "artifacts": [
+        {
+          "id": 11466050776,
+          "name": "h03-external-acb38425fdd2902ff701358e92d04d935e33b6a1-load1-dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+          "digest": "sha256:deffbb34f86a9e7ce0bfa694a99135b7f9c48bb5b2f2ab87360c6464f81c4622",
+          "size": 71600,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37582779905/artifacts/11466050776",
+          "downloadVerifiedSha256": "deffbb34f86a9e7ce0bfa694a99135b7f9c48bb5b2f2ab87360c6464f81c4622"
+        },
+        {
+          "id": 11465786400,
+          "name": "h03-external-5f3b3021a95ec39a11af5600954e96a0c3bdd790-load1-dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+          "digest": "sha256:16249223781db46e730845e50b61edee49279c19c4660144ab304b9a1250889b",
+          "size": 76054,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37582779905/artifacts/11465786400",
+          "downloadVerifiedSha256": "16249223781db46e730845e50b61edee49279c19c4660144ab304b9a1250889b"
+        },
+        {
+          "id": 11465311703,
+          "name": "h03-engine-load1-dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+          "digest": "sha256:c922b932e62744cffa6d538eacb6483b3ed5ebbc3a21606fe4366e7c9b508a37",
+          "size": 9047,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37582779905/artifacts/11465311703",
+          "downloadVerifiedSha256": "c922b932e62744cffa6d538eacb6483b3ed5ebbc3a21606fe4366e7c9b508a37"
+        },
+        {
+          "id": 11465291413,
+          "name": "h03-external-5f3b3021a95ec39a11af5600954e96a0c3bdd790-load0-dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+          "digest": "sha256:3b287b214893a23d5e7b60ddd8ac4f134ab11608730cd5c14a22a203244606e8",
+          "size": 74860,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37582779905/artifacts/11465291413",
+          "downloadVerifiedSha256": "3b287b214893a23d5e7b60ddd8ac4f134ab11608730cd5c14a22a203244606e8"
+        },
+        {
+          "id": 11465196084,
+          "name": "h03-engine-load0-dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+          "digest": "sha256:34d1283ea509566292a9026d143829804e5ff66adcc0b3fd195d6360552c15b1",
+          "size": 8962,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37582779905/artifacts/11465196084",
+          "downloadVerifiedSha256": "34d1283ea509566292a9026d143829804e5ff66adcc0b3fd195d6360552c15b1"
+        },
+        {
+          "id": 11465161725,
+          "name": "h03-external-acb38425fdd2902ff701358e92d04d935e33b6a1-load0-dbaa7c148fb6efcab78aa6647a3dd506059411b1",
+          "digest": "sha256:32d53932a2924b0ce3a0680054e892b8fa94c680d8626ee4a6627ba76b583985",
+          "size": 70428,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37582779905/artifacts/11465161725",
+          "downloadVerifiedSha256": "32d53932a2924b0ce3a0680054e892b8fa94c680d8626ee4a6627ba76b583985"
+        }
+      ]
+    },
+    {
+      "run": 37583611131,
+      "sha": "af805765aba4cddffa2ca8dae33b4a4433b9871a",
+      "mode": "console+stderr",
+      "artifacts": [
+        {
+          "id": 11466305159,
+          "name": "h03-engine-load0-af805765aba4cddffa2ca8dae33b4a4433b9871a",
+          "digest": "sha256:6f6993ae2c038e1ef8921498bfe0333d2b75894c204b96cabd1b569ea681bc0c",
+          "size": 8857,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37583611131/artifacts/11466305159",
+          "downloadVerifiedSha256": "6f6993ae2c038e1ef8921498bfe0333d2b75894c204b96cabd1b569ea681bc0c"
+        },
+        {
+          "id": 11465947638,
+          "name": "h03-external-acb38425fdd2902ff701358e92d04d935e33b6a1-load1-af805765aba4cddffa2ca8dae33b4a4433b9871a",
+          "digest": "sha256:34e117a07afa15f369597eb3e92d111eefa96a1c0faaa2e630d9ab02e24155d7",
+          "size": 77287,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37583611131/artifacts/11465947638",
+          "downloadVerifiedSha256": "34e117a07afa15f369597eb3e92d111eefa96a1c0faaa2e630d9ab02e24155d7"
+        },
+        {
+          "id": 11465771486,
+          "name": "h03-engine-load1-af805765aba4cddffa2ca8dae33b4a4433b9871a",
+          "digest": "sha256:d2475c95d39b432bed326667b1074070a3e90abdfc4804ed70dcc93d1ce64fb1",
+          "size": 9075,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37583611131/artifacts/11465771486",
+          "downloadVerifiedSha256": "d2475c95d39b432bed326667b1074070a3e90abdfc4804ed70dcc93d1ce64fb1"
+        },
+        {
+          "id": 11465573181,
+          "name": "h03-external-5f3b3021a95ec39a11af5600954e96a0c3bdd790-load0-af805765aba4cddffa2ca8dae33b4a4433b9871a",
+          "digest": "sha256:e724a2fec72909457a815082dfbad5e283786dde168fd62b164ebc1eaa8a7c5a",
+          "size": 80609,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37583611131/artifacts/11465573181",
+          "downloadVerifiedSha256": "e724a2fec72909457a815082dfbad5e283786dde168fd62b164ebc1eaa8a7c5a"
+        },
+        {
+          "id": 11465313561,
+          "name": "h03-external-5f3b3021a95ec39a11af5600954e96a0c3bdd790-load1-af805765aba4cddffa2ca8dae33b4a4433b9871a",
+          "digest": "sha256:98e0dad278fa9dfbe7abb4896ade3cacdf41e1d70b448ebbdd15e38845f2b8b7",
+          "size": 78175,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37583611131/artifacts/11465313561",
+          "downloadVerifiedSha256": "98e0dad278fa9dfbe7abb4896ade3cacdf41e1d70b448ebbdd15e38845f2b8b7"
+        },
+        {
+          "id": 11465222766,
+          "name": "h03-external-acb38425fdd2902ff701358e92d04d935e33b6a1-load0-af805765aba4cddffa2ca8dae33b4a4433b9871a",
+          "digest": "sha256:7baf6eba037efb2ab5695e7e6d0444f3ee84dd76a7b5abe8cfa5c00b64fe8912",
+          "size": 78686,
+          "url": "https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37583611131/artifacts/11465222766",
+          "downloadVerifiedSha256": "7baf6eba037efb2ab5695e7e6d0444f3ee84dd76a7b5abe8cfa5c00b64fe8912"
+        }
+      ]
+    }
+  ],
+  "verdict": "requiere correcciones / diagnóstico concluyente H03",
+  "physicalSafariCertified": false
+}

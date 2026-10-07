@@ -5,7 +5,45 @@
 **Alcance:** sólo fiabilidad; sin funcionalidades nuevas, sin cambios de datos (JP-126 queda como seguimiento), sin tocar Vercel,
 Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](final-audit-evidence/).
 
-## Ronda 3 (2026-10-07): cierre de cinco hallazgos bloqueantes
+## Ronda 4 (2026-10-07): causa del bloqueo residual H03
+
+El reset real de `OrderedSequenceBuilder` a 390 px repitió la pérdida tanto con
+el gate exacto acb3842 como con 5f3b302, también en controles sin wrappers. El
+producto `app/src/` y lockfile son idénticos entre ambos. Las trazas externas a
+la página conservaron documento, identidad, operaciones pendientes y valores
+originales del gate a través de la recarga. No se ampliaron esperas ni aserciones.
+
+En CI `37585430837`, gate 5f, carga, caso 14, el NetworkProcess nativo cambia de
+PID 7197 a 7263; WebProcess sigue 7199. Antes hay JP-044 para la persona vista;
+después el getItem nativo devuelve null y Nihon crea viajeros nuevos vacíos.
+El gate, una lectura posterior y otra página sin Nihon leen ese documento vacío.
+La copia pendiente estaba confirmada/retirada antes. Se descartan UI obsoleta y
+lectura prematura en este caso. Los diagnósticos genéricos del inspector solos
+no probarían este mecanismo; el reinicio se observó fuera del navegador.
+
+Contrafactual sin producto (`b688fd9`, CI `37587349003`): tras reiniciar sólo el
+NetworkProcess del perfil sintético, **6/6 contextos efímeros pierden** el
+original y **6/6 perfiles persistentes lo conservan** en dos runners. Se registra
+el error de navegación inicial antes de leer desde una página independiente;
+ese experimento separado no introduce un reintento en H03. Demuestra que el
+fixture privado WPE pierde su backend en memoria al reiniciar el proceso.
+
+Corrección acotada al test: H03/WebKit utiliza un perfil persistente temporal
+nuevo por caso y conserva el mismo perfil durante la recuperación. No restaura
+payloads ni storageState ni resembra. Las aserciones y esperas originales son
+idénticas; reset/503 siguen siendo estrictos, el inspector sigue diagnóstico.
+No hay cambios de producto, funcionalidades, dependencias ni datos existentes.
+Evidencia, firmas y reproducción: [round4-h03/README.md](final-audit-evidence/round4-h03/README.md).
+
+La matriz dirigida del HEAD exacto verifica 24 resets a 390 px sin carga y 24 con
+carga; el contrato de reinicio nativo y la certificación Chromium/WebKit se
+conservan por SHA en CI. El resultado final y sus artefactos se registran en el
+informe y la descripción del PR. El diagnóstico anterior no se da por resuelto
+por ejecuciones verdes: se cierra por el mecanismo y contrafactual capturados.
+Si la validación estricta final falla, se mantiene bloqueante. Freeze vigente:
+sin merge, deployment ni cambios de Vercel. No se certifica Safari físico.
+
+## Ronda 3 (2026-10-07): cierre de cinco hallazgos bloqueantes — estado histórico
 
 **Los cinco hallazgos están corregidos; la integración continúa sin certificarse.** Validación
 exacta del producto y de los gates instrumentados: `a8a97ba3ed311fb77288d6e7d5689b441be003a2`, CI

@@ -1,7 +1,8 @@
 import { createServer } from "node:http";
 import { readdirSync, readFileSync, readlinkSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { tmpdir } from "node:os";
+import { tmpdir, availableParallelism } from "node:os";
+import { Worker } from "node:worker_threads";
 import { execFileSync } from "node:child_process";
 import { webkit } from "playwright";
 
@@ -26,6 +27,8 @@ const base = `http://127.0.0.1:${server.address().port}`;
 const browser = await webkit.launch();
 const original = JSON.stringify({ version: 1, travellers: [{ id: "synthetic-p1", label: "Synthetic" }], activeTravellerId: "synthetic-p1", interests: [{ placeId: "JP-044", stances: [{ travellerId: "synthetic-p1", stance: "interested" }], carriedOver: false }] });
 const results = [];
+const loadWorkers = process.env.NIHON_H03_LOAD === "1" ? Array.from({ length: Math.min(2, availableParallelism()) }, () => new Worker(
+  'function load() { const until = performance.now() + 20; while (performance.now() < until) Math.sqrt(Math.random()); setTimeout(load, 10); } load();', { eval: true })) : [];
 try {
   for (const profileKind of ["ephemeral", "persistent"]) for (let iteration = 1; iteration <= repetitions; iteration++) {
     const profile = profileKind === "persistent" ? mkdtempSync(join(tmpdir(), "nihon-h03-native-restart-")) : null;
@@ -67,10 +70,11 @@ try {
     finally { await context?.close(); if (profile) rmSync(profile, { recursive: true, force: true }); }
   }
 } finally {
+  await Promise.all(loadWorkers.map(worker => worker.terminate()));
   await browser.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
   writeFileSync(`${out}/native-restart-results.json`, JSON.stringify({
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
-    productCodeLoaded: false, nativeStorageMocked: false, purpose: "Explicit NetworkProcess restart: demonstrate ephemeral storage lifetime versus an existing disk-backed original", results,
+    productCodeLoaded: false, nativeStorageMocked: false, loadWorkers: loadWorkers.length, purpose: "Explicit NetworkProcess restart: demonstrate ephemeral storage lifetime versus an existing disk-backed original", results,
   }, null, 2));
 }
 process.exitCode = results.every(r => r.ok) ? 0 : 1;

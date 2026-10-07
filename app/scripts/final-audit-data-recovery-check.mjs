@@ -1,4 +1,6 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createServer, request as httpRequest } from "node:http";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
@@ -93,8 +95,20 @@ const backupFile = (travellers, draft) =>
   });
 
 // ── Utilidades ───────────────────────────────────────────────────────────────────────────────
-async function newContext(storage = {}, viewport = { width: 390, height: 844 }) {
-  const context = await browser.newContext({ viewport });
+async function newContext(storage = {}, viewport = { width: 390, height: 844 }, persistent = false) {
+  // WPE keeps private-context localStorage in NetworkProcess memory. A real
+  // socket reset can restart that process and erase the fixture, independently
+  // of Nihon. H03 tests durable data in a fresh disk-backed profile instead.
+  // No storageState replay, re-seeding, navigation retry, or added settling wait.
+  const profile = persistent ? mkdtempSync(join(tmpdir(), "nihon-h03-profile-")) : null;
+  let context;
+  try {
+    context = profile ? await webkit.launchPersistentContext(profile, { viewport }) : await browser.newContext({ viewport });
+  } catch (error) {
+    if (profile) rmSync(profile, { recursive: true, force: true });
+    throw error;
+  }
+  if (profile) context.once("close", () => rmSync(profile, { recursive: true, force: true }));
   await context.addInitScript(
     ({ storage: seed }) => {
       // Se siembra una sola vez por pestaña: una recarga NO debe volver a pisar el almacenamiento.
@@ -537,7 +551,7 @@ async function h03Scenario(surface, width, mode, strict) {
   const tag = `${surface.id} @${width} [${mode}]`;
   const proxy = mode.startsWith("proxy") ? await startFlakyProxy(PORT) : null;
   const base = proxy ? proxy.url : BASE_URL;
-  const context = await newContext({}, { width, height: 900 });
+  const context = await newContext({}, { width, height: 900 }, BROWSER === "webkit");
   // Sólo la ejecución diagnóstica añade llamadas a sessionStorage para registrar la traza.
   // La matriz ordinaria conserva las llamadas nativas originales: instrumentar puede alterar
   // el tiempo de una carrera aunque devuelva exactamente los mismos valores.

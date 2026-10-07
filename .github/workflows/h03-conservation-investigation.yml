@@ -47,6 +47,7 @@ jobs:
       - name: Contrato causal de reinicio nativo en perfiles aislados
         if: always()
         env:
+          NIHON_H03_LOAD: ${{ matrix.load }}
           NIHON_H03_RESTART_REPETITIONS: "3"
           NIHON_EVIDENCE_OUT: h03-restart
           DEBUG: pw:browser
@@ -63,13 +64,12 @@ jobs:
           retention-days: 30
           if-no-files-found: error
   investigate:
-    name: WebKit ${{ matrix.gate }} load=${{ matrix.load }}
+    name: WebKit H03 HEAD load=${{ matrix.load }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        gate: [acb38425fdd2902ff701358e92d04d935e33b6a1, 5f3b3021a95ec39a11af5600954e96a0c3bdd790]
         load: ["0", "1"]
     defaults:
       run:
@@ -86,13 +86,11 @@ jobs:
           cache-dependency-path: app/package-lock.json
       - run: npm ci
       - run: npx playwright install --with-deps webkit
-      - name: Obtener exactamente los gates históricos, sin cambiar el producto
-        run: git fetch --no-tags --depth=1 origin acb38425fdd2902ff701358e92d04d935e33b6a1 5f3b3021a95ec39a11af5600954e96a0c3bdd790
       - run: npm run build
       - name: Reset real, 390 px, controles e instrumentación externa, con y sin carga
         env:
           NIHON_BROWSER: webkit
-          NIHON_GATE_REF: ${{ matrix.gate }}
+          NIHON_GATE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
           NIHON_H03_LOAD: ${{ matrix.load }}
           NIHON_H03_REPETITIONS: "24"
           NIHON_H03_TRACE_MODE: console
@@ -103,7 +101,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: h03-external-${{ matrix.gate }}-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
+          name: h03-external-head-load${{ matrix.load }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             app/h03-investigation/
             app/h03-investigation.log

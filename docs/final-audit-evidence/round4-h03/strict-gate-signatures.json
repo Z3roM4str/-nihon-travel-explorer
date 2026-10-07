@@ -1,0 +1,12 @@
+{
+  "assertions": {
+    "count": 9,
+    "unchanged": true,
+    "sha256": "6123b7dca0d57d8320bc3ad773cd9bba3418388f455efc4dc5fdfab471dcde5f"
+  },
+  "waits": {
+    "count": 26,
+    "unchanged": true,
+    "sha256": "a04e532bd83f445cb545fd68a9a9804e1a4a05034ea56de9422d5620ac8a4142"
+  }
+}

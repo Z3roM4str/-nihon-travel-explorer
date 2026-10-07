@@ -118,3 +118,81 @@ comm y basename del ejecutable, sin leer argumentos ni rutas completas. En esa
 ejecución, con cleanup tras excepciones, 5f/sin carga vuelve a perder JP-044 en
 los casos 2 y 3 observados; acb/sin carga en 16 control y 18 observado. El tramo
 pendiente sigue siendo el mismo: ausencia nativa antes de la inicialización.
+
+## Reinicio nativo observado en un fallo real
+
+En el SHA `95319f2f13e1e431dae45720d8228e8ab1e4c1b6`, CI
+[37585430837](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37585430837),
+el gate exacto 5f, con carga, caso 14 observado, repitió la pérdida. Antes del
+reset/recarga, `WPENetworkProcess` era PID 7197; después era 7263, mientras
+`WPEWebProcess` seguía siendo 7199 y su proceso padre 5369 no cambió. La primera
+lectura nativa del documento canónico tras recargar devuelve null; después Nihon
+crea viajeros nuevos sin intereses. La lectura estricta, al segundo y en otra
+página sin Nihon del mismo origen (nuevo WebProcess 7280) leen ese documento vacío.
+No se observa un clear/remove del documento canónico. La copia pendiente ya estaba
+confirmada y retirada antes del reset; el interés anterior pertenecía a la persona
+visible en el clic. La evidencia descarta una UI obsoleta o una simple lectura
+prematura en este caso. No basta el mensaje genérico del inspector: aquí hay
+continuidad/discontinuidad de PID fuera del navegador.
+
+Evidencia compacta:
+[cronología](process-restart-chronology.json) y
+[traza completa del caso](failure-process-5f-load1-case14.ndjson).
+ZIP descargado y SHA-256 verificado: artefacto `11465529711`,
+`9c74dc0fe07d78dcf4b625def79f6c6e5adfad3ed48cebb390b6bcfce624ad41`.
+El fallo histórico original no tenía esta instrumentación; se demuestra el
+mecanismo de esta reproducción actual, sin inventar mediciones del original.
+
+Un probe adicional mata exclusivamente el NetworkProcess nuevo de un perfil
+sintético, sin Nihon/React/wrappers, y contrasta un contexto efímero con una
+preimagen durable de un perfil persistente. Registra los errores de navegación
+inicial y lee después mediante una página independiente. Esto es un experimento
+causal separado: no introduce reintentos ni demoras en H03. La primera versión
+`3fbcff2` no obtuvo lecturas después de matar el proceso (la navegación fallaba;
+un selector erróneo también hacía expirar la página estática). Se conserva ese
+resultado; no se presenta como evidencia de conservación ni pérdida del Storage.
+
+## Causa demostrada y ajuste del fixture
+
+El contrafactual corregido, SHA `b688fd9dcfaa044ae081819291287f2e77473dd6`, CI
+[37587349003](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37587349003),
+obtuvo lecturas: en cada uno de dos runners, **3/3** contextos efímeros pierden
+el documento (null) y **3/3** perfiles persistentes conservan sus bytes exactos
+tras el cambio de PID. Sin código de producto, sin remove/clear ni un segundo
+setItem. La preimagen persistente se estableció y cerró antes de iniciar el
+experimento, para no asumir que una transacción recién iniciada sobrevivió a
+SIGKILL. Contratos completos:
+[nativo 1](native-restart-contract-load0.json),
+[nativo 2](native-restart-contract-repetition.json).
+Los dos contratos de ese SHA no tenían workers de carga activos (el segundo
+runner sólo ejecutó previamente el probe de reset bajo carga). La regresión
+actual sí aplica la misma carga a ambos experimentos según su matriz.
+ZIPs verificados: `11467146745` / SHA-256
+`ab147d3697901a022825ebdc09c45e70e495b979f82004edc7d2094553e2d296`;
+`11467537093` /
+`5a77c3d5eab9d082a56d3bd1e9d922e9e1d6e77c963ec7eeb2370425b4c5d3e5`.
+
+El contexto privado de Playwright/WPE mantiene localStorage en memoria del
+NetworkProcess. Su reinicio borra ese backend; no equivale a la conservación
+de un perfil normal respaldado por disco. Es un defecto del fixture para ese
+contrato de conservación. No se arregla Nihon restaurando ciegamente una copia
+de datos después de perder todo el almacenamiento nativo.
+
+Sólo H03/WebKit usa ahora `launchPersistentContext` con un directorio temporal
+nuevo por caso, eliminado al cerrar. Misma sesión/perfil antes y después,
+sin replay de storageState, reimportación ni recarga adicional. Chromium y los
+otros gates conservan sus contextos. Las aserciones reset/503, lectura única,
+700 ms, 8 s y timeout de chunks permanecen idénticos a 5f:
+[firmas verificadas](strict-gate-signatures.json). El árbol de `app/src/` no cambia.
+
+La regresión duradera ejecuta el gate del HEAD exacto: 24 resets reales a 390 px
+sin carga y 24 con carga, alternando controles e instrumentación. Sigue rechazando
+cada fallo estricto; no son repeticiones hasta obtener verde. La matriz causal
+complementaria registra reinicios nativos deliberados, separada de H03 real.
+Los gates históricos acb/5f pueden repetirse con el comando anterior; sus fallos
+se mantienen en evidencia, sin seguir certificando un SHA histórico como HEAD.
+
+Diagnóstico de esta reproducción cerrado; la certificación final corresponde
+al SHA y artefactos que se indican en la descripción del PR/informe. Cualquier
+fallo nuevo de recuperación o conservación mantiene el bloqueo. WebKit/WPE CI
+no certifica Safari físico ni resistencia universal a corrupción del disco.
