@@ -79,7 +79,7 @@ function observeNative({ buffered }) {
 }
 
 const helper = `
-import { createWriteStream, readdirSync, readFileSync } from "node:fs";
+import { createWriteStream, readdirSync, readFileSync, readlinkSync } from "node:fs";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
 const traceStream = createWriteStream(process.env.NIHON_EXTERNAL_TRACE_FILE);
@@ -92,9 +92,10 @@ function processSnapshot() {
   for (const pid of readdirSync('/proc').filter(name => /^\\d+$/.test(name))) {
     try {
       const name = readFileSync('/proc/' + pid + '/comm', 'utf8').trim();
-      if (!/WebKit|MiniBrowser/.test(name)) continue;
+      let executable = null;
+      try { executable = readlinkSync('/proc/' + pid + '/exe').split('/').at(-1); } catch { /* process sandbox may restrict this metadata */ }
       const status = readFileSync('/proc/' + pid + '/status', 'utf8');
-      entries.push({ pid: Number(pid), name, ppid: Number(status.match(/^PPid:\\s+(\\d+)/m)?.[1] ?? 0) });
+      entries.push({ pid: Number(pid), name, executable, ppid: Number(status.match(/^PPid:\\s+(\\d+)/m)?.[1] ?? 0) });
     } catch { /* a process may terminate between the reads */ }
   }
   return entries;
@@ -210,7 +211,7 @@ writeFileSync(`${out}/provenance.json`, JSON.stringify({
   dirtyBeforeEvidence,
   instrumentation: "Existing native call values via console -> Node NDJSON, UI attribute observer; no additional Storage reads/writes. Observer overhead remains; every third case is a native control.",
   traceMode: process.env.NIHON_H03_TRACE_MODE ?? "console",
-  processObservation: "Linux /proc PID/PPid/comm at existing gate reads and navigation phases, outside the page; no command lines or credentials.",
+  processObservation: "Linux /proc PID/PPid/comm/executable basename at existing gate reads and navigation phases, outside the page; no command lines, full executable paths, or credentials. Includes renamed children.",
   primer: process.env.NIHON_H03_PRIMER === "1", load: process.env.NIHON_H03_LOAD === "1",
 }, null, 2));
 const child = spawn(process.execPath, [generated], {

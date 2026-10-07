@@ -110,3 +110,11 @@ de red**: el timer de carga interna tiene más de un origen. Se añade observaci
 de PID/PPid/comm desde `/proc`, fuera de la página, en fases ya existentes. Nunca
 se leen command lines ni credenciales. Se cierran contextos/proxies abandonados
 tras una excepción, después del veredicto, para aislar las siguientes repeticiones.
+
+La primera observación de procesos (`8a39d60`) sólo capturó MiniBrowser: los
+nombres de thread/comm de los hijos no coincidían con el filtro. Eso **no prueba
+continuidad del proceso de red**. Se corrige el observador para incluir PID/PPid,
+comm y basename del ejecutable, sin leer argumentos ni rutas completas. En esa
+ejecución, con cleanup tras excepciones, 5f/sin carga vuelve a perder JP-044 en
+los casos 2 y 3 observados; acb/sin carga en 16 control y 18 observado. El tramo
+pendiente sigue siendo el mismo: ausencia nativa antes de la inicialización.
