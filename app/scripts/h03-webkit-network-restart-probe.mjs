@@ -39,6 +39,7 @@ try {
         const seedPage = await seed.newPage(); await seedPage.goto(base);
         await seedPage.evaluate(value => localStorage.setItem("nihon.travellers.v1", value), original);
         await seed.close();
+        baseline.clear(); for (const p of processes()) baseline.add(p.pid);
         context = await webkit.launchPersistentContext(profile, { viewport: { width: 390, height: 900 } });
       } else context = await browser.newContext({ viewport: { width: 390, height: 900 } });
       const page = await context.newPage(); page.setDefaultTimeout(8000); await page.goto(base);
@@ -49,12 +50,18 @@ try {
       if (candidates.length !== 1) throw new Error(`Refusing to kill ambiguous NetworkProcess: ${JSON.stringify(candidates)}`);
       const victim = candidates[0];
       process.kill(victim.pid, "SIGKILL");
-      await page.reload(); await page.waitForSelector("#root *");
-      const after = await page.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
+      // A deliberate process death may fail the in-flight first navigation.
+      // Record it, then obtain the storage through an independent page. This
+      // counterfactual does not modify or retry the strict H03 scenario.
+      let initialNavigationError = null;
+      try { await page.reload(); } catch (error) { initialNavigationError = String(error); }
+      const independent = await context.newPage(); independent.setDefaultTimeout(8000);
+      await independent.goto(base); await independent.waitForSelector("#root");
+      const after = await independent.evaluate(() => ({ local: localStorage.getItem("nihon.travellers.v1"), session: sessionStorage.getItem("synthetic.session.sentinel") }));
       const current = processes().filter(p => p.ppid === victim.ppid);
       const restarted = current.some(p => p.pid !== victim.pid) && !current.some(p => p.pid === victim.pid);
       const expectedLocal = profile ? original : null;
-      const result = { profileKind, iteration, before, after, killed: victim, current, restarted, expectedLocal, ok: before.local === original && restarted && after.local === expectedLocal };
+      const result = { profileKind, iteration, before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal, ok: before.local === original && restarted && after.local === expectedLocal };
       results.push(result); console.log(JSON.stringify(result));
     } catch (error) { const result = { profileKind, iteration, ok: false, error: String(error) }; results.push(result); console.log(JSON.stringify(result)); }
     finally { await context?.close(); if (profile) rmSync(profile, { recursive: true, force: true }); }
