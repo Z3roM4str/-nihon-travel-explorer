@@ -1,0 +1,14 @@
+2026-10-07T03:17:48.1856711Z ##[group]Run echo "SHA certificado: $(git rev-parse HEAD)"
+2026-10-07T03:17:48.1857263Z echo "SHA certificado: $(git rev-parse HEAD)"
+2026-10-07T03:17:48.1858209Z node -e "console.log('lockfile playwright', require('./package-lock.json').packages['node_modules/playwright'].version)"
+2026-10-07T03:17:48.1975218Z SHA certificado: 4117e72c605656d24dbe7b25995c00cb1a84ef24
+2026-10-07T03:17:48.8539090Z lockfile playwright 1.62.1
+2026-10-07T03:18:14.3617688Z ##[group]Run git fetch --no-tags --depth=1 origin b854db384c952e827b86d1bb35cac7caa70b035a 2a10ad3f11cd91a7d739e85307f04da9411bf5d1
+2026-10-07T03:18:14.3618584Z git fetch --no-tags --depth=1 origin b854db384c952e827b86d1bb35cac7caa70b035a 2a10ad3f11cd91a7d739e85307f04da9411bf5d1
+2026-10-07T03:18:14.3619189Z git cat-file -e b854db384c952e827b86d1bb35cac7caa70b035a^{commit}
+2026-10-07T03:18:14.3619637Z git cat-file -e 2a10ad3f11cd91a7d739e85307f04da9411bf5d1^{commit}
+2026-10-07T03:18:16.4387696Z  * branch            b854db384c952e827b86d1bb35cac7caa70b035a -> FETCH_HEAD
+2026-10-07T03:18:16.4388231Z  * branch            2a10ad3f11cd91a7d739e85307f04da9411bf5d1 -> FETCH_HEAD
+2026-10-07T03:18:32.3186479Z  Test Files  121 passed (121)
+2026-10-07T03:18:32.3227170Z       Tests  3455 passed (3455)
+2026-10-07T03:30:01.8339482Z RESULT fail=0

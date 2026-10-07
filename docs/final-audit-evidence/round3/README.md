@@ -45,9 +45,11 @@ Diferencias respecto del script original:
 - Recarga con lock retenido: además de exigir finalmente 2 días, comprueba 1 día en almacenamiento
   mientras el lock sigue retenido y 2 en la copia visible recuperada. La base escribía al cerrar
   saltándose el lock: su aserción original más débil pasaba, pero no acreditaba exclusión.
-- H03 timeout conserva el mínimo de 2,9 s para el tope de 3 s y comprueba recarga y datos; el máximo
-  es 7 s incluyendo arranque del fixture (el original usaba 5). **No modifica** el producto H03 ni
-  las 35 aserciones estrictas reset/503 de `final-audit-data-recovery-check`.
+- H03 timeout conserva los límites originales: mínimo 2,9 s y máximo 5 s, incluyendo la recarga
+  del fixture; comprueba además la copia visible y los datos almacenados después de liberar el lock.
+  **No modifica** el producto H03 ni las 35 aserciones estrictas reset/503 de
+  `final-audit-data-recovery-check`. Al cerrar esta ronda se retiró una ampliación intermedia a 7 s;
+  la validación final usa el límite original.
 - B30 espera la escritura de la elección de zona (ahora diferida por el mismo diario). Sigue exigiendo
   **exactamente una** escritura canónica; el registro conserva ambas APIs y se comprueba aparte que las
   copias de sesión sólo usan la clave de recuperación del borrador. Conserva todas las aserciones de contenido, identidad y recarga.
@@ -72,7 +74,7 @@ scripts/p06-v2-certify.sh webkit
 El nuevo gate está incluido en ambas ramas de la matriz CI, junto con los gates de pestañas obsoletas,
 exportación protegida y H03 existentes. Cada artefacto lleva SHA y navegador, log por gate y JSON con
 los 33 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
-Vitest antes de la certificación. Los resultados finales y enlaces se consignarán tras terminar CI.
+Vitest antes de la certificación. Los resultados exactos están en la sección de certificación inferior.
 
 La variante con itinerario null se añadió al revisar todos los caminos de restauración: falló en
 la primera corrección (`86e8dfb`, con fixture añadido, `dirty=true`), dejando una ruta vacía al podar
@@ -92,11 +94,11 @@ fallido de lock rechazado asignaba directamente `navigator.locks.request` sin ve
 usara ese reemplazo: WebKit no registró rechazos y escribió usando su API nativa. La inyección
 ahora parchea el prototipo de `LockManager` (corrección de Claude `8952d18`), comprueba la identidad del método y el contador de llamadas,
 y vacía las tareas de arranque antes de instalarla. Se conservan todas las aserciones de protección,
-rechazo de exportación y explicación, sin aceptar una inyección ineficaz. La matriz se repite.
+rechazo de exportación y explicación, sin aceptar una inyección ineficaz. La matriz final las supera.
 
-CI omite tres pruebas históricas de D5 porque su checkout es shallow y carece de la base histórica
+El primer CI omitió tres pruebas históricas de D5 porque su checkout era shallow y carecía de la base histórica
 `b854db3`; las tres pasan en el checkout local completo. No son pruebas de persistencia: todas las
-nuevas pruebas de contrato y navegador se ejecutan. En ese CI: 3449 pasan y 3 omitidas. El workflow corregido obtiene **sólo** esos dos SHA (ambos antecesores de la base declarada), con fetch de profundidad 1 y sin recuperar otras ramas ni cambiar HEAD, para ejecutar los tres contratos. Con la regresión de acceso recuperado: 3453 pruebas locales pasan.
+nuevas pruebas de contrato y navegador se ejecutaron. En ese CI: 3449 pasan y 3 omitidas. El workflow corregido obtiene **sólo** esos dos SHA (ambos antecesores de la base declarada), con fetch de profundidad 1 y sin recuperar otras ramas ni cambiar HEAD, para ejecutar los tres contratos. Con las dos regresiones de invalidación de caché: **3455/3455** en local y ambos jobs finales, sin omisiones.
 
 La recuperación tras un lock rechazado también se probó: cuando otro documento no tenía cambios,
 su aviso anterior seguía bloqueando la exportación aun después de recuperar el acceso. El nuevo
@@ -110,7 +112,7 @@ El CI de `6166c47` pasó Chromium completo, pero en WebKit una cola sustituyó u
 (31/32 regresiones). No se aceptó una repetición verde como solución. Sobre `363e5b0` —mismo producto,
 sólo instrumentación— doce repeticiones y trazas nativas reprodujeron una sobrescritura real de un
 inválido: el publicador lo releyó a las `1791342833093`; la pestaña en cola releyó tres veces su
-caché válida a `3095/3097` y ejecutó `setItem` a `3097`. Ambas pestañas leyeron después el payload
+caché válida a +2/+4 ms y ejecutó `setItem` a +4 ms. Ambas pestañas leyeron después el payload
 incorrecto. Evidencia exacta en `supplemental/queue-probe-webkit-363e5b0/` y el primer fallo en
 `supplemental/webkit-6166c47-attempt1/`. La concesión de Web Locks no basta para que esa caché ya
 haya procesado la invalidación de otro proceso.
@@ -121,7 +123,42 @@ contratos con invalidación pendiente fallan antes (2 fallan, 7 pasan) y pasan d
 `cache-before.log` y `cache-after.log`. La nueva regresión repetida se añade a las originales; no
 cambia sus 450 ms ni oculta eventos, y exige original exacto desde **ambas** pestañas, publicación
 releída y **cero setItem** sobre el documento protegido. CI publica inmediatamente estas trazas
-antes de la matriz completa. La certificación final se repetirá sobre el SHA con la corrección.
+antes de la matriz completa. El CI final de `4117e72` supera las 14 ventanas iniciales y las 14
+del gate completo por motor con cero escrituras protegidas.
+
+## Certificación exacta del producto corregido
+
+- SHA: **`4117e72c605656d24dbe7b25995c00cb1a84ef24`**; árbol `app/`:
+  `6f6bbda6cc6fb903a662f5da29ca99ab767ca668`; árbol `app/src/`:
+  `bf880b5a72ec9cf1c40c26725ab28688465e32bc`.
+- [CI 37566049602](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602),
+  intento 1, resultado **success**, ambos jobs verifican ese HEAD real:
+  [Chromium 112613958853](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602/job/112613958853),
+  [WebKit 112613958686](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602/job/112613958686).
+- **33/33** regresiones de contenido por motor, `dirty=false`. Prueba dirigida previa: **14/14**
+  publicaciones protegidas por motor, leídas desde ambas pestañas y sin ningún `setItem` de la cola.
+  Misma comprobación repetida en el gate completo. Pestañas obsoletas y exportación: **16/16** cada
+  gate y motor. B30: **484/484**. Todos los gates en `summary.txt`: `rc=0`, `RESULT fail=0`.
+- **3455/3455**, 121 archivos, **sin omisiones**, tanto localmente como en ambos jobs;
+  `job-contracts.txt` conserva SHA, versiones y conteo del runner. Build correcta; lint local sin
+  errores y con el aviso heredado de `PlaceMap`.
+- H03: **93/93 Chromium**; **69/69 WebKit**, con **35/35 estrictas reset/503** y **24/24 diagnósticos
+  del inspector**, 0 `DIAG-FAIL`, 0 cobertura parcial. WebKit Playwright **26.5**. Los resultados y
+  diagnósticos son grupos distintos en el JSON. El timeout adicional midió 3124/3128 ms, cumpliendo
+  2,9–5 s. La publicación de cierre restituye la aserción máxima original de 5 s y conserva el
+  producto; su SHA y CI se verifican también en la descripción del PR y el informe final.
+- [`failure-to-pass.json`](failure-to-pass.json) compara cada uno de los 14 originales con ambos
+  motores corregidos (los ocho fallos originales pasan). [`ci/provenance.json`](ci/provenance.json)
+  registra SHA, árboles, jobs, artefactos y digest SHA-256; el hash de cada ZIP descargado se verificó.
+  [`ci/chromium/summary.txt`](ci/chromium/summary.txt) y [`ci/webkit/summary.txt`](ci/webkit/summary.txt)
+  resumen la matriz; logs y JSON detallados en las mismas carpetas. [`local/provenance.json`](local/provenance.json)
+  registra la ejecución local limpia y aislada, con botón real en la build final (`production-retry.json`).
+- La matriz local inicial falló en B30 y tuvo un H03 interrumpido por otra build; no se presenta como
+  verde. Las repeticiones corregidas y estables son suplementos; la matriz completa certificada es
+  el CI exacto. Los CI intermedios de `c5ba08e` y `6166c47`, y las trazas fallidas de `363e5b0`, están
+  separados bajo `supplemental/` para no certificar el SHA anterior con datos posteriores.
+
+**Veredicto: sin bloqueantes encontrados en el producto probado. Freeze mantenido.**
 
 ## Límites
 

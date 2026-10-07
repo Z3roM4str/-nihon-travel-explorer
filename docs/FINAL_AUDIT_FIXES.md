@@ -21,12 +21,34 @@ limitaciones de persistencia de las rondas anteriores; H03 y sus aserciones estr
 | 4. Rollback | Importación fallida dejaba en la cola de `device-storage` un payload importado aunque el rollback hubiese restituido viajeros y borrador. | Scope de importación cancela **sus** pendientes al rollback, preserva las previas. Preimagen de ambos documentos conservada antes de escribir. Rollback incompleto bloquea reintentos automáticos y exportación, conserva preimagen entre recargas. Restauración satisfactoria cancela el diario anterior inmediatamente. Segunda importación fallida conserva la primera preimagen incompleta; una copia fallida antes de empezar no deja un bloqueo falso. | Reintentar mezclaba viajeros anteriores con fecha importada → preimagen intacta al reintentar y recargar; rollback incompleto se declara y conserva. |
 | 5. Persona vista | La intención guardar/quitar releía `activeTravellerId` de un estado posterior. | Captura **persona e intención vistas** al solicitar; guarda de existencia al pedir y reproducir. Si desapareció, rechaza con explicación. También quitar, postura explícita y deshacer respetan la identidad. | Vista p1, operación a p2 → operación a p1; desaparición mientras espera → sin atribuirla a p2 y aviso visible. |
 
-Validación dirigida tras añadir la restauración sin itinerario: **32/32 Chromium** y **3453/3453 Vitest**; build
-correcta y lint sin errores (aviso heredado de `PlaceMap`). Matriz completa de Chromium local y
-Chromium/WebKit CI en curso; no se declara todavía su certificación final. WebKit detectó además
-una concesión de lock anterior a la invalidación de caché: se reprodujo con trazas de ambas
-pestañas y se corrige en el helper común. Dos contratos fallan antes y pasan después; se añaden
-doce repeticiones con publicación, lectura de ambos lados y cero escrituras protegidas.
+**Producto certificado:** `4117e72c605656d24dbe7b25995c00cb1a84ef24`; árbol `app/src/`:
+`bf880b5a72ec9cf1c40c26725ab28688465e32bc`. CI completo
+[37566049602](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37566049602):
+Chromium y WebKit **success**, checkout de ese SHA exacto. **33/33 regresiones por motor**,
+**3455/3455 Vitest sin omisiones** en local y en ambos jobs; build correcta, lint local sin errores
+(aviso heredado de `PlaceMap`). Todos los gates de la matriz tienen `rc=0`; pestañas obsoletas y
+exportación protegida **16/16** cada uno, B30 **484/484**. La ejecución local inicial de la matriz tuvo
+fallos y no se certifica como verde; sus repeticiones corregidas y el CI exacto quedan separados.
+
+H03: Chromium **93/93**; WebKit **69/69**, con **35/35 estrictas reset/503** y **24/24 diagnósticos
+del inspector** separados, 0 `DIAG-FAIL`, sin cobertura parcial. Timeout adicional medido:
+3124 ms Chromium y 3128 ms WebKit, dentro de los límites originales 2,9–5 s. El cierre restituye
+explícitamente el máximo original de 5 s en ese fixture; producto y gate estricto H03 intactos.
+WebKit de Playwright **26.5**, sin certificación de Safari físico. Evidencia exacta, hashes de los ZIP,
+logs por gate y comparación de los 14 escenarios originales:
+[round3/README.md](final-audit-evidence/round3/README.md),
+[failure-to-pass.json](final-audit-evidence/round3/failure-to-pass.json).
+
+La validación descubrió otra ventana dentro del hallazgo 2: WebKit concedía el lock antes de procesar
+la invalidación de caché. Se conservan el fallo de `6166c47` y las trazas de `363e5b0` (mismo producto),
+con original publicado y tres lecturas antiguas seguidas de sobrescritura real 4 ms después.
+El helper común cede una tarea sin liberar el lock antes de clasificar. Dos contratos fallan antes
+y pasan después (9/9 del módulo); las 14 ventanas dirigidas y las 14 repetidas en el gate completo
+por motor conservan ambos originales y registran **cero setItem** sobre ellos. No se ampliaron sus
+450 ms ni se retiraron aserciones. El primer fallo de inyección de lock en WebKit también se conserva:
+la inyección efectiva en el prototipo verifica identidad del método y seis rechazos, sin relajar el gate.
+
+**Veredicto sobre el producto probado: sin bloqueantes encontrados. Freeze vigente; sin merge ni deployment.**
 
 Caminos adicionales revisados: arranque/migración, mutación, verificación posterior, reintento,
 exportación, importación/rollback, «Empezar de nuevo», desmontaje de superficies, `pagehide` y
@@ -107,7 +129,7 @@ Qué modela cada escenario (`final-audit-data-recovery-check`, función `h03Scen
 - Nuevos gates, añadidos a `p06-v2-certify.sh` (y por tanto a `p06-certification.yml`, chromium y webkit): `final-audit-stale-tabs-check`, `final-audit-export-protection-check`. `final-audit-data-recovery-check` reescribe H03 (arriba). Microcopy: el aviso de exportación evita «guardar/guardado» (gate B10).
 - El resumen de CI de cada gate es **la última línea** de su log; por eso la cobertura parcial se declara ahí.
 
-## Limitaciones y riesgos
+## Limitaciones y riesgos de las rondas 1–2 (persistencia vigente: ronda 3)
 
 - WebKit no existe en el entorno local: sólo Chromium local; WebKit se valida en el CI del PR (`p06-certification.yml`, WebKit 26.5 de Playwright). Sin Safari/iPhone físico, VoiceOver, TalkBack ni NVDA: H03 está probado en WebKit de Playwright con un servidor local que falla, **no** en Safari real.
 - **H03:** la recuperación depende de que Vite siga insertando `<link rel="modulepreload">` antes de las importaciones diferidas (de ahí sale la lista a refrescar). Si en algún navegador no hubiera enlace, «Recargar» equivale a recargar a secas y el aviso indica cerrar y reabrir la pestaña (una sesión nueva recupera). El gate ya no acepta «sólo en sesión nueva»: ese resultado es diagnóstico.

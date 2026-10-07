@@ -1,0 +1,65 @@
+
+── webkit · phone · carga correcta ──
+PASS  una sola «Explora Japón en el mapa», en la primera pantalla y antes de Ciudades
+PASS  la portada se ha desplazado hasta el final antes de volver a la tarjeta
+PASS  «Explora Japón en el mapa»: alcanzable con el dedo
+PASS  el cuerpo del mapa nacional no hereda el desplazamiento de la portada
+PASS  el cuerpo del mapa nacional no tiene rango de desplazamiento oculto
+PASS  el centro de la pantalla no es un cuerpo vacío (no hay pantalla en blanco)
+PASS  las 47 prefecturas están pintadas
+PASS  el mapa está en pantalla
+PASS  «‹ Volver a la portada»: alcanzable con el dedo
+PASS  «Volver» lleva a la portada
+PASS  la portada vuelve en pantalla
+PASS  «Explora Japón en el mapa» (segunda vez, geometría en caché): alcanzable con el dedo
+PASS  segunda apertura: tampoco hereda desplazamiento
+PASS  región Kanto: alcanzable con el dedo
+PASS  la región Kanto queda activa
+PASS  con región activa el mapa sigue sin desplazamiento heredado
+PASS  prefectura Tokio: alcanzable con el dedo
+PASS  se abre la ficha de la prefectura de Tokio
+PASS  «Explorar desde Tokio»: alcanzable con el dedo
+PASS  se entra en Tokio desde el mapa
+PASS  sin errores de JavaScript en el recorrido
+
+── webkit · phone · fallo simulado de geometría ──
+PASS  «Explora Japón en el mapa» (geometría caída): alcanzable con el dedo
+PASS  el aviso de error del mapa se ve en pantalla
+PASS  con la geometría caída tampoco hay desplazamiento heredado ni pantalla vacía
+PASS  el panel de navegación sigue en pantalla
+PASS  «‹ Volver a la portada» con el mapa caído: alcanzable con el dedo
+PASS  con el mapa caído, «Volver» lleva a la portada
+PASS  sin errores de JavaScript no capturados
+
+── webkit · desktop · carga correcta ──
+PASS  una sola «Explora Japón en el mapa», en la primera pantalla y antes de Ciudades
+PASS  «Explora Japón en el mapa»: alcanzable con el dedo
+PASS  el cuerpo del mapa nacional no hereda el desplazamiento de la portada
+PASS  el cuerpo del mapa nacional no tiene rango de desplazamiento oculto
+PASS  el centro de la pantalla no es un cuerpo vacío (no hay pantalla en blanco)
+PASS  las 47 prefecturas están pintadas
+PASS  el mapa está en pantalla
+PASS  «‹ Volver a la portada»: alcanzable con el dedo
+PASS  «Volver» lleva a la portada
+PASS  la portada vuelve en pantalla
+PASS  «Explora Japón en el mapa» (segunda vez, geometría en caché): alcanzable con el dedo
+PASS  segunda apertura: tampoco hereda desplazamiento
+PASS  región Kanto: alcanzable con el dedo
+PASS  la región Kanto queda activa
+PASS  con región activa el mapa sigue sin desplazamiento heredado
+PASS  prefectura Tokio: alcanzable con el dedo
+PASS  se abre la ficha de la prefectura de Tokio
+PASS  «Explorar desde Tokio»: alcanzable con el dedo
+PASS  se entra en Tokio desde el mapa
+PASS  sin errores de JavaScript en el recorrido
+
+── webkit · desktop · fallo simulado de geometría ──
+PASS  «Explora Japón en el mapa» (geometría caída): alcanzable con el dedo
+PASS  el aviso de error del mapa se ve en pantalla
+PASS  con la geometría caída tampoco hay desplazamiento heredado ni pantalla vacía
+PASS  el panel de navegación sigue en pantalla
+PASS  «‹ Volver a la portada» con el mapa caído: alcanzable con el dedo
+PASS  con el mapa caído, «Volver» lleva a la portada
+PASS  sin errores de JavaScript no capturados
+
+webkit: 55/55 PASS

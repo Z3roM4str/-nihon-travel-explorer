@@ -1,0 +1,22 @@
+sha=c5ba08e7629ceffda2d007ef8c045ee8b7f16f8c browser=chromium node=v22.23.3
+p06-v2-list-invariant-check rc=0 :: P-06 v2 lista · hojas: 190 passed, 0 failed
+p06-v2-history-check rc=0 :: P-06·C historial: 146 passed, 0 failed
+p06-v2-journeys-check rc=0 :: P-06 v2 recorridos: 68 passed, 0 failed
+p06-v2-clip-check rc=0 :: P-06 v2 recorte: 104 passed, 0 failed
+b27-viaje-dias-check rc=0 :: B27 Viaje · Días gate: PASS (A–K; 8 viewports; Chromium /usr/bin/chromium).
+b29-day-order-tools-check rc=0 :: B29 Day Tools gate: PASS (169 checks; Chromium /home/runner/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome; 8 viewports).
+b30-where-to-sleep-check rc=0 :: B30 Where to Sleep: 484/484 PASS (/usr/bin/chromium)
+b31-reservas-resumen-check rc=0 :: B31 Reservas / Resumen: 281/281 PASS (chromium)
+b10-microcopy-check rc=0 :: 52 OK · 0 FAIL
+b10-motion-check rc=0 :: 17 OK · 0 FAIL
+d0b-design-system-hygiene-check rc=0 :: 128 OK · 0 FAIL
+d5-normative-vocabulary-check rc=0 :: D5 GATE: 35/35 OK
+p04-national-map-reachability-check rc=0 :: chromium: 55/55 PASS
+final-audit-data-recovery-check rc=0 :: 93/93 comprobaciones OK (chromium)
+final-audit-a11y-check rc=0 :: 49/49 comprobaciones OK (chromium)
+final-audit-stale-tabs-check rc=0 :: 16/16 comprobaciones OK (chromium)
+final-audit-export-protection-check rc=0 :: 16/16 comprobaciones OK (chromium)
+final-audit-persistence-regressions-check rc=0 :: Persistence regressions: 31 pass, 0 fail (expected guarantees)
+phase5a-rc-browser-audit rc=0 :: 50/50 checks passed · 255 external requests recorded
+capture rc=0
+RESULT fail=0

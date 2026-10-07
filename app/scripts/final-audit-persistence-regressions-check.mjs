@@ -200,7 +200,7 @@ await test('h03-module-refresh-timeout-preserves-pending',async()=>{
  await b.evaluate(()=>window.releaseReviewLock());
  await a.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).days.length===2,DK);
  const days=await a.evaluate(k=>JSON.parse(localStorage.getItem(k)).days.length,DK);
- await ctx.close();return {elapsedMs,expectedDays:2,actualDays:days,queuePreserved:local===2,reloaded:elapsedMs>=2900&&elapsedMs<7000};
+ await ctx.close();return {elapsedMs,expectedDays:2,actualDays:days,queuePreserved:local===2,reloaded:elapsedMs>=2900&&elapsedMs<5000};
 });
 for (const replacement of ['{invalid-json', JSON.stringify({...travellers,version:2})]) await test('retry-queued-retained-events-'+(replacement.startsWith('{invalid')?'invalid':'future'),async()=>{
  const {ctx,a}=await setup();const b=await remote(ctx);await a.bringToFront();

@@ -1,0 +1,202 @@
+
+── phone 390×844 ──
+  ✓ phone 390×844: puntero coarse en este contexto
+  ✓ N1 no contiene <details>
+  ✓ N1 no contiene el texto «Probar otro orden» ni «Detalles del día» inline
+  ✓ N1 no muestra la frase pedagógica «Vosotros decidís…»
+  ✓ N1 no pide «Posición N» en ninguna interacción
+  ✓ N1 no contiene formularios visibles (select/input/textarea)
+  ✓ «+ Añadir lugar» visible en cada día
+  ✓ «Cambiar orden» sustituye a «Probar otro orden»
+  ✓ touch: ninguna asa de arrastre visible en N1
+  ✓ «Sin asignar» con lugares es una sección visible (no <details>)
+  ✓ «Sin asignar» muestra su recuento y sus lugares sin abrir nada
+  ✓ «⋯ de la parada»: abre una Sheet (N2) con rol de diálogo
+  ✓ «⋯ de la parada»: la altura de la página no crece (Δ=0px)
+  ✓ «⋯ de la parada»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «⋯ de la parada»: el foco entra en la superficie
+  ✓ «⋯ de la parada»: Tab queda atrapado en la superficie
+  ✓ «⋯ de la parada»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «⋯ de la parada»: Escape devuelve el foco al disparador
+  ✓ «⋯ de la parada»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «⋯ del día»: abre una Sheet (N2) con rol de diálogo
+  ✓ «⋯ del día»: la altura de la página no crece (Δ=0px)
+  ✓ «⋯ del día»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «⋯ del día»: el foco entra en la superficie
+  ✓ «⋯ del día»: Tab queda atrapado en la superficie
+  ✓ «⋯ del día»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «⋯ del día»: Escape devuelve el foco al disparador
+  ✓ «⋯ del día»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «+ Añadir lugar»: abre una Sheet (N2) con rol de diálogo
+  ✓ «+ Añadir lugar»: la altura de la página no crece (Δ=0px)
+  ✓ «+ Añadir lugar»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «+ Añadir lugar»: el foco entra en la superficie
+  ✓ «+ Añadir lugar»: Tab queda atrapado en la superficie
+  ✓ «+ Añadir lugar»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «+ Añadir lugar»: Escape devuelve el foco al disparador
+  ✓ «+ Añadir lugar»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Editar fechas»: abre una Sheet (N2) con rol de diálogo
+  ✓ «Editar fechas»: la altura de la página no crece (Δ=0px)
+  ✓ «Editar fechas»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Editar fechas»: el foco entra en la superficie
+  ✓ «Editar fechas»: Tab queda atrapado en la superficie
+  ✓ «Editar fechas»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «Editar fechas»: Escape devuelve el foco al disparador
+  ✓ «Editar fechas»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Añadir a un día (Sin asignar)»: abre una Sheet (N2) con rol de diálogo
+  ✓ «Añadir a un día (Sin asignar)»: la altura de la página no crece (Δ=0px)
+  ✓ «Añadir a un día (Sin asignar)»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Añadir a un día (Sin asignar)»: el foco entra en la superficie
+  ✓ «Añadir a un día (Sin asignar)»: Tab queda atrapado en la superficie
+  ✓ «Añadir a un día (Sin asignar)»: cerrar conserva el contexto (scroll 801→801) y no cambia el borrador
+  ✓ «Añadir a un día (Sin asignar)»: Escape devuelve el foco al disparador
+  ✓ «Añadir a un día (Sin asignar)»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Cambiar orden»: abre una vista enfocada (N3) con rol de diálogo
+  ✓ «Cambiar orden»: la altura de la página no crece (Δ=0px)
+  ✓ «Cambiar orden»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Cambiar orden»: el foco entra en la superficie
+  ✓ «Cambiar orden»: Tab queda atrapado en la superficie
+  ✓ «Cambiar orden»: cerrar conserva el contexto (scroll 314→314) y no cambia el borrador
+  ✓ «Cambiar orden»: Escape devuelve el foco al disparador
+  ✓ «Cambiar orden»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Detalles del día»: abre una vista enfocada (N3) con rol de diálogo
+  ✓ «Detalles del día»: la altura de la página no crece (Δ=0px)
+  ✓ «Detalles del día»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Detalles del día»: el foco entra en la superficie
+  ✓ «Detalles del día»: Tab queda atrapado en la superficie
+  ✓ «Detalles del día»: cerrar conserva el contexto (scroll 314→314) y no cambia el borrador
+  ✓ «Detalles del día»: Escape devuelve el foco al disparador
+  ✓ «Detalles del día»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Herramientas del viaje»: abre una vista enfocada (N3) con rol de diálogo
+  ✓ «Herramientas del viaje»: la altura de la página no crece (Δ=0px)
+  ✓ «Herramientas del viaje»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Herramientas del viaje»: el foco entra en la superficie
+  ✓ «Herramientas del viaje»: Tab queda atrapado en la superficie
+  ✓ «Herramientas del viaje»: cerrar conserva el contexto (scroll 801→801) y no cambia el borrador
+  ✓ «Herramientas del viaje»: Escape devuelve el foco al disparador
+  ✓ «Herramientas del viaje»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ clic en el fondo cierra la Sheet
+  ✓ objetivos de la Sheet ≥ 44 px
+  ✓ Sheet de parada: título = nombre del lugar y contexto «Ahora en Día 1»
+  ✓ Sheet de parada: no pregunta «Posición»
+  ✓ mover entre días añade la parada AL FINAL del día destino
+  ✓ mover entre días no cambia el resto de decisiones del viaje
+  ✓ tras mover, el foco sigue a la parada movida
+  ✓ tras mover, el aviso en vivo lo anuncia
+  ✓ Sin asignar → Día 1 añade al final (1/2)
+  ✓ Sin asignar → Día 1 añade al final (2/2)
+  ✓ «Sin asignar» vacío no se pinta
+  ✓ alojamiento sin nada: «Elegir zona para dormir»
+  ✓ alojamiento sólo zona: «Zona para dormir: Shinjuku»
+  ✓ alojamiento sólo zona: nunca «Dormís en la zona»
+  ✓ alojamiento sin alojamiento esa noche: «Sin alojamiento esa noche»
+  ✓ alojamiento sin alojamiento esa noche: nunca «Dormís en la zona»
+  ✓ sin alojamiento: no se presenta como elección pendiente ni gana la zona de la ciudad
+  ✓ alojamiento alojamiento concreto: «Dormís en Hotel Sakura»
+  ✓ alojamiento alojamiento concreto: nunca «Dormís en la zona»
+  ✓ sin errores de consola ni de página
+
+── desktop 1440×900 ──
+  ✓ desktop 1440×900: puntero fine en este contexto
+  ✓ N1 no contiene <details>
+  ✓ N1 no contiene el texto «Probar otro orden» ni «Detalles del día» inline
+  ✓ N1 no muestra la frase pedagógica «Vosotros decidís…»
+  ✓ N1 no pide «Posición N» en ninguna interacción
+  ✓ N1 no contiene formularios visibles (select/input/textarea)
+  ✓ «+ Añadir lugar» visible en cada día
+  ✓ «Cambiar orden» sustituye a «Probar otro orden»
+  ✓ puntero fino: las asas de arrastre se conservan
+  ✓ «Sin asignar» con lugares es una sección visible (no <details>)
+  ✓ «Sin asignar» muestra su recuento y sus lugares sin abrir nada
+  ✓ «⋯ de la parada»: abre una Sheet (N2) con rol de diálogo
+  ✓ «⋯ de la parada»: la altura de la página no crece (Δ=0px)
+  ✓ «⋯ de la parada»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «⋯ de la parada»: el foco entra en la superficie
+  ✓ «⋯ de la parada»: Tab queda atrapado en la superficie
+  ✓ «⋯ de la parada»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «⋯ de la parada»: Escape devuelve el foco al disparador
+  ✓ «⋯ de la parada»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «⋯ del día»: abre una Sheet (N2) con rol de diálogo
+  ✓ «⋯ del día»: la altura de la página no crece (Δ=0px)
+  ✓ «⋯ del día»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «⋯ del día»: el foco entra en la superficie
+  ✓ «⋯ del día»: Tab queda atrapado en la superficie
+  ✓ «⋯ del día»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «⋯ del día»: Escape devuelve el foco al disparador
+  ✓ «⋯ del día»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «+ Añadir lugar»: abre una Sheet (N2) con rol de diálogo
+  ✓ «+ Añadir lugar»: la altura de la página no crece (Δ=0px)
+  ✓ «+ Añadir lugar»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «+ Añadir lugar»: el foco entra en la superficie
+  ✓ «+ Añadir lugar»: Tab queda atrapado en la superficie
+  ✓ «+ Añadir lugar»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «+ Añadir lugar»: Escape devuelve el foco al disparador
+  ✓ «+ Añadir lugar»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Editar fechas»: abre una Sheet (N2) con rol de diálogo
+  ✓ «Editar fechas»: la altura de la página no crece (Δ=0px)
+  ✓ «Editar fechas»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Editar fechas»: el foco entra en la superficie
+  ✓ «Editar fechas»: Tab queda atrapado en la superficie
+  ✓ «Editar fechas»: cerrar conserva el contexto (scroll 0→0) y no cambia el borrador
+  ✓ «Editar fechas»: Escape devuelve el foco al disparador
+  ✓ «Editar fechas»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Añadir a un día (Sin asignar)»: abre una Sheet (N2) con rol de diálogo
+  ✓ «Añadir a un día (Sin asignar)»: la altura de la página no crece (Δ=0px)
+  ✓ «Añadir a un día (Sin asignar)»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Añadir a un día (Sin asignar)»: el foco entra en la superficie
+  ✓ «Añadir a un día (Sin asignar)»: Tab queda atrapado en la superficie
+  ✓ «Añadir a un día (Sin asignar)»: cerrar conserva el contexto (scroll 486→486) y no cambia el borrador
+  ✓ «Añadir a un día (Sin asignar)»: Escape devuelve el foco al disparador
+  ✓ «Añadir a un día (Sin asignar)»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Cambiar orden»: abre una vista enfocada (N3) con rol de diálogo
+  ✓ «Cambiar orden»: la altura de la página no crece (Δ=0px)
+  ✓ «Cambiar orden»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Cambiar orden»: el foco entra en la superficie
+  ✓ «Cambiar orden»: Tab queda atrapado en la superficie
+  ✓ «Cambiar orden»: cerrar conserva el contexto (scroll 486→486) y no cambia el borrador
+  ✓ «Cambiar orden»: Escape devuelve el foco al disparador
+  ✓ «Cambiar orden»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Detalles del día»: abre una vista enfocada (N3) con rol de diálogo
+  ✓ «Detalles del día»: la altura de la página no crece (Δ=0px)
+  ✓ «Detalles del día»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Detalles del día»: el foco entra en la superficie
+  ✓ «Detalles del día»: Tab queda atrapado en la superficie
+  ✓ «Detalles del día»: cerrar conserva el contexto (scroll 486→486) y no cambia el borrador
+  ✓ «Detalles del día»: Escape devuelve el foco al disparador
+  ✓ «Detalles del día»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ «Herramientas del viaje»: abre una vista enfocada (N3) con rol de diálogo
+  ✓ «Herramientas del viaje»: la altura de la página no crece (Δ=0px)
+  ✓ «Herramientas del viaje»: ninguna tarjeta crece (máx Δ=0px)
+  ✓ «Herramientas del viaje»: el foco entra en la superficie
+  ✓ «Herramientas del viaje»: Tab queda atrapado en la superficie
+  ✓ «Herramientas del viaje»: cerrar conserva el contexto (scroll 486→486) y no cambia el borrador
+  ✓ «Herramientas del viaje»: Escape devuelve el foco al disparador
+  ✓ «Herramientas del viaje»: abrir/cerrar no navega (misma URL) y no deja entrada de historial propia
+  ✓ clic en el fondo cierra la Sheet
+  ✓ objetivos de la Sheet ≥ 44 px
+  ✓ Sheet de parada: título = nombre del lugar y contexto «Ahora en Día 1»
+  ✓ Sheet de parada: no pregunta «Posición»
+  ✓ mover entre días añade la parada AL FINAL del día destino
+  ✓ mover entre días no cambia el resto de decisiones del viaje
+  ✓ tras mover, el foco sigue a la parada movida
+  ✓ tras mover, el aviso en vivo lo anuncia
+  ✓ Sin asignar → Día 1 añade al final (1/2)
+  ✓ Sin asignar → Día 1 añade al final (2/2)
+  ✓ «Sin asignar» vacío no se pinta
+  ✓ alojamiento sin nada: «Elegir zona para dormir»
+  ✓ alojamiento sólo zona: «Zona para dormir: Shinjuku»
+  ✓ alojamiento sólo zona: nunca «Dormís en la zona»
+  ✓ alojamiento sin alojamiento esa noche: «Sin alojamiento esa noche»
+  ✓ alojamiento sin alojamiento esa noche: nunca «Dormís en la zona»
+  ✓ sin alojamiento: no se presenta como elección pendiente ni gana la zona de la ciudad
+  ✓ alojamiento alojamiento concreto: «Dormís en Hotel Sakura»
+  ✓ alojamiento alojamiento concreto: nunca «Dormís en la zona»
+  ✓ sin errores de consola ni de página
+
+Mediciones N1 (estado inicial, viaje de 2 días, 3 paradas + 1):
+  phone 390×844: scrollHeight=1533px · tarjetas=485/366px
+  desktop 1440×900: scrollHeight=1330px · tarjetas=409/296px
+
+════════════════════════════════════════════════════════════
+P-06 v2 lista · hojas: 190 passed, 0 failed
+

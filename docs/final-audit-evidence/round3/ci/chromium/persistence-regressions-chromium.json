@@ -1,0 +1,701 @@
+{
+  "sha": "4117e72c605656d24dbe7b25995c00cb1a84ef24",
+  "dirty": false,
+  "browser": "chromium",
+  "results": [
+    {
+      "id": "queued-write-protection-invalid",
+      "expected": "original unchanged",
+      "preserved": true,
+      "correct": true,
+      "actual": "{invalid-json",
+      "remoteActual": "{invalid-json",
+      "published": {
+        "at": 1791343678350,
+        "value": "{invalid-json"
+      },
+      "trace": [
+        {
+          "kind": "get",
+          "at": 1791343678348,
+          "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+        },
+        {
+          "kind": "get",
+          "at": 1791343678352,
+          "value": "{invalid-json"
+        },
+        {
+          "kind": "get",
+          "at": 1791343678804,
+          "value": "{invalid-json"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "queued-write-protection-future",
+      "expected": "original unchanged",
+      "preserved": true,
+      "correct": true,
+      "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original\"}",
+      "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original\"}",
+      "published": {
+        "at": 1791343679385,
+        "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original\"}"
+      },
+      "trace": [
+        {
+          "kind": "get",
+          "at": 1791343679383,
+          "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+        },
+        {
+          "kind": "get",
+          "at": 1791343679387,
+          "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original\"}"
+        },
+        {
+          "kind": "get",
+          "at": 1791343679839,
+          "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original\"}"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "queued-protection-repeated-publication-before-release",
+      "correct": true,
+      "attempts": [
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{invalid-json",
+          "remoteActual": "{invalid-json",
+          "published": {
+            "at": 1791343680349,
+            "value": "{invalid-json"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343680347,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343680350,
+              "value": "{invalid-json"
+            },
+            {
+              "kind": "get",
+              "at": 1791343680803,
+              "value": "{invalid-json"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 1\"}",
+          "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 1\"}",
+          "published": {
+            "at": 1791343681323,
+            "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 1\"}"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343681321,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343681325,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 1\"}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343681776,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 1\"}"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{invalid-json",
+          "remoteActual": "{invalid-json",
+          "published": {
+            "at": 1791343682305,
+            "value": "{invalid-json"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343682303,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343682307,
+              "value": "{invalid-json"
+            },
+            {
+              "kind": "get",
+              "at": 1791343682758,
+              "value": "{invalid-json"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 3\"}",
+          "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 3\"}",
+          "published": {
+            "at": 1791343683291,
+            "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 3\"}"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343683289,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343683293,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 3\"}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343683744,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 3\"}"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{invalid-json",
+          "remoteActual": "{invalid-json",
+          "published": {
+            "at": 1791343684264,
+            "value": "{invalid-json"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343684263,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343684267,
+              "value": "{invalid-json"
+            },
+            {
+              "kind": "get",
+              "at": 1791343684718,
+              "value": "{invalid-json"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 5\"}",
+          "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 5\"}",
+          "published": {
+            "at": 1791343685236,
+            "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 5\"}"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343685235,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343685238,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 5\"}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343685690,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 5\"}"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{invalid-json",
+          "remoteActual": "{invalid-json",
+          "published": {
+            "at": 1791343686193,
+            "value": "{invalid-json"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343686192,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343686195,
+              "value": "{invalid-json"
+            },
+            {
+              "kind": "get",
+              "at": 1791343686647,
+              "value": "{invalid-json"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 7\"}",
+          "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 7\"}",
+          "published": {
+            "at": 1791343687181,
+            "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 7\"}"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343687179,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343687183,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 7\"}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343687634,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 7\"}"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{invalid-json",
+          "remoteActual": "{invalid-json",
+          "published": {
+            "at": 1791343688158,
+            "value": "{invalid-json"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343688157,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343688161,
+              "value": "{invalid-json"
+            },
+            {
+              "kind": "get",
+              "at": 1791343688612,
+              "value": "{invalid-json"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 9\"}",
+          "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 9\"}",
+          "published": {
+            "at": 1791343689132,
+            "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 9\"}"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343689130,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343689134,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 9\"}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343689585,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 9\"}"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{invalid-json",
+          "remoteActual": "{invalid-json",
+          "published": {
+            "at": 1791343690106,
+            "value": "{invalid-json"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343690104,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343690108,
+              "value": "{invalid-json"
+            },
+            {
+              "kind": "get",
+              "at": 1791343690559,
+              "value": "{invalid-json"
+            }
+          ]
+        },
+        {
+          "expected": "original unchanged",
+          "preserved": true,
+          "correct": true,
+          "actual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 11\"}",
+          "remoteActual": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 11\"}",
+          "published": {
+            "at": 1791343691108,
+            "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 11\"}"
+          },
+          "trace": [
+            {
+              "kind": "get",
+              "at": 1791343691106,
+              "value": "{\"version\":8,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[]}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343691110,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 11\"}"
+            },
+            {
+              "kind": "get",
+              "at": 1791343691561,
+              "value": "{\"version\":9,\"routeIds\":[\"JP-044\"],\"days\":[{\"id\":\"d1\",\"placeIds\":[\"JP-044\"],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"marker\":\"future original 11\"}"
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "retry-clobbers-other-tab-and-export",
+      "before": [
+        "JP-044",
+        "JP-077"
+      ],
+      "memoryBefore": [
+        "JP-044",
+        "JP-021"
+      ],
+      "after": [
+        "JP-044",
+        "JP-077",
+        "JP-021"
+      ],
+      "exportOutcome": {
+        "ok": true,
+        "fileName": "nihon-backup-2026-10-07.json"
+      },
+      "exported": [
+        "JP-044",
+        "JP-077",
+        "JP-021"
+      ],
+      "final": [
+        "JP-044",
+        "JP-077",
+        "JP-021"
+      ],
+      "retainedRemote": true,
+      "exportContainsBoth": true,
+      "pass": true
+    },
+    {
+      "id": "retry-overwrites-protected-future",
+      "expected": "future original unchanged",
+      "preserved": true,
+      "actual": "{\"version\":2,\"travellers\":[{\"id\":\"p1\",\"label\":\"Synthetic A\"},{\"id\":\"p2\",\"label\":\"Synthetic B\"}],\"activeTravellerId\":\"p1\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"p1\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"marker\":\"do not overwrite\"}",
+      "pass": true
+    },
+    {
+      "id": "lineage-full-drops-missing-operation",
+      "expectedDays": 3,
+      "actualDays": 3,
+      "localDayPreserved": true,
+      "lineageLength": 96,
+      "pass": true
+    },
+    {
+      "id": "pending-replay-inclusion-short",
+      "expectedDays": 2,
+      "actualDays": 2,
+      "originalWriteStillIncluded": true,
+      "lineageLength": 95,
+      "pass": true
+    },
+    {
+      "id": "pending-replay-inclusion-full",
+      "expectedDays": 2,
+      "actualDays": 2,
+      "originalWriteStillIncluded": true,
+      "lineageLength": 96,
+      "pass": true
+    },
+    {
+      "id": "operation-included-under-earlier-write-id",
+      "expectedDays": 3,
+      "actualDays": 3,
+      "firstIdIncluded": true,
+      "secondIdAbsent": true,
+      "pass": true
+    },
+    {
+      "id": "pending-survives-reload-while-lock-held",
+      "expectedDays": 2,
+      "actualDays": 2,
+      "queuePreserved": true,
+      "lockRespected": true,
+      "pass": true
+    },
+    {
+      "id": "abandoned-lock-released-on-close",
+      "recovered": true,
+      "pass": true
+    },
+    {
+      "id": "restore-drops-pending-journal",
+      "expectedDay": "restored-day",
+      "actualDays": [
+        "restored-day"
+      ],
+      "startDate": "2027-03-01",
+      "pass": true
+    },
+    {
+      "id": "failed-restore-retry-applies-partial-import",
+      "importState": {
+        "phase": "failed",
+        "rolledBack": true
+      },
+      "beforeLabel": "Synthetic A",
+      "beforeStart": null,
+      "afterLabel": "Synthetic A",
+      "afterStart": null,
+      "rollbackStayedIntact": true,
+      "pass": true
+    },
+    {
+      "id": "stale-active-traveller-attribution",
+      "viewedTraveller": "p1",
+      "attributedTraveller": "p1",
+      "correct": true,
+      "pass": true
+    },
+    {
+      "id": "h03-module-refresh-timeout-preserves-pending",
+      "elapsedMs": 3124,
+      "expectedDays": 2,
+      "actualDays": 2,
+      "queuePreserved": true,
+      "reloaded": true,
+      "pass": true
+    },
+    {
+      "id": "retry-queued-retained-events-invalid",
+      "preserved": true,
+      "correct": true,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "protected"
+      },
+      "pass": true
+    },
+    {
+      "id": "retry-queued-retained-events-future",
+      "preserved": true,
+      "correct": true,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "protected"
+      },
+      "pass": true
+    },
+    {
+      "id": "ambiguous-lineage-full-survives-reload",
+      "preserved": true,
+      "correct": true,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "unsaved"
+      },
+      "pass": true
+    },
+    {
+      "id": "ambiguous-lineage-missing-survives-reload",
+      "preserved": true,
+      "correct": true,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "unsaved"
+      },
+      "pass": true
+    },
+    {
+      "id": "ambiguous-lineage-malformed-survives-reload",
+      "preserved": true,
+      "correct": true,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "unsaved"
+      },
+      "pass": true
+    },
+    {
+      "id": "removed-viewed-traveller-requested",
+      "correct": true,
+      "messages": [
+        "No se ha guardado ni quitado el interés: esa persona ya no existe en el viaje. Hemos actualizado la vista."
+      ],
+      "pass": true
+    },
+    {
+      "id": "removed-viewed-traveller-queued",
+      "correct": true,
+      "messages": [
+        "No se ha guardado ni quitado el interés: esa persona ya no existe en el viaje. Hemos actualizado la vista."
+      ],
+      "pass": true
+    },
+    {
+      "id": "remove-interest-preserves-viewed-traveller",
+      "correct": true,
+      "stances": [
+        {
+          "travellerId": "p2",
+          "stance": "interested"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "rollback-intact-after-reload-and-retry",
+      "correct": true,
+      "rolledBack": true,
+      "pass": true
+    },
+    {
+      "id": "incomplete-rollback-blocks-retry-reload-and-preserves-preimage",
+      "correct": true,
+      "rolledBack": false,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "unsaved"
+      },
+      "pass": true
+    },
+    {
+      "id": "lock-rejection-never-bypasses-exclusion",
+      "preserved": true,
+      "correct": true,
+      "rejectedCalls": 6,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "unsaved"
+      },
+      "messages": [
+        "No se pudo obtener acceso para guardar. Se conserva la copia pendiente; vuelve a intentarlo.",
+        "No se pudo obtener acceso para guardar. Se conserva la copia pendiente; vuelve a intentarlo.",
+        "No se pudo obtener una lectura segura del viaje. No se ha entregado un respaldo como si estuviera completo."
+      ],
+      "pass": true
+    },
+    {
+      "id": "queued-stop-operation-rejects-removed-day",
+      "preserved": true,
+      "correct": true,
+      "messages": [
+        "No se ha hecho nada: esa parada ya no está donde la veías (se movió, se quitó o se cambió en otra pestaña). Hemos actualizado la vista."
+      ],
+      "pass": true
+    },
+    {
+      "id": "zone-choice-shares-queued-journal-and-protection",
+      "preserved": true,
+      "correct": true,
+      "pass": true
+    },
+    {
+      "id": "read-failure-is-protected-not-empty",
+      "preserved": true,
+      "correct": true,
+      "exportOutcome": {
+        "ok": false,
+        "reason": "protected"
+      },
+      "pass": true
+    },
+    {
+      "id": "restore-null-draft-does-not-resurrect-old-shortlist",
+      "correct": true,
+      "actualRoute": [
+        "JP-021"
+      ],
+      "pass": true
+    },
+    {
+      "id": "second-failed-restore-keeps-first-preimage",
+      "correct": true,
+      "preimageKept": true,
+      "pass": true
+    },
+    {
+      "id": "preimage-copy-failure-does-not-leave-unstarted-restore-block",
+      "correct": true,
+      "interestAccepted": true,
+      "pass": true
+    },
+    {
+      "id": "recovered-lock-clears-safe-noop-problem-without-writing",
+      "correct": true,
+      "rejected": {
+        "ok": false,
+        "reason": "unsaved"
+      },
+      "recovered": {
+        "ok": true,
+        "fileName": "nihon-backup-2026-10-07.json"
+      },
+      "remaining": [],
+      "pass": true
+    }
+  ]
+}
