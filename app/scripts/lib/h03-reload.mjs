@@ -19,7 +19,12 @@ export async function pressOfferedReload({ page, alert, proxy = null, networkRep
   page.on("request", onRequest);
   const waitReplaced = () => page.waitForFunction(() => window.__beforeReload === undefined, undefined, { timeout: timeoutMs });
   // noWaitAfter: la espera de la recarga es la nuestra, con límite explícito (click() esperaría hasta 30 s a una navegación pendiente).
-  const press = () => alert.first().getByRole("button", { name: /Recargar/ }).click({ noWaitAfter: true });
+  const button = () => alert.first().getByRole("button", { name: /Recargar/ });
+  const press = () => button().click({ noWaitAfter: true });
+  // La 2.ª pulsación se hace con el evento `click` del propio botón: con la navegación perdida aún pendiente, `click()` de
+  // Playwright espera a que esa navegación termine (8 s en CI: «waiting for navigation to finish») y nunca llega a pulsar,
+  // mientras que una persona sí puede pulsar de nuevo. El manejador del producto es el mismo.
+  const pressAgain = () => button().dispatchEvent("click");
   try {
     const documentsBefore = proxy ? proxy.state.documents : 0;
     await press();
@@ -33,7 +38,7 @@ export async function pressOfferedReload({ page, alert, proxy = null, networkRep
       const detail = `petición de documento emitida=${navigations.length > 0}; llegó al servidor=${reachedServer ?? "n/d"}; proceso de red reemplazado=${replaced}`;
       if (!lostRequest && !replaced) throw error; // sin prueba del motor: fallo estricto, como antes
       report?.(detail);
-      await press();
+      await pressAgain();
       await waitReplaced(); // la segunda pulsación es estricta
       return { attempts: 2, engineFault: detail };
     }

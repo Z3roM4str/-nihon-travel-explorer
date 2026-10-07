@@ -47,6 +47,9 @@ async function scenario(id, label, { drop = 0, hold = 0, ignoreClick = false, re
   const page = await context.newPage();
   const dropped = [];
   let remainingDrops = 0;
+  // WebKit deja la navegación perdida PENDIENTE (como en CI) y una 2.ª recarga la sustituye. Chromium no tiene ese fallo y no
+  // sustituye una navegación interceptada y sin atender: ahí la navegación fabricada se aborta (ERR_ABORTED conserva la página).
+  const releaseDropped = () => { for (const route of dropped.splice(0)) if (BROWSER === "chromium") route.abort("aborted").catch(() => {}); };
   await page.route(base, (route) => {
     if (route.request().isNavigationRequest() && remainingDrops > 0) { remainingDrops -= 1; dropped.push(route); return; } // nunca llega al servidor
     return route.continue();
@@ -62,7 +65,7 @@ async function scenario(id, label, { drop = 0, hold = 0, ignoreClick = false, re
   try {
     outcome = await pressOfferedReload({
       page, alert: page.locator("[data-lazy-failure]"), proxy: { state }, tag: id, networkReplaced: () => replaced,
-      report: (detail) => { reports.push(detail); if (!keepDropping) remainingDrops = 0; held.splice(0).forEach((respond) => respond()); for (const route of dropped.splice(0)) route.abort("aborted").catch(() => {}); if (ignoreClick) page.evaluate(() => { window.__ignoreClick = false; }).catch(() => {}); },
+      report: (detail) => { reports.push(detail); if (!keepDropping) remainingDrops = 0; held.splice(0).forEach((respond) => respond()); releaseDropped(); if (ignoreClick) page.evaluate(() => { window.__ignoreClick = false; }).catch(() => {}); },
       timeoutMs: TIMEOUT_MS,
     });
   } catch (e) { error = e; }
