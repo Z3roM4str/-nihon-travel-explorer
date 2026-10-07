@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync, mkdtempSync, rmSync, readdirSync, readlinkSync } from "node:fs";
+import { mkdirSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import * as procFs from "node:fs"; // espacio de nombres propio: h03-conservation-investigation.mjs antepone sus importaciones
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer, request as httpRequest } from "node:http";
@@ -543,8 +544,8 @@ function startFlakyProxy(targetPort) {
 const networkProcessIds = () => {
   if (BROWSER !== "webkit") return [];
   try {
-    return readdirSync("/proc").filter((entry) => /^\d+$/.test(entry)).flatMap((entry) => {
-      try { return /NetworkProcess$/.test(readlinkSync(`/proc/${entry}/exe`).split("/").at(-1)) ? [Number(entry)] : []; } catch { return []; }
+    return procFs.readdirSync("/proc").filter((entry) => /^\d+$/.test(entry)).flatMap((entry) => {
+      try { return /NetworkProcess$/.test(procFs.readlinkSync(`/proc/${entry}/exe`).split("/").at(-1)) ? [Number(entry)] : []; } catch { return []; }
     });
   } catch { return []; }
 };
