@@ -109,15 +109,32 @@ si ocurre en Safari físico (otra pila de red); la causa del reemplazo espontán
 - **Producto: sin cambios.** No se altera `reloadRefreshingModules` ni `LazySurfaceBoundary` para compensar a libsoup: la mejora que
   mostraría la variante H sería una espera añadida a todos los usuarios para un defecto de una pila de red que Safari no usa.
 
-## 5. Limitaciones que se conservan
+## 5. Validación del SHA de código `f09b283175ab41a88061103d7747a3a955d21bec`
+
+- Pruebas unitarias 3455/3455, typecheck y lint sin avisos en los ficheros nuevos.
+- Certificación P-06 ([run 37699345012](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37699345012)): **Chromium y WebKit en verde**
+  (`RESULT fail=0`). H03/recuperación 93/93 (Chromium) y 69/69 (WebKit), persistencia 33/33, pestañas obsoletas 16/16, exportación
+  16/16, a11y 49/49 y 47/47, regresión de clasificación 7/7 en ambos. Sin fallos del motor registrados ni COBERTURA PARCIAL en ese run.
+- Matriz de estrés cargada ([run 37699345002](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37699345002), 24 casos × 2 cargas):
+  `load=0` 202 OK, 0 FAIL, 2 diagnósticos de recarga perdida (cobertura parcial); `load=1` 196 OK, **3 FAIL**: tres casos en los que
+  las tres pulsaciones se perdieron (cada una con su prueba: petición emitida y no recibida por el servidor). Esa matriz **sigue en rojo**:
+  con carga y RESET, WebKit puede dejar una sesión sin navegar durante >24 s. No se debilita el criterio para ocultarlo.
+  En una ejecución anterior (a121d30) una pulsación recuperó a la segunda; el reintento mediante el botón (refresco de módulos +
+  recarga) recupera menos que el `location.reload()` directo de la sonda (72 %), porque con el proceso de red degradado el propio
+  refresco queda cancelado a los 3 s («Load request cancelled»).
+
+## 6. Limitaciones que se conservan
 
 - La conservación de datos en WebKit se prueba con **perfil persistente** (ronda 4). El contexto efímero pierde `localStorage` cuando
   el proceso de red se reemplaza (diagnóstico de ronda 4 y sonda de reinicio forzado): es una limitación del entorno de pruebas, no
   una garantía del producto en ese modo.
 - Un gate WebKit con un fallo del motor clasificado queda en **COBERTURA PARCIAL**: no equivale a validación completa.
+- **Veredicto H03:** causa del motor demostrada; certificación P-06 verde en Chromium y WebKit; el estrés WebKit con carga no es determinista
+  (3/48 casos fallan tras tres pulsaciones perdidas). H03 sigue **sin certificar bajo estrés**: la decisión de aceptar la limitación
+  del motor (o repetir en otro WebKit / Safari físico) es de revisión humana.
 - No se certifica Safari físico ni iOS.
 
-## 6. Reproducción
+## 7. Reproducción
 
 ```sh
 cd app && npm ci && npx playwright install --with-deps webkit && npm run build
