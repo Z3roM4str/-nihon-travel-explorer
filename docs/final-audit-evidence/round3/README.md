@@ -27,7 +27,7 @@ Los datos son sintéticos, los perfiles son `browser.newContext()` desechables, 
 ## Regresiones duraderas y diferencias documentadas
 
 `app/scripts/final-audit-persistence-regressions-check.mjs` conserva los 14 escenarios y sus
-aserciones de contenido. Añade otras 18 ventanas que los gates ordinarios no cubrían: reintento
+aserciones de contenido. Añade otras 19 ventanas que los gates ordinarios no cubrían: reintento
 encolado con eventos retenidos + inválido/futuro; historia desconocida llena/ausente/malformada
 que sigue conflictiva tras recarga y otra escritura externa; persona eliminada al pedir o ejecutar;
 quitar interés atribuido a la persona vista; rollback satisfactorio tras recarga; rollback incompleto
@@ -71,7 +71,7 @@ scripts/p06-v2-certify.sh webkit
 
 El nuevo gate está incluido en ambas ramas de la matriz CI, junto con los gates de pestañas obsoletas,
 exportación protegida y H03 existentes. Cada artefacto lleva SHA y navegador, log por gate y JSON con
-los 32 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
+los 33 resultados dirigidos. El workflow comprueba el **HEAD del PR**, no su merge sintético, y ejecuta
 Vitest antes de la certificación. Los resultados finales y enlaces se consignarán tras terminar CI.
 
 La variante con itinerario null se añadió al revisar todos los caminos de restauración: falló en
@@ -103,6 +103,25 @@ su aviso anterior seguía bloqueando la exportación aun después de recuperar e
 caso falla sobre `c5ba08e` y pasa al retirar el problema tras una lectura segura bajo lock, **sin
 escribir** ese documento. La exportación exitosa retira también su aviso transitorio. Se incluyen
 una regresión de navegador y otra de contrato; evidencia en `supplemental/noop-*.log`.
+
+## Ventana de caché de WebKit detectada durante la validación
+
+El CI de `6166c47` pasó Chromium completo, pero en WebKit una cola sustituyó un documento futuro
+(31/32 regresiones). No se aceptó una repetición verde como solución. Sobre `363e5b0` —mismo producto,
+sólo instrumentación— doce repeticiones y trazas nativas reprodujeron una sobrescritura real de un
+inválido: el publicador lo releyó a las `1791342833093`; la pestaña en cola releyó tres veces su
+caché válida a `3095/3097` y ejecutó `setItem` a `3097`. Ambas pestañas leyeron después el payload
+incorrecto. Evidencia exacta en `supplemental/queue-probe-webkit-363e5b0/` y el primer fallo en
+`supplemental/webkit-6166c47-attempt1/`. La concesión de Web Locks no basta para que esa caché ya
+haya procesado la invalidación de otro proceso.
+
+`storage-lock.ts` cede una tarea **manteniendo el mismo lock** antes de ejecutar cualquier lectura,
+clasificación o escritura. Así cubre también reintentos, exportación, importación y reinicio. Dos
+contratos con invalidación pendiente fallan antes (2 fallan, 7 pasan) y pasan después (9/9); registros
+`cache-before.log` y `cache-after.log`. La nueva regresión repetida se añade a las originales; no
+cambia sus 450 ms ni oculta eventos, y exige original exacto desde **ambas** pestañas, publicación
+releída y **cero setItem** sobre el documento protegido. CI publica inmediatamente estas trazas
+antes de la matriz completa. La certificación final se repetirá sobre el SHA con la corrección.
 
 ## Límites
 

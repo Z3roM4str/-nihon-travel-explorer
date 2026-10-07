@@ -1,0 +1,56 @@
+
+ RUN  v3.2.7 /workspace/nihon-pr203-review/app
+
+ ❯ src/useStoredDocument.persistence.test.ts (9 tests | 2 failed) 19ms
+   × diario de persistencia: protecciones en cada frontera > procesa la invalidación de caché pendiente al recibir el lock: {invalid-json 10ms
+     → expected '{"version":1,"count":1,"_w":["oafh6ch…' to be '{invalid-json' // Object.is equality
+   × diario de persistencia: protecciones en cada frontera > procesa la invalidación de caché pendiente al recibir el lock: {"version":2,"count":77} 2ms
+     → expected '{"version":1,"count":1,"_w":["9vvyp5e…' to be '{"version":2,"count":77}' // Object.is equality
+   ✓ diario de persistencia: protecciones en cada frontera > clasifica de nuevo justo antes del setItem aunque la primera lectura bajo el lock fuese válida 1ms
+   ✓ diario de persistencia: protecciones en cada frontera > un reintento reconcilia la intención con el vigente, no el payload que falló 1ms
+   ✓ diario de persistencia: protecciones en cada frontera > un lock rechazado no ejecuta la tarea y conserva la copia 1ms
+   ✓ diario de persistencia: protecciones en cada frontera > un acceso recuperado elimina el problema aunque no haya nada que escribir 1ms
+   ✓ diario de persistencia: protecciones en cada frontera > una tarea que lanza no se ejecuta de nuevo fuera del lock 1ms
+   ✓ diario de persistencia: protecciones en cada frontera > conserva literalmente una copia de sesión ilegible, incluso tras cambios externos 1ms
+   ✓ diario de persistencia: protecciones en cada frontera > el snapshot pendiente que se recupera de la recarga se bloquea si su base cambia 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/useStoredDocument.persistence.test.ts > diario de persistencia: protecciones en cada frontera > procesa la invalidación de caché pendiente al recibir el lock: {invalid-json
+AssertionError: expected '{"version":1,"count":1,"_w":["oafh6ch…' to be '{invalid-json' // Object.is equality
+
+Expected: "{invalid-json"
+Received: "{"version":1,"count":1,"_w":["oafh6ch21"]}"
+
+ ❯ src/useStoredDocument.persistence.test.ts:56:23
+     54|       store.update((doc) => ({ ...doc, count: 1 }));
+     55|       await flushStore(store);
+     56|       expect(backing).toBe(original);
+       |                       ^
+     57|       expect(writes).toEqual([]);
+     58|       expect(readPendingCopy(key)).toContain('"count\\\":1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/useStoredDocument.persistence.test.ts > diario de persistencia: protecciones en cada frontera > procesa la invalidación de caché pendiente al recibir el lock: {"version":2,"count":77}
+AssertionError: expected '{"version":1,"count":1,"_w":["9vvyp5e…' to be '{"version":2,"count":77}' // Object.is equality
+
+Expected: "{"version":2,"count":77}"
+Received: "{"version":1,"count":1,"_w":["9vvyp5el2"]}"
+
+ ❯ src/useStoredDocument.persistence.test.ts:56:23
+     54|       store.update((doc) => ({ ...doc, count: 1 }));
+     55|       await flushStore(store);
+     56|       expect(backing).toBe(original);
+       |                       ^
+     57|       expect(writes).toEqual([]);
+     58|       expect(readPendingCopy(key)).toContain('"count\\\":1');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  03:15:47
+   Duration  515ms (transform 246ms, setup 0ms, collect 323ms, tests 19ms, environment 0ms, prepare 55ms)
+

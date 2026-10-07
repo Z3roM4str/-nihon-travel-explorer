@@ -28,14 +28,43 @@ beforeEach(() => {
 });
 afterEach(() => { clearPendingCopy(key); clearPendingCopy("restore"); vi.clearAllTimers(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
+async function flushStore(store: StoredDocumentStore<Doc>): Promise<void> {
+  const pending = store.flush();
+  await vi.advanceTimersByTimeAsync(0);
+  await pending;
+}
+
 describe("diario de persistencia: protecciones en cada frontera", () => {
+  it.each(["{invalid-json", JSON.stringify({ version: 2, count: 77 })])(
+    "procesa la invalidación de caché pendiente al recibir el lock: %s", async (original) => {
+      let backing = original;
+      let held = false;
+      adapter.storage.setItem = (_, value) => {
+        expect(held).toBe(true);
+        writes.push(value); raw = value; backing = value;
+      };
+      vi.stubGlobal("navigator", { locks: { request: (_: string, __: unknown, task: () => unknown) => {
+        held = true;
+        // Otro proceso ya publicó el original; la vista de localStorage de esta pestaña
+        // recibe su invalidación en la siguiente tarea, después de concederse el Web Lock.
+        setTimeout(() => { raw = original; }, 0);
+        return Promise.resolve().then(task).finally(() => { held = false; });
+      } } });
+      const store = new StoredDocumentStore(adapter);
+      store.update((doc) => ({ ...doc, count: 1 }));
+      await flushStore(store);
+      expect(backing).toBe(original);
+      expect(writes).toEqual([]);
+      expect(readPendingCopy(key)).toContain('"count\\\":1');
+    }
+  );
   it("clasifica de nuevo justo antes del setItem aunque la primera lectura bajo el lock fuese válida", async () => {
     const store = new StoredDocumentStore(adapter);
     store.update((doc) => ({ ...doc, count: doc.count + 1 }));
     const original = JSON.stringify({ version: 2, count: 77 });
     let first = true;
     adapter.read = () => { const result = read(); if (first) { first = false; raw = original; } return result; };
-    await store.flush();
+    await flushStore(store);
     expect(raw).toBe(original); expect(writes).toEqual([]);
     expect(readPendingCopy(key)).toContain('"count\\\":1');
   });
@@ -44,42 +73,42 @@ describe("diario de persistencia: protecciones en cada frontera", () => {
     vi.stubGlobal("localStorage", { getItem: () => raw, setItem: (_: string, value: string) => { if (fail) throw new Error("quota"); raw = value; }, removeItem: () => { throw new Error("Unexpected delete"); } });
     adapter.storage = deviceStorage;
     const store = new StoredDocumentStore(adapter);
-    store.update((doc) => ({ ...doc, count: doc.count + 1 })); await store.flush();
+    store.update((doc) => ({ ...doc, count: doc.count + 1 })); await flushStore(store);
     expect(JSON.parse(raw).count).toBe(0);
     raw = JSON.stringify({ version: 1, count: 10, _w: ["remote"] }); fail = false;
-    await store.flush(); expect(JSON.parse(raw).count).toBe(11);
+    await flushStore(store); expect(JSON.parse(raw).count).toBe(11);
   });
   it("un lock rechazado no ejecuta la tarea y conserva la copia", async () => {
     vi.stubGlobal("navigator", { locks: { request: vi.fn().mockRejectedValue(new Error("denied")) } });
     const store = new StoredDocumentStore(adapter);
-    store.update((doc) => ({ ...doc, count: 1 })); await store.flush();
+    store.update((doc) => ({ ...doc, count: 1 })); await flushStore(store);
     expect(JSON.parse(raw).count).toBe(0); expect(writes).toEqual([]); expect(readPendingCopy(key)).not.toBeNull();
   });
   it("un acceso recuperado elimina el problema aunque no haya nada que escribir", async () => {
     vi.stubGlobal("navigator", { locks: { request: vi.fn().mockRejectedValue(new Error("denied")) } });
-    const store = new StoredDocumentStore(adapter); await store.flush();
+    const store = new StoredDocumentStore(adapter); await flushStore(store);
     expect(getPersistenceProblems().some((p) => p.key === key)).toBe(true);
     vi.stubGlobal("navigator", { locks: { request: (_: string, __: unknown, task: () => void) => Promise.resolve().then(task) } });
-    await store.flush();
+    await flushStore(store);
     expect(getPersistenceProblems().some((p) => p.key === key)).toBe(false); expect(writes).toEqual([]);
   });
   it("una tarea que lanza no se ejecuta de nuevo fuera del lock", async () => {
     const set = vi.fn(() => { throw new Error("quota"); }); adapter.storage.setItem = set;
     vi.stubGlobal("navigator", { locks: { request: (_: string, __: unknown, task: () => void) => Promise.resolve().then(task) } });
     const store = new StoredDocumentStore(adapter);
-    store.update((doc) => ({ ...doc, count: 1 })); await store.flush();
+    store.update((doc) => ({ ...doc, count: 1 })); await flushStore(store);
     expect(set).toHaveBeenCalledTimes(1); expect(JSON.parse(raw).count).toBe(0);
   });
   it("conserva literalmente una copia de sesión ilegible, incluso tras cambios externos", async () => {
     keepPendingCopy(key, "{damaged-recovery"); const store = new StoredDocumentStore(adapter);
-    raw = JSON.stringify({ version: 1, count: 7, _w: [] }); await store.flush();
+    raw = JSON.stringify({ version: 1, count: 7, _w: [] }); await flushStore(store);
     expect(JSON.parse(raw).count).toBe(7); expect(writes).toEqual([]); expect(readPendingCopy(key)).toBe("{damaged-recovery");
     expect(getPersistenceProblems().some((p) => p.blocking)).toBe(true);
   });
   it("el snapshot pendiente que se recupera de la recarga se bloquea si su base cambia", async () => {
     const recovery = JSON.stringify({ raw, value: JSON.stringify({ version: 1, count: 1 }), pending: true, conflict: false, writes: [[]] });
     keepPendingCopy(key, recovery); const store = new StoredDocumentStore(adapter);
-    raw = JSON.stringify({ version: 1, count: 8, _w: ["remote"] }); await store.flush();
+    raw = JSON.stringify({ version: 1, count: 8, _w: ["remote"] }); await flushStore(store);
     expect(JSON.parse(raw).count).toBe(8); expect(writes).toEqual([]); expect(readPendingCopy(key)).toBe(recovery);
   });
 });

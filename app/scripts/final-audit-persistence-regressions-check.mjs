@@ -58,7 +58,7 @@ async function queuedProtection(replacement) {
  const actual=await a.evaluate(k=>localStorage.getItem(k),DK);
  const remoteActual=await b.evaluate(k=>localStorage.getItem(k),DK);
  const trace=await a.evaluate(()=>window.reviewStorageTrace);
- const detail={expected:'original unchanged',preserved:actual===replacement&&remoteActual===replacement,actual,remoteActual,published,trace};
+ const detail={expected:'original unchanged',preserved:actual===replacement&&remoteActual===replacement,correct:published.value===replacement&&trace.every(x=>x.kind!=='set'),actual,remoteActual,published,trace};
  await ctx.close(); return detail;
 }
 for(const replacement of ['{invalid-json',JSON.stringify({...draft,version:9,marker:'future original'})]) {
@@ -70,7 +70,7 @@ await test('queued-protection-repeated-publication-before-release',async()=>{
   const replacement=i%2===0?'{invalid-json':JSON.stringify({...draft,version:9,marker:'future original '+i});
   const detail=await queuedProtection(replacement);attempts.push(detail);
  }
- return {correct:attempts.every(x=>x.preserved),attempts};
+ return {correct:attempts.every(x=>x.preserved&&x.correct),attempts};
 });
 await test('retry-clobbers-other-tab-and-export',async()=>{
  const {ctx,a}=await setup();
