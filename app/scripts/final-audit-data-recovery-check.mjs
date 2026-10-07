@@ -585,7 +585,19 @@ async function h03Scenario(surface, width, mode, strict) {
   try { await surface.ok(page).waitFor({ timeout: 8000 }); } catch { recovered = false; }
   // Criterio ESTRICTO: la misma sesión, tras la salida que ofrece el aviso. Nada de «en otra sesión sí».
   verdict(strict, "H03", `${tag}: al volver el servidor, la salida ofrecida («Recargar») recupera la sección en la MISMA sesión`, recovered, proxy ? `sirvió ${proxy.state.served} peticiones tras el fallo` : undefined);
-  verdict(strict, "H03", `${tag}: el interés guardado sobrevive a la recarga`, interestIds(await json(page, TK)).includes("JP-044"));
+  const afterReload = await raw(page, TK);
+  const survives = interestIds(await json(page, TK)).includes("JP-044");
+  if (!survives) {
+    // Diagnóstico (no cambia el veredicto): ¿lectura obsoleta del motor o pérdida real? Se relee tras una espera y se
+    // describen todas las claves `nihon.*` y la traza de escrituras de esta pestaña.
+    await page.waitForTimeout(1000);
+    const later = await raw(page, TK);
+    const keys = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("nihon.")).map((k) => `${k}:${localStorage.getItem(k)?.length}`));
+    const info = { tag, firstRead: afterReload?.slice(0, 400) ?? null, readAfter1s: later?.slice(0, 400) ?? null, survivesAfter1s: interestIds(await json(page, TK)).includes("JP-044"), keys, before: before?.slice(0, 400) };
+    console.log(`DIAG [H03] ${tag}: el interés NO está tras la recarga ${JSON.stringify(info)}`);
+    evidence[`h03-interest-loss-${tag}`] = info;
+  }
+  verdict(strict, "H03", `${tag}: el interés guardado sobrevive a la recarga`, survives);
   if (!recovered) {
     // Sólo diagnóstico (no cambia el veredicto): ¿qué otras vías recuperan? Una sesión nueva que recupera NO convierte el fallo en éxito.
     const works = async (target) => {
