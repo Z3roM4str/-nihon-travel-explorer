@@ -59,6 +59,18 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Ventana dirigida de protección tras publicación y lock retenido
+        run: |
+          mkdir -p p06-certify-logs/${{ matrix.browser }}/queue-probe
+          NIHON_ONLY=queued-write-protection-invalid,queued-write-protection-future,queued-protection-repeated-publication-before-release NIHON_BROWSER=${{ matrix.browser }} NIHON_EVIDENCE_OUT=p06-certify-logs/${{ matrix.browser }}/queue-probe node scripts/final-audit-persistence-regressions-check.mjs > p06-certify-logs/${{ matrix.browser }}/queue-probe/probe.log 2>&1
+      - name: Evidencia inmediata de la ventana dirigida
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: queue-probe-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: app/p06-certify-logs/${{ matrix.browser }}/queue-probe
+          if-no-files-found: warn
+          retention-days: 30
       - name: Certificación P-06 en ${{ matrix.browser }}
         run: scripts/p06-v2-certify.sh ${{ matrix.browser }}
       - name: Resumen

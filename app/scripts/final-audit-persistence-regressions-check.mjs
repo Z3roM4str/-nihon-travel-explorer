@@ -27,8 +27,10 @@ async function setup(extra={}) {
       localStorage.setItem(TK,JSON.stringify(t)); localStorage.setItem(DK,JSON.stringify(d));
       for(const [k,v] of Object.entries(extra)) localStorage.setItem(k,v);
     }
-    const real=Storage.prototype.setItem;
-    Storage.prototype.setItem=function(k,v){if((window.failReviewWrites && (k===TK || k===DK)) || window.failReviewKey===k) throw new DOMException('synthetic quota','QuotaExceededError'); return real.call(this,k,v);};
+    const real=Storage.prototype.setItem, get=Storage.prototype.getItem;
+    window.reviewStorageTrace=[];
+    Storage.prototype.getItem=function(k){const v=get.call(this,k);if(window.recordReviewStorage&&this===localStorage&&k===DK)window.reviewStorageTrace.push({kind:'get',at:Date.now(),value:v});return v;};
+    Storage.prototype.setItem=function(k,v){if((window.failReviewWrites && (k===TK || k===DK)) || window.failReviewKey===k) throw new DOMException('synthetic quota','QuotaExceededError');const result=real.call(this,k,v);if(window.recordReviewStorage&&this===localStorage&&k===DK)window.reviewStorageTrace.push({kind:'set',at:Date.now(),value:v});return result;};
     window.addEventListener('storage', e=>{if(window.dropReviewEvents)e.stopImmediatePropagation();},true);
   },{TK,DK,t:travellers,d:draft,extra});
   const a=await ctx.newPage(); await a.goto(HARNESS_URL); await a.waitForFunction(()=>window.review);
@@ -48,16 +50,28 @@ async function test(id,fn) {
  try{const detail=await fn();results.push({id,...detail});console.log(JSON.stringify(results.at(-1)));}
  catch(e){results.push({id,error:String(e.stack)});console.log(JSON.stringify(results.at(-1)));}
 }
-for(const replacement of ['{invalid-json',JSON.stringify({...draft,version:9,marker:'future original'})]) {
- await test('queued-write-protection-'+(replacement.startsWith('{invalid')?'invalid':'future'),async()=>{
-  const {ctx,a}=await setup(); const b=await remote(ctx); await a.bringToFront(); await hold(b,DK);
-  await a.evaluate(()=>{window.dropReviewEvents=true;window.review.planning.addEmptyDay();});
-  await b.evaluate(({key,value})=>localStorage.setItem(key,value),{key:DK,value:replacement});
-  await b.evaluate(()=>window.releaseReviewLock()); await a.waitForTimeout(450);
-  const actual=await a.evaluate(k=>localStorage.getItem(k),DK);
-  const detail={expected:'original unchanged',preserved:actual===replacement,actual}; await ctx.close(); return detail;
- });
+async function queuedProtection(replacement) {
+ const {ctx,a}=await setup(); const b=await remote(ctx); await a.bringToFront(); await hold(b,DK);
+ await a.evaluate(()=>{window.recordReviewStorage=true;window.dropReviewEvents=true;window.review.planning.addEmptyDay();});
+ const published=await b.evaluate(({key,value})=>{window.recordReviewStorage=true;localStorage.setItem(key,value);return {at:Date.now(),value:localStorage.getItem(key)};},{key:DK,value:replacement});
+ await b.evaluate(()=>window.releaseReviewLock()); await a.waitForTimeout(450);
+ const actual=await a.evaluate(k=>localStorage.getItem(k),DK);
+ const remoteActual=await b.evaluate(k=>localStorage.getItem(k),DK);
+ const trace=await a.evaluate(()=>window.reviewStorageTrace);
+ const detail={expected:'original unchanged',preserved:actual===replacement&&remoteActual===replacement,actual,remoteActual,published,trace};
+ await ctx.close(); return detail;
 }
+for(const replacement of ['{invalid-json',JSON.stringify({...draft,version:9,marker:'future original'})]) {
+ await test('queued-write-protection-'+(replacement.startsWith('{invalid')?'invalid':'future'),()=>queuedProtection(replacement));
+}
+await test('queued-protection-repeated-publication-before-release',async()=>{
+ const attempts=[];
+ for(let i=0;i<12;i++) {
+  const replacement=i%2===0?'{invalid-json':JSON.stringify({...draft,version:9,marker:'future original '+i});
+  const detail=await queuedProtection(replacement);attempts.push(detail);
+ }
+ return {correct:attempts.every(x=>x.preserved),attempts};
+});
 await test('retry-clobbers-other-tab-and-export',async()=>{
  const {ctx,a}=await setup();
  await a.evaluate(()=>{window.failReviewWrites=true; window.review.travellers.toggleSaved('JP-021');});
