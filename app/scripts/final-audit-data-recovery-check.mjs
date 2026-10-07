@@ -537,6 +537,20 @@ async function h03Scenario(surface, width, mode, strict) {
   const proxy = mode.startsWith("proxy") ? await startFlakyProxy(PORT) : null;
   const base = proxy ? proxy.url : BASE_URL;
   const context = await newContext({}, { width, height: 900 });
+  // Diagnóstico de conservación: trazas nativas entre la página anterior y la recarga.
+  // No cambia los datos leídos, las escrituras, las esperas ni las aserciones estrictas.
+  await context.addInitScript(({ key }) => {
+    const get = Storage.prototype.getItem, set = Storage.prototype.setItem;
+    const record = (kind, value) => {
+      try {
+        const entries = JSON.parse(get.call(sessionStorage, "__h03_native_trace") || "[]");
+        entries.push({ kind, at: Date.now(), value });
+        set.call(sessionStorage, "__h03_native_trace", JSON.stringify(entries.slice(-100)));
+      } catch { /* el diagnóstico no modifica la operación */ }
+    };
+    Storage.prototype.getItem = function(k) { const value = get.call(this, k); if (this === localStorage && k === key) record("get", value); return value; };
+    Storage.prototype.setItem = function(k, value) { const result = set.call(this, k, value); if (this === localStorage && k === key) record("set", value); return result; };
+  }, { key: TK });
   let blocked = true;
   if (proxy) {
     proxy.state.failing = true;
@@ -598,6 +612,10 @@ async function h03Scenario(surface, width, mode, strict) {
     evidence[`h03-interest-loss-${tag}`] = info;
   }
   verdict(strict, "H03", `${tag}: el interés guardado sobrevive a la recarga`, survives);
+  evidence.h03Native ??= [];
+  const conservation = { tag, before, after: await raw(page, TK) };
+  await page.waitForTimeout(250); // Sólo diagnóstico, DESPUÉS de todas las aserciones.
+  evidence.h03Native.push({ ...conservation, after250ms: await raw(page, TK), trace: await page.evaluate(() => JSON.parse(sessionStorage.getItem("__h03_native_trace") || "[]")) });
   if (!recovered) {
     // Sólo diagnóstico (no cambia el veredicto): ¿qué otras vías recuperan? Una sesión nueva que recupera NO convierte el fallo en éxito.
     const works = async (target) => {

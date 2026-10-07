@@ -59,6 +59,18 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: H03 estricto con evidencia nativa de conservación entre recargas
+        run: |
+          mkdir -p p06-certify-logs/${{ matrix.browser }}/h03-probe
+          NIHON_ONLY=H03 NIHON_BROWSER=${{ matrix.browser }} NIHON_EVIDENCE_OUT=p06-certify-logs/${{ matrix.browser }}/h03-probe node scripts/final-audit-data-recovery-check.mjs > p06-certify-logs/${{ matrix.browser }}/h03-probe/probe.log 2>&1
+      - name: Evidencia inmediata H03
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h03-probe-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: app/p06-certify-logs/${{ matrix.browser }}/h03-probe
+          if-no-files-found: warn
+          retention-days: 30
       - name: Ventana dirigida de protección tras publicación y lock retenido
         run: |
           mkdir -p p06-certify-logs/${{ matrix.browser }}/queue-probe

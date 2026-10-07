@@ -7,6 +7,15 @@ Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](fin
 
 ## Ronda 3 (2026-10-07): cierre de cinco hallazgos bloqueantes
 
+**Cierre aún no certificado:** el CI del HEAD `acb38425fdd2902ff701358e92d04d935e33b6a1`
+aprobó 33/33 regresiones y 3455/3455 pruebas en ambos motores, pero WebKit falló una aserción
+estricta H03: interés guardado tras recarga con reset a 390 px (34/35 estrictas; 24/24 diagnósticos).
+El producto certificado anterior `4117e72` pasó ese gate. Se conserva el fallo bajo
+`round3/supplemental/webkit-acb3842-attempt1/`; se investigan lecturas/escrituras nativas entre
+recargas antes de declarar el cierre. El gate añade evidencia diagnóstica después de sus aserciones,
+sin cambiar ninguna condición estricta ni su orden. Freeze vigente.
+
+
 La revisión independiente sobre **`d26d86ba183fe9c23a06a21720e6a7450a637345`** encontró cinco fallos.
 Se recuperaron y ejecutaron los scripts de Codex antes de editar: **6/14 pasan, 8/14 fallan**; el botón
 real de reintento también sobrescribe el futuro. Evidencia y diferencias de fixtures:
