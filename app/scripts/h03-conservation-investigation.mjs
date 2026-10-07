@@ -79,14 +79,29 @@ function observeNative({ buffered }) {
 }
 
 const helper = `
-import { createWriteStream } from "node:fs";
+import { createWriteStream, readdirSync, readFileSync } from "node:fs";
 import { Worker } from "node:worker_threads";
 import { availableParallelism } from "node:os";
 const traceStream = createWriteStream(process.env.NIHON_EXTERNAL_TRACE_FILE);
 let caseNumber = 0, caseStart = 0, traced = false;
 const observedState = new Map();
+const caseContexts = new Set(), caseProxies = new Set();
+function processSnapshot() {
+  if (process.platform !== 'linux') return [];
+  const entries = [];
+  for (const pid of readdirSync('/proc').filter(name => /^\\d+$/.test(name))) {
+    try {
+      const name = readFileSync('/proc/' + pid + '/comm', 'utf8').trim();
+      if (!/WebKit|MiniBrowser/.test(name)) continue;
+      const status = readFileSync('/proc/' + pid + '/status', 'utf8');
+      entries.push({ pid: Number(pid), name, ppid: Number(status.match(/^PPid:\\s+(\\d+)/m)?.[1] ?? 0) });
+    } catch { /* a process may terminate between the reads */ }
+  }
+  return entries;
+}
 function observeHost(kind, details = {}) {
-  traceStream.write(JSON.stringify({ case: caseNumber, traced, hostAt: Date.now(), kind, ...details }) + "\\n");
+  const processes = ['gate-read', 'navigation', 'before-reload'].includes(kind) ? processSnapshot() : undefined;
+  traceStream.write(JSON.stringify({ case: caseNumber, traced, hostAt: Date.now(), kind, processes, ...details }) + "\\n");
 }
 function attachObserver(context) {
   context.on("page", (page) => {
@@ -125,9 +140,16 @@ source = replaceOnce(source, "const raw = (page, key) => page.evaluate((k) => lo
   observeHost('gate-read', { key, value, ui }); return value;
 });`);
 source = replaceOnce(source, "  const context = await newContext({}, { width, height: 900 });", `  const context = await newContext({}, { width, height: 900 });
+  caseContexts.add(context); context.once('close', () => caseContexts.delete(context));
   observedState.clear();
   attachObserver(context);
   if (traced) await context.addInitScript(${observeNative.toString()}, { buffered: process.env.NIHON_H03_TRACE_MODE === 'buffered' });`);
+source = replaceOnce(source, "  const base = proxy ? proxy.url : BASE_URL;", `  const base = proxy ? proxy.url : BASE_URL;
+  if (proxy) {
+    caseProxies.add(proxy);
+    const close = proxy.close;
+    proxy.close = () => close().finally(() => caseProxies.delete(proxy));
+  }`);
 source = replaceOnce(source, "  const before = await raw(page, TK);", "  const before = await raw(page, TK);\n  observeHost('before-failure', { before });");
 source = replaceOnce(source, "  await page.evaluate(() => { window.__beforeReload = true; });", "  observeHost('before-reload', { observed: Object.fromEntries(observedState) });\n  await page.evaluate(() => { window.__beforeReload = true; });");
 source = replaceOnce(source, "    if (state.failing && state.pattern.test(req.url ?? \"\")) {", `    if (req.url === '/__h03_independent_storage_probe__') { res.writeHead(200, { 'content-type': 'text/html', 'cache-control': 'no-store' }); res.end('<!doctype html><title>isolated backend probe</title>'); return; }
@@ -158,6 +180,10 @@ for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
   caseStart = start;
   await guarded('H03', 'directed original scenario', () => h03Scenario(H03_SURFACES[0], 390, 'proxy-reset', true));
   observeHost('case-end', { results: results.slice(start) });
+  // Only after the original verdict: a timeout must not leave its context/proxy
+  // running and contaminate subsequent isolated repetitions.
+  await Promise.all([...caseContexts].map(context => context.close()));
+  await Promise.all([...caseProxies].map(proxy => proxy.close()));
 }
 await browser.close();
 await server.close();
@@ -184,6 +210,7 @@ writeFileSync(`${out}/provenance.json`, JSON.stringify({
   dirtyBeforeEvidence,
   instrumentation: "Existing native call values via console -> Node NDJSON, UI attribute observer; no additional Storage reads/writes. Observer overhead remains; every third case is a native control.",
   traceMode: process.env.NIHON_H03_TRACE_MODE ?? "console",
+  processObservation: "Linux /proc PID/PPid/comm at existing gate reads and navigation phases, outside the page; no command lines or credentials.",
   primer: process.env.NIHON_H03_PRIMER === "1", load: process.env.NIHON_H03_LOAD === "1",
 }, null, 2));
 const child = spawn(process.execPath, [generated], {

@@ -97,3 +97,16 @@ La ejecución siguiente vuelve al modo console que capturó las pérdidas y aña
 stderr `pw:browser`, claves de siembra y llamadas clear. Mantiene las aserciones,
 tiempos originales y controles. Es una comparación de modos de observación, no
 una corrección del producto ni una ampliación de esperas para conseguir verde.
+
+En `af805765aba4cddffa2ca8dae33b4a4433b9871a`, CI `37583611131`, se repiten dos
+pérdidas con el gate acb/sin carga (casos 11 observado y 19 control); además un
+timeout. El gate 5f/con carga tuvo un timeout y un aviso no visible dentro de los
+700 ms originales, no pérdidas confirmadas. Los otros dos gates y los 96
+contrafactuales sin Nihon pasaron. En el caso 11 las lecturas previas contienen
+JP-044; tras recarga las primeras llamadas nativas retornan null y luego se
+escribe un documento vacío. Coinciden errores internos WebKit/libsoup antes de
+la navegación. Esa coincidencia **no demuestra todavía un reinicio del proceso
+de red**: el timer de carga interna tiene más de un origen. Se añade observación
+de PID/PPid/comm desde `/proc`, fuera de la página, en fases ya existentes. Nunca
+se leen command lines ni credenciales. Se cierran contextos/proxies abandonados
+tras una excepción, después del veredicto, para aislar las siguientes repeticiones.
