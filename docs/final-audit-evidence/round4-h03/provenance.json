@@ -153,6 +153,7 @@
       ]
     }
   ],
-  "verdict": "requiere correcciones / diagnóstico concluyente H03",
-  "physicalSafariCertified": false
+  "physicalSafariCertified": false,
+  "historicalVerdictForListedRuns": "requiere correcciones / diagn\u00f3stico concluyente H03",
+  "currentDiagnosis": "Ephemeral WPE NetworkProcess restart erases native backend, proven without product. Durable fixture preserves completed-case interests; strict recovery timeouts remain blocked, not waived."
 }

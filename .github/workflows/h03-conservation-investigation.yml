@@ -5,6 +5,9 @@ on:
     paths:
       - ".github/workflows/h03-conservation-investigation.yml"
       - "app/scripts/h03-conservation-investigation.mjs"
+      - "app/scripts/final-audit-data-recovery-check.mjs"
+      - "app/src/**"
+      - "app/package-lock.json"
       - "app/scripts/h03-webkit-storage-engine-probe.mjs"
       - "app/scripts/h03-webkit-network-restart-probe.mjs"
   workflow_dispatch:

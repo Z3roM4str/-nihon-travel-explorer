@@ -535,7 +535,7 @@ function startFlakyProxy(targetPort) {
 
 const H03_SURFACES = [
   { id: "OrderedSequenceBuilder", pattern: "**/assets/OrderedSequenceBuilder-*.js", regex: /\/assets\/OrderedSequenceBuilder-[^/]*\.js/, open: async (page) => nav(page, "Viaje"), ok: (page) => page.locator(".day-card, .ordered-sequence").first() },
-  { id: "ZoneComparison", pattern: "**/assets/ZoneComparison-*.js", regex: /\/assets\/ZoneComparison-[^/]*\.js/, open: async (page) => { await nav(page, "Viaje"); await page.getByRole("button", { name: /Dónde dormir/ }).click(); }, ok: (page) => page.locator(".zone-panel__scroll").first() },
+  { id: "ZoneComparison", pattern: "**/assets/ZoneComparison-*.js", regex: /\/assets\/ZoneComparison-[^/]*\.js/, open: async (page) => { await nav(page, "Viaje"); await page.getByRole("button", { name: "Dónde dormir", exact: true }).click(); }, ok: (page) => page.locator(".zone-panel__scroll").first() },
 ];
 
 /** `strict`: un fallo hace fallar el gate. No estricto: queda como DIAG (con su resultado) y como cobertura parcial. */

@@ -101,12 +101,16 @@ function processSnapshot() {
   return entries;
 }
 function observeHost(kind, details = {}) {
-  const processes = ['gate-read', 'navigation', 'before-reload'].includes(kind) ? processSnapshot() : undefined;
+  const processes = ['gate-read', 'navigation', 'before-reload', 'failed-case-probe'].includes(kind) ? processSnapshot() : undefined;
   traceStream.write(JSON.stringify({ case: caseNumber, traced, hostAt: Date.now(), kind, processes, ...details }) + "\\n");
 }
 function attachObserver(context) {
   context.on("page", (page) => {
     page.on("crash", () => observeHost("page-crash"));
+    page.on("pageerror", error => observeHost("page-error", { message: error.message }));
+    page.on("request", request => observeHost("request-start", { url: request.url(), resource: request.resourceType() }));
+    page.on("requestfinished", request => observeHost("request-finished", { url: request.url() }));
+    page.on("requestfailed", request => observeHost("request-failed", { url: request.url(), error: request.failure()?.errorText }));
     page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) observeHost("navigation", { url: frame.url() }); });
     page.on("console", (message) => {
       const text = message.text(), prefix = "__NIHON_H03_EXTERNAL__";
@@ -184,6 +188,25 @@ for (caseNumber = 1; caseNumber <= ${repetitions}; caseNumber++) {
   caseStart = start;
   await guarded('H03', 'directed original scenario', () => h03Scenario(H03_SURFACES[0], 390, 'proxy-reset', true));
   observeHost('case-end', { results: results.slice(start) });
+  if (results.slice(start).some(result => !result.ok)) {
+    // Diagnostics only AFTER the strict verdict. A stalled evaluation is also
+    // evidence, not permission to extend the original 8 s recovery deadline.
+    for (const context of caseContexts) for (const page of context.pages()) {
+      if (!page.url().startsWith('http')) continue;
+      let timer;
+      const probe = page.evaluate(() => ({
+        marker: window.__beforeReload, readyState: document.readyState,
+        raw: localStorage.getItem('nihon.travellers.v1'),
+        pending: Object.fromEntries(Object.entries(sessionStorage).filter(([key]) => key.startsWith('nihon.pending.v1.'))),
+        traveller: document.querySelector('.app__person-token-button')?.getAttribute('aria-label'),
+        alert: document.querySelector('[data-lazy-failure]')?.textContent,
+      })).catch(error => ({ error: String(error) }));
+      const state = await Promise.race([probe, new Promise(resolve => { timer = setTimeout(() => resolve({ error: 'post-verdict diagnostic evaluation exceeded 1500 ms' }), 1500); })]);
+      clearTimeout(timer);
+      observeHost('failed-case-probe', { url: page.url(), state });
+    }
+    for (const proxy of caseProxies) observeHost('failed-proxy-state', { state: proxy.state });
+  }
   // Only after the original verdict: a timeout must not leave its context/proxy
   // running and contaminate subsequent isolated repetitions.
   await Promise.all([...caseContexts].map(context => context.close()));

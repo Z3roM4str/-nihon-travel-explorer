@@ -1,5 +1,9 @@
 # H03: investigación del bloqueo residual
 
+**Estado: requiere correcciones / diagnóstico del timeout de recarga.** La causa
+de la pérdida en el contexto efímero está demostrada y el fixture corregido;
+un fallo estricto distinto impide certificar H03. Se mantiene el freeze.
+
 El fallo original es WebKit `OrderedSequenceBuilder @390 [proxy-reset]` en
 `acb38425fdd2902ff701358e92d04d935e33b6a1`, CI `37567604510`.
 No se guardaron los valores antes/después de aquella aserción. Se conserva su
@@ -196,3 +200,35 @@ Diagnóstico de esta reproducción cerrado; la certificación final corresponde
 al SHA y artefactos que se indican en la descripción del PR/informe. Cualquier
 fallo nuevo de recuperación o conservación mantiene el bloqueo. WebKit/WPE CI
 no certifica Safari físico ni resistencia universal a corrupción del disco.
+
+## Bloqueo residual de recuperación conservado
+
+La primera validación del fixture persistente, SHA
+`13833d6d726cc3cf2ed89140d9853f3029e7415d`, CI
+[37587850332](https://github.com/Z3roM4str/-nihon-travel-explorer/actions/runs/37587850332),
+conservó JP-044 en **45/45 casos que alcanzaron la lectura posterior**. Otros
+**3/48** casos no cumplieron el límite original de recarga: caso 11 sin carga
+(observado), 16 con carga (control), 23 con carga (observado). La desaparición de
+`window.__beforeReload` expiró a 8 s. No se cuentan esos casos como conservación
+exitosa ni se ensancha el límite. Trazas íntegras:
+[sin carga](persistent-reload-timeout-quiet.ndjson),
+[con carga](persistent-reload-timeout-load.ndjson).
+
+El CI P-06 de ese SHA `37587850402` tuvo además un error de selección en
+ZoneComparison: `/Dónde dormir/` coincide con el botón de navegación y con
+`Elegir zona para dormir. Abrir Dónde dormir`. Playwright rechaza el clic por
+ambigüedad; no es una aserción de producto. Se conserva el
+[log anterior](selector-ambiguity.txt); se usa ahora el nombre exacto del botón
+previsto, sin alterar las comprobaciones ni su temporización.
+
+La siguiente validación añade eventos de red/pageerror fuera de la página y una
+lectura diagnóstica sólo después de la excepción estricta (acotada fuera del
+navegador, 1500 ms). Documenta también si la evaluación está bloqueada, los PIDs
+y estado del proxy. El fallo original sigue fallido. Los pasos de protección y
+certificación completa de CI se ejecutan aunque el probe H03 falle; el job sigue
+fallido. Así se obtienen las regresiones restantes sin ocultar el bloqueo.
+
+Hasta explicar la recuperación que no culmina en el límite original,
+**ninguna nueva ejecución verde retira este bloqueo**. No se cambia el producto
+para eludir un fallo no explicado del motor. La conservación explicada y el
+timeout pendiente se informan por separado.

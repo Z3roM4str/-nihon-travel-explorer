@@ -7,6 +7,14 @@ Astra ni dependencias. Evidencia base/corregida en [`final-audit-evidence/`](fin
 
 ## Ronda 4 (2026-10-07): causa del bloqueo residual H03
 
+**Requiere correcciones / diagnóstico del timeout de recarga.** La pérdida del
+interés en el contexto efímero tiene mecanismo demostrado y fixture corregido.
+En su primera validación quedan tres fallos estrictos de recarga dentro de 8 s;
+45/45 casos que alcanzaron la lectura conservaron el interés, pero **3/48 no
+completaron el escenario**. No se consideran verdes ni se amplía el límite.
+El estado definitivo de CI se registra por SHA en la descripción del PR/informe.
+La ronda 3 siguiente describe el estado histórico, no una certificación actual.
+
 El reset real de `OrderedSequenceBuilder` a 390 px repitió la pérdida tanto con
 el gate exacto acb3842 como con 5f3b302, también en controles sin wrappers. El
 producto `app/src/` y lockfile son idénticos entre ambos. Las trazas externas a
