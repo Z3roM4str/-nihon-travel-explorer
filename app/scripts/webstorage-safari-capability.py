@@ -34,10 +34,25 @@ def wait(script):
             raise RuntimeError('Readiness condition exceeded existing 8 s: ' + script)
         time.sleep(.04)
 
-def click(script):
+def click(script, case, step):
+    case['step'] = step
     element = wait(script)
     element_id = element['element-6066-11e4-a52e-4f735466cecf']
+    # Match ordinary Playwright actionability before ONE WebDriver click. Safari
+    # can expose the modal button before its entrance animation has settled.
+    # Poll the same 8 s readiness budget; no delayed retry of a rejected click.
+    execute('window.__safariClick = {element: (' + script.replace('return ', '', 1) + '), previous: null, observations: []}; window.__safariClick.element.scrollIntoView({block: "center"})')
+    wait("""
+      const s = window.__safariClick, e = s.element, r = e.getBoundingClientRect();
+      const x = r.left + r.width/2, y = r.top + r.height/2, hit = document.elementFromPoint(x,y);
+      const rect = [r.left,r.top,r.width,r.height], stable = s.previous && rect.every((v,i) => v === s.previous[i]);
+      const actionable = e.isConnected && r.width > 0 && r.height > 0 && !e.disabled && (hit === e || e.contains(hit));
+      s.observations.push({at: Date.now(), rect, stable: !!stable, actionable, hit: hit?.outerHTML.slice(0,300)});
+      s.previous = rect; return stable && actionable;
+    """)
+    case.setdefault('clickObservations', []).append({'step': step, 'beforeClick': execute('return window.__safariClick.observations')})
     call('/session/' + session + '/element/' + element_id + '/click', {})
+    case['step'] = step + '-clicked'
 
 def evidence(case):
     folder = pathlib.Path('webstorage-safari-evidence') / case['id']; folder.mkdir(parents=True, exist_ok=True)
@@ -129,8 +144,9 @@ try:
             try:
                 origin = start_server(root.parent / 'dist'); case['origin'] = origin
                 call('/session/' + session + '/url', {'url': origin + '/'})
-                click("return Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Saltar')")
-                click("return Array.from(document.querySelectorAll('button')).find(b => b.getAttribute('aria-label') === 'Quiero ir: Ghibli Museum, Mitaka')")
+                click("return Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Saltar')", case, 'dismiss-introduction')
+                wait("return !document.querySelector('.onboarding__dialog')")
+                click("return Array.from(document.querySelectorAll('button')).find(b => b.getAttribute('aria-label') === 'Quiero ir: Ghibli Museum, Mitaka')", case, 'save-interest')
                 case['UIConfirmedAt'] = int(time.time() * 1000)
                 wait("return document.querySelector('button[aria-label=\"Quitar Ghibli Museum, Mitaka de Quiero ir\"]')?.getAttribute('aria-pressed') === 'true'")
                 case['expected'] = wait("const r = localStorage.getItem('nihon.travellers.v1'); return r && JSON.parse(r).interests.some(i => i.placeId === 'JP-044') ? r : null")

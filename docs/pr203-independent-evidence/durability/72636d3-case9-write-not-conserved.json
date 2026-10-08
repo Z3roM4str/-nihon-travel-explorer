@@ -1,0 +1,828 @@
+{
+  "sha": "72636d3b2e88ae3b5edffeb11665a358cf492b1a",
+  "run": 37787183012,
+  "load": 0,
+  "case": {
+    "case": 9,
+    "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+    "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+    "origin": "http://127.0.0.1:41141",
+    "expected": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"mkrpmhoz1\",\"a975ulpo2\"]}",
+    "beforeFailure": {
+      "directory": "h03-investigation/profile-case-9/before-failure",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "identity": {
+        "device": 2049,
+        "inode": 9181958
+      },
+      "startedAt": 1791467516671,
+      "databases": [
+        {
+          "path": "HSTS/hsts-storage.sqlite",
+          "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+          "records": [],
+          "schema": [
+            [
+              "soup_hsts_policies",
+              "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+            ]
+          ]
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+          "sha256": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa",
+          "records": [
+            {
+              "key": "__ctxSeeded",
+              "value": "1",
+              "keyHex": null,
+              "valueHex": "3100"
+            },
+            {
+              "key": "nihon.onboarding.seen.v1",
+              "value": "1",
+              "keyHex": null,
+              "valueHex": "3100"
+            },
+            {
+              "key": "nihon.travellers.v1",
+              "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+              "keyHex": null,
+              "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00650031006600660066003000350062002d0031003200350031002d0034003900300034002d0062003700370033002d0035003900640062006500320038006200340030003000640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c00220069006e00740065007200650073007400730022003a005b005d002c0022005f00770022003a005b0022006d006b00720070006d0068006f007a00310022005d007d00"
+            }
+          ],
+          "schema": [
+            [
+              "ItemTable",
+              "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+            ]
+          ]
+        }
+      ],
+      "errors": [],
+      "files": [
+        {
+          "path": "HSTS/hsts-storage.sqlite",
+          "bytes": 12288,
+          "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+          "bytes": 4096,
+          "sha256": "e3ba06536f7dbba337dee3c1c5f01b43660ce276abb54c5cee2d5defc5b970aa"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal",
+          "bytes": 28872,
+          "sha256": "736b41245a2f2f2fefe51e9ece5c21bb59a71e56d09b3b13f4b10bd405e3dba0"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm",
+          "bytes": 32768,
+          "sha256": "3c4c89dec49d0fa6dd41797e34da954cb0954c9cfe6be4824a2c4160e49a750c"
+        }
+      ],
+      "finishedAt": 1791467516723,
+      "atomic": false
+    },
+    "beforeClose": {
+      "directory": "h03-investigation/profile-case-9/before-close",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "identity": {
+        "device": 2049,
+        "inode": 9181958
+      },
+      "startedAt": 1791467536497,
+      "databases": [
+        {
+          "path": "HSTS/hsts-storage.sqlite",
+          "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+          "records": [],
+          "schema": [
+            [
+              "soup_hsts_policies",
+              "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+            ]
+          ]
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+          "sha256": "1cfa513f679c8062eab08451d8f33ae12610f7c91a02dde988f5b416b67ffa61",
+          "records": [
+            {
+              "key": "__ctxSeeded",
+              "value": "1",
+              "keyHex": null,
+              "valueHex": "3100"
+            },
+            {
+              "key": "nihon.onboarding.seen.v1",
+              "value": "1",
+              "keyHex": null,
+              "valueHex": "3100"
+            },
+            {
+              "key": "nihon.travellers.v1",
+              "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+              "keyHex": null,
+              "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00650031006600660066003000350062002d0031003200350031002d0034003900300034002d0062003700370033002d0035003900640062006500320038006200340030003000640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c00220069006e00740065007200650073007400730022003a005b005d002c0022005f00770022003a005b0022006d006b00720070006d0068006f007a00310022005d007d00"
+            },
+            {
+              "key": "nihon.manualPlanningDraft",
+              "value": "{\"version\":8,\"routeIds\":[],\"days\":[{\"id\":\"day-8a937a57-aa3a-457c-a5ff-bf1fed34c27c\",\"placeIds\":[],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"_w\":[\"151h09b21\"]}",
+              "keyHex": null,
+              "valueHex": "7b002200760065007200730069006f006e0022003a0038002c00220072006f0075007400650049006400730022003a005b005d002c002200640061007900730022003a005b007b0022006900640022003a0022006400610079002d00380061003900330037006100350037002d0061006100330061002d0034003500370063002d0061003500660066002d0062006600310066006500640033003400630032003700630022002c00220070006c0061006300650049006400730022003a005b005d002c0022006100630063006f006d006d006f0064006100740069006f006e0042006f0075006e00640061007200790022003a007b0022007300740061007200740022003a007b0022006b0069006e00640022003a00220075006e00730065006c006500630074006500640022007d002c00220065006e00640022003a007b0022006b0069006e00640022003a00220075006e00730065006c006500630074006500640022007d007d007d005d002c00220073007400610072007400440061007400650022003a006e0075006c006c002c00220065006e006400440061007400650022003a006e0075006c006c002c0022007600690073006900740053007400610072007400540069006d006500730022003a007b007d002c0022006100630063006f006d006d006f0064006100740069006f006e00730022003a005b005d002c0022006100630063006f006d006d006f0064006100740069006f006e004c0065006700730022003a005b005d002c00220069006e007400650072004800750062005300650067006d0065006e007400730022003a005b005d002c0022007a006f006e0065004100630063006f006d006d006f0064006100740069006f006e00430068006f00690063006500730022003a005b005d002c0022005f00770022003a005b00220031003500310068003000390062003200310022005d007d00"
+            }
+          ],
+          "schema": [
+            [
+              "ItemTable",
+              "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+            ]
+          ]
+        }
+      ],
+      "errors": [],
+      "files": [
+        {
+          "path": "HSTS/hsts-storage.sqlite",
+          "bytes": 12288,
+          "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+          "bytes": 12288,
+          "sha256": "1cfa513f679c8062eab08451d8f33ae12610f7c91a02dde988f5b416b67ffa61"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal",
+          "bytes": 8272,
+          "sha256": "b4869c5b15e856cb16ad2b8d2d48aebc305f5aa980f626c7597fab36c1ec066a"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm",
+          "bytes": 32768,
+          "sha256": "00c3646745ada30b4ed3c94b481861eb8eb379e63d8da5ef39368fa806d93b4a"
+        }
+      ],
+      "finishedAt": 1791467536541,
+      "atomic": false
+    },
+    "afterClose": {
+      "directory": "h03-investigation/profile-case-9/after-close",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "identity": {
+        "device": 2049,
+        "inode": 9181958
+      },
+      "startedAt": 1791467536591,
+      "databases": [
+        {
+          "path": "HSTS/hsts-storage.sqlite",
+          "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d",
+          "records": [],
+          "schema": [
+            [
+              "soup_hsts_policies",
+              "CREATE TABLE soup_hsts_policies (id INTEGER PRIMARY KEY, host TEXT UNIQUE, max_age INTEGER, expiry INTEGER, include_subdomains INTEGER)"
+            ]
+          ]
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+          "sha256": "26e6729c4bd76fbe9c560b9c11d6c81fb7cd57e4c9290593a3a38a254dc14133",
+          "records": [
+            {
+              "key": "__ctxSeeded",
+              "value": "1",
+              "keyHex": null,
+              "valueHex": "3100"
+            },
+            {
+              "key": "nihon.onboarding.seen.v1",
+              "value": "1",
+              "keyHex": null,
+              "valueHex": "3100"
+            },
+            {
+              "key": "nihon.travellers.v1",
+              "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+              "keyHex": null,
+              "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00650031006600660066003000350062002d0031003200350031002d0034003900300034002d0062003700370033002d0035003900640062006500320038006200340030003000640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c00220069006e00740065007200650073007400730022003a005b005d002c0022005f00770022003a005b0022006d006b00720070006d0068006f007a00310022005d007d00"
+            },
+            {
+              "key": "nihon.manualPlanningDraft",
+              "value": "{\"version\":8,\"routeIds\":[],\"days\":[{\"id\":\"day-8a937a57-aa3a-457c-a5ff-bf1fed34c27c\",\"placeIds\":[],\"accommodationBoundary\":{\"start\":{\"kind\":\"unselected\"},\"end\":{\"kind\":\"unselected\"}}}],\"startDate\":null,\"endDate\":null,\"visitStartTimes\":{},\"accommodations\":[],\"accommodationLegs\":[],\"interHubSegments\":[],\"zoneAccommodationChoices\":[],\"_w\":[\"151h09b21\"]}",
+              "keyHex": null,
+              "valueHex": "7b002200760065007200730069006f006e0022003a0038002c00220072006f0075007400650049006400730022003a005b005d002c002200640061007900730022003a005b007b0022006900640022003a0022006400610079002d00380061003900330037006100350037002d0061006100330061002d0034003500370063002d0061003500660066002d0062006600310066006500640033003400630032003700630022002c00220070006c0061006300650049006400730022003a005b005d002c0022006100630063006f006d006d006f0064006100740069006f006e0042006f0075006e00640061007200790022003a007b0022007300740061007200740022003a007b0022006b0069006e00640022003a00220075006e00730065006c006500630074006500640022007d002c00220065006e00640022003a007b0022006b0069006e00640022003a00220075006e00730065006c006500630074006500640022007d007d007d005d002c00220073007400610072007400440061007400650022003a006e0075006c006c002c00220065006e006400440061007400650022003a006e0075006c006c002c0022007600690073006900740053007400610072007400540069006d006500730022003a007b007d002c0022006100630063006f006d006d006f0064006100740069006f006e00730022003a005b005d002c0022006100630063006f006d006d006f0064006100740069006f006e004c0065006700730022003a005b005d002c00220069006e007400650072004800750062005300650067006d0065006e007400730022003a005b005d002c0022007a006f006e0065004100630063006f006d006d006f0064006100740069006f006e00430068006f00690063006500730022003a005b005d002c0022005f00770022003a005b00220031003500310068003000390062003200310022005d007d00"
+            }
+          ],
+          "schema": [
+            [
+              "ItemTable",
+              "CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL)"
+            ]
+          ]
+        }
+      ],
+      "errors": [],
+      "files": [
+        {
+          "path": "HSTS/hsts-storage.sqlite",
+          "bytes": 12288,
+          "sha256": "c53c20f36ccee2fcb2986d4f45faf453121f5428b4390d66f471b6e0f01ac53d"
+        },
+        {
+          "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+          "bytes": 12288,
+          "sha256": "26e6729c4bd76fbe9c560b9c11d6c81fb7cd57e4c9290593a3a38a254dc14133"
+        }
+      ],
+      "finishedAt": 1791467536635,
+      "atomic": false
+    },
+    "persistedBeforeClose": [
+      {
+        "database": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+        "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+        "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00650031006600660066003000350062002d0031003200350031002d0034003900300034002d0062003700370033002d0035003900640062006500320038006200340030003000640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c00220069006e00740065007200650073007400730022003a005b005d002c0022005f00770022003a005b0022006d006b00720070006d0068006f007a00310022005d007d00"
+      }
+    ],
+    "persistedAfterClose": [
+      {
+        "database": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3",
+        "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+        "valueHex": "7b002200760065007200730069006f006e0022003a0031002c002200740072006100760065006c006c0065007200730022003a005b007b0022006900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000310022007d002c007b0022006900640022003a0022007400720076002d00650031006600660066003000350062002d0031003200350031002d0034003900300034002d0062003700370033002d0035003900640062006500320038006200340030003000640022002c0022006c006100620065006c0022003a00220050006500720073006f006e0061002000320022007d005d002c002200610063007400690076006500540072006100760065006c006c00650072004900640022003a0022007400720076002d00660034003600360037003800650032002d0039003800310065002d0034003200650039002d0039006300380063002d0061003400380033003800380066006400660035003600360022002c00220069006e00740065007200650073007400730022003a005b005d002c0022005f00770022003a005b0022006d006b00720070006d0068006f007a00310022005d007d00"
+      }
+    ],
+    "reopened": {
+      "raw": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+      "before": [],
+      "after": [
+        {
+          "pid": 8134,
+          "ppid": 8122
+        }
+      ],
+      "initScripts": false,
+      "reseeded": false
+    }
+  },
+  "timeline": [
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467514722,
+      "kind": "navigation",
+      "url": "http://127.0.0.1:41141/",
+      "networkProcesses": [
+        {
+          "pid": 7985,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "HSTS/hsts-storage.sqlite"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467515849,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467515842,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "local",
+        "method": "setItem",
+        "key": "nihon.travellers.v1",
+        "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}"
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467515849,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467515843,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "removeItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": null
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467516387,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467516383,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "setItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": "{\"raw\":\"{\\\"version\\\":1,\\\"travellers\\\":[{\\\"id\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"label\\\":\\\"Persona 1\\\"},{\\\"id\\\":\\\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\\\",\\\"label\\\":\\\"Persona 2\\\"}],\\\"activeTravellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"interests\\\":[],\\\"_w\\\":[\\\"mkrpmhoz1\\\"]}\",\"value\":\"{\\\"version\\\":1,\\\"travellers\\\":[{\\\"id\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"label\\\":\\\"Persona 1\\\"},{\\\"id\\\":\\\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\\\",\\\"label\\\":\\\"Persona 2\\\"}],\\\"activeTravellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"interests\\\":[{\\\"placeId\\\":\\\"JP-044\\\",\\\"stances\\\":[{\\\"travellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"stance\\\":\\\"interested\\\"}],\\\"carriedOver\\\":false}]}\",\"pending\":true,\"conflict\":false,\"writes\":[[]]}"
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467516656,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467516653,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "local",
+        "method": "setItem",
+        "key": "nihon.travellers.v1",
+        "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"mkrpmhoz1\",\"a975ulpo2\"]}"
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467516657,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467516653,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "setItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": "{\"raw\":\"{\\\"version\\\":1,\\\"travellers\\\":[{\\\"id\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"label\\\":\\\"Persona 1\\\"},{\\\"id\\\":\\\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\\\",\\\"label\\\":\\\"Persona 2\\\"}],\\\"activeTravellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"interests\\\":[{\\\"placeId\\\":\\\"JP-044\\\",\\\"stances\\\":[{\\\"travellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"stance\\\":\\\"interested\\\"}],\\\"carriedOver\\\":false}],\\\"_w\\\":[\\\"mkrpmhoz1\\\",\\\"a975ulpo2\\\"]}\",\"value\":\"{\\\"version\\\":1,\\\"travellers\\\":[{\\\"id\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"label\\\":\\\"Persona 1\\\"},{\\\"id\\\":\\\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\\\",\\\"label\\\":\\\"Persona 2\\\"}],\\\"activeTravellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"interests\\\":[{\\\"placeId\\\":\\\"JP-044\\\",\\\"stances\\\":[{\\\"travellerId\\\":\\\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\\\",\\\"stance\\\":\\\"interested\\\"}],\\\"carriedOver\\\":false}]}\",\"pending\":false,\"conflict\":false,\"writes\":[[\"a975ulpo2\"]]}"
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467516671,
+      "kind": "gate-read",
+      "key": "nihon.travellers.v1",
+      "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"mkrpmhoz1\",\"a975ulpo2\"]}",
+      "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+      "networkProcesses": [
+        {
+          "pid": 7985,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "HSTS/hsts-storage.sqlite"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517553,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el servidor realmente fall\u00f3 al servir el m\u00f3dulo",
+      "ok": true,
+      "extra": "peticiones rechazadas=2",
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517553,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el fallo no deja la aplicaci\u00f3n en blanco",
+      "ok": true,
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517553,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: aparece un mensaje de recuperaci\u00f3n visible",
+      "ok": true,
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517566,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: la navegaci\u00f3n sigue utilizable",
+      "ok": true,
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517580,
+      "kind": "gate-read",
+      "key": "nihon.travellers.v1",
+      "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[{\"placeId\":\"JP-044\",\"stances\":[{\"travellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"stance\":\"interested\"}],\"carriedOver\":false}],\"_w\":[\"mkrpmhoz1\",\"a975ulpo2\"]}",
+      "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+      "networkProcesses": [
+        {
+          "pid": 7985,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517580,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: los datos guardados no cambian",
+      "ok": true,
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467517589,
+      "kind": "before-reload",
+      "networkProcesses": [
+        {
+          "pid": 7985,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467519161,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467519160,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "removeItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": null
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467533711,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467533710,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "removeItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": null
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467533711,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467533710,
+        "documentId": "912d676f-4453-4129-a718-328b2f6a73a3",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "removeItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": null
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467533726,
+      "kind": "navigation",
+      "url": "http://127.0.0.1:41141/",
+      "networkProcesses": [
+        {
+          "pid": 8086,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "HSTS/hsts-storage.sqlite"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "WebKitCache/Version 17/Records/E59FA686242C50F7D45F7267499948D999818568/Resource/B90EB07A61256F2139110D0E811B3443D887128E-blob"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467534492,
+      "kind": "page",
+      "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+      "pageId": "ee2269cf-e32b-4d80-a22c-13dbe6f7b58b",
+      "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+      "event": {
+        "at": 1791467534487,
+        "documentId": "ae3acd2b-f958-4c6a-b6d8-097a4f3459b8",
+        "origin": "http://127.0.0.1:41141",
+        "kind": "storage",
+        "area": "session",
+        "method": "removeItem",
+        "key": "nihon.pending.v1.nihon.travellers.v1",
+        "value": null
+      },
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467535467,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: al volver el servidor, la salida ofrecida (\u00abRecargar\u00bb) recupera la secci\u00f3n en la MISMA sesi\u00f3n",
+      "ok": true,
+      "extra": "sirvi\u00f3 58 peticiones tras el fallo",
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467535475,
+      "kind": "gate-read",
+      "key": "nihon.travellers.v1",
+      "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+      "documentId": "ae3acd2b-f958-4c6a-b6d8-097a4f3459b8",
+      "networkProcesses": [
+        {
+          "pid": 8086,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "HSTS/hsts-storage.sqlite"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467535476,
+      "kind": "assertion",
+      "id": "H03",
+      "label": "OrderedSequenceBuilder @390 [proxy-reset]: el inter\u00e9s guardado sobrevive a la recarga",
+      "ok": false,
+      "networkProcesses": []
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467536486,
+      "kind": "gate-read",
+      "key": "nihon.travellers.v1",
+      "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+      "documentId": "ae3acd2b-f958-4c6a-b6d8-097a4f3459b8",
+      "networkProcesses": [
+        {
+          "pid": 8086,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "HSTS/hsts-storage.sqlite"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": 9,
+      "traced": true,
+      "hostAt": 1791467536497,
+      "kind": "gate-read",
+      "key": "nihon.travellers.v1",
+      "value": "{\"version\":1,\"travellers\":[{\"id\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"label\":\"Persona 1\"},{\"id\":\"trv-e1fff05b-1251-4904-b773-59dbe28b400d\",\"label\":\"Persona 2\"}],\"activeTravellerId\":\"trv-f46678e2-981e-42e9-9c8c-a48388fdf566\",\"interests\":[],\"_w\":[\"mkrpmhoz1\"]}",
+      "documentId": "ae3acd2b-f958-4c6a-b6d8-097a4f3459b8",
+      "networkProcesses": [
+        {
+          "pid": 8086,
+          "name": "WPENetworkProce",
+          "executable": "WPENetworkProcess",
+          "ppid": 7974,
+          "profileFiles": [
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "HSTS/hsts-storage.sqlite"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-wal"
+            },
+            {
+              "contextId": "2148176c-39c2-425e-b88e-b872220a83b3",
+              "profile": "/home/runner/work/-nihon-travel-explorer/-nihon-travel-explorer/app/h03-investigation/nihon-h03-profile-PngzQz",
+              "path": "storage/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/Xzf_mrmu0qPRGaEB4qFlHCt43vtgvQyXa0FynLdR3fk/LocalStorage/localstorage.sqlite3-shm"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "historicalCasesNotReattributed": true,
+  "terminationSignalUnknown": true,
+  "noHarnessNetworkKillInProductGate": true
+}

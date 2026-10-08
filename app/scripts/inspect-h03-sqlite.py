@@ -9,7 +9,10 @@ import tempfile
 
 root = pathlib.Path(sys.argv[1]).resolve()
 results = []
-for path in sorted(root.rglob("localstorage.sqlite3")):
+# WPE uses localstorage.sqlite3; the independent macOS port retains origin-named
+# *.localstorage SQLite files. Their WAL/SHM companions are copied identically.
+paths = sorted(set(root.rglob("localstorage.sqlite3")) | set(root.rglob("*.localstorage")))
+for path in paths:
     record = {"path": str(path.relative_to(root)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
     try:
         # Even SQLite's shared-memory bookkeeping stays off the preserved file.
@@ -35,5 +38,8 @@ for path in sorted(root.rglob("localstorage.sqlite3")):
     except Exception as error:
         record["error"] = str(error)
     results.append(record)
-print(json.dumps({"reader": "independent Python SQLite mode=ro query_only", "root": str(root), "results": results}, indent=2))
-sys.exit(1 if any("error" in result for result in results) else 0)
+required = "--require-localstorage" in sys.argv[2:]
+missing = required and not paths
+print(json.dumps({"reader": "independent Python SQLite mode=ro query_only", "root": str(root),
+                  "requireLocalStorage": required, "missingRequiredDatabases": missing, "results": results}, indent=2))
+sys.exit(1 if missing or any("error" in result for result in results) else 0)
