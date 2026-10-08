@@ -1,6 +1,6 @@
 # PR #203 — dónde está la evidencia retirada del árbol
 
-El PR #203 reunía código de producto, pruebas permanentes, herramientas de investigación y ~5 MB de evidencia (404 ficheros). Para que lo que se integra sea sólo lo que ejecuta la aplicación y la CI, **la evidencia y las herramientas de investigación se retiraron del árbol en un único commit** (el último de esta rama, `git revert`‑able). **No se reescribió historia ni se alteró ningún resultado**: todo sigue, byte a byte, en:
+El PR #203 reunía código de producto, pruebas permanentes, herramientas de investigación y ~5 MB de evidencia (404 ficheros). Para que lo que se integra sea sólo lo que ejecuta la aplicación y la CI, **la evidencia y las herramientas de investigación se retiraron del árbol en dos commits consecutivos**: `7aa4717` (las supresiones; su mensaje describe sólo la sonda y la guía, que también incluye) y `b53c7c9` (reescritura de enlaces, este índice, recorte de `p06-certification.yml` y sondas sólo manuales). Para restaurar el árbol anterior basta `git revert b53c7c9 7aa4717` (en ese orden). **No se reescribió historia ni se alteró ningún resultado**: todo sigue, byte a byte, en:
 
 | Qué | Dónde (inmutable) |
 |---|---|
