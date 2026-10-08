@@ -68,7 +68,13 @@ async function measure(load) {
         const afterSettle = localStorage.getItem(k);
         let staleMs = null;
         if (afterOneTask !== 'B') staleMs = firstFreshMs ?? (afterSettle === 'B' ? settleMs : 'beyond-settle');
-        resolve({ atGrant, afterOneTask, afterSettle, staleMs });
+        // Tail: when the window did not cover the lag, keep polling to learn how long it actually was.
+        let tailMs = null;
+        if (afterSettle !== 'B') {
+          while (localStorage.getItem(k) !== 'B' && performance.now() - grantedAt < 3000) await new Promise((r) => setTimeout(r, 1));
+          tailMs = localStorage.getItem(k) === 'B' ? Math.round(performance.now() - grantedAt) : 'over-3s';
+        }
+        resolve({ atGrant, afterOneTask, afterSettle, staleMs, tailMs });
       });
     }), { k: key, settleMs: SETTLE_MS });
     await b.evaluate((k) => { localStorage.setItem(k, 'B'); window.__release(); }, key);
@@ -82,6 +88,7 @@ async function measure(load) {
     staleAtGrant: stale('atGrant'), staleAfterOneTask: stale('afterOneTask'), staleAfterSettle: stale('afterSettle'), settleMs: SETTLE_MS,
     lagsMs: lags, maxLagMs: Math.max(0, ...lags.filter((v) => typeof v === 'number')),
     neverFresh: lags.filter((v) => v === 'beyond-settle').length,
+    beyondSettleTailsMs: samples.map((x) => x.tailMs).filter((v) => v !== null),
   };
 }
 
