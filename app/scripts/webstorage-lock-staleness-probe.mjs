@@ -43,13 +43,14 @@ async function measure(load) {
       window.__w = Array.from({ length: 4 }, () => new Worker(URL.createObjectURL(new Blob([code]))));
     });
   }
+  await a.bringToFront(); // A takes the timings: a hidden page's timers are throttled
   const samples = [];
   for (let i = 0; i < ITERATIONS; i += 1) {
     const key = `probe.${load}.${i}`;
     await a.evaluate((k) => localStorage.setItem(k, 'A'), key);
     await b.evaluate((k) => { window.__release = null; window.__held = false;
       void navigator.locks.request('probe:' + k, () => new Promise((resolve) => { window.__release = resolve; window.__held = true; })); }, key);
-    await b.waitForFunction(() => window.__held);
+    await b.waitForFunction(() => window.__held, undefined, { polling: 10 }); // not rAF: a background WebKit page never ticks it
     // A queues for the lock; it records what it reads at the grant, after one task, and until fresh.
     const pending = a.evaluate(({ k, settleMs }) => new Promise((resolve) => {
       navigator.locks.request('probe:' + k, async () => {

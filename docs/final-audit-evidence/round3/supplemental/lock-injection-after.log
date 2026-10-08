@@ -1,3 +1,0 @@
-sha=c5ba08e7629ceffda2d007ef8c045ee8b7f16f8c dirty=true browser=chromium regression-source=Codex-d26d86b
-{"id":"lock-rejection-never-bypasses-exclusion","preserved":true,"correct":true,"rejectedCalls":6,"exportOutcome":{"ok":false,"reason":"unsaved"},"messages":["No se pudo obtener acceso para guardar. Se conserva la copia pendiente; vuelve a intentarlo.","No se pudo obtener acceso para guardar. Se conserva la copia pendiente; vuelve a intentarlo.","No se pudo obtener una lectura segura del viaje. No se ha entregado un respaldo como si estuviera completo."]}
-Persistence regressions: 1 pass, 0 fail (expected guarantees)

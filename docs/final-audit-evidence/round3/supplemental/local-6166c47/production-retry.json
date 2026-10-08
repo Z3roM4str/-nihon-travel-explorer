@@ -1,7 +1,0 @@
-{
-  "buildSha": "6166c47c30bd09481268708d6674e258d8f469cf",
-  "protectionVisibleBeforeRetry": true,
-  "detected": "Hay datos almacenados que Nihon no puede leer\n\nLa lista de viajeros y de lugares de Quiero ir, almacenado en este navegador, es de una versión más reciente de Nihon y esta no sabe leerlo.\n\nLos hemos dejado exactamente como estaban: no se ha borrado ni cambiado nada. Mientras tanto la aplicación empieza en blanco y lo que hagas no se conservará.\n\nDescargar copia de lo conservado\nEmpezar de nuevo (con copia aparte)\nAhora no",
-  "preserved": true,
-  "actual": "{\"version\":2,\"travellers\":[{\"id\":\"p1\",\"label\":\"Synthetic A\"},{\"id\":\"p2\",\"label\":\"Synthetic B\"}],\"activeTravellerId\":\"p1\",\"interests\":[],\"marker\":\"protected original\"}"
-}

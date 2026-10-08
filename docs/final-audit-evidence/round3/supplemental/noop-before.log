@@ -1,3 +1,0 @@
-sha=c5ba08e7629ceffda2d007ef8c045ee8b7f16f8c dirty=true browser=chromium regression-source=Codex-d26d86b
-{"id":"recovered-lock-clears-safe-noop-problem-without-writing","correct":false,"rejected":{"ok":false,"reason":"unsaved"},"recovered":{"ok":false,"reason":"unsaved"},"remaining":[{"key":"nihon.travellers.v1","message":"No se pudo obtener acceso para guardar. Se conserva la copia pendiente; vuelve a intentarlo.","blocking":true},{"key":"export","message":"No se pudo obtener una lectura segura del viaje. No se ha entregado un respaldo como si estuviera completo.","blocking":false}]}
-Persistence regressions: 0 pass, 1 fail (expected guarantees)

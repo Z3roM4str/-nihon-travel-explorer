@@ -1,4 +1,0 @@
-sha=f548570686e3a5e13280c7ea41d72db76dc1503c dirty=true browser=chromium regression-source=Codex-d26d86b
-{"id":"second-failed-restore-keeps-first-preimage","correct":true,"preimageKept":true}
-{"id":"preimage-copy-failure-does-not-leave-unstarted-restore-block","correct":true,"interestAccepted":true}
-Persistence regressions: 2 pass, 0 fail (expected guarantees)
