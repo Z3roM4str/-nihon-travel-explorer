@@ -13,7 +13,8 @@ import { pressOfferedReload } from "./lib/h03-reload.mjs";
  *   T4  recarga sana                                                                                → 1 intento y sin informe;
  *   T5  recarga perdida en las 3 pulsaciones permitidas                                            → fallo estricto (la salida ofrecida debe funcionar);
  *   T7  perdida dos veces y la tercera recarga                                                       → cobertura parcial, 3 pulsaciones;
- *   T6  el proceso de red del motor se reemplazó y la petición llegó al servidor sin respuesta      → cobertura parcial + 2.ª pulsación estricta.
+ *   T6  el proceso de red del motor se reemplazó y la petición llegó al servidor sin respuesta      → fallo estricto.
+ *   T8  el botón no navega y el proceso de red se reemplazó                                         → fallo estricto.
  *
  *   NIHON_BROWSER=webkit|chromium  NIHON_PROBE_TIMEOUT_MS=1500
  */
@@ -35,7 +36,9 @@ const server = createServer((req, res) => {
 });
 await new Promise((ok) => server.listen(0, "127.0.0.1", ok));
 const base = `http://127.0.0.1:${server.address().port}/`;
-const browser = await (BROWSER === "webkit" ? webkit : chromium).launch();
+const browser = await (BROWSER === "webkit" ? webkit : chromium).launch(
+  BROWSER === "chromium" && process.env.NIHON_CHROMIUM_PATH ? { executablePath: process.env.NIHON_CHROMIUM_PATH } : {}
+);
 
 const results = [];
 const check = (id, label, ok, extra) => {
@@ -87,7 +90,8 @@ try {
   await scenario("T4", "recarga sana → un intento y sin informe", { expect: "1 intento" });
   await scenario("T5", "recarga perdida en las tres pulsaciones → fallo estricto en la última", { drop: 3, keepDropping: true, expectReports: 2, expect: "lanza" });
   await scenario("T7", "recarga perdida dos veces y la tercera funciona → cobertura parcial y 3 pulsaciones", { drop: 2, keepDropping: true, expectReports: 2, expect: "3 intentos" });
-  await scenario("T6", "proceso de red reemplazado + petición sin respuesta → cobertura parcial y 2.ª pulsación", { hold: 1, replaced: true, expect: "2 intentos" });
+  await scenario("T6", "proceso de red reemplazado + petición recibida sin respuesta → fallo estricto", { hold: 1, replaced: true, expect: "lanza" });
+  await scenario("T8", "proceso de red reemplazado + botón que no navega → fallo estricto", { ignoreClick: true, replaced: true, expect: "lanza" });
 } finally {
   await browser.close();
   server.closeAllConnections?.();
