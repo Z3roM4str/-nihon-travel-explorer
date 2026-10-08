@@ -37,7 +37,7 @@ async function measure(load) {
     });
   }
   await a.bringToFront();
-  await a.evaluate(() => { window.__events = []; addEventListener('storage', (e) => window.__events.push({ key: e.key, old: e.oldValue, new: e.newValue })); });
+  await a.evaluate(() => { window.__events = []; addEventListener('storage', (e) => window.__events.push({ key: e.key, old: e.oldValue, new: e.newValue, ownArea: e.storageArea === window.localStorage })); });
   const samples = [];
   for (let i = 0; i < ITERATIONS; i += 1) {
     const key = `overwrite.${load}.${i}`;
@@ -70,6 +70,8 @@ async function measure(load) {
     // In a stale overwrite, did A receive an event that carries B's document?
     staleWithEventCarryingB: stale.filter((s) => s.events.some((e) => e.new === 'B-DOCUMENT')).length,
     staleWithAnyEvent: stale.filter((s) => s.events.length > 0).length,
+    // Product guard needs `event.storageArea === localStorage`: does the real event satisfy it?
+    staleEventsWithOwnArea: stale.filter((s) => s.events.some((e) => e.new === 'B-DOCUMENT' && e.ownArea)).length,
     staleBackingIsA: stale.filter((s) => s.backing === 'A-OVERWRITE').length,
     staleBackingIsB: stale.filter((s) => s.backing === 'B-DOCUMENT').length,
     staleAViewIsB: stale.filter((s) => s.finalA === 'B-DOCUMENT').length,

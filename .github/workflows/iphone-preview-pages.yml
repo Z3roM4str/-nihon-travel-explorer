@@ -33,6 +33,9 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
       - run: npm ci
+      - name: Leer sólo las dos bases históricas de D5 para ejecutar sus contratos
+        run: |
+          git fetch --no-tags --depth=1 origin b854db384c952e827b86d1bb35cac7caa70b035a 2a10ad3f11cd91a7d739e85307f04da9411bf5d1
       - run: npm test
       - name: Build con la ruta base del repositorio
         run: npx tsc -b && npx vite build --base "/${GITHUB_REPOSITORY#*/}/"

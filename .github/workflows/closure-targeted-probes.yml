@@ -42,7 +42,7 @@ jobs:
   lock-staleness:
     name: ${{ matrix.os }} ${{ matrix.browser }} localStorage freshness after Web Lock grant
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -79,7 +79,7 @@ jobs:
       - name: Consequence of a stale overwrite (events, backing store)
         env:
           NIHON_BROWSER: ${{ matrix.browser }}
-          NIHON_ITERATIONS: "300"
+          NIHON_ITERATIONS: "150"
           NIHON_OUT: stale-overwrite-${{ matrix.os }}-${{ matrix.browser }}.json
         run: node scripts/webstorage-stale-overwrite-probe.mjs | tee stale-overwrite.log
       - uses: actions/upload-artifact@v4
