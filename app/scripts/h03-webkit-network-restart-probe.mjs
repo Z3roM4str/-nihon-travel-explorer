@@ -5,6 +5,7 @@ import { tmpdir, availableParallelism } from "node:os";
 import { Worker } from "node:worker_threads";
 import { execFileSync } from "node:child_process";
 import { webkit } from "playwright";
+import { snapshotProfile, storageValues, readProfileInNewProcess } from "./lib/h03-profile-evidence.mjs";
 
 // Causal counterfactual for the spontaneous restart captured under a real reset.
 // No Nihon code, React, Storage wrappers, or application writes after reload.
@@ -58,6 +59,8 @@ try {
       const candidates = processes().filter(p => !baseline.has(p.pid));
       if (candidates.length !== 1) throw new Error(`Refusing to kill ambiguous NetworkProcess: ${JSON.stringify(candidates)}`);
       const victim = candidates[0];
+      const caseOut = resolve(out, `${profileKind}-${iteration}`);
+      const diskBefore = profile ? snapshotProfile(profile, `${caseOut}/before-kill`) : null;
       process.kill(victim.pid, "SIGKILL");
       // A deliberate process death may fail the in-flight first navigation.
       // Record it, then obtain the storage through an independent page. This
@@ -70,7 +73,21 @@ try {
       const current = processes().filter(p => p.ppid === victim.ppid);
       const restarted = current.some(p => p.pid !== victim.pid) && !current.some(p => p.pid === victim.pid);
       const expectedLocal = profile ? original : null;
-      const result = { profileKind, iteration, recentWrite, checkpoint, writeAgeMs: profile && recentWrite ? 25000 : null, before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal, ok: before.local === original && restarted && after.local === expectedLocal };
+      const diskAfterRestart = profile ? snapshotProfile(profile, `${caseOut}/after-restart-before-close`) : null;
+      let reopened = null, diskAfterClose = null;
+      if (profile) {
+        await context.close(); context = null;
+        diskAfterClose = snapshotProfile(profile, `${caseOut}/after-close`);
+        reopened = await readProfileInNewProcess({ browserType: webkit, profile, url: base });
+      }
+      const diskQueryable = !profile || [diskBefore, diskAfterRestart, diskAfterClose].every(snapshot => snapshot.errors.length === 0 && storageValues(snapshot).length > 0);
+      const result = { profileKind, iteration, recentWrite, checkpoint, minimumWriteAgeMs: profile && recentWrite ? 25000 : null,
+        before, after, initialNavigationError, killed: victim, current, restarted, expectedLocal,
+        diskBefore, diskAfterRestart, diskAfterClose, reopened,
+        persistedBefore: diskBefore ? storageValues(diskBefore) : null,
+        persistedAfterRestart: diskAfterRestart ? storageValues(diskAfterRestart) : null,
+        persistedAfterClose: diskAfterClose ? storageValues(diskAfterClose) : null,
+        diskQueryable, ok: before.local === original && restarted && after.local === expectedLocal && (!profile || reopened.raw === original) && diskQueryable };
       results.push(result); console.log(JSON.stringify(result));
     } catch (error) { const result = { profileKind, iteration, ok: false, error: String(error) }; results.push(result); console.log(JSON.stringify(result)); }
     finally { await context?.close(); if (profile) rmSync(profile, { recursive: true, force: true }); }
