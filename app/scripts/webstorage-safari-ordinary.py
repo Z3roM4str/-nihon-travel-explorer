@@ -21,8 +21,11 @@ result = {'sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True
 servers = []
 
 def command(args):
-    p = subprocess.run(args, capture_output=True, text=True, timeout=8)
-    return {'returncode': p.returncode, 'stdout': p.stdout, 'stderr': p.stderr}
+    try:
+        p = subprocess.run(args, capture_output=True, text=True, timeout=8)
+        return {'returncode': p.returncode, 'stdout': p.stdout, 'stderr': p.stderr}
+    except subprocess.TimeoutExpired as error:
+        return {'returncode': -1, 'stdout': str(error.stdout or ''), 'stderr': str(error), 'timeoutSeconds': 8}
 
 def apple(lines):
     r = command(['osascript', '-e', '\n'.join(lines)])
