@@ -125,6 +125,53 @@ describe("diario de persistencia: protecciones en cada frontera", () => {
     expect(JSON.parse(shared.raw).count).toBe(11);
     expect(JSON.parse(views.a).count).toBe(11);
   });
+  describe("sobrescritura sobre una lectura obsoleta que ni el margen cubre", () => {
+    const classify = (value: string) => { try { return (JSON.parse(value) as Doc).version > 1 ? "incompatible" as const : "valid" as const; } catch { return "invalid" as const; } };
+    /** `backing` es el almacén real; `raw` (la vista de esta pestaña) sigue en el valor anterior hasta que se escribe. */
+    function staleStore(original: string) {
+      const extra = new Map<string, string>(); let backing = original; const staleView = raw;
+      adapter.classify = classify;
+      adapter.storage.getItem = (k) => (k === key ? raw : extra.get(k) ?? null);
+      adapter.storage.setItem = (k, v) => { if (k === key) { writes.push(v); raw = v; backing = v; } else extra.set(k, v); };
+      return { extra, backing: () => backing, staleView, publishedByOther: () => { backing = original; } };
+    }
+    it.each(["{invalid-json", JSON.stringify({ version: 2, count: 77 })])(
+      "restituye el documento protegido sobrescrito, lo conserva aparte y deja el cambio en la copia pendiente: %s", async (original) => {
+        const s = staleStore(original);
+        const store = new StoredDocumentStore(adapter);
+        store.update((doc) => ({ ...doc, count: 1 }));
+        await flushStore(store); // lee la vista obsoleta, la ve válida y escribe encima de `original`
+        expect(JSON.parse(s.backing()).count).toBe(1);
+        // La invalidación tardía llega como evento con el documento sobrescrito.
+        await store.handleForeignValue(original);
+        expect(s.backing()).toBe(original);
+        expect([...s.extra].some(([k, v]) => k.startsWith("nihon.recovered.") && k.endsWith(`.${key}`) && v === original)).toBe(true);
+        expect(readPendingCopy(key)).toContain('\\"count\\":1');
+        expect(getPersistenceProblems().some((p) => p.key === key && p.blocking)).toBe(true);
+        const writesAfter = writes.length;
+        store.update((doc) => ({ ...doc, count: 2 })); await flushStore(store);
+        expect(writes.length).toBe(writesAfter); // protegido otra vez: nada vuelve a escribir encima
+      }
+    );
+    it("no restituye si después escribió otra cosa (sólo conserva la copia)", async () => {
+      const original = "{invalid-json"; const s = staleStore(original);
+      const store = new StoredDocumentStore(adapter);
+      store.update((doc) => ({ ...doc, count: 1 })); await flushStore(store);
+      const third = JSON.stringify({ version: 1, count: 9, _w: ["third"] }); adapter.storage.setItem(key, third); writes.pop();
+      await store.handleForeignValue(original);
+      expect(s.backing()).toBe(third);
+      expect([...s.extra.values()]).toContain(original);
+    });
+    it("no toca nada si el documento protegido sigue en el almacenamiento, ni si lo ajeno es válido", async () => {
+      const original = "{invalid-json"; const s = staleStore(original);
+      raw = original; // esta pestaña sí lo ve
+      const store = new StoredDocumentStore(adapter);
+      await store.handleForeignValue(original);
+      await store.handleForeignValue(JSON.stringify({ version: 1, count: 3, _w: ["other"] }));
+      await store.handleForeignValue(null);
+      expect(writes).toEqual([]); expect(s.extra.size).toBe(0); expect(s.backing()).toBe(original);
+    });
+  });
   it("un lock rechazado no ejecuta la tarea y conserva la copia", async () => {
     vi.stubGlobal("navigator", { locks: { request: vi.fn().mockRejectedValue(new Error("denied")) } });
     const store = new StoredDocumentStore(adapter);

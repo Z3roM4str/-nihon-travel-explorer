@@ -30,9 +30,11 @@ async function setup(extra={}) {
     }
     const real=Storage.prototype.setItem, get=Storage.prototype.getItem;
     window.reviewStorageTrace=[];
-    Storage.prototype.getItem=function(k){const v=get.call(this,k);if(window.recordReviewStorage&&this===localStorage&&(k===DK||(k===TK&&window.recordReviewTravellers)))window.reviewStorageTrace.push({kind:'get',key:k,at:Date.now(),value:v});return v;};
-    Storage.prototype.setItem=function(k,v){if((window.failReviewWrites && (k===TK || k===DK)) || window.failReviewKey===k) throw new DOMException('synthetic quota','QuotaExceededError');const result=real.call(this,k,v);if(window.recordReviewStorage&&this===localStorage&&(k===DK||(k===TK&&window.recordReviewTravellers)))window.reviewStorageTrace.push({kind:'set',key:k,at:Date.now(),value:v});return result;};
-    window.addEventListener('storage', e=>{if(window.dropReviewEvents)e.stopImmediatePropagation();},true);
+    Storage.prototype.getItem=function(k){if(window.staleRead&&this===localStorage&&k===window.staleRead.key)return window.staleRead.value;const v=get.call(this,k);if(window.recordReviewStorage&&this===localStorage&&(k===DK||(k===TK&&window.recordReviewTravellers)))window.reviewStorageTrace.push({kind:'get',key:k,at:Date.now(),value:v});return v;};
+    Storage.prototype.setItem=function(k,v){if(window.staleRead&&this===localStorage&&k===window.staleRead.key&&!window.failReviewWrites)window.staleRead=null;if((window.failReviewWrites && (k===TK || k===DK)) || window.failReviewKey===k) throw new DOMException('synthetic quota','QuotaExceededError');const result=real.call(this,k,v);if(window.recordReviewStorage&&this===localStorage&&(k===DK||(k===TK&&window.recordReviewTravellers)))window.reviewStorageTrace.push({kind:'set',key:k,at:Date.now(),value:v});return result;};
+    window.heldReviewEvents=[];
+    window.addEventListener('storage', e=>{if(window.dropReviewEvents)e.stopImmediatePropagation();if(window.holdReviewEvents){window.heldReviewEvents.push({key:e.key,oldValue:e.oldValue,newValue:e.newValue});e.stopImmediatePropagation();}},true);
+    window.releaseHeldReviewEvents=()=>{window.holdReviewEvents=false;for(const h of window.heldReviewEvents.splice(0))window.dispatchEvent(new StorageEvent('storage',{key:h.key,oldValue:h.oldValue,newValue:h.newValue,storageArea:localStorage}));};
   },{TK,DK,t:travellers,d:draft,extra});
   const a=await ctx.newPage(); await a.goto(HARNESS_URL); await a.waitForFunction(()=>window.review);
   await a.waitForTimeout(100);
@@ -221,6 +223,27 @@ for (const replacement of ['{invalid-json', JSON.stringify({...travellers,versio
  documents.native=await independent.evaluate(key=>({documentId:crypto.randomUUID(),url:location.href,raw:localStorage.getItem(key),hasReview:!!window.review,hasTrace:!!window.reviewStorageTrace}),TK);
  const storageState=await ctx.storageState();
  await ctx.close();return {preserved:actual===replacement,correct:outcome.ok===false&&copy!==null&&copy.includes('JP-021'),exportOutcome:outcome,expected:replacement,actual,pendingCopy:copy,documents,storageState,profileKind:'private context; not a disk-durability claim'};
+});
+// Una lectura obsoleta MÁS LARGA que el margen tras el lock (el caso de 1 de cada 1.000 traspasos con carga, WebKit) lleva a
+// sobrescribir un documento protegido que otra pestaña acaba de publicar. Se modela con una vista obsoleta de 600 ms y la
+// invalidación (el evento `storage`) retenida hasta DESPUÉS de la escritura, que es el orden que mide la sonda sin Nihon.
+// Garantía: lo sobrescrito se restituye, se conserva aparte, el cambio queda en la copia pendiente y no se exporta.
+for (const replacement of ['{invalid-json', JSON.stringify({...travellers,version:2,marker:'future original'})]) await test('stale-overwrite-restores-protected-'+(replacement.startsWith('{invalid')?'invalid':'future'),async()=>{
+ const {ctx,a}=await setup();const b=await remote(ctx);await a.bringToFront();
+ const before=await a.evaluate(k=>localStorage.getItem(k),TK);
+ await hold(b,TK);
+ await a.evaluate(({k,v})=>{window.holdReviewEvents=true;window.staleRead={key:k,value:v};window.review.travellers.toggleSaved('JP-021');},{k:TK,v:before});
+ await a.waitForTimeout(100); // la escritura queda en cola tras el lock retenido
+ await b.evaluate(({key,value})=>{localStorage.setItem(key,value);window.releaseReviewLock();},{key:TK,value:replacement});
+ await a.waitForTimeout(500);
+ const overwritten=await a.evaluate(k=>localStorage.getItem(k),TK); // el daño del escenario: ya no es el original
+ await a.evaluate(()=>window.releaseHeldReviewEvents()); await a.waitForTimeout(600);
+ const actual=await a.evaluate(k=>localStorage.getItem(k),TK);
+ const recovered=await a.evaluate(k=>{for(let i=0;i<localStorage.length;i++){const n=localStorage.key(i);if(n.startsWith('nihon.recovered.')&&n.endsWith('.'+k))return localStorage.getItem(n);}return null;},TK);
+ const copy=await a.evaluate(k=>sessionStorage.getItem('nihon.pending.v1.'+k),TK);
+ const outcome=await a.evaluate(()=>window.review.backup.exportBackup());
+ await ctx.close();
+ return {scenarioOverwrote:overwritten!==replacement,preserved:actual===replacement,recoveredCopy:recovered===replacement,pendingKept:!!copy&&copy.includes('JP-021'),exportRefused:outcome.ok===false,correct:overwritten!==replacement&&actual===replacement&&recovered===replacement&&!!copy&&copy.includes('JP-021')&&outcome.ok===false,expected:replacement,actual,overwritten,exportOutcome:outcome};
 });
 for (const lineage of ['full','missing','malformed']) await test('ambiguous-lineage-'+lineage+'-survives-reload',async()=>{
  const history=Array.from({length:95},(_,i)=>'history-'+i);

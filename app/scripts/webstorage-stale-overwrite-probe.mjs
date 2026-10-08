@@ -82,4 +82,4 @@ const report = { browser: BROWSER, version: browser.version(), results: [] };
 for (const load of LOADS) { report.results.push(await measure(load)); console.log(JSON.stringify({ ...report.results.at(-1), examples: undefined })); }
 await browser.close(); server.close();
 writeFileSync(OUT, JSON.stringify(report, null, 2));
-console.log('RESULT ' + JSON.stringify(report.results.map(({ examples, ...rest }) => rest)));
+console.log('RESULT ' + JSON.stringify(report.results.map(({ examples: _examples, ...rest }) => rest)));

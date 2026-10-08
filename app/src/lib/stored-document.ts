@@ -89,6 +89,14 @@ function safeGet(storage: StorageLike, key: string): string | null {
   }
 }
 
+/** Clasifica una cadena que NO está (o ya no está) en el almacenamiento: p. ej. el `newValue` de un evento `storage`. */
+export function classifyTravellersRaw(raw: string): StoredStatus {
+  return classify(raw, TRAVELLERS_VERSION, parseTravellersDocument).status;
+}
+export function classifyDraftRaw(raw: string): StoredStatus {
+  return classify(raw, PLANNING_DRAFT_VERSION, parseStoredDraft).status;
+}
+
 /** Lee el documento de viajeros. El almacenamiento legado sólo se consulta cuando no hay documento. */
 export function readStoredTravellers(
   storage: StorageLike,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import {
-  isProtectedStatus, registerFlusher, runExclusive, setProtection, subscribeStorageReplaced,
-  type StorageLike, type StoredRead,
+  RECOVERED_KEY_PREFIX, isProtectedStatus, registerFlusher, runExclusive, setProtection, subscribeStorageReplaced,
+  type StorageLike, type StoredRead, type StoredStatus,
 } from "./lib/stored-document";
 import {
   cancelPendingWrites, clearPersistenceProblem, registerPersistenceRetry, reportPersistenceProblem,
@@ -12,6 +12,8 @@ export type StoredDocumentAdapter<T> = {
   key: string;
   storage: StorageLike;
   read: () => StoredRead<T>;
+  /** Clasifica una cadena ajena (el `newValue` de un evento `storage`); sin esto no se protege lo sobrescrito. */
+  classify?: (raw: string) => StoredStatus;
   initial: () => T;
   serialize: (doc: T) => string;
   parse: (raw: string) => T | null;
@@ -72,6 +74,8 @@ export class StoredDocumentStore<T> {
   private recoveredCopy: string | null = null;
   private recoveredWrites: string[][] = [];
   private lastWriteAt = 0;
+  /** Lo último que escribió ESTA pestaña, para distinguir su propia sobrescritura de la de otra. */
+  private lastWritten: string | null = null;
   private revision = 0;
   private flushedRevision = 0;
   private flight: Promise<void> | null = null;
@@ -236,11 +240,47 @@ export class StoredDocumentStore<T> {
       if (anchor) entry.anchors.push(anchor);
     }
     this.unconfirmed.push(...this.pending); this.pending = [];
-    this.raw = serialized; this.status = "valid"; this.dirty = false;
+    this.raw = serialized; this.lastWritten = serialized; this.status = "valid"; this.dirty = false;
     this.lastWriteAt = Date.now();
     setProtection(this.adapter.key, "valid"); clearPersistenceProblem(this.adapter.key);
     this.stash(); this.emit();
     setTimeout(() => this.verify(), VERIFY_AFTER_MS);
+  }
+  /**
+   * Una escritura sobre una lectura obsoleta no se puede evitar con certeza —localStorage no ofrece compare-and-set y
+   * la invalidación de otra pestaña puede llegar más tarde que cualquier margen—, pero SIEMPRE llega después como
+   * evento `storage` con el documento que se sobrescribió (medido sin Nihon en WebKit: 82/82 sobrescrituras obsoletas
+   * recibieron un evento con el `newValue` ajeno; `scripts/webstorage-stale-overwrite-probe.mjs`). Un documento ajeno
+   * PROTEGIDO (inválido o de versión futura) que ya no está en el almacenamiento se conserva siempre aparte y, si lo
+   * último escrito allí es lo de esta pestaña, se RESTITUYE; el cambio de esta pestaña queda en su copia pendiente.
+   * Un documento ajeno válido no necesita esto: su pestaña ve que falta en el linaje y reaplica su cambio.
+   */
+  handleForeignValue = (foreign: string | null): Promise<void> => {
+    const classify = this.adapter.classify;
+    if (foreign === null || !classify || !isProtectedStatus(classify(foreign))) return Promise.resolve();
+    return runExclusive(this.adapter.key, () => this.protectForeign(foreign))
+      .catch(() => this.problem("No se pudo comprobar si se sobrescribió un documento protegido de otra pestaña. Se conserva la copia pendiente."));
+  };
+  private protectForeign(foreign: string): void {
+    const storage = this.adapter.storage; const key = this.adapter.key;
+    let current: string | null;
+    try { current = storage.getItem(key); } catch { return; }
+    if (current === foreign) { this.sync(); return; } // sigue ahí: la protección ordinaria ya actúa
+    let preserved = false;
+    try {
+      const copyKey = `${RECOVERED_KEY_PREFIX}${new Date().toISOString().replace(/[:.]/g, "-")}.${key}`;
+      storage.setItem(copyKey, foreign); preserved = storage.getItem(copyKey) === foreign;
+    } catch { /* se informa abajo */ }
+    let restored = false;
+    if (this.lastWritten !== null && current === this.lastWritten) {
+      try { storage.setItem(key, foreign); restored = storage.getItem(key) === foreign; } catch { /* se informa abajo */ }
+    }
+    this.problem(restored
+      ? "Otra pestaña había publicado datos que esta no veía y se habían sobrescrito. Se han restituido tal cual y el cambio de esta pestaña queda en su copia pendiente."
+      : preserved
+        ? "Otra pestaña publicó datos protegidos que se han sobrescrito. Se ha guardado una copia aparte (nihon.recovered.*); no se ha escrito encima."
+        : "Otra pestaña publicó datos protegidos que se han sobrescrito y no se pudo guardar una copia. Descarga la copia de lo conservado antes de seguir.");
+    this.sync(); this.stash(); this.emit();
   }
   flush = (): Promise<void> => {
     if (this.flight) return this.flight;
@@ -298,6 +338,7 @@ export class StoredDocumentStore<T> {
     });
     window.addEventListener("storage", (event) => {
       if (event.key === null || event.key === this.adapter.key) {
+        if (event.key !== null && event.storageArea === window.localStorage) void this.handleForeignValue(event.newValue);
         if (this.sync() && (this.dirty || this.pending.length)) this.schedule();
       }
     });

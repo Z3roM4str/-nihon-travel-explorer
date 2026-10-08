@@ -45,6 +45,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { shortlistPlaceIds } from "./lib/travellers";
 import {
   isProtectedStatus,
+  classifyDraftRaw,
   readStoredDraft,
   readStoredTravellers,
 } from "./lib/stored-document";
@@ -199,6 +200,7 @@ export function usePlanningDraft(savedIds: readonly string[]) {
           : savedIdsRef.current;
       return { ...stored, doc: reconcileDraft(stored.doc, ids) };
     },
+    classify: classifyDraftRaw,
     initial: () => {
       // Tras sustituir/eliminar el borrador, el render aún puede conservar la lista anterior.
       // Un documento nuevo se crea con los viajeros vigentes, nunca con esa preimagen de React.

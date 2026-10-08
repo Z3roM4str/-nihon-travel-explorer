@@ -24,7 +24,7 @@ import {
 } from "./lib/travellers";
 import { divergenceEntries, type DivergenceEntry } from "./lib/interest-divergence";
 import { deviceStorage, reportPersistenceProblem } from "./lib/device-storage";
-import { readStoredTravellers } from "./lib/stored-document";
+import { classifyTravellersRaw, readStoredTravellers } from "./lib/stored-document";
 import { useStoredDocument, type StoredDocumentAdapter } from "./useStoredDocument";
 
 /**
@@ -76,6 +76,7 @@ const travellersAdapter: StoredDocumentAdapter<TravellersDocumentV1> = {
   key: TRAVELLERS_STORAGE_KEY,
   storage: browserStorage,
   read: () => readStoredTravellers(browserStorage, randomTravellerId),
+  classify: classifyTravellersRaw,
   initial: () => freshTravellersDocument(randomTravellerId),
   serialize: (doc) => JSON.stringify(doc),
   parse: (raw) => { try { return parseTravellersDocument(JSON.parse(raw)); } catch { return null; } },
